@@ -13,6 +13,9 @@
 
 #include <cassert>
 
+static constexpr unsigned int kUnsetOffset = 0;
+static constexpr unsigned int kAmbiguousOffset = 1;
+static constexpr unsigned int kMissingOffset = 2;
 
 namespace edm {
 
@@ -291,27 +294,63 @@ namespace edm {
   NoProcessProductResolver(std::vector<ProductResolverIndex> const&  matchingHolders,
                          std::vector<bool> const& ambiguous) :
     matchingHolders_(matchingHolders),
-    ambiguous_(ambiguous) {
+    ambiguous_(ambiguous),
+    lastCheckIndex_(ambiguous_.size() + kUnsetOffset),
+    lastSkipCurrentCheckIndex_(lastCheckIndex_.load()) {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
+  
+  ProductResolverBase::Resolution
+  NoProcessProductResolver::tryResolver(unsigned int index,
+                                        Principal const& principal,
+                                        bool skipCurrentProcess,
+                                        SharedResourcesAcquirer* sra,
+                                        ModuleCallingContext const* mcc) const {
+    ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[index]);
+    return productResolver->resolveProduct(principal, skipCurrentProcess, sra, mcc);
+  }
+
 
   ProductResolverBase::Resolution NoProcessProductResolver::resolveProduct_(Principal const& principal,
                                                              bool skipCurrentProcess,
                                                              SharedResourcesAcquirer* sra,
                                                              ModuleCallingContext const* mcc) const {
+    //See if we've already cached which Resolver we should call or if
+    // we know it is ambiguous
+    const unsigned int choiceSize = ambiguous_.size();
+    {
+      unsigned int checkCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
+      if( checkCacheIndex != choiceSize +kUnsetOffset) {
+        if (checkCacheIndex == choiceSize+kAmbiguousOffset) {
+          return ProductResolverBase::Resolution::makeAmbiguous();
+        } else if(checkCacheIndex == choiceSize+kMissingOffset) {
+          return Resolution(nullptr);
+        }
+        return tryResolver(checkCacheIndex, principal, skipCurrentProcess,
+                             sra,mcc);
+      }
+    }
+
+    std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
+    
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     for(unsigned int k : lookupProcessOrder) {
       assert(k < ambiguous_.size());
       if(k == 0) break; // Done
       if(ambiguous_[k]) {
+        updateCacheIndex = choiceSize + kAmbiguousOffset;
         return ProductResolverBase::Resolution::makeAmbiguous();
       }
       if (matchingHolders_[k] != ProductResolverIndexInvalid) {
-        ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
-        auto resolution =  productResolver->resolveProduct(principal, skipCurrentProcess, sra, mcc);
-        if(resolution.data() != nullptr) return resolution;
+        auto resolution = tryResolver(k,principal, skipCurrentProcess, sra,mcc);
+        if(resolution.data() != nullptr) {
+          updateCacheIndex = k;
+          return resolution;
+        }
       }
     }
+    
+    updateCacheIndex = choiceSize + kMissingOffset;
     return Resolution(nullptr);
   }
 
@@ -390,6 +429,9 @@ namespace edm {
   }
 
   void NoProcessProductResolver::resetProductData_(bool) {
+    const auto resetValue = ambiguous_.size()+kUnsetOffset;
+    lastCheckIndex_ = resetValue;
+    lastSkipCurrentCheckIndex_ = resetValue;
   }
 
   bool NoProcessProductResolver::singleProduct_() const {

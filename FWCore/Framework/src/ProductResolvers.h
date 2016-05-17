@@ -250,9 +250,17 @@ namespace edm {
       virtual ProductProvenance const* productProvenancePtr_() const override;
       virtual void resetProductData_(bool deleteEarly) override;
       virtual bool singleProduct_() const override;
+    
+      Resolution tryResolver(unsigned int index,
+                             Principal const& principal,
+                             bool skipCurrentProcess,
+                             SharedResourcesAcquirer* sra,
+                             ModuleCallingContext const* mcc) const;
 
       std::vector<ProductResolverIndex> matchingHolders_;
       std::vector<bool> ambiguous_;
+      mutable std::atomic<unsigned int> lastCheckIndex_;
+      mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
   };
 
   class SingleChoiceNoProcessProductResolver : public ProductResolverBase {
