@@ -277,12 +277,19 @@ l1t::EGamma l1t::CaloTools::egP4Demux(l1t::EGamma& eg) {
 
 l1t::Tau l1t::CaloTools::tauP4Demux(l1t::Tau& tau) {
 
-  return l1t::Tau( p4Demux(&tau),
-		   tau.hwPt(),
-		   tau.hwEta(),
-		   tau.hwPhi(),
-		   tau.hwQual(),
-		   tau.hwIso() );
+  l1t::Tau tmpTau ( p4Demux(&tau),
+		    tau.hwPt(),
+		    tau.hwEta(),
+		    tau.hwPhi(),
+		    tau.hwQual(),
+		    tau.hwIso());
+  tmpTau.setRawEt(tau.rawEt());
+  tmpTau.setIsoEt(tau.isoEt());
+  tmpTau.setNTT(tau.nTT());
+  tmpTau.setHasEM(tau.hasEM());
+  tmpTau.setIsMerged(tau.isMerged());
+
+  return tmpTau;
 
 }
 
@@ -334,12 +341,19 @@ l1t::EGamma l1t::CaloTools::egP4MP(l1t::EGamma& eg) {
 
 l1t::Tau l1t::CaloTools::tauP4MP(l1t::Tau& tau) {
 
-  return l1t::Tau( p4MP(&tau),
-		   tau.hwPt(),
-		   tau.hwEta(),
-		   tau.hwPhi(),
-		   tau.hwQual(),
-		   tau.hwIso() );
+  l1t::Tau tmpTau ( p4MP(&tau),
+		    tau.hwPt(),
+		    tau.hwEta(),
+		    tau.hwPhi(),
+		    tau.hwQual(),
+		    tau.hwIso());
+  tmpTau.setRawEt(tau.rawEt());
+  tmpTau.setIsoEt(tau.isoEt());
+  tmpTau.setNTT(tau.nTT());
+  tmpTau.setHasEM(tau.hasEM());
+  tmpTau.setIsMerged(tau.isMerged());
+
+  return tmpTau;
 }
 
 

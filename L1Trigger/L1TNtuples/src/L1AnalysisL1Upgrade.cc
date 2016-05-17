@@ -42,6 +42,11 @@ void L1Analysis::L1AnalysisL1Upgrade::SetTau(const edm::Handle<l1t::TauBxCollect
 	l1upgrade_.tauIPhi.push_back(it->hwPhi());
 	l1upgrade_.tauIso.push_back(it->hwIso());
 	l1upgrade_.tauBx .push_back(ibx);
+	l1upgrade_.tauRawEt.push_back(it->rawEt());
+	l1upgrade_.tauIsoEt.push_back(it->isoEt());
+	l1upgrade_.tauNTT.push_back(it->nTT());
+	l1upgrade_.tauHasEM.push_back(it->hasEM());
+	l1upgrade_.tauIsMerged.push_back(it->isMerged());
 	l1upgrade_.nTaus++;
       }
     }
