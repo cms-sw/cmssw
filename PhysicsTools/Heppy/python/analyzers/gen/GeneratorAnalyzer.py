@@ -135,6 +135,7 @@ class GeneratorAnalyzer( Analyzer ):
         for igp,gp in enumerate(good):
             gp.motherIndex = -1
             gp.sourceId    = 99
+            gp.promptHardFlag = gp.isPromptFinalState() or gp.isDirectPromptTauDecayProductFinalState() or gp.isHardProcess() 
             gp.genSummaryIndex = igp
             ancestor = None if gp.numberOfMothers() == 0 else gp.motherRef(0)
             while ancestor != None and ancestor.isNonnull():
@@ -148,7 +149,7 @@ class GeneratorAnalyzer( Analyzer ):
                 gp.sourceId = gp.pdgId()
             if gp.motherIndex != -1:
                 ancestor = good[gp.motherIndex]
-                if ancestor.sourceId != 99 and (ancestor.mass() > gp.mass() or gp.sourceId == 99):
+                if hasattr(ancestor, "sourceId") and ancestor.sourceId != 99 and (ancestor.mass() > gp.mass() or gp.sourceId == 99):
                     gp.sourceId = ancestor.sourceId
         event.generatorSummary = good
         # add the ID of the mother to be able to recreate last decay chains
