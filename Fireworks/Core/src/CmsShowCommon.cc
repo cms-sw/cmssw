@@ -156,26 +156,14 @@ void
 CmsShowCommon::randomizeColors()
 {
    //   printf("Doing random_shuffle on existing colors ...\n");
-
-   std::vector<Color_t> colv;
-   colv.reserve(64);
-   
-   for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-        i != m_context->eventItemsManager()->end(); ++i)
-   {
-      colv.push_back((*i)->defaultDisplayProperties().color());
-      }
-
-   std::random_shuffle(colv.begin(), colv.end());
-
+  
    int vi = 0;
    for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
         i != m_context->eventItemsManager()->end(); ++i, ++vi)
    {
       FWDisplayProperties prop = (*i)->defaultDisplayProperties();
 
-      //      int col = rand() % 34;
-      int col = colv[vi];
+      int col = rand() % 17; // randomize in first row of palette
       prop.setColor(col);
       (*i)->setDefaultDisplayProperties(prop);
 
