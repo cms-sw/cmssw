@@ -26,7 +26,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     relativeSumPtCut = cms.double(0.0),
     relativeSumPtOffset = cms.double(0.0),
 
-    minTauPtForNoIso = cms.bool(-99.), # minimum tau pt at which the isolation is completely relaxed. If negative, this is disabled
+    minTauPtForNoIso = cms.double(-99.), # minimum tau pt at which the isolation is completely relaxed. If negative, this is disabled
     
     applyPhotonPtSumOutsideSignalConeCut = cms.bool(False),
     maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
