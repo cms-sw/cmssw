@@ -3,6 +3,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -144,9 +145,7 @@ namespace ecaldqm
       float chStatus( sChStatus.getBinContent(id) );
       
       if ( entriesLS < minChannelEntries ) continue;
-      // Exclude problematic channels: see EcalChannelStatusCode.h
-      if ( chStatus != 0 )
-          continue;
+      if ( chStatus != EcalChannelStatusCode::kOk ) continue; // exclude problematic channels
       
       // Keep running count of timing mean, rms, and N_hits
       if ( id.subdetId() == EcalBarrel ) {

@@ -45,11 +45,11 @@ namespace ecaldqm
   void
   TimingTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
   {
-    // Fill separate MEs with only 4 LSs worth of stats
+    // Fill separate MEs with only 10 LSs worth of stats
     // Used to correctly fill Presample Trend plots:
-    // 1 pt ~ 4 LS in Trend plots
+    // 1 pt:10 LS in Trend plots
     meTimeMapByLS = &MEs_.at("TimeMapByLS");
-    if ( timestamp_.iLumi % 4 == 0 )
+    if ( timestamp_.iLumi % 10 == 0 )
       meTimeMapByLS->reset();
   }
 
