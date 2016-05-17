@@ -53,6 +53,11 @@ namespace L1Analysis
       tauIPhi.clear(); 
       tauIso.clear();
       tauBx.clear();
+      tauRawEt.clear();
+      tauIsoEt.clear();
+      tauNTT.clear();
+      tauHasEM.clear();
+      tauIsMerged.clear();
 
       nJets = 0;
       jetEt.clear();
@@ -105,6 +110,11 @@ namespace L1Analysis
     std::vector<short int> tauIPhi;
     std::vector<short int>    tauIso;
     std::vector<short int>    tauBx;
+    std::vector<short int> tauRawEt;
+    std::vector<short int> tauIsoEt;
+    std::vector<short int> tauNTT;
+    std::vector<short int> tauHasEM;
+    std::vector<short int> tauIsMerged;
 
     unsigned short int nJets;
     std::vector<float> jetEt;
