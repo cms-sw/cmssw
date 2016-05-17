@@ -12,6 +12,8 @@
  */
 class IntermediateHitTriplets {
 public:
+  using LayerPair = std::tuple<SeedingLayerSetsHits::LayerIndex,
+                               SeedingLayerSetsHits::LayerIndex>;
   using LayerTriplet = std::tuple<SeedingLayerSetsHits::LayerIndex,
                                   SeedingLayerSetsHits::LayerIndex,
                                   SeedingLayerSetsHits::LayerIndex>;
@@ -19,18 +21,31 @@ public:
 
   ////////////////////
 
-  class LayerTripletHitIndex {
+  class ThirdLayer {
   public:
-    LayerTripletHitIndex(const SeedingLayerSetsHits::SeedingLayerSet& layerPair, const SeedingLayerSetsHits::SeedingLayer& thirdLayer,
-                         size_t begin, LayerHitMapCache&& cache):
-      layerTriplet_(layerPair[0].index(), layerPair[1].index(), thirdLayer.index()),
-      hitsBegin_(begin),
+    ThirdLayer(const SeedingLayerSetsHits::SeedingLayer& thirdLayer, size_t hitsBegin):
+      thirdLayer_(thirdLayer.index()), hitsBegin_(hitsBegin)
+    {}
+
+  private:
+    SeedingLayerSetsHits::LayerIndex thirdLayer_;
+    size_t hitsBegin_;
+  };
+
+  ////////////////////
+
+  class LayerPairAndLayers {
+  public:
+    LayerPairAndLayers(const SeedingLayerSetsHits::SeedingLayerSet& layerPair,
+                       size_t thirdLayersBegin, LayerHitMapCache&& cache):
+      layerPair_(layerPair[0].index(), layerPair[1].index()),
+      thirdLayersBegin_(thirdLayersBegin),
       cache_(std::move(cache))
     {}
 
   private:
-    LayerTriplet layerTriplet_;
-    size_t hitsBegin_;
+    LayerPair layerPair_;
+    size_t thirdLayersBegin_;
     LayerHitMapCache cache_;
   };
 
@@ -44,38 +59,63 @@ public:
   void swap(IntermediateHitTriplets& rh) {
     std::swap(seedingLayers_, rh.seedingLayers_);
     std::swap(regions_, rh.regions_);
-    std::swap(layerTriplets_, rh.layerTriplets_);
+    std::swap(layerPairAndLayers_, rh.layerPairAndLayers_);
+    std::swap(thirdLayers_, rh.thirdLayers_);
     std::swap(hitTriplets_, rh.hitTriplets_);
   }
 
   void reserve(size_t nregions, size_t nlayersets, size_t ntriplets) {
     regions_.reserve(nregions);
-    layerTriplets_.reserve(nregions*nlayersets);
+    layerPairAndLayers_.reserve(nregions*nlayersets);
+    thirdLayers_.reserve(nregions*nlayersets);
     hitTriplets_.reserve(ntriplets);
   }
 
   void shrink_to_fit() {
     regions_.shrink_to_fit();
-    layerTriplets_.shrink_to_fit();
+    layerPairAndLayers_.shrink_to_fit();
+    thirdLayers_.shrink_to_fit();
     hitTriplets_.shrink_to_fit();
   }
 
   void beginRegion(const TrackingRegion *region) {
-    regions_.emplace_back(region, layerTriplets_.size());
+    regions_.emplace_back(region, layerPairAndLayers_.size());
   }
 
-  void addTriplets(const SeedingLayerSetsHits::SeedingLayerSet& layerPair, const SeedingLayerSetsHits::SeedingLayer& thirdLayer,
-                   OrderedHitTriplets::iterator hitTripletsBegin, OrderedHitTriplets::iterator hitTripletsEnd,
-                   LayerHitMapCache&& cache) {
-    layerTriplets_.emplace_back(layerPair, thirdLayer, std::distance(hitTripletsBegin, hitTripletsEnd), std::move(cache));
-    std::move(hitTripletsBegin, hitTripletsEnd, std::back_inserter(hitTriplets_)); // probably not much different from std::copy as we're just moving pointers...
+  void beginPair(const SeedingLayerSetsHits::SeedingLayerSet& layerPair, LayerHitMapCache&& cache) {
+    layerPairAndLayers_.emplace_back(layerPair, thirdLayers_.size(), std::move(cache));
+  };
+
+  void addTriplets(const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                   const OrderedHitTriplets& triplets,
+                   const std::vector<int>& thirdLayerIndex,
+                   const std::vector<size_t>& permutations) {
+    assert(triplets.size() == thirdLayerIndex.size());
+    assert(triplets.size() == permutations.size());
+
+    int prevLayer = -1;
+    for(size_t i=0, size=permutations.size(); i<size; ++i) {
+      // We go through the 'triplets' in the order defined by
+      // 'permutations', which is sorted such that we first go through
+      // triplets from (3rd) layer 0, then layer 1 and so on.
+      const size_t realIndex = permutations[i];
+
+      const int layer = thirdLayerIndex[realIndex];
+      if(layer != prevLayer) {
+        prevLayer = layer;
+        thirdLayers_.emplace_back(thirdLayers[layer], hitTriplets_.size());
+      }
+
+      hitTriplets_.emplace_back(triplets[realIndex]);
+    }
   }
 
 private:
   const SeedingLayerSetsHits *seedingLayers_;
 
   std::vector<RegionIndex> regions_;
-  std::vector<LayerTripletHitIndex> layerTriplets_;
+  std::vector<LayerPairAndLayers> layerPairAndLayers_;
+  std::vector<ThirdLayer> thirdLayers_;
   std::vector<OrderedHitTriplet> hitTriplets_;
 };
 

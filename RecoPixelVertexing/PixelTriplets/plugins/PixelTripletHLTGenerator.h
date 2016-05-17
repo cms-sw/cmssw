@@ -39,7 +39,7 @@ public:
                    const edm::Event& ev, const edm::EventSetup& es,
                    const HitDoublets& doublets,
                    const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
-                   std::vector<unsigned int> *thirdLayerHitBeginIndices,
+                   std::vector<int> *tripletLastLayerIndex,
                    LayerCacheType& layerCache);
 
     void hitTriplets(
@@ -57,7 +57,7 @@ public:
                    const RecHitsSortedInPhi ** thirdHitMap,
                    const std::vector<const DetLayer *> & thirdLayerDetLayer,
                    const int nThirdLayers,
-                   std::vector<unsigned int> *thirdLayerHitBeginIndices);
+                   std::vector<int> *tripletLastLayerIndex);
 
 private:
   const bool useFixedPreFiltering;
