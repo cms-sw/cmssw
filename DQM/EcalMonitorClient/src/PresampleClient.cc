@@ -3,6 +3,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -105,8 +106,7 @@ namespace ecaldqm
       float  chStatus( sChStatus.getBinContent(id) );
 
       if ( entriesLS < minChannelEntries_ ) continue;
-      // Exclude problematic channels: see EcalChannelStatusCode.h
-      if ( chStatus != 0 ) continue;
+      if ( chStatus != EcalChannelStatusCode::kOk ) continue; // exclude problematic channels
 
       // Get max/min
       // Min is effectively just 0
