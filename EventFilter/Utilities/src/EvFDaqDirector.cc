@@ -51,8 +51,8 @@ namespace evf {
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
-    emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",false)),
-    microMergeDisabled_(pset.getUntrackedParameter<bool>("microMergeDisabled",false)),
+    emptyLumisectionMode_(pset.getUntrackedParameter<bool>("emptyLumisectionMode",true)),
+    microMergeDisabled_(pset.getUntrackedParameter<bool>("microMergeDisabled",true)),
     mergeTypePset_(pset.getUntrackedParameter<std::string>("mergeTypePset","")),
     hostname_(""),
     bu_readlock_fd_(-1),
@@ -287,8 +287,8 @@ namespace evf {
     desc.addUntracked<bool>("requireTransfersPSet",false)->setComment("Require complete transferSystem PSet in the process configuration");
     desc.addUntracked<std::string>("selectedTransferMode","")->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
     desc.addUntracked<unsigned int>("fuLockPollInterval",2000)->setComment("Lock polling interval in microseconds for the input directory file lock");
-    desc.addUntracked<bool>("emptyLumisectionMode",false)->setComment("Enables writing stream output metadata even when no events are processed in a lumisection");
-    desc.addUntracked<bool>("microMergeDisabled",false)->setComment("Disabled micro-merging by the Output Module, so it is later done by hltd service");
+    desc.addUntracked<bool>("emptyLumisectionMode",true)->setComment("Enables writing stream output metadata even when no events are processed in a lumisection");
+    desc.addUntracked<bool>("microMergeDisabled",true)->setComment("Disabled micro-merging by the Output Module, so it is later done by hltd service");
     desc.addUntracked<std::string>("mergingPset","")->setComment("Name of merging PSet to look for merging type definitions for streams");
     desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
