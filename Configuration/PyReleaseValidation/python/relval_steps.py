@@ -778,20 +778,31 @@ steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu']=
 steps['GGToHtaurhonu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
 
 # normal fullSim workflows using gridpack LHE generator
-# LHE step
-steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=merge([{'--relval':'29000,100'},step1LHENormal,steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']])
-steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
-steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
-steps['VBFHToBB_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
+# LHE-GEN-SIM step
+step1LHEGenSimDefault = { '--relval':'9000,50',
+                          '-s':'LHE,GEN,SIM',
+                          '-n'            : 10,
+                          '--conditions'  : 'auto:run2_mc',
+                          '--beamspot'    : 'Realistic50ns13TeVCollision',
+                          '--datatier'    : 'GEN-SIM,LHE',
+                          '--eventcontent': 'FEVTDEBUG,LHE',
+                          '--era'         : 'Run2_2016',
+                        }
 
+def lhegensim(fragment,howMuch):
+    global step1LHEGenSimDefault
+    return merge([{'cfg':fragment},howMuch,step1LHEGenSimDefault])
 
-# GEN-SIM step
-steps['GENSIM_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_py8_Evt'] = merge([step1GENNormal,steps['Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen']])
-steps['GENSIM_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)])
-steps['GENSIM_TuneCUETP8M1_13TeV_VBFHZZ4Nu_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_3p_HToZZ4nu_M-125_LHE_pythia8_cff',step1HadronizerDefaults)])
-steps['GENSIM_TuneCUETP8M1_13TeV_VBFHBB_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_3p_HToBB_M-125_LHE_pythia8_cff',step1HadronizerDefaults)])
+steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=lhegensim('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cfi.py',Kby(9,50))
+steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,50))
+steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
+steps['VBFHToBB_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
 
-
+#GEN-SIM inputs for LHE-GEN-SIM workflows
+#steps['TTbar012Jets_NLO_Mad_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar012Jets_NLO_Mad_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToZZTo4L_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToZZTo4Nu_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['VBFHToBB_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
 
 #Sherpa
@@ -979,8 +990,8 @@ steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--con
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
 steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
-steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_25ns',},dataReco])
-steps['RECODR2_2016']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_2016',},dataReco])
+steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_25ns','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns'},dataReco])
+steps['RECODR2_2016']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_2016','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016'},dataReco])
 
 
 steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
