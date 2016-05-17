@@ -118,11 +118,13 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       {
       TGButton *butt;
       butt = new TGTextButton(hf, "Permute Colors");
+      butt->SetToolTipText("Randomize Collection Colors");
       hf->AddFrame(butt, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
       butt->Connect("Clicked()", "CmsShowCommonPopup", this, "permuteColors()");
 
 
       butt = new TGTextButton(hf, "Randomize Colors");
+      butt->SetToolTipText("Randomize Colors From Palette");
       hf->AddFrame(butt, new TGLayoutHints(kLHintsNormal, 0, 0, 2,2));
       butt->Connect("Clicked()", "CmsShowCommonPopup", this, "randomizeColors()");
       }
