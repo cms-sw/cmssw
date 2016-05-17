@@ -40,7 +40,7 @@ distribution.
 
 #include <boost/lexical_cast.hpp>
 
-bool TiXmlBase::condenseWhiteSpace = true;
+std::atomic<bool> TiXmlBase::condenseWhiteSpace{true};
 
 // Microsoft compiler security
 FILE* TiXmlFOpen( const char* filename, const char* mode )
