@@ -88,7 +88,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
   }
 
   // Write the json file in the open directory.
-  bpt::ptree pt = fillJson(fp.run_, fp.lumi_, histoFilePathName, transferDestination_, mergeType_ fms);
+  bpt::ptree pt = fillJson(fp.run_, fp.lumi_, histoFilePathName, transferDestination_, mergeType_, fms);
   write_json(openJsonFilePathName, pt);
   ::rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
 }
