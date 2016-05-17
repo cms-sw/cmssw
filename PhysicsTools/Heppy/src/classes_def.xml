@@ -15,6 +15,7 @@
   <class name="heppy::Apc" transient="true" />
   <class name="heppy::Megajet" transient="true" />
   <class name="heppy::ReclusterJets"  transient="true"/>
+  <class name="heppy::JetUtils"  transient="true"/>
   <class name="heppy::IsolationComputer"  transient="true"/>
 
   <!--<class name="heppy::SimpleElectron" transient="true" />-->
