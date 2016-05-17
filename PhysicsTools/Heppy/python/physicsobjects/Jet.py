@@ -28,13 +28,17 @@ _btagWPs = {
     "CSVM": ("combinedSecondaryVertexBJetTags", 0.679),
     "CSVT": ("combinedSecondaryVertexBJetTags", 0.898),
 ###https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X50ns
-    "CSVv2IVFL": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.605),
-    "CSVv2IVFM": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.890),
-    "CSVv2IVFT": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.990),
     "CMVAL": ("pfCombinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
     "CMVAM": ("pfCombinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
     "CMVAT": ("pfCombinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
     "CMVAv2M": ("pfCombinedMVAV2BJetTags", 0.185), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
+###https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X
+    "CSVv2IVFL": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.460),
+    "CSVv2IVFM": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.800),
+    "CSVv2IVFT": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.935),
+    "CMVAv2L": ("pfCombinedMVAV2BJetTags", -0.715), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
+    "CMVAv2M": ("pfCombinedMVAV2BJetTags", 0.185),  # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
+    "CMVAv2T": ("pfCombinedMVAV2BJetTags", 0.875),  # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
 
 }
 
@@ -49,11 +53,53 @@ class Jet(PhysicsObject):
         self._leadingTrack = None
         self._leadingTrackSearched = False
 
+    def rawEnergy(self):
+        return self.energy() * self.rawFactor()
+
+    # these energy fraction methods need to be redefined here 
+    # because the pat::Jet's currentJECLevel data member cannot be update easily by the calibrator 
+    # and then the C++ methods would be broken when new jet corrections are applied in Heppy
+    def chargedEmEnergyFraction(self):
+        return self.chargedEmEnergy()/self.rawEnergy()
+
+    def chargedHadronEnergyFraction(self):
+        return self.chargedHadronEnergy()/self.rawEnergy()
+
+    def chargedMuEnergyFraction(self):
+        return self.chargedMuEnergy()/self.rawEnergy()
+
+    def electronEnergyFraction(self):
+        return self.electronEnergy()/self.rawEnergy()
+
+    def muonEnergyFraction(self):
+        return self.muonEnergy()/self.rawEnergy()
+
+    def neutralEmEnergyFraction(self):
+        return self.neutralEmEnergy()/self.rawEnergy()
+
+    def neutralHadronEnergyFraction(self):
+        return self.neutralHadronEnergy()/self.rawEnergy()
+
+    def photonEnergyFraction(self):
+        return self.photonEnergy()/self.rawEnergy()
+
+
+    def HFHadronEnergyFraction(self):
+        return self.HFHadronEnergy()/self.rawEnergy()
+
+    def HFEMEnergyFraction(self):
+        return self.HFEMEnergy()/self.rawEnergy()
+
+    def hoEnergyFraction(self):
+        return self.hoEnergy()/self.rawEnergy()
+
+
+
     def jetID(self,name=""):
         if not self.isPFJet():
             raise RuntimeError("jetID implemented only for PF Jets")
         eta = abs(self.eta());
-        energy = (self.p4()*self.rawFactor()).energy();
+        energy = self.rawEnergy();
         chf = self.chargedHadronEnergy()/energy;
         nhf = self.neutralHadronEnergy()/energy;
         phf = self.neutralEmEnergy()/energy;
