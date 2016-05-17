@@ -37,10 +37,10 @@ XmlConfigReader::XmlConfigReader() :
   kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
   kTagRow(        XMLString::transcode("row")),
-  kAttrProcessor( XMLString::transcode("processor")),
+  kTagProcessor(  XMLString::transcode("processor")),
+  kTagRole(       XMLString::transcode("role")),
+  kTagCrate(      XMLString::transcode("crate")),
   kAttrId(        XMLString::transcode("id")),
-  kAttrRole(      XMLString::transcode("role")),
-  kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
   kAttrDelim(     XMLString::transcode("delimiter")),
   kAttrModule(    XMLString::transcode("module")),
@@ -71,10 +71,10 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
   kTagRow(        XMLString::transcode("row")),
-  kAttrProcessor( XMLString::transcode("processor")),
+  kTagProcessor(  XMLString::transcode("processor")),
+  kTagRole(       XMLString::transcode("role")),
+  kTagCrate(      XMLString::transcode("crate")),
   kAttrId(        XMLString::transcode("id")),
-  kAttrRole(      XMLString::transcode("role")),
-  kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
   kAttrDelim(     XMLString::transcode("delimiter")),
   kAttrModule(    XMLString::transcode("module")),
@@ -163,15 +163,36 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& a
     return;
   }
   aTrigSystem.setSystemId(_toString(element->getAttribute(kAttrId)));
-  DOMNodeList* processors = element->getElementsByTagName(kAttrProcessor);
+  DOMNodeList* processors = element->getElementsByTagName(kTagProcessor);
   const  XMLSize_t nodeCount = processors->getLength();
 
   for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
     DOMNode* currentNode = processors->item(xx);
     if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element 
       DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
-      aTrigSystem.addProcRole(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrRole)));
-      aTrigSystem.addProcCrate(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrCrate)));
+      std::string procStr = _toString(currentElement->getAttribute(kAttrId));
+
+      DOMNodeList* roles = currentElement->getElementsByTagName(kTagRole);
+      // roles of this processor (should be only one)
+      for (XMLSize_t i = 0; i < roles->getLength(); ++i) {
+        DOMNodeList* roleChilds = roles->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < roleChilds->getLength(); ++j) {
+          if (roleChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addProcRole(procStr, _toString(roleChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
+
+      DOMNodeList* crates = currentElement->getElementsByTagName(kTagCrate);
+      // crates of this processor (should be only one)
+      for (XMLSize_t i = 0; i < crates->getLength(); ++i) {
+        DOMNodeList* crateChilds = crates->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
+          if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addProcCrate(procStr, _toString(crateChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
     }
   }
 }
