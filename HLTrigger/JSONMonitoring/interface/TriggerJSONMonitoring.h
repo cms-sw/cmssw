@@ -108,12 +108,8 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<trig
       rv->streamHLTDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamHLTRates");
       rv->streamL1Destination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamL1Rates");
       std::string mergeType;
-      mergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamHLTRates");
-      if (!mergeType.empty()) rv->streamHLTMergeType=mergeType;
-      else rv->streamHLTMergeType="JSNDATA";
-      mergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamL1Rates");
-      if (!mergeType.empty()) rv->streamL1MergeType=mergeType;
-      else rv->streamL1MergeType="JSNDATA";
+      rv->streamHLTMergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamHLTRates",evf::MergeTypeJSNDATA);
+      rv->streamL1MergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamL1Rates",evf::MergeTypeJSNDATA);
 
     }
     rv->wroteFiles = false;

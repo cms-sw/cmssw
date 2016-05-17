@@ -27,7 +27,11 @@
 
 using namespace jsoncollector;
 
+
 namespace evf {
+
+  //for enum MergeType
+  const std::vector<std::string> EvFDaqDirector::MergeTypeNames_ = {"","DAT","PB","JSNDATA"};
 
   namespace {
     struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
@@ -1015,13 +1019,15 @@ namespace evf {
     }
   }
  
-  std::string EvFDaqDirector::getStreamMergeType(std::string const& stream) const
+  std::string EvFDaqDirector::getStreamMergeType(std::string const& stream, MergeType defaultType)
   {
-    if (mergeTypePset_.empty()) return std::string();
     auto mergeTypeItr = mergeTypeMap_.find(stream.c_str());
     if (mergeTypeItr == mergeTypeMap_.end()) {
-           edm::LogWarning("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
-           return std::string();
+           edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
+           assert(defaultType<MergeTypeNames_.size());
+           std::string defaultName = MergeTypeNames_[defaultType];
+           mergeTypeMap_[stream] =  defaultName;
+           return defaultName;
     }
     return mergeTypeItr->second;
   }

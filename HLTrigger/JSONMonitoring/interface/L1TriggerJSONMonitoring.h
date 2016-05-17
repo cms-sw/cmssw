@@ -85,9 +85,7 @@ class L1TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<l1
     std::shared_ptr<l1Json::runVars> rv(new l1Json::runVars);
     if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
       rv->streamL1Destination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamL1Rates");
-      std::string mergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamL1Rates");
-      if (!mergeType.empty()) rv->streamL1MergeType=mergeType;
-      else rv->streamL1MergeType="JSNDATA";
+      rv->streamL1MergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamL1Rates",evf::MergeTypeJSNDATA);
     }
     rv->wroteFiles = false;
     return rv;
