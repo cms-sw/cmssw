@@ -33,7 +33,6 @@ for era in _cfg.allEras():
     locals()["_algos"+pf] = ["generalTracks"] + _cfg.iterationAlgos(era) + ["duplicateMerge"]
     locals()["_seedProducers"+pf] = _seedProd + _cfg.seedProducers(era)
     locals()["_trackProducers"+pf] = _trackProd + _cfg.trackProducers(era)
-del _algos_trackingLowPU[_algos_trackingLowPU.index("duplicateMerge")] # reproduce the "bug"
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
