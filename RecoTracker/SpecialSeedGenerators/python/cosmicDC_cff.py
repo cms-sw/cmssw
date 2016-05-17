@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 from RecoMuon.CosmicMuonProducer.cosmicMuons_cfi import *
 import RecoMuon.MuonIdentification.muons1stStep_cfi
-muonsForCosmicCDC = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone(
+muonsForCosmicDC = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone(
     inputCollectionLabels = cms.VInputTag("cosmicMuons"),
     inputCollectionTypes = cms.vstring('outer tracks'),
     fillIsolation = cms.bool(False),
     fillGlobalTrackQuality = cms.bool(False),
     fillGlobalTrackRefits = cms.bool(False),
 )
-muonsForCosmicCDC.TrackExtractorPSet.inputTrackCollection = cms.InputTag("cosmicMuons")
+muonsForCosmicDC.TrackExtractorPSet.inputTrackCollection = cms.InputTag("cosmicMuons")
 import RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi 
 hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
@@ -22,8 +22,8 @@ hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
     MinimalTolerance = cms.double(0.5),
     appendToDataLabel = cms.string(''),
 )
-cosmicCDCSeeds = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
-    src = cms.InputTag("muonsForCosmicCDC"),
+cosmicDCSeeds = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
+    src = cms.InputTag("muonsForCosmicDC"),
     cut = cms.string("pt > 2 && abs(eta)<1.2 && phi<0"),
     fromVertex = cms.bool(False),
     maxEtaForTOB = cms.double(1.5),
@@ -32,15 +32,15 @@ cosmicCDCSeeds = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons
 
 # Ckf pattern
 import RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff
-cosmicCDCCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
-    src = cms.InputTag( "cosmicCDCSeeds" ),
+cosmicDCCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
+    src = cms.InputTag( "cosmicDCSeeds" ),
 )
 
 # Track producer
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
-cosmicCDCTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
-    src = cms.InputTag( "cosmicCDCCkfTrackCandidates" ),
+cosmicDCTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
+    src = cms.InputTag( "cosmicDCCkfTrackCandidates" ),
 )
 
 # Final Sequence
-cosmicCDCTracksSeq = cms.Sequence( cosmicMuons * muonsForCosmicCDC * cosmicCDCSeeds * cosmicCDCCkfTrackCandidates * cosmicCDCTracks )
+cosmicDCTracksSeq = cms.Sequence( cosmicMuons * muonsForCosmicDC * cosmicDCSeeds * cosmicDCCkfTrackCandidates * cosmicDCTracks )
