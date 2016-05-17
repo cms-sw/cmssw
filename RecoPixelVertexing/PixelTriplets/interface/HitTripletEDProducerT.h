@@ -91,8 +91,9 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
 
   // match-making of pair and triplet layers
   std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(seedingLayerHits);
-  std::vector<unsigned int> thirdLayerHitBeginIndices;
-  thirdLayerHitBeginIndices.reserve(3); // Yes, vector is a bit overkill as there can be at most 3 3rd layers for a doublet. But better be consistent and migrate later everything to e.g. std::array or edm::VecArray. Except with phase1 there can be more than 3 3rd layers...
+  std::vector<int> tripletLastLayerIndex;
+  tripletLastLayerIndex.reserve(localRA_.upper());
+  std::vector<size_t> tripletPermutation; // used to sort the triplets according to their last-hit layer
 
   OrderedHitTriplets triplets;
   triplets.reserve(localRA_.upper());
@@ -118,12 +119,13 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
         }
         throw exp;
       }
+      const auto& thirdLayers = found->second;
 
       LayerHitMapCache hitCache;
       hitCache.extend(layerPair.cache());
 
-      thirdLayerHitBeginIndices.clear();
-      generator_.hitTriplets(region, triplets, iEvent, iSetup, layerPair.doublets(), found->second, &thirdLayerHitBeginIndices, hitCache);
+      tripletLastLayerIndex.clear();
+      generator_.hitTriplets(region, triplets, iEvent, iSetup, layerPair.doublets(), thirdLayers, &tripletLastLayerIndex, hitCache);
       if(triplets.empty())
         continue;
 
@@ -134,18 +136,20 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
         }
       }
       if(produceIntermediateHitTriplets_) {
-        if(thirdLayerHitBeginIndices.size() != trilayers.size()) {
-          throw cms::Exception("LogicError") << "thirdLayerHitBeginIndices.size() " << thirdLayerHitBeginIndices.size()
-                                             << " trilayers.size() " << trilayers.size();
+        if(tripletLastLayerIndex.size() != triplets.size()) {
+          throw cms::Exception("LogicError") << "tripletLastLayerIndex.size() " << tripletLastLayerIndex.size()
+                                             << " triplets.size() " << triplets.size();
         }
-        for(size_t i=0, size=trilayers.size(); i<size; ++i) {
-          const size_t begin = thirdLayerHitBeginIndices[i];
-          const size_t end = i<size ? thirdLayerHitBeginIndices[i+1] : triplets.size();
-          intermediateHitTriplets->addTriplets(found->first, found->second[i],
-                                               std::next(triplets.begin(), begin), std::next(triplets.begin(), end),
-                                               std::move(hitCache));
-        }
+        tripletPermutation.resize(tripletLastLayerIndex.size());
+        std::iota(tripletPermutation.begin(), tripletPermutation.end(), 0); // assign 0,1,2,...,N
+        std::stable_sort(tripletPermutation.begin(), tripletPermutation.end(), [&](size_t i, size_t j) {
+            return tripletLastLayerIndex[i] < tripletLastLayerIndex[j];
+          });
+
+        intermediateHitTriplets->addTriplets(thirdLayers, triplets, tripletLastLayerIndex, tripletPermutation);
       }
+
+      triplets.clear();
     }
   }
   localRA_.update(triplets_total);
