@@ -14,8 +14,18 @@ public:
   static const unsigned PreMixBits = 254;
 };
 
+class HcalQIE11DigitizerTraits {
+
+public:
+  typedef QIE11DigiCollection DigiCollection;
+  typedef QIE11DataFrame Digi;
+  typedef HcalElectronicsSim ElectronicsSim;
+  static constexpr double PreMixFactor = 10.0;
+  static const unsigned PreMixBits = 254;
+};
+
 template<class Traits>
-class CaloTDigitizerQIE10Run {
+class CaloTDigitizerQIE1011Run {
 public:
   typedef typename Traits::ElectronicsSim ElectronicsSim;
   typedef typename Traits::Digi Digi;

@@ -55,7 +55,6 @@ hcalSimParameters.ho.pixels = cms.int32(2500)
 hcalSimParameters.ho.photoelectronsToAnalog = cms.vdouble([3.0]*16)
 
 #turn on SiPMs in HB/HE
-hcalSimParameters.hb.siPMCells = [1]
 hcalSimParameters.hb.pixels = cms.int32(4500*4*2)
 hcalSimParameters.hb.photoelectronsToAnalog = cms.vdouble(10.0)
 hcalSimParameters.he.pixels = cms.int32(4500*4)

@@ -5,6 +5,7 @@
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
+#include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <math.h>
 
@@ -35,6 +36,12 @@ void HcalElectronicsSim::convert(CaloSamples & frame, Digi & result, CLHEP::HepR
 
 template<> 
 void HcalElectronicsSim::convert<QIE10DataFrame>(CaloSamples & frame, QIE10DataFrame & result, CLHEP::HepRandomEngine* engine) {
+  theAmplifier->amplify(frame, engine);
+  theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
+}
+
+template<> 
+void HcalElectronicsSim::convert<QIE11DataFrame>(CaloSamples & frame, QIE11DataFrame & result, CLHEP::HepRandomEngine* engine) {
   theAmplifier->amplify(frame, engine);
   theCoderFactory->coder(frame.id())->fC2adc(frame, result, theStartingCapId);
 }
@@ -71,6 +78,22 @@ void HcalElectronicsSim::premix<QIE10DataFrame>(CaloSamples & frame, QIE10DataFr
   }
 }
 
+template<>
+void HcalElectronicsSim::premix<QIE11DataFrame>(CaloSamples & frame, QIE11DataFrame & result, double preMixFactor, unsigned preMixBits){
+  uint16_t flag = 0;
+  for(int isample = 0; isample !=frame.size(); ++isample) {
+    uint16_t theADC = round(preMixFactor*frame[isample]);
+
+    if(theADC > preMixBits) {
+      theADC = result[isample].adc();
+	  flag |= 1<<isample; // set error bit as a flag
+    }
+
+    result.setSample(isample, theADC, result[isample].tdc(), result[isample].soi());
+  }
+  result.setFlags(flag);
+}
+
 template<class Digi>
 void HcalElectronicsSim::analogToDigitalImpl(CLHEP::HepRandomEngine* engine, CaloSamples & lf, Digi & result, double preMixFactor, unsigned preMixBits) {
   convert<Digi>(lf, result, engine);
@@ -84,7 +107,7 @@ void HcalElectronicsSim::analogToDigitalImpl<HcalUpgradeDataFrame>(CLHEP::HepRan
 }
 
 //TODO:
-//HcalTDC extension for QIE10?
+//HcalTDC extension for QIE10? and QIE11?
 
 void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, HBHEDataFrame & result, double preMixFactor, unsigned preMixBits) {
   analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
@@ -107,6 +130,10 @@ void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSam
 }
 
 void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, QIE10DataFrame & result, double preMixFactor, unsigned preMixBits) {
+  analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
+}
+
+void HcalElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, CaloSamples & lf, QIE11DataFrame & result, double preMixFactor, unsigned preMixBits) {
   analogToDigitalImpl(engine,lf,result,preMixFactor,preMixBits);
 }
 
