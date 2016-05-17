@@ -95,16 +95,17 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              btagging*
                              recoPFMET*
                              PFTau*
-                             reducedRecHits
+                             reducedRecHits*
+                             cosmicCDCTracksSeq
                              )
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*cosmicCDCTracksSeq*logErrorHarvester)
+reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
 
-reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking*cosmicCDCTracksSeq)
+reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
@@ -185,15 +186,15 @@ reconstruction_noTracking = reconstruction.copyAndExclude(noTrackingAndDependent
 
 
 #sequences with additional stuff
-reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*cosmicCDCTracksSeq*logErrorHarvester)
-reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*cosmicCDCTracksSeq*logErrorHarvester)
+reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*logErrorHarvester)
+reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*logErrorHarvester)
 
 #sequences without some stuffs
 #
-reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*cosmicCDCTracksSeq*logErrorHarvester)
+reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
 
 
 # define a standard candle. please note I am picking up individual
 # modules instead of sequences
 #
-reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence*cosmicCDCTracksSeq)
+reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
