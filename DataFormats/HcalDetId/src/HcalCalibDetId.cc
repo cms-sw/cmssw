@@ -40,9 +40,9 @@ HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value) : HcalOtherDetId(Hcal
 
 HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3)  : HcalOtherDetId(HcalCalibration) {
   id_|=(dt<<17);
-  id_|=(value1&0x1F);
+  id_|=(value1&0x3F)<<10;
   id_|=(value2&0x1F)<<5;
-  id_|=(value3&0x3F)<<10;
+  id_|=(value3&0x1F);
 }
 
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
