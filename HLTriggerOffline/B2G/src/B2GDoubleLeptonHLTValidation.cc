@@ -123,7 +123,7 @@ B2GDoubleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
     }
 
     for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
-      for (unsigned int j=0; j<vsPaths_.size(); j++) {triggerNames.triggerNames()[i].find(vsPaths_[j]) != std::string::npos
+      for (unsigned int j=0; j<vsPaths_.size(); j++) {
         if (triggerNames.triggerNames()[i].find(vsPaths_[j]) != std::string::npos) {
           hNumTriggerMon->Fill(j+0.5 );
         }
