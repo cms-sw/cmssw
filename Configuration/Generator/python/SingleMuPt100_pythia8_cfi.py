@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 generator = cms.EDFilter("Pythia8PtGun",
                          PGunParameters = cms.PSet(
-        MaxPt = cms.double(100.01),
-        MinPt = cms.double(99.99),
+        MaxPt = cms.double(100.0),
+        MinPt = cms.double(0.),
         ParticleID = cms.vint32(-13),
         AddAntiParticle = cms.bool(True),
         MaxEta = cms.double(2.5),
