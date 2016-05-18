@@ -151,6 +151,16 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       int isolBit = hwEtSum-hwFootPrint <= params_->egIsolationLUT()->data(lutAddress);       
       egamma.setHwIso(isolBit);
+      int hwIsoEnergy = hwEtSum-hwFootPrint;
+
+      // development vars
+      egamma.setTowerIPhi((short int)CaloTools::towerEta(cluster.hwEta()));
+      egamma.setTowerIEta((short int)CaloTools::towerPhi(cluster.hwEta(), cluster.hwPhi()));
+      egamma.setRawEt((short int)egamma.hwPt());
+      egamma.setIsoEt((short int)hwIsoEnergy);
+      egamma.setFootprintEt((short int)hwFootPrint);
+      egamma.setNTT((short int)nrTowers);
+      egamma.setShape((short int)returnShape(cluster));
       
       // Energy calibration
       // Corrections function of ieta, ET, and cluster shape
@@ -461,3 +471,25 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::trimmingLutIndex(unsi
   unsigned int index = iEtaNormed*128+shape;
   return index;
 }
+
+/*****************************************************************/
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnShape(const l1t::CaloCluster& clus)
+/*****************************************************************/
+{
+  l1t::CaloCluster clusCopy = clus;
+
+  unsigned int shape = 0;
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<2);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<2);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<3);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<3);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
+
+  return shape;
+}
+ 

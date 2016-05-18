@@ -38,12 +38,12 @@ namespace l1t {
   void setPUEt(short int et);
   void setPUDonutEt(int i, short int et);
 
-  short int towerIEta();
-  short int towerIPhi();
-  short int rawEt();
-  short int seedEt();
-  short int puEt();
-  short int puDonutEt(int i);
+  short int towerIEta() const;
+  short int towerIPhi() const;
+  short int rawEt() const;
+  short int seedEt() const;
+  short int puEt() const ;
+  short int puDonutEt(int i) const;
 
   private:
 
