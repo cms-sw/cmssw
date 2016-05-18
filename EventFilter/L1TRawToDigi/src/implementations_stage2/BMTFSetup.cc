@@ -61,7 +61,7 @@ namespace l1t {
    						if ( iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62 )
    							continue;
 
-   						if ( fw < 0)
+   						if ( fw < 2452619552)
    						   res[iL] = inputMuonsOld;
                      else
                         res[iL] = inputMuonsNew;
