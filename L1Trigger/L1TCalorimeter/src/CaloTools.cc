@@ -265,12 +265,21 @@ math::PtEtaPhiMLorentzVector l1t::CaloTools::p4Demux(l1t::L1Candidate* cand) {
 
 l1t::EGamma l1t::CaloTools::egP4Demux(l1t::EGamma& eg) {
   
-  return l1t::EGamma( p4Demux(&eg),
-		      eg.hwPt(),
-		      eg.hwEta(),
-		      eg.hwPhi(),
-		      eg.hwQual(),
-		      eg.hwIso() );
+ l1t::EGamma tmpEG( p4Demux(&eg),
+  		      eg.hwPt(),
+  		      eg.hwEta(),
+  		      eg.hwPhi(),
+  		      eg.hwQual(),
+  		      eg.hwIso() );
+ tmpEG.setTowerIPhi(eg.towerIPhi());
+ tmpEG.setTowerIEta(eg.towerIEta());
+ tmpEG.setRawEt(eg.rawEt());
+ tmpEG.setIsoEt(eg.isoEt());
+ tmpEG.setFootprintEt(eg.footprintEt());
+ tmpEG.setNTT(eg.nTT());
+ tmpEG.setShape(eg.shape());
+
+ return tmpEG;
 
 }
 
@@ -283,6 +292,8 @@ l1t::Tau l1t::CaloTools::tauP4Demux(l1t::Tau& tau) {
 		    tau.hwPhi(),
 		    tau.hwQual(),
 		    tau.hwIso());
+  tmpTau.setTowerIPhi(tau.towerIPhi());
+  tmpTau.setTowerIEta(tau.towerIEta());
   tmpTau.setRawEt(tau.rawEt());
   tmpTau.setIsoEt(tau.isoEt());
   tmpTau.setNTT(tau.nTT());
@@ -296,11 +307,23 @@ l1t::Tau l1t::CaloTools::tauP4Demux(l1t::Tau& tau) {
 
 l1t::Jet l1t::CaloTools::jetP4Demux(l1t::Jet& jet) {
 
-  return l1t::Jet( p4Demux(&jet),
+  
+  l1t::Jet tmpJet ( p4Demux(&jet),
 		   jet.hwPt(),
 		   jet.hwEta(),
 		   jet.hwPhi(),
 		   jet.hwQual() );
+  tmpJet.setTowerIPhi(jet.towerIPhi());
+  tmpJet.setTowerIEta(jet.towerIEta());
+  tmpJet.setRawEt(jet.rawEt());
+  tmpJet.setSeedEt(jet.seedEt());
+  tmpJet.setPUEt(jet.puEt());
+  tmpJet.setPUDonutEt(0,jet.puDonutEt(0));
+  tmpJet.setPUDonutEt(1,jet.puDonutEt(1));
+  tmpJet.setPUDonutEt(2,jet.puDonutEt(2));
+  tmpJet.setPUDonutEt(3,jet.puDonutEt(3));
+
+  return tmpJet;
   
 }
 
@@ -330,12 +353,22 @@ math::PtEtaPhiMLorentzVector l1t::CaloTools::p4MP(l1t::L1Candidate* cand) {
 
 l1t::EGamma l1t::CaloTools::egP4MP(l1t::EGamma& eg) {
 
-  return l1t::EGamma( p4MP(&eg),
-		      eg.hwPt(),
-		      eg.hwEta(),
-		      eg.hwPhi(),
-		      eg.hwQual(),
-		      eg.hwIso() );
+  l1t::EGamma tmpEG( p4MP(&eg),
+		     eg.hwPt(),
+		     eg.hwEta(),
+		     eg.hwPhi(),
+		     eg.hwQual(),
+		     eg.hwIso() );
+  tmpEG.setTowerIPhi(eg.towerIPhi());
+  tmpEG.setTowerIEta(eg.towerIEta());
+  tmpEG.setRawEt(eg.rawEt());
+  tmpEG.setIsoEt(eg.isoEt());
+  tmpEG.setFootprintEt(eg.footprintEt());
+  tmpEG.setNTT(eg.nTT());
+  tmpEG.setShape(eg.shape());
+  
+  return tmpEG;
+
 }
 
 
@@ -347,6 +380,8 @@ l1t::Tau l1t::CaloTools::tauP4MP(l1t::Tau& tau) {
 		    tau.hwPhi(),
 		    tau.hwQual(),
 		    tau.hwIso());
+  tmpTau.setTowerIPhi(tau.towerIPhi());
+  tmpTau.setTowerIEta(tau.towerIEta());
   tmpTau.setRawEt(tau.rawEt());
   tmpTau.setIsoEt(tau.isoEt());
   tmpTau.setNTT(tau.nTT());
@@ -359,11 +394,22 @@ l1t::Tau l1t::CaloTools::tauP4MP(l1t::Tau& tau) {
 
 l1t::Jet l1t::CaloTools::jetP4MP(l1t::Jet& jet) {
 
-  return l1t::Jet( p4MP(&jet),
+  l1t::Jet tmpJet ( p4MP(&jet),
 		   jet.hwPt(),
 		   jet.hwEta(),
 		   jet.hwPhi(),
 		   jet.hwQual() );
+  tmpJet.setTowerIPhi(jet.towerIPhi());
+  tmpJet.setTowerIEta(jet.towerIEta());
+  tmpJet.setRawEt(jet.rawEt());
+  tmpJet.setSeedEt(jet.seedEt());
+  tmpJet.setPUEt(jet.puEt());
+  tmpJet.setPUDonutEt(0,jet.puDonutEt(0));
+  tmpJet.setPUDonutEt(1,jet.puDonutEt(1));
+  tmpJet.setPUDonutEt(2,jet.puDonutEt(2));
+  tmpJet.setPUDonutEt(3,jet.puDonutEt(3));
+
+  return tmpJet;
 
 }
 
