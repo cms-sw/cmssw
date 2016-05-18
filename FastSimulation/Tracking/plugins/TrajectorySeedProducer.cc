@@ -1,7 +1,7 @@
 /*!
 
   NOTE: what is called here 'FastTrackPreCandidate' is currently still known as 'FastTrackerRecHitCombination'
-  
+
   TrajectorySeedProducer emulates the reconstruction of TrajectorySeeds in FastSim.
 
   The input data is a list of FastTrackPreCandidates.
@@ -13,7 +13,7 @@
   When such combination is found, a TrajectorySeed is reconstructed.
   Optionally, one can specify a list of hits to be ignored by TrajectorySeedProducer.
   (see parameter 'hitMasks')
-  
+
   The output data is the list of reconstructed TrajectorySeeds.
 
 */
@@ -32,7 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-// data formats 
+// data formats
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
@@ -63,16 +63,16 @@ class TrajectorySeedProducer
     : public edm::stream::EDProducer<>
 {
 private:
-    
+
     // tokens
 
     edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
-    edm::EDGetTokenT<std::vector<bool> > hitMasksToken;       
-    
+    edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
+
     // other data members
 
     std::vector<std::vector<TrackingLayer>> seedingLayers;
-    SeedingTree<TrackingLayer> _seedingTree; 
+    SeedingTree<TrackingLayer> _seedingTree;
 
     std::unique_ptr<SeedCreator> seedCreator;
     std::unique_ptr<TrackingRegionProducer> theRegionProducer;
@@ -83,7 +83,7 @@ private:
 public:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
-    
+
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
 };
@@ -105,19 +105,19 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
-    for(auto it=layerStringList.cbegin(); it < layerStringList.cend(); ++it) 
+    for(auto it=layerStringList.cbegin(); it < layerStringList.cend(); ++it)
     {
 	std::vector<TrackingLayer> trackingLayerList;
 	std::string line = *it;
 	std::string::size_type pos=0;
-	while (pos != std::string::npos) 
+	while (pos != std::string::npos)
 	{
 	    pos=line.find("+");
 	    std::string layer = line.substr(0, pos);
 	    TrackingLayer layerSpec = TrackingLayer::createFromString(layer);
-	    
+
 	    trackingLayerList.push_back(layerSpec);
-	    line=line.substr(pos+1,std::string::npos); 
+	    line=line.substr(pos+1,std::string::npos);
 	}
 	_seedingTree.insert(trackingLayerList);
     }
@@ -126,7 +126,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
     std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
     theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
-    
+
     // seed creator
     const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
     std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
@@ -139,17 +139,17 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
 }
 
 
-void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) 
-{        
+void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
+{
 
     // services
     edm::ESHandle<TrackerTopology> trackerTopology;
     edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-    
+
     es.get<TrackerTopologyRcd>().get(trackerTopology);
     es.get<CkfComponentsRecord>().get(measurementTrackerLabel, measurementTrackerHandle);
     const MeasurementTracker * measurementTracker = &(*measurementTrackerHandle);
-    
+
     // input data
     edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
     e.getByToken(recHitCombinationsToken, recHitCombinations);
@@ -160,7 +160,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	e.getByToken(hitMasksToken,hitMasksHandle);
 	hitMasks = &(*hitMasksHandle);
     }
-    
+
     // output data
     std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
 
@@ -172,10 +172,10 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	e.put(std::move(output));
 	return;
     }
-    
+
     // pointer to selected region
     TrackingRegion * selectedTrackingRegion = 0;
-       
+
     // define a lambda function
     // to select hit pairs, triplets, ... compatible with the region
     SeedFinder::Selector selectorFunction = [&es,&measurementTracker,&selectedTrackingRegion](const std::vector<const FastTrackerRecHit*>& hits) -> bool
@@ -186,24 +186,24 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	{
 	    const FastTrackerRecHit * innerHit = hits[0];
 	    const FastTrackerRecHit * outerHit = hits[1];
-	    
+
 	    const DetLayer * innerLayer = measurementTracker->geometricSearchTracker()->detLayer(innerHit->det()->geographicalId());
 	    const DetLayer * outerLayer = measurementTracker->geometricSearchTracker()->detLayer(outerHit->det()->geographicalId());
-	    
+
 	    std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
 	    std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
-		
+
 	    //const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, selectedTrackingRegion->origin(), innerLayer);
 	    //const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, selectedTrackingRegion->origin(), outerLayer);
 	    const RecHitsSortedInPhi ihm(innerHits, selectedTrackingRegion->origin(), innerLayer);
 	    const RecHitsSortedInPhi ohm(outerHits, selectedTrackingRegion->origin(), outerLayer);
-		
-	    HitDoublets result(ihm,ohm); 
+
+	    HitDoublets result(ihm,ohm);
 	    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,ihm,ohm,es,0,result);
-	    
+
 	    if(result.size()!=0)
 	    {
-		return true; 
+		return true;
 	    }
 	    else
 	    {
@@ -212,7 +212,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	}
 	else
 	{
-	
+
 	    // no criteria for hit combinations that are not pairs
 	    return true;
 	}
@@ -231,17 +231,17 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     // instantiate the seed finder
     SeedFinder seedFinder(_seedingTree,*trackerTopology.product());
     seedFinder.setHitSelector(selectorFunction);
-    
+
     // loop over the combinations
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
     {
 	FastTrackerRecHitCombination recHitCombination = (*recHitCombinations)[icomb];
-		
+
 	// create a list of hits cleaned from masked hits
 	std::vector<const FastTrackerRecHit * > seedHitCandidates;
 	for (const auto & _hit : recHitCombination )
 	{
-	    if(hitMasks && fastTrackingUtilities::hitIsMasked(_hit.get(),hitMasks))
+	    if(hitMasks && fastTrackingUtilities::hitIsMasked(_hit.get(),*hitMasks))
 	    {
 		continue;
 	    }
@@ -251,7 +251,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	// loop over the regions
 	for(auto region = regions.begin();region != regions.end(); ++region)
 	{
-	    
+
 	    // set the region
 	    selectedTrackingRegion = region->get();
 
@@ -269,7 +269,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 		    seedHits.push_back(seedHitCandidates[seedHitNumbers[iIndex]]->clone());
 		}
 		fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);
-	    
+
 		seedCreator->init(*selectedTrackingRegion,es,0);
 		seedCreator->makeSeed(
 		    *output,
