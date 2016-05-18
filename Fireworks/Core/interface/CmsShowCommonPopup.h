@@ -13,6 +13,7 @@
 
 class TGHSlider;
 class TGLabel;
+class TGComboBox;
 class TGTextButton;
 class TGCheckButton;
 class CmsShowCommon;
@@ -42,8 +43,10 @@ public:
    void changeSelectionColorSet(Color_t);
    void colorSetChanged();
    void setPaletteGUI();
-   ClassDef(CmsShowCommonPopup, 0);
 
+   TGComboBox* getCombo() {return m_combo;}
+   ClassDef(CmsShowCommonPopup, 0);
+ 
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
@@ -57,14 +60,15 @@ private:
    TGTextButton   *m_backgroundButton;
    TGHSlider      *m_gammaSlider;
    TGTextButton   *m_gammaButton;
-
 #ifndef __CINT__
    FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
    FWColorSelect* m_colorRnrCtxHighlightWidget;   
    FWColorSelect* m_colorRnrCtxSelectWidget;
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
+   TGComboBox     *m_combo;  
 };
+
 
 
 #endif
