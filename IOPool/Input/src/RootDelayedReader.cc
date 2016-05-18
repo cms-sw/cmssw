@@ -43,7 +43,7 @@ namespace edm {
   std::unique_ptr<WrapperBase>
   RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) {
     if (lastException_) {
-      throw *lastException_;
+      std::rethrow_exception(lastException_);
     }
     iterator iter = branchIter(k);
     if (!found(iter)) {
@@ -78,10 +78,14 @@ namespace edm {
     br->SetAddress(&p);
     try{
       tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));
-    } catch(const edm::Exception& exception) {
-      lastException_ = std::make_unique<Exception>(exception);
-      lastException_->addContext("Rethrowing an exception that happened on a different thread.");
-      throw exception;
+    } catch(edm::Exception& exception) {
+      exception.addContext("Rethrowing an exception that happened on a different thread.");
+      lastException_ = std::current_exception();
+    } catch(...) {
+      lastException_ = std::current_exception();
+    }
+    if(lastException_) {
+      std::rethrow_exception(lastException_);
     }
     if(tree_.branchType() == InEvent) {
       // CMS-THREADING For the primary input source calls to this function need to be serialized
