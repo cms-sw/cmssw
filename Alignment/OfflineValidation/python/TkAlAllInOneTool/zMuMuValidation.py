@@ -12,7 +12,12 @@ class ZMuMuValidation(GenericValidationData):
                  resultBaseName = "ZMuMuValidation", outputBaseName = "ZMuMuValidation"):
         defaults = {
             "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
-            "resonance": "Z"
+            "resonance": "Z",
+            "switchONfit": "false",
+            "rebinphi": "4",
+            "rebinetadiff": "2",
+            "rebineta": "2",
+            "rebinpt": "8",
             }
         mandatories = ["etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
         self.configBaseName = configBaseName
@@ -34,6 +39,8 @@ class ZMuMuValidation(GenericValidationData):
         cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
                                       self.alignmentToValidate.name )
         repMap = self.getRepMap()
+        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
+            replaceByMap(".oO[eosdir]Oo./0_zmumuHisto.root", repMap)
         cfgs = {cfgName: configTemplates.ZMuMuValidationTemplate}
         GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
@@ -57,3 +64,14 @@ class ZMuMuValidation(GenericValidationData):
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
                 })
         return repMap
+
+    def appendToExtendedValidation( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is
+        returned, else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+        if validationsSoFar != "":
+            validationsSoFar += '    '
+        validationsSoFar += replaceByMap('filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
+        return validationsSoFar
