@@ -91,8 +91,18 @@ l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::s
 
 	if ( delim.empty() )
 		delim = ",";
-	
+
 	std::vector<unsigned int> vec = getVector<unsigned int>();
+
+        // if the addrWidth parameter is 0 calculate the address width from the LUT length
+        if (addrWidth == 0) {
+		size_t nEntries = vec.size();
+		while (nEntries >>= 1) {
+			++addrWidth;
+		}
+        }
+
+	// write the stream to fill the LUT
 	std::stringstream ss;
         ss << "#<header> V1 " << addrWidth << " " << dataWidth << " </header>" << std::endl;
         size_t i = 0;

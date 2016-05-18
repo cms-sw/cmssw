@@ -55,7 +55,7 @@ class setting
 		template <class varType> varType getValue();
 		template <class varType> std::vector<varType> getVector();
 		std::vector<tableRow>  getTableRows() { return tableRows_; };
-		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
+		l1t::LUT getLUT(size_t addrWidth = 0, size_t dataWidth = 31, int padding = -1, std::string delim = ","); // if the addrWidth parameter is 0 calculate the address width from the LUT length. 31 is the maximal supported number of bits for the output width of l1t::LUT
 		~setting();
 
 		setting& operator=(const setting& aSet);
