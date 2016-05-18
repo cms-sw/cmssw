@@ -111,9 +111,9 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //Create empty output collections
-  std::auto_ptr< HBHERecHitCollection > RecalibHBHERecHitCollection( new HBHERecHitCollection );
-  std::auto_ptr< HFRecHitCollection > RecalibHFRecHitCollection( new HFRecHitCollection );
-  std::auto_ptr< HORecHitCollection > RecalibHORecHitCollection( new HORecHitCollection );
+  auto RecalibHBHERecHitCollection = std::make_unique<HBHERecHitCollection>();
+  auto RecalibHFRecHitCollection = std::make_unique<HFRecHitCollection>();
+  auto RecalibHORecHitCollection = std::make_unique<HORecHitCollection>();
 
   // Intercalib constants
   //  edm::ESHandle<EcalIntercalibConstants> pIcal;
@@ -215,8 +215,8 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //Put Recalibrated rechit in the event
-  iEvent.put( RecalibHBHERecHitCollection, RecalibHBHEHits_);
-  iEvent.put( RecalibHFRecHitCollection, RecalibHFHits_);
-  iEvent.put( RecalibHORecHitCollection, RecalibHOHits_);
+  iEvent.put(std::move(RecalibHBHERecHitCollection), RecalibHBHEHits_);
+  iEvent.put(std::move(RecalibHFRecHitCollection), RecalibHFHits_);
+  iEvent.put(std::move(RecalibHORecHitCollection), RecalibHOHits_);
 }
 

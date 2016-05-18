@@ -361,9 +361,9 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
   EventNum = iEvent.id().event();
   edm::Handle<FEDRawDataCollection> buffers;  
   iEvent.getByLabel( label, instance, buffers);
-  std::auto_ptr<std::vector<uint32_t> > FillerWordEventNumbers1(new std::vector<uint32_t>);
-  std::auto_ptr<std::vector<uint32_t> > FillerWordEventNumbers2(new std::vector<uint32_t>);
-  std::auto_ptr<std::vector<uint32_t> > SaveFillerWords(new std::vector<uint32_t>);
+  auto FillerWordEventNumbers1 = std::make_unique<std::vector<uint32_t>>();
+  auto FillerWordEventNumbers2 = std::make_unique<std::vector<uint32_t>>();
+  auto SaveFillerWords = std::make_unique<std::vector<uint32_t>>();
   //===== Loop over all the FEDs ========================================================
   FEDNumbering fednum;
   std::pair<int,int> fedIds;
@@ -396,13 +396,13 @@ SiPixelFedFillerWordEventNumber ::produce(edm::Event& iEvent, const edm::EventSe
       }
     }
   }
-  iEvent.put(FillerWordEventNumbers1 , "FillerWordEventNumber1");
-  iEvent.put(FillerWordEventNumbers2 , "FillerWordEventNumber2");
+  iEvent.put(std::move(FillerWordEventNumbers1), "FillerWordEventNumber1");
+  iEvent.put(std::move(FillerWordEventNumbers2), "FillerWordEventNumber2");
   //====== bool variable to be controled in the config file, allows the user to put or
   //       the filler words inside the output root file
   if(SaveFillerWordsbool == true)
     {
-      iEvent.put(SaveFillerWords, "SaveFillerWord");
+      iEvent.put(std::move(SaveFillerWords), "SaveFillerWord");
     }
   vecSaveFillerWords.erase(vecSaveFillerWords.begin(), vecSaveFillerWords.end());    
   vecFillerWordsEventNumber1.erase(vecFillerWordsEventNumber1.begin(), vecFillerWordsEventNumber1.end());

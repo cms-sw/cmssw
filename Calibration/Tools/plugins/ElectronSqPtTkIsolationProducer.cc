@@ -62,6 +62,6 @@ void ElectronSqPtTkIsolationProducer::produce(edm::Event& iEvent, const edm::Eve
     }
   }
   
-  std::auto_ptr<reco::CandViewDoubleAssociations> isolMap(isoMap);
-  iEvent.put(isolMap);
+  std::unique_ptr<reco::CandViewDoubleAssociations> isolMap(isoMap);
+  iEvent.put(std::move(isolMap));
 }

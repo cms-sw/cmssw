@@ -145,7 +145,7 @@ bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::Event
 
 void HcalTBSource::produce(edm::Event& e) {
 
-  std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
+  auto bare_product = std::make_unique<FEDRawDataCollection>();
   for (int i=0; i<n_chunks; i++) {
     const unsigned char* data=(const unsigned char*)m_chunks[i]->getData();
     int len=m_chunks[i]->getDataLength()*8;
@@ -167,7 +167,7 @@ void HcalTBSource::produce(edm::Event& e) {
       edm::LogInfo("HCAL") << "Reading " << len << " bytes for FED " << id << std::endl;
   }
 
-  e.put(bare_product);
+  e.put(std::move(bare_product));
 }
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
