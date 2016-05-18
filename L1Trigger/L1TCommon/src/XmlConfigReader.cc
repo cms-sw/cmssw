@@ -87,6 +87,13 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
 }
 
 
+XmlConfigReader::~XmlConfigReader()
+{
+  delete parser_;
+  XMLPlatformUtils::Terminate();
+}
+
+
 void XmlConfigReader::readDOMFromString(const std::string& str, DOMDocument*& doc)
 {
   MemBufInputSource xmlstr_buf((const XMLByte*)(str.c_str()), str.size(), "xmlstrbuf");
