@@ -39,6 +39,8 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
 
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
+
 typedef edm::ParameterSet PSet;
 
 
@@ -80,6 +82,7 @@ public:
   
 
 private:
+  PrimitiveConverter primConv_;
 
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
   l1t::EmtfPtAssignment ptAssignment_;

@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter_Neighbor.h"
 #include "L1Trigger/L1TMuonEndCap/interface/BXAnalyzer.h"
 #include "L1Trigger/L1TMuonEndCap/interface/ZoneCreation.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.h"
@@ -47,6 +46,7 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const PSet& p) {
   produces< l1t::EMTFHitCollection >("EMTF");  
   produces< l1t::EMTFTrackExtraCollection >("EMTF");
   produces< l1t::EMTFHitExtraCollection >("EMTF");  
+
 }
 
 
@@ -137,8 +137,8 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   ///////////////// TP Conversion //////////////////////  Output is vector of Converted Hits
   //////////////////////////////////////////////////////
 
-
- 	std::vector<ConvertedHit> ConvHits = PrimConv(tester,SectIndex);
+  
+ 	std::vector<ConvertedHit> ConvHits = primConv_.convert(tester,SectIndex);
 	CHits[SectIndex] = ConvHits;
 
 	// Fill OutputHits with ConvertedHit information
