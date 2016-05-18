@@ -1,4 +1,5 @@
 <lcgdict>
+  
   <class name="BaseTrackerRecHit" ClassVersion="12">
    <version ClassVersion="12" checksum="2900718455"/>
    <version ClassVersion="11" checksum="135047806"/>
