@@ -19,8 +19,12 @@
 #include "TEveTrackPropagator.h"
 #include "TGLViewer.h"
 #include "TEveViewer.h"
+#include "TGComboBox.h"
+#include "TGClient.h"
+#include "TGTextEntry.h"
 
 #include "Fireworks/Core/interface/CmsShowCommon.h"
+#include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/Context.h"
 
@@ -33,6 +37,7 @@
 //
 CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    FWConfigurableParameterizable(2),
+   m_view(0),
    m_context(c),  
    m_trackBreak(this, "     ", 2l, 0l, 2l), // do not want to render text at setter
    m_drawBreakPoints(this, "Show y=0 points as markers", false),
@@ -48,11 +53,11 @@ CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    m_trackBreak.addEntry(1, "Stay on first point side");
    m_trackBreak.addEntry(2, "Stay on last point side");
 
-   m_palette.addEntry(0, "Classic ");
-   m_palette.addEntry(1, "Arctic ");
-   m_palette.addEntry(2, "Fall ");
-   m_palette.addEntry(3, "Spring ");
-   m_palette.addEntry(4, "Purple ");
+   m_palette.addEntry(FWColorManager::kClassic,"Classic ");
+   m_palette.addEntry(FWColorManager::kPurple, "Purple ");
+   m_palette.addEntry(FWColorManager::kFall,   "Fall ");
+   m_palette.addEntry(FWColorManager::kSpring, "Spring ");
+   m_palette.addEntry(FWColorManager::kArctic, "Arctic ");
 
    // colors
    char name[32];
@@ -156,26 +161,14 @@ void
 CmsShowCommon::randomizeColors()
 {
    //   printf("Doing random_shuffle on existing colors ...\n");
-
-   std::vector<Color_t> colv;
-   colv.reserve(64);
-   
-   for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-        i != m_context->eventItemsManager()->end(); ++i)
-   {
-      colv.push_back((*i)->defaultDisplayProperties().color());
-      }
-
-   std::random_shuffle(colv.begin(), colv.end());
-
+  
    int vi = 0;
    for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
         i != m_context->eventItemsManager()->end(); ++i, ++vi)
    {
       FWDisplayProperties prop = (*i)->defaultDisplayProperties();
 
-      //      int col = rand() % 34;
-      int col = colv[vi];
+      int col = rand() % 17; // randomize in first row of palette
       prop.setColor(col);
       (*i)->setDefaultDisplayProperties(prop);
 
@@ -312,9 +305,38 @@ CmsShowCommon::setPalette()
    FWColorManager* cm = m_context->colorManager();
    cm->setPalette(m_palette.value());
    
+   for (int i = 0 ; i < kFWGeomColorSize; ++i) {
+      FWColorManager* cm = m_context->colorManager();
+      m_geomColors[i]->set(cm->geomColor(FWGeomColorIndex(i)));
+      //      m_colorSelectWidget[i]->SetColorByIndex(cm->geomColor(FWGeomColorIndex(i)), kFALSE);
+   } 
+
+   m_context->colorManager()->propagatePaletteChanges();
    for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
         i != m_context->eventItemsManager()->end(); ++i)
    {
       (*i)->resetColor();
+   }
+}
+
+
+void
+CmsShowCommon::loopPalettes()
+{
+   int val = m_palette.value();
+   val++;
+
+   if (val >= FWColorManager::kPaletteLast)
+      val = FWColorManager::kPaletteFirst;
+
+   if (m_view)
+   {
+      TGComboBox* combo = m_view->getCombo();
+      combo->Select(val, true);
+   }
+   else
+   {
+      m_palette.set(val);
+      setPalette();
    }
 }

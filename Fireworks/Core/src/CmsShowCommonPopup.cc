@@ -35,7 +35,8 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    m_gammaSlider(0),
    m_gammaButton(0),
    m_colorRnrCtxHighlightWidget(0),
-   m_colorRnrCtxSelectWidget(0)
+   m_colorRnrCtxSelectWidget(0),
+   m_combo(0)
 {
    SetCleanup(kDeepCleanup);
 
@@ -109,8 +110,13 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 
 
    // color palette swapping
-   {
-      makeSetter(vf2, &m_common->m_palette);
+   if (1) {
+      const TGCompositeFrame* f = static_cast<const TGCompositeFrame*>(makeSetter(vf2, &m_common->m_palette));
+      // MTXXXX combo is at(0) (label on right!) and there is a tgframeelement in between!
+      // for (int i = 0; i < f->GetList()->GetEntries(); ++i)
+      //   printf("QWE %d %s\n", i, ((TGFrameElement*)f->GetList()->At(i))->fFrame->ClassName());
+      // m_combo = static_cast<TGComboBox*>(f->GetList()->At(1));
+      m_combo = static_cast<TGComboBox*>(static_cast<TGFrameElement*>(f->GetList()->At(0))->fFrame);
       m_common->m_palette.changed_.connect(boost::bind(&CmsShowCommonPopup::setPaletteGUI, this));
 
       TGCompositeFrame *hf = new TGHorizontalFrame(vf2);
@@ -118,11 +124,13 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       {
       TGButton *butt;
       butt = new TGTextButton(hf, "Permute Colors");
+      butt->SetToolTipText("Randomize assigned collection colors");
       hf->AddFrame(butt, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,2,2,2));
       butt->Connect("Clicked()", "CmsShowCommonPopup", this, "permuteColors()");
 
 
       butt = new TGTextButton(hf, "Randomize Colors");
+      butt->SetToolTipText("Randomize collection colors from full palette");
       hf->AddFrame(butt, new TGLayoutHints(kLHintsNormal, 0, 0, 2,2));
       butt->Connect("Clicked()", "CmsShowCommonPopup", this, "randomizeColors()");
       }
@@ -209,7 +217,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
       top->AddFrame(hf);
 
-      for (int j = 0 ; j < 2; ++j)
+      for (int j = 0; j < 2; ++j)
       {
          m_colorSelectWidget[i] = new FWColorSelect(hf, names[i].c_str(), 0, m_common->colorManager(), i);
          hf->AddFrame(m_colorSelectWidget[i]); 
@@ -253,6 +261,7 @@ CmsShowCommonPopup::switchBackground() { m_common->switchBackground(); }
 
 void
 CmsShowCommonPopup::randomizeColors()  { m_common->randomizeColors(); }
+
 void
 CmsShowCommonPopup::permuteColors()  { m_common->permuteColors(); }
 
@@ -343,12 +352,11 @@ CmsShowCommonPopup::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
 void
 CmsShowCommonPopup::setPaletteGUI()
 {
-   FWColorManager* cm = m_common->m_context->colorManager();
    m_common->setPalette();
+
    for (int i = 0 ; i < kFWGeomColorSize; ++i) {
-      m_common->m_geomColors[i]->set(cm->geomColor(FWGeomColorIndex(i)));
+      FWColorManager* cm = m_common->m_context->colorManager();
+      //  m_common->m_geomColors[i]->set(cm->geomColor(FWGeomColorIndex(i)));
       m_colorSelectWidget[i]->SetColorByIndex(cm->geomColor(FWGeomColorIndex(i)), kFALSE);
    } 
-   cm->propagatePaletteChanges();
 }
-
