@@ -56,8 +56,7 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Ensemble& ensemble, co
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     auto me0id = (*rh)->me0Id();
     auto rhLP = (*rh)->localPosition();
-    edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
-                                     <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+    edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()<<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
   }
   #endif
 
@@ -86,8 +85,6 @@ std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Ensemble& ensemble, co
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
-  
-
     return segments;
   }
   else {
@@ -269,7 +266,6 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Ensemble& ensemble, const Ensem
     
     for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
       GlobalPoint pos_old = ensemble.first->toGlobal(oldChain[iRH_old]->localPosition());
-
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
       // however we'll not make an angle correction because it
@@ -279,13 +275,13 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Ensemble& ensemble, const Ensem
       // this could affect events at the boundaries ) 
 
       // to be chained, two hits need also to be "close" in phi and eta
-      if (std::abs(reco::deltaPhi( float(pos_new.phi()), float(pos_old.phi()) )) > dPhiChainBoxMax) continue;
-      if (std::abs(pos_new.eta()-pos_old.eta()) > dEtaChainBoxMax) continue;
+      if (std::abs(reco::deltaPhi( float(pos_new.phi()), float(pos_old.phi()) )) >= dPhiChainBoxMax) continue;
+      if (std::abs(pos_new.eta()-pos_old.eta()) >= dEtaChainBoxMax) continue;
       // and the difference in layer index should be < (nlayers-1)
-      if (abs(newChain[iRH_new]->me0Id().layer() - oldChain[iRH_old]->me0Id().layer() ) >= (ensemble.first->id().nlayers()-1)) continue;
+      if (std::abs(newChain[iRH_new]->me0Id().layer() - oldChain[iRH_old]->me0Id().layer()) >= (ensemble.first->id().nlayers()-1)) continue;
       // and they should have a time difference compatible with the hypothesis 
       // that the rechits originate from the same particle, but were detected in different layers
-      if (std::abs(newChain[iRH_new]->tof() - oldChain[iRH_old]->tof()) > dTimeChainBoxMax) continue;
+      if (std::abs(newChain[iRH_new]->tof() - oldChain[iRH_old]->tof()) >= dTimeChainBoxMax) continue;
 
       return true;
     }
@@ -296,15 +292,14 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Ensemble& ensemble, const Ensem
 void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits, std::vector<ME0Segment>& me0segs) {
   if (rechits.size() < minHitsPerSegment) return;
   
-  #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
+#ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
-    for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
-      auto me0id = (*rh)->me0Id();
-      auto rhLP = (*rh)->localPosition();
-      edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
-				       <<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
-      }
-  #endif
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    auto me0id = (*rh)->me0Id();
+    auto rhLP = (*rh)->localPosition();
+    edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()<<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+  }
+#endif
 
   MuonRecHitContainer muonRecHits;
   proto_segment.clear();

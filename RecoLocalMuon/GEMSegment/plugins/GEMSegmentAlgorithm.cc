@@ -204,7 +204,7 @@ GEMSegmentAlgorithm::clusterHits(const GEMEnsemble& ensemble, const EnsembleHitC
     rechits_clusters.push_back(seeds[NNN]);
   }
 
-  return rechits_clusters; 
+  return rechits_clusters;
 }
 
 
@@ -222,7 +222,7 @@ GEMSegmentAlgorithm::chainHits(const GEMEnsemble& ensemble, const EnsembleHitCon
   // Create one seed per hit
   for ( unsigned int i=0; i<rechits.size(); ++i)
     seeds.push_back(EnsembleHitContainer(1,rechits[i]));
-
+  
   // merge chains that are too close ("touch" each other)
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
     for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
@@ -279,15 +279,18 @@ bool GEMSegmentAlgorithm::isGoodToMerge(const GEMEnsemble& ensemble, const Ensem
   
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     int layer_new = (newChain[iRH_new]->gemId().station() - 1)*2 + newChain[iRH_new]->gemId().layer();
-    GlobalPoint pos_new = ensemble.first->toGlobal(newChain[iRH_new]->localPosition());
+
+    const GEMEtaPartition * rhEP   = (ensemble.second.find(newChain[iRH_new]->gemId().rawId()))->second;
+    GlobalPoint pos_new = rhEP->toGlobal(newChain[iRH_new]->localPosition());
     
     for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
       int layer_old = (oldChain[iRH_old]->gemId().station() - 1)*2 + oldChain[iRH_old]->gemId().layer();
       // Layers - hits on the same layer should not be allowed ==> if abs(layer_new - layer_old) > 0 is ok. if = 0 is false
       if ( layer_new == layer_old ) return false;
-      
-      GlobalPoint pos_old = ensemble.first->toGlobal(oldChain[iRH_old]->localPosition());
 
+      const GEMEtaPartition * oldrhEP   = (ensemble.second.find(oldChain[iRH_old]->gemId().rawId()))->second;
+      GlobalPoint pos_old = oldrhEP->toGlobal(oldChain[iRH_old]->localPosition());
+      
       // Eta & Phi- to be chained, two hits need also to be "close" in phi and eta      
       if(phiRequirementOK==false) phiRequirementOK = std::abs(reco::deltaPhi( float(pos_new.phi()), float(pos_old.phi()) )) < dPhiChainBoxMax;
       if(etaRequirementOK==false) etaRequirementOK = std::abs(pos_new.eta()-pos_old.eta()) < dEtaChainBoxMax;
