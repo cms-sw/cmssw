@@ -48,6 +48,7 @@ class XmlConfigReader {
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
+  ~XmlConfigReader();
   void readDOMFromString(const std::string& str, xercesc::DOMDocument*& doc);
   void readDOMFromString(const std::string& str);
   void readDOMFromFile(const std::string& fName, xercesc::DOMDocument*& doc);
