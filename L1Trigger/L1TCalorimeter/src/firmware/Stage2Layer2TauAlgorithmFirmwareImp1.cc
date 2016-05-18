@@ -1,6 +1,6 @@
 //
 // ** class l1t::Stage2Layer2TauAlgorithmFirmwareImp1
-// ** authors: J. Brooke, L. Cadamuro, L. Mastrolorenzo, J.B. Sauvan, T. Strebler, ...
+// ** authors: J. Brooke, L. Cadamuro, L. Mastrolorenzo, J.B. Sauvan, T. Strebler, O. Davignon, etc.
 // ** date:   2 Oct 2015
 // ** Description: version of tau algorithm matching the jet-eg-tau merged implementation
 
@@ -147,6 +147,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 tau.setHwIso(isolBit);
 
                 // development vars
+		tau.setTowerIPhi((short int)CaloTools::towerEta(mainCluster.hwEta()));
+		tau.setTowerIEta((short int)CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi()));
                 tau.setIsMerged(false);
                 tau.setRawEt((short int) mainCluster.hwPt());
                 tau.setHasEM(mainCluster.hwPtEm() > 0);
