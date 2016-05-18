@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 #use import as to mask it to process.load() 
 import RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexSoftLeptonComputer_cfi as sl_cfg 
 from RecoBTag.CTagging.training_settings import c_vs_l_vars_vpset, c_vs_b_vars_vpset
+#from RecoBTag.SecondaryVertex.combinedSecondaryVertexCommon_cff import *
+
+#
+# Normal tagger
+#
 
 charmTagsComputerCvsL = cms.ESProducer(
    'CharmTaggerESProducer',
@@ -26,9 +31,3 @@ charmTagsComputerCvsL = cms.ESProducer(
    )
 
 charmTagsComputerCvsL.slComputerCfg.correctVertexMass = False
-
-charmTagsComputerCvsB = charmTagsComputerCvsL.clone(
-   weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_b_sklearn.weight.xml'),   
-   variables = c_vs_b_vars_vpset
-   )
-
