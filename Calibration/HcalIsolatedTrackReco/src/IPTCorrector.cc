@@ -30,7 +30,7 @@ IPTCorrector::IPTCorrector(const edm::ParameterSet& config) :
 
 void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup const&) const {
 
-  reco::IsolatedPixelTrackCandidateCollection * trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
+  auto trackCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
   edm::Handle<reco::TrackCollection> corTracks;
   theEvent.getByToken(tok_cor_,corTracks);
@@ -78,8 +78,7 @@ void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup 
   }
   
   // put the product in the event
-  std::auto_ptr< reco::IsolatedPixelTrackCandidateCollection > outCollection(trackCollection);
-  theEvent.put(outCollection);
+  theEvent.put(std::move(trackCollection));
 
 
 }

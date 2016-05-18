@@ -52,7 +52,7 @@ public:
   ~AlCaGammaJetSelector();
   
   static std::unique_ptr<AlCaGammaJet::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
-    return std::unique_ptr<AlCaGammaJet::Counters>(new AlCaGammaJet::Counters());
+    return std::make_unique<AlCaGammaJet::Counters>();
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

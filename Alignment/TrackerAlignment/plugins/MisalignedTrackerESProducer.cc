@@ -99,7 +99,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   theTracker  = std::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD), *ptp, tTopo));
  
   // Create the alignable hierarchy
-  std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker), tTopo ) );
+  auto theAlignableTracker = std::make_unique<AlignableTracker>( &(*theTracker), tTopo );
 
   // Create misalignment scenario, apply to geometry
   TrackerScenarioBuilder scenarioBuilder( &(*theAlignableTracker) );
