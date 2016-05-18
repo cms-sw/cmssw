@@ -81,10 +81,14 @@ class GEMDetId :public DetId {
     return int((id_>>RollStartBit_) & RollMask_); // value 0 is used as wild card
   }
 
-
   /// Return the corresponding ChamberId
   GEMDetId chamberId() const {
     return GEMDetId(id_ & chamberIdMask_);
+  }
+
+  /// Return the corresponding superChamberId
+  GEMDetId superChamberId() const {
+    return GEMDetId(id_ & superChamberIdMask_);
   }
 
   static const int minRegionId=     -1;
@@ -99,7 +103,8 @@ class GEMDetId :public DetId {
   static const int minChamberId=     0;
   static const int maxChamberId=     36;
 
-  static const int minLayerId=     1;
+  // LayerId = 0 is superChamber
+  static const int minLayerId=     0;
   static const int maxLayerId=     2;
 
   static const int minRollId=	  0;
@@ -123,9 +128,9 @@ class GEMDetId :public DetId {
   static const int ChamberStartBit_ =  StationStartBit_+StationNumBits_;  
   static const unsigned int ChamberMask_     =  0X3F;
 
-  static const int LayerNumBits_  =  1;
+  static const int LayerNumBits_  =  2;
   static const int LayerStartBit_ =  ChamberStartBit_+ChamberNumBits_;  
-  static const unsigned int LayerMask_     =  0X1;
+  static const unsigned int LayerMask_     =  0X3;
 
   static const int RollNumBits_  =  5;
   static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;  
@@ -133,6 +138,8 @@ class GEMDetId :public DetId {
  
   static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
 
+  static const uint32_t superChamberIdMask_ = chamberIdMask_ + ~(LayerMask_<<LayerStartBit_);
+  
  private:
   void init(int region, 
 	    int ring,

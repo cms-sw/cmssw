@@ -1,8 +1,8 @@
 <library   file="*.cc" name="DQMHLTEvFPlugins">
-  <use   name="DQM/HLTEvF"/>
   <use   name="HLTrigger/HLTcore"/>
   <use   name="HLTrigger/JetMET"/>
   <use   name="CondFormats/HLTObjects"/>
+  <use   name="CondFormats/L1TObjects"/>
   <use   name="DQMServices/Core"/>
   <use   name="DQMServices/Components"/>
   <use   name="DQMServices/ClientConfig"/>
@@ -16,6 +16,7 @@
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/L1GlobalMuonTrigger"/>
   <use   name="DataFormats/L1Trigger"/>
+  <use   name="DataFormats/L1TGlobal"/>
   <use   name="DataFormats/MuonReco"/>
   <use   name="DataFormats/MuonSeed"/>
   <use   name="DataFormats/RecoCandidate"/>
