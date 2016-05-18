@@ -35,8 +35,10 @@ namespace l1t {
             virtual void registerProducts(edm::stream::EDProducerBase& prod) override 
             {
                prod.produces<RegionalMuonCandBxCollection>("BMTF");
-               prod.produces<L1MuDTChambPhContainer>("PhiDigis");
-               prod.produces<L1MuDTChambThContainer>("TheDigis");
+               //prod.produces<L1MuDTChambPhContainer>("PhiDigis");
+               //prod.produces<L1MuDTChambThContainer>("TheDigis");
+               prod.produces<L1MuDTChambPhContainer>();
+               prod.produces<L1MuDTChambThContainer>();
             };
 
             virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override 
