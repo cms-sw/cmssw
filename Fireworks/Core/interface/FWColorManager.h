@@ -44,7 +44,7 @@ enum FWGeomColorIndex
 class FWColorManager
 {
 public:
-   enum EPalette { kClassic, kArctic, kFall, kSpring, kPurple };
+   enum EPalette { kPaletteFirst = 0, kClassic = 0, kPurple, kFall, kSpring, kArctic, kPaletteLast };
 
    FWColorManager(FWModelChangeManager*);
    virtual ~FWColorManager();
