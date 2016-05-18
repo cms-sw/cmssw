@@ -34,7 +34,7 @@ namespace l1t
 				return (value == 0);
 		}
 
-		bool unpacking(const Block& block, UnpackerCollections *coll, std::map<int, qualityHits> linkAndQual_, const bool& isNewFw)
+		bool unpacking(const Block& block, UnpackerCollections *coll, std::map<int, qualityHits>& linkAndQual_, const bool& isNewFw)
 		{
 
 			unsigned int ownLinks[] = {4,5,12,13,20,21,22,23,28,29};
