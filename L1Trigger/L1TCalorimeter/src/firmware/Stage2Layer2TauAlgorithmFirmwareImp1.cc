@@ -147,8 +147,10 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 tau.setHwIso(isolBit);
 
                 // development vars
-		tau.setTowerIPhi((short int)CaloTools::towerEta(mainCluster.hwEta()));
-		tau.setTowerIEta((short int)CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi()));
+		// tau.setTowerIPhi((short int)CaloTools::towerEta(mainCluster.hwEta()));
+		// tau.setTowerIEta((short int)CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi()));
+		tau.setTowerIPhi((short int)mainCluster.hwPhi());
+		tau.setTowerIEta((short int)mainCluster.hwEta());
                 tau.setIsMerged(false);
                 tau.setRawEt((short int) mainCluster.hwPt());
                 tau.setHasEM(mainCluster.hwPtEm() > 0);
@@ -439,6 +441,10 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 tau.setHwIso(isolBit);
 
                 // development vars
+		// tau.setTowerIPhi((short int)CaloTools::towerEta(mainCluster.hwEta()));
+		// tau.setTowerIEta((short int)CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi()));
+		tau.setTowerIPhi((short int)mainCluster.hwPhi());
+		tau.setTowerIEta((short int)mainCluster.hwEta());
                 tau.setIsMerged(true);
                 tau.setRawEt((short int) (mainCluster.hwPt() + secondaryCluster->hwPt()));
                 tau.setHasEM(mainCluster.hwPtEm() > 0);
