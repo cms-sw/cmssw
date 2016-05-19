@@ -47,7 +47,7 @@ Tree::Tree(std::vector< std::vector<Event*> >& cEvents)
 Tree::~Tree()
 {
 // When the tree is destroyed it will delete all of the nodes in the tree.
-// The deletion begins with the rootnode and continues recursively.yea.
+// The deletion begins with the rootnode and continues recursively.
     delete rootNode;
 }
 
@@ -108,7 +108,7 @@ void Tree::buildTree(Int_t nodeLimit)
 {
     // We greedily pick the best terminal node to split.
     Double_t bestNodeErrorReduction = -1;
-    Node* nodeToSplit;
+    Node* nodeToSplit = 0;
 
     if(numTerminalNodes == 1)
     {   
@@ -125,6 +125,11 @@ void Tree::buildTree(Int_t nodeLimit)
            nodeToSplit = (*it);
        }    
     }   
+
+    //std::cout << "nodeToSplit size = " << nodeToSplit->getNumEvents() << std::endl;
+
+    // If all of the nodes have one event we can't add any more nodes and reduce the error.
+    if(nodeToSplit == 0) return;
 
     // Create daughter nodes, and link the nodes together appropriately.
     nodeToSplit->theMiracleOfChildBirth();
@@ -194,6 +199,32 @@ void Tree::filterEventsRecursive(Node* node)
 
 // ----------------------------------------------------------------------
 
+Node* Tree::filterEvent(Event* e)
+{
+// Use trees which have already been built to fit a bunch of events
+// given by the tEvents vector.
+
+    // Filter the event into a predictive region (terminal node).
+    Node* node = filterEventRecursive(rootNode, e);
+    return node;
+}
+
+// ----------------------------------------------------------------------
+
+Node* Tree::filterEventRecursive(Node* node, Event* e)
+{
+// Filter the event repeatedly into the daughter nodes until it
+// falls into a terminal node.
+
+
+    Node* nextNode = node->filterEventToDaughter(e);
+    if(nextNode == 0) return node;
+
+    return filterEventRecursive(nextNode, e);
+}
+
+// ----------------------------------------------------------------------
+
 
 void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
 {
@@ -204,10 +235,18 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
     Node* left = node->getLeftDaughter();
     Node* right = node->getRightDaughter();
 
+    // Terminal nodes don't contribute to error reduction.
     if(left==0 || right==0) return;
 
-    Int_t sv = node->getSplitVariable();
+    Int_t sv =  node->getSplitVariable();
     Double_t er = node->getErrorReduction();
+
+    //if(sv == -1)
+    //{
+      //std::cout << "ERROR: negative split variable for nonterminal node." << std::endl;
+      //std::cout << "rankVarRecursive Split Variable = " << sv << std::endl;
+      //std::cout << "rankVarRecursive Error Reduction = " << er << std::endl;
+    //}
 
     // Add error reduction to the current total for the appropriate
     // variable.
@@ -223,6 +262,44 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<Double_t>& v)
 void Tree::rankVariables(std::vector<Double_t>& v)
 {
     rankVariablesRecursive(rootNode, v);
+}
+
+// ----------------------------------------------------------------------
+
+
+void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<Double_t>>& v)
+{
+// We recursively go through all of the nodes in the tree and find the
+// split points used for each split variable.
+
+    Node* left = node->getLeftDaughter();
+    Node* right = node->getRightDaughter();
+
+    // Terminal nodes don't contribute.
+    if(left==0 || right==0) return;
+
+    Int_t sv =  node->getSplitVariable();
+    Double_t sp = node->getSplitValue();
+
+    if(sv == -1)
+    {
+        std::cout << "ERROR: negative split variable for nonterminal node." << std::endl;
+        std::cout << "rankVarRecursive Split Variable = " << sv << std::endl;
+    }
+
+    // Add the split point to the list for the correct split variable.
+    v[sv].push_back(sp);
+
+    getSplitValuesRecursive(left, v);
+    getSplitValuesRecursive(right, v); 
+
+}
+
+// ----------------------------------------------------------------------
+
+void Tree::getSplitValues(std::vector<std::vector<Double_t>>& v)
+{
+    getSplitValuesRecursive(rootNode, v);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -303,7 +380,7 @@ void Tree::saveToXMLRecursive(TXMLEngine* xml, Node* node, XMLNodePointer_t np)
 void Tree::loadFromXML(const char* filename)
 {   
     // First create the engine.
-    TXMLEngine* xml = new TXMLEngine();
+    TXMLEngine* xml = new TXMLEngine;
 
     // Now try to parse xml file.
     XMLDocPointer_t xmldoc = xml->ParseFile(filename);
@@ -326,7 +403,7 @@ void Tree::loadFromXML(const char* filename)
 
 // ----------------------------------------------------------------------
 
-void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* tnode) //lkj
+void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* tnode) 
 {
 
     // Get the split information from xml.

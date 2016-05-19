@@ -65,8 +65,8 @@ int GetPackedPhi(int phi){
 
 
 l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
-											   int sign, int quality,
-											   int trackaddress, int sector){
+				       int sign, int mode,
+				       int trackaddress, int sector){
 
 	l1t::RegionalMuonCand Cand;
 
@@ -87,15 +87,15 @@ l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
 	if(iPt < 0)
 		iPt = 0;
 
-	int iQual = quality;
+	int iQual = -999;
 	
-	int LSB = quality & 3;
+	int LSB = mode & 3;
 	
 	float eta = GetGlobalEta(theta,sector);
 	
 	if(eta < 1.2){
 	
-		switch(quality){
+		switch(mode){
 			case(15): iQual = 8;break;
 			case(14): iQual = 4;break;
 			case(13): iQual = 4;break;
@@ -107,7 +107,7 @@ l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
 	}
 	else{
 	
-		switch(quality){
+		switch(mode){
 			case(15): iQual = 12;break;
 			case(14): iQual = 12;break;
 			case(13): iQual = 12;break;
