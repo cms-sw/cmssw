@@ -5,6 +5,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -17,6 +18,8 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 #include<iostream>
 #include <memory>
@@ -42,6 +45,22 @@ std::unique_ptr<SiStripRecHit1D> TkClonerImpl::operator()(SiStripRecHit1D const 
     stripCPE->localParameters( clust, *hit.detUnit(), tsos);
   LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
   return std::unique_ptr<SiStripRecHit1D>{new SiStripRecHit1D(lv.first, le, *hit.det(), hit.omniCluster())};
+}
+
+std::unique_ptr<Phase2TrackerRecHit1D> TkClonerImpl::operator()(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  const Phase2TrackerCluster1D&  clust = hit.phase2OTCluster();
+  const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
+  const PixelTopology * topo = &gdu.specificTopology();
+
+  float pitch_x = topo->pitch().first;
+  float pitch_y = topo->pitch().second;
+  float ix = clust.center();
+  float iy = clust.column()+0.5; // halfway the column
+
+  LocalPoint lp( topo->localX(ix), topo->localY(iy), 0 );          // x, y, z
+  LocalError le( pow(pitch_x, 2) / 12, 0, pow(pitch_y, 2) / 12);   // e2_xx, e2_xy, e2_yy
+
+  return std::unique_ptr<Phase2TrackerRecHit1D>{new Phase2TrackerRecHit1D(lp, le, *hit.det(), hit.cluster())};
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
@@ -70,6 +89,21 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripRecHit1D cons
   return  std::make_shared<SiStripRecHit1D>(lv.first, le, *hit.det(), hit.omniCluster());
 }
 
+TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  const Phase2TrackerCluster1D&  clust = hit.phase2OTCluster();
+  const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
+  const PixelTopology * topo = &gdu.specificTopology();
+
+  float pitch_x = topo->pitch().first;
+  float pitch_y = topo->pitch().second;
+  float ix = clust.center();
+  float iy = clust.column()+0.5; // halfway the column
+
+  LocalPoint lp( topo->localX(ix), topo->localY(iy), 0 );          // x, y, z
+  LocalError le( pow(pitch_x, 2) / 12, 0, pow(pitch_y, 2) / 12);   // e2_xx, e2_xy, e2_yy
+
+  return std::make_shared<Phase2TrackerRecHit1D>( lp, le, *hit.det(), hit.cluster());
+}
 
 
 namespace {
