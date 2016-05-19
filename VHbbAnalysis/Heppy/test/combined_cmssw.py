@@ -287,7 +287,7 @@ def initialize(**kwargs):
                 impact_info_name, 
                 process.pfImpactParameterTagInfos.clone(
                     primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                    candidates = cms.InputTag("packedPFCandidates"),
+                    candidates = cms.InputTag("chs"),
                     computeProbabilities = cms.bool(False),
                     computeGhostTrack = cms.bool(False),
                     maxDeltaR = cms.double(delta_r),
@@ -411,10 +411,10 @@ def initialize(**kwargs):
                 impact_info_name, 
                 process.pfImpactParameterTagInfos.clone(
                     primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                    candidates = cms.InputTag("packedPFCandidates"),
-                    computeProbabilities = cms.bool(False),
-                    computeGhostTrack = cms.bool(False),
-                    maxDeltaR = cms.double(delta_r),
+                    candidates = cms.InputTag("chs"),
+                    computeGhostTrack = cms.bool(True),
+                    computeProbabilities = cms.bool(True),
+                    maxDeltaR = cms.double(0.4),
                     jets = cms.InputTag(fatjet_name, subjet_label),
                 ))
         getattr(process, impact_info_name).explicitJTA = cms.bool(True)
@@ -429,9 +429,9 @@ def initialize(**kwargs):
 
         getattr(process, isv_info_name).useSVClustering = cms.bool(True)
         getattr(process, isv_info_name).rParam = cms.double(delta_r)
-        getattr(process, isv_info_name).extSVDeltaRToJet = cms.double(delta_r)
-        getattr(process, isv_info_name).trackSelection.jetDeltaRMax = cms.double(delta_r)
-        getattr(process, isv_info_name).vertexCuts.maxDeltaRToJetAxis = cms.double(delta_r)
+        getattr(process, isv_info_name).extSVDeltaRToJet = cms.double(0.3)
+        getattr(process, isv_info_name).trackSelection.jetDeltaRMax = cms.double(0.3)
+        getattr(process, isv_info_name).vertexCuts.maxDeltaRToJetAxis = cms.double(0.4)
         getattr(process, isv_info_name).jetAlgorithm = cms.string(jetAlgo)
         getattr(process, isv_info_name).fatJets  =  cms.InputTag(initial_jet)
         getattr(process, isv_info_name).groomedFatJets  =  cms.InputTag(fatjet_name, fatjet_label)

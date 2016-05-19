@@ -849,7 +849,11 @@ class AdditionalBoost( Analyzer ):
             for i in xrange(0,len(newtags)) :
                 for j in getattr(event, fj_name+"subjets"):
                     if  j.physObj == newtags.key(i).get():
-                        j.btag = newtags.value(i)
+                        j.btag = newtags.value(i)                        
+                        # Map dummy value to -0.1
+                        if j.btag == -10.:
+                            j.btag = -0.1
+                        
 
             # Add information from which FJ the subjet comes
             # Loop over subjets
@@ -962,6 +966,10 @@ class AdditionalBoost( Analyzer ):
                 for ib in xrange(0, len(sjbtags)) :
                     if  sj_w1 == sjbtags.key(ib).get():
                         event.httCandidates[i].sjW1btag = sjbtags.value(ib)
+                        # Map dummy for -10 to -0.1 
+                        if event.httCandidates[i].sjW1btag == -10.:
+                            event.httCandidates[i].sjW1btag = -0.1
+                            
 
                 # Store SJ W2 Variables
                 event.httCandidates[i].sjW2ptcal   = sj_w2_cal.pt()
@@ -975,6 +983,10 @@ class AdditionalBoost( Analyzer ):
                 for ib in xrange(0, len(sjbtags)) :
                     if  sj_w2 == sjbtags.key(ib).get():
                         event.httCandidates[i].sjW2btag = sjbtags.value(ib)
+                        # Map dummy for -10 to -0.1 
+                        if event.httCandidates[i].sjW2btag == -10.:
+                            event.httCandidates[i].sjW2btag = -0.1
+
 
                 # Store SJ Non W Variables
                 event.httCandidates[i].sjNonWptcal   = sj_nonw_cal.pt()  
@@ -988,6 +1000,10 @@ class AdditionalBoost( Analyzer ):
                 for ib in xrange(0, len(sjbtags)) :
                     if  sj_nonw == sjbtags.key(ib).get():
                         event.httCandidates[i].sjNonWbtag = sjbtags.value(ib)
+                        # Map dummy for -10 to -0.1 
+                        if event.httCandidates[i].sjNonWbtag == -10.:
+                            event.httCandidates[i].sjNonWbtag = -0.1
+
 
         ######## 
         # AK8 Jets from MiniAOD + Subjet btags
@@ -1089,7 +1105,7 @@ class AdditionalBoost( Analyzer ):
                 ipTagInfo    = self.handles['ca15ipTagInfos'].product()[ij]
                 svTagInfo    = self.handles['ca15svTagInfos'].product()[ij]
 
-                orig_jet = self.handles[prefix+'ungroomed'].product()[ij]
+                orig_jet = self.handles[prefix+'ungroomed'].product()[jet.original_index]
 
                 # Commented out so rest of code can run
                 # TODO: FIX!
