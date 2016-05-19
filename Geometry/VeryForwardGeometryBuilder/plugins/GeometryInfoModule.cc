@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -28,7 +28,7 @@
  *
  * See schema of \ref TotemRPGeometry "TOTEM RP geometry classes"
  **/
-class GeometryInfoModule : public edm::EDAnalyzer
+class GeometryInfoModule : public edm::one::EDAnalyzer<>
 {
   public:
     explicit GeometryInfoModule(const edm::ParameterSet&);
