@@ -82,6 +82,7 @@ def initialize(**kwargs):
     # Use the trivial selector to convert patElectrons into reco::Electrons for removal
     process.selectedElectronsTmp = cms.EDProducer("ElectronRemovalForBoostProducer", 
                                                   src = cms.InputTag("slimmedElectrons"),
+                                                  mvaIDMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80"),
                                                   rho = cms.InputTag("fixedGridRhoFastjetAll"))
     process.selectedElectrons = cms.EDFilter("CandPtrSelector", 
                                              src = cms.InputTag("selectedElectronsTmp"), 

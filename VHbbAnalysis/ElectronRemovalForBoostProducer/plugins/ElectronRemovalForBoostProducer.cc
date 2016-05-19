@@ -68,7 +68,10 @@ class ElectronRemovalForBoostProducer : public edm::stream::EDProducer<> {
       virtual void endStream() override;
 
       const edm::EDGetTokenT<std::vector<pat::Electron>> inputElectronToken_;        
+      const edm::EDGetTokenT<edm::ValueMap<bool>> inputmvaIDMapToken_;        
       const edm::EDGetTokenT<double> inputRhoToken_;        
+
+
 
       // ----------member data ---------------------------
 };
@@ -87,6 +90,7 @@ class ElectronRemovalForBoostProducer : public edm::stream::EDProducer<> {
 //
 ElectronRemovalForBoostProducer::ElectronRemovalForBoostProducer(const edm::ParameterSet& iConfig) :
   inputElectronToken_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("src"))),
+  inputmvaIDMapToken_(consumes<edm::ValueMap<bool>>(iConfig.getParameter<edm::InputTag>("mvaIDMap"))),
   inputRhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))) {
   // Output
   produces<std::vector<pat::Electron>>();      
@@ -120,7 +124,9 @@ ElectronRemovalForBoostProducer::produce(edm::Event& iEvent, const edm::EventSet
    Handle<double > rho;
    iEvent.getByToken(inputRhoToken_, rho);
 
-   std::cout << "Rho: " << (*rho) << std::endl;
+   // Get MVA ID Map
+   Handle<edm::ValueMap<bool> > mvaIDMap;
+   iEvent.getByToken(inputmvaIDMapToken_, mvaIDMap);
 
    std::unique_ptr<std::vector<pat::Electron> > output_es(new std::vector<pat::Electron>) ;
  
@@ -130,40 +136,53 @@ ElectronRemovalForBoostProducer::produce(edm::Event& iEvent, const edm::EventSet
      pat::Electron e = input_es->at(ie);
      
      // |eta| < 2.4
-     if (! abs(e.eta())<2.4)
+     if (! (fabs(e.eta())<2.4)){
+       //std::cout << ie << " killed by eta" << std::endl;
        continue;
+     }
 
      //  pT > 15
-     if (! abs(e.pt())>15)
+     if (! (e.pt())>15){
+       //std::cout << ie << " killed by pt " << e.pt() << std::endl;
        continue;
-
-     // Electron ID
-     if (! e.electronID("mvaEleID-Spring15-25ns-Trig-V1-wp80"))
-	 continue;
+     }
 
      // Additional selection
-     if (!((abs(e.superCluster()->eta()) < 1.4442 && 
+     if (! (((fabs(e.superCluster()->eta()) < 1.4442 && 
 	      e.full5x5_sigmaIetaIeta() < 0.012 && 
 	      e.hcalOverEcal() < 0.09 && 
 	      (e.ecalPFClusterIso() / e.pt()) < 0.37 && 
 	      (e.hcalPFClusterIso() / e.pt()) < 0.25 && 
 	      (e.dr03TkSumPt() / e.pt()) < 0.18 && 
-	      abs(e.deltaEtaSuperClusterTrackAtVtx()) < 0.0095 && 
-	      abs(e.deltaPhiSuperClusterTrackAtVtx()) < 0.065 ) || 
-	   (abs(e.superCluster()->eta()) > 1.5660 && 
+	      fabs(e.deltaEtaSuperClusterTrackAtVtx()) < 0.0095 && 
+	      fabs(e.deltaPhiSuperClusterTrackAtVtx()) < 0.065 ) || 
+	   (fabs(e.superCluster()->eta()) > 1.5660 && 
 	      e.full5x5_sigmaIetaIeta() < 0.033 && 
 	      e.hcalOverEcal() <0.09 && 
 	      (e.ecalPFClusterIso() / e.pt()) < 0.45 && 
 	      (e.hcalPFClusterIso() / e.pt()) < 0.28 && 
-	      (e.dr03TkSumPt() / e.pt()) < 0.18 )))
-	 continue;
+	    (e.dr03TkSumPt() / e.pt()) < 0.18 )))){
+       //std::cout << ie << " killed by extra selection" << std::endl;
+       continue;
+     }
+
+
+     // Electron ID       
+     if (! (mvaIDMap->get(ie))){
+       //std::cout << ie << " killed by ID " << ((mvaIDMap->get(ie))) << std::endl;
+       continue;
+     }
+
 
      // Isolation
-     if (! (e.pfIsolationVariables().sumChargedHadronPt + std::max(0.0,e.pfIsolationVariables().sumNeutralHadronEt + e.pfIsolationVariables().sumPhotonEt - (*rho)*effArea(abs(e.eta())))/e.pt()) < 0.15) 
+     if (! (((e.pfIsolationVariables().sumChargedHadronPt + std::max(0.0,e.pfIsolationVariables().sumNeutralHadronEt + e.pfIsolationVariables().sumPhotonEt - (*rho)*effArea(fabs(e.superCluster()->eta()))))/e.pt()) < 0.15)) {
+       //std::cout << ie << " killed by iso" << std::endl;
        continue;
-
+     }
      output_es->push_back( input_es->at(ie));
    }  
+   
+   //std::cout << "Electrons: " << output_es->size() << " / " << input_es->size() << std::endl;
        
    iEvent.put(std::move(output_es));
  

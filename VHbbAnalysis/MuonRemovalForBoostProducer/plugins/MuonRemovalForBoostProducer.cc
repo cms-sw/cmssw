@@ -95,6 +95,8 @@ MuonRemovalForBoostProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 {
    using namespace edm;
 
+   bool debug = false;
+
    // Get the muons
    Handle<std::vector<pat::Muon> >  input_mus;
    iEvent.getByToken(inputMuonToken_, input_mus);
@@ -112,23 +114,38 @@ MuonRemovalForBoostProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
      pat::Muon mu = input_mus->at(imu);
      
      // |eta| < 2.4
-     if (! abs(mu.eta())<2.4)
+     if (! (fabs(mu.eta())<2.4)){
+       if (debug)
+	 std::cout << "Muon " << imu << " killed by eta" << std::endl;
        continue;
+     }
 
      //  pT > 15
-     if (! abs(mu.pt())>15)
+     if (! (mu.pt()>15)){
+       if (debug)
+	 std::cout << "Muon " << imu << " killed by pt" << std::endl;
        continue;
+     }
 
      // Isolation
-     if (! (mu.pfIsolationR04().sumChargedHadronPt + std::max( mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5 * mu.pfIsolationR04().sumPUPt,0.0)) / mu.pt() < 0.25)
+     if (! ((mu.pfIsolationR04().sumChargedHadronPt + std::max( mu.pfIsolationR04().sumNeutralHadronEt + mu.pfIsolationR04().sumPhotonEt - 0.5 * mu.pfIsolationR04().sumPUPt,0.0)) / mu.pt() < 0.25)){
+       if (debug)
+	 std::cout << "Muon " << imu << " killed by isolation" << std::endl;
        continue;
+     }
 
      // Tight Muon ID
-     if (! mu.isTightMuon(input_vtxs->at(0)))
-       continue;
-     
+     if (! (mu.isTightMuon(input_vtxs->at(0)))){
+       if (debug)
+	 std::cout << "Muon " << imu << " killed by ID" << std::endl;
+       continue;       
+     }
+
      output_mus->push_back( input_mus->at(imu));
    }  
+   
+   if (debug)
+     std::cout << input_mus->size() << " " << output_mus->size() << " muons for removal" << std::endl;
        
    iEvent.put(std::move(output_mus));
  
