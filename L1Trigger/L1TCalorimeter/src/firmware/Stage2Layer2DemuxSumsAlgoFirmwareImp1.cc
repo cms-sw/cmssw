@@ -110,6 +110,8 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
 
   // Final MET2 calculation
   if (metx2 != 0 || mety2 != 0 ) cordic_( metx2 , mety2 , metPhi2 , met2 );
+  met2 >>= 10;
+
 
   // Final MHT calculation
   if (mhtx != 0 || mhty != 0 ) cordic_( mhtx , mhty , mhtPhi , mht );
