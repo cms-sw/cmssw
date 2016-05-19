@@ -768,8 +768,12 @@ class TrackingSummaryTable:
         n_duplicate = _formatOrNone(_getN("num_duplicate_coll"), int)
 
         eff = _formatOrNone(_getN("effic_vs_coll"), lambda n: "%.4f" % n)
+        eff_nopt = _formatOrNone(_getN("effic_vs_coll_allPt"), lambda n: "%.4f" % n)
+        fake = _formatOrNone(_getN("fakerate_vs_coll"), lambda n: "%.4f" % n)
 
-        ret = [eff, n_tps, n_m_tps, n_tracks, n_true, n_fake, n_pileup, n_duplicate]
+        ret = [eff, n_tps, n_m_tps,
+               eff_nopt, fake,
+               n_tracks, n_true, n_fake, n_pileup, n_duplicate]
         if ret.count(None) == len(ret):
             return None
         return ret
@@ -779,6 +783,8 @@ class TrackingSummaryTable:
             "Efficiency",
             "Number of TrackingParticles (after cuts)",
             "Number of matched TrackingParticles",
+            "Efficiency (w/o pT cut)",
+            "Fake rate",
             "Number of tracks",
             "Number of true tracks",
             "Number of fake tracks",
