@@ -414,7 +414,7 @@ private:
 		MAX_ENTITY_LENGTH = 6
 
 	};
-	static Entity entity[ NUM_ENTITY ];
+	static const Entity entity[ NUM_ENTITY ];
 	static std::atomic<bool> condenseWhiteSpace;
 };
 
