@@ -30,7 +30,7 @@ _iterations_trackingPhase1 = [
     "InitialStep",
     "HighPtTripletStep",
     "DetachedQuadStep",
-    #"DetachedTripletStep", # FIXME: dropped for time being, but it may be enabled on the course of further tuning
+    "DetachedTripletStep",
     "LowPtQuadStep",
     "LowPtTripletStep",
     "MixedTripletStep",
