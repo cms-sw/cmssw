@@ -71,14 +71,14 @@ else:
     # -----------------------------------------------------------
 
     # BMTF
-    simBmtfDigis.DTDigi_Source       = cms.InputTag("unpackBmtf")
-    simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackBmtf")
+    simBmtfDigis.DTDigi_Source       = cms.InputTag("unpackBmtf:PhiDigis")
+    simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackBmtf:TheDigis")
 
     # OMTF
     simOmtfDigis.srcRPC              = cms.InputTag('unpackRPC')
-    simOmtfDigis.srcDTPh             = cms.InputTag("unpackBmtf")
-    simOmtfDigis.srcDTTh             = cms.InputTag("unpackBmtf")
-    simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe
+    simOmtfDigis.srcDTPh             = cms.InputTag("unpackBmtf:PhiDigis")
+    simOmtfDigis.srcDTTh             = cms.InputTag("unpackBmtf:TheDigis")
+    simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe 
 
     # EMTF
     simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe 
