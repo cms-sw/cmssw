@@ -24,18 +24,12 @@ class Phase2OTtiltedBarrelLayer final : public Phase2OTBarrelLayer {
   
   ~Phase2OTtiltedBarrelLayer();
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const final {return theBasicComps;}
-  //virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
-  
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const final;
     
-  //virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
-
  private:
-  //std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeometricSearchDet*> theNegativeRingsComps;
   std::vector<const GeometricSearchDet*> thePositiveRingsComps;
   std::vector<const GeomDet*> theBasicComps;

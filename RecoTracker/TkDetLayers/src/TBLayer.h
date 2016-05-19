@@ -25,7 +25,7 @@ class TBLayer: public BarrelDetLayer {
 
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const final {return theBasicComps;}
 
   virtual const std::vector<const GeometricSearchDet*>& components() const final  __attribute__ ((cold)) {return theComps;}
   
