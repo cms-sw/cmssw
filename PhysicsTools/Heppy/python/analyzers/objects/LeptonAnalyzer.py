@@ -19,14 +19,12 @@ from ROOT import heppy, TLorentzVector
 import math
 cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
 
-bottoms=[5,511,521,531,533,535,551,553 ]
-charms=[4,411,421,441,443,431,433 ]
-lights=[1,2,3,111,211,130,210,321 ]
-promptMothers=[23,24,-24,1000024,-1000024]
-
-
 class LeptonAnalyzer( Analyzer ):
 
+    bottoms=[5,511,521,531,533,535,551,553 ]
+    charms=[4,411,421,441,443,431,433 ]
+    lights=[1,2,3,111,211,130,210,321 ]
+    promptMothers=[23,24,-24,1000024,-1000024]
     
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(LeptonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
@@ -614,7 +612,6 @@ class LeptonAnalyzer( Analyzer ):
             lep.mcMatchTau = (gen in event.gentauleps if gen else -99)
             lep.mcLep=gen
 
-
     def isFromB(self,particle,bid=5, done={}):
         for i in xrange( particle.numberOfMothers() ): 
             mom  = particle.mother(i)
@@ -679,7 +676,7 @@ class LeptonAnalyzer( Analyzer ):
                 return True
         return False
 
-    def USMatchLeptons(self, event):
+    def SUSYMatchLeptons(self, event):
         
         leps = event.inclusiveLeptons
         genPs=[]
@@ -722,13 +719,13 @@ class LeptonAnalyzer( Analyzer ):
                 if prompt: code= 4
                 else: code= -1
 
-            if prompt or ((abs(gen.pdgId())==abs(lep.pdgId()) or abs(gen.pdgId())==15 ) and ((motherId in promptMothers) or (abs(motherId)==15 and (grandMotherId in promptMothers)) ) ) :
+            if prompt or ((abs(gen.pdgId())==abs(lep.pdgId()) or abs(gen.pdgId())==15 ) and ((motherId in self.promptMothers) or (abs(motherId)==15 and (grandMotherId in self.promptMothers)) ) ) :
                 if gen.pdgId()*lep.pdgId()>0: code= 0
                 else : code= 1
             
-            if (abs(gen.pdgId()) in bottoms) or (motherId in bottoms) : code= 3
-            if (abs(gen.pdgId()) in charms) or (motherId in charms) : code= 3
-            if (abs(gen.pdgId()) in lights) or (motherId in lights) : code= 2
+            if (abs(gen.pdgId()) in self.bottoms) or (motherId in bottoms) : code= 3
+            if (abs(gen.pdgId()) in self.charms) or (motherId in charms) : code= 3
+            if (abs(gen.pdgId()) in self.lights) or (motherId in lights) : code= 2
             lep.mcUCSXMatchId = code
 
     def process(self, event):
@@ -741,7 +738,8 @@ class LeptonAnalyzer( Analyzer ):
         if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
             self.matchLeptons(event)
             self.matchAnyLeptons(event)
-            self.USMatchLeptons(event)
+            if self.cfg_ana.do_mc_susy_match:
+                self.SUSYMatchLeptons(event)
             if self.doMatchToPhotons:
                 self.matchToPhotons(event)
             
@@ -815,6 +813,7 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     # do MC matching 
     do_mc_match = True, # note: it will in any case try it only on MC, not on data
     do_mc_match_photons = False, # mc match electrons to photons 
+    do_mc_susy_match=False,
     match_inclusiveLeptons = False, # match to all inclusive leptons
     )
 )
