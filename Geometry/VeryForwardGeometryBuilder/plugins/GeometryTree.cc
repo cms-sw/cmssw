@@ -8,8 +8,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -41,7 +40,7 @@ using namespace std;
  * Prints the RP Geometry hierarchy as a tree
  * \ingroup TotemRPGeometry
  */
-class GeometryTree : public edm::EDAnalyzer {
+class GeometryTree : public edm::one::EDAnalyzer<> {
     public:
         explicit GeometryTree(const edm::ParameterSet&) {
         }
