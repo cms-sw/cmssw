@@ -102,6 +102,30 @@ class TrackerTopology {
     unsigned int sterMask_;
   };
 
+  enum DetIdFields {
+    PBModule, PBLadder, PBLayer,
+    PEModule, PEPanel, PEBlade, PEDisk, PESide, 
+    /* TODO: this can be extended for all subdetectors */
+    DETID_FIELDS_MAX
+  };
+ private:
+  struct BitmaskAndSubdet { 
+    unsigned int const& startBit; 
+    unsigned int const& mask;
+    int subdet;
+  };
+  const BitmaskAndSubdet bits_per_field[DETID_FIELDS_MAX] = {
+    [PBModule] = { pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel},
+    [PBLadder] = { pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel},
+    [PBLayer]  = { pbVals_.layerStartBit_,  pbVals_.layerMask_,  PixelSubdetector::PixelBarrel},
+    [PEModule] = { pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap},
+    [PEPanel]  = { pfVals_.panelStartBit_,  pfVals_.panelMask_,  PixelSubdetector::PixelEndcap},
+    [PEBlade]  = { pfVals_.bladeStartBit_,  pfVals_.bladeMask_,  PixelSubdetector::PixelEndcap},
+    [PEDisk]   = { pfVals_.diskStartBit_,   pfVals_.diskMask_,   PixelSubdetector::PixelEndcap},
+    [PESide]   = { pfVals_.sideStartBit_,   pfVals_.sideMask_,   PixelSubdetector::PixelEndcap}
+  };
+
+ public:
   class SameLayerComparator {
   public:
     explicit SameLayerComparator(const TrackerTopology *topo): topo_(topo) {}
@@ -576,9 +600,20 @@ class TrackerTopology {
   std::string print(DetId detid) const;
 
   SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
- 
-  PixelBarrelValues const& getPBVals() const { return pbVals_; }
-  PixelEndcapValues const& getPFVals() const { return pfVals_; }
+
+  // Those is only implemented for Pixel right now, but can be extended to all 
+  // subdetectors.
+
+  // Extract the raw bit value for a given field type.
+  // E.g. getField(id, PBLadder) == pxbLadder(id)
+  unsigned int getField(const DetId &id, DetIdFields idx) const {
+    return ((id.rawId()>>bits_per_field[idx].startBit)&bits_per_field[idx].mask);
+  }
+  // checks whether a given field can be extracted from a given DetId.
+  // This boils down to checking whether it is the correct subdetector.
+  bool hasField(const DetId &id, DetIdFields idx) const {
+    return id.subdetId() == bits_per_field[idx].subdet;
+  }
  
  private:
 
