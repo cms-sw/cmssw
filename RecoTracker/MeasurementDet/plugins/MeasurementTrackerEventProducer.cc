@@ -34,6 +34,9 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
         thePixelClusterLabel = consumes<edmNew::DetSetVector<SiPixelCluster> >(edm::InputTag(pset_.getParameter<std::string>("pixelClusterProducer")));
         if (selfUpdateSkipClusters_) thePixelClusterMask = consumes<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>>(iConfig.getParameter<edm::InputTag>("skipClusters"));
     }
+    if (pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer") != "") {
+        thePh2OTClusterLabel = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(edm::InputTag(pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
+    }
 
     produces<MeasurementTrackerEvent>();
 }
@@ -47,6 +50,7 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     // create new data structures from templates
     std::auto_ptr<StMeasurementDetSet> stripData(new StMeasurementDetSet(measurementTracker->stripDetConditions()));
     std::auto_ptr<PxMeasurementDetSet> pixelData(new PxMeasurementDetSet(measurementTracker->pixelDetConditions()));
+    std::auto_ptr<Phase2OTMeasurementDetSet> phase2OTData(new Phase2OTMeasurementDetSet(measurementTracker->phase2DetConditions()));
     //std::cout << "Created new strip data @" << &* stripData << std::endl;
     std::vector<bool> stripClustersToSkip;
     std::vector<bool> pixelClustersToSkip;
@@ -54,9 +58,11 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     // fill them
     updateStrips(iEvent, *stripData, stripClustersToSkip);
     updatePixels(iEvent, *pixelData, pixelClustersToSkip);
+    updatePhase2(iEvent, *phase2OTData);
+    updateStacks(iEvent, *phase2OTData);
 
     // put into MTE
-    std::auto_ptr<MeasurementTrackerEvent> out(new MeasurementTrackerEvent(*measurementTracker, stripData.release(), pixelData.release(), stripClustersToSkip, pixelClustersToSkip));
+    std::auto_ptr<MeasurementTrackerEvent> out(new MeasurementTrackerEvent(*measurementTracker, stripData.release(), pixelData.release(), phase2OTData.release(), stripClustersToSkip, pixelClustersToSkip));
 
     // put into event
     iEvent.put(out);
@@ -108,6 +114,15 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
     event.getByToken(thePixelClusterLabel, pixelClusters);
     
     const  edmNew::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
+
+    //debug
+    LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePixel: pixelCollection size: " << pixelCollection->dataSize() << std::endl;
+    for (edmNew::DetSetVector< SiPixelCluster >::const_iterator DSViter = pixelCollection->begin(); DSViter != pixelCollection->end(); ++DSViter) {
+    //for (auto DSViter = pixelCollection ) {
+        unsigned int rawid(DSViter->detId());
+        LogTrace("MeasurementTracker") << "\t cluster in detId: " << rawid << std::endl;
+    }
+
    
     if (switchOffPixelsIfEmpty && pixelCollection->empty()) {
        thePxDets.setActiveThisEvent(false);
@@ -216,6 +231,44 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
 }
 
 void 
+MeasurementTrackerEventProducer::updatePhase2( const edm::Event& event, Phase2OTMeasurementDetSet & thePh2OTDets ) const {
+
+  LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePhase2" ;
+
+  // Phase2OT Clusters
+  std::string phase2ClusterProducer = pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer");
+  if( phase2ClusterProducer.empty() ) { //clusters have not been produced
+    thePh2OTDets.setActiveThisEvent(false);
+  } else {
+
+    edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClusters = thePh2OTDets.handle();
+    event.getByToken(thePh2OTClusterLabel, phase2OTClusters);
+    const edmNew::DetSetVector<Phase2TrackerCluster1D>* phase2OTCollection = phase2OTClusters.product();
+
+    LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePhase2: ClustersPhase2Collection size: " << phase2OTCollection->dataSize() << std::endl;
+
+    // FIXME: should check if lower_bound is better
+    int i = 0, endDet = thePh2OTDets.size();
+    for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it = phase2OTCollection->begin(), ed = phase2OTCollection->end(); it != ed; ++it) {
+      //debug
+      unsigned int rawid(it->detId());
+      LogTrace("MeasurementTracker") << "\t cluster in detId: " << rawid << std::endl;
+
+      edmNew::DetSet<Phase2TrackerCluster1D> set(*it);
+      unsigned int id = set.id();
+      while ( id != thePh2OTDets.id(i)) {
+          ++i;
+          if (endDet==i) throw "we have a problem!!!!";
+      }
+      // push cluster range in det
+      if ( thePh2OTDets.isActive(i) ) {
+          thePh2OTDets.update(i,set);
+      }
+    }
+  }
+}
+
+void
 MeasurementTrackerEventProducer::getInactiveStrips(const edm::Event& event,std::vector<uint32_t> & rawInactiveDetIds) const
 {
   if (!theInactiveStripDetectorLabels.empty()) {

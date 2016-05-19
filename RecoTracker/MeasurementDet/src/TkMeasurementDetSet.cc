@@ -38,4 +38,8 @@ void PxMeasurementConditionSet::init(int size) {
   id_.resize(size);
 }
 
+void Phase2OTMeasurementConditionSet::init(int size) {
+  activeThisPeriod_.resize(size,true);
+  id_.resize(size);
+}
 

@@ -21,6 +21,8 @@ private:
 protected:
       void updatePixels( const edm::Event&, PxMeasurementDetSet & thePxDets, std::vector<bool> & pixelClustersToSkip ) const;
       void updateStrips( const edm::Event&, StMeasurementDetSet & theStDets, std::vector<bool> & stripClustersToSkip ) const;
+      void updatePhase2( const edm::Event&, Phase2OTMeasurementDetSet & thePh2OTDets ) const;
+      void updateStacks( const edm::Event&, Phase2OTMeasurementDetSet & theStDets ) const {};
 
       void getInactiveStrips(const edm::Event& event,std::vector<uint32_t> & rawInactiveDetIds) const;
 
@@ -28,6 +30,7 @@ protected:
       const edm::ParameterSet& pset_;
       edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> thePixelClusterLabel;
       edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> theStripClusterLabel;
+      edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D>> thePh2OTClusterLabel;
       edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>> thePixelClusterMask;
       edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>> theStripClusterMask;
 
