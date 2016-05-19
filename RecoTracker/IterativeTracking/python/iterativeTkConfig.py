@@ -28,11 +28,11 @@ _iterations_trackingLowPU = [
 ]
 _iterations_trackingPhase1 = [
     "InitialStep",
+    "LowPtQuadStep",
     "HighPtTripletStep",
+    "LowPtTripletStep",
     "DetachedQuadStep",
     "DetachedTripletStep",
-    "LowPtQuadStep",
-    "LowPtTripletStep",
     "MixedTripletStep",
     "PixelLessStep",
     "TobTecStep",
