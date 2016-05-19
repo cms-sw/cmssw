@@ -203,30 +203,68 @@ def initialize(**kwargs):
         )
 
 
-        # HEPTopTagger (MultiR)
+#        # HEPTopTagger (MultiR)
+#        process.looseOptRHTT = cms.EDProducer(
+#            "HTTTopJetProducer",
+#            PFJetParameters,
+#            AnomalousCellParameters,
+#            jetCollInstanceName=cms.string("SubJets"),
+#            useExplicitGhosts = cms.bool(True),
+#            writeCompound  = cms.bool(True), 
+#            optimalR       = cms.bool(True),
+#            algorithm      = cms.int32(1),
+#            jetAlgorithm   = cms.string("CambridgeAachen"),
+#            rParam         = cms.double(1.5),
+#            mode           = cms.int32(4),
+#            minFatjetPt    = cms.double(200.),
+#            minCandPt      = cms.double(200.),
+#            minSubjetPt    = cms.double(30.),
+#            minCandMass    = cms.double(0.),
+#            maxCandMass    = cms.double(1000),
+#            massRatioWidth = cms.double(100.),
+#            minM23Cut      = cms.double(0.),
+#            minM13Cut      = cms.double(0.),
+#            maxM13Cut      = cms.double(2.))
+
+        #process.looseOptRHTT.src = cms.InputTag("chs")
+        #process.looseOptRHTT.jetPtMin = cms.double(200.)
+
+
+
         process.looseOptRHTT = cms.EDProducer(
             "HTTTopJetProducer",
-            PFJetParameters,
+            PFJetParameters.clone(
+                src               = cms.InputTag("chs"),
+                doAreaFastjet     = cms.bool(True),
+                doRhoFastjet      = cms.bool(False),
+                jetPtMin          = cms.double(200.0)
+                ),
             AnomalousCellParameters,
-            jetCollInstanceName=cms.string("SubJets"),
             useExplicitGhosts = cms.bool(True),
-            writeCompound  = cms.bool(True), 
-            optimalR       = cms.bool(True),
-            algorithm      = cms.int32(1),
-            jetAlgorithm   = cms.string("CambridgeAachen"),
-            rParam         = cms.double(1.5),
-            mode           = cms.int32(4),
-            minFatjetPt    = cms.double(200.),
-            minCandPt      = cms.double(200.),
-            minSubjetPt    = cms.double(30.),
-            minCandMass    = cms.double(0.),
-            maxCandMass    = cms.double(1000),
-            massRatioWidth = cms.double(100.),
-            minM23Cut      = cms.double(0.),
-            minM13Cut      = cms.double(0.),
-            maxM13Cut      = cms.double(2.))
-        process.looseOptRHTT.src = cms.InputTag("chs")
-        process.looseOptRHTT.jetPtMin = cms.double(200.)
+            algorithm           = cms.int32(1),
+            jetAlgorithm        = cms.string("CambridgeAachen"),
+            rParam              = cms.double(1.5),
+            optimalR            = cms.bool(True),
+            qJets               = cms.bool(False),
+            minFatjetPt         = cms.double(200.),
+            minSubjetPt         = cms.double(0.),
+            minCandPt           = cms.double(0.),
+            maxFatjetAbsEta     = cms.double(99.),
+            subjetMass          = cms.double(30.),
+            muCut               = cms.double(0.8),
+            filtR               = cms.double(0.3),
+            filtN               = cms.int32(5),
+            mode                = cms.int32(4),
+            minCandMass         = cms.double(0.),
+            maxCandMass         = cms.double(999999.),
+            massRatioWidth      = cms.double(999999.),
+            minM23Cut           = cms.double(0.),
+            minM13Cut           = cms.double(0.),
+            maxM13Cut           = cms.double(999999.),
+            writeCompound       = cms.bool(True),
+            jetCollInstanceName = cms.string("SubJets")
+            )
+
 
         process.OUT.outputCommands.append("keep *_ca15PFJetsCHS_*_EX")
         process.OUT.outputCommands.append("keep *_ca15PFPrunedJetsCHS_*_EX")
