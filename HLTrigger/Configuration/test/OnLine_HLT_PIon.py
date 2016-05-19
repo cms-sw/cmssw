@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V94 (CMSSW_8_0_8_HLT1)
+# /dev/CMSSW_8_0_0/PIon/V95 (CMSSW_8_0_8_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V94')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V95')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -7463,16 +7463,16 @@ process.hltPrePhoton20CaloIdVLIsoL = cms.EDFilter( "HLTPrescaler",
 process.hltRechitInRegionsECAL = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProducer",
     l1InputRegions = cms.VPSet( 
       cms.PSet(  maxEt = cms.double( 999.0 ),
-        regionEtaMargin = cms.double( 0.14 ),
+        regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 5.0 ),
-        regionPhiMargin = cms.double( 0.4 ),
+        regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
         type = cms.string( "EGamma" )
       ),
       cms.PSet(  maxEt = cms.double( 999.0 ),
-        regionEtaMargin = cms.double( 0.14 ),
+        regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 200.0 ),
-        regionPhiMargin = cms.double( 0.4 ),
+        regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
         type = cms.string( "Jet" )
       )
@@ -7484,16 +7484,16 @@ process.hltRechitInRegionsECAL = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsPro
 process.hltRechitInRegionsES = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProducer",
     l1InputRegions = cms.VPSet( 
       cms.PSet(  maxEt = cms.double( 999.0 ),
-        regionEtaMargin = cms.double( 0.14 ),
+        regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 5.0 ),
-        regionPhiMargin = cms.double( 0.4 ),
+        regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
         type = cms.string( "EGamma" )
       ),
       cms.PSet(  maxEt = cms.double( 999.0 ),
-        regionEtaMargin = cms.double( 0.14 ),
+        regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 200.0 ),
-        regionPhiMargin = cms.double( 0.4 ),
+        regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
         type = cms.string( "Jet" )
       )
