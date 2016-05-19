@@ -108,7 +108,7 @@ HLTMuonOfflineAnalyzer::moduleLabels(string path)
     if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)){
       iter = modules.erase(iter);
     }
-    else if (iter->find("Filtered0") != string::npos)
+    else if (iter->find("L1Filtered0") != string::npos)
       iter = modules.erase(iter);
     else ++iter;
   }
