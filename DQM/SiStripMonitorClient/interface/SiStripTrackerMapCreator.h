@@ -12,6 +12,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <TTree.h>
 
 class DQMStore;
 class TkDetMap;
@@ -33,6 +34,7 @@ class SiStripTrackerMapCreator {
               DQMStore* dqm_store, std::string& htype, const edm::EventSetup& eSetup);
   void createForOffline(const edm::ParameterSet & tkmapPset, 
 			DQMStore* dqm_store, std::string& htype, const edm::EventSetup& eSetup);
+  void createInfoFile(std::vector<std::string> map_names, TTree* tkinfo_tree, DQMStore* dqm_store, std::vector<uint32_t> detidList);
 
 
  private:
@@ -45,6 +47,7 @@ class SiStripTrackerMapCreator {
   void setTkMapRange(std::string& map_type);
   void setTkMapRangeOffline();
   uint16_t getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id, const TrackerTopology* tTopo, std::ostringstream& comment);
+  uint16_t getDetectorFlag(uint32_t det_id) { return detflag_.find(det_id) != detflag_.end() ? detflag_[det_id] : 0; }
   void printBadModuleList(std::map<unsigned int,std::string>* badmodmap, const edm::EventSetup& eSetup);
   void printTopModules(std::vector<std::pair<float,uint32_t> >* topNmodVec, const edm::EventSetup& eSetup);
 
@@ -66,6 +69,7 @@ class SiStripTrackerMapCreator {
   //  SiStripPsuDetIdMap psumap_;
   uint32_t cached_detid;
   int16_t cached_layer;
+  std::map<uint32_t, uint16_t> detflag_;
   TkLayerMap::XYbin cached_XYbin;
   bool topModules;
   uint32_t numTopModules;
