@@ -38,10 +38,8 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
 // cond formats
-#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
-#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
-#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
 // ROOT output stuff
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -82,6 +80,7 @@ public:
 
 private:
 
+  double ecalLSB_;
   unsigned maxCaloTP_;
   unsigned maxL1Tower_;
   unsigned maxL1Cluster_;
@@ -91,10 +90,6 @@ private:
   
   // tree
   TTree * tree_;
- 
-  /// scales
-  unsigned long long ecalScaleCacheID_;
-  unsigned long long hcalScaleCacheID_;
 
   // EDM input tags
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalToken_;
@@ -117,8 +112,9 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
   if (clusterTag.instance() != std::string(""))
     l1ClusterToken_ = consumes<l1t::CaloClusterBxCollection>(clusterTag);
  
-  maxCaloTP_  = iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 5760);
-  maxL1Tower_ = iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 5760);
+  ecalLSB_      = iConfig.getUntrackedParameter<double>("ecalLSB", 0.5);
+  maxCaloTP_    = iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 5760);
+  maxL1Tower_   = iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 5760);
   maxL1Cluster_ = iConfig.getUntrackedParameter<unsigned int>("maxL1Cluster", 5760);
  
   // set up output
@@ -155,15 +151,8 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   // do calo towers
   caloTPData_->Reset();
 
-  edm::ESHandle<L1CaloEcalScale> ecalScale;
-  if( iSetup.get< L1CaloEcalScaleRcd > ().cacheIdentifier() != ecalScaleCacheID_ ) {
-    iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
-    ecalScaleCacheID_ = iSetup.get< L1CaloEcalScaleRcd > ().cacheIdentifier();
-  }
-
-  edm::ESHandle<L1CaloHcalScale> hcalScale;
-  iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
-  hcalScaleCacheID_ = iSetup.get< L1CaloHcalScaleRcd > ().cacheIdentifier();
+  edm::ESHandle<CaloTPGTranscoder> decoder;
+  iSetup.get<CaloTPGRecord>().get(decoder);
 
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
@@ -176,15 +165,13 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
     for ( auto itr : *(ecalTPs.product()) ) {
 
       short ieta = (short) itr.id().ieta();
-      unsigned short absIeta = (unsigned short) abs(ieta);
-      short sign = ieta/absIeta;
+      //      unsigned short absIeta = (unsigned short) abs(ieta);
+      //      short sign = ieta/absIeta;
       
       unsigned short cal_iphi = (unsigned short) itr.id().iphi();
       unsigned short iphi = (72 + 18 - cal_iphi) % 72;
       unsigned short compEt = itr.compressedEt();
-      double et = 0.;
-      if (ecalScale.isValid()) et = ecalScale->et( compEt, absIeta, sign );
-      
+      double et = ecalLSB_ * compEt;
       unsigned short fineGrain = (unsigned short) itr.fineGrain();
 
       if (compEt > 0) {
@@ -211,18 +198,14 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
       int ver = itr.id().version();
       short ieta = (short) itr.id().ieta();
       unsigned short absIeta = (unsigned short) abs(ieta);
-      short sign = ieta/absIeta;
+      //      short sign = ieta/absIeta;
       
       unsigned short cal_iphi = (unsigned short) itr.id().iphi();
       unsigned short iphi = (72 + 18 - cal_iphi) % 72;
-      if (absIeta >= 29) {  // special treatment for HF
-	iphi = iphi/4;
-      }
       
       unsigned short compEt = itr.SOI_compressedEt();
-      double et = 0.;
-      if (hcalScale.isValid()) et = hcalScale->et( compEt, absIeta, sign );
-      
+      double et = decoder->hcaletValue(itr.id(), itr.t0());
+
       unsigned short fineGrain = (unsigned short) itr.SOI_fineGrain();
       
       if (compEt > 0 && (absIeta<29 || ver==1)) {
