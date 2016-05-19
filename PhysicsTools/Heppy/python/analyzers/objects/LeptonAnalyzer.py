@@ -723,11 +723,11 @@ class LeptonAnalyzer( Analyzer ):
                 if gen.pdgId()*lep.pdgId()>0: code= 0
                 else : code= 1
             
-            if (abs(gen.pdgId()) in self.bottoms) or (motherId in bottoms) : code= 3
-            if (abs(gen.pdgId()) in self.charms) or (motherId in charms) : code= 3
-            if (abs(gen.pdgId()) in self.lights) or (motherId in lights) : code= 2
+            if (abs(gen.pdgId()) in self.bottoms) or (motherId in self.bottoms) : code= 3
+            if (abs(gen.pdgId()) in self.charms) or (motherId in self.charms) : code= 3
+            if (abs(gen.pdgId()) in self.lights) or (motherId in self.lights) : code= 2
             lep.mcUCSXMatchId = code
-
+            
     def process(self, event):
         self.readCollections( event.input )
         self.counters.counter('events').inc('all events')
