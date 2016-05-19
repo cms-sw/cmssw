@@ -5,13 +5,13 @@ photon_pathName = "HLT_Photon30_R9Id90_HE10_IsoM"
 photon_moduleName ="hltEG30R9Id90HE10IsoMTrackIsoFilter"
 
 muon_pathName = "HLT_IsoMu27"
-muon_moduleName = "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
+muon_moduleName = "hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
 
 l2muon_pathName = "HLT_L2Mu10"
-l2muon_moduleName = "hltL2fL1sMu16L1f0L2Filtered10Q"
+l2muon_moduleName = "hltL2fL1sMu22L1f0L2Filtered10Q"
 
-l2NoBPTXmuon_pathName = "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo"
-l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
+l2NoBPTXmuon_pathName = "HLT_L2Mu10_NoVertex_NoBPTX3BX"
+l2NoBPTXmuon_moduleName = "hltL2fL1sMuOpenNotBptxORNoHaloMu3BXL1f0NoVtxCosmicSeedMeanTimerL2Filtered10"
 
 electron_pathName = "HLT_Ele23_WPLoose_Gsf"
 electron_moduleName = "hltEle23WPLooseGsfTrackIsoFilter"
@@ -30,7 +30,8 @@ rsq_mr_moduleName = "hltRsqMR240Rsq0p09MR200"
 
 bJet_pathNameCalo = "HLT_PFMET120_BTagCSV_p067"
 bJet_moduleNameCalo = "hltBTagCaloCSVp067Single"
-bJet_pathNamePF = "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v1"
+
+bJet_pathNamePF = "HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500"
 bJet_moduleNamePF = "hltBTagPFCSVp016SingleWithMatching"
 
 #To avoid booking histogram, set pathName = cms.string("")
