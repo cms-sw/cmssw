@@ -558,6 +558,14 @@ sub main {
 	print "$theirs\n";;
 	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"raw2016\",\"$ours\",\"$theirs\",\"l1UpgradeTree/L1UpgradeTree\",\"l1UpgradeTree/L1UpgradeTree\")'");
 
+	$ours = "../$DIR1/$WORK_DIR/test_5/L1Ntuple.root";
+	$theirs = "../$DIR2/$WORK_DIR/test_5/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"reemul2016\",\"$ours\",\"$theirs\")'");
+
 
 	# this is a hack until L1T uGT output goes into L1TNtuple:
         system "sed -n \'/L1T menu Name/,/Final OR Count/p\' ../$DIR1/$WORK_DIR/test_0/CMSRUN.log > menu_a.txt";
