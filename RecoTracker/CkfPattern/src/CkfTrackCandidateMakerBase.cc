@@ -88,6 +88,7 @@ namespace cms{
         skipClusters_ = true;
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
+        maskPhase2OTs_ = iC.consumes<Phase2OTClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       }
 #ifndef VI_REPRODUCIBLE
     std::string cleaner = conf.getParameter<std::string>("RedundantSeedCleaner");
@@ -172,9 +173,11 @@ namespace cms{
     if (skipClusters_) {
         edm::Handle<PixelClusterMask> pixelMask;
         e.getByToken(maskPixels_, pixelMask);
-            edm::Handle<StripClusterMask> stripMask;
-            e.getByToken(maskStrips_, stripMask);
-            dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
+        edm::Handle<StripClusterMask> stripMask;
+        e.getByToken(maskStrips_, stripMask);
+        edm::Handle<Phase2OTClusterMask> phase2OTMask;
+        e.getByToken(maskPhase2OTs_, phase2OTMask);
+        dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask, *phase2OTMask));
         //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks, " << std::endl;
         theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
     } else {
