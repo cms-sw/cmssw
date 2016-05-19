@@ -1070,6 +1070,10 @@ class AdditionalBoost( Analyzer ):
         # Ungroomed Fatjets + NSubjettiness + Hbb Tagging
         ########
 
+        # So far only applied to ungroomed CA15 jet 
+        # TODO: also add for other collections
+        max_fatjet_eta = 2.0
+
         for prefix in ["ca15"]:
 
             if self.skip_ca15 and ("ca15" in prefix):
@@ -1084,8 +1088,14 @@ class AdditionalBoost( Analyzer ):
             newtags =  self.handles[prefix+'bbtag'].product()
                 
             # Four Vector
-            setattr(event, prefix+"ungroomed", map(PhysicsObject, self.handles[prefix+'ungroomed'].product()))
-
+            tmp = map(PhysicsObject, self.handles[prefix+'ungroomed'].product())
+            # assign the original index (so we can do a proper lookup of original jet even after eta cut)
+            for ij, j in enumerate(tmp):
+                j.original_index = ij
+                
+            # And apply eta cut
+            setattr(event, prefix+"ungroomed", [x for x in tmp if abs(x.eta()) < max_fatjet_eta])
+                
             # Loop over jets                        
             for ij, jet in enumerate(getattr(event, prefix+"ungroomed")):
 
