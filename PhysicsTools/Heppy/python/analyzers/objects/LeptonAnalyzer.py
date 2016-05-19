@@ -19,6 +19,12 @@ from ROOT import heppy, TLorentzVector
 import math
 cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
 
+bottoms=[5,511,521,531,533,535,551,553 ]
+charms=[4,411,421,441,443,431,433 ]
+lights=[1,2,3,111,211,130,210,321 ]
+promptMothers=[23,24,-24,1000024,-1000024]
+
+
 class LeptonAnalyzer( Analyzer ):
 
     
@@ -608,6 +614,7 @@ class LeptonAnalyzer( Analyzer ):
             lep.mcMatchTau = (gen in event.gentauleps if gen else -99)
             lep.mcLep=gen
 
+
     def isFromB(self,particle,bid=5, done={}):
         for i in xrange( particle.numberOfMothers() ): 
             mom  = particle.mother(i)
@@ -663,6 +670,67 @@ class LeptonAnalyzer( Analyzer ):
                     dlep = min(dlep, distance(lep,lep.mcMatchAny_gp))
                 if dlep <= dpho: lep.mcPho = None
 
+
+    def isFromGamma(self,particle,gid=22, done={}):
+        for i in xrange( particle.numberOfMothers() ): 
+            mom  = particle.mother(i)
+            momid = abs(mom.pdgId())
+            if momid == gid: 
+                return True
+        return False
+
+    def USMatchLeptons(self, event):
+        
+        leps = event.inclusiveLeptons
+        genPs=[]
+        genPsIdxs={}
+        for idx,x in enumerate(event.genParticles):
+            if x.status() == 1 or x.status() == 2 or x.status() == 71:
+                genPs.append(x)
+                genPsIdxs[idx]=len(genPsIdxs)
+
+        def lepMatch(rec, gen):
+            if gen.status() !=1 and not (abs(gen.pdgId())==15 and gen.status() ==2 ): return False
+            if abs(rec.pdgId()) != abs(gen.pdgId()) and abs(gen.pdgId())!=15: return False
+            return True
+        matchLep = matchObjectCollection3(leps,genPs, 
+                                          deltaRMax = 0.2, filter = lepMatch)
+        
+        def generalMatch(rec, gen):
+            if gen.status() !=1 and gen.status() !=71: return False
+            return True
+        matchPart = matchObjectCollection3(leps,genPs, 
+                                           deltaRMax = 0.2, filter = generalMatch)
+        
+        for il, lep in  enumerate(leps):
+            gen = matchLep[lep] if matchLep[lep] else matchPart[lep]
+            code=-1
+            if not gen: 
+                lep.mcUCSXMatchId = -1
+                continue
+            
+            prompt = gen.isPromptFinalState() or gen.isDirectPromptTauDecayProductFinalState() or gen.isHardProcess() 
+            motherId=-9999
+            grandMotherId=-9999
+            moms=realGenMothers(gen)
+            if len(moms)==1:
+                motherId = abs(moms[0].pdgId())
+                gmoms = realGenMothers(moms[0])
+                if len(gmoms)==1:
+                    grandMotherId = abs(gmoms[0].pdgId())
+            if gen.pdgId()==22 or (motherId==22 and gen.pdgId()==lep.pdgId() ):
+                if prompt: code= 4
+                else: code= -1
+
+            if prompt or ((abs(gen.pdgId())==abs(lep.pdgId()) or abs(gen.pdgId())==15 ) and ((motherId in promptMothers) or (abs(motherId)==15 and (grandMotherId in promptMothers)) ) ) :
+                if gen.pdgId()*lep.pdgId()>0: code= 0
+                else : code= 1
+            
+            if (abs(gen.pdgId()) in bottoms) or (motherId in bottoms) : code= 3
+            if (abs(gen.pdgId()) in charms) or (motherId in charms) : code= 3
+            if (abs(gen.pdgId()) in lights) or (motherId in lights) : code= 2
+            lep.mcUCSXMatchId = code
+
     def process(self, event):
         self.readCollections( event.input )
         self.counters.counter('events').inc('all events')
@@ -673,6 +741,7 @@ class LeptonAnalyzer( Analyzer ):
         if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
             self.matchLeptons(event)
             self.matchAnyLeptons(event)
+            self.USMatchLeptons(event)
             if self.doMatchToPhotons:
                 self.matchToPhotons(event)
             
