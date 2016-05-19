@@ -23,7 +23,6 @@ SUSY_HLT_MET120_MUON5 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 
 SUSY_HLT_MET120_MUON5_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_Mu5_v"),
-    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
        "pfHTTurnOn_eff 'Turn-on vs HT; PFHT (GeV); #epsilon' pfHTTurnOn_num pfHTTurnOn_den",
@@ -55,7 +54,6 @@ SUSY_HLT_MET50_DIMUON3 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 
 SUSY_HLT_MET50_DIMUON3_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleMu3_PFMET50_v"),
-    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
        "pfHTTurnOn_eff 'Turn-on vs HT; PFHT (GeV); #epsilon' pfHTTurnOn_num pfHTTurnOn_den",
