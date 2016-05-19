@@ -149,6 +149,7 @@ private:
 
   // need to cache some DetIds for the digitizers,
   // if they don't come straight from the geometry
+  std::vector<DetId> hbheCells;
   std::vector<DetId> theHBHEQIE8DetIds, theHBHEQIE11DetIds;
   std::vector<DetId> theHOHPDDetIds;
   std::vector<DetId> theHOSiPMDetIds;
