@@ -52,6 +52,7 @@ Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
 
 
  
+#ifdef EDM_ML_DEBUG
   LogDebug("TkDetLayers") << "==== DEBUG Phase2OTBarrelRod =====" ; 
   for (vector<const GeomDet*>::const_iterator i=theInnerDets.begin();
        i != theInnerDets.end(); i++){
@@ -89,7 +90,7 @@ Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
 			    << (**i).position().phi() ;
   }
   LogDebug("TkDetLayers") << "==== end DEBUG Phase2OTBarrelRod =====" ; 
-  
+#endif  
 
 
 }

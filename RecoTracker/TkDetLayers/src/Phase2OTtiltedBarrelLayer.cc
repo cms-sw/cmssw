@@ -10,8 +10,6 @@
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
 #include "Phase2OTEndcapLayerBuilder.h"
 
-//#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-
 using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
@@ -40,6 +38,7 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTB
   BarrelDetLayer::initialize();
   theCylinder = cylinder( theComps );
 
+#ifdef EDM_ML_DEBUG
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "==== DEBUG Phase2OTtiltedBarrelLayer =====" ; 
   LogTrace("TkDetLayers") << "Phase2OTtiltedBarrelLayer Cyl r,lenght: "
@@ -74,7 +73,7 @@ Phase2OTtiltedBarrelLayer::Phase2OTtiltedBarrelLayer(std::vector<const Phase2OTB
   }
   LogTrace("TkDetLayers") << "==== end DEBUG Phase2OTtiltedBarrelLayer =====" ; 
   //----------------------------------- 
-
+#endif
 }
 
 Phase2OTtiltedBarrelLayer::~Phase2OTtiltedBarrelLayer(){
@@ -109,6 +108,7 @@ Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurfac
   result.insert(result.end(),closestResultPos.begin(),closestResultPos.end());
   result.insert(result.end(),closestResultNeg.begin(),closestResultNeg.end());
 
+#ifdef EDM_ML_DEBUG
   LogDebug("TkDetLayers") << "==== output di Phase2OTtiltedBarrelLayer =====" ; 
   if(closestResultRods.size() != 0){
     for (auto gr : closestResultRods) {
@@ -145,6 +145,6 @@ Phase2OTtiltedBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurfac
   } else {
       LogTrace("TkDetLayers") << "result size is zero"; 
   }
-
+#endif
   
 }
