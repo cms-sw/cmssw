@@ -34,6 +34,8 @@ SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = False
 SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = False
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
+from DQM.SiStripMonitorClient.pset4GenericTriggerEventFlag_cfi import *
+
 # SiStripMonitorCluster ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone()
@@ -48,14 +50,8 @@ SiStripMonitorClusterBPTX.TH1MainDiagonalPosition.globalswitchon = True
 SiStripMonitorClusterBPTX.TH1StripNoise2ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.TH1StripNoise3ApvCycle.globalswitchon  = True
 SiStripMonitorClusterBPTX.ClusterHisto = True
-SiStripMonitorClusterBPTX.BPTXfilter = cms.PSet(
-    andOr         = cms.bool( False ),
-    dbLabel       = cms.string("SiStripDQMTrigger"),
-    l1Algorithms = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias' ),
-    andOrL1       = cms.bool( True ),
-    errorReplyL1  = cms.bool( True ),
-    l1BeforeMask  = cms.bool( True ) # specifies, if the L1 algorithm decision should be read as before (true) or after (false) masking is applied. 
-)
+SiStripMonitorClusterBPTX.BPTXfilter = genericTriggerEventFlag4L1bd
+
 SiStripMonitorClusterBPTX.PixelDCSfilter = cms.PSet(
     andOr         = cms.bool( False ),
     dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
@@ -84,26 +80,14 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackMB.TrackProducer = 'generalTracks'
 SiStripMonitorTrackMB.Mod_On        = False
-SiStripMonitorTrackMB.andOr         = cms.bool( False )
-SiStripMonitorTrackMB.dbLabel       = cms.string("SiStripDQMTrigger")
-SiStripMonitorTrackMB.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-SiStripMonitorTrackMB.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
-SiStripMonitorTrackMB.hltDBKey = cms.string("Tracker_MB")
-SiStripMonitorTrackMB.errorReplyHlt  = cms.bool( False )
-SiStripMonitorTrackMB.andOrHlt = cms.bool(True) # True:=OR; False:=AND
+SiStripMonitorTrackMB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals.trajectoryInput = 'generalTracks'
 MonitorTrackResiduals.Tracks          = 'generalTracks'
-MonitorTrackResiduals.Mod_On        = False
-MonitorTrackResiduals.andOr         = cms.bool( False )
-MonitorTrackResiduals.dbLabel       = cms.string("SiStripDQMTrigger")
-MonitorTrackResiduals.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-MonitorTrackResiduals.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
-MonitorTrackResiduals.hltDBKey = cms.string("Tracker_MB")
-MonitorTrackResiduals.errorReplyHlt  = cms.bool( False )
-MonitorTrackResiduals.andOrHlt = cms.bool(True) 
+MonitorTrackResiduals.Mod_On          = False
+MonitorTrackResiduals.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
 
 # DQM Services
 dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",

@@ -19,16 +19,17 @@ process.SiStripDQMCreate = cms.EDAnalyzer( "AlCaRecoTriggerBitsRcdUpdate"
 , listNamesRemove = cms.vstring()
 , triggerListsAdd = cms.VPSet(
     cms.PSet(
-      listName = cms.string( 'SiStripDQM_L1' )
-    , hltPaths = cms.vstring(
-        'NOT L1Tech_BSC_halo_beam2_inner.v0'                                   # NOT 36
-      , 'NOT L1Tech_BSC_halo_beam2_outer.v0'                                   # NOT 37
-      , 'NOT L1Tech_BSC_halo_beam1_inner.v0'                                   # NOT 38
-      , 'NOT L1Tech_BSC_halo_beam1_outer.v0'                                   # NOT 39
-      , 'NOT (L1Tech_BSC_splash_beam1.v0 AND NOT L1Tech_BSC_splash_beam2.v0)'  # NOT (42 AND NOT 43)
-      , 'NOT (L1Tech_BSC_splash_beam2.v0 AND NOT L1Tech_BSC_splash_beam1.v0)'  # NOT (43 AND NOT 42)
-      )
-    )
+      listName = cms.string( 'Tracking_HLT' )
+    , hltPaths = cms.vstring( 'HLT_ZeroBias_v*', 'HLT_BptxAnd_*' )
+    ),
+    cms.PSet(
+      listName = cms.string( 'SiStrip_L1' )
+    , hltPaths = cms.vstring( 'L1Tech_BPTX_plus_AND_minus.v0', 'L1_ZeroBias', 'L1_ExtCond_032' )
+    ),
+    cms.PSet(
+      listName = cms.string( 'SiStrip_HLT' )
+    , hltPaths = cms.vstring( 'HLT_ZeroBias_v*', 'HLT_HIZeroBias_v*', 'HLT_BptxAnd_*' )
+    ),
   )
 )
 
@@ -45,11 +46,12 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService"
 , CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup
 # , logconnect = cms.untracked.string( 'sqlite_file:AlCaRecoTriggerBits_SiStripDQM_create_log.db' )
 , timetype = cms.untracked.string( 'runnumber' )
-, connect  = cms.string( 'sqlite_file:AlCaRecoTriggerBits_SiStripDQM.db' )
+, connect  = cms.string( 'sqlite_file:AlCaRecoTriggerBits_TrackerDQM.db' )
 , toPut    = cms.VPSet(
     cms.PSet(
       record = cms.string( 'AlCaRecoTriggerBitsRcd' )
-    , tag    = cms.string( 'AlCaRecoTriggerBits_SiStripDQM_v2_test' )
+    , tag    = cms.string( 'AlCaRecoTriggerBits_TrackerDQM_v1' )
+    , label  = cms.untracked.string( 'TrackerDQMTrigger' ) 
     )
   )
 )

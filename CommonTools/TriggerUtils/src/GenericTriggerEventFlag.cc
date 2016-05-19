@@ -357,7 +357,7 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Event & even
       }
       decision = ( gtReadoutRecord->gtFdlWord().physicsDeclared() == 1 );
     } else if ( gtStatusBit == "Stable" || gtStatusBit == "StableBeam" || gtStatusBit == "Adjust" || gtStatusBit == "Sqeeze" || gtStatusBit == "Flat" || gtStatusBit == "FlatTop" ||
-                gtStatusBit == "7TeV" || gtStatusBit == "8TeV" || gtStatusBit == "2360GeV" || gtStatusBit == "900GeV" ) {
+                gtStatusBit == "7TeV" || gtStatusBit == "8TeV" || gtStatusBit == "13TeV" || gtStatusBit == "2360GeV" || gtStatusBit == "900GeV" ) {
       edm::Handle< L1GlobalTriggerEvmReadoutRecord > gtEvmReadoutRecord;
       event.getByToken( gtEvmInputToken_, gtEvmReadoutRecord );
       if ( ! gtEvmReadoutRecord.isValid() ) {
@@ -377,6 +377,8 @@ bool GenericTriggerEventFlag::acceptGtLogicalExpression( const edm::Event & even
         decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 3500 );
       } else if ( gtStatusBit == "8TeV" ) {
         decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 4000 );
+      } else if ( gtStatusBit == "13TeV" ) {
+        decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 6500 );
       } else if ( gtStatusBit == "2360GeV" ) {
         decision = ( gtEvmReadoutRecord->gtfeWord().beamMomentum() == 1180 );
       } else if ( gtStatusBit == "900GeV" ) {
@@ -605,13 +607,13 @@ bool GenericTriggerEventFlag::negate( std::string & word ) const
 /// Reads and returns logical expressions from DB
 std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std::string & key, const edm::EventSetup & setup )
 {
-
   if ( key.size() == 0 ) return std::vector< std::string >( 1, emptyKeyError_ );
   edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
   std::vector< edm::eventsetup::DataKey > labels;
   setup.get< AlCaRecoTriggerBitsRcd >().fillRegisteredDataKeys( labels );
   std::vector< edm::eventsetup::DataKey >::const_iterator iKey = labels.begin();
   while ( iKey != labels.end() && iKey->name().value() != dbLabel_ ) ++iKey;
+
   if ( iKey == labels.end() ) {
     if ( verbose_ > 0 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Label " << dbLabel_ << " not found in DB for 'AlCaRecoTriggerBitsRcd'";
     return std::vector< std::string >( 1, configError_ );

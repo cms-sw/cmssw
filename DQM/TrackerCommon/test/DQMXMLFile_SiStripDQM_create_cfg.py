@@ -34,19 +34,22 @@ process.dqmXmlFileTest = cms.EDAnalyzer( "DQMXMLFilePopConAnalyzer"
 print "Used XML file: " + process.dqmXmlFileTest.Source.XMLFile.pythonValue()
 
 process.load( "CondCore.DBCommon.CondDBCommon_cfi" )
-process.CondDBCommon.connect          = cms.string( 'sqlite_file:DQMXMLFile_SiStripDQM.db' )
+process.CondDBCommon.connect          = cms.string( 'sqlite_file:AlCaRecoTriggerBits_SiStripDQM.db' )
+#process.CondDBCommon.connect          = cms.string( 'sqlite_file:DQMXMLFile_SiStripDQM.db' )
 process.CondDBCommon.BlobStreamerName = cms.untracked.string( 'TBufferBlobStreamingService' )
 process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string( '' )
 # process.CondDBCommon.DBParameters.messageLevel       = cms.untracked.int32( 3 )
 
 process.PoolDBOutputService = cms.Service( "PoolDBOutputService"
 , process.CondDBCommon
-, logconnect = cms.untracked.string( 'sqlite_file:DQMXMLFile_SiStripDQM_create_log.db' )
+, logconnect = cms.untracked.string( 'sqlite_file:AlCaRecoTriggerBits_SiStripDQM.db' )
+#, logconnect = cms.untracked.string( 'sqlite_file:DQMXMLFile_SiStripDQM_create_log.db' )
 , timetype   = cms.untracked.string( 'runnumber' )
 , toPut      = cms.VPSet(
     cms.PSet(
       record = cms.string( 'FileBlob' )
-    , tag    = cms.string( 'DQMXMLFile_SiStripDQM_v1_test' )
+#    , tag    = cms.string( 'DQMXMLFile_SiStripDQM_v1_test' )
+    , tag    = cms.string( 'AlCaRecoTriggerBits_SiStripDQM_v2_express' )
     )
   )
 )
