@@ -1258,22 +1258,31 @@ class Plot:
                 # Merge bin labels with difflib
                 for h in histos[1:]:
                     labels = [h.GetXaxis().GetBinLabel(i) for i in xrange(1, h.GetNbinsX()+1)]
-                    diff = difflib.ndiff(xbinlabels, labels)
+                    diff = difflib.unified_diff(xbinlabels, labels, n=max(len(xbinlabels), len(labels)))
                     xbinlabels = []
                     operation = []
+                    for item in diff: # skip the "header" lines
+                        if item[:2] == "@@":
+                            break
                     for item in diff:
                         operation.append(item[0])
-                        lab = item[2:]
+                        lab = item[1:]
                         if lab in xbinlabels:
                             # pick the last addition of the bin
                             ind = xbinlabels.index(lab)
                             if operation[ind] == "-" and operation[-1] == "+":
                                 xbinlabels.remove(lab)
+                                del operation[ind] # to keep xbinlabels and operation indices in sync
                             elif operation[ind] == "+" and operation[-1] == "-":
+                                del operation[-1] # to keep xbinlabels and operation indices in sync
                                 continue
                             else:
                                 raise Exception("This should never happen")
                         xbinlabels.append(lab)
+                    # unified_diff returns empty diff if xbinlabels and labels are equal
+                    # so if xbinlabels is empty here, it can be just set to labels
+                    if len(xbinlabels) == 0:
+                        xbinlabels = labels
 
                 histos_new = []
                 for h in histos:
