@@ -135,8 +135,8 @@ CBInputStream::~CBInputStream()
 {
 }
 
-unsigned int CBInputStream::readBytes(XMLByte* const buf,
-                                      const unsigned int size)
+XMLSize_t CBInputStream::readBytes(XMLByte* const buf,
+				   const XMLSize_t size)
 {
 	char *rawBuf = reinterpret_cast<char*>(buf);
 	unsigned int bytes = size * sizeof(XMLByte);
@@ -182,8 +182,8 @@ STLInputStream::~STLInputStream()
 {
 }
 
-unsigned int STLInputStream::readBytes(XMLByte* const buf,
-                                       const unsigned int size)
+XMLSize_t STLInputStream::readBytes(XMLByte* const buf,
+				    const XMLSize_t size)
 {
 	char *rawBuf = reinterpret_cast<char*>(buf);
 	unsigned int bytes = size * sizeof(XMLByte);
@@ -246,7 +246,7 @@ StorageInputStream::~StorageInputStream()
 }
 
 
-unsigned int StorageInputStream::readBytes(XMLByte* const buf, const unsigned int size)
+XMLSize_t StorageInputStream::readBytes(XMLByte* const buf, const XMLSize_t size)
 {
         // Compression code is not able to handle sizeof(XMLByte) > 1.
     assert(sizeof(XMLByte) == sizeof(unsigned char));
@@ -271,7 +271,7 @@ unsigned int StorageInputStream::readBytes(XMLByte* const buf, const unsigned in
     unsigned int dataRead;
     if (!compression_)
     {
-        dataRead = std::min(buffTotal_-buffLoc_, size);
+        dataRead = std::min(buffTotal_-buffLoc_, static_cast<unsigned int>(size));
         memcpy(buf, &buffer_[buffLoc_], dataRead);
         buffLoc_ += dataRead;
     }

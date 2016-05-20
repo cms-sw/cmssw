@@ -12,7 +12,6 @@
 #include "xercesc/sax/SAXParseException.hpp"
 #include "xercesc/sax2/Attributes.hpp"
 #include "xercesc/sax2/DefaultHandler.hpp"
-#include "xercesc/util/Compilers/GCCDefs.hpp"
 #include "xercesc/util/XercesVersion.hpp"
 
 class SaxToDom : public XERCES_CPP_NAMESPACE::DefaultHandler
