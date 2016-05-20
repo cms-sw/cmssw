@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # parametrization of MET x/y shift vs. sumEt
 from JetMETCorrections.Type1MET.multPhiCorr_741_50nsDY_cfi import multPhiCorr_741_50nsDY as multPhiCorrParams_Txy_50ns
 from JetMETCorrections.Type1MET.multPhiCorr_741_25nsDY_cfi import multPhiCorr_741_25nsDY as multPhiCorrParams_Txy_25ns
-from JetMETCorrections.Type1MET.multPhiCorr_763_25nsDY_cfi import multPhiCorr_763_25nsDY as multPhiCorrParams_Txy_25nsTest
+#from JetMETCorrections.Type1MET.multPhiCorr_763_25nsDY_cfi import multPhiCorr_763_25nsDY as multPhiCorrParams_Txy_25nsTest
 
 #so far, only one set of parameter
 # this is ugly, but a direct copy does not work
@@ -39,7 +39,7 @@ pfMEtMultShiftCorrDB = cms.EDProducer("MultShiftMETcorrDBInputProducer",
     vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices'),
     #srcPFlow = cms.InputTag('particleFlow', ''),
     #vertexCollection = cms.InputTag('offlinePrimaryVertices'),
-    parameters = multPhiCorrParams_Txy_25nsTest
+    #parameters = multPhiCorrParams_Txy_25nsTest
 )
 
 pfMEtSysShiftCorrSequence = cms.Sequence( pfMEtMultShiftCorr )
