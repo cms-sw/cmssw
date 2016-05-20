@@ -134,7 +134,7 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval(
     const auto &e = entries.at(i);
     if (
       e.etaMin <= eta && eta < e.etaMax                   // find eta
-      && e.ptMin <= pt && pt < e.ptMax                    // check pt
+      && e.ptMin < pt && pt <= e.ptMax                    // check pt
     ){
       if (use_discr) {                                    // discr. reshaping?
         if (e.discrMin <= discr && discr < e.discrMax) {  // check discr
