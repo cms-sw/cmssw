@@ -16,7 +16,7 @@
 //--- METCorrectorParameters::Definitions constructor --------------------
 //--- takes specific arguments for the member variables ------------------
 //------------------------------------------------------------------------
-METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula )
+METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<int>& fParVar, const std::string& fFormula )
 {
   for(unsigned i=0;i<fBinVar.size();i++)
     mBinVar.push_back(fBinVar[i]);
@@ -56,7 +56,7 @@ METCorrectorParameters::Definitions::Definitions(const std::string& fLine)
     std::cout<<"nParVar: "<<tokens[nBinVar+2]<<"\t";
     for(unsigned i=0;i<nParVar;i++)
     {
-      mParVar.push_back(tokens[nBinVar+3+i]);
+      mParVar.push_back(getSigned(tokens[nBinVar+3+i]));
       std::cout<<tokens[nBinVar+3+i]<<"\t";
     }
     mFormula = tokens[nParVar+nBinVar+3];
@@ -365,10 +365,10 @@ const std::vector<std::string> XYshiftFlavors_ = {
 
 std::string
 METCorrectorParametersCollection::findLabel( key_type k ){
-  std::cout<<"findLabel with key: "<<k<<std::endl;
+  //std::cout<<"findLabel with key: "<<k<<std::endl;
   if( isXYshift(k) )
   {
-    std::cout<<"is XYshift"<<std::endl;
+    //std::cout<<"is XYshift"<<std::endl;
     return findXYshiftFlavor(k);
   }else return labels_[k];
   

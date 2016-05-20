@@ -21,6 +21,7 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
@@ -35,6 +36,8 @@ class AddCorrectionsToGenericMET {
   reco::MET getCorrectedMET(const reco::MET& srcMET,edm::Event& evt, const edm::EventSetup& es);
   reco::PFMET getCorrectedPFMET(const reco::PFMET& srcMET,edm::Event& evt, const edm::EventSetup& es);
   reco::CaloMET getCorrectedCaloMET(const reco::CaloMET& srcMET,edm::Event& evt, const edm::EventSetup& es);
+
+  //pat::MET getCorrectedPFMET(const pat::MET& srcMET,edm::Event& evt, const edm::EventSetup& es);
 
  private:
 

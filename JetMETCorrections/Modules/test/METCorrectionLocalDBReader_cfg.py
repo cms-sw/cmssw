@@ -5,6 +5,7 @@ process = cms.Process("metdbreader")
 #process.load('Configuration.StandardSequences.Services_cff')
 #process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'sqlite_file:MET16V0.db'
 
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(1)
@@ -13,9 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-      DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0)
-        ),
+      process.CondDB,
       timetype = cms.string('runnumber'),
       toGet = cms.VPSet(
       cms.PSet(
@@ -27,10 +26,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
               #label  = cms.untracked.string('PfType1Met')
               label  = cms.untracked.string('PfType1MetLocal')
               #label  = cms.untracked.string('AK5CaloLocal') 
-            ),                                                                               
-       ),
-      connect = cms.string('sqlite:MET16V0.db')
-      #connect = cms.string('sqlite:MET12_V0.db')
+            )                                                                               
+       )
 )
 
 

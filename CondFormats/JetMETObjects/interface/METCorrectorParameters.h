@@ -23,15 +23,15 @@ class METCorrectorParameters
       public:
         //-------- Constructors -------------- 
         Definitions() {}
-        Definitions(const std::vector<std::string>& fVar, const std::vector<std::string>& fParVar, const std::string& fFormula); 
+        Definitions(const std::vector<std::string>& fVar, const std::vector<int>& fParVar, const std::string& fFormula); 
         Definitions(const std::string& fLine); 
         //-------- Member functions ----------
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
         int ptclType()                      const {return ptclType_; }
-        std::vector<std::string> parVar()   const {return mParVar;        }
+        std::vector<int> parVar()   const {return mParVar;        }
         std::vector<std::string> binVar()   const {return mBinVar;        } 
-        std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
+        int parVar(unsigned fIndex) const {return mParVar[fIndex];}
         std::string binVar(unsigned fIndex) const {return mBinVar[fIndex];} 
         std::string formula()               const {return mFormula;       }
       private:
@@ -39,7 +39,7 @@ class METCorrectorParameters
 	int 			 ptclType_;
         std::string              mFormula;
         std::vector<std::string> mBinVar;
-        std::vector<std::string> mParVar;
+        std::vector<int> mParVar;
 
       COND_SERIALIZABLE;
     };

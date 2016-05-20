@@ -7,11 +7,12 @@ process.source = cms.Source(
 # CSA14 RECO
 #    fileNames = cms.untracked.vstring('root://eoscms.cern.ch//eos/cms/store/relval/CMSSW_7_0_5/RelValTTbar_13/GEN-SIM-RECO/POSTLS170_V6-v3/00000/0423767B-B5DD-E311-A1E0-02163E00E5B5.root') 
 # 720 RECO
-    fileNames = cms.untracked.vstring('root://eoscms.cern.ch//store/relval/CMSSW_7_5_0_pre4/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/469C34DB-12F6-E411-B012-0025905B855C.root')
+    #fileNames = cms.untracked.vstring('root://eoscms.cern.ch//store/relval/CMSSW_7_5_0_pre4/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/469C34DB-12F6-E411-B012-0025905B855C.root')
 # PHYS14 mAOD
 #    fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU30bx50_PHYS14_25_V1-v1/00000/003B6371-8D81-E411-8467-003048F0E826.root')
 # PHYS14 mAOD local
 #    fileNames = cms.untracked.vstring('file:/data/schoef/local/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola_MINIAODSIM_PU20bx25_PHYS14_25_V1-v1.root')
+fileNames = cms.untracked.vstring('file:/u/user/sangilpark/RunIISample/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_v12_gs7120p2-v1/C8D488AF-F308-E611-8C6B-0025905A607E.root')
     )
 
 
