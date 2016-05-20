@@ -95,39 +95,39 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
       auto alignable = compositeAlignable;
 
       if(alignable->alignableObjectId() == align::AlignableDetUnit) {
-	// this is a Module
-	all_modules.push_back(InterestingQuantities{.sourceModule = alignable->id()});
+        // this is a Module
+        all_modules.push_back(InterestingQuantities{.sourceModule = alignable->id()});
       }
 
       auto& info = infos[alignable->alignableObjectId()];
       // default values -- sort of a constructor for BitInfo
       if (info.characteristicBits == 0) {
-	info.characteristicBits = alignable->id();
-	info.characteristicMask = 0xFFFFFFFF;
-	info.variableMask = 0x0;
+        info.characteristicBits = alignable->id();
+        info.characteristicMask = 0xFFFFFFFF;
+        info.variableMask = 0x0;
       } 
 
       // variable mask must be local to the hierarchy
       if (info.currenParent != alignable->mother() || !alignable->mother()) {
-	info.currenParent = alignable->mother();
-	info.variableBase = alignable->id();
+        info.currenParent = alignable->mother();
+        info.variableBase = alignable->id();
       } else {
-	// ^ gives changed bits, | to collect all ever changed
-	info.variableMask |= info.variableBase ^ compositeAlignable->id();
+        // ^ gives changed bits, | to collect all ever changed
+        info.variableMask |= info.variableBase ^ compositeAlignable->id();
       }
 
       auto leafVariableMask = info.variableMask;
       // climb up the hierarchy and widen characteristics.
       for (auto alignable = compositeAlignable; alignable; alignable = alignable->mother()) {
-	auto& info = infos[alignable->alignableObjectId()];
-	// ^ gives changed bits, ~ unchanged, & to collect all always  unchanged
-	info.characteristicMask &= ~(info.characteristicBits ^ compositeAlignable->id());
-	// sometimes we have "noise" in the lower bits and the higher levels claim 
-	// variable bits that belong to lower elements. Clear these.
-	if (info.variableMask != leafVariableMask) info.variableMask &= ~leafVariableMask;
+        auto& info = infos[alignable->alignableObjectId()];
+        // ^ gives changed bits, ~ unchanged, & to collect all always  unchanged
+        info.characteristicMask &= ~(info.characteristicBits ^ compositeAlignable->id());
+        // sometimes we have "noise" in the lower bits and the higher levels claim 
+        // variable bits that belong to lower elements. Clear these.
+        if (info.variableMask != leafVariableMask) info.variableMask &= ~leafVariableMask;
       }
       for (auto* alignable : compositeAlignable->components()) {
-	traverseAlignables(alignable, infos, all_modules);
+        traverseAlignables(alignable, infos, all_modules);
       }
     }
   } alignableIterator;
@@ -150,13 +150,13 @@ void GeometryInterface::loadFromAlignment(edm::EventSetup const& iSetup, const e
     addExtractor(
       intern(type),
       [info, variable_shift] (InterestingQuantities const& iq) {
-	uint32_t id = iq.sourceModule.rawId();
-	if ((id & info.characteristicMask) == (info.characteristicBits & info.characteristicMask)) {
-	  uint32_t pos = (id & info.variableMask) >> variable_shift;
-	  return Value(pos); 
-	} else {
-	  return Value(UNDEFINED);
-	}
+        uint32_t id = iq.sourceModule.rawId();
+        if ((id & info.characteristicMask) == (info.characteristicBits & info.characteristicMask)) {
+          uint32_t pos = (id & info.variableMask) >> variable_shift;
+          return Value(pos); 
+        } else {
+          return Value(UNDEFINED);
+        }
       },
       info.variableMask >> variable_shift
     );

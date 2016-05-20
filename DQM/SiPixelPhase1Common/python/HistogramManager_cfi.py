@@ -71,7 +71,7 @@ DefaultHisto = cms.PSet(
   #       stage = STAGE1,
   #       columns = cms.vstring(),
   #       arg = cms.string("")
-  #	)
+  #     )
   #   )
   # )
   #)
