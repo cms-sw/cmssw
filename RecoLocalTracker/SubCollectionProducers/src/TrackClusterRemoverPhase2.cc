@@ -6,10 +6,8 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -25,19 +23,23 @@
 
 #include<limits>
 
+/* This is a copy of the TrackClusterRemover 
+ * for Phase2 Tk upgrade
+ */
+
 namespace {
 
-  class TrackClusterRemover final : public edm::global::EDProducer<> {
+  class TrackClusterRemoverPhase2 final : public edm::global::EDProducer<> {
   public:
-    TrackClusterRemover(const edm::ParameterSet& iConfig) ;
-    ~TrackClusterRemover(){}
+    TrackClusterRemoverPhase2(const edm::ParameterSet& iConfig) ;
+    ~TrackClusterRemoverPhase2(){}
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
     
     virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
  
     using PixelMaskContainer    = edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>;
-    using StripMaskContainer    = edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>;
+    using Phase2OTMaskContainer = edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D>>;
 
     using QualityMaskCollection = std::vector<unsigned char>;
 
@@ -50,22 +52,22 @@ namespace {
     edm::EDGetTokenT<QualityMaskCollection> srcQuals;
     
     const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
-    const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
+    const edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters_;
     
     edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
-    edm::EDGetTokenT<StripMaskContainer> oldStrMaskToken_;
+    edm::EDGetTokenT<Phase2OTMaskContainer> oldPh2OTMaskToken_;
     
     // backward compatibility during transition period
     edm::EDGetTokenT<edm::ValueMap<int>>  overrideTrkQuals_;
     
   };
 
-  void TrackClusterRemover::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  void TrackClusterRemoverPhase2::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("trajectories",edm::InputTag());
     desc.add<edm::InputTag>("trackClassifier",edm::InputTag("","QualityMasks"));
-    desc.add<edm::InputTag>("pixelClusters",edm::InputTag("siPixelClusters"));
-    desc.add<edm::InputTag>("stripClusters",edm::InputTag("siStripClusters"));
+    desc.add<edm::InputTag>("phase2OTPixelClusters",edm::InputTag("siPixelClusters"));
+    desc.add<edm::InputTag>("phase2OTClusters",edm::InputTag("siPhase2Clusters"));
     desc.add<edm::InputTag>("oldClusterRemovalInfo",edm::InputTag());
 
     desc.add<std::string>("TrackQuality","highPurity");
@@ -74,22 +76,22 @@ namespace {
     // old mode     
     desc.add<edm::InputTag>("overrideTrkQuals",edm::InputTag());
 
-    descriptions.add("trackClusterRemover", desc);
+    descriptions.add("phase2trackClusterRemover", desc);
  
   }
   
-  TrackClusterRemover::TrackClusterRemover(const edm::ParameterSet& iConfig) :
+  TrackClusterRemoverPhase2::TrackClusterRemoverPhase2(const edm::ParameterSet& iConfig) :
     maxChi2_(iConfig.getParameter<double>("maxChi2")),
     minNumberOfLayersWithMeasBeforeFiltering_(iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering")),
     trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"))),
 
     trajectories_(iConfig.getParameter<edm::InputTag>("trajectories"),consumesCollector()),
-    pixelClusters_(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"))),
-    stripClusters_(consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters")))
+    pixelClusters_(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("phase2OTPixelClusters"))),
+    phase2OTClusters_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(iConfig.getParameter<edm::InputTag>("phase2OTClusters")))
   {
 
     produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
-    produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
+    produces<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >();
 
     // old mode
     auto const & overrideTrkQuals = iConfig.getParameter<edm::InputTag>("overrideTrkQuals");
@@ -103,43 +105,43 @@ namespace {
     auto const &  oldClusterRemovalInfo = iConfig.getParameter<edm::InputTag>("oldClusterRemovalInfo");
     if (!oldClusterRemovalInfo.label().empty()) {
       oldPxlMaskToken_ = consumes<PixelMaskContainer>(oldClusterRemovalInfo);
-      oldStrMaskToken_ = consumes<StripMaskContainer>(oldClusterRemovalInfo);
+      oldPh2OTMaskToken_ = consumes<Phase2OTMaskContainer>(oldClusterRemovalInfo);
     }
 
   }
 
 
   void
-  TrackClusterRemover::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const
+  TrackClusterRemoverPhase2::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const
   {
 
  
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     iEvent.getByToken(pixelClusters_, pixelClusters);
-    edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
-    iEvent.getByToken(stripClusters_, stripClusters);
+    edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters;
+    iEvent.getByToken(phase2OTClusters_, phase2OTClusters);
 
 
-    std::vector<bool> collectedStrips;
     std::vector<bool> collectedPixels;
+    std::vector<bool> collectedPhase2OTs;
 
     if(!oldPxlMaskToken_.isUninitialized()) {
+
       edm::Handle<PixelMaskContainer> oldPxlMask;
-      edm::Handle<StripMaskContainer> oldStrMask;
+      edm::Handle<Phase2OTMaskContainer> oldPh2OTMask;
       iEvent.getByToken(oldPxlMaskToken_ ,oldPxlMask);
-      iEvent.getByToken(oldStrMaskToken_ ,oldStrMask);
-      LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp, "<<oldPxlMask->size()<<" pxl";
-      // std::cout <<"TrackClusterRemover "<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl" << std::endl;
-      oldStrMask->copyMaskTo(collectedStrips);
+      iEvent.getByToken(oldPh2OTMaskToken_ ,oldPh2OTMask);
+      LogDebug("TrackClusterRemoverPhase2")<<"to merge in, "<<oldPxlMask->size()<<" phase2 pixel and " << oldPh2OTMask->size() << " phase2 OT";
       oldPxlMask->copyMaskTo(collectedPixels);
-      assert(stripClusters->dataSize()>=collectedStrips.size());
-      collectedStrips.resize(stripClusters->dataSize(), false);
-      //std::cout << "TrackClusterRemover " <<"total strip already to skip: "
-      //	<<std::count(collectedStrips.begin(),collectedStrips.end(),true) <<std::endl;
+      oldPh2OTMask->copyMaskTo(collectedPhase2OTs);
+      assert(phase2OTClusters->dataSize() >= collectedPhase2OTs.size());
+      collectedPhase2OTs.resize(phase2OTClusters->dataSize(), false);
 
     }else {
-      collectedStrips.resize(stripClusters->dataSize(), false);
+
       collectedPixels.resize(pixelClusters->dataSize(), false);
+      collectedPhase2OTs.resize(phase2OTClusters->dataSize(), false);
+
     } 
 
 
@@ -176,8 +178,8 @@ namespace {
       pquals = hqual.product();
     }
 
-    // if (!pquals) std::cout << "no qual collection" << std::endl;
     for (auto i=0U; i<s; ++i){
+
       const reco::Track & track = tracks[i];
       bool goodTk =  (pquals) ? (*pquals)[i] & qualMask : track.quality(trackQuality_);
       if ( !goodTk) continue;
@@ -190,27 +192,24 @@ namespace {
 	if ( tm.estimate() > maxChi2_ ) continue; // skip outliers
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
         auto const & cluster = thit.firstClusterRef();
-	if (cluster.isStrip()) collectedStrips[cluster.key()]=true;
-	else if (cluster.isPixel()) collectedPixels[cluster.key()]=true;
-	if (trackerHitRTTI::isMatched(thit))
-	  collectedStrips[reinterpret_cast<SiStripMatchedRecHit2D const&>(hit).stereoClusterRef().key()]=true;
+        // FIXME when we will get also Phase2 pixel
+	if (cluster.isPixel()) collectedPixels[cluster.key()]=true;
+	else if (cluster.isPhase2()) collectedPhase2OTs[cluster.key()]=true;
       }
+
     }
 
 
-    // std::cout << " => collectedStrips: " << collectedStrips.size() << std::endl;
-
-    auto removedStripClusterMask =
-      std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster>>(stripClusters),collectedStrips);
-      LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true);
-      // std::cout << "TrackClusterRemover " <<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true) <<std::endl;
-      iEvent.put(std::move(removedStripClusterMask));
-
-      auto removedPixelClusterMask= 
-	std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster>>(pixelClusters),collectedPixels);      
-      LogDebug("TrackClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels.begin(),collectedPixels.end(),true);
-      iEvent.put(std::move(removedPixelClusterMask));
+    auto removedPixelClusterMask= 
+      std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster>>(pixelClusters),collectedPixels);      
+    LogDebug("TrackClusterRemoverPhase2")<<"total pxl to skip: "<<std::count(collectedPixels.begin(),collectedPixels.end(),true);
+    iEvent.put(std::move(removedPixelClusterMask));
  
+    auto removedPhase2OTClusterMask= 
+      std::make_unique<Phase2OTMaskContainer>(edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D>>(phase2OTClusters),collectedPhase2OTs);      
+    LogDebug("TrackClusterRemoverPhase2")<<"total ph2OT to skip: "<<std::count(collectedPhase2OTs.begin(),collectedPhase2OTs.end(),true);
+    iEvent.put(std::move(removedPhase2OTClusterMask));
+
 
   }
 
@@ -220,5 +219,5 @@ namespace {
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(TrackClusterRemover);
+DEFINE_FWK_MODULE(TrackClusterRemoverPhase2);
 
