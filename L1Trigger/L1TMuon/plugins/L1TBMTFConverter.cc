@@ -135,7 +135,7 @@ L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  std::auto_ptr<RegionalMuonCandBxCollection> convMuons (new RegionalMuonCandBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> convMuons (new RegionalMuonCandBxCollection());
 
   Handle<RegionalMuonCandBxCollection> bmtfMuons;
   iEvent.getByToken(m_barrelTfInputToken, bmtfMuons);
@@ -152,7 +152,7 @@ L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     convMuons->push_back(0, convMu);
   }
 
-  iEvent.put(convMuons, "ConvBMTFMuons");
+  iEvent.put(std::move(convMuons), "ConvBMTFMuons");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

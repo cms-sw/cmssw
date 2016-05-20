@@ -29,7 +29,7 @@ L1ComparatorRun2::~L1ComparatorRun2(){}
 void
 L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  auto_ptr<L1DataEmulResultBxCollection> RESULT (new L1DataEmulResultBxCollection);
+  unique_ptr<L1DataEmulResultBxCollection> RESULT (new L1DataEmulResultBxCollection);
 
   if(doLayer2_){
 
@@ -252,6 +252,6 @@ L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup)
     }
   }    
   
-  iEvent.put(RESULT);
+  iEvent.put(std::move(RESULT));
 }
 	

@@ -83,7 +83,7 @@ void OMTFReconstruction::beginRun(edm::Run const& run, edm::EventSetup const& iS
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-std::auto_ptr<l1t::RegionalMuonCandBxCollection > OMTFReconstruction::reconstruct(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstruct(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
   loadAndFilterDigis(iEvent);
 
@@ -91,7 +91,7 @@ std::auto_ptr<l1t::RegionalMuonCandBxCollection > OMTFReconstruction::reconstruc
 
   // NOTE: assuming all is for bx 0
   int bx = 0;
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection > candidates(new l1t::RegionalMuonCandBxCollection);
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> candidates(new l1t::RegionalMuonCandBxCollection);
 
   ///The order is important: first put omtf_pos candidates, then omtf_neg.
   for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)

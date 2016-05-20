@@ -16,8 +16,8 @@ RctUnpackCollections::RctUnpackCollections(edm::Event& event):
 RctUnpackCollections::~RctUnpackCollections()
 {
   // RCT input collections
-  m_event.put(m_rctEm);
-  m_event.put(m_rctCalo);
+  m_event.put(std::move(m_rctEm));
+  m_event.put(std::move(m_rctCalo));
 
 }
 

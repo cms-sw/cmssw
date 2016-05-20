@@ -228,7 +228,7 @@ using namespace l1t;
     }
 
     //outputs
-    std::auto_ptr<GlobalExtBlkBxCollection> extCond( new GlobalExtBlkBxCollection(0,bxFirst_,bxLast_));
+    std::unique_ptr<GlobalExtBlkBxCollection> extCond( new GlobalExtBlkBxCollection(0,bxFirst_,bxLast_));
 
     // Fill Externals
     if( -2>=bxFirst_ && -2<=bxLast_ ) extCond->push_back(-2, extCond_bx_m2);
@@ -238,7 +238,7 @@ using namespace l1t;
     if(  2>=bxFirst_ &&  2<=bxLast_ ) extCond->push_back(2,  extCond_bx_p2); 
    
 
-    iEvent.put(extCond);
+    iEvent.put(std::move(extCond));
 
   }
 

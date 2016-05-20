@@ -62,7 +62,7 @@ namespace l1t {
          unsigned int fwId_;
          bool fwOverride_;
 
-         std::auto_ptr<PackingSetup> prov_;
+         std::unique_ptr<PackingSetup> prov_;
 
          // header and trailer sizes in chars
          int slinkHeaderSize_;
@@ -210,7 +210,7 @@ namespace l1t {
             // it in 64 bit words → factor 2.
             const uint32_t * end = start + (amc.size() * 2);
 
-            std::auto_ptr<Payload> payload;
+            std::unique_ptr<Payload> payload;
             if (ctp7_mode_) {
                LogDebug("L1T") << "Using CTP7 mode";
                payload.reset(new CTP7Payload(start, end));
@@ -232,8 +232,8 @@ namespace l1t {
 
             auto unpackers = prov_->getUnpackers(fedId, board, amc_no, fw);
 
-            // getBlock() returns a non-null auto_ptr on success
-            std::auto_ptr<Block> block;
+            // getBlock() returns a non-null unique_ptr on success
+            std::unique_ptr<Block> block;
             while ((block = payload->getBlock()).get()) {
                if (debug_) {
                   std::cout << ">>> block to unpack <<<" << std::endl
