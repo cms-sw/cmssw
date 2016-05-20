@@ -9,8 +9,9 @@
 #ifndef Alignment_RPDataFormats_RPAlignmentCorrection
 #define Alignment_RPDataFormats_RPAlignmentCorrection
 
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include <Math/Rotation3D.h>
+#include <Math/RotationZYX.h>
 #include <vector>
 
 /**
@@ -57,13 +58,17 @@
  **/
 class RPAlignmentCorrectionData
 {
-protected:
+ public:
+
+ typedef ROOT::Math::Rotation3D RotationMatrix;
+
+ protected:
   /// shift in mm; in global XYZ frame, which is not affected by (alignment) rotations!
   /// currently implemented as ROOT::Math::DisplacementVector3D
-  DDTranslation translation;
+  math::XYZVectorD translation;
   
   /// the uncertainty of shift in mm (if known)  
-  DDTranslation translation_error;
+  math::XYZVectorD translation_error;
   
   /// translation in the readout direction, in mm; needed for track-based alignment results
   /// NOTE: no guarantee that its value would correspond to the 'translation' vector!
@@ -93,20 +98,20 @@ public:
   /// no error constructor, shifts in mm, rotation in rad
   RPAlignmentCorrectionData(double sh_x = 0., double sh_y = 0., double sh_z = 0., double rot_z = 0.);
 
-  const DDTranslation& Translation() const
+  const math::XYZVectorD& getTranslation() const
     { return translation; }
 
-  const DDTranslation& TranslationError() const
+  const math::XYZVectorD& getTranslationError() const
     { return translation_error; }
 
-  double RotationZ() const
+  double rotationZ() const
     { return rotation_z; } 
 
-  double RotationZError() const
+  double rotationZError() const
     { return rotation_z_error; } 
 
-  /// returns rotation matrix build from the 3 rotation angles
-  DDRotationMatrix RotationMatrix() const;
+  RotationMatrix getRotationMatrix() const
+  { return RotationMatrix(ROOT::Math::RotationZYX(rotation_z, rotation_y, rotation_x));}
 
   double sh_r() const
     { return translation_r; }
@@ -138,32 +143,32 @@ public:
   double rot_z_e() const
     { return rotation_z_error; }
   
-  void SetTranslationR(double sh_r, double sh_r_e = 0.);
-  void SetTranslationZ(double sh_z, double sh_z_e = 0.);
-  void SetRotationZ(double rot_z, double rot_z_e = 0.);
+  void setTranslationR(double sh_r, double sh_r_e = 0.);
+  void setTranslationZ(double sh_z, double sh_z_e = 0.);
+  void setRotationZ(double rot_z, double rot_z_e = 0.);
 
   /// merges (cumulates) alignements
   /// match between x, y and read-out shifts is not checked
   /// \param sumErrors if it is true, old and new alignment uncertainties are summed (in quadrature)
   /// if it is false, the uncertainties of the parameter (i.e. not the object) will be used
   /// With the add... switches one can control which corrections are added.
-  void Add(const RPAlignmentCorrectionData&, bool sumErrors = true, bool addShR=true,
+  void add(const RPAlignmentCorrectionData&, bool sumErrors = true, bool addShR=true,
     bool addShZ=true, bool addRotZ=true);
 
   /// given (unit-length) readout direction vector (dx, dy), it converts 'translation_r' 
   /// to x and y components of 'translation'
-  void ReadoutTranslationToXY(double dx, double dy);
+  void readoutTranslationToXY(double dx, double dy);
   
   /// given (unit-length) readout direction vector (dx, dy), it removes the translation
   /// component perpendicular to the r-o direction, the parallel component is saved in
   /// 'translation_r'
-  void XYTranslationToReadout(double dx, double dy);
+  void xyTranslationToReadout(double dx, double dy);
 
   /// adds a multiple of 2pi, such that the rotation is then in range (-pi, +pi)
-  void NormalizeRotationZ();
+  void normalizeRotationZ();
   
   /// prints the contents on the screen
-  void Print() const;
+  void print() const;
   
 };
 

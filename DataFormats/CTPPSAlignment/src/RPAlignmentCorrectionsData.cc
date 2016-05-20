@@ -15,9 +15,6 @@
 
 #include <set>
 
-#include "TMatrixD.h"
-#include "TVectorD.h"
-
 using namespace std;
 
 
@@ -66,10 +63,10 @@ RPAlignmentCorrectionData RPAlignmentCorrectionsData::GetFullSensorCorrection(un
     c = it->second;
   it = sensors.find(id);
   if (it != sensors.end())
-    c.Add(it->second, useRPErrors);
+    c.add(it->second, useRPErrors);
 
   //printf("> full correction %u | ", id);
-  //c.Print();
+  //c.print();
 
   return c;
 }
@@ -97,7 +94,7 @@ void RPAlignmentCorrectionsData::AddRPCorrection(unsigned int id, const RPAlignm
   if (it == rps.end())
     rps.insert(mapType::value_type(id, a));
   else
-    it->second.Add(a, sumErrors, addShR, addShZ, addRotZ);
+    it->second.add(a, sumErrors, addShR, addShZ, addRotZ);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -109,7 +106,7 @@ void RPAlignmentCorrectionsData::AddSensorCorrection(unsigned int id, const RPAl
   if (it == sensors.end())
     sensors.insert(mapType::value_type(id, a));
   else
-    it->second.Add(a, sumErrors, addShR, addShZ, addRotZ);
+    it->second.add(a, sumErrors, addShR, addShZ, addRotZ);
 }
 
 //----------------------------------------------------------------------------------------------------

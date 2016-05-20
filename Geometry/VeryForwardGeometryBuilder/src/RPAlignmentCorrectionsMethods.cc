@@ -362,7 +362,7 @@ void RPAlignmentCorrectionsMethods::WriteXMLBlock(const RPAlignmentCorrectionsDa
 //    // RP errors are coming from the previous iteration and shall be discarded!
 //    origAlignments[it->first] = data.GetFullSensorCorrection(it->first, false);
 ////
-//    origAlignments[it->first].XYTranslationToReadout(d.dx, d.dy);
+//    origAlignments[it->first].xyTranslationToReadout(d.dx, d.dy);
 //    detsPerPot[it->first/10].insert(it->first);
 //  }
 //

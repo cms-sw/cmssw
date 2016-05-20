@@ -23,27 +23,12 @@ namespace edm {
 //class AlignmentGeometry;
 
 
-/**
- *\brief Container for RP alignment corrections.
- * The corrections are stored on two levels - RP and sensor. For every level,
- * there is a map: symbolic ID --> alignment correction. Sensors inherit the
- * alignment corrections for the corresponding RP, see GetFullSensorCorrection
- * method.
- **/
 class RPAlignmentCorrectionsMethods
 {
 
   public:
     RPAlignmentCorrectionsMethods() {}
-  
-    /// constructs object from an XML file
-//    RPAlignmentCorrectionsMethods(const std::string &fileName)
-//      { LoadXMLFile(fileName); }
-//
-//    /// constructs object from a block of alignment-sequence XML file
-//    RPAlignmentCorrectionsMethods(xercesc::DOMNode *e)
-//      { LoadXMLBlock(e); }
-  
+
     static RPAlignmentCorrectionsData GetCorrectionsDataFromFile(const std::string &fileName);
 
     static RPAlignmentCorrectionsData GetCorrectionsData(xercesc::DOMNode *);

@@ -184,7 +184,7 @@ void DetGeomDesc::deepDeleteComponents()
 void DetGeomDesc::ApplyAlignment(const RPAlignmentCorrectionData &t)
 {
     //cout << " DetGeomDesc::ApplyAlignment > before: " << _trans << ",  " << _rot << endl;
-	_rot = t.RotationMatrix() * _rot;
-	_trans = t.Translation() + _trans;
+	_rot = t.getRotationMatrix() * _rot;
+	_trans = t.getTranslation() + _trans;
     //cout << " DetGeomDesc::ApplyAlignment > after: " << _trans << ",  " << _rot << endl;
 }

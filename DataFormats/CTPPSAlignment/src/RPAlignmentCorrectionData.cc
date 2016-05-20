@@ -10,7 +10,6 @@
 
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionData.h"
 
-//#include "Math/GenVector/RotationZYX.h"
 #include <Math/RotationZYX.h>
 
 using namespace std;
@@ -49,7 +48,7 @@ RPAlignmentCorrectionData::RPAlignmentCorrectionData(double sh_x, double sh_y, d
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::Add(const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR,
+void RPAlignmentCorrectionData::add(const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR,
   bool addShZ, bool addRotZ)
 {
   /// TODO: proper adding of all three angles
@@ -97,7 +96,7 @@ void RPAlignmentCorrectionData::Add(const RPAlignmentCorrectionData &a, bool sum
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::ReadoutTranslationToXY(double dx, double dy)
+void RPAlignmentCorrectionData::readoutTranslationToXY(double dx, double dy)
 {
   double tr_z = translation.z();
   translation.SetXYZ(translation_r*dx, translation_r*dy, tr_z);
@@ -108,7 +107,7 @@ void RPAlignmentCorrectionData::ReadoutTranslationToXY(double dx, double dy)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::XYTranslationToReadout(double dx, double dy)
+void RPAlignmentCorrectionData::xyTranslationToReadout(double dx, double dy)
 {
   double dot = dx*translation.x() + dy*translation.y();
   translation_r = dot;
@@ -123,7 +122,7 @@ void RPAlignmentCorrectionData::XYTranslationToReadout(double dx, double dy)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::SetTranslationR(double sh_r, double sh_r_e)
+void RPAlignmentCorrectionData::setTranslationR(double sh_r, double sh_r_e)
 {
   translation_r = sh_r;
   translation_r_error = sh_r_e;
@@ -131,7 +130,7 @@ void RPAlignmentCorrectionData::SetTranslationR(double sh_r, double sh_r_e)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::SetTranslationZ(double sh_z, double sh_z_e)
+void RPAlignmentCorrectionData::setTranslationZ(double sh_z, double sh_z_e)
 {
   translation.SetZ(sh_z);
   translation_error.SetZ(sh_z_e);
@@ -139,7 +138,7 @@ void RPAlignmentCorrectionData::SetTranslationZ(double sh_z, double sh_z_e)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::SetRotationZ(double rot_z, double rot_z_e)
+void RPAlignmentCorrectionData::setRotationZ(double rot_z, double rot_z_e)
 {
   rotation_z = rot_z;
   rotation_z_error = rot_z_e;
@@ -147,24 +146,18 @@ void RPAlignmentCorrectionData::SetRotationZ(double rot_z, double rot_z_e)
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::NormalizeRotationZ()
+void RPAlignmentCorrectionData::normalizeRotationZ()
 {
   rotation_z -= floor( (rotation_z + M_PI) / 2. / M_PI ) * 2. * M_PI;
 }
 
-//----------------------------------------------------------------------------------------------------
-
-DDRotationMatrix RPAlignmentCorrectionData::RotationMatrix() const
-{
-  return DDRotationMatrix(ROOT::Math::RotationZYX(rotation_z, rotation_y, rotation_x));
-}
 
 //----------------------------------------------------------------------------------------------------
 
-void RPAlignmentCorrectionData::Print() const
+void RPAlignmentCorrectionData::print() const
 {
   printf("shift: r=%.1f, x=%.1f, y=%.1f, z=%.1f, rotation: z=%.1f\n", sh_r()*1E3, 
-    Translation().x()*1E3, Translation().y()*1E3, Translation().z()*1E3, rot_z()*1E3);
+    getTranslation().x()*1E3, getTranslation().y()*1E3, getTranslation().z()*1E3, rot_z()*1E3);
 }
 
 

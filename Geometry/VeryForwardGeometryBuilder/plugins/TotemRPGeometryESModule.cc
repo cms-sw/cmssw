@@ -299,8 +299,8 @@ class MeasuredGeometryProducer {
 
             translRotFromTransform(translation, rotation, transform);
 
-            translation = correction.Translation() + translation;
-            rotation    = correction.RotationMatrix() * rotation;
+            translation = correction.getTranslation() + translation;
+            rotation    = correction.getRotationMatrix() * rotation;
 
             translRotToTransform(translation, rotation, transform);
         }
