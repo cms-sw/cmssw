@@ -298,15 +298,15 @@ private:
   const DOMDocument* XMLDocument::document () {return mDoc;}
 
   void XMLDocument::streamOut (std::ostream& fOut) {
-    StreamOutFormatTarget formTaget (fOut);
+    StreamOutFormatTarget formTarget (fOut);
     DOMLSSerializer* domWriter = mDom->createLSSerializer();
     DOMConfiguration* dc = domWriter->getDomConfig();
     dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
 
     DOMLSOutput* outputDesc = ((DOMImplementationLS*)mDom)->createLSOutput();
-    outputDesc->setByteStream(formTarget);
+    outputDesc->setByteStream(&formTarget);
 
-    domWriter->writeNode ((root(), outputDesc);
+    domWriter->write (root(), outputDesc);
     mDoc->release ();
   }
 

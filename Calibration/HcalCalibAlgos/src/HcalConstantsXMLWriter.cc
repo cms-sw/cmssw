@@ -74,7 +74,7 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0,const vector<int>& detvec
  
    cout<<" Write Doc "<<theDOMVec.size()<<endl;
    DOMLSOutput* output= mDom->createLSOutput();
-   output->setByteStream(formTarget);
+   output->setByteStream(&formTarget);
    domWriter->write (mDoc, output);
    cout<<" End of Writting "<<endl;
    mDoc->release ();
