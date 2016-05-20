@@ -129,6 +129,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 
         virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
         virtual void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
+        virtual void comment (const XMLCh *const chars, const XMLSize_t length) override; 	
 
     private:
 	friend class LHEReader;
@@ -399,7 +400,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 }
 
 void LHEReader::XMLHandler::characters(const XMLCh *const data_,
-                                       const unsigned int length)
+                                       const XMLSize_t length)
 {
 	if (mode == kHeader) {
 		DOMText *text = xmlHeader->createTextNode(data_);
@@ -432,7 +433,7 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 }
 
 void LHEReader::XMLHandler::comment(const XMLCh *const data_,
-                                    const unsigned int length)
+                                    const XMLSize_t length)
 {
 	if (mode == kHeader) {
 		DOMComment *comment = xmlHeader->createComment(data_);
