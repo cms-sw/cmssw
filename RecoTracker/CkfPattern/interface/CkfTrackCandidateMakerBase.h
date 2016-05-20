@@ -75,6 +75,7 @@ namespace cms
     edm::EDGetTokenT<MeasurementTrackerEvent>     theMTELabel;
 
     bool skipClusters_;
+    bool phase2skipClusters_;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > Phase2OTClusterMask;

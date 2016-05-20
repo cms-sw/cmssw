@@ -21,17 +21,27 @@ private:
       edm::EDGetTokenT<StripMask> maskStrips_;
       edm::EDGetTokenT<PixelMask> maskPixels_;
       edm::EDGetTokenT<Phase2OTMask> maskPhase2OTs_;
+
+      bool skipClusters_;
+      bool phase2skipClusters_;
 };
 
 
 MaskedMeasurementTrackerEventProducer::MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) :
     src_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("src")))
 {
-    edm::InputTag clustersToSkip = iConfig.getParameter<edm::InputTag>("clustersToSkip");
-    maskStrips_ = consumes<StripMask>(clustersToSkip);
-    maskPixels_ = consumes<PixelMask>(clustersToSkip);
-    maskPhase2OTs_ = consumes<Phase2OTMask>(clustersToSkip);
-
+    if (iConfig.existsAs<edm::InputTag>("clustersToSkip")) {
+      skipClusters_ = true;
+      edm::InputTag clustersToSkip = iConfig.getParameter<edm::InputTag>("clustersToSkip");
+      maskPixels_ = consumes<PixelMask>(clustersToSkip);
+      maskStrips_ = consumes<StripMask>(clustersToSkip);
+    }
+    if (iConfig.existsAs<edm::InputTag>("phase2clustersToSkip")) {
+      phase2skipClusters_ = true;
+      edm::InputTag phase2clustersToSkip = iConfig.getParameter<edm::InputTag>("phase2clustersToSkip");
+      maskPixels_ = consumes<PixelMask>(phase2clustersToSkip);
+      maskPhase2OTs_ = consumes<Phase2OTMask>(phase2clustersToSkip);
+    }
     produces<MeasurementTrackerEvent>();
 }
 
@@ -53,7 +63,8 @@ MaskedMeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::Ev
     edm::Handle<Phase2OTMask> maskPhase2OTs;
     iEvent.getByToken(maskPhase2OTs_, maskPhase2OTs);
 
-    out.reset(new MeasurementTrackerEvent(*mte, *maskStrips, *maskPixels, *maskPhase2OTs));
+    if (skipClusters_)               out.reset(new MeasurementTrackerEvent(*mte, *maskStrips, *maskPixels));
+    else if (phase2skipClusters_)    out.reset(new MeasurementTrackerEvent(*mte, *maskPixels, *maskPhase2OTs));
 
     // put into event
     iEvent.put(out);

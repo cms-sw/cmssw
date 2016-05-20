@@ -32,7 +32,7 @@ public:
    ~MeasurementTrackerEvent() ;
 
    /// Real constructor 1: with the full data (not owned)
-   MeasurementTrackerEvent(const MeasurementTracker &tracker, const StMeasurementDetSet &strips, const PxMeasurementDetSet &pixels, 
+   MeasurementTrackerEvent(const MeasurementTracker &tracker, const StMeasurementDetSet &strips, const PxMeasurementDetSet &pixels,
                            const Phase2OTMeasurementDetSet &phase2OT,
                            const std::vector<bool> & stripClustersToSkip = std::vector<bool>(),
                            const std::vector<bool> & pixelClustersToSkip = std::vector<bool>(),
@@ -41,7 +41,7 @@ public:
          theStripClustersToSkip(stripClustersToSkip), thePixelClustersToSkip(pixelClustersToSkip), thePhase2OTClustersToSkip(phase2OTClustersToSkip) {}
 
    /// Real constructor 1: with the full data (owned)
-   MeasurementTrackerEvent(const MeasurementTracker &tracker, const StMeasurementDetSet *strips, const PxMeasurementDetSet *pixels, 
+   MeasurementTrackerEvent(const MeasurementTracker &tracker, const StMeasurementDetSet *strips, const PxMeasurementDetSet *pixels,
                            const Phase2OTMeasurementDetSet *phase2OT,
                            const std::vector<bool> & stripClustersToSkip = std::vector<bool>(),
                            const std::vector<bool> & pixelClustersToSkip = std::vector<bool>(),
@@ -50,21 +50,24 @@ public:
          theStripClustersToSkip(stripClustersToSkip), thePixelClustersToSkip(pixelClustersToSkip), thePhase2OTClustersToSkip(phase2OTClustersToSkip) {}
 
    ///// Real constructor 2: with new cluster skips (unchecked)
-   //MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent, 
+   //MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent,
    //                        const std::vector<bool> & stripClustersToSkip,
    //                        const std::vector<bool> & pixelClustersToSkip):
    //      theTracker(trackerEvent.theTracker), theStripData(trackerEvent.theStripData), thePixelData(trackerEvent.thePixelData), theOwner(false)
    //      theStripClustersToSkip(stripClustersToSkip), thePixelClustersToSkip(pixelClustersToSkip) {}
 
    /// Real constructor 2: with new cluster skips (checked)
-   MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent, 
-                           const edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > & stripClustersToSkip, 
-                           const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip,
-                           const edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClustersToSkip) ;
+   MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent,
+                           const edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > & stripClustersToSkip,
+                           const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip) ;
 
+  //FIXME:just temporary solution for phase2! 
+  MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent,
+                          const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & phase2pixelClustersToSkip,
+                          const edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClustersToSkip) ;
 
-   MeasurementTrackerEvent(const MeasurementTrackerEvent & other) : 
-        theTracker(other.theTracker), 
+   MeasurementTrackerEvent(const MeasurementTrackerEvent & other) :
+        theTracker(other.theTracker),
         theStripData(other.theStripData),
         thePixelData(other.thePixelData),
         thePhase2OTData(other.thePhase2OTData),
@@ -73,7 +76,7 @@ public:
         thePixelClustersToSkip(other.thePixelClustersToSkip),
         thePhase2OTClustersToSkip(other.thePhase2OTClustersToSkip)
    {
-        assert(other.theOwner == false && "trying to copy an owning pointer"); 
+        assert(other.theOwner == false && "trying to copy an owning pointer");
    }
 
    MeasurementTrackerEvent & operator=(const MeasurementTrackerEvent & other)
@@ -86,8 +89,8 @@ public:
    }
 
 #ifndef MeasurementTrackerEvent_Hide_Impl
-   MeasurementTrackerEvent(MeasurementTrackerEvent && other) : 
-        theTracker(other.theTracker), 
+   MeasurementTrackerEvent(MeasurementTrackerEvent && other) :
+        theTracker(other.theTracker),
         theStripData(other.theStripData),
         thePixelData(other.thePixelData),
         thePhase2OTData(other.thePhase2OTData),
@@ -95,7 +98,7 @@ public:
         theStripClustersToSkip(std::move(other.theStripClustersToSkip)),
         thePixelClustersToSkip(std::move(other.thePixelClustersToSkip)),
         thePhase2OTClustersToSkip(std::move(other.thePhase2OTClustersToSkip))
-    { 
+    {
         other.theTracker = 0;
         other.theStripData = 0; other.thePixelData = 0;
         other.thePhase2OTData = 0;
@@ -138,7 +141,7 @@ protected:
    const Phase2OTMeasurementDetSet *thePhase2OTData;
    bool  theOwner; // do I own the two above?
    // these two could be const pointers as well, but ContainerMask doesn't expose the vector
-   std::vector<bool> theStripClustersToSkip; 
+   std::vector<bool> theStripClustersToSkip;
    std::vector<bool> thePixelClustersToSkip;
    std::vector<bool> thePhase2OTClustersToSkip;
 };

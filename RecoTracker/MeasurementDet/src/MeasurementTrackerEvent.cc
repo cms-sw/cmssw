@@ -15,7 +15,7 @@ MeasurementTrackerEvent::swap(MeasurementTrackerEvent &other)
 {
     if (&other != this) {
         using std::swap;
-        swap(theTracker, other.theTracker); 
+        swap(theTracker, other.theTracker);
         swap(theStripData, other.theStripData);
         swap(thePixelData, other.thePixelData);
         swap(thePhase2OTData, other.thePhase2OTData);
@@ -27,13 +27,12 @@ MeasurementTrackerEvent::swap(MeasurementTrackerEvent &other)
 
 MeasurementTrackerEvent::MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent,
                            const edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > & stripClustersToSkip,
-                           const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip,
-                           const edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClustersToSkip) :
-     theTracker(trackerEvent.theTracker), 
-     theStripData(trackerEvent.theStripData), thePixelData(trackerEvent.thePixelData), 
-     thePhase2OTData(trackerEvent.thePhase2OTData),
+                           const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip) :
+     theTracker(trackerEvent.theTracker),
+     theStripData(trackerEvent.theStripData), thePixelData(trackerEvent.thePixelData),
+     thePhase2OTData(0),
      theOwner(false),
-     theStripClustersToSkip(), 
+     theStripClustersToSkip(),
      thePixelClustersToSkip(),
      thePhase2OTClustersToSkip()
 {
@@ -48,13 +47,35 @@ MeasurementTrackerEvent::MeasurementTrackerEvent(const MeasurementTrackerEvent &
         throw cms::Exception("Configuration")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClustersToSkip.refProd().id()<<"!="<<thePixelData->handle().id()<<"\n";
     }
 
-    if (phase2OTClustersToSkip.refProd().id() != thePhase2OTData->handle().id()){
+    theStripClustersToSkip.resize(stripClustersToSkip.size());
+    stripClustersToSkip.copyMaskTo(theStripClustersToSkip);
+
+    thePixelClustersToSkip.resize(pixelClustersToSkip.size());
+    pixelClustersToSkip.copyMaskTo(thePixelClustersToSkip);
+}
+
+//FIXME:just temporary solution for phase2!
+MeasurementTrackerEvent::MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent,
+                           const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip,
+                           const edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClustersToSkip) :
+     theTracker(trackerEvent.theTracker),
+     theStripData(0), thePixelData(trackerEvent.thePixelData),
+     thePhase2OTData(trackerEvent.thePhase2OTData),
+     theOwner(false),
+     theStripClustersToSkip(),
+     thePixelClustersToSkip(),
+     thePhase2OTClustersToSkip()
+{
+
+    if (pixelClustersToSkip.refProd().id() != thePixelData->handle().id()){
         edm::LogError("ProductIdMismatch")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClustersToSkip.refProd().id()<<"!="<<thePixelData->handle().id();
         throw cms::Exception("Configuration")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClustersToSkip.refProd().id()<<"!="<<thePixelData->handle().id()<<"\n";
     }
 
-    theStripClustersToSkip.resize(stripClustersToSkip.size());
-    stripClustersToSkip.copyMaskTo(theStripClustersToSkip);
+    if (phase2OTClustersToSkip.refProd().id() != thePhase2OTData->handle().id()){
+        edm::LogError("ProductIdMismatch")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClustersToSkip.refProd().id()<<"!="<<thePixelData->handle().id();
+        throw cms::Exception("Configuration")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClustersToSkip.refProd().id()<<"!="<<thePixelData->handle().id()<<"\n";
+    }
 
     thePixelClustersToSkip.resize(pixelClustersToSkip.size());
     pixelClustersToSkip.copyMaskTo(thePixelClustersToSkip);
@@ -62,4 +83,3 @@ MeasurementTrackerEvent::MeasurementTrackerEvent(const MeasurementTrackerEvent &
     thePhase2OTClustersToSkip.resize(phase2OTClustersToSkip.size());
     phase2OTClustersToSkip.copyMaskTo(thePhase2OTClustersToSkip);
 }
-
