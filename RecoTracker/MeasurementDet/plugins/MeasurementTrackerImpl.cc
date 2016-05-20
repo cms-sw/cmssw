@@ -152,16 +152,16 @@ void MeasurementTrackerImpl::initialize()
   for (unsigned int i=0; i!=theGluedDets.size(); ++i)
     initGluedDet(theGluedDets[i]);
 
-  // then the stack dets
-  sortTKD(theStackDets);
-  for (unsigned int i=0; i!=theStackDets.size(); ++i)
-    initStackDet(theStackDets[i]);
-
-  // and then the pixels, at last
+  // then the pixels
   sortTKD(thePixelDets);
   initPxMeasurementConditionSet(thePixelDets);
   for (unsigned int i=0; i!=thePixelDets.size(); ++i)
     theDetMap[thePxDetConditions.id(i)] = &thePixelDets[i];
+
+  // and then the stack dets, at last
+  sortTKD(theStackDets);
+  for (unsigned int i=0; i!=theStackDets.size(); ++i)
+    initStackDet(theStackDets[i]);
 
   if(!checkDets())
     throw MeasurementDetException("Number of dets in MeasurementTracker not consistent with TrackerGeometry!");

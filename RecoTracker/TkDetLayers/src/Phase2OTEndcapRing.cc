@@ -53,7 +53,7 @@ Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 				     theBackDets.size());  
 
 
-  
+#ifdef EDM_ML_DEBUG
   LogDebug("TkDetLayers") << "DEBUG INFO for Phase2OTEndcapRing" ;
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
@@ -70,7 +70,7 @@ Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 			    << (*it)->surface().position().z()   << " , "
 			    << (*it)->surface().position().perp() ;
   }
-
+#endif
 
 }
 

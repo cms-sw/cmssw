@@ -6,7 +6,7 @@ upgradeKeys=['2017',
 	     '2023tilted', 
 	     '2023sim',
 	     '2023LReco',
-	     '2023Reco'
+	     '2023GReco'
 	     ]
 
 
@@ -15,7 +15,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                '2023tilted' : 'Extended2023tilted', 
                '2023sim' : 'Extended2023sim',
                '2023LReco': 'Extended2023LReco',
-               '2023Reco' : 'Extended2023Reco'
+               '2023GReco' : 'Extended2023GReco'
                }
 	       
 upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
@@ -23,19 +23,20 @@ upgradeGTs={ '2017' : 'auto:phase1_2017_realistic',
 	     '2023tilted' :  'auto:run2_mc',
 	     '2023sim' : 'auto:run2_mc',
 	     '2023LReco': 'auto:run2_mc',
-	     '2023Reco' : 'auto:run2_mc'
+	     '2023GReco' : 'auto:run2_mc'
              }
 upgradeCustoms={ '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
  		 '2023tilted' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
  		 '2023sim' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023sim',
  		 '2023LReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023LReco',
- 		 '2023Reco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Reco'
+ 		 '2023GReco' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023GReco'
 		 
                  }
 upgradeEras={ '2017' : 'Run2_2017',
 	      '2023sim' : 'Phase2',
 	      '2023tilted' : 'Phase2',
-	      '2023LReco' : 'Phase2'
+	      '2023LReco' : 'Phase2',
+	      '2023GReco' : 'Phase2'
               }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
@@ -98,16 +99,16 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 # step5 is digi+l1tracktrigger
 # step6 is fastsim
 # step7 is fastsim harvesting
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','HARVESTFullPU','DigiFullTrigger']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFull','RecoFullHGCAL','RecoFullTracking','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','RecoFullPUTracking','HARVESTFullPU','DigiFullTrigger']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
 		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
-		   '2023tilted':['GenSimFull','DigiFull','RecoFullLocal'],#dev scenario
+		   '2023tilted':['GenSimFull','DigiFull','RecoFullTracking'],#full (or almost..) reco tilted scenario
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFull','RecoFullLocal'],#local reco scenario
-		   '2023Reco':['GenSimFull','DigiFull','RecoFull']#full reco scenario
+		   '2023GReco':['GenSimFull','DigiFull','RecoFullTracking']#full (or almost..)  reco scenario
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
