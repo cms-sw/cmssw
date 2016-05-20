@@ -5,8 +5,19 @@
 #include <sstream>
 
 TrackerTopology::TrackerTopology( const PixelBarrelValues& pxb, const PixelEndcapValues& pxf,
-				  const TECValues& tecv, const TIBValues& tibv, 
-				  const TIDValues& tidv, const TOBValues& tobv) {
+                                  const TECValues& tecv, const TIBValues& tibv, 
+                                  const TIDValues& tidv, const TOBValues& tobv) 
+  : bits_per_field{
+    [PBModule] = { pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel},
+    [PBLadder] = { pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel},
+    [PBLayer]  = { pbVals_.layerStartBit_,  pbVals_.layerMask_,  PixelSubdetector::PixelBarrel},
+    [PEModule] = { pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap},
+    [PEPanel]  = { pfVals_.panelStartBit_,  pfVals_.panelMask_,  PixelSubdetector::PixelEndcap},
+    [PEBlade]  = { pfVals_.bladeStartBit_,  pfVals_.bladeMask_,  PixelSubdetector::PixelEndcap},
+    [PEDisk]   = { pfVals_.diskStartBit_,   pfVals_.diskMask_,   PixelSubdetector::PixelEndcap},
+    [PESide]   = { pfVals_.sideStartBit_,   pfVals_.sideMask_,   PixelSubdetector::PixelEndcap}
+  } 
+{
   pbVals_=pxb;
   pfVals_=pxf;
   tecVals_=tecv;

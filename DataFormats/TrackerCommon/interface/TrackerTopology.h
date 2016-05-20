@@ -108,22 +108,14 @@ class TrackerTopology {
     /* TODO: this can be extended for all subdetectors */
     DETID_FIELDS_MAX
   };
+
  private:
   struct BitmaskAndSubdet { 
     unsigned int const& startBit; 
     unsigned int const& mask;
     int subdet;
   };
-  const BitmaskAndSubdet bits_per_field[DETID_FIELDS_MAX] = {
-    [PBModule] = { pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel},
-    [PBLadder] = { pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel},
-    [PBLayer]  = { pbVals_.layerStartBit_,  pbVals_.layerMask_,  PixelSubdetector::PixelBarrel},
-    [PEModule] = { pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap},
-    [PEPanel]  = { pfVals_.panelStartBit_,  pfVals_.panelMask_,  PixelSubdetector::PixelEndcap},
-    [PEBlade]  = { pfVals_.bladeStartBit_,  pfVals_.bladeMask_,  PixelSubdetector::PixelEndcap},
-    [PEDisk]   = { pfVals_.diskStartBit_,   pfVals_.diskMask_,   PixelSubdetector::PixelEndcap},
-    [PESide]   = { pfVals_.sideStartBit_,   pfVals_.sideMask_,   PixelSubdetector::PixelEndcap}
-  };
+  const BitmaskAndSubdet bits_per_field[DETID_FIELDS_MAX];
 
  public:
   class SameLayerComparator {
