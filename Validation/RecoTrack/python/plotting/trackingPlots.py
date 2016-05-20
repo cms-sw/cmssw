@@ -116,8 +116,8 @@ _effandfake3 = PlotGroup("effandfake3",
 )
 _common = {"ymin": 0, "ymax": _maxEff}
 _effandfake4 = PlotGroup("effandfake4",
-                         _makeEffFakeDupPlots("vertpos", "vert xy", "cm", fakeopts=dict(xtitle="track ref. point xy (cm)", ytitle="fake+duplicates vs. xy")) +
-                         _makeEffFakeDupPlots("zpos"   , "vert z" , "cm", fakeopts=dict(xtitle="track ref. point z (cm)" , ytitle="fake+duplicates vs. z")) +
+                         _makeEffFakeDupPlots("vertpos", "vert r", "cm", fakeopts=dict(xtitle="track ref. point r (cm)", ytitle="fake+duplicates vs. r")) +
+                         _makeEffFakeDupPlots("zpos"   , "vert z", "cm", fakeopts=dict(xtitle="track ref. point z (cm)", ytitle="fake+duplicates vs. z")) +
                          _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
                          _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
                          legendDy=_legendDy_4rows
@@ -134,10 +134,10 @@ _dupandfake1 = PlotGroup("dupandfake1", [
                          ncols=3
 )
 _dupandfake2 = PlotGroup("dupandfake2",
-                         _makeFakeDupPileupPlots("dxy"  , "dxy"  , "cm") +
-                         _makeFakeDupPileupPlots("dxypv", "dxypv", "cm") +
-                         _makeFakeDupPileupPlots("dz"   , "dz"   , "cm") +
-                         _makeFakeDupPileupPlots("dzpv" , "dzpv" , "cm"),
+                         _makeFakeDupPileupPlots("dxy"  , "dxy"    , "cm") +
+                         _makeFakeDupPileupPlots("dxypv", "dxy(PV)", "cm") +
+                         _makeFakeDupPileupPlots("dz"   , "dz"     , "cm") +
+                         _makeFakeDupPileupPlots("dzpv" , "dz(PV)" , "cm"),
                          ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfake3 = PlotGroup("dupandfake3",
@@ -148,10 +148,10 @@ _dupandfake3 = PlotGroup("dupandfake3",
                          ncols=3, legendDy=_legendDy_4rows
 )
 _dupandfake4 = PlotGroup("dupandfake4",
-                         _makeFakeDupPileupPlots("vertpos", "xy", "cm", xquantity="ref. point xy (cm)") +
-                         _makeFakeDupPileupPlots("zpos"   , "z" , "cm", xquantity="ref. point z (cm)") +
-                         _makeFakeDupPileupPlots("dr"     , "#DeltaR" , xquantity="min #DeltaR", common=dict(xlog=True)) +
-                         _makeFakeDupPileupPlots("pu"     , "PU"      , xquantity="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
+                         _makeFakeDupPileupPlots("vertpos", "r", "cm", xquantity="ref. point r (cm)") +
+                         _makeFakeDupPileupPlots("zpos"   , "z", "cm", xquantity="ref. point z (cm)") +
+                         _makeFakeDupPileupPlots("dr"     , "#DeltaR", xquantity="min #DeltaR", common=dict(xlog=True)) +
+                         _makeFakeDupPileupPlots("pu"     , "PU"     , xtitle="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
                          ncols=3, legendDy=_legendDy_4rows
 )
 _seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xinlabeloption="d", adjustMarginRight=0.1)
@@ -248,7 +248,7 @@ _common = {"stat": True, "normalizeToUnitArea": True, "ylog": True, "ymin": 1e-6
 _hitsAndPt = PlotGroup("hitsAndPt", [
     Plot("missing_inner_layers", xmin=_minLayers, xmax=_maxLayers, ymax=1, **_common),
     Plot("missing_outer_layers", xmin=_minLayers, xmax=_maxLayers, ymax=1, **_common),
-    Plot("hits_eta", stat=True, statx=0.38, xtitle="track #eta", ytitle="<hits> vs #eta", ymin=_minHits, ymax=_maxHits, statyadjust=[0,0,-0.15],
+    Plot("hits_eta", xtitle="track #eta", ytitle="<hits> vs #eta", ymin=_minHits, ymax=_maxHits, statyadjust=[0,0,-0.15],
          fallback={"name": "nhits_vs_eta", "profileX": True}),
     Plot("hits", stat=True, xtitle="track hits", xmin=_minHits, xmax=_maxHits, ylog=True, ymin=[5e-1, 5, 5e1, 5e2, 5e3], drawStyle="hist"),
     Plot("num_simul_pT", xtitle="TP p_{T}", xlog=True, ymax=[1e-1, 2e-1, 5e-1, 1], **_common),
@@ -257,9 +257,9 @@ _hitsAndPt = PlotGroup("hitsAndPt", [
 _tuning = PlotGroup("tuning", [
     Plot("chi2", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=[0.1, 0.2, 0.5, 1.0001], drawStyle="hist", xtitle="#chi^{2}", ratioUncertainty=False),
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
-    Plot("chi2mean", stat=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5,
+    Plot("chi2mean", title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5],
          fallback={"name": "chi2_vs_eta", "profileX": True}),
-    Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="TP #eta (PCA to beamline)", ytitle="< #delta p_{T} / p_{T} > [%]", ymin=-1.5, ymax=1.5)
+    Plot("ptres_vs_eta_Mean", scale=100, title="", xtitle="TP #eta (PCA to beamline)", ytitle="< #delta p_{T} / p_{T} > [%]", ymin=-1.5, ymax=1.5)
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
 _pulls = PlotGroup("pulls", [

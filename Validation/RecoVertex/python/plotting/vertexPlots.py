@@ -108,7 +108,7 @@ _k0_effandfakeTk = PlotGroup("effandfakeTk", [
 ],
                              legendDy=-0.025
 )
-_common = {"normalizeToUnitArea": True, "drawStyle": "HIST"}
+_common = dict(normalizeToUnitArea=True, drawStyle="HIST", stat=True)
 _k0_mass = PlotGroup("mass", [
     Plot("ksMassAll", xtitle="mass of all (GeV)", **_common),
     Plot("ksMassGood", xtitle="mass of good (GeV)", **_common),
