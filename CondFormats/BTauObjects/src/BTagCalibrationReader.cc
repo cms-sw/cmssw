@@ -175,6 +175,11 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
   }
 
   // get sys SF (and maybe return)
+  if (!otherSysTypeReaders_.count(sys)) {
+    throw cms::Exception("BTagCalibrationReader")
+        << "sysType not available (maybe not loaded?): "
+        << sys;
+  }
   double sf_err = otherSysTypeReaders_.at(sys)->eval(jf, eta, pt_for_eval, discr);
   if (!is_out_of_bounds) {
     return sf_err;
