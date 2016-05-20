@@ -11,11 +11,11 @@ TrackerTopology::TrackerTopology( const PixelBarrelValues& pxb, const PixelEndca
     [PBModule] = { pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel},
     [PBLadder] = { pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel},
     [PBLayer]  = { pbVals_.layerStartBit_,  pbVals_.layerMask_,  PixelSubdetector::PixelBarrel},
-    [PEModule] = { pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap},
-    [PEPanel]  = { pfVals_.panelStartBit_,  pfVals_.panelMask_,  PixelSubdetector::PixelEndcap},
-    [PEBlade]  = { pfVals_.bladeStartBit_,  pfVals_.bladeMask_,  PixelSubdetector::PixelEndcap},
-    [PEDisk]   = { pfVals_.diskStartBit_,   pfVals_.diskMask_,   PixelSubdetector::PixelEndcap},
-    [PESide]   = { pfVals_.sideStartBit_,   pfVals_.sideMask_,   PixelSubdetector::PixelEndcap}
+    [PFModule] = { pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap},
+    [PFPanel]  = { pfVals_.panelStartBit_,  pfVals_.panelMask_,  PixelSubdetector::PixelEndcap},
+    [PFBlade]  = { pfVals_.bladeStartBit_,  pfVals_.bladeMask_,  PixelSubdetector::PixelEndcap},
+    [PFDisk]   = { pfVals_.diskStartBit_,   pfVals_.diskMask_,   PixelSubdetector::PixelEndcap},
+    [PFSide]   = { pfVals_.sideStartBit_,   pfVals_.sideMask_,   PixelSubdetector::PixelEndcap}
   } 
 {
   pbVals_=pxb;

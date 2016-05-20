@@ -104,7 +104,7 @@ class TrackerTopology {
 
   enum DetIdFields {
     PBModule, PBLadder, PBLayer,
-    PEModule, PEPanel, PEBlade, PEDisk, PESide, 
+    PFModule, PFPanel, PFBlade, PFDisk, PFSide, 
     /* TODO: this can be extended for all subdetectors */
     DETID_FIELDS_MAX
   };
