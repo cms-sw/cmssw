@@ -17,7 +17,6 @@
 // ---------------------------------------------------------------------------
 // Parser parts.
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "xercesc/util/Compilers/GCCDefs.hpp"
 
 class DDCompactView;
 
