@@ -26,6 +26,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
   virtual ~HGCalUncalibRecHitRecWeightsAlgo<C>() { };
 
   void set_isSiFESim(const bool isSiFE) { isSiFESim_ = isSiFE; }
+  bool isSiFESim() const { return isSiFESim_; }
 
   void set_ADCLSB(const double adclsb) { adcLSB_ = adclsb; }
   void set_TDCLSB(const double tdclsb) { tdcLSB_ = tdclsb; }

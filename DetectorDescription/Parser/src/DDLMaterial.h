@@ -1,12 +1,15 @@
 #ifndef DDLMaterial_H
 #define DDLMaterial_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLMaterial processes Box elements.
 /** @class DDLMaterial

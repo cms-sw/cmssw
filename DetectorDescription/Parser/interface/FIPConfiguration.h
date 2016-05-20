@@ -1,22 +1,22 @@
 #ifndef DetectorDescription_Parser_XMLConfiguration_H
 #define DetectorDescription_Parser_XMLConfiguration_H
 
+#include <map>
+#include <string>
+#include <vector>
+
+// From DD Core
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
-// From DD Core
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
+class DDCompactView;
 class DDLParser;
-class DDLSAX2Handler;
 class DDLSAX2ConfigHandler;
-
-#include <string>
-#include <vector>
-#include <map>
+class DDLSAX2Handler;
 
 /// FIPConfiguration reads in the configuration file for the DDParser.
 /** @class FIPConfiguration

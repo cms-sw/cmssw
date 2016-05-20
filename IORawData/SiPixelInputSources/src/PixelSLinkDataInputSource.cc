@@ -229,7 +229,7 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
     while((m_data >> 60) != 0xa);
     //  std::cout << "read " <<  buffer.size() << " long words" << std::endl;
 
-    std::auto_ptr<FEDRawData> rawData(new FEDRawData(8*buffer.size()));
+    auto rawData = std::make_unique<FEDRawData>(8*buffer.size());
     //  FEDRawData * rawData = new FEDRawData(8*buffer.size());
     unsigned char* dataptr=rawData->data();
 
@@ -269,7 +269,7 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeVa
 
 // produce() method. This is the worker method that is called every event.
 void PixelSLinkDataInputSource::produce(edm::Event& event) {
-  event.put(buffers);
+  event.put(std::move(buffers));
   buffers.reset();  
 }
 

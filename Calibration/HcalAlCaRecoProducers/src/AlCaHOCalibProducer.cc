@@ -168,7 +168,7 @@ private:
   virtual void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void fillHOStore(const reco::TrackRef& ncosm,
 		   HOCalibVariables& tmpHOCalib,
-		   std::auto_ptr<HOCalibVariableCollection> &hostore,
+		   std::unique_ptr<HOCalibVariableCollection> &hostore,
 		   int Noccu_old, int indx,
 		   edm::Handle<reco::TrackCollection> cosmicmuon,
 		   edm::View<reco::Muon>::const_iterator muon1,
@@ -302,7 +302,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (Nevents%5000==1)  edm::LogInfo("HOCalib") <<"AlCaHOCalibProducer Processing event # "<<Nevents<<" "<<Noccu<<" "<<irun<<" "<<iEvent.id().event();
 
-  std::auto_ptr<HOCalibVariableCollection> hostore (new HOCalibVariableCollection);
+  auto hostore = std::make_unique<HOCalibVariableCollection>();
 
   edm::Handle<reco::TrackCollection> cosmicmuon;
   edm::Handle<edm::View<reco::Muon> > collisionmuon;
@@ -359,7 +359,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  iEvent.put(hostore, "HOCalibVariableCollection");
+  iEvent.put(std::move(hostore), "HOCalibVariableCollection");
   
 }
 
@@ -399,7 +399,7 @@ AlCaHOCalibProducer::beginRun(edm::Run const & run,
 
 void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
 				      HOCalibVariables& tmpHOCalib,
-				      std::auto_ptr<HOCalibVariableCollection> &hostore,
+				      std::unique_ptr<HOCalibVariableCollection> &hostore,
 				      int Noccu_old, int indx,
 				      edm::Handle<reco::TrackCollection> cosmicmuon,
 				      edm::View<reco::Muon>::const_iterator muon1,

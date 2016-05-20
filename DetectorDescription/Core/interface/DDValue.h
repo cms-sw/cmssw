@@ -1,15 +1,16 @@
 #ifndef DetectorDescription_Core_DDValue_h
 #define DetectorDescription_Core_DDValue_h
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <memory>
 #include <atomic>
-#include "tbb/concurrent_vector.h"
-#include "tbb/concurrent_unordered_map.h"
+#include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 /** A DDValue std::maps a std::vector of DDValuePair (std::string,double) to a name. Names of DDValues are stored
  transiently. Furthermore, an ID is assigned std::mapping to the name.

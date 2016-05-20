@@ -1,23 +1,25 @@
 #ifndef DDL_SAX2FileHandler_H
 #define DDL_SAX2FileHandler_H
 
+#include <stddef.h>
+// Xerces dependencies
+#include <xercesc/sax2/Attributes.hpp>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+// DDCore parts
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
 // Parser parts.
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "xercesc/util/Compilers/GCCDefs.hpp"
 
-// DDCore parts
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-
-// Xerces dependencies
-#include <xercesc/sax2/Attributes.hpp>
-
-#include <string>
-#include <vector>
-#include <map>
+class DDCompactView;
 
 /// DDLSAX2FileHandler is the SAX2 Handler for XML files found in the configuration file.
 /** @class DDLSAX2FileHandler

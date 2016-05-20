@@ -124,10 +124,32 @@ _globalTags = {
     "CMSSW_8_0_0_pre6": {"default": "80X_mcRun2_asymptotic_v4"},
     "CMSSW_8_0_0_pre6_phase1": {"default": "80X_upgrade2017_design_v3_UPG17"},
     "CMSSW_8_0_0_pre6_MT": {"default": "80X_mcRun2_asymptotic_v4_multiCoreResub"},
+    "CMSSW_8_0_0": {"default": "80X_mcRun2_asymptotic_v4"},
+    "CMSSW_8_0_0_patch1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17"},
+    "CMSSW_8_0_0_patch1_phase1_rereco": {"default": "80X_upgrade2017_design_v4_UPG17_rereco"},
+    "CMSSW_8_0_0_patch2": {"default": "80X_mcRun2_asymptotic_v5_refGT"},
+    "CMSSW_8_0_0_patch2_pixDynIneff": {"default": "80X_mcRun2_asymptotic_v5_2016PixDynIneff_targetGT"},
+#    "CMSSW_8_0_0_patch2": {"default": "80X_mcRun2_asymptotic_v5_refGT"},
+#    "CMSSW_8_0_0_patch2_pixDynIneff": {"default": "80X_mcRun2_asymptotic_v5_2016PixDynIneff_targetGT"},
+    "CMSSW_8_0_0_patch2": {"default": "80X_mcRun2_asymptotic_v5_refGT_resub"},
+    "CMSSW_8_0_0_patch2_pixDynIneff": {"default": "80X_mcRun2_asymptotic_v5_2016PixDynIneff_targetGT_resub"},
+    "CMSSW_8_0_1": {"default": "80X_mcRun2_asymptotic_v6"},
+    "CMSSW_8_0_1_71XGENSIM": {"default": "80X_mcRun2_asymptotic_v6_gs7120p2"},
+    "CMSSW_8_0_1_gcc530": {"default": "80X_mcRun2_asymptotic_v6_gcc530"},
+    "CMSSW_8_0_3_71XGENSIM": {"default": "80X_mcRun2_asymptotic_2016_v3_gs7120p2NewGTv3"},
+    "CMSSW_8_0_3_71XGENSIM_hcal": {"default": "80X_mcRun2_asymptotic_2016_v3_gs71xNewGtHcalCust"},
+    "CMSSW_8_0_3_71XGENSIM_tec": {"default": "80X_mcRun2_asymptotic_SiStripBad_TEC_CL62_for2016_v1_mc_gs7120p2TrkCoolLoop"},
+    "CMSSW_8_0_5": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_0_5_pmx": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2_resub", "fastsim": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
+    "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
+    "CMSSW_8_1_0_pre2": {"default": "80X_mcRun2_asymptotic_v10_gs810pre2", "fastsim": "80X_mcRun2_asymptotic_v10"},
+    "CMSSW_8_1_0_pre2_phase1": {"default": "80X_upgrade2017_design_v9_UPG17designGT", "fullsim_25ns": "80X_upgrade2017_design_v9_UPG17PU35designGT"},
+    "CMSSW_8_1_0_pre2_phase1_realGT": {"default": "80X_upgrade2017_realistic_v1_UPG17realGT", "fullsim_25ns": "80X_upgrade2017_realistic_v1_UPG17PU35realGT"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1", "_ecal15fb", "_ecal30fb"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -160,11 +182,12 @@ def _getGlobalTag(sample, release):
             if "25ns" in puType:
                 return gtmap.get("fullsim_25ns", gtmap["default"])
     if sample.fastsim():
+        fsgt = gtmap.get("fastsim", gtmap["default"])
         if sample.hasPileup():
             puType = sample.pileupType()
             if "25ns" in puType:
-                return gtmap.get("fastsim_25ns", gtmap["default"])
-        return gtmap.get("fastsim", gtmap["default"])
+                return gtmap.get("fastsim_25ns", fsgt)
+        return fsgt
     return gtmap["default"]
 
 # Mapping from release series to RelVal download URLs
@@ -178,7 +201,18 @@ _relvalUrls = {
     "7_5_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_5_x/",
     "7_6_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_6_x/",
     "8_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_0_x/",
+    "8_1_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_1_x/",
 }
+
+_doElectronSamples = [
+    "RelValTTbar",
+    "RelValSingleElectronPt35",
+    "RelValSingleElectronPt10",
+]
+_doConversionSamples = [
+    "RelValTTbar",
+    "RelValH125GGgluonfusion",
+]
 
 def _getRelValUrl(release):
     """Get RelVal download URL for a given release."""
@@ -192,10 +226,20 @@ def _getRelValUrl(release):
         sys.exit(1)
     return _relvalUrls[version]
 
+def _processPlotsForSample(plotterFolder, sample):
+    if plotterFolder.onlyForPileup() and not sample.hasPileup():
+        return False
+    if plotterFolder.onlyForElectron() and not sample.doElectron():
+        return False
+    if plotterFolder.onlyForConversion() and not sample.doConversion():
+        return False
+    return True
+
 class Sample:
     """Represents a RelVal sample."""
     def __init__(self, sample, append=None, midfix=None, putype=None,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
+                 doElectron=None, doConversion=None,
                  version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
         """Constructor.
 
@@ -208,6 +252,8 @@ class Sample:
         putype  -- String for pileup type (e.g. "25ns"/"50ns" for FullSim, "AVE20" for FastSim; default None)
         fastsim -- Bool indicating the FastSim status (default False)
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
+        doElectron -- Bool specifying if electron-specific plots should be produced (default depends on sample)
+        doConversion -- Bool specifying if conversion-specific plots should be produced (default depends on sample)
         version -- String for dataset/DQM file version (default "v1")
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
@@ -224,6 +270,15 @@ class Sample:
         self._scenario = scenario
         self._overrideGlobalTag = overrideGlobalTag
         self._appendGlobalTag = appendGlobalTag
+
+        if doElectron is not None:
+            self._doElectron = doElectron
+        else:
+            self._doElectron = (sample in _doElectronSamples)
+        if doConversion is not None:
+            self._doConversion = doConversion
+        else:
+            self._doConversion = (sample in _doConversionSamples)
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             self._fastsimCorrespondingFullsimPileup = self._putype
@@ -260,6 +315,12 @@ class Sample:
             return self._putype.get(release, self._putype["default"])
         else:
             return self._putype
+
+    def doElectron(self):
+        return self._doElectron
+
+    def doConversion(self):
+        return self._doConversion
 
     def version(self, release=None):
         if isinstance(self._version, dict):
@@ -482,7 +543,7 @@ class Validation:
             plotterInstance = plotter.readDirs(harvestedFile)
             htmlReport.beginSample(sample)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-                if plotterFolder.onlyForPileup() and not sample.hasPileup():
+                if not _processPlotsForSample(plotterFolder, sample):
                     continue
                 plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
@@ -513,14 +574,15 @@ class Validation:
                 else:
                     raise Exception("Got multiple compatible FullSim samples for FastSim sample %s %s" % (fast.name(), fast.pileup()))
             if correspondingFull is None:
-                raise Exception("Did not find compatible FullSim sample for FastSim sample %s %s" % (fast.name(), fast.pileup()))
+                print "WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup())
+                continue
 
             # If we reach here, the harvestedFile must exist
             harvestedFile = fast.filename(self._newRelease)
             plotterInstance = plotter.readDirs(harvestedFile)
             htmlReport.beginSample(fast, fastVsFull=True)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-                if plotterFolder.onlyForPileup() and not fast.hasPileup():
+                if not _processPlotsForSample(plotterFolder, fast):
                     continue
                 plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
@@ -628,6 +690,12 @@ class Validation:
         if len(fileList) == 0:
             return []
 
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
+
         # Move plots to new directory
         print "Moving plots and %s to %s" % (valname, newdir)
         if not os.path.exists(newdir):
@@ -686,6 +754,15 @@ class Validation:
 
         fullValFile.Close()
         fastValFile.Close()
+
+        if len(fileList) == 0:
+            return []
+
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
         
         # Move plots to new directory
         print "Moving plots to %s" % (newdir)
@@ -737,6 +814,15 @@ class Validation:
 
         newValFile.Close()
         refValFile.Close()
+
+        if len(fileList) == 0:
+            return []
+
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
 
         # Move plots to new directory
         print "Moving plots to %s" % (resdir)
@@ -796,6 +882,16 @@ def _copyDir(src, dst):
             obj.Write()
             obj.Delete()
 
+def _findDuplicates(lst):
+    found = set()
+    found2 = set()
+    for x in lst:
+        if x in found:
+            found2.add(x)
+        else:
+            found.add(x)
+    return list(found2)
+
 class SimpleSample:
     def __init__(self, label, name, pileup=True):
         self._label = label
@@ -821,6 +917,12 @@ class SimpleSample:
 
     def pileupType(self):
         return ""
+
+    def doElectron(self):
+        return True
+
+    def doConversion(self):
+        return True
 
 class SimpleValidation:
     def __init__(self, files, labels, newdir):
@@ -851,7 +953,7 @@ class SimpleValidation:
 
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-            if sample is not None and plotterFolder.onlyForPileup() and not sample.hasPileup():
+            if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
             plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
             if len(plotFiles) > 0:
@@ -873,6 +975,12 @@ class SimpleValidation:
 
         if len(fileList) == 0:
             return fileList
+
+        dups = _findDuplicates(fileList)
+        if len(dups) > 0:
+            print "Plotter produced multiple files with names", ", ".join(dups)
+            print "Typically this is a naming problem in the plotter configuration"
+            sys.exit(1)
 
         print "Moving plots to %s" % newdir
         if not os.path.exists(newdir):

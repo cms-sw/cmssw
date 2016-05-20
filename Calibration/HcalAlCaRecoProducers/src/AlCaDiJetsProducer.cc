@@ -163,50 +163,50 @@ void AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     nSelect_++;
 
     //Copy from standard place
-    std::auto_ptr<reco::PFJetCollection>  miniPFjetCollection(new reco::PFJetCollection);
+    auto miniPFjetCollection = std::make_unique<reco::PFJetCollection>();
     for(reco::PFJetCollection::const_iterator pfjetItr=pfjets.begin();
         pfjetItr!=pfjets.end(); pfjetItr++) {
       miniPFjetCollection->push_back(*pfjetItr);
     }
 
-    std::auto_ptr<reco::PFCandidateCollection> miniPFCandCollection(new reco::PFCandidateCollection);
+    auto miniPFCandCollection = std::make_unique<reco::PFCandidateCollection>();
     for(reco::PFCandidateCollection::const_iterator pfcItr=pfcand.begin();
         pfcItr!=pfcand.end(); pfcItr++) {
       miniPFCandCollection->push_back(*pfcItr);
     }
 
-    std::auto_ptr<reco::VertexCollection> miniVtxCollection(new reco::VertexCollection);
+    auto miniVtxCollection = std::make_unique<reco::VertexCollection>();
     for(reco::VertexCollection::const_iterator vtxItr=vtx.begin();
         vtxItr!=vtx.end(); vtxItr++) {
       miniVtxCollection->push_back(*vtxItr);
     }
 
-    std::auto_ptr<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>  miniHBHECollection(new edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>);
+    auto miniHBHECollection = std::make_unique<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>>();
     for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >::const_iterator hbheItr=Hithbhe.begin(); 
 	hbheItr!=Hithbhe.end(); hbheItr++) {
       miniHBHECollection->push_back(*hbheItr);
     }
 
-    std::auto_ptr<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>  miniHOCollection(new edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>);
+    auto miniHOCollection = std::make_unique<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>>();
     for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >::const_iterator hoItr=Hitho.begin();
         hoItr!=Hitho.end(); hoItr++) {
       miniHOCollection->push_back(*hoItr);
     }
 
-    std::auto_ptr<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>  miniHFCollection(new edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>);
+    auto miniHFCollection = std::make_unique<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>>();
     for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >::const_iterator hfItr=Hithf.begin();
         hfItr!=Hithf.end(); hfItr++) {
       miniHFCollection->push_back(*hfItr);
     }
 
     //Put them in the event
-    iEvent.put( miniPFjetCollection,       labelPFJet_.encode());
-    iEvent.put( miniHBHECollection,        labelHBHE_.encode());
-    iEvent.put( miniHFCollection,          labelHF_.encode());
-    iEvent.put( miniHOCollection,          labelHO_.encode());
-    //iEvent.put( miniTriggerCollection,     labelTrigger_.encode());
-    iEvent.put( miniPFCandCollection,      labelPFCandidate_.encode());
-    iEvent.put( miniVtxCollection,         labelVertex_.encode());
+    iEvent.put(std::move(miniPFjetCollection),       labelPFJet_.encode());
+    iEvent.put(std::move(miniHBHECollection),        labelHBHE_.encode());
+    iEvent.put(std::move(miniHFCollection),          labelHF_.encode());
+    iEvent.put(std::move(miniHOCollection),          labelHO_.encode());
+    //iEvent.put(std::move(miniTriggerCollection),     labelTrigger_.encode());
+    iEvent.put(std::move(miniPFCandCollection),      labelPFCandidate_.encode());
+    iEvent.put(std::move(miniVtxCollection),         labelVertex_.encode());
   }
   return;
 

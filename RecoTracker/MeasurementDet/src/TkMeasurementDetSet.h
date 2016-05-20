@@ -15,7 +15,6 @@ class PixelClusterParameterEstimator;
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

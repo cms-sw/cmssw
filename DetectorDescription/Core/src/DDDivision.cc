@@ -1,7 +1,11 @@
 #include "DetectorDescription/Core/interface/DDDivision.h"
-#include "Division.h"
+
+#include <ostream>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/Store.h"
+#include "Division.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using DDI::Division;
   

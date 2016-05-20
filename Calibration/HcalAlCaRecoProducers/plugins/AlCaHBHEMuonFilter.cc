@@ -52,7 +52,7 @@ public:
   ~AlCaHBHEMuonFilter();
   
   static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<AlCaHBHEMuons::Counters>(new AlCaHBHEMuons::Counters());
+    return std::make_unique<AlCaHBHEMuons::Counters>();
   }
   
   virtual bool filter(edm::Event&, edm::EventSetup const&) override;

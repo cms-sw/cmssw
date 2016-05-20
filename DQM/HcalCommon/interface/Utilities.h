@@ -21,7 +21,7 @@ namespace hcaldqm
 		 *	Some useful functions on digis
 		 */
 		template<typename DIGI>
-		int maxTS(DIGI digi, double ped=0)
+		int maxTS(DIGI const& digi, double ped=0)
 		{
 			int maxTS = -1;
 			double maxQ = -100;
@@ -35,7 +35,7 @@ namespace hcaldqm
 		}
 
 		template<typename DIGI>
-		double aveTS(DIGI digi, double ped=0, int i=0, int j=3)
+		double aveTS(DIGI const& digi, double ped=0, int i=0, int j=3)
 		{
 			double sumQ = 0;
 			double sumQT = 0;
@@ -49,7 +49,7 @@ namespace hcaldqm
 		}
 
 		template<typename DIGI>
-		double sumQ(DIGI digi, double ped, int i=0, int j=3)
+		double sumQ(DIGI const& digi, double ped, int i=0, int j=3)
 		{
 			double sum=0;
 			for (int ii=i; ii<=j; ii++)
@@ -58,13 +58,13 @@ namespace hcaldqm
 		}
 
 		template<typename DIGI>
-		double aveQ(DIGI digi, double ped, int i=0, int j=3)
+		double aveQ(DIGI const& digi, double ped, int i=0, int j=3)
 		{
 			return sumQ<DIGI>(digi, ped, i, j)/(j-i+1);
 		}
 
 		template<typename DIGI>
-		double sumADC(DIGI digi, double ped, int i=0, int j=3)
+		double sumADC(DIGI const& digi, double ped, int i=0, int j=3)
 		{
 			double sum = 0;
 			for (int ii=i; ii<=j; ii++)
@@ -73,42 +73,16 @@ namespace hcaldqm
 		}
 
 		template<typename DIGI>
-		double aveADC(DIGI digi, double ped, int i=0, int j=3)
+		double aveADC(DIGI const& digi, double ped, int i=0, int j=3)
 		{
 			return sumADC<DIGI>(digi, ped, i, j)/(j-i+1);
-		}
-
-		template<typename DIGI>
-		bool isError(DIGI digi)
-		{
-			int capId = 0;
-			int lastcapId = 0;
-			bool anycapId = true;
-			bool anyerror = false;
-			bool anydv = true;
-			bool er, dv;
-			for (int its=0; its<digi.size(); its++)
-			{
-				capId = digi.sample(its).capid();
-				er= digi.sample(its).er();
-				dv = digi.sample(its).dv();
-				if (its!=0 && (lastcapId+1)%4!=capId)
-					anycapId = false;
-				lastcapId = capId;
-				if (er)
-					anyerror = true;
-				if (!dv)
-					anydv = false;
-			}
-
-			return !anycapId || anyerror || !anydv;
 		}
 
 		/*
 		 *	Log Functions
 		 */
 		template<typename STDTYPE>
-		void dqmdebug(STDTYPE x, int debug=0)
+		void dqmdebug(STDTYPE const& x, int debug=0)
 		{
 			if (debug==0)
 				return;
@@ -118,14 +92,29 @@ namespace hcaldqm
 		}
 
 		/*
-		 *	Useful Detector Functions. For Fast Detector Validity Check
+		 *	Useful Detector/Electronics/TrigTower Functions. 
+		 *	For Fast Detector Validity Check
 		 */
-		bool validDetId(HcalSubdetector, int , int, int );
-		bool validDetId(HcalDetId const&);
 		int getTPSubDet(HcalTrigTowerDetId const&);
 		int getTPSubDetPM(HcalTrigTowerDetId const&);
-		int getFEDById(int);
-		int getIdByFED(int);
+
+		//	returns a list of FEDs sorted.
+		std::vector<int> getFEDList(HcalElectronicsMap const*);
+		std::vector<int> getFEDVMEList(HcalElectronicsMap const*);
+		std::vector<int> getFEDuTCAList(HcalElectronicsMap const*);
+
+		uint16_t fed2crate(int fed);
+		uint16_t crate2fed(int crate);
+		bool isFEDHBHE(HcalElectronicsId const&);
+		bool isFEDHF(HcalElectronicsId const&);
+		bool isFEDHO(HcalElectronicsId const&);
+
+		/**
+		 *	This is wrap around in case hashing scheme changes in the future
+		 */
+		uint32_t hash(HcalDetId const&);
+		uint32_t hash(HcalElectronicsId const&);
+		uint32_t hash(HcalTrigTowerDetId const&);
 	}
 }
 

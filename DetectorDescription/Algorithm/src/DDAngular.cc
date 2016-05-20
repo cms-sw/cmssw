@@ -1,10 +1,21 @@
 #include "DetectorDescription/Algorithm/interface/DDAngular.h"
-#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
+
+#include <math.h>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Base/interface/DDAlgoPar.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "Math/GenVector/AxisAngle.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
 
 DDAngular::DDAngular( void )
   : m_n( 1 ),

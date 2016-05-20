@@ -99,7 +99,7 @@ class ESProducer : public ESProxyFactoryProducer
 
    public:
       ESProducer();
-      virtual ~ESProducer();
+      virtual ~ESProducer() noexcept(false);
 
       // ---------- const member functions ---------------------
 

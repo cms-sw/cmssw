@@ -76,6 +76,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
     if (!itTraj->updatedState().isValid()) continue;
     
     TrajectoryStateOnSurface tsos = tsoscomb( itTraj->forwardPredictedState(), itTraj->backwardPredictedState() );
+    if(!tsos.isValid()) continue;
     TransientTrackingRecHit::ConstRecHitPointer hit = itTraj->recHit();
     
     if(!hit->isValid() || hit->geographicalId().det() != DetId::Tracker) continue;

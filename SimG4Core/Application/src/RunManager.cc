@@ -28,9 +28,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
 
@@ -40,6 +40,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -97,7 +98,8 @@ void createWatchers(const edm::ParameterSet& iP,
       SimWatcherFactory::get()->create
       (itWatcher->getParameter<std::string> ("type")) );
     if(maker.get()==0) {
-      throw SimG4Exception("Unable to find the requested Watcher");
+      throw edm::Exception(edm::errors::Configuration)
+	<< "Unable to find the requested Watcher";
     }
     
     std::shared_ptr<SimWatcher> watcherTemp;
@@ -179,7 +181,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   if (m_pUseMagneticField) {
     bool magChanged = idealMagRcdWatcher_.check(es);
     if (magChanged && (!firstRun)) {
-      throw cms::Exception("BadConfig") 
+      throw edm::Exception(edm::errors::Configuration) 
 	<< "[SimG4Core RunManager]\n"
 	<< "The MagneticField configuration is changed during the job execution\n"
 	<< "this is not allowed, the MagneticField must stay unchanged\n";
@@ -247,15 +249,17 @@ void RunManager::initG4(const edm::EventSetup & es)
   std::auto_ptr<PhysicsListMakerBase> 
     physicsMaker(PhysicsListFactory::get()->create(
       m_pPhysics.getParameter<std::string> ("type")));
-  if (physicsMaker.get()==0) {
-    throw SimG4Exception("Unable to find the Physics list requested");
+  if (physicsMaker.get()==nullptr) {
+    throw edm::Exception(edm::errors::Configuration)
+      << "Unable to find the Physics list requested";
   }
   m_physicsList = 
     physicsMaker->make(map_,fPDGTable,m_chordFinderSetter,m_pPhysics,m_registry);
 
   PhysicsList* phys = m_physicsList.get(); 
-  if (phys==0) { 
-    throw SimG4Exception("Physics list construction failed!"); 
+  if (phys==nullptr) { 
+    throw edm::Exception(edm::errors::Configuration)
+      << "Physics list construction failed!"; 
   }
 
   // adding GFlash, Russian Roulette for eletrons and gamma, 
@@ -281,7 +285,8 @@ void RunManager::initG4(const edm::EventSetup & es)
 
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
   else { 
-    throw SimG4Exception("G4RunManagerKernel initialization failed!"); 
+    throw edm::Exception(edm::errors::LogicError)
+      << "G4RunManagerKernel initialization failed!"; 
   }
   
   if (m_StorePhysicsTables)
@@ -349,9 +354,10 @@ void RunManager::produce(edm::Event& inpevt, const edm::EventSetup & es)
 			       m_generator->genVertex()->t()/second));
   }
   if (m_currentEvent->GetNumberOfPrimaryVertex()==0) {
-    edm::LogError("SimG4CoreApplication") 
-      << " RunManager::produce event " << inpevt.id().event()
-      << " with no G4PrimaryVertices \n  Aborting Run" ;
+    std::stringstream ss;
+    ss << " RunManager::produce(): event " << inpevt.id().event()
+       << " with no G4PrimaryVertices\n" ;
+    throw SimG4Exception(ss.str());
        
     abortRun(false);
   } else {
@@ -413,19 +419,7 @@ void RunManager::abortEvent()
     (TrackingAction*)m_kernel->GetEventManager()->GetUserTrackingAction() ;
   uta->PostUserTrackingAction(t) ;
 
-  m_currentEvent->SetEventAborted();
-    
-  // do NOT call this method for now
-  // because it'll set abortRequested=true (withing G4EventManager)
-  // this will make Geant4, in the event *next* after the aborted one
-  // NOT to get the primary, thus there's NOTHING to trace, and it goes
-  // to the end of G4Event::DoProcessing(G4Event*), where abortRequested
-  // will be reset to true again
-  //    
-  //m_kernel->GetEventManager()->AbortCurrentEvent();
-  //
-  // instead, mimic what it does, except (re)setting abortRequested
-  //
+  m_currentEvent->SetEventAborted();    
   m_kernel->GetEventManager()->GetStackManager()->clear() ;
   m_kernel->GetEventManager()->GetTrackingManager()->EventAborted() ;
      
@@ -472,39 +466,37 @@ void RunManager::initializeUserActions()
 void RunManager::initializeRun()
 {
   m_runInitialized = false;
-  if (m_currentRun==0) { m_currentRun = new G4Run(); }
+  if (m_currentRun==nullptr) { m_currentRun = new G4Run(); }
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
-  if (m_userRunAction!=0) { m_userRunAction->BeginOfRunAction(m_currentRun); }
+  if (m_userRunAction!=nullptr) { m_userRunAction->BeginOfRunAction(m_currentRun); }
   m_runAborted = false;
   m_runInitialized = true;
 }
  
 void RunManager::terminateRun()
 {
-  if (m_userRunAction!=0) {
+  if(m_runTerminated) { return; }
+  if (m_userRunAction!=nullptr) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction; 
-    m_userRunAction = 0;
+    m_userRunAction = nullptr;
   }
-  if (m_kernel!=0 && !m_runTerminated) {
-    delete m_currentEvent;
-    m_currentEvent = 0;
-    delete m_simEvent;
-    m_simEvent = 0;
-    m_kernel->RunTermination();
-    m_runInitialized = false;
-    m_runTerminated = true;
-  }  
+  delete m_currentEvent;
+  m_currentEvent = nullptr;
+  delete m_simEvent;
+  m_simEvent = nullptr;
+  if(m_kernel != nullptr) { m_kernel->RunTermination(); }
+  m_runInitialized = false;
+  m_runTerminated = true;  
 }
 
 void RunManager::abortRun(bool softAbort)
 {
-  m_runAborted = false;
+  if(m_runAborted) { return; }
   if (!softAbort) { abortEvent(); }
   if (m_currentRun!=0) { delete m_currentRun; m_currentRun = 0; }
-  m_runInitialized = false;
-  m_runAborted = true;
   terminateRun();
+  m_runAborted = true;
 }
 
 void RunManager::resetGenParticleId( edm::Event& inpevt ) 

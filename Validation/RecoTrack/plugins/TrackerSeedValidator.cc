@@ -358,7 +358,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	}
 
 	double dR = 0.;//fixme: plots vs dR not implemented for now
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*trackFromSeed,bs.position(), nullptr, isSimMatched,isSigSimMatched,
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*trackFromSeed, ttopo, bs.position(), nullptr, isSimMatched,isSigSimMatched,
 							  isChargeMatched, numAssocSeeds, 
 							  puinfo.getPU_NumInteractions(),
 							  nSimHits, sharedFraction, dR);

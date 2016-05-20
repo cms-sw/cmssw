@@ -34,6 +34,8 @@
 
 */
 
+#include <iostream>
+
 #include <utility>
 
 namespace l1tcalo {
@@ -115,25 +117,47 @@ public:
     return !(iPhi < l1tcalo::NPhiInRegion);
   }
 
-  // For summary card, we label regions by phi and eta indices
+  // We label regions by phi and eta indices
   //  UCTRegionPhiIndices are 0-17
   //  UCTRegionEtaIndices are 1-7 for EB/HB+EE/HE and 8-13 for HF, 
   //   with negative values for negative eta, and zero being illegal
+  //  GCTRegionPhiIndices are the same
+  //  GCTRegionEtaIndices are 4-10 for -7 thru -1 and 11-17 for 1 thru 7
+  //  GCTRegionEtaIndices 0-3 are for -HF and 18-22 are for +HF, which are now unused!
   // We label by the pair (UCTRegionPhiIndex, UCTRegionEtaIndex)
-  // We can then walk the eta-phi plane by looking at nearest neighbors
-  // using the access functions below.  We should never need beyond 
-  // nearest-neighbor for all but global objects like TotalET, HT, MET, MHT
-  // In those cases, we loop over all regions.
 
   uint32_t getUCTRegionPhiIndex(int caloPhi) {
     if(caloPhi < 71) return ((caloPhi + 1) / 4);
-    else return 17;
+    else if(caloPhi < 73) return 0;
+    else return 0xDEADBEEF;
   }
-  uint32_t getUCTRegionEtaIndex(int caloEta) {
+  uint32_t getGCTRegionPhiIndex(int caloPhi) {return getUCTRegionPhiIndex(caloPhi);}
+  uint32_t getGCTRegionPhiIndex(UCTRegionIndex r) {return r.second;}
+
+  int getUCTRegionEtaIndex(int caloEta) {
     // Region index is same for all phi; so get for phi = 1
     uint32_t rgn = getRegion(caloEta, 1);
     if(caloEta < 0) return -(rgn+1);
     return (rgn+1);
+  }
+  uint32_t getGCTRegionEtaIndex(int caloEta) {
+    uint32_t gctEta = 0xDEADBEEF;
+    // Region index is same for all phi; so get for phi = 1
+    uint32_t region = getRegion(caloEta, 1);
+    if(caloEta > 0 && region < l1tcalo::NRegionsInCard)
+      gctEta = region + 11;
+    else if(caloEta < 0 && region < l1tcalo::NRegionsInCard)
+      gctEta = 10 - region;
+    return gctEta;
+  }
+  uint32_t getGCTRegionEtaIndex(UCTRegionIndex r) {
+    uint32_t gctEta = 0xDEADBEEF;
+    uint32_t region = std::abs(r.first)-1;
+    if(r.first > 0 && region < l1tcalo::NRegionsInCard)
+      gctEta = region + 11;
+    else if(r.first < 0 && region < l1tcalo::NRegionsInCard)
+      gctEta = 10 - region;
+    return gctEta;
   }
 
   uint32_t getUCTRegionPhiIndex(uint32_t crate, uint32_t card);
@@ -155,7 +179,7 @@ public:
   UCTTowerIndex getUCTTowerIndex(UCTRegionIndex r, uint32_t iEta = 0, uint32_t iPhi = 0);
 
   double getUCTTowerEta(int caloEta);
-  double getUCTTowerPhi(int caloPhi, int caloEta);
+  double getUCTTowerPhi(int caloPhi);
 
 private:
   double twrEtaValues[29];

@@ -1,12 +1,15 @@
 #ifndef DDL_CompositeMaterial_H
 #define DDL_CompositeMaterial_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLMaterial.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLCompositeMaterial processes all CompositeMaterial elements.
 /** @class DDLCompositeMaterial.

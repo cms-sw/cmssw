@@ -27,6 +27,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include <vector>
@@ -200,11 +203,14 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 CaloRecHitsBeamHaloCleaned::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("EBRecHitsLabel", edm::InputTag("EcalRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitsLabel", edm::InputTag("EcalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("HBHERecHitsLabel", edm::InputTag("hbhereco"));
+  desc.add<edm::InputTag>("GlobalHaloDataLabel", edm::InputTag("GlobalHaloData"));
+  desc.add<bool>("IsHLT",false);
+  descriptions.add("caloRecHitsBeamHaloCleaned",desc);
+
 }
 
 //define this as a plug-in

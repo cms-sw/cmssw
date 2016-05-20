@@ -13,7 +13,7 @@
 
 namespace edm {
   ProducerBase::ProducerBase() : ProductRegistryHelper(), callWhenNewProductsRegistered_() {}
-  ProducerBase::~ProducerBase() { }
+  ProducerBase::~ProducerBase() noexcept(false) { }
 
    std::function<void(BranchDescription const&)> ProducerBase::registrationCallback() const {
       return callWhenNewProductsRegistered_;

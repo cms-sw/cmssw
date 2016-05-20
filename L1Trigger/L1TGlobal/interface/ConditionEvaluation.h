@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_ConditionEvaluation_h
-#define GlobalTrigger_ConditionEvaluation_h
+#ifndef L1Trigger_L1TGlobal_ConditionEvaluation_h
+#define L1Trigger_L1TGlobal_ConditionEvaluation_h
 
 /**
  * \class ConditionEvaluation
@@ -28,7 +28,7 @@
 //   base class
 
 //
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations

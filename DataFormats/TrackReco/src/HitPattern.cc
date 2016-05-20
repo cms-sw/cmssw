@@ -323,29 +323,20 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
     }
 }
 
-bool HitPattern::hasValidHitInFirstPixelBarrel() const
+
+bool HitPattern::hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector det, uint16_t layer) const
 {
-    for (int i = beginTrackHits; i < endTrackHits; ++i) {
-        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-        if (pixelBarrelHitFilter(pattern) && (getLayer(pattern) == 1)
-                && validHitFilter(pattern)) {
-            return true;
-        }
+  for (int i = beginTrackHits; i < endTrackHits; ++i) {
+    uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+    bool pixelHitFilter = ( (det==1 && pixelBarrelHitFilter(pattern)) ||
+			    (det==2 && pixelEndcapHitFilter(pattern)) );
+    if (pixelHitFilter && (getLayer(pattern) == layer) && validHitFilter(pattern)) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
-bool HitPattern::hasValidHitInFirstPixelEndcap() const
-{
-    for (int i = beginTrackHits; i < endTrackHits; ++i) {
-        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-        if (pixelEndcapHitFilter(pattern) && (getLayer(pattern) == 1)
-                && validHitFilter(pattern)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const
 {

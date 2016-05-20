@@ -17,5 +17,6 @@ MonitorTrackGLBMuons.doDCAPlots = True
 MonitorTrackGLBMuons.doDCAwrtPVPlots = True
 MonitorTrackGLBMuons.doDCAwrt000Plots = False
 MonitorTrackGLBMuons.doSIPPlots  = True
-MonitorTrackGLBMuons.doEffFromHitPattern = False
+MonitorTrackGLBMuons.doEffFromHitPatternVsPU = False
+MonitorTrackGLBMuons.doEffFromHitPatternVsBX = False
 

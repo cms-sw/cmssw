@@ -6,17 +6,25 @@
 
 namespace l1t {
    namespace stage2 {
-      GTTokens::GTTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : PackerTokens(cfg, cc)
+      GTTokens::GTTokens(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) 
       {
-         auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
+         auto gttag = cfg.getParameter<edm::InputTag>("GtInputTag");
+         auto exttag = cfg.getParameter<edm::InputTag>("ExtInputTag");
+         auto egammatag = cfg.getParameter<edm::InputTag>("EGammaInputTag");
+         auto jettag = cfg.getParameter<edm::InputTag>("JetInputTag");
+         auto tautag = cfg.getParameter<edm::InputTag>("TauInputTag");
+         auto etsumtag = cfg.getParameter<edm::InputTag>("EtSumInputTag");
+         auto muontag = cfg.getParameter<edm::InputTag>("MuonInputTag");
 
-         muonToken_ = cc.consumes<MuonBxCollection>(tag);
-	 egammaToken_ = cc.consumes<EGammaBxCollection>(tag);
-         etSumToken_ = cc.consumes<EtSumBxCollection>(tag);
-         jetToken_ = cc.consumes<JetBxCollection>(tag);
-         tauToken_ = cc.consumes<TauBxCollection>(tag);
-         algToken_ = cc.consumes<GlobalAlgBlkBxCollection>(tag);
-         extToken_ = cc.consumes<GlobalExtBlkBxCollection>(tag);
+	 //cout << "DEBUG:  GmtInputTag" <<  muontag << "\n";
+
+         muonToken_ = cc.consumes<MuonBxCollection>(muontag);
+	 egammaToken_ = cc.consumes<EGammaBxCollection>(egammatag);
+         etSumToken_ = cc.consumes<EtSumBxCollection>(etsumtag);
+         jetToken_ = cc.consumes<JetBxCollection>(jettag);
+         tauToken_ = cc.consumes<TauBxCollection>(tautag);
+         algToken_ = cc.consumes<GlobalAlgBlkBxCollection>(gttag);
+         extToken_ = cc.consumes<GlobalExtBlkBxCollection>(exttag);
 
       }
    }

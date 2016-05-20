@@ -1,10 +1,13 @@
 #include "DetectorDescription/Core/interface/DDName.h"
+
+#include <ext/alloc_traits.h>
+#include <stdlib.h>
+#include <sstream>
+
+#include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include <sstream>
 
 std::ostream & operator<<(std::ostream & os, const DDName & n)
 { 

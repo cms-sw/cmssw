@@ -49,7 +49,7 @@ using namespace edm;
 //    // do actual copying here;
 // }
 
-EDConsumerBase::~EDConsumerBase()
+EDConsumerBase::~EDConsumerBase() noexcept(false)
 {
 }
 

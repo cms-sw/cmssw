@@ -40,8 +40,8 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PEcalPreshowerRcd" ; }
 
-      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+      virtual unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      virtual unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
 
       EcalPreshowerGeometry() ;
   
@@ -54,7 +54,7 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 		       CCGFloat z2plus ) ;
 
       // Get closest cell
-      virtual DetId getClosestCell( const GlobalPoint& r ) const ;
+      virtual DetId getClosestCell( const GlobalPoint& r ) const override;
 
 
       // Get closest cell in arbitrary plane (1 or 2)
@@ -62,8 +62,8 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 					   int                plane   ) const ;
 
 
-      virtual void initializeParms() ;
-      virtual unsigned int numberOfTransformParms() const { return 3 ; }
+      virtual void initializeParms() override;
+      virtual unsigned int numberOfTransformParms() const override { return 3 ; }
 
       static std::string hitString() { return "EcalHitsES" ; }
 
@@ -86,7 +86,7 @@ class EcalPreshowerGeometry final : public CaloSubdetectorGeometry
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
-			    const DetId&       detId   ) ;
+			    const DetId&       detId   ) override;
 
 
   /// is this detid present in the geometry?

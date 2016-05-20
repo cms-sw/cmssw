@@ -4,9 +4,10 @@
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include <DataFormats/TrackReco/interface/TrackFwd.h>
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
+
 
 #include "TMath.h"
 #include <TF1.h>
@@ -31,6 +32,12 @@ namespace {
 
   template<typename T> void fillPlotNoFlow(MonitorElement *h, T val) {
     h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
+  }
+
+  void setBinLabels(MonitorElement *h, const std::vector<std::string>& labels) {
+    for(size_t i=0; i<labels.size(); ++i) {
+      h->setBinLabel(i+1, labels[i]);
+    }
   }
 }
 
@@ -166,6 +173,49 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   initGPselector(GpSelectorForEfficiencyVsPt,   "GpSelectorForEfficiencyVsPt");
   initGPselector(GpSelectorForEfficiencyVsVTXR, "GpSelectorForEfficiencyVsVTXR");
   initGPselector(GpSelectorForEfficiencyVsVTXZ, "GpSelectorForEfficiencyVsVTXZ");
+
+  // SeedingLayerSets
+  // If enabled, use last bin to denote other or unknown cases
+  seedingLayerSetNames = pset.getParameter<std::vector<std::string> >("seedingLayerSets");
+  std::vector<std::pair<SeedingLayerSetId, std::string> > stripPairSets;
+  if(!seedingLayerSetNames.empty()) {
+    std::vector<std::vector<std::string>> layerSets = SeedingLayerSetsBuilder::layerNamesInSets(seedingLayerSetNames);
+    for(size_t i=0; i<layerSets.size(); ++i) {
+      const auto& layerSet = layerSets[i];
+      if(layerSet.size() > std::tuple_size<SeedingLayerSetId>::value) {
+        throw cms::Exception("Configuration") << "Got seedingLayerSet " << seedingLayerSetNames[i] << " with " << layerSet.size() << " elements, but I have a hard-coded maximum of " << std::tuple_size<SeedingLayerSetId>::value << ". Please increase the maximum in MTVHistoProducerAlgoForTracker.h";
+      }
+      SeedingLayerSetId setId;
+      for(size_t j=0; j<layerSet.size(); ++j) {
+        // It is a bit ugly to assume here that 'M' prefix stands for
+        // strip mono hits, as in the SeedingLayerSetsBuilder code any
+        // prefixes are arbitrary and their meaning is defined fully
+        // in the configuration. But, this is the easiest way.
+        bool isStripMono = !layerSet[j].empty() && layerSet[j][0] == 'M';
+        setId[j] = std::make_tuple(SeedingLayerSetsBuilder::nameToEnumId(layerSet[j]), isStripMono);
+      }
+      // Account for the fact that strip triplet seeding may give pairs
+      if(layerSet.size() == 3 && isTrackerStrip(std::get<GeomDetEnumerators::SubDetector>(std::get<0>(setId[0])))) {
+        SeedingLayerSetId pairId;
+        pairId[0] = setId[0];
+        pairId[1] = setId[1];
+        stripPairSets.emplace_back(pairId, layerSet[0]+"+"+layerSet[1]);
+      }
+
+      auto inserted = seedingLayerSetToBin.insert(std::make_pair(setId, i));
+      if(!inserted.second)
+        throw cms::Exception("Configuration") << "SeedingLayerSet " << seedingLayerSetNames[i] << " is specified twice, while the set list should be unique.";
+    }
+
+    // Add the "strip pairs from strip triplets" if they don't otherwise exist
+    for(const auto& setIdName: stripPairSets) {
+      auto inserted = seedingLayerSetToBin.insert(std::make_pair(setIdName.first, seedingLayerSetNames.size()));
+      if(inserted.second)
+        seedingLayerSetNames.push_back(setIdName.second);
+    }
+
+    seedingLayerSetNames.emplace_back("Other/Unknown");
+  }
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -388,6 +438,20 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_looperchi2.push_back( ibook.book1D("num_duplicate_chi2","N of associated (recoToSim) looper tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
   h_misidchi2.push_back( ibook.book1D("num_chargemisid_chi2","N of associated (recoToSim) charge misIDed tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
   h_pileupchi2.push_back( ibook.book1D("num_pileup_chi2","N of associated (recoToSim) pileup tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
+
+
+  if(!seedingLayerSetNames.empty()) {
+    const auto size = seedingLayerSetNames.size();
+    h_reco_seedingLayerSet.push_back(ibook.book1D("num_reco_seedingLayerSet", "N of reco track vs. seedingLayerSet", size,0,size));
+    h_assoc2_seedingLayerSet.push_back(ibook.book1D("num_assoc(recoToSim)_seedingLayerSet", "N of associated track (recoToSim) tracks vs. seedingLayerSet", size,0,size));
+    h_looper_seedingLayerSet.push_back(ibook.book1D("num_duplicate_seedingLayerSet", "N of reco associated (recoToSim) looper vs. seedingLayerSet", size,0,size));
+    h_pileup_seedingLayerSet.push_back(ibook.book1D("num_pileup_seedingLayerSet", "N of reco associated (recoToSim) pileup vs. seedingLayerSet", size,0,size));
+
+    setBinLabels(h_reco_seedingLayerSet.back(), seedingLayerSetNames);
+    setBinLabels(h_assoc2_seedingLayerSet.back(), seedingLayerSetNames);
+    setBinLabels(h_looper_seedingLayerSet.back(), seedingLayerSetNames);
+    setBinLabels(h_pileup_seedingLayerSet.back(), seedingLayerSetNames);
+  }
 
   /////////////////////////////////
 
@@ -713,6 +777,7 @@ void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, const
 
 void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   const reco::Track& track,
+                                                                   const TrackerTopology& ttopo,
 								   const math::XYZPoint& bsPosition,
 								   const math::XYZPoint *pvPosition,
 								   bool isMatched,
@@ -745,6 +810,8 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto vertz = track.referencePoint().z();
   const auto deltar = min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax());
   const auto chi2 = track.normalizedChi2();
+  const bool fillSeedingLayerSets = !seedingLayerSetNames.empty();
+  const unsigned int seedingLayerSetBin = fillSeedingLayerSets ? getSeedingLayerSetBin(track, ttopo) : 0;
 
   fillPlotNoFlow(h_recoeta[count], eta);
   fillPlotNoFlow(h_recophi[count], phi);
@@ -760,6 +827,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_recovertpos[count], vertxy);
   fillPlotNoFlow(h_recozpos[count], vertz);
   h_recodr[count]->Fill(deltar);
+  if(fillSeedingLayerSets) h_reco_seedingLayerSet[count]->Fill(seedingLayerSetBin);
   if(pvPosition) {
     fillPlotNoFlow(h_recodxypv[count], dxypv);
     fillPlotNoFlow(h_recodzpv[count], dzpv);
@@ -785,6 +853,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2vertpos[count], vertxy);
     fillPlotNoFlow(h_assoc2zpos[count], vertz);
     h_assoc2dr[count]->Fill(deltar);
+    if(fillSeedingLayerSets) h_assoc2_seedingLayerSet[count]->Fill(seedingLayerSetBin);
     if(pvPosition) {
       fillPlotNoFlow(h_assoc2dxypv[count], dxypv);
       fillPlotNoFlow(h_assoc2dzpv[count], dzpv);
@@ -832,6 +901,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_loopervertpos[count], vertxy);
       fillPlotNoFlow(h_looperzpos[count], vertz);
       h_looperdr[count]->Fill(deltar);
+      if(fillSeedingLayerSets) h_looper_seedingLayerSet[count]->Fill(seedingLayerSetBin);
       if(pvPosition) {
         fillPlotNoFlow(h_looperdxypv[count], dxypv);
         fillPlotNoFlow(h_looperdzpv[count], dzpv);
@@ -852,6 +922,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_pileupvertpos[count], vertxy);
       fillPlotNoFlow(h_pileupzpos[count], vertz);
       h_pileupdr[count]->Fill(deltar);
+      if(fillSeedingLayerSets) h_pileup_seedingLayerSet[count]->Fill(seedingLayerSetBin);
       if(pvPosition) {
         fillPlotNoFlow(h_pileupdxypv[count], dxypv);
         fillPlotNoFlow(h_pileupdzpv[count], dzpv);
@@ -1112,6 +1183,61 @@ MTVHistoProducerAlgoForTracker::getPt(double pt) {
   else return pt;
 }
 
+unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::Track& track, const TrackerTopology& ttopo) {
+  if(track.seedRef().isNull())
+    return seedingLayerSetNames.size()-1;
+
+  const TrajectorySeed& seed = *(track.seedRef());
+  const auto hitRange = seed.recHits();
+  SeedingLayerSetId searchId;
+  const int nhits = std::distance(hitRange.first, hitRange.second);
+  if(nhits > static_cast<int>(std::tuple_size<SeedingLayerSetId>::value)) {
+    LogDebug("TrackValidator") << "Got seed with " << nhits << " hits, but I have a hard-coded maximum of " << std::tuple_size<SeedingLayerSetId>::value << ", classifying the seed as 'unknown'. Please increase the maximum in MTVHistoProducerAlgoForTracker.h if needed.";
+    return seedingLayerSetNames.size()-1;
+  }
+  int i=0;
+  for(auto iHit = hitRange.first; iHit != hitRange.second; ++iHit, ++i) {
+    DetId detId = iHit->geographicalId();
+
+    if(detId.det() != DetId::Tracker) {
+      throw cms::Exception("LogicError") << "Encountered seed hit detId " << detId.rawId() << " not from Tracker, but " << detId.det();
+    }
+
+    GeomDetEnumerators::SubDetector subdet;
+    bool subdetStrip = false;
+    switch(detId.subdetId()) {
+    case PixelSubdetector::PixelBarrel: subdet = GeomDetEnumerators::PixelBarrel; break;
+    case PixelSubdetector::PixelEndcap: subdet = GeomDetEnumerators::PixelEndcap; break;
+    case StripSubdetector::TIB: subdet = GeomDetEnumerators::TIB; subdetStrip = true; break;
+    case StripSubdetector::TID: subdet = GeomDetEnumerators::TID; subdetStrip = true; break;
+    case StripSubdetector::TOB: subdet = GeomDetEnumerators::TOB; subdetStrip = true; break;
+    case StripSubdetector::TEC: subdet = GeomDetEnumerators::TEC; subdetStrip = true; break;
+    default: throw cms::Exception("LogicError") << "Unknown subdetId " << detId.subdetId();
+    };
+
+    ctfseeding::SeedingLayer::Side side;
+    switch(ttopo.side(detId)) {
+    case 0: side = ctfseeding::SeedingLayer::Barrel; break;
+    case 1: side = ctfseeding::SeedingLayer::NegEndcap; break;
+    case 2: side = ctfseeding::SeedingLayer::PosEndcap; break;
+    default: throw cms::Exception("LogicError") << "Unknown side " << ttopo.side(detId);
+    };
+
+    // This is an ugly assumption, but a generic solution would
+    // require significantly more effort
+    // The "if hit is strip mono or not" is checked only for the last hit
+    bool isStripMono = false;
+    if(i == nhits-1 && subdetStrip) {
+      isStripMono = trackerHitRTTI::isSingle(*iHit);
+    }
+    searchId[i] = SeedingLayerId(SeedingLayerSetsBuilder::SeedingLayerId(subdet, side, ttopo.layer(detId)), isStripMono);
+  }
+  auto found = seedingLayerSetToBin.find(searchId);
+  if(found == seedingLayerSetToBin.end()) {
+    return seedingLayerSetNames.size()-1;
+  }
+  return found->second;
+}
 
 void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int count,
 									 const reco::GenParticle& tp,

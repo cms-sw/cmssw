@@ -76,6 +76,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEdigiCollectionSig  = cms.InputTag("hcalDigis"),
     HOdigiCollectionSig    = cms.InputTag("hcalDigis"),
     HFdigiCollectionSig    = cms.InputTag("hcalDigis"),
+    QIE10digiCollectionSig = cms.InputTag("hcalDigis"),
+    QIE11digiCollectionSig = cms.InputTag("hcalDigis"),
     ZDCdigiCollectionSig   = cms.InputTag(""),
 #                         ZDCdigiCollectionSig   = cms.InputTag("hcalDigis"),          
     #
@@ -85,6 +87,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEPileInputTag = cms.InputTag("hcalDigis"),                  
     HOPileInputTag   = cms.InputTag("hcalDigis"),                  
     HFPileInputTag   = cms.InputTag("hcalDigis"),                  
+    QIE10PileInputTag   = cms.InputTag("hcalDigis"),                  
+    QIE11PileInputTag   = cms.InputTag("hcalDigis"),                  
     ZDCPileInputTag  = cms.InputTag(""),
 #                         ZDCPileInputTag  = cms.InputTag("hcalDigis"),          
     #  Signal
@@ -130,7 +134,9 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEDigiCollectionDM = cms.string(''),
     HODigiCollectionDM   = cms.string(''),
     HFDigiCollectionDM   = cms.string(''),
-    ZDCDigiCollectionDM  = cms.string('')
+    ZDCDigiCollectionDM  = cms.string(''),
+    QIE10DigiCollectionDM  = cms.string(''),
+    QIE11DigiCollectionDM  = cms.string('')
 )
 
 mixData.doEB = cms.bool(True)

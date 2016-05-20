@@ -506,9 +506,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	}
 
 	//gc: add the chi2 cut
-	vector<GlobalPoint> gp(3);
-	vector<GlobalError> ge(3);
-	vector<bool> bl(3);
+	declareDynArray(GlobalPoint,3, gp);
+	declareDynArray(GlobalError,3, ge);
+	declareDynArray(bool,3, bl);
 	gp[0] = hit0->globalPosition();
 	ge[0] = hit0->globalPositionError();
 	int subid0 = hit0->geographicalId().subdetId();

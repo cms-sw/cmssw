@@ -13,7 +13,15 @@
 
 #include "DetectorDescription/Parser/src/DDLMaterial.h"
 
+#include <map>
+#include <utility>
+#include <vector>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLMaterial::DDLMaterial(  DDLElementRegistry* myreg )
   : DDXMLElement( myreg )

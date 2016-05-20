@@ -2,6 +2,7 @@
 #define DD_DDStreamer_h
 
 #include <iostream>
+
 class DDCompactView;
 
 //! Streaming the DDD transient store from/into a std::istream/std::ostream */

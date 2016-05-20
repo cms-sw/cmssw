@@ -56,6 +56,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_GlobalRunHPDNoise_v*",
       "HLT_L1TrackerCosmics_v*",
       "HLT_HcalUTCA_v*",
+      "HLT_L1FatEvents_v*",
 
       # TODO: paths not supported by FastSim, but for which a recovery should be attempted
       "HLT_DoubleMu33NoFiltersNoVtx_v*",
@@ -278,6 +279,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTDoLocalPixelSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForNoPU",
       "HLTBeginSequence",
+      "HLTBeginSequenceL1Fat",
       "HLTBeginSequenceNZS",
       "HLTBeginSequenceBPTX",
       "HLTBeginSequenceAntiBPTX",
@@ -517,9 +519,6 @@ def customizeHLTforMC(process,_fastSim=False):
       full2fast.modify_hltL3TrajSeedIOHit(fastsim.hltL3TrajSeedIOHit)
     if hasattr(fastsim,"hltL3NoFiltersTrajSeedIOHit"):
       full2fast.modify_hltL3NoFiltersTrajSeedIOHit(fastsim.hltL3NoFiltersTrajSeedIOHit)
-
-    if hasattr(fastsim,'hltL1extraParticles'):
-      getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
 
     return fastsim
 

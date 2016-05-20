@@ -1,13 +1,16 @@
 #ifndef DDLTORUS_H
 #define DDLTORUS_H
 
+#include <string>
+#include <vector>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
-#include <vector>
+class DDCompactView;
+class DDLElementRegistry;
 
 /** @class DDLTorus
  * @author Michael Case

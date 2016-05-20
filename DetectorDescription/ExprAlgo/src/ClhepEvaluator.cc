@@ -1,6 +1,13 @@
+#include <ext/alloc_traits.h>
 #include <iostream>
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <string>
+#include <vector>
+
+#include "CLHEP/Evaluator/Evaluator.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 ClhepEvaluator::ClhepEvaluator()
 { 

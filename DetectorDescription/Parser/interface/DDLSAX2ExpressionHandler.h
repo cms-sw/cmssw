@@ -1,14 +1,19 @@
 #ifndef DDL_SAX2ExpressionHandler_H
 #define DDL_SAX2ExpressionHandler_H
 
+// Xerces dependencies
+#include <xercesc/sax2/Attributes.hpp>
+#include <string>
+
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
 // Parser parts.
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
+#include "xercesc/util/Compilers/GCCDefs.hpp"
 
-// Xerces dependencies
-#include <xercesc/sax2/Attributes.hpp>
+class DDCompactView;
 
 /// DDLSAX2ExpressionHandler is the first pass SAX2 Handler for XML files found in the configuration file.
 /** @class DDLSAX2ExpressionHandler

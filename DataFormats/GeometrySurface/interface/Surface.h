@@ -39,8 +39,8 @@ using TangentPlane = Plane;
  *  (e.g. Plane or Cylinder).
  */
 
-class Surface : public GloballyPositioned<float> 
-	      , public ReferenceCountedInConditions 
+class Surface : public ReferenceCountedInConditions
+              , public GloballyPositioned<float>
 {
 public:
   using Side =  SurfaceOrientation::Side;

@@ -78,7 +78,6 @@ globalreco = cms.Sequence(globalreco_tracking*
 
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
-
 reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
 
 highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*

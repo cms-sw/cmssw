@@ -1,3 +1,8 @@
+// L1TGlobalProducer.cc
+//author:   Brian Winer - Ohio State
+
+#include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
+
 // system include files
 #include <memory>
 #include <iostream>
@@ -6,42 +11,33 @@
 
 #include <boost/cstdint.hpp>
 
-// user include files
 #include "FWCore/Utilities/interface/typedefs.h"
-
-// Objects to produce for the output record.
-#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-#include "TriggerMenuParser.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
-#include "DataFormats/Common/interface/RefProd.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/RefProd.h"
 
-#include "L1Trigger/L1TGlobal/plugins/L1TGlobalProducer.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h" 
+
+#include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h" 
+
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecord.h"
+
+#include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
+
+#include "TriggerMenuParser.h"
 
 using namespace l1t;
-
-// constructors
 
 void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -52,8 +48,8 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag> ("JetInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger Jet (required parameter:  default value is invalid)");
   desc.add<edm::InputTag> ("EtSumInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
   desc.add<edm::InputTag> ("ExtInputTag", edm::InputTag(""))->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
-  desc.add<bool>("AlgorithmTriggersUnprescaled", false)->setComment("not required, but recommend to specify explicitly in config");
-  desc.add<bool>("AlgorithmTriggersUnmasked", false)->setComment("not required, but recommend to specify explicitly in config");
+  desc.add<bool> ("AlgorithmTriggersUnprescaled", false)->setComment("not required, but recommend to specify explicitly in config");
+  desc.add<bool> ("AlgorithmTriggersUnmasked", false)->setComment("not required, but recommend to specify explicitly in config");
   // These parameters have well defined  default values and are not currently 
   // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
   desc.add<bool> ("ProduceL1GtDaqRecord",true);
@@ -69,62 +65,62 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.add("L1TGlobalProducer", desc);
 }
 
+
+
+// constructors
+
 L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
             m_muInputTag(parSet.getParameter<edm::InputTag> ("MuonInputTag")),
             m_egInputTag(parSet.getParameter<edm::InputTag> ("EGammaInputTag")),
             m_tauInputTag(parSet.getParameter<edm::InputTag> ("TauInputTag")),
             m_jetInputTag(parSet.getParameter<edm::InputTag> ("JetInputTag")),
             m_sumInputTag(parSet.getParameter<edm::InputTag> ("EtSumInputTag")),
-	    m_extInputTag(parSet.getParameter<edm::InputTag> ("ExtInputTag")),
+            m_extInputTag(parSet.getParameter<edm::InputTag> ("ExtInputTag")),
+
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
-            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           	    
+            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           
+	    
             m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")),
 	    m_L1DataBxInEvent(parSet.getParameter<int> ("L1DataBxInEvent")),
+
             m_alternativeNrBxBoardDaq(parSet.getParameter<unsigned int> ("AlternativeNrBxBoardDaq")),
             m_psBstLengthBytes(parSet.getParameter<int> ("BstLengthBytes")),
+
             m_prescaleSet(parSet.getParameter<unsigned int> ("PrescaleSet")),
+
             m_algorithmTriggersUnprescaled(parSet.getParameter<bool> ("AlgorithmTriggersUnprescaled")),
             m_algorithmTriggersUnmasked(parSet.getParameter<bool> ("AlgorithmTriggersUnmasked")),
+
             m_verbosity(parSet.getUntrackedParameter<int>("Verbosity")),
             m_isDebugEnabled(edm::isDebugEnabled())
 {
-
 
   m_egInputToken = consumes <BXVector<EGamma> > (m_egInputTag);
   m_tauInputToken = consumes <BXVector<Tau> > (m_tauInputTag);
   m_jetInputToken = consumes <BXVector<Jet> > (m_jetInputTag);
   m_sumInputToken = consumes <BXVector<EtSum> > (m_sumInputTag);
   m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
-
   m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
 
     if (m_verbosity) {
 
-        LogDebug("l1t|Global") << std::endl;
 
-        LogTrace("l1t|Global")
-                << "\nInput tag for muon collection from GMT:         " << m_muInputTag
-                << "\nInput tag for eg collection           :         " << m_egInputTag
-                << "\nInput tag for tau collection          :         " << m_tauInputTag
-                << "\nInput tag for jet collection          :         " << m_jetInputTag
-                << "\nInput tag for sum collection          :         " << m_sumInputTag
+        LogTrace("L1TGlobalProducer")
+                << "\nInput tag for muon collection from uGMT:         " << m_muInputTag
+		<< "\nInput tag for calorimeter jet collections from Cal: " << m_jetInputTag
 		<< "\nInput tag for external conditions     :         " << m_extInputTag
                 << std::endl;
 
 
-        LogTrace("l1t|Global")
-                << "\nProduce the L1 GT DAQ readout record:           " << m_produceL1GtDaqRecord
-                << "\nProduce the L1 GT Object Map record:            " << m_produceL1GtObjectMapRecord
-                << " \n"
-                << "\nWrite Psb content to L1 GT DAQ Record:          " << m_writePsbL1GtDaqRecord
+        LogTrace("L1TGlobalProducer")
+                << "\nProduce the L1 uGT DAQ readout record:          " << m_produceL1GtDaqRecord
+                << "\nProduce the L1 uGT Object Map record:           " << m_produceL1GtObjectMapRecord
                 << " \n"
                 << "\nNumber of BxInEvent to be emulated:             " << m_emulateBxInEvent
                 << " \n"
                 << "\nAlternative for number of BX in GT DAQ record:   0x" << std::hex
                 << m_alternativeNrBxBoardDaq
                 << " \n"
-                << "\nLength of BST message [bytes]:                  " << m_psBstLengthBytes
-                << "\n"
                 << "\nRun algorithm triggers unprescaled:             " << m_algorithmTriggersUnprescaled
                 << "\nRun algorithm triggers unmasked (all enabled):  " << m_algorithmTriggersUnmasked
                 << "\n"
@@ -170,23 +166,23 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
     // register products
     if( m_produceL1GtDaqRecord ){
       produces<GlobalAlgBlkBxCollection>();
-      produces<GlobalExtBlkBxCollection>();
+      //blwEXT produces<GlobalExtBlkBxCollection>();
     }
 
 
     if( m_produceL1GtObjectMapRecord ) {
-      produces<L1GlobalTriggerObjectMapRecord>();
+      produces<GlobalObjectMapRecord>(); 
     }
 
 
     // create new uGt Board
-    m_uGtBrd = new GtBoard();
+    m_uGtBrd = new GlobalBoard();
     m_uGtBrd->setVerbosity(m_verbosity);
 
     // initialize cached IDs
 
     //
-    m_l1GtStableParCacheID = 0ULL;
+    m_l1GtParCacheID = 0ULL;
     m_l1GtMenuCacheID = 0ULL;
 
     m_numberPhysTriggers = 0;
@@ -199,7 +195,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
     m_nrL1Jet = 0;
 
 
-    m_nrL1JetCounts = 0;
 
     m_ifMuEtaNumberBits = 0;
     m_ifCaloEtaNumberBits = 0;
@@ -357,7 +352,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 	    }
 	  }
 	  else{
-	    LogTrace("l1t|Global")
+	    LogTrace("L1TGlobalProducer")
 	      << "\nPrescale file has algo bit: " << algoBit
 	      << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
 	      << "\nSomething is wrong. Ignoring."
@@ -368,7 +363,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 
     }
     else {
-      LogTrace("l1t|Global")
+      LogTrace("L1TGlobalProducer")
 	<< "\nCould not find file: " << m_prescalesFile
 	<< "\nFilling the prescale vectors with prescale 1"
 	<< "\nSetting prescale set to 1"
@@ -408,98 +403,68 @@ L1TGlobalProducer::~L1TGlobalProducer()
 void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
-    // get / update the parameters from the EventSetup
-    // local cache & check on cacheIdentifier
-
-    unsigned long long l1GtParCacheID = evSetup.get<L1GtParametersRcd>().cacheIdentifier();
-
-    if (m_l1GtParCacheID != l1GtParCacheID) {
-
-        edm::ESHandle< L1GtParameters > l1GtPar;
-        evSetup.get< L1GtParametersRcd >().get( l1GtPar );
-        m_l1GtPar = l1GtPar.product();
-
-        //    total number of Bx's in the event coming from EventSetup
-        m_totalBxInEvent = m_l1GtPar->gtTotalBxInEvent();
-
-        //    active boards in L1 GT DAQ record and in L1 GT EVM record
-        m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
-
-        ///   length of BST message (in bytes) for L1 GT EVM record
-        m_bstLengthBytes = m_l1GtPar->gtBstLengthBytes();
 
 
-        m_l1GtParCacheID = l1GtParCacheID;
 
-    }
-
-    // negative value: emulate TotalBxInEvent as given in EventSetup
-    if (m_emulateBxInEvent < 0) {
-        m_emulateBxInEvent = m_totalBxInEvent;
-    }
-
-    if (m_emulateBxInEvent < 1) m_emulateBxInEvent=1;
-    if (m_L1DataBxInEvent < 1) m_L1DataBxInEvent=1;
-
-    int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
-    int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
-
-    int minL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - m_L1DataBxInEvent;
-    int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - 1;
 
     // process event iEvent
     // get / update the stable parameters from the EventSetup
     // local cache & check on cacheIdentifier
 
-    unsigned long long l1GtStableParCacheID =
-            evSetup.get<L1TGlobalStableParametersRcd>().cacheIdentifier();
+    unsigned long long l1GtParCacheID =
+            evSetup.get<L1TGlobalParametersRcd>().cacheIdentifier();
 
-    if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
+    if (m_l1GtParCacheID != l1GtParCacheID) {
 
-        edm::ESHandle< GlobalStableParameters > l1GtStablePar;
-        evSetup.get< L1TGlobalStableParametersRcd >().get( l1GtStablePar );
+        edm::ESHandle< L1TGlobalParameters > l1GtStablePar;
+        evSetup.get< L1TGlobalParametersRcd >().get( l1GtStablePar );
         m_l1GtStablePar = l1GtStablePar.product();
+	const GlobalParamsHelper * data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
+
+        // number of bx
+	m_totalBxInEvent = data->totalBxInEvent();
 
         // number of physics triggers
-        m_numberPhysTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
-
-        // number of DAQ partitions
-        m_numberDaqPartitions = 8; // FIXME add it to stable parameters
+        m_numberPhysTriggers = data->numberPhysTriggers();
 
         // number of objects of each type
-        m_nrL1Mu = static_cast<int> (m_l1GtStablePar->gtNumberL1Mu());
-        //m_nrL1Mu = static_cast<int> (8);
+        m_nrL1Mu = data->numberL1Mu();
+
+	// EG	
+        m_nrL1EG = data->numberL1EG();
+
+	// jets
+        m_nrL1Jet = data->numberL1Jet();
+
+	// taus
+        m_nrL1Tau= data->numberL1Tau();
+
+	if (m_L1DataBxInEvent < 1) m_L1DataBxInEvent=1;
+	int minL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - m_L1DataBxInEvent;
+	int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - 1;
 	
-// ***** Doe we need to change the StablePar class for generic. EG	
-        m_nrL1EG = static_cast<int> (m_l1GtStablePar->gtNumberL1NoIsoEG());
-        m_nrL1Tau= static_cast<int> (m_l1GtStablePar->gtNumberL1TauJet());
-
-
-// ********* Do we need to change the StablePar class for generic jet?
-        m_nrL1Jet = static_cast<int> (m_l1GtStablePar->gtNumberL1CenJet());
-
-        m_nrL1JetCounts = static_cast<int> (m_l1GtStablePar->gtNumberL1JetCounts());
-
-        // ... the rest of the objects are global
-
-        m_ifMuEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfMuEtaNumberBits());
-        m_ifCaloEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfCaloEtaNumberBits());
-
-
         // Initialize Board
         m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minL1DataBxInEvent, maxL1DataBxInEvent );
 
         //
-        m_l1GtStableParCacheID = l1GtStableParCacheID;
+        m_l1GtParCacheID = l1GtParCacheID;
 
     }
 
+    if (m_emulateBxInEvent < 0) {
+      m_emulateBxInEvent = m_totalBxInEvent;
+    }
+    
+    if (m_emulateBxInEvent < 1) m_emulateBxInEvent=1;
+    int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
+    int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;		   
 
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
+	const GlobalParamsHelper * data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
 
         edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu;
         evSetup.get< L1TUtmTriggerMenuRcd>().get(l1GtMenu) ;
@@ -508,17 +473,16 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	// Instantiate Parser
         TriggerMenuParser gtParser = TriggerMenuParser();   
 
-
-	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberConditionChips());
-	gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnConditionChip());
-	gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderConditionChip());
-	gtParser.setGtNumberPhysTriggers(m_l1GtStablePar->gtNumberPhysTriggers());
+	gtParser.setGtNumberConditionChips(data->numberChips());
+	gtParser.setGtPinsOnConditionChip(data->pinsOnChip());
+	gtParser.setGtOrderConditionChip(data->orderOfChip());
+	gtParser.setGtNumberPhysTriggers(data->numberPhysTriggers());
         
 	//Parse menu into emulator classes
 	gtParser.parseCondFormats(utml1GtMenu); 
         
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
-        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), m_l1GtStablePar->gtNumberConditionChips(),
+        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), data->numberChips(), 
                         gtParser.vecMuonTemplate(),
                         gtParser.vecCaloTemplate(),
                         gtParser.vecEnergySumTemplate(),
@@ -533,12 +497,16 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScaleDbKey(gtParser.gtScaleDbKey());
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScales(gtParser.gtScales());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuUUID(gtParser.gtTriggerMenuUUID());
 
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());	        
 
         (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
-
+        
+	//int printV = 2;
+        //m_l1GtMenu->print(std::cout, printV);
+	
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
 
@@ -598,20 +566,6 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
 
 
-    // // Used for testing
-    // for( int iL1Set=0; iL1Set<int(m_prescaleFactorsAlgoTrig->size()); iL1Set++ ){
-    //   if( m_prescaleFactorsAlgoTrig->size()>0 ){
-    // 	const std::vector<int>& testPrescaleSet = (*m_prescaleFactorsAlgoTrig).at(iL1Set);
-
-    // 	printf(" iL1Set=%4d", iL1Set);
-    // 	for( int iPrescale=0; iPrescale<int(testPrescaleSet.size()); iPrescale++ ){
-    // 	  printf(", %2d", testPrescaleSet[iPrescale]);
-    // 	}
-    // 	printf("\n");
-    //   }
-    // }
-
-
     // get / update the trigger mask from the EventSetup
     // local cache & check on cacheIdentifier
 
@@ -657,11 +611,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 // ******  Board Maps Need to be redone....hard code for now ******
     // loop over blocks in the GT DAQ record receiving data, count them if they are active
     // all board type are defined in CondFormats/L1TObjects/L1GtFwd
-    // enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM };
     // &
     // set the active flag for each object type received from GMT and GCT
-    // all objects in the GT system are defined in enum L1GtObject from
-    // DataFormats/L1Trigger/GtProducerReadoutSetupFwd
+    // all objects in the GT system 
 
     //
     bool receiveMu = true;
@@ -700,22 +652,12 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
 
 
-/* *** No Output Record for Now
-    // produce the GtProducerReadoutRecord now, after we found how many
-    // BxInEvent the record has and how many boards are active
-    std::auto_ptr<GtProducerReadoutRecord> gtDaqReadoutRecord(
-        new GtProducerReadoutRecord(
-            m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
-
-*/
-
     // Produce the Output Records for the GT
     std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
-    std::auto_ptr<GlobalExtBlkBxCollection> uGtExtRecord( new GlobalExtBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
-    // * produce the L1GlobalTriggerObjectMapRecord
-    std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
-        new L1GlobalTriggerObjectMapRecord() );
+    // * produce the GlobalObjectMapRecord  
+    std::auto_ptr<GlobalObjectMapRecord> gtObjectMapRecord(
+        new GlobalObjectMapRecord() );
 
 
     // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
@@ -732,95 +674,13 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
         bxCrossHw = 0; // Bx number too large, set to 0!
         if (m_verbosity) {
 
-            LogDebug("l1t|Global")
+            LogDebug("L1TGlobalProducer")
                 << "\nBunch cross number [hex] = " << std::hex << bxCross
                 << "\n  larger than 12 bits. Set to 0! \n" << std::dec
                 << std::endl;
         }
     }
-    LogDebug("l1t|Global") << "HW BxCross " << bxCrossHw << std::endl;  
-
-/*  ** No Record for Now 
-    if (m_produceL1GtDaqRecord) {
-
-        for (CItBoardMaps
-                itBoard = boardMaps.begin();
-                itBoard != boardMaps.end(); ++itBoard) {
-
-            int iPosition = itBoard->gtPositionDaqRecord();
-            if (iPosition > 0) {
-
-                int iActiveBit = itBoard->gtBitDaqActiveBoards();
-                bool activeBoard = false;
-
-                if (iActiveBit >= 0) {
-                    activeBoard = m_activeBoardsGtDaq & (1 << iActiveBit);
-                }
-
-                // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
-                //               in the record and ActiveBoardsMap, and active
-                if ((iActiveBit < 0) || activeBoard) {
-
-                    switch (itBoard->gtBoardType()) {
-
-                        case GTFE: {
-                                L1GtfeWord gtfeWordValue;
-
-                                gtfeWordValue.setBoardId( itBoard->gtBoardId() );
-
-                                // cast int to boost::uint16_t
-                                // there are normally 3 or 5 BxInEvent
-                                gtfeWordValue.setRecordLength(
-                                    static_cast<boost::uint16_t>(recordLength0));
-
-                                gtfeWordValue.setRecordLength1(
-                                    static_cast<boost::uint16_t>(recordLength1));
-
-                                // bunch crossing
-                                gtfeWordValue.setBxNr(bxCrossHw);
-
-                                // set the list of active boards
-                                gtfeWordValue.setActiveBoards(m_activeBoardsGtDaq);
-
-                                // set alternative for number of BX per board
-                                gtfeWordValue.setAltNrBxBoard(
-                                    static_cast<boost::uint16_t> (m_alternativeNrBxBoardDaq));
-
-                                // set the TOTAL_TRIGNR as read from iEvent
-                                // TODO check again - PTC stuff
-
-                                gtfeWordValue.setTotalTriggerNr(
-                                    static_cast<boost::uint32_t>(iEvent.id().event()));
-
-                                // ** fill L1GtfeWord in GT DAQ record
-
-                                gtDaqReadoutRecord->setGtfeWord(gtfeWordValue);
-                            }
-
-                            break;
-                        case TCS: {
-                                // nothing
-                            }
-
-                            break;
-                        case TIM: {
-                                // nothing
-                            }
-
-                            break;
-                        default: {
-                                // do nothing, all blocks are given in GtBoardType enum
-                            }
-
-                            break;
-                    }
-                }
-            }
-
-        }
-
-    }
-*/
+    LogDebug("L1TGlobalProducer") << "HW BxCross " << bxCrossHw << std::endl;  
 
 
     // get the prescale factor from the configuration for now
@@ -831,7 +691,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     if( m_prescaleSet<=0 ) pfAlgoSetIndex = 0;
 
     if( pfAlgoSetIndex > (*m_prescaleFactorsAlgoTrig).size()-1 ){
-      LogTrace("l1t|Global")
+      LogTrace("L1TGlobalProducer")
 	<< "\nAttempting to access prescale algo set: " << m_prescaleSet
 	<< "\nNumber of prescale algo sets available: " << (*m_prescaleFactorsAlgoTrig).size()
 	<< "Setting former to latter."
@@ -845,7 +705,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     const std::vector<unsigned int>& triggerMaskAlgoTrig = *m_triggerMaskAlgoTrig;
     const std::vector<unsigned int>& triggerMaskVetoAlgoTrig = *m_triggerMaskVetoAlgoTrig;
 
-    LogDebug("l1t|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
+    LogDebug("L1TGlobalProducer") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
 
 
 // Load the calorimeter input onto the uGt Board
@@ -871,8 +731,8 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
             ++iBxInEvent) {
 
         //  run GTL
-        LogDebug("l1t|Global")
-         << "\nGtProducer : running GTL  for bx = " << iBxInEvent << "\n"
+        LogDebug("L1TGlobalProducer")
+         << "\nL1TGlobalProducer : running GTL  for bx = " << iBxInEvent << "\n"
          << std::endl;
 
 
@@ -883,13 +743,13 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
             m_nrL1Mu,
             m_nrL1EG,
 	    m_nrL1Tau,
-            m_nrL1Jet,
-	    m_nrL1JetCounts  );
+            m_nrL1Jet
+	     );
 
 
         //  run FDL
-        LogDebug("l1t|Global")
-          << "\nGtProducer : running FDL for bx = " << iBxInEvent << "\n"
+        LogDebug("L1TGlobalProducer")
+          << "\nL1TGlobalProducer : running FDL for bx = " << iBxInEvent << "\n"
           << std::endl;
 
  
@@ -909,12 +769,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
 // Fill in the DAQ Records
         if (m_produceL1GtDaqRecord) {
-
-            // These need to be defined elsewhere
-	    cms_uint64_t orbNr = iEvent.orbitNumber();
-	    int abBx = iEvent.bunchCrossing();
-            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, orbNr, abBx);
-	    m_uGtBrd->fillExtRecord(iBxInEvent, uGtExtRecord, orbNr, abBx);
+            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, m_prescaleSet, m_l1GtMenu->gtTriggerMenuUUID(), m_l1GtMenu->gtTriggerMenuImplementation());
         }
 
 
@@ -935,22 +790,21 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
         
 	   /// Needs error checking that something exists at this bx.
 	   (uGtAlgRecord->at(bx,0)).print(myCoutStream); 
-	   (uGtExtRecord->at(bx,0)).print(myCoutStream);   
                 
        }
 
-        LogTrace("l1t|Global")
+        LogTrace("L1TGlobalProducer")
         << "\n The following L1 GT DAQ readout record was produced:\n"
         << myCoutStream.str() << "\n"
         << std::endl;
 
         myCoutStream.str("");
         myCoutStream.clear();
-/*
-        const std::vector<L1GlobalTriggerObjectMap> objMapVec =
+
+        const std::vector<GlobalObjectMap> objMapVec =  
             gtObjectMapRecord->gtObjectMap();
 
-        for (std::vector<L1GlobalTriggerObjectMap>::const_iterator
+        for (std::vector<GlobalObjectMap>::const_iterator
                 it = objMapVec.begin(); it != objMapVec.end(); ++it) {
 
             (*it).print(myCoutStream);
@@ -958,13 +812,12 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
         }
 
 
-        LogDebug("l1t|Global")
+        LogDebug("L1TGlobalProducer")
         << "Test gtObjectMapRecord in L1TGlobalProducer \n\n" << myCoutStream.str() << "\n\n"
         << std::endl;
 
         myCoutStream.str("");
         myCoutStream.clear();
-*/
     }
 
 
@@ -973,7 +826,6 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     // register products
     if( m_produceL1GtDaqRecord ){
       iEvent.put( uGtAlgRecord );
-      iEvent.put( uGtExtRecord );
     }
 
 

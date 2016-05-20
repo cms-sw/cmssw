@@ -20,18 +20,18 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
 # APV shots monitoring
 SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
-SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
+SiStripMonitorDigi.TkHistoMapNStripApvShots_On= False
 SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = False
+SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = False
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
 # SiStripMonitorCluster ####
@@ -78,6 +78,8 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackCommon = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
 SiStripMonitorTrackCommon.Mod_On        = False
+SiStripMonitorTrackCommon.TH1ClusterCharge.ringView = cms.bool( True )
+SiStripMonitorTrackCommon.TH1ClusterStoNCorr.ringView = cms.bool( True )
 
 # Clone for SiStripMonitorTrack for Minimum Bias ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
@@ -91,6 +93,8 @@ SiStripMonitorTrackMB.hltPaths = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v
 SiStripMonitorTrackMB.hltDBKey = cms.string("Tracker_MB")
 SiStripMonitorTrackMB.errorReplyHlt  = cms.bool( False )
 SiStripMonitorTrackMB.andOrHlt = cms.bool(True) # True:=OR; False:=AND
+SiStripMonitorTrackMB.TH1ClusterCharge.ringView = cms.bool( True )
+SiStripMonitorTrackMB.TH1ClusterStoNCorr.ringView = cms.bool( True )
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *

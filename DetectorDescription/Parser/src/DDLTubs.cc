@@ -12,12 +12,20 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDLTubs.h"
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <map>
+#include <utility>
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLTubs::DDLTubs( DDLElementRegistry* myreg )
   : DDLSolid( myreg )

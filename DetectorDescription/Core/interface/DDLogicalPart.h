@@ -2,22 +2,26 @@
 #define DDLogicalPart_h
 
 #include <iosfwd>
-#include <vector>
-#include <string>
 #include <map>
-#include "DetectorDescription/Core/interface/DDName.h"
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDEnums.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
-namespace DDI { class LogicalPart; }
-
+class DDLogicalPart;
 class DDMaterial;
+class DDPartSelection;
 class DDSolid;
 class DDSpecifics;
-class DDLogicalPart;
-class DDPartSelection;
+class DDValue;
+namespace DDI {
+class LogicalPart;
+}  // namespace DDI
 
 std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
 

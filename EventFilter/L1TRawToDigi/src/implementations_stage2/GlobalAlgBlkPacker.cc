@@ -53,13 +53,18 @@ namespace stage2 {
 		     if(blk<3) {
 		       if(j->getAlgoDecisionInitial(bt+startAlg))    word |= (0x1 << bt);
 		     } else if(blk<6) {
-		       if(j->getAlgoDecisionPreScaled(bt+startAlg))  word |= (0x1 << bt);
+		       if(j->getAlgoDecisionInterm(bt+startAlg))  word |= (0x1 << bt);
 		     } else {
 		       if(j->getAlgoDecisionFinal(bt+startAlg))      word |= (0x1 << bt);
 		     }    
 		  }
-		  
 		
+		} else if(blk==2 && (wd==4 || wd==5) ) {  
+		 
+		   //putting hashed values of the menu name and firmware uuid into record.
+		   if(wd==4) word |= (j->getL1MenuUUID() & 0xFFFFFFFF);
+		   if(wd==5) word |= (j->getL1FirmwareUUID() & 0xFFFFFFFF);
+		   
 		} else if(blk==8){
 		
 		  if(wd == 4) {

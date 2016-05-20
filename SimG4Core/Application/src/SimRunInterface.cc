@@ -7,7 +7,6 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -39,13 +38,6 @@ SimRunInterface::~SimRunInterface()
 {}
 
 void SimRunInterface::setRunManagerMTWorker(RunManagerMTWorker *run) {
-  if(m_runManager) {
-    throw SimG4Exception("Calling SimRunInterface::setRunManagerMTWorker() while RunManager has been set");
-  }
-  else if(m_runManagerMT) {
-    throw SimG4Exception("Calling SimRunInterface::setRunManagerMTWorker() while RunManagerMT has been set");
-  }
-
   m_runManagerMTWorker = run;
 }
 

@@ -5,10 +5,18 @@
 // ********************************************************************
 
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
-#include <Math/RotationZ.h>
+#include <iostream>
+#include <utility>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/RotationZ.h"
 
 DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv ) 
   : div_( div ),

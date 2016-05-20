@@ -45,7 +45,7 @@ class MultiTrackValidatorBase {
   MultiTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector && iC, bool isSeed = false);
     
   /// Destructor
-  virtual ~MultiTrackValidatorBase(){ }
+  virtual ~MultiTrackValidatorBase() noexcept(false) { }
   
   //virtual void initialize()=0;
 

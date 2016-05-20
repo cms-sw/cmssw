@@ -65,7 +65,7 @@ public:
   virtual void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
 			   CaloSubdetectorGeometry::IVec&   iVector,
 			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
+			   CaloSubdetectorGeometry::IVec& dinsVector ) const override;
   
   GlobalPoint getPosition( const DetId& id ) const;
       
@@ -99,6 +99,7 @@ public:
 protected:
 
   virtual unsigned int indexFor(const DetId& id) const override;
+  using CaloSubdetectorGeometry::sizeForDenseIndex;
   unsigned int sizeForDenseIndex() const;
   
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;

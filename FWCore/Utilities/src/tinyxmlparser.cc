@@ -52,7 +52,7 @@ distribution.
 // Note tha "PutString" hardcodes the same list. This
 // is less flexible than it appears. Changing the entries
 // or order will break putstring.
-TiXmlBase::Entity TiXmlBase::entity[ NUM_ENTITY ] =
+TiXmlBase::Entity const TiXmlBase::entity[ NUM_ENTITY ] =
 {
 	{ "&amp;",  5, '&' },
 	{ "&lt;",   4, '<' },

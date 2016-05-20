@@ -25,15 +25,6 @@
 
 using namespace std;
 
-#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
-
-namespace {
-#ifndef NEW_CPEERROR  
-  //const bool useNewSimplerErrors = true;
-  const bool useNewSimplerErrors = false; // must be tha same as in generic 
-#endif
-}
-
 //-----------------------------------------------------------------------------
 //  A constructor run for generic and templates
 //  
@@ -67,11 +58,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf,
   //cout<<" new errors "<<genErrorDBObject<<" "<<genErrorDBObject_<<endl;
 
   //-- Template Calibration Object from DB
-#ifdef NEW_CPEERROR
   if(theFlag_!=0) templateDBobject_ = templateDBobject; // flag to check if it is generic or templates
-#else
-  templateDBobject_ = templateDBobject;
-#endif
 
   // Configurables 
   // For both templates & generic 
@@ -186,15 +173,8 @@ void PixelCPEBase::fillDetParams()
     // Cache the det id for templates and generic erros 
 
     if(theFlag_==0) { // for generic
-#ifdef NEW_CPEERROR
       if(LoadTemplatesFromDB_ ) // do only if genError requested 
 	p.detTemplateId = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
-#else   
-      if(useNewSimplerErrors) 
-	p.detTemplateId = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
-      else 
-        p.detTemplateId = templateDBobject_->getTemplateID(p.theDet->geographicalId().rawId());
-#endif
     } else {          // for templates
       p.detTemplateId = templateDBobject_->getTemplateID(p.theDet->geographicalId());
     }

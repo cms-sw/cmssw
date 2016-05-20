@@ -2,6 +2,7 @@
 #define TrajectoryCleaning_TrajectoryCleaner_h
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /** The component of track reconstruction that resolves ambiguities 
@@ -19,10 +20,15 @@ class TrajectoryCleaner {
   typedef TrajectoryContainer::iterator TrajectoryIterator;
   typedef TrajectoryPointerContainer::iterator TrajectoryPointerIterator;
 
-  TrajectoryCleaner(){};
-  TrajectoryCleaner(edm::ParameterSet & iConfig){};
-  virtual ~TrajectoryCleaner(){};
+  using   TempTrajectoryContainer = std::vector<TempTrajectory>;
 
+
+
+  TrajectoryCleaner(){}
+  TrajectoryCleaner(edm::ParameterSet & iConfig){}
+  virtual ~TrajectoryCleaner(){}
+
+  virtual void clean( TempTrajectoryContainer&) const;
   virtual void clean( TrajectoryContainer&) const;
   virtual void clean( TrajectoryPointerContainer&) const = 0;
 
