@@ -459,12 +459,9 @@ void ReferenceTrajectory::fillDerivatives(const AlgebraicMatrix &projection,
   // derivatives of the local coordinates of the reference track w.r.t. to the inital track-parameters
   const AlgebraicMatrix projectedJacobian(projection * fullJacobian);
   for (int i = 0; i < parameters().num_row(); ++i) {
-    theDerivatives[iRow  ][i] = projectedJacobian[0][i];
-    theDerivatives[iRow+1][i] = projectedJacobian[1][i];
-    // GF: Should be a loop once the hit dimension is not hardcoded as nMeasPerHit (to be checked):
-    // for (int j = 0; j < projection.num_col(); ++j) {
-    //   theDerivatives[iRow+j][i] = projectedJacobian[j][i];
-    // }
+    for (int j = 0; j < projectedJacobian.num_row(); ++j) {
+      theDerivatives[iRow+j][i] = projectedJacobian[j][i];
+    }
   }
 }
 
@@ -476,12 +473,9 @@ void ReferenceTrajectory::fillTrajectoryPositions(const AlgebraicMatrix &project
 {
   // get the local coordinates of the reference trajectory
   const AlgebraicVector localPosition(projection * mixedLocalParams);
-  theTrajectoryPositions[iRow] = localPosition[0];
-  theTrajectoryPositions[iRow+1] = localPosition[1];
-  // GF: Should be a loop once the hit dimension is not hardcoded as nMeasPerHit (to be checked):
-  // for (int j = 0; j < projection.num_col(); ++j) {
-  //   theTrajectoryPositions[iRow+j] = localPosition[j];
-  // }
+  for (int i = 0; i < localPosition.num_row(); ++i) {
+    theTrajectoryPositions[iRow+i] = localPosition[i];
+  }
 }
 
 //__________________________________________________________________________________
