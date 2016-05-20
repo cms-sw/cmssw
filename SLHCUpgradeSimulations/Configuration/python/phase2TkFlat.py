@@ -321,9 +321,10 @@ def customise_Reco(process,pileup):
 #    process=customise_PFlow.customise_extendedTrackerBarrel( process )
 
     process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters')
+    process.MeasurementTrackerEvent.stripClusterProducer = cms.string('')
+    process.ckftracks.remove(process.electronSeedsSeq)
  
     return process
-    
 
 def customise_condOverRides(process):
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkFlat_cff')

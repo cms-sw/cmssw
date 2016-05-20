@@ -34,7 +34,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
         thePixelClusterLabel = consumes<edmNew::DetSetVector<SiPixelCluster> >(edm::InputTag(pset_.getParameter<std::string>("pixelClusterProducer")));
         if (selfUpdateSkipClusters_) thePixelClusterMask = consumes<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>>(iConfig.getParameter<edm::InputTag>("skipClusters"));
     }
-    if (pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer") != "") {
+    if (pset_.existsAs<std::string>("Phase2TrackerCluster1DProducer")) {
         thePh2OTClusterLabel = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(edm::InputTag(pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
     }
 
@@ -236,35 +236,41 @@ MeasurementTrackerEventProducer::updatePhase2( const edm::Event& event, Phase2OT
   LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePhase2" ;
 
   // Phase2OT Clusters
-  std::string phase2ClusterProducer = pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer");
-  if( phase2ClusterProducer.empty() ) { //clusters have not been produced
-    thePh2OTDets.setActiveThisEvent(false);
-  } else {
+  if (pset_.existsAs<std::string>("Phase2TrackerCluster1DProducer")) {
 
-    edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClusters = thePh2OTDets.handle();
-    event.getByToken(thePh2OTClusterLabel, phase2OTClusters);
-    const edmNew::DetSetVector<Phase2TrackerCluster1D>* phase2OTCollection = phase2OTClusters.product();
-
-    LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePhase2: ClustersPhase2Collection size: " << phase2OTCollection->dataSize() << std::endl;
-
-    // FIXME: should check if lower_bound is better
-    int i = 0, endDet = thePh2OTDets.size();
-    for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it = phase2OTCollection->begin(), ed = phase2OTCollection->end(); it != ed; ++it) {
-      //debug
-      unsigned int rawid(it->detId());
-      LogTrace("MeasurementTracker") << "\t cluster in detId: " << rawid << std::endl;
-
-      edmNew::DetSet<Phase2TrackerCluster1D> set(*it);
-      unsigned int id = set.id();
-      while ( id != thePh2OTDets.id(i)) {
-          ++i;
-          if (endDet==i) throw "we have a problem!!!!";
-      }
-      // push cluster range in det
-      if ( thePh2OTDets.isActive(i) ) {
-          thePh2OTDets.update(i,set);
+    std::string phase2ClusterProducer = pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer");
+    if( phase2ClusterProducer.empty() ) { //clusters have not been produced
+      thePh2OTDets.setActiveThisEvent(false);
+    } else {
+  
+      edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClusters = thePh2OTDets.handle();
+      event.getByToken(thePh2OTClusterLabel, phase2OTClusters);
+      const edmNew::DetSetVector<Phase2TrackerCluster1D>* phase2OTCollection = phase2OTClusters.product();
+  
+      LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePhase2: ClustersPhase2Collection size: " << phase2OTCollection->dataSize() << std::endl;
+  
+      // FIXME: should check if lower_bound is better
+      int i = 0, endDet = thePh2OTDets.size();
+      for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it = phase2OTCollection->begin(), ed = phase2OTCollection->end(); it != ed; ++it) {
+        //debug
+        unsigned int rawid(it->detId());
+        LogTrace("MeasurementTracker") << "\t cluster in detId: " << rawid << std::endl;
+  
+        edmNew::DetSet<Phase2TrackerCluster1D> set(*it);
+        unsigned int id = set.id();
+        while ( id != thePh2OTDets.id(i)) {
+            ++i;
+            if (endDet==i) throw "we have a problem!!!!";
+        }
+        // push cluster range in det
+        if ( thePh2OTDets.isActive(i) ) {
+            thePh2OTDets.update(i,set);
+        }
       }
     }
+
+  } else {
+    return;
   }
 }
 
