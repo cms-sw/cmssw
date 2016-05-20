@@ -23,7 +23,6 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Parser/src/StrX.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "xercesc/util/Compilers/GCCDefs.hpp"
 
 DDLSAX2ConfigHandler::DDLSAX2ConfigHandler( DDCompactView& cpv)
   : doValidation_(false),

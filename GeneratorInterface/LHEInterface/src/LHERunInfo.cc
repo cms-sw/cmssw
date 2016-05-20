@@ -507,11 +507,13 @@ static std::vector<std::string> domToLines(const DOMNode *node)
 	DOMImplementation *impl =
 		DOMImplementationRegistry::getDOMImplementation(
 							XMLUniStr("Core"));
-	std::auto_ptr<DOMWriter> writer(
-		static_cast<DOMImplementationLS*>(impl)->createDOMWriter());
+	std::auto_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)(impl))->createLSSerializer());
 
-	writer->setEncoding(XMLUniStr("UTF-8"));
-	XMLSimpleStr buffer(writer->writeToString(*node));
+	std::auto_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+ 	assert(outputDesc.get());
+	outputDesc->setEncoding(XMLUniStr("UTF-8"));
+	
+	XMLSimpleStr buffer(writer->writeToString(node));
 
 	const char *p = std::strchr((const char*)buffer, '>') + 1;
 	const char *q = std::strrchr(p, '<');

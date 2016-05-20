@@ -29,7 +29,6 @@
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/dom/DOM.hpp>
 
@@ -366,9 +365,9 @@ namespace cscdqm {
 
         BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_PRINTXML_MACRO, _, CONFIG_PARAMETERS_SEQ)
 
-        DOMWriter *ser = domImpl->createDOMWriter();
-        if (ser->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true)) {
-          ser->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+        DOMLSSerializer *ser = domImpl->createLSSerializer();
+        if (ser->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true)) {
+          ser->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
         }
         XMLFileErrorHandler eh;
         ser->setErrorHandler((DOMErrorHandler*) &eh);
