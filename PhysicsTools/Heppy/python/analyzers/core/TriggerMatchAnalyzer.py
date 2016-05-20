@@ -10,6 +10,7 @@ class TriggerMatchAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerMatchAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.processName = getattr(self.cfg_ana,"processName","PAT")
+        self.fallbackName = getattr(self.cfg_ana,"fallbackProcessName","RECO")
         self.unpackPathNames = getattr(self.cfg_ana,"unpackPathNames",True)
         self.label = self.cfg_ana.label
         self.trgObjSelectors = []
@@ -24,7 +25,8 @@ class TriggerMatchAnalyzer( Analyzer ):
     def declareHandles(self):
         super(TriggerMatchAnalyzer, self).declareHandles()
         self.handles['TriggerBits'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
-        self.handles['TriggerObjects'] = AutoHandle( ('selectedPatTrigger','',self.processName), 'std::vector<pat::TriggerObjectStandAlone>' )
+        fallback = ( 'selectedPatTrigger','', self.fallbackName) if self.fallbackName else None
+        self.handles['TriggerObjects'] = AutoHandle( ('selectedPatTrigger','',self.processName), 'std::vector<pat::TriggerObjectStandAlone>', fallbackLabel=fallback )
 
     def beginLoop(self, setup):
         super(TriggerMatchAnalyzer,self).beginLoop(setup)
@@ -55,8 +57,8 @@ class TriggerMatchAnalyzer( Analyzer ):
             if self.collToMatch:
                 for lep in tcoll:
                     mstring = 'None'
-                    if getattr(lep,'matchedTrgObj'+self.label):
-                        mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection())
+                    ob = getattr(lep,'matchedTrgObj'+self.label)
+                    if ob: mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection())
                     print 'Lepton pt=%.2f, eta=%.2f, phi=%.2f matched to %s'%(lep.pt(),lep.eta(),lep.phi(),mstring)
 
         return True
@@ -66,6 +68,7 @@ setattr(TriggerMatchAnalyzer,"defaultConfig",cfg.Analyzer(
     TriggerMatchAnalyzer, name="TriggerMatchAnalyzerDefault",
     label='DefaultTrigObjSelection',
     processName = 'PAT',
+    fallbackProcessName = 'RECO',
     unpackPathNames = True,
     trgObjSelectors = [],
     collToMatch = None,
