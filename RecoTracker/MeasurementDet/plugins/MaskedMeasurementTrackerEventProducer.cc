@@ -54,17 +54,24 @@ MaskedMeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::Ev
     // prepare output
     std::auto_ptr<MeasurementTrackerEvent> out;
 
-    edm::Handle<PixelMask> maskPixels;
-    iEvent.getByToken(maskPixels_, maskPixels);
+    if (skipClusters_) {
 
-    edm::Handle<StripMask> maskStrips;
-    iEvent.getByToken(maskStrips_, maskStrips);
+      edm::Handle<PixelMask> maskPixels;
+      iEvent.getByToken(maskPixels_, maskPixels);
+      edm::Handle<StripMask> maskStrips;
+      iEvent.getByToken(maskStrips_, maskStrips);
 
-    edm::Handle<Phase2OTMask> maskPhase2OTs;
-    iEvent.getByToken(maskPhase2OTs_, maskPhase2OTs);
+      out.reset(new MeasurementTrackerEvent(*mte, *maskStrips, *maskPixels));
 
-    if (skipClusters_)               out.reset(new MeasurementTrackerEvent(*mte, *maskStrips, *maskPixels));
-    else if (phase2skipClusters_)    out.reset(new MeasurementTrackerEvent(*mte, *maskPixels, *maskPhase2OTs));
+    } else if (phase2skipClusters_) {
+
+      edm::Handle<PixelMask> maskPixels;
+      iEvent.getByToken(maskPixels_, maskPixels);
+      edm::Handle<Phase2OTMask> maskPhase2OTs;
+      iEvent.getByToken(maskPhase2OTs_, maskPhase2OTs);
+
+      out.reset(new MeasurementTrackerEvent(*mte, *maskPixels, *maskPhase2OTs));
+    }
 
     // put into event
     iEvent.put(out);
