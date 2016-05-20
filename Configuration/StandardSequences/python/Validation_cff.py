@@ -21,13 +21,15 @@ from Validation.RecoJets.JetValidation_cff import *
 from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
 from Validation.RecoTrack.TrackValidation_cff import *
-from Validation.RecoMuon.muonValidation_cff import *
+#
+#from Validation.RecoMuon.muonValidation_cff import *
 # ADD new validation
 from Validation.RecoMuon.NewMuonValidation_cff import *
 #
 from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
-from Validation.RecoMuon.muonValidationHLT_cff import *
+#
+#from Validation.RecoMuon.muonValidationHLT_cff import *
 # ADD new validation
 from Validation.RecoMuon.NewMuonValidationHLT_cff import *
 #

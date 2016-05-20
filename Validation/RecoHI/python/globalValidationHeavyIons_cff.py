@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.Configuration.globalValidation_cff import *
 from Validation.RecoHI.TrackValidationHeavyIons_cff import *
 from Validation.RecoJets.JetValidationHeavyIons_cff import *
-from Validation.RecoHI.muonValidationHeavyIons_cff import *
+#from Validation.RecoHI.muonValidationHeavyIons_cff import *
 # ADD new validation
 from Validation.RecoHI.NewMuonValidationHeavyIons_cff import *
 #

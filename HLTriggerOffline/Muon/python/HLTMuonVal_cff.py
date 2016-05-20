@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoMuon.muonValidationHLT_cff import *
+#from Validation.RecoMuon.muonValidationHLT_cff import *
 # ADD new validation
 from Validation.RecoMuon.NewMuonValidationHLT_cff import *
 #

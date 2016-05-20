@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoMuon.PostProcessorHLT_cff import *
+#from Validation.RecoMuon.PostProcessorHLT_cff import *
 # ADD new validation
 from Validation.RecoMuon.NewPostProcessorHLT_cff import *
 #
