@@ -7,6 +7,10 @@ import FWCore.ParameterSet.Config as cms
 import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 hcalDigiAlCaMB = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
+hbherecoMBspecial = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
+import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
+horecoMBspecial = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
 hbherecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
 hfrecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
@@ -26,14 +30,23 @@ hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False #dont throw except on unknown path name 
 )
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
-seqALCARECOHcalCalMinBiasNoHLT = cms.Sequence(hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
+seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoMBspecial*horecoMBspecial*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
+seqALCARECOHcalCalMinBiasNoHLT = cms.Sequence(hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoMBspecial*horecoMBspecial*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
 
 gtDigisAlCaMB.DaqGtInputTag = 'source'
 
 hcalDigiAlCaMB.firstSample = 0
 hcalDigiAlCaMB.lastSample = 9
 hcalDigiAlCaMB.InputLabel = 'rawDataCollector'
+
+hbherecoMBspecial.firstSample = 0
+hbherecoMBspecial.samplesToAdd = 4
+hbherecoMBspecial.digiLabel = 'hcalDigiAlCaMB'
+
+horecoMBspecial.firstSample = 0
+horecoMBspecial.samplesToAdd = 4
+horecoMBspecial.digiLabel = 'hcalDigiAlCaMB'
+
 
 hbherecoNoise.firstSample = 0
 hbherecoNoise.samplesToAdd = 4
@@ -52,10 +65,14 @@ horecoNoise.samplesToAdd = 4
 horecoNoise.digiLabel = 'hcalDigiAlCaMB'
 
 #switch off "ZS in reco":
+hbherecoMBspecial.dropZSmarkedPassed = cms.bool(False)
+horecoMBspecial.dropZSmarkedPassed = cms.bool(False)
 hbherecoNoise.dropZSmarkedPassed = cms.bool(False)
 hfrecoNoise.dropZSmarkedPassed = cms.bool(False)
 horecoNoise.dropZSmarkedPassed = cms.bool(False)
 hfrecoMBspecial.dropZSmarkedPassed = cms.bool(False)
+hbherecoMBspecial.tsFromDB = cms.bool(False)
+horecoMBspecial.tsFromDB = cms.bool(False)
 hbherecoNoise.tsFromDB = cms.bool(False)
 hfrecoNoise.tsFromDB = cms.bool(False)
 hfrecoMBspecial.tsFromDB = cms.bool(False)

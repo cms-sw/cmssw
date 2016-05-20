@@ -103,7 +103,7 @@ void SimAnalyzerMinbias::beginJob() {
   myTree_->Branch("mom0_MB",  &mom0_MB, "mom0_MB/F");
   myTree_->Branch("mom1_MB",  &mom1_MB, "mom1_MB/F");
   myTree_->Branch("mom2_MB",  &mom2_MB, "mom2_MB/F");
-  myTree_->Branch("mom3_MB",  &mom2_MB, "mom3_MB/F");
+  myTree_->Branch("mom3_MB",  &mom3_MB, "mom3_MB/F");
   myTree_->Branch("mom4_MB",  &mom4_MB, "mom4_MB/F");
 
   myMap_.clear();
