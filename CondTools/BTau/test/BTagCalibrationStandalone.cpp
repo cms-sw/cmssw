@@ -281,6 +281,12 @@ BTagCalibration::BTagCalibration(const std::string &taggr,
   tagger_(taggr)
 {
   std::ifstream ifs(filename);
+  if (!ifs.good()) {
+std::cerr << "ERROR in BTagCalibration: "
+          << "input file not available: "
+          << filename;
+throw std::exception();
+  }
   readCSV(ifs);
   ifs.close();
 }
@@ -329,12 +335,12 @@ void BTagCalibration::readCSV(std::istream &s)
 }
 
 void BTagCalibration::makeCSV(std::ostream &s) const
-{ 
+{
   s << tagger_ << ";" << BTagEntry::makeCSVHeader();
-  for (std::map<std::string, std::vector<BTagEntry> >::const_iterator i 
+  for (std::map<std::string, std::vector<BTagEntry> >::const_iterator i
            = data_.cbegin(); i != data_.cend(); ++i) {
     const std::vector<BTagEntry> &vec = i->second;
-    for (std::vector<BTagEntry>::const_iterator j 
+    for (std::vector<BTagEntry>::const_iterator j
              = vec.cbegin(); j != vec.cend(); ++j) {
       s << j->makeCSVLine();
     }
@@ -494,7 +500,7 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval(
     const auto &e = entries.at(i);
     if (
       e.etaMin <= eta && eta < e.etaMax                   // find eta
-      && e.ptMin <= pt && pt < e.ptMax                    // check pt
+      && e.ptMin < pt && pt <= e.ptMax                    // check pt
     ){
       if (use_discr) {                                    // discr. reshaping?
         if (e.discrMin <= discr && discr < e.discrMax) {  // check discr
@@ -535,6 +541,12 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
   }
 
   // get sys SF (and maybe return)
+  if (!otherSysTypeReaders_.count(sys)) {
+std::cerr << "ERROR in BTagCalibration: "
+        << "sysType not available (maybe not loaded?): "
+        << sys;
+throw std::exception();
+  }
   double sf_err = otherSysTypeReaders_.at(sys)->eval(jf, eta, pt_for_eval, discr);
   if (!is_out_of_bounds) {
     return sf_err;
