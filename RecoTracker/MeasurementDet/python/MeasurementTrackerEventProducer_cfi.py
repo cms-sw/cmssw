@@ -8,7 +8,7 @@ MeasurementTrackerEvent = cms.EDProducer("MeasurementTrackerEventProducer",
 
     pixelClusterProducer = cms.string('siPixelClusters'),
     stripClusterProducer = cms.string('siStripClusters'),
-    Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters'),
+    Phase2TrackerCluster1DProducer = cms.string(''),
 
     # One or more DetIdCollections of modules to mask on the fly for a given event
     inactivePixelDetectorLabels = cms.VInputTag(cms.InputTag('siPixelDigis')),

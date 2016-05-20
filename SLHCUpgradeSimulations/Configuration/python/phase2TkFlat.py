@@ -320,6 +320,7 @@ def customise_Reco(process,pileup):
     # when linking tracks to HF clusters
 #    process=customise_PFlow.customise_extendedTrackerBarrel( process )
 
+    process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters')
  
     return process
     
