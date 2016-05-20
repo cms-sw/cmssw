@@ -39,6 +39,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:    
+  InputTag   algInputTag_;
+  InputTag   extInputTag_;
   EDGetToken algToken_;
   EDGetToken extToken_;
   bool dumpRecord_;
@@ -55,14 +57,16 @@ private:
 };
 
 L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig){
-  algToken_ = consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<InputTag>("AlgInputTag"));
-  extToken_ = consumes<BXVector<GlobalExtBlk>>(iConfig.getParameter<InputTag>("ExtInputTag"));
+  algInputTag_ = iConfig.getParameter<InputTag>("AlgInputTag");
+  extInputTag_ = iConfig.getParameter<InputTag>("ExtInputTag");
+  algToken_ = consumes<BXVector<GlobalAlgBlk>>(algInputTag_);
+  extToken_ = consumes<BXVector<GlobalExtBlk>>(extInputTag_);
   dumpRecord_       = iConfig.getParameter<bool>("DumpRecord");
   dumpTriggerResults_ = iConfig.getParameter<bool>("DumpTrigResults");
   dumpTriggerSummary_ = iConfig.getParameter<bool>("DumpTrigSummary");
   minBx_              = iConfig.getParameter<int>("MinBx");
   maxBx_              = iConfig.getParameter<int>("MaxBx");     
-  gtUtil_             = new L1TGlobalUtil();
+  gtUtil_             = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, extInputTag_);
   finalOrCount = 0;
 }
 
@@ -87,8 +91,7 @@ void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup){
   finalCount_.clear();  
 
   finalOrCount = 0;
-  gtUtil_->retrieveL1Run(evSetup);
-  gtUtil_->retrieveL1LumiBlock(evSetup);
+  gtUtil_->retrieveL1Setup(evSetup);
 
   int size = gtUtil_->decisionsInitial().size();
   decisionCount_  .resize(size);
