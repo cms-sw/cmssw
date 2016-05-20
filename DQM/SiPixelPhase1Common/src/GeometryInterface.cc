@@ -174,42 +174,39 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
   std::vector<ID> geomquantities;
 
-  // directly access the internal data structure of TrackerTopology
-  auto pbVals_ = trackerTopologyHandle->getPBVals();
-  auto pfVals_ = trackerTopologyHandle->getPFVals();
-  
-  // Represents a bitmask that is only valid in some subdetector. 
-  struct BitMask {
-    uint32_t startBit_;
-    uint32_t mask_;
-    int32_t  subdet;
+  struct TTField {
+    edm::ESHandle<TrackerTopology> tt;
+    TrackerTopology::DetIdFields field;
     Value operator()(InterestingQuantities const& iq) {
-      if (iq.sourceModule.subdetId() == subdet) 
-        return ((iq.sourceModule.rawId()>>startBit_) & mask_); 
+      if (tt->hasField(iq.sourceModule, field)) 
+        return tt->getField(iq.sourceModule, field);
       else 
         return UNDEFINED;
     };
   };
 
-  std::map<std::string, BitMask> namedPartitions{
-    {"PXBarrel" , {                      0,                   0, PixelSubdetector::PixelBarrel }},
-    {"PXForward", {                      0,                   0, PixelSubdetector::PixelEndcap }},
-    {"PXEndcap" , {pfVals_.sideStartBit_  , pfVals_.sideMask_  , PixelSubdetector::PixelEndcap }},
+   std::vector<std::pair<std::string, TTField>> namedPartitions {
+    {"PXEndcap" , {trackerTopologyHandle, TrackerTopology::PFSide}},
 
-    {"PXLayer"  , {pbVals_.layerStartBit_ , pbVals_.layerMask_ , PixelSubdetector::PixelBarrel }},
-    {"PXLadder" , {pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel }},
-    {"PXBModule", {pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel }},
+    {"PXLayer"  , {trackerTopologyHandle, TrackerTopology::PBLayer}},
+    {"PXLadder" , {trackerTopologyHandle, TrackerTopology::PBLadder}},
+    {"PXBModule", {trackerTopologyHandle, TrackerTopology::PBModule}},
 
-    {"PXBlade"  , {pfVals_.bladeStartBit_ , pfVals_.bladeMask_ , PixelSubdetector::PixelEndcap }},
-    {"PXDisk"   , {pfVals_.diskStartBit_  , pfVals_.diskMask_  , PixelSubdetector::PixelEndcap }},
-    {"PXPanel"  , {pfVals_.panelStartBit_ , pfVals_.panelMask_ , PixelSubdetector::PixelEndcap }},
-    {"PXFModule", {pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap }},
+    {"PXBlade"  , {trackerTopologyHandle, TrackerTopology::PFBlade}},
+    {"PXDisk"   , {trackerTopologyHandle, TrackerTopology::PFDisk}},
+    {"PXPanel"  , {trackerTopologyHandle, TrackerTopology::PFPanel}},
+    {"PXFModule", {trackerTopologyHandle, TrackerTopology::PFModule}},
   };
 
-  for (std::pair<std::string, BitMask> e : namedPartitions) {
+  for (auto& e : namedPartitions) {
     geomquantities.push_back(intern(e.first));
     addExtractor(intern(e.first), e.second, UNDEFINED, 0);
   }
+
+  auto pxbarrel  = [] (InterestingQuantities const& iq) { return iq.sourceModule.subdetId() == PixelSubdetector::PixelBarrel ? 0 : UNDEFINED; };
+  auto pxforward = [] (InterestingQuantities const& iq) { return iq.sourceModule.subdetId() == PixelSubdetector::PixelEndcap ? 0 : UNDEFINED; };
+  addExtractor(intern("PXBarrel"),  pxbarrel,  0, 0);
+  addExtractor(intern("PXForward"), pxforward, 0, 0);
 
   // Redefine the disk numbering to use the sign
   auto& pxendcap = extractors[intern("PXEndcap")];
@@ -240,8 +237,8 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     for (ID q : geomquantities) {
       Value v = extractors[q](iq);
       if (v != UNDEFINED) {
-	if (v < min_value[q]) min_value[q] = v;
-	if (v > max_value[q]) max_value[q] = v;
+        if (v < min_value[q]) min_value[q] = v;
+        if (v > max_value[q]) max_value[q] = v;
       }
     }
     auto layer = pxlayer(iq);
@@ -270,7 +267,6 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     }, 1, 2
   );
 
-  auto& pxbarrel = extractors[intern("PXBarrel")];
   auto& pxmodule = extractors[intern("PXBModule")];
   Value maxmodule = max_value[intern("PXBModule")];
   addExtractor(intern("HalfCylinder"),
@@ -436,10 +432,10 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
     for(auto iq : all_modules) {
       std::vector<sipixelobjects::CablingPathToDetUnit> paths = map->pathToDetUnit(iq.sourceModule.rawId());
       for (auto p : paths) {
-	//std::cout << "+++ cabling " << iq.sourceModule.rawId() << " " << p.fed << " " << p.link << " " << p.roc << "\n";
-	fedmap[iq.sourceModule] = Value(p.fed);
-	if (p.fed > maxFED) maxFED = p.fed;
-	if (p.fed < minFED) minFED = p.fed;
+        //std::cout << "+++ cabling " << iq.sourceModule.rawId() << " " << p.fed << " " << p.link << " " << p.roc << "\n";
+        fedmap[iq.sourceModule] = Value(p.fed);
+        if (p.fed > maxFED) maxFED = p.fed;
+        if (p.fed < minFED) minFED = p.fed;
       }
     }
   } else {
