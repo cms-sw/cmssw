@@ -883,6 +883,10 @@ class AdditionalBoost( Analyzer ):
 
                     if j.fromFJ > -1:
                         break
+            
+            # Sort subjets by pT
+            setattr(event, fj_name + "subjets", sorted(getattr(event, fj_name + "subjets"), key = lambda x:-x.pt()))
+
 
         ######## 
         # HEPTopTagger

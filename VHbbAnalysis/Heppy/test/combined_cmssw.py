@@ -172,7 +172,7 @@ def initialize(**kwargs):
                 src           = cms.InputTag("chs"),
                 doAreaFastjet = cms.bool(True),
                 doRhoFastjet  = cms.bool(False),
-                jetPtMin      = cms.double(200.0)
+                jetPtMin      = cms.double(150.0)
             ),
             AnomalousCellParameters,
             jetAlgorithm      = cms.string("CambridgeAachen"),
