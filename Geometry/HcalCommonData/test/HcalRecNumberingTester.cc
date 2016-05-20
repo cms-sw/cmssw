@@ -79,6 +79,16 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       }
       std::cout << ")" << std::endl;
     }
+    for (int type=0; type<2; ++type) {
+      std::pair<int,int> etar = hdc.getEtaRange(type);
+      std::cout << "Detector type: " << type << " with eta ranges "
+		<< etar.first << ":" << etar.second << std::endl;
+      for (int eta=etar.first; eta<=etar.second; ++eta) {
+	std::cout << "Type:Eta " << type << ":" << eta << " Depth range "
+		  << hdc.getMinDepth(type,eta) << ":" 
+		  << hdc.getMaxDepth(type,eta) << std::endl;
+      }
+    }
     std::vector<HcalDDDRecConstants::HcalEtaBin> hbar = hdc.getEtaBins(0);
     std::vector<HcalDDDRecConstants::HcalEtaBin> hcap = hdc.getEtaBins(1);
     std::cout << "Topology Mode " << hdc.getTopoMode() 

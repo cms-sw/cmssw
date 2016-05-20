@@ -255,6 +255,22 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta) const {
   return lmax;
 }
 
+int HcalDDDRecConstants::getMinDepth (const int itype, const int ieta) const {
+
+  int lmin(1);
+  if (itype == 2) { // HF
+  } else if (itype == 3) { //HO
+    lmin = maxDepth[3];
+  } else {
+    unsigned int type  = (itype == 0) ? 0 : 1;
+    if (layerGroupSize(ieta-1) > 0) {
+      lmin = (int)(layerGroup(ieta-1, 0));
+      if (type == 1 && ieta == iEtaMin[type]) lmin = hcons.getDepthEta16(1);
+    }
+  }
+  return lmin;
+}
+
 double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
 
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
