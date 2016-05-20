@@ -1,4 +1,4 @@
-#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
+#include "CondTools/BTau/interface/BTagCalibrationReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
