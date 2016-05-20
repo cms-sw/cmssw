@@ -262,7 +262,7 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, std::string target)
   
   try {
     if ( target == "string" ){
-      _string = theSerializer->writeToString( *node );
+      _string = theSerializer->writeToString( node );
     }
     else{
       DOMLSOutput* outputDesc = ((DOMImplementationLS*)impl)->createLSOutput();

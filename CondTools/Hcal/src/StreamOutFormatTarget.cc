@@ -36,7 +36,7 @@ void StreamOutFormatTarget::flush()
 }
 
 void StreamOutFormatTarget::writeChars(const XMLByte* const  toWrite
-                                  , const unsigned int    count
+                                  , const XMLSize_t count
                                   , XMLFormatter* const)
 {
   mStream->write ((const char*) toWrite, sizeof(XMLByte) * count);

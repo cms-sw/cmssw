@@ -1,6 +1,8 @@
 #include "DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h"
+#include <memory>
 
 XERCES_CPP_NAMESPACE_USE
+using namespace std;
 
 namespace {
   template <class T> XMLCh* transcode (const T& fInput) {
