@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "xercesc/sax/SAXParseException.hpp"
-#include "xercesc/util/Compilers/GCCDefs.hpp"
 #include "xercesc/util/XercesVersion.hpp"
 
 

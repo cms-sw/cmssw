@@ -59,7 +59,6 @@
 
 #include <string.h>
 #include <xercesc/dom/DOMAttr.hpp>
-#include <xercesc/dom/DOMBuilder.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMError.hpp>
 #include <xercesc/dom/DOMException.hpp>
@@ -77,6 +76,7 @@
 //  Includes
 // ---------------------------------------------------------------------------
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include <xercesc/dom/DOM.hpp>
 #include "xercesc/dom/DOMNode.hpp"
 #include "xercesc/util/PlatformUtils.hpp"
 #include "xercesc/util/XMLException.hpp"
@@ -288,31 +288,31 @@ int main(int argC, char* argV[])
     // Instantiate the DOM parser.
     static const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
     DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-    DOMBuilder        *parser = ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    DOMLSParser       *parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
 
-    parser->setFeature(XMLUni::fgDOMNamespaces, doNamespaces);
-    parser->setFeature(XMLUni::fgXercesSchema, doSchema);
-    parser->setFeature(XMLUni::fgXercesSchemaFullChecking, schemaFullChecking);
+    parser->getDomConfig()->setParameter(XMLUni::fgDOMNamespaces, doNamespaces);
+    parser->getDomConfig()->setParameter(XMLUni::fgXercesSchema, doSchema);
+    parser->getDomConfig()->setParameter(XMLUni::fgXercesSchemaFullChecking, schemaFullChecking);
 
     if (valScheme == AbstractDOMParser::Val_Auto)
     {
-        parser->setFeature(XMLUni::fgDOMValidateIfSchema, true);
+        parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, true);
     }
     else if (valScheme == AbstractDOMParser::Val_Never)
     {
-        parser->setFeature(XMLUni::fgDOMValidation, false);
+        parser->getDomConfig()->setParameter(XMLUni::fgDOMValidate, false);
     }
     else if (valScheme == AbstractDOMParser::Val_Always)
     {
-        parser->setFeature(XMLUni::fgDOMValidation, true);
+        parser->getDomConfig()->setParameter(XMLUni::fgDOMValidate, true);
     }
 
     // enable datatype normalization - default is off
-    parser->setFeature(XMLUni::fgDOMDatatypeNormalization, true);
+    parser->getDomConfig()->setParameter(XMLUni::fgDOMDatatypeNormalization, true);
 
     // And create our error handler and install it
     DOMCountErrorHandler errorHandler;
-    parser->setErrorHandler(&errorHandler);
+    parser->getDomConfig()->setParameter(XMLUni::fgDOMErrorHandler, &errorHandler);
 
     //
     //  Get the starting time and kick off the parse of the indicated
