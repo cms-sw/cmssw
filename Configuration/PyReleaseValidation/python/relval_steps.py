@@ -1,6 +1,7 @@
 from MatrixUtil import *
 
 from Configuration.HLT.autoHLT import autoHLT
+from Configuration.AlCa.autoPCL import autoPCL
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -1239,15 +1240,14 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQualit
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
 
-
-steps['ALCAHARVD1']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
+steps['ALCAHARVD1']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProd']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',
                      '--filein':'file:PromptCalibProd.root'}
 steps['ALCAHARVD1HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD1']])
 
-steps['ALCAHARVD2']={'-s':'ALCAHARVEST:SiStripQuality',
+steps['ALCAHARVD2']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStrip']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',
@@ -1255,7 +1255,7 @@ steps['ALCAHARVD2']={'-s':'ALCAHARVEST:SiStripQuality',
 
 steps['ALCAHARVD2HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD2']])
 
-steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
+steps['ALCAHARVD3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripGains']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',
@@ -1263,7 +1263,7 @@ steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
 
 steps['ALCAHARVD3HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD3']])
 
-steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
+steps['ALCAHARVD4']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAli']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',
@@ -1271,7 +1271,7 @@ steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
 
 steps['ALCAHARVD4HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD4']])
 
-steps['ALCAHARVD5']={'-s':'ALCAHARVEST:SiStripGainsAfterAbortGap',
+steps['ALCAHARVD5']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripGainsAfterAbortGap']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',
