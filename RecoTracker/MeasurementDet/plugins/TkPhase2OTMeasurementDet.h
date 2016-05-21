@@ -67,17 +67,18 @@ public:
 
   bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & dat ) const ; 
 
+  //FIXME:just temporary solution for phase2!
   /** \brief Sets the list of bad ROCs, identified by the positions of their centers in the local coordinate frame*/
-//  void setBadRocPositions(std::vector< LocalPoint > & positions) { badRocPositions_.swap(positions); }
+  //  void setBadRocPositions(std::vector< LocalPoint > & positions) { badRocPositions_.swap(positions); }
   /** \brief Clear the list of bad ROCs */
-//  void clearBadRocPositions() { badRocPositions_.clear(); }
+  //  void clearBadRocPositions() { badRocPositions_.clear(); }
 
   int index() const { return index_; }
   void setIndex(int i) { index_ = i; }
 
 private:
   unsigned int id_;
-//  std::vector< LocalPoint > badRocPositions_;
+  //  std::vector< LocalPoint > badRocPositions_;
 
   int index_;
   Phase2OTMeasurementConditionSet * theDetConditions;
@@ -86,18 +87,6 @@ private:
 
   const PixelClusterParameterEstimator * cpe() const { return conditionSet().pixelCPE(); }
 
- public:
-/*
-  inline bool accept(Phase2TrackerCluster1DRefNew & r, const std::vector<bool> skipClusters) const {
-    
-    if(skipClusters.empty()) return true;
-    if (r.key()>=skipClusters.size()){
-      edm::LogError("IndexMisMatch")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done";
-      return true;
-    }
-    return not skipClusters[r.key()];
-  }
-*/
 };
 
 #endif

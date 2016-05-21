@@ -111,6 +111,8 @@ void MeasurementTrackerImpl::initialize()
 { 
 
   bool subIsPixel = false;
+  //FIXME:just temporary solution for phase2 :
+  //the OT is defined as PixelSubDetector!
   bool subIsOT = false;
 
   //if the TkGeometry has the subDet vector filled, the theDetMap is filled, otherwise nothing should happen

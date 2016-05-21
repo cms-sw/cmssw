@@ -3,16 +3,17 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-//#include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
-
+//FIXME:just temporary solution for phase2!
+/*
 namespace {
   const float theRocWidth  = 8.1;
   const float theRocHeight = 8.1;
 }
+*/
 
 TkPhase2OTMeasurementDet::TkPhase2OTMeasurementDet( const GeomDet* gdet,
 					      Phase2OTMeasurementConditionSet & conditions ) : 
@@ -29,7 +30,6 @@ bool TkPhase2OTMeasurementDet::measurements( const TrajectoryStateOnSurface& sta
 					  TempMeasurements & result) const {
 
 
-  LogDebug("MeasurementTracker") << "TkPhase2OTMeasurementDet::measurements" ;
   if (!isActive(data)) {
     result.add(theInactiveHit, 0.F);
     return true;
@@ -38,11 +38,7 @@ bool TkPhase2OTMeasurementDet::measurements( const TrajectoryStateOnSurface& sta
   auto oldSize = result.size();
   MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet, data);
   for (auto && hit : allHits) {
-    LogTrace("MeasurementTracker") << "adding one hit" ;
-    LogTrace("MeasurementTracker") << " local position: " << (*hit).localPosition() ;
-    LogTrace("MeasurementTracker") << " local error: " << (*hit).localPositionError() ;
     std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
-    LogTrace("MeasurementTracker") << "with estimator result " << diffEst.second ;
     if ( diffEst.first)
       result.add(std::move(hit), diffEst.second);
   }
@@ -60,6 +56,7 @@ TrackingRecHit::RecHitPointer
 TkPhase2OTMeasurementDet::buildRecHit( const Phase2TrackerCluster1DRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
+  //FIXME:just temporary solution for phase2!
   const PixelGeomDetUnit& gdu( specificGeomDet() );
   const PixelTopology * topo = &gdu.specificTopology();
 
@@ -79,7 +76,6 @@ TkPhase2OTMeasurementDet::buildRecHit( const Phase2TrackerCluster1DRef & cluster
 TkPhase2OTMeasurementDet::RecHitContainer 
 TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data ) const
 {
-  LogDebug("MeasurementTracker") << "TkPhase2OTMeasurementDet::recHits" ;
   RecHitContainer result;
   if (isEmpty(data.phase2OTData())== true ) return result;
   if (isActive(data) == false) return result;
@@ -110,6 +106,7 @@ TkPhase2OTMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Mea
   return result;
 }
 
+//FIXME:just temporary solution for phase2!
 bool
 TkPhase2OTMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
 /*

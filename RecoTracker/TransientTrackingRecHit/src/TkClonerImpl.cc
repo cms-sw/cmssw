@@ -52,6 +52,7 @@ std::unique_ptr<Phase2TrackerRecHit1D> TkClonerImpl::operator()(Phase2TrackerRec
   const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
   const PixelTopology * topo = &gdu.specificTopology();
 
+  //FIXME:just temporary solution for phase2!
   float pitch_x = topo->pitch().first;
   float pitch_y = topo->pitch().second;
   float ix = clust.center();
@@ -94,6 +95,7 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(Phase2TrackerRecHit1
   const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
   const PixelTopology * topo = &gdu.specificTopology();
 
+  //FIXME:just temporary solution for phase2!
   float pitch_x = topo->pitch().first;
   float pitch_y = topo->pitch().second;
   float ix = clust.center();

@@ -115,14 +115,6 @@ MeasurementTrackerEventProducer::updatePixels( const edm::Event& event, PxMeasur
     
     const  edmNew::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
 
-    //debug
-    LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePixel: pixelCollection size: " << pixelCollection->dataSize() << std::endl;
-    for (edmNew::DetSetVector< SiPixelCluster >::const_iterator DSViter = pixelCollection->begin(); DSViter != pixelCollection->end(); ++DSViter) {
-    //for (auto DSViter = pixelCollection ) {
-        unsigned int rawid(DSViter->detId());
-        LogTrace("MeasurementTracker") << "\t cluster in detId: " << rawid << std::endl;
-    }
-
    
     if (switchOffPixelsIfEmpty && pixelCollection->empty()) {
        thePxDets.setActiveThisEvent(false);
@@ -230,10 +222,10 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
   }
 }
 
+//FIXME: just a temporary solution for phase2!
 void 
 MeasurementTrackerEventProducer::updatePhase2( const edm::Event& event, Phase2OTMeasurementDetSet & thePh2OTDets ) const {
 
-  LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePhase2" ;
 
   // Phase2OT Clusters
   if (pset_.existsAs<std::string>("Phase2TrackerCluster1DProducer")) {
@@ -247,14 +239,8 @@ MeasurementTrackerEventProducer::updatePhase2( const edm::Event& event, Phase2OT
       event.getByToken(thePh2OTClusterLabel, phase2OTClusters);
       const edmNew::DetSetVector<Phase2TrackerCluster1D>* phase2OTCollection = phase2OTClusters.product();
   
-      LogDebug("MeasurementTracker") << "MeasurementTrackerEventProducer::updatePhase2: ClustersPhase2Collection size: " << phase2OTCollection->dataSize() << std::endl;
-  
-      // FIXME: should check if lower_bound is better
       int i = 0, endDet = thePh2OTDets.size();
       for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator it = phase2OTCollection->begin(), ed = phase2OTCollection->end(); it != ed; ++it) {
-        //debug
-        unsigned int rawid(it->detId());
-        LogTrace("MeasurementTracker") << "\t cluster in detId: " << rawid << std::endl;
   
         edmNew::DetSet<Phase2TrackerCluster1D> set(*it);
         unsigned int id = set.id();

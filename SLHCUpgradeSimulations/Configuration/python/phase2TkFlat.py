@@ -322,6 +322,7 @@ def customise_Reco(process,pileup):
 
     process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters')
     process.MeasurementTrackerEvent.stripClusterProducer = cms.string('')
+    # FIXME::process.electronSeedsSeq broken
     process.ckftracks.remove(process.electronSeedsSeq)
  
     return process

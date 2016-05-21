@@ -59,7 +59,6 @@ void TempTrajectory::pushAux(double chi2Increment) {
   if ( tm.recHit()->isValid()) {
     theNumberOfFoundHits++;
     theNumberOfTrailingFoundHits++;
-    LogDebug("CkfPattern")<< "TempTrajectory::pushAux is badForCC " << badForCCC(tm);
     if (badForCCC(tm)) theNumberOfCCCBadHits_++;
    }
   //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;

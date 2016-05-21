@@ -389,6 +389,7 @@ private:
   std::vector<bool> activeThisEvent_;
 };
 
+//FIXME:just temporary solution for phase2 OT that works!
 class Phase2OTMeasurementConditionSet {
 public:
   Phase2OTMeasurementConditionSet(const PixelClusterParameterEstimator *cpe) :
