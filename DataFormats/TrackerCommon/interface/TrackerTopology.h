@@ -109,15 +109,6 @@ class TrackerTopology {
     DETID_FIELDS_MAX
   };
 
- private:
-  struct BitmaskAndSubdet { 
-    unsigned int const& startBit; 
-    unsigned int const& mask;
-    int subdet;
-  };
-  const BitmaskAndSubdet bits_per_field[DETID_FIELDS_MAX];
-
- public:
   class SameLayerComparator {
   public:
     explicit SameLayerComparator(const TrackerTopology *topo): topo_(topo) {}
@@ -616,6 +607,13 @@ class TrackerTopology {
   TIBValues tibVals_;
   TIDValues tidVals_;
   TECValues tecVals_;
+
+  struct BitmaskAndSubdet { 
+    unsigned int const& startBit; 
+    unsigned int const& mask;
+    int subdet;
+  };
+  const BitmaskAndSubdet bits_per_field[DETID_FIELDS_MAX];
 
 };
 
