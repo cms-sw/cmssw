@@ -151,6 +151,16 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       int isolBit = hwEtSum-hwFootPrint <= params_->egIsolationLUT()->data(lutAddress);       
       egamma.setHwIso(isolBit);
+      int hwIsoEnergy = hwEtSum-hwFootPrint;
+
+      // development vars
+      egamma.setTowerIPhi((short int)CaloTools::towerEta(cluster.hwEta()));
+      egamma.setTowerIEta((short int)CaloTools::towerPhi(cluster.hwEta(), cluster.hwPhi()));
+      egamma.setRawEt((short int)egamma.hwPt());
+      egamma.setIsoEt((short int)hwIsoEnergy);
+      egamma.setFootprintEt((short int)hwFootPrint);
+      egamma.setNTT((short int)nrTowers);
+      egamma.setShape((short int)returnShape(cluster));
       
       // Energy calibration
       // Corrections function of ieta, ET, and cluster shape
@@ -303,9 +313,16 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoCalEgHwFootPrint(const l1t:
     CaloTools::calHwEtSum(iEta,iPhi,towers,etaSide,etaSide,
         -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
         params_->egPUSParam(2),CaloTools::ECAL);
-  int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::HCAL) +
-    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2),CaloTools::HCAL);
-  return ecalHwFootPrint+hcalHwFootPrint;
+  
+  //Because of compression E+H can be different from E + H
+  int ecalHwFootPrint_2x1 = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::ECAL) +
+    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2),CaloTools::ECAL);
+
+  int ecalhcal_HwFootPrint_2x1 = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2)) +
+    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2));
+
+  return ecalHwFootPrint-ecalHwFootPrint_2x1+ecalhcal_HwFootPrint_2x1;
+  
 }
 
 //ieta =-28, nrTowers 0 is 0, increases to ieta28, nrTowers=kNrTowersInSum
@@ -365,11 +382,14 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   int corr = params_->egCalibrationLUT()->data(lutAddress); // 9 bits. [0,2]. corrPt = (corr)*rawPt
   // the correction can increase or decrease the energy
   int rawPt = hwPt;
-  if(rawPt>255)
-    rawPt = 255;// 8 bits threshold
   int corrXrawPt = corr*rawPt;// 17 bits
   // round corr*rawPt
   int corrPt = corrXrawPt>>8;// 8 MS bits (truncation)
+
+  //12 bits saturation
+  if(corrPt>4095)
+    corrPt = 4095;
+
   return corrPt;
 }
 
@@ -449,3 +469,25 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::trimmingLutIndex(unsi
   unsigned int index = iEtaNormed*128+shape;
   return index;
 }
+
+/*****************************************************************/
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnShape(const l1t::CaloCluster& clus)
+/*****************************************************************/
+{
+  l1t::CaloCluster clusCopy = clus;
+
+  unsigned int shape = 0;
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<2);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<2);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<3);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<3);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
+
+  return shape;
+}
+ 

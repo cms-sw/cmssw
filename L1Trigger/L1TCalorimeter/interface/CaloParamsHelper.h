@@ -33,7 +33,10 @@ namespace l1t {
            layer1ECal=17,
            layer1HCal=18,
            layer1HF=19,
-	   NUM_CALOPARAMNODES=20
+	   jetCompressEta=20, jetCompressPt=21,
+	   etSumXPUS=22, etSumYPUS=23, etSumEttPUS=24, etSumEcalSumPUS=25,
+	   tauIsolation2=26,
+	   NUM_CALOPARAMNODES=27
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -189,6 +192,7 @@ namespace l1t {
     double tauPUSParam(int ipar) const { return pnode_[tauPUS].dparams_.at(ipar); }
 
     l1t::LUT* tauIsolationLUT() { return &pnode_[tauIsolation].LUT_; }
+    l1t::LUT* tauIsolationLUT2() { return &pnode_[tauIsolation2].LUT_; }
 
     std::string tauCalibrationType() const { return pnode_[tauCalibration].type_; }
     std::vector<double> tauCalibrationParams() { return pnode_[tauCalibration].dparams_; }
@@ -216,6 +220,7 @@ namespace l1t {
     void setIsoTauEtaMax(int value) { taup_.isoEtaMax_ = value; }
     void setTauPUSType(std::string type) { pnode_[tauPUS].type_ = type; }
     void setTauIsolationLUT(const l1t::LUT & lut) { pnode_[tauIsolation].LUT_ = lut; }
+    void setTauIsolationLUT2(const l1t::LUT & lut) { pnode_[tauIsolation2].LUT_ = lut; }
 
     void setTauCalibrationType(std::string type) { pnode_[tauCalibration].type_ = type; }
     void setTauIsoAreaNrTowersEta(unsigned iTauIsoAreaNrTowersEta){taup_.isoAreaNrTowersEta_=iTauIsoAreaNrTowersEta;}
@@ -245,6 +250,9 @@ namespace l1t {
     std::vector<double> jetCalibrationParams() { return pnode_[jetCalibration].dparams_; }
     l1t::LUT* jetCalibrationLUT() { return &pnode_[jetCalibration].LUT_; }
 
+    l1t::LUT* jetCompressPtLUT() { return &pnode_[jetCompressPt].LUT_; }
+    l1t::LUT* jetCompressEtaLUT() { return &pnode_[jetCompressEta].LUT_; }
+
     void setJetLsb(double lsb) { jetp_.lsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetp_.seedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetp_.neighbourThreshold_ = thresh; }
@@ -257,17 +265,31 @@ namespace l1t {
     void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = type; }
     void setJetCalibrationParams(std::vector<double> params) { pnode_[jetCalibration].dparams_ = params; }
     void setJetCalibrationLUT(const l1t::LUT & lut) { pnode_[jetCalibration].LUT_ = lut; }
+    void setJetCompressEtaLUT(const l1t::LUT & lut) { pnode_[jetCompressEta].LUT_ = lut; }
+    void setJetCompressPtLUT(const l1t::LUT & lut) { pnode_[jetCompressPt].LUT_ = lut; }
 
     // sums
+
     double etSumLsb() const { return etSumLsb_; }
     int etSumEtaMin(unsigned isum) const;
     int etSumEtaMax(unsigned isum) const;
     double etSumEtThreshold(unsigned isum) const;
 
+    l1t::LUT* etSumXPUSLUT() { return &pnode_[etSumXPUS].LUT_; }
+    l1t::LUT* etSumYPUSLUT() { return &pnode_[etSumYPUS].LUT_; }
+    l1t::LUT* etSumEttPUSLUT() { return &pnode_[etSumEttPUS].LUT_; }
+    l1t::LUT* etSumEcalSumPUSLUT() { return &pnode_[etSumEcalSumPUS].LUT_; }
+
     void setEtSumLsb(double lsb) { etSumLsb_ = lsb; }
     void setEtSumEtaMin(unsigned isum, int eta);
     void setEtSumEtaMax(unsigned isum, int eta);
     void setEtSumEtThreshold(unsigned isum, double thresh);
+
+    void setEtSumXPUSLUT(const l1t::LUT & lut) { pnode_[etSumXPUS].LUT_ = lut; }
+    void setEtSumYPUSLUT(const l1t::LUT & lut) { pnode_[etSumYPUS].LUT_ = lut; }
+    void setEtSumEttPUSLUT(const l1t::LUT & lut) { pnode_[etSumEttPUS].LUT_ = lut; }
+    void setEtSumEcalSumPUSLUT(const l1t::LUT & lut) { pnode_[etSumEcalSumPUS].LUT_ = lut; }
+
 
     // HI centrality
     int centralityRegionMask() const {
