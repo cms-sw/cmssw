@@ -26,15 +26,15 @@ delim_(delim)
         if ( delim.empty() )
                 delim_ = ",";
 
-	str2VecStr_(columns, delim, tableColumns_);
+	str2VecStr_(columns, delim_, tableColumns_);
 
-	str2VecStr_(types, delim, tableTypes_);
+	str2VecStr_(types, delim_, tableTypes_);
 
 
 	for (auto it=rows.begin(); it!=rows.end(); it++)
 	{
 		std::vector<std::string> aRow;
-		str2VecStr_(*it, delim, aRow);
+		str2VecStr_(*it, delim_, aRow);
 
 		tableRow temp(aRow);
 		temp.setRowTypes(tableTypes_);
