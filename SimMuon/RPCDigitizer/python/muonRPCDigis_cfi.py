@@ -17,7 +17,9 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
         Gate = cms.double(25.0),
         averageEfficiency = cms.double(0.95),
         Nbxing = cms.int32(9),
-        timeJitter = cms.double(1.0)
+        timeJitter = cms.double(1.0),
+        IRPC_time_resolution = cms.double(0.1),
+        IRPC_electronics_jitter = cms.double(0.025)
     ),
     doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
     Signal = cms.bool(True),
@@ -25,11 +27,14 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
 #    digiModel = cms.string('RPCSimAverageNoiseEffCls')
     digiModel = cms.string('RPCSimAsymmetricCls')
-#the new digitizer is RPCSimAsymmetricCls
+#    digiModel = cms.string('RPCSimModelTiming')
+
+#the "standard" digitizer is RPCSimAsymmetricCls
 )
 
+#the digitizer for PhaseII muon upgrade is RPCSimModelTiming and for the moment is based on  RPCSimAverageNoiseEffCls
 from Configuration.StandardSequences.Eras import eras
 if eras.fastSim.isChosen():
     simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
-eras.phase2_muon.toModify( simMuonRPCDigis, digiModel = cms.string('RPCSimAverageNoiseEffCls') )
+eras.phase2_muon.toModify( simMuonRPCDigis, digiModel = cms.string('RPCSimModelTiming') )
 

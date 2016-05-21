@@ -4,25 +4,40 @@
 
 RPCSim::RPCSim(const edm::ParameterSet& config)
 {
+std::cout<<"Hello from RPCSim::RPCSim"<<std::endl;
 }
 
 void
 RPCSim::fillDigis(int rollDetId, RPCDigiCollection& digis)
 {
   //  theRpcDigiSimLinks.clear();
-  std::vector<std::pair<int,int> > vdigi;
-  vdigi.clear();
+
+//  std::vector<std::pair<int,int> > vdigi;
+//  vdigi.clear();
 
   for (std::set< std::pair<int,int> >::iterator i=strips.begin();
        i!=strips.end(); i++){
     if(i->second != -999){
       RPCDigi rpcDigi(i->first,i->second);
+// to change !!!
+//	rpcDigi.hasTime(true);
+//	rpcDigi.setTime(1000);
+
+ 
       //NCA
       digis.insertDigi(RPCDetId(rollDetId),rpcDigi);
       this->addLinks(i->first,i->second);
     }
   }
   strips.clear();
+
+  for (auto it: irpc_digis){
+if(it.bx() != -999){
+    digis.insertDigi(RPCDetId(rollDetId),it);
+    this->addLinks(it.strip(),it.bx());
+}
+  }
+  irpc_digis.clear();
 }
 
 void RPCSim::addLinks(unsigned int strip, int bx) {
