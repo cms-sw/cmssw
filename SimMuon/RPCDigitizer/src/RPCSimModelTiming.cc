@@ -42,54 +42,18 @@ using namespace std;
 //RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSimAsymmetricCls(config)
 RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSimAverageNoiseEffCls(config) //, IRPCPreciseTiming(config)
 {
-cout<<"Hi form RPCSimModelTiming::RPCSimModelTiming"<<endl;
-/*
-  aveEff = config.getParameter<double>("averageEfficiency");
-  aveCls = config.getParameter<double>("averageClusterSize");
-  resRPC = config.getParameter<double>("timeResolution");
-  timOff = config.getParameter<double>("timingRPCOffset");
-  dtimCs = config.getParameter<double>("deltatimeAdjacentStrip");
-  resEle = config.getParameter<double>("timeJitter");
-  sspeed = config.getParameter<double>("signalPropagationSpeed");
-  lbGate = config.getParameter<double>("linkGateWidth");
-  rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
-
-  rate=config.getParameter<double>("Rate");
-  nbxing=config.getParameter<int>("Nbxing");
-  gate=config.getParameter<double>("Gate");
-  frate=config.getParameter<double>("Frate");
-
-  if (rpcdigiprint) {
-    std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
-    std::cout <<"Average Cluster Size      = "<<aveCls<<" strips"<<std::endl;
-    std::cout <<"RPC Time Resolution       = "<<resRPC<<" ns"<<std::endl;
-    std::cout <<"RPC Signal formation time = "<<timOff<<" ns"<<std::endl;
-    std::cout <<"RPC adjacent strip delay  = "<<dtimCs<<" ns"<<std::endl;
-    std::cout <<"Electronic Jitter         = "<<resEle<<" ns"<<std::endl;
-    std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
-    std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
-  }
-*/
-//  _rpcSync = new RPCSynchronizer(config);
 
 }
 
 RPCSimModelTiming::~RPCSimModelTiming()
 {
-//  delete _rpcSync;
+
 }
 
 void RPCSimModelTiming::simulateIRPC(const RPCRoll* roll,
                 const edm::PSimHitContainer& rpcHits,
                  CLHEP::HepRandomEngine* engine) 
 {
-
-//std::cout<<"RPCSimModelTiming::simulateIRPC"<<std::endl;
-
-//_rpcSync->getRPCSimSetUp();
-//std::cout<<resRPC<<endl;
-//RPCDigi adigi(1,1);
-//irpc_digis.insert(adigi);
 
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();

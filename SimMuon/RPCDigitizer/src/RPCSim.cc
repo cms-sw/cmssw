@@ -4,7 +4,7 @@
 
 RPCSim::RPCSim(const edm::ParameterSet& config)
 {
-std::cout<<"Hello from RPCSim::RPCSim"<<std::endl;
+
 }
 
 void
@@ -19,10 +19,6 @@ RPCSim::fillDigis(int rollDetId, RPCDigiCollection& digis)
        i!=strips.end(); i++){
     if(i->second != -999){
       RPCDigi rpcDigi(i->first,i->second);
-// to change !!!
-//	rpcDigi.hasTime(true);
-//	rpcDigi.setTime(1000);
-
  
       //NCA
       digis.insertDigi(RPCDetId(rollDetId),rpcDigi);
@@ -32,10 +28,10 @@ RPCSim::fillDigis(int rollDetId, RPCDigiCollection& digis)
   strips.clear();
 
   for (auto it: irpc_digis){
-if(it.bx() != -999){
-    digis.insertDigi(RPCDetId(rollDetId),it);
-    this->addLinks(it.strip(),it.bx());
-}
+     if(it.bx() != -999){
+        digis.insertDigi(RPCDetId(rollDetId),it);
+        this->addLinks(it.strip(),it.bx());
+     }
   }
   irpc_digis.clear();
 }
