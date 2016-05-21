@@ -600,17 +600,17 @@ class TrackerTopology {
  
  private:
 
-  PixelBarrelValues pbVals_;
-  PixelEndcapValues pfVals_;
+  const PixelBarrelValues pbVals_;
+  const PixelEndcapValues pfVals_;
 
-  TOBValues tobVals_;
-  TIBValues tibVals_;
-  TIDValues tidVals_;
-  TECValues tecVals_;
+  const TOBValues tobVals_;
+  const TIBValues tibVals_;
+  const TIDValues tidVals_;
+  const TECValues tecVals_;
 
   struct BitmaskAndSubdet { 
-    unsigned int const& startBit; 
-    unsigned int const& mask;
+    unsigned int startBit; 
+    unsigned int mask;
     int subdet;
   };
   const BitmaskAndSubdet bits_per_field[DETID_FIELDS_MAX];
