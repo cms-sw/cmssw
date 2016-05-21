@@ -290,7 +290,6 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Ensemble& ensemble, const Ensem
 }
 
 void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits, std::vector<ME0Segment>& me0segs) {
-  if (rechits.size() < minHitsPerSegment) return;
   
 #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] will now try to fit a ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
@@ -319,15 +318,17 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
     
     muonRecHits.push_back(newRH);    
   }
+  if (rechits.size() < minHitsPerSegment) return;
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
   sfit_ = std::unique_ptr<MuonSegFit>(new MuonSegFit(muonRecHits));
-  bool goodfit = sfit_->fit();
+  //  bool goodfit = sfit_->fit();
+  sfit_->fit();
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment fit done";
 
   for (auto rh:muonRecHits) delete rh;
   // quit function if fit was not OK  
-  if(!goodfit) return;
+  //if(!goodfit) return;
   
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
