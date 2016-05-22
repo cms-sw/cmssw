@@ -1,16 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # seeding
-from RecoMuon.CosmicMuonProducer.cosmicMuons_cfi import *
-import RecoMuon.MuonIdentification.muons1stStep_cfi
-muonsForCosmicDC = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone(
-    inputCollectionLabels = cms.VInputTag("cosmicMuons"),
-    inputCollectionTypes = cms.vstring('outer tracks'),
-    fillIsolation = cms.bool(False),
-    fillGlobalTrackQuality = cms.bool(False),
-    fillGlobalTrackRefits = cms.bool(False),
-)
-muonsForCosmicDC.TrackExtractorPSet.inputTrackCollection = cms.InputTag("cosmicMuons")
 import RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi 
 hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
@@ -23,7 +13,7 @@ hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
     appendToDataLabel = cms.string(''),
 )
 cosmicDCSeeds = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
-    src = cms.InputTag("muonsForCosmicDC"),
+    src = cms.InputTag("muonsFromCosmics"),
     cut = cms.string("pt > 2 && abs(eta)<1.2 && phi<0"),
     fromVertex = cms.bool(False),
     maxEtaForTOB = cms.double(1.5),
@@ -43,4 +33,4 @@ cosmicDCTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWith
 )
 
 # Final Sequence
-cosmicDCTracksSeq = cms.Sequence( cosmicMuons * muonsForCosmicDC * cosmicDCSeeds * cosmicDCCkfTrackCandidates * cosmicDCTracks )
+cosmicDCTracksSeq = cms.Sequence( cosmicDCSeeds * cosmicDCCkfTrackCandidates * cosmicDCTracks )
