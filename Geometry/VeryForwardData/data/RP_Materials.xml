@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+ <MaterialSection label="RP_Materials.xml">
+  <ElementaryMaterial name="RP_Primary_Vacuum" density="1e-13*mg/cm3" symbol=" "
+   atomicWeight="1*g/mole" atomicNumber="1"/>
+  <ElementaryMaterial name="RP_Secondary_Vacuum" density="1e-13*mg/cm3" symbol=" "
+   atomicWeight="1*g/mole" atomicNumber="1"/>
+  
+  <ElementaryMaterial name="Carbon" density="2.265*g/cm3" symbol=" " atomicWeight="12.011*g/mole"
+   atomicNumber="6"/>
+  <ElementaryMaterial name="Manganese" density="7.43*g/cm3" symbol=" " atomicWeight="54.938*g/mole"
+   atomicNumber="25"/>
+  <ElementaryMaterial name="Aluminum" density="2.6989*g/cm3" symbol=" " atomicWeight="26.9815*g/mole"
+   atomicNumber="13"/>
+  <ElementaryMaterial name="Silicon" density="2.33*g/cm3" symbol=" " atomicWeight="28.09*g/mole"
+   atomicNumber="14"/>
+  <ElementaryMaterial name="Phosphor" density="1.82*g/cm3" symbol=" " atomicWeight="30.974*g/mole"
+   atomicNumber="15"/>
+  <ElementaryMaterial name="Sulfur" density="2.07*g/cm3" symbol=" " atomicWeight="32.066*g/mole"
+   atomicNumber="16"/>
+  <ElementaryMaterial name="Nickel" density="8.876*g/cm3" symbol=" " atomicWeight="58.693*g/mole"
+   atomicNumber="28"/>
+  <ElementaryMaterial name="Chromium" density="7.18*g/cm3" symbol=" " atomicWeight="51.996*g/mole"
+   atomicNumber="24"/>
+  <ElementaryMaterial name="Molybdenum" density="10.2*g/cm3" symbol=" " atomicWeight="95.94*g/mole"
+   atomicNumber="42"/>
+  <ElementaryMaterial name="Iron" density="7.87*g/cm3" symbol=" " atomicWeight="55.85*g/mole"
+   atomicNumber="26"/>
+  <ElementaryMaterial name="Copper" density="8.96*g/cm3" symbol=" " atomicWeight="63.546*g/mole"
+   atomicNumber="29"/>
+  <ElementaryMaterial name="Hydrogen" density="70.8*mg/cm3" symbol=" "
+   atomicWeight="1.00794*g/mole" atomicNumber="1"/>
+  <ElementaryMaterial name="Oxygen" density="1.43*mg/cm3" symbol=" " atomicWeight="15.999*g/mole"
+   atomicNumber="8"/>
+  <ElementaryMaterial name="Nitrogen" density="808*mg/cm3" symbol=" " atomicWeight="14.007*g/mole"
+   atomicNumber="7"/>
+  <ElementaryMaterial name="Argon" density="1.639*mg/cm3" symbol=" " atomicWeight="39.948*g/mole"
+   atomicNumber="18"/>
+  <ElementaryMaterial name="Bor 10" density="2.34*g/cm3" symbol=" " atomicWeight="10*g/mole"
+   atomicNumber="5"/>
+  <ElementaryMaterial name="Bor 11" density="2.34*g/cm3" symbol=" " atomicWeight="11*g/mole"
+   atomicNumber="5"/>
+  <ElementaryMaterial name="Sodium" density="969*mg/cm3" symbol=" " atomicWeight="22.99*g/mole"
+    atomicNumber="11"/>
+  
+  <CompositeMaterial name="AISI-316L-Steel" density="8*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.0003">
+    <rMaterial name="RP_Materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.02">
+    <rMaterial name="RP_Materials:Manganese"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.01">
+    <rMaterial name="RP_Materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.00045">
+    <rMaterial name="RP_Materials:Phosphor"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0003">
+    <rMaterial name="RP_Materials:Sulfur"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.12">
+    <rMaterial name="RP_Materials:Nickel"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.18">
+    <rMaterial name="RP_Materials:Chromium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.025">
+    <rMaterial name="RP_Materials:Molybdenum"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.64395">
+    <rMaterial name="RP_Materials:Iron"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="Epoxy" density="1.32*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.53539691">
+    <rMaterial name="RP_Materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.13179314">
+    <rMaterial name="RP_Materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.33280996">
+    <rMaterial name="RP_Materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="Glass" density="2.23*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.36611059">
+    <rMaterial name="RP_Materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.53173295">
+    <rMaterial name="RP_Materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.007820091">
+    <rMaterial name="RP_Materials:Bor 10"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0344084">
+    <rMaterial name="RP_Materials:Bor 11"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.059927964">
+    <rMaterial name="RP_Materials:Sodium"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  
+  <CompositeMaterial name="Air" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.7494">
+    <rMaterial name="RP_Materials:Nitrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2369">
+    <rMaterial name="RP_Materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0129">
+    <rMaterial name="RP_Materials:Argon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0008">
+    <rMaterial name="RP_Materials:Hydrogen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+ </MaterialSection>
+  
+ <CompositeMaterial name="PCB" density="1.957*g/cm3" symbol=" " method="mixture by weight">
+  <MaterialFraction fraction="0.2562774130">
+   <rMaterial name="RP_Materials:Silicon"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.4720560530">
+   <rMaterial name="RP_Materials:Oxygen"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0054740637">
+   <rMaterial name="RP_Materials:Bor 10"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0240858800">
+   <rMaterial name="RP_Materials:Bor 11"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0419495748">
+   <rMaterial name="RP_Materials:Sodium"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.1606190730">
+   <rMaterial name="RP_Materials:Carbon"/>
+  </MaterialFraction>
+  <MaterialFraction fraction="0.0395379420">
+   <rMaterial name="RP_Materials:Hydrogen"/>
+  </MaterialFraction>
+ </CompositeMaterial>
+ 
+  <CompositeMaterial name="CE7" density="2.44*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.7">
+    <rMaterial name="RP_Materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3">
+    <rMaterial name="RP_Materials:Aluminum"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+</DDDefinition>
