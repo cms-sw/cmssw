@@ -77,6 +77,13 @@ def L1TReEmulFromRAW2015(process):
         print "L1TReEmul sequence:  "
         print process.L1TReEmul
         print process.schedule
+        # quiet warning abouts missing Stage-2 payloads, since they won't reliably exist in 2015 data.
+        if hasattr(process, "caloStage2Digis"):
+            process.caloStage2Digis.MinFeds = cms.uint32(0)
+        if hasattr(process, "gmtStage2Digis"):
+            process.gmtStage2Digis.MinFeds = cms.uint32(0)
+        if hasattr(process, "gtStage2Digis"):
+            process.gtStage2Digis.MinFeds = cms.uint32(0)            
         return process
     else:
         process.simRctDigis.ecalDigis = cms.VInputTag('simEcalTriggerPrimitiveDigis')
