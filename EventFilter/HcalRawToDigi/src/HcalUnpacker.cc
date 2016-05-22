@@ -649,10 +649,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
               std::cout << "OH NO! detector id is null!" << std::endl;
 #endif
           }
-      }
-
+      } else if (i.flavor() == 2){
       //////////////////////////////////////////////////HF UNPACKER/////////////////////////////////////////////////////////////////////
-      if (i.flavor() == 2) {
+
 	int ifiber=((i.channelid()>>3)&0x1F);
 	int ichan=(i.channelid()&0x7);
 	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
