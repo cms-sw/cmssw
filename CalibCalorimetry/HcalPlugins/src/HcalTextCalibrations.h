@@ -20,6 +20,7 @@ class HcalQIEDataRcd;
 class HcalQIETypesRcd;
 class HcalChannelQualityRcd;
 class HcalElectronicsMapRcd;
+class HcalFrontEndMapRcd;
 class HcalRespCorrsRcd;
 class HcalTimeCorrsRcd;
 class HcalLUTCorrsRcd;
@@ -40,7 +41,7 @@ class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
-		       public edm::EventSetupRecordIntervalFinder
+  public edm::EventSetupRecordIntervalFinder
 {
 public:
   HcalTextCalibrations (const edm::ParameterSet& );
@@ -61,6 +62,7 @@ protected:
   std::unique_ptr<HcalQIETypes> produceQIETypes (const HcalQIETypesRcd& rcd);
   std::unique_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
   std::unique_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
+  std::unique_ptr<HcalFrontEndMap> produceFrontEndMap (const HcalFrontEndMapRcd& rcd);
 
   std::unique_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
   std::unique_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);

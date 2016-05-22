@@ -60,6 +60,7 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
+//			  &HcalDbProducer::frontEndMapCallback &
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );
@@ -346,6 +347,16 @@ void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecor
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL Electronics Map set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::frontEndMapCallback (const HcalFrontEndMapRcd& fRecord) {
+  edm::ESHandle <HcalFrontEndMap> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FrontEndMap")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL FrontEnd Map set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }
