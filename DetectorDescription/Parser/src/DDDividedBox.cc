@@ -5,16 +5,22 @@
 
 #include "DetectorDescription/Parser/src/DDDividedBox.h"
 
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDAxes.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDDivision.h"
+#include <ostream>
+#include <string>
+#include <utility>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iomanip>
+class DDCompactView;
 
 DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView* cpv)
   : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )

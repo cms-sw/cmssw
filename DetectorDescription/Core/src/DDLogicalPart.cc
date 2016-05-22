@@ -1,9 +1,15 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+
 #include <ostream>
 
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDValue;
 
 void
 DD_NC( const DDName & n )
@@ -257,7 +263,7 @@ bool DDLogicalPart::hasDDValue(const DDValue & v) const
 // - nm corresponds to a regular expression, but will be anchored ( ^regexp$ )
 // - ns corresponds to a regular expression, but will be anchored ( ^regexp$ )
 #include <regex.h>
-#include <set>
+#include <stddef.h>
 
 namespace
 {

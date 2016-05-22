@@ -52,6 +52,7 @@ class HcalDbProducer : public edm::ESProducer {
   void respCorrsCallback (const HcalRespCorrsRcd& fRecord);
   void L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fRecord);
   void electronicsMapCallback (const HcalElectronicsMapRcd& fRecord);
+  void frontEndMapCallback (const HcalFrontEndMapRcd& fRecord);
   void timeCorrsCallback (const HcalTimeCorrsRcd& fRecord);
   void LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord);
   void PFCorrsCallback (const HcalPFCorrsRcd& fRecord);

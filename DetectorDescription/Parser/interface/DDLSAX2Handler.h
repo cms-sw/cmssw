@@ -5,14 +5,17 @@
 //  Includes
 // ---------------------------------------------------------------------------
 
-// Xerces C++ Dependencies
-#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
-
+// Xerces C++ Dependencies
+#include <xercesc/util/XercesDefs.hpp>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
+
+#include "xercesc/sax/SAXParseException.hpp"
+#include "xercesc/util/Compilers/GCCDefs.hpp"
+#include "xercesc/util/XercesVersion.hpp"
 
 
 ///  DDLSAX2Handler inherits from Xerces C++ DefaultHandler.

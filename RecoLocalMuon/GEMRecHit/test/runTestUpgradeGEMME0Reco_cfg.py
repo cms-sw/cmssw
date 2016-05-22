@@ -87,7 +87,7 @@ process.trackerlocalreco = cms.Sequence(process.pixeltrackerlocalreco*process.st
 # process.load("RecoTracker.Configuration.RecoTrackerRunI_cff")
 # taking iterTracking from this file, 
 # removing all dEdX, EcalSeeds and trackExtrapolations for (B-)Jets
-process.load("RecoTracker.IterativeTracking.RunI_iterativeTk_cff")
+raise Exception("Please migrate to use Run2_2016_trackingLowPU era (or otherwise use trackingLowPU sub-era)")
 process.load("RecoTracker.CkfPattern.CkfTrackCandidates_cff")
 process.ckftracks          = cms.Sequence(process.iterTracking)
 process.trackingGlobalReco = cms.Sequence(process.ckftracks) 

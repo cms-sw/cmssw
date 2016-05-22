@@ -25,6 +25,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 

@@ -21,7 +21,7 @@ class DQMFileSaverPB : public DQMFileSaverBase {
   // fms will be nullptr in such case
   static boost::property_tree::ptree fillJson(
       int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
-      evf::FastMonitoringService *fms);
+      const std::string mergeTypeStr, evf::FastMonitoringService *fms);
 
  protected:
   virtual void initRun() const override;
@@ -31,6 +31,7 @@ class DQMFileSaverPB : public DQMFileSaverBase {
   bool fakeFilterUnitMode_;
   std::string streamLabel_;
   mutable std::string transferDestination_;
+  mutable std::string mergeType_;
 
  public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

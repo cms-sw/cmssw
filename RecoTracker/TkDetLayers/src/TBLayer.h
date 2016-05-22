@@ -32,7 +32,7 @@ class TBLayer: public BarrelDetLayer {
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const final __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
 
   // DetLayer interface

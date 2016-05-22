@@ -5,6 +5,8 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 ,l1GtRecordInputTag = cms.InputTag("gtDigis")
 ,l1GtReadoutRecordInputTag = cms.InputTag("gtDigis")
 ,l1GtTriggerMenuLiteInputTag = cms.InputTag("gtDigis")
+,l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis")
+,l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
 
 # ## L1
 # , addL1Algos                     = cms.bool( False )                                 # default; possibly superseded by 'onlyStandAlone' = True

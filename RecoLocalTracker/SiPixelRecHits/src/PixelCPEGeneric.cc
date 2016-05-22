@@ -17,8 +17,6 @@
 #include <iostream>
 using namespace std;
 
-#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
-
 namespace {
   constexpr float micronsToCm = 1.0e-4;
   const bool MYDEBUG = false;
@@ -27,7 +25,6 @@ namespace {
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
-#ifdef NEW_CPEERROR
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
 				 const MagneticField * mag,
                                  const TrackerGeometry& geom,
@@ -36,17 +33,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 				 const SiPixelGenErrorDBObject * genErrorDBObject, 
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
   : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, 0,lorentzAngleWidth,0) {
-#else
-PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
-				 const MagneticField * mag,
-                                 const TrackerGeometry& geom,
-				 const TrackerTopology& ttopo,
-				 const SiPixelLorentzAngle * lorentzAngle, 
-				 const SiPixelGenErrorDBObject * genErrorDBObject, 
-				 const SiPixelTemplateDBObject * templateDBobject,
-				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
-  : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth,0) {
-#endif
 
   if (theVerboseLevel > 0) 
     LogDebug("PixelCPEGeneric") 
@@ -95,8 +81,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   // Use errors from templates or from GenError
   if ( UseErrorsFromTemplates_ ) {
 
-#ifdef NEW_CPEERROR
-
       if ( LoadTemplatesFromDB_ )  {  // From DB
 	if ( !SiPixelGenError::pushfile( *genErrorDBObject_, thePixelGenError_) )
           throw cms::Exception("InvalidCalibrationLoaded") 
@@ -108,24 +92,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
           throw cms::Exception("InvalidCalibrationLoaded") 
             << "ERROR: GenErrors not loaded correctly from text file. Reconstruction will fail.";
       } // if load from DB
-
-#else 
-
-      if ( LoadTemplatesFromDB_ ) {
-	// Initialize template store to the selected ID [Morris, 6/25/08]  
-	if ( !SiPixelTemplate::pushfile( *templateDBobject_, thePixelTemp_) )
-	  throw cms::Exception("InvalidCalibrationLoaded") 
-	    << "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
-	    << ( *templateDBobject_ ).version();
-	if(MYDEBUG) cout<<"Loaded templateDBobject "<<( *templateDBobject_ ).version()<<endl;
-
-      } else {
-	if ( !SiPixelTemplate::pushfile( -999, thePixelTemp_ ) )
-	  throw cms::Exception("InvalidCalibrationLoaded") 
-	    << "ERROR: Templates not loaded correctly from text file. Reconstruction will fail.";
-      } // if load from DB
-
-#endif // NEW_CPEERROR
 
   }  else {
     if(MYDEBUG) cout<<" Use simple parametrised errors "<<endl;
@@ -230,8 +196,6 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       theClusterParam.dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
   
 
-#ifdef NEW_CPEERROR
-
       SiPixelGenError gtempl(thePixelGenError_);
       int gtemplID_ = theDetParam.detTemplateId;
 
@@ -253,24 +217,6 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 	if(MYDEBUG) cout<< " redefine la width (gen-error) "<< chargeWidthX<<" "<< chargeWidthY <<endl;
       }
       if(MYDEBUG) cout<<" GenError: "<<gtemplID_<<endl;
-      
-#else // select templates
-
-      SiPixelTemplate templ(thePixelTemp_);
-      int templID_ = theDetParam.detTemplateId;
-      
-      theClusterParam.qBin_ = templ.qbin( templID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
-					  theClusterParam.pixmx,                                       // returned by reference
-					  theClusterParam.sigmay, theClusterParam.deltay, theClusterParam.sigmax, theClusterParam.deltax,              // returned by reference
-					  theClusterParam.sy1, theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1, theClusterParam.dx1, theClusterParam.sx2, theClusterParam.dx2 );    // returned by reference
-      
-      //if(MYDEBUG) {
-      //cout<<" errors "<<templID_<<" "<<theClusterParam.qBin_<<" "<<theClusterParam.sigmax<<" "<<theClusterParam.sigmay<<endl;
-      //int templID0 = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId().rawId());
-      //if(templID0!=templID_) cout<<" different id"<< templID_<<" "<<templID0<<endl;
-      //}
-
-#endif // NEW_CPEERROR
 
       // These numbers come in microns from the qbin(...) call. Transform them to cm.
       theClusterParam.deltax = theClusterParam.deltax * micronsToCm;

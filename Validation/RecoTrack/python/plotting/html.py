@@ -91,11 +91,11 @@ _trackAlgoOrder = [
     'initialStepPreSplitting',
     'initialStep',
     'highPtTripletStep',
+    'detachedQuadStep',
+    'detachedTripletStep',
     'lowPtQuadStep',
     'lowPtTripletStep',
     'pixelPairStep',
-    'detachedQuadStep',
-    'detachedTripletStep',
     'mixedTripletStep',
     'pixelLessStep',
     'tobTecStep',
@@ -248,7 +248,10 @@ class Page(object):
         self._tables = {}
 
     def addPlotSet(self, section, plotSet):
-        self._plotSets[section] = plotSet
+        if section in self._plotSets:
+            self._plotSets[section].extend(plotSet)
+        else:
+            self._plotSets[section] = plotSet
 
     def addTable(self, section, table):
         self._tables[section] = table

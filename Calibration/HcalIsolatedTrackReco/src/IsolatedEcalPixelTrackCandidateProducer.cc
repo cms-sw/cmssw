@@ -74,7 +74,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
   trigCand->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
   int nCand=isoPixTrackRefs.size();  
 
-  reco::IsolatedPixelTrackCandidateCollection * iptcCollection=new reco::IsolatedPixelTrackCandidateCollection;
+  auto iptcCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "coneSize_ " << coneSizeEta0_ << "/"<< coneSizeEta1_ << " hitCountEthr_ " << hitCountEthr_ << " hitEthr_ " << hitEthr_;
 #endif
@@ -131,6 +131,5 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "ncand:" << nCand << " outcollction size:" << iptcCollection->size();
 #endif
-  std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> outCollection(iptcCollection);
-  iEvent.put(outCollection);
+  iEvent.put(std::move(iptcCollection));
 }

@@ -1,9 +1,12 @@
 #ifndef DDI_Orb_h
 #define DDI_Orb_h
 
-#include <iosfwd>
-#include "Solid.h"
 #include <DataFormats/GeometryVector/interface/Pi.h>
+#include <iosfwd>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "Solid.h"
 
 namespace DDI {
 

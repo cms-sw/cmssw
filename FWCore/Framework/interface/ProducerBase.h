@@ -35,7 +35,7 @@ namespace edm {
   public:
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     ProducerBase ();
-    virtual ~ProducerBase();
+    virtual ~ProducerBase() noexcept(false);
  
     /// used by the fwk to register list of products
     std::function<void(BranchDescription const&)> registrationCallback() const;

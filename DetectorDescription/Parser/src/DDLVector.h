@@ -1,17 +1,20 @@
 #ifndef DDL_Vector_H
 #define DDL_Vector_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
-#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Base/interface/DDReadMapType.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 
-#include <string>
-#include <vector>
-#include <map>
-
+class DDCompactView;
+class DDLElementRegistry;
 class VectorMakeDouble;
 class VectorMakeString;
 

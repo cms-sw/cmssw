@@ -16,6 +16,7 @@
   <SpecPar name="HGCalEEReco">
     <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="Slope"          value="0.0"/>
     <Parameter name="GroupingZFine"  value="1"/>
     <Parameter name="GroupingZFine"  value="1"/>
     <Parameter name="GroupingZFine"  value="-1"/>

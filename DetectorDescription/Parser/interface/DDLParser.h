@@ -1,26 +1,32 @@
 #ifndef DDL_Parser_H
 #define DDL_Parser_H
 
+#include <stddef.h>
+#include <xercesc/sax/SAXException.hpp>
+#include <xercesc/sax2/SAX2XMLReader.hpp>
+#include <xercesc/sax2/XMLReaderFactory.hpp>
+// Xerces C++ dependencies
+#include <xercesc/util/XercesDefs.hpp>
+#include <iosfwd>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
-
-// Xerces C++ dependencies
-#include <xercesc/util/XercesDefs.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
-#include <xercesc/sax2/SAX2XMLReader.hpp>
-#include <xercesc/sax2/XMLReaderFactory.hpp>
-#include <xercesc/sax/SAXException.hpp>
+#include "xercesc/util/XercesVersion.hpp"
 
-#include <string>
-#include <vector>
-#include <map>
-#include <iosfwd>
-
+class DDCompactView;
 class DDLDocumentProvider;
+class DDLSAX2ExpressionHandler;
+class DDLSAX2FileHandler;
+class DDLSAX2Handler;
 
 /// DDLParser is the main class of Detector Description Language Parser.
 /** @class DDLParser

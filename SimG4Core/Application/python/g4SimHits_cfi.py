@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from SimG4Core.Application.hectorParameter_cfi import *
 
+## HF Raddam Dose Class in /SimG4CMS/Calo
+from SimG4CMS.Calo.HFDarkeningParams_cff import *
+
 ## This object is used to customise g4SimHits for different running scenarios
 from Configuration.StandardSequences.Eras import eras
 
@@ -270,28 +273,29 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     HCalSD = cms.PSet(
         common_UseLuminosity,
-        UseBirkLaw          = cms.bool(True),
-        BirkC3              = cms.double(1.75),
-        BirkC2              = cms.double(0.142),
-        BirkC1              = cms.double(0.0052),
-        UseShowerLibrary    = cms.bool(True),
-        UseParametrize      = cms.bool(False),
-        UsePMTHits          = cms.bool(False),
-        UseFibreBundleHits  = cms.bool(False),
-        TestNumberingScheme = cms.bool(False),
-        EminHitHB           = cms.double(0.0),
-        EminHitHE           = cms.double(0.0),
-        EminHitHO           = cms.double(0.0),
-        EminHitHF           = cms.double(0.0),
-        BetaThreshold       = cms.double(0.7),
-        TimeSliceUnit       = cms.double(1),
-        IgnoreTrackID       = cms.bool(False),
-        HEDarkening         = cms.bool(False),
-        HFDarkening         = cms.bool(False),
-        UseHF               = cms.untracked.bool(True),
-        ForTBH2             = cms.untracked.bool(False),
-        UseLayerWt          = cms.untracked.bool(False),
-        WtFile              = cms.untracked.string('None')
+        UseBirkLaw                = cms.bool(True),
+        BirkC3                    = cms.double(1.75),
+        BirkC2                    = cms.double(0.142),
+        BirkC1                    = cms.double(0.0052),
+        UseShowerLibrary          = cms.bool(True),
+        UseParametrize            = cms.bool(False),
+        UsePMTHits                = cms.bool(False),
+        UseFibreBundleHits        = cms.bool(False),
+        TestNumberingScheme       = cms.bool(False),
+        EminHitHB                 = cms.double(0.0),
+        EminHitHE                 = cms.double(0.0),
+        EminHitHO                 = cms.double(0.0),
+        EminHitHF                 = cms.double(0.0),
+        BetaThreshold             = cms.double(0.7),
+        TimeSliceUnit             = cms.double(1),
+        IgnoreTrackID             = cms.bool(False),
+        HEDarkening               = cms.bool(False),
+        HFDarkening               = cms.bool(False),
+        UseHF                     = cms.untracked.bool(True),
+        ForTBH2                   = cms.untracked.bool(False),
+        UseLayerWt                = cms.untracked.bool(False),
+        WtFile                    = cms.untracked.string('None'),
+        HFDarkeningParameterBlock = HFDarkeningParameterBlock
     ),
     CaloTrkProcessing = cms.PSet(
         TestBeam   = cms.bool(False),

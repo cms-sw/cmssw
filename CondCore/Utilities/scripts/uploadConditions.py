@@ -38,6 +38,7 @@ import logging
 import cStringIO
 
 import pycurl
+import socket
 import copy
 
 def getInput(default, prompt = ''):
@@ -432,6 +433,8 @@ class ConditionsUploader(object):
         ''' init the server.
         '''
         self.http = HTTP()
+        if socket.getfqdn().strip().endswith('.cms'):
+            self.http.setProxy('https://cmsproxy.cms:3128/')
         self.http.setBaseUrl(self.urlTemplate % self.hostname)
         '''Signs in the server.
         '''
@@ -630,6 +633,29 @@ def uploadAllFiles(options, arguments):
             errMsg = 'Impossible to open SQLite data file %s' %dataFilename
             logging.error( errMsg )
             ret['status'] = -3
+            ret['error'] = errMsg
+            return ret
+
+        # Check the data file
+        empty = True
+        try:
+            dbcon = sqlite3.connect( dataFilename )
+            dbcur = dbcon.cursor()
+            dbcur.execute('SELECT * FROM IOV')
+            rows = dbcur.fetchall()
+            for r in rows:
+                empty = False
+            dbcon.close()
+            if empty:
+                errMsg = 'The input SQLite data file %s contains no data.' %dataFilename
+                logging.error( errMsg )
+                ret['status'] = -4
+                ret['error'] = errMsg
+                return ret
+        except Exception as e:
+            errMsg = 'Check on input SQLite data file %s failed: %s' %(dataFilename,str(e))
+            logging.error( errMsg )
+            ret['status'] = -5
             ret['error'] = errMsg
             return ret
 

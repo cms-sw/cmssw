@@ -50,7 +50,7 @@ public:
         rekeyClusterRefs_(false) {}
 
   /// Destructor
-  virtual ~TrackProducerBase();
+  virtual ~TrackProducerBase() noexcept(false);
   
   /// Get needed services from the Event Setup
   virtual void getFromES(const edm::EventSetup&,

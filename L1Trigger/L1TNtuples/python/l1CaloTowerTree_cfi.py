@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
+
 l1CaloTowerTree = cms.EDAnalyzer(
     "L1CaloTowerTreeProducer",
     ecalToken = cms.untracked.InputTag("ecalDigis:EcalTriggerPrimitives"),

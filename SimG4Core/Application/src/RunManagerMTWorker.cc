@@ -82,7 +82,7 @@ namespace {
     vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
 
     if(!watchers.empty() && thisThreadID > 0) {
-      throw cms::Exception("Unsupported") << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
+      throw edm::Exception(edm::errors::Configuration) << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
     }
 
     for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
@@ -91,8 +91,9 @@ namespace {
       std::unique_ptr<SimWatcherMakerBase> maker(
         SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type"))
       );
-      if(maker.get()==0) {
-        throw SimG4Exception("Unable to find the requested Watcher");
+      if(maker.get()==nullptr) {
+        throw edm::Exception(edm::errors::Configuration)
+	  << "Unable to find the requested Watcher";
       }
 
       std::shared_ptr<SimWatcher> watcherTemp;
@@ -165,7 +166,7 @@ void RunManagerMTWorker::initializeTLS() {
   if(otherRegistry){
     m_tls->registry.connect(*otherRegistry);
     if(thisID > 0) {
-      throw cms::Exception("Unsupported") << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated.";
+      throw edm::Exception(edm::errors::Configuration) << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated.";
     }
   }
 
@@ -195,7 +196,9 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
     m_tls->UIsession.reset(new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile"), thisID));
   }
   else {
-    throw cms::Exception("Configuration") << "Invalid value of CustomUIsession.Type '" << uitype << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
+    throw edm::Exception(edm::errors::Configuration) 
+      << "Invalid value of CustomUIsession.Type '" << uitype 
+      << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
   }
 
   // Initialize worker part of shared resources (geometry, physics)
@@ -419,16 +422,18 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
 			       genVertex->t()/second));
   }
   if (m_tls->currentEvent->GetNumberOfPrimaryVertex()==0) {
-    edm::LogError("SimG4CoreApplication") 
-      << " RunManagerMT::produce: event " << inpevt.id().event()
-      << " with no G4PrimaryVertices \n  Aborting Run" ;
-       
-    abortRun(false);
+    std::stringstream ss;
+    ss << " RunManagerMT::produce(): event " << inpevt.id().event()
+       << " with no G4PrimaryVertices \n" ;
+    throw SimG4Exception(ss.str());
+
   } else {
     if(!m_tls->kernel) {
       std::stringstream ss;
-      ss << "No G4WorkerRunManagerKernel yet for thread index" 
-	 << getThreadIndex() << ", id " << std::hex << std::this_thread::get_id();
+      ss << " RunManagerMT::produce(): "
+	 << " no G4WorkerRunManagerKernel yet for thread index" 
+	 << getThreadIndex() << ", id " << std::hex 
+	 << std::this_thread::get_id() << " \n";
       throw SimG4Exception(ss.str());
     }
     m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());

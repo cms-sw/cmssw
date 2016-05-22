@@ -67,6 +67,9 @@ bool HcalZSAlgoEnergy::shouldKeep(const HFDataFrame& digi) const {
 bool HcalZSAlgoEnergy::shouldKeep(const QIE10DataFrame& digi) const {
   return ZSEnergy_impl::keepMe<QIE10DataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
 }
+bool HcalZSAlgoEnergy::shouldKeep(const QIE11DataFrame& digi) const {
+  return ZSEnergy_impl::keepMe<QIE11DataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
+}
 bool HcalZSAlgoEnergy::shouldKeep(const HcalUpgradeDataFrame& digi) const {
   return ZSEnergy_impl::keepMe<HcalUpgradeDataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
 }

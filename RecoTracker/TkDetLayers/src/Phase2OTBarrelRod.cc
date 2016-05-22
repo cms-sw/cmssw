@@ -52,6 +52,7 @@ Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
 
 
  
+#ifdef EDM_ML_DEBUG
   LogDebug("TkDetLayers") << "==== DEBUG Phase2OTBarrelRod =====" ; 
   for (vector<const GeomDet*>::const_iterator i=theInnerDets.begin();
        i != theInnerDets.end(); i++){
@@ -89,7 +90,7 @@ Phase2OTBarrelRod::Phase2OTBarrelRod(vector<const GeomDet*>& innerDets,
 			    << (**i).position().phi() ;
   }
   LogDebug("TkDetLayers") << "==== end DEBUG Phase2OTBarrelRod =====" ; 
-  
+#endif  
 
 
 }
@@ -175,7 +176,7 @@ Phase2OTBarrelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   sort(result.begin(),result.end(),DetGroupElementPerpLess());
   for (auto&  grp : result) {
     if ( grp.empty() )  continue;
-    LogTrace("TkDetLayers") <<"New group in Phase2OTBarrelLayer made by : ";
+    LogTrace("TkDetLayers") <<"New group in Phase2OTBarrelRod made by : ";
     for (auto const & det : grp) {
       LogTrace("TkDetLayers") <<" geom det at r: " << det.det()->position().perp() <<" id:" << det.det()->geographicalId().rawId()
                               <<" tsos at:" << det.trajectoryState().globalPosition();

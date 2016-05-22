@@ -200,6 +200,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
       //lastrecostate = ThisshProp->propagateWithPath(startrecostate, *plane);
       //ThisshProp->propagate(startrecostate, *plane,lastrecostate);
       lastrecostate = ThisshProp->propagate(initrecostate,*plane);
+      if (!lastrecostate.isValid()) continue;
 	
       FreeTrajectoryState finalrecostate(*lastrecostate.freeTrajectoryState());
       //lastrecostate.getFreeState(finalrecostate);

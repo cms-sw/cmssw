@@ -44,6 +44,7 @@ so fixed them to return a reference to the object.
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <atomic>
 
 // Help out windows:
 #if defined( _DEBUG ) && !defined( DEBUG )
@@ -413,8 +414,8 @@ private:
 		MAX_ENTITY_LENGTH = 6
 
 	};
-	static Entity entity[ NUM_ENTITY ];
-	static bool condenseWhiteSpace;
+	static const Entity entity[ NUM_ENTITY ];
+	static std::atomic<bool> condenseWhiteSpace;
 };
 
 

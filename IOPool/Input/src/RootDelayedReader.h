@@ -16,6 +16,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include <map>
 #include <memory>
 #include <string>
+#include <exception>
 
 class TClass;
 namespace edm {
@@ -65,7 +66,7 @@ namespace edm {
     //If a fatal exception happens we need to make a copy so we can
     // rethrow that exception on other threads. This avoids TTree
     // non-exception safety problems on later calls to TTree.
-    mutable std::unique_ptr<Exception> lastException_;
+    mutable std::exception_ptr lastException_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
 }

@@ -18,6 +18,20 @@ l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (const std::string& fname, con
   }
 }
 
+l1t::MicroGMTRankPtQualLUT::MicroGMTRankPtQualLUT (l1t::LUT* lut) : MicroGMTLUT(lut), m_ptMask(0), m_qualMask(0), m_ptInWidth(9), m_qualInWidth(4), m_ptFactor(0), m_qualFactor(0)
+{
+  m_totalInWidth = m_ptInWidth + m_qualInWidth;
+  m_outWidth = 10;
+
+  m_ptMask = (1 << m_ptInWidth) - 1;
+  m_qualMask = ((1 << m_qualInWidth) - 1) << m_ptInWidth;
+
+  m_inputs.push_back(MicroGMTConfiguration::QUALITY);
+  m_inputs.push_back(MicroGMTConfiguration::PT);
+
+  m_initialized = true;
+}
+
 int 
 l1t::MicroGMTRankPtQualLUT::lookup(int pt, int qual) const 
 {

@@ -1,6 +1,8 @@
 #ifndef DDI_Polyhedra_h
 #define DDI_Polyhedra_h
 
+#include <vector>
+
 #include "Solid.h"
 
 namespace DDI {

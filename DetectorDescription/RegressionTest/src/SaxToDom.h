@@ -2,15 +2,18 @@
 #define x_SaxToDom_h
 
 #include <xercesc/util/XercesDefs.hpp>
-#include "xercesc/sax2/DefaultHandler.hpp"
+#include <map>
+#include <string>
+#include <vector>
+
 #include "DetectorDescription/Core/interface/adjgraph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
-
 #include "DetectorDescription/RegressionTest/src/TinyDom.h"
-
-#include <string>
-#include <map>
-#include <vector>
+#include "xercesc/sax/SAXParseException.hpp"
+#include "xercesc/sax2/Attributes.hpp"
+#include "xercesc/sax2/DefaultHandler.hpp"
+#include "xercesc/util/Compilers/GCCDefs.hpp"
+#include "xercesc/util/XercesVersion.hpp"
 
 class SaxToDom : public XERCES_CPP_NAMESPACE::DefaultHandler
 {

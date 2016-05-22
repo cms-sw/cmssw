@@ -124,7 +124,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
   MuonTransientTrackingRecHitBuilder muonTransBuilder;
 
   // Create a collection of Trajectories, to put in the Event
-  std::auto_ptr<std::vector<Trajectory> > trajectoryCollection(new std::vector<Trajectory>);
+  auto trajectoryCollection = std::make_unique<std::vector<Trajectory>>();
 
   // Remember which trajectory is associated with which track
   std::map<edm::Ref<std::vector<Trajectory> >::key_type, edm::Ref<reco::TrackCollection>::key_type> reference_map;
@@ -190,10 +190,10 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
   unsigned int numTrajectories = trajectoryCollection->size();
 
   // insert the trajectories into the Event
-  edm::OrphanHandle<std::vector<Trajectory> > ohTrajs = iEvent.put(trajectoryCollection);
+  edm::OrphanHandle<std::vector<Trajectory> > ohTrajs = iEvent.put(std::move(trajectoryCollection));
 
   // create the trajectory <-> track association map
-  std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection());
+  auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
 
   for (trajCounter = 0;  trajCounter < numTrajectories;  trajCounter++) {
     edm::Ref<reco::TrackCollection>::key_type trackCounter = reference_map[trajCounter];
@@ -201,7 +201,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
     trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(ohTrajs, trajCounter), edm::Ref<reco::TrackCollection>(tracks, trackCounter));
   }
   // and put it in the Event, also
-  iEvent.put(trajTrackMap);
+  iEvent.put(std::move(trajTrackMap));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

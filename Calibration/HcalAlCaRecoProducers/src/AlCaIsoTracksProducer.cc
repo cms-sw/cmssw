@@ -90,7 +90,7 @@ public:
   ~AlCaIsoTracksProducer();
   
   static std::unique_ptr<AlCaIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
-    return std::unique_ptr<AlCaIsoTracks::Counters>(new AlCaIsoTracks::Counters());
+    return std::make_unique<AlCaIsoTracks::Counters>();
   }
 
   virtual void produce(edm::Event &, edm::EventSetup const&) override;
@@ -317,11 +317,11 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
     valid = false;
   }
 
-  std::auto_ptr<reco::HcalIsolatedTrackCandidateCollection> outputHcalIsoTrackColl(new reco::HcalIsolatedTrackCandidateCollection);
-  std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
-  std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
-  std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
-  std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
+  auto outputHcalIsoTrackColl = std::make_unique<reco::HcalIsolatedTrackCandidateCollection>();
+  auto outputVColl = std::make_unique<reco::VertexCollection>();
+  auto outputEBColl = std::make_unique<EBRecHitCollection>();
+  auto outputEEColl = std::make_unique<EERecHitCollection>();
+  auto outputHBHEColl = std::make_unique<HBHERecHitCollection>();
 
   //For valid HLT record
   if (!valid) {
@@ -356,11 +356,11 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
       }
     }
   }
-  iEvent.put(outputHcalIsoTrackColl, labelIsoTk_);
-  iEvent.put(outputVColl,            labelRecVtx_.label());
-  iEvent.put(outputEBColl,           labelEB_.instance());
-  iEvent.put(outputEEColl,           labelEE_.instance());
-  iEvent.put(outputHBHEColl,         labelHBHE_.label());
+  iEvent.put(std::move(outputHcalIsoTrackColl), labelIsoTk_);
+  iEvent.put(std::move(outputVColl),            labelRecVtx_.label());
+  iEvent.put(std::move(outputEBColl),           labelEB_.instance());
+  iEvent.put(std::move(outputEEColl),           labelEE_.instance());
+  iEvent.put(std::move(outputHBHEColl),         labelHBHE_.label());
 }
 
 void AlCaIsoTracksProducer::endStream() {

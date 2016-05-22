@@ -6,11 +6,18 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 
-#include <algorithm>
+#include <ext/alloc_traits.h>
 #include <iostream>
-#include <sstream>
+#include <memory>
+#include <utility>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 DDXMLElement::DDXMLElement( DDLElementRegistry* myreg )
   : myRegistry_( myreg ),

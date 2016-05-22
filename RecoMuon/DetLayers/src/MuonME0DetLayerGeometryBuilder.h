@@ -34,7 +34,7 @@ class MuonME0DetLayerGeometryBuilder {
  private:
   //static MuRingForwardDoubleLayer* buildLayer(int endcap,int layer,std::vector<int>& chambers,std::vector<int>& rolls,const ME0Geometry& geo);          
   //static MuRingForwardLayer* buildLayer(int endcap,int layer,std::vector<int>& chambers,std::vector<int>& rolls,const ME0Geometry& geo);          
-  static MuRingForwardLayer* buildLayer(int endcap,std::vector<int>& chambers,std::vector<int>& rolls,const ME0Geometry& geo);          
+  static MuRingForwardLayer* buildLayer(int endcap, int layer, std::vector<int>& chambers,std::vector<int>& rolls,const ME0Geometry& geo);          
   static bool isFront(const ME0DetId & me0Id);
   static MuDetRing * makeDetRing(std::vector<const GeomDet*> & geomDets);
   

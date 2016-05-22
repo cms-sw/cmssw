@@ -70,7 +70,7 @@ CmsShowMainBase::CmsShowMainBase()
    sendVersionInfo();
 }
 
-CmsShowMainBase::~CmsShowMainBase()
+CmsShowMainBase::~CmsShowMainBase() noexcept(false)
 {
 }
 

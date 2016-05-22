@@ -207,7 +207,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   const EBRecHitCollection HitecalEB = *(ecalEB.product());
   
   // temporary collection of EB+EE recHits
-  std::auto_ptr<EcalRecHitCollection> tmpEcalRecHitCollection(new EcalRecHitCollection);
+  auto tmpEcalRecHitCollection = std::make_unique<EcalRecHitCollection>();
   for(EcalRecHitCollection::const_iterator recHit = (*ecalEB).begin(); recHit != (*ecalEB).end(); ++recHit)
     {tmpEcalRecHitCollection->push_back(*recHit);}
   for(EcalRecHitCollection::const_iterator recHit = (*ecalEE).begin(); recHit != (*ecalEE).end(); ++recHit)

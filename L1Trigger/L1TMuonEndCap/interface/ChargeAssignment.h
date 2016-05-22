@@ -6,8 +6,10 @@
 
 int getCharge(int phi1, int phi2, int phi3, int phi4, int mode){
 
-	int emuCharge = 0;//-1 = postive physical charge to match pdgId code(i.e. -13 is positive, anti-muon). 1 = negative physical charge
-	int phidiffs[6] = {phi2 - phi1, phi3 - phi1, phi4 - phi1, phi3 - phi2, phi4 - phi4, phi4 - phi3};
+        // -1 = postive physical charge to match pdgId code (i.e. -13 is positive, anti-muon). +1 = negative physical charge.
+        // Also matches DN-2015/017 format for track finder --> uGMT interface format, where 0 indicates positive, 1 negative.
+	int emuCharge = 0;
+	int phidiffs[6] = {phi2 - phi1, phi3 - phi1, phi4 - phi1, phi3 - phi2, phi4 - phi2, phi4 - phi3};
 
 	if(mode == 15 ){
 		 if(phidiffs[0] > 0)

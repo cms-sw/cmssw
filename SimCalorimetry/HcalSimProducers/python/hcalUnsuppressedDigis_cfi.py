@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
-from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 # make a block so other modules, such as the data mixing module, can
 # also run simulation
@@ -27,10 +26,8 @@ hcalSimBlock = cms.PSet(
     useOldHE = cms.bool(True),
     useOldHF = cms.bool(True),
     useOldHO = cms.bool(True),
-    HBHEUpgradeQIE = cms.bool(True),
+    HBHEUpgradeQIE = cms.bool(False),
     HFUpgradeQIE   = cms.bool(False),
-    HFQIE8         = cms.bool(True),
-    HFQIE10        = cms.bool(False),
     #HPDNoiseLibrary = cms.PSet(
     #   FileName = cms.FileInPath("SimCalorimetry/HcalSimAlgos/data/hpdNoiseLibrary.root"),
     #   HPDName = cms.untracked.string("HPD")
@@ -41,8 +38,8 @@ hcalSimBlock = cms.PSet(
     injectTestHits = cms.bool(False),
     ChangeResponse = cms.bool(False),
     CorrFactorFile = cms.FileInPath("SimCalorimetry/HcalSimProducers/data/calor_corr01.txt"),
-    HcalReLabel = HcalReLabel,
     DelivLuminosity = cms.double(0),
+    TestNumbering = cms.bool(False),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
     minFCToDelay=cms.double(5.) # old TC model! set to 5 for the new one
@@ -50,29 +47,3 @@ hcalSimBlock = cms.PSet(
 
 from Configuration.StandardSequences.Eras import eras
 eras.fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
-eras.run2_HF_2016.toModify( hcalSimBlock, HFQIE8=cms.bool(True), HFQIE10=cms.bool(True) )
-    
-#from CondCore.CondDB.CondDB_cfi import *
-#CondDB_cholesky = CondDB.clone( connect = cms.string('sqlite_file:CondFormats/HcalObjects/data/cholesky_sql.db') )
-#es_cholesky = cms.ESSource("PoolDBESSource",
-#    CondDB_cholesky,
-#    timetype = cms.string('runnumber'),
-#    toGet = cms.VPSet(
-#        cms.PSet(
-#            record = cms.string("HcalCholeskyMatricesRcd"),
-#            tag = cms.string("TestCholesky")
-#        )),
-#    appendToDataLabel = cms.string('reference'),
-#    authenticationMethod = cms.untracked.uint32(0),
-#)
-
-
-#es_cholesky = cms.ESSource('HcalTextCalibrations',
-#    input = cms.VPSet(
-#        cms.PSet(
-#            object = cms.string('CholeskyMatrices'),
-#            file = cms.FileInPath("CondFormats/HcalObjects/data/CholeskyMatrices.txt")
-#        ),
-#    ),
-#    appendToDataLabel = cms.string('reference')
-#)

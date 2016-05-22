@@ -1,12 +1,15 @@
 #ifndef DDL_Cone_H
 #define DDL_Cone_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLCone processes all Cone elements.
 /** @class DDLCone
