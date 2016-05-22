@@ -25,59 +25,59 @@ namespace l1t {
       
       virtual ~EventTrailer() {};
       
-      void set_crc22(int bits)          {  crc22 = bits; };
-      void set_lp(int bits)             {  lp = bits; };
-      void set_hp(int bits)             {  hp = bits; };
-      void set_ddcsr_bid(int bits)      {  ddcsr_bid = bits; };
-      void set_ddcsr_lf(int bits)       {  ddcsr_lf = bits; };
-      void set_spcsr_scc(int bits)      {  spcsr_scc = bits; };
-      void set_l1a(int bits)            {  l1a = bits; };
-      void set_yy(int bits)             {  yy = bits; };
-      void set_mm(int bits)             {  mm = bits; };
-      void set_dd(int bits)             {  dd = bits; };
-      void set_sp_ladr(int bits)        {  sp_ladr = bits; };
-      void set_sp_ersv(int bits)        {  sp_ersv = bits; };
-      void set_sp_padr(int bits)        {  sp_padr = bits; };
-      void set_lfff(int bits)           {  lfff = bits; };
-      void set_bb(int bits)             {  bb = bits; };
-      void add_format_error()           { format_errors += 1; };
-      void set_dataword(uint64_t bits)  { dataword = bits;  };
+      void set_crc22(int bits)         { crc22 = bits;       }
+      void set_lp(int bits)            { lp = bits;          }
+      void set_hp(int bits)            { hp = bits;          }
+      void set_ddcsr_bid(int bits)     { ddcsr_bid = bits;   }
+      void set_ddcsr_lf(int bits)      { ddcsr_lf = bits;    }
+      void set_spcsr_scc(int bits)     { spcsr_scc = bits;   }
+      void set_l1a(int bits)           { l1a = bits;         }
+      void set_yy(int bits)            { yy = bits;          }
+      void set_mm(int bits)            { mm = bits;          }
+      void set_dd(int bits)            { dd = bits;          }
+      void set_sp_ladr(int bits)       { sp_ladr = bits;     }
+      void set_sp_ersv(int bits)       { sp_ersv = bits;     }
+      void set_sp_padr(int bits)       { sp_padr = bits;     }
+      void set_lfff(int bits)          { lfff = bits;        }
+      void set_bb(int bits)            { bb = bits;          }
+      void add_format_error()          { format_errors += 1; }
+      void set_dataword(uint64_t bits) { dataword = bits;    }
 
-      const int CRC22()          const { return  crc22 ; };
-      const int LP()             const { return  lp ; };
-      const int HP()             const { return  hp ; };
-      const int DDCRC_bid()      const { return  ddcsr_bid ; };
-      const int DDCRC_lf()       const { return  ddcsr_lf ; };
-      const int SPCSR_scc()      const { return  spcsr_scc ; };
-      const int L1a()            const { return  l1a ; };
-      const int YY()             const { return  yy ; };
-      const int MM()             const { return  mm ; };
-      const int DD()             const { return  dd ; };
-      const int SP_ladr()        const { return  sp_ladr ; };
-      const int SP_ersv()        const { return  sp_ersv ; };
-      const int SP_padr()        const { return  sp_padr ; };
-      const int LFFF()           const { return  lfff ; };
-      const int BB()             const { return  bb ; };
-      const int Format_Errors()  const { return format_errors; };
-      const uint64_t Dataword()  const { return dataword;  };      
+      int      CRC22()         const { return crc22;         }
+      int      LP()            const { return lp;            }
+      int      HP()            const { return hp;            }
+      int      DDCRC_bid()     const { return ddcsr_bid;     }
+      int      DDCRC_lf()      const { return ddcsr_lf;      }
+      int      SPCSR_scc()     const { return spcsr_scc;     }
+      int      L1a()           const { return l1a;           }
+      int      YY()            const { return yy;            }
+      int      MM()            const { return mm;            }
+      int      DD()            const { return dd;            }
+      int      SP_ladr()       const { return sp_ladr;       }
+      int      SP_ersv()       const { return sp_ersv;       }
+      int      SP_padr()       const { return sp_padr;       }
+      int      LFFF()          const { return lfff;          }
+      int      BB()            const { return bb;            }
+      int      Format_Errors() const { return format_errors; }
+      uint64_t Dataword()      const { return dataword;      }      
       
     private:
-      int  crc22;
-      int  lp;
-      int  hp;
-      int  ddcsr_bid;
-      int  ddcsr_lf;
-      int  spcsr_scc;
-      int  l1a; 
-      int  yy;
-      int  mm;
-      int  dd;
-      int  sp_ladr;
-      int  sp_ersv;
-      int  sp_padr;
-      int  lfff;
-      int  bb;
-      int  format_errors;
+      int crc22;
+      int lp;
+      int hp;
+      int ddcsr_bid;
+      int ddcsr_lf;
+      int spcsr_scc;
+      int l1a; 
+      int yy;
+      int mm;
+      int dd;
+      int sp_ladr;
+      int sp_ersv;
+      int sp_padr;
+      int lfff;
+      int bb;
+      int format_errors;
       uint64_t dataword;
       
     }; // End of class EventTrailer

@@ -193,7 +193,8 @@ namespace l1t {
                   (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8,
                   header.lvl1ID(),
                   header.bxID(),
-                  legacy_mc)) {
+                  legacy_mc,
+		  mtf7_mode_)) {
             LogError("L1T")
                << "Could not extract AMC13 Packet.";
             return;

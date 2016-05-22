@@ -132,106 +132,10 @@ void OMTFSorter::sortRefHitResults(const std::vector<OMTFProcessor::resultsMap> 
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-// AlgoMuon OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMap> & procResults,
-// 					     int charge){ //method kept for backward compatibility
-
-//   std::vector<AlgoMuon> sortedCandidates;
-//   sortProcessorResults(procResults, sortedCandidates, charge);
-
-//   AlgoMuon candidate = sortedCandidates.size()>0 ? sortedCandidates[0] : AlgoMuon(0,999,9999,0,0,0,0,-1);
-
-//   std::ostringstream myStr;
-//   myStr<<"Selected Candidate with charge: "<<charge<<" "<<candidate<<std::endl;
-//   edm::LogInfo("OMTF Sorter")<<myStr.str();
-
-//   return candidate;
-
-// }
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-// void OMTFSorter::sortProcessorResults(const std::vector<OMTFProcessor::resultsMap> & procResults,
-//               std::vector<AlgoMuon> & refHitCleanCands,
-//               int charge){
-
-//   refHitCleanCands.clear();
-//   std::vector<AlgoMuon> refHitCands;
-
-//   for(auto itRefHit: procResults) refHitCands.push_back(sortRefHitResults(itRefHit,charge));
-
-//   // Sort candidates with decreased goodness,
-//   // where goodness definied in < operator of AlgoMuon
-//   std::sort( refHitCands.begin(), refHitCands.end() );
-
-//   // Clean candidate list by removing dupicates basing on Phi distance.
-//   // Assumed that the list is ordered
-//   for(std::vector<AlgoMuon>::iterator it1 = refHitCands.begin();
-//       it1 != refHitCands.end(); ++it1){
-//     bool isGhost=false;
-//     for(std::vector<AlgoMuon>::iterator it2 = refHitCleanCands.begin();
-//   it2 != refHitCleanCands.end(); ++it2){
-//       //do not accept candidates with similar phi (any charge combination)
-//       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
-//       if(std::abs(it1->phi - it2->phi)<5/360.0*OMTFConfiguration::instance()->nPhiBins){
-//   isGhost=true;
-//   break;
-//       }
-//     }
-//     if(it1->q>0 && !isGhost) refHitCleanCands.push_back(*it1);
-//   }
-//   //return 3 candidates (adding empty ones if needed)
-//   refHitCleanCands.resize( 3, AlgoMuon(0,999,9999,0,0,0,0,0) );
-
-//   std::ostringstream myStr;
-//   bool hasCandidates = false;
-//   for(unsigned int iRefHit=0;iRefHit<refHitCands.size();++iRefHit){
-//     if(refHitCands[iRefHit].q){
-//       hasCandidates=true;
-//       break;
-//     }
-//   }
-//   for(unsigned int iRefHit=0;iRefHit<refHitCands.size();++iRefHit){
-//     if(refHitCands[iRefHit].q) myStr<<"Ref hit: "<<iRefHit<<" "<<refHitCands[iRefHit]<<std::endl;
-//   }
-//   myStr<<"Selected Candidates with charge: "<<charge<<std::endl;
-//   for(unsigned int iCand=0; iCand<refHitCleanCands.size(); ++iCand){
-//     myStr<<"Cand: "<<iCand<<" "<<refHitCleanCands[iCand]<<std::endl;
-//   }
-
-//   if(hasCandidates) edm::LogInfo("OMTF Sorter")<<myStr.str();
-
-//   return;
-// }
-
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-// l1t::RegionalMuonCand OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & procResults,
-// 							int charge){ //method kept for backward compatibility
-
-//   AlgoMuon myCand = sortProcessorResults(procResults, charge);
-
-//   l1t::RegionalMuonCand candidate;
-//   std::bitset<17> bits(myCand.getHits());
-//   int ipt = myCand.getPt()+1;
-//   if(ipt>31) ipt=31;
-//   candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0);//MicroGMT has 0.5 GeV pt bins
-//   candidate.setHwEta(myCand.getEta());//eta scale set during input making in OMTFInputmaker
-//   candidate.setHwPhi(myCand.getPhi());
-//   candidate.setHwSign(myCand.getCharge()+1*(myCand.getCharge()<0));
-//   candidate.setHwQual(bits.count());
-//   std::map<int, int> trackAddr;
-//   trackAddr[0] = myCand.getHits();
-//   trackAddr[1] = myCand.getRefLayer();
-//   trackAddr[2] = myCand.getDisc();
-//   candidate.setTrackAddress(trackAddr);
-  
-//   return candidate;
-// }
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
 bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 
   ///FIXME: read the list from configuration so this can be controlled at runtime.
-  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880};
+  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880, 896};
 
   for(auto aHitPattern: badPatterns){
     if(hits==aHitPattern) return false;
@@ -253,22 +157,14 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     candidate.setHwEta(myCand.getEta());
 
     float phiValue = myCand.getPhi();
-    if(phiValue>=(int)OMTFConfiguration::instance()->nPhiBins) phiValue-=OMTFConfiguration::instance()->nPhiBins;
+    if(phiValue>=nPhiBins) phiValue-=nPhiBins;
     ///conversion factor from OMTF to uGMT scale: 5400/576
     phiValue/=9.375;
     candidate.setHwPhi(phiValue);
     
     candidate.setHwSign(myCand.getCharge()<0 ? 1:0  );
-    //FIXME: Obsolete 
-    ///Quality is set to number of leayers hit.
-    ///DT bending and position hit is counted as one.
-    ///thus we subtract 1 for each DT station hit.
-    //candidate.setHwQual(bits.count() - bits.test(0) - bits.test(2) - bits.test(4));
-    ///Candidates with bad hit patterns get quality 0.
-    //if(!checkHitPatternValidity(myCand.getHits())) candidate.setHwQual(0);
-
-    /// Now quality based on hit pattern  
-    /// 
+    candidate.setHwSignValid(1);
+ 
     unsigned int quality = checkHitPatternValidity(myCand.getHits()) ? 0 | (1 << 2) | (1 << 3) 
                                                                      : 0 | (1 << 2);
     candidate.setHwQual ( quality);
@@ -282,3 +178,5 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     if(candidate.hwPt()) sortedCands.push_back(bx, candidate);
   }
 }
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////

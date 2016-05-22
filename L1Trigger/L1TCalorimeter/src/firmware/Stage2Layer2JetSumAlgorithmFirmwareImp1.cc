@@ -46,24 +46,31 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
 	
         // find the jet at this (eta,phi)
-	l1t::Jet thisJet;
-	bool foundJet = false;
-	for (unsigned jetIt=0; jetIt<alljets.size(); jetIt++) {
-	  if (CaloTools::mpEta(alljets.at(jetIt).hwEta())==ieta && alljets.at(jetIt).hwPhi()==iphi) {
-	    thisJet = alljets.at(jetIt);
-	    foundJet = true;
-	  }
-	}
-	if (!foundJet) continue;
+		l1t::Jet thisJet;
+		bool foundJet = false;
+		for (unsigned jetIt=0; jetIt<alljets.size(); jetIt++) {
+		  if (CaloTools::mpEta(alljets.at(jetIt).hwEta())==ieta && alljets.at(jetIt).hwPhi()==iphi) {
+			thisJet = alljets.at(jetIt);
+			foundJet = true;
+		  }
+		}
+		if (!foundJet) continue;
 	
-	if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=mhtEtaMax_) {
-	  ringHx += (int32_t) ( thisJet.hwPt() * std::trunc ( 1023. * cos ( 2 * M_PI * (72 - (iphi-1)) / 72.0 ) ));
-	  ringHy += (int32_t) ( thisJet.hwPt() * std::trunc ( 1023. * sin ( 2 * M_PI * (iphi-1) / 72.0 ) ));
-	}
+		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=mhtEtaMax_) {
+
+		  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
+		  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
+		  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
+		  // The 4 below account for part of that and the rest is accounted for at ouput of demux
+		  // (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
+		  ringHx += (int32_t) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
+		  ringHy += (int32_t) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
+		  	  
+		}
 	
-	if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=httEtaMax_) {
-	  ringHt += thisJet.hwPt();
-	}
+		if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=httEtaMax_) {
+		  ringHt += thisJet.hwPt();
+		}
       }
 
       hx += ringHx;
@@ -71,9 +78,6 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       ht += ringHt;
       
     }
-
-    hx >>= 10;
-    hy >>= 10;
 
     math::XYZTLorentzVector p4;
     

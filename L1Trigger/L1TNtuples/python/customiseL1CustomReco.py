@@ -12,39 +12,19 @@ def L1NtupleCustomReco(process):
 ####  Custom Jet reco ####
 
     # load JEC from SQLite file
-    process.load("CondCore.DBCommon.CondDBCommon_cfi")
+    process.load("CondCore.CondDB.CondDB_cfi")
 
-    ## process.jec = cms.ESSource(
-    ##     "PoolDBESSource",
-    ##     DBParameters = cms.PSet(
-    ##         messageLevel = cms.untracked.int32(0)
-    ##         ),
-    ##     timetype = cms.string('runnumber'),
-    ##     toGet = cms.VPSet(
-    ##         cms.PSet(
-    ##             record = cms.string('JetCorrectionsRecord'),
-    ##             tag    = cms.string('JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK4PFchs'),
-    ##             label  = cms.untracked.string('AK4PFCHS')
-    ##             ),
-    ##         ), 
-    ##     connect = cms.string('sqlite:Summer15_25nsV6_DATA.db')
-    ##     # uncomment above tag lines and this comment to use MC JEC
-    ##     # connect = cms.string('sqlite:Summer12_V7_MC.db')
-    ##     )
-    ## 
-    ## process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
-    
     # re-apply JEC for AK4 CHS PF jets
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
-    #process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
-    #process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
-
-    #process.ak4PFCHSJetsL1FastL2L3Residual = process.ak4PFCHSJetsL1.clone(correctors = ['ak4PFCHSL1FastL2L3ResidualCorrector'])
 
 ####  Custom Met Filter reco
 
     # load hbhe noise filter result producer
     process.load('CommonTools/RecoAlgos/HBHENoiseFilterResultProducer_cfi')
+
+    # Type-1 pf MET correction
+    process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff")
+    process.load("JetMETCorrections.Type1MET.correctedMet_cff")
 
 
 ####  Custom E/Gamma reco ####
@@ -65,9 +45,41 @@ def L1NtupleCustomReco(process):
     process.l1CustomReco = cms.Path(
         process.ak4PFCHSL1FastL2L3ResidualCorrectorChain
         +process.HBHENoiseFilterResultProducer
+        +process.correctionTermsPfMetType1Type2
+        +process.pfMetT1
         +process.egmGsfElectronIDSequence
         )
     
     process.schedule.append(process.l1CustomReco)
 
+    return process
+
+
+def getJECFromSQLite(process):
+
+    process.load("CondCore.CondDB.CondDB_cfi")
+
+    process.jec = cms.ESSource(
+        "PoolDBESSource",
+        DBParameters = cms.PSet(
+            messageLevel = cms.untracked.int32(0)
+            ),
+        timetype = cms.string('runnumber'),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('JetCorrectionsRecord'),
+                # for data
+                tag    = cms.string('JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK4PFchs'),
+                # for MC
+                #tag    = cms.string('JetCorrectorParametersCollection_Fall15_25nsV2_MC_AK4PFchs'),
+                label  = cms.untracked.string('AK4PFCHS')
+                ),
+            ), 
+        connect = cms.string('sqlite:Summer15_25nsV6_DATA.db')
+        # uncomment above tag lines and this comment to use MC JEC
+        # connect = cms.string('sqlite:Fall15_25nsV2_MC.db')
+        )
+    
+    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+    
     return process
