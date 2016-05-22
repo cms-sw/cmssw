@@ -30,6 +30,7 @@ private:
 MaskedMeasurementTrackerEventProducer::MaskedMeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) :
     src_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("src")))
 {
+    //FIXME:temporary solution in order to use this class for both phase0/1 and phase2
     if (iConfig.existsAs<edm::InputTag>("clustersToSkip")) {
       skipClusters_ = true;
       edm::InputTag clustersToSkip = iConfig.getParameter<edm::InputTag>("clustersToSkip");

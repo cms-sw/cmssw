@@ -25,6 +25,8 @@
 
 /* This is a copy of the TrackClusterRemover 
  * for Phase2 Tk upgrade
+ * FIXME:: changing with new phase2 pixel DataFormats!
+ * FIXME:: still to be factorized
  */
 
 namespace {
@@ -143,8 +145,6 @@ namespace {
       collectedPhase2OTs.resize(phase2OTClusters->dataSize(), false);
 
     } 
-
-
 
 
     // loop over trajectories, filter, mask clusters../

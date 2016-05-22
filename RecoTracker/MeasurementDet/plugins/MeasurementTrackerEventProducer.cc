@@ -58,7 +58,7 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     // fill them
     updateStrips(iEvent, *stripData, stripClustersToSkip);
     updatePixels(iEvent, *pixelData, pixelClustersToSkip);
-    updatePhase2(iEvent, *phase2OTData);
+    updatePhase2OT(iEvent, *phase2OTData);
     updateStacks(iEvent, *phase2OTData);
 
     // put into MTE
@@ -224,7 +224,7 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
 
 //FIXME: just a temporary solution for phase2!
 void 
-MeasurementTrackerEventProducer::updatePhase2( const edm::Event& event, Phase2OTMeasurementDetSet & thePh2OTDets ) const {
+MeasurementTrackerEventProducer::updatePhase2OT( const edm::Event& event, Phase2OTMeasurementDetSet & thePh2OTDets ) const {
 
 
   // Phase2OT Clusters
@@ -255,9 +255,8 @@ MeasurementTrackerEventProducer::updatePhase2( const edm::Event& event, Phase2OT
       }
     }
 
-  } else {
-    return;
   }
+  return;
 }
 
 void

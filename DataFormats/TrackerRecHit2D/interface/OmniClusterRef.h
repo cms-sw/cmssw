@@ -12,6 +12,7 @@ class OmniClusterRef {
 
   static const unsigned int kInvalid = 0x80000000; // bit 31 on
   static const unsigned int kIsStrip = 0x20000000; // bit 29 on
+  // FIXME:: need to check when introducing phase2 pixel 
   static const unsigned int kIsPhase2 = 0x40000000; // bit 30 on
   static const unsigned int kIsRegional = 0x60000000; // bit 30 and 29 on  (will become fastsim???)
 
@@ -36,7 +37,7 @@ public:
   ClusterStripRef cluster_strip()  const { 
     return isStrip() ? ClusterStripRef(me.toRefCore(),index()) : ClusterStripRef();
   }
-  //FIXME:: isStrip or isPixel depending on what?
+
   Phase2Cluster1DRef cluster_phase2OT()  const { 
     return isPhase2() ? Phase2Cluster1DRef(me.toRefCore(),index()) : Phase2Cluster1DRef();
   }

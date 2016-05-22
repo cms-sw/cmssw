@@ -90,6 +90,7 @@ namespace cms{
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       }
+      //FIXME:: just temporary solution for phase2!
       if (conf.existsAs<edm::InputTag>("phase2clustersToSkip")) {
         phase2skipClusters_ = true;
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("phase2clustersToSkip"));
