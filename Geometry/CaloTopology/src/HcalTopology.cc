@@ -634,11 +634,11 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
 
   if(subdet == HcalBarrel) {
     if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
-      startingBin = 1;
+      startingBin = hcons_->getMinDepth(0,etaRing);
       if (etaRing==lastHBRing()) {
-	nDepthBins = hcons_->getDepthEta16(0);
+	nDepthBins = hcons_->getDepthEta16(0) - startingBin + 1;
       } else {
-	nDepthBins = hcons_->getMaxDepth(0,etaRing);
+	nDepthBins = hcons_->getMaxDepth(0,etaRing) - startingBin + 1;
       }
     } else {
       if (etaRing<=14) {
@@ -653,11 +653,10 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
     if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
       if (etaRing==firstHERing()) {
 	startingBin = hcons_->getDepthEta16(1);
-	nDepthBins  = hcons_->getMaxDepth(1,etaRing) - startingBin + 1;
       } else {
-	nDepthBins  = hcons_->getMaxDepth(1,etaRing);
 	startingBin = hcons_->getMinDepth(1,etaRing);
       }
+      nDepthBins  = hcons_->getMaxDepth(1,etaRing) - startingBin + 1;
     } else {
       if (etaRing==firstHERing()) {
 	nDepthBins  = 1;
