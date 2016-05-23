@@ -47,6 +47,24 @@ class IsolationComputer {
 
         /// Isolation from photons (with weights)
         float photonAbsIsoWeighted(const reco::Candidate &cand, float dR, float innerR=0, float threshold=0, SelfVetoPolicy selfVeto=selfVetoAll) const ;
+
+        /// Isolation from charged from the PV , four momentum
+        reco::Candidate::LorentzVector chargedP4Iso(const reco::Candidate &cand, float dR, float innerR=0, float threshold=0, SelfVetoPolicy selfVeto=selfVetoAll) const ;
+
+        /// Isolation from charged from PU , four momentum
+        reco::Candidate::LorentzVector puP4Iso(const reco::Candidate &cand, float dR, float innerR=0, float threshold=0, SelfVetoPolicy selfVeto=selfVetoAll) const ;
+
+        /// Isolation from all neutrals (uncorrected) , four momentum
+        reco::Candidate::LorentzVector neutralP4IsoRaw(const reco::Candidate &cand, float dR, float innerR=0, float threshold=0, SelfVetoPolicy selfVeto=selfVetoAll) const ;
+
+        /// Isolation from neutral hadrons (uncorrected) , four momentum
+        reco::Candidate::LorentzVector neutralHadP4IsoRaw(const reco::Candidate &cand, float dR, float innerR=0, float threshold=0, SelfVetoPolicy selfVeto=selfVetoAll) const ;
+
+        /// Isolation from photons (uncorrected) , four momentum
+        reco::Candidate::LorentzVector photonP4IsoRaw(const reco::Candidate &cand, float dR, float innerR=0, float threshold=0, SelfVetoPolicy selfVeto=selfVetoAll) const ;
+
+	std::vector<const pat::PackedCandidate *> findPairIsoTrack(const reco::Candidate &cand, float dR, float innerR=0, float trackMaxChargedIso=4, float threshold=0, float trackNormChi2=5);
+
     protected:
         const std::vector<pat::PackedCandidate> * allcands_;
         float weightCone_;
@@ -56,6 +74,7 @@ class IsolationComputer {
         std::vector<const reco::Candidate *> vetos_;
 
         float isoSumRaw(const std::vector<const pat::PackedCandidate *> & cands, const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto, int pdgId=-1) const ;
+	reco::Candidate::LorentzVector isoP4Raw(const std::vector<const pat::PackedCandidate *> & cands, const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto, int pdgId=-1) const ;
         float isoSumNeutralsWeighted(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto, int pdgId=-1) const ;
 };
 

@@ -103,6 +103,10 @@ leptonTypeExtra = NTupleObjectType("leptonExtra", baseObjectTypes = [ leptonType
     NTupleVariable("chi2LocalPosition",    lambda lepton : lepton.combinedQuality().chi2LocalPosition if abs(lepton.pdgId()) == 13 else 0, help="Tracker-Muon matching in position"), 
     NTupleVariable("chi2LocalMomentum",    lambda lepton : lepton.combinedQuality().chi2LocalMomentum if abs(lepton.pdgId()) == 13 else 0, help="Tracker-Muon matching in momentum"), 
     NTupleVariable("glbTrackProbability",  lambda lepton : lepton.combinedQuality().glbTrackProbability if abs(lepton.pdgId()) == 13 else 0, help="Global track pseudo-probability"), 
+    NTupleVariable("TMOneStationTightMuonId",   lambda x : x.muonID("TMOneStationTight") if abs(x.pdgId())==13 else 1, int, help="Muon TMOneStationTight ID"),
+    NTupleVariable("trackHighPurityMuon",   lambda x : x.innerTrack().quality(ROOT.reco.TrackBase.highPurity) if abs(x.pdgId())==13 else 1, int, help="Muon track high purity"),
+    NTupleVariable("isGlobalMuon",   lambda x : x.physObj.isGlobalMuon() if abs(x.pdgId())==13 else 1, int, help="Muon is global"),
+    NTupleVariable("isTrackerMuon",   lambda x : x.physObj.isTrackerMuon() if abs(x.pdgId())==13 else 1, int, help="Muon is tracker"),
     # Extra electron ID variables
     NTupleVariable("sigmaIEtaIEta",  lambda x : x.full5x5_sigmaIetaIeta() if abs(x.pdgId())==11 else 0, help="Electron sigma(ieta ieta), with full5x5 cluster shapes"),
     NTupleVariable("dEtaScTrkIn",    lambda x : x.deltaEtaSuperClusterTrackAtVtx() if abs(x.pdgId())==11 else 0, help="Electron deltaEtaSuperClusterTrackAtVtx (without absolute value!)"),
@@ -228,6 +232,7 @@ metType = NTupleObjectType("met", baseObjectTypes = [ fourVectorType ], variable
 genParticleType = NTupleObjectType("genParticle", baseObjectTypes = [ particleType ], mcOnly=True, variables = [
     NTupleVariable("charge",   lambda x : x.threeCharge()/3.0, float),
     NTupleVariable("status",   lambda x : x.status(),int),
+    NTupleVariable("isPromptHard", lambda x : getattr(x,"promptHardFlag",0), int)
 ])
 genParticleWithMotherId = NTupleObjectType("genParticleWithMotherId", baseObjectTypes = [ genParticleType ], mcOnly=True, variables = [
     NTupleVariable("motherId", lambda x : x.mother(0).pdgId() if x.mother(0) else 0, int, help="pdgId of the mother of the particle"),
@@ -242,3 +247,14 @@ genParticleWithLinksType = NTupleObjectType("genParticleWithLinks", baseObjectTy
     NTupleVariable("motherIndex", lambda x : x.motherIndex, int, help="index of the mother in the generatorSummary")
 ])
 
+leptonTrackPairType = NTupleObjectType("leptonTrackPair", variables = [
+        NTupleVariable("lepPt",     lambda x : x[0].pt()),
+        NTupleVariable("trkPt",     lambda x : x[1].pt()),
+        NTupleVariable("lepEta",    lambda x : x[0].eta()),
+        NTupleVariable("trkEta",    lambda x : x[1].eta()),
+        NTupleVariable("lepPhi",    lambda x : x[0].phi()),
+        NTupleVariable("trkPhi",    lambda x : x[1].phi()),
+        NTupleVariable("lepPdgId",  lambda x : x[0].pdgId()),
+        NTupleVariable("trkCharge", lambda x : x[1].charge()),
+        NTupleVariable("invMass",   lambda x : x[2]),
+])
