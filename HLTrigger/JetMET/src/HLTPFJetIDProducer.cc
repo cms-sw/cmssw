@@ -64,13 +64,14 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         bool pass = false;
         double pt = j->pt();
         double eta = j->eta();
+	double abseta = std::abs(eta);
 
         if (!(pt > 0.))  continue;  // skip jets with zero or negative pt
 
         if (pt < minPt_) {
             pass = true;
 
-        } else if (std::abs(eta) >= maxEta_) {
+        } else if (abseta >= maxEta_) {
             pass = true;
 
         } else {
@@ -86,11 +87,11 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             pass = true;
             pass = pass && (ntot > NTOT_);
             pass = pass && (nef < NEF_);
-            pass = pass && (nhf < NHF_ || std::abs(eta) >= 2.4); //NHF-cut does not work in HF anymore with recent PF
-            pass = pass && (cef < CEF_ || std::abs(eta) >= 2.4);
-            pass = pass && (chf > CHF_ || std::abs(eta) >= 2.4);
-            pass = pass && (nch > NCH_ || std::abs(eta) >= 2.4);
-	    pass = pass && (cftot < maxCF_ || std::abs(eta) >= 2.4);
+            pass = pass && (nhf < NHF_ || abseta >= 2.4); //NHF-cut does not work in HF anymore with recent PF
+            pass = pass && (cef < CEF_ || abseta >= 2.4);
+            pass = pass && (chf > CHF_ || abseta >= 2.4);
+            pass = pass && (nch > NCH_ || abseta >= 2.4);
+	    pass = pass && (cftot < maxCF_ || abseta >= 2.4);
         }
 
         if (pass)  result->push_back(*j);
