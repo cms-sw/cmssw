@@ -713,8 +713,8 @@ class LeptonAnalyzer( Analyzer ):
                 genPsIdxs[idx]=len(genPsIdxs)
 
         def lepMatch(rec, gen):
-            if gen.status() !=1 and not (abs(gen.pdgId())==15 and gen.status() ==2 ): return False
-            if abs(rec.pdgId()) != abs(gen.pdgId()) and abs(gen.pdgId())!=15: return False
+            if gen.status() !=1: return False
+            if abs(rec.pdgId()) != abs(gen.pdgId()): return False
             return True
         matchLep = matchObjectCollection3(leps,genPs, 
                                           deltaRMax = 0.2, filter = lepMatch)
@@ -753,7 +753,7 @@ class LeptonAnalyzer( Analyzer ):
             if (abs(gen.pdgId()) in self.charms) or (motherId in self.charms) : code= 3
             if (abs(gen.pdgId()) in self.lights) or (motherId in self.lights) : code= 2
             lep.mcUCSXMatchId = code
-            
+                        
     def process(self, event):
         self.readCollections( event.input )
         self.counters.counter('events').inc('all events')
