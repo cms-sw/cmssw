@@ -22,6 +22,7 @@ HLTPFJetIDProducer::HLTPFJetIDProducer(const edm::ParameterSet& iConfig) :
   NHF_      (iConfig.getParameter<double>("NHF")),
   CEF_      (iConfig.getParameter<double>("CEF")),
   NEF_      (iConfig.getParameter<double>("NEF")),
+  maxCF_    (iConfig.getParameter<double>("maxCF")),
   NCH_      (iConfig.getParameter<int>("NCH")),
   NTOT_     (iConfig.getParameter<int>("NTOT")),
   inputTag_ (iConfig.getParameter<edm::InputTag>("jetsInput")) {
@@ -43,6 +44,7 @@ void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & descr
     desc.add<double>("NHF", 99.);
     desc.add<double>("CEF", 99.);
     desc.add<double>("NEF", 99.);
+    desc.add<double>("maxCF", 99.);
     desc.add<int>("NCH", 0);
     desc.add<int>("NTOT", 0);
     desc.add<edm::InputTag>("jetsInput", edm::InputTag("hltAntiKT4PFJets"));
@@ -77,6 +79,7 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             double nhf  = j->neutralHadronEnergyFraction();
             double cef  = j->chargedEmEnergyFraction();
             double nef  = j->neutralEmEnergyFraction();
+	    double cftot= chf + cef + j->chargedMuEnergyFraction();
             int    nch  = j->chargedMultiplicity();
             int    ntot = j->numberOfDaughters();
 
@@ -87,6 +90,7 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             pass = pass && (cef < CEF_ || std::abs(eta) >= 2.4);
             pass = pass && (chf > CHF_ || std::abs(eta) >= 2.4);
             pass = pass && (nch > NCH_ || std::abs(eta) >= 2.4);
+	    pass = pass && (cftot < maxCF_ || std::abs(eta) >= 2.4);
         }
 
         if (pass)  result->push_back(*j);
