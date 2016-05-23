@@ -131,8 +131,6 @@ tauType = NTupleObjectType("tau",  baseObjectTypes = [ particleType ], variables
     NTupleVariable("idDecayModeNewDMs",   lambda x : x.idDecayModeNewDMs, int),
     NTupleVariable("dxy",   lambda x : x.dxy(), help="d_{xy} of lead track with respect to PV, in cm (with sign)"),
     NTupleVariable("dz",    lambda x : x.dz() , help="d_{z} of lead track with respect to PV, in cm (with sign)"),
-    NTupleVariable("idMVA", lambda x : x.idMVA, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVA3oldDMwLT discriminator"),
-    NTupleVariable("idMVANewDM", lambda x : x.idMVANewDM, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVA3newDMwLT discriminator"),
     NTupleVariable("idMVArun2", lambda x : x.idMVArun2, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVArun2v1DBoldDMwLT discriminator"),
     NTupleVariable("rawMVArun2", lambda x : x.tauID("byIsolationMVArun2v1DBoldDMwLTraw"), help="byIsolationMVArun2v1DBoldDMwLT raw output discriminator"),
     NTupleVariable("idMVArun2dR03", lambda x : x.idMVArun2dR03, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVArun2v1DBdR03oldDMwLT discriminator"),
