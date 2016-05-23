@@ -26,6 +26,8 @@ class JSONAnalyzer( Analyzer ):
          - if the json file was not set for this component
       - False if the component is MC or embed (for H->tau tau),
           and if the run/lumi pair is not in the JSON file.
+
+    If the option "passAll" is specified and set to True, all events will be selected and a flag event.json is set with the value of the filter
     '''
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
@@ -37,7 +39,7 @@ class JSONAnalyzer( Analyzer ):
             self.lumiList = LumiList(os.path.expandvars(getattr(self.cfg_ana,"json",self.cfg_comp.json)))
         else:
             self.lumiList = None
-        
+        self.passAll = getattr(self.cfg_ana,'passAll',False)
         self.useLumiBlocks = self.cfg_ana.useLumiBlocks if (hasattr(self.cfg_ana,'useLumiBlocks')) else False
 
         self.rltInfo = RLTInfo()
@@ -84,7 +86,7 @@ class JSONAnalyzer( Analyzer ):
                 self.rltInfo.add('dummy', run, lumi)
             return True
         else:
-            return False
+            return self.passAll
         
 
     def write(self, setup):

@@ -160,8 +160,8 @@ class PileUpAnalyzer( Analyzer ):
                 #Protect 0 division!!!!
                 if mc !=0.0:
                     event.puWeight = data/mc
-                    event.puWeightPlus = self.datahistPlus.GetBinContent(bin)/mb if self.datahistPlus is not None else 1.
-                    event.puWeightMinux = self.datahistPlus.GetBinContent(bin)/mb if self.datahistMinus is not None else 1.
+                    event.puWeightPlus = self.datahistPlus.GetBinContent(bin)/mc if self.datahistPlus is not None else 1.
+                    event.puWeightMinus = self.datahistMinus.GetBinContent(bin)/mc if self.datahistMinus is not None else 1.
                 else:
                     event.puWeight = 1
                 
