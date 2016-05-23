@@ -22,7 +22,7 @@ public:
 
 private:
 
-  std::unique_ptr<L1TMuonOverlapParams> omtfParams;
+  std::unique_ptr<L1TMuonOverlapParams> omtfParams, omtfPatterns;
 
 }; 
 

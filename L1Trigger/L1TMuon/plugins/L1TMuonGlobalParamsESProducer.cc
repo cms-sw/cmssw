@@ -154,14 +154,36 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    m_params_helper.setMaskedEmtfnInputs(emtfnMasked);
 
    // LUTs
-   m_params_helper.setFwdPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"));
-   m_params_helper.setFwdNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"));
-   m_params_helper.setOvlPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"));
-   m_params_helper.setOvlNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlNegSingleMatchQualLUTMaxDR"));
-   m_params_helper.setBOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"), iConfig.getParameter<double>("BOPosMatchQualLUTMaxDREtaFine"));
-   m_params_helper.setBONegMatchQualLUTMaxDR(iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"), iConfig.getParameter<double>("BONegMatchQualLUTMaxDREtaFine"));
-   m_params_helper.setFOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"));
-   m_params_helper.setFONegMatchQualLUTMaxDR(iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"));
+   m_params_helper.setFwdPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"),
+                                                    iConfig.getParameter<double>("FwdPosSingleMatchQualLUTfEta"),
+                                                    iConfig.getParameter<double>("FwdPosSingleMatchQualLUTfPhi"));
+   m_params_helper.setFwdNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"),
+                                                    iConfig.getParameter<double>("FwdNegSingleMatchQualLUTfEta"),
+                                                    iConfig.getParameter<double>("FwdNegSingleMatchQualLUTfPhi"));
+   m_params_helper.setOvlPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"),
+                                                    iConfig.getParameter<double>("OvlPosSingleMatchQualLUTfEta"),
+                                                    iConfig.getParameter<double>("OvlPosSingleMatchQualLUTfEtaCoarse"),
+                                                    iConfig.getParameter<double>("OvlPosSingleMatchQualLUTfPhi"));
+   m_params_helper.setOvlNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlNegSingleMatchQualLUTMaxDR"),
+                                                    iConfig.getParameter<double>("OvlNegSingleMatchQualLUTfEta"),
+                                                    iConfig.getParameter<double>("OvlNegSingleMatchQualLUTfEtaCoarse"),
+                                                    iConfig.getParameter<double>("OvlNegSingleMatchQualLUTfPhi"));
+   m_params_helper.setBOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"),
+                                             iConfig.getParameter<double>("BOPosMatchQualLUTfEta"),
+                                             iConfig.getParameter<double>("BOPosMatchQualLUTfEtaCoarse"),
+                                             iConfig.getParameter<double>("BOPosMatchQualLUTfPhi"));
+   m_params_helper.setBONegMatchQualLUTMaxDR(iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"),
+                                             iConfig.getParameter<double>("BONegMatchQualLUTfEta"),
+                                             iConfig.getParameter<double>("BONegMatchQualLUTfEtaCoarse"),
+                                             iConfig.getParameter<double>("BONegMatchQualLUTfPhi"));
+   m_params_helper.setFOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"),
+                                             iConfig.getParameter<double>("FOPosMatchQualLUTfEta"),
+                                             iConfig.getParameter<double>("FOPosMatchQualLUTfEtaCoarse"),
+                                             iConfig.getParameter<double>("FOPosMatchQualLUTfPhi"));
+   m_params_helper.setFONegMatchQualLUTMaxDR(iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"),
+                                             iConfig.getParameter<double>("FONegMatchQualLUTfEta"),
+                                             iConfig.getParameter<double>("FONegMatchQualLUTfEtaCoarse"),
+                                             iConfig.getParameter<double>("FONegMatchQualLUTfPhi"));
 
    unsigned sortRankLUTPtFactor = iConfig.getParameter<unsigned>("SortRankLUTPtFactor");
    unsigned sortRankLUTQualFactor = iConfig.getParameter<unsigned>("SortRankLUTQualFactor");
@@ -171,14 +193,54 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    auto relIsoCheckMemLUT = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create (iConfig.getParameter<std::string>("RelIsoCheckMemLUTPath"), fwVersion);
    auto idxSelMemPhiLUT = l1t::MicroGMTCaloIndexSelectionLUTFactory::create (iConfig.getParameter<std::string>("IdxSelMemPhiLUTPath"), l1t::MicroGMTConfiguration::PHI, fwVersion);
    auto idxSelMemEtaLUT = l1t::MicroGMTCaloIndexSelectionLUTFactory::create (iConfig.getParameter<std::string>("IdxSelMemEtaLUTPath"), l1t::MicroGMTConfiguration::ETA, fwVersion);
-   auto fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FwdPosSingleMatchQualLUTPath"), iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"), l1t::cancel_t::emtf_emtf_pos, fwVersion);
-   auto fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FwdNegSingleMatchQualLUTPath"), iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"), l1t::cancel_t::emtf_emtf_neg, fwVersion);
-   auto ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("OvlPosSingleMatchQualLUTPath"), iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"), l1t::cancel_t::omtf_omtf_pos, fwVersion);
-   auto ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("OvlNegSingleMatchQualLUTPath"), iConfig.getParameter<double>("OvlNegSingleMatchQualLUTMaxDR"), l1t::cancel_t::omtf_omtf_neg, fwVersion);
-   auto bOPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("BOPosMatchQualLUTPath"), iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"), l1t::cancel_t::omtf_bmtf_pos, fwVersion);
-   auto bONegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("BONegMatchQualLUTPath"), iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"), l1t::cancel_t::omtf_bmtf_neg, fwVersion);
-   auto fOPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FOPosMatchQualLUTPath"), iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"), l1t::cancel_t::omtf_emtf_pos, fwVersion);
-   auto fONegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FONegMatchQualLUTPath"), iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"), l1t::cancel_t::omtf_emtf_neg, fwVersion);
+   auto fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FwdPosSingleMatchQualLUTPath"),
+                                                                             iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"),
+                                                                             iConfig.getParameter<double>("FwdPosSingleMatchQualLUTfEta"),
+                                                                             iConfig.getParameter<double>("FwdPosSingleMatchQualLUTfEta"), // set the coarse eta factor = fine eta factor
+                                                                             iConfig.getParameter<double>("FwdPosSingleMatchQualLUTfPhi"),
+                                                                             l1t::cancel_t::emtf_emtf_pos, fwVersion);
+   auto fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FwdNegSingleMatchQualLUTPath"),
+                                                                             iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"),
+                                                                             iConfig.getParameter<double>("FwdNegSingleMatchQualLUTfEta"),
+                                                                             iConfig.getParameter<double>("FwdNegSingleMatchQualLUTfEta"), // set the coarse eta factor = fine eta factor
+                                                                             iConfig.getParameter<double>("FwdNegSingleMatchQualLUTfPhi"),
+                                                                             l1t::cancel_t::emtf_emtf_neg, fwVersion);
+   auto ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("OvlPosSingleMatchQualLUTPath"),
+                                                                             iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"),
+                                                                             iConfig.getParameter<double>("OvlPosSingleMatchQualLUTfEta"),
+                                                                             iConfig.getParameter<double>("OvlPosSingleMatchQualLUTfEtaCoarse"),
+                                                                             iConfig.getParameter<double>("OvlPosSingleMatchQualLUTfPhi"),
+                                                                             l1t::cancel_t::omtf_omtf_pos, fwVersion);
+   auto ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("OvlNegSingleMatchQualLUTPath"),
+                                                                             iConfig.getParameter<double>("OvlNegSingleMatchQualLUTMaxDR"),
+                                                                             iConfig.getParameter<double>("OvlNegSingleMatchQualLUTfEta"),
+                                                                             iConfig.getParameter<double>("OvlNegSingleMatchQualLUTfEtaCoarse"),
+                                                                             iConfig.getParameter<double>("OvlNegSingleMatchQualLUTfPhi"),
+                                                                             l1t::cancel_t::omtf_omtf_neg, fwVersion);
+   auto bOPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("BOPosMatchQualLUTPath"),
+                                                                      iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"),
+                                                                      iConfig.getParameter<double>("BOPosMatchQualLUTfEta"),
+                                                                      iConfig.getParameter<double>("BOPosMatchQualLUTfEtaCoarse"),
+                                                                      iConfig.getParameter<double>("BOPosMatchQualLUTfPhi"),
+                                                                      l1t::cancel_t::omtf_bmtf_pos, fwVersion);
+   auto bONegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("BONegMatchQualLUTPath"),
+                                                                      iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"),
+                                                                      iConfig.getParameter<double>("BONegMatchQualLUTfEta"),
+                                                                      iConfig.getParameter<double>("BONegMatchQualLUTfEtaCoarse"),
+                                                                      iConfig.getParameter<double>("BONegMatchQualLUTfPhi"),
+                                                                      l1t::cancel_t::omtf_bmtf_neg, fwVersion);
+   auto fOPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FOPosMatchQualLUTPath"),
+                                                                      iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"),
+                                                                      iConfig.getParameter<double>("FOPosMatchQualLUTfEta"),
+                                                                      iConfig.getParameter<double>("FOPosMatchQualLUTfEtaCoarse"),
+                                                                      iConfig.getParameter<double>("FOPosMatchQualLUTfPhi"),
+                                                                      l1t::cancel_t::omtf_emtf_pos, fwVersion);
+   auto fONegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FONegMatchQualLUTPath"),
+                                                                      iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"),
+                                                                      iConfig.getParameter<double>("FONegMatchQualLUTfEta"),
+                                                                      iConfig.getParameter<double>("FONegMatchQualLUTfEtaCoarse"),
+                                                                      iConfig.getParameter<double>("FONegMatchQualLUTfPhi"),
+                                                                      l1t::cancel_t::omtf_emtf_neg, fwVersion);
    auto bPhiExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("BPhiExtrapolationLUTPath"), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
    auto oPhiExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("OPhiExtrapolationLUTPath"), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);
    auto fPhiExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("FPhiExtrapolationLUTPath"), l1t::MicroGMTConfiguration::PHI_OUT, fwVersion);

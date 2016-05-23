@@ -62,7 +62,7 @@ namespace l1t {
 				 
     // Access results for particular trigger bit 
     const bool getInitialDecisionByBit(int& bit,   bool& decision) const;
-    const bool getPrescaledDecisionByBit(int& bit, bool& decision) const;
+    const bool getIntermDecisionByBit(int& bit,    bool& decision) const;
     const bool getFinalDecisionByBit(int& bit,     bool& decision) const;
 
     // Access Prescale
@@ -70,9 +70,9 @@ namespace l1t {
 
     // Access Masks:
     // follows logic of uGT board:
-    //       finalDecision[AlgBit] = ( prescaledDecision[AlgBit] & mask[AlgBit] ) implying:
-    //    If mask = true, algorithm bit (true/false) keeps its value  
-    //    If mask = false, algorithm bit is forced to false for the finalDecision
+    //       finalDecision[AlgBit] 
+    //           Final word is after application of prescales.
+    //           A prescale = 0 effectively masks out the algorithm in the final decision word
     //
     //    If vetoMask = true and Algorithm is true, the FINOR (final global decision) is forced to false (ie. event is vetoed)
     //    If vetoMask = false, algorithm cannot veto FINOR (final global decision)
@@ -81,7 +81,7 @@ namespace l1t {
 
     // Access results for particular trigger name
     const bool getInitialDecisionByName(const std::string& algName,   bool& decision) const;
-    const bool getPrescaledDecisionByName(const std::string& algName, bool& decision) const;
+    const bool getIntermDecisionByName(const std::string& algName,    bool& decision) const;
     const bool getFinalDecisionByName(const std::string& algName,     bool& decision) const;
 
     // Access Prescales
@@ -93,7 +93,7 @@ namespace l1t {
 
     // Some inline commands to return the full vectors
     inline const std::vector<std::pair<std::string, bool> >& decisionsInitial()   { return m_decisionsInitial; }
-    inline const std::vector<std::pair<std::string, bool> >& decisionsPrescaled() { return m_decisionsPrescaled; }
+    inline const std::vector<std::pair<std::string, bool> >& decisionsInterm()    { return m_decisionsInterm; }
     inline const std::vector<std::pair<std::string, bool> >& decisionsFinal()     { return m_decisionsFinal; }
 
     // Access all prescales
@@ -149,7 +149,7 @@ private:
 
     // Vectors containing the trigger name and information about that trigger
     std::vector<std::pair<std::string, bool> > m_decisionsInitial;
-    std::vector<std::pair<std::string, bool> > m_decisionsPrescaled;
+    std::vector<std::pair<std::string, bool> > m_decisionsInterm;
     std::vector<std::pair<std::string, bool> > m_decisionsFinal;
     std::vector<std::pair<std::string, int> >  m_prescales;
     std::vector<std::pair<std::string, bool> > m_masks;

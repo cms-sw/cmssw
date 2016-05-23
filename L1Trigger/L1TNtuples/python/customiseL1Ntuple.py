@@ -122,6 +122,10 @@ def L1NtupleEMUNoEventTree(process):
 
 def L1NtupleMC(process):
 
+    # add gen tree
+    process.load('L1Trigger.L1TNtuples.L1NtupleMC_cff')
+
     if hasattr(process, 'l1JetRecoTree'):
         process.l1JetRecoTree.jecToken = cms.untracked.InputTag("ak4PFCHSL1FastL2L3Corrector")
 
+    return process

@@ -118,7 +118,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 l1t::Tau tau (emptyP4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
 
                 // Corrections function of ieta, ET, and cluster shape
-                int calibPt = calibratedPt(mainCluster, tau.hwPt(), false); // FIXME! for the moment no calibration
+                int calibPt = calibratedPt(mainCluster, towers, tau.hwPt(), false); // FIXME! for the moment no calibration
 
                 //int calibPt = mainCluster.hwPt();
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
@@ -126,10 +126,19 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 tau.setHwPt(calibPt);
 
                 // isolation
+
+                // Isolation 
+                int isoLeftExtension = params_->tauIsoAreaNrTowersEta();
+                int isoRightExtension = params_->tauIsoAreaNrTowersEta();
+                if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
+                    isoRightExtension++;
+                else
+                    isoLeftExtension++;
+
                 int isolBit = 0;
                 int tauHwFootprint = mainCluster.hwPt();
                 unsigned int LUTaddress = isoLutIndex(tauHwFootprint, mainCluster.hwEta(), nrTowers);
-                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-isoLeftExtension,isoRightExtension,
                                             -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
                 int hwIsoEnergy = hwEtSum - tauHwFootprint;
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
@@ -402,17 +411,24 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // ==================================================================
 
                 // Corrections function of ieta, ET, and cluster shape
-                int calibPt = calibratedPt(mainCluster, tau.hwPt(), true); // FIXME! for the moment no calibration
+                int calibPt = calibratedPt(mainCluster, towers, tau.hwPt(), true); // FIXME! for the moment no calibration
                 //int calibPt = mainCluster.hwPt()+secondaryCluster->hwPt();
                 //if (calibPt > 1023) calibPt = 1023; // only 10 bits available
 
                 tau.setHwPt(calibPt);
                 
                 // isolation
+                int isoLeftExtension = params_->tauIsoAreaNrTowersEta();
+                int isoRightExtension = params_->tauIsoAreaNrTowersEta();
+                if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
+                    isoRightExtension++;
+                else
+                    isoLeftExtension++;
+                
                 int isolBit = 0;
                 int tauHwFootprint = mainCluster.hwPt() + secondaryCluster->hwPt();
                 unsigned int LUTaddress = isoLutIndex(tauHwFootprint, mainCluster.hwEta(), nrTowers);
-                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                int hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-isoLeftExtension,isoRightExtension,
                                             -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
                 int hwIsoEnergy = hwEtSum - tauHwFootprint;
                 if (hwIsoEnergy < 0) hwIsoEnergy = 0; // just in case the cluster is outside the window? should be very rare
@@ -703,19 +719,20 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
         //No iEta dependence in firmware
         secondaryCluster->setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>= EtEtaLeft) );
 
-        // finally compute secondary cluster energy
-        if(secondaryCluster->checkClusterFlag(CaloCluster::TRIM_LEFT))
-        {
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NW, false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_W , false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SW, false);
-        }
-        else
-        {
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NE, false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_E , false);
-            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SE, false);
-        }
+        // NOT IN FIRMWARE
+        // // finally compute secondary cluster energy
+        // if(secondaryCluster->checkClusterFlag(CaloCluster::TRIM_LEFT))
+        // {
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NW, false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_W , false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SW, false);
+        // }
+        // else
+        // {
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NE, false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_E , false);
+        //     secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SE, false);
+        // }
 
         // compute cluster energy according to cluster flags
         if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNW);
@@ -775,11 +792,11 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibLutIndex (int ieta,
     return address;
 }
 
-int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, int hwPt, bool isMerged)
+int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, const std::vector<l1t::CaloTower>& towers, int hwPt, bool isMerged)
 {
-    //cout << "** DEBUG: CALLING calibPt with params: " << hwPt << " " << isMerged << endl;
-
-    int hasEM = (clus.hwPtEm() > 0 ? 1 : 0);
+    // get seed tower
+    const l1t::CaloTower& seedTT = l1t::CaloTools::getTower(towers, clus.hwEta(), clus.hwPhi());
+    int hasEM = (seedTT.hwEtEm() > 0 ? 1 : 0);
     int isMergedI = (isMerged ? 1 : 0);
 
     //cout << "  --> ieta = " << clus.hwEta() << " , hasEM = " << hasEM << " , isMergedI = " << isMergedI << endl;
@@ -793,12 +810,12 @@ int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloClust
     // now apply calibration factor: corrPt = rawPt * (corr[LUT] + 0.5)
     // where corr[LUT] is an integer mapped to the range [0, 2]
     int rawPt = hwPt;
-    if (rawPt > 255) rawPt = 255; // 8 bit
+    if (rawPt > 8191) rawPt = 8191; // 13 bits for uncalibrated E
     
     int corrXrawPt = corr*rawPt; // 17 bits
     int calibPt = (corrXrawPt>>8); // (10 bits) = (7 bits) + (9 bits) 
     // saturation FIXME: to be done in demux?
-    if (calibPt > 511) calibPt = 511; // 9 bit in output
+    if (calibPt > 4095) calibPt = 4095; // 12 bit in output
     
     //cout << "  --> hwPt = " << hwPt << " , calibPt = " << calibPt << endl;
 
@@ -815,7 +832,7 @@ unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, int 
     // int etaBits = 6  --> 64
     // int etBits  = 13 --> 8192
     // int nTTBits = 10 --> 1024
-    if (Et >= 255) Et = 255;
+    if (Et >= 255) Et = 255; // 8 bit for the input of compression LUT 
     if (aeta >= 31) aeta = 31;
     if (nrTowers >= 1023) nrTowers = 1023;
 
