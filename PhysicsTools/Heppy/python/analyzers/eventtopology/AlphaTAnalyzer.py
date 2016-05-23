@@ -11,6 +11,8 @@ class AlphaTAnalyzer(Analyzer):
         super(AlphaTAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
         self.alphaTCalc = ROOT.heppy.AlphaT()
 
+        self.usePt = hasattr(self.cfg_ana, 'usePt') and self.cfg_ana.usePt
+
     def process(self, event):
         self.readCollections( event.input )
 
@@ -41,17 +43,24 @@ class AlphaTAnalyzer(Analyzer):
 
         if len(jets) < 2: return -1, 0, [ ] # alphat, minDeltaHT, jetFlags
         
+        jets = jets[:10] # use lead 10 jets
+
         px  = ROOT.std.vector('double')()
         py  = ROOT.std.vector('double')()
-        et  = ROOT.std.vector('double')()
 
-	for jet in jets[:10]: # use lead 10 jets
+        for jet in jets:
             px.push_back(jet.px())
             py.push_back(jet.py())
-            et.push_back(jet.et())
 
-	minDeltaHT = ROOT.Double(0.)
-	jetFlags   = ROOT.std.vector('int')()
+        et  = ROOT.std.vector('double')()
+
+        if self.usePt:
+            for jet in jets: et.push_back(jet.pt())
+        else:
+            for jet in jets: et.push_back(jet.et())
+
+        minDeltaHT = ROOT.Double(0.)
+        jetFlags   = ROOT.std.vector('int')()
 
         alphaT =  self.alphaTCalc.getAlphaT(et, px, py, jetFlags, minDeltaHT)
         return alphaT, float(minDeltaHT), list(jetFlags)
