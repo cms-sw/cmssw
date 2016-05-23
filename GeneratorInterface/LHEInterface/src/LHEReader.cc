@@ -128,7 +128,6 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	                const XMLCh *const qname) override;
 
         virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
-        virtual void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
         virtual void comment (const XMLCh *const chars, const XMLSize_t length) override; 	
 
     private:
