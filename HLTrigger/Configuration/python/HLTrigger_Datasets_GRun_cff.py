@@ -63,6 +63,13 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_v2', 
     'HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_v2')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEmptyBX_selector
+streamA_datasetEmptyBX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetEmptyBX_selector.l1tResults = cms.InputTag('')
+streamA_datasetEmptyBX_selector.throw      = cms.bool(False)
+streamA_datasetEmptyBX_selector.triggerConditions = cms.vstring('HLT_L1BptxMinus_v1', 
+    'HLT_L1BptxPlus_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetFSQJets_selector
 streamA_datasetFSQJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetFSQJets_selector.l1tResults = cms.InputTag('')
@@ -232,6 +239,7 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v1', 
+    'HLT_ZeroBias_FirstCollisionAfterAbortGap_v1', 
     'HLT_ZeroBias_IsolatedBunches_v1', 
     'HLT_ZeroBias_v2')
 
