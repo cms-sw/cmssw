@@ -512,6 +512,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
     book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
 
+    book2d("RecoAllAssoc2GenMatched_ResolX_vs_Z",   120,-60,60, 100,-resolx,resolx);
+    book2d("RecoAllAssoc2GenMatched_ResolY_vs_Z",   120,-60,60, 100,-resoly,resoly);
+    book2d("RecoAllAssoc2GenMatched_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
+    book2d("RecoAllAssoc2GenMatched_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
+
     book1d("RecoAllAssoc2GenMatched_PullX", 250,-25,25);
     book1d("RecoAllAssoc2GenMatched_PullY", 250,-25,25);
     book1d("RecoAllAssoc2GenMatched_PullZ", 250,-25,25);
@@ -531,6 +536,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
     book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
     book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
+
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z",   120,-60,60, 100,-resolx,resolx);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z",   120,-60,60, 100,-resoly,resoly);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
+    book2d("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
 
     book1d("RecoAllAssoc2GenMatchedMerged_PullX", 250,-25,25);
     book1d("RecoAllAssoc2GenMatchedMerged_PullY", 250,-25,25);
@@ -765,6 +775,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
   mes_[label][prefix+"_ResolY_vs_NumTracks"]->Fill(v.nRecoTrk, yresol);
   mes_[label][prefix+"_ResolZ_vs_NumTracks"]->Fill(v.nRecoTrk, zresol);
   mes_[label][prefix+"_ResolPt2_vs_NumTracks"]->Fill(v.nRecoTrk, pt2resol);
+
+  mes_[label][prefix+"_ResolX_vs_Z"]->Fill(v.z, xresol);
+  mes_[label][prefix+"_ResolY_vs_Z"]->Fill(v.z, yresol);
+  mes_[label][prefix+"_ResolZ_vs_Z"]->Fill(v.z, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_Z"]->Fill(v.z, pt2resol);
 
   mes_[label][prefix+"_PullX"]->Fill(xres/v.recVtx->xError());
   mes_[label][prefix+"_PullY"]->Fill(yres/v.recVtx->yError());
