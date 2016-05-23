@@ -117,13 +117,20 @@ class JetAnalyzer( Analyzer ):
         self.shiftJER = self.cfg_ana.shiftJER if hasattr(self.cfg_ana, 'shiftJER') else 0
         self.addJERShifts = self.cfg_ana.addJERShifts if hasattr(self.cfg_ana, 'addJERShifts') else 0
         self.handles['rho'] = AutoHandle( self.cfg_ana.rho, 'double' )
-    
+        self.doExtPu=False
+        if hasattr(self.cfg_ana,"externalPuId") :
+              print "Using PU ID from " , self.cfg_ana.externalPuId
+              self.doExtPu=True
+              self.handles['puIdExt'] = AutoHandle(self.cfg_ana.externalPuId,"edm::ValueMap<int>")
+              
     def beginLoop(self, setup):
         super(JetAnalyzer,self).beginLoop(setup)
 
     def process(self, event):
         self.readCollections( event.input )
         rho  = float(self.handles['rho'].product()[0])
+        if self.doExtPu :
+            puIdExt  = self.handles['puIdExt'].product()
         self.rho = rho
 
         ## Read jets, if necessary recalibrate and shift MET
@@ -133,7 +140,10 @@ class JetAnalyzer( Analyzer ):
           allJets = map(lambda j:Jet(ROOT.heppy.JetUtils.copyJet(j)), self.handles['jets'].product())  #copy-by-value is safe if JetAnalyzer is ran more than once
         else: 
           allJets = map(Jet, self.handles['jets'].product()) 
-    
+        if self.doExtPu :
+            for i,jet in enumerate(allJets) :
+                jet.puIdExt = puIdExt.get(i)
+
         #set dummy MC flavour for all jets in case we want to ntuplize discarded jets later
         for jet in allJets:
             jet.mcFlavour = 0

@@ -141,6 +141,8 @@ class Jet(PhysicsObject):
 
     def puJetId(self, label="pileupJetId:fullDiscriminant"):
         '''Full mva PU jet id'''
+        if hasattr(self,"puIdExt") :
+           return self.puIdExt
 
         puMva = self.puMva(label)
         wp = loose_53X_WP
