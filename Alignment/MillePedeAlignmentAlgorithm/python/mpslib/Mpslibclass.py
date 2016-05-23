@@ -56,7 +56,6 @@ class jobdatabase:
     #-------------------------------------------------------------------------------
     # parses the mps.db file into the member variables and arrays
     def read_db(self):
-        DBFILE = open('mps.db','r')
         try:
             DBFILE = open('mps.db','r')
         except IOError as e:
