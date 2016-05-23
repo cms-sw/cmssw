@@ -129,6 +129,15 @@ class LeptonAnalyzer( Analyzer ):
         #rho for electrons
         self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
 
+        # JP/CV: add Spring15 EGamma POG electron ID MVA
+        # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+        self.handles['eleMVAIdSpring15TrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigMedium, 'edm::ValueMap<bool>')
+        self.handles['eleMVAIdSpring15TrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigTight, 'edm::ValueMap<bool>')
+        self.handles['eleMVArawSpring15Trig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15Trig, 'edm::ValueMap<float>')
+        self.handles['eleMVAIdSpring15NonTrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigMedium, 'edm::ValueMap<bool>')
+        self.handles['eleMVAIdSpring15NonTrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigTight, 'edm::ValueMap<bool>')
+        self.handles['eleMVArawSpring15NonTrig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15NonTrig, 'edm::ValueMap<float>')
+
         if self.doMiniIsolation or self.doIsolationScan:
             self.handles['packedCandidates'] = AutoHandle( self.cfg_ana.packedCandidates, 'std::vector<pat::PackedCandidate>')
 
@@ -341,6 +350,7 @@ class LeptonAnalyzer( Analyzer ):
         """
                make a list of all electrons, and apply basic corrections to them
         """
+
         allelectrons = map( Electron, self.handles['electrons'].product() )
 
         ## Duplicate removal for fast sim (to be checked if still necessary in latest greatest 5.3.X releases)
@@ -806,8 +816,6 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     loose_electron_relIso = 0.4,
     # loose_electron_isoCut = lambda electron : electron.miniRelIso < 0.1
     loose_electron_lostHits = 1.0,
-<<<<<<< HEAD
-=======
     # FIXME: JP/CV: add Spring15 EGamma POG electron ID MVA
     # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
     updateEleMVA = False,
@@ -817,7 +825,6 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     eleMVAIdSpring15NonTrigMedium = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90",
     eleMVAIdSpring15NonTrigTight = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80",
     eleMVArawSpring15NonTrig = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values",
->>>>>>> 5bb1aee... Heppy: add protections for running on out of the box miniaod 76X
     # muon isolation correction method (can be "rhoArea" or "deltaBeta")
     mu_isoCorr = "rhoArea" ,
     mu_effectiveAreas = "Spring15_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1' or 'Spring15_25ns_v1')
