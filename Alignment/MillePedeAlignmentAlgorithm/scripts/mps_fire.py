@@ -9,7 +9,7 @@
 #
 #  Usage:
 #
-#  mps_fire.py [-m[f]] [maxjobs]
+#  mps_fire.py [-a] [-m [-f]] [maxjobs]
 #  mps_fire.py -h
 
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
@@ -128,7 +128,7 @@ else:
             print 'Merge job %d status %s not submitted.' % \
                   (jobNumFrom1, lib.JOBSTATUS[i])
         elif not (mergeOK or args.forceMerge):
-            print 'Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -mf to force).'
+            print 'Merge job',jobNumFrom1,'not submitted since Mille jobs error/unfinished (Use -m -f to force).'
         else:
             # some paths for clarity
             Path = '%s/%s' % (theJobData,lib.JOBDIR[i])
