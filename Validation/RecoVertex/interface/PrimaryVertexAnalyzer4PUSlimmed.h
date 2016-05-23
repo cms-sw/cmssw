@@ -174,8 +174,6 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   // ----------member data ---------------------------
   bool verbose_;
   bool use_only_charged_tracks_;
-  double sigma_z_match_;
-  double abs_z_match_;
   std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
@@ -185,8 +183,6 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT< std::vector<PileupSummaryInfo> > vecPileupSummaryInfoToken_;
   std::vector<edm::EDGetTokenT<edm::View<reco::Vertex> > > reco_vertex_collection_tokens_;
   std::vector<edm::InputTag > reco_vertex_collections_;
-  edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
-  edm::EDGetTokenT< edm::View<reco::Track> > edmView_recoTrack_Token_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;

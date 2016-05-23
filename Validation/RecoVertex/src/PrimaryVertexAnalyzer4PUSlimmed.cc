@@ -44,19 +44,11 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>(
           "use_only_charged_tracks", true)),
-      sigma_z_match_(
-          iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
-      abs_z_match_(
-          iConfig.getUntrackedParameter<double>("abs_z_match", 0.1)),
       root_folder_(
           iConfig.getUntrackedParameter<std::string>("root_folder",
                                                 "Validation/Vertices")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(
           edm::InputTag(std::string("addPileupInfo")))),
-      recoTrackCollectionToken_(consumes<reco::TrackCollection>(
-          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
-      edmView_recoTrack_Token_(consumes<edm::View<reco::Track> >(
-          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
       trackingParticleCollectionToken_(consumes<TrackingParticleCollection>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollection"))),
       trackingVertexCollectionToken_(consumes<TrackingVertexCollection>(
@@ -1268,13 +1260,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       }
     }
   }
-
-  Handle<reco::TrackCollection> recTrks;
-  iEvent.getByToken(recoTrackCollectionToken_, recTrks);
-
-  // for the associator
-  Handle<View<Track> > trackCollectionH;
-  iEvent.getByToken(edmView_recoTrack_Token_, trackCollectionH);
 
   edm::Handle<TrackingParticleCollection> TPCollectionH;
   iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
