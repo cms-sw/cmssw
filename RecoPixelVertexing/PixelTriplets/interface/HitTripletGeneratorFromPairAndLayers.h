@@ -33,6 +33,16 @@ public:
                             const edm::Event & ev, const edm::EventSetup& es,
                             const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) = 0;
+
+    virtual void hitTriplets(
+	const TrackingRegion& region, 
+	OrderedHitTriplets & result,
+	const edm::EventSetup & es,
+	const HitDoublets & doublets,
+	const RecHitsSortedInPhi ** thirdHitMap,
+	const std::vector<const DetLayer *> & thirdLayerDetLayer,
+	const int nThirdLayers)=0;
+
 protected:
   std::unique_ptr<HitPairGeneratorFromLayerPair> thePairGenerator;
   LayerCacheType *theLayerCache;
