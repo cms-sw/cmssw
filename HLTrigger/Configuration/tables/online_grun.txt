@@ -590,8 +590,12 @@ HLT_DiPFJet25_FBEta3_NoCaloMatched_v*				# JIRA: CMSHLT-720
 HLT_DiPFJetAve15_HFJEC_v*					# JIRA: CMSHLT-720
 HLT_DiPFJetAve25_HFJEC_v*					# JIRA: CMSHLT-720
 HLT_DiPFJetAve35_HFJEC_v*					# JIRA: CMSHLT-720
-HLT_L1MinimumBiasHF_OR_v*						# JIRA: CMSHLT-720
+HLT_L1MinimumBiasHF_OR_v*					# JIRA: CMSHLT-720
 HLT_L1MinimumBiasHF_AND_v*					# JIRA: CMSHLT-720
+
+HLT_L1BptxPlus_v*						# JIRA: CMSHLT-818
+HLT_L1BptxMinus_v*						# JIRA: CMSHLT-818
+HLT_L1BptxOR_v*							# JIRA: CMSHLT-818
 
 HLT_L1SingleMuOpen_v*						# JIRA: CMSHLT-261 (for commissioning)
 HLT_L1SingleMuOpen_DT_v*					# JIRA: CMSHLT-261 (for commissioning)
@@ -622,7 +626,7 @@ HLT_DiSC30_18_EIso_AND_HE_Mass70_v*				# JIRA: CMSHLT-533, CMSHLT-747
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
-#HLT_ZeroBias_FirstCollisionAfterAbortGap_v*			# JIRA: CMSHLT-798 (DQM/prescales needed)
+HLT_ZeroBias_FirstCollisionAfterAbortGap_v*			# JIRA: CMSHLT-798
 HLT_ZeroBias_IsolatedBunches_v*					# JIRA: CMSHLT-595
 
 HLT_L1BeamGasMinus_v*						# JIRA: CMSHLT-809
