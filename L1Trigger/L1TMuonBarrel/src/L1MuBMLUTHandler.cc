@@ -91,6 +91,7 @@ void L1MuBMLUTHandler::print_pta_lut() const {
     cout << "\t Threshold : " << getPtLutThreshold(pam/2) << endl << endl;
 
     int maxbits = nbit_phi;
+    if (pam >= MAX_PTASSMETHA) maxbits = nbit_phi-2;
 
     cout << "      address";
     for ( int i = 0; i < maxbits; i++ ) cout << ' ';

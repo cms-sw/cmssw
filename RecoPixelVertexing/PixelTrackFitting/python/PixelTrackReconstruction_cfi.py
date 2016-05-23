@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from RecoPixelVertexing.PixelTrackFitting.PixelFitterByHelixProjections_cfi import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
@@ -34,3 +35,9 @@ PixelTrackReconstructionBlock = cms.PSet (
     )
 )
 
+eras.trackingLowPU.toModify(PixelTrackReconstructionBlock,
+    OrderedHitsFactoryPSet = dict(
+        SeedingLayers = "PixelLayerTripletsPreSplitting",
+        GeneratorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
+    ),
+)

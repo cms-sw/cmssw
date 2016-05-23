@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring15Trig.h"
+#include "RecoEgamma/ElectronIdentification/plugins/ElectronMVAEstimatorRun2Spring15Trig.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -412,3 +412,6 @@ void ElectronMVAEstimatorRun2Spring15Trig::constrainMVAVariables(AllVariables& a
 
 }
 
+DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
+		  ElectronMVAEstimatorRun2Spring15Trig,
+		  "ElectronMVAEstimatorRun2Spring15Trig");

@@ -148,7 +148,7 @@ from RecoTracker.IterativeTracking.InitialStep_cff import initialStepClassifier1
 #jetCoreRegionalStep.inputClassifiers=['jetCoreRegionalStepClassifier1','jetCoreRegionalStepClassifier2']
 
 
-from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
 jetCoreRegionalStep = TrackCutClassifier.clone()
 jetCoreRegionalStep.src='jetCoreRegionalStepTracks'
 jetCoreRegionalStep.mva.minPixelHits = [1,1,1]

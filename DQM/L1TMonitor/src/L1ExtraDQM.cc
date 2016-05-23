@@ -21,9 +21,6 @@
 #include <memory>
 #include <string>
 
-// user include files
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 
 // constructor
 L1ExtraDQM::L1ExtraDQM(const edm::ParameterSet& paramSet) :
@@ -1299,9 +1296,3 @@ void L1ExtraDQM::L1ExtraMonElement<CollectionType>::fillHfRingEtSums(
     }
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1ExtraDQM);
- 
-
-

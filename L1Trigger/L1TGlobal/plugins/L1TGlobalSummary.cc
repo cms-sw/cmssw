@@ -48,7 +48,6 @@ private:
   int maxBx_;
   L1TGlobalUtil* gtUtil_;
 
-  int new_run;
   std::vector<int> decisionCount_;
   std::vector<int> prescaledCount_;
   std::vector<int> finalCount_;
@@ -64,7 +63,6 @@ L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig){
   minBx_              = iConfig.getParameter<int>("MinBx");
   maxBx_              = iConfig.getParameter<int>("MaxBx");     
   gtUtil_             = new L1TGlobalUtil();
-  new_run = 0;
   finalOrCount = 0;
 }
 
@@ -83,12 +81,23 @@ void L1TGlobalSummary::fillDescriptions(edm::ConfigurationDescriptions& descript
   descriptions.add("L1TGlobalSummary", desc);
 }
 
-void L1TGlobalSummary::beginRun(Run const&, EventSetup const&){
+void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup){
   decisionCount_.clear();
   prescaledCount_.clear();
   finalCount_.clear();  
-  new_run = 1;
+
   finalOrCount = 0;
+  gtUtil_->retrieveL1Run(evSetup);
+  gtUtil_->retrieveL1LumiBlock(evSetup);
+
+  int size = gtUtil_->decisionsInitial().size();
+  decisionCount_  .resize(size);
+  prescaledCount_ .resize(size);
+  finalCount_     .resize(size);
+  std::fill(decisionCount_.begin(),  decisionCount_.end(),  0);
+  std::fill(prescaledCount_.begin(), prescaledCount_.end(), 0);
+  std::fill(finalCount_.begin(),     finalCount_.end(),     0);
+
 }
 
 void L1TGlobalSummary::endRun(Run const&, EventSetup const&){
@@ -154,22 +163,11 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     const std::vector<std::pair<std::string, bool> > masks = gtUtil_->masks();
     const std::vector<std::pair<std::string, bool> > vetoMasks = gtUtil_->vetoMasks();
 
-    if (new_run){
-      new_run = 0;
-      int size = gtUtil_->decisionsInitial().size();
-      decisionCount_  .resize(size);
-      prescaledCount_ .resize(size);
-      finalCount_     .resize(size);
-      std::fill(decisionCount_.begin(),  decisionCount_.end(),  0); 
-      std::fill(prescaledCount_.begin(), prescaledCount_.end(), 0); 
-      std::fill(finalCount_.begin(),     finalCount_.end(),     0); 
-    } else {
-      if ((decisionCount_.size() != gtUtil_->decisionsInitial().size())
-	  ||(prescaledCount_.size() != gtUtil_->decisionsPrescaled().size())
-	  ||(finalCount_.size() != gtUtil_->decisionsFinal().size())){
-	LogError("l1t|Global") << "gtUtil sizes inconsistent across run." << endl;
-	return;
-      }
+    if ((decisionCount_.size() != gtUtil_->decisionsInitial().size())
+	||(prescaledCount_.size() != gtUtil_->decisionsPrescaled().size())
+	||(finalCount_.size() != gtUtil_->decisionsFinal().size())){
+      LogError("l1t|Global") << "gtUtil sizes inconsistent across run." << endl;
+      return;
     }
 
     if(dumpTriggerResults_){

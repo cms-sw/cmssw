@@ -1,0 +1,15 @@
+This test directory contains simple test programs and python for L1TCaloLayer1
+
+The test programs are built using "scram b" in the test directory and they 
+show up in the usual tmp area.  You can put it in your path if you wish.
+The best bet is to simply build and run them using "scram b runtests"
+
+testUCTGeometry
+	This is a simple geometry tester which tries out most combinations of calorimeter index and Layer-1 translations
+
+testUCTLayer1
+	This program uses pseudo random numbers as input to test the emulator functionality
+
+testL1TCaloLayer1.py
+	This python is input to cmsRun to test the emulator.  It needs an EDM file with FED raw data.
+	It runs both the Layer-1 unpacker and the emulator to produce an EDM file with CaloTower collection.

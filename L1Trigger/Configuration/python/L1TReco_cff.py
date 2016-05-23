@@ -81,3 +81,8 @@ if eras.stage2L1Trigger.isChosen():
     config_L1ExtraForStage1Raw(l1extraParticles)
     L1Reco = cms.Sequence(l1extraParticles)
 
+if eras.fastSim.isChosen():
+    # fastsim runs L1Reco and HLT in one step
+    # this requires to set :
+    from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
+    l1extraParticles.centralBxOnly = True

@@ -13,11 +13,14 @@ namespace l1t {
       explicit RPC(uint64_t dataword);
     
     RPC() : 
-      prt_delay(-99), partition_num(-99), partition_data(-99), bcn(-99), lb(-99), link_number(-99), bxn(-99), tbin(-99), eod(-99), bc0(-99), dataword(-99) 
+      prt_delay(-99), partition_num(-99), partition_data(-99), bcn(-99), lb(-99), link_number(-99), 
+	bxn(-99), tbin(-99), eod(-99), bc0(-99), format_errors(0), dataword(-99) 
 	{};
       
-    RPC(int int_prt_delay, int int_partition_num, int int_partition_data, int int_bcn, int int_lb, int int_link_number, int int_bxn, int int_tbin, int int_eod, int int_bc0) :
-      prt_delay(int_prt_delay), partition_num(int_partition_num), partition_data(int_partition_data), bcn(int_bcn), lb(int_lb), link_number(int_link_number), bxn(int_bxn), tbin(int_tbin), eod(int_eod), bc0(int_bc0), dataword(-99)
+    RPC(int int_prt_delay, int int_partition_num, int int_partition_data, int int_bcn, int int_lb, int int_link_number, 
+	int int_bxn, int int_tbin, int int_eod, int int_bc0) :
+      prt_delay(int_prt_delay), partition_num(int_partition_num), partition_data(int_partition_data), bcn(int_bcn), lb(int_lb), link_number(int_link_number), 
+	bxn(int_bxn), tbin(int_tbin), eod(int_eod), bc0(int_bc0), format_errors(0), dataword(-99)
     	{};
       
       virtual ~RPC() {};
@@ -32,6 +35,7 @@ namespace l1t {
       void set_tbin(int bits)           {  tbin = bits; };
       void set_eod(int bits)            {  eod = bits; };
       void set_bc0(int bits)            {  bc0 = bits; };
+      void add_format_error()           { format_errors += 1; };
       void set_dataword(uint64_t bits)  { dataword = bits;  };
 
       const int PRT_delay()      const { return  prt_delay ; };
@@ -44,6 +48,7 @@ namespace l1t {
       const int Tbin()           const { return  tbin ; };
       const int EOD()            const { return  eod ; };
       const int BC0()            const { return  bc0 ; };      
+      const int Format_Errors()  const { return format_errors; };
       const uint64_t Dataword()  const { return dataword;  };      
       
     private:
@@ -57,6 +62,7 @@ namespace l1t {
       int  tbin;
       int  eod; 
       int  bc0; 
+      int  format_errors;
       uint64_t dataword;
       
     }; // End of class RPC

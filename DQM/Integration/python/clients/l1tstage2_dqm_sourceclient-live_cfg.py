@@ -1,76 +1,91 @@
-#* \L1 Trigger DQM sequence
-#* \author Esmaeel Eskandari Tadavani                                                                                                                       
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DQM")
 
-#----------------------------
-# Event Source
-#
-# for live online DQM in P5
+#--------------------------------------------------
+# Event Source and Condition
+
+# Live Online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
-#
-# for testing in lxplus
-#process.load("DQM.Integration.config.fileinputsource_cfi")
-
-#----------------------------
-# DQM Environment
- 
-process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'L1T2016'
-process.dqmSaver.tag = 'L1T2016'
-#
-#
-# references needed
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
-
-# Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
-# Condition for lxplus
+# Testing in lxplus
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
+# Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
-#-------------------------------------
-# sequences needed for L1 trigger DQM
+#--------------------------------------------------
+# DQM Environment
 
-# standard unpacking sequence 
+process.load("DQM.Integration.config.environment_cfi")
+
+process.dqmEnv.subSystemFolder = "L1T2016"
+process.dqmSaver.tag = "L1T2016"
+process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
+
+process.dqmEndPath = cms.EndPath(
+    process.dqmEnv *
+    process.dqmSaver
+)
+
+#--------------------------------------------------
+# Standard Unpacking Path
+
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
-
-# L1 Trigger sequences 
-
-# l1tMonitor and l1tMonitorEndPathSeq
-process.load("DQM.L1TMonitor.L1TMonitor_cff")
-process.load("DQM.L1TMonitor.L1TStage2_cff") 
 
 process.rawToDigiPath = cms.Path(process.RawToDigi)
 
-# for GCT, unpack all five samples
+# For GCT, unpack all five samples.
 process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
 process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
-process.stage2UnpackPath = cms.Path(process.caloStage2Digis+process.gmtStage2Digis)
+#--------------------------------------------------
+# Legacy DQM Paths
 
-process.l1tMonitorPath = cms.Path(process.l1tStage2online)
-
+process.load("DQM.L1TMonitor.L1TMonitor_cff")
 process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
-process.dqmEndPath = cms.EndPath(
-                                 process.dqmEnv *
-                                 process.dqmSaver
-                                 )
+#--------------------------------------------------
+# Stage2 DQM Paths
 
-process.schedule = cms.Schedule(process.rawToDigiPath,
-                                process.stage2UnpackPath,
-                                process.l1tMonitorPath,
-                                #process.l1tMonitorClientPath,
-                                process.l1tMonitorEndPath,
-                                #process.l1tMonitorClientEndPath,
-                                process.dqmEndPath
-                                )
+process.load("DQM.L1TMonitor.L1TStage2_cff")
+process.l1tMonitorPath = cms.Path(process.l1tStage2online)
+
+# Remove Subsystem Modules
+#process.l1tStage2online.remove(process.l1tLayer1)
+#process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
+#process.l1tStage2online.remove(process.l1tStage2uGMT)
+#process.l1tStage2online.remove(process.l1tStage2uGt)
+#process.l1tStage2online.remove(process.l1tStage2Bmtf)
+#process.l1tStage2online.remove(process.l1tStage2Emtf)
+
+#--------------------------------------------------
+# Stage2 Unpacking Path
+
+process.stage2UnpackPath = cms.Path(
+    process.l1tCaloLayer1Digis +
+    process.caloStage2Digis +
+    process.gmtStage2Digis +
+    process.gtStage2Digis +
+    process.BMTFStage2Digis + 
+    process.emtfStage2Digis
+)
+
+#--------------------------------------------------
+# L1 Trigger DQM Schedule
+
+process.schedule = cms.Schedule(
+    process.rawToDigiPath,
+    process.stage2UnpackPath,
+    process.l1tMonitorPath,
+    #process.l1tMonitorClientPath,
+    process.l1tMonitorEndPath,
+    #process.l1tMonitorClientEndPath,
+    process.dqmEndPath
+)
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
@@ -94,7 +109,8 @@ process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
 process.l1s.fedRawData = cms.InputTag("rawDataCollector")
-    
+process.gtStage2Digis.InputLabel = cms.InputTag("rawDataCollector")
+
 if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
@@ -113,8 +129,11 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
     process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
+    process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
 
-### process customizations included here
+#--------------------------------------------------
+# Process Customizations
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+

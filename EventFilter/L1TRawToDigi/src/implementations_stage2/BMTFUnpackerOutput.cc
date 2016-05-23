@@ -8,7 +8,6 @@ namespace l1t
 	{
 		bool BMTFUnpackerOutput::unpack(const Block& block, UnpackerCollections *coll)
 		{
-			 
 			unsigned int blockId = block.header().getID();
 			LogDebug("L1T") << "Block ID: " << blockId << " size: " << block.header().getSize();
 			
@@ -30,7 +29,13 @@ namespace l1t
 			
 			LogDebug("L1T") << "nBX = " << nBX << " firstBX = " << firstBX << " lastBX = " << lastBX;
 			
+			int processor;
+			if (  block.amc().getAMCNumber()%2 != 0 )
+				processor =  block.amc().getAMCNumber()/2;
+			else
+				processor = 6 + ( block.amc().getAMCNumber()/2 -1);
 			
+
 			for(int ibx = firstBX; ibx <= lastBX; ibx++)
 			{
 				int ip(0);
@@ -47,11 +52,16 @@ namespace l1t
 					}
 					
 					RegionalMuonCand muCand = RegionalMuonCand();
-					RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, block.amc().getAMCNumber() - 1, tftype::bmtf);
+					RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
 					muCand.setLink(blockId/2);	
 
 					LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
-					res->push_back(ibx, muCand);
+					if ( muCand.hwQual() != 0 )
+					{
+						if ( muCand.hwPt() < 6 )
+							std::cout << "Output is: " << std::hex << raw_first <<"\t" << raw_secnd << std::dec << "\tPt: " << muCand.hwPt() << "\teta: " << muCand.hwEta() << "\tphi: " << muCand.hwPhi() <<"\tQual: " << muCand.hwQual() << std::endl << "Wheel is: " << (int) ((raw_secnd >> 20) & 0x3) << std::endl;
+						res->push_back(ibx, muCand);
+					}
 					
 				}//for iw
 			}//for ibx

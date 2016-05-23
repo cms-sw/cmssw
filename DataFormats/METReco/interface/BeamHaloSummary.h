@@ -47,6 +47,8 @@ namespace reco {
     
     const bool GlobalLooseHaloId() const { return GlobalHaloReport.size() ? GlobalHaloReport[0] : false ; }
     const bool GlobalTightHaloId() const { return GlobalHaloReport.size() > 1 ? GlobalHaloReport[1] : false ; }
+    const bool GlobalTightHaloId2016() const { return GlobalHaloReport.size() > 2 ? GlobalHaloReport[2] : false ; }
+    const bool GlobalSuperTightHaloId2016() const { return GlobalHaloReport.size() > 3 ? GlobalHaloReport[3] : false ; }
 
     const bool EventSmellsLikeHalo() const { return HcalLooseHaloId() || EcalLooseHaloId() || CSCLooseHaloId() || GlobalLooseHaloId() ; }
     const bool LooseId() const { return EventSmellsLikeHalo(); }

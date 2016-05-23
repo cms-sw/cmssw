@@ -109,35 +109,35 @@ class L1TMuonOverlapParams {
   void setFwVersion(unsigned fwVersion) { fwVersion_ = fwVersion; }
 
   ///General definitions
-  std::vector<int>* generalParams()        { return &pnodes_[GENERAL].iparams_; }
+  const std::vector<int>* generalParams()   const     { return &pnodes_[GENERAL].iparams_; }
   void setGeneralParams (const std::vector<int> & paramsVec) { pnodes_[GENERAL].type_ = "INT"; pnodes_[GENERAL].iparams_ = paramsVec;}
 
   ///Access to specific general settings.
-  int nPdfAddrBits() { return pnodes_[GENERAL].iparams_[GENERAL_ADDRBITS];};
+  int nPdfAddrBits() const { return pnodes_[GENERAL].iparams_[GENERAL_ADDRBITS];};
 
-  int nPdfValBits() { return pnodes_[GENERAL].iparams_[GENERAL_VALBITS];};
+  int nPdfValBits() const { return pnodes_[GENERAL].iparams_[GENERAL_VALBITS];};
 
-  int nHitsPerLayer() { return pnodes_[GENERAL].iparams_[GENERAL_HITSPERLAYER];};
+  int nHitsPerLayer() const { return pnodes_[GENERAL].iparams_[GENERAL_HITSPERLAYER];};
 
-  int nPhiBits() { return pnodes_[GENERAL].iparams_[GENERAL_PHIBITS];};
+  int nPhiBits() const { return pnodes_[GENERAL].iparams_[GENERAL_PHIBITS];};
 
-  int nPhiBins() { return pnodes_[GENERAL].iparams_[GENERAL_PHIBINS];};
+  int nPhiBins() const { return pnodes_[GENERAL].iparams_[GENERAL_PHIBINS];};
 
-  int nRefHits() { return pnodes_[GENERAL].iparams_[GENERAL_NREFHITS];};
+  int nRefHits() const { return pnodes_[GENERAL].iparams_[GENERAL_NREFHITS];};
     
-  int nTestRefHits() { return pnodes_[GENERAL].iparams_[GENERAL_NTESTREFHITS];};
+  int nTestRefHits() const { return pnodes_[GENERAL].iparams_[GENERAL_NTESTREFHITS];};
 
-  int nProcessors() { return pnodes_[GENERAL].iparams_[GENERAL_NPROCESSORS];};
+  int nProcessors() const { return pnodes_[GENERAL].iparams_[GENERAL_NPROCESSORS];};
 
-  int nLogicRegions() { return pnodes_[GENERAL].iparams_[GENERAL_NLOGIC_REGIONS];};
+  int nLogicRegions() const { return pnodes_[GENERAL].iparams_[GENERAL_NLOGIC_REGIONS];};
 
-  int nInputs() { return pnodes_[GENERAL].iparams_[GENERAL_NINPUTS];};
+  int nInputs() const { return pnodes_[GENERAL].iparams_[GENERAL_NINPUTS];};
 
-  int nLayers() { return pnodes_[GENERAL].iparams_[GENERAL_NLAYERS];};
+  int nLayers() const { return pnodes_[GENERAL].iparams_[GENERAL_NLAYERS];};
 
-  int nRefLayers() { return pnodes_[GENERAL].iparams_[GENERAL_NREFLAYERS];};
+  int nRefLayers() const { return pnodes_[GENERAL].iparams_[GENERAL_NREFLAYERS];};
 
-  int nGoldenPatterns() { return pnodes_[GENERAL].iparams_[GENERAL_NGOLDENPATTERNS];};
+  int nGoldenPatterns() const { return pnodes_[GENERAL].iparams_[GENERAL_NGOLDENPATTERNS];};
     
   ///Connections definitions
   void setLayerMap(const  std::vector<LayerMapNode> &aVector) { layerMap_ = aVector;}
@@ -154,27 +154,27 @@ class L1TMuonOverlapParams {
   
   void setConnectedSectorsEnd(const std::vector<int> &aVector){pnodes_[SECTORS_END].type_ = "INT"; pnodes_[SECTORS_END].iparams_ = aVector;};
   
-  std::vector<LayerMapNode> * layerMap() { return &layerMap_;};
+  const std::vector<LayerMapNode> * layerMap() const { return &layerMap_;};
 
-  std::vector<RefLayerMapNode> * refLayerMap() { return &refLayerMap_;};
+  const std::vector<RefLayerMapNode> * refLayerMap() const { return &refLayerMap_;};
 
-  std::vector<RefHitNode> * refHitMap() {return &refHitMap_;};
+  const std::vector<RefHitNode> * refHitMap() const {return &refHitMap_;};
   
-  std::vector<int> * globalPhiStartMap() { return &globalPhiStart_;};
+  const std::vector<int> * globalPhiStartMap() const { return &globalPhiStart_;};
 
-  std::vector<LayerInputNode> * layerInputMap() { return &layerInputMap_;};
+  const std::vector<LayerInputNode> * layerInputMap() const { return &layerInputMap_;};
 
-  std::vector<int> * connectedSectorsStart() { return &pnodes_[SECTORS_START].iparams_;};
+  const std::vector<int> * connectedSectorsStart() const { return &pnodes_[SECTORS_START].iparams_;};
   
-  std::vector<int> * connectedSectorsEnd() { return &pnodes_[SECTORS_END].iparams_;};
+  const std::vector<int> * connectedSectorsEnd() const { return &pnodes_[SECTORS_END].iparams_;};
 
  
   ///Golden Patterns definitions
-  l1t::LUT* chargeLUT()        { return &pnodes_[CHARGE].LUT_; }
-  l1t::LUT* etaLUT()        { return &pnodes_[ETA].LUT_; }
-  l1t::LUT* ptLUT()          { return &pnodes_[PT].LUT_; }
-  l1t::LUT* pdfLUT()          { return &pnodes_[PDF].LUT_; }
-  l1t::LUT* meanDistPhiLUT()          { return &pnodes_[MEANDISTPHI].LUT_; }
+  const l1t::LUT* chargeLUT() const { return &pnodes_[CHARGE].LUT_; }
+  const l1t::LUT* etaLUT() const { return &pnodes_[ETA].LUT_; }
+  const l1t::LUT* ptLUT()  const { return &pnodes_[PT].LUT_; }
+  const l1t::LUT* pdfLUT() const { return &pnodes_[PDF].LUT_; }
+  const l1t::LUT* meanDistPhiLUT() const { return &pnodes_[MEANDISTPHI].LUT_; }
 
   void setChargeLUT (const l1t::LUT & lut) { pnodes_[CHARGE].type_ = "LUT"; pnodes_[CHARGE].LUT_ = lut; }
   void setEtaLUT (const l1t::LUT & lut) { pnodes_[ETA].type_ = "LUT"; pnodes_[ETA].LUT_ = lut; }

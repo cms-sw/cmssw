@@ -80,7 +80,7 @@ namespace L1TwinMux {
 				    const float & zRpc
 				    )
     {
-      return sqrt( resol_xRpc*resol_xRpc + resol_xDt*resol_xDt )/abs(zDt-zRpc);
+      return std::sqrt( resol_xRpc*resol_xRpc + resol_xDt*resol_xDt )/std::fabs(zDt-zRpc);
     };
     /// FIXME END
 

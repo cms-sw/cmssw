@@ -583,7 +583,7 @@ void readPedeHists(Option_t *option, const char *txtFile)
 
   if (opt.Contains("print")) {
     opt.ReplaceAll("print", "");
-    reader.Print(TString(Form("%s.ps", txtFile)));
+    reader.Print(TString(Form("%s.pdf", txtFile)));
   }
 
   if (opt.Contains("write")) {

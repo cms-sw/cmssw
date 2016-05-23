@@ -1,4 +1,4 @@
-from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 

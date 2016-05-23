@@ -73,6 +73,7 @@ namespace L1Analysis
       muonChg.clear();
       muonIso.clear();
       muonQual.clear();
+      muonTfMuonIdx.clear();
       muonBx.clear();
 
       nSums = 0;
@@ -124,6 +125,7 @@ namespace L1Analysis
     std::vector<short int>      muonChg;
     std::vector<unsigned short int> muonIso;
     std::vector<unsigned short int> muonQual;
+    std::vector<unsigned short int> muonTfMuonIdx;
     std::vector<short int>      muonBx;
 
     

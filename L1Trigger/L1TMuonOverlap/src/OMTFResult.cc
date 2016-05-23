@@ -14,6 +14,13 @@ OMTFResult::OMTFResult(){
 }
 ////////////////////////////////////////////
 ////////////////////////////////////////////
+
+void OMTFResult::setRefPhiRHits(unsigned int iRefLayer, int iRefPhiRHit){
+      refPhiRHit1D[iRefLayer] = iRefPhiRHit;
+}
+////////////////////////////////////////////
+////////////////////////////////////////////
+
 void OMTFResult::addResult(unsigned int iRefLayer,
 			   unsigned int iLayer,
 			   unsigned int val,
@@ -29,26 +36,31 @@ void OMTFResult::addResult(unsigned int iRefLayer,
 ////////////////////////////////////////////
 void OMTFResult::clear(){
 
-  results1D.assign(OMTFConfiguration::nRefLayers,0);
-  hits1D.assign(OMTFConfiguration::nRefLayers,0);
-  results.assign(OMTFConfiguration::nLayers,results1D);
-  refPhi1D.assign(OMTFConfiguration::nRefLayers,1024);
-  refEta1D.assign(OMTFConfiguration::nRefLayers,1024);
-  hitsBits.assign(OMTFConfiguration::nRefLayers,0);  
+  results1D.assign(OMTFConfiguration::instance()->nRefLayers,0);
+  hits1D.assign(OMTFConfiguration::instance()->nRefLayers,0);
+  results.assign(OMTFConfiguration::instance()->nLayers,results1D);
+  refPhi1D.assign(OMTFConfiguration::instance()->nRefLayers,1024);
+  refEta1D.assign(OMTFConfiguration::instance()->nRefLayers,1024);
+  hitsBits.assign(OMTFConfiguration::instance()->nRefLayers,0);  
+  refPhiRHit1D.assign(OMTFConfiguration::instance()->nRefLayers,1024);
 }
 ////////////////////////////////////////////
 ////////////////////////////////////////////
 void OMTFResult::finalise(){
 
   for(unsigned int iLogicLayer=0;iLogicLayer<results.size();++iLogicLayer){
-    unsigned int connectedLayer = OMTFConfiguration::logicToLogic[iLogicLayer];
+
+    //unsigned int connectedLayer = OMTFConfiguration::instance()->logicToLogic[iLogicLayer];    
+    auto iter = OMTFConfiguration::instance()->logicToLogic.find(iLogicLayer);
+    unsigned int connectedLayer = iter->second;
+
     for(unsigned int iRefLayer=0;iRefLayer<results[iLogicLayer].size();++iRefLayer){
       ///If connected layer (POS or BEND) has not been fired, ignore this layer also
       unsigned int val = results[connectedLayer][iRefLayer]>0 ? results[iLogicLayer][iRefLayer]: 0;
       results1D[iRefLayer]+=val;
       hitsBits[iRefLayer]+=(val>0)*std::pow(2,iLogicLayer);
       ///Do not count bending layers in hit count
-      if(!OMTFConfiguration::bendingLayers.count(iLogicLayer)) hits1D[iRefLayer]+=(val>0);
+      if(!OMTFConfiguration::instance()->bendingLayers.count(iLogicLayer)) hits1D[iRefLayer]+=(val>0);
     }      
   }
 }
@@ -58,7 +70,7 @@ bool OMTFResult::empty() const{
 
   unsigned int nHits = 0;
 
-  for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+  for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
     nHits+=hits1D[iRefLayer];
   }      
   return (nHits==0);

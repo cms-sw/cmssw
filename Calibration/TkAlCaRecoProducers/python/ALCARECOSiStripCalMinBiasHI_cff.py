@@ -18,10 +18,10 @@ import CalibTracker.SiStripCommon.SiStripDCSFilter_cfi
 DCSStatusForSiStripCalMinBias = CalibTracker.SiStripCommon.SiStripDCSFilter_cfi.siStripDCSFilter.clone()
 
 # Select pp-like events based on the pixel cluster multiplicity
-import HLTrigger.special.hltPixelActivityFilter_cfi
-HLTPixelActivityFilterForSiStripCalMinBias = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone()
-HLTPixelActivityFilterForSiStripCalMinBias.maxClusters = 500
-HLTPixelActivityFilterForSiStripCalMinBias.inputTag    = 'siPixelClusters'
+#import HLTrigger.special.hltPixelActivityFilter_cfi
+#HLTPixelActivityFilterForSiStripCalMinBias = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone()
+#HLTPixelActivityFilterForSiStripCalMinBias.maxClusters = 500
+#HLTPixelActivityFilterForSiStripCalMinBias.inputTag    = 'siPixelClusters'
 
 # Select only good tracks
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
@@ -43,5 +43,7 @@ ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyChargeFilter       = False
 ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyMissingETFilter    = False
 
-# Sequence #
-seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*HLTPixelActivityFilterForSiStripCalMinBias*DCSStatusForSiStripCalMinBias*ALCARECOSiStripCalMinBias)
+# Sequence with the filter for the Pixel activity #
+#seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*HLTPixelActivityFilterForSiStripCalMinBias*DCSStatusForSiStripCalMinBias*ALCARECOSiStripCalMinBias)
+
+seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*DCSStatusForSiStripCalMinBias*ALCARECOSiStripCalMinBias)

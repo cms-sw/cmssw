@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-SimL1TechnicalTriggers = cms.Sequence()
+# Stage2 fake Technical Triggers
+import L1Trigger.L1TGlobal.simGtExtFakeProd_cfi
+simGtExtFakeStage2Digis = L1Trigger.L1TGlobal.simGtExtFakeProd_cfi.simGtExtFakeProd.clone()
+
+SimL1TechnicalTriggers = cms.Sequence(simGtExtFakeStage2Digis)
+
 
 # BSC Technical Trigger
 import L1TriggerOffline.L1Analyzer.bscTrigger_cfi
@@ -27,4 +32,3 @@ if not (eras.stage2L1Trigger.isChosen()):
         simRpcTechTrigDigis + 
         simHcalTechTrigDigis +
         simCastorTechTrigDigis )
-

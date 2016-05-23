@@ -13,7 +13,9 @@ ecalTrigPrimClient = cms.untracked.PSet(
     ),
     sources = cms.untracked.PSet(
         EtEmulError = ecalTrigPrimTask.MEs.EtEmulError,
-        MatchedIndex = ecalTrigPrimTask.MEs.MatchedIndex
+        MatchedIndex = ecalTrigPrimTask.MEs.MatchedIndex,
+        TTFlags4 = ecalTrigPrimTask.MEs.TTFlags4,
+        TTMaskMapAll = ecalTrigPrimTask.MEs.TTMaskMapAll
     ),
     MEs = cms.untracked.PSet(
         NonSingleSummary = cms.untracked.PSet(
@@ -42,6 +44,13 @@ ecalTrigPrimClient = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('Emulator TP timing where the largest number of events had Et matches. Towers with entries less than ' + str(minEntries) + ' are not considered.')
+        ),
+        TTF4vMask = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT TTF4 vs Masking Status%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('Summarizes whether a TT was masked in the TPGRecords, or had an instance of TT Flag=4.<br/>GRAY: Masked, no TTF4,<br/>BLACK: Masked, with TTF4,<br/>BLUE: Not Masked, with TTF4.')
         )
     )
 )

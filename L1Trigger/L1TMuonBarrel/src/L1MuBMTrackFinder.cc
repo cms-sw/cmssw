@@ -152,7 +152,16 @@ void L1MuBMTrackFinder::setup(edm::ConsumesCollector&& iC) {
 void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
  m_config->setDefaultsES(c);
-  // run the barrel Muon Trigger Track Finder
+ int bx_min = L1MuBMTFConfig::getBxMin();
+ int bx_max = L1MuBMTFConfig::getBxMax();
+
+ //Resize the bx range according to the config file  
+  _cache0.setBXRange(bx_min,bx_max);
+  _cache.setBXRange(bx_min,bx_max);
+     
+
+
+// run the barrel Muon Trigger Track Finder
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByToken(m_DTDigiToken,dttrig);
   if ( dttrig->getContainer()->size() == 0 ) return;
@@ -160,13 +169,6 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
   if ( L1MuBMTFConfig::Debug(2) ) cout << endl;
   if ( L1MuBMTFConfig::Debug(2) ) cout << "**** L1MuBMTrackFinder processing ------****" << endl;
   if ( L1MuBMTFConfig::Debug(2) ) cout << endl;
-
-  int bx_min = L1MuBMTFConfig::getBxMin();
-  int bx_max = L1MuBMTFConfig::getBxMax();
-
-  ///Resize the bx range according to the config file  
-  _cache0.setBXRange(bx_min,bx_max);
-  _cache.setBXRange(bx_min,bx_max);
 
   for ( int bx = bx_min; bx <= bx_max; bx++ ) {
   if ( dttrig->bxEmpty(bx) ) continue;

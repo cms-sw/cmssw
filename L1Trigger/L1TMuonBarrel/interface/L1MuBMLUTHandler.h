@@ -77,11 +77,13 @@ enum Extrapolation { EX12, EX13, EX14, EX21, EX23, EX24, EX34,
                      EX15, EX16, EX25, EX26, EX56 };
 
  // maximal number of pt assignment methods
-const int MAX_PTASSMETH = 13;
+const int MAX_PTASSMETH = 19;
+const int MAX_PTASSMETHA = 12;
 
 // pt assignment methods
 enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
                    PT23L,  PT23H,  PT24L,  PT24H,  PT34L,  PT34H,
+                   PB12H,  PB13H,  PB14H,  PB21H,  PB23H,  PB24H, PB34H,
                    NODEF };
 
 };

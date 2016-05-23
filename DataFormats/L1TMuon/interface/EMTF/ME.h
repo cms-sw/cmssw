@@ -13,11 +13,17 @@ namespace l1t {
       explicit ME(uint64_t dataword);
     
     ME() : 
-      me_bxn(-99), key_wire_group(-99), clct_key_half_strip(-99), quality(-99), clct_pattern(-99), csc_ID(-99), epc(-99), station(-99), tbin_num(-99), bc0(-99), bxe(-99), lr(-99), afff(-99), cik(-99), nit(-99), afef(-99), se(-99), sm(-99), af(-99), vp(-99), dataword(-99) 
+      me_bxn(-99), key_wire_group(-99), clct_key_half_strip(-99), quality(-99), clct_pattern(-99), 
+	csc_ID(-99), epc(-99), station(-99), tbin_num(-99), bc0(-99), bxe(-99), lr(-99), afff(-99), 
+	cik(-99), nit(-99), afef(-99), se(-99), sm(-99), af(-99), vp(-99), format_errors(0), dataword(-99) 
 	{};
       
-    ME(int int_me_bxn, int int_key_wire_group, int int_clct_key_half_strip, int int_quality, int int_clct_pattern, int int_csc_ID, int int_epc, int int_station, int int_tbin_num, int int_bc0, int int_bxe, int int_lr, int int_afff, int int_cik, int int_nit, int int_afef, int int_se, int int_sm, int int_af, int int_vp) :
-      me_bxn(int_me_bxn), key_wire_group(int_key_wire_group), clct_key_half_strip(int_clct_key_half_strip), quality(int_quality), clct_pattern(int_clct_pattern), csc_ID(int_csc_ID), epc(int_epc), station(int_station), tbin_num(int_tbin_num), bc0(int_bc0), bxe(int_bxe), lr(int_lr), afff(int_afff), cik(int_cik), nit(int_nit), afef(int_afef), se(int_se), sm(int_sm), af(int_af), vp(int_vp), dataword(-99)
+    ME(int int_me_bxn, int int_key_wire_group, int int_clct_key_half_strip, int int_quality, int int_clct_pattern, 
+       int int_csc_ID, int int_epc, int int_station, int int_tbin_num, int int_bc0, int int_bxe, int int_lr, int int_afff, 
+       int int_cik, int int_nit, int int_afef, int int_se, int int_sm, int int_af, int int_vp) :
+      me_bxn(int_me_bxn), key_wire_group(int_key_wire_group), clct_key_half_strip(int_clct_key_half_strip), quality(int_quality), clct_pattern(int_clct_pattern), 
+	csc_ID(int_csc_ID), epc(int_epc), station(int_station), tbin_num(int_tbin_num), bc0(int_bc0), bxe(int_bxe), lr(int_lr), afff(int_afff), 
+	cik(int_cik), nit(int_nit), afef(int_afef), se(int_se), sm(int_sm), af(int_af), vp(int_vp), format_errors(0), dataword(-99)
     	{};
       
       virtual ~ME() {};
@@ -42,6 +48,7 @@ namespace l1t {
       void set_sm(int bits)                   {  sm = bits; };
       void set_af(int bits)                   {  af = bits; };
       void set_vp(int bits)                   {  vp = bits; };
+      void add_format_error()                 { format_errors += 1; };
       void set_dataword(uint64_t bits)        { dataword = bits;       };
 
       const int ME_BXN()               const { return  me_bxn ; };
@@ -64,6 +71,7 @@ namespace l1t {
       const int SM()                   const { return  sm ; };
       const int AF()                   const { return  af ; };
       const int VP()                   const { return  vp ; };      
+      const int Format_Errors()        const { return format_errors; };
       const uint64_t Dataword()        const { return dataword;       };      
       
     private:
@@ -87,6 +95,7 @@ namespace l1t {
       int  sm;
       int  af;
       int  vp;
+      int  format_errors;
       uint64_t dataword;
       
     }; // End of class ME

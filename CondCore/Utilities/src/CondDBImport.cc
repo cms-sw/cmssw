@@ -225,6 +225,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( L1TUtmObject )
       IMPORT_PAYLOAD_CASE( L1TUtmScale )
       IMPORT_PAYLOAD_CASE( L1TUtmTriggerMenu )
+      IMPORT_PAYLOAD_CASE( L1TGlobalParameters )
       IMPORT_PAYLOAD_CASE( L1TriggerKey )
       IMPORT_PAYLOAD_CASE( MagFieldConfig )
       if( inputTypeName == "L1TriggerKeyList" ){ 
@@ -304,6 +305,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalTPGPedestal> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<float> )
+      IMPORT_PAYLOAD_CASE( L1TGlobalPrescalesVetos )
       if( inputTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){
 	match = true;
 	const PhysicsTools::Calibration::Histogram3D<double,double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram3D<double,double,double,double>*>( inputPtr ); 

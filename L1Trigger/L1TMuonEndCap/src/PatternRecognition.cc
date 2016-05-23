@@ -30,7 +30,6 @@ PhiMemoryImage patterns[PATTERN_SIZE] = {pattern8, pattern9, pattern6, pattern7,
   	std::vector<PhiMemoryImage> Merged = Eout.zone;
 	////////////////////////////
 	
-	
   	for(int zone=0;zone<4;zone++){
 	
 		
@@ -107,13 +106,9 @@ PhiMemoryImage patterns[PATTERN_SIZE] = {pattern8, pattern9, pattern6, pattern7,
  
  		for(int k=0;k<128;k++){
 	
-			int qr = ranka_t[zone][k-1], ql = ranka_t[zone][k+1], qc = ranka_t[zone][k];
-			
-			//if(qc && verbose)
-			//	std::cout<<"\n"<<k<<":qc = "<<qc<<" straight: "<<stra[zone][k]<<"  lya: "<<lya[zone][k]<<std::endl; 
-		
-			if(k==0){qr=0;}
-			if(k==127){ql=0;}
+		  int qr = (k==0) ? qr=0 : ranka_t[zone][k-1]; 
+		  int ql = (k==127) ? ql=0 :ranka_t[zone][k+1];
+		  int qc = ranka_t[zone][k];
 		
 			if((qc <= ql) || (qc < qr)){qc = 0;}
 		

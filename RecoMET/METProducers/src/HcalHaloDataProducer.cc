@@ -15,6 +15,8 @@ using namespace reco;
 HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig)
 {
   //RecHit Level
+  IT_EBRecHit    = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
+  IT_EERecHit    = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
   IT_HBHERecHit  = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
   IT_HFRecHit    = iConfig.getParameter<edm::InputTag>("HFRecHitLabel");
   IT_HORecHit    = iConfig.getParameter<edm::InputTag>("HORecHitLabel");
@@ -25,6 +27,8 @@ HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig)
   SumHcalEnergyThreshold = (float) iConfig.getParameter<double>("SumHcalEnergyThresholdParam");
   NHitsHcalThreshold =  iConfig.getParameter<int>("NHitsHcalThresholdParam");
 
+  ebrechit_token_ = consumes<EBRecHitCollection>(IT_EBRecHit);
+  eerechit_token_ = consumes<EERecHitCollection>(IT_EERecHit);
   hbherechit_token_ = consumes<HBHERecHitCollection>(IT_HBHERecHit);
   hfrechit_token_ = consumes<HFRecHitCollection>(IT_HFRecHit);
   calotower_token_     = consumes<CaloTowerCollection>(IT_CaloTowers);
@@ -41,6 +45,14 @@ void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Get CaloTowers
   edm::Handle<CaloTowerCollection> TheCaloTowers;
   iEvent.getByToken(calotower_token_, TheCaloTowers);
+
+  //Get EB RecHits
+  edm::Handle<EBRecHitCollection> TheEBRecHits;
+  iEvent.getByToken(ebrechit_token_, TheEBRecHits);
+
+  //Get EE RecHits
+  edm::Handle<EERecHitCollection> TheEERecHits;
+  iEvent.getByToken(eerechit_token_, TheEERecHits);
   
   //Get HB/HE RecHits
   edm::Handle<HBHERecHitCollection> TheHBHERecHits;
@@ -57,22 +69,10 @@ void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   HcalAlgo.SetRecHitEnergyThresholds( HBRecHitEnergyThreshold, HERecHitEnergyThreshold );
   HcalAlgo.SetPhiWedgeThresholds( SumHcalEnergyThreshold, NHitsHcalThreshold );
 
-  HcalHaloData HcalData;
-  if( TheCaloGeometry.isValid() && TheHBHERecHits.isValid() )
-    {
-      if( TheCaloTowers.isValid() ) {
-        std::auto_ptr<HcalHaloData> HcalData( new HcalHaloData( HcalAlgo.Calculate(*TheCaloGeometry, TheHBHERecHits, TheCaloTowers)  ) ) ;
-        iEvent.put ( HcalData ) ;
-      } else {
-        std::auto_ptr<HcalHaloData> HcalData( new HcalHaloData( HcalAlgo.Calculate(*TheCaloGeometry, TheHBHERecHits)  ) ) ;
-        iEvent.put ( HcalData ) ;
-      }
-    }
-  else 
-    {
-      std::auto_ptr<HcalHaloData> HcalData( new HcalHaloData() ) ;
-      iEvent.put( HcalData ) ;
-    }
+
+
+  std::auto_ptr<HcalHaloData> HcalData( new HcalHaloData( HcalAlgo.Calculate(*TheCaloGeometry, TheHBHERecHits, TheCaloTowers, TheEBRecHits, TheEERecHits,iSetup)  ) ) ;
+  iEvent.put ( HcalData ) ;
   return;
 }
 

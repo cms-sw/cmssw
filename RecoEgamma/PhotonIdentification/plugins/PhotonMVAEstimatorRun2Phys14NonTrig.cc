@@ -1,4 +1,4 @@
-#include "RecoEgamma/PhotonIdentification/interface/PhotonMVAEstimatorRun2Phys14NonTrig.h"
+#include "RecoEgamma/PhotonIdentification/plugins/PhotonMVAEstimatorRun2Phys14NonTrig.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -377,3 +377,7 @@ void PhotonMVAEstimatorRun2Phys14NonTrig::setConsumes(edm::ConsumesCollector&& c
   cc.consumes<edm::ValueMap<float> >( _phoWorstChargedIsolationLabel);
   cc.consumes<double>(_rhoLabel);
 }
+
+DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
+		  PhotonMVAEstimatorRun2Phys14NonTrig,
+		  "PhotonMVAEstimatorRun2Phys14NonTrig");

@@ -143,7 +143,7 @@ process.output = cms.OutputModule(
 # Additional output definition
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
-process.TFileService.fileName = cms.string('l1tCalo_2016_histos_'+`options.gtOffset`+'-'+`options.gtLatency`+'.root')
+process.TFileService.fileName = cms.string('l1tCalo_2016_histos_'+repr(options.gtOffset)+'-'+repr(options.gtLatency)+'.root')
 
 
 # enable debug message logging for our modules

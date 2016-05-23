@@ -24,10 +24,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "JetMETCorrections/Type1MET/interface/METCorrectionAlgorithm.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include <vector>
 
@@ -82,6 +86,12 @@ class CorrectedMETProducerT : public edm::stream::EDProducer<>
     delete algorithm_;
   }
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src",edm::InputTag("corrPfMetType1", "type1"));
+    descriptions.add(defaultModuleLabel<CorrectedMETProducerT<T> >(),desc);
+  }
+
  private:
 
   void produce(edm::Event& evt, const edm::EventSetup& es)

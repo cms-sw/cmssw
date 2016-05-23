@@ -10,6 +10,12 @@ if [ $# -ge 5 ]; then arguments=$arguments",$5" ;fi
 if [ $# -ge 6 ]; then arguments=$arguments",$6" ;fi
 if [ $# -ge 1 ]; then arguments=$arguments");" ;fi
 
+# #AutoLibraryLoader::enable();
+# #gSystem->Load("libDataFormatsCommon.so");
+# #gSystem->Load("libDataFormatsHepMCCandidate.so");
+# #gSystem->Load("libDataFormatsFWLite.so");
+
+
 root -l -b << EOF
   TString makeshared(gSystem->GetMakeSharedLib());
   makeshared.ReplaceAll("-W ", "-Wno-deprecated-declarations -Wno-deprecated -Wno-unused-local-typedefs -Wno-attributes ");
@@ -18,10 +24,7 @@ root -l -b << EOF
   cout << "Compilling with the following arguments: " << makeshared << endl;
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
-  gSystem->Load("libDataFormatsFWLite.so");
-  gSystem->Load("libDataFormatsCommon.so");
-  gSystem->Load("libDataFormatsHepMCCandidate.so");
+  FWLiteEnabler::enable()
   gSystem->Load("libCommonToolsTrackerMap.so");
   .x $executable+$arguments
 EOF

@@ -82,7 +82,6 @@ private:
 
 L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig)
 {
-  std::cout << "CCLA Begin constructor" << std::endl;
   hltSource_           = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltSource"));
   
   std::string puMCFile   = iConfig.getUntrackedParameter<std::string>("puMCFile", "");

@@ -16,6 +16,7 @@
 //
 //
 
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include <Validation/HcalDigis/interface/HcalDigisValidation.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -468,6 +469,9 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     ESHandle<CaloTPGTranscoder> decoder;
     iSetup.get<CaloTPGRecord>().get(decoder);
 
+    ESHandle<HcalTrigTowerGeometry> tp_geometry;
+    iSetup.get<CaloGeometryRecord>().get(tp_geometry);
+
     iSetup.get<HcalRecNumberingRecord>().get(htopo);
 
     //Get all handles
@@ -528,17 +532,18 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
    for (HcalTrigPrimDigiCollection::const_iterator itr = dataTPs->begin(); itr != dataTPs->end(); ++itr) {
      int ieta  = itr->id().ieta();
-     int iphi  = itr->id().iphi();
 
      HcalSubdetector subdet = (HcalSubdetector) 0;
-     if      ( abs(ieta) <= 16 ) subdet = HcalSubdetector::HcalBarrel ;
-     else if ( abs(ieta) <= 28 ) subdet = HcalSubdetector::HcalEndcap ;
-     else if ( abs(ieta) <= 40 ) subdet = HcalSubdetector::HcalForward;
+     if      ( abs(ieta) <= 16 )
+        subdet = HcalSubdetector::HcalBarrel ;
+     else if ( abs(ieta) < tp_geometry->firstHFTower(itr->id().version()) ) 
+        subdet = HcalSubdetector::HcalEndcap ;
+     else if ( abs(ieta) <= 42 )
+        subdet = HcalSubdetector::HcalForward;
      
      /*     HcalSubdetector subdet = (HcalSubdetector) itr->id().subdet(); */
 
-     float cen = itr->SOI_compressedEt();
-     float en = decoder->hcaletValue(ieta,iphi,cen);
+     float en = decoder->hcaletValue(itr->id(), itr->t0());
      
      if (en < 0.00001) continue;
 

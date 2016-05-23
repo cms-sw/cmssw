@@ -6,13 +6,14 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
 
-#include "L1Trigger/L1TMuonOverlap/interface/InternalObj.h"
+#include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
 
 #include <iostream>
 #include <sstream>
 #include <cmath>
 #include <ctime>
 #include <iomanip>
+#include <bitset>
 
 #include "xercesc/framework/StdOutFormatTarget.hpp"
 #include "xercesc/framework/LocalFileFormatTarget.hpp"
@@ -65,12 +66,9 @@ void XMLConfigWriter::initialiseXMLDocument(const std::string & docName){
   theDoc = domImpl->createDocument(0,_toDOMS(docName.c_str()), 0);
   theTopElement = theDoc->getDocumentElement();
   
-  unsigned int version = 1;
-  unsigned int subVersion = 0;
+  unsigned int version = OMTFConfiguration::instance()->fwVersion;
   unsigned int mask32bits = pow(2,32)-1;
   
-  version = version<<16;
-  version+=subVersion;
   version &=mask32bits;
   
   std::ostringstream stringStr;
@@ -150,7 +148,7 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
   aProcessor->setAttribute(_toDOMS("iProcessor"), _toDOMS(stringStr.str()));
   
   xercesc::DOMElement *aLayer, *aHit; 
-  for(unsigned int iLayer=0;iLayer<OMTFConfiguration::nLayers;++iLayer){
+  for(unsigned int iLayer=0;iLayer<OMTFConfiguration::instance()->nLayers;++iLayer){
     const OMTFinput::vector1D & layerDataPhi = aInput.getLayerData(iLayer);
     const OMTFinput::vector1D & layerDataEta = aInput.getLayerData(iLayer,true);
 
@@ -169,7 +167,7 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
       stringStr.str("");
       stringStr<<layerDataEta[iHit];
       aHit->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
-      if(layerDataPhi[iHit]>=(int)OMTFConfiguration::nPhiBins) continue;
+      if(layerDataPhi[iHit]>=(int)OMTFConfiguration::instance()->nPhiBins) continue;
       aLayer->appendChild(aHit);
     }
     if(aLayer->getChildNodes()->getLength()) aProcessor->appendChild(aLayer);   
@@ -183,35 +181,42 @@ xercesc::DOMElement * XMLConfigWriter::writeEventData(xercesc::DOMElement *aTopE
 //////////////////////////////////////////////////
 void  XMLConfigWriter::writeCandidateData(xercesc::DOMElement *aTopElement,
 					  unsigned int iRefHit,
-					  const InternalObj & aCand){
+					  const AlgoMuon & aCand){
 
-  xercesc::DOMElement* aResult = theDoc->createElement(_toDOMS("Candidate"));
+  xercesc::DOMElement* aResult = theDoc->createElement(_toDOMS("AlgoMuon"));
   std::ostringstream stringStr;
   stringStr.str("");
   stringStr<<iRefHit;
   aResult->setAttribute(_toDOMS("iRefHit"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.pt;
+  stringStr<<aCand.getPt();
   aResult->setAttribute(_toDOMS("ptCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.phi;
+  stringStr<<aCand.getPhi();
   aResult->setAttribute(_toDOMS("phiCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.eta;
+  stringStr<<aCand.getEta();
   aResult->setAttribute(_toDOMS("etaCode"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.charge;
+  stringStr<<aCand.getCharge();
   aResult->setAttribute(_toDOMS("charge"),_toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.q;
+  stringStr<<aCand.getQ();
   aResult->setAttribute(_toDOMS("nHits"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.disc;
+  stringStr<<aCand.getDisc();
   aResult->setAttribute(_toDOMS("disc"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aCand.refLayer;
+  stringStr<<aCand.getRefLayer();
   aResult->setAttribute(_toDOMS("iRefLayer"), _toDOMS(stringStr.str()));
-  aTopElement->appendChild(aResult); 
+  stringStr.str("");
+  stringStr<<std::bitset<18>(aCand.getHits());
+  aResult->setAttribute(_toDOMS("layers"),_toDOMS(stringStr.str()));
+  stringStr.str("");
+  stringStr<<aCand.getPhiRHit();
+  aResult->setAttribute(_toDOMS("phiRHit"),_toDOMS(stringStr.str()));
+
+  aTopElement->appendChild(aResult);
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -239,7 +244,7 @@ void XMLConfigWriter::writeResultsData(xercesc::DOMElement *aTopElement,
   aGP->setAttribute(_toDOMS("iCharge"), _toDOMS(stringStr.str()));
   /////////////////
   ///Write results details for this GP
-  for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+  for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
     xercesc::DOMElement* aRefLayer = theDoc->createElement(_toDOMS("Result"));
     stringStr.str("");
     stringStr<<iRefLayer;
@@ -248,9 +253,9 @@ void XMLConfigWriter::writeResultsData(xercesc::DOMElement *aTopElement,
     stringStr<<iRegion;
     aRefLayer->setAttribute(_toDOMS("iRegion"), _toDOMS(stringStr.str()));
     stringStr.str("");
-    stringStr<<OMTFConfiguration::refToLogicNumber[iRefLayer];
+    stringStr<<OMTFConfiguration::instance()->refToLogicNumber[iRefLayer];
     aRefLayer->setAttribute(_toDOMS("iLogicLayer"), _toDOMS(stringStr.str()));
-    for(unsigned int iLogicLayer=0;iLogicLayer<OMTFConfiguration::nLayers;++iLogicLayer){
+    for(unsigned int iLogicLayer=0;iLogicLayer<OMTFConfiguration::instance()->nLayers;++iLogicLayer){
       xercesc::DOMElement* aLayer = theDoc->createElement(_toDOMS("Layer"));
       stringStr.str("");
       stringStr<<iLogicLayer;
@@ -276,34 +281,28 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP){
   stringStr<<aGP.key().thePtCode;
   aGPElement->setAttribute(_toDOMS("iPt"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  stringStr<<aGP.key().theEtaCode;
+  //stringStr<<aGP.key().theEtaCode;
+  stringStr<<"0";//No eta code at the moment
   aGPElement->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  //stringStr<<aGP.key().thePhiCode;
-  stringStr<<"0";
+  stringStr<<0; //No phi code is assigned to GP for the moment.
   aGPElement->setAttribute(_toDOMS("iPhi"), _toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr<<aGP.key().theCharge;
   aGPElement->setAttribute(_toDOMS("iCharge"), _toDOMS(stringStr.str()));
 
-  unsigned int iLayerNew=0;
-  for(unsigned int iLayer = 0;iLayer<OMTFConfiguration::nLayers;++iLayer){
+  for(unsigned int iLayer = 0;iLayer<OMTFConfiguration::instance()->nLayers;++iLayer){
     int nOfPhis = 0;
-    ///Remove some layers.
-    if(removeLayers(iLayer)) continue;
     /////////////////////////////////////
     aLayer = theDoc->createElement(_toDOMS("Layer"));
     stringStr.str("");
-    //stringStr<<iLayer;
-    //After layer removal inxed has to be realigned
-    stringStr<<iLayerNew;
-    ++iLayerNew;
+    stringStr<<iLayer;
     //////////////////////////////////
     aLayer->setAttribute(_toDOMS("iLayer"), _toDOMS(stringStr.str()));
     stringStr.str("");
     stringStr<<nOfPhis;
     aLayer->setAttribute(_toDOMS("nOfPhis"), _toDOMS(stringStr.str()));
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
       aRefLayer = theDoc->createElement(_toDOMS("RefLayer"));
       int meanDistPhi = aGP.meanDistPhiValue(iLayer,iRefLayer);	       
       stringStr.str("");
@@ -323,99 +322,12 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP){
       aRefLayer->setAttribute(_toDOMS("distMsbPhiShift"), _toDOMS(stringStr.str()));
       aLayer->appendChild(aRefLayer);
     }
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-      for(unsigned int iPdf=0;iPdf<exp2(OMTFConfiguration::nPdfAddrBits);++iPdf){
+    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
+      for(unsigned int iPdf=0;iPdf<exp2(OMTFConfiguration::instance()->nPdfAddrBits);++iPdf){
 	aPdf = theDoc->createElement(_toDOMS("PDF"));
 	stringStr.str("");
 	stringStr<<aGP.pdfValue(iLayer,iRefLayer,iPdf);
 	aPdf->setAttribute(_toDOMS("value"), _toDOMS(stringStr.str()));
-	aLayer->appendChild(aPdf);
-      }
-    }
-    aGPElement->appendChild(aLayer);
-  }
-  theTopElement->appendChild(aGPElement);
-}
-//////////////////////////////////////////////////
-//////////////////////////////////////////////////
-void XMLConfigWriter::writeGPData(const GoldenPattern & aGP1,
-				  const GoldenPattern & aGP2){
-
-  std::ostringstream stringStr;
-  xercesc::DOMElement *aLayer=0, *aRefLayer=0, *aPdf=0;
-
-  xercesc::DOMElement* aGPElement = theDoc->createElement(_toDOMS("GP"));
-  stringStr.str("");
-  stringStr<<aGP1.key().thePtCode;
-  aGPElement->setAttribute(_toDOMS("iPt1"), _toDOMS(stringStr.str()));
-  stringStr.str("");
-
-  stringStr<<aGP2.key().thePtCode;
-  aGPElement->setAttribute(_toDOMS("iPt2"), _toDOMS(stringStr.str()));
-  stringStr.str("");
-  stringStr<<aGP1.key().theEtaCode;
-  aGPElement->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
-  stringStr.str("");
-  //stringStr<<aGP.key().thePhiCode;
-  stringStr<<"0";
-  aGPElement->setAttribute(_toDOMS("iPhi"), _toDOMS(stringStr.str()));
-  stringStr.str("");
-  stringStr<<aGP1.key().theCharge;
-  aGPElement->setAttribute(_toDOMS("iCharge"), _toDOMS(stringStr.str()));
-
-  unsigned int iLayerNew=0;
-  for(unsigned int iLayer = 0;iLayer<OMTFConfiguration::nLayers;++iLayer){
-    int nOfPhis = 0;
-    ///Remove some layers.
-    if(removeLayers(iLayer)) continue;
-    /////////////////////////////////////
-    aLayer = theDoc->createElement(_toDOMS("Layer"));
-    stringStr.str("");
-    //stringStr<<iLayer;
-    //After layer removal inxed has to be realigned
-    stringStr<<iLayerNew;
-    ++iLayerNew;
-    //////////////////////////////////
-    aLayer->setAttribute(_toDOMS("iLayer"), _toDOMS(stringStr.str()));
-    stringStr.str("");
-    stringStr<<nOfPhis;
-    aLayer->setAttribute(_toDOMS("nOfPhis"), _toDOMS(stringStr.str()));
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-      aRefLayer = theDoc->createElement(_toDOMS("RefLayer"));
-      int meanDistPhi = aGP1.meanDistPhiValue(iLayer,iRefLayer);	       
-
-      stringStr.str("");
-      stringStr<<meanDistPhi;
-      aRefLayer->setAttribute(_toDOMS("meanDistPhi"), _toDOMS(stringStr.str()));
-
-      //int meanDistPhi2 = aGP2.meanDistPhiValue(iLayer,iRefLayer);	       
-      //stringStr.str("");
-      //stringStr<<meanDistPhi2;
-      //aRefLayer->setAttribute(_toDOMS("meanDistPhi2"), _toDOMS(stringStr.str()));
-
-      int selDistPhi = 0;
-      stringStr.str("");
-      stringStr<<selDistPhi;
-      aRefLayer->setAttribute(_toDOMS("selDistPhi"), _toDOMS(stringStr.str()));
-      int selDistPhiShift = 0;
-      stringStr.str("");
-      stringStr<<selDistPhiShift;
-      aRefLayer->setAttribute(_toDOMS("selDistPhiShift"), _toDOMS(stringStr.str()));
-      int distMsbPhiShift = 0;
-      stringStr.str("");
-      stringStr<<distMsbPhiShift;
-      aRefLayer->setAttribute(_toDOMS("distMsbPhiShift"), _toDOMS(stringStr.str()));
-      aLayer->appendChild(aRefLayer);
-    }
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-      for(unsigned int iPdf=0;iPdf<exp2(OMTFConfiguration::nPdfAddrBits);++iPdf){
-	aPdf = theDoc->createElement(_toDOMS("PDF"));
-	stringStr.str("");
-	stringStr<<aGP1.pdfValue(iLayer,iRefLayer,iPdf);
-	aPdf->setAttribute(_toDOMS("value1"), _toDOMS(stringStr.str()));
-	stringStr.str("");
-	stringStr<<aGP2.pdfValue(iLayer,iRefLayer,iPdf);
-	aPdf->setAttribute(_toDOMS("value2"), _toDOMS(stringStr.str()));
 	aLayer->appendChild(aPdf);
       }
     }
@@ -435,47 +347,46 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP1,
 
   xercesc::DOMElement* aGPElement = theDoc->createElement(_toDOMS("GP"));
   stringStr.str("");
+
   stringStr<<aGP1.key().thePtCode;
   aGPElement->setAttribute(_toDOMS("iPt1"), _toDOMS(stringStr.str()));
   stringStr.str("");
+
   stringStr<<aGP2.key().thePtCode;
   aGPElement->setAttribute(_toDOMS("iPt2"), _toDOMS(stringStr.str()));
   stringStr.str("");
+
   stringStr<<aGP3.key().thePtCode;
   aGPElement->setAttribute(_toDOMS("iPt3"), _toDOMS(stringStr.str()));
   stringStr.str("");
+
   stringStr<<aGP4.key().thePtCode;
   aGPElement->setAttribute(_toDOMS("iPt4"), _toDOMS(stringStr.str()));
 
   stringStr.str("");
-  stringStr<<aGP1.key().theEtaCode;
+  //stringStr<<aGP1.key().theEtaCode;
+  stringStr<<"0";//No eta code at the moment
   aGPElement->setAttribute(_toDOMS("iEta"), _toDOMS(stringStr.str()));
   stringStr.str("");
-  //stringStr<<aGP.key().thePhiCode;
-  stringStr<<"0";
+  stringStr<<"0";//No phi code is assigned to GP for the moment.
   aGPElement->setAttribute(_toDOMS("iPhi"), _toDOMS(stringStr.str()));
   stringStr.str("");
   stringStr<<aGP1.key().theCharge;
+    
   aGPElement->setAttribute(_toDOMS("iCharge"), _toDOMS(stringStr.str()));
 
-  unsigned int iLayerNew=0;
-  for(unsigned int iLayer = 0;iLayer<OMTFConfiguration::nLayers;++iLayer){
+  for(unsigned int iLayer = 0;iLayer<OMTFConfiguration::instance()->nLayers;++iLayer){
     int nOfPhis = 0;
-    ///Remove some layers.
-    if(removeLayers(iLayer)) continue;
     /////////////////////////////////////
     aLayer = theDoc->createElement(_toDOMS("Layer"));
     stringStr.str("");
-    //stringStr<<iLayer;
-    //After layer removal inxed has to be realigned
-    stringStr<<iLayerNew;
-    ++iLayerNew;
+    stringStr<<iLayer;
     //////////////////////////////////
     aLayer->setAttribute(_toDOMS("iLayer"), _toDOMS(stringStr.str()));
     stringStr.str("");
     stringStr<<nOfPhis;
     aLayer->setAttribute(_toDOMS("nOfPhis"), _toDOMS(stringStr.str()));
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
       aRefLayer = theDoc->createElement(_toDOMS("RefLayer"));
       int meanDistPhi = aGP1.meanDistPhiValue(iLayer,iRefLayer);	       
 
@@ -502,8 +413,8 @@ void XMLConfigWriter::writeGPData(const GoldenPattern & aGP1,
       aRefLayer->setAttribute(_toDOMS("distMsbPhiShift"), _toDOMS(stringStr.str()));
       aLayer->appendChild(aRefLayer);
     }
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
-      for(unsigned int iPdf=0;iPdf<exp2(OMTFConfiguration::nPdfAddrBits);++iPdf){
+    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
+      for(unsigned int iPdf=0;iPdf<exp2(OMTFConfiguration::instance()->nPdfAddrBits);++iPdf){
 	aPdf = theDoc->createElement(_toDOMS("PDF"));
 	stringStr.str("");
 	stringStr<<aGP1.pdfValue(iLayer,iRefLayer,iPdf);
@@ -535,13 +446,13 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
     stringStr.str("");
     stringStr<<iProcessor;
     aProcessorElement->setAttribute(_toDOMS("iProcessor"), _toDOMS(stringStr.str()));
-    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){	
+    for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){	
 	xercesc::DOMElement* aRefLayerElement = theDoc->createElement(_toDOMS("RefLayer"));
 	stringStr.str("");
 	stringStr<<iRefLayer;
 	aRefLayerElement->setAttribute(_toDOMS("iRefLayer"), _toDOMS(stringStr.str()));	
 	stringStr.str("");
-	stringStr<<OMTFConfiguration::processorPhiVsRefLayer[iProcessor][iRefLayer];
+	stringStr<<OMTFConfiguration::instance()->processorPhiVsRefLayer[iProcessor][iRefLayer];
 	aRefLayerElement->setAttribute(_toDOMS("iGlobalPhiStart"), _toDOMS(stringStr.str()));	
 	aProcessorElement->appendChild(aRefLayerElement);
       }
@@ -549,15 +460,15 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
    
     /////
     ///////
-      for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::nRefLayers;++iRefLayer){
+      for(unsigned int iRefLayer=0;iRefLayer<OMTFConfiguration::instance()->nRefLayers;++iRefLayer){
 	for(unsigned int iRegion=0;iRegion<6;++iRegion){
 	  unsigned int maxHitCount =  0;
 	  for(unsigned int iInput=0;iInput<14;++iInput) {
-	    if((int)maxHitCount<OMTFConfiguration::measurements4Dref[iProcessor][iRegion][iRefLayer][iInput])
-	      maxHitCount = OMTFConfiguration::measurements4Dref[iProcessor][iRegion][iRefLayer][iInput];
+	    if((int)maxHitCount<OMTFConfiguration::instance()->measurements4Dref[iProcessor][iRegion][iRefLayer][iInput])
+	      maxHitCount = OMTFConfiguration::instance()->measurements4Dref[iProcessor][iRegion][iRefLayer][iInput];
 	  }
 	for(unsigned int iInput=0;iInput<14;++iInput){
-	  unsigned int hitCount =  OMTFConfiguration::measurements4Dref[iProcessor][iRegion][iRefLayer][iInput];
+	  unsigned int hitCount =  OMTFConfiguration::instance()->measurements4Dref[iProcessor][iRegion][iRefLayer][iInput];
 	  if(hitCount<maxHitCount*0.1) continue;
 	  xercesc::DOMElement* aRefHitElement = theDoc->createElement(_toDOMS("RefHit"));
 	  stringStr.str("");
@@ -574,10 +485,10 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	  stringStr.str("");
 	  stringStr<<iInput;
 	  aRefHitElement->setAttribute(_toDOMS("iInput"), _toDOMS(stringStr.str()));
-	  unsigned int logicRegionSize = 10/360.0*OMTFConfiguration::nPhiBins;
-	  int lowScaleEnd = std::pow(2,OMTFConfiguration::nPhiBits-1);
+	  unsigned int logicRegionSize = 10/360.0*OMTFConfiguration::instance()->nPhiBins;
+	  int lowScaleEnd = std::pow(2,OMTFConfiguration::instance()->nPhiBits-1);
 	  ///iPhiMin and iPhiMax are expressed in n bit scale -2**n, +2**2-1 used in each processor
-	  int iPhiMin = OMTFConfiguration::processorPhiVsRefLayer[iProcessor][iRefLayer]-OMTFConfiguration::globalPhiStart(iProcessor)-lowScaleEnd;
+	  int iPhiMin = OMTFConfiguration::instance()->processorPhiVsRefLayer[iProcessor][iRefLayer]-OMTFConfiguration::instance()->globalPhiStart(iProcessor)-lowScaleEnd;
 	  int iPhiMax = iPhiMin+logicRegionSize-1;
 
 	  iPhiMin+=iRegion*logicRegionSize;
@@ -590,10 +501,10 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	  stringStr.str("");
 	  stringStr<<iPhiMax;
 	  aRefHitElement->setAttribute(_toDOMS("iPhiMax"), _toDOMS(stringStr.str()));
-	  if(iRefHit<OMTFConfiguration::nRefHits) aProcessorElement->appendChild(aRefHitElement);
+	  if(iRefHit<OMTFConfiguration::instance()->nRefHits) aProcessorElement->appendChild(aRefHitElement);
 	  ++iRefHit;
 	}	      
-      for(;iRegion==5 && iRefLayer==7 && iRefHit<OMTFConfiguration::nRefHits;++iRefHit){
+      for(;iRegion==5 && iRefLayer==7 && iRefHit<OMTFConfiguration::instance()->nRefHits;++iRefHit){
 	xercesc::DOMElement* aRefHitElement = theDoc->createElement(_toDOMS("RefHit"));
 	stringStr.str("");
 	stringStr<<iRefHit;
@@ -632,18 +543,13 @@ void  XMLConfigWriter::writeConnectionsData(const std::vector<std::vector <OMTFC
 	stringStr<<iRegion;
 	aRegionElement->setAttribute(_toDOMS("iRegion"), _toDOMS(stringStr.str()));   
 
-      unsigned int iLayerNew = 0;
-      for(unsigned int iLogicLayer=0;iLogicLayer<OMTFConfiguration::nLayers;++iLogicLayer){
-	if(removeLayers(iLogicLayer)) continue;
+      for(unsigned int iLogicLayer=0;iLogicLayer<OMTFConfiguration::instance()->nLayers;++iLogicLayer){
 	xercesc::DOMElement* aLayerElement = theDoc->createElement(_toDOMS("Layer"));
 	stringStr.str("");
-	//stringStr<<iLogicLayer;
-	//After layer removal index has to be realigned
-	stringStr<<iLayerNew;
-	++iLayerNew;
+	stringStr<<iLogicLayer;
 	////////////////////////////////////////////////
 	aLayerElement->setAttribute(_toDOMS("iLayer"), _toDOMS(stringStr.str()));
-	const OMTFConfiguration::vector1D & myCounts = OMTFConfiguration::measurements4D[iProcessor][iRegion][iLogicLayer];
+	const OMTFConfiguration::vector1D & myCounts = OMTFConfiguration::instance()->measurements4D[iProcessor][iRegion][iLogicLayer];
 	unsigned int maxInput = findMaxInput(myCounts);
 	unsigned int begin = 0, end = 0;
 	if((int)maxInput-2>=0) begin = maxInput-2;
@@ -678,12 +584,4 @@ unsigned int XMLConfigWriter::findMaxInput(const OMTFConfiguration::vector1D & m
 }
 /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
-bool  XMLConfigWriter::removeLayers(unsigned int iLayer){
 
-  return false;
-
-  return (iLayer==6 || iLayer==7 || iLayer==9 || iLayer==11 || iLayer==13 || iLayer==15 || iLayer==24);
-
-}
-/////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////

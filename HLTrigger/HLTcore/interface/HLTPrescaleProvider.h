@@ -78,6 +78,8 @@ public:
 
   HLTConfigProvider hltConfigProvider_;
   L1GtUtils l1GtUtils_;
+  unsigned char count_[5] = {0,0,0,0,0};
+
 };
 
 template <typename T>

@@ -26,13 +26,12 @@
 
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 // forward declarations
 
 // constructors
 MuonTemplate::MuonTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondMuon;
@@ -40,7 +39,7 @@ MuonTemplate::MuonTemplate()
 }
 
 MuonTemplate::MuonTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondMuon;
@@ -48,7 +47,7 @@ MuonTemplate::MuonTemplate(const std::string& cName)
 }
 
 MuonTemplate::MuonTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-        : GtCondition(cName, l1t::CondMuon, cType)
+        : GlobalCondition(cName, l1t::CondMuon, cType)
 {
 
     int nObjects = nrObjects();
@@ -57,14 +56,14 @@ MuonTemplate::MuonTemplate(const std::string& cName, const l1t::GtConditionType&
         m_objectParameter.reserve(nObjects);
 
         m_objectType.reserve(nObjects);
-        m_objectType.assign(nObjects, Mu);
+        m_objectType.assign(nObjects, gtMu);
     }
 
 }
 
 // copy constructor
 MuonTemplate::MuonTemplate(const MuonTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -100,7 +99,7 @@ void MuonTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  MuonTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
     int nObjects = nrObjects();
 

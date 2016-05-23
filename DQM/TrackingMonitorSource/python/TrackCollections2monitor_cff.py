@@ -23,6 +23,7 @@ doPUmonitoring                      = {}
 doPlotsVsBXlumi                     = {}
 doPlotsVsGoodPVtx                   = {}
 doEffFromHitPattern                 = {}
+doStopSource                        = {}
 
 selectedTracks = []
 
@@ -48,6 +49,7 @@ doPUmonitoring                      ['generalTracks'] = cms.bool(False)
 doPlotsVsBXlumi                     ['generalTracks'] = cms.bool(False)
 doPlotsVsGoodPVtx                   ['generalTracks'] = cms.bool(True)
 doEffFromHitPattern                 ['generalTracks'] = cms.bool(True)
+doStopSource                        ['generalTracks'] = cms.bool(True)
 
 trackSelector = cms.EDFilter('TrackSelector',
     src = cms.InputTag('generalTracks'),
@@ -81,6 +83,7 @@ doPUmonitoring                      ['highPurityPtRange0to1'] = cms.bool(True)
 doPlotsVsBXlumi                     ['highPurityPtRange0to1'] = cms.bool(False)
 doPlotsVsGoodPVtx                   ['highPurityPtRange0to1'] = cms.bool(True)
 doEffFromHitPattern                 ['highPurityPtRange0to1'] = cms.bool(False)
+doStopSource                        ['highPurityPtRange0to1'] = cms.bool(True)
 
 highPurityPtRange1to10 = trackSelector.clone()
 highPurityPtRange1to10.cut = cms.string("quality('highPurity') & pt >= 1 & pt < 10 ")
@@ -107,6 +110,7 @@ doPUmonitoring                      ['highPurityPtRange1to10'] = cms.bool(False)
 doPlotsVsBXlumi                     ['highPurityPtRange1to10'] = cms.bool(False)
 doPlotsVsGoodPVtx                   ['highPurityPtRange1to10'] = cms.bool(True)
 doEffFromHitPattern                 ['highPurityPtRange1to10'] = cms.bool(True)
+doStopSource                        ['highPurityPtRange1to10'] = cms.bool(True)
 
 highPurityPt10 = trackSelector.clone()
 highPurityPt10.cut = cms.string("quality('highPurity') & pt >= 10")
@@ -133,7 +137,7 @@ doPUmonitoring                      ['highPurityPt10'] = cms.bool(False)
 doPlotsVsBXlumi                     ['highPurityPt10'] = cms.bool(False)
 doPlotsVsGoodPVtx                   ['highPurityPt10'] = cms.bool(True)
 doEffFromHitPattern                 ['highPurityPt10'] = cms.bool(True)
-
+doStopSource                        ['highPurityPt10'] = cms.bool(True)
 
 ###### old monitored track collections
 highPurityPt1 = trackSelector.clone()
@@ -162,6 +166,7 @@ doPUmonitoring                      ['highPurityPt1'] = cms.bool(False)
 doPlotsVsBXlumi                     ['highPurityPt1'] = cms.bool(False)
 doPlotsVsGoodPVtx                   ['highPurityPt1'] = cms.bool(True)
 doEffFromHitPattern                 ['highPurityPt1'] = cms.bool(True)
+doStopSource                        ['highPurityPt1'] = cms.bool(True)
 
 selectedTracks.extend( ['generalTracks'] )
 #selectedTracks.extend( ['highPurityPtRange0to1']  )

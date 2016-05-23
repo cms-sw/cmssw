@@ -263,7 +263,12 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     edm::EDGetTokenT<TkFittedLasBeamCollection> tkLasBeamToken;
     edm::EDGetTokenT<TsosVectorCollection> tsosVectorToken;
     edm::EDGetTokenT<AliClusterValueMap> clusterValueMapToken;
- 
+    cond::Time_t theFirstRun;
+
+    // file-names
+    //std::string millePedeLogFile_ = "millepede.log";
+    //std::string millePedeResFile_ = "millepede.res";
+
 
     /*** ESWatcher ***/
 
@@ -287,7 +292,6 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     edm::ESWatcher<CSCSurveyErrorExtendedRcd>     watchCSCSurveyErrExtRcd;
 
 
-    cond::Time_t theFirstRun; 
 
     /*** Survey stuff ***/
 

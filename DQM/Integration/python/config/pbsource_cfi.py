@@ -69,6 +69,7 @@ source = cms.Source("DQMProtobufReader",
     nextLumiTimeoutMillis = cms.untracked.int32(nextLumiTimeoutMillis),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(False),
+    loadFiles = cms.untracked.bool(True),
     endOfRunKills  = cms.untracked.bool(endOfRunKills),
 )
 

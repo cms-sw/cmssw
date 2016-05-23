@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 ### STEP 0 ###
 
@@ -29,15 +30,19 @@ initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+eras.trackingLowPU.toModify(initialStepSeeds, OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 100000)))
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-initialStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+_initialStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     minPt = 0.2,
+    )
+initialStepTrajectoryFilterBase = _initialStepTrajectoryFilterBase.clone(
     maxCCCLostHits = 2,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
-    )
+)
+eras.trackingLowPU.toReplaceWith(initialStepTrajectoryFilterBase, _initialStepTrajectoryFilterBase)
 
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 initialStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
@@ -67,6 +72,7 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
     )
+eras.trackingLowPU.toModify(initialStepTrajectoryBuilder, maxCand = 5)
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
@@ -125,6 +131,27 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 initialStep = ClassifierMerger.clone()
 initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
 
+# For LowPU
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='initialStepTracks',
+    useAnyMVA = cms.bool(False),
+    GBRForestLabel = cms.string('MVASelectorIter0'),
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'initialStepLoose',
+        ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'initialStepTight',
+            preFilterName = 'initialStepLoose',
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'QualityMasks',
+            preFilterName = 'initialStepTight',
+        ),
+    ), #end of vpset
+    vertices = cms.InputTag("pixelVertices")
+) #end of clone
 
 
 # Final sequence
@@ -135,3 +162,6 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
                            firstStepPrimaryVertices*
                            initialStepClassifier1*initialStepClassifier2*initialStepClassifier3*
                            initialStep)
+_InitialStep_LowPU = InitialStep.copyAndExclude([firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
+_InitialStep_LowPU.replace(initialStep, initialStepSelector)
+eras.trackingLowPU.toReplaceWith(InitialStep, _InitialStep_LowPU)

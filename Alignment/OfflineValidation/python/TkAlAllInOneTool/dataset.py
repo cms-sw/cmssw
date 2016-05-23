@@ -429,15 +429,6 @@ class Dataset:
                     Bfield = Bfield.split(",")[0]
                     if Bfield in Bfieldlist or Bfield == "unknown":
                         return Bfield
-                    #===========================================================================
-                    #For compatibility with already written datasets - remove this at some point
-                    #(until the next === line)
-                    #It's currently June 2015, anytime starting in 2016 is more than safe
-                    elif Bfield == "AutoFromDBCurrent":
-                        return "MagneticField"
-                    elif "MagneticField_" + Bfield in Bfieldlist:
-                        return "MagneticField_" + Bfield
-                    #===========================================================================
                     else:
                         print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
                         print "Using Bfield='unknown' - this will revert to the default"

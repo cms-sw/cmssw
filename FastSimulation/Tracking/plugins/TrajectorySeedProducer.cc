@@ -193,12 +193,14 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    std::vector<BaseTrackerRecHit const *> innerHits(1,(const BaseTrackerRecHit*) innerHit->hit());
 	    std::vector<BaseTrackerRecHit const *> outerHits(1,(const BaseTrackerRecHit*) outerHit->hit());
 		
-	    const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, selectedTrackingRegion->origin(), innerLayer);
-	    const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, selectedTrackingRegion->origin(), outerLayer);
+	    //const RecHitsSortedInPhi* ihm=new RecHitsSortedInPhi (innerHits, selectedTrackingRegion->origin(), innerLayer);
+	    //const RecHitsSortedInPhi* ohm=new RecHitsSortedInPhi (outerHits, selectedTrackingRegion->origin(), outerLayer);
+	    const RecHitsSortedInPhi ihm(innerHits, selectedTrackingRegion->origin(), innerLayer);
+	    const RecHitsSortedInPhi ohm(outerHits, selectedTrackingRegion->origin(), outerLayer);
 		
-	    HitDoublets result(*ihm,*ohm); 
-	    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,*ihm,*ohm,es,0,result);
-		
+	    HitDoublets result(ihm,ohm); 
+	    HitPairGeneratorFromLayerPair::doublets(*selectedTrackingRegion,*innerLayer,*outerLayer,ihm,ohm,es,0,result);
+	    
 	    if(result.size()!=0)
 	    {
 		return true; 

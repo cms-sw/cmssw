@@ -13,6 +13,9 @@ from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi impor
 from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer
 SiPixelAliPedeAlignmentProducer = copy.deepcopy(AlignmentProducer)
 
+from Alignment.MillePedeAlignmentAlgorithm.MillePedeDQMModule_cff import *
+
+
 SiPixelAliPedeAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
         'TrackerTPBHalfBarrel,111111',
@@ -56,4 +59,5 @@ SiPixelAliPedeAlignmentProducer.saveToDB = True
 
 
 ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliMilleFileExtractor*
-                                     SiPixelAliPedeAlignmentProducer)
+                                     SiPixelAliPedeAlignmentProducer*
+                                     SiPixelAliDQMModule)

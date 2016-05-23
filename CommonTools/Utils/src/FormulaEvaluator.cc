@@ -15,6 +15,7 @@
 #include <functional>
 #include <cstdlib>
 #include <cmath>
+#include "TMath.h"
 
 // user include files
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
@@ -484,7 +485,7 @@ namespace {
     //account for closing parenthesis
     ++info.nextParseIndex;
 
-    info.evaluator = std::make_shared<reco::formula::FunctionOneArgEvaluator>(std::move(argEvaluatorInfo.evaluator),
+    info.evaluator = std::make_shared<reco::formula::FunctionOneArgEvaluator>(std::move(argEvaluatorInfo.top),
                                                                               op);
     info.top = info.evaluator;
     return info;
@@ -552,8 +553,8 @@ namespace {
     //account for closing parenthesis
     ++info.nextParseIndex;
 
-    info.evaluator = std::make_shared<reco::formula::FunctionTwoArgsEvaluator>(std::move(arg1EvaluatorInfo.evaluator),
-                                                                               std::move(arg2EvaluatorInfo.evaluator),
+    info.evaluator = std::make_shared<reco::formula::FunctionTwoArgsEvaluator>(std::move(arg1EvaluatorInfo.top),
+                                                                               std::move(arg2EvaluatorInfo.top),
                                                                                op);
     info.top = info.evaluator;
     return info;
@@ -570,11 +571,32 @@ namespace {
   static const std::string k_min("min");
   static const std::string k_TMath__Max("TMath::Max");
   static const std::string k_TMath__Min("TMath::Min");
+  static const std::string k_TMath__Erf("TMath::Erf");
+  static const std::string k_erf("erf");
+  static const std::string k_TMath__Landau("TMath::Landau");
 
 
   EvaluatorInfo 
   FunctionFinder::createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const {
     EvaluatorInfo info;
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_erf, [](double iArg)->double { return std::erf(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_TMath__Erf, [](double iArg)->double { return std::erf(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_TMath__Landau, [](double iArg)->double { return TMath::Landau(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
 
     info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
                                      k_log, [](double iArg)->double { return std::log(iArg); } );

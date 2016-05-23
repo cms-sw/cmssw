@@ -10,6 +10,8 @@
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
 #include <algorithm>
+#include <cmath>
+#include "TMath.h"
 
 class testFormulaEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testFormulaEvaluator);
@@ -26,7 +28,7 @@ public:
 
 namespace {
   bool compare(double iLHS, double iRHS) {
-    return std::abs(iLHS-iRHS)< 1E-6*std::abs(iLHS);
+    return std::fabs(iLHS)!=0 ? (std::fabs(iLHS-iRHS)< 1E-6*std::fabs(iLHS)) : (std::fabs(iLHS) == std::fabs(iRHS));
   }
 }
 
@@ -479,6 +481,30 @@ testFormulaEvaluator::checkFormulaEvaluator() {
   }
 
   {
+    reco::FormulaEvaluator f("TMath::Erf(2.)");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == TMath::Erf(2.) );
+  }
+
+  {
+    reco::FormulaEvaluator f("erf(2.)");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == std::erf(2.) );
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::Landau(3.)");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == TMath::Landau(3.) );
+  }
+
+  {
     reco::FormulaEvaluator f("max(2,1)");
     
     std::vector<double> emptyV;
@@ -531,6 +557,42 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     std::vector<double> emptyV;
 
     CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == -(-2.36997+0.413917*std::log(208.))/208.);
+  }
+
+  {
+    //For Jet energy corrections
+    reco::FormulaEvaluator f("2*TMath::Erf(4*(x-1))");
+
+    std::vector<double> x ={1.};
+
+
+    std::vector<double> xValues = {1., 2., 3.};
+    std::vector<double> emptyV;
+
+    auto func = [](double x) { return 2*TMath::Erf(4*(x-1)); };
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, emptyV),func(x[0])) );
+    }
+  }
+
+  {
+    //For Jet energy corrections
+    reco::FormulaEvaluator f("2*TMath::Landau(2*(x-1))");
+
+    std::vector<double> x ={1.};
+
+
+    std::vector<double> xValues = {1., 2., 3.};
+    std::vector<double> emptyV;
+
+    auto func = [](double x) { return 2*TMath::Landau(2*(x-1)); };
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, emptyV),func(x[0])) );
+    }
   }
 
   {
@@ -725,6 +787,39 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     for(auto const xv: xValues) {
       x[0] = xv;
       CPPUNIT_ASSERT(compare(f.evaluate(x, v),func(x[0])) );
+    }
+  }
+
+  {
+    //Tests that pick proper evaluator for argument of function
+    reco::FormulaEvaluator f("exp([4]*(log10(x)-[5])*(log10(x)-[5]))");
+    std::vector<double> x = {10.};
+
+    std::vector<double> v = {0.88524, 28.4947, 4.89135, -19.0245, 0.0227809, -6.97308};
+    std::vector<double> xValues = {10.};
+
+    auto func =[&v](double x) {return std::exp(v[4]*(std::log(x)/std::log(10)-v[5])*(std::log(x)/std::log(10)-v[5])); }; 
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, v), func(x[0])));
+    }
+  }
+
+  {
+    reco::FormulaEvaluator f("max(0.0001,[0]+[1]/(pow(log10(x),2)+[2])+[3]*exp(-1*([4]*((log10(x)-[5])*(log10(x)-[5])))))");
+
+    std::vector<double> x = {10.};
+
+    std::vector<double> v = {0.88524, 28.4947, 4.89135, -19.0245, 0.0227809, -6.97308};
+    std::vector<double> xValues = {10.};
+
+
+    auto func =[&v](double x) {return std::max(0.0001,v[0]+v[1]/(std::pow(std::log(x)/std::log(10), 2)+v[2])+v[3]*std::exp(-1*v[4]*(std::log(x)/std::log(10)-v[5])*(std::log(x)/std::log(10)-v[5]))); };
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, v), func(x[0])));
     }
   }
 

@@ -28,6 +28,7 @@ DQMOfflineCosmicsPreDPG = cms.Sequence( dqmDcsInfo *
 DQMOfflineCosmicsDPG = cms.Sequence( DQMOfflineCosmicsPreDPG *
                                      DQMMessageLogger )
 
+from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_Cosmic_cff import *
 from DQMOffline.Muon.muonCosmicMonitors_cff import *
 from DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff import *
 from DQMOffline.EGamma.cosmicPhotonAnalyzer_cff import *
@@ -35,7 +36,8 @@ from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cosmics_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 
-DQMOfflineCosmicsPrePOG = cms.Sequence( muonCosmicMonitors *
+DQMOfflineCosmicsPrePOG = cms.Sequence( TrackingDQMTier0 *
+                                        muonCosmicMonitors *
                                         jetMETDQMOfflineSourceCosmic *
                                         egammaCosmicPhotonMonitors *
 #                                        l1TriggerDqmOffline * 

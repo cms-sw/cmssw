@@ -21,7 +21,7 @@ namespace l1t {
       RegionalMuonGMTUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
          unsigned int blockId = block.header().getID();
-         LogDebug("L1T|Muon") << "Block ID  = " << blockId << " size = " << block.header().getSize();
+         LogDebug("L1T") << "Block ID  = " << blockId << " size = " << block.header().getSize();
 
          auto payload = block.payload();
 
@@ -32,7 +32,7 @@ namespace l1t {
          // only use central BX for now
          //firstBX = 0;
          //lastBX = 0;
-         //LogDebug("L1T|Muon") << "BX override. Set first BX = lastBX = 0.";
+         //LogDebug("L1T") << "BX override. Set first BX = lastBX = 0.";
 
          // decide which collection to use according to the link ID
          unsigned int linkId = blockId / 2;
@@ -62,12 +62,12 @@ namespace l1t {
                processor = linkId - 66;
             }
          } else {
-            edm::LogError("L1T|Muon") << "No TF muon expected for link " << linkId;
+            edm::LogError("L1T") << "No TF muon expected for link " << linkId;
             return false;
          }
          res->setBXRange(firstBX, lastBX);
 
-         LogDebug("L1T|Muon") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
+         LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
          // Initialise index
          int unsigned i = 0;
@@ -77,17 +77,17 @@ namespace l1t {
             for (unsigned nWord = 0; nWord < nWords && i < block.header().getSize(); nWord += 2) {
                uint32_t raw_data_00_31 = payload[i++];
                uint32_t raw_data_32_63 = payload[i++];        
-               LogDebug("L1T|Muon") << "raw_data_00_31 = 0x" << hex << setw(8) << setfill('0') << raw_data_00_31 << " raw_data_32_63 = 0x" << setw(8) << setfill('0') << raw_data_32_63;
+               LogDebug("L1T") << "raw_data_00_31 = 0x" << hex << setw(8) << setfill('0') << raw_data_00_31 << " raw_data_32_63 = 0x" << setw(8) << setfill('0') << raw_data_32_63;
                // skip empty muons (hwPt == 0)
                //// the msb are reserved for global information
                //if ((raw_data_00_31 & 0x7FFFFFFF) == 0 && (raw_data_32_63 & 0x7FFFFFFF) == 0) {
                if (((raw_data_00_31 >> l1t::RegionalMuonRawDigiTranslator::ptShift_) & l1t::RegionalMuonRawDigiTranslator::ptMask_) == 0) {
-                  LogDebug("L1T|Muon") << "Muon hwPt zero. Skip.";
+                  LogDebug("L1T") << "Muon hwPt zero. Skip.";
                   continue;
                }
                // Detect and ignore comma events
                if (raw_data_00_31 == 0x505050bc || raw_data_32_63 == 0x505050bc) {
-                  edm::LogWarning("L1T|Muon") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
+                  edm::LogWarning("L1T") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
                   continue;
                }
  
@@ -95,7 +95,7 @@ namespace l1t {
  
                RegionalMuonRawDigiTranslator::fillRegionalMuonCand(mu, raw_data_00_31, raw_data_32_63, processor, trackFinder);
 
-               LogDebug("L1T|Muon") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid " << mu.hwSignValid();
+               LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid " << mu.hwSignValid();
 
                res->push_back(bx, mu);
             }

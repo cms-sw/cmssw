@@ -54,6 +54,9 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 class GlobalHaloAlgo {
  public: 
   // Constructor
@@ -62,7 +65,7 @@ class GlobalHaloAlgo {
   ~GlobalHaloAlgo(){}
   
   // run algorithm
-  reco::GlobalHaloData Calculate(const CaloGeometry& TheCaloGeometry, const CSCGeometry& TheCSCGeometry,const reco::CaloMET& TheCaloMET,edm::Handle<edm::View<reco::Candidate> >& TheCaloTowers, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits, const reco::CSCHaloData& TheCSCHaloData ,const reco::EcalHaloData& TheEcalHaloData, const reco::HcalHaloData& TheHcalHaloData); 
+  reco::GlobalHaloData Calculate(const CaloGeometry& TheCaloGeometry, const CSCGeometry& TheCSCGeometry,const reco::CaloMET& TheCaloMET,edm::Handle<edm::View<reco::Candidate> >& TheCaloTowers, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits, edm::Handle<reco::MuonCollection>& TheMuons, const reco::CSCHaloData& TheCSCHaloData ,const reco::EcalHaloData& TheEcalHaloData, const reco::HcalHaloData& TheHcalHaloData, bool ishlt =false); 
   
   // Set min & max radius to associate CSC Rechits with Ecal Phi Wedges
   void SetEcalMatchingRadius(float min, float max){Ecal_R_Min = min ; Ecal_R_Max = max;}
@@ -71,6 +74,35 @@ class GlobalHaloAlgo {
   // Set CaloTowerEtTheshold
   void SetCaloTowerEtThreshold(float EtMin) { TowerEtThreshold = EtMin ;}
   // run algorithm
+
+  //CSC-Calo matching parameters:
+  void SetMaxSegmentTheta(float x) { max_segment_theta = x; }
+  //EB  
+  void setEtThresholdforCSCCaloMatchingEB(float x ){et_thresh_rh_eb= x;}
+  void setRcaloMinRsegmLowThresholdforCSCCaloMatchingEB(float x ){dr_lowthresh_segvsrh_eb= x;}
+  void setRcaloMinRsegmHighThresholdforCSCCaloMatchingEB(float x ){dr_highthresh_segvsrh_eb= x;}
+  void setDtcalosegmThresholdforCSCCaloMatchingEB(float x ){dt_segvsrh_eb= x;}
+  void setDPhicalosegmThresholdforCSCCaloMatchingEB(float x ){dphi_thresh_segvsrh_eb= x;}
+  //EE  
+  void setEtThresholdforCSCCaloMatchingEE(float x ){et_thresh_rh_ee= x;}
+  void setRcaloMinRsegmLowThresholdforCSCCaloMatchingEE(float x ){dr_lowthresh_segvsrh_ee= x;}
+  void setRcaloMinRsegmHighThresholdforCSCCaloMatchingEE(float x ){dr_highthresh_segvsrh_ee= x;}
+  void setDtcalosegmThresholdforCSCCaloMatchingEE(float x ){dt_segvsrh_ee= x;}
+  void setDPhicalosegmThresholdforCSCCaloMatchingEE(float x ){dphi_thresh_segvsrh_ee= x;}
+  //HB  
+  void setEtThresholdforCSCCaloMatchingHB(float x ){et_thresh_rh_hb= x;}
+  void setRcaloMinRsegmLowThresholdforCSCCaloMatchingHB(float x ){dr_lowthresh_segvsrh_hb= x;}
+  void setRcaloMinRsegmHighThresholdforCSCCaloMatchingHB(float x ){dr_highthresh_segvsrh_hb= x;}
+  void setDtcalosegmThresholdforCSCCaloMatchingHB(float x ){dt_segvsrh_hb= x;}
+  void setDPhicalosegmThresholdforCSCCaloMatchingHB(float x ){dphi_thresh_segvsrh_hb= x;}
+  //HE  
+  void setEtThresholdforCSCCaloMatchingHE(float x ){et_thresh_rh_he= x;}
+  void setRcaloMinRsegmLowThresholdforCSCCaloMatchingHE(float x ){dr_lowthresh_segvsrh_he= x;}
+  void setRcaloMinRsegmHighThresholdforCSCCaloMatchingHE(float x ){dr_highthresh_segvsrh_he= x;}
+  void setDtcalosegmThresholdforCSCCaloMatchingHE(float x ){dt_segvsrh_he= x;}
+  void setDPhicalosegmThresholdforCSCCaloMatchingHE(float x ){dphi_thresh_segvsrh_he= x;}
+
+
   
  private:
   float Ecal_R_Min;
@@ -78,6 +110,44 @@ class GlobalHaloAlgo {
   float Hcal_R_Min;
   float Hcal_R_Max;
   float TowerEtThreshold;
+
+  //Parameters for CSC-calo matching
+  float max_segment_theta;
+
+  float  et_thresh_rh_eb;
+  float dphi_thresh_segvsrh_eb;
+  float dr_lowthresh_segvsrh_eb;
+  float dr_highthresh_segvsrh_eb;
+  float dt_segvsrh_eb;
+
+  float  et_thresh_rh_ee;
+  float dphi_thresh_segvsrh_ee;
+  float dr_lowthresh_segvsrh_ee;
+  float dr_highthresh_segvsrh_ee;
+  float dt_segvsrh_ee;
+
+  float  et_thresh_rh_hb;
+  float dphi_thresh_segvsrh_hb;
+  float dr_lowthresh_segvsrh_hb;
+  float dr_highthresh_segvsrh_hb;
+  float dt_segvsrh_hb;
+
+  float  et_thresh_rh_he;
+  float dphi_thresh_segvsrh_he;
+  float dr_lowthresh_segvsrh_he;
+  float dr_highthresh_segvsrh_he;
+  float dt_segvsrh_he;
+
+
+
+  void AddtoBeamHaloEBEERechits(edm::RefVector<EcalRecHitCollection>& bhtaggedrechits,reco::GlobalHaloData & thehalodata, bool isbarrel);
+  void AddtoBeamHaloHBHERechits(edm::RefVector<HBHERecHitCollection>& bhtaggedrechits,reco::GlobalHaloData & thehalodata);
+  bool SegmentMatchingEB(reco::GlobalHaloData & thehalodata, const std::vector<reco::HaloClusterCandidateECAL> & haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingEE(reco::GlobalHaloData & thehalodata, const std::vector<reco::HaloClusterCandidateECAL> & haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingHB(reco::GlobalHaloData & thehalodata, const std::vector<reco::HaloClusterCandidateHCAL> & haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool SegmentMatchingHE(reco::GlobalHaloData & thehalodata, const std::vector<reco::HaloClusterCandidateHCAL> & haloclustercands, float iZ, float iR, float iT, float iPhi, bool ishlt);
+  bool ApplyMatchingCuts(int subdet, bool ishlt, double rhet, double segZ, double rhZ, double segR, double rhR, double segT, double rhT, double segPhi, double rhPhi);
+
 };
 
 #endif

@@ -53,7 +53,6 @@ public:
 private:
   
   bool debug_;
-  bool passbc0_;
   size_t nfeds_;
   edm::InputTag DTTM7InputTag_;
   std::vector<int> feds_;

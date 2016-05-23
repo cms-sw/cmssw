@@ -29,6 +29,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
+#include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
 
 //
@@ -64,40 +65,112 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    // data is being produced
    setWhatProduced(this);
 
+   L1TMuonGlobalParamsHelper m_params_helper;
+
    // Firmware version
    unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
+   m_params_helper.setFwVersion(fwVersion);
 
-   m_params.setFwVersion(fwVersion);
-
-   int bxMin = iConfig.getParameter<int>("bxMin");
-   int bxMax = iConfig.getParameter<int>("bxMax");
-   if (bxMin > bxMax) {
-      m_params.setBxMin(bxMax);
-      m_params.setBxMax(bxMin);
+   // uGMT disabled inputs
+   bool disableCaloInputs = iConfig.getParameter<bool>("caloInputsDisable");
+   if (disableCaloInputs) {
+      m_params_helper.setCaloInputsToDisable(std::bitset<28>(0xFFFFFFF));
    } else {
-      m_params.setBxMin(bxMin);
-      m_params.setBxMax(bxMax);
+      m_params_helper.setCaloInputsToDisable(std::bitset<28>());
    }
 
-   //m_params.setBrlSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("BrlSingleMatchQualLUTMaxDR"));
-   m_params.setFwdPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"));
-   m_params.setFwdNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"));
-   m_params.setOvlPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"));
-   m_params.setOvlNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlNegSingleMatchQualLUTMaxDR"));
-   m_params.setBOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"), iConfig.getParameter<double>("BOPosMatchQualLUTMaxDREtaFine"));
-   m_params.setBONegMatchQualLUTMaxDR(iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"), iConfig.getParameter<double>("BONegMatchQualLUTMaxDREtaFine"));
-   m_params.setFOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"));
-   m_params.setFONegMatchQualLUTMaxDR(iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"));
+   std::vector<unsigned> bmtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("bmtfInputsToDisable");
+   std::bitset<12> bmtfDisables;
+   for (size_t i = 0; i < bmtfInputsToDisable.size(); ++i) {
+     bmtfDisables.set(i, bmtfInputsToDisable[i] > 0);
+   }
+   m_params_helper.setBmtfInputsToDisable(bmtfDisables);
+
+   std::vector<unsigned> omtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("omtfInputsToDisable");
+   std::bitset<6> omtfpDisables;
+   std::bitset<6> omtfnDisables;
+   for (size_t i = 0; i < omtfInputsToDisable.size(); ++i) {
+     if (i < 6) {
+       omtfpDisables.set(i, omtfInputsToDisable[i] > 0);
+     } else {
+       omtfnDisables.set(i-6, omtfInputsToDisable[i] > 0);
+     }
+   }
+   m_params_helper.setOmtfpInputsToDisable(omtfpDisables);
+   m_params_helper.setOmtfnInputsToDisable(omtfnDisables);
+
+   std::vector<unsigned> emtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("emtfInputsToDisable");
+   std::bitset<6> emtfpDisables;
+   std::bitset<6> emtfnDisables;
+   for (size_t i = 0; i < emtfInputsToDisable.size(); ++i) {
+     if (i < 6) {
+       emtfpDisables.set(i, emtfInputsToDisable[i] > 0);
+     } else {
+       emtfnDisables.set(i-6, emtfInputsToDisable[i] > 0);
+     }
+   }
+   m_params_helper.setEmtfpInputsToDisable(emtfpDisables);
+   m_params_helper.setEmtfnInputsToDisable(emtfnDisables);
+
+   // masked inputs
+   bool caloInputsMasked = iConfig.getParameter<bool>("caloInputsMasked");
+   if (caloInputsMasked) {
+      m_params_helper.setMaskedCaloInputs(std::bitset<28>(0xFFFFFFF));
+   } else {
+      m_params_helper.setMaskedCaloInputs(std::bitset<28>());
+   }
+
+   std::vector<unsigned> maskedBmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedBmtfInputs");
+   std::bitset<12> bmtfMasked;
+   for (size_t i = 0; i < maskedBmtfInputs.size(); ++i) {
+     bmtfMasked.set(i, maskedBmtfInputs[i] > 0);
+   }
+   m_params_helper.setMaskedBmtfInputs(bmtfMasked);
+
+   std::vector<unsigned> maskedOmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedOmtfInputs");
+   std::bitset<6> omtfpMasked;
+   std::bitset<6> omtfnMasked;
+   for (size_t i = 0; i < maskedOmtfInputs.size(); ++i) {
+     if (i < 6) {
+       omtfpMasked.set(i, maskedOmtfInputs[i] > 0);
+     } else {
+       omtfnMasked.set(i-6, maskedOmtfInputs[i] > 0);
+     }
+   }
+   m_params_helper.setMaskedOmtfpInputs(omtfpMasked);
+   m_params_helper.setMaskedOmtfnInputs(omtfnMasked);
+
+   std::vector<unsigned> maskedEmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedEmtfInputs");
+   std::bitset<6> emtfpMasked;
+   std::bitset<6> emtfnMasked;
+   for (size_t i = 0; i < maskedEmtfInputs.size(); ++i) {
+     if (i < 6) {
+       emtfpMasked.set(i, maskedEmtfInputs[i] > 0);
+     } else {
+       emtfnMasked.set(i-6, maskedEmtfInputs[i] > 0);
+     }
+   }
+   m_params_helper.setMaskedEmtfpInputs(emtfpMasked);
+   m_params_helper.setMaskedEmtfnInputs(emtfnMasked);
+
+   // LUTs
+   m_params_helper.setFwdPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"));
+   m_params_helper.setFwdNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"));
+   m_params_helper.setOvlPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"));
+   m_params_helper.setOvlNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("OvlNegSingleMatchQualLUTMaxDR"));
+   m_params_helper.setBOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("BOPosMatchQualLUTMaxDR"), iConfig.getParameter<double>("BOPosMatchQualLUTMaxDREtaFine"));
+   m_params_helper.setBONegMatchQualLUTMaxDR(iConfig.getParameter<double>("BONegMatchQualLUTMaxDR"), iConfig.getParameter<double>("BONegMatchQualLUTMaxDREtaFine"));
+   m_params_helper.setFOPosMatchQualLUTMaxDR(iConfig.getParameter<double>("FOPosMatchQualLUTMaxDR"));
+   m_params_helper.setFONegMatchQualLUTMaxDR(iConfig.getParameter<double>("FONegMatchQualLUTMaxDR"));
 
    unsigned sortRankLUTPtFactor = iConfig.getParameter<unsigned>("SortRankLUTPtFactor");
    unsigned sortRankLUTQualFactor = iConfig.getParameter<unsigned>("SortRankLUTQualFactor");
-   m_params.setSortRankLUTFactors(sortRankLUTPtFactor, sortRankLUTQualFactor);
+   m_params_helper.setSortRankLUTFactors(sortRankLUTPtFactor, sortRankLUTQualFactor);
 
    auto absIsoCheckMemLUT = l1t::MicroGMTAbsoluteIsolationCheckLUTFactory::create (iConfig.getParameter<std::string>("AbsIsoCheckMemLUTPath"), fwVersion);
    auto relIsoCheckMemLUT = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create (iConfig.getParameter<std::string>("RelIsoCheckMemLUTPath"), fwVersion);
    auto idxSelMemPhiLUT = l1t::MicroGMTCaloIndexSelectionLUTFactory::create (iConfig.getParameter<std::string>("IdxSelMemPhiLUTPath"), l1t::MicroGMTConfiguration::PHI, fwVersion);
    auto idxSelMemEtaLUT = l1t::MicroGMTCaloIndexSelectionLUTFactory::create (iConfig.getParameter<std::string>("IdxSelMemEtaLUTPath"), l1t::MicroGMTConfiguration::ETA, fwVersion);
-   //auto brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("BrlSingleMatchQualLUTPath"), iConfig.getParameter<double>("BrlSingleMatchQualLUTMaxDR"), l1t::cancel_t::bmtf_bmtf, fwVersion);
    auto fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FwdPosSingleMatchQualLUTPath"), iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"), l1t::cancel_t::emtf_emtf_pos, fwVersion);
    auto fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("FwdNegSingleMatchQualLUTPath"), iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"), l1t::cancel_t::emtf_emtf_neg, fwVersion);
    auto ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create (iConfig.getParameter<std::string>("OvlPosSingleMatchQualLUTPath"), iConfig.getParameter<double>("OvlPosSingleMatchQualLUTMaxDR"), l1t::cancel_t::omtf_omtf_pos, fwVersion);
@@ -113,48 +186,49 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    auto oEtaExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("OEtaExtrapolationLUTPath"), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
    auto fEtaExtrapolationLUT = l1t::MicroGMTExtrapolationLUTFactory::create (iConfig.getParameter<std::string>("FEtaExtrapolationLUTPath"), l1t::MicroGMTConfiguration::ETA_OUT, fwVersion);
    auto rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create (iConfig.getParameter<std::string>("SortRankLUTPath"), fwVersion, sortRankLUTPtFactor, sortRankLUTQualFactor);
-   m_params.setAbsIsoCheckMemLUT(*absIsoCheckMemLUT);
-   m_params.setRelIsoCheckMemLUT(*relIsoCheckMemLUT);
-   m_params.setIdxSelMemPhiLUT(*idxSelMemPhiLUT);
-   m_params.setIdxSelMemEtaLUT(*idxSelMemEtaLUT);
-   //m_params.setBrlSingleMatchQualLUT(*brlSingleMatchQualLUT);
-   m_params.setFwdPosSingleMatchQualLUT(*fwdPosSingleMatchQualLUT);
-   m_params.setFwdNegSingleMatchQualLUT(*fwdNegSingleMatchQualLUT);
-   m_params.setOvlPosSingleMatchQualLUT(*ovlPosSingleMatchQualLUT);
-   m_params.setOvlNegSingleMatchQualLUT(*ovlNegSingleMatchQualLUT);
-   m_params.setBOPosMatchQualLUT(*bOPosMatchQualLUT);
-   m_params.setBONegMatchQualLUT(*bONegMatchQualLUT);
-   m_params.setFOPosMatchQualLUT(*fOPosMatchQualLUT);
-   m_params.setFONegMatchQualLUT(*fONegMatchQualLUT);
-   m_params.setBPhiExtrapolationLUT(*bPhiExtrapolationLUT);
-   m_params.setOPhiExtrapolationLUT(*oPhiExtrapolationLUT);
-   m_params.setFPhiExtrapolationLUT(*fPhiExtrapolationLUT);
-   m_params.setBEtaExtrapolationLUT(*bEtaExtrapolationLUT);
-   m_params.setOEtaExtrapolationLUT(*oEtaExtrapolationLUT);
-   m_params.setFEtaExtrapolationLUT(*fEtaExtrapolationLUT);
-   m_params.setSortRankLUT(*rankPtQualityLUT);
+   m_params_helper.setAbsIsoCheckMemLUT(*absIsoCheckMemLUT);
+   m_params_helper.setRelIsoCheckMemLUT(*relIsoCheckMemLUT);
+   m_params_helper.setIdxSelMemPhiLUT(*idxSelMemPhiLUT);
+   m_params_helper.setIdxSelMemEtaLUT(*idxSelMemEtaLUT);
+   m_params_helper.setFwdPosSingleMatchQualLUT(*fwdPosSingleMatchQualLUT);
+   m_params_helper.setFwdNegSingleMatchQualLUT(*fwdNegSingleMatchQualLUT);
+   m_params_helper.setOvlPosSingleMatchQualLUT(*ovlPosSingleMatchQualLUT);
+   m_params_helper.setOvlNegSingleMatchQualLUT(*ovlNegSingleMatchQualLUT);
+   m_params_helper.setBOPosMatchQualLUT(*bOPosMatchQualLUT);
+   m_params_helper.setBONegMatchQualLUT(*bONegMatchQualLUT);
+   m_params_helper.setFOPosMatchQualLUT(*fOPosMatchQualLUT);
+   m_params_helper.setFONegMatchQualLUT(*fONegMatchQualLUT);
+   m_params_helper.setBPhiExtrapolationLUT(*bPhiExtrapolationLUT);
+   m_params_helper.setOPhiExtrapolationLUT(*oPhiExtrapolationLUT);
+   m_params_helper.setFPhiExtrapolationLUT(*fPhiExtrapolationLUT);
+   m_params_helper.setBEtaExtrapolationLUT(*bEtaExtrapolationLUT);
+   m_params_helper.setOEtaExtrapolationLUT(*oEtaExtrapolationLUT);
+   m_params_helper.setFEtaExtrapolationLUT(*fEtaExtrapolationLUT);
+   m_params_helper.setSortRankLUT(*rankPtQualityLUT);
 
    // LUT paths
-   m_params.setAbsIsoCheckMemLUTPath        (iConfig.getParameter<std::string>("AbsIsoCheckMemLUTPath"));
-   m_params.setRelIsoCheckMemLUTPath        (iConfig.getParameter<std::string>("RelIsoCheckMemLUTPath"));
-   m_params.setIdxSelMemPhiLUTPath          (iConfig.getParameter<std::string>("IdxSelMemPhiLUTPath"));
-   m_params.setIdxSelMemEtaLUTPath          (iConfig.getParameter<std::string>("IdxSelMemEtaLUTPath"));
-   //m_params.setBrlSingleMatchQualLUTPath    (iConfig.getParameter<std::string>("BrlSingleMatchQualLUTPath"));
-   m_params.setFwdPosSingleMatchQualLUTPath (iConfig.getParameter<std::string>("FwdPosSingleMatchQualLUTPath"));
-   m_params.setFwdNegSingleMatchQualLUTPath (iConfig.getParameter<std::string>("FwdNegSingleMatchQualLUTPath"));
-   m_params.setOvlPosSingleMatchQualLUTPath (iConfig.getParameter<std::string>("OvlPosSingleMatchQualLUTPath"));
-   m_params.setOvlNegSingleMatchQualLUTPath (iConfig.getParameter<std::string>("OvlNegSingleMatchQualLUTPath"));
-   m_params.setBOPosMatchQualLUTPath        (iConfig.getParameter<std::string>("BOPosMatchQualLUTPath"));
-   m_params.setBONegMatchQualLUTPath        (iConfig.getParameter<std::string>("BONegMatchQualLUTPath"));
-   m_params.setFOPosMatchQualLUTPath        (iConfig.getParameter<std::string>("FOPosMatchQualLUTPath"));
-   m_params.setFONegMatchQualLUTPath        (iConfig.getParameter<std::string>("FONegMatchQualLUTPath"));
-   m_params.setBPhiExtrapolationLUTPath     (iConfig.getParameter<std::string>("BPhiExtrapolationLUTPath"));
-   m_params.setOPhiExtrapolationLUTPath     (iConfig.getParameter<std::string>("OPhiExtrapolationLUTPath"));
-   m_params.setFPhiExtrapolationLUTPath     (iConfig.getParameter<std::string>("FPhiExtrapolationLUTPath"));
-   m_params.setBEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("BEtaExtrapolationLUTPath"));
-   m_params.setOEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("OEtaExtrapolationLUTPath"));
-   m_params.setFEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("FEtaExtrapolationLUTPath"));
-   m_params.setSortRankLUTPath              (iConfig.getParameter<std::string>("SortRankLUTPath"));
+   m_params_helper.setAbsIsoCheckMemLUTPath        (iConfig.getParameter<std::string>("AbsIsoCheckMemLUTPath"));
+   m_params_helper.setRelIsoCheckMemLUTPath        (iConfig.getParameter<std::string>("RelIsoCheckMemLUTPath"));
+   m_params_helper.setIdxSelMemPhiLUTPath          (iConfig.getParameter<std::string>("IdxSelMemPhiLUTPath"));
+   m_params_helper.setIdxSelMemEtaLUTPath          (iConfig.getParameter<std::string>("IdxSelMemEtaLUTPath"));
+   m_params_helper.setFwdPosSingleMatchQualLUTPath (iConfig.getParameter<std::string>("FwdPosSingleMatchQualLUTPath"));
+   m_params_helper.setFwdNegSingleMatchQualLUTPath (iConfig.getParameter<std::string>("FwdNegSingleMatchQualLUTPath"));
+   m_params_helper.setOvlPosSingleMatchQualLUTPath (iConfig.getParameter<std::string>("OvlPosSingleMatchQualLUTPath"));
+   m_params_helper.setOvlNegSingleMatchQualLUTPath (iConfig.getParameter<std::string>("OvlNegSingleMatchQualLUTPath"));
+   m_params_helper.setBOPosMatchQualLUTPath        (iConfig.getParameter<std::string>("BOPosMatchQualLUTPath"));
+   m_params_helper.setBONegMatchQualLUTPath        (iConfig.getParameter<std::string>("BONegMatchQualLUTPath"));
+   m_params_helper.setFOPosMatchQualLUTPath        (iConfig.getParameter<std::string>("FOPosMatchQualLUTPath"));
+   m_params_helper.setFONegMatchQualLUTPath        (iConfig.getParameter<std::string>("FONegMatchQualLUTPath"));
+   m_params_helper.setBPhiExtrapolationLUTPath     (iConfig.getParameter<std::string>("BPhiExtrapolationLUTPath"));
+   m_params_helper.setOPhiExtrapolationLUTPath     (iConfig.getParameter<std::string>("OPhiExtrapolationLUTPath"));
+   m_params_helper.setFPhiExtrapolationLUTPath     (iConfig.getParameter<std::string>("FPhiExtrapolationLUTPath"));
+   m_params_helper.setBEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("BEtaExtrapolationLUTPath"));
+   m_params_helper.setOEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("OEtaExtrapolationLUTPath"));
+   m_params_helper.setFEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("FEtaExtrapolationLUTPath"));
+   m_params_helper.setSortRankLUTPath              (iConfig.getParameter<std::string>("SortRankLUTPath"));
+
+   // temp hack to avoid ALCA/DB signoff:
+   m_params = cast_to_L1TMuonGlobalParams((L1TMuonGlobalParams_PUBLIC)m_params_helper);
 }
 
 

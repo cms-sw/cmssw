@@ -5,6 +5,11 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
+
 namespace ecaldqm {
 
   class TrigPrimTask : public DQWorkerTask {
@@ -16,6 +21,7 @@ namespace ecaldqm {
 
     bool analyze(void const*, Collections) override;
 
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
     void beginEvent(edm::Event const&, edm::EventSetup const&) override;
 
     void runOnRealTPs(EcalTrigPrimDigiCollection const&);
@@ -42,6 +48,10 @@ namespace ecaldqm {
     double bxBin_;
 
     std::map<uint32_t, unsigned> towerReadouts_;
+
+    edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd;
+    edm::ESHandle<EcalTPGStripStatus> StripStatusRcd;
+
   };
 
   inline bool TrigPrimTask::analyze(void const* _p, Collections _collection){

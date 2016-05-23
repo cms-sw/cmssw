@@ -99,7 +99,7 @@ void DQMStreamerReader::openFile_(const DQMFileIterator::LumiEntry& entry) {
   processedEventPerLs_ = 0;
   edm::ParameterSet pset;
 
-  std::string path = fiterator_.make_path(entry.datafn);
+  std::string path = entry.get_data_path();
 
   file_.lumi_ = entry;
   file_.streamFile_.reset(new edm::StreamerInputFile(path));
@@ -146,7 +146,7 @@ bool DQMStreamerReader::openNextFile_() {
   closeFile_("skipping to another file");
 
   DQMFileIterator::LumiEntry currentLumi = fiterator_.open();
-  std::string p = fiterator_.make_path(currentLumi.datafn);
+  std::string p = currentLumi.get_data_path();
 
   if (boost::filesystem::exists(p)) {
     try {

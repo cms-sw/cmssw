@@ -11,6 +11,10 @@ SiStripCalib = cms.EDAnalyzer(
     maxMPVError         = cms.untracked.double(25.0),
     maxNrStrips         = cms.untracked.uint32(8),
 
+    harvestingMode      = cms.untracked.bool(False),
+    calibrationMode     = cms.untracked.string('StdBunch'),
+    DQMdir              = cms.untracked.string('AlCaReco/SiStripGains'),
+
     Validation          = cms.untracked.bool(False),
     OldGainRemoving     = cms.untracked.bool(False),
     FirstSetOfConstants = cms.untracked.bool(True),

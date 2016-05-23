@@ -2,6 +2,7 @@
 <use   name="boost"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="DQMServices/Core"/>

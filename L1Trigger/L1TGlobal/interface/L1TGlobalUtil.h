@@ -43,6 +43,10 @@ namespace l1t {
     /// initialize the class (mainly reserve)
     void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup,
                     edm::EDGetToken gtAlgToken);
+    void retrieveL1Run(const edm::EventSetup& evSetup);
+    void retrieveL1LumiBlock(const edm::EventSetup& evSetup);
+    void retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup,
+			 edm::EDGetToken gtAlgToken);
 
     inline void setVerbosity(const int verbosity) {
         m_verbosity = verbosity;

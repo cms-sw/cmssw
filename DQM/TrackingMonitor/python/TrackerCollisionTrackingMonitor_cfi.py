@@ -13,16 +13,13 @@ TrackerCollisionTrackMon.ClusterLabels          = cms.vstring('Tot','Strip','Pix
 TrackerCollisionTrackMon.beamSpot               = cms.InputTag("offlineBeamSpot")
 TrackerCollisionTrackMon.primaryVertex          = cms.InputTag('offlinePrimaryVertices')
 TrackerCollisionTrackMon.primaryVertexInputTags = cms.VInputTag(
-      cms.InputTag('offlinePrimaryVertices'),
-      cms.InputTag('pixelVertices')
+      cms.InputTag('offlinePrimaryVertices')
 )    
 TrackerCollisionTrackMon.selPrimaryVertexInputTags = cms.VInputTag(
-      cms.InputTag('goodOfflinePrimaryVertices'),
-      cms.InputTag('')
+      cms.InputTag('goodOfflinePrimaryVertices')
 )    
 TrackerCollisionTrackMon.pvLabels               = cms.vstring(
-      'offline',
-      'pixel'
+      'offline'
 )
 
 # output parameters

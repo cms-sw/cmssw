@@ -39,6 +39,8 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
 class L1MuBMSectorProcessor;
 class L1MuDTTFParameters;
@@ -82,8 +84,11 @@ class L1MuBMSectorReceiver {
 
     L1MuBMSectorProcessor& m_sp;
 
+    edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
+    L1MuDTTFMasks       msks;
+
     edm::ESHandle< L1MuDTTFParameters > pars;
-    edm::ESHandle< L1MuDTTFMasks >      msks;
+    //edm::ESHandle< L1MuDTTFMasks >      msks;
     edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 
 };

@@ -49,12 +49,13 @@ def getSequence(process, collection,
         "trackQualities": ["highPurity"],
         "filter": True,
         "etaMin": -3.0,
-        "etaMax": 3.0
+        "etaMax": 3.0,
+        "pMin": 8.0
         }
     options["TrackSelector"]["Alignment"] = {
         "filter": True,
         "pMin": 3.0,
-        "nHitMin2D": 3,
+        "nHitMin2D": 2,        
         "d0Min": -50.0,
         "d0Max": 50.0,
         "etaMin": -3.0,
@@ -79,7 +80,7 @@ def getSequence(process, collection,
         "rejectLowAngleHits": True,
         "usePixelQualityFlag": usePixelQualityFlag,
         "StoNcommands": cms.vstring("ALL 12.0"),
-        "TrackAngleCut": 0.17
+        "TrackAngleCut": 0.087
         }
     options["TrackFitter"]["HitFilteredTracks"] = {
         "NavigationSchool": "",
@@ -92,11 +93,15 @@ def getSequence(process, collection,
     #########################################
     isCosmics = False
 
-    if collection is "ALCARECOTkAlMinBias":
+    if collection == "ALCARECOTkAlMinBias" or collection == "generalTracks":
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 1.0,
+                "pMin": 8.,
                 })
-    elif collection is "ALCARECOTkAlCosmicsCTF0T":
+        options["TrackHitFilter"]["Tracker"].update({
+                "minimumHits": 10,
+                })
+    elif collection == "ALCARECOTkAlCosmicsCTF0T":
         isCosmics = True
         options["TrackSelector"]["HighPurity"] = {} # drop high purity cut
         if not cosmicsDecoMode:
@@ -105,22 +110,28 @@ def getSequence(process, collection,
                     })
         if cosmicsZeroTesla:
             options["TrackHitFilter"]["Tracker"].update({
-                    "TrackAngleCut": 0.087 # Run-I: 0.087 for 0T
+                    "TrackAngleCut": 0.1 # Run-I: 0.087 for 0T
                     })
         else:
             options["TrackHitFilter"]["Tracker"].update({
-                    "TrackAngleCut": 0.087 # Run-I: 0.35 for 3.8T
+                    "TrackAngleCut": 0.1 # Run-I: 0.35 for 3.8T
                     })
         options["TrackSelector"]["Alignment"].update({
                 "pMin": 4.0,
                 "etaMin": -99.0,
-                "etaMax": 99.0
+                "etaMax": 99.0,
+                "applyMultiplicityFilter": True,
+                "maxMultiplicity": 1
                 })
-    elif collection is "ALCARECOTkAlMuonIsolated":
+    elif collection == "ALCARECOTkAlMuonIsolated":
         options["TrackSelector"]["Alignment"].update({
                 ("minHitsPerSubDet", "inPIXEL"): 1,
+                "ptMin": 5.0,
+                "nHitMin": 10,
+                "applyMultiplicityFilter": True,
+                "maxMultiplicity": 1,
                 })
-    elif collection is "ALCARECOTkAlZMuMu":
+    elif collection == "ALCARECOTkAlZMuMu":
         options["TrackSelector"]["Alignment"].update({
                 "ptMin": 15.0,
                 "etaMin": -3.0,
@@ -131,10 +142,15 @@ def getSequence(process, collection,
                 "maxMultiplicity": 2,
                 ("minHitsPerSubDet", "inPIXEL"): 1,
                 ("TwoBodyDecaySelector", "applyChargeFilter"): True,
+                ("TwoBodyDecaySelector", "charge"): 0,
                 ("TwoBodyDecaySelector",
                  "applyMassrangeFilter"): not openMassWindow,
                 ("TwoBodyDecaySelector", "minXMass"): 85.8,
-                ("TwoBodyDecaySelector", "maxXMass"): 95.8
+                ("TwoBodyDecaySelector", "maxXMass"): 95.8,
+                ("TwoBodyDecaySelector", "daughterMass"): 0.105
+                })
+        options["TrackHitFilter"]["Tracker"].update({
+                "minimumHits": 10,
                 })
         pass
     else:
@@ -328,3 +344,4 @@ def _customSetattr(obj, attr, val):
     else:
         if type(attr) is tuple: attr = attr[0]
         setattr(obj, attr, val)
+

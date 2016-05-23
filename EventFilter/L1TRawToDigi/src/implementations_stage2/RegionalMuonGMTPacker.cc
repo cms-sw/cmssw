@@ -24,9 +24,9 @@ namespace l1t {
       RegionalMuonGMTPacker::pack(const edm::Event& event, const PackerTokens* toks)
       {	 
 
-	//auto bmtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenBMTF();
-        // auto omtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenOMTF();
-	//auto emtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenEMTF();
+	 //auto bmtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenBMTF();
+         //auto omtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenOMTF();
+	 //auto emtfToken = static_cast<const GMTTokens*>(toks)->getRegionalMuonCandTokenEMTF();
 
          Blocks blocks;
 
@@ -50,8 +50,9 @@ namespace l1t {
          event.getByToken(tfToken, muons);
    
          PayloadMap payloadMap;
-   
-         for (int i = muons->getFirstBX(); i <= muons->getLastBX(); ++i) {
+
+         unsigned bxCtr = 0;
+         for (int i = muons->getFirstBX(); i <= muons->getLastBX(); ++i, ++bxCtr) {
             for (auto mu = muons->begin(i); mu != muons->end(i); ++mu) {
                uint32_t msw = 0;
                uint32_t lsw = 0;
@@ -68,12 +69,17 @@ namespace l1t {
             for (const auto &link : links) {
                if (payloadMap.count(link*2) == 0) {
                   payloadMap[link*2].push_back(0);
+               } else {
+                  // if the key was already created in a previous BX then seed an entry for the padding if nothing was filled in this bx
+                  if (payloadMap[link*2].size() == bxCtr * 6) {
+                     payloadMap[link*2].push_back(0);
+                  }
                }
             }
 
             // padding to 3 muons per block id (link) per BX
             for (auto &kv : payloadMap) {
-               while (kv.second.size()%6 != 0) {
+               while (kv.second.size() % 6 != 0) {
                   kv.second.push_back(0);
                }
             }

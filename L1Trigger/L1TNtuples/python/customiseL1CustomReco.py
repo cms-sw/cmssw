@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
+## from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from JetMETCorrections.Configuration.JetCorrectors_cff import *
@@ -14,25 +14,25 @@ def L1NtupleCustomReco(process):
     # load JEC from SQLite file
     process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-    process.jec = cms.ESSource(
-        "PoolDBESSource",
-        DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(0)
-            ),
-        timetype = cms.string('runnumber'),
-        toGet = cms.VPSet(
-            cms.PSet(
-                record = cms.string('JetCorrectionsRecord'),
-                tag    = cms.string('JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK4PFchs'),
-                label  = cms.untracked.string('AK4PFCHS')
-                ),
-            ), 
-        connect = cms.string('sqlite:Summer15_25nsV6_DATA.db')
-        # uncomment above tag lines and this comment to use MC JEC
-        # connect = cms.string('sqlite:Summer12_V7_MC.db')
-        )
-    
-    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+    ## process.jec = cms.ESSource(
+    ##     "PoolDBESSource",
+    ##     DBParameters = cms.PSet(
+    ##         messageLevel = cms.untracked.int32(0)
+    ##         ),
+    ##     timetype = cms.string('runnumber'),
+    ##     toGet = cms.VPSet(
+    ##         cms.PSet(
+    ##             record = cms.string('JetCorrectionsRecord'),
+    ##             tag    = cms.string('JetCorrectorParametersCollection_Summer15_25nsV6_DATA_AK4PFchs'),
+    ##             label  = cms.untracked.string('AK4PFCHS')
+    ##             ),
+    ##         ), 
+    ##     connect = cms.string('sqlite:Summer15_25nsV6_DATA.db')
+    ##     # uncomment above tag lines and this comment to use MC JEC
+    ##     # connect = cms.string('sqlite:Summer12_V7_MC.db')
+    ##     )
+    ## 
+    ## process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
     
     # re-apply JEC for AK4 CHS PF jets
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')

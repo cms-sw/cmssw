@@ -25,8 +25,8 @@ namespace stage2 {
 
     //Should this be configured someplace?
      unsigned int wdPerBX = 6;
-     unsigned int initialBlkID = 33; //first block of inital alg bits before prescale
-     unsigned int prescaledBlkID = 39; //first block of alg bits after prescale
+     unsigned int initialBlkID = 33; //first block of inital alg bits 
+     unsigned int intermBlkID = 39; //first block of alg bits after intermediate step
      unsigned int finalBlkID = 45;   //first block of final alg bits 
       
      int nBX = int(ceil(block.header().getSize() / 6.)); // FOR GT Not sure what we have here...put at 6 because of 6 frames 
@@ -64,7 +64,7 @@ namespace stage2 {
 
        //Determine offset of algorithm bits based on block.ID
        // ID=initialBlkID    offset = 0;  ID=initialBlkID+2    offset=192;  ID=initialBlkID+4    offset=384=2*192; (before prescale)
-       // ID=prescaledBlkID  offset = 0;  ID=prescaledBlkID+2  offset=192;  ID=prescaledBlkID+4  offset=384=2*192; (after prescale)
+       // ID=intermBlkID  offset = 0;  ID=intermBlkID+2  offset=192;  ID=intermBlkID+4  offset=384=2*192; (after prescale)
        // ID=finalBlkID      offset = 0;  ID=finalBlkID+2      offset=192;  ID=finalBlkID+4      offset=384=2*192; (after mask (Final))
        int algOffset = (block.header().getID() - initialBlkID + 1)/2;
        algOffset = (algOffset%3)*192;
@@ -74,7 +74,7 @@ namespace stage2 {
 	 LogDebug("L1T") << "BX "<<bx << " payload word " << wd << " 0x" << hex << raw_data << " offset=" << dec << algOffset  << std::endl;
 
          //parse these 32 bits into algorithm bits (perhaps needs a more efficient way of doing this?
-         if( (block.header().getID()!=initialBlkID+4 && block.header().getID()!=prescaledBlkID+4 && block.header().getID()!=finalBlkID+4 ) || wd<4) {
+         if( (block.header().getID()!=initialBlkID+4 && block.header().getID()!=intermBlkID+4 && block.header().getID()!=finalBlkID+4 ) || wd<4) {
            for(unsigned int bt=0; bt<32; bt++) {
 	     int val = ((raw_data >> bt) & 0x1);
 	     unsigned int algBit = bt+wd*32+algOffset;
@@ -82,8 +82,8 @@ namespace stage2 {
 	         LogDebug("L1T") << "Found valid alg bit ("<< algBit <<") on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
 	        if(block.header().getID()<initialBlkID+5) {
 		  alg.setAlgoDecisionInitial(algBit,true);
-		} else if(block.header().getID()<prescaledBlkID+5) {  
-		  alg.setAlgoDecisionPreScaled(algBit,true);
+		} else if(block.header().getID()<intermBlkID+5) {  
+		  alg.setAlgoDecisionInterm(algBit,true);
 		} else {  
 		  alg.setAlgoDecisionFinal(algBit,true);
 		}  
@@ -91,6 +91,13 @@ namespace stage2 {
 	         LogDebug("L1T") << "Found invalid alg bit ("<< algBit <<") out of range (128) on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
 	     }
            }
+	   
+	 } else if(block.header().getID()==initialBlkID+4 && (wd==4 || wd==5) ) {
+	   //This is the 32bit hash of menu name
+	   if(wd==4) alg.setL1MenuUUID(raw_data);  
+           //This is the 32bit hash of menu firmware uuid
+	   if(wd==5) alg.setL1FirmwareUUID(raw_data); 	
+	      
 	 } else if(block.header().getID()==finalBlkID+4 && wd==4) {
            //This is the FINOR
            if ( (raw_data & 0x10000)>>16 ) alg.setFinalOR(true);

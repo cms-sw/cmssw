@@ -10,7 +10,10 @@ anEff = cms.EDAnalyzer("HitEff",
                        #trajectories = cms.InputTag("ctfWithMaterialTracksP5"),
                        #trajectories   =   cms.InputTag("TrackRefitterP5"),
                        #trajectories = cms.InputTag("CalibrationTracksRefit")
-                       trajectories = cms.InputTag("generalTracks")
+                       trajectories        = cms.InputTag("generalTracks"),
+                       siStripClusters     = cms.InputTag("siStripClusters"),
+                       siStripDigis        = cms.InputTag("siStripDigis"),
+                       trackerEvent        = cms.InputTag("MeasurementTrackerEvent")
                        )
 
 hiteff = cms.Sequence( anEff )

@@ -58,7 +58,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  void doMetFilters(edm::Handle<edm::TriggerResults> trigRes, edm::TriggerNames trigNames, bool hbheNFRes); //, edm::Handle<bool> hbheNoiseFilterResult);
+  void doMetFilters(edm::Handle<edm::TriggerResults> trigRes, edm::TriggerNames trigNames, bool hbheNFRes);
 
 
 public:
@@ -86,12 +86,13 @@ private:
 
 
 L1MetFilterRecoTreeProducer::L1MetFilterRecoTreeProducer(const edm::ParameterSet& iConfig):
-  triggerResultsMissing_(false)
+  triggerResultsMissing_(false),
+  hbheNoiseFilterResultMissing_(false)
 {
 
   triggerResultsToken_ = consumes<edm::TriggerResults>(iConfig.getUntrackedParameter("triggerResultsToken",edm::InputTag("TriggerResults")));
   
-  hbheNoiseFilterResultToken_ = consumes<bool>(iConfig.getUntrackedParameter("hbheNoiseFilterResultToken",edm::InputTag("HBHENoiseFilterResult")));
+  hbheNoiseFilterResultToken_ = consumes<bool>(iConfig.getUntrackedParameter("hbheNoiseFilterResultToken",edm::InputTag("HBHENoiseFilterResultProducer:HBHENoiseFilterResult")));
 
 
   metFilter_data = new L1Analysis::L1AnalysisRecoMetFilterDataFormat();
@@ -136,7 +137,7 @@ void L1MetFilterRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::E
     iEvent.getByToken(hbheNoiseFilterResultToken_, hbheNoiseFilterResult);
 
     if(hbheNoiseFilterResult.isValid()){
-      hbheNFRes = hbheNoiseFilterResult.product();
+      hbheNFRes = *hbheNoiseFilterResult;
       doMetFilters(trigRes, trigNames, hbheNFRes);
 
     }

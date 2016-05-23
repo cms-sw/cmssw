@@ -588,6 +588,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     int nps=(amc13->AMCId(iamc)>>12)&0xF;
     
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
+    //Check to make sure uMNio is not unpacked here
+    if(uhtr.getFormatVersion() != 1) continue;
 #ifdef DebugLog
     //debug printouts
     int nwords=uhtr.getRawLengthBytes()/2;

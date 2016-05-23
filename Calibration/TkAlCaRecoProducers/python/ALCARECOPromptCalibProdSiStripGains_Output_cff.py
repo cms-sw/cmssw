@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 OutALCARECOPromptCalibProdSiStripGains_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiStripGains')
+        SelectEvents = cms.vstring(
+                           'pathALCARECOPromptCalibProdSiStripGains')
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_alcaBeamSpotProducer_*_*',

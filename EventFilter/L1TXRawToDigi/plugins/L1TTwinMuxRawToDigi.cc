@@ -25,7 +25,6 @@
 L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
 
   debug_( pset.getUntrackedParameter<bool>("debug", false) ), 
-  passbc0_( pset.getUntrackedParameter<bool>("passbc0", false) ), 
   nfeds_(0),
   DTTM7InputTag_( pset.getParameter<edm::InputTag>("DTTM7_FED_Source") ),
   feds_( pset.getUntrackedParameter<std::vector<int> >("feds", std::vector<int>()) ),
@@ -366,16 +365,13 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
         bxID = ( dataWordSub >> 48 ) & 0xFFF; // positions 48 -> 60
         bc0  = ( dataWordSub >> 22 ) & 0x1; // positions 22 -> 23
-		
-        if ( debug_ ) {
-            logfile << '[' << ++lcounter << "]\t" << std::hex
-                    << dataWordSub << '\t' << dataWordSub
-                    << std::dec << "\t|\t"
-                    << "bxID " << bxID << '\t'
-                    << "bc0  " << bc0  << '\n';
-        }
-
         bxNr = normBx(bxID, bxCounter); /// bx normalized to the bxcounter
+		
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+                              << dataWordSub << std::dec
+                              << "\t TSC WORD\t"
+                              << "bxID " << bxID << '\t'
+                              << "bc0  " << bc0  << '\n';
 
       }//TSC WORD
  
@@ -384,14 +380,14 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb2_phi =    ( dataWordSub & 0xFFF);        // positions  0 -> 11
         int mb2_phib =   ( dataWordSub >> 12 ) & 0x3FF; // positions 12 -> 21
         int mb2_qual =   ( dataWordSub >> 22 ) & 0x7;   // positions 22 -> 24
-        int mb2_ts2tag = ( dataWordSub >> 26 ) & 0x1;   // positions 26
+        int mb2_ts2tag = ( dataWordSub >> 28 ) & 0x1;   // positions 28
         /*** NOT UNPACKED  
-        int mb2_parity = ( dataWordSub >> 27) & 0x1;    // positions 27
+        int mb2_parity = ( dataWordSub >> 29) & 0x1;    // positions 29
         ***/
 
-        int mb1_phi  =   ( dataWordSub >> 32 ) & 0xFFF; // positions 32 -> 43
-        int mb1_phib =   ( dataWordSub >> 44 ) & 0x3FF; // positions 44 -> 53
-        int mb1_qual =   ( dataWordSub >> 54 ) & 0x7;   // positions 54 -> 56
+        int mb1_phi  =   ( dataWordSub >> 30 ) & 0xFFF; // positions 30 -> 41
+        int mb1_phib =   ( dataWordSub >> 42 ) & 0x3FF; // positions 42 -> 51
+        int mb1_qual =   ( dataWordSub >> 52 ) & 0x7;   // positions 52 -> 54
         int mb1_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
         /*** NOT UNPACKED  
         int mb1_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
@@ -427,22 +423,21 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb4_phi =    ( dataWordSub & 0xFFF);        // positions  0 -> 11
         int mb4_phib =   ( dataWordSub >> 12 ) & 0x3FF; // positions 12 -> 21
         int mb4_qual =   ( dataWordSub >> 22 ) & 0x7;   // positions 22 -> 24
-        int mb4_ts2tag = ( dataWordSub >> 26 ) & 0x1;   // positions 26
+        int mb4_ts2tag = ( dataWordSub >> 28 ) & 0x1;   // positions 28
         /*** NOT UNPACKED  
-        int mb4_parity = ( dataWordSub >> 27) & 0x1;    // positions 27
+        int mb4_parity = ( dataWordSub >> 29) & 0x1;    // positions 29
         ***/
 
-        int mb3_phi  =   ( dataWordSub >> 32 ) & 0xFFF; // positions 32 -> 43
-        int mb3_qual =   ( dataWordSub >> 54 ) & 0x7;   // positions 54 -> 56
+        int mb3_phi  =   ( dataWordSub >> 30 ) & 0xFFF; // positions 30 -> 41
+        int mb3_phib =   ( dataWordSub >> 42 ) & 0x3FF; // positions 42 -> 51
+        int mb3_qual =   ( dataWordSub >> 52 ) & 0x7;   // positions 52 -> 54
         int mb3_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
         /*** NOT UNPACKED  
         int mb3_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
         ***/
 
         int mb3_phi_conv  = radAngConversion(mb3_phi);
-        int mb3_phib_conv = 0;
-        if (passbc0_)
-            mb3_phib_conv = bc0; // fill 'mb3_phib' with the 'bc0' information
+        int mb3_phib_conv = benAngConversion(mb3_phib);
 
         int mb4_phi_conv  = radAngConversion(mb4_phi);
         int mb4_phib_conv = benAngConversion(mb4_phib);
@@ -466,8 +461,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                               << "mb4_phi "    << mb4_phi_conv  << '\n';
 
       }//MB3/4 word
- 
- 
+  
       else if ( selector == 0x3 ) { //etha word
        
         int posALL, posBTI[7];
@@ -535,13 +529,121 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         }
     
       }//etha word
+     
+      else if ( selector == 0xB ) { //MB1/2 output word
+ 
+        /*** NOT UNPACKED  
+        int mb2_phi =    ( dataWordSub & 0xFFF);        // positions  0 -> 11
+        int mb2_phib =   ( dataWordSub >> 12 ) & 0x3FF; // positions 12 -> 21
+        int mb2_qual =   ( dataWordSub >> 22 ) & 0x7;   // positions 22 -> 24
+        int mb2_q3 =     ( dataWordSub >> 25 ) & 0x1;   // positions 25
+        int mb2_q4 =     ( dataWordSub >> 26 ) & 0x1;   // positions 26
+        int mb2_ts2tag = ( dataWordSub >> 28 ) & 0x1;   // positions 28
+        int mb2_parity = ( dataWordSub >> 29) & 0x1;    // positions 29
+
+        int mb1_phi  =   ( dataWordSub >> 30 ) & 0xFFF; // positions 30 -> 41
+        int mb1_phib =   ( dataWordSub >> 42 ) & 0x3FF; // positions 42 -> 51
+        int mb1_qual =   ( dataWordSub >> 52 ) & 0x7;   // positions 52 -> 54
+        int mb1_q3 =     ( dataWordSub >> 55 ) & 0x1;   // positions 55
+        int mb1_q4 =     ( dataWordSub >> 56 ) & 0x1;   // positions 56
+        int mb1_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
+        int mb1_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
+
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
+                              << dataWordSub   << std::dec      << "\t|\t"
+                              << "mb1_ts2tag_out " << mb1_ts2tag    << '\t'
+                              << "mb1_qual_out "   << mb1_qual      << '\t'
+                              << "mb1_q3_out "     << mb1_q3        << '\t'
+                              << "mb1_q4_out "     << mb1_q4        << '\t'
+                              << "mb1_phib_out "   << mb1_phib_conv << '\t'
+                              << "mb1_phi_out "    << mb1_phi_conv  << '\t'
+                              << "mb2_ts2tag_out " << mb2_ts2tag    << '\t'
+                              << "mb2_qual_out "   << mb2_qual      << '\t'
+                              << "mb2_q3_out "     << mb2_q3        << '\t'
+                              << "mb2_q4_out "     << mb2_q4        << '\t'
+                              << "mb2_phib_out "   << mb2_phib_conv << '\t'
+                              << "mb2_phi_out "    << mb2_phi_conv  << '\n';
+        ***/
+
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+                              << dataWordSub << std::dec
+                              << "\t MB1/2 OUTPUT WORD\n";
+
+      }//MB1/2 output word
+ 
+ 
+      else if ( selector == 0xC ) { //MB3/4 output word
+ 
+        /*** NOT UNPACKED  
+        int mb4_phi =    ( dataWordSub & 0xFFF);        // positions  0 -> 11
+        int mb4_phib =   ( dataWordSub >> 12 ) & 0x3FF; // positions 12 -> 21
+        int mb4_qual =   ( dataWordSub >> 22 ) & 0x7;   // positions 22 -> 24
+        int mb4_q3 =     ( dataWordSub >> 25 ) & 0x1;   // positions 25
+        int mb4_q4 =     ( dataWordSub >> 26 ) & 0x1;   // positions 26
+        int mb4_ts2tag = ( dataWordSub >> 28 ) & 0x1;   // positions 28
+        int mb4_parity = ( dataWordSub >> 29) & 0x1;    // positions 29
+
+        int mb3_phi  =   ( dataWordSub >> 30 ) & 0xFFF; // positions 30 -> 41
+        int mb3_phib =   ( dataWordSub >> 42 ) & 0x3FF; // positions 42 -> 51
+        int mb3_qual =   ( dataWordSub >> 52 ) & 0x7;   // positions 52 -> 54
+        int mb3_q3 =     ( dataWordSub >> 55 ) & 0x1;   // positions 55
+        int mb3_q4 =     ( dataWordSub >> 56 ) & 0x1;   // positions 56
+        int mb3_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
+        int mb3_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
+
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
+                              << dataWordSub   << std::dec      << "\t|\t"
+                              << "mb3_ts2tag_out " << mb3_ts2tag    << '\t'
+                              << "mb3_qual_out "   << mb3_qual      << '\t'
+                              << "mb3_q3_out "     << mb3_q3        << '\t'
+                              << "mb3_q4_out "     << mb3_q4        << '\t'
+                              << "mb3_phib_out "   << mb3_phib_conv << '\t'
+                              << "mb3_phi_out "    << mb3_phi_conv  << '\t'
+                              << "mb4_ts2tag_out " << mb4_ts2tag    << '\t'
+                              << "mb4_qual_out "   << mb4_qual      << '\t'
+                              << "mb4_q3_out "     << mb4_q3        << '\t'
+                              << "mb4_q4_out "     << mb4_q4        << '\t'
+                              << "mb4_phib_out "   << mb4_phib_conv << '\t'
+                              << "mb4_phi_out "    << mb4_phi_conv  << '\n';
+        ***/
+
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+                              << dataWordSub << std::dec
+                              << "\t MB3/4 OUTPUT WORD\n";
+
+      }//MB3/4 output word
+ 
+      else if ( selector == 0xD ) { //etha output word
+         
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+                              << dataWordSub << std::dec
+                              << "\t ETHA OUTPUT WORD\n";
     
-      else if ( selector == 0xB || selector == 0xC || selector == 0xD ) { //output etha word
+      }//etha output word
+       
+      else if ( selector == 0x9 || selector == 0xE ) { //RPC word
+          
+        edm::LogInfo("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
+                                         << std::hex << dataWordSub << std::dec
+                                         << " it pos " << int(DTTM7iterator - DTTM7itend);
+  
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+                              << dataWordSub << std::dec
+                              << "\t RPC WORD\n";          
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex
-                              << dataWordSub << std::dec << '\n';
+      }//RPC word
+ 
+      else if ( selector == 0x6 ) { //HO word
+          
+        edm::LogInfo("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
+                                         << std::hex << dataWordSub << std::dec
+                                         << " it pos " << int(DTTM7iterator - DTTM7itend);
+  
+        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+                              << dataWordSub << std::dec
+                              << "\t HO WORD\n";          
 
-      }//output etha word
+      }//HO word
  
       else if ( selector == 0xF ) { //ERROR word
 
@@ -553,7 +655,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                               << dataWordSub << std::dec
                               << "\t ERROR WORD\n";
       }//ERROR word
- 
+
       else { //unkown word
 
         edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 

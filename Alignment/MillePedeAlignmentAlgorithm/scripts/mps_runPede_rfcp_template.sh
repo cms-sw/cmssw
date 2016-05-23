@@ -182,20 +182,15 @@ gzip -f millepede.eve
 gzip -f millepede.mon
 
 #list IOVs
-cmscond_list_iov -c sqlite_file:alignments_MP.db -t Alignments
-cmscond_list_iov -c sqlite_file:alignments_MP.db -t Deformations
-cmscond_list_iov -c sqlite_file:alignments_MP.db -t SiStripLorentzAngle_deco
-cmscond_list_iov -c sqlite_file:alignments_MP.db -t SiStripLorentzAngle_peak
-cmscond_list_iov -c sqlite_file:alignments_MP.db -t SiPixelLorentzAngle
-cmscond_list_iov -c sqlite_file:alignments_MP.db -t SiStripBackPlaneCorrection
+conddb --db alignments_MP.db list Alignments
+conddb --db alignments_MP.db list Deformations
+conddb --db alignments_MP.db list SiStripLorentzAngle_deco
+conddb --db alignments_MP.db list SiStripLorentzAngle_peak
+conddb --db alignments_MP.db list SiPixelLorentzAngle
+conddb --db alignments_MP.db list SiStripBackPlaneCorrection
 
 #split the IOVs
-aligncond_split_iov -s sqlite_file:alignments_MP.db -i Alignments -d sqlite_file:alignments_split_MP.db -t Alignments
-aligncond_split_iov -s sqlite_file:alignments_MP.db -i Deformations -d sqlite_file:alignments_split_MP.db -t Deformations
-aligncond_split_iov -s sqlite_file:alignments_MP.db -i SiStripLorentzAngle_deco -d sqlite_file:alignments_split_MP.db -t SiStripLorentzAngle_deco
-aligncond_split_iov -s sqlite_file:alignments_MP.db -i SiStripLorentzAngle_peak -d sqlite_file:alignments_split_MP.db -t SiStripLorentzAngle_peak
-aligncond_split_iov -s sqlite_file:alignments_MP.db -i SiPixelLorentzAngle -d sqlite_file:alignments_split_MP.db -t SiPixelLorentzAngle
-aligncond_split_iov -s sqlite_file:alignments_MP.db -i SiStripBackPlaneCorrection -d sqlite_file:alignments_split_MP.db -t SiStripBackPlaneCorrection
+aligncond_split_iov.sh alignments_MP.db alignments_split_MP.db
 
 echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
 ls -lh

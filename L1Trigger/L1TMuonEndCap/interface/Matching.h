@@ -68,7 +68,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 					if(inzone && verbose)
 						std::cout<<"setstation = "<<setstation<<std::endl;
 					
-					if((fabs((Winners[z][w].Strip()) - i->Zhit()) < phdiff[setstation]) && inzone){//is close to winner keystrip and in same zone?
+					if((fabs((Winners[z][w].Strip()) - i->Zhit()) < phdiff[setstation]) ){//is close to winner keystrip and in same zone?
 					
 						if(ph_output[z][w][setstation].Phi() == -999){//has this already been set? no
 						

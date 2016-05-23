@@ -324,6 +324,9 @@ class TrackAnalyzer
 	MonitorElement* zPointOfClosestApproachToPV;
 	MonitorElement* zPointOfClosestApproachVsPhi;
 	MonitorElement *algorithm, *oriAlgo;
+	MonitorElement *stoppingSource;
+	MonitorElement *stoppingSourceVSeta;
+	MonitorElement *stoppingSourceVSphi;
 	// TESTING MEs
 	MonitorElement* TESTDistanceOfClosestApproachToBS;
 	MonitorElement* TESTDistanceOfClosestApproachToBSVsPhi;

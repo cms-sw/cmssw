@@ -32,8 +32,7 @@
 
 
 //
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalAlgorithm.h"
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
@@ -42,7 +41,7 @@
 
 
 /// constructor from an algorithm from event setup
-l1t::AlgorithmEvaluation::AlgorithmEvaluation(const L1GtAlgorithm& alg) :
+l1t::AlgorithmEvaluation::AlgorithmEvaluation(const GlobalAlgorithm& alg) :
   m_algoResult(false),
   m_logicalExpression(alg.algoLogicalExpression()),
   m_rpnVector(alg.algoRpnVector()){
@@ -85,14 +84,14 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("l1t|Global")
+        //LogTrace("L1TGlobal")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
 
         switch (it->operation) {
 
-            case L1GtLogicParser::OP_OPERAND: {
+            case GlobalLogicParser::OP_OPERAND: {
 
                 CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
                 if (itCond != (conditionResultMaps[chipNumber]).end()) {
@@ -137,14 +136,14 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-	case  L1GtLogicParser::OP_NOT: {
+	case  GlobalLogicParser::OP_NOT: {
                 b1 = resultStack.top();
                 resultStack.pop(); // pop the top
                 resultStack.push(!b1); // and push the result
             }
 
                 break;
-            case L1GtLogicParser::OP_OR: {
+            case GlobalLogicParser::OP_OR: {
                 b1 = resultStack.top();
                 resultStack.pop();
                 b2 = resultStack.top();
@@ -153,7 +152,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
             }
 
                 break;
-            case L1GtLogicParser::OP_AND: {
+            case GlobalLogicParser::OP_AND: {
                 b1 = resultStack.top();
                 resultStack.pop();
                 b2 = resultStack.top();

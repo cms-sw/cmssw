@@ -223,6 +223,26 @@ void L1MuBMAssignmentUnit::PtAU(const edm::EventSetup& c) {
   int lut_idx = m_ptAssMethod;
   int pt = thePtaLUTs->getPt(lut_idx,bend_angle );
   //int pt = getPt(lut_idx, bend_angle, bmtfParams->pta_lut());
+
+if(bmtfParams.fwVersion()==2){
+    if (Quality() < 4) {
+    int ptj = pt;
+    L1MuBMLUTHandler::PtAssMethod jj1 = getPt1Method(m_ptAssMethod);
+    L1MuBMLUTHandler::PtAssMethod jj2 = getPt2Method(m_ptAssMethod);
+    if (jj1 != L1MuBMLUTHandler::NODEF) {
+      lut_idx = jj1;
+      bend_angle = getPt1Address(m_ptAssMethod);
+      if (abs(bend_angle) < 512) ptj = thePtaLUTs->getPt(lut_idx,bend_angle );
+    }
+    else if (jj2 != L1MuBMLUTHandler::NODEF) {
+      lut_idx = jj2;
+      bend_angle = getPt2Address(m_ptAssMethod);
+      if (abs(bend_angle) < 512) ptj = thePtaLUTs->getPt(lut_idx,bend_angle );
+    }
+    if (ptj < pt) pt = ptj;
+  }
+}
+
   m_sp.track(m_id)->setPt(pt);
   m_sp.tracK(m_id)->setPt(pt);
 
@@ -237,9 +257,43 @@ void L1MuBMAssignmentUnit::PtAU(const edm::EventSetup& c) {
 
 
 //
-// assign 3 bit quality code
+// assign 4 bit quality code
 //
 void L1MuBMAssignmentUnit::QuaAU() {
+
+  unsigned int quality = 0;
+
+  const TrackClass tc = m_sp.TA()->trackClass(m_id);
+
+  ///Two LSBs of BMTF Q = Nstations-1
+  switch ( tc ) {
+    case T1234 : { quality = 3; break; }
+    case T123  : { quality = 2; break; }
+    case T124  : { quality = 2; break; }
+    case T134  : { quality = 2; break; }
+    case T234  : { quality = 2; break; }
+    case T12   : { quality = 1; break; }
+    case T13   : { quality = 1; break; }
+    case T14   : { quality = 1; break; }
+    case T23   : { quality = 0; break; }
+    case T24   : { quality = 0; break; }
+    case T34   : { quality = 0; break; }
+    default    : { quality = 0; break; }
+  }
+
+ ///Two MSB of BMTF Q = 11
+ quality += 12;
+
+  m_sp.track(m_id)->setQuality(quality);
+  m_sp.tracK(m_id)->setQuality(quality);
+
+}
+
+
+//
+// assign 3 bit quality code
+//
+unsigned int L1MuBMAssignmentUnit::Quality() {
 
   unsigned int quality = 0;
 
@@ -257,14 +311,12 @@ void L1MuBMAssignmentUnit::QuaAU() {
     case T23   : { quality = 2; break; }
     case T24   : { quality = 2; break; }
     case T34   : { quality = 1; break; }
-    default    : { quality = 0; break; }
+    default    : { quality = 0; }
   }
 
-  m_sp.track(m_id)->setQuality(quality);
-  m_sp.tracK(m_id)->setQuality(quality);
+  return quality;
 
 }
-
 
 //
 // Track Segment Router (TSR)
@@ -342,6 +394,7 @@ int L1MuBMAssignmentUnit::getCharge(L1MuBMLUTHandler::PtAssMethod method) {
     //                         << endl;
                     break;
                   }
+    default     : { chargesign = 0; }
   }
 
   return chargesign;
@@ -420,6 +473,8 @@ int L1MuBMAssignmentUnit::getPtAddress(L1MuBMLUTHandler::PtAssMethod method, int
     //                    cerr << "AssignmentUnit::getPtAddress : undefined PtAssMethod" << endl;
                     break;
                   }
+    default     : { bendangle = 0; }
+
   }
 
   int signo = 1;
@@ -467,6 +522,116 @@ int L1MuBMAssignmentUnit::phiDiff(int stat1, int stat2) const {
 
 }
 
+
+
+//
+// determine pt-assignment method
+//
+L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt1Method(L1MuBMLUTHandler::PtAssMethod method) const {
+
+  // quality values of track segments from stations 1, 2 and 4
+  int qual1 = ( getTSphi(1) != 0 ) ? getTSphi(1)->quality() : 0;
+  int qual2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->quality() : 0;
+  int qual4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->quality() : 0;
+
+  L1MuBMLUTHandler::PtAssMethod pam = L1MuBMLUTHandler::NODEF;
+
+  switch ( method ) {
+    case L1MuBMLUTHandler::PT12H  : { if (qual1 > 3) pam = L1MuBMLUTHandler::PB12H;  break; }
+    case L1MuBMLUTHandler::PT13H  : { if (qual1 > 3) pam = L1MuBMLUTHandler::PB13H;  break; }
+    case L1MuBMLUTHandler::PT14H  : { if (qual1 > 3) pam = L1MuBMLUTHandler::PB14H;  break; }
+    case L1MuBMLUTHandler::PT23H  : { if (qual2 > 3) pam = L1MuBMLUTHandler::PB23H;  break; }
+    case L1MuBMLUTHandler::PT24H  : { if (qual2 > 3) pam = L1MuBMLUTHandler::PB24H;  break; }
+    case L1MuBMLUTHandler::PT34H  : { if (qual4 > 3) pam = L1MuBMLUTHandler::PB34H;  break; }
+    case L1MuBMLUTHandler::NODEF  : { pam = L1MuBMLUTHandler::NODEF; break;}
+    default     : { pam = L1MuBMLUTHandler::NODEF; }
+  }
+
+  return pam;
+
+}
+
+
+//
+// determine pt-assignment method
+//
+L1MuBMLUTHandler::PtAssMethod L1MuBMAssignmentUnit::getPt2Method(L1MuBMLUTHandler::PtAssMethod method) const {
+
+  // quality values of track segments from stations 2 and 4
+  int qual2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->quality() : 0;
+  //  int qual4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->quality() : 0;
+
+  L1MuBMLUTHandler::PtAssMethod pam = L1MuBMLUTHandler::NODEF;
+
+  switch ( method ) {
+    case L1MuBMLUTHandler::PT12H  : { if (qual2 > 3) pam = L1MuBMLUTHandler::PB21H;  break; }
+      //    case PT14H  : { if (qual4 > 3) pam = PB34H;  break; }
+      //    case PT24H  : { if (qual4 > 3) pam = PB34H;  break; }
+    //case PT12HO : { if (qual2 > 3) pam = PB21HO; break; }
+      //    case PT14HO : { if (qual4 > 3) pam = PB34HO; break; }
+      //    case PT24HO : { if (qual4 > 3) pam = PB34HO; break; }
+    case L1MuBMLUTHandler::NODEF  : { pam = L1MuBMLUTHandler::NODEF; break; }
+    default     : { pam = L1MuBMLUTHandler::NODEF; }
+  }
+
+  return pam;
+
+}
+
+
+//
+// calculate bend angle
+//
+int L1MuBMAssignmentUnit::getPt1Address(L1MuBMLUTHandler::PtAssMethod method) const {
+
+  // phib values of track segments from stations 1, 2 and 4
+  int phib1 = ( getTSphi(1) != 0 ) ? getTSphi(1)->phib() : -999;
+  int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : -999;
+  int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : -999;
+
+
+  int bendangle = -999;
+  switch (method) {
+    case L1MuBMLUTHandler::PT12H  : { bendangle = phib1;  break; }
+    case L1MuBMLUTHandler::PT13H  : { bendangle = phib1;  break; }
+    case L1MuBMLUTHandler::PT14H  : { bendangle = phib1;  break; }
+    case L1MuBMLUTHandler::PT23H  : { bendangle = phib2;  break; }
+    case L1MuBMLUTHandler::PT24H  : { bendangle = phib2;  break; }
+    case L1MuBMLUTHandler::PT34H  : { bendangle = phib4;  break; }
+    case L1MuBMLUTHandler::NODEF  : { bendangle = -999; break; }
+    default     : { bendangle = -999; }
+  }
+
+  return bendangle;
+
+}
+
+
+//
+// calculate bend angle
+//
+int L1MuBMAssignmentUnit::getPt2Address(L1MuBMLUTHandler::PtAssMethod method) const {
+
+  // phib values of track segments from stations 1, 2 and 4
+  int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : -999;
+  int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : -999;
+
+
+  int bendangle = -999;
+  switch (method) {
+    case L1MuBMLUTHandler::PT12H  : { bendangle = phib2;  break; }
+    case L1MuBMLUTHandler::PT14H  : { bendangle = phib4;  break; }
+    case L1MuBMLUTHandler::PT24H  : { bendangle = phib4;  break; }
+    //case L1MuBMLUTHandler::PT12HO : { bendangle = phib2;  break; }
+    //case L1MuBMLUTHandler::PT14HO : { bendangle = phib4;  break; }
+    //case L1MuBMLUTHandler::PT24HO : { bendangle = phib4;  break; }
+    case L1MuBMLUTHandler::NODEF  : { bendangle = -999; break; }
+    default     : { bendangle = -999; }
+  }
+
+  return bendangle;
+
+}
 
 //
 // set precision for pt-assignment of phi and phib

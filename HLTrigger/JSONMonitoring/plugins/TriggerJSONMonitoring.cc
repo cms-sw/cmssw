@@ -414,12 +414,12 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
 void TriggerJSONMonitoring::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup){ resetLumi(); }
 
-std::shared_ptr<hltJson::lumiVars>
+std::shared_ptr<trigJson::lumiVars>
 TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext)
 {
-  std::shared_ptr<hltJson::lumiVars> iSummary(new hltJson::lumiVars);
+  std::shared_ptr<trigJson::lumiVars> iSummary(new trigJson::lumiVars);
 
-  unsigned int MAXPATHS = 500;
+  unsigned int MAXPATHS = 1000;
 
   iSummary->processed = new HistoJ<unsigned int>(1, 1);
 
@@ -449,12 +449,14 @@ TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBl
   iSummary->stL1Jsd              = "";
   iSummary->streamL1Destination  = "";
   iSummary->streamHLTDestination = "";
+  iSummary->streamL1MergeType    = "";
+  iSummary->streamHLTMergeType   = "";
 
   return iSummary;
 }//End globalBeginLuminosityBlockSummary function  
 
 void
-TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup, hltJson::lumiVars* iSummary) const{
+TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup, trigJson::lumiVars* iSummary) const{
 
   //Whichever stream gets there first does the initialiazation 
   if (iSummary->hltWasRun->value().size() == 0){
@@ -495,6 +497,8 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 
     iSummary->streamHLTDestination = runCache()->streamHLTDestination;
     iSummary->streamL1Destination  = runCache()->streamL1Destination;
+    iSummary->streamHLTMergeType   = runCache()->streamHLTMergeType;
+    iSummary->streamL1MergeType    = runCache()->streamL1MergeType;
   }
 
   else{
@@ -533,7 +537,7 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 
 
 void
-TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, hltJson::lumiVars* iSummary)
+TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, trigJson::lumiVars* iSummary)
 {
 
   unsigned int iLs  = iLumi.luminosityBlock();
@@ -665,6 +669,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles.value());
     hltDaqJsn[DataPoint::DATA].append(hltJsnFileAdler32);
     hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTDestination);
+    hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTMergeType);
     hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnHLTErrorEvents.value());
 
     result = writer.write(hltDaqJsn);
@@ -691,6 +696,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles.value());
     l1DaqJsn[DataPoint::DATA].append(l1JsnFileAdler32);
     l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
+    l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1MergeType);
     l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnHLTErrorEvents.value());
 
     result = writer.write(l1DaqJsn);

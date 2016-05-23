@@ -19,7 +19,7 @@ mergedDuplicateDisplacedTracks = RecoTracker.TrackProducer.TrackProducer_cfi.Tra
 
 
 #for displaced global muons
-from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
 duplicateDisplacedTrackClassifier = TrackCutClassifier.clone()
 duplicateDisplacedTrackClassifier.src='mergedDuplicateDisplacedTracks'
 duplicateDisplacedTrackClassifier.mva.minPixelHits = [0,0,0]

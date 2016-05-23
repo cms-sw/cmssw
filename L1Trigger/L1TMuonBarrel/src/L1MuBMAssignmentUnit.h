@@ -71,6 +71,7 @@ class L1MuBMAssignmentUnit : public L1AbstractProcessor {
 
     /// assign quality
     void QuaAU();
+    unsigned int Quality();
 
     /// set precision of phi and phib
     static void setPrecision();
@@ -91,9 +92,13 @@ class L1MuBMAssignmentUnit : public L1AbstractProcessor {
 
     /// determine pt assignment method
     L1MuBMLUTHandler::PtAssMethod getPtMethod() const;
+    L1MuBMLUTHandler::PtAssMethod getPt1Method(L1MuBMLUTHandler::PtAssMethod) const;
+    L1MuBMLUTHandler::PtAssMethod getPt2Method(L1MuBMLUTHandler::PtAssMethod) const;
 
     /// calculate bend angle
     int getPtAddress(L1MuBMLUTHandler::PtAssMethod, int bendcharge=0) const;
+    int getPt1Address(L1MuBMLUTHandler::PtAssMethod) const;
+    int getPt2Address(L1MuBMLUTHandler::PtAssMethod) const;
 
     /// build difference of two phi values
     int phiDiff(int stat1, int stat2) const;

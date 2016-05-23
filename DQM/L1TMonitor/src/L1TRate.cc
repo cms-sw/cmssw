@@ -521,6 +521,3 @@ bool L1TRate::getXSexFitsPython(const edm::ParameterSet& ps){
   return noError;
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TRate);

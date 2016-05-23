@@ -31,6 +31,8 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_metUncertainties_cfg.py || die 'Failure using patTuple_metUncertainties_cfg.py' $?
 
+cmsRun ${LOCAL_TEST_DIR}/patTuple_updateMet_fromMiniAOD_cfg.py || die 'Failure using patTuple_updateMet_fromMiniAOD_cfg.py' $?
+
 cmsRun ${LOCAL_TEST_DIR}/patTuple_updateJets_fromMiniAOD_cfg.py || die 'Failure using patTuple_updateJets_fromMiniAOD_cfg.py' $?
 
 #---- disabled while the release is still open and changes to AOD event content are still allowed

@@ -118,6 +118,8 @@ bool TempTrajectory::badForCCC(const TrajectoryMeasurement &tm) {
     return false;
   if (thit->isPixel())
     return false;
+  if (!tm.updatedState().isValid())
+    return false;
   return siStripClusterTools::chargePerCM(thit->rawId(),
                                           thit->firstClusterRef().stripCluster(),
                                           tm.updatedState().localParameters()) < theCCCThreshold_;

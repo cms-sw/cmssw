@@ -7,12 +7,12 @@ namespace l1t {
 GMTInternalMuon::GMTInternalMuon(const GMTInternalMuon& other) :
   m_regional(other.m_regional), m_hwRank(other.m_hwRank), m_hwCancelBit(other.m_hwCancelBit), m_hwIsoSum(other.m_hwIsoSum),
   m_hwDeltaEta(other.m_hwDeltaEta), m_hwDeltaPhi(other.m_hwDeltaPhi), m_hwAbsIso(other.m_hwAbsIso), m_hwRelIso(other.m_hwRelIso),
-  m_hwGlobalPhi(other.m_hwGlobalPhi), m_hwCaloIndex(other.m_hwCaloIndex) {
+  m_hwGlobalPhi(other.m_hwGlobalPhi), m_tfMuonIndex(other.m_tfMuonIndex), m_hwCaloIndex(other.m_hwCaloIndex) {
 
 }
 
-GMTInternalMuon::GMTInternalMuon(const RegionalMuonCand& regional, int globalPhi) :
-  m_regional(regional), m_hwRank(0), m_hwCancelBit(0), m_hwIsoSum(0), m_hwDeltaEta(0), m_hwDeltaPhi(0), m_hwAbsIso(-1), m_hwRelIso(-1), m_hwGlobalPhi(globalPhi)
+GMTInternalMuon::GMTInternalMuon(const RegionalMuonCand& regional, int globalPhi, int tfMuonIndex) :
+  m_regional(regional), m_hwRank(0), m_hwCancelBit(0), m_hwIsoSum(0), m_hwDeltaEta(0), m_hwDeltaPhi(0), m_hwAbsIso(-1), m_hwRelIso(-1), m_hwGlobalPhi(globalPhi), m_tfMuonIndex(tfMuonIndex)
 {
 
 }

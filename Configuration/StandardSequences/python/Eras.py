@@ -31,7 +31,15 @@ class Eras (object):
         self.phase2dev_tracker = cms.Modifier()
         self.phase2dev_hgc = cms.Modifier()
         self.phase2dev_muon = cms.Modifier()
-        
+
+
+        # These eras are used to specify the tracking configuration
+        # when it should differ from the default (which is Run2). This
+        # way the tracking configuration is decoupled from the
+        # detector geometry to allow e.g. running Run2 tracking on
+        # phase1Pixel detector.
+        self.trackingLowPU = cms.Modifier()
+
         # This era should not be set by the user with the "--era" command, it's
         # activated automatically if the "--fast" command is used.
         self.fastSim = cms.Modifier()
@@ -55,6 +63,9 @@ class Eras (object):
         # Phase2dev is everything for the 2023 (2026?) detector that is still in development.
         self.Phase2dev = cms.ModifierChain( self.Phase2, self.phase2dev_common, self.phase2dev_tracker, self.phase2dev_hgc, self.phase2dev_muon )
         
+        # Scenarios with low-PU tracking (for B=0T reconstruction)
+        self.Run2_2016_trackingLowPU = cms.ModifierChain(self.Run2_2016, self.trackingLowPU)
+
         # The only thing this collection is used for is for cmsDriver to
         # warn the user if they specify an era that is discouraged from being
         # set directly. It also stops these eras being printed in the error
@@ -67,7 +78,8 @@ class Eras (object):
                                 self.phase2_common, self.phase2_tracker,
                                 self.phase2_hgc, self.phase2_muon,
                                 self.phase2dev_common, self.phase2dev_tracker,
-                                self.phase2dev_hgc, self.phase2dev_muon
+                                self.phase2dev_hgc, self.phase2dev_muon,
+                                self.trackingLowPU
                                ]
 
 eras=Eras()

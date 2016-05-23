@@ -62,6 +62,7 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/interface/CmsShowEDI.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -688,6 +689,7 @@ FWGUIManager::showCommonPopup()
    if (! m_commonPopup)
    {
       m_commonPopup = new CmsShowCommonPopup(m_context->commonPrefs(), m_cmsShowMainFrame, 200, 200);
+      m_context->commonPrefs()->setView(m_commonPopup);
       m_cmsShowMainFrame->bindCSGActionKeys(m_commonPopup);
    }
    m_commonPopup->MapRaised();
@@ -1276,6 +1278,7 @@ FWGUIManager::setWindowInfoFrom(const FWConfiguration& iFrom,
 
 void
 FWGUIManager::setFrom(const FWConfiguration& iFrom) {
+   gEve->DisableRedraw();
    // main window
    if (m_viewSecPack) subviewDestroyAll();
 
@@ -1283,11 +1286,6 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    assert(mw != 0);
    // Window needs to mapped before moving, otherwise move can lead
    // to wrong results on some window managers.
-   m_cmsShowMainFrame->MapWindow();
-   setWindowInfoFrom(*mw, m_cmsShowMainFrame);
-   m_cmsShowMainFrame->MapSubwindows();
-   m_cmsShowMainFrame->Layout();
-   m_cmsShowMainFrame->MapRaised();
 
    // set from view reading area info nd view info
    float_t leftWeight =1;
@@ -1400,8 +1398,16 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       }
    }
 
+   gEve->EnableRedraw();
    // disable first docked view
    checkSubviewAreaIconState(0);
+
+   m_cmsShowMainFrame->MapWindow();
+   setWindowInfoFrom(*mw, m_cmsShowMainFrame);
+   m_cmsShowMainFrame->MapSubwindows();
+   m_cmsShowMainFrame->Layout();
+   m_cmsShowMainFrame->MapRaised();
+
 }
 
 void

@@ -50,9 +50,11 @@ namespace ecaldqm
     MESet& meTimeAllMap(MEs_.at("TimeAllMap"));
     MESet& meTimeMap(MEs_.at("TimeMap"));
     MESet& meTime1D(MEs_.at("Time1D"));
+    MESet& meChi2(MEs_.at("Chi2"));
 
     uint32_t mask(~((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime)));
     float threshold(_collection == kEBRecHit ? energyThresholdEB_ : energyThresholdEE_);
+    int signedSubdet;
 
     std::for_each(_hits.begin(), _hits.end(), [&](EcalRecHitCollection::value_type const& hit){
                     if(hit.checkFlagMask(mask)) return;
@@ -63,6 +65,23 @@ namespace ecaldqm
                     float energy(hit.energy());
 
                     float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
+                    if (id.subdetId() == EcalBarrel) {
+                      signedSubdet=EcalBarrel;
+                    }
+                    else {
+                      EEDetId eeId(hit.id());
+                      if(eeId.zside() < 0){
+                        signedSubdet = -EcalEndcap;
+                      }
+                      else{
+                        signedSubdet = EcalEndcap;
+                      }
+                    }
+
+                    if(energy > threshold){
+                      meChi2.fill(signedSubdet, hit.chi2());
+                    }
+
                     if( hit.chi2() > chi2Threshold ) return;
 
                     meTimeAmp.fill(id, energy, time);

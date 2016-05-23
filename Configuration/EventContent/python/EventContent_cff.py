@@ -769,9 +769,27 @@ from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroE
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 
+#
+#
+# RAWSIM Data Tier definition
+# Meant as means to temporarily hold the RAW + AODSIM information as to allow the
+# L1+HLT to be rerun at a later time.
+#
+RAWAODSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+
+RAWAODSIMEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
+RAWAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+
 # in fastsim, normal digis are edaliases of simdigis
 # drop the simdigis to avoid complaints from the outputmodule related to duplicated branches
 if eras.fastSim.isChosen():
-    for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent]:
+    for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent,RAWAODSIMEventContent]:
         fastSimEC.dropSimDigis(_entry.outputCommands)
     

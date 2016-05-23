@@ -9,6 +9,7 @@
 #include "xercesc/dom/DOM.hpp"
 
 #include "CondFormats/L1TObjects/interface/LUT.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 
 class GoldenPattern;
 class OMTFConfiguration;
@@ -26,7 +27,7 @@ class XMLConfigReader{
 
  public:
 
-  XMLConfigReader();
+  XMLConfigReader(OMTFConfiguration * omtf_config);
 
   void readConfig(const std::string fName);
 
@@ -63,6 +64,7 @@ class XMLConfigReader{
   ///Cache with GPs read.
   std::vector<GoldenPattern*> aGPs;
 
+  OMTFConfiguration * m_omtf_config;
 };
 
 

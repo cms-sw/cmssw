@@ -15,13 +15,8 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedMETsNoHF_*_*',
         'keep *_slimmedMETsPuppi_*_*',
         'keep *_slimmedSecondaryVertices_*_*',
-        'keep *_cmsTopTaggerMap_*_*',
-        #'keep *_slimmedJetsAK8PFCHSSoftDropSubjets_*_*',
-        #'keep *_slimmedJetsCMSTopTagCHSSubjets_*_*',
         'keep *_slimmedJetsAK8PFCHSSoftDropPacked_SubJets_*',
-        'keep *_slimmedJetsCMSTopTagCHSPacked_SubJets_*',
-        #'keep *_packedPatJetsAK8_*_*',
-        ## add extra METs
+        'keep *_slimmedJetsAK8PFPuppiSoftDropPacked_SubJets_*',
         
         'keep recoPhotonCores_reducedEgamma_*_*',
         'keep recoGsfElectronCores_reducedEgamma_*_*',
@@ -40,7 +35,6 @@ MicroEventContent = cms.PSet(
 
         'keep *_bunchSpacingProducer_*_*',
 
-        #'keep double_fixedGridRho*__*',
         'keep double_fixedGridRhoAll__*',
         'keep double_fixedGridRhoFastjetAll__*',
         'keep double_fixedGridRhoFastjetAllCalo__*',
@@ -53,15 +47,23 @@ MicroEventContent = cms.PSet(
         'keep patPackedTriggerPrescales_patTrigger__*',
         'keep patPackedTriggerPrescales_patTrigger_l1max_*',
         'keep patPackedTriggerPrescales_patTrigger_l1min_*',
+        # old L1 trigger
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+        # stage 2 L1 trigger
+        'keep *_gtStage2Digis__*', 
+        'keep *_gmtStage2Digis_Muon_*',
+        'keep *_caloStage2Digis_Jet_*',
+        'keep *_caloStage2Digis_Tau_*',
+        'keep *_caloStage2Digis_EGamma_*',
+        'keep *_caloStage2Digis_EtSum_*',
+        # HLT
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_*', # for MET filters (a catch all for the moment, but ideally it should be only the current process)
         'keep patPackedCandidates_lostTracks_*_*',
         'keep HcalNoiseSummary_hcalnoise__*',
         'keep recoCSCHaloData_CSCHaloData_*_*',
-        'keep recoBeamHaloSummary_BeamHaloSummary_*_*',
-        'keep *_caTopTagInfosPAT_*_*'
+        'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
     )
 )
 MicroEventContentMC = cms.PSet(

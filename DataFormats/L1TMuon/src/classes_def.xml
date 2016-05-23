@@ -3,10 +3,12 @@
 
   <class name="l1t::RegionalMuonCand"/>
   <class name="l1t::RegionalMuonCandBxCollection"/>
+  <class name="std::vector<l1t::RegionalMuonCand>"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
 
   <class name="l1t::MuonCaloSum"/>
   <class name="l1t::MuonCaloSumBxCollection"/>
+  <class name="std::vector<l1t::MuonCaloSum>"/>
   <class name="edm::Wrapper<l1t::MuonCaloSumBxCollection>"/>
 
   <class name="l1t::EMTFOutput"/>

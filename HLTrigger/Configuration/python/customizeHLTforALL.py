@@ -56,7 +56,7 @@ def customizeHLTforAll(process, menuType = "GRun", _customInfo = None):
             if menuType == "HIon":
 #               fix "Unrunnable schedule" exception
                 from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
-                process = MassReplaceInputTag(process,"rawDataRepacker","rawDataRepacker::@skipCurrentProcess")
+                process = MassReplaceInputTag(process,"rawDataRepacker","rawDataCollector") #,"rawDataRepacker::@skipCurrentProcess")
         else:
 # Monte-Carlo customisation
             from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC

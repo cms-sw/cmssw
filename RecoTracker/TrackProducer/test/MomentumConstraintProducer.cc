@@ -2,7 +2,7 @@
 //
 // Package:    MomentumConstraintProducer
 // Class:      MomentumConstraintProducer
-// 
+//
 /**\class MomentumConstraintProducer MomentumConstraintProducer.cc RecoTracker/ConstraintProducerTest/src/MomentumConstraintProducer.cc
 
 Description: <one line class summary>
@@ -21,20 +21,21 @@ Implementation:
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class MomentumConstraintProducer: public edm::EDProducer {
@@ -45,11 +46,12 @@ public:
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() ;
-      
+
   // ----------member data ---------------------------
-  const edm::InputTag srcTag_; 
+  const edm::InputTag srcTag_;
   const double fixedmom_;
   const double fixedmomerr_;
+  edm::EDGetTokenT<reco::TrackCollection> srcToken_;
 };
 
 //
@@ -63,17 +65,19 @@ private:
 //
 // constructors and destructor
 //
-MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig):   
+MomentumConstraintProducer::MomentumConstraintProducer(const edm::ParameterSet& iConfig):
   srcTag_(iConfig.getParameter<edm::InputTag>("src")),
   fixedmom_(iConfig.getParameter<double>("fixedMomentum")),
   fixedmomerr_(iConfig.getParameter<double>("fixedMomentumError"))
 
 {
   //register your products
-  produces<std::vector<MomentumConstraint> >();
+  produces<std::vector<MomentumConstraint>>();
   produces<TrackMomConstraintAssociationCollection>();
 
   //now do what ever other initialization is needed
+  edm::ConsumesCollector&& iC = consumesCollector();
+  srcToken_ = iC.consumes<reco::TrackCollection>(srcTag_);
 }
 
 
@@ -94,13 +98,13 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
   using namespace edm;
 
   Handle<reco::TrackCollection> theTCollection;
-  iEvent.getByLabel(srcTag_,theTCollection);
-  
-  std::unique_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
-  std::unique_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection);
-  
-  edm::RefProd<std::vector<MomentumConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint> >();
-  
+  iEvent.getByToken(srcToken_,theTCollection);
+
+  edm::RefProd<std::vector<MomentumConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint>>();
+
+  std::unique_ptr<std::vector<MomentumConstraint>> pairs(new std::vector<MomentumConstraint>);
+  std::unique_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection(theTCollection, rPairs));
+
   int index = 0;
   for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
     //    MomentumConstraint tmp(10.,0.01) ;
@@ -110,13 +114,13 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
       tmp= MomentumConstraint(i->p(),fixedmomerr_);
     }
     pairs->push_back(tmp);
-    output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<MomentumConstraint> >(rPairs,index) );
+    output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<MomentumConstraint>>(rPairs,index) );
     index++;
   }
-  
+
   iEvent.put(std::move(pairs));
   iEvent.put(std::move(output));
- 
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

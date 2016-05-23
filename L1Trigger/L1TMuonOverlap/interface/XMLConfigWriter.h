@@ -12,7 +12,7 @@ class GoldenPattern;
 class OMTFConfiguration;
 class OMTFinput;
 class OMTFResult;
-class InternalObj;
+class AlgoMuon;
 struct Key;
 
 namespace XERCES_CPP_NAMESPACE{
@@ -40,7 +40,7 @@ class XMLConfigWriter{
 
   void writeCandidateData(xercesc::DOMElement *aTopElement,
 			  unsigned int iRefHit,
-			  const InternalObj & aCand);
+			  const AlgoMuon & aCand);
 
   void writeResultsData(xercesc::DOMElement *aTopElement,
 			unsigned int iRegion,
@@ -48,9 +48,6 @@ class XMLConfigWriter{
 			const OMTFResult & aResult);
 
   void writeGPData(const GoldenPattern & aGP);
-
-  void writeGPData(const GoldenPattern & aGP1,
-		   const GoldenPattern & aGP2);
 
   void writeGPData(const GoldenPattern & aGP1,
 		   const GoldenPattern & aGP2,
@@ -62,9 +59,6 @@ class XMLConfigWriter{
   unsigned int findMaxInput(const OMTFConfiguration::vector1D & myCounts);
 
  private:
-
-  ///Utility function to set which layers should be ignored
-  bool removeLayers(unsigned int iLayer);
 
   xercesc::DOMImplementation* domImpl;
   xercesc::DOMElement* theTopElement;

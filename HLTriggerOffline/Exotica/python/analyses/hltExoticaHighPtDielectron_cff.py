@@ -4,7 +4,9 @@ HighPtDielectronPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v", # 0T only
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v", # Run2
-        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"     # Run1 & Run2
+        "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",    # Run1 & Run2
+        "HLT_DoubleEle33_CaloIdL_MW_v",            # 2016 menu
+        "HLT_DoubleEle33_CaloIdL_v"                # 2016 menu
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     # -- Analysis specific cuts

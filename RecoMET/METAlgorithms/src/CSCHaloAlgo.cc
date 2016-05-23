@@ -11,7 +11,9 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 #include "TMath.h"
-
+namespace {
+  constexpr float c_cm_per_ns  = 29.9792458;
+};
 CSCHaloAlgo::CSCHaloAlgo()
 {
   deta_threshold = 0.;
@@ -266,246 +268,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	}
     }
 
-  if( TheHLTResults.isValid() )
-    {
-      bool EventPasses = false;
-       for( unsigned int index = 0 ; index < vIT_HLTBit.size(); index++)
-         {
-           if( vIT_HLTBit[index].label().size() )
-             {
-               //Get the HLT bit and check to make sure it is valid 
-               unsigned int bit = triggerNames->triggerIndex( vIT_HLTBit[index].label().c_str());
-               if( bit < TheHLTResults->size() )
-                 {
-		   //If any of the HLT names given by the user accept, then the event passes
-		   if( TheHLTResults->accept( bit ) && !TheHLTResults->error( bit ) )
-		     {
-		       EventPasses = true;
-		     }
-                 }
-             }
-         }
-       if( EventPasses )
-         TheCSCHaloData.SetHLTBit(true);
-       else
-         TheCSCHaloData.SetHLTBit(false);
-     }
-  else //  HLT results are not valid
-    {
-      static std::atomic<bool> HLTFail{false};
-      bool expected = false;
-      if( HLTFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
-	{
-	  edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
-					       << "decision will not be used in the halo identification"; 
-	}
-    }
-
-   if( TheL1GMTReadout.isValid() )
-     {
-       L1MuGMTReadoutCollection const *gmtrc = TheL1GMTReadout.product ();
-       std::vector < L1MuGMTReadoutRecord > gmt_records = gmtrc->getRecords ();
-       std::vector < L1MuGMTReadoutRecord >::const_iterator igmtrr;
-       
-       int icsc = 0;
-       int PlusZ = 0 ;
-       int MinusZ = 0 ;
-       int PlusZ_alt = 0 ;
-       int MinusZ_alt = 0 ;
-
-       // Check to see if CSC BeamHalo trigger is tripped
-       for (igmtrr = gmt_records.begin (); igmtrr != gmt_records.end (); igmtrr++)
-	 {
-	   std::vector < L1MuRegionalCand >::const_iterator iter1;
-	   std::vector < L1MuRegionalCand > rmc;
-	   rmc = igmtrr->getCSCCands ();
-	   for (iter1 = rmc.begin (); iter1 != rmc.end (); iter1++)
-	     {
-	      if (!(*iter1).empty ())
-		{
-		  if ((*iter1).isFineHalo ())
-		    {
-		      float halophi = iter1->phiValue();
-		      halophi = halophi > TMath::Pi() ? halophi - 2.*TMath::Pi() : halophi;
-		      float haloeta = iter1->etaValue();
-		      bool HaloIsGood = true;
-		      bool HaloIsGood_alt = true;
-		      // Check if halo trigger is faked by any collision muons
-		      if( TheMuons.isValid() )
-			{
-			  float dphi = 9999.;
-			  float deta = 9999.;
-			  for( reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu != TheMuons->end()  && (HaloIsGood ||!trkmuunvetoisdefault) ; mu++ )
-			    {
-			      // Don't match with SA-only muons
-			      bool lowpttrackmu =false;
-			      if( mu->isStandAloneMuon() && !mu->isTrackerMuon() && !mu->isGlobalMuon() )  continue;
-			      if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3 && trkmuunvetoisdefault) continue;
-			      if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3 ) lowpttrackmu = true;
-
-			      /*
-			      if(!mu->isTrackerMuon())
-				{
-				  if( mu->isStandAloneMuon() )
-				    {
-				      //make sure that this SA muon is not actually a halo-like muon
-				      float theta =  mu->outerTrack()->outerMomentum().theta();
-				      float deta = abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
-				      if( theta < min_outer_theta || theta > max_outer_theta )  //halo-like
-					continue;
-				      else if ( deta > deta_threshold ) //halo-like
-					continue;
-				    }
-				}
-			      */
-			    
-			      const std::vector<MuonChamberMatch> chambers = mu->matches();
-			      for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
-				  iChamber != chambers.end() ; iChamber ++ )
-				{
-				  if( iChamber->detector() != MuonSubdetId::CSC ) continue;
-				  for( std::vector<reco::MuonSegmentMatch>::const_iterator iSegment = iChamber->segmentMatches.begin() ; 
-				       iSegment != iChamber->segmentMatches.end(); ++iSegment )
-				    {
-				      edm::Ref<CSCSegmentCollection> cscSegment = iSegment->cscSegmentRef;
-				      std::vector<CSCRecHit2D> hits = cscSegment -> specificRecHits();
-				      for( std::vector<CSCRecHit2D>::iterator iHit = hits.begin();
-					   iHit != hits.end() ; iHit++ )
-					{
-					  DetId TheDetUnitId(iHit->cscDetId());
-					  const GeomDetUnit *TheUnit = TheCSCGeometry.idToDetUnit(TheDetUnitId);
-					  LocalPoint TheLocalPosition = iHit->localPosition();
-					  const BoundPlane& TheSurface = TheUnit->surface();
-					  GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
-					  
-					  float phi_ = TheGlobalPosition.phi();
-					  float eta_ = TheGlobalPosition.eta();
-					  
-					  deta = deta < abs( eta_ - haloeta ) ? deta : abs( eta_ - haloeta );
-					  dphi = dphi < abs(deltaPhi(phi_, halophi)) ? dphi : abs(deltaPhi(phi_, halophi));
-					}
-				    }
-				}
-			      if ( dphi < matching_dphi_threshold && deta < matching_deta_threshold){ 
-				HaloIsGood = false; // i.e., collision muon likely faked halo trigger
-				if(!lowpttrackmu)HaloIsGood_alt   = false;
-			      }
-			    }
-			}
-		      if( HaloIsGood ){ 
-			if( (*iter1).etaValue() > 0 )
-			  PlusZ++;
-			else
-			  MinusZ++;
-		      }
-		      if( HaloIsGood_alt ){
-			if( (*iter1).etaValue() > 0 )
-                          PlusZ_alt++;
-                        else
-                          MinusZ_alt++;
-                      }
-
-		    }
-		  else
-		    icsc++;
-		}
-	     }
-	 }
-       TheCSCHaloData.SetNumberOfHaloTriggers(PlusZ, MinusZ);
-       TheCSCHaloData.SetNumberOfHaloTriggers_TrkMuUnVeto(PlusZ_alt, MinusZ_alt);
-     }
-   else
-     {
-       static std::atomic<bool> L1Fail{false};   
-       bool expected = false;
-       if( L1Fail.compare_exchange_strong(expected,true,std::memory_order_acq_rel) ) 
-	 {
-	   edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
-						<< "decision will not be used in the halo identification"; 
-	 }
-     }
-
-   // Loop over CSCALCTDigi collection to look for out-of-time chamber triggers 
-   // A collision muon in real data should only have ALCTDigi::getBX() = 3 ( in MC, it will be 6 )
-   // Note that there could be two ALCTs per chamber 
-   short int n_alctsP=0;
-   short int n_alctsM=0;
-   if(TheALCTs.isValid())
-     {
-       for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++) 
-	 {
-	   const CSCALCTDigiCollection::Range& range =(*j).second;
-	   CSCDetId detId((*j).first.rawId());
-	   for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt)
-	     {
-	       if( (*digiIt).isValid() && ( (*digiIt).getBX() < expected_BX ) )
-		 {
-		   int digi_endcap  = detId.endcap();
-		   int digi_station = detId.station();
-		   int digi_ring    = detId.ring();
-		   int digi_chamber = detId.chamber();
-		   int digi_wire    = digiIt->getKeyWG();
-		   if( digi_station == 1 && digi_ring == 4 )   //hack
-		     digi_ring = 1;
-		   
-		   bool DigiIsGood = true;
-		   int dwire = 999.;
-		   if( TheMuons.isValid() ) 
-		     {
-		       //Check if there are any collision muons with hits in the vicinity of the digi
-		       for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end() && DigiIsGood ; mu++ )
-			 {
-			   
-			   if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
-			   if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3 &&trkmuunvetoisdefault) continue;
-			   const std::vector<MuonChamberMatch> chambers = mu->matches();
-			   for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
-			       iChamber != chambers.end(); iChamber ++ )
-			     {
-			       if( iChamber->detector() != MuonSubdetId::CSC ) continue;
-			       for( std::vector<reco::MuonSegmentMatch>::const_iterator iSegment = iChamber->segmentMatches.begin();
-				    iSegment != iChamber->segmentMatches.end(); iSegment++ )
-				 {
-				   edm::Ref<CSCSegmentCollection> cscSegRef = iSegment->cscSegmentRef;
-				   std::vector<CSCRecHit2D> hits = cscSegRef->specificRecHits();
-				   for( std::vector<CSCRecHit2D>::iterator iHit = hits.begin();
-					iHit != hits.end(); iHit++ )
-				     {
-				       if( iHit->cscDetId().endcap() != digi_endcap ) continue;
-				       if( iHit->cscDetId().station() != digi_station ) continue;
-				       if( iHit->cscDetId().ring() != digi_ring ) continue;
-				       if( iHit->cscDetId().chamber() != digi_chamber ) continue;
-				       int hit_wire = iHit->hitWire();
-				       dwire = dwire < abs(hit_wire - digi_wire)? dwire : abs(hit_wire - digi_wire );
-				     }
-				 }
-			     }
-			   if( dwire <= matching_dwire_threshold ) 
-			     DigiIsGood = false;  // collision-like muon is close to this digi
-			 }
-		     }
-		   // only count out of time digis if they are not matched to collision muons
-		   if( DigiIsGood ) 
-		     {
-		       if( detId.endcap() == 1 ) 
-			 n_alctsP++;
-		       else if ( detId.endcap() ==  2) 
-			 n_alctsM++;
-		     }
-		 }
-	     }
-	 }
-     }
-   else
-     {
-       static std::atomic<bool> DigiFail{false};
-       bool expected = false;
-       if (DigiFail.compare_exchange_strong(expected,true,std::memory_order_acq_rel)){
-	 edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
-					      << " not be used in the halo identification"; 
-       }
-     }
-   TheCSCHaloData.SetNOutOfTimeTriggers(n_alctsP,n_alctsM);
 
    // Loop over the CSCRecHit2D collection to look for out-of-time recHits
    // Out-of-time is defined as tpeak outside [t_0 + TOF - t_window, t_0 + TOF + t_window]
@@ -630,18 +392,17 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        float iR =  TMath::Sqrt(iGlobalPosition.x()*iGlobalPosition.x() + iGlobalPosition.y()*iGlobalPosition.y());
        float iZ = iGlobalPosition.z();
        float iT = iSegment->time();
-       //Timing condition, helps removing random segments from next collisions
-       if(iT>15) continue;
+
        //       if(abs(iZ)<650&& TheEvent.id().run()< 251737) iT-= 25; 
        //Calo matching:
 
        bool hbhematched = HCALSegmentMatching(hbhehits,et_thresh_rh_hbhe,dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe,dr_highthresh_segvsrh_hbhe,dt_lowthresh_segvsrh_hbhe,dt_highthresh_segvsrh_hbhe,iZ,iR,iT,iPhi);
        bool ebmatched = ECALSegmentMatching(ecalebhits,et_thresh_rh_eb,dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb,dr_highthresh_segvsrh_eb,dt_lowthresh_segvsrh_eb,dt_highthresh_segvsrh_eb,iZ,iR,iT,iPhi);
        bool eematched = ECALSegmentMatching(ecaleehits,et_thresh_rh_ee,dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee,dr_highthresh_segvsrh_ee,dt_lowthresh_segvsrh_ee,dt_highthresh_segvsrh_ee,iZ,iR,iT,iPhi); 
-       calomatched = calomatched? true : (hbhematched|| ebmatched|| eematched);
-       HCALmatched = HCALmatched? true :hbhematched;
-       ECALBmatched = ECALBmatched? true :ebmatched;
-       ECALEmatched = ECALEmatched? true :eematched;
+       calomatched  |= (hbhematched || ebmatched || eematched);
+       HCALmatched  |= hbhematched;
+       ECALBmatched |= ebmatched;
+       ECALEmatched |= eematched;
 
        short int nSegs = 0;
        short int nSegs_alt = 0;
@@ -662,14 +423,13 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 float jR =  TMath::Sqrt(jGlobalPosition.x()*jGlobalPosition.x() + jGlobalPosition.y()*jGlobalPosition.y());
 	 float jZ = jGlobalPosition.z() ;
 	 float jT = jSegment->time();
-	 //Timing condition, helps removing random segments from next collisions
-	 if(jT>15) continue;
 	 //	 if(abs(jZ)<650&& TheEvent.id().run() < 251737)jT-= 25;
-	 if ( abs(deltaPhi(jPhi , iPhi)) <= 0.1//max_segment_phi_diff 
-	      //&& abs(jR - iR) <= max_segment_r_diff 
-	      && (abs(jR - iR)<0.03*abs(jZ - iZ))
-	      && (abs(jR - iR) <= max_segment_r_diff ||  jZ*iZ < 0)
-	      && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
+	 if (  std::abs(deltaPhi(jPhi , iPhi)) <=max_segment_phi_diff
+	       && ( std::abs(jR - iR) <0.05*std::abs(jZ - iZ)||  jZ*iZ>0 )
+	       && ( (jR - iR) >-0.02*std::abs(jZ - iZ) || iT>jT ||  jZ*iZ>0)
+	       && ( (iR - jR) >-0.02*std::abs(jZ - iZ) || iT<jT ||  jZ*iZ>0)
+	       && (std::abs(jR - iR) <= max_segment_r_diff ||  jZ*iZ < 0)
+	       && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
 	   //// Check if Segment matches to a colision muon
 	   if( TheMuons.isValid() ) {
 	     for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end()  && (Segment2IsGood||!trkmuunvetoisdefault) ; mu++ ) {
@@ -703,9 +463,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
              nSegs_alt++;
              minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
              plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
+	     double iTBX = iT+sqrt(iGlobalPosition.mag2())/c_cm_per_ns;
+	     double jTBX = jT+sqrt(jGlobalPosition.mag2())/c_cm_per_ns;
+	     double truedt = (iTBX>jTBX)? iTBX-jTBX-std::abs(iZ-jZ)/c_cm_per_ns :  jTBX-iTBX-std::abs(iZ-jZ)/c_cm_per_ns;
              if( 
-		abs(jT-iT)<0.05*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && 
-		abs(jT-iT)> 0.02*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && 
+		std::abs(truedt)<15 &&
 		(iT>-15 || jT>-15)&&
 		minus_endcap&&plus_endcap ) both_endcaps_loose_dtcut_alt =true;
            }
@@ -736,6 +498,14 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
  
      }
    }
+
+   //Deprecated methods, kept for backward compatibility                                                                                                                                                     
+   TheCSCHaloData.SetHLTBit(false);
+   TheCSCHaloData.SetNumberOfHaloTriggers(0,0);
+   TheCSCHaloData.SetNumberOfHaloTriggers_TrkMuUnVeto(0,0);
+   TheCSCHaloData.SetNOutOfTimeTriggers(0,0);
+
+   //Current methods used
    TheCSCHaloData.SetNFlatHaloSegments(maxNSegments);
    TheCSCHaloData.SetSegmentsBothEndcaps(both_endcaps);
    TheCSCHaloData.SetNFlatHaloSegments_TrkMuUnVeto(maxNSegments_alt);

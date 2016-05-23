@@ -47,8 +47,9 @@ if [ "$#" != '1' ]; then
    if [ "$#" == '0' ]; then
       sh PlotMacro.sh
    fi
-   if [ "$#" == '2' ]; then
-      sh PlotMacro.sh "\"$2\""
+
+   if [ "$#" == '3' ]; then
+      sh PlotMacro.sh "\"$2\"" "\"$3\""
    fi
 else
    WORKDIR=$PWD

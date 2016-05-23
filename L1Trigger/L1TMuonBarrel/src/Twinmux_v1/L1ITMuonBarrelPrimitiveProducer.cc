@@ -75,7 +75,7 @@ inline std::auto_ptr<L1MuDTChambPhContainer> L1ITMuonBarrelPrimitiveProducer::pr
 
   const PrimitiveCombiner::resolutions _resol(0.1, 2., 0.005, 0.04);
   const int _qualityRemappingMode = 2;
-  const int _useRpcBxForDtBelowQuality = 8;
+  const int _useRpcBxForDtBelowQuality = 5;
   const bool _is7QualityCodes = true;
 
 
@@ -330,11 +330,16 @@ inline std::auto_ptr<L1MuDTChambPhContainer> L1ITMuonBarrelPrimitiveProducer::pr
       }
 
       // match found, PrimitiveCombiner has the needed variables already calculated
+      // 2016: the DT spatial parameters are not updated
       if ( combiner.isValid() ) {
 	//std::cout<<"=== I am making a combination ==="<<std::endl;
 	combiner.combine();
-	radialAngle = combiner.radialAngle();
-	bendingAngle = (combiner.bendingAngle() < -511 || combiner.bendingAngle() > 511) ? dt.getDTData().bendingAngle : combiner.bendingAngle( );
+	radialAngle = dt.getDTData().radialAngle;
+	bendingAngle = dt.getDTData().bendingAngle;
+	
+	//radialAngle = combiner.radialAngle();
+	//bendingAngle = (combiner.bendingAngle() < -511 || combiner.bendingAngle() > 511) ? dt.getDTData().bendingAngle : combiner.bendingAngle( );
+	
       } else {
 	// no match found, keep the primitive as it is
 	bx = dt.getBX();

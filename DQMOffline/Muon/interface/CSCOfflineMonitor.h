@@ -173,8 +173,14 @@ private:
   std::vector<MonitorElement*> hSChiSqProb;
   MonitorElement *hSGlobalTheta;
   MonitorElement *hSGlobalPhi;
+  MonitorElement *hSTimeDiff;
+  MonitorElement *hSTimeAnode;
   MonitorElement *hSTimeCathode;
   MonitorElement *hSTimeCombined;
+  MonitorElement *hSTimeDiffSerial;
+  MonitorElement *hSTimeAnodeSerial;
+  MonitorElement *hSTimeCathodeSerial;
+  MonitorElement *hSTimeCombinedSerial;
   MonitorElement *hSTimeVsZ;
   MonitorElement *hSTimeVsTOF;
 

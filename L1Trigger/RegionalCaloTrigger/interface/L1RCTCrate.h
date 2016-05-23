@@ -1,5 +1,5 @@
 #ifndef L1RCTCrate_h
-#define L1RCTCRate_h
+#define L1RCTCrate_h
 
 #include <vector>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
@@ -111,4 +111,4 @@ class L1RCTCrate {
 
   //L1RCTJetCaptureCard jetCaptureCard;
 };
-#endif
+#endif // L1RCTCrate_h

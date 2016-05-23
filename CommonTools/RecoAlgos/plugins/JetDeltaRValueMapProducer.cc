@@ -17,7 +17,7 @@
 
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -28,7 +28,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-template < class T >
+template < class T, class C=T >
 class JetDeltaRValueMapProducer : public edm::stream::EDProducer<> {
 
 public:
@@ -37,7 +37,7 @@ public:
 
   JetDeltaRValueMapProducer ( edm::ParameterSet const & params ) :
       srcToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>("src") ) ),
-      matchedToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>( "matched" ) ) ),
+      matchedToken_( consumes< typename edm::View<C> >( params.getParameter<edm::InputTag>( "matched" ) ) ),
       distMax_( params.getParameter<double>( "distMax" ) ),
       value_( params.existsAs<std::string>("value") ? params.getParameter<std::string>("value") : "" ),
       values_( params.existsAs<std::vector<std::string> >("values") ? params.getParameter<std::vector<std::string> >("values") : std::vector<std::string>() ),
@@ -47,7 +47,7 @@ public:
   {
     if( value_!="" )
     {
-      evaluationMap_.insert( std::make_pair( value_, std::unique_ptr<StringObjectFunction<T> >( new StringObjectFunction<T>( value_, lazyParser_ ) ) ) );
+      evaluationMap_.insert( std::make_pair( value_, std::unique_ptr<StringObjectFunction<C> >( new StringObjectFunction<C>( value_, lazyParser_ ) ) ) );
       produces< JetValueMap >();
     }
 
@@ -58,7 +58,7 @@ public:
         multiValue_ = true;
         for( size_t i=0; i<valueLabels_.size(); ++i)
         {
-          evaluationMap_.insert( std::make_pair( valueLabels_[i], std::unique_ptr<StringObjectFunction<T> >( new StringObjectFunction<T>( values_[i], lazyParser_ ) ) ) );
+          evaluationMap_.insert( std::make_pair( valueLabels_[i], std::unique_ptr<StringObjectFunction<C> >( new StringObjectFunction<C>( values_[i], lazyParser_ ) ) ) );
           produces< JetValueMap >(valueLabels_[i]);
         }
       }
@@ -75,7 +75,7 @@ private:
 
     edm::Handle< typename edm::View<T> > h_jets1;
     iEvent.getByToken( srcToken_, h_jets1 );
-    edm::Handle< typename edm::View<T> > h_jets2;
+    edm::Handle< typename edm::View<C> > h_jets2;
     iEvent.getByToken( matchedToken_, h_jets2 );
 
     std::vector<float> values( h_jets1->size(), -99999 );
@@ -87,7 +87,7 @@ private:
     }
     std::vector<bool> jets1_locks( h_jets1->size(), false );
 
-    for ( typename edm::View<T>::const_iterator ibegin = h_jets2->begin(),
+    for ( typename edm::View<C>::const_iterator ibegin = h_jets2->begin(),
           iend = h_jets2->end(), ijet = ibegin;
           ijet != iend; ++ijet )
     {
@@ -156,16 +156,20 @@ private:
   }
 
   const edm::EDGetTokenT< typename edm::View<T> >  srcToken_;
-  const edm::EDGetTokenT< typename edm::View<T> >  matchedToken_;
+  const edm::EDGetTokenT< typename edm::View<C> >  matchedToken_;
   const double                                     distMax_;
   const std::string                                value_;
   const std::vector<std::string>                   values_;
   const std::vector<std::string>                   valueLabels_;
   const bool                                       lazyParser_;
   bool                                             multiValue_;
-  std::map<std::string, std::unique_ptr<const StringObjectFunction<T> > >  evaluationMap_;
+  std::map<std::string, std::unique_ptr<const StringObjectFunction<C> > >  evaluationMap_;
 };
 
 typedef JetDeltaRValueMapProducer<reco::Jet> RecoJetDeltaRValueMapProducer;
+typedef JetDeltaRValueMapProducer<reco::Jet,pat::Jet> RecoJetToPatJetDeltaRValueMapProducer;
+typedef JetDeltaRValueMapProducer<pat::Jet> PatJetDeltaRValueMapProducer;
 
 DEFINE_FWK_MODULE( RecoJetDeltaRValueMapProducer );
+DEFINE_FWK_MODULE( RecoJetToPatJetDeltaRValueMapProducer );
+DEFINE_FWK_MODULE( PatJetDeltaRValueMapProducer );

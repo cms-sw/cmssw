@@ -16,7 +16,8 @@ typedef std::vector<std::vector<std::vector<int>>> BXHold;
 class ConvertedHit{
 
 	public:
-	
+
+                ConvertedHit() { SetNull();}
 		
 		void SetValues(int phi,int theta,int ph_hit,int phzvl,int station,int sub,int id,int quality,int pattern,int wire,int strip,int BX){
 		

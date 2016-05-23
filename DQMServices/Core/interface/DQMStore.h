@@ -207,6 +207,10 @@ class DQMStore
 						 uint32_t runNumber = 0,
 						 uint32_t lumi = 0);
     MonitorElement * get(const std::string &path);
+
+    // same as get, throws an exception if histogram not found
+    MonitorElement * getElement(const std::string &path);
+
     std::vector<std::string> getSubdirs(void);
     std::vector<std::string> getMEs(void);
     bool containsAnyMonitorable(const std::string &path);

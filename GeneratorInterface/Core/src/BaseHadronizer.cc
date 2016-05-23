@@ -89,6 +89,9 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     std::seed_seq seedseq(seeds.begin(),seeds.end());
     std::array<unsigned int,1> lheseed;
     seedseq.generate(lheseed.begin(),lheseed.end());
+    
+    constexpr unsigned int maxseed = 30081*30081; //madgraph cannot handle seeds larger than this
+    unsigned int seedval = lheseed[0]%(maxseed+1);
 
     unsigned int nevents = edm::pset::Registry::instance()->getMapped(lumi.processHistory().rbegin()->parameterSetID())->getParameter<edm::ParameterSet>("@main_input").getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock");
     
@@ -96,7 +99,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     nevStream << nevents;
     
     std::ostringstream randomStream;
-    randomStream << lheseed[0];
+    randomStream << seedval;
    
     edm::FileInPath script("GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh");
     const char *outfilename = "cmsgrid_final.lhe";
@@ -131,6 +134,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     if (!lhef) {
       throw cms::Exception("BaseHadronizer::generateLHE") << "Output file " << outfilename << " not found.";
     }
+    std::fclose(lhef);
 
     lheFile_ = outfilename;
     

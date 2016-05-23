@@ -11,7 +11,7 @@ namespace l1t {
       
       class CountersBlockUnpacker : public Unpacker { // "CountersBlockUnpacker" inherits from "Unpacker"
       public:
-	// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
+	virtual int checkFormat(const Block& block);
 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
 	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
       };
@@ -29,6 +29,35 @@ namespace l1t {
   namespace stage2 {
     namespace emtf {
 
+      int CountersBlockUnpacker::checkFormat(const Block& block) {
+
+	auto payload = block.payload();
+	int errors = 0;
+
+	//Check the number of 16-bit words                                                                                                                                    
+	if(payload.size() != 4) { errors += 1; edm::LogError("L1T|EMTF") << "Payload size in 'Block of Counters' is different than expected"; }
+
+	//Check that each word is 16 bits                                                                                                                                     
+	if(GetHexBits(payload[0], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[0] has more than 16 bits in 'Block of Counters'"; }
+	if(GetHexBits(payload[1], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[1] has more than 16 bits in 'Block of Counters'"; }
+	if(GetHexBits(payload[2], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[2] has more than 16 bits in 'Block of Counters'"; }
+	if(GetHexBits(payload[3], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[3] has more than 16 bits in 'Block of Counters'"; }
+
+	uint16_t BCa = payload[0];
+	uint16_t BCb = payload[1];
+	uint16_t BCc = payload[2];
+	uint16_t BCd = payload[3];
+
+	//Check Format                                                                                                                                                        
+	if(GetHexBits(BCa, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in BCa are incorrect"; }
+	if(GetHexBits(BCb, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in BCb are incorrect"; }
+	if(GetHexBits(BCc, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in BCc are incorrect"; }
+	if(GetHexBits(BCd, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in BCd are incorrect"; }
+
+	return errors;
+      }
+
+
       bool CountersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
@@ -36,9 +65,9 @@ namespace l1t {
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
 	auto payload = block.payload();
 
-	// std::cout << "This payload has " << payload.size() << " 16-bit words" << std::endl;
-	// for (uint iWord = 0; iWord < payload.size(); iWord++)
-	//   std::cout << std::hex << std::setw(8) << std::setfill('0') << payload[iWord] << std::dec << std::endl;
+	// Check Format of Payload
+	l1t::emtf::Counters Counters_;
+	for (int err = 0; err < checkFormat(block); err++) Counters_.add_format_error();
 
 	// Assign payload to 16-bit words
         uint16_t BCa = payload[0];
@@ -54,19 +83,19 @@ namespace l1t {
 
 	///////////////////////////////
 	// Unpack the Block of Counters
-	///////////////////////////////
-	
+	///////////////////////////////	
 	if ( (res->at(iOut)).HasCounters() == true )
-	  std::cout << "Why is there already an Counters?" << std::endl;
-	l1t::emtf::Counters Counters_;
+	  { (res->at(iOut)).add_format_error(); edm::LogError("L1T|EMTF") << "Why is there already a Counters object?"; goto write; }
+	if (Counters_.Format_Errors() > 0) goto write;
 
 	Counters_.set_track_counter( GetHexBits(BCa, 0, 14, BCb, 0, 14) );
 	Counters_.set_orbit_counter( GetHexBits(BCc, 0, 14, BCd, 0, 14) );
 	// Counters_.set_rpc_counter( GetHexBits(payload[], , ) );
 	// Counters_.set_dataword(uint64_t bits)  { dataword = bits;      };
 
+      write:
 	(res->at(iOut)).set_Counters(Counters_);
-
+	
 	// Finished with unpacking Counters
 	return true;
 	

@@ -94,6 +94,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doSeedNRecHitsHisto= cms.bool(False),
     doSeedNVsPhiProf= cms.bool(False),
     doSeedNVsEtaProf= cms.bool(False),
+    doStopSource = cms.bool(False),
 
     TTRHBuilder = cms.string('WithTrackAngle'),
 

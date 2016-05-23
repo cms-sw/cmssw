@@ -7,10 +7,15 @@
   [description]: See HcalHaloAlgo.h
   [date]: October 15, 2009
 */
+namespace {
+  constexpr float c_cm_per_ns  = 29.9792458;
+  constexpr float zseparation_HBHE = 380.;
+};
+
 
 using namespace std;
-using namespace edm;
 using namespace reco;
+using namespace edm;
 
 #include <iomanip>
 bool CompareTime(const HBHERecHit* x, const HBHERecHit* y ){ return x->time() < y->time() ;}
@@ -24,15 +29,18 @@ HcalHaloAlgo::HcalHaloAlgo()
   HERecHitEnergyThreshold = 0.;
   SumEnergyThreshold = 0.;
   NHitsThreshold = 0;
+
+  geo = 0;
 }
 
-HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<HBHERecHitCollection>& TheHBHERecHits) {
+HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<HBHERecHitCollection>& TheHBHERecHits, edm::Handle<EBRecHitCollection>& TheEBRecHits,edm::Handle<EERecHitCollection>& TheEERecHits,const edm::EventSetup& TheSetup){
     edm::Handle<CaloTowerCollection> TheCaloTowers;
-    return Calculate(TheCaloGeometry, TheHBHERecHits, TheCaloTowers);
+    return Calculate(TheCaloGeometry, TheHBHERecHits, TheCaloTowers,TheEBRecHits,TheEERecHits,TheSetup);
 }
 
-HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<HBHERecHitCollection>& TheHBHERecHits, edm::Handle<CaloTowerCollection>& TheCaloTowers)
+HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<HBHERecHitCollection>& TheHBHERecHits,edm::Handle<CaloTowerCollection>& TheCaloTowers,edm::Handle<EBRecHitCollection>& TheEBRecHits,edm::Handle<EERecHitCollection>& TheEERecHits,const edm::EventSetup& TheSetup)
 {
+
   HcalHaloData TheHcalHaloData;
   
   // Store Energy sum of rechits as a function of iPhi (iPhi goes from 1 to 72)
@@ -216,8 +224,304 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
     prevHadEt = tower->hadEt();
   }
 
+  geo = 0;
+  edm::ESHandle<CaloGeometry> pGeo;
+  TheSetup.get<CaloGeometryRecord>().get(pGeo);
+  geo = pGeo.product();
+
+  //Halo cluster building:
+  //Various clusters are built, depending on the subdetector. 
+  //In barrel, one looks for deposits narrow in phi.
+  //In endcaps, one looks for localized deposits (dr condition in EE where r =sqrt(dphi*dphi+deta*deta)
+  //E/H condition is also applied.
+  //The halo cluster building step targets a large efficiency (ideally >99%) for beam halo deposits.
+  //These clusters are used as input for the halo pattern finding methods in HcalHaloAlgo and for the CSC-calo matching methods in GlobalHaloAlgo.
+  
+  //Et threshold hardcoded for now. Might one to get it from config
+
+  std::vector<HaloClusterCandidateHCAL> haloclustercands_HB;
+  haloclustercands_HB=  GetHaloClusterCandidateHB(TheEBRecHits , TheHBHERecHits, 5);
+
+  std::vector<HaloClusterCandidateHCAL> haloclustercands_HE;
+  haloclustercands_HE=  GetHaloClusterCandidateHE(TheEERecHits , TheHBHERecHits, 10);
+
+  TheHcalHaloData.setHaloClusterCandidatesHB(haloclustercands_HB);
+  TheHcalHaloData.setHaloClusterCandidatesHE(haloclustercands_HE);
+
+
   return TheHcalHaloData;
   
 }
 
+
+
+
+
+
+ 
+
+std::vector<HaloClusterCandidateHCAL> HcalHaloAlgo::GetHaloClusterCandidateHB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+
+  std::vector<HaloClusterCandidateHCAL> TheHaloClusterCandsHB;
+
+  reco::Vertex::Point vtx(0,0,0);
+
+  for(size_t ihit = 0; ihit<hbherechitcoll->size(); ++ ihit){
+    HaloClusterCandidateHCAL  clustercand;
+    
+    const HBHERecHit & rechit = (*hbherechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    //Et condition
+    double rhet = rechit.energy()* sqrt(rhpos.perp2()/rhpos.mag2());
+    if(rhet<et_thresh_seedrh) continue;
+    if(std::abs(rhpos.z())>zseparation_HBHE) continue;
+    double eta = rhpos.eta();
+    double phi = rhpos.phi();
+    
+    bool isiso = true;
+    double etcluster(0);
+    int nbtowerssameeta(0);
+    double timediscriminatorITBH(0),timediscriminatorOTBH(0);
+    double etstrip_phiseedplus1(0), etstrip_phiseedminus1(0);
+
+    //Building the cluster 
+    edm::RefVector<HBHERecHitCollection> bhrhcandidates;
+    for(size_t jhit = 0; jhit<hbherechitcoll->size(); ++ jhit){
+      const HBHERecHit & rechitj = (*hbherechitcoll)[ jhit ];
+      HBHERecHitRef rhRef(hbherechitcoll,jhit);
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()* sqrt(rhposj.perp2()/rhposj.mag2());
+      if(rhetj<2) continue;
+      if(std::abs(rhposj.z())>zseparation_HBHE) continue;
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      double deta = eta - etaj;
+      double dphi = deltaPhi(phi,phij);
+      if(std::abs(deta)>0.4) continue;//This means +/-4 towers in eta 
+      if(std::abs(dphi)>0.2) continue;//This means +/-2 towers in phi 
+      if(std::abs(dphi)>0.1&&std::abs(deta)<0.2){isiso=false;break;}//The strip should be isolated
+      if(std::abs(dphi)>0.1)continue;
+      if(std::abs(dphi)<0.05) nbtowerssameeta++;
+      if(dphi>0.05) etstrip_phiseedplus1+=rhetj;
+      if(dphi<-0.05) etstrip_phiseedminus1+=rhetj;
+      
+      etcluster+=rhetj;
+      //Timing discriminator
+      //We assign a weight to the rechit defined as: 
+      //Log10(Et)*f(T,R,Z)
+      //where f(T,R,Z) is the separation curve between halo-like and IP-like times.
+      //The time difference between a deposit from a outgoing IT halo and a deposit coming from a particle emitted at the IP is given by:  
+      //dt= ( - sqrt(R^2+z^2) + |z| )/c 
+      // For OT beam halo, the time difference is: 
+      //dt= ( 25 + sqrt(R^2+z^2) + |z| )/c 
+      //only consider the central part of HB as things get hard at large z.
+      //The best fitted value for R leads to 240 cm (IT) and 330 cm (OT)
+      double rhtj = rechitj.time();
+      timediscriminatorITBH+= std::log10( rhetj )* ( rhtj +0.5*(sqrt(240.*240.+rhposj.z()*rhposj.z()) -std::abs(rhposj.z()))/c_cm_per_ns);
+      if(std::abs(rhposj.z())<300) timediscriminatorOTBH+= std::log10( rhetj )* ( rhtj -0.5*(25-(sqrt(330.*330.+rhposj.z()*rhposj.z()) +std::abs(rhposj.z()))/c_cm_per_ns) );
+      bhrhcandidates.push_back(rhRef);
+    }
+    //Isolation conditions
+    if(!isiso) continue;
+    if(etstrip_phiseedplus1/etcluster>0.2&& etstrip_phiseedminus1/etcluster>0.2) continue;
+    
+    //Calculate E/H
+    double eoh(0);
+    for(size_t jhit = 0; jhit<ecalrechitcoll->size(); ++ jhit){
+      const EcalRecHit & rechitj = (*ecalrechitcoll)[ jhit ];
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()* sqrt(rhposj.perp2()/rhposj.mag2());
+      if(rhetj<2) continue;
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      if(std::abs(eta-etaj)>0.2) continue;
+      if(std::abs(deltaPhi(phi,phij))>0.2) continue;
+      eoh+=rhetj/etcluster;
+    }
+    //E/H condition
+    if(eoh>0.1) continue; 
+        
+
+    clustercand.setClusterEt(etcluster); 
+    clustercand.setSeedEt(rhet); 
+    clustercand.setSeedEta(eta); 
+    clustercand.setSeedPhi(phi); 
+    clustercand.setSeedZ(rhpos.Z());
+    clustercand.setSeedR(sqrt(rhpos.perp2())); 
+    clustercand.setSeedTime(rechit.time()); 
+    clustercand.setEoverH(eoh);
+    clustercand.setNbTowersInEta(nbtowerssameeta);
+    clustercand.setEtStripPhiSeedPlus1(etstrip_phiseedplus1);
+    clustercand.setEtStripPhiSeedMinus1(etstrip_phiseedminus1);
+    clustercand.setTimeDiscriminatorITBH(timediscriminatorITBH);
+    clustercand.setTimeDiscriminatorOTBH(timediscriminatorOTBH);
+    clustercand.setBeamHaloRecHitsCandidates(bhrhcandidates);
+
+    bool isbeamhalofrompattern = HBClusterShapeandTimeStudy(clustercand,false);
+    clustercand.setIsHaloFromPattern(isbeamhalofrompattern);
+    bool isbeamhalofrompattern_hlt = HBClusterShapeandTimeStudy(clustercand,true);
+    clustercand.setIsHaloFromPattern_HLT(isbeamhalofrompattern_hlt);
+
+
+    TheHaloClusterCandsHB.push_back(clustercand);
+  }
+
+  return  TheHaloClusterCandsHB;
+} 
+
+
+std::vector<HaloClusterCandidateHCAL> HcalHaloAlgo::GetHaloClusterCandidateHE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh){
+
+  std::vector<HaloClusterCandidateHCAL> TheHaloClusterCandsHE;
+
+  reco::Vertex::Point vtx(0,0,0);
+
+  for(size_t ihit = 0; ihit<hbherechitcoll->size(); ++ ihit){
+    HaloClusterCandidateHCAL  clustercand;
+    
+    const HBHERecHit & rechit = (*hbherechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    //Et condition
+    double rhet = rechit.energy()* sqrt(rhpos.perp2()/rhpos.mag2());
+    if(rhet<et_thresh_seedrh) continue;
+    if(std::abs(rhpos.z())<zseparation_HBHE) continue;
+    double eta = rhpos.eta();
+    double phi = rhpos.phi();
+    double rhr = sqrt(rhpos.perp2());
+    bool isiso = true;
+    double etcluster(0),hdepth1(0);
+    int clustersize(0);
+    double etstrip_phiseedplus1(0), etstrip_phiseedminus1(0);
+
+    //Building the cluster 
+    edm::RefVector<HBHERecHitCollection> bhrhcandidates;
+    for(size_t jhit = 0; jhit<hbherechitcoll->size(); ++ jhit){
+      const HBHERecHit & rechitj = (*hbherechitcoll)[ jhit ];
+      HBHERecHitRef rhRef(hbherechitcoll,jhit);
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()* sqrt(rhposj.perp2()/rhposj.mag2());
+      if(rhetj<2) continue;
+      if(std::abs(rhposj.z())<zseparation_HBHE) continue;
+      if(rhpos.z()*rhposj.z()<0) continue;
+      double phij = rhposj.phi();
+      double dphi = deltaPhi(phi,phij);
+      if(std::abs(dphi)>0.4) continue;
+      double rhrj = sqrt(rhposj.perp2()); 
+      if(std::abs( rhr-rhrj )>50) continue;
+      if(std::abs(dphi)>0.2 ||std::abs( rhr-rhrj )>20 ){isiso=false;break;}//The deposit should be isolated
+      if(dphi>0.05) etstrip_phiseedplus1+=rhetj;
+      if(dphi<-0.05) etstrip_phiseedminus1+=rhetj;
+      clustersize++;
+      etcluster+=rhetj;
+      if(std::abs( rhposj.z())<405 )hdepth1+=rhetj;
+      //No timing condition for now in HE
+      bhrhcandidates.push_back(rhRef);
+    }
+    //Isolation conditions
+    if(!isiso) continue;
+    if(etstrip_phiseedplus1/etcluster>0.1&& etstrip_phiseedminus1/etcluster>0.1) continue;
+    
+    //Calculate E/H
+    double eoh(0);
+    for(size_t jhit = 0; jhit<ecalrechitcoll->size(); ++ jhit){
+      const EcalRecHit & rechitj = (*ecalrechitcoll)[ jhit ];
+      math::XYZPoint rhposj = getPosition(rechitj.id(),vtx);
+      double rhetj = rechitj.energy()* sqrt(rhposj.perp2()/rhposj.mag2());
+      if(rhetj<2) continue;
+      if(rhpos.z()*rhposj.z()<0) continue;
+      double etaj = rhposj.eta();
+      double phij = rhposj.phi();
+      double dr = sqrt( (eta-etaj)*(eta-etaj)+deltaPhi(phi,phij)*deltaPhi(phi,phij));
+      if(dr>0.3) continue;
+
+      eoh+=rhetj/etcluster;
+    }
+    //E/H condition
+    if(eoh>0.1) continue; 
+        
+
+    clustercand.setClusterEt(etcluster); 
+    clustercand.setSeedEt(rhet); 
+    clustercand.setSeedEta(eta); 
+    clustercand.setSeedPhi(phi); 
+    clustercand.setSeedZ(rhpos.Z());
+    clustercand.setSeedR(sqrt(rhpos.perp2())); 
+    clustercand.setSeedTime(rechit.time()); 
+    clustercand.setEoverH(eoh);
+    clustercand.setH1overH123(hdepth1/etcluster);
+    clustercand.setClusterSize(clustersize);
+    clustercand.setEtStripPhiSeedPlus1(etstrip_phiseedplus1);
+    clustercand.setEtStripPhiSeedMinus1(etstrip_phiseedminus1);
+    clustercand.setTimeDiscriminator(0);
+    clustercand.setBeamHaloRecHitsCandidates(bhrhcandidates);
+
+    bool isbeamhalofrompattern = HEClusterShapeandTimeStudy(clustercand,false);
+    clustercand.setIsHaloFromPattern(isbeamhalofrompattern);
+    bool isbeamhalofrompattern_hlt = HEClusterShapeandTimeStudy(clustercand,true);
+    clustercand.setIsHaloFromPattern_HLT(isbeamhalofrompattern_hlt);
+
+
+    TheHaloClusterCandsHE.push_back(clustercand);
+  }
+
+  return  TheHaloClusterCandsHE;
+} 
+
+
+
+bool HcalHaloAlgo::HBClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, bool ishlt){
+  //Conditions on the central strip size in eta.
+  //For low size, extra conditions on seed et, isolation and cluster timing 
+  //Here we target both IT and OT beam halo. Two separate discriminators were built for the two cases.
+  
+  if(hcand.getSeedEt()<10)return false;
+  
+  if(hcand.getNbTowersInEta()<3) return false;
+  //Isolation criteria for very short eta strips
+  if(hcand.getNbTowersInEta()==3 && (hcand.getEtStripPhiSeedPlus1()>0.1 || hcand.getEtStripPhiSeedMinus1()>0.1) ) return false;
+  if(hcand.getNbTowersInEta()<=5 && (hcand.getEtStripPhiSeedPlus1()>0.1 && hcand.getEtStripPhiSeedMinus1()>0.1) ) return false;
+  
+  //Timing conditions for short eta strips
+  if(hcand.getNbTowersInEta()==3 && hcand.getTimeDiscriminatorITBH()>=0.) return false;
+  if(hcand.getNbTowersInEta()<=6 && hcand.getTimeDiscriminatorITBH()>=5. &&hcand.getTimeDiscriminatorOTBH()<0.) return false; 
+  
+  //For HLT, only use conditions without timing 
+  if(ishlt && hcand.getNbTowersInEta()<7) return false;
+
+  hcand.setIsHaloFromPattern(true);
+  
+  return true;
+}
+
+
+
+bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, bool ishlt){
+  //Conditions on H1/H123 to spot halo interacting only in one HCAL layer. 
+  //For R> about 170cm, HE has only one layer and this condition cannot be applied
+  //Note that for R>170 cm, the halo is in CSC acceptance and will most likely be spotted by the CSC-calo matching method
+  //A method to identify halos interacting in both H1 and H2/H3 at low R is still missing. 
+  
+  if(hcand.getSeedEt()<20)return false;
+  if(hcand.getSeedR()>170) return false;
+  
+  if(hcand.getH1overH123()>0.02 &&hcand.getH1overH123()<0.98) return false;
+  
+  //This method is one of the ones with the highest fake rate: in JetHT dataset, it happens in around 0.1% of the cases that a low pt jet (pt= 20) leaves all of its energy in only one HCAL layer. 
+  //At HLT, one only cares about large deposits from BH that would lead to a MET/SinglePhoton trigger to be fired.
+  //Rising the seed Et threshold at HLT has therefore little impact on the HLT performances but ensures that possible controversial events are still recorded.
+  if(ishlt && hcand.getSeedEt()<50)return false;
+  
+  hcand.setIsHaloFromPattern(true);
+  
+  return true;
+  
+}
+
+
+math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
+
+  const GlobalPoint& pos=geo->getPosition(id);
+  math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
+  return posV;
+}
 
