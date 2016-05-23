@@ -107,7 +107,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     };
     recoPrimaryVertex(double x1, double y1, double z1)
         :x(x1), y(y1), z(z1),
-         ptsq(0), closest_vertex_distance_z(-1.), purity(-1.),
+         pt(0), ptsq(0), closest_vertex_distance_z(-1.), purity(-1.),
          nRecoTrk(0),
          num_matched_sim_tracks(0),
          kind_of_vertex(0),
@@ -115,6 +115,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
       r = sqrt(x*x + y*y);
     };
     double x, y, z, r;
+    double pt;
     double ptsq;
     double closest_vertex_distance_z;
     double purity; // calculated and assigned in calculatePurityAndFillHistograms

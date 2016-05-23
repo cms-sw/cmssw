@@ -22,6 +22,20 @@
 
 #include <numeric>
 
+namespace {
+  template <typename T, size_t N>
+  std::array<T, N+1> makeLogBins(const double min, const double max) {
+    const double minLog10 = std::log10(min);
+    const double maxLog10 = std::log10(max);
+    const double width = (maxLog10-minLog10)/N;
+    std::array<T, N+1> ret;
+    for(size_t i=0; i<= N; ++i) {
+      ret[i] = std::pow(10, minLog10 + i*width);
+    }
+    return ret;
+  }
+}
+
 //
 // constructors and destructor
 //
@@ -84,6 +98,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     0.0, 0.0025, 0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1,
     0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
   };
+
+  auto const log_pt_bins = makeLogBins<float, 100>(0.1, 1e4);
   float log_pt2_bins[16] = {
     0.0, 0.1, 0.5, 
     1.0, 2.0, 5.0,
@@ -98,6 +114,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     45.0, 50.0, 55.0, 60.0, 70.0,
     80.0, 90.0, 100.0, 150.0, 200.0
   };
+
   // TODO(rovere) Possibly change or add the main DQMStore booking
   // interface to allow booking a TProfile with variable bin-width
   // using an array of floats, as done for the TH1F case, not of
@@ -475,7 +492,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     auto book1d = [&](const char *name, int bins, double min, double max) {
       mes_[label][name] = i.book1D(name, name, bins, min, max);
     };
-    auto book1dlogx = [&](const char *name, int bins, float *xbinedges) {
+    auto book1dlogx = [&](const char *name, int bins, const float *xbinedges) {
       mes_[label][name] = i.book1D(name, name, bins, xbinedges);
     };
     auto book2d = [&](const char *name,
@@ -484,7 +501,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
       mes_[label][name] = i.book2D(name, name, xbins,xmin,xmax, ybins,ymin,ymax);
     };
     auto book2dlogx = [&](const char *name,
-                          int xbins, float *xbinedges,
+                          int xbins, const float *xbinedges,
                           int ybins, double ymin, double ymax) {
       auto me = i.book2D(name, name, xbins,xbinedges[0],xbinedges[xbins], ybins,ymin,ymax);
       me->getTH2F()->GetXaxis()->Set(xbins, xbinedges);
@@ -517,6 +534,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book2d("RecoAllAssoc2GenMatched_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
     book2d("RecoAllAssoc2GenMatched_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
 
+    book2dlogx("RecoAllAssoc2GenMatched_ResolX_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolY_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
+    book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_Pt", log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
+
     book1d("RecoAllAssoc2GenMatched_PullX", 250,-25,25);
     book1d("RecoAllAssoc2GenMatched_PullY", 250,-25,25);
     book1d("RecoAllAssoc2GenMatched_PullZ", 250,-25,25);
@@ -541,6 +563,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     book2d("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z",   120,-60,60, 100,-resoly,resoly);
     book2d("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
     book2d("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
+
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
+    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Pt", log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
 
     book1d("RecoAllAssoc2GenMatchedMerged_PullX", 250,-25,25);
     book1d("RecoAllAssoc2GenMatchedMerged_PullY", 250,-25,25);
@@ -780,6 +807,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
   mes_[label][prefix+"_ResolY_vs_Z"]->Fill(v.z, yresol);
   mes_[label][prefix+"_ResolZ_vs_Z"]->Fill(v.z, zresol);
   mes_[label][prefix+"_ResolPt2_vs_Z"]->Fill(v.z, pt2resol);
+
+  mes_[label][prefix+"_ResolX_vs_Pt"]->Fill(v.pt, xresol);
+  mes_[label][prefix+"_ResolY_vs_Pt"]->Fill(v.pt, yresol);
+  mes_[label][prefix+"_ResolZ_vs_Pt"]->Fill(v.pt, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_Pt"]->Fill(v.pt, pt2resol);
 
   mes_[label][prefix+"_PullX"]->Fill(xres/v.recVtx->xError());
   mes_[label][prefix+"_PullY"]->Fill(yres/v.recVtx->yError());
@@ -1078,6 +1110,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
         std::cout << "  Daughter momentum:      " << momentum;
         std::cout << std::endl;
       }
+      vp->pt += std::sqrt(momentum.perp2());
       vp->ptsq += (momentum.perp2());
       vp->nRecoTrk++;
 
