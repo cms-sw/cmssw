@@ -576,7 +576,10 @@ class TrackerTopology {
   std::string print(DetId detid) const;
 
   SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
-
+ 
+  PixelBarrelValues const& getPBVals() const { return pbVals_; }
+  PixelEndcapValues const& getPFVals() const { return pfVals_; }
+ 
  private:
 
   PixelBarrelValues pbVals_;
@@ -586,7 +589,7 @@ class TrackerTopology {
   TIBValues tibVals_;
   TIDValues tidVals_;
   TECValues tecVals_;
-  
+
 };
 
 #endif
