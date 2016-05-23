@@ -59,6 +59,7 @@ from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
 from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventContent
+from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import *
 from RecoCTPPS.Configuration.RecoCTPPS_EventContent_cff import *
 
 # raw2digi that are already the final RECO/AOD products
@@ -447,6 +448,7 @@ RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
+RECOEventContent.outputCommands.extend(RecoCTPPSRECO.outputCommands)
 eras.ctpps_2016.toModify(RECOEventContent, outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
 
 RAWRECOEventContent.outputCommands.extend(RECOEventContent.outputCommands)
@@ -479,6 +481,7 @@ AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 AODEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 AODEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 eras.ctpps_2016.toModify(AODEventContent, outputCommands = AODEventContent.outputCommands + RecoCTPPSAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoCTPPSAOD.outputCommands)
 
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -623,6 +626,7 @@ FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 eras.ctpps_2016.toModify(FEVTEventContent, outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoCTPPSFEVT.outputCommands)
 
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
