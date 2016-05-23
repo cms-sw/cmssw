@@ -14,6 +14,7 @@ selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesW
 
 vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
                                 use_only_charged_tracks = cms.untracked.bool(True),
+                                do_generic_sim_plots = cms.untracked.bool(True),
                                 verbose = cms.untracked.bool(False),
                                 root_folder = cms.untracked.string("Vertexing/PrimaryVertexV"),
                                 trackingParticleCollection = cms.untracked.InputTag("mix", "MergedTrackTruth"),

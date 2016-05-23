@@ -174,6 +174,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   // ----------member data ---------------------------
   bool verbose_;
   bool use_only_charged_tracks_;
+  const bool do_generic_sim_plots_;
   std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;

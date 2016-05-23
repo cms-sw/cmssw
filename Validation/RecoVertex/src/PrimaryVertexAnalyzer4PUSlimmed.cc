@@ -44,6 +44,7 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>(
           "use_only_charged_tracks", true)),
+      do_generic_sim_plots_(iConfig.getUntrackedParameter<bool>("do_generic_sim_plots")),
       root_folder_(
           iConfig.getUntrackedParameter<std::string>("root_folder",
                                                 "Validation/Vertices")),
@@ -120,48 +121,50 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   };
 
   i.setCurrentFolder(root_folder_);
-  mes_["root_folder"]["GenVtx_vs_BX"] =
+  if(do_generic_sim_plots_) {
+    mes_["root_folder"]["GenVtx_vs_BX"] =
       i.book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 16, -12.5, 3.5, 200, 0., 200.);
-  // Generated Primary Vertex Plots
-  mes_["root_folder"]["GenPV_X"] =
+    // Generated Primary Vertex Plots
+    mes_["root_folder"]["GenPV_X"] =
       i.book1D("GenPV_X", "GeneratedPV_X", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenPV_Y"] =
+    mes_["root_folder"]["GenPV_Y"] =
       i.book1D("GenPV_Y", "GeneratedPV_Y", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenPV_Z"] =
+    mes_["root_folder"]["GenPV_Z"] =
       i.book1D("GenPV_Z", "GeneratedPV_Z", 120, -60., 60.);
-  mes_["root_folder"]["GenPV_R"] =
+    mes_["root_folder"]["GenPV_R"] =
       i.book1D("GenPV_R", "GeneratedPV_R", 120, 0, 0.6);
-  mes_["root_folder"]["GenPV_Pt2"] =
+    mes_["root_folder"]["GenPV_Pt2"] =
       i.book1D("GenPV_Pt2", "GeneratedPV_Sum-pt2", 15, &log_pt2_bins[0]);
-  mes_["root_folder"]["GenPV_NumTracks"] =
+    mes_["root_folder"]["GenPV_NumTracks"] =
       i.book1D("GenPV_NumTracks", "GeneratedPV_NumTracks", 24, &log_ntrk_bins[0]);
-  mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
+    mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
       i.book1D("GenPV_ClosestDistanceZ", "GeneratedPV_ClosestDistanceZ", 30,
                &log_bins[0]);
 
-  // All Generated Vertices, used for efficiency plots
-  mes_["root_folder"]["GenAllV_NumVertices"] = i.book1D(
-      "GenAllV_NumVertices", "GeneratedAllV_NumVertices", 100, 0., 200.);
-  mes_["root_folder"]["GenAllV_X"] =
+    // All Generated Vertices, used for efficiency plots
+    mes_["root_folder"]["GenAllV_NumVertices"] = i.book1D(
+                                                          "GenAllV_NumVertices", "GeneratedAllV_NumVertices", 100, 0., 200.);
+    mes_["root_folder"]["GenAllV_X"] =
       i.book1D("GenAllV_X", "GeneratedAllV_X", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenAllV_Y"] =
+    mes_["root_folder"]["GenAllV_Y"] =
       i.book1D("GenAllV_Y", "GeneratedAllV_Y", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenAllV_Z"] =
+    mes_["root_folder"]["GenAllV_Z"] =
       i.book1D("GenAllV_Z", "GeneratedAllV_Z", 120, -60, 60);
-  mes_["root_folder"]["GenAllV_R"] =
+    mes_["root_folder"]["GenAllV_R"] =
       i.book1D("GenAllV_R", "GeneratedAllV_R", 120, 0, 0.6);
-  mes_["root_folder"]["GenAllV_Pt2"] =
+    mes_["root_folder"]["GenAllV_Pt2"] =
       i.book1D("GenAllV_Pt2", "GeneratedAllV_Sum-pt2", 15, &log_pt2_bins[0]);
-  mes_["root_folder"]["GenAllV_NumTracks"] =
+    mes_["root_folder"]["GenAllV_NumTracks"] =
       i.book1D("GenAllV_NumTracks", "GeneratedAllV_NumTracks", 24, &log_ntrk_bins[0]);
-  mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
+    mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
       i.book1D("GenAllV_ClosestDistanceZ", "GeneratedAllV_ClosestDistanceZ", 30,
                &log_bins[0]);
-  mes_["root_folder"]["GenAllV_PairDistanceZ"] =
+    mes_["root_folder"]["GenAllV_PairDistanceZ"] =
       i.book1D("GenAllV_PairDistanceZ", "GeneratedAllV_PairDistanceZ",
                1000, 0, 20);
-  mes_["root_folder"]["SignalIsHighestPt2"] =
+    mes_["root_folder"]["SignalIsHighestPt2"] =
         i.book1D("SignalIsHighestPt2", "SignalIsHighestPt2", 2, -0.5, 1.5);
+  }
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
@@ -1247,8 +1250,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   edm::Handle<std::vector<PileupSummaryInfo> > puinfoH;
   if (iEvent.getByToken(vecPileupSummaryInfoToken_, puinfoH)) {
     for (auto const& pu_info : *puinfoH.product()) {
-      mes_["root_folder"]["GenVtx_vs_BX"]
+      if(do_generic_sim_plots_) {
+        mes_["root_folder"]["GenVtx_vs_BX"]
           ->Fill(pu_info.getBunchCrossing(), pu_info.getPU_NumInteractions());
+      }
       if (pu_info.getBunchCrossing() == 0) {
         pileUpInfo_z = pu_info.getPU_zpositions();
         if (verbose_) {
@@ -1294,17 +1299,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   // probably be subtracted?
   int kind_of_signal_vertex = 0;
   int num_pileup_vertices = simpv.size();
-  mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
+  if(do_generic_sim_plots_) mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
   bool signal_is_highest_pt = std::max_element(simpv.begin(), simpv.end(),
                                                [](const simPrimaryVertex& lhs,
                                                   const simPrimaryVertex& rhs) {
                                                  return lhs.ptsq < rhs.ptsq;
                                                }) == simpv.begin();
   kind_of_signal_vertex |= (signal_is_highest_pt << HIGHEST_PT);
-  mes_["root_folder"]["SignalIsHighestPt2"]->Fill(
-      signal_is_highest_pt ? 1. : 0.);
-  computePairDistance(simpv,
-                      mes_["root_folder"]["GenAllV_PairDistanceZ"]);
+  if(do_generic_sim_plots_) {
+    mes_["root_folder"]["SignalIsHighestPt2"]->Fill(signal_is_highest_pt ? 1. : 0.);
+    computePairDistance(simpv, mes_["root_folder"]["GenAllV_PairDistanceZ"]);
+  }
 
   int label_index = -1;
   for (auto const& vertex_token : reco_vertex_collection_tokens_) {
@@ -1424,7 +1429,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       if (v.rec_vertices.size() > 1) num_total_gen_vertices_multiassoc2reco++;
       // No need to N-tplicate the Gen-related cumulative histograms:
       // fill them only at the first iteration
-      if (label_index == 0) fillGenericGenVertexHistograms(v);
+      if (do_generic_sim_plots_ && label_index == 0) fillGenericGenVertexHistograms(v);
       fillRecoAssociatedGenVertexHistograms(label, v);
     }
     calculatePurityAndFillHistograms(label, recopv, genpv_position_in_reco_collection, signal_is_highest_pt);
