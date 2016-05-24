@@ -39,6 +39,11 @@ REGISTER_L1_WRITER(L1TriggerKeyListExtRcd, L1TriggerKeyListExt);
 
 REGISTER_L1_WRITER(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);
 
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
+
+REGISTER_L1_WRITER(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
+
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 

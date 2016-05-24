@@ -18,6 +18,12 @@ def initL1SubsystemsExt( tagBaseVec = [],
             key = cms.string(objectKey)
         ),
         cms.PSet(
+            record = cms.string('L1TGlobalPrescalesVetosO2ORcd'),
+            tag = cms.string('L1TGlobalPrescalesVetos_' + tagBaseVec[ L1CondEnumExt.L1TGlobalPrescalesVetos ]),
+            type = cms.string('L1TGlobalPrescalesVetos'),
+            key = cms.string(objectKey)
+        ),
+        cms.PSet(
             record = cms.string('L1TMuonGlobalParamsO2ORcd'),
             tag = cms.string('L1TMuonGlobalParams_' + tagBaseVec[ L1CondEnumExt.L1TMuonGlobalParams ]),
             type = cms.string('L1TMuonGlobalParams'),

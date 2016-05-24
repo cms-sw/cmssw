@@ -175,23 +175,27 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
         // remember AMC13 RS configuration
         payloads[kRS][rs_amc13_key] = xmlPayload;
 
-// A quick hack
-std::ifstream input( "UGMT_HW.xml" );
-if( !input ){
-    std::cout << "Cannot open UGMT_HW.xm file" << std::endl;
-    return boost::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+// for debugging dump the configs to local files
+for(auto &conf : payloads[kHW]){ 
+    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
+    output<<conf.second;
+    output.close();
 }
-std::string xmlHWpayload;
-while( !input.eof() ){
-    std::string tmp;
-    std::getline( input, tmp, '\n' );
-    xmlHWpayload.append( tmp );
+for(auto &conf : payloads[kALGO]){ 
+    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
+    output<<conf.second;
+    output.close();
 }
-payloads[kHW][hw_key] = xmlHWpayload;
+for(auto &conf : payloads[kRS]){ 
+    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
+    output<<conf.second;
+    output.close();
+}
 
         // finally, push all payloads to the XML parser and construct the trigSystem objects with each of those
         l1t::XmlConfigReader xmlRdr;
         l1t::trigSystem parsedXMLs;
+//        parsedXMLs.addProcRole("processors", "procMP7");
         // HW settings should always go first
         for(auto &conf : payloads[ kHW ]){
             xmlRdr.readDOMFromString( conf.second );
@@ -220,6 +224,7 @@ payloads[kHW][hw_key] = xmlHWpayload;
 //        m_params_helper.loadFromOnline(parsedXMLs);
 
 //        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams(m_params_helper) ) ;
+
         boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams( *(baseSettings.product()) ) );
  
         return retval;
