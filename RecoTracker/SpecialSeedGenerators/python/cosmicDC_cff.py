@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # seeding
 import RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi 
-hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
-    ComponentName = cms.string('hitCollectorForOutInMuonSeeds'),
+hitCollectorForCosmicDCSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = cms.string('hitCollectorForCosmicDCSeeds'),
     MaxChi2 = cms.double(100.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(4.),    ## was 3  ## TO BE TUNED 
     MaxDisplacement = cms.double(100),
@@ -15,6 +15,7 @@ hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
 cosmicDCSeeds = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
     src = cms.InputTag("muonsFromCosmics"),
     cut = cms.string("pt > 2 && abs(eta)<1.2 && phi<0"),
+    hitCollector = cms.string('hitCollectorForCosmicDCSeeds'),
     fromVertex = cms.bool(False),
     maxEtaForTOB = cms.double(1.5),
     minEtaForTEC = cms.double(0.7),
