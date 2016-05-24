@@ -1,18 +1,16 @@
 #include "OutputMagneticFieldDDToDDL.h"
 
-#include <FWCore/Framework/interface/ESTransientHandle.h>
-
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
-#include <DetectorDescription/Core/interface/DDName.h>
-#include <DetectorDescription/Core/interface/DDPosData.h>
-#include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
-
-#include <iostream>
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include <stddef.h>
+#include <iomanip>
 #include <fstream>
+#include <memory>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 bool
 ddsvaluesCmp::operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 )
@@ -249,4 +247,5 @@ OutputMagneticFieldDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<co
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+
 DEFINE_FWK_MODULE( OutputMagneticFieldDDToDDL );

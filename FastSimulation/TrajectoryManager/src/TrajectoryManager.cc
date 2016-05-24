@@ -318,7 +318,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
 	//The particle may have lost its energy in the material
 	if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) && 
-	     !mySimEvent->filter().accept(PP)  ) 
+	     !mySimEvent->filter().acceptParticle(PP)  ) 
 	  mySimEvent->addSimVertex(PP.vertex(),fsimi, FSimVertexType::END_VERTEX);
 	  
       }

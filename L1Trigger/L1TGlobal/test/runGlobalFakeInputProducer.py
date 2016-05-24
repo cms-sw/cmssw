@@ -206,9 +206,7 @@ process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtInput")
-
-
-#process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(1)
+#process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
 
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",

@@ -104,7 +104,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
-  std::auto_ptr<const CaloSubdetectorTopology> topology;
+  std::unique_ptr<const CaloSubdetectorTopology> topology;
     
   //Get the L1 EM Particle Collection
   edm::Handle< T1Collection > emIsolColl ;
@@ -130,7 +130,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 
     edm::Handle<EcalUncalibratedRecHitCollection> urhcH[3];
     for (unsigned int i=0; i<hitLabels.size(); i++) {
-      std::auto_ptr<EcalUncalibratedRecHitCollection> uhits(new EcalUncalibratedRecHitCollection);
+      std::unique_ptr<EcalUncalibratedRecHitCollection> uhits(new EcalUncalibratedRecHitCollection);
       
       evt.getByToken(uncalibHitTokens[i], urhcH[i]);  
       if (!(urhcH[i].isValid())) {
@@ -167,7 +167,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	  }
 	}
       }
-      evt.put(uhits, productLabels[i]);
+      evt.put(std::move(uhits), productLabels[i]);
 
     }
 
@@ -175,7 +175,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 
     edm::Handle<EcalRecHitCollection> rhcH[3];
     for (unsigned int i=0; i<hitLabels.size(); i++) {
-      std::auto_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
+      std::unique_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
     
       evt.getByToken(hitTokens[i], rhcH[i]);  
       if (!(rhcH[i].isValid())) {
@@ -211,7 +211,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	  }
 	}
       }
-      evt.put(hits, productLabels[i]);
+      evt.put(std::move(hits), productLabels[i]);
 
     }
   }

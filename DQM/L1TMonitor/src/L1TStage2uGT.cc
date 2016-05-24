@@ -160,14 +160,14 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                }  
                
                // Algorithm bits after prescale 
-               if(itr->getAlgoDecisionPreScaled(algoBit)) {
+               if(itr->getAlgoDecisionInterm(algoBit)) {
                   algoBits_after_prescaler_->Fill(algoBit);
                   algoBits_after_prescaler_lumi_->Fill(lumi, algoBit);
                   algoBits_after_prescaler_bx_global_->Fill(bx, algoBit);
                   algoBits_after_prescaler_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
                   
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
-                     if(itr->getAlgoDecisionPreScaled(algoBit2)) {
+                     if(itr->getAlgoDecisionInterm(algoBit2)) {
                         algoBits_after_prescaler_corr_->Fill(algoBit, algoBit2);
                      }
                   }

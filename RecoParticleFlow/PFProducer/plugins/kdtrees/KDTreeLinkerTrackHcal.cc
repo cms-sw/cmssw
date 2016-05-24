@@ -74,20 +74,20 @@ KDTreeLinkerTrackHcal::buildTree()
     
     const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
     
-    KDTreeNodeInfo rh1 (*it, posrep.Eta(), posrep.Phi());
+    KDTreeNodeInfo rh1 (*it, posrep.eta(), posrep.phi());
     eltList.push_back(rh1);
     
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
     if (rh1.dim2 > (M_PI - getPhiOffset())) {
       double phi = rh1.dim2 - 2 * M_PI;
-      KDTreeNodeInfo rh2(*it, posrep.Eta(), phi); 
+      KDTreeNodeInfo rh2(*it, posrep.eta(), phi); 
       eltList.push_back(rh2);
     }
 
     if (rh1.dim2 < (M_PI * -1.0 + getPhiOffset())) {
       double phi = rh1.dim2 + 2 * M_PI;
-      KDTreeNodeInfo rh3(*it, posrep.Eta(), phi); 
+      KDTreeNodeInfo rh3(*it, posrep.eta(), phi); 
       eltList.push_back(rh3);
     }
   }
@@ -122,13 +122,13 @@ KDTreeLinkerTrackHcal::searchLinks()
     // The track didn't reach hcal
     if( ! atHCAL.isValid()) continue;
     
-    double dHEta = atHCALExit.positionREP().Eta() - atHCAL.positionREP().Eta();
-    double dHPhi = atHCALExit.positionREP().Phi() - atHCAL.positionREP().Phi(); 
-    if ( dHPhi > M_PI ) dHPhi = dHPhi - 2. * M_PI;
-    else if ( dHPhi < -M_PI ) dHPhi = dHPhi + 2. * M_PI; 
+    double dHeta = atHCALExit.positionREP().eta() - atHCAL.positionREP().eta();
+    double dHphi = atHCALExit.positionREP().phi() - atHCAL.positionREP().phi(); 
+    if ( dHphi > M_PI ) dHphi = dHphi - 2. * M_PI;
+    else if ( dHphi < -M_PI ) dHphi = dHphi + 2. * M_PI; 
     
-    double tracketa = atHCAL.positionREP().Eta() + 0.1 * dHEta;
-    double trackphi = atHCAL.positionREP().Phi() + 0.1 * dHPhi;
+    double tracketa = atHCAL.positionREP().eta() + 0.1 * dHeta;
+    double trackphi = atHCAL.positionREP().phi() + 0.1 * dHphi;
     
     if (trackphi > M_PI) trackphi -= 2 * M_PI;
     else if (trackphi < -M_PI) trackphi += 2 * M_PI;
@@ -136,29 +136,28 @@ KDTreeLinkerTrackHcal::searchLinks()
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
     double inflation = 1.;
-    double rangeEta = (getCristalPhiEtaMaxSize() * (1.5 + 0.5) + 0.2 * fabs(dHEta)) * inflation; 
-    double rangePhi = (getCristalPhiEtaMaxSize() * (1.5 + 0.5) + 0.2 * fabs(dHPhi)) * inflation; 
+    double rangeeta = (getCristalPhiEtaMaxSize() * (1.5 + 0.5) + 0.2 * fabs(dHeta)) * inflation; 
+    double rangephi = (getCristalPhiEtaMaxSize() * (1.5 + 0.5) + 0.2 * fabs(dHphi)) * inflation; 
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<KDTreeNodeInfo> recHits;
-    KDTreeBox trackBox(tracketa - rangeEta, tracketa + rangeEta, 
-		       trackphi - rangePhi, trackphi + rangePhi);
+    KDTreeBox trackBox(tracketa - rangeeta, tracketa + rangeeta, 
+		       trackphi - rangephi, trackphi + rangephi);
     tree_.search(trackBox, recHits);
     
     // Here we check all rechit candidates using the non-approximated method.
     for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
 	rhit != recHits.end(); ++rhit) {
 
-      const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
-      const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
-      if(corners.size() != 4) continue;
+      const auto &rhrep		   = rhit->ptr->positionREP();
+      const auto & corners = rhit->ptr->getCornersREP();
       
-      double rhsizeEta = fabs(corners[0].Eta() - corners[2].Eta());
-      double rhsizePhi = fabs(corners[0].Phi() - corners[2].Phi());
-      if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
+      double rhsizeeta = fabs(corners[3].eta() - corners[1].eta());
+      double rhsizephi = fabs(corners[3].phi() - corners[1].phi());
+      if ( rhsizephi > M_PI ) rhsizephi = 2.*M_PI - rhsizephi;
       
-      double deta = fabs(rhrep.Eta() - tracketa);
-      double dphi = fabs(rhrep.Phi() - trackphi);
+      double deta = fabs(rhrep.eta() - tracketa);
+      double dphi = fabs(rhrep.phi() - trackphi);
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
       
       // Find all clusters associated to given rechit
@@ -170,11 +169,11 @@ KDTreeLinkerTrackHcal::searchLinks()
 	const reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
 	int fracsNbr = clusterref->recHitFractions().size();
 	
-	double _rhsizeEta = rhsizeEta * (1.5 + 0.5 / fracsNbr) + 0.2 * fabs(dHEta);
-	double _rhsizePhi = rhsizePhi * (1.5 + 0.5 / fracsNbr) + 0.2 * fabs(dHPhi);
+	double _rhsizeeta = rhsizeeta * (1.5 + 0.5 / fracsNbr) + 0.2 * fabs(dHeta);
+	double _rhsizephi = rhsizephi * (1.5 + 0.5 / fracsNbr) + 0.2 * fabs(dHphi);
 	
 	// Check if the track and the cluster are linked
-	if(deta < (_rhsizeEta / 2.) && dphi < (_rhsizePhi / 2.))
+	if(deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.))
 	  cluster2TargetLinks_[*clusterIt].insert(*it);
       }
     }
@@ -197,8 +196,8 @@ KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks()
       reco::PFRecTrackRef trackref = (*jt)->trackRefPF();
       const reco::PFTrajectoryPoint& atHCAL = 
 	trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
-      double tracketa = atHCAL.positionREP().Eta();
-      double trackphi = atHCAL.positionREP().Phi();
+      double tracketa = atHCAL.positionREP().eta();
+      double trackphi = atHCAL.positionREP().phi();
       
       multitracks.linkedClusters.push_back(std::make_pair(trackphi, tracketa));
     }

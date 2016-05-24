@@ -118,8 +118,8 @@ void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const ed
     recoCandMap.insert(candRef, sum);
   }
   
-  std::auto_ptr<T1IsolationMap> mapForEvent(new T1IsolationMap(recoCandMap));
-  iEvent.put(mapForEvent);
+  std::unique_ptr<T1IsolationMap> mapForEvent(new T1IsolationMap(recoCandMap));
+  iEvent.put(std::move(mapForEvent));
 }
 
 typedef HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate> EgammaHLTEcalPFClusterIsolationProducer;

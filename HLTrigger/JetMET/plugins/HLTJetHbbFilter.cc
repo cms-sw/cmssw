@@ -185,14 +185,14 @@ HLTJetHbbFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,tr
 		filterproduct.addObject(triggerType_,ref2);
 	      
 		//create METCollection for storing csv tag1 and tag2 results
-		std::auto_ptr<reco::METCollection> csvObject(new reco::METCollection());
+		std::unique_ptr<reco::METCollection> csvObject(new reco::METCollection());
 		reco::MET::LorentzVector csvP4(tag1,tag2,0,0);
 		reco::MET::Point vtx(0,0,0);
 		reco::MET csvTags(csvP4, vtx);
 		csvObject->push_back(csvTags);
 		edm::RefProd<reco::METCollection > ref_before_put = event.getRefBeforePut<reco::METCollection >();
 		//put the METCollection into the event (necessary because of how addCollectionTag works...)
-		event.put(csvObject);
+		event.put(std::move(csvObject));
 		edm::Ref<reco::METCollection> csvRef(ref_before_put, 0);
 		if (saveTags()) filterproduct.addCollectionTag(edm::InputTag( *moduleLabel()));
 		filterproduct.addObject(trigger::TriggerMET, csvRef); //give it the ID of a MET object

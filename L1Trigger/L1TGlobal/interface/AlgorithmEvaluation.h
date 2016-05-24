@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_AlgorithmEvaluation_h
-#define GlobalTrigger_AlgorithmEvaluation_h
+#ifndef L1Trigger_L1TGlobal_AlgorithmEvaluation_h
+#define L1Trigger_L1TGlobal_AlgorithmEvaluation_h
 
 // work-around for missing dependency - force checkout...
 
@@ -18,7 +18,7 @@
  */
 
 //   for L1GtLogicParser
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 // system include files
 #include <iostream>
@@ -34,36 +34,35 @@
 // if hash map is used
 
 #include <ext/hash_map>
-#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapFwd.h"
 
 //   how to hash std::string, using a "template specialization"
 // DMP Comment out for not to prevent conflicts
-/* namespace __gnu_cxx { */
+ namespace __gnu_cxx { 
 
-/*     /\** */
-/*      Explicit template specialization of hash of a string class, */
-/*      which just uses the internal char* representation as a wrapper. */
-/*      *\/ */
-/*     template<> struct hash<std::string> { */
-/*         size_t operator()(const std::string& x) const { */
-/*             return hash<const char*> ()(x.c_str()); */
-/*         } */
-/*     }; */
+     /** 
+      Explicit template specialization of hash of a string class, 
+      which just uses the internal char* representation as a wrapper. 
+      */ 
+     template<> struct hash<std::string> { 
+         size_t operator()(const std::string& x) const { 
+             return hash<const char*> ()(x.c_str()); 
+         } 
+     }; 
 
-/* } */
+ } 
 // end hash map
 
 
 // user include files
 
 //   base class
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 //
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 
 // forward declarations
-class L1GtAlgorithm;
+class GlobalAlgorithm;
 
 namespace l1t {
 
@@ -73,15 +72,15 @@ class ConditionEvaluation;
 class AlgorithmEvaluation {
 
 public:
-    typedef L1GtLogicParser::TokenRPN TokenRPN;
+    typedef GlobalLogicParser::TokenRPN TokenRPN;
     typedef std::vector<TokenRPN> RpnVector;
-    typedef L1GtLogicParser::OperandToken OperandToken;
+    typedef GlobalLogicParser::OperandToken OperandToken;
 
     /// constructor
     //  AlgorithmEvaluation();
 
     /// constructor from an algorithm from event setup
-    explicit AlgorithmEvaluation(const L1GtAlgorithm&);
+    explicit AlgorithmEvaluation(const GlobalAlgorithm&);
 
     /// copy constructor
     // AlgorithmEvaluation(AlgorithmEvaluation&);
@@ -116,7 +115,7 @@ public:
         return m_algoCombinationVector;
     }
 
-    inline std::vector<L1GtLogicParser::OperandToken>& operandTokenVector() {
+    inline std::vector<GlobalLogicParser::OperandToken>& operandTokenVector() {
         return m_operandTokenVector;
     }
 

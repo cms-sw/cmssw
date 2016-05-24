@@ -7,8 +7,16 @@
 
 #include "DetectorDescription/Parser/src/DDLNumeric.h"
 
+#include <map>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLNumeric::DDLNumeric( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )

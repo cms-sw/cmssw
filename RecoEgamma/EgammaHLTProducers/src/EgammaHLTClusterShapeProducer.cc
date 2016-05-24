@@ -77,8 +77,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid, edm::Event& iEven
 
   
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> clushMap(new reco::RecoEcalCandidateIsolationMap(clshMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> clush5x5Map(new reco::RecoEcalCandidateIsolationMap(clsh5x5Map));
-  iEvent.put(clushMap);
-  iEvent.put(clush5x5Map,"sigmaIEtaIEta5x5");
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> clushMap(new reco::RecoEcalCandidateIsolationMap(clshMap));
+  std::unique_ptr<reco::RecoEcalCandidateIsolationMap> clush5x5Map(new reco::RecoEcalCandidateIsolationMap(clsh5x5Map));
+  iEvent.put(std::move(clushMap));
+  iEvent.put(std::move(clush5x5Map),"sigmaIEtaIEta5x5");
 }

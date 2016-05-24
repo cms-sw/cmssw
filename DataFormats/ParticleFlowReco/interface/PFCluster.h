@@ -90,7 +90,7 @@ namespace reco {
     void         setDepth(double depth) {depth_ = depth;}
     
     /// cluster position: rho, eta, phi
-    const REPPoint&       positionREP() const {return posrep_;}
+    const REPPoint& positionREP() const {return posrep_;}
     
     /// computes posrep_ once and for all
     void calculatePositionREP() {

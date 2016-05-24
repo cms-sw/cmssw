@@ -13,16 +13,25 @@
 
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
 
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <utility>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
 
-//CLHEP dependency
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include <cmath>
+class DDCompactView;
 
 DDLRotationAndReflection::DDLRotationAndReflection( DDLElementRegistry* myreg )
   : DDXMLElement( myreg ) 

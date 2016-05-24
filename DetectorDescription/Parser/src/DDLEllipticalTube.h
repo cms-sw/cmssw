@@ -1,12 +1,15 @@
 #ifndef DDL_EllipticalTube_H
 #define DDL_EllipticalTube_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLEllipticalTube processes all EllipticalTube elements.
 /** @class DDLEllipticalTube

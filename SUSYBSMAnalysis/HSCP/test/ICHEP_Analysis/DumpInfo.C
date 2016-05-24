@@ -385,7 +385,11 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
 
 bool PassTrigger(const fwlite::ChainEvent& ev)
 {
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
+      fwlite::Handle<edm::TriggerResults> hTriggerResults;
+      hTriggerResults.getByLabel(ev, "TriggerResults", "", "Merge");
+      if(!hTriggerResults.isValid()) return false;
+
+      edm::TriggerResultsByName tr = ev.triggerResultsByName(*hTriggerResults);
       if(!tr.isValid())return false;
       if(tr.accept(tr.triggerIndex("HscpPathMu")))return true;
       if(tr.accept(tr.triggerIndex("HscpPathMet")))return true;

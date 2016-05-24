@@ -31,7 +31,7 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
   if ( geom->cornersMgr() == 0 ) {
      const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
 			       hcalConstants->numberOfCells(HcalEndcap ) +
-			       hcalConstants->numberOfCells(HcalForward) +
+			       2*hcalConstants->numberOfCells(HcalForward) +
 			       hcalConstants->numberOfCells(HcalOuter  ) );
      geom->allocateCorners( count ) ;
   }
@@ -53,7 +53,7 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo) {
   if( geom->cornersMgr() == 0 ) {
     const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
 			      hcalConstants->numberOfCells(HcalEndcap ) +
-			      hcalConstants->numberOfCells(HcalForward) +
+			      2*hcalConstants->numberOfCells(HcalForward) +
 			      hcalConstants->numberOfCells(HcalOuter  ) );
     geom->allocateCorners( count ) ;
   }

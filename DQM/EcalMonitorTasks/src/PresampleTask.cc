@@ -10,6 +10,7 @@ namespace ecaldqm
 {
   PresampleTask::PresampleTask() :
     DQWorkerTask(),
+    doPulseMaxCheck_(true),
     pulseMaxPosition_(0),
     nSamples_(0)
   {
@@ -18,6 +19,7 @@ namespace ecaldqm
   void
   PresampleTask::setParams(edm::ParameterSet const& _params)
   {
+    doPulseMaxCheck_ = _params.getUntrackedParameter<bool>("doPulseMaxCheck");
     pulseMaxPosition_ = _params.getUntrackedParameter<int>("pulseMaxPosition");
     nSamples_ = _params.getUntrackedParameter<int>("nSamples");
   }
@@ -49,26 +51,31 @@ namespace ecaldqm
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
-      bool gainSwitch(false);
-      int iMax(-1);
-      int maxADC(0);
-      for(int iSample(0); iSample < EcalDataFrame::MAXSAMPLES; ++iSample){
-        int adc(dataFrame.sample(iSample).adc());
-        if(adc > maxADC){
-          iMax = iSample;
-          maxADC = adc;
-        }
-        if(iSample < nSamples_ && dataFrame.sample(iSample).gainId() != 1){
-          gainSwitch = true;
-          break;
-        }
-      }
-      if(iMax != pulseMaxPosition_ || gainSwitch) continue;
+      // Check that the digi pulse maximum occurs on the 6th sample
+      // For cosmics: disable this check to preserve statistics
+      if ( doPulseMaxCheck_ ) {
+        bool gainSwitch(false);
+        int iMax(-1);
+        int maxADC(0);
+        for(int iSample(0); iSample < EcalDataFrame::MAXSAMPLES; ++iSample){
+          int adc(dataFrame.sample(iSample).adc());
+          if(adc > maxADC){
+            iMax = iSample;
+            maxADC = adc;
+          }
+          if(iSample < nSamples_ && dataFrame.sample(iSample).gainId() != 1){
+            gainSwitch = true;
+            break;
+          }
+        } // iSample
+        if(iMax != pulseMaxPosition_ || gainSwitch) continue;
+      } // PulseMaxCheck
 
       for(int iSample(0); iSample < nSamples_; ++iSample)
-	mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
-    }
-  }
+        mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
+
+    } // _digis loop
+  } // runOnDigis
 
   DEFINE_ECALDQM_WORKER(PresampleTask);
 }

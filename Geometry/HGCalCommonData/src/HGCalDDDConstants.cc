@@ -604,6 +604,11 @@ int HGCalDDDConstants::wafers() const {
   return wafer;
 }
 
+bool HGCalDDDConstants::isHalfCell(int waferType, int cell) const {
+  if( waferType < 1 || cell < 0) return false;
+  return waferType == 2 ? hgpar_->cellCoarseHalf_[cell] : hgpar_->cellFineHalf_[cell];
+}
+
 int HGCalDDDConstants::cellHex(double xx, double yy, 
                                const double& cellR, 
 			       const std::vector<double>& posX,

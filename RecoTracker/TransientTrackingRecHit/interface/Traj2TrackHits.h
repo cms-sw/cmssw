@@ -11,8 +11,8 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 
 class Traj2TrackHits {

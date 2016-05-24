@@ -800,8 +800,8 @@ void Pythia8Hadronizer::finalizeEvent()
                                 pythiaHepMCVerbosityParticles) ) {
     maxEventsToPrint--;
     if (pythiaPylistVerbosity) {
-      fMasterGen->info.list(std::cout); 
-      fMasterGen->event.list(std::cout);
+      fMasterGen->info.list(); 
+      fMasterGen->event.list();
     } 
 
     if (pythiaHepMCVerbosity) {

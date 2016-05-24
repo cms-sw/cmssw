@@ -18,6 +18,9 @@ _tobTecStepClustersBase = _trackClusterRemover.clone(
 tobTecStepClusters = _tobTecStepClustersBase.clone(
     trackClassifier                          = cms.InputTag('pixelLessStep',"QualityMasks"),
 )
+eras.trackingLowPU.toReplaceWith(tobTecStepClusters, _tobTecStepClustersBase.clone(
+    overrideTrkQuals                         = "pixelLessStepSelector:QualityMasks",
+))
 eras.trackingPhase1PU70.toReplaceWith(tobTecStepClusters, _tobTecStepClustersBase.clone(
     trajectories                             = "pixelPairStepTracks",
     oldClusterRemovalInfo                    = "pixelPairStepClusters",
@@ -149,8 +152,17 @@ tobTecStepSeedsPair.SeedComparitorPSet = cms.PSet(
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 tobTecStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
 tobTecStepSeeds.seedCollections = cms.VInputTag(cms.InputTag('tobTecStepSeedsTripl'),cms.InputTag('tobTecStepSeedsPair'))
-# Phase1PU70
+# LowPU
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+eras.trackingLowPU.toReplaceWith(tobTecStepSeeds, RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone(
+    OrderedHitsFactoryPSet = dict(SeedingLayers = 'tobTecStepSeedLayers'),
+    RegionFactoryPSet = dict(RegionPSet = dict(
+        ptMin = 0.6,
+        originHalfLength = 30.0,
+        originRadius = 6.0,
+    ))
+))
+# Phase1PU70
 eras.trackingPhase1PU70.toReplaceWith(tobTecStepSeeds, RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone(
     OrderedHitsFactoryPSet = dict(SeedingLayers = 'tobTecStepSeedLayers'),
     RegionFactoryPSet = dict(
@@ -183,6 +195,9 @@ _tobTecStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFi
 tobTecStepTrajectoryFilter = _tobTecStepTrajectoryFilterBase.clone(
     seedPairPenalty = 1,
 )
+eras.trackingLowPU.toReplaceWith(tobTecStepTrajectoryFilter, _tobTecStepTrajectoryFilterBase.clone(
+    minimumNumberOfHits = 6,
+))
 eras.trackingPhase1PU70.toReplaceWith(tobTecStepTrajectoryFilter, _tobTecStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 6,
 ))
@@ -198,6 +213,9 @@ tobTecStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cf
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+)
+eras.trackingLowPU.toModify(tobTecStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
 )
 eras.trackingPhase1PU70.toModify(tobTecStepChi2Est,
     MaxChi2 = 9.0,
@@ -219,6 +237,16 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7)
     )
+# Important note for LowPU: in RunI_TobTecStep the
+# inOutTrajectoryFilter parameter is spelled as
+# inOutTrajectoryFilterName, and I suspect it has no effect there. I
+# chose to "fix" the behaviour here, so the era is not fully
+# equivalent to the customize. To restore the customize behaviour,
+# uncomment the following lines
+#eras.trackingLowPU.toModify(tobTecStepTrajectoryBuilder,
+#    inOutTrajectoryFilter = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.inOutTrajectoryFilter.clone(),
+#    inOutTrajectoryFilterName = cms.PSet(refToPSet_ = cms.string('tobTecStepInOutTrajectoryFilter'))
+#)
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -242,6 +270,7 @@ tobTecStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     allowSharedFirstHit = cms.bool(True)
     )
 tobTecStepTrackCandidates.TrajectoryCleaner = 'tobTecStepTrajectoryCleanerBySharedHits'
+eras.trackingLowPU.toModify(tobTecStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 eras.trackingPhase1PU70.toModify(tobTecStepTrajectoryCleanerBySharedHits, fractionShared = 0.08)
 
 # TRACK FITTING AND SMOOTHING OPTIONS
@@ -253,6 +282,7 @@ tobTecStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFi
     Fitter = cms.string('tobTecStepRKFitter'),
     Smoother = cms.string('tobTecStepRKSmoother')
     )
+eras.trackingLowPU.toModify(tobTecStepFitterSmoother, MinNumberOfHits = 8)
 eras.trackingPhase1PU70.toModify(tobTecStepFitterSmoother, MinNumberOfHits = 8)
 
 tobTecStepFitterSmootherForLoopers = tobTecStepFitterSmoother.clone(
@@ -266,7 +296,9 @@ tobTecStepRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.
     ComponentName = cms.string('tobTecStepRKFitter'),
     minHits = 7
 )
+eras.trackingLowPU.toModify(tobTecStepRKTrajectoryFitter, minHits = 8)
 eras.trackingPhase1PU70.toModify(tobTecStepRKTrajectoryFitter, minHits = 8)
+
 tobTecStepRKTrajectoryFitterForLoopers = tobTecStepRKTrajectoryFitter.clone(
     ComponentName = cms.string('tobTecStepRKFitterForLoopers'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers'),
@@ -277,7 +309,9 @@ tobTecStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cf
     errorRescaling = 10.0,
     minHits = 7
 )
+eras.trackingLowPU.toModify(tobTecStepRKTrajectorySmoother, minHits = 8)
 eras.trackingPhase1PU70.toModify(tobTecStepRKTrajectorySmoother, minHits = 8)
+
 tobTecStepRKTrajectorySmootherForLoopers = tobTecStepRKTrajectorySmoother.clone(
     ComponentName = cms.string('tobTecStepRKSmootherForLoopers'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers'),
@@ -318,6 +352,52 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 tobTecStep = ClassifierMerger.clone()
 tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+eras.trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src = 'tobTecStepTracks',
+    useAnyMVA = cms.bool(False),
+    GBRForestLabel = cms.string('MVASelectorIter6'),
+    trackSelectors = [
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'tobTecStepLoose',
+            chi2n_par = 0.4,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 2.0, 4.0 ),
+            dz_par1 = ( 1.8, 4.0 ),
+            d0_par2 = ( 2.0, 4.0 ),
+            dz_par2 = ( 1.8, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'tobTecStepTight',
+            preFilterName = 'tobTecStepLoose',
+            chi2n_par = 0.3,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 1.5, 4.0 ),
+            dz_par1 = ( 1.4, 4.0 ),
+            d0_par2 = ( 1.5, 4.0 ),
+            dz_par2 = ( 1.4, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'QualityMasks',
+            preFilterName = 'tobTecStepTight',
+            chi2n_par = 0.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 1.4, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.4, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
+        ),
+    ] #end of vpset
+)) #end of clone
 
 
 
@@ -334,7 +414,7 @@ TobTecStep = cms.Sequence(tobTecStepClusters*
 
 
 
-### Following are specific for Phase1PU70, they're collected here to
+### Following are specific for LowPU and/or Phase1PU70, they're collected here to
 ### not to interfere too much with the default configuration
 # For Phase1PU70
 tobTecStepSeedClusters = _trackClusterRemover.clone(
@@ -360,18 +440,28 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'),
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('tobTecStepSeedClusters'),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
+        skipClusters = cms.InputTag('tobTecStepClusters'),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny'))
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('tobTecStepSeedClusters'),
+        skipClusters = cms.InputTag('tobTecStepClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
+        TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
     )
+)
+eras.trackingPhase1PU70.toModify(tobTecStepSeedLayers,
+    TOB = dict(
+        skipClusters = 'tobTecStepSeedClusters',
+        clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
+    ),
+    TEC = dict(
+        skipClusters = 'tobTecStepSeedClusters',
+        clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone')
+    ),
 )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -421,6 +511,14 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
     ] #end of vpset
 ) #end of clone
 
+eras.trackingLowPU.toReplaceWith(TobTecStep, cms.Sequence(
+    tobTecStepClusters*
+    tobTecStepSeedLayers*
+    tobTecStepSeeds*
+    tobTecStepTrackCandidates*
+    tobTecStepTracks*
+    tobTecStep
+))
 eras.trackingPhase1PU70.toReplaceWith(TobTecStep, cms.Sequence(
     tobTecStepClusters*
     tobTecStepSeedClusters*

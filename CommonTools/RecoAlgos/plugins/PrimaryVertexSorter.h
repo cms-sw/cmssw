@@ -204,8 +204,8 @@ using namespace reco;
 
 
   if(produceOriginalMapping_){
-    auto_ptr< CandToVertex>  pfCandToOriginalVertexOutput( new CandToVertex(vertices) );
-    auto_ptr< CandToVertexQuality>  pfCandToOriginalVertexQualityOutput( new CandToVertexQuality() );
+    unique_ptr< CandToVertex>  pfCandToOriginalVertexOutput( new CandToVertex(vertices) );
+    unique_ptr< CandToVertexQuality>  pfCandToOriginalVertexQualityOutput( new CandToVertexQuality() );
     CandToVertex::Filler cand2VertexFiller(*pfCandToOriginalVertexOutput);
     CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToOriginalVertexQualityOutput);
 
@@ -214,14 +214,14 @@ using namespace reco;
 
     cand2VertexFiller.fill();
     cand2VertexQualityFiller.fill();
-    iEvent.put( pfCandToOriginalVertexOutput ,"original");
-    iEvent.put( pfCandToOriginalVertexQualityOutput ,"original");
+    iEvent.put(std::move(pfCandToOriginalVertexOutput) ,"original");
+    iEvent.put(std::move(pfCandToOriginalVertexQualityOutput) ,"original");
 
-    auto_ptr< VertexScore>  vertexScoreOriginalOutput( new VertexScore );
+    unique_ptr< VertexScore>  vertexScoreOriginalOutput( new VertexScore );
     VertexScore::Filler vertexScoreOriginalFiller(*vertexScoreOriginalOutput);
     vertexScoreOriginalFiller.insert(vertices,vertexScoreOriginal.begin(),vertexScoreOriginal.end());
     vertexScoreOriginalFiller.fill();
-    iEvent.put( vertexScoreOriginalOutput ,"original");
+    iEvent.put(std::move(vertexScoreOriginalOutput) ,"original");
  
   }
 
@@ -233,13 +233,13 @@ using namespace reco;
 //        pfToSortedPVQualityVector.push_back(pfToPVQualityVector[i]); //same as old!
       }
 
-      auto_ptr< reco::VertexCollection>  sortedVerticesOutput( new reco::VertexCollection );
+      unique_ptr< reco::VertexCollection>  sortedVerticesOutput( new reco::VertexCollection );
       for(size_t i=0;i<vertices->size();i++){
          sortedVerticesOutput->push_back((*vertices)[newToOld[i]]); 
       }
-    edm::OrphanHandle<reco::VertexCollection> oh = iEvent.put( sortedVerticesOutput);
-    auto_ptr< CandToVertex>  pfCandToVertexOutput( new CandToVertex(oh) );
-    auto_ptr< CandToVertexQuality>  pfCandToVertexQualityOutput( new CandToVertexQuality() );
+    edm::OrphanHandle<reco::VertexCollection> oh = iEvent.put(std::move(sortedVerticesOutput));
+    unique_ptr< CandToVertex>  pfCandToVertexOutput( new CandToVertex(oh) );
+    unique_ptr< CandToVertexQuality>  pfCandToVertexQualityOutput( new CandToVertexQuality() );
     CandToVertex::Filler cand2VertexFiller(*pfCandToVertexOutput);
     CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToVertexQualityOutput);
 
@@ -248,23 +248,23 @@ using namespace reco;
 
     cand2VertexFiller.fill();
     cand2VertexQualityFiller.fill();
-    iEvent.put( pfCandToVertexOutput );
-    iEvent.put( pfCandToVertexQualityOutput );
+    iEvent.put(std::move(pfCandToVertexOutput ));
+    iEvent.put(std::move(pfCandToVertexQualityOutput ));
 
-    auto_ptr< VertexScore>  vertexScoreOutput( new VertexScore );
+    unique_ptr< VertexScore>  vertexScoreOutput( new VertexScore );
     VertexScore::Filler vertexScoreFiller(*vertexScoreOutput);
     vertexScoreFiller.insert(oh,vertexScore.begin(),vertexScore.end());
     vertexScoreFiller.fill();
-    iEvent.put( vertexScoreOutput);
+    iEvent.put(std::move(vertexScoreOutput));
 
 
   }
 
 
-  auto_ptr< PFCollection >  pfCollectionNOPUOriginalOutput( new PFCollection );
-  auto_ptr< PFCollection >  pfCollectionNOPUOutput( new PFCollection );
-  auto_ptr< PFCollection >  pfCollectionPUOriginalOutput( new PFCollection );
-  auto_ptr< PFCollection >  pfCollectionPUOutput( new PFCollection );
+  unique_ptr< PFCollection >  pfCollectionNOPUOriginalOutput( new PFCollection );
+  unique_ptr< PFCollection >  pfCollectionNOPUOutput( new PFCollection );
+  unique_ptr< PFCollection >  pfCollectionPUOriginalOutput( new PFCollection );
+  unique_ptr< PFCollection >  pfCollectionPUOutput( new PFCollection );
 
   for(size_t i=0;i<particles.size();i++) {
     auto pv = pfToPVVector[i];
@@ -288,10 +288,10 @@ using namespace reco;
                    pfCollectionPUOriginalOutput->push_back(particles[i]);
 
   }              
-  if(producePFNoPileUp_ && produceSortedVertices_) iEvent.put(pfCollectionNOPUOutput,"NoPileUp" );
-  if(producePFPileUp_ && produceSortedVertices_) iEvent.put(pfCollectionPUOutput, "PileUp");
-  if(producePFNoPileUp_ && produceOriginalMapping_) iEvent.put(pfCollectionNOPUOriginalOutput,"originalNoPileUp" );
-  if(producePFPileUp_ && produceOriginalMapping_) iEvent.put(pfCollectionPUOriginalOutput,"originalPileUp" );
+  if(producePFNoPileUp_ && produceSortedVertices_) iEvent.put(std::move(pfCollectionNOPUOutput),"NoPileUp" );
+  if(producePFPileUp_ && produceSortedVertices_) iEvent.put(std::move(pfCollectionPUOutput), "PileUp");
+  if(producePFNoPileUp_ && produceOriginalMapping_) iEvent.put(std::move(pfCollectionNOPUOriginalOutput),"originalNoPileUp" );
+  if(producePFPileUp_ && produceOriginalMapping_) iEvent.put(std::move(pfCollectionPUOriginalOutput),"originalPileUp" );
   
 
 } 

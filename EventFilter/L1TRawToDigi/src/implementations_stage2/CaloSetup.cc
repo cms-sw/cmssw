@@ -27,10 +27,10 @@ namespace l1t {
                   // Use board id 1 for packing
                   res[{1, 1}] = {
 		    //                     PackerFactory::get()->make("stage2::CaloTowerPacker"),
-                     PackerFactory::get()->make("stage2::EGammaPacker"),
-                     PackerFactory::get()->make("stage2::EtSumPacker"),
-                     PackerFactory::get()->make("stage2::JetPacker"),
-                     PackerFactory::get()->make("stage2::TauPacker")
+                     PackerFactory::get()->make("stage2::CaloEGammaPacker"),
+                     PackerFactory::get()->make("stage2::CaloEtSumPacker"),
+                     PackerFactory::get()->make("stage2::CaloJetPacker"),
+                     PackerFactory::get()->make("stage2::CaloTauPacker")
                   };
                }
 
@@ -61,7 +61,14 @@ namespace l1t {
                auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
                auto tau_unp = UnpackerFactory::get()->make("stage2::TauUnpacker");
 
-               auto mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker");
+	       auto mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker");
+	       if (fw >= 0x1001000b) {
+		 mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x1001000b");
+	       }
+	       if (fw >= 0x10010010) {
+		 mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010010");
+	       }
+	       
 
                UnpackerMap res;
                if (fed == 1366 || (fed == 1360 && board == 0x221B)) {

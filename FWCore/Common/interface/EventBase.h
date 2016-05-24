@@ -32,7 +32,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // system include files
-#include <string>
 #include <typeinfo>
 
 namespace edm {
@@ -67,7 +66,7 @@ namespace edm {
       virtual edm::EventAuxiliary const& eventAuxiliary() const = 0;
 
       virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const = 0;
-      virtual TriggerResultsByName triggerResultsByName(std::string const& process) const = 0;
+      virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const = 0;
       virtual ProcessHistory const& processHistory() const = 0;
 
    protected:

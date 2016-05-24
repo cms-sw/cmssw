@@ -505,6 +505,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       std::pair<double,double> xy = cellPosition(wafers,itrf,waf,xx,yy);
       php.cellFineX_.push_back(xy.first);
       php.cellFineY_.push_back(xy.second);
+      php.cellFineHalf_.push_back((itr->second).half);      
     }
   }
   itrf = wafers.end();
@@ -522,6 +523,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
       std::pair<double,double> xy = cellPosition(wafers,itrf,waf,xx,yy);
       php.cellCoarseX_.push_back(xy.first);
       php.cellCoarseY_.push_back(xy.second);
+      php.cellCoarseHalf_.push_back((itr->second).half);   
     }
   }
   int depth(0);

@@ -1,12 +1,15 @@
 #ifndef DDL_ElementaryMaterial_H
 #define DDL_ElementaryMaterial_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLMaterial.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLElementaryMaterial processes ElementaryMaterial elements.
 /** @class DDLElementaryMaterial

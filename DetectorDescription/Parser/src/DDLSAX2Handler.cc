@@ -12,9 +12,12 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Parser/src/StrX.h"
 
+#include <iostream>
+
+#include "DetectorDescription/Parser/src/StrX.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 DDLSAX2Handler::DDLSAX2Handler( void )
   : attrCount_(0),

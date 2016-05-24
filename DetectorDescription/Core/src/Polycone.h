@@ -1,6 +1,8 @@
 #ifndef DDI_Polycone_h
 #define DDI_Polycone_h
 
+#include <vector>
+
 #include "Solid.h"
 
 namespace DDI {

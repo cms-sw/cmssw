@@ -13,15 +13,24 @@
 
 #include "DetectorDescription/Parser/src/DDLSpecPar.h"
 
+#include <stddef.h>
+#include <algorithm>
+#include <map>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDValuePair.h"
-
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <sstream>
+class DDCompactView;
 
 DDLSpecPar::DDLSpecPar( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )

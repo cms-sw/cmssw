@@ -1,5 +1,11 @@
-#include "DetectorDescription/Core/interface/DDStrVector.h"
 #include <cppunit/extensions/HelperMacros.h>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDStrVector.h"
+#include "cppunit/TestAssert.h"
+#include "cppunit/TestFixture.h"
 
 class testDDStrVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testDDStrVector);

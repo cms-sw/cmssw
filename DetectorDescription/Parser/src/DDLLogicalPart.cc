@@ -13,10 +13,16 @@
 
 #include "DetectorDescription/Parser/src/DDLLogicalPart.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLLogicalPart::DDLLogicalPart(  DDLElementRegistry* myreg )
   : DDXMLElement( myreg )

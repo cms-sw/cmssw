@@ -32,9 +32,9 @@ Generator::Generator(const ParameterSet & p) :
   theMaxPCut(p.getParameter<double>("MaxPCut")),   
   theEtaCutForHector(p.getParameter<double>("EtaCutForHector")),
   verbose(p.getUntrackedParameter<int>("Verbosity",0)),
-  fLumiFilter(0),
-  evt_(0),
-  vtx_(0),
+  fLumiFilter(nullptr),
+  evt_(nullptr),
+  vtx_(nullptr),
   weight_(0),
   Z_lmin(0),
   Z_lmax(0),
@@ -102,7 +102,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
   HepMC::GenEvent *evt=new HepMC::GenEvent(*evt_orig);
 
-  if ( *(evt->vertices_begin()) == 0 ) {
+  if ( *(evt->vertices_begin()) == nullptr ) {
     throw SimG4Exception("SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex");
   }  
   
@@ -117,14 +117,14 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
     }     
   }
   
-  if (vtx_ != 0) { delete vtx_; }
+  if (vtx_ != nullptr) { delete vtx_; }
   vtx_ = new math::XYZTLorentzVector((*(evt->vertices_begin()))->position().x(),
                                      (*(evt->vertices_begin()))->position().y(),
                                      (*(evt->vertices_begin()))->position().z(),
                                      (*(evt->vertices_begin()))->position().t());
 
   if(verbose > 0) {
-    evt->print(G4cout);
+    edm::LogInfo("SimG4CoreGenerator") << &evt;
     LogDebug("SimG4CoreGenerator") << "Primary Vertex = (" 
 				   << vtx_->x() << "," 
 				   << vtx_->y() << ","
@@ -343,7 +343,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
         G4PrimaryParticle* g4prim= 
           new G4PrimaryParticle(pdgcode, px*GeV, py*GeV, pz*GeV);
         
-        if ( g4prim->GetG4code() != 0 ){ 
+        if ( g4prim->GetG4code() != nullptr ){ 
           g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() );
           double charge = g4prim->GetG4code()->GetPDGCharge();
 
@@ -442,13 +442,12 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
 
     // V.I. do not use SetWeight but the same code
     // value of the code compute inside TrackWithHistory        
-    //g4daught->SetWeight( 10000*(*vpdec)->barcode() ) ;
     setGenId( g4daught, (*vpdec)->barcode() );
 
     if ( verbose > 2 ) LogDebug("SimG4CoreGenerator") 
       <<"Assigning a "<< (*vpdec)->pdg_id()
       <<" as daughter of a " << vp->pdg_id();
-    if ( (*vpdec)->status() == 2 && (*vpdec)->end_vertex() != 0 ) 
+    if ( (*vpdec)->status() == 2 && (*vpdec)->end_vertex() != nullptr) 
       {
         double x2 = (*vpdec)->end_vertex()->position().x();
         double y2 = (*vpdec)->end_vertex()->position().y();
@@ -516,9 +515,6 @@ void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	g4p->SetMass(g4p->GetG4code()->GetPDGMass());
 	g4p->SetCharge(g4p->GetG4code()->GetPDGCharge());
       }
-      // V.I. do not use SetWeight but the same code
-      // value of the code compute inside TrackWithHistory        
-      //g4p->SetWeight(i*10000);
       setGenId(g4p,i);
       if (particlePassesPrimaryCuts(g4p->GetMomentum())) {
 	G4PrimaryVertex * v = 

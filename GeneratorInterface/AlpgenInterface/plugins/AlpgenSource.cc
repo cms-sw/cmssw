@@ -255,7 +255,7 @@ void AlpgenSource::beginRun(edm::Run &run)
   }
 
   // Build the final Run info object. Backwards-compatible order.
-  std::auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
+  std::unique_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
   runInfo->addHeader(comments);
   runInfo->addHeader(lheAlpgenUnwParHeader);
   if (writeAlpgenWgtFile)
@@ -265,7 +265,7 @@ void AlpgenSource::beginRun(edm::Run &run)
   runInfo->addHeader(slha);
   if(writeExtraHeader)
     runInfo->addHeader(extraHeader);
-  run.put(runInfo);
+  run.put(std::move(runInfo));
 
   // Open the .unw file in the heap, and set the global pointer to it.
   inputFile_.reset(new std::ifstream((fileName_ + ".unw").c_str()));
@@ -476,8 +476,8 @@ void AlpgenSource::produce(edm::Event &event)
   }
 
   // Create the LHEEventProduct and put it into the Event.
-  std::auto_ptr<LHEEventProduct> lheEvent(new LHEEventProduct(hepeup));
-  event.put(lheEvent);
+  std::unique_ptr<LHEEventProduct> lheEvent(new LHEEventProduct(hepeup));
+  event.put(std::move(lheEvent));
 
   hepeup_.reset();
 }

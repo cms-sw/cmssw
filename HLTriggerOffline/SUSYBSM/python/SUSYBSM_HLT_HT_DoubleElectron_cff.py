@@ -13,7 +13,7 @@ SUSY_HLT_HT_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
   TriggerPathAuxiliaryForElectron = cms.string('HLT_PFHT800_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v'),
   TriggerFilter = cms.InputTag('hltDoubleEle8Mass8Filter', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
@@ -30,7 +30,7 @@ SUSY_HLT_HT250_DoubleEle = cms.EDAnalyzer("SUSY_HLT_DoubleEle_Hadronic",
   TriggerPathAuxiliaryForElectron = cms.string('HLT_PFHT800_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v'),
   TriggerFilter = cms.InputTag('hltDoubleEle8Mass8Filter', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 

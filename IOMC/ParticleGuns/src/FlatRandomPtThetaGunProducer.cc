@@ -107,12 +107,12 @@ void FlatRandomPtThetaGunProducer::produce(edm::Event &e, const EventSetup& es) 
     fEvt->print() ;  
   }
 
-  std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct, "unsmeared");
+  e.put(std::move(BProduct), "unsmeared");
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(genEventInfo);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  e.put(std::move(genEventInfo));
 
   if ( fVerbosity > 0 ) {
     LogDebug("FlatThetaGun") << "FlatRandomPtThetaGunProducer : Event Generation Done ";

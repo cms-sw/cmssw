@@ -6,6 +6,8 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
 <use   name="CondFormats/DataRecord"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/Records"/>
 <export>
   <lib   name="1"/>
 </export>

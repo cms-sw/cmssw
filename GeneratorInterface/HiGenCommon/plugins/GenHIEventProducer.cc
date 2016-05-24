@@ -184,7 +184,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         meanPt /= nCharged;
     }
 
-    std::auto_ptr<edm::GenHIEvent> pGenHI(new edm::GenHIEvent(b,
+    std::unique_ptr<edm::GenHIEvent> pGenHI(new edm::GenHIEvent(b,
 							      npart,
 							      ncoll,
 							      nhard,
@@ -199,7 +199,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 							      nChargedPtCutMR
 							      ));
 
-    iEvent.put(pGenHI);
+    iEvent.put(std::move(pGenHI));
 
 }
 

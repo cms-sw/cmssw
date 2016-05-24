@@ -326,8 +326,8 @@ ChainEvent::fillParameterSetRegistry() const
 }
 
 edm::TriggerResultsByName
-ChainEvent::triggerResultsByName(std::string const& process) const {
-  return event_->triggerResultsByName(process);
+ChainEvent::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
+  return event_->triggerResultsByName(triggerResults);
 }
 
 //

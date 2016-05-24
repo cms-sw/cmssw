@@ -223,17 +223,17 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 
   //save the asso map, tracks...
   // prepare output 
-  std::auto_ptr<AliClusterValueMap> OutVM( new AliClusterValueMap);
+  auto OutVM = std::make_unique<AliClusterValueMap>();
   *OutVM=InValMap;
 
-  iEvent.put(OutVM);
+  iEvent.put(std::move(OutVM));
   
   
-  std::auto_ptr<AliTrackTakenClusterValueMap> trkVM( new AliTrackTakenClusterValueMap);
+  auto trkVM = std::make_unique<AliTrackTakenClusterValueMap>();
   AliTrackTakenClusterValueMap::Filler trkmapfiller(*trkVM);
   trkmapfiller.insert(Tracks,trackflags.begin(),trackflags.end() );
   trkmapfiller.fill();
-  iEvent.put(trkVM);
+  iEvent.put(std::move(trkVM));
 
 
 }//end produce

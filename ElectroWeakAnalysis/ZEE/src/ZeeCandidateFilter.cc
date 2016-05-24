@@ -821,7 +821,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useValidFirstPXBHit1_ || calculateValidFirstPXBHit1_ ) {
 
-        Bool_t fail = !maxETelec1.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
+        Bool_t fail = !maxETelec1.gsfTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1);
 
         if ( useValidFirstPXBHit1_ && fail ) {    std::cout << "Filter: there is no valid hit for electron #1 in 1st layer PXB" << std::endl;
             delete [] sorted;
@@ -846,7 +846,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if ( useValidFirstPXBHit2_ || calculateValidFirstPXBHit2_ ) {
 
-        Bool_t fail = !maxETelec2.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
+        Bool_t fail = !maxETelec2.gsfTrack()->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1);
 
         if ( useValidFirstPXBHit2_ && fail ) {   std::cout << "Filter: there is no valid hit for electron #1 in 1st layer PXB" << std::endl;
             delete [] sorted;

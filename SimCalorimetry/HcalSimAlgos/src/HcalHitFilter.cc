@@ -1,28 +1,23 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
+#include <algorithm>
 
-
-HcalHitFilter::HcalHitFilter(HcalSubdetector subdet) 
-: theSubdet(subdet) 
+void HcalHitFilter::setSubdets(const std::vector<HcalSubdetector> subdets) 
 {
+  theSubdets = subdets;
+  std::sort(theSubdets.begin(),theSubdets.end());
 }
-
 
 void HcalHitFilter::setDetIds(const std::vector<DetId> & detIds) 
 {
   theDetIds = detIds;
+  std::sort(theDetIds.begin(),theDetIds.end());
 }
 
 
 bool HcalHitFilter::accepts(const PCaloHit & hit) const {
-  bool result = false;
   HcalDetId hcalDetId(hit.id());
-  if(hcalDetId.subdet() == theSubdet)
-  {
-    if(theDetIds.empty() || std::find(theDetIds.begin(), theDetIds.end(), DetId(hit.id())) != theDetIds.end())
-    {
-      result = true;
-    }
-  }
-  return result;
+  return ( (theSubdets.empty() || std::binary_search(theSubdets.begin(), theSubdets.end(), hcalDetId.subdet()))
+        && (theDetIds.empty() || std::binary_search(theDetIds.begin(), theDetIds.end(), DetId(hit.id())))
+  );
 }
 

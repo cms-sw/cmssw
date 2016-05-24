@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+  <SpecParSection label="RP_Cuts_Per_Region.xml" eval="true">
+    <SpecPar name="RP_Silicon_Detectors_Range_Cuts">
+      <PartSelector path="//RP_Silicon_Detector"/>
+      <Parameter name="CMSCutsRegion" value="RPSiliconDetectorsCuts" eval="false"/>
+      <!--Parameter name="ProdCutsForElectrons" value="0.10*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.10*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.10*mm"/-->
+      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+    </SpecPar>
+    <SpecPar name="RP_Roman_Pot_parts">
+      <PartSelector path="//RP_PCB"/>
+      <PartSelector path="//.*:RP_bottom_foil"/>
+      <PartSelector path="//.*:RP_bottom_wall_6"/>
+      <PartSelector path="//.*:RP_front_wall_6"/>
+      <PartSelector path="//.*:RP_Left_Right_Wall"/>
+      <PartSelector path="//RP_Front_Frame_3"/>
+      <PartSelector path="//RP_Back_Frame_3"/>
+      <PartSelector path="//RP_Barrette_Left"/>
+      <PartSelector path="//RP_Barrette_Right"/>
+      <Parameter name="CMSCutsRegion" value="RPRomanPotParts" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+      <Parameter name="ProdCutsForGamma" value="10*mm"/>
+    </SpecPar>
+    <SpecPar name="RP_Other_Det_Parts_Range_Cuts">
+      <PartSelector path="//RP_Device_Vert_Corp_3"/>
+      <PartSelector path="//RP_Device_Hor_Corp_3"/>
+      <PartSelector path="//RP_220_Right_Station_Tube_5"/>
+      <PartSelector path="//RP_220_Right_Station_Tube_4"/>
+      <PartSelector path="//RP_220_Right_Station_Tube_3"/>
+      <PartSelector path="//RP_220_Right_Station_Tube_2"/>
+      <PartSelector path="//RP_220_Right_Station_Tube_1"/>
+      <PartSelector path="//RP_220_Left_Station_Tube_5"/>
+      <PartSelector path="//RP_220_Left_Station_Tube_4"/>
+      <PartSelector path="//RP_220_Left_Station_Tube_3"/>
+      <PartSelector path="//RP_220_Left_Station_Tube_2"/>
+      <PartSelector path="//RP_220_Left_Station_Tube_1"/>
+      <PartSelector path="//RP_147_Right_Station_Tube_5"/>
+      <PartSelector path="//RP_147_Right_Station_Tube_4"/>
+      <PartSelector path="//RP_147_Right_Station_Tube_3"/>
+      <PartSelector path="//RP_147_Right_Station_Tube_2"/>
+      <PartSelector path="//RP_147_Right_Station_Tube_1"/>
+      <PartSelector path="//RP_147_Left_Station_Tube_5"/>
+      <PartSelector path="//RP_147_Left_Station_Tube_4"/>
+      <PartSelector path="//RP_147_Left_Station_Tube_3"/>
+      <PartSelector path="//RP_147_Left_Station_Tube_2"/>
+      <PartSelector path="//RP_147_Left_Station_Tube_1"/>
+      <Parameter name="CMSCutsRegion" value="RPOtherDetPartsCuts" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="10*mm"/>
+      <Parameter name="ProdCutsForPositrons" value="10*mm"/>
+      <Parameter name="ProdCutsForGamma" value="100*mm"/>
+    </SpecPar>
+    <SpecPar name="RP_Non_dense_materials_cuts">
+      <PartSelector path="//.*:RP_box_primary_vacuum"/>
+      <PartSelector path="//.*:RP_box_secondary_vacuum"/>
+      <PartSelector path="//RP_220_Right_Station_Vacuum_5"/>
+      <PartSelector path="//RP_220_Left_Station_Vacuum_5"/>
+      <PartSelector path="//RP_147_Right_Station_Vacuum_5"/>
+      <PartSelector path="//RP_147_Left_Station_Vacuum_5"/>
+      <Parameter name="CMSCutsRegion" value="RP_NonDenseMaterialsCuts" eval="false"/>
+      <Parameter name="ProdCutsForElectrons" value="50*m"/>
+      <Parameter name="ProdCutsForPositrons" value="50*m"/>
+      <Parameter name="ProdCutsForGamma" value="50*m"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

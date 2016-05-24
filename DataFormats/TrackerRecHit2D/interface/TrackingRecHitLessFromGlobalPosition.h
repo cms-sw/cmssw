@@ -2,9 +2,9 @@
 #define DataFormats_TrackerRecHit2D_TrackingRecHitLessFromGlobalPosition_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "DataFormats/TrajectorySeed/interface/GeomDetLess.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <functional>
-#include "Geometry/TrackerGeometryBuilder/interface/GeomDetLess.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 /** Defines order of layers in the Tracker as seen by straight tracks

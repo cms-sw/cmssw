@@ -11,6 +11,7 @@
 #include "SimG4Core/Notification/interface/Observer.h"
 
 // to retreive hits
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -93,7 +94,7 @@ private:
   unsigned int              count_;                  
   double                    edepEE_, edepHEF_, edepHEB_;
   std::vector<double>       hgcEEedep_, hgcHEFedep_, hgcHEBedep_;
-  std::vector<unsigned int> hgchitIndex_;
+  std::vector<unsigned int> dets_, hgchitDets_, hgchitIndex_;
   std::vector<double>	    hgchitX_, hgchitY_, hgchitZ_; 
 };
 
@@ -137,6 +138,7 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
     int layers(0);
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
+      dets_.push_back((unsigned int)(DetId::Forward));
       if (type == 0) {
 	subdet_.push_back((int)(ForwardSubdetector::HGCEE));
 	nameX        = "HGCalEESensitive";
@@ -159,9 +161,10 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
 	edm::LogError("ValidHGCal") << "Cannot find HGCalDDDConstants for "
 				    << nameX;
 	throw cms::Exception("Unknown", "ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
-  }
+      }
     } else {
       nameX = "HcalEndcap";
+      dets_.push_back((unsigned int)(DetId::Hcal));
       subdet_.push_back((int)(HcalSubdetector::HcalEndcap));
       edm::ESHandle<HcalDDDSimConstants>    hdc;
       es->get<HcalSimNumberingRecord>().get(hdc);
@@ -181,9 +184,9 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
     } else {
       for (int i=0; i<layers; ++i) hgcHEBedep_.push_back(0);
     }
-    edm::LogInfo("ValidHGCal") << "[" << type << "]: " << nameX << " subdet "
-			       << subdet_[type] << " with " << layers
-			       << " layers" << std::endl;
+    edm::LogInfo("ValidHGCal") << "[" << type << "]: " << nameX << " det "
+			       << dets_[type] << " subdet " << subdet_[type]
+			       << " with " << layers << " layers" << std::endl;
   }
 }
 
@@ -263,7 +266,7 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	if (type == 0) {
 	  edepEE_  += edeposit;
 	  if (layer < (int)(hgcEEedep_.size()))  hgcEEedep_[layer]  += edeposit;
-	      } else if (type == 1) {
+	} else if (type == 1) {
 	  edepHEF_ += edeposit;
 	  if (layer < (int)(hgcHEFedep_.size())) hgcHEFedep_[layer] += edeposit;
 	} else {
@@ -276,6 +279,7 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 
 	if (nextVolume.c_str()!=name.c_str()) { //save hit when it exits cell
 	  if (std::find(hgchitIndex_.begin(),hgchitIndex_.end(),index) == hgchitIndex_.end()) {
+	    hgchitDets_.push_back(dets_[type]);
 	    hgchitIndex_.push_back(index);
 	    hgchitX_.push_back(hitPoint.x());
 	    hgchitY_.push_back(hitPoint.y()); 
@@ -299,13 +303,14 @@ void SimG4HGCalValidation::layerAnalysis(PHGCalValidInfo& product) {
   
   
   //Fill HGC Variables
-  product.fillhgcHits(hgchitIndex_, hgchitX_, hgchitY_, hgchitZ_);
+  product.fillhgcHits(hgchitDets_,hgchitIndex_, hgchitX_, hgchitY_, hgchitZ_);
   product.fillhgcLayers(edepEE_,edepHEF_,edepHEB_,hgcEEedep_, hgcHEFedep_,hgcHEBedep_);
 }
 
 //---------------------------------------------------
 void SimG4HGCalValidation::clear() {
 
+  hgchitDets_.erase(hgchitDets_.begin(),hgchitDets_.end()); 
   hgchitIndex_.erase(hgchitIndex_.begin(),hgchitIndex_.end()); 
   hgchitX_.erase(hgchitX_.begin(),hgchitX_.end()); 
   hgchitY_.erase(hgchitY_.begin(),hgchitY_.end()); 

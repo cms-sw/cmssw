@@ -1204,7 +1204,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObject) {
-  std::cout <<"dumping object\n";
+
   char buffer [1024];
 
   fOutput << "# QIE data" << std::endl;
@@ -1837,4 +1837,47 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
   return true;
 }
 
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFrontEndMap* fObject) {
+  char buffer [1024];
+  unsigned int all(0), good(0);
+  while (fInput.getline(buffer, 1024)) {
+    ++all;
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () != 6) {
+      edm::LogError("MapFormat") << "HcalFrontEndMap-> line ignored: " << buffer;
+      continue;
+    }
+    ++good;
+    //    std::cout << "HcalFrontEndMap-> processing line: " << buffer << std::endl;
+    DetId id = HcalDbASCIIIO::getId (items);
+    int   rm = atoi (items [5].c_str());
+    fObject->loadObject (id, rm, items[4]);
+  }
+  fObject->sort ();
+  edm::LogInfo("MapFormat") << "HcalFrontEndMap:: processed " << good << " records in " << all << " record" << std::endl;
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %8s\n", "eta", "phi", "dep", "det", "rbx", "rm");
+  fOutput << buffer;
+
+  std::vector<DetId> channels = fObject.allDetIds();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end (); ++channel) {
+    const std::string rbx = fObject.lookupRBX(*channel);
+    const int         rm  = fObject.lookupRM(*channel);
+    dumpId (fOutput, *channel);
+    sprintf (buffer, " %8s %8d \n", rbx.c_str(), rm);
+    fOutput << buffer;
+  }
+  return true;
+  return true;
+}
 

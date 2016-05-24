@@ -136,7 +136,7 @@ void CaloHitResponse::add(const CaloSamples & signal)
   } else  {
     // need a "+=" to CaloSamples
     int sampleSize =  oldSignal->size();
-    assert(sampleSize == signal.size());
+    assert(sampleSize <= signal.size());
     assert(signal.presamples() == oldSignal->presamples());
 
     for(int i = 0; i < sampleSize; ++i) {

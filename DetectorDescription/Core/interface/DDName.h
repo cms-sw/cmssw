@@ -1,8 +1,10 @@
 #ifndef DDName_h
 #define DDName_h
 
-#include <string>
+#include <iosfwd>
 #include <map>
+#include <string>
+#include <utility>
 #include <vector>
 
 class DDCurrentNamespace;

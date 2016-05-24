@@ -11,14 +11,19 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "DetectorDescription/Parser/src/StrX.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include <string>
+#include <vector>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-
-#include <iostream>
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
+#include "DetectorDescription/Parser/src/StrX.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "xercesc/util/Compilers/GCCDefs.hpp"
 
 DDLSAX2ConfigHandler::DDLSAX2ConfigHandler( DDCompactView& cpv)
   : doValidation_(false),

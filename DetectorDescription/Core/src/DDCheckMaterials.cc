@@ -1,6 +1,16 @@
+#include <ostream>
+#include <string>
+#include <utility>
 #include <vector>
+
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+
+namespace DDI {
+class Material;
+}  // namespace DDI
 
 // internal usage
 bool DDCheckMaterial(DDMaterial& mip, std::pair<std::string,DDName> & result, int rlevel = 0)

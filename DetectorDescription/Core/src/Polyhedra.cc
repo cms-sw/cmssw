@@ -1,7 +1,14 @@
 #include "DetectorDescription/Core/src/Polyhedra.h" 
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 #include <cmath>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Polyhedra;
 

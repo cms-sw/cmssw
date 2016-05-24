@@ -1,11 +1,11 @@
 #include "DetectorDescription/RegressionTest/src/SaxToDom2.h"
-#include "DetectorDescription/RegressionTest/src/StrX.h"
-
-#include <xercesc/sax2/Attributes.hpp>
-#include <xercesc/sax/SAXParseException.hpp>
-#include <xercesc/sax/SAXException.hpp>
 
 #include <iostream>
+#include <map>
+#include <string>
+
+#include "DetectorDescription/RegressionTest/src/StrX.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
 //#include <string>
 
 using namespace std;

@@ -1,13 +1,16 @@
 #ifndef DDLTRAPEZOID_H
 #define DDLTRAPEZOID_H
 
+#include <string>
+#include <vector>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
-#include <vector>
+class DDCompactView;
+class DDLElementRegistry;
 
 /** @class DDLTrapezoid
  * @author Michael Case

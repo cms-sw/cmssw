@@ -60,7 +60,7 @@ void HLTL1TMuonSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 {
   const std::string metname = "Muon|RecoMuon|HLTL1TMuonSelector";
 
-  auto_ptr<MuonBxCollection> output(new MuonBxCollection());
+  unique_ptr<MuonBxCollection> output(new MuonBxCollection());
   
   // Muon particles 
   edm::Handle<MuonBxCollection> muColl;
@@ -99,6 +99,6 @@ void HLTL1TMuonSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   }
 
 
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 

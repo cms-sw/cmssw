@@ -10,6 +10,9 @@
  *  $Date: 2007/10/18 09:57:10 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
+ *
+ *  Last Update: Max Stark
+ *         Date: Fri, 05 Feb 2016 17:21:33 CET
  */
 
 #include "CondFormats/Alignment/interface/Definitions.h"
@@ -20,7 +23,8 @@ namespace align
 {
   namespace tpe
   {
-    const unsigned int bpqd = 6; // no. of blades per quarter disk
+    /// no. of blades per quarter disk
+    unsigned int bpqd;
 
     /// Module number increases with rho; from 1 to 4.
     inline unsigned int moduleNumber(align::ID, const TrackerTopology*);

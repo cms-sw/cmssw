@@ -5,4 +5,6 @@
 <bin file="test_xercesInitialize.cpp">
   <use   name="FWCore/Concurrency"/>
 </bin>
-
+<bin file="ThreadSafeAddOnlyContainer_t.cpp">
+  <use   name="FWCore/Concurrency"/>
+</bin>

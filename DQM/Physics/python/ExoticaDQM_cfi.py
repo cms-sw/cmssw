@@ -5,7 +5,6 @@ ExoticaDQM = cms.EDAnalyzer(
 
     #Trigger Results
     TriggerResults           = cms.InputTag('TriggerResults','','HLT'),
-#    HltPaths                 = cms.vstring('HLT_*'),
     HltPaths                 = cms.vstring("HLT_Mu","HLT_Ele","HLT_Photon","HLT_PFHT","HLT_HT","HLT_PFMET","HLT_MET","HLT_"),
 
     #Physics objects
@@ -17,12 +16,12 @@ ExoticaDQM = cms.EDAnalyzer(
     photonCollection         = cms.InputTag("gedPhotons"),
 
     pfJetCollection          = cms.InputTag('ak4PFJetsCHS'),
-    corrector                = cms.InputTag('ak4PFL1FastL2L3Corrector'),
+    jetCorrector             = cms.InputTag('ak4PFL1FastL2L3Corrector'),
 
     DiJetPFJetCollection     = cms.VInputTag('ak4PFJetsCHS','ak8PFJetsCHS'),
 
-    caloMETCollection        = cms.InputTag("caloMetM","","RECO"),
-    pfMETCollection          = cms.InputTag("pfMet","","RECO"),
+    caloMETCollection        = cms.InputTag("caloMetM"),
+    pfMETCollection          = cms.InputTag("pfMet"),
 
     #Cuts
     # DiJet
@@ -49,7 +48,6 @@ ExoticaDQM = cms.EDAnalyzer(
     # MonoPhoton
     monophoton_Photon_pt_cut  = cms.double(80.0),
     monophoton_Photon_met_cut = cms.double(100.0),
-
     
     JetIDParams  = cms.PSet(
         useRecHits      = cms.bool(True),

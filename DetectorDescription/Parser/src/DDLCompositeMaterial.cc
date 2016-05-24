@@ -12,13 +12,21 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
+#include <stddef.h>
+#include <map>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLMaterial.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDCompactView;
 
 DDLCompositeMaterial::DDLCompositeMaterial( DDLElementRegistry* myreg )
   : DDLMaterial( myreg )

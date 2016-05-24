@@ -32,22 +32,24 @@ MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
 
-    vector<int> rolls;      
-    std::vector<int> rings;
-    std::vector<int> chambers;
-    for(int roll = ME0DetId::minRollId+1; roll <= ME0DetId::maxRollId; ++roll) {
-      rolls.push_back(roll);
-    }
-    for(int chamber = ME0DetId::minChamberId+1; chamber <= ME0DetId::maxChamberId; chamber++ ){
-      chambers.push_back(chamber);
-    }
+    for(int layer = ME0DetId::minLayerId; layer <= ME0DetId::maxLayerId; ++layer) { 
+      vector<int> rolls;      
+      //std::vector<int> rings;
+      std::vector<int> chambers;
+      for(int roll = ME0DetId::minRollId+1; roll <= ME0DetId::maxRollId; ++roll) {
+	rolls.push_back(roll);
+      }
+      for(int chamber = ME0DetId::minChamberId+1; chamber <= ME0DetId::maxChamberId; chamber++ ){
+	chambers.push_back(chamber);
+      }
     
-    LogTrace(metname) << "Encap =  " << endcap
-		      << "Chambers =  " << chambers.size()
-		      << "Rolls =  " << rolls.size();
-    MuRingForwardLayer* ringLayer = buildLayer(endcap, chambers, rolls, geo);          
+      LogTrace(metname) << "Encap =  " << endcap
+	   << "Chambers =  " << chambers.size()
+	   << "Rolls =  " << rolls.size();
+      MuRingForwardLayer* ringLayer = buildLayer(endcap, layer, chambers, rolls, geo);          
 
-    if (ringLayer) result[iendcap].push_back(ringLayer);
+      if (ringLayer) result[iendcap].push_back(ringLayer);
+    }
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
 
@@ -57,6 +59,7 @@ MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
 
 MuRingForwardLayer* 
 MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
+					   int layer,
 					   vector<int>& chambers,
 					   vector<int>& rolls,
 					   const ME0Geometry& geo) {
@@ -73,7 +76,7 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
     vector<const GeomDet*> frontDets, backDets;
       
     for(std::vector<int>::iterator chamber=chambers.begin(); chamber<chambers.end(); chamber++) {
-      ME0DetId me0Id(endcap,1,(*chamber), 0);
+      ME0DetId me0Id(endcap,layer,(*chamber), (*roll));
       const GeomDet* geomDet = geo.idToDet(me0Id);
 	  
       if (geomDet !=0) {
@@ -103,15 +106,17 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
     }
 
   }
+  
   LogTrace(metname) << "About to make a MuRingForwardLayer";
-  result = new MuRingForwardLayer(frontRings);
-  
-  LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
-                    << " and " << backRings.size()
-                    << " rings, at Z " << result->position().z()
-                    << " R1: " << result->specificSurface().innerRadius()
-                    << " R2: " << result->specificSurface().outerRadius();
-  
+  if(frontRings.size()!=0) result = new MuRingForwardLayer(frontRings);
+  else result = 0;
+  if(result != 0){
+    LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
+	 << " and " << backRings.size()
+	 << " rings, at Z " << result->position().z()
+	 << " R1: " << result->specificSurface().innerRadius()
+	 << " R2: " << result->specificSurface().outerRadius();
+  }
   return result;
 
 }

@@ -29,9 +29,5 @@ ecalDigitizer.doEB = cms.bool(True)
 ecalDigitizer.doEE = cms.bool(True)
 ecalDigitizer.doES = cms.bool(True)
 
-def _modifyEcalDigitizerForHGCal( obj ):
-    obj.doEE = cms.bool(False)
-    obj.doES = cms.bool(False)
-
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_hgcal.toModify( ecalDigitizer, func=_modifyEcalDigitizerForHGCal)
+eras.phase2_hgcal.toModify( ecalDigitizer, doEE = cms.bool(False), doES = cms.bool(False) )

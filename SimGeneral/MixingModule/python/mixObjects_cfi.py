@@ -219,23 +219,30 @@ mixPCFHepMCProducts = cms.PSet(
     type = cms.string('HepMCProductPCrossingFrame')
 )
 
-def _modifyMixSimHitsForPhase2( object ):
-    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
-    object.mixSH.subdets.append('MuonGEMHits')
-    object.mixSH.crossingFrames.append('MuonGEMHits')
-
-    object.mixSH.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
-    object.mixSH.subdets.append('MuonME0Hits')
-    object.mixSH.crossingFrames.append('MuonME0Hits')
-
-    from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
-    object.mixCH.input.append( cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()) )
-    object.mixCH.input.append( cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()) )
-    object.mixCH.input.append( cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) )
-    object.mixCH.subdets.append( hgceeDigitizer.hitCollection.value() )
-    object.mixCH.subdets.append( hgchebackDigitizer.hitCollection.value() )
-    object.mixCH.subdets.append( hgchefrontDigitizer.hitCollection.value() )    
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_muon.toModify( theMixObjects, func=_modifyMixSimHitsForPhase2 )
-
+eras.run3_GEM.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
+    )
+)
+eras.phase2_muon.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonME0Hits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'MuonME0Hits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
+    )
+)
+eras.phase2_hgcal.toModify( theMixObjects,
+    mixCH = dict(
+        input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),
+                                              cms.InputTag("g4SimHits",hgchebackDigitizer.hitCollection.value()),
+                                              cms.InputTag("g4SimHits",hgchefrontDigitizer.hitCollection.value()) ],
+        subdets = theMixObjects.mixCH.subdets + [ hgceeDigitizer.hitCollection.value(),
+                                                  hgchebackDigitizer.hitCollection.value(),
+                                                  hgchefrontDigitizer.hitCollection.value() ]
+    )
+)

@@ -1,6 +1,14 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/src/Specific.h"
+
+#include <ostream>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/src/Specific.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Specific;
 

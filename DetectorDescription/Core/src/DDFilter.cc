@@ -1,5 +1,13 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
+
+#include <stddef.h>
+#include <iterator>
+#include <string>
+#include <utility>
+
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDFilter::DDFilter() 

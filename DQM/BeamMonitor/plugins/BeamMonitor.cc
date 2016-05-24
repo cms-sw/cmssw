@@ -37,6 +37,7 @@ V00-03-25
 #include <TMath.h>
 #include <iostream>
 #include <TStyle.h>
+#include <ctime>
 
 using namespace std;
 using namespace edm;
@@ -45,17 +46,28 @@ void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
 #define CET (+1)
 #define CEST (+2)
 
+  //tm * ptm;
+  //ptm = gmtime ( &t );
+  //int year = ptm->tm_year;
+ 
+  //get correct year from ctime
+  time_t currentTime;
+  struct tm *localTime;
+  time( &currentTime );                   // Get the current time
+  localTime = localtime( &currentTime );  // Convert the current time to the local time
+  int year   = localTime->tm_year + 1900;
+
   tm * ptm;
   ptm = gmtime ( &t );
-  int year = ptm->tm_year;
+
  //check if year is ok
  if (year <= 37) year += 2000;                                                        
  if (year >= 70 && year <= 137) year += 1900;                                         
              
   if (year < 1995){                                                                   
         edm::LogError("BadTimeStamp") << "year reported is " << year <<" !!"<<std::endl;
-        year = 2015; //overwritten later by BeamFitter.cc for fits but needed here for TH1
-        edm::LogError("BadTimeStamp") << "Resetting to " <<year<<std::endl;
+        //year = 2015; //overwritten later by BeamFitter.cc for fits but needed here for TH1
+        //edm::LogError("BadTimeStamp") << "Resetting to " <<year<<std::endl;
       } 
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
 

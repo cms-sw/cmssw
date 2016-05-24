@@ -64,9 +64,9 @@ void DQMTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    }
  
    
-  std::auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
+  std::unique_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
   
-  iEvent.put(selectedTaus);
+  iEvent.put(std::move(selectedTaus));
   
 
 

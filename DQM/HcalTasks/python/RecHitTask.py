@@ -16,7 +16,10 @@ recHitTask = cms.EDAnalyzer(
 	tagHBHE = cms.untracked.InputTag("hbhereco"),
 	tagHO = cms.untracked.InputTag("horeco"),
 	tagHF = cms.untracked.InputTag("hfreco"),
-	tagRaw = cms.untracked.InputTag('rawDataCollector')
+	tagRaw = cms.untracked.InputTag('rawDataCollector'),
+
+	#	thresholds
+	thresh_unihf = cms.untracked.double(0.2),
 )
 
 

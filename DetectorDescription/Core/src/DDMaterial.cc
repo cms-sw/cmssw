@@ -1,7 +1,16 @@
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include <ostream>
+#include <string>
+#include <vector>
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/src/Material.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Material;
 

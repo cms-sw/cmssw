@@ -257,6 +257,21 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     )
                 if svClustering:
                     setupSVClustering(getattr(process, btagInfo+labelName+postfix), algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
+                 setattr(
+                    process,
+                    btagInfo+labelName+postfix,
+                    btag.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.clone(
+                        trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix),
+                        extSVCollection=svSource
+                        )
+                    )
+                 if svClustering:
+                     setupSVClustering(getattr(process, btagInfo+labelName+postfix), algo, rParam, fatJets, groomedFatJets)
+            if btagInfo == 'pfGhostTrackVertexTagInfos':
+                setattr(process, btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix)))
+            if btagInfo == 'pfGhostTrackTagVertexInfosAK8':
+                setattr(process, btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfosAK8.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfosAK8'+labelName+postfix)))
             if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
                 setattr(process, btagInfo+labelName+postfix, btag.pfSecondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix)))
             if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos':

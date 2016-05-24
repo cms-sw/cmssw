@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <cassert>
 using namespace std;
 
 template < class T >
@@ -7,12 +8,13 @@ BXVector<T>::BXVector( unsigned size,      // number of objects per BX
 		       int bxFirst,   // first BX stored
 		       int bxLast )  // last BX stored
   :
-  bxFirst_(bxFirst),
-  bxLast_(bxLast),
-  data_(std::vector<T>(size * (numBX()+1)))
+  bxFirst_(std::min(0,bxFirst)),
+  bxLast_(std::max(0,bxLast)),
+  data_(std::vector<T>(size * numBX()))
 {
+  assert(bxFirst_ <= bxLast_);
   itrs_.clear();
-  for (unsigned i=0; i<=numBX(); i++){ 
+  for (unsigned i=0; i<numBX(); i++){ 
     itrs_.push_back(i*size);
   }
 }
@@ -102,7 +104,8 @@ template < class T >
 typename BXVector<T>::const_iterator
 BXVector<T>::begin( int bx ) const
 {
-   return data_.begin()+itrs_[indexFromBX(bx)];
+  assert(itrs_.size() > 0);
+  return data_.begin()+itrs_[indexFromBX(bx)];
 }
 
 // iterator access by BX

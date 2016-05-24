@@ -5,7 +5,6 @@
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "G4VSolid.hh"
@@ -206,8 +205,8 @@ int DDG4Builder::getInt(const std::string & s, const DDLogicalPart & part)
   if (foundIt) { 
     std::vector<double> temp = val.doubles();
     if (temp.size() != 1) {
-      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s ;
-      throw SimG4Exception("DDG4Builder: Problem with Region tags - one and only one allowed");
+      edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s;
+      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getInt() Problem with Region tags - one and only one allowed: " + s);
     }      
     return int(temp[0]);
   }
@@ -228,7 +227,7 @@ double DDG4Builder::getDouble(const std::string & s,
     std::vector<std::string> temp = val.strings();
     if (temp.size() != 1) {
       edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s ;
-      throw SimG4Exception("DDG4Builder: Problem with Region tags - one and only one allowed");
+      throw cms::Exception("SimG4CoreGeometry", " DDG4Builder::getDouble() Problem with Region tags - one and only one allowed: " + s);
     }
     double v;
     std::string unit;

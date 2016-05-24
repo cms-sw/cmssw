@@ -1,20 +1,26 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 ##########################################################################
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
 ##########################################################################
 
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
-pixelLessStepClusters = trackClusterRemover.clone(
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
+_pixelLessStepClustersBase = _trackClusterRemover.clone(
     maxChi2                                  = cms.double(9.0),
     trajectories                             = cms.InputTag("mixedTripletStepTracks"),
     pixelClusters                            = cms.InputTag("siPixelClusters"),
     stripClusters                            = cms.InputTag("siStripClusters"),
     oldClusterRemovalInfo                    = cms.InputTag("mixedTripletStepClusters"),
-    trackClassifier                          = cms.InputTag('mixedTripletStep',"QualityMasks"),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
+pixelLessStepClusters = _pixelLessStepClustersBase.clone(
+    trackClassifier                          = cms.InputTag('mixedTripletStep',"QualityMasks"),
+)
+eras.trackingLowPU.toReplaceWith(pixelLessStepClusters, _pixelLessStepClustersBase.clone(
+    overrideTrkQuals                         = "mixedTripletStep",
+))
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
@@ -88,6 +94,21 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         maxRing = cms.int32(3)
     )
 )
+eras.trackingLowPU.toModify(pixelLessStepSeedLayers,
+    layerList = [
+        'TIB1+TIB2',
+        'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
+        'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
+        'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
+        'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg','TEC4_neg+TEC5_neg'
+    ],
+    TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
+    TID = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
+    TEC = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
+    MTIB = None,
+    MTID = None,
+    MTEC = None,
+)
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
@@ -127,15 +148,36 @@ pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
             RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi.StripSubClusterShapeSeedFilter.clone()
         )
     )
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
+eras.trackingLowPU.toReplaceWith(pixelLessStepSeeds, RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone(
+    OrderedHitsFactoryPSet = dict(SeedingLayers = 'pixelLessStepSeedLayers'),
+    RegionFactoryPSet = dict(RegionPSet = dict(
+        ptMin = 0.7,
+        originHalfLength = 10.0,
+        originRadius = 2.0,
+    )),
+    SeedComparitorPSet = cms.PSet(
+        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+        FilterAtHelixStage = cms.bool(True),
+        FilterPixelHits = cms.bool(False),
+        FilterStripHits = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    )
+))
+
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+_pixelLessStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 4,
-    seedPairPenalty = 1,
     minPt = 0.1
     )
+pixelLessStepTrajectoryFilter = _pixelLessStepTrajectoryFilterBase.clone(
+    seedPairPenalty = 1,
+)
+eras.trackingLowPU.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -143,6 +185,9 @@ pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(16.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
+)
+eras.trackingLowPU.toModify(pixelLessStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')
 )
 
 # TRACK BUILDING
@@ -176,6 +221,7 @@ pixelLessStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone
     allowSharedFirstHit = cms.bool(True)
     )
 pixelLessStepTrackCandidates.TrajectoryCleaner = 'pixelLessStepTrajectoryCleanerBySharedHits'
+eras.trackingLowPU.toModify(pixelLessStepTrajectoryCleanerBySharedHits, fractionShared = 0.19)
 
 
 # TRACK FITTING
@@ -204,6 +250,54 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
+# For LowPU
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='pixelLessStepTracks',
+    useAnyMVA = cms.bool(False),
+    GBRForestLabel = cms.string('MVASelectorIter5'),
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'pixelLessStepLoose',
+            chi2n_par = 0.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.3, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.3, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'pixelLessStepTight',
+            preFilterName = 'pixelLessStepLoose',
+            chi2n_par = 0.35,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
+        ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'QualityMasks',
+            preFilterName = 'pixelLessStepTight',
+            chi2n_par = 0.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 4,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.9, 4.0 ),
+            dz_par1 = ( 0.9, 4.0 ),
+            d0_par2 = ( 0.9, 4.0 ),
+            dz_par2 = ( 0.9, 4.0 )
+        ),
+    ),
+    vertices = cms.InputTag("pixelVertices")#end of vpset
+) #end of clone
 
 
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
@@ -213,3 +307,6 @@ PixelLessStep = cms.Sequence(pixelLessStepClusters*
                              pixelLessStepTracks*
                              pixelLessStepClassifier1*pixelLessStepClassifier2*
                              pixelLessStep)
+_PixelLessStep_LowPU = PixelLessStep.copyAndExclude([pixelLessStepClassifier1, pixelLessStepClassifier2])
+_PixelLessStep_LowPU.replace(pixelLessStep, pixelLessStepSelector)
+eras.trackingLowPU.toReplaceWith(PixelLessStep, _PixelLessStep_LowPU)

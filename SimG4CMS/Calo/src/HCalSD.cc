@@ -316,7 +316,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   hzvem = hzvhad = 0;
 
   if (ageingFlagHE) m_HEDarkening = new HEDarkening();
-  if (ageingFlagHF) m_HFDarkening = new HFDarkening();
+    if (ageingFlagHF) m_HFDarkening = new HFDarkening(m_HC.getParameter<edm::ParameterSet>("HFDarkeningParameterBlock"));
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
 
@@ -386,12 +386,12 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 	G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
 	double r = hitPoint.perp()/CLHEP::cm;
 	double z = std::abs(hitPoint.z())/CLHEP::cm;
-	float dose_acquired = 0.;
-	if (z>=1100 && z <= 1300) {
-	  int hfZLayer = (int)((z - 1100)/20);
-	  if (hfZLayer > 9) hfZLayer = 9;
+	double dose_acquired = 0.;
+  if (z>=HFDarkening::lowZLimit && z <= HFDarkening::upperZLimit) {
+    unsigned int hfZLayer = (int)((z - HFDarkening::lowZLimit)/5);
+    if (hfZLayer >= HFDarkening::upperZLimit) hfZLayer = (HFDarkening::upperZLimit-1);
 	  float normalized_lumi = m_HFDarkening->int_lumi(deliveredLumi);
-	  for (int i = hfZLayer; i <= 9; ++i) {
+    for (int i = hfZLayer; i != HFDarkening::numberOfZLayers; ++i) {
 	    dose_acquired = m_HFDarkening->dose(i,r);
 	    weight *= m_HFDarkening->degradation(normalized_lumi*dose_acquired);
 	  }

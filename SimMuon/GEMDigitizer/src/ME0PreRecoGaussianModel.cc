@@ -134,6 +134,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 
     double myRandY = CLHEP::RandFlat::shoot(engine);
     double y0_rand = (hx+myRandY)*heightIt;  // Y coord, measured from the bottom of the roll
+    if(hx==heightbins-1) y0_rand = hx*sigma_v + myRandY*heightIt;
     double yy_rand = (y0_rand-height*1.0/2); // Y coord, measured from the middle of the roll, which is the Y coord in Local Coords
     double yy_glob = rollRadius + yy_rand;   // R coord in Global Coords
     // max length in x for given y coordinate (cfr trapezoidal eta partition)

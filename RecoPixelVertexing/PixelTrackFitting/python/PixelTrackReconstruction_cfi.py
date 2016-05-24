@@ -36,6 +36,11 @@ PixelTrackReconstructionBlock = cms.PSet (
     )
 )
 
+_OrderedHitsFactoryPSet_LowPU_Phase1PU70 = dict(
+    SeedingLayers = "PixelLayerTripletsPreSplitting",
+    GeneratorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
+)
+eras.trackingLowPU.toModify(PixelTrackReconstructionBlock, OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70)
 eras.trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
     SeedMergerPSet = cms.PSet(
         layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
@@ -48,8 +53,5 @@ eras.trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
         tipMax = 0.05
     ),
     RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
-    OrderedHitsFactoryPSet = dict(
-        SeedingLayers = "PixelLayerTripletsPreSplitting",
-        GeneratorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"))
-    ),
+    OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70,
 )

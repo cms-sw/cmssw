@@ -1,5 +1,9 @@
 #include "DetectorDescription/Core/interface/DDMap.h"
 
+#include <utility>
+
+#include "DetectorDescription/Base/interface/Store.h"
+
 DDMap::DDMap() : DDBase<DDName,dd_map_type*>() { }
 
 DDMap::DDMap(const DDName & name) : DDBase<DDName,dd_map_type*>() 

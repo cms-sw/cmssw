@@ -13,10 +13,19 @@
 
 #include "DetectorDescription/Parser/src/DDLRotationSequence.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include <stddef.h>
+#include <map>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDCompactView;
 
 DDLRotationSequence::DDLRotationSequence( DDLElementRegistry* myreg )
   : DDLRotationByAxis( myreg ) 

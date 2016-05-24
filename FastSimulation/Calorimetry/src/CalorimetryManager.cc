@@ -1318,14 +1318,14 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
       else if (hdetid.subdetId()== HcalForward){
         if(useShowerLibrary) {
  	  if(useCorrectionSL) {
-             if(hdetid.depth()== 1) energy *= hfcorrEm[hdetid.ietaAbs()-29];
-             if(hdetid.depth()== 2) energy *= hfcorrHad[hdetid.ietaAbs()-29];
+             if(hdetid.depth()== 1) energy *= hfcorrEm[hdetid.ietaAbs()-ietaShiftHF_];
+             if(hdetid.depth()== 2) energy *= hfcorrHad[hdetid.ietaAbs()-ietaShiftHF_];
           }
 	} else {
 	  if(hdetid.depth()== 1) energy *= samplingHF_[0];
 	  if(hdetid.depth()== 2) energy *= samplingHF_[1];
+          time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
 	} 
-	time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
       }
       else if (hdetid.subdetId()== HcalOuter){
 	energy /= samplingHO_[hdetid.ietaAbs()-1];

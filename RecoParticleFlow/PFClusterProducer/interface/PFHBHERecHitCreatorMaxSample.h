@@ -164,8 +164,6 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	  continue;
 
 	int depth = detid.depth();
-	math::XYZVector position;
-	math::XYZVector axis;
 	
 	const CaloCellGeometry *thisCell=0;
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
@@ -192,27 +190,13 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	}
 
 
-	auto const point = thisCell->getPosition();
-	position.SetCoordinates ( point.x(),
-				  point.y(),
-				  point.z() );
 
-
-	reco::PFRecHit rh( detid.rawId(),layer,
-			   energy, 
-			   position.x(), position.y(), position.z(), 
-			   0,0,0);
+	reco::PFRecHit rh(thisCell, detid.rawId(),layer,
+			   energy);
 
 	rh.setDepth(depth);
 
 
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-	assert( corners.size() == 8 );
-
-	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z());
-	rh.setSECorner( corners[1].x(), corners[1].y(),  corners[1].z());
-	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z());
-	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z());
 	
 	//	for (unsigned int i=0;i<hitEnergies.size();++i)
 	//	  printf(" %f / %f ,",hitEnergies[i],hitTimes[i]);

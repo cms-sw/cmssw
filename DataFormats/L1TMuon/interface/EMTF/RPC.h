@@ -25,44 +25,44 @@ namespace l1t {
       
       virtual ~RPC() {};
       
-      void set_prt_delay(int bits)      {  prt_delay = bits; };
-      void set_partition_num(int bits)  {  partition_num = bits; };
-      void set_partition_data(int bits) {  partition_data = bits; };
-      void set_bcn(int bits)            {  bcn = bits; };
-      void set_lb(int bits)             {  lb = bits; };
-      void set_link_number(int bits)    {  link_number = bits; };
-      void set_bxn(int bits)            {  bxn = bits; };
-      void set_tbin(int bits)           {  tbin = bits; };
-      void set_eod(int bits)            {  eod = bits; };
-      void set_bc0(int bits)            {  bc0 = bits; };
-      void add_format_error()           { format_errors += 1; };
-      void set_dataword(uint64_t bits)  { dataword = bits;  };
+      void set_prt_delay(int bits)      { prt_delay = bits;      }
+      void set_partition_num(int bits)  { partition_num = bits;  }
+      void set_partition_data(int bits) { partition_data = bits; }
+      void set_bcn(int bits)            { bcn = bits;            }
+      void set_lb(int bits)             { lb = bits;             }
+      void set_link_number(int bits)    { link_number = bits;    }
+      void set_bxn(int bits)            { bxn = bits;            }
+      void set_tbin(int bits)           { tbin = bits;           }
+      void set_eod(int bits)            { eod = bits;            }
+      void set_bc0(int bits)            { bc0 = bits;            }
+      void add_format_error()           { format_errors += 1;    }
+      void set_dataword(uint64_t bits)  { dataword = bits;       }
 
-      const int PRT_delay()      const { return  prt_delay ; };
-      const int Partition_num()  const { return  partition_num ; };
-      const int Partition_data() const { return  partition_data ; };
-      const int BCN()            const { return  bcn ; };
-      const int LB()             const { return  lb ; };
-      const int Link_number()    const { return  link_number ; };
-      const int BXN()            const { return  bxn ; };
-      const int Tbin()           const { return  tbin ; };
-      const int EOD()            const { return  eod ; };
-      const int BC0()            const { return  bc0 ; };      
-      const int Format_Errors()  const { return format_errors; };
-      const uint64_t Dataword()  const { return dataword;  };      
+      int      PRT_delay()      const { return prt_delay;      }
+      int      Partition_num()  const { return partition_num;  }
+      int      Partition_data() const { return partition_data; }
+      int      BCN()            const { return bcn;            }
+      int      LB()             const { return lb;             }
+      int      Link_number()    const { return link_number;    }
+      int      BXN()            const { return bxn;            }
+      int      Tbin()           const { return tbin;           }
+      int      EOD()            const { return eod;            }
+      int      BC0()            const { return bc0;            }      
+      int      Format_Errors()  const { return format_errors;  }
+      uint64_t Dataword()       const { return dataword;       }      
       
     private:
-      int  prt_delay;
-      int  partition_num;
-      int  partition_data;
-      int  bcn; 
-      int  lb;
-      int  link_number;
-      int  bxn; 
-      int  tbin;
-      int  eod; 
-      int  bc0; 
-      int  format_errors;
+      int prt_delay;
+      int partition_num;
+      int partition_data;
+      int bcn; 
+      int lb;
+      int link_number;
+      int bxn; 
+      int tbin;
+      int eod; 
+      int bc0; 
+      int format_errors;
       uint64_t dataword;
       
     }; // End of class RPC

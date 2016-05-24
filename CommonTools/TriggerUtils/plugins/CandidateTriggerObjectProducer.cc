@@ -64,7 +64,7 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
   using namespace reco;
   using namespace trigger;
 
-  std::auto_ptr<reco::CandidateCollection> coll( new reco::CandidateCollection );
+  std::unique_ptr<reco::CandidateCollection> coll( new reco::CandidateCollection );
 
   // get event products
   iEvent.getByToken(triggerResultsToken_,triggerResultsHandle_);
@@ -168,7 +168,7 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
     }
 
 
-  iEvent.put(coll);
+  iEvent.put(std::move(coll));
   return;
 }
 

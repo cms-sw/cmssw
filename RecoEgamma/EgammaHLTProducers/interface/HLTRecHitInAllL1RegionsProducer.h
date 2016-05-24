@@ -217,7 +217,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
       continue;
     }
 
-    std::auto_ptr<RecHitCollectionType> filteredRecHits(new RecHitCollectionType);
+    std::unique_ptr<RecHitCollectionType> filteredRecHits(new RecHitCollectionType);
       
     if(!recHits->empty()){
       const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(recHits->front().id());
@@ -235,7 +235,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
       }//end check of empty regions
     }//end check of empty rec-hits
     //   std::cout <<"putting fileter coll in "<<filteredRecHits->size()<<std::endl;
-    event.put(filteredRecHits,productLabels_[recHitCollNr]);
+    event.put(std::move(filteredRecHits),productLabels_[recHitCollNr]);
   }//end loop over all rec hit collections
 
 }

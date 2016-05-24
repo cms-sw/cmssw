@@ -35,6 +35,18 @@ _algos = [
     "muonSeededStepOutIn",
     "duplicateMerge",
 ]
+_algos_trackingLowPU = [
+    "generalTracks",
+    "initialStep",
+    "lowPtTripletStep",
+    "pixelPairStep",
+    "detachedTripletStep",
+    "mixedTripletStep",
+    "pixelLessStep",
+    "tobTecStep",
+    "muonSeededStepInOut",
+    "muonSeededStepOutIn",
+]
 _algos_trackingPhase1 = [
     "generalTracks",
     "initialStep",
@@ -87,6 +99,18 @@ _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "muonSeededSeedsOutIn"]
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
 
+_seedProducers_trackingLowPU = [
+    "initialStepSeeds",
+    "lowPtTripletStepSeeds",
+    "pixelPairStepSeeds",
+    "detachedTripletStepSeeds",
+    "mixedTripletStepSeedsA",
+    "mixedTripletStepSeedsB",
+    "pixelLessStepSeeds",
+    "tobTecStepSeeds",
+    "muonSeededSeedsInOut",
+    "muonSeededSeedsOutIn",
+]
 _seedProducers_trackingPhase1 = [
     "initialStepSeedsPreSplitting",
     "initialStepSeeds",
@@ -138,6 +162,17 @@ _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "muonSeededTracksOutIn"]
 _trackProducers_fastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
 
+_trackProducers_trackingLowPU = [
+    "initialStepTracks",
+    "lowPtTripletStepTracks",
+    "pixelPairStepTracks",
+    "detachedTripletStepTracks",
+    "mixedTripletStepTracks",
+    "pixelLessStepTracks",
+    "tobTecStepTracks",
+    "muonSeededTracksInOut",
+    "muonSeededTracksOutIn",
+]
 _trackProducers_trackingPhase1 = [
     "initialStepTracksPreSplitting",
     "initialStepTracks",
@@ -255,6 +290,7 @@ def _eraPostfix(era):
     return (era, "_"+era)
 _relevantEras = [
     _eraPostfix(""),
+    _eraPostfix("trackingLowPU"),
     _eraPostfix("trackingPhase1"),
     _eraPostfix("trackingPhase1PU70"),
 ]
@@ -282,17 +318,17 @@ def _sequenceForEachEra(function, args, names, sequence, modDict, plainArgs=[], 
         modDict[sequence+postfix] = ret[1]
 
     # The sequence of the first era will be the default one
-    defaultSequenceName = sequence+_relevantEras[0][0]
+    defaultSequenceName = sequence+_eras[0][0]
     defaultSequence = modDict[defaultSequenceName]
     modDict[defaultSequenceName[1:]] = defaultSequence # remove leading underscore
 
     # Optionally modify sequences before applying the era
     if modifySequence is not None:
-        for eraName, postfix in _relevantEras:
+        for eraName, postfix in _eras:
             modifySequence(modDict[sequence+postfix])
 
     # Apply eras
-    for eraName, postfix in _relevantEras[1:]:
+    for eraName, postfix in _eras[1:]:
         getattr(eras, eraName).toReplaceWith(defaultSequence, modDict[sequence+postfix])
 def _setForEra(module, era, **kwargs):
     if era == "":
@@ -300,6 +336,28 @@ def _setForEra(module, era, **kwargs):
             setattr(module, key, value)
     else:
         getattr(eras, era).toModify(module, **kwargs)
+
+# Seeding layer sets
+def _getSeedingLayers(seedProducers):
+    import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
+
+    seedingLayersMerged = []
+    for seedName in seedProducers:
+        seedProd = getattr(_iterativeTk_cff, seedName)
+        if not hasattr(seedProd, "OrderedHitsFactoryPSet"):
+            continue
+
+        if hasattr(seedProd, "SeedMergerPSet"):
+            seedingLayersName = seedProd.SeedMergerPSet.layerList.refToPSet_.value()
+        else:
+            seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
+        seedingLayers = getattr(_iterativeTk_cff, seedingLayersName).layerList.value()
+        for layerSet in seedingLayers:
+            if layerSet not in seedingLayersMerged:
+                seedingLayersMerged.append(layerSet)
+    return seedingLayersMerged
+for era, postfix in _relevantEras:
+    locals()["_seedingLayerSets"+postfix] = _getSeedingLayers(locals()["_seedProducers"+postfix])
 
 # Validation iterative steps
 _sequenceForEachEra(_addSelectorsByAlgo, args=["_algos"], names="_selectorsByAlgo", sequence="_tracksValidationSelectorsByAlgo", modDict=globals())
@@ -394,6 +452,7 @@ for era, postfix in _relevantEras:
                    "cutsRecoTracksBtvLike",
                    "cutsRecoTracksAK4PFJets"
     ])
+    _setForEra(trackValidator.histoProducerAlgoBlock, era, seedingLayerSets=locals()["_seedingLayerSets"+postfix])
 
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs

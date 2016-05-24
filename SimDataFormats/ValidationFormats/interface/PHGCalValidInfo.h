@@ -23,12 +23,14 @@ public:
   std::vector<float>        eehgcEdep()   const {return hgcEEedep;}
   std::vector<float>        hefhgcEdep()  const {return hgcHEFedep;}
   std::vector<float>        hebhgcEdep()  const {return hgcHEBedep;}
+  std::vector<unsigned int> hitDets()     const {return hgcHitDets;}
   std::vector<unsigned int> hitIndex()    const {return hgcHitIndex;}
   std::vector<float>        hitvtxX()     const {return hgcHitVtxX;} 
   std::vector<float>        hitvtxY()     const {return hgcHitVtxY;} 
   std::vector<float>        hitvtxZ()     const {return hgcHitVtxZ;} 
 
-  void fillhgcHits(const std::vector<unsigned int> & hitindex,
+  void fillhgcHits(const std::vector<unsigned int> & hitdets,
+		   const std::vector<unsigned int> & hitindex,
 		   const std::vector<double> & hitvtxX, 
 		   const std::vector<double> & hitvtxY, 
 		   const std::vector<double> & hitvtxZ);
@@ -43,7 +45,7 @@ private:
   float		            edepEETot, edepHEFTot, edepHEBTot;
   std::vector<float>        hgcEEedep, hgcHEFedep, hgcHEBedep;
   std::vector<float>        hgcHitVtxX, hgcHitVtxY, hgcHitVtxZ;
-  std::vector<unsigned int> hgcHitIndex;
+  std::vector<unsigned int> hgcHitDets, hgcHitIndex;
 
 };
 

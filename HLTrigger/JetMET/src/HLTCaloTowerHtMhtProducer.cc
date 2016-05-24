@@ -49,7 +49,7 @@ void HLTCaloTowerHtMhtProducer::fillDescriptions(edm::ConfigurationDescriptions 
 void HLTCaloTowerHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::METCollection> result(new reco::METCollection());
+    std::unique_ptr<reco::METCollection> result(new reco::METCollection());
 
     edm::Handle<CaloTowerCollection> towers;
     iEvent.getByToken(m_theTowersToken, towers);
@@ -81,5 +81,5 @@ void HLTCaloTowerHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetu
     result->push_back(htmht);
     
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }

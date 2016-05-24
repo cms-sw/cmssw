@@ -82,7 +82,7 @@ namespace helper {
       }
     }
     edm::OrphanHandle<collection> put( edm::Event & evt ) {
-      return evt.put( std::move(selected_) );
+      return evt.put(std::move(selected_));
     }
     size_t size() const { return selected_->size(); }
   private:

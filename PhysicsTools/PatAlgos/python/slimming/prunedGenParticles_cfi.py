@@ -15,6 +15,7 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "drop   status == 2 && abs(pdgId) == 21",                          # but remove again gluons in the inheritance chain
         "keep abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25 || abs(pdgId) == 6 || abs(pdgId) == 37 ",   # keep VIP(articles)s
         "keep abs(pdgId) == 310 && abs(eta) < 2.5 && pt > 1 ",                                                     # keep K0
+        "+keep abs(pdgId) == 13 && status == 1", # keep muon parents
 # keep heavy flavour quarks for parton-based jet flavour
 	"keep (4 <= abs(pdgId) <= 5)",
 # keep light-flavour quarks and gluons for parton-based jet flavour

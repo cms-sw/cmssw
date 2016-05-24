@@ -151,7 +151,7 @@ python RunPromptReco.py --scenario=cosmics --reco --aod --dqmio --global-tag GLO
 
 python RunPromptReco.py --scenario=pp --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias
 
-python RunPromptReco.py --scenario=ppRun2 --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias --PhysicsSkims=@SingleMuon
+python RunPromptReco.py --scenario=ppEra_Run2_2016 --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias --PhysicsSkims=@SingleMuon
 
 """
     try:

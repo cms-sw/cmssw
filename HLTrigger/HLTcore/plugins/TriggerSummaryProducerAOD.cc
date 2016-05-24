@@ -299,7 +299,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    ///
    /// construct single AOD product, reserving capacity
-   auto_ptr<TriggerEvent> product(new TriggerEvent(pn_,nk,no,nf));
+   unique_ptr<TriggerEvent> product(new TriggerEvent(pn_,nk,no,nf));
 
    /// fill trigger object collection
    product->addCollections(tags_,keys_);
@@ -339,7 +339,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
      }
    }
 
-   OrphanHandle<TriggerEvent> ref = iEvent.put(product);
+   OrphanHandle<TriggerEvent> ref = iEvent.put(std::move(product));
    LogTrace("TriggerSummaryProducerAOD") << "Number of physics objects packed: " << ref->sizeObjects();
    LogTrace("TriggerSummaryProducerAOD") << "Number of filter  objects packed: " << ref->sizeFilters();
 

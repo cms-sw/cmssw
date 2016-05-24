@@ -4,7 +4,7 @@ from Configuration.AlCa.autoCond import autoCond
 process = cms.Process("GeometryWriter")
 process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.source = cms.Source("EmptyIOVSource",

@@ -1,10 +1,17 @@
 #include "DetectorDescription/Core/src/DDCheck.h"
+
+#include <map>
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-
-// Message logger.
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)

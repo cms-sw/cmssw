@@ -88,19 +88,36 @@ void HcalZeroSuppressionAlgo::suppress(const HcalUpgradeDigiCollection& input, H
 
 void HcalZeroSuppressionAlgo::suppress(const QIE10DigiCollection& input, QIE10DigiCollection& output) {
   for (QIE10DigiCollection::const_iterator i=input.begin(); i!=input.end(); ++i) {
-    if (shouldKeep((*i))) {
+    QIE10DataFrame df(*i);
+    if (shouldKeep(df)) {
       if (!m_markAndPass) {
-	output.push_back(*i);
+        output.push_back(df);
       } else {
-	QIE10DataFrame df(*i);
-	df.setZSInfo(false);
-	output.push_back(df);
+        df.setZSInfo(false);
+        output.push_back(df);
       }
-    } else if (m_markAndPass) {
-      QIE10DataFrame df(*i);
+    } 
+    else if (m_markAndPass) {
       df.setZSInfo(true);
       output.push_back(df);
     }
   }
 }
 
+void HcalZeroSuppressionAlgo::suppress(const QIE11DigiCollection& input, QIE11DigiCollection& output) {
+  for (QIE11DigiCollection::const_iterator i=input.begin(); i!=input.end(); ++i) {
+    QIE11DataFrame df(*i);
+    if (shouldKeep(df)) {
+      if (!m_markAndPass) {
+        output.push_back(df);
+      } else {
+        df.setZSInfo(false);
+        output.push_back(df);
+      }
+    }
+	else if (m_markAndPass) {
+      df.setZSInfo(true);
+      output.push_back(df);
+    }
+  }
+}

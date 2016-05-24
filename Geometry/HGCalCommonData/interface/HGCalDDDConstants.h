@@ -75,6 +75,7 @@ public:
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
   // wafer longitudinal thickness classification (1 = 100um, 2 = 200um, 3=300um)
   int                 waferTypeL(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;}
+  bool                isHalfCell(int waferType, int cell) const;
   double              waferZ(int layer, bool reco) const;
 
   HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;

@@ -124,12 +124,12 @@ def MassReplaceParameter(process,name="label",old="rawDataCollector",new="rawDat
         massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
     return(process)
 
-def L1REPACK(process):
+def L1REPACK(process,sequence="Full"):
 
     from Configuration.StandardSequences.Eras import eras
 
     l1repack = cms.Process('L1REPACK',eras.Run2_2016)
-    l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_Full_cff')
+    l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
     for module in l1repack.es_sources_():
         if (not hasattr(process,module)):

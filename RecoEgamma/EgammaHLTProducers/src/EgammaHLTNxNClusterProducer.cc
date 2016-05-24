@@ -249,15 +249,15 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
   
   
   //Create empty output collections
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  std::unique_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   if (detector == reco::CaloID::DET_ECAL_BARREL){
     if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in barrel"<<std::endl;
-    evt.put(clusters_p, barrelClusterCollection_);
+    evt.put(std::move(clusters_p), barrelClusterCollection_);
   }
   else {
     if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in endcap"<<std::endl;
-    evt.put(clusters_p, endcapClusterCollection_);
+    evt.put(std::move(clusters_p), endcapClusterCollection_);
   }
   
 }

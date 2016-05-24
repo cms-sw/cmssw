@@ -9,13 +9,18 @@ from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
+import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
 initialStepSeedLayersPreSplitting = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 initialStepSeedLayersPreSplitting.FPix.HitProducer = 'siPixelRecHitsPreSplitting'
 initialStepSeedLayersPreSplitting.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
+eras.trackingPhase1.toModify(initialStepSeedLayersPreSplitting,
+    layerList = RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff.PixelSeedMergerQuadruplets.layerList.value()
+)
 
 # seeding
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
+from RecoPixelVertexing.PixelTriplets.PixelQuadrupletGenerator_cfi import PixelQuadrupletGenerator as _PixelQuadrupletGenerator
 initialStepSeedsPreSplitting = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
     ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
@@ -27,20 +32,38 @@ initialStepSeedsPreSplitting = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriple
     )
     )
 initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayersPreSplitting'
-eras.trackingPhase1.toModify(initialStepSeedsPreSplitting,
-    SeedMergerPSet = cms.PSet(
-        layerList = cms.PSet(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
-	addRemainingTriplets = cms.bool(False),
-	mergeTriplets = cms.bool(True),
-	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
-    )
-)
-
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
 initialStepSeedsPreSplitting.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClustersPreSplitting'
+
+eras.trackingPhase1.toModify(initialStepSeedsPreSplitting,
+    OrderedHitsFactoryPSet = cms.PSet(
+        ComponentName = cms.string("CombinedHitQuadrupletGenerator"),
+        GeneratorPSet = _PixelQuadrupletGenerator.clone(
+            extraHitRZtolerance = initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRZtolerance,
+            extraHitRPhitolerance = initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRPhitolerance,
+            SeedComparitorPSet = initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet,
+            maxChi2 = dict(
+                pt1    = 0.8, pt2    = 2,
+                value1 = 200, value2 = 100,
+                enabled = True,
+            ),
+            extraPhiTolerance = dict(
+                pt1    = 0.6, pt2    = 1,
+                value1 = 0.15, value2 = 0.1,
+                enabled = True,
+            ),
+            useBendingCorrection = True,
+            fitFastCircle = True,
+            fitFastCircleChi2Cut = True,
+        ),
+        TripletGeneratorPSet = initialStepSeedsPreSplitting.OrderedHitsFactoryPSet.GeneratorPSet,
+        SeedingLayers = cms.InputTag('initialStepSeedLayersPreSplitting'),
+    )
+)
+
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -150,7 +173,7 @@ InitialStepPreSplitting = cms.Sequence(initialStepSeedLayersPreSplitting*
                                        MeasurementTrackerEvent*
                                        siPixelClusterShapeCache)
 
-# Although InitialStepPreSplitting is not really part of Phase1PU70
+# Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase1PU70
 # tracking, we use it to get siPixelClusters and siPixelRecHits
 # collections for non-splitted pixel clusters. All modules before
 # iterTracking sequence use siPixelClustersPreSplitting and
@@ -159,16 +182,19 @@ InitialStepPreSplitting = cms.Sequence(initialStepSeedLayersPreSplitting*
 # If siPixelClusters would be defined in
 # RecoLocalTracker.Configuration.RecoLocalTracker_cff, we would have a
 # situation where
-# - Phase1PU70 has siPixelClusters defined in RecoLocalTracker_cff
+# - LowPU/Phase1PU70 has siPixelClusters defined in RecoLocalTracker_cff
 # - everything else has siPixelClusters defined here
 # and this leads to a mess. The way it is done here we have only
 # one place (within Reconstruction_cff) where siPixelClusters
 # module is defined.
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+eras.trackingLowPU.toReplaceWith(siPixelClusters, _siPixelClusters)
 eras.trackingPhase1PU70.toReplaceWith(siPixelClusters, _siPixelClusters)
-eras.trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, cms.Sequence(
+_InitialStepPreSplitting_LowPU_Phase1PU70 = cms.Sequence(
     siPixelClusters +
     siPixelRecHits +
     MeasurementTrackerEvent +
     siPixelClusterShapeCache
-))
+)
+eras.trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+eras.trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)

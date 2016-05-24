@@ -1,8 +1,8 @@
 #include "DetectorDescription/Core/src/Division.h"
 
-#include "DetectorDescription/Core/interface/DDSolid.h"
+#include <string>
 
-#include <algorithm>
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
 using DDI::Division;
 

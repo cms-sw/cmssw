@@ -99,8 +99,8 @@ ConeIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
    iEvent.getByToken(jetTrackToken,jetTracksAssociation);
 
-   std::auto_ptr<reco::JetTagCollection>             tagCollection;
-   std::auto_ptr<reco::IsolatedTauTagInfoCollection> extCollection( new reco::IsolatedTauTagInfoCollection() );
+   std::unique_ptr<reco::JetTagCollection>             tagCollection;
+   std::unique_ptr<reco::IsolatedTauTagInfoCollection> extCollection( new reco::IsolatedTauTagInfoCollection() );
    if (not jetTracksAssociation->empty()) {
      RefToBaseProd<reco::Jet> prod( edm::makeRefToBaseProdFrom(jetTracksAssociation->begin()->first, iEvent) );
      tagCollection.reset( new reco::JetTagCollection(prod) );
@@ -147,8 +147,8 @@ ConeIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        extCollection->push_back(myPair.second);
      }
 
-   iEvent.put(extCollection);
-   iEvent.put(tagCollection);
+   iEvent.put(std::move(extCollection));
+   iEvent.put(std::move(tagCollection));
 
 }
 
