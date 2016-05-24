@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-* This is a part of TotemDQM and TOTEM offline software.
+* This is a part of TOTEM offline software.
 * Authors:
 *   Rafał Leszko (rafal.leszko@gmail.com)
 *
@@ -14,7 +14,6 @@
 #include <set>
 
 /**
- * \ingroup TotemDQM
  * \brief auxiliary class which deliver the methods to select the correlation plots
  */
 class CorrelationPlotsSelector
