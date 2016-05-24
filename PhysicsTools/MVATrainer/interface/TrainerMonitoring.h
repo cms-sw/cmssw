@@ -172,11 +172,11 @@ class TrainerMonitoring {
 		}
 
 	    private:
-		std::auto_ptr<T>	object;
+		std::unique_ptr<T>	object;
 	};
 
     private:
-	std::auto_ptr<TFile>					rootFile;
+	std::unique_ptr<TFile>					rootFile;
 	std::map<std::string, std::shared_ptr<Module> >	modules;
 };
 

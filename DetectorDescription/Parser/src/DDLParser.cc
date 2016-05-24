@@ -28,13 +28,10 @@
 #include "xercesc/util/XMLUni.hpp"
 
 class DDCompactView;
-namespace xercesc_2_8 {
-class SAX2XMLReader;
-}  // namespace xercesc_2_8
+
+XERCES_CPP_NAMESPACE_USE
 
 using namespace std;
-
-using namespace XERCES_CPP_NAMESPACE;
 
 /// Constructor MUST associate a DDCompactView storage.
 DDLParser::DDLParser( DDCompactView& cpv )
