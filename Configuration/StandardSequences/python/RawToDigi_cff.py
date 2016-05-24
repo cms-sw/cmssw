@@ -38,14 +38,7 @@ tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 from L1Trigger.Configuration.L1TRawToDigi_cff import *
 
-from CondFormats.TotemReadoutObjects.TotemDAQMappingESSourceXML_cfi import *
-TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/ctpps_210_mapping.xml")
-
-from EventFilter.TotemRawToDigi.totemTriggerRawToDigi_cfi import *
-totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
-
-from EventFilter.TotemRawToDigi.totemRPRawToDigi_cfi import *
-totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+from EventFilter.TotemRawToDigi.totemRawToDigi_cff import *
 
 RawToDigi = cms.Sequence(L1TRawToDigi
                          +siPixelDigis
@@ -83,6 +76,8 @@ muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
+totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # until we have hcal raw data for phase 2...
 eras.phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
