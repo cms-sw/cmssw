@@ -738,7 +738,7 @@ class LeptonAnalyzer( Analyzer ):
         if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
             self.matchLeptons(event)
             self.matchAnyLeptons(event)
-            if self.cfg_ana.do_mc_susy_match:
+            if getattr(self.cfg_ana,"do_mc_susy_match",False):
                 self.SUSYMatchLeptons(event)
             if self.doMatchToPhotons:
                 self.matchToPhotons(event)
