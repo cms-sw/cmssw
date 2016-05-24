@@ -68,7 +68,8 @@ streamA_datasetEmptyBX_selector.hltResults = cms.InputTag('TriggerResults', '', 
 streamA_datasetEmptyBX_selector.l1tResults = cms.InputTag('')
 streamA_datasetEmptyBX_selector.throw      = cms.bool(False)
 streamA_datasetEmptyBX_selector.triggerConditions = cms.vstring('HLT_L1BptxMinus_v1', 
-    'HLT_L1BptxPlus_v1')
+    'HLT_L1BptxPlus_v1', 
+    'HLT_L1NotBptxOR_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetFSQJets_selector
 streamA_datasetFSQJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
