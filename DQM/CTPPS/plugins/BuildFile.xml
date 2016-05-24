@@ -1,10 +1,9 @@
-<library file="*.cc" name="DQMTotemPlugins">
+<library file="*.cc" name="DQMCTPPSPlugins">
 	<flags EDM_PLUGIN="1"/>
 
 	<use name="FWCore/Framework"/>
 	<use name="FWCore/ParameterSet"/>
 	<use name="FWCore/Utilities"/>
-	<use name="FWCore/"/>
 
 	<use name="DQMServices/Core"/>
 
@@ -17,5 +16,5 @@
 	<use name="Geometry/VeryForwardGeometryBuilder"/>
 	<use name="Geometry/VeryForwardRPTopology"/>
 
-	<use name="DQM/Totem"/>
+	<use name="DQM/CTPPS"/>
 </library>

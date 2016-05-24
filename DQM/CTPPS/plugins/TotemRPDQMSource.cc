@@ -32,7 +32,7 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 
-#include "DQM/Totem/interface/CorrelationPlotsSelector.h"
+#include "DQM/CTPPS/interface/CorrelationPlotsSelector.h"
 
 #include <string>
 
@@ -53,6 +53,8 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   private:
+    unsigned int verbosity;
+
     edm::EDGetTokenT< edm::DetSetVector<TotemVFATStatus> > tokenStatus;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPDigi> > tokenDigi;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPCluster> > tokenCluster;
@@ -64,6 +66,17 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     bool buildCorrelationPlots;                           ///< decides wheather the correlation plots are created
     unsigned int correlationPlotsLimit;                   ///< maximum number of created correlation plots
     CorrelationPlotsSelector correlationPlotsSelector;
+
+    /// plots related to the whole system
+    struct GlobalPlots
+    {
+      MonitorElement *events_per_bx = NULL;
+      MonitorElement *h_trackCorr_hor = NULL;
+
+      void Init(DQMStore::IBooker &ibooker);
+    };
+
+    GlobalPlots globalPlots;
 
     /// plots related to one (anti)diagonal
     struct DiagonalPlots
@@ -114,9 +127,10 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     /// plots related to one RP
     struct PotPlots
     {
-      MonitorElement *vfat_missing=NULL, *vfat_ec_bc_error=NULL, *vfat_corruption=NULL;
+      MonitorElement *vfat_problem=NULL, *vfat_missing=NULL, *vfat_ec_bc_error=NULL, *vfat_corruption=NULL;
 
       MonitorElement *activity=NULL, *activity_u=NULL, *activity_v=NULL;
+      MonitorElement *activity_per_bx=NULL;
       MonitorElement *hit_plane_hist=NULL;
       MonitorElement *patterns_u=NULL, *patterns_v=NULL;
       MonitorElement *h_planes_fit_u=NULL, *h_planes_fit_v=NULL;
@@ -153,6 +167,21 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
+void TotemRPDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
+{
+  events_per_bx = ibooker.book1D("events per BX", "rp;Event.BX", 4002, -1.5, 4000. + 0.5);
+
+  h_trackCorr_hor = ibooker.book2D("track correlation RP-210-hor", "rp, 210, hor", 4, -0.5, 3.5, 4, -0.5, 3.5);
+  TH2F *hist = h_trackCorr_hor->getTH2F();
+  TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
+  xa->SetBinLabel(1, "45, 210, near"); ya->SetBinLabel(1, "45, 210, near");
+  xa->SetBinLabel(2, "45, 210, far"); ya->SetBinLabel(2, "45, 210, far");
+  xa->SetBinLabel(3, "56, 210, near"); ya->SetBinLabel(3, "56, 210, near");
+  xa->SetBinLabel(4, "56, 210, far"); ya->SetBinLabel(4, "56, 210, far");
+}
+
+//----------------------------------------------------------------------------------------------------
+
 TotemRPDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, int _id) : id(_id)
 {
   bool top45 = id & 2;
@@ -166,7 +195,7 @@ TotemRPDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, int _
     (top56) ? "top" : "bot"
   );
 
-  ibooker.setCurrentFolder(string("Totem/RP/") + name);
+  ibooker.setCurrentFolder(string("CTPPS/TrackingStrip/") + name);
 
   h_lrc_x_d = ibooker.book2D("dx left vs right", string(name) + " : dx left vs. right, histogram;#Delta x_{45};#Delta x_{56}", 50, 0., 0., 50, 0., 0.);
   h_lrc_x_n = ibooker.book2D("xn left vs right", string(name) + " : xn left vs. right, histogram;x^{N}_{45};x^{N}_{56}", 50, 0., 0., 50, 0., 0.);
@@ -181,13 +210,17 @@ TotemRPDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, int _
 
 TotemRPDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : id(_id)
 {
-  ibooker.setCurrentFolder(string("Totem/") + TotemRPDetId::armName(id, TotemRPDetId::nPath));
+  string path = TotemRPDetId::armName(id, TotemRPDetId::nPath);
+  path.replace(0, 2, "TrackingStrip");
+  ibooker.setCurrentFolder(string("CTPPS/") + path);
 
-  h_numRPWithTrack_top = ibooker.book1D("number of top RPs with tracks", "number of top RPs with tracks;number of top RPs with tracks", 5, -0.5, 4.5);
-  h_numRPWithTrack_hor = ibooker.book1D("number of hor RPs with tracks", "number of hor RPs with tracks;number of hor RPs with tracks", 5, -0.5, 4.5);
-  h_numRPWithTrack_bot = ibooker.book1D("number of bot RPs with tracks", "number of bot RPs with tracks;number of bot RPs with tracks", 5, -0.5, 4.5);
+  string title = TotemRPDetId::armName(id, TotemRPDetId::nFull);
 
-  h_trackCorr = ibooker.book2D("track RP correlation", "track RP correlation", 13, -0.5, 12.5, 13, -0.5, 12.5);
+  h_numRPWithTrack_top = ibooker.book1D("number of top RPs with tracks", title+";number of top RPs with tracks", 5, -0.5, 4.5);
+  h_numRPWithTrack_hor = ibooker.book1D("number of hor RPs with tracks", title+";number of hor RPs with tracks", 5, -0.5, 4.5);
+  h_numRPWithTrack_bot = ibooker.book1D("number of bot RPs with tracks", title+";number of bot RPs with tracks", 5, -0.5, 4.5);
+
+  h_trackCorr = ibooker.book2D("track RP correlation", title, 13, -0.5, 12.5, 13, -0.5, 12.5);
   TH2F *h_trackCorr_h = h_trackCorr->getTH2F();
   TAxis *xa = h_trackCorr_h->GetXaxis(), *ya = h_trackCorr_h->GetYaxis();
   xa->SetBinLabel(1, "210, near, top"); ya->SetBinLabel(1, "210, near, top");
@@ -203,7 +236,21 @@ TotemRPDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : id(_
   xa->SetBinLabel(12, "top"); ya->SetBinLabel(12, "top");
   xa->SetBinLabel(13, "bot"); ya->SetBinLabel(13, "bot");
 
-  h_trackCorr_overlap = ibooker.book2D("track RP correlation hor-vert overlaps", "track RP correlation hor-vert overlaps", 13, -0.5, 12.5, 13, -0.5, 12.5);
+  h_trackCorr_overlap = ibooker.book2D("track RP correlation hor-vert overlaps", title, 13, -0.5, 12.5, 13, -0.5, 12.5);
+  h_trackCorr_h = h_trackCorr_overlap->getTH2F();
+  xa = h_trackCorr_h->GetXaxis(); ya = h_trackCorr_h->GetYaxis();
+  xa->SetBinLabel(1, "210, near, top"); ya->SetBinLabel(1, "210, near, top");
+  xa->SetBinLabel(2, "bot"); ya->SetBinLabel(2, "bot");
+  xa->SetBinLabel(3, "hor"); ya->SetBinLabel(3, "hor");
+  xa->SetBinLabel(4, "far, hor"); ya->SetBinLabel(4, "far, hor");
+  xa->SetBinLabel(5, "top"); ya->SetBinLabel(5, "top");
+  xa->SetBinLabel(6, "bot"); ya->SetBinLabel(6, "bot");
+  xa->SetBinLabel(8, "220, near, top"); ya->SetBinLabel(8, "220, near, top");
+  xa->SetBinLabel(9, "bot"); ya->SetBinLabel(9, "bot");
+  xa->SetBinLabel(10, "hor"); ya->SetBinLabel(10, "hor");
+  xa->SetBinLabel(11, "far, hor"); ya->SetBinLabel(11, "far, hor");
+  xa->SetBinLabel(12, "top"); ya->SetBinLabel(12, "top");
+  xa->SetBinLabel(13, "bot"); ya->SetBinLabel(13, "bot");
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -212,7 +259,9 @@ TotemRPDQMSource::StationPlots::StationPlots(DQMStore::IBooker &ibooker, int _id
   bool allocateCorrelationPlots, CorrelationPlotsSelector *correlationPlotsSelector, int limit) : 
     id(_id)
 {
-  ibooker.setCurrentFolder(string("Totem/") + TotemRPDetId::stationName(id, TotemRPDetId::nPath));
+  string path = TotemRPDetId::stationName(id, TotemRPDetId::nPath);
+  path.replace(0, 2, "TrackingStrip");
+  ibooker.setCurrentFolder(string("CTPPS/") + path);
 
   if (allocateCorrelationPlots)
     Add(ibooker, planes, correlationPlotsSelector, limit);
@@ -303,25 +352,32 @@ void TotemRPDQMSource::StationPlots::Add(DQMStore::IBooker &ibooker, std::set<un
 
 TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id)
 {
-  ibooker.setCurrentFolder(string("Totem/") + TotemRPDetId::rpName(id, TotemRPDetId::nPath));
+  string path = TotemRPDetId::rpName(id, TotemRPDetId::nPath);
+  path.replace(0, 2, "TrackingStrip");
+  ibooker.setCurrentFolder(string("CTPPS/") + path);
 
-  vfat_missing = ibooker.book2D("vfats missing", ";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
-  vfat_ec_bc_error = ibooker.book2D("vfats with EC or BC error", ";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
-  vfat_corruption = ibooker.book2D("vfats with data corruption", ";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
+  string title = TotemRPDetId::rpName(id, TotemRPDetId::nFull);
 
-  activity = ibooker.book1D("active planes", "active planes;number of active planes", 11, -0.5, 10.5);
-  activity_u = ibooker.book1D("active planes U", "active planes U;number of active U planes", 11, -0.5, 10.5);
-  activity_v = ibooker.book1D("active planes V", "active planes V;number of active V planes", 11, -0.5, 10.5);
+  vfat_problem = ibooker.book2D("vfats with any problem", title+";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
+  vfat_missing = ibooker.book2D("vfats missing", title+";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
+  vfat_ec_bc_error = ibooker.book2D("vfats with EC or BC error", title+";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
+  vfat_corruption = ibooker.book2D("vfats with data corruption", title+";plane;vfat index", 10, -0.5, 9.5, 4, -0.5, 3.5);
 
-  hit_plane_hist = ibooker.book2D("activity in planes (2D)", "activity in planes;plane number;strip number", 10, -0.5, 9.5, 32, -0.5, 511.5);
+  activity = ibooker.book1D("active planes", title+";number of active planes", 11, -0.5, 10.5);
+  activity_u = ibooker.book1D("active planes U", title+";number of active U planes", 11, -0.5, 10.5);
+  activity_v = ibooker.book1D("active planes V", title+";number of active V planes", 11, -0.5, 10.5);
 
-  patterns_u = ibooker.book1D("recognized patterns U", "recognized patterns U;number of recognized U patterns", 11, -0.5, 10.5); 
-  patterns_v = ibooker.book1D("recognized patterns V", "recognized patterns V;number of recognized V patterns", 11, -0.5, 10.5); 
+  activity_per_bx = ibooker.book1D("activity per BX", title+";Event.BX", 4002, -1.5, 4000. + 0.5);
 
-  h_planes_fit_u = ibooker.book1D("planes contributing to fit U", "planes contributing to fit U;number of planes contributing to U fit", 6, -0.5, 5.5);
-  h_planes_fit_v = ibooker.book1D("planes contributing to fit V", "planes contributing to fit V;number of planes contributing to V fit", 6, -0.5, 5.5);
+  hit_plane_hist = ibooker.book2D("activity in planes (2D)", title+";plane number;strip number", 10, -0.5, 9.5, 32, -0.5, 511.5);
 
-  event_category = ibooker.book1D("event category", "event category", 5, -0.5, 4.5);
+  patterns_u = ibooker.book1D("recognized patterns U", title+";number of recognized U patterns", 11, -0.5, 10.5); 
+  patterns_v = ibooker.book1D("recognized patterns V", title+";number of recognized V patterns", 11, -0.5, 10.5); 
+
+  h_planes_fit_u = ibooker.book1D("planes contributing to fit U", title+";number of planes contributing to U fit", 6, -0.5, 5.5);
+  h_planes_fit_v = ibooker.book1D("planes contributing to fit V", title+";number of planes contributing to V fit", 6, -0.5, 5.5);
+
+  event_category = ibooker.book1D("event category", title+";event category", 5, -0.5, 4.5);
   TH1F *event_category_h = event_category->getTH1F();
   event_category_h->GetXaxis()->SetBinLabel(1, "empty");
   event_category_h->GetXaxis()->SetBinLabel(2, "insufficient");
@@ -329,10 +385,10 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
   event_category_h->GetXaxis()->SetBinLabel(4, "multi-track");
   event_category_h->GetXaxis()->SetBinLabel(5, "shower");
 
-  trackHitsCumulativeHist = ibooker.book2D("track XY profile", "track XY profile;x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
+  trackHitsCumulativeHist = ibooker.book2D("track XY profile", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
 
-  track_u_profile = ibooker.book1D("track profile U", "track profile U; U   (mm)", 512, -256*66E-3, +256*66E-3);
-  track_v_profile = ibooker.book1D("track profile V", "track profile V; V   (mm)", 512, -256*66E-3, +256*66E-3);
+  track_u_profile = ibooker.book1D("track profile U", title+"; U   (mm)", 512, -256*66E-3, +256*66E-3);
+  track_v_profile = ibooker.book1D("track profile V", title+"; V   (mm)", 512, -256*66E-3, +256*66E-3);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -340,18 +396,23 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
 
 TotemRPDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned int id)
 {
-  ibooker.setCurrentFolder(string("Totem/") + TotemRPDetId::planeName(id, TotemRPDetId::nPath));
+  string path = TotemRPDetId::planeName(id, TotemRPDetId::nPath);
+  path.replace(0, 2, "TrackingStrip");
+  ibooker.setCurrentFolder(string("CTPPS/") + path);
 
-  digi_profile_cumulative = ibooker.book1D("digi profile", "digi profile;strip number", 512, -0.5, 511.5);
-  cluster_profile_cumulative = ibooker.book1D("cluster profile", "cluster profile;cluster center", 1024, -0.25, 511.75);
-  hit_multiplicity = ibooker.book1D("hit multiplicity", "hit multiplicity;hits/detector/event", 6, -0.5, 5.5);
-  cluster_size = ibooker.book1D("cluster size", "cluster size;hits per cluster", 5, 0.5, 5.5);
+  string title = TotemRPDetId::planeName(id, TotemRPDetId::nFull);
+
+  digi_profile_cumulative = ibooker.book1D("digi profile", title+";strip number", 512, -0.5, 511.5);
+  cluster_profile_cumulative = ibooker.book1D("cluster profile", title+";cluster center", 1024, -0.25, 511.75);
+  hit_multiplicity = ibooker.book1D("hit multiplicity", title+";hits/detector/event", 6, -0.5, 5.5);
+  cluster_size = ibooker.book1D("cluster size", title+";hits per cluster", 5, 0.5, 5.5);
 }
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-TotemRPDQMSource::TotemRPDQMSource(const edm::ParameterSet& ps) : 
+TotemRPDQMSource::TotemRPDQMSource(const edm::ParameterSet& ps) :
+  verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
   buildCorrelationPlots(ps.getUntrackedParameter<bool>("buildCorrelationPlots", false)),
   correlationPlotsLimit(ps.getUntrackedParameter<unsigned int>("correlationPlotsLimit", 50)),
   correlationPlotsSelector(ps.getUntrackedParameter<std::string>("correlationPlotsFilter", ""))
@@ -383,8 +444,13 @@ void TotemRPDQMSource::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder("TotemRP");
+  ibooker.setCurrentFolder("CTPPS");
 
+  // global plots
+  globalPlots.Init(ibooker);
+
+  // temporarily disabled
+  /*
   // initialize diagonals
   diagonalPlots[1] = DiagonalPlots(ibooker, 1);  // 45 bot - 56 top
   diagonalPlots[2] = DiagonalPlots(ibooker, 2);  // 45 top - 45 bot
@@ -392,6 +458,7 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   // initialize anti-diagonals
   diagonalPlots[0] = DiagonalPlots(ibooker, 0);  // 45 bot - 56 bot
   diagonalPlots[3] = DiagonalPlots(ibooker, 3);  // 45 top - 56 top
+  */
 
   // loop over arms
   for (unsigned int arm = 0; arm < 2; arm++)
@@ -478,16 +545,61 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
   if (!valid)
   {
-    printf("ERROR in TotemDQMModuleRP::analyze > some of the required inputs are not valid. Skipping this event.\n");
-    printf("\tstatus.isValid = %i\n", status.isValid());
-    printf("\tdigi.isValid = %i\n", digi.isValid());
-    printf("\tdigCluster.isValid = %i\n", digCluster.isValid());
-    printf("\thits.isValid = %i\n", hits.isValid());
-    printf("\tpatterns.isValid = %i\n", patterns.isValid());
-    printf("\ttracks.isValid = %i\n", tracks.isValid());
-    //printf("\tmultiTracks.isValid = %i\n", multiTracks.isValid());
+    if (verbosity)
+    {
+      LogProblem("TotemRPDQMSource") <<
+        "ERROR in TotemDQMModuleRP::analyze > some of the required inputs are not valid. Skipping this event.\n"
+        << "    status.isValid = " << status.isValid() << "\n"
+        << "    digi.isValid = " << digi.isValid() << "\n"
+        << "    digCluster.isValid = " << digCluster.isValid() << "\n"
+        << "    hits.isValid = " << hits.isValid() << "\n"
+        << "    patterns.isValid = " << patterns.isValid() << "\n"
+        << "    tracks.isValid = " << tracks.isValid();
+      //<< "    multiTracks.isValid = %i\n", multiTracks.isValid()
+    }
 
     return;
+  }
+
+  //------------------------------
+  // Global Plots
+
+  globalPlots.events_per_bx->Fill(event.bunchCrossing());
+
+  for (auto &ds1 : *tracks)
+  {
+    for (auto &tr1 : ds1)
+    {
+      if (! tr1.isValid())
+        continue;
+  
+      unsigned int rpId1 = ds1.detId();
+      unsigned int arm1 = rpId1 / 100;
+      unsigned int stNum1 = (rpId1 / 10) % 10;
+      unsigned int rpNum1 = rpId1 % 10;
+      if (stNum1 != 0 || (rpNum1 != 2 && rpNum1 != 3))
+        continue;
+      unsigned int idx1 = arm1*2 + rpNum1-2;
+
+      for (auto &ds2 : *tracks)
+      {
+        for (auto &tr2 : ds2)
+        {
+          if (! tr2.isValid())
+            continue;
+        
+          unsigned int rpId2 = ds2.detId();
+          unsigned int arm2 = rpId2 / 100;
+          unsigned int stNum2 = (rpId2 / 10) % 10;
+          unsigned int rpNum2 = rpId2 % 10;
+          if (stNum2 != 0 || (rpNum2 != 2 && rpNum2 != 3))
+            continue;
+          unsigned int idx2 = arm2*2 + rpNum2-2;
+  
+          globalPlots.h_trackCorr_hor->Fill(idx1, idx2); 
+        }
+      }
+    }
   }
 
   //------------------------------
@@ -504,13 +616,22 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
     for (auto &s : ds)
     {
       if (s.isMissing())
+      {
+        plots.vfat_problem->Fill(plNum, s.getChipPosition());
         plots.vfat_missing->Fill(plNum, s.getChipPosition());
+      }
 
       if (s.isECProgressError() || s.isBCProgressError())
+      {
+        plots.vfat_problem->Fill(plNum, s.getChipPosition());
         plots.vfat_ec_bc_error->Fill(plNum, s.getChipPosition());
+      }
 
       if (s.isIDMismatch() || s.isFootprintError() || s.isCRCError())
+      {
+        plots.vfat_problem->Fill(plNum, s.getChipPosition());
         plots.vfat_corruption->Fill(plNum, s.getChipPosition());
+      }
     }
   }
   
@@ -576,6 +697,9 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
     it->second.activity->Fill(planes[it->first].size());
     it->second.activity_u->Fill(planes_u[it->first].size());
     it->second.activity_v->Fill(planes_v[it->first].size());
+
+    if (planes[it->first].size() >= 6)
+      it->second.activity_per_bx->Fill(event.bunchCrossing());
   }
   
   for (DetSetVector<TotemRPCluster>::const_iterator it = digCluster->begin(); it != digCluster->end(); it++)
@@ -588,7 +712,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       pp.hit_plane_hist->Fill(planeNum, dit->getCenterStripPosition());   
   }
 
-  // recognized pattern histograms and event-category histogram
+  // recognized pattern histograms
   for (auto &ds : *patterns)
   {
     unsigned int rpId = ds.detId();
@@ -610,15 +734,53 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
     pp.patterns_u->Fill(u);
     pp.patterns_v->Fill(v);
-  
-    // determine category
-    unsigned int category = 100;
+  }
 
-    if (u == 0 && v == 0) category = 0;                   // empty
-    if (u > 0 && v > 0 && u <= 3 && v <= 3) category = 3; // multi-track
-    if (u+v == 1) category = 1;                           // insuff
-    if (u == 1 && v == 1) category = 2;                   // 1-track
-    if (u > 3 || v > 3) category = 4;                     // shower
+  // event-category histogram
+  for (auto &it : potPlots)
+  {
+    const unsigned int &id = it.first;
+    auto &pp = it.second;
+
+    // process hit data for this plot
+    unsigned int pl_u = planes_u[id].size();
+    unsigned int pl_v = planes_v[id].size();
+
+    // process pattern data for this pot
+    const auto &rp_pat_it = patterns->find(id);
+
+    unsigned int pat_u = 0, pat_v = 0;
+    if (rp_pat_it != patterns->end())
+    {
+      for (auto &p : *rp_pat_it)
+      {
+        if (! p.getFittable())
+          continue;
+  
+        if (p.getProjection() == TotemRPUVPattern::projU)
+          pat_u++;
+  
+        if (p.getProjection() == TotemRPUVPattern::projV)
+          pat_v++;
+      }
+    }
+
+    // determine category
+    signed int category = -1;
+
+    if (pl_u == 0 && pl_v == 0) category = 0;   // empty
+    
+    if (category == -1 && pat_u + pat_v <= 1)
+    {
+      if (pl_u + pl_v < 6)
+        category = 1;                           // insuff
+      else
+        category = 4;                           // shower
+    }
+
+    if (pat_u == 1 && pat_v == 1) category = 2; // 1-track
+
+    if (category == -1) category = 3;           // multi-track
 
     pp.event_category->Fill(category);
   }

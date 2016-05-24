@@ -1,12 +1,12 @@
 /****************************************************************************
 *
-* This is a part of TotemDQM and TOTEM offline software.
+* This is a part of TOTEM offline software.
 * Authors:
 *   Rafał Leszko (rafal.leszko@gmail.com)
 *
 ****************************************************************************/
 
-#include "DQM/Totem/interface/CorrelationPlotsSelector.h"
+#include "DQM/CTPPS/interface/CorrelationPlotsSelector.h"
 
 #include <QString>
 #include <QStringList>
