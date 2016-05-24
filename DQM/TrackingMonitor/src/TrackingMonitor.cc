@@ -29,6 +29,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
@@ -129,6 +130,11 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     }
   }
   
+  // Create DCS Status
+  if (conf_.getParameter<bool>("UseDCSFiltering")) 
+    dcsStatus_ = new SiStripDCSStatus(consumesCollector());
+  else dcsStatus_ = 0;
+
 }
 
 
@@ -490,6 +496,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
     // Filter out events if Trigger Filtering is requested
     if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+
+    // Filter out events if DCS Event if requested
+    if (dcsStatus_ && !dcsStatus_->getStatus(iEvent,iSetup)) return;
 
     //  Analyse the tracks
     //  if the collection is empty, do not fill anything
