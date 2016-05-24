@@ -286,11 +286,10 @@ workflows[1354] = ['', ['WpToENu_M-2000_13','DIGIUP15','RECOUP15','HARVESTUP15']
 workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 # fullSim 13TeV normal workflows starting from gridpacks LHE generation
-workflows[1360] = ['', ['TTbar012Jets_NLO_Mad_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1361] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1362] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_VBFHZZ4Nu_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1363] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_VBFHBB_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-
+workflows[1360] = ['', ['TTbar012Jets_NLO_Mad_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1361] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1362] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1363] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 ### HI test ###
 
