@@ -138,6 +138,7 @@ _relevantEras = [
     _eraPostfix("trackingLowPU"),
     _eraPostfix("trackingPhase1"),
     _eraPostfix("trackingPhase1PU70"),
+    _eraPostfix("trackingPhase2PU140"),
 ]
 _relevantErasAndFastSim = _relevantEras + [_eraPostfix("fastSim")]
 def _translateArgs(args, postfix, modDict):
