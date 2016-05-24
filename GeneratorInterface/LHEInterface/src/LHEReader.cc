@@ -127,8 +127,8 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	                const XMLCh *const localname,
 	                const XMLCh *const qname) override;
 
-	void characters(const XMLCh *const data, const unsigned int length) override;
-	void comment(const XMLCh *const data, const unsigned int length) override;
+        virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
+        virtual void comment (const XMLCh *const chars, const XMLSize_t length) override; 	
 
     private:
 	friend class LHEReader;
@@ -298,14 +298,14 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       xmlNodes.resize(xmlNodes.size() - 1);
       return;
     } else if (mode == kHeader) {
-      std::auto_ptr<DOMWriter> writer(
-				      static_cast<DOMImplementationLS*>(
-                                                impl)->createDOMWriter());
-      writer->setEncoding(XMLUniStr("UTF-8"));
-      
+      std::auto_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)(impl))->createLSSerializer());
+      std::auto_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+      assert(outputDesc.get());
+      outputDesc->setEncoding(XMLUniStr("UTF-8"));
+
       for(DOMNode *node = xmlNodes[0]->getFirstChild();
 	  node; node = node->getNextSibling()) {
-	XMLSimpleStr buffer(writer->writeToString(*node));
+	XMLSimpleStr buffer(writer->writeToString(node));
 
 	std::string type;
 	const char *p, *q;
@@ -399,7 +399,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 }
 
 void LHEReader::XMLHandler::characters(const XMLCh *const data_,
-                                       const unsigned int length)
+                                       const XMLSize_t length)
 {
 	if (mode == kHeader) {
 		DOMText *text = xmlHeader->createTextNode(data_);
@@ -432,7 +432,7 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 }
 
 void LHEReader::XMLHandler::comment(const XMLCh *const data_,
-                                    const unsigned int length)
+                                    const XMLSize_t length)
 {
 	if (mode == kHeader) {
 		DOMComment *comment = xmlHeader->createComment(data_);

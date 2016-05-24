@@ -137,10 +137,12 @@ class CBInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 	CBInputStream(Reader &in);
 	virtual ~CBInputStream();
 
-	virtual unsigned int curPos() const { return pos; }
+	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual unsigned int readBytes(XMLByte *const buf,
-	                               const unsigned int size);
+	virtual XMLSize_t readBytes(XMLByte *const buf,
+				    const XMLSize_t size) override;
+
+        virtual const XMLCh* getContentType() const override { return 0; }
 
     private:
 	Reader		&reader;
@@ -155,10 +157,12 @@ class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 	STLInputStream(std::istream &in);
 	virtual ~STLInputStream();
 
-	virtual unsigned int curPos() const { return pos; }
+	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual unsigned int readBytes(XMLByte *const buf,
-	                               const unsigned int size);
+	virtual XMLSize_t readBytes(XMLByte *const buf,
+				    const XMLSize_t size) override;
+
+        virtual const XMLCh* getContentType() const override { return 0; }
 
     private:
 	std::istream	&in;
@@ -173,10 +177,12 @@ class StorageInputStream :
 	StorageInputStream(StorageWrap &in);
 	virtual ~StorageInputStream();
 
-	virtual unsigned int curPos() const { return pos; }
+	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual unsigned int readBytes(XMLByte *const buf,
-	                               const unsigned int size);
+	virtual XMLSize_t readBytes(XMLByte *const buf,
+				    const XMLSize_t size) override;
+
+        virtual const XMLCh* getContentType() const override { return 0; }
 
     private:
 	StorageWrap	&in;

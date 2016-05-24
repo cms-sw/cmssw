@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "xercesc/sax/SAXParseException.hpp"
-#include "xercesc/util/Compilers/GCCDefs.hpp"
 #include "xercesc/util/XercesVersion.hpp"
 
 
@@ -85,20 +84,20 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   // -----------------------------------------------------------------------
 
   virtual void startElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname, const Attributes& attrs);
+		    , const XMLCh* const qname, const Attributes& attrs) override;
   virtual void endElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname);
-  virtual void characters(const XMLCh* const chars, const unsigned int length);
-  virtual void comment (const XMLCh *const chars, const unsigned int length );
-  virtual void ignorableWhitespace(const XMLCh* const chars, const unsigned int length);
-  virtual void resetDocument();
+		    , const XMLCh* const qname) override;
+  virtual void characters(const XMLCh* const chars, const XMLSize_t length) override;
+  virtual void comment (const XMLCh *const chars, const XMLSize_t length ) override;
+  virtual void ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length) override;
+  virtual void resetDocument() override;
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ErrorHandler interface
   // -----------------------------------------------------------------------
-  virtual void warning(const SAXParseException& exception);
-  virtual void error(const SAXParseException& exception);
-  virtual void fatalError(const SAXParseException& exception);
+  virtual void warning(const SAXParseException& exception) override;
+  virtual void error(const SAXParseException& exception) override;
+  virtual void fatalError(const SAXParseException& exception) override;
   virtual void dumpStats(const std::string& fname);
 
  protected:
@@ -117,10 +116,10 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   //      This is set by the error handlers, and is queryable later to
   //      see if any errors occurred.
   // -----------------------------------------------------------------------
-  unsigned int    attrCount_;
-  unsigned int    characterCount_;
-  unsigned int    elementCount_;
-  unsigned int    spaceCount_;
+  XMLSize_t       attrCount_;
+  XMLSize_t       characterCount_;
+  XMLSize_t       elementCount_;
+  XMLSize_t       spaceCount_;
   bool            sawErrors_;
   bool            userNS_;
   std::string     nmspace_;
