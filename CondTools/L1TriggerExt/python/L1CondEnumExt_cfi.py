@@ -9,5 +9,6 @@ class L1CondEnumExt:
     L1TMuonEndcapParams=5
     L1TMuonGlobalParams=6
     L1TCaloParams=7
-    NumL1Cond=8
+    L1TGlobalPrescalesVetos=8
+    NumL1Cond=9
     

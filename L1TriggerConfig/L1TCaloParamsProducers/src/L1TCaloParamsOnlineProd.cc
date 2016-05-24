@@ -3,7 +3,7 @@
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 #include "L1Trigger/L1TCommon/interface/trigSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
@@ -53,7 +53,7 @@ L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfi
 boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
     using namespace edm::es;
 
-    const L1TCaloParamsRcd& baseRcd = record.template getRecord< L1TCaloParamsRcd >() ;
+    const L1TCaloStage2ParamsRcd& baseRcd = record.template getRecord< L1TCaloStage2ParamsRcd >() ;
     edm::ESHandle< l1t::CaloParams > baseSettings ;
     baseRcd.get( baseSettings ) ;
 
@@ -214,7 +214,7 @@ for(auto &conf : payloads[kCONF]){
 }
 
     l1t::XmlConfigReader xmlReader;
-    xmlReader.readDOMFromString( xmlPayload );
+    xmlReader.readDOMFromString( payloads[kCONF][calol1_algo_key] ); // let's leave it like that for now as we don't have Layer2 here yet
 
     l1t::trigSystem calol1;
     calol1.addProcRole("processors", "processors");
