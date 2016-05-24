@@ -45,7 +45,7 @@ namespace { // anonymous
 	    public:
 		typedef typename T::Stream_t Stream_t;
 
-		XMLInputSourceWrapper(std::auto_ptr<Stream_t> &obj) : obj(obj) {}
+		XMLInputSourceWrapper(std::unique_ptr<Stream_t>& obj) : obj(obj) {}
 		virtual ~XMLInputSourceWrapper() {}
 
 		virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
@@ -53,7 +53,7 @@ namespace { // anonymous
 		{ return new T(*obj); }
 
 	    private:
-		std::auto_ptr<Stream_t>	obj;
+		std::unique_ptr<Stream_t>&	obj;
 	};
 
 	class STLInputStream :
@@ -149,7 +149,7 @@ XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 	if (write)
 		openForWrite(fileName);
 	else {
-		std::auto_ptr<std::istream> inputStream(
+		std::unique_ptr<std::istream> inputStream(
 					new std::ifstream(fileName.c_str()));
 		if (!inputStream->good())
 			throw cms::Exception("XMLDocument")
@@ -172,7 +172,7 @@ XMLDocument::XMLDocument(const std::string &fileName,
 			   " command \"" << command << "\"."
 			<< std::endl;
 
-	std::auto_ptr<std::istream> inputStream(
+	std::unique_ptr<std::istream> inputStream(
 					new stdio_istream<pclose>(file));
 	if (!inputStream->good())
 		throw cms::Exception("XMLDocument")
@@ -188,22 +188,22 @@ XMLDocument::~XMLDocument()
 	if (!write)
 		return;
 
-	std::auto_ptr<DocReleaser> docReleaser(new DocReleaser(doc));
+	std::unique_ptr<DocReleaser> docReleaser(new DocReleaser(doc));
 
-	std::auto_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)impl)->createLSSerializer());
-	std::auto_ptr<DOMConfiguration> dc( writer->getDomConfig());
+	std::unique_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)impl)->createLSSerializer());
 	assert(writer.get());
-	assert(dc.get());
 
-	dc->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true);
-	dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+	if( writer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true))
+	  writer->getDomConfig()->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true);
+	if( writer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+	  writer->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
 
-	std::auto_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+	std::unique_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
  	assert(outputDesc.get());
 	outputDesc->setEncoding(XMLUniStr("UTF-8"));
 	
 	try {
-		std::auto_ptr<XMLFormatTarget> target(
+		std::unique_ptr<XMLFormatTarget> target(
 				new LocalFileFormatTarget(fileName.c_str()));
 		outputDesc->setByteStream(target.get());
 		writer->write( doc, outputDesc.get());
@@ -213,14 +213,13 @@ XMLDocument::~XMLDocument()
 	}
 }
 
-void XMLDocument::openForRead(std::auto_ptr<std::istream> &stream)
+void XMLDocument::openForRead(std::unique_ptr<std::istream> &stream)
 {
 	parser.reset(new XercesDOMParser());
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
 	parser->setDoSchema(false);
 	parser->setValidationSchemaFullChecking(false);
-
 	errHandler.reset(new HandlerBase());
 	parser->setErrorHandler(errHandler.get());
 	parser->setCreateEntityReferenceNodes(false);
