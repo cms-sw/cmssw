@@ -50,7 +50,7 @@ void L1GctInternJetProducer::produce( edm::Event& iEvent, const edm::EventSetup&
    using namespace l1extra ;
    using namespace std ;
 
-   auto_ptr< L1JetParticleCollection > internJetColl(new L1JetParticleCollection );
+   unique_ptr< L1JetParticleCollection > internJetColl(new L1JetParticleCollection );
 
    ESHandle< L1CaloGeometry > caloGeomESH ;
    iSetup.get< L1CaloGeometryRecord >().get( caloGeomESH ) ;
@@ -101,7 +101,7 @@ void L1GctInternJetProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 	}
      }
 
-   OrphanHandle< L1JetParticleCollection > internalJetHandle = iEvent.put( internJetColl, "Internal" ) ;
+   OrphanHandle< L1JetParticleCollection > internalJetHandle = iEvent.put(std::move(internJetColl), "Internal" ) ;
 }
 
 void L1GctInternJetProducer::beginJob(){}

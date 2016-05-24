@@ -60,8 +60,8 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
    //Use the ExampleData to create an ExampleData2 which 
    // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
+   std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+   iEvent.put(std::move(pOut));
 */
 
    edm::Handle<EcalTrigPrimDigiCollection> ecal;
@@ -239,9 +239,9 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
    // apply mask
 
-   std::auto_ptr<EcalTrigPrimDigiCollection>
+   std::unique_ptr<EcalTrigPrimDigiCollection>
      maskedEcalTPs(new EcalTrigPrimDigiCollection());
-   std::auto_ptr<HcalTrigPrimDigiCollection>
+   std::unique_ptr<HcalTrigPrimDigiCollection>
      maskedHcalTPs(new HcalTrigPrimDigiCollection());
    maskedEcalTPs->reserve(56*72);
    maskedHcalTPs->reserve(56*72+18*8);
@@ -372,8 +372,8 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
    // put new data into event
 
-   iEvent.put(maskedEcalTPs);
-   iEvent.put(maskedHcalTPs);
+   iEvent.put(std::move(maskedEcalTPs));
+   iEvent.put(std::move(maskedHcalTPs));
 
 }
 

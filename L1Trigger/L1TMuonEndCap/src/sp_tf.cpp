@@ -56,7 +56,7 @@ void sptf::produce(edm::Event& ev, const edm::EventSetup& es)
 
 	cout<<"Begin SPTF producer:::::::::::::::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
 	
-  auto_ptr<L1TMuon::InternalTrackCollection> trkCollect (new L1TMuon::InternalTrackCollection);
+  unique_ptr<L1TMuon::InternalTrackCollection> trkCollect (new L1TMuon::InternalTrackCollection);
 
 //  trkCollect->push_back(L1TMuon::InternalTrack());
 
@@ -852,7 +852,7 @@ cout << "Cleared the primitives.\n";
 
 cout << "cleared everything.\n";
 
-ev.put( trkCollect , "EmuITC" );
+ev.put(std::move(trkCollect), "EmuITC" );
   
   cout<<"End SPTF producer:::::::::::::::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
   

@@ -69,7 +69,7 @@ namespace l1t {
          int slinkHeaderSize_;
          int slinkTrailerSize_;
 
-         std::auto_ptr<PackingSetup> setup_;
+         std::unique_ptr<PackingSetup> setup_;
          std::unique_ptr<PackerTokens> tokens_;
    };
 }
@@ -168,7 +168,7 @@ namespace l1t {
          amc13.add(amc_no, board, evtId, orbit, bxId, load64);
       }
 
-      std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+      std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
       FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
       unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amc13.size() * 8;
@@ -187,7 +187,7 @@ namespace l1t {
       FEDTrailer trailer(payload);
       trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
 
-      event.put(raw_coll);
+      event.put(std::move(raw_coll));
    }
 
    // ------------ method called when starting to processes a run  ------------

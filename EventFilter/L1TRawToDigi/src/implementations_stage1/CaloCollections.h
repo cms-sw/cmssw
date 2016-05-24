@@ -50,16 +50,16 @@ namespace l1t {
             inline L1CaloRegionCollection* getCaloRegions() { return caloRegions_.get(); };
 
          private:
-            std::auto_ptr<CaloTowerBxCollection> towers_;
-            std::auto_ptr<EGammaBxCollection> egammas_;
-            std::auto_ptr<EtSumBxCollection> etsums_;
-            std::auto_ptr<JetBxCollection> jets_;
-            std::auto_ptr<TauBxCollection> taus_;
-            std::auto_ptr<TauBxCollection> isotaus_;
-            std::auto_ptr<CaloSpareBxCollection> calospareHFBitCounts_;
-            std::auto_ptr<CaloSpareBxCollection> calospareHFRingSums_;
-            std::auto_ptr<L1CaloEmCollection> caloEmCands_;
-            std::auto_ptr<L1CaloRegionCollection> caloRegions_;
+            std::unique_ptr<CaloTowerBxCollection> towers_;
+            std::unique_ptr<EGammaBxCollection> egammas_;
+            std::unique_ptr<EtSumBxCollection> etsums_;
+            std::unique_ptr<JetBxCollection> jets_;
+            std::unique_ptr<TauBxCollection> taus_;
+            std::unique_ptr<TauBxCollection> isotaus_;
+            std::unique_ptr<CaloSpareBxCollection> calospareHFBitCounts_;
+            std::unique_ptr<CaloSpareBxCollection> calospareHFRingSums_;
+            std::unique_ptr<L1CaloEmCollection> caloEmCands_;
+            std::unique_ptr<L1CaloRegionCollection> caloRegions_;
       };
    }
 }

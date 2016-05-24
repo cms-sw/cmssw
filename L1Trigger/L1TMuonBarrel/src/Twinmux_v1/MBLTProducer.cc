@@ -18,12 +18,12 @@
 using namespace L1TwinMux;
 
 
-inline std::auto_ptr<MBLTContainer> MBLTProducer( TriggerPrimitiveCollection* tps )
+inline std::unique_ptr<MBLTContainer> MBLTProducer( TriggerPrimitiveCollection* tps )
 {
 
   double _maxDeltaPhi = 0.05;
 
-  std::auto_ptr<MBLTContainer> out ( new MBLTContainer );
+  std::unique_ptr<MBLTContainer> out ( new MBLTContainer );
   MBLTContainer & tracksMap = *out;
 
   auto tp = tps->cbegin();

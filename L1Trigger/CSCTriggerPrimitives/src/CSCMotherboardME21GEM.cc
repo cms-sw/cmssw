@@ -288,7 +288,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     //select correct scenario, even or odd
     maxDeltaPadPad_ = (isEven ? maxDeltaPadPadEven_ : maxDeltaPadPadOdd_);
     // build coincidence pads
-    std::auto_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
+    std::unique_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads, csc_id);
     
     // retrieve pads and copads in a certain BX window for this CSC 

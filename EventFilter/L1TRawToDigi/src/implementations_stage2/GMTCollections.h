@@ -26,10 +26,10 @@ namespace l1t {
             inline MuonBxCollection* getMuons() { return muons_.get(); };
 
          private:
-            std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCandsBMTF_;
-            std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCandsOMTF_;
-            std::auto_ptr<RegionalMuonCandBxCollection> regionalMuonCandsEMTF_;
-            std::auto_ptr<MuonBxCollection> muons_;
+            std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsBMTF_;
+            std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsOMTF_;
+            std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCandsEMTF_;
+            std::unique_ptr<MuonBxCollection> muons_;
       };
    }
 }

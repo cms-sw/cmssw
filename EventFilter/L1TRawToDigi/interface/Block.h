@@ -78,7 +78,7 @@ namespace l1t {
          // header.  Called by getBlock(), which also checks that data_ !=
          // end_ before calling (assumes size of one 32 bit word).
          virtual BlockHeader getHeader() = 0;
-         virtual std::auto_ptr<Block> getBlock();
+         virtual std::unique_ptr<Block> getBlock();
       protected:
          const uint32_t * data_;
          const uint32_t * end_;
@@ -100,7 +100,7 @@ namespace l1t {
          // Unused methods - we override getBlock() instead
          virtual unsigned getHeaderSize() const override { return 0; };
          virtual BlockHeader getHeader() override { return BlockHeader(0); };
-         virtual std::auto_ptr<Block> getBlock() override;
+         virtual std::unique_ptr<Block> getBlock() override;
       private:
          // sizes in 16 bit words
          static const unsigned int header_size = 12;
