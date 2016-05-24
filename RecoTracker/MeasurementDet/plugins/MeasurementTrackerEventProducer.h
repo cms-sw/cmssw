@@ -39,6 +39,7 @@ protected:
       std::vector<edm::EDGetTokenT<DetIdCollection>>      theInactiveStripDetectorLabels;
 
       bool selfUpdateSkipClusters_;
+      bool isPhase2;
 };
 
 #endif

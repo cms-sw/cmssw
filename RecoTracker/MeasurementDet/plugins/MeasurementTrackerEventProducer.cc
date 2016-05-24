@@ -25,6 +25,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
         if (skip==edm::InputTag("")) selfUpdateSkipClusters_=false;
     }
     LogDebug("MeasurementTracker")<<"skipping clusters: "<<selfUpdateSkipClusters_;
+    isPhase2 = false;
 
     if (pset_.getParameter<std::string>("stripClusterProducer") != "") {
         theStripClusterLabel = consumes<edmNew::DetSetVector<SiStripCluster> >(edm::InputTag(pset_.getParameter<std::string>("stripClusterProducer")));
@@ -36,6 +37,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
     }
     if (pset_.existsAs<std::string>("Phase2TrackerCluster1DProducer")) {
         thePh2OTClusterLabel = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(edm::InputTag(pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
+        isPhase2 = true;
     }
 
     produces<MeasurementTrackerEvent>();
@@ -228,7 +230,7 @@ MeasurementTrackerEventProducer::updatePhase2OT( const edm::Event& event, Phase2
 
 
   // Phase2OT Clusters
-  if (pset_.existsAs<std::string>("Phase2TrackerCluster1DProducer")) {
+  if ( isPhase2 ) {
 
     std::string phase2ClusterProducer = pset_.getParameter<std::string>("Phase2TrackerCluster1DProducer");
     if( phase2ClusterProducer.empty() ) { //clusters have not been produced

@@ -5,7 +5,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 
-class Phase2TrackerRecHit1D GCC11_FINAL : public TrackerSingleRecHit {
+class Phase2TrackerRecHit1D final : public TrackerSingleRecHit {
 
 public:
 
