@@ -124,8 +124,8 @@ namespace l1t
 					zeroFlag[i] = false;
 					for(int j=0; j<7; j++)
 					{
-						etaHits[i][6-j] = (inputWords[4] >> (i*7 + j)) & 0x1;
-						if ( etaHits[i][6-j]!=0 )
+						etaHits[i][j] = (inputWords[4] >> (i*7 + j)) & 0x1;
+						if ( etaHits[i][j]!=0 )
 							zeroFlag[i] = true;
 					}
 				}
