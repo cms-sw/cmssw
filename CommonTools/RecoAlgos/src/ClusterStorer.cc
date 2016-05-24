@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 // FastSim hits:
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastProjectedTrackerRecHit.h"
@@ -45,6 +46,10 @@ namespace helper {
       //std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
       ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D&>(newHit);
       stripClusterRecords_.push_back(StripClusterHitRecord(phit.originalHit(), hits, index));
+    } else if (hit_type == typeid(Phase2TrackerRecHit1D)) {
+      std::cout << "|   It is a Phase2TrackerRecHit1D hit and it cannot be recorded because it does not have two recHit but just two clusters !!" << std::endl;
+//      Phase2TrackerRecHit1D &vhit = static_cast<Phase2TrackerRecHit1D&>(newHit);
+//      phase2ClusterRecords_.push_back(Phase2ClusterHitRecord(static_cast<Phase2TrackerRecHit1D&>(newHit), hits, index));
     } else {
       if (hit_type == typeid(FastTrackerRecHit)
  	  || hit_type == typeid(FastProjectedTrackerRecHit)
