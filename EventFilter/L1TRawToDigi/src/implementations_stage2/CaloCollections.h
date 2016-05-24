@@ -40,16 +40,16 @@ namespace l1t {
 	    inline TauBxCollection* getMPTaus() { return mp_taus_.get(); };
 
          private:
-            std::auto_ptr<CaloTowerBxCollection> towers_;
-            std::auto_ptr<EGammaBxCollection> egammas_;
-            std::auto_ptr<EtSumBxCollection> etsums_;
-            std::auto_ptr<JetBxCollection> jets_;
-            std::auto_ptr<TauBxCollection> taus_;
+            std::unique_ptr<CaloTowerBxCollection> towers_;
+            std::unique_ptr<EGammaBxCollection> egammas_;
+            std::unique_ptr<EtSumBxCollection> etsums_;
+            std::unique_ptr<JetBxCollection> jets_;
+            std::unique_ptr<TauBxCollection> taus_;
 
-            std::auto_ptr<EtSumBxCollection> mp_etsums_;
-            std::auto_ptr<JetBxCollection> mp_jets_;
-	    std::auto_ptr<EGammaBxCollection> mp_egammas_;
-	    std::auto_ptr<TauBxCollection> mp_taus_;
+            std::unique_ptr<EtSumBxCollection> mp_etsums_;
+            std::unique_ptr<JetBxCollection> mp_jets_;
+	    std::unique_ptr<EGammaBxCollection> mp_egammas_;
+	    std::unique_ptr<TauBxCollection> mp_taus_;
       };
    }
 }

@@ -91,7 +91,7 @@ public:
     /// run the uGT GTL (Conditions and Algorithms)
     void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
-        const int iBxInEvent, std::auto_ptr<GlobalObjectMapRecord>& gtObjectMapRecord, //GTO
+        const int iBxInEvent, std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord, //GTO
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
@@ -112,7 +112,7 @@ public:
 
      /// Fill the Daq Records
      void fillAlgRecord(int iBxInEvent, 
-                        std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
+                        std::unique_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
 			int prescaleSet,
 			int menuUUID,
 			int firmwareUUID);

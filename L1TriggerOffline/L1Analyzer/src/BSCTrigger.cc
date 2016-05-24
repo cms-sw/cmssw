@@ -113,7 +113,7 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int ZMinnerBXMinusDt=0, ZMouterBXMinusDt=0;
   int ZPinnerBXMinusDt=0, ZPouterBXMinusDt=0;
   ++nevt_;
-  std::auto_ptr<L1GtTechnicalTriggerRecord> BscRecord;
+  std::unique_ptr<L1GtTechnicalTriggerRecord> BscRecord;
   float MipFraction=0.5;
   float MipEnergy=0.0027;
   float theThreshold=MipFraction*MipEnergy;
@@ -126,7 +126,7 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       EnergyBX[c]=0;
       EnergyBXMinusDt[c]=0;
     }
-    std::auto_ptr<MixCollection<PSimHit> > theBSCHitContainer( new MixCollection <PSimHit>(cf.product()));
+    std::unique_ptr<MixCollection<PSimHit> > theBSCHitContainer( new MixCollection <PSimHit>(cf.product()));
     MixCollection<PSimHit>::MixItr itHit;
     float dt1,dt2;
     dt1=theCoincidence_/2 + theResolution_;
@@ -234,9 +234,9 @@ void BSCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ( edm::isDebugEnabled() ) LogTrace("AnaBsc") << "bit: "<<ttBits_[i] << " VALUE:"<<bit ;
     }
   } else ttVec.clear();
-  std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
+  std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   output->setGtTechnicalTrigger(ttVec);    
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 // ------------ method called once each job just before starting event loop  ------------
 void BSCTrigger::beginJob()

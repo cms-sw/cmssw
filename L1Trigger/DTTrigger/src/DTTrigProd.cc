@@ -146,12 +146,12 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
   }
 
   // Write everything into the event (CB write empty collection as default actions if emulator does not run)
-  std::auto_ptr<L1MuDTChambPhContainer> resultPhi (new L1MuDTChambPhContainer);
+  std::unique_ptr<L1MuDTChambPhContainer> resultPhi (new L1MuDTChambPhContainer);
   resultPhi->setContainer(outPhi);
-  iEvent.put(resultPhi);
-  std::auto_ptr<L1MuDTChambThContainer> resultTheta (new L1MuDTChambThContainer);
+  iEvent.put(std::move(resultPhi));
+  std::unique_ptr<L1MuDTChambThContainer> resultTheta (new L1MuDTChambThContainer);
   resultTheta->setContainer(outTheta);
-  iEvent.put(resultTheta);
+  iEvent.put(std::move(resultTheta));
 
 }
 

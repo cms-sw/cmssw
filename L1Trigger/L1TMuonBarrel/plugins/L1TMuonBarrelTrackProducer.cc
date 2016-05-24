@@ -66,8 +66,8 @@ void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c
   if ( L1MuBMTFConfig::Debug(1) ) cout << "Number of muons found by the L1 BBMX TRIGGER : "
                                        << ndt << endl;
 
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection> tra_product(new l1t::RegionalMuonCandBxCollection);
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection> vec_product(new l1t::RegionalMuonCandBxCollection);
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> tra_product(new l1t::RegionalMuonCandBxCollection);
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> vec_product(new l1t::RegionalMuonCandBxCollection);
 
   ///Muons before muon sorter
   l1t::RegionalMuonCandBxCollection  dtTracks = dtbx->getcache0();
@@ -81,8 +81,8 @@ void L1TMuonBarrelTrackProducer::produce(edm::Event& e, const edm::EventSetup& c
   //for (int ibx = BMTracks.getFirstBX(); ibx  <= BMTracks.getLastBX(); ibx++){
   //cout << "DEBUG:  BMTF size at bx " << ibx << " " << BMTracks.size(ibx) << "\n";
   //}
-  e.put(tra_product,"UnsortedBMTF");
-  e.put(vec_product,"BMTF");
+  e.put(std::move(tra_product),"UnsortedBMTF");
+  e.put(std::move(vec_product),"BMTF");
 
 }
 

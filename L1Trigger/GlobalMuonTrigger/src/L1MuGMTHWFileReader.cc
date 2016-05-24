@@ -81,46 +81,46 @@ void L1MuGMTHWFileReader::produce(edm::Event& e) {
   L1MuRegionalCand empty_mu;
 
 
-  std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand *mu = m_evt.getInputMuon("IND", i);
     if (!mu) mu = &empty_mu;
     DTCands->push_back(*mu);
   }
-  e.put(DTCands,"DT");
+  e.put(std::move(DTCands),"DT");
 
-  std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand *mu = m_evt.getInputMuon("INC", i);
     if (!mu) mu = &empty_mu;
     CSCCands->push_back(*mu);
   }
-  e.put(CSCCands,"CSC");
+  e.put(std::move(CSCCands),"CSC");
 
-  std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand *mu = m_evt.getInputMuon("INB", i);
     if (!mu) mu = &empty_mu;
     RPCbCands->push_back(*mu);
   }
-  e.put(RPCbCands,"RPCb");
+  e.put(std::move(RPCbCands),"RPCb");
 
-  std::auto_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
   for (unsigned i = 0; i < 4; i++) {
     const L1MuRegionalCand *mu = m_evt.getInputMuon("INF", i);
     if (!mu) mu = &empty_mu;
     RPCfCands->push_back(*mu);
   }
-  e.put(RPCfCands,"RPCf");
+  e.put(std::move(RPCfCands),"RPCf");
 
-  std::auto_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
   for(int ieta = 4; ieta < 18; ieta++) {
     for(int iphi = 0; iphi < 18; iphi++) {
       rctRegions->push_back(L1CaloRegion(0,false,true,m_evt.getMipBit(ieta-4,iphi),m_evt.getIsoBit(ieta-4,iphi),ieta,iphi));
     }
   }
 
-  e.put(rctRegions);
+  e.put(std::move(rctRegions));
 }
 
 void L1MuGMTHWFileReader::readNextEvent() {

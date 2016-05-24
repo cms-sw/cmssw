@@ -93,7 +93,7 @@ using namespace l1t;
 
         void addMuonsToCollections(MicroGMTConfiguration::InterMuonList& coll,
                                    MicroGMTConfiguration::InterMuonList& interout,
-                                   std::auto_ptr<MuonBxCollection>& out,
+                                   std::unique_ptr<MuonBxCollection>& out,
                                    int bx) const;
 
         // ----------member data ---------------------------
@@ -185,12 +185,12 @@ void
 L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  std::auto_ptr<MuonBxCollection> outMuons (new MuonBxCollection());
-  std::auto_ptr<MuonBxCollection> imdMuonsBMTF (new MuonBxCollection());
-  std::auto_ptr<MuonBxCollection> imdMuonsEMTFPos (new MuonBxCollection());
-  std::auto_ptr<MuonBxCollection> imdMuonsEMTFNeg (new MuonBxCollection());
-  std::auto_ptr<MuonBxCollection> imdMuonsOMTFPos (new MuonBxCollection());
-  std::auto_ptr<MuonBxCollection> imdMuonsOMTFNeg (new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> outMuons (new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> imdMuonsBMTF (new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> imdMuonsEMTFPos (new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> imdMuonsEMTFNeg (new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> imdMuonsOMTFPos (new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> imdMuonsOMTFNeg (new MuonBxCollection());
 
 
   Handle<MicroGMTConfiguration::InputCollection> bmtfMuons;
@@ -336,12 +336,12 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  iEvent.put(outMuons);
-  iEvent.put(imdMuonsBMTF, "imdMuonsBMTF");
-  iEvent.put(imdMuonsEMTFPos, "imdMuonsEMTFPos");
-  iEvent.put(imdMuonsEMTFNeg, "imdMuonsEMTFNeg");
-  iEvent.put(imdMuonsOMTFPos, "imdMuonsOMTFPos");
-  iEvent.put(imdMuonsOMTFNeg, "imdMuonsOMTFNeg");
+  iEvent.put(std::move(outMuons));
+  iEvent.put(std::move(imdMuonsBMTF), "imdMuonsBMTF");
+  iEvent.put(std::move(imdMuonsEMTFPos), "imdMuonsEMTFPos");
+  iEvent.put(std::move(imdMuonsEMTFNeg), "imdMuonsEMTFNeg");
+  iEvent.put(std::move(imdMuonsOMTFPos), "imdMuonsOMTFPos");
+  iEvent.put(std::move(imdMuonsOMTFNeg), "imdMuonsOMTFNeg");
 }
 
 
@@ -410,7 +410,7 @@ L1TMuonProducer::calculateRank(MicroGMTConfiguration::InterMuonList& muons) cons
 void
 L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& coll,
                                              MicroGMTConfiguration::InterMuonList& interout,
-                                             std::auto_ptr<MuonBxCollection>& out, int bx) const
+                                             std::unique_ptr<MuonBxCollection>& out, int bx) const
 {
   for (auto& mu : coll) {
     interout.push_back(mu);
