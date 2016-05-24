@@ -5,7 +5,7 @@ from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi impor
 lowPtTripletStepClusters = phase2trackClusterRemover.clone(
     maxChi2                                  = cms.double(9.0),
     trajectories                             = cms.InputTag("lowPtQuadStepTracks"),
-    phase2OTPixelClusters                    = cms.InputTag("siPixelClusters"),
+    phase2pixelClusters                      = cms.InputTag("siPixelClusters"),
     phase2OTClusters                         = cms.InputTag("siPhase2Clusters"),
     oldClusterRemovalInfo                    = cms.InputTag("lowPtQuadStepClusters"),
     overrideTrkQuals                         = cms.InputTag('lowPtQuadStepSelector','lowPtQuadStep'),

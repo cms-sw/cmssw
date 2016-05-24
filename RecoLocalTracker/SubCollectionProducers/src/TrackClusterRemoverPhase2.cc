@@ -68,7 +68,7 @@ namespace {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("trajectories",edm::InputTag());
     desc.add<edm::InputTag>("trackClassifier",edm::InputTag("","QualityMasks"));
-    desc.add<edm::InputTag>("phase2OTPixelClusters",edm::InputTag("siPixelClusters"));
+    desc.add<edm::InputTag>("phase2pixelClusters",edm::InputTag("siPixelClusters"));
     desc.add<edm::InputTag>("phase2OTClusters",edm::InputTag("siPhase2Clusters"));
     desc.add<edm::InputTag>("oldClusterRemovalInfo",edm::InputTag());
 
@@ -88,7 +88,7 @@ namespace {
     trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"))),
 
     trajectories_(iConfig.getParameter<edm::InputTag>("trajectories"),consumesCollector()),
-    pixelClusters_(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("phase2OTPixelClusters"))),
+    pixelClusters_(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("phase2pixelClusters"))),
     phase2OTClusters_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(iConfig.getParameter<edm::InputTag>("phase2OTClusters")))
   {
 

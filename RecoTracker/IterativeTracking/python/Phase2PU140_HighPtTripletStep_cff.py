@@ -5,7 +5,7 @@ from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi impor
 highPtTripletStepClusters = phase2trackClusterRemover.clone(
     maxChi2                                  = cms.double(9.0),
     trajectories                             = cms.InputTag("initialStepTracks"),
-    phase2OTPixelClusters                    = cms.InputTag("siPixelClusters"),
+    phase2pixelClusters                      = cms.InputTag("siPixelClusters"),
     phase2OTClusters                         = cms.InputTag("siPhase2Clusters"),
     overrideTrkQuals                         = cms.InputTag('initialStepSelector','initialStep'),
     TrackQuality                             = cms.string('highPurity'),

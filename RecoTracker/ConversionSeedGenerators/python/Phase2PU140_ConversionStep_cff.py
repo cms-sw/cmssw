@@ -7,7 +7,7 @@ from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi impor
 convClusters = phase2trackClusterRemover.clone(
    maxChi2               = cms.double(30.0),
    trajectories          = cms.InputTag("pixelPairStepTracks"),
-   phase2OTPixelClusters = cms.InputTag("siPixelClusters"),
+   phase2pixelClusters   = cms.InputTag("siPixelClusters"),
    phase2OTClusters      = cms.InputTag("siPhase2Clusters"),
    oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
    overrideTrkQuals      = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
