@@ -307,7 +307,7 @@ plotterExt.append("gen", _vertexFolders, PlotFolder(
     loopSubFolders=False,
     purpose=PlotPurpose.Vertexing,
     page="vertex",
-    section="Gen vertex",
+    section="genvertex",
     onlyForPileup=True
 ))
 

@@ -143,8 +143,15 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("conversion", _conversionName),
     ("gsf", _gsfName),
     # These are for vertices
+    ("genvertex", "Gen vertices"),
+    ("pixelVertices", "Pixel vertices"),
+    ("selectedPixelVertices", "Selected pixel vertices"),
+    ("firstStepPrimaryVerticesPreSplitting", "firstStepPrimaryVerticesPreSplitting"),
+    ("firstStepPrimaryVertices", "firstStepPrimaryVertices"),
     ("offlinePrimaryVertices", "All vertices (offlinePrimaryVertices)"),
     ("selectedOfflinePrimaryVertices", "Selected vertices (selectedOfflinePrimaryVertices)"),
+    ("offlinePrimaryVerticesWithBS", "All vertices with BS constraint"),
+    ("selectedOfflinePrimaryVerticesWithBS", "Selected vertices with BS constraint"),
     # These are for V0
     ("k0", "K0"),
     ("lambda", "Lambda"),
