@@ -11,6 +11,7 @@
 #include <vector>
 
 typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
+typedef std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> > MuonPairExtendedVector;
 
 /**
  * This class can be used to save all the muon pairs (and gen muon pairs if any) to a root tree. <br>
@@ -84,31 +85,31 @@ public:
 
   // void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
   //           	    const int muonType, MuonPairVector * genPair = 0 )
-  void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
-		 const int muonType, std::vector<std::pair<unsigned int, unsigned long long>  > * evtRun, MuonPairVector * genPair = 0 )
+  void readTree(const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
+    const int muonType, std::vector<std::pair<unsigned int, unsigned long long>  > * evtRun, MuonPairVector * genPair = 0)
   {
     TFile * file = TFile::Open(fileName, "READ");
-    if( file->IsOpen() ) {
+    if (file->IsOpen()) {
       TTree * tree = (TTree*)file->Get("T");
       MuonPair * muonPair = 0;
       GenMuonPair * genMuonPair = 0;
       // MuonPair * genMuonPair = 0;
-      tree->SetBranchAddress("event",&muonPair);
-      if( genPair != 0 ) {
-        tree->SetBranchAddress("genEvent",&genMuonPair);
+      tree->SetBranchAddress("event", &muonPair);
+      if (genPair != 0) {
+        tree->SetBranchAddress("genEvent", &genMuonPair);
       }
 
       Long64_t nentries = tree->GetEntries();
-      if( (maxEvents != -1) && (nentries > maxEvents) ) nentries = maxEvents;
-      for( Long64_t i=0; i<nentries; ++i ) {
+      if ((maxEvents != -1) && (nentries > maxEvents)) nentries = maxEvents;
+      for (Long64_t i=0; i<nentries; ++i) {
         tree->GetEntry(i);
-	//std::cout << "Reco muon1, pt = " << muonPair->mu1 << "; Reco muon2, pt = " << muonPair->mu2 << std::endl;
+        //std::cout << "Reco muon1, pt = " << muonPair->mu1 << "; Reco muon2, pt = " << muonPair->mu2 << std::endl;
         savedPair->push_back(std::make_pair(muonPair->mu1.p4(), muonPair->mu2.p4()));
-	evtRun->push_back(std::make_pair(muonPair->event.event(), muonPair->event.run()));
+        evtRun->push_back(std::make_pair(muonPair->event.event(), muonPair->event.run()));
         // savedPair->push_back(muonPair->getPair(muonType));
-        if( genPair != 0 ) {
+        if (genPair != 0) {
           genPair->push_back(std::make_pair(genMuonPair->mu1.p4(), genMuonPair->mu2.p4()));
-	  //std::cout << "Gen muon1, pt = " << genMuonPair->mu1 << "; Gen muon2, pt = " << genMuonPair->mu2 << std::endl;
+          //std::cout << "Gen muon1, pt = " << genMuonPair->mu1 << "; Gen muon2, pt = " << genMuonPair->mu2 << std::endl;
           // genPair->push_back(genMuonPair->getPair(muonId));
         }
       }
@@ -120,26 +121,61 @@ public:
     file->Close();
   }
 
-  /// Used to read the external trees
-  void readTree( const int maxEvents, const TString & fileName, std::vector<MuonPair> * savedPair,
-		 const int muonType, std::vector<GenMuonPair> * genPair = 0 )
+  void readTree(const int maxEvents, const TString & fileName, MuonPairExtendedVector * savedPair,
+    const int muonType, std::vector<std::pair<unsigned int, unsigned long long>  > * evtRun, MuonPairExtendedVector * genPair = 0)
   {
     TFile * file = TFile::Open(fileName, "READ");
-    if( file->IsOpen() ) {
+    if (file->IsOpen()) {
       TTree * tree = (TTree*)file->Get("T");
       MuonPair * muonPair = 0;
       GenMuonPair * genMuonPair = 0;
-      tree->SetBranchAddress("event",&muonPair);
-      if( genPair != 0 ) {
-        tree->SetBranchAddress("genEvent",&genMuonPair);
+      tree->SetBranchAddress("event", &muonPair);
+      if (genPair != 0) {
+        tree->SetBranchAddress("genEvent", &genMuonPair);
+      }
+      Long64_t nentries = tree->GetEntries();
+      if ((maxEvents != -1) && (nentries > maxEvents)) nentries = maxEvents;
+      for (Long64_t i=0; i<nentries; ++i) {
+        tree->GetEntry(i);
+        //std::cout << "Reco muon1, pt = " << muonPair->mu1 << "; Reco muon2, pt = " << muonPair->mu2 << std::endl;
+        savedPair->push_back(std::make_pair(muonPair->mu1, muonPair->mu2));
+        evtRun->push_back(std::make_pair(muonPair->event.event(), muonPair->event.run()));
+        // savedPair->push_back(muonPair->getPair(muonType));
+        if (genPair != 0) {
+          genPair->push_back(std::make_pair(genMuonPair->mu1, genMuonPair->mu2));
+          //std::cout << "Gen muon1, pt = " << genMuonPair->mu1 << "; Gen muon2, pt = " << genMuonPair->mu2 << std::endl;
+          // genPair->push_back(genMuonPair->getPair(muonId));
+        }
+      }
+    }
+    else {
+      std::cout << "ERROR: no file " << fileName << " found. Please, correct the file name or specify an empty field in the InputRootTreeFileName parameter to read events from the edm source." << std::endl;
+      exit(1);
+    }
+    file->Close();
+  }
+
+
+  /// Used to read the external trees
+  void readTree(const int maxEvents, const TString & fileName, std::vector<MuonPair> * savedPair,
+    const int muonType, std::vector<GenMuonPair> * genPair = 0)
+  {
+    TFile * file = TFile::Open(fileName, "READ");
+    if (file->IsOpen()) {
+      TTree * tree = (TTree*)file->Get("T");
+      MuonPair * muonPair = 0;
+      GenMuonPair * genMuonPair = 0;
+      tree->SetBranchAddress("event", &muonPair);
+      if (genPair != 0) {
+        tree->SetBranchAddress("genEvent", &genMuonPair);
       }
 
       Long64_t nentries = tree->GetEntries();
-      if( (maxEvents != -1) && (nentries > maxEvents) ) nentries = maxEvents;
-      for( Long64_t i=0; i<nentries; ++i ) {
+      if ((maxEvents != -1) && (nentries > maxEvents)) nentries = maxEvents;
+      for (Long64_t i=0; i<nentries; ++i) {
         tree->GetEntry(i);
         savedPair->push_back(*muonPair);
-        if( genPair != 0 ) {
+        if (genPair != 0) {
           genPair->push_back(*genMuonPair);
         }
       }
