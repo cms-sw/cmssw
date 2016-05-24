@@ -606,7 +606,7 @@ HLT_L1MinimumBiasHF_AND_v*					# JIRA: CMSHLT-720
 
 HLT_L1BptxPlus_v*						# JIRA: CMSHLT-818
 HLT_L1BptxMinus_v*						# JIRA: CMSHLT-818
-HLT_L1BptxOR_v*							# JIRA: CMSHLT-818
+HLT_L1NotBptxOR_v*						# JIRA: CMSHLT-818
 
 HLT_L1SingleMuOpen_v*						# JIRA: CMSHLT-261 (for commissioning)
 HLT_L1SingleMuOpen_DT_v*					# JIRA: CMSHLT-261 (for commissioning)
