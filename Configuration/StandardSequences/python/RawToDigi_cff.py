@@ -38,6 +38,15 @@ tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 from L1Trigger.Configuration.L1TRawToDigi_cff import *
 
+from CondFormats.TotemReadoutObjects.TotemDAQMappingESSourceXML_cfi import *
+TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/ctpps_210_mapping.xml")
+
+from EventFilter.TotemRawToDigi.totemTriggerRawToDigi_cfi import *
+totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+
+from EventFilter.TotemRawToDigi.totemRPRawToDigi_cfi import *
+totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+
 RawToDigi = cms.Sequence(L1TRawToDigi
                          +siPixelDigis
                          +siStripDigis
@@ -83,4 +92,11 @@ eras.phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]
 eras.phase1Pixel.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])) # FIXME
 
 
+# add CTPPS 2016 raw-to-digi modules
+_ctpps_2016_RawToDigi = RawToDigi.copy()
+_ctpps_2016_RawToDigi += totemTriggerRawToDigi + totemRPRawToDigi
+eras.ctpps_2016.toReplaceWith(RawToDigi, _ctpps_2016_RawToDigi)
 
+_ctpps_2016_RawToDigi_noTk = RawToDigi_noTk.copy()
+_ctpps_2016_RawToDigi_noTk += totemTriggerRawToDigi + totemRPRawToDigi
+eras.ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
