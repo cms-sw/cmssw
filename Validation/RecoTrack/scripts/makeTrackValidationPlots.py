@@ -66,6 +66,8 @@ def main(opts):
         val.doPlots(trackingPlots.plotterExt, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
     val.doPlots(trackingPlots.timePlotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     val.doPlots(vertexPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
+    if opts.extended:
+        val.doPlots(vertexPlots.plotterExt, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     print
     if opts.html:
         htmlReport.write()
