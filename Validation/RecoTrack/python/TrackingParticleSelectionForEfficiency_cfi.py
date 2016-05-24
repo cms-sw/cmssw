@@ -19,5 +19,6 @@ def _modifyForPhase1(pset):
     pset.minRapidityTP = -3
     pset.maxRapidityTP = 3
 eras.phase1Pixel.toModify(TrackingParticleSelectionForEfficiency, _modifyForPhase1)
+eras.phase2_tracker.toModify(TrackingParticleSelectionForEfficiency, minRapidityTP = -4.5, maxRapidityTP = 4.5)
 if eras.fastSim.isChosen():
     TrackingParticleSelectionForEfficiency.stableOnlyTP = True
