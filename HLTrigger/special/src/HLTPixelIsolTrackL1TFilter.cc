@@ -9,6 +9,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+//#define DebugLog
+
 HLTPixelIsolTrackL1TFilter::HLTPixelIsolTrackL1TFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
   hltGTseedlabel_      = iConfig.getParameter<edm::InputTag> ("L1GTSeedLabel");
@@ -32,11 +34,11 @@ void
 HLTPixelIsolTrackL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("candTag",edm::InputTag("isolPixelTrackProd"));
-  desc.add<edm::InputTag>("L1GTSeedLabel",edm::InputTag("hltL1sIsoTrack"));
+  desc.add<edm::InputTag>("candTag",edm::InputTag("hltIsolPixelTrackProd"));
+  desc.add<edm::InputTag>("L1GTSeedLabel",edm::InputTag("hltL1sV0SingleJet60"));
   desc.add<double>("MaxPtNearby",2.0);
-  desc.add<double>("MinEnergyTrack",15.0);
-  desc.add<double>("MinPtTrack",20.);
+  desc.add<double>("MinEnergyTrack",2.5);
+  desc.add<double>("MinPtTrack",1.5);
   desc.add<double>("MaxEtaTrack",1.9);
   desc.add<double>("MinEtaTrack",0.0);
   desc.add<double>("MinDeltaPtL1Jet",4.0);
@@ -59,51 +61,36 @@ bool HLTPixelIsolTrackL1TFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(candToken_,recotrackcands);
 
   //Filtering
-
-  //find leading L1 jet:
-  double ptTriggered  = -10;
-
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
-  iEvent.getByToken(hltGTseedToken_, l1trigobj);
-
-  std::vector< edm::Ref<l1t::TauBxCollection> > l1tauobjref;
-  std::vector< edm::Ref<l1t::JetBxCollection> > l1jetobjref;
-
-  l1trigobj->getObjects(trigger::TriggerTau, l1tauobjref);
-  l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
-
-  for (unsigned int p=0; p<l1tauobjref.size(); p++)
-    if (l1tauobjref[p]->pt() > ptTriggered)
-      ptTriggered = l1tauobjref[p]->pt();
-  for (unsigned int p=0; p<l1jetobjref.size(); p++)
-    if (l1jetobjref[p]->pt() > ptTriggered)
-      ptTriggered = l1jetobjref[p]->pt();
-
   int n=0;
   for (unsigned int i=0; i<recotrackcands->size(); i++) {
     candref = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
-
-    // cut on deltaPT
-    if (ptTriggered-candref->pt()<minDeltaPtL1Jet_) continue;
 
     // select on transverse momentum
     if (!filterE_&&(candref->maxPtPxl()<maxptnearby_)&&
 	(candref->pt()>minpttrack_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_) {
       filterproduct.addObject(trigger::TriggerTrack, candref);
       n++;
-      LogDebug("IsoTrk") << "PixelIsolP:Candidate[" << n <<"] pt|eta|phi "
-			 << candref->pt() << "|" << candref->eta() << "|"
-			 << candref->phi() << "\n";
+#ifdef DebugLog
+      edm::LogInfo("HcalIsoTrack") << "PixelIsolP:Candidate[" << n 
+				   << "] pt|eta|phi " << candref->pt() 
+				   << "|" << candref->track()->pt()
+				   << "|" << candref->track()->eta() << "|"
+				   << candref->track()->phi() << "\n";
+#endif
     }
 
     // select on momentum
-    if (filterE_){
+    if (filterE_) {
       if ((candref->maxPtPxl()<maxptnearby_)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack_&&fabs(candref->track()->eta())>minetatrack_) {
 	filterproduct.addObject(trigger::TriggerTrack, candref);
 	n++;
-	LogDebug("IsoTrk") << "PixelIsolE:Candidate[" << n <<"] pt|eta|phi "
-			   << candref->pt() << "|" << candref->eta() << "|"
-			   << candref->phi() << "\n";
+#ifdef DebugLog
+	edm::LogInfo("HcalIsoTrack") << "PixelIsolE:Candidate[" << n 
+				     << "] pt|eta|phi "  << candref->pt() 
+				     << "|" << candref->track()->pt() 
+				     << "|" << candref->track()->eta() << "|"
+				     << candref->track()->phi() << "\n";
+#endif
       }
     }
 
@@ -116,7 +103,10 @@ bool HLTPixelIsolTrackL1TFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   bool accept(n>0);
 
   if( dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;
-
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "PixelIsolL1Filter: Tracks " << n 
+			       << " accept " << accept << "\n";
+#endif
   return accept;
 
 }
