@@ -113,27 +113,6 @@ SiPixelHitEfficiencySource_HeavyIons = SiPixelHitEfficiencySource.clone(
     )
 
 
-# Phase1 Upgrade configuration
-SiPixelRawDataErrorSource_phase1 = SiPixelRawDataErrorSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelDigiSource_phase1 = SiPixelDigiSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelClusterSource_phase1 = SiPixelClusterSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelRecHitSource_phase1 = SiPixelRecHitSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelTrackResidualSource_phase1 = SiPixelTrackResidualSource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-SiPixelHitEfficiencySource_phase1 = SiPixelHitEfficiencySource.clone(
-    isUpgrade = cms.untracked.bool(True)
-    )
-
-
 #DQM service
 dqmInfo = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Pixel')
@@ -150,4 +129,11 @@ siPixelOfflineDQM_heavyions_source = cms.Sequence(SiPixelHLTSource + SiPixelRawD
 
 siPixelOfflineDQM_source_woTrack = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
 
-siPixelOfflineDQM_phase1_source = cms.Sequence(SiPixelRawDataErrorSource_phase1 + SiPixelDigiSource_phase1 + SiPixelRecHitSource_phase1 + SiPixelClusterSource_phase1 + SiPixelTrackResidualSource_phase1 + SiPixelHitEfficiencySource_phase1 + dqmInfo)
+# Phase1 config
+from Configuration.StandardSequences.Eras import eras
+# _all_ of the stuff above becomes obsolete. We just hijack the names and 
+# replace them with the phase1 config of the new DQM.
+from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_source_cff import *
+eras.phase1Pixel.toReplaceWith(siPixelOfflineDQM_source, siPixelPhase1OfflineDQM_source)
+# don't forget the Harvesters, they are plugged in at PixelOfflineDQMClient
+# TODO: the same game for the other three.
