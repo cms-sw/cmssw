@@ -143,7 +143,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   firstHEDoublePhiRing_((mode==HcalTopologyMode::H2 || mode==HcalTopologyMode::H2HE)?(22):(21)),
   firstHEQuadPhiRing_(999), firstHFQuadPhiRing_(40),
   firstHETripleDepthRing_((mode==HcalTopologyMode::H2 || mode==HcalTopologyMode::H2HE)?(24):(27)),
-  singlePhiBins_(72), doublePhiBins_(36),
+  singlePhiBins_(IPHI_MAX), doublePhiBins_(36),
   maxDepthHB_(maxDepthHB), maxDepthHE_(maxDepthHE), maxDepthHF_(2),
   etaHE2HF_(30), etaHF2HE_(29), maxPhiHE_(IPHI_MAX),
   HBSize_(kHBSizePreLS1),
@@ -772,6 +772,11 @@ int HcalTopology::nPhiBins(int etaRing) const {
   if      (etaRing>= firstHFQuadPhiRing())   lastPhiBin=doublePhiBins_/2;
   else if (etaRing>= firstHEQuadPhiRing())   lastPhiBin=doublePhiBins_/2;
   else if (etaRing>= firstHEDoublePhiRing()) lastPhiBin=doublePhiBins_;
+  if (hcons_) {
+    if (etaRing>=hcons_->getEtaRange(1).first && 
+	etaRing<=hcons_->getEtaRange(1).second)
+      lastPhiBin = (int)((2*M_PI+0.001)/dPhiTable[etaRing-firstHBRing_]);
+  }
   return lastPhiBin;
 }
 
