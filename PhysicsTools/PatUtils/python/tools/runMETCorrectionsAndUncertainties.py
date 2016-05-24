@@ -636,7 +636,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 continue
 
             corName='pat'+metType+'Met' + corName + postfix
-            if configtools.contains(getattr(process,"patMetCorrectionSequence"+postfix), corName ):
+            if configtools.contains(getattr(process,"patMetCorrectionSequence"+postfix), corName ) and hasattr(process, corName):
                 continue
             
             interMets[corName] =  cms.EDProducer("CorrectedPATMETProducer",
