@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V98 (CMSSW_8_0_8_HLT1)
+# /dev/CMSSW_8_0_0/PRef/V99 (CMSSW_8_0_8_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V98')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V99')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
