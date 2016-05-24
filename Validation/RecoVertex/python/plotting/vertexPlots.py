@@ -9,6 +9,8 @@ _minVtx = [0, 80, 120]
 _maxVtx = [60, 100, 150, 200, 250]
 _maxEff = 1.025
 _maxFake = [0.05, 0.1, 0.2, 0.5, 0.7, 1.025]
+_minMaxRes = [5, 10, 50, 100, 200, 500, 1000, 2000, 5000]
+_minMaxPt = [5e-1, 1, 5, 1e1, 5e1, 1e2, 5e2, 1e3, 5e3, 1e4]
 
 _common = {"xtitle": "Simulated interactions", "xmin": _minPU, "xmax": _maxPU, "ymin": _minVtx, "ymax": _maxVtx}
 _recovsgen = PlotGroup("recovsgen", [
@@ -44,7 +46,7 @@ _resolution = PlotGroup("resolution", [
     Plot("RecoAllAssoc2GenMatched_ResolZ", xtitle="Resolution in z (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatchedMerged_ResolZ", xtitle="Resolution in z for merged vertices (#mum)", **_common),
 ])
-_common = {"title": "", "xtitle": "Number of tracks", "scale": 1e4, "ylog": True, "ymin": 5, "ymax": 500}
+_common = dict(title="", xtitle="Number of tracks", scale=1e4, ylog=True, ymin=_minMaxRes , ymax=_minMaxRes)
 _resolutionNumTracks = PlotGroup("resolutionNumTracks", [
     Plot("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_common),
@@ -52,6 +54,15 @@ _resolutionNumTracks = PlotGroup("resolutionNumTracks", [
     Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks_Sigma", ytitle="Resolution in z (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_common),
+])
+_common.update(dict(xtitle= "Sum of track p_{T} (GeV)", xlog=True, xmin=_minMaxPt, xmax=_minMaxPt))
+_resolutionPt = PlotGroup("resolutionPt", [
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Pt_Sigma", ytitle="Resolution in x (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Pt_Sigma", ytitle="Resolution in y (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Pt_Sigma", ytitle="Resolution in z (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_common),
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -6, "xmax": 6, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]}
 _pull = PlotGroup("pull", [
@@ -220,6 +231,7 @@ plotter.append("", _vertexFolders, PlotFolder(
     _effandfake,
     _resolution,
     _resolutionNumTracks,
+    _resolutionPt,
     _pull,
     _puritymissing,
     _sumpt2,
