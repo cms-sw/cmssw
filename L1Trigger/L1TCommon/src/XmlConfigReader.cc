@@ -381,8 +381,8 @@ void XmlConfigReader::appendNodesFromSubDoc(DOMNode* parentNode, DOMDocument* su
 
 void XmlConfigReader::pruneString(std::string& str)
 {
-  std::size_t alphanumBegin = str.find_first_not_of("\n ");
-  std::size_t alphanumEnd = str.find_last_not_of("\n ");
+  std::size_t alphanumBegin = str.find_first_not_of("\n\t ");
+  std::size_t alphanumEnd = str.find_last_not_of("\n\t ");
   if (alphanumBegin != std::string::npos) {
     if (alphanumEnd != std::string::npos) {
       str = str.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
