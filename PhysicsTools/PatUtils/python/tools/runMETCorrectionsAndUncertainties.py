@@ -388,8 +388,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         fullPatMetSequence += getattr(process, "patShiftedModuleSequence"+postfix)
         
         #adding the slimmed MET
-        fullPatMetSequence +=getattr(process, "patCaloMet")
-        fullPatMetSequence +=getattr(process, "slimmedMETs"+postfix)
+        if hasattr(process, "patCaloMet"):
+            fullPatMetSequence +=getattr(process, "patCaloMet")
+        if hasattr(process, "slimmedMETs"+postfix):
+            fullPatMetSequence +=getattr(process, "slimmedMETs"+postfix)
 
         setattr(process,"fullPatMetSequence"+postfix,fullPatMetSequence)
 
