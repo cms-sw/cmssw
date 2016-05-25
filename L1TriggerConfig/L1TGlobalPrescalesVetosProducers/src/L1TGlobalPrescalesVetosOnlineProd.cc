@@ -134,9 +134,9 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
 
 
 // a hack around the shortcomming of the parsing library:
-    size_t beginPos = xmlPayload_mask_finor.find("algo,mask"); 
-    size_t endPos   = xmlPayload_mask_finor.substr(0,beginPos).rfind("\n");
-    xmlPayload_mask_finor.erase(beginPos,endPos-beginPos);
+//    size_t beginPos = xmlPayload_mask_finor.find("algo,mask"); 
+//    size_t endPos   = xmlPayload_mask_finor.substr(0,beginPos).rfind("\n");
+//    xmlPayload_mask_finor.erase(beginPos,endPos-beginPos);
 // hack ends
 
 
