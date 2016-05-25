@@ -264,8 +264,8 @@ class NTupleCollection:
                  else:
                      s += "        self.{0} = tree.{0}[n];\n".format(self.name)
   
-          s += "    @staticmethod\n"
-          s += "    def make_array(event):\n"
-          s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
+         s += "    @staticmethod\n"
+         s += "    def make_array(event):\n"
+         s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
  
-          return s
+         return s
