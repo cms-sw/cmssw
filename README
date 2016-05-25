@@ -1,0 +1,13 @@
+The new class GEMDigiSimLink is added. The class makes a relation between the produced GEM digis (strip and bx) and the properties of the simhits (tof, particle type, process type, ..).
+An example analyzer  SimMuon/GEMDigitizer/test/GEMDigiSimLinkReader.cc also is added.
+
+The input file needed in SimMuon/GEMDigitizer/test/runGEMDigiSimLinkReader_cfg.py
+might be produced following the instructions from the GEM Simulation page:
+https://twiki.cern.ch/twiki/bin/view/CMS/GemSimulationsInstructionsCMSSW#Using_cmsDriver
+
+i.e 
+To produce the file containg GEMDigiSimLinks it is enough to run
+cmsRun SimMuon/GEMDigitizer/test/runGEMDigiProducer_cfg.py
+
+To produce the GEMRecHits you may use:
+cmsRun RecoLocalMuon/GEMRecHit/test/runGEMRecHitProducer_cfg.py

@@ -31,6 +31,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
 {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
+  produces<GEMDigiSimLinks>("GEM");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()){
@@ -40,7 +41,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
   }
   gemDigiModel_ = GEMDigiModelFactory::get()->create("GEM" + digiModelString_ + "Model", ps);
   LogDebug("GEMDigiProducer") << "Using GEM" + digiModelString_ + "Model";
-  
+
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
 
@@ -72,17 +73,18 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   e.getByToken(cf_token, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > hits(new MixCollection<PSimHit>(cf.product()));
-  
+
   // Create empty output
   std::auto_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
   std::auto_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
+  std::auto_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks() );
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
   for(auto &hit: *hits){
     hitMap[hit.detUnitId()].push_back(hit);
   }
-  
+
   // simulate signal and noise for each eta partition
   const auto & etaPartitions(gemDigiModel_->getGeometry()->etaPartitions());
 
@@ -90,18 +92,20 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     const GEMDetId detId(roll->id());
     const uint32_t rawId(detId.rawId());
     const auto & simHits(hitMap[rawId]);
-    
-    LogDebug("GEMDigiProducer") 
+
+    LogDebug("GEMDigiProducer")
       << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
-    
+
     gemDigiModel_->simulateSignal(roll, simHits, engine);
     gemDigiModel_->simulateNoise(roll, engine);
     gemDigiModel_->fillDigis(rawId, *digis);
     (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
+    (*gemDigiSimLinks).insert(gemDigiModel_->gemDigiSimLinks());
   }
-  
+
   // store them in the event
   e.put(digis);
   e.put(stripDigiSimLinks,"GEM");
+  e.put(gemDigiSimLinks,"GEM");
 }
 
