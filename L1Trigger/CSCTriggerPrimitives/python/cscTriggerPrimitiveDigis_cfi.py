@@ -323,9 +323,19 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         maxME11LCTs = cms.uint32(2)
     ),
 
+    # MPC sorter config for Run2
+    mpcRun2 = cms.PSet(
+        sortStubs = cms.bool(False),
+        dropInvalidStubs = cms.bool(False),
+        dropLowQualityStubs = cms.bool(False),
+    ),
+
     # MPC sorter config for SLHC studies
     mpcSLHC = cms.PSet(
-        mpcMaxStubs = cms.uint32(3)
+        mpcMaxStubs = cms.uint32(18),
+        sortStubs = cms.bool(False),
+        dropInvalidStubs = cms.bool(False),
+        dropLowQualityStubs = cms.bool(False),
     )
 )
 
@@ -545,9 +555,9 @@ eras.phase2_muon.toModify( cscTriggerPrimitiveDigis,
                            commonParam = dict(runME21ILT = cms.bool(True),
                                               runME3141ILT = cms.bool(True)),
                            alctSLHCME21 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
-                           clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(),
-                           alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(),
-                           clctSLHCME3141 = cscTriggerPrimitiveDigis.clctSLHC.clone(alctNplanesHitPattern = 3),
+                           clctSLHCME21 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
+                           alctSLHCME3141 = cscTriggerPrimitiveDigis.alctSLHC.clone(alctNplanesHitPattern = 3),
+                           clctSLHCME3141 = cscTriggerPrimitiveDigis.clctSLHC.clone(clctNplanesHitPattern = 3),
                            me21tmbSLHCGEM = me21tmbSLHCGEM,
                            me3141tmbSLHCRPC = me3141tmbSLHCRPC
 )
