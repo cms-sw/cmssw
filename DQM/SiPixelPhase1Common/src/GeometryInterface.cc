@@ -175,7 +175,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   std::vector<ID> geomquantities;
 
   struct TTField {
-    edm::ESHandle<TrackerTopology> tt;
+    const TrackerTopology* tt;
     TrackerTopology::DetIdFields field;
     Value operator()(InterestingQuantities const& iq) {
       if (tt->hasField(iq.sourceModule, field)) 
@@ -185,17 +185,20 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     };
   };
 
-   std::vector<std::pair<std::string, TTField>> namedPartitions {
-    {"PXEndcap" , {trackerTopologyHandle, TrackerTopology::PFSide}},
+  const TrackerTopology* tt = trackerTopologyHandle.operator->();
 
-    {"PXLayer"  , {trackerTopologyHandle, TrackerTopology::PBLayer}},
-    {"PXLadder" , {trackerTopologyHandle, TrackerTopology::PBLadder}},
-    {"PXBModule", {trackerTopologyHandle, TrackerTopology::PBModule}},
 
-    {"PXBlade"  , {trackerTopologyHandle, TrackerTopology::PFBlade}},
-    {"PXDisk"   , {trackerTopologyHandle, TrackerTopology::PFDisk}},
-    {"PXPanel"  , {trackerTopologyHandle, TrackerTopology::PFPanel}},
-    {"PXFModule", {trackerTopologyHandle, TrackerTopology::PFModule}},
+  std::vector<std::pair<std::string, TTField>> namedPartitions {
+    {"PXEndcap" , {tt, TrackerTopology::PFSide}},
+
+    {"PXLayer"  , {tt, TrackerTopology::PBLayer}},
+    {"PXLadder" , {tt, TrackerTopology::PBLadder}},
+    {"PXBModule", {tt, TrackerTopology::PBModule}},
+
+    {"PXBlade"  , {tt, TrackerTopology::PFBlade}},
+    {"PXDisk"   , {tt, TrackerTopology::PFDisk}},
+    {"PXPanel"  , {tt, TrackerTopology::PFPanel}},
+    {"PXFModule", {tt, TrackerTopology::PFModule}},
   };
 
   for (auto& e : namedPartitions) {
