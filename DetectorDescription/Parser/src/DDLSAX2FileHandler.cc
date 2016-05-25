@@ -2,7 +2,6 @@
                           DDLSAX2FileHandler.cc  -  description
                              -------------------
     begin                : Tue Oct 23 2001
-    email                : case@ucdhep.ucdavis.edu
 ***************************************************************************/
 
 /***************************************************************************
@@ -118,7 +117,7 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
   if ( userNS_ ) {
     nmspace = "!";
   } 
-  //  std::cout << "namespace " << nmspace_ << std::endl;
+
   DDCurrentNamespace::ns() = nmspace;
   // tell the element it's parent name for recording/reporting purposes
   myElement->setParent(parent());
@@ -130,18 +129,13 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
 
 void
 DDLSAX2FileHandler::characters( const XMLCh* const chars,
-				const unsigned int length )
+				const XMLSize_t length )
 {
   DCOUT_V('P', "DDLSAX2FileHandler::characters started");
-  //  std::cout << "character handler started" << std::endl;
-  //DDXMLElement* myElement = NULL;
-  // final way
-  //  myElement = xmlelems_.getElement(namesMap_[names_.back()]);
-  //temporary way:
-  //  const std::string&  myElementName = namesMap_[names_.back()];
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(self());//myElementName); //namesMap_[names_.back()]);
+
+  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(self());
   std::string inString = "";
-  for (unsigned int i = 0; i < length; ++i)
+  for (XMLSize_t i = 0; i < length; ++i)
   {
     char s = chars[i];
     inString = inString + s;
@@ -156,7 +150,7 @@ DDLSAX2FileHandler::characters( const XMLCh* const chars,
 
 void
 DDLSAX2FileHandler::comment( const   XMLCh* const    chars
-			     , const unsigned int    length)
+			     , const XMLSize_t    length)
 {
   // ignore, discard, overkill since base class also has this...
 }

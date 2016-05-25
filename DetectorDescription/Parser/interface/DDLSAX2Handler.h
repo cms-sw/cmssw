@@ -1,21 +1,11 @@
-#ifndef DDLSAX2HANDLER_H
-#define DDLSAX2HANDLER_H
-
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
+#ifndef DETECTORDESCRIPTION_PARSER_DDLSAX2HANDLER_H
+#define DETECTORDESCRIPTION_PARSER_DDLSAX2HANDLER_H
 
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
-// Xerces C++ Dependencies
-#include <xercesc/util/XercesDefs.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include "xercesc/sax/SAXParseException.hpp"
-#include "xercesc/util/XercesVersion.hpp"
-
 
 ///  DDLSAX2Handler inherits from Xerces C++ DefaultHandler.
 /** @class DDLSAX2Handler
@@ -24,7 +14,6 @@
  *  DDLSAX2Handler.h  -  description
  *  -------------------
  *  begin: Mon Oct 22 2001
- *  email: case@ucdhep.ucdavis.edu
  *
  *  The DefaultHandler of Xerces C++ provides an interface to the SAX2 event
  *  driven processing of XML documents.  It does so by providing methods which
@@ -37,56 +26,47 @@
  */
 class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
-
  public:
   typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
   typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
 
-  // -----------------------------------------------------------------------
-  //  Constructor and Destructor
-  // -----------------------------------------------------------------------
-
-  //  DDLSAX2Handler();
   DDLSAX2Handler();
   ~DDLSAX2Handler();
 
-  // -----------------------------------------------------------------------
-  //  Getter methods
-  // -----------------------------------------------------------------------
   /// Get the count of elements processed so far.
   unsigned int getElementCount() const
-    {
-      return elementCount_;
-    }
+  {
+    return elementCount_;
+  }
   /// Get the count of attributes processed so far.
   unsigned int getAttrCount() const
-    {
-      return attrCount_;
-    }
+  {
+    return attrCount_;
+  }
   /// Get the count of characters processed so far.
   unsigned int getCharacterCount() const
-    {
-      return characterCount_;
-    }
+  {
+    return characterCount_;
+  }
   /// Did the XML parser see any errors?
   bool getSawErrors() const
-    {
-      return sawErrors_;
-    }
+  {
+    return sawErrors_;
+  }
   /// Get the count of spaces processed so far.
   unsigned int getSpaceCount() const
-    {
-      return spaceCount_;
-    }
+  {
+    return spaceCount_;
+  }
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
 
-  virtual void startElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname, const Attributes& attrs) override;
-  virtual void endElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname) override;
+  virtual void startElement(const XMLCh* const uri, const XMLCh* const localname,
+			    const XMLCh* const qname, const Attributes& attrs) override;
+  virtual void endElement(const XMLCh* const uri, const XMLCh* const localname,
+			  const XMLCh* const qname) override;
   virtual void characters(const XMLCh* const chars, const XMLSize_t length) override;
   virtual void comment (const XMLCh *const chars, const XMLSize_t length ) override;
   virtual void ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length) override;
@@ -99,7 +79,7 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   virtual void error(const SAXParseException& exception) override;
   virtual void fatalError(const SAXParseException& exception) override;
   virtual void dumpStats(const std::string& fname);
-
+  
  protected:
 
   // -----------------------------------------------------------------------
@@ -123,7 +103,6 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   bool            sawErrors_;
   bool            userNS_;
   std::string     nmspace_;
-/*   std::string getnmspace(const std::string& fname); */
  
  public:
   /** This allows the DDLSAX2Handler and objects that inherit from it to set
