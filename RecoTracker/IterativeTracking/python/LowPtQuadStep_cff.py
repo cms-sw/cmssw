@@ -1,33 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 # NEW CLUSTERS (remove previously used clusters)
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_lowPtQuadStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = 9.0,
-    trajectories                             = "detachedTripletStepTracks",
-    pixelClusters                            = "siPixelClusters",
-    stripClusters                            = "siStripClusters",
-    oldClusterRemovalInfo                    = "detachedTripletStepClusters",
-    TrackQuality                             = 'highPurity',
-    minNumberOfLayersWithMeasBeforeFiltering = 0,
-)
-_lowPtQuadStepClusters = _lowPtQuadStepClustersBase.clone(
-    trackClassifier                          = "detachedTripletStep:QualityMasks",
-)
-# FIXME: detachedTriplet is dropped for time being, but may be enabled later
-lowPtQuadStepClusters = _lowPtQuadStepClusters.clone(
-    trajectories                             = "detachedQuadStepTracks",
-    oldClusterRemovalInfo                    = "detachedQuadStepClusters",
-    trackClassifier                          = "detachedQuadStep:QualityMasks",
-)
-eras.trackingPhase1PU70.toReplaceWith(lowPtQuadStepClusters, _lowPtQuadStepClustersBase.clone(
-    trajectories                             = "highPtTripletStepTracks",
-    oldClusterRemovalInfo                    = "highPtTripletStepClusters",
-    overrideTrkQuals                         = "highPtTripletStepSelector:highPtTripletStep",
-))
-
+lowPtQuadStepClusters = _cfg.clusterRemoverForIter("LowPtQuadStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(lowPtQuadStepClusters, _cfg.clusterRemoverForIter("LowPtQuadStep", era))
 
 
 # SEEDING LAYERS

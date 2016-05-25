@@ -1,24 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### high-pT triplets ###
 
 # NEW CLUSTERS (remove previously used clusters)
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_highPtTripletStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = 9.0,
-    trajectories                             = "initialStepTracks",
-    pixelClusters                            = "siPixelClusters",
-    stripClusters                            = "siStripClusters",
-    TrackQuality                             = 'highPurity',
-    minNumberOfLayersWithMeasBeforeFiltering = 0,
-)
-highPtTripletStepClusters = _highPtTripletStepClustersBase.clone(
-    trackClassifier                          = "initialStep:QualityMasks",
-)
-eras.trackingPhase1PU70.toReplaceWith(highPtTripletStepClusters, _highPtTripletStepClustersBase.clone(
-    overrideTrkQuals                         = "initialStepSelector:initialStep",
-))
+highPtTripletStepClusters = _cfg.clusterRemoverForIter("HighPtTripletStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(highPtTripletStepClusters, _cfg.clusterRemoverForIter("HighPtTripletStep", era))
 
 
 # SEEDING LAYERS

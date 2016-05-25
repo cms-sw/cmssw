@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
+
 
 from RecoTracker.IterativeTracking.InitialStepPreSplitting_cff import *
 from RecoTracker.IterativeTracking.InitialStep_cff import *
@@ -21,15 +23,14 @@ from RecoTracker.FinalTrackSelectors.preDuplicateMergingGeneralTracks_cfi import
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+
+iterTrackingEarly = _cfg.createEarlySequence("", globals())
+for _era in _cfg.nonDefaultEras():
+    getattr(eras, _era).toReplaceWith(iterTrackingEarly, _cfg.createEarlySequence(_era, globals()))
+
 iterTracking = cms.Sequence(InitialStepPreSplitting*
-                            InitialStep*
-                            DetachedTripletStep*
-                            LowPtTripletStep*
-                            PixelPairStep*
-                            MixedTripletStep*
-                            PixelLessStep*
-                            TobTecStep*
-			    JetCoreRegionalStep *	
+                            iterTrackingEarly*
                             earlyGeneralTracks*
                             muonSeededStep*
                             preDuplicateMergingGeneralTracks*
@@ -37,57 +38,3 @@ iterTracking = cms.Sequence(InitialStepPreSplitting*
                             ConvStep*
                             conversionStepTracks
                             )
-
-from Configuration.StandardSequences.Eras import eras
-eras.trackingLowPU.toReplaceWith(iterTracking, cms.Sequence(
-    InitialStepPreSplitting*
-    InitialStep*
-    LowPtTripletStep*
-    PixelPairStep*
-    DetachedTripletStep*
-    MixedTripletStep*
-    PixelLessStep*
-    TobTecStep*
-    earlyGeneralTracks*
-    muonSeededStep*
-    preDuplicateMergingGeneralTracks*
-    generalTracksSequence*
-    ConvStep*
-    conversionStepTracks
-))
-eras.trackingPhase1.toReplaceWith(iterTracking, cms.Sequence(
-    InitialStepPreSplitting +
-    InitialStep +
-    HighPtTripletStep +
-    DetachedQuadStep +
-    #DetachedTripletStep + # FIXME: dropped for time being, but it may be enabled on the course of further tuning
-    LowPtQuadStep +
-    LowPtTripletStep +
-    MixedTripletStep +
-    PixelLessStep +
-    TobTecStep +
-    JetCoreRegionalStep +
-    earlyGeneralTracks +
-    muonSeededStep +
-    preDuplicateMergingGeneralTracks +
-    generalTracksSequence +
-    ConvStep +
-    conversionStepTracks
-))
-eras.trackingPhase1PU70.toReplaceWith(iterTracking, cms.Sequence(
-    InitialStepPreSplitting +
-    InitialStep +
-    HighPtTripletStep +
-    LowPtQuadStep +
-    LowPtTripletStep +
-    DetachedQuadStep +
-    MixedTripletStep +
-    PixelPairStep +
-    TobTecStep +
-    earlyGeneralTracks +
-    muonSeededStep +
-    preDuplicateMergingGeneralTracks +
-    generalTracksSequence +
-    ConvStep +
-    conversionStepTracks
-))
