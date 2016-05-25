@@ -135,6 +135,7 @@ _reco.egammaHighLevelRecoPrePF.remove(_reco.conversionSequence)
 ##########################################
 # not commisoned and not relevant in FastSim (?):
 _reco.globalreco.remove(_reco.muoncosmicreco)
+_reco.highlevelreco.remove(_reco.cosmicDCTracksSeq)
 _reco.highlevelreco.remove(_reco.muoncosmichighlevelreco)
 _reco.muons.FillCosmicsIdMap = False
 
