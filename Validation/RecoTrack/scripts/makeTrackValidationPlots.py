@@ -32,10 +32,11 @@ def main(opts):
         plotting.verbose = True
 
     val = SimpleValidation(files, labels, opts.outputDir)
+    sample = SimpleSample(opts.subdirprefix, opts.html_sample)
     kwargs = {}
     if opts.html:
         htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
-        htmlReport.beginSample(SimpleSample(opts.html_prefix, opts.html_sample))
+        htmlReport.beginSample(sample)
         kwargs["htmlReport"] = htmlReport
 
     kwargs_tracking = {}
@@ -61,13 +62,13 @@ def main(opts):
             "building": ignore,
         }
 
-    val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
+    trk = [trackingPlots.plotter]
+    other = [trackingPlots.timePlotter, vertexPlots.plotter]
     if opts.extended:
-        val.doPlots(trackingPlots.plotterExt, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
-    val.doPlots(trackingPlots.timePlotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
-    val.doPlots(vertexPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
-    if opts.extended:
-        val.doPlots(vertexPlots.plotterExt, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
+        trk.append(trackingPlots.plotterExt)
+        other.append(vertexPlots.plotterExt)
+    val.doPlots(trk, sample, plotterDrawArgs=drawArgs, **kwargs_tracking)
+    val.doPlots(other, sample, plotterDrawArgs=drawArgs, **kwargs)
     print
     if opts.html:
         htmlReport.write()
@@ -99,8 +100,6 @@ if __name__ == "__main__":
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
     parser.add_argument("--html", action="store_true",
                         help="Generate HTML pages")
-    parser.add_argument("--html-prefix", default="plots",
-                        help="Prefix for HTML page generation (default 'plots')")
     parser.add_argument("--html-sample", default="Sample",
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", default="",

@@ -175,7 +175,7 @@ def _getGlobalTag(sample, release):
     if sample.fullsim():
         if sample.hasScenario():
             return gtmap[sample.scenario()]
-        if sample.hasPileup():
+        if sample.pileupEnabled():
             puType = sample.pileupType()
             if "50ns" in puType:
                 return gtmap.get("fullsim_50ns", gtmap["default"])
@@ -183,7 +183,7 @@ def _getGlobalTag(sample, release):
                 return gtmap.get("fullsim_25ns", gtmap["default"])
     if sample.fastsim():
         fsgt = gtmap.get("fastsim", gtmap["default"])
-        if sample.hasPileup():
+        if sample.pileupEnabled():
             puType = sample.pileupType()
             if "25ns" in puType:
                 return gtmap.get("fastsim_25ns", fsgt)
@@ -227,7 +227,7 @@ def _getRelValUrl(release):
     return _relvalUrls[version]
 
 def _processPlotsForSample(plotterFolder, sample):
-    if plotterFolder.onlyForPileup() and not sample.hasPileup():
+    if plotterFolder.onlyForPileup() and not sample.pileupEnabled():
         return False
     if plotterFolder.onlyForElectron() and not sample.doElectron():
         return False
@@ -299,8 +299,12 @@ class Sample:
         return self._sample
 
     def hasPileup(self):
-        """Return True if sample has pileup"""
+        """Return True if sample has pileup (for HTML generation)"""
         return self._putype is not None
+
+    def pileupEnabled(self):
+        """Return True if pileup plots are enabled (for plot generation)"""
+        return self.hasPileup()
 
     def pileup(self):
         """Return "PU"/"noPU" corresponding the pileup status"""
@@ -548,7 +552,7 @@ class Validation:
                 plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
                 # TODO: the pileup case is still to be migrated
-#               if s.fullsim() and s.hasPileup():
+#               if s.fullsim() and s.pileupEnabled():
 #                   self._doPlotsPileup(a, q, s)
 
 
@@ -560,13 +564,13 @@ class Validation:
             for full in self._fullsimSamples:
                 if fast.name() != full.name():
                     continue
-                if fast.hasPileup():
-                    if not full.hasPileup():
+                if fast.pileupEnabled():
+                    if not full.pileupEnabled():
                         continue
                     if fast.fastsimCorrespondingFullsimPileup() != full.pileupType():
                         continue
                 else:
-                    if full.hasPileup():
+                    if full.pileupEnabled():
                         continue
 
                 if correspondingFull is None:
@@ -594,7 +598,7 @@ class Validation:
         refGlobalTag = _getGlobalTag(sample, self._refRelease)
         def _createRefSelection(selectionName):
             sel = refGlobalTag+selectionNameBase+selectionName
-            if sample.hasPileup():
+            if sample.pileupEnabled():
                 refPu = sample.pileupType(self._refRelease)
                 if refPu != "":
                     sel += "_"+refPu
@@ -640,7 +644,7 @@ class Validation:
             selectionNameBase += "_"+sample.scenario()
         selectionNameBase += "_"+sample.pileup()
         newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
-        if sample.hasPileup():
+        if sample.pileupEnabled():
             newPu = sample.pileupType(self._newRelease)
             if newPu != "":
                 newSelection += "_"+newPu
@@ -673,7 +677,7 @@ class Validation:
             "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection) if self._refRelease is not None else "dummy",
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ]
-        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.hasPileup())
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.pileupEnabled())
         fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
         # Copy val file only if there were plots
         if len(fileList) > 0:
@@ -714,7 +718,7 @@ class Validation:
         tmp = plotterFolder.getSelectionName(dqmSubFolder)
         fastSelection = fastGlobalTag+"_"+fastSample.pileup()+tmp
         fullSelection = fullGlobalTag+"_"+fullSample.pileup()+tmp
-        if fullSample.hasPileup():
+        if fullSample.pileupEnabled():
             fullSelection += "_"+fullSample.pileupType(self._newRelease)
             fastSelection += "_"+fastSample.pileupType(self._newRelease)
 
@@ -745,7 +749,7 @@ class Validation:
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ]
-        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=fastSample.hasPileup(), requireAllHistograms=True)
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=fastSample.pileupEnabled(), requireAllHistograms=True)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
         # For tables we just try them all, and see which ones succeed
@@ -912,11 +916,8 @@ class SimpleSample:
         # No need to emulate the release validation fastsim behaviour here
         return False
 
-    def hasPileup(self):
+    def pileupEnabled(self):
         return self._pileup
-
-    def pileupType(self):
-        return ""
 
     def doElectron(self):
         return True
@@ -935,12 +936,7 @@ class SimpleValidation:
     def createHtmlReport(self, validationName=""):
         return html.HtmlReport(validationName, self._newdir)
 
-    def doPlots(self, plotter, subdirprefix=None, sample=None, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
-        if subdirprefix is None and sample is None:
-            raise Exception("Need either 'subdirprefix' or 'sample'")
-        if subdirprefix is not None and sample is not None:
-            raise Exception("May give only one of 'subdirprefix' or 'sample', got both")
-
+    def doPlots(self, plotters, sample, plotterDrawArgs={}, **kwargs):
         self._subdirprefix = sample.label() if sample is not None else subdirprefix
         self._plotterDrawArgs = plotterDrawArgs
 
@@ -951,6 +947,14 @@ class SimpleValidation:
                 sys.exit(1)
             self._openFiles.append(ROOT.TFile.Open(f))
 
+        for plotter in plotters:
+            self._doPlotsForPlotter(plotter, sample, **kwargs)
+
+        for tf in self._openFiles:
+            tf.Close()
+        self._openFiles = []
+
+    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             if sample is not None and not _processPlotsForSample(plotterFolder, sample):
@@ -958,10 +962,6 @@ class SimpleValidation:
             plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
             if len(plotFiles) > 0:
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
-
-        for tf in self._openFiles:
-            tf.Close()
-        self._openFiles = []
 
     def _doPlots(self, plotterFolder, dqmSubFolder, htmlReport):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)

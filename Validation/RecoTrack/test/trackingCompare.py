@@ -21,12 +21,11 @@ val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels],
 sample = SimpleSample("sample_prefix", "Sample name")
 #report = val.createHtmlReport(validationName="Short description of your comparison")
 #report.beginSample(sample)
-val.doPlots(trackingPlots.plotter, sample=sample, plotterDrawArgs={"ratio": True},
+val.doPlots([trackingPlots.plotter,
+#             vertexPlots.plotter # Uncomment this to include also vertex plots
+            ],
+            sample, plotterDrawArgs={"ratio": True},
 #            htmlReport=report
 )
-## Uncomment this to include also vertex plots
-##val.doPlots(vertexPlots.plotter, sample=sample, plotterDrawArgs={"ratio": True},
-##            htmlReport=report
-##)
 #report.write()
 
