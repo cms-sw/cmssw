@@ -180,7 +180,7 @@ private:
   int singlePhiBins_, doublePhiBins_;
   int maxDepthHB_, maxDepthHE_, maxDepthHF_;
   int etaHE2HF_, etaHF2HE_;
-  int maxEta_;
+  int maxEta_, maxPhiHE_;
 
   unsigned int HBSize_;
   unsigned int HESize_;
