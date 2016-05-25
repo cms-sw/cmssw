@@ -137,7 +137,7 @@ bool TempTrajectory::badForCCC(const TrajectoryMeasurement &tm) {
   auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
   if (!thit)
     return false;
-  if (thit->isPixel())
+  if (thit->isPixel() || thit->isPhase2())
     return false;
   if (!tm.updatedState().isValid())
     return false;

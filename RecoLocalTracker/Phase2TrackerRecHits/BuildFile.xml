@@ -3,7 +3,7 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
-<use name="DataFormats/Phase2TrackerRecHit"/>
+<use name="DataFormats/TrackerRecHit2D"/>
 <export>
     <lib name="1"/>
 </export>

@@ -155,5 +155,20 @@
 
   <class name="edm::Wrapper< edm::Ref<vector<vector<edm::Ref<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit> > > >,vector<edm::Ref<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit> > >,edm::refhelper::FindUsingAdvance<vector<vector<edm::Ref<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit> > > >,vector<edm::Ref<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<FastTrackerRecHit,edm::ClonePolicy<FastTrackerRecHit> >,FastTrackerRecHit> > > > > >"/>
 
+  // phase2 containers
+
+  <class name="Phase2TrackerRecHit1D" ClassVersion="3">
+      <version ClassVersion="3" checksum="1217326271"/>
+  </class>
+  <class name="std::vector< Phase2TrackerRecHit1D >"/>
+  <class name="std::vector< edmNew::DetSet< Phase2TrackerRecHit1D > >"/>
+  <class name="edmNew::DetSet< Phase2TrackerRecHit1D >"/>
+  <class name="edmNew::DetSetVector< Phase2TrackerRecHit1D >"/>
+  <class name="edm::Ref< edmNew::DetSetVector< Phase2TrackerCluster1D >, Phase2TrackerCluster1D >"/>
+  <class name="edm::Wrapper< Phase2TrackerRecHit1D >" splitLevel="0"/>
+  <class name="edm::Wrapper< edmNew::DetSet< Phase2TrackerRecHit1D > >" splitLevel="0"/>
+  <class name="edm::Wrapper< std::vector< edmNew::DetSet< Phase2TrackerRecHit1D > > >" splitLevel="0"/>
+  <class name="edm::Wrapper< Phase2TrackerRecHit1DCollectionNew >"/>
+  <class name="edm::Wrapper< edm::Ref< edmNew::DetSetVector< Phase2TrackerCluster1D >, Phase2TrackerCluster1D > >"/>
 
 </lcgdict>
