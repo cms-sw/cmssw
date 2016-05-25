@@ -214,8 +214,6 @@ namespace cms
     if(!isOuterTrackerReadoutAnalog)
       addOuterTrackerCollection(iEvent, iSetup);
   }
-  void Phase2TrackerDigitizer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-  }
   Phase2TrackerDigitizer::AlgorithmType Phase2TrackerDigitizer::getAlgoType(unsigned int detId_raw) {
     DetId detId(detId_raw); 
 

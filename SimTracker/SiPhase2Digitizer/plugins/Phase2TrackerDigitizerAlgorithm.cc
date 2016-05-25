@@ -890,7 +890,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
         for (auto & k : badPixels ) {       
 	  if ( p.row == k.getParameter<int>("row") && 
 	       ip.first == k.getParameter<int>("row")  && 
-	       fabs(ip.second - p.col) < k.getParameter<int>("col")) {s.second.set(0.);}
+	       std::abs(ip.second - p.col) < k.getParameter<int>("col")) {s.second.set(0.);}
 	}
       }
     }
