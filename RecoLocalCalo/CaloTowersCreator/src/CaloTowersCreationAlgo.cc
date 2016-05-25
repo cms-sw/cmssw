@@ -1359,7 +1359,8 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
     for(unsigned i = 0; i < items.size(); i++){
       if(items[i].det()!=DetId::Hcal) continue;
       HcalDetId hid(items[i]);
-	  if(hid.subdet() == HcalOuter) continue;
+      if(hid.subdet() == HcalOuter) continue;
+      if(!theHcalTopology->validHcal(hid)) continue;
 	  
       if(hid.depth()<frontDepth) { frontCellId = hid; frontDepth = hid.depth(); }
       if(hid.depth()>backDepth) { backCellId = hid; backDepth = hid.depth(); }
@@ -1372,13 +1373,12 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
       for(unsigned i = 0; i < items28.size(); i++){
         if(items28[i].det()!=DetId::Hcal) continue;
         HcalDetId hid(items28[i]);
-		if(hid.subdet() == HcalOuter) continue;
+	if(hid.subdet() == HcalOuter) continue;
 		
         if(hid.depth()>backDepth) { backCellId = hid; backDepth = hid.depth(); }
       }
     }
   }
-
   point = hadShwPosFromCells(DetId(frontCellId), DetId(backCellId), fracDepth);
 
   return point;
