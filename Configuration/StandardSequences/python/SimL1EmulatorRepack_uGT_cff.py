@@ -30,14 +30,6 @@ else:
 
     # Finally, pack the new L1T output back into RAW
     
-    # pack unpacked
-    from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import caloStage2Raw as packCaloStage2
-    packCaloStage2.InputLabel = cms.InputTag("unpackCaloStage2")
-
-    # pack unpacked
-    from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import gmtStage2Raw as packGmtStage2
-    packGmtStage2.InputLabel = cms.InputTag("unpackGmtStage2")
-
     # pack simulated uGT
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import gtStage2Raw as packGtStage2
     packGtStage2.MuonInputTag   = cms.InputTag("unpackGmtStage2","Muon")
