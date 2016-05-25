@@ -897,9 +897,10 @@ def _findDuplicates(lst):
     return list(found2)
 
 class SimpleSample:
-    def __init__(self, label, name, pileup=True):
+    def __init__(self, label, name, fileLegends, pileup=True):
         self._label = label
         self._name = name
+        self._fileLegends = fileLegends
         self._pileup = pileup
 
     def digest(self):
@@ -911,6 +912,12 @@ class SimpleSample:
 
     def name(self):
         return self._name
+
+    def files(self):
+        return [t[0] for t in self._fileLegends]
+
+    def legendLabels(self):
+        return [t[1] for t in self._fileLegends]
 
     def fastsim(self):
         # No need to emulate the release validation fastsim behaviour here
@@ -926,9 +933,8 @@ class SimpleSample:
         return True
 
 class SimpleValidation:
-    def __init__(self, files, labels, newdir):
-        self._files = files
-        self._labels = labels
+    def __init__(self, samples, newdir):
+        self._samples = samples
         self._newdir = newdir
         if not os.path.exists(newdir):
             os.makedirs(newdir)
@@ -936,23 +942,26 @@ class SimpleValidation:
     def createHtmlReport(self, validationName=""):
         return html.HtmlReport(validationName, self._newdir)
 
-    def doPlots(self, plotters, sample, plotterDrawArgs={}, **kwargs):
-        self._subdirprefix = sample.label() if sample is not None else subdirprefix
+    def doPlots(self, plotters, plotterDrawArgs={}, **kwargs):
         self._plotterDrawArgs = plotterDrawArgs
 
-        self._openFiles = []
-        for f in self._files:
-            if not os.path.exists(f):
-                print "File %s not found" % f
-                sys.exit(1)
-            self._openFiles.append(ROOT.TFile.Open(f))
+        for sample in self._samples:
+            self._subdirprefix = sample.label()
+            self._labels = sample.legendLabels()
 
-        for plotter in plotters:
-            self._doPlotsForPlotter(plotter, sample, **kwargs)
+            self._openFiles = []
+            for f in sample.files():
+                if not os.path.exists(f):
+                    print "File %s not found (from sample %s)" % (f, sample.name)
+                    sys.exit(1)
+                self._openFiles.append(ROOT.TFile.Open(f))
 
-        for tf in self._openFiles:
-            tf.Close()
-        self._openFiles = []
+            for plotter in plotters:
+                self._doPlotsForPlotter(plotter, sample, **kwargs)
+
+            for tf in self._openFiles:
+                tf.Close()
+            self._openFiles = []
 
     def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
         plotterInstance = plotter.readDirs(*self._openFiles)

@@ -18,8 +18,7 @@ def limitRelVal(algo, quality):
     return quality in ["", "highPurity"]
 
 def main(opts):
-    files = opts.files
-    labels = [f.replace(".root", "") for f in files]
+    sample = SimpleSample(opts.subdirprefix, opts.html_sample, [(f, f.replace(".root", "")) for f in opts.files])
 
     drawArgs={}
     if opts.ratio:
@@ -31,8 +30,7 @@ def main(opts):
     if opts.verbose:
         plotting.verbose = True
 
-    val = SimpleValidation(files, labels, opts.outputDir)
-    sample = SimpleSample(opts.subdirprefix, opts.html_sample)
+    val = SimpleValidation([sample], opts.outputDir)
     kwargs = {}
     if opts.html:
         htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
@@ -67,8 +65,8 @@ def main(opts):
     if opts.extended:
         trk.append(trackingPlots.plotterExt)
         other.append(vertexPlots.plotterExt)
-    val.doPlots(trk, sample, plotterDrawArgs=drawArgs, **kwargs_tracking)
-    val.doPlots(other, sample, plotterDrawArgs=drawArgs, **kwargs)
+    val.doPlots(trk, plotterDrawArgs=drawArgs, **kwargs_tracking)
+    val.doPlots(other, plotterDrawArgs=drawArgs, **kwargs)
     print
     if opts.html:
         htmlReport.write()

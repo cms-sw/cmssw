@@ -17,14 +17,14 @@ filesLabels = [
 outputDir = "plots"
 
 # To auto-generate HTML pages, uncomment the commented lines below
-val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir)
-sample = SimpleSample("sample_prefix", "Sample name")
+sample = SimpleSample("sample_prefix", "Sample name", filesLabels)
+val = SimpleValidation([sample], outputDir)
 #report = val.createHtmlReport(validationName="Short description of your comparison")
 #report.beginSample(sample)
 val.doPlots([trackingPlots.plotter,
 #             vertexPlots.plotter # Uncomment this to include also vertex plots
             ],
-            sample, plotterDrawArgs={"ratio": True},
+            plotterDrawArgs={"ratio": True},
 #            htmlReport=report
 )
 #report.write()
