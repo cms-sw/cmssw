@@ -254,7 +254,7 @@ class NTupleCollection:
         s += "};\n"
         return s
 
-     def get_py_wrapper_class(self, isMC):
+    def get_py_wrapper_class(self, isMC):
          s = "class %s:\n" % self.name
          if len(self.objectType.allVars(isMC)):
              s += "    def __init__(self, tree, n):\n"
