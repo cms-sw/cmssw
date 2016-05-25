@@ -164,6 +164,7 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(process.lowPtQuadStepTracks)
 
     del process.iterTracking
+    del process.iterTrackingEarly
     del process.ckftracks
     del process.ckftracks_woBH
     del process.ckftracks_wodEdX
