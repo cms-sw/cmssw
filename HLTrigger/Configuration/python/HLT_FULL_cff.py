@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V276 (CMSSW_8_0_8_HLT1)
+# /dev/CMSSW_8_0_0/HLT/V277 (CMSSW_8_0_8_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V276')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V277')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -54767,7 +54767,7 @@ fragment.hltBTagPFCSVp13Single = cms.EDFilter( "HLTPFJetTag",
     MaxTag = cms.double( 999999.0 )
 )
 fragment.hltL1sDoubleMu0ETM40lorDoubleMu0ETM55 = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_ETM40 OR L1_DoubleMu0_ETM55" ),
     L1EGammaInputTag = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
