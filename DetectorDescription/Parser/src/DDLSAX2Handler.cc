@@ -19,8 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace xercesc;
-
 DDLSAX2Handler::DDLSAX2Handler( void )
   : attrCount_(0),
     characterCount_(0),
@@ -43,8 +41,6 @@ DDLSAX2Handler::startElement( const XMLCh* const uri,
 			      const XMLCh* const qname,
 			      const Attributes& attrs )
 {
-  char* message = XMLString::transcode(localname);
-  XMLString::release(&message);
   ++elementCount_;
   attrCount_ += attrs.getLength();
 }
