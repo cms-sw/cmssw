@@ -224,10 +224,10 @@ std::string HistogramManager::makePath(
 
 void HistogramManager::book(DQMStore::IBooker& iBooker,
                             edm::EventSetup const& iSetup) {
-  if (!enabled) return;
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup);
   }
+  if (!enabled) return;
 
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
