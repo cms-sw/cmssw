@@ -168,6 +168,34 @@ doPlotsVsGoodPVtx                   ['highPurityPt1'] = cms.bool(True)
 doEffFromHitPattern                 ['highPurityPt1'] = cms.bool(True)
 doStopSource                        ['highPurityPt1'] = cms.bool(True)
 
+### AlCaStripAPV
+AlCaStripAPV = trackSelector.clone()
+AlCaStripAPV.cut = cms.string("quality('highPurity') & pt >= 0.8 & p > 2. & numberOfValidHits > 6 & normalizedChi2 < 10")
+
+sequenceName    ['AlCaStripAPV'] = cms.Sequence(AlCaStripAPV)
+mainfolderName  ['AlCaStripAPV'] = 'Tracking/TrackParameters/highPurityTracks/AlCaStripAPV'
+vertexfolderName['AlCaStripAPV'] = 'Tracking/PrimaryVertices/highPurityTracks/AlCaStripAPV'
+trackPtN        ['AlCaStripAPV'] = cms.int32(100)
+trackPtMin      ['AlCaStripAPV'] = cms.double(0.)
+trackPtMax      ['AlCaStripAPV'] = cms.double(100.)
+numCutString    ['AlCaStripAPV'] = cms.string("quality('highPurity') & pt >= 0.8 & p > 2. & numberOfValidHits > 6 & normalizedChi2 < 10") # default: " pt >= 1 & quality('highPurity') "
+denCutString    ['AlCaStripAPV'] = cms.string("") # it is as in the default config (just be sure)
+doPlotsPCA      ['AlCaStripAPV'] = cms.bool(False)
+doGoodTracksPlots                   ['AlCaStripAPV'] = cms.bool(False)
+doTrackerSpecific                   ['AlCaStripAPV'] = cms.bool(False)
+doHitPropertiesPlots                ['AlCaStripAPV'] = cms.bool(True)
+doGeneralPropertiesPlots            ['AlCaStripAPV'] = cms.bool(True)
+doBeamSpotPlots                     ['AlCaStripAPV'] = cms.bool(True)
+doSeedParameterHistos               ['AlCaStripAPV'] = cms.bool(False)
+doRecHitVsPhiVsEtaPerTrack          ['AlCaStripAPV'] = cms.bool(True)
+doGoodTrackRecHitVsPhiVsEtaPerTrack ['AlCaStripAPV'] = cms.bool(False)
+doLayersVsPhiVsEtaPerTrack          ['AlCaStripAPV'] = cms.bool(True)
+doGoodTrackLayersVsPhiVsEtaPerTrack ['AlCaStripAPV'] = cms.bool(False)
+doPUmonitoring                      ['AlCaStripAPV'] = cms.bool(True)
+doPlotsVsBXlumi                     ['AlCaStripAPV'] = cms.bool(False)
+doPlotsVsGoodPVtx                   ['AlCaStripAPV'] = cms.bool(True)
+doEffFromHitPattern                 ['AlCaStripAPV'] = cms.bool(False)
+
 selectedTracks.extend( ['generalTracks'] )
 #selectedTracks.extend( ['highPurityPtRange0to1']  )
 #selectedTracks.extend( ['highPurityPtRange1to10'] )
@@ -175,6 +203,7 @@ selectedTracks.extend( ['generalTracks'] )
 
 selectedTracks.extend( ['highPurityPt1'] )
 selectedTracks.extend( ['highPurityPtRange0to1'] )
+#selectedTracks.extend( ['AlCaStripAPV'] )
 
 #selectedTracks2runSequence=cms.Sequence()
 #for tracks in selectedTracks :
