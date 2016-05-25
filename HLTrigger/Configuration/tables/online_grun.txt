@@ -227,6 +227,7 @@ HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105, CMSH
 HLT_PFMET170_JetIdCleaned_v*                          		# JIRA: CMSHLT-479
 HLT_PFMET170_HBHECleaned_v*                          		# JIRA: CMSHLT-479, CMSHLT-652
 HLT_PFMET170_NotCleaned_v*                          		# JIRA: CMSHLT-479, renamed by CMSHLT-711
+HLT_PFMET170_BeamHaloCleaned_v*					# JIRA: CMSHLT-836
 HLT_PFMET120_BTagCSV_p067_v*					# JIRA: CMSHLT-105, CMSHLT-405, CMSHLT-479, CMSHLT-601, CMSHLT-666, CMSHLT-711
 HLT_PFMET120_Mu5_v*						# JIRA: CMSHLT-120, CMSHLT-190, CMSHLT-479, CMSHLT-601, CMSHLT-711
 
@@ -724,6 +725,9 @@ DST_DoubleMu3_Mass10_CaloScouting_PFScouting_v*			# JIRA: CMSHLT-604 renamed & c
 
 HLT_IsoTrackHE_v*						# JIRA: CMSHLT-289
 HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
+
+HLT_DoubleMu3_PFMET50_v*					# JIRA: CMSHLT-832
+HLT_TripleMu_5_3_3_v*						# JIRA: CMSHLT-832
 
 HLTriggerFirstPath
 HLTriggerFinalPath

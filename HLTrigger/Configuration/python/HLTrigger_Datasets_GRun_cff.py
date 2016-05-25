@@ -438,6 +438,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_PFMET120_BTagCSV_p067_v1', 
     'HLT_PFMET120_Mu5_v1', 
     'HLT_PFMET120_PFMHT120_IDTight_v2', 
+    'HLT_PFMET170_BeamHaloCleaned_v1', 
     'HLT_PFMET170_HBHECleaned_v2', 
     'HLT_PFMET170_JetIdCleaned_v2', 
     'HLT_PFMET170_NoiseCleaned_v3', 
@@ -500,6 +501,7 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_DoubleMu28NoFiltersNoVtxDisplaced_v2', 
     'HLT_DoubleMu33NoFiltersNoVtx_v2', 
     'HLT_DoubleMu38NoFiltersNoVtx_v2', 
+    'HLT_DoubleMu3_PFMET50_v1', 
     'HLT_DoubleMu8_Mass8_PFHT250_v1', 
     'HLT_DoubleMu8_Mass8_PFHT300_v4', 
     'HLT_L2DoubleMu23_NoVertex_v2', 
@@ -526,6 +528,7 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_Mu8_TrkIsoVVL_v3', 
     'HLT_Mu8_v3', 
     'HLT_TripleMu_12_10_5_v2', 
+    'HLT_TripleMu_5_3_3_v1', 
     'HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v2', 
     'HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v2')
 
