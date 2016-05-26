@@ -95,7 +95,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
   theLastWrittenIov(0),
-  theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary"))
+  theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
+  runAtPCL_(cfg.getParameter<bool>("runAtPCL"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -533,12 +534,14 @@ void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo, const edm::E
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::beginLuminosityBlock(const edm::EventSetup&)
 {
+  if (!runAtPCL_) return;
   if(this->isMode(myMilleBit)) theMille->resetOutputFile();
 }
 
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::endLuminosityBlock(const edm::EventSetup&)
 {
+  if (!runAtPCL_) return;
   if(this->isMode(myMilleBit)) theMille->flushOutputFile();
 }
 
