@@ -15,7 +15,7 @@ public:
   void setDbService(const CastorDbService * service) {theDbService = service;}
 
   /// user gets control of the pointer
-  std::auto_ptr<CastorCoder> coder(const DetId & detId) const;
+  std::unique_ptr<CastorCoder> coder(const DetId & detId) const;
 
 private:
 

@@ -273,14 +273,14 @@ namespace cms
     } 
     
     // Step C: create collection with the cache vector of DetSet 
-    std::auto_ptr<edm::DetSetVector<PixelDigi> > 
+    std::unique_ptr<edm::DetSetVector<PixelDigi> >
       output(new edm::DetSetVector<PixelDigi>(digiVector));
-    std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > 
+    std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> >
       outputlink(new edm::DetSetVector<PixelDigiSimLink>(digiLinkVector));
     
     // Step D: write output to file 
-    iEvent.put(output, "Pixel");
-    iEvent.put(outputlink, "Pixel");
+    iEvent.put(std::move(output), "Pixel");
+    iEvent.put(std::move(outputlink), "Pixel");
   }
   void Phase2TrackerDigitizer::addOuterTrackerCollection(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const TrackerTopology* tTopo = tTopoHand.product();
@@ -312,14 +312,14 @@ namespace cms
     } 
     
     // Step C: create collection with the cache vector of DetSet 
-    std::auto_ptr<edm::DetSetVector<Phase2TrackerDigi> > 
+    std::unique_ptr<edm::DetSetVector<Phase2TrackerDigi> >
       output(new edm::DetSetVector<Phase2TrackerDigi>(digiVector));
-    std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > 
+    std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> >
       outputlink(new edm::DetSetVector<PixelDigiSimLink>(digiLinkVector));
     
     // Step D: write output to file 
-    iEvent.put(output, "Tracker");
-    iEvent.put(outputlink, "Tracker");
+    iEvent.put(std::move(output), "Tracker");
+    iEvent.put(std::move(outputlink), "Tracker");
   }
 }
 

@@ -124,9 +124,9 @@ HcalTB04Analysis::~HcalTB04Analysis() {
 
 void HcalTB04Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<PHcalTB04Info> product(new PHcalTB04Info);
+  std::unique_ptr<PHcalTB04Info> product(new PHcalTB04Info);
   fillEvent(*product);
-  e.put(product);
+  e.put(std::move(product));
 }
 
 void HcalTB04Analysis::init() {

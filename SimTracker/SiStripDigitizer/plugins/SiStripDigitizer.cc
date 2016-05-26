@@ -220,7 +220,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
 
   std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
   std::vector<edm::DetSet<SiStripRawDigi> > theRawDigiVector;
-  std::auto_ptr< edm::DetSetVector<StripDigiSimLink> > pOutputDigiSimLink( new edm::DetSetVector<StripDigiSimLink> );
+  std::unique_ptr< edm::DetSetVector<StripDigiSimLink> > pOutputDigiSimLink( new edm::DetSetVector<StripDigiSimLink> );
   
   // Step B: LOOP on StripGeomDetUnit
   theDigiVector.reserve(10000);
@@ -255,28 +255,28 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
 
   if(zeroSuppression){
     // Step C: create output collection
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>());
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_scopemode(new edm::DetSetVector<SiStripRawDigi>());
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
-    std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(theDigiVector) );
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>());
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_scopemode(new edm::DetSetVector<SiStripRawDigi>());
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
+    std::unique_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(theDigiVector) );
     // Step D: write output to file
-    iEvent.put(output, ZSDigi);
-    iEvent.put(output_scopemode, SCDigi);
-    iEvent.put(output_virginraw, VRDigi);
-    iEvent.put(output_processedraw, PRDigi);
-    if( makeDigiSimLinks_ ) iEvent.put( pOutputDigiSimLink ); // The previous EDProducer didn't name this collection so I won't either
+    iEvent.put(std::move(output), ZSDigi);
+    iEvent.put(std::move(output_scopemode), SCDigi);
+    iEvent.put(std::move(output_virginraw), VRDigi);
+    iEvent.put(std::move(output_processedraw), PRDigi);
+    if( makeDigiSimLinks_ ) iEvent.put(std::move(pOutputDigiSimLink)); // The previous EDProducer didn't name this collection so I won't either
   }else{
     // Step C: create output collection
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>(theRawDigiVector));
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_scopemode(new edm::DetSetVector<SiStripRawDigi>());
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
-    std::auto_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>() );
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>(theRawDigiVector));
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_scopemode(new edm::DetSetVector<SiStripRawDigi>());
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_processedraw(new edm::DetSetVector<SiStripRawDigi>());
+    std::unique_ptr<edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>() );
     // Step D: write output to file
-    iEvent.put(output, ZSDigi);
-    iEvent.put(output_scopemode, SCDigi);
-    iEvent.put(output_virginraw, VRDigi);
-    iEvent.put(output_processedraw, PRDigi);
-    if( makeDigiSimLinks_ ) iEvent.put( pOutputDigiSimLink ); // The previous EDProducer didn't name this collection so I won't either
+    iEvent.put(std::move(output), ZSDigi);
+    iEvent.put(std::move(output_scopemode), SCDigi);
+    iEvent.put(std::move(output_virginraw), VRDigi);
+    iEvent.put(std::move(output_processedraw), PRDigi);
+    if( makeDigiSimLinks_ ) iEvent.put(std::move(pOutputDigiSimLink)); // The previous EDProducer didn't name this collection so I won't either
   }
 }
 

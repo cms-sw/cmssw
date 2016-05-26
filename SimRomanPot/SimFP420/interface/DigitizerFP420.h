@@ -51,10 +51,10 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
     
     //     virtual void prodfun(MixCollection<PSimHit>*, DigiCollectionFP420 &);
-    //  virtual void prodfun(std::auto_ptr<MixCollection<PSimHit> >*, DigiCollectionFP420 &);
+    //  virtual void prodfun(std::unique_ptr<MixCollection<PSimHit> >*, DigiCollectionFP420 &);
     
     
-    //           virtual void prodfun(std::auto_ptr<MixCollection<PSimHit> >&, DigiCollectionFP420 &);
+    //           virtual void prodfun(std::unique_ptr<MixCollection<PSimHit> >&, DigiCollectionFP420 &);
     
   private:
     //  std::vector<PSimHit> theStripHits;

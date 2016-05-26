@@ -33,9 +33,9 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(debug_)
     std::cout << "[EcalFEtoDigi::produce] producing event " << current_bx << std::endl;
   
-  std::auto_ptr<EcalTrigPrimDigiCollection>  
+  std::unique_ptr<EcalTrigPrimDigiCollection>
     e_tpdigis (new EcalTrigPrimDigiCollection);
-  std::auto_ptr<EcalTrigPrimDigiCollection>  
+  std::unique_ptr<EcalTrigPrimDigiCollection>
     e_tpdigisTcp (new EcalTrigPrimDigiCollection);
 
   std::vector<TCCinput>::const_iterator it;
@@ -128,8 +128,8 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     e_tpdigis->push_back(*e_digi);
   }
 
-  iEvent.put(e_tpdigis);
-  iEvent.put(e_tpdigisTcp,"formatTCP");
+  iEvent.put(std::move(e_tpdigis));
+  iEvent.put(std::move(e_tpdigisTcp),"formatTCP");
 
 }
 

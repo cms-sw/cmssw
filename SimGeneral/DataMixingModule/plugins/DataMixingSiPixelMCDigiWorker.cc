@@ -568,7 +568,7 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
   
 	  // Initilize the index converter
 	  //PixelIndices indexConverter(numColumns,numRows);
-	  std::auto_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
+	  std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
 
 
 	  int chipIndex = 0;
@@ -644,11 +644,11 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 
     // make new digi collection
     
-    std::auto_ptr< edm::DetSetVector<PixelDigi> > MyPixelDigis(new edm::DetSetVector<PixelDigi>(vPixelDigi) );
+    std::unique_ptr< edm::DetSetVector<PixelDigi> > MyPixelDigis(new edm::DetSetVector<PixelDigi>(vPixelDigi) );
 
     // put collection
 
-    e.put( MyPixelDigis, PixelDigiCollectionDM_ );
+    e.put(std::move(MyPixelDigis), PixelDigiCollectionDM_ );
 
     // clear local storage for this event
     SiHitStorage_.clear();

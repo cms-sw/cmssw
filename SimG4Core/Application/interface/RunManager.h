@@ -110,7 +110,7 @@ private:
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
     
   bool m_nonBeam;
-  std::auto_ptr<PhysicsList> m_physicsList;
+  std::unique_ptr<PhysicsList> m_physicsList;
   PrimaryTransformer * m_primaryTransformer;
   bool m_managerInitialized;
   bool m_runInitialized;
@@ -152,7 +152,7 @@ private:
   std::vector<std::shared_ptr<SimWatcher> > m_watchers;
   std::vector<std::shared_ptr<SimProducer> > m_producers;
     
-  std::auto_ptr<SimTrackManager> m_trackManager;
+  std::unique_ptr<SimTrackManager> m_trackManager;
   sim::FieldBuilder             *m_fieldBuilder;
   sim::ChordFinderSetter        *m_chordFinderSetter;
     
