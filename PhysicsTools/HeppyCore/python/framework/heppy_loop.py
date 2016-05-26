@@ -45,7 +45,7 @@ def runLoop( comp, outDir, config, options):
     fullName = '/'.join( [outDir, comp.name ] )
     # import pdb; pdb.set_trace()
     config.components = [comp]
-    memcheck = 2 if getattr(options,'memCheck',False) else 0
+    memcheck = 2 if getattr(options,'memCheck',False) else -1
     loop = Looper( fullName,
                    config,
                    options.nevents, 0,
