@@ -36,9 +36,9 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
     TotemRPIncludeAlignments(const edm::ParameterSet &p);
     virtual ~TotemRPIncludeAlignments(); 
 
-    std::unique_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
-    std::unique_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
-    std::unique_ptr<RPAlignmentCorrectionsData> produceMisaligned(const RPMisalignedAlignmentRecord &);
+    std::auto_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
+    std::auto_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
+    std::auto_ptr<RPAlignmentCorrectionsData> produceMisaligned(const RPMisalignedAlignmentRecord &);
 
   protected:
     unsigned int verbosity;
@@ -160,23 +160,26 @@ void TotemRPIncludeAlignments::PrepareSequence(const string &label, RPAlignmentC
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
+std::auto_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMeasured(const RPMeasuredAlignmentRecord &iRecord)
 {
-  return std::make_unique<RPAlignmentCorrectionsData>(acMeasured);
+  std::auto_ptr<RPAlignmentCorrectionsData> alignments(new RPAlignmentCorrectionsData(acMeasured));
+  return alignments;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceReal(const RPRealAlignmentRecord &iRecord)
+std::auto_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceReal(const RPRealAlignmentRecord &iRecord)
 {
-  return std::make_unique<RPAlignmentCorrectionsData>(acReal);
+  std::auto_ptr<RPAlignmentCorrectionsData> alignments(new RPAlignmentCorrectionsData(acReal));
+  return alignments;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
+std::auto_ptr<RPAlignmentCorrectionsData> TotemRPIncludeAlignments::produceMisaligned(const RPMisalignedAlignmentRecord &iRecord)
 {
-  return std::make_unique<RPAlignmentCorrectionsData>(acMisaligned);
+  std::auto_ptr<RPAlignmentCorrectionsData> alignments(new RPAlignmentCorrectionsData(acMisaligned));
+  return alignments;
 }
 
 //----------------------------------------------------------------------------------------------------

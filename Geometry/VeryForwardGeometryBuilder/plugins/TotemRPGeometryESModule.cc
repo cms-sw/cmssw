@@ -56,16 +56,16 @@ class  TotemRPGeometryESModule : public edm::ESProducer
     TotemRPGeometryESModule(const edm::ParameterSet &p);
     virtual ~TotemRPGeometryESModule(); 
 
-    std::unique_ptr<DDCompactView> produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &);
+    std::auto_ptr<DDCompactView> produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &);
 
-    std::unique_ptr<DetGeomDesc> produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &);
-    std::unique_ptr<TotemRPGeometry> produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &);
+    std::auto_ptr<DetGeomDesc> produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &);
+    std::auto_ptr<TotemRPGeometry> produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &);
 
-    std::unique_ptr<DetGeomDesc> produceRealGD(const VeryForwardRealGeometryRecord &);
-    std::unique_ptr<TotemRPGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
+    std::auto_ptr<DetGeomDesc> produceRealGD(const VeryForwardRealGeometryRecord &);
+    std::auto_ptr<TotemRPGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
 
-    std::unique_ptr<DetGeomDesc> produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &);
-    std::unique_ptr<TotemRPGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &);
+    std::auto_ptr<DetGeomDesc> produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &);
+    std::auto_ptr<TotemRPGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &);
 
   protected:
     unsigned int verbosity;
@@ -414,7 +414,7 @@ void TotemRPGeometryESModule::ApplyAlignments(const edm::ESHandle<DDCompactView>
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DDCompactView> TotemRPGeometryESModule::produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &iRecord)
+auto_ptr<DDCompactView> TotemRPGeometryESModule::produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &iRecord)
 {
     // get the ideal DDCompactView from EventSetup
     edm::ESHandle<DDCompactView> idealCV;
@@ -442,12 +442,12 @@ std::unique_ptr<DDCompactView> TotemRPGeometryESModule::produceMeasuredDDCV(cons
 
     DDCompactView *measuredCV = NULL;
     ApplyAlignments(idealCV, alignments, measuredCV);
-    return std::unique_ptr<DDCompactView>(measuredCV);
+    return auto_ptr<DDCompactView>(measuredCV);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &iRecord)
+auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &iRecord)
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
@@ -455,12 +455,12 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMeasuredGD(const Ve
   
   // construct the tree of DetGeomDesc
   DDDTotemRPContruction worker;
-  return std::unique_ptr<DetGeomDesc>( const_cast<DetGeomDesc*>( worker.construct(&(*cpv)) ) );
+  return auto_ptr<DetGeomDesc>( const_cast<DetGeomDesc*>( worker.construct(&(*cpv)) ) );
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord &iRecord)
+auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord &iRecord)
 {
   // get the input (= measured) GeometricalDet
   edm::ESHandle<DetGeomDesc> measuredGD;
@@ -481,12 +481,12 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
 
   DetGeomDesc* newGD = NULL;
   ApplyAlignments(measuredGD, alignments, newGD);
-  return std::unique_ptr<DetGeomDesc>(newGD);
+  return auto_ptr<DetGeomDesc>(newGD);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &iRecord)
+auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &iRecord)
 {
   // get the input (= measured) GeometricalDet
   edm::ESHandle<DetGeomDesc> measuredGD;
@@ -506,37 +506,40 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const 
 
   DetGeomDesc* newGD = NULL;
   ApplyAlignments(measuredGD, alignments, newGD);
-  return std::unique_ptr<DetGeomDesc>(newGD);
+  return auto_ptr<DetGeomDesc>(newGD);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &iRecord)
+auto_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
   
-  return std::make_unique<TotemRPGeometry>( gD.product() );
+  std::auto_ptr<TotemRPGeometry> rpG( new TotemRPGeometry(gD.product()) );
+  return rpG;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
+auto_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
 
-  return std::make_unique<TotemRPGeometry>( gD.product());
+  std::auto_ptr<TotemRPGeometry> rpG( new TotemRPGeometry(gD.product()) );
+  return rpG;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &iRecord)
+auto_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
 
-  return std::make_unique<TotemRPGeometry>( gD.product());
+  std::auto_ptr<TotemRPGeometry> rpG( new TotemRPGeometry(gD.product()) );
+  return rpG;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(TotemRPGeometryESModule);
