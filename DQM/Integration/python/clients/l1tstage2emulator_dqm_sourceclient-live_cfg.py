@@ -44,6 +44,7 @@ process.rawToDigiPath.remove(process.gtEvmDigis)
 
 #--------------------------------------------------
 # Stage2 DQM Paths
+# TODO: Change Fat Event Filter to SelectEvents
 
 # Filter fat events
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
