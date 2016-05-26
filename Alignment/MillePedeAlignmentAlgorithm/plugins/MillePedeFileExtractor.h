@@ -22,26 +22,29 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/Common/interface/FileBlobCollection.h"
 
-class MillePedeFileExtractor : public edm::EDAnalyzer {
+class MillePedeFileExtractor : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
  public:
   explicit MillePedeFileExtractor(const edm::ParameterSet&);
   ~MillePedeFileExtractor();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) {}
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
+                                    const edm::EventSetup&) override {}
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&,
+                                  const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
-  std::string theOutputDir;
-  std::string theOutputFileName;
+  const std::string outputDir_;
+  const std::string outputFileName_;
 
-  edm::EDGetTokenT<FileBlobCollection> theFileBlobToken;
+  edm::EDGetTokenT<FileBlobCollection> fileBlobToken_;
 
 };
 

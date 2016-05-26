@@ -1,8 +1,6 @@
 // Original Author:  Broen van Besien
 //         Created:  Mon, 23 Mar 2015 14:56:15 GMT
 
-#include <memory>
-
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileExtractor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,43 +9,44 @@
 #include "FWCore/Utilities/interface/EDGetToken.h" 
 
 MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
-    : theOutputDir(iConfig.getParameter<std::string>("fileDir")),
-      theOutputFileName(iConfig.getParameter<std::string>("outputBinaryFile")) {
+    : outputDir_(iConfig.getParameter<std::string>("fileDir")),
+      outputFileName_(iConfig.getParameter<std::string>("outputBinaryFile")) {
 
-  edm::InputTag fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
-  theFileBlobToken = consumes<FileBlobCollection, edm::BranchType::InRun>(fileBlobInputTag);
+  auto fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
+  fileBlobToken_ = consumes<FileBlobCollection, edm::BranchType::InLumi>(fileBlobInputTag);
   // nothing else in the constructor
 }
 
 MillePedeFileExtractor::~MillePedeFileExtractor() {}
 
-void MillePedeFileExtractor::endRun(const edm::Run& iRun,
-                                    edm::EventSetup const&) {
+void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
+                                                const edm::EventSetup&)
+{
   // Getting our hands on the vector of FileBlobs
-  edm::Handle<FileBlobCollection> theFileBlobCollection;
-  iRun.getByToken(theFileBlobToken, theFileBlobCollection);
-  if (theFileBlobCollection.isValid()) {
+  edm::Handle<FileBlobCollection> fileBlobCollection;
+  iLumi.getByToken(fileBlobToken_, fileBlobCollection);
+  if (fileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
-    int theVectorSize = theFileBlobCollection->size();
+    int theVectorSize = fileBlobCollection->size();
     edm::LogInfo("MillePedeFileActions") << "Root file contains "
                                          << theVectorSize << " FileBlob(s).";
     // Loop over the FileBlobs in the vector, and write them to files:
     for (std::vector<FileBlob>::const_iterator it =
-             theFileBlobCollection->begin();
-         it != theFileBlobCollection->end(); ++it) {
+             fileBlobCollection->begin();
+         it != fileBlobCollection->end(); ++it) {
       // We format the filename with a number, starting from 0 to the size of
       // our vector.
       // For this to work, the outputBinaryFile config parameter must contain a
       // formatting directive for a number, like %04d.
       char theNumberedOutputFileName[200];
-      int theNumber = it - theFileBlobCollection->begin();
-      sprintf(theNumberedOutputFileName, theOutputFileName.c_str(), theNumber);
+      int theNumber = it - fileBlobCollection->begin();
+      sprintf(theNumberedOutputFileName, outputFileName_.c_str(), theNumber);
       // Log the filename to which we will write...
       edm::LogInfo("MillePedeFileActions")
           << "Writing FileBlob file to file "
-          << theOutputDir + theNumberedOutputFileName << ".";
+          << outputDir_ + theNumberedOutputFileName << ".";
       // ...and perform the writing operation.
-      it->write(theOutputDir + theNumberedOutputFileName);
+      it->write(outputDir_ + theNumberedOutputFileName);
       // Carefull, it seems that when writing to an impossible file, this is
       // swallowed by the FileBlob->write operation and no error is thrown.
     }
