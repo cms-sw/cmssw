@@ -45,12 +45,14 @@ def runLoop( comp, outDir, config, options):
     fullName = '/'.join( [outDir, comp.name ] )
     # import pdb; pdb.set_trace()
     config.components = [comp]
+    memcheck = 2 if getattr(options,'memCheck',False) else 0
     loop = Looper( fullName,
                    config,
                    options.nevents, 0,
                    nPrint = options.nprint,
                    timeReport = options.timeReport,
-                   quiet = options.quiet)
+                   quiet = options.quiet,
+                   memCheckFromEvent = memcheck)
     # print loop
     if options.iEvent is None:
         loop.loop()
