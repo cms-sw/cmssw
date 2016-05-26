@@ -73,6 +73,8 @@ import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackCommon = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
 SiStripMonitorTrackCommon.Mod_On        = False
+SiStripMonitorTrackCommon.TH1ClusterCharge.ringView = cms.bool( True )
+SiStripMonitorTrackCommon.TH1ClusterStoNCorr.ringView = cms.bool( True )
 
 # Clone for SiStripMonitorTrack for Minimum Bias ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
@@ -80,6 +82,8 @@ SiStripMonitorTrackMB = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripM
 SiStripMonitorTrackMB.TrackProducer = 'generalTracks'
 SiStripMonitorTrackMB.Mod_On        = False
 SiStripMonitorTrackMB.genericTriggerEventPSet = genericTriggerEventFlag4HLTdb
+SiStripMonitorTrackMB.TH1ClusterCharge.ringView = cms.bool( True )
+SiStripMonitorTrackMB.TH1ClusterStoNCorr.ringView = cms.bool( True )
 
 ### TrackerMonitorTrack defined and used only for MinimumBias ####
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
