@@ -202,7 +202,6 @@ sub test_pack_unpack_is_unity {
 
     if (! $RECYCLE){
 	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT $COND_MC -s DIGI,L1,DIGI2RAW,RAW2DIGI -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root --customise=L1Trigger/Configuration/customiseUtils.L1TStage2ComparisonRAWvsEMU --customise=L1Trigger/Configuration/customiseUtils.L1TGtStage2ComparisonRAWvsEMU >& CMSDRIVER.log");
-# --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
 
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
@@ -241,7 +240,7 @@ sub test_reemul {
     if ($SLOW) {$nevt = 1000; }
 
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW2015 --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU $COND_DATA_2015 -n $nevt --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW2015 --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2015 -n $nevt --data --no_exec --no_output --filein=$file --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs >& CMSDRIVER.log");
 
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
@@ -358,7 +357,6 @@ sub test_mc_prod {
 
     if (! $RECYCLE){
 	$status = long_command("cmsDriver.py L1TEST $COND_MC -s DIGI,L1 --datatier GEN-SIM-RAW -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree >& CMSDRIVER.log");
-# --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
 
 	print "INFO: status of cmsDriver call is $status\n";
 	if ($status){
@@ -479,7 +477,7 @@ sub main {
     if ($REEMUL){
 	$nevt = 10;
 	$file = "/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/4A874FB5-585D-E511-A3D8-02163E0143B5.root";
-	$status = long_command("cmsDriver.py L1TEST --python_filename=reEmul.py -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW2015 --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2015 -n $nevt --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST --python_filename=reEmul.py -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW2015 --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2015 -n $nevt --data --no_exec --no_output --filein=$file >& CMSDRIVER.log");
 	if ($status){
 	    print "ERROR: abnormal status returned: $status\n";
 	    return;
@@ -505,6 +503,22 @@ sub main {
 	print "$ours\n";
 	print "$theirs\n";;
 	$status = long_command("root -b -q -x 'L1Trigger/L1TCommon/macros/NtupleDiff.C(\"mc\",\"$ours\",\"$theirs\")'");
+
+	$ours = "$WORK_DIR/test_2/L1Ntuple.root";
+	$theirs = "$COMPARE_DIR/$WORK_DIR/test_2/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"raw2016\",\"$ours\",\"$theirs\",\"l1UpgradeTree/L1UpgradeTree\",\"l1UpgradeTree/L1UpgradeTree\")'");
+
+	$ours = "$WORK_DIR/test_5/L1Ntuple.root";
+	$theirs = "$COMPARE_DIR/$WORK_DIR/test_5/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"reemul2016\",\"$ours\",\"$theirs\")'");
 
 	# this is a hack until L1T uGT output goes into L1TNtuple:
         system "sed -n \'/L1T menu Name/,/Final OR Count/p\' $WORK_DIR/test_0/CMSRUN.log > menu_a.txt";
