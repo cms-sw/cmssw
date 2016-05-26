@@ -3,6 +3,7 @@ import math
 import copy
 import array
 import difflib
+import collections
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -350,7 +351,7 @@ class FakeDuplicate:
 
 class AggregateBins:
     """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""
-    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None, ignoreMissingBins=False, minExistingBins=None, originalOrder=False):
         """Constructor.
 
         Arguments:
@@ -362,6 +363,7 @@ class AggregateBins:
         normalizeTo -- Optional string of a bin label in the source histogram. If given, all bins of the resulting histogram are divided by the value of this bin.
         scale       -- Optional number for scaling the histogram (passed to ROOT.TH1.Scale())
         renameBin   -- Optional function (string -> string) to rename the bins of the input histogram
+        originalOrder -- Boolean for using the order of bins in the histogram (default False)
 
         Mapping structure (mapping):
 
@@ -377,6 +379,7 @@ class AggregateBins:
         self._renameBin = renameBin
         self._ignoreMissingBins = ignoreMissingBins
         self._minExistingBins = minExistingBins
+        self._originalOrder = originalOrder
 
     def __str__(self):
         """String representation, returns the name"""
@@ -399,6 +402,7 @@ class AggregateBins:
                 binLabel = self._renameBin(binLabel)
             values[binLabel] = (th1.GetBinContent(i), th1.GetBinError(i))
 
+        binIndexOrder = [] # for reordering bins if self._originalOrder is True
         for i, (key, labels) in enumerate(self._mapping.iteritems()):
             sumTime = 0.
             sumErrorSq = 0.
@@ -414,6 +418,27 @@ class AggregateBins:
             if nsum > 0:
                 binValues[i] = (sumTime, math.sqrt(sumErrorSq))
             binLabels[i] = key
+
+            ivalue = len(values)+1
+            if len(labels) > 0:
+                # first label doesn't necessarily exist (especially for
+                # the iteration timing plots), so let's test them all
+                for lab in labels:
+                    if lab in values:
+                        ivalue = values.keys().index(lab)
+                        break
+            binIndexOrder.append( (ivalue, i) )
+
+        if self._originalOrder:
+            binIndexOrder.sort(key=lambda t: t[0])
+            tmpVal = []
+            tmpLab = []
+            for i in xrange(0, len(binValues)):
+                fromIndex = binIndexOrder[i][1]
+                tmpVal.append(binValues[fromIndex])
+                tmpLab.append(binLabels[fromIndex])
+            binValues = tmpVal
+            binLabels = tmpLab
 
         if self._minExistingBins is not None and (len(binValues)-binValues.count(None)) < self._minExistingBins:
             return None

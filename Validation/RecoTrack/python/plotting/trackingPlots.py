@@ -503,10 +503,11 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
     _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
     _commonN = {"ylog": True, "ymin": _minMaxN, "ymax": _minMaxN}
     _commonN.update(_common)
-    _commonAB = {"mapping": mapping,
-                 "renameBin": lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask, seeds),
-                 "ignoreMissingBins": True,
-    }
+    _commonAB = dict(mapping=mapping,
+                     renameBin=lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask, seeds),
+                     ignoreMissingBins=True,
+                     originalOrder=True,
+    )
     if byOriginalAlgo or byAlgoMask:
         _commonAB["minExistingBins"] = 2
     prefix = "summary"+midfix
@@ -1205,11 +1206,11 @@ _common = {
     "xbinlabelsize": 10,
     "xbinlabeloption": "d"
 }
-_time_per_iter = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True)
+_time_per_iter = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True, originalOrder=True)
 _timing_summary = PlotGroup("summary", [
     Plot(_time_per_iter,
          ytitle="Average processing time (ms)", title="Average processing time / event", legendDx=-0.4, **_common),
-    Plot(AggregateBins("iteration_fraction", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True),
+    Plot(AggregateBins("iteration_fraction", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True, originalOrder=True),
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
     #
     Plot(AggregateBins("step", "reconstruction_step_module_average", _stepModuleMap(), ignoreMissingBins=True),
