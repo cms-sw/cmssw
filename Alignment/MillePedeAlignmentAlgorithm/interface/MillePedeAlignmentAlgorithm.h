@@ -260,6 +260,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   // CHK for GBL
   std::unique_ptr<gbl::MilleBinary> theBinary;
   bool                      theGblDoubleBinary;
+
+  const bool                runAtPCL_;
 };
 
 #endif
