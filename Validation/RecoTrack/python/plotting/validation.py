@@ -939,8 +939,13 @@ class SimpleValidation:
         if not os.path.exists(newdir):
             os.makedirs(newdir)
 
+        self._htmlReport = html.HtmlReportDummy()
+
     def createHtmlReport(self, validationName=""):
-        return html.HtmlReport(validationName, self._newdir)
+        if hasattr(self._htmlReport, "write"):
+            raise Exception("HTML report object already created. There is probably some logic error in the calling code.")
+        self._htmlReport = html.HtmlReport(validationName, self._newdir)
+        return self._htmlReport
 
     def doPlots(self, plotters, plotterDrawArgs={}, **kwargs):
         self._plotterDrawArgs = plotterDrawArgs
@@ -948,6 +953,7 @@ class SimpleValidation:
         for sample in self._samples:
             self._subdirprefix = sample.label()
             self._labels = sample.legendLabels()
+            self._htmlReport.beginSample(sample)
 
             self._openFiles = []
             for f in sample.files():
@@ -963,21 +969,21 @@ class SimpleValidation:
                 tf.Close()
             self._openFiles = []
 
-    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
+    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
-            plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
+            plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
             if len(plotFiles) > 0:
-                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+                self._htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
-    def _doPlots(self, plotterFolder, dqmSubFolder, htmlReport):
+    def _doPlots(self, plotterFolder, dqmSubFolder):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
         for tableCreator in plotterFolder.getTableCreators():
-            htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
+            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
         newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)

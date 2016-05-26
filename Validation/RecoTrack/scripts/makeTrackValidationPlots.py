@@ -34,8 +34,6 @@ def main(opts):
     kwargs = {}
     if opts.html:
         htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
-        htmlReport.beginSample(sample)
-        kwargs["htmlReport"] = htmlReport
 
     kwargs_tracking = {}
     kwargs_tracking.update(kwargs)
