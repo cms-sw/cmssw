@@ -356,7 +356,7 @@ class AggregateBins:
         Arguments:
         name      -- String for the name of the resulting histogram
         histoName -- String for the name of the source histogram
-        mapping   -- Dictionary or list for mapping the bins (see below)
+        mapping   -- Dictionary for mapping the bins (see below)
 
         Keyword arguments:
         normalizeTo -- Optional string of a bin label in the source histogram. If given, all bins of the resulting histogram are divided by the value of this bin.
@@ -368,10 +368,6 @@ class AggregateBins:
         Dictionary (you probably want to use collections.OrderedDict)
         should be a mapping from the destination bin label to a list
         of source bin labels ("dst -> [src]").
-
-        If the mapping is a list, it should only contain the source
-        bin labels. In this case, the resulting histogram contains a
-        subset of the bins of the source histogram.
         """
         self._name = name
         self._histoName = histoName
@@ -396,36 +392,28 @@ class AggregateBins:
         binValues = [None]*len(self._mapping)
 
         # TH1 can't really be used as a map/dict, so convert it here:
-        values = {}
+        values = collections.OrderedDict()
         for i in xrange(1, th1.GetNbinsX()+1):
             binLabel = th1.GetXaxis().GetBinLabel(i)
             if self._renameBin is not None:
                 binLabel = self._renameBin(binLabel)
             values[binLabel] = (th1.GetBinContent(i), th1.GetBinError(i))
 
-        if isinstance(self._mapping, list):
-            for i, label in enumerate(self._mapping):
+        for i, (key, labels) in enumerate(self._mapping.iteritems()):
+            sumTime = 0.
+            sumErrorSq = 0.
+            nsum = 0
+            for l in labels:
                 try:
-                    binValues[i] = values[label]
+                    sumTime += values[l][0]
+                    sumErrorSq += values[l][1]**2
+                    nsum += 1
                 except KeyError:
                     pass
-                binLabels[i] = label
-        else:
-            for i, (key, labels) in enumerate(self._mapping.iteritems()):
-                sumTime = 0.
-                sumErrorSq = 0.
-                nsum = 0
-                for l in labels:
-                    try:
-                        sumTime += values[l][0]
-                        sumErrorSq += values[l][1]**2
-                        nsum += 1
-                    except KeyError:
-                        pass
 
-                if nsum > 0:
-                    binValues[i] = (sumTime, math.sqrt(sumErrorSq))
-                binLabels[i] = key
+            if nsum > 0:
+                binValues[i] = (sumTime, math.sqrt(sumErrorSq))
+            binLabels[i] = key
 
         if self._minExistingBins is not None and (len(binValues)-binValues.count(None)) < self._minExistingBins:
             return None
