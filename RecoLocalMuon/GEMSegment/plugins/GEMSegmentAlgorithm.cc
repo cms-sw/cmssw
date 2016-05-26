@@ -110,24 +110,21 @@ GEMSegmentAlgorithm::clusterHits(const GEMEnsemble& ensemble, const EnsembleHitC
   float dXclus_box = 0.0;
   float dYclus_box = 0.0;
 
-  EnsembleHitContainer temp;
-  ProtoSegments seeds;
+  ProtoSegments seeds; seeds.reserve(rechits.size());
 
-  std::vector<float> running_meanX;
-  std::vector<float> running_meanY;
+  std::vector<float> running_meanX; running_meanX.reserve(rechits.size());
+  std::vector<float> running_meanY; running_meanY.reserve(rechits.size());
 
-  std::vector<float> seed_minX;
-  std::vector<float> seed_maxX;
-  std::vector<float> seed_minY;
-  std::vector<float> seed_maxY;
+  std::vector<float> seed_minX; seed_minX.reserve(rechits.size());
+  std::vector<float> seed_maxX; seed_maxX.reserve(rechits.size());
+  std::vector<float> seed_minY; seed_minY.reserve(rechits.size());
+  std::vector<float> seed_maxY; seed_maxY.reserve(rechits.size());
 
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits 
   // Create one seed per hit
   for(unsigned int i = 0; i < rechits.size(); ++i) {
-    temp.clear();
-    temp.push_back(rechits[i]);
-    seeds.push_back(temp);
+    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
 
     GEMDetId rhID                  = rechits[i]->gemId();
     const GEMEtaPartition * rhEP   = (ensemble.second.find(rhID.rawId()))->second;
@@ -212,7 +209,6 @@ GEMSegmentAlgorithm::ProtoSegments
 GEMSegmentAlgorithm::chainHits(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits) {
 
   ProtoSegments rechits_chains; 
-  EnsembleHitContainer temp;
   ProtoSegments seeds;  
   seeds.reserve(rechits.size());
   std::vector<bool> usedCluster(rechits.size(),false);
