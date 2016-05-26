@@ -16,7 +16,8 @@ namespace cond {
 	payloadType(""),
 	synchronizationType( cond::SYNCH_ANY ),
 	description(""),
-	iovBuffer(){
+	iovBuffer(),
+        changes(){
       }
       std::string tag;
       cond::TimeType timeType;
@@ -31,6 +32,7 @@ namespace cond {
       // buffer for the iov sequence
       std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> > iovBuffer;
       bool validationMode = false;
+      std::set<std::string> changes;
     };
 
     IOVEditor::IOVEditor():
@@ -98,6 +100,14 @@ namespace cond {
     cond::SynchronizationType IOVEditor::synchronizationType() const {
       return m_data.get()? m_data->synchronizationType : cond::SYNCH_ANY ; 
     }
+
+    void IOVEditor::setSynchronizationType( cond::SynchronizationType synchronizationType ){
+      if( m_data.get() ) {
+	m_data->synchronizationType = synchronizationType;
+	m_data->change = true;
+        m_data->changes.insert("SynchronizationType");
+      }      
+    }
     
     cond::Time_t IOVEditor::endOfValidity() const {
       return m_data.get() ? m_data->endOfValidity : cond::time::MIN_VAL;
@@ -107,6 +117,7 @@ namespace cond {
       if( m_data.get() ) {
 	m_data->endOfValidity = time;
 	m_data->change = true;
+	m_data->changes.insert("EndOfValidity");
       }
     }
     
@@ -118,6 +129,7 @@ namespace cond {
       if( m_data.get() ) {
 	m_data->description = description;
 	m_data->change = true;
+	m_data->changes.insert("Description");
       }
     }
     
@@ -129,6 +141,7 @@ namespace cond {
       if( m_data.get() ) {
 	m_data->lastValidatedTime = time;
 	m_data->change = true;
+	m_data->changes.insert("LastValidatedTime");
       }
     }
 
@@ -152,9 +165,11 @@ namespace cond {
       return std::get<0>(f) < std::get<0>(s);
     }
 
-    bool IOVEditor::flush( const std::string& logText, const boost::posix_time::ptime& operationTime ){
+    bool IOVEditor::flush( const std::string& logText, const boost::posix_time::ptime& operationTime, bool forceInsertion ){
       bool ret = false;
       checkTransaction( "IOVEditor::flush" );
+      std::string lt = logText;
+      if( lt.empty() ) lt = "-";
       if( m_data->change ){
 	if( m_data->description.empty() ) throwException( "A non-empty description string is mandatory.","IOVEditor::flush" );
 	if( m_data->validationMode ) m_session->iovSchema().tagTable().setValidationMode();
@@ -166,15 +181,24 @@ namespace cond {
 						    m_data->description, m_data->lastValidatedTime, m_data->creationTime );
           if( m_session->iovSchema().tagLogTable().exists() )
 	    m_session->iovSchema().tagLogTable().insert(  m_data->tag,  m_data->creationTime, cond::getUserName(),cond::getHostName(), cond::getCommand(),
-							  std::string("New tag created."),std::string("-") );
+							  std::string("New tag created."),lt );
 	  m_data->exists = true;
 	  ret = true;
 	} else {
-	  m_session->iovSchema().tagTable().update( m_data->tag, m_data->endOfValidity, m_data->description, 
+	  m_session->iovSchema().tagTable().update( m_data->tag, m_data->synchronizationType, m_data->endOfValidity, m_data->description, 
 						    m_data->lastValidatedTime, operationTime );   
-          if( m_session->iovSchema().tagLogTable().exists() )
+          if( m_session->iovSchema().tagLogTable().exists() ){
+	    std::string action("Tag header updated. Changes involve: ");
+            size_t i = 0;
+	    for( auto c: m_data->changes){
+	      action += c;
+	      if( i==(m_data->changes.size()-1) ) action += ".";
+	      else action += ", ";
+              i++;
+	    } 
 	    m_session->iovSchema().tagLogTable().insert(  m_data->tag,  operationTime, cond::getUserName(),cond::getHostName(), cond::getCommand(), 
-							  std::string("Tag header updated."),std::string("-") );
+							  action,lt );
+	  }
 	  ret = true;
 	}
 	m_data->change = false;
@@ -182,11 +206,11 @@ namespace cond {
       if( m_data->iovBuffer.size() ) {
 	std::sort(m_data->iovBuffer.begin(),m_data->iovBuffer.end(),iovSorter);
 	cond::Time_t l = std::get<0>(m_data->iovBuffer.front());
-  //We do not allow for IOV updates (i.e. insertion in the past or overriding) on tags whose syncrosization is not "ANY" or "VALIDATION".
-  //This policy is stricter than the one deployed in the Condition Upload service,
-  //which allows insertions in the past or overriding for IOVs larger than the first condition safe run for HLT ("HLT"/"EXPRESS" synchronizations) and Tier0 ("PROMPT"/"PCL").
-  //This is intended: in the C++ API we have not got a way to determine the first condition safe runs.
-  if( m_data->synchronizationType != cond::SYNCH_ANY && m_data->synchronizationType != cond::SYNCH_VALIDATION ){
+        //We do not allow for IOV updates (i.e. insertion in the past or overriding) on tags whose syncrosization is not "ANY" or "VALIDATION".
+        //This policy is stricter than the one deployed in the Condition Upload service,
+        //which allows insertions in the past or overriding for IOVs larger than the first condition safe run for HLT ("HLT"/"EXPRESS" synchronizations) and Tier0 ("PROMPT"/"PCL").
+        //This is intended: in the C++ API we have not got a way to determine the first condition safe runs.
+        if( !forceInsertion && m_data->synchronizationType != cond::SYNCH_ANY && m_data->synchronizationType != cond::SYNCH_VALIDATION ){
 	  // retrieve the last since
 	  cond::Time_t last = 0;
 	  cond::Hash h;
@@ -209,27 +233,30 @@ namespace cond {
 	std::stringstream msg;
         msg << m_data->iovBuffer.size() << " iov(s) inserted.";
 	if( m_session->iovSchema().tagLogTable().exists() ){
-	  std::string lt = logText;
-	  if( lt.empty() ) lt = "-";
 	  m_session->iovSchema().tagLogTable().insert(  m_data->tag,  operationTime, cond::getUserName(), cond::getHostName(), cond::getCommand(), 
 							msg.str(),lt );
 	}
 	m_data->iovBuffer.clear();
+        m_data->changes.clear();
 	ret = true;
       }
       return ret;
     }
     
     bool IOVEditor::flush( const std::string& logText ){
-      return flush( logText, boost::posix_time::microsec_clock::universal_time() );
+      return flush( logText, boost::posix_time::microsec_clock::universal_time(), false );
     }
 
     bool IOVEditor::flush( const boost::posix_time::ptime& operationTime ){
-      return flush( std::string("-"), operationTime );
+      return flush( std::string("-"), operationTime, false );
     }
 
     bool IOVEditor::flush(){
-      return flush( std::string("-"), boost::posix_time::microsec_clock::universal_time() );
+      return flush( std::string("-"), boost::posix_time::microsec_clock::universal_time(), false );
+    }
+
+    bool IOVEditor::flush( const std::string& logText, bool forceInsertion ){
+      return flush( logText, boost::posix_time::microsec_clock::universal_time(), forceInsertion );
     }
 
     void IOVEditor::checkTransaction( const std::string& ctx ){

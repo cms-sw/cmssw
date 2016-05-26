@@ -169,6 +169,32 @@ namespace cond {
       }
       m_data->snapshotTime = snapshotTime;
     }
+
+    void IOVProxy::loadRange( const std::string& tag, 
+			      const cond::Time_t& begin, 
+			      const cond::Time_t& end ){
+      if( !m_data.get() ) return;
+
+      // clear                                                                                                                                                                                            
+      reset();
+
+      checkTransaction( "IOVProxy::load" );
+
+      std::string dummy;
+      if(!m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->synchronizationType,
+                                                    m_data->endOfValidity, dummy, m_data->lastValidatedTime ) ){
+        throwException( "Tag \""+tag+"\" has not been found in the database.","IOVProxy::load");
+      }
+      m_data->tag = tag;
+
+      m_session->iovSchema().iovTable().selectLatestByGroup( m_data->tag, begin, end, m_data->iovSequence );
+
+      m_data->groupLowerIov = begin;
+      m_data->groupHigherIov = end;
+
+      boost::posix_time::ptime notime;
+      m_data->snapshotTime = notime;
+    }
     
     void IOVProxy::reload(){
       if(m_data.get() && !m_data->tag.empty()) load( m_data->tag, m_data->snapshotTime );

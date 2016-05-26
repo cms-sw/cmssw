@@ -79,6 +79,9 @@ namespace cond {
       // loads in memory the tag information and the iov groups
       void load( const std::string& tag, const boost::posix_time::ptime& snapshottime, bool full=false );
 
+      // loads an IOV range in memory
+      void loadRange( const std::string& tag, const cond::Time_t& begin, const cond::Time_t& end );
+
       // reset the data in memory and execute again the queries for the current tag 
       void reload();
       
