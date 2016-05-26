@@ -417,6 +417,7 @@ streamA_datasetMET_selector.throw      = cms.bool(False)
 streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_v1', 
     'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v2', 
     'HLT_DiCentralPFJet55_PFMET110_v1', 
+    'HLT_DoubleMu3_PFMET50_v1', 
     'HLT_MET200_v1', 
     'HLT_MET250_v1', 
     'HLT_MET300_v1', 
@@ -501,7 +502,6 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_DoubleMu28NoFiltersNoVtxDisplaced_v2', 
     'HLT_DoubleMu33NoFiltersNoVtx_v2', 
     'HLT_DoubleMu38NoFiltersNoVtx_v2', 
-    'HLT_DoubleMu3_PFMET50_v1', 
     'HLT_DoubleMu8_Mass8_PFHT250_v1', 
     'HLT_DoubleMu8_Mass8_PFHT300_v4', 
     'HLT_L2DoubleMu23_NoVertex_v2', 
@@ -536,7 +536,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleMuonLowMass_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleMuonLowMass_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMuonLowMass_selector.throw      = cms.bool(False)
-streamA_datasetDoubleMuonLowMass_selector.triggerConditions = cms.vstring('HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v2')
+streamA_datasetDoubleMuonLowMass_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_Trk_Tau3mu_v1', 
+    'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
