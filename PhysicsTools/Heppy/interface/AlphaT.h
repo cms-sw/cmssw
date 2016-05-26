@@ -20,8 +20,10 @@ struct AlphaT {
 
   static double getAlphaT( const std::vector<double>& et,
 		    const std::vector<double>& px,
-		    const std::vector<double>& py );
-   
+		    const std::vector<double>& py,
+		    std::vector<int> * jet_pseudoFlag,
+		    double& minDeltaHT);
+  
 };
 
 };
