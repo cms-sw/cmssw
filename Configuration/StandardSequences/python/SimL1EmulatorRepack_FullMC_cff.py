@@ -62,7 +62,7 @@ else:
     simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag("simDtTriggerPrimitiveDigis")
 
     # BMTF
-    simBmtfDigis.DTDigi_Source       = cms.InputTag("simDtTriggerPrimitiveDigis")
+    simBmtfDigis.DTDigi_Source       = cms.InputTag("simTwinMuxDigis")
     simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("simDtTriggerPrimitiveDigis")
 
     # OMTF
