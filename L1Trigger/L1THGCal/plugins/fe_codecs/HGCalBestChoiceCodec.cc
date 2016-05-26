@@ -48,7 +48,22 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
 /*****************************************************************/
 {
     data_.reset();
-    digi.decode(*this,data_);
+    edm::ParameterSet conf;
+    conf.addParameter<std::string>("CodecName",     name());
+    conf.addParameter<uint32_t>   ("CodecIndex",    getCodecType());
+    conf.addParameter<uint32_t>   ("NData",         HGCalBestChoiceCodec::data_type::size);
+    conf.addParameter<uint32_t>   ("DataLength",    codecImpl_.dataLength());
+    conf.addParameter<double>     ("linLSB",        codecImpl_.linLSB());
+    conf.addParameter<double>     ("adcsaturation", codecImpl_.adcsaturation());
+    conf.addParameter<uint32_t>   ("adcnBits",      codecImpl_.adcnBits());
+    conf.addParameter<double>     ("tdcsaturation", codecImpl_.tdcsaturation());
+    conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
+    conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
+    // decode input data with different parameters
+    // (no selection, so NData=number of trigger cells in module)
+    // Not very clean to define an alternative codec within this codec 
+    HGCalBestChoiceCodec codecInput(conf);
+    digi.decode(codecInput,data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
 

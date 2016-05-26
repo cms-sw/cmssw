@@ -39,6 +39,17 @@ class HGCalBestChoiceCodecImpl
         void triggerCellSums(const HGCalTriggerGeometry::Module& , const std::vector<std::pair<HGCEEDetId, uint32_t > >&, data_type&);
         void bestChoiceSelect(data_type&);
 
+        // Retrieve parameters
+        size_t   nData()         const {return nData_;}
+        size_t   dataLength()    const {return dataLength_;}
+        double   linLSB()        const {return linLSB_;}
+        double   adcsaturation() const {return adcsaturation_;}
+        uint32_t adcnBits()      const {return adcnBits_;}
+        double   tdcsaturation() const {return tdcsaturation_;}
+        uint32_t tdcnBits()      const {return tdcnBits_;}
+        double   tdcOnsetfC()    const {return tdcOnsetfC_;}
+
+
     private:
         size_t   nData_;
         size_t   dataLength_;
