@@ -530,6 +530,18 @@ void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo, const edm::E
   if(this->isMode(myMilleBit)) theMille->flushOutputFile();
 }
 
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::beginLuminosityBlock(const edm::EventSetup&)
+{
+  if(this->isMode(myMilleBit)) theMille->resetOutputFile();
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::endLuminosityBlock(const edm::EventSetup&)
+{
+  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
+}
+
 
 //____________________________________________________
 int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup,
