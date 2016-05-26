@@ -42,6 +42,18 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
 
 }
 
+/*****************************************************************/
+void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
+        const l1t::HGCFETriggerDigi& digi)
+/*****************************************************************/
+{
+    data_.reset();
+    digi.decode(*this,data_);
+    // choose best trigger cells in the module
+    codecImpl_.bestChoiceSelect(data_);
+
+}
+
 
 /*****************************************************************/
 std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::data_type& data) const 

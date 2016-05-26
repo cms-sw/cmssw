@@ -46,7 +46,15 @@ process.configurationMetadata = cms.untracked.PSet(
 process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    #outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    outputCommands = cms.untracked.vstring(
+        'keep *_*_HGCHitsEE_*',
+        'keep *_*_HGCHitsHEback_*',
+        'keep *_*_HGCHitsHEfront_*',
+        'keep *_mix_*_*',
+        'keep *_genParticles_*_*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_*_*'
+    ),
     fileName = cms.untracked.string('file:test.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -98,7 +106,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step,process.digi2raw_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step,process.digi2raw_step,process.endjob_step, process.FEVTDEBUGoutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq

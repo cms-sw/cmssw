@@ -15,6 +15,14 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
                      tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
                    )
 
+geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
+                     L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
+                     L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
+                     eeSDName = cms.string('HGCalEESensitive'),
+                     fhSDName = cms.string('HGCalHESiliconSensitive'),
+                     bhSDName = cms.string('HGCalHEScintillatorSensitive'),
+                   )
+
 
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
                                  FECodec = fe_codec )
@@ -24,14 +32,17 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
     bhDigis = cms.InputTag('mix:HGCDigisHEback'),
-    TriggerGeometry = cms.PSet(
-        TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
-        L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
-        L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
-        eeSDName = cms.string('HGCalEESensitive'),
-        fhSDName = cms.string('HGCalHESiliconSensitive'),
-        bhSDName = cms.string('HGCalHEScintillatorSensitive'),
-        ),
+    TriggerGeometry = geometry,
+    FECodec = fe_codec,
+    BEConfiguration = cms.PSet( 
+        algorithms = cms.VPSet( cluster_algo )
+        )
+    )
+
+hgcalTriggerPrimitiveDigiFEReproducer = cms.EDProducer(
+    "HGCalTriggerDigiFEReproducer",
+    feDigis = cms.InputTag('hgcalTriggerPrimitiveDigiProducer'),
+    TriggerGeometry = geometry,
     FECodec = fe_codec,
     BEConfiguration = cms.PSet( 
         algorithms = cms.VPSet( cluster_algo )

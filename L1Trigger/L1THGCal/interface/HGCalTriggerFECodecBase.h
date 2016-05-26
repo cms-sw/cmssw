@@ -43,6 +43,8 @@ class HGCalTriggerFECodecBase {
                               const HGCEEDigiCollection&,
                               const HGCHEDigiCollection&,
                               const HGCHEDigiCollection& ) = 0;
+  virtual void setDataPayload(const Module& ,
+                              const l1t::HGCFETriggerDigi& ) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
   virtual std::vector<bool> getDataPayload() const = 0;
@@ -100,6 +102,17 @@ namespace HGCalTriggerFE {
           << this->name() << " overwriting current data!";
       }
       static_cast<Impl&>(*this).setDataPayloadImpl(mod,ee,fh,bh);
+      dataIsSet_ = true;
+    }
+
+    virtual void setDataPayload(const Module& mod, 
+                              const l1t::HGCFETriggerDigi& digi) override final {
+      if( dataIsSet_ ) {
+        edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
+          << "Data payload was already set for HGCTriggerFECodec: "
+          << this->name() << " overwriting current data!";
+      }
+      static_cast<Impl&>(*this).setDataPayloadImpl(mod,digi);
       dataIsSet_ = true;
     }
 
