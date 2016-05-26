@@ -726,6 +726,7 @@ DST_DoubleMu3_Mass10_CaloScouting_PFScouting_v*			# JIRA: CMSHLT-604 renamed & c
 HLT_IsoTrackHE_v*						# JIRA: CMSHLT-289
 HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
 
+HLT_DoubleMu3_Trk_Tau3mu_v*					# JIRA: CMSHLT-827
 HLT_DoubleMu3_PFMET50_v*					# JIRA: CMSHLT-832
 HLT_TripleMu_5_3_3_v*						# JIRA: CMSHLT-832
 

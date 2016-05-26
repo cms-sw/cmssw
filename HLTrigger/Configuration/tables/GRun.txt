@@ -726,6 +726,7 @@ MC_DoubleMuNoFiltersNoVtx_v*					# JIRA: CMSHLT-322 (template paths only for MC)
 HLT_IsoTrackHE_v*						# JIRA: CMSHLT-289
 HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
 
+HLT_DoubleMu3_Trk_Tau3mu_v*					# JIRA: CMSHLT-827
 HLT_DoubleMu3_PFMET50_v*					# JIRA: CMSHLT-832
 HLT_TripleMu_5_3_3_v*						# JIRA: CMSHLT-832
 
