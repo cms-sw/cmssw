@@ -163,7 +163,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   int BOEevTy  = ( dataWord >> 60 ) & 0xF;  // positions 60 -> 63
 
   int linecounter = 0;
-  if ( debug_ ) logfile << '[' << ++linecounter << "]\t"
+  if ( debug_ ) std::cout << '[' << ++linecounter << "]\t"
                         << std::hex << dataWord << std::dec << "\t|\t"
                         << "BOEevTy " << BOEevTy << '\t'
                         << "TM7fedId "  << TM7fedId << '\n';
@@ -187,7 +187,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   ***/
   int nAMC = ( dataWord >> 52 ) & 0xF;  // positions 52 -> 55
 
-  if ( debug_ ) logfile << '[' << ++linecounter << "]\t" << std::hex
+  if ( debug_ ) std::cout << '[' << ++linecounter << "]\t" << std::hex
                         << dataWord << std::dec << "\t|\t"
                         << "nAMC " << nAMC << '\n';
 
@@ -210,7 +210,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
     AMCsizes[AMCno] = ( dataWord >> 32 ) & 0xFFFFFF;  // positions 32 -> 55
 
-    if ( debug_ ) logfile << '[' << ++linecounter << "]\t"
+    if ( debug_ ) std::cout << '[' << ++linecounter << "]\t"
                           << std::hex << dataWord
                           << std::dec << "\t|\t"
                           << "AMCsizes[" << AMCno << "] "
@@ -251,7 +251,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
       return;
   }    
 
-  if ( debug_ ) logfile << "\tevtLgth " << std::hex
+  if ( debug_ ) std::cout << "\tevtLgth " << std::hex
                         << evtLgth << "\tCRC " << CRC << std::dec << '\n';
 
   if ( nline != evtLgth ) {
@@ -300,7 +300,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
       break;
     }
 
-    if ( debug_ ) logfile << '[' << ++lcounter << "]\t"
+    if ( debug_ ) std::cout << '[' << ++lcounter << "]\t"
                           << std::hex << dataWord << std::dec << "\t|\t"
                           << "AMC_ID "     << AMC_ID << '\t' 
                           << "control "    << control   << '\t' 
@@ -335,7 +335,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
       break;
     }
 
-    if (debug_ ) logfile << '[' << ++lcounter << "]\t" 
+    if (debug_ ) std::cout << '[' << ++lcounter << "]\t" 
                          << std::hex << dataWord 
                          << std::dec << "\t|\t" 
                          << " orbit " << orbit
@@ -367,7 +367,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         bc0  = ( dataWordSub >> 22 ) & 0x1; // positions 22 -> 23
         bxNr = normBx(bxID, bxCounter); /// bx normalized to the bxcounter
 		
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t TSC WORD\t"
                               << "bxID " << bxID << '\t'
@@ -406,7 +406,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                                                 2, mb2_phi_conv, mb2_phib_conv, 
                                                 mb2_qual, mb2_ts2tag, bxCounter ) );
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"
                               << "mb1_ts2tag " << mb1_ts2tag    << '\t'
                               << "mb1_qual "   << mb1_qual      << '\t'
@@ -449,7 +449,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                                                   4, mb4_phi_conv, mb4_phib_conv, 
                                                   mb4_qual, mb4_ts2tag, bxCounter) );
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t"<< std::hex
                               << dataWordSub   << std::dec      << "\t|\t"
                               << "mb3_ts2tag " << mb3_ts2tag    << '\t'
                               << "mb3_qual "   << mb3_qual      << '\t'
@@ -474,7 +474,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb2_eta_HQ = ( dataWordSub >> 32 ) & 0xFF;  // positions 32 -> 39
         int mb1_eta_HQ = ( dataWordSub >> 48 ) & 0xFF;  // positions 48 -> 55
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex
                               << dataWordSub << std::dec << "\t|\t"
                               << "mb1_eta " << mb1_eta  << '\t'
                               << "mb2_eta " << mb2_eta  << '\t'
@@ -570,7 +570,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb1_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
         int mb1_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"
                               << "mb1_ts2tag_out " << mb1_ts2tag    << '\t'
                               << "mb1_qual_out "   << mb1_qual      << '\t'
@@ -586,7 +586,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                               << "mb2_phi_out "    << mb2_phi_conv  << '\n';
         ***/
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t MB1/2 OUTPUT WORD\n";
 
@@ -612,7 +612,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb3_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
         int mb3_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"
                               << "mb3_ts2tag_out " << mb3_ts2tag    << '\t'
                               << "mb3_qual_out "   << mb3_qual      << '\t'
@@ -628,7 +628,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                               << "mb4_phi_out "    << mb4_phi_conv  << '\n';
         ***/
 
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t MB3/4 OUTPUT WORD\n";
 
@@ -636,7 +636,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
  
       else if ( selector == 0xD ) { //etha output word
          
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t ETHA OUTPUT WORD\n";
     
@@ -648,7 +648,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                                          << std::hex << dataWordSub << std::dec
                                          << " it pos " << int(DTTM7iterator - DTTM7itend);
   
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t RPC WORD\n";          
 
@@ -660,7 +660,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                                          << std::hex << dataWordSub << std::dec
                                          << " it pos " << int(DTTM7iterator - DTTM7itend);
   
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t HO WORD\n";          
 
@@ -672,7 +672,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                                          << std::hex << dataWordSub << std::dec
                                          << " it pos " << int(DTTM7iterator - DTTM7itend);
   
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+        if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t ERROR WORD\n";
       }//ERROR word
@@ -682,7 +682,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
                                            << " in FED " << std::hex << TM7fedId;
 
-   	    if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
+   	    if ( debug_ ) std::cout << '[' << ++lcounter << "]\t" << std::hex 
                               << dataWordSub << std::dec
                               << "\t UNKNOWN WORD\n";
       }
