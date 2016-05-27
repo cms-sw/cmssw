@@ -165,16 +165,16 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 
     m_runManager->produce(e, es);
 
-    std::auto_ptr<edm::SimTrackContainer> 
+    std::unique_ptr<edm::SimTrackContainer>
       p1(new edm::SimTrackContainer);
-    std::auto_ptr<edm::SimVertexContainer> 
+    std::unique_ptr<edm::SimVertexContainer>
       p2(new edm::SimVertexContainer);
     G4SimEvent * evt = m_runManager->simEvent();
     evt->load(*p1);
     evt->load(*p2);   
 
-    e.put(p1);
-    e.put(p2);
+    e.put(std::move(p1));
+    e.put(std::move(p2));
 
     for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin(); 
 	 it != sTk.end(); ++it) {
@@ -183,10 +183,10 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
       for (std::vector<std::string>::iterator in = v.begin(); 
 	   in!= v.end(); ++in) {
 
-	std::auto_ptr<edm::PSimHitContainer> 
+	std::unique_ptr<edm::PSimHitContainer>
 	  product(new edm::PSimHitContainer);
 	(*it)->fillHits(*product,*in);
-	e.put(product,*in);
+	e.put(std::move(product),*in);
       }
     }
     for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin(); 
@@ -197,10 +197,10 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
       for (std::vector<std::string>::iterator in = v.begin(); 
 	   in!= v.end(); in++) {
 
-	std::auto_ptr<edm::PCaloHitContainer> 
+	std::unique_ptr<edm::PCaloHitContainer>
 	  product(new edm::PCaloHitContainer);
 	(*it)->fillHits(*product,*in);
-	e.put(product,*in);
+	e.put(std::move(product),*in);
       }
     }
 

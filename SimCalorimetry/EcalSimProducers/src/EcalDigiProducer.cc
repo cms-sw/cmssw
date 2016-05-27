@@ -587,11 +587,11 @@ EcalDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup cons
 void 
 EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventSetup) {
    // Step B: Create empty output
-   std::auto_ptr<EBDigiCollection> apdResult      ( !m_apdSeparateDigi || !m_doEB ? nullptr :
+   std::unique_ptr<EBDigiCollection> apdResult      ( !m_apdSeparateDigi || !m_doEB ? nullptr :
 						    new EBDigiCollection() ) ;
-   std::auto_ptr<EBDigiCollection> barrelResult   ( new EBDigiCollection() ) ;
-   std::auto_ptr<EEDigiCollection> endcapResult   ( new EEDigiCollection() ) ;
-   std::auto_ptr<ESDigiCollection> preshowerResult( new ESDigiCollection() ) ;
+   std::unique_ptr<EBDigiCollection> barrelResult   ( new EBDigiCollection() ) ;
+   std::unique_ptr<EEDigiCollection> endcapResult   ( new EEDigiCollection() ) ;
+   std::unique_ptr<ESDigiCollection> preshowerResult( new ESDigiCollection() ) ;
    
    // run the algorithm
 
@@ -624,12 +624,12 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
 
    // Step D: Put outputs into event
    if( m_apdSeparateDigi ) {
-     //event.put( apdResult,    m_apdDigiTag         ) ;
+     //event.put(std::move(apdResult),    m_apdDigiTag         ) ;
    }
 
-   event.put( barrelResult,    m_EBdigiCollection ) ;
-   event.put( endcapResult,    m_EEdigiCollection ) ;
-   event.put( preshowerResult, m_ESdigiCollection ) ;
+   event.put(std::move(barrelResult),    m_EBdigiCollection ) ;
+   event.put(std::move(endcapResult),    m_EEdigiCollection ) ;
+   event.put(std::move(preshowerResult), m_ESdigiCollection ) ;
 }
 
 void

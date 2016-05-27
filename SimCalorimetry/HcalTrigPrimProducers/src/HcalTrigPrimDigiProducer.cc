@@ -88,7 +88,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   eventSetup.get<CaloGeometryRecord>().get(pG);
   
   // Step B: Create empty output
-  std::auto_ptr<HcalTrigPrimDigiCollection> result(new HcalTrigPrimDigiCollection());
+  std::unique_ptr<HcalTrigPrimDigiCollection> result(new HcalTrigPrimDigiCollection());
 
   edm::Handle<HBHEDigiCollection> hbheDigis;
   edm::Handle<HFDigiCollection>   hfDigis;
@@ -107,7 +107,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
               << "\nQuit returning empty product." << std::endl;
 
       // put empty HcalTrigPrimDigiCollection in the event
-      iEvent.put(result);
+      iEvent.put(std::move(result));
 
       return;
   }
@@ -120,7 +120,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
               << "\nQuit returning empty product." << std::endl;
 
       // put empty HcalTrigPrimDigiCollection in the event
-      iEvent.put(result);
+      iEvent.put(std::move(result));
 
       return;
   }
@@ -166,10 +166,10 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
                     << "\nQuit returning empty product." << std::endl;
 
             // produce empty HcalTrigPrimDigiCollection and put it in the event
-            std::auto_ptr < HcalTrigPrimDigiCollection > emptyResult(
+            std::unique_ptr < HcalTrigPrimDigiCollection > emptyResult(
                     new HcalTrigPrimDigiCollection());
 
-            iEvent.put(emptyResult);
+            iEvent.put(std::move(emptyResult));
 
             return;
         }
@@ -181,7 +181,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   //  edm::LogInfo("HcalTrigPrimDigiProducer") << "HcalTrigPrims: " << result->size();
 
   // Step D: Put outputs into event
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 

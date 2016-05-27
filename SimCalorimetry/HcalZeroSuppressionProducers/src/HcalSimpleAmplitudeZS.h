@@ -23,7 +23,7 @@ public:
   virtual ~HcalSimpleAmplitudeZS();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
-  std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_,hfQIE10_,hbheQIE11_;
+  std::unique_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_,hfQIE10_,hbheQIE11_;
   std::string inputLabel_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;
