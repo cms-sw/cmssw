@@ -27,28 +27,25 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
   iLumi.getByToken(fileBlobToken_, fileBlobCollection);
   if (fileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
-    int theVectorSize = fileBlobCollection->size();
-    edm::LogInfo("MillePedeFileActions") << "Root file contains "
-                                         << theVectorSize << " FileBlob(s).";
+    edm::LogInfo("MillePedeFileActions")
+      << "Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
     // Loop over the FileBlobs in the vector, and write them to files:
-    for (std::vector<FileBlob>::const_iterator it =
-             fileBlobCollection->begin();
-         it != fileBlobCollection->end(); ++it) {
+    for (const auto& blob: *fileBlobCollection) {
       // We format the filename with a number, starting from 0 to the size of
       // our vector.
       // For this to work, the outputBinaryFile config parameter must contain a
       // formatting directive for a number, like %04d.
       char theNumberedOutputFileName[200];
-      int theNumber = it - fileBlobCollection->begin();
-      sprintf(theNumberedOutputFileName, outputFileName_.c_str(), theNumber);
+      sprintf(theNumberedOutputFileName, outputFileName_.c_str(), nBinaries_);
       // Log the filename to which we will write...
       edm::LogInfo("MillePedeFileActions")
           << "Writing FileBlob file to file "
           << outputDir_ + theNumberedOutputFileName << ".";
       // ...and perform the writing operation.
-      it->write(outputDir_ + theNumberedOutputFileName);
-      // Carefull, it seems that when writing to an impossible file, this is
-      // swallowed by the FileBlob->write operation and no error is thrown.
+      blob.write(outputDir_ + theNumberedOutputFileName);
+      // Careful, it seems that when writing to an impossible file, this is
+      // swallowed by the FileBlob.write operation and no error is thrown.
+      ++nBinaries_;
     }
   } else {
     edm::LogError("MillePedeFileActions")
