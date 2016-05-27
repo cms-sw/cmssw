@@ -5,7 +5,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 process.source = cms.Source(
     'PoolSource',
     #RECO
-    fileNames = cms.untracked.vstring('root://eoscms.cern.ch//store/group/phys_jetmet/MetScanners/bobak_pickevents.root ')
+    #fileNames = cms.untracked.vstring('root://eoscms.cern.ch//store/group/phys_jetmet/MetScanners/bobak_pickevents.root')
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/k/khurana/public/JME-METScanning/MET/HighpTMuon/pickevents.root')
     #miniAOD
     #fileNames = cms.untracked.vstring('root://eoscms.cern.ch//store/group/phys_jetmet/MetScanners/bobak_pickevents_miniAOD.root ')
     )
