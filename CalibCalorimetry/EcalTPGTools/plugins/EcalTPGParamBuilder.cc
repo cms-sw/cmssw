@@ -23,9 +23,15 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
 
+//modif-alex-27-july-2015
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
+#if (CMSSW_VERSION>=340)
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+#endif
 
 #include <iostream>
 #include <string>
@@ -165,6 +171,10 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
   useInterCalibration_  = pSet.getParameter<bool>("useInterCalibration") ;
   H2_ = pSet.getUntrackedParameter<bool>("H2",false) ;
+
+  useTransparencyCorr_ = false;
+  useTransparencyCorr_ = pSet.getParameter<bool>("useTransparencyCorr") ; //modif-alex-25/04/2012
+  Transparency_Corr_   = pSet.getParameter<std::string>("transparency_corrections");//modif-alex-30/01/2012 
 
   //modif-alex-23/02/2011
   //convert the spike killing first from GeV to ADC (10 bits)                                                                                                                                                    
@@ -317,6 +327,33 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
   std::cout << "INFO: DONE reading timing files for EB and EE" << std::endl;
 
+  //modif-alex-30/01/2012
+  if(useTransparencyCorr_){
+    std::cout << "INFO: READING transparency correction files" << std::endl;
+    std::ifstream transparency(Transparency_Corr_.c_str());
+    if(!transparency) std::cout << "ERROR: File " << Transparency_Corr_.c_str() << " could not be opened" << std::endl;
+    
+    transparency.getline(buf,sizeof(buf),'\n');
+    int xtalcounter = 0;
+    while( transparency ) {
+      std::stringstream sin(buf);
+      
+      int raw_xtal_id;
+      sin >> raw_xtal_id;
+      
+      double xtal_trans_corr;
+      sin >> xtal_trans_corr; 
+      
+      cout << raw_xtal_id << " " << xtal_trans_corr << endl;
+      
+      Transparency_Correction_.insert(make_pair(raw_xtal_id,xtal_trans_corr));
+      
+      xtalcounter++;
+      transparency.getline(buf,sizeof(buf),'\n');
+    }//loop transparency
+    transparency.close();
+    std::cout << "INFO: DONE transparency correction files " << xtalcounter << std::endl;
+  }//if transparency
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -329,7 +366,7 @@ EcalTPGParamBuilder::~EcalTPGParamBuilder()
 }
 
 
-bool EcalTPGParamBuilder::checkIfOK(const EcalPedestals::Item& item) 
+bool EcalTPGParamBuilder::checkIfOK(EcalPedestals::Item item) 
 {
   bool result=true;
   if( item.mean_x1 <150. || item.mean_x1 >250) result=false;
@@ -376,6 +413,38 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evtSetup.get< EcalMappingRcd >().get(ecalmapping);
   theMapping_ = ecalmapping.product();
 
+  // get record for alpha
+  cout << "EcalLaserDbAnalyzer::analyze " << std::endl;
+  edm::ESHandle<EcalLaserAlphas> handle;
+  evtSetup.get<EcalLaserAlphasRcd>().get(handle);
+  cout << "EcalLaserDbAnalyzer::analyze-> got EcalLaserDbRecord: " << std::endl;
+  EcalLaserAlpha alpha;
+  const EcalLaserAlphaMap& laserAlphaMap = handle.product()->getMap(); // map of apdpns
+
+  //modif-alex-27-july-2015-beg
+  // use alpha to check
+  int cnt =0;
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      EBDetId ebdetid(ieta,iphi);
+      EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find( ebdetid );
+      if ( italpha != laserAlphaMap.end() ) {
+        alpha = (*italpha);
+        if (cnt %1000 == 0) cout << " eta " << ieta << " phi " << iphi 
+				 << " ALPHA = " << alpha 
+				 << " cmsswID=" << ebdetid.rawId() << std::endl;
+
+	//EBDetId barrel_detid(ebdetid.rawId());
+	//cout << "test detid=" << barrel_detid << " " << EBDetId::MAX_IETA << endl;
+      } else {
+	edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!" << endl;
+        cout << " eta " << ieta << " phi " << iphi << "error with laserAlphaMap!" << endl;
+      }
+      cnt++;
+    }
+  }
+  //modif-alex-27-july-2015-end
   
   // histo
   TFile saving ("EcalTPGParam.root","recreate") ;
@@ -479,7 +548,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       EcalLogicID ecid_xt;
       FEConfigPedDat  rd_ped;
       int icells=0;
-      for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); ++p) 
+      for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
 	{
 	  ecid_xt = p->first;
 	  rd_ped  = p->second;
@@ -565,7 +634,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  EcalLogicID ecid_xt;
 	  FEConfigPedDat  rd_ped;
 	  int icells=0;
-	  for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); ++p) 
+	  for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
 	    {
 	      ecid_xt = p->first;
 	      rd_ped  = p->second;
@@ -896,15 +965,17 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		 getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
     for (int i=0 ; i<26 ; i++) ntupleInts_[i] = val[i] ;
     
-    strcpy(ntupleDet_,getDet(tccNb).c_str()) ;
-    strcpy(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
+    sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
+    sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
     ntuple->Fill() ;
     
     
     if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
       coeffStruc coeff ;
-      getCoeff(coeff, calibMap, id.rawId()) ;
+      //getCoeff(coeff, calibMap, id.rawId()) ;
+      //modif-alex-27-july-2015
+      getCoeff(coeff, calibMap, laserAlphaMap, id.rawId()) ;
       getCoeff(coeff, gainMap, id.rawId()) ;
       getCoeff(coeff, pedMap, id.rawId()) ;
       linStruc lin ;
@@ -970,7 +1041,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     //  if (writeToDB_) logicId = db_->getEcalLogicID ("EB_crystal_number", id.ism(), id.ic()) ;
 
     coeffStruc coeff ;
-    getCoeff(coeff, calibMap, id.rawId()) ;
+    //getCoeff(coeff, calibMap, id.rawId()) ; 
+    //modif-alex-27-july-2015
+    getCoeff(coeff, calibMap, laserAlphaMap, id.rawId()) ;
+
     if (H2_) coeff.calibCoeff_ = calibvec[id.ic()-1] ;
     getCoeff(coeff, gainMap, id.rawId()) ;
     getCoeff(coeff, pedMap, id.rawId()) ;
@@ -1168,14 +1242,16 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		 towid.ieta(),towid.iphi(),TCCch, getCrate(tccNb).second, SLBch, SLBslot, 
 		 getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
     for (int i=0 ; i<26 ; i++) ntupleInts_[i] = val[i] ;
-    strcpy(ntupleDet_,getDet(tccNb).c_str()) ;
-    strcpy(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
+    sprintf(ntupleDet_,getDet(tccNb).c_str()) ;
+    sprintf(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
     ntuple->Fill() ;
      
     if ((tccNb == 76 || tccNb == 94) && stripInTower == 1 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
       coeffStruc coeff ;
-      getCoeff(coeff, calibMap, id.rawId()) ;
+      //getCoeff(coeff, calibMap, id.rawId()) ;
+      //modif-alex-27-july-2015
+      getCoeff(coeff, calibMap, laserAlphaMap, id.rawId()) ;
       getCoeff(coeff, gainMap, id.rawId()) ;
       getCoeff(coeff, pedMap, id.rawId()) ;
       linStruc lin ;
@@ -1240,7 +1316,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     }
     
     coeffStruc coeff ;
-    getCoeff(coeff, calibMap, id.rawId()) ;
+    //getCoeff(coeff, calibMap, id.rawId()) ;
+    //modif-alex-27-july-2015
+    getCoeff(coeff, calibMap, laserAlphaMap, id.rawId()) ;
     getCoeff(coeff, gainMap, id.rawId()) ;
     getCoeff(coeff, pedMap, id.rawId()) ;
     if (id.zside()>0) ICEEPlus->Fill(id.ix(), id.iy(), coeff.calibCoeff_) ;  
@@ -1366,7 +1444,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evgueni<<"{"<<endl;
   evgueni<<"  mult12 = 0 ; shift12 = 0 ; base12 = 0 ; mult6 = 0 ; shift6 = 0 ; base6 = 0 ; mult1 = 0 ; shift1 = 0 ; base1 = 0 ;"<<endl ;
   map< vector<int>, linStruc>::const_iterator itLinMap ;
-  for (itLinMap = linMap.begin() ; itLinMap != linMap.end() ; ++itLinMap) {
+  for (itLinMap = linMap.begin() ; itLinMap != linMap.end() ; itLinMap++) {
     vector<int> xtalInCCU = itLinMap->first ;
     evgueni<<"  if (fed=="<<xtalInCCU[0]<<" && ccu=="<<xtalInCCU[1]<<" && xtal=="<<xtalInCCU[2]<<") {" ;
     evgueni<<"  mult12 = "<<itLinMap->second.mult_[0]<<" ; shift12 = "<<itLinMap->second.shift_[0]<<" ; base12 = "<<itLinMap->second.pedestal_[0]<<" ; " ;
@@ -1386,10 +1464,20 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   const int NWEIGROUPS = 2 ; 
   std::vector<unsigned int> weights[NWEIGROUPS] ;
 
+#if (CMSSW_VERSION>=340)
   EBShape shapeEB ;
   EEShape shapeEE ;
   weights[0] = computeWeights(shapeEB, hshapeEB) ;
   weights[1] = computeWeights(shapeEE, hshapeEE) ;
+#else
+  // loading reference signal representation
+  EcalSimParameterMap parameterMap;  
+  EBDetId   barrel(1,1);
+  double    phase = parameterMap.simParameters(barrel).timePhase();
+  EcalShape shape(phase); 
+  weights[0] = computeWeights(shape, hshapeEB) ;
+  weights[1] = weights[0] ;
+#endif
 
   map<EcalLogicID, FEConfigWeightGroupDat> dataset;
 
@@ -1863,7 +1951,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EB strips="<<dec<<stripListEB.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = stripListEB.begin(); itList != stripListEB.end(); ++itList ) {
+    for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
       (*out_file_) <<"STRIP_EB "<<dec<<(*itList)<<endl ;
       (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
       (*out_file_) <<"0" <<std::endl ;
@@ -1877,10 +1965,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EE strips="<<dec<<stripListEE.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = stripListEE.begin(); itList != stripListEE.end(); ++itList ) {
+    for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
       (*out_file_) <<"STRIP_EE "<<dec<<(*itList)<<endl ;
       (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
-      (*out_file_) <<" 0" << std::endl ;
+      //(*out_file_) <<" 0" << std::endl ;
+      (*out_file_) <<" 1" << std::endl ; //modif-debug to get the correct EE TPG
       (*out_file_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
     }
   }
@@ -1896,7 +1985,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EB towers="<<dec<<towerListEB.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = towerListEB.begin(); itList != towerListEB.end(); ++itList ) {
+    for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
       (*out_file_) <<"TOWER_EB "<<dec<<(*itList)<<endl ;
       (*out_file_) <<" 0\n 0\n" ;
       (*out_file_) <<" " <<  SFGVB_SpikeKillingThreshold_ << std::endl; //modif-alex
@@ -1909,7 +1998,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   cout<<"Number of EE towers="<<dec<<towerListEE.size()<<endl ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
-    for (itList = towerListEE.begin(); itList != towerListEE.end(); ++itList ) {
+    for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
       (*out_file_) <<"TOWER_EE "<<dec<<(*itList)<<endl ;
       if (newLUT) (*out_file_) <<" 1\n" ;
       else  (*out_file_) <<" 0\n" ;
@@ -1999,7 +2088,8 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
     ratio = xtal_LSB_EE_/Et_sat_EE_ ;
   }
 
-
+  //modif-alex-30/01/2012
+  //std::cout << "calibCoeff="<<calibCoeff<<endl; 
 
   double factor = 1024 * ratio * gainRatio * calibCoeff * sin(theta) * (1 << (sliding_ + shiftDet + 2)) ;
   // Let's try first with shift = 0 (trivial solution)
@@ -2125,10 +2215,18 @@ double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
   return weight ;
 }
 
+#if (CMSSW_VERSION>=340)
 std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape, TH1F * histo)
+#else
+std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape, TH1F * histo)
+#endif
 {
   std::cout<<"Computing Weights..."<<std::endl ;
+#if (CMSSW_VERSION>=340)
   double timeMax = shape.timeOfMax() - shape.timeOfThr() ; // timeMax w.r.t begining of pulse
+#else
+  double timeMax = shape.computeTimeOfMaximum() - shape.computeT0() ; // timeMax w.r.t begining of pulse
+#endif
   double max = shape(timeMax) ;
 
   double sumf = 0. ;
@@ -2236,8 +2334,8 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & sh
   for (unsigned int sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
   std::cout<<std::endl ;
 
-  delete[] weight ;
-  delete[] iweight ;
+  delete weight ;
+  delete iweight ;
   return theWeights ;
 }
 
@@ -2300,13 +2398,50 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
 
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, unsigned int rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, const EcalLaserAlphaMap& laserAlphaMap, unsigned int rawId)
 {
   // get current intercalibration coeff
   coeff.calibCoeff_ = 1. ;
   if (!useInterCalibration_) return ;
   EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(rawId);
-  if( icalit != calibMap.end() ) coeff.calibCoeff_ = (*icalit) ;
+  
+  //modif-alex-30/01/2012
+  std::map<int, double >::const_iterator itCorr  = Transparency_Correction_.find(rawId);
+  double icorr = 1.0;
+  double alpha_factor = 1.0;
+
+  if(useTransparencyCorr_){
+    icorr = itCorr->second;
+    if( itCorr != Transparency_Correction_.end() ) 
+      cout<< "Transparency correction found for xtal " 
+	  << rawId << " corr=" << icorr << " intercalib=" << (*icalit) << endl;
+    else
+      cout<< "ERROR = Transparency correction not found for xtal " << rawId << endl;
+
+    //modif-alex-27-july-2015
+    DetId ECALdetid(rawId);
+    cout << "DETID=" << ECALdetid.subdetId() << endl;
+
+    if(ECALdetid.subdetId() == 1){ //ECAL BARREL 
+      EBDetId barrel_detid(rawId);
+      EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(barrel_detid); 
+      if ( italpha != laserAlphaMap.end() ) alpha_factor = (*italpha);
+      else cout << "ERROR:LaserAlphe parameter note found!!" << endl;
+    }
+    if(ECALdetid.subdetId() == 1){ //ECAL ENDCAP
+      EEDetId endcap_detid(rawId);
+      EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(endcap_detid); 
+      if ( italpha != laserAlphaMap.end() ) alpha_factor = (*italpha);
+      else cout << "ERROR:LaserAlphe parameter note found!!" << endl;
+    }
+
+  }//transparency corrections applied
+
+  //if( icalit != calibMap.end() ) coeff.calibCoeff_ = (*icalit) ;
+  //if( icalit != calibMap.end() ) coeff.calibCoeff_ = (*icalit)/icorr; //modif-alex-30/01/2010 tansparency corrections
+  cout << "rawId " << (*icalit) << " " << icorr << " " << alpha_factor << endl; 
+  if( icalit != calibMap.end() ) coeff.calibCoeff_ = (*icalit)/std::pow(icorr,alpha_factor); //modif-alex-27/07/2015 tansparency corrections with alpha parameters
+
   else std::cout<<"getCoeff: "<<rawId<<" not found in EcalIntercalibConstantMap"<<std::endl ;
 }
 
