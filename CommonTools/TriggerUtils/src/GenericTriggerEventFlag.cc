@@ -90,13 +90,9 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     }
     if ( config.exists( "andOrL1" ) ) {
       andOrL1_                   = config.getParameter< bool >( "andOrL1" );
-      if ( config.exists( "stage2" ) ) {
+      if ( config.exists( "stage2" ) ) 
 	stage2_ = config.getParameter< bool> ( "stage2" );
-	if ( stage2_ ) {
-	  l1AlgoInputTag_   = config.getUntrackedParameter<edm::InputTag>("l1AlgoInputTag",edm::InputTag("gtStage2Digis"));
-	  l1AlgoInputToken_ = iC.mayConsume<BXVector<GlobalAlgBlk>>( l1AlgoInputTag_ );
-	}
-      } else
+      else
 	stage2_ = false;
       l1LogicalExpressionsCache_ = config.getParameter< std::vector< std::string > >( "l1Algorithms" );
       errorReplyL1_              = config.getParameter< bool >( "errorReplyL1" );
@@ -179,9 +175,8 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
     std::vector< std::string > algoNames;
 
     if (stage2_) {
-      l1uGt_->retrieveL1Run(setup);
+      l1uGt_->retrieveL1Setup(setup);
 
-      l1uGt_->retrieveL1LumiBlock(setup);
       const std::vector<std::pair<std::string, int> >  prescales = l1uGt_->prescales();
       for(auto ip : prescales) 
 	algoNames.push_back(ip.first);
@@ -452,7 +447,7 @@ bool GenericTriggerEventFlag::acceptL1LogicalExpression( const edm::Event & even
 
   // Getting the L1 event setup
   if ( stage2_ )
-    l1uGt_->retrieveL1(event,setup,l1AlgoInputToken_);
+    l1uGt_->retrieveL1(event,setup);
   else
     l1Gt_->getL1GtRunCache( event, setup, useL1EventSetup, useL1GtTriggerMenuLite ); // FIXME This can possibly go to initRun()
 
