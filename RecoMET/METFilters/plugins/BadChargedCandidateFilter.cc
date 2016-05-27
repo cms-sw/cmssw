@@ -40,7 +40,8 @@ private:
   const bool taggingMode_;
   const bool debug_;
   const double          maxDR_;
-  const double          minPtErrorRel_;
+  const double          minPtDiffRel_;
+  const double          minMuonTrackRelErr_;
   const double          minMuonPt_;
 
 };
@@ -54,7 +55,8 @@ BadChargedCandidateFilter::BadChargedCandidateFilter(const edm::ParameterSet& iC
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode") )
   , debug_                ( iConfig.getParameter<bool>    ("debug") )
   , maxDR_                ( iConfig.getParameter<double>  ("maxDR") )
-  , minPtErrorRel_        ( iConfig.getParameter<double>  ("minPtErrorRel") )
+  , minPtDiffRel_         ( iConfig.getParameter<double>  ("minPtDiffRel") )
+  , minMuonTrackRelErr_   ( iConfig.getParameter<double>  ("minMuonTrackRelErr") )
   , minMuonPt_            ( iConfig.getParameter<double>  ("minMuonPt") )
 {
   produces<bool>();
@@ -93,14 +95,18 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
         if (debug_) cout<<"muon "<<muon.pt()<<endl;
 
         if ( innerMuonTrack.isNull() ) { continue; };
-
+        // Consider only muons with large relative pt error
+        if (not innerMuonTrack->ptError()/innerMuonTrack->pt() > minMuonTrackRelErr_) continue;
+ 
         for ( unsigned j=0; j < pfCandidates->size(); ++j ) {
             const reco::Candidate & pfCandidate = (*pfCandidates)[j];
+            // look for charged hadrons
             if (not abs(pfCandidate.pdgId()) == 211) continue;
             if (debug_) cout<<"candidate "<<pfCandidate.pt()<<" dr "<<deltaR( innerMuonTrack->eta(), innerMuonTrack->phi(), pfCandidate.eta(), pfCandidate.phi() )
                 <<" dpt "<<( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt()))<<endl;
+            // require similar pt ( one sided ) and small dR
             if ( ( deltaR( innerMuonTrack->eta(), innerMuonTrack->phi(), pfCandidate.eta(), pfCandidate.phi() ) < maxDR_ ) 
-                and ( ( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt())) > minPtErrorRel_ ) ) {
+                and ( ( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt())) > minPtDiffRel_ ) ) {
                     foundBadChargedCandidate = true;
                     break;
                 }
