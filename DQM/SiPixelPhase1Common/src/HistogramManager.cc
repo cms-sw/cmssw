@@ -494,7 +494,8 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
       edm::LogError("HistogramManager") << "+++ Reduction '" << step.arg
                                         << " not yet implemented\n";
     }
-    new_histo.th1 = new TH1D(name.c_str(), (";;" + label).c_str(), 1, 0, 1);
+    new_histo.th1 = new TH1F(name.c_str(), (std::string("") + th1->GetTitle() 
+                                            + ";;" + label).c_str(), 1, 0, 1);
     new_histo.th1->SetBinContent(1, reduced_quantity);
   }
   t.swap(out);
