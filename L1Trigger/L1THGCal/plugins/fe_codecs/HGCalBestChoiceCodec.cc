@@ -61,7 +61,9 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
     conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
     // decode input data with different parameters
     // (no selection, so NData=number of trigger cells in module)
+    // FIXME:
     // Not very clean to define an alternative codec within this codec 
+    // Also, the codec is built each time the method is called, which is not very efficient
     HGCalBestChoiceCodec codecInput(conf);
     digi.decode(codecInput,data_);
     // choose best trigger cells in the module
