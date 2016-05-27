@@ -67,24 +67,24 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
 {
   if( producesEEDigis() ) 
     {
-      std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
+      std::unique_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
       theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";      
-      e.put(digiResult,digiCollection());
+      e.put(std::move(digiResult),digiCollection());
     }
   if( producesHEfrontDigis())
     {
-      std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
       theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
-      e.put(digiResult,digiCollection());
+      e.put(std::move(digiResult),digiCollection());
     }
   if( producesHEbackDigis() )
     {
-      std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
       theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
-      e.put(digiResult,digiCollection());
+      e.put(std::move(digiResult),digiCollection());
     }
 }
 

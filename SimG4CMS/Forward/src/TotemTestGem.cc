@@ -53,9 +53,9 @@ TotemTestGem::~TotemTestGem() {
 
 void TotemTestGem::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<TotemTestHistoClass> product(new TotemTestHistoClass);
+  std::unique_ptr<TotemTestHistoClass> product(new TotemTestHistoClass);
   fillEvent(*product);
-  e.put(product);
+  e.put(std::move(product));
 }
 
 void TotemTestGem::update(const BeginOfEvent * evt) {

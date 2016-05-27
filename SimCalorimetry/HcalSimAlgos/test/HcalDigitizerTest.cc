@@ -251,10 +251,10 @@ void HcalDigitizerTest::analyze(const edm::Event& iEvent,
   hoDigitizer.setDetIds(hoDetIds);
   zdcDigitizer.setDetIds(hzdcDetIds);
 
-  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection);
-  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection);
-  std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
-  std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection);
+  std::unique_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection);
+  std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection);
+  std::unique_ptr<HFDigiCollection> hfResult(new HFDigiCollection);
+  std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection);
 
   MixCollection<PCaloHit> hitCollection(&crossingFrame);
 

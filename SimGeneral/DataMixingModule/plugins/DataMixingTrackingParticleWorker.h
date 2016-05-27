@@ -102,8 +102,8 @@ namespace edm
 
       // 
 
-      std::auto_ptr<std::vector<TrackingParticle>> NewTrackList_;
-      std::auto_ptr<std::vector<TrackingVertex>> NewVertexList_;
+      std::unique_ptr<std::vector<TrackingParticle>> NewTrackList_;
+      std::unique_ptr<std::vector<TrackingVertex>> NewVertexList_;
       std::vector<TrackingVertex> TempVertexList_;
 
       std::unique_ptr<edm::DetSetVector<StripDigiSimLink> >          NewStripLinkList_;

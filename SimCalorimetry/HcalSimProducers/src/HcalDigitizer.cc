@@ -511,14 +511,14 @@ void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup co
 void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup, CLHEP::HepRandomEngine* engine) {
 
   // Step B: Create empty output
-  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
-  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
-  std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
-  std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
-  std::auto_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
-  std::auto_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
-  std::auto_ptr<QIE10DigiCollection> hfQIE10Result(new QIE10DigiCollection());
-  std::auto_ptr<QIE11DigiCollection> hbheQIE11Result(new QIE11DigiCollection());
+  std::unique_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
+  std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
+  std::unique_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
+  std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
+  std::unique_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
+  std::unique_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
+  std::unique_ptr<QIE10DigiCollection> hfQIE10Result(new QIE10DigiCollection());
+  std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(new QIE11DigiCollection());
 
   // Step C: Invoke the algorithm, getting back outputs.
   if(isHCAL&&hbhegeo){
@@ -561,14 +561,14 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 #endif
 
   // Step D: Put outputs into event
-  e.put(hbheResult);
-  e.put(hoResult);
-  e.put(hfResult);
-  e.put(zdcResult);
-  e.put(hbheupgradeResult,"HBHEUpgradeDigiCollection");
-  e.put(hfupgradeResult, "HFUpgradeDigiCollection");
-  e.put(hfQIE10Result, "HFQIE10DigiCollection");
-  e.put(hbheQIE11Result, "HBHEQIE11DigiCollection");
+  e.put(std::move(hbheResult));
+  e.put(std::move(hoResult));
+  e.put(std::move(hfResult));
+  e.put(std::move(zdcResult));
+  e.put(std::move(hbheupgradeResult),"HBHEUpgradeDigiCollection");
+  e.put(std::move(hfupgradeResult), "HFUpgradeDigiCollection");
+  e.put(std::move(hfQIE10Result), "HFQIE10DigiCollection");
+  e.put(std::move(hbheQIE11Result), "HBHEQIE11DigiCollection");
 
 #ifdef DebugLog
   std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;

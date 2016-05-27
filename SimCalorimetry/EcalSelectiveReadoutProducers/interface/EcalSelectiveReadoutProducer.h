@@ -102,7 +102,7 @@ private:
   printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
 
 private:
-  std::auto_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
+  std::unique_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
   std::string digiProducer_; // name of module/plugin/producer making digis
   std::string ebdigiCollection_; // secondary name given to collection of input digis
   std::string eedigiCollection_; // secondary name given to collection of input digis
@@ -154,7 +154,7 @@ private:
   /** Used when settings_ is imported from configuration file. Just used
    * for memory management. Used settings_ to access to the object
    */
-  std::auto_ptr<EcalSRSettings> settingsFromFile_;
+  std::unique_ptr<EcalSRSettings> settingsFromFile_;
 
   // Tokens for consumes collection:
 

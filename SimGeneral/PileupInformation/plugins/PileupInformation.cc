@@ -64,7 +64,7 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup)
 {
 
-  std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
+  std::unique_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
 
   if ( isPreMixed_ ) {
     edm::Handle< std::vector<PileupSummaryInfo> > psiInput;  
@@ -82,11 +82,11 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
     event.getByToken(bunchSpacingToken_,bsInput);
     int bunchSpacing=*(bsInput.product());
 
-    event.put(PSIVector);
+    event.put(std::move(PSIVector));
     
     //add bunch spacing to the event as a seperate integer for use by downstream modules
-    std::auto_ptr<int> bunchSpacingP(new int(bunchSpacing));
-    event.put(bunchSpacingP,"bunchSpacing");
+    std::unique_ptr<int> bunchSpacingP(new int(bunchSpacing));
+    event.put(std::move(bunchSpacingP),"bunchSpacing");
     
     return;
   }
@@ -408,11 +408,11 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   // put our vector of PileupSummaryInfo objects into the event.
 
-  event.put(PSIVector);
+  event.put(std::move(PSIVector));
 
   //add bunch spacing to the event as a seperate integer for use by downstream modules
-  std::auto_ptr<int> bunchSpacingP(new int(bunchSpacing));
-  event.put(bunchSpacingP,"bunchSpacing");
+  std::unique_ptr<int> bunchSpacingP(new int(bunchSpacing));
+  event.put(std::move(bunchSpacingP),"bunchSpacing");
 
 }
 

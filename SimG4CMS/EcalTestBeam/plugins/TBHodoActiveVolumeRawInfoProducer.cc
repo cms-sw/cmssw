@@ -27,7 +27,7 @@ TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() {
 
 void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event & event, const edm::EventSetup& eventSetup)
 {
-  auto_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
+  unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // caloHit container
   edm::Handle<edm::PCaloHitContainer> pCaloHit;
@@ -83,5 +83,5 @@ void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event & event, const edm::E
   
   LogDebug("EcalTBHodo") << (*product);
   
-  event.put(product); 
+  event.put(std::move(product));
 }

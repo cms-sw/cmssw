@@ -141,10 +141,10 @@ namespace cms
   void
   PileupVertexAccumulator::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-    std::auto_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_));
+    std::unique_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_));
 
     // write output to event
-    iEvent.put(PUVtxC);
+    iEvent.put(std::move(PUVtxC));
   }
 
 

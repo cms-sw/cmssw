@@ -72,12 +72,12 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
 
-  std::auto_ptr<MixCollection<PSimHit> > hits(new MixCollection<PSimHit>(cf.product()));
+  std::unique_ptr<MixCollection<PSimHit> > hits(new MixCollection<PSimHit>(cf.product()));
 
   // Create empty output
-  std::auto_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
-  std::auto_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
-  std::auto_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks() );
+  std::unique_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
+  std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
+  std::unique_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks() );
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
@@ -104,8 +104,8 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   }
 
   // store them in the event
-  e.put(digis);
-  e.put(stripDigiSimLinks,"GEM");
-  e.put(gemDigiSimLinks,"GEM");
+  e.put(std::move(digis));
+  e.put(std::move(stripDigiSimLinks),"GEM");
+  e.put(std::move(gemDigiSimLinks),"GEM");
 }
 
