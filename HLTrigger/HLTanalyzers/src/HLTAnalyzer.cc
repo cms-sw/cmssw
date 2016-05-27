@@ -33,6 +33,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) :
     // variables. Example as follows:
     std::cout << " Beginning HLTAnalyzer Analysis " << std::endl;
 
+    BSProducer_         = conf.getParameter<edm::InputTag> ("BSProducer");
     hltjets_            = conf.getParameter<edm::InputTag> ("hltjets");
     hltcorjets_         = conf.getParameter<edm::InputTag> ("hltcorjets");    
     hltcorL1L2L3jets_   = conf.getParameter<edm::InputTag> ("hltcorL1L2L3jets");    
@@ -162,14 +163,16 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) :
     HFECALClusters_           = conf.getParameter<edm::InputTag> ("HFECALClusters"); 
     HFElectrons_              = conf.getParameter<edm::InputTag> ("HFElectrons"); 
 
-   // Add ECAL Activity
-   ECALActivity_                    = conf.getParameter<edm::InputTag> ("ECALActivity");
-   ActivityEcalIso_                 = conf.getParameter<edm::InputTag> ("ActivityEcalIso");
-   ActivityHcalIso_                 = conf.getParameter<edm::InputTag> ("ActivityHcalIso");
-   ActivityTrackIso_                = conf.getParameter<edm::InputTag> ("ActivityTrackIso");
-   ActivityR9_                    = conf.getParameter<edm::InputTag> ("ActivityR9"); // spike cleaning
-   ActivityR9ID_                    = conf.getParameter<edm::InputTag> ("ActivityR9ID");
-   ActivityHoverEH_           = conf.getParameter<edm::InputTag> ("ActivityHcalForHoverE");
+    // Add ECAL Activity
+    ECALActivity_             = conf.getParameter<edm::InputTag> ("ECALActivity");
+    ActivityEcalIso_          = conf.getParameter<edm::InputTag> ("ActivityEcalIso");
+    ActivityHcalIso_          = conf.getParameter<edm::InputTag> ("ActivityHcalIso");
+    ActivityTrackIso_         = conf.getParameter<edm::InputTag> ("ActivityTrackIso");
+    ActivityR9_               = conf.getParameter<edm::InputTag> ("ActivityR9"); // spike cleaning
+    ActivityR9ID_             = conf.getParameter<edm::InputTag> ("ActivityR9ID");
+    ActivityHoverEH_          = conf.getParameter<edm::InputTag> ("ActivityHcalForHoverE");
+    EcalRecHitEB_             = conf.getParameter<edm::InputTag> ("EcalRecHitEB");
+    EcalRecHitEE_             = conf.getParameter<edm::InputTag> ("EcalRecHitEE");
 
 
    // AlCa OpenHLT input collections  
@@ -207,7 +210,6 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) :
 
     // Define all consumed products  
 
-    BSProducer_ =  edm::InputTag("hltOnlineBeamSpot");
     BSProducerToken_ = consumes<reco::BeamSpot>(BSProducer_);
     hltjetsToken_ = consumes<reco::CaloJetCollection>(hltjets_);
     hltcorjetsToken_ = consumes<reco::CaloJetCollection>(hltcorjets_);
@@ -302,8 +304,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) :
     ActivityR9Token_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityR9_);
     ActivityR9IDToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityR9ID_);
     ActivityHoverEHToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityHoverEH_);
-    EcalRecHitEBToken_ = consumes<EcalRecHitCollection>(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-    EcalRecHitEEToken_ = consumes<EcalRecHitCollection>(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
+    EcalRecHitEBToken_ = consumes<EcalRecHitCollection>(EcalRecHitEB_);
+    EcalRecHitEEToken_ = consumes<EcalRecHitCollection>(EcalRecHitEE_);
 
     CandIsoToken_ = consumes<reco::RecoEcalCandidateCollection>(CandIso_);
     CandNonIsoToken_ = consumes<reco::RecoEcalCandidateCollection>(CandNonIso_);
