@@ -52,12 +52,12 @@ FWGEMSegmentProxyBuilder::buildViewType(const GEMSegment& iData,
   TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth( 3 );
-  setupAddElement( segmentSet, &oItemHolder );
   segmentSet->SetMarkerColor(item()->defaultDisplayProperties().color());
   segmentSet->SetMarkerSize(0.5);
+  setupAddElement( segmentSet, &oItemHolder );
   TEveGeoShape* shape = geom->getEveShape( rawid );
   if( shape )
-    {    
+    {
       if( TGeoTrap* box = dynamic_cast<TGeoTrap*>( shape->GetShape())) // Trapezoidal       
 	{
 	  shape->SetMainTransparency( 75 );
@@ -90,8 +90,7 @@ FWGEMSegmentProxyBuilder::buildViewType(const GEMSegment& iData,
 	  float globalSegmentOuterPoint[3];
 
 	  geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
-
-	  if (type == FWViewType::kRhoPhi && dir.x() == 0 && dir.y() == 0){
+	  if (type == FWViewType::kRhoPhi && std::abs(dir.x()) < 0.1){
 	    segmentSet->AddMarker( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2] );
 	  }
 	  else 
