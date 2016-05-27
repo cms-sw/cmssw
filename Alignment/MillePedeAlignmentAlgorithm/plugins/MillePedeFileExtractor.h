@@ -28,7 +28,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/Common/interface/FileBlobCollection.h"
 
-class MillePedeFileExtractor : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class MillePedeFileExtractor :
+  public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
  public:
   explicit MillePedeFileExtractor(const edm::ParameterSet&);
   ~MillePedeFileExtractor();
@@ -46,6 +47,7 @@ class MillePedeFileExtractor : public edm::one::EDAnalyzer<edm::one::WatchLumino
 
   edm::EDGetTokenT<FileBlobCollection> fileBlobToken_;
 
+  int nBinaries_{0};
 };
 
 // define this as a plug-in
