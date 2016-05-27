@@ -175,6 +175,7 @@
 	// Fatal error!  TO DO: throw an exception!
 	assert(0);
       }
+      {
       // Produce clusters for this DetUnit and store them in 
       // a DetSet
       edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, DSViter->detId());
@@ -184,7 +185,7 @@
       } else {
 	numberOfClusters += spc.size();
       }
-
+      } // spc is not deleted and detsetvector updated
       if ((maxTotalClusters_ >= 0) && (numberOfClusters > maxTotalClusters_)) {
         edm::LogError("TooManyClusters") <<  "Limit on the number of clusters exceeded. An empty cluster collection will be produced instead.\n";
         edmNew::DetSetVector<SiPixelCluster> empty;
