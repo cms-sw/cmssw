@@ -43,8 +43,8 @@ void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLu
   if (fileBlob.size() > 0) {
     // Adding the FileBlob to the lumi:
     fileBlobCollection->addFileBlob(fileBlob);
-    iLumi.put(std::move(fileBlobCollection), fileBlobLabel_);
   }
+  iLumi.put(std::move(fileBlobCollection), fileBlobLabel_);
 }
 
 // Manage the parameters for the module:
