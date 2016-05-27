@@ -130,22 +130,23 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent,
         std::vector<std::string> modules;
         const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
         const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
-	bool jet      = (trigJetNames_.size() != 0);
-	bool isobunch = (trigIsoBunchNames_.size() == 0);
+	bool jet(false), isobunch(false);
         for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
           int hlt    = triggerResults->accept(iHLT);
 	  if (!jet) {
 	    for (unsigned int i=0; i<trigJetNames_.size(); ++i) {
 	      if (triggerNames_[iHLT].find(trigJetNames_[i].c_str()) !=
 		  std::string::npos) {
-		if (hlt > 0) jet = true;
+		if (hlt > 0) jet = true;	
+		if (jet) {
 #ifdef DebugLog
 		  edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] 
 					       << " has got HLT flag " << hlt 
 					       << ":" << jet << ":" << isobunch
 					       << std::endl;
 #endif
-		  if (jet) break;
+		  break;
+		}
 	      }
 	    }
 	  }
@@ -154,13 +155,15 @@ bool AlCaIsolatedBunchFilter::filter(edm::Event& iEvent,
 	      if (triggerNames_[iHLT].find(trigIsoBunchNames_[i].c_str()) !=
 		  std::string::npos) {
 		if (hlt > 0) isobunch = true;
+		if (isobunch) {
 #ifdef DebugLog
-		edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] 
-					     << " has got HLT flag " << hlt 
-					     << ":" << jet << ":" << isobunch
-					     << std::endl;
+		  edm::LogInfo("AlCaIsoBunch") << triggerNames_[iHLT] 
+					       << " has got HLT flag " << hlt 
+					       << ":" << jet << ":" << isobunch
+					       << std::endl;
 #endif
-		  if (isobunch) break;
+		  break;
+		}
 	      }
 	    }
 	  }
@@ -185,7 +188,7 @@ void AlCaIsolatedBunchFilter::endStream() {
 }
 
 void AlCaIsolatedBunchFilter::globalEndJob(const AlCaIsolatedBunch::Counters* count) {
-  edm::LogInfo("HcalIsoTrack") << "Selects " << count->nGood_ << " in " 
+  edm::LogInfo("AlCaIsoBunch") << "Selects " << count->nGood_ << " in " 
                                << count->nAll_ << " events" << std::endl;
 }
 
@@ -193,7 +196,7 @@ void AlCaIsolatedBunchFilter::globalEndJob(const AlCaIsolatedBunch::Counters* co
 // ------------ method called when starting to processes a run  ------------
 void AlCaIsolatedBunchFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
-  edm::LogInfo("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() 
+  edm::LogInfo("AlCaIsoBunch") << "Run[" << nRun_ << "] " << iRun.run() 
                                << " hltconfig.init " 
 			       << hltConfig_.init(iRun,iSetup,processName_,changed)
 			       << std::endl;
@@ -201,7 +204,7 @@ void AlCaIsolatedBunchFilter::beginRun(edm::Run const& iRun, edm::EventSetup con
 // ------------ method called when ending the processing of a run  ------------
 void AlCaIsolatedBunchFilter::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   ++nRun_;
-  edm::LogInfo("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run()
+  edm::LogInfo("AlCaIsoBunch") << "endRun[" << nRun_ << "] " << iRun.run()
 			       << std::endl;
 }
 
