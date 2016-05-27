@@ -91,16 +91,14 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
       }
     }
   
-  // leave out to preserve bitwise agreement with l1t-tsg-v6-cand:
-  //if (et>0xFFF)   et   = 0xFFF;
+  if (et>0xFFF)   et   = 0xFFF;
   //if (metx>0xFFF) metx = 0xFFF;
   //if (mety>0xFFF) mety = 0xFFF;
-  //if (ht>0xFFF)   ht   = 0xFFF;
+  if (ht>0xFFF)   ht   = 0xFFF;
   //if (mhtx>0xFFF) mhtx = 0xFFF;
   //if (mhty>0xFFF) mhty = 0xFFF;
   //if (metx2>0xFFF) metx2 = 0xFFF;
   //if (mety2>0xFFF) mety2 = 0xFFF;
-
   
   // Final MET calculation
   if (metx != 0 || mety != 0 ) cordic_( metx , mety , metPhi , met );
