@@ -323,7 +323,7 @@ namespace cscdqm {
           DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
 
           DOMNodeList *itemList = docNode->getChildNodes();
-          for(uint32_t i = 0; i < itemList->getLength(); i++) {
+          for(XMLSize_t i = 0; i < itemList->getLength(); i++) {
             DOMNode* node = itemList->item(i);
             if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
 
@@ -335,7 +335,7 @@ namespace cscdqm {
 
             if (nodeName.compare("MO_FILTER") == 0) {
               DOMNodeList *filterList = node->getChildNodes();
-              for(uint32_t j = 0; j < filterList->getLength(); j++) {
+              for(XMLSize_t j = 0; j < filterList->getLength(); j++) {
                 DOMNode* filter = filterList->item(j);
                 if (filter->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
                 std::string filterName = XMLString::transcode(filter->getNodeName());
