@@ -214,6 +214,7 @@ namespace reco {
     static const unsigned int CaloMuon =  1<<4;
     static const unsigned int PFMuon =  1<<5;
     static const unsigned int RPCMuon =  1<<6;
+    static const unsigned int GEMMuon =  1<<7;
 
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
@@ -225,6 +226,7 @@ namespace reco {
     bool isCaloMuon() const { return type_ & CaloMuon; }
     bool isPFMuon() const {return type_ & PFMuon;} //fix me ! Has to go to type
     bool isRPCMuon() const {return type_ & RPCMuon;}
+    bool isGEMMuon() const {return type_ & GEMMuon;}
     
   private:
     /// check overlap with another candidate

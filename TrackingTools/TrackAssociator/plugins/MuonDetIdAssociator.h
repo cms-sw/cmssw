@@ -36,7 +36,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
      :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(0),cscbadchambers_(0),includeBadChambers_(0){};
 
    MuonDetIdAssociator(const edm::ParameterSet& pSet)
-     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0),cscbadchambers_(0),includeBadChambers_(pSet.getParameter<bool>("includeBadChambers")){};
+     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0),cscbadchambers_(0),includeBadChambers_(pSet.getParameter<bool>("includeBadChambers")),includeGEM_(pSet.getParameter<bool>("includeGEM")){};
    
    virtual void setGeometry(const GlobalTrackingGeometry* ptr) { geometry_ = ptr; }
 
@@ -70,6 +70,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
 
    const CSCBadChambers* cscbadchambers_;
    bool includeBadChambers_;
+   bool includeGEM_;
 
 };
 #endif
