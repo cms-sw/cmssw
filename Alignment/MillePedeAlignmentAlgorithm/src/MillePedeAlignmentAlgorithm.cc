@@ -351,10 +351,13 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
         }
       } else {
         // The file doesn't exist, break out of the loop
-	edm::LogWarning("Alignment")
-	  << "The input file '" << strippedInputFileName << "' does not exist.";
         break;
       }
+    }
+    // warning if unformatted (-> theNumber stays at 0) does not exist
+    if (theNumber == 0 && (files.size() == 0 || files.back() != plainFile)) {
+      edm::LogWarning("Alignment")
+	<< "The input file '" << plainFile << "' does not exist.";
     }
   }
   return files;
