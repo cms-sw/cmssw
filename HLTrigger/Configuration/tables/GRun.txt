@@ -15,9 +15,11 @@ HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86,
 
 HLT_Mu17_Mu8_v*						# JIRA: CMSHLT-406
 HLT_Mu17_Mu8_DZ_v*					# JIRA: CMSHLT-162, CMSHLT-406
+HLT_Mu17_Mu8_SameSign_v*				# JIRA: CMSHLT-841
 HLT_Mu17_Mu8_SameSign_DZ_v*				# JIRA: CMHSLT-163, CMSHLT-406
 HLT_Mu20_Mu10_v*					# JIRA: CMSHLT-406
 HLT_Mu20_Mu10_DZ_v*					# JIRA: CMSHLT-406
+HLT_Mu20_Mu10_SameSign_v*				# JIRA: CMSHLT-841
 HLT_Mu20_Mu10_SameSign_DZ_v*				# JIRA: CMSHLT-406
 
 HLT_Mu17_TkMu8_DZ_v*					# JIRA: CMSHLT-162
@@ -722,6 +724,9 @@ MC_IsoTkMu15_v*							# JIRA: CMSHLT-322, CMSHLT-335 (template paths only for MC
 MC_DoubleMu_TrkIsoVVL_DZ_v*					# JIRA: CMSHLT-322 (template paths only for MC)
 MC_DoubleGlbTrkMu_TrkIsoVVL_DZ_v*				# JIRA: CMSHLT-322 (template paths only for MC)
 MC_DoubleMuNoFiltersNoVtx_v*					# JIRA: CMSHLT-322 (template paths only for MC)
+MC_DoubleL1Tau_MediumIsoPFTau32_Trk1_eta2p1_Reg_v*		# JIRA: CMSHLT-839
+MC_LooseIsoPFTau20_v*						# JIRA: CMSHLT-839
+MC_LooseIsoPFTau50_Trk30_eta2p1_v*				# JIRA: CMSHTL-839
 
 HLT_IsoTrackHE_v*						# JIRA: CMSHLT-289
 HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
