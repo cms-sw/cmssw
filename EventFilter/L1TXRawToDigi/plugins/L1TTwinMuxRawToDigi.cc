@@ -469,7 +469,6 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb3_eta    = ( dataWordSub & 0xFF );        // positions  0 -> 7
         int mb3_eta_HQ = ( dataWordSub >> 8  ) & 0xFF;  // positions  8 -> 15
         int mb2_eta    = ( dataWordSub >> 16 ) & 0xFF;  // positions 16 -> 23
-
         int mb2_eta_HQ = ( dataWordSub >> 32 ) & 0xFF;  // positions 32 -> 39
         int mb1_eta    = ( dataWordSub >> 40 ) & 0xFF;  // positions 40 -> 47
         int mb1_eta_HQ = ( dataWordSub >> 48 ) & 0xFF;  // positions 48 -> 55
@@ -483,14 +482,14 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                               << "mb3_eta_HQ " <<  mb3_eta_HQ   << '\t'
                               << "mb3_eta " << mb3_eta  << '\n';
         
-        posALL    = mb1_eta_HQ & 0x7F;
-        posBTI[0] = mb1_eta_HQ & 0x01;
-        posBTI[1] = (mb1_eta_HQ & 0x02)>>1;
-        posBTI[2] = (mb1_eta_HQ & 0x04)>>2;
-        posBTI[3] = (mb1_eta_HQ & 0x08)>>3;
-        posBTI[4] = (mb1_eta_HQ & 0x10)>>4;
-        posBTI[5] = (mb1_eta_HQ & 0x20)>>5;
-        posBTI[6] = (mb1_eta_HQ & 0x40)>>6;
+        posALL    = (mb1_eta_HQ & 0x7F) + (mb1_eta & 0x7F);
+        posBTI[0] = ((mb1_eta_HQ & 0x01) + (mb1_eta & 0x01));
+        posBTI[1] = (((mb1_eta_HQ & 0x02)>>1) + ((mb1_eta & 0x02)>>1));
+        posBTI[2] = (((mb1_eta_HQ & 0x04)>>2) + ((mb1_eta & 0x04)>>2));
+        posBTI[3] = (((mb1_eta_HQ & 0x08)>>3) + ((mb1_eta & 0x08)>>3));
+        posBTI[4] = (((mb1_eta_HQ & 0x10)>>4) + ((mb1_eta & 0x10)>>4));
+        posBTI[5] = (((mb1_eta_HQ & 0x20)>>5) + ((mb1_eta & 0x20)>>5));
+        posBTI[6] = (((mb1_eta_HQ & 0x40)>>6) || ((mb1_eta_HQ & 0x80)>>7)) + (((mb1_eta & 0x40)>>6) || ((mb1_eta & 0x80)>>7));
 
         if ( posALL ) {
             
@@ -498,14 +497,14 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
             
         }
         
-        posALL    = mb2_eta_HQ & 0x7F;
-        posBTI[0] = mb2_eta_HQ & 0x01;
-        posBTI[1] = (mb2_eta_HQ & 0x02)>>1;
-        posBTI[2] = (mb2_eta_HQ & 0x04)>>2;
-        posBTI[3] = (mb2_eta_HQ & 0x08)>>3;
-        posBTI[4] = (mb2_eta_HQ & 0x10)>>4;
-        posBTI[5] = (mb2_eta_HQ & 0x20)>>5;
-        posBTI[6] = (mb2_eta_HQ & 0x40)>>6;
+        posALL    = (mb2_eta_HQ & 0x7F) + (mb2_eta & 0x7F);
+        posBTI[0] = ((mb2_eta_HQ & 0x01) + (mb2_eta & 0x01));
+        posBTI[1] = (((mb2_eta_HQ & 0x02)>>1) + ((mb2_eta & 0x02)>>1));
+        posBTI[2] = (((mb2_eta_HQ & 0x04)>>2) + ((mb2_eta & 0x04)>>2));
+        posBTI[3] = (((mb2_eta_HQ & 0x08)>>3) + ((mb2_eta & 0x08)>>3));
+        posBTI[4] = (((mb2_eta_HQ & 0x10)>>4) + ((mb2_eta & 0x10)>>4));
+        posBTI[5] = (((mb2_eta_HQ & 0x20)>>5) + ((mb2_eta & 0x20)>>5));
+        posBTI[6] = (((mb2_eta_HQ & 0x40)>>6) || ((mb2_eta_HQ & 0x80)>>7)) + (((mb2_eta & 0x40)>>6) || ((mb2_eta & 0x80)>>7));
 
         if ( posALL ) {
             
@@ -513,14 +512,14 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
             
         }
 
-        posALL    = mb3_eta_HQ & 0x7F;
-        posBTI[0] = mb3_eta_HQ & 0x01;
-        posBTI[1] = (mb3_eta_HQ & 0x02)>>1;
-        posBTI[2] = (mb3_eta_HQ & 0x04)>>2;
-        posBTI[3] = (mb3_eta_HQ & 0x08)>>3;
-        posBTI[4] = (mb3_eta_HQ & 0x10)>>4;
-        posBTI[5] = (mb3_eta_HQ & 0x20)>>5;
-        posBTI[6] = (mb3_eta_HQ & 0x40)>>6;
+        posALL    = (mb3_eta_HQ & 0x7F) + (mb3_eta & 0x7F);
+        posBTI[0] = ((mb3_eta_HQ & 0x01) + (mb3_eta & 0x01));
+        posBTI[1] = (((mb3_eta_HQ & 0x02)>>1) + ((mb3_eta & 0x02)>>1));
+        posBTI[2] = (((mb3_eta_HQ & 0x04)>>2) + ((mb3_eta & 0x04)>>2));
+        posBTI[3] = (((mb3_eta_HQ & 0x08)>>3) + ((mb3_eta & 0x08)>>3));
+        posBTI[4] = (((mb3_eta_HQ & 0x10)>>4) + ((mb3_eta & 0x10)>>4));
+        posBTI[5] = (((mb3_eta_HQ & 0x20)>>5) + ((mb3_eta & 0x20)>>5));
+        posBTI[6] = (((mb3_eta_HQ & 0x40)>>6) || ((mb3_eta_HQ & 0x80)>>7)) + (((mb3_eta & 0x40)>>6) || ((mb3_eta & 0x80)>>7));
 
         if ( posALL ) {
             
