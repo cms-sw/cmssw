@@ -258,7 +258,11 @@ double UCTGeometry::getUCTTowerEta(int caloEta) {
 }
 
 double UCTGeometry::getUCTTowerPhi(int caloPhi) {
-  if(caloPhi < 0) return -999.;
+  if(caloPhi < 1) return -999.;
+  else if(caloPhi > 72) return +999.;
   uint32_t absCaloPhi = abs(caloPhi) - 1;
-  return (((double) absCaloPhi + 0.5) * 0.0872);
+  if(absCaloPhi < 36)
+    return (((double) absCaloPhi + 0.5) * 0.0872);
+  else
+    return (-(71.5 - (double) absCaloPhi) * 0.0872);
 }
