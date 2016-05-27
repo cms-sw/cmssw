@@ -57,8 +57,8 @@ else :
 
 process.AlignmentProducer.algoConfig.outfile =  '<PATH>/HIPAlignmentEvents.root'
 process.AlignmentProducer.algoConfig.outfile2 = '<PATH>/HIPAlignmentAlignables.root'
-#process.AlignmentProducer.algoConfig.applyAPE = False
-process.AlignmentProducer.algoConfig.applyAPE = True 
+process.AlignmentProducer.algoConfig.applyAPE = False
+#process.AlignmentProducer.algoConfig.applyAPE = True 
 process.AlignmentProducer.algoConfig.apeParam = cms.VPSet(
          cms.PSet(function = cms.string('linear'), #choose from linear,exponential,step
                   apeRPar = cms.vdouble(0.0001, 0.0, 20.0), #100 micro-rad

@@ -138,7 +138,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 //  const Rcd & record = setup.get<TrackerAlignmentRcd>();
   const edm::ValidityInterval & validity = setup.get<TrackerAlignmentRcd>().validityInterval();
   const edm::IOVSyncValue first1 = validity.first();
-	std::cout << "xiaomeng "<<first1.eventID().run()<<std::endl;
+//	std::cout << "xiaomeng "<<first1.eventID().run()<<std::endl;
 	unsigned int firstrun = first1.eventID().run();
 	if(themultiIOV){
 		if(theIOVrangeSet.size()!=1){
@@ -162,7 +162,8 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 			}
 		}
 		if(!findMatchIOV){
-			std::cout <<"error! Didn't find the matched IOV file"<<std::endl;
+//			std::cout <<"error! Didn't find the matched IOV file"<<std::endl;
+                       edm::LogWarning("Alignment") << "error! Didn't find the matched IOV file!";
 		}
 		}
 		else{
@@ -172,7 +173,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 				salignedfile.replace(salignedfile.end()-5, salignedfile.end(),iovapp);
 				siterationfile.replace(siterationfile.end()-5, siterationfile.end(),iovapp);
 		}
-		std::cout<< "xiaomeng "<< salignedfile <<std::endl;
+//		std::cout<< "xiaomeng "<< salignedfile <<std::endl;
 	}
 	
   // accessor Det->AlignableDet

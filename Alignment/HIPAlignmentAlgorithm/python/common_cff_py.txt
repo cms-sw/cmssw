@@ -19,8 +19,8 @@ from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
-#process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 # loading the alignment producer
@@ -30,8 +30,6 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-#process.GlobalTag.globaltag = '80X_dataRun2_Prompt_Candidate_2016_04_18_10_23_57'  #next-to-last one of 2015 EOY IOV
-#process.GlobalTag.globaltag = '80X_dataRun2_Express_v7' #2016 first collision,before weasel incident
 process.GlobalTag.globaltag = '80X_dataRun2_Prompt_Candidate_2016_05_12_11_59_51'
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -42,7 +40,6 @@ from CondCore.CondDB.CondDB_cfi import *
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-#             tag = cms.string('TrackerAlignment_2015-EOY_IOV09'),
 #             tag = cms.string('TrackerAlignment_2009_v1_express'),
              tag = cms.string('TrackerAlignment_Run2016A_PseudoPCL_v1'),
 #             tag = cms.string('Alignments'),
@@ -90,15 +87,15 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
 #        'TrackerTPBHalfBarrel,001000',
 
-#        'TrackerTPBHalfBarrel,111111',
-#        'TrackerTPEHalfCylinder,111111',
+        'TrackerTPBHalfBarrel,111111',
+        'TrackerTPEHalfCylinder,111111',
         'TrackerTIBHalfBarrel,111111',
         'TrackerTOBHalfBarrel,111111',
         'TrackerTIDEndcap,111111',
         'TrackerTECEndcap,111111',
 
-      'TrackerTPBModule,111111',
-      'TrackerTPEModule,111111',
+#      'TrackerTPBModule,111111',
+#      'TrackerTPEModule,111111',
 #      'TrackerTIBModuleUnit,111111',
 #      'TrackerTOBModuleUnit,111111',
 #      'TrackerTIDModuleUnit,111111',
