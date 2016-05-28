@@ -23,7 +23,7 @@ HLTTauRefCombiner::~HLTTauRefCombiner(){ }
 
 void HLTTauRefCombiner::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
-    auto_ptr<LorentzVectorCollection> out_product(new LorentzVectorCollection);
+    unique_ptr<LorentzVectorCollection> out_product(new LorentzVectorCollection);
 
     //Create The Handles..
     std::vector< Handle<LorentzVectorCollection> > handles;
@@ -73,7 +73,7 @@ void HLTTauRefCombiner::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	  }
 
 	//Put product to file
-	iEvent.put(out_product,outName_);
+	iEvent.put(std::move(out_product),outName_);
 
       }
     

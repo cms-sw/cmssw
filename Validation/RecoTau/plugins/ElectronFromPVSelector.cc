@@ -73,7 +73,7 @@ GsfElectronFromPVSelector::~GsfElectronFromPVSelector(){}
 //______________________________________________________________________________
 void GsfElectronFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {  
-  std::auto_ptr<std::vector<reco::GsfElectron> > goodGsfElectrons(new std::vector<reco::GsfElectron >);
+  std::unique_ptr<std::vector<reco::GsfElectron> > goodGsfElectrons(new std::vector<reco::GsfElectron >);
   
   edm::Handle< std::vector<reco::Vertex> > VertexHandle;
   iEvent.getByToken( v_recoVertexToken_, VertexHandle );
@@ -83,7 +83,7 @@ void GsfElectronFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup
   
   if( (VertexHandle->size() == 0) || (GsfElectronHandle->size() == 0) ) 
   {
-    iEvent.put(goodGsfElectrons);
+    iEvent.put(std::move(goodGsfElectrons));
     return ;
   }
   
@@ -102,7 +102,7 @@ void GsfElectronFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup
     }
   }  
   
-  iEvent.put(goodGsfElectrons);
+  iEvent.put(std::move(goodGsfElectrons));
   
 }
 

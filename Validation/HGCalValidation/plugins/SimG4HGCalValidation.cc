@@ -126,9 +126,9 @@ SimG4HGCalValidation::~SimG4HGCalValidation() {
 
 void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
+  std::unique_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
   layerAnalysis(*productLayer);
-  e.put(productLayer,labelLayer_);
+  e.put(std::move(productLayer),labelLayer_);
 }
 
 void SimG4HGCalValidation::update(const BeginOfJob * job) {
