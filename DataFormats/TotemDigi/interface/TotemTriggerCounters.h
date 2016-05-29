@@ -27,7 +27,7 @@ struct TotemTriggerCounters
       revision_num(0),
       run_num(0), trigger_num(0), inhibited_triggers_num(0), input_status_bits(0)
     {
-    }
+    } 
 };
 
 #endif
