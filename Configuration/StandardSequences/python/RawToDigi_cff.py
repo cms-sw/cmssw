@@ -13,6 +13,8 @@ from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 
+from EventFilter.EcalRawToDigi.EcalRawDataRecovery_cfi import ecalRawDataRecovery
+
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 ecalDigis = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone()
 
@@ -44,7 +46,7 @@ from L1Trigger.Configuration.L1TRawToDigi_cff import *
 RawToDigi = cms.Sequence(L1TRawToDigi
                          +siPixelDigis
                          +siStripDigis
-                         +ecalDigis
+                         +(ecalRawDataRecovery*ecalDigis)
                          +ecalPreshowerDigis
                          +hcalDigis
                          +muonCSCDigis
@@ -56,7 +58,7 @@ RawToDigi = cms.Sequence(L1TRawToDigi
                          )
 
 RawToDigi_noTk = cms.Sequence(L1TRawToDigi
-                              +ecalDigis
+                              +(ecalRawDataRecovery*ecalDigis)
                               +ecalPreshowerDigis
                               +hcalDigis
                               +muonCSCDigis
@@ -70,7 +72,7 @@ RawToDigi_noTk = cms.Sequence(L1TRawToDigi
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
 #false by default anyways ecalDigis.DoRegional = False
-ecalDigis.InputLabel = 'rawDataCollector'
+ecalDigis.InputLabel = 'ecalRawDataRecovery'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
@@ -82,6 +84,3 @@ castorDigis.InputLabel = 'rawDataCollector'
 if eras.phase1Pixel.isChosen() :
     RawToDigi.remove(siPixelDigis)
     RawToDigi.remove(castorDigis)
-
-
-
