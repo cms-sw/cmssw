@@ -6,5 +6,5 @@ import FWCore.ParameterSet.Config as cms
 
 ecalRawDataRecovery = cms.EDProducer("EcalRawDataRecovery",
                                      inputCollection = cms.InputTag('rawDataCollector'),
-                                     outputCollectionLabel = cms.string('')
+                                     outputCollectionLabel = cms.string('fixedFeds')
                                      )

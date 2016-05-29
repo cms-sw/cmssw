@@ -16,3 +16,7 @@ DEFINE_FWK_MODULE(EcalDumpRaw);
 #include "EventFilter/EcalRawToDigi/interface/EcalRawDataRecovery.h"
 DEFINE_FWK_MODULE(EcalRawDataRecovery);
 
+#include "EventFilter/EcalRawToDigi/interface/MyAna.h"
+DEFINE_FWK_MODULE(MyAna);
+
+

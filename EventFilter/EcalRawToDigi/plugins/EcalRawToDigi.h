@@ -88,6 +88,7 @@ class EcalRawToDigi : public edm::stream::EDProducer<>{
 
   
   edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
+  edm::EDGetTokenT<FEDRawDataCollection> recoveredDataToken_;
   edm::EDGetTokenT<EcalListOfFEDS> fedsToken_;  
 
   // -- For regional unacking :
