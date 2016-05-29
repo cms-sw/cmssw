@@ -2,6 +2,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include <sstream>
 
 int TAMuonChamberMatch::station() const {
@@ -19,6 +20,10 @@ int TAMuonChamberMatch::station() const {
 		RPCDetId segId(id.rawId());
 		return segId.station();
 	}
+  if(muonSubdetId==4) {//GEM
+    GEMDetId segId(id.rawId());
+    return segId.station();
+  }
 
 	return -1;
 }
@@ -47,6 +52,10 @@ std::string TAMuonChamberMatch::info() const {
    if(muonSubdetId==3) {//RPC
       // RPCDetId segId(id.rawId());
       oss << "RPC chamber";
+   }
+   if(muonSubdetId==4) {//GEM
+      // GEMDetId segId(id.rawId());
+      oss << "GEM chamber";
    }
 
    return oss.str();

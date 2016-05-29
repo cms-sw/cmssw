@@ -55,6 +55,8 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
@@ -81,6 +83,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -750,6 +753,9 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    if (! cscSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
+   edm::Handle<GEMSegmentCollection> gemSegments;
+   iEvent.getByToken(parameters.gemSegmentsToken, gemSegments );
+   
    ///// get a set of DetId's in a given direction
    
    // check the map of available segments
@@ -782,9 +788,9 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                 matchedChamber->segments.back().dtSegmentRef = DTRecSegment4DRef(dtSegments, segment - dtSegments->begin());
              }
            }
-	}else{
-	   // CSC Chamber
-	   if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
+	}
+	// CSC Chamber
+	else if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
 	      // Get the range for the corresponding segments
 	      CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
 	      // Loop over the segments
@@ -793,10 +799,21 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                      matchedChamber->segments.back().cscSegmentRef = CSCSegmentRef(cscSegments, segment - cscSegments->begin());
                  }
               }
-	   }else{
-	     // throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
-	   }
 	}
+	// GEM Chamber   
+	else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
+	  if (gemSegments.isValid()){
+	    // Get the range for the corresponding segments
+	    GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
+	    // Loop over the segments
+	    for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+	      }
+	    }
+	  }
+	}
+   	
 	info.chambers.push_back(*matchedChamber);
      }
 }
