@@ -1,7 +1,7 @@
 // L1TGlobalUtil:  Utility class for parsing the L1 Trigger Menu 
 
-#ifndef L1TGlobalUtil_h
-#define L1TGlobalUtil_h
+#ifndef L1TGlobal_L1TGlobalUtil_h
+#define L1TGlobal_L1TGlobalUtil_h
 
 // system include files
 #include <vector>
@@ -18,20 +18,66 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-// forward declarations
-//class TriggerMenu;
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtilHelper.h"
 
+// forward declarations
 
 // class declaration
 
 namespace l1t {
 
-  class L1TGlobalUtil{
+class L1TGlobalUtil {
 
-  public:
-    L1TGlobalUtil();
-    ~L1TGlobalUtil();  
+public:
 
+  // Using this constructor will require InputTags to be specified in the configuration
+  L1TGlobalUtil(edm::ParameterSet const& pset,
+		edm::ConsumesCollector&& iC);
+
+  L1TGlobalUtil(edm::ParameterSet const& pset,
+		edm::ConsumesCollector& iC);
+
+  // Using this constructor will cause it to look for valid InputTags in
+  // the following ways in the specified order until they are found.
+  //   1. The configuration
+  //   2. Search all products from the preferred input tags for the required type
+  //   3. Search all products from any other process for the required type
+  template <typename T>
+  L1TGlobalUtil(edm::ParameterSet const& pset,
+		edm::ConsumesCollector&& iC,
+		T& module);
+  
+  template <typename T>
+  L1TGlobalUtil(edm::ParameterSet const& pset,
+		edm::ConsumesCollector& iC,
+		T& module);
+
+  // Using this constructor will cause it to look for valid InputTags in
+  // the following ways in the specified order until they are found.
+  //   1. The constructor arguments
+  //   2. The configuration
+  //   3. Search all products from the preferred input tags for the required type
+  //   4. Search all products from any other process for the required type
+  template <typename T>
+  L1TGlobalUtil(edm::ParameterSet const& pset,
+		edm::ConsumesCollector&& iC,
+		T& module,
+		edm::InputTag const& l1tAlgBlkInputTag,
+		edm::InputTag const& l1tExtBlkInputTag);
+
+  template <typename T>
+  L1TGlobalUtil(edm::ParameterSet const& pset,
+		edm::ConsumesCollector& iC,
+		T& module,
+		edm::InputTag const& l1tAlgBlkInputTag,
+		edm::InputTag const& l1tExtBlkInputTag);
+
+  /// destructor
+  virtual ~L1TGlobalUtil();  
+  
+  static void fillDescription(edm::ParameterSetDescription & desc) {
+    L1TGlobalUtilHelper::fillDescription(desc);
+  }
 
     // OverridePrescalesAndMasks
     // The ability to override the prescale/mask file will not be part of the permanent interface of this class.
@@ -41,18 +87,17 @@ namespace l1t {
     void OverridePrescalesAndMasks(std::string filename, unsigned int psColumn=1);
 
     /// initialize the class (mainly reserve)
-    void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup,
-                    edm::EDGetToken gtAlgToken);
-    void retrieveL1Run(const edm::EventSetup& evSetup);
-    void retrieveL1LumiBlock(const edm::EventSetup& evSetup);
-    void retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup,
-			 edm::EDGetToken gtAlgToken);
+    void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup); // using helper
+    void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup, edm::EDGetToken gtAlgToken);
+    void retrieveL1Setup(const edm::EventSetup& evSetup);
+    void retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup); // using helper
+    void retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup, edm::EDGetToken gtAlgToken);
 
     inline void setVerbosity(const int verbosity) {
         m_verbosity = verbosity;
     }
  
-    inline bool getFinalOR() {return m_finalOR;} 
+    inline bool getFinalOR() const {return m_finalOR;}
     
     // get the trigger bit from the name
     const bool getAlgBitFromName(const std::string& AlgName, int& bit) const;
@@ -108,7 +153,12 @@ namespace l1t {
     inline const std::string& gtTriggerMenuVersion() const {return m_l1GtMenu->getVersion();}
     inline const std::string& gtTriggerMenuComment() const {return m_l1GtMenu->getComment();}
 
+    // Prescale Column
+    inline unsigned int prescaleColumn() const {return m_PreScaleColumn;}
+
 private:
+
+    L1TGlobalUtil();
 
     /// clear decision vectors on a menu change
     void resetDecisionVectors();
@@ -157,8 +207,47 @@ private:
     
     /// verbosity level
     int m_verbosity;
-    
+
+    std::unique_ptr<L1TGlobalUtilHelper> m_l1tGlobalUtilHelper;
+
 };
 
+template <typename T>
+L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+			     edm::ConsumesCollector&& iC,
+			     T& module) :
+ L1TGlobalUtil(pset, iC, module) { }
+
+template <typename T>
+L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+			     edm::ConsumesCollector& iC,
+			     T& module) :
+ L1TGlobalUtil() {
+   m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset,
+						       iC,
+						       module));
+ }
+ 
+template <typename T>
+L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+			     edm::ConsumesCollector&& iC,
+			     T& module,
+			     edm::InputTag const& l1tAlgBlkInputTag,
+			     edm::InputTag const& l1tExtBlkInputTag) :
+ L1TGlobalUtil(pset, iC, module, l1tAlgBlkInputTag, l1tExtBlkInputTag) { }
+
+template <typename T>
+L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+			     edm::ConsumesCollector& iC,
+			     T& module,
+			     edm::InputTag const& l1tAlgBlkInputTag,
+			     edm::InputTag const& l1tExtBlkInputTag) :
+ L1TGlobalUtil() {
+   m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset,
+						       iC,
+						       module,
+						       l1tAlgBlkInputTag,
+						       l1tExtBlkInputTag));
+ }
 }
 #endif

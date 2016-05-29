@@ -65,7 +65,9 @@ namespace l1t {
     virtual ~GtRecordDump(){};
     virtual void analyze(const edm::Event&, const edm::EventSetup&);  
     virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    
+
+    InputTag   uGtAlgInputTag;
+    InputTag   uGtExtInputTag;
     EDGetToken egToken;
     EDGetToken muToken;
     EDGetToken tauToken;
@@ -112,13 +114,15 @@ namespace l1t {
 
   GtRecordDump::GtRecordDump(const edm::ParameterSet& iConfig)
   {
+      uGtAlgInputTag = iConfig.getParameter<InputTag>("uGtAlgInputTag");
+      uGtExtInputTag = iConfig.getParameter<InputTag>("uGtExtInputTag");
       egToken     = consumes<BXVector<l1t::EGamma>>(iConfig.getParameter<InputTag>("egInputTag"));
       muToken     = consumes<BXVector<l1t::Muon>>(iConfig.getParameter<InputTag>("muInputTag"));
       tauToken    = consumes<BXVector<l1t::Tau>>(iConfig.getParameter<InputTag>("tauInputTag"));
       jetToken    = consumes<BXVector<l1t::Jet>>(iConfig.getParameter<InputTag>("jetInputTag"));
       etsumToken  = consumes<BXVector<l1t::EtSum>>(iConfig.getParameter<InputTag>("etsumInputTag"));
-      uGtAlgToken = consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<InputTag>("uGtAlgInputTag"));
-      uGtExtToken = consumes<BXVector<GlobalExtBlk>>(iConfig.getParameter<InputTag>("uGtExtInputTag"));
+      uGtAlgToken = consumes<BXVector<GlobalAlgBlk>>(uGtAlgInputTag);
+      uGtExtToken = consumes<BXVector<GlobalExtBlk>>(uGtExtInputTag);
 
 
       m_minBx           = iConfig.getParameter<int>("minBx");
@@ -140,7 +144,7 @@ namespace l1t {
       std::string preScaleFileName = iConfig.getParameter<std::string>("psFileName");
       unsigned int preScColumn = iConfig.getParameter<int>("psColumn");
 
-      m_gtUtil = new L1TGlobalUtil();
+      m_gtUtil = new L1TGlobalUtil(iConfig, consumesCollector(), *this, uGtAlgInputTag, uGtExtInputTag);
       m_gtUtil->OverridePrescalesAndMasks(preScaleFileName,preScColumn);
 
 
