@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake1/V13 (CMSSW_8_0_8_HLT1)
+# /dev/CMSSW_8_0_0/Fake1/V14 (CMSSW_8_0_X_2016-05-27-2300)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake1" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V13')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V14')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -214,6 +214,7 @@ process.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     CTP7 = cms.untracked.bool( False ),
     lenAMC13Trailer = cms.untracked.int32( 8 ),
     Setup = cms.string( "stage1::CaloSetup" ),
+    MinFeds = cms.uint32( 0 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     lenSlinkHeader = cms.untracked.int32( 8 ),
     MTF7 = cms.untracked.bool( False ),
