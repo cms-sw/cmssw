@@ -63,7 +63,7 @@ private:
   int firstHFRing_, lastHFRing_;
   int firstHORing_, lastHORing_;
   int firstHEDoublePhiRing_, firstHEQuadPhiRing_, firstHFQuadPhiRing_;
-  int nSinglePhi_, nDoublePhi_, nQuadPhi_;
+  int nSinglePhi_, nDoublePhi_, nQuadPhi_, nEtaHE_;
   uint32_t kSizeForDenseIndexing;
 
 };

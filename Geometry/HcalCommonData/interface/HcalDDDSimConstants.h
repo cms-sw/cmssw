@@ -52,6 +52,7 @@ public:
   std::vector<HcalCellType> HcalCellTypes()    const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
+  bool                      isBH() const {return isBH_;}
   int                       maxHFDepth(int ieta, int iphi) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
   int                       phiNumber(int phi, int unit) const;
@@ -88,6 +89,7 @@ private:
   double              dlShort;  // Diference of length between long and short
   int                 depthEta16[2]; // depth index of ieta=16 for HBmax, HEMin
   int                 depthEta29[2]; // maximum depth index for ieta=29
+  bool                isBH_;         // if HE is BH
   std::vector<HcalDetId> idHF2QIE;   // DetId's of HF modules with 2 QIE's
 };
 
