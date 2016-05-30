@@ -164,7 +164,7 @@ HltComparator::filter(edm::Event & event,
   event.getByToken(hltOnlineResults_, onlineResults);
   event.getByToken(hltOfflineResults_, offlineResults);
 
-  std::auto_ptr<StringCollection> resultDescription(new StringCollection);
+  std::unique_ptr<StringCollection> resultDescription(new StringCollection);
   
   // Initialise comparator if required
   if (!init_) {
@@ -267,7 +267,7 @@ HltComparator::filter(edm::Event & event,
   }
 
   //std::cout << " HERE I STAY " << std::endl;
-  event.put(resultDescription,"failedTriggerDescription");
+  event.put(std::move(resultDescription),"failedTriggerDescription");
   //std::cout << " HERE I WENT " << std::endl;
 
   if ( hasDisagreement ) 

@@ -116,11 +116,11 @@ void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
   std::string path = currentLumi_.get_data_path();
   std::string jspath = currentLumi_.get_json_path();
 
-  std::auto_ptr<std::string> path_product(new std::string(path));
-  std::auto_ptr<std::string> json_product(new std::string(jspath));
+  std::unique_ptr<std::string> path_product(new std::string(path));
+  std::unique_ptr<std::string> json_product(new std::string(jspath));
 
-  lb.put(path_product, "sourceDataPath");
-  lb.put(json_product, "sourceJsonPath");
+  lb.put(std::move(path_product), "sourceDataPath");
+  lb.put(std::move(json_product), "sourceJsonPath");
 
   if (flagLoadFiles_) {
     if (!boost::filesystem::exists(path)) {
