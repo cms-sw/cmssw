@@ -8,7 +8,9 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/L1TMuon/interface/EMTFOutput.h"
+#include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit.h"
+#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 
@@ -28,31 +30,33 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
 
  private:
 
-  edm::EDGetTokenT<l1t::EMTFOutputCollection> inputToken;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> outputToken;
+  edm::EDGetTokenT<l1t::EMTFDaqOutCollection> daqToken;
+  edm::EDGetTokenT<l1t::EMTFHitCollection> hitToken;
+  edm::EDGetTokenT<l1t::EMTFTrackCollection> trackToken;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken;
   std::string monitorDir;
   bool verbose;
 
   MonitorElement* emtfErrors;
-  MonitorElement* emtfLCTBX;
-  MonitorElement* emtfLCTStrip[18];
-  MonitorElement* emtfLCTWire[18];
+
+  MonitorElement* emtfHitBX;
+  MonitorElement* emtfHitStrip[18];
+  MonitorElement* emtfHitWire[18];
   MonitorElement* emtfChamberStrip[18];
   MonitorElement* emtfChamberWire[18];
-  MonitorElement* emtfChamberOccupancy;
+  MonitorElement* emtfHitOccupancy;
   
-  MonitorElement* emtfnTracksEvent;
-  MonitorElement* emtfnTracksSP;
-  MonitorElement* emtfnLCTs;
+  MonitorElement* emtfnTracks;
+  MonitorElement* emtfTracknHits;
   MonitorElement* emtfTrackBX;
   MonitorElement* emtfTrackPt;
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackPhi;
+  MonitorElement* emtfTrackPhiHighQuality;
   MonitorElement* emtfTrackOccupancy;
-  MonitorElement* emtfMode;
-  MonitorElement* emtfQuality;
-  MonitorElement* emtfQualityvsMode;
-  MonitorElement* emtfHQPhi;
+  MonitorElement* emtfTrackMode;
+  MonitorElement* emtfTrackQuality;
+  MonitorElement* emtfTrackQualityVsMode;
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;
