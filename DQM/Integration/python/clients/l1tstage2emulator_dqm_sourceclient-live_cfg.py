@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("L1TStage2DQM")
+process = cms.Process("L1TStage2EmulatorDQM")
 
 #--------------------------------------------------
 # Event Source and Condition
@@ -8,6 +8,13 @@ process = cms.Process("L1TStage2DQM")
 # Live Online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+# Due to the GT override in the above include, we have trouble with
+# conflicting CaloParams from stage1 and stage2.  This workaround
+# can go away once either the es_prefer is removed from DQM or the
+# new L1TCaloStage2ParamsRcd is integrated into CMSSW.
+if 'es_prefer_GlobalTag' in process.__dict__:
+    process.__dict__.pop('es_prefer_GlobalTag')
+    process._Process__esprefers.pop('es_prefer_GlobalTag')
 
 # Testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
@@ -21,11 +28,14 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.Integration.config.environment_cfi")
 
-process.dqmEnv.subSystemFolder = "L1T2016"
-process.dqmSaver.tag = "L1T2016"
-process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
+process.dqmEnv.subSystemFolder = "L1T2016EMU"
+process.dqmSaver.tag = "L1T2016EMU"
+process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1temu_reference.root"
 
-process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver)
+process.dqmEndPath = cms.EndPath(
+    process.dqmEnv *
+    process.dqmSaver
+)
 
 #--------------------------------------------------
 # Standard Unpacking Path
@@ -40,7 +50,7 @@ process.rawToDigiPath.remove(process.gtDigis)
 process.rawToDigiPath.remove(process.gtEvmDigis)
 
 #--------------------------------------------------
-# Stage2 Unpacker and DQM Path
+# Stage2 DQM Paths
 
 # Filter fat events
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
@@ -56,48 +66,46 @@ process.selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
         fedId = cms.int32(1024)
         )
 
-process.load("DQM.L1TMonitor.L1TStage2_cff")
+process.load("DQM.L1TMonitor.L1TStage2Emulator_cff")
 
-process.l1tMonitorPath = cms.Path(
+process.l1tEmulatorMonitorPath = cms.Path(
     process.hltFatEventFilter +
 #    process.selfFatEventFilter +
-    process.l1tStage2Unpack +
-    process.l1tStage2OnlineDQM
-)
+    process.l1tStage2Unpack  +
+    process.Stage2L1HardwareValidation +
+    process.l1tStage2EmulatorOnlineDQM 
+    )
 
-# Remove DQM Modules
-#process.l1tStage2online.remove(process.l1tStage2CaloLayer1)
-#process.l1tStage2online.remove(process.l1tStage2CaloLayer2)
-#process.l1tStage2online.remove(process.l1tStage2Bmtf)
-#process.l1tStage2online.remove(process.l1tStage2Emtf)
-#process.l1tStage2online.remove(process.l1tStage2uGMT)
-#process.l1tStage2online.remove(process.l1tStage2uGt)
+# To get L1 CaloParams
+# TODO: when L1 O2O is finished, this must be removed!
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
+# To get CaloTPGTranscoder
+process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
+process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 
-#--------------------------------------------------
-# Stage2 Quality Tests
-process.load("DQM.L1TMonitorClient.L1TStage2MonitorClient_cff")
-process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
-
-#--------------------------------------------------
-# Legacy DQM EndPath
-# TODO: Is lumi scalers still relevant?
-
-process.load("DQM.L1TMonitor.L1TMonitor_cff")
-process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
+# To get L1 uGT parameters:
+# TODO: when L1 O2O is finished, this must be removed!
+#process.load('L1Trigger.L1TGlobal.hackConditions_cff')
+process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 #--------------------------------------------------
-# L1T Online DQM Schedule
+# TODO: Stage2 Emulator Quality Tests
+process.load("DQM.L1TMonitorClient.L1TStage2EmulatorMonitorClient_cff")
+process.l1tStage2EmulatorMonitorClientPath = cms.Path(process.l1tStage2EmulatorMonitorClient)
 
-process.schedule = cms.Schedule(
+#--------------------------------------------------
+# L1T Emulator Online DQM Schedule
+
+process.schedule = cms.Schedule( 
     process.rawToDigiPath,
-    process.l1tMonitorPath,
-    process.l1tStage2MonitorClientPath,
-    process.l1tMonitorEndPath,
+    process.l1tEmulatorMonitorPath,
+    process.l1tStage2EmulatorMonitorClientPath,
     process.dqmEndPath
 )
 
 #--------------------------------------------------
 # Heavy Ion Specific Fed Raw Data Collection Label
+#--------------------------------------------------
 
 print "Running with run type = ", process.runType.getRunType()
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
@@ -115,8 +123,6 @@ process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
-process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
-process.l1s.fedRawData = cms.InputTag("rawDataCollector")
 process.gtStage2Digis.InputLabel = cms.InputTag("rawDataCollector")
 
 if (process.runType.getRunType() == process.runType.hi_run):
@@ -135,8 +141,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
     process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
-    process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
-    process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
     process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
 
 #--------------------------------------------------
@@ -144,4 +148,3 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
-
