@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V296 (CMSSW_8_0_9_HLT1)
+# /dev/CMSSW_8_0_0/HLT/V297 (CMSSW_8_0_9_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V296')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V297')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -39461,7 +39461,7 @@ fragment.hltAK4PFJetsCFMax0p1 = cms.EDProducer( "HLTPFJetIDProducer",
     NTOT = cms.int32( 1 ),
     NCH = cms.int32( 0 ),
     maxEta = cms.double( 1.0E99 ),
-    maxCF = cms.double( 99.0 )
+    maxCF = cms.double( 0.1 )
 )
 fragment.hltAK4PFJetsCorrectedCFMax0p1 = cms.EDProducer( "CorrectedPFJetProducer",
     src = cms.InputTag( "hltAK4PFJetsCFMax0p1" ),
@@ -39515,7 +39515,7 @@ fragment.hltAK4PFJetsCFMax0p3 = cms.EDProducer( "HLTPFJetIDProducer",
     NTOT = cms.int32( 0 ),
     NCH = cms.int32( 0 ),
     maxEta = cms.double( 1.0E99 ),
-    maxCF = cms.double( 99.0 )
+    maxCF = cms.double( 0.3 )
 )
 fragment.hltAK4PFJetsCorrectedCFMax0p3 = cms.EDProducer( "CorrectedPFJetProducer",
     src = cms.InputTag( "hltAK4PFJetsCFMax0p3" ),
@@ -39555,7 +39555,7 @@ fragment.hltAK4PFJetsCFMax0p5 = cms.EDProducer( "HLTPFJetIDProducer",
     NTOT = cms.int32( 0 ),
     NCH = cms.int32( 0 ),
     maxEta = cms.double( 1.0E99 ),
-    maxCF = cms.double( 99.0 )
+    maxCF = cms.double( 0.5 )
 )
 fragment.hltAK4PFJetsCorrectedCFMax0p5 = cms.EDProducer( "CorrectedPFJetProducer",
     src = cms.InputTag( "hltAK4PFJetsCFMax0p5" ),
