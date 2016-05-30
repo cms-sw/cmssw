@@ -89,7 +89,7 @@ void EcalRawDataRecovery::fixRun274157(){
   if(srpHeader != fixedSrpHeader){//Data are corrupted
     //copy data of FED 620
     newRawData_->FEDData(620) = rawData_->FEDData(620);
-    uint64_t * pSrpData = reinterpret_cast<uint64_t*>(newRawData_->FEDData(619).data() + srpBlockOffset);
+    uint64_t * pSrpData = reinterpret_cast<uint64_t*>(newRawData_->FEDData(620).data() + srpBlockOffset);
     
     //Fixes SRP data block
     //The fix assumes the SRP header is missing, it shifts data and inserts the fixed header:
@@ -100,8 +100,8 @@ void EcalRawDataRecovery::fixRun274157(){
     pSrpData[1] = pSrpData[0];
     pSrpData[0] = fixedSrpHeader;
 
-    std::cout << __FILE__ << ":" << __LINE__ << ": 0x" << hex << pSrpDataFed620[0] << " -> "
-              << pSrpData[0] << dec << "\n";
+    //    std::cout << __FILE__ << ":" << __LINE__ << ": 0x" << hex << pSrpDataFed620[0] << " -> "
+    //          << pSrpData[0] << dec << "\n";
     ++nFixedEvents_;
   } else{
     ++nOkEvents_;
@@ -120,7 +120,7 @@ EcalRawDataRecovery::produce(edm::Event& event, const edm::EventSetup& es){
   if(event.run() == 274157){
     fixRun274157();
   }
-  event.put(newRawData_);
+  event.put(newRawData_, ecalRawDataOut_);
   ++iEvent_;
 }
 

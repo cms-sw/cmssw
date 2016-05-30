@@ -2,10 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.RawToDigi_cff import *
 
+from EventFilter.EcalRawToDigi.EcalRawDataRecovery_cfi import ecalRawDataRecovery
+
 RawToDigi = cms.Sequence(
                          siPixelDigis
                          +siStripDigis
-                         +ecalDigis
+                         +(ecalRawDataRecovery*ecalDigis)
                          +ecalPreshowerDigis
                          +hcalDigis
                          +muonCSCDigis

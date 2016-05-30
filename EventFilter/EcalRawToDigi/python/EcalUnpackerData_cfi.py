@@ -14,6 +14,7 @@ ecalEBunpacker.orderedDCCIdList = cms.vint32(1, 2, 3, 4, 5,
                                              46, 47, 48, 49, 50, 
                                              51, 52, 53, 54)
 ecalEBunpacker.FedLabel = cms.InputTag("listfeds")
+#ecalEBunpacker.RecoveredInputLabel = cms.InputTag("ecalRawDataRecovery", "fixedFeds")
 ecalEBunpacker.srpUnpacking = cms.bool(True)
 ecalEBunpacker.syncCheck = cms.bool(True)
 ecalEBunpacker.headerUnpacking = cms.bool(True)
