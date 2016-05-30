@@ -468,7 +468,10 @@ streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIso
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v1', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v1', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v1', 
-    'HLT_LooseIsoPFTau50_Trk30_eta2p1_v3')
+    'HLT_LooseIsoPFTau50_Trk30_eta2p1_v3', 
+    'HLT_PFTau120_eta2p1_v1', 
+    'HLT_VLooseIsoPFTau120_Trk50_eta2p1_v1', 
+    'HLT_VLooseIsoPFTau140_Trk50_eta2p1_v1')
 
 
 # dump of the Stream PhysicsMuons Datasets defined in the HLT table as Stream A Datasets
