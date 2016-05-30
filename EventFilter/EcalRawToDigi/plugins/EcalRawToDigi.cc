@@ -122,8 +122,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
     <<"\n";
 
   edm::InputTag dataLabel = conf.getParameter<edm::InputTag>("InputLabel");
-  //  edm::InputTag recoveredDataLabel = conf.getParameter<edm::InputTag>("recoveredData");
-  edm::InputTag recoveredDataLabel("ecalRawDataRecovery", "fixedFeds");
+  edm::InputTag recoveredDataLabel = conf.getParameter<edm::InputTag>("recoveredData");
   edm::InputTag fedsLabel = conf.getParameter<edm::InputTag>("FedLabel");
 
   // Producer products :
@@ -253,6 +252,7 @@ void EcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("feIdCheck",true);
   desc.addUntracked<bool>("silentMode",true);
   desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<edm::InputTag>("recoveredData", edm::InputTag("ecalRawDataRecovery", "fixedFeds"));
   {
     std::vector<int> temp1;
     unsigned int nvec = 54;
