@@ -32,7 +32,10 @@ MultShiftMETcorrDBInputProducer::MultShiftMETcorrDBInputProducer(const edm::Para
 {
   
   mPayloadName    = cfg.getUntrackedParameter<std::string>("payloadName");
-  mGlobalTag      = cfg.getUntrackedParameter<std::string>("globalTag");  
+  //mGlobalTag      = cfg.getUntrackedParameter<std::string>("globalTag");
+  mSampleType     = cfg.getUntrackedParameter< std::string >("sampleType","MC");
+  //mSampleType     = (cfg.exists("sampleType") ) ?  cfg.getUntrackedParameter<std::string>("sampleType"): "DY";
+  mIsData         = cfg.getUntrackedParameter< bool >("isData");
   //cfgCorrParameters_ = cfg.getParameter<std::vector<edm::ParameterSet> >("parameters");
 
   pflow_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter< edm::InputTag >("srcPFlow") );
@@ -115,8 +118,36 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   double cory=0.;
 
 
+  // check DB
   for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
 	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
+    if(mIsData)
+    {
+      if(!METCorParamsColl->isXYshiftData(*ikey) )
+	throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
+	  << "DB is not for Data. Set proper option: \"corrPfMetXYMultDB.isData\" !!\n";
+    }else{
+      if( METCorParamsColl->isXYshiftData(*ikey) )
+	throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
+	  << "DB is for Data. Set proper option: \"corrPfMetXYMultDB.isData\" !!\n";
+    }
+  }
+
+  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
+	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
+
+    if( !mIsData){
+
+      if(mSampleType == "MC")
+        if(!METCorParamsColl->isXYshiftMC(*ikey)) continue;
+      if(mSampleType == "DY")
+        if(!METCorParamsColl->isXYshiftDY(*ikey)) continue;
+      if(mSampleType == "TTJets")
+        if(!METCorParamsColl->isXYshiftTTJets(*ikey)) continue;
+      if(mSampleType == "WJets")
+        if(!METCorParamsColl->isXYshiftWJets(*ikey)) continue;
+    }
+
     //std::cout<<"--------------------------------------" << std::endl;
     //std::cout<<"Processing key = " << *ikey << std::endl;
     std::string sectionName= METCorParamsColl->findLabel(*ikey);
@@ -152,7 +183,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   *****************/
     double val(0.);
     //std::cout<<"parVar: "<<METCorParams.definitions().parVar(0)<<std::endl;
-    int parVar = METCorParams.definitions().parVar(0);
+    //int parVar = METCorParams.definitions().parVar(0);
     //std::cout<<"int parVar: "<<parVar<<std::endl;
 
     if ( METCorParams.definitions().parVar(0) ==0) {

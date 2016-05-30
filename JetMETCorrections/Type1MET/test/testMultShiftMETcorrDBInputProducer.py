@@ -10,7 +10,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 # DataBase
 process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.connect = 'sqlite_file:MET16V0.db'
+process.CondDB.connect = 'sqlite_file:../data/Spring16_V0_MET_Data.db'
+#process.CondDB.connect = 'sqlite_file:../data/Spring16_V0_MET_MC.db'
 
 
 #process.source = cms.Source("EmptySource")
@@ -20,14 +21,11 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       timetype = cms.string('runnumber'),
       toGet = cms.VPSet(
       cms.PSet(
-              #record = cms.string('MetShiftXY'),
-              #record = cms.string('PfType1Met'), 
               record = cms.string('METCorrectionsRecord'),# plugin 
-              #tag    = cms.string('metShiftxy'),
-              tag    = cms.string('METCorrectorParametersCollection_MET16V0'),
+              tag    = cms.string('METCorrectorParametersCollection_Spring16_V0_Data_PfType1Met'),
+              #tag    = cms.string('METCorrectorParametersCollection_Spring16_V0_MC_PfType1Met'),
               #label  = cms.untracked.string('PfType1Met')
               label  = cms.untracked.string('PfType1MetLocal')
-              #label  = cms.untracked.string('AK5CaloLocal') 
             )                                                                               
        )
 )
@@ -51,7 +49,9 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('JetMETCorrections.Type1MET.correctionTermsPfMetMult_cff')
 #process.load('JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff')
 process.corrPfMetXYMultDB.payloadName = cms.untracked.string('PfType1MetLocal')
-process.corrPfMetXYMultDB.globalTag = cms.untracked.string('MET16V0')
+process.corrPfMetXYMultDB.isData = cms.untracked.bool(True)
+#process.corrPfMetXYMultDB.isData = cms.untracked.bool(False)
+#process.corrPfMetXYMultDB.sampleType = cms.untracked.string('MC') # MC, Data, DY, TTJets, WJets
 
 process.out = cms.OutputModule("PoolOutputModule",
      #verbose = cms.untracked.bool(True),

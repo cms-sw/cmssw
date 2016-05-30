@@ -65,8 +65,8 @@ void METCorrectorDBWriter::beginJob()
       }else{
 	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
 	      isect != isectend; ++isect ) {
-	  payload->push_back( ilev, METCorrectorParameters(fip.fullPath(),*isect),levelName+"_"+ *isect );	  
-	  //payload->push_back( i, METCorrectorParameters(fip.fullPath(),*isect), ilev + "_" + *isect );	  
+	  //payload->push_back( ilev, METCorrectorParameters(fip.fullPath(),*isect),levelName+"_"+ *isect );	  
+	  payload->push_back( ilev, METCorrectorParameters(fip.fullPath(),*isect), *isect );	  
 	  std::cout << "Added level " << levelName  + "_" + *isect <<  " to record "<<ilev<< std::endl;
 	}
       }

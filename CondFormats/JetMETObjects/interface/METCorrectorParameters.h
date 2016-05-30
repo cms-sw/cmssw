@@ -26,6 +26,7 @@ class METCorrectorParameters
         Definitions(const std::vector<std::string>& fVar, const std::vector<int>& fParVar, const std::string& fFormula); 
         Definitions(const std::string& fLine); 
         //-------- Member functions ----------
+        //std::string dataType()               const {return mdataType; }
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
         int ptclType()                      const {return ptclType_; }
@@ -36,6 +37,7 @@ class METCorrectorParameters
         std::string formula()               const {return mFormula;       }
       private:
         //-------- Member variables ----------
+        //std::string              mdataType;
 	int 			 ptclType_;
         std::string              mFormula;
         std::vector<std::string> mBinVar;
@@ -104,8 +106,12 @@ class METCorrectorParameters
 
 class METCorrectorParametersCollection {
  public:
-  enum Level_t { XYshift=0,
-		 N_LEVELS=1
+  enum Level_t { XYshiftMC=0,
+    		 XYshiftDY=1,
+    		 XYshiftTTJets=2,
+    		 XYshiftWJets=3,
+    		 XYshiftData=4,
+		 N_LEVELS=5
   };
 
   typedef int                            key_type;
@@ -128,9 +134,9 @@ class METCorrectorParametersCollection {
   // Access the METCorrectorParameter via a string. 
   // Will find the hashed value for the label, and call via that 
   // operator. 
-  METCorrectorParameters const & operator[]( std::string const & label ) const {
-    return operator[]( findKey(label) );
-  }
+  //METCorrectorParameters const & operator[]( std::string const & label ) const {
+  //  return operator[]( findKey(label) );
+  //}
 
   // Get a list of valid keys. These will contain hashed keys
   // that are aware of all three collections. 
@@ -142,17 +148,31 @@ class METCorrectorParametersCollection {
   static void getSections( std::string inputFile,
 			   std::vector<std::string> & outputs );
   // Find the XYshift bin for hashing
-  static key_type getXYshiftFlavBin( std::string const & Flav );
+  static key_type getXYshiftMcFlavBin( std::string const & Flav );
+  static key_type getXYshiftDyFlavBin( std::string const & Flav );
+  static key_type getXYshiftTTJetsFlavBin( std::string const & Flav );
+  static key_type getXYshiftWJetsFlavBin( std::string const & Flav );
+  static key_type getXYshiftDataFlavBin( std::string const & Flav );
 
-  static bool isXYshift( key_type k);
+  static bool isXYshiftMC( key_type k);
+  static bool isXYshiftDY( key_type k);
+  static bool isXYshiftTTJets( key_type k);
+  static bool isXYshiftWJets( key_type k);
+  static bool isXYshiftData( key_type k);
 
   static std::string findLabel( key_type k );
-  static std::string findXYshiftFlavor( key_type k );
+  static std::string levelName( key_type k );
+
+  static std::string findXYshiftMCflavor( key_type k );
+  static std::string findXYshiftDYflavor( key_type k );
+  static std::string findXYshiftTTJetsFlavor( key_type k );
+  static std::string findXYshiftWJetsFlavor( key_type k );
+  static std::string findXYshiftDataFlavor( key_type k );
 
  protected:
 
   // Find the key corresponding to each label
-  key_type findKey( std::string const & label ) const;
+  //key_type findKey( std::string const & label ) const;
 
   collection_type                        correctionsXYshift_;
 

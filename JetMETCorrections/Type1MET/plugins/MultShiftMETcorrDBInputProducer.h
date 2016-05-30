@@ -46,7 +46,9 @@ class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<>
   edm::EDGetTokenT<edm::View<reco::Vertex>> vertices_;
   std::string moduleLabel_;
   std::string mPayloadName;
-  std::string mGlobalTag;
+  //std::string mGlobalTag;
+  std::string mSampleType;
+  bool mIsData;
 
   std::vector<edm::ParameterSet> cfgCorrParameters_;
 
