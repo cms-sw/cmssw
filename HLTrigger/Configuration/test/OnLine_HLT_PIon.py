@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V106 (CMSSW_8_0_X_2016-05-27-2300)
+# /dev/CMSSW_8_0_0/PIon/V107 (CMSSW_8_0_9_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V106')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V107')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1770,24 +1770,33 @@ process.SimpleSecondaryVertex3TrkComputer = cms.ESProducer( "SimpleSecondaryVert
   useSignificance = cms.bool( True )
 )
 process.StableParameters = cms.ESProducer( "StableParametersTrivialProducer",
-  NumberL1IsoEG = cms.uint32( 4 ),
   NumberL1JetCounts = cms.uint32( 12 ),
-  NumberPhysTriggersExtended = cms.uint32( 64 ),
-  NumberTechnicalTriggers = cms.uint32( 64 ),
   NumberL1NoIsoEG = cms.uint32( 4 ),
-  IfCaloEtaNumberBits = cms.uint32( 4 ),
   NumberL1CenJet = cms.uint32( 4 ),
-  NumberL1TauJet = cms.uint32( 4 ),
-  NumberL1Mu = cms.uint32( 4 ),
+  NumberL1Tau = cms.uint32( 8 ),
   NumberConditionChips = cms.uint32( 1 ),
-  IfMuEtaNumberBits = cms.uint32( 6 ),
-  NumberPsbBoards = cms.int32( 7 ),
-  NumberPhysTriggers = cms.uint32( 512 ),
+  NumberL1EGamma = cms.uint32( 12 ),
+  TotalBxInEvent = cms.int32( 5 ),
+  NumberL1Mu = cms.uint32( 4 ),
   PinsOnConditionChip = cms.uint32( 512 ),
-  UnitLength = cms.int32( 8 ),
-  NumberL1ForJet = cms.uint32( 4 ),
   WordLength = cms.int32( 64 ),
-  OrderConditionChip = cms.vint32( 1 )
+  PinsOnChip = cms.uint32( 512 ),
+  OrderOfChip = cms.vint32( 1 ),
+  IfMuEtaNumberBits = cms.uint32( 6 ),
+  OrderConditionChip = cms.vint32( 1 ),
+  appendToDataLabel = cms.string( "" ),
+  NumberL1TauJet = cms.uint32( 4 ),
+  NumberL1Jet = cms.uint32( 12 ),
+  NumberPhysTriggers = cms.uint32( 512 ),
+  NumberL1Muon = cms.uint32( 12 ),
+  UnitLength = cms.int32( 8 ),
+  NumberL1IsoEG = cms.uint32( 4 ),
+  NumberTechnicalTriggers = cms.uint32( 64 ),
+  NumberL1ForJet = cms.uint32( 4 ),
+  IfCaloEtaNumberBits = cms.uint32( 4 ),
+  NumberPsbBoards = cms.int32( 7 ),
+  NumberChips = cms.uint32( 5 ),
+  NumberPhysTriggersExtended = cms.uint32( 64 )
 )
 process.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
