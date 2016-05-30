@@ -16,13 +16,14 @@ l1tMenuLabel = ""
 #and leave unchanged the snapshot times for the other tuples.
 
 l1Menus= {
-    'Fake' : ( ','.join( [ 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'             , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
-    'Fake1': ( ','.join( [ 'L1Menu_Collisions2015_25nsStage1_v5'                     , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
-    'FULL' : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
-    'GRun' : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
-    'HIon' : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2015_v5_uGT_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
-    'PIon' : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
-    'PRef' : ( ','.join( [ 'L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc_xml',l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
+    'Fake'         : ( ','.join( [ 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'             , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
+    'Fake1'        : ( ','.join( [ 'L1Menu_Collisions2015_25nsStage1_v5'                     , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
+    'FULL'         : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
+    'GRun'         : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
+    '25ns10e33_v2' : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
+    'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2015_v5_uGT_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
+    'PIon'         : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
+    'PRef'         : ( ','.join( [ 'L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc_xml',l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
 }
 
 hltGTs = {
@@ -34,6 +35,7 @@ hltGTs = {
     'run2_mc_Fake1'          : ('run2_mc'      ,l1Menus['Fake1']),
     'run2_mc_FULL'           : ('run2_mc'      ,l1Menus['FULL']),
     'run2_mc_GRun'           : ('run2_mc'      ,l1Menus['GRun']),
+    'run2_mc_25ns10e33_v2'   : ('run2_mc'      ,l1Menus['25ns10e33_v2']),
     'run2_mc_HIon'           : ('run2_mc_hi'   ,l1Menus['HIon']),
     'run2_mc_PIon'           : ('run2_mc'      ,l1Menus['PIon']),
     'run2_mc_PRef'           : ('run2_mc'      ,l1Menus['PRef']),
@@ -43,6 +45,7 @@ hltGTs = {
     'run2_hlt_Fake1'         : ('run2_hlt'     ,l1Menus['Fake1']),
     'run2_hlt_FULL'          : ('run2_hlt'     ,l1Menus['FULL']),
     'run2_hlt_GRun'          : ('run2_hlt'     ,l1Menus['GRun']),
+    'run2_hlt_25ns10e33_v2'  : ('run2_hlt'     ,l1Menus['25ns10e33_v2']),
     'run2_hlt_HIon'          : ('run2_hlt_hi'  ,l1Menus['HIon']),
     'run2_hlt_PIon'          : ('run2_hlt'     ,l1Menus['PIon']),
     'run2_hlt_PRef'          : ('run2_hlt'     ,l1Menus['PRef']),
@@ -52,6 +55,7 @@ hltGTs = {
     'run2_data_Fake1'        : ('run2_data'    ,l1Menus['Fake1']),
     'run2_data_FULL'         : ('run2_data'    ,l1Menus['FULL']),
     'run2_data_GRun'         : ('run2_data'    ,l1Menus['GRun']),
+    'run2_data_25ns10e33_v2' : ('run2_data'    ,l1Menus['25ns10e33_v2']),
     'run2_data_HIon'         : ('run2_data'    ,l1Menus['HIon']),
     'run2_data_PIon'         : ('run2_data'    ,l1Menus['PIon']),
     'run2_data_PRef'         : ('run2_data'    ,l1Menus['PRef']),
