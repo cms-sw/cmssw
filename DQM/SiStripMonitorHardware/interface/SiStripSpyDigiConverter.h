@@ -36,17 +36,17 @@ namespace sistrip {
          * If pAPVAddress is set, the map is filled with a map from FedKey to APVAddress.
          * minAllowedRange is the min allowed range of digis when determine the threshold.
          */
-        static std::auto_ptr<DSVRawDigis> extractPayloadDigis(const DSVRawDigis * inputScopeDigis,
+        static std::unique_ptr<DSVRawDigis> extractPayloadDigis(const DSVRawDigis * inputScopeDigis,
                                                               std::vector<uint32_t> * pAPVAddresses,
 							      const bool discardDigisWithAPVAddrErr,
                                                               const sistrip::SpyUtilities::FrameQuality & aQuality,
 							      const uint16_t expectedPos);
     
         /* \brief Reorder from readout order to physical order */
-        static std::auto_ptr<DSVRawDigis> reorderDigis(const DSVRawDigis* inputPayloadDigis);
+        static std::unique_ptr<DSVRawDigis> reorderDigis(const DSVRawDigis* inputPayloadDigis);
     
         /* \brief Merge channel digis into modules. */
-        static std::auto_ptr<DSVRawDigis> mergeModuleChannels(const DSVRawDigis* inputPhysicalOrderChannelDigis, const SiStripFedCabling& cabling);
+        static std::unique_ptr<DSVRawDigis> mergeModuleChannels(const DSVRawDigis* inputPhysicalOrderChannelDigis, const SiStripFedCabling& cabling);
 
 
       private:

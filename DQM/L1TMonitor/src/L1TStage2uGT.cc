@@ -149,8 +149,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                if(itr->getAlgoDecisionInitial(algoBit)) {
                   algoBits_after_bxomask_->Fill(algoBit);
                   algoBits_after_bxomask_lumi_->Fill(lumi, algoBit);
-                  algoBits_after_bxomask_bx_global_->Fill(bx, algoBit);
                   algoBits_after_bxomask_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
+                  algoBits_after_bxomask_bx_global_->Fill(bx + ibx, algoBit);
                   
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionInitial(algoBit2)) {
@@ -163,8 +163,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                if(itr->getAlgoDecisionInterm(algoBit)) {
                   algoBits_after_prescaler_->Fill(algoBit);
                   algoBits_after_prescaler_lumi_->Fill(lumi, algoBit);
-                  algoBits_after_prescaler_bx_global_->Fill(bx, algoBit);
                   algoBits_after_prescaler_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
+                  algoBits_after_prescaler_bx_global_->Fill(bx + ibx, algoBit);
                   
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionInterm(algoBit2)) {
@@ -177,8 +177,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                if(itr->getAlgoDecisionFinal(algoBit)) {
                   algoBits_after_mask_->Fill(algoBit);
                   algoBits_after_mask_lumi_->Fill(lumi, algoBit);
-                  algoBits_after_mask_bx_global_->Fill(bx, algoBit);
                   algoBits_after_mask_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
+                  algoBits_after_mask_bx_global_->Fill(bx + ibx, algoBit);
                   
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionFinal(algoBit2)) {

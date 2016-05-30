@@ -1,0 +1,6 @@
+<!-- correlation-plot selectors unfortuantely need QString -->
+<use name="qt"/>
+
+<export>
+	<lib name="1"/>
+</export>

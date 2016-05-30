@@ -104,10 +104,10 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
    using namespace std;
    
    // output collection
-   auto_ptr<TrackCollection> tracks(new TrackCollection);
-   auto_ptr<TrackingRecHitCollection> rechits(new TrackingRecHitCollection);
-   auto_ptr<TrackExtraCollection> trackextras(new TrackExtraCollection);
-   auto_ptr<vector<int> > seedToTrack(new vector<int>());
+   unique_ptr<TrackCollection> tracks(new TrackCollection);
+   unique_ptr<TrackingRecHitCollection> rechits(new TrackingRecHitCollection);
+   unique_ptr<TrackExtraCollection> trackextras(new TrackExtraCollection);
+   unique_ptr<vector<int> > seedToTrack(new vector<int>());
    
    // product references 
    TrackExtraRefProd ref_trackextras = iEvent.getRefBeforePut<TrackExtraCollection>();
@@ -176,10 +176,10 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
    if (nfailed > 0) {
      edm::LogInfo("SeedValidator") << "failed to create tracks from " << nfailed <<  " out of " << seeds.size() << " seeds ";
    }
-   iEvent.put(tracks);
-   iEvent.put(seedToTrack);
-   iEvent.put(rechits);
-   iEvent.put(trackextras);
+   iEvent.put(std::move(tracks));
+   iEvent.put(std::move(seedToTrack));
+   iEvent.put(std::move(rechits));
+   iEvent.put(std::move(trackextras));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
