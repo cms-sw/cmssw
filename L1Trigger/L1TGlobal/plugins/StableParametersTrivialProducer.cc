@@ -102,7 +102,7 @@ void StableParametersTrivialProducer::fillDescriptions(ConfigurationDescriptions
   vector<int> tmp2 = {1};
   desc.add<vector<int> > ("OrderConditionChip", tmp2)->setComment("Deprecated...");
 
-  descriptions.add("L1TGlobalProducer", desc);
+  descriptions.add("StableParametersTrivialProducer", desc);
 }
 
 
