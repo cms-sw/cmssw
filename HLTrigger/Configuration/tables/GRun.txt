@@ -49,9 +49,9 @@ HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v*		# JIRA: CMSHLT-73, CMSHLT-751
 HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v*		# JIRA: CMSHLT-99, CMSHLT-482, CMSHLT-601, CMSHLT-711, CMSHLT-751
 HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v*		# JIRA: CMSHLT-226, CMSHLT-482, CMSHLT-601, CMSHLT-711, CMSHLT-751 (only for 7e33)
 
-#HLT_PFTau95_eta2p1_v*					# JIRA: CMSHLT-749, (temporarily) removed by CMSHLT-776
-#HLT_PFTau120_eta2p1_v*					# JIRA: CMSHLT-749, (temporarily) removed by CMSHLT-776
-#HLT_PFTau140_eta2p1_v*					# JIRA: CMSHLT-749, (temporarily) removed by CMSHLT-776
+HLT_PFTau120_eta2p1_v*					# JIRA: CMSHLT-749
+HLT_VLooseIsoPFTau120_Trk50_eta2p1_v*			# JIRA: CMSHLT-749
+HLT_VLooseIsoPFTau140_Trk50_eta2p1_v*			# JIRA: CMSHLT-749
 
 #HLT_CaloJet260_v*					# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 #HLT_HT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
