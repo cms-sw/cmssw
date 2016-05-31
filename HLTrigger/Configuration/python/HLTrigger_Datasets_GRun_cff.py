@@ -277,7 +277,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetBTagMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetBTagMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetBTagMu_selector.throw      = cms.bool(False)
-streamA_datasetBTagMu_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet110_Mu5_v2', 
+streamA_datasetBTagMu_selector.triggerConditions = cms.vstring('HLT_BTagMu_AK8Jet300_Mu5_v1', 
+    'HLT_BTagMu_DiJet110_Mu5_v2', 
+    'HLT_BTagMu_DiJet170_Mu5_v1', 
     'HLT_BTagMu_DiJet20_Mu5_v2', 
     'HLT_BTagMu_DiJet40_Mu5_v2', 
     'HLT_BTagMu_DiJet70_Mu5_v2', 
@@ -363,6 +365,11 @@ streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet250
     'HLT_AK8PFJet60_v1', 
     'HLT_AK8PFJet80_v1', 
     'HLT_CaloJet500_NoJetID_v2', 
+    'HLT_DiCentralPFJet170_CFMax0p1_v1', 
+    'HLT_DiCentralPFJet170_v1', 
+    'HLT_DiCentralPFJet220_CFMax0p3_v1', 
+    'HLT_DiCentralPFJet330_CFMax0p5_v1', 
+    'HLT_DiCentralPFJet430_v1', 
     'HLT_DiPFJetAve100_HFJEC_v3', 
     'HLT_DiPFJetAve140_v2', 
     'HLT_DiPFJetAve160_HFJEC_v3', 
@@ -411,7 +418,8 @@ streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet250
     'HLT_PFJet500_v4', 
     'HLT_PFJet60_v4', 
     'HLT_PFJet80_v4', 
-    'HLT_QuadPFJet_VBF_v4')
+    'HLT_QuadPFJet_VBF_v4', 
+    'HLT_SingleCentralPFJet170_CFMax0p1_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMET_selector
 streamA_datasetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
