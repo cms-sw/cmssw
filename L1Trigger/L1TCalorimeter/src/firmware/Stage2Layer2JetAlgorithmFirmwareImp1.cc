@@ -76,7 +76,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
     
     // the 4 groups of rings
     std::vector<int> ringGroup1, ringGroup2, ringGroup3, ringGroup4;
-    for (int i=1; i<=CaloTools::kHFEnd-5; i++) {
+    for (int i=1; i<=CaloTools::kHFEnd-1; i++) {
       if      ( ! ((i-1)%4) ) ringGroup1.push_back( i * etaSide );
       else if ( ! ((i-2)%4) ) ringGroup2.push_back( i * etaSide );
       else if ( ! ((i-3)%4) ) ringGroup3.push_back( i * etaSide );
@@ -223,13 +223,13 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   int iphiDown = jetPhi - size;
   while ( iphiDown < 1 ) iphiDown += CaloTools::kHBHENrPhi;
 
-  int ietaUp = (jetEta + size > CaloTools::kHFEnd) ? 999 : jetEta+size;
-  int ietaDown = (abs(jetEta - size) > CaloTools::kHFEnd) ? 999 : jetEta-size;
+  int ietaUp = (jetEta + size > CaloTools::kHFEnd-1) ? 999 : jetEta+size;
+  int ietaDown = (abs(jetEta - size) > CaloTools::kHFEnd-1) ? 999 : jetEta-size;
 
   for (int ieta = jetEta - size+1; ieta < jetEta + size; ++ieta)   
   {
     
-    if (abs(ieta) > CaloTools::kHFEnd || abs(ieta) < 1) continue;
+    if (abs(ieta) > CaloTools::kHFEnd-1 || abs(ieta) < 1) continue;
     int towerEta;
     
     if (jetEta > 0 && ieta <=0){
@@ -300,7 +300,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do PhiUp and PhiDown
     for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {
       
-      if (abs(ieta) > CaloTools::kHFEnd) continue;
+      if (abs(ieta) > CaloTools::kHFEnd-1) continue;
       
       int towEta = ieta;
       if (jetEta>0 && towEta<=0) towEta-=1;
