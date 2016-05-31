@@ -182,12 +182,10 @@ gzip -f millepede.eve
 gzip -f millepede.mon
 
 #list IOVs
-conddb --db alignments_MP.db list Alignments
-conddb --db alignments_MP.db list Deformations
-conddb --db alignments_MP.db list SiStripLorentzAngle_deco
-conddb --db alignments_MP.db list SiStripLorentzAngle_peak
-conddb --db alignments_MP.db list SiPixelLorentzAngle
-conddb --db alignments_MP.db list SiStripBackPlaneCorrection
+for tag in $(sqlite3 alignments_MP.db  "SELECT NAME FROM TAG;")
+do
+    conddb --db alignments_MP.db list ${tag}
+done
 
 #split the IOVs
 aligncond_split_iov.sh alignments_MP.db alignments_split_MP.db

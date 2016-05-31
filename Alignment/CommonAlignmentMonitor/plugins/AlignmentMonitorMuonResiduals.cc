@@ -21,6 +21,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "TH1F.h"
 #include "TTree.h"
 
@@ -582,7 +583,16 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::E
 	    align::LocalPoint trackPos = tsosc.localPosition();
 	    LocalError trackErr = tsosc.localError().positionError();
 	    align::LocalPoint hitPos = hit->localPosition();
-	    LocalError hitErr = hit->localPositionError();
+	    LocalError hitErr = hit->localPositionError(); // CPE+APE
+
+	    // subtract APEs from hitErr (if existing) from covariance matrix
+	    auto det = static_cast<const TrackerGeomDet*>(hit->det());
+	    const auto localAPE = det->localAlignmentError();
+	    if (localAPE.valid()) {
+	      hitErr = LocalError(hitErr.xx() - localAPE.xx(),
+				  hitErr.xy() - localAPE.xy(),
+				  hitErr.yy() - localAPE.yy());
+	    }
 
 	    double x_residual = 10. * (trackPos.x() - hitPos.x());
 	    double y_residual = 10. * (trackPos.y() - hitPos.y());

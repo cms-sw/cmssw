@@ -87,24 +87,24 @@ using namespace gbl;
 //____________________________________________________
 MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg) :
   AlignmentAlgorithmBase(cfg), 
-  theConfig(cfg), theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
+  theConfig(cfg),
+  theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
   theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
-  theAlignmentParameterStore(0), theAlignables(), theAlignableNavigator(0),
-  theMonitor(0), theMille(0), thePedeLabels(0), thePedeSteer(0),
-  theTrajectoryFactory(0),
+  theAlignmentParameterStore(nullptr),
+  theAlignables(),
   theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
   theLastWrittenIov(0),
-  theBinary(0),theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary"))
+  theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
                             << theConfig.getUntrackedParameter<std::string>("mode")
                             << "' with output directory '" << theDir << "'.";
   if (this->isMode(myMilleBit)) {
-    theMille = new Mille((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str());// add ', false);' for text output);
+    theMille = std::make_unique<Mille>((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str());// add ', false);' for text output);
     // use same file for GBL
-    theBinary = new MilleBinary((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str(), theGblDoubleBinary);
+    theBinary = std::make_unique<MilleBinary>((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str(), theGblDoubleBinary);
   }
 }
 
@@ -112,18 +112,6 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
 //____________________________________________________
 MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
 {
-  delete theAlignableNavigator;
-  theAlignableNavigator = 0;
-  delete theMille;
-  theMille = 0;
-  delete theMonitor;
-  theMonitor = 0;
-  delete thePedeSteer;
-  thePedeSteer = 0;
-  delete thePedeLabels;
-  thePedeLabels = 0;
-  delete theTrajectoryFactory;
-  theTrajectoryFactory = 0;
 }
 
 // Call at beginning of job ---------------------------------------------------
@@ -142,7 +130,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  theAlignableNavigator = new AlignableNavigator(extras, tracker, muon);
+  theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
 
@@ -177,15 +165,16 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
 			    << "Using plugin '" << labelerPlugin << "' to generate labels.";
   
-  thePedeLabels = PedeLabelerPluginFactory::get()->create(labelerPlugin,
-							  PedeLabelerBase::TopLevelAlignables(tracker, muon, extras),
-							  pedeLabelerCfg);
+  thePedeLabels = std::unique_ptr<PedeLabelerBase>(PedeLabelerPluginFactory::get()
+						   ->create(labelerPlugin,
+							    PedeLabelerBase::TopLevelAlignables(tracker, muon, extras),
+							    pedeLabelerCfg));
   
   // 1) Create PedeSteerer: correct alignable positions for coordinate system selection
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  thePedeSteer = new PedeSteerer(tracker, muon, extras,
-				 theAlignmentParameterStore, thePedeLabels,
-				 pedeSteerCfg, theDir, !this->isMode(myPedeSteerBit));
+  thePedeSteer = std::make_unique<PedeSteerer>(tracker, muon, extras,
+                                               theAlignmentParameterStore, thePedeLabels.get(),
+                                               pedeSteerCfg, theDir, !this->isMode(myPedeSteerBit));
   
   // 2) If requested, directly read in and apply result of previous pede run,
   //    assuming that correction from 1) was also applied to create the result:
@@ -229,12 +218,13 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "modes running mille.";
     }
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-    if (moniFile.size()) theMonitor = new MillePedeMonitor(tTopo, (theDir + moniFile).c_str());
+    if (moniFile.size()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
     const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
     const std::string fctName(fctCfg.getParameter<std::string>("TrajectoryFactoryName"));
-    theTrajectoryFactory = TrajectoryFactoryPlugin::get()->create(fctName, fctCfg);
+    theTrajectoryFactory = std::unique_ptr<TrajectoryFactoryBase>(TrajectoryFactoryPlugin::get()
+                                                                  ->create(fctName, fctCfg));
   }
 
   if (this->isMode(myPedeSteerBit)) {
@@ -300,8 +290,8 @@ void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 }
 void MillePedeAlignmentAlgorithm::terminate()
 {
-  delete theMille;// delete to close binary before running pede below (flush would be enough...)
-  theMille = 0;
+  theMille.reset(); // delete to close binary before running pede below (flush would be enough...)
+  theBinary.reset();
 
   std::vector<std::string> files;
   if (this->isMode(myMilleBit) || !theConfig.getParameter<std::string>("binaryFile").empty()) {
