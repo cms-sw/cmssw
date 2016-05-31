@@ -263,6 +263,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceCovarianceMatrices);
       findingRecord <HcalCovarianceMatricesRcd> ();
     }
+    if ((*objectName == "FrontEndMap") || (*objectName == "frontEndMap") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceFrontEndMap);
+      findingRecord <HcalFrontEndMapRcd> ();
+    }
   }
 }
 
@@ -758,6 +762,7 @@ std::unique_ptr<HcalCholeskyMatrices> HcalHardcodeCalibrations::produceCholeskyM
   return result;
 
 }
+
 std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rec) {
 
   edm::ESHandle<HcalTopology> htopo;
@@ -770,6 +775,14 @@ std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovaria
     HcalCovarianceMatrix item(cell->rawId());
     result->addValues(item);
   }
+  return result;
+}
+
+std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
+
+  auto result = std::make_unique<HcalFrontEndMap>();
+  dbHardcode.makeHardcodeFrontEndMap(*result);
   return result;
 }
 
