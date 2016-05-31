@@ -6,15 +6,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h" 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
     : outputDir_(iConfig.getParameter<std::string>("fileDir")),
-      outputFileName_(iConfig.getParameter<std::string>("outputBinaryFile")) {
+      outputFileName_(iConfig.getParameter<std::string>("outputBinaryFile")),
+      maxNumberOfBinaries_(iConfig.getParameter<int>("maxNumberOfBinaries")) {
 
   auto fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
   fileBlobToken_ = consumes<FileBlobCollection, edm::BranchType::InLumi>(fileBlobInputTag);
-  // nothing else in the constructor
+  if (hasBinaryNumberLimit()) {
+    edm::LogInfo("MillePedeFileActions")
+      << "Limiting the number of extracted binary files to "
+      << maxNumberOfBinaries_;
+  }
 }
 
 MillePedeFileExtractor::~MillePedeFileExtractor() {}
@@ -22,6 +27,8 @@ MillePedeFileExtractor::~MillePedeFileExtractor() {}
 void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
                                                 const edm::EventSetup&)
 {
+  if (enoughBinaries()) return;
+
   // Getting our hands on the vector of FileBlobs
   edm::Handle<FileBlobCollection> fileBlobCollection;
   iLumi.getByToken(fileBlobToken_, fileBlobCollection);
@@ -31,6 +38,7 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
       << "Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
     // Loop over the FileBlobs in the vector, and write them to files:
     for (const auto& blob: *fileBlobCollection) {
+      if (enoughBinaries()) break;
       // We format the filename with a number, starting from 0 to the size of
       // our vector.
       // For this to work, the outputBinaryFile config parameter must contain a
@@ -53,6 +61,7 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
   }
 }
 
+
 // Manage the parameters for the module:
 // (Note that this will autogenerate the _cfi.py file.)
 void MillePedeFileExtractor::fillDescriptions(
@@ -74,6 +83,9 @@ void MillePedeFileExtractor::fillDescriptions(
       "root file. Make sure you overwrite this, if you have changed "
       "this is the configuration of the MillePedeFileConverter.");
 
+  desc.add<int>("maxNumberOfBinaries", 1000)->setComment(
+      "Number of binaries to be extracted from the input files. "
+      "Use a negative value to apply no limit.");
 
   descriptions.add("millePedeFileExtractor", desc);
   descriptions.setComment(
