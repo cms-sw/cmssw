@@ -8,6 +8,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "L1Trigger/L1TCommon/interface/tools.h"
 
 //boost libraries
 #include <boost/lexical_cast.hpp>
@@ -21,6 +22,7 @@ class tableRow
 	public:
 		tableRow() {};
 		tableRow(const std::vector<std::string>& row) { row_ = row;} ;
+		void setTableId(const std::string& id) { tableId_ = id; };
 		void setRowTypes(const std::vector<std::string>& types) { types_ = types; };
 		void setRowColumns(const std::vector<std::string>& columns) { columns_ = columns; };
 		~tableRow() {};
@@ -28,6 +30,7 @@ class tableRow
 		std::string getRowAsStr();
 		template <class varType> varType getRowValue(const std::string& col);
 	private:
+		std::string tableId_;
 		std::vector<std::string> row_;
 		std::vector<std::string> types_;
 		std::vector<std::string> columns_;
@@ -65,7 +68,6 @@ class setting
 		std::vector<std::string> tableTypes_;
 		std::vector<std::string> tableColumns_;
 		
-		void str2VecStr_(const std::string& aStr, const std::string& delim, std::vector<std::string>& aVec);
 };
 
 
@@ -80,7 +82,7 @@ template <typename varType> std::vector<varType> setting::getVector()
 
 	std::vector<varType> newVals;
 	for(auto it=vals.begin(); it!=vals.end(); it++)
-		newVals.push_back(boost::lexical_cast<varType>(*it));
+		newVals.push_back(convertVariable<varType>(*it));
 	edm::LogInfo ("l1t::setting::getVector") << "Returning vector with values " << this->getValueAsStr();
 	return newVals;
 }
@@ -92,7 +94,7 @@ template <class varType> varType setting::getValue()
 		throw std::runtime_error("The registered type: " + type_ + " is vector so you need to call the getVector method");
 	
 	edm::LogInfo ("l1t::setting::getValue") << "Returning value " << this->getValueAsStr();
-	return boost::lexical_cast<varType>(value_);
+	return convertVariable<varType>(value_);
 }
 
 template <class varType> varType tableRow::getRowValue(const std::string& col)
@@ -111,8 +113,8 @@ template <class varType> varType tableRow::getRowValue(const std::string& col)
 	if (!found)
 		throw std::runtime_error ("Column " + col + "not found.");
 
-	edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << boost::lexical_cast<varType>(row_.at(ct)) <<  " from table row " << this->getRowAsStr();
-	return boost::lexical_cast<varType>(row_.at(ct));
+	edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << convertVariable<varType>(row_.at(ct)) <<  " from table " << tableId_ << " and row " << this->getRowAsStr();
+	return convertVariable<varType>(row_.at(ct));
 }
 
 }
