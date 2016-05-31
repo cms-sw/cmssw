@@ -73,6 +73,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig,consumesCollector(), *this))
     , numSelection_       (conf_.getParameter<std::string>("numCut"))
     , denSelection_       (conf_.getParameter<std::string>("denCut"))
+    , pvNDOF_             ( conf_.getParameter<int> ("pvNDOF") )
 {
 
   edm::ConsumesCollector c{ consumesCollector() };
@@ -520,7 +521,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       //--- pv fake (the pv collection should have size==1 and the pv==beam spot)
       if (   pv0->isFake() || pv0->tracksSize()==0
       // definition of goodOfflinePrimaryVertex
-          || pv0->ndof() < 4. || pv0->z() > 24.)  pv0 = nullptr;
+          || pv0->ndof() < pvNDOF_ || pv0->z() > 24.)  pv0 = nullptr;
     }
 
 
@@ -535,6 +536,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       int totalRecHits = 0, totalLayers = 0;
 
       theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
+      theTrackAnalyzer->setBX(iEvent);
       for (reco::TrackCollection::const_iterator track = trackCollection.begin();
 	   track!=trackCollection.end(); ++track) {
 	
@@ -695,7 +697,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      if (pv->isFake() || pv->tracksSize()==0) continue;
 	      
 	      // definition of goodOfflinePrimaryVertex
-	      if (pv->ndof() < 4. || pv->z() > 24.)  continue;
+	      if (pv->ndof() < pvNDOF_ || pv->z() > 24.)  continue;
 	      totalNumGoodPV++;
 	    }
 	    

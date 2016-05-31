@@ -42,7 +42,8 @@ for tracks in selectedTracks :
     locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
-    locals()[label].doEffFromHitPattern                 = doEffFromHitPattern                 [tracks]
+    locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
+    locals()[label].doEffFromHitPatternVsBX             = cms.bool(False)
 #    locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
     
@@ -77,8 +78,9 @@ for tracks in selectedTracks :
     locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
-    locals()[label].doEffFromHitPattern                 = doEffFromHitPattern                 [tracks]
-#    locals()[label].doStopSource                        = doStopSource                        [tracks]    
+    locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
+    locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
+    locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
 
 
