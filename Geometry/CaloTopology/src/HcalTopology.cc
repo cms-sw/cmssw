@@ -60,7 +60,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
     HESize_     = nEtaHE_*maxPhiHE_*maxDepthHE_*2;
     HOSize_     = (lastHORing_-firstHORing_+1)*IPHI_MAX*2; // ieta * iphi * 2
     HFSize_     = (lastHFRing_-firstHFRing_+1)*IPHI_MAX*maxDepthHF_*2;  // ieta * iphi * depth * 2
-    numberOfShapes_ = 500;
+    numberOfShapes_ = (maxPhiHE_ > 72) ? 1200 : 500;
   }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
   if (triggerMode_ == HcalTopologyMode::tm_LHC_RCT) {
