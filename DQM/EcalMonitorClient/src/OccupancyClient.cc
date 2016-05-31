@@ -8,6 +8,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TMath.h"
 namespace ecaldqm
 {
   OccupancyClient::OccupancyClient() :
@@ -85,6 +86,10 @@ namespace ecaldqm
       rechitPhiRingMean[ie] /= numCrystals[ie];
     }
 
+    // Store # of entries for Occupancy analysis
+    std::vector<float> Nentries(nDCC,0.);   // digis
+    std::vector<float> Nrhentries(nDCC,0.); // (filtered) rechits
+
     // second round to find hot towers
     for(MESet::const_iterator dItr(sDigi.beginChannel()); dItr != dEnd; dItr.toNextChannel()){
       DetId id(dItr->getId());
@@ -119,6 +124,12 @@ namespace ecaldqm
       }
 
       meQualitySummary.setBinContent(id, double(quality));
+
+      // Keep count of digis & rechits for Occupancy analysis
+      unsigned iDCC( dccId(id)-1 );
+      if ( entries   > minHits_ ) Nentries[iDCC]   += entries;
+      if ( rhentries > minHits_ ) Nrhentries[iDCC] += rhentries;
+
     }
 
     double tpdigiPhiRingMean[nPhiRings];
@@ -167,7 +178,41 @@ namespace ecaldqm
         meQualitySummary.setBinContent(id, meQualitySummary.maskMatches(id, mask, statusManager_) ? kMBad : kBad);
       }
     }
-  }
+
+    // Quality check: set entire FED to BAD if its occupancy begins to vanish
+    // Fill FED statistics from (filtered) RecHit Occupancy 
+    std::vector<float> FEDStatsEB;
+    std::vector<float> FEDStatsEE;
+    for ( unsigned iDCC(0); iDCC < nDCC; iDCC++ ) {
+      if ( iDCC >= kEBmLow && iDCC <= kEBpHigh )
+        FEDStatsEB.push_back( Nrhentries[iDCC] );
+      else
+        FEDStatsEE.push_back( Nrhentries[iDCC] );
+    }
+    // Analyze FED statistics
+    float meanFED(0.);
+    float meanFEDEB( TMath::Mean( FEDStatsEB.begin(),FEDStatsEB.end()) );
+    float meanFEDEE( TMath::Mean( FEDStatsEE.begin(),FEDStatsEE.end()) );
+    float rmsFED(0.);
+    float rmsFEDEB( TMath::RMS( FEDStatsEB.begin(),FEDStatsEB.end()) );
+    float rmsFEDEE( TMath::RMS( FEDStatsEE.begin(),FEDStatsEE.end()) );
+    float nRMS(5.);
+    for ( MESet::iterator qsItr(meQualitySummary.beginChannel()); qsItr != meQualitySummary.end(); qsItr.toNextChannel() ) {
+      DetId id( qsItr->getId() );
+      unsigned iDCC( dccId(id)-1 );
+      if ( iDCC >= kEBmLow && iDCC <= kEBpHigh ) {
+        meanFED = meanFEDEB;
+        rmsFED  = rmsFEDEB;
+      }
+      else {
+        meanFED = meanFEDEE;
+        rmsFED  = rmsFEDEE;
+      }
+      if ( meanFED > 1000. && Nrhentries[iDCC] < meanFED - nRMS*rmsFED )
+        meQualitySummary.setBinContent( id, meQualitySummary.maskMatches(id, mask, statusManager_) ? kMBad : kBad );
+    }
+
+  } // producePlots()
 
   DEFINE_ECALDQM_WORKER(OccupancyClient);
 }

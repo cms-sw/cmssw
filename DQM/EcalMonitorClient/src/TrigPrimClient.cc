@@ -8,6 +8,7 @@
 
 #include <cmath>
 
+#include "TMath.h"
 namespace ecaldqm
 {
   TrigPrimClient::TrigPrimClient() :
@@ -34,12 +35,15 @@ namespace ecaldqm
 
     MESet const& sEtEmulError(sources_.at("EtEmulError"));
     MESet const& sMatchedIndex(sources_.at("MatchedIndex"));
+    MESet const& sTPDigiThrAll(sources_.at("TPDigiThrAll"));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
+    std::vector<float> Nentries(nDCC,0.);
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
+      unsigned iDCC( dccId(ttid)-1 );
       bool doMask(meEmulQualitySummary.maskMatches(ttid, mask, statusManager_));
 
       float towerEntries(0.);
@@ -71,6 +75,8 @@ namespace ecaldqm
         meEmulQualitySummary.setBinContent(ttid, doMask ? kMBad : kBad);
       else
         meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
+      
+      Nentries[iDCC] += sTPDigiThrAll.getBinContent(ttid); 
     }
 
     // Fill TTF4 v Masking ME
@@ -96,7 +102,60 @@ namespace ecaldqm
       }   
     } // TT loop 
 
-  } // TrigPrimClient::producePlots()
+    // Quality check: set an entire FED to BAD if an "entire" FED shows any DCC-SRP flag mismatch errors
+    // Fill flag mismatch statistics
+    std::vector<float> nTTs(nDCC,0.);
+    std::vector<float> nTTFMismath(nDCC,0.);
+    MESet const& sTTFMismatch(sources_.at("TTFMismatch"));
+    for ( unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++ ) {
+      EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
+      unsigned iDCC( dccId(ttid)-1 );
+      if ( sTTFMismatch.getBinContent(ttid) > 0. )
+          nTTFMismath[iDCC]++;
+      nTTs[iDCC]++;
+    }
+    // Analyze flag mismatch statistics
+    for ( unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++ ) {
+      EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
+      unsigned iDCC( dccId(ttid)-1 );
+      if ( nTTFMismath[iDCC] > 0.8*nTTs[iDCC] ) // "entire" => 80%
+        meEmulQualitySummary.setBinContent( ttid, meEmulQualitySummary.maskMatches(ttid, mask, statusManager_) ? kMBad : kBad );
+    }
+
+    // Quality check: set entire FED to BAD if its occupancy begins to vanish
+    // Fill FED statistics from TP digi occupancy
+    std::vector<float> FEDStatsEB;
+    std::vector<float> FEDStatsEE;
+    for ( unsigned iDCC(0); iDCC < nDCC; iDCC++ ) {
+      if ( iDCC >= kEBmLow && iDCC <= kEBpHigh )
+        FEDStatsEB.push_back( Nentries[iDCC] );
+      else
+        FEDStatsEE.push_back( Nentries[iDCC] );
+    }
+    // Analyze FED statistics
+    float meanFED(0.);
+    float meanFEDEB( TMath::Mean( FEDStatsEB.begin(),FEDStatsEB.end()) );
+    float meanFEDEE( TMath::Mean( FEDStatsEE.begin(),FEDStatsEE.end()) );
+    float rmsFED(0.);
+    float rmsFEDEB( TMath::RMS( FEDStatsEB.begin(),FEDStatsEB.end()) );
+    float rmsFEDEE( TMath::RMS( FEDStatsEE.begin(),FEDStatsEE.end()) );
+    float nRMS(5.);
+    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
+      EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
+      unsigned iDCC( dccId(ttid)-1 );
+      if ( iDCC >= kEBmLow && iDCC <= kEBpHigh ) {
+        meanFED = meanFEDEB;
+        rmsFED  = rmsFEDEB;
+      }
+      else {
+        meanFED = meanFEDEE;
+        rmsFED  = rmsFEDEE;
+      }
+      if ( meanFED > 100. && Nentries[iDCC] < meanFED - nRMS*rmsFED )
+        meEmulQualitySummary.setBinContent( ttid, meEmulQualitySummary.maskMatches(ttid, mask, statusManager_) ? kMBad : kBad );
+    }
+
+  } // producePlots()
 
   DEFINE_ECALDQM_WORKER(TrigPrimClient);
 }
