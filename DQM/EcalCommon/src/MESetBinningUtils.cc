@@ -68,9 +68,15 @@ namespace ecaldqm
           if(tccid <= 36 || tccid >= 73){ // EE
             unsigned bin(ttId(_id));
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
-            if(outer) bin += 56; // Sets bin number to increment by 56 for TTs in "outer" TCCs (closer to the barrel)
-            bin += (tccid % 2) * (outer ? 16 : 28); // 16 trigger towers per TCC for "outer" TCCs, 24 for "inner" TCCs but they are numbered from 0 to 27 with some missing
-	    // We have x-axis in the format inner1 (28 bins), inner2 (28 bins), outer1 (16 bins), outer2 (16 bins) -- 88 bins in total
+            // For the following, the constants nTTInner and nTTOuter are defined in
+            // EcalDQMCommonUtils.h.
+            if(outer) bin += 2*nTTInner; // For outer TCCs, sets bin number to increment
+            // by twice the number of TTs in inner TCCs, because numbering of bins
+            // is in the order (inner1, inner2, outer1, outer2).
+            // ("inner"" := closer to the beam)
+            bin += (tccid % 2) * (outer ? nTTOuter : nTTInner); // Yields x-axis bin number
+            // in the format above; TTs in even-numbered TCCs are filled in inner1 or outer1,
+            // and those in odd-numbered TCC are filled in inner2 and outer2.
             return bin;
           }
           else
@@ -147,9 +153,15 @@ namespace ecaldqm
           if(tccid <= 36 || tccid >= 73){ // EE
             unsigned bin(ttId(_id));
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
-            if(outer) bin += 56; // Sets bin number to increment by 56 for TTs in "outer" TCCs (closer to the barrel)
-            bin += (tccid % 2) * (outer ? 16 : 28); // 16 trigger towers per TCC for "outer" TCCs, 24 for "inner" TCCs but they are numbered from 0 to 27 with some missing
-	    // We have x-axis in the format inner1 (28 bins), inner2 (28 bins), outer1 (16 bins), outer2 (16 bins) -- 88 bins in total
+            // For the following, the constants nTTInner and nTTOuter are defined in
+            // EcalDQMCommonUtils.h.
+            if(outer) bin += 2*nTTInner; // For outer TCCs, sets bin number to increment
+            // by twice the number of TTs in inner TCCs, because numbering of bins
+            // is in the order (inner1, inner2, outer1, outer2).
+            // ("inner"" := closer to the beam)
+            bin += (tccid % 2) * (outer ? nTTOuter : nTTInner); // Yields x-axis bin number
+            // in the format above; TTs in even-numbered TCCs are filled in inner1 or outer1,
+            // and those in odd-numbered TCC are filled in inner2 and outer2.
             return bin;
           }
           else
