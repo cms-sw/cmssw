@@ -71,10 +71,10 @@ class TotemVFATStatus
 	}
 
     /// number of clusters
-    inline bool isNumberOfClustersSpecified() { return numberOfClustersSpecified; }
+    inline bool isNumberOfClustersSpecified() const { return numberOfClustersSpecified; }
     inline void setNumberOfClustersSpecified(bool v) { numberOfClustersSpecified = v; }
 
-    inline uint8_t getNumberOfClusters() { return numberOfClusters; }
+    inline uint8_t getNumberOfClusters() const { return numberOfClusters; }
     inline void setNumberOfClusters(uint8_t v) { numberOfClusters = v; }
 
     bool operator < (const TotemVFATStatus &cmp) const
