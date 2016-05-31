@@ -447,7 +447,7 @@ int TrackerTopology::getOTLayerNumber(const DetId &id) const {
     return layer;
 }
 
-int TrackerTopology::getPixelLayerNumber(const DetId &id) const {
+int TrackerTopology::getITPixelLayerNumber(const DetId &id) const {
     int layer = -1;
     
     if (id.det() == DetId::Tracker) {
