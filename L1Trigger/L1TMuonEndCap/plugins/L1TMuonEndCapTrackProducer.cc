@@ -39,6 +39,7 @@ using namespace L1TMuon;
 L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const PSet& p) {
 
   inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(p.getParameter<edm::InputTag>("CSCInput"));
+  bxShiftCSC = p.getUntrackedParameter<int>("CSCInputBxShift", 0);
   
   produces<l1t::RegionalMuonCandBxCollection >("EMTF");
   produces< l1t::EMTFTrackCollection >("EMTF");
@@ -82,10 +83,12 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
-      out.push_back(TriggerPrimitive((*chamber).first,*digi));
+      CSCCorrelatedLCTDigi tmp_digi = *digi;
+      tmp_digi.setBX( tmp_digi.getBX() + std::max(bxShiftCSC, -1*tmp_digi.getBX()) );
+      out.push_back(TriggerPrimitive((*chamber).first,tmp_digi));
       l1t::EMTFHitExtra thisHit;
       thisHit.ImportCSCDetId( (*chamber).first );
-      thisHit.ImportCSCCorrelatedLCTDigi( *digi );
+      thisHit.ImportCSCCorrelatedLCTDigi( tmp_digi );
       if (thisHit.Station() == 1 && thisHit.Ring() == 1 && thisHit.Strip() > 127) thisHit.set_ring(4);
       thisHit.set_neighbor(0);
       OutputHits->push_back( thisHit );
@@ -519,8 +522,10 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   
   //ev.put( FoundTracks, "DataITC");
   ev.put( OutputCands, "EMTF");
-  ev.put( OutputHits, "EMTF");
-  ev.put( OutputTracks, "EMTF");
+  ev.put( OutHits, "EMTF");      // EMTFHitCollection
+  ev.put( OutTracks, "EMTF");    // EMTFTrackCollection
+  ev.put( OutputHits, "EMTF");   // EMTFHitExtraCollection
+  ev.put( OutputTracks, "EMTF"); // EMTFTrackExtraCollection
   //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
   
 }//analyzer
