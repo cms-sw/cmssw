@@ -16,7 +16,6 @@
 // system include files
 #include <memory>
 #include "SimTracker/SiPhase2Digitizer/test/Phase2TrackerMonitorDigi.h"
-#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigiCommon.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -97,7 +96,7 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
     edm::LogInfo("Phase2TrackerMonitorDigi")<< " Det Id = " << rawid;    
-    int layer = phase2trackerdigi::getOTLayerNumber(rawid, tTopo);
+    int layer = tTopo->getOTLayerNumber(rawid);
     if (layer < 0) continue;
     std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
     if (pos == layerMEs.end()) continue;
@@ -180,7 +179,7 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
 //
 void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo){ 
 
-  int layer = phase2trackerdigi::getOTLayerNumber(det_id, tTopo);
+  int layer = tTopo->getOTLayerNumber(det_id);
   if (layer < 0) return;
   std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
   if (pos == layerMEs.end()) {
