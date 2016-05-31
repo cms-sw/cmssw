@@ -5,9 +5,10 @@
 CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(topology) {
 
   //get number of towers in each hcal subdet from hcaltopo
-  int nEtaHB, nEtaHE, nEtaHO, nEtaHF;
+  int nEtaHB, nEtaHO, nEtaHF;
   nEtaHB = hcaltopo->lastHBRing() - hcaltopo->firstHBRing() + 1;
-  nEtaHE = hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
+  nEtaHE_= hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
+  if (hcaltopo->isBH()) nEtaHE_ = 0;
   nEtaHO = hcaltopo->lastHORing() - hcaltopo->firstHORing() + 1;
   nEtaHF = hcaltopo->lastHFRing() - hcaltopo->firstHFRing() + 1;
 
@@ -15,8 +16,8 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   firstHBRing_ = 1;
   lastHBRing_ = firstHBRing_ + nEtaHB - 1;
   firstHERing_ = lastHBRing_; //crossover
-  lastHERing_ = firstHERing_ + nEtaHE - 1;
-  firstHFRing_ = lastHERing_ + 1; //no crossover for CaloTowers; HF crossover cells go in the subsequent non-crossover HF tower
+  lastHERing_ = firstHERing_ + nEtaHE_ - 1;
+  firstHFRing_ = (nEtaHE_ == 0) ? hcaltopo->firstHFRing() : (lastHERing_ + 1); //no crossover for CaloTowers; HF crossover cells go in the subsequent non-crossover HF tower
   lastHFRing_ = firstHFRing_ + (nEtaHF - 1) - 1; //nEtaHF - 1 to account for no crossover
   firstHORing_ = 1;
   lastHORing_ = firstHORing_ + nEtaHO - 1;
@@ -29,8 +30,8 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   
   //number of etas per phi segmentation type
   int nEtaSinglePhi_, nEtaDoublePhi_, nEtaQuadPhi_;
-  nEtaSinglePhi_ = firstHEDoublePhiRing_ - firstHBRing_;
-  nEtaDoublePhi_ = firstHFQuadPhiRing_ - firstHEDoublePhiRing_;
+  nEtaSinglePhi_ = (nEtaHE_ == 0) ? nEtaHB : (firstHEDoublePhiRing_ - firstHBRing_);
+  nEtaDoublePhi_ = (nEtaHE_ == 0) ? (firstHFQuadPhiRing_- firstHFRing_) : (firstHFQuadPhiRing_ - firstHEDoublePhiRing_);
   nEtaQuadPhi_ = lastHFRing_ - firstHFQuadPhiRing_ + 1; //include lastHFRing
   
   //total number of towers per phi segmentation type
@@ -57,7 +58,7 @@ int CaloTowerTopology::convertHcaltoCT(int hcal_ieta, HcalSubdetector subdet) co
     return hcal_ieta - hcaltopo->firstHBRing() + firstHBRing_;
   }
   else if(subdet == HcalEndcap && hcal_ieta >= hcaltopo->firstHERing() && hcal_ieta <= hcaltopo->lastHERing()){
-    return hcal_ieta - hcaltopo->firstHERing() + firstHERing_;
+    return ((nEtaHE_ == 0) ? 0 : (hcal_ieta - hcaltopo->firstHERing() + firstHERing_));
   }
   else if(subdet == HcalForward && hcal_ieta >= hcaltopo->firstHFRing() && hcal_ieta <= hcaltopo->lastHFRing()) {
   	if(hcal_ieta == hcaltopo->firstHFRing()) hcal_ieta++; //account for no HF crossover
