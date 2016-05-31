@@ -8,10 +8,9 @@
 
 using namespace std;
 
-
 /*****************************************************************/
 EpCombinationTool::EpCombinationTool():
-    m_forest(NULL)
+    m_forest(NULL), m_ownForest(false)
 /*****************************************************************/
 {
 }
@@ -22,7 +21,7 @@ EpCombinationTool::EpCombinationTool():
 EpCombinationTool::~EpCombinationTool()
 /*****************************************************************/
 {
-    if(m_forest) delete m_forest;
+    if(m_ownForest) delete m_forest;
 }
 
 
@@ -33,14 +32,16 @@ bool EpCombinationTool::init(const string& regressionFileName, const string& bdt
     TFile* regressionFile = TFile::Open(regressionFileName.c_str());
     if(!regressionFile)
     {
-        cout<<"ERROR: Cannot open regression file "<<regressionFileName<<"\n";
+      cout<<"ERROR: Cannot open regression file "<<regressionFileName<<"\n";
         return false;
     }
+    if(m_ownForest) delete m_forest;
     m_forest = (GBRForest*) regressionFile->Get(bdtName.c_str());
+    m_ownForest = true;
     //regressionFile->GetObject(bdtName.c_str(), m_forest); 
     if(!m_forest)
     {
-        cout<<"ERROR: Cannot find forest "<<bdtName<<" in "<<regressionFileName<<"\n";
+      cout<<"ERROR: Cannot find forest "<<bdtName<<" in "<<regressionFileName<<"\n";
         regressionFile->Close();
         return false;
     }
@@ -48,15 +49,22 @@ bool EpCombinationTool::init(const string& regressionFileName, const string& bdt
     return true;
 }
 
+bool EpCombinationTool::init(const GBRForest *forest) 
+{
+    if(m_ownForest) delete m_forest;
+    m_forest = forest;
+    m_ownForest = false;
+    return true;
+}
 
 
 /*****************************************************************/
-void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
+void EpCombinationTool::combine(SimpleElectron & mySimpleElectron) const
 /*****************************************************************/
 {
     if(!m_forest)
     {
-        cout<<"ERROR: The combination tool is not initialized\n";
+      cout<<"ERROR: The combination tool is not initialized\n";
         return;
     }
 
@@ -82,7 +90,7 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
             (energy*momentumError/momentum/momentum));
 
     // fill input variables
-    float* regressionInputs = new float[11];
+    float regressionInputs[11];
     regressionInputs[0]  = energy;
     regressionInputs[1]  = energyRelError;
     regressionInputs[2]  = momentum;
@@ -99,8 +107,8 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
     float weight = 0.;
     if(eOverP>0.025 
        &&fabs(momentum-energy)<15.*sqrt(momentumError*momentumError + energyError*energyError)
-       &&((momentumError < 10.*momentum) || (energy < 200.))
-           ) // protection against crazy track measurement
+       && ( (momentumError < 10.*momentum) || (energy < 200.) )
+       ) // protection against crazy track measurement
    {
         weight = m_forest->GetResponse(regressionInputs);
         if(weight>1.) weight = 1.;
@@ -117,6 +125,4 @@ void EpCombinationTool::combine(SimpleElectron & mySimpleElectron)
         mySimpleElectron.setCombinedMomentum(combinedMomentum);
         mySimpleElectron.setCombinedMomentumError(combinedMomentumError);
     }
-
-    delete[] regressionInputs;
 }
