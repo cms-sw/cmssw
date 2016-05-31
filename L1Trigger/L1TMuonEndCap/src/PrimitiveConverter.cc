@@ -385,14 +385,17 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<TriggerPrimiti
 	  
 	  th_tmp += th_corr;                  //add correction to th_tmp
 	  //std::cout<<"th_tmp = "<<th_tmp<<"\n";
-	  if(th_tmp < 0)
+	  if(th_tmp < 0 || wire == 0)
 	    th_tmp = 0;
+	  
+	  if(th_tmp > th_coverage)//this is one change that I'm not sure if it does anything good or not
+	    th_tmp = th_coverage;
 	  
 	  th_tmp &= 0x3f;                     //keep only lowest 6 bits
 	  //std::cout<<"th_tmp = "<<th_tmp<<"\n";
 	  //std::cout<<"coverage = "<<th_coverage<<"\n";
 	  
-	  if(th_tmp < th_coverage){
+	  if(th_tmp <= th_coverage){
 	    
 	    //if(ring == 1){LUTi += 9;}  //change because new Verilog3 sp_tf treats ME11b with LUT's of ME11a
 	    
