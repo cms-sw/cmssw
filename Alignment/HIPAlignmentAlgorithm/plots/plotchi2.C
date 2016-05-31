@@ -97,26 +97,4 @@ void plotchi2()
 
     c->SaveAs(plotName);
 
-    /*
-TGraph* gr1 = makegr(-300,20,32,"BPIX +x Half Barrel","z",Var,0,1);
-TGraph* gr2 = makegr(-300,20,32,"BPIX -x Half Barrel","z",Var,0,2);
-
- TCanvas* c2 = new TCanvas("c2", "c2", 1000, 10, 800, 800);
-  TMultiGraph *g = new TMultiGraph();
-  g->Add(gr1);
-  g->Add(gr2);
-  TLegend* leg = new TLegend(.87,0.5,0.98,.9);
-  leg->SetFillColor(0);
-  leg->SetBorderSize(0);
-  leg->AddEntry(gr1,"x>0","l");
-  leg->AddEntry(gr2,"x<0","l");
-  g->Draw("AC*");
-  g->GetXaxis()->SetTitle("delta_z");
-  g->GetYaxis()->SetTitle(Var);
-  leg->Draw();
-  c2->Update();
-  char pn[50];
-  sprintf(pn,"multigr_%s.eps",Var);
-  c2->SaveAs(pn);
-*/
 }

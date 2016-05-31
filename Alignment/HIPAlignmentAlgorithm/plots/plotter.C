@@ -11,16 +11,6 @@ void plotter(char* base_path="/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HI
   
   char path[512],tag[256],outpath[512];
   
-//  sprintf(base_path,"/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/public/AlignmentCamp2016/CMSSW_8_0_3/src/Alignment/HIPAlignmentAlgorithm/");
-//  sprintf(dir,"hp1614");
-//  int iov = 262922;
-//  int iov=272497;
-//  sprintf(base_path,"/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/public/AlignmentCamp2016_test/CMSSW_8_0_3/src/Alignment/HIPAlignmentAlgorithm/");
-//  sprintf(dir,"hp1702");
-
-//  sprintf(base_path,"/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/cayou/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/");
-//  sprintf(dir,"hp1401");
-
   TString detname [6]= {"PXB","PXF","TIB","TID","TOB","TEC"};
   if(det>=1&&det<=6)
   sprintf(tag,"%s_%s",dir,detname[det-1].Data());

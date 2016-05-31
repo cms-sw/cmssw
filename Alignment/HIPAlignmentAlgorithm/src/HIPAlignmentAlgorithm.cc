@@ -123,22 +123,9 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Initializing...";
 
   edm::ESHandle<Alignments> globalPositionRcd;
-  // FIXME! temporary solution to get highest possible run number
-//  const unsigned int MAX_VAL(std::numeric_limits<unsigned int>::max());
- // edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
-//  if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=MAX_VAL) {
-//    throw cms::Exception("DatabaseError")
-//      << "@SUB=AlignmentProducer::applyDB"
-//      << "\nTrying to apply "<< setup.get<GlobalPositionRcd>().key().name()
-//      << " with multiple IOVs in tag.\n"
-//      << "Validity range is "
-//      << iov.first().eventID().run() << " - " << iov.last().eventID().run();
-//  }
 
-//  const Rcd & record = setup.get<TrackerAlignmentRcd>();
   const edm::ValidityInterval & validity = setup.get<TrackerAlignmentRcd>().validityInterval();
   const edm::IOVSyncValue first1 = validity.first();
-//	std::cout << "xiaomeng "<<first1.eventID().run()<<std::endl;
 	unsigned int firstrun = first1.eventID().run();
 	if(themultiIOV){
 		if(theIOVrangeSet.size()!=1){
@@ -162,7 +149,6 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 			}
 		}
 		if(!findMatchIOV){
-//			std::cout <<"error! Didn't find the matched IOV file"<<std::endl;
                        edm::LogWarning("Alignment") << "error! Didn't find the matched IOV file!";
 		}
 		}
@@ -173,7 +159,6 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 				salignedfile.replace(salignedfile.end()-5, salignedfile.end(),iovapp);
 				siterationfile.replace(siterationfile.end()-5, siterationfile.end(),iovapp);
 		}
-//		std::cout<< "xiaomeng "<< salignedfile <<std::endl;
 	}
 	
   // accessor Det->AlignableDet
@@ -312,66 +297,6 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
   // book root trees
   bookRoot();
 	
-	
-  /*---------------------moved to terminate------------------------------
-    if (theLevels.size() > 0)
-    {
-    edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Using survey constraint";
-	 
-    unsigned int nAlignable = theAlignables.size();
-	 
-    for (unsigned int i = 0; i < nAlignable; ++i)
-    {
-    const Alignable* ali = theAlignables[i];
-	 
-    AlignmentParameters* ap = ali->alignmentParameters();
-	 
-    HIPUserVariables* uservar =
-    dynamic_cast<HIPUserVariables*>(ap->userVariables());
-	 
-    for (unsigned int l = 0; l < theLevels.size(); ++l)
-    {
-    SurveyResidual res(*ali, theLevels[l], true);
-	 
-    if ( res.valid() )
-    {
-    AlgebraicSymMatrix invCov = res.inverseCovariance();
-	 
-    // variable for tree
-    AlgebraicVector sensResid = res.sensorResidual();
-    m3_Id = ali->id();
-    m3_ObjId = theLevels[l];
-    m3_par[0] = sensResid[0]; m3_par[1] = sensResid[1]; m3_par[2] = sensResid[2];
-    m3_par[3] = sensResid[3]; m3_par[4] = sensResid[4]; m3_par[5] = sensResid[5];
-	 
-    uservar->jtvj += invCov;
-    uservar->jtve += invCov * sensResid;
-	 
-    theTree3->Fill();
-    }
-    }
-	 
-    // 	align::LocalVectors residuals = res1.pointsResidual();
-	 
-    // 	unsigned int nPoints = residuals.size();
-	 
-    // 	for (unsigned int k = 0; k < nPoints; ++k)
-    // 	{
-    // 	  AlgebraicMatrix J = term->survey()->derivatives(k);
-    // 	  AlgebraicVector e(3); // local residual
-	 
-    // 	  const align::LocalVector& lr = residuals[k];
-	 
-    // 	  e(1) = lr.x(); e(2) = lr.y(); e(3) = lr.z();
-	 
-    // 	  uservar->jtvj += invCov1.similarity(J);
-    // 	  uservar->jtve += J * (invCov1 * e);
-    // 	}
-	 
-    }
-    }
-    //------------------------------------------------------*/
-	
   // set alignment position error 
   setAlignmentPositionError();
 	
@@ -436,39 +361,12 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 	    }
 	}
 			
-	  // 	align::LocalVectors residuals = res1.pointsResidual();
-			
-	  // 	unsigned int nPoints = residuals.size();
-			
-	  // 	for (unsigned int k = 0; k < nPoints; ++k)
-	  // 	{
-	  // 	  AlgebraicMatrix J = term->survey()->derivatives(k);
-	  // 	  AlgebraicVector e(3); // local residual
-			
-	  // 	  const align::LocalVector& lr = residuals[k];
-			
-	  // 	  e(1) = lr.x(); e(2) = lr.y(); e(3) = lr.z();
-			
-	  // 	  uservar->jtvj += invCov1.similarity(J);
-	  // 	  uservar->jtve += J * (invCov1 * e);
-	  // 	}
-			
 	}
     }
 	
   // write user variables
   HIPUserVariablesIORoot HIPIO;
-/*
-    std::string uvfile = theCollectorPath+"/main/IOUserVariables.root";
-    edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Reading user variable files for previous iteration!"<<uvfile.c_str();
-    std::vector<AlignmentUserVariables*> uvarvecPrevIt =  HIPIO.readHIPUserVariables(theAlignables, uvfile.c_str(),theIteration-1, ioerr);
-    std::vector<AlignmentUserVariables*>::const_iterator iuvarPrevIt=uvarvecPrevIt.begin();
 
-    if (ioerr!=0) {
-      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] could not read user variable files for iteration "
-                                   << theIteration-1;
-    }
-*/
    if(!isCollector) //don't store userVariable in main, to save time
    HIPIO.writeHIPUserVariables (theAlignables,suvarfile.c_str(),
 			       theIteration,false,ioerr);
@@ -481,50 +379,6 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
     Alignable* ali=(*it);
     // Alignment parameters
     AlignmentParameters* par = ali->alignmentParameters();
-
-    //bool wrongChi2 = false;
-
-// CY : start checking Chi2
-/*
-   if((theIteration>1)&&(theIteration%2==0)&&isCollector){
-    edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm]Checking chi2!";
-    HIPUserVariables* uvarThisIt = dynamic_cast<HIPUserVariables*>(par->userVariables());
-    HIPUserVariables* uvarPrevIt = dynamic_cast<HIPUserVariables*>(*iuvarPrevIt);
-
-  if (uvarPrevIt!=0){
-      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm]detectorId="<<ali->id();
-      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm]chi2 of iteration "<<theIteration-1<<" = "<<uvarThisIt->alichi2;
-      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm]chi2 of iteration "<<theIteration-2<<" = "<<uvarPrevIt->alichi2;
-      float thischi2ph = (uvarThisIt->alichi2)/(uvarThisIt->nhit);
-      float prevchi2ph = (uvarPrevIt->alichi2)/(uvarPrevIt->nhit);
-      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm]chi2/nhit of iteration "<<theIteration-1<<" = "<<thischi2ph;
-      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm]chi2/nhit of iteration "<<theIteration-2<<" = "<<prevchi2ph;
-
-      if (thischi2ph>prevchi2ph){
-      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm]Chi2 per hit is increasing! Going to revert!";
-      //wrongChi2 = true;
-      AlgebraicSymMatrix prevjtvj = uvarPrevIt->jtvj;
-      AlgebraicVector prevjtve = uvarPrevIt->jtve;
-      int ierr;
-      AlgebraicSymMatrix prevjtvjinv = prevjtvj.inverse(ierr);
-      AlgebraicVector negparams = prevjtvjinv * prevjtve;
-      AlignmentParameters* parnew = par->cloneFromSelected(negparams,prevjtvjinv);
-      ali->setAlignmentParameters(parnew);
-      parnew->setValid(true);
-      theAlignmentParameterStore->applyParameters(ali);
-      ali->alignmentParameters()->setValid(true);
-      ialigned++;
-      //delete prevjtvj,prevjtve,prevjtvjinv,negparams,parnew;
-      }
-
-  }
-
-   delete uvarThisIt;
-   delete uvarPrevIt;
-
-   iuvarPrevIt++;}
-*/
-//end checking chi2
 
 
    if (SetScanDet.at(0)!=0){
@@ -641,7 +495,6 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr& alidet,
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
   int npar = derivs2D.num_row();
-  // std::cout << "Dumping derivsSEL: \n" << derivs2D <<std::endl;
   AlgebraicMatrix derivs(npar, hitDim, 0);
   
   for (int ipar=0;ipar<npar;ipar++) {
@@ -649,7 +502,6 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr& alidet,
       derivs[ipar][idim] = derivs2D[ipar][idim];
     }
   }
-  // std::cout << "Dumping derivs: \n" << derivs << std::endl;
   // invert covariance matrix
   int ierr;
   // if (covmat[1][1]>4.0) nhitDim = hitDim;
@@ -667,21 +519,15 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr& alidet,
   // bailing out
   if (!useThisHit) return false;
 
-  // std::cout << "We use this hit in " << subDet << std::endl;
-  // std::cout << "Npars= " << npar << "  NhitDim=1 Size of derivs: "
   //           << derivs.num_row() << " x " << derivs.num_col() << std::endl;
 
   // AlgebraicMatrix jtvjtmp();
   AlgebraicMatrix covtmp(covmat);
-  // std::cout << "Preapring JTVJTMP -> " << std::flush;
   AlgebraicMatrix jtvjtmp(derivs * covtmp *derivs.T());
-  // std::cout << "TMP JTVJ= \n" << jtvjtmp << std::endl;
   AlgebraicSymMatrix thisjtvj(npar);
   AlgebraicVector thisjtve(npar);
-  // std::cout << "Preparing ThisJtVJ" << std::flush;
   // thisjtvj = covmat.similarity(derivs);
   thisjtvj.assign(jtvjtmp);
-  // std::cout<<" ThisJtVE"<<std::endl;
   thisjtve=derivs * covmat * (pos-coor);
   
   AlgebraicVector hitresidual(hitDim);
@@ -689,18 +535,10 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr& alidet,
   
   AlgebraicMatrix hitresidualT;
   hitresidualT = hitresidual.T();
-  // std::cout << "HitResidualT = \n" << hitresidualT << std::endl;
 
   // access user variables (via AlignmentParameters)
   HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
 
-// CY: debug
-/*
-  if(verbose){
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]detectorId="<<ali->id();
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]jtvj_old="<<uservar->jtvj;
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]jtve_old="<<uservar->jtve;}
-*/
   uservar->jtvj += hitwt*thisjtvj;
   uservar->jtve += hitwt*thisjtve;
   uservar->nhit++;
@@ -712,14 +550,6 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr& alidet,
   float thischi2;
   thischi2 = hitwt*(hitresidualT *covmat *hitresidual)[0]; 
 
- //CY: debug 
-/*
-  if (verbose) {
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit1D]thisjtvj="<<thisjtvj;
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit1D]thisjtve="<<thisjtve;
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit1D]jtvj="<<uservar->jtvj; 
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit1D]jtve="<<uservar->jtve;}
-*/					
   if ( verbose && ((thischi2/ static_cast<float>(uservar->nhit)) >10.0) ) {
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit1D]Added to Chi2 the number " << thischi2 <<" having "
 				 << uservar->nhit << "  dof  " << std::endl << "X-resid " 
@@ -788,7 +618,6 @@ bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr& alidet,
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
   // calculate user parameters
   int npar = derivs2D.num_row();
-  // std::cout << "Dumping derivsSEL: \n"<< derivs2D <<std::endl;
   AlgebraicMatrix derivs(npar, hitDim, 0);
   
   for (int ipar=0;ipar<npar;ipar++) {
@@ -796,7 +625,6 @@ bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr& alidet,
       derivs[ipar][idim] = derivs2D[ipar][idim];
     }
   }
-  // std::cout << "Dumping derivs: \n" << derivs << std::endl;
   // invert covariance matrix
   int ierr;
   // if (covmat[1][1]>4.0) nhitDim = hitDim;
@@ -814,21 +642,15 @@ bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr& alidet,
   // bailing out
   if (!useThisHit) return false;
   
-  // std::cout << "We use this hit in " << subDet << std::endl;
-  // std::cout << "Npars= " << npar << "  NhitDim=2 Size of derivs: "
   //           << derivs.num_row() << " x " << derivs.num_col() << std::endl;
 
   // AlgebraicMatrix jtvjtmp();
   AlgebraicMatrix covtmp(covmat);
-  // std::cout << "Preapring JTVJTMP -> " << std::flush;
   AlgebraicMatrix jtvjtmp(derivs * covtmp *derivs.T());
-  // std::cout << "TMP JTVJ= \n" << jtvjtmp << std::endl;
   AlgebraicSymMatrix thisjtvj(npar);
   AlgebraicVector thisjtve(npar);
-  // std::cout << "Preparing ThisJtVJ" << std::flush;
   // thisjtvj = covmat.similarity(derivs);
   thisjtvj.assign(jtvjtmp);
-  // std::cout<<" ThisJtVE"<<std::endl;
   thisjtve=derivs * covmat * (pos-coor);
   
   AlgebraicVector hitresidual(hitDim);
@@ -841,17 +663,9 @@ bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr& alidet,
 	 
   AlgebraicMatrix hitresidualT;
   hitresidualT = hitresidual.T();
-  // std::cout << "HitResidualT = \n" << hitresidualT << std::endl;
   // access user variables (via AlignmentParameters)
   HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
 
-//CY: debug
-/*
-  if(verbose){
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]detectorId="<<ali->id();
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]jtvj_old="<<uservar->jtvj;
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]jtve_old="<<uservar->jtve;}
-*/
   uservar->jtvj += hitwt*thisjtvj;
   uservar->jtve += hitwt*thisjtve;
   uservar->nhit++;
@@ -863,14 +677,6 @@ bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr& alidet,
   float thischi2;
   thischi2 = hitwt*(hitresidualT *covmat *hitresidual)[0]; 
 
-//CY: debug
-/*
-  if (verbose) {
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]thisjtvj="<<thisjtvj;
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]thisjtve="<<thisjtve;
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]jtvj="<<uservar->jtvj;
-  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]jtve="<<uservar->jtve;}
-*/					
   if ( verbose && ((thischi2/ static_cast<float>(uservar->nhit)) >10.0) ) {
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D]Added to Chi2 the number " << thischi2 <<" having "
 				 << uservar->nhit << "  dof  " << std::endl << "X-resid " 
@@ -904,26 +710,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   m_angle = 0;
   m_detId =0;
   m_hitwt=1;
-/*
-  for(itr=0;itr<MAXREC;++itr){
-    m_Nhits[itr]=0;
-    m_Pt[itr]=-5.0;
-    m_P[itr]=-5.0;
-    m_nhPXB[itr]=0;
-    m_nhPXF[itr]=0;
-    m_nhTIB[itr]=0;
-    m_nhTOB[itr]=0;
-    m_nhTIB[itr]=0;
-    m_nhTEC[itr]=0;
-    m_Eta[itr]=-99.0;
-    m_Phi[itr]=-4.0;
-    m_Chi2n[itr]=-11.0;
-    m_d0[itr]=-999;
-    m_dz[itr]=-999;
-    m_wt[itr]=1;
-  }
-  itr=0;
-*/  
 	
   // AM: what is this needed for?
   //theFile->cd();
@@ -1087,7 +873,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	    // bool hitTaken=myflag.isTaken(); 	 
 	  if (!myflag.isTaken()) { 	 
 	    skiphit=true;
-	    //std::cout<<"Hit from subdet "<<rechit->geographicalId().subdetId()<<" prescaled out."<<std::endl;
 	    continue;
 	  }
 	}//end if Prescaled Hits 	 
@@ -1152,8 +937,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   { if (angle>col_cut)ihitwt=0;}
   else
   { if (angle<cos_cut)ihitwt=0;}
-//  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::run]detectorId="<<ali->id();
-//  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::run]sin_theta="<<sin_theta<<" angle="<<angle <<" wt="<<ihitwt;
   m_angle = angle;
   m_sinTheta = sin_theta;
   m_detId = ali->id();
@@ -1506,9 +1289,6 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali , int setDet, double s
   AlgebraicSymMatrix cov(npar*npar);
 
    if (setDet!=0) {
-//      edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::CalcParameters]:Setting parameters for detector "<<setDet;
-//      if (theIteration==1) params[0] = -0.03;
-//      else params[0]=0.002;
       if (params.num_row()!=1){
       edm::LogError("Alignment") << "For scanning, please only turn on one parameter! check common_cff_py.txt";
       return false;
@@ -1534,10 +1314,8 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali , int setDet, double s
 
 //  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::CalcParameters]: parameters before RelErrCut= " << params;
 //  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::CalcParameters]: cov= " << cov;
-//  AlgebraicVector paramerr(npar);
   AlgebraicVector relerr(npar);
   for (int i=0;i<npar;i++) {
-//          edm::LogWarning("Alignment") <<"cov["<<i<<"]["<<i<<"]="<<fabs(cov[i][i]);
     if (fabs(cov[i][i])>0) paramerr[i] = sqrt(fabs(cov[i][i]));
     else paramerr[i] = params[i];
     if (params[i]!=0) relerr[i] = fabs(paramerr[i]/params[i]);
@@ -1550,45 +1328,12 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali , int setDet, double s
     }
   }
 
-//CY : debug
   if (setDet!=0)
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::CalcParameters]: parameters = " << params;
-//  edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::CalcParameters]: paramerr="<< paramerr;
 
   uservar->alipar=params;
   uservar->alierr=paramerr;
 
-  // expand output in case of 1D hits and 'v' selected
-  // in alignment parameters
-  //   if (hitdim==1 && selector[1]==true) {
-  //     int iremove = 1;
-  //     if (selector[0]==false) iremove--;
-  
-  //     AlgebraicSymMatrix tempcov(cov.num_row()+1,0);
-  //     int nr = 0, nc = 0;
-  //     for (int r=0;r<cov.num_row();r++) {
-  //       if (r==iremove) nr++;
-  //       nc = 0;
-  //       for (int c=0;c<cov.num_col();c++) {
-  //  	if (c==iremove) nc++;
-  //  	tempcov[nr][nc] = cov[r][c];
-  //  	nc++;
-  //       }
-  //       nr++;
-  //     }
-  //     cov = tempcov;
-  
-  //     AlgebraicVector tempparams(params.num_row()+1,0);
-  //     nr = 0;
-  //     for (int r=0;r<params.num_row();r++) {
-  //       if (r==iremove) nr++;
-  //       tempparams[nr] = params[r];
-  //       nr++;
-  //     }
-  //     params = tempparams;
-  //   }
-  
-  // store alignment parameters
   AlignmentParameters* parnew = par->cloneFromSelected(params,cov);
   ali->setAlignmentParameters(parnew);
   parnew->setValid(true);
@@ -1683,14 +1428,12 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
   TFile *jobfile = new TFile(filename, "READ");
   //grab the tree corresponding to this iteration
   TTree *jobtree = (TTree*)jobfile->Get(treeName);
-  //CY: hit tree
   TTree *hittree = (TTree*)jobfile->Get(hitTreeName);
   //address and read the variables 
   static const int nmaxtrackperevent = 1000;
   int jobNtracks, jobNhitspertrack[nmaxtrackperevent], jobnhPXB[nmaxtrackperevent], jobnhPXF[nmaxtrackperevent],jobnhTIB[nmaxtrackperevent], jobnhTOB[nmaxtrackperevent],jobnhTID[nmaxtrackperevent], jobnhTEC[nmaxtrackperevent];
   float jobP[nmaxtrackperevent], jobPt[nmaxtrackperevent], jobEta[nmaxtrackperevent] , jobPhi[nmaxtrackperevent];
   float jobd0[nmaxtrackperevent],jobwt[nmaxtrackperevent],  jobdz[nmaxtrackperevent] , jobChi2n[nmaxtrackperevent];
-//CY: hit tree
   float jobsinTheta,jobHitWt,jobangle;
   align::ID jobDetId;
   	

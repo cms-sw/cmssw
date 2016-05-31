@@ -1085,17 +1085,11 @@ void HIPplots::plotHitMap( char *outpath,int subDet,int minHits){
   bool printbinning=true;
   char psname[600];
   char ovtag[16];
-//  sprintf(psname,"%s/Hits_%s_Layers_Skimmed.png",outpath,typetag);
-//  sprintf(psname,"%s/Hits_%s_Layers_Skimmed.ps",outpath,typetag);
    sprintf(psname,"%s/Hits_%s_Layers_Skimmed.eps",outpath,typetag);
 
   char binfilename[64];
   sprintf(binfilename,"./BinningHitMaps_%s.txt",typetag);
   ofstream binfile(binfilename,ios::out); 
-  // if(printbinning){
-  //   if(subDet==3||subDet==5)printbinning=true;
-  //   else printbinning=false;
-  // }
 
   if(printbinning){
     binfile<<"******** Binning for Subdet "<<typetag<<" *********"<<endl<<endl;
@@ -1200,9 +1194,6 @@ void HIPplots::plotHitMap( char *outpath,int subDet,int minHits){
 	  }
 	  zbin[bin]  =  Zpeaks[bin]-zdown;
 	  zbin[bin+1]=  Zpeaks[bin]+zup;
-	  // cout<<"~~~ Zbin # "<<bin<<" Peak= "<<Zpeaks[bin]<<"LowEdge= "<<zbin[bin]<<"  HighEdge= "<<zbin[bin+1]<<" zdown: "<<zdown<<" zup: "<<zup<<endl;
-	  //	  if(bin==nZbinlims-2) zbin[bin]= Zpeaks[bin-1]+zup;
-	  //else zbin[bin+1]=  Zpeaks[bin]+zup;
 
 	}//end loop on z bin
 	///-************
@@ -1237,8 +1228,6 @@ void HIPplots::plotHitMap( char *outpath,int subDet,int minHits){
 
     char histoname[64];
     sprintf(histoname,"%s_Layer%d",typetag,layerindex);
-    //    TH2F *hetaphi=new TH2F(histoname,histoname,Netabins-1,etabins,Nphibins-1,phibins);
-    //sprintf(histoname,"h_mean_subdet%d_layer%d",subdet_ind,layer_cnt+1);
     TH2F *hetaphi=new TH2F(histoname,histoname,nZpeaks,zbin,nPhibins,phibin);
 
 
@@ -1250,7 +1239,6 @@ void HIPplots::plotHitMap( char *outpath,int subDet,int minHits){
       if(j%1000==0)cout<<"."<<flush;
       talignable->GetEntry(j);
       if(type==subDet&&layer==layerindex){
-       	//if(hetaphi->GetBinContent(zpos,phi)==0){
 	  if(nhit>=minHits){
 	    //find the right eta bin
 	    hetaphi->Fill(zpos,phi,nhit);
@@ -1260,12 +1248,6 @@ void HIPplots::plotHitMap( char *outpath,int subDet,int minHits){
 	    hetaphi->Fill(zpos,phi,-99);
 	    nlowentrycells++;
 	  }//end else if nhits < minhits
-	  //}//if bin was empty 
- 
-	//else  {
-      //  cout<<"Content in cell in SubDet "<<subDet<<", Layer "<<layerindex<<":   Z="<<zpos<<"  Phi="<<phi<<" --> "<<nhit<<endl;
-      //  hetaphi->Fill(zpos,phi,-1);
-      //}
 
       }//end if the type and layer are the desired ones
     }//end loop on entries(->alignables)
@@ -1278,16 +1260,6 @@ void HIPplots::plotHitMap( char *outpath,int subDet,int minHits){
     int Nybins=hetaphi->GetYaxis()->GetNbins();
     cout<<"On x-axis there are "<<Nxbins<<" bins  "<<endl;
     cout<<"On y-axis there are "<<Nybins<<" bins  "<<endl;
-
-    /*
-    if(minHits>=0){
-      for(int i=1;i<=Nxbins;i++){
-	for(int j=1;j<=Nybins;j++){
-	  if(hetaphi->GetBinContent(i,j)<(double)minHits) hetaphi->SetBinContent(i,j,0.0);
-	}
-      }
-    }//end if minHits>0
-    */
 
 
     bool smooth_etaphi=false;
@@ -1566,22 +1538,16 @@ bool HIPplots::CheckFileExistence(char *filename){
 
 void HIPplots::CheckFiles(int &ierr){
   
-//  if ( ! CheckFileExistence(_inFile_params)){
-//    cout<<"Missing file "<<_inFile_params<<endl;
-//    ierr++;
-//  }
   if (! CheckFileExistence(_inFile_uservars)){
     cout<<"Missing file "<<_inFile_uservars<<endl;
     ierr++;
   }
+
   if(! CheckFileExistence(_inFile_HIPalign)){
     cout<<"Missing file "<<_inFile_HIPalign<<endl;
     ierr++;
   }
-//  if(! CheckFileExistence(_inFile_truepos)){
-//    cout<<"Missing file "<<_inFile_truepos<<endl;
-//    ierr++;
-//  }
+
   if(! CheckFileExistence( _inFile_alipos)){
     cout<<"Missing file "<< _inFile_alipos<<endl;
     ierr++;
@@ -1622,140 +1588,3 @@ bool HIPplots::CheckHistoRising(TH1D *h){
 
 }//end CheckHistoRising
 
-
-/*
-      
-    //-------(1) START BINNING part ---
-    //finds peak in eta
-    if(subDet == TOBid){
-      SetPeakThreshold(8.0);
-      talignable->Draw("Eta>>heta1(104,-2.6,2.6)",commonsense&&selA,"goff");
-    }
-    else{
-      SetPeakThreshold(5.0);
-      talignable->Draw("Eta>>heta1(52,-2.6,2.6)",commonsense&&selA,"goff");
-    }
-    TH1F *heta1=(TH1F*)gDirectory->Get("heta1");    
-    float etapeaks[80];
-    int bin=0;
-    for(bin=0;bin<80;bin++){
-      etapeaks[bin]=-444.0;
-    }
-    const int Netapeaks=FindPeaks(heta1,etapeaks,80);
-    cout<<"Found "<<Netapeaks<<" peaks in eta. They are placed at:"<<endl;
-     for(bin=0;bin<Netapeaks;bin++){
-       cout<<"\t"<<etapeaks[bin]<<flush;
-     }
-     cout<<endl<<endl;
-    const int Netabins=Netapeaks+1;
-    //define eta binning according to the peaks
-    float etabins[Netabins];
-    for(bin=0;bin<Netabins;bin++){
-      if(bin==0) etabins[bin]=etapeaks[bin]-((etapeaks[bin+1]-etapeaks[bin])/2.0);
-      else if(bin==Netabins-1)etabins[bin]=etapeaks[bin-1]+((etapeaks[bin-1]-etapeaks[bin-2])/2.0);
-      else etabins[bin]=(etapeaks[bin]+etapeaks[bin-1])/2.0;
-
-    }
-
-    cout<<"Filled eta binning: "<<endl;
-    for(bin=0;bin<Netabins;bin++){
-      cout<<"\t"<<etabins[bin]<<flush;
-    }
-    cout<<endl<<endl;
-
-    //you have Netabins TH2F that will be divided in cells
-    //along phi
-    //take an eta range and estimate phi bin from there
-    int highestetapeak=0;
-    float etapeakcont=0.0, etapeakmax=0.0;
-    for(bin=0;bin<Netapeaks;bin++){
-      //take the highest
-      etapeakcont=heta1->GetBinContent(heta1->FindBin(etapeaks[bin]) );
-      if(etapeakcont>=etapeakmax){
-	etapeakmax=etapeakcont;
-	highestetapeak=bin;
-      }
-    }
-    //  float etapeakwidth=(etabins[highestetapeak+1]-etabins[highestetapeak]);
-    float etalim1,etalim2;
-    if(subDet == TIBid){
-        //      etalim1 =(etapeaks[highestetapeak]-etabins[highestetapeak-1]);
-      etalim1 =(etabins[highestetapeak-1])+0.05;
-      etalim2=(etapeaks[highestetapeak+1]+etapeaks[highestetapeak])/2.0;
-      }
-    else{
-        etalim1 =(etapeaks[highestetapeak-1]+etapeaks[highestetapeak])/2.0;
-      etalim2=(etapeaks[highestetapeak+1]+etapeaks[highestetapeak])/2.0;
-    }
-
-    //    float etalim1=etabins[highestetapeak]-etapeakwidth/4.0;
-    //    float etalim2=etabins[highestetapeak]+etapeakwidth/4.0;
-    if(etalim1<0.0||etalim2<0.0){//oooops! we run out of range..
-      if(subDet == TIBid){
-	etalim1 =(etabins[highestetapeak-2])+0.05;
-	etalim2=(etapeaks[highestetapeak]+etapeaks[highestetapeak-1])/2.0;
-      }
-      else{
-	etalim1=(etapeaks[highestetapeak-2]+etapeaks[highestetapeak-1])/2.0;
-	etalim2=(etapeaks[highestetapeak]+etapeaks[highestetapeak-1])/2.0;
-      }
-    }
-
-    char etasel_str[64];
-    sprintf(etasel_str,"Eta>=%f&&Eta<%f",etalim1,etalim2);
-    TCut seleta=etasel_str;
-    int nphietapeak=talignable->Draw("Phi",commonsense&&selA&&seleta,"goff");
-    
-    const int Nphipoints= nphietapeak;
-    float phipoints[Nphipoints];
-    cout<<"Found "<<Nphipoints<<" phi points in "<<etasel_str<<endl;
-    //    Nphipoints= Nphipoints*2;
-    for(bin=0;bin<Nphipoints;bin++){
-      phipoints[bin]=talignable->GetV1()[bin];
-    }
-    //    stable_sort(phipoints.begin(),phipoints.end());
-    stable_sort(phipoints,phipoints+Nphipoints);
-
-//     for(bin=0;bin<Nphipoints;bin++){
-//       cout<<"\t"<<phipoints[bin]<<flush;
-//     }
-//     cout<<"---- End Phi points"<<endl<<endl;
-
-
-    const int Nphibins=Nphipoints+1;
-    float phibins[Nphibins];
-
-    for(int phibin=0;phibin<Nphipoints;phibin++){
-	//	float phidiff=0.0;
-	if(phibin%20==1)cout<<"Phi Bin #"<<phibin<<"  "<<flush;
-	if(phibin==0){
-	  float phidiff=(phipoints[phibin+1]- phipoints[phibin]);
-	  phibins[phibin]=phipoints[phibin]-phidiff/2.0;
-	}
-	
-	else{
-	  float res=(phipoints[phibin]+phipoints[phibin-1])/2.0;
-	  //cout<<"Phipoints: "<<phipoints[phibin]<<"\tRES= "<<res<<endl;
-	  phibins[phibin]=res;
-	  //	  cout<<phibins_tmp[bin][phibin]<<endl;
-	  if(phibin==Nphipoints-1){
-	  float phidiff=(phipoints[phibin]- phipoints[phibin-1]);
-	  phibins[phibin+1]=phipoints[phibin]+phidiff/2.0;
-	}
-	}
-	 
-	if(phibin%20==1)cout<<phibins[phibin]<<endl;
-    }//end loop on phi bins
-
-   
-   // cout<<"Filled phi binning: "<<endl;
-    //for(bin=0;bin<Nphibins;bin++){
-    //  cout<<"\t"<<phibins[bin]<<flush;
-   // }
-   // cout<<endl;//<<endl;
-   
-    ////////////
-    cout<<"Finished to fill final phi binning"<<endl;
-    //-------(1) END BINNING part ---
-
-*/
