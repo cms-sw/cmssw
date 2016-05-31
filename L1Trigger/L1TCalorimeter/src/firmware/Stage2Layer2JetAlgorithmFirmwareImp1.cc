@@ -515,7 +515,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
         jetHwPt = 0x1FF;
       }
       unsigned int ptBin = params_->jetCompressPtLUT()->data(jetHwPt>>1);
-      unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(jet->hwEta()));
+      unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(CaloTools::mpEta(jet->hwEta())));
       unsigned int compBin =  (etaBin<<4) | ptBin;
 
       unsigned int addPlusMult = params_->jetCalibrationLUT()->data(compBin);
