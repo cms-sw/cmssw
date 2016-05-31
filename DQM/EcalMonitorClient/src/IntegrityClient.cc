@@ -124,7 +124,7 @@ namespace ecaldqm
     MESet const& sBXTCC(sources_.at("BXTCC"));
     std::vector<bool> hasMismatchDCC(nDCC,false);
     for ( unsigned iDCC(0); iDCC < nDCC; ++iDCC ) {
-      if ( sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50. )
+      if ( sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50. ) // "any" => 50
         hasMismatchDCC[iDCC] = true;
     }
     // Analyze mismatch statistics

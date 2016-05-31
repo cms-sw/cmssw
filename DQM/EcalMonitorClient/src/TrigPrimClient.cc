@@ -39,11 +39,12 @@ namespace ecaldqm
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
+    // Store # of entries for Occupancy analysis
     std::vector<float> Nentries(nDCC,0.);
+
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
-      unsigned iDCC( dccId(ttid)-1 );
       bool doMask(meEmulQualitySummary.maskMatches(ttid, mask, statusManager_));
 
       float towerEntries(0.);
@@ -76,6 +77,8 @@ namespace ecaldqm
       else
         meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
       
+      // Keep count for Occupancy analysis
+      unsigned iDCC( dccId(ttid)-1 );
       Nentries[iDCC] += sTPDigiThrAll.getBinContent(ttid); 
     }
 
