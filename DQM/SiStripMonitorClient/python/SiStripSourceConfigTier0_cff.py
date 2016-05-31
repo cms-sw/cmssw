@@ -67,10 +67,13 @@ SiStripMonitorClusterBPTX.StripDCSfilter = cms.PSet(
 )
 
 from Configuration.StandardSequences.Eras import eras
-if eras.stage2L1Trigger.isChosen():
-    SiStripMonitorClusterBPTX.BPTXfilter.stage2 = cms.bool(True)
-    SiStripMonitorClusterBPTX.BPTXfilter.l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis")
-    SiStripMonitorClusterBPTX.BPTXfilter.l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
+eras.stage2L1Trigger.toModify(SiStripMonitorClusterBPTX, 
+    BPTXfilter = dict(
+        stage2 = True,
+        l1tAlgBlkInputTag = "gtStage2Digis",
+        l1tExtBlkInputTag = "gtStage2Digis"
+    )
+)
 
 
 # Clone for SiStripMonitorTrack for all PDs but Minimum Bias and Jet ####
