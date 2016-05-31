@@ -13,7 +13,8 @@ namespace ecaldqm
     chi2ThresholdEB_(0.),
     chi2ThresholdEE_(0.),
     energyThresholdEB_(0.),
-    energyThresholdEE_(0.)
+    energyThresholdEE_(0.),
+    meTimeMapByLS(0)
   {
   }
 
@@ -41,6 +42,17 @@ namespace ecaldqm
     return false;
   }
 
+  void
+  TimingTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  {
+    // Fill separate MEs with only 10 LSs worth of stats
+    // Used to correctly fill Presample Trend plots:
+    // 1 pt:10 LS in Trend plots
+    meTimeMapByLS = &MEs_.at("TimeMapByLS");
+    if ( timestamp_.iLumi % 10 == 0 )
+      meTimeMapByLS->reset();
+  }
+
   void 
   TimingTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection)
   {
@@ -48,7 +60,7 @@ namespace ecaldqm
     MESet& meTimeAmpAll(MEs_.at("TimeAmpAll"));
     MESet& meTimeAll(MEs_.at("TimeAll"));
     MESet& meTimeAllMap(MEs_.at("TimeAllMap"));
-    MESet& meTimeMap(MEs_.at("TimeMap"));
+    MESet& meTimeMap(MEs_.at("TimeMap")); // contains cumulative run stats => not suitable for Trend plots
     MESet& meTime1D(MEs_.at("Time1D"));
     MESet& meChi2(MEs_.at("Chi2"));
 
@@ -64,25 +76,20 @@ namespace ecaldqm
                     float time(hit.time());
                     float energy(hit.energy());
 
+                    // Apply cut on chi2 of pulse shape fit
                     float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
-                    if (id.subdetId() == EcalBarrel) {
-                      signedSubdet=EcalBarrel;
-                    }
+                    if ( id.subdetId() == EcalBarrel )
+                      signedSubdet = EcalBarrel;
                     else {
-                      EEDetId eeId(hit.id());
-                      if(eeId.zside() < 0){
+                      EEDetId eeId( hit.id() );
+                      if ( eeId.zside() < 0 )
                         signedSubdet = -EcalEndcap;
-                      }
-                      else{
-                        signedSubdet = EcalEndcap;
-                      }
+                      else
+                        signedSubdet =  EcalEndcap;
                     }
-
-                    if(energy > threshold){
+                    if ( energy > threshold )
                       meChi2.fill(signedSubdet, hit.chi2());
-                    }
-
-                    if( hit.chi2() > chi2Threshold ) return;
+                    if ( hit.chi2() > chi2Threshold ) return;
 
                     meTimeAmp.fill(id, energy, time);
                     meTimeAmpAll.fill(id, energy, time);
@@ -90,6 +97,7 @@ namespace ecaldqm
                     if(energy > threshold){
                       meTimeAll.fill(id, time);
                       meTimeMap.fill(id, time);
+                      meTimeMapByLS->fill(id, time); 
                       meTime1D.fill(id, time);
                       meTimeAllMap.fill(id, time);
                     }
