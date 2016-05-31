@@ -47,9 +47,9 @@ namespace helper {
       ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D&>(newHit);
       stripClusterRecords_.push_back(StripClusterHitRecord(phit.originalHit(), hits, index));
     } else if (hit_type == typeid(Phase2TrackerRecHit1D)) {
-      std::cout << "|   It is a Phase2TrackerRecHit1D hit and it cannot be recorded because it does not have two recHit but just two clusters !!" << std::endl;
-//      Phase2TrackerRecHit1D &vhit = static_cast<Phase2TrackerRecHit1D&>(newHit);
-//      phase2ClusterRecords_.push_back(Phase2ClusterHitRecord(static_cast<Phase2TrackerRecHit1D&>(newHit), hits, index));
+//      std::cout << "|   It is a Phase2TrackerRecHit1D hit and it cannot be recorded because it does not have two recHit but just two clusters !!" << std::endl;
+//      Phase2TrackerRecHit1D &ph2OThit = static_cast<Phase2TrackerRecHit1D&>(newHit);
+      phase2OTClusterRecords_.push_back(Phase2OTClusterHitRecord(static_cast<Phase2TrackerRecHit1D&>(newHit), hits, index));
     } else {
       if (hit_type == typeid(FastTrackerRecHit)
  	  || hit_type == typeid(FastProjectedTrackerRecHit)
