@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V111 (CMSSW_8_0_9_HLT1)
+# /dev/CMSSW_8_0_0/GRun/V112 (CMSSW_8_0_9_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V111')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V112')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -39049,7 +39049,7 @@ process.hltTowerMakerForAllBeamHaloCleaned = cms.EDProducer( "CaloTowersCreator"
     UseHcalRecoveredHits = cms.bool( False ),
     HOThresholdMinus2 = cms.double( 3.5 ),
     HOThreshold0 = cms.double( 3.5 ),
-    ecalInputs = cms.VInputTag( 'hltEcalRecHit:EcalRecHitsEB','hltEcalRecHit:EcalRecHitsEE' ),
+    ecalInputs = cms.VInputTag( 'hltCaloRecHitsBeamHaloCleaned:EcalRecHitsEB','hltCaloRecHitsBeamHaloCleaned:EcalRecHitsEE' ),
     UseRejectedRecoveredHcalHits = cms.bool( False ),
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),

@@ -1,11 +1,11 @@
-# /frozen/2016/25ns10e33/v2.0/HLT/V2 (CMSSW_8_0_9_HLT1)
+# /frozen/2016/25ns10e33/v2.0/HLT/V3 (CMSSW_8_0_9_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT25ns10e33v2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2016/25ns10e33/v2.0/HLT/V2')
+  tableName = cms.string('/frozen/2016/25ns10e33/v2.0/HLT/V3')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -39049,7 +39049,7 @@ process.hltTowerMakerForAllBeamHaloCleaned = cms.EDProducer( "CaloTowersCreator"
     UseHcalRecoveredHits = cms.bool( False ),
     HOThresholdMinus2 = cms.double( 3.5 ),
     HOThreshold0 = cms.double( 3.5 ),
-    ecalInputs = cms.VInputTag( 'hltEcalRecHit:EcalRecHitsEB','hltEcalRecHit:EcalRecHitsEE' ),
+    ecalInputs = cms.VInputTag( 'hltCaloRecHitsBeamHaloCleaned:EcalRecHitsEB','hltCaloRecHitsBeamHaloCleaned:EcalRecHitsEE' ),
     UseRejectedRecoveredHcalHits = cms.bool( False ),
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
