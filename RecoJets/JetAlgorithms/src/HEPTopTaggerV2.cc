@@ -279,7 +279,7 @@ void HEPTopTaggerV2_fixed_R::run() {
        
 	// Recluster to 3 subjets and apply mass plane cuts
 	JetDefinition reclustering(_jet_algorithm_recluster, 3.14);
-	ClusterSequence *  cs_top_sub = new ClusterSequence(topcandidate.pieces(), reclustering);
+	ClusterSequence *  cs_top_sub = new ClusterSequence(topcandidate.constituents(), reclustering);
         std::vector <PseudoJet> top_subs = sorted_by_pt(cs_top_sub->exclusive_jets(3));         
 	cs_top_sub->delete_self_when_unused();
 
