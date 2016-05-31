@@ -42,11 +42,16 @@ class MillePedeFileExtractor :
                                   const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
+  bool enoughBinaries() {
+    return (nBinaries_ >= maxNumberOfBinaries_) && hasBinaryNumberLimit(); }
+  bool hasBinaryNumberLimit() { return maxNumberOfBinaries_ > -1; }
+
   const std::string outputDir_;
   const std::string outputFileName_;
 
   edm::EDGetTokenT<FileBlobCollection> fileBlobToken_;
 
+  const int maxNumberOfBinaries_;
   int nBinaries_{0};
 };
 
