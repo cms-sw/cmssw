@@ -9,8 +9,11 @@ import sys,os
 # miniaod_version = "RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
 # filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv1-PU25nsData2015v1_76X.txt'
 
-miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
-filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
+# miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
+# filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
+
+miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
+filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X.txt'
 
 # REMOVE DATASET NAMES CONTAINING:
 
