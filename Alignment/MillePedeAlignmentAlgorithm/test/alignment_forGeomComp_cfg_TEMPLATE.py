@@ -52,29 +52,12 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #process.load("Configuration.StandardSequences.Geometry_cff")
 # global tag and other conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # take your favourite global tag
 process.GlobalTag.globaltag = 'GLOBALTAG'
 ## if alignment constants not from global tag, add this
-from CondCore.DBCommon.CondDBSetup_cfi import *
-## CondDBSetup.DBParameters.authenticationPath = '...' # needed to access cms_orcoff_prod
-#process.trackerAlignment = cms.ESSource(
-#    "PoolDBESSource",
-#    CondDBSetup,
-##    connect = cms.string("sqlite_file:TrackerAlignment_GR10v6_offline_append.db"),
-#    connect = cms.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT"),
-##    connect = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_ALIGNMENT"),
-#    toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-#                               tag = cms.string("TrackerAlignment_GR10_v6_offline")
-##                               tag = cms.string("Alignments")
-##                               ),
-##                      cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-##                               tag = cms.string("TrackerIdealGeometryErrors210_mc")
-#                               )
-#                      )
-#    )
-#process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
-
+from CondCore.CondDB.CondDB_cfi import *
+CondDBReference = CondDB.clone(connect = cms.string('sqlite_file:remove_me.db'))
 
 # Alignment producer
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
@@ -83,10 +66,10 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
         'TrackerTPBModule,111111',
         'TrackerTPEModule,111111',
-#        'TrackerTIBModuleUnit,101111',
-#        'TrackerTIDModuleUnit,101111',
+        #  'TrackerTIBModuleUnit,101111',
+        #  'TrackerTIDModuleUnit,101111',
         'TrackerTOBModuleUnit,101111',
-#        'TrackerTECModuleUnit,101111'
+        #  'TrackerTECModuleUnit,101111'
         )
     )
 
@@ -107,20 +90,15 @@ process.source = cms.Source("EmptySource",
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1) )
 
 
-
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(process.dump)
 
-process.AlignmentProducer.saveToDB = True # should not be needed, but is:
-#                     otherwise AlignmentProducer does not  call relevant algorithm part
-process.PoolDBOutputService = cms.Service(
-    "PoolDBOutputService",
-    CondDBSetup,
-    timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:remove_me.db'),
-    toPut = cms.VPSet(cms.PSet(
-      record = cms.string('TrackerAlignmentRcd'),
-      tag = cms.string('dummyTagAlignment')
-      )
-                      )
-    )
+process.AlignmentProducer.saveToDB = True # should not be needed, but is: otherwise AlignmentProducer does not  call relevant algorithm part
+process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+                                          CondDBReference,
+                                          timetype = cms.untracked.string('runnumber'),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+                                                                     tag = cms.string('dummyTagAlignment')
+                                                                     )
+                                                            )
+                                          )

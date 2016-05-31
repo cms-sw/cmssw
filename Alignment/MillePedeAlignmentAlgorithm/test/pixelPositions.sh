@@ -17,28 +17,19 @@ echo Using template $CONFIG_TEMPLATE
 echo and plotting macros from $PLOTMILLEPEDEDIR
 echo 
 
-# 2012A+B
-#used in alignment ???:
-#RUN_NUMBERS=(185189 190450 190702 190782 191718 191800 193093 194896 196197)
-# in upload
-#RUN_NUMBERS=(185189 190450 190702 190782 191691 191800 193093 194896 196197)
-# 2012C
-##RUN_NUMBERS=(197770 198230 198249 198346 200041 200229 200368 200532 201159 201191 201611 202012 202074 202972)
-# 2012D
-#RUN_NUMBERS=(203768 205086 205614 206187 207320 207779 208300)
 
 RUN_NUMBERS=(248642)
 
 # First conditions to check
 # (if ALIGNMENT_TAG1 and DB_PATH_TAG1 are empty takes content from GLOBALTAG1)
-GLOBALTAG1="GR_P_V56" #"FT_R_53_V6C"
+GLOBALTAG1="80X_dataRun2_Prompt_Queue"
 ALIGNMENT_TAG1="TrackerAlignment_2009_v1_express"
 DB_PATH_TAG1="frontier://FrontierProd/CMS_CONDITIONS"
 
 # Second conditions to check
-GLOBALTAG2="GR_P_V56" #"GR_R_53_V16D"
-ALIGNMENT_TAG2="Alignments"
-DB_PATH_TAG2="sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/2015-06-22_ForHighIntensity50nsRun/alignments_iter20.db"
+GLOBALTAG2="80X_dataRun2_Prompt_Queue" 
+ALIGNMENT_TAG2="SiPixelAli_PCL_v0_prompt"
+DB_PATH_TAG2="frontier://FrontierPrep/CMS_CONDITIONS"
 
 for RUN in $RUN_NUMBERS ; do
     echo "============================================================"
@@ -61,16 +52,15 @@ for RUN in $RUN_NUMBERS ; do
     if [ $#ALIGNMENT_TAG1 != 0 ]; then
 	cat >>! ${CONFIG1} <<EOF
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.trackerAlignment = cms.ESSource(
-    "PoolDBESSource",
-    CondDBSetup,
-    connect = cms.string("$DB_PATH_TAG1"),
-    toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-                               tag = cms.string("$ALIGNMENT_TAG1")
-                               )
-                      )
-    )
+from CondCore.CondDB.CondDB_cfi import *
+CondDBReference = CondDB.clone(connect = cms.string("$DB_PATH_TAG1"))
+process.trackerAlignment = cms.ESSource("PoolDBESSource",
+                                        CondDBReference,
+                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+                                                                   tag = cms.string("$ALIGNMENT_TAG1")
+                                                                  )
+                                                         )       
+                                       )
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 EOF
     fi
@@ -92,16 +82,15 @@ EOF
     if [ $#ALIGNMENT_TAG2 != 0 ]; then
 	cat >>! ${CONFIG2} <<EOF
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.trackerAlignment = cms.ESSource(
-    "PoolDBESSource",
-    CondDBSetup,
-    connect = cms.string("$DB_PATH_TAG2"),
-    toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-                               tag = cms.string("$ALIGNMENT_TAG2")
-                               )
-                      )
-    )
+from CondCore.CondDB.CondDB_cfi import *
+CondDBReference = CondDB.clone(connect = cms.string("$DB_PATH_TAG1"))
+process.trackerAlignment = cms.ESSource("PoolDBESSource",
+                                        CondDBReference,
+                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+                                                                   tag = cms.string("$ALIGNMENT_TAG1")
+                                                                  )
+                                                         )       
+                                       )
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 EOF
     fi
