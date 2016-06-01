@@ -21,7 +21,7 @@ from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
 
 # Fastjet-Contrib is not in the path per default.
 # We need it for n-subjettiness recalculation
-os.environ['ROOT_INCLUDE_PATH'] = "/cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/fastjet-contrib/1.014-odfocd/include:" + os.environ['ROOT_INCLUDE_PATH']
+ROOT.gInterpreter.AddIncludePath( "/cvmfs/cms.cern.ch/"+ os.environ['SCRAM_ARCH'] +"/external/fastjet-contrib/1.020/include" )
 
 ROOT.gSystem.Load("libfastjet")
 ROOT.gSystem.Load("libfastjetcontribfragile")
