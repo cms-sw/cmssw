@@ -73,11 +73,6 @@
 /////////////////////  From Matt's Code  ////////////////////////
 //#include "L1Trigger/L1TMuonEndCap/plugins/L1TMuonTFAlgorithm.h"
 
-
-using namespace L1TMuon;
-using namespace edm;
-using namespace reco;
-
 typedef edm::ParameterSet PSet;
 
 //class sptf : public edm::EDProducer
@@ -88,7 +83,7 @@ class sptf : public edm::EDProducer
     sptf(const PSet&);
     //sptf(std::vector<edm::InputTag>, std::vector<edm::InputTag>);
     ~sptf() {}
-    sptf() {cout << "Hello there.\n";}
+    sptf() {std::cout << "Hello there.\n";}
     void produce(edm::Event&, const edm::EventSetup&);
     void beginJob();
     //void beginRun(const edm::Run&, const edm::EventSetup&);
@@ -99,39 +94,39 @@ class sptf : public edm::EDProducer
  private:
 
 
-    vector<int> the_bxValue;
-    vector< vector<int> > the_primSelector;
-    vector< vector<int> > the_inputOrder;
-    vector< vector<int> > the_bx_jitter;
-    vector< vector<int> > the_endcap;
-    vector< vector<int> > the_sector;
-    vector< vector<int> > the_subsector;
-    vector< vector<int> > the_station;
-    vector< vector<int> > the_valid;
-    vector< vector<int> > the_quality;
-    vector< vector<int> > the_pattern;
-    vector< vector<int> > the_wiregroup;
-    vector< vector<int> > the_cscid;
-    vector< vector<int> > the_bend;
-    vector< vector<int> > the_halfstrip;
+    std::vector<int> the_bxValue;
+    std::vector< std::vector<int> > the_primSelector;
+    std::vector< std::vector<int> > the_inputOrder;
+    std::vector< std::vector<int> > the_bx_jitter;
+    std::vector< std::vector<int> > the_endcap;
+    std::vector< std::vector<int> > the_sector;
+    std::vector< std::vector<int> > the_subsector;
+    std::vector< std::vector<int> > the_station;
+    std::vector< std::vector<int> > the_valid;
+    std::vector< std::vector<int> > the_quality;
+    std::vector< std::vector<int> > the_pattern;
+    std::vector< std::vector<int> > the_wiregroup;
+    std::vector< std::vector<int> > the_cscid;
+    std::vector< std::vector<int> > the_bend;
+    std::vector< std::vector<int> > the_halfstrip;
 
-    vector<int> the_emuPhi;
-    vector<int> the_emuTheta;
-    vector<int> the_emuPhhit;
-    vector<int> the_emuPhzvl;
-    vector<int> the_emuStrip;
-    vector<int> the_emuStraight;
-    vector<int> the_emuQuality;
-    vector<int> the_emuLayer;
+    std::vector<int> the_emuPhi;
+    std::vector<int> the_emuTheta;
+    std::vector<int> the_emuPhhit;
+    std::vector<int> the_emuPhzvl;
+    std::vector<int> the_emuStrip;
+    std::vector<int> the_emuStraight;
+    std::vector<int> the_emuQuality;
+    std::vector<int> the_emuLayer;
 
-    vector<int> GetPhi() {return the_emuPhi;}
-    vector<int> GetTheta() {return the_emuTheta;}
-    vector<int> GetPhhit() {return the_emuPhhit;}
-    vector<int> GetPhzvl() {return the_emuPhzvl;}
-    vector<int> GetStrip() {return the_emuStrip;}
-    vector<int> GetStraight() {return the_emuStraight;}
-    vector<int> GetLayer() {return the_emuLayer;}
-    vector<int> GetQuality() {return the_emuQuality;}
+    std::vector<int> GetPhi() {return the_emuPhi;}
+    std::vector<int> GetTheta() {return the_emuTheta;}
+    std::vector<int> GetPhhit() {return the_emuPhhit;}
+    std::vector<int> GetPhzvl() {return the_emuPhzvl;}
+    std::vector<int> GetStrip() {return the_emuStrip;}
+    std::vector<int> GetStraight() {return the_emuStraight;}
+    std::vector<int> GetLayer() {return the_emuLayer;}
+    std::vector<int> GetQuality() {return the_emuQuality;}
 
     int count;
 

@@ -16,7 +16,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 using namespace L1TwinMux;
-
+using namespace L1TMuon;
 
 inline std::unique_ptr<MBLTContainer> MBLTProducer( TriggerPrimitiveCollection* tps )
 {
