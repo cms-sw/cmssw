@@ -157,6 +157,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( HcalDcsValues )
       IMPORT_PAYLOAD_CASE( HcalElectronicsMap )
       IMPORT_PAYLOAD_CASE( HcalFlagHFDigiTimeParams )
+      IMPORT_PAYLOAD_CASE( HcalFrontEndMap )
       IMPORT_PAYLOAD_CASE( HcalGains )
       IMPORT_PAYLOAD_CASE( HcalGainWidths )
       IMPORT_PAYLOAD_CASE( HcalL1TriggerObjects )

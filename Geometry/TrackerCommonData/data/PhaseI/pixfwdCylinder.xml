@@ -52,10 +52,9 @@ root volume plus an anchor point for positioning.
  <Constant name="CylinderPipeLength1" value="(1177.16-239.58)*mm"/>
  <Constant name="CylinderPipeLength2" value="823.60*mm"/>
 
- <Constant name="CylindersPortCardsWidth" value="60.0*mm"/>
- <Constant name="CylindersPortCardsLength1" value="223.52*mm"/>
- <Constant name="CylindersPortCardsLength2" value="355.60*mm"/>
- <Constant name="CylindersPortCardsThickness" value="5.40*mm"/>
+ <Constant name="CylindersPortCardsWidth" value="67.0*mm"/><!--60.0 mm-->
+ <Constant name="CylindersPortCardsLength1" value="533.7*mm"/><!--523.0 mm-->
+ <Constant name="CylindersPortCardsThickness" value="18.9*mm"/><!--5.40 mm-->
 
  <Constant name="CylindersServiceZoff" value="320.0*mm"/>
  <Constant name="CylindersServiceRmin" value="100*mm"/>
@@ -132,8 +131,6 @@ root volume plus an anchor point for positioning.
 
   <Box name="PixelForwardCylindersPortCards1" dx="[CylindersPortCardsWidth]/2." dy="[CylindersPortCardsThickness]/2." dz="[CylindersPortCardsLength1]/2."/>
 
-  <Box name="PixelForwardCylindersPortCards2" dx="[CylindersPortCardsWidth]/2." dy="[CylindersPortCardsThickness]/2." dz="[CylindersPortCardsLength2]/2."/>
-
 </SolidSection>
  
 
@@ -190,12 +187,7 @@ root volume plus an anchor point for positioning.
 
  <LogicalPart name="PixelForwardCylindersPortCards1" category="support">
     <rSolid name="PixelForwardCylindersPortCards1"/>
-    <rMaterial name="pixfwdMaterials:Pix_Fwd_Port_Cards"/>
- </LogicalPart>
-
- <LogicalPart name="PixelForwardCylindersPortCards2" category="support">
-    <rSolid name="PixelForwardCylindersPortCards2"/>
-    <rMaterial name="pixfwdMaterials:Pix_Fwd_Port_Cards"/>
+    <rMaterial name="pixfwdMaterials:Pix_Fwd_Port_Cards_Phase1"/>
  </LogicalPart>
 
 
@@ -388,14 +380,14 @@ root volume plus an anchor point for positioning.
          <rRotation name="pixfwdCylinder:PortCardsRot1"/>
       </PosPart>
 
-   <PosPart copyNumber="1">
+   <PosPart copyNumber="2">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
-         <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+         <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
          <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot2"/>
       </PosPart>
 
-   <PosPart copyNumber="2">
+   <PosPart copyNumber="3">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
          <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]"/>
@@ -403,35 +395,35 @@ root volume plus an anchor point for positioning.
       </PosPart>
 
                                                          
-   <PosPart copyNumber="3">
+   <PosPart copyNumber="4">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
          <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot4"/>
       </PosPart>
 
-    <PosPart copyNumber="4">
+    <PosPart copyNumber="5">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
          <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot5"/>
       </PosPart>
                                                                     
-   <PosPart copyNumber="2">
+   <PosPart copyNumber="6">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
-         <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
+         <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
          <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot6"/>
       </PosPart>
 
-   <PosPart copyNumber="5">
+   <PosPart copyNumber="7">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
          <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]"/>
          <rRotation name="pixfwdCylinder:PortCardsRot7"/>
       </PosPart>
 
-   <PosPart copyNumber="6">
+   <PosPart copyNumber="8">
          <rParent name="pixfwdCylinder:PixelForwardServiceCylinder"/>
          <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards1"/>
          <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]"/>
