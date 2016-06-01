@@ -65,8 +65,6 @@ class GenericTriggerEventFlag {
     bool                       errorReplyGt_;
     bool                       andOrL1_;
     bool                       stage2_;
-    edm::InputTag              l1AlgoInputTag_;
-    edm::EDGetToken            l1AlgoInputToken_;
     bool                       l1BeforeMask_;
     std::string                l1DBKey_;
     std::vector< std::string > l1LogicalExpressionsCache_;
@@ -154,7 +152,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
   GenericTriggerEventFlag(config, iC) {
   if ( config.exists( "andOrL1" ) ) 
     if (stage2_)
-      l1uGt_.reset(new l1t::L1TGlobalUtil());
+      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC));
     else
       l1Gt_.reset(new L1GtUtils(config, iC, false, module));
   else {
