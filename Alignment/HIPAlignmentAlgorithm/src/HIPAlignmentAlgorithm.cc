@@ -284,7 +284,7 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 		}
 		
     // now apply psotions of file from prev iteration
-    edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm] Apply positions from file ...";
+    edm::LogInfo("Alignment") <<"[HIPAlignmentAlgorithm] Apply positions from file ...";
     theAlignmentParameterStore->applyAlignableAbsolutePositions(theAlignables, 
 								theAlignablePositionsFromFile,ioerr);
 		
