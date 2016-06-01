@@ -179,12 +179,13 @@ namespace reco {
 
 
     /// define arbitration schemes
-    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned, RPCHitAndTrackArbitration };
+    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned,
+			   RPCHitAndTrackArbitration, GEMSegmentAndTrackArbitration, ME0SegmentAndTrackArbitration };
     
     ///
     /// ====================== USEFUL METHODs ===========================
     ///
-    /// number of chambers (MuonChamberMatches include RPC rolls)
+    /// number of chambers (MuonChamberMatches include RPC rolls, GEM and ME0 segments)
     int numberOfChambers() const { return muMatches_.size(); }
     /// number of chambers not including RPC matches (MuonChamberMatches include RPC rolls)
     int numberOfChambersNoRPC() const;
@@ -201,6 +202,8 @@ namespace reco {
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
     int numberOfMatchedRPCLayers( ArbitrationType type = RPCHitAndTrackArbitration ) const;
+    int numberOfMatchedGEMLayers( ArbitrationType type = GEMSegmentAndTrackArbitration ) const;
+    int numberOfMatchedME0Layers( ArbitrationType type = ME0SegmentAndTrackArbitration ) const;
     unsigned int RPClayerMask( ArbitrationType type = RPCHitAndTrackArbitration ) const;
     unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
     /// same as above for given number of sigmas
@@ -215,6 +218,7 @@ namespace reco {
     static const unsigned int PFMuon =  1<<5;
     static const unsigned int RPCMuon =  1<<6;
     static const unsigned int GEMMuon =  1<<7;
+    static const unsigned int ME0Muon =  1<<7;
 
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
@@ -227,6 +231,7 @@ namespace reco {
     bool isPFMuon() const {return type_ & PFMuon;} //fix me ! Has to go to type
     bool isRPCMuon() const {return type_ & RPCMuon;}
     bool isGEMMuon() const {return type_ & GEMMuon;}
+    bool isME0Muon() const {return type_ & ME0Muon;}
     
   private:
     /// check overlap with another candidate

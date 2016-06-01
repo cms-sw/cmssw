@@ -47,6 +47,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
    theCSCSegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
    theGEMSegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("GEMSegmentCollectionLabel");
+   theME0SegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("ME0SegmentCollectionLabel");
 
    accountForTrajectoryChangeCalo   = iConfig.getParameter<bool>("accountForTrajectoryChangeCalo");
    // accountForTrajectoryChangeMuon   = iConfig.getParameter<bool>("accountForTrajectoryChangeMuon");
@@ -65,6 +66,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
      dtSegmentsToken=iC.consumes<DTRecSegment4DCollection>(theDTRecSegment4DCollectionLabel);
      cscSegmentsToken=iC.consumes<CSCSegmentCollection>(theCSCSegmentCollectionLabel);
      gemSegmentsToken=iC.consumes<GEMSegmentCollection>(theGEMSegmentCollectionLabel);
+     me0SegmentsToken=iC.consumes<ME0SegmentCollection>(theME0SegmentCollectionLabel);
    }
    if (truthMatch) {
      simTracksToken=iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));

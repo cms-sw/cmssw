@@ -6,6 +6,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 class TAMuonSegmentMatch {
  public:
@@ -25,5 +26,6 @@ class TAMuonSegmentMatch {
    DTRecSegment4DRef  dtSegmentRef;
    CSCSegmentRef      cscSegmentRef;
    GEMSegmentRef gemSegmentRef;
+   ME0SegmentRef me0SegmentRef;
 };
 #endif

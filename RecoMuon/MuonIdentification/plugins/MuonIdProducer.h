@@ -105,6 +105,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    bool          isGoodTrackerMuon( const reco::Muon& muon );
    bool          isGoodRPCMuon( const reco::Muon& muon );
    bool          isGEMMuon( const reco::Muon& muon );
+   bool          isME0Muon( const reco::Muon& muon );
    
    // check number of common DetIds for a given trackerMuon and a stand alone
    // muon track

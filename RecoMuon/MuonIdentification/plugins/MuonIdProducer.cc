@@ -27,13 +27,11 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
-
-// GEM-Muon stuffs
-#include <DataFormats/GEMRecHit/interface/GEMSegmentCollection.h>
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
@@ -559,12 +557,12 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          const bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
          const bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
          const bool goodGEMMuon = isGEMMuon( trackerMuon );
+         const bool goodME0Muon = isME0Muon( trackerMuon );
          if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
-         if ( goodGEMMuon ){
-           trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
-           //std::cout << "goodGEMMuon!" << std::endl;
-         }
+         if ( goodGEMMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
+         if ( goodME0Muon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::ME0Muon );
+         
          for ( auto& muon : *outputMuons ) 
          {
            if ( muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
@@ -577,12 +575,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              if (goodTrackerMuon) muon.setType( muon.type() | reco::Muon::TrackerMuon );
              if (goodRPCMuon) muon.setType( muon.type() | reco::Muon::RPCMuon );
              if (goodGEMMuon) muon.setType( muon.type() | reco::Muon::GEMMuon );
+             if (goodME0Muon) muon.setType( muon.type() | reco::Muon::ME0Muon );
              LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
              break;
            }
          }
          if ( newMuon ) {
-           if ( goodTrackerMuon || goodRPCMuon || goodGEMMuon ){
+           if ( goodTrackerMuon || goodRPCMuon || goodGEMMuon || goodME0Muon){
              outputMuons->push_back( trackerMuon );
            } else {
              LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
@@ -764,10 +763,16 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
-  //std::cout << "isGEMMuon called" << std::endl;
   for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
-    //if(thischamber->id.subdetId() == 4) std::cout << " segmentMatches.size() = " << thischamber->segmentMatches.size() << std::endl;
     if(thischamber->id.subdetId() == 4 && thischamber->segmentMatches.size() != 0) return true;
+  }
+  return false;
+}
+
+bool MuonIdProducer::isME0Muon( const reco::Muon& muon )
+{
+  for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
+    if(thischamber->id.subdetId() == 5 && thischamber->segmentMatches.size() != 0) return true;
   }
   return false;
 }

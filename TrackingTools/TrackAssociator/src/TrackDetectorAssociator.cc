@@ -56,6 +56,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/ME0Geometry/interface/ME0Geometry.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -84,6 +85,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -755,6 +757,8 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 
    edm::Handle<GEMSegmentCollection> gemSegments;
    iEvent.getByToken(parameters.gemSegmentsToken, gemSegments );
+   edm::Handle<ME0SegmentCollection> me0Segments;
+   iEvent.getByToken(parameters.me0SegmentsToken, me0Segments );
    
    ///// get a set of DetId's in a given direction
    
@@ -809,6 +813,19 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	    for (GEMSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
 	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
 		matchedChamber->segments.back().gemSegmentRef = GEMSegmentRef(gemSegments, segment - gemSegments->begin());
+	      }
+	    }
+	  }
+	}
+	// ME0 Chamber   
+	else if(const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
+	  if (me0Segments.isValid()){
+	    // Get the range for the corresponding segments
+	    ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
+	    // Loop over the segments
+	    for (ME0SegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	      if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+		matchedChamber->segments.back().me0SegmentRef = ME0SegmentRef(me0Segments, segment - me0Segments->begin());
 	      }
 	    }
 	  }
