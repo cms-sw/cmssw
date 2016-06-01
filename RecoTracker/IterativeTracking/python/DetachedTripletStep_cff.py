@@ -20,17 +20,17 @@ eras.trackingPhase1.toModify(detachedTripletStepSeedLayers,
     layerList = [
         'BPix1+BPix2+BPix3',
         'BPix2+BPix3+BPix4',
-        'BPix1+BPix3+BPix4',
-        'BPix1+BPix2+BPix4',
+#        'BPix1+BPix3+BPix4', # has "hole", not tested
+#        'BPix1+BPix2+BPix4', # has "hole", not tested
         'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
-        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
-        'BPix1+BPix3+FPix1_pos', 'BPix1+BPix3+FPix1_neg',
+#        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', # mostly fake tracks, lots of seeds
+#        'BPix1+BPix3+FPix1_pos', 'BPix1+BPix3+FPix1_neg',  # has "hole", not tested
         'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
-        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
-        'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',
+#        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', # mostly fake tracks, lots of seeds
+#        'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',  # has "hole", not tested
         'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
-        'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
-        'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'
+#        'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',  # has "hole", not tested
+#        'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg'  # has "hole", not tested
     ]
 )
 
