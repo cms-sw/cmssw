@@ -27,6 +27,7 @@ namespace l1t {
       kTotalHtx,
       kTotalHty,
       kMissingEt2,
+      kTotalEt2,
       kTotalEtx2,
       kTotalEty2,
       kMinBiasHFP0,
