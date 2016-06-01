@@ -30,7 +30,8 @@ public:
 	
 	PileupJetIdAlgo(int version=PHILv0, const std::string & tmvaWeight="", const std::string & tmvaMethod="", 
 			Float_t impactParTkThreshod_=1., const std::vector<std::string> & tmvaVariables= std::vector<std::string>(), bool runMvas=true);
-	PileupJetIdAlgo(const edm::ParameterSet & ps, bool runMvas); 
+	PileupJetIdAlgo(const edm::ParameterSet & ps, bool runMvas);
+        PileupJetIdAlgo(const std::vector<edm::ParameterSet> & ps, bool runMvas); 
 	~PileupJetIdAlgo(); 
 	
 	PileupJetIdentifier computeIdVariables(const reco::Jet * jet, 
@@ -64,9 +65,12 @@ protected:
 	PileupJetIdentifier internalId_;
 	variables_list_t variables_;
 
-	std::unique_ptr<TMVA::Reader> reader_, reader_jteta_0_2p5_, reader_jteta_2p5_2p75_, reader_jteta_2p75_3_, reader_jteta_3_5_;
-	std::string    tmvaWeights_, tmvaWeights_jteta_0_2p5_, tmvaWeights_jteta_2p5_2p75_, tmvaWeights_jteta_2p75_3_, tmvaWeights_jteta_3_5_, tmvaMethod_; 
-	std::vector<std::string>  tmvaVariables_, tmvaVariables_jteta_0_3_, tmvaVariables_jteta_3_5_;
+	std::unique_ptr<TMVA::Reader> reader_;
+        std::vector<std::unique_ptr<TMVA::Reader>> etaReader_;
+	std::string    tmvaWeights_, tmvaMethod_;
+        std::vector<std::string> tmvaEtaWeights_;
+	std::vector<std::string>  tmvaVariables_;
+        std::vector<std::vector<std::string>> tmvaEtaVariables_;
 	std::vector<std::string>  tmvaSpectators_;
 	std::map<std::string,std::string>  tmvaNames_;
 	
@@ -74,6 +78,9 @@ protected:
 	Float_t impactParTkThreshod_;
 	bool    cutBased_; 
 	bool    etaBinnedWeights_;
+        Int_t   nEtaBins_;
+        std::vector<Double_t> jEtaMin_;
+        std::vector<Double_t> jEtaMax_;
 	bool runMvas_;
 	Float_t mvacut_     [3][4][4]; //Keep the array fixed
 	Float_t rmsCut_     [3][4][4]; //Keep the array fixed
