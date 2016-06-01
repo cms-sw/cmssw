@@ -30,21 +30,8 @@
      <PARAM name="useRange">1</PARAM>
      <PARAM name="minEntries">0</PARAM>
      <PARAM name="xmin">8.0</PARAM>
-     <PARAM name="xmax">15.0</PARAM>  
-     <!--
-     <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.80</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="xmin">8.0</PARAM> 
-     <PARAM name="xmax">15.0</PARAM> --> 
+     <PARAM name="xmax">17.0</PARAM>       
 </QTEST>
-<!--<QTEST name="XrangeWithin:NumberOfRecHitsPerTrack" activate="true"> 
-     <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.80</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="xmin">3.0</PARAM> 
-     <PARAM name="xmax">35.0</PARAM> 
-</QTEST>-->
 <QTEST name="MeanWithinExpected:Chi2oNDF" activate="true">
      <TYPE>MeanWithinExpected</TYPE> 
      <PARAM name="error">0.85</PARAM> 
@@ -56,11 +43,6 @@
      <PARAM name="minEntries">0</PARAM>
      <PARAM name="xmin">0.5</PARAM>
      <PARAM name="xmax">2.5</PARAM> 
-   <!--  <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.85</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="xmin">0.5</PARAM> 
-     <PARAM name="xmax">1.5</PARAM> --> 
 </QTEST>
 <QTEST name="XrangeWithin:TrackPt" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
