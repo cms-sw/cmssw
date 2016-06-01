@@ -73,17 +73,17 @@ protected:
 	std::vector<std::string>  tmvaSpectators_;
 	std::map<std::string,std::string>  tmvaNames_;
 	
-	Int_t   version_;
-	Float_t impactParTkThreshod_;
+	int   version_;
+	float impactParTkThreshod_;
 	bool    cutBased_; 
 	bool    etaBinnedWeights_;
-        Int_t   nEtaBins_;
-        std::vector<Double_t> jEtaMin_;
-        std::vector<Double_t> jEtaMax_;
+        int   nEtaBins_;
+        std::vector<double> jEtaMin_;
+        std::vector<double> jEtaMax_;
 	bool runMvas_;
-	Float_t mvacut_     [3][4][4]; //Keep the array fixed
-	Float_t rmsCut_     [3][4][4]; //Keep the array fixed
-	Float_t betaStarCut_[3][4][4]; //Keep the array fixed
+	float mvacut_     [3][4][4]; //Keep the array fixed
+	float rmsCut_     [3][4][4]; //Keep the array fixed
+	float betaStarCut_[3][4][4]; //Keep the array fixed
 };
 
 #endif
