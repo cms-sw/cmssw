@@ -31,7 +31,6 @@ public:
 	PileupJetIdAlgo(int version=PHILv0, const std::string & tmvaWeight="", const std::string & tmvaMethod="", 
 			Float_t impactParTkThreshod_=1., const std::vector<std::string> & tmvaVariables= std::vector<std::string>(), bool runMvas=true);
 	PileupJetIdAlgo(const edm::ParameterSet & ps, bool runMvas);
-        PileupJetIdAlgo(const std::vector<edm::ParameterSet> & ps, bool runMvas); 
 	~PileupJetIdAlgo(); 
 	
 	PileupJetIdentifier computeIdVariables(const reco::Jet * jet, 
