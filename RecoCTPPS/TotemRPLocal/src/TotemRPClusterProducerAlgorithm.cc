@@ -27,7 +27,7 @@ TotemRPClusterProducerAlgorithm::~TotemRPClusterProducerAlgorithm()
 
 //----------------------------------------------------------------------------------------------------
 
-int TotemRPClusterProducerAlgorithm::BuildClusters(unsigned int detId, const std::vector<TotemRPDigi> &digi, std::vector<TotemRPCluster> &clusters)
+int TotemRPClusterProducerAlgorithm::buildClusters(unsigned int detId, const std::vector<TotemRPDigi> &digi, std::vector<TotemRPCluster> &clusters)
 {
   clusters.clear();
 

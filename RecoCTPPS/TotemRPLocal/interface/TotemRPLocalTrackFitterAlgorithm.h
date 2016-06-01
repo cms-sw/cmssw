@@ -35,10 +35,10 @@ class TotemRPLocalTrackFitterAlgorithm
     TotemRPLocalTrackFitterAlgorithm(const edm::ParameterSet &conf);
 
     /// performs the track fit, returns true if successful
-    bool FitTrack(const edm::DetSetVector<TotemRPRecHit> &hits, double z_0, const TotemRPGeometry &tot_geom, TotemRPLocalTrack &fitted_track);
+    bool fitTrack(const edm::DetSetVector<TotemRPRecHit> &hits, double z_0, const TotemRPGeometry &tot_geom, TotemRPLocalTrack &fitted_track);
 
     /// Resets the reconstruction-data cache.
-    void Reset();
+    void reset();
 
   private:
     struct RPDetCoordinateAlgebraObjs
@@ -56,13 +56,13 @@ class TotemRPLocalTrackFitterAlgorithm
 
     /// Returns the reconstruction data for the chosen detector from the cache DetReconstructionDataMap.
     /// If it is not yet in the cache, calls PrepareReconstAlgebraData to make it.
-    RPDetCoordinateAlgebraObjs *GetDetAlgebraData(unsigned int det_id, const TotemRPGeometry &tot_rp_geom);
+    RPDetCoordinateAlgebraObjs *getDetAlgebraData(unsigned int det_id, const TotemRPGeometry &tot_rp_geom);
 
     /// Build the reconstruction data.
-    RPDetCoordinateAlgebraObjs PrepareReconstAlgebraData(unsigned int det_id, const TotemRPGeometry &tot_rp_geom);
+    RPDetCoordinateAlgebraObjs prepareReconstAlgebraData(unsigned int det_id, const TotemRPGeometry &tot_rp_geom);
 
     /// A matrix multiplication shorthand.
-    void MultiplyByDiagonalInPlace(TMatrixD &mt, const TVectorD &diag);
+    void multiplyByDiagonalInPlace(TMatrixD &mt, const TVectorD &diag);
     
     static TVector3 convert3vector(const CLHEP::Hep3Vector & v)
     {

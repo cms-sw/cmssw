@@ -16,12 +16,6 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 
-//#define TUNE 1
-
-#ifdef TUNE
-  #include "TH1D.h"
-#endif
-
 
 /**
  * \brief Class performing optimized hough transform to recognize lines.
@@ -29,6 +23,20 @@
 
 class FastLineRecognition
 {
+  public:
+    FastLineRecognition(double cw_a = 0., double cw_b = 0.);
+
+    ~FastLineRecognition();
+
+    void resetGeometry(const TotemRPGeometry *_g)
+    {
+      geometry = _g;
+      geometryMap.clear();
+    }
+
+    void getPatterns(const edm::DetSetVector<TotemRPRecHit> &input, double _z0, double threshold,
+      edm::DetSet<TotemRPUVPattern> &patterns);
+
   protected:
     /// the uncertainty of 1-hit cluster, in mm
     static const double sigma0;
@@ -55,7 +63,7 @@ class FastLineRecognition
     std::map<unsigned int, GeomData> geometryMap;
 
     /// expects raw detector id
-    GeomData GetGeomData(unsigned int id);
+    GeomData getGeomData(unsigned int id);
 
     struct Point
     {
@@ -78,14 +86,9 @@ class FastLineRecognition
 
       std::vector<const Point *> contents;
       
-      Cluster() : Saw(0.), Sbw(0.), Sw(0.), S1(0.), weight(0.)
-#ifdef TUNE
-                  , min_a(1E100), max_a(-1E100),
-                  min_b(1E100), max_b(-1E100)
-#endif
-                      {}
+      Cluster() : Saw(0.), Sbw(0.), Sw(0.), S1(0.), weight(0.) {}
       
-      void Add(const Point *p1, const Point *p2, double a, double b, double w);
+      void add(const Point *p1, const Point *p2, double a, double b, double w);
 
       bool operator<(const Cluster &c) const
       {
@@ -93,28 +96,9 @@ class FastLineRecognition
       }
     };
 
-#ifdef TUNE
-    double cas_max, cbs_max;
-    TH1D *cas, *cbs;
-#endif
-
     /// gets the most significant pattern in the (remaining) points
     /// returns true when a pattern was found
-    bool GetOneLine(const std::vector<Point> &points, double threshold, Cluster &result);
-
-  public:
-    FastLineRecognition(double cw_a = 0., double cw_b = 0.);
-
-    ~FastLineRecognition();
-
-    void ResetGeometry(const TotemRPGeometry *_g)
-    {
-      geometry = _g;
-      geometryMap.clear();
-    }
-
-    void GetPatterns(const edm::DetSetVector<TotemRPRecHit> &input, double _z0, double threshold,
-      edm::DetSet<TotemRPUVPattern> &patterns);
+    bool getOneLine(const std::vector<Point> &points, double threshold, Cluster &result);
 };
 
 #endif

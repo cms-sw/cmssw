@@ -38,7 +38,7 @@ class TotemRPLocalTrackFitter : public edm::stream::EDProducer<>
 
     virtual ~TotemRPLocalTrackFitter() {}
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     int verbosity_;
@@ -77,14 +77,14 @@ TotemRPLocalTrackFitter::TotemRPLocalTrackFitter(const edm::ParameterSet& conf)
 void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setup)
 {
   if (verbosity_ > 5)
-    printf(">> TotemRPLocalTrackFitter::produce\n");
+    LogVerbatim("TotemRPLocalTrackFitter") << ">> TotemRPLocalTrackFitter::produce";
 
   // get geometry
   edm::ESHandle<TotemRPGeometry> geometry;
   setup.get<VeryForwardRealGeometryRecord>().get(geometry);
 
   if (geometryWatcher.check(setup))
-    fitter_.Reset();
+    fitter_.reset();
   
   // get input
   edm::Handle<DetSetVector<TotemRPUVPattern>> input;
@@ -131,8 +131,9 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
     if (n_U != 1 || n_V != 1)
     {
       if (verbosity_)
-        printf(">> TotemRPLocalTrackFitter::produce > Impossible to combine U and V patterns in RP %u (n_U=%u, n_V=%u).\n",
-          rpId, n_U, n_V);
+        LogVerbatim("TotemRPLocalTrackFitter")
+          << ">> TotemRPLocalTrackFitter::produce > Impossible to combine U and V patterns in RP " << rpId
+          << " (n_U=" << n_U << ", n_V=" << n_V << ").";
 
       continue;
     }
@@ -161,7 +162,7 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
     double z0 = geometry->GetRPGlobalTranslation(rpId).z();
 
     TotemRPLocalTrack track;
-    fitter_.FitTrack(hits, z0, *geometry, track);
+    fitter_.fitTrack(hits, z0, *geometry, track);
     
     DetSet<TotemRPLocalTrack> &ds = output.find_or_insert(rpId);
     ds.push_back(track);
@@ -172,7 +173,8 @@ void TotemRPLocalTrackFitter::produce(edm::Event& e, const edm::EventSetup& setu
       for (auto &hds : track.getHits())
         n_hits += hds.size();
 
-      printf("    track in RP %u: valid = %i, hits = %u\n", rpId, track.isValid(), n_hits);
+      LogVerbatim("TotemRPLocalTrackFitter")
+        << "    track in RP " << rpId << ": valid = " << track.isValid() << ", hits = " << n_hits;
     }
   }
 

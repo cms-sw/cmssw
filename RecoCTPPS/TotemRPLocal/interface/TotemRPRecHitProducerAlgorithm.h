@@ -25,7 +25,7 @@ class TotemRPRecHitProducerAlgorithm
     {
     }
 
-    void BuildRecoHits(const edm::DetSet<TotemRPCluster>& input, edm::DetSet<TotemRPRecHit>& output);
+    void buildRecoHits(const edm::DetSet<TotemRPCluster>& input, edm::DetSet<TotemRPRecHit>& output);
 
   private:
     RPTopology rp_topology_;
