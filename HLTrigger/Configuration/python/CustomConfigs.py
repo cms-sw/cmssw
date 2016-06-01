@@ -19,6 +19,9 @@ def Base(process):
 #   default modifications
 
     process.options.wantSummary = cms.untracked.bool(True)
+    process.options.numberOfThreads = cms.untracked.uint32( 4 )
+    process.options.numberOfStreams = cms.untracked.uint32( 0 )
+    process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
