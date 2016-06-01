@@ -162,7 +162,7 @@ namespace hcaldqm
 				for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
 					ft!=vtmpflags.end(); ++ft)
 					ft->_state = flag::fNCDAQ;
-			
+
 				// push all the flags for this FED
 				// IMPORTANT!!!
 				lssum._vflags.push_back(vtmpflags);

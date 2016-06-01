@@ -13,7 +13,7 @@ namespace hcaldqm
 			if (r.runAuxiliary().run()==1)
 				return;
 
-		//	TEMPORARY FIX
+		//      TEMPORARY FIX
 		_vhashFEDs.clear(); _vcdaqEids.clear();
 
 		//	- get the Hcal Electronics Map
