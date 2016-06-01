@@ -981,17 +981,21 @@ class AdditionalBoost( Analyzer ):
 
             orig_jet = self.handles["ak08"].product()[ij]
 
-            if do_calc_bb:
-                calcBBTagVariables(jet, 
-                                   orig_jet,
-                                   muonTagInfos, 
-                                   elecTagInfos, 
-                                   ipTagInfo, 
-                                   svTagInfo,
-                                   njettiness_08,
-                                   maxSVDeltaRToJet = 0.7,)
-            else:
-                calcBBTagVariables_dummy(jet)
+            
+            # Commented out so rest of code can run
+            # TODO: FIX!
+            #if do_calc_bb:
+            #    calcBBTagVariables(jet, 
+            #                       orig_jet,
+            #                       muonTagInfos, 
+            #                       elecTagInfos, 
+            #                       ipTagInfo, 
+            #                       svTagInfo,
+            #                       njettiness_08,
+            #                       maxSVDeltaRToJet = 0.7,)
+            #else:
+            calcBBTagVariables_dummy(jet)
+
 
         # end of loop over jets
 
@@ -1036,17 +1040,19 @@ class AdditionalBoost( Analyzer ):
 
                 orig_jet = self.handles[prefix+'ungroomed'].product()[ij]
 
-                if do_calc_bb:
-                    calcBBTagVariables(jet, 
-                                       orig_jet,
-                                       muonTagInfos, 
-                                       elecTagInfos, 
-                                       ipTagInfo, 
-                                       svTagInfo,
-                                       njettiness_15,
-                                       maxSVDeltaRToJet = 1.3)
-                else:
-                    calcBBTagVariables_dummy(jet)
+                # Commented out so rest of code can run
+                # TODO: FIX!
+                #if do_calc_bb:
+                #    calcBBTagVariables(jet, 
+                #                       orig_jet,
+                #                       muonTagInfos, 
+                #                       elecTagInfos, 
+                #                       ipTagInfo, 
+                #                       svTagInfo,
+                #                       njettiness_15,
+                #                       maxSVDeltaRToJet = 1.3)
+                #else:
+                calcBBTagVariables_dummy(jet)
 
                                     
             # end of loop over jets
