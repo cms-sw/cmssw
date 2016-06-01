@@ -48,17 +48,17 @@ namespace test{
 
       if( size>0 ) {
         std::cout << "FED# " << std::setw(4) << GTEVMId << " " << std::setw(8) << size << " bytes " << std::endl;
-	      if( evf::evtn::evm_board_sense( data.data(), size ) ) {
-	        std::cout << "FED# " << std::setw(4) << GTEVMId << " is the real GT EVM block " << std::endl;
-	        std::cout << "Event # " << evf::evtn::get(data.data(),true) << std::endl;
-	        std::cout << "LS # " << evf::evtn::getlbn(data.data()) << std::endl;
-	        std::cout << "ORBIT # " << evf::evtn::getorbit(data.data()) << std::endl;
-	        std::cout << "GPS LOW # " << evf::evtn::getgpslow(data.data()) << std::endl;
-	        std::cout << "GPS HI # " << evf::evtn::getgpshigh(data.data()) << std::endl;
-	        std::cout << "BX FROM FDL 0-xing # " << evf::evtn::getfdlbx(data.data()) << std::endl;
-	        std::cout << "PRESCALE INDEX FROM FDL 0-xing # " << evf::evtn::getfdlpsc(data.data()) << std::endl;
-	      }
-	    } else {
+        if( evf::evtn::evm_board_sense( data.data(), size ) ) {
+          std::cout << "FED# " << std::setw(4) << GTEVMId << " is the real GT EVM block " << std::endl;
+          std::cout << "Event # " << evf::evtn::get(data.data(),true) << std::endl;
+          std::cout << "LS # " << evf::evtn::getlbn(data.data()) << std::endl;
+          std::cout << "ORBIT # " << evf::evtn::getorbit(data.data()) << std::endl;
+          std::cout << "GPS LOW # " << evf::evtn::getgpslow(data.data()) << std::endl;
+          std::cout << "GPS HI # " << evf::evtn::getgpshigh(data.data()) << std::endl;
+          std::cout << "BX FROM FDL 0-xing # " << evf::evtn::getfdlbx(data.data()) << std::endl;
+          std::cout << "PRESCALE INDEX FROM FDL 0-xing # " << evf::evtn::getfdlpsc(data.data()) << std::endl;
+	  }
+      } else {
         std::cout << "FED# " << std::setw(4) << GTEVMId << " not read out." << std::endl;
       }
 
@@ -67,14 +67,14 @@ namespace test{
 
       if( size>0 ) {
         std::cout << "FED# " << std::setw(4) << GTPEId << " " << std::setw(8) << size << " bytes " << std::endl;
-	      if( evf::evtn::gtpe_board_sense( data2.data() ) ) {
-	        std::cout << "FED# " << std::setw(4) << GTPEId << " is the real GTPE block " << std::endl;
-	        std::cout << "Event # " << evf::evtn::gtpe_get(data2.data()) << std::endl;
-	        std::cout << "LS # " << evf::evtn::gtpe_getlbn(data2.data()) << std::endl;
-	        std::cout << "ORBIT # " << evf::evtn::gtpe_getorbit(data2.data()) << std::endl;
-	        std::cout << "BX # " << evf::evtn::gtpe_getbx(data2.data()) << std::endl;
-	      }
-	    } else {
+	if( evf::evtn::gtpe_board_sense( data2.data() ) ) {
+	  std::cout << "FED# " << std::setw(4) << GTPEId << " is the real GTPE block " << std::endl;
+	  std::cout << "Event # " << evf::evtn::gtpe_get(data2.data()) << std::endl;
+	  std::cout << "LS # " << evf::evtn::gtpe_getlbn(data2.data()) << std::endl;
+	  std::cout << "ORBIT # " << evf::evtn::gtpe_getorbit(data2.data()) << std::endl;
+	  std::cout << "BX # " << evf::evtn::gtpe_getbx(data2.data()) << std::endl;
+	}
+      } else {
         std::cout << "FED# " << std::setw(4) << GTPEId << " not read out." << std::endl;
       }
 
@@ -83,119 +83,130 @@ namespace test{
 
       if( size>0 ) {
         evf::evtn::TCDSRecord record(data3.data());
-	      std::cout << "FED# " << std::setw(4) << FEDNumbering::MINTCDSuTCAFEDID << " " 
-	                << std::setw(8) << size << " bytes " << std::endl;
-        std::cout << "sizes: " 
-	                << " BGOSize " << std::hex << (unsigned int) record.getHeader().getSizes().size.BGOSize  
+        std::cout << "FED# " << std::setw(4) << FEDNumbering::MINTCDSuTCAFEDID << " " << std::setw(8) << size << " bytes " << std::endl;
+        std::cout << "sizes: "
+                  << " BGOSize " << std::hex << (unsigned int) record.getHeader().getSizes().size.BGOSize  
                   << "  reserved2;" << std::hex << (unsigned int)record.getHeader().getSizes().size.reserved2
-	                << "  reserved1;" << std::hex << (unsigned int) record.getHeader().getSizes().size.reserved1
-	                << "  reserved0;" << std::hex << (unsigned int)record.getHeader().getSizes().size.reserved0
-	                << "  BSTSize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.BSTSize
-	                << "  L1AhistSize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.L1AhistSize
-	                << "  summarySize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.summarySize
-	                << "  headerSize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.headerSize
+                  << "  reserved1;" << std::hex << (unsigned int) record.getHeader().getSizes().size.reserved1
+                  << "  reserved0;" << std::hex << (unsigned int)record.getHeader().getSizes().size.reserved0
+                  << "  BSTSize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.BSTSize
+                  << "  L1AhistSize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.L1AhistSize
+                  << "  summarySize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.summarySize
+                  << "  headerSize;" << std::hex << (unsigned int)record.getHeader().getSizes().size.headerSize
                   << std::endl;
-	      std::cout << "macAddress;          " << std::hex << (uint64_t)record.getHeader().getData().header.macAddress;
+        std::cout << "macAddress;          " << std::hex << (uint64_t)record.getHeader().getData().header.macAddress;
         std::cout << "\n";
         std::cout << "sw;		   " << std::hex << (unsigned int)record.getHeader().getData().header.sw;
-	      std::cout << "\n";
-	      std::cout << "fw;		   " << std::hex <<(unsigned int)record.getHeader().getData().header.fw;
-	      std::cout << "\n";
-	      std::cout << "reserved0;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.reserved0;	
-	      std::cout << "\n";
-	      std::cout << "format;		   " << std::hex <<(unsigned int)record.getHeader().getData().header.format;
-	      std::cout << "\n";
-	      std::cout << "runNumber;	   " << std::dec << (unsigned int)record.getHeader().getData().header.runNumber;
-	      std::cout << "\n";
-	      std::cout << "reserved1;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.reserved1;	
-	      std::cout << "\n";
-	      std::cout << "activePartitions2;   " << std::hex <<(unsigned int)record.getHeader().getData().header.activePartitions2; 
-	      std::cout << "\n";
-	      std::cout << "reserved2;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.reserved2;	 
-	      std::cout << "\n";
-	      std::cout << "activePartitions0;   " << std::hex << (unsigned int)record.getHeader().getData().header.activePartitions0;
-	      std::cout << "\n";
-	      std::cout << "activePartitions1;   " << std::hex <<(unsigned int)record.getHeader().getData().header.activePartitions1;
-	      std::cout << "\n"; 
-	      std::cout << "nibble;		   " << std::dec << (unsigned int)record.getHeader().getData().header.nibble;
-	      std::cout << "\n";
-	      std::cout << "lumiSection;	   " << std::dec << (unsigned int)record.getHeader().getData().header.lumiSection;
-	      std::cout << "\n";
-	      std::cout << "nibblesPerLumiSection;" << std::hex <<(unsigned int)record.getHeader().getData().header.nibblesPerLumiSection;
+        std::cout << "\n";
+        std::cout << "fw;		   " << std::hex <<(unsigned int)record.getHeader().getData().header.fw;
+        std::cout << "\n";
+        std::cout << "reserved0;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.reserved0;	
+        std::cout << "\n";
+        std::cout << "format;		   " << std::hex <<(unsigned int)record.getHeader().getData().header.format;
+        std::cout << "\n";
+        std::cout << "runNumber;	   " << std::dec << (unsigned int)record.getHeader().getData().header.runNumber;
+        std::cout << "\n";
+        std::cout << "reserved1;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.reserved1;	
+        std::cout << "\n";
+        std::cout << "activePartitions2;   " << std::hex <<(unsigned int)record.getHeader().getData().header.activePartitions2; 
+        std::cout << "\n";
+        std::cout << "reserved2;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.reserved2;	 
+        std::cout << "\n";
+        std::cout << "activePartitions0;   " << std::hex << (unsigned int)record.getHeader().getData().header.activePartitions0;
+        std::cout << "\n";
+        std::cout << "activePartitions1;   " << std::hex <<(unsigned int)record.getHeader().getData().header.activePartitions1;
+        std::cout << "\n"; 
+        std::cout << "nibble;		   " << std::dec << (unsigned int)record.getHeader().getData().header.nibble;
+        std::cout << "\n";
+        std::cout << "lumiSection;	   " << std::dec << (unsigned int)record.getHeader().getData().header.lumiSection;
+        std::cout << "\n";
+        std::cout << "nibblesPerLumiSection;" << std::hex <<(unsigned int)record.getHeader().getData().header.nibblesPerLumiSection;
         std::cout << "\n";
         std::cout << "triggerTypeFlags;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.triggerTypeFlags;
-	      std::cout << "\n";
+        std::cout << "\n";
         std::cout << "reserved5;	   " << std::hex <<(unsigned int)record.getHeader().getData().header.reserved5;	
         std::cout << "\n";
         std::cout << "inputs;		   " << std::hex <<(unsigned int)record.getHeader().getData().header.inputs;
-	      std::cout << "\n";
+        std::cout << "\n";
         std::cout << "bcid;		   " << std::dec << (unsigned int)record.getHeader().getData().header.bcid;
         std::cout << "\n";
-	      std::cout << "orbitLow;		   " << std::dec << (unsigned int)record.getHeader().getData().header.orbitLow;	
-	      std::cout << "\n";
+        std::cout << "orbitLow;		   " << std::dec << (unsigned int)record.getHeader().getData().header.orbitLow;	
+        std::cout << "\n";
         std::cout << "orbitHigh;	   " << std::dec << (unsigned int)record.getHeader().getData().header.orbitHigh;
         std::cout << "\n";
         std::cout << "triggerCount;	   " << std::dec << (uint64_t)record.getHeader().getData().header.triggerCount;
-	      std::cout << "\n";
+        std::cout << "\n";
         std::cout << "eventNumber;         " << std::dec << (uint64_t)record.getHeader().getData().header.eventNumber;  
-	      std::cout << "\n";
-	      std::cout << std::endl;
+        std::cout << "\n";
+        std::cout << std::endl;
 
-	      std::cout << "====================l1a history===================" << std::endl;
-	      const evf::evtn::TCDSL1AHistory::l1a *history = record.getHistory().history().hist;
-	      for(unsigned int i = 0; i < 16; i++){
-	        std::cout << i << " " << std::hex << history[i].bxid << std::endl;
-	        std::cout << i << " " << std::hex << history[i].orbitlow << std::endl;
-	        std::cout << i << " " << std::hex << history[i].orbithigh << std::endl;
-	        std::cout << i << " " << std::hex << (unsigned int)history[i].eventtype << std::endl;
-	      }
+        std::cout << "====================l1a history===================" << std::endl;
+        const evf::evtn::TCDSL1AHistory::l1a *history = record.getHistory().history().hist;
+        for(unsigned int i = 0; i < 16; i++){
+          std::cout << i << " " << std::hex << history[i].bxid << std::endl;
+          std::cout << i << " " << std::hex << history[i].orbitlow << std::endl;
+          std::cout << i << " " << std::hex << history[i].orbithigh << std::endl;
+          std::cout << i << " " << std::hex << (unsigned int)history[i].eventtype << std::endl;
+        }
 
         std::cout << "====================BST record===================" << std::endl;
-	      std::cout << "gpstimehigh; " << std::hex << record.getBST().getBST().gpstimehigh;
+        std::cout << "gpstimehigh;" << std::setw(19) << std::hex << record.getBST().getBST().bst.gpstimehigh;
         std::cout << "\n";
-	      std::cout << "gpstimelow; " << std::hex << record.getBST().getBST().gpstimelow;
-	      std::cout << "\n";
-        std::cout << "low0;   	" << record.getBST().getBST().low0;
-	      std::cout << "\n";
-        std::cout << "high0;  	" << record.getBST().getBST().high0;
-	      std::cout << "\n";
-        std::cout << "low1;   	" << record.getBST().getBST().low1;
-	      std::cout << "\n";
-        std::cout << "high1;  	" << record.getBST().getBST().high1;
+        std::cout << "gpstimelow;" << std::setw(20) << std::hex << record.getBST().getBST().bst.gpstimelow;
         std::cout << "\n";
-        std::cout << "low2;   	" << record.getBST().getBST().low2;
-	      std::cout << "\n";
-        std::cout << "high2;  	" << record.getBST().getBST().high2;
-	      std::cout << "\n";
-        std::cout << "low3;   	" << record.getBST().getBST().low3;
-	      std::cout << "\n";
-        std::cout << "high3;  	" << record.getBST().getBST().high3;
-	      std::cout << "\n";
-        std::cout << "low4;   	" << record.getBST().getBST().low4;
-	      std::cout << "\n";
-        std::cout << "high4;  	" << record.getBST().getBST().high4;
-	      std::cout << "\n";
-        std::cout << "low5;   	" << record.getBST().getBST().low5;
-	      std::cout << "\n";
-        std::cout << "status;  " << record.getBST().getBST().status;
-	      std::cout << std::endl;
+        std::cout << "bireserved8_11;" << std::setw(16) << record.getBST().getBST().bst.bireserved8_11;
+        std::cout << "\n";
+        std::cout << "bireserved12_15;" << std::setw(15) << record.getBST().getBST().bst.bireserved12_15;
+        std::cout << "\n";
+        std::cout << "bstMaster_bireserved16;" << std::setw(8) << record.getBST().getBST().bst.bstMaster_bireserved16;
+        std::cout << "\n";
+        std::cout << "turnCountLow;" << std::setw(18) << record.getBST().getBST().bst.turnCountLow;
+        std::cout << "\n";
+        std::cout << "turnCountHigh;" << std::setw(17) << record.getBST().getBST().bst.turnCountHigh;
+        std::cout << "\n";
+        std::cout << "lhcFillLow;" << std::setw(20) << record.getBST().getBST().bst.lhcFillLow;
+        std::cout << "\n";
+        std::cout << "lhcFillHigh;" << std::setw(19) << record.getBST().getBST().bst.lhcFillHigh;
+        std::cout << "\n";
+        std::cout << "beamMode;" << std::setw(22) << record.getBST().getBST().bst.beamMode;
+        std::cout << "\n";
+        std::cout << "particleTypes;" << std::setw(17) << record.getBST().getBST().bst.particleTypes;
+        std::cout << "\n";
+        std::cout << "beamMomentum;" << std::setw(18) << record.getBST().getBST().bst.beamMomentum;
+        std::cout << "\n";
+        std::cout << "intensityBeam1;" << std::setw(16) << record.getBST().getBST().bst.intensityBeam1;
+        std::cout << "\n";
+        std::cout << "intensityBeam2;" << std::setw(16) << record.getBST().getBST().bst.intensityBeam2;
+        std::cout << "\n";
+        std::cout << "bireserved40_43;" << std::setw(15) << record.getBST().getBST().bst.bireserved40_43;
+        std::cout << "\n";
+        std::cout << "bireserved44_47;" << std::setw(15) << record.getBST().getBST().bst.bireserved44_47;
+        std::cout << "\n";
+        std::cout << "bireserved48_51;" << std::setw(15) << record.getBST().getBST().bst.bireserved48_51;
+        std::cout << "\n";
+        std::cout << "bireserved52_55;" << std::setw(15) << record.getBST().getBST().bst.bireserved52_55;
+        std::cout << "\n";
+        std::cout << "bireserved56_59;" << std::setw(15) << record.getBST().getBST().bst.bireserved56_59;
+        std::cout << "\n";
+        std::cout << "bireserved60_63;" << std::setw(15) << record.getBST().getBST().bst.bireserved60_63;
+        std::cout << std::endl;
 
-	      time_t nowtime = (time_t)record.getBST().getBST().gpstimehigh;
-	      std::cout << "value of nowtime: hex " << std::hex << nowtime << std::dec << ", dec " << nowtime << std::endl; 
-	      std::cout << "GPS time " << ctime(&nowtime) << "plus microseconds: " << std::dec << record.getBST().getBST().gpstimelow << std::endl;
-        std::cout << "B1 intensity: (10E10 charges) " << record.getBST().getBST().low3  << ", B2 intensity: (10E10 charges) " << record.getBST().getBST().high3 << std::endl;
-        uint32_t beamMomentum = record.getBST().getBST().high2 >> 16;
-        uint32_t particleType2 = (record.getBST().getBST().high2 >> 8 ) & 0xFF;
-        uint32_t particleType1 = 0xFF & record.getBST().getBST().high2;  
-        std::cout << "Beam Momentum: " << beamMomentum << std::endl;
-        std::cout << "particleType1: " << particleType1 << ", particleType2: " << particleType2 << std::endl;
-        uint32_t beamMode = record.getBST().getBST().low2 >> 16;
-        uint32_t fill = ( ( record.getBST().getBST().low2 & 0xFFFF ) << 16 ) | ( record.getBST().getBST().high1 >> 16 );
-        std::cout << "Beam Mode: " << beamMode << std::endl;
-        std::cout << "Fill: " << fill << std::endl;
-        uint32_t turnCount = ( ( record.getBST().getBST().high1 & 0xFFFF ) << 16 ) | ( record.getBST().getBST().low1 >> 16 );
-        uint32_t bstMaster = ( record.getBST().getBST().low1 >> 8 ) & 0xFF;
-        std::cout << "Beam " << bstMaster << " master sent turn count " << turnCount << std::endl;
+        time_t nowtime = (time_t)record.getBST().getBST().bst.gpstimehigh;
+        std::cout << "value of nowtime: hex " << std::hex << nowtime << std::dec << ", dec " << nowtime << std::endl; 
+        std::cout << "GPS time " << ctime(&nowtime) << "plus microseconds: " << std::dec << record.getBST().getBST().bst.gpstimelow << std::endl;
+        uint32_t turnCountHigh = record.getBST().getBST().bst.turnCountHigh;
+        uint16_t turnCountLow = record.getBST().getBST().bst.turnCountLow;
+        std::cout << "Beam " << (record.getBST().getBST().bst.bstMaster_bireserved16 >> 8)
+                  << " master sent turn count " << (uint32_t)((turnCountHigh << 16) + turnCountLow) << std::endl;
+        uint32_t lhcFillHigh = record.getBST().getBST().bst.lhcFillHigh;
+        uint16_t lhcFillLow = record.getBST().getBST().bst.lhcFillLow;
+        std::cout << "Fill: " << (uint32_t)((lhcFillHigh << 16) + lhcFillLow) << std::endl;
+        std::cout << "Beam Mode: " << record.getBST().getBST().bst.beamMode << std::endl;
+        std::cout << "particleType1: " << (record.getBST().getBST().bst.particleTypes & 0xFF)
+                  << ", particleType2: " << (record.getBST().getBST().bst.particleTypes >> 8) << std::endl;
+        std::cout << "Beam Momentum: " << record.getBST().getBST().bst.beamMomentum << " GeV/c" << std::endl;
+        std::cout << "B1 intensity: (10E10 charges) " << record.getBST().getBST().bst.intensityBeam1
+                  << ", B2 intensity: (10E10 charges) " << record.getBST().getBST().bst.intensityBeam2 << std::endl;
       } else {
         std::cout << "FED# " << std::setw(4) << FEDNumbering::MINTCDSuTCAFEDID << " not read out." << std::endl;
       }
