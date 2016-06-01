@@ -789,3 +789,8 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
   emap.sort();
 
 }
+
+void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap) {
+
+}
+

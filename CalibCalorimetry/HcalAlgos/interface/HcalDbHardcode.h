@@ -76,6 +76,7 @@ class HcalDbHardcode {
     HcalTimingParam makeTimingParam (HcalGenericDetId fId);
     void makeHardcodeMap(HcalElectronicsMap& emap);
     void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
+    void makeHardcodeFrontEndMap(HcalFrontEndMap& emap);
     
   private:
     //member variables
