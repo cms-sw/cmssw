@@ -17,17 +17,20 @@ echo Using template $CONFIG_TEMPLATE
 echo and plotting macros from $PLOTMILLEPEDEDIR
 echo 
 
-
-RUN_NUMBERS=(248642)
+RUN_NUMBERS=(273000)
 
 # First conditions to check
 # (if ALIGNMENT_TAG1 and DB_PATH_TAG1 are empty takes content from GLOBALTAG1)
-GLOBALTAG1="80X_dataRun2_Prompt_Queue"
+# also symbolic Global Tags are allowed
+GLOBALTAG1="auto:run2_data"
+#GLOBALTAG1="80X_dataRun2_Prompt_v8"
 ALIGNMENT_TAG1="TrackerAlignment_2009_v1_express"
 DB_PATH_TAG1="frontier://FrontierProd/CMS_CONDITIONS"
 
 # Second conditions to check
-GLOBALTAG2="80X_dataRun2_Prompt_Queue" 
+# also symbolic Global Tags are allowed
+GLOBALTAG2="auto:run2_data"
+#GLOBALTAG2="80X_dataRun2_Prompt_v8"
 ALIGNMENT_TAG2="SiPixelAli_PCL_v0_prompt"
 DB_PATH_TAG2="frontier://FrontierPrep/CMS_CONDITIONS"
 
@@ -37,8 +40,17 @@ for RUN in $RUN_NUMBERS ; do
     echo "============================================================"
     CONFIG1=alignment_forGeomComp_${GLOBALTAG1}_${ALIGNMENT_TAG1}_r$RUN.py
     TREEFILE1=treeFile_${GLOBALTAG1}_${ALIGNMENT_TAG1}_r${RUN}.root
+    TREEFILE1=`echo ${TREEFILE1//"auto:"/"auto_"}`
+    LOGFILE1=alignment_${GLOBALTAG1}_${ALIGNMENT_TAG1}r${RUN}
+    LOGFILE1=`echo ${LOGFILE1//"auto:"/"auto_"}`
+    #echo $TREEFILE1 $LOGFILE1
+
     CONFIG2=alignment_forGeomComp_${GLOBALTAG2}_${ALIGNMENT_TAG2}_r$RUN.py
     TREEFILE2=treeFile_${GLOBALTAG2}_${ALIGNMENT_TAG2}_r${RUN}.root
+    TREEFILE2=`echo ${TREEFILE2//"auto:"/"auto_"}`
+    LOGFILE2=alignment_${GLOBALTAG2}_${ALIGNMENT_TAG2}r${RUN}
+    LOGFILE2=`echo ${LOGFILE2//"auto:"/"auto_"}`
+    #echo $TREEFILE2 $LOGFILE2
 
     if [ -e $TREEFILE1 ] ; then
 	echo "Removing old file" $TREEFILE1
@@ -47,7 +59,8 @@ for RUN in $RUN_NUMBERS ; do
     sed -e "s/RUNNUMBER/${RUN}/g" $CONFIG_TEMPLATE > ${CONFIG1}_tmp 
     sed -e "s/TREEFILE/${TREEFILE1}/g" ${CONFIG1}_tmp > ${CONFIG1}_tmp2
     sed -e "s/GLOBALTAG/${GLOBALTAG1}/g" ${CONFIG1}_tmp2 > ${CONFIG1}_tmp3
-    sed -e "s/LOGFILE/alignment_${GLOBALTAG1}_${ALIGNMENT_TAG1}r${RUN}/g" ${CONFIG1}_tmp3 > ${CONFIG1}
+    sed -e "s/LOGFILE/${LOGFILE1}/g" ${CONFIG1}_tmp3 > ${CONFIG1}
+  
     # maybe we need to overwrite GlobalTag alignment?
     if [ $#ALIGNMENT_TAG1 != 0 ]; then
 	cat >>! ${CONFIG1} <<EOF
@@ -76,18 +89,18 @@ EOF
     sed -e "s/RUNNUMBER/${RUN}/g" $CONFIG_TEMPLATE > ${CONFIG2}_tmp 
     sed -e "s/TREEFILE/${TREEFILE2}/g" ${CONFIG2}_tmp > ${CONFIG2}_tmp2
     sed -e "s/GLOBALTAG/${GLOBALTAG2}/g" ${CONFIG2}_tmp2 > ${CONFIG2}_tmp3
-    sed -e "s/LOGFILE/alignment_${GLOBALTAG2}_${ALIGNMENT_TAG2}r${RUN}/g" ${CONFIG2}_tmp3 > ${CONFIG2}
-
+    sed -e "s/LOGFILE/${LOGFILE2}/g" ${CONFIG2}_tmp3 > ${CONFIG2}
+   
     # maybe we need to overwrite GlobalTag alignment?
     if [ $#ALIGNMENT_TAG2 != 0 ]; then
 	cat >>! ${CONFIG2} <<EOF
 
 from CondCore.CondDB.CondDB_cfi import *
-CondDBReference = CondDB.clone(connect = cms.string("$DB_PATH_TAG1"))
+CondDBReference = CondDB.clone(connect = cms.string("$DB_PATH_TAG2"))
 process.trackerAlignment = cms.ESSource("PoolDBESSource",
                                         CondDBReference,
                                         toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-                                                                   tag = cms.string("$ALIGNMENT_TAG1")
+                                                                   tag = cms.string("$ALIGNMENT_TAG2")
                                                                   )
                                                          )       
                                        )

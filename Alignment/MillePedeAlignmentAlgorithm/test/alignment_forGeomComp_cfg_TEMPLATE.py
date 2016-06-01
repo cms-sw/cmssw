@@ -2,14 +2,10 @@
 # .../CMSSW/Alignment/MillePedeAlignmentAlgorithm/macros/CompareMillePede.h
 # to compare two different geometries.
 #
-# to be replaced using e.g. sed -e "s/GLOBALTAG/FT_R_53_V6C/h" inFile > outFile:
-#
 #GLOBALTAG  # without '::All'
 #RUNNUMBER
 #TREEFILE
 #LOGFILE
-
-# last update on $Date: 2011/10/20 16:37:13 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,7 +15,17 @@ process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring("ProductNotFound") # do not accept this exception
     )
 
-# initialize  MessageLogger
+# initialize magnetic field
+process.load("Configuration.StandardSequences.MagneticField_cff")
+# geometry
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
+# global tag and other conditions
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# take your favourite global tag
+from Configuration.AlCa.GlobalTag import GlobalTag 
+process.GlobalTag = GlobalTag(process.GlobalTag, "GLOBALTAG")     
+usedGlobalTag = process.GlobalTag.globaltag._value 
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.LOGFILE = cms.untracked.PSet(
     DEBUG = cms.untracked.PSet(
@@ -45,16 +51,6 @@ process.MessageLogger.destinations = ['LOGFILE']
 process.MessageLogger.statistics = ['LOGFILE']
 process.MessageLogger.categories = ['Alignment']
 
-
-# initialize magnetic field
-process.load("Configuration.StandardSequences.MagneticField_cff")
-# geometry
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
-# global tag and other conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# take your favourite global tag
-process.GlobalTag.globaltag = 'GLOBALTAG'
 ## if alignment constants not from global tag, add this
 from CondCore.CondDB.CondDB_cfi import *
 CondDBReference = CondDB.clone(connect = cms.string('sqlite_file:remove_me.db'))
