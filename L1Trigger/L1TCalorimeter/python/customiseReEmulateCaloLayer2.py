@@ -69,6 +69,7 @@ def reEmulateLayer2ValHistos(process):
     hwEmulCompHistos(process)
 
     process.l1ntupleraw.insert(0,process.caloTowersFilter)
+    process.l1ntuplesim.insert(0,process.caloTowersFilter)
     process.caloLayer2.insert(0,process.caloTowersFilter)
     process.hwEmulHistos.insert(0,process.caloTowersFilter)
 

@@ -82,7 +82,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	if (CaloTools::mpEta(abs(tower.hwEta()))>CaloTools::kHFBegin &&
 	    CaloTools::mpEta(abs(tower.hwEta()))<CaloTools::kHFEnd &&
 	    (tower.hwQual() & 0x4) > 0) 
-	  ringMB1 += 1;
+	  ringMB0 += 1;
 	
       }    
       
