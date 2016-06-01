@@ -289,12 +289,14 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     if not self.config.profiling:
       self.data += """
-# enable the TrigReport and TimeReport
+# enable TrigReport, TimeReport and MultiThreading
 %(process)s.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True )
+    wantSummary = cms.untracked.bool( True ),
+    numberOfThreads = cms.untracked.uint32( 4 ),
+    numberOfStreams = cms.untracked.uint32( 0 ),
+    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 """
-
 
   def _fix_parameter(self, **args):
     """arguments:
