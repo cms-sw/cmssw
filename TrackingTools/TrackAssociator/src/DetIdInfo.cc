@@ -133,7 +133,7 @@ std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
 	 {
 	   GEMDetId detId(id.rawId());
 	   oss << "GEM chamber (endcap, station, ring, chamber, layer): "
-	       << detId.endcap() << ", "
+	       << detId.region() << ", "
 	       << detId.station() << ", "
 	       << detId.ring() << ", "
 	       << detId.chamber() << ", "
@@ -144,9 +144,8 @@ std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
 	 {
 	   ME0DetId detId(id.rawId());
 	   oss << "ME0 chamber (endcap, station, ring, chamber, layer): "
-	       << detId.endcap() << ", "
+	       << detId.region() << ", "
 	       << detId.station() << ", "
-	       << detId.ring() << ", "
 	       << detId.chamber() << ", "
 	       << detId.layer();
 	 }

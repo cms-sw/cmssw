@@ -27,7 +27,7 @@
 #include <deque>
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/ME0Geometry/interface/ME0Geometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 void MuonDetIdAssociator::check_setup() const {
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";

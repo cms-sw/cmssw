@@ -56,7 +56,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/ME0Geometry/interface/ME0Geometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
