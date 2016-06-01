@@ -11,7 +11,7 @@
 
 #CONFIG_TEMPLATE="src/Alignment/MillePedeAlignmentAlgorithm/test/alignment_forGeomComp_cfg_TEMPLATE.py"
 #PLOTMILLEPEDEDIR=
-CONFIG_TEMPLATE="$CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/test/alignment_forGeomComp_cfg_TEMPLATE.py"
+CONFIG_TEMPLATE="$CMSSW_BASE/src/Alignment/TrackerAlignment/test/alignment_forGeomComp_cfg_TEMPLATE.py"
 PLOTMILLEPEDEDIR="$CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/"
 echo Using template $CONFIG_TEMPLATE 
 echo and plotting macros from $PLOTMILLEPEDEDIR
