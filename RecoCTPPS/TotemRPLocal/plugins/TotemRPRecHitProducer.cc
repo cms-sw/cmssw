@@ -31,7 +31,7 @@ class TotemRPRecHitProducer : public edm::stream::EDProducer<>
   
     virtual ~TotemRPRecHitProducer() {}
   
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
   
   private:
     const edm::ParameterSet conf_;
@@ -66,9 +66,6 @@ TotemRPRecHitProducer::TotemRPRecHitProducer(const edm::ParameterSet& conf) :
  
 void TotemRPRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
-  if (verbosity_ > 5)
-    printf(">> TotemRPRecHitProducer::produce\n");
-  
   // get input
   edm::Handle< edm::DetSetVector<TotemRPCluster> > input;
   e.getByToken(tokenCluster_, input);
@@ -80,13 +77,7 @@ void TotemRPRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
   for (auto &ids : *input)
   {
     DetSet<TotemRPRecHit> &ods = output.find_or_insert(ids.detId());
-    algorithm_.BuildRecoHits(ids, ods);
-  }
-
-  if (verbosity_ > 5)
-  {
-    for (auto &ds : output)
-      printf("detId = %i, rec hits %lu\n", ds.detId(), ds.data.size());
+    algorithm_.buildRecoHits(ids, ods);
   }
    
   // save output

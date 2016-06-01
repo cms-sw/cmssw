@@ -37,8 +37,10 @@ class TotemRPUVPatternFinder : public edm::stream::EDProducer<>
 {
   public:
     TotemRPUVPatternFinder(const edm::ParameterSet& conf);
+
     virtual ~TotemRPUVPatternFinder();
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
   
   private:
     edm::InputTag tagRecHit;
@@ -64,13 +66,20 @@ class TotemRPUVPatternFinder : public edm::stream::EDProducer<>
     /// maximal angle (in any projection) to mark candidate as fittable - controls track parallelity
     double max_a_toFit;
 
-    /// exceptional settings, per RP and per projection
-    std::vector<edm::ParameterSet> exceptionalSettings;
+    /// block of (exceptional) settings for 1 RP
+    struct RPSettings
+    {
+      unsigned char minPlanesPerProjectionToFit_U, minPlanesPerProjectionToFit_V;
+      double threshold_U, threshold_V;
+    };
+
+    /// exceptional settings: RP Id --> settings
+    std::map<unsigned int, RPSettings> exceptionalSettings;
 
     edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher;
 
     /// executes line recognition in a projection
-    void RecognizeAndSelect(TotemRPUVPattern::ProjectionType proj, double z0, double threshold,
+    void recognizeAndSelect(TotemRPUVPattern::ProjectionType proj, double z0, double threshold,
       unsigned int planes_required,
       const edm::DetSetVector<TotemRPRecHit> &hits, edm::DetSet<TotemRPUVPattern> &patterns);
 };
@@ -90,9 +99,21 @@ TotemRPUVPatternFinder::TotemRPUVPatternFinder(const edm::ParameterSet& conf) :
   maxHitsPerPlaneToSearch(conf.getParameter<unsigned int>("maxHitsPerPlaneToSearch")),
   lrcgn(new FastLineRecognition(conf.getParameter<double>("clusterSize_a"), conf.getParameter<double>("clusterSize_b"))),
   threshold(conf.getParameter<double>("threshold")),
-  max_a_toFit(conf.getParameter<double>("max_a_toFit")),
-  exceptionalSettings(conf.getParameter< vector<ParameterSet> >("exceptionalSettings"))
+  max_a_toFit(conf.getParameter<double>("max_a_toFit"))
 {
+  for (const auto &ps : conf.getParameter< vector<ParameterSet> >("exceptionalSettings"))
+  {
+    unsigned int rpId = ps.getParameter<unsigned int>("rpId");
+
+    RPSettings settings;
+    settings.minPlanesPerProjectionToFit_U = ps.getParameter<unsigned int>("minPlanesPerProjectionToFit_U");
+    settings.minPlanesPerProjectionToFit_V = ps.getParameter<unsigned int>("minPlanesPerProjectionToFit_V");
+    settings.threshold_U = ps.getParameter<double>("threshold_U");
+    settings.threshold_V = ps.getParameter<double>("threshold_V");
+
+    exceptionalSettings[rpId] = settings;
+  }
+
   detSetVectorTotemRPRecHitToken = consumes<edm::DetSetVector<TotemRPRecHit> >(tagRecHit);
 
   produces<DetSetVector<TotemRPUVPattern>>();
@@ -107,13 +128,13 @@ TotemRPUVPatternFinder::~TotemRPUVPatternFinder()
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPUVPatternFinder::RecognizeAndSelect(TotemRPUVPattern::ProjectionType proj,
+void TotemRPUVPatternFinder::recognizeAndSelect(TotemRPUVPattern::ProjectionType proj,
     double z0, double threshold_loc, unsigned int planes_required,
     const DetSetVector<TotemRPRecHit> &hits, DetSet<TotemRPUVPattern> &patterns)
 {
   // run recognition
   DetSet<TotemRPUVPattern> newPatterns;
-  lrcgn->GetPatterns(hits, z0, threshold_loc, newPatterns);
+  lrcgn->getPatterns(hits, z0, threshold_loc, newPatterns);
   
   // set pattern properties and copy to the global pattern collection
   for (auto &p : newPatterns)
@@ -141,13 +162,14 @@ void TotemRPUVPatternFinder::RecognizeAndSelect(TotemRPUVPattern::ProjectionType
 void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& es)
 {
   if (verbosity > 5)
-    printf(">> TotemRPUVPatternFinder::produce (%u:%llu)\n", event.id().run(), event.id().event());
+    LogVerbatim("TotemRPUVPatternFinder")
+      << ">> TotemRPUVPatternFinder::produce " << event.id().run() << ":" << event.id().event();
 
   // geometry
   ESHandle<TotemRPGeometry> geometry;
   es.get<VeryForwardRealGeometryRecord>().get(geometry);
   if (geometryWatcher.check(es))
-    lrcgn->ResetGeometry(geometry.product());
+    lrcgn->resetGeometry(geometry.product());
   
   // get input
   edm::Handle< edm::DetSetVector<TotemRPRecHit> > input;
@@ -199,17 +221,14 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
     unsigned int minPlanesPerProjectionToFit_V = minPlanesPerProjectionToFit;
     double threshold_U = threshold;
     double threshold_V = threshold;
-
-    for (auto ps : exceptionalSettings)
+    
+    auto setIt = exceptionalSettings.find(rpId);
+    if (setIt != exceptionalSettings.end())
     {
-      unsigned int setId = ps.getParameter<unsigned int>("rpId");
-      if (setId == rpId)
-      {
-        minPlanesPerProjectionToFit_U = ps.getParameter<unsigned int>("minPlanesPerProjectionToFit_U");
-        minPlanesPerProjectionToFit_V = ps.getParameter<unsigned int>("minPlanesPerProjectionToFit_V");
-        threshold_U = ps.getParameter<double>("threshold_U");
-        threshold_V = ps.getParameter<double>("threshold_V");
-      }
+      minPlanesPerProjectionToFit_U = setIt->second.minPlanesPerProjectionToFit_U;
+      minPlanesPerProjectionToFit_V = setIt->second.minPlanesPerProjectionToFit_V;
+      threshold_U = setIt->second.threshold_U;
+      threshold_V = setIt->second.threshold_V;
     }
 
     auto &uColl = data.planeOccupancy_U;
@@ -217,8 +236,9 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
 
     if (verbosity > 5)
     {
-      printf("\tRP %u\n", rpId);
-      printf("\t\tall planes: u = %lu, v = %lu\n", uColl.size(), vColl.size());
+      LogVerbatim("TotemRPUVPatternFinder")
+        << "\tRP " << rpId
+        << "\n\t\tall planes: u = " << uColl.size() << ", v = " << vColl.size();
     }
 
     // count planes with clean data (no showers, noise, ...)
@@ -232,7 +252,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
         vPlanes++;
 
     if (verbosity > 5)
-      printf("\t\tplanes with clean data: u = %u, v = %i\n", uPlanes, vPlanes);
+      LogVerbatim("TotemRPUVPatternFinder") << "\t\tplanes with clean data: u = " << uPlanes << ", v = " << vPlanes;
 
     // discard RPs with too few reasonable planes
     if (uPlanes < minPlanesPerProjectionToSearch || vPlanes < minPlanesPerProjectionToSearch)
@@ -245,26 +265,26 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
     double z0 = geometry->GetRPDevice(rpId)->translation().z();
 
     // u then v recognition
-    if (verbosity > 5)
-      printf("\t\tu recognition\n");
-    RecognizeAndSelect(TotemRPUVPattern::projU, z0, threshold_U, minPlanesPerProjectionToFit_U, data.hits_U, patterns);
+    recognizeAndSelect(TotemRPUVPattern::projU, z0, threshold_U, minPlanesPerProjectionToFit_U, data.hits_U, patterns);
 
-    if (verbosity > 5)
-      printf("\t\tv recognition\n");
-    RecognizeAndSelect(TotemRPUVPattern::projV, z0, threshold_V, minPlanesPerProjectionToFit_V, data.hits_V, patterns);
+    recognizeAndSelect(TotemRPUVPattern::projV, z0, threshold_V, minPlanesPerProjectionToFit_V, data.hits_V, patterns);
 
     if (verbosity > 5)
     {
-      printf("\t\tpatterns:\n");
+      LogVerbatim("TotemRPUVPatternFinder") << "\t\tpatterns:";
       for (const auto &p : patterns)
       {
         unsigned int n_hits = 0;
         for (auto &hds : p.getHits())
           n_hits += hds.size();
-
-        printf("\t\t\tproj = %s, a = %.3f, b = %.3f, w = %.3f, fittable = %i, hits = %u\n",
-          (p.getProjection() == TotemRPUVPattern::projU) ? "U" : "V",
-          p.getA(), p.getB(), p.getW(), p.getFittable(), n_hits);
+      
+        LogVerbatim("TotemRPUVPatternFinder")
+          << "\t\t\tproj = " << ((p.getProjection() == TotemRPUVPattern::projU) ? "U" : "V")
+          << ", a = " << p.getA()
+          << ", b = " << p.getB()
+          << ", w = " << p.getW()
+          << ", fittable = " << p.getFittable()
+          << ", hits = " << n_hits;
       }
     }
   }

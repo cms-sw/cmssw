@@ -26,12 +26,10 @@ class TotemRPClusterProducerAlgorithm
 
     ~TotemRPClusterProducerAlgorithm();
     
-    int BuildClusters(unsigned int detId, const std::vector<TotemRPDigi> &digi, std::vector<TotemRPCluster> &clusters);
+    int buildClusters(unsigned int detId, const std::vector<TotemRPDigi> &digi, std::vector<TotemRPCluster> &clusters);
     
   private:
     typedef std::set<TotemRPDigi> TotemRPDigiSet;
-
-    void Reset();
 
     TotemRPDigiSet strip_digi_set_;  ///< input digi set, strip by strip
 

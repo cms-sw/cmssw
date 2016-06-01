@@ -11,7 +11,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TMath.h"
 #include "TMatrixD.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -28,7 +27,7 @@ TotemRPLocalTrackFitterAlgorithm::TotemRPLocalTrackFitterAlgorithm(const edm::Pa
 //----------------------------------------------------------------------------------------------------
 
 
-void TotemRPLocalTrackFitterAlgorithm::Reset()
+void TotemRPLocalTrackFitterAlgorithm::reset()
 {
   det_data_map_.clear();
 }
@@ -36,10 +35,8 @@ void TotemRPLocalTrackFitterAlgorithm::Reset()
 //----------------------------------------------------------------------------------------------------
 
 TotemRPLocalTrackFitterAlgorithm::RPDetCoordinateAlgebraObjs
-TotemRPLocalTrackFitterAlgorithm::PrepareReconstAlgebraData(unsigned int det_id, const TotemRPGeometry& tot_rp_geom)
+TotemRPLocalTrackFitterAlgorithm::prepareReconstAlgebraData(unsigned int det_id, const TotemRPGeometry& tot_rp_geom)
 {
-  //cout << ">> TotemRPLocalTrackFitterAlgorithm::PrepareReconstAlgebraData: " << det_id << endl;
-
   RPDetCoordinateAlgebraObjs det_algebra_obj;
 
   det_algebra_obj.centre_of_det_global_position_ = convert3vector(tot_rp_geom.GetDetTranslation(det_id));
@@ -65,21 +62,21 @@ TotemRPLocalTrackFitterAlgorithm::PrepareReconstAlgebraData(unsigned int det_id,
 //----------------------------------------------------------------------------------------------------
 
 TotemRPLocalTrackFitterAlgorithm::RPDetCoordinateAlgebraObjs*
-TotemRPLocalTrackFitterAlgorithm::GetDetAlgebraData(unsigned int det_id, const TotemRPGeometry& tot_rp_geom)
+TotemRPLocalTrackFitterAlgorithm::getDetAlgebraData(unsigned int det_id, const TotemRPGeometry& tot_rp_geom)
 {
   auto it = det_data_map_.find(det_id);
   if (it != det_data_map_.end())
   {
     return &(it->second);
   } else {
-    det_data_map_[det_id] = PrepareReconstAlgebraData(det_id, tot_rp_geom);
+    det_data_map_[det_id] = prepareReconstAlgebraData(det_id, tot_rp_geom);
     return &det_data_map_[det_id];
   }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-bool TotemRPLocalTrackFitterAlgorithm::FitTrack(const edm::DetSetVector<TotemRPRecHit> &hits, double z_0,
+bool TotemRPLocalTrackFitterAlgorithm::fitTrack(const edm::DetSetVector<TotemRPRecHit> &hits, double z_0,
     const TotemRPGeometry &tot_geom, TotemRPLocalTrack &fitted_track)
 {
   fitted_track.setValid(false);
@@ -100,7 +97,7 @@ bool TotemRPLocalTrackFitterAlgorithm::FitTrack(const edm::DetSetVector<TotemRPR
 
     for (auto &h : ds)
     {
-      RPDetCoordinateAlgebraObjs * alg = GetDetAlgebraData(detId, tot_geom);
+      RPDetCoordinateAlgebraObjs * alg = getDetAlgebraData(detId, tot_geom);
       if (alg->available_)
         applicable_hits.push_back({ detId, &h, alg});
     }
@@ -131,7 +128,7 @@ bool TotemRPLocalTrackFitterAlgorithm::FitTrack(const edm::DetSetVector<TotemRPR
   }
 
   TMatrixD H_T_V_inv(TMatrixD::kTransposed, H);
-  MultiplyByDiagonalInPlace(H_T_V_inv, V_inv);
+  multiplyByDiagonalInPlace(H_T_V_inv, V_inv);
   TMatrixD V_a(H_T_V_inv);
   TMatrixD V_a_mult(V_a, TMatrixD::kMult, H);
   try
@@ -140,21 +137,17 @@ bool TotemRPLocalTrackFitterAlgorithm::FitTrack(const edm::DetSetVector<TotemRPR
   }
   catch (cms::Exception &e)
   {
-    LogProblem("Totem") << "Error in TotemRPLocalTrackFitterAlgorithm::FitTrack > "
+    LogError("TotemRPLocalTrackFitterAlgorithm") << "Error in TotemRPLocalTrackFitterAlgorithm::fitTrack > "
       << "Fit matrix is singular. Skipping.";
     return false;
   }
-  //tot_rp::Print(std::cout, V_a_mult);
-  //TMatrixD u_to_a(V_a, TMatrixD::kMult, H_T_V_inv);
+
   TMatrixD u_to_a(V_a_mult, TMatrixD::kMult, H_T_V_inv);
   TVectorD a(U);
   a *= u_to_a;
   
-  //std::cout<<"fitted track vector:"<<a[0]<<","<<a[1]<<","<<a[2]<<","<<a[3]<<","<<std::endl;
-  
   fitted_track.setZ0(z_0);
   fitted_track.setParameterVector(a);
-  //fitted_track.CovarianceMatrix(V_a);
   fitted_track.setCovarianceMatrix(V_a_mult);
   
   double Chi_2 = 0;
@@ -174,7 +167,7 @@ bool TotemRPLocalTrackFitterAlgorithm::FitTrack(const edm::DetSetVector<TotemRPR
     V_T_Cov_X_Y(0,1) = readout_dir.Y();
     TMatrixD V_T_Cov_X_Y_mult(V_T_Cov_X_Y, TMatrixD::kMult, fitted_track.trackPointInterpolationCovariance(det_z));
     double fit_strip_var = V_T_Cov_X_Y_mult(0,0)*readout_dir.X() + V_T_Cov_X_Y_mult(0,1)*readout_dir.Y();
-    double pull_normalization = TMath::Sqrt(sigma_str_2 - fit_strip_var);
+    double pull_normalization = sqrt(sigma_str_2 - fit_strip_var);
     double pull = residual/pull_normalization;
     
     Chi_2+=residual/sigma_str_2;
@@ -191,7 +184,7 @@ bool TotemRPLocalTrackFitterAlgorithm::FitTrack(const edm::DetSetVector<TotemRPR
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPLocalTrackFitterAlgorithm::MultiplyByDiagonalInPlace(TMatrixD &mt, const TVectorD &diag)
+void TotemRPLocalTrackFitterAlgorithm::multiplyByDiagonalInPlace(TMatrixD &mt, const TVectorD &diag)
 {
   for(int i=0; i<mt.GetNrows(); ++i)
   {

@@ -33,7 +33,7 @@ class TotemRPClusterProducer : public edm::stream::EDProducer<>
   
     virtual ~TotemRPClusterProducer() {}
   
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
   
   private:
     edm::ParameterSet conf_;
@@ -69,9 +69,6 @@ TotemRPClusterProducer::TotemRPClusterProducer(edm::ParameterSet const& conf) :
  
 void TotemRPClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
-  if (verbosity_ > 5)
-    printf(">> TotemRPClusterProducer::produce\n");
-
   // get input
   edm::Handle< edm::DetSetVector<TotemRPDigi> > input;
   e.getByToken(digiInputTagToken_, input);
@@ -82,12 +79,6 @@ void TotemRPClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   // run clusterisation
   if (input->size())
     run(*input, output);
-
-  if (verbosity_ > 5)
-  {
-    for (auto &ds : output)
-      printf("detId = %i, clusters %lu\n", ds.detId(), ds.data.size());
-  }
 
   // save output to event
   e.put(make_unique<DetSetVector<TotemRPCluster>>(output));
@@ -101,7 +92,7 @@ void TotemRPClusterProducer::run(const edm::DetSetVector<TotemRPDigi>& input, ed
   {
     edm::DetSet<TotemRPCluster> &ds_cluster = output.find_or_insert(ds_digi.id);
 
-    algorithm_.BuildClusters(ds_digi.id, ds_digi.data, ds_cluster.data);
+    algorithm_.buildClusters(ds_digi.id, ds_digi.data, ds_cluster.data);
   }
 }
 
