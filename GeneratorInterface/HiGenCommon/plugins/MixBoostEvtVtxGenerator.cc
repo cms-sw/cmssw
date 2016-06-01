@@ -26,6 +26,8 @@ ________________________________________________________________________
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -102,22 +104,21 @@ private:
   TMatrixD *boost_;
   double fTimeOffset;
   
-  edm::InputTag            sourceLabel;
-
   CLHEP::RandGaussQ*  fRandom ;
 
-  edm::InputTag            signalLabel;
-  edm::InputTag            hiLabel;
+  edm::EDGetTokenT<reco::VertexCollection>   vtxLabel;
+  edm::EDGetTokenT<HepMCProduct>  signalLabel;
+  edm::EDGetTokenT<CrossingFrame<HepMCProduct> >   mixLabel;
   bool                     useRecVertex;
   std::vector<double>      vtxOffset;
 
 };
 
-
 MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset ):
   fVertex(0), boost_(0), fTimeOffset(0),
-  signalLabel(pset.getParameter<edm::InputTag>("signalLabel")),
-  hiLabel(pset.getParameter<edm::InputTag>("heavyIonLabel")),
+  vtxLabel(mayConsume<reco::VertexCollection>(pset.getParameter<edm::InputTag>("vtxLabel"))),
+  signalLabel(consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("signalLabel"))),
+  mixLabel(consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"))),
   useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 { 
 
@@ -249,10 +250,19 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
 
 HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex( Event& evt){
   
-  Handle<HepMCProduct> input;
-  evt.getByLabel(hiLabel,input);
+  const HepMC::GenEvent* inev = 0;
 
-  const HepMC::GenEvent* inev = input->GetEvent();
+  Handle<CrossingFrame<HepMCProduct> > cf;
+  evt.getByToken(mixLabel,cf);
+  MixCollection<HepMCProduct> mix(cf.product());
+
+  const HepMCProduct& bkg = mix.getObject(1);
+  if(!(bkg.isVtxGenApplied())){
+    throw cms::Exception("MatchVtx")<<"Input background does not have smeared vertex!"<<endl;
+  }else{
+    inev = bkg.GetEvent();
+  }
+
   HepMC::GenVertex* genvtx = inev->signal_process_vertex();
   if(!genvtx){
     cout<<"No Signal Process Vertex!"<<endl;
@@ -282,8 +292,9 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex( Event& evt){
  
 HepMC::FourVector* MixBoostEvtVtxGenerator::getRecVertex( Event& evt){
  
+
   Handle<reco::VertexCollection> input;
-  evt.getByLabel(hiLabel,input);
+  evt.getByToken(vtxLabel,input);
 
   double aX,aY,aZ;
  
@@ -302,7 +313,7 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getRecVertex( Event& evt){
 void MixBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 {
   Handle<HepMCProduct> HepUnsmearedMCEvt;
-  evt.getByLabel(signalLabel, HepUnsmearedMCEvt);
+  evt.getByToken(signalLabel, HepUnsmearedMCEvt);
     
   // Copy the HepMC::GenEvent
   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
