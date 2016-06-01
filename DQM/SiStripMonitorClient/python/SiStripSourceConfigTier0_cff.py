@@ -69,9 +69,9 @@ SiStripMonitorClusterBPTX.StripDCSfilter = cms.PSet(
 from Configuration.StandardSequences.Eras import eras
 eras.stage2L1Trigger.toModify(SiStripMonitorClusterBPTX, 
     BPTXfilter = dict(
-        stage2 = True,
-        l1tAlgBlkInputTag = "gtStage2Digis",
-        l1tExtBlkInputTag = "gtStage2Digis"
+        stage2 = cms.bool(True),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
     )
 )
 
