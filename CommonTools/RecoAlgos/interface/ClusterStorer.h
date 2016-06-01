@@ -75,7 +75,8 @@ namespace helper {
     typedef ClusterHitRecord<SiPixelRecHit::ClusterRef>   PixelClusterHitRecord;
     /// Assuming that the ClusterRef is the same for all SiStripRecHit*:
     typedef ClusterHitRecord<SiStripRecHit2D::ClusterRef> StripClusterHitRecord;
- 
+    //FIXME:: this is just temporary solution for phase2,
+    //probably is good to add a Phase2ClusterStorer?
     typedef ClusterHitRecord<Phase2TrackerRecHit1D::CluRef> Phase2OTClusterHitRecord;
 
     //------------------------------------------------------------------
