@@ -213,8 +213,10 @@ namespace hcaldqm
 					vtmpflags[fBcnMsm]._state = flag::fBAD;
 				else
 					vtmpflags[fBcnMsm]._state = flag::fGOOD;
-				if (_xBadQ.get(eid)>0)
+				if (_xBadQ.get(eid)>12)
 					vtmpflags[fBadQ]._state = flag::fBAD;
+				else if (_xBadQ.get(eid)>0)
+					vtmpflags[fBadQ]._state = flag::fPROBLEMATIC;
 				else
 					vtmpflags[fBadQ]._state = flag::fGOOD;
 			}

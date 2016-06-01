@@ -57,8 +57,10 @@ class TPTask : public DQTask
 		//	switches/cuts/etc...
 		bool _skip1x1;
 		int _cutEt;
-		double _thresh_EtMsmRate,_thresh_FGMsmRate,_thresh_DataMsn,
-			_thresh_EmulMsn;
+		double _thresh_EtMsmRate_high, _thresh_EtMsmRate_low,
+			_thresh_FGMsmRate_high, _thresh_FGMsmRate_low,
+			_thresh_DataMsn, _thresh_EmulMsn;
+
 
 		//	hashes/FEDs vectors
 		std::vector<uint32_t> _vhashFEDs;

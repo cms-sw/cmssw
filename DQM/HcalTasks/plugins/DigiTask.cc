@@ -348,6 +348,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!it->isHcalDetId())
 				continue;
 			HcalDetId did(it->rawId());
+			if (_xQuality.exists(did)) 
+			{
+				HcalChannelStatus cs(it->rawId(), _xQuality.get(
+					HcalDetId(*it)));
+				if (
+					cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+					cs.isBitSet(HcalChannelStatus::HcalCellDead))
+					continue;
+			}
 			HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 			_xNChsNominal.get(eid)++;	// he will know the nominal #channels per FED
 		}
@@ -369,6 +378,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 /* virtual */ void DigiTask::_resetMonitors(UpdateFreq uf)
 {
 	DQTask::_resetMonitors(uf);
+
+	switch(uf)
+	{
+		case hcaldqm::f50LS:
+			//	^^^ONLINE ONLY!
+			if (_ptype==fOnline)
+				_cOccupancyvsiphi_SubdetPM.reset();
+			//	^^^
+			break;
+		default:
+			break;
+	}
 }
 
 /* virtual */ void DigiTask::_process(edm::Event const& e,
@@ -402,6 +423,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	{
 		double sumQ = utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
 		HcalDetId const& did = it->id();
+		//	filter out channels that are masked out
+		if (_xQuality.exists(did)) 
+		{
+			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+			if (
+				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+				continue;
+		}
 		HcalElectronicsId const& eid = it->elecId();
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
@@ -503,6 +533,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	{
 		double sumQ = utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
 		HcalDetId const& did = it->id();
+		//	filter out channels that are masked out
+		if (_xQuality.exists(did)) 
+		{
+			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+			if (
+				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+				continue;
+		}
 		HcalElectronicsId const& eid = it->elecId();
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
@@ -597,6 +636,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	{
 		double sumQ = utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size()-1);
 		HcalDetId const& did = it->id();
+		//	filter out channels that are masked out
+		if (_xQuality.exists(did)) 
+		{
+			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+			if (
+				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+				continue;
+		}
 		HcalElectronicsId const& eid = it->elecId();
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
@@ -769,16 +817,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_vflags[fDigiSize]._state = flag::fGOOD;
 			if (utilities::isFEDHF(eid))
 			{
+				double fr = double(_xNChs.get(eid))/double(
+					_xNChsNominal.get(eid)*_evsPerLS);
 				if (_runkeyVal==0 || _runkeyVal==4)
 				{
 					//	only for pp or hi
 					if (_xUni.get(eid)>0)
-						_vflags[fUni]._state = flag::fBAD;
+						_vflags[fUni]._state = flag::fPROBLEMATIC;
 					else
 						_vflags[fUni]._state = flag::fGOOD;
 				}
-				if (_xNChs.get(eid)!=(_xNChsNominal.get(eid)*_evsPerLS))
+				if (fr<0.95)
 					_vflags[fNChsHF]._state = flag::fBAD;
+				else if (fr<1.0)
+					_vflags[fNChsHF]._state = flag::fPROBLEMATIC;
 				else
 					_vflags[fNChsHF]._state = flag::fGOOD;
 			}

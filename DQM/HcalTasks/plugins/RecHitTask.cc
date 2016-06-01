@@ -421,29 +421,59 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			_cEnergy_depth.fill(did, energy);
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_HBHEPartition.fill(did, timing);
-			if (timing>=-12.5 && timing<=12.5)
+
+			//	ONLINE 
+			if (_ptype==fOnline)
 			{
-				//	time constrains here are explicit!
+				if (timing>=-12.5 && timing<=12.5)
+				{
+					//	time constrains here are explicit!
+					_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+					_cTimingCut_depth.fill(did, timing);
+				}
+			}//	^^^ONLINE
+			else
+			{
 				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 				_cTimingCut_depth.fill(did, timing);
 			}
 			_cOccupancyCut_depth.fill(did);
 			if (eid.isVMEid())
 			{
-				if (timing>=-12.5 && timing<=12.5)
+
+				//	ONLINE 
+				if (_ptype==fOnline)
 				{
-					//	time constraints are explicit!
+					if (timing>=-12.5 && timing<=12.5)
+					{
+						//	time constraints are explicit!
+						_cTimingCut_FEDVME.fill(eid, timing);
+						_cTimingCut_ElectronicsVME.fill(eid, timing);
+					}
+				} // ^^^ ONLINE
+				else
+				{
 					_cTimingCut_FEDVME.fill(eid, timing);
 					_cTimingCut_ElectronicsVME.fill(eid, timing);
 				}
+				//	^^^ONLINE
+
 				_cOccupancyCut_FEDVME.fill(eid);
 				_cOccupancyCut_ElectronicsVME.fill(eid);
 			}
 			else
 			{
-				if (timing>=-12.5 && timing<=12.5)
+				if (_ptype==fOnline)
 				{
-					//	time constraints are explicit!
+					if (timing>=-12.5 && timing<=12.5)
+					{
+						//	time constraints are explicit!
+						_cTimingCut_FEDuTCA.fill(eid, timing);
+						_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+					}
+				}
+				else
+				{
 					_cTimingCut_FEDuTCA.fill(eid, timing);
 					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
 				}
@@ -723,7 +753,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		if (utilities::isFEDHF(eid) && (_runkeyVal==0 || _runkeyVal==4))
 		{
 			if (_xUni.get(eid)>0)
-				_vflags[fUni]._state = flag::fBAD;
+				_vflags[fUni]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fUni]._state = flag::fGOOD;
 		}
