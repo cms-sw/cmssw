@@ -4,7 +4,7 @@
 // Class:      ElectronRemovalForBoostProducer
 // 
 /**\class ElectronRemovalForBoostProducer ElectronRemovalForBoostProducer.cc VHbbAnalysis/ElectronRemovalForBoostProducer/plugins/ElectronRemovalForBoostProducer.cc
-
+ 
  Description: [one line class summary]
 
  Implementation:

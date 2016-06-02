@@ -6,7 +6,7 @@
 /**\class MuonRemovalForBoostProducer MuonRemovalForBoostProducer.cc VHbbAnalysis/MuonRemovalForBoostProducer/plugins/MuonRemovalForBoostProducer.cc
 
  Description: [one line class summary]
-
+ 
  Implementation:
      [Notes on implementation]
 */
