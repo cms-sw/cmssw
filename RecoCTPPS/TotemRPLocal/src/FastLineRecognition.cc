@@ -245,10 +245,10 @@ bool FastLineRecognition::getOneLine(const vector<FastLineRecognition::Point> &p
         if (k < 10)
           printf("\t\t\t\ttest cluster %u at a=%+6.3f, b=%+6.3f : %+6.3f, %+6.3f : %i, %i\n", k, c.Saw/c.Sw, c.Sbw/c.Sw, 
             chw_a, chw_b,
-            (abs(a - c.Saw/c.Sw) < chw_a), (abs(b - c.Sbw/c.Sw) < chw_b));
+            (std::abs(a - c.Saw/c.Sw) < chw_a), (std::abs(b - c.Sbw/c.Sw) < chw_b));
 #endif
 
-        if ((abs(a - c.Saw/c.Sw) < chw_a) && (abs(b - c.Sbw/c.Sw) < chw_b))
+        if ((std::abs(a - c.Saw/c.Sw) < chw_a) && (std::abs(b - c.Sbw/c.Sw) < chw_b))
         {
           newCluster = false;
           clusters[k].add(& (*it1), & (*it2), a, b, w);
