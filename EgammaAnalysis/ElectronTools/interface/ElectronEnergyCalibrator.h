@@ -8,7 +8,6 @@
 #include <sstream>
 #include <iostream>
 
-
 namespace edm {
   class StreamID;
 }
@@ -41,61 +40,60 @@ struct linearityCorrectionValues
 
 class ElectronEnergyCalibrator
 {
-    public:
-        ElectronEnergyCalibrator( const std::string pathData, 
-                                  const std::string pathLinData,
-                                  const std::string dataset, 
-                                  int correctionsType, 
-                                  bool applyLinearityCorrection, 
-                                  double lumiRatio, 
-                                  bool isMC, 
-                                  bool updateEnergyErrors, 
-                                  bool verbose, 
-                                  bool synchronization
-                                ) : 
-                                  pathData_(pathData), 
-                                  pathLinData_(pathLinData), 
-                                  dataset_(dataset), 
-                                  correctionsType_(correctionsType), 
-                                  applyLinearityCorrection_(applyLinearityCorrection),
-                                  lumiRatio_(lumiRatio), 
-                                  isMC_(isMC), 
-                                  updateEnergyErrors_(updateEnergyErrors), 
-                                  verbose_(verbose), 
-                                  synchronization_(synchronization) 
-	    {
-		    init();
-    	}
+ public:
+ ElectronEnergyCalibrator(const std::string pathData, 
+			  const std::string pathLinData,
+			  const std::string dataset, 
+			  int correctionsType, 
+			  bool applyLinearityCorrection, 
+			  double lumiRatio, 
+			  bool isMC, 
+			  bool updateEnergyErrors, 
+			  bool verbose, 
+			  bool synchronization
+			  ) : 
+    pathData_(pathData), 
+    pathLinData_(pathLinData), 
+    dataset_(dataset), 
+    correctionsType_(correctionsType), 
+    applyLinearityCorrection_(applyLinearityCorrection),
+    lumiRatio_(lumiRatio), 
+    isMC_(isMC), 
+    updateEnergyErrors_(updateEnergyErrors), 
+    verbose_(verbose), 
+    synchronization_(synchronization) {
+      init();
+    }
 
-        void calibrate(SimpleElectron &electron, edm::StreamID const&);
-        void correctLinearity(SimpleElectron &electron);
-
-    private:
-        void init();
-        void splitString( const std::string &fullstr, 
-                          std::vector<std::string> &elements, 
-                          const std::string &delimiter
-                        );
-        double stringToDouble(const std::string &str);
+    void calibrate(SimpleElectron &electron, edm::StreamID const&);
+    void correctLinearity(SimpleElectron &electron);
+				  
+ private:
+    void init();
+    void splitString( const std::string &fullstr, 
+		      std::vector<std::string> &elements, 
+		      const std::string &delimiter
+		      );
+    double stringToDouble(const std::string &str);
       
-        double newEnergy_ ;
-        double newEnergyError_ ;
-        
-        std::string pathData_;
-        std::string pathLinData_;
-        std::string dataset_;
-        int correctionsType_;
-        bool applyLinearityCorrection_;
-        double lumiRatio_;
-        bool isMC_;
-        bool updateEnergyErrors_;
-        bool verbose_;
-        bool synchronization_;
-      
-        correctionValues corrValArray[100];
-        correctionValues corrValMC;
-        linearityCorrectionValues linCorrValArray[100];
-        int nCorrValRaw, nLinCorrValRaw;
+    double newEnergy_ ;
+    double newEnergyError_ ;
+    
+    std::string pathData_;
+    std::string pathLinData_;
+    std::string dataset_;
+    int correctionsType_;
+    bool applyLinearityCorrection_;
+    double lumiRatio_;
+    bool isMC_;
+    bool updateEnergyErrors_;
+    bool verbose_;
+    bool synchronization_;
+    
+    correctionValues corrValArray[100];
+    correctionValues corrValMC;
+    linearityCorrectionValues linCorrValArray[100];
+    int nCorrValRaw, nLinCorrValRaw;
 };
 
 #endif
