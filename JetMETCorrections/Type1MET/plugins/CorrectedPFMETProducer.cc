@@ -58,9 +58,9 @@ private:
         
     reco::PFMET outMET= corrector.getCorrectedPFMET(srcMET, evt, es);
     
-    std::auto_ptr<METCollection> product(new METCollection);
+    std::unique_ptr<METCollection> product(new METCollection);
     product->push_back(outMET);
-    evt.put(product);
+    evt.put(std::move(product));
   }
 
 };

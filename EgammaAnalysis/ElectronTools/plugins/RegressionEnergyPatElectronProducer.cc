@@ -150,13 +150,13 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
   }
 
   // prepare the two even if only one is used
-  std::auto_ptr<pat::ElectronCollection> patElectrons( new pat::ElectronCollection ) ;
+  std::unique_ptr<pat::ElectronCollection> patElectrons( new pat::ElectronCollection ) ;
 
   // Fillers for ValueMaps:
-  std::auto_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyFiller(*regrEnergyMap);
 
-  std::auto_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyErrorFiller(*regrEnergyErrorMap);
 
 
@@ -542,7 +542,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 
   // Write the new collection in the event (AOD case)
   if(inputCollectionType_ == 1) {
-    event.put(patElectrons) ;
+    event.put(std::move(patElectrons));
   }
 
   // now AOD case: write ValueMaps
@@ -558,8 +558,8 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 
     energyFiller.fill();
     energyErrorFiller.fill();
-    event.put(regrEnergyMap,nameEnergyReg_);
-    event.put(regrEnergyErrorMap,nameEnergyErrorReg_);
+    event.put(std::move(regrEnergyMap),nameEnergyReg_);
+    event.put(std::move(regrEnergyErrorMap),nameEnergyErrorReg_);
   }
 
 }

@@ -99,8 +99,8 @@ OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::Parameter
 
 void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSetup& esetup){
 
-  std::auto_ptr<reco::ConversionCollection> outCollection(new reco::ConversionCollection);
-  std::auto_ptr<pat::CompositeCandidateCollection> patoutCollection(new pat::CompositeCandidateCollection);
+  std::unique_ptr<reco::ConversionCollection> outCollection(new reco::ConversionCollection);
+  std::unique_ptr<pat::CompositeCandidateCollection> patoutCollection(new pat::CompositeCandidateCollection);
 
   edm::Handle<reco::VertexCollection> priVtxs;
   event.getByToken(thePVsToken_, priVtxs);
@@ -198,7 +198,7 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
      }
   }
   store_conversion += patoutCollection->size();
-  event.put(patoutCollection,"conversions");
+  event.put(std::move(patoutCollection),"conversions");
 
   delete convSelection_;
 }

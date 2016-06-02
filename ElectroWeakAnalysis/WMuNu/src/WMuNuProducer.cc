@@ -132,7 +132,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
       if (muonCollectionSize<1) return;
 
-      auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
+      unique_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
 
 
      // Fill Collection with n muons --> n W Candidates ordered by pt
@@ -156,7 +156,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
       std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);
 
-      ev.put(WMuNuCandidates);
+      ev.put(std::move(WMuNuCandidates));
 
 }
 

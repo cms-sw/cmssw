@@ -353,9 +353,9 @@ GenTtbarCategorizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
     }
     
-    std::auto_ptr<int> ttbarId(new int);
+    std::unique_ptr<int> ttbarId(new int);
     *ttbarId = additionalJetEventId;
-    iEvent.put(ttbarId, "genTtbarId");
+    iEvent.put(std::move(ttbarId), "genTtbarId");
 }
 
 // ------------ method called once each job just before starting event loop  ------------
