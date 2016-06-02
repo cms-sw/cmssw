@@ -57,11 +57,10 @@ process.out = cms.OutputModule("PoolOutputModule",
      #verbose = cms.untracked.bool(True),
 #     SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
      fileName = cms.untracked.string('histo.root'),
-     outputCommands = cms.untracked.vstring('keep *_*_*_test','keep recoPFMETs_*_*_*','keep *_slimmedMETs_*_*','keep *_offlineSlimmedPrimaryVertices_*_*') 
+     outputCommands = cms.untracked.vstring('keep *_*_*_test','keep recoPFMETs_*_*_*') 
 )
+
 process.load('JetMETCorrections.Type1MET.correctedMet_cff')
-process.pfMetTxy.isMiniAod = cms.bool(True)
-process.pfMetTxy.src = cms.InputTag('slimmedMETs')
 process.pfMetTxy.srcCorrections = cms.VInputTag('corrPfMetXYMultDB')
 #
 # RUN!
