@@ -273,7 +273,7 @@ for(auto &conf : payloads[kRS]){
 
     L1TMuonGlobalParamsHelper m_params_helper( *(baseSettings.product()) );
 //    try {
-        m_params_helper.loadFromOnline(trgSys);
+        //m_params_helper.loadFromOnline(trgSys);
         return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( cast_to_L1TMuonGlobalParams(m_params_helper) ) ) ;
 ///    } catch (std::runtime_error e){
 //    } catch (...){
