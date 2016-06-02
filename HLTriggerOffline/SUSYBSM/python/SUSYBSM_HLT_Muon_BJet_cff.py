@@ -8,8 +8,8 @@ SUSY_HLT_Muon_BJet = cms.EDAnalyzer("SUSY_HLT_Muon_BJet",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu10_CentralPFJet30_BTagCSV_p13_v'),
-  TriggerFilterMuon = cms.InputTag('hltL3fL1sMu16L1f0L2f3QL3Filtered10Q', '','HLT'),
-  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleMu10', '', 'HLT'), #the last filter in the path
+  TriggerFilterMuon = cms.InputTag('hltL3fL1sMu0L1f0L2f3QL3Filtered10Q', '','HLT'),
+  TriggerFilterJet = cms.InputTag('hltBTagPFCSVp13Single', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
