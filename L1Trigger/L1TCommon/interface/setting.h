@@ -83,7 +83,7 @@ template <typename varType> std::vector<varType> setting::getVector()
 	std::vector<varType> newVals;
 	for(auto it=vals.begin(); it!=vals.end(); it++)
 		newVals.push_back(convertVariable<varType>(*it));
-	edm::LogInfo ("l1t::setting::getVector") << "Returning vector with values " << this->getValueAsStr();
+	//edm::LogInfo ("l1t::setting::getVector") << "Returning vector with values " << this->getValueAsStr();
 	return newVals;
 }
 
@@ -93,7 +93,7 @@ template <class varType> varType setting::getValue()
 	if ( type_.find("vector") != std::string::npos )
 		throw std::runtime_error("The registered type: " + type_ + " is vector so you need to call the getVector method");
 	
-	edm::LogInfo ("l1t::setting::getValue") << "Returning value " << this->getValueAsStr();
+	//edm::LogInfo ("l1t::setting::getValue") << "Returning value " << this->getValueAsStr();
 	return convertVariable<varType>(value_);
 }
 
@@ -113,7 +113,7 @@ template <class varType> varType tableRow::getRowValue(const std::string& col)
 	if (!found)
 		throw std::runtime_error ("Column " + col + "not found.");
 
-	edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << convertVariable<varType>(row_.at(ct)) <<  " from table " << tableId_ << " and row " << this->getRowAsStr();
+	//edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << convertVariable<varType>(row_.at(ct)) <<  " from table " << tableId_ << " and row " << this->getRowAsStr();
 	return convertVariable<varType>(row_.at(ct));
 }
 

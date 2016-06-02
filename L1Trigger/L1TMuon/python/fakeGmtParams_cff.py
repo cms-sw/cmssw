@@ -13,12 +13,6 @@ gmtParamsSource = cms.ESSource(
 )
 
 gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
-    #fwVersion = cms.uint32(1),
-    fwVersion = cms.uint32(0x2020000),
-
-    # prefix for uGMT keys in DB
-    uGmtDbName = cms.string('UGMT'),
-
     # id for uGMT settings
     uGmtProcessorId = cms.string('ugmt_processor'),
     hwXmlFile = cms.string('L1Trigger/L1TMuon/data/o2o/ugmt/UGMT_HW.xml'),
@@ -26,6 +20,9 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     xmlCfgKey = cms.string('TestKey1'),
     # get configuration from DB and ignore values below this one
     configFromXml = cms.bool(True),
+
+    #fwVersion = cms.uint32(1),
+    fwVersion = cms.uint32(0x2020000),
 
     # uGMT inputs to disable
     # disabled inputs are not used in the algo but are still in the readout
