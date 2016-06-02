@@ -242,7 +242,7 @@ void MillePedeFileReader
           tZobsErr[det] = ObsErr;
         }
 
-        if (abs(ObsMove) > maxMoveCut_) {
+        if (std::abs(ObsMove) > maxMoveCut_) {
           Movements   = false;
           Error       = false;
           Significant = false;
@@ -250,10 +250,10 @@ void MillePedeFileReader
           HitMax      = false;
           continue;
 
-        } else if (abs(ObsMove) > Cutoffs[alignableIndex]) {
+        } else if (std::abs(ObsMove) > Cutoffs[alignableIndex]) {
           Movements = true;
 
-          if (abs(ObsErr) > maxErrorCut_) {
+          if (std::abs(ObsErr) > maxErrorCut_) {
             Error       = false;
             Significant = false;
             updateDB   = false;
@@ -261,7 +261,7 @@ void MillePedeFileReader
             continue;
           } else {
             Error = true;
-            if (abs(ObsMove/ObsErr) > sigCut_) {
+            if (std::abs(ObsMove/ObsErr) > sigCut_) {
               Significant = true;
             }
           }
