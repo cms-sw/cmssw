@@ -9,8 +9,8 @@ import sys
 import netrc
 import logging
 
-prod_db_service = 'cms_orcon_prod'
-dev_db_service = 'cms_orcoff_prep'
+prod_db_service = ['cms_orcon_prod','o2o_prod']
+dev_db_service = ['cms_orcoff_prep','o2o_dev']
 schema_name = 'CMS_CONDITIONS'
 oracle_tpl = 'oracle://%s:%s@%s'
 private_db = 'sqlite:///o2o_jobs.db'
@@ -31,6 +31,7 @@ logFormatter = logging.Formatter(fmt_str)
 
 class O2OJob(_Base):
     __tablename__      = 'O2O_JOB'
+    __table_args__     = {'schema' : schema_name}
     name               = sqlalchemy.Column(sqlalchemy.String(100),    primary_key=True)
     enabled            = sqlalchemy.Column(sqlalchemy.Integer,        nullable=False)
     tag_name           = sqlalchemy.Column(sqlalchemy.String(100),    nullable=False)
@@ -38,21 +39,22 @@ class O2OJob(_Base):
 
 class O2ORun(_Base):
     __tablename__      = 'O2O_RUN'
+    __table_args__     = {'schema' : schema_name}
     job_name           = sqlalchemy.Column(sqlalchemy.String(100),    primary_key=True)
     start_time         = sqlalchemy.Column(sqlalchemy.TIMESTAMP,      primary_key=True)
     end_time           = sqlalchemy.Column(sqlalchemy.TIMESTAMP,      nullable=True)
     status_code        = sqlalchemy.Column(sqlalchemy.Integer,        nullable=False)
     log                = sqlalchemy.Column(sqlalchemy.CLOB,           nullable=True)
 
-def get_db_credentials( serviceName, authFile ):
+def get_db_credentials( db_service, authFile ):
     pwd = None
     if authFile is None:
        if authPathEnvVar in os.environ:
             authPath = os.environ[authPathEnvVar]
             authFile = os.path.join(authPath,'.netrc')
             logging.debug('Retrieving credentials from file %s' %authFile )
-    (username, account, pwd) = netrc.netrc( authFile ).authenticators(serviceName)
-    return pwd
+    (username, account, pwd) = netrc.netrc( authFile ).authenticators(db_service[1])
+    return username,pwd
 
 
 class O2OMgr(object):
@@ -74,14 +76,15 @@ class O2OMgr(object):
         else:
             self.logger.info('Getting credentials')
             try:
-                pwd = get_db_credentials( db_service, auth )
+                username, pwd = get_db_credentials( db_service, auth )
             except Exception as e:
                 logging.debug(str(e))
+                username = None
                 pwd = None
-            if not pwd:
-                logging.error('Credentials for service %s are not available',db_service)
+            if username is None:
+                logging.error('Credentials for service %s are not available',db_service[0])
                 return None
-            url = oracle_tpl %(schema_name,pwd,db_service)
+            url = oracle_tpl %(username,pwd,db_service[0])
         session = None
         try:
             self.eng = sqlalchemy.create_engine( url )
