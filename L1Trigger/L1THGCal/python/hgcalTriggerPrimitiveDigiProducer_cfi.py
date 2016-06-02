@@ -7,6 +7,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
                      NData = cms.uint32(12),
                      DataLength = cms.uint32(8),
                      linLSB = cms.double(100./1024.),
+                     triggerCellTruncationBits = cms.uint32(2),
                      #take the following parameters from the digitization config file
                      adcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC,
                      adcnBits = digiparam.hgceeDigitizer.digiCfg.feCfg.adcNbits,
@@ -33,7 +34,7 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
     bhDigis = cms.InputTag('mix:HGCDigisHEback'),
     TriggerGeometry = geometry,
-    FECodec = fe_codec,
+    FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet( 
         algorithms = cms.VPSet( cluster_algo )
         )
@@ -43,7 +44,7 @@ hgcalTriggerPrimitiveDigiFEReproducer = cms.EDProducer(
     "HGCalTriggerDigiFEReproducer",
     feDigis = cms.InputTag('hgcalTriggerPrimitiveDigiProducer'),
     TriggerGeometry = geometry,
-    FECodec = fe_codec,
+    FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet( 
         algorithms = cms.VPSet( cluster_algo )
         )

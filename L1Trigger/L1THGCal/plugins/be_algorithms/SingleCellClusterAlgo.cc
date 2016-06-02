@@ -42,18 +42,15 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
         const std::unique_ptr<HGCalTriggerGeometryBase>& geom) 
 /*****************************************************************/
 {
-    std::cout<<"####################################\n";
     for( const auto& digi : coll ) 
     {
         HGCalBestChoiceCodec::data_type data;
         data.reset();
         const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
-        std::cout<<"zside="<<moduleId.zside()<<",layer="<<moduleId.layer()<<",module="<<moduleId.wafer()<<"\n";
         int i = 0;
         for(const auto& value : data.payload)
         {
-            std::cout<<"  "<<i<<"="<<value<<"\n";
             if(value>0)
             {
                 // dummy cluster without position

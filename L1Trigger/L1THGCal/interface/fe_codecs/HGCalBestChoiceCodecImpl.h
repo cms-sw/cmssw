@@ -48,6 +48,8 @@ class HGCalBestChoiceCodecImpl
         double   tdcsaturation() const {return tdcsaturation_;}
         uint32_t tdcnBits()      const {return tdcnBits_;}
         double   tdcOnsetfC()    const {return tdcOnsetfC_;}
+        uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
+        uint32_t triggerCellSaturationBits() const {return triggerCellSaturationBits_;}
 
 
     private:
@@ -62,6 +64,8 @@ class HGCalBestChoiceCodecImpl
         double   tdcOnsetfC_ ;
         double   adcLSB_;
         double   tdcLSB_;
+        uint32_t triggerCellTruncationBits_;
+        uint32_t triggerCellSaturationBits_;
 
 };
 

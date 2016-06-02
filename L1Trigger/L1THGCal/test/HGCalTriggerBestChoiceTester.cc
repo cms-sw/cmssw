@@ -17,6 +17,7 @@
 
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
+#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
@@ -45,9 +46,11 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
 
 
     private:
+        void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
+        void rerunBestChoiceFragments(const edm::Event&, const edm::EventSetup&);
         void fillModule(const std::vector<HGCEEDataFrame>&, const HGCalBestChoiceDataPayload&,  const vector<pair<HGCEEDetId, uint32_t > >& );
         // inputs
-        edm::EDGetToken inputee_, inputfh_, inputbh_;
+        edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
         //
         std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_; 
         std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
@@ -60,6 +63,8 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
         TH1F* triggerCellsPerModule_;
         TH1F* triggerCellData_;
         TH1F* triggerCellModuleSum_;
+        TH2F* selectedCellsVsAllCells_; 
+        TH2F* energyLossVsNCells_;
 
 };
 
@@ -68,7 +73,9 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
 HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterSet& conf):
   inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
   inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
-  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis")))
+  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
+  inputbeall_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersAll"))),
+  inputbeselect_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersSelect")))
 /*****************************************************************/
 {
     //setup geometry 
@@ -85,12 +92,15 @@ HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterS
     hgcCellsPerModule_       = fs_->make<TH1F>("hgcCellsPerModule","Number of cells per module", 64, 0., 64.);
     hgcCellData_             = fs_->make<TH1F>("hgcCellData","Cell values", 500, 0., 500.);
     //
-    hgcCellData_linampl_        = fs_->make<TH1F>("hgcCellData_linampl_","Cell linearized amplitudes values All", 1250, 0, 25000);
+    hgcCellData_linampl_     = fs_->make<TH1F>("hgcCellData_linampl_","Cell linearized amplitudes values All", 1250, 0, 25000);
     //
     hgcCellModuleSum_        = fs_->make<TH1F>("hgcCellModuleSum","Cell sum in modules", 1000, 0., 1000.);
     triggerCellsPerModule_   = fs_->make<TH1F>("TriggerCellsPerModule","Number of trigger cells per module", 64, 0., 64.);
     triggerCellData_         = fs_->make<TH1F>("TriggerCellData","Trigger cell values", 500, 0., 500.);
     triggerCellModuleSum_    = fs_->make<TH1F>("TriggerCellModuleSum","Trigger cell sum in modules", 1000, 0., 1000.);
+    //
+    selectedCellsVsAllCells_ = fs_->make<TH2F>("selectedCellsVsAllCells","Number of selected cells vs number of cell", 128, 0, 128, 128, 0., 128.);
+    energyLossVsNCells_      = fs_->make<TH2F>("energyLossVsNCells","Relative energy loss after selection vs number of cell", 128, 0., 128., 101, 0, 1.01);
 }
 
 
@@ -120,10 +130,69 @@ void HGCalTriggerBestChoiceTester::beginRun(const edm::Run& /*run*/,
     triggerGeometry_->initialize(info);
 }
 
-
-
 /*****************************************************************/
 void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e, 
+                                        const edm::EventSetup& es) 
+/*****************************************************************/
+{
+    checkSelectedCells(e, es);
+    rerunBestChoice(e, es);
+
+}
+
+/*****************************************************************/
+void HGCalTriggerBestChoiceTester::checkSelectedCells(const edm::Event& e, 
+                                        const edm::EventSetup& es) 
+/*****************************************************************/
+{
+    edm::Handle<l1t::HGCalClusterBxCollection> be_clusters_all_h;
+    edm::Handle<l1t::HGCalClusterBxCollection> be_clusters_select_h;
+    e.getByToken(inputbeall_,be_clusters_all_h);
+    e.getByToken(inputbeselect_,be_clusters_select_h);
+
+    const l1t::HGCalClusterBxCollection& be_clusters_all = *be_clusters_all_h;
+    const l1t::HGCalClusterBxCollection& be_clusters_select = *be_clusters_select_h;
+
+    // store trigger cells module by module
+    std::map<std::tuple<uint32_t,uint32_t,uint32_t>, std::vector<std::pair<uint32_t,uint32_t>>> module_triggercells_all;
+    for(auto cl_itr=be_clusters_all.begin(0); cl_itr!=be_clusters_all.end(0); cl_itr++)   
+    {
+        const l1t::HGCalCluster& cluster = *cl_itr;
+        auto itr_insert = module_triggercells_all.emplace( std::make_tuple(cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
+        itr_insert.first->second.emplace_back(cluster.hwEta(), cluster.hwPt()); // FIXME: the index within the module has been stored in hwEta
+    }
+    std::map<std::tuple<uint32_t,uint32_t,uint32_t>, std::vector<std::pair<uint32_t,uint32_t>>> module_triggercells_select;
+    for(auto cl_itr=be_clusters_select.begin(0); cl_itr!=be_clusters_select.end(0); cl_itr++)   
+    {
+        const l1t::HGCalCluster& cluster = *cl_itr;
+        auto itr_insert = module_triggercells_select.emplace( std::make_tuple(cluster.subDet(), cluster.layer(), cluster.module()),  std::vector<std::pair<uint32_t,uint32_t>>());
+        itr_insert.first->second.emplace_back(cluster.hwEta(), cluster.hwPt()); // FIXME: the index within the module has been stored in hwEta
+    }
+
+    // Compare 'all' and 'selected' trigger cells, module by module
+    for(const auto& module_cells : module_triggercells_all)
+    {
+        const auto& module_cells_select_itr = module_triggercells_select.find(module_cells.first);
+        if(module_cells_select_itr==module_triggercells_select.end())
+        {
+            std::cout<<"ERROR: Cannot find module for selected cells\n"; 
+        }
+        size_t ncells_all = module_cells.second.size();
+        size_t ncells_select = module_cells_select_itr->second.size();
+        uint32_t energy_all = 0;
+        uint32_t energy_select = 0;
+        for(const auto& id_energy : module_cells.second) energy_all += id_energy.second;
+        for(const auto& id_energy : module_cells_select_itr->second) energy_select += id_energy.second;
+        selectedCellsVsAllCells_->Fill(ncells_all, ncells_select);
+        if(energy_all>0) energyLossVsNCells_->Fill(ncells_all, (double)energy_select/(double)energy_all);
+    }
+
+    //std::cout<<"All trigger cells = "<<be_clusters_all.size(0)<<"\n";
+    //std::cout<<"Selected trigger cells = "<<be_clusters_select.size(0)<<"\n";
+}
+
+/*****************************************************************/
+void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e, 
                                         const edm::EventSetup& es) 
 /*****************************************************************/
 {
