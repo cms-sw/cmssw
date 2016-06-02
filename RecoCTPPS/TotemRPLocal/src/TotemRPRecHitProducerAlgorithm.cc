@@ -16,7 +16,7 @@ void TotemRPRecHitProducerAlgorithm::buildRecoHits(const edm::DetSet<TotemRPClus
 {
   for (edm::DetSet<TotemRPCluster>::const_iterator it = input.begin(); it!=input.end(); ++it)
   {
-    double nominal_sigma = 0.0191;
+    constexpr double nominal_sigma = 0.0191;
     output.push_back(TotemRPRecHit(rp_topology_.GetHitPositionInReadoutDirection(it->getCenterStripPosition()), nominal_sigma));
   }  
 }
