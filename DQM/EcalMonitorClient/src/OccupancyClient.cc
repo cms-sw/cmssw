@@ -7,8 +7,6 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "TMath.h"
 namespace ecaldqm
 {
   OccupancyClient::OccupancyClient() :
@@ -181,22 +179,26 @@ namespace ecaldqm
 
     // Quality check: set entire FED to BAD if its occupancy begins to vanish
     // Fill FED statistics from (filtered) RecHit Occupancy 
-    std::vector<float> FEDStatsEB;
-    std::vector<float> FEDStatsEE;
+    float meanFEDEB(0), meanFEDEE(0), rmsFEDEB(0), rmsFEDEE(0);
+    unsigned int nFEDEB(0), nFEDEE(0);
     for ( unsigned iDCC(0); iDCC < nDCC; iDCC++ ) {
-      if ( iDCC >= kEBmLow && iDCC <= kEBpHigh )
-        FEDStatsEB.push_back( Nrhentries[iDCC] );
-      else
-        FEDStatsEE.push_back( Nrhentries[iDCC] );
+      if ( iDCC >=kEBmLow && iDCC <= kEBpHigh) {
+        meanFEDEB += Nrhentries[iDCC];
+        rmsFEDEB  += Nrhentries[iDCC]*Nrhentries[iDCC];
+        nFEDEB++;
+      }
+      else {
+        meanFEDEE += Nrhentries[iDCC];
+        rmsFEDEE  += Nrhentries[iDCC]*Nrhentries[iDCC];
+        nFEDEE++;
+      }
     }
+    meanFEDEB /= float( nFEDEB ); rmsFEDEB /= float( nFEDEB );
+    meanFEDEE /= float( nFEDEE ); rmsFEDEE /= float( nFEDEE );
+    rmsFEDEB   = sqrt( abs(rmsFEDEB - meanFEDEB*meanFEDEB) );
+    rmsFEDEE   = sqrt( abs(rmsFEDEE - meanFEDEE*meanFEDEE) );
     // Analyze FED statistics
-    float meanFED(0.);
-    float meanFEDEB( TMath::Mean( FEDStatsEB.begin(),FEDStatsEB.end()) );
-    float meanFEDEE( TMath::Mean( FEDStatsEE.begin(),FEDStatsEE.end()) );
-    float rmsFED(0.);
-    float rmsFEDEB( TMath::RMS( FEDStatsEB.begin(),FEDStatsEB.end()) );
-    float rmsFEDEE( TMath::RMS( FEDStatsEE.begin(),FEDStatsEE.end()) );
-    float nRMS(5.);
+    float meanFED(0.), rmsFED(0.), nRMS(5.);
     for ( MESet::iterator qsItr(meQualitySummary.beginChannel()); qsItr != meQualitySummary.end(); qsItr.toNextChannel() ) {
       DetId id( qsItr->getId() );
       unsigned iDCC( dccId(id)-1 );
