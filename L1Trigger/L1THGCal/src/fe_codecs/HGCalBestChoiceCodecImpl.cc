@@ -17,6 +17,8 @@ HGCalBestChoiceCodecImpl::HGCalBestChoiceCodecImpl(const edm::ParameterSet& conf
     triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits"))
 /*****************************************************************/
 {
+  // Cannot have more selected cells than the max number of cells
+  if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
   adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
   tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
   triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;

@@ -136,7 +136,7 @@ void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e,
 /*****************************************************************/
 {
     checkSelectedCells(e, es);
-    rerunBestChoice(e, es);
+    rerunBestChoiceFragments(e, es);
 
 }
 
