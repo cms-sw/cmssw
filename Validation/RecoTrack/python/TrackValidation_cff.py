@@ -34,6 +34,36 @@ for era in _cfg.allEras():
     locals()["_seedProducers"+pf] = _seedProd + _cfg.seedProducers(era)
     locals()["_trackProducers"+pf] = _trackProd + _cfg.trackProducers(era)
 
+# FIXME ::  this part will be removed when phase2 tracking is migrated to eras
+_algos_trackingPhase2PU140 = [
+    "generalTracks",
+    "initialStep",
+    "highPtTripletStep",
+    "lowPtQuadStep",
+    "lowPtTripletStep",
+    "detachedQuadStep",
+    "pixelPairStep",
+    "muonSeededStepInOut",
+]
+_seedProducers_trackingPhase2PU140 = [
+    "initialStepSeeds",
+    "highPtTripletStepSeeds",
+    "lowPtQuadStepSeeds",
+    "lowPtTripletStepSeeds",
+    "detachedQuadStepSeeds",
+    "pixelPairStepSeeds",
+    "muonSeededSeedsInOut",
+]
+_trackProducers_trackingPhase2PU140 = [
+    "initialStepTracks",
+    "highPtTripletStepTracks",
+    "lowPtQuadStepTracks",
+    "lowPtTripletStepTracks",
+    "detachedQuadStepTracks",
+    "pixelPairStepTracks",
+    "muonSeededTracksInOut",
+]
+
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
                                  "muonSeededSeedsInOut",
@@ -138,6 +168,7 @@ _relevantEras = [
     _eraPostfix("trackingLowPU"),
     _eraPostfix("trackingPhase1"),
     _eraPostfix("trackingPhase1PU70"),
+    _eraPostfix("trackingPhase2PU140"),
 ]
 _relevantErasAndFastSim = _relevantEras + [_eraPostfix("fastSim")]
 def _translateArgs(args, postfix, modDict):

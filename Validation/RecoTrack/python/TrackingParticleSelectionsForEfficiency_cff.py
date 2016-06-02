@@ -29,3 +29,5 @@ def _modifyForPhase1(pset):
     pset.maxRapidity = 3
 eras.phase1Pixel.toModify(generalTpSelectorBlock, _modifyForPhase1)
 eras.phase1Pixel.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase1)
+eras.phase2_tracker.toModify(generalTpSelectorBlock, minRapidity=-4.5, maxRapidity=4.5)
+eras.phase2_tracker.toModify(TpSelectorForEfficiencyVsEtaBlock, minRapidity=-4.5, maxRapidity=4.5)

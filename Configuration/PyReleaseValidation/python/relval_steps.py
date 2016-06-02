@@ -1643,11 +1643,11 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['RecoFullLocal'][k]['--customise']=cust
     if era is not None: upgradeStepDict['RecoFullLocal'][k]['--era']=era
 
-    upgradeStepDict['RecoFullTracking'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly',
+    upgradeStepDict['RecoFullTracking'][k] = {'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
                                       '--conditions':gt,
-                                      '--datatier':'GEN-SIM-RECO',
+                                      '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
-                                      '--eventcontent':'RECOSIM',
+                                      '--eventcontent':'RECOSIM,DQM',
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['RecoFullTracking'][k]['--customise']=cust
@@ -1669,6 +1669,20 @@ for k in upgradeKeys:
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPUHGCAL'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullHGCAL'][k]])
+
+    upgradeStepDict['HARVESTFullTracking'][k]={'-s':'HARVESTING:@trackingOnlyValidation',
+                                    '--conditions':gt,
+                                    '--mc':'',
+                                    '--geometry' : geom,
+                                    '--scenario' : 'pp',
+                                    '--filetype':'DQM'
+                                    }
+    if cust!=None : upgradeStepDict['HARVESTFullTracking'][k]['--customise']=cust
+    if era is not None: upgradeStepDict['HARVESTFullTracking'][k]['--era']=era
+
+    if k2 in PUDataSets:
+        upgradeStepDict['HARVESTFullTrackingPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFullTracking'][k]])
+
 
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,

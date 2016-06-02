@@ -19,10 +19,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
@@ -46,16 +48,20 @@ private:
 
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinksToken_;
   edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > sistripSimLinksToken_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClustersToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
 };
 
 ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterSet & cfg)
   : sipixelSimLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(cfg.getParameter<edm::InputTag>("pixelSimLinkSrc"))),
     sistripSimLinksToken_(consumes<edm::DetSetVector<StripDigiSimLink> >(cfg.getParameter<edm::InputTag>("stripSimLinkSrc"))),
+    siphase2OTSimLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(cfg.getParameter<edm::InputTag>("phase2OTSimLinkSrc"))),
     pixelClustersToken_(consumes<edmNew::DetSetVector<SiPixelCluster> >(cfg.getParameter<edm::InputTag>("pixelClusterSrc"))),
     stripClustersToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
+    phase2OTClustersToken_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(cfg.getParameter<edm::InputTag>("phase2OTClusterSrc"))),
     trackingParticleToken_(consumes<TrackingParticleCollection>(cfg.getParameter<edm::InputTag>("trackingParticleSrc")))
 {
   produces<ClusterTPAssociation>();
@@ -69,8 +75,10 @@ void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("simTrackSrc",     edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis"));
   desc.add<edm::InputTag>("stripSimLinkSrc", edm::InputTag("simSiStripDigis"));
+  desc.add<edm::InputTag>("phase2OTSimLinkSrc", edm::InputTag("simPh2OTDigis"));
   desc.add<edm::InputTag>("pixelClusterSrc", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
+  desc.add<edm::InputTag>("phase2OTClusterSrc", edm::InputTag("siPhase2Clusters"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
   descriptions.add("tpClusterProducer", desc);
 }
@@ -85,6 +93,10 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   edm::Handle<edm::DetSetVector<StripDigiSimLink> > sistripSimLinks;
   iEvent.getByToken(sistripSimLinksToken_,sistripSimLinks);
 
+  // Phase2 OT DigiSimLink
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinks;
+  iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinks);
+
   // Pixel Cluster
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
   bool foundPixelClusters = iEvent.getByToken(pixelClustersToken_,pixelClusters);
@@ -93,6 +105,9 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
   bool foundStripClusters = iEvent.getByToken(stripClustersToken_,stripClusters);
 
+  // Phase2 Cluster
+  edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters;
+  bool foundPhase2OTClusters = iEvent.getByToken(phase2OTClustersToken_, phase2OTClusters);
 
   // TrackingParticle
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
@@ -186,6 +201,43 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
     }
   }
 
+  if ( foundPhase2OTClusters ) {
+
+    // Phase2 Clusters
+    if(phase2OTClusters.isValid()){
+      for (edmNew::DetSetVector<Phase2TrackerCluster1D>::const_iterator iter  = phase2OTClusters->begin(false), eter = phase2OTClusters->end(false);
+                                                                iter != eter; ++iter) {
+        if (!(*iter).isValid()) continue;
+        uint32_t detid = iter->id();
+        DetId detId(detid);
+        edmNew::DetSet<Phase2TrackerCluster1D> link_phase2 = (*iter);
+        for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator di  = link_phase2.begin();
+             di != link_phase2.end(); di++) {
+          const Phase2TrackerCluster1D& cluster = (*di);
+          edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> c_ref =
+            edmNew::makeRefTo(phase2OTClusters, di);
+    
+          std::set<std::pair<uint32_t, EncodedEventId> > simTkIds;
+    
+          for (unsigned int istr(0); istr < cluster.size(); ++istr) {
+            uint32_t channel = Phase2TrackerDigi::pixelToChannel(cluster.firstRow() + istr, cluster.column());
+            std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<PixelDigiSimLink>(siphase2OTSimLinks, detId, channel));
+            if (trkid.size()==0) continue;
+            simTkIds.insert(trkid.begin(),trkid.end());
+          }
+    
+          for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin();
+                                                                              iset != simTkIds.end(); iset++) {
+            auto ipos = mapping.find(*iset);
+            if (ipos != mapping.end()) {
+              clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
+            }
+          }
+        }
+      }
+    }
+
+  }
   clusterTPList->sort();
   iEvent.put(std::move(clusterTPList));
 }
