@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <cmath>
+
 namespace ecaldqm
 {
   TrigPrimClient::TrigPrimClient() :
