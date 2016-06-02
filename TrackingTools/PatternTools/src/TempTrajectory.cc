@@ -3,6 +3,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -17,12 +18,12 @@ namespace {
     }
     return n;
   }
-
 }
 
 TempTrajectory::TempTrajectory(Trajectory && traj):
   theChiSquared(0),
   theNumberOfFoundHits(0),
+  theNumberOfFoundPixelHits(0),
   theNumberOfLostHits(0),
   theNumberOfCCCBadHits_(0),
   theDirection(traj.direction()),
@@ -45,6 +46,7 @@ void TempTrajectory::pop() {
     if (theData.back().recHit()->isValid()) {
         theNumberOfFoundHits--;
         if(badForCCC(theData.back())) theNumberOfCCCBadHits_--; 
+        if(Trajectory::pixel(*(theData.back().recHit()))) theNumberOfFoundPixelHits--;
     }
     else if(lost(* (theData.back().recHit()) )) {theNumberOfLostHits--;}
     theData.pop_back();
@@ -60,7 +62,8 @@ void TempTrajectory::pushAux(double chi2Increment) {
     theNumberOfFoundHits++;
     theNumberOfTrailingFoundHits++;
     if (badForCCC(tm)) theNumberOfCCCBadHits_++;
-   }
+    if(Trajectory::pixel(*(tm.recHit()))) theNumberOfFoundPixelHits++;
+  }
   //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
   else if (lost( *(tm.recHit()) ) )   { theNumberOfLostHits++; theNumberOfTrailingFoundHits=0;}
 
@@ -80,6 +83,7 @@ void TempTrajectory::push(const TempTrajectory& segment) {
     tmp[i++] =&tm;
   while(i!=0) theData.push_back(*tmp[--i]);
   theNumberOfFoundHits+= segment.theNumberOfFoundHits;
+  theNumberOfFoundPixelHits+= segment.theNumberOfFoundPixelHits;
   theNumberOfLostHits += segment.theNumberOfLostHits;
   theNumberOfCCCBadHits_ += segment.theNumberOfCCCBadHits_;
   theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
@@ -97,6 +101,7 @@ void TempTrajectory::join( TempTrajectory& segment) {
   } else {
     theData.join(segment.theData);
     theNumberOfFoundHits+= segment.theNumberOfFoundHits;
+    theNumberOfFoundPixelHits+= segment.theNumberOfFoundPixelHits;
     theNumberOfLostHits += segment.theNumberOfLostHits;
     theNumberOfCCCBadHits_ += segment.theNumberOfCCCBadHits_;
     theNumberOfTrailingFoundHits=countTrailingValidHits(theData);
@@ -132,7 +137,7 @@ bool TempTrajectory::badForCCC(const TrajectoryMeasurement &tm) {
   auto const * thit = static_cast<const BaseTrackerRecHit*>( tm.recHit()->hit() );
   if (!thit)
     return false;
-  if (thit->isPixel())
+  if (thit->isPixel() || thit->isPhase2())
     return false;
   if (!tm.updatedState().isValid())
     return false;

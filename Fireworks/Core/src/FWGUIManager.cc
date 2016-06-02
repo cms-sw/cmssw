@@ -62,6 +62,7 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/interface/CmsShowEDI.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -688,6 +689,7 @@ FWGUIManager::showCommonPopup()
    if (! m_commonPopup)
    {
       m_commonPopup = new CmsShowCommonPopup(m_context->commonPrefs(), m_cmsShowMainFrame, 200, 200);
+      m_context->commonPrefs()->setView(m_commonPopup);
       m_cmsShowMainFrame->bindCSGActionKeys(m_commonPopup);
    }
    m_commonPopup->MapRaised();

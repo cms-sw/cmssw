@@ -32,7 +32,7 @@ void MuonPSimHitSelector::select(PSimHitCollection & selection, edm::Event const
     }
 
     // Create a mix collection from the different psimhit collections
-    std::auto_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
+    std::unique_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
     // Get CSC Bad Chambers (ME4/2)
     edm::ESHandle<CSCBadChambers> cscBadChambers;

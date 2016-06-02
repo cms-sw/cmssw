@@ -74,6 +74,7 @@ public:
   std::vector<HFCellParameters>    getHFCellParameters() const;
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(const int itype, const int ieta) const;
+  int                       getMinDepth(const int itype, const int ieta) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   int                       getNoff(const int i) const {return hpar->noff[i];}
   int                       getNPhi(const int type) const {return nPhiBins[type];}

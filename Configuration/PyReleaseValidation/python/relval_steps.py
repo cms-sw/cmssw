@@ -1,6 +1,7 @@
 from MatrixUtil import *
 
 from Configuration.HLT.autoHLT import autoHLT
+from Configuration.AlCa.autoPCL import autoPCL
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -783,20 +784,31 @@ steps['Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu']=
 steps['GGToHtaurhonu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
 
 # normal fullSim workflows using gridpack LHE generator
-# LHE step
-steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=merge([{'--relval':'29000,100'},step1LHENormal,steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']])
-steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
-steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
-steps['VBFHToBB_M125_Pow_py8_Evt_13']=merge([{'--relval':'9000,100'},step1LHENormal,genvalid('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cff.py',step1LHEDefaults)])
+# LHE-GEN-SIM step
+step1LHEGenSimDefault = { '--relval':'9000,50',
+                          '-s':'LHE,GEN,SIM',
+                          '-n'            : 10,
+                          '--conditions'  : 'auto:run2_mc',
+                          '--beamspot'    : 'Realistic50ns13TeVCollision',
+                          '--datatier'    : 'GEN-SIM,LHE',
+                          '--eventcontent': 'FEVTDEBUG,LHE',
+                          '--era'         : 'Run2_2016',
+                        }
 
+def lhegensim(fragment,howMuch):
+    global step1LHEGenSimDefault
+    return merge([{'cfg':fragment},howMuch,step1LHEGenSimDefault])
 
-# GEN-SIM step
-steps['GENSIM_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_py8_Evt'] = merge([step1GENNormal,steps['Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_evtgen']])
-steps['GENSIM_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_pythia8_cff',step1HadronizerDefaults)])
-steps['GENSIM_TuneCUETP8M1_13TeV_VBFHZZ4Nu_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_3p_HToZZ4nu_M-125_LHE_pythia8_cff',step1HadronizerDefaults)])
-steps['GENSIM_TuneCUETP8M1_13TeV_VBFHBB_powhegEmissionVeto_LHE_py8_Evt'] = merge([step1GENNormal,genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_3p_HToBB_M-125_LHE_pythia8_cff',step1HadronizerDefaults)])
+steps['TTbar012Jets_NLO_Mad_py8_Evt_13']=lhegensim('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cfi.py',Kby(9,50))
+steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,50))
+steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
+steps['VBFHToBB_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,50))
 
-
+#GEN-SIM inputs for LHE-GEN-SIM workflows
+#steps['TTbar012Jets_NLO_Mad_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar012Jets_NLO_Mad_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToZZTo4L_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToZZTo4Nu_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['VBFHToBB_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValVBFHToBB_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
 
 #Sherpa
@@ -1255,34 +1267,45 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQualit
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
 
-
-steps['ALCAHARVD1']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
-                    '--conditions':'auto:run1_data',
-                    '--scenario':'pp',
-                    '--data':'',
-                    '--filein':'file:PromptCalibProd.root'}
+steps['ALCAHARVD1']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProd']),
+                     '--conditions':'auto:run1_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProd.root'}
 steps['ALCAHARVD1HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD1']])
 
-steps['ALCAHARVD2']={'-s':'ALCAHARVEST:SiStripQuality',
-                    '--conditions':'auto:run1_data',
-                    '--scenario':'pp',
-                    '--data':'',
-                    '--filein':'file:PromptCalibProdSiStrip.root'}
+steps['ALCAHARVD2']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStrip']),
+                     '--conditions':'auto:run1_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiStrip.root'}
+
 steps['ALCAHARVD2HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD2']])
 
-steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains+SiStripGainsAfterAbortGap',
-                    '--conditions':'auto:run1_data',
-                    '--scenario':'pp',
-                    '--data':'',
-                    '--filein':'file:PromptCalibProdSiStripGains.root'}
+steps['ALCAHARVD3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripGains']),
+                     '--conditions':'auto:run1_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiStripGains.root'}
+
 steps['ALCAHARVD3HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD3']])
 
-steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
-                    '--conditions':'auto:run1_data',
-                    '--scenario':'pp',
-                    '--data':'',
-                    '--filein':'file:PromptCalibProdSiPixelAli.root'}
+steps['ALCAHARVD4']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAli']),
+                     '--conditions':'auto:run1_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiPixelAli.root'}
+
 steps['ALCAHARVD4HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD4']])
+
+steps['ALCAHARVD5']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripGainsAfterAbortGap']),
+                     '--conditions':'auto:run1_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiStripGainsAfterAbortGap.root'}
+
+steps['ALCAHARVD5HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD5']])
+
 
 steps['RECOHISt4']=steps['RECOHI']
 steps['RECOHIMIX']=merge([steps['RECOHI'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9])}])
@@ -1514,6 +1537,9 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_8_1_0_pre4-80X_upgrade2017_realistic_v4_UPG17-v'
+defaultDataSets['2023GReco']='CMSSW_8_1_0_pre4-80X_mcRun2_asymptotic_v13_2023LReco-v'
+defaultDataSets['2023tilted']='CMSSW_8_1_0_pre4-80X_mcRun2_asymptotic_v13_2023tilted-v'
+
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
@@ -1534,7 +1560,11 @@ PUDataSets={}
 for ds in defaultDataSets:
     key='MinBias_TuneZ2star_14TeV_pythia6'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-    PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    if '2017' in name:
+    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    else:
+    	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_TuneZ2star_14TeV/%s/GEN-SIM'%(name,)}
+    
     #PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     #PUDataSets[ds]={'-n':10,'--pileup':'AVE_70_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
 
@@ -1644,7 +1674,7 @@ for k in upgradeKeys:
     if era is not None: upgradeStepDict['RecoFullTracking'][k]['--era']=era
 
     if k2 in PUDataSets:
-        upgradeStepDict['RecoFullPUTracking'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullTracking'][k]])
+        upgradeStepDict['RecoFullTrackingPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFullTracking'][k]])
 
 
     upgradeStepDict['RecoFullHGCAL'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',

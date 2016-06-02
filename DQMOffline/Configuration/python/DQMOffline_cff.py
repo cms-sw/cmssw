@@ -32,9 +32,6 @@ DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  es_dqm_source_offline *
                                  castorSources *
                                  HcalDQMOfflineSequence )
-eras.phase1Pixel.toReplaceWith(DQMOfflinePreDPG, DQMOfflinePreDPG.copyAndExclude([ # FIXME
-    siPixelOfflineDQM_source, # Pixel DQM needs to be updated for phase1
-]))
 
 DQMOfflineDPG = cms.Sequence( DQMOfflinePreDPG *
                               DQMMessageLogger )

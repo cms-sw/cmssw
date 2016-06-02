@@ -30,7 +30,7 @@ trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
         "effic_vs_PU_TEC6 'TEC Layer6 Efficiency vs GoodNumVertices' Hits_valid_TEC_Subdet6 Hits_total_TEC_Subdet6",
         "effic_vs_PU_TEC7 'TEC Layer7 Efficiency vs GoodNumVertices' Hits_valid_TEC_Subdet7 Hits_total_TEC_Subdet7",
         "effic_vs_PU_TEC8 'TEC Layer8 Efficiency vs GoodNumVertices' Hits_valid_TEC_Subdet8 Hits_total_TEC_Subdet8",
-        "effic_vs_PU_TEC9 'TEC Layer9 Efficiency vs GoodNumVertices' Hits_valid_TEC_Subdet9 Hits_total_TEC_Subdet9"
+        "effic_vs_PU_TEC9 'TEC Layer9 Efficiency vs GoodNumVertices' Hits_valid_TEC_Subdet9 Hits_total_TEC_Subdet9",
         "effic_vs_BX_PXB1 'PXB Layer1 Efficiency vs BX' HitsVsBX_valid_PXB_Subdet1 HitsVsBX_total_PXB_Subdet1",
         "effic_vs_BX_PXB2 'PXB Layer2 Efficiency vs BX' HitsVsBX_valid_PXB_Subdet2 HitsVsBX_total_PXB_Subdet2",
         "effic_vs_BX_PXB3 'PXB Layer3 Efficiency vs BX' HitsVsBX_valid_PXB_Subdet3 HitsVsBX_total_PXB_Subdet3",

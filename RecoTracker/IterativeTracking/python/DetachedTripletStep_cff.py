@@ -1,35 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ###############################################
 # Low pT and detached tracks from pixel triplets
 ###############################################
 
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
-
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_detachedTripletStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    trajectories                             = cms.InputTag("initialStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
-    oldClusterRemovalInfo                    = cms.InputTag(""),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-)
-detachedTripletStepClusters = _detachedTripletStepClustersBase.clone(
-   trackClassifier                          = cms.InputTag('initialStep',"QualityMasks"),
-)
-eras.trackingLowPU.toReplaceWith(detachedTripletStepClusters, _detachedTripletStepClustersBase.clone(
-    trajectories                             = "pixelPairStepTracks",
-    oldClusterRemovalInfo                    = "pixelPairStepClusters",
-    overrideTrkQuals                         = "pixelPairStepSelector:QualityMasks",
-))
-eras.trackingPhase1.toModify(detachedTripletStepClusters,
-    trajectories                             = "detachedQuadStepTracks",
-    oldClusterRemovalInfo                    = "detachedQuadStepClusters",
-    trackClassifier                          = "detachedQuadStep:QualityMasks",
-)
+detachedTripletStepClusters = _cfg.clusterRemoverForIter("DetachedTripletStep")
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(detachedTripletStepClusters, _cfg.clusterRemoverForIter("DetachedTripletStep", era))
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi

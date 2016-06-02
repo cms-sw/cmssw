@@ -58,12 +58,12 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   //fprintf (write,"12345\n"); //<-- part of printing text file to send verilog code, not needed if George's package is included
 
 
-  //std::auto_ptr<L1TMuon::InternalTrackCollection> FoundTracks (new L1TMuon::InternalTrackCollection);
-  std::auto_ptr<l1t::RegionalMuonCandBxCollection > OutputCands (new l1t::RegionalMuonCandBxCollection);
-  std::auto_ptr<l1t::EMTFTrackCollection> OutTracks (new l1t::EMTFTrackCollection);
-  std::auto_ptr<l1t::EMTFHitCollection> OutHits (new l1t::EMTFHitCollection);
-  std::auto_ptr<l1t::EMTFTrackExtraCollection> OutputTracks (new l1t::EMTFTrackExtraCollection);
-  std::auto_ptr<l1t::EMTFHitExtraCollection> OutputHits (new l1t::EMTFHitExtraCollection);
+  //std::unique_ptr<L1TMuon::InternalTrackCollection> FoundTracks (new L1TMuon::InternalTrackCollection);
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection > OutputCands (new l1t::RegionalMuonCandBxCollection);
+  std::unique_ptr<l1t::EMTFTrackCollection> OutTracks (new l1t::EMTFTrackCollection);
+  std::unique_ptr<l1t::EMTFHitCollection> OutHits (new l1t::EMTFHitCollection);
+  std::unique_ptr<l1t::EMTFTrackExtraCollection> OutputTracks (new l1t::EMTFTrackExtraCollection);
+  std::unique_ptr<l1t::EMTFHitExtraCollection> OutputHits (new l1t::EMTFHitExtraCollection);
 
   std::vector<BTrack> PTracks[NUM_SECTORS];
 
@@ -531,10 +531,10 @@ for(int sect=0;sect<12;sect++){
 }
 
 
-//ev.put( FoundTracks, "DataITC");
-ev.put( OutputCands, "EMTF");
- ev.put( OutputHits, "EMTF"); 
- ev.put( OutputTracks, "EMTF");
+//ev.put( std::move(FoundTracks), "DataITC");
+ev.put( std::move(OutputCands), "EMTF");
+ ev.put( std::move(OutputHits), "EMTF"); 
+ ev.put( std::move(OutputTracks), "EMTF");
   //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
 
 }//analyzer

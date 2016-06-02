@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
-highPtTripletStepClusters = trackClusterRemover.clone(
+from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import *
+highPtTripletStepClusters = phase2trackClusterRemover.clone(
     maxChi2                                  = cms.double(9.0),
     trajectories                             = cms.InputTag("initialStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
+    phase2pixelClusters                      = cms.InputTag("siPixelClusters"),
+    phase2OTClusters                         = cms.InputTag("siPhase2Clusters"),
     overrideTrkQuals                         = cms.InputTag('initialStepSelector','initialStep'),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
@@ -89,7 +89,7 @@ highPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectory
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 highPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('highPtTripletStepSeeds'),
-    clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
+    phase2clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),

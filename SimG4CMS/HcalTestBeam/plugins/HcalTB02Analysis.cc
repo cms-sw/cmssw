@@ -73,9 +73,9 @@ HcalTB02Analysis::~HcalTB02Analysis() {
 
 void HcalTB02Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<HcalTB02HistoClass> product(new HcalTB02HistoClass);
+  std::unique_ptr<HcalTB02HistoClass> product(new HcalTB02HistoClass);
   fillEvent(*product);
-  e.put(product);
+  e.put(std::move(product));
 }
 
 void HcalTB02Analysis::update(const BeginOfEvent * evt) {

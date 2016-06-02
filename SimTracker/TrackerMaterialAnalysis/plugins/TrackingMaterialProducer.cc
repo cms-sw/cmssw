@@ -253,8 +253,8 @@ void TrackingMaterialProducer::update(const EndOfTrack* event)
 void TrackingMaterialProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // transfer ownership to the Event
-  std::auto_ptr<std::vector<MaterialAccountingTrack> > tracks( m_tracks );
-  iEvent.put( tracks );
+  std::unique_ptr<std::vector<MaterialAccountingTrack> > tracks( m_tracks );
+  iEvent.put(std::move(tracks));
   m_tracks = 0;
 }
 

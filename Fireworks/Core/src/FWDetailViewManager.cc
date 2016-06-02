@@ -118,6 +118,15 @@ FWDetailViewManager::detailViewsFor(const FWModelId& iId) const
    std::transform(fullNames.begin(),fullNames.end(),std::back_inserter(justViewNames),&viewNameFrom);
    return justViewNames;
 }
+namespace {
+bool pluginComapreFunc (std::string a, std::string b) {
+         std::string::size_type as = a.find_first_of('&');
+         a = a.substr(0, as);
+         std::string::size_type bs = b.find_first_of('&');
+         b = b.substr(0, bs);
+         return a == b;
+}
+}
 
 std::vector<std::string>
 FWDetailViewManager::findViewersFor(const std::string& iType) const
@@ -147,7 +156,7 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
       if (m_context->getHidePFBuilders()) {
          std::size_t found = it->find("PF ");
          if (found != std::string::npos)
-            break;
+            continue;
       }
       std::string::size_type first = it->find_first_of('@');
       std::string type = it->substr(0,first);
@@ -170,7 +179,7 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
              }
           }
          }
-         if (pass)  { 
+         if (pass)  {
             returnValue.push_back(*it);
          }
          else {
@@ -181,6 +190,11 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
          }
       }
    }
+
+   std::vector<std::string>::iterator it;
+   it = std::unique (returnValue.begin(), returnValue.end(), pluginComapreFunc);
+   returnValue.resize( std::distance(returnValue.begin(),it) ); 
+
    m_typeToViewers[iType]=returnValue;
    return returnValue;
 }

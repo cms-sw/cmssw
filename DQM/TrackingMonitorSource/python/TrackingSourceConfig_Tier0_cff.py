@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
@@ -177,8 +178,8 @@ for tracks in selectedTracks :
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
     TrackingDQMSourceTier0 += locals()[label]
 # seeding monitoring
-for era in ["", "trackingLowPU", "trackingPhase1", "trackingPhase1PU70"]:
-    postfix = "_"+era if era != "" else era
+for era in _cfg.allEras():
+    postfix = _cfg.postfix(era)
     _seq = cms.Sequence()
     for step in locals()["selectedIterTrackingStep"+postfix]:
         _seq += locals()["TrackSeedMon"+step]

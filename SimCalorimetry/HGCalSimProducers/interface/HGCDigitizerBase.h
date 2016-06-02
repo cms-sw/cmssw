@@ -42,7 +42,7 @@ class HGCDigitizerBase {
  /**
     @short steer digitization mode
  */
-  void run(std::auto_ptr<DColl> &digiColl, hgc::HGCSimHitDataAccumulator &simData, uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
+  void run(std::unique_ptr<DColl> &digiColl, hgc::HGCSimHitDataAccumulator &simData, uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
   
   /**
      @short getters
@@ -54,17 +54,17 @@ class HGCDigitizerBase {
   /**
      @short a trivial digitization: sum energies and digitize without noise
    */
-  void runSimple(std::auto_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
+  void runSimple(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
   
   /**
      @short prepares the output according to the number of time samples to produce
   */
-  void updateOutput(std::auto_ptr<DColl> &coll, const DFr& rawDataFrame);
+  void updateOutput(std::unique_ptr<DColl> &coll, const DFr& rawDataFrame);
   
   /**
      @short to be specialized by top class
   */
-  virtual void runDigitizer(std::auto_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
+  virtual void runDigitizer(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
   {
     throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
   }

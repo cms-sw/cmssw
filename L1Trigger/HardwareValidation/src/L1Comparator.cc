@@ -707,7 +707,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   
   // >>---- d|e record ---- <<  
-  std::auto_ptr<L1DataEmulRecord> record
+  std::unique_ptr<L1DataEmulRecord> record
     (new L1DataEmulRecord(evt_match,m_doSys,DEmatchEvt,DEncand,m_dedigis, gltdigimon));
   if(verbose()) {
     std::cout << "\n [L1Comparator] printing DErecord" 
@@ -719,7 +719,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      << "\n" << std::flush;
   }
 
-  iEvent.put(record);
+  iEvent.put(std::move(record));
   
   if(verbose())
     std::cout << "L1comparator::analize() end. " << nevt_ << std::endl;

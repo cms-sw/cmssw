@@ -36,8 +36,8 @@ namespace {
     
     virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
  
-    using PixelMaskContainer = edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>;
-    using StripMaskContainer = edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>;
+    using PixelMaskContainer    = edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>;
+    using StripMaskContainer    = edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>;
 
     using QualityMaskCollection = std::vector<unsigned char>;
 
@@ -85,7 +85,7 @@ namespace {
 
     trajectories_(iConfig.getParameter<edm::InputTag>("trajectories"),consumesCollector()),
     pixelClusters_(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"))),
-    stripClusters_(consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters")))   
+    stripClusters_(consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters")))
   {
 
     produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
@@ -128,7 +128,7 @@ namespace {
       edm::Handle<StripMaskContainer> oldStrMask;
       iEvent.getByToken(oldPxlMaskToken_ ,oldPxlMask);
       iEvent.getByToken(oldStrMaskToken_ ,oldStrMask);
-      LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
+      LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp, "<<oldPxlMask->size()<<" pxl";
       // std::cout <<"TrackClusterRemover "<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl" << std::endl;
       oldStrMask->copyMaskTo(collectedStrips);
       oldPxlMask->copyMaskTo(collectedPixels);
@@ -177,7 +177,6 @@ namespace {
     }
 
     // if (!pquals) std::cout << "no qual collection" << std::endl;
-    
     for (auto i=0U; i<s; ++i){
       const reco::Track & track = tracks[i];
       bool goodTk =  (pquals) ? (*pquals)[i] & qualMask : track.quality(trackQuality_);
@@ -192,7 +191,7 @@ namespace {
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
         auto const & cluster = thit.firstClusterRef();
 	if (cluster.isStrip()) collectedStrips[cluster.key()]=true;
-	else                   collectedPixels[cluster.key()]=true;
+	else if (cluster.isPixel()) collectedPixels[cluster.key()]=true;
 	if (trackerHitRTTI::isMatched(thit))
 	  collectedStrips[reinterpret_cast<SiStripMatchedRecHit2D const&>(hit).stereoClusterRef().key()]=true;
       }
@@ -212,7 +211,6 @@ namespace {
       LogDebug("TrackClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels.begin(),collectedPixels.end(),true);
       iEvent.put(std::move(removedPixelClusterMask));
  
-
 
   }
 

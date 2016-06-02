@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ###############################################################
 # Large impact parameter Tracking using mixed-triplet seeding #
@@ -7,41 +8,19 @@ from Configuration.StandardSequences.Eras import eras
 
 #here just for backward compatibility
 chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
-    oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
+    oldClusterRemovalInfo = cms.InputTag(""), # to be set below
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight'))
 )
-eras.trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = "lowPtTripletStepClusters")
 
-from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
-_mixedTripletStepClustersBase = _trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    trajectories                             = cms.InputTag("pixelPairStepTracks"),
-    pixelClusters                            = cms.InputTag("siPixelClusters"),
-    stripClusters                            = cms.InputTag("siStripClusters"),
-#    oldClusterRemovalInfo                    = cms.InputTag("pixelPairStepClusters"),
-    oldClusterRemovalInfo                    = cms.InputTag("chargeCut2069Clusters"),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-)
-mixedTripletStepClusters = _mixedTripletStepClustersBase.clone(
-    trackClassifier                          = cms.InputTag('pixelPairStep',"QualityMasks"),
-)
-eras.trackingLowPU.toReplaceWith(mixedTripletStepClusters, _mixedTripletStepClustersBase.clone(
-    trajectories                             = "detachedTripletStepTracks",
-    oldClusterRemovalInfo                    = "detachedTripletStepClusters",
-    overrideTrkQuals                         = "detachedTripletStep",
-))
-eras.trackingPhase1.toModify(mixedTripletStepClusters,
-    trajectories                             = "lowPtTripletStepTracks",
-    trackClassifier                          = "lowPtTripletStep:QualityMasks",
-)
-eras.trackingPhase1PU70.toReplaceWith(mixedTripletStepClusters, _mixedTripletStepClustersBase.clone(
-    trajectories                             = "detachedQuadStepTracks",
-    oldClusterRemovalInfo                    = "detachedQuadStepClusters",
-    overrideTrkQuals                         = "detachedQuadStep",
-))
+mixedTripletStepClusters = _cfg.clusterRemoverForIter("MixedTripletStep")
+chargeCut2069Clusters.oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value()
+mixedTripletStepClusters.oldClusterRemovalInfo = "chargeCut2069Clusters"
+for era in _cfg.nonDefaultEras():
+    getattr(eras, era).toReplaceWith(mixedTripletStepClusters, _cfg.clusterRemoverForIter("MixedTripletStep", era))
+eras.trackingPhase1.toModify(chargeCut2069Clusters, oldClusterRemovalInfo = mixedTripletStepClusters.oldClusterRemovalInfo.value())
+eras.trackingPhase1.toModify(mixedTripletStepClusters, oldClusterRemovalInfo="chargeCut2069Clusters")
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *

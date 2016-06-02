@@ -135,7 +135,7 @@ void OMTFSorter::sortRefHitResults(const std::vector<OMTFProcessor::resultsMap> 
 bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 
   ///FIXME: read the list from configuration so this can be controlled at runtime.
-  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880, 896};
+  std::vector<unsigned int> badPatterns = {99840, 34304, 3075, 36928, 12300, 98816, 98944, 33408, 66688, 66176, 7171, 20528, 33856, 35840, 4156, 34880};
 
   for(auto aHitPattern: badPatterns){
     if(hits==aHitPattern) return false;
@@ -152,7 +152,6 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
 
   for(auto myCand: algoCands){
     l1t::RegionalMuonCand candidate;
-    std::bitset<17> bits(myCand.getHits());
     candidate.setHwPt(myCand.getPt());
     candidate.setHwEta(myCand.getEta());
 
@@ -167,7 +166,16 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
  
     unsigned int quality = checkHitPatternValidity(myCand.getHits()) ? 0 | (1 << 2) | (1 << 3) 
                                                                      : 0 | (1 << 2);
-    candidate.setHwQual ( quality);
+    if (    abs(myCand.getEta()) == 115
+        && (    static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000001110000000").to_ulong() 
+             || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000000001110000000").to_ulong()
+             || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000000110000000").to_ulong()
+             || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000001100000000").to_ulong()
+             || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000001010000000").to_ulong()
+           )
+       ) quality =4;
+    if (abs(myCand.getEta()) == 121) quality = 4;
+    candidate.setHwQual (quality);
 
     std::map<int, int> trackAddr;
     trackAddr[0] = myCand.getHits();

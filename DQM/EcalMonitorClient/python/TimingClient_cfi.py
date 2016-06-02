@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.EcalMonitorTasks.TimingTask_cfi import ecalTimingTask
+from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 
 minChannelEntries = 5
 minTowerEntries = 15
@@ -27,7 +28,9 @@ ecalTimingClient = cms.untracked.PSet(
     ),
     sources = cms.untracked.PSet(
         TimeAllMap = ecalTimingTask.MEs.TimeAllMap,
-        TimeMap = ecalTimingTask.MEs.TimeMap
+        TimeMap = ecalTimingTask.MEs.TimeMap,
+        TimeMapByLS = ecalTimingTask.MEs.TimeMapByLS,
+        ChStatus = ecalIntegrityClient.MEs.ChStatus
     ),
     MEs = cms.untracked.PSet(
         RMSAll = cms.untracked.PSet(

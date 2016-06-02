@@ -159,13 +159,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 
  // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
-  std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
-  std::auto_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
-  std::auto_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
-  std::auto_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
-  std::auto_ptr<GEMCSCLCTDigiCollection> oc_gemcsclct(new GEMCSCLCTDigiCollection);
+  std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
+  std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
+  std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
+  std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
+  std::unique_ptr<GEMCSCLCTDigiCollection> oc_gemcsclct(new GEMCSCLCTDigiCollection);
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
@@ -192,11 +192,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   }
 
   // Put collections in event.
-  ev.put(oc_alct);
-  ev.put(oc_clct);
-  ev.put(oc_pretrig);
-  ev.put(oc_lct);
-  ev.put(oc_sorted_lct,"MPCSORTED");
-  ev.put(oc_gemcopad);
-  ev.put(oc_gemcsclct);
+  ev.put(std::move(oc_alct));
+  ev.put(std::move(oc_clct));
+  ev.put(std::move(oc_pretrig));
+  ev.put(std::move(oc_lct));
+  ev.put(std::move(oc_sorted_lct),"MPCSORTED");
+  ev.put(std::move(oc_gemcopad));
+  ev.put(std::move(oc_gemcsclct));
 }

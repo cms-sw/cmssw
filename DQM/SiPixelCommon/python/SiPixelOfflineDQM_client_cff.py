@@ -18,24 +18,6 @@ sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     DoHitEfficiency = cms.untracked.bool(True),
     isUpgrade = cms.untracked.bool(False)	
 )
-# Modify for running with the Phase 1 pixel detector.
-# Note that with this change the sipixelPhase1Client block below is not
-# necessary, but I'll leave it for pixel upgrade experts to decide whether
-# to take it out or not.
-eras.phase1Pixel.toModify( sipixelEDAClient, isUpgrade=True )
-
-sipixelPhase1Client = cms.EDAnalyzer("SiPixelEDAClient",
-    EventOffsetForInit = cms.untracked.int32(10),
-    ActionOnLumiSection = cms.untracked.bool(False),
-    ActionOnRunEnd = cms.untracked.bool(True),
-    HighResolutionOccupancy = cms.untracked.bool(False),
-    NoiseRateCutValue = cms.untracked.double(-1.),
-    NEventsForNoiseCalculation = cms.untracked.int32(100000),
-    UseOfflineXMLFile = cms.untracked.bool(True),
-    Tier0Flag = cms.untracked.bool(True),
-    DoHitEfficiency = cms.untracked.bool(True),
-    isUpgrade = cms.untracked.bool(True)
-)
 
 #QualityTester
 sipixelQTester = cms.EDAnalyzer("QualityTester",
@@ -68,4 +50,10 @@ PixelOfflineDQMClientNoDataCertification = cms.Sequence(sipixelQTester+
 
 PixelOfflineDQMClientWithDataCertificationHI = cms.Sequence(PixelOfflineDQMClientNoDataCertification)
 PixelOfflineDQMClientWithDataCertificationHI.replace(sipixelQTester,sipixelQTesterHI)
-PixelOfflinePhase1DQMClient = cms.Sequence(sipixelPhase1Client)
+
+# Modify for running with the Phase 1 pixel detector.
+from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff import *
+eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClient, siPixelPhase1OfflineDQM_harvesting)
+#TODO: properly upgrade these and the others
+eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClientNoDataCertification, siPixelPhase1OfflineDQM_harvesting)
+eras.phase1Pixel.toReplaceWith(PixelOfflineDQMClientWithDataCertification, siPixelPhase1OfflineDQM_harvesting)

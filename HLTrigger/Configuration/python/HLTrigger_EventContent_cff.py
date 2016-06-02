@@ -11,9 +11,9 @@ import FWCore.ParameterSet.Config as cms
 HLTriggerRAW  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_hltGtStage2ObjectMap_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
         'keep FEDRawDataCollection_source_*_*',
+        'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
@@ -22,7 +22,7 @@ HLTriggerRAW  = cms.PSet(
 HLTriggerRECO = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_hltGtStage2ObjectMap_*_*',
+        'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
@@ -31,7 +31,7 @@ HLTriggerRECO = cms.PSet(
 HLTriggerAOD  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_hltGtStage2ObjectMap_*_*',
+        'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
@@ -133,7 +133,6 @@ HLTDebugRAW   = cms.PSet(
         'keep *_hltGmtStage2Digis_*_*',
         'keep *_hltGoodOnlinePVs_*_*',
         'keep *_hltGtStage2Digis_*_*',
-        'keep *_hltGtStage2ObjectMap_*_*',
         'keep *_hltHICaloJetCorrected_*_*',
         'keep *_hltHICaloJetIDPassed_*_*',
         'keep *_hltHIGoodLooseTracks_*_*',
@@ -285,6 +284,7 @@ HLTDebugRAW   = cms.PSet(
         'keep FEDRawDataCollection_rawDataRepacker_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
+        'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep L2MuonTrajectorySeeds_hltL2MuonSeeds_*_*',
         'keep L3MuonTrajectorySeeds_hltHIL3TrajSeedOIHit_*_*',
         'keep L3MuonTrajectorySeeds_hltHIL3TrajectorySeed_*_*',
@@ -428,7 +428,6 @@ HLTDebugFEVT  = cms.PSet(
         'keep *_hltGmtStage2Digis_*_*',
         'keep *_hltGoodOnlinePVs_*_*',
         'keep *_hltGtStage2Digis_*_*',
-        'keep *_hltGtStage2ObjectMap_*_*',
         'keep *_hltHICaloJetCorrected_*_*',
         'keep *_hltHICaloJetIDPassed_*_*',
         'keep *_hltHIGoodLooseTracks_*_*',
@@ -580,6 +579,7 @@ HLTDebugFEVT  = cms.PSet(
         'keep FEDRawDataCollection_rawDataRepacker_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
+        'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
         'keep L2MuonTrajectorySeeds_hltL2MuonSeeds_*_*',
         'keep L3MuonTrajectorySeeds_hltHIL3TrajSeedOIHit_*_*',
         'keep L3MuonTrajectorySeeds_hltHIL3TrajectorySeed_*_*',

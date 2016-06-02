@@ -25,11 +25,11 @@ CSCTFCandidateProducer::~CSCTFCandidateProducer()
 void CSCTFCandidateProducer::produce(edm::Event & e, const edm::EventSetup& c)
 {
   edm::Handle<L1CSCTrackCollection> tracks;
-  std::auto_ptr<std::vector<L1MuRegionalCand> > cand_product(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand> > cand_product(new std::vector<L1MuRegionalCand>);
 
   e.getByToken(input_module, tracks);
 
   my_builder->buildCandidates(tracks.product(), cand_product.get());
 
-  e.put(cand_product,"CSC");
+  e.put(std::move(cand_product),"CSC");
 }

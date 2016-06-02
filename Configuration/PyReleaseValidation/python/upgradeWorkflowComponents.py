@@ -6,7 +6,9 @@ upgradeKeys=['2017',
 	     '2023tilted', 
 	     '2023sim',
 	     '2023LReco',
-	     '2023GReco'
+	     '2023GReco',
+	     '2023tiltedPU', 
+	     '2023GRecoPU'	     
 	     ]
 
 
@@ -100,7 +102,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 # step6 is fastsim
 # step7 is fastsim harvesting
 
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFull','RecoFullHGCAL','RecoFullTracking','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','RecoFullPUTracking','HARVESTFullPU','DigiFullTrigger','RecoFull_trackingOnly','HARVESTFull_trackingOnly']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFull','RecoFullHGCAL','RecoFullTracking','RecoFullTrackingPU','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','RecoFullPUTracking','HARVESTFullPU','DigiFullTrigger','RecoFull_trackingOnly','HARVESTFull_trackingOnly']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
@@ -109,7 +111,9 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
 		   '2023tilted':['GenSimFull','DigiFull','RecoFullTracking'],#full (or almost..) reco tilted scenario
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFull','RecoFullLocal'],#local reco scenario
-		   '2023GReco':['GenSimFull','DigiFull','RecoFullTracking']#full (or almost..)  reco scenario
+		   '2023GReco':['GenSimFull','DigiFull','RecoFullTracking'],#full (or almost..)  reco scenario
+		   '2023GRecoPU':['GenSimFull','DigiFullPU','RecoFullTrackingPU'],#full (or almost..)  reco scenario with PU
+		   '2023tiltedPU':['GenSimFull','DigiFullPU','RecoFullTrackingPU']#full (or almost..) reco tilted scenario with PU
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
