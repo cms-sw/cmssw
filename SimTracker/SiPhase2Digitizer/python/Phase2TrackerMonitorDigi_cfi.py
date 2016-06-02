@@ -5,6 +5,7 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
     TopFolderName = cms.string("Ph2TkDigi"),
     PixelDigiSource    = cms.InputTag("simSiPixelDigis","Pixel"),                          
     OuterTrackerDigiSource    = cms.InputTag("mix", "Tracker"),                          
+    GeometryType = cms.string('idealForDigi'),
     NumbeOfDigisH = cms.PSet(
            Nbins = cms.int32(200),
            xmin = cms.double(-0.5),
@@ -39,8 +40,8 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
       xmax   = cms.double(1024.5)
     ),  
     ClusterPositionH = cms.PSet(
-      Nbins = cms.int32(260),
+      Nbins = cms.int32(1016),
       xmin   = cms.double(0.5),
-      xmax   = cms.double(260.5)
+      xmax   = cms.double(1016.5)
     )  
 )
