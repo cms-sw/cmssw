@@ -21,6 +21,8 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 
     monitorFile = cms.untracked.string('millePedeMonitor.root'), ## if empty: no monitoring...
 
+    runAtPCL = cms.bool(False), # at the PCL the mille binaries are reset at lumi-section boundaries
+
     # PSet that allows to configure the pede labeler, i.e. select the actual
     # labeler plugin to use and parameters for the selected plugin
     pedeLabeler = cms.PSet(

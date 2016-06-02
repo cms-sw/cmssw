@@ -90,6 +90,12 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   // This one will be called since it matches the interface of the base class
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup);
 
+  /// called at begin of luminosity block (resets Mille binary in mille mode)
+  virtual void beginLuminosityBlock(const edm::EventSetup&) override;
+
+  /// called at end of luminosity block
+  virtual void endLuminosityBlock(const edm::EventSetup&) override;
+
 
 /*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
 /*   virtual void endLuminosityBlock(const edm::EventSetup &setup) {} */
@@ -254,6 +260,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   // CHK for GBL
   std::unique_ptr<gbl::MilleBinary> theBinary;
   bool                      theGblDoubleBinary;
+
+  const bool                runAtPCL_;
 };
 
 #endif

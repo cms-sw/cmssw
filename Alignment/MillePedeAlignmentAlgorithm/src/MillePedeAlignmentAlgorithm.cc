@@ -95,7 +95,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
   theLastWrittenIov(0),
-  theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary"))
+  theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary")),
+  runAtPCL_(cfg.getParameter<bool>("runAtPCL"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -350,10 +351,13 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
         }
       } else {
         // The file doesn't exist, break out of the loop
-	edm::LogWarning("Alignment")
-	  << "The input file '" << strippedInputFileName << "' does not exist.";
         break;
       }
+    }
+    // warning if unformatted (-> theNumber stays at 0) does not exist
+    if (theNumber == 0 && (files.size() == 0 || files.back() != plainFile)) {
+      edm::LogWarning("Alignment")
+	<< "The input file '" << plainFile << "' does not exist.";
     }
   }
   return files;
@@ -527,6 +531,20 @@ void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRu
 
 // Implementation of endRun that DOES get called. (Because we need it.)
 void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {
+  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::beginLuminosityBlock(const edm::EventSetup&)
+{
+  if (!runAtPCL_) return;
+  if(this->isMode(myMilleBit)) theMille->resetOutputFile();
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::endLuminosityBlock(const edm::EventSetup&)
+{
+  if (!runAtPCL_) return;
   if(this->isMode(myMilleBit)) theMille->flushOutputFile();
 }
 
