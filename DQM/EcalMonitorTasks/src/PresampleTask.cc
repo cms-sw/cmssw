@@ -12,7 +12,8 @@ namespace ecaldqm
     DQWorkerTask(),
     doPulseMaxCheck_(true),
     pulseMaxPosition_(0),
-    nSamples_(0)
+    nSamples_(0),
+    mePedestalByLS(0)
   {
   }
 
@@ -39,11 +40,22 @@ namespace ecaldqm
     return false;
   }
 
+  void
+  PresampleTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  {
+    // Fill separate MEs with only 10 LSs worth of stats
+    // Used to correctly fill Presample Trend plots:
+    // 1 pt:10 LS in Trend plots
+    mePedestalByLS = &MEs_.at("PedestalByLS");
+    if ( timestamp_.iLumi % 10 == 0 )
+      mePedestalByLS->reset();
+  }
+
   template<typename DigiCollection>
   void
   PresampleTask::runOnDigis(DigiCollection const& _digis)
   {
-    MESet& mePedestal(MEs_.at("Pedestal"));
+    MESet& mePedestal(MEs_.at("Pedestal")); // contains cumulative run stats => not suitable for Trend plots
 
     for(typename DigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
@@ -71,8 +83,10 @@ namespace ecaldqm
         if(iMax != pulseMaxPosition_ || gainSwitch) continue;
       } // PulseMaxCheck
 
-      for(int iSample(0); iSample < nSamples_; ++iSample)
+      for(int iSample(0); iSample < nSamples_; ++iSample) {
         mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
+        mePedestalByLS->fill(id, double(dataFrame.sample(iSample).adc()));
+      }
 
     } // _digis loop
   } // runOnDigis

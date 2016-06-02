@@ -43,9 +43,9 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iSetup.get<TrackerTopologyRcd>().get(httopo);
   const TrackerTopology& ttopo = *httopo;
 
-  std::auto_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> selectedTrackExtras( new reco::TrackExtraCollection() );
-  std::auto_ptr<TrackingRecHitCollection> selectedTrackHits( new TrackingRecHitCollection() );
+  std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras( new reco::TrackExtraCollection() );
+  std::unique_ptr<TrackingRecHitCollection> selectedTrackHits( new TrackingRecHitCollection() );
 
   reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
   reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
@@ -331,7 +331,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     } // if (isGoodResult)
   }  // loop on reco::MuonCollection
   
-  iEvent.put(selectedTracks);
-  iEvent.put(selectedTrackExtras);
-  iEvent.put(selectedTrackHits);
+  iEvent.put(std::move(selectedTracks));
+  iEvent.put(std::move(selectedTrackExtras));
+  iEvent.put(std::move(selectedTrackHits));
 }

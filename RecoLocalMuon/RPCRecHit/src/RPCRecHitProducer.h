@@ -7,36 +7,14 @@
  *  \author M. Maggim -- INFN Bari
  */
 
-
-#include <memory>
-#include <fstream>
-#include <iostream>
-#include <stdint.h>
-#include <cstdlib>
-#include <bitset>
-#include <map>
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
-#include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
-#include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
-#include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
-#include "CondFormats/DataRecord/interface/RPCDeadStripsRcd.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-
-
-#include "RPCRollMask.h"
-
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
-
-class RPCRecHitBaseAlgo;
+#include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
+#include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
+#include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
 
 class RPCRecHitProducer : public edm::stream::EDProducer<> {
 
@@ -45,7 +23,7 @@ public:
   RPCRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~RPCRecHitProducer();
+  virtual ~RPCRecHitProducer() {};
 
   // Method that access the EventSetup for each run
   virtual void beginRun(const edm::Run&, const edm::EventSetup& ) override;
@@ -54,22 +32,20 @@ public:
   virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
-
   // The label to be used to retrieve RPC digis from the event
-  edm::EDGetTokenT<RPCDigiCollection> theRPCDigiLabel;
+  const edm::EDGetTokenT<RPCDigiCollection> theRPCDigiLabel;
   //  edm::InputTag theRPCDigiLabel;
 
   // The reconstruction algorithm
-  RPCRecHitBaseAlgo *theAlgo;
+  std::unique_ptr<RPCRecHitBaseAlgo> theAlgo;
 
-  RPCMaskedStrips* RPCMaskedStripsObj;
+  std::unique_ptr<RPCMaskedStrips> theRPCMaskedStripsObj;
   // Object with mask-strips-vector for all the RPC Detectors
 
-  RPCDeadStrips* RPCDeadStripsObj;
+  std::unique_ptr<RPCDeadStrips> theRPCDeadStripsObj;
   // Object with dead-strips-vector for all the RPC Detectors
 
-  std::string maskSource;
-  std::string deadSource;
+  enum class MaskSource { File, EventSetup } maskSource_, deadSource_;
 
   std::vector<RPCMaskedStrips::MaskItem> MaskVec;
   std::vector<RPCDeadStrips::DeadItem> DeadVec;

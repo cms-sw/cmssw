@@ -52,8 +52,11 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_cff import *
 # HCAL isotrack
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_cff import *
 # HCAL noise
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
+# HCAL isolated bunch
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchFilter_cff import *
 
 ###############################################################
 # Muon alignment
@@ -122,7 +125,9 @@ pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
 pathALCARECOHcalCalHOCosmics = cms.Path(seqALCARECOHcalCalHOCosmics)
 pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIsoTrackDQM)
+pathALCARECOHcalCalIsoTrkFilter = cms.Path(seqALCARECOHcalCalIsoTrkFilter)
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
+pathALCARECOHcalCalIsolatedBunchFilter = cms.Path(seqALCARECOHcalCalIsolatedBunchFilter)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
@@ -288,6 +293,15 @@ ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamHcalCalIsoTrkFilter = cms.FilteredStream(
+	responsible = 'Sunanda Banerjee',
+	name = 'HcalCalIsoTrkFilter',
+	paths  = (pathALCARECOHcalCalIsoTrkFilter),
+	content = OutALCARECOHcalCalIsoTrkFilter.outputCommands,
+	selectEvents = OutALCARECOHcalCalIsoTrkFilter.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
 	name = 'HcalCalNoise',
@@ -297,6 +311,14 @@ ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamHcalCalIsolatedBunchFilter = cms.FilteredStream(
+	responsible = 'Sunanda Banerjee',
+	name = 'HcalCalIsolatedBunchFilter',
+	paths  = (pathALCARECOHcalCalIsolatedBunchFilter),
+	content = OutALCARECOHcalCalIsolatedBunchFilter.outputCommands,
+	selectEvents = OutALCARECOHcalCalIsolatedBunchFilter.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
 
 ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	responsible = 'Javier Fernandez',

@@ -33,6 +33,7 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
 # Cut on the length of the seed extention (no lost hits allowed)
     seedExtension = cms.int32(0),
     strictSeedExtension = cms.bool(False),
+    pixelSeedExtension = cms.bool(False),
 
 # Cuts for looperTrajectoryFilter
     minNumberOfHitsForLoopers           = cms.int32(13),

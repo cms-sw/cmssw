@@ -3,6 +3,7 @@
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorGeneric.h"
 #include <DataFormats/GeometrySurface/interface/LocalError.h> 
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "TObject.h" 
 
 #include <TString.h>
@@ -97,7 +98,16 @@ void AlignmentMonitorGeneric::event(const edm::Event &iEvent,
 	      
 	      align::LocalVector res = tsos.localPosition() - hit.localPosition();
 	      LocalError err1 = tsos.localError().positionError();
-	      LocalError err2 = hit.localPositionError();
+	      LocalError err2 = hit.localPositionError(); // CPE+APE
+
+	      // subtract APEs from err2 (if existing) from covariance matrix
+	      auto det = static_cast<const TrackerGeomDet*>(hit.det());
+	      const auto localAPE = det->localAlignmentError();
+	      if (localAPE.valid()) {
+		err2 = LocalError(err2.xx() - localAPE.xx(),
+				  err2.xy() - localAPE.xy(),
+				  err2.yy() - localAPE.yy());
+	      }
 	      
 	      float errX = std::sqrt( err1.xx() + err2.xx() );
 	      float errY = std::sqrt( err1.yy() + err2.yy() );

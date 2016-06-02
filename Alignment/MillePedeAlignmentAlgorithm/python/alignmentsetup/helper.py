@@ -9,9 +9,9 @@ def checked_out_MPS():
     git_initialized = False
     try:
         with open(checked_out_packages, "r") as f:
-            package = "/Alignment/MillePedeAlignmentAlgorithm/"
+            packages = ("/Alignment/", "/Alignment/MillePedeAlignmentAlgorithm/")
             for line in f:
-                if package == line.strip():
+                if line.strip() in packages:
                     checked_out = True
                     break
         git_initialized = True  # since the sparse checkout file is there

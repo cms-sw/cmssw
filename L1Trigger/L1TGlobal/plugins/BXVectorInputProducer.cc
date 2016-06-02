@@ -211,11 +211,11 @@ BXVectorInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast  = bxLast_;
 
   //outputs
-  std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::MuonBxCollection> muons (new l1t::MuonBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::MuonBxCollection> muons (new l1t::MuonBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
 
   std::vector<int> mu_cands_index;
   std::vector<int> eg_cands_index;
@@ -422,11 +422,11 @@ BXVectorInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    }  
 
 
-  iEvent.put(egammas);
-  iEvent.put(muons);
-  iEvent.put(taus);
-  iEvent.put(jets);
-  iEvent.put(etsums);
+  iEvent.put(std::move(egammas));
+  iEvent.put(std::move(muons));
+  iEvent.put(std::move(taus));
+  iEvent.put(std::move(jets));
+  iEvent.put(std::move(etsums));
 
   // Now shift the bx data by one to prepare for next event.
   muonVec_bxm2 = muonVec_bxm1;

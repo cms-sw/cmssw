@@ -44,8 +44,19 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
-localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco+totemRPLocalReconstruction)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco+totemRPLocalReconstruction)
+# Cosmic During Collisions
+from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
+
+localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+
+_ctpps_2016_localreco = localreco.copy()
+_ctpps_2016_localreco += totemRPLocalReconstruction
+eras.ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
+
+_ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
+_ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction
+eras.ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
@@ -92,7 +103,8 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              btagging*
                              recoPFMET*
                              PFTau*
-                             reducedRecHits
+                             reducedRecHits*
+                             cosmicDCTracksSeq
                              )
 
 

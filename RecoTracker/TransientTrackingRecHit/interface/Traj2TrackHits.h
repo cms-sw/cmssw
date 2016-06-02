@@ -59,6 +59,7 @@ private:
       auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
       auto const & clus = thit.firstClusterRef();
       if (clus.isPixel()) hits.push_back(hit.clone());
+      else if (clus.isPhase2()) hits.push_back(hit.clone());
       else if (thit.isMatched()) {
 	auto zdir = itm->updatedState().localDirection().z();
 	if (keepOrder & (!along)) zdir = -zdir;

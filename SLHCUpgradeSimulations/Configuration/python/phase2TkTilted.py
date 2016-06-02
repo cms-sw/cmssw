@@ -164,6 +164,7 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(process.lowPtQuadStepTracks)
 
     del process.iterTracking
+    del process.iterTrackingEarly
     del process.ckftracks
     del process.ckftracks_woBH
     del process.ckftracks_wodEdX
@@ -320,6 +321,10 @@ def customise_Reco(process,pileup):
     # when linking tracks to HF clusters
 #    process=customise_PFlow.customise_extendedTrackerBarrel( process )
 
+    process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters')
+    process.MeasurementTrackerEvent.stripClusterProducer = cms.string('')
+    # FIXME::process.electronSeedsSeq broken
+    process.ckftracks.remove(process.electronSeedsSeq)
  
     return process
 

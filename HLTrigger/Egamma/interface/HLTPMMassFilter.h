@@ -72,11 +72,9 @@ class HLTPMMassFilter : public HLTFilter {
       int    nZcandcut_;           // number of Z candidates required
       bool   reqOppCharge_;
 
-      bool   relaxed_;
       bool   isElectron1_;
       bool   isElectron2_;
-      edm::InputTag L1IsoCollTag_;
-      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag l1EGTag_;
 
 };
 

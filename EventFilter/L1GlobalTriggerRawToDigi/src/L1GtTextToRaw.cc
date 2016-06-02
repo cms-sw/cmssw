@@ -151,7 +151,7 @@ void L1GtTextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     // define new FEDRawDataCollection
     // it contains ALL FEDs in an event
-    std::auto_ptr<FEDRawDataCollection> fedRawColl(new FEDRawDataCollection);
+    std::unique_ptr<FEDRawDataCollection> fedRawColl(new FEDRawDataCollection);
 
     FEDRawData& rawData = fedRawColl->FEDData(m_daqGtFedId);
     // resize, GT raw data record has variable length,
@@ -206,7 +206,7 @@ void L1GtTextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     }
 
     // put the raw data in the event
-    iEvent.put(fedRawColl);
+    iEvent.put(std::move(fedRawColl));
 }
 
 

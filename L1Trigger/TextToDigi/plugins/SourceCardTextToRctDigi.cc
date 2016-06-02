@@ -57,8 +57,8 @@ SourceCardTextToRctDigi::~SourceCardTextToRctDigi()
 
 /// Append empty digi collection
 void SourceCardTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
-  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::unique_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
   for (int i=0; i<NUM_RCT_CRATES; i++){  
     for (int j=0; j<4; j++) {
       em->push_back(L1CaloEmCand(0, i, true));
@@ -69,8 +69,8 @@ void SourceCardTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
     for (unsigned j=0; j<8; j++)
       rgn->push_back(L1CaloRegion(0,true,i,j));
   }
-  iEvent.put(em);
-  iEvent.put(rgn);
+  iEvent.put(std::move(em));
+  iEvent.put(std::move(rgn));
 }
 
 // ------------ method called to produce the data  ------------
@@ -100,8 +100,8 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   
 
   // New collections
-  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::unique_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
   // General variables  
   unsigned long VHDCI[2][2];
@@ -220,8 +220,8 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
       LogDebug("HFRegions") << (*irgn);
   }
 
-  iEvent.put(em);
-  iEvent.put(rgn);
+  iEvent.put(std::move(em));
+  iEvent.put(std::move(rgn));
 
   m_nevt++;
 }

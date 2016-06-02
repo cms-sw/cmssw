@@ -3,7 +3,7 @@
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
-#include <memory> // required for std::auto_ptr
+#include <memory> // required for std::unique_ptr
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
@@ -139,15 +139,15 @@ public:
 	// functions, so I might as well package them up in a struct.
 	struct OutputCollections
 	{
-		std::auto_ptr<TrackingParticleCollection> pTrackingParticles;
-		std::auto_ptr<TrackingVertexCollection> pTrackingVertices;
+		std::unique_ptr<TrackingParticleCollection> pTrackingParticles;
+		std::unique_ptr<TrackingVertexCollection> pTrackingVertices;
 		TrackingParticleRefProd refTrackingParticles;
 		TrackingVertexRefProd refTrackingVertexes;
 	};
 private:
 	OutputCollections unmergedOutput_;
 	OutputCollections mergedOutput_;
-	std::auto_ptr<TrackingVertexCollection> pInitialVertices_;
+	std::unique_ptr<TrackingVertexCollection> pInitialVertices_;
 };
 
 #endif // end of "#ifndef TrackingAnalysis_TrackingTruthAccumulator_h"

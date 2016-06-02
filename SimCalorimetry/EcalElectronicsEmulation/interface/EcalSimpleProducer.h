@@ -112,15 +112,15 @@ protected:
 private:
   /** Formula defining the data frame samples
    */
-  std::auto_ptr<TFormula> formula_;
+  std::unique_ptr<TFormula> formula_;
 
   /** Formula defining the trigger primitives
    */
-  std::auto_ptr<TFormula> tpFormula_;
+  std::unique_ptr<TFormula> tpFormula_;
 
   /** Formula defining the sim hits
    */
-  std::auto_ptr<TFormula> simHitFormula_;
+  std::unique_ptr<TFormula> simHitFormula_;
   
   /** Verbosity switch
    */

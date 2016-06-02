@@ -168,6 +168,7 @@ workflows[135.7] = ['H125GGgluonfusion_13', ['H125GGgluonfusionFS_13','HARVESTUP
 workflows[135.9] = ['ZMM_13',['ZMMFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.12] = ['QCD_Pt_80_120_13', ['QCD_Pt_80_120FS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
+workflows[135.13] = ['TTbar_13', ['TTbarFS_13_trackingOnlyValidation','HARVESTUP15FS_trackingOnly']]
 
 ### MinBias fastsim_13 TeV for mixing ###
 workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
@@ -252,6 +253,11 @@ workflows[1349] = ['', ['BsToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1350] = ['', ['JpsiMuMu_Pt-8','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 workflows[1325] = ['', ['TTbar_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCATTUP15']]
+# the 3 workflows below are for tracking-specific ib test, not to be run in standard relval set.
+workflows[1325.1] = ['', ['TTbar_13','DIGIUP15','RECOUP15_trackingOnly','HARVESTUP15_trackingOnly']]
+workflows[1325.2] = ['', ['TTbar_13','DIGIUP15','RECOUP15_trackingLowPU','HARVESTUP15']]
+workflows[1325.3] = ['', ['TTbar_13','DIGIUP15','RECOUP15_trackingOnlyLowPU','HARVESTUP15_trackingOnly']]
+
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1356] = ['', ['ZEE_13_DBLMINIAOD','DIGIUP15','RECOAODUP15','HARVESTUP15','DBLMINIAODMCUP15NODQM']] 
@@ -286,11 +292,10 @@ workflows[1354] = ['', ['WpToENu_M-2000_13','DIGIUP15','RECOUP15','HARVESTUP15']
 workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 # fullSim 13TeV normal workflows starting from gridpacks LHE generation
-workflows[1360] = ['', ['TTbar012Jets_NLO_Mad_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1361] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_ggHZZ4L_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1362] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_VBFHZZ4Nu_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1363] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13','GENSIM_TuneCUETP8M1_13TeV_VBFHBB_powhegEmissionVeto_LHE_py8_Evt','DIGIUP15','RECOUP15','HARVESTUP15']]
-
+workflows[1360] = ['', ['TTbar012Jets_NLO_Mad_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1361] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1362] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1363] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 ### HI test ###
 

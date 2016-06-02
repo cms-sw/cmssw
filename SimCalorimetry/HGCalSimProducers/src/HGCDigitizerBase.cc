@@ -3,7 +3,7 @@
 using namespace hgc_digi;
 
 template<class DFr>
-void HGCDigitizerBase<DFr>::run( std::auto_ptr<HGCDigitizerBase::DColl> &digiColl,
+void HGCDigitizerBase<DFr>::run( std::unique_ptr<HGCDigitizerBase::DColl> &digiColl,
                                   HGCSimHitDataAccumulator &simData,
                                   uint32_t digitizationType,
                                   CLHEP::HepRandomEngine* engine) {
@@ -12,7 +12,7 @@ void HGCDigitizerBase<DFr>::run( std::auto_ptr<HGCDigitizerBase::DColl> &digiCol
 }
 
 template<class DFr>
-void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &coll,
+void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &coll,
                                        HGCSimHitDataAccumulator &simData, 
                                        CLHEP::HepRandomEngine* engine) {
   HGCSimHitData chargeColl,toa;
@@ -51,7 +51,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
 }
 
 template<class DFr>
-void HGCDigitizerBase<DFr>::updateOutput(std::auto_ptr<HGCDigitizerBase::DColl> &coll,
+void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl> &coll,
                                           const DFr& rawDataFrame) {
   int itIdx(9);
   if(rawDataFrame.size()<=itIdx+2) return;

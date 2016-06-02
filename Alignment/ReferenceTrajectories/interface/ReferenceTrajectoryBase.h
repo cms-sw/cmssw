@@ -88,6 +88,7 @@
  */
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 // for AlgebraicVector, -Matrix and -SymMatrix:
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -109,6 +110,27 @@ public:
 
   enum MaterialEffects { none, multipleScattering, energyLoss, combined, 
 			 breakPoints, brokenLinesCoarse, brokenLinesFine, localGBL, curvlinGBL };
+
+  struct Config {
+    Config(MaterialEffects matEff, PropagationDirection direction,
+	   double m = -std::numeric_limits<double>::infinity(),
+	   double est = -std::numeric_limits<double>::infinity()) :
+      materialEffects(matEff),
+      propDir(direction),
+      mass(m),
+      momentumEstimate(est)
+    {}
+
+    MaterialEffects materialEffects;
+    PropagationDirection propDir;
+    double mass;
+    double momentumEstimate;
+    bool useBeamSpot{false};
+    bool hitsAreReverse{false};
+    bool useRefittedState{false};
+    bool constructTsosWithErrors{false};
+    bool includeAPEs{false};
+  };
 
   virtual ~ReferenceTrajectoryBase() {}
 

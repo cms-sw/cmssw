@@ -97,6 +97,7 @@ SiPixelAliMilleAlignmentProducer.tjTkAssociationMapTag = 'SiPixelAliTrackRefitte
 
 SiPixelAliMilleAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliMilleAlignmentProducer.algoConfig.mode = 'mille'
+SiPixelAliMilleAlignmentProducer.algoConfig.runAtPCL = True
 SiPixelAliMilleAlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
 SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary_0.dat'
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(

@@ -145,6 +145,7 @@ public:
   unsigned int detId2denseIdCALIB(const DetId& id) const;
 
   unsigned int getNumberOfShapes() const { return numberOfShapes_; }
+  bool isBH() const { return ((hcons_ == 0) ? false : hcons_->isBH()); }
 
   const HcalDDDRecConstants* dddConstants () const {return hcons_;}
 
@@ -180,7 +181,7 @@ private:
   int singlePhiBins_, doublePhiBins_;
   int maxDepthHB_, maxDepthHE_, maxDepthHF_;
   int etaHE2HF_, etaHF2HE_;
-  int maxEta_;
+  int maxEta_, maxPhiHE_;
 
   unsigned int HBSize_;
   unsigned int HESize_;

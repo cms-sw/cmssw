@@ -22,7 +22,7 @@
 namespace {
 template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
-std::vector<float> bounds = { 1.27, 1.14353, 1.09844, 1.05168, 1.00313, 0.952728, 0.90037, 0.8};
+std::vector<float> bounds = { 1.24, 1.14353, 1.09844, 1.05168, 1.00313, 0.952728, 0.90037, 0.8};
 //   0.8       -> 73
 //   0.85      -> 78
 //   0.9265    -> 85
@@ -31,9 +31,9 @@ std::vector<float> bounds = { 1.27, 1.14353, 1.09844, 1.05168, 1.00313, 0.952728
 //   1.07506   -> 98.9 -> 99
 //   1.121     -> 103
 //   1.2       -> 110
-//   1.26      -> 115
+//   1.25      -> 115
 //
-// other (1.35) -> 1.035 -> 95
+// other (1.033) -> 1.033 -> 95
 
 int etaVal2Bit(float eta) { return bounds.rend() - std::lower_bound (bounds.rbegin(), bounds.rend(), fabs(eta) ); }
 
@@ -62,9 +62,10 @@ int etaVal2Code( double etaVal) {
 }
 
 int etaKeyWG2Code(const CSCDetId& detId, uint16_t keyWG) {
-  unsigned int etaCode = 0;
+  signed int etaCode = 121;
   if (detId.station()==1 && detId.ring()==2) {
-    if (keyWG <58)       etaCode = etaBit2Code(0);
+    if (keyWG < 49)      etaCode = 121;
+    else if (keyWG <=57) etaCode = etaBit2Code(0);
     else if (keyWG <=63) etaCode = etaBit2Code(1);
   } 
   else if (detId.station()==1 && detId.ring()==3) {
@@ -75,12 +76,14 @@ int etaKeyWG2Code(const CSCDetId& detId, uint16_t keyWG) {
     else if (keyWG <= 31) etaCode = etaBit2Code(6);
   } 
   else if ( (detId.station()==2 || detId.station()==3) && detId.ring()==2) {
-    if (keyWG <= 29)       etaCode = etaBit2Code(0);
-    else if (keyWG <=  45) etaCode = etaBit2Code(1);
-    else if (keyWG <=  52) etaCode = etaBit2Code(2);
-    else if (keyWG <=  60) etaCode = etaBit2Code(3);
-    else if (keyWG <=  63) etaCode = etaBit2Code(4);
+    if (keyWG < 24)       etaCode = 121;
+    else if (keyWG <= 29) etaCode = etaBit2Code(0);
+    else if (keyWG <= 43) etaCode = etaBit2Code(1);
+    else if (keyWG <= 49) etaCode = etaBit2Code(2);
+    else if (keyWG <= 56) etaCode = etaBit2Code(3);
+    else if (keyWG <= 63) etaCode = etaBit2Code(4);
   }
+
   if (detId.endcap()==2) etaCode *= -1;
   return etaCode;
 }
@@ -322,6 +325,8 @@ int AngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi 
 
 //  std::cout <<id<<" st: " << id.station()<< "ri: "<<id.ring()<<" eta: " <<  final_gp.eta() 
 //           <<" etaCode_simple: " <<  etaVal2Code( final_gp.eta() )<< " KW: "<<keyWG <<" etaKeyWG2Code: "<<etaKeyWG2Code(id,keyWG)<< std::endl;
+//  int station = (id.endcap()==1) ? id.station() : -id.station();
+//  std::cout <<"ETA_CSC: " << station <<" "<<id.ring()<<" "<< final_gp.eta()<<" "<<keyWG <<" "<< etaKeyWG2Code(id,keyWG) << std::endl;
 
    return etaKeyWG2Code(id,keyWG);
 

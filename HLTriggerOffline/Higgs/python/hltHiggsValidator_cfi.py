@@ -157,6 +157,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v",
             "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v",
             "HLT_TripleMu_12_10_5_v"
+            "HLT_TripleMu_5_3_3_v"
         ),
         recMuonLabel  = cms.string("muons"),
         recElecLabel  = cms.string("gedGsfElectrons"),
