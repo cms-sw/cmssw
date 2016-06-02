@@ -12,7 +12,7 @@ upgradeKeys=['2017',
 	     ]
 
 
-upgradeGeoms={ '2017' : 'Extended2017',
+upgradeGeoms={ '2017' : 'DB:Extended',
                '2023' : 'Extended2023',   
                '2023tilted' : 'Extended2023tilted', 
                '2023sim' : 'Extended2023sim',
