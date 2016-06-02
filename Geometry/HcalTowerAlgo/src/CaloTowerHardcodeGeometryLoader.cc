@@ -53,11 +53,11 @@ CaloTowerHardcodeGeometryLoader::makeCell( uint32_t din,
   int sign=(ieta>0)?(1):(-1);
   double eta1, eta2;
   if (abs(ieta)>m_limits->lastHERing()) {
-    eta1 = theHFEtaBounds[etaRing-m_hcaltopo->firstHFRing()];
-    eta2 = theHFEtaBounds[etaRing-m_hcaltopo->firstHFRing()+1];
+    eta1 = theHFEtaBounds.at(etaRing-m_hcaltopo->firstHFRing());
+    eta2 = theHFEtaBounds.at(etaRing-m_hcaltopo->firstHFRing()+1);
   } else {
-    eta1 = theHBHEEtaBounds[etaRing-1];
-    eta2 = theHBHEEtaBounds[etaRing];
+    eta1 = theHBHEEtaBounds.at(etaRing-1);
+    eta2 = theHBHEEtaBounds.at(etaRing);
   }
   double eta = 0.5*(eta1+eta2);
   double deta = (eta2-eta1);  
