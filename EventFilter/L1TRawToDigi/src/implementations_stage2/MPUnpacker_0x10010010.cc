@@ -54,44 +54,44 @@ namespace stage2 {
 
      //      ===== Jets and Sums =====
 
-     // ET / MET(x) / MET (y)
+     // ET / MET(x) / MET (y) with HF (configurable)
 
      uint32_t raw_data = block.payload()[fet];
 
-     l1t::EtSum et = l1t::EtSum();
+     l1t::EtSum ethf = l1t::EtSum();
 
      switch(block.header().getID()){
      case 123: // 61
-       et.setType(l1t::EtSum::kTotalEt);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       ethf.setType(l1t::EtSum::kTotalEtHF);
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case 121: // 60
-       et.setType(l1t::EtSum::kTotalEtx);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       ethf.setType(l1t::EtSum::kTotalEtxHF);
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 127: // 63
-       et.setType(l1t::EtSum::kTotalEty);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       ethf.setType(l1t::EtSum::kTotalEtyHF);
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 125: // 62
-       et.setType(l1t::EtSum::kTotalEt);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
+       ethf.setType(l1t::EtSum::kTotalEtHF);
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case 131: // 65
-       et.setType(l1t::EtSum::kTotalEtx);
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       ethf.setType(l1t::EtSum::kTotalEtxHF);
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 129: // 64
-       et.setType(l1t::EtSum::kTotalEty); 
-       et.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
+       ethf.setType(l1t::EtSum::kTotalEtyHF); 
+       ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      default: 
        break;
      }
 
-     LogDebug("L1T") << "ET/METx/METy: pT " << et.hwPt();
+     LogDebug("L1T") << "ET/METx/METy: pT " << ethf.hwPt();
 
-     res2_->push_back(0,et);
+     res2_->push_back(0,ethf);
 
 
      // ET / MET(x) / MET (y) without HF
@@ -102,34 +102,34 @@ namespace stage2 {
 
      switch(block.header().getID()){
      case 123: // 61
-       etNoHF.setType(l1t::EtSum::kTotalEt2);
+       etNoHF.setType(l1t::EtSum::kTotalEt);
        etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case 121: // 60
-       etNoHF.setType(l1t::EtSum::kTotalEtx2);
+       etNoHF.setType(l1t::EtSum::kTotalEtx);
        etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 127: // 63
-       etNoHF.setType(l1t::EtSum::kTotalEty2);
+       etNoHF.setType(l1t::EtSum::kTotalEty);
        etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 125: // 62
-       etNoHF.setType(l1t::EtSum::kTotalEt2);
+       etNoHF.setType(l1t::EtSum::kTotalEt);
        etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case 131: // 65
-       etNoHF.setType(l1t::EtSum::kTotalEtx2);
+       etNoHF.setType(l1t::EtSum::kTotalEtx);
        etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 129: // 64
-       etNoHF.setType(l1t::EtSum::kTotalEty2); 
+       etNoHF.setType(l1t::EtSum::kTotalEty); 
        etNoHF.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      default:
        break;
      }
 
-     LogDebug("L1T") << "ET/METx/METy (no HF): pT " << et.hwPt();
+     LogDebug("L1T") << "ET/METx/METy (no HF): pT " << etNoHF.hwPt();
 
      res2_->push_back(0,etNoHF);
 
