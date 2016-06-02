@@ -99,7 +99,11 @@ process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
-process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(128)
+# Remove best choice selection
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
+cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
+                                 FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 
 process.digi2raw_step = cms.Path(process.DigiToRaw)
