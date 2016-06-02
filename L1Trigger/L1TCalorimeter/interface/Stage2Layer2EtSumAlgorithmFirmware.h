@@ -28,10 +28,10 @@ namespace l1t {
   private:
     CaloParamsHelper* params_;
     int32_t metTowThresholdHw_;
-    int32_t metTowThresholdHw2_;
+    int32_t metTowThresholdHwHF_;
     int32_t ettTowThresholdHw_;
     int32_t metEtaMax_;
-    int32_t metEtaMax2_;
+    int32_t metEtaMaxHF_;
     int32_t ettEtaMax_;
 	
   };
