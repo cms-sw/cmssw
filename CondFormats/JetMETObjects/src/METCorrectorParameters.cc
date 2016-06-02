@@ -41,28 +41,28 @@ METCorrectorParameters::Definitions::Definitions(const std::string& fLine)
       handleError("METCorrectorParameters::Definitions",sserr.str());
     }
     // No. of Bin Variable
-    std::cout<<"Definitions==========="<<std::endl;
+    //std::cout<<"Definitions==========="<<std::endl;
     //mdataType = tokens[0]; 
     //std::cout<<"dataType:"<<ptclType_<<"\t";
     ptclType_ = getSigned(tokens[0]);
-    std::cout<<"ptclType:"<<ptclType_<<"\t";
+    //std::cout<<"ptclType:"<<ptclType_<<"\t";
     unsigned nBinVar = getUnsigned(tokens[1]);
-    std::cout<<"nBinVar:"<<tokens[1]<<"\t";
+    //std::cout<<"nBinVar:"<<tokens[1]<<"\t";
     for(unsigned i=0;i<nBinVar;i++)
     {
       mBinVar.push_back(tokens[i+2]);
-      std::cout<<tokens[i+2]<<"\t";
+      //std::cout<<tokens[i+2]<<"\t";
     }
     // Num.o of Parameterization Variable
     unsigned nParVar = getUnsigned(tokens[nBinVar+2]);
-    std::cout<<"nParVar: "<<tokens[nBinVar+2]<<"\t";
+    //std::cout<<"nParVar: "<<tokens[nBinVar+2]<<"\t";
     for(unsigned i=0;i<nParVar;i++)
     {
       mParVar.push_back(getSigned(tokens[nBinVar+3+i]));
-      std::cout<<tokens[nBinVar+3+i]<<"\t";
+      //std::cout<<tokens[nBinVar+3+i]<<"\t";
     }
     mFormula = tokens[nParVar+nBinVar+3];
-    std::cout<<"Formula: "<<tokens[nParVar+nBinVar+3]<<std::endl;
+    //std::cout<<"Formula: "<<tokens[nParVar+nBinVar+3]<<std::endl;
     if (tokens.size() != nParVar+nBinVar+4 ) 
     {
       std::stringstream sserr;
@@ -88,18 +88,18 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
       sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
       handleError("METCorrectorParameters::Record",sserr.str());
     }
-    std::cout<<"Record ==============="<<std::endl;
+    //std::cout<<"Record ==============="<<std::endl;
     mMetAxis = tokens[0];
-    std::cout<<mMetAxis<<"\t";
+    //std::cout<<mMetAxis<<"\t";
     for(unsigned i=0;i<mNvar;i++)
     {
       mMin.push_back(getFloat(tokens[i*2+1]));
       mMax.push_back(getFloat(tokens[i*2+2]));
-      std::cout<<tokens[i*2+1]<<"\t";
-      std::cout<<tokens[i*2+2]<<"\t";
+      //std::cout<<tokens[i*2+1]<<"\t";
+      //std::cout<<tokens[i*2+2]<<"\t";
     }
     unsigned nParam = getUnsigned(tokens[2*mNvar+1]);
-    std::cout<<tokens[2*mNvar+1]<<"\t";
+    //std::cout<<tokens[2*mNvar+1]<<"\t";
     if (nParam != tokens.size()-(2*mNvar+2)) 
     {
       std::stringstream sserr;
@@ -109,7 +109,7 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
     for (unsigned i = (2*mNvar+2); i < tokens.size(); ++i)
     {
       mParameters.push_back(getFloat(tokens[i]));
-      std::cout<<tokens[i]<<std::endl;
+      //std::cout<<tokens[i]<<std::endl;
     }
   }
 }
@@ -457,37 +457,36 @@ void METCorrectorParametersCollection::getSections( std::string inputFile,
       }
     }
   }
-  std::cout << "Found these sections for file: " << std::endl;
   copy(outputs.begin(),outputs.end(), std::ostream_iterator<std::string>(std::cout, "\n") );
 }
 
 // Add a METCorrectorParameter object. 
 void METCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const &flav )
 { 
-  std::cout << "Level index    = " << i << std::endl;  
-  std::cout << "flav = " << flav << std::endl;
+  //std::cout << "Level index    = " << i << std::endl;  
+  //std::cout << "flav = " << flav << std::endl;
   if( isXYshiftMC(i))
   {
-    std::cout << "This is XYshiftMC, getXYshiftFlavBin = " << getXYshiftMcFlavBin(flav) << std::endl;
+    //std::cout << "This is XYshiftMC, getXYshiftFlavBin = " << getXYshiftMcFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftMcFlavBin(flav),j) );
   }else if( isXYshiftDY(i))
   {
-    std::cout << "This is XYshiftDY, getXYshiftFlavBin = " << getXYshiftDyFlavBin(flav) << std::endl;
+    //std::cout << "This is XYshiftDY, getXYshiftFlavBin = " << getXYshiftDyFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftDyFlavBin(flav),j) );
   }else if( isXYshiftTTJets(i))
   {
-    std::cout << "This is XYshiftTTJets, getXYshiftFlavBin = " << getXYshiftTTJetsFlavBin(flav) << std::endl;
+    //std::cout << "This is XYshiftTTJets, getXYshiftFlavBin = " << getXYshiftTTJetsFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftTTJetsFlavBin(flav),j) );
   }else if( isXYshiftWJets(i))
   {
-    std::cout << "This is XYshiftWJets, getXYshiftFlavBin = " << getXYshiftWJetsFlavBin(flav) << std::endl;
+    //std::cout << "This is XYshiftWJets, getXYshiftFlavBin = " << getXYshiftWJetsFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftWJetsFlavBin(flav),j) );
   }else if( isXYshiftData(i))
   {
-    std::cout << "This is XYshiftData, getXYshiftFlavBin = " << getXYshiftDataFlavBin(flav) << std::endl;
+    //std::cout << "This is XYshiftData, getXYshiftFlavBin = " << getXYshiftDataFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftDataFlavBin(flav),j) );
   }else{
-    std::cout << "***** NOT ADDING " << flav << ", corresponding position in METCorrectorParameters is not found." << std::endl;
+    //std::cout << "***** NOT ADDING " << flav << ", corresponding position in METCorrectorParameters is not found." << std::endl;
   }
 }
 
