@@ -1,3 +1,4 @@
+<flags   CXXFLAGS="-Ofast"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
