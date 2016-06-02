@@ -22,7 +22,7 @@ class GEMSuperChamber;
 
 class CSCMotherboardME11GEM : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const GEMPadDigi*> GEMPadBX;
+  typedef std::pair<unsigned int, const GEMPadDigi> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
   typedef std::map<int, GEMPadsBX> GEMPads;
 
