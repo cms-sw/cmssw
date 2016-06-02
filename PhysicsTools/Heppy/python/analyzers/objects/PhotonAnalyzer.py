@@ -104,15 +104,15 @@ class PhotonAnalyzer( Analyzer ):
                 """Create an integer equal to 1-2-3 for (loose,medium,tight)"""
 
                 id=0
-                if gamma.photonID(X%"Loose"):
-                    id=1
-                #if gamma.photonID(X%"Medium"):
-                #    id=2 
-                if gamma.photonID(X%"Tight"):
+                if gamma.CutBasedIDWP(X%"Loose"):
+                    id=1 
+                if gamma.CutBasedIDWP(X%"Medium"):
+                    id=2 
+                if gamma.CutBasedIDWP(X%"Tight"):
                     id=3
                 return id
 
-            gamma.idCutBased = idWP(gamma, "PhotonCutBasedID%s")
+            gamma.idCutBased = idWP(gamma, "POG_SPRING15_25ns_%s")
 
 
             keepThisPhoton = True
