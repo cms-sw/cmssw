@@ -7,6 +7,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 namespace ecaldqm
 {
   OccupancyClient::OccupancyClient() :
