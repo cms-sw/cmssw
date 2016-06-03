@@ -37,11 +37,11 @@ HLTPixelIsolTrackL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("candTag",edm::InputTag("hltIsolPixelTrackProd"));
   desc.add<edm::InputTag>("L1GTSeedLabel",edm::InputTag("hltL1sV0SingleJet60"));
   desc.add<double>("MaxPtNearby",2.0);
-  desc.add<double>("MinEnergyTrack",2.5);
-  desc.add<double>("MinPtTrack",1.5);
-  desc.add<double>("MaxEtaTrack",1.9);
+  desc.add<double>("MinEnergyTrack",12.0);
+  desc.add<double>("MinPtTrack",3.5);
+  desc.add<double>("MaxEtaTrack",1.15);
   desc.add<double>("MinEtaTrack",0.0);
-  desc.add<double>("MinDeltaPtL1Jet",4.0);
+  desc.add<double>("MinDeltaPtL1Jet",-40000.0);
   desc.add<bool>("filterTrackEnergy",true);
   desc.add<int>("NMaxTrackCandidates",10);
   desc.add<bool>("DropMultiL2Event",false);
