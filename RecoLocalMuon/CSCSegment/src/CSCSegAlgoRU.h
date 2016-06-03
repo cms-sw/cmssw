@@ -110,7 +110,6 @@ private:
     /// Utility functions 	
     bool addHit(const CSCRecHit2D* hit, int layer);
     void updateParameters(void);
-    int stationNumber(const CSCRecHit2D* currHit) const;
     float fit_r_phi(SVector6 points, int layer) const;
     float fitX(SVector6 points, SVector6 errors, float &chi2_str);
     float fit_sp(SVector6 points, SVector6 errors, int layer);
