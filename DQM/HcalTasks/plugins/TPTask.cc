@@ -13,10 +13,14 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 
 	_skip1x1 = ps.getUntrackedParameter<bool>("skip1x1", true);
 	_cutEt = ps.getUntrackedParameter<int>("cutEt", 3);
-	_thresh_EtMsmRate = ps.getUntrackedParameter<double>("thresh_EtMsmRate",
-		0.1);
-	_thresh_FGMsmRate = ps.getUntrackedParameter<double>("thresh_FGMsmRate",
-		0.1);
+	_thresh_EtMsmRate_high = ps.getUntrackedParameter<double>(
+		"thresh_EtMsmRate_high", 0.2);
+	_thresh_EtMsmRate_low = ps.getUntrackedParameter<double>(
+		"thresh_EtMsmRate_low", 0.05);
+	_thresh_FGMsmRate_high = ps.getUntrackedParameter<double>(
+		"thresh_FGMsmRate", 0.2);
+	_thresh_FGMsmRate_low = ps.getUntrackedParameter<double>(
+		"thresh_FGMsmRate_low", 0.05);
 	_thresh_DataMsn = ps.getUntrackedParameter<double>("thresh_DataMsn",
 		0.1);
 	_thresh_EmulMsn = ps.getUntrackedParameter<double>("thresh_EmulMsn");
@@ -940,12 +944,16 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			double emsm = _xEmulTotal.get(eid)>0?
 				double(_xEmulMsn.get(eid))/double(_xEmulTotal.get(eid)):0;
 				*/
-			if (etmsm>=_thresh_EtMsmRate)
+			if (etmsm>=_thresh_EtMsmRate_high)
 				_vflags[fEtMsm]._state = flag::fBAD;
+			else if (etmsm>=_thresh_EtMsmRate_low)
+				_vflags[fEtMsm]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fEtMsm]._state = flag::fGOOD;
-			if (fgmsm>=_thresh_FGMsmRate)
+			if (fgmsm>=_thresh_FGMsmRate_high)
 				_vflags[fFGMsm]._state = flag::fBAD;
+			else if (fgmsm>=_thresh_FGMsmRate_low)
+				_vflags[fFGMsm]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fFGMsm]._state = flag::fGOOD;
 			/*
