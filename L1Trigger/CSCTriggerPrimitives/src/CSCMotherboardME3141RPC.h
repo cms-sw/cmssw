@@ -20,7 +20,7 @@ class RPCGeometry;
 
 class CSCMotherboardME3141RPC : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const RPCDigi*> RPCDigiBX;
+  typedef std::pair<unsigned int, const RPCDigi> RPCDigiBX;
   typedef std::vector<RPCDigiBX> RPCDigisBX;
   typedef std::map<int, RPCDigisBX> RPCDigis;
 
@@ -75,7 +75,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
                         CSCCorrelatedLCTDigi& lct1,CSCCorrelatedLCTDigi& lct2);
  
   void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-                        RPCDigi gemPad,
+                        RPCDigi rpcPad,
                         CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, const RPCDigisBX& digis = RPCDigisBX()); 
@@ -86,8 +86,8 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   /** Methods to sort the LCTs */
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(std::vector<CSCCorrelatedLCTDigi>);
-  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx);
-  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByRPCDPhi(int bx);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByRPCDPhi(std::vector<CSCCorrelatedLCTDigi>);
 
   std::vector<CSCCorrelatedLCTDigi> getLCTs();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
