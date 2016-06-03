@@ -130,6 +130,11 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    
    if (result.size()>oldSize) return true;
    
+   auto id = geomDet().geographicalId().subdetId()-3;
+   auto barrel = 0==(id%2);  // TIB1,2 TOB1,2	always inactive
+   if (barrel) { result.add(theInactiveHit, 0.F); return true;}
+
+
    //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
    const BoundPlane &gluedPlane = geomDet().surface();
    if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
@@ -147,6 +152,9 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 				      ) /*Stereo OK*/ 
 				      ) /* State has errors */
 	 ) {
+     auto id = geomDet().geographicalId().subdetId()-3;
+     auto barrel = 0==(id%2);  // TIB1,2 TOB1,2 always inactive
+     if (barrel) { result.add(theInactiveHit, 0.F); return true;}
      result.add(theMissingHit, 0.F);
      return false;
    } 
