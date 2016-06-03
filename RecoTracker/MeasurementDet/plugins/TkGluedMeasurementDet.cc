@@ -16,6 +16,9 @@
 
 #include <typeinfo>
 
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+
+
 namespace {
   inline
   std::pair<LocalPoint,LocalError> projectedPos(const TrackingRecHit& hit,
@@ -131,8 +134,13 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    if (result.size()>oldSize) return true;
    
    auto id = geomDet().geographicalId().subdetId()-3;
-   auto barrel = 0==(id%2);  // TIB1,2 TOB1,2	always inactive
-   if (barrel) { result.add(theInactiveHit, 0.F); return true;}
+   // auto barrel = 0==(id%2);  // TIB1,2 TOB1,2	always inactive
+   auto l = TOBDetId(geomDet().geographicalId()).layer();
+   bool killHIP = (1==l) && (2==id); //TOB1
+   if (killHIP) {
+        result.add(theInactiveHit, 0.F); 
+        return true;
+   }
 
 
    //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
@@ -152,9 +160,6 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 				      ) /*Stereo OK*/ 
 				      ) /* State has errors */
 	 ) {
-     auto id = geomDet().geographicalId().subdetId()-3;
-     auto barrel = 0==(id%2);  // TIB1,2 TOB1,2 always inactive
-     if (barrel) { result.add(theInactiveHit, 0.F); return true;}
      result.add(theMissingHit, 0.F);
      return false;
    } 
