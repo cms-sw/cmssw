@@ -33,7 +33,7 @@ public:
            const HBHEDigiCollection& hbheDigis,
            const HFDigiCollection& hfDigis,
            HcalTrigPrimDigiCollection& result,
-	   const HcalTrigTowerGeometry* trigTowerGeometry,
+           const HcalTrigTowerGeometry* trigTowerGeometry,
            float rctlsb, const HcalFeatureBit* LongvrsShortCut=0);
 
   void runZS(HcalTrigPrimDigiCollection& tp);
