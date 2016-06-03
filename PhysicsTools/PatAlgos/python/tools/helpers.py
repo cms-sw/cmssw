@@ -190,10 +190,11 @@ class GatherAllModulesVisitor(object):
 class CloneSequenceVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a cloned version of the Sequence.
     All modules and sequences are cloned and a postfix is added"""
-    def __init__(self, process, label, postfix, removePostfix=""):
+    def __init__(self, process, label, postfix, removePostfix="", noClones = []):
         self._process = process
         self._postfix = postfix
         self._removePostfix = removePostfix
+        self._noClones = noClones
         self._moduleLabels = []
         self._clonedSequence = cms.Sequence()
         setattr(process, self._newLabel(label), self._clonedSequence)
@@ -202,7 +203,9 @@ class CloneSequenceVisitor(object):
         if isinstance(visitee, cms._Module):
             label = visitee.label()
             newModule = None
-            if label in self._moduleLabels: # has the module already been cloned ?
+            if label in self._noClones: #keep unchanged
+                newModule = getattr(self._process, label)
+            elif label in self._moduleLabels: # has the module already been cloned ?
                 newModule = getattr(self._process, self._newLabel(label))
             else:
                 self._moduleLabels.append(label)
@@ -303,7 +306,7 @@ def contains(sequence, moduleName):
 
 
 
-def cloneProcessingSnippet(process, sequence, postfix, removePostfix=""):
+def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClones = []):
    """
    ------------------------------------------------------------------
    copy a sequence plus the modules and sequences therein
@@ -313,7 +316,7 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix=""):
    """
    result = sequence
    if not postfix == "":
-       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix)
+       visitor = CloneSequenceVisitor(process, sequence.label(), postfix, removePostfix, noClones)
        sequence.visit(visitor)
        result = visitor.clonedSequence()
    return result
