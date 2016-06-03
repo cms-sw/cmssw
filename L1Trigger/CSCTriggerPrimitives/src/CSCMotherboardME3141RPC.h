@@ -65,8 +65,6 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   unsigned int findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC);
 
-  void matchRPCDigis(enum MEX1Station st);
-
   void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
@@ -127,23 +125,6 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   // masterswitch
   bool runME3141ILT_;
-
-  /// Do RPC matching?
-  bool do_rpc_matching;
-
-  /// RPC matching dphi and deta
-  double rpc_match_delta_phi_odd;
-  double rpc_match_delta_phi_even;
-  double rpc_match_delta_eta;
-
-  /// delta BX for RPC pads matching
-  int rpc_match_delta_bx;
-
-  /// min eta of LCT for which we require RPC match (we don't throw out LCTs below this min eta) 
-  double rpc_match_min_eta;
-
-  /// whether to throw out RPC-fiducial LCTs that have no rpc match
-  bool rpc_clear_nomatch_lcts;
 
   // debug 
   bool debug_rpc_matching_;
