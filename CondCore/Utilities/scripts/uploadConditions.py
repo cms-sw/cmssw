@@ -589,9 +589,12 @@ class ConditionsUploader(object):
 
 def authenticateUser(dropBox, options):
 
+    netrcPath = None
+    if options.authPath is not None:
+        netrcPath = os.path.join( options.authPath,'.netrc' )
     try:
         # Try to find the netrc entry
-        (username, account, password) = netrc.netrc().authenticators(options.netrcHost)
+        (username, account, password) = netrc.netrc( netrcPath ).authenticators(options.netrcHost)
     except Exception:
         # netrc entry not found, ask for the username and password
         logging.info(
@@ -811,6 +814,12 @@ def main():
         dest = 'netrcHost',
         default = defaultNetrcHost,
         help = 'The netrc host (machine) from where the username and password will be read. Default: %default',
+    )
+
+    parser.add_option('-a', '--authPath',
+        dest = 'authPath',
+        default = None,
+        help = 'The path of the .netrc file for the authentication. Default: $HOME',
     )
 
     (options, arguments) = parser.parse_args()

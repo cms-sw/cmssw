@@ -17,10 +17,10 @@ dateformatForLabel = "%y-%m-%d %H:%M:%S"
 import upload_popcon
 
 class CondMetaData(object):
-   def __init__( self ):
+   def __init__( self, fileName ):
       self.md = {}
       self.datef = datetime.now()
-      with open(confFileName) as jf:
+      with open(fileName) as jf:
          try:
             self.md = json.load(jf)
          except ValueError as e:
@@ -86,7 +86,7 @@ def runO2O( cmsswdir, releasepath, release, arch, jobfilename, logfilename, *p )
 
 def upload_to_dropbox( backend ):
 
-    md = CondMetaData() 
+    md = CondMetaData(confFileName) 
     # check if the expected input file is there...
     if not os.path.exists( dbFileForDropBox ):
        print 'The input sqlite file has not been produced.'
@@ -120,8 +120,8 @@ def upload_to_dropbox( backend ):
        print e
        return False
 
-def upload():
-    md = CondMetaData()
+def upload( cfileName, authPath ):
+    md = CondMetaData(cfileName)
 
     # check if the expected input file is there...                                                                                                                              
     if not os.path.exists( dbFileForDropBox ):
@@ -158,6 +158,8 @@ def upload():
        comment = v.get("comment")
        metadata = md.dumpMetadataForUpload( inputTag, destTag, comment )
        uploadCommand = 'uploadConditions.py %s' %fileNameForDropBox
+       if not authPath is None:
+          uploadCommand += ' -a %s' %authPath
        try:
           pipe = subprocess.Popen( uploadCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
           stdout = pipe.communicate()[0]
@@ -182,14 +184,16 @@ def upload():
           print e
     return ret
 
-def run( jobfilename, *p ):
+def run( jobfilename, authPath ):
+    fns = os.path.splitext( jobfilename )
+    confFile = '%s.json' %fns[0]
     if os.path.exists( '%s.db' %fileNameForDropBox ):
        print "Removing files with name %s" %fileNameForDropBox
        os.remove( '%s.db' %fileNameForDropBox )
     if os.path.exists( '%s.txt' %fileNameForDropBox ):
        os.remove( '%s.txt' %fileNameForDropBox )
     command = 'cmsRun %s ' %jobfilename
-    command += ' '.join(p)
+    command += ' popconConfigFileName=%s' %confFile
     command += ' 2>&1'
     pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
     stdout = pipe.communicate()[0]
@@ -199,4 +203,4 @@ def run( jobfilename, *p ):
     if retCode!=0:
        print 'O2O job failed. Skipping upload.'
        return retCode
-    return upload()
+    return upload( confFile, authPath )
