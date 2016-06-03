@@ -410,7 +410,8 @@ void CSCSegAlgoRU::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
 
 bool CSCSegAlgoRU::areHitsCloseInR(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const { 
   float maxWG_width[10] = {0, 0, 4.1, 5.69, 2.49, 5.06, 2.49, 5.06, 1.87, 5.06}; 
-  int iStn = stationNumber(h1); 
+  CSCDetId id = (CSCDetId)(*h1).cscDetId(); 
+  int iStn = id.iChamberType()-1; 
 
   //find maxWG_width for ME11 (tilt = 29deg) 
   int wg_num = h2->hitWire(); 
@@ -460,7 +461,9 @@ bool CSCSegAlgoRU::areHitsCloseInGlobalPhi(const CSCRecHit2D* h1, const CSCRecHi
   float err_stpos_h1 = h1->errorWithinStrip(); 
   float err_stpos_h2 = h2->errorWithinStrip(); 
 
-  int iStn = stationNumber(h1); 
+  CSCDetId id = (CSCDetId)(*h1).cscDetId(); 
+  int iStn = id.iChamberType()-1; 
+  
 
   float dphi_incr = 0; 
   if(err_stpos_h1>0.25*strip_width[iStn] || err_stpos_h2>0.25*strip_width[iStn])dphi_incr = 0.5*strip_width[iStn]; 
@@ -508,8 +511,8 @@ bool CSCSegAlgoRU::isHitNearSegment(const CSCRecHit2D* h) const {
     phidif -= 2.*M_PI;          // into range (-pi, pi] 
 
   SVector6 r_glob; 
-
-  int iStn = stationNumber(h);
+  CSCDetId id = (CSCDetId)(*h).cscDetId(); 
+  int iStn = id.iChamberType()-1; 
   float dphi_incr = 0; 
   float pos_str = 1; 
 
@@ -625,25 +628,6 @@ void CSCSegAlgoRU::updateParameters() {
   delete sfit_;
   sfit_ = new CSCSegFit( theChamber, proto_segment );
   sfit_->fit();
-} 
-
-//function used for wire group and strip width selection  
-int CSCSegAlgoRU::stationNumber(const CSCRecHit2D* currHit) const{ 
-  CSCDetId id = (CSCDetId)(*currHit).cscDetId(); 
-  int thering = id.ring(); 
-  int thestation = id.station(); 
-  int iStn = -1; 
-  if( thestation == 1 && thering == 4) iStn = 0; 
-  if( thestation == 1 && thering == 1) iStn = 1; 
-  if( thestation == 1 && thering == 2) iStn = 2; 
-  if( thestation == 1 && thering == 3) iStn = 3; 
-  if( thestation == 2 && thering == 1) iStn = 4; 
-  if( thestation == 2 && thering == 2) iStn = 5; 
-  if( thestation == 3 && thering == 1) iStn = 6; 
-  if( thestation == 3 && thering == 2) iStn = 7; 
-  if( thestation == 4 && thering == 1) iStn = 8; 
-  if( thestation == 4 && thering == 2) iStn = 9; 
-  return iStn; 
 } 
 
 float CSCSegAlgoRU::fit_r_phi(SVector6 points, int layer) const{ 
