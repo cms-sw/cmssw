@@ -9,7 +9,6 @@
 #include "DQM/HcalCommon/interface/DQModule.h"
 #include "DQM/HcalCommon/interface/Utilities.h"
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
-
 #include <vector>
 #include <string>
 

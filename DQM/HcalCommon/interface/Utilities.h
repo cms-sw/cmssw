@@ -14,7 +14,6 @@
 
 namespace hcaldqm
 {
-	using namespace constants;
 	namespace utilities
 	{
 		/*
@@ -45,7 +44,7 @@ namespace hcaldqm
 				sumQT +=(ii+1)*(digi.sample(ii).nominal_fC()-ped);
 			}
 			
-			return sumQ>0 ? sumQT/sumQ-1 : GARBAGE_VALUE;
+			return sumQ>0 ? sumQT/sumQ-1 : constants::GARBAGE_VALUE;
 		}
 
 		template<typename DIGI>

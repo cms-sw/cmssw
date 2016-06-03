@@ -16,9 +16,7 @@
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 #include "DQM/HcalCommon/interface/HashFilter.h"
 
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-class DigiComparisonTask : public DQTask
+class DigiComparisonTask : public hcaldqm::DQTask
 {
 	public: 
 		DigiComparisonTask(edm::ParameterSet const&);
@@ -33,7 +31,7 @@ class DigiComparisonTask : public DQTask
 	protected:
 		//	funcs
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(UpdateFreq);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		//	Tags and corresponding Tokens
 		edm::InputTag	_tagHBHE1;
@@ -43,36 +41,36 @@ class DigiComparisonTask : public DQTask
 
 		//	emap+hashmap
 		HcalElectronicsMap const* _emap;
-		electronicsmap::ElectronicsMap _ehashmapuTCA;
-		electronicsmap::ElectronicsMap _ehashmapVME;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmapuTCA;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmapVME;
 
 		//	hashes/FED vectors
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	Filters
-		HashFilter _filter_VME;
-		HashFilter _filter_uTCA;
+		hcaldqm::filter::HashFilter _filter_VME;
+		hcaldqm::filter::HashFilter _filter_uTCA;
 
 		/**
 		 *	Containers
 		 */
 
 		//	ADC
-		Container2D			_cADC_Subdet[10];
-		Container2D			_cADCall_Subdet;
+		hcaldqm::Container2D			_cADC_Subdet[10];
+		hcaldqm::Container2D			_cADCall_Subdet;
 
 		//	Mismatched
-		Container2D			_cMsm_FEDVME;
-		Container2D			_cMsm_FEDuTCA;
-		Container2D			_cMsm_depth;
+		hcaldqm::Container2D			_cMsm_FEDVME;
+		hcaldqm::Container2D			_cMsm_FEDuTCA;
+		hcaldqm::Container2D			_cMsm_depth;
 
 		//	Missing Completely
-		Container1D			_cADCMsnuTCA_Subdet;
-		Container1D			_cADCMsnVME_Subdet;
-		Container2D			_cMsnVME_depth;
-		Container2D			_cMsnuTCA_depth;
-		Container2D			_cMsn_FEDVME;
-		Container2D			_cMsn_FEDuTCA;
+		hcaldqm::Container1D			_cADCMsnuTCA_Subdet;
+		hcaldqm::Container1D			_cADCMsnVME_Subdet;
+		hcaldqm::Container2D			_cMsnVME_depth;
+		hcaldqm::Container2D			_cMsnuTCA_depth;
+		hcaldqm::Container2D			_cMsn_FEDVME;
+		hcaldqm::Container2D			_cMsn_FEDuTCA;
 };
 
 #endif
