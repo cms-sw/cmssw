@@ -13,6 +13,34 @@ import html
 
 verbose=False
 
+def _setStyle():
+    _absoluteSize = True
+    if _absoluteSize:
+        font = 43
+        titleSize = 22
+        labelSize = 22
+        statSize = 14
+    else:
+        font = 42
+        titleSize = 0.05
+        labelSize = 0.05
+        statSize = 0.025
+
+    ROOT.gROOT.SetStyle("Plain")
+    ROOT.gStyle.SetPadRightMargin(0.07)
+    ROOT.gStyle.SetPadLeftMargin(0.13)
+    ROOT.gStyle.SetTitleFont(font, "XYZ")
+    ROOT.gStyle.SetTitleSize(titleSize, "XYZ")
+    ROOT.gStyle.SetTitleOffset(1.2, "Y")
+    #ROOT.gStyle.SetTitleFontSize(0.05)
+    ROOT.gStyle.SetLabelFont(font, "XYZ")
+    ROOT.gStyle.SetLabelSize(labelSize, "XYZ")
+    ROOT.gStyle.SetTextSize(labelSize)
+    ROOT.gStyle.SetStatFont(font)
+    ROOT.gStyle.SetStatFontSize(statSize)
+
+    ROOT.TGaxis.SetMaxDigits(4)
+
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
@@ -2457,34 +2485,8 @@ class Plotter:
     """Contains PlotFolders, i.e. the information what plots to do, and creates a helper object to actually produce the plots."""
     def __init__(self):
         self._plots = []
-
-        _absoluteSize = True
-        if _absoluteSize:
-            font = 43
-            titleSize = 22
-            labelSize = 22
-            statSize = 14
-        else:
-            font = 42
-            titleSize = 0.05
-            labelSize = 0.05
-            statSize = 0.025
-
-        ROOT.gROOT.SetStyle("Plain")
-        ROOT.gStyle.SetPadRightMargin(0.07)
-        ROOT.gStyle.SetPadLeftMargin(0.13)
-        ROOT.gStyle.SetTitleFont(font, "XYZ")
-        ROOT.gStyle.SetTitleSize(titleSize, "XYZ")
-        ROOT.gStyle.SetTitleOffset(1.2, "Y")
-        #ROOT.gStyle.SetTitleFontSize(0.05)
-        ROOT.gStyle.SetLabelFont(font, "XYZ")
-        ROOT.gStyle.SetLabelSize(labelSize, "XYZ")
-        ROOT.gStyle.SetTextSize(labelSize)
-        ROOT.gStyle.SetStatFont(font)
-        ROOT.gStyle.SetStatFontSize(statSize)
-
+        _setStyle()
         ROOT.TH1.AddDirectory(False)
-        ROOT.TGaxis.SetMaxDigits(4)
 
     def append(self, *args, **kwargs):
         """Append a plot folder to the plotter.
