@@ -13,9 +13,7 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-////#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
-#include "DataFormats/Common/interface/ConditionsInEdm.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <string>
 #include <vector>
@@ -86,21 +84,18 @@ class DQMProvInfo : public DQMEDAnalyzer {
   const static int MAX_DCS_VBINS = 25;
   
   const static int VBIN_PHYSICS_DECLARED = 26;
-  ////const static int VBIN_MOMENTUM = 27;
-  ////const static int VBIN_STABLE_BEAM = 28;
-  const static int VBIN_VALID = 27;
+  const static int VBIN_MOMENTUM = 27;
+  const static int VBIN_STABLE_BEAM = 28;
+  const static int VBIN_VALID = 29;
   
-  const static int MAX_VBINS = 27;
+  const static int MAX_VBINS = 29;
 
   // Process parameters
   std::string subsystemname_;
   std::string provinfofolder_;
 
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> L1gt_;
-  ////edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> L1gtEvm_;
-  edm::EDGetTokenT<edm::ConditionsInRunBlock> CondInRun_;
-  edm::EDGetTokenT<edm::ConditionsInLumiBlock> CondInLumi_;
+  edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollection_;
 
   // MonitorElements for LhcInfo and corresponding variables
   MonitorElement* hBeamMode_;
