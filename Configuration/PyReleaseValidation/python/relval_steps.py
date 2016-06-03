@@ -1681,19 +1681,6 @@ for k in upgradeKeys:
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPUHGCAL'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullHGCAL'][k]])
 
-    upgradeStepDict['HARVESTFullTracking'][k]={'-s':'HARVESTING:@trackingOnlyValidation',
-                                    '--conditions':gt,
-                                    '--mc':'',
-                                    '--geometry' : geom,
-                                    '--scenario' : 'pp',
-                                    '--filetype':'DQM'
-                                    }
-    if cust!=None : upgradeStepDict['HARVESTFullTracking'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['HARVESTFullTracking'][k]['--era']=era
-
-    if k2 in PUDataSets:
-        upgradeStepDict['HARVESTFullTrackingPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFullTracking'][k]])
-
 
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
@@ -1704,10 +1691,14 @@ for k in upgradeKeys:
                                     }
     if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
-    upgradeStepDict['HARVESTFull_trackingOnly'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
+
+    upgradeStepDict['HARVESTFull_trackingOnly'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
+
+    if k2 in PUDataSets:
+        upgradeStepDict['HARVESTFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull_trackingOnly'][k]])
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
