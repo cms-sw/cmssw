@@ -1,5 +1,6 @@
 // Generic parameters for MET corrections
 //
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/Utilities.h"
 #include <iostream>
@@ -41,28 +42,20 @@ METCorrectorParameters::Definitions::Definitions(const std::string& fLine)
       handleError("METCorrectorParameters::Definitions",sserr.str());
     }
     // No. of Bin Variable
-    //std::cout<<"Definitions==========="<<std::endl;
-    //mdataType = tokens[0]; 
-    //std::cout<<"dataType:"<<ptclType_<<"\t";
+    LogDebug ("default")<<"Definitions===========";
     ptclType_ = getSigned(tokens[0]);
-    //std::cout<<"ptclType:"<<ptclType_<<"\t";
     unsigned nBinVar = getUnsigned(tokens[1]);
-    //std::cout<<"nBinVar:"<<tokens[1]<<"\t";
     for(unsigned i=0;i<nBinVar;i++)
     {
       mBinVar.push_back(tokens[i+2]);
-      //std::cout<<tokens[i+2]<<"\t";
     }
     // Num.o of Parameterization Variable
     unsigned nParVar = getUnsigned(tokens[nBinVar+2]);
-    //std::cout<<"nParVar: "<<tokens[nBinVar+2]<<"\t";
     for(unsigned i=0;i<nParVar;i++)
     {
       mParVar.push_back(getSigned(tokens[nBinVar+3+i]));
-      //std::cout<<tokens[nBinVar+3+i]<<"\t";
     }
     mFormula = tokens[nParVar+nBinVar+3];
-    //std::cout<<"Formula: "<<tokens[nParVar+nBinVar+3]<<std::endl;
     if (tokens.size() != nParVar+nBinVar+4 ) 
     {
       std::stringstream sserr;
@@ -88,18 +81,13 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
       sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
       handleError("METCorrectorParameters::Record",sserr.str());
     }
-    //std::cout<<"Record ==============="<<std::endl;
     mMetAxis = tokens[0];
-    //std::cout<<mMetAxis<<"\t";
     for(unsigned i=0;i<mNvar;i++)
     {
       mMin.push_back(getFloat(tokens[i*2+1]));
       mMax.push_back(getFloat(tokens[i*2+2]));
-      //std::cout<<tokens[i*2+1]<<"\t";
-      //std::cout<<tokens[i*2+2]<<"\t";
     }
     unsigned nParam = getUnsigned(tokens[2*mNvar+1]);
-    //std::cout<<tokens[2*mNvar+1]<<"\t";
     if (nParam != tokens.size()-(2*mNvar+2)) 
     {
       std::stringstream sserr;
@@ -109,7 +97,6 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
     for (unsigned i = (2*mNvar+2); i < tokens.size(); ++i)
     {
       mParameters.push_back(getFloat(tokens[i]));
-      //std::cout<<tokens[i]<<std::endl;
     }
   }
 }
@@ -125,7 +112,6 @@ METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const s
   std::string currentDefinitions = "";
   while (std::getline(input,line)) 
   {
-    //std::cout << " Line of parameters " << line << std::endl;
     std::string section = getSection(line);
     std::string tmp = getDefinitions(line);
     if (!section.empty() && tmp.empty()) 
@@ -167,116 +153,6 @@ METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const s
   valid_ = true;
 }
 //------------------------------------------------------------------------
-//--- returns the index of the record defined by fX ----------------------
-//------------------------------------------------------------------------
-/*
-int METCorrectorParameters::binIndex(const std::vector<float>& fX) const 
-{
-  int result = -1;
-  unsigned N = mDefinitions.nVar();
-  if (N != fX.size()) 
-    {
-      std::stringstream sserr; 
-      sserr<<"# bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
-      handleError("METCorrectorParameters",sserr.str());
-    }
-  unsigned tmp;
-  for (unsigned i = 0; i < size(); ++i) 
-    {
-      tmp = 0;
-      for (unsigned j=0;j<N;j++)
-        if (fX[j] >= record(i).xMin(j) && fX[j] < record(i).xMax(j))
-          tmp+=1;
-      if (tmp==N)
-        { 
-          result = i;
-          break;
-        }
-    } 
-  return result;
-}
-*/
-//------------------------------------------------------------------------
-//--- returns the neighbouring bins of fIndex in the direction of fVar ---
-//------------------------------------------------------------------------
-/*
-int METCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const 
-{
-  int result = -1;
-  unsigned N = mDefinitions.nVar();
-  if (fVar >= N) 
-    {
-      std::stringstream sserr; 
-      sserr<<"# of bin variables "<<N<<" doesn't correspond to requested #: "<<fVar;
-      handleError("METCorrectorParameters",sserr.str()); 
-    }
-  unsigned tmp;
-  for (unsigned i = 0; i < size(); ++i) 
-    {
-      tmp = 0;
-      for (unsigned j=0;j<fVar;j++)
-        if (fabs(record(i).xMin(j)-record(fIndex).xMin(j))<0.0001)
-          tmp+=1;
-      for (unsigned j=fVar+1;j<N;j++)
-        if (fabs(record(i).xMin(j)-record(fIndex).xMin(j))<0.0001)
-          tmp+=1;
-      if (tmp<N-1)
-        continue; 
-      if (tmp==N-1)
-        {
-          if (fNext)
-            if (fabs(record(i).xMin(fVar)-record(fIndex).xMax(fVar))<0.0001)
-              tmp+=1;
-          if (!fNext)
-            if (fabs(record(i).xMax(fVar)-record(fIndex).xMin(fVar))<0.0001)
-              tmp+=1;
-        } 
-      if (tmp==N)
-        { 
-          result = i;
-          break;
-        }
-    } 
-  return result;
-}
-*/
-//------------------------------------------------------------------------
-//--- returns the number of bins in the direction of fVar ----------------
-//------------------------------------------------------------------------
-/*
-unsigned METCorrectorParameters::size(unsigned fVar) const
-{
-  if (fVar >= mDefinitions.nVar()) 
-    { 
-      std::stringstream sserr; 
-      sserr<<"requested bin variable index "<<fVar<<" is greater than number of variables "<<mDefinitions.nVar();
-      handleError("METCorrectorParameters",sserr.str()); 
-    }    
-  unsigned result = 0;
-  float tmpMin(-9999),tmpMax(-9999);
-  for (unsigned i = 0; i < size(); ++i)
-    if (record(i).xMin(fVar) > tmpMin && record(i).xMax(fVar) > tmpMax)
-      { 
-        result++;
-        tmpMin = record(i).xMin(fVar);
-        tmpMax = record(i).xMax(fVar);
-      }
-  return result; 
-}
-*/
-//------------------------------------------------------------------------
-//--- returns the vector of bin centers of fVar --------------------------
-//------------------------------------------------------------------------
-/*
-std::vector<float> METCorrectorParameters::binCenters(unsigned fVar) const 
-{
-  std::vector<float> result;
-  for (unsigned i = 0; i < size(); ++i)
-    result.push_back(record(i).xMiddle(fVar));
-  return result;
-}
-*/
-//------------------------------------------------------------------------
 //--- prints parameters on screen ----------------------------------------
 //------------------------------------------------------------------------
 void METCorrectorParameters::printScreen(const std::string &Section) const
@@ -285,7 +161,6 @@ void METCorrectorParameters::printScreen(const std::string &Section) const
   std::cout<<"////////  PARAMETERS: //////////////////////"<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"["<<Section<<"]"<<"\n";
-  //std::cout<<"SampleType:   "<<definitions().dataType()<<std::endl;
   std::cout<<"Number of binning variables:   "<<definitions().nBinVar()<<std::endl;
   std::cout<<"Names of binning variables:    ";
   for(unsigned i=0;i<definitions().nBinVar();i++)
@@ -329,8 +204,6 @@ void METCorrectorParameters::printFile(const std::string& fFileName,const std::s
   for(unsigned i=0;i<definitions().nParVar();i++)
     txtFile<<"  "<<definitions().parVar(i);
   txtFile<<"  "<<definitions().formula();
-  //txtFile<<std::setw(definitions().formula().size()+15)
-  //<<definitions().formula()<<std::setw(15);
   txtFile<<"}"<<"\n";
   for(unsigned i=0;i<size();i++) //mRecords size
   {
@@ -372,9 +245,7 @@ const std::vector<std::string> XYshiftFlavors_ = {
 
 std::string
 METCorrectorParametersCollection::findLabel( key_type k ){
-  //std::cout<<"findLabel with key: "<<k<<std::endl;
   if( isXYshiftMC(k) ){
-    //std::cout<<"is XYshift"<<std::endl;
     return findXYshiftMCflavor(k);
   }else if( isXYshiftDY(k) ){
     return findXYshiftDYflavor(k);
@@ -390,7 +261,6 @@ METCorrectorParametersCollection::findLabel( key_type k ){
 }
 std::string
 METCorrectorParametersCollection::levelName( key_type k ){
-  //std::cout<<"findLabel with key: "<<k<<std::endl;
   if( isXYshiftMC(k) ){
     return labels_[XYshiftMC];
   }else if( isXYshiftDY(k) ){
@@ -463,30 +333,25 @@ void METCorrectorParametersCollection::getSections( std::string inputFile,
 // Add a METCorrectorParameter object. 
 void METCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const &flav )
 { 
-  //std::cout << "Level index    = " << i << std::endl;  
-  //std::cout << "flav = " << flav << std::endl;
   if( isXYshiftMC(i))
   {
-    //std::cout << "This is XYshiftMC, getXYshiftFlavBin = " << getXYshiftMcFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftMcFlavBin(flav),j) );
   }else if( isXYshiftDY(i))
   {
-    //std::cout << "This is XYshiftDY, getXYshiftFlavBin = " << getXYshiftDyFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftDyFlavBin(flav),j) );
   }else if( isXYshiftTTJets(i))
   {
-    //std::cout << "This is XYshiftTTJets, getXYshiftFlavBin = " << getXYshiftTTJetsFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftTTJetsFlavBin(flav),j) );
   }else if( isXYshiftWJets(i))
   {
-    //std::cout << "This is XYshiftWJets, getXYshiftFlavBin = " << getXYshiftWJetsFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftWJetsFlavBin(flav),j) );
   }else if( isXYshiftData(i))
   {
-    //std::cout << "This is XYshiftData, getXYshiftFlavBin = " << getXYshiftDataFlavBin(flav) << std::endl;
     correctionsXYshift_.push_back( pair_type(getXYshiftDataFlavBin(flav),j) );
   }else{
-    //std::cout << "***** NOT ADDING " << flav << ", corresponding position in METCorrectorParameters is not found." << std::endl;
+    std::stringstream sserr;
+    sserr<<"The level type: "<<i<<" is not in the level list";
+    handleError("METCorrectorParameters::Definitions",sserr.str());
   }
 }
 
@@ -515,13 +380,6 @@ void METCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) 
     keys.push_back( i->first );
   }
 }
-//void METCorrectorParametersCollection::validSections(std::vector<section_type> & sections ) const {
-//  sections.clear();
-//  for ( collection_type::const_iterator ibegin = correctionsXYshift_.begin(),
-//	  iend = correctionsXYshift_.end(), i = ibegin; i != iend; ++i ) {
-//    sections.push_back( i->first );
-//  }
-//}
 
 
 METCorrectorParametersCollection::key_type
@@ -610,30 +468,6 @@ bool METCorrectorParametersCollection::isXYshiftData( key_type k ) {
   return k == XYshiftData ||
     (k > (XYshiftData+1)*100 && k < (XYshiftData + 2)*100 );
 }
-
-// Find the key corresponding to each label
-//METCorrectorParametersCollection::key_type
-//METCorrectorParametersCollection::findKey( std::string const & label ) const {
-//
-//  // First check L5 corrections
-//  std::vector<std::string>::const_iterator found1 =
-//    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), label );
-//  if ( found1 != XYshiftFlavors_.end() ) {
-//    return getXYshiftFlavBin(label);
-//  }
-//
-//  // Finally check the default corrections
-//  std::vector<std::string>::const_iterator found2 =
-//    find( labels_.begin(), labels_.end(), label );
-//  if ( found2 != labels_.end() ) {
-//    return static_cast<key_type>(found2 - labels_.begin());
-//  }
-//
-//  // Didn't find default corrections, throw exception
-//  throw cms::Exception("InvalidInput") << " Cannot find label " << label << std::endl;
-//
-//}
-
 
 
 #include "FWCore/Utilities/interface/typelookup.h"

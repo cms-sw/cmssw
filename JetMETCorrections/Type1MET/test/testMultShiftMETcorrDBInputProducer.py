@@ -14,8 +14,6 @@ process.CondDB.connect = 'sqlite_file:../data/Spring16_V0_MET_Data.db'
 #process.CondDB.connect = 'sqlite_file:../data/Spring16_V0_MET_MC.db'
 
 
-#process.source = cms.Source("EmptySource")
-
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
       process.CondDB,
       timetype = cms.string('runnumber'),
@@ -24,7 +22,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
               record = cms.string('METCorrectionsRecord'),# plugin 
               tag    = cms.string('METCorrectorParametersCollection_Spring16_V0_Data_PfType1Met'),
               #tag    = cms.string('METCorrectorParametersCollection_Spring16_V0_MC_PfType1Met'),
-              #label  = cms.untracked.string('PfType1Met')
               label  = cms.untracked.string('PfType1MetLocal')
             )                                                                               
        )

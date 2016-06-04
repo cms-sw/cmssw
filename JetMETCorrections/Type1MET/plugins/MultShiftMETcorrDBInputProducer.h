@@ -46,7 +46,6 @@ class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<>
   edm::EDGetTokenT<edm::View<reco::Vertex>> vertices_;
   std::string moduleLabel_;
   std::string mPayloadName;
-  //std::string mGlobalTag;
   std::string mSampleType;
   bool mIsData;
 
@@ -54,13 +53,9 @@ class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<>
 
   std::vector<double> etaMin_, etaMax_;
   int counts_;
-  //std::vector<int> type_, counts_, varType_;
   double sumPt_;
-  //std::vector<double> sumPt_;
   TF1* formula_x_;
   TF1* formula_y_;
-  //std::vector<std::unique_ptr<TF1> > formula_x_;
-  //std::vector<std::unique_ptr<TF1> > formula_y_;
 };
 
 #endif

@@ -32,43 +32,17 @@ MultShiftMETcorrDBInputProducer::MultShiftMETcorrDBInputProducer(const edm::Para
 {
   
   mPayloadName    = cfg.getUntrackedParameter<std::string>("payloadName");
-  //mGlobalTag      = cfg.getUntrackedParameter<std::string>("globalTag");
   mSampleType     = cfg.getUntrackedParameter< std::string >("sampleType","MC");
-  //mSampleType     = (cfg.exists("sampleType") ) ?  cfg.getUntrackedParameter<std::string>("sampleType"): "DY";
   mIsData         = cfg.getUntrackedParameter< bool >("isData");
-  //cfgCorrParameters_ = cfg.getParameter<std::vector<edm::ParameterSet> >("parameters");
 
   pflow_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter< edm::InputTag >("srcPFlow") );
   vertices_ = consumes<edm::View<reco::Vertex> >( cfg.getParameter< edm::InputTag >("vertexCollection") );
 
   etaMin_.clear(); 
   etaMax_.clear();
-  //varType_.clear(); 
 
   produces<CorrMETData>();
 
-
-  /*******************
-  for (std::vector<edm::ParameterSet>::const_iterator v = cfgCorrParameters_.begin(); v!=cfgCorrParameters_.end(); v++) {
-    TString corrPxFormula = v->getParameter<std::string>("fx");
-    TString corrPyFormula = v->getParameter<std::string>("fy");
-    std::vector<double> corrPxParams = v->getParameter<std::vector<double> >("px");
-    std::vector<double> corrPyParams = v->getParameter<std::vector<double> >("py");
-
-    formula_x_.push_back( std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPx").c_str(), v->getParameter<std::string>("fx").c_str()) ) );
-    formula_y_.push_back( std::unique_ptr<TF1>(new TF1(std::string(moduleLabel_).append("_").append(v->getParameter<std::string>("name")).append("_corrPy").c_str(), v->getParameter<std::string>("fy").c_str()) ) );
-
-    for (unsigned i=0; i<corrPxParams.size();i++) formula_x_.back()->SetParameter(i, corrPxParams[i]);
-    for (unsigned i=0; i<corrPyParams.size();i++) formula_y_.back()->SetParameter(i, corrPyParams[i]);
-
-    counts_.push_back(0);
-    sumPt_.push_back(0.);
-    etaMin_.push_back(v->getParameter<double>("etaMin"));
-    etaMax_.push_back(v->getParameter<double>("etaMax"));
-    type_.push_back(v->getParameter<int>("type"));
-    varType_.push_back(v->getParameter<int>("varType"));
-  }
-  ***************/
 
 }
 
@@ -80,7 +54,6 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
 {
   // Get para.s from DB
   edm::ESHandle<METCorrectorParametersCollection> METCorParamsColl;
-  //std::cout <<"Inspecting MET payload with label: "<< mPayloadName <<std::endl;
   es.get<METCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
 
   // get the sections from Collection (pair of section and METCorr.Par class)
@@ -103,9 +76,6 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
        goodVertices.push_back((*hpv)[i]);
   }
   int ngoodVertices = goodVertices.size();
-
-  //for (unsigned i=0;i<counts_.size();i++) counts_[i]=0;
-  //for (unsigned i=0;i<sumPt_.size();i++) sumPt_[i]=0.;
 
   edm::Handle<edm::View<reco::Candidate> > particleFlow;
   evt.getByToken(pflow_, particleFlow);
@@ -148,10 +118,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
         if(!METCorParamsColl->isXYshiftWJets(*ikey)) continue;
     }
 
-    //std::cout<<"--------------------------------------" << std::endl;
-    //std::cout<<"Processing key = " << *ikey << std::endl;
     std::string sectionName= METCorParamsColl->findLabel(*ikey);
-    //std::cout<<"object label: "<<sectionName<<std::endl;
     METCorrectorParameters const & METCorParams = (*METCorParamsColl)[*ikey];
 
     counts_ = 0;
@@ -167,24 +134,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
         }
       }
     }
-    //std::cout<<"counts: "<<counts_<<" sumPt: "<<sumPt_<<std::endl;
-    //METCorParams.printScreen(sectionName);
-    /**************
-    if (mCreateTextFile)
-      {
-        if(METCorParamsColl->isXYshift(*ikey) )
-        {
-	  std::string outFileName(mGlobalTag+"_XYshift_"+mPayloadName+".txt");
-	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          //std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
-          METCorParams.printFile(outFileName, sectionName);
-        }
-      }
-  *****************/
     double val(0.);
-    //std::cout<<"parVar: "<<METCorParams.definitions().parVar(0)<<std::endl;
-    //int parVar = METCorParams.definitions().parVar(0);
-    //std::cout<<"int parVar: "<<parVar<<std::endl;
 
     if ( METCorParams.definitions().parVar(0) ==0) {
       val = counts_;
@@ -195,31 +145,24 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
     if ( METCorParams.definitions().parVar(0) ==2) {
       val = sumPt_;
     }
-    //std::cout<<"val: "<<val<<std::endl;
-    //std::cout<<"formula: "<<METCorParams.definitions().formula()<<std::endl;
 
     formula_x_ = new TF1("corrPx", METCorParams.definitions().formula().c_str());
     formula_y_ = new TF1("corrPy", METCorParams.definitions().formula().c_str());
 
     for( unsigned i(0); i<METCorParams.record(0).nParameters(); i++)
     {
-      //std::cout<<"par("<<i<<"): "<<METCorParams.record(0).parameter(i)<<std::endl;
       formula_x_->SetParameter(i,METCorParams.record(0).parameter(i));
     }
     for( unsigned i(0); i<METCorParams.record(1).nParameters(); i++)
     {
-      //std::cout<<"par("<<i<<"): "<<METCorParams.record(1).parameter(i)<<std::endl;
       formula_y_->SetParameter(i,METCorParams.record(1).parameter(i));
     }
 
-    //std::cout<<"value from formula_x: "<<formula_x_->Eval(val)<<std::endl;
-    //std::cout<<"value from formula_y: "<<formula_y_->Eval(val)<<std::endl;
     corx -= formula_x_->Eval(val);
     cory -= formula_y_->Eval(val);
 
   } //end loop over corrections
 
-  //std::cout<<"corx: "<<corx<<"  cory: "<<cory<<std::endl;
 
   metCorr->mex = corx;
   metCorr->mey = cory;

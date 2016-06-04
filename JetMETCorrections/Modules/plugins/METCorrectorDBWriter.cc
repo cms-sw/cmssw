@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,7 +41,7 @@ METCorrectorDBWriter::METCorrectorDBWriter(const edm::ParameterSet& pSet)
 
 void METCorrectorDBWriter::beginJob()
 {
-  //std::string path("CondFormats/JetMETObjects/data/");
+  LogDebug ("default")<<"beginJob===========";
 
   METCorrectorParametersCollection *payload = new METCorrectorParametersCollection();
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
@@ -53,7 +54,6 @@ void METCorrectorDBWriter::beginJob()
     append += algo;
     append += ".txt";
     inputTxtFile = path+era+append;
-    //std::ifstream input( ("../../../"+inputTxtFile).c_str() );
     try{
       edm::FileInPath fip(inputTxtFile);
       std::cout << "Opened file " << inputTxtFile << std::endl;
@@ -65,7 +65,6 @@ void METCorrectorDBWriter::beginJob()
       }else{
 	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
 	      isect != isectend; ++isect ) {
-	  //payload->push_back( ilev, METCorrectorParameters(fip.fullPath(),*isect),levelName+"_"+ *isect );	  
 	  payload->push_back( ilev, METCorrectorParameters(fip.fullPath(),*isect), *isect );	  
 	  std::cout << "Added level " << levelName  + "_" + *isect <<  " to record "<<ilev<< std::endl;
 	}

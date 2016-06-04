@@ -26,7 +26,6 @@ class METCorrectorParameters
         Definitions(const std::vector<std::string>& fVar, const std::vector<int>& fParVar, const std::string& fFormula); 
         Definitions(const std::string& fLine); 
         //-------- Member functions ----------
-        //std::string dataType()               const {return mdataType; }
         unsigned nBinVar()                  const {return mBinVar.size(); }
         unsigned nParVar()                  const {return mParVar.size(); }
         int ptclType()                      const {return ptclType_; }
@@ -37,7 +36,6 @@ class METCorrectorParameters
         std::string formula()               const {return mFormula;       }
       private:
         //-------- Member variables ----------
-        //std::string              mdataType;
 	int 			 ptclType_;
         std::string              mFormula;
         std::vector<std::string> mBinVar;
@@ -80,8 +78,6 @@ class METCorrectorParameters
     METCorrectorParameters(const METCorrectorParameters::Definitions& fDefinitions,
 			 const std::vector<METCorrectorParameters::Record>& fRecords) 
       : mDefinitions(fDefinitions),mRecords(fRecords) { valid_ = true;}
-    //~METCorrectorParameters(){mDefinitions.~Definitions();mRecords.clear();}
-    //~METCorrectorParameters(){METCorrectorParameters::~Definitions(); METCorrectorParameters::~Record();}
     //-------- Member functions ----------
     const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
     const Definitions& definitions()                             const {return mDefinitions;   }
@@ -122,7 +118,6 @@ class METCorrectorParametersCollection {
 
   // Constructor... initialize all three vectors to zero
   METCorrectorParametersCollection() { correctionsXYshift_.clear();}
-  //~METCorrectorParametersCollection() { correctionsXYshift_.clear();}
 
   // Add a METCorrectorParameter object, for each source 
   void push_back( key_type i, value_type const & j, label_type const & flav = "" );
@@ -131,12 +126,6 @@ class METCorrectorParametersCollection {
   // key_type is hashed to deal with the three collections
   METCorrectorParameters const & operator[]( key_type k ) const;
 
-  // Access the METCorrectorParameter via a string. 
-  // Will find the hashed value for the label, and call via that 
-  // operator. 
-  //METCorrectorParameters const & operator[]( std::string const & label ) const {
-  //  return operator[]( findKey(label) );
-  //}
 
   // Get a list of valid keys. These will contain hashed keys
   // that are aware of all three collections. 
@@ -172,7 +161,6 @@ class METCorrectorParametersCollection {
  protected:
 
   // Find the key corresponding to each label
-  //key_type findKey( std::string const & label ) const;
 
   collection_type                        correctionsXYshift_;
 

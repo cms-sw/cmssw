@@ -67,9 +67,7 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
 {
   edm::ESHandle<METCorrectorParametersCollection> METCorParamsColl;
   std::cout <<"Inspecting MET payload with label: "<< mPayloadName <<std::endl;
-  //iSetup.get<JetCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
   iSetup.get<METCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
-  //METCorParamsColl.~ESHandle();
 
   // get the sections from Collection (pair of section and METCorr.Par class)
   std::vector<METCorrectorParametersCollection::key_type> keys;
@@ -90,31 +88,26 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
         {
 	  std::string outFileName(mGlobalTag+"_XYshiftMC_"+mPayloadName+".txt");
 	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          //std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
           METCorParams.printFile(outFileName, sectionName);
         }else if(METCorParamsColl->isXYshiftDY(*ikey) )
         {
 	  std::string outFileName(mGlobalTag+"_XYshiftDY_"+mPayloadName+".txt");
 	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          //std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
           METCorParams.printFile(outFileName, sectionName);
         }else if(METCorParamsColl->isXYshiftTTJets(*ikey) )
         {
 	  std::string outFileName(mGlobalTag+"_XYshiftTTJets_"+mPayloadName+".txt");
 	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          //std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
           METCorParams.printFile(outFileName, sectionName);
         }else if(METCorParamsColl->isXYshiftWJets(*ikey) )
         {
 	  std::string outFileName(mGlobalTag+"_XYshiftWJets_"+mPayloadName+".txt");
 	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          //std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
           METCorParams.printFile(outFileName, sectionName);
         }else if(METCorParamsColl->isXYshiftData(*ikey) )
         {
 	  std::string outFileName(mGlobalTag+"_XYshiftData_"+mPayloadName+".txt");
 	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          //std::cout<<"Writing METCorrectorParameter to txt file: "<<mGlobalTag+"_XYshift_"+mPayloadName+".txt"<<std::endl;
           METCorParams.printFile(outFileName, sectionName);
 	}else{
 	  throw cms::Exception("InvalidKey") <<
@@ -129,7 +122,7 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 
-  std::cout<<"Finished hahaha--------------------------" << std::endl;
+  std::cout<<"Finished --------------------------" << std::endl;
 }
 
 void 

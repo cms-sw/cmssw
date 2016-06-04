@@ -12,7 +12,6 @@ process.source = cms.Source(
 #    fileNames = cms.untracked.vstring('root://xrootd.unl.edu//store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU30bx50_PHYS14_25_V1-v1/00000/003B6371-8D81-E411-8467-003048F0E826.root')
 # PHYS14 mAOD local
 #    fileNames = cms.untracked.vstring('file:/data/schoef/local/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola_MINIAODSIM_PU20bx25_PHYS14_25_V1-v1.root')
-fileNames = cms.untracked.vstring('file:/u/user/sangilpark/RunIISample/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_v12_gs7120p2-v1/C8D488AF-F308-E611-8C6B-0025905A607E.root')
     )
 
 
