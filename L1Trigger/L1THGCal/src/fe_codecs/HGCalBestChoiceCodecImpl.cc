@@ -13,11 +13,15 @@ HGCalBestChoiceCodecImpl::HGCalBestChoiceCodecImpl(const edm::ParameterSet& conf
     adcnBits_(conf.getParameter<uint32_t>("adcnBits")),
     tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
     tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
-    tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC"))
+    tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
+    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits"))
 /*****************************************************************/
 {
+  // Cannot have more selected cells than the max number of cells
+  if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
   adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
   tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
+  triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;
 }
 
 
@@ -43,13 +47,11 @@ std::vector<bool> HGCalBestChoiceCodecImpl::encode(const HGCalBestChoiceCodecImp
                     << "encode: Number of non-zero trigger cells larger than codec parameter\n"\
                     << "      : Number of energy values = "<<nData_<<"\n";
             }
-            // FIXME: a proper coding is needed here. Needs studies.
-            // For the moment truncate to 8 bits by keeping bits 10----3. 
-            // Values > 0x3FF are saturated to 0x3FF
-            if(value>0x3FF) value=0x3FF; // 10 bit saturation
+            // Saturate and truncate energy values
+            if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_);
             for(size_t i=0; i<dataLength_; i++)
             {
-                result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+2)));// remove the two lowest bits
+                result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+triggerCellTruncationBits_)));// remove the lowest bits (=triggerCellTruncationBits_)
             }
             idata++;
         }
@@ -186,14 +188,14 @@ void HGCalBestChoiceCodecImpl::bestChoiceSelect(data_type& data)
                 return a > b; 
             } 
             );
-    // keep only the 12 first trigger cells
+    // keep only the first trigger cells
     for(size_t i=nData_; i<nCellsInModule_; i++)
     {
         sortedtriggercells.at(i).first = 0;
     }
     for(const auto& value_id : sortedtriggercells)
     {
-        if(value_id.second>nCellsInModule_) // cell number starts at 1
+        if(value_id.second>=nCellsInModule_)
         {
             throw cms::Exception("BadGeometry")
                 << "Number of trigger cells in module too large for available data payload\n";

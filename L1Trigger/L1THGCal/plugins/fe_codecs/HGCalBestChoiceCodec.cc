@@ -42,6 +42,37 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
 
 }
 
+/*****************************************************************/
+void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
+        const l1t::HGCFETriggerDigi& digi)
+/*****************************************************************/
+{
+    data_.reset();
+    // decode input data with different parameters
+    // (no selection, so NData=number of trigger cells in module)
+    // FIXME:
+    // Not very clean to define an alternative codec within this codec 
+    // Also, the codec is built each time the method is called, which is not very efficient
+    // This may need a restructuration of the FECodec
+    edm::ParameterSet conf;
+    conf.addParameter<std::string>("CodecName",     name());
+    conf.addParameter<uint32_t>   ("CodecIndex",    getCodecType());
+    conf.addParameter<uint32_t>   ("NData",         HGCalBestChoiceCodec::data_type::size);
+    // The data length should be the same for input and output, which is limiting
+    conf.addParameter<uint32_t>   ("DataLength",    codecImpl_.dataLength());
+    conf.addParameter<double>     ("linLSB",        codecImpl_.linLSB());
+    conf.addParameter<double>     ("adcsaturation", codecImpl_.adcsaturation());
+    conf.addParameter<uint32_t>   ("adcnBits",      codecImpl_.adcnBits());
+    conf.addParameter<double>     ("tdcsaturation", codecImpl_.tdcsaturation());
+    conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
+    conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
+    conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
+    HGCalBestChoiceCodec codecInput(conf);
+    digi.decode(codecInput,data_);
+    // choose best trigger cells in the module
+    codecImpl_.bestChoiceSelect(data_);
+}
+
 
 /*****************************************************************/
 std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::data_type& data) const 

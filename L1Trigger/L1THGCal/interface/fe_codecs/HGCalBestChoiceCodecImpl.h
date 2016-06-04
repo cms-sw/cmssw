@@ -12,8 +12,8 @@
 
 struct HGCalBestChoiceDataPayload
 {
-    static const size_t size = 128;
-    typedef std::array<uint32_t, size> trigger_cell_list; // list of data in 128 trigger cells
+    static const size_t size = 114;
+    typedef std::array<uint32_t, size> trigger_cell_list; // list of trigger cell values
     trigger_cell_list payload;
 
     void reset() 
@@ -39,6 +39,19 @@ class HGCalBestChoiceCodecImpl
         void triggerCellSums(const HGCalTriggerGeometry::Module& , const std::vector<std::pair<HGCEEDetId, uint32_t > >&, data_type&);
         void bestChoiceSelect(data_type&);
 
+        // Retrieve parameters
+        size_t   nData()         const {return nData_;}
+        size_t   dataLength()    const {return dataLength_;}
+        double   linLSB()        const {return linLSB_;}
+        double   adcsaturation() const {return adcsaturation_;}
+        uint32_t adcnBits()      const {return adcnBits_;}
+        double   tdcsaturation() const {return tdcsaturation_;}
+        uint32_t tdcnBits()      const {return tdcnBits_;}
+        double   tdcOnsetfC()    const {return tdcOnsetfC_;}
+        uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
+        uint32_t triggerCellSaturationBits() const {return triggerCellSaturationBits_;}
+
+
     private:
         size_t   nData_;
         size_t   dataLength_;
@@ -51,6 +64,8 @@ class HGCalBestChoiceCodecImpl
         double   tdcOnsetfC_ ;
         double   adcLSB_;
         double   tdcLSB_;
+        uint32_t triggerCellTruncationBits_;
+        uint32_t triggerCellSaturationBits_;
 
 };
 

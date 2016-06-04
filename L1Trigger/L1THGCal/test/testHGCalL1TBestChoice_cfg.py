@@ -22,8 +22,9 @@ process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(4)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
@@ -41,23 +42,23 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
-
 process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-   # outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    fileName = cms.untracked.string('file:junk.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
-    ), 
+    #outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     outputCommands = cms.untracked.vstring(
-        'drop *',
         'keep *_*_HGCHitsEE_*',
         'keep *_*_HGCHitsHEback_*',
         'keep *_*_HGCHitsHEfront_*',
         'keep *_mix_*_*',
-        'keep *_genParticles_*_*'
+        'keep *_genParticles_*_*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_*_*',
+        'keep *_hgcalTriggerPrimitiveDigiFEReproducer_*_*'
+    ),
+    fileName = cms.untracked.string('file:junk.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
@@ -67,7 +68,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("test.root")
+    fileName = cms.string("test_bestchoice.root")
     )
 
 
@@ -79,13 +80,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(50.01),
         MinPt = cms.double(49.99),
-        PartID = cms.vint32(13),
-        MaxEta = cms.double(3.0),
-        MaxPhi = cms.double(3.14159265359),
+        MaxPt = cms.double(50.01),
+        PartID = cms.vint32(11),
         MinEta = cms.double(1.5),
-        MinPhi = cms.double(-3.14159265359)
+        MaxEta = cms.double(3.0),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
     psethack = cms.string('single electron pt 50'),
@@ -106,11 +107,29 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
+process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
+## define trigger emulator without trigger cell selection
+process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
+cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
+                                 FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
+process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
+
+## define trigger emulator with trigger cell selection
+process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.triggerCellTruncationBits = cms.uint32(0)
+cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
+                                 FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec )
+process.hgcalTriggerPrimitiveDigiFEReproducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_select )
+process.hgcl1tpg_step2 = cms.Path(process.hgcalTriggerPrimitives_reproduce)
+
+# define best choice tester
 process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
     "HGCalTriggerBestChoiceTester",
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
     bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+    beClustersAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo'),
+    beClustersSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgo'),
     TriggerGeometry = cms.PSet(
         TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
         L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
@@ -120,21 +139,22 @@ process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
         bhSDName = cms.string('HGCalHEScintillatorSensitive'),
         ),
     FECodec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
-                     CodecIndex = cms.uint32(1),
-                     NData = cms.uint32(12),
-                     DataLength = cms.uint32(8),
-                     linLSB = cms.double(100./1024.),
+                     CodecIndex    = cms.uint32(1),
+                     NData         = cms.uint32(12),
+                     DataLength    = cms.uint32(8),
+                     linLSB        = cms.double(100./1024.),
                      adcsaturation = cms.double(100),
-                     adcnBits =  cms.uint32(10),
+                     adcnBits      =  cms.uint32(10),
                      tdcsaturation = cms.double(10000),
-                     tdcnBits =  cms.uint32(12),
-                     tdcOnsetfC = cms.double(60)  
+                     tdcnBits      =  cms.uint32(12),
+                     tdcOnsetfC    = cms.double(60),
+                     triggerCellTruncationBits = cms.uint32(2)
                    )
     )
 process.test_step = cms.Path(process.hgcaltriggerbestchoicetester)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.test_step,process.endjob_step,process.FEVTDEBUGoutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step1,process.hgcl1tpg_step2,process.digi2raw_step,process.test_step,process.endjob_step,process.FEVTDEBUGoutput_step)
 
 # filter all path with the production filter sequence
 for path in process.paths:

@@ -28,6 +28,9 @@ class HGCalBestChoiceCodec : public HGCalTriggerFE::Codec<HGCalBestChoiceCodec,H
                 const HGCHEDigiCollection& fh,
                 const HGCHEDigiCollection& bh );
 
+        void setDataPayloadImpl(const Module& mod, 
+                const l1t::HGCFETriggerDigi& digi);
+
         std::vector<bool> encodeImpl(const data_type&) const ;
         data_type         decodeImpl(const std::vector<bool>&) const;  
 
