@@ -56,7 +56,7 @@ MuonTemplate::MuonTemplate(const std::string& cName, const l1t::GtConditionType&
         m_objectParameter.reserve(nObjects);
 
         m_objectType.reserve(nObjects);
-        m_objectType.assign(nObjects, gtMu);
+        m_objectType.assign(nObjects, l1t::gtMu);
     }
 
 }

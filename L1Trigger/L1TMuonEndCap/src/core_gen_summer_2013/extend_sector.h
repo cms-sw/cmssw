@@ -127,11 +127,11 @@ class extend_sector
 
 				void init();
 			};
-			map <ull, station__class> station;
+			std::map <ull, station__class> station;
 
 			void init();
 		};
-		map <ull, ph_zone_blk__class> ph_zone_blk;
+		std::map <ull, ph_zone_blk__class> ph_zone_blk;
 
 		void init();
 	};
