@@ -16,8 +16,9 @@
 //----------------------------------------------------------------------------------------------------
 
 VFATFrame::VFATFrame(const VFATFrame::word *_data) :
-  presenceFlags(15),  // by default BC, EC, ID and CRC are present
-  daqErrorFlags(0)    // by default, no DAQ error
+  presenceFlags(15),    // by default BC, EC, ID and CRC are present
+  daqErrorFlags(0),     // by default, no DAQ error
+  numberOfClusters(0)   // no clusters by default
 {
   if (_data)
     setData(_data);
