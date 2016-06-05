@@ -13,7 +13,7 @@
 #include <assert.h>
 
 //max collected updates per lumi
-#define MAXUPDATES 200
+#define MAXUPDATES 0xffffffff
 #define MAXBINS
 
 using namespace jsoncollector;
