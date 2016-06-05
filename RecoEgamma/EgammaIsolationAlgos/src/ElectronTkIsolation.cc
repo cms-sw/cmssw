@@ -45,7 +45,7 @@ ElectronTkIsolation::ElectronTkIsolation (double extRadius,
   trackCollection_(trackCollection),
   beamPoint_(beamPoint)
 {
-    setAlgosToReject();
+    setDefaultAlgosToReject();
     setDzOption(dzOptionString);
 }
 
@@ -126,8 +126,9 @@ bool ElectronTkIsolation::passAlgo(const reco::TrackBase& trk)const
 }
 
 
-void ElectronTkIsolation::setAlgosToReject()
+void ElectronTkIsolation::setAlgosToReject(std::vector<int> algos)
 {
-  algosToReject_={reco::TrackBase::jetCoreRegionalStep};
+  algosToReject_=std::move(algos);
   std::sort(algosToReject_.begin(),algosToReject_.end());
 }
+

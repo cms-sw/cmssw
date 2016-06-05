@@ -45,7 +45,7 @@ class ElectronTkIsolation {
   drb_(drb),
   trackCollection_(trackCollection),
   beamPoint_(beamPoint) {
-        setAlgosToReject();
+        setDefaultAlgosToReject();
         setDzOption("vz");
 
   }
@@ -70,7 +70,7 @@ class ElectronTkIsolation {
   drb_(drb),
   trackCollection_(trackCollection),
   beamPoint_(beamPoint) {
-        setAlgosToReject();
+        setDefaultAlgosToReject();
         setDzOption("vz");
 
   }
@@ -104,11 +104,13 @@ class ElectronTkIsolation {
   double getPtTracks (const reco::GsfElectron*) const ;
   std::pair<int,double>getIso(const reco::GsfElectron*) const;
   std::pair<int,double>getIso(const reco::Track*) const ;
+  
+  void setAlgosToReject(std::vector<int> algos); //intentional by value pass
 
  private:
 
   bool passAlgo(const reco::TrackBase& trk)const;
-  void setAlgosToReject();
+  void setDefaultAlgosToReject(){}
   double extRadius_ ;
   double intRadiusBarrel_ ;
   double intRadiusEndcap_ ;
