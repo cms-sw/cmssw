@@ -142,7 +142,7 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
     int htr_cr=(smid>>6)&0x1F;
     
     tp_begin=(const HcalTriggerPrimitiveSample*)tp_first;
-    tp_end=(HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
+    tp_end=(const HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
        
     /// work through the samples
     int currFiberChan=0x3F; // invalid fiber+channel...
