@@ -29,6 +29,9 @@ public:
                                const edm::Event & ev, const edm::EventSetup& es,
                                const SeedingLayerSetsHits::SeedingLayerSet& tripletLayers,
                                const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers) override;
+  virtual void hitQuadruplets( const TrackingRegion& region, OrderedHitSeeds& result,
+                               const edm::Event& ev, const edm::EventSetup& es,
+                               const SeedingLayerSetsHits::SeedingLayerSet& fourLayers) override;
 
 private:
   std::unique_ptr<SeedComparitor> theComparitor;

@@ -43,8 +43,9 @@ void CombinedHitQuadrupletGenerator::hitQuadruplets(
     throw cms::Exception("Configuration") << "CombinedHitQuadrupletsGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 4, got " << layers.numberOfLayersInSet();
 
   std::vector<LayerQuadruplets::LayerSetAndLayers> quadlayers = LayerQuadruplets::layers(layers);
-  for(const auto& tripletAndLayers: quadlayers) {
-    theGenerator->hitQuadruplets(region, result, ev, es, tripletAndLayers.first, tripletAndLayers.second);
-  }
+  for(unsigned int j=0; j<layers.size();j++) {
+        theGenerator->hitQuadruplets(region, result, ev, es,layers[j]);
+    }
+
   theLayerCache.clear();
 }
