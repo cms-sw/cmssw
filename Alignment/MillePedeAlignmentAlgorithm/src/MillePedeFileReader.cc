@@ -2,6 +2,7 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
 
 /*** system includes ***/
+#include <cmath>		// include floating-point std::abs functions
 #include <fstream>
 
 /*** core framework functionality ***/
