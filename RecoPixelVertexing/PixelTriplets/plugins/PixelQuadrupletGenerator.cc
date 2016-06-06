@@ -276,7 +276,7 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
   HitPairGeneratorFromLayerPair thePairGenerator(0, 1, theLayerCache);
   std::vector<CACell::CAntuplet> foundQuadruplets;
   
-  std::vector<const HitDoublets*> layersDoublets;
+  std::vector<const HitDoublets*> layersDoublets(3);
 
 
   HitDoublets doublets0 =  thePairGenerator.doublets(region, ev, es, fourLayers[0], fourLayers[1] );
