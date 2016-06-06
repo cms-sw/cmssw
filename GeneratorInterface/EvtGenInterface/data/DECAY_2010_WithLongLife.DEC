@@ -6851,9 +6851,20 @@ Enddecay
 #
 #  Strange Mesons updated to PDG 2008
 #
-# K_S0 is decayed in GEANT
+#
 Decay K_S0
+0.691321852 pi+     pi-                                     PHSP; #[Reconstructed PDG2011]
+0.306221852 pi0     pi0                                     PHSP; #[Reconstructed PDG2011]
+0.000000201 pi+     pi-     pi0                             PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.001722185 pi+     pi-     gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000042831 pi+     pi-     e+      e-                      PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000000025 pi0     gamma   gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000002399 gamma   gamma                                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000344328 pi+     e-      nu_e                            PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000344328 pi-     e+      nu_e                            PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
+#
+#  K_L0 is decayed in GEANT
 #
 Decay K0
 0.500     K_L0                              PHSP;
@@ -8745,11 +8756,22 @@ Enddecay
 #
 #   Light Baryons
 #   Lambda0 updated Feb 2009
-# Lambda0 is decayed in GEANT
 Decay Lambda0
+0.638719992 p+      pi-                                     PHSP; #[Reconstructed PDG2011]
+0.357719992 n0      pi0                                     PHSP; #[Reconstructed PDG2011]
+0.001741600 n0      gamma                                   PHSP; #[Reconstructed PDG2011]
+0.000832160 p+      pi-     gamma                           PHSP; #[Reconstructed PDG2011]
+0.000831216 p+      e-      anti-nu_e                       PHOTOS   PHSP; #[Reconstructed PDG2011]
+0.000155040 p+      mu-     anti-nu_mu                      PHOTOS   PHSP; #[Reconstructed PDG2011]
 Enddecay
 #
 Decay anti-Lambda0
+0.638719992 anti-p- pi+                                     PHSP; #[Reconstructed PDG2011]
+0.357719992 anti-n0 pi0                                     PHSP; #[Reconstructed PDG2011]
+0.001741600 anti-n0 gamma                                   PHSP; #[Reconstructed PDG2011]
+0.000832160 anti-p- pi+     gamma                           PHSP; #[Reconstructed PDG2011]
+0.000831216 anti-p- e+      nu_e                            PHOTOS   PHSP; #[Reconstructed PDG2011]
+0.000155040 anti-p- mu+     nu_mu                           PHOTOS    PHSP; #[Reconstructed PDG2011]
 Enddecay
 #
 Decay Lambda(1405)0
@@ -9016,10 +9038,19 @@ Decay anti-Sigma(1775)0
 0.055  anti-Sigma*-   pi+         PHSP;
 0.22   anti-Lambda(1520)0 pi0                             PHSP;
 Enddecay
-# Sigma+ is decayed in GEANT
 Decay Sigma+
+0.515454300 p+      pi0                                     PHSP; #[Reconstructed PDG2011]
+0.482854300 n0      pi+                                     PHSP; #[Reconstructed PDG2011]
+0.001225905 p+      gamma                                   PHSP; #[Reconstructed PDG2011]
+0.000445905 n0      pi+     gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000019590 Lambda0 e+      nu_e                            PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 Decay anti-Sigma-
+0.515454300 anti-p- pi0                                     PHSP; #[Reconstructed PDG2011]
+0.482854300 anti-n0 pi-                                     PHSP; #[Reconstructed PDG2011]
+0.001225905 anti-p- gamma                                   PHSP; #[Reconstructed PDG2011]
+0.000445905 anti-n0 pi-     gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000019590 anti-Lambda0 e-      anti-nu_e                  PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 #
 Decay Delta+
@@ -9067,10 +9098,19 @@ Decay anti-Delta+
 1.0000    anti-n0   pi+                     PHSP;
 Enddecay
 #
-# Sigma- is decayed in GEANT
 Decay Sigma-
+0.998015700 n0      pi-                                     PHSP; #[Reconstructed PDG2011]
+0.000460000 n0      pi-     gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.001017000 n0      e-      anti-nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000450000 n0      mu-     anti-nu_mu                      PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000057300 Lambda0 e-      anti-nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 Decay anti-Sigma+
+0.998015700 anti-n0 pi+                                     PHSP; #[Reconstructed PDG2011]
+0.000460000 anti-n0 pi+     gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.001017000 anti-n0 e+      nu_e                            PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000450000 anti-n0 mu+     nu_mu                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000057300 anti-Lambda0 e+      nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 #
 Decay Sigma0
@@ -9114,15 +9154,37 @@ Decay anti-Sigma*0
 0.0600    anti-Sigma-  pi+                    PHSP;
 0.0600    anti-Sigma+  pi-                    PHSP;
 Enddecay
-# Xi0 is decayed in GEANT
+#
 Decay Xi0
+0.995242400 Lambda0 pi0                                     PHSP; #[Reconstructed PDG2011]
+0.001162400 Lambda0 gamma                                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000007600 Lambda0 e+      e-                              PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.003330000 Sigma0  gamma                                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000253000 Sigma+  e-      anti-nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000004600 Sigma+  mu-     anti-nu_mu                      PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 Decay anti-Xi0
+0.995242400 anti-Lambda0 pi0                                PHSP; #[Reconstructed PDG2011]
+0.001162400 anti-Lambda0 gamma                              PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000007600 anti-Lambda0 e-      e+                         PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.003330000 anti-Sigma0 gamma                               PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000253000 anti-Sigma- e+      nu_e                        PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000004600 anti-Sigma- mu+     nu_mu                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
-# Xi- is decayed in GEANT
+#
 Decay Xi-
+0.998870000 Lambda0 pi-                                     PHSP; #[Reconstructed PDG2011]
+0.000127000 Sigma-  gamma                                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000563000 Lambda0 e-      anti-nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000350000 Lambda0 mu-     anti-nu_mu                      PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000087000 Sigma0  e-      anti-nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 Decay anti-Xi+
+0.998870000 anti-Lambda0 pi+                                PHSP; #[Reconstructed PDG2011]
+0.000127000 anti-Sigma+ gamma                               PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000563000 anti-Lambda0 e+      nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000350000 anti-Lambda0 mu+     nu_mu                      PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000087000 anti-Sigma0 e+      nu_e                        PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 #
 Decay Xi*-
@@ -9133,10 +9195,22 @@ Decay anti-Xi*+
 0.6670    anti-Xi0  pi+                     PHSP;
 0.3330    anti-Xi+  pi0                     PHSP;
 Enddecay
-# Omega- is decayed in GEANT
+#
 Decay Omega-
+0.675949296 Lambda0 K-                                      PHSP; #[Reconstructed PDG2011]
+0.233949296 Xi0     pi-                                     PHSP; #[Reconstructed PDG2011]
+0.084828169 Xi-     pi0                                     PHSP; #[Reconstructed PDG2011]
+0.000000000 Xi-     pi+     pi-                             PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000493521 Xi*0    pi-                                     PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.004779718 Xi0     e-      anti-nu_e                       PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 Decay anti-Omega+
+0.675949296 anti-Lambda0 K+                                 PHSP; #[Reconstructed PDG2011]
+0.233949296 anti-Xi0 pi+                                    PHSP; #[Reconstructed PDG2011]
+0.084828169 anti-Xi+ pi0                                    PHSP; #[Reconstructed PDG2011]
+0.000000000 anti-Xi+ pi-     pi+                            PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000493521 anti-Xi*0 pi+                                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.004779718 anti-Xi0 e+      nu_e                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 #
 #
@@ -10146,8 +10220,29 @@ Decay anti-Omega_cc*-
   0.03 anti-u   s   anti-s     anti-cs_1    PYTHIA 11;
 Enddecay
 
-# K_L0 is decayed in GEANT 
 Decay K_L0
+0.202464226 pi+     e-      nu_e                            PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.202464226 pi-     e+      nu_e                            PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.135033299 pi+     mu-     nu_mu                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.135033299 pi-     mu+     nu_mu                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000025738 pi0     pi+     e-      nu_e                    PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000025738 pi0     pi-     e+      nu_e                    PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000006205 pi+     e-      nu_e    e+      e-              PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000006205 pi-     e+      nu_e    e+      e-              PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.194795855 pi0     pi0     pi0                             PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.125231606 pi+     pi-     pi0                             PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.001880711 pi+     e-      nu_e    gamma                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.001880711 pi-     e+      nu_e    gamma                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000277023 pi+     mu-     nu_mu   gamma                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000277023 pi-     mu+     nu_mu   gamma                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000040995 pi+     pi-     gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000001262 pi0     gamma   gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000000016 pi0     gamma   e+      e-                      PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000545653 gamma   gamma                                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000009265 e+      e-      gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000000355 mu+     mu-     gamma                           PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000000584 e+      e-      gamma   gamma                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
+0.000000007 mu+     mu-     gamma   gamma                   PHSP;  #[New mode added] #[Reconstructed PDG2011]
 Enddecay
 
 End
