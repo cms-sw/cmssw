@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V321 (CMSSW_8_0_10)
+# /dev/CMSSW_8_0_0/HLT/V322 (CMSSW_8_0_10)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V321')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V322')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -40462,7 +40462,7 @@ fragment.hltCSCHaloData = cms.EDProducer( "CSCHaloDataProducer",
     RecHitTime0 = cms.double( 0.0 ),
     MinOuterMomentumTheta = cms.double( 0.1 ),
     HBHErhLabel = cms.InputTag( "hltHbhereco" ),
-    SALabel = cms.InputTag( "standAloneMuons" ),
+    SALabel = cms.InputTag( "" ),
     MatchingDPhiThreshold = cms.double( 0.18 ),
     MaxOuterMomentumTheta = cms.double( 3.0 ),
     DphiParam = cms.double( 1.0 ),
@@ -40496,7 +40496,7 @@ fragment.hltCSCHaloData = cms.EDProducer( "CSCHaloDataProducer",
     MatchingDEtaThreshold = cms.double( 0.4 ),
     OuterRMinParam = cms.double( 0.0 ),
     MatchingDWireThreshold = cms.int32( 5 ),
-    CosmicMuonLabel = cms.InputTag( "muonsFromCosmics" ),
+    CosmicMuonLabel = cms.InputTag( "" ),
     CSCRecHitLabel = cms.InputTag( "hltCsc2DRecHits" )
 )
 fragment.hltEcalHaloData = cms.EDProducer( "EcalHaloDataProducer",
