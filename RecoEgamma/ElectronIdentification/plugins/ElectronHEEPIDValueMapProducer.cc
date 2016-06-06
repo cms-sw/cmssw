@@ -171,10 +171,26 @@ void ElectronHEEPIDValueMapProducer::writeValueMap(edm::Event &iEvent,
 }
 
 void ElectronHEEPIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+ 
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<edm::InputTag>("ebRecHits",edm::InputTag("reducedEcalRecHitsEB"));
+  desc.add<edm::InputTag>("eeRecHits",edm::InputTag("reducedEcalRecHitsEE"));
+  desc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
+  desc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("eles",edm::InputTag("gedGsfElectrons"));
+  
+  edm::ParameterSetDescription trkIsoDesc;
+  trkIsoDesc.add<double>("extRadius",0.3);
+  trkIsoDesc.add<double>("intRadiusBarrel",0.015);
+  trkIsoDesc.add<double>("intRadiusEndcap",0.015);
+  trkIsoDesc.add<double>("stripBarrel",0.015);
+  trkIsoDesc.add<double>("stripEndcap",0.015);
+  trkIsoDesc.add<double>("ptMin",0.7);
+  trkIsoDesc.add<double>("maxVtxDist",0.2);
+  trkIsoDesc.add<double>("drb",999999999.0);
+  
+  desc.add("trkIsoConfig",trkIsoDesc);
+
   descriptions.addDefault(desc);
 }
 
