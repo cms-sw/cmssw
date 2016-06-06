@@ -117,7 +117,7 @@ class RemoveMCMatching(ConfigToolBase):
                 tauProducer.embedGenJetMatch = False
                 tauProducer.genJetMatch      = ''
             #Boosted Taus
-            if( names[obj] == 'TausBoosted'):
+            if( names[obj] == 'TausBoosted'      or names[obj] == 'All' ):
                 print "removing MC dependencies for taus boosted %s" %postfix
                 _removeMCMatchingForPATObject(process, 'tauMatchBoosted', 'patTausBoosted', postfix)
                 ## remove mc extra configs for taus
