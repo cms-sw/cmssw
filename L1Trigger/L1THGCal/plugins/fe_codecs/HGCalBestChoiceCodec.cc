@@ -19,21 +19,46 @@ HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Code
 /*****************************************************************/
 void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
         const HGCEEDigiCollection& ee,
-        const HGCHEDigiCollection&,
+        const HGCHEDigiCollection& fh,
         const HGCHEDigiCollection& ) 
 /*****************************************************************/
 {
     data_.reset();
-    std::vector<HGCEEDataFrame> dataframes;
-    // loop over EE digis and fill digis belonging to that module
-    for(const auto& eedata : ee)
+    HGCalDetId moduleId(mod.moduleId());
+    std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
+    std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+    // loop over EE or FH digis and fill digis belonging to that module
+    if(moduleId.subdetId()==ForwardSubdetector::HGCEE)
     {
-        if(mod.containsCell(eedata.id()))
+        for(const auto& eedata : ee)
         {
-            dataframes.push_back(eedata);
+            if(mod.containsCell(eedata.id()))
+            {
+                HGCDataFrame<HGCalDetId,HGCSample> dataframe(eedata.id());
+                for(int i=0; i<eedata.size(); i++)
+                {
+                    dataframe.setSample(i, eedata.sample(i));
+                }
+                dataframes.emplace_back(dataframe);
+            }
         }
     }
-    std::vector<std::pair<HGCEEDetId, uint32_t > > linearized_dataframes;
+    else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF)
+    {
+        for(const auto& fhdata : fh)
+        {
+            if(mod.containsCell(fhdata.id()))
+            {
+                HGCDataFrame<HGCalDetId,HGCSample> dataframe(fhdata.id());
+                for(int i=0; i<fhdata.size(); i++)
+                {
+                    dataframe.setSample(i, fhdata.sample(i));
+                }
+                dataframes.emplace_back(dataframe);
+            }
+        }
+    }
+    // linearize input energy on 16 bits
     codecImpl_.linearize(mod, dataframes, linearized_dataframes);
     // sum energy in trigger cells
     codecImpl_.triggerCellSums(mod, linearized_dataframes, data_);

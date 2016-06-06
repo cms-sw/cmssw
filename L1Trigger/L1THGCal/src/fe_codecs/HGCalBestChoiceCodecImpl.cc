@@ -92,7 +92,9 @@ HGCalBestChoiceCodecImpl::data_type HGCalBestChoiceCodecImpl::decode(const std::
 }
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod, const std::vector<HGCEEDataFrame>& dataframes, std::vector<std::pair<HGCEEDetId, uint32_t > >& linearized_dataframes)
+void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod,
+        const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
+        std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes)
 /*****************************************************************/
 {
     double amplitude; uint32_t amplitude_int;
@@ -119,7 +121,7 @@ void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod
   
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  const std::vector<std::pair<HGCEEDetId, uint32_t > >& linearized_dataframes, data_type& data)
+void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
     std::map<HGCalDetId, uint32_t> payload;
@@ -127,7 +129,7 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Modul
     for(const auto& frame : linearized_dataframes)
     {
         // FIXME: only EE
-        HGCEEDetId cellid(frame.first);
+        HGCalDetId cellid(frame.first);
         // find trigger cell associated to cell
         uint32_t tcid(0);
         for(const auto& tc_c : mod.triggerCellComponents())
