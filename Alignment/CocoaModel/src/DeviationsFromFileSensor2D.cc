@@ -9,6 +9,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 enum directions{ xdir = 0, ydir = 1};
 
@@ -58,7 +59,7 @@ void DeviationsFromFileSensor2D::readFile( ALIFileIn& ifdevi )
       //--------- get if scan is first in Y or X
       firstScanDir = ydir;
       if(verbose >= 3) std::cout << "firstScanDir " << firstScanDir << " " <<  dev->posX() <<  " " << oldposX << " " <<  dev->posY() <<  " " << oldposY << std::endl;
-      if( fabs( dev->posX() - oldposX ) >  fabs( dev->posY() - oldposY ) ) {
+      if( std::abs( dev->posX() - oldposX ) >  std::abs( dev->posY() - oldposY ) ) {
 	std::cerr << "!!!EXITING first scan direction has to be Y for the moment " << ifdevi.name() << std::endl;
 	firstScanDir = xdir;
 	exit(1);
