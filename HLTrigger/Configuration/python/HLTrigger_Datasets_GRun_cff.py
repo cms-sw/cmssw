@@ -627,7 +627,7 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_IsoTkMu22_v3', 
     'HLT_IsoTkMu24_v2', 
     'HLT_IsoTkMu27_v4', 
-    'HLT_L1SingleMu16_v2', 
+    'HLT_L1SingleMu18_v1', 
     'HLT_L1SingleMuOpen_v3', 
     'HLT_L2Mu10_v2', 
     'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v2', 
