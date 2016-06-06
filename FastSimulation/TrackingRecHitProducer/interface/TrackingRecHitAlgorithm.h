@@ -29,7 +29,6 @@ class TrackingRecHitAlgorithm
         const std::string _selectionString;
         const TrackerTopology* _trackerTopology;
         const TrackerGeometry* _trackerGeometry;
-        const TrackerGeometry* _misAlignedGeometry;
         std::shared_ptr<RandomEngineAndDistribution> _randomEngine;
 
     public:
@@ -48,7 +47,6 @@ class TrackingRecHitAlgorithm
         
         const TrackerTopology& getTrackerTopology() const;
         const TrackerGeometry& getTrackerGeometry() const;
-        const TrackerGeometry& getTrackerMisalignment() const;
         const RandomEngineAndDistribution& getRandomEngine() const;
 
         //this function will only be called once per stream

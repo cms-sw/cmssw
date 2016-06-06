@@ -53,15 +53,6 @@ const TrackerGeometry& TrackingRecHitAlgorithm::getTrackerGeometry() const
     return *_trackerGeometry;
 }
 
-const TrackerGeometry& TrackingRecHitAlgorithm::getTrackerMisalignment() const
-{
-    if (!_misAlignedGeometry)
-    {
-        throw cms::Exception("TrackingRecHitAlgorithm ") << _name <<": misaligned TrackerGeometry not defined";
-    }
-    return *_misAlignedGeometry;
-}
-
 const RandomEngineAndDistribution& TrackingRecHitAlgorithm::getRandomEngine() const
 {
     if (!_randomEngine)
@@ -79,17 +70,14 @@ void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-    edm::ESHandle<TrackerGeometry> misAlignedGeometryHandle;
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
 
 
     eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-    eventSetup.get<TrackerDigiGeometryRecord>().get("MisAligned",misAlignedGeometryHandle);
     eventSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
 
 
     _trackerGeometry = trackerGeometryHandle.product();
-    _misAlignedGeometry = misAlignedGeometryHandle.product();
     _trackerTopology = trackerTopologyHandle.product();
 }
 
@@ -103,7 +91,6 @@ void TrackingRecHitAlgorithm::endEvent(edm::Event& event, const edm::EventSetup&
     //set these to 0 -> ensures that beginEvent needs to be executed before accessing these pointers again
     _trackerGeometry=nullptr;
     _trackerTopology=nullptr;
-    _misAlignedGeometry=nullptr;
 }
 
 void TrackingRecHitAlgorithm::endStream()
