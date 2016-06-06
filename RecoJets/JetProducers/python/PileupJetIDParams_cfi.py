@@ -35,7 +35,7 @@ full_80x_chs = cms.PSet(
             cms.PSet(
                 jEtaMin = cms.double(2.5),
                 jEtaMax = cms.double(2.75),
-                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p75to3_BDT.weights.xml.gz"),
+                tmvaWeights   = cms.string("RecoJets/JetProducers/data/pileupJetId_80X_Eta2p5to2p75_BDT.weights.xml.gz"),
                 tmvaVariables = cms.vstring(
                     "nvtx",
                     "dR2Mean"     ,
