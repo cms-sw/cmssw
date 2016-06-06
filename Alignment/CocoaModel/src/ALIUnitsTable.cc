@@ -4,6 +4,7 @@
 
 #include <iomanip>
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 ALIUnitsTable      ALIUnitDefinition::theUnitsTable;
 
@@ -367,8 +368,8 @@ std::ostream& operator<<(std::ostream& flux, ALIBestUnit a)
   ALIdouble rsup(1.E12), rinf(0.);
 
   //for a ThreeVector, choose the best unit for the biggest value
-  ALIdouble value = std::max(std::max(fabs(a.Value[0]),fabs(a.Value[1])),
-                              fabs(a.Value[2]));
+  ALIdouble value = std::max(std::max(std::abs(a.Value[0]),std::abs(a.Value[1])),
+                              std::abs(a.Value[2]));
 
   for (size_t k=0; k<List.size(); k++)
      {
