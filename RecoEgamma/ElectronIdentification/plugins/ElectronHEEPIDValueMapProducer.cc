@@ -70,8 +70,8 @@ class ElectronHEEPIDValueMapProducer : public edm::stream::EDProducer<> {
     double intRadiusEndcap;
     double stripBarrel;
     double stripEndcap;
-    double ptLow ;
-    double lip ;
+    double ptMin;
+    double maxVtxDist;
     double drb;
     TrkIsoParam(const edm::ParameterSet& iPara);
   };
@@ -89,8 +89,8 @@ ElectronHEEPIDValueMapProducer::TrkIsoParam::TrkIsoParam(const edm::ParameterSet
   intRadiusEndcap(iParam.getParameter<double>("intRadiusEndcap")),
   stripBarrel(iParam.getParameter<double>("stripBarrel")),
   stripEndcap(iParam.getParameter<double>("stripEndcap")),
-  ptLow(iParam.getParameter<double>("ptLow")),
-  lip(iParam.getParameter<double>("lip")),
+  ptMin(iParam.getParameter<double>("ptMin")),
+  maxVtxDist(iParam.getParameter<double>("maxVtxDist")),
   drb(iParam.getParameter<double>("drb"))
 { 
 
@@ -127,8 +127,8 @@ void ElectronHEEPIDValueMapProducer::produce(edm::Event& iEvent, const edm::Even
   iSetup.get<CaloTopologyRecord>().get(caloTopoHandle);
   
   ElectronTkIsolation isolCorr(trkIsoParam_.extRadius,trkIsoParam_.intRadiusBarrel,trkIsoParam_.intRadiusEndcap,
-			       trkIsoParam_.stripBarrel,trkIsoParam_.stripEndcap,trkIsoParam_.ptLow,
-			       trkIsoParam_.lip,trkIsoParam_.drb,
+			       trkIsoParam_.stripBarrel,trkIsoParam_.stripEndcap,trkIsoParam_.ptMin,
+			       trkIsoParam_.maxVtxDist,trkIsoParam_.drb,
 			       trkHandle.product(),beamSpotHandle->position());
   isolCorr.setAlgosToReject({reco::TrackBase::jetCoreRegionalStep});
 
