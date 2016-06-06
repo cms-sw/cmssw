@@ -234,7 +234,7 @@ foreach gtag ( MC DATA )
     cmsDriver.py RelVal                 --step=$XHLT,RAW2DIGI,L1Reco,RECO                  --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
 
     if ( $table == HIon ) then
-      set STEPS = "RAW2DIGI,L1Reco,RECO,PAT,DQM"
+      set STEPS = "RAW2DIGI,L1Reco,RECO,DQM"
     else
       set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,DQM"
     endif
@@ -251,7 +251,7 @@ foreach gtag ( MC DATA )
     cmsDriver.py RelVal                 --step=$XHLT,RAW2DIGI,L1Reco,RECO                  --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
 
     if ( $table == HIon ) then
-      set STEPS = "RAW2DIGI,L1Reco,RECO,PAT,VALIDATION,DQM"
+      set STEPS = "RAW2DIGI,L1Reco,RECO,VALIDATION,DQM"
     else
       set STEPS = "RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM"
     endif
