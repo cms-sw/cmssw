@@ -573,8 +573,15 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
         theErrorY = sy1*microntocm;
     else  theErrorY = sigmay*microntocm;
   }
-  // theErrorZ = 1e-8; // 1 um means zero  (not needed)
-  theError = LocalError( theErrorX*theErrorX, 0., theErrorY*theErrorY);
+  
+  //add misalignment error
+  const LocalError& misalignmentError = detUnit->localAlignmentError();
+  
+  theError = LocalError( 
+    theErrorX*theErrorX+misalignmentError.xx(), 
+    misalignmentError.xy(), 
+    theErrorY*theErrorY+misalignmentError.yy()
+  );
   // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
   // as for resolution matrix
   //
