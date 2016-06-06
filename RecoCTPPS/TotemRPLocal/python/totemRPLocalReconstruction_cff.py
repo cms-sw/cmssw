@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+# geometry
+from Geometry.VeryForwardGeometry.geometryRP_cfi import *
+XMLIdealGeometryESSource.geomXMLFiles.append("Geometry/VeryForwardData/data/RP_Garage/RP_Dist_Beam_Cent.xml")
+
 # clusterization
 from RecoCTPPS.TotemRPLocal.totemRPClusterProducer_cfi import *
 
