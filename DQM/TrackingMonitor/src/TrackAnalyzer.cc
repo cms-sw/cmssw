@@ -690,7 +690,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       histname = "zPointOfClosestApproachVsPhi_";
       zPointOfClosestApproachVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, VZBinProf, VZMinProf, VZMaxProf, "");
       zPointOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
-      zPointOfClosestApproachVsPhi->setAxisTitle("y component of Track PCA to beam line (cm)",2);
+      zPointOfClosestApproachVsPhi->setAxisTitle("z component of Track PCA to beam line (cm)",2);
     }
     
     if(doDCAPlots_ || doPVPlots_ || doAllPlots_) {
