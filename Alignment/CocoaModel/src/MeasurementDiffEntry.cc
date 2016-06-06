@@ -14,6 +14,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
@@ -87,7 +88,7 @@ void MeasurementDiffEntry::calculateSimulatedValue( ALIbool firstTime )
   setValueSimulated( 0, entry1->valueDisplaced() - entry2->valueDisplaced() );
 
   if (ALIUtils::debug >= 2) {
-    ALIdouble detD = 1000*valueSimulated(0); if(fabs(detD) <= 1.e-9 ) detD = 0.;
+    ALIdouble detD = 1000*valueSimulated(0); if(std::abs(detD) <= 1.e-9 ) detD = 0.;
     std::cout << "REAL value: " <<"D: " << 1000.*value()[0] << " (mm)  " << (this)->name()
 	      << "   DIFF= " << detD-1000*value()[0] << std::endl;
     std::cout << "SIMU value: " << "D: " << detD << " (mm)  " << (this)->name() << std::endl;
