@@ -34,8 +34,9 @@ def customiseAddMergedTrackCollection(process):
     process.hiHighPtStepSelector.trackSelectors[0].pixel_pTMinCut[2] = 0.15
     process.hiPixelOnlyStepSelector.trackSelectors[2].pixel_pTMaxCut[2] = 12
 
-    ###keeping all. FIXME: Need to decide which collections to drop
-    process.AODoutput.outputCommands += ['keep *_hiConformalPixelTracks_*_*']
+    ###keep only merged collection
+    #process.AODoutput.outputCommands += ['keep *_hiConformalPixelTracks_*_*']
+    process.AODoutput.outputCommands += ['drop *_hiGeneralTracks_*_*']
 
     ###Add pixel tracks and merging procedure in the sequence
     process.reconstruction_step += process.hiMergedConformalPixelTracking
