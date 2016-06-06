@@ -216,8 +216,8 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
      }
 
 //////////////////////////////////////////////
-    qie_begin=(HcalQIESample*)daq_first;
-    qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
+    qie_begin=(const HcalQIESample*)daq_first;
+    qie_end=(const HcalQIESample*)(daq_last+1); // one beyond last..
 
     /// work through the samples
     
