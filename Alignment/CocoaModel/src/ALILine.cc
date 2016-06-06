@@ -10,6 +10,7 @@
 #include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -51,7 +52,7 @@ CLHEP::Hep3Vector ALILine::intersect( const ALILine& l2, bool notParallel )
   			}
 
   if(ALIUtils::debug >= 5 ) std::cout << " acosvec = " << acosvec << std::endl;
-  if( 1 - fabs(acosvec) < 1E-8 ) {
+  if( 1 - std::abs(acosvec) < 1E-8 ) {
     if( notParallel ) {
       std::cerr << " !!!EXITING ALILine::intersect: two lines are parallel"
 	<< std::endl;
@@ -104,16 +105,16 @@ CLHEP::Hep3Vector ALILine::intersect( const ALILine& l2, bool notParallel )
     ALIdouble old_fact_denominator2 = 999;
 
 
-   if(fabs(fact) > 1e8 || fabs(old_fact_denominator) < 1.e-10)
+   if(std::abs(fact) > 1e8 || std::abs(old_fact_denominator) < 1.e-10)
     {
 
       // do calculation by rotating 90 degrees into xy plane
       // Z-> X
       // X-> -Z
 
-       if(ALIUtils::debug >= 2 && fabs(old_fact_denominator) < 1.e-10) std::cout << " ** Problem:  old_fact_denominator -> " << old_fact_denominator << std::endl;
+       if(ALIUtils::debug >= 2 && std::abs(old_fact_denominator) < 1.e-10) std::cout << " ** Problem:  old_fact_denominator -> " << old_fact_denominator << std::endl;
 
-       if(ALIUtils::debug >= 2 && fabs(fact) > 1e8) std::cout << " ** Problem: fact -> " << fact << std::endl;
+       if(ALIUtils::debug >= 2 && std::abs(fact) > 1e8) std::cout << " ** Problem: fact -> " << fact << std::endl;
 
        if(ALIUtils::debug >= 2 && (vec().x() * l2.vec().y() - vec().y() * l2.vec().x()) == 0) std::cout << " ** Division by 0 !!! " << std::endl;
        if(ALIUtils::debug >= 2 ) std::cout << " ** Must rotate to yz plane for calculation (X-> Z) ";
@@ -128,12 +129,12 @@ CLHEP::Hep3Vector ALILine::intersect( const ALILine& l2, bool notParallel )
         old_fact_denominator2 = -1*vec().z() * l2.vec().y() + vec().y() * l2.vec().z();
 
 
-    	if(fabs(-1*vec().z() * l2.vec().y() + vec().y() * l2.vec().z())< 1.e-10)
+        if(std::abs(-1*vec().z() * l2.vec().y() + vec().y() * l2.vec().z())< 1.e-10)
      	{
 
 	  if(ALIUtils::debug >= 2 ) std::cout << " ** Must rotate to xz plane for calculation (Y-> -Z) ";
-	    if(ALIUtils::debug >= 2 && fabs(old_fact_denominator2) < 1.e-10) std::cout << " ** Problem: old_fact_denominator2 -> " << old_fact_denominator2 << std::endl;
-	  //-       	   if(ALIUtils::debug >= 2 && fabs(old_fact2) > 1.e8) std::cout << " ** Problem: old_fact2 -> " << old_fact2 << std::endl;
+	    if(ALIUtils::debug >= 2 && std::abs(old_fact_denominator2) < 1.e-10) std::cout << " ** Problem: old_fact_denominator2 -> " << old_fact_denominator2 << std::endl;
+	  //-       	   if(ALIUtils::debug >= 2 && std::abs(old_fact2) > 1.e8) std::cout << " ** Problem: old_fact2 -> " << old_fact2 << std::endl;
 
 	  fact = ( -1*vec().z() * l2.pt().x() + vec().x() * l2.pt().z()
 		   + vec().z() * pt().x() - vec().x() * pt().z() )
@@ -206,7 +207,7 @@ CLHEP::Hep3Vector ALILine::intersect( const ALIPlane& plane, bool notParallel)
   }
 
   //---------- Check that they intersect
-  if( fabs( plane.normal()*_direction ) < 1.E-10 ) {
+  if( std::abs( plane.normal()*_direction ) < 1.E-10 ) {
     std::cerr << " !!!! INTERSECTION NOT POSSIBLE: LightRay is perpendicular to plane " << std::endl;
     std::cerr << " plane.normal()*direction() = " << plane.normal()*_direction << std::endl;
     ALIUtils::dump3v( _direction, "LightRay direction ");
