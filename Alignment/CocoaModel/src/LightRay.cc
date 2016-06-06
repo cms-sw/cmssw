@@ -10,6 +10,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -107,7 +108,7 @@ void LightRay::intersect( const ALIPlane& plane )
   }
 
   //---------- Check that they intersect
-  if( fabs( plane.normal()*direction() ) < 1.E-10 ) {
+  if( std::abs( plane.normal()*direction() ) < 1.E-10 ) {
     std::cerr << " !!!! INTERSECTION NOT POSSIBLE: LightRay is perpendicular to plane " << std::endl;
     std::cerr << " plane.normal()*direction() = " << plane.normal()*direction() << std::endl;
     ALIUtils::dump3v( direction(), "LightRay direction ");
@@ -200,7 +201,7 @@ void LightRay::refract( const ALIPlane& plate, const ALIdouble refra_ind1, const
 
   //----- Angle between LightRay projection and plate normal after traversing (refracted)
   ALIdouble sinangp = sinang * refra_ind1 / refra_ind2;
-  if( fabs(sinangp) > 1. ) {
+  if( std::abs(sinangp) > 1. ) {
     std::cerr << " !!!EXITING LightRay::refract: incidence ray on plane too close to face, refraction will not allow entering " << std::endl;
     ALIUtils::dump3v( plate.normal(), " plate normal ");
     ALIUtils::dump3v( direction(), " light ray direction ");
@@ -216,9 +217,9 @@ void LightRay::refract( const ALIPlane& plate, const ALIdouble refra_ind1, const
   //----- Change Lightray direction in this plane
   //--- Get sign of projections in plate normal and axis1
   ALIdouble signN = direction()*plate.normal();
-  signN /= fabs(signN);
+  signN /= std::abs(signN);
   ALIdouble sign1 = direction()*Axis1;
-  sign1 /= fabs(sign1);
+  sign1 /= std::abs(sign1);
   if(ALIUtils::debug >= 4) {
     dumpData("LightRay refract: direction before plate");
     std::cout << " sign projection on plate normal " << signN << " sign projection on Axis1 " << sign1 << std::endl;
@@ -343,7 +344,7 @@ void LightRay::shiftAndDeviateWhileTraversing( const OpticalObject* opto, ALIdou
   //----- Get two directions perpendicular to LightRay
   //-- First can be (y,-x,0), unless direciton is (0,0,1), or close
   CLHEP::Hep3Vector PerpAxis1;
-  if(fabs(fabs(_direction.z())-1.) > 0.1) {
+  if(std::abs(std::abs(_direction.z())-1.) > 0.1) {
     if (ALIUtils::debug >= 99) ALIUtils::dump3v( _direction, "_direction1");
     PerpAxis1 = CLHEP::Hep3Vector(_direction.y(),-_direction.x(),0.);
   } else {
