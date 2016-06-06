@@ -192,6 +192,18 @@ def psetGsfEleFull5x5SigmaIEtaIEtaCut(wpEB, wpEE):
         isIgnored = cms.bool(False)
         )
 
+def psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB, wpEE):
+    return cms.PSet( 
+        cutName = cms.string('GsfEleFull5x5SigmaIEtaIEtaWithSatCut'),
+        maxSigmaIEtaIEtaEB = cms.double( wpEB.full5x5SigmaIEtaIEtaCut ),
+        maxSigmaIEtaIEtaEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
+        maxNrSatCrysIn5x5EB =cms.int32( 0 ),
+        maxNrSatCrysIn5x5EE =cms.int32( 0 ),
+        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
+        needsAdditionalProducts = cms.bool(True),
+        
+        isIgnored = cms.bool(False)
+        )
 # Configure XxX shower shape cuts
 def psetGsfEleFull5x5E2x5OverE5x5Cut(wpEB, wpEE):
     return cms.PSet( 
@@ -205,7 +217,22 @@ def psetGsfEleFull5x5E2x5OverE5x5Cut(wpEB, wpEE):
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
-
+# Configure XxX shower shape cuts
+def psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB, wpEE):
+    return cms.PSet( 
+        cutName = cms.string('GsfEleFull5x5E2x5OverE5x5WithSatCut'),
+        # E1x5 / E5x5
+        minE1x5OverE5x5EB = cms.double( wpEB.minE1x5OverE5x5Cut ),
+        minE1x5OverE5x5EE = cms.double( wpEE.minE1x5OverE5x5Cut ),
+        # E2x5 / E5x5
+        minE2x5OverE5x5EB = cms.double( wpEB.minE2x5OverE5x5Cut ),
+        minE2x5OverE5x5EE = cms.double( wpEE.minE2x5OverE5x5Cut ),
+        maxNrSatCrysIn5x5EB =cms.int32( 0 ),
+        maxNrSatCrysIn5x5EE =cms.int32( 0 ),
+        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False)
+        )
 # Configure the cut of E/H
 def psetGsfEleHadronicOverEMLinearCut(wpEB, wpEE) :
     return cms.PSet( 
@@ -257,6 +284,28 @@ def psetGsfEleTrkPtIsoRhoCut(wpEB, wpEE):
         rhoEAEB = cms.double( wpEB.trkIsoEffArea),
         rhoEAEE = cms.double( wpEE.trkIsoEffArea),
         rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False)
+        )
+def psetGsfEleTrkPtNoJetCoreIsoCut(wpEB, wpEE):
+    return cms.PSet( 
+        cutName = cms.string('GsfEleValueMapIsoRhoCut'),
+        # Three constants for the GsfEleTrkPtIsoCut
+        #     cut = constTerm if value < slopeStart
+        #     cut = slopeTerm * (value - slopeStart) + constTerm if value >= slopeStart
+        slopeTermEB = cms.double( wpEB.trkIsoSlopeTerm ),
+        slopeTermEE = cms.double( wpEE.trkIsoSlopeTerm ),
+        slopeStartEB = cms.double( wpEB.trkIsoSlopeStart ),
+        slopeStartEE = cms.double( wpEE.trkIsoSlopeStart ),
+        constTermEB = cms.double( wpEB.trkIsoConstTerm ),
+        constTermEE = cms.double( wpEE.trkIsoConstTerm ),
+        #no rho so we zero it out, if the input tag is empty, its ignored anyways
+        rhoEtStartEB = cms.double( 999999.),
+        rhoEtStartEE = cms.double( 999999.),
+        rhoEAEB = cms.double( 0. ),
+        rhoEAEE = cms.double( 0. ),
+        rho = cms.InputTag(""),
+        value = cms.InputTag("heepIDVarValueMaps","eleTrkPtIsoNoJetCore"),
         needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False)
         )
@@ -356,6 +405,31 @@ def configureHEEPElectronID_V60(wpEB, wpEE):
             psetGsfEleFull5x5E2x5OverE5x5Cut(wpEB,wpEE),  #5
             psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
             psetGsfEleTrkPtIsoCut(wpEB,wpEE),             #7
+            psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
+            psetGsfEleDxyCut(wpEB,wpEE),                  #9
+            psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
+            psetGsfEleEcalDrivenCut(wpEB,wpEE)            #11
+            )
+        )
+    return parameterSet
+
+def configureHEEPElectronID_V60_80XAOD(idName, wpEB, wpEE):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: two objects of the type HEEP_WorkingPoint_V1, one
+    containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
+    """
+    parameterSet = cms.PSet(
+        idName = cms.string(idName),
+        cutFlow = cms.VPSet(
+            psetMinPtCut(),                               #0
+            psetGsfEleSCEtaMultiRangeCut(),               #1
+            psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
+            psetGsfEleDPhiInCut(wpEB,wpEE),               #3
+            psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB,wpEE), #4
+            psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB,wpEE),  #5
+            psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
+            psetGsfEleTrkPtNoJetCoreIsoCut(wpEB,wpEE),    #7
             psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
             psetGsfEleDxyCut(wpEB,wpEE),                  #9
             psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
