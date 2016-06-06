@@ -100,7 +100,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   std::vector<std::pair<unsigned int,const PSimHit*>> & simHitIdPairs = product->getSimHitIdPairs();
   //this needs to be changed - the pair should be propagated to the 'addRecHit' method  instead 
   std::vector<const PSimHit*> simHits(simHitIdPairs.size());
-  std::cout << "simhitidpairs size: " << simHitIdPairs.size() << std::endl;
+  //std::cout << "simhitidpairs size: " << simHitIdPairs.size() << std::endl;
   for (unsigned int ihit = 0; ihit<simHitIdPairs.size();++ihit)
   {
     simHits[ihit]=simHitIdPairs[ihit].second;
@@ -131,7 +131,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
   int nHits = simHits.size();                       //  Number of hits on this DetUnit
   MergeGroup* mergeGroupByHit[ nHits ];             // fixed size array, 0 if hit is unmerged
 
-  std::cout << "nHits: " << nHits << std::endl;
+  //std::cout << "nHits: " << nHits << std::endl;
   //--- Check special cases (nHits = 0 or 1), and finish them off first.
   //
   if ( nHits == 0 ) {
@@ -321,7 +321,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
-  std::cout << "Local momentum for simhit: " << locx << " and " << locy << " and " << locz << std::endl;
+  //std::cout << "Local momentum for simhit: " << locx << " and " << locy << " and " << locz << std::endl;
   // alpha: angle with respect to local x axis in local (x,z) plane
   float cotalpha = locx/locz;
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
@@ -368,7 +368,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
   const MeasurementPoint mp = rectPixelTopology->measurementPosition( lp );
   float mpy = mp.y();
   float mpx = mp.x();
-  std::cout << "Simhit measurement: " << mpx << " and " << mpy << std::endl;
+  //std::cout << "Simhit measurement: " << mpx << " and " << mpy << std::endl;
   //Get the center of the struck pixel in measurement position
   float pixelCenterY = 0.5 + (int)mpy;
   float pixelCenterX = 0.5 + (int)mpx;
@@ -724,8 +724,8 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
 
   //--- We now have everything to make a FastSingleTrackerRecHit
   //
-  std::cout << "RecHit position: " << thePosition.x() << " and " << thePosition.y() << " and " << thePosition.z() << std::endl;
-  std::cout << "RecHit error: " << theError << std::endl;
+  //std::cout << "RecHit position: " << thePosition.x() << " and " << thePosition.y() << " and " << thePosition.z() << std::endl;
+  //std::cout << "RecHit error: " << theError << std::endl;
   //std::cout << "*detUnit: " << *detUnit << std::endl;
   FastSingleTrackerRecHit recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
 				  theError,    //const LocalError &
@@ -757,7 +757,7 @@ processUnmergedHits( std::vector< const PSimHit* > & unmergedHits,
     product->addRecHit( recHit ,{simHit});
     nRecHits += 1;
   }
-  std::cout << "number rec hits: " << nRecHits << std::endl;
+  //std::cout << "number rec hits: " << nRecHits << std::endl;
   return product;
 }
 

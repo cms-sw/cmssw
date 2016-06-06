@@ -18,79 +18,6 @@ from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_NoMerge_cfi import
 #from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_Example_cfi import trackingRecHitProducer as siTrackerGaussianSmearingRecHits
 #from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_Example_cfi import trackingRecHitProducer_alt as siTrackerGaussianSmearingRecHits
 
-recHitResolutionPixels = cms.EDProducer("RecHitResolution",
-    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
-    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
-    nbinsSmearing = cms.int32(200),
-    xminSmearing = cms.double(-0.05),
-    xmaxSmearing = cms.double(0.05),
-    yminSmearing = cms.double(-0.05),
-    ymaxSmearing = cms.double(0.05),
-    
-    nbinsError = cms.int32(200),
-    xminError = cms.double(0.0),
-    xmaxError = cms.double(0.005),
-    yminError = cms.double(0.0),
-    ymaxError = cms.double(0.006),
-    select = cms.string("subdetId == BPX || subdetId == FPX")
-)
-
-recHitResolutionTOB = cms.EDProducer("RecHitResolution",
-    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
-    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
-    nbinsSmearing = cms.int32(200),
-    xminSmearing = cms.double(-0.05),
-    xmaxSmearing = cms.double(0.05),
-    yminSmearing = cms.double(-15),
-    ymaxSmearing = cms.double(15),
-    
-    nbinsError = cms.int32(200),
-    xminError = cms.double(0.0025),
-    xmaxError = cms.double(0.005),
-    yminError = cms.double(5.0),
-    ymaxError = cms.double(5.4),
-    select = cms.string("subdetId==TOB")
-)
-
-recHitResolutionTID = cms.EDProducer("RecHitResolution",
-    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
-    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
-    nbinsSmearing = cms.int32(200),
-    xminSmearing = cms.double(-0.05),
-    xmaxSmearing = cms.double(0.05),
-    yminSmearing = cms.double(-15),
-    ymaxSmearing = cms.double(15),
-    
-    nbinsError = cms.int32(200),
-    xminError = cms.double(0.0),
-    xmaxError = cms.double(0.005),
-    yminError = cms.double(3.3),
-    ymaxError = cms.double(3.5),
-    select = cms.string("subdetId==TID")
-)
-
-
-recHitResolutionOther = cms.EDProducer("RecHitResolution",
-    recHitSrc=cms.InputTag("siTrackerGaussianSmearingRecHits"),
-    simHit2RecHitMap=cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
-    simHitSrc=cms.InputTag("famosSimHits","TrackerHits"),
-    nbinsSmearing = cms.int32(200),
-    xminSmearing = cms.double(-0.05),
-    xmaxSmearing = cms.double(0.05),
-    yminSmearing = cms.double(-15),
-    ymaxSmearing = cms.double(15),
-    
-    nbinsError = cms.int32(200),
-    xminError = cms.double(0.0),
-    xmaxError = cms.double(0.01),
-    yminError = cms.double(3.3),
-    ymaxError = cms.double(3.8),
-    select = cms.string("subdetId==TIB || subdetId==TEC")
-)
-
 
 from FastSimulation.TrackingRecHitProducer.FastTrackerRecHitMatcher_cfi import fastMatchedTrackerRecHits
 import FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi
@@ -126,10 +53,6 @@ from TrackingTools.TrackFitters.TrackFitters_cff import *
 reconstruction_befmix = cms.Sequence(
     offlineBeamSpot
     * siTrackerGaussianSmearingRecHits
-    * recHitResolutionPixels
-    * recHitResolutionTOB
-    * recHitResolutionTID
-    * recHitResolutionOther
     * fastMatchedTrackerRecHits
     * fastMatchedTrackerRecHitCombinations
     * MeasurementTrackerEvent
