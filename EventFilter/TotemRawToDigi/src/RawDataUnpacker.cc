@@ -23,7 +23,7 @@ RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet &conf)
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll) const
+int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll)
 {
   unsigned int size_in_words = data.size() / 8; // bytes -> words
   if (size_in_words < 2)
@@ -40,7 +40,7 @@ int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo>
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
@@ -90,7 +90,7 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned int OptoRxId = (buf[0] >> 8) & 0xFFF;
@@ -173,7 +173,7 @@ int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int fram
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc)
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
@@ -202,7 +202,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc)
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
@@ -231,25 +231,25 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   VFATFrame::word *fd = f.getData();
 
   // copy footprint, BC, EC, Flags, ID, if they exist
-  uint8_t presenceFlags = 0;
+  f.presenceFlags = 0;
 
   if (((buf[wordsProcessed] >> 12) & 0xF) == 0xA)  // BC
   {
-    presenceFlags |= 0x1;
+    f.presenceFlags |= 0x1;
     fd[11] = buf[wordsProcessed];
     wordsProcessed++;
   }
 
   if (((buf[wordsProcessed] >> 12) & 0xF) == 0xC)  // EC, flags
   {
-    presenceFlags |= 0x2;
+    f.presenceFlags |= 0x2;
     fd[10] = buf[wordsProcessed];
     wordsProcessed++;
   }
 
   if (((buf[wordsProcessed] >> 12) & 0xF) == 0xE)  // ID
   {
-    presenceFlags |= 0x4;
+    f.presenceFlags |= 0x4;
     fd[9] = buf[wordsProcessed];
     wordsProcessed++;
   }
@@ -275,7 +275,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   unsigned int tErrFlags = (buf[wordsProcessed] >> 8) & 0xF;
   unsigned int tSize = buf[wordsProcessed] & 0xFF;
 
-  f.setDAQErrorFlags(tErrFlags);
+  f.daqErrorFlags = tErrFlags;
 
   bool skipFrame = false;
   bool suppressChannelErrors = false;
@@ -312,24 +312,18 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   // get channel data - cluster mode
   if (hFlag == vmCluster)
   {
-    for (unsigned int nCl = 0; (buf[dataOffset + nCl] >> 12) != 0xF; ++nCl)
+    unsigned int nCl = 0;
+    while ( (buf[dataOffset + nCl] >> 12) != 0xF )
     {
       const uint16_t &w = buf[dataOffset + nCl];
-      unsigned int upperBlock = w >> 8;
-      unsigned int clSize = upperBlock & 0x7F;
+      unsigned int clSize = (w >> 8) & 0x7F;
       unsigned int clPos = (w >> 0) & 0xFF;
 
-      // special case: upperBlock=0xD0 => numberOfClusters
-      if (upperBlock == 0xD0)
-      {
-        presenceFlags |= 0x10;
-        f.setNumberOfClusters(clPos);
-        continue;
-      }
-
-      // special case: size=0 means chip full
+      // special case: size 0 means chip full
       if (clSize == 0)
         clSize = 128;
+
+      nCl++;
 
       // activate channels
       //  convention - range <pos, pos-size+1>
@@ -362,12 +356,11 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
       fd[8 - i] = buf[dataOffset + i];
 
     // copy CRC
-    presenceFlags |= 0x8;
+    f.presenceFlags |= 0x8;
     fd[0] = buf[dataOffset + 8];
   }
 
   // save frame to output
-  f.setPresenceFlags(presenceFlags);
   fc->Insert(fp, f);
 
   return wordsProcessed;
