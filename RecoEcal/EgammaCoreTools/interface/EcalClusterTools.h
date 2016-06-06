@@ -191,6 +191,9 @@ class EcalClusterToolsT {
                 static std::vector<float> roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod = 0, float energyThreshold = 0.0);
                 static std::vector<float> roundnessBarrelSuperClustersUserExtended( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int ieta_delta=0, int iphi_delta=0, float energyRHThresh=0.00000, int weightedPositionMethod=0);
                 static std::vector<float> roundnessSelectedBarrelRecHits(const std::vector<std::pair<const EcalRecHit*,float> >&rhVector, int weightedPositionMethod = 0);
+  
+                //works out the number of staturated crystals in 5x5
+                static int nrSaturatedCrysIn5x5(const DetId& id,const EcalRecHitCollection* recHits,const CaloTopology *topology);
         private:
                 struct EcalClusterEnergyDeposition
                 { 
@@ -247,7 +250,8 @@ class EcalClusterToolsT {
                 static std::vector<int> getSeedPosition(const std::vector<std::pair<const EcalRecHit*,float> >&RH_ptrs);
                 static float getSumEnergy(const std::vector<std::pair<const EcalRecHit*,float> >&RH_ptrs_fracs);
                 static float computeWeight(float eRH, float energyTotal, int weightedPositionMethod);
-		
+
+                
 };
 
 // implementation
@@ -1626,6 +1630,31 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits( cons
     return shapes;
 
 }
+
+
+template<bool noZS>
+int EcalClusterToolsT<noZS>::nrSaturatedCrysIn5x5(const DetId& id,const EcalRecHitCollection* recHits,const CaloTopology *topology)
+{
+  int nrSat=0;
+  CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+  
+  for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
+    for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
+      cursor.home();
+      cursor.offsetBy( eastNr, northNr);
+      DetId id = *cursor;
+      auto recHitIt = recHits->find(id);
+      if(recHitIt!=recHits->end() && 
+	 recHitIt->checkFlag(EcalRecHit::kSaturated)){
+	nrSat++;
+      }
+		
+    }
+  }
+  return nrSat;
+}
+
+
 //private functions useful for roundnessBarrelSuperClusters etc.
 //compute delta iphi between a seed and a particular recHit
 //iphi [1,360]
@@ -1687,6 +1716,7 @@ float EcalClusterToolsT<noZS>::getSumEnergy(const std::vector<std::pair<const Ec
     }    
     return sumE;
 }
+
 
 typedef EcalClusterToolsT<false> EcalClusterTools;
 
