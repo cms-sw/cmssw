@@ -103,11 +103,8 @@ bool HistoryBase::traceSimHistory(TrackingVertexRef const & trackingVertex, int 
             }
 
             // save particle in the trail
-	    if (flag) simParticleTrail_.push_back(*its);
-            if (flag){
-	      return traceSimHistory (*its, --depth);
-	    }
-	    else return false;
+            simParticleTrail_.push_back(*its);
+            return traceSimHistory (*its, --depth);
         }
         else if ( !trackingVertex->genVertices().empty() )
         {
