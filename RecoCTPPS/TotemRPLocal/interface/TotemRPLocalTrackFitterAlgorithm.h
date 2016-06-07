@@ -50,7 +50,7 @@ class TotemRPLocalTrackFitterAlgorithm
     };
 
     /// A cache of reconstruction data. Must be reset every time the geometry chagnges.
-    unordered_map<unsigned int, RPDetCoordinateAlgebraObjs> det_data_map_;
+    std::unordered_map<unsigned int, RPDetCoordinateAlgebraObjs> det_data_map_;
 
     RPTopology rp_topology_;
 
