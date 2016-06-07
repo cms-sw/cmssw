@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Ideal geometry, needed for transient ECAL alignement
-from Configuration.Geometry.GeometryExtended2023tilted_cff import *
+from Configuration.Geometry.GeometryExtended2023GReco_cff import *
 # Reconstruction geometry services
 #  Tracking Geometry
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
@@ -28,11 +28,11 @@ from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring('HCAL'          ,
+    SelectedCalos = cms.vstring('HCAL'          , 
                                 'ZDC'           ,
                                 'CASTOR'        ,
-                                'EcalBarrel'    ,
-                                'EcalEndcap'    ,
+                                'EcalBarrel'    , 
+                                'EcalEndcap'    , 
                                 'TOWER'           )
 )
 
@@ -48,4 +48,3 @@ from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
-

@@ -35,10 +35,10 @@ upgradeCustoms={ '2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
 		 
                  }
 upgradeEras={ '2017' : 'Run2_2017',
-	      '2023sim' : 'Phase2',
-	      '2023tilted' : 'Phase2',
-	      '2023LReco' : 'Phase2',
-	      '2023GReco' : 'Phase2'
+	      '2023sim' : 'Phase2LReco',
+	      '2023tilted' : 'Phase2GReco',
+	      '2023LReco' : 'Phase2LReco',
+	      '2023GReco' : 'Phase2GReco'
               }
 
 upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
@@ -108,12 +108,12 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
 		   '2017PU':['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],#full sequence
 		   '2023':['GenSimFull','DigiFull','RecoFull'],#full sequence
-		   '2023tilted':['GenSimFull','DigiFull','RecoFull_trackingOnly','HARVESTFull_trackingOnly'],#full (or almost..) reco tilted scenario + tracking valdqm
+		   '2023tilted':['GenSimFull','DigiFull','RecoFull','HARVESTFull_trackingOnly'],#full (or almost..) reco tilted scenario + tracking valdqm
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFull','RecoFullLocal'],#local reco scenario
-		   '2023GReco':['GenSimFull','DigiFull','RecoFull_trackingOnly', 'HARVESTFull_trackingOnly'],#full (or almost..)  reco scenario
-		   '2023GRecoPU':['GenSimFull','DigiFullPU','RecoFull_trackingOnlyPU', 'HARVESTFull_trackingOnlyPU'],#full (or almost..)  reco scenario with PU
-		   '2023tiltedPU':['GenSimFull','DigiFullPU','RecoFull_trackingOnlyPU', 'HARVESTFull_trackingOnlyPU']#full (or almost..) reco tilted scenario with PU
+		   '2023GReco':['GenSimFull','DigiFull','RecoFull', 'HARVESTFull_trackingOnly'],#full (or almost..)  reco scenario
+		   '2023GRecoPU':['GenSimFull','DigiFullPU','RecoFullPU', 'HARVESTFull_trackingOnlyPU'],#full (or almost..)  reco scenario with PU
+		   '2023tiltedPU':['GenSimFull','DigiFullPU','RecoFullPU', 'HARVESTFull_trackingOnlyPU']#full (or almost..) reco tilted scenario with PU
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
