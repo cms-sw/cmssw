@@ -993,7 +993,7 @@ class FrameRatio:
     def setXTitleSize(self, size):
         self._frameRatio.GetXaxis().SetTitleSize(size)
 
-    def setYTitleOffset(self, offset):
+    def setXTitleOffset(self, offset):
         self._frameRatio.GetXaxis().SetTitleOffset(offset)
 
     def setXLabelSize(self, size):
