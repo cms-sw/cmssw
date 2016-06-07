@@ -72,6 +72,19 @@ class PileUpAnalyzer( Analyzer ):
                 self.datafile = TFile( self.cfg_comp.puFileData )
                 self.datahist = self.datafile.Get('pileup')
                 self.datahist.Scale( 1 / self.datahist.Integral() )
+
+                #PU uncertainties variations
+                self.datahistPlus=None
+                self.datahistMinus=None
+                if hasattr(self.cfg_comp,"puFileDataPlus") :
+                    self.datafilePlus = TFile( self.cfg_comp.puFileDataPlus )
+                    self.datahistPlus = self.datafilePlus.Get('pileup')
+                    self.datahistPlus.Scale( 1. / self.datahistPlus.Integral() )
+                if hasattr(self.cfg_comp,"puFileDataMinus") :
+                    self.datafileMinus = TFile( self.cfg_comp.puFileDataMinus )
+                    self.datahistMinus = self.datafileMinus.Get('pileup')
+                    self.datahistMinus.Scale( 1. / self.datahistMinus.Integral() )
+
                 # import pdb; pdb.set_trace()
                 if self.mchist.GetNbinsX() != self.datahist.GetNbinsX():
                     raise ValueError('data and mc histograms must have the same number of bins')
@@ -147,6 +160,8 @@ class PileUpAnalyzer( Analyzer ):
                 #Protect 0 division!!!!
                 if mc !=0.0:
                     event.puWeight = data/mc
+                    event.puWeightPlus = self.datahistPlus.GetBinContent(bin)/mc if self.datahistPlus is not None else 1.
+                    event.puWeightMinus = self.datahistMinus.GetBinContent(bin)/mc if self.datahistMinus is not None else 1.
                 else:
                     event.puWeight = 1
                 
