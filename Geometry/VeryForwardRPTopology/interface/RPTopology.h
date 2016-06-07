@@ -19,7 +19,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 
-using namespace std;
 
 namespace HepMC {
 	class ThreeVector;
