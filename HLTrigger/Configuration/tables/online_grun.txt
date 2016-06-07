@@ -640,6 +640,7 @@ HLT_DiSC30_18_EIso_AND_HE_Mass70_v*				# JIRA: CMSHLT-533, CMSHLT-747
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
+HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_v*		# JIRA: CMSHLT-847
 HLT_ZeroBias_FirstCollisionAfterAbortGap_v*			# JIRA: CMSHLT-798
 HLT_ZeroBias_IsolatedBunches_v*					# JIRA: CMSHLT-595
 

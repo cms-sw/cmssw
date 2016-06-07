@@ -243,6 +243,7 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
+    'HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_v1', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_v1', 
     'HLT_ZeroBias_IsolatedBunches_v2', 
     'HLT_ZeroBias_v3')
