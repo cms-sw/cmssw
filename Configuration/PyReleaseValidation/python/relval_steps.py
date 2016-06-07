@@ -1652,7 +1652,7 @@ for k in upgradeKeys:
     if k2 in PUDataSets:
         upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k]])
 
-    upgradeStepDict['RecoFull_trackingOnly'][k] = merge([{'-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM'}, upgradeStepDict['RecoFull'][k]])
+    upgradeStepDict['RecoFull_trackingOnly'][k] = merge([{step3_trackingOnly}, upgradeStepDict['RecoFull'][k]]) 
 
     if k2 in PUDataSets:
         upgradeStepDict['RecoFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull_trackingOnly'][k]])
