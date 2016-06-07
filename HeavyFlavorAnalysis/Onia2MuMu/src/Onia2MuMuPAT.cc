@@ -134,8 +134,15 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	TransientVertex myVertex = vtxFitter.vertex(t_tks);
 
 	CachingVertex<5> VtxForInvMass = vtxFitter.vertex( t_tks );
-	Measurement1D MassWErr = massCalculator.invariantMass( VtxForInvMass, muMasses );
-	
+
+        Measurement1D MassWErr(jpsi.M(),-9999.);
+        try {
+	  MassWErr = massCalculator.invariantMass( VtxForInvMass, muMasses );
+        } catch (std::exception & err) {
+          std::cout << " Field is 0, invalidating vertex " << std::endl;
+          myVertex = TransientVertex();                      // with no arguments it is invalid
+        }
+
 	myCand.addUserFloat("MassErr",MassWErr.error());
 
 	if (myVertex.isValid()) {
