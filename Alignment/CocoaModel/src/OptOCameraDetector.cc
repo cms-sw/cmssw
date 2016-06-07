@@ -2,7 +2,7 @@
 //Id:  OptOCameraDetector.cc
 //CAT: Model
 //
-//   History: v1.0 
+//   History: v1.0
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptOCameraDetector.h"
@@ -17,7 +17,7 @@ using namespace CLHEP;
 void OptOCameraDetector::participateInMeasurement( LightRay& lightray, Measurement* meas, const ALIstring& behav )
 {
  std::cerr << "object not implemented yet " << std::endl;
- exit(1);      
+ exit(1);
 }
 
 
