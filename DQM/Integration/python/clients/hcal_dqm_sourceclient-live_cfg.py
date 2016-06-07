@@ -94,6 +94,7 @@ process.hcalDigis.InputLabel = rawTag
 process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
+process.load('DQM.HcalTasks.QIE10Task')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
 #-------------------------------------
@@ -124,6 +125,9 @@ process.rawTask.runkeyVal = runType
 process.rawTask.runkeyName = runTypeName
 process.tpTask.runkeyVal = runType
 process.tpTask.runkeyName = runTypeName
+process.qie10Task.runkeyVal = runType
+process.qie10Task.runkeyName = runTypeName
+process.qie10Task.tagQIE10 = cms.untracked.InputTag("hcalDigis")
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
@@ -132,6 +136,7 @@ process.tasksPath = cms.Path(
 		process.rawTask
 		+process.digiTask
 		+process.tpTask
+		+process.qie10Task
 )
 
 process.harvestingPath = cms.Path(
