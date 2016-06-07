@@ -21,7 +21,7 @@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Default behaviour: make measurement
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptOUserDefined::userDefinedBehaviour( LightRay& lightray, Measurement& meas, ALIstring& behav )
+void OptOUserDefined::userDefinedBehaviour( LightRay& lightray, Measurement& meas, const ALIstring& behav )
 {
 #ifdef COCOA_VIS
   ALIVisLightPath* vispath = 0;
