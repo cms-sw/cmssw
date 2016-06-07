@@ -2088,9 +2088,7 @@ const double OpticalObject::getEntryRMangle(  const ALIstring& coorstr ) const
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::constructMaterial()
 {
-
-  theMaterial =  new CocoaMaterialElementary( "Hydrogen", 70.8*mg/cm3, "H", 1.00794 , 1 );
-
+  theMaterial =  new CocoaMaterialElementary( "Hydrogen", 70.8*mg/cm3, "H", 1.00794f, 1 );
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
