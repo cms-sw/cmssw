@@ -102,7 +102,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:Full
+      set L1REPACK = L1REPACK:Full2015Data
     else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake
@@ -138,7 +138,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:Full
+      set L1REPACK = L1REPACK:Full2015Data
     else if ( $table == 25ns10e33_v2 ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:25ns10e33_v2
@@ -150,7 +150,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:Full
+      set L1REPACK = L1REPACK:Full2015Data
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
@@ -162,7 +162,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawHIon
       set Era  = $EraRun2HI
       set Custom = " "
-      set L1REPACK = L1REPACK:Full
+      set L1REPACK = L1REPACK:Full2015Data
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
@@ -174,7 +174,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawPIon
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:Full
+      set L1REPACK = L1REPACK:Full2015Data
     else if ( $table == PRef ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:PRef
@@ -186,7 +186,7 @@ foreach gtag ( MC DATA )
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
-      set L1REPACK = L1REPACK:Full
+      set L1REPACK = L1REPACK:Full2015Data
     else
       # unsupported
       continue
