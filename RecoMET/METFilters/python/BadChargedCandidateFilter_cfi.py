@@ -10,5 +10,5 @@ BadChargedCandidateFilter = cms.EDFilter(
     minPtDiffRel = cms.double(-0.5),               # lower threshold on difference between pt of reco::muon->innerTrack and pfCandidate
                                                    # computed as (pfcand.pt - muon.track.pt)/(0.5*(pfcand.pt + muon.track.pt))
     minMuonTrackRelErr = cms.double(0.5),          # minimum ptError/pt on muon innertrack 
-    minMuonPt     = cms.double(20),                # minimum muon pt 
+    minMuonPt     = cms.double(100),               # minimum muon pt 
 )
