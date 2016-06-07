@@ -55,7 +55,8 @@ void HcalTopologyTester::analyze(const edm::Event& ,
 }
 
 void HcalTopologyTester::doTest(const HcalTopology& topology) {
-  
+
+  // First test on movements along eta/phi directions
   for (int idet=0; idet<4; idet++) {
     HcalSubdetector subdet = HcalBarrel;
     if (idet == 1)      subdet = HcalOuter;
@@ -98,6 +99,31 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
     }
   }
 
+  // Check on Dense Index
+
+  int maxDepthHB = topology.maxDepthHB();
+  int maxDepthHE = topology.maxDepthHE();
+  for (int det = 1; det <= HcalForward; det++) {
+    for (int eta = -HcalDetId::kHcalEtaMask2; 
+	 eta <= HcalDetId::kHcalEtaMask2; eta++) {
+      for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+	for (int depth = 1; depth < maxDepthHB + maxDepthHE; depth++) {
+	  HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
+	  if (topology.valid(cell)) {
+	    unsigned int dense = topology.detId2denseId(DetId(cell));
+	    DetId        id    = topology.denseId2detId(dense);
+	    if (cell == HcalDetId(id)) 
+	      std::cout << cell << " Dense " << std::hex << dense << std::dec
+			<< " o/p " << HcalDetId(id) << std::endl;
+	    else
+	      std::cout << cell << " Dense " << std::hex << dense << std::dec
+			<< " o/p " << HcalDetId(id) << " **** ERROR *****" 
+			<< std::endl;
+	  }
+	}
+      }
+    }
+  }
 }
 
 //define this as a plug-in
