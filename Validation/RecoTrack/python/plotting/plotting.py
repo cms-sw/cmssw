@@ -64,6 +64,15 @@ def _getDirectoryDetailed(tfile, possibleDirs, subDir=None):
 def _getDirectory(*args, **kwargs):
     return GetDirectoryCode.codesToNone(_getDirectoryDetailed(*args, **kwargs))
 
+def _th1ToOrderedDict(th1, renameBin=None):
+    values = collections.OrderedDict()
+    for i in xrange(1, th1.GetNbinsX()+1):
+        binLabel = th1.GetXaxis().GetBinLabel(i)
+        if renameBin is not None:
+            binLabel = renameBin(binLabel)
+        values[binLabel] = (th1.GetBinContent(i), th1.GetBinError(i))
+    return values
+
 def _createCanvas(name, width, height):
     # silence warning of deleting canvas with the same name
     if not verbose:
@@ -73,6 +82,222 @@ def _createCanvas(name, width, height):
     if not verbose:
         ROOT.gErrorIgnoreLevel = backup
     return canvas
+
+def _modifyPadForRatio(pad, ratioFactor):
+    pad.Divide(1, 2)
+
+    divisionPoint = 1-1/ratioFactor
+
+    topMargin = pad.GetTopMargin()
+    bottomMargin = pad.GetBottomMargin()
+    divisionPoint += (1-divisionPoint)*bottomMargin # correct for (almost-)zeroing bottom margin of pad1
+    divisionPointForPad1 = 1-( (1-divisionPoint) / (1-0.02) ) # then correct for the non-zero bottom margin, but for pad1 only
+
+    # Set the lower point of the upper pad to divisionPoint
+    pad1 = pad.cd(1)
+    yup = 1.0
+    ylow = divisionPointForPad1
+    xup = 1.0
+    xlow = 0.0
+    pad1.SetPad(xlow, ylow, xup, yup)
+    pad1.SetFillStyle(4000) # transparent
+    pad1.SetBottomMargin(0.02) # need some bottom margin here for eps/pdf output (at least in ROOT 5.34)
+
+    # Set the upper point of the lower pad to divisionPoint
+    pad2 = pad.cd(2)
+    yup = divisionPoint
+    ylow = 0.0
+    pad2.SetPad(xlow, ylow, xup, yup)
+    pad2.SetFillStyle(4000) # transparent
+    pad2.SetTopMargin(0.0)
+    pad2.SetBottomMargin(bottomMargin/(ratioFactor*divisionPoint))
+
+def _calculateRatios(histos, ratioUncertainty=False):
+    """Calculate the ratios for a list of histograms"""
+
+    def _divideOrZero(numerator, denominator):
+        if denominator == 0:
+            return 0
+        return numerator/denominator
+
+    def equal(a, b):
+        if a == 0. and b == 0.:
+            return True
+        return abs(a-b)/max(abs(a),abs(b)) < 1e-3
+
+    def findBins(wrap, bins_xvalues):
+        ret = []
+        currBin = wrap.begin()
+        i = 0
+        while i < len(bins_xvalues) and currBin < wrap.end():
+            (xcenter, xlow, xhigh) = bins_xvalues[i]
+            xlowEdge = xcenter-xlow
+            xupEdge = xcenter+xhigh
+
+            (curr_center, curr_low, curr_high) = wrap.xvalues(currBin)
+            curr_lowEdge = curr_center-curr_low
+            curr_upEdge = curr_center+curr_high
+
+            if equal(xlowEdge, curr_lowEdge) and equal(xupEdge,  curr_upEdge):
+                ret.append(currBin)
+                currBin += 1
+                i += 1
+            elif curr_upEdge <= xlowEdge:
+                currBin += 1
+            elif curr_lowEdge >= xupEdge:
+                ret.append(None)
+                i += 1
+            else:
+                ret.append(None)
+                currBin += 1
+                i += 1
+        if len(ret) != len(bins_xvalues):
+            ret.extend([None]*( len(bins_xvalues) - len(ret) ))
+        return ret
+
+    # Define wrappers for TH1/TGraph/TGraph2D to have uniform interface
+    # TODO: having more global wrappers would make some things simpler also elsewhere in the code
+    class WrapTH1:
+        def __init__(self, th1, uncertainty):
+            self._th1 = th1
+            self._uncertainty = uncertainty
+
+            xaxis = th1.GetXaxis()
+            xaxis_arr = xaxis.GetXbins()
+            if xaxis_arr.GetSize() > 0: # unequal binning
+                lst = [xaxis_arr[i] for i in xrange(0, xaxis_arr.GetSize())]
+                arr = array.array("d", lst)
+                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
+            else:
+                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
+            _copyStyle(th1, self._ratio)
+            self._ratio.SetStats(0)
+            self._ratio.SetLineColor(ROOT.kBlack)
+            self._ratio.SetLineWidth(1)
+        def draw(self, style=None):
+            st = style
+            if st is None:
+                if self._uncertainty:
+                    st = "EP"
+                else:
+                    st = "HIST P"
+            self._ratio.Draw("same "+st)
+        def begin(self):
+            return 1
+        def end(self):
+            return self._th1.GetNbinsX()+1
+        def xvalues(self, bin):
+            xval = self._th1.GetBinCenter(bin)
+            xlow = xval-self._th1.GetXaxis().GetBinLowEdge(bin)
+            xhigh = self._th1.GetXaxis().GetBinUpEdge(bin)-xval
+            return (xval, xlow, xhigh)
+        def yvalues(self, bin):
+            yval = self._th1.GetBinContent(bin)
+            yerr = self._th1.GetBinError(bin)
+            return (yval, yerr, yerr)
+        def y(self, bin):
+            return self._th1.GetBinContent(bin)
+        def divide(self, bin, scale):
+            self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
+            self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
+        def makeRatio(self):
+            pass
+
+    class WrapTGraph:
+        def __init__(self, gr, uncertainty):
+            self._gr = gr
+            self._uncertainty = uncertainty
+            self._xvalues = []
+            self._xerrslow = []
+            self._xerrshigh = []
+            self._yvalues = []
+            self._yerrshigh = []
+            self._yerrslow = []
+        def draw(self, style=None):
+            if self._ratio is None:
+                return
+            st = style
+            if st is None:
+                if self._uncertainty:
+                    st = "PZ"
+                else:
+                    st = "PX"
+            self._ratio.Draw("same "+st)
+        def begin(self):
+            return 0
+        def end(self):
+            return self._gr.GetN()
+        def xvalues(self, bin):
+            return (self._gr.GetX()[bin], self._gr.GetErrorXlow(bin), self._gr.GetErrorXhigh(bin))
+        def yvalues(self, bin):
+            return (self._gr.GetY()[bin], self._gr.GetErrorYlow(bin), self._gr.GetErrorYhigh(bin))
+        def y(self, bin):
+            return self._gr.GetY()[bin]
+        def divide(self, bin, scale):
+            # Ignore bin if denominator is zero
+            if scale == 0:
+                return
+            # No more items in the numerator
+            if bin >= self._gr.GetN():
+                return
+            # denominator is missing an item
+            xvals = self.xvalues(bin)
+            xval = xvals[0]
+
+            self._xvalues.append(xval)
+            self._xerrslow.append(xvals[1])
+            self._xerrshigh.append(xvals[2])
+            yvals = self.yvalues(bin)
+            self._yvalues.append(yvals[0] / scale)
+            if self._uncertainty:
+                self._yerrslow.append(yvals[1] / scale)
+                self._yerrshigh.append(yvals[2] / scale)
+            else:
+                self._yerrslow.append(0)
+                self._yerrshigh.append(0)
+        def makeRatio(self):
+            if len(self._xvalues) == 0:
+                self._ratio = None
+                return
+            self._ratio = ROOT.TGraphAsymmErrors(len(self._xvalues), array.array("d", self._xvalues), array.array("d", self._yvalues),
+                                                 array.array("d", self._xerrslow), array.array("d", self._xerrshigh),
+                                                 array.array("d", self._yerrslow), array.array("d", self._yerrshigh))
+            _copyStyle(self._gr, self._ratio)
+    class WrapTGraph2D(WrapTGraph):
+        def __init__(self, gr, uncertainty):
+            WrapTGraph.__init__(self, gr, uncertainty)
+        def xvalues(self, bin):
+            return (self._gr.GetX()[bin], self._gr.GetErrorX(bin), self._gr.GetErrorX(bin))
+        def yvalues(self, bin):
+            return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
+
+    def wrap(o):
+        if isinstance(o, ROOT.TH1):
+            return WrapTH1(o, ratioUncertainty)
+        elif isinstance(o, ROOT.TGraph):
+            return WrapTGraph(o, ratioUncertainty)
+        elif isinstance(o, ROOT.TGraph2D):
+            return WrapTGraph2D(o, ratioUncertainty)
+
+    wrappers = [wrap(h) for h in histos]
+    ref = wrappers[0]
+
+    wrappers_bins = []
+    ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
+    for w in wrappers:
+        wrappers_bins.append(findBins(w, ref_bins))
+
+    for i, bin in enumerate(xrange(ref.begin(), ref.end())):
+        (scale, ylow, yhigh) = ref.yvalues(bin)
+        for w, bins in zip(wrappers, wrappers_bins):
+            if bins[i] is None:
+                continue
+            w.divide(bins[i], scale)
+
+    for w in wrappers:
+        w.makeRatio()
+
+    return wrappers
 
 
 def _getXmin(obj, limitToNonZeroContent=False):
@@ -395,12 +620,7 @@ class AggregateBins:
         binValues = [None]*len(self._mapping)
 
         # TH1 can't really be used as a map/dict, so convert it here:
-        values = collections.OrderedDict()
-        for i in xrange(1, th1.GetNbinsX()+1):
-            binLabel = th1.GetXaxis().GetBinLabel(i)
-            if self._renameBin is not None:
-                binLabel = self._renameBin(binLabel)
-            values[binLabel] = (th1.GetBinContent(i), th1.GetBinError(i))
+        values = _th1ToOrderedDict(th1, self._renameBin)
 
         binIndexOrder = [] # for reordering bins if self._originalOrder is True
         for i, (key, labels) in enumerate(self._mapping.iteritems()):
@@ -1447,7 +1667,7 @@ class Plot:
         # Draw ratios
         if ratio and len(histos) > 0:
             frame._padRatio.cd()
-            self._ratios = self._calculateRatios(histos) # need to keep these in memory too ...
+            self._ratios = _calculateRatios(histos, self._ratioUncertainty) # need to keep these in memory too ...
             if self._ratioUncertainty and self._ratios[0]._ratio is not None:
                 self._ratios[0]._ratio.SetFillStyle(1001)
                 self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
@@ -1482,193 +1702,6 @@ class Plot:
                 first = False
             else:
                 legend.AddEntry(h, label, "LP")
-
-    def _calculateRatios(self, histos):
-        """Calculate the ratios for a list of histograms"""
-
-        def _divideOrZero(numerator, denominator):
-            if denominator == 0:
-                return 0
-            return numerator/denominator
-
-        def equal(a, b):
-            if a == 0. and b == 0.:
-                return True
-            return abs(a-b)/max(abs(a),abs(b)) < 1e-3
-
-        def findBins(wrap, bins_xvalues):
-            ret = []
-            currBin = wrap.begin()
-            i = 0
-            while i < len(bins_xvalues) and currBin < wrap.end():
-                (xcenter, xlow, xhigh) = bins_xvalues[i]
-                xlowEdge = xcenter-xlow
-                xupEdge = xcenter+xhigh
-
-                (curr_center, curr_low, curr_high) = wrap.xvalues(currBin)
-                curr_lowEdge = curr_center-curr_low
-                curr_upEdge = curr_center+curr_high
-
-                if equal(xlowEdge, curr_lowEdge) and equal(xupEdge,  curr_upEdge):
-                    ret.append(currBin)
-                    currBin += 1
-                    i += 1
-                elif curr_upEdge <= xlowEdge:
-                    currBin += 1
-                elif curr_lowEdge >= xupEdge:
-                    ret.append(None)
-                    i += 1
-                else:
-                    ret.append(None)
-                    currBin += 1
-                    i += 1
-            if len(ret) != len(bins_xvalues):
-                ret.extend([None]*( len(bins_xvalues) - len(ret) ))
-            return ret
-
-        # Define wrappers for TH1/TGraph/TGraph2D to have uniform interface
-        # TODO: having more global wrappers would make some things simpler also elsewhere in the code
-        class WrapTH1:
-            def __init__(self, th1, uncertainty):
-                self._th1 = th1
-                self._uncertainty = uncertainty
-
-                xaxis = th1.GetXaxis()
-                xaxis_arr = xaxis.GetXbins()
-                if xaxis_arr.GetSize() > 0: # unequal binning
-                    lst = [xaxis_arr[i] for i in xrange(0, xaxis_arr.GetSize())]
-                    arr = array.array("d", lst)
-                    self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
-                else:
-                    self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
-                _copyStyle(th1, self._ratio)
-                self._ratio.SetStats(0)
-                self._ratio.SetLineColor(ROOT.kBlack)
-                self._ratio.SetLineWidth(1)
-            def draw(self, style=None):
-                st = style
-                if st is None:
-                    if self._uncertainty:
-                        st = "EP"
-                    else:
-                        st = "HIST P"
-                self._ratio.Draw("same "+st)
-            def begin(self):
-                return 1
-            def end(self):
-                return self._th1.GetNbinsX()+1
-            def xvalues(self, bin):
-                xval = self._th1.GetBinCenter(bin)
-                xlow = xval-self._th1.GetXaxis().GetBinLowEdge(bin)
-                xhigh = self._th1.GetXaxis().GetBinUpEdge(bin)-xval
-                return (xval, xlow, xhigh)
-            def yvalues(self, bin):
-                yval = self._th1.GetBinContent(bin)
-                yerr = self._th1.GetBinError(bin)
-                return (yval, yerr, yerr)
-            def y(self, bin):
-                return self._th1.GetBinContent(bin)
-            def divide(self, bin, scale):
-                self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
-                self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
-            def makeRatio(self):
-                pass
-
-        class WrapTGraph:
-            def __init__(self, gr, uncertainty):
-                self._gr = gr
-                self._uncertainty = uncertainty
-                self._xvalues = []
-                self._xerrslow = []
-                self._xerrshigh = []
-                self._yvalues = []
-                self._yerrshigh = []
-                self._yerrslow = []
-            def draw(self, style=None):
-                if self._ratio is None:
-                    return
-                st = style
-                if st is None:
-                    if self._uncertainty:
-                        st = "PZ"
-                    else:
-                        st = "PX"
-                self._ratio.Draw("same "+st)
-            def begin(self):
-                return 0
-            def end(self):
-                return self._gr.GetN()
-            def xvalues(self, bin):
-                return (self._gr.GetX()[bin], self._gr.GetErrorXlow(bin), self._gr.GetErrorXhigh(bin))
-            def yvalues(self, bin):
-                return (self._gr.GetY()[bin], self._gr.GetErrorYlow(bin), self._gr.GetErrorYhigh(bin))
-            def y(self, bin):
-                return self._gr.GetY()[bin]
-            def divide(self, bin, scale):
-                # Ignore bin if denominator is zero
-                if scale == 0:
-                    return
-                # No more items in the numerator
-                if bin >= self._gr.GetN():
-                    return
-                # denominator is missing an item
-                xvals = self.xvalues(bin)
-                xval = xvals[0]
-
-                self._xvalues.append(xval)
-                self._xerrslow.append(xvals[1])
-                self._xerrshigh.append(xvals[2])
-                yvals = self.yvalues(bin)
-                self._yvalues.append(yvals[0] / scale)
-                if self._uncertainty:
-                    self._yerrslow.append(yvals[1] / scale)
-                    self._yerrshigh.append(yvals[2] / scale)
-                else:
-                    self._yerrslow.append(0)
-                    self._yerrshigh.append(0)
-            def makeRatio(self):
-                if len(self._xvalues) == 0:
-                    self._ratio = None
-                    return
-                self._ratio = ROOT.TGraphAsymmErrors(len(self._xvalues), array.array("d", self._xvalues), array.array("d", self._yvalues),
-                                                     array.array("d", self._xerrslow), array.array("d", self._xerrshigh), 
-                                                     array.array("d", self._yerrslow), array.array("d", self._yerrshigh))
-                _copyStyle(self._gr, self._ratio)
-        class WrapTGraph2D(WrapTGraph):
-            def __init__(self, gr, uncertainty):
-                WrapTGraph.__init__(self, gr, uncertainty)
-            def xvalues(self, bin):
-                return (self._gr.GetX()[bin], self._gr.GetErrorX(bin), self._gr.GetErrorX(bin))
-            def yvalues(self, bin):
-                return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
-
-        def wrap(o):
-            if isinstance(o, ROOT.TH1):
-                return WrapTH1(o, self._ratioUncertainty)
-            elif isinstance(o, ROOT.TGraph):
-                return WrapTGraph(o, self._ratioUncertainty)
-            elif isinstance(o, ROOT.TGraph2D):
-                return WrapTGraph2D(o, self._ratioUncertainty)
-
-        wrappers = [wrap(h) for h in histos]
-        ref = wrappers[0]
-
-        wrappers_bins = []
-        ref_bins = [ref.xvalues(b) for b in xrange(ref.begin(), ref.end())]
-        for w in wrappers:
-            wrappers_bins.append(findBins(w, ref_bins))
-
-        for i, bin in enumerate(xrange(ref.begin(), ref.end())):
-            (scale, ylow, yhigh) = ref.yvalues(bin)
-            for w, bins in zip(wrappers, wrappers_bins):
-                if bins[i] is None:
-                    continue
-                w.divide(bins[i], scale)
-
-        for w in wrappers:
-            w.makeRatio()
-
-        return wrappers
 
 class PlotGroup:
     """Group of plots, results a TCanvas"""
@@ -1890,33 +1923,7 @@ class PlotGroup:
 
     def _modifyPadForRatio(self, pad):
         """Internal method to set divide a pad to two for ratio plots"""
-        pad.Divide(1, 2)
-
-        divisionPoint = 1-1/self._ratioFactor
-
-        topMargin = pad.GetTopMargin()
-        bottomMargin = pad.GetBottomMargin()
-        divisionPoint += (1-divisionPoint)*bottomMargin # correct for (almost-)zeroing bottom margin of pad1
-        divisionPointForPad1 = 1-( (1-divisionPoint) / (1-0.02) ) # then correct for the non-zero bottom margin, but for pad1 only
-
-        # Set the lower point of the upper pad to divisionPoint
-        pad1 = pad.cd(1)
-        yup = 1.0
-        ylow = divisionPointForPad1
-        xup = 1.0
-        xlow = 0.0
-        pad1.SetPad(xlow, ylow, xup, yup)
-        pad1.SetFillStyle(4000) # transparent
-        pad1.SetBottomMargin(0.02) # need some bottom margin here for eps/pdf output (at least in ROOT 5.34)
-
-        # Set the upper point of the lower pad to divisionPoint
-        pad2 = pad.cd(2)
-        yup = divisionPoint
-        ylow = 0.0
-        pad2.SetPad(xlow, ylow, xup, yup)
-        pad2.SetFillStyle(4000) # transparent
-        pad2.SetTopMargin(0.0)
-        pad2.SetBottomMargin(bottomMargin/(self._ratioFactor*divisionPoint))
+        _modifyPadForRatio(pad, self._ratioFactor)
 
     def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016, denomUncertainty=True):
         if not self._legend:
