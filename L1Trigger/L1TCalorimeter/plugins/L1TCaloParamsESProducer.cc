@@ -182,6 +182,11 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   auto tauIsoLUT = std::make_shared<LUT>(tauIsoLUTStream);
   m_params_helper.setTauIsolationLUT(*tauIsoLUT);
 
+  edm::FileInPath tauIsoLUTFile2 = conf.getParameter<edm::FileInPath>("tauIsoLUTFile2");
+  std::ifstream tauIsoLUTStream2(tauIsoLUTFile2.fullPath());
+  std::shared_ptr<LUT> tauIsoLUT2( new LUT(tauIsoLUTStream2) );
+  m_params_helper.setTauIsolationLUT2(*tauIsoLUT2);
+
   edm::FileInPath tauCalibrationLUTFile = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFile");
   std::ifstream tauCalibrationLUTStream(tauCalibrationLUTFile.fullPath());
   auto tauCalibrationLUT = std::make_shared<LUT>(tauCalibrationLUTStream);
