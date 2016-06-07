@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V118 (CMSSW_8_0_10)
+# /dev/CMSSW_8_0_0/PIon/V119 (CMSSW_8_0_10)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V118')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V119')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -8561,10 +8561,10 @@ fragment.hltEgammaElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       hcalRecHits = cms.InputTag( "hltHbhereco" ),
       z2MinB = cms.double( -0.09 ),
       rMinI = cms.double( -0.2 ),
-      hOverEConeSize = cms.double( 0.0 ),
+      hOverEConeSize = cms.double( 0.14 ),
       hOverEHBMinE = cms.double( 999999.0 ),
       beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      applyHOverECut = cms.bool( False ),
+      applyHOverECut = cms.bool( True ),
       hOverEHFMinE = cms.double( 999999.0 ),
       measurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
       PhiMin2B = cms.double( -0.004 ),
@@ -8573,7 +8573,10 @@ fragment.hltEgammaElectronPixelSeeds = cms.EDProducer( "ElectronSeedProducer",
       PhiMax2F = cms.double( 0.004 ),
       DeltaPhi2B = cms.double( 0.004 ),
       DeltaPhi2F = cms.double( 0.004 ),
-      SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) )
+      SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreator" ) ),
+      hcalTowers = cms.InputTag( "hltTowerMakerForAll" ),
+      maxHOverEBarrel = cms.double( 0.2 ),
+      maxHOverEEndcaps = cms.double( 0.2 )
     ),
     barrelSuperClusters = cms.InputTag( 'hltParticleFlowSuperClusterECALL1Seeded','hltParticleFlowSuperClusterECALBarrel' )
 )
