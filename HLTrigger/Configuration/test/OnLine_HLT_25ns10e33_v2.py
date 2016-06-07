@@ -1,11 +1,11 @@
-# /frozen/2016/25ns10e33/v2.1/HLT/V1 (CMSSW_8_0_10)
+# /frozen/2016/25ns10e33/v2.1/HLT/V2 (CMSSW_8_0_10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT25ns10e33v2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2016/25ns10e33/v2.1/HLT/V1')
+  tableName = cms.string('/frozen/2016/25ns10e33/v2.1/HLT/V2')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -38895,10 +38895,10 @@ process.hltEcalHaloData = cms.EDProducer( "EcalHaloDataProducer",
     RoundnessCutParam = cms.double( 0.41 ),
     EERecHitEnergyThresholdParam = cms.double( 0.3 ),
     NHitsEcalThresholdParam = cms.int32( 4 ),
-    SuperClusterLabel = cms.InputTag( "hltParticleFlowSuperClusterECALUnseeded" ),
+    SuperClusterLabel = cms.InputTag( "" ),
     EERecHitLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
     HBHERecHitLabel = cms.InputTag( "hltHbhereco" ),
-    PhotonLabel = cms.InputTag( "photons" ),
+    PhotonLabel = cms.InputTag( "" ),
     SumEcalEnergyThresholdParam = cms.double( 10.0 ),
     EBRecHitLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' )
 )
