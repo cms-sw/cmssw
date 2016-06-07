@@ -158,7 +158,7 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
 
-    std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
+    std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
     for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
       (*type2BinningEntry)->binUnclEnergySum_   = CorrMETData();
@@ -253,11 +253,11 @@ class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
 //     o momentum sum of "unclustered energy" (jets of (corrected) Pt < 10 GeV)
 //     o momentum sum of "offset energy"      (sum of energy attributed to pile-up/underlying event)
 //    to the event
-    evt.put(type1Correction, "type1");
+    evt.put(std::move(type1Correction), "type1");
     for ( typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
 	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
-      evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binUnclEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("type2"));
-      evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binOffsetEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("offset"));
+      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binUnclEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("type2"));
+      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binOffsetEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
 

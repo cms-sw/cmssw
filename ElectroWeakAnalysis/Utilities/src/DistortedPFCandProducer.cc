@@ -158,7 +158,7 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
 
 
 
-      std::auto_ptr<reco::PFCandidateCollection> newmuons (new reco::PFCandidateCollection);
+      std::unique_ptr<reco::PFCandidateCollection> newmuons (new reco::PFCandidateCollection);
 
 
       // Loop on all PF candidates
@@ -286,7 +286,7 @@ void DistortedPFCandProducer::produce(edm::Event& ev, const edm::EventSetup& iSe
       }
 
 
-	ev.put(newmuons);
+	ev.put(std::move(newmuons));
 
 
 }

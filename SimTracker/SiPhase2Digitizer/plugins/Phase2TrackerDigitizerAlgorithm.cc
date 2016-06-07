@@ -92,7 +92,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   theElectronPerADC(conf_common.getParameter<double>("ElectronPerAdc")),
 
   // ADC saturation value, 255(8bit adc.
-  theAdcFullScale(conf_common.getParameter<int>("AdcFullScale")),
+  theAdcFullScale(conf_specific.getParameter<int>("AdcFullScale")),
   
   // Noise in electrons:
   // Pixel cell noise, relevant for generating noisy pixels
@@ -945,7 +945,7 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
     if (signalInElectrons >= theThresholdInE) { // check threshold
 
       if (doDigitalReadout) adc = theAdcFullScale;
-      else adc = int(signalInElectrons / theElectronPerADC);
+      else adc = std::min( int(signalInElectrons / theElectronPerADC), theAdcFullScale );
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot     = adc;
       if (makeDigiSimLinks_ && sig_data.hitInfo() != 0) {

@@ -154,7 +154,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
 
     edm::Handle<edm::View<reco::Candidate> > oldElectrons ;
     event.getByToken(inputPatElectronsToken,oldElectrons) ;
-    std::auto_ptr<pat::ElectronCollection> electrons( new pat::ElectronCollection ) ;
+    std::unique_ptr<pat::ElectronCollection> electrons( new pat::ElectronCollection ) ;
     pat::ElectronCollection::const_iterator electron ;
     pat::ElectronCollection::iterator ele ;
     // first clone the initial collection
@@ -318,7 +318,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
         }
     }
     // Save the electrons
-    event.put(electrons) ;
+    event.put(std::move(electrons));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

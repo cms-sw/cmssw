@@ -124,7 +124,7 @@ MultiplicityProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   using namespace edm;
 
-  std::auto_ptr<std::map<unsigned int,int> > mults(new std::map<unsigned int,int> );
+  std::unique_ptr<std::map<unsigned int,int> > mults(new std::map<unsigned int,int> );
 
 
   Handle<T> digis;
@@ -158,7 +158,7 @@ MultiplicityProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first << " " << m_subdets[it->first];
   }
 
-  iEvent.put(mults);
+  iEvent.put(std::move(mults));
 
 }
 

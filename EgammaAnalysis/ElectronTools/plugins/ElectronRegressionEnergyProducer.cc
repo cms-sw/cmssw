@@ -117,10 +117,10 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
     geomInitialized_ = true;
   }
 
-  std::auto_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyFiller(*regrEnergyMap);
 
-  std::auto_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrEnergyErrorMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyErrorFiller(*regrEnergyErrorMap);
 
   edm::Handle<reco::GsfElectronCollection> egCollection;
@@ -202,8 +202,8 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   energyErrorFiller.insert( egCollection, energyErrorValues.begin(), energyErrorValues.end() );
   energyErrorFiller.fill();
 
-  iEvent.put(regrEnergyMap,nameEnergyReg_);
-  iEvent.put(regrEnergyErrorMap,nameEnergyErrorReg_);
+  iEvent.put(std::move(regrEnergyMap),nameEnergyReg_);
+  iEvent.put(std::move(regrEnergyErrorMap),nameEnergyErrorReg_);
 
   return true;
 

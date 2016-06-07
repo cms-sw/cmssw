@@ -185,12 +185,12 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
   event.getByToken(energyErrorRegToken_,valMapEnergyErrorH);
   
   // Prepare output collections
-  std::auto_ptr<reco::GsfElectronCollection> electrons( new reco::GsfElectronCollection ) ;
+  std::unique_ptr<reco::GsfElectronCollection> electrons( new reco::GsfElectronCollection ) ;
   // Fillers for ValueMaps:
-  std::auto_ptr<edm::ValueMap<double> > regrNewEnergyMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrNewEnergyMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyFiller(*regrNewEnergyMap);
   
-  std::auto_ptr<edm::ValueMap<double> > regrNewEnergyErrorMap(new edm::ValueMap<double>() );
+  std::unique_ptr<edm::ValueMap<double> > regrNewEnergyErrorMap(new edm::ValueMap<double>() );
   edm::ValueMap<double>::Filler energyErrorFiller(*regrNewEnergyErrorMap);
   
   // first clone the initial collection
@@ -362,14 +362,14 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     }
   
   // Save the electrons
-  const edm::OrphanHandle<reco::GsfElectronCollection> gsfNewElectronHandle = event.put(electrons, newElectronName_) ;
+  const edm::OrphanHandle<reco::GsfElectronCollection> gsfNewElectronHandle = event.put(std::move(electrons), newElectronName_) ;
   energyFiller.insert(gsfNewElectronHandle,regressionValues.begin(),regressionValues.end());
   energyFiller.fill();
   energyErrorFiller.insert(gsfNewElectronHandle,regressionErrorValues.begin(),regressionErrorValues.end());
   energyErrorFiller.fill();
   
-  event.put(regrNewEnergyMap,nameNewEnergyReg_);
-  event.put(regrNewEnergyErrorMap,nameNewEnergyErrorReg_);
+  event.put(std::move(regrNewEnergyMap),nameNewEnergyReg_);
+  event.put(std::move(regrNewEnergyErrorMap),nameNewEnergyErrorReg_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
