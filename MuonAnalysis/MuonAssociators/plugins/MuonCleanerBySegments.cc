@@ -95,7 +95,7 @@ modules::MuonCleanerBySegmentsT<T>::produce(edm::Event & iEvent, const edm::Even
     using namespace std;
 
     Handle<View<T> > src;
-    auto_ptr<vector<T> > out(new vector<T>());
+    unique_ptr<vector<T> > out(new vector<T>());
 
     iEvent.getByToken(srcToken_, src);
     unsigned int nsrc = src->size();
@@ -126,7 +126,7 @@ modules::MuonCleanerBySegmentsT<T>::produce(edm::Event & iEvent, const edm::Even
         const T &mu1 = (*src)[i];
         if (good[i] || passthrough_(mu1)) out->push_back(mu1);
     }
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 template<typename T>

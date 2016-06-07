@@ -103,9 +103,9 @@ class CaloJetMETcorrInputProducerT final : public edm::global::EDProducer<>
 
   void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override
   {
-    std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
-    std::auto_ptr<CorrMETData> unclEnergySum(new CorrMETData());
-    std::auto_ptr<CorrMETData> offsetEnergySum(new CorrMETData());
+    std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
+    std::unique_ptr<CorrMETData> unclEnergySum(new CorrMETData());
+    std::unique_ptr<CorrMETData> offsetEnergySum(new CorrMETData());
 
     edm::Handle<reco::JetCorrector> jetCorr;
     evt.getByToken(jetCorrToken_, jetCorr);
@@ -186,9 +186,9 @@ class CaloJetMETcorrInputProducerT final : public edm::global::EDProducer<>
 //     o momentum sum of "unclustered energy" (jets of (corrected) Pt < 20 GeV)
 //     o momentum sum of "offset energy"      (sum of energy attributed to pile-up/underlying event)
 //    to the event
-    evt.put(type1Correction, "type1");
-    evt.put(unclEnergySum,   "type2");
-    evt.put(offsetEnergySum, "offset");
+    evt.put(std::move(type1Correction), "type1");
+    evt.put(std::move(unclEnergySum),   "type2");
+    evt.put(std::move(offsetEnergySum), "offset");
   }
 
   std::string moduleLabel_;

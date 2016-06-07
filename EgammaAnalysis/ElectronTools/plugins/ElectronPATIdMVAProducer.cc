@@ -100,7 +100,7 @@ ElectronPATIdMVAProducer::~ElectronPATIdMVAProducer()
 // ------------ method called on each new Event  ------------
 void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-        std::auto_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>() );
+        std::unique_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>() );
 
 
 
@@ -138,7 +138,7 @@ void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup
         filler.insert(egCollection, values.begin(), values.end() );
 	filler.fill();
 
-	iEvent.put(out);
+	iEvent.put(std::move(out));
 
 
 }

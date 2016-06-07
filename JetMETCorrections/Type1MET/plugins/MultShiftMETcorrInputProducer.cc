@@ -101,7 +101,7 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   }
 
   //MM: loop over all constituent types and sum each correction
-  std::auto_ptr<CorrMETData> metCorr(new CorrMETData());
+  std::unique_ptr<CorrMETData> metCorr(new CorrMETData());
   
   double corx=0.;
   double cory=0.;
@@ -127,7 +127,7 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
 
   metCorr->mex = corx;
   metCorr->mey = cory;
-  evt.put(metCorr, "");
+  evt.put(std::move(metCorr), "");
   
 }
 
