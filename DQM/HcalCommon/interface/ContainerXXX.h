@@ -51,6 +51,12 @@ namespace hcaldqm
 			virtual void push(HcalElectronicsId const&, STDTYPE);
 			virtual void push(HcalTrigTowerDetId const&, STDTYPE);
 
+			//	finders, note true/false - no pointer to the actual guy...
+			//	I know, I know not the best coding...
+			virtual bool exists(HcalDetId const&);
+			virtual bool exists(HcalElectronicsId const&);
+			virtual bool exists(HcalTrigTowerDetId const&);
+
 			virtual void dump(Container1D*);
 			virtual void dump(std::vector<Container1D*> const&);
 
@@ -255,6 +261,24 @@ namespace hcaldqm
 	STDTYPE& ContainerXXX<STDTYPE>::get(HcalTrigTowerDetId const& tid)
 	{
 		return _cmap[_hashmap.getHash(tid)];
+	}
+
+	template<typename STDTYPE>
+	bool ContainerXXX<STDTYPE>::exists(HcalDetId const& id)
+	{
+		return _cmap.find(id.rawId())!=_cmap.end();
+	}
+	
+	template<typename STDTYPE>
+	bool ContainerXXX<STDTYPE>::exists(HcalElectronicsId const& id)
+	{
+		return _cmap.find(id.rawId())!=_cmap.end();
+	}
+	
+	template<typename STDTYPE>
+	bool ContainerXXX<STDTYPE>::exists(HcalTrigTowerDetId const& id)
+	{
+		return _cmap.find(id.rawId())!=_cmap.end();
 	}
 
 	template<typename STDTYPE>
