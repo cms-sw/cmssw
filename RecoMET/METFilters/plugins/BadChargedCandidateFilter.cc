@@ -98,6 +98,10 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
             if (debug_) cout<<"Skipping this muon because it has no inner track"<<endl; 
             continue; 
             };
+        if ( innerMuonTrack->quality(reco::TrackBase::highPurity) ) { 
+            if (debug_) cout<<"Skipping this muon because inner track is high purity."<<endl; 
+            continue;
+        }
         // Consider only muons with large relative pt error
         if (debug_) cout<<"Muon inner track pt rel err: "<<innerMuonTrack->ptError()/innerMuonTrack->pt()<<endl;
         if (not ( innerMuonTrack->ptError()/innerMuonTrack->pt() > minMuonTrackRelErr_ ) ) {
@@ -108,8 +112,10 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
             const reco::Candidate & pfCandidate = (*pfCandidates)[j];
             // look for charged hadrons
             if (not ( abs(pfCandidate.pdgId()) == 211) ) continue;
-            if (debug_) cout<<"candidate "<<pfCandidate.pt()<<" dr "<<deltaR( innerMuonTrack->eta(), innerMuonTrack->phi(), pfCandidate.eta(), pfCandidate.phi() )
-                <<" dpt "<<( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt()))<<endl;
+            float dr = deltaR( innerMuonTrack->eta(), innerMuonTrack->phi(), pfCandidate.eta(), pfCandidate.phi() );
+            float dpt = ( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt()));
+            if ( (debug_)  and (dr<0.5) ) cout<<" pt(it) "<<innerMuonTrack->pt()<<" candidate "<<pfCandidate.pt()<<" dr "<< dr
+                <<" dpt "<<dpt<<endl;
             // require similar pt ( one sided ) and small dR
             if ( ( deltaR( innerMuonTrack->eta(), innerMuonTrack->phi(), pfCandidate.eta(), pfCandidate.phi() ) < maxDR_ ) 
                 and ( ( pfCandidate.pt() - innerMuonTrack->pt())/(0.5*(innerMuonTrack->pt() + pfCandidate.pt())) > minPtDiffRel_ ) ) {
