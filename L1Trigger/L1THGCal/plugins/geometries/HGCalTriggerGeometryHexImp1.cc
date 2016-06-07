@@ -109,7 +109,7 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
         if(id.rawId()==0) continue;
         HGCalDetId waferDetId(id); 
         short module      = wafer_to_module_fh[waferDetId.wafer()];
-        int nCells = esInfo.topo_ee->dddConstants().numberCellsHexagon(waferDetId.wafer());
+        int nCells = esInfo.topo_fh->dddConstants().numberCellsHexagon(waferDetId.wafer());
         for(int c=0;c<nCells;c++)
         {
             short triggerCellId = cells_to_trigger_cells[std::make_pair(waferDetId.waferType(),c)];
@@ -152,7 +152,7 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules(const es_info& esI
         for(const auto& cell : cellIds)
         {
             HGCalDetId cellDetId(cell);
-            triggerCellVector += esInfo.geom_ee->getPosition(cellDetId).basicVector();
+            triggerCellVector += (cellDetId.subdetId()==(int)ForwardSubdetector::HGCEE ? esInfo.geom_ee->getPosition(cellDetId) :  esInfo.geom_fh->getPosition(cellDetId)).basicVector();
         }
         GlobalPoint triggerCellPoint( triggerCellVector/cellIds.size() );
         const auto& triggerCellToModuleItr = trigger_cells_to_modules_.find(triggerCellId);

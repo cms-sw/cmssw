@@ -299,7 +299,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
         for(const auto& c : triggerCellPtr->components())
         {
             HGCalDetId cId(c);
-            GlobalPoint position = (cId.subdetId()==3 ? info.geom_ee->getPosition(cId) :  info.geom_fh->getPosition(cId));
+            GlobalPoint position = (cId.subdetId()==(int)ForwardSubdetector::HGCEE ? info.geom_ee->getPosition(cId) :  info.geom_fh->getPosition(cId));
             triggerCellCell_id_    .get()[ic] = c;
             triggerCellCell_zside_ .get()[ic] = cId.zside();
             triggerCellCell_subdet_.get()[ic] = cId.subdetId();
