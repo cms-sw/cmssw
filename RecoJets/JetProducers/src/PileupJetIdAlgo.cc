@@ -338,7 +338,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	    float candPt = icand->pt();
 	    float candPtFrac = candPt/jetPt;
 	    float candDr   = reco::deltaR(*icand,*jet);
-	    float candDeta = std::abs( icand->eta() - jet->eta() );
+	    float candDeta = icand->eta() - jet->eta();
 	    float candDphi = reco::deltaPhi(*icand,*jet);
 	    float candPtDr = candPt * candDr;
 	    size_t icone = std::lower_bound(&cones[0],&cones[ncones],candDr) - &cones[0];
@@ -617,7 +617,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.sumNePt_ = sumPtNe;
 
 	internalId_.jetR_    = lLead->pt()/sumPt;
-	internalId_.jetRchg_ = lLeadEm->pt()/sumPt;
+	internalId_.jetRchg_ = lLeadCh->pt()/sumPt;
 	internalId_.dRMatch_ = dRmin;
 
 	if( sumTkPt != 0. ) {
