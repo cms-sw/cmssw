@@ -14,6 +14,7 @@
 #include <iterator>
 //#include <algo.h>
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
@@ -533,7 +534,7 @@ std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
     //---------- Get sum of derivatives
     sumderiv = 0;
     for ( ALIuint ii = 0; ii < theDim; ii++) {
-      sumderiv += fabs( theValueSimulated[ii] - theValueSimulated_orig[ii] );
+      sumderiv += std::abs( theValueSimulated[ii] - theValueSimulated_orig[ii] );
       if( ALIUtils::debug >= 4 ) {
         std::cout << "iteration " << count_itera << " COOR " << ii
              << " difference =" << ( theValueSimulated[ii] - theValueSimulated_orig[ii] )
