@@ -22,7 +22,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <math.h>               // I have added a new library for edm::isNotFinite() function
+#include <cmath>  // among others include also floating-point std::abs functions
 #include <cstdlib>
 
 using namespace CLHEP;
@@ -242,7 +242,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   ALIuint ii,jj;
   for( ii = 0; ii < 4; ii++ ) {
     for( jj = 0; jj < 2; jj++ ) {
-      measInCCD[jj] =  fabs( measv[ii][jj] ) < CCDlength/2;
+      measInCCD[jj] =  std::abs( measv[ii][jj] ) < CCDlength/2;
     }
     if (ALIUtils::debug >= 2) std::cout << "$@$@ CHECK CCD = " << ii << std::endl;
     if( measInCCD[0] && measInCCD[1] ){
@@ -265,8 +265,8 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   unsigned int ii;
   for( ii = 0; ii < 4; ii++ ) {
     if (ALIUtils::debug >= 2) std::cout << "\tmeas CCD " << measNames[ii] << " ii=(" << ii << ") \t Values: "
-     //<< (fabs( measv[ii][0] ) <  fabs( measv[ii][1])
-       << " " << fabs( measv[ii][0] ) << " " <<  fabs( measv[ii][1] ) << "  edm::isNotFinite() = " <<
+     //<< (std::abs( measv[ii][0] ) <  std::abs( measv[ii][1])
+       << " " << std::abs( measv[ii][0] ) << " " <<  std::abs( measv[ii][1] ) << "  edm::isNotFinite() = " <<
        edm::isNotFinite(measv[ii][1]) << std::endl;
 
     if( meas.xlaserLine( ii ) != -1 ) {
@@ -283,7 +283,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
                 if (ALIUtils::debug >= 2) std::cout << "  --> Swapping for " << measv[ii][1] << "(inf)" << std::endl;
                                   }
 
-      laserLine = fabs( measv[ii][0] ) <  fabs( measv[ii][1] );
+      laserLine = std::abs( measv[ii][0] ) <  std::abs( measv[ii][1] );
 
       meas.setXlaserLine( ii, int(laserLine) );
     }
@@ -299,7 +299,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   if(ALIUtils::debug >= 2) std::cout << "***** OptOCOPS::makeMeasurement  - identify pathological cases U and D intersected by same line" <<std::endl;
   ALIbool xlaserDir[4];
   for( ii = 0; ii < 4; ii++ ) {
-    //    xlaserDir[ii] = fabs( measv[ii][0] ) <  fabs( measv[ii][1] );
+    //    xlaserDir[ii] = std::abs( measv[ii][0] ) <  std::abs( measv[ii][1] );
     xlaserDir[ii] = ALIbool( meas.xlaserLine( ii ) );
   }
   if( xlaserDir[0] ^ xlaserDir[1] ) {
@@ -320,10 +320,10 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
          << " L: " << 1000*meas.value()[2]
          << " R: " << 1000*meas.value()[3]
          << " (mm)  " << (this)->name() << std::endl;
-    ALIdouble detU =  1000*meas.valueSimulated(0); if(fabs(detU) <= 1.e-9 ) detU = 0.;
-    ALIdouble detD =  1000*meas.valueSimulated(1); if(fabs(detD) <= 1.e-9 ) detD = 0.;
-    ALIdouble detL =  1000*meas.valueSimulated(2); if(fabs(detL) <= 1.e-9 ) detL = 0.;
-    ALIdouble detR =  1000*meas.valueSimulated(3); if(fabs(detR) <= 1.e-9 ) detR = 0.;
+    ALIdouble detU =  1000*meas.valueSimulated(0); if(std::abs(detU) <= 1.e-9 ) detU = 0.;
+    ALIdouble detD =  1000*meas.valueSimulated(1); if(std::abs(detD) <= 1.e-9 ) detD = 0.;
+    ALIdouble detL =  1000*meas.valueSimulated(2); if(std::abs(detL) <= 1.e-9 ) detL = 0.;
+    ALIdouble detR =  1000*meas.valueSimulated(3); if(std::abs(detR) <= 1.e-9 ) detR = 0.;
     std::cout << "SIMU value: " << chrg << "U: "
       // << setprecision(3) << setw(4)
          << detU
@@ -398,7 +398,7 @@ ALIdouble OptOCOPS::getMeasFromInters( ALILine& line_xhair, ALILine& ccd, CLHEP:
   CLHEP::Hep3Vector inters = line_xhair.intersect( ccd, 0 ) - ccd.pt();
   ALIdouble sign = inters*ccd.vec();
   if( sign != 0 ){
-    sign = fabs(sign)/sign;
+    sign = std::abs(sign)/sign;
     //    std::cout << "  @@@@@@@@@@@@ sign = " << sign << std::endl;
     //   ALIUtils::dump3v(inters, " intersection " );
     //   ALIUtils::dump3v( ccd.vec(), " cops_line ");
