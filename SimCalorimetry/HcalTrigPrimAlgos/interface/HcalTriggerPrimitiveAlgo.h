@@ -25,16 +25,37 @@ public:
                            bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
                            int numberOfSamplesHF, int numberOfPresamplesHF,
-                           uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
+                           uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0,
+                           bool upgrade_hb=false, bool upgrade_he=false, bool upgrade_hf=false);
   ~HcalTriggerPrimitiveAlgo();
 
+  template<typename... Digis>
   void run(const HcalTPGCoder* incoder,
            const HcalTPGCompressor* outcoder,
-           const HBHEDigiCollection& hbheDigis,
-           const HFDigiCollection& hfDigis,
            HcalTrigPrimDigiCollection& result,
            const HcalTrigTowerGeometry* trigTowerGeometry,
-           float rctlsb, const HcalFeatureBit* LongvrsShortCut=0);
+           float rctlsb, const HcalFeatureBit* LongvrsShortCut,
+           const Digis&... digis);
+
+  template<typename T, typename... Args>
+  void addDigis(const T& collection, const Args&... digis) {
+     addDigis(collection);
+     addDigis(digis...);
+  };
+
+  template<typename T>
+  void addDigis(const T& collection) {
+     for (const auto& digi: collection)
+        addSignal(digi);
+  };
+
+  template<typename D>
+  void addDigis(const HcalDataFrameContainer<D>& collection) {
+     for (auto i = collection.begin(); i != collection.end(); ++i) {
+        D digi(*i);
+        addSignal(digi);
+     }
+  };
 
   void runZS(HcalTrigPrimDigiCollection& tp);
   void runFEFormatError(const FEDRawDataCollection* rawraw,
@@ -49,6 +70,8 @@ public:
   /// adds the signal to the map
   void addSignal(const HBHEDataFrame & frame);
   void addSignal(const HFDataFrame & frame);
+  void addSignal(const QIE10DataFrame& frame);
+  void addSignal(const QIE11DataFrame& frame);
   void addSignal(const IntegerCaloSamples & samples);
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
 
@@ -126,5 +149,61 @@ public:
 
   typedef std::map<HcalTrigTowerDetId, std::vector<bool> > FGbitMap;
   FGbitMap fgMap_;
+
+  bool upgrade_hb_;
+  bool upgrade_he_;
+  bool upgrade_hf_;
+
 };
+
+template<typename... Digis>
+void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
+                                   const HcalTPGCompressor* outcoder,
+                                   HcalTrigPrimDigiCollection& result,
+                                   const HcalTrigTowerGeometry* trigTowerGeometry,
+                                   float rctlsb, const HcalFeatureBit* LongvrsShortCut,
+                                   const Digis&... digis) {
+   theTrigTowerGeometry = trigTowerGeometry;
+    
+   incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
+   outcoder_=outcoder;
+
+   theSumMap.clear();
+   theTowerMapFGSum.clear();
+   HF_Veto.clear();
+   fgMap_.clear();
+   theHFDetailMap.clear();
+
+   // Add all digi collections
+   addDigis(digis...);
+
+   // VME produces additional bits on the front used by lumi but not the
+   // trigger, this shift corrects those out by right shifting over them.
+   for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
+      result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
+      HcalTrigTowerDetId detId(mapItr->second.id());
+      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
+         if (detId.version() == 0) {
+            analyzeHF(mapItr->second, result.back(), RCTScaleShift);
+         } else if (detId.version() == 1) {
+            analyzeHFV1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
+         } else {
+            // Things are going to go poorly
+         }
+      }
+      else { 
+         analyze(mapItr->second, result.back());
+      }
+   }
+
+   // Free up some memory
+   theSumMap.clear();
+   theTowerMapFGSum.clear();
+   HF_Veto.clear();
+   fgMap_.clear();
+   theHFDetailMap.clear();
+
+   return;
+}
+
 #endif

@@ -24,6 +24,10 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     MinSignalThreshold = cms.uint32(0), # For HF PMT veto
     PMTNoiseThreshold = cms.uint32(0),  # For HF PMT veto
     LSConfig=LSParameter,
+
+    upgradeHF = cms.bool(False),
+    upgradeHB = cms.bool(False),
+    upgradeHE = cms.bool(False),
     
     
 #
@@ -31,6 +35,9 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     # Input digi label (_must_ be without zero-suppression!)
     inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),
                                cms.InputTag('simHcalUnsuppressedDigis')),
+    inputUpgradeLabel = cms.VInputTag(
+        cms.InputTag('simHcalUnsuppressedDigis:HBHEQIE11DigiCollection'),
+        cms.InputTag('simHcalUnsuppressedDigis:HFQIE10DigiCollection')),
     InputTagFEDRaw = cms.InputTag("rawDataCollector"),
     RunZS = cms.bool(False),
     FrontEndFormatError = cms.bool(False), # Front End Format Error, for real data only

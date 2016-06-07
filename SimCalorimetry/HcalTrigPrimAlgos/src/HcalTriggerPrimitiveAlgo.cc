@@ -17,7 +17,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                     bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
                                                     int numberOfSamples, int numberOfPresamples,
                                                     int numberOfSamplesHF, int numberOfPresamplesHF,
-                                                    uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold)
+                                                    uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold,
+                                                    bool upgrade_hb, bool upgrade_he, bool upgrade_hf)
                                                    : incoder_(0), outcoder_(0),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
                                                    FG_MinimumBias_(FG_MinimumBias), FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
@@ -28,7 +29,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
                                                    NCTScaleShift(0), RCTScaleShift(0),
-                                                   peak_finder_algorithm_(2)
+                                                   peak_finder_algorithm_(2),
+                                                   upgrade_hb_(upgrade_hb), upgrade_he_(upgrade_he), upgrade_hf_(upgrade_hf)
 {
    //No peak finding setting (for Fastsim)
    if (!peakfind_){
@@ -43,67 +45,6 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
 
 
 HcalTriggerPrimitiveAlgo::~HcalTriggerPrimitiveAlgo() {
-}
-
-
-void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
-                                   const HcalTPGCompressor* outcoder,
-                                   const HBHEDigiCollection& hbheDigis,
-                                   const HFDigiCollection& hfDigis,
-                                   HcalTrigPrimDigiCollection& result,
-                                   const HcalTrigTowerGeometry* trigTowerGeometry,
-                                   float rctlsb, const HcalFeatureBit* LongvrsShortCut) {
-   theTrigTowerGeometry = trigTowerGeometry;
-    
-   incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
-   outcoder_=outcoder;
-
-   theSumMap.clear();
-   theTowerMapFGSum.clear();
-   HF_Veto.clear();
-   fgMap_.clear();
-   theHFDetailMap.clear();
-
-   // do the HB/HE digis
-   for(HBHEDigiCollection::const_iterator hbheItr = hbheDigis.begin();
-   hbheItr != hbheDigis.end(); ++hbheItr) {
-      addSignal(*hbheItr);
-   }
-
-   // and the HF digis
-   for(HFDigiCollection::const_iterator hfItr = hfDigis.begin();
-   hfItr != hfDigis.end(); ++hfItr) {
-      addSignal(*hfItr);
-
-   }
-
-   // VME produces additional bits on the front used by lumi but not the
-   // trigger, this shift corrects those out by right shifting over them.
-   for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
-      result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
-      HcalTrigTowerDetId detId(mapItr->second.id());
-      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
-         if (detId.version() == 0) {
-            analyzeHF(mapItr->second, result.back(), RCTScaleShift);
-         } else if (detId.version() == 1) {
-            analyzeHFV1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
-         } else {
-            // Things are going to go poorly
-         }
-      }
-      else { 
-         analyze(mapItr->second, result.back());
-      }
-   }
-
-   // Free up some memory
-   theSumMap.clear();
-   theTowerMapFGSum.clear();
-   HF_Veto.clear();
-   fgMap_.clear();
-   theHFDetailMap.clear();
-
-   return;
 }
 
 
@@ -221,6 +162,15 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
    }
 }
 
+void
+HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
+{
+}
+
+void
+HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
+{
+}
 
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
    HcalTrigTowerDetId id(samples.id());
