@@ -1,7 +1,7 @@
 #include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
 
-namespace {
-  namespace {
+namespace DataFormats_TotemRPDetId {
+  struct dictionary {
     TotemRPDetId dummy0;
-  }
+  };
 }

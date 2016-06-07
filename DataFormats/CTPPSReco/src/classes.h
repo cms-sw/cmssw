@@ -9,8 +9,8 @@
 
 #include <vector>
 
-namespace {
-  namespace {
+namespace DataFormats_CTPPSReco {
+  struct dictionary {
 	TotemRPRecHit rp_reco_hit;
     edm::DetSet<TotemRPRecHit> ds_rp_reco_hit;
     edm::DetSetVector<TotemRPRecHit> dsv_rp_reco_hit;
@@ -35,5 +35,5 @@ namespace {
     edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>> w_dsv_ft;
     edm::DetSetVector<TotemRPLocalTrack::FittedRecHit> dsv_ft_frh;
     edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>> w_dsv_ft_frh;
-  }
+  };
 }
