@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V325 (CMSSW_8_0_10)
+# /dev/CMSSW_8_0_0/HLT/V326 (CMSSW_8_0_10)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V325')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V326')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -40486,12 +40486,12 @@ fragment.hltCSCHaloData = cms.EDProducer( "CSCHaloDataProducer",
     ECALErhLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
     MaxSegmentRDiff = cms.double( 10.0 ),
     ECALBrhLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-    L1MuGMTReadoutLabel = cms.InputTag( "hltGtDigis" ),
+    L1MuGMTReadoutLabel = cms.InputTag( "" ),
     MaxSegmentTheta = cms.double( 0.7 ),
-    HLTResultLabel = cms.InputTag( 'TriggerResults','','HLT' ),
-    HLTBitLabel = cms.VInputTag( 'HLT_CSCBeamHalo','HLT_CSCBeamHaloOverlapRing1','HLT_CSCBeamHaloOverlapRing2','HLT_CSCBeamHaloRing2or3' ),
+    HLTResultLabel = cms.InputTag( "" ),
+    HLTBitLabel = cms.VInputTag(  ),
     NormChi2Param = cms.double( 8.0 ),
-    ALCTDigiLabel = cms.InputTag( 'hltmuonCSCDigis','MuonCSCALCTDigi' ),
+    ALCTDigiLabel = cms.InputTag( "" ),
     OuterRMaxParam = cms.double( 99999.0 ),
     MatchingDEtaThreshold = cms.double( 0.4 ),
     OuterRMinParam = cms.double( 0.0 ),
