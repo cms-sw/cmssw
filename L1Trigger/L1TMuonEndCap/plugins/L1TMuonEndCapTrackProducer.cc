@@ -338,11 +338,12 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  // thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
 	  
 	  for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
-	    if ( A->TP().detId<CSCDetId>().station() == OutputHits->at(iHit).Station() and
-		 A->TP().getCSCData().cscID          == OutputHits->at(iHit).CSC_ID()  and
-		 A->Wire()                           == OutputHits->at(iHit).Wire()    and
-		 A->Strip()                          == OutputHits->at(iHit).Strip()   and
-		 A->TP().getCSCData().bx - 6         == OutputHits->at(iHit).BX() ) {
+	    if ( A->TP().detId<CSCDetId>().station() == OutputHits->at(iHit).Station() &&
+		 A->TP().getCSCData().cscID          == OutputHits->at(iHit).CSC_ID()  &&
+		 A->Wire()                           == OutputHits->at(iHit).Wire()    &&
+		 A->Strip()                          == OutputHits->at(iHit).Strip()   &&
+		 A->TP().getCSCData().bx - 6         == OutputHits->at(iHit).BX()      &&
+		 A->IsNeighbor()                     == OutputHits->at(iHit).Neighbor() ) {
 	      thisHit = OutputHits->at(iHit);
 	      thisTrack.push_HitExtraIndex(iHit);
 	      thisTrack.push_HitExtra(thisHit); // Done before theta windows are applied ... how can we do it after? - AWB 29.04.16
