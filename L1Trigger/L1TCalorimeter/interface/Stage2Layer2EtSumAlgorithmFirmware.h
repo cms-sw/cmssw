@@ -30,9 +30,11 @@ namespace l1t {
     int32_t metTowThresholdHw_;
     int32_t metTowThresholdHwHF_;
     int32_t ettTowThresholdHw_;
+    int32_t ettTowThresholdHwHF_;
     int32_t metEtaMax_;
     int32_t metEtaMaxHF_;
     int32_t ettEtaMax_;
+    int32_t ettEtaMaxHF_;
 	
   };
 }
