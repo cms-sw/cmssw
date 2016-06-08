@@ -31,6 +31,7 @@ TrackingRecHitAlgorithm::TrackingRecHitAlgorithm(
     _selectionString(config.getParameter<std::string>("select")),
     _trackerTopology(nullptr),
     _trackerGeometry(nullptr),
+    _misalignedTrackerGeometry(nullptr),
     _randomEngine(nullptr)
 {
 }
@@ -53,6 +54,15 @@ const TrackerGeometry& TrackingRecHitAlgorithm::getTrackerGeometry() const
     return *_trackerGeometry;
 }
 
+const TrackerGeometry& TrackingRecHitAlgorithm::getMisalignedGeometry() const
+{
+    if (!_misalignedTrackerGeometry)
+    {
+        throw cms::Exception("TrackingRecHitAlgorithm ") << _name <<": MisalignedGeometry not defined";
+    }
+    return *_misalignedTrackerGeometry;
+}
+
 const RandomEngineAndDistribution& TrackingRecHitAlgorithm::getRandomEngine() const
 {
     if (!_randomEngine)
@@ -69,16 +79,17 @@ void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
 
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    edm::ESHandle<TrackerGeometry> misalignedGeometryHandle;
 
-
-    eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
     eventSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    eventSetup.get<TrackerDigiGeometryRecord>().get("MisAligned",misalignedGeometryHandle);
 
-
-    _trackerGeometry = trackerGeometryHandle.product();
     _trackerTopology = trackerTopologyHandle.product();
+    _trackerGeometry = trackerGeometryHandle.product();
+    _misalignedTrackerGeometry = misalignedGeometryHandle.product();
 }
 
 TrackingRecHitProductPtr TrackingRecHitAlgorithm::process(TrackingRecHitProductPtr product) const
@@ -91,6 +102,7 @@ void TrackingRecHitAlgorithm::endEvent(edm::Event& event, const edm::EventSetup&
     //set these to 0 -> ensures that beginEvent needs to be executed before accessing these pointers again
     _trackerGeometry=nullptr;
     _trackerTopology=nullptr;
+    _misalignedTrackerGeometry=nullptr;
 }
 
 void TrackingRecHitAlgorithm::endStream()

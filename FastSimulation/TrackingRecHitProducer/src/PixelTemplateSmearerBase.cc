@@ -574,14 +574,27 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
     else  theErrorY = sigmay*microntocm;
   }
   
-  //add misalignment error
-  const LocalError& misalignmentError = detUnit->localAlignmentError();
   
-  theError = LocalError( 
-    theErrorX*theErrorX+misalignmentError.xx(), 
-    misalignmentError.xy(), 
-    theErrorY*theErrorY+misalignmentError.yy()
-  );
+  //add misalignment error getMisalignedGeometry
+  const TrackerGeomDet* misalignmentDetUnit = getMisalignedGeometry().idToDet(detUnit->geographicalId());
+  const LocalError& alignmentError = misalignmentDetUnit->localAlignmentError();
+  if (alignmentError.valid())
+  {
+      theError = LocalError( 
+        theErrorX*theErrorX+alignmentError.xx(), 
+        alignmentError.xy(), 
+        theErrorY*theErrorY+alignmentError.yy()
+      );
+  }
+  else
+  {
+      theError = LocalError( 
+        theErrorX*theErrorX, 
+        0.0,
+        theErrorY*theErrorY
+      );
+  }
+  
   // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
   // as for resolution matrix
   //
