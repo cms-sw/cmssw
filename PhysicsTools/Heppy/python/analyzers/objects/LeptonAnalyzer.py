@@ -131,12 +131,13 @@ class LeptonAnalyzer( Analyzer ):
 
         # JP/CV: add Spring15 EGamma POG electron ID MVA
         # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
-        self.handles['eleMVAIdSpring15TrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigMedium, 'edm::ValueMap<bool>')
-        self.handles['eleMVAIdSpring15TrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigTight, 'edm::ValueMap<bool>')
-        self.handles['eleMVArawSpring15Trig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15Trig, 'edm::ValueMap<float>')
-        self.handles['eleMVAIdSpring15NonTrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigMedium, 'edm::ValueMap<bool>')
-        self.handles['eleMVAIdSpring15NonTrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigTight, 'edm::ValueMap<bool>')
-        self.handles['eleMVArawSpring15NonTrig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15NonTrig, 'edm::ValueMap<float>')
+        if getattr(self.cfg_ana,'updateEleMVA',False) :
+            self.handles['eleMVAIdSpring15TrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigMedium, 'edm::ValueMap<bool>')
+            self.handles['eleMVAIdSpring15TrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigTight, 'edm::ValueMap<bool>')
+            self.handles['eleMVArawSpring15Trig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15Trig, 'edm::ValueMap<float>')
+            self.handles['eleMVAIdSpring15NonTrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigMedium, 'edm::ValueMap<bool>')
+            self.handles['eleMVAIdSpring15NonTrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigTight, 'edm::ValueMap<bool>')
+            self.handles['eleMVArawSpring15NonTrig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15NonTrig, 'edm::ValueMap<float>')
 
         if self.doMiniIsolation or self.doIsolationScan:
             self.handles['packedCandidates'] = AutoHandle( self.cfg_ana.packedCandidates, 'std::vector<pat::PackedCandidate>')
