@@ -42,7 +42,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     int32_t exHF(0), eyHF(0), etHF(0);
     uint32_t mb0(0), mb1(0);
 
-    for (unsigned absieta=1; absieta<=CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
+    for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
       int ieta = etaSide * absieta;
 
