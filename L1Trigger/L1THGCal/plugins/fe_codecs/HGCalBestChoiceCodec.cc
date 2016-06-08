@@ -34,12 +34,11 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
         {
             if(mod.containsCell(eedata.id()))
             {
-                HGCDataFrame<HGCalDetId,HGCSample> dataframe(eedata.id());
+                dataframes.emplace_back(eedata.id());
                 for(int i=0; i<eedata.size(); i++)
                 {
-                    dataframe.setSample(i, eedata.sample(i));
+                    dataframes.back().setSample(i, eedata.sample(i));
                 }
-                dataframes.emplace_back(dataframe);
             }
         }
     }
@@ -49,12 +48,11 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
         {
             if(mod.containsCell(fhdata.id()))
             {
-                HGCDataFrame<HGCalDetId,HGCSample> dataframe(fhdata.id());
+                dataframes.emplace_back(fhdata.id());
                 for(int i=0; i<fhdata.size(); i++)
                 {
-                    dataframe.setSample(i, fhdata.sample(i));
+                    dataframes.back().setSample(i, fhdata.sample(i));
                 }
-                dataframes.emplace_back(dataframe);
             }
         }
     }
@@ -64,7 +62,6 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
     codecImpl_.triggerCellSums(mod, linearized_dataframes, data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
-
 }
 
 /*****************************************************************/

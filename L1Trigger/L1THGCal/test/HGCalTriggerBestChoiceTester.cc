@@ -234,24 +234,20 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
         if(moduleId.subdetId()==ForwardSubdetector::HGCEE) {
             for(const auto& eedata : ee_digis) {
                 if(module.second->containsCell(eedata.id())) {
-                    HGCDataFrame<HGCalDetId,HGCSample> dataframe(eedata.id());
-                    for(int i=0; i<eedata.size(); i++)
-                    {
-                        dataframe.setSample(i, eedata.sample(i));
+                    dataframes.emplace_back(eedata.id());
+                    for(int i=0; i<eedata.size(); i++) {
+                        dataframes.back().setSample(i, eedata.sample(i));
                     }
-                    dataframes.emplace_back(dataframe);
                 }
             }  
         }
         else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF) {
             for(const auto& fhdata : fh_digis) {
                 if(module.second->containsCell(fhdata.id())) {
-                    HGCDataFrame<HGCalDetId,HGCSample> dataframe(fhdata.id());
-                    for(int i=0; i<fhdata.size(); i++)
-                    {
-                        dataframe.setSample(i, fhdata.sample(i));
+                    dataframes.emplace_back(fhdata.id());
+                    for(int i=0; i<fhdata.size(); i++) {
+                        dataframes.back().setSample(i, fhdata.sample(i));
                     }
-                    dataframes.emplace_back(dataframe);
                 }
             }  
         }
