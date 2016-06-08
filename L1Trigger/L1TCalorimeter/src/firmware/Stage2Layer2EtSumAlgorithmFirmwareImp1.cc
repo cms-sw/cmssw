@@ -23,8 +23,7 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
   ettTowThresholdHwHF_ = ettTowThresholdHw_; 
 
   metEtaMax_ = params_->etSumEtaMax(0);
-  metEtaMaxHF_ = CaloTools::kHFEnd;
-
+  metEtaMaxHF_ = CaloTools::kHFEnd-1;
   ettEtaMax_ = params_->etSumEtaMax(2);
   ettEtaMaxHF_ = CaloTools::kHFEnd;
 }
@@ -43,7 +42,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     int32_t exHF(0), eyHF(0), etHF(0);
     uint32_t mb0(0), mb1(0);
 
-    for (unsigned absieta=1; absieta<CaloTools::kHFEnd; absieta++) {
+    for (unsigned absieta=1; absieta<CaloTools::kHFEnd-1; absieta++) {
 
       int ieta = etaSide * absieta;
 
@@ -58,17 +57,17 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
         l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
 	
 	
+	// MET without HF
 
-
-	  if (tower.hwPt()>metTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMax_) {
+	if (tower.hwPt()>metTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMax_) {
 	    
-	    // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
-	    // The trig coefficients themselves take values [-1023,1023] and so were scaled by
-	    // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
-	    // This is accounted for at ouput of demux (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
-	    ringEx += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
-	    ringEy += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
-	  }
+	  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
+	  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
+	  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
+	  // This is accounted for at ouput of demux (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
+	  ringEx += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
+	  ringEy += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
+	}
 
 
 	// MET *with* HF
@@ -76,7 +75,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	  ringExHF += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
 	  ringEyHF += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
-	
+	  
 	// scalar sum
 	if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_) 
 	  ringEt += tower.hwPt();
@@ -90,7 +89,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	    CaloTools::mpEta(abs(tower.hwEta()))<CaloTools::kHFEnd &&
 	    (tower.hwQual() & 0x4) > 0) 
 	  ringMB0 += 1;
-	
+	  
       }    
       
       ex += ringEx;
