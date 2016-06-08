@@ -16,16 +16,6 @@ hcalSimBlock = cms.PSet(
     doHPDNoise = cms.bool(False),
     doIonFeedback = cms.bool(True),
     doThermalNoise = cms.bool(True),
-    # fudge factors for "Cholesky" noise simulation (obsolete)
-    HBTuningParameter = cms.double(0.875),
-    HETuningParameter = cms.double(0.9),
-    HFTuningParameter = cms.double(1.025),
-    HOTuningParameter = cms.double(1),
-    # use old way of noise simulation  
-    useOldHB = cms.bool(True),
-    useOldHE = cms.bool(True),
-    useOldHF = cms.bool(True),
-    useOldHO = cms.bool(True),
     HBHEUpgradeQIE = cms.bool(False),
     HFUpgradeQIE   = cms.bool(False),
     #HPDNoiseLibrary = cms.PSet(

@@ -30,8 +30,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include <boost/foreach.hpp>
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
@@ -107,15 +105,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool PreMix1 = ps.getParameter<bool>("HcalPreMixStage1");  // special threshold/pedestal treatment
   bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
-  bool useOldNoiseHB = ps.getParameter<bool>("useOldHB");
-  bool useOldNoiseHE = ps.getParameter<bool>("useOldHE");
-  bool useOldNoiseHF = ps.getParameter<bool>("useOldHF");
-  bool useOldNoiseHO = ps.getParameter<bool>("useOldHO");
   bool doEmpty = ps.getParameter<bool>("doEmpty");
-  double HBtp = ps.getParameter<double>("HBTuningParameter");
-  double HEtp = ps.getParameter<double>("HETuningParameter");
-  double HFtp = ps.getParameter<double>("HFTuningParameter");
-  double HOtp = ps.getParameter<double>("HOTuningParameter");
   bool doHBHEUpgrade = ps.getParameter<bool>("HBHEUpgradeQIE");
   bool doHFUpgrade   = ps.getParameter<bool>("HFUpgradeQIE");
   deliveredLumi     = ps.getParameter<double>("DelivLuminosity");
@@ -137,20 +127,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHFQIE10Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHBHEQIE11Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theHBHEAmplifier->setHBtuningParameter(HBtp);
-  theHBHEAmplifier->setHEtuningParameter(HEtp);
-  theHBHEQIE11Amplifier->setHBtuningParameter(HBtp);
-  theHBHEQIE11Amplifier->setHEtuningParameter(HEtp);
-  theHFAmplifier->setHFtuningParameter(HFtp);
-  theHFQIE10Amplifier->setHFtuningParameter(HFtp);
-  theHOAmplifier->setHOtuningParameter(HOtp);
-  theHBHEAmplifier->setUseOldHB(useOldNoiseHB);
-  theHBHEAmplifier->setUseOldHE(useOldNoiseHE);
-  theHBHEQIE11Amplifier->setUseOldHB(useOldNoiseHB);
-  theHBHEQIE11Amplifier->setUseOldHE(useOldNoiseHE);
-  theHFAmplifier->setUseOldHF(useOldNoiseHF);
-  theHFQIE10Amplifier->setUseOldHF(useOldNoiseHF);
-  theHOAmplifier->setUseOldHO(useOldNoiseHO);
 
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theUpgradeCoderFactory = new HcalCoderFactory(HcalCoderFactory::UPGRADE);
@@ -367,22 +343,6 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theCoderFactory->setDbService(conditions.product());
   theUpgradeCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
-
-  edm::ESHandle<HcalCholeskyMatrices> refCholesky;
-  if (eventSetup.find(edm::eventsetup::EventSetupRecordKey::makeKey<HcalCholeskyMatricesRcd>())) {
-    eventSetup.get<HcalCholeskyMatricesRcd>().get(refCholesky);
-    const HcalCholeskyMatrices * myCholesky = refCholesky.product();
-    theHBHEAmplifier->setCholesky(myCholesky);
-    theHFAmplifier->setCholesky(myCholesky);
-    theHOAmplifier->setCholesky(myCholesky);
-  }
-  edm::ESHandle<HcalPedestals> pedshandle;
-  eventSetup.get<HcalPedestalsRcd>().get(pedshandle);
-  const HcalPedestals *  myADCPedestals = pedshandle.product();
-
-  theHBHEAmplifier->setADCPeds(myADCPedestals);
-  theHFAmplifier->setADCPeds(myADCPedestals);
-  theHOAmplifier->setADCPeds(myADCPedestals);
 
   if(theHitCorrection != 0) {
     theHitCorrection->clear();
