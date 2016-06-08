@@ -81,7 +81,7 @@ totemGeomXMLFiles = cms.vstring(
         'Geometry/VeryForwardData/data/RP_Cuts_Per_Region.xml',
         'Geometry/VeryForwardData/data/RP_Param_Beam_Region.xml')
 
-XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
+XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = totemGeomXMLFiles,
     rootNodeName = cms.string('cms:CMSE')
 )
