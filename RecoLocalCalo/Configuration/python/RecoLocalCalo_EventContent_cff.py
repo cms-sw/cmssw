@@ -67,7 +67,7 @@ def _updateOutput( era, outputPSets, commands):
 from Configuration.StandardSequences.Eras import eras
 
 _outputs = [RecoLocalCaloFEVT, RecoLocalCaloRECO]
-_updateOutput( eras.phase2_common, _outputs, [ 'keep *_hbheUpgradeReco_*_*', 'keep *_hfUpgradeReco_*_*' ] )
+_updateOutput( eras.phase2_hcal, _outputs, [ 'keep *_hbheUpgradeReco_*_*', 'keep *_hfUpgradeReco_*_*' ] )
 
 # mods for HGCAL
 eras.phase2_hgcal.toModify( RecoLocalCaloFEVT, outputCommands = RecoLocalCaloFEVT.outputCommands + [
