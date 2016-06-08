@@ -12,6 +12,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalBaseSignalGenerator.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -29,7 +30,6 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseGenerator.h"
 #include <boost/foreach.hpp>
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
@@ -75,7 +75,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHOSiPMHitFilter(),
   theZDCHitFilter(),
   theHitCorrection(0),
-  theNoiseGenerator(0),
   theNoiseHitGenerator(0),
   theHBHEDigitizer(0),
   theHODigitizer(0),
@@ -206,13 +205,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 //  std::cout << "Flag to see if Hit Relabeller to be initiated " << testNumbering_ << std::endl;
   if (testNumbering_) theRelabeller=new HcalHitRelabeller(ps);
 
-  bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
-  if(doHPDNoise) {
-    theNoiseGenerator = new HPDNoiseGenerator(ps); 
-    if(theHBHEDigitizer) theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
-    if(theHBHEQIE11Digitizer) theHBHEQIE11Digitizer->setNoiseSignalGenerator(theNoiseGenerator);
-  }
-
   if(ps.getParameter<bool>("doIonFeedback") && theHBHEResponse) {
     theIonFeedback = new HPDIonFeedbackSim(ps, theShapes);
     theHBHEResponse->setPECorrection(theIonFeedback);
@@ -274,7 +266,6 @@ HcalDigitizer::~HcalDigitizer() {
   delete theCoderFactory;
   delete theUpgradeCoderFactory;
   delete theHitCorrection;
-  delete theNoiseGenerator;
   if (theRelabeller)           delete theRelabeller;
 }
 

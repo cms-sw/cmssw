@@ -133,7 +133,6 @@ private:
 
   HcalHitCorrection * theHitCorrection;
   HcalTimeSlewSim * theTimeSlewSim;
-  CaloVNoiseSignalGenerator * theNoiseGenerator;
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
 
   HBHEDigitizer * theHBHEDigitizer;
