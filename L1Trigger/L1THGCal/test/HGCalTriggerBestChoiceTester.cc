@@ -191,12 +191,12 @@ void HGCalTriggerBestChoiceTester::checkSelectedCells(const edm::Event& e,
         uint32_t energy_select = 0;
         for(const auto& id_energy : module_cells.second) energy_all += id_energy.second;
         for(const auto& id_energy : module_cells_select_itr->second) energy_select += id_energy.second;
-        if(std::get<1>(module_cells.first)==3) // EE
+        if(std::get<1>(module_cells.first)==ForwardSubdetector::HGCEE)
         {
             selectedCellsVsAllCells_ee_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_ee_->Fill(ncells_all, (double)energy_select/(double)energy_all);
         }
-        else if(std::get<1>(module_cells.first)==4) // FH
+        else if(std::get<1>(module_cells.first)==ForwardSubdetector::HGCHEF) 
         {
             selectedCellsVsAllCells_fh_->Fill(ncells_all, ncells_select);
             if(energy_all>0) energyLossVsNCells_fh_->Fill(ncells_all, (double)energy_select/(double)energy_all);

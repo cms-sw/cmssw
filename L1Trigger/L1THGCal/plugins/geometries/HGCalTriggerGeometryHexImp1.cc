@@ -152,7 +152,7 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules(const es_info& esI
         for(const auto& cell : cellIds)
         {
             HGCalDetId cellDetId(cell);
-            triggerCellVector += (cellDetId.subdetId()==(int)ForwardSubdetector::HGCEE ? esInfo.geom_ee->getPosition(cellDetId) :  esInfo.geom_fh->getPosition(cellDetId)).basicVector();
+            triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? esInfo.geom_ee->getPosition(cellDetId) :  esInfo.geom_fh->getPosition(cellDetId)).basicVector();
         }
         GlobalPoint triggerCellPoint( triggerCellVector/cellIds.size() );
         const auto& triggerCellToModuleItr = trigger_cells_to_modules_.find(triggerCellId);
