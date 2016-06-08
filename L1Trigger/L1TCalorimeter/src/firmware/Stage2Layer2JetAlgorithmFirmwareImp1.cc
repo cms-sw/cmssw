@@ -9,6 +9,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetAlgorithmFirmware.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+#include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
@@ -17,13 +18,8 @@
 #include <math.h>
 
 namespace l1t {
-  bool operator > ( l1t::Jet& a, l1t::Jet& b )
-  {
-    if ( a.hwPt() > b.hwPt() ) {
-      return true;
-    } else {
-      return false;
-    }
+  bool operator > ( const l1t::Jet& a, l1t::Jet& b ) {
+    return  a.hwPt() > b.hwPt();
   }
 }
 
@@ -62,6 +58,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
   // jet energy corrections
   calibrate(jets, 0); // pass the jet collection and the hw threshold above which to calibrate
   calibrate(alljets, 0); // pass all jets and the hw threshold above which to calibrate
+
+  accuSort(jets);
+  accuSort(alljets);
   
 }
 
@@ -76,7 +75,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
     
     // the 4 groups of rings
     std::vector<int> ringGroup1, ringGroup2, ringGroup3, ringGroup4;
-    for (int i=1; i<=CaloTools::kHFEnd-1; i++) {
+    for (int i=1; i<=CaloTools::mpEta(CaloTools::kHFEnd); i++) {
       if      ( ! ((i-1)%4) ) ringGroup1.push_back( i * etaSide );
       else if ( ! ((i-2)%4) ) ringGroup2.push_back( i * etaSide );
       else if ( ! ((i-3)%4) ) ringGroup3.push_back( i * etaSide );
@@ -207,6 +206,61 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 
 }
 
+
+//Accumulating sort
+
+void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> & jets){
+
+  math::PtEtaPhiMLorentzVector emptyP4;
+  l1t::Jet tempJet (emptyP4, 0, 0, 0, 0);
+  std::vector< std::vector<l1t::Jet> > jetEtaPos( 40 , std::vector<l1t::Jet>(18, tempJet));
+  std::vector< std::vector<l1t::Jet> > jetEtaNeg( 40 , std::vector<l1t::Jet>(18, tempJet));
+  for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
+    {
+      if (jets.at(iJet).hwEta() > 0) jetEtaPos.at( jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      else                           jetEtaNeg.at( -(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+    }
+
+  AccumulatingSort <l1t::Jet> etaPosSorter(6);
+  AccumulatingSort <l1t::Jet> etaNegSorter(6);
+  std::vector<l1t::Jet> accumEtaPos;
+  std::vector<l1t::Jet> accumEtaNeg;
+
+  for( int ieta = 0 ; ieta < 40 ; ++ieta)
+    {
+      // eta +
+      std::vector<l1t::Jet>::iterator start_, end_;
+      start_ = jetEtaPos.at(ieta).begin();  
+      end_   = jetEtaPos.at(ieta).end();
+      BitonicSort<l1t::Jet>(down, start_, end_);
+      etaPosSorter.Merge( jetEtaPos.at(ieta) , accumEtaPos );
+        
+      // eta -
+      start_ = jetEtaNeg.at(ieta).begin();  
+      end_   = jetEtaNeg.at(ieta).end();
+      BitonicSort<l1t::Jet>(down, start_, end_);
+      etaNegSorter.Merge( jetEtaNeg.at(ieta) , accumEtaNeg );
+
+    }
+
+  // put all 12 candidates in the original jet vector, removing zero energy ones
+  jets.clear();
+  for (l1t::Jet accjet : accumEtaPos)
+    {
+      if (accjet.hwPt() > 0) jets.push_back(accjet);
+    }
+  for (l1t::Jet accjet : accumEtaNeg)
+    {
+      if (accjet.hwPt() > 0) jets.push_back(accjet);
+    }
+
+
+
+  
+}
+
+
+
 //A function to return the value for donut subtraction around an ieta and iphi position for donut subtraction
 //Also pass it a vector to store the individual values of the strip for later testing
 //The size is the number of ieta/iphi units out the ring is (ie for 9x9 jets, we want the 11x11 for PUS therefore we want to go 5 out, so size is 5)
@@ -223,13 +277,13 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   int iphiDown = jetPhi - size;
   while ( iphiDown < 1 ) iphiDown += CaloTools::kHBHENrPhi;
 
-  int ietaUp = (jetEta + size > CaloTools::kHFEnd-1) ? 999 : jetEta+size;
-  int ietaDown = (abs(jetEta - size) > CaloTools::kHFEnd-1) ? 999 : jetEta-size;
+  int ietaUp = jetEta+size;   //(jetEta + size > CaloTools::mpEta(CaloTools::kHFEnd)) ? 999 : jetEta+size;
+  int ietaDown = jetEta-size; //(abs(jetEta - size) > CaloTools::mpEta(CaloTools::kHFEnd)) ? 999 : jetEta-size;
 
   for (int ieta = jetEta - size+1; ieta < jetEta + size; ++ieta)   
   {
     
-    if (abs(ieta) > CaloTools::kHFEnd-1 || abs(ieta) < 1) continue;
+    if (abs(ieta) > CaloTools::mpEta(CaloTools::kHFEnd) || abs(ieta) < 1) continue;
     int towerEta;
     
     if (jetEta > 0 && ieta <=0){
@@ -300,7 +354,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do PhiUp and PhiDown
     for (int ieta=jetEta-size+1; ieta<jetEta+size; ++ieta) {
       
-      if (abs(ieta) > CaloTools::kHFEnd-1) continue;
+      if (abs(ieta) > CaloTools::mpEta(CaloTools::kHFEnd)) continue;
       
       int towEta = ieta;
       if (jetEta>0 && towEta<=0) towEta-=1;
@@ -319,7 +373,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaUp
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (abs(ietaUp) <= CaloTools::kHFEnd-1) {    
+      if (abs(ietaUp) <= CaloTools::mpEta(CaloTools::kHFEnd)) {    
         int towPhi = iphi;
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
@@ -337,7 +391,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
     // do EtaDown
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      if (abs(ietaDown) <= CaloTools::kHFEnd-1) {
+      if (abs(ietaDown) <= CaloTools::mpEta(CaloTools::kHFEnd)) {
         int towPhi = iphi;
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
