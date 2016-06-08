@@ -23,7 +23,7 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
   ettTowThresholdHwHF_ = ettTowThresholdHw_; 
 
   metEtaMax_ = params_->etSumEtaMax(0);
-  metEtaMaxHF_ = CaloTools::kHFEnd-1;
+  metEtaMaxHF_ = CaloTools::mpEta(CaloTools::kHFEnd);
   ettEtaMax_ = params_->etSumEtaMax(2);
   ettEtaMaxHF_ = CaloTools::kHFEnd;
 }
@@ -42,7 +42,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     int32_t exHF(0), eyHF(0), etHF(0);
     uint32_t mb0(0), mb1(0);
 
-    for (unsigned absieta=1; absieta<CaloTools::kHFEnd-1; absieta++) {
+    for (unsigned absieta=1; absieta<=CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
       int ieta = etaSide * absieta;
 
