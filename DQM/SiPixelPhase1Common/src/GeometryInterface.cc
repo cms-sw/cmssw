@@ -212,7 +212,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   addExtractor(intern("PXForward"), pxforward, 0, 0);
 
   // Redefine the disk numbering to use the sign
-  auto& pxendcap = extractors[intern("PXEndcap")];
+  auto pxendcap = extractors[intern("PXEndcap")];
   auto diskid = intern("PXDisk");
   auto pxdisk = extractors[diskid];
   extractors[diskid] = [pxdisk, pxendcap] (InterestingQuantities const& iq) {
@@ -228,8 +228,8 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   assert(trackerGeometryHandle.isValid());
   
   // We need to track some extra stuff here for the Shells later.
-  auto& pxlayer  = extractors[intern("PXLayer")];
-  auto& pxladder = extractors[intern("PXLadder")];
+  auto pxlayer  = extractors[intern("PXLayer")];
+  auto pxladder = extractors[intern("PXLadder")];
   std::vector<Value> maxladders;
 
   // Now travrse the detector and collect whatever we need.
@@ -260,7 +260,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   // of the code, but it might work for Phase0 as well.
   Value innerring = iConfig.getParameter<int>("n_inner_ring_blades");
   Value outerring = max_value[intern("PXBlade")] - innerring;
-  auto& pxblade  = extractors[intern("PXBlade")];
+  auto pxblade  = extractors[intern("PXBlade")];
   addExtractor(intern("PXRing"), 
     [pxblade, innerring] (InterestingQuantities const& iq) {
       auto blade = pxblade(iq);
@@ -270,7 +270,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     }, 1, 2
   );
 
-  auto& pxmodule = extractors[intern("PXBModule")];
+  auto pxmodule = extractors[intern("PXBModule")];
   Value maxmodule = max_value[intern("PXBModule")];
   addExtractor(intern("HalfCylinder"),
     [pxendcap, pxblade, innerring, outerring] (InterestingQuantities const& iq) {
