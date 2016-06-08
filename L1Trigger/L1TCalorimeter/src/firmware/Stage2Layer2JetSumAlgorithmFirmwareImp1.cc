@@ -36,7 +36,7 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
     int32_t hx(0), hy(0), ht(0);
     
     // loop over rings    
-    for (unsigned absieta=1; absieta<=CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
+    for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
 
       int ieta = etaSide * absieta;
 
