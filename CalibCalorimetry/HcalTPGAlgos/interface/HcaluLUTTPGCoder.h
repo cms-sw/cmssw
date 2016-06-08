@@ -32,8 +32,10 @@ public:
 
   HcaluLUTTPGCoder(const HcalTopology* topo);
   virtual ~HcaluLUTTPGCoder();
-  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
-  virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
+  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const override;
+  virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
+  virtual void adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const override;
+  virtual void adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& ics) const override;
   virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
   virtual unsigned short adc2Linear(HcalQIESample sample,HcalDetId id) const;
   virtual float getLUTPedestal(HcalDetId id) const;
@@ -58,6 +60,7 @@ private:
 
   // constants
   static const size_t INPUT_LUT_SIZE = 128;
+  static const size_t UPGRADE_LUT_SIZE = 256;
   static const int    nFi_ = 72;
   
   // member variables
@@ -68,6 +71,7 @@ private:
   int  firstHEEta_, lastHEEta_, nHEEta_, maxDepthHE_, sizeHE_;
   int  firstHFEta_, lastHFEta_, nHFEta_, maxDepthHF_, sizeHF_;
   std::vector< Lut > inputLUT_;
+  std::vector< Lut > upgradeLUT_;
   std::vector<float> gain_;
   std::vector<float> ped_;
 };
