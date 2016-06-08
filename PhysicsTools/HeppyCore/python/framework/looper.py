@@ -198,7 +198,7 @@ class Looper(object):
                 self.process( iEv )
                 if iEv<self.nPrint:
                     print self.event
-                if self.stopFlag.value:
+                if self.stopFlag and self.stopFlag.value:
                     print 'stopping gracefully at event %d' % (iEv)
                     break
 
