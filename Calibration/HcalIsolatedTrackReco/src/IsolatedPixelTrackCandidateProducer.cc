@@ -143,7 +143,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       tmatch = true;
     } //loop over L1 tau
 
-    
     //propagate seed track to ECAL surface:
     std::pair<double,double> seedCooAtEC;
     // in case vertex is found:

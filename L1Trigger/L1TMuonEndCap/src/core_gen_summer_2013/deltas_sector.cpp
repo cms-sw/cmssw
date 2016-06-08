@@ -6,7 +6,7 @@
 // Timestamp : Thu Mar 12 14:54:00 2015
 
 #include "deltas_sector.h"
-
+using namespace std;
 extern size_t __glob_alwaysn__;
 
 void deltas_sector::operator()

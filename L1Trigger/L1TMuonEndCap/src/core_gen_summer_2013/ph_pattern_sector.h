@@ -145,11 +145,11 @@ signal_storage qcode_p__storage;  signal_ qcode_p;
 
 				void init();
 			};
-			map <ull, ph_pat_hit__class> ph_pat_hit;
+			std::map <ull, ph_pat_hit__class> ph_pat_hit;
 
 			void init();
 		};
-		map <ull, ph_pat_zone__class> ph_pat_zone;
+		std::map <ull, ph_pat_zone__class> ph_pat_zone;
 
 		void init();
 	};
