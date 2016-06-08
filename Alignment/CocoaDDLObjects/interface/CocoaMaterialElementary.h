@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Class to manage the sets of fitted entries (one set per each measurement data set)
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _CocoaMaterialElementary_HH

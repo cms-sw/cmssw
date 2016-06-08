@@ -2,7 +2,7 @@
 //Id:  CocoaMaterialElementary.cc
 //CAT: Model
 //
-//   History: v1.0 
+//   History: v1.0
 //   Pedro Arce
 #include <map>
 #include <fstream>
@@ -11,7 +11,7 @@
 
 
 CocoaMaterialElementary::CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, ALIint A, ALIint Z )
-{ 
+{
 
   theName = name;
   theDensity = density;
@@ -24,7 +24,7 @@ CocoaMaterialElementary::CocoaMaterialElementary( ALIstring name, float density,
 ALIbool CocoaMaterialElementary::operator==(const CocoaMaterialElementary& mate ) const
 {
   float kTolerance = 1.E-9;
-  if( mate.getDensity() - theDensity < kTolerance 
+  if( mate.getDensity() - theDensity < kTolerance
       && mate.getSymbol() == theSymbol
       && mate.getA() == theA
       && mate.getZ() == theZ ) {
