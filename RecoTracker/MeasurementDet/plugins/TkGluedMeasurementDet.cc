@@ -137,6 +137,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    // auto barrel = 0==(id%2);  // TIB1,2 TOB1,2	always inactive
    auto l = TOBDetId(geomDet().geographicalId()).layer();
    bool killHIP = (1==l) && (2==id); //TOB1
+   killHIP &= stateOnThisDet.globalMomentum().perp2()>0.81f;
    if (killHIP) {
         result.add(theInactiveHit, 0.F); 
         return true;
