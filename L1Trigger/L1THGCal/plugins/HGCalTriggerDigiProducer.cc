@@ -105,7 +105,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
     l1t::HGCFETriggerDigi& digi = fe_output->back();
     codec_->setDataPayload(*(module.second),ee_digis,fh_digis,bh_digis);
     codec_->encode(digi);
-    digi.setDetId( HGCTriggerDetId(module.first) );
+    digi.setDetId( HGCalDetId(module.first) );
     std::stringstream output;
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")

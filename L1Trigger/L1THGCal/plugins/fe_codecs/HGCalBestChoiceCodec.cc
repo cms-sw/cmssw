@@ -19,25 +19,80 @@ HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Code
 /*****************************************************************/
 void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
         const HGCEEDigiCollection& ee,
-        const HGCHEDigiCollection&,
+        const HGCHEDigiCollection& fh,
         const HGCHEDigiCollection& ) 
 /*****************************************************************/
 {
     data_.reset();
-    std::vector<HGCEEDataFrame> dataframes;
-    // loop over EE digis and fill digis belonging to that module
-    for(const auto& eedata : ee)
+    HGCalDetId moduleId(mod.moduleId());
+    std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
+    std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+    // loop over EE or FH digis and fill digis belonging to that module
+    if(moduleId.subdetId()==ForwardSubdetector::HGCEE)
     {
-        if(mod.containsCell(eedata.id()))
+        for(const auto& eedata : ee)
         {
-            dataframes.push_back(eedata);
+            if(mod.containsCell(eedata.id()))
+            {
+                dataframes.emplace_back(eedata.id());
+                for(int i=0; i<eedata.size(); i++)
+                {
+                    dataframes.back().setSample(i, eedata.sample(i));
+                }
+            }
         }
     }
+    else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF)
+    {
+        for(const auto& fhdata : fh)
+        {
+            if(mod.containsCell(fhdata.id()))
+            {
+                dataframes.emplace_back(fhdata.id());
+                for(int i=0; i<fhdata.size(); i++)
+                {
+                    dataframes.back().setSample(i, fhdata.sample(i));
+                }
+            }
+        }
+    }
+    // linearize input energy on 16 bits
+    codecImpl_.linearize(mod, dataframes, linearized_dataframes);
     // sum energy in trigger cells
-    codecImpl_.triggerCellSums(mod, dataframes, data_);
+    codecImpl_.triggerCellSums(mod, linearized_dataframes, data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
+}
 
+/*****************************************************************/
+void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
+        const l1t::HGCFETriggerDigi& digi)
+/*****************************************************************/
+{
+    data_.reset();
+    // decode input data with different parameters
+    // (no selection, so NData=number of trigger cells in module)
+    // FIXME:
+    // Not very clean to define an alternative codec within this codec 
+    // Also, the codec is built each time the method is called, which is not very efficient
+    // This may need a restructuration of the FECodec
+    edm::ParameterSet conf;
+    conf.addParameter<std::string>("CodecName",     name());
+    conf.addParameter<uint32_t>   ("CodecIndex",    getCodecType());
+    conf.addParameter<uint32_t>   ("NData",         HGCalBestChoiceCodec::data_type::size);
+    // The data length should be the same for input and output, which is limiting
+    conf.addParameter<uint32_t>   ("DataLength",    codecImpl_.dataLength());
+    conf.addParameter<double>     ("linLSB",        codecImpl_.linLSB());
+    conf.addParameter<double>     ("adcsaturation", codecImpl_.adcsaturation());
+    conf.addParameter<uint32_t>   ("adcnBits",      codecImpl_.adcnBits());
+    conf.addParameter<double>     ("tdcsaturation", codecImpl_.tdcsaturation());
+    conf.addParameter<uint32_t>   ("tdcnBits",      codecImpl_.tdcnBits());
+    conf.addParameter<double>     ("tdcOnsetfC",    codecImpl_.tdcOnsetfC());
+    conf.addParameter<uint32_t>   ("triggerCellTruncationBits", codecImpl_.triggerCellTruncationBits());
+    HGCalBestChoiceCodec codecInput(conf);
+    digi.decode(codecInput,data_);
+    // choose best trigger cells in the module
+    codecImpl_.bestChoiceSelect(data_);
 }
 
 
