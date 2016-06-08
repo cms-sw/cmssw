@@ -37,6 +37,7 @@ vertexAnalysisTrackingOnly = vertexAnalysis.clone(
 )
 eras.trackingLowPU.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
 eras.trackingPhase1PU70.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
+eras.trackingPhase2PU140.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
 
 pixelVertexAnalysisTrackingOnly = vertexAnalysis.clone(
     do_generic_sim_plots = False,
@@ -79,3 +80,4 @@ _vertexAnalysisSequenceTrackingOnly_trackingLowPU += (
 )
 eras.trackingLowPU.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
 eras.trackingPhase1PU70.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
+eras.trackingPhase2PU140.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
