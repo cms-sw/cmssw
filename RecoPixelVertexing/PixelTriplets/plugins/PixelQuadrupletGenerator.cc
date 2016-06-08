@@ -278,7 +278,6 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
   
   std::vector<const HitDoublets*> layersDoublets(3);
 
-
   HitDoublets doublets0 =  thePairGenerator.doublets(region, ev, es, fourLayers[0], fourLayers[1] );
   HitDoublets doublets1 =  thePairGenerator.doublets(region, ev, es, fourLayers[1], fourLayers[2] );
   HitDoublets doublets2  = thePairGenerator.doublets(region, ev, es, fourLayers[2], fourLayers[3] );
@@ -292,7 +291,7 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
 
 
 
-  ca.create_and_connect_cells (layersDoublets, fourLayers, region.ptMin());
+  ca.create_and_connect_cells (layersDoublets, fourLayers, region);
 
   ca.evolve();
 
@@ -301,36 +300,81 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
 
 
   const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
+  
+  
+  std::sort(foundQuadruplets.begin(),foundQuadruplets.end(),[](CACell::CAntuplet i, CACell::CAntuplet j) -> bool{ return (i[2]->get_outer_hit_id() < j[2]->get_outer_hit_id());});
+
 
   // re-used thoughout, need to be vectors because of RZLine interface
   std::vector<float> bc_r(4), bc_z(4), bc_errZ(4);
+  
+  declareDynArray(GlobalPoint, 4, gps);
+  declareDynArray(GlobalError, 4, ges);
+  declareDynArray(bool, 4, barrels);
+  
+  
+  
+  unsigned int lastOuterHit = std::numeric_limits<unsigned int>::quiet_NaN();
+  std::vector<float> chiSquaresFromQuadsWithSameOuterHit;
+  chiSquaresFromQuadsWithSameOuterHit.reserve(10);
+  std::vector<unsigned int> quadrupletIdx;
+  quadrupletIdx.reserve(10);
+  
+  
+  
+  
+  unsigned int numberOfFoundQuadruplets = foundQuadruplets.size();
+  
+//  std::cout << "entering the found quadruplets loop" << std::endl;
   // Loop over quadruplets
-  for (const auto& quadruplet : foundQuadruplets)
+  for (unsigned int quadId = 0; quadId < numberOfFoundQuadruplets; ++quadId)
   {
+    if(lastOuterHit != foundQuadruplets[quadId][2]->get_outer_hit_id() && !chiSquaresFromQuadsWithSameOuterHit.empty() && quadId!= 0 )
+    {
+//      std::cout << "this is a new iteration, pushing the result of the previous one in the results" << std::endl;  
+      float cutChi2 = *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end())+20.f;
+//      std::cout << " the minimum chi2 was " << *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end()) << " applying a cut at " << cutChi2 << std::endl;
+      for(unsigned int i = 0; i < chiSquaresFromQuadsWithSameOuterHit.size(); ++i)
+      {
+        if(chiSquaresFromQuadsWithSameOuterHit[i] < cutChi2){
+          result.emplace_back(foundQuadruplets[quadrupletIdx[i]][0]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][1]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_outer_hit());
+//          std::cout << "quadruplet " << quadrupletIdx[i] << " had chi2 " << chiSquaresFromQuadsWithSameOuterHit[i] << " and can go in the result " << std::endl;
+        }
+      }
+      chiSquaresFromQuadsWithSameOuterHit.clear();
+      quadrupletIdx.clear();
+    }
+    
+    
+    
+    
+    
+    
+//    std::cout << "checking quadruplet " << quadId << " with outer hit id " << foundQuadruplets[quadId][2]->get_outer_hit_id() << std::endl;
     auto isBarrel = [](const unsigned id) -> bool
     {
       return id == PixelSubdetector::PixelBarrel;
     };
 
-    declareDynArray(GlobalPoint, 4, gps);
-    declareDynArray(GlobalError, 4, ges);
-    declareDynArray(bool, 4, barrels);
 
-    gps[0] = quadruplet[0]->get_inner_hit()->globalPosition();
-    ges[0] = quadruplet[0]->get_inner_hit()->globalPositionError();
-    barrels[0] = isBarrel(quadruplet[0]->get_inner_hit()->geographicalId().subdetId());
+    
+    
+    
+    gps[0] = foundQuadruplets[quadId][0]->get_inner_hit()->globalPosition();
+    ges[0] = foundQuadruplets[quadId][0]->get_inner_hit()->globalPositionError();
+    barrels[0] = isBarrel(foundQuadruplets[quadId][0]->get_inner_hit()->geographicalId().subdetId());
 
-    gps[1] = quadruplet[1]->get_inner_hit()->globalPosition();
-    ges[1] = quadruplet[1]->get_inner_hit()->globalPositionError();
-    barrels[1] = isBarrel(quadruplet[1]->get_inner_hit()->geographicalId().subdetId());
+    gps[1] = foundQuadruplets[quadId][1]->get_inner_hit()->globalPosition();
+    ges[1] = foundQuadruplets[quadId][1]->get_inner_hit()->globalPositionError();
+    barrels[1] = isBarrel(foundQuadruplets[quadId][1]->get_inner_hit()->geographicalId().subdetId());
 
-    gps[2] = quadruplet[2]->get_inner_hit()->globalPosition();
-    ges[2] = quadruplet[2]->get_inner_hit()->globalPositionError();
-    barrels[2] = isBarrel(quadruplet[2]->get_inner_hit()->geographicalId().subdetId());
+    gps[2] = foundQuadruplets[quadId][2]->get_inner_hit()->globalPosition();
+    ges[2] = foundQuadruplets[quadId][2]->get_inner_hit()->globalPositionError();
+    barrels[2] = isBarrel(foundQuadruplets[quadId][2]->get_inner_hit()->geographicalId().subdetId());
 
-    gps[3] = quadruplet[2]->get_outer_hit()->globalPosition();
-    ges[3] = quadruplet[2]->get_outer_hit()->globalPositionError();
-    barrels[3] = isBarrel(quadruplet[2]->get_outer_hit()->geographicalId().subdetId());
+    gps[3] = foundQuadruplets[quadId][2]->get_outer_hit()->globalPosition();
+    ges[3] = foundQuadruplets[quadId][2]->get_outer_hit()->globalPositionError();
+    barrels[3] = isBarrel(foundQuadruplets[quadId][2]->get_outer_hit()->geographicalId().subdetId());
 
     PixelRecoLineRZ line(gps[0], gps[2]);
     ThirdHitPredictionFromCircle predictionRPhi(gps[0], gps[2], extraHitRPhitolerance);
@@ -345,8 +389,10 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
 
     if (theComparitor)
     {
-      SeedingHitSet tmpTriplet(quadruplet[0]->get_inner_hit(), quadruplet[1]->get_inner_hit(), quadruplet[2]->get_outer_hit());
-      if (!theComparitor->compatible(tmpTriplet, region))
+      SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][1]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
+      SeedingHitSet tmpTriplet2(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][2]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
+
+      if (!theComparitor->compatible(tmpTriplet, region) && !theComparitor->compatible(tmpTriplet2, region))
       {
         continue;
       }
@@ -394,7 +440,30 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
       if (fitFastCircleChi2Cut && chi2 > thisMaxChi2)
         continue;
     }
-    result.emplace_back(quadruplet[0]->get_inner_hit(), quadruplet[1]->get_inner_hit(), quadruplet[2]->get_inner_hit(), quadruplet[2]->get_outer_hit());
-
+    
+//    std::cout << "it has chi2: " << chi2 << std::endl;
+    
+ 
+    lastOuterHit = foundQuadruplets[quadId][2]->get_outer_hit_id();
+    quadrupletIdx.push_back(quadId);
+    chiSquaresFromQuadsWithSameOuterHit.push_back(chi2);
+    
   }
+  
+    if(!chiSquaresFromQuadsWithSameOuterHit.empty())
+    {
+//      std::cout << "this is the final iteration, pushing the result of the previous one in the results" << std::endl;  
+      float cutChi2 = *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end())+20.f;
+//      std::cout << " the minimum chi2 was " << *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end()) << " applying a cut at " << cutChi2 << std::endl;
+      for(unsigned int i = 0; i < chiSquaresFromQuadsWithSameOuterHit.size(); ++i)
+      {
+        if(chiSquaresFromQuadsWithSameOuterHit[i] < cutChi2){
+          result.emplace_back(foundQuadruplets[quadrupletIdx[i]][0]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][1]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_outer_hit());
+//          std::cout << "quadruplet " << quadrupletIdx[i] << " had chi2 " << chiSquaresFromQuadsWithSameOuterHit[i] << " and can go in the result " << std::endl;
+        }
+      }
+      chiSquaresFromQuadsWithSameOuterHit.clear();
+      quadrupletIdx.clear();
+    }
+  
 }
