@@ -20,10 +20,13 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
   metTowThresholdHw_ = floor(params_->etSumEtThreshold(0)/params_->towerLsbSum());
   metTowThresholdHwHF_ = metTowThresholdHw_;
   ettTowThresholdHw_ = floor(params_->etSumEtThreshold(2)/params_->towerLsbSum());
+  ettTowThresholdHwHF_ = ettTowThresholdHw_; 
 
   metEtaMax_ = params_->etSumEtaMax(0);
   metEtaMaxHF_ = CaloTools::kHFEnd;
+
   ettEtaMax_ = params_->etSumEtaMax(2);
+  ettEtaMaxHF_ = CaloTools::kHFEnd;
 }
 
 
@@ -37,7 +40,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
     int32_t ex(0), ey(0), et(0);
-    int32_t exHF(0), eyHF(0);
+    int32_t exHF(0), eyHF(0), etHF(0);
     uint32_t mb0(0), mb1(0);
 
     for (unsigned absieta=1; absieta<CaloTools::kHFEnd; absieta++) {
@@ -47,7 +50,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       // TODO add the eta and Et thresholds
 
       int32_t ringEx(0), ringEy(0), ringEt(0);
-      int32_t ringExHF(0), ringEyHF(0);
+      int32_t ringExHF(0), ringEyHF(0), ringEtHF(0);
       uint32_t ringMB0(0), ringMB1(0);
 
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
@@ -77,6 +80,10 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	// scalar sum
 	if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_) 
 	  ringEt += tower.hwPt();
+  
+	// scalar sum including HF
+	if (tower.hwPt()>ettTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMaxHF_) 
+	  ringEtHF += tower.hwPt();
 		
 	// count HF tower HCAL flags
 	if (CaloTools::mpEta(abs(tower.hwEta()))>CaloTools::kHFBegin &&
@@ -89,6 +96,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       ex += ringEx;
       ey += ringEy;
       et += ringEt;
+      etHF += ringEtHF;
       exHF += ringExHF;
       eyHF += ringEyHF;
       mb0 += ringMB0;
@@ -104,6 +112,8 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
     l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEty,ey,0,0,0);
+
+    l1t::EtSum etSumTotalEtHF(p4,l1t::EtSum::EtSumType::kTotalEtHF,etHF,0,0,0);
     l1t::EtSum etSumExHF(p4,l1t::EtSum::EtSumType::kTotalEtxHF,exHF,0,0,0);
     l1t::EtSum etSumEyHF(p4,l1t::EtSum::EtSumType::kTotalEtyHF,eyHF,0,0,0);
 
@@ -119,11 +129,13 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     etsums.push_back(etSumTotalEt);
     etsums.push_back(etSumEx);
     etsums.push_back(etSumEy);
+    
+    etsums.push_back(etSumTotalEtHF);
     etsums.push_back(etSumExHF);
     etsums.push_back(etSumEyHF);
+
     etsums.push_back(etSumMinBias0);
     etsums.push_back(etSumMinBias1);
-
   }
 
 }
