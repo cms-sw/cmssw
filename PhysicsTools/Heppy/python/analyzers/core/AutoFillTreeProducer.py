@@ -67,7 +67,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             ## PU weights
             tr.var("puWeight")
             ## number of true interactions
-            tr.var("nTrueInt",int)
+            tr.var("nTrueInt")
             ## generator weight
             tr.var("genWeight")
             ## PDF weights
@@ -202,7 +202,14 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         for cname, coll in self.collections.items():
             classes += coll.get_py_wrapper_class(isMC)
-            anclass += "        event.{0} = {0}.make_array(event)\n".format(coll.name)
+            anclass += "        event.{0} = {0}.make_array(event.input)\n".format(coll.name)
+            
+        for cname, coll in self.globalObjects.items():
+            classes += coll.get_py_wrapper_class(isMC)
+            anclass += "        event.{0} = {0}.make_obj(event.input)\n".format(coll.name)
+        
+        for v in self.globalVariables:
+            anclass += "        event.{0} = getattr(event.input, \"{0}\", None)\n".format(v.name) 
         
         return classes + "\n" + anclass
 

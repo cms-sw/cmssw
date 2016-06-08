@@ -152,6 +152,33 @@ class NTupleObject:
     def __repr__(self):
         return "<NTupleObject[%s]>" % self.name
 
+    def get_py_wrapper_class(self, isMC):
+        s = "class %s:\n" % self.name
+        s += "    \"\"\"\n"
+        s += "    {0}\n".format(self.help)
+        s += "    \"\"\"\n"
+
+        s += "    @staticmethod\n"
+        s += "    def make_obj(tree):\n"
+        vs = []
+        helps = []
+        for v in self.objectType.allVars(isMC):
+            if len(v.name)>0:
+                s += "        _{1} = getattr(tree, \"{0}_{1}\", None)\n".format(self.name, v.name)
+                vs += [v.name]
+                helps += [v.help]
+            else:
+                s += "        _{0} = getattr(tree, \"{0}\", None);\n".format(self.name)
+                vs += [self.name]
+                helps += [self.help]
+        vecstring = ", ".join(["_{0}".format(v) for v in vs])
+
+        s += "        return {0}({1})\n".format(self.name, vecstring)
+
+        s += "    def __init__(self, {0}):\n".format(",".join(vs))
+        for v, h in zip(vs, helps):
+            s += "        self.{0} = {0} #{1}\n".format(v, h)
+        return s
 
 class NTupleCollection:
     """Type defining a set of branches associated to a list of objects (i.e. an instance of NTupleObjectType)"""
@@ -228,17 +255,17 @@ class NTupleCollection:
         return s
 
     def get_py_wrapper_class(self, isMC):
-        s = "class %s:\n" % self.name
-        s += "    def __init__(self, tree, n):\n"
-        for v in self.objectType.allVars(isMC):
-            if len(v.name)>0:
-                s += "        self.{0} = tree.{1}_{2}[n];\n".format(v.name, self.name, v.name)
-            else:
-                s += "        self.{0} = tree.{0}[n];\n".format(self.name)
-
-        s += "    @staticmethod\n"
-        s += "    def make_array(event):\n"
-        s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
-        return s
-
-
+         s = "class %s:\n" % self.name
+         if len(self.objectType.allVars(isMC)):
+             s += "    def __init__(self, tree, n):\n"
+             for v in self.objectType.allVars(isMC):
+                 if len(v.name)>0:
+                     s += "        self.{0} = tree.{1}_{2}[n];\n".format(v.name, self.name, v.name)
+                 else:
+                     s += "        self.{0} = tree.{0}[n];\n".format(self.name)
+  
+         s += "    @staticmethod\n"
+         s += "    def make_array(event):\n"
+         s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
+ 
+         return s
