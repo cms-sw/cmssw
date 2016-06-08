@@ -166,7 +166,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   LogDebug("CamacTBDataFormatter") << "event number in spill: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
-  b = (a& 0xffff);
+  b = (a& 0xffffff);
   LogDebug("CamacTBDataFormatter") << "internal event number: "<< b;
 
   a = buffer[wordCounter];wordCounter++;
