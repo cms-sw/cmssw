@@ -1,5 +1,4 @@
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
-#include "SimCalorimetry/HcalSimProducers/src/HcalTestHitGenerator.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
@@ -75,7 +74,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHOSiPMHitFilter(),
   theZDCHitFilter(),
   theHitCorrection(0),
-  theNoiseHitGenerator(0),
   theHBHEDigitizer(0),
   theHODigitizer(0),
   theHOSiPMDigitizer(0),
@@ -211,19 +209,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     if(ps.getParameter<bool>("doThermalNoise")) {
       theHBHEAmplifier->setIonFeedbackSim(theIonFeedback);
     }
-  }
-
-  if(ps.getParameter<bool>("injectTestHits") ) {
-    theNoiseHitGenerator = new HcalTestHitGenerator(ps);
-    if(theHBHEDigitizer) theHBHEDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHBHEQIE11Digitizer) theHBHEQIE11Digitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHODigitizer) theHODigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHOSiPMDigitizer) theHOSiPMDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHFDigitizer) theHFDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-	if(theHFQIE10Digitizer) theHFQIE10Digitizer->setNoiseHitGenerator(theNoiseHitGenerator);
-    theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
 
   if(agingFlagHE) m_HEDarkening = new HEDarkening();
