@@ -2,29 +2,29 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   '80X_mcRun1_design_v4',
+    'run1_design'       :   '81X_mcRun1_design_v0',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   '80X_mcRun1_realistic_v4',
+    'run1_mc'           :   '81X_mcRun1_realistic_v0',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   '80X_mcRun1_HeavyIon_v4',
+    'run1_mc_hi'        :   '81X_mcRun1_HeavyIon_v0',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   '80X_mcRun1_pA_v4',
+    'run1_mc_pa'        :   '81X_mcRun1_pA_v0',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '80X_mcRun2_design_v14',
+    'run2_design'       :   '81X_mcRun2_design_v0',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '80X_mcRun2_startup_v14',
+    'run2_mc_50ns'      :   '81X_mcRun2_startup_v0',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '80X_mcRun2_asymptotic_v14',
+    'run2_mc'           :   '81X_mcRun2_asymptotic_v0',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '80X_mcRun2cosmics_startup_peak_v13',
+    'run2_mc_cosmics'   :   '81X_mcRun2cosmics_startup_peak_v0',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '80X_mcRun2_HeavyIon_v8',
+    'run2_mc_hi'        :   '81X_mcRun2_HeavyIon_v0',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '80X_dataRun2_v14',
+    'run1_data'         :   '81X_dataRun2_v0',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '80X_dataRun2_v14',
+    'run2_data'         :   '81X_dataRun2_v0',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '80X_dataRun2_relval_v12',
+    'run2_data_relval'  :   '81X_dataRun2_relval_v0',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '80X_dataRun2_HLT_frozen_v12',
     # GlobalTag for Run2 HLT: it points to the online GT
