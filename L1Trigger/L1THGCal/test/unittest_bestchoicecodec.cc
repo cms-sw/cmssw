@@ -40,6 +40,7 @@ void TestBestChoiceCodec::setUp()
     params.addParameter<double>     ("tdcsaturation", 10000 );
     params.addParameter<uint32_t>   ("tdcnBits",      12);
     params.addParameter<double>     ("tdcOnsetfC",    60);
+    params.addParameter<uint32_t>   ("triggerCellTruncationBits", 2);
     codec_.reset(new HGCalBestChoiceCodecImpl(params));
 
 }
