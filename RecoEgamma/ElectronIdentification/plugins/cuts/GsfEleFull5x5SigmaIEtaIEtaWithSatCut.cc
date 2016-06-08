@@ -51,7 +51,7 @@ CutApplicatorBase::result_type
 GsfEleFull5x5SigmaIEtaIEtaWithSatCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
 
-  if((*nrSatCrysValueMap_)[cand]>maxNrSatCrysIn5x5Cut_(cand)) return false;
+  if((*nrSatCrysValueMap_)[cand]>maxNrSatCrysIn5x5Cut_(cand)) return true;
   else return cand->full5x5_sigmaIetaIeta() < maxSigmaIEtaIEtaCut_(cand);
  
 }

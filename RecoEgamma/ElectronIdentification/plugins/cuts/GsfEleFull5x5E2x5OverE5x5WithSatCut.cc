@@ -52,7 +52,7 @@ CutApplicatorBase::result_type
 GsfEleFull5x5E2x5OverE5x5WithSatCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
 
-  if((*nrSatCrysValueMap_)[cand]>maxNrSatCrysIn5x5Cut_(cand)) return false;
+  if((*nrSatCrysValueMap_)[cand]>maxNrSatCrysIn5x5Cut_(cand)) return true;
 
   const double e5x5 = cand->full5x5_e5x5();
   const double e2x5OverE5x5 = e5x5!=0 ? cand->full5x5_e2x5Max()/e5x5 : 0; 
