@@ -54,7 +54,7 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
             if(value>0)
             {
                 GlobalPoint point = geom->modules().at(moduleId)->position();
-                math::PtEtaPhiMLorentzVector p4((double)value*cosh(point.eta()), point.eta(), point.phi(), 0.);
+                math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
                 // index in module stored as hwEta
                 l1t::HGCalCluster cluster( 
                         reco::LeafCandidate::LorentzVector(),
