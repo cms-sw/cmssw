@@ -53,13 +53,16 @@ void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
         {
             if(value>0)
             {
-                // dummy cluster without position
+                GlobalPoint point = geom->modules().at(moduleId)->position();
+                math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
                 // index in module stored as hwEta
-                l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(),
+                l1t::HGCalCluster cluster( 
+                        reco::LeafCandidate::LorentzVector(),
                         value, i, 0);
+                cluster.setP4(p4);
                 cluster.setModule(moduleId.wafer());
                 cluster.setLayer(moduleId.layer());
-                cluster.setSubDet(moduleId.zside()<0 ? 0 : 1);
+                cluster.setSubDet(moduleId.subdetId());
                 cluster_product->push_back(0,cluster);
             }
             i++;

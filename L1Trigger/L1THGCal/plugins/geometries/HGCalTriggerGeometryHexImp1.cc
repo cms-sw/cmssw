@@ -38,9 +38,7 @@ HGCalTriggerGeometryHexImp1::HGCalTriggerGeometryHexImp1(const edm::ParameterSet
 void HGCalTriggerGeometryHexImp1::initialize(const es_info& esInfo)
 /*****************************************************************/
 {
-    // FIXME: !!!Only for HGCEE for the moment!!!
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
-                                            << "WARNING: Only the EE part is covered.\n"\
                                             << "WARNING: There is no neighbor information.\n";
 
     fillMaps(esInfo);
@@ -56,14 +54,18 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
 {
     //
     // read module mapping file
-    std::map<short, short> wafer_to_module;
+    std::map<short, short> wafer_to_module_ee;
+    std::map<short, short> wafer_to_module_fh;
     std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
     if(!l1tModulesMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TModulesMapping file\n";
+    short subdet  = 0;
     short wafer   = 0;
     short module  = 0;
-    for(; l1tModulesMappingStream>>wafer>>module; )
+    for(; l1tModulesMappingStream>>subdet>>wafer>>module; )
     {
-        wafer_to_module.emplace(wafer,module);
+        if(subdet==3) wafer_to_module_ee.emplace(wafer,module);
+        else if(subdet==4) wafer_to_module_fh.emplace(wafer,module);
+        else edm::LogWarning("HGCalTriggerGeometry") << "Unsupported subdetector number ("<<subdet<<") in L1TModulesMapping file\n";
     }
     if(!l1tModulesMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TModulesMapping '"<<wafer<<" "<<module<<"' \n";
     l1tModulesMappingStream.close();
@@ -82,12 +84,32 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
     l1tCellsMappingStream.close();
     //
     // Loop over HGC cells
+    // EE
     for(const auto& id : esInfo.geom_ee->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferDetId(id); 
-        short module      = wafer_to_module[waferDetId.wafer()];
+        short module      = wafer_to_module_ee[waferDetId.wafer()];
         int nCells = esInfo.topo_ee->dddConstants().numberCellsHexagon(waferDetId.wafer());
+        for(int c=0;c<nCells;c++)
+        {
+            short triggerCellId = cells_to_trigger_cells[std::make_pair(waferDetId.waferType(),c)];
+            // Fill cell -> trigger cell mapping
+            HGCalDetId cellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), c); 
+            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), triggerCellId); 
+            cells_to_trigger_cells_.emplace(cellDetId, triggerCellDetId);
+            // Fill trigger cell -> module mapping
+            HGCalDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCalDetId::kHGCalCellMask);
+            trigger_cells_to_modules_.emplace(triggerCellDetId, moduleDetId); 
+        }
+    }
+    // FH
+    for(const auto& id : esInfo.geom_fh->getValidGeomDetIds())
+    {
+        if(id.rawId()==0) continue;
+        HGCalDetId waferDetId(id); 
+        short module      = wafer_to_module_fh[waferDetId.wafer()];
+        int nCells = esInfo.topo_fh->dddConstants().numberCellsHexagon(waferDetId.wafer());
         for(int c=0;c<nCells;c++)
         {
             short triggerCellId = cells_to_trigger_cells[std::make_pair(waferDetId.waferType(),c)];
@@ -130,7 +152,7 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules(const es_info& esI
         for(const auto& cell : cellIds)
         {
             HGCalDetId cellDetId(cell);
-            triggerCellVector += esInfo.geom_ee->getPosition(cellDetId).basicVector();
+            triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? esInfo.geom_ee->getPosition(cellDetId) :  esInfo.geom_fh->getPosition(cellDetId)).basicVector();
         }
         GlobalPoint triggerCellPoint( triggerCellVector/cellIds.size() );
         const auto& triggerCellToModuleItr = trigger_cells_to_modules_.find(triggerCellId);

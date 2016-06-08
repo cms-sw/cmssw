@@ -2,7 +2,8 @@ import ROOT
 from DrawingUtilities import Cell, TriggerCell, Module
 
 ### PARAMETERS #####
-layer  = 1
+subdet = 4
+layer  = 12
 zside  = 1
 inputFileName = "../test_triggergeom.root"
 outputFileName = "moduleMap.root"
@@ -17,7 +18,7 @@ treeCells        = inputFile.Get("hgcaltriggergeomtester/TreeCells")
 
 ## filling cell map
 cells = {}
-cut = "layer=={0} && zside=={1}".format(layer,zside)
+cut = "layer=={0} && zside=={1} && subdet=={2}".format(layer,zside,subdet)
 treeCells.Draw(">>elist1", cut, "entrylist")
 entryList1 = ROOT.gDirectory.Get("elist1")
 entryList1.__class__ = ROOT.TEntryList
@@ -125,7 +126,7 @@ canvas.Range(minx, miny, maxx, maxy)
 imod = 0
 hexagons = []
 print ''
-print '>> Drawing layer', layer, 'zside', zside
+print '>> Drawing subdet', subdet, 'layer', layer, 'zside', zside
 print ' Trigger cells are not drawn for all the modules, to reduce the (long) drawing time'
 for id,module in modules.items():
     if imod%10==0: print " Drawing module {0}/{1}".format(imod, len(modules))
@@ -154,7 +155,7 @@ for id,module in modules.items():
 
 
 canvas.Write()
-canvas.Print("moduleMap.png")
+canvas.Print("moduleMap_{0}_{1}.png".format(subdet,layer))
 
 
 inputFile.Close()

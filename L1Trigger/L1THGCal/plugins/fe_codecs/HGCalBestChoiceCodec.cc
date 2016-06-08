@@ -19,27 +19,49 @@ HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Code
 /*****************************************************************/
 void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
         const HGCEEDigiCollection& ee,
-        const HGCHEDigiCollection&,
+        const HGCHEDigiCollection& fh,
         const HGCHEDigiCollection& ) 
 /*****************************************************************/
 {
     data_.reset();
-    std::vector<HGCEEDataFrame> dataframes;
-    // loop over EE digis and fill digis belonging to that module
-    for(const auto& eedata : ee)
+    HGCalDetId moduleId(mod.moduleId());
+    std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
+    std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+    // loop over EE or FH digis and fill digis belonging to that module
+    if(moduleId.subdetId()==ForwardSubdetector::HGCEE)
     {
-        if(mod.containsCell(eedata.id()))
+        for(const auto& eedata : ee)
         {
-            dataframes.push_back(eedata);
+            if(mod.containsCell(eedata.id()))
+            {
+                dataframes.emplace_back(eedata.id());
+                for(int i=0; i<eedata.size(); i++)
+                {
+                    dataframes.back().setSample(i, eedata.sample(i));
+                }
+            }
         }
     }
-    std::vector<std::pair<HGCEEDetId, uint32_t > > linearized_dataframes;
+    else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF)
+    {
+        for(const auto& fhdata : fh)
+        {
+            if(mod.containsCell(fhdata.id()))
+            {
+                dataframes.emplace_back(fhdata.id());
+                for(int i=0; i<fhdata.size(); i++)
+                {
+                    dataframes.back().setSample(i, fhdata.sample(i));
+                }
+            }
+        }
+    }
+    // linearize input energy on 16 bits
     codecImpl_.linearize(mod, dataframes, linearized_dataframes);
     // sum energy in trigger cells
     codecImpl_.triggerCellSums(mod, linearized_dataframes, data_);
     // choose best trigger cells in the module
     codecImpl_.bestChoiceSelect(data_);
-
 }
 
 /*****************************************************************/
