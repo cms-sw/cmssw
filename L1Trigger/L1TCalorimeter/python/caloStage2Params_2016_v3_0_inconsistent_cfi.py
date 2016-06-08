@@ -69,7 +69,7 @@ caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 # function6PtParams22EtaBins or None
 #caloStage2Params.jetCalibrationType    = cms.string("None")
 #caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
-caloStage2Params.jetCalibrationType = cms.string("LUT")
+caloStage2Params.jetCalibrationType = cms.string("None")
 
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction
