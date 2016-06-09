@@ -720,7 +720,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
          distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
 	 sigmaX = distanceX/sqrt(localError.xx());
-         sigmaY = distanceY/sqrt(localError.yy());
+         sigmaY = distanceY/sqrt(localError.yy());	 
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
@@ -819,6 +819,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	}
 	// ME0 Chamber   
 	else if(const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
+	// FIX ME - should be chamber, MuonDetIdAssociator and ME0segments need to be changed too
 	  if (me0Segments.isValid()){
 	    // Get the range for the corresponding segments
 	    ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
@@ -840,7 +841,7 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 					  const RecSegment* segment,
 					  const AssociatorParameters& parameters)
 {
-   LogTrace("TrackAssociator")
+   LogTrace("TrackAssociator") 
      << "Segment local position: " << segment->localPosition() << "\n"
      << std::hex << segment->geographicalId().rawId() << "\n";
    
@@ -848,11 +849,11 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
    TrajectoryStateOnSurface trajectoryStateOnSurface = matchedChamber.tState;
    GlobalPoint segmentGlobalPosition = chamber->toGlobal(segment->localPosition());
 
-   LogTrace("TrackAssociator")
+   LogTrace("TrackAssociator") 
      << "Segment global position: " << segmentGlobalPosition << " \t (R_xy,eta,phi): "
      << segmentGlobalPosition.perp() << "," << segmentGlobalPosition.eta() << "," << segmentGlobalPosition.phi() << "\n";
 
-   LogTrace("TrackAssociator")
+   LogTrace("TrackAssociator") 
      << "\teta hit: " << segmentGlobalPosition.eta() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().eta() << "\n"
      << "\tphi hit: " << segmentGlobalPosition.phi() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().phi() << std::endl;
    
@@ -911,10 +912,10 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 //	  if (zHits>3) {
 //	    t0+=s->zSegment()->t0()*zHits;
 //	    hits+=zHits;
-//	    std::cout << "   Z t0: " << s->zSegment()->t0() << " hits: " << zHits << std::endl;
+//	    LogTrace("TrackAssociator") << "   Z t0: " << s->zSegment()->t0() << " hits: " << zHits << std::endl;
 //	  }
 	  if (hits) muonSegment.t0 = t0/hits;
-//	  std::cout << " --- t0: " << muonSegment.t0 << std::endl;
+//	  LogTrace("TrackAssociator") << " --- t0: " << muonSegment.t0 << std::endl;
         } else {
            // check and set dimensionality
            if (isDTWithoutY) muonSegment.hasZed = false;

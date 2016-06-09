@@ -100,6 +100,14 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          matches++;
          continue;
       }
+      if(type == ME0SegmentAndTrackArbitration) {
+	if (chamberMatch->id.subdetId() == MuonSubdetId::ME0) matches += chamberMatch->segmentMatches.size();
+	continue;
+      }
+      if(type == GEMSegmentAndTrackArbitration) {
+	if (chamberMatch->id.subdetId() == MuonSubdetId::GEM) matches += chamberMatch->segmentMatches.size();
+	continue;
+      }
 
       for( std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
             segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
@@ -121,7 +129,7 @@ int Muon::numberOfMatches( ArbitrationType type ) const
 	         segmentMatch->isMask(MuonSegmentMatch::BelongsToTrackByCleaning)) {
 	     matches++;
 	     break;
-	   }
+	   }	 
          if(type > 1<<7)
             if(segmentMatch->isMask(type)) {
                matches++;

@@ -763,18 +763,14 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
-  for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
-    if(thischamber->id.subdetId() == 4 && thischamber->segmentMatches.size() != 0) return true;
-  }
-  return false;
+  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  return ( muon.numberOfMatches( reco::Muon::GEMSegmentAndTrackArbitration ) >= 1 );    
 }
 
 bool MuonIdProducer::isME0Muon( const reco::Muon& muon )
 {
-  for(auto thischamber = muon.matches().begin(); thischamber != muon.matches().end(); ++thischamber){
-    if(thischamber->id.subdetId() == 5 && thischamber->segmentMatches.size() != 0) return true;
-  }
-  return false;
+  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  return ( muon.numberOfMatches( reco::Muon::ME0SegmentAndTrackArbitration ) >= 1 );
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
