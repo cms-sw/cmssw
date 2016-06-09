@@ -1,4 +1,4 @@
-// -*- C++ -*-
+/// -*- C++ -*-
 //
 // Package:    HGCHitValidation
 // Class:      HGCHitValidation
@@ -78,8 +78,11 @@
 #include <TSystem.h>
 #include <TFile.h>
 #include <TProfile.h>
+
 #include <memory>
 #include <iostream>
+#include <string>
+#include <vector>
 
 //#define DebugLog
 
@@ -110,6 +113,7 @@ private:
   const HcalDDDRecConstants*            hcConr_;
   const CaloSubdetectorGeometry*        hcGeometry_;
   std::vector<std::string>              geometrySource_;
+  std::vector<int>                      ietaExcludeBH_;
 
   edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
   edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
@@ -150,6 +154,14 @@ HGCHitValidation::HGCHitValidation( const edm::ParameterSet &cfg ) {
   eeRecHitToken_  = consumes<HGCeeRecHitCollection>(cfg.getParameter<edm::InputTag>("eeRecHitSource"));
   fhRecHitToken_  = consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"));
   bhRecHitToken_  = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
+  ietaExcludeBH_  = cfg.getParameter<std::vector<int> >("ietaExcludeBH");
+#ifdef DebugLog
+  std::cout << "Exclude the following " << ietaExcludeBH_.size()
+	    << " ieta values from BH plots";
+  for (unsigned int k=0; k<ietaExcludeBH_.size(); ++k) 
+    std::cout << " " << ietaExcludeBH_[k];
+  std::cout << std::endl;
+#endif
 }
 
 HGCHitValidation::~HGCHitValidation() { }
@@ -394,8 +406,16 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
 	float energySum(0);
 	if (bhHitRefs.count(id.rawId()) != 0) energySum = std::get<0>(bhHitRefs[id.rawId()]);
 	energySum += energy;
-	bhHitRefs[id.rawId()] = std::make_tuple(energySum,cell.eta,cell.phi,zp);
 	hebEnSim->Fill(energy);
+	if (std::find(ietaExcludeBH_.begin(),ietaExcludeBH_.end(),idx.eta) ==
+	    ietaExcludeBH_.end()) {
+	  bhHitRefs[id.rawId()] = std::make_tuple(energySum,cell.eta,cell.phi,zp);
+#ifdef DebugLog
+	  std::cout << "Accept " << id << std::endl;
+	} else {
+	  std::cout << "Reject " << id << std::endl;
+#endif
+	}
       }
     }
 #ifdef DebugLog

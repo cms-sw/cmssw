@@ -38,6 +38,8 @@ process.TFileService = cms.Service("TFileService",
 
 SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) )
 
+process.hgcHitAnalysis.ietaExcludeBH = [16,92,93,94,95,96,97,98,99,100]
+
 process.p = cms.Path(process.hgcHitAnalysis)
 
 
