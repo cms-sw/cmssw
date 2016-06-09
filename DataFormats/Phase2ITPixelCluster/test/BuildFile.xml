@@ -1,0 +1,2 @@
+<use name="DataFormats/Phase2ITPixelCluster" />
+<bin file="Phase2PixelCluster_t.cpp" />

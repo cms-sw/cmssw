@@ -1,0 +1,37 @@
+<lcgdict>
+  <class name="Phase2PixelCluster" ClassVersion="11">
+   <version ClassVersion="11" checksum="3710063035"/>
+   <version ClassVersion="10" checksum="2468063768"/>  
+   <field name="err_x" transient="true"/>
+   <field name="err_y" transient="true"/>
+   <ioread sourceClass="Phase2PixelCluster" version="[1-10]" targetClass="Phase2PixelCluster" source="uint32_t theMinPixelCol" target="thePixelCol">
+   <![CDATA[thePixelCol = onfile.theMinPixelCol;]]>
+   </ioread>  
+   <ioread sourceClass="Phase2PixelCluster" version="[1-10]" targetClass="Phase2PixelCluster" source="uint32_t theMinPixelRow" target="thePixelRow">
+   <![CDATA[thePixelRow = onfile.theMinPixelRow;]]>
+   </ioread>  
+  </class>
+  <class name="Phase2PixelCluster::Pixel"/>
+  <class name="Phase2PixelCluster::Shift"/>
+  <class name="Phase2PixelCluster::PixelPos"/>
+  <class name="std::vector<Phase2PixelCluster>"/>
+  <class name="edm::DetSet<Phase2PixelCluster>"/>
+  <class name="std::vector<edm::DetSet<Phase2PixelCluster> >"/>
+  <class name="edm::DetSetVector<Phase2PixelCluster>"/>
+  <class name="edmNew::DetSetVector<Phase2PixelCluster>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<Phase2PixelCluster> >" />
+  <class name="edm::Wrapper<edmNew::DetSetVector<Phase2PixelCluster> >" />
+  <class name="edm::RefProd<edm::DetSetVector<Phase2PixelCluster> >" />
+  <class name="edm::Ref<edm::DetSetVector<Phase2PixelCluster>,Phase2PixelCluster,edm::refhelper::FindForDetSetVector<Phase2PixelCluster> >" />
+  <class name="edm::ContainerMask<edmNew::DetSetVector<Phase2PixelCluster> >"/>
+  <class name="edm::Wrapper<edm::ContainerMask<edmNew::DetSetVector<Phase2PixelCluster> > >"/>
+  <class name="Phase2PixelClusterRefNew" />
+  <class name="edm::Ref<edm::DetSetVector<Phase2PixelCluster>,edm::DetSet<Phase2PixelCluster>,edm::refhelper::FindDetSetForDetSetVector<Phase2PixelCluster,edm::DetSetVector<Phase2PixelCluster> > >" />
+  <class name="edm::DetSetRefVector<Phase2PixelCluster,edm::DetSetVector<Phase2PixelCluster> >" />
+
+  <class name="std::vector<edm::Ref<edmNew::DetSetVector<Phase2PixelCluster>,Phase2PixelCluster,edmNew::DetSetVector<Phase2PixelCluster>::FindForDetSetVector> >" />
+  <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<Phase2PixelCluster>,Phase2PixelCluster,edmNew::DetSetVector<Phase2PixelCluster>::FindForDetSetVector> >" />
+  <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<Phase2PixelCluster>,Phase2PixelCluster,edmNew::DetSetVector<Phase2PixelCluster>::FindForDetSetVector> > >" />
+ <class name="Phase2PixelClusterShapeCache" persistent="false"/>
+ <class name="edm::Wrapper<Phase2PixelClusterShapeCache>" persistent="false"/>
+</lcgdict>
