@@ -152,17 +152,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
   
-  theHBHEResponse->initHBHEScale();
-  edm::LogInfo("HcalDigitizer") <<"Set scale for HB towers";
   theHBHEHitFilter.setSubdets({HcalBarrel,HcalEndcap});
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
-  bool    changeResponse = ps.getParameter<bool>("ChangeResponse");
-  edm::FileInPath fname  = ps.getParameter<edm::FileInPath>("CorrFactorFile");
-  if (changeResponse) {
-    std::string corrFileName = fname.fullPath();
-    edm::LogInfo("HcalDigitizer") << "Set scale for HB towers from " << corrFileName;
-    theHBHEResponse->setHBHEScale(corrFileName); //GMA
-  }
   theHBHEQIE11HitFilter.setSubdets({HcalBarrel,HcalEndcap});
   theHBHESiPMResponse->setHitFilter(&theHBHEQIE11HitFilter);
   
