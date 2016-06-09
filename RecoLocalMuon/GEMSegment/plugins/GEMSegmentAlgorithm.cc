@@ -311,7 +311,7 @@ bool GEMSegmentAlgorithm::isGoodToMerge(const GEMEnsemble& ensemble, const Ensem
 void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const EnsembleHitContainer& rechits, std::vector<GEMSegment>& gemsegs) {
   if (rechits.size() < minHitsPerSegment) return;
 
-  MuonRecHitContainer muonRecHits;
+  MuonSegFit::MuonRecHitContainer muonRecHits;
   proto_segment.clear();
   
   // select hits from the ensemble and sort it
@@ -326,7 +326,8 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
     
     GEMRecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
-    muonRecHits.push_back(newRH);
+    MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
+    muonRecHits.push_back(trkRecHit);
   }
   
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode 
@@ -344,7 +345,6 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   bool goodfit = sfit_->fit();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment fit done :: fit is good = "<<goodfit;
 
-  for (auto rh:muonRecHits) delete rh;
   // quit function if fit was not OK
   if(!goodfit) return;
 
@@ -393,6 +393,7 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] GEMSegment made in "<<tmp.gemDetId();
   edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::buildSegments] "<<tmp;
 
+  for (auto rh:muonRecHits) rh.reset();  
   gemsegs.push_back(tmp);
 }
 
