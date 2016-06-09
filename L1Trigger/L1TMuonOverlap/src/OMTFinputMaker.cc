@@ -350,7 +350,8 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
  //     std::cout <<"ADDING HIT: iLayer = " << iLayer << " iInput: " << iInput << " iPhi: " << iPhi << std::endl;
       if (iLayer==17 && (iInput==0 || iInput==1)) continue;  // FIXME (MK) there is no RPC link for that input, because it is taken by DAQ link
-      bool outres = result.addLayerHit(iLayer,iInput,iPhi,iEta);
+//      bool outres = 
+        result.addLayerHit(iLayer,iInput,iPhi,iEta);
 //      if (cSize>2) flag |= 2;
 //      if (!outres) flag |= 1;
       nClusters++;

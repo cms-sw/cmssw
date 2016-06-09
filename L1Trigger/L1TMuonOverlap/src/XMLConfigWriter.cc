@@ -40,20 +40,20 @@ XERCES_CPP_NAMESPACE_USE
 
 namespace {
  unsigned int eta2Bits(unsigned int eta) {
-   if      (eta== 73) return bitset<9>("100000000").to_ulong();
-   else if (eta== 78) return bitset<9>("010000000").to_ulong();
-   else if (eta== 85) return bitset<9>("001000000").to_ulong();
-   else if (eta== 90) return bitset<9>("000100000").to_ulong();
-   else if (eta== 94) return bitset<9>("000010000").to_ulong();
-   else if (eta== 99) return bitset<9>("000001000").to_ulong();
-   else if (eta==103) return bitset<9>("000000100").to_ulong();
-   else if (eta==110) return bitset<9>("000000010").to_ulong();
-   else if (eta== 75) return bitset<9>("110000000").to_ulong();
-   else if (eta== 79) return bitset<9>("011000000").to_ulong();
-   else if (eta== 92) return bitset<9>("000110000").to_ulong();
-   else if (eta==115) return bitset<9>("000000001").to_ulong();
-   else if (eta==121) return bitset<9>("000000000").to_ulong();
-   else               return bitset<9>("111111111").to_ulong();            ;
+   if      (eta== 73) return 0b100000000;
+   else if (eta== 78) return 0b010000000;
+   else if (eta== 85) return 0b001000000;
+   else if (eta== 90) return 0b000100000;
+   else if (eta== 94) return 0b000010000;
+   else if (eta== 99) return 0b000001000;
+   else if (eta==103) return 0b000000100;
+   else if (eta==110) return 0b000000010;
+   else if (eta== 75) return 0b110000000;
+   else if (eta== 79) return 0b011000000;
+   else if (eta== 92) return 0b000110000;
+   else if (eta==115) return 0b000000001;
+   else if (eta==121) return 0b000000000;
+   else               return 0b111111111;            ;
  }
 }
 
