@@ -57,7 +57,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHBHEQIE11Amplifier(0),
   theIonFeedback(0),
   theCoderFactory(0),
-  theUpgradeCoderFactory(0),
   theHBHEElectronicsSim(0),
   theHFElectronicsSim(0),
   theHOElectronicsSim(0),
@@ -126,16 +125,15 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHBHEQIE11Amplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
 
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
-  theUpgradeCoderFactory = new HcalCoderFactory(HcalCoderFactory::UPGRADE);
 
   theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory, PreMix1);
   theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory, PreMix1);
   theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory, PreMix1);
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory, PreMix1);
-  theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theUpgradeCoderFactory, PreMix1);
-  theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory, PreMix1);
-  theHFQIE10ElectronicsSim = new HcalElectronicsSim(theHFQIE10Amplifier, theUpgradeCoderFactory, PreMix1); //should this use a different coder factory?
-  theHBHEQIE11ElectronicsSim = new HcalElectronicsSim(theHBHEQIE11Amplifier, theUpgradeCoderFactory, PreMix1); //should this use a different coder factory?
+  theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory, PreMix1);
+  theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory, PreMix1);
+  theHFQIE10ElectronicsSim = new HcalElectronicsSim(theHFQIE10Amplifier, theCoderFactory, PreMix1); //should this use a different coder factory?
+  theHBHEQIE11ElectronicsSim = new HcalElectronicsSim(theHBHEQIE11Amplifier, theCoderFactory, PreMix1); //should this use a different coder factory?
 
   bool doHOHPD = (theHOSiPMCode != 1);
   bool doHOSiPM = (theHOSiPMCode != 0);
@@ -240,7 +238,6 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHFQIE10Amplifier;
   delete theHBHEQIE11Amplifier;
   delete theCoderFactory;
-  delete theUpgradeCoderFactory;
   delete theHitCorrection;
   if (theRelabeller)           delete theRelabeller;
 }
@@ -308,7 +305,6 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   theHBHEQIE11ElectronicsSim->setDbService(conditions.product());
 
   theCoderFactory->setDbService(conditions.product());
-  theUpgradeCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
 
   if(theHitCorrection != 0) {

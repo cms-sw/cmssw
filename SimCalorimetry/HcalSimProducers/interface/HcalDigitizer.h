@@ -112,7 +112,6 @@ private:
 
   HPDIonFeedbackSim * theIonFeedback;
   HcalCoderFactory * theCoderFactory;
-  HcalCoderFactory * theUpgradeCoderFactory;
 
   HcalElectronicsSim * theHBHEElectronicsSim;
   HcalElectronicsSim * theHFElectronicsSim;
