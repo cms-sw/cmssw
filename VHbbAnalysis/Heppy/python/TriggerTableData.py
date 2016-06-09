@@ -15,10 +15,10 @@ triggerTable = {
         "HLT_PFHT350_PFMET100_NoiseCleaned_v*",
     ],
     "ZeeHbbAll" : [
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v3*",
-        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v3*",
+        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*",
+        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v*",
         "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v*",
-        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v3*",
+        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v*",
         "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*",
         "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v*",
         "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v*",
@@ -38,11 +38,11 @@ triggerTable = {
     ],
     "ZeeHbbHighLumi" : [
         "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*",
-        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v3*"
+        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v*"
     ],
     "ZeeHbbLowLumi" : [
         "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*",
-        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v3*"
+        "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v*"
     ],
 
 
