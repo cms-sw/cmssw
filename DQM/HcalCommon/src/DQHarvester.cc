@@ -2,6 +2,8 @@
 
 namespace hcaldqm
 {
+  using namespace constants;
+  using namespace quantity;
 	DQHarvester::DQHarvester(edm::ParameterSet const& ps) :
 		DQModule(ps)
 	{}
