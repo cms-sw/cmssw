@@ -6,7 +6,7 @@
 */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -28,7 +28,7 @@ namespace test{
 
   static const unsigned int GTEVMId= 812;
   static const unsigned int GTPEId= 814;
-  class GlobalNumbersAnalysis: public edm::EDAnalyzer {
+  class GlobalNumbersAnalysis: public edm::one::EDAnalyzer<> {
     private:
     edm::EDGetTokenT<FEDRawDataCollection> m_fedRawDataCollectionToken;
     public:
