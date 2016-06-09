@@ -208,13 +208,12 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 
 
 //Accumulating sort
-
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> & jets){
 
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::Jet tempJet (emptyP4, 0, 0, 0, 0);
-  std::vector< std::vector<l1t::Jet> > jetEtaPos( 40 , std::vector<l1t::Jet>(18, tempJet));
-  std::vector< std::vector<l1t::Jet> > jetEtaNeg( 40 , std::vector<l1t::Jet>(18, tempJet));
+  std::vector< std::vector<l1t::Jet> > jetEtaPos( 41 , std::vector<l1t::Jet>(18, tempJet));
+  std::vector< std::vector<l1t::Jet> > jetEtaNeg( 41 , std::vector<l1t::Jet>(18, tempJet));
   for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
     {
       if (jets.at(iJet).hwEta() > 0) jetEtaPos.at( jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
@@ -226,7 +225,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
   std::vector<l1t::Jet> accumEtaPos;
   std::vector<l1t::Jet> accumEtaNeg;
 
-  for( int ieta = 0 ; ieta < 40 ; ++ieta)
+  for( int ieta = 0 ; ieta < 41 ; ++ieta)
     {
       // eta +
       std::vector<l1t::Jet>::iterator start_, end_;
