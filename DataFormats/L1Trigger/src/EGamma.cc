@@ -67,30 +67,30 @@ void EGamma::setShape(short int s) {
   shape_ = s;
 }
 
-short int EGamma::towerIEta() {
+short int EGamma::towerIEta() const {
   return towerIEta_;
 }
 
-short int EGamma::towerIPhi() {
+short int EGamma::towerIPhi() const {
   return towerIPhi_;
 }
 
-short int EGamma::rawEt() {
+short int EGamma::rawEt() const {
   return rawEt_;
 }
 
-short int EGamma::isoEt() {
+short int EGamma::isoEt() const {
   return isoEt_;
 }
 
-short int EGamma::footprintEt() {
+short int EGamma::footprintEt() const {
   return footprintEt_;
 }
 
-short int EGamma::nTT() {
+short int EGamma::nTT() const {
   return nTT_;
 }
 
-short int EGamma::shape() {
+short int EGamma::shape() const {
   return shape_;
 }
