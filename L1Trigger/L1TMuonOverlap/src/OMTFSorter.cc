@@ -145,10 +145,10 @@ bool OMTFSorter::checkHitPatternValidity(unsigned int hits){
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tftype mtfType,
-                 const std::vector<AlgoMuon> & algoCands,
-                 l1t::RegionalMuonCandBxCollection & sortedCands,
-                 int bx, int charge){
+std::vector<l1t::RegionalMuonCand> OMTFSorter::candidates(unsigned int iProcessor, l1t::tftype mtfType, const std::vector<AlgoMuon> & algoCands)
+{
+
+  std::vector<l1t::RegionalMuonCand> result;
 
   for(auto myCand: algoCands){
     l1t::RegionalMuonCand candidate;
@@ -183,8 +183,9 @@ void OMTFSorter::sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tf
     trackAddr[2] = myCand.getDisc();
     candidate.setTrackAddress(trackAddr);
     candidate.setTFIdentifiers(iProcessor,mtfType);
-    if(candidate.hwPt()) sortedCands.push_back(bx, candidate);
+    if (candidate.hwPt())  result.push_back(candidate); 
   }
+  return result;
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
