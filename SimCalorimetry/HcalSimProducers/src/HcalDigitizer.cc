@@ -67,8 +67,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHBHEQIE11ElectronicsSim(0),
   theHBHEHitFilter(),
   theHBHEQIE11HitFilter(),
-  theHFHitFilter(ps.getParameter<bool>("doHFWindow")),
-  theHFQIE10HitFilter(ps.getParameter<bool>("doHFWindow")),
+  theHFHitFilter(),
+  theHFQIE10HitFilter(),
   theHOHitFilter(),
   theHOSiPMHitFilter(),
   theZDCHitFilter(),
@@ -89,6 +89,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hbhegeo(true),
   hogeo(true),
   hfgeo(true),
+  doHFWindow_(ps.getParameter<bool>("doHFWindow")),
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
@@ -139,20 +140,16 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool doHOSiPM = (theHOSiPMCode != 0);
   if(doHOHPD) {
     theHOResponse = new CaloHitResponse(theParameterMap, theShapes);
-	theHOHitFilter.setSubdets({HcalOuter});
     theHOResponse->setHitFilter(&theHOHitFilter);
     theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
   }
   if(doHOSiPM) {
     theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theShapes);
-	theHOSiPMHitFilter.setSubdets({HcalOuter});
     theHOSiPMResponse->setHitFilter(&theHOSiPMHitFilter);
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
   
-  theHBHEHitFilter.setSubdets({HcalBarrel,HcalEndcap});
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
-  theHBHEQIE11HitFilter.setSubdets({HcalBarrel,HcalEndcap});
   theHBHESiPMResponse->setHitFilter(&theHBHEQIE11HitFilter);
   
   if(doHBHEUpgrade){
@@ -348,7 +345,13 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       HcalDetId hid(id);
       if (!htopoP->validHcal(hid)) {
         edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << " " << hid << std::endl;
-      } else {
+        continue;
+      }
+      else if(hid.subdet()==HcalForward && !doHFWindow_ && hcalHitsOrig[i].depth()!=0){
+        //skip HF window hits unless desired
+        continue;
+      }
+      else {
 #ifdef DebugLog
         std::cout << "HcalDigitizer format " << hid.oldFormat() << " for " << hid << std::endl;
 #endif

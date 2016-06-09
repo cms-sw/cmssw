@@ -8,7 +8,7 @@ HcalHitAnalyzer::HcalHitAnalyzer(edm::ParameterSet const& conf)
 : simParameterMap_(conf),
   hbheFilter_(),
   hoFilter_(),
-  hfFilter_(true),
+  hfFilter_(),
   zdcFilter_(),
   hbheAnalyzer_("HBHE", 1., &simParameterMap_, &hbheFilter_),
   hoAnalyzer_("HO", 1., &simParameterMap_, &hoFilter_),

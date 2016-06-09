@@ -5,7 +5,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalUpgradeTraits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE1011Traits.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
@@ -122,12 +121,12 @@ private:
   HcalElectronicsSim * theHFQIE10ElectronicsSim;
   HcalElectronicsSim * theHBHEQIE11ElectronicsSim;
 
-  HcalHitFilter theHBHEHitFilter;
-  HcalHitFilter theHBHEQIE11HitFilter;
+  HBHEHitFilter theHBHEHitFilter;
+  HBHEHitFilter theHBHEQIE11HitFilter;
   HFHitFilter   theHFHitFilter;
   HFHitFilter   theHFQIE10HitFilter;
-  HcalHitFilter theHOHitFilter;
-  HcalHitFilter theHOSiPMHitFilter;
+  HOHitFilter theHOHitFilter;
+  HOHitFilter theHOSiPMHitFilter;
   ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
@@ -154,6 +153,7 @@ private:
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
   bool testNumbering_;
+  bool doHFWindow_;
 
   std::string hitsProducer_;
 
