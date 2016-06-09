@@ -1,6 +1,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include <assert.h>
+#include <algorithm>
 
 CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(topology) {
 
@@ -16,22 +17,22 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   firstHBRing_ = 1;
   lastHBRing_ = firstHBRing_ + nEtaHB - 1;
   firstHERing_ = lastHBRing_; //crossover
-  lastHERing_ = firstHERing_ + nEtaHE_ - 1;
-  firstHFRing_ = (nEtaHE_ == 0) ? hcaltopo->firstHFRing() : (lastHERing_ + 1); //no crossover for CaloTowers; HF crossover cells go in the subsequent non-crossover HF tower
+  lastHERing_ = firstHERing_ + std::max(nEtaHE_ - 1,0); //max = protection for case with no HE
+  firstHFRing_ = lastHERing_ + 1; //no crossover for CaloTowers; HF crossover cells go in the subsequent non-crossover HF tower
   lastHFRing_ = firstHFRing_ + (nEtaHF - 1) - 1; //nEtaHF - 1 to account for no crossover
   firstHORing_ = 1;
   lastHORing_ = firstHORing_ + nEtaHO - 1;
   
   //translate phi segmentation boundaries into continuous ieta
-  if(hcaltopo->firstHEDoublePhiRing()==999) firstHEDoublePhiRing_ = firstHFRing_;
+  if(hcaltopo->firstHEDoublePhiRing()==999 || nEtaHE_ == 0) firstHEDoublePhiRing_ = firstHFRing_;
   else firstHEDoublePhiRing_ = firstHERing_ + (hcaltopo->firstHEDoublePhiRing() - hcaltopo->firstHERing());
   firstHEQuadPhiRing_ = firstHERing_ + (hcaltopo->firstHEQuadPhiRing() - hcaltopo->firstHERing());
   firstHFQuadPhiRing_ = firstHFRing_ - 1 + (hcaltopo->firstHFQuadPhiRing() - hcaltopo->firstHFRing());
   
   //number of etas per phi segmentation type
   int nEtaSinglePhi_, nEtaDoublePhi_, nEtaQuadPhi_;
-  nEtaSinglePhi_ = (nEtaHE_ == 0) ? nEtaHB : (firstHEDoublePhiRing_ - firstHBRing_);
-  nEtaDoublePhi_ = (nEtaHE_ == 0) ? (firstHFQuadPhiRing_- firstHFRing_) : (firstHFQuadPhiRing_ - firstHEDoublePhiRing_);
+  nEtaSinglePhi_ = firstHEDoublePhiRing_ - firstHBRing_;
+  nEtaDoublePhi_ = firstHFQuadPhiRing_ - firstHEDoublePhiRing_;
   nEtaQuadPhi_ = lastHFRing_ - firstHFQuadPhiRing_ + 1; //include lastHFRing
   
   //total number of towers per phi segmentation type
