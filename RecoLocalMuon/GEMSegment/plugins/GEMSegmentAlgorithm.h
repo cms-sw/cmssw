@@ -29,8 +29,8 @@ public:
   /// Typedefs
   typedef std::vector<const GEMRecHit*> EnsembleHitContainer;
   typedef std::vector<EnsembleHitContainer> ProtoSegments;
-  typedef std::vector<const TrackingRecHit*> MuonRecHitContainer;
-
+  typedef std::vector<std::unique_ptr<TrackingRecHit>> MuonRecHitContainer;
+  
   /// Constructor
   explicit GEMSegmentAlgorithm(const edm::ParameterSet& ps);
   /// Destructor
