@@ -212,12 +212,12 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
 
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::Jet tempJet (emptyP4, 0, 0, 0, 0);
-  std::vector< std::vector<l1t::Jet> > jetEtaPos( 41 , std::vector<l1t::Jet>(18, tempJet));
-  std::vector< std::vector<l1t::Jet> > jetEtaNeg( 41 , std::vector<l1t::Jet>(18, tempJet));
+  std::vector< std::vector<l1t::Jet> > jetEtaPos( 40 , std::vector<l1t::Jet>(18, tempJet));
+  std::vector< std::vector<l1t::Jet> > jetEtaNeg( 40 , std::vector<l1t::Jet>(18, tempJet));
   for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
     {
-      if (jets.at(iJet).hwEta() > 0) jetEtaPos.at( jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
-      else                           jetEtaNeg.at( -(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      if (jets.at(iJet).hwEta() > 0) jetEtaPos.at( CaloTools::mpEta(jets.at(iJet).hwEta())-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      else                           jetEtaNeg.at( CaloTools::mpEta(-(jets.at(iJet).hwEta()))+1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
     }
 
   AccumulatingSort <l1t::Jet> etaPosSorter(6);
@@ -225,7 +225,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
   std::vector<l1t::Jet> accumEtaPos;
   std::vector<l1t::Jet> accumEtaNeg;
 
-  for( int ieta = 0 ; ieta < 41 ; ++ieta)
+  for( int ieta = 0 ; ieta < 40 ; ++ieta)
     {
       // eta +
       std::vector<l1t::Jet>::iterator start_, end_;
@@ -333,7 +333,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
    // ring is a vector with 4 ring strips, one for each side of the ring
   // order is PhiUp, PhiDown, EtaUp, EtaDown
   std::vector<int> ring(4,0);
-
+  
   // number of strips in donut - should make this configurable
   int nStrips = 3;
 
@@ -415,7 +415,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
   // use lowest 3 strips as PU estimate
   std::sort( ring.begin(), ring.end() );
   return ( ring[0] + ring[1] + ring[2] );
-
+  
 }
 
 
