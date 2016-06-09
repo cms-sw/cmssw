@@ -129,7 +129,7 @@ int Muon::numberOfMatches( ArbitrationType type ) const
 	         segmentMatch->isMask(MuonSegmentMatch::BelongsToTrackByCleaning)) {
 	     matches++;
 	     break;
-	   }	 
+	   }
          if(type > 1<<7)
             if(segmentMatch->isMask(type)) {
                matches++;
