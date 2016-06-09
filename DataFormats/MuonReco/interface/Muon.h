@@ -206,8 +206,6 @@ namespace reco {
     /// given distance (in cm) of chamber edges 
     /// bit assignments are same as above
     int numberOfMatchedRPCLayers( ArbitrationType type = RPCHitAndTrackArbitration ) const;
-    int numberOfMatchedGEMLayers( ArbitrationType type = GEMSegmentAndTrackArbitration ) const;
-    int numberOfMatchedME0Layers( ArbitrationType type = ME0SegmentAndTrackArbitration ) const;
     unsigned int RPClayerMask( ArbitrationType type = RPCHitAndTrackArbitration ) const;
     unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
     /// same as above for given number of sigmas
