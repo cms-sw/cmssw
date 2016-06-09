@@ -10,7 +10,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023LRecoReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023simReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023sim_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -127,7 +128,7 @@ process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
     "HGCalTriggerBestChoiceTester",
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-    bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+    #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
     beClustersAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo'),
     beClustersSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgo'),
     TriggerGeometry = cms.PSet(

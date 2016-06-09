@@ -77,7 +77,7 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
 HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterSet& conf):
   inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
   inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
-  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
+  //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
   inputbeall_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersAll"))),
   inputbeselect_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersSelect")))
 /*****************************************************************/

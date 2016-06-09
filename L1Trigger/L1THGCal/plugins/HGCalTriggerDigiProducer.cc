@@ -40,7 +40,7 @@ HGCalTriggerDigiProducer::
 HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
   inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
-  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
+  //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
   backEndProcessor_(conf.getParameterSet("BEConfiguration")) {
   
   //setup geometry configuration
@@ -92,7 +92,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
   e.getByToken(inputee_,ee_digis_h);
   e.getByToken(inputfh_,fh_digis_h);
-  e.getByToken(inputbh_,bh_digis_h);
+  //e.getByToken(inputbh_,bh_digis_h);
 
   const HGCEEDigiCollection& ee_digis = *ee_digis_h;
   const HGCHEDigiCollection& fh_digis = *fh_digis_h;
