@@ -1,8 +1,4 @@
-<<<<<<< HEAD:DataFormats/Phase2ITPixelCluster/test/Phase2PixelCluster_t.cpp
 #include "DataFormats/Phase2ITPixelCluster/interface/Phase2ITPixelCluster.h"
-=======
-#include "DataFormats/Phase2ITPixelCluster/interface/Phase2PixelCluster.h"
->>>>>>> 77e0448... rename Phase2PixelCluster to Phase2ITPixelCluster (DataFormats):DataFormats/Phase2ITPixelCluster/test/Phase2PixelCluster_t.cpp
 #include<cassert>
 #include<cstdio>
 

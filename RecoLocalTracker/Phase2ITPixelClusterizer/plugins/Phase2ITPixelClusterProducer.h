@@ -37,17 +37,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include "DataFormats/Phase2PixelCluster/interface/Phase2PixelCluster.h"
-=======
 #include "DataFormats/Phase2ITPixelCluster/interface/Phase2ITPixelCluster.h"
->>>>>>> 7a22836... rename Phase2PixelCluster* to Phase2ITPixelCluster* (DataFormats)
-=======
-#include "DataFormats/Phase2ITPixelCluster/interface/Phase2PixelCluster.h"
->>>>>>> 77e0448... rename Phase2PixelCluster to Phase2ITPixelCluster (DataFormats)
-
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
