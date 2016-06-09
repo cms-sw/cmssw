@@ -461,19 +461,29 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			   } 
 			}
 			else{
-				// setting classic and alternative to be the same for now
 			        float tkpt = candPt;
 			        sumTkPt += tkpt;
 				bool inVtx0 = false; 
 				bool inVtxOther = false; 
 				if (lPack->fromPV() == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
 				if (lPack->fromPV() == 0) inVtxOther = true;
+				double dZ0 = lPack->dz();
+				double dZ_tmp = dZ0;
+				for (const auto& iv: allvtx) {
+					if (iv.isFake())
+						continue;
+					if (fabs(lPack->dz(iv.position())) < fabs(dZ_tmp)) {
+						dZ_tmp = lPack->dz(iv.position());
+					}
+				}
 				if (inVtx0){
 					internalId_.betaClassic_ += tkpt;
-					internalId_.beta_ += tkpt;
-				}
-				if (inVtxOther){
+				} else if (inVtxOther){
 					internalId_.betaStarClassic_ += tkpt;
+				}
+				if (fabs(dZ0) < 0.2){
+					internalId_.beta_ += tkpt;
+				} else if (fabs(dZ_tmp) < 0.2){
 					internalId_.betaStar_ += tkpt;
 				}
 			}
