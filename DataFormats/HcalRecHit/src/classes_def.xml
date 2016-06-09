@@ -12,7 +12,7 @@
     <version ClassVersion="10" checksum="1697427050"/>
    </class>
    <class name="HFQIE10Info" ClassVersion="4">
-    <version ClassVersion="4" checksum="3033988242"/>
+    <version ClassVersion="4" checksum="3261445918"/>
     <version ClassVersion="3" checksum="1025085409"/>
    </class>
    <class name="HFPreRecHit" ClassVersion="3">

@@ -96,6 +96,8 @@ namespace {
                 ps.getParameter<std::vector<double> >("tlimits");
             const std::vector<double>& energyWeightsVec =
                 ps.getParameter<std::vector<double> >("energyWeights");
+            const unsigned soiPhase =
+                ps.getParameter<unsigned>("soiPhase");
             const bool rejectAllFailures =
                 ps.getParameter<bool>("rejectAllFailures");
 
@@ -114,7 +116,8 @@ namespace {
                     to[i] = energyWeightsVec[i];
 
                 algo = std::unique_ptr<AbsHFPhase1Algo>(
-                    new HFSimpleTimeCheck(tlimits, energyWeights, rejectAllFailures));
+                    new HFSimpleTimeCheck(tlimits, energyWeights,
+                                          soiPhase, rejectAllFailures));
             }
         }
 

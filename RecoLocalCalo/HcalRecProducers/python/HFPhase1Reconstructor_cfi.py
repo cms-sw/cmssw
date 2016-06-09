@@ -18,7 +18,7 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
     algorithm = cms.PSet(
         Class = cms.string("HFSimpleTimeCheck"),
 
-        # Pass everything for now
+        # Timing cuts: pass everything for now
         tlimits = cms.vdouble(-1000.0, 1000.0,
                               -1000.0, 1000.0),
 
@@ -39,6 +39,9 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
             0.0, 2.0,  # {FAILED_TIMING, OK}
             0.0, 1.0   # {FAILED_OTHER, OK}
         ),
+
+        # Into which byte the sample of interest ADC will be placed?
+        soiPhase = cms.uint32(1),
 
         # Do not construct rechits with problems
         rejectAllFailures = cms.bool(True)

@@ -6,8 +6,10 @@
 
 HFSimpleTimeCheck::HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
                                      const float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2],
+                                     const unsigned i_soiPhase,
                                      const bool rejectAllFailures)
-    : rejectAllFailures_(rejectAllFailures)
+    : soiPhase_(i_soiPhase),
+      rejectAllFailures_(rejectAllFailures)
 {
     tlimits_[0] = tlimits[0];
     tlimits_[1] = tlimits[1];
@@ -124,7 +126,7 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
         }
 
         rh = HFRecHit(prehit.id(), energy, t, tfall);
-        HFRecHitAuxSetter::setAux(prehit, states, &rh);
+        HFRecHitAuxSetter::setAux(prehit, states, soiPhase_, &rh);
     }
 
     return rh;

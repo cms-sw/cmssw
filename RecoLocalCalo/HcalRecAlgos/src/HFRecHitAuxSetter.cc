@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <type_traits>
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFAnodeStatus.h"
@@ -5,8 +6,11 @@
 
 void HFRecHitAuxSetter::setAux(const HFPreRecHit& prehit,
                                const unsigned anodeStates[2],
+                               const unsigned u_soiPhase,
                                HFRecHit* rechit)
 {
+    const int wantedPhase = u_soiPhase < 2U ? u_soiPhase : 2U;
+
     for (unsigned ianode=0; ianode<2; ++ianode)
     {
         unsigned aux = 0;
@@ -14,29 +18,43 @@ void HFRecHitAuxSetter::setAux(const HFPreRecHit& prehit,
         if (anodeInfo)
         {
             const int nRaw = anodeInfo->nRaw();
-            if (nRaw)
+            const int soiStored = anodeInfo->soi();
+            if (soiStored < nRaw)
             {
-                int nAdc = nRaw;
-                if (nAdc > 3)
-                    nAdc = 3;
-                int ifrom = nRaw - 1;
-
-                const QIE10DataFrame::Sample s(anodeInfo->getRaw(ifrom));
-                setField(&aux, MASK_CAPID, OFF_CAPID, s.capid());
-                setField(&aux, MASK_NTS, OFF_NTS, nAdc);
-
-                int ito = nAdc - 1;
-                for ( ; ifrom >= 0 && ito >= 0; --ifrom, --ito)
+                // SOI is in the raw data. Figure out a good
+                // way to map ADCs into the three bytes available.
+                int shift = 0;
+                int nStore = nRaw;
+                if (nRaw > 3)
                 {
-                    const QIE10DataFrame::Sample ts(anodeInfo->getRaw(ifrom));
-                    setField(&aux, 0xff, ito*8, ts.adc());
+                    nStore = 3;
+                    if (soiStored > wantedPhase)
+                        shift = soiStored - wantedPhase;
+                    if (shift + nStore > nRaw)
+                        shift = nRaw - nStore;
                 }
+
+                // Fill out the ADC fields
+                for (int iadc=0; iadc<nStore; ++iadc)
+                {
+                    const int istored = iadc + shift;
+                    const QIE10DataFrame::Sample ts(anodeInfo->getRaw(istored));
+                    setField(&aux, 0xff, iadc*8, ts.adc());
+                    if (istored == soiStored)
+                        setField(&aux, MASK_CAPID, OFF_CAPID, ts.capid());
+                }
+                setField(&aux, MASK_SOI, OFF_SOI, soiStored-shift);
             }
+            else
+                setField(&aux, MASK_SOI, OFF_SOI, 3U);
         }
+
+        // Remember anode status
         static_assert(HFAnodeStatus::N_POSSIBLE_STATES <= MASK_STATUS+1,
                       "Possible states enum must fit into the bit field");
         setField(&aux, MASK_STATUS, OFF_STATUS, anodeStates[ianode]);
 
+        // Fill the aux field in the rechit
         if (ianode)
             rechit->setAuxHF(aux);
         else

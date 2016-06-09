@@ -32,6 +32,11 @@ public:
     // by index - HFAnodeStatus::N_POSSIBLE_STATES + 1. This excludes
     // the state {OK, OK} already covered.
     //
+    // "soiPhase" argument specifies the desired position of the
+    // sample of interest ADC in the ADC bytes written out into the
+    // aux words of the HFRecHit. For more detail, see comments
+    // inside the HFRecHitAuxSetter.h header.
+    //
     // For monitoring purposes, "rejectAllFailures" can be set to
     // "false". In this case, for the energy reconstruction purposes,
     // all status values indicating that the anode is not passing
@@ -40,6 +45,7 @@ public:
     //
     HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
                       const float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2],
+                      unsigned soiPhase,
                       bool rejectAllFailures = true);
 
     inline virtual ~HFSimpleTimeCheck() {}
@@ -50,6 +56,7 @@ public:
                                  const HcalCalibrations& calibs,
                                  const bool flaggedBadInDB[2]) override;
 
+    inline unsigned soiPhase() const {return soiPhase_;}
     inline bool rejectingAllFailures() const {return rejectAllFailures_;}
 
 protected:
@@ -61,6 +68,7 @@ private:
 
     std::pair<float,float> tlimits_[2];
     float energyWeights_[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2];
+    unsigned soiPhase_;
     bool rejectAllFailures_;
 };
 

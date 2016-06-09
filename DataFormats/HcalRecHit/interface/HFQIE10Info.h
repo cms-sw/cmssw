@@ -18,14 +18,16 @@ public:
     typedef HcalDetId key_type;
     typedef QIE10DataFrame::Sample::wide_type raw_type;
 
-    static const unsigned N_RAW_MAX = 3;
+    static const unsigned N_RAW_MAX = 5;
     static const raw_type INVALID_RAW = std::numeric_limits<raw_type>::max();
 
     HFQIE10Info();
 
+    // Argument "soi" provides the index of the sample of interest
+    // in the "rawData" array
     HFQIE10Info(const HcalDetId& id, float charge, float energy,
                 float timeRising, float timeFalling,
-                const raw_type* rawData, unsigned nData);
+                const raw_type* rawData, unsigned nData, unsigned soi);
 
     inline HcalDetId id() const {return id_;}
 
@@ -34,6 +36,7 @@ public:
     inline float timeRising() const {return timeRising_;}
     inline float timeFalling() const {return timeFalling_;}
     inline unsigned nRaw() const {return nRaw_;}
+    inline unsigned soi() const {return soi_;}
     inline raw_type getRaw(const unsigned which) const
        {return which >= nRaw_ ? INVALID_RAW : raw_[which];}
 
@@ -45,7 +48,8 @@ private:
     float timeRising_;
     float timeFalling_;
     raw_type raw_[N_RAW_MAX];
-    uint32_t nRaw_;
+    uint8_t nRaw_;
+    uint8_t soi_;
 };
 
 #endif // DATAFORMATS_HCALRECHIT_HFQIE10INFO_H
