@@ -4,7 +4,7 @@ triggerTable = {
         "HLT_PFMET170_NoiseCleaned_v*",
     ],
     "ZnnHbbAll" : [
-        "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV0p72_v*",
+        "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV_p067_v*",
         "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_v*",
         "HLT_PFMET90_PFMHT90_IDTight_v*",
         "HLT_PFMET100_PFMHT100_IDTight_v*",
