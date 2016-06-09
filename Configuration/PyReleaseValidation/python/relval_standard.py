@@ -134,18 +134,18 @@ workflows[134.812] = ['',['RunZeroBias2015C','HLTDR2_25ns','RECODR2_25nsreHLT','
 
 
 ### run 2015D 25ns ###
-workflows[134.901] = ['',['RunHLTPhy2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.902] = ['',['RunDoubleEG2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.903] = ['',['RunDoubleMuon2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.904] = ['',['RunJetHT2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.905] = ['',['RunMET2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.906] = ['',['RunMuonEG2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.907] = ['',['RunDoubleEGPrpt2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.908] = ['',['RunSingleMuPrpt2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.909] = ['',['RunSingleEl2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.910] = ['',['RunSingleMu2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.911] = ['',['RunSinglePh2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
-workflows[134.912] = ['',['RunZeroBias2015D','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+workflows[134.901] = ['',['RunHLTPhy2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.902] = ['',['RunDoubleEG2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.903] = ['',['RunDoubleMuon2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.904] = ['',['RunJetHT2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.905] = ['',['RunMET2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.906] = ['',['RunMuonEG2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.907] = ['',['RunDoubleEGPrpt2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.908] = ['',['RunSingleMuPrpt2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.909] = ['',['RunSingleEl2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.910] = ['',['RunSingleMu2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.911] = ['',['RunSinglePh2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
+workflows[134.912] = ['',['RunZeroBias2015D','HLTDR2_25ns','RECODR2_25nsreHLT','HARVESTDR2']]
 
 ### run 2016B ###
 workflows[136.721] = ['',['RunHLTPhy2016B','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
