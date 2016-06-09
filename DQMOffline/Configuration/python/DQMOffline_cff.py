@@ -18,6 +18,7 @@ from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
+from DQM.CTPPS.totemDQM_cff import *
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
@@ -71,6 +72,10 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            HLTMonitoring *
                            dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
+
+_ctpps_2016_DQMOffline = DQMOffline.copy()
+_ctpps_2016_DQMOffline *= totemDQM
+eras.ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
