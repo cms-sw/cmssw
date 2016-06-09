@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # geometry
 from Geometry.VeryForwardGeometry.geometryRP_cfi import *
-XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
 
 # clusterization
 from RecoCTPPS.TotemRPLocal.totemRPClusterProducer_cfi import *

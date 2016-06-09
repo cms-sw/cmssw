@@ -86,6 +86,9 @@ XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
     rootNodeName = cms.string('cms:CMSE')
 )
 
+# position of RPs
+XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
+
 # extended geometries
 TotemRPGeometryESModule = cms.ESProducer("TotemRPGeometryESModule",
     verbosity = cms.untracked.uint32(1)
