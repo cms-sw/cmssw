@@ -112,8 +112,10 @@ class PhotonAnalyzer( Analyzer ):
                     id=3
                 return id
 
-            gamma.idCutBased = idWP(gamma, "POG_SPRING15_25ns_%s")
-
+            # bits to store in the trees
+            gamma.idWPs = idWP(gamma, "POG_SPRING15_25ns_%s")
+            # bit to be used in selection
+            gamma.idCutBased = 0
 
             keepThisPhoton = True
 
