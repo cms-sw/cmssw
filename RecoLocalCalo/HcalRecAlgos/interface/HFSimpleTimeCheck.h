@@ -1,0 +1,67 @@
+#ifndef RecoLocalCalo_HcalRecAlgos_HFSimpleTimeCheck_h_
+#define RecoLocalCalo_HcalRecAlgos_HFSimpleTimeCheck_h_
+
+#include <utility>
+
+#include "RecoLocalCalo/HcalRecAlgos/interface/AbsHFPhase1Algo.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HFAnodeStatus.h"
+
+class HFSimpleTimeCheck : public AbsHFPhase1Algo
+{
+public:
+    // "tlimits" are the rise time limits for the anode pair.
+    // The first element of the pair is the min rise time and the
+    // second element is the max rise time. tlimits[0] is for the
+    // first anode and tlimits[1] is for the second one.
+    //
+    // "energyWeights" is the lookup table for the energy weights
+    // based on the multi-state decision about anode quality.
+    // The first index of this array corresponds to the decision
+    // about the status of the anodes, and the second index corresponds
+    // to the anode number. Possible status values are given in the
+    // HFAnodeStatus enum. Mapping of the first index to the possible
+    // status values is as follows:
+    //
+    // Indices 0 to HFAnodeStatus::N_POSSIBLE_STATES-1 correspond to
+    // the situations in which the first anode has the status "OK"
+    // and the second anode has the status given by the index.
+    // 
+    // HFAnodeStatus::N_POSSIBLE_STATES to HFAnodeStatus::N_POSSIBLE_STATES-2
+    // correspond to the situations in which the second anode has
+    // the status "OK" and the first anode has the status given
+    // by index - HFAnodeStatus::N_POSSIBLE_STATES + 1. This excludes
+    // the state {OK, OK} already covered.
+    //
+    // For monitoring purposes, "rejectAllFailures" can be set to
+    // "false". In this case, for the energy reconstruction purposes,
+    // all status values indicating that the anode is not passing
+    // algorithm cuts will be mapped to "OK". However, HFRecHit
+    // will still be made using proper status flags.
+    //
+    HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
+                      const float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2],
+                      bool rejectAllFailures = true);
+
+    inline virtual ~HFSimpleTimeCheck() {}
+
+    inline virtual bool isConfigurable() const override {return false;}
+
+    virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
+                                 const HcalCalibrations& calibs,
+                                 const bool flaggedBadInDB[2]) override;
+
+    inline bool rejectingAllFailures() const {return rejectAllFailures_;}
+
+protected:
+    virtual unsigned determineAnodeStatus(unsigned anodeNumber,
+                                          const HFQIE10Info& anode) const;
+private:
+    // Map possible status values into the first index of "energyWeights_"
+    unsigned mapStatusIntoIndex(const unsigned states[2]) const;
+
+    std::pair<float,float> tlimits_[2];
+    float energyWeights_[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2];
+    bool rejectAllFailures_;
+};
+
+#endif // RecoLocalCalo_HcalRecAlgos_HFSimpleTimeCheck_h_

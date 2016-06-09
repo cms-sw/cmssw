@@ -62,7 +62,6 @@ private:
 
     // Module configuration parameters
     edm::InputTag inputLabel_;
-    int firstSample_;
     bool dropZSmarkedPassed_;
     bool tsFromDB_;
 
@@ -85,7 +84,6 @@ private:
 //
 HFPreReconstructor::HFPreReconstructor(const edm::ParameterSet& conf)
     : inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
-      firstSample_(conf.getParameter<int>("firstSample")),
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       tsFromDB_(conf.getParameter<bool>("tsFromDB"))
 {
@@ -189,7 +187,8 @@ HFPreReconstructor::fillInfos(const edm::Event& e, const edm::EventSetup& eventS
             const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
             const HcalCoderDb coder(*channelCoder, *shape);
 
-            int tsToUse = firstSample_;
+            // Get the "sample of interest" from the data frame itself
+            int tsToUse = frame.presamples();
             if (tsFromDB_)
             {
                 const HcalRecoParam* param_ts = paramTS_->getValues(cell.rawId());
@@ -289,7 +288,6 @@ HFPreReconstructor::fillDescriptions(edm::ConfigurationDescriptions& description
     edm::ParameterSetDescription desc;
 
     desc.add<edm::InputTag>("digiLabel");
-    desc.add<int>("firstSample");
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
 
