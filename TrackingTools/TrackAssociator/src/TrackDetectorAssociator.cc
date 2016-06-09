@@ -720,7 +720,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
          distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
          distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
 	 sigmaX = distanceX/sqrt(localError.xx());
-         sigmaY = distanceY/sqrt(localError.yy());	 
+         sigmaY = distanceY/sqrt(localError.yy());
       }
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
@@ -841,7 +841,7 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 					  const RecSegment* segment,
 					  const AssociatorParameters& parameters)
 {
-   LogTrace("TrackAssociator") 
+   LogTrace("TrackAssociator")
      << "Segment local position: " << segment->localPosition() << "\n"
      << std::hex << segment->geographicalId().rawId() << "\n";
    
@@ -849,11 +849,11 @@ bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
    TrajectoryStateOnSurface trajectoryStateOnSurface = matchedChamber.tState;
    GlobalPoint segmentGlobalPosition = chamber->toGlobal(segment->localPosition());
 
-   LogTrace("TrackAssociator") 
+   LogTrace("TrackAssociator")
      << "Segment global position: " << segmentGlobalPosition << " \t (R_xy,eta,phi): "
      << segmentGlobalPosition.perp() << "," << segmentGlobalPosition.eta() << "," << segmentGlobalPosition.phi() << "\n";
 
-   LogTrace("TrackAssociator") 
+   LogTrace("TrackAssociator")
      << "\teta hit: " << segmentGlobalPosition.eta() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().eta() << "\n"
      << "\tphi hit: " << segmentGlobalPosition.phi() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().phi() << std::endl;
    
