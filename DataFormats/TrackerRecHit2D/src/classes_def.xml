@@ -117,8 +117,8 @@
  <class name="edmNew::DetSetVector<SiPixelRecHit>"/>
  <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 
-  <class name="reco::ClusterRemovalInfo"  ClassVersion="10">
-   <version ClassVersion="10" checksum="529080197"/>
+  <class name="reco::ClusterRemovalInfo"  ClassVersion="11">
+   <version ClassVersion="11" checksum="988071764"/>
   </class>
   <class name="reco::ClusterRemovalInfo::SiPixelClusterRefProd" />
   <class name="reco::ClusterRemovalInfo::SiStripClusterRefProd" />
