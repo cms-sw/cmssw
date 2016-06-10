@@ -217,7 +217,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
   for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
     {
       if (jets.at(iJet).hwEta() > 0) jetEtaPos.at( CaloTools::mpEta(jets.at(iJet).hwEta())-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
-      else                           jetEtaNeg.at( CaloTools::mpEta(-(jets.at(iJet).hwEta()))+1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      else                           jetEtaNeg.at( CaloTools::mpEta(abs(jets.at(iJet).hwEta()))-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
     }
 
   AccumulatingSort <l1t::Jet> etaPosSorter(6);
