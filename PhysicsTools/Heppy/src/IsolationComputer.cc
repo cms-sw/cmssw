@@ -65,16 +65,16 @@ void heppy::IsolationComputer::clearVetos() {
 
 /// Isolation from charged from the PV 
 float heppy::IsolationComputer::chargedAbsIso(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoSumRaw(charged_, cand, dR, innerR, threshold, selfVeto);
+  return isoSumRaw<SumPtAlgo>(charged_, cand, dR, innerR, threshold, selfVeto).result();
 }
 
 /// Isolation from charged from PU
 float heppy::IsolationComputer::puAbsIso(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoSumRaw(pileup_, cand, dR, innerR, threshold, selfVeto);
+  return isoSumRaw<SumPtAlgo>(pileup_, cand, dR, innerR, threshold, selfVeto).result();
 }
 
 float heppy::IsolationComputer::neutralAbsIsoRaw(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoSumRaw(neutral_, cand, dR, innerR, threshold, selfVeto);
+  return isoSumRaw<SumPtAlgo>(neutral_, cand, dR, innerR, threshold, selfVeto).result();
 }
 
 float heppy::IsolationComputer::neutralAbsIsoWeighted(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
@@ -82,7 +82,7 @@ float heppy::IsolationComputer::neutralAbsIsoWeighted(const reco::Candidate &can
 }
 
 float heppy::IsolationComputer::neutralHadAbsIsoRaw(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoSumRaw(neutral_, cand, dR, innerR, threshold, selfVeto, 130);
+  return isoSumRaw<SumPtAlgo>(neutral_, cand, dR, innerR, threshold, selfVeto, 130).result();
 }
 
 float heppy::IsolationComputer::neutralHadAbsIsoWeighted(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
@@ -90,7 +90,7 @@ float heppy::IsolationComputer::neutralHadAbsIsoWeighted(const reco::Candidate &
 }
 
 float heppy::IsolationComputer::photonAbsIsoRaw(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoSumRaw(neutral_, cand, dR, innerR, threshold, selfVeto, 22);
+  return isoSumRaw<SumPtAlgo>(neutral_, cand, dR, innerR, threshold, selfVeto, 22).result();
 }
 
 float heppy::IsolationComputer::photonAbsIsoWeighted(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
@@ -99,23 +99,23 @@ float heppy::IsolationComputer::photonAbsIsoWeighted(const reco::Candidate &cand
 
 /// Isolation four momenta
 reco::Candidate::LorentzVector heppy::IsolationComputer::chargedP4Iso(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoP4Raw(charged_, cand, dR, innerR, threshold, selfVeto);
+  return isoSumRaw<SumP4Algo>(charged_, cand, dR, innerR, threshold, selfVeto).result();
 }
 reco::Candidate::LorentzVector heppy::IsolationComputer::puP4Iso(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoP4Raw(pileup_, cand, dR, innerR, threshold, selfVeto);
+  return isoSumRaw<SumP4Algo>(pileup_, cand, dR, innerR, threshold, selfVeto).result();
 }
 reco::Candidate::LorentzVector heppy::IsolationComputer::neutralP4IsoRaw(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoP4Raw(neutral_, cand, dR, innerR, threshold, selfVeto);
+  return isoSumRaw<SumP4Algo>(neutral_, cand, dR, innerR, threshold, selfVeto).result();
 }
 reco::Candidate::LorentzVector heppy::IsolationComputer::neutralHadP4IsoRaw(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoP4Raw(neutral_, cand, dR, innerR, threshold, selfVeto, 130);
+  return isoSumRaw<SumP4Algo>(neutral_, cand, dR, innerR, threshold, selfVeto, 130).result();
 }
 reco::Candidate::LorentzVector heppy::IsolationComputer::photonP4IsoRaw(const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto) const {
-    return isoP4Raw(neutral_, cand, dR, innerR, threshold, selfVeto, 22);
+  return isoSumRaw<SumP4Algo>(neutral_, cand, dR, innerR, threshold, selfVeto, 22).result();
 }
 
 
-float heppy::IsolationComputer::isoSumRaw(const std::vector<const pat::PackedCandidate *> & cands, const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto, int pdgId) const 
+template<class SumAlgo> SumAlgo heppy::IsolationComputer::isoSumRaw(const std::vector<const pat::PackedCandidate *> & cands, const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto, int pdgId) const
 {
     float dR2 = dR*dR, innerR2 = innerR*innerR;
 
@@ -133,7 +133,7 @@ float heppy::IsolationComputer::isoSumRaw(const std::vector<const pat::PackedCan
     IT candsbegin = std::lower_bound(cands.begin(), cands.end(), cand.eta() - dR, ByEta());
     IT candsend = std::upper_bound(candsbegin, cands.end(), cand.eta() + dR, ByEta());
 
-    double isosum = 0;
+    SumAlgo isosum;
     for (IT icharged = candsbegin; icharged < candsend; ++icharged) {
         // pdgId
         if (pdgId > 0 && abs((*icharged)->pdgId()) != pdgId) continue;
@@ -147,44 +147,7 @@ float heppy::IsolationComputer::isoSumRaw(const std::vector<const pat::PackedCan
             continue;
         }
         // add to sum
-        isosum += (*icharged)->pt();
-    }
-    return isosum;
-}
-
-reco::Candidate::LorentzVector heppy::IsolationComputer::isoP4Raw(const std::vector<const pat::PackedCandidate *> & cands, const reco::Candidate &cand, float dR, float innerR, float threshold, SelfVetoPolicy selfVeto, int pdgId) const 
-{
-    float dR2 = dR*dR, innerR2 = innerR*innerR;
-
-    std::vector<const reco::Candidate *> vetos(vetos_);
-    for (unsigned int i = 0, n = cand.numberOfSourceCandidatePtrs(); i < n; ++i) {
-        if (selfVeto == selfVetoNone) break;
-        const reco::CandidatePtr &cp = cand.sourceCandidatePtr(i);
-        if (cp.isNonnull() && cp.isAvailable()) {
-            vetos.push_back(&*cp);
-            if (selfVeto == selfVetoFirst) break;
-        }
-    }
-
-    typedef std::vector<const pat::PackedCandidate *>::const_iterator IT;
-    IT candsbegin = std::lower_bound(cands.begin(), cands.end(), cand.eta() - dR, ByEta());
-    IT candsend = std::upper_bound(candsbegin, cands.end(), cand.eta() + dR, ByEta());
-
-    reco::Candidate::LorentzVector isosum;
-    for (IT icharged = candsbegin; icharged < candsend; ++icharged) {
-        // pdgId
-        if (pdgId > 0 && abs((*icharged)->pdgId()) != pdgId) continue;
-        // threshold
-        if (threshold > 0 && (*icharged)->pt() < threshold) continue;
-        // cone
-        float mydr2 = reco::deltaR2(**icharged, cand);
-        if (mydr2 >= dR2 || mydr2 < innerR2) continue;
-        // veto
-        if (std::find(vetos.begin(), vetos.end(), *icharged) != vetos.end()) {
-            continue;
-        }
-        // add to sum
-        isosum += (*icharged)->p4();
+        isosum += (*icharged);
     }
     return isosum;
 }
