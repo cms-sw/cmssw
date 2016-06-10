@@ -15,6 +15,9 @@ RecoTauCleaner = cms.EDProducer("RecoTauCleaner",
             plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
             src = cms.InputTag("hpsSelectionDiscriminator"),
         ),
+        # CV: Reject 2-prong candidates in which one of the tracks has low pT,
+        #     in order to reduce rate of 1-prong taus migrating to 2-prong decay mode
+        cleaners.killSoftTwoProngTaus,                                    
         # CV: prefer 3-prong candidates over 2-prong candidates and 2-prong candidates over 1-prong candidates 
         cleaners.chargedHadronMultiplicity,                                    
         # CV: Take highest pT tau (use for testing of new high pT tau reconstruction and check if it can become the new default)
