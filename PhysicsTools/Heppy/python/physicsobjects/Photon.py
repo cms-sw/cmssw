@@ -196,9 +196,8 @@ class Photon(PhysicsObject ):
         else:
             if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
                 passPhotonIso = False
-
-        if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso(isocorr):
-            passPhotonIso = False
+            if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["phoIso"][idForBarrel]) < self.photonIso(isocorr):
+                passPhotonIso = False
         
         return passPhotonIso
 
