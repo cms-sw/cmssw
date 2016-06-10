@@ -141,7 +141,6 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if ( field->nominalValue() > 0 ) {
           MassWErr = massCalculator.invariantMass( VtxForInvMass, muMasses );
         } else {
-          std::cout << " Field is " << field->nominalValue() << " kGauss, invalidating vertex combination" << std::endl;
           myVertex = TransientVertex();                      // with no arguments it is invalid
         }
 
