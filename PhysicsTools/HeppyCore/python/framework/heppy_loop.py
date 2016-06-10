@@ -8,7 +8,7 @@ import glob
 import sys
 import imp
 import copy
-from multiprocessing import Pool
+import multiprocessing 
 from pprint import pprint
 
 # import root in batch mode if "-i" is not among the options
@@ -41,6 +41,7 @@ def runLoopAsync(comp, outDir, configName, options):
         print traceback.format_exc()
         raise
 
+_globalGracefulStopFlag = multiprocessing.Value('i',0)
 def runLoop( comp, outDir, config, options):
     fullName = '/'.join( [outDir, comp.name ] )
     # import pdb; pdb.set_trace()
@@ -52,7 +53,8 @@ def runLoop( comp, outDir, config, options):
                    nPrint = options.nprint,
                    timeReport = options.timeReport,
                    quiet = options.quiet,
-                   memCheckFromEvent = memcheck)
+                   memCheckFromEvent = memcheck,
+                   stopFlag = _globalGracefulStopFlag)
     # print loop
     if options.iEvent is None:
         loop.loop()
@@ -180,7 +182,7 @@ def main( options, args, parser ):
         sys.exit(0)
     if len(selComps)>1:
         shutil.copy( cfgFileName, outDir )
-        pool = Pool(processes=min(len(selComps),options.ntasks))
+        pool = multiprocessing.Pool(processes=min(len(selComps),options.ntasks))
         ## workaround for a scoping problem in ipython+multiprocessing
         import PhysicsTools.HeppyCore.framework.heppy_loop as ML 
         for comp in selComps:
