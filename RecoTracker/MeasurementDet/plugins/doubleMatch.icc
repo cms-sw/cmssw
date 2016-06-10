@@ -151,7 +151,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
 
 
   auto id = geomDet().geographicalId().subdetId();
-  if (id==5 && ts.globalMomentum().perp2()>0.81f) { // tob
+  if ( (id==3 || id==5) && ts.globalMomentum().perp2()>0.81f) { // tob & tib
   // if no match found try add mon than try to add stereo...
   if (0==collector.size()) 
     projectOnGluedDet( collector, monoHits, glbDir);
