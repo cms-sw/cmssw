@@ -65,7 +65,6 @@ TrackingRecHitProductPtr
 PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 {
     std::vector<std::pair<unsigned int,const PSimHit*>> & simHitIdPairs = product->getSimHitIdPairs();
-    //this needs to be changed - the pair should be propagated to the 'addRecHit' method  instead 
     std::vector<const PSimHit*> simHits(simHitIdPairs.size());
     for (unsigned int ihit = 0; ihit<simHitIdPairs.size();++ihit)
     {
@@ -87,7 +86,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
     const double boundY = theBounds.length()/2.;
 
 
-    std::vector< const PSimHit* > listOfUnmergedHits; 
+    std::vector<TrackingRecHitProduct::SimHitIdPair> listOfUnmergedHits; 
     std::vector< MergeGroup* > listOfMergeGroups;
     int nHits = simHits.size();          
     
@@ -101,7 +100,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
     }
     else if (nHits == 1)
     {
-        listOfUnmergedHits.push_back(simHits[0]);
+        listOfUnmergedHits.push_back(simHitIdPairs[0]);
     }
     else 
     {
@@ -118,7 +117,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                 for ( int j = i+1 ; j < nHits; ++j ) {
 
                     //--- Calculate the distance between hits i and j:
-                    bool merged = hitsMerge( *simHits[i], *simHits[j] );
+                    bool merged = hitsMerge( *simHitIdPairs[i].second, *simHitIdPairs[j].second );
 
 
                     if ( merged )
@@ -129,7 +128,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                             if (mergeGroupByHit[i] == 0 ) 
                             {
                                 mergeGroupByHit[i] = mergeGroupByHit[j];
-                                mergeGroupByHit[i]->group.push_back(simHits[i]);
+                                mergeGroupByHit[i]->group.push_back(simHitIdPairs[i]);
                                 mergeGroupByHit[i]->smearIt = 1;
                             }
                             else
@@ -180,11 +179,11 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                                 // Add hit i as the first to its own merge group
                                 // (simHits[i] is a const pointer to PSimHit).
                                 //std::cout << "ALICE: simHits" << simHits[i] << std::endl;
-                                mergeGroupByHit[i]->group.push_back( simHits[i] );
+                                mergeGroupByHit[i]->group.push_back( simHitIdPairs[i] );
                                 mergeGroupByHit[i]->smearIt = 1;
                             }
                             //--- Add hit j as well
-                            mergeGroupByHit[i]->group.push_back( simHits[j] );
+                            mergeGroupByHit[i]->group.push_back( simHitIdPairs[j] );
                             mergeGroupByHit[i]->smearIt = 1;
                             
                             mergeGroupByHit[j] = mergeGroupByHit[i];
@@ -204,7 +203,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                 if ( mergeGroupByHit[i] == 0 )
                 {
                     //--- Keep track of it.
-                    listOfUnmergedHits.push_back( simHits[i] );
+                    listOfUnmergedHits.push_back( simHitIdPairs[i] );
                 }
             } //--- end of loop over i
         } // --- end of if (mergeHitsOn)
@@ -215,7 +214,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
             //back to listOfUnmergedHits
             for (int i = 0; i < nHits; ++i )
             {
-                listOfUnmergedHits.push_back( simHits[i] );
+                listOfUnmergedHits.push_back( simHitIdPairs[i] );
             }
         }
     } // --- end of if (nHits == 1) else {...}
@@ -678,17 +677,17 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
 
 TrackingRecHitProductPtr PixelTemplateSmearerBase::
 processUnmergedHits(
-    std::vector< const PSimHit* > & unmergedHits, 
+    std::vector<TrackingRecHitProduct::SimHitIdPair> & unmergedHits, 
     TrackingRecHitProductPtr product,
     const PixelGeomDetUnit * detUnit,
     const double boundX, const double boundY,
     RandomEngineAndDistribution const * random
 ) const
 {
-    for (const PSimHit* simHit : unmergedHits)
+    for (auto simHitIdPair: unmergedHits)
     {
-        FastSingleTrackerRecHit recHit = smearHit( *simHit, detUnit, boundX, boundY, random );
-        product->addRecHit( recHit ,{simHit});
+        FastSingleTrackerRecHit recHit = smearHit( *simHitIdPair.second, detUnit, boundX, boundY, random );
+        product->addRecHit( recHit ,{simHitIdPair});
     }
     return product;
 }
@@ -734,7 +733,7 @@ smearMergeGroup(
 
     for (auto hit_it = mg->group.begin(); hit_it != mg->group.end(); ++hit_it) 
     {
-        const PSimHit simHit = **hit_it; 
+        const PSimHit simHit = *hit_it->second; 
         //getting local momentum and adding all of the hits' momentums up
         LocalVector localDir = simHit.momentumAtEntry().unit();
         loccx += localDir.x();

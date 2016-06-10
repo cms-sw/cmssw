@@ -41,7 +41,7 @@ class PixelTemplateSmearerBase:
     public:
         //--- Use this type to keep track of groups of hits that need to be merged:
         struct MergeGroup{
-            std::vector<const PSimHit*> group;
+            std::vector<TrackingRecHitProduct::SimHitIdPair> group;
             bool smearIt;
         };
 
@@ -92,7 +92,7 @@ class PixelTemplateSmearerBase:
 
         //--- Process all unmerged hits. Calls smearHit() for each.
         TrackingRecHitProductPtr processUnmergedHits( 
-            std::vector< const PSimHit* > & unmergedHits,
+            std::vector<TrackingRecHitProduct::SimHitIdPair> & unmergedHits,
 	        TrackingRecHitProductPtr product,
 	        const PixelGeomDetUnit * detUnit,
 	        const double boundX, const double boundY,
