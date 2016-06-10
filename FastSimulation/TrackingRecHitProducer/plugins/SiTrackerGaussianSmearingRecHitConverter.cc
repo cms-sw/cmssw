@@ -41,6 +41,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 // Numbering scheme
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -1009,3 +1011,6 @@ bool SiTrackerGaussianSmearingRecHitConverter::smear(const PSimHit& simHit,
   } // subdetector case
     //
 }   
+
+
+DEFINE_FWK_MODULE(SiTrackerGaussianSmearingRecHitConverter);

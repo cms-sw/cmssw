@@ -519,7 +519,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
     }
 
 
-    //add misalignment error getMisalignedGeometry
+    //add misalignment error
     const TrackerGeomDet* misalignmentDetUnit = getMisalignedGeometry().idToDet(detUnit->geographicalId());
     const LocalError& alignmentError = misalignmentDetUnit->localAlignmentError();
     if (alignmentError.valid())

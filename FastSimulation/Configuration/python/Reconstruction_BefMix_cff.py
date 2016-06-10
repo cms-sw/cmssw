@@ -13,41 +13,11 @@ import FWCore.ParameterSet.Config as cms
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import offlineBeamSpot
 
 # and of course it needs tracker hits
+
+#uses the old RecHit producer
 #from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import siTrackerGaussianSmearingRecHits
+#uses the new RecHit producer
 from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_NoMerge_cfi import trackingRecHitProducerNoMerge as siTrackerGaussianSmearingRecHits
-#from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_Example_cfi import trackingRecHitProducer as siTrackerGaussianSmearingRecHits
-#from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_Example_cfi import trackingRecHitProducer_alt as siTrackerGaussianSmearingRecHits
-
-resolutionsPIXELS = cms.EDProducer(
-    "TrackerHitResolution",
-    recHitsMap = cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
-    simHits = cms.InputTag("famosSimHits","TrackerHits"),
-    select = cms.string("subdetId==BPX || subdetId==FPX"),
-    
-    nbinsx=cms.int32(100),nbinsy=cms.int32(100),
-    
-    xposmin=cms.double(-0.01),xposmax=cms.double(0.01),
-    yposmin=cms.double(-0.01),yposmax=cms.double(0.01),
-    
-    xerrmin=cms.double(0.0001),xerrmax=cms.double(0.01),
-    yerrmin=cms.double(0.0001),yerrmax=cms.double(0.01)
-)
-
-resolutionsSTRIPS = cms.EDProducer(
-    "TrackerHitResolution",
-    recHitsMap = cms.InputTag("siTrackerGaussianSmearingRecHits","simHit2RecHitMap"),
-    simHits = cms.InputTag("famosSimHits","TrackerHits"),
-    select = cms.string("subdetId==TIB || subdetId==TID || subdetId==TOB || subdetId==TEC"),
-    
-    nbinsx=cms.int32(50),nbinsy=cms.int32(50),
-    
-    xposmin=cms.double(-0.02),xposmax=cms.double(0.02),
-    yposmin=cms.double(-12),yposmax=cms.double(12),
-    
-    xerrmin=cms.double(0.001),xerrmax=cms.double(0.01),
-    yerrmin=cms.double(1),yerrmax=cms.double(7)
-)
-
 
 from FastSimulation.TrackingRecHitProducer.FastTrackerRecHitMatcher_cfi import fastMatchedTrackerRecHits
 import FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi
@@ -83,10 +53,6 @@ from TrackingTools.TrackFitters.TrackFitters_cff import *
 reconstruction_befmix = cms.Sequence(
     offlineBeamSpot
     * siTrackerGaussianSmearingRecHits
-    
-    * resolutionsPIXELS
-    * resolutionsSTRIPS
-    
     * fastMatchedTrackerRecHits
     * fastMatchedTrackerRecHitCombinations
     * MeasurementTrackerEvent
