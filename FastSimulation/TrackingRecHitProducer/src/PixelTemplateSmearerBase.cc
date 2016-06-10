@@ -41,10 +41,9 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     edm::ConsumesCollector& consumesCollector 
 ):
     TrackingRecHitAlgorithm(name,config,consumesCollector),
-    pset_(config),
     thePixelPart(GeomDetEnumerators::PixelBarrel)
 {
-    mergeHitsOn = pset_.getParameter<bool>("MergeHitsOn");
+    mergeHitsOn = config.getParameter<bool>("MergeHitsOn");
 }
 
 

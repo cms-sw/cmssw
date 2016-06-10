@@ -49,21 +49,18 @@ class PixelTemplateSmearerBase:
         bool mergeHitsOn; 
         std::vector< SiPixelTemplateStore > thePixelTemp_;
         int tempId;
-        //
+        
         bool isFlipped(const PixelGeomDetUnit* theDet) const;
         //isForward, true for forward, false for barrel
         bool isForward;
-        //
-        //
-        // resolution bins
+        
         double rescotAlpha_binMin , rescotAlpha_binWidth;
         unsigned int rescotAlpha_binN;
         double rescotBeta_binMin  , rescotBeta_binWidth;
         unsigned int rescotBeta_binN;
         int resqbin_binMin, resqbin_binWidth;
         unsigned int resqbin_binN;
-        //
-        edm::ParameterSet pset_;
+        
         // Useful private members
         GeomDetType::SubDetector thePixelPart;
 
