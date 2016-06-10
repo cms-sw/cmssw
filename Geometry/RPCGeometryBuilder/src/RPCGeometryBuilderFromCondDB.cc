@@ -164,7 +164,7 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
         }
         const LocalPoint lpOfCentre((cornersHi[0]+cornersHi[1])/2, (cornersLo[2]+cornersHi[2])/2, 0);
         const auto gpOfCentre = refSurf.toGlobal(lpOfCentre);
-        auto bounds = new TrapezoidalPlaneBounds((cornersLo[1]-cornersLo[0])/2, (cornersHi[1]-cornersHi[0])/2, (cornersHi[2]-cornersLo[2]), 0);
+        auto bounds = new TrapezoidalPlaneBounds((cornersLo[1]-cornersLo[0])/2, (cornersHi[1]-cornersHi[0])/2, (cornersHi[2]-cornersLo[2])/2, 0);
         bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
       }
     }
