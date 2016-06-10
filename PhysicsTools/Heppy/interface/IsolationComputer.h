@@ -63,8 +63,6 @@ class IsolationComputer {
         /// Isolation from photons (uncorrected) , four momentum
         reco::Candidate::LorentzVector photonP4IsoRaw(const reco::Candidate &cand, float dR, float innerR=0, float threshold=0, SelfVetoPolicy selfVeto=selfVetoAll) const ;
 
-	std::vector<const pat::PackedCandidate *> findPairIsoTrack(const reco::Candidate &cand, float dR, float innerR=0, float trackMaxChargedIso=4, float threshold=0, float trackNormChi2=5);
-
     protected:
         const std::vector<pat::PackedCandidate> * allcands_;
         float weightCone_;

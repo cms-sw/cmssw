@@ -18,12 +18,6 @@ namespace {
         bool operator()(const pat::PackedCandidate *c1, const pat::PackedCandidate *c2) const {
             return c1->pt() < c2->pt();
         }
-        bool operator()(float c1pt, const pat::PackedCandidate *c2) const {
-            return c1pt < c2->pt();
-        }
-        bool operator()(const pat::PackedCandidate *c1, float c2pt) const {
-            return c1->pt() < c2pt;
-        }
     };
 }
 void heppy::IsolationComputer::setPackedCandidates(const std::vector<pat::PackedCandidate> & all, int fromPV_thresh, float dz_thresh, float dxy_thresh, bool also_leptons) 
@@ -257,52 +251,4 @@ float heppy::IsolationComputer::isoSumNeutralsWeighted(const reco::Candidate &ca
         isosum += w * (*ineutral)->pt();
     }
     return isosum;
-}
-
-
-std::vector<const pat::PackedCandidate *> heppy::IsolationComputer::findPairIsoTrack(const reco::Candidate &cand, float dR, float innerR, float trackMaxChargedIso, float threshold, float trackNormChi2)
-{
-
-    const std::vector<const pat::PackedCandidate *> & cands = charged_;
-
-    float dR2 = dR*dR, innerR2 = innerR*innerR;
-
-    std::vector<const reco::Candidate *> vetos(vetos_);
-    for (unsigned int i = 0, n = cand.numberOfSourceCandidatePtrs(); i < n; ++i) {
-        const reco::CandidatePtr &cp = cand.sourceCandidatePtr(i);
-        if (cp.isNonnull() && cp.isAvailable()) {
-            vetos.push_back(&*cp);
-        }
-    }
-
-    typedef std::vector<const pat::PackedCandidate *>::const_iterator IT;
-    IT candsbegin = std::lower_bound(cands.begin(), cands.end(), cand.eta() - dR, ByEta());
-    IT candsend = std::upper_bound(candsbegin, cands.end(), cand.eta() + dR, ByEta());
-
-    std::vector<const pat::PackedCandidate *> good_candidates;
-
-    // find good candidates
-    for (IT icharged = candsbegin; icharged < candsend; ++icharged) {
-        // threshold
-        if (threshold > 0 && (*icharged)->pt() < threshold) continue;
-        // cone
-        float mydr2 = reco::deltaR2(**icharged, cand);
-        if (mydr2 >= dR2 || mydr2 < innerR2) continue;
-        // veto
-        if (std::find(vetos.begin(), vetos.end(), *icharged) != vetos.end()) {
-            continue;
-        }
-	// cut on track norm chi2
-	if ((*icharged)->pseudoTrack().normalizedChi2()>=trackNormChi2) continue;
-	// cut on charged isolation around the track, excluding it and the lepton
-	std::vector<const reco::Candidate *> vetos_save = vetos_;
-	addVetos(cand);
-	addVetos(**icharged);
-	if (isoSumRaw(charged_, **icharged, 0.3, 0, 0, selfVetoNone)<trackMaxChargedIso) good_candidates.push_back(*icharged);
-	vetos_ = vetos_save;
-    }
-
-    std::sort(good_candidates.begin(), good_candidates.end(), ByPt());
-    return good_candidates;
-
 }
