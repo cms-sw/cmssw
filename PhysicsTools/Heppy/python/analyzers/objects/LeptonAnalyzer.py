@@ -686,67 +686,6 @@ class LeptonAnalyzer( Analyzer ):
                     dlep = min(dlep, distance(lep,lep.mcMatchAny_gp))
                 if dlep <= dpho: lep.mcPho = None
 
-
-    def isFromGamma(self,particle,gid=22, done={}):
-        for i in xrange( particle.numberOfMothers() ): 
-            mom  = particle.mother(i)
-            momid = abs(mom.pdgId())
-            if momid == gid: 
-                return True
-        return False
-
-    def SUSYMatchLeptons(self, event):
-        
-        leps = event.inclusiveLeptons
-        genPs=[]
-        genPsIdxs={}
-        for idx,x in enumerate(event.genParticles):
-            if x.status() == 1 or x.status() == 2 or x.status() == 71:
-                genPs.append(x)
-                genPsIdxs[idx]=len(genPsIdxs)
-
-        def lepMatch(rec, gen):
-            if gen.status() !=1: return False
-            if abs(rec.pdgId()) != abs(gen.pdgId()): return False
-            return True
-        matchLep = matchObjectCollection3(leps,genPs, 
-                                          deltaRMax = 0.2, filter = lepMatch)
-        
-        def generalMatch(rec, gen):
-            if gen.status() !=1 and gen.status() !=71: return False
-            return True
-        matchPart = matchObjectCollection3(leps,genPs, 
-                                           deltaRMax = 0.2, filter = generalMatch)
-        
-        for il, lep in  enumerate(leps):
-            gen = matchLep[lep] if matchLep[lep] else matchPart[lep]
-            code=-1
-            if not gen: 
-                lep.mcUCSXMatchId = -1
-                continue
-            
-            prompt = gen.isPromptFinalState() or gen.isDirectPromptTauDecayProductFinalState() or gen.isHardProcess() 
-            motherId=-9999
-            grandMotherId=-9999
-            moms=realGenMothers(gen)
-            if len(moms)==1:
-                motherId = abs(moms[0].pdgId())
-                gmoms = realGenMothers(moms[0])
-                if len(gmoms)==1:
-                    grandMotherId = abs(gmoms[0].pdgId())
-            if gen.pdgId()==22 or (motherId==22 and gen.pdgId()==lep.pdgId() ):
-                if prompt: code= 4
-                else: code= -1
-
-            if prompt or ((abs(gen.pdgId())==abs(lep.pdgId()) or abs(gen.pdgId())==15 ) and ((motherId in self.promptMothers) or (abs(motherId)==15 and (grandMotherId in self.promptMothers)) ) ) :
-                if gen.pdgId()*lep.pdgId()>0: code= 0
-                else : code= 1
-            
-            if (abs(gen.pdgId()) in self.bottoms) or (motherId in self.bottoms) : code= 3
-            if (abs(gen.pdgId()) in self.charms) or (motherId in self.charms) : code= 3
-            if (abs(gen.pdgId()) in self.lights) or (motherId in self.lights) : code= 2
-            lep.mcUCSXMatchId = code
-                        
     def process(self, event):
         self.readCollections( event.input )
         self.counters.counter('events').inc('all events')
@@ -757,8 +696,6 @@ class LeptonAnalyzer( Analyzer ):
         if self.cfg_comp.isMC and self.cfg_ana.do_mc_match:
             self.matchLeptons(event)
             self.matchAnyLeptons(event)
-            if getattr(self.cfg_ana,"do_mc_susy_match",False):
-                self.SUSYMatchLeptons(event)
             if self.doMatchToPhotons:
                 self.matchToPhotons(event)
             
@@ -841,7 +778,6 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     # do MC matching 
     do_mc_match = True, # note: it will in any case try it only on MC, not on data
     do_mc_match_photons = False, # mc match electrons to photons 
-    do_mc_susy_match=False,
     match_inclusiveLeptons = False, # match to all inclusive leptons
     )
 )
