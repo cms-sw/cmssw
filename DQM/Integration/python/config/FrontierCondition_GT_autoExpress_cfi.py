@@ -2,233 +2,157 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import * 
 GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS"
 GlobalTag.pfnPrefix = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/")
-GlobalTag.globaltag = "80X_dataRun2_Express_v0"
+# Deafult Express GT: it is the GT that will be used in case we are not able
+# to retrieve the one used at Tier0.
+# It should be kept in synch with Express processing at Tier0.
+GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v8" )
 es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.
 # 
 auto=True
-tier0DasUrl = 'https://cmsweb.cern.ch/t0wmadatasvc/prod/'
 
-import os
+# The implementation of the class is reused from the condition upload service.
+#TODO: make this class a common utility under Conditions or Config.DP
 import json
-import sys, urllib2
+import os
+import pycurl
+import subprocess
+import sys
 import time
-import ast
 
-class Tier0DasInterface:
-    """
-    Class handling common Tier0-DAS queries and connected utilities
-    """
-    def __init__(self, url = 'https://cmsweb.cern.ch/t0wmadatasvc/prod/', proxy = None ):
+tier0Url = 'https://cmsweb.cern.ch/t0wmadatasvc/prod/'
+
+class Tier0Error(Exception):
+    '''Tier0 exception.
+    '''
+
+    def __init__(self, message):
+        self.args = (message, )
+
+def unique(seq, keepstr=True):
+    t = type(seq)
+    if t in (unicode, str):
+        t = (list, t('').join)[bool(keepstr)]
+    try:
+        remaining = set(seq)
+        seen = set()
+        return t(c for c in seq if (c in remaining and not remaining.remove(c)))
+    except TypeError: # hashing didn't work, see if seq is sortable
+        try:
+            from itertools import groupby
+            s = sorted(enumerate(seq),key=lambda (i,v):(v,i))
+            return t(g.next() for k,g in groupby(s, lambda (i,v): v))
+        except:  # not sortable, use brute force
+            seen = []
+            return t(c for c in seq if not (c in seen or seen.append(c)))
+
+class Tier0Handler( object ):
+
+    def __init__( self, uri, timeOut, retries, retryPeriod, proxy, debug ):
         """
-        Need base url for Tier0-DAS as input
+        Parameters:
+        uri: Tier0DataSvc URI;
+        timeOut: time out for Tier0DataSvc HTTPS calls;
+        retries: maximum retries for Tier0DataSvc HTTPS calls;
+        retryPeriod: sleep time between two Tier0DataSvc HTTPS calls;
+        proxy: HTTP proxy for accessing Tier0DataSvc HTTPS calls;
+        debug: if set to True, enables debug information.
         """
-        self._t0DasBaseUrl = url
+        self._uri = uri
+        self._timeOut = timeOut
+        self._retries = retries
+        self._retryPeriod = retryPeriod
+        self._proxy = proxy
+        self._debug = debug
+
+    def setDebug( self ):
+        self._debug = True
+
+    def unsetDebug( self ):
         self._debug = False
-        self._retry = 0
-        self._maxretry = 5
+
+    def setProxy( self, proxy ):
         self._proxy = proxy
 
-
-    def getData(self, src, tout=5):
+    def _queryTier0DataSvc( self, url ):
         """
-        Get the JSON file for a give query specified via the Tier0-DAS url.
-        Timeout can be set via paramter.
+        Queries Tier0DataSvc.
+        url: Tier0DataSvc URL.
+        @returns: dictionary, from whence the required information must be retrieved according to the API call.
+        Raises if connection error, bad response, or timeout after retries occur.
         """
-        # actually get the json file from the given url of the T0-Das service
-        # and returns the data
 
-        try:
+        userAgent = "User-Agent: DQMIntegration/2.0 python/%d.%d.%d PycURL/%s" % ( sys.version_info[ :3 ] + ( pycurl.version_info()[ 1 ], ) )
+
+        proxy = ""
+        if self._proxy: proxy = ' --proxy=%s ' % self._proxy
+        
+        debug = " -s -S "
+        if self._debug: debug = " -v "
+        
+        cmd = '/usr/bin/curl -k -L --user-agent "%s" %s --connect-timeout %i --retry %i %s %s ' % (userAgent, proxy, self._timeOut, self._retries, debug, url)
+
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdoutdata, stderrdata) =  process.communicate()
+        retcode = process.returncode
+
+        if retcode != 0 or stderrdata:
+           msg = "looks like curl returned an error: retcode=%s" % (retcode,)
+           msg += ' msg = "'+str(stderrdata)+'"'
+           raise Tier0Error(msg)
+
+        return json.loads( ''.join(stdoutdata).replace( "'", '"').replace(' None', ' "None"') )
+
+    def getFirstSafeRun( self ):
+        """
+        Queries Tier0DataSvc to get the first condition safe run.
+        Parameters:
+        @returns: integer, the run number.
+        Raises if connection error, bad response, timeout after retries occur, or if the run number is not available.
+        """
+        firstConditionSafeRunAPI = "firstconditionsaferun"
+        safeRunDict = self._queryTier0DataSvc( os.path.join( self._uri, firstConditionSafeRunAPI ) )
+        if safeRunDict is None:
+            errStr = """First condition safe run is not available in Tier0DataSvc from URL \"%s\" """ %( os.path.join( self._uri, firstConditionSafeRunAPI ), )
             if self._proxy:
-                print "setting proxy"
-                opener = urllib2.build_opener(urllib2.HTTPHandler(),
-                                              urllib2.HTTPSHandler(),
-                                              urllib2.ProxyHandler({'http':self._proxy, 'https':self._proxy}))
-                urllib2.install_opener(opener)
-            req = urllib2.Request(src)
-            req.add_header("User-Agent",
-                           "DQMIntegration/1.0 python/%d.%d.%d" % sys.version_info[:3])
-            req.add_header("Accept","application/json")
-            jsonCall = urllib2.urlopen(req, timeout = tout)
-            url = jsonCall.geturl()
-        except urllib2.HTTPError as  error:
-            #print error.url
-            errStr = "Cannot retrieve Tier-0 DAS data from URL \"" + error.url + "\""
+                errStr += """ using proxy \"%s\".""" %( str( self._proxy ), )
+            raise Tier0Error( errStr )
+        return int(safeRunDict['result'][0])
+
+    def getGlobalTag( self, config ):
+        """
+        Queries Tier0DataSvc to get the most recent Global Tag for a given workflow.
+        Parameters:
+        config: Tier0DataSvc API call for the workflow to be looked for;
+        @returns: a string with the Global Tag name.
+        Raises if connection error, bad response, timeout after retries occur, or if no Global Tags are available.
+        """
+        data = self._queryTier0DataSvc( os.path.join( self._uri, config ) )
+        gtnames = unique( [ str( di[ 'global_tag' ] ) for di in data['result'] if di[ 'global_tag' ] is not None ] )
+        gtnames.sort()
+        try:
+            recentGT = gtnames[-1]
+            return recentGT
+        except IndexError:
+            errStr = """No Global Tags for \"%s\" are available in Tier0DataSvc from URL \"%s\" """ %( config, os.path.join( self._uri, config ) )
             if self._proxy:
-                errStr += " using proxy \"" + self._proxy + "\""
-            print errStr
-            print error
-            raise urllib2.HTTPError("FIXME: handle exceptions")
-        except urllib2.URLError as  error:
-            if self._retry < self._maxretry:
-                print 'Try # ' + str(self._retry) + " connection to Tier-0 DAS timed-out"
-                self._retry += 1
-                newtout = tout*self._retry
-                time.sleep(3*self._retry)
-                return self.getData(src,newtout)
-            else:
-                errStr = "Cannot retrieve Tier-0 DAS data from URL \"" + src + "\""
-                if self._proxy:
-                    errStr += " using proxy \"" + self._proxy + "\""
-                self._retry = 0
-                print errStr
-                print error
-                raise urllib2.URLError('TimeOut reading ' + src)
-
-        except:
-            raise
-        else:
-            if self._debug:
-                print url
-            jsonInfo = jsonCall.info()
-            if self._debug:
-                print jsonInfo
-            jsonText = jsonCall.read()
-            data = json.loads(jsonText)
-            if self._debug:
-                print "data:", data
-            return data
-
-    def getResultList(self, json):
-        """
-        Extractt the result list out of the JSON file
-        """
-        resultList = []
-        #FIXME try
-        resultList = json['result']
-
-        if 'null' in resultList[0]:
-            resultList[0] = resultList[0].replace('null','None')
-
-        #print self.getValues(json, 'result')
-        return resultList
-
-    def getValues(self, json, key, selection=''):
-        """
-        Extract the value corrisponding to a given key from a JSON file. It is also possible to apply further selections.
-        """
-        # lookup for a key in a json file applying possible selections
-        data = []
-        check = 0
-        if selection != '':
-            check = 1
-            (k, v) = selection
-
-        for o in json:
-            #print o
-            try:
-                if check == 1:
-                    if (o[k] == v):
-                        data.append(o[key])
-                else:
-                    data.append(o[key])
-            except KeyError as error:
-                print "[Tier0DasInterface::getValues] key: " + key + " not found in json file"
-                print error
-                raise
-            except:
-                print "[Tier0DasInterface::getValues] unknown error"
-                raise
-                #pass
-        #print data
-        return data
-
-    def lastPromptRun(self):
-        """
-        Query to get the last run released for prompt
-        """
-        url = self._t0DasBaseUrl + "reco_config"
-        try:
-            json = self.getData(url)
-            results = self.getResultList(json)
-            workflowlist = ast.literal_eval(results[0])
-            maxRun = -1
-            for workflow in workflowlist:
-                run = workflow['run']
-                if int(run) > maxRun:
-                    maxRun = run
-            return maxRun
-        except:
-            print "[Tier0DasInterface::lastPromptRun] error"
-            raise
-            return 0
-
-    def firstConditionSafeRun(self):
-        """
-        Query to ge the run for which the Tier0 system considers safe the update to the conditions
-        """
-        url = self._t0DasBaseUrl + "firstconditionsaferun"
-        try:
-            json = self.getData(url)
-            results = self.getResultList(json)
-            return results[0]
-        except Exception as details:
-            print "[Tier0DasInterface::firstConditionSafeRun] error", details
-            raise
-        return 0
-
-    def promptGlobalTag(self, dataset):
-        """
-        Query the GT currently used by prompt = GT used by the last run released for prompt.
-        """
-        url = self._t0DasBaseUrl + "reco_config"
-        #print "url =", url
-        try:
-            json = self.getData(url)
-            results = self.getResultList(json)
-            workflowlist = ast.literal_eval(results[0])
-            gt = "UNKNOWN"
-            for workflow in workflowlist:
-                if workflow['primary_dataset'] == dataset:
-                    gt = workflow['global_tag']
-            # FIXME: do we realluy need to raise?
-            if gt == "UNKNOWN":
-                raise KeyError
-            return gt
-        except:
-            print "[Tier0DasInterface::promptGlobalTag] error"
-            raise
-            return None
-
-    def expressGlobalTag(self):
-        """
-        Query the GT currently used by express = GT used by the last run released for express.
-        """
-        url = self._t0DasBaseUrl + "express_config"
-        #print "url =", url
-        try:
-            gt = "UNKNOWN"
-            json = self.getData(url)
-            results = self.getResultList(json)
-            config = results[0]
-            gt = str(config['global_tag'])
-            # FIXME: do we realluy need to raise?
-            if gt == "UNKNOWN":
-                raise KeyError
-            return gt
-        except:
-            print "[Tier0DasInterface::expressGlobalTag] error"
-            raise
-            return None
-
+                errStr += """ using proxy \"%s\".""" %( str( self._proxy ), )
+        raise Tier0Error( errStr )
 
 if auto:
-    expressGT = "UNKNOWN"
-
     proxyurl = None
     if 'http_proxy' in os.environ:
-        proxyurl = os.environ['http_proxy']
-    test = Tier0DasInterface(url=tier0DasUrl,proxy = proxyurl)
-
+        proxyurl = os.environ[ 'http_proxy' ]
+    t0 = Tier0Handler( tier0Url, 5, 5, 5, proxyurl, False )
     
     try:
-        expressGT = test.expressGlobalTag()
-        print "Tier0 DAS express GT:       ", expressGT
-    except Exception as error:
-        print 'Error'
+        # Get the express GT from Tie0 DataService API
+        GlobalTag.globaltag = cms.string( t0.getGlobalTag( 'express_config' ) )
+        print "The query to the Tier0 DataService returns the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), )
+    except Tier0Error as error:
+        # the web query did not succeed, fall back to the default
+        print "Error in querying the Tier0 DataService"
         print error
-
-    GlobalTag.globaltag = expressGT
-
+        print "Falling back to the default value of the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), )
