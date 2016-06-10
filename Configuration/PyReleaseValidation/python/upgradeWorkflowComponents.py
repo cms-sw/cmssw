@@ -103,7 +103,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
 # step6 is fastsim
 # step7 is fastsim harvesting
 
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFullLocalPU','RecoFull','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','RecoFullPUTracking','HARVESTFullPU','DigiFullTrigger','RecoFull_trackingOnly','RecoFull_trackingOnlyPU','HARVESTFull_trackingOnly', 'HARVESTFull_trackingOnlyPU']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFullLocal','RecoFullLocalPU','RecoFull','RecoFullGlobal','RecoFullGlobalPU','RecoFullGlobal_trackingOnlyVal','RecoFullGlobal_trackingOnlyValPU','RecoFullHGCAL','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','RecoFullPUHGCAL','RecoFullPUTracking','HARVESTFullPU','DigiFullTrigger','RecoFull_trackingOnly','RecoFull_trackingOnlyPU','HARVESTFull_trackingOnly', 'HARVESTFull_trackingOnlyPU']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    #'2017':['GenSimFull'],
@@ -112,9 +112,9 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
 		   '2023tilted':['GenSimFull','DigiFull','RecoFull','HARVESTFull_trackingOnly'],#full (or almost..) reco tilted scenario + tracking valdqm
 		   '2023sim':['GenSimFull'],#sim scenario
 		   '2023LReco':['GenSimFull','DigiFull','RecoFullLocal'],#local reco scenario
-		   '2023GReco':['GenSimFull','DigiFull','RecoFull', 'HARVESTFull_trackingOnly'],#full (or almost..)  reco scenario
-		   '2023GRecoPU':['GenSimFull','DigiFullPU','RecoFullPU', 'HARVESTFull_trackingOnlyPU'],#full (or almost..)  reco scenario with PU
-		   '2023tiltedPU':['GenSimFull','DigiFullPU','RecoFullPU', 'HARVESTFull_trackingOnlyPU']#full (or almost..) reco tilted scenario with PU
+		   '2023GReco':['GenSimFull','DigiFull','RecoFullGlobal_trackingOnlyVal','HARVESTFull_trackingOnly'],#full (or almost..)  reco scenario
+		   '2023GRecoPU':['GenSimFull','DigiFullPU','RecoFullGlobal_trackingOnlyValPU', 'HARVESTFull_trackingOnlyPU'],#full (or almost..)  reco scenario with PU
+		   '2023tiltedPU':['GenSimFull','DigiFullPU','RecoFullPU', 'HARVESTFull_trackingOnlyPU'],#full (or almost..) reco tilted scenario with PU
 		   '2023LRecoPU':['GenSimFull','DigiFullPU','RecoFullLocalPU'],#local reco scenario with PU
                    }
 
