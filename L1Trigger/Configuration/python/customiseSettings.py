@@ -2,6 +2,10 @@ import os.path
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
+def L1TSettingsToCaloStage2Params_v2_2(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_2_cfi")
+    return process
+
 def L1TSettingsToCaloStage2Params_v2_1(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_1_cfi")
     return process
