@@ -21,10 +21,6 @@ cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
 
 class LeptonAnalyzer( Analyzer ):
 
-    bottoms=[5,511,521,531,533,535,551,553 ]
-    charms=[4,411,421,441,443,431,433 ]
-    lights=[1,2,3,111,211,130,210,321 ]
-    promptMothers=[23,24,-24,1000024,-1000024]
     
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(LeptonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
@@ -204,7 +200,6 @@ class LeptonAnalyzer( Analyzer ):
             if self.miniIsolationVetoLeptons == "inclusive":
                 for lep in event.inclusiveLeptons: 
                     self.IsolationComputer.addVetos(lep.physObj)
-            event.LeptonTrackMuPairs = []
             for lep in event.inclusiveLeptons:
                 self.attachMiniIsolation(lep)
                 for cone_size in self.doDirectionalIsolation:
