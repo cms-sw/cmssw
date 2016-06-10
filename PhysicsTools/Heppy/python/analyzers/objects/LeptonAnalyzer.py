@@ -109,7 +109,7 @@ class LeptonAnalyzer( Analyzer ):
             
 
         self.doMatchToPhotons = getattr(cfg_ana, 'do_mc_match_photons', False)
-        self.doDirectionalIsolation = self.doMiniIsolation and getattr(cfg_ana, 'doDirectionalIsolation', False)
+        self.doDirectionalIsolation = getattr(cfg_ana, 'doDirectionalIsolation', []) if self.doMiniIsolation else []
         self.doMuonPlusSoftTrkPairs = self.doMiniIsolation and getattr(cfg_ana, 'doMuonPlusSoftTrkPairs', False)
 
     #----------------------------------------
@@ -207,8 +207,8 @@ class LeptonAnalyzer( Analyzer ):
             event.LeptonTrackMuPairs = []
             for lep in event.inclusiveLeptons:
                 self.attachMiniIsolation(lep)
-                if self.doDirectionalIsolation:
-                    for cs in xrange(2,7): self.attachDirectionalIsolation(lep,0.1*cs)
+                for cone_size in self.doDirectionalIsolation:
+                    self.attachDirectionalIsolation(lep,cone_size)
                 if self.doMuonPlusSoftTrkPairs:
                     self.pairedIsoChargedCandidatesMuHyp = []
                     for pairedCand in self.IsolationComputer.findPairIsoTrack(lep.physObj, 999, 0.0, 4.0, 1.5, 5.0):
@@ -842,7 +842,7 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     miniIsolationPUCorr = 'rhoArea', # Allowed options: 'rhoArea' (EAs for 03 cone scaled by R^2), 'deltaBeta', 'raw' (uncorrected), 'weights' (delta beta weights; not validated)
                                      # Choose None to just use the individual object's PU correction
     miniIsolationVetoLeptons = None, # use 'inclusive' to veto inclusive leptons and their footprint in all isolation cones
-    doDirectionalIsolation = False, # calculate directional isolation with leptons (works only with doMiniIsolation)
+    doDirectionalIsolation = [], # calculate directional isolation with leptons (works only with doMiniIsolation, pass list of cone sizes)
     doMuonPlusSoftTrkPairs = False, # search for mu + track pairs in the event (works only with doMiniIsolation)
     # Activity Annulus
     doIsoAnnulus = False, # off by default since it requires access to all PFCandidates 
