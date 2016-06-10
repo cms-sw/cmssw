@@ -110,15 +110,14 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     edm::Handle<edm::SimTrackContainer> simTracks;
     e.getByToken(simTrackToken,simTracks);
 
-    const std::vector<bool> * hitMasks = 0;
-    if (!hitMasksToken.isUninitialized()){
-	edm::Handle<std::vector<bool> > hitMasksHandle;
-	e.getByToken(hitMasksToken,hitMasksHandle);
-	hitMasks = &(*hitMasksHandle);
+    edm::Handle<std::vector<bool> > hitMasks;
+    if (!hitMasksToken.isUninitialized())
+    {
+        e.getByToken(hitMasksToken,hitMasks);
     }
     
     // output collection
-    std::unique_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
+    std::unique_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
     
     // loop over the seeds
     for (unsigned seedIndex = 0; seedIndex < seeds->size(); ++seedIndex){
@@ -152,13 +151,13 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		throw cms::Exception("TrackCandidateProducer") << " found seed with recHitCombination out or range: " << icomb << std::endl;
 	    }
 	    const FastTrackerRecHitCombination & recHitCombination = (*recHitCombinations)[icomb];
-	    
+
 	    // container for select hits
 	    std::vector<const FastTrackerRecHit *> selectedRecHits;
 
 	    // add the seed hits
 	    TrajectorySeed::range seedHitRange = seed.recHits();//Hits in a seed
-	    for (TrajectorySeed::const_iterator ihit = seedHitRange.first; ihit != seedHitRange.second; ++ihit) 
+	    for (TrajectorySeed::const_iterator ihit = seedHitRange.first; ihit != seedHitRange.second; ++ihit)
 	    {
 		selectedRecHits.push_back(static_cast<const FastTrackerRecHit*>(&*ihit));
 	    }
@@ -176,15 +175,15 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    // add hits from combination to hit selection
 	    for (unsigned hitIndex = hitsAlongMomentum ? 0 : recHitCombination.size() - 1;
 		 hitIndex < recHitCombination.size();
-		 hitsAlongMomentum ? ++hitIndex : --hitIndex) 
+		 hitsAlongMomentum ? ++hitIndex : --hitIndex)
 	    {
-		
+
 		const FastTrackerRecHit * selectedRecHit = recHitCombination[hitIndex].get();
-		
+
 		// skip seed hits
 		if(lastHitToSkip)
 		{
-		    if(lastHitToSkip->sameId(selectedRecHit))     
+		    if(lastHitToSkip->sameId(selectedRecHit))
 		    {
 			lastHitToSkip=0;
 		    }
@@ -192,7 +191,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		}
 
 		// apply hit masking
-		if(hitMasks && fastTrackingUtilities::hitIsMasked(selectedRecHit,hitMasks))
+		if(hitMasks.isValid() && fastTrackingUtilities::hitIsMasked(selectedRecHit,*hitMasks))
 		{
 		    continue;
 		}
@@ -202,7 +201,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		//  always accept the first hit
 		//  also accept a hit if it is not on the layer of the previous hit
 		if( !  rejectOverlaps
-		    || selectedRecHits.size() == 0 
+		    || selectedRecHits.size() == 0
 		    || ( TrackingLayer::createFromDetId(selectedRecHits.back()->geographicalId(),*trackerTopology.product())
 			 != TrackingLayer::createFromDetId(selectedRecHit->geographicalId(),*trackerTopology.product())))
 		{
@@ -212,31 +211,31 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		//    overlap rejection is switched on
 		//    the hit is on the same layer as the previous hit
 		//  accept the one with smallest error
-		else if ( fastTrackingUtilities::hitLocalError(selectedRecHit) 
+		else if ( fastTrackingUtilities::hitLocalError(selectedRecHit)
 			  < fastTrackingUtilities::hitLocalError(selectedRecHits.back()) )
 		{
 		    selectedRecHits.back() = selectedRecHit;
 		}
 	    }
-	    
+
 	    // split hits / store copies for the track candidate
 	    edm::OwnVector<TrackingRecHit> hitsForTrackCandidate;
-	    for ( unsigned index = 0; index<selectedRecHits.size(); ++index ) 
+	    for ( unsigned index = 0; index<selectedRecHits.size(); ++index )
 	    {
 		if(splitHits)
 		{
 		    // add split hits to splitSelectedRecHits
 		    hitSplitter.split(*selectedRecHits[index],hitsForTrackCandidate,hitsAlongMomentum);
 		}
-		else 
+		else
 		{
 		    hitsForTrackCandidate.push_back(selectedRecHits[index]->clone());
 		}
 	    }
-	
+
 	    // set the recHitCombinationIndex
 	    fastTrackingUtilities::setRecHitCombinationIndex(hitsForTrackCandidate,icomb);
-	    
+
 	    // create track candidate state
 	    //   1. get seed state (defined on the surface of the most outer hit)
 	    DetId seedDetId(seed.startingState().detId());
@@ -246,9 +245,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    const GeomDet* initialLayer = trackerGeometry->idToDet(hitsForTrackCandidate.front().geographicalId());
 	    const TrajectoryStateOnSurface initialTSOS = propagator->propagate(seedTSOS,initialLayer->surface()) ;
 	    //   3. check validity and transform
-	    if (!initialTSOS.isValid()) continue; 
-	    PTrajectoryStateOnDet PTSOD = trajectoryStateTransform::persistentState(initialTSOS,hitsForTrackCandidate.front().geographicalId().rawId()); 
-	    
+	    if (!initialTSOS.isValid()) continue;
+	    PTrajectoryStateOnDet PTSOD = trajectoryStateTransform::persistentState(initialTSOS,hitsForTrackCandidate.front().geographicalId().rawId());
+
 	    // add track candidate to output collection
 	    output->push_back(TrackCandidate(hitsForTrackCandidate,seed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seedIndex)));
 	}
