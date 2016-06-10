@@ -14,6 +14,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -141,7 +142,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 					    <<" par "<<width
 					    <<" "<<length<<" "<<thickness;
     }
-    else{
+    else {
       const float be = dpar[4]/cm;
       const float te = dpar[8]/cm;
       const float ap = dpar[0]/cm;
@@ -180,25 +181,67 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     doSubDets = fview.nextSibling(); // go to next layer
   }
   // Create the RPCChambers and store them on the Geometry
-  for( auto ich=chids.begin(); ich != chids.end(); ich++){
+  for ( auto ich=chids.begin(); ich != chids.end(); ++ich ) {
     const RPCDetId& chid = ich->first;
     const auto& rls = ich->second;
 
-    // compute the overall boundplane. At the moment we use just the last
-    // surface
+    // compute the overall boundplane.
     BoundPlane* bp=0;
-    for(auto rl=rls.begin(); rl!=rls.end(); rl++){
-      const BoundPlane& bps = (*rl)->surface();
-      bp = const_cast<BoundPlane *>(&bps);
+    if ( !rls.empty() ) {
+      // First set the baseline plane to calculate relative poisions
+      const auto& refSurf = (*rls.begin())->surface();
+      if ( chid.region() == 0 ) {
+        float corners[4] = {0,0,0,0};
+        for ( auto rl : rls ) {
+          const double h2 = rl->surface().bounds().length()/2;
+          const double w2 = rl->surface().bounds().width()/2;
+          const auto x1y1AtRef = refSurf.toLocal(rl->toGlobal(LocalPoint(-w2,-h2,0)));
+          const auto x2y2AtRef = refSurf.toLocal(rl->toGlobal(LocalPoint(+w2,+h2,0)));
+          corners[0] = std::min(corners[0], x1y1AtRef.x());
+          corners[1] = std::min(corners[1], x1y1AtRef.y());
+          corners[2] = std::max(corners[2], x2y2AtRef.x());
+          corners[3] = std::max(corners[3], x2y2AtRef.y());
+        }
+        const LocalPoint lpOfCentre((corners[0]+corners[2])/2, (corners[1]+corners[3])/2, 0);
+        const auto gpOfCentre = refSurf.toGlobal(lpOfCentre);
+        auto bounds = new RectangularPlaneBounds((corners[2]-corners[0])/2, (corners[3]-corners[1])/2, 0);
+        bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
+      }
+      else {
+        float cornersLo[3] = {0,}, cornersHi[3] = {4};
+        for ( auto rl : rls ) {
+          const double h2 = rl->surface().bounds().length()/2;
+          const double w2 = rl->surface().bounds().width()/2;
+          const auto& topo = dynamic_cast<const TrapezoidalStripTopology&>(rl->specificTopology());
+          const double r = topo.radius();
+          const double wAtLo = w2/r*(r-h2); // tan(theta/2) = (w/2)/r = x/(r-h/2)
+          const double wAtHi = w2/r*(r+h2);
+
+          const auto x1y1AtRef = refSurf.toLocal(rl->toGlobal(LocalPoint(-wAtLo, -h2, 0)));
+          const auto x2y1AtRef = refSurf.toLocal(rl->toGlobal(LocalPoint(+wAtLo, -h2, 0)));
+          const auto x1y2AtRef = refSurf.toLocal(rl->toGlobal(LocalPoint(-wAtHi, +h2, 0)));
+          const auto x2y2AtRef = refSurf.toLocal(rl->toGlobal(LocalPoint(+wAtHi, +h2, 0)));
+
+          cornersLo[0] = std::min(cornersLo[0], x1y1AtRef.x());
+          cornersLo[1] = std::max(cornersLo[1], x2y1AtRef.x());
+          cornersLo[2] = std::min(cornersLo[2], x1y1AtRef.y());
+
+          cornersHi[0] = std::min(cornersHi[0], x1y2AtRef.x());
+          cornersHi[1] = std::max(cornersHi[1], x2y2AtRef.x());
+          cornersHi[2] = std::max(cornersHi[2], x1y2AtRef.y());
+        }
+        const LocalPoint lpOfCentre((cornersHi[0]+cornersHi[1])/2, (cornersLo[2]+cornersHi[2])/2, 0);
+        const auto gpOfCentre = refSurf.toGlobal(lpOfCentre);
+        auto bounds = new TrapezoidalPlaneBounds((cornersLo[1]-cornersLo[0])/2, (cornersHi[1]-cornersHi[0])/2, (cornersHi[2]-cornersLo[2]), 0);
+        bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
+      }
     }
 
     ReferenceCountingPointer<BoundPlane> surf(bp);
     // Create the chamber
     RPCChamber* ch = new RPCChamber (chid, surf);
     // Add the rolls to rhe chamber
-    for(auto rl=rls.begin(); rl!=rls.end(); rl++){
-      ch->add(*rl);
-    }
+    for ( auto rl : rls ) ch->add(rl);
     // Add the chamber to the geometry
     geometry->add(ch);
   }
