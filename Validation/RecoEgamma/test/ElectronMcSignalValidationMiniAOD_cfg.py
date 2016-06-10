@@ -60,6 +60,7 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
 # CONFIGURATION
 process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcSignalValidatorMiniAOD_cfi")
+process.load("Validation.RecoEgamma.ElectronIsolation_cfi")
 
 # load DQM
 process.load("DQMServices.Core.DQM_cfg")
@@ -73,7 +74,9 @@ fileName = cms.untracked.string(os.environ['TEST_HISTOS_FILE'].replace(".root", 
 process.electronMcSignalValidatorMiniAOD.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 process.electronMcSignalValidatorMiniAOD.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidatorMiniAOD")
 
-process.p = cms.Path(process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+process.p = cms.Path(process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+#process.p = cms.Path(process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
+#process.p = cms.Path(process.ElectronIsolation)
 
 process.outpath = cms.EndPath(
 process.EDM,
