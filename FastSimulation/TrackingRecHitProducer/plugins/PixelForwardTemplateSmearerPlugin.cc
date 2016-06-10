@@ -65,7 +65,6 @@ PixelForwardTemplateSmearerPlugin::PixelForwardTemplateSmearerPlugin(
 ):
     PixelTemplateSmearerBase(name,config,consumesCollector)
 {
-    setPixelPart(GeomDetEnumerators::PixelEndcap);
 
     isForward = true;
     thePixelResolutionFileName1 = config.getParameter<string>( "NewPixelForwardResolutionFile" );

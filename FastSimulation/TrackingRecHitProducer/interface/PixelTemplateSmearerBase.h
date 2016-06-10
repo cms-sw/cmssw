@@ -61,8 +61,6 @@ class PixelTemplateSmearerBase:
         int resqbin_binMin, resqbin_binWidth;
         unsigned int resqbin_binN;
         
-        // Useful private members
-        GeomDetType::SubDetector thePixelPart;
 
         std::map<unsigned int, const SimpleHistogramGenerator*> theXHistos;
         std::map<unsigned int, const SimpleHistogramGenerator*> theYHistos;
@@ -92,10 +90,6 @@ class PixelTemplateSmearerBase:
 
         //--- Destructor
         virtual ~PixelTemplateSmearerBase();
-
-        //  &&& Why do we need this?
-        void setPixelPart(GeomDetType::SubDetector subdet) { thePixelPart = subdet; }
-
         //--- Process all hits on this DetUnit.
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
 

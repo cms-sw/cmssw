@@ -49,8 +49,6 @@ PixelBarrelTemplateSmearerPlugin::PixelBarrelTemplateSmearerPlugin(
 ):
     PixelTemplateSmearerBase(name,config,consumesCollector)
 {
-    setPixelPart(GeomDetEnumerators::PixelBarrel);
-
     isForward = false;
     thePixelResolutionFileName1 = config.getParameter<string>( "NewPixelBarrelResolutionFile1" );
     thePixelResolutionFile1 = new TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
