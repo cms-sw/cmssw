@@ -80,9 +80,9 @@ PixelForwardTemplateSmearerPlugin::PixelForwardTemplateSmearerPlugin(
     thePixelResolutionMergedYFile = new TFile( edm::FileInPath( thePixelResolutionMergedYFileName ).fullPath().c_str()  ,"READ");
     initializeForward();
     
-    tempId = config.getParameter<int> ( "templateIdForward" );
     
-    if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
+    
+    if( ! SiPixelTemplate::pushfile(templateId, thePixelTemp_) )
     {
         throw cms::Exception("PixelForwardTemplateSmearerPlugin:") <<"SiPixel Forward Template Not Loaded Correctly!";
     }

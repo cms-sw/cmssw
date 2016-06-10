@@ -48,7 +48,7 @@ class PixelTemplateSmearerBase:
     protected:
         bool mergeHitsOn; 
         std::vector< SiPixelTemplateStore > thePixelTemp_;
-        int tempId;
+        int templateId;
         
         bool isFlipped(const PixelGeomDetUnit* theDet) const;
         //isForward, true for forward, false for barrel
@@ -67,7 +67,6 @@ class PixelTemplateSmearerBase:
 
         TFile* thePixelResolutionFile1;
         std::string thePixelResolutionFileName1;
-        //Splite the resolution histograms for cvs uploading
         TFile* thePixelResolutionFile2;
         std::string thePixelResolutionFileName2;
         TFile* thePixelResolutionFile3;
@@ -88,9 +87,7 @@ class PixelTemplateSmearerBase:
 			              const edm::ParameterSet& config,
 			              edm::ConsumesCollector& consumesCollector );
 
-        //--- Destructor
         virtual ~PixelTemplateSmearerBase();
-        //--- Process all hits on this DetUnit.
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
 
         //--- Process all unmerged hits. Calls smearHit() for each.

@@ -23,8 +23,7 @@ trackingRecHitProducerNoMerge.plugins.append(
         pixelresxmergedforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fxsmear.root'),
         pixelresymergedbarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bysmear.root'),
         pixelresymergedforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fysmear.root'),
-        templateIdBarrel = cms.int32( 40 ),
-        templateIdForward  = cms.int32( 41 ),
+        templateId = cms.int32( 40 ),
         select=cms.string("subdetId==BPX"),
     )
 )
@@ -46,8 +45,7 @@ trackingRecHitProducerNoMerge.plugins.append(
         pixelresxmergedforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fxsmear.root'),
         pixelresymergedbarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bysmear.root'),
         pixelresymergedforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fysmear.root'),
-        templateIdBarrel = cms.int32( 40 ),
-        templateIdForward  = cms.int32( 41 ),
+        templateId = cms.int32( 41 ),
         select=cms.string("subdetId==FPX"),
     )
 )

@@ -13,7 +13,7 @@
 #include <iostream>
 
 /* This plugin performs simple Gaussian smearing (GS) of the sim hit position
- * per module. If y resolution < 0 (default) the module length/sqrt 12 is taken.
+ * per module. If y resolution < 0 (default) the module length/sqrt(12) is taken as uncertainty.
  */
 
 class TrackingRecHitStripGSSmearingPlugin:
@@ -66,14 +66,26 @@ class TrackingRecHitStripGSSmearingPlugin:
                 const double boundY = bounds.length();
 
                 Local3DPoint recHitPosition;
+                
+                unsigned int retry = 0;
                 do
                 {
                     recHitPosition = Local3DPoint(
                         simHitPosition.x()+this->getRandomEngine().gaussShoot(0.0,_resolutionX),
                         0.0, 0.0 //fix y & z coordinates to center of module
                     );
-                    //TODO: this will skip the check if the smeared hit is inside the module - currently some SimHits are outside for no good reason
-                    break;
+                    
+                    // If we tried to generate thePosition, and it's out of the bounds
+                    // for 20 times, then take and return the simHit's location.
+                    ++retry;
+                    if (retry>20)
+                    {
+                        recHitPosition = Local3DPoint(
+                            simHitPosition.x(),
+                            0.0, 0.0 //fix y & z coordinates to center of module
+                        );
+                        break;
+                    }
                 }
                 while (not bounds.inside(recHitPosition));
 
@@ -87,9 +99,9 @@ class TrackingRecHitStripGSSmearingPlugin:
                 );
 
                 FastSingleTrackerRecHit recHit(
-                    recHitPosition,   //const LocalPoint &
-                    error,            //const LocalError &
-                    *geomDet,         //GeomDet const &idet
+                    recHitPosition,
+                    error,
+                    *geomDet,
                     fastTrackerRecHitType::siStrip1D
                 );
                 product->addRecHit(recHit,{simHitIdPair});

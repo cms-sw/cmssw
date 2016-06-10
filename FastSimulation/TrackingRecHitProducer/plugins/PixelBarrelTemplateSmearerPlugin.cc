@@ -64,9 +64,8 @@ PixelBarrelTemplateSmearerPlugin::PixelBarrelTemplateSmearerPlugin(
     thePixelResolutionMergedYFileName = config.getParameter<string>( "pixelresymergedbarrel" );
     thePixelResolutionMergedYFile = new TFile( edm::FileInPath( thePixelResolutionMergedYFileName ).fullPath().c_str()  ,"READ");
     initializeBarrel();
-    tempId = config.getParameter<int> ( "templateIdBarrel" );
     
-    if (!SiPixelTemplate::pushfile(tempId, thePixelTemp_))
+    if (!SiPixelTemplate::pushfile(templateId, thePixelTemp_))
     {
         throw cms::Exception("PixelBarrelTemplateSmearerPlugin:")<<"SiPixel Barrel Template Not Loaded Correctly!"<<endl;
     }

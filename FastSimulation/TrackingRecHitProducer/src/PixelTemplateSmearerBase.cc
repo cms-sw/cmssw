@@ -43,6 +43,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     TrackingRecHitAlgorithm(name,config,consumesCollector)
 {
     mergeHitsOn = config.getParameter<bool>("MergeHitsOn");
+    templateId = config.getParameter<int> ( "templateId" );
 }
 
 
@@ -321,8 +322,8 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
     float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
     bool singlex = false, singley = false;
     SiPixelTemplate templ(thePixelTemp_);
-    templ.interpolate(tempId, cotalpha, cotbeta);
-    templ.qbin_dist(tempId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
+    templ.interpolate(templateId, cotalpha, cotbeta);
+    templ.qbin_dist(templateId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
     int  nqbin;
 
     double xsizeProbability = random->flatShoot();
@@ -461,7 +462,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
     //Variables for SiPixelTemplate pixel hit error output
     float sigmay, sigmax, sy1, sy2, sx1, sx2;  
     templ.temperrors(
-        tempId, cotalpha, cotbeta, nqbin,          // inputs
+        templateId, cotalpha, cotbeta, nqbin,          // inputs
         sigmay, sigmax, sy1, sy2, sx1, sx2        // outputs
     );
 
@@ -654,7 +655,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
         if (retry > 20) 
         {
             // If we tried to generate thePosition, and it's out of the bounds
-            // for 20 times, then punt and return the simHit's location.
+            // for 20 times, then take and return the simHit's location.
             thePosition = Local3DPoint(
                 simHit.localPosition().x(), 
                 simHit.localPosition().y(), 
@@ -797,8 +798,8 @@ smearMergeGroup(
     float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
     bool singlex = false, singley = false;
     SiPixelTemplate templ(thePixelTemp_);
-    templ.interpolate(tempId, cotalpha, cotbeta);
-    templ.qbin_dist(tempId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
+    templ.interpolate(templateId, cotalpha, cotbeta);
+    templ.qbin_dist(templateId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
     int  nqbin;
 
     //  double xsizeProbability = random->flatShoot();
@@ -858,7 +859,7 @@ smearMergeGroup(
 
     //Variables for SiPixelTemplate pixel hit error output
     float sigmay, sigmax, sy1, sy2, sx1, sx2;  
-    templ.temperrors(tempId, cotalpha, cotbeta, nqbin,          // inputs
+    templ.temperrors(templateId, cotalpha, cotbeta, nqbin,          // inputs
 	       sigmay, sigmax, sy1, sy2, sx1, sx2 );      // outputs
 
     // define private mebers --> Errors
@@ -942,7 +943,7 @@ smearMergeGroup(
         if (retry > 20)
         {
             // If we tried to generate thePosition, and it's out of the bounds
-            // for 20 times, then punt and return the simHit's location.
+            // for 20 times, then take and return the simHit's location.
             thePosition = Local3DPoint(lpx,lpy,lpz);
             break;
         }
