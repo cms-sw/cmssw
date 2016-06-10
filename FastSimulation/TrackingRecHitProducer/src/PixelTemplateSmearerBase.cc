@@ -652,10 +652,10 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
             simHit.localPosition().z() + thePositionZ
         );
         retry++;
-        if (retry > 20) 
+        if (retry > 10) 
         {
             // If we tried to generate thePosition, and it's out of the bounds
-            // for 20 times, then take and return the simHit's location.
+            // for 10 times, then take and return the simHit's location.
             thePosition = Local3DPoint(
                 simHit.localPosition().x(), 
                 simHit.localPosition().y(), 
@@ -940,10 +940,10 @@ smearMergeGroup(
                        lpz + thePositionZ );
         
         retry++;
-        if (retry > 20)
+        if (retry > 10)
         {
             // If we tried to generate thePosition, and it's out of the bounds
-            // for 20 times, then take and return the simHit's location.
+            // for 10 times, then take and return the simHit's location.
             thePosition = Local3DPoint(lpx,lpy,lpz);
             break;
         }

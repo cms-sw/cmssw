@@ -76,9 +76,9 @@ class TrackingRecHitStripGSSmearingPlugin:
                     );
                     
                     // If we tried to generate thePosition, and it's out of the bounds
-                    // for 20 times, then take and return the simHit's location.
+                    // for 10 times, then take and return the simHit's location.
                     ++retry;
-                    if (retry>20)
+                    if (retry>10)
                     {
                         recHitPosition = Local3DPoint(
                             simHitPosition.x(),
