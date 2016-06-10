@@ -17,6 +17,8 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -33,13 +35,34 @@
 #include <iostream>
 #include <typeinfo>
 
+// user include files
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "Math/VectorUtil.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+
 using namespace reco;
 using namespace pat;
 
+typedef edm::Ptr<pat::Electron> PatElectronPtr;
+
 ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::ParameterSet& iConfig) : ElectronDqmAnalyzerBase(iConfig)
 {
-    mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection"));
-    electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"));
+    mcTruthCollection_ = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("mcTruthCollection")); // prunedGenParticles
+    electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons")); // slimmedElectrons
+
+    //recomp
+    ValueMaps_ChargedHadrons_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>( "ValueMaps_ChargedHadrons_src" ) ) ;
+    ValueMaps_NeutralHadrons_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>( "ValueMaps_NeutralHadrons_src" ) );
+    ValueMaps_Photons_ = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>( "ValueMaps_Photons_src" ) );
 
   maxPt_ = iConfig.getParameter<double>("MaxPt");
   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
@@ -142,6 +165,9 @@ ElectronMcSignalValidatorMiniAOD::ElectronMcSignalValidatorMiniAOD(const edm::Pa
    h1_ele_photonRelativeIso_mAOD_barrel = 0 ;
    h1_ele_photonRelativeIso_mAOD_endcaps = 0 ;
 
+   h1_ele_chargedHadronRelativeIso_mAOD_recomp = 0 ;
+   h1_ele_neutralHadronRelativeIso_mAOD_recomp = 0 ;
+   h1_ele_photonRelativeIso_mAOD_recomp = 0 ;    
 
 }
 
@@ -214,6 +240,11 @@ void ElectronMcSignalValidatorMiniAOD::bookHistograms( DQMStore::IBooker & iBook
   h1_ele_photonRelativeIso_mAOD_barrel = bookH1withSumw2(iBooker, "photonRelativeIso_mAOD_barrel","photonRelativeIso for barrel",100,0.0,2.,"photonRelativeIso_barrel","Events","ELE_LOGY E1 P");
   h1_ele_photonRelativeIso_mAOD_endcaps = bookH1withSumw2(iBooker, "photonRelativeIso_mAOD_endcaps","photonRelativeIso for endcaps",100,0.0,2.,"photonRelativeIso_endcaps","Events","ELE_LOGY E1 P");
 
+    // -- recomputed pflow over pT
+  h1_ele_chargedHadronRelativeIso_mAOD_recomp = bookH1withSumw2(iBooker, "chargedHadronRelativeIso_mAOD_recomp","recomputed chargedHadronRelativeIso",100,0.0,2.,"chargedHadronRelativeIso","Events","ELE_LOGY E1 P");
+  h1_ele_neutralHadronRelativeIso_mAOD_recomp = bookH1withSumw2(iBooker, "neutralHadronRelativeIso_mAOD_recomp","recomputed neutralHadronRelativeIso",100,0.0,2.,"neutralHadronRelativeIso","Events","ELE_LOGY E1 P");
+  h1_ele_photonRelativeIso_mAOD_recomp = bookH1withSumw2(iBooker, "photonRelativeIso_mAOD_recomp","recomputed photonRelativeIso",100,0.0,2.,"photonRelativeIso","Events","ELE_LOGY E1 P");
+
  }
  
 void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -224,6 +255,16 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     
     edm::Handle<edm::View<reco::GenParticle> > genParticles ;
     iEvent.getByToken(mcTruthCollection_, genParticles) ;  
+
+    //recomp
+    edm::Handle <edm::ValueMap <float> > ValueMaps_ChargedHadrons;
+    edm::Handle <edm::ValueMap <float> > ValueMaps_NeutralHadrons;
+    edm::Handle <edm::ValueMap <float> > ValueMaps_Photons;
+  
+  //recomp
+    iEvent.getByToken( ValueMaps_ChargedHadrons_ , ValueMaps_ChargedHadrons);
+    iEvent.getByToken( ValueMaps_NeutralHadrons_ , ValueMaps_NeutralHadrons);
+    iEvent.getByToken( ValueMaps_Photons_ , ValueMaps_Photons);
 
     edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
       <<"Treating event "<<iEvent.id()
@@ -310,6 +351,14 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                         {
                         gsfOkRatio = tmpGsfRatio;
                         bestGsfElectron=el;
+                        PatElectronPtr elePtr(electrons, &el-&(*electrons)[0]) ;
+                        pt_ = elePtr->pt();
+                        sumChargedHadronPt_recomp =  (*ValueMaps_ChargedHadrons)[elePtr];
+                        sumNeutralHadronPt_recomp =  (*ValueMaps_NeutralHadrons)[elePtr];
+                        sumPhotonPt_recomp        =  (*ValueMaps_Photons)[elePtr];
+                        relisoChargedHadronPt_recomp = sumChargedHadronPt_recomp/pt_;
+                        relisoNeutralHadronPt_recomp = sumNeutralHadronPt_recomp/pt_;
+                        relisoPhotonPt_recomp = sumPhotonPt_recomp/pt_; /**/
                         okGsfFound = true;
                     }
                 }
@@ -337,16 +386,19 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         // supercluster related distributions
         if ( passMiniAODSelection ) { // Pt > 5.
             h1_scl_SigIEtaIEta_mAOD->Fill(bestGsfElectron.scSigmaIEtaIEta());
-            if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
-            if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
-
             h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-            if (bestGsfElectron.isEB()) h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-            if (bestGsfElectron.isEE())h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-        
             h1_ele_dPhiCl_propOut_mAOD->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-            if (bestGsfElectron.isEB()) h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-            if (bestGsfElectron.isEE()) h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+            if (bestGsfElectron.isEB()) {
+                h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
+                h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+                h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+            }
+            if (bestGsfElectron.isEE()) {
+                h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
+                h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+                h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+            }
+
         }
    
         // track related distributions
@@ -388,6 +440,12 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                 h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt * one_over_pt );
                 h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt );
             }
+
+        // -- recomputed pflow over pT
+            h1_ele_chargedHadronRelativeIso_mAOD_recomp->Fill( relisoChargedHadronPt_recomp );
+            h1_ele_neutralHadronRelativeIso_mAOD_recomp->Fill( relisoNeutralHadronPt_recomp );
+            h1_ele_photonRelativeIso_mAOD_recomp->Fill( relisoPhotonPt_recomp );
+            
         }
 
     } // fin boucle size_t i
