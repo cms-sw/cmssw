@@ -17,6 +17,8 @@
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -25,8 +27,26 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+
+// user include files
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "TTree.h"
+#include "Math/VectorUtil.h"
 
 //
 // class declaration
@@ -42,8 +62,13 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
-      edm::EDGetTokenT<edm::View<reco::GenParticle> > mcTruthCollection_;
-      edm::EDGetTokenT<pat::ElectronCollection> electronToken_;
+      edm::EDGetTokenT<edm::View<reco::GenParticle> > mcTruthCollection_; // prunedGenParticles
+      edm::EDGetTokenT<pat::ElectronCollection> electronToken_; // slimmedElectrons
+
+      edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_ChargedHadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_NeutralHadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_Photons_;
+      Float_t pt_, pt2_;
  
       double maxPt_;
       double maxAbsEta_;
@@ -51,6 +76,13 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
       std::vector<int> matchingIDs_;
       std::vector<int> matchingMotherIDs_;
       std::string outputInternalPath_ ;
+
+      Float_t sumChargedHadronPt_recomp;
+      Float_t sumNeutralHadronPt_recomp;
+      Float_t sumPhotonPt_recomp;
+      Float_t relisoChargedHadronPt_recomp;
+      Float_t relisoNeutralHadronPt_recomp;
+      Float_t relisoPhotonPt_recomp;
 
       // histos limits and binning
 
@@ -113,7 +145,10 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
 	MonitorElement *h1_ele_photonRelativeIso_mAOD;
 	MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
     MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
-    
+
+	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_recomp;
+	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_recomp;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD_recomp;    
 };
 
 #endif
