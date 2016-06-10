@@ -246,15 +246,3 @@ genParticleWithAncestryType = NTupleObjectType("genParticleWithAncestry", baseOb
 genParticleWithLinksType = NTupleObjectType("genParticleWithLinks", baseObjectTypes = [ genParticleWithAncestryType ], mcOnly=True, variables = [
     NTupleVariable("motherIndex", lambda x : x.motherIndex, int, help="index of the mother in the generatorSummary")
 ])
-
-leptonTrackPairType = NTupleObjectType("leptonTrackPair", variables = [
-        NTupleVariable("lepPt",     lambda x : x[0].pt()),
-        NTupleVariable("trkPt",     lambda x : x[1].pt()),
-        NTupleVariable("lepEta",    lambda x : x[0].eta()),
-        NTupleVariable("trkEta",    lambda x : x[1].eta()),
-        NTupleVariable("lepPhi",    lambda x : x[0].phi()),
-        NTupleVariable("trkPhi",    lambda x : x[1].phi()),
-        NTupleVariable("lepPdgId",  lambda x : x[0].pdgId()),
-        NTupleVariable("trkCharge", lambda x : x[1].charge()),
-        NTupleVariable("invMass",   lambda x : x[2]),
-])
