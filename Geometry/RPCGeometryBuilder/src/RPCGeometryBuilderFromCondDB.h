@@ -11,7 +11,7 @@
 #include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
 #include <string>
 #include <map>
-#include <list>
+#include <set>
 
 
 class RPCGeometry;
@@ -30,7 +30,7 @@ class RPCGeometryBuilderFromCondDB
 
 
  private:
-  std::map<RPCDetId,std::list<RPCRoll *> > chids;
+  std::map<RPCDetId,std::set<RPCRoll *> > chids;
   bool theComp11Flag;
 
 };
