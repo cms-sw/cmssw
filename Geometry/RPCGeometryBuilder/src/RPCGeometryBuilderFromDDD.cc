@@ -33,8 +33,8 @@ RPCGeometryBuilderFromDDD::~RPCGeometryBuilderFromDDD()
 
 RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
-  std::string attribute = "ReadOutName"; // could come from .orcarc
-  std::string value     = "MuonRPCHits";    // could come from .orcarc
+  const std::string attribute = "ReadOutName"; // could come from .orcarc
+  const std::string value     = "MuonRPCHits";    // could come from .orcarc
   DDValue val(attribute, value, 0.0);
 
   // Asking only for the MuonRPC's
@@ -72,10 +72,9 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     LogDebug("RPCGeometryBuilderFromDDD") <<"Start the Rpc Numbering Schema";
     // Get the The Rpc det Id
     RPCNumberingScheme rpcnum(muonConstants);
-    int detid = 0;
 
     LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the Unit Number";
-    detid = rpcnum.baseNumberToUnitNumber(mbn);
+    const int detid = rpcnum.baseNumberToUnitNumber(mbn);
     LogDebug("RPCGeometryBuilderFromDDD") <<"Getting the RPC det Id "<<detid;
 
     RPCDetId rpcid(detid);
@@ -114,7 +113,6 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
                                float(y.X()),float(y.Y()),float(y.Z()),
                                float(z.X()),float(z.Y()),float(z.Z()));
 
-    std::vector<float> pars;
     RPCRollSpecs* rollspecs= 0;
     Bounds* bounds = 0;
 
@@ -124,9 +122,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       const float thickness = dpar[2]/cm;
       //RectangularPlaneBounds*
       bounds = new RectangularPlaneBounds(width,length,thickness);
-      pars.push_back(width);
-      pars.push_back(length);
-      pars.push_back(numbOfStrips.doubles()[0]); //h/2;
+      const std::vector<float> pars = {width, length, float(numbOfStrips.doubles()[0]) /*h/2*/};
 
       if (!theComp11Flag) {
         //Correction of the orientation to get the REAL geometry.
@@ -146,16 +142,14 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 					    <<" "<<length<<" "<<thickness;
     }
     else{
-      float be = dpar[4]/cm;
-      float te = dpar[8]/cm;
-      float ap = dpar[0]/cm;
-      float ti = 0.4/cm;
+      const float be = dpar[4]/cm;
+      const float te = dpar[8]/cm;
+      const float ap = dpar[0]/cm;
+      const float ti = 0.4/cm;
       //  TrapezoidalPlaneBounds*
       bounds = new TrapezoidalPlaneBounds(be,te,ap,ti);
-      pars.push_back(dpar[4]/cm); //b/2;
-      pars.push_back(dpar[8]/cm); //B/2;
-      pars.push_back(dpar[0]/cm); //h/2;
-      pars.push_back(numbOfStrips.doubles()[0]); //h/2;
+      const std::vector<float> pars = {float(dpar[4]/cm) /*b/2*/, float(dpar[8]/cm) /*B/2*/,
+                                       float(dpar[0]/cm) /*h/2*/, float(numbOfStrips.doubles()[0]) /*h/2*/};
 
       LogDebug("RPCGeometryBuilderFromDDD") <<"Forward "<<name
 					    <<" par "<<dpar[4]/cm
