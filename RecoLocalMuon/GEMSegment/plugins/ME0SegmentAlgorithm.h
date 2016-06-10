@@ -29,7 +29,6 @@ public:
   /// Typedefs
   typedef std::vector<const ME0RecHit*> EnsembleHitContainer;
   typedef std::vector<EnsembleHitContainer> ProtoSegments;
-  typedef std::vector<const TrackingRecHit*> MuonRecHitContainer;
 
   /// Constructor
   explicit ME0SegmentAlgorithm(const edm::ParameterSet& ps);
