@@ -25,11 +25,7 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),                                 
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
-#    digiModel = cms.string('RPCSimAverageNoiseEffCls')
     digiModel = cms.string('RPCSimAsymmetricCls')
-#    digiModel = cms.string('RPCSimModelTiming')
-
-#the "standard" digitizer is RPCSimAsymmetricCls
 )
 
 #the digitizer for PhaseII muon upgrade is RPCSimModelTiming and for the moment is based on  RPCSimAverageNoiseEffCls

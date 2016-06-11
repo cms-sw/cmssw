@@ -36,8 +36,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
-using namespace std;
-
 //fast trick to coupe with the condidions
 //RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSimAsymmetricCls(config)
 RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSimAverageNoiseEffCls(config) //, IRPCPreciseTiming(config)
@@ -131,8 +129,6 @@ void RPCSimModelTiming::simulateIRPC(const RPCRoll* roll,
 	if(*i != centralStrip){
 	  if(CLHEP::RandFlat::shoot(engine) < veff[*i-1]){
 	    std::pair<int, int> digi(*i,time_hit);
-//	    strips.insert(digi);
-
             RPCDigi adigi(*i,time_hit);
             adigi.hasTime(true);
             adigi.setTime(precise_time);
@@ -143,7 +139,6 @@ void RPCSimModelTiming::simulateIRPC(const RPCRoll* roll,
 	} 
 	else {
 	  std::pair<int, int> digi(*i,time_hit);
-//          strips.insert(digi);
 	  RPCDigi adigi(*i,time_hit);
           adigi.hasTime(true);
           adigi.setTime(precise_time);
@@ -153,17 +148,11 @@ void RPCSimModelTiming::simulateIRPC(const RPCRoll* roll,
       }
     }
   }
-
-
-
 }
+
 void RPCSimModelTiming::simulateIRPCNoise(const RPCRoll* roll,
                      CLHEP::HepRandomEngine* engine) 
 {
-
-//std::cout<<"RPCSimModelTiming::simulateIRPCNoise"<<std::endl;
-//RPCDigi adigi(3,4);
-//irpc_digis.insert(adigi);
 
 RPCDetId rpcId = roll->id();
 

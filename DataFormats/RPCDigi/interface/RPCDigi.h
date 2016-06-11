@@ -13,7 +13,7 @@
  * 
 */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class RPCDigi{
@@ -24,29 +24,30 @@ public:
 
   bool operator==(const RPCDigi& digi) const;
   bool operator<(const RPCDigi& digi) const;
-
-  int strip() const ;
-  int bx() const;
   void print() const;
-  double time() const;
-  double deltaTime() const;
-  double coordinateX() const;
-  double deltaX() const;
-  double coordinateY() const;
-  double deltaY() const;
-  void setTime(double);
-  void setDeltaTime(double);
-  void setX(double);
-  void setY(double);
-  void setDeltaX(double);
-  void setDeltaY(double);
-  bool hasTime() const;
-  bool hasX() const;
-  bool hasY() const;
-  void hasTime(bool);
-  void hasX(bool);
-  void hasY(bool);
-  bool isPseudoDigi() const;
+  int strip() const { return strip_; }
+  int bx() const { return bx_; }
+  double time() const { return time_; }
+  double coordinateX() const { return coordinateY_; }
+  double coordinateY() const { return coordinateY_; }
+  bool hasTime() const { return hasTime_; }
+  bool hasX() const { return hasX_; }
+  bool hasY() const { return hasY_; }
+  void hasTime(bool has) { hasTime_ = has; }
+  void hasX(bool has) { hasX_ = has; }
+  void hasY(bool has) { hasY_ = has; }
+  double deltaTime() const { return deltaTime_; }
+  double deltaX() const { return deltaX_; }
+  double deltaY() const { return deltaY_; }
+  void setTime(double time) { time_ = time;}
+  void setDeltaTime(double dt) { deltaTime_ = dt; }
+  void setX(double x) { coordinateX_ = x; }
+  void setY(double y) { coordinateY_ = y; }
+  void setDeltaX(double dx) { deltaX_ = dx; }
+  void setDeltaY(double dy) { deltaY_ = dy; }
+  bool isPseudoDigi() const { return hasX_ || hasY_ ; }
+
+
 
 private:
   uint16_t strip_;

@@ -11,7 +11,6 @@
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAsymmetricCls.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
-//#include "SimMuon/RPCDigitizer/src/IRPCPreciseTiming.h"
 
 #include<cstring>
 #include<iostream>
@@ -24,70 +23,20 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class RPCGeometry;
-//class RPCSimSetUp;
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-//fast trick to coupe with the condidions
-//class RPCSimModelTiming : public RPCSimAsymmetricCls
-//class RPCSimModelTiming : public RPCSimAverageNoiseEffCls
-class RPCSimModelTiming : public RPCSimAverageNoiseEffCls//, public IRPCPreciseTiming
+class RPCSimModelTiming : public RPCSimAverageNoiseEffCls// inherits RPCSimAverageNoiseEffCls to coupe with the condidions
 {
  public:
-//RPCSimModelTiming(const edm::ParameterSet& config) : RPCSimAverageNoiseEffCls(config) , IRPCPreciseTiming(config)
-//{
-//std::cout<<"Hi form RPCSimModelTiming::RPCSimModelTiming"<<std::endl;
-//}
-//~RPCSimModelTiming(){}
   RPCSimModelTiming(const edm::ParameterSet& config);
   ~RPCSimModelTiming();
-
-
   void simulateIRPC(const RPCRoll* roll,
                 const edm::PSimHitContainer& rpcHits,
                  CLHEP::HepRandomEngine*) override;
-
   void simulateIRPCNoise(const RPCRoll*,
                      CLHEP::HepRandomEngine*) override;
-
-
-//  void simulate(const RPCRoll* roll,
-//		const edm::PSimHitContainer& rpcHits,
-//		 CLHEP::HepRandomEngine*) override;
-
-//  void simulateNoise(const RPCRoll*,
-//		     CLHEP::HepRandomEngine*) override;
-
-//  int getClSize(float posX, CLHEP::HepRandomEngine*);
-//  int getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*);
-//  unsigned int slice(float posX); //??? CLHEP::HepRandomEngine*);
-
-// private:
-//  void init(){};
-// private:
-//  double aveEff;
-//  double aveCls;
-//  double resRPC;
-//  double timOff;
-//  double dtimCs;
-//  double resEle;
-//  double sspeed;
-//  double lbGate;
-//  bool rpcdigiprint;
-  
-//  int N_hits;
-//  int nbxing;
-//  double rate;
-//  double gate;
-//  double frate;
-
-//  std::map< int, std::vector<double> > clsMap;
-//  std::vector<double> sum_clsize;
-//  std::vector<double> clsForDetId;
-//  std::ifstream *infile;
- 
-//  RPCSynchronizer* _rpcSync;
 };
 #endif

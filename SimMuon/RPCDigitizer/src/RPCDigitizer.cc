@@ -48,20 +48,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
       r != rpcRolls.end(); r++){
     
     RPCDetId id = (*r)->id();
-    //    const edm::PSimHitContainer & rollSimHits = hitMap[(*r)->id()];
     const edm::PSimHitContainer & rollSimHits = hitMap[id];
-    
-    
-    //    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
-    //			     <<" hit(s) in the rpc roll";  
-    
-    //if( (id.region()!=0) && ((id.station()==3)||(id.station()==4))&&(id.ring()==1))
-    //{
-    //std::cout<<"YESID\t"<<id<<'\t'<<(*r)->nstrips()<<std::endl;
-    //} else
-    //{
-    //std::cout<<"NOID\t"<<id<<'\t'<<(*r)->nstrips()<<std::endl;
-    //}
     
     if(!((id.region()!=0) && ((id.station()==3)||(id.station()==4))&&(id.ring()==1))) // true if not IRPC (RE3/1 or RE4/1)
       {
