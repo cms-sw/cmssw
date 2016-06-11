@@ -29,9 +29,8 @@ Index     Name   Detector Order hmin1 hmax1 hmin2 hmax2 minpt maxpt nsub mcw    
    24   trackp4   Tracker     4  1.00  2.00  0.00  0.00  0.30  3.00 3sub  no      HFm4      HFp4
    25    HFm1mc        HF     1 -5.00 -3.00  0.00  0.00  0.01 30.00 3sub yes    HFp1mc trackp1mc
    26    HFp1mc        HF     1  3.00  5.00  0.00  0.00  0.01 30.00 3sub yes    HFm1mc trackm1mc
-   27 trackm1mc   Tracker     1 -2.20 -1.40  0.00  0.00  0.30  3.00 3sub yes    HFm1mc    HFp1mc
-   28 trackp1mc   Tracker     1  1.40  2.20  0.00  0.00  0.30  3.00 3sub yes    HFm1mc    HFp1mc
-   29 Castor1mc    Castor     1 -6.55 -5.10  0.00  0.00  0.01 50.00 3sub yes    HFp1mc trackp1mc
+   27 trackm1mc   Tracker     1 -2.00 -1.00  0.00  0.00  0.30  3.00 3sub yes    HFm1mc    HFp1mc
+   28 trackp1mc   Tracker     1  1.00  2.00  0.00  0.00  0.30  3.00 3sub yes    HFm1mc    HFp1mc
 */
 #include <string>
 
@@ -81,7 +80,7 @@ namespace hi{
          -2.00,        1.00,       -6.55,       -5.00,        3.00,
          -5.00,       -0.75,       -2.00,        1.00,       -5.00,
           3.00,       -5.00,       -0.75,       -2.00,        1.00,
-         -5.00,        3.00,       -2.20,        1.40 
+         -5.00,        3.00,       -2.00,        1.00 
   };
 
   const double  EPEtaMax1[]  = {
@@ -90,7 +89,7 @@ namespace hi{
          -1.00,        2.00,       -5.10,       -3.00,        5.00,
          -3.00,        0.75,       -1.00,        2.00,       -3.00,
           5.00,       -3.00,        0.75,       -1.00,        2.00,
-         -3.00,        5.00,       -1.40,        2.20 
+         -3.00,        5.00,       -1.00,        2.00 
   };
 
   const double  EPEtaMin2[]  = {
