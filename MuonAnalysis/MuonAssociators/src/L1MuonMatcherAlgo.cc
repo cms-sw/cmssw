@@ -4,7 +4,8 @@
 
 L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet & iConfig) :
     prop_(iConfig),
-    preselectionCut_(iConfig.existsAs<std::string>("preselection") ? iConfig.getParameter<std::string>("preselection") : ""),
+    useStage2L1_(iConfig.existsAs<bool>("useStage2L1") ? iConfig.getParameter<bool>("useStage2L1") : false),
+    preselectionCut_((iConfig.existsAs<std::string>("preselection")) ? iConfig.getParameter<std::string>("preselection") : ""),
     deltaR2_(std::pow(iConfig.getParameter<double>("maxDeltaR"),2)),
     deltaPhi_(iConfig.existsAs<double>("maxDeltaPhi") ? iConfig.getParameter<double>("maxDeltaPhi") : 10),
     deltaEta_(iConfig.existsAs<double>("maxDeltaEta") ? iConfig.getParameter<double>("maxDeltaEta") : 10),
@@ -67,6 +68,11 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const l1extra::L
 
 int
 L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vector<l1extra::L1MuonParticle> &l1s, float &deltaR, float &deltaPhi) const {
+    return matchGeneric(propagated, l1s, preselectionCut_, deltaR, deltaPhi);
+}
+
+int
+L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vector<l1t::Muon> &l1s, float &deltaR, float &deltaPhi) const {
     return matchGeneric(propagated, l1s, preselectionCut_, deltaR, deltaPhi);
 }
 
