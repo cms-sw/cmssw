@@ -25,13 +25,14 @@ class TotemRPDQMHarvester: public DQMEDHarvester
     virtual ~TotemRPDQMHarvester();
   
   protected:
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}
+
+    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
   private:
     void MakeHitNumberRatios(unsigned int id, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
 
-    void MakePlaneEfficiencyHistograms(unsigned int id, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter,
-      MonitorElement* &rp_efficiency);
+    void MakePlaneEfficiencyHistograms(unsigned int id, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, bool &rpPlotInitialized);
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -58,17 +59,25 @@ void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker
 {
   // get source histogram
   string path = TotemRPDetId::rpName(id, TotemRPDetId::nPath);
-  path.replace(0, 2, "TrackingStrip");
+  path.replace(0, 2, "CTPPS/TrackingStrip");
 
-  MonitorElement *activity = igetter.get("CTPPS/" + path + "/activity in planes (2D)");
+  MonitorElement *activity = igetter.get(path + "/activity in planes (2D)");
 
   if (!activity)
     return;
 
-  // book new histograms
-  ibooker.setCurrentFolder(string("CTPPS/") + path);
-  string title = TotemRPDetId::rpName(id, TotemRPDetId::nFull);
-  MonitorElement *hit_ratio = ibooker.book1D("hit ratio in hot spot", title+";plane;N_hits(320<strip<440) / N_hits(all)", 10, -0.5, 9.5);
+  // book new histogram, if not yet done
+  const string hit_ratio_name = "hit ratio in hot spot";
+  MonitorElement *hit_ratio = igetter.get(path + "/" + hit_ratio_name);
+
+  if (hit_ratio == NULL)
+  {
+    ibooker.setCurrentFolder(path);
+    string title = TotemRPDetId::rpName(id, TotemRPDetId::nFull);
+    hit_ratio = ibooker.book1D(hit_ratio_name, title+";plane;N_hits(320<strip<440) / N_hits(all)", 10, -0.5, 9.5);
+  } else {
+    hit_ratio->getTH1F()->Reset();
+  }
 
   // calculate ratios
   TAxis *y_axis = activity->getTH2F()->GetYaxis();
@@ -94,36 +103,51 @@ void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter,
-  MonitorElement* &rp_efficiency)
+void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStore::IBooker& ibooker,
+  DQMStore::IGetter& igetter, bool &rpPlotInitialized)
 {
   // get source histograms
   string path = TotemRPDetId::planeName(id, TotemRPDetId::nPath);
-  path.replace(0, 2, "TrackingStrip");
+  path.replace(0, 2, "CTPPS/TrackingStrip");
 
-  MonitorElement *efficiency_num = igetter.get("CTPPS/" + path + "/efficiency num");
-  MonitorElement *efficiency_den = igetter.get("CTPPS/" + path + "/efficiency den");
+  MonitorElement *efficiency_num = igetter.get(path + "/efficiency num");
+  MonitorElement *efficiency_den = igetter.get(path + "/efficiency den");
 
   if (!efficiency_num || !efficiency_den)
     return;
 
-  // book new histogram
-  ibooker.setCurrentFolder(string("CTPPS/") + path);
+  // book new plane histogram, if not yet done
+  const string efficiency_name = "efficiency";
+  MonitorElement *efficiency = igetter.get(path + "/" + efficiency_name);
 
-  string title = TotemRPDetId::planeName(id, TotemRPDetId::nFull);
+  if (efficiency == NULL)
+  {
+    string title = TotemRPDetId::planeName(id, TotemRPDetId::nFull);
+    TAxis *axis = efficiency_den->getTH1()->GetXaxis();
+    ibooker.setCurrentFolder(path);
+    efficiency = ibooker.book1D(efficiency_name, title+";track position   (mm)", axis->GetNbins(), axis->GetXmin(), axis->GetXmax());
+  } else {
+    efficiency->getTH1F()->Reset();
+  }
+
+  // book new RP histogram, if not yet done
+  path = TotemRPDetId::rpName(id/10, TotemRPDetId::nPath);
+  path.replace(0, 2, "CTPPS/TrackingStrip");
+  const string rp_efficiency_name = "plane efficiency";
+  MonitorElement *rp_efficiency = igetter.get(path + "/" + rp_efficiency_name);
   
-  TAxis *axis = efficiency_den->getTH1()->GetXaxis();
-  MonitorElement *efficiency = ibooker.book1D("efficiency", title+";track position   (mm)", axis->GetNbins(), axis->GetXmin(), axis->GetXmax());
-
-  // book new RP histogram (if not yet done)
   if (rp_efficiency == NULL)
   {
-    path = TotemRPDetId::rpName(id/10, TotemRPDetId::nPath);
-    path.replace(0, 2, "TrackingStrip");
-    title = TotemRPDetId::rpName(id/10, TotemRPDetId::nFull);
-    ibooker.setCurrentFolder(string("CTPPS/") + path);
-    rp_efficiency = ibooker.book2D("plane efficiency", title+";plane;track position   (mm)",
+    string title = TotemRPDetId::rpName(id/10, TotemRPDetId::nFull);
+    TAxis *axis = efficiency_den->getTH1()->GetXaxis();
+    ibooker.setCurrentFolder(path);
+    rp_efficiency = ibooker.book2D(rp_efficiency_name, title+";plane;track position   (mm)",
       10, -0.5, 9.5, axis->GetNbins(), axis->GetXmin(), axis->GetXmax());
+    rpPlotInitialized = true;
+  } else {
+    if (!rpPlotInitialized)
+      rp_efficiency->getTH2F()->Reset();
+    rpPlotInitialized = true;
   }
 
   // calculate and fill efficiencies
@@ -149,7 +173,8 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPDQMHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
+void TotemRPDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter,
+  const edm::LuminosityBlock &, const edm::EventSetup &)
 {
   // loop over arms
   for (unsigned int arm = 0; arm < 2; arm++)
@@ -165,15 +190,15 @@ void TotemRPDQMHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGette
         unsigned int rpId = 10*stId + rp;
 
         MakeHitNumberRatios(rpId, ibooker, igetter);
-        
-        MonitorElement *rp_efficiency = NULL;
 
+        bool rpPlotInitialized = false;
+        
         // loop over planes
         for (unsigned int pl = 0; pl < 10; ++pl)
         {
           unsigned int plId = 10*rpId + pl;
 
-          MakePlaneEfficiencyHistograms(plId, ibooker, igetter, rp_efficiency);
+          MakePlaneEfficiencyHistograms(plId, ibooker, igetter, rpPlotInitialized);
         }
       }
     }
