@@ -43,21 +43,6 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
     ~SeedClusterRemoverPhase2() ;
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   private:
-/*    struct ParamBlock {
-        ParamBlock() : isSet_(false), usesCharge_(false) {}
-        ParamBlock(const edm::ParameterSet& iConfig) :
-            isSet_(true), 
-            usesCharge_(iConfig.exists("maxCharge")),
-            usesSize_(iConfig.exists("maxSize")),
-            maxChi2_(iConfig.getParameter<double>("maxChi2")),
-            maxCharge_(usesCharge_ ? iConfig.getParameter<double>("maxCharge") : 0), 
-            maxSize_(usesSize_ ? iConfig.getParameter<uint32_t>("maxSize") : 0) { }
-        bool  isSet_, usesCharge_, usesSize_;
-        float maxChi2_, maxCharge_;
-        size_t maxSize_;
-    };
-    static const unsigned int NumberOfParamBlocks = 6;
-*/
     bool doOuterTracker_, doPixel_;
     bool mergeOld_;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMaskContainer;
@@ -66,14 +51,8 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters_;
     edm::EDGetTokenT<reco::ClusterRemovalInfo> oldRemovalInfo_;
     edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
-    edm::EDGetTokenT<Phase2OTMaskContainer> oldStrMaskToken_;
+    edm::EDGetTokenT<Phase2OTMaskContainer> oldPh2OTMaskToken_;
     edm::EDGetTokenT<TrajectorySeedCollection> trajectories_;
-
-    //std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > overrideTrkQuals_;
-
-//    ParamBlock pblocks_[NumberOfParamBlocks];
-//    void readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
-//            int id1=-1, int id2=-1, int id3=-1, int id4=-1, int id5=-1, int id6=-1) ;
 
     std::vector<uint8_t> pixels, OTs;                // avoid unneed alloc/dealloc of this
     edm::ProductID pixelSourceProdID, outerTrackerSourceProdID; // ProdIDs refs must point to (for consistency tests)
@@ -99,65 +78,18 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 using namespace std;
 using namespace edm;
 using namespace reco;
-/*
-void
-SeedClusterRemoverPhase2::readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
-    int id1, int id2, int id3, int id4, int id5, int id6) 
-{
-    if (iConfig.exists(name)) {
-        ParamBlock pblock(iConfig.getParameter<ParameterSet>(name));
-        if (id1 == -1) {
-            fill(pblocks_, pblocks_+NumberOfParamBlocks, pblock);
-        } else {
-            pblocks_[id1] = pblock;
-            if (id2 != -1) pblocks_[id2] = pblock;
-            if (id3 != -1) pblocks_[id3] = pblock;
-            if (id4 != -1) pblocks_[id4] = pblock;
-            if (id5 != -1) pblocks_[id5] = pblock;
-            if (id6 != -1) pblocks_[id6] = pblock;
-        }
-    }
-}
-*/
+
 SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet& iConfig):
     doOuterTracker_(iConfig.existsAs<bool>("doOuterTracker") ? iConfig.getParameter<bool>("doOuterTracker") : true),
     doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
     clusterWasteSolution_(true)
 {
-//   if (iConfig.exists("overrideTrkQuals"))
-//     overrideTrkQuals_.push_back(iConfig.getParameter<edm::InputTag>("overrideTrkQuals"));
   if (iConfig.exists("clusterLessSolution"))
     clusterWasteSolution_=!iConfig.getParameter<bool>("clusterLessSolution");
   if (doPixel_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiPixelCluster> >();
   if (doOuterTracker_ && clusterWasteSolution_) produces< edmNew::DetSetVector<Phase2TrackerCluster1D> >();
   if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
-
-/*
-  fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
-  readPSet(iConfig, "Common",-1);
-  if (doPixel_) {
-      readPSet(iConfig, "Pixel" ,0,1);
-      readPSet(iConfig, "PXB" ,0);
-      readPSet(iConfig, "PXE" ,1);
-  }
-  if (doOuterTracker_) {
-      readPSet(iConfig, "Strip" ,2,3,4,5);
-      readPSet(iConfig, "StripInner" ,2,3);
-      readPSet(iConfig, "StripOuter" ,4,5);
-      readPSet(iConfig, "TIB" ,2);
-      readPSet(iConfig, "TID" ,3);
-      readPSet(iConfig, "TOB" ,4);
-      readPSet(iConfig, "TEC" ,5);
-  }
-  bool usingCharge = false;
-  for (size_t i = 0; i < NumberOfParamBlocks; ++i) {
-    if (!pblocks_[i].isSet_) throw cms::Exception("Configuration Error") << "SeedClusterRemoverPhase2: Missing configuration for detector with subDetID = " << (i+1);
-    if (pblocks_[i].usesCharge_ && !usingCharge) {
-        throw cms::Exception("Configuration Error") << "SeedClusterRemoverPhase2: Configuration for subDetID = " << (i+1) << " uses cluster charge, which is not enabled.";
-    }
-  }
-*/
 
   if (!clusterWasteSolution_){
     produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
@@ -176,7 +108,7 @@ SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet& iConfig):
   if (mergeOld_) {
     oldRemovalInfo_ = consumes<ClusterRemovalInfo>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
     oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
-    oldStrMaskToken_ = consumes<Phase2OTMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
+    oldPh2OTMaskToken_ = consumes<Phase2OTMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
   }
 }
 
@@ -224,7 +156,7 @@ SeedClusterRemoverPhase2::cleanup(const edmNew::DetSetVector<T> &oldClusters, co
                 outds.push_back(*it);
 		countNew++;
                 refs.push_back(index); 
-                //std::cout << "SeedClusterRemoverPhase2::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
+                LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1);
             }
 
 	}
@@ -244,13 +176,6 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
   uint32_t subdet = detid.subdetId();
 
   assert(subdet > 0);
-//  assert ((subdet > 0) && (subdet <= NumberOfParamBlocks));
-
-  // chi2 cut
-//  if (chi2 > pblocks_[subdet-1].maxChi2_) return;
-
-  //FIXME :: not supposed to work like this!
-//  if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
 
   const type_info &hitType = typeid(*hit);
   if (hitType == typeid(SiPixelRecHit)) {
@@ -259,24 +184,18 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
 
     const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);
     SiPixelRecHit::ClusterRef cluster = pixelHit->cluster();
-    cout << "Plain Pixel RecHit " << endl;
+    LogDebug("SeedClusterRemoverPhase2") << "Plain Pixel RecHit in det " << detid.rawId();
 
     if (cluster.id() != pixelSourceProdID) throw cms::Exception("Inconsistent Data") << 
             "SeedClusterRemoverPhase2: pixel cluster ref from Product ID = " << cluster.id() << 
             " does not match with source cluster collection (ID = " << pixelSourceProdID << ")\n.";
 
     assert(cluster.id() == pixelSourceProdID);
-    //cout << "HIT NEW PIXEL DETID = " << detid.rawId() << ", Cluster [ " << cluster.key().first << " / " <<  cluster.key().second << " ] " << endl;
-
-    // if requested, cut on cluster size
-//    if (pblocks_[subdet-1].usesSize_ && (cluster->pixels().size() > pblocks_[subdet-1].maxSize_)) return;
 
     // mark as used
     pixels[cluster.key()] = false;
     
-    //if(!clusterWasteSolution_) collectedPixel[detid.rawId()].insert(cluster);
     assert(collectedPixels_.size() > cluster.key());
-    //assert(detid.rawId() == cluster->geographicalId()); //This condition fails
     if(!clusterWasteSolution_) collectedPixels_[cluster.key()]=true;
       
   } else if (hitType == typeid(Phase2TrackerRecHit1D)) {
@@ -284,7 +203,7 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
     if(!doOuterTracker_) return;
 
     const Phase2TrackerRecHit1D *ph2OThit = static_cast<const Phase2TrackerRecHit1D*>(hit);
-    cout << "Plain RecHit 2D: " << endl;
+    LogDebug("SeedClusterRemoverPhase2") << "Plain Phase2TrackerRecHit1D in det " << detid.rawId();
 
     Phase2TrackerRecHit1D::CluRef cluster = ph2OThit->cluster();
     if (cluster.id() != outerTrackerSourceProdID) throw cms::Exception("Inconsistent Data") <<
@@ -292,29 +211,15 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
       " does not match with source cluster collection (ID = " << outerTrackerSourceProdID << ")\n.";
   
     assert(cluster.id() == outerTrackerSourceProdID);
-//    if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
 
     OTs[cluster.key()] = false;
-    //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
     assert(collectedOuterTrackers_.size() > cluster.key());
-    //assert(hit->geographicalId() == cluster->geographicalId()); //This condition fails
     if (!clusterWasteSolution_) collectedOuterTrackers_[cluster.key()]=true;
   
   } else throw cms::Exception("NOT IMPLEMENTED") << "I received a hit that was neither SiPixelRecHit nor Phase2TrackerRecHit1D but " << hitType.name() << " on detid " << detid.rawId() << "\n";
 
   
 }
-
-/*   Schematic picture of n-th step Iterative removal
- *   (that os removing clusters after n-th step tracking)
- *   clusters:    [ C1 ] -> [ C2 ] -> ... -> [ Cn ] -> [ Cn + 1 ]
- *                   ^                          ^           ^--- OUTPUT "new" ID
- *                   |-- before any removal     |----- Source clusters                                                                             
- *                   |-- OUTPUT "old" ID        |----- Hits in Traj. point here                       
- *                   |                          \----- Old ClusterRemovalInfo "new" ID                 
- *                   \-- Old ClusterRemovalInfo "old" ID                                                  
- */
-
 
 void
 SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
@@ -329,14 +234,14 @@ SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
         iEvent.getByToken(pixelClusters_, pixelClusters);
         pixelSourceProdID = pixelClusters.id();
     }
-//DBG// std::cout << "SeedClusterRemoverPhase2: Read pixel " << pixelClusters_.encode() << " = ID " << pixelSourceProdID << std::endl;
+    LogDebug("SeedClusterRemoverPhase2") << "Read pixel with id " << pixelSourceProdID << std::endl;
 
     Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters;
     if (doOuterTracker_) {
         iEvent.getByToken(phase2OTClusters_, phase2OTClusters);
         outerTrackerSourceProdID = phase2OTClusters.id();
     }
-//DBG// std::cout << "SeedClusterRemoverPhase2: Read strip " << phase2OTClusters_.encode() << " = ID " << outerTrackerSourceProdID << std::endl;
+    LogDebug("SeedClusterRemoverPhase2") << "Read OT cluster with id " << outerTrackerSourceProdID << std::endl;
 
     auto_ptr<ClusterRemovalInfo> cri;
     if (clusterWasteSolution_){
@@ -379,11 +284,11 @@ SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
     }
     if(mergeOld_) {
       edm::Handle<PixelMaskContainer> oldPxlMask;
-      edm::Handle<Phase2OTMaskContainer> oldStrMask;
+      edm::Handle<Phase2OTMaskContainer> oldPh2OTMask;
       iEvent.getByToken(oldPxlMaskToken_ ,oldPxlMask);
-      iEvent.getByToken(oldStrMaskToken_ ,oldStrMask);
-      LogDebug("SeedClusterRemoverPhase2")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
-      oldStrMask->copyMaskTo(collectedOuterTrackers_);
+      iEvent.getByToken(oldPh2OTMaskToken_ ,oldPh2OTMask);
+      LogDebug("SeedClusterRemoverPhase2") << "to merge in, "<<oldPh2OTMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
+      oldPh2OTMask->copyMaskTo(collectedOuterTrackers_);
       oldPxlMask->copyMaskTo(collectedPixels_);
       assert(phase2OTClusters->dataSize()>=collectedOuterTrackers_.size());
       collectedOuterTrackers_.resize(phase2OTClusters->dataSize(),false);  // for ondemand
@@ -412,30 +317,25 @@ SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
         auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
                     cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
         OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
-//DBG// std::cout << "SeedClusterRemoverPhase2: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
+        LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID ;
         cri->setNewPixelClusters(newPixels);
     }
     if (doOuterTracker_ && clusterWasteSolution_) {
         auto_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D> > newOuterTrackerClusters = cleanup(*phase2OTClusters, OTs, 
                     cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
         OrphanHandle<edmNew::DetSetVector<Phase2TrackerCluster1D> > newOuterTrackers = iEvent.put(newOuterTrackerClusters); 
-//DBG// std::cout << "SeedClusterRemoverPhase2: Wrote strip " << newOuterTrackers.id() << " from " << outerTrackerSourceProdID << std::endl;
+        LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2: Wrote strip " << newOuterTrackers.id() << " from " << outerTrackerSourceProdID;
         cri->setNewPhase2OTClusters(newOuterTrackers);
     }
 
     
     if (clusterWasteSolution_) {
-      //      double fraction_pxl= cri->pixelIndices().size() / (double) pixels.size();
-      //      double fraction_strp= cri->stripIndices().size() / (double) OTs.size();
-      //      edm::LogWarning("SeedClusterRemoverPhase2")<<" fraction: " << fraction_pxl <<" "<<fraction_strp;
       iEvent.put(cri);
     }
 
     pixels.clear(); OTs.clear(); 
 
     if (!clusterWasteSolution_){
-      //auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
-      //auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
       
       std::auto_ptr<Phase2OTMaskContainer> removedOuterTrackerClusterMask(
          new Phase2OTMaskContainer(edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> >(phase2OTClusters),collectedOuterTrackers_));
