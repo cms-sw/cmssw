@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from math import pi
 
 ##    __  __       _          ____   _  _____   __  __                       
 ##   |  \/  | __ _| | _____  |  _ \ / \|_   _| |  \/  |_   _  ___  _ __  ___ 
@@ -246,13 +247,15 @@ def useL1MatchingWindowForSinglets(process):
 
 
 def useL1Stage2Candidates(process):
-    if hasattr(process, 'muonL1Info'):
-         # CB to be checked if a customisation is needed
-         #process.muonL1Info.l1PhiOffset = cms.double(??) 
-         process.muonL1Info.useMB2InOverlap = cms.bool(True)
-         process.muonL1Info.useStage2L1 = cms.bool(True)
-         process.muonL1Info.preselection = cms.string("")
-         process.muonL1Info.matched = cms.InputTag("gmtStage2Digis:Muon:")
+    if hasattr(process, 'muonL1Info'): 
+        # l1PhiOffest might need a second look 
+        # barrel seems not to requre it, whereas encaps do
+        # anyhow the effect is of the order of 0.02
+        #process.muonL1Info.l1PhiOffset = cms.double() 
+        process.muonL1Info.useMB2InOverlap = cms.bool(True)
+        process.muonL1Info.useStage2L1 = cms.bool(True)
+        process.muonL1Info.preselection = cms.string("")
+        process.muonL1Info.matched = cms.InputTag("gmtStage2Digis:Muon:")
 
          
 
