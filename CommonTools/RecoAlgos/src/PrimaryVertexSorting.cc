@@ -27,7 +27,13 @@ float PrimaryVertexSorting::score(const reco::Vertex & pv,const  std::vector<con
     float scale=1.;
     if(c->bestTrack() != 0)
       {
-        scale=(c->pt()-c->bestTrack()->ptError())/c->pt();
+	if(c->pt()!=0) {
+       		 scale=(c->pt()-c->bestTrack()->ptError())/c->pt();
+	}
+ 	if(isnan(scale)) { 
+		edm::LogWarning("PrimaryVertexSorting") << "Scaling is NAN ignoring this candidate/track" << std::endl;
+		scale=0; 
+        }
         if(scale<0){ 
 	  scale=0; 
 	  countScale0++;
