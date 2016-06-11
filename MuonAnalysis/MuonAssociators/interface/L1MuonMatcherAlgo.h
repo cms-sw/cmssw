@@ -181,13 +181,9 @@ class L1MuonMatcherAlgo {
 
 	bool useStage2L1_;
 
-        typedef StringCutObjectSelector<l1extra::L1MuonParticle> L1Selector;
+        typedef StringCutObjectSelector<reco::Candidate,true> L1Selector;
         /// Preselection cut to apply to L1 candidates before matching
-        L1Selector preselectionCutL1_;
-
-        typedef StringCutObjectSelector<l1t::Muon> L1TSelector;
-        /// Preselection cut to apply to L1 candidates before matching
-        L1TSelector preselectionCutL1T_;
+        L1Selector preselectionCut_;
 
         /// Matching cuts
         double deltaR2_, deltaPhi_, deltaEta_;

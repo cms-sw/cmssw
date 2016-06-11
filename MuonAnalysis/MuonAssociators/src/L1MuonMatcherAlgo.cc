@@ -5,8 +5,7 @@
 L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet & iConfig) :
     prop_(iConfig),
     useStage2L1_(iConfig.existsAs<bool>("useStage2L1") ? iConfig.getParameter<bool>("useStage2L1") : false),
-    preselectionCutL1_((iConfig.existsAs<std::string>("preselection") && !useStage2L1_) ? iConfig.getParameter<std::string>("preselection") : ""),
-    preselectionCutL1T_((iConfig.existsAs<std::string>("preselection") &&  useStage2L1_) ? iConfig.getParameter<std::string>("preselection") : ""),
+    preselectionCut_((iConfig.existsAs<std::string>("preselection")) ? iConfig.getParameter<std::string>("preselection") : ""),
     deltaR2_(std::pow(iConfig.getParameter<double>("maxDeltaR"),2)),
     deltaPhi_(iConfig.existsAs<double>("maxDeltaPhi") ? iConfig.getParameter<double>("maxDeltaPhi") : 10),
     deltaEta_(iConfig.existsAs<double>("maxDeltaEta") ? iConfig.getParameter<double>("maxDeltaEta") : 10),
@@ -53,7 +52,7 @@ L1MuonMatcherAlgo::init(const edm::EventSetup & iSetup) {
 
 bool
 L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const l1extra::L1MuonParticle &l1, float &deltaR, float &deltaPhi) const {
-    if (preselectionCutL1_(l1)) {
+    if (preselectionCut_(l1)) {
         GlobalPoint pos = propagated.globalPosition();
         double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi()+l1PhiOffset_);
         double thisDeltaEta = pos.eta() - l1.eta();
@@ -69,12 +68,12 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const l1extra::L
 
 int
 L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vector<l1extra::L1MuonParticle> &l1s, float &deltaR, float &deltaPhi) const {
-    return matchGeneric(propagated, l1s, preselectionCutL1_, deltaR, deltaPhi);
+    return matchGeneric(propagated, l1s, preselectionCut_, deltaR, deltaPhi);
 }
 
 int
 L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vector<l1t::Muon> &l1s, float &deltaR, float &deltaPhi) const {
-    return matchGeneric(propagated, l1s, preselectionCutL1T_, deltaR, deltaPhi);
+    return matchGeneric(propagated, l1s, preselectionCut_, deltaR, deltaPhi);
 }
 
 
