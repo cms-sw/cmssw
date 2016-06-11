@@ -256,13 +256,14 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
     // this is a pixel, and i *know* it is
     const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);
     SiPixelRecHit::ClusterRef cluster = pixelHit->cluster();
+    cout << "Plain Pixel RecHit " << endl;
 
     if (cluster.id() != pixelSourceProdID) throw cms::Exception("Inconsistent Data") << 
             "SeedClusterRemoverPhase2: pixel cluster ref from Product ID = " << cluster.id() << 
             " does not match with source cluster collection (ID = " << pixelSourceProdID << ")\n.";
 
     assert(cluster.id() == pixelSourceProdID);
-    // cout << "HIT NEW PIXEL DETID = " << detid.rawId() << ", Cluster [ " << cluster.key().first << " / " <<  cluster.key().second << " ] " << endl;
+    //cout << "HIT NEW PIXEL DETID = " << detid.rawId() << ", Cluster [ " << cluster.key().first << " / " <<  cluster.key().second << " ] " << endl;
 
     // if requested, cut on cluster size
 //    if (pblocks_[subdet-1].usesSize_ && (cluster->pixels().size() > pblocks_[subdet-1].maxSize_)) return;

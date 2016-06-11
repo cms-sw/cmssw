@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Iterative steps
 #from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.Phase2PU140_iterativeTk_cff import *
-from RecoTracker.IterativeTracking.Phase1PU140_ElectronSeeds_cff import *
+from RecoTracker.IterativeTracking.Phase2PU140_ElectronSeeds_cff import *
 
 
 import copy
