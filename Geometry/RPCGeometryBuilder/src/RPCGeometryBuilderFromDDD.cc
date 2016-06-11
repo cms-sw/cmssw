@@ -208,7 +208,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
         bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
       }
       else {
-        float cornersLo[3] = {0,}, cornersHi[3] = {4};
+        float cornersLo[3] = {0,}, cornersHi[3] = {0,};
         for ( auto rl : rls ) {
           const double h2 = rl->surface().bounds().length()/2;
           const double w2 = rl->surface().bounds().width()/2;
