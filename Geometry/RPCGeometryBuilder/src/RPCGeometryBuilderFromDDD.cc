@@ -204,7 +204,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
         }
         const LocalPoint lpOfCentre((corners[0]+corners[2])/2, (corners[1]+corners[3])/2, 0);
         const auto gpOfCentre = refSurf.toGlobal(lpOfCentre);
-        auto bounds = new RectangularPlaneBounds((corners[2]-corners[0])/2, (corners[3]-corners[1])/2, 0);
+        auto bounds = new RectangularPlaneBounds((corners[2]-corners[0])/2, (corners[3]-corners[1])/2, 1);
         bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
       }
       else {
@@ -232,7 +232,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
         }
         const LocalPoint lpOfCentre((cornersHi[0]+cornersHi[1])/2, (cornersLo[2]+cornersHi[2])/2, 0);
         const auto gpOfCentre = refSurf.toGlobal(lpOfCentre);
-        auto bounds = new TrapezoidalPlaneBounds((cornersLo[1]-cornersLo[0])/2, (cornersHi[1]-cornersHi[0])/2, (cornersHi[2]-cornersLo[2])/2, 0);
+        auto bounds = new TrapezoidalPlaneBounds((cornersLo[1]-cornersLo[0])/2, (cornersHi[1]-cornersHi[0])/2, (cornersHi[2]-cornersLo[2])/2, 1);
         bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
       }
     }
@@ -244,6 +244,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     for ( auto rl : rls ) ch->add(rl);
     // Add the chamber to the geometry
     geometry->add(ch);
+
   }
   return geometry;
 }
