@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from math import pi
 
 ##    __  __       _          ____   _  _____   __  __                       
 ##   |  \/  | __ _| | _____  |  _ \ / \|_   _| |  \/  |_   _  ___  _ __  ___ 
