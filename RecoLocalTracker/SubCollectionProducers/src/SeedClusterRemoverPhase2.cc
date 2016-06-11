@@ -243,17 +243,20 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
   DetId detid = hit->geographicalId(); 
   uint32_t subdet = detid.subdetId();
 
+  assert(subdet > 0);
 //  assert ((subdet > 0) && (subdet <= NumberOfParamBlocks));
 
   // chi2 cut
 //  if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
   //FIXME :: not supposed to work like this!
-  if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
+//  if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
 
-    if (!doPixel_) return;
+  const type_info &hitType = typeid(*hit);
+  if (hitType == typeid(SiPixelRecHit)) {
 
-    // this is a pixel, and i *know* it is
+    if(!doPixel_) return;
+
     const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);
     SiPixelRecHit::ClusterRef cluster = pixelHit->cluster();
     cout << "Plain Pixel RecHit " << endl;
@@ -276,30 +279,29 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
     //assert(detid.rawId() == cluster->geographicalId()); //This condition fails
     if(!clusterWasteSolution_) collectedPixels_[cluster.key()]=true;
       
-  } else { // aka OT
+  } else if (hitType == typeid(Phase2TrackerRecHit1D)) {
 
-    if (!doOuterTracker_) return;
+    if(!doOuterTracker_) return;
 
-    const type_info &hitType = typeid(*hit);
-    if (hitType == typeid(Phase2TrackerRecHit1D)) {
-      const Phase2TrackerRecHit1D *ph2OThit = static_cast<const Phase2TrackerRecHit1D*>(hit);
-      cout << "Plain RecHit 2D: " << endl;
+    const Phase2TrackerRecHit1D *ph2OThit = static_cast<const Phase2TrackerRecHit1D*>(hit);
+    cout << "Plain RecHit 2D: " << endl;
 
-      Phase2TrackerRecHit1D::CluRef cluster = ph2OThit->cluster();
-      if (cluster.id() != outerTrackerSourceProdID) throw cms::Exception("Inconsistent Data") <<
-        "SeedClusterRemoverPhase2: strip cluster ref from Product ID = " << cluster.id() <<
-        " does not match with source cluster collection (ID = " << outerTrackerSourceProdID << ")\n.";
+    Phase2TrackerRecHit1D::CluRef cluster = ph2OThit->cluster();
+    if (cluster.id() != outerTrackerSourceProdID) throw cms::Exception("Inconsistent Data") <<
+      "SeedClusterRemoverPhase2: strip cluster ref from Product ID = " << cluster.id() <<
+      " does not match with source cluster collection (ID = " << outerTrackerSourceProdID << ")\n.";
   
-      assert(cluster.id() == outerTrackerSourceProdID);
-//      if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
+    assert(cluster.id() == outerTrackerSourceProdID);
+//    if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
 
-      OTs[cluster.key()] = false;
-      //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
-      assert(collectedOuterTrackers_.size() > cluster.key());
-      //assert(hit->geographicalId() == cluster->geographicalId()); //This condition fails
-      if (!clusterWasteSolution_) collectedOuterTrackers_[cluster.key()]=true;
-    } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
-  }
+    OTs[cluster.key()] = false;
+    //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
+    assert(collectedOuterTrackers_.size() > cluster.key());
+    //assert(hit->geographicalId() == cluster->geographicalId()); //This condition fails
+    if (!clusterWasteSolution_) collectedOuterTrackers_[cluster.key()]=true;
+  
+  } else throw cms::Exception("NOT IMPLEMENTED") << "I received a hit that was neither SiPixelRecHit nor Phase2TrackerRecHit1D but " << hitType.name() << " on detid " << detid.rawId() << "\n";
+
   
 }
 
