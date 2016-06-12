@@ -3,7 +3,7 @@
 #include <array>
 #include "CACell.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
-
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 template<unsigned int theNumberOfLayers>
 class CellularAutomaton {
 public:
@@ -16,7 +16,7 @@ public:
 
 
 
-    void create_and_connect_cells(std::vector<const HitDoublets*>, const SeedingLayerSetsHits::SeedingLayerSet& , const float);
+    void create_and_connect_cells(std::vector<const HitDoublets*>, const SeedingLayerSetsHits::SeedingLayerSet& , const TrackingRegion& );
     void evolve();
     void find_ntuplets(std::vector<CACell::CAntuplet>& , const unsigned int );
 

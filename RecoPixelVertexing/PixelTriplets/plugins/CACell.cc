@@ -25,17 +25,17 @@ void CACell::evolve()
 
 
 
-void CACell::check_alignment_and_tag(CACell* innerCell, const float pt_min)
+void CACell::check_alignment_and_tag(CACell* innerCell,  const TrackingRegion& region)
 {
 
-  if (are_aligned_RZ(innerCell, pt_min) && have_similar_curvature(innerCell))
+  if (are_aligned_RZ(innerCell, region))
   {
     tag_as_inner_neighbor(innerCell);
     innerCell->tag_as_outer_neighbor(this);
   }
 }
 
-bool CACell::are_aligned_RZ(const CACell* otherCell, const float pt_min) const
+bool CACell::are_aligned_RZ(const CACell* otherCell, const TrackingRegion& region ) const
 {
 
 
@@ -51,11 +51,11 @@ bool CACell::are_aligned_RZ(const CACell* otherCell, const float pt_min) const
   float distance_13_squared = (r1-r3)*(r1-r3) + (z1-z3)*(z1-z3);  
   float tan_12_13 = 2*fabs(z1 * (r2 - r3) + z2 * (r3 - r1) +z3 * (r1 - r2))/distance_13_squared;
     
-  return tan_12_13*pt_min <= 0.001f;
+  return tan_12_13*region.ptMin() <= 0.006f;
 
 }
 
-bool CACell::have_similar_curvature(const CACell* otherCell) const
+bool CACell::have_similar_curvature(const CACell* otherCell , const TrackingRegion& region) const
 {
   float r1 = otherCell->get_inner_r();   
   float r2 = get_inner_r();
@@ -67,8 +67,10 @@ bool CACell::have_similar_curvature(const CACell* otherCell) const
   float dphi_dr1 = deltaPhi1/(r2-r1);
   float dphi_dr2 = deltaPhi2/(r3-r2);
 
-  return fabs(dphi_dr1 - dphi_dr2) < 0.25;
-
+  return fabs((dphi_dr1 - dphi_dr2)/dphi_dr2) < 0.2;
+//  bool haveSameSign = deltaPhi1*deltaPhi2 >= 0.0f;
+//  
+//  return deltaPhi1*deltaPhi2 >= 0.0f;
 }
 
 

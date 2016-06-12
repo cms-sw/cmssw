@@ -10,6 +10,8 @@
 
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <cmath>
@@ -88,15 +90,15 @@ public:
     unsigned int get_outer_hit_id () const { return theOuterHitId; } 
 
 
-    void check_alignment_and_tag(CACell*, const float);
+    void check_alignment_and_tag(CACell*, const TrackingRegion& );
 
     void tag_as_outer_neighbor(CACell* otherCell) {  theOuterNeighbors.push_back(otherCell);    }
 
     void tag_as_inner_neighbor(CACell* otherCell) {  theInnerNeighbors.push_back(otherCell);}
 
 
-    bool are_aligned_RZ(const CACell*, const float) const;
-    bool have_similar_curvature(const CACell* ) const;
+    bool are_aligned_RZ(const CACell*, const TrackingRegion& ) const;
+    bool have_similar_curvature(const CACell* ,const TrackingRegion& ) const;
 
 
 

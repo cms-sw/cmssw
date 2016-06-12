@@ -2,7 +2,7 @@
 #include "CellularAutomaton.h"
 
 template <unsigned int numberOfLayers>
-void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<const HitDoublets*> doublets, const SeedingLayerSetsHits::SeedingLayerSet& fourLayers, const float pt_min)
+void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<const HitDoublets*> doublets, const SeedingLayerSetsHits::SeedingLayerSet& fourLayers, const TrackingRegion& region)
 {
 
   unsigned int cellId = 0;
@@ -48,7 +48,7 @@ void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<co
 
         for (auto neigCell : isOuterHitOfCell[innerLayerId][doublets[layerPairId]->innerHitId(i)])
         {
-          theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, pt_min);
+          theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, region);
 
         }
 

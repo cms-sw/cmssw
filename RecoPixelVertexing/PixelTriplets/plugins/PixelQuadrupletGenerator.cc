@@ -302,54 +302,20 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
   const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
   
   
-  std::sort(foundQuadruplets.begin(),foundQuadruplets.end(),[](CACell::CAntuplet i, CACell::CAntuplet j) -> bool{ return (i[2]->get_outer_hit_id() < j[2]->get_outer_hit_id());});
-
-
   // re-used thoughout, need to be vectors because of RZLine interface
   std::vector<float> bc_r(4), bc_z(4), bc_errZ(4);
   
   declareDynArray(GlobalPoint, 4, gps);
   declareDynArray(GlobalError, 4, ges);
   declareDynArray(bool, 4, barrels);
-  
-  
-  
-  unsigned int lastOuterHit = std::numeric_limits<unsigned int>::quiet_NaN();
-  std::vector<float> chiSquaresFromQuadsWithSameOuterHit;
-  chiSquaresFromQuadsWithSameOuterHit.reserve(10);
-  std::vector<unsigned int> quadrupletIdx;
-  quadrupletIdx.reserve(10);
-  
-  
-  
-  
+ 
   unsigned int numberOfFoundQuadruplets = foundQuadruplets.size();
   
 //  std::cout << "entering the found quadruplets loop" << std::endl;
   // Loop over quadruplets
   for (unsigned int quadId = 0; quadId < numberOfFoundQuadruplets; ++quadId)
   {
-    if(lastOuterHit != foundQuadruplets[quadId][2]->get_outer_hit_id() && !chiSquaresFromQuadsWithSameOuterHit.empty() && quadId!= 0 )
-    {
-//      std::cout << "this is a new iteration, pushing the result of the previous one in the results" << std::endl;  
-      float cutChi2 = *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end())+20.f;
-//      std::cout << " the minimum chi2 was " << *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end()) << " applying a cut at " << cutChi2 << std::endl;
-      for(unsigned int i = 0; i < chiSquaresFromQuadsWithSameOuterHit.size(); ++i)
-      {
-        if(chiSquaresFromQuadsWithSameOuterHit[i] < cutChi2){
-          result.emplace_back(foundQuadruplets[quadrupletIdx[i]][0]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][1]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_outer_hit());
-//          std::cout << "quadruplet " << quadrupletIdx[i] << " had chi2 " << chiSquaresFromQuadsWithSameOuterHit[i] << " and can go in the result " << std::endl;
-        }
-      }
-      chiSquaresFromQuadsWithSameOuterHit.clear();
-      quadrupletIdx.clear();
-    }
-    
-    
-    
-    
-    
-    
+   
 //    std::cout << "checking quadruplet " << quadId << " with outer hit id " << foundQuadruplets[quadId][2]->get_outer_hit_id() << std::endl;
     auto isBarrel = [](const unsigned id) -> bool
     {
@@ -389,10 +355,10 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
 
     if (theComparitor)
     {
-      SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][1]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
-      SeedingHitSet tmpTriplet2(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][2]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
+      SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][2]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
 
-      if (!theComparitor->compatible(tmpTriplet, region) && !theComparitor->compatible(tmpTriplet2, region))
+
+      if (!theComparitor->compatible(tmpTriplet, region) )
       {
         continue;
       }
@@ -443,27 +409,8 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
     
 //    std::cout << "it has chi2: " << chi2 << std::endl;
     
- 
-    lastOuterHit = foundQuadruplets[quadId][2]->get_outer_hit_id();
-    quadrupletIdx.push_back(quadId);
-    chiSquaresFromQuadsWithSameOuterHit.push_back(chi2);
-    
+    result.emplace_back(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][1]->get_inner_hit(), foundQuadruplets[quadId][2]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
+
   }
-  
-    if(!chiSquaresFromQuadsWithSameOuterHit.empty())
-    {
-//      std::cout << "this is the final iteration, pushing the result of the previous one in the results" << std::endl;  
-      float cutChi2 = *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end())+20.f;
-//      std::cout << " the minimum chi2 was " << *std::min_element(chiSquaresFromQuadsWithSameOuterHit.begin(), chiSquaresFromQuadsWithSameOuterHit.end()) << " applying a cut at " << cutChi2 << std::endl;
-      for(unsigned int i = 0; i < chiSquaresFromQuadsWithSameOuterHit.size(); ++i)
-      {
-        if(chiSquaresFromQuadsWithSameOuterHit[i] < cutChi2){
-          result.emplace_back(foundQuadruplets[quadrupletIdx[i]][0]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][1]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_inner_hit(), foundQuadruplets[quadrupletIdx[i]][2]->get_outer_hit());
-//          std::cout << "quadruplet " << quadrupletIdx[i] << " had chi2 " << chiSquaresFromQuadsWithSameOuterHit[i] << " and can go in the result " << std::endl;
-        }
-      }
-      chiSquaresFromQuadsWithSameOuterHit.clear();
-      quadrupletIdx.clear();
-    }
-  
+
 }

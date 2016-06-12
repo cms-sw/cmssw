@@ -127,6 +127,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
   doublets(region,
 	   *innerLayer.detLayer(),*outerLayer.detLayer(),
 	   innerHitsMap,outerHitsMap,iSetup,theMaxElement,result);
+  
   return result;
 
 }
