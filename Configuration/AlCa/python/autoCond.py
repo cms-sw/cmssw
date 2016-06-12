@@ -23,12 +23,16 @@ autoCond = {
     'run1_data'         :   '81X_dataRun2_v0',
     # GlobalTag for Run2 data reprocessing
     'run2_data'         :   '81X_dataRun2_v0',
+    # GlobalTag for Run2 data (as Prompt) WILL DISAPPEAR ONCE RERECO UPDATED
+    'run2_prompt_WillDisappearInJul16' :   '81X_dataRun2_Run2016B_Prompt_frozen_v1',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '81X_dataRun2_relval_v0',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '80X_dataRun2_HLT_frozen_v12',
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '80X_dataRun2_HLT_frozen_v12',
+    # GlobalTag for Run2 data (as HLT) WILL DISAPPEAR ONCE RERECO UPDATED
+    'run2_hlt_WillDisappearInJul16'    :   '81X_dataRun2_Run2016B_HLT_frozen_v1',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'   :   '80X_dataRun2_HLT_relval_v11',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
