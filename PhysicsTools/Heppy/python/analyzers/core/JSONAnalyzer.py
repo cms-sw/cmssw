@@ -26,17 +26,20 @@ class JSONAnalyzer( Analyzer ):
          - if the json file was not set for this component
       - False if the component is MC or embed (for H->tau tau),
           and if the run/lumi pair is not in the JSON file.
+
+    If the option "passAll" is specified and set to True, all events will be selected and a flag event.json is set with the value of the filter
     '''
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(JSONAnalyzer, self).__init__(cfg_ana, cfg_comp, looperName)
         if not cfg_comp.isMC:
-            if self.cfg_comp.json is None:
+            if self.cfg_comp.json is None and hasattr(self.cfg_ana,"json") == False :
                 raise ValueError('component {cname} is not MC, and contains no JSON file. Either remove the JSONAnalyzer for your path or set the "json" attribute of this component'.format(cname=cfg_comp.name))
-            self.lumiList = LumiList(os.path.expandvars(self.cfg_comp.json))
+	    #use json from this analyzer if given, otherwise use the component json 
+            self.lumiList = LumiList(os.path.expandvars(getattr(self.cfg_ana,"json",self.cfg_comp.json)))
         else:
             self.lumiList = None
-        
+        self.passAll = getattr(self.cfg_ana,'passAll',False)
         self.useLumiBlocks = self.cfg_ana.useLumiBlocks if (hasattr(self.cfg_ana,'useLumiBlocks')) else False
 
         self.rltInfo = RLTInfo()
@@ -45,8 +48,8 @@ class JSONAnalyzer( Analyzer ):
         super(JSONAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('JSON')
         self.count = self.counters.counter('JSON')
-        self.count.register('All Lumis')
-        self.count.register('Passed Lumis')
+        self.count.register('All Events')
+        self.count.register('Passed Events')
 
         if self.useLumiBlocks and not self.cfg_comp.isMC and not self.lumiList is None:
             lumis = Lumis(self.cfg_comp.files)
@@ -74,14 +77,16 @@ class JSONAnalyzer( Analyzer ):
         if self.lumiList is None:
             return True
 
-        self.count.inc('All Lumis')
-        if self.lumiList.contains(run,lumi):
-            self.count.inc('Passed Lumis')
+        self.count.inc('All Events')
+        sel = self.lumiList.contains(run,lumi)
+        setattr(event,"json"+getattr(self.cfg_ana,"suffix",""), sel)
+        if sel :
+            self.count.inc('Passed Events')
             if not self.useLumiBlocks:
                 self.rltInfo.add('dummy', run, lumi)
             return True
         else:
-            return False
+            return self.passAll
         
 
     def write(self, setup):

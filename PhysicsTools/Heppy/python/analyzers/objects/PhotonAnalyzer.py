@@ -12,6 +12,7 @@ from PhysicsTools.HeppyCore.framework.event import Event
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Photon import Photon
+from PhysicsTools.Heppy.physicsutils.PhotonCalibrator import Run2PhotonCalibrator
 
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch, matchObjectCollection3
 
@@ -29,6 +30,14 @@ class PhotonAnalyzer( Analyzer ):
         if self.doFootprintRemovedIsolation:
             self.footprintRemovedIsolationPUCorr =  self.cfg_ana.footprintRemovedIsolationPUCorr
             self.IsolationComputer = heppy.IsolationComputer()
+	#FIXME: only Embedded works
+        if self.cfg_ana.doPhotonScaleCorrections:
+            conf = cfg_ana.doPhotonScaleCorrections
+            self.photonEnergyCalibrator = Run2PhotonCalibrator(
+                conf['data'],
+                cfg_comp.isMC,
+                conf['isSync'] if 'isSync' in conf else False,
+            )
 
     def declareHandles(self):
         super(PhotonAnalyzer, self).declareHandles()
@@ -64,6 +73,11 @@ class PhotonAnalyzer( Analyzer ):
         if self.doFootprintRemovedIsolation:
             # values are taken from EGamma implementation: https://github.com/cms-sw/cmssw/blob/CMSSW_7_6_X/RecoEgamma/PhotonIdentification/plugins/PhotonIDValueMapProducer.cc#L198-L199
             self.IsolationComputer.setPackedCandidates(self.handles['packedCandidates'].product(), -1, 0.1, 0.2)
+
+        # Photon scale calibrations
+        if self.cfg_ana.doPhotonScaleCorrections:
+            for gamma in event.allphotons:
+                self.photonEnergyCalibrator.correct(gamma, event.run)
 
         foundPhoton = False
         for gamma in event.allphotons:
@@ -335,6 +349,8 @@ setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
     photons='slimmedPhotons',
     ptMin = 20,
     etaMax = 2.5,
+    # energy scale corrections (off by default)
+    doPhotonScaleCorrections=False, 
     gammaID = "PhotonCutBasedIDLoose_CSA14",
     rhoPhoton = 'fixedGridRhoFastjetAll',
     gamma_isoCorr = 'rhoArea',

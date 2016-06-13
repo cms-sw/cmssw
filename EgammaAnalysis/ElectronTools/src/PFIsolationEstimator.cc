@@ -2,7 +2,6 @@
 #include "EgammaAnalysis/ElectronTools/interface/PFIsolationEstimator.h"
 #include <cmath>
 #include "DataFormats/Math/interface/deltaR.h"
-using namespace std;
 
 #ifndef STANDALONE
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -20,10 +19,6 @@ using namespace std;
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
 #endif
-
-using namespace reco;
-
-
 
 //--------------------------------------------------------------------------------------------------
 PFIsolationEstimator::PFIsolationEstimator() :
@@ -205,7 +200,7 @@ void PFIsolationEstimator::initializeRings(int iNumberOfRings, float fRingSize){
 float PFIsolationEstimator::fGetIsolation(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
  
   fGetIsolationInRings( pfCandidate, pfParticlesColl, vtx, vertices);
-  refSC = SuperClusterRef();
+  refSC = reco::SuperClusterRef();
   fIsolation = fIsolationInRings[0];
   
   return fIsolation;
@@ -213,7 +208,7 @@ float PFIsolationEstimator::fGetIsolation(const reco::PFCandidate * pfCandidate,
 
 
 //--------------------------------------------------------------------------------------------------
-vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
   int isoBin;
 
@@ -289,7 +284,7 @@ float PFIsolationEstimator::fGetIsolation(const reco::Photon * photon, const rec
 
 
 //--------------------------------------------------------------------------------------------------
-vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
   int isoBin;
   
@@ -394,7 +389,7 @@ float PFIsolationEstimator::fGetIsolation(const reco::GsfElectron * electron, co
 
 
 //--------------------------------------------------------------------------------------------------
-vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
 
   int isoBin;
   
@@ -415,7 +410,7 @@ vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfElectr
   fVx =  electron->vx();
   fVy =  electron->vy();
   fVz =  electron->vz();
-  iMissHits = electron->gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
+  iMissHits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
   
   //  if(electron->ecalDrivenSeed())
   refSC = electron->superCluster();
@@ -579,7 +574,7 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
 //-----------------------------------------------------------------------------------------------------
 float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,reco::VertexRef vtxMain, edm::Handle< reco::VertexCollection >  vertices  ){
   
-  VertexRef vtx = chargedHadronVertex(vertices,  *pfIsoCand );
+  reco::VertexRef vtx = chargedHadronVertex(vertices,  *pfIsoCand );
   if(vtx.isNull())
     return -999.;
   
@@ -685,7 +680,7 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
 
 
 //--------------------------------------------------------------------------------------------------
- VertexRef  PFIsolationEstimator::chargedHadronVertex(  edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
+reco::VertexRef  PFIsolationEstimator::chargedHadronVertex(  edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
 
   //code copied from Florian's PFNoPU class
     
@@ -728,7 +723,7 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
   if (nFoundVertex>0){
     if (nFoundVertex!=1)
       edm::LogWarning("TrackOnTwoVertex")<<"a track is shared by at least two verteces. Used to be an assert";
-    return  VertexRef( verticesColl, iVertex);
+    return  reco::VertexRef( verticesColl, iVertex);
   }
   // no vertex found with this track. 
 
@@ -750,11 +745,11 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
     }
 
     if( foundVertex ) 
-      return  VertexRef( verticesColl, iVertex);  
+      return  reco::VertexRef( verticesColl, iVertex);  
   
   }
    
-  return  VertexRef( );
+  return  reco::VertexRef( );
 }
 
 
