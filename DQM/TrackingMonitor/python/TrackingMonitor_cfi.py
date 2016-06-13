@@ -327,7 +327,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     DxyMax = cms.double(0.5),
     DxyMin = cms.double(-0.5),                        
 
-    AbsDxyBin = cms.int32(300),
+    AbsDxyBin = cms.int32(120),
     AbsDxyMin = cms.double(0.),
     AbsDxyMax = cms.double(60.),                        
 
