@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 
-fastTrackingRecHitProducer = cms.EDProducer("TrackingRecHitProducer",
+fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
     plugins=cms.VPSet()
 )
 
-trackingRecHitProducerNoMerge.plugins.append(
+fastTrackerRecHits.plugins.append(
     cms.PSet(
         name = cms.string("pixelBarrelSmearer"),
         type=cms.string("PixelBarrelTemplateSmearerPlugin"),
@@ -28,7 +28,7 @@ trackingRecHitProducerNoMerge.plugins.append(
     )
 )
 
-trackingRecHitProducerNoMerge.plugins.append(
+fastTrackerRecHits.plugins.append(
     cms.PSet(
         name = cms.string("pixelForwardSmearer"),
         type=cms.string("PixelForwardTemplateSmearerPlugin"),
@@ -91,4 +91,4 @@ for subdetId,trackerLayers in trackerStripGaussianResolutions.iteritems():
             resolutionX=resolutionX,
             select=cms.string("(subdetId=="+subdetId+") && (layer=="+str(trackerLayer)+")"),
         )
-        trackingRecHitProducerNoMerge.plugins.append(pluginConfig)
+        fastTrackerRecHits.plugins.append(pluginConfig)

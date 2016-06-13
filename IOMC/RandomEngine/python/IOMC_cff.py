@@ -106,7 +106,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         engineName = cms.untracked.string('TRandom3')
     ),
 
-    siTrackerGaussianSmearingRecHits = cms.PSet(
+    fastTrackerRecHits = cms.PSet(
         initialSeed = cms.untracked.uint32(24680),
         engineName = cms.untracked.string('TRandom3')
     ),
