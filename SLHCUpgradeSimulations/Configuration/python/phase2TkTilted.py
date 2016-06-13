@@ -63,13 +63,20 @@ def customise_RawToDigi(process):
 def customise_Reco(process,pileup):
     # insert the new clusterizer
     process.load('SimTracker.SiPhase2Digitizer.phase2TrackerClusterizer_cfi')
-    
+
+    # insert new InnerTracker pixel clusterizer
+    process.load("RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi")
+    process.phase2ITPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
+    process.phase2ITPixelClusters.MissCalibrate = cms.untracked.bool(False)
+
     # keep new clusters
-    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
+    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','RECOSIM']
     for a in alist:
         b=a+'output'
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('keep *_siPhase2Clusters_*_*')
+            getattr(process,b).outputCommands.append('keep *_phase2ITPixelClusters_*_*')
+
 
     #use with latest pixel geometry
     process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
@@ -237,6 +244,7 @@ def customise_Reco(process,pileup):
     # This snippet must be after the loading of recoFromSimDigis_cff    
     process.pixeltrackerlocalreco = cms.Sequence(
         process.siPhase2Clusters +
+        process.phase2ITPixelClusters +
         process.siPixelClusters +
         process.siPixelRecHits
     )
