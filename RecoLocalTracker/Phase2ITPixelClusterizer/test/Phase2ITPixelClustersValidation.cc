@@ -45,13 +45,15 @@ struct ClusterHistos {
 
     TH1F* clusterSizePixel;
 
+    TH1F* clusterCharge;
+
     TH2F* globalPosXY[2];
     TH2F* localPosXY[2];
     TH1F* localPosX[2];
     TH1F* localPosY[2];
     TH1F* localCol[2];
     TH1F* localRow[2];
-
+  
     TH1F* deltaXClusterSimHits[2];
     TH1F* deltaYClusterSimHits[2];
 
@@ -62,15 +64,15 @@ struct ClusterHistos {
     TH1F* otherSimHits;
 };
 
-class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
+class Phase2ITPixelClustersValidation : public edm::EDAnalyzer {
 
     public:
 
         typedef std::map< unsigned int, std::vector< PSimHit > > SimHitsMap;
         typedef std::map< unsigned int, SimTrack > SimTracksMap;
 
-        explicit Phase2TrackerClusterizerValidation(const edm::ParameterSet&);
-        ~Phase2TrackerClusterizerValidation();
+        explicit Phase2ITPixelClustersValidation(const edm::ParameterSet&);
+        ~Phase2ITPixelClustersValidation();
         void beginJob() override;
         void endJob() override;
         void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -96,7 +98,7 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
 
 };
 
-    Phase2TrackerClusterizerValidation::Phase2TrackerClusterizerValidation(const edm::ParameterSet& conf) { 
+    Phase2ITPixelClustersValidation::Phase2ITPixelClustersValidation(const edm::ParameterSet& conf) { 
         tokenClusters_ = consumes< Phase2ITPixelClusterCollectionNew >(conf.getParameter<edm::InputTag>("src"));
         tokenLinks_ = consumes< edm::DetSetVector< PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("links"));
         tokenSimHits_ = consumes< edm::PSimHitContainer >(edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"));
@@ -104,9 +106,9 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
         tokenSimVertices_ = consumes< edm::SimVertexContainer >(edm::InputTag("g4SimHits")); 
     }
 
-    Phase2TrackerClusterizerValidation::~Phase2TrackerClusterizerValidation() { }
+    Phase2ITPixelClustersValidation::~Phase2ITPixelClustersValidation() { }
 
-    void Phase2TrackerClusterizerValidation::beginJob() {
+    void Phase2ITPixelClustersValidation::beginJob() {
         edm::Service<TFileService> fs; 
         fs->file().cd("/");
         TFileDirectory td = fs->mkdir("Common");
@@ -117,9 +119,9 @@ class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
         trackerLayoutXYEC_ = td.make< TH2F >("XVsYEC", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
     }
 
-void Phase2TrackerClusterizerValidation::endJob() { }
+void Phase2ITPixelClustersValidation::endJob() { }
 
-void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
+void Phase2ITPixelClustersValidation::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
 
     /*
      * Get the needed objects
@@ -251,6 +253,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
                 histogramLayer->second.localPosXY[1]->Fill(localPosClu.x(), localPosClu.y());
                 histogramLayer->second.globalPosXY[1]->Fill(globalPosClu.x(), globalPosClu.y());
                 histogramLayer->second.clusterSizePixel->Fill(clustIt->size());
+                histogramLayer->second.clusterCharge->Fill(clustIt->charge()*1.e-3);  // *1.e-3 conversion to ke
                 ++nClustersPixel;
             }
 
@@ -266,7 +269,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 
             // // Get all the simTracks that form the cluster
             // for (unsigned int i(0); i < clustIt->size(); ++i) {
-            //     unsigned int channel(PixelDigi::pixelToChannel(clustIt->firstRow() + i, clustIt->column())); // Here we have to use the old pixelToChannel function (not Phase2TrackerDigi but PixelDigi), change this when using new Digis
+            //     unsigned int channel(PixelDigi::pixelToChannel(clustIt->firstRow() + i, clustIt->column())); // Here we have to use the old pixelToChannel function (not Phase2ITPixelDigi but PixelDigi), change this when using new Digis
             //     unsigned int simTrackId(getSimTrackId(pixelSimLinks, detId, channel));
             //     clusterSimTrackIds.push_back(simTrackId);
             // }
@@ -326,7 +329,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
 }
 
 // Create the histograms
-std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValidation::createLayerHistograms(unsigned int ival) {
+std::map< unsigned int, ClusterHistos >::iterator Phase2ITPixelClustersValidation::createLayerHistograms(unsigned int ival) {
     std::ostringstream fname1, fname2;
 
     edm::Service<TFileService> fs;
@@ -361,7 +364,6 @@ std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValida
 
     histoName.str(""); histoName << "Number_Clusters_Pixel" << tag.c_str() <<  id;
     local_histos.numberClusterPixel = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 20, 0., 20.);
-    local_histos.numberClusterPixel->SetFillColor(kAzure + 7);
 
 
     /*
@@ -370,7 +372,13 @@ std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValida
 
     histoName.str(""); histoName << "Cluster_Size_Pixel" << tag.c_str() <<  id;
     local_histos.clusterSizePixel = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 20, -0.5, 19.5);
-    local_histos.clusterSizePixel->SetFillColor(kAzure + 7);
+
+    /*
+     * Cluster charge [ke]
+     */
+
+    histoName.str(""); histoName << "Cluster_Charge" << tag.c_str() <<  id;
+    local_histos.clusterCharge = td.make< TH1F >(histoName.str().c_str(), histoName.str().c_str(), 250, 0., 500.);
 
 
     /*
@@ -466,7 +474,7 @@ std::map< unsigned int, ClusterHistos >::iterator Phase2TrackerClusterizerValida
     return insertedIt.first;
 }
 
-unsigned int Phase2TrackerClusterizerValidation::getLayerNumber(const DetId& detid, const TrackerTopology* topo) {
+unsigned int Phase2ITPixelClustersValidation::getLayerNumber(const DetId& detid, const TrackerTopology* topo) {
     if (detid.det() == DetId::Tracker) {
         if (detid.subdetId() == PixelSubdetector::PixelBarrel) return (topo->pxbLayer(detid));
         else if (detid.subdetId() == PixelSubdetector::PixelEndcap) return (100 * topo->pxfSide(detid) + topo->pxfDisk(detid));
@@ -475,7 +483,7 @@ unsigned int Phase2TrackerClusterizerValidation::getLayerNumber(const DetId& det
     return 999;
 }
 
-unsigned int Phase2TrackerClusterizerValidation::getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >& pixelSimLinks, const DetId& detId, unsigned int channel) {
+unsigned int Phase2ITPixelClustersValidation::getSimTrackId(const edm::Handle< edm::DetSetVector< PixelDigiSimLink > >& pixelSimLinks, const DetId& detId, unsigned int channel) {
     edm::DetSetVector< PixelDigiSimLink >::const_iterator DSViter(pixelSimLinks->find(detId));
     if (DSViter == pixelSimLinks->end()) return 0;
     for (edm::DetSet< PixelDigiSimLink >::const_iterator it = DSViter->data.begin(); it != DSViter->data.end(); ++it) {
@@ -484,4 +492,4 @@ unsigned int Phase2TrackerClusterizerValidation::getSimTrackId(const edm::Handle
     return 0;
 }
 
-DEFINE_FWK_MODULE(Phase2TrackerClusterizerValidation);
+DEFINE_FWK_MODULE(Phase2ITPixelClustersValidation);

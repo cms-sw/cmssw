@@ -20,9 +20,10 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/Phase2ITPixelCluster"/>
+<use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/ParticleFlowReco"/>
-<library   file="ClustersValidation.cc" name="Phase2ITPixelClusterizerValidation">
+<library   file="Phase2ITPixelClustersValidation.cc" name="Phase2ITPixelClustersValidation">
   <flags   EDM_PLUGIN="1"/>
 </library>
 <!-- ATricomi EMigliore 2016.05.10 -->

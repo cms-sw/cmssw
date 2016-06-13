@@ -26,7 +26,9 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input file
 process.source = cms.Source('PoolSource',
-    fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/caf/user/emiglior/SLHCSimPhase2/phase2/out81Xpre3/step2_2023tilted_v2.root')
+                            fileNames = cms.untracked.vstring('file:/tmp/emiglior/step3.root'),
+                            secondaryFileNames=cms.untracked.vstring('file:/tmp/emiglior/step2.root')
+
 )
 
 # TAG
@@ -40,7 +42,7 @@ process.TFileService = cms.Service('TFileService',
 
 # DEBUG
 process.MessageLogger = cms.Service('MessageLogger',
-	debugModules = cms.untracked.vstring('siPhase2Clusters'),
+	debugModules = cms.untracked.vstring('analysis_Clusters'),
 	destinations = cms.untracked.vstring('cout'),
 	cout = cms.untracked.PSet(
 		threshold = cms.untracked.string('ERROR')
@@ -48,10 +50,10 @@ process.MessageLogger = cms.Service('MessageLogger',
 )
 
 # Analyzer
-process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
+process.analysis_Cluster = cms.EDAnalyzer('Phase2ITPixelClustersValidation',
     src = cms.InputTag("phase2ITPixelClusters"),
     links = cms.InputTag("simSiPixelDigis","Pixel")
 )
 
 # Processes to run
-process.p = cms.Path(process.analysis)
+process.p = cms.Path(process.analysis_Cluster)
