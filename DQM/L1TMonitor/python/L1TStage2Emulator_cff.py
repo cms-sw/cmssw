@@ -11,7 +11,7 @@ from EventFilter.L1TXRawToDigi.caloLayer1Stage2Digis_cfi import *
 from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
 
 # BMTF 
-from EventFilter.L1TRawToDigi.l1tRawtoDigiBMTF_cfi import *
+from EventFilter.L1TRawToDigi.bmtfDigis_cfi import *
 
 # OMTF
 #from EventFilter.L1TRawToDigi.omtfStage2Digis_cfi import *
@@ -28,7 +28,7 @@ from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import *
 l1tStage2Unpack = cms.Sequence(
     l1tCaloLayer1Digis +
     caloStage2Digis +
-    BMTFStage2Digis +
+    bmtfDigis  +
     #omtfStage2Digis +
     emtfStage2Digis +
     gmtStage2Digis +
