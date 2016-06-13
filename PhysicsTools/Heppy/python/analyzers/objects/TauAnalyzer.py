@@ -12,6 +12,7 @@ class TauAnalyzer( Analyzer ):
     
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TauAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
+        self.vertexChoice = getattr(cfg_ana, 'vertexChoice', 'goodVertices')
 
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
@@ -41,8 +42,9 @@ class TauAnalyzer( Analyzer ):
         alltaus = map( Tau, self.handles['taus'].product() )
 
         #make inclusive taus
+        goodVertices = getattr(event, self.vertexChoice)
         for tau in alltaus:
-            tau.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
+            tau.associatedVertex = goodVertices[0] if len(goodVertices)>0 else event.vertices[0]
             tau.lepVeto = False
             tau.idDecayMode = tau.tauID("decayModeFinding")
             tau.idDecayModeNewDMs = tau.tauID("decayModeFindingNewDMs")

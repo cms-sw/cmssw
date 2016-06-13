@@ -104,6 +104,7 @@ class LeptonAnalyzer( Analyzer ):
                 self.IsolationComputer = heppy.IsolationComputer()
             
 
+        self.vertexChoice = getattr(cfg_ana, 'vertexChoice', 'goodVertices')
         self.doMatchToPhotons = getattr(cfg_ana, 'do_mc_match_photons', False)
         self.doDirectionalIsolation = getattr(cfg_ana, 'doDirectionalIsolation', []) if self.doMiniIsolation else []
         self.doFixedConeIsoWithMiniIsoVeto = getattr(cfg_ana, 'doFixedConeIsoWithMiniIsoVeto', False)
@@ -307,8 +308,9 @@ class LeptonAnalyzer( Analyzer ):
               mu.EffectiveArea04 = 0 # not computed
           else: raise RuntimeError("Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_25ns_v1 or Spring15_25ns_v1 (rho: fixedGridRhoFastjetAll)")
         # Attach the vertex to them, for dxy/dz calculation
+        goodVertices = getattr(event, self.vertexChoice)
         for mu in allmuons:
-            mu.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
+            mu.associatedVertex = goodVertices[0] if len(goodVertices)>0 else event.vertices[0]
             mu.setTrackForDxyDz(self.cfg_ana.muon_dxydz_track)
 
         # Set tight id if specified
@@ -410,8 +412,9 @@ class LeptonAnalyzer( Analyzer ):
                 self.electronEnergyCalibrator.correct(ele, event.run)
 
         # Attach the vertex
+        goodVertices = getattr(event, self.vertexChoice)
         for ele in allelectrons:
-            ele.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
+            ele.associatedVertex = goodVertices[0] if len(goodVertices)>0 else event.vertices[0]
 
         # Compute relIso with R=0.3 and R=0.4 cones
         for ele in allelectrons:
