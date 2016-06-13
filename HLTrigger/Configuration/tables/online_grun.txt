@@ -510,8 +510,8 @@ HLT_MET600_v*						  	# JIRA: CMSHLT-735
 HLT_MET700_v*						  	# JIRA: CMSHLT-735
 HLT_PFMET500_v*						  	# JIRA: CMSHLT-735
 HLT_PFMET600_v*						  	# JIRA: CMSHLT-735
-#HLT_Ele250_CaloIdVT_GsfTrkIdT_v*				# JIRA: CMSHLT-735 (not in GRun following the request in the ticket)
-#HLT_Ele300_CaloIdVT_GsfTrkIdT_v*				# JIRA: CMSHLT-735 (not in GRun following the request in the ticket)
+HLT_Ele250_CaloIdVT_GsfTrkIdT_v*				# JIRA: CMSHLT-735
+HLT_Ele300_CaloIdVT_GsfTrkIdT_v*				# JIRA: CMSHLT-735
 
 HLT_Ele23_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-561
 HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343

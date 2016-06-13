@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/HLT/V328 (CMSSW_8_0_10)
+# /dev/CMSSW_8_0_0/HLT/V337 (CMSSW_8_0_10)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V328')
+  tableName = cms.string('/dev/CMSSW_8_0_0/HLT/V337')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -1878,7 +1878,14 @@ fragment.datasets = cms.PSet(
     'HLT_HISinglePhoton60_Eta3p1_v3' ),
   HLTMonitor = cms.vstring( 'HLT_DiPFJetAve40_v3',
     'HLT_PFHT350_v4',
-    'HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v2' ),
+    'HLT_PFMET120_BTagCSV_p067_v2',
+    'HLT_PFMET120_Mu5_v2',
+    'HLT_PFMET120_PFMHT120_IDTight_v3',
+    'HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq460_v2',
+    'HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq500_v2',
+    'HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_v2',
+    'HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_v2',
+    'HLT_QuadPFJet_VBF_v5' ),
   HLTPhysics = cms.vstring( 'HLT_Physics_v3' ),
   HLTPhysics0 = cms.vstring( 'HLT_Physics_part0_v1' ),
   HLTPhysics1 = cms.vstring( 'HLT_Physics_part1_v1' ),
