@@ -336,6 +336,6 @@ def customise_Reco(process,pileup):
     return process
 
 def customise_condOverRides(process):
-    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff')
+    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkFlat_cff')
     return process
 
