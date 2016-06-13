@@ -32,7 +32,7 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
         }
         else
         {
-            edm::LogWarning("TrackingRecHitAlgorithm plugin not found: ") << "plugin type = "<<pluginType<<"\nconfiguration=\n"<<pluginConfig.dump();
+            throw cms::Exception("TrackingRecHitAlgorithm plugin not found: ") << "plugin type = "<<pluginType<<"\nconfiguration=\n"<<pluginConfig.dump();
         }
     }
 
