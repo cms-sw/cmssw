@@ -9,8 +9,11 @@ import sys,os
 # miniaod_version = "RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
 # filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv1-PU25nsData2015v1_76X.txt'
 
-miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
-filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
+# miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
+# filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
+
+miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
+filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X.txt'
 
 # REMOVE DATASET NAMES CONTAINING:
 
@@ -45,6 +48,8 @@ remove = [
           'ContinToZZ','SingleNeutron','BuToJpsiPi','Chib0ToUps','DYToLL_M_1_T','EEG_PTG','GluGluWWTo2E2Nu','HToZATo2L2Tau',
           'MinBias_chMulti85','MuMuG_PTG130To400','SingleK0','WLLJJ','WZJJ','ChMulti85','Chib0ToUps','DYToEE_NNPDF30','ZToEE_NNPDF',
           'GluGluToHiggs0PMToZZ','/TTTT_','WWJJToLNuLNu_EWK_QCD_noTop','SeesawTypeIII','RPVStopStop','gluinoGMSB_M',
+          'GluGluSpin0ToZG','DYBBJetsToLL_M-50_T','EWKWMinus2Jets_WToLNu','EWKWPlus2Jets_WToLNu','EWKZ2Jets_ZToNuNu',
+          'TT_TuneCUETP8M1mpiOFF','TT_TuneCUETP8M1noCR','TT_TuneEE5CmpiOFF','WGstarToLNu','TT_widthx4',
           # '/ttHJetToNonbb_M120_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9_ext1-v3/MINIAODSIM',
