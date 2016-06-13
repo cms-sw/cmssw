@@ -14,10 +14,8 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import offlineBeamSpot
 
 # and of course it needs tracker hits
 
-#uses the old RecHit producer
-#from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import siTrackerGaussianSmearingRecHits
-#uses the new RecHit producer
-from FastSimulation.TrackingRecHitProducer.NewRecHitConverter_NoMerge_cfi import trackingRecHitProducerNoMerge as siTrackerGaussianSmearingRecHits
+#RecHit producer
+from FastSimulation.TrackingRecHitProducer.TrackingRecHitProducer_cfi import fastTrackingRecHitProducer
 
 from FastSimulation.TrackingRecHitProducer.FastTrackerRecHitMatcher_cfi import fastMatchedTrackerRecHits
 import FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi
@@ -52,7 +50,7 @@ from TrackingTools.TrackFitters.TrackFitters_cff import *
 
 reconstruction_befmix = cms.Sequence(
     offlineBeamSpot
-    * siTrackerGaussianSmearingRecHits
+    * fastTrackingRecHitProducer
     * fastMatchedTrackerRecHits
     * fastMatchedTrackerRecHitCombinations
     * MeasurementTrackerEvent

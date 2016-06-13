@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-trackingRecHitProducerNoMerge = cms.EDProducer("TrackingRecHitProducer",
+fastTrackingRecHitProducer = cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
     plugins=cms.VPSet()
 )
@@ -49,8 +49,6 @@ trackingRecHitProducerNoMerge.plugins.append(
         select=cms.string("subdetId==FPX"),
     )
 )
-
-#TODO: tune on FullSim!!! 
 
 trackerStripGaussianResolutions={
     "TIB": {
