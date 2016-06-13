@@ -170,7 +170,7 @@ bool TotemRPLocalTrackFitterAlgorithm::fitTrack(const edm::DetSetVector<TotemRPR
     double pull_normalization = sqrt(sigma_str_2 - fit_strip_var);
     double pull = residual/pull_normalization;
     
-    Chi_2+=residual/sigma_str_2;
+    Chi_2 += residual*residual / sigma_str_2;
 
     TotemRPLocalTrack::FittedRecHit hit_point(*(applicable_hits[i].hit), TVector3(fited_det_xy_point.X(),
       fited_det_xy_point.Y(), det_z), residual, pull);
