@@ -45,8 +45,9 @@ public:
 
   template<typename T>
   void addDigis(const T& collection) {
-     for (const auto& digi: collection)
+     for (const auto& digi: collection) {
         addSignal(digi);
+     }
   };
 
   template<typename D>
@@ -80,7 +81,14 @@ public:
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
-  void analyzeHFV1(
+  void analyzeHF2016(
+          const IntegerCaloSamples& SAMPLES,
+          HcalTriggerPrimitiveDigi& result,
+          const int HF_LUMI_SHIFT,
+          const HcalFeatureBit* HCALFEM
+          );
+  // With dual anode readout
+  void analyzeHF2017(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
           const int HF_LUMI_SHIFT,
@@ -129,6 +137,13 @@ public:
   };
   typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, HFDetails>> HFDetailMap;
   HFDetailMap theHFDetailMap;
+
+  struct HFUpgradeDetails {
+     IntegerCaloSamples samples;
+     QIE10DataFrame digi;
+  };
+  typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, std::array<HFUpgradeDetails, 4>>> HFUpgradeDetailMap;
+  HFUpgradeDetailMap theHFUpgradeDetailMap;
   
   typedef std::vector<IntegerCaloSamples> SumFGContainer;
   typedef std::map< HcalTrigTowerDetId, SumFGContainer > TowerMapFGSum;
@@ -173,6 +188,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    HF_Veto.clear();
    fgMap_.clear();
    theHFDetailMap.clear();
+   theHFUpgradeDetailMap.clear();
 
    // Add all digi collections
    addDigis(digis...);
@@ -186,7 +202,10 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
          if (detId.version() == 0) {
             analyzeHF(mapItr->second, result.back(), RCTScaleShift);
          } else if (detId.version() == 1) {
-            analyzeHFV1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
+            if (upgrade_hf_)
+               analyzeHF2017(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
+            else
+               analyzeHF2016(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
          } else {
             // Things are going to go poorly
          }
@@ -202,6 +221,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    HF_Veto.clear();
    fgMap_.clear();
    theHFDetailMap.clear();
+   theHFUpgradeDetailMap.clear();
 
    return;
 }

@@ -165,6 +165,28 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
 void
 HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
 {
+   auto ids = theTrigTowerGeometry->towerIds(frame.id());
+   for (const auto& id: ids) {
+      if (id.version() == 0) {
+         edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0!";
+         continue;
+      }
+
+      IntegerCaloSamples samples(id, frame.samples());
+      samples.setPresamples(frame.presamples());
+      incoder_->adc2Linear(frame, samples);
+
+      // Don't add to final collection yet
+      // HF PMT veto sum is calculated in analyzerHF()
+      IntegerCaloSamples zero_samples(id, frame.samples());
+      zero_samples.setPresamples(frame.presamples());
+      addSignal(zero_samples);
+
+      auto fid = HcalDetId(frame.id());
+      auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
+      details[fid.depth() - 1].samples = samples;
+      details[fid.depth() - 1].digi = frame;
+   }
 }
 
 void
@@ -317,7 +339,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
    outcoder_->compress(output, finegrain, result);
 }
 
-void HcalTriggerPrimitiveAlgo::analyzeHFV1(
+void HcalTriggerPrimitiveAlgo::analyzeHF2016(
         const IntegerCaloSamples& SAMPLES,
         HcalTriggerPrimitiveDigi& result,
         const int HF_LUMI_SHIFT,
@@ -374,6 +396,59 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
     }
     outcoder_->compress(output, finegrain, result);
     
+}
+
+void HcalTriggerPrimitiveAlgo::analyzeHF2017(
+        const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
+        const int hf_lumi_shift, const HcalFeatureBit* hcalfem)
+{
+    // Align digis and TP
+    const int shift = samples.presamples() - numberOfPresamples_;
+    assert(shift >= 0);
+    assert((shift + numberOfSamples_) <= samples.size());
+
+    // Try to find the HFDetails from the map corresponding to our samples
+    const HcalTrigTowerDetId detId(samples.id());
+    auto it = theHFUpgradeDetailMap.find(detId);
+    // Missing values will give an empty digi
+    if (it == theHFUpgradeDetailMap.end()) {
+        return;
+    }
+
+    std::vector<bool> finegrain(numberOfSamples_, false);
+
+    // Set up out output of IntergerCaloSamples
+    IntegerCaloSamples output(samples.id(), numberOfSamples_);
+    output.setPresamples(numberOfPresamples_);
+
+    for (const auto& item: it->second) {
+        auto& details = item.second;
+        for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+            const int idx = ibin + shift;
+            int long_fiber_val = 0;
+            int short_fiber_val = 0;
+            for (auto i: {0, 2})
+               if (idx < details[i].samples.size())
+                  long_fiber_val += details[i].samples[idx];
+            for (auto i: {1, 3})
+               if (idx < details[i].samples.size())
+                  short_fiber_val += details[i].samples[idx];
+            output[ibin] += (long_fiber_val / 2 + short_fiber_val / 2);
+
+            // int ADCLong = details.LongDigi[ibin].adc();
+            // int ADCShort = details.ShortDigi[ibin].adc();
+            // if(hcalfem != 0)
+            // {
+            //     finegrain[ibin] = (finegrain[ibin] || hcalfem->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
+            // }
+        }
+    }
+
+    for (int bin = 0; bin < numberOfSamples_; ++bin) {
+       static const unsigned int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+       output[bin] = min({MAX_OUTPUT, output[bin] >> hf_lumi_shift});
+    }
+    outcoder_->compress(output, finegrain, result);
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection & result){

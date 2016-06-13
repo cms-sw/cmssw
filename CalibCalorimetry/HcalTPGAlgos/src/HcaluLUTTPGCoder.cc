@@ -325,9 +325,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             QIE10DataFrame upgradeFrame(edm::DataFrame(0, data, 4));
             CaloSamples upgradeSamples(cell, 1);
             for (unsigned int adc = 0; adc < UPGRADE_LUT_SIZE; ++adc) {
-               upgradeFrame.setSample(0, adc, 0, 0, cell.ieta() > 0 ? 1 : 0, true);
+               upgradeFrame.setSample(0, adc, 0, 0, 0, true);
                coder.adc2fC(upgradeFrame, upgradeSamples);
-               float adc2fC = samples[0];
+               float adc2fC = upgradeSamples[0];
 
                if (isMasked)
                   upgradeLUT_[lutId][adc] = 0;
@@ -359,6 +359,11 @@ void HcaluLUTTPGCoder::adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics
 }
 
 void HcaluLUTTPGCoder::adc2Linear(const QIE10DataFrame& df, IntegerCaloSamples& ics) const {
+  int lutId = getLUTId(HcalDetId(df.id()));
+  const Lut& lut = inputLUT_.at(lutId);
+  for (int i=0; i<df.samples(); i++){
+    ics[i] = (lut.at(df[i].adc()) & 0x3FF);
+  }
 }
 
 void HcaluLUTTPGCoder::adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& ics) const {
