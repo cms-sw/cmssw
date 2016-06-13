@@ -1,5 +1,6 @@
 #include "DQM/HcalTasks/interface/RawTask.h"
-
+using namespace hcaldqm;
+using namespace constants;
 RawTask::RawTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.EcalMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 from DQM.EcalMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
+from DQM.EcalMonitorTasks.RawDataTask_cfi import ecalRawDataTask
 
 errFractionThreshold = 0.01
 
@@ -16,6 +17,8 @@ ecalIntegrityClient = cms.untracked.PSet(
         GainSwitch = ecalIntegrityTask.MEs.GainSwitch,
         ChId = ecalIntegrityTask.MEs.ChId,
         TowerId = ecalIntegrityTask.MEs.TowerId,
+        BXSRP = ecalRawDataTask.MEs.BXSRP,
+        BXTCC = ecalRawDataTask.MEs.BXTCC
     ),
     MEs = cms.untracked.PSet(
         QualitySummary = cms.untracked.PSet(

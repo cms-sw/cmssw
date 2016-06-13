@@ -1,6 +1,5 @@
 #ifndef DQM_HcalTasks_DigiRunSummary_h
 #define DQM_HcalTasks_DigiRunSummary_h
-
 #include "DQM/HcalCommon/interface/DQClient.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 

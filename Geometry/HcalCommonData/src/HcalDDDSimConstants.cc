@@ -609,8 +609,9 @@ void HcalDDDSimConstants::initialize( void ) {
     depthEta29[0] = 2;
     depthEta29[1] = 1;
   }
-  std::cout << "isBH_ " << hpar->noff.size() << ":" << noffsize << ":" << noffl << ":" << isBH_ << std::endl;
 #ifdef DebugLog
+  std::cout << "isBH_ " << hpar->noff.size() << ":" << noffsize << ":" 
+	    << noffl << ":" << isBH_ << std::endl;
   std::cout << "Depth index at ieta = 16 for HB (max) " << depthEta16[0] 
 	    << " HE (min) " << depthEta16[1] << "; max depth for itea = 29 : ("
 	    << depthEta29[0] << ":" << depthEta29[1] << ")" << std::endl;

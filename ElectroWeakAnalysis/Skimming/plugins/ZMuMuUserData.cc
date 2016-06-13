@@ -76,7 +76,7 @@ void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
   }
 
   //cout<<"isMCMatchTrue"<<isMCMatchTrue <<endl;
-  auto_ptr<vector<pat::CompositeCandidate> > dimuonColl( new vector<pat::CompositeCandidate> () );
+  unique_ptr<vector<pat::CompositeCandidate> > dimuonColl( new vector<pat::CompositeCandidate> () );
 
 
   for (unsigned int i = 0; i< dimuons->size();++i){
@@ -169,7 +169,7 @@ void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
   }
 
 
-  evt.put( dimuonColl);
+  evt.put(std::move(dimuonColl));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

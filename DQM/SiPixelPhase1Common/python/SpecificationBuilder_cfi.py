@@ -146,4 +146,7 @@ class Specification(cms.PSet):
       self.groupBy("/".join(cols), self._lastMode)
       self.save()
     return self
-    
+
+  # this is used for serialization, and for that this is just a PSet.
+  def pythonTypeName(self):
+    return 'cms.PSet';

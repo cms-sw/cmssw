@@ -9,6 +9,8 @@ This document decomposes into three sections:
    2. *How to actually use it* -- practical examples with explanation.
    3. *How it really works* -- explanations on the implementation.
 
+Further information can be found on the TWiki page: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PixelDQMPhaseI . Note that parts migh be historical and not reflect the current state.
+
 The Concept
 -----------
 

@@ -66,8 +66,8 @@ SiPixelPhase1RecHitsErrorX = DefaultHisto.clone(
   )
 )
 
-SiPixelPhase1RecHitsErrorY = DefaultHisto.clone(
-  name = "rechiterror_x",
+SiPixelPhase1RecHitsErrorY = SiPixelPhase1RecHitsErrorX.clone(
+  name = "rechiterror_y",
   title = "RecHit Error in Y-direction",
   xlabel = "Y error"
 )
@@ -79,6 +79,7 @@ SiPixelPhase1RecHitsPosition = DefaultHisto.clone(
   range_y_min = -4, range_y_max = 4, range_y_nbins = 100,
   xlabel = "x offset",
   ylabel = "y offset",
+  dimensions = 2,
   specs = cms.VPSet(
     Specification().groupBy(DefaultHisto.defaultGrouping).save(),
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save(),

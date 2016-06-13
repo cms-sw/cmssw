@@ -246,7 +246,7 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<float> prodRho(nmu, 0.0), prodZ(nmu, 0.0), momRho(nmu, 0.0), momZ(nmu, 0.0);
     std::vector<float> tpAssoQuality(nmu, -1);
 
-    std::auto_ptr<reco::GenParticleCollection> secondaries;     // output collection of secondary muons
+    std::unique_ptr<reco::GenParticleCollection> secondaries;     // output collection of secondary muons
     std::map<TrackingParticleRef, int>         tpToSecondaries; // map from tp to (index+1) in output collection
     std::vector<int> muToPrimary(nmu, -1), muToSecondary(nmu, -1); // map from input into (index) in output, -1 for null
     if (linkToGenParticles_) secondaries.reset(new reco::GenParticleCollection());
@@ -433,17 +433,17 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     writeValueMap(iEvent, muons, tpAssoQuality, "tpAssoQuality");
 
     if (linkToGenParticles_) {
-        edm::OrphanHandle<reco::GenParticleCollection> secHandle = iEvent.put(secondaries, "secondaries");
+        edm::OrphanHandle<reco::GenParticleCollection> secHandle = iEvent.put(std::move(secondaries), "secondaries");
         edm::RefProd<reco::GenParticleCollection> priRP(genParticles);
         edm::RefProd<reco::GenParticleCollection> secRP(secHandle);
-        std::auto_ptr<edm::Association<reco::GenParticleCollection> > outPri(new edm::Association<reco::GenParticleCollection>(priRP));
-        std::auto_ptr<edm::Association<reco::GenParticleCollection> > outSec(new edm::Association<reco::GenParticleCollection>(secRP));
+        std::unique_ptr<edm::Association<reco::GenParticleCollection> > outPri(new edm::Association<reco::GenParticleCollection>(priRP));
+        std::unique_ptr<edm::Association<reco::GenParticleCollection> > outSec(new edm::Association<reco::GenParticleCollection>(secRP));
         edm::Association<reco::GenParticleCollection>::Filler fillPri(*outPri), fillSec(*outSec);
         fillPri.insert(muons, muToPrimary.begin(),   muToPrimary.end());
         fillSec.insert(muons, muToSecondary.begin(), muToSecondary.end());
         fillPri.fill(); fillSec.fill();
-        iEvent.put(outPri, "toPrimaries");
-        iEvent.put(outSec, "toSecondaries");
+        iEvent.put(std::move(outPri), "toPrimaries");
+        iEvent.put(std::move(outSec), "toSecondaries");
     }
 }
 
@@ -456,11 +456,11 @@ MuonMCClassifier::writeValueMap(edm::Event &iEvent,
 {
     using namespace edm;
     using namespace std;
-    auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+    unique_ptr<ValueMap<T> > valMap(new ValueMap<T>());
     typename edm::ValueMap<T>::Filler filler(*valMap);
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, label);
+    iEvent.put(std::move(valMap), label);
 }
 
 int
