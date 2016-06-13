@@ -112,6 +112,7 @@ leptonTypeExtra = NTupleObjectType("leptonExtra", baseObjectTypes = [ leptonType
 #    new version used by EGM in Spring15, 7_4_14:
     NTupleVariable("eInvMinusPInv_tkMom", lambda x: ((1.0/x.ecalEnergy()) - (1.0 / x.trackMomentumAtVtx().R() ) if (x.ecalEnergy()>0. and x.trackMomentumAtVtx().R()>0.) else 9e9) if abs(x.pdgId())==11 else 0, help="Electron 1/E - 1/p_tk_vtx  (without absolute value!)"),
     NTupleVariable("etaSc", lambda x : x.superCluster().eta() if abs(x.pdgId())==11 else -100, help="Electron supercluster pseudorapidity"),
+    NTupleVariable("mcMatchPdgId",  lambda x : x.mcLep.pdgId() if getattr(x,'mcLep',None)!=None else -99, int, mcOnly=True, help="Match to source from hard scatter (pdgId of heaviest particle in chain, 25 for H, 6 for t, 23/24 for W/Z): pdgId of the matched gen-level lepton, zero if non-prompt or fake")
 ])
  
 
@@ -126,12 +127,20 @@ tauType = NTupleObjectType("tau",  baseObjectTypes = [ particleType ], variables
     NTupleVariable("idDecayModeNewDMs",   lambda x : x.idDecayModeNewDMs, int),
     NTupleVariable("dxy",   lambda x : x.dxy(), help="d_{xy} of lead track with respect to PV, in cm (with sign)"),
     NTupleVariable("dz",    lambda x : x.dz() , help="d_{z} of lead track with respect to PV, in cm (with sign)"),
-    NTupleVariable("idMVA", lambda x : x.idMVA, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVA3oldDMwLT discriminator"),
-    NTupleVariable("idMVANewDM", lambda x : x.idMVANewDM, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVA3newDMwLT discriminator"),
+    NTupleVariable("idMVArun2", lambda x : x.idMVArun2, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVArun2v1DBoldDMwLT discriminator"),
+    NTupleVariable("rawMVArun2", lambda x : x.tauID("byIsolationMVArun2v1DBoldDMwLTraw"), help="byIsolationMVArun2v1DBoldDMwLT raw output discriminator"),
+    NTupleVariable("idMVArun2dR03", lambda x : x.idMVArun2dR03, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVArun2v1DBdR03oldDMwLT discriminator"),
+    NTupleVariable("rawMVArun2dR03", lambda x : x.tauID("byIsolationMVArun2v1DBdR03oldDMwLTraw"), help="byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator"),
+#    NTupleVariable("idMVANewDM", lambda x : x.idMVANewDM, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVA3newDMwLT discriminator"),
+    NTupleVariable("idMVArun2NewDM", lambda x : x.idMVArun2NewDM, int, help="1,2,3,4,5,6 if the tau passes the very loose to very very tight WP of the MVArun2v1DBnewDMwLT discriminator"),
+    NTupleVariable("rawMVArun2NewDM", lambda x : x.tauID("byIsolationMVArun2v1DBnewDMwLTraw"), help="byIsolationMVArun2v1DBnewDMwLT raw output discriminator"),
     NTupleVariable("idCI3hit", lambda x : x.idCI3hit, int, help="1,2,3 if the tau passes the loose, medium, tight WP of the By<X>CombinedIsolationDBSumPtCorr3Hits discriminator"),
+#    NTupleVariable("idCI3hitdR03", lambda x : x.idCI3hitdR03, int, help="1,2,3 if the tau passes the loose, medium, tight WP of the By<X>CombinedIsolationDeltaBetaCorr3HitsdR03 discriminator"),
     NTupleVariable("idAntiMu", lambda x : x.idAntiMu, int, help="1,2 if the tau passes the loose/tight WP of the againstMuon<X>3 discriminator"),
-    NTupleVariable("idAntiE", lambda x : x.idAntiE, int, help="1,2,3,4,5 if the tau passes the v loose, loose, medium, tight, v tight WP of the againstElectron<X>MVA5 discriminator"),
+#    NTupleVariable("idAntiE", lambda x : x.idAntiE, int, help="1,2,3,4,5 if the tau passes the v loose, loose, medium, tight, v tight WP of the againstElectron<X>MVA5 discriminator"),
+    NTupleVariable("idAntiErun2", lambda x : x.idAntiErun2, int, help="1,2,3,4,5 if the tau passes the v loose, loose, medium, tight, v tight WP of the againstElectron<X>MVA6 discriminator"),
     NTupleVariable("isoCI3hit",  lambda x : x.tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits"), help="byCombinedIsolationDeltaBetaCorrRaw3Hits raw output discriminator"),
+    NTupleVariable("photonOutsideSigCone", lambda x : x.tauID("photonPtSumOutsideSignalCone"), help="photonPtSumOutsideSignalCone raw output discriminator"),
     # MC-match info
     NTupleVariable("mcMatchId",  lambda x : getattr(x, 'mcMatchId', -99), int, mcOnly=True, help="Match to source from hard scatter (pdgId of heaviest particle in chain, 25 for H, 6 for t, 23/24 for W/Z), zero if non-prompt or fake"),
 ])
@@ -178,10 +187,12 @@ jetType = NTupleObjectType("jet",  baseObjectTypes = [ fourVectorType ], variabl
     NTupleVariable("id",    lambda x : x.jetID("POG_PFID") , int, mcOnly=False,help="POG Loose jet ID"),
     NTupleVariable("puId", lambda x : getattr(x, 'puJetIdPassed', -99), int,     mcOnly=False, help="puId (full MVA, loose WP, 5.3.X training on AK5PFchs: the only thing that is available now)"),
     NTupleVariable("btagCSV",   lambda x : x.btag('pfCombinedInclusiveSecondaryVertexV2BJetTags'), help="CSV-IVF v2 discriminator"),
-    NTupleVariable("btagCMVA",  lambda x : x.btag('pfCombinedMVABJetTags'), help="CMVA discriminator"),
+#    NTupleVariable("btagCMVA",  lambda x : x.btag('pfCombinedMVABJetTags'), help="CMVA discriminator"),
+    NTupleVariable("btagCMVA",  lambda x : x.btag('pfCombinedMVAV2BJetTags'), help="CMVA discriminator"),
     NTupleVariable("rawPt",  lambda x : x.pt() * x.rawFactor(), help="p_{T} before JEC"),
     NTupleVariable("mcPt",   lambda x : x.mcJet.pt() if getattr(x,"mcJet",None) else 0., mcOnly=True, help="p_{T} of associated gen jet"),
     NTupleVariable("mcFlavour", lambda x : x.partonFlavour(), int,     mcOnly=True, help="parton flavour (physics definition, i.e. including b's from shower)"),
+    NTupleVariable("partonFlavour", lambda x : x.partonFlavour(), int,     mcOnly=True, help="purely parton-based flavour"),
     NTupleVariable("hadronFlavour", lambda x : x.hadronFlavour(), int,     mcOnly=True, help="hadron flavour (ghost matching to B/C hadrons)"),
     NTupleVariable("mcMatchId",  lambda x : getattr(x, 'mcMatchId', -99), int, mcOnly=True, help="Match to source from hard scatter (pdgId of heaviest particle in chain, 25 for H, 6 for t, 23/24 for W/Z), zero if non-prompt or fake"),
     NTupleVariable("corr_JECUp",  lambda x : getattr(x, 'corrJECUp', -99), float,  help=""),
