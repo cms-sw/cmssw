@@ -1,5 +1,6 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
 from PhysicsTools.HeppyCore.utils.deltar import deltaPhi
+from PhysicsTools.Heppy.physicsutils.PuJetIDWP import PuJetIDWP
 import math
 
 loose_WP = [
@@ -140,19 +141,23 @@ class Jet(PhysicsObject):
             return self.userFloat(label)
         return -99
 
-    def puJetId(self, label="pileupJetId:fullDiscriminant"):
+    def puJetId(self, label="pileupJetId:fullDiscriminant", tuning="76X", wp="loose"):
         '''Full mva PU jet id'''
+        
+        if tuning=="76X":
+            puId76X = PuJetIDWP()
+            return puId76X.passWP(self,wp)
+        else:
+            puMva = self.puMva(label)
+            wp = loose_53X_WP
+            eta = abs(self.eta())
 
-        puMva = self.puMva(label)
-        wp = loose_53X_WP
-        eta = abs(self.eta())
-        
-        for etamin, etamax, cut in wp:
-            if not(eta>=etamin and eta<etamax):
-                continue
-            return puMva>cut
-        return -99
-        
+            for etamin, etamax, cut in wp:
+                if not(eta>=etamin and eta<etamax):
+                    continue
+                return puMva>cut
+            return -99
+                    
     def rawFactor(self):
         return self.jecFactor('Uncorrected') * self._rawFactorMultiplier
 
