@@ -77,6 +77,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    
    static double sectorPhi( const DetId& id );
 
+   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+   
  private:
    void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon&, 
 			     TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut );

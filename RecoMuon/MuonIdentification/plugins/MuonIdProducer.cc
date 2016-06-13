@@ -1257,3 +1257,26 @@ bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
     }
   return true;
 }
+
+void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {  
+  edm::ParameterSetDescription desc;  
+  desc.setAllowAnything();
+  
+  edm::ParameterSetDescription descTrkAsoPar;
+  descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
+  descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel",edm::InputTag("me0Segments"));
+  descTrkAsoPar.setAllowAnything();  
+  desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
+
+  edm::ParameterSetDescription descJet;
+  descJet.setAllowAnything();
+  descJet.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
+  desc.add<edm::ParameterSetDescription>("JetExtractorPSet", descJet);
+  
+  edm::ParameterSetDescription descCalo;
+  descCalo.setAllowAnything();
+  descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
+  desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
+    
+  descriptions.addDefault(desc);
+}

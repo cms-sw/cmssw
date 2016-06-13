@@ -28,6 +28,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 class MuonDetIdAssociator: public DetIdAssociator{
  public:
@@ -53,6 +54,8 @@ class MuonDetIdAssociator: public DetIdAssociator{
    virtual const GeomDet* getGeomDet( const DetId& id ) const override;
 
    virtual const char* name() const override { return "AllMuonDetectors"; }
+   
+   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  protected:
    

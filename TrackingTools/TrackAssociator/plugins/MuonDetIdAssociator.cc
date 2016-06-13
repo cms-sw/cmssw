@@ -146,3 +146,11 @@ void MuonDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
   iRecord.getRecord<GlobalTrackingGeometryRecord>().get(geometryH);
   setGeometry(geometryH.product());
 }
+
+void MuonDetIdAssociator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {  
+  edm::ParameterSetDescription desc;  
+  desc.setAllowAnything();
+  desc.add<bool>("includeGEM", false);
+  desc.add<bool>("includeME0", false);    
+  descriptions.addDefault(desc);
+}
