@@ -65,14 +65,16 @@ RecoMuonRECO = cms.PSet(
                                            'keep *_displacedMuonSeeds_*_*',
                                            'keep TrackingRecHitsOwned_globalMuons_*_*',
                                            'keep TrackingRecHitsOwned_tevMuons_*_*',
-                                           'keep recoCaloMuons_calomuons_*_*',
                                            # Cosmics
                                            'keep *_CosmicMuonSeed_*_*',
                                            'keep recoTrackExtras_cosmicMuons_*_*',
                                            'keep TrackingRecHitsOwned_cosmicMuons_*_*',
                                            'keep recoTrackExtras_cosmicMuons1Leg_*_*',
                                            'keep TrackingRecHitsOwned_cosmicMuons1Leg_*_*',
-                                           'keep recoTracks_cosmicsVetoTracks_*_*')
+                                           'keep recoTracks_cosmicsVetoTracks_*_*',
+                                           # standAloneSETMuons for the DT DQM
+                                           'keep recoTracks_standAloneSETMuons_*_*',
+                                           'keep recoTrackExtras_standAloneSETMuons_*_*')
 )
 # Full Event content 
 RecoMuonFEVT = cms.PSet(

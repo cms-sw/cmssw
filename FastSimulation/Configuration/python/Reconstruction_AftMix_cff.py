@@ -145,7 +145,7 @@ _reco.standalonemuontracking.remove(_reco.displacedMuonSeeds)
 _reco.standalonemuontracking.remove(_reco.displacedStandAloneMuons)
 
 # not commisoned and not relevant in FastSim (?):
-_reco.muonGlobalReco.remove(_reco.muonreco)
+_reco.muonGlobalReco.remove(_reco.muonreco_with_SET)
 
 # not commisoned and not relevant in FastSim (?):
 _reco.muonGlobalReco.remove(_reco.muonSelectionTypeSequence)

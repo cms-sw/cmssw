@@ -30,6 +30,9 @@ displacedGlobalMuons.TrackerCollectionLabel = cms.InputTag("displacedTracks")
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
 
+# SET Muon tracking
+from RecoMuon.Configuration.SETRecoMuon_cff import *
+
 # Muon Id producer
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 muons1stStep.fillGlobalTrackQuality = True
@@ -68,7 +71,7 @@ muonrecoComplete = cms.Sequence(muonreco_plus_isolation*muonSelectionTypeSequenc
 
 #from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyMuons
 
-muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation*muonreco)
+muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation*muonreco_with_standAloneSET)
 
 # ... instead, the sequences will be run in the following order:
 # 1st - standalonemuontracking
