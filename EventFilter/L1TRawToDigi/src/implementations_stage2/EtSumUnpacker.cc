@@ -165,7 +165,7 @@ namespace stage2 {
     
        methf.setHwPt(raw_data & 0xFFF);
        methf.setHwPhi((raw_data >> 12) & 0xFF);
-       methf.setType(l1t::EtSum::kMissingEtHF);       
+       methf.setType(l1t::EtSum::kMissingEt2);       
        methf.setP4( l1t::CaloTools::p4Demux(&methf) );
 
        LogDebug("L1T") << "METHF: phi " << methf.hwPhi() << " pT " << methf.hwPt() << " bx " << bx;
