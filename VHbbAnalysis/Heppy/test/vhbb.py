@@ -185,11 +185,11 @@ treeProducer.globalVariables += list(btag_weights.values())
 # Lepton Analyzer, take its default config and fix loose iso consistent with tight definition
 from PhysicsTools.Heppy.analyzers.objects.LeptonAnalyzer import LeptonAnalyzer
 LepAna = LeptonAnalyzer.defaultConfig
-LepAna.doElectronScaleCorrections = {
-	'data' : 'EgammaAnalysis/ElectronTools/data/76X_16DecRereco_2015', 
-	'GBRForest' : [os.environ['CMSSW_BASE']+'/src/VHbbAnalysis/Heppy/data/egamma/egamma_epComb_GBRForest_76X.root','gedelectron_p4combination_25ns'], 
-	'isSync' : False
-	}
+#LepAna.doElectronScaleCorrections = {
+#	'data' : 'EgammaAnalysis/ElectronTools/data/76X_16DecRereco_2015', 
+#	'GBRForest' : [os.environ['CMSSW_BASE']+'/src/VHbbAnalysis/Heppy/data/egamma/egamma_epComb_GBRForest_76X.root','gedelectron_p4combination_25ns'], 
+#	'isSync' : False
+#	}
 LepAna.mu_isoCorr  = "deltaBeta"
 #LepAna.loose_muon_isoCut = lambda muon : muon.relIso04 < 0.25 
 LepAna.loose_muon_isoCut = lambda muon : muon.relIso04 < 0.4
@@ -269,9 +269,9 @@ JetAna.QGpath=os.environ['CMSSW_BASE']+"/src/PhysicsTools/Heppy/data/pdfQG_AK4ch
 JetAna.recalibrateJets=True
 JetAna.jecPath=os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/jec"
 #JetAna.mcGT="Fall15_25nsV2_MC"
-#JetAna.dataGT = "Fall15_25nsV2_DATA"
+JetAna.dataGT = "Fall15_25nsV2_DATA"
 JetAna.mcGT="Spring16_25nsV3_MC"
-JetAna.dataGT="Spring16_25nsV3_DATA"
+#JetAna.dataGT="Spring16_25nsV3_DATA"
 JetAna.addJECShifts=True
 JetAna.addJERShifts=True
 
@@ -417,10 +417,7 @@ from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 sample = cfg.MCComponent(
 	files = [
 		#"root://xrootd.ba.infn.it//store/mc/RunIIFall15MiniAODv1/TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/30000/045996FE-A19D-E511-B76D-D4AE526A0B47.root" ##ttbar
-		#"045996FE-A19D-E511-B76D-D4AE526A0B47.root" ##ttbar
-		#"/scratch/bianchi/004CB067-8DBD-E511-B0FB-047D7B881D3A.root"
-#		"027D7153-29BF-E511-A2BC-0025B3E025B6.root"
-"root://xrootd.ba.infn.it//store/mc/RunIISpring16MiniAODv1/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0899BDA9-AE01-E611-A239-008CFA05EA2C.root"
+		"root://xrootd.ba.infn.it//store/mc/RunIISpring16MiniAODv1/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0899BDA9-AE01-E611-A239-008CFA05EA2C.root"
 		],
     #files = ["226BB247-A565-E411-91CF-00266CFF0AF4.root"],
     name="ZHLL125", isEmbed=False,
