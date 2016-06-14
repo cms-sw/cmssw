@@ -2,7 +2,6 @@
  * ---------------------------------------------------------------
  * Description:  see Phase2ITPixelClusterProducer.h
  * Author:  P. Maksimovic (porting from original ORCA version)
- * History: Oct 14, 2005, initial version
  * Get rid of the noiseVector. d.k. 28/3/06
  * Implementation of the DetSetVector container.    V.Chiochia, May 06
  * Phase2ITPixelClusterCollection typedef of DetSetVector V.Chiochia, June 06

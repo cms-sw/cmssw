@@ -39,7 +39,7 @@ using namespace std;
 //----------------------------------------------------------------------------
 //! Constructor: 
 //!  Initilize the buffer to hold pixels from a detector module.
-//!  This is a vector of 44k ints, stays valid all the time.  
+//!  (old comment: This is a vector of 44k ints, stays valid all the time.)
 //----------------------------------------------------------------------------
 Phase2ITPixelThresholdClusterizer::Phase2ITPixelThresholdClusterizer
   (edm::ParameterSet const& conf) :

@@ -24,14 +24,14 @@
 //! At this point the noise and dead channels are ignored, but soon they
 //! won't be.
 //!
-//! Phase2ITPixelCluster contains a barrycenter, but it should be noted that that
+//! Phase2ITPixelCluster contains a barycenter, but it should be noted that 
 //! information is largely useless.  One must use a PositionEstimator
 //! class to compute the RecHit position and its error for every given 
 //! cluster.
 //!
-//! \author Largely copied from NewPixelClusterizer in ORCA written by 
-//!     Danek Kotlinski (PSI).   Ported to CMSSW by Petar Maksimovic (JHU).
-//!     DetSetVector data container implemented by V.Chiochia (Uni Zurich)
+//! \author Original code by  Danek Kotlinski (PSI).   
+//!         Ported to CMSSW by Petar Maksimovic (JHU).
+//!         DetSetVector data container implemented by V.Chiochia (Uni Zurich)
 //!
 //! Sets the Phase2ITPixelArrayBuffer dimensions and pixel thresholds.
 //! Makes clusters and stores them in theCache if the option

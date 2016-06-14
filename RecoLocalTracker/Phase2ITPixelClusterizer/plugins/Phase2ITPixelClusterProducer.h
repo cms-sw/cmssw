@@ -9,7 +9,7 @@
 //! Phase2ITPixelClusterProducer is an EDProducer subclass (i.e., a module)
 //! which orchestrates clustering of PixelDigis to Phase2ITPixelClusters.
 //! Consequently, the input is edm::DetSetVector<PixelDigi> and the output is
-//! edm::DetSetVector<Phase2ITPixelCluster>.
+//! edmNew::DetSetVector<Phase2ITPixelCluster>.
 //!
 //! Phase2ITPixelClusterProducer invokes one of descendents from Phase2ITPixelClusterizerBase,
 //! e.g. PixelThresholdClusterizer (which is the only available option 
@@ -21,10 +21,9 @@
 //! The calibrations are not loaded at the moment (v1), although that is
 //! being planned for the near future.
 //!
-//! \author porting from ORCA by Petar Maksimovic (JHU). 
+//! \author Petar Maksimovic (JHU). 
 //!         DetSetVector implementation by Vincenzo Chiochia (Uni Zurich)        
 //!         Modify the local container (cache) to improve the speed. D.K. 5/07
-//! \version v1, Oct 26, 2005  
 //!
 //---------------------------------------------------------------------------
 
