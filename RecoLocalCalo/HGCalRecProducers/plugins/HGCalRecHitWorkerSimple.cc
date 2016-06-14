@@ -34,9 +34,10 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   for( auto weight : dweights ) {
     weights.push_back(weight);
   }
+  rechitMaker_->setLayerWeights(weights);
 
   // residual correction for cell thickness
-  const auto& rcorr = ps.getParameter<std::vector<double> >("layerCorrection");
+  const auto& rcorr = ps.getParameter<std::vector<double> >("thicknessCorrection");
   rcorr_.clear();
   rcorr_.push_back(1.f);
   for( auto corr : rcorr ) {
