@@ -598,11 +598,8 @@ fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     triggerConfiguration =  cms.PSet(
       hltResults = cms.InputTag('TriggerResults','',processName),
       l1tResults = cms.InputTag(''),
-      #l1tResults = cms.InputTag('gtDigis'),
-      daqPartitions = cms.uint32(1),
-      l1tIgnoreMask = cms.bool( False ),
-      l1techIgnorePrescales = cms.bool( False ),
-      throw  = cms.bool( False )
+      l1tIgnoreMaskAndPrescale = cms.bool( False ),
+      throw = cms.bool( False )
     ),
 
     #dirname = cms.untracked.string("HLT/FSQ/DiJETAve/"),
