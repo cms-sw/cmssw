@@ -62,6 +62,15 @@ def customiseFor14317(process):
                     pset.seedPairPenalty = cms.int32(0)
     return process
 
+def customiseForMuon(process):
+    for producer in esproducers_by_type(process, "DetIdAssociatorESProducer"):
+        if (producer.ComponentName.value() == 'MuonDetIdAssociator'):
+            if not hasattr(producer,'includeGEM'):
+                producer.includeGEM = cms.bool(False)
+            if not hasattr(producer,'includeME0'):
+                producer.includeME0 = cms.bool(False)
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -81,6 +90,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 #   stage-2 changes only if needed
     if ("Fake" in menuType):
         return process
+
+    process = customiseForMuon(process)
+    
 
 #    if ( menuType in ("FULL","GRun","PIon")):
 #        from HLTrigger.Configuration.CustomConfigs import L1XML

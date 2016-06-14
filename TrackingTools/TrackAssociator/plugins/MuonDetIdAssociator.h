@@ -55,8 +55,6 @@ class MuonDetIdAssociator: public DetIdAssociator{
 
    virtual const char* name() const override { return "AllMuonDetectors"; }
    
-   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
  protected:
    
    virtual void check_setup() const override;
