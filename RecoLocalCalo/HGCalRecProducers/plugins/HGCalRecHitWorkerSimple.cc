@@ -27,6 +27,14 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   HGCHEB_keV2DIGI_   =  ps.getParameter<double>("HGCHEB_keV2DIGI");
   HGCHEB_isSiFE_     =  ps.getParameter<bool>("HGCHEB_isSiFE");
   hgchebUncalib2GeV_ = keV2GeV/HGCHEB_keV2DIGI_;
+
+  // layer weights
+  std::vector<float> weights;
+  const auto& dweights = ps.getParameter<std::vector<double> >("layerWeights");
+  for( auto weight : dweights ) {
+    weights.push_back(weight);
+  }
+  
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
@@ -78,10 +86,10 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
     HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );    
     HGCalDetId hid(detid);
     if( fCPerMIP != nullptr ) {
-      const int thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
+      //const int thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
       // units out of rechit maker are MIP * (GeV/fC)
       // so multiple
-      const double new_E = myrechit.energy()*(*fCPerMIP)[thk-1];
+      const double new_E = myrechit.energy();//*(*fCPerMIP)[thk-1];
       myrechit.setEnergy(new_E);
     }    
     result.push_back(myrechit);
