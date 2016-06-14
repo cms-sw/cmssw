@@ -304,8 +304,6 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
 
     NTupleVariable("msoftdrop",  lambda x : x.userFloat("ak8PFJetsCHSSoftDropMass"),  help="Softdrop Mass"),
     NTupleVariable("mpruned",    lambda x : x.userFloat("ak8PFJetsCHSPrunedMass"),    help="Pruned Mass"),
-    NTupleVariable("mtrimmed",   lambda x : x.userFloat("ak8PFJetsCHSTrimmedMass"),   help="Trimmed Mass"),
-    NTupleVariable("mfiltered",  lambda x : x.userFloat("ak8PFJetsCHSFilteredMass"),  help="Filtered Mass"),
     NTupleVariable("mprunedcorr",    lambda x : x.mprunedcorr,    help="Pruned Mass L2+L3 corrected"),
     NTupleVariable("JEC_L2L3",    lambda x : x.mprunedcorr,    help="L2+L3 correction factor for pruned mass"),	
     NTupleVariable("JEC_L1L2L3",    lambda x : x.mprunedcorr,    help="L1+L2+L3 correction factor for ungroomed pt"),	
@@ -374,7 +372,9 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
 # Four Vector + b-Tag
 
 subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], variables = [
-    NTupleVariable("btag",  lambda x : x.btag, help="CVS IVF V2 btag-score")])
+    NTupleVariable("btag",    lambda x : x.btag, help="CVS IVF V2 btag-score"),
+    NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
+],)
 
 ##------------------------------------------  
 ## PAT Subjet
