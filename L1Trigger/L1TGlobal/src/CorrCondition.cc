@@ -565,7 +565,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  lutObj0 = "HTT";
 		  break;
 		case gtETM2:
-		  type = l1t::EtSum::EtSumType::kMissingEtHF;//type = l1t::EtSum::EtSumType::kMissingEtHF;
+		  type = l1t::EtSum::EtSumType::kMissingEt2;//type = l1t::EtSum::EtSumType::kMissingEt2;
 		  lutObj0 = "ETM2";
 		  break;
 		case gtMinBiasHFP0:
@@ -846,7 +846,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		     lutObj1 = "HTT";
 		     break;
 		   case gtETM2:
-		     type = l1t::EtSum::EtSumType::kMissingEtHF;
+		     type = l1t::EtSum::EtSumType::kMissingEt2;
 		     lutObj1 = "ETM2";
 		     break;
 		   case gtMinBiasHFP0:
