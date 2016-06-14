@@ -122,6 +122,16 @@ class LeptonAnalyzer( Analyzer ):
         #rho for electrons
         self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
 
+        # JP/CV: add Spring15 EGamma POG electron ID MVA
+        # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+        if getattr(self.cfg_ana,'updateEleMVA',False) :
+            self.handles['eleMVAIdSpring15TrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigMedium, 'edm::ValueMap<bool>')
+            self.handles['eleMVAIdSpring15TrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigTight, 'edm::ValueMap<bool>')
+            self.handles['eleMVArawSpring15Trig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15Trig, 'edm::ValueMap<float>')
+            self.handles['eleMVAIdSpring15NonTrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigMedium, 'edm::ValueMap<bool>')
+            self.handles['eleMVAIdSpring15NonTrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigTight, 'edm::ValueMap<bool>')
+            self.handles['eleMVArawSpring15NonTrig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15NonTrig, 'edm::ValueMap<float>')
+
         if self.doMiniIsolation or self.doIsolationScan:
             self.handles['packedCandidates'] = AutoHandle( self.cfg_ana.packedCandidates, 'std::vector<pat::PackedCandidate>')
 
@@ -319,6 +329,7 @@ class LeptonAnalyzer( Analyzer ):
         """
                make a list of all electrons, and apply basic corrections to them
         """
+
         allelectrons = map( Electron, self.handles['electrons'].product() )
 
         ## Duplicate removal for fast sim (to be checked if still necessary in latest greatest 5.3.X releases)
@@ -427,6 +438,22 @@ class LeptonAnalyzer( Analyzer ):
                  except RuntimeError:
                      raise RuntimeError("Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported, in addition to what provided in Electron.py.")
 
+        # JP/CV: add Spring15 EGamma POG electron ID MVA
+        # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+        if getattr(self.cfg_ana,'updateEleMVA',False) :
+            eleMVAIdSpring15TrigMedium = self.handles['eleMVAIdSpring15TrigMedium'].product()
+            eleMVAIdSpring15TrigTight  = self.handles['eleMVAIdSpring15TrigTight'].product()
+            eleMVArawSpring15Trig = self.handles['eleMVArawSpring15Trig'].product()
+            eleMVAIdSpring15NonTrigMedium = self.handles['eleMVAIdSpring15NonTrigMedium'].product()
+            eleMVAIdSpring15NonTrigTight  = self.handles['eleMVAIdSpring15NonTrigTight'].product()
+            eleMVArawSpring15NonTrig = self.handles['eleMVArawSpring15NonTrig'].product()
+            for ie, ele in enumerate(allelectrons):
+                ele.mvaIdSpring15TrigMedium = eleMVAIdSpring15TrigMedium.get(ie)
+                ele.mvaIdSpring15TrigTight = eleMVAIdSpring15TrigTight.get(ie)
+                ele.mvaRawSpring15Trig = eleMVArawSpring15Trig.get(ie)
+                ele.mvaIdSpring15NonTrigMedium = eleMVAIdSpring15NonTrigMedium.get(ie)
+                ele.mvaIdSpring15NonTrigTight = eleMVAIdSpring15NonTrigTight.get(ie)
+                ele.mvaRawSpring15NonTrig = eleMVArawSpring15NonTrig.get(ie)
         
         return allelectrons 
 
@@ -656,6 +683,15 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     loose_electron_relIso = 0.4,
     # loose_electron_isoCut = lambda electron : electron.miniRelIso < 0.1
     loose_electron_lostHits = 1.0,
+    # FIXME: JP/CV: add Spring15 EGamma POG electron ID MVA
+    # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+    updateEleMVA = False,
+    eleMVAIdSpring15TrigMedium = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90",
+    eleMVAIdSpring15TrigTight = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80",
+    eleMVArawSpring15Trig = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values",
+    eleMVAIdSpring15NonTrigMedium = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90",
+    eleMVAIdSpring15NonTrigTight = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80",
+    eleMVArawSpring15NonTrig = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values",
     # muon isolation correction method (can be "rhoArea" or "deltaBeta")
     mu_isoCorr = "rhoArea" ,
     mu_effectiveAreas = "Spring15_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1' or 'Spring15_25ns_v1')
