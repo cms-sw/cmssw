@@ -11,19 +11,12 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 
 
 namespace l1t {
-  bool operator > ( l1t::EGamma& a, l1t::EGamma& b )
+  bool operator > ( const l1t::EGamma& a, const l1t::EGamma& b )
   {
-    if ( a.pt() == b.pt() ){
-      if( a.hwPhi() == b.hwPhi() )
-	return abs(a.hwEta()) > abs(b.hwEta());
-      else
-	return a.hwPhi() > b.hwPhi();
-    }
-    else
       return a.pt() > b.pt();
   }
 }
@@ -210,40 +203,54 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
     }//end of cuts on cluster to make EGamma
   }//end of cluster loop
 
-  
-  //Keep only candidates which passes the FG veto and the shape ID
-  std::vector<l1t::EGamma> egammas_eta_neg;  
-  std::vector<l1t::EGamma> egammas_eta_pos;
+  // prepare content to be sorted -- each phi ring contains 18 elements, with Et = 0 if no candidate exists
+  math::PtEtaPhiMLorentzVector emptyP4;
+  l1t::EGamma tempEG (emptyP4, 0, 0, 0, 0);
+  std::vector< std::vector<l1t::EGamma> > egEtaPos( 28 , std::vector<l1t::EGamma>(18, tempEG));
+  std::vector< std::vector<l1t::EGamma> > egEtaNeg( 28 , std::vector<l1t::EGamma>(18, tempEG));
+  for (unsigned int iEG = 0; iEG < egammas_raw.size(); iEG++)
+  {
+      int fgBit     = egammas_raw.at(iEG).hwQual()    & (0x1);
+      int hOverEBit = egammas_raw.at(iEG).hwQual()>>1 & (0x1);
+      int shapeBit  = egammas_raw.at(iEG).hwQual()>>2 & (0x1);
+      if(!fgBit || !shapeBit || !hOverEBit) continue;
 
-  for(const auto& egamma : egammas_raw){
-
-    int fgBit = egamma.hwQual() & (0x1);
-    int hOverEBit = egamma.hwQual()>>1 & (0x1);
-    int shapeBit = egamma.hwQual()>>2 & (0x1);
-    if(fgBit && shapeBit && hOverEBit){
-      if(egamma.hwEta()<0)
-	egammas_eta_neg.push_back(egamma);
-      else
-	egammas_eta_pos.push_back(egamma);
-    }
+      if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
+      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
   }
 
+  AccumulatingSort <l1t::EGamma> etaPosSorter(6);
+  AccumulatingSort <l1t::EGamma> etaNegSorter(6);
+  std::vector<l1t::EGamma> accumEtaPos;
+  std::vector<l1t::EGamma> accumEtaNeg;
 
- //Keep only 6 candidate with highest Pt in each eta-half
-  std::vector<l1t::EGamma>::iterator start_, end_;
+  for( int ieta = 0 ; ieta < 28 ; ++ieta)
+  {
+      // eta +
+      std::vector<l1t::EGamma>::iterator start_, end_;
+      start_ = egEtaPos.at(ieta).begin();  
+      end_   = egEtaPos.at(ieta).end();
+      BitonicSort<l1t::EGamma>(down, start_, end_);
+      etaPosSorter.Merge( egEtaPos.at(ieta) , accumEtaPos );
+      
+      // eta -
+      start_ = egEtaNeg.at(ieta).begin();  
+      end_   = egEtaNeg.at(ieta).end();
+      BitonicSort<l1t::EGamma>(down, start_, end_);
+      etaNegSorter.Merge( egEtaNeg.at(ieta) , accumEtaNeg );
 
-  start_ = egammas_eta_pos.begin();  
-  end_   = egammas_eta_pos.end();
-  BitonicSort<l1t::EGamma>(down, start_, end_);
-  if (egammas_eta_pos.size()>6) egammas_eta_pos.resize(6);
+  }
 
-  start_ = egammas_eta_neg.begin();  
-  end_   = egammas_eta_neg.end();
-  BitonicSort<l1t::EGamma>(down, start_, end_);
-  if (egammas_eta_neg.size()>6) egammas_eta_neg.resize(6);
-
-  egammas = egammas_eta_pos;
-  egammas.insert(egammas.end(),egammas_eta_neg.begin(),egammas_eta_neg.end());
+  // put all 12 candidates in the original tau vector, removing zero energy ones
+  egammas.clear();
+  for (l1t::EGamma acceg : accumEtaPos)
+  {
+      if (acceg.hwPt() > 0) egammas.push_back(acceg);
+  }
+  for (l1t::EGamma acceg : accumEtaNeg)
+  {
+      if (acceg.hwPt() > 0) egammas.push_back(acceg);
+  }
 
 }
 
