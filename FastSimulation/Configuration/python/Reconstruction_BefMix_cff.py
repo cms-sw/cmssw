@@ -13,7 +13,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import offlineBeamSpot
 
 # and of course it needs tracker hits
-from FastSimulation.TrackingRecHitProducer.TrackerRecHitProducer_cfi import fastTrackerRecHits
+from FastSimulation.TrackingRecHitProducer.TrackingRecHitProducer_cfi import fastTrackerRecHits
 
 from FastSimulation.TrackingRecHitProducer.FastTrackerRecHitMatcher_cfi import fastMatchedTrackerRecHits
 import FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi
