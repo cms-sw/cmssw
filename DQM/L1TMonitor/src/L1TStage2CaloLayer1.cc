@@ -274,7 +274,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
 
   // Monitorables stored in Layer 1 raw data but
   // not accessible from existing persistent data formats
-  Handle<FEDRawDataCollection> fedRawDataCollection;
+  edm::Handle<FEDRawDataCollection> fedRawDataCollection;
   event.getByToken(fedRawData_, fedRawDataCollection);
   if (fedRawDataCollection.isValid()) {
     for(int iFed=1354; iFed<1360; iFed+=2) {
