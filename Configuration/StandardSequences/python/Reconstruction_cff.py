@@ -46,8 +46,14 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
 localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
-localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco+totemRPLocalReconstruction)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco+totemRPLocalReconstruction)
+
+_ctpps_2016_localreco = localreco.copy()
+_ctpps_2016_localreco += totemRPLocalReconstruction
+eras.ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
+
+_ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
+_ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction
+eras.ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
