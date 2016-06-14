@@ -37,7 +37,8 @@ namespace l1t {
       kTotalEtEm,
       kTotalHt2,
       kTotalHtx2,
-      kTotalHty2
+      kTotalHty2,
+      kMissingHt2
     };
 
     EtSum(){}
