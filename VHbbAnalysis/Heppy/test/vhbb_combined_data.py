@@ -12,8 +12,10 @@ sample.isData=True
 from vhbb_combined import *
 sample.json="json.txt"
 sample.files=[
-"root://xrootd.ba.infn.it//store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/00AF8EB4-70AB-E511-9271-00266CFAE7AC.root"
-]
+    #"root://xrootd.ba.infn.it//store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/00AF8EB4-70AB-E511-9271-00266CFAE7AC.root"
+    "root://131.169.191.218:1094//store/data/Run2016B/BTagCSV/MINIAOD/PromptReco-v2/000/273/537/00000/E8E0EF1B-7E1F-E611-8717-02163E012B71.root",
+    #"root://131.169.191.218:1094//store/data/Run2016B/SingleMuon//MINIAOD/PromptReco-v2/000/273/537/00000/6EDA3436-A91F-E611-83EA-02163E014736.root"
+    ]
 
 TriggerObjectsAna.triggerObjectInputTag = ('selectedPatTrigger','','RECO')
 FlagsAna.processName='RECO'
