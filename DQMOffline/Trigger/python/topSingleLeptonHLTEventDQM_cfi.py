@@ -85,10 +85,9 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
   ##
   preselection = cms.PSet(
    trigger = cms.PSet(
-      src    = cms.InputTag("TriggerResults","","HLT"),
-
-#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666
-      select = cms.vstring(['HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v', 'HLT_Ele27_WPLoose_Gsf_v', 'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_IsoMu18_CentralPFJet30_BTagCSV_p063_v', 'HLT_IsoMu18_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_v', 'HLT_IsoMu18_v', 'HLT_IsoMu22_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_CentralPFJet30_BTagCSV_p063_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV_p063_v'])
+      	src    = cms.InputTag("TriggerResults","","HLT"),
+### Updating to HLT paths to be monitored by TOP PAG in 2016
+		select = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v','HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v','HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v','HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v']),
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -195,12 +194,11 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
     triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666
-      paths = cms.vstring(['HLT_IsoMu18_CentralPFJet30_BTagCSV_p063_v', 'HLT_IsoMu18_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_v', 'HLT_IsoMu18_v', 'HLT_IsoMu22_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_CentralPFJet30_BTagCSV_p063_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV_p063_v'])
+      	src   = cms.InputTag("TriggerResults","","HLT"),
+### Updating to HLT paths to be monitored by TOP PAG in 2016
+		paths = cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v','HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
     )
   ),
-  ## ------------------------------------------------------
   ## PRESELECTION
   ##
   ## setup of the event preselection, which will not
@@ -209,9 +207,9 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
   ##
   preselection = cms.PSet(
    trigger = cms.PSet(
-      src    = cms.InputTag("TriggerResults","","HLT"),
-#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666
-      select = cms.vstring(['HLT_IsoMu18_CentralPFJet30_BTagCSV_p063_v', 'HLT_IsoMu18_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_v', 'HLT_IsoMu18_v', 'HLT_IsoMu22_TriCentralPFJet50_40_30_v', 'HLT_IsoMu22_CentralPFJet30_BTagCSV_p063_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v', 'HLT_IsoMu20_eta2p1_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v', 'HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v', 'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV_p063_v'])
+      	src    = cms.InputTag("TriggerResults","","HLT"),
+### Updating to HLT paths to be monitored by TOP PAG in 2016
+		select = cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v','HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -349,10 +347,9 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
     triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-
-#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666	  
-	  paths = cms.vstring(['HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v', 'HLT_Ele27_WPLoose_Gsf_v', 'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v'])	
+      	src   = cms.InputTag("TriggerResults","","HLT"),
+### Updating to HLT paths to be monitored by TOP PAG in 2016
+		paths = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v','HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v','HLT_Ele22_eta2p1_WPLoose_Gsf_v','HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])
     )
   ),
   ## ------------------------------------------------------
@@ -364,10 +361,9 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
   ##
   preselection = cms.PSet(
    trigger = cms.PSet(
-      src    = cms.InputTag("TriggerResults","","HLT"),
-
-#Soureek updating triggerPath name accrosding to JIRA ticket: https://its.cern.ch/jira/browse/CMSHLT-666
-	  select = cms.vstring(['HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v', 'HLT_Ele27_WPLoose_Gsf_v', 'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v', 'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_v', 'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV_p063_v'])
+		src    = cms.InputTag("TriggerResults","","HLT"),
+### Updating to HLT paths to be monitored by TOP PAG in 2016		
+		select = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])  
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
