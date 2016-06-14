@@ -79,6 +79,15 @@ public:
     void setAlgoDecisionFinal(unsigned int bit, bool val);
 
     /// Get decision bits
+    std::vector<bool> const & getAlgoDecisionInitial() const {
+        return m_algoDecisionInitial;
+    }
+    std::vector<bool> const & getAlgoDecisionInterm() const {
+        return m_algoDecisionPreScaled;
+    }
+    std::vector<bool> const & getAlgoDecisionFinal() const { 
+        return m_algoDecisionFinal;
+    }
     bool getAlgoDecisionInitial(unsigned int bit) const;
     bool getAlgoDecisionInterm(unsigned int bit) const;
     bool getAlgoDecisionFinal(unsigned int bit) const;
