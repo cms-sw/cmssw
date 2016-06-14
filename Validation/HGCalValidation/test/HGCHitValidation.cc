@@ -39,13 +39,8 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -64,20 +59,8 @@
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
-#include "PhysicsTools/HepMCCandAlgos/interface/GenParticlesHelper.h"
-
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-
 #include <TH1.h>
 #include <TH2.h>
-#include <TH3.h>
-#include <TVector3.h>
-#include <TSystem.h>
-#include <TFile.h>
-#include <TProfile.h>
 
 #include <memory>
 #include <iostream>
@@ -124,12 +107,9 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> bhRecHitToken_;
 
   //histogram related stuff
-  TH2F *hebLayerVsEnRec, *hebLayerVsEnSim, *hebLayerVsEnStep;
-  TH2F *hefLayerVsEnRec, *hefLayerVsEnSim, *hefLayerVsEnStep;
-  TH2F *heeLayerVsEnRec, *heeLayerVsEnSim, *heeLayerVsEnStep;
   TH2F *heedzVsZ, *heedyVsY, *heedxVsX;
   TH2F *hefdzVsZ, *hefdyVsY, *hefdxVsX;
-  TH2F *hebdzVsZ, *hebdyVsY, *hebdxVsX, *hebdPhiVsPhi, *hebdEtaVsEta;
+  TH2F *hebdzVsZ, *hebdPhiVsPhi, *hebdEtaVsEta;
 	
   TH2F *heeRecVsSimZ, *heeRecVsSimY, *heeRecVsSimX;
   TH2F *hefRecVsSimZ, *hefRecVsSimY, *hefRecVsSimX;
@@ -137,9 +117,9 @@ private:
 
   TH2F *heeEnSimRec, *hefEnSimRec, *hebEnSimRec;
 
-  TH1F *hebEnRec, *hebEnSim, *hebEnStep;
-  TH1F *hefEnRec, *hefEnSim, *hefEnStep;
-  TH1F *heeEnRec, *heeEnSim, *heeEnStep;
+  TH1F *hebEnRec, *hebEnSim;
+  TH1F *hefEnRec, *hefEnSim;
+  TH1F *heeEnRec, *heeEnSim;
 
 };
 
@@ -180,29 +160,23 @@ void HGCHitValidation::beginJob() {
   edm::Service<TFileService> fs;
 
   //initiating histograms
-  hebLayerVsEnStep = fs->make<TH2F>("hebLayerVsEnStep","",25,0,25,100,0,0.01);
-  hefLayerVsEnStep = fs->make<TH2F>("hefLayerVsEnStep","",36,0,36,100,0,0.01);
-  heeLayerVsEnStep = fs->make<TH2F>("heeLayerVsEnStep","",84,0,84,100,0,0.01);
-
   heedzVsZ = fs->make<TH2F>("heedzVsZ","",720000,-360,360,100,-0.1,0.1);
-  heedyVsY = fs->make<TH2F>("heedyVsY","",400,-200,200,100,-0.1,0.1);
-  heedxVsX = fs->make<TH2F>("heedxVsX","",400,-200,200,100,-0.1,0.1);
+  heedyVsY = fs->make<TH2F>("heedyVsY","",400,-200,200,100,-0.02,0.02);
+  heedxVsX = fs->make<TH2F>("heedxVsX","",400,-200,200,100,-0.02,0.02);
 
   heeRecVsSimZ = fs->make<TH2F>("heeRecVsSimZ","",7200,-360,360,7200,-360,360);
   heeRecVsSimY = fs->make<TH2F>("heeRecVsSimY","",400,-200,200,400,-200,200);
   heeRecVsSimX = fs->make<TH2F>("heeRecVsSimX","",400,-200,200,400,-200,200);
 
   hefdzVsZ = fs->make<TH2F>("hefdzVsZ","",820000,-410,410,100,-0.1,0.1);
-  hefdyVsY = fs->make<TH2F>("hefdyVsY","",400,-200,200,100,-0.1,0.1);
-  hefdxVsX = fs->make<TH2F>("hefdxVsX","",400,-200,200,100,-0.1,0.1);
+  hefdyVsY = fs->make<TH2F>("hefdyVsY","",400,-200,200,100,-0.02,0.02);
+  hefdxVsX = fs->make<TH2F>("hefdxVsX","",400,-200,200,100,-0.02,0.02);
 
   hefRecVsSimZ = fs->make<TH2F>("hefRecVsSimZ","",8200,-410,410,8200,-410,410);
   hefRecVsSimY = fs->make<TH2F>("hefRecVsSimY","",400,-200,200,400,-200,200);
   hefRecVsSimX = fs->make<TH2F>("hefRecVsSimX","",400,-200,200,400,-200,200);
 
   hebdzVsZ = fs->make<TH2F>("hebdzVsZ","",1080,-540,540,100,-1.0,1.0);
-  //hebdyVsY = fs->make<TH2F>("hebdyVsY","",400,-200,200,400,-20,20);
-  //hebdxVsX = fs->make<TH2F>("hebdxVsX","",400,-200,200,400,-20,20);
   hebdPhiVsPhi = fs->make<TH2F>("hebdPhiVsPhi","",TMath::Pi()*100,-0.5,TMath::Pi()+0.5,200,-0.2,0.2);
   hebdEtaVsEta = fs->make<TH2F>("hebdEtaVsEta","",1000,-5,5,200,-0.1,0.1);
 
@@ -212,18 +186,15 @@ void HGCHitValidation::beginJob() {
 
   heeEnRec = fs->make<TH1F>("heeEnRec","",1000,0,10);
   heeEnSim = fs->make<TH1F>("heeEnSim","",1000,0,0.01);
-  heeEnStep = fs->make<TH1F>("heeEnStep","",1000,0,10);
-  heeEnSimRec = fs->make<TH2F>("heeEnSimRec","",1000,0,0.001,100,0,50);
+  heeEnSimRec = fs->make<TH2F>("heeEnSimRec","",1000,0,0.01,100,0,0.01);
 
   hefEnRec = fs->make<TH1F>("hefEnRec","",1000,0,10);
   hefEnSim = fs->make<TH1F>("hefEnSim","",1000,0,0.01);
-  hefEnStep = fs->make<TH1F>("hefEnStep","",1000,0,10);
-  hefEnSimRec = fs->make<TH2F>("hefEnSimRec","",1000,0,0.005,100,0,50);
+  hefEnSimRec = fs->make<TH2F>("hefEnSimRec","",1000,0,0.01,100,0,0.01);
 
   hebEnRec = fs->make<TH1F>("hebEnRec","",1000,0,15);
   hebEnSim = fs->make<TH1F>("hebEnSim","",1000,0,0.01);
-  hebEnStep = fs->make<TH1F>("hebEnStep","",1000,0,10);
-  hebEnSimRec = fs->make<TH2F>("hebEnSimRec","",1000,0,0.01,100,0,15);
+  hebEnSimRec = fs->make<TH2F>("hebEnSimRec","",1000,0,0.01,100,0,4);
 
 }
 
