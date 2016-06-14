@@ -1,8 +1,6 @@
 <lcgdict>
-  <class name="Phase2ITPixelCluster" ClassVersion="12">
-   <version ClassVersion="12" checksum="3682495392"/>
-   <version ClassVersion="11" checksum="3710063035"/>
-   <version ClassVersion="10" checksum="2468063768"/>  
+  <class name="Phase2ITPixelCluster" ClassVersion="11">
+   <version ClassVersion="11" checksum="3682495392"/>  
    <field name="err_x" transient="true"/>
    <field name="err_y" transient="true"/>
    <ioread sourceClass="Phase2ITPixelCluster" version="[1-10]" targetClass="Phase2ITPixelCluster" source="uint32_t theMinPixelCol" target="thePixelCol">
