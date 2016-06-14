@@ -133,7 +133,7 @@ namespace stage2 {
 
        res_->push_back(bx, mbp1);
 
-       // MHT
+       // MHT 
 
        raw_data = block.payload()[iFrame+3];
 
@@ -171,6 +171,22 @@ namespace stage2 {
        LogDebug("L1T") << "METHF: phi " << methf.hwPhi() << " pT " << methf.hwPt() << " bx " << bx;
 
        res_->push_back(bx,methf);
+      
+       // MHT with HF
+
+       raw_data = block.payload()[iFrame+5];
+
+       l1t::EtSum mht2 = l1t::EtSum();
+    
+       mht2.setHwPt(raw_data & 0xFFF);
+       mht2.setHwPhi((raw_data >> 12) & 0xFF);
+       mht2.setType(l1t::EtSum::kMissingHt2);       
+       mht2.setP4( l1t::CaloTools::p4Demux(&mht2) );
+
+       LogDebug("L1T") << "MHT2: phi " << mht2.hwPhi() << " pT " << mht2.hwPt() << " bx " << bx;
+
+       res_->push_back(bx,mht2);
+       
        
      }
 
