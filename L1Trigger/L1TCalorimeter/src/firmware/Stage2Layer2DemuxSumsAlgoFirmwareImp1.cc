@@ -29,8 +29,8 @@ l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::~Stage2Layer2DemuxSumsAlgoFirmwareIm
 void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<l1t::EtSum> & inputSums,
                                                               std::vector<l1t::EtSum> & outputSums) {
 
-  int32_t et(0), metx(0), mety(0), metx2(0), mety2(0), ht(0), mhtx(0), mhty(0), metPhi(0), metPhi2(0), mhtPhi(0);
-  uint32_t met(0), met2(0), mht(0);
+  int32_t et(0), metx(0), mety(0), metx2(0), mety2(0), ht(0), mhtx(0), mhty(0), mhtx2(0), mhty2(0), metPhi(0), metPhi2(0), mhtPhi(0), mhtPhi2(0);
+  uint32_t met(0), met2(0), mht(0), mht2(0);
   uint32_t mbp0(0), mbm0(0), mbp1(0), mbm1(0);
 
   // Add up the x, y and scalar components
@@ -68,6 +68,14 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
 
       case l1t::EtSum::EtSumType::kTotalEty2:
         mety2 += eSum->hwPt();
+        break;
+
+      case l1t::EtSum::EtSumType::kTotalHtx2:
+        mhtx2 += eSum->hwPt();
+        break;
+	
+      case l1t::EtSum::EtSumType::kTotalHty2:
+        mhty2 += eSum->hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kMinBiasHFP0:
@@ -117,6 +125,9 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   // bits are brought back just before the accumulation of ring sum in MP jet sum algorithm
   mht >>= 6; 
 
+  if (mhtx2 != 0 || mhty2 != 0 ) cordic_( mhtx2 , mhty2 , mhtPhi2 , mht2 );
+  mht2 >>= 6; 
+
   // Make final collection
   math::XYZTLorentzVector p4;
 
@@ -125,6 +136,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   l1t::EtSum etSumMissingEt2(p4,l1t::EtSum::EtSumType::kMissingEt2,met2,0,metPhi2>>4,0);
   l1t::EtSum htSumht(p4,l1t::EtSum::EtSumType::kTotalHt,ht,0,0,0);
   l1t::EtSum htSumMissingHt(p4,l1t::EtSum::EtSumType::kMissingHt,mht,0,mhtPhi>>4,0);
+  l1t::EtSum htSumMissingHt2(p4,l1t::EtSum::EtSumType::kMissingHt2,mht2,0,mhtPhi2>>4,0);
   l1t::EtSum etSumMinBiasHFP0(p4,l1t::EtSum::EtSumType::kMinBiasHFP0,mbp0,0,0,0);
   l1t::EtSum etSumMinBiasHFM0(p4,l1t::EtSum::EtSumType::kMinBiasHFM0,mbm0,0,0,0);
   l1t::EtSum etSumMinBiasHFP1(p4,l1t::EtSum::EtSumType::kMinBiasHFP1,mbp1,0,0,0);
@@ -139,5 +151,6 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   outputSums.push_back(htSumMissingHt);
   outputSums.push_back(etSumMinBiasHFM1);
   outputSums.push_back(etSumMissingEt2);
-
+  outputSums.push_back(htSumMissingHt2);
+  
 }
