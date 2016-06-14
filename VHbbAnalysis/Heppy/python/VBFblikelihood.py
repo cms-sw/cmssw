@@ -64,7 +64,7 @@ class VBFblikelihood :
               if (Mqq>460) :
                 if (qqDeltaEta>4.1) : 
                   if (bbDeltaPhi<1.6) :
-                    if (event.HLT_BIT_HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v) : 
+                    if ( getattr(event, "HLT_BIT_HLT_QuadPFJet_BTagCSV_p016_VBF_Mqq460_v", False)) : 
                       loopMaxJet=7
                       if nJet<7 : loopMaxJet=nJet  
                    #   jetsForHiggsMax=[jet for index,jet in enumerate(event.cleanJetsAll) if (jet.jetID("POG_PFID_Loose")) and (index<loopMaxJet) and (jet.pt()>20)]
