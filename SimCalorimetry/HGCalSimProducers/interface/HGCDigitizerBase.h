@@ -33,8 +33,18 @@ class HGCDigitizerBase {
     doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
     if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");    
     else                          keV2fC_   = 1.0;
-    if(myCfg_.exists("noise_fC")) noise_fC_ = myCfg_.getParameter<double>("noise_fC");
-    else                          noise_fC_ = 1.0;
+    if(myCfg_.existsAs<double>("noise_fC")) {
+      noise_fC_.resize(1);
+      noise_fC_[0] = myCfg_.getParameter<double>("noise_fC");
+    } else if ( myCfg_.existsAs<std::vector<double> >("noise_fC") ) {
+      const auto& noises = myCfg_.getParameter<std::vector<double> >("noise_fC");
+      noise_fC_.resize(0);
+      noise_fC_.reserve(noises.size());
+      for( auto noise : noises ) { noise_fC_.push_back( noise ); }
+    } else {
+      noise_fC_.resize(1);
+      noise_fC_[0] = 1.f;
+    }
     edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
     myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
   }
@@ -86,7 +96,7 @@ class HGCDigitizerBase {
   float keV2fC_;
   
   //noise level
-  float noise_fC_;
+  std::vector<float> noise_fC_;
   
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;
