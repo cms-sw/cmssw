@@ -26,6 +26,8 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
@@ -554,8 +556,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          bool newMuon = true;
          const bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
          const bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
+         const bool goodGEMMuon = isGEMMuon( trackerMuon );
+         const bool goodME0Muon = isME0Muon( trackerMuon );
          if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
+         if ( goodGEMMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
+         if ( goodME0Muon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::ME0Muon );
+         
          for ( auto& muon : *outputMuons ) 
          {
            if ( muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
@@ -567,12 +574,14 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              if (trackerMuon.isEnergyValid()) muon.setCalEnergy( trackerMuon.calEnergy() );
              if (goodTrackerMuon) muon.setType( muon.type() | reco::Muon::TrackerMuon );
              if (goodRPCMuon) muon.setType( muon.type() | reco::Muon::RPCMuon );
+             if (goodGEMMuon) muon.setType( muon.type() | reco::Muon::GEMMuon );
+             if (goodME0Muon) muon.setType( muon.type() | reco::Muon::ME0Muon );
              LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
              break;
            }
          }
          if ( newMuon ) {
-           if ( goodTrackerMuon || goodRPCMuon ){
+           if ( goodTrackerMuon || goodRPCMuon || goodGEMMuon || goodME0Muon){
              outputMuons->push_back( trackerMuon );
            } else {
              LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
@@ -750,6 +759,18 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 	     muon.pt()<5 && std::abs(muon.eta())<1.5 &&
        muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > 1 ) return true;
   return ( muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > minNumberOfMatches_ );
+}
+
+bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
+{
+  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  return ( muon.numberOfMatches( reco::Muon::GEMSegmentAndTrackArbitration ) >= 1 );    
+}
+
+bool MuonIdProducer::isME0Muon( const reco::Muon& muon )
+{
+  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  return ( muon.numberOfMatches( reco::Muon::ME0SegmentAndTrackArbitration ) >= 1 );
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -1235,4 +1256,27 @@ bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
       return false;
     }
   return true;
+}
+
+void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {  
+  edm::ParameterSetDescription desc;  
+  desc.setAllowAnything();
+  
+  edm::ParameterSetDescription descTrkAsoPar;
+  descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
+  descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel",edm::InputTag("me0Segments"));
+  descTrkAsoPar.setAllowAnything();  
+  desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
+
+  edm::ParameterSetDescription descJet;
+  descJet.setAllowAnything();
+  descJet.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
+  desc.add<edm::ParameterSetDescription>("JetExtractorPSet", descJet);
+  
+  edm::ParameterSetDescription descCalo;
+  descCalo.setAllowAnything();
+  descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
+  desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
+    
+  descriptions.addDefault(desc);
 }
