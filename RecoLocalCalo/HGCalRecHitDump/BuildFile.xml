@@ -1,0 +1,24 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="DataFormats/CaloRecHit"/>
+<use name="DetectorDescription/Base"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="fastjet"/>
+<use name="root"/>
+<use name="roofit"/>
+<use name="clhep"/>
+
+<export>
+  <lib   name="1"/>
+</export>
+<Flags CXXFLAGS="-O0"/>
+<Flags CXXFLAGS="-g"/>

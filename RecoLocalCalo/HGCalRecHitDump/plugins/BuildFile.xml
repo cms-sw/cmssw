@@ -1,0 +1,11 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="DataFormats/CaloRecHit"/>
+<use   name="RecoLocalCalo/HGCalRecHitDump"/>
+<use   name="Geometry/Records"/>
+<library   file="*.cc" name="RecoLocalCaloHGCalRecHitDumpPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<Flags CXXFLAGS="-O0"/>
+<Flags CXXFLAGS="-g"/>

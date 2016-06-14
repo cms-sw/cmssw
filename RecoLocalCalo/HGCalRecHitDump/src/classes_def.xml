@@ -1,0 +1,14 @@
+<lcgdict>
+   <class name="SlimmedRecHit" />
+   <class name="std::vector<SlimmedRecHit>" />
+   <class name="edm::Wrapper<std::vector<SlimmedRecHit> >" />
+   <class name="SlimmedCluster" />
+   <class name="std::vector<SlimmedCluster>" />
+   <class name="edm::Wrapper<std::vector<SlimmedCluster> >" />
+   <class name="SlimmedVertex" />
+   <class name="std::vector<SlimmedVertex>" />
+   <class name="edm::Wrapper<std::vector<SlimmedVertex> >" />
+   <class name="SlimmedROI" />
+   <class name="std::vector<SlimmedROI>" />
+   <class name="edm::Wrapper<std::vector<SlimmedROI> >" />
+</lcgdict>
