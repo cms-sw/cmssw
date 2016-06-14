@@ -5,7 +5,7 @@
 #include "DataFormats/L1TMuon/interface/EMTFHitExtra.h"
 
 namespace l1t {
-
+  
   int calc_ring (int _station, int _csc_ID, int _strip);
   int calc_chamber (int _station, int _sector, int _subsector, int _ring, int _csc_ID);
   
@@ -22,7 +22,7 @@ namespace l1t {
   inline float calc_phi_glob_rad_hit(float loc, int sect_ind) { 
     float tmp = loc + (Geom::pi()/12) + (sect_ind < 6 ? sect_ind : sect_ind - 6)*(Geom::pi()/3); 
     return (tmp < Geom::pi()) ? tmp : tmp - 2*Geom::pi(); }
-
+  
 } // End namespace l1t
 
 #endif /* define EMTFHitTools_h */

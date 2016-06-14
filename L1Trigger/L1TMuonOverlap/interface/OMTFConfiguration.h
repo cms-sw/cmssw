@@ -88,8 +88,10 @@ class OMTFConfiguration{
   /// aLayer+100*detId.subdetId()
   ///where aLayer is a layer number counting from vertex
   uint32_t getLayerNumber(uint32_t rawId) const;
-
-  unsigned int fwVersion() const {return rawParams.fwVersion();};
+  
+  unsigned int fwVersion() const {return (rawParams.fwVersion()>>16) & 0xFFFF;};
+  unsigned int patternsVersion() const {return rawParams.fwVersion() & 0xFFFF;};
+  
   float minPdfVal() const {return 0.001;};
   unsigned int nLayers() const {return rawParams.nLayers();};
   unsigned int nHitsPerLayer() const {return rawParams.nHitsPerLayer();};
