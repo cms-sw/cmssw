@@ -142,7 +142,7 @@ ElectronRemovalForBoostProducer::produce(edm::Event& iEvent, const edm::EventSet
      }
 
      //  pT > 15
-     if (! (e.pt())>15){
+     if (! ((e.pt())>15)){
        //std::cout << ie << " killed by pt " << e.pt() << std::endl;
        continue;
      }
