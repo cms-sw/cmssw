@@ -6,6 +6,11 @@ triggerObjectCollectionsFull = {
     "hltIsoMu20":[[],"hltL3crIsoL1sMu18L1f0L2f10QL3f20QL3trkIsoFiltered0p09","HLT_IsoMu20_v*"],
     "hltEle25WPTight":[[],"hltEle25WPTightGsfTrackIsoFilter","HLT_Ele25_WPTight_Gsf_v*"],
     "hltEle25eta2p1WPLoose":[[],"hltEle25erWPTightGsfTrackIsoFilter","HLT_Ele25_eta2p1_WPLoose_Gsf_v*"],
+    
+    # triggers for the MSSM analysis
+    "hltBTagCaloCSVp026DoubleWithMatching" : [[],"hltBTagCaloCSVp026DoubleWithMatching", "HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v*"],
+    "hltBTagCaloCSVp014DoubleWithMatching" : [[], "hltBTagCaloCSVp014DoubleWithMatching", "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v*"],
+    "hltDoublePFJetsC100" : [[], "hltDoublePFJetsC100", ""],
 }
 triggerObjectCollectionsOnlyPt = {
 #    "caloMet":[["hltMet","","HLT"],"hltMET90","HLT_PFMET90_PFMHT90_IDTight*"] hltL1extraParticles:Central:HLT
