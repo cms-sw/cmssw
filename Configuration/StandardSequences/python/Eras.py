@@ -83,6 +83,7 @@ class Eras (object):
                                 self.phase1Pixel, self.run3_GEM,
                                 self.phase2_common, self.phase2_tracker,
                                 self.phase2_hgcal, self.phase2_muon,
+                                self.phase2_hcal,
                                 self.trackingLowPU, self.trackingPhase1, self.trackingPhase1PU70,
                                ]
 
