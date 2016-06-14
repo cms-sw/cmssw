@@ -62,7 +62,7 @@ def customiseFor14317(process):
                     pset.seedPairPenalty = cms.int32(0)
     return process
 
-def customiseForMuon(process):
+def customiseFor14833(process):
     for producer in esproducers_by_type(process, "DetIdAssociatorESProducer"):
         if (producer.ComponentName.value() == 'MuonDetIdAssociator'):
             if not hasattr(producer,'includeGEM'):
@@ -82,6 +82,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor13753(process)
         process = customiseFor14282(process)
         process = customiseFor14317(process)
+        process = customiseFor14833(process)
 
     if cmsswVersion >= "CMSSW_8_0":
 #       process = customiseFor12718(process)
@@ -91,7 +92,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if ("Fake" in menuType):
         return process
 
-    process = customiseForMuon(process)
     
 
 #    if ( menuType in ("FULL","GRun","PIon")):
