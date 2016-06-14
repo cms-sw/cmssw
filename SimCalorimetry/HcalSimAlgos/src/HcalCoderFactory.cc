@@ -8,7 +8,7 @@ HcalCoderFactory::HcalCoderFactory(CoderType coderType)
   : theCoderType(coderType), theDbService(0) { }
 
 
-std::auto_ptr<HcalCoder> HcalCoderFactory::coder(const DetId & id) const {
+std::unique_ptr<HcalCoder> HcalCoderFactory::coder(const DetId & id) const {
   HcalCoder * result = 0;
   if (theCoderType == DB || theCoderType == UPGRADE) {
     assert(theDbService != 0);
@@ -19,6 +19,6 @@ std::auto_ptr<HcalCoder> HcalCoderFactory::coder(const DetId & id) const {
   } else {
     result = new HcalNominalCoder();
   }
-  return std::auto_ptr<HcalCoder>(result);
+  return std::unique_ptr<HcalCoder>(result);
 }
 

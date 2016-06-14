@@ -151,3 +151,4 @@ FWPhotonDetailView::addSceneInfo(const reco::Photon *i, TEveElementList* tList)
 }
 
 REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,ecalRecHit);
+REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,reducedEcalRecHitsEB);

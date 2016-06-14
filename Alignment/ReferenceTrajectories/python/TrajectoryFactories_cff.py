@@ -23,7 +23,8 @@ TrajectoryFactoryBase = cms.PSet(
     UseProjectedHits = cms.bool(True), ## if false, projected hits are skipped
     UseInvalidHits = cms.bool(False), ## if false, invalid hits are skipped
     UseHitWithoutDet = cms.bool(True), ## if false, RecHits that are not attached to GeomDets are skipped
-    UseBeamSpot = cms.bool(False) ## if true, the beam spot is used as a constraint via a virtual TTRecHit
+    UseBeamSpot = cms.bool(False), ## if true, the beam spot is used as a constraint via a virtual TTRecHit
+    IncludeAPEs = cms.bool(False) ## if true, the APEs are included in the hit error
 )
 
 ###############################################################

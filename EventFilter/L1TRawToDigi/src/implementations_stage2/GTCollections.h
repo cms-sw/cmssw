@@ -41,14 +41,14 @@ namespace l1t {
 
          private:
 	    
-	    std::auto_ptr<MuonBxCollection> muons_;
-	    std::auto_ptr<EGammaBxCollection> egammas_;
-	    std::auto_ptr<EtSumBxCollection> etsums_;
-	    std::auto_ptr<JetBxCollection> jets_;
-	    std::auto_ptr<TauBxCollection> taus_;
+	    std::unique_ptr<MuonBxCollection> muons_;
+	    std::unique_ptr<EGammaBxCollection> egammas_;
+	    std::unique_ptr<EtSumBxCollection> etsums_;
+	    std::unique_ptr<JetBxCollection> jets_;
+	    std::unique_ptr<TauBxCollection> taus_;
 
-            std::auto_ptr<GlobalAlgBlkBxCollection> algBlk_;
-            std::auto_ptr<GlobalExtBlkBxCollection> extBlk_;
+            std::unique_ptr<GlobalAlgBlkBxCollection> algBlk_;
+            std::unique_ptr<GlobalExtBlkBxCollection> extBlk_;
 
 
       };

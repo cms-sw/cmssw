@@ -38,6 +38,8 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
 //#define DebugLog
 
@@ -70,11 +72,12 @@ private:
   edm::EDGetToken                          tok_hitrEE_, tok_hitrHE_;
   edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
   TH1D                                    *hSimHitE_[2], *hSimHitT_[2];
-  TH1D                                    *hSimHitLng_[2], *hBeam_;
   TH1D                                    *hDigiADC_[2], *hDigiLng_[2];
-  TH1D                                    *hRecHitE_[2], *hRecHitLng_[2];
-  TH2D                                    *hSimHitLat_[2], *hRecHitOcc_[2];
-  TH2D                                    *hDigiOcc_[2];
+  TH1D                                    *hRecHitE_[2], *hBeam_;
+  TH2D                                    *hDigiOcc_[2], *hRecHitOcc_[2];
+  TProfile                                *hSimHitLng_[2], *hSimHitLng2_[2];
+  TProfile                                *hRecHitLng_[2], *hRecHitLng2_[2];
+  TProfile2D                              *hSimHitLat_[2], *hRecHitLat_[2];
 };
 
 HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
@@ -148,16 +151,19 @@ void HGCalTBAnalyzer::beginJob() {
     if (doSimHits_ && book) {
       sprintf (name, "SimHitEn%s", det.c_str());
       sprintf (title,"Sim Hit Energy for %s", det.c_str());
-      hSimHitE_[i] = fs_->make<TH1D>(name,title,5000,0.,10.0);
+      hSimHitE_[i] = fs_->make<TH1D>(name,title,5000,0.,1.0);
       sprintf (name, "SimHitTm%s", det.c_str());
       sprintf (title,"Sim Hit Timing for %s", det.c_str());
       hSimHitT_[i] = fs_->make<TH1D>(name,title,5000,0.,500.0);
       sprintf (name, "SimHitLat%s", det.c_str());
-      sprintf (title,"Lateral Shower profile (Sim Hit)for %s", det.c_str());
-      hSimHitLat_[i] = fs_->make<TH2D>(name,title,100,-100.,100.,100,-100.,100.);
+      sprintf (title,"Lateral Shower profile (Sim Hit) for %s", det.c_str());
+      hSimHitLat_[i] = fs_->make<TProfile2D>(name,title,100,-100.,100.,100,-100.,100.);
       sprintf (name, "SimHitLng%s", det.c_str());
-      sprintf (title,"Longitudinal Shower profile (Sim Hit)for %s",det.c_str());
-      hSimHitLng_[i] = fs_->make<TH1D>(name,title,50,0.,100.);
+      sprintf (title,"Longitudinal Shower profile (Sim Hit) for %s",det.c_str());
+      hSimHitLng_[i] = fs_->make<TProfile>(name,title,50,0.,100.);
+      sprintf (name, "SimHitLng2%s", det.c_str());
+      sprintf (title,"Longitudinal Shower profile (Layer) for %s",det.c_str());
+      hSimHitLng2_[i] = fs_->make<TProfile>(name,title,200,0.,100.);
     }
 
     if (doDigis_ && book) {
@@ -168,20 +174,26 @@ void HGCalTBAnalyzer::beginJob() {
       sprintf (title,"Occupancy (Digi)for %s", det.c_str());
       hDigiOcc_[i] = fs_->make<TH2D>(name,title,100,-10.,10.,100,-10.,10.);
       sprintf (name, "DigiLng%s", det.c_str());
-      sprintf (title,"Longitudinal Shower profile (Digi)for %s",det.c_str());
+      sprintf (title,"Longitudinal Shower profile (Digi) for %s",det.c_str());
       hDigiLng_[i] = fs_->make<TH1D>(name,title,100,0.,10.);
     }
 
     if (doRecHits_ && book) {
       sprintf (name, "RecHitEn%s", det.c_str());
       sprintf (title,"Rec Hit Energy for %s", det.c_str());
-      hRecHitE_[i] = fs_->make<TH1D>(name,title,1000,0.,100.0);
+      hRecHitE_[i] = fs_->make<TH1D>(name,title,1000,0.,10.0);
       sprintf (name, "RecHitOcc%s", det.c_str());
       sprintf (title,"Occupancy (Rec Hit)for %s", det.c_str());
       hRecHitOcc_[i] = fs_->make<TH2D>(name,title,100,-10.,10.,100,-10.,10.);
+      sprintf (name, "RecHitLat%s", det.c_str());
+      sprintf (title,"Lateral Shower profile (Rec Hit) for %s", det.c_str());
+      hRecHitLat_[i] = fs_->make<TProfile2D>(name,title,100,-10.,10.,100,-10.,10.);
       sprintf (name, "RecHitLng%s", det.c_str());
-      sprintf (title,"Longitudinal Shower profile (Rec Hit)for %s",det.c_str());
-      hRecHitLng_[i] = fs_->make<TH1D>(name,title,100,0.,10.);
+      sprintf (title,"Longitudinal Shower profile (Rec Hit) for %s",det.c_str());
+      hRecHitLng_[i] = fs_->make<TProfile>(name,title,100,0.,10.);
+      sprintf (name, "RecHitLng2%s", det.c_str());
+      sprintf (title,"Longitudinal Shower profile vs Layer for %s",det.c_str());
+      hRecHitLng2_[i] = fs_->make<TProfile>(name,title,120,0.,60.);
     }
   }
 }
@@ -380,7 +392,6 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     } else {
       map_hits[id]  = energy;
     }
-    hSimHitE_[type]->Fill(energy);
     hSimHitT_[type]->Fill(time,energy);
   }
 
@@ -395,8 +406,14 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     double zp = hgcons_[type]->waferZ(layer,false);
     double xx = (zp < 0) ? -xy.first : xy.first;
     HepGeom::Point3D<float> gcoord  = HepGeom::Point3D<float>(xx,xy.second,zp);
+    hSimHitE_[type]->Fill(energy);
     hSimHitLat_[type]->Fill(xx,xy.second,energy);
     hSimHitLng_[type]->Fill(zp,energy);
+    hSimHitLng2_[type]->Fill(layer,energy);
+#ifdef DebugLog
+    std::cout << "SimHit : " << layer << " " << xx << " " << xy.second << " " 
+	      << zp << " " << energy << std::endl;
+#endif
   }
 }
 
@@ -418,9 +435,16 @@ void HGCalTBAnalyzer::analyzeRecHits (int type,
     DetId       detId  = it->id();
     GlobalPoint global = hgeom_[type]->getPosition(detId);
     double      energy = it->energy();
-    hRecHitOcc_[type]->Fill(global.x(),global.y());
-    hRecHitLng_[type]->Fill(global.z());
+    int         layer  = HGCalDetId(detId).layer();
+    hRecHitOcc_[type]->Fill(global.x(),global.y(),energy);
+    hRecHitLng_[type]->Fill(global.z(),energy);
+    hRecHitLng2_[type]->Fill(layer,energy);
+    hRecHitLat_[type]->Fill(global.x(),global.y(),energy);
     hRecHitE_[type]->Fill(energy);
+#ifdef DebugLog
+    std::cout << "RecHit: " << layer  << " " << global.x() << " " << global.y()
+	      << " " << global.z() << " " << energy << std::endl;
+#endif
   }
 }
   

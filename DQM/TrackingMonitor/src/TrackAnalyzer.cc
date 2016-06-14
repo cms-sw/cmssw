@@ -543,7 +543,13 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       }
 
       // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
-      std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
+      std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "SEED_EXTENSION", "NOT_STOPPED" };
+      if(StopReasonName.size() != static_cast<unsigned int>(StopReason::SIZE)) {
+        throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
+                                       << " but TrackAnalyzer has StopReasonName's only for "
+                                       << StopReasonName.size()
+                                       << ". Please update also TrackAnalyzer.cc near line " << __LINE__ << ".";
+      }
 
       histname = "stoppingSource_";
       stoppingSource = ibooker.book1D(histname+CategoryName, histname+CategoryName, StopReasonName.size(), 0., double(StopReasonName.size()));
@@ -684,7 +690,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       histname = "zPointOfClosestApproachVsPhi_";
       zPointOfClosestApproachVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, VZBinProf, VZMinProf, VZMaxProf, "");
       zPointOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
-      zPointOfClosestApproachVsPhi->setAxisTitle("y component of Track PCA to beam line (cm)",2);
+      zPointOfClosestApproachVsPhi->setAxisTitle("z component of Track PCA to beam line (cm)",2);
     }
     
     if(doDCAPlots_ || doPVPlots_ || doAllPlots_) {

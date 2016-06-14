@@ -20,7 +20,7 @@
 #   include <fstream>
 #   include <iostream>
 #   include <iomanip>
-    using namespace std;
+
 #else
 #   include <fstream.h>
 #   include <iostream.h>

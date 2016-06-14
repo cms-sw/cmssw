@@ -225,6 +225,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltPixelTracksForHighPt",
       "hltHighPtPixelTracks",
       "hltPixelTracksForNoPU",
+      "hltPixelTracksForSeedsTau3mu",
 
       "hltFastPixelHitsVertex",
       "hltFastPixelTracks",
@@ -306,6 +307,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTIterativeTrackingDisplacedJpsiIter02",
       "HLTIterativeTrackingDisplacedPsiPrimeIter02",
       "HLTIterativeTrackingDisplacedNRMuMuIter02",
+      "HLTIterativeTrackingDisplacedTau3muIter02",
       "HLTIterativeTrackingForBTagIteration0",
       "HLTIterativeTrackingIteration4DisplacedJets",
       "HLTRegionalCKFTracksForL3Isolation",
@@ -449,6 +451,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter2DisplacedJpsiMerged', 'generalTracks'),
       ('hltIter2DisplacedPsiPrimeMerged', 'generalTracks'),
       ('hltIter2DisplacedNRMuMuMerged', 'generalTracks'),
+      ('hltIter2DisplacedTau3muMerged', 'generalTracks'),
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
       ('hltIterativeTrackingForPAMerged', 'generalTracks'),
@@ -466,6 +469,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltPixelTracksForHighPt','hltPixelTracks'),
       ('hltHighPtPixelTracks','hltPixelTracks'),
       ('hltPixelTracksForNoPU','hltPixelTracks'),
+      ('hltPixelTracksForSeedsTau3mu','hltPixelTracks'),
 
       ('hltL1extraParticles','l1extraParticles'),
       ('hltL1extraParticles:Central','l1extraParticles:Central'),

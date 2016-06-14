@@ -77,11 +77,19 @@ def L1TReEmulFromRAW2015(process):
         print "L1TReEmul sequence:  "
         print process.L1TReEmul
         print process.schedule
+        # quiet warning abouts missing Stage-2 payloads, since they won't reliably exist in 2015 data.
+        if hasattr(process, "caloStage2Digis"):
+            process.caloStage2Digis.MinFeds = cms.uint32(0)
+        if hasattr(process, "gmtStage2Digis"):
+            process.gmtStage2Digis.MinFeds = cms.uint32(0)
+        if hasattr(process, "gtStage2Digis"):
+            process.gtStage2Digis.MinFeds = cms.uint32(0)            
         return process
     else:
-        process.simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
+        process.simRctDigis.ecalDigis = cms.VInputTag('simEcalTriggerPrimitiveDigis')
         process.simRctDigis.hcalDigis = cms.VInputTag('simHcalTriggerPrimitiveDigis')
-        process.simRpcTriggerDigis.label         = 'muonRPCDigis'
+        process.simRpcTriggerDigis.label = 'muonRPCDigis'
+        process.simRpcTechTrigDigis.RPCDigiLabel  = 'muonRPCDigis'
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
         process.schedule.append(process.L1TReEmulPath)
         print "L1TReEmul sequence:  "
@@ -122,7 +130,7 @@ def L1TReEmulFromRAW(process):
         process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag('bmtfDigis')
         process.simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
         # BMTF
-        process.simBmtfDigis.DTDigi_Source         = cms.InputTag('simTwinMuxDigis')
+        process.simBmtfDigis.DTDigi_Source         = cms.InputTag('bmtfDigis')
         process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag('bmtfDigis')
         # OMTF
         process.simOmtfDigis.srcRPC                = cms.InputTag('muonRPCDigis')

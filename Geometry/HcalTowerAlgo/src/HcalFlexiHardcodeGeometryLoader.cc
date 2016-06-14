@@ -186,6 +186,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
       int    depth = etabins[i].depthStart;
       double dphi  = etabins[i].dphi;
       int    units = int(((dphi*72)/(2*M_PI))+0.5);
+      if (units < 1) units = 1;
       int    fioff = (units == 4) ? 3 : 1;
       nphi        *= units;
 #ifdef DebugLog

@@ -85,18 +85,23 @@ namespace ecaldqm
           me->setBinLabel(1, ss.str());
           ss.str("");
           ss << "TCC" << inner.second << " TT1";
-          me->setBinLabel(29, ss.str());
+          me->setBinLabel(1+nTTInner, ss.str());
           ss.str("");
           ss << "TCC" << outer.first << " TT1";
-          me->setBinLabel(57, ss.str());
+          me->setBinLabel(1+2*nTTInner, ss.str());
           ss.str("");
           ss << "TCC" << outer.second << " TT1";
-          me->setBinLabel(73, ss.str()); // Bins are numbered 1-->28, 29-->56 for two inner TCCs and 57-->72, 73-->88 for two outer TCCs
+          me->setBinLabel(1+2*nTTInner+nTTOuter, ss.str());
+          // Bins are numbered:
+          // inner1:(1)-->(nTTInner)
+          // inner2:(1+nTTInner)-->(1+nTTInner + nTTInner-1 = 2*nTTInner)
+          // outer1:(1+2*nTTInner)-->(1+2*nTTInner+nTTOuter-1=2*nTTInner+nTTOuter)
+          // outer2:(1+2*nTTInner+nTTOuter)-->(1+2*nTTInner+nTTOuter + nTTOuter-1 = 2*nTTInner+2*nTTOuter)
           int offset(0);
-          for(int iBin(4); iBin <= 88; iBin += 4){
-            if(iBin == 32) offset = 28;
-            else if(iBin == 60) offset = 56;
-            else if(iBin == 76) offset = 72;
+          for(int iBin(4); iBin <= (2*nTTOuter + 2*nTTInner); iBin += 4){
+            if(iBin == 4+nTTInner) offset = nTTInner;
+            else if(iBin == 4+2*nTTInner) offset = 2*nTTInner;
+            else if(iBin == 4+2*nTTInner+nTTOuter) offset = 2*nTTInner+nTTOuter;
             ss.str("");
             ss << iBin - offset;
             me->setBinLabel(iBin, ss.str());

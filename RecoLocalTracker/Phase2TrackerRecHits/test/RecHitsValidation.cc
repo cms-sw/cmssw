@@ -25,7 +25,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "DataFormats/Phase2TrackerRecHit/interface/Phase2TrackerRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -116,7 +116,7 @@ void Phase2TrackerRecHitsValidation::analyze(const edm::Event& event, const edm:
     const TrackerGeometry* tkGeom = &(*geomHandle);
 
     edm::ESHandle< TrackerTopology > tTopoHandle;
-    eventSetup.get< IdealGeometryRecord >().get(tTopoHandle);
+    eventSetup.get< TrackerTopologyRcd >().get(tTopoHandle);
     const TrackerTopology* tTopo = tTopoHandle.product();
 
     /*

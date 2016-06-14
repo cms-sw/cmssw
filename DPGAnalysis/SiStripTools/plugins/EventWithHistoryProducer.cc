@@ -98,13 +98,13 @@ EventWithHistoryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   using namespace edm;
 
-  std::auto_ptr<EventWithHistory> heOut(new EventWithHistory(iEvent.id().event(),iEvent.orbitNumber(),iEvent.bunchCrossing()));
+  std::unique_ptr<EventWithHistory> heOut(new EventWithHistory(iEvent.id().event(),iEvent.orbitNumber(),iEvent.bunchCrossing()));
   heOut->add(_prevHE,_depth);
 
   if(*heOut < _prevHE) edm::LogInfo("EventsNotInOrder") << " Events not in order " << _prevHE._event;
 
   _prevHE = *heOut;
-  iEvent.put(heOut);
+  iEvent.put(std::move(heOut));
   
 }
 

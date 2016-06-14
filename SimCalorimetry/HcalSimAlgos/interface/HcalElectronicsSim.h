@@ -16,6 +16,7 @@ class HFDataFrame;
 class ZDCDataFrame;
 class HcalUpgradeDataFrame;
 class QIE10DataFrame;
+class QIE11DataFrame;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -35,6 +36,7 @@ public:
   void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, ZDCDataFrame & result, double preMixFactor=10.0, unsigned preMixBits=126);
   void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, HcalUpgradeDataFrame& result, double preMixFactor=10.0, unsigned preMixBits=126);
   void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, QIE10DataFrame& result, double preMixFactor=10.0, unsigned preMixBits=126);
+  void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, QIE11DataFrame& result, double preMixFactor=10.0, unsigned preMixBits=126);
   /// Things that need to be initialized every event
   /// sets starting CapID randomly
   void newEvent(CLHEP::HepRandomEngine*);

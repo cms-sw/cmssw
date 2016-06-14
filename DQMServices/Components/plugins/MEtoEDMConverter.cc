@@ -456,18 +456,18 @@ MEtoEDMConverter::putData(T& iPutTo,
     }
   }
 
-  std::auto_ptr<MEtoEDM<long long> > pOutInt(new MEtoEDM<long long>(nInt64));
-  std::auto_ptr<MEtoEDM<double> > pOutDouble(new MEtoEDM<double>(nDouble));
-  std::auto_ptr<MEtoEDM<TString> > pOutString(new MEtoEDM<TString>(nString));
-  std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
-  std::auto_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
-  std::auto_ptr<MEtoEDM<TH1D> > pOut1d(new MEtoEDM<TH1D>(n1D));
-  std::auto_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
-  std::auto_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
-  std::auto_ptr<MEtoEDM<TH2D> > pOut2d(new MEtoEDM<TH2D>(n2D));
-  std::auto_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>(n3F));
-  std::auto_ptr<MEtoEDM<TProfile> > pOutProf(new MEtoEDM<TProfile>(nProf));
-  std::auto_ptr<MEtoEDM<TProfile2D> > pOutProf2(new MEtoEDM<TProfile2D>(nProf2));
+  std::unique_ptr<MEtoEDM<long long> > pOutInt(new MEtoEDM<long long>(nInt64));
+  std::unique_ptr<MEtoEDM<double> > pOutDouble(new MEtoEDM<double>(nDouble));
+  std::unique_ptr<MEtoEDM<TString> > pOutString(new MEtoEDM<TString>(nString));
+  std::unique_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
+  std::unique_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
+  std::unique_ptr<MEtoEDM<TH1D> > pOut1d(new MEtoEDM<TH1D>(n1D));
+  std::unique_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
+  std::unique_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
+  std::unique_ptr<MEtoEDM<TH2D> > pOut2d(new MEtoEDM<TH2D>(n2D));
+  std::unique_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>(n3F));
+  std::unique_ptr<MEtoEDM<TProfile> > pOutProf(new MEtoEDM<TProfile>(nProf));
+  std::unique_ptr<MEtoEDM<TProfile2D> > pOutProf2(new MEtoEDM<TProfile2D>(nProf2));
 
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
 
@@ -554,18 +554,18 @@ MEtoEDMConverter::putData(T& iPutTo,
   }
 
   // produce objects to put in events
-  iPutTo.put(pOutInt,sName);
-  iPutTo.put(pOutDouble,sName);
-  iPutTo.put(pOutString,sName);
-  iPutTo.put(pOut1,sName);
-  iPutTo.put(pOut1s,sName);
-  iPutTo.put(pOut1d,sName);
-  iPutTo.put(pOut2,sName);
-  iPutTo.put(pOut2s,sName);
-  iPutTo.put(pOut2d,sName);
-  iPutTo.put(pOut3,sName);
-  iPutTo.put(pOutProf,sName);
-  iPutTo.put(pOutProf2,sName);
+  iPutTo.put(std::move(pOutInt),sName);
+  iPutTo.put(std::move(pOutDouble),sName);
+  iPutTo.put(std::move(pOutString),sName);
+  iPutTo.put(std::move(pOut1),sName);
+  iPutTo.put(std::move(pOut1s),sName);
+  iPutTo.put(std::move(pOut1d),sName);
+  iPutTo.put(std::move(pOut2),sName);
+  iPutTo.put(std::move(pOut2s),sName);
+  iPutTo.put(std::move(pOut2d),sName);
+  iPutTo.put(std::move(pOut3),sName);
+  iPutTo.put(std::move(pOutProf),sName);
+  iPutTo.put(std::move(pOutProf2),sName);
 
 }
 

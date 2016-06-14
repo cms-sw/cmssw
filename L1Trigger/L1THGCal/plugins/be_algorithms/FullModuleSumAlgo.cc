@@ -24,7 +24,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalBestChoiceCodec>
 
         virtual void putInEvent(edm::Event& evt) override final 
         {
-            evt.put(cluster_product,name());
+            evt.put(std::move(cluster_product),name());
         }
 
         virtual void reset() override final 
@@ -33,7 +33,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalBestChoiceCodec>
         }
 
     private:
-        std::auto_ptr<l1t::HGCalClusterBxCollection> cluster_product;
+        std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product;
 
 };
 

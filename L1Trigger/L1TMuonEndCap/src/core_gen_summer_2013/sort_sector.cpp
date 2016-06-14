@@ -6,7 +6,7 @@
 // Timestamp : Thu Mar 12 14:54:01 2015
 
 #include "sort_sector.h"
-
+using namespace std;
 extern size_t __glob_alwaysn__;
 
 void sort_sector::operator()

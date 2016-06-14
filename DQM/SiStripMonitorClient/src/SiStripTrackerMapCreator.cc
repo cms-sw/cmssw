@@ -1,6 +1,7 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -363,6 +364,8 @@ void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, const Tracke
   trackerMap_->setText(det_id, comment.str());
   trackerMap_->fillc(det_id, rval, gval, bval);
   if(badmodmap && (flag!=0 || isBad)) (*badmodmap)[det_id] = comment.str();
+
+  detflag_[det_id] = flag;
 }
 
 //
@@ -609,4 +612,81 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
     comment << message.c_str();
   }
   return flag;
+}
+//
+// -- create branches for root file with tracker map values by detId and fill it
+//
+void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> map_names, TTree* tkinfo_tree, DQMStore* dqm_store, std::vector<uint32_t> detidList) {
+
+  std::map<std::string, float> tkhmap_value;
+  int qtalarm_flag = 0;
+  uint32_t det_id = 0;
+
+  if(!tkinfo_tree) {
+    edm::LogError("SiStripTrackerMapCreator::createInfoFile") << "Tree not found!";
+  }
+  else {
+    tkinfo_tree->Branch("DetId",&det_id,"DetId/i");
+    for(std::vector<std::string>::const_iterator in = map_names.begin(); in != map_names.end(); ++in) {
+      std::string mapname = (*in);
+      if(mapname == "QTestAlarm") {
+        qtalarm_flag = 0;
+        tkinfo_tree->Branch(mapname.c_str(),&qtalarm_flag,std::string(mapname+"/I").c_str());
+      } else {
+        tkhmap_value[mapname] = -1.0;
+        tkinfo_tree->Branch(mapname.c_str(),&tkhmap_value[mapname],std::string(mapname+"/F").c_str());
+      }
+    }
+
+    std::string dirname = "";
+
+    std::string mdir = "MechanicalView";
+    dqm_store->cd();
+    if (!SiStripUtility::goToDir(dqm_store, mdir)) {
+      edm::LogError("SiStripTrackerMapCreator::createInfoFile") << "I cannot find the SiStrip top level directory in the DQM file";
+    }
+    else {
+      std::string mechanicalview_dir = dqm_store->pwd();
+      dirname=mechanicalview_dir.substr(0,mechanicalview_dir.find_last_of("/"));    
+      edm::LogInfo("SiStripTrackerMapCreator::createInfoFile") << "SiStrip top level directory is " << dirname;
+    }
+    dqm_store->cd();
+
+    std::vector<TkHistoMap*> tkHMaps;
+
+    uint32_t nHists = map_names.size();
+
+    for(uint32_t ih = 0; ih < nHists; ++ih) {
+      tkHMaps.push_back(new TkHistoMap());
+      if(map_names.at(ih) != "QTestAlarm") {
+        std::string tkhmap_name = "TkHMap_" + map_names.at(ih);
+        tkHMaps.at(ih)->loadTkHistoMap(dirname, tkhmap_name, true);
+      }
+    } 
+
+    for(std::vector<uint32_t>::const_iterator idet = detidList.begin(); idet != detidList.end(); ++idet) {
+      det_id = (*idet);
+      for(uint32_t ih = 0; ih < nHists; ++ih) {
+        if(map_names.at(ih) == "QTestAlarm") {
+          std::ostringstream comment;
+          qtalarm_flag = getDetectorFlag(det_id);
+        } else {
+          tkhmap_value[map_names.at(ih)] = tkHMaps.at(ih)->getValue(det_id);
+        }
+      }
+      if(!tkinfo_tree) {
+        edm::LogError("SiStripTrackerMapCreator::createInfoFile") << "Tree not found!";
+      }
+      else {
+        tkinfo_tree->Fill();
+      }
+    }
+
+    // delete pointers
+    for(uint32_t ih = 0; ih < nHists; ++ih) {
+      delete tkHMaps.at(ih);
+    }
+
+  }
+
 }

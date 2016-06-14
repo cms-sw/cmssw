@@ -35,6 +35,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     std::string objectName = request->getParameter<std::string> ("object");
     edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
     mInputs [objectName] = fp.fullPath();
+//   std::cout << objectName << " with file " << fp.fullPath() << std::endl;
     if (objectName == "Pedestals") {
       setWhatProduced (this, &HcalTextCalibrations::producePedestals);
       findingRecord <HcalPedestalsRcd> ();
@@ -91,6 +92,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceElectronicsMap);
       findingRecord <HcalElectronicsMapRcd> ();
     }
+    else if (objectName == "FrontEndMap") {
+      setWhatProduced (this, &HcalTextCalibrations::produceFrontEndMap);
+      findingRecord <HcalFrontEndMapRcd> ();
+    }
     else if (objectName == "ValidationCorrs") {
       setWhatProduced (this, &HcalTextCalibrations::produceValidationCorrs);
       findingRecord <HcalValidationCorrsRcd> ();
@@ -143,7 +148,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData QIETypes ChannelQuality ElectronicsMap "
-		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
+		<< "FrontEndMap ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
 		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
 		<< "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
 		<< std::endl;
@@ -294,6 +299,10 @@ std::unique_ptr<HcalL1TriggerObjects> HcalTextCalibrations::produceL1TriggerObje
 
 std::unique_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
   return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"]);
+}
+
+std::unique_ptr<HcalFrontEndMap> HcalTextCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
+  return produce_impl<HcalFrontEndMap> (mInputs ["FrontEndMap"]);
 }
 
 std::unique_ptr<HcalValidationCorrs> HcalTextCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {

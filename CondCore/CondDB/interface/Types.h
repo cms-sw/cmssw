@@ -136,10 +136,12 @@ namespace cond {
       return std::get<2>(m_data);
     }
     std::size_t hashvalue()const{
-      // taken from TagMetadata existing implementation. 
-      // Is it correct ordering by tag? Tags are not unique in a GT, while record+label are...
+      // Derived from CondDB v1 TagMetadata implementation. 
+      // Unique Keys constructed with Record and Labels - allowing for multiple references of the same Tag in a GT
       boost::hash<std::string> hasher;
-      std::size_t result=hasher(tagName());
+      std::string key = recordName();
+      if( !recordLabel().empty() ) key = key +"_"+recordLabel();
+      std::size_t result=hasher(key);
       return result;
     }
     bool operator<(const GTEntry_t& toCompare ) const {

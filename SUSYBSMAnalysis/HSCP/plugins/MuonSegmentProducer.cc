@@ -90,7 +90,7 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   using namespace susybsm;
 
   susybsm::MuonSegmentCollection* segments = new susybsm::MuonSegmentCollection;
-  std::auto_ptr<susybsm::MuonSegmentCollection> resultSeg(segments);
+  std::unique_ptr<susybsm::MuonSegmentCollection> resultSeg(segments);
 
   edm::ESHandle<DTGeometry> dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
@@ -126,7 +126,7 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     segments->push_back(muonSegment);
   }
 
-  edm::OrphanHandle<susybsm::MuonSegmentCollection> putHandleSeg = iEvent.put(resultSeg);
+  edm::OrphanHandle<susybsm::MuonSegmentCollection> putHandleSeg = iEvent.put(std::move(resultSeg));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

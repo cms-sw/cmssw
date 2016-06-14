@@ -513,7 +513,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     }
 
     // build coincidence pads
-    std::auto_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
+    std::unique_ptr<GEMCoPadDigiCollection> pCoPads(new GEMCoPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads, me1bId);
     
     // retrieve pads and copads in a certain BX window for this CSC 

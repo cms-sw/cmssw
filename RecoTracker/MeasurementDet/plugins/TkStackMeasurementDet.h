@@ -2,7 +2,7 @@
 #define TkStackMeasurementDet_H
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
-#include "TkPixelMeasurementDet.h"
+#include "TkPhase2OTMeasurementDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
@@ -27,8 +27,8 @@ class TkStackMeasurementDet GCC11_FINAL : public MeasurementDet {
 			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 			     TempMeasurements & result) const;
 
-  const TkPixelMeasurementDet* lowerDet() const{ return theInnerDet;}
-  const TkPixelMeasurementDet* upperDet() const{ return theOuterDet;}
+  const TkPhase2OTMeasurementDet* lowerDet() const{ return theInnerDet;}
+  const TkPhase2OTMeasurementDet* upperDet() const{ return theOuterDet;}
 
   /// return TRUE if both lower and upper components are active
   bool isActive(const MeasurementTrackerEvent & data) const {return lowerDet()->isActive(data) && upperDet()->isActive(data); }
@@ -39,8 +39,8 @@ class TkStackMeasurementDet GCC11_FINAL : public MeasurementDet {
 
  private:
   const PixelClusterParameterEstimator* thePixelCPE;
-  const TkPixelMeasurementDet*       theInnerDet;
-  const TkPixelMeasurementDet*       theOuterDet;
+  const TkPhase2OTMeasurementDet*       theInnerDet;
+  const TkPhase2OTMeasurementDet*       theOuterDet;
 
 };
 

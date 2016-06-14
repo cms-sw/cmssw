@@ -385,14 +385,14 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
       if(bestSol!=-1) (*evtsols)[bestSol].setBestSol(true);
     }
     // put the result in the event
-    std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
-    iEvent.put(pOut);
+    std::unique_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
+    iEvent.put(std::move(pOut));
   } else {
     // no solution: put a dummy solution in the event
     TtDilepEvtSolution asol;
     evtsols->push_back(asol);
-    std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
-    iEvent.put(pOut);
+    std::unique_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
+    iEvent.put(std::move(pOut));
   }
 }
 

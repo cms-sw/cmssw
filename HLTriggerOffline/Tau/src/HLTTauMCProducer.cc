@@ -36,16 +36,16 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
   //All the code from HLTTauMCInfo is here :-) 
   
-  auto_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Leptons(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_OneProng(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_ThreeProng(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_OneAndThreeProng(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Other(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
-  auto_ptr<std::vector<int> > product_Mothers(new std::vector<int>);
+  unique_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Leptons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_OneProng(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_ThreeProng(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_OneAndThreeProng(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Other(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
+  unique_ptr<std::vector<int> > product_Mothers(new std::vector<int>);
   
   edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(MC_, genParticles);
@@ -254,16 +254,16 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     }
   }
 
-  iEvent.put(product_Leptons,"LeptonicTauLeptons");
-  iEvent.put(product_Electrons,"LeptonicTauElectrons");
-  iEvent.put(product_Muons,"LeptonicTauMuons");
-  iEvent.put(product_OneProng,"HadronicTauOneProng");
-  iEvent.put(product_ThreeProng,"HadronicTauThreeProng");
-  iEvent.put(product_OneAndThreeProng,"HadronicTauOneAndThreeProng");
-  iEvent.put(product_Other, "TauOther");
-  iEvent.put(product_Neutrina,"Neutrina");
-  iEvent.put(product_MET,"MET"); 
-  iEvent.put(product_Mothers,"Mothers"); 
+  iEvent.put(std::move(product_Leptons), "LeptonicTauLeptons");
+  iEvent.put(std::move(product_Electrons), "LeptonicTauElectrons");
+  iEvent.put(std::move(product_Muons), "LeptonicTauMuons");
+  iEvent.put(std::move(product_OneProng), "HadronicTauOneProng");
+  iEvent.put(std::move(product_ThreeProng), "HadronicTauThreeProng");
+  iEvent.put(std::move(product_OneAndThreeProng), "HadronicTauOneAndThreeProng");
+  iEvent.put(std::move(product_Other), "TauOther");
+  iEvent.put(std::move(product_Neutrina), "Neutrina");
+  iEvent.put(std::move(product_MET), "MET"); 
+  iEvent.put(std::move(product_Mothers), "Mothers"); 
   
 }
 

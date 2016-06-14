@@ -15,6 +15,8 @@ from DQMOffline.RecoB.cTagGenericAnalysis_cff import *
 from DQMOffline.RecoB.cTagCombinedSVVariables_cff import *
 from DQMOffline.RecoB.cTagCombinedSVAnalysis_cff import *
 from DQMOffline.RecoB.cTagCorrelationAnalysis_cff import *
+from DQMOffline.RecoB.bTagGhostTrackAnalysis_cff import *
+from DQMOffline.RecoB.bTagGhostTrackVariables_cff import *
 
 bTagCommonBlock = cms.PSet(
     # use pre-computed jet flavour identification

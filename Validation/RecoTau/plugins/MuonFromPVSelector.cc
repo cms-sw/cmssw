@@ -67,7 +67,7 @@ MuonFromPVSelector::~MuonFromPVSelector(){}
 //______________________________________________________________________________
 void MuonFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {  
-  std::auto_ptr<std::vector<reco::Muon> > goodMuons(new std::vector<reco::Muon >);
+  std::unique_ptr<std::vector<reco::Muon> > goodMuons(new std::vector<reco::Muon >);
   
   edm::Handle< std::vector<reco::Vertex> > VertexHandle;
   iEvent.getByToken( v_recoVertexToken_, VertexHandle );
@@ -77,7 +77,7 @@ void MuonFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   if( (VertexHandle->size() == 0) || (MuonHandle->size() == 0) ) 
   {
-    iEvent.put(goodMuons);
+    iEvent.put(std::move(goodMuons));
     return ;
   }
   
@@ -94,7 +94,7 @@ void MuonFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
     }
   }  
   
-  iEvent.put(goodMuons);
+  iEvent.put(std::move(goodMuons));
   
 }
 

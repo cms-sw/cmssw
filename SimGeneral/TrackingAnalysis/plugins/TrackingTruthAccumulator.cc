@@ -380,8 +380,8 @@ void TrackingTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup
 		edm::LogInfo("TrackingTruthAccumulator") << "Adding " << unmergedOutput_.pTrackingParticles->size() << " TrackingParticles and " << unmergedOutput_.pTrackingVertices->size()
 				<< " TrackingVertexs to the event.";
 
-		event.put( unmergedOutput_.pTrackingParticles );
-		event.put( unmergedOutput_.pTrackingVertices );
+		event.put(std::move(unmergedOutput_.pTrackingParticles));
+		event.put(std::move(unmergedOutput_.pTrackingVertices));
 	}
 
 	if( createMergedCollection_ )
@@ -389,15 +389,15 @@ void TrackingTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup
 		edm::LogInfo("TrackingTruthAccumulator") << "Adding " << mergedOutput_.pTrackingParticles->size() << " merged TrackingParticles and " << mergedOutput_.pTrackingVertices->size()
 				<< " merged TrackingVertexs to the event.";
 
-		event.put( mergedOutput_.pTrackingParticles, "MergedTrackTruth" );
-		event.put( mergedOutput_.pTrackingVertices, "MergedTrackTruth" );
+		event.put(std::move(mergedOutput_.pTrackingParticles), "MergedTrackTruth" );
+		event.put(std::move(mergedOutput_.pTrackingVertices), "MergedTrackTruth" );
 	}
 
 	if( createInitialVertexCollection_ )
 	{
 		edm::LogInfo("TrackingTruthAccumulator") << "Adding " << pInitialVertices_->size() << " initial TrackingVertexs to the event.";
 
-		event.put( pInitialVertices_, "InitialVertices" );
+		event.put(std::move(pInitialVertices_), "InitialVertices" );
 	}
 }
 
@@ -444,8 +444,8 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 	DecayChain decayChain( *hSimTracks, *hSimVertices );
 
 	// I only want to create these collections if they're actually required
-	std::auto_ptr< ::OutputCollectionWrapper> pUnmergedCollectionWrapper;
-	std::auto_ptr< ::OutputCollectionWrapper> pMergedCollectionWrapper;
+	std::unique_ptr< ::OutputCollectionWrapper> pUnmergedCollectionWrapper;
+	std::unique_ptr< ::OutputCollectionWrapper> pMergedCollectionWrapper;
 	if( createUnmergedCollection_ ) pUnmergedCollectionWrapper.reset( new ::OutputCollectionWrapper( decayChain, unmergedOutput_ ) );
 	if( createMergedCollection_ ) pMergedCollectionWrapper.reset( new ::OutputCollectionWrapper( decayChain, mergedOutput_ ) );
 

@@ -168,7 +168,7 @@ namespace cms
     for(uint32_t i = 0; i< trackerContainers.size();i++){
       iEvent.getByLabel("mix",trackerContainers[i],cf_simhit);
       cf_simhitvec.push_back(cf_simhit.product());   }
-    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
+    std::unique_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
     
     // use instead of the previous
     /*    
@@ -177,7 +177,7 @@ namespace cms
 	  std::cout <<" ============== DigitizerFP420: start loop           2   " << std::endl;
 	  iEvent.getByLabel("mix","FP420SI",xFrame);
 	  std::cout <<" ============== DigitizerFP420: start loop           3   " << std::endl;
-	  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits( new MixCollection<PSimHit>(xFrame.product()) );
+	  std::unique_ptr<MixCollection<PSimHit> > allTrackerHits( new MixCollection<PSimHit>(xFrame.product()) );
 	  std::cout <<" ============== DigitizerFP420: start loop           4   " << std::endl;
     */
     
@@ -189,12 +189,12 @@ namespace cms
 		 iEvent.getByLabel("mix",FP420HitsName,crossingFrame);
 		 MixCollection<PSimHit> * FP420Hits = 0 ;
 		 std::cout <<" ============== DigitizerFP420: start loop           1   " << std::endl;
-		 //    std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(crossingFrame.product()));
+		 //    std::unique_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(crossingFrame.product()));
 		 FP420Hits = new MixCollection<PSimHit>(crossingFrame.product());
 		 std::cout <<" ============== DigitizerFP420: start loop           2   " << std::endl;
 		 //  if ( ! FP420Hits->inRegistry()  ) isHit = false;
 		 //  if ( isHit ) {
-		 std::auto_ptr<MixCollection<PSimHit> >  allTrackerHits( FP420Hits );
+		 std::unique_ptr<MixCollection<PSimHit> >  allTrackerHits( FP420Hits );
 		 std::cout <<" ============== DigitizerFP420: start loop           3   " << std::endl;
 		 //  }  
 		 */
@@ -206,10 +206,10 @@ namespace cms
     
     ///////////////////////////////////////////////////////////////////////
       // Step C: create empty output collection
-      std::auto_ptr<DigiCollectionFP420> output(new DigiCollectionFP420);
-      //  std::auto_ptr<edm::DetSetVector<HDigiFP420> > outputfinal(new edm::DetSetVector<HDigiFP420>(output) );
-      //  std::auto_ptr<edm::DetSetVector<HDigiFP420> > outputfinal(new edm::DetSetVector<HDigiFP420>(output) );
-      //  std::auto_ptr<edm::DetSetVector<HDigiFP420SimLink> > outputlink(new edm::DetSetVector<HDigiFP420SimLink>(output) );
+      std::unique_ptr<DigiCollectionFP420> output(new DigiCollectionFP420);
+      //  std::unique_ptr<edm::DetSetVector<HDigiFP420> > outputfinal(new edm::DetSetVector<HDigiFP420>(output) );
+      //  std::unique_ptr<edm::DetSetVector<HDigiFP420> > outputfinal(new edm::DetSetVector<HDigiFP420>(output) );
+      //  std::unique_ptr<edm::DetSetVector<HDigiFP420SimLink> > outputlink(new edm::DetSetVector<HDigiFP420SimLink>(output) );
       
       SimHitMap.clear();
       
@@ -485,22 +485,22 @@ namespace cms
       
       
       // Step D: write output to file
-      //    iEvent.put(output);
+      //    iEvent.put(std::move(output));
       
       if(verbosity>0) {
 	std::cout << "DigitizerFP420 recoutput" << std::endl;
       }
       // Step D: write output to file
-      iEvent.put(output);
-      // iEvent.put(outputlink);
-      //	  iEvent.put(pDigis);
+      iEvent.put(std::move(output));
+      // iEvent.put(std::move(outputlink));
+      //	  iEvent.put(std::move(pDigis));
       
       // Step D: write output to file 
-      //  iEvent.put(output);
-      //  iEvent.put(outputlink);
+      //  iEvent.put(std::move(output));
+      //  iEvent.put(std::move(outputlink));
       //-------------------------------------------------------------------
       //    std::cout << "DigitizerFP420 recoutput" << std::endl;
-      //	  iEvent.put(pDigis);
+      //	  iEvent.put(std::move(pDigis));
       
       
       

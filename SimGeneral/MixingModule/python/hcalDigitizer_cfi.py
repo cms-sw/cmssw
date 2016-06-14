@@ -15,6 +15,15 @@ _newFactors = cms.vdouble(
     190.94, 190.94, 190.94, 190.94, 190.94,
     190.94, 190.94, 190.94, 190.94, 190.94,
     190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
     190.94, 190.94, 190.94, 190.94, 190.94 )
 
 from Configuration.StandardSequences.Eras import eras
@@ -22,7 +31,7 @@ eras.phase2_hgcal.toModify( hcalDigitizer,
     HBHEUpgradeQIE = cms.bool(True),
     HFUpgradeQIE = cms.bool(True),
     TestNumbering = cms.bool(True),
-    hb = dict( siPMCells =cms.vint32([1]),
+    hb = dict(
         photoelectronsToAnalog = cms.vdouble([10.]*16),
         pixels = cms.int32(4500*4*2)
     ),

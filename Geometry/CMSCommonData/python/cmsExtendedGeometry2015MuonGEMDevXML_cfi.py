@@ -8,13 +8,10 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
         # 'Geometry/CMSCommonData/data/cms.xml',            # Phase-1 Muon
-        'Geometry/CMSCommonData/data/PhaseII/cms.xml',      # Phase-2 Muon                
+        'Geometry/CMSCommonData/data/PhaseII/cms.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',
-        # 'Geometry/CMSCommonData/data/caloBase.xml',
-        # 'Geometry/CMSCommonData/data/cmsCalo.xml',
-        # 'Geometry/CMSCommonData/data/muonBase.xml',       # Phase-1 Muon
         'Geometry/CMSCommonData/data/PhaseII/muonBase.xml', # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMuon.xml',
         'Geometry/CMSCommonData/data/mgnt.xml',
@@ -203,29 +200,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TrackerCommonData/data/trackertec.xml',
         'Geometry/TrackerCommonData/data/trackerbulkhead.xml',
         'Geometry/TrackerCommonData/data/trackerother.xml',
-        # 'Geometry/EcalCommonData/data/eregalgo.xml',
-        # 'Geometry/EcalCommonData/data/ebalgo.xml',
-        # 'Geometry/EcalCommonData/data/ebcon.xml',
-        # 'Geometry/EcalCommonData/data/ebrot.xml',
-        # 'Geometry/EcalCommonData/data/eecon.xml',
-        # 'Geometry/EcalCommonData/data/eefixed.xml',
-        # 'Geometry/EcalCommonData/data/eehier.xml',
-        # 'Geometry/EcalCommonData/data/eealgo.xml',
-        # 'Geometry/EcalCommonData/data/escon.xml',
-        # 'Geometry/EcalCommonData/data/esalgo.xml',
-        # 'Geometry/EcalCommonData/data/eeF.xml',
-        # 'Geometry/EcalCommonData/data/eeB.xml',
-        # 'Geometry/EcalCommonData/data/ectkcable.xml',
-        # 'Geometry/HcalCommonData/data/hcalrotations.xml',
-        # 'Geometry/HcalCommonData/data/hcalalgo.xml',
-        # 'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
-        # 'Geometry/HcalCommonData/data/hcalendcapalgo.xml',
-        # 'Geometry/HcalCommonData/data/hcalouteralgo.xml',
         'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
         'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
-        # 'Geometry/HcalCommonData/data/Phase0/hcalSimNumbering.xml', 
-        # 'Geometry/HcalCommonData/data/Phase0/hcalRecNumbering.xml', 
-
         # --- Muon ------------------------------------------------------------
         'Geometry/MuonCommonData/data/v1/mbCommon.xml',
         'Geometry/MuonCommonData/data/v1/mb1.xml',
@@ -235,15 +211,15 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/design/muonYoke.xml',
         # 'Geometry/MuonCommonData/data/v2/mf.xml',           # Phase-1 Muon
         # 'Geometry/MuonCommonData/data/v2/rpcf.xml',         # Phase-1 Muon
-        'Geometry/MuonCommonData/data/PhaseII/mf.xml',        # Phase-2 Muon                      
-        'Geometry/MuonCommonData/data/PhaseII/rpcf.xml',      # Phase-2 Muon                      
-        'Geometry/MuonCommonData/data/v2/gemf.xml',           # Phase-2 Muon                      
-        'Geometry/MuonCommonData/data/v7/gem11.xml',          # Phase-2 Muon                      
-        'Geometry/MuonCommonData/data/v7/gem21.xml',          # Phase-2 Muon          
+        'Geometry/MuonCommonData/data/PhaseII/mf.xml',        # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/rpcf.xml',      # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/gemf.xml',      # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem11.xml',  # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem21.xml',  # Phase-2 Muon
         'Geometry/MuonCommonData/data/v2/csc.xml',
         # 'Geometry/MuonCommonData/data/v2/mfshield.xml',     # Phase-1 Muon
         'Geometry/MuonCommonData/data/PhaseII/mfshield.xml',  # Phase-2 Muon
-        'Geometry/MuonCommonData/data/PhaseII/me0.xml',       # Phase-2 Muon
+        'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/me0.xml',   # Phase-2 Muon
         # --- Muon ------------------------------------------------------------
 
         'Geometry/ForwardCommonData/data/forward.xml',
@@ -264,7 +240,6 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/zdclumi.xml',
         'Geometry/ForwardCommonData/data/cmszdc.xml')+cms.vstring(
         'Geometry/ForwardCommonData/data/bhm.xml',
-        ##'Geometry/ForwardCommonData/data/bhmsens.xml', #not needed for geomtery purposes only
         'Geometry/ForwardCommonData/data/pltbcm.xml',
         'Geometry/ForwardCommonData/data/bcm1f.xml',
         'Geometry/ForwardSimData/data/bcm1fsens.xml',
@@ -272,12 +247,9 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TrackerCommonData/data/trackerStructureTopology.xml',
         'Geometry/TrackerSimData/data/trackersens.xml',
         'Geometry/TrackerRecoData/data/trackerRecoMaterial.xml',
-        # 'Geometry/EcalSimData/data/ecalsens.xml',
-        # 'Geometry/HcalCommonData/data/hcalsenspmf.xml',
         'Geometry/HcalSimData/data/hf.xml',
         'Geometry/HcalSimData/data/hfpmt.xml',
         'Geometry/HcalSimData/data/hffibrebundle.xml',
-        # 'Geometry/HcalSimData/data/CaloUtil.xml',
 
         # --- Muon ------------------------------------------------------------
         # 'Geometry/MuonCommonData/data/v2/muonNumbering.xml',    # Phase-1 Muon
@@ -298,9 +270,6 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/brmsens.xml',
         'Geometry/ForwardSimData/data/castorsens.xml',
         'Geometry/ForwardSimData/data/zdcsens.xml',
-        # 'Geometry/HcalSimData/data/HcalProdCuts.xml',
-        # 'Geometry/EcalSimData/data/EcalProdCuts.xml',
-        # 'Geometry/EcalSimData/data/ESProdCuts.xml',
         'Geometry/TrackerSimData/data/trackerProdCuts.xml',
         'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
         'Geometry/ForwardSimData/data/CastorProdCuts.xml',

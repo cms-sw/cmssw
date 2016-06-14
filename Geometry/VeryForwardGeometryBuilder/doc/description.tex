@@ -1,0 +1,86 @@
+\input epsf
+
+\parindent0pt
+
+\def\file#1{{\bf #1}}
+\def\DescriptionBegin{}
+\def\DescriptionEnd{\vskip\baselineskip}
+
+\epsfxsize=\hsize
+\epsfbox{schema.eps}
+\vskip\baselineskip
+
+\obeylines
+\file{TotemRPGeometryBuilder/interface/DetGeomDesc.h}
+\DescriptionBegin
+Class resembling GeometricDet class. Slight changes were made to suit needs of the TOTEM RP description.
+Each instance is a tree node, with geometrical information from DDD (shift, rotation, material, ...), ID and list of children nodes.
+It is intended to have two such a trees. One for ideal geometry (within IdealGeometryRecord) and second for real geometry (VeryForwardRealGeometryRecord).
+The transition from ideal to real geometry (i.e. loading alignments) is done by TotemRPRealGeometryModule.
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/DDDTotemRPConstruction.h}
+\DescriptionBegin
+Class to build scructure of DetGeomDesc objects out of DDCompactView (resp. DDFilteredView).
+It adds detector IDs (via class TotemRPDetId).
+intended to be called from: modul TotemRPDetGeomDescESModule.
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/GeometryTestModule.h}
+\DescriptionBegin
+Testing module.
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/MisalignmentESModule.h}
+\DescriptionBegin
+A module to produce misalignments (in the form of Alignments class) in the VeryForwardRealGeometryRecord.
+It can be used to produce differences between ideal and real geometry.
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/TotemRPAligner.h}
+\DescriptionBegin
+This class will be used to perform alignment in the future.
+It is EDLooper, i.e. it makes several loops over all events.
+At each loop it adjusts the real geometry (i.e. structure of DetGeomDesc in VeryForwardRealGeometryRecord).
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/DDDTotemRPCommon.h}
+\DescriptionBegin
+Some DDD related definitions, shared by different classes
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/TotemRPGeometry.h}
+\DescriptionBegin
+This is kind of "public relation class" for the tree structure of DetGeomDesc. It provides convenient interface to
+answer frequently asked questions about the geometry of TOTEM Roman Pots. These questions are of type:
+a) If detector ID is xxx, what is the ID of corresponding station?
+b) What is the geometry (shift, roatation, material, etc.) of detector with id xxx?
+c) If RP ID is xxx, which are the detector IDs inside this pot?
+d) If hit position in local detector coordinate system is xxx, what is the hit position in global c.s.?
+etc. (see the comments in definition bellow)
+This class is built for both ideal and real geometry. I.e. it is produced by TotemRPIdealGeometryESModule in 
+IdealGeometryRecord and similarly for the real geometry
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/TotemRPIdealGeometryESModule.h}
+\DescriptionBegin
+It converts DDCompactView to tree of DetGeomDesc nodes. The DDCompactView is created from DDL files by XMLIdealGeometryESSource.
+It exploits DDDTotemRPContruction class.
+Having built the DetGeomDesc tree, it creates TotemRPGeometry object.
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/TotemRPRealGeometryESModule.h}
+\DescriptionBegin
+This class copies tree of DetGeomDesc from IdealGeometryRecord and applies alignment corrections (if there is an Alignments class in
+VeryForwardRealGeometryRecord). The result is saved in VeryForwardRealGeometryRecord.
+Having built the DetGeomDesc tree, it creates TotemRPGeometry object.
+\DescriptionEnd
+
+\file{TotemRPGeometryBuilder/interface/TotemRPExtractAlignments.h}
+\DescriptionBegin
+This class compares two trees of DetGeomDesc nodes. It is done via itermediate class TotemRPGeometry.
+It extracts all detectors from both structures and compare their positions and rotations. If they
+differ, it adds an entry to the Alignments vetor. Hence, there is sort of zero-suppression.
+\DescriptionEnd
+
+\end

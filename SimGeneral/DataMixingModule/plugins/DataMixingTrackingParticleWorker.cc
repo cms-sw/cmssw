@@ -104,8 +104,8 @@ namespace edm
 
     // Create new track/vertex lists, getting references, too, so that we can cross-link everything
 
-    NewTrackList_ = std::auto_ptr<std::vector<TrackingParticle>>(new std::vector<TrackingParticle>());
-    //NewVertexList_ = std::auto_ptr<std::vector<TrackingVertex>>(new std::vector<TrackingVertex>());
+    NewTrackList_ = std::unique_ptr<std::vector<TrackingParticle>>(new std::vector<TrackingParticle>());
+    //NewVertexList_ = std::unique_ptr<std::vector<TrackingVertex>>(new std::vector<TrackingVertex>());
     TempVertexList_ = std::vector<TrackingVertex>();
 
     TrackListRef_  =const_cast<edm::Event&>( e ).getRefBeforePut< std::vector<TrackingParticle> >(TrackingParticleCollectionDM_); 
@@ -374,23 +374,23 @@ namespace edm
 
     // collection of Vertices to put in the event
 
-    NewVertexList_ = std::auto_ptr<std::vector<TrackingVertex>>(new std::vector<TrackingVertex>(TempVertexList_));    
+    NewVertexList_ = std::unique_ptr<std::vector<TrackingVertex>>(new std::vector<TrackingVertex>(TempVertexList_));
 
     // put the collection of digis in the event   
     LogInfo("DataMixingTrackingParticleWorker") << "total # Merged Tracks: " << NewTrackList_->size() ;
 
     // put collections
 
-    e.put( NewTrackList_, TrackingParticleCollectionDM_ );
-    e.put( NewVertexList_, TrackingParticleCollectionDM_ );
+    e.put(std::move(NewTrackList_), TrackingParticleCollectionDM_ );
+    e.put(std::move(NewVertexList_), TrackingParticleCollectionDM_ );
 
-    e.put( std::move(NewStripLinkList_), StripLinkCollectionDM_ );
-    e.put( std::move(NewPixelLinkList_), PixelLinkCollectionDM_ );
+    e.put(std::move(NewStripLinkList_), StripLinkCollectionDM_ );
+    e.put(std::move(NewPixelLinkList_), PixelLinkCollectionDM_ );
 
-    e.put( std::move(NewCSCStripLinkList_), CSCStripLinkCollectionDM_ );
-    e.put( std::move(NewCSCWireLinkList_), CSCWireLinkCollectionDM_ );
-    e.put( std::move(NewRPCLinkList_), RPCLinkCollectionDM_ );
-    e.put( std::move(NewDTLinkList_), DTLinkCollectionDM_ );
+    e.put(std::move(NewCSCStripLinkList_), CSCStripLinkCollectionDM_ );
+    e.put(std::move(NewCSCWireLinkList_), CSCWireLinkCollectionDM_ );
+    e.put(std::move(NewRPCLinkList_), RPCLinkCollectionDM_ );
+    e.put(std::move(NewDTLinkList_), DTLinkCollectionDM_ );
 
 
     // clear local storage for this event

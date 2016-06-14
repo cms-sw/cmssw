@@ -11,7 +11,3 @@
 <bin file="testBTagCalibration.cpp">
     <use name="CondFormats/BTauObjects"/>
 </bin>
-
-<bin file="testBTagCalibrationReader.cpp">
-    <use name="CondFormats/BTauObjects"/>
-</bin>

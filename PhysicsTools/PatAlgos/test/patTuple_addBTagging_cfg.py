@@ -67,6 +67,7 @@ btagDiscriminators = [
     ,'pfCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'pfGhostTrackBJetTags'
     ,'softPFMuonBJetTags'
     ,'softPFMuonByPtBJetTags'
     ,'softPFMuonByIP3dBJetTags'

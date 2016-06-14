@@ -131,7 +131,7 @@ signal_storage winnerd__storage;  signal_ winnerd;
 
 			void init();
 		};
-		map <ull, zone_best_loop__class> zone_best_loop;
+		std::map <ull, zone_best_loop__class> zone_best_loop;
 
 		void init();
 	};

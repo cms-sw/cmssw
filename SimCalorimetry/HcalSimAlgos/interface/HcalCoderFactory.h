@@ -15,7 +15,7 @@ public:
   void setDbService(const HcalDbService * service) {theDbService = service;}
 
   /// user gets control of the pointer
-  std::auto_ptr<HcalCoder> coder(const DetId & detId) const;
+  std::unique_ptr<HcalCoder> coder(const DetId & detId) const;
 
 private:
 

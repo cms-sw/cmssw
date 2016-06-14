@@ -26,6 +26,12 @@ def cust_2023LReco(process):
     process=customiseFlatTK(process)
     return process
 
+def cust_2023GReco(process):
+    # To allow simulatenous use of customisation and era while the era migration is in progress
+    process=customiseFlatTK(process)
+    return process
+
+
 
 
 ######Below are the customized used for SLHC releases 

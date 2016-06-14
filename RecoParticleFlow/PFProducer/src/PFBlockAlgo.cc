@@ -164,7 +164,8 @@ void PFBlockAlgo::findBlocks() {
   QuickUnion qu(bare_elements_.size());
   const auto elem_size = bare_elements_.size();
   for( unsigned i = 0; i < elem_size; ++i ) {
-    for( unsigned j = 0; j < i; ++j ) {
+    for( unsigned j = 0; j < elem_size; ++j ) {
+      if( qu.connected(i,j) || j == i ) continue;
       if( !_linkTests[_linkTestSquare[bare_elements_[i]->type()][bare_elements_[j]->type()]] ) {
         j = ranges_[bare_elements_[j]->type()].second;
         continue;
@@ -187,7 +188,8 @@ void PFBlockAlgo::findBlocks() {
   std::vector<unsigned> keys;
   keys.reserve(elements_.size());
   for( unsigned i = 0; i < elements_.size(); ++i ) {
-    unsigned key = qu.find(i);
+    unsigned key = i; 
+    while( key != qu.find(key) ) key = qu.find(key); // make sure we always find the root node...
     auto pos  = std::lower_bound(keys.begin(),keys.end(),key);
     if( pos == keys.end() || *pos != key ) {
       keys.insert(pos,key);      

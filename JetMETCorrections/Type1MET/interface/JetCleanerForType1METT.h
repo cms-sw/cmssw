@@ -142,7 +142,7 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
     evt.getByToken(token_, jets);
 
     //new collection
-    std::auto_ptr< std::vector<T> > cleanedJets( new std::vector<T>() );
+    std::unique_ptr< std::vector<T> > cleanedJets( new std::vector<T>() );
 
     int numJets = jets->size();
     for(int jetIndex=0;jetIndex<numJets; ++jetIndex ) {
@@ -184,7 +184,7 @@ class JetCleanerForType1METT : public edm::stream::EDProducer<>
       cleanedJets->push_back(jet);
     }
 
-    evt.put(cleanedJets);
+    evt.put(std::move(cleanedJets));
   }
 
 

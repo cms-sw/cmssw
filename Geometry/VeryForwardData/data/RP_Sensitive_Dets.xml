@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <SpecParSection label="RP_Sensitive_Dets.xml">
+        <SpecPar name="ROUHitsTotemRP">
+            <PartSelector path="//RP_Silicon_Detector"/>
+            <Parameter name="SensitiveDetector" value="RomanPotSensitiveDetector" eval="false"/>
+            <Parameter name="ReadOutName" value="TotemHitsRP" eval="false"/>
+        </SpecPar>
+    </SpecParSection>
+</DDDefinition>

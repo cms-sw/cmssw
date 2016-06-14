@@ -188,7 +188,7 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 
   using namespace edm;
 
-  std::auto_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection() );
+  std::unique_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection() );
 
 
   const std::vector<int>& phases = _defphases;
@@ -278,7 +278,7 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
   }
 
 
-  iEvent.put(apvphases);
+  iEvent.put(std::move(apvphases));
 
 }
 

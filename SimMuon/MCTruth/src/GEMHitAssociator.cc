@@ -43,7 +43,7 @@ void GEMHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
 	    LogTrace("GEMHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<GEMsimhitsXFTag;
 	    e.getByLabel(GEMsimhitsXFTag, cf);
 	    
-	    std::auto_ptr<MixCollection<PSimHit> > 
+	    std::unique_ptr<MixCollection<PSimHit> > 
 	      GEMsimhits( new MixCollection<PSimHit>(cf.product()) );
 	    LogTrace("GEMHitAssociator") <<"... size = "<<GEMsimhits->size();
 

@@ -36,15 +36,15 @@ using namespace L1TMuon;
 class L1ITMuonBarrelPrimitiveProducer  {
 
 public:
-  inline L1ITMuonBarrelPrimitiveProducer(std::auto_ptr<MBLTContainer> _mbltContainer);
+  inline L1ITMuonBarrelPrimitiveProducer(std::unique_ptr<MBLTContainer> _mbltContainer);
   inline ~L1ITMuonBarrelPrimitiveProducer();
-  inline virtual std::auto_ptr<L1MuDTChambPhContainer> produce( const edm::EventSetup&);
+  inline virtual std::unique_ptr<L1MuDTChambPhContainer> produce( const edm::EventSetup&);
 
 private:
   edm::InputTag _mbltCollectionInput = edm::InputTag("MBLTProducer");
   edm::ESHandle<DTGeometry> _muonGeom;
-  //std::auto_ptr<MBLTContainer> mbltContainer;
-std::auto_ptr<MBLTContainer> mbltContainer;
+  //std::unique_ptr<MBLTContainer> mbltContainer;
+  std::unique_ptr<MBLTContainer> mbltContainer;
 };
 
 inline std::ostream & operator<< (std::ostream & out, const TriggerPrimitiveList & rpc )
@@ -60,17 +60,17 @@ inline L1ITMuonBarrelPrimitiveProducer::~L1ITMuonBarrelPrimitiveProducer()
 {
 }
 
-inline L1ITMuonBarrelPrimitiveProducer::L1ITMuonBarrelPrimitiveProducer( std::auto_ptr<MBLTContainer> _mbltContainer )
-: mbltContainer(_mbltContainer)
+inline L1ITMuonBarrelPrimitiveProducer::L1ITMuonBarrelPrimitiveProducer( std::unique_ptr<MBLTContainer> _mbltContainer )
+: mbltContainer(std::move(_mbltContainer))
 {
   //produces<L1MuDTChambPhContainer>("L1ITMuonBarrelPrimitiveProducer");
 
  //consumes<MBLTContainer>(iConfig.getParameter<edm::InputTag>("MBLTCollection"));
- //mbltContainer = _mbltContainer;
+ //mbltContainer = std::move(_mbltContainer);
 }
 
 
-inline std::auto_ptr<L1MuDTChambPhContainer> L1ITMuonBarrelPrimitiveProducer::produce(const edm::EventSetup& iSetup )
+inline std::unique_ptr<L1MuDTChambPhContainer> L1ITMuonBarrelPrimitiveProducer::produce(const edm::EventSetup& iSetup )
 {
 
   const PrimitiveCombiner::resolutions _resol(0.1, 2., 0.005, 0.04);
@@ -81,7 +81,7 @@ inline std::auto_ptr<L1MuDTChambPhContainer> L1ITMuonBarrelPrimitiveProducer::pr
 
   iSetup.get<MuonGeometryRecord>().get(_muonGeom);
 
-  std::auto_ptr<L1MuDTChambPhContainer> out(new L1MuDTChambPhContainer);
+  std::unique_ptr<L1MuDTChambPhContainer> out(new L1MuDTChambPhContainer);
   std::vector<L1MuDTChambPhDigi> phiChambVector;
 
  // edm::Handle<MBLTContainer> mbltContainer;
@@ -527,7 +527,7 @@ inline std::auto_ptr<L1MuDTChambPhContainer> L1ITMuonBarrelPrimitiveProducer::pr
 
   out->setContainer( phiChambVector );
   /// fill event
-  //iEvent.put(out);
+  //iEvent.put(std::move(out));
   return out;
 
 }

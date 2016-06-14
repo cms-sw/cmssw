@@ -278,8 +278,8 @@ DummyBookFillDQMStore::analyze(edm::Event const& iEvent,
 
   //Use the ExampleData to create an ExampleData2 which
   // is put into the Event
-  std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-  iEvent.put(pOut);
+  std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+  iEvent.put(std::move(pOut));
   */
 
   /* this is an EventSetup example

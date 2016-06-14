@@ -38,20 +38,20 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
   edm::Handle<reco::TrackToTrackingParticleAssociator> associator ;   event.getByToken(associator_token_, associator);
 
   unsigned size = tracks->size();
-  std::auto_ptr<std::vector<unsigned> > multi        ( new std::vector<unsigned>(size,    0));
-  std::auto_ptr<std::vector<int> >      type         ( new std::vector<int>     (size,    0));
-  std::auto_ptr<std::vector<float> >    charge       ( new std::vector<float>   (size,    0));
-  std::auto_ptr<std::vector<float> >    momentum     ( new std::vector<float>   (size,   -1));
-  std::auto_ptr<std::vector<float> >    pt           ( new std::vector<float>   (size,   -1));
-  std::auto_ptr<std::vector<double> >   theta        ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   phi          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   eta          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   dxy          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   dsz          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   qoverp       ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   vx           ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   vy           ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   vz           ( new std::vector<double>  (size,-1000));
+  auto   multi        = std::make_unique<std::vector<unsigned>>(size,    0);
+  auto   type         = std::make_unique<std::vector<int>>     (size,    0);
+  auto   charge       = std::make_unique<std::vector<float>>   (size,    0);
+  auto   momentum     = std::make_unique<std::vector<float>>   (size,   -1);
+  auto   pt           = std::make_unique<std::vector<float>>   (size,   -1);
+  auto   theta        = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   phi          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   eta          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   dxy          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   dsz          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   qoverp       = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   vx           = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   vy           = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   vz           = std::make_unique<std::vector<double>>  (size,-1000);
 
   reco::RecoToSimCollection associations = associator->associateRecoToSim( tracks, trackingParticles);
   
@@ -81,17 +81,17 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
     }
   }
   
-  event.put(  multi    ,Prefix + "multi"     + Suffix );
-  event.put(  type     ,Prefix + "type"      + Suffix );
-  event.put(  charge   ,Prefix + "charge"    + Suffix );
-  event.put(  momentum ,Prefix + "momentum"  + Suffix );
-  event.put(  pt       ,Prefix + "pt"        + Suffix );
-  event.put(  theta    ,Prefix + "theta"     + Suffix );
-  event.put(  phi      ,Prefix + "phi"       + Suffix );
-  event.put(  eta      ,Prefix + "eta"       + Suffix );
-  event.put(  qoverp   ,Prefix + "qoverp"    + Suffix );
-  event.put(  vx       ,Prefix + "vx"        + Suffix );
-  event.put(  vy       ,Prefix + "vy"        + Suffix );
-  event.put(  vz       ,Prefix + "vz"        + Suffix );
+  event.put(std::move(multi   ), Prefix + "multi"     + Suffix );
+  event.put(std::move(type    ), Prefix + "type"      + Suffix );
+  event.put(std::move(charge  ), Prefix + "charge"    + Suffix );
+  event.put(std::move(momentum), Prefix + "momentum"  + Suffix );
+  event.put(std::move(pt      ), Prefix + "pt"        + Suffix );
+  event.put(std::move(theta   ), Prefix + "theta"     + Suffix );
+  event.put(std::move(phi     ), Prefix + "phi"       + Suffix );
+  event.put(std::move(eta     ), Prefix + "eta"       + Suffix );
+  event.put(std::move(qoverp  ), Prefix + "qoverp"    + Suffix );
+  event.put(std::move(vx      ), Prefix + "vx"        + Suffix );
+  event.put(std::move(vy      ), Prefix + "vy"        + Suffix );
+  event.put(std::move(vz      ), Prefix + "vz"        + Suffix );
   
 }
