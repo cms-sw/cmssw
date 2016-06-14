@@ -16,7 +16,7 @@
  * per module. If y resolution < 0 (default) the module length/sqrt(12) is taken as uncertainty.
  */
 
-class TrackingRecHitStripGSSmearingPlugin:
+class TrackingRecHitStripGSPlugin:
     public TrackingRecHitAlgorithm
 {
     private:
@@ -29,7 +29,7 @@ class TrackingRecHitStripGSSmearingPlugin:
         constexpr static double INV12 = 1.0/12.0;
 
     public:
-        TrackingRecHitStripGSSmearingPlugin(
+        TrackingRecHitStripGSPlugin(
             const std::string& name,
             const edm::ParameterSet& config,
             edm::ConsumesCollector& consumesCollector
@@ -112,7 +112,7 @@ class TrackingRecHitStripGSSmearingPlugin:
 
 DEFINE_EDM_PLUGIN(
     TrackingRecHitAlgorithmFactory,
-    TrackingRecHitStripGSSmearingPlugin,
-    "TrackingRecHitStripGSSmearingPlugin"
+    TrackingRecHitStripGSPlugin,
+    "TrackingRecHitStripGSPlugin"
 );
 
