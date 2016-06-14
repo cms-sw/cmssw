@@ -7,6 +7,7 @@ void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<co
 
   unsigned int cellId = 0;
   constexpr unsigned int numberOfLayerPairs =   numberOfLayers - 1;
+  float ptmin = region.ptMin();
 
   for (unsigned int layerPairId = 0; layerPairId < numberOfLayerPairs; ++layerPairId)
   {
@@ -23,11 +24,7 @@ void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<co
     {
       for (unsigned int i = 0; i < numberOfDoublets; ++i)
       {
-        //        std::cout << "pushing cell: " << doublets.at(layerId)->innerHitId(i) << " " << doublets.at(layerId)->outerHitId(i) <<  std::endl;
-//        CACell tmpCell (doublets[layerPairId], i,  cellId++,  doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i));
         theFoundCellsPerLayer[layerPairId].emplace_back (CACell(doublets[layerPairId], i,  cellId++,  doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i)));
-        //        std::cout << "adding cell to outerhit: " << doublets.at(layerId)->outerHitId(i) << " on layer " << layerId << std::endl;
-        //        std::cout << "cell outer hit coordinates: " << tmpCell.get_outer_x() << " " <<tmpCell.get_outer_y() << " " <<tmpCell.get_outer_z() << tmpCell.get_inner_r() << std::endl;
 
 
         isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
@@ -39,7 +36,7 @@ void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<co
       for (unsigned int i = 0; i < numberOfDoublets; ++i)
       {
 
-//        CACell tmpCell(doublets[layerPairId], i, cellId++, doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i));
+
         theFoundCellsPerLayer[layerPairId].emplace_back (CACell(doublets[layerPairId], i, cellId++, doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i)));
 
         isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
@@ -48,7 +45,7 @@ void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<co
 
         for (auto neigCell : isOuterHitOfCell[innerLayerId][doublets[layerPairId]->innerHitId(i)])
         {
-          theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, region);
+          theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, ptmin);
 
         }
 
