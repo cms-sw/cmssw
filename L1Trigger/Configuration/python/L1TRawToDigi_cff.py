@@ -57,11 +57,12 @@ def unpack_stage1():
 
 def unpack_stage2():
     global L1TRawToDigi_Stage2
-    global caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    global bmtfDigis, caloStage2Digis, gmtStage2Digis, gtStage2Digis,L1TRawToDigi_Stage2    
+    from EventFilter.L1TRawToDigi.bmtfDigis_cfi import bmtfDigis 
     from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import caloStage2Digis
     from EventFilter.L1TRawToDigi.gmtStage2Digis_cfi import gmtStage2Digis
     from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
-    L1TRawToDigi_Stage2 = cms.Sequence(caloStage2Digis + gmtStage2Digis + gtStage2Digis)
+    L1TRawToDigi_Stage2 = cms.Sequence(bmtfDigis + caloStage2Digis + gmtStage2Digis + gtStage2Digis)
     
 #
 # Legacy Trigger:
@@ -77,7 +78,7 @@ if not (eras.stage1L1Trigger.isChosen() or eras.stage2L1Trigger.isChosen()):
 if eras.stage1L1Trigger.isChosen() and not eras.stage2L1Trigger.isChosen():
     print "L1TRawToDigi Sequence configured for Stage-1 (2015) trigger. "    
     unpack_stage1()
-    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1);
+    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1)
 
 #
 # Stage-2 Trigger:  fow now, unpack Stage 1 and Stage 2 (in case both available)
@@ -86,4 +87,9 @@ if eras.stage2L1Trigger.isChosen():
     print "L1TRawToDigi Sequence configured for Stage-2 (2016) trigger. "    
     unpack_stage1()
     unpack_stage2()
-    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1+L1TRawToDigi_Stage2);
+    L1TRawToDigi = cms.Sequence(L1TRawToDigi_Stage1+L1TRawToDigi_Stage2)
+    # we only warn if it is stage-2 era and it is an essential, always present, stage-2 payload:
+    caloStage2Digis.MinFeds = cms.uint32(1)
+    gmtStage2Digis.MinFeds = cms.uint32(1)
+    gtStage2Digis.MinFeds = cms.uint32(1)
+    

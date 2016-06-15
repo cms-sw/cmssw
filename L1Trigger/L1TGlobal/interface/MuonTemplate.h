@@ -24,12 +24,12 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 // forward declarations
 
 // class declaration
-class MuonTemplate : public GtCondition
+class MuonTemplate : public GlobalCondition
 {
 
 public:

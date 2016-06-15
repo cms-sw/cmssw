@@ -25,23 +25,12 @@ OMTFPatternMaker::OMTFPatternMaker(const edm::ParameterSet& cfg):
 
   inputTokenDTPh = consumes<L1MuDTChambPhContainer>(theConfig.getParameter<edm::InputTag>("srcDTPh"));
   inputTokenDTTh = consumes<L1MuDTChambThContainer>(theConfig.getParameter<edm::InputTag>("srcDTTh"));
-  if(!theConfig.getParameter<bool>("dropCSCPrimitives"))
-    inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
-  if(!theConfig.getParameter<bool>("dropRPCPrimitives"))  
-    inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
+  inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(theConfig.getParameter<edm::InputTag>("srcCSC"));
+  inputTokenRPC = consumes<RPCDigiCollection>(theConfig.getParameter<edm::InputTag>("srcRPC"));
   inputTokenSimHit = consumes<edm::SimTrackContainer>(theConfig.getParameter<edm::InputTag>("g4SimTrackSrc"));
-
     
-  if(!theConfig.exists("omtf")){
-    edm::LogError("OMTFPatternMaker")<<"omtf configuration not found in cfg.py";
-  }
-  
   myInputMaker = new OMTFinputMaker();
   
-  myWriter = new XMLConfigWriter();
-  std::string fName = "OMTF";
-  myWriter->initialiseXMLDocument(fName);
-
   makeGoldenPatterns = theConfig.getParameter<bool>("makeGoldenPatterns");
   makeConnectionsMaps = theConfig.getParameter<bool>("makeConnectionsMaps");
   mergeXMLFiles = theConfig.getParameter<bool>("mergeXMLFiles");
@@ -61,25 +50,27 @@ OMTFPatternMaker::~OMTFPatternMaker(){
 /////////////////////////////////////////////////////
 void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSetup){
 
-  ///If configuration is read from XML do not look at the DB.
-  if(theConfig.getParameter<edm::ParameterSet>("omtf").getParameter<bool>("configFromXML")) return;  
-
   const L1TMuonOverlapParamsRcd& omtfParamsRcd = iSetup.get<L1TMuonOverlapParamsRcd>();
   
   edm::ESHandle<L1TMuonOverlapParams> omtfParamsHandle;
   omtfParamsRcd.get(omtfParamsHandle);
 
   const L1TMuonOverlapParams* omtfParams = omtfParamsHandle.product();
+  
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
-
+  
   myOMTFConfig->configure(omtfParams);
-  myOMTF->configure(omtfParams);
+  myOMTF->configure(myOMTFConfig, omtfParams);
+
+  myWriter = new XMLConfigWriter(myOMTFConfig);
+  std::string fName = "OMTF";
+  myWriter->initialiseXMLDocument(fName);
 
   ///For making the patterns use extended pdf width in phi
   ////Ugly hack to modify configuration parameters at runtime.
-  myOMTFConfig->nPdfAddrBits = 14;
+  //FIXME myOMTFConfig->rawParams().nPdfAddrBits = 14;
 
   ///Clear existing GoldenPatterns
   const std::map<Key,GoldenPattern*> & theGPs = myOMTF->getPatterns();
@@ -90,11 +81,9 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
 /////////////////////////////////////////////////////
 void OMTFPatternMaker::beginJob(){
 
-  if(theConfig.exists("omtf")){
-    myOMTFConfig = new OMTFConfiguration(theConfig.getParameter<edm::ParameterSet>("omtf"));
-    myOMTFConfigMaker = new OMTFConfigMaker(theConfig.getParameter<edm::ParameterSet>("omtf"), myOMTFConfig);
-    myOMTF = new OMTFProcessor(theConfig.getParameter<edm::ParameterSet>("omtf"), myOMTFConfig);
-  }
+    myOMTFConfig = new OMTFConfiguration();
+    myOMTFConfigMaker = new OMTFConfigMaker(myOMTFConfig);
+    myOMTF = new OMTFProcessor();
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////  
@@ -109,8 +98,8 @@ void OMTFPatternMaker::endJob(){
       itGP.second->normalise();
     }
 
-    ////Ugly hack to modify configuration parameters at runtime. 
-    myOMTFConfig->nPdfAddrBits = 7;
+    ////Ugly hack to modify configuration parameters at runtime.
+    //FIXME myOMTFConfig->nPdfAddrBits = 7;
     for(auto itGP: myGPmap){
       ////
       unsigned int iPt = theConfig.getParameter<int>("ptCode")+1;
@@ -138,13 +127,13 @@ void OMTFPatternMaker::endJob(){
     myOMTFConfigMaker->printConnections(std::cout,iProcessor,3);
     myOMTFConfigMaker->printConnections(std::cout,iProcessor,4);
     myOMTFConfigMaker->printConnections(std::cout,iProcessor,5);
-    myWriter->writeConnectionsData(OMTFConfiguration::instance()->measurements4D);
+    myWriter->writeConnectionsData(myOMTFConfig->getMeasurements4D());
     myWriter->finaliseXMLDocument(fName);
   }
 
   if(mergeXMLFiles){
 
-    GoldenPattern *dummy = new GoldenPattern(Key(0,0,0));
+    GoldenPattern *dummy = new GoldenPattern(Key(0,0,0), myOMTFConfig);
     dummy->reset();
 
     std::string fName = "OMTF";
@@ -173,7 +162,7 @@ void OMTFPatternMaker::writeMergedGPs(){
   
   const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();
 
-  GoldenPattern *dummy = new GoldenPattern(Key(0,0,0));
+  GoldenPattern *dummy = new GoldenPattern(Key(0,0,0), myOMTFConfig);
   dummy->reset();
 
   unsigned int iPtMin = 9;
@@ -239,7 +228,7 @@ void OMTFPatternMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     return;
   }
   
-  myInputMaker->initialize(evSetup);
+  myInputMaker->initialize(evSetup, myOMTFConfig);
 
   edm::Handle<L1MuDTChambPhContainer> dtPhDigis;
   edm::Handle<L1MuDTChambThContainer> dtThDigis;

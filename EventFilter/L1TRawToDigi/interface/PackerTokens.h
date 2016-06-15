@@ -8,8 +8,6 @@ namespace edm {
 
 namespace l1t {
    class PackerTokens {
-      public:
-         PackerTokens(const edm::ParameterSet&, edm::ConsumesCollector&) {};
    };
 }
 

@@ -640,7 +640,7 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 										 ? fastTrackerRecHitType::siStrip2D
 										 : fastTrackerRecHitType::siPixel));
       recHit->addSimTrackId(simHit.trackId());
-      recHit->setId(simHitCounter);
+      recHit->setId(output_recHits->size());
       output_recHits->push_back(recHit);
 				
 

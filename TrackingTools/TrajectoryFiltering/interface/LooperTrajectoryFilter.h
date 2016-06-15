@@ -2,24 +2,22 @@
 #define LooperTrajectoryFilter_H
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class LooperTrajectoryFilter final : public TrajectoryFilter {
 public:
 
-  explicit LooperTrajectoryFilter( int minNumberOfHits=13, 
+  explicit LooperTrajectoryFilter( int minNumberOfHitsForLoopers=13, 
 				   int minNumberOfHitsPerLoop=4,
 				   int extraNumberOfHitsBeforeTheFirstLoop=4): 
-  theMinNumberOfHits(minNumberOfHits), 
+  theMinNumberOfHitsForLoopers(minNumberOfHitsForLoopers), 
   theMinNumberOfHitsPerLoop(minNumberOfHitsPerLoop),
   theExtraNumberOfHitsBeforeTheFirstLoop(extraNumberOfHitsBeforeTheFirstLoop){}
   
   explicit LooperTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
-    theMinNumberOfHits = pset.existsAs<int>("minNumberOfHits") ? 
-      pset.getParameter<int>("minNumberOfHits") : 13; 
-    theMinNumberOfHitsPerLoop= pset.existsAs<int>("minNumberOfHitsPerLoop") ? 
-      pset.getParameter<int>("minNumberOfHitsPerLoop") : 4; 
-    theExtraNumberOfHitsBeforeTheFirstLoop= pset.existsAs<int>("extraNumberOfHitsBeforeTheFirstLoop") ? 
-      pset.getParameter<int>("extraNumberOfHitsBeforeTheFirstLoop") : 4; 
+    theMinNumberOfHitsForLoopers           = pset.getParameter<int>("minNumberOfHitsForLoopers"); 
+    theMinNumberOfHitsPerLoop              = pset.getParameter<int>("minNumberOfHitsPerLoop"); 
+    theExtraNumberOfHitsBeforeTheFirstLoop = pset.getParameter<int>("extraNumberOfHitsBeforeTheFirstLoop"); 
 
   }
 
@@ -31,10 +29,19 @@ public:
 
   virtual std::string name() const{return "LooperTrajectoryFilter";}
 
+  inline edm::ParameterSetDescription getFilledConfigurationDescription() {
+    edm::ParameterSetDescription desc;
+    desc.add<int>("minNumberOfHitsForLoopers",          13);
+    desc.add<int>("minNumberOfHitsPerLoop",              4);
+    desc.add<int>("extraNumberOfHitsBeforeTheFirstLoop", 4);
+    return desc;
+  }
+
+
 protected:
 
   template<class T> bool QF(const T & traj) const{
-    if ( traj.isLooper() && (traj.foundHits() < theMinNumberOfHits) ) return false;
+    if ( traj.isLooper() && (traj.foundHits() < theMinNumberOfHitsForLoopers) ) return false;
     else return true;
   }
 
@@ -47,7 +54,7 @@ protected:
     return ret;
   }
 
-  int theMinNumberOfHits;
+  int theMinNumberOfHitsForLoopers;
   int theMinNumberOfHitsPerLoop;
   int theExtraNumberOfHitsBeforeTheFirstLoop;
 

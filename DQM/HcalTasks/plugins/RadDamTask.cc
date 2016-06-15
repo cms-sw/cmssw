@@ -64,18 +64,6 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 	_vDetIds.push_back(HcalDetId(HcalForward, 41, 35, 2));
 	_vDetIds.push_back(HcalDetId(HcalForward, 41, 71, 2));
 
-	//	Initialize all the Single Containers
-	char aux[200];
-	for (std::vector<HcalDetId>::const_iterator it=_vDetIds.begin();
-		it!=_vDetIds.end(); ++it)
-	{
-		sprintf(aux, "_ieta%diphi%dd%d", it->ieta(), it->iphi(), it->depth());
-		_vcShape.push_back(ContainerSingle1D(_name+"/Shape", 
-			"Shape"+std::string(aux),
-			new axis::ValueAxis(axis::fXaxis, axis::fTimeTS),
-			new axis::ValueAxis(axis::fYaxis, axis::fNomFC)));
-	}
-
 	//	tags
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", 
 		edm::InputTag("hcalDigis"));
@@ -85,9 +73,24 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 /* virtual */ void RadDamTask::bookHistograms(DQMStore::IBooker& ib,
 	edm::Run const& r, edm::EventSetup const& es)
 {
+	//	Initialize all the Single Containers
+	for (std::vector<HcalDetId>::const_iterator it=_vDetIds.begin();
+		it!=_vDetIds.end(); ++it)
+	{
+		_vcShape.push_back(ContainerSingle1D(_name, 
+			"Shape",
+			new quantity::ValueQuantity(quantity::fTiming_TS),
+			new quantity::ValueQuantity(quantity::ffC_3000)));
+	}
+
 	DQTask::bookHistograms(ib, r, es);	
+	char aux[200];
 	for (unsigned int i=0; i<_vDetIds.size(); i++)
-		_vcShape[i].book(ib, _subsystem);
+	{
+		sprintf(aux, "ieta%diphi%dd%d", _vDetIds[i].ieta(), 
+			_vDetIds[i].iphi(), _vDetIds[i].depth());
+		_vcShape[i].book(ib, _subsystem, aux);
+	}
 }
 
 /* virtual */ void RadDamTask::_process(edm::Event const &e,

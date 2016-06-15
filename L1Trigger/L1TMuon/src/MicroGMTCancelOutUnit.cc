@@ -13,19 +13,17 @@ MicroGMTCancelOutUnit::~MicroGMTCancelOutUnit ()
 }
 
 void
-MicroGMTCancelOutUnit::initialise(L1TMuonGlobalParams* microGMTParams) {
-    int fwVersion = microGMTParams->fwVersion();
-    m_boPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bOPosMatchQualLUTPath(), microGMTParams->bOPosMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_pos, fwVersion);
-    m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bONegMatchQualLUTPath(), microGMTParams->bONegMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_neg, fwVersion);
-    m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fOPosMatchQualLUTPath(), microGMTParams->fOPosMatchQualLUTMaxDR(), cancel_t::omtf_emtf_pos, fwVersion);
-    m_foNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fONegMatchQualLUTPath(), microGMTParams->fONegMatchQualLUTMaxDR(), cancel_t::omtf_emtf_neg, fwVersion);
-    //m_brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->brlSingleMatchQualLUTPath(), microGMTParams->brlSingleMatchQualLUTMaxDR(), cancel_t::bmtf_bmtf, fwVersion);
-    m_ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlPosSingleMatchQualLUTPath(), microGMTParams->ovlPosSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_pos, fwVersion);
-    m_ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlNegSingleMatchQualLUTPath(), microGMTParams->ovlNegSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_neg, fwVersion);
-    m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdPosSingleMatchQualLUTPath(), microGMTParams->fwdPosSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_pos, fwVersion);
-    m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdNegSingleMatchQualLUTPath(), microGMTParams->fwdNegSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_neg, fwVersion);
+MicroGMTCancelOutUnit::initialise(L1TMuonGlobalParamsHelper* microGMTParamsHelper) {
+    int fwVersion = microGMTParamsHelper->fwVersion();
+    m_boPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->bOPosMatchQualLUT(), cancel_t::omtf_bmtf_pos, fwVersion);
+    m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->bONegMatchQualLUT(), cancel_t::omtf_bmtf_neg, fwVersion);
+    m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fOPosMatchQualLUT(), cancel_t::omtf_emtf_pos, fwVersion);
+    m_foNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fONegMatchQualLUT(), cancel_t::omtf_emtf_neg, fwVersion);
+    m_ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->ovlPosSingleMatchQualLUT(), cancel_t::omtf_omtf_pos, fwVersion);
+    m_ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->ovlNegSingleMatchQualLUT(), cancel_t::omtf_omtf_neg, fwVersion);
+    m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdPosSingleMatchQualLUT(), cancel_t::emtf_emtf_pos, fwVersion);
+    m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParamsHelper->fwdNegSingleMatchQualLUT(), cancel_t::emtf_emtf_neg, fwVersion);
 
-    //m_lutDict[tftype::bmtf+tftype::bmtf*10] = m_brlSingleMatchQualLUT;
     m_lutDict[tftype::omtf_neg+tftype::bmtf*10] = m_boNegMatchQualLUT;
     m_lutDict[tftype::omtf_pos+tftype::bmtf*10] = m_boPosMatchQualLUT;
     m_lutDict[tftype::omtf_pos+tftype::omtf_pos*10] = m_ovlPosSingleMatchQualLUT;
@@ -57,7 +55,7 @@ MicroGMTCancelOutUnit::setCancelOutBits(GMTInternalWedges& wedges, tftype trackF
       coll2.push_back(mu);
     }
     if (mode == cancelmode::coordinate) {
-      getCoordinateCancelBits(coll1, coll2);
+      getCoordinateCancelBits(coll2, coll1); // in case of a tie coll1 muon wins
     } else {
       getTrackAddrCancelBits(coll1, coll2);
     }
@@ -142,30 +140,44 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
   if (coll1.size() == 0 || coll2.size() == 0) {
     return;
   }
+  tftype coll1TfType = (*coll1.begin())->trackFinderType();
   tftype coll2TfType = (*coll2.begin())->trackFinderType();
-  if (coll2TfType != tftype::bmtf && (*coll1.begin())->trackFinderType() % 2 != coll2TfType % 2) {
-    edm::LogError("Detector side mismatch") << "Overlap-Endcap cancel out between positive and negative detector side attempted. Check eta assignment. OMTF candidate: TF type: " << (*coll1.begin())->trackFinderType() << ", hwEta: " << (*coll1.begin())->hwEta() << ". EMTF candidate: TF type: " << coll2TfType << ", hwEta: " << (*coll2.begin())->hwEta() << ". TF type even: pos. side; odd: neg. side." << std::endl;
+  if (coll2TfType != tftype::bmtf && coll1TfType % 2 != coll2TfType % 2) {
+    edm::LogError("Detector side mismatch") << "Overlap-Endcap cancel out between positive and negative detector side attempted. Check eta assignment. OMTF candidate: TF type: " << coll1TfType << ", hwEta: " << (*coll1.begin())->hwEta() << ". EMTF candidate: TF type: " << coll2TfType << ", hwEta: " << (*coll2.begin())->hwEta() << ". TF type even: pos. side; odd: neg. side." << std::endl;
     return;
   }
 
-  MicroGMTMatchQualLUT* matchLUT = m_lutDict.at((*coll1.begin())->trackFinderType()+(*coll2.begin())->trackFinderType()*10).get();
+  MicroGMTMatchQualLUT* matchLUT = m_lutDict.at(coll1TfType+coll2TfType*10).get();
 
   for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
+    int etaFine1 = (*mu_w1)->hwHF();
+    // for EMTF muons set eta fine bit to true since hwHF is the halo bit
+    if (coll1TfType == tftype::emtf_pos || coll1TfType == tftype::emtf_neg) {
+      etaFine1 = 1;
+    }
     for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
+      int etaFine2 = (*mu_w2)->hwHF();
+      // for EMTF muons set eta fine bit to true since hwHF is the halo bit
+      if (coll2TfType == tftype::emtf_pos || coll2TfType == tftype::emtf_neg) {
+        etaFine2 = 1;
+      }
+      // both muons must have the eta fine bit set in order to use the eta fine part of the LUT
+      int etaFine = (int)(etaFine1 > 0 && etaFine2 > 0);
+
       // The LUT for cancellation takes reduced width phi and eta, we need the LSBs
       int dPhiMask = (1 << matchLUT->getDeltaPhiWidth()) - 1;
       int dEtaMask = (1 << matchLUT->getDeltaEtaWidth()) - 1;
 
-      // temporary fix to take processor offset into account...
       int dPhi = (*mu_w1)->hwGlobalPhi() - (*mu_w2)->hwGlobalPhi();
+      dPhi = std::abs(dPhi);
       if (dPhi > 338) dPhi -= 576; // shifts dPhi to [-pi, pi) in integer scale
       dPhi = std::abs(dPhi);
       int dEta = std::abs((*mu_w1)->hwEta() - (*mu_w2)->hwEta());
       // check first if the delta is within the LSBs that the LUT takes, otherwise the distance
-      // is greater than what we want to cancel -> 15(int) is max => 15*0.01 = 0.15 (rad)
-      // LUT takes 4 LSB for dEta and 3 LSB for dPhi
-      if (dEta < 16 && dPhi < 8) {
-        int match = matchLUT->lookup(dEta & dEtaMask, dPhi & dPhiMask);
+      // is greater than what we want to cancel -> e.g. 31(int) is max => 31*0.01 = 0.31 (rad)
+      // LUT takes 5 LSB for dEta and 3 LSB for dPhi
+      if (dEta <= dEtaMask && dPhi <= dPhiMask) {
+        int match = matchLUT->lookup(etaFine, dEta & dEtaMask, dPhi & dPhiMask);
         if (match == 1) {
           if((*mu_w1)->hwQual() > (*mu_w2)->hwQual()) {
             (*mu_w2)->setHwCancelBit(1);
@@ -255,7 +267,7 @@ MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInt
         }
         //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
         if (nMatchedStations > 0) {
-          if ((*mu_w1)->origin().hwQual() > (*mu_w2)->origin().hwQual()) {
+          if ((*mu_w1)->origin().hwQual() >= (*mu_w2)->origin().hwQual()) {
             (*mu_w2)->setHwCancelBit(1);
           } else {
             (*mu_w1)->setHwCancelBit(1);

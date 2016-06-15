@@ -25,10 +25,6 @@ double flatRandom(double min, double max) {
   return f;
 }
 
-double gaussianRandom(double mean, double standardDeviation) {
-  return 0;
-}
-
 double poissonRandom(double mean) {
   static double oldMean = -1;
   static double g;

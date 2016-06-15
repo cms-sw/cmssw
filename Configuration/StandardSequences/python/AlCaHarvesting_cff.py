@@ -33,75 +33,64 @@ ALCAHARVESTBeamSpotByRun = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("runbased")
 ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdByRun")
 
-
-ALCAHARVESTBeamSpotByRun_metadata = cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdByRun'),
-                                             )
-
+ALCAHARVESTBeamSpotByRun_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdByRun'))
 
 ALCAHARVESTBeamSpotByRun_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdByRun'),
                                              tag = cms.string('BeamSpotObject_ByRun'),
-                                             timetype   = cms.untracked.string('runnumber'))
-
+                                             timetype   = cms.untracked.string('runnumber')
+                                             )
 
 ALCAHARVESTBeamSpotByLumi = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased")
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdByLumi")
 
 # configuration of DropBox metadata and DB output
-ALCAHARVESTBeamSpotByLumi_metadata = cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdByLumi'),
-                                              )
+ALCAHARVESTBeamSpotByLumi_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdByLumi'))
 
 ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdByLumi'),
-                                             tag = cms.string('BeamSpotObject_ByLumi'),
-                                             timetype   = cms.untracked.string('lumiid'))
-
-
-ALCAHARVESTSiStripQuality_metadata = cms.PSet(record              = cms.untracked.string('SiStripBadStripRcd'),
+                                              tag = cms.string('BeamSpotObject_ByLumi'),
+                                              timetype   = cms.untracked.string('lumiid')
                                               )
 
-
+# SiStrip Quality
+ALCAHARVESTSiStripQuality_metadata = cms.PSet(record = cms.untracked.string('SiStripBadStripRcd'))
+                                              
 ALCAHARVESTSiStripQuality_dbOutput = cms.PSet(record = cms.string('SiStripBadStripRcd'),
-                                             tag = cms.string('SiStripBadStrip_pcl'),
-                                             timetype   = cms.untracked.string('runnumber'))
-
-
-ALCAHARVESTSiStripGains_metadata = cms.PSet(record              = cms.untracked.string('SiStripApvGainRcd'),
+                                              tag = cms.string('SiStripBadStrip_pcl'),
+                                              timetype   = cms.untracked.string('runnumber')
                                               )
 
+# SiStrip Gains
+ALCAHARVESTSiStripGains_metadata = cms.PSet(record = cms.untracked.string('SiStripApvGainRcd'))
 
 ALCAHARVESTSiStripGains_dbOutput = cms.PSet(record = cms.string('SiStripApvGainRcd'),
-                                             tag = cms.string('SiStripApvGain_pcl'),
-                                             timetype   = cms.untracked.string('runnumber'))
+                                            tag = cms.string('SiStripApvGain_pcl'),
+                                            timetype   = cms.untracked.string('runnumber')
+                                            )
 
-ALCAHARVESTSiStripGainsAfterAbortGap_metadata = cms.PSet(record = cms.untracked.string('SiStripApvGainRcd'),
-                                                        )
+# SiStrip Gains (AfterAbortGap)
+ALCAHARVESTSiStripGainsAfterAbortGap_metadata = cms.PSet(record = cms.untracked.string('SiStripApvGainRcdAfterAbortGap'))
 
-ALCAHARVESTSiStripGainsAfterAbortGap_dbOutput = cms.PSet(record = cms.string('SiStripApvGainRcd'),
-                                                            tag = cms.string('SiStripApvGainAfterAbortGap_pcl'),
-                                                     timetype   = cms.untracked.string('runnumber'))
+ALCAHARVESTSiStripGainsAfterAbortGap_dbOutput = cms.PSet(record = cms.string('SiStripApvGainRcdAfterAbortGap'),
+                                                         tag = cms.string('SiStripApvGainAfterAbortGap_pcl'),
+                                                         timetype   = cms.untracked.string('runnumber')
+                                                         )
 
-    #
-ALCAHARVESTSiPixelAli_metadata = cms.PSet(record              = cms.untracked.string('TrackerAlignmentRcd'),
-                                              )
-
-
+# SiPixel Alignment
+ALCAHARVESTSiPixelAli_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentRcd'))
+                                          
 ALCAHARVESTSiPixelAli_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentRcd'),
                                           tag = cms.string('SiPixelAli_pcl'),
-                                          timetype   = cms.untracked.string('runnumber'))
-
-
-
+                                          timetype   = cms.untracked.string('runnumber')
+                                          )
 
 # define the paths
-
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
 BeamSpotByLumi = cms.Path(ALCAHARVESTBeamSpotByLumi)
 SiStripQuality = cms.Path(ALCAHARVESTSiStripQuality)
 SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
-
 SiStripGainsAfterAbortGap = cms.Path(ALCAHARVESTSiStripGainsAfterAbortGap)
-
 
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 

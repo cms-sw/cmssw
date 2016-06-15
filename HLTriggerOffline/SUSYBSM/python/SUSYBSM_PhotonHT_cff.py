@@ -9,7 +9,7 @@ SUSY_HLT_PhotonHT = cms.EDAnalyzer("SUSY_HLT_PhotonHT",
   TriggerPath = cms.string('HLT_Photon90_CaloId_PFHT500_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
   TriggerFilterPhoton = cms.InputTag('hltEG90HEFilter', '', 'HLT'),
-  TriggerFilterHt = cms.InputTag('hltPFHT500', '', 'HLT'),
+  TriggerFilterHt = cms.InputTag('hltPFHT500Jet30', '', 'HLT'),
   ptThrOffline = cms.untracked.double( 100 ),
   htThrOffline = cms.untracked.double( 600 ),
 )

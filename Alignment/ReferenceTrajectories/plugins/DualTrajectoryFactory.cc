@@ -90,14 +90,15 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if ( input.refTsos.isValid() )
     {
-      ReferenceTrajectoryPtr ptr( new DualReferenceTrajectory( input.refTsos,
-							       input.fwdRecHits,
-							       input.bwdRecHits,
-							       magneticField.product(),
-							       materialEffects(),
-							       propagationDirection(),
-							       theMass,
-							       theUseBeamSpot, beamSpot ) );
+      ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+      config.useBeamSpot = useBeamSpot_;
+      config.includeAPEs = includeAPEs_;
+      ReferenceTrajectoryPtr ptr(new DualReferenceTrajectory(input.refTsos,
+                                                             input.fwdRecHits,
+                                                             input.bwdRecHits,
+                                                             magneticField.product(),
+                                                             beamSpot,
+                                                             config));
       trajectories.push_back( ptr );
     }
 
@@ -149,15 +150,15 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 
 	if ( !propExternal.isValid() ) continue;
 
-	// set the flag for reversing the RecHits to false, since they are already in the correct order.
-	ReferenceTrajectoryPtr ptr( new DualReferenceTrajectory( propExternal,
-								 input.fwdRecHits,
-								 input.bwdRecHits,
-								 magneticField.product(),
-								 materialEffects(),
-								 propagationDirection(),
-								 theMass, 
-								 theUseBeamSpot, beamSpot ) );
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
+        ReferenceTrajectoryPtr ptr(new DualReferenceTrajectory(propExternal,
+                                                               input.fwdRecHits,
+                                                               input.bwdRecHits,
+                                                               magneticField.product(),
+                                                               beamSpot,
+                                                               config));
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( propExternal.localError().matrix() ) );
 	ptr->setParameterErrors( externalParamErrors );
@@ -165,14 +166,15 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       }
       else
       {
-	ReferenceTrajectoryPtr ptr( new DualReferenceTrajectory( input.refTsos,
-								 input.fwdRecHits,
-								 input.bwdRecHits,
-								 magneticField.product(),
-								 materialEffects(),
-								 propagationDirection(),
-								 theMass, 
-								 theUseBeamSpot, beamSpot ) );
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
+        ReferenceTrajectoryPtr ptr(new DualReferenceTrajectory(input.refTsos,
+                                                               input.fwdRecHits,
+                                                               input.bwdRecHits,
+                                                               magneticField.product(),
+                                                               beamSpot,
+                                                               config));
 	trajectories.push_back( ptr );
       }
     }

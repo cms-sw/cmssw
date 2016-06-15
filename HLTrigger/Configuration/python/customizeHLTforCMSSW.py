@@ -24,6 +24,20 @@ def esproducers_by_type(process, *types):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# Add quadruplet-specific pixel track duplicate cleaning mode (PR #13753)
+def customiseFor13753(process):
+    for producer in producers_by_type(process, "PixelTrackProducer"):
+        if producer.CleanerPSet.ComponentName.value() == "PixelTrackCleanerBySharedHits" and not hasattr(producer.CleanerPSet, "useQuadrupletAlgo"):
+            producer.CleanerPSet.useQuadrupletAlgo = cms.bool(False)
+    return process
+
+# Add pixel seed extension (PR #14356)
+def customiseFor14356(process):
+    for name, pset in process.psets_().iteritems():
+        if hasattr(pset, "ComponentType") and pset.ComponentType.value() == "CkfBaseTrajectoryFilter" and not hasattr(pset, "pixelSeedExtension"):
+            pset.pixelSeedExtension = cms.bool(False)
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -31,7 +45,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
-    if cmsswVersion >= "CMSSW_8_0":
+    if cmsswVersion >= "CMSSW_8_1":
+        process = customiseFor14356(process)
+        process = customiseFor13753(process)
 #       process = customiseFor12718(process)
         pass
 

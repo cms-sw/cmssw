@@ -124,7 +124,7 @@ class BXVector  {
   // this method converts integer BX index into an unsigned index
   // used by the internal data representation
   unsigned indexFromBX(int bx) const;
-  unsigned numBX() const {return static_cast<const unsigned>(bxLast_) - bxFirst_; }
+  unsigned numBX() const {return 1 + static_cast<const unsigned>(bxLast_ - bxFirst_); }
 
  private:
 

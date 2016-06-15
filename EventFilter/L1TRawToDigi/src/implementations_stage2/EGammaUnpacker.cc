@@ -61,6 +61,8 @@ namespace stage2 {
     
          eg.setHwPt(raw_data & 0x1FF);
 
+	 if (eg.hwPt()==0) continue;
+
 	 int abs_eta = (raw_data >> 9) & 0x7F;
          if ((raw_data >> 16) & 0x1) {
            eg.setHwEta(-1*(128-abs_eta));

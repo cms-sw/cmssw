@@ -27,7 +27,7 @@ class XMLConfigReader{
 
  public:
 
-  XMLConfigReader(OMTFConfiguration * omtf_config);
+  XMLConfigReader();
 
   void readConfig(const std::string fName);
 
@@ -37,13 +37,11 @@ class XMLConfigReader{
 
   void setEventsFile(const std::string & fName) {eventsFile = fName;}
 
-  std::vector<GoldenPattern*> readPatterns();
+  std::vector<GoldenPattern*> readPatterns(const L1TMuonOverlapParams &aConfig);
 
-  void readLUT(l1t::LUT *lut, const std::string & type);
+  void readLUT(l1t::LUT *lut, const L1TMuonOverlapParams & aConfig, const std::string & type);
 
-  void readConfig(OMTFConfiguration *aConfig);
-
-  void readConfig(L1TMuonOverlapParams *aConfig);
+  void readConfig(L1TMuonOverlapParams *aConfig) const;
 
   std::vector<std::vector<int> > readEvent(unsigned int iEvent=0,
 					   unsigned int iProcessor=0,
@@ -56,6 +54,7 @@ class XMLConfigReader{
   std::string eventsFile;   //XML file with events
 
   GoldenPattern * buildGP(xercesc::DOMElement* aGPElement,
+			  const L1TMuonOverlapParams & aConfig,
 			  unsigned int index=0);
   
   xercesc::XercesDOMParser *parser;
@@ -64,10 +63,5 @@ class XMLConfigReader{
   ///Cache with GPs read.
   std::vector<GoldenPattern*> aGPs;
 
-  OMTFConfiguration * m_omtf_config;
 };
-
-
-//////////////////////////////////
-//////////////////////////////////
 #endif

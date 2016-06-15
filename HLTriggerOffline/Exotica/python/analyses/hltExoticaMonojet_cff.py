@@ -7,7 +7,11 @@ MonojetPSet = cms.PSet(
         "HLT_MET200_v",
         "HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v",
         "HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v",
-
+        #2016 menu
+        "HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
+        "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v",
+        "HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
+        "HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v",
         # For backward compatibility
         "HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v",
         "HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v",

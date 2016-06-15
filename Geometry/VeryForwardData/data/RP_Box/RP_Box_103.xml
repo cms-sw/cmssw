@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    
+    <SolidSection label="RP_Box_103.xml">
+        <Box dx="[RP_Box:RP_Box_primary_vacuum_x]/2" dy="[RP_Box:RP_Box_primary_vacuum_y]/2" dz="[RP_Box:RP_Box_primary_vacuum_z]/2"
+            name="RP_box_primary_vacuum"/>
+        <Box dx="[RP_Box:RP_Box_primary_vacuum_x]/2" dy="[RP_Box:RP_Box_Foil_Thickness]/2" dz="[RP_Box:RP_Box_primary_vacuum_z]/2"
+            name="RP_bottom_foil_base"/>
+        <Box dx="[RP_Box:RP_Box_Window_Bottom_Width]/2" dy="[RP_Box:RP_Box_Foil_Thickness]" dz="[RP_Box:RP_Box_Front_Wall_Thickness]-[RP_Box:RP_Box_Front_Thin_Wall_Thickness]" name="RP_bot_foil_front_cut"/>
+        <SubtractionSolid name="RP_bottom_foil_1">
+            <rSolid name="RP_bottom_foil_base"/>
+            <rSolid name="RP_bot_foil_front_cut"/>
+            <Translation x="0*mm" y="0*mm" z="[RP_Box:RP_Box_primary_vacuum_z]/2"/>
+        </SubtractionSolid>
+         <SubtractionSolid name="RP_bottom_foil">
+             <rSolid name="RP_bottom_foil_1"/>
+            <rSolid name="RP_bot_foil_front_cut"/>
+            <Translation x="0*mm" y="0*mm" z="-[RP_Box:RP_Box_primary_vacuum_z]/2"/>
+         </SubtractionSolid>
+        
+        <Box dx="[RP_Box:RP_Box_Bottom_Hole_x]/2+0.01*mm" dy="[RP_Box:RP_Box_Bottom_Wall_Thickness]" dz="[RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]-[RP_Box:RP_Box_Bottom_Hole_radius]+0.01*mm" name="RP_bot_hole_x"/>
+        <Box dx="[RP_Box:RP_Box_Bottom_Hole_x]/2-[RP_Box:RP_Box_Bottom_Hole_radius]+0.01*mm" dy="[RP_Box:RP_Box_Bottom_Wall_Thickness]" dz="[RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]+0.01*mm" name="RP_bot_hole_z"/>
+        <Tubs rMin="0*mm" rMax="2*mm" dz="[RP_Box:RP_Box_Bottom_Wall_Thickness]" startPhi="0*deg" deltaPhi="360*deg" name="RP_bot_hole_corner"/>
+        <Box dx="[RP_Box:RP_Box_primary_vacuum_x]/2 - [RP_Box:RP_Box_Right_Left_Wall_Thickness]" dy="[RP_Box:RP_Box_Bottom_Wall_Thickness]/2" dz="[RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]" name="RP_bottom_wall_1"/>
+        <Box dx="[RP_Box:RP_Box_primary_vacuum_x]/2-[RP_Box:RP_Box_Right_Left_Wall_Thickness]" dy="[RP_Box:RP_Box_primary_vacuum_y]/2-[RP_Box:RP_Box_Foil_Thickness]/2" dz="[RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]" name="RP_box_secondary_vacuum"/>
+        <SubtractionSolid name="RP_bottom_wall_2a">
+            <rSolid name="RP_bottom_wall_1"/>
+            <rSolid name="RP_bot_hole_x"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_bottom_wall_2">
+            <rSolid name="RP_bottom_wall_2a"/>
+            <rSolid name="RP_bot_hole_z"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_bottom_wall_3">
+            <rSolid name="RP_bottom_wall_2"/>
+            <rSolid name="RP_bot_hole_corner"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="-([RP_Box:RP_Box_Bottom_Hole_x]/2-[RP_Box:RP_Box_Bottom_Hole_radius])" y="0*mm" z="-([RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]-[RP_Box:RP_Box_Bottom_Hole_radius])"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_bottom_wall_4">
+            <rSolid name="RP_bottom_wall_3"/>
+            <rSolid name="RP_bot_hole_corner"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="([RP_Box:RP_Box_Bottom_Hole_x]/2-[RP_Box:RP_Box_Bottom_Hole_radius])" y="0*mm" z="-([RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]-[RP_Box:RP_Box_Bottom_Hole_radius])"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_bottom_wall_5">
+            <rSolid name="RP_bottom_wall_4"/>
+            <rSolid name="RP_bot_hole_corner"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="([RP_Box:RP_Box_Bottom_Hole_x]/2-[RP_Box:RP_Box_Bottom_Hole_radius])" y="0*mm" z="([RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]-[RP_Box:RP_Box_Bottom_Hole_radius])"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_bottom_wall_6">
+            <rSolid name="RP_bottom_wall_5"/>
+            <rSolid name="RP_bot_hole_corner"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="-([RP_Box:RP_Box_Bottom_Hole_x]/2-[RP_Box:RP_Box_Bottom_Hole_radius])" y="0*mm" z="([RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]-[RP_Box:RP_Box_Bottom_Hole_radius])"/>
+        </SubtractionSolid>
+        
+        <Box dx="[RP_Box:RP_Box_primary_vacuum_x]/2 - [RP_Box:RP_Box_Right_Left_Wall_Thickness]" dy="[RP_Box:RP_Box_Height]/2" dz="[RP_Box:RP_Box_Front_Wall_Thickness]/2" name="RP_front_wall_1"/>
+        <Box dx="[RP_Box:RP_Box_Window_Size]/2" dy="[RP_Box:RP_Box_Window_Size]/2-[RP_Box:RP_Box_Window_Radius]" dz="[RP_Box:RP_Box_Front_Wall_Thickness]/2" name="RB_Box_Window_Rect"/>
+        <Tube rMin="0*mm" rMax="[RP_Box:RP_Box_Window_Radius]" dz="[RP_Box:RP_Box_Front_Wall_Thickness]/2" name="RB_Box_Window_Curv"/>
+        <SubtractionSolid name="RP_front_wall_2">
+            <rSolid name="RP_front_wall_1"/>
+            <rSolid name="RB_Box_Window_Rect"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_Height]/2+[RP_Box:RP_Box_Window_Center_From_Bottom]" z="[RP_Box:RP_Box_Front_Thin_Wall_Thickness]"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_front_wall_3">
+            <rSolid name="RP_front_wall_2"/>
+            <rSolid name="RB_Box_Window_Rect"/>
+            <rRotation name="RP_Transformations:RP_135_z_rot"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_Height]/2+[RP_Box:RP_Box_Window_Center_From_Bottom]" z="[RP_Box:RP_Box_Front_Thin_Wall_Thickness]"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_front_wall_4">
+            <rSolid name="RP_front_wall_3"/>
+            <rSolid name="RB_Box_Window_Curv"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_Height]/2+[RP_Box:RP_Box_Window_Center_From_Bottom]+([RP_Box:RP_Box_Window_Size]-2*[RP_Box:RP_Box_Window_Radius])/sqrt(2)" z="[RP_Box:RP_Box_Front_Thin_Wall_Thickness]"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_front_wall_5">
+            <rSolid name="RP_front_wall_4"/>
+            <rSolid name="RB_Box_Window_Curv"/>
+            <Translation x="-([RP_Box:RP_Box_Window_Size]-2*[RP_Box:RP_Box_Window_Radius])/sqrt(2)" y="-[RP_Box:RP_Box_Height]/2+[RP_Box:RP_Box_Window_Center_From_Bottom]" z="[RP_Box:RP_Box_Front_Thin_Wall_Thickness]"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_front_wall_6">
+            <rSolid name="RP_front_wall_5"/>
+            <rSolid name="RB_Box_Window_Curv"/>
+            <Translation x="([RP_Box:RP_Box_Window_Size]-2*[RP_Box:RP_Box_Window_Radius])/sqrt(2)" y="-[RP_Box:RP_Box_Height]/2+[RP_Box:RP_Box_Window_Center_From_Bottom]" z="[RP_Box:RP_Box_Front_Thin_Wall_Thickness]"/>
+        </SubtractionSolid>
+        <Box dx="[RP_Box:RP_Box_Right_Left_Wall_Thickness]/2" dy="[RP_Box:RP_Box_Height]/2" dz="[RP_Box:RP_Box_primary_vacuum_z]/2" name="RP_Left_Right_Wall"/>
+    </SolidSection>
+    
+    <LogicalPartSection label="RP_Box_103.xml">
+        <LogicalPart name="RP_box_primary_vacuum">
+            <rSolid name="RP_box_primary_vacuum"/>
+            <rMaterial name="RP_Materials:RP_Primary_Vacuum"/>
+        </LogicalPart>
+        <LogicalPart name="RP_box_secondary_vacuum">
+            <rSolid name="RP_box_secondary_vacuum"/>
+            <rMaterial name="RP_Materials:RP_Secondary_Vacuum"/>
+        </LogicalPart>
+        
+        <LogicalPart name="RP_bottom_foil">
+            <rSolid name="RP_bottom_foil"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        
+        <LogicalPart name="RP_bottom_wall_6">
+            <rSolid name="RP_bottom_wall_6"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        
+        <LogicalPart name="RP_front_wall_6">
+            <rSolid name="RP_front_wall_6"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        
+        <LogicalPart name="RP_Left_Right_Wall">
+            <rSolid name="RP_Left_Right_Wall"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        
+    </LogicalPartSection>
+    
+    <PosPartSection label="RP_Box_103.xml">
+        <PosPart copyNumber="0">
+            <rParent name="RP_box_primary_vacuum"/>
+            <rChild name="RP_bottom_foil"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_primary_vacuum_y]/2+[RP_Box:RP_Box_Foil_Thickness]/2" z="0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="0">
+            <rParent name="RP_box_primary_vacuum"/>
+            <rChild name="RP_box_secondary_vacuum"/>
+            <Translation x="0*mm" y="[RP_Box:RP_Box_Foil_Thickness]/2" z="0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="0">
+            <rParent name="RP_box_secondary_vacuum"/>
+            <rChild name="RP_bottom_wall_6"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_Secondary_Vacuum_Height]/2+[RP_Box:RP_Box_Bottom_Wall_Thickness]/2" z="0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_box_primary_vacuum"/>
+            <rChild name="RP_front_wall_6"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_primary_vacuum_y]/2+[RP_Box:RP_Box_Foil_Thickness]+[RP_Box:RP_Box_Height]/2" z="[RP_Box:RP_Box_primary_vacuum_z]/2-[RP_Box:RP_Box_Front_Wall_Thickness]/2"/>
+        </PosPart>
+        <PosPart copyNumber="0">
+            <rParent name="RP_box_primary_vacuum"/>
+            <rChild name="RP_front_wall_6"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm" y="-[RP_Box:RP_Box_primary_vacuum_y]/2+[RP_Box:RP_Box_Foil_Thickness]+[RP_Box:RP_Box_Height]/2" z="-[RP_Box:RP_Box_primary_vacuum_z]/2+[RP_Box:RP_Box_Front_Wall_Thickness]/2"/>
+        </PosPart>
+        <PosPart copyNumber="0">
+            <rParent name="RP_box_primary_vacuum"/>
+            <rChild name="RP_Left_Right_Wall"/>
+            <Translation x="-[RP_Box:RP_Box_primary_vacuum_x]/2+[RP_Box:RP_Box_Right_Left_Wall_Thickness]/2" y="-[RP_Box:RP_Box_primary_vacuum_y]/2+[RP_Box:RP_Box_Foil_Thickness]+[RP_Box:RP_Box_Height]/2" z="0*mm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_box_primary_vacuum"/>
+            <rChild name="RP_Left_Right_Wall"/>
+            <Translation x="[RP_Box:RP_Box_primary_vacuum_x]/2-[RP_Box:RP_Box_Right_Left_Wall_Thickness]/2" y="-[RP_Box:RP_Box_primary_vacuum_y]/2+[RP_Box:RP_Box_Foil_Thickness]+[RP_Box:RP_Box_Height]/2" z="0*mm"/>
+        </PosPart>
+    </PosPartSection>
+   
+</DDDefinition>

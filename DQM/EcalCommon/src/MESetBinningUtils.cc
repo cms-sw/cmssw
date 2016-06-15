@@ -68,8 +68,15 @@ namespace ecaldqm
           if(tccid <= 36 || tccid >= 73){ // EE
             unsigned bin(ttId(_id));
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
-            if(outer) bin += 48;
-            bin += (tccid % 2) * (outer ? 16 : 24);
+            // For the following, the constants nTTInner and nTTOuter are defined in
+            // EcalDQMCommonUtils.h.
+            if(outer) bin += 2*nTTInner; // For outer TCCs, sets bin number to increment
+            // by twice the number of TTs in inner TCCs, because numbering of bins
+            // is in the order (inner1, inner2, outer1, outer2).
+            // ("inner"" := closer to the beam)
+            bin += (tccid % 2) * (outer ? nTTOuter : nTTInner); // Yields x-axis bin number
+            // in the format above; TTs in even-numbered TCCs are filled in inner1 or outer1,
+            // and those in odd-numbered TCC are filled in inner2 and outer2.
             return bin;
           }
           else
@@ -146,8 +153,15 @@ namespace ecaldqm
           if(tccid <= 36 || tccid >= 73){ // EE
             unsigned bin(ttId(_id));
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
-            if(outer) bin += 48;
-            bin += (tccid % 2) * (outer ? 16 : 24);
+            // For the following, the constants nTTInner and nTTOuter are defined in
+            // EcalDQMCommonUtils.h.
+            if(outer) bin += 2*nTTInner; // For outer TCCs, sets bin number to increment
+            // by twice the number of TTs in inner TCCs, because numbering of bins
+            // is in the order (inner1, inner2, outer1, outer2).
+            // ("inner"" := closer to the beam)
+            bin += (tccid % 2) * (outer ? nTTOuter : nTTInner); // Yields x-axis bin number
+            // in the format above; TTs in even-numbered TCCs are filled in inner1 or outer1,
+            // and those in odd-numbered TCC are filled in inner2 and outer2.
             return bin;
           }
           else

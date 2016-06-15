@@ -38,15 +38,6 @@ def makePFTauAnalyzer(monitorModule):
                             ("Phi", "#phi")], "%sTau%sEff")
     _addEfficiencies("L1", [("HighEt", "E_{T}")], "%sTau%sEff", postfix="(high E_{T})")
 
-    _addEfficiencies("L1", [("Et", "E_{T}"),
-                            ("Eta", "#eta"),
-                            ("Phi", "#phi")], "%sIsoTau%sEff")
-    _addEfficiencies("L1", [("HighEt", "E_{T}")], "%sIsoTau%sEff", postfix="(high E_{T})")
-
-    _addEfficiencies("L1", [("Et", "E_{T}")], "%sJet%sEff")
-    _addEfficiencies("L1", [("HighEt", "E_{T}")], "%sJet%sEff", "central jet", postfix="(high E_{T})")
-    _addEfficiencies("L1", [("Eta", "#eta"),
-                            ("Phi", "#phi")], "%sJet%sEff", "central jet", "(E_{T} > %.1f)" % monitorModule.L1Plotter.L1JetMinEt.value())
     _addEfficiencies("L1", [("Et", "E_{T}")], "%sETM%sEff", "ETM")
 
     _addEfficiencies("L2", [("Et", "E_{T}"),

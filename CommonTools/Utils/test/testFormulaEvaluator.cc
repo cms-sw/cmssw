@@ -10,6 +10,8 @@
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
 #include <algorithm>
+#include <cmath>
+#include "TMath.h"
 
 class testFormulaEvaluator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testFormulaEvaluator);
@@ -26,7 +28,7 @@ public:
 
 namespace {
   bool compare(double iLHS, double iRHS) {
-    return std::abs(iLHS-iRHS)< 1E-6*std::abs(iLHS);
+    return std::fabs(iLHS)!=0 ? (std::fabs(iLHS-iRHS)< 1E-6*std::fabs(iLHS)) : (std::fabs(iLHS) == std::fabs(iRHS));
   }
 }
 
@@ -479,6 +481,30 @@ testFormulaEvaluator::checkFormulaEvaluator() {
   }
 
   {
+    reco::FormulaEvaluator f("TMath::Erf(2.)");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == TMath::Erf(2.) );
+  }
+
+  {
+    reco::FormulaEvaluator f("erf(2.)");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == std::erf(2.) );
+  }
+
+  {
+    reco::FormulaEvaluator f("TMath::Landau(3.)");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == TMath::Landau(3.) );
+  }
+
+  {
     reco::FormulaEvaluator f("max(2,1)");
     
     std::vector<double> emptyV;
@@ -531,6 +557,42 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     std::vector<double> emptyV;
 
     CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == -(-2.36997+0.413917*std::log(208.))/208.);
+  }
+
+  {
+    //For Jet energy corrections
+    reco::FormulaEvaluator f("2*TMath::Erf(4*(x-1))");
+
+    std::vector<double> x ={1.};
+
+
+    std::vector<double> xValues = {1., 2., 3.};
+    std::vector<double> emptyV;
+
+    auto func = [](double x) { return 2*TMath::Erf(4*(x-1)); };
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, emptyV),func(x[0])) );
+    }
+  }
+
+  {
+    //For Jet energy corrections
+    reco::FormulaEvaluator f("2*TMath::Landau(2*(x-1))");
+
+    std::vector<double> x ={1.};
+
+
+    std::vector<double> xValues = {1., 2., 3.};
+    std::vector<double> emptyV;
+
+    auto func = [](double x) { return 2*TMath::Landau(2*(x-1)); };
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, emptyV),func(x[0])) );
+    }
   }
 
   {

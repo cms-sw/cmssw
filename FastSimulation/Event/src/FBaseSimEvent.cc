@@ -59,6 +59,10 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
 
+  // Initialize the distance from (0,0,0) after which *generated* particles are 
+  // no longer considered - because the mother could have interacted before.
+  // unit : cm x cm
+  lateVertexPosition = 2.5*2.5;
 }
  
 FBaseSimEvent::~FBaseSimEvent(){
