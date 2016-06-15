@@ -62,6 +62,7 @@
 #include <TH1.h>
 #include <TH2.h>
 
+#include <cmath>
 #include <memory>
 #include <iostream>
 #include <string>
@@ -177,7 +178,7 @@ void HGCHitValidation::beginJob() {
   hefRecVsSimX = fs->make<TH2F>("hefRecVsSimX","",400,-200,200,400,-200,200);
 
   hebdzVsZ = fs->make<TH2F>("hebdzVsZ","",1080,-540,540,100,-1.0,1.0);
-  hebdPhiVsPhi = fs->make<TH2F>("hebdPhiVsPhi","",TMath::Pi()*100,-0.5,TMath::Pi()+0.5,200,-0.2,0.2);
+  hebdPhiVsPhi = fs->make<TH2F>("hebdPhiVsPhi","",M_PI*100,-0.5,M_PI+0.5,200,-0.2,0.2);
   hebdEtaVsEta = fs->make<TH2F>("hebdEtaVsEta","",1000,-5,5,200,-0.1,0.1);
 
   hebRecVsSimZ = fs->make<TH2F>("hebRecVsSimZ","",1080,-540,540,1080,-540,540);
@@ -486,10 +487,10 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
 	std::map<unsigned int, HGCHitTuple>::const_iterator itr = bhHitRefs.find(id.rawId());
 	if (itr != bhHitRefs.end()) {
 	  float ang3 = xyz.phi().value(); // returns the phi in radians
-	  double fac = TMath::SinH(std::get<1>(itr->second));
+	  double fac = sinh(std::get<1>(itr->second));
 	  double pT  = std::get<3>(itr->second) / fac;
-	  double xp = pT * TMath::Cos(std::get<2>(itr->second));
-	  double yp = pT * TMath::Sin(std::get<2>(itr->second));
+	  double xp = pT * cos(std::get<2>(itr->second));
+	  double yp = pT * sin(std::get<2>(itr->second));
 	  hebRecVsSimX->Fill(xp,xyz.x());
 	  hebRecVsSimY->Fill(yp,xyz.y());
 	  hebRecVsSimZ->Fill(std::get<3>(itr->second),xyz.z());
