@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.SubCollectionProducers.SeedClusterRemoverPhase2_cfi import seedClusterRemoverPhase2
+from RecoLocalTracker.SubCollectionProducers.seedClusterRemoverPhase2_cfi import seedClusterRemoverPhase2
 initialStepSeedClusterMask = seedClusterRemoverPhase2.clone(
     trajectories = cms.InputTag("initialStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("highPtTripletStepClusters")
@@ -56,7 +56,6 @@ tripletElectronSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(0)
 tripletElectronSeeds.SeedCreatorPSet.magneticField = ''
 tripletElectronSeeds.SeedCreatorPSet.propagator = 'PropagatorWithMaterial'
 
-from RecoLocalTracker.SubCollectionProducers.SeedClusterRemoverPhase2_cfi import seedClusterRemoverPhase2
 tripletElectronClusterMask = seedClusterRemoverPhase2.clone(
     trajectories = cms.InputTag("tripletElectronSeeds"),
     oldClusterRemovalInfo = cms.InputTag("pixelLessStepSeedClusterMask")
