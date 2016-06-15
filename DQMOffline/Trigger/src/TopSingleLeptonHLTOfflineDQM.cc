@@ -125,8 +125,8 @@ namespace HLTOfflineDQMTopSingleLepton {
       if( includeBTag_ ){
         edm::ParameterSet btagEff=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingEff");
         btagEff_= iC.consumes< reco::JetTagCollection >(btagEff.getParameter<edm::InputTag>("label")); btagEffWP_= btagEff.getParameter<double>("workingPoint");
-        edm::ParameterSet btagPur=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingPur");
-        btagPur_= iC.consumes< reco::JetTagCollection >(btagPur.getParameter<edm::InputTag>("label")); btagPurWP_= btagPur.getParameter<double>("workingPoint");
+//        edm::ParameterSet btagPur=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingPur");
+//        btagPur_= iC.consumes< reco::JetTagCollection >(btagPur.getParameter<edm::InputTag>("label")); btagPurWP_= btagPur.getParameter<double>("workingPoint");
         edm::ParameterSet btagVtx=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("secondaryVertex" );
         btagVtx_= iC.consumes< reco::JetTagCollection >(btagVtx.getParameter<edm::InputTag>("label")); btagVtxWP_= btagVtx.getParameter<double>("workingPoint");
       }
@@ -200,9 +200,9 @@ namespace HLTOfflineDQMTopSingleLepton {
       // btag discriminator for track counting high efficiency for jets with pt(L2L3)>20
       hists_["jetBDiscEff_"] = store_.book1D("JetBDiscProb", "Disc_{b/prob}(jet)",     25,     0.,     2.5);   
       // multiplicity of btagged jets (for track counting high purity) with pt(L2L3)>20
-      hists_["jetMultBPur_"] = store_.book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
+//      hists_["jetMultBPur_"] = store_.book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
       // btag discriminator for track counting high purity
-      hists_["jetBDiscPur_"] = store_.book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
+//      hists_["jetBDiscPur_"] = store_.book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
       // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>20
       hists_["jetMultBVtx_"] = store_.book1D("JetMultBVtx", "N_{20}(b/vtx)"    ,     10,     0.,     10.);   
       // btag discriminator for simple secondary vertex
@@ -342,7 +342,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx;
       if( includeBTag_ ){ 
         if( !event.getByToken(btagEff_, btagEff) ) return;
-        if( !event.getByToken(btagPur_, btagPur) ) return;
+//        if( !event.getByToken(btagPur_, btagPur) ) return;
         if( !event.getByToken(btagVtx_, btagVtx) ) return;
       }
       // load jet corrector if configured such
@@ -370,7 +370,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       // loop jet collection
       std::vector<reco::Jet> correctedJets;
-      unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
+      unsigned int mult=0, multBEff=0, multBVtx=0; //multBPur=0;
 
       edm::Handle<edm::View<reco::Jet> > jets; 
       if( !event.getByToken(jets_, jets) ) {
@@ -416,18 +416,18 @@ namespace HLTOfflineDQMTopSingleLepton {
           fill("jetBDiscEff_", btagEffDisc); 
           if( (*btagEff)[jetRef]>btagEffWP_ ) ++multBEff; 
           // for the btagPur collection
-          double btagPurDisc = (*btagPur)[jetRef];
-          fill("jetBDiscPur_", btagPurDisc); 
-          if( (*btagPur)[jetRef]>btagPurWP_ ) {if(multBPur == 0) bJetCand = *jet; ++multBPur;} 
+//          double btagPurDisc = (*btagPur)[jetRef];
+//          fill("jetBDiscPur_", btagPurDisc); 
+//          if( (*btagPur)[jetRef]>btagPurWP_ ) {if(multBPur == 0) bJetCand = *jet; ++multBPur;} 
           // for the btagVtx collection
           double btagVtxDisc = (*btagVtx)[jetRef];
           fill("jetBDiscVtx_", btagVtxDisc);
-          if( (*btagVtx)[jetRef]>btagVtxWP_ ) ++multBVtx; 
+          if( (*btagVtx)[jetRef]>btagVtxWP_ ) { if(multBVtx == 0) bJetCand= *jet; ++multBVtx;} 
         }
       }
       fill("jetMult_"    , mult    );
       fill("jetMultBEff_", multBEff);
-      fill("jetMultBPur_", multBPur);
+//      fill("jetMultBPur_", multBPur);
       fill("jetMultBVtx_", multBVtx);
 
       /* 
@@ -477,13 +477,13 @@ namespace HLTOfflineDQMTopSingleLepton {
           ++logged_;
         }
       }
-      if(multBPur != 0 && mMultIso == 1 ){
+      if(multBVtx != 0 && mMultIso == 1 ){
         double mtW = eventKinematics.tmassWBoson(&mu,mET,bJetCand); if (mtW == mtW) fill("MTWm_",mtW);
         double Mlb = eventKinematics.masslb(&mu,mET,bJetCand); if (Mlb == Mlb) fill("mMub_", Mlb);
         double MTT = eventKinematics.tmassTopQuark(&mu,mET,bJetCand); if (MTT == MTT) fill("mMTT_", MTT);
       }
 
-      if(multBPur != 0 && eMultIso == 1 ){
+      if(multBVtx != 0 && eMultIso == 1 ){
         double mtW = eventKinematics.tmassWBoson(&mu,mET,bJetCand); if (mtW == mtW)fill("MTWe_",mtW);
         double Mlb = eventKinematics.masslb(&mu,mET,bJetCand); if (Mlb == Mlb) fill("mEb_", Mlb);
         double MTT = eventKinematics.tmassTopQuark(&mu,mET,bJetCand); if (MTT == MTT) fill("eMTT_", MTT);
