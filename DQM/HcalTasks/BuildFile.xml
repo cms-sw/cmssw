@@ -1,0 +1,32 @@
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="TBDataFormats/HcalTBObjects"/>
+<use   name="EventFilter/HcalRawToDigi"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="CalibCalorimetry/HcalAlgos"/>
+<use   name="Geometry/HcalTowerAlgo"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DQMServices/Core"/>
+<use   name="rootmath"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1GlobalCaloTrigger"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="L1Trigger/RegionalCaloTrigger"/>
+<use   name="DataFormats/L1CaloTrigger"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="RecoMET/METAlgorithms"/>
+<use   name="CondFormats/RunInfo"/>
+<use   name="DQM/HcalCommon"/>
+
+<export>
+	<lib name="DQMHcalTasks"/>
+</export>

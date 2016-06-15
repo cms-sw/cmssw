@@ -56,7 +56,8 @@ namespace fireworks {
 class FWEventItem
 {
 public:
-   struct ModelInfo {
+   struct ModelInfo
+   {
       FWDisplayProperties m_displayProperties;
       bool m_isSelected;
       ModelInfo(const FWDisplayProperties& iProps, bool iIsSelected) :
@@ -115,12 +116,13 @@ public:
    std::string modelName(int iIndex) const;
 
    ///one value from the model which is normally used for the popup
-  const  FWItemValueGetter& valueGetter() const { return m_interestingValueGetter; }
+   const  FWItemValueGetter& valueGetter() const { return m_interestingValueGetter; }
    bool haveInterestingValue() const;
    const std::string& modelInterestingValueAsString(int iIndex) const;
 
    bool isCollection() const;
 
+   void resetColor();
    //convenience methods
 
    const fireworks::Context& context () const {
@@ -215,6 +217,7 @@ public:
    /** connect to this signal if you need to know that this item is going to be destroyed.
     */
    mutable FWItemChangeSignal goingToBeDestroyed_;
+
 private:
    //FWEventItem(const FWEventItem&); // stop default
 
@@ -246,7 +249,7 @@ private:
    mutable std::string m_errorMessage;
    
    bool m_isSelected;
-
+   Color_t m_origColor;
 
    FWProxyBuilderConfiguration*  m_proxyBuilderConfig;
 };

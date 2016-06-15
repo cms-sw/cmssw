@@ -105,7 +105,7 @@ void PlotMacro_Core(std::string input, std::string moduleName, std::string modeN
    t1->SetBranchAddress("NEntries"          ,&tree_NEntries   );
    t1->SetBranchAddress("isMasked"          ,&tree_isMasked   );
 
-   TH2D* ChargeDistrib  = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_"+modeName);
+   TH2S* ChargeDistrib  = (TH2S*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_"+modeName);
    //TH2D* ChargeDistribA = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_Index_Absolute_"+modeName);
 
    TH2D* Charge_Vs_PathlengthTIB   = (TH2D*)GetObjectFromPath(f1,moduleName+"Charge_Vs_PathlengthTIB_"+modeName);

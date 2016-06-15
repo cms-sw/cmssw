@@ -214,7 +214,8 @@ namespace ecaldqm
           break;
         case kTriggerTower:
         case kPseudoStrip:
-          specs.nbins = isBarrel ? 68 : 80;
+          specs.nbins = isBarrel ? 68 : (2*nTTOuter + 2*nTTInner); // For EE: numbering of bins
+          // is in the order (inner1, inner2, outer1, outer2). ("inner"" := closer to the beam)
           specs.low = 0.;
           specs.high = specs.nbins;
           specs.title = "tower";

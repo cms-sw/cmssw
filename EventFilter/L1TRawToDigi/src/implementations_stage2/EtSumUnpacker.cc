@@ -64,6 +64,11 @@ namespace stage2 {
 
        res_->push_back(bx,et);
 
+       l1t::EtSum mbp0 = l1t::EtSum();
+       mbp0.setHwPt( (raw_data>>28) & 0xf );
+       mbp0.setType( l1t::EtSum::kMinBiasHFP0 );
+
+       res_->push_back(bx, mbp0);
 
        // HT
 
@@ -79,6 +84,11 @@ namespace stage2 {
 
        res_->push_back(bx,ht);
 
+       l1t::EtSum mbm0 = l1t::EtSum();
+       mbm0.setHwPt( (raw_data>>28) & 0xf );
+       mbm0.setType( l1t::EtSum::kMinBiasHFM0 );
+
+       res_->push_back(bx, mbm0);
 
        //  MET
 
@@ -95,6 +105,11 @@ namespace stage2 {
 
        res_->push_back(bx,met);
 
+       l1t::EtSum mbp1 = l1t::EtSum();
+       mbp1.setHwPt( (raw_data>>28) & 0xf );
+       mbp1.setType( l1t::EtSum::kMinBiasHFP1 );
+
+       res_->push_back(bx, mbp1);
 
        // MHT
 
@@ -110,6 +125,12 @@ namespace stage2 {
        LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt() << " bx " << bx;
 
        res_->push_back(bx,mht);
+
+       l1t::EtSum mbm1 = l1t::EtSum();
+       mbm1.setHwPt( (raw_data>>28) & 0xf );
+       mbm1.setType( l1t::EtSum::kMinBiasHFM1 );
+
+       res_->push_back(bx, mbm1);
 
      }
 

@@ -31,6 +31,18 @@ ecalTimingTask = cms.untracked.PSet(
             btype = cms.untracked.string('Crystal'),
             description = cms.untracked.string('2D distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(timeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
         ),
+        TimeMapByLS = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing by LS %(sm)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                high = cms.untracked.double(timeWindow),
+                low = cms.untracked.double(-timeWindow),
+                title = cms.untracked.string('time (ns)')
+            ),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. Hits with |t| > ' + str(timeWindow) + ' ns are discarded. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
+        ),
         TimeAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT timing 1D summary%(suffix)s'),
             kind = cms.untracked.string('TH1F'),
@@ -140,6 +152,18 @@ ecalTimingTask = cms.untracked.PSet(
             ),
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Distribution of the mean rec hit timing. Only hits with GOOD or OUT_OF_TIME reconstruction flags and energy above threshold are used. The energy thresholds are ' + ('%f and %f' % (energyThresholdEB, energyThresholdEE)) + ' for EB and EE respectively.')
+        ),
+        Chi2 = cms.untracked.PSet(
+            path = cms.untracked.string("%(subdet)s/%(prefix)sTimingTask/%(prefix)sTMT %(subdetshortsig)s Chi2"),
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(100.),
+                low = cms.untracked.double(0.),
+                nbins = cms.untracked.int32(100)
+            ),
+            description = cms.untracked.string('Chi2 of the pulse reconstruction.')
         )
     )
 )

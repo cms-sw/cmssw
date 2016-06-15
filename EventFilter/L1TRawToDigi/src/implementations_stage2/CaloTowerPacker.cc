@@ -36,6 +36,8 @@ namespace stage2 {
 
           for (int eta = 1; eta <=41; eta++) { // This is abs(eta) since +/- eta are interleaved in time
 
+	    if (eta==CaloTools::kHFBegin) continue;
+
             // Get four towers +/- eta and phi and phi+1 to all be packed in this loop
             l1t::CaloTower t1 = towers->at(i,l1t::CaloTools::caloTowerHash(eta,phi));
             l1t::CaloTower t2 = towers->at(i,l1t::CaloTools::caloTowerHash(eta,phi+1));

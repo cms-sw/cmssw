@@ -55,7 +55,7 @@
      <PARAM name="useRange">1</PARAM>
      <PARAM name="minEntries">0</PARAM>
      <PARAM name="xmin">0.5</PARAM>
-     <PARAM name="xmax">1.5</PARAM> 
+     <PARAM name="xmax">2.5</PARAM> 
    <!--  <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.85</PARAM> 
      <PARAM name="warning">0.95</PARAM> 

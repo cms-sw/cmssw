@@ -39,8 +39,9 @@ JsonWritingTimeoutPoolOutputModule::physicalAndLogicalNameForNewFile() {
 void JsonWritingTimeoutPoolOutputModule::doExtrasAfterCloseFile() {
   std::string json_tmp_ = currentJsonName_ + ".open";
   std::string transferDest = "";
+  std::string mergeType = "ROOT";
   auto pt = DQMFileSaver::fillJson(runNumber_, sequence_, currentFileName_,
-                                   transferDest, nullptr);
+                                   transferDest, mergeType, nullptr);
   write_json(json_tmp_, pt);
   rename(json_tmp_.c_str(), currentJsonName_.c_str());
 }

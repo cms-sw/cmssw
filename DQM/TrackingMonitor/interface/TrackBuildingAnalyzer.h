@@ -91,6 +91,10 @@ class TrackBuildingAnalyzer
         MonitorElement* NumberOfRecHitsPerTrackCandVsPhiProfile;
         MonitorElement* NumberOfRecHitsPerTrackCandVsEtaProfile;
 
+	MonitorElement* stoppingSource;
+	MonitorElement* stoppingSourceVSeta;
+	MonitorElement* stoppingSourceVSphi;
+	
         std::string histname;  //for naming the histograms according to algorithm used
 
 	//to disable some plots
@@ -109,5 +113,6 @@ class TrackBuildingAnalyzer
 	bool doNRecHits;
 	bool doProfPHI;
 	bool doProfETA;
+	bool doStopSource;
 };
 #endif

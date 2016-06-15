@@ -106,6 +106,7 @@ private:
   bool caloJetsMissing_;
   double jetptThreshold_;
   unsigned int maxCl_;
+  std::string period_;
   unsigned int maxTau_;
   unsigned int maxVtx_;
   unsigned int maxTrk_;
@@ -117,17 +118,36 @@ L1TauRecoTreeProducer::L1TauRecoTreeProducer(const edm::ParameterSet& iConfig):
   caloJetsMissing_(false)
 {
 
-  maxTau_         = iConfig.getParameter<unsigned int>("maxTau");
-  TauToken_ = consumes<reco::PFTauCollection>(iConfig.getUntrackedParameter("TauToken",edm::InputTag("hpsPFTauProducer")));
-  DMFindingToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs")));
-  DMFindingOldToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingOldToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingOldDMs")));
-  TightIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightIsoToken",edm::InputTag("hpsPFTauDiscriminationByTightIsolation")));
-  LooseIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseIsoToken",edm::InputTag("hpsPFTauDiscriminationByLooseIsolation")));
-  LooseAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByLooseMuonRejection")));
-  TightAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByTightMuonRejection")));
-  VLooseAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("VLooseAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA5VLooseElectronRejection")));
-  LooseAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA5LooseElectronRejection")));
-  TightAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA5TightElectronRejection")));
+  period_ = iConfig.getParameter<std::string>("period");
+
+  if(period_=="2015")
+    {
+      maxTau_         = iConfig.getParameter<unsigned int>("maxTau");
+      TauToken_ = consumes<reco::PFTauCollection>(iConfig.getUntrackedParameter("TauToken",edm::InputTag("hpsPFTauProducer")));
+      DMFindingToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs")));
+      DMFindingOldToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingOldToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingOldDMs")));
+      TightIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightIsoToken",edm::InputTag("hpsPFTauDiscriminationByTightIsolation")));
+      LooseIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseIsoToken",edm::InputTag("hpsPFTauDiscriminationByLooseIsolation")));
+      LooseAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByLooseMuonRejection")));
+      TightAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByTightMuonRejection")));
+      VLooseAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("VLooseAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA5VLooseElectronRejection")));
+      LooseAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA5LooseElectronRejection")));
+      TightAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA5TightElectronRejection")));
+    }
+  else if(period_=="2016")
+    {
+      maxTau_         = iConfig.getParameter<unsigned int>("maxTau");
+      TauToken_ = consumes<reco::PFTauCollection>(iConfig.getUntrackedParameter("TauToken",edm::InputTag("hpsPFTauProducer")));
+      DMFindingToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs")));
+      DMFindingOldToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingOldToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingOldDMs")));
+      TightIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightIsoToken",edm::InputTag("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits")));
+      LooseIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseIsoToken",edm::InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits")));
+      LooseAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByLooseMuonRejection3")));
+      TightAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByTightMuonRejection3")));
+      VLooseAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("VLooseAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA6VLooseElectronRejection")));
+      LooseAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA6LooseElectronRejection")));
+      TightAntiElectronToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiElectronToken",edm::InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection")));
+    }    
 
   /*  
   caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));

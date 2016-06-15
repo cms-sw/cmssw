@@ -37,8 +37,9 @@ namespace l1t
     private:
       void clustering(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters);
       void filtering(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters);
-      void sharing(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters);
       void refining(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters);
+
+      bool idHoverE(const l1t::CaloTower tow);
 
       // parameters
       ClusterInput clusterInput_;

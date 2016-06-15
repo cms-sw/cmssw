@@ -106,9 +106,12 @@ calculateShowerShapes(const reco::PFClusterCollection& clusters,std::vector<doub
   for( unsigned int i=0;i<clusters.size();++i ) {
     const reco::PFCluster& cluster = clusters[i]; 
     etaSum=0.0;phiSum=0.0;
+    auto const & crep = cluster.positionREP();
     for (const auto& frac : cluster.recHitFractions()) {
-      etaSum +=frac.fraction()*frac.recHitRef()->energy()*fabs(frac.recHitRef()->position().Eta() -cluster.position().Eta() );
-      phiSum +=frac.fraction()*frac.recHitRef()->energy()*fabs(deltaPhi(frac.recHitRef()->position().Phi(),cluster.position().Phi()));
+      auto const & h = *frac.recHitRef();
+      auto const & rep = h.positionREP();
+      etaSum += (frac.fraction()*h.energy())*std::abs(rep.eta()-crep.eta());
+      phiSum += (frac.fraction()*h.energy())*std::abs(deltaPhi(rep.phi(),crep.phi()));
     }
     //protection for single line : assign ~ tower
     etaRMS[i] = std::max(etaSum/cluster.energy(),0.1);
@@ -137,9 +140,11 @@ link(const reco::PFClusterCollection& clusters ,const std::vector<double>& etaRM
       //Do not link at the same layer and only link inside out!
       if (dz<0.0 || fabs(dz)<0.2)
 	continue;
+      auto const & crep1 = cluster1.positionREP();
+      auto const & crep2 = cluster2.positionREP();
 
-      float deta =(cluster1.position().Eta()-cluster2.position().Eta())*(cluster1.position().Eta()-cluster2.position().Eta())/(etaRMS[i]*etaRMS[i]+etaRMS[j]*etaRMS[j]);
-      float dphi = deltaPhi(cluster1.position().Phi(),cluster2.position().Phi())*deltaPhi(cluster1.position().Phi(),cluster2.position().Phi())/(phiRMS[i]*phiRMS[i]+phiRMS[j]*phiRMS[j]);
+      float deta =(crep1.eta()-crep2.eta())*(crep1.eta()-crep2.eta())/(etaRMS[i]*etaRMS[i]+etaRMS[j]*etaRMS[j]);
+      float dphi = deltaPhi(crep1.phi(),crep2.phi())*deltaPhi(crep1.phi(),crep2.phi())/(phiRMS[i]*phiRMS[i]+phiRMS[j]*phiRMS[j]);
 
       //      printf("Testing Link %d -> %d (%f %f %f %f ) \n",i,j,deta,dphi,cluster1.position().Eta()-cluster2.position().Eta(),deltaPhi(cluster1.position().Phi(),cluster2.position().Phi()));
 

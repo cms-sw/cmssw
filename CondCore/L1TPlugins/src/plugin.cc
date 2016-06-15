@@ -252,3 +252,11 @@ REGISTER_PLUGIN(L1TUtmScaleRcd, L1TUtmScale);
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 REGISTER_PLUGIN(L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu);
+
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
+REGISTER_PLUGIN(L1TGlobalParametersRcd, L1TGlobalParameters);
+
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
+REGISTER_PLUGIN(L1TGlobalPrescalesVetosRcd, L1TGlobalPrescalesVetos);

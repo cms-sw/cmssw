@@ -72,6 +72,8 @@ namespace trigJson {
     std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            
     std::string streamL1Destination;
     std::string streamHLTDestination;
+    std::string streamL1MergeType;
+    std::string streamHLTMergeType;
   };
   //End lumi struct
   //Struct for storing variable written once per run
@@ -79,6 +81,8 @@ namespace trigJson {
     mutable std::atomic<bool> wroteFiles;
     mutable std::string streamL1Destination;
     mutable std::string streamHLTDestination;
+    mutable std::string streamL1MergeType;
+    mutable std::string streamHLTMergeType;
   };
 }//End trigJson namespace   
 
@@ -103,6 +107,10 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<trig
     if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
       rv->streamHLTDestination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamHLTRates");
       rv->streamL1Destination = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations("streamL1Rates");
+      std::string mergeType;
+      rv->streamHLTMergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamHLTRates",evf::MergeTypeJSNDATA);
+      rv->streamL1MergeType = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType("streamL1Rates",evf::MergeTypeJSNDATA);
+
     }
     rv->wroteFiles = false;
     return rv;

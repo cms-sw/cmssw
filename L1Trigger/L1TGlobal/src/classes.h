@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
 
 namespace L1Trigger_L1TGlobal {

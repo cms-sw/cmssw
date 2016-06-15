@@ -5,15 +5,23 @@ from Configuration.StandardSequences.Eras import eras
 
 
 if not (eras.stage2L1Trigger.isChosen()):
-    print "L1T WARN:  L1REPACK ALL only supports Stage 2 eras for now."
+    print "L1T WARN:  L1REPACK:Full (intended for 2016 data) only supports Stage 2 eras for now."
     print "L1T WARN:  Use a legacy version of L1REPACK for now."
 else:
-    print "L1T INFO:  L1REPACK ALL will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."
+    print "L1T INFO:  L1REPACK:Full (intended for 2016 data) will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."
 
     # First, Unpack all inputs to L1:
+    import EventFilter.L1TRawToDigi.bmtfDigis_cfi
+    unpackBmtf = EventFilter.L1TRawToDigi.bmtfDigis_cfi.bmtfDigis.clone(
+        InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
+
     import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
     unpackDttf = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone(
         DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
+
+    import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
+    unpackCsctf = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone(
+        producer = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
 
     import EventFilter.CSCRawToDigi.cscUnpacker_cfi
     unpackCSC = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone(
@@ -44,22 +52,39 @@ else:
         cms.InputTag('unpackHcal'),
         cms.InputTag('unpackHcal')
     )
-    # not sure when/if this is needed...
-    # HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
 
     from L1Trigger.Configuration.SimL1Emulator_cff import *
+    
     simDtTriggerPrimitiveDigis.digiTag = 'unpackDT'
     simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'unpackCSC', 'MuonCSCComparatorDigi' )
     simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'unpackCSC', 'MuonCSCWireDigi' )
+
     simTwinMuxDigis.RPC_Source         = cms.InputTag('unpackRPC')
-    simOmtfDigis.srcRPC                = cms.InputTag('unpackRPC')
+    simTwinMuxDigis.DTDigi_Source      = cms.InputTag("simDtTriggerPrimitiveDigis")
+    simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag("simDtTriggerPrimitiveDigis")
+
+    # -----------------------------------------------------------
+    # change when availalbe simTwinMux and reliable DTTPs, CSCTPs
+    cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis','simTwinMuxDigis']
+    for b in cutlist:
+        SimL1EmulatorCore.remove(b)
+    # -----------------------------------------------------------
+
+    # BMTF
+    simBmtfDigis.DTDigi_Source       = cms.InputTag("unpackBmtf")
+    simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackBmtf")
+
+    # OMTF
+    simOmtfDigis.srcRPC              = cms.InputTag('unpackRPC')
+    simOmtfDigis.srcDTPh             = cms.InputTag("unpackBmtf")
+    simOmtfDigis.srcDTTh             = cms.InputTag("unpackBmtf")
+    simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe
+
+    # EMTF
+    simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf") # replace when emtfDigis availalbe 
+
     simCaloStage2Layer1Digis.ecalToken = cms.InputTag('unpackEcal:EcalTriggerPrimitives')
-    simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
-    # Picking up simulation a bit further downstream for now:
-    simTwinMuxDigis.DTDigi_Source = cms.InputTag("unpackDttf")
-    simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag("unpackDttf")
-    simBmtfDigis.DTDigi_Source       = cms.InputTag("simTwinMuxDigis")
-    simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackDttf")
+    simCaloStage2Layer1Digis.hcalToken = cms.InputTag('unpackHcal')
 
     # Finally, pack the new L1T output back into RAW
     
@@ -81,6 +106,6 @@ else:
 
 
     
-    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackDttf
-                                 +simHcalTriggerPrimitiveDigis+SimL1EmulatorCore+packCaloStage2
+    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackCsctf+unpackBmtf
+                                 +SimL1EmulatorCore+packCaloStage2
                                  +packGmtStage2+packGtStage2+rawDataCollector)

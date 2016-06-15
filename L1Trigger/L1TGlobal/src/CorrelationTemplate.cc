@@ -32,7 +32,7 @@
 //   default
 
 CorrelationTemplate::CorrelationTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondCorrelation;
@@ -55,7 +55,7 @@ CorrelationTemplate::CorrelationTemplate()
 
 //   from condition name
 CorrelationTemplate::CorrelationTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondCorrelation;
@@ -84,7 +84,7 @@ CorrelationTemplate::CorrelationTemplate(const std::string& cName,
         const l1t::GtConditionCategory& cond1Cat,
         const int cond0Index,
         const int cond1index) :
-    GtCondition(cName),
+    GlobalCondition(cName),
             m_cond0Category(cond0Cat),
             m_cond1Category(cond1Cat),
             m_cond0Index(cond0Index),
@@ -106,7 +106,7 @@ CorrelationTemplate::CorrelationTemplate(const std::string& cName,
 
 // copy constructor
 CorrelationTemplate::CorrelationTemplate(const CorrelationTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -162,7 +162,7 @@ void CorrelationTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  CorrelationTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
     myCout << "\n  First sub-condition category:  " << m_cond0Category <<  std::endl;
     myCout <<   "  Second sub-condition category: " << m_cond1Category <<  std::endl;
@@ -173,14 +173,19 @@ void CorrelationTemplate::print(std::ostream& myCout) const
     myCout << "\n  Correlation parameters " << "[ hex ]" <<  std::endl;
 
     myCout << "    Cut Type:  " << m_correlationParameter.corrCutType << std::endl;
-    myCout << "    deltaEtaRange      = "
-    << std::hex << m_correlationParameter.deltaEtaRange << std::endl;
-    myCout << "    deltaPhiRange      = "
-    << std::hex << m_correlationParameter.deltaPhiRange << std::endl;
-    myCout << "    deltaPhiMaxbits    = "
-    << std::hex << m_correlationParameter.deltaPhiMaxbits << std::endl;
-    myCout << "    minCutValue        = " << std::dec << m_correlationParameter.minCutValue << std::endl;
-    myCout << "    maxCutValue        = " << std::dec << m_correlationParameter.maxCutValue << std::endl;
+    myCout << "    minEtaCutValue        = " << std::dec << m_correlationParameter.minEtaCutValue << std::endl;
+    myCout << "    maxEtaCutValue        = " << std::dec << m_correlationParameter.maxEtaCutValue << std::endl;
+    myCout << "    precEtaCut            = " << std::dec << m_correlationParameter.precEtaCut     << std::endl;
+    myCout << "    minPhiCutValue        = " << std::dec << m_correlationParameter.minPhiCutValue << std::endl;
+    myCout << "    maxPhiCutValue        = " << std::dec << m_correlationParameter.maxPhiCutValue << std::endl;
+    myCout << "    precPhiCut            = " << std::dec << m_correlationParameter.precPhiCut     << std::endl;
+    myCout << "    minDRCutValue         = " << std::dec << m_correlationParameter.minDRCutValue  << std::endl;
+    myCout << "    maxDRCutValue         = " << std::dec << m_correlationParameter.maxDRCutValue  << std::endl;
+    myCout << "    precDRCut             = " << std::dec << m_correlationParameter.precDRCut      << std::endl;
+    myCout << "    minMassCutValue       = " << std::dec << m_correlationParameter.minMassCutValue<< std::endl;
+    myCout << "    maxMassCutValue       = " << std::dec << m_correlationParameter.maxMassCutValue<< std::endl;
+    myCout << "    precMassCut           = " << std::dec << m_correlationParameter.precMassCut    << std::endl;
+ 
     myCout << "    chargeCorrelation  = " << std::dec << m_correlationParameter.chargeCorrelation << std::endl;
 
     // reset to decimal output
