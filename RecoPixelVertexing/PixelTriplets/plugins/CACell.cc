@@ -25,9 +25,8 @@ void CACell::find_ntuplets ( std::vector<CAntuplet>& foundNtuplets, CAntuplet& t
   // the building process for a track ends if:
   // it has no right neighbor
   // it has no compatible neighbor
-
-
   // the ntuplets is then saved if the number of hits it contains is greater than a threshold
+  
   if (theOuterNeighbors.size() == 0 )
   {
     if ( tmpNtuplet.size() >= minHitsPerNtuplet - 1)
@@ -36,24 +35,13 @@ void CACell::find_ntuplets ( std::vector<CAntuplet>& foundNtuplets, CAntuplet& t
       return;
   } else
   {
-    //  bool hasOneCompatibleNeighbor = false;
     unsigned int numberOfOuterNeighbors = theOuterNeighbors.size();
     for ( unsigned int i=0 ; i < numberOfOuterNeighbors; ++i)
     {
-      //      if (tmpNtuplet.size() <= 2 )
-      //    {
-      //      hasOneCompatibleNeighbor = true;
       tmpNtuplet.push_back((theOuterNeighbors[i]));
       theOuterNeighbors[i]->find_ntuplets(foundNtuplets, tmpNtuplet, minHitsPerNtuplet );
       tmpNtuplet.pop_back();
-      //      }
     }
-
-    //   if (!hasOneCompatibleNeighbor && tmpNtuplet.size() >= minHitsPerNtuplet - 1)
-    //   {
-    //   foundNtuplets.push_back(tmpNtuplet);
-    // }
   }
-
 }
 

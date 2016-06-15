@@ -135,10 +135,10 @@ public:
 
 
         float distance_13_squared = (r1 - theOuterR)*(r1 - theOuterR) + (z1 - theOuterZ)*(z1 - theOuterZ);
-        float tan_12_13 = 2 * fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) / distance_13_squared;
+        float tan_12_13_half = fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) / distance_13_squared;
 
         //  return tan_12_13*ptmin*inv_cos_theta <= 0.005f;
-        return tan_12_13 * ptmin <= 0.0025f;
+        return tan_12_13_half * ptmin <= 0.00125f;
 
     }
 
