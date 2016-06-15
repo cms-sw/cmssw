@@ -90,8 +90,10 @@ class GoldenPattern {
   void reset();
 
   ///Normalise event counts in mean dist phi, and pdf vectors to get
-  ///the real values of meand dist phi and probability
-  void normalise();
+  ///the real values of meand dist phi and probability.
+  ///The pdf width is passed to this method, since the width stored in
+  ///configuration is extended during the pattern making phase.
+  void normalise(unsigned int nPdfAddrBits);
 
   ///Propagate phi from given reference layer to MB2 or ME2
   ///ME2 is used if eta of reference hit is larger than 1.1
