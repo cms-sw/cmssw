@@ -91,6 +91,8 @@ class OMTFConfiguration{
   
   unsigned int fwVersion() const {return (rawParams.fwVersion()>>16) & 0xFFFF;};
   unsigned int patternsVersion() const {return rawParams.fwVersion() & 0xFFFF;};
+
+  const L1TMuonOverlapParams* getRawParams() const {return &rawParams;};
   
   float minPdfVal() const {return 0.001;};
   unsigned int nLayers() const {return rawParams.nLayers();};
