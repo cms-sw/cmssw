@@ -519,7 +519,7 @@ class DQMStore
   std::vector<MonitorElement *> get(unsigned int tag) const;
   std::vector<MonitorElement *> getContents(const std::string &path) const;
   std::vector<MonitorElement *> getContents(const std::string &path, unsigned int tag) const;
-  void                          getContents(std::vector<std::string> &into, bool showContents = true) const;
+  std::vector<MonitorElement *> getContents(std::vector<std::string> &into, bool showContents = true) const;
 
   // ---------------------- softReset methods -------------------------------
   void                          softReset(MonitorElement *me);
