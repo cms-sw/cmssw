@@ -41,7 +41,7 @@ DDG4Builder::~DDG4Builder() {
 }
 
 G4LogicalVolume * DDG4Builder::convertLV(const DDLogicalPart & part) {
-  LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): DDLogicalPart = " << part;
+  std::cout << "DDG4Builder::convertLV(): DDLogicalPart = " << part << "\n";
   G4LogicalVolume * result = logs_[part];
   if (!result) {
     G4VSolid * s   = convertSolid(part.solid());
@@ -50,8 +50,8 @@ G4LogicalVolume * DDG4Builder::convertLV(const DDLogicalPart & part) {
     map_.insert(result,part);
     DDG4Dispatchable * disp = new DDG4Dispatchable(&part,result);	
     theVectorOfDDG4Dispatchables_->push_back(disp);
-    LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
-				  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName();
+    std::cout << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
+				  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName() << "\n";
     logs_[part] = result;  // DDD -> GEANT4  
   }
   return result;
@@ -66,12 +66,12 @@ G4VSolid * DDG4Builder::convertSolid(const DDSolid & solid) {
 }
 
 G4Material * DDG4Builder::convertMaterial(const DDMaterial & material) {
-  LogDebug("SimG4CoreGeometry") << "DDDetConstr::ConvertMaterial: material=" << material;
+  std::cout << "DDDetConstr::ConvertMaterial: material=" << material << "\n";
   G4Material * result = 0;
   if (material) {
     // only if it's a valid DDD-material
     if ((result = mats_[material])) {
-      LogDebug("SimG4CoreGeometry") << "  is already converted"; 
+      std::cout << "  is already converted" << "\n"; 
       return result; }
   } else {
     // only if it's NOT a valid DDD-material
@@ -81,23 +81,23 @@ G4Material * DDG4Builder::convertMaterial(const DDMaterial & material) {
   int c = 0;
   if ((c = material.noOfConstituents())) {
     // it's a composite material
-    LogDebug("SimG4CoreGeometry") << "  creating a G4-composite material. c=" << c
-				  << " d=" << material.density()/g*mole ;
+    std::cout << "  creating a G4-composite material. c=" << c
+				  << " d=" << material.density()/g*mole  << "\n";
     result = new G4Material(material.name().name(),material.density(),c);
     for (int i=0 ; i<c; ++i) {
       // recursive building of constituents
-      LogDebug("SimG4CoreGeometry") << "  adding the composite=" << material.name()
-				    << " fm=" << material.constituent(i).second;
+      std::cout << "  adding the composite=" << material.name()
+				    << " fm=" << material.constituent(i).second << "\n";
       result->AddMaterial
 	(convertMaterial(material.constituent(i).first),
 	 material.constituent(i).second);// fractionmass
     }
   } else {
     // it's an elementary material
-    LogDebug("SimG4CoreGeometry") << "  building an elementary material"
+    std::cout << "  building an elementary material"
 				  << " z=" << material.z()
 				  << " a=" << material.a()/g*mole
-				  << " d=" << material.density()/g*cm3 ;
+				  << " d=" << material.density()/g*cm3  << "\n";
     result = new G4Material
       (material.name().name(),material.z(),material.a(),material.density());
   }
@@ -143,10 +143,10 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	DD3Vector x, y, z;
 	rm.GetComponents(x, y, z);
 	if ((x.Cross(y)).Dot(z)<0)
-	  LogDebug("SimG4CoreGeometry") << ">>Reflection encountered: " << gra.edgeData(cit->second)->rot_ ;
-	LogDebug("SimG4CoreGeometry") << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
+	  std::cout << ">>Reflection encountered: " << gra.edgeData(cit->second)->rot_  << "\n";
+	std::cout << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
 				      << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno_
-				      << " r=" << gra.edgeData(cit->second)->rot_.ddname() ;          
+				      << " r=" << gra.edgeData(cit->second)->rot_.ddname() << "\n" ;          
 	G4ThreeVector tempTran(gra.edgeData(cit->second)->trans_.X(), gra.edgeData(cit->second)->trans_.Y(), gra.edgeData(cit->second)->trans_.Z());
 	G4Translate3D transl = tempTran;
 	CLHEP::HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
@@ -175,9 +175,9 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
       map_.insert(reflLogicalVolume,ddlv);
       DDG4Dispatchable * disp = new DDG4Dispatchable(&(ddg4_it->first),reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      LogDebug("SimG4CoreGeometry") << "DDG4Builder: newEvent: dd=" 
+      std::cout << "DDG4Builder: newEvent: dd=" 
 				    << ddlv.ddname() << " g4=" 
-				    << reflLogicalVolume->GetName();
+				    << reflLogicalVolume->GetName() << "\n";
     }  
   }
       

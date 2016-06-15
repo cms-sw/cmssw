@@ -75,8 +75,9 @@ private:
   TH1D                                    *hDigiADC_[2], *hDigiLng_[2];
   TH1D                                    *hRecHitE_[2], *hBeam_;
   TH2D                                    *hDigiOcc_[2], *hRecHitOcc_[2];
-  TProfile                                *hSimHitLng_[2], *hSimHitLng2_[2];
-  TProfile                                *hRecHitLng_[2], *hRecHitLng2_[2];
+  TProfile                                *hSimHitLng_[2], *hSimHitLng1_[2];
+  TProfile                                *hSimHitLng2_[2];
+  TProfile                                *hRecHitLng_[2], *hRecHitLng1_[2];
   TProfile2D                              *hSimHitLat_[2], *hRecHitLat_[2];
 };
 
@@ -161,6 +162,9 @@ void HGCalTBAnalyzer::beginJob() {
       sprintf (name, "SimHitLng%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile (Sim Hit) for %s",det.c_str());
       hSimHitLng_[i] = fs_->make<TProfile>(name,title,50,0.,100.);
+      sprintf (name, "SimHitLng1%s", det.c_str());
+      sprintf (title,"Longitudinal Shower profile (Layer) for %s",det.c_str());
+      hSimHitLng1_[i] = fs_->make<TProfile>(name,title,200,0.,100.);
       sprintf (name, "SimHitLng2%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile (Layer) for %s",det.c_str());
       hSimHitLng2_[i] = fs_->make<TProfile>(name,title,200,0.,100.);
@@ -191,9 +195,9 @@ void HGCalTBAnalyzer::beginJob() {
       sprintf (name, "RecHitLng%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile (Rec Hit) for %s",det.c_str());
       hRecHitLng_[i] = fs_->make<TProfile>(name,title,100,0.,10.);
-      sprintf (name, "RecHitLng2%s", det.c_str());
+      sprintf (name, "RecHitLng1%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile vs Layer for %s",det.c_str());
-      hRecHitLng2_[i] = fs_->make<TProfile>(name,title,120,0.,60.);
+      hRecHitLng1_[i] = fs_->make<TProfile>(name,title,120,0.,60.);
     }
   }
 }
@@ -405,15 +409,29 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     std::pair<float,float> xy = hgcons_[type]->locateCell(cell,layer,sector,false);
     double zp = hgcons_[type]->waferZ(layer,false);
     double xx = (zp < 0) ? -xy.first : xy.first;
-    HepGeom::Point3D<float> gcoord  = HepGeom::Point3D<float>(xx,xy.second,zp);
-    hSimHitE_[type]->Fill(energy);
-    hSimHitLat_[type]->Fill(xx,xy.second,energy);
-    hSimHitLng_[type]->Fill(zp,energy);
-    hSimHitLng2_[type]->Fill(layer,energy);
 #ifdef DebugLog
     std::cout << "SimHit : " << layer << " " << xx << " " << xy.second << " " 
 	      << zp << " " << energy << std::endl;
 #endif
+    hSimHitE_[type]->Fill(energy);
+    hSimHitLat_[type]->Fill(xx,xy.second,energy);
+    hSimHitLng_[type]->Fill(zp,energy);
+    hSimHitLng2_[type]->Fill(layer,energy);
+    if ((layer-1)%3 == 0) {
+      for (std::map<uint32_t,double>::iterator itr1 = map_hits.begin(); 
+	   itr1 != map_hits.end(); ++itr1)   {
+	int      subdet1, zside1, layer1, sector1, subsector1, cell1;
+	HGCalTestNumbering::unpackHexagonIndex(itr1->first, subdet1, zside1, 
+					       layer1, sector1, subsector1, 
+					       cell1);
+	if ((subdet==subdet1) && (zside==zside1) && (sector==sector1) &&
+	    (subsector==subsector1) && (cell==cell1) && (layer+1==layer1)) {
+	  energy += (itr1->second);
+	  break;
+	}
+      }
+      hSimHitLng1_[type]->Fill(layer,energy);
+    }
   }
 }
 
@@ -438,7 +456,7 @@ void HGCalTBAnalyzer::analyzeRecHits (int type,
     int         layer  = HGCalDetId(detId).layer();
     hRecHitOcc_[type]->Fill(global.x(),global.y(),energy);
     hRecHitLng_[type]->Fill(global.z(),energy);
-    hRecHitLng2_[type]->Fill(layer,energy);
+    hRecHitLng1_[type]->Fill(layer,energy);
     hRecHitLat_[type]->Fill(global.x(),global.y(),energy);
     hRecHitE_[type]->Fill(energy);
 #ifdef DebugLog
