@@ -200,7 +200,6 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
     }//end of cuts on cluster to make EGamma
   }//end of cluster loop
 
-  
   //Keep only candidates which passes the FG veto and the shape ID
   std::vector<l1t::EGamma> egammas_eta_neg;  
   std::vector<l1t::EGamma> egammas_eta_pos;
@@ -210,12 +209,15 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
     int fgBit = egamma.hwQual() & (0x1);
     int hOverEBit = egamma.hwQual()>>1 & (0x1);
     int shapeBit = egamma.hwQual()>>2 & (0x1);
-    if(fgBit && shapeBit && hOverEBit){
-      if(egamma.hwEta()<0)
+
+    bool IDcuts = (fgBit && hOverEBit && shapeBit) || (egamma.pt()>=params_->egMaxPtHOverE());
+
+    if(!IDcuts) continue;
+
+    if(egamma.hwEta()<0)
 	egammas_eta_neg.push_back(egamma);
-      else
+    else
 	egammas_eta_pos.push_back(egamma);
-    }
   }
 
 
