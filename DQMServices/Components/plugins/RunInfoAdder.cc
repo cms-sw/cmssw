@@ -27,29 +27,39 @@ RunInfoAdder::~RunInfoAdder() {};
 void RunInfoAdder::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_)
 {
   // TODO: add recursive search here.
-  std::vector<MonitorElement*> mes = igetter_.getContents(folder_);
-  for (auto me : mes) {
-    // This is what the ME uses to check for a root thing...
-    if (me->kind() < MonitorElement::DQM_KIND_TH1F) continue;
-    TH1* th1 = me->getTH1();
-    if (!th1) {
-      edm::LogError("RunInfoAdder") << "Not a TH1: " << me->getFullname() << std::endl;
-      continue;
-    }
+  std::vector<std::string> dirs;
+  igetter_.getContents(dirs, false);
+  for (auto& d : dirs) {
 
-    std::string title(th1->GetTitle());
-    if (title.find("(Run") == std::string::npos) {
-      std::stringstream newtitle;
-      newtitle << title;
-      if (addRunNumber_) {
-        // we use data from the ME, we could also track it in endlumi.
-        newtitle << " (Run " << me->run();
+    // limit to folder
+    if (d.substr(0, folder_.size()) != folder_) continue;
+
+    auto dir = d.substr(0, d.size() - 1); // getContents appends a ':'.
+    std::vector<MonitorElement*> mes = igetter_.getContents(dir);
+
+    for (auto me : mes) {
+      // This is what the ME uses to check for a root thing...
+      if (me->kind() < MonitorElement::DQM_KIND_TH1F) continue;
+      TH1* th1 = me->getTH1();
+      if (!th1) {
+        edm::LogError("RunInfoAdder") << "Not a TH1: " << me->getFullname() << std::endl;
+        continue;
       }
-      if (addLumi_) {
-        newtitle << " Lumi " << me->lumi();
+
+      std::string title(th1->GetTitle());
+      if (title.find("(Run") == std::string::npos) {
+        std::stringstream newtitle;
+        newtitle << title;
+        if (addRunNumber_) {
+          // we use data from the ME, we could also track it in endlumi.
+          newtitle << " (Run " << me->run();
+        }
+        if (addLumi_) {
+          newtitle << " Lumi " << me->lumi();
+        }
+        newtitle << ")";
+        th1->SetTitle(newtitle.str().c_str());
       }
-      newtitle << ")";
-      th1->SetTitle(newtitle.str().c_str());
     }
   }
 }
