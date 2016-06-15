@@ -16,7 +16,7 @@ RunInfoAdder::RunInfoAdder(const edm::ParameterSet& ps)
   // Get parameters from configuration file
   addRunNumber_  =  ps.getParameter<bool>("addRunNumber");
   addLumi_       =  ps.getParameter<bool>("addLumi");
-  folder_        =  ps.getParameter<std::string>("folder");
+  folder_        =  ps.getParameter<std::vector<std::string>>("folder");
 
   edm::LogInfo("RunInfoAdder") <<  "Constructor RunInfoAdder addRunNumber_ " 
       << addRunNumber_ << " addLumi_ " << addLumi_ << std::endl;
@@ -31,8 +31,11 @@ void RunInfoAdder::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& ige
   igetter_.getContents(dirs, false);
   for (auto& d : dirs) {
 
-    // limit to folder
-    if (d.substr(0, folder_.size()) != folder_) continue;
+    // limit to given folders
+    bool apply = false;
+    for (auto& f : folder_)
+      if (d.substr(0, f.size()) == f) apply = true;
+    if (!apply) continue;
 
     auto dir = d.substr(0, d.size() - 1); // getContents appends a ':'.
     std::vector<MonitorElement*> mes = igetter_.getContents(dir);

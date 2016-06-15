@@ -28,7 +28,7 @@ private:
   //variables from config file
   bool addRunNumber_;
   bool addLumi_;
-  std::string folder_;
+  std::vector<std::string> folder_;
 
 };
 
