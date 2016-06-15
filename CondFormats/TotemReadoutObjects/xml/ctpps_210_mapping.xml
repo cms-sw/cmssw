@@ -3,196 +3,196 @@
 		<station id="0">
 			<!--4e / 45 FAR BOTTOM-->
 			<rp_detector_set id="5">
-				<trigger_vfat hw_id="0xd260" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="8"/>  				
+				<trigger_vfat hw_id="0xd260" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="8"/>  				
 				<rp_plane id="0">
-					<vfat id="0" hw_id="0x9f6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0x916a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xbb6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xc3ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0x9f6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0x916a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xbb6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xc3ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="1">
-					<vfat id="0" hw_id="0xf3e2" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xafe2" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0x9d5d" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0x91dd" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="7"/>           
+					<vfat id="0" hw_id="0xf3e2" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xafe2" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0x9d5d" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0x91dd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="7"/>           
 				</rp_plane>			
 				<rp_plane id="2">
-					<vfat id="0" hw_id="0xf7dd" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0xc15d" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0x9d69" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xafdd" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="11"/>            
+					<vfat id="0" hw_id="0xf7dd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0xc15d" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0x9d69" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xafdd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="11"/>            
 				</rp_plane>			
 				<rp_plane id="3">
-					<vfat id="0" hw_id="0xabea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xf3ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0xff6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xab6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="15"/>            
+					<vfat id="0" hw_id="0xabea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xf3ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0xff6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xab6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="15"/>            
 				</rp_plane>			
 				<rp_plane id="4">
-					<vfat id="0" hw_id="0xb1e8" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0xc368" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xe7e9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xaf68" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="3"/>             
+					<vfat id="0" hw_id="0xb1e8" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0xc368" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xe7e9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xaf68" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="3"/>             
 				</rp_plane>			
 				<rp_plane id="5">
-					<vfat id="0" hw_id="0xaf5d" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xc35d" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xc3dd" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xf5e9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xaf5d" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xc35d" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xc3dd" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xf5e9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="7"/>
 				</rp_plane>			
 				<rp_plane id="6">
-					<vfat id="0" hw_id="0xadea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0x9d6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0xb1ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xc1ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="11"/>
+					<vfat id="0" hw_id="0xadea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0x9d6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0xb1ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xc1ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="11"/>
 				</rp_plane>			
 				<rp_plane id="7">
-					<vfat id="0" hw_id="0xf9ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xdfea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0xddea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xf96a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="15"/>
+					<vfat id="0" hw_id="0xf9ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xdfea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0xddea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xf96a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="15"/>
 				</rp_plane>			
 				<rp_plane id="8">
-					<vfat id="0" hw_id="0xe769" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0xf368" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0x9de9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0x9f68" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0xe769" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0xf368" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0x9de9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0x9f68" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="9">
-					<vfat id="0" hw_id="0xc36a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0x8d6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0x996a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0x99ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xc36a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0x8d6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0x996a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0x99ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="7"/>
 				</rp_plane>
 			</rp_detector_set>
 			
 			<!--4f / 45  FAR HORIZONTAL-->	        
 			<rp_detector_set id="3">
-				<trigger_vfat hw_id="0xece0" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="8"/>
+				<trigger_vfat hw_id="0xece0" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="8"/>					
 				<rp_plane id="0">
-					<vfat id="0" hw_id="0x9568" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0x95e8" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xa568" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xe3e9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0x9568" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0x95e8" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xa568" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xe3e9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="1">
-					<vfat id="0" hw_id="0xafea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xaf6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xa1ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xd36a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xafea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xaf6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xa1ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xd36a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="7"/>
 				</rp_plane>			
 				<rp_plane id="2">
-					<vfat id="0" hw_id="0xf369" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0xf3e9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0xd3e9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xffe9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="11"/>
+					<vfat id="0" hw_id="0xf369" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0xf3e9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0xd3e9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xffe9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="11"/>
 				</rp_plane>			
 				<rp_plane id="3">
-					<vfat id="0" hw_id="0xfd6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xe16a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0xf5ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xfbea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="15"/>
+					<vfat id="0" hw_id="0xfd6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xe16a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0xf5ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xfbea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="15"/>
 				</rp_plane>			
 				<rp_plane id="4">
-					<vfat id="0" hw_id="0xdf6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0xcdea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xedea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xeb6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0xdf6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0xcdea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xedea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xeb6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="5">
-					<vfat id="0" hw_id="0xf56a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xd76a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xd9ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xd96a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xf56a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xd76a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xd9ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xd96a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="7"/>
 				</rp_plane>			
 				<rp_plane id="6">
-					<vfat id="0" hw_id="0xa3e9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0xa369" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0xc769" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xdde9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="11"/>
+					<vfat id="0" hw_id="0xa3e9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0xa369" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0xc769" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xdde9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="11"/>
 				</rp_plane>			
 				<rp_plane id="7">
-					<vfat id="0" hw_id="0xff69" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xf569" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0xbf69" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xe569" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="15"/>
+					<vfat id="0" hw_id="0xff69" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xf569" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0xbf69" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xe569" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="15"/>
 				</rp_plane>			
 				<rp_plane id="8">
-					<vfat id="0" hw_id="0xc568" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0x9368" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xa368" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xede9" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0xc568" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0x9368" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xa368" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xede9" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="9">
-					<vfat id="0" hw_id="0xf36a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xb3ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xb36a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xc56a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="7"/> 
+					<vfat id="0" hw_id="0xf36a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xb3ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xb36a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xc56a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="7"/> 
 				</rp_plane>
 			</rp_detector_set>  	
 
 			<!--4d / 45  FAR TOP-->		        
 			<rp_detector_set id="4">
-				<trigger_vfat hw_id="0xb961"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="8" />				
+				<trigger_vfat hw_id="0xb961"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="8" />				
 				<rp_plane id="0">
-					<vfat id="0" hw_id="0x995d"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="0" />
-					<vfat id="1" hw_id="0x8ddd"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="1" />
-					<vfat id="2" hw_id="0x8d5d"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="2" />
-					<vfat id="3" hw_id="0xab5d"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="3" />
+					<vfat id="0" hw_id="0x995d"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="0" />
+					<vfat id="1" hw_id="0x8ddd"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="1" />
+					<vfat id="2" hw_id="0x8d5d"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="2" />
+					<vfat id="3" hw_id="0xab5d"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="3" />
 				</rp_plane>			
 				<rp_plane id="1">
-					<vfat id="0" hw_id="0xfdea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="4" />
-					<vfat id="1" hw_id="0xf16a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="5" />
-					<vfat id="2" hw_id="0xe1ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="6" />
-					<vfat id="3" hw_id="0xe56a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="7" />
+					<vfat id="0" hw_id="0xfdea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="4" />
+					<vfat id="1" hw_id="0xf16a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="5" />
+					<vfat id="2" hw_id="0xe1ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="6" />
+					<vfat id="3" hw_id="0xe56a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="7" />
 				</rp_plane>			
 				<rp_plane id="2">
-					<vfat id="0" hw_id="0xdb6a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="8" />
-					<vfat id="1" hw_id="0xebea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="9" />
-					<vfat id="2" hw_id="0xe5ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="10" />
-					<vfat id="3" hw_id="0xbdea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="11" />
+					<vfat id="0" hw_id="0xdb6a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="8" />
+					<vfat id="1" hw_id="0xebea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="9" />
+					<vfat id="2" hw_id="0xe5ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="10" />
+					<vfat id="3" hw_id="0xbdea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="11" />
 				</rp_plane>			
 				<rp_plane id="3">
-					<vfat id="0" hw_id="0x9fdd"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="12" />
-					<vfat id="1" hw_id="0xb1dd"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="13" />
-					<vfat id="2" hw_id="0xcde9"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="14" />
-					<vfat id="3" hw_id="0xfbdd"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="15" />
+					<vfat id="0" hw_id="0x9fdd"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="12" />
+					<vfat id="1" hw_id="0xb1dd"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="13" />
+					<vfat id="2" hw_id="0xcde9"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="14" />
+					<vfat id="3" hw_id="0xfbdd"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="15" />
 				</rp_plane>			
 				<rp_plane id="4">
-					<vfat id="0" hw_id="0xa96a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="0" />
-					<vfat id="1" hw_id="0xc76a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="1" />
-					<vfat id="2" hw_id="0xb76a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="2" />
-					<vfat id="3" hw_id="0xa56a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="3" />
+					<vfat id="0" hw_id="0xa96a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="0" />
+					<vfat id="1" hw_id="0xc76a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="1" />
+					<vfat id="2" hw_id="0xb76a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="2" />
+					<vfat id="3" hw_id="0xa56a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="3" />
 				</rp_plane>
 				<rp_plane id="5">
-					<vfat id="0" hw_id="0xf76a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="4" />
-					<vfat id="1" hw_id="0xe36a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="5" />
-					<vfat id="2" hw_id="0xdbea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="6" />
-					<vfat id="3" hw_id="0xe76a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="7" />
+					<vfat id="0" hw_id="0xf76a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="4" />
+					<vfat id="1" hw_id="0xe36a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="5" />
+					<vfat id="2" hw_id="0xdbea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="6" />
+					<vfat id="3" hw_id="0xe76a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="7" />
 				</rp_plane>			
 				<rp_plane id="6">
-					<vfat id="0" hw_id="0xa3ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="8" />
-					<vfat id="1" hw_id="0xb7ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="9" />
-					<vfat id="2" hw_id="0x936a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="10" />
-					<vfat id="3" hw_id="0x93ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="11" />
+					<vfat id="0" hw_id="0xa3ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="8" />
+					<vfat id="1" hw_id="0xb7ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="9" />
+					<vfat id="2" hw_id="0x936a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="10" />
+					<vfat id="3" hw_id="0x93ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="11" />
 				</rp_plane>			
 				<rp_plane id="7">
-					<vfat id="0" hw_id="0x9b5d"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="12" />
-					<vfat id="1" hw_id="0x8fdd"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="13" />
-					<vfat id="2" hw_id="0x8f5d"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="14" />
-					<vfat id="3" hw_id="0xad5d"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="15" />
+					<vfat id="0" hw_id="0x9b5d"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="12" />
+					<vfat id="1" hw_id="0x8fdd"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="13" />
+					<vfat id="2" hw_id="0x8f5d"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="14" />
+					<vfat id="3" hw_id="0xad5d"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="15" />
 				</rp_plane>			
 				<rp_plane id="8">
-					<vfat id="0" hw_id="0xa5ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="0" />
-					<vfat id="1" hw_id="0x896a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="1" />
-					<vfat id="2" hw_id="0xcb6a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="2" />
-					<vfat id="3" hw_id="0x8b6a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="3" />
+					<vfat id="0" hw_id="0xa5ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="0" />
+					<vfat id="1" hw_id="0x896a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="1" />
+					<vfat id="2" hw_id="0xcb6a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="2" />
+					<vfat id="3" hw_id="0x8b6a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="3" />
 				</rp_plane>			
 				<rp_plane id="9">
-					<vfat id="0" hw_id="0x956a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="4" />
-					<vfat id="1" hw_id="0xb96a"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="5" />
-					<vfat id="2" hw_id="0x89ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="6" />
-					<vfat id="3" hw_id="0xb9ea"  SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="7" />
+					<vfat id="0" hw_id="0x956a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="4" />
+					<vfat id="1" hw_id="0xb96a"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="5" />
+					<vfat id="2" hw_id="0x89ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="6" />
+					<vfat id="3" hw_id="0xb9ea"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="7" />
 				</rp_plane>
 			</rp_detector_set> 
 
@@ -397,196 +397,196 @@
 		<station id="0">
 			<!--5e / 56 FAR BOTTOM -->
 			<rp_detector_set id="5">
-				<trigger_vfat hw_id="0x8d61" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="8"/>    				
+				<trigger_vfat hw_id="0x8d61" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="8"/>    				
 				<rp_plane id="0">	
-					<vfat id="0" hw_id="0xe3e7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0xbfe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xebe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xe967" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0xe3e7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0xbfe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xebe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xe967" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="1">
-					<vfat id="0" hw_id="0x97ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0x976a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xd9e7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0x9bea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="7"/>           
+					<vfat id="0" hw_id="0x97ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0x976a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xd9e7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0x9bea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="7"/>           
 				</rp_plane>			
 				<rp_plane id="2">
-					<vfat id="0" hw_id="0xd75e" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0xe1de" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0xd9de" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xfb5e" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="11"/>           
+					<vfat id="0" hw_id="0xd75e" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0xe1de" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0xd9de" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xfb5e" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="11"/>           
 				</rp_plane>			
 				<rp_plane id="3">
-					<vfat id="0" hw_id="0xaf6b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xc16b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0xc36b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xc1eb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="0" IdxInFiber="15"/>            
+					<vfat id="0" hw_id="0xaf6b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xc16b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0xc36b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xc1eb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="0" IdxInFiber="15"/>            
 				</rp_plane>			
 				<rp_plane id="4">
-					<vfat id="0" hw_id="0xddec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0xf96c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xc9ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0x996b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="3"/>             
+					<vfat id="0" hw_id="0xddec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0xf96c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xc9ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0x996b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="3"/>             
 				</rp_plane>			
 				<rp_plane id="5">
-					<vfat id="0" hw_id="0xa16b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xf36b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xf3eb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xff6b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xa16b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xf36b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xf3eb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xff6b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="7"/>
 				</rp_plane>			
 				<rp_plane id="6">
-					<vfat id="0" hw_id="0xd36b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0xcf6b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0xbdeb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xbd6b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="11"/>
+					<vfat id="0" hw_id="0xd36b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0xcf6b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0xbdeb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xbd6b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="11"/>
 				</rp_plane>			
 				<rp_plane id="7">
-					<vfat id="0" hw_id="0xefeb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xcfeb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0xf16b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xf1eb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="1" IdxInFiber="15"/>
+					<vfat id="0" hw_id="0xefeb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xcfeb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0xf16b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xf1eb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="1" IdxInFiber="15"/>
 				</rp_plane>			
 				<rp_plane id="8">
-					<vfat id="0" hw_id="0xcb6c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0x896c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xb9ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0x89ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0xcb6c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0x896c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xb9ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0x89ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="9">
-					<vfat id="0" hw_id="0x936c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0x93ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xb5ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xa36c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0x936c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0x93ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xb5ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xa36c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="7"/>
 				</rp_plane>
 			</rp_detector_set>
 			
 			<!--5f / 56 FAR HORIZONTAL -->	        
 			<rp_detector_set id="3">	
-				<trigger_vfat hw_id="0xafe1" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="8"/>				
+				<trigger_vfat hw_id="0xafe1" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="8"/>				
 				<rp_plane id="0">
-					<vfat id="0" hw_id="0x9fe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0x9be7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xd367" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xabe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0x9fe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0x9be7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xd367" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xabe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="1">
-					<vfat id="0" hw_id="0xd768" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xcf68" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xbde8" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xbd68" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xd768" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xcf68" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xbde8" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xbd68" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="7"/>
 				</rp_plane>			
 				<rp_plane id="2">
-					<vfat id="0" hw_id="0xbd67" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0xfd67" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0xff67" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xffe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="11"/>
+					<vfat id="0" hw_id="0xbd67" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0xfd67" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0xff67" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xffe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="11"/>
 				</rp_plane>			
 				<rp_plane id="3">
-					<vfat id="0" hw_id="0xb56a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xa36a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0xb5ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xbd6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="3" IdxInFiber="15"/>
+					<vfat id="0" hw_id="0xb56a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xa36a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0xb5ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xbd6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="3" IdxInFiber="15"/>
 				</rp_plane>			
 				<rp_plane id="4">
-					<vfat id="0" hw_id="0xefe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0xdd67" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xdde7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xf967" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0xefe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0xdd67" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xdde7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xf967" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="5">
-					<vfat id="0" hw_id="0xdbe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xf1e7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0xf767" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xf7e7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xdbe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xf1e7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0xf767" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xf7e7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="7"/>
 				</rp_plane>			
 				<rp_plane id="6">
-					<vfat id="0" hw_id="0xbde7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="8"/>
-					<vfat id="1" hw_id="0xbf67" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="9"/>
-					<vfat id="2" hw_id="0xed67" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="10"/>
-					<vfat id="3" hw_id="0xfbe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="11"/>
+					<vfat id="0" hw_id="0xbde7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="8"/>
+					<vfat id="1" hw_id="0xbf67" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="9"/>
+					<vfat id="2" hw_id="0xed67" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="10"/>
+					<vfat id="3" hw_id="0xfbe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="11"/>
 				</rp_plane>			
 				<rp_plane id="7">
-					<vfat id="0" hw_id="0xa76a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="12"/>
-					<vfat id="1" hw_id="0xa7ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="13"/>
-					<vfat id="2" hw_id="0x8bea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xe367" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="4" IdxInFiber="15"/>
+					<vfat id="0" hw_id="0xa76a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="12"/>
+					<vfat id="1" hw_id="0xa7ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="13"/>
+					<vfat id="2" hw_id="0x8bea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xe367" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="4" IdxInFiber="15"/>
 				</rp_plane>			
 				<rp_plane id="8">
-					<vfat id="0" hw_id="0xbbea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0xd3ea" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="1"/>
-					<vfat id="2" hw_id="0xbf6a" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="2"/>
-					<vfat id="3" hw_id="0xd967" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="3"/>
+					<vfat id="0" hw_id="0xbbea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0xd3ea" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="1"/>
+					<vfat id="2" hw_id="0xbf6a" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="2"/>
+					<vfat id="3" hw_id="0xd967" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="3"/>
 				</rp_plane>			
 				<rp_plane id="9">
-					<vfat id="0" hw_id="0xc1e7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="4"/>
-					<vfat id="1" hw_id="0xafe7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="5"/>
-					<vfat id="2" hw_id="0x9167" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="6"/>
-					<vfat id="3" hw_id="0xc3e7" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="5" IdxInFiber="7"/>
+					<vfat id="0" hw_id="0xc1e7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="4"/>
+					<vfat id="1" hw_id="0xafe7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="5"/>
+					<vfat id="2" hw_id="0x9167" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="6"/>
+					<vfat id="3" hw_id="0xc3e7" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="5" IdxInFiber="7"/>
 				</rp_plane>
 			</rp_detector_set>  
 			
 			<!-- 5d / 56 FAR TOP -->		        
 			<rp_detector_set id="4">	
-				<trigger_vfat hw_id="0xa5e1" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="8" />				
+				<trigger_vfat hw_id="0xa5e1" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="8" />				
 				<rp_plane id="0">
-					<vfat id="0" hw_id="0xd3e0" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="0"/>
-					<vfat id="1" hw_id="0x9d60" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="1" />
-					<vfat id="2" hw_id="0x9fe0" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="2" />
-					<vfat id="3" hw_id="0xad60" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="3" />
+					<vfat id="0" hw_id="0xd3e0" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="0"/>
+					<vfat id="1" hw_id="0x9d60" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="1" />
+					<vfat id="2" hw_id="0x9fe0" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="2" />
+					<vfat id="3" hw_id="0xad60" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="3" />
 				</rp_plane>			
 				<rp_plane id="1">
-					<vfat id="0" hw_id="0xc9de" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="4" />
-					<vfat id="1" hw_id="0xc95e" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="5" />
-					<vfat id="2" hw_id="0xedde" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="6" />
-					<vfat id="3" hw_id="0xddde" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="7" />
+					<vfat id="0" hw_id="0xc9de" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="4" />
+					<vfat id="1" hw_id="0xc95e" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="5" />
+					<vfat id="2" hw_id="0xedde" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="6" />
+					<vfat id="3" hw_id="0xddde" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="7" />
 				</rp_plane>			
 				<rp_plane id="2">
-					<vfat id="0" hw_id="0xff6c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="8" />
-					<vfat id="1" hw_id="0xffec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="9" />
-					<vfat id="2" hw_id="0x99ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="10" />
-					<vfat id="3" hw_id="0x996c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="11" />
+					<vfat id="0" hw_id="0xff6c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="8" />
+					<vfat id="1" hw_id="0xffec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="9" />
+					<vfat id="2" hw_id="0x99ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="10" />
+					<vfat id="3" hw_id="0x996c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="11" />
 				</rp_plane>			
 				<rp_plane id="3">
-					<vfat id="0" hw_id="0xe9ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="12" />
-					<vfat id="1" hw_id="0xafec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="13" />
-					<vfat id="2" hw_id="0xaf6c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="14" />
-					<vfat id="3" hw_id="0x9fec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="6" IdxInFiber="15" />
+					<vfat id="0" hw_id="0xe9ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="12" />
+					<vfat id="1" hw_id="0xafec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="13" />
+					<vfat id="2" hw_id="0xaf6c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="14" />
+					<vfat id="3" hw_id="0x9fec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="6" IdxInFiber="15" />
 				</rp_plane>			
 				<rp_plane id="4">
-					<vfat id="0" hw_id="0xe360" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="0" />
-					<vfat id="1" hw_id="0xcd60" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="1" />
-					<vfat id="2" hw_id="0xd760" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="2" />
-					<vfat id="3" hw_id="0xd360" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="3" />
+					<vfat id="0" hw_id="0xe360" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="0" />
+					<vfat id="1" hw_id="0xcd60" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="1" />
+					<vfat id="2" hw_id="0xd760" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="2" />
+					<vfat id="3" hw_id="0xd360" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="3" />
 				</rp_plane>			
 				<rp_plane id="5">
-					<vfat id="0" hw_id="0xb7eb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="4" />
-					<vfat id="1" hw_id="0x8deb" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="5" />
-					<vfat id="2" hw_id="0xc96b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="6" />
-					<vfat id="3" hw_id="0x8d6b" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="7" />
+					<vfat id="0" hw_id="0xb7eb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="4" />
+					<vfat id="1" hw_id="0x8deb" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="5" />
+					<vfat id="2" hw_id="0xc96b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="6" />
+					<vfat id="3" hw_id="0x8d6b" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="7" />
 				</rp_plane>			
 				<rp_plane id="6">
-					<vfat id="0" hw_id="0x8960" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="8" />
-					<vfat id="1" hw_id="0xa560" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="9" />
-					<vfat id="2" hw_id="0x8be0" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="10" />
-					<vfat id="3" hw_id="0xa7e0" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="11" />
+					<vfat id="0" hw_id="0x8960" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="8" />
+					<vfat id="1" hw_id="0xa560" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="9" />
+					<vfat id="2" hw_id="0x8be0" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="10" />
+					<vfat id="3" hw_id="0xa7e0" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="11" />
 				</rp_plane>			
 				<rp_plane id="7">
-					<vfat id="0" hw_id="0xe16c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="12" />
-					<vfat id="1" hw_id="0xf3ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="13" />
-					<vfat id="2" hw_id="0xa3ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="14"/>
-					<vfat id="3" hw_id="0xb56c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="7" IdxInFiber="15" />
+					<vfat id="0" hw_id="0xe16c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="12" />
+					<vfat id="1" hw_id="0xf3ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="13" />
+					<vfat id="2" hw_id="0xa3ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="14"/>
+					<vfat id="3" hw_id="0xb56c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="7" IdxInFiber="15" />
 				</rp_plane>			
 				<rp_plane id="8">
-					<vfat id="0" hw_id="0xbbec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="0" />
-					<vfat id="1" hw_id="0xc3ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="1" />
-					<vfat id="2" hw_id="0xc1ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="2" />
-					<vfat id="3" hw_id="0xd36c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="3" />
+					<vfat id="0" hw_id="0xbbec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="0" />
+					<vfat id="1" hw_id="0xc3ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="1" />
+					<vfat id="2" hw_id="0xc1ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="2" />
+					<vfat id="3" hw_id="0xd36c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="3" />
 				</rp_plane>			
 				<rp_plane id="9">
-					<vfat id="0" hw_id="0xf16c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="4" />
-					<vfat id="1" hw_id="0xe5ec" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="5" />
-					<vfat id="2" hw_id="0xc76c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="6" />
-					<vfat id="3" hw_id="0xa16c" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="7" />
+					<vfat id="0" hw_id="0xf16c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="4" />
+					<vfat id="1" hw_id="0xe5ec" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="5" />
+					<vfat id="2" hw_id="0xc76c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="6" />
+					<vfat id="3" hw_id="0xa16c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="7" />
 				</rp_plane>
 			</rp_detector_set> 
 			
