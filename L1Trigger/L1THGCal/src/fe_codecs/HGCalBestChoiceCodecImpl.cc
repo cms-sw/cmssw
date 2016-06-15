@@ -1,3 +1,4 @@
+
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
@@ -6,9 +7,21 @@
 HGCalBestChoiceCodecImpl::HGCalBestChoiceCodecImpl(const edm::ParameterSet& conf) :
     nData_(conf.getParameter<uint32_t>("NData")),
     dataLength_(conf.getParameter<uint32_t>("DataLength")),
-    nCellsInModule_(data_type::size)
+    nCellsInModule_(data_type::size),
+    linLSB_(conf.getParameter<double>("linLSB")),
+    adcsaturation_(conf.getParameter<double>("adcsaturation")),
+    adcnBits_(conf.getParameter<uint32_t>("adcnBits")),
+    tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
+    tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
+    tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
+    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits"))
 /*****************************************************************/
 {
+  // Cannot have more selected cells than the max number of cells
+  if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
+  adcLSB_ =  adcsaturation_/pow(2.,adcnBits_);
+  tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
+  triggerCellSaturationBits_ = triggerCellTruncationBits_ + dataLength_;
 }
 
 
@@ -34,13 +47,11 @@ std::vector<bool> HGCalBestChoiceCodecImpl::encode(const HGCalBestChoiceCodecImp
                     << "encode: Number of non-zero trigger cells larger than codec parameter\n"\
                     << "      : Number of energy values = "<<nData_<<"\n";
             }
-            // FIXME: a proper coding is needed here. Needs studies.
-            // For the moment truncate to 8 bits by keeping bits 10----3. 
-            // Values > 0x3FF are saturated to 0x3FF
-            if(value>0x3FF) value=0x3FF; // 10 bit saturation
+            // Saturate and truncate energy values
+            if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_);
             for(size_t i=0; i<dataLength_; i++)
             {
-                result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+2)));// remove the two lowest bits
+                result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+triggerCellTruncationBits_)));// remove the lowest bits (=triggerCellTruncationBits_)
             }
             idata++;
         }
@@ -80,17 +91,45 @@ HGCalBestChoiceCodecImpl::data_type HGCalBestChoiceCodecImpl::decode(const std::
     return result;
 }
 
-
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod, const std::vector<HGCEEDataFrame>& dataframes, data_type& data)
+void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod,
+        const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
+        std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes)
 /*****************************************************************/
 {
-    std::map<HGCTriggerDetId, uint32_t> payload;
+    double amplitude; uint32_t amplitude_int;
+   
+
+    for(const auto& frame : dataframes) {//loop on DIGI
+        for(const auto& tc_c : mod.triggerCellComponents()) { //treat only the HG cells in the considered module
+            if(tc_c.second==frame.id()) { //treat if the DIGI detID is the same of the considered GC cell
+                if (frame[2].mode()) {//TOT mode
+                    amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[2].data()) * tdcLSB_;
+                }
+                else {//ADC mode
+                    amplitude = double(frame[2].data()) * adcLSB_;
+                }
+
+                amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
+                if (amplitude_int>65535) amplitude_int = 65535;
+
+                linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
+            }
+        }
+    }
+}
+  
+
+/*****************************************************************/
+void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
+/*****************************************************************/
+{
+    std::map<HGCalDetId, uint32_t> payload;
     // sum energies in trigger cells
-    for(const auto& frame : dataframes)
+    for(const auto& frame : linearized_dataframes)
     {
         // FIXME: only EE
-        HGCEEDetId cellid(frame.id());
+        HGCalDetId cellid(frame.first);
         // find trigger cell associated to cell
         uint32_t tcid(0);
         for(const auto& tc_c : mod.triggerCellComponents())
@@ -106,10 +145,10 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Modul
             throw cms::Exception("BadGeometry")
                 << "Cannot find trigger cell corresponding to HGC cell "<<cellid<<"\n";
         }
-        HGCTriggerDetId triggercellid( tcid );
+        HGCalDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         // FIXME: need to transform ADC and TDC to the same linear scale on 12 bits
-        uint32_t value = frame[2].data(); // 'value' has to be a 12 bit word
+        uint32_t value = frame.second; // 'value' has to be a 12 bit word
         payload[triggercellid] += value; // 32 bits integer should be largely enough (maximum 7 12-bits sums are done)
 
     }
@@ -117,12 +156,12 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Modul
     for(const auto& id_value : payload)
     {
         uint32_t id = id_value.first.cell();
-        if(id>nCellsInModule_) // cell number starts at 1
+        if(id>=nCellsInModule_) 
         {
             throw cms::Exception("BadGeometry")
                 << "Number of trigger cells in module too large for available data payload\n";
         }
-        data.payload.at(id-1) = id_value.second;
+        data.payload.at(id) = id_value.second;
     }
 }
 
@@ -151,14 +190,14 @@ void HGCalBestChoiceCodecImpl::bestChoiceSelect(data_type& data)
                 return a > b; 
             } 
             );
-    // keep only the 12 first trigger cells
+    // keep only the first trigger cells
     for(size_t i=nData_; i<nCellsInModule_; i++)
     {
         sortedtriggercells.at(i).first = 0;
     }
     for(const auto& value_id : sortedtriggercells)
     {
-        if(value_id.second>nCellsInModule_) // cell number starts at 1
+        if(value_id.second>=nCellsInModule_)
         {
             throw cms::Exception("BadGeometry")
                 << "Number of trigger cells in module too large for available data payload\n";

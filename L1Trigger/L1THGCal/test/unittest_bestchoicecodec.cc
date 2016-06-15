@@ -30,10 +30,17 @@ void TestBestChoiceCodec::setUp()
 /*****************************************************************/
 {
     edm::ParameterSet params;
-    params.addParameter<std::string>("CodecName", "HGCalBestChoiceCodec");
-    params.addParameter<uint32_t>("CodecIndex", 1);
-    params.addParameter<uint32_t>("NData", 12);
-    params.addParameter<uint32_t>("DataLength", 8);
+    params.addParameter<std::string>("CodecName",     "HGCalBestChoiceCodec");
+    params.addParameter<uint32_t>   ("CodecIndex",    1);
+    params.addParameter<uint32_t>   ("NData",         12);
+    params.addParameter<uint32_t>   ("DataLength",    8);
+    params.addParameter<double>     ("linLSB",        100./1024. );
+    params.addParameter<double>     ("adcsaturation", 100.);
+    params.addParameter<uint32_t>   ("adcnBits",      10);
+    params.addParameter<double>     ("tdcsaturation", 10000 );
+    params.addParameter<uint32_t>   ("tdcnBits",      12);
+    params.addParameter<double>     ("tdcOnsetfC",    60);
+    params.addParameter<uint32_t>   ("triggerCellTruncationBits", 2);
     codec_.reset(new HGCalBestChoiceCodecImpl(params));
 
 }
