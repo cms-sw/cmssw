@@ -35,9 +35,9 @@ void HGCalImagingAlgo::makeClusters(
   if (verbosity < pINFO)
     {
       std::cout << "-------------------------------------------------------------" << std::endl;
-      std::cout << "HGC Imaging algorithm invoked for HGEE" << std::endl;
+      std::cout << "HGC Imaging algorithm invoked for " << (geometry->topology().subDetector()==ForwardSubdetector::HGCEE ? "EE" : "HEF")<< std::endl;
       std::cout << "delta_c " << delta_c << " kappa " << kappa;
-      if( doSharing ) std::cout << " showerSigma " << std::sqrt(sigma2);
+      //      if( doSharing ) std::cout << " showerSigma " << std::sqrt(sigma2);
       std::cout << std::endl;
     }
 
@@ -90,15 +90,16 @@ void HGCalImagingAlgo::makeClusters(
   //make the cluster vector
 }
 
-std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(){
+std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 
   reco::CaloID caloID = reco::CaloID::DET_HGCAL_ENDCAP;
+  std::vector< std::pair<DetId, float> > thisCluster;
   for (unsigned int i = 0; i < current_v.size(); i++){
     double energy = 0;
     Point position;
-    std::vector< std::pair<DetId, float> > thisCluster;
-    
+
     if( doSharing ) {
+
       std::vector<unsigned> seeds = findLocalMaximaInCluster(current_v[i]);
       //std::cout << " sharing found " << seeds.size() << " sub-cluster seeds in cluster " << i << std::endl;
       
@@ -109,15 +110,6 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(){
       // reset and run second pass after vetoing seeds
       // that result in trivial clusters (less than 2 effective cells)
       
-      if (verbosity < pINFO)
-	{ 
-	  std::cout << "******** NEW CLUSTER (HGCIA) ********" << std::endl;
-	  std::cout << "No. of cells = " << current_v[i].size() << std::endl;
-	  std::cout << "     Energy     = " << energy << std::endl;
-	  std::cout << "     Phi        = " << position.phi() << std::endl;
-	  std::cout << "     Eta        = " << position.eta() << std::endl;
-	  std::cout << "*****************************" << std::endl;
-	}
 
       for( unsigned isub = 0; isub < fractions.size(); ++isub ) {
 	double effective_hits = 0.0;
@@ -145,20 +137,21 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(){
 	    std::cout << "\t*****************************" << std::endl;
 	  }
 	clusters_v.push_back(reco::BasicCluster(energy, position, caloID, thisCluster, 
-						reco::CaloCluster::hgcal_em));
+						algoId));
 	thisCluster.clear();
       }
-    } else {
+    }else{
       position = calculatePosition(current_v[i]);    
       std::vector< KDNode >::iterator it;
       for (it = current_v[i].begin(); it != current_v[i].end(); it++)
 	{
 	  energy += (*it).data.isHalo ? 0. : (*it).data.weight;
 	  thisCluster.emplace_back(std::pair<DetId, float>((*it).data.detid,((*it).data.isHalo?0.:1.)));
-	}
+	};
       if (verbosity < pINFO)
 	{ 
-	  std::cout << "******** NEW CLUSTER ********" << std::endl;
+	  std::cout << "******** NEW CLUSTER (HGCIA) ********" << std::endl;
+	  std::cout << "Index          " << i                   << std::endl;
 	  std::cout << "No. of cells = " << current_v[i].size() << std::endl;
 	  std::cout << "     Energy     = " << energy << std::endl;
 	  std::cout << "     Phi        = " << position.phi() << std::endl;
@@ -166,8 +159,9 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(){
 	  std::cout << "*****************************" << std::endl;
 	}
       clusters_v.push_back(reco::BasicCluster(energy, position, caloID, thisCluster, 
-					      reco::CaloCluster::hgcal_em));
-    }    
+					      algoId));
+      thisCluster.clear();
+    }
   }
   return clusters_v; 
 }  
@@ -285,6 +279,11 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     //skip this as a potential cluster center because it fails the density cut
 
     nd[ds[i]].data.clusterIndex = clusterIndex;
+    if (verbosity < pINFO)
+      {
+	std::cout << "Adding new cluster with index " << clusterIndex+cluster_offset << std::endl;
+	std::cout << "Cluster center is hit " << ds[i] << std::endl;
+      }
     clusterIndex++;
   }
 
@@ -304,6 +303,10 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
 
   //make room in the temporary cluster vector for the additional clusterIndex clusters 
   // from this layer
+  if (verbosity < pINFO)
+    { 
+      std::cout << "resizing cluster vector by "<< clusterIndex << std::endl;
+    }
   current_v.resize(cluster_offset+clusterIndex);
 
   //assign points closer than dc to other clusters to border region
@@ -320,19 +323,12 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
 			   nd[i].dims[1]-delta_c,nd[i].dims[1]+delta_c);
       std::vector<KDNode> found;
       lp.search(search_box,found);
-      if(found.size()>1)
-	std::cout << "for cluster " << ci << " hit x "<< nd[i].dims[0] << " y "<<  nd[i].dims[1] 
-		  << " isBorder " <<  nd[i].data.isBorder << " found " 
-		  << found.size() << " hits " << std::endl;
 	
       for(unsigned int j = 1; j < found.size(); j++){
 	//check if the hit is not within d_c of another cluster
 	if(found[j].data.clusterIndex!=-1){
 	  float dist = distance(found[j].data,nd[i].data);
 	  if(dist < delta_c && found[j].data.clusterIndex!=ci){
-	    std::cout  << " hit x "<< found[j].data.x << " y "<< found[j].data.y  << " distance " << dist 
-		       << " cluster index " << found[j].data.clusterIndex << std::endl;
-
 	     //in which case we assign it to the border
 	    nd[i].data.isBorder = true;
 	    break;
@@ -353,15 +349,25 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
   }
 
   //flag points in cluster with density < rho_b as halo points, then fill the cluster vector 
-  for(unsigned int i = 1; i < nd.size(); i++){
+  for(unsigned int i = 0; i < nd.size(); i++){
     int ci = nd[i].data.clusterIndex;
     if(ci!=-1 && nd[i].data.rho < rho_b[ci])
       nd[i].data.isHalo = true;
-    if(nd[i].data.clusterIndex!=-1) 
+    if(nd[i].data.clusterIndex!=-1){ 
       current_v[ci+cluster_offset].push_back(nd[i]);
+      if (verbosity < pINFO)
+	{ 
+	  std::cout << "Pushing hit " << i << " into cluster with index " << ci+cluster_offset << std::endl;
+	  std::cout << "Size now " << current_v[ci+cluster_offset].size() << std::endl;
+	}
+    }
   }
 
   //prepare the offset for the next layer if there is one
+  if (verbosity < pINFO)
+    { 
+      std::cout << "moving cluster offset by " << clusterIndex << std::endl;
+    }
   cluster_offset += clusterIndex;
   return clusterIndex;
 }
