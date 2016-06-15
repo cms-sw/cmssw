@@ -771,7 +771,7 @@ bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 bool MuonIdProducer::isME0Muon( const reco::Muon& muon )
 {
   // need to update min cuts on pt
-  if(muon.track()->p() < 3. ) return false;
+  if(muon.track()->p() < minP_) return false;
   return ( muon.numberOfMatches( reco::Muon::ME0SegmentAndTrackArbitration ) >= 1 );
 }
 
