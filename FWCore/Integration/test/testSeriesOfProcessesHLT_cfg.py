@@ -98,6 +98,10 @@ process.fakeHLTDebug = cms.EDProducer(
   ivalue = cms.int32(1000)
 )
 
+process.missingDictionaryTest = cms.EDProducer("MissingDictionaryTestProducer",
+  inputTag = cms.InputTag("dummy1")
+)
+
 process.out = cms.OutputModule("EventStreamFileWriter",
   fileName = cms.untracked.string('testSeriesOfProcessesHLT.dat'),
   compression_level = cms.untracked.int32(1),
@@ -109,7 +113,7 @@ process.p01 = cms.Path(process.f1)
 process.p02 = cms.Path(~process.f2a*process.f2b)
 process.p03 = cms.Path(process.f3)
 process.p04 = cms.Path(process.a *
-                       process.fakeRaw * process.fakeHLTDebug *
+                       process.fakeRaw * process.fakeHLTDebug * process.missingDictionaryTest *
                        process.f4)
 
 process.e = cms.EndPath(process.out)

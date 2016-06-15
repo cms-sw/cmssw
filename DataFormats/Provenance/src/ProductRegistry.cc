@@ -43,8 +43,7 @@ namespace edm {
       lumiNextIndexValue_(0),
       runNextIndexValue_(0),
 
-      branchIDToIndex_(),
-      missingDictionaries_() {
+      branchIDToIndex_() {
     for(bool& isProduced : productProduced_) isProduced = false;
   }
 
@@ -64,7 +63,6 @@ namespace edm {
     runNextIndexValue_ = 0;
 
     branchIDToIndex_.clear();
-    missingDictionaries_.clear();
   }
 
   ProductRegistry::ProductRegistry(ProductList const& productList, bool toBeFrozen) :
@@ -158,16 +156,17 @@ namespace edm {
     if(frozen()) return;
     freezeIt();
     if(initializeLookupInfo) {
-      initializeLookupTables(nullptr);
+      initializeLookupTables(nullptr, nullptr);
     }
     sort_all(transient_.aliasToOriginal_);
   }
 
   void
-  ProductRegistry::setFrozen(std::set<TypeID> const& typesConsumed) {
+  ProductRegistry::setFrozen(std::set<TypeID> const& productTypesConsumed,
+                             std::set<TypeID> const& elementTypesConsumed) {
     if(frozen()) return;
     freezeIt();
-    initializeLookupTables(&typesConsumed);
+    initializeLookupTables(&productTypesConsumed, &elementTypesConsumed);
     sort_all(transient_.aliasToOriginal_);
   }
 
@@ -273,10 +272,13 @@ namespace edm {
     return differences.str();
   }
 
-  void ProductRegistry::initializeLookupTables(std::set<TypeID> const* typesConsumed) {
+  void ProductRegistry::initializeLookupTables(std::set<TypeID> const* productTypesConsumed,
+                                               std::set<TypeID> const* elementTypesConsumed) {
 
     std::map<TypeID, TypeID> containedTypeMap;
-    TypeSet missingDicts;
+
+    std::vector<std::string> missingDictionaries;
+    std::vector<std::string> branchNamesForMissing;
 
     transient_.branchIDToIndex_.clear();
 
@@ -289,65 +291,88 @@ namespace edm {
 
       //only do the following if the data is supposed to be available in the event
       if(desc.present()) {
-        if(!bool(desc.unwrappedType())) {
-          missingDicts.insert(TypeID(desc.unwrappedType().typeInfo()));
-        } else if(!bool(desc.wrappedType())) {
-          missingDicts.insert(TypeID(desc.wrappedType().typeInfo()));
-        } else {
-          TypeID wrappedTypeID(desc.wrappedType().typeInfo());
-          TypeID typeID(desc.unwrappedType().typeInfo());
-          TypeID containedTypeID;
-          auto const& iter = containedTypeMap.find(typeID);
-          if(iter != containedTypeMap.end()) {
-             containedTypeID = iter->second;
-          } else {
-             containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(wrappedTypeID, typeID.className());
-             containedTypeMap.emplace(typeID, containedTypeID);
-          }
-          if(typesConsumed != nullptr && !desc.produced()) {
-            bool mainTypeConsumed = (typesConsumed->find(typeID) != typesConsumed->end());
-            bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
-            bool containedTypeConsumed = hasContainedType && (typesConsumed->find(containedTypeID) != typesConsumed->end());
-            if(hasContainedType && !containedTypeConsumed) {
-              TypeWithDict containedType(containedTypeID.typeInfo());
-              std::vector<TypeWithDict> baseTypes;
-              public_base_classes(containedType, baseTypes);
-              for(TypeWithDict const& baseType : baseTypes) {
-                 if(typesConsumed->find(TypeID(baseType.typeInfo())) != typesConsumed->end()) {
-                   containedTypeConsumed = true;
-                   break;
-                 }
-              }
-            }
-            if(!containedTypeConsumed) {
-              if(mainTypeConsumed) {
-                // The main type is consumed, but either
-                // there is no contained type, or if there is,
-                // neither it nor any of its base classes are consumed.
-                // Set the contained type, if there is one, to void,
-                if(hasContainedType) {
-		  containedTypeID = TypeID(typeid(void)); 
-                }
-              } else {
-                // The main type is not consumed, and either
-                // there is no contained type, or if there is,
-                // neither it nor any of its base classes are consumed.
-                // Don't insert anything in the lookup tables.
-                continue;
-              } 
-            }
-          }
-          ProductResolverIndex index =
-            productLookup(desc.branchType())->insert(typeID,
-                                                     desc.moduleLabel().c_str(),
-                                                     desc.productInstanceName().c_str(),
-                                                     desc.processName().c_str(),
-                                                     containedTypeID);
 
-          transient_.branchIDToIndex_[desc.branchID()] = index;
+        // Check dictionaries (we already checked for the produced ones earlier somewhere else).
+        // We have to have the dictionaries to properly setup the lookup tables for support of
+        // Views. Also we need them to determine which present products are declared to be
+        // consumed in the case where the consumed type is a View<T>.
+        if(!desc.produced()) {
+          if (!checkDictionary(missingDictionaries, desc.className(), desc.unwrappedType())) {
+            checkDictionaryOfWrappedType(missingDictionaries, desc.className());
+            branchNamesForMissing.emplace_back(desc.branchName());
+            continue;
+          }
         }
+        TypeID typeID(desc.unwrappedType().typeInfo());
+
+        TypeID containedTypeID;
+        auto iter = containedTypeMap.find(typeID);
+        bool alreadySawThisType = (iter != containedTypeMap.end());
+        if(alreadySawThisType) {
+           containedTypeID = iter->second;
+        }
+
+        if(!desc.produced() && !alreadySawThisType) {
+          // This checks dictionaries of the wrapped class and all its constituent classes
+          if (!checkClassDictionaries(missingDictionaries, desc.wrappedName(), desc.wrappedType())) {
+            branchNamesForMissing.emplace_back(desc.branchName());
+            continue;
+          }
+        }
+        TypeID wrappedTypeID(desc.wrappedType().typeInfo());
+
+        if(!alreadySawThisType) {
+           containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(wrappedTypeID, typeID.className());
+           containedTypeMap.emplace(typeID, containedTypeID);
+        }
+        if(productTypesConsumed != nullptr && !desc.produced()) {
+          bool mainTypeConsumed = (productTypesConsumed->find(typeID) != productTypesConsumed->end());
+          bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
+          bool containedTypeConsumed = hasContainedType && (elementTypesConsumed->find(containedTypeID) != elementTypesConsumed->end());
+          if(hasContainedType && !containedTypeConsumed) {
+            TypeWithDict containedType(containedTypeID.typeInfo());
+            std::vector<TypeWithDict> baseTypes;
+            public_base_classes(containedType, baseTypes);
+            for(TypeWithDict const& baseType : baseTypes) {
+               if(elementTypesConsumed->find(TypeID(baseType.typeInfo())) != elementTypesConsumed->end()) {
+                 containedTypeConsumed = true;
+                 break;
+               }
+            }
+          }
+          if(!containedTypeConsumed) {
+            if(mainTypeConsumed) {
+              // The main type is consumed, but either
+              // there is no contained type, or if there is,
+              // neither it nor any of its base classes are consumed.
+              // Set the contained type, if there is one, to void,
+              if(hasContainedType) {
+	        containedTypeID = TypeID(typeid(void));
+              }
+            } else {
+              // The main type is not consumed, and either
+              // there is no contained type, or if there is,
+              // neither it nor any of its base classes are consumed.
+              // Don't insert anything in the lookup tables.
+              continue;
+            }
+          }
+        }
+        ProductResolverIndex index =
+          productLookup(desc.branchType())->insert(typeID,
+                                                   desc.moduleLabel().c_str(),
+                                                   desc.productInstanceName().c_str(),
+                                                   desc.processName().c_str(),
+                                                   containedTypeID);
+
+        transient_.branchIDToIndex_[desc.branchID()] = index;
       }
     }
+    if (!missingDictionaries.empty()) {
+      std::string context("Calling ProductRegistry::initializeLookupTables, checking dictionaries for present types");
+      throwMissingDictionariesException(missingDictionaries, context, branchNamesForMissing);
+    }
+
     productLookup(InEvent)->setFrozen();
     productLookup(InLumi)->setFrozen();
     productLookup(InRun)->setFrozen();
@@ -363,9 +388,51 @@ namespace edm {
         ++nextIndexValue(desc.branchType());
       }
     }
+    checkDictionariesOfConsumedTypes(productTypesConsumed, elementTypesConsumed, containedTypeMap);
+  }
 
-    missingDictionariesForUpdate().reserve(missingDicts.size());
-    copy_all(missingDicts, std::back_inserter(missingDictionariesForUpdate()));
+  void
+  ProductRegistry::checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
+                                                    std::set<TypeID> const* elementTypesConsumed,
+                                                    std::map<TypeID, TypeID> const& containedTypeMap) {
+
+    std::vector<std::string> missingDictionaries;
+
+    if (productTypesConsumed) {
+
+      // Check dictionaries for all classes declared to be consumed
+      for (auto const& consumedTypeID : *productTypesConsumed) {
+
+        // We use the containedTypeMap only to see which types have already
+        // had their dictionaries checked. We do not waste time rechecking those
+        // dictionaries here.
+        if (containedTypeMap.find(consumedTypeID) == containedTypeMap.end()) {
+
+          std::string wrappedName = wrappedClassName(consumedTypeID.className());
+          TypeWithDict wrappedType = TypeWithDict::byName(wrappedName);
+          if (!checkDictionary(missingDictionaries, wrappedName, wrappedType)) {
+            checkDictionary(missingDictionaries, consumedTypeID);
+            continue;
+          }
+          checkClassDictionaries(missingDictionaries, wrappedName, wrappedType);
+        }
+      }
+      if (!missingDictionaries.empty()) {
+        std::string context("Calling ProductRegistry::initializeLookupTables, checking dictionaries for consumed products");
+        throwMissingDictionariesException(missingDictionaries, context);
+      }
+    }
+
+    if (elementTypesConsumed) {
+      missingDictionaries.clear();
+      for (auto const& consumedTypeID : *elementTypesConsumed) {
+        checkClassDictionaries(missingDictionaries, consumedTypeID);
+      }
+      if (!missingDictionaries.empty()) {
+        std::string context("Calling ProductRegistry::initializeLookupTables, checking dictionaries for consumed elements of products");
+        throwMissingDictionariesException(missingDictionaries, context);
+      }
+    }
   }
 
   ProductResolverIndex ProductRegistry::indexFrom(BranchID const& iID) const {
