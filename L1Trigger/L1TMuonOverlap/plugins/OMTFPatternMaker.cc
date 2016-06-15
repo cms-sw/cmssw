@@ -60,18 +60,23 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
   if (!omtfParams) {
     edm::LogError("L1TMuonOverlapTrackProducer") << "Could not retrieve parameters from Event Setup" << std::endl;
   }
-  
-  myOMTFConfig->configure(omtfParams);
-  myOMTF->configure(myOMTFConfig, omtfParams);
 
+  ///Initialise XML writer with default pdf.
   myWriter = new XMLConfigWriter(myOMTFConfig);
-  std::string fName = "OMTF";
-  myWriter->initialiseXMLDocument(fName);
 
-  ///For making the patterns use extended pdf width in phi
-  ////Ugly hack to modify configuration parameters at runtime.
-  //FIXME myOMTFConfig->rawParams().nPdfAddrBits = 14;
+  ///For making the patterns use extended pdf width in phi, as pdf are later shifted by the mean value
+  ///For low pt muons non shifted pdfs would go out of the default pdf range.
+  L1TMuonOverlapParams omtfParamsMutable = *omtfParams;
+  std::vector<int> generalParams = *omtfParamsMutable.generalParams();
+  nPdfAddrBits = omtfParams->nPdfAddrBits();
 
+  if(!mergeXMLFiles) generalParams[L1TMuonOverlapParams::GENERAL_ADDRBITS] = 2*nPdfAddrBits;
+  omtfParamsMutable.setGeneralParams(generalParams);
+  
+  myOMTFConfig->configure(&omtfParamsMutable);
+  myOMTF->configure(myOMTFConfig, omtfParams);
+  myOMTFConfigMaker = new OMTFConfigMaker(myOMTFConfig);
+  
   ///Clear existing GoldenPatterns
   const std::map<Key,GoldenPattern*> & theGPs = myOMTF->getPatterns();
   for(auto itGP: theGPs) itGP.second->reset();
@@ -82,7 +87,6 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
 void OMTFPatternMaker::beginJob(){
 
     myOMTFConfig = new OMTFConfiguration();
-    myOMTFConfigMaker = new OMTFConfigMaker(myOMTFConfig);
     myOMTF = new OMTFProcessor();
 }
 /////////////////////////////////////////////////////
@@ -90,16 +94,23 @@ void OMTFPatternMaker::beginJob(){
 void OMTFPatternMaker::endJob(){
 
   if(makeGoldenPatterns && !makeConnectionsMaps){
-    std::string fName = "OMTF";
-    myWriter->initialiseXMLDocument(fName);
+    myWriter->initialiseXMLDocument("OMTF");
     const std::map<Key,GoldenPattern*> & myGPmap = myOMTF->getPatterns();
     for(auto itGP: myGPmap){
       if(!itGP.second->hasCounts()) continue;
-      itGP.second->normalise();
+      itGP.second->normalise(nPdfAddrBits);
     }
 
-    ////Ugly hack to modify configuration parameters at runtime.
-    //FIXME myOMTFConfig->nPdfAddrBits = 7;
+    GoldenPattern dummyGP(Key(0,0,0), myOMTFConfig);
+    dummyGP.reset();
+
+    ///Put back default value of the pdf width.
+    L1TMuonOverlapParams omtfParamsMutable = *myOMTFConfig->getRawParams();
+    std::vector<int> generalParams = *omtfParamsMutable.generalParams();
+    generalParams[L1TMuonOverlapParams::GENERAL_ADDRBITS] = nPdfAddrBits;
+    omtfParamsMutable.setGeneralParams(generalParams);
+    myOMTFConfig->configure(&omtfParamsMutable);
+    
     for(auto itGP: myGPmap){
       ////
       unsigned int iPt = theConfig.getParameter<int>("ptCode")+1;
@@ -109,14 +120,15 @@ void OMTFPatternMaker::endJob(){
       if(itGP.first.thePtCode==iPt && 
 	 itGP.first.theCharge==theConfig.getParameter<int>("charge")){ 
 	std::cout<<*itGP.second<<std::endl;      
-	myWriter->writeGPData(*itGP.second);
+	myWriter->writeGPData(*itGP.second, dummyGP, dummyGP, dummyGP);
       }
     }
-    fName = "GPs.xml";
+    std::string fName = "GPs.xml";
     myWriter->finaliseXMLDocument(fName);        
   }
   
   if(makeConnectionsMaps && !makeGoldenPatterns){
+    myWriter->initialiseXMLDocument("OMTF");    
     std::string fName = "Connections.xml";
     unsigned int iProcessor = 0;
     ///Order important: printPhiMap updates global vector in OMTFConfiguration
