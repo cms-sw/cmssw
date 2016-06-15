@@ -65,19 +65,18 @@ class PixelTemplateSmearerBase:
         std::map<unsigned int, const SimpleHistogramGenerator*> theXHistos;
         std::map<unsigned int, const SimpleHistogramGenerator*> theYHistos;
 
-        TFile* thePixelResolutionFile1;
-        std::string thePixelResolutionFileName1;
-        TFile* thePixelResolutionFile2;
-        std::string thePixelResolutionFileName2;
-        TFile* thePixelResolutionFile3;
-        std::string thePixelResolutionFileName3;
-        TFile* probfile;
-        std::string probfileName;
-        TFile* thePixelResolutionMergedXFile;
-        std::string thePixelResolutionMergedXFileName;
-        TFile* thePixelResolutionMergedYFile;                                                                                          
-        std::string thePixelResolutionMergedYFileName;
-
+        TFile* theEdgePixelResolutionFile;
+        std::string theEdgePixelResolutionFileName;
+        TFile* theBigPixelResolutionFile;
+        std::string theBigPixelResolutionFileName;
+        TFile* theRegularPixelResolutionFile;
+        std::string theRegularPixelResolutionFileName;
+        TFile* theMergingProbabilityFile;
+        std::string theMergingProbabilityFileName;
+        TFile* theMergedPixelResolutionXFile;
+        std::string theMergedPixelResolutionXFileName;
+        TFile* theMergedPixelResolutionYFile;                                                                                        
+        std::string theMergedPixelResolutionYFileName;
 
         unsigned int theLayer;
 

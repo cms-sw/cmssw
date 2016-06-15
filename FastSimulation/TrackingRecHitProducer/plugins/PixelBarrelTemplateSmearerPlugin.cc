@@ -50,19 +50,21 @@ PixelBarrelTemplateSmearerPlugin::PixelBarrelTemplateSmearerPlugin(
     PixelTemplateSmearerBase(name,config,consumesCollector)
 {
     isForward = false;
-    thePixelResolutionFileName1 = config.getParameter<string>( "NewPixelBarrelResolutionFile1" );
-    thePixelResolutionFile1 = new TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
-    thePixelResolutionFileName2 =  config.getParameter<string>( "NewPixelBarrelResolutionFile2" );
-    thePixelResolutionFile2 = new TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
-    thePixelResolutionFileName3 = config.getParameter<string>( "NewPixelBarrelResolutionFile3" );
-    thePixelResolutionFile3 = new TFile( edm::FileInPath( thePixelResolutionFileName3 ).fullPath().c_str()  ,"READ");
+
+    theBigPixelResolutionFileName = config.getParameter<string>( "BigPixelBarrelResolutionFile" );
+    theBigPixelResolutionFile = new TFile( edm::FileInPath( theBigPixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theEdgePixelResolutionFileName =  config.getParameter<string>( "EdgePixelBarrelResolutionFile" );
+    theEdgePixelResolutionFile = new TFile( edm::FileInPath( theEdgePixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theRegularPixelResolutionFileName = config.getParameter<string>( "RegularPixelBarrelResolutionFile" );
+    theRegularPixelResolutionFile = new TFile( edm::FileInPath( theRegularPixelResolutionFileName ).fullPath().c_str()  ,"READ");
     
-    probfileName = config.getParameter<string>( "probfilebarrel" );
-    probfile = new TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
-    thePixelResolutionMergedXFileName = config.getParameter<string>( "pixelresxmergedbarrel" );
-    thePixelResolutionMergedXFile = new TFile( edm::FileInPath( thePixelResolutionMergedXFileName ).fullPath().c_str()  ,"READ");
-    thePixelResolutionMergedYFileName = config.getParameter<string>( "pixelresymergedbarrel" );
-    thePixelResolutionMergedYFile = new TFile( edm::FileInPath( thePixelResolutionMergedYFileName ).fullPath().c_str()  ,"READ");
+    theMergingProbabilityFileName = config.getParameter<string>( "MergingProbabilityBarrelFile" );
+    theMergingProbabilityFile = new TFile( edm::FileInPath( theMergingProbabilityFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionXFileName = config.getParameter<string>( "MergedPixelBarrelResolutionXFile" );
+    theMergedPixelResolutionXFile = new TFile( edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionYFileName = config.getParameter<string>( "MergedPixelBarrelResolutionYFile" );
+    theMergedPixelResolutionYFile = new TFile( edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath().c_str()  ,"READ");
+
     initializeBarrel();
     
     if (!SiPixelTemplate::pushfile(templateId, thePixelTemp_))
@@ -95,26 +97,26 @@ void PixelBarrelTemplateSmearerPlugin::initializeBarrel()
         for (unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin)
         {
             unsigned int singleBigPixelHistN = 1*100000 + cotalphaHistBin*100 + cotbetaHistBin;
-            theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustBPIX/hx%u",singleBigPixelHistN)));
-            theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustBPIX/hy%u",singleBigPixelHistN)));
+            theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)theBigPixelResolutionFile->Get(Form("DQMData/clustBPIX/hx%u",singleBigPixelHistN)));
+            theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)theBigPixelResolutionFile->Get(Form("DQMData/clustBPIX/hy%u",singleBigPixelHistN)));
 
             unsigned int singlePixelHistN = 1*10000 + cotbetaHistBin*10 + cotalphaHistBin;
-            theXHistos[singlePixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile3->Get(Form("hx%u",singlePixelHistN)));
-            theYHistos[singlePixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile3->Get(Form("hy%u",singlePixelHistN)));
+            theXHistos[singlePixelHistN] = new SimpleHistogramGenerator((TH1F*)theRegularPixelResolutionFile->Get(Form("hx%u",singlePixelHistN)));
+            theYHistos[singlePixelHistN] = new SimpleHistogramGenerator((TH1F*)theRegularPixelResolutionFile->Get(Form("hy%u",singlePixelHistN)));
             
             for(unsigned qbinBin=1; qbinBin<=resqbin_binN; ++qbinBin )
             {
                 unsigned int edgePixelHistN = cotalphaHistBin*1000 + cotbetaHistBin*10 + qbinBin;
-                theXHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile2->Get(Form("DQMData/clustBPIX/hx0%u",edgePixelHistN)));
-                theYHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile2->Get(Form("DQMData/clustBPIX/hy0%u",edgePixelHistN)));
+                theXHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)theEdgePixelResolutionFile->Get(Form("DQMData/clustBPIX/hx0%u",edgePixelHistN)));
+                theYHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)theEdgePixelResolutionFile->Get(Form("DQMData/clustBPIX/hy0%u",edgePixelHistN)));
                 
                 unsigned int multiPixelBigHistN = 1*1000000 + 1*100000 + cotalphaHistBin*1000 + cotbetaHistBin * 10 + qbinBin;
-                theXHistos[multiPixelBigHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustBPIX/hx%u",multiPixelBigHistN)));
-                theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustBPIX/hy%u",multiPixelBigHistN)));
+                theXHistos[multiPixelBigHistN] = new SimpleHistogramGenerator((TH1F*)theBigPixelResolutionFile->Get(Form("DQMData/clustBPIX/hx%u",multiPixelBigHistN)));
+                theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator((TH1F*)theBigPixelResolutionFile->Get(Form("DQMData/clustBPIX/hy%u",multiPixelBigHistN)));
                 
                 unsigned int multiPixelHistN = 1*100000 + 1*10000 + cotbetaHistBin*100 + cotalphaHistBin*10 + qbinBin;
-                theXHistos[multiPixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile3->Get(Form("hx%u",multiPixelHistN)));
-                theYHistos[multiPixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile3->Get(Form("hy%u",multiPixelHistN)));
+                theXHistos[multiPixelHistN] = new SimpleHistogramGenerator((TH1F*)theRegularPixelResolutionFile->Get(Form("hx%u",multiPixelHistN)));
+                theYHistos[multiPixelHistN] = new SimpleHistogramGenerator((TH1F*)theRegularPixelResolutionFile->Get(Form("hy%u",multiPixelHistN)));
             }
         }
     }

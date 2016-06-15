@@ -67,17 +67,21 @@ PixelForwardTemplateSmearerPlugin::PixelForwardTemplateSmearerPlugin(
 {
 
     isForward = true;
-    thePixelResolutionFileName1 = config.getParameter<string>( "NewPixelForwardResolutionFile" );
-    thePixelResolutionFile1 = new TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
-    thePixelResolutionFileName2 = config.getParameter<string>( "NewPixelForwardResolutionFile2" );
-    thePixelResolutionFile2 = new TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
+
+    theEdgePixelResolutionFileName = config.getParameter<string>( "EdgePixelForwardResolutionFile" );
+    theEdgePixelResolutionFile = new TFile( edm::FileInPath( theEdgePixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theBigPixelResolutionFileName = config.getParameter<string>( "BigPixelForwardResolutionFile" );
+    theBigPixelResolutionFile = new TFile( edm::FileInPath( theBigPixelResolutionFileName ).fullPath().c_str()  ,"READ");
+    theRegularPixelResolutionFileName = config.getParameter<string>( "RegularPixelForwardResolutionFile" );
+    theRegularPixelResolutionFile = new TFile( edm::FileInPath( theRegularPixelResolutionFileName ).fullPath().c_str()  ,"READ");
     
-    probfileName = config.getParameter<string>( "probfileforward" );
-    probfile =new TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
-    thePixelResolutionMergedXFileName = config.getParameter<string>( "pixelresxmergedforward" );
-    thePixelResolutionMergedXFile = new TFile( edm::FileInPath( thePixelResolutionMergedXFileName ).fullPath().c_str()  ,"READ");
-    thePixelResolutionMergedYFileName = config.getParameter<string>( "pixelresymergedforward" );
-    thePixelResolutionMergedYFile = new TFile( edm::FileInPath( thePixelResolutionMergedYFileName ).fullPath().c_str()  ,"READ");
+    theMergingProbabilityFileName = config.getParameter<string>( "MergingProbabilityForwardFile" );
+    theMergingProbabilityFile =new TFile( edm::FileInPath( theMergingProbabilityFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionXFileName = config.getParameter<string>( "MergedPixelForwardResolutionXFile" );
+    theMergedPixelResolutionXFile = new TFile( edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionYFileName = config.getParameter<string>( "MergedPixelForwardResolutionYFile" );
+    theMergedPixelResolutionYFile = new TFile( edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath().c_str()  ,"READ");
+
     initializeForward();
     
     
@@ -114,12 +118,12 @@ void PixelForwardTemplateSmearerPlugin::initializeForward()
             for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )
             {
                 unsigned int edgePixelHistN = cotalphaHistBin*1000 +  cotbetaHistBin*10 +  qbinBin;
-                theXHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustFPIX/fhx0%u",edgePixelHistN)));
-                theYHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustFPIX/fhy0%u",edgePixelHistN)));
+                theXHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)theEdgePixelResolutionFile->Get(Form("DQMData/clustFPIX/fhx0%u",edgePixelHistN)));
+                theYHistos[edgePixelHistN] = new SimpleHistogramGenerator((TH1F*)theEdgePixelResolutionFile->Get(Form("DQMData/clustFPIX/fhy0%u",edgePixelHistN)));
                 
                 unsigned int PixelHistN = 10000 + cotbetaHistBin*100 +  cotalphaHistBin*10 +  qbinBin;
-                theXHistos[PixelHistN] = new SimpleHistogramGenerator((TH1F*) thePixelResolutionFile2->Get(Form("hx0%u",PixelHistN)));
-                theYHistos[PixelHistN] = new SimpleHistogramGenerator((TH1F*) thePixelResolutionFile2->Get(Form("hy0%u",PixelHistN)));
+                theXHistos[PixelHistN] = new SimpleHistogramGenerator((TH1F*) theRegularPixelResolutionFile->Get(Form("hx0%u",PixelHistN)));
+                theYHistos[PixelHistN] = new SimpleHistogramGenerator((TH1F*) theRegularPixelResolutionFile->Get(Form("hy0%u",PixelHistN)));
             }
         }
     }
@@ -129,12 +133,12 @@ void PixelForwardTemplateSmearerPlugin::initializeForward()
         for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin)
         {
             unsigned int SingleBigPixelHistN = 100000 + cotalphaHistBin*100 + cotbetaHistBin;
-            theXHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustFPIX/fhx%u",SingleBigPixelHistN)));
-            theYHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile1->Get(Form("DQMData/clustFPIX/fhy%u",SingleBigPixelHistN)));
+            theXHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)theBigPixelResolutionFile->Get(Form("DQMData/clustFPIX/fhx%u",SingleBigPixelHistN)));
+            theYHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator((TH1F*)theBigPixelResolutionFile->Get(Form("DQMData/clustFPIX/fhy%u",SingleBigPixelHistN)));
             
             unsigned int SinglePixelHistN = cotbetaHistBin*10 + cotalphaHistBin;
-            theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile2->Get(Form("hx000%u",SinglePixelHistN)));
-            theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator((TH1F*)thePixelResolutionFile2->Get(Form("hy000%u",SinglePixelHistN)));
+            theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator((TH1F*)theRegularPixelResolutionFile->Get(Form("hx000%u",SinglePixelHistN)));
+            theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator((TH1F*)theRegularPixelResolutionFile->Get(Form("hy000%u",SinglePixelHistN)));
         }
     }
 }

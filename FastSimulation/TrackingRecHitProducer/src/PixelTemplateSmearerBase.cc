@@ -145,16 +145,13 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                                     MergeGroup * mgbhj = mergeGroupByHit[j];                                                               
                                     for ( int k = 0; k < nHits; ++k )
                                     {
-                                        if (k != j)
-                                        {
                                             if ( mgbhj == mergeGroupByHit[k])
                                             {
                                                 // Hit k also uses the same merge group, tell them to switch to mgbh[i]                                             
                                                 mergeGroupByHit[k] = mergeGroupByHit[i];
-                                            }
-                                        }
+					    }
                                     }
-                                    mergeGroupByHit[j]->smearIt = 0;
+                                    mgbhj->smearIt = 0;
                                     mergeGroupByHit[i]->smearIt = 1;
 
                                     //  Step 3 would have been to delete mgbh[j]... however, we'll do that at the end anyway.                              
@@ -922,8 +919,8 @@ smearMergeGroup(
     unsigned int retry = 0;
     do
     {
-        const SimpleHistogramGenerator* xgen = new SimpleHistogramGenerator( (TH1F*) thePixelResolutionMergedXFile-> Get("th1x")); 
-        const SimpleHistogramGenerator* ygen = new SimpleHistogramGenerator( (TH1F*) thePixelResolutionMergedYFile-> Get("th1y")); 
+        const SimpleHistogramGenerator* xgen = new SimpleHistogramGenerator( (TH1F*) theMergedPixelResolutionXFile-> Get("th1x")); 
+        const SimpleHistogramGenerator* ygen = new SimpleHistogramGenerator( (TH1F*) theMergedPixelResolutionYFile-> Get("th1y")); 
 
         thePositionX = xgen->generate(random);
         thePositionY = ygen->generate(random);
@@ -973,7 +970,7 @@ bool PixelTemplateSmearerBase::hitsMerge(const PSimHit& simHit1,const PSimHit& s
     float lpy2 = lp2.y();
     float lpx2 = lp2.x();
     float locdis = 10000.* sqrt(pow(lpx1 - lpx2, 2) + pow(lpy1 - lpy2, 2));
-    TH2F * probhisto = (TH2F*)probfile->Get("h2bc");
+    TH2F * probhisto = (TH2F*)theMergingProbabilityFile->Get("h2bc");
     float prob = probhisto->GetBinContent(probhisto->GetXaxis()->FindFixBin(locdis),probhisto->GetYaxis()->FindFixBin(loceta));
     return prob > 0;
 }
