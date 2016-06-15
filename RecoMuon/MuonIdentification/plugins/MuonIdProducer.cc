@@ -764,14 +764,14 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
   // need to update min cuts on pt
-  //if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
   return ( muon.numberOfMatches( reco::Muon::GEMSegmentAndTrackArbitration ) >= 1 );    
 }
 
 bool MuonIdProducer::isME0Muon( const reco::Muon& muon )
 {
   // need to update min cuts on pt
-  //if(muon.track()->pt() < 0.5 ) return false;
+  if(muon.track()->p() < 3. ) return false;
   return ( muon.numberOfMatches( reco::Muon::ME0SegmentAndTrackArbitration ) >= 1 );
 }
 
