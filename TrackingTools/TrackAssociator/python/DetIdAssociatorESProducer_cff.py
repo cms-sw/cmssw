@@ -45,7 +45,7 @@ muonDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
 eras.run2_common.toModify( muonDetIdAssociator, includeBadChambers = True )
 
 # include GEM & ME0 for phase2
-eras.phase2_muon.toModify( muonDetIdAssociator, includeGEM = True )
+eras.run3_GEM.toModify( muonDetIdAssociator, includeGEM = True )
 eras.phase2_muon.toModify( muonDetIdAssociator, includeME0 = True )
 
 preshowerDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",

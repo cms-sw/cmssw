@@ -763,13 +763,15 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
-  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  // need to update min cuts on pt
+  //if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
   return ( muon.numberOfMatches( reco::Muon::GEMSegmentAndTrackArbitration ) >= 1 );    
 }
 
 bool MuonIdProducer::isME0Muon( const reco::Muon& muon )
 {
-  if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
+  // need to update min cuts on pt
+  //if(muon.track()->pt() < 0.5 ) return false;
   return ( muon.numberOfMatches( reco::Muon::ME0SegmentAndTrackArbitration ) >= 1 );
 }
 
@@ -872,6 +874,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
        matchedSegment.mask = 0;
        matchedSegment.dtSegmentRef  = segment.dtSegmentRef;
        matchedSegment.cscSegmentRef = segment.cscSegmentRef;
+       matchedSegment.gemSegmentRef = segment.gemSegmentRef;
+       matchedSegment.me0SegmentRef = segment.me0SegmentRef;
        matchedSegment.hasZed_ = segment.hasZed;
        matchedSegment.hasPhi_ = segment.hasPhi;
        // test segment
@@ -1265,7 +1269,9 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
   descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel",edm::InputTag("me0Segments"));
-  descTrkAsoPar.setAllowAnything();  
+  descTrkAsoPar.add<bool>("useGEM", false);
+  descTrkAsoPar.add<bool>("useME0", false);
+  descTrkAsoPar.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
 
   edm::ParameterSetDescription descJet;
@@ -1277,6 +1283,6 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descCalo.setAllowAnything();
   descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
   desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
-    
+  
   descriptions.addDefault(desc);
 }

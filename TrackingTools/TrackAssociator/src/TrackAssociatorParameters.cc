@@ -38,6 +38,8 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    useCalo = iConfig.getParameter<bool>("useCalo");
    useMuon = iConfig.getParameter<bool>("useMuon");
    usePreshower = iConfig.getParameter<bool>("usePreshower");
+   useGEM  = iConfig.getParameter<bool>("useGEM");
+   useME0  = iConfig.getParameter<bool>("useME0");
    
    theEBRecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
    theEERecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
@@ -65,8 +67,8 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    if (useMuon) {
      dtSegmentsToken=iC.consumes<DTRecSegment4DCollection>(theDTRecSegment4DCollectionLabel);
      cscSegmentsToken=iC.consumes<CSCSegmentCollection>(theCSCSegmentCollectionLabel);
-     gemSegmentsToken=iC.consumes<GEMSegmentCollection>(theGEMSegmentCollectionLabel);
-     me0SegmentsToken=iC.consumes<ME0SegmentCollection>(theME0SegmentCollectionLabel);
+     if (useGEM) gemSegmentsToken=iC.consumes<GEMSegmentCollection>(theGEMSegmentCollectionLabel);
+     if (useME0) me0SegmentsToken=iC.consumes<ME0SegmentCollection>(theME0SegmentCollectionLabel);
    }
    if (truthMatch) {
      simTracksToken=iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));

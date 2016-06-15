@@ -12,8 +12,10 @@ TrackAssociatorParameterBlock = cms.PSet(
     TrackAssociatorParameters = cms.PSet(
         muonMaxDistanceSigmaX = cms.double(0.0),
         muonMaxDistanceSigmaY = cms.double(0.0),
-        CSCSegmentCollectionLabel = cms.InputTag("cscSegments"),        
+        CSCSegmentCollectionLabel = cms.InputTag("cscSegments"),
+        useGEM = cms.bool(False),
         GEMSegmentCollectionLabel = cms.InputTag("gemSegments"),
+        useME0 = cms.bool(False),
         ME0SegmentCollectionLabel = cms.InputTag("me0Segments"),
         dRHcal = cms.double(9999.0),
         dREcal = cms.double(9999.0),
@@ -46,7 +48,9 @@ TrackAssociatorParameters = cms.PSet(
     muonMaxDistanceSigmaX = cms.double(0.0),
     muonMaxDistanceSigmaY = cms.double(0.0),
     CSCSegmentCollectionLabel = cms.InputTag("cscSegments"),
+    useGEM = cms.bool(False),
     GEMSegmentCollectionLabel = cms.InputTag("gemSegments"),
+    useME0 = cms.bool(False),
     ME0SegmentCollectionLabel = cms.InputTag("me0Segments"),
     dRHcal = cms.double(9999.0),
     dREcal = cms.double(9999.0),
@@ -73,4 +77,3 @@ TrackAssociatorParameters = cms.PSet(
     HBHERecHitCollectionLabel = cms.InputTag("hbhereco"),
     useHcal = cms.bool(True)
 )
-

@@ -756,9 +756,9 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
      throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
    edm::Handle<GEMSegmentCollection> gemSegments;
-   iEvent.getByToken(parameters.gemSegmentsToken, gemSegments );
+   if (parameters.useGEM) iEvent.getByToken(parameters.gemSegmentsToken, gemSegments );
    edm::Handle<ME0SegmentCollection> me0Segments;
-   iEvent.getByToken(parameters.me0SegmentsToken, me0Segments );
+   if (parameters.useME0) iEvent.getByToken(parameters.me0SegmentsToken, me0Segments );
    
    ///// get a set of DetId's in a given direction
    
@@ -805,8 +805,8 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
               }
 	}
 	// GEM Chamber   
-	else if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {
-	  if (gemSegments.isValid()){
+	else if (parameters.useGEM){
+	  if(const GEMSuperChamber* chamber = dynamic_cast<const GEMSuperChamber*>(geomDet) ) {	 
 	    // Get the range for the corresponding segments
 	    GEMSegmentCollection::range  range = gemSegments->get(chamber->id());
 	    // Loop over the segments
@@ -818,9 +818,8 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	  }
 	}
 	// ME0 Chamber   
-	else if(const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
-	// FIX ME - should be chamber, MuonDetIdAssociator and ME0segments need to be changed too
-	  if (me0Segments.isValid()){
+	else if (parameters.useME0){
+	  if(const ME0Chamber* chamber = dynamic_cast<const ME0Chamber*>(geomDet) ) {
 	    // Get the range for the corresponding segments
 	    ME0SegmentCollection::range  range = me0Segments->get(chamber->id());
 	    // Loop over the segments

@@ -73,6 +73,8 @@ class TrackAssociatorParameters {
    bool usePreshower;
    bool useMuon;
    bool truthMatch;
+   bool useGEM;
+   bool useME0;
    
    /// Labels of the detector EDProducts 
    edm::InputTag theEBRecHitCollectionLabel;
