@@ -63,40 +63,38 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-process.TestHGCClusters = cms.EDProducer(
-    'HGCalClusterTestProducer'
-    )
+process.load('RecoLocalCalo.HGCalRecHitDump.imagingClusterHGCal_cfi')
 
 process.load('CommonTools.UtilAlgos.TFileService_cfi')
-process.TFileService.fileName = cms.string('hydra.root')
+# process.TFileService.fileName = cms.string('hydra.root')
 
-process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff')
+# process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff')
 
-process.Hydra = cms.EDProducer(
-    'HydraProducer',
-    HGCRecHitCollection=cms.VInputTag("particleFlowRecHitHGC"),
-    HGCalUncalibRecHitCollection = cms.VInputTag('HGCalUncalibRecHit:HGCEEUncalibRecHits',
-                                                 'HGCalUncalibRecHit:HGCHEFUncalibRecHits'
-                                                 ),
-    GenParticleCollection=cms.InputTag("genParticles"),
-    RecTrackCollection=cms.InputTag("generalTracks"),
-    SimTrackCollection=cms.InputTag("g4SimHits"),
-    SimVertexCollection=cms.InputTag("g4SimHits"),
-    SimHitCollection = cms.VInputTag('g4SimHits:HGCHitsEE',
-                                     'g4SimHits:HGCHitsHEfront')
-    )
-process.FakeClusterGen = cms.EDProducer(
-    "HydraFakeClusterBuilder",HydraTag=cms.InputTag("Hydra"),
-    SplitRecHits=cms.bool(False),
-    UseGenParticles=cms.bool(True),
-    MinDebugEnergy=cms.untracked.double(30.)
-    )
-process.FakeClusterCaloFace = cms.EDProducer(
-    "HydraFakeClusterBuilder",HydraTag=cms.InputTag("Hydra"),
-    SplitRecHits=cms.bool(False),
-    UseGenParticles=cms.bool(False),
-    MinDebugEnergy=cms.untracked.double(30.)
-    )
+# process.Hydra = cms.EDProducer(
+#     'HydraProducer',
+#     HGCRecHitCollection=cms.VInputTag("particleFlowRecHitHGC"),
+#     HGCalUncalibRecHitCollection = cms.VInputTag('HGCalUncalibRecHit:HGCEEUncalibRecHits',
+#                                                  'HGCalUncalibRecHit:HGCHEFUncalibRecHits'
+#                                                  ),
+#     GenParticleCollection=cms.InputTag("genParticles"),
+#     RecTrackCollection=cms.InputTag("generalTracks"),
+#     SimTrackCollection=cms.InputTag("g4SimHits"),
+#     SimVertexCollection=cms.InputTag("g4SimHits"),
+#     SimHitCollection = cms.VInputTag('g4SimHits:HGCHitsEE',
+#                                      'g4SimHits:HGCHitsHEfront')
+#     )
+# process.FakeClusterGen = cms.EDProducer(
+#     "HydraFakeClusterBuilder",HydraTag=cms.InputTag("Hydra"),
+#     SplitRecHits=cms.bool(False),
+#     UseGenParticles=cms.bool(True),
+#     MinDebugEnergy=cms.untracked.double(30.)
+#     )
+# process.FakeClusterCaloFace = cms.EDProducer(
+#     "HydraFakeClusterBuilder",HydraTag=cms.InputTag("Hydra"),
+#     SplitRecHits=cms.bool(False),
+#     UseGenParticles=cms.bool(False),
+#     MinDebugEnergy=cms.untracked.double(30.)
+#     )
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -117,8 +115,9 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
 process = cust_2023LReco(process)
 
 # End of customisation functions
-process.localreco += process.particleFlowRecHitHGCSeq
-process.localreco += process.Hydra
-process.localreco += process.FakeClusterGen
-process.localreco += process.FakeClusterCaloFace
-process.localreco += process.TestHGCClusters
+#process.localreco += process.particleFlowRecHitHGCSeq
+#process.localreco += process.Hydra
+#process.localreco += process.FakeClusterGen
+#process.localreco += process.FakeClusterCaloFace
+process.imagingClusterHGCal.detector = cms.string("both")
+process.localreco += process.imagingClusterHGCal

@@ -2,6 +2,7 @@
 #define RecoHGCAL_HGCALClusters_HGCalImagingAlgo_h
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -50,19 +51,21 @@ class HGCalImagingAlgo
  HGCalImagingAlgo() : delta_c(0.), kappa(1.), ecut(0.), cluster_offset(0),
 		      geometry(0), ddd(0), 
 		      //topology(*thetopology_p), 
+		      algoId(reco::CaloCluster::undefined),
 		      verbosity(pERROR){
  }
   
   HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
 		   const HGCalGeometry *thegeometry_p,
 		   //		   const CaloSubdetectorTopology *thetopology_p,
+		   reco::CaloCluster::AlgoId algoId_in,
 		   VerbosityLevel the_verbosity = pERROR) : delta_c(delta_c_in), kappa(kappa_in), 
 							    ecut(ecut_in),    
 							    cluster_offset(0),
-							    doSharing(false),
 							    sigma2(1.0),
 							    geometry(thegeometry_p), 
 							    //topology(*thetopology_p), 
+							    algoId(algoId_in),
 							    verbosity(the_verbosity){
   }
   
@@ -70,13 +73,14 @@ class HGCalImagingAlgo
 		   double showerSigma, 
 		   const HGCalGeometry *thegeometry_p,
 		   //		   const CaloSubdetectorTopology *thetopology_p,
+		   reco::CaloCluster::AlgoId algoId_in,
 		   VerbosityLevel the_verbosity = pERROR) : delta_c(delta_c_in), kappa(kappa_in), 
 							    ecut(ecut_in),    
 							    cluster_offset(0),
-							    doSharing(true),
 							    sigma2(std::pow(showerSigma,2.0)),
 							    geometry(thegeometry_p), 
 							    //topology(*thetopology_p), 
+							    algoId(algoId_in),
 							    verbosity(the_verbosity){
   }
 
@@ -93,7 +97,7 @@ class HGCalImagingAlgo
   // different hit collections (or else use reset)
   void makeClusters(const HGCRecHitCollection &hits);
   // this is the method to get the cluster collection out 
-  std::vector<reco::BasicCluster> getClusters();
+  std::vector<reco::BasicCluster> getClusters(bool);
   // needed to switch between EE and HE with the same algorithm object (to get a single cluster collection)
   void setGeometry(const HGCalGeometry *thegeometry_p){geometry = thegeometry_p;}
   // use this if you want to reuse the same cluster object but don't want to accumulate clusters (hardly useful?)
@@ -121,7 +125,6 @@ class HGCalImagingAlgo
   unsigned int cluster_offset;
 
   // for energy sharing
-  bool doSharing;
   double sigma2; // transverse shower size
 
   // The vector of clusters
@@ -131,8 +134,12 @@ class HGCalImagingAlgo
   //  const HGCalTopology &topology;
   const HGCalDDDConstants* ddd;
 
+  // The algo id
+  reco::CaloCluster::AlgoId algoId;
+
   // The verbosity level
   VerbosityLevel verbosity;
+
   
   struct Hexel {
 
