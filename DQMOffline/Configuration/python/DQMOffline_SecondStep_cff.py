@@ -5,6 +5,7 @@ from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
 from DQMServices.Components.DQMMessageLoggerClient_cff import *
 from DQMServices.Components.DQMDcsInfoClient_cfi import *
 from DQMServices.Components.DQMFastTimerServiceClient_cfi import *
+from DQMServices.Components.RunInfoAdder_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
 from DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff import *
@@ -29,7 +30,8 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              es_dqm_client_offline *
 											 hcalOfflineHarvesting *
                                              HcalDQMOfflinePostProcessor * 
-                                             dqmFEDIntegrityClient )
+                                             dqmFEDIntegrityClient *
+                                             RunInfoAdder)
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PreDPG *
@@ -96,7 +98,8 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
                                  runTauEff *
-                                 dqmFastTimerServiceClient
+                                 dqmFastTimerServiceClient *
+                                 RunInfoAdder
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *
