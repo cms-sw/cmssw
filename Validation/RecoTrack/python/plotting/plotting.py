@@ -316,7 +316,8 @@ def _getXmin(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinLowEdge(xaxis.GetFirst())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return min([obj.GetX()[i] for i in xrange(0, obj.GetN())])*0.9
+        m = min([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getXmax(obj, limitToNonZeroContent=False):
@@ -331,21 +332,30 @@ def _getXmax(obj, limitToNonZeroContent=False):
         else:
             return xaxis.GetBinUpEdge(xaxis.GetLast())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return max([obj.GetX()[i] for i in xrange(0, obj.GetN())])*1.02
+        m = max([obj.GetX()[i] for i in xrange(0, obj.GetN())])
+        return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmin(obj):
-    if isinstance(obj, ROOT.TH1):
+    if isinstance(obj, ROOT.TH2):
+        yaxis = obj.GetYaxis()
+        return yaxis.GetBinLowEdge(yaxis.GetFirst())
+    elif isinstance(obj, ROOT.TH1):
         return obj.GetMinimum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        return m*0.9 if m > 0 else m*1.1
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmax(obj):
-    if isinstance(obj, ROOT.TH1):
+    if isinstance(obj, ROOT.TH2):
+        yaxis = obj.GetYaxis()
+        return yaxis.GetBinUpEdge(yaxis.GetLast())
+    elif isinstance(obj, ROOT.TH1):
         return obj.GetMaximum()
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        return max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        m = max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+        return m*1.1 if m > 0 else m*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmaxWithError(th1):
