@@ -298,9 +298,9 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
 	
 	double zp = cell.rz/10; //mm --> cm
 	if (zside == 0) zp = -zp;
-	double rho = zp*TMath::Tan(2.0*TMath::ATan(TMath::Exp(-cell.eta)));
-	double xp  = rho * TMath::Cos(cell.phi); //cm
-	double yp  = rho * TMath::Sin(cell.phi); //cm
+	double rho = zp*tan(2.0*atan(exp(-cell.eta)));
+	double xp  = rho * cos(cell.phi); //cm
+	double yp  = rho * sin(cell.phi); //cm
 
 	hitVtxX.at(i) = hitVtxX.at(i)/10;
 	hitVtxY.at(i) = hitVtxY.at(i)/10;
