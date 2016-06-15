@@ -26,7 +26,7 @@ TtFullHadSignalSelMVAComputer::~TtFullHadSignalSelMVAComputer()
 void
 TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr< double > pOutDisc (new double);
+  std::unique_ptr< double > pOutDisc (new double);
 
   mvaComputer.update<TtFullHadSignalSelMVARcd>(setup, "ttFullHadSignalSelMVA");
 
@@ -51,7 +51,7 @@ TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
 
   *pOutDisc = discrim;
 
-  evt.put(pOutDisc, "DiscSel");
+  evt.put(std::move(pOutDisc), "DiscSel");
 
   DiscSel = discrim;
 }

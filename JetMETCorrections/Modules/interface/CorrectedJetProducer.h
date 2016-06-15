@@ -71,7 +71,7 @@ namespace reco {
       }
     edm::Handle<JetCollection> jets;                         //Define Inputs
     fEvent.getByToken (mInput, jets);                        //Get Inputs
-    std::auto_ptr<JetCollection> result (new JetCollection); //Corrected jets
+    std::unique_ptr<JetCollection> result (new JetCollection); //Corrected jets
     typename JetCollection::const_iterator jet;
     for (jet = jets->begin(); jet != jets->end(); jet++)
       {
@@ -116,7 +116,7 @@ namespace reco {
     // reorder corrected jets
     std::sort (result->begin (), result->end (), compJets);
     // put corrected jet collection into event
-    fEvent.put(result);
+    fEvent.put(std::move(result));
   }
 
 }

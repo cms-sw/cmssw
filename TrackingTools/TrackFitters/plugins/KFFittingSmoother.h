@@ -153,9 +153,6 @@ namespace {
 #define PRINT LogTrace("")
 #endif
 
-
-using namespace std;
-
 Trajectory KFFittingSmoother::fitOne(const Trajectory& t, fitType type) const {
   if (!t.isValid() ) return Trajectory();
   return smoothingStep(theFitter->fitOne(t,type));
@@ -179,7 +176,7 @@ bool KFFittingSmoother::checkForNans(const Trajectory & theTraj)
 
 namespace {
   inline
-  void print(const string& header,  const TrajectoryStateOnSurface & tsos) {
+  void print(const std::string& header,  const TrajectoryStateOnSurface & tsos) {
     DPRINT("TrackFitters") << header << tsos.globalPosition().perp() << ' ' << tsos.globalPosition().z() 
               << ' ' << 1./tsos.signedInverseMomentum() << ' ' << 1./tsos.transverseCurvature()
               << ' ' << tsos.globalMomentum().eta() << std::endl; 

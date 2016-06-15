@@ -121,10 +121,10 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // * sumPt
   // * sumDR
   // to the event
-  std::auto_ptr<std::vector<std::vector<int> > > match(new std::vector<std::vector<int> >);
-  std::auto_ptr<std::vector<double> > sumPt(new std::vector<double>);
-  std::auto_ptr<std::vector<double> > sumDR(new std::vector<double>);
-  std::auto_ptr<int> pJetsConsidered(new int);
+  std::unique_ptr<std::vector<std::vector<int> > > match(new std::vector<std::vector<int> >);
+  std::unique_ptr<std::vector<double> > sumPt(new std::vector<double>);
+  std::unique_ptr<std::vector<double> > sumDR(new std::vector<double>);
+  std::unique_ptr<int> pJetsConsidered(new int);
 
   // get TtGenEvent and jet collection from the event
   edm::Handle<TtGenEvent> genEvt;
@@ -174,10 +174,10 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     sumPt->push_back( jetPartonMatch.getSumDeltaPt(ic) );
     sumDR->push_back( jetPartonMatch.getSumDeltaR (ic) );
   }
-  evt.put(match);
-  evt.put(sumPt, "SumPt");
-  evt.put(sumDR, "SumDR");
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
+  evt.put(std::move(match));
+  evt.put(std::move(sumPt), "SumPt");
+  evt.put(std::move(sumDR), "SumDR");
+  evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 }
 
 template<typename C>

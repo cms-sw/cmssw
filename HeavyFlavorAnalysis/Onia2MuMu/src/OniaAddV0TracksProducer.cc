@@ -21,9 +21,9 @@ OniaAddV0TracksProducer:: OniaAddV0TracksProducer(const edm::ParameterSet& ps) {
 
 void OniaAddV0TracksProducer::produce(edm::Event& event, const edm::EventSetup& esetup){
 
-  // Create auto_ptr for each collection to be stored in the Event
-  std::auto_ptr<pat::CompositeCandidateCollection> Enhanced_kShortCandidates(new pat::CompositeCandidateCollection);
-  std::auto_ptr<pat::CompositeCandidateCollection> Enhanced_lambdaCandidates(new pat::CompositeCandidateCollection);
+  // Create unique_ptr for each collection to be stored in the Event
+  std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_kShortCandidates(new pat::CompositeCandidateCollection);
+  std::unique_ptr<pat::CompositeCandidateCollection> Enhanced_lambdaCandidates(new pat::CompositeCandidateCollection);
 
   edm::Handle<reco::VertexCompositeCandidateCollection> lcandidates;
   event.getByToken(LambdaCollectionToken_,lcandidates);
@@ -61,8 +61,8 @@ void OniaAddV0TracksProducer::produce(edm::Event& event, const edm::EventSetup& 
   total_lambda += exits_l;
   if (exits_k || exits_l) events_v0++;
 
-  event.put( Enhanced_kShortCandidates,"Kshort");
-  event.put( Enhanced_lambdaCandidates,"Lambda");
+  event.put(std::move(Enhanced_kShortCandidates),"Kshort");
+  event.put(std::move(Enhanced_lambdaCandidates),"Lambda");
 }
 
 void OniaAddV0TracksProducer::endJob(){

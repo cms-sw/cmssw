@@ -243,6 +243,7 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
+    'HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_v1', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_v1', 
     'HLT_ZeroBias_IsolatedBunches_v2', 
     'HLT_ZeroBias_v3')
@@ -627,7 +628,7 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_IsoTkMu22_v3', 
     'HLT_IsoTkMu24_v2', 
     'HLT_IsoTkMu27_v4', 
-    'HLT_L1SingleMu16_v2', 
+    'HLT_L1SingleMu18_v1', 
     'HLT_L1SingleMuOpen_v3', 
     'HLT_L2Mu10_v2', 
     'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v2', 

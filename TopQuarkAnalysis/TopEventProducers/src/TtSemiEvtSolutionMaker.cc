@@ -252,8 +252,8 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
     }
 
     //store the vector of solutions to the event
-    std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
-    iEvent.put(pOut);
+    std::unique_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
+    iEvent.put(std::move(pOut));
 
   } else {
 
@@ -266,8 +266,8 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
     */
 //    TtSemiEvtSolution asol;
 //    evtsols->push_back(asol);
-    std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
-    iEvent.put(pOut);
+    std::unique_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
+    iEvent.put(std::move(pOut));
   }
 }
 

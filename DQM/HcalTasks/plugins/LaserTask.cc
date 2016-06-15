@@ -2,6 +2,7 @@
 #include "DQM/HcalTasks/interface/LaserTask.h"
 
 using namespace hcaldqm;
+using namespace constants;
 LaserTask::LaserTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

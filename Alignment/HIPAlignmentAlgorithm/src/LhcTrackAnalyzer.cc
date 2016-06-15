@@ -170,12 +170,12 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(track->algo()==reco::TrackBase::pixelLessStep)myalgo=9;
 	  if(track->algo()==reco::TrackBase::tobTecStep)myalgo=10;
 	  if(track->algo()==reco::TrackBase::jetCoreRegionalStep)myalgo=11;
-	  // This class is pending the migration to Phase1 tracks
+    // This class is pending the migration to Phase1 tracks
 	  if(track->algo() == reco::TrackBase::highPtTripletStep ||
 	     track->algo() == reco::TrackBase::lowPtQuadStep ||
 	     track->algo() == reco::TrackBase::detachedQuadStep) {
-	    throw cms::Exception("Not implemented") << "LhcTrackAnalyzer does not yet support phase1 tracks, encountered one from algo " << reco::TrackBase::algoName(track->algo());
-	  }
+	  throw cms::Exception("Not implemented") << "LhcTrackAnalyzer does not yet support phase1 tracks, encountered one from algo " << reco::TrackBase::algoName(track->algo());
+	  	}
 	  trkAlgo_[nTracks_]  = myalgo;
 
 	  int myquality=-99;

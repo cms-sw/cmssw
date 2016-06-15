@@ -37,7 +37,7 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 
 TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):
   MultiTrackValidatorBase(pset, consumesCollector(),true),
-  histoProducerAlgo_(std::make_unique<MTVHistoProducerAlgoForTracker>(pset.getParameter<ParameterSet>("histoProducerAlgoBlock"), consumesCollector())) {
+  histoProducerAlgo_(std::make_unique<MTVHistoProducerAlgoForTracker>(pset.getParameter<ParameterSet>("histoProducerAlgoBlock"), false, consumesCollector())) {
   dirName_ = pset.getParameter<std::string>("dirName");
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),

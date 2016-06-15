@@ -109,7 +109,7 @@ namespace hcaldqm
 					{
 						//	for LS axis - set the bit
 						//	set extendable axes.
-						o->SetBit(BIT(BIT_OFFSET+BIT_AXIS_LS));
+						o->SetBit(BIT(constants::BIT_OFFSET+constants::BIT_AXIS_LS));
 		//				o->SetCanExtend(TH1::kXaxis);
 					}
 				}
