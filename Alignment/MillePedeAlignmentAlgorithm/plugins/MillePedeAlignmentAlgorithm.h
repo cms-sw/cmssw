@@ -11,6 +11,7 @@
 ///  $Date: 2012/08/10 09:01:11 $
 ///  (last update by $Author: flucke $)
 
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -264,4 +265,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   const bool                runAtPCL_;
 };
 
+DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory,
+		   MillePedeAlignmentAlgorithm, "MillePedeAlignmentAlgorithm");
 #endif
