@@ -47,39 +47,15 @@ Muon * Muon::clone() const {
   return new Muon( * this );
 }
 
-int Muon::numberOfChambersNoRPC() const
+int Muon::numberOfChambersCSCorDT() const
 {
   int total = 0;
   int nAll = numberOfChambers();
   for (int iC = 0; iC < nAll; ++iC){
-    if (matches()[iC].detector() == MuonSubdetId::RPC) continue;
-    total++;
+    if (matches()[iC].detector() == MuonSubdetId::CSC || matches()[iC].detector() == MuonSubdetId::DT)
+      total++;
   }
 
-  return total;
-}
-
-int Muon::numberOfChambersNoGEM() const
-{
-  int total = 0;
-  int nAll = numberOfChambers();
-  for (int iC = 0; iC < nAll; ++iC){
-    if (matches()[iC].detector() == MuonSubdetId::GEM) continue;
-    total++;
-  }
- 
-  return total;
-}
-
-int Muon::numberOfChambersNoME0() const
-{
-  int total = 0;
-  int nAll = numberOfChambers();
-  for (int iC = 0; iC < nAll; ++iC){
-    if (matches()[iC].detector() == MuonSubdetId::ME0) continue;
-    total++;
-  }
- 
   return total;
 }
 

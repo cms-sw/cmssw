@@ -187,12 +187,8 @@ namespace reco {
     ///
     /// number of chambers (MuonChamberMatches include RPC rolls, GEM and ME0 segments)
     int numberOfChambers() const { return muMatches_.size(); }
-    /// number of chambers not including RPC matches (MuonChamberMatches include RPC rolls)
-    int numberOfChambersNoRPC() const;
-    /// number of chambers not including GEM matches (MuonChamberMatches include RPC rolls, and also GEM)
-    int numberOfChambersNoGEM() const;    
-    /// number of chambers not including ME0 matches (MuonChamberMatches include RPC rolls, and also ME0)
-    int numberOfChambersNoME0() const;    
+    /// number of chambers CSC or DT matches only (MuonChamberMatches include RPC rolls)
+    int numberOfChambersCSCorDT() const;
     /// get number of chambers with matched segments
     int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get number of stations with matched segments
