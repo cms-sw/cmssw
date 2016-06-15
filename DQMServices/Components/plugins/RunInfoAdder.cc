@@ -1,14 +1,11 @@
 #include "DQMServices/Components/plugins/RunInfoAdder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include <iostream>
-#include <iomanip>
-#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <math.h>
 
 RunInfoAdder::RunInfoAdder(const edm::ParameterSet& ps)
 {
@@ -17,6 +14,8 @@ RunInfoAdder::RunInfoAdder(const edm::ParameterSet& ps)
   addRunNumber_  =  ps.getParameter<bool>("addRunNumber");
   addLumi_       =  ps.getParameter<bool>("addLumi");
   folder_        =  ps.getParameter<std::vector<std::string>>("folder");
+
+  run_ = 0;
 
   edm::LogInfo("RunInfoAdder") <<  "Constructor RunInfoAdder addRunNumber_ " 
       << addRunNumber_ << " addLumi_ " << addLumi_ << std::endl;
@@ -54,10 +53,11 @@ void RunInfoAdder::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& ige
         std::stringstream newtitle;
         newtitle << title;
         if (addRunNumber_) {
-          // we use data from the ME, we could also track it in endlumi.
-          newtitle << " (Run " << me->run();
+          // we use data from endLumi, value in ME seems broken.
+          newtitle << " (Run " << run_;
         }
         if (addLumi_) {
+          // does this work? Not sure.
           newtitle << " Lumi " << me->lumi();
         }
         newtitle << ")";
@@ -69,6 +69,9 @@ void RunInfoAdder::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& ige
 
 void RunInfoAdder::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_, edm::LuminosityBlock const & iLumi, edm::EventSetup const& iSetup) 
 {
+  // Disable in multi-run case (maybe use ME value then?)
+  if (run_ != 0 && iLumi.run() != run_) addRunNumber_ = false; 
+  run_ = iLumi.run();
   // TODO: See what we can do here in terms of harvesting.
 }
 

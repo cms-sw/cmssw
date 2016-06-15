@@ -30,6 +30,10 @@ private:
   bool addLumi_;
   std::vector<std::string> folder_;
 
+
+  // information to add, has to be saved from endLumi
+  uint32_t run_;
+
 };
 
 
