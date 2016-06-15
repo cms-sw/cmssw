@@ -22,8 +22,10 @@ HIPUserVariablesIORoot::HIPUserVariablesIORoot() :
   
   for (int i=0;i<nparmax*(nparmax+1)/2;++i) 
     Jtvj[i] = 0.;
-  for (int i=0;i<nparmax;++i) 
+  for (int i=0;i<nparmax;++i){ 
     Jtve[i] = 0.;
+    Par[i] = 0.; 
+    ParError[i] = 0.;}
 }
 
 // ----------------------------------------------------------------------------
@@ -40,6 +42,8 @@ void HIPUserVariablesIORoot::createBranches(void)
   tree->Branch("Jtve",      &Jtve,      "Jtve[Npare]/D");
   tree->Branch("AlignableChi2",          &AlignableChi2, "AlignableChi2/D");
   tree->Branch("AlignableNdof",          &AlignableNdof, "AlignableNdof/i");
+  tree->Branch("Par",         &Par, "Par[Npare]/D");
+  tree->Branch("ParError",         &ParError, "ParError[Npare]/D");
 }
 
 // ----------------------------------------------------------------------------
@@ -56,7 +60,8 @@ void HIPUserVariablesIORoot::setBranchAddresses(void)
   tree->SetBranchAddress("Jtve",      &Jtve);
   tree->SetBranchAddress("AlignableChi2",     &AlignableChi2);
   tree->SetBranchAddress("AlignableNdof",      &AlignableNdof);
-
+  tree->SetBranchAddress("Par",     &Par);
+  tree->SetBranchAddress("ParError",     &ParError);
 }
 
 // ----------------------------------------------------------------------------
@@ -105,6 +110,8 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali)
 
   AlgebraicSymMatrix jtvj = uvar->jtvj;
   AlgebraicVector jtve = uvar->jtve;
+  AlgebraicVector alipar = uvar->alipar;
+  AlgebraicVector alierr = uvar->alierr;
   int nhit=uvar->nhit;
   int np=jtve.num_row();
 
@@ -114,6 +121,8 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali)
   int count=0;
   for(int row=0;row<np;row++){
     Jtve[row]=jtve[row];
+    Par[row]=alipar[row];
+    ParError[row]=alierr[row];
     for(int col=0;col<np;col++){
       if(row-1<col){Jtvj[count]=jtvj[row][col];count++;}
     }
@@ -124,7 +133,6 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali)
   //Chi^2 of alignable
   AlignableChi2= uvar->alichi2 ;
   AlignableNdof= uvar->alindof ;
-
   tree->Fill();
   return 0;
 }
@@ -144,9 +152,13 @@ AlignmentUserVariables* HIPUserVariablesIORoot::readOne(Alignable* ali,
     int np=Npare;
     AlgebraicVector jtve(np,0);
     AlgebraicSymMatrix jtvj(np,0);
+    AlgebraicVector alipar(np,0);
+    AlgebraicVector alierr(np,0);
     int count=0;
     for(int row=0;row<np;row++) {
       jtve[row]=Jtve[row];
+      alipar[row]=Par[row];
+      alierr[row]=ParError[row];
       for(int col=0; col < np;col++) {
  	if(row-1<col) {jtvj[row][col]=Jtvj[count];count++;}
       }
@@ -156,7 +168,8 @@ AlignmentUserVariables* HIPUserVariablesIORoot::readOne(Alignable* ali,
     uvar->jtvj=jtvj;
     uvar->jtve=jtve;
     uvar->nhit=Nhit;
-
+    uvar->alipar=alipar;
+    uvar->alierr=alierr;
     //Chi2n
     uvar->alichi2=AlignableChi2;
     uvar->alindof=AlignableNdof;
