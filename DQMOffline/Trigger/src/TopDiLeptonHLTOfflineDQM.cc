@@ -200,7 +200,6 @@ namespace HLTOfflineDQMTopDiLepton {
       if(!triggerTable_.isUninitialized()) {
         if( !event.getByToken(triggerTable_, triggerTable) ) return;
       }
-	  std::cout<<"Test DiLepton 1"<<std::endl;	
       /*
          ------------------------------------------------------------
 
@@ -239,7 +238,6 @@ namespace HLTOfflineDQMTopDiLepton {
         }
       }
 
-	  std::cout<<"Test DiLepton 2"<<std::endl;
       /* 
          ------------------------------------------------------------
 
@@ -273,7 +271,6 @@ namespace HLTOfflineDQMTopDiLepton {
         }
       }
 
-	 std::cout<<"Test DiLepton 3"<<std::endl;	
       /* 
          ------------------------------------------------------------
 
@@ -353,7 +350,6 @@ namespace HLTOfflineDQMTopDiLepton {
         }
       }
       fill("jetMult_", mult);
-	  std::cout<<"Test DiLepton 4"<<std::endl;	
       /* 
          ------------------------------------------------------------
 
@@ -377,7 +373,6 @@ namespace HLTOfflineDQMTopDiLepton {
         }
       }
 
-	  std::cout<<"Test DiLepton 5"<<std::endl;	
       /* 
          ------------------------------------------------------------
 
