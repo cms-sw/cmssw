@@ -2,8 +2,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
@@ -11,16 +9,12 @@ using namespace edm;
 using namespace sipixelobjects;
 
 FrameConversion::FrameConversion(bool bpix, int side, int rocIdInDetUnit) {
-  const bool PRINT = false;
-  if(PRINT) cout<<"FrameConversion - for phase1  "<<endl;
-
   int slopeRow =0;
   int slopeCol = 0;
   int  rowOffset = 0;
   int  colOffset = 0; 
  
   if (bpix ) { // bpix 
-    if(PRINT) cout<<" for bpix, side "<<side<<" "<< rocIdInDetUnit<<endl;
     
     if (side==-1) {  // -Z side
 
@@ -56,7 +50,6 @@ FrameConversion::FrameConversion(bool bpix, int side, int rocIdInDetUnit) {
 
   } else { // fpix 
 
-    if(PRINT) cout<<" for fpix, side "<<side<<endl;
     // for fpix follow Urs's code for pilot blade
     // no difference between panels
     if(side==-1) { // pannel 1
@@ -87,9 +80,6 @@ FrameConversion::FrameConversion(bool bpix, int side, int rocIdInDetUnit) {
     } // side 
 
   } // bpix/fpix
-
-
-  if(PRINT)  cout<<slopeRow<<" "<<slopeCol<<" "<<rowOffset<<" "<<colOffset<<endl;
 
   theRowConversion      = LinearConversion(rowOffset,slopeRow);
   theCollumnConversion =  LinearConversion(colOffset, slopeCol);

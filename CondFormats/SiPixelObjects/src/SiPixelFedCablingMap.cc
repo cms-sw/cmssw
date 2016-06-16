@@ -1,61 +1,47 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include <iostream>
 
-//#define OLD_RAW2DIGI
-
 using namespace sipixelobjects;
 
 void SiPixelFedCablingMap::initializeRocs() {
-  const bool PRINT = false;
-  if(PRINT) std::cout<<"SiPixelFedCablingMap::initializeRocs - cabling version "
-		     <<theVersion<<" "<<version()<<std::endl;
 
-#ifdef OLD_RAW2DIGI
-
-  if(PRINT) std::cout << "initialize PixelRocs works only for phase0" << std::endl;
-  for (auto & v : theMap) v.second.initFrameConversion(); 
-
-#else 
+  // OLD Method 
+  //for (auto & v : theMap) v.second.initFrameConversion(); 
+  // below is the new code, works for phase0 and phase1
 
   // Decide if it is phase0 or phase1 based on the first fed, 0-phase0, 1200-phase1
   unsigned int fedId = (theMap.begin())->first.fed; // get the first fed
-  if(PRINT) std::cout << "initialize PixelRocs works for phase0 & phase1 1st fed " 
-		      <<fedId<< std::endl;
 
-  if(fedId>=1200) { // phase1
+  if(fedId>=FEDNumbering::MINSiPixeluTCAFEDID) { // phase1 >= 1200
     for (auto & v : theMap) v.second.initFrameConversionPhase1(); // works
   } else { // phase0
     for (auto & v : theMap) v.second.initFrameConversion(); // works
   }
-
   
-  if(0) {  // for testing 
-  for (Map::iterator im = theMap.begin(); im != theMap.end(); im++) {
-    unsigned int fedId = im->first.fed;
-    unsigned int linkId = im->first.link;
-    unsigned int rocId = im->first.roc;
-    auto rawDetID = im->second.rawId();
-    auto idInDetUnit = im->second.idInDetUnit();
-    auto idInLink = im->second.idInLink();
-    if(0) std::cout<<" roc in map "<<fedId<<" "<<linkId<<" "<<rocId<<" "<<rawDetID<<" "
-	     <<idInDetUnit<<" "<<idInLink<<std::endl;
-    //auto v = *im;
-    if(fedId>=1200) {
-      //v.second.initFrameConversionPhase1(); //  
-      im->second.initFrameConversionPhase1(); // 
-    } else {
-      im->second.initFrameConversion();
-    }
-  } //  
-  } 
-#endif
-  if(PRINT) std::cout<<"SiPixelFedCablingMap::initializeRocs - END "<<std::endl;
+  // if(0) {  // for testing 
+  //   for (Map::iterator im = theMap.begin(); im != theMap.end(); im++) {
+  //     unsigned int fedId = im->first.fed;
+  //     unsigned int linkId = im->first.link;
+  //     unsigned int rocId = im->first.roc;
+  //     auto rawDetID = im->second.rawId();
+  //     auto idInDetUnit = im->second.idInDetUnit();
+  //     auto idInLink = im->second.idInLink();
+  //     //auto v = *im;
+  //     if(fedId>=1200) {
+  // 	//v.second.initFrameConversionPhase1(); //  
+  // 	im->second.initFrameConversionPhase1(); // 
+  //     } else {
+  // 	im->second.initFrameConversion();
+  //     }
+  //   } //  
+  // } // end if(0)
+
 }
 
 
@@ -77,8 +63,6 @@ SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab)
   : theVersion(cab->version())
 {
 
-  std::cout << "HERE --- SiPixelFedCablingMap CTOR- NEVER CALLED " << std::endl;
-
   // Never called  
   std::vector<const PixelFEDCabling *> fedList = cab->fedList();
   for (std::vector<const PixelFEDCabling *>::const_iterator ifed=fedList.begin();
@@ -88,26 +72,22 @@ SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab)
     for (unsigned int link=1; link <= numLink; link++) {
       const PixelFEDLink * pLink = (**ifed).link(link); 
       if (pLink==0) continue;
-      unsigned int linkId = pLink->id();
-      if (linkId != 0 && linkId!= link) 
-          std::cout << "PROBLEM WITH LINK NUMBER!!!!" << std::endl;
+      //unsigned int linkId = pLink->id();
+      //if (linkId != 0 && linkId!= link) 
+      //  std::cout << "PROBLEM WITH LINK NUMBER!!!!" << std::endl;
       unsigned int numberROC = pLink->numberOfROCs(); 
-
-      //std::cout<<"  cabling map "<<fed<<" "<<linkId<<" "<<link<<" "
-      //       <<numberROC<<std::endl;
 
       for (unsigned int roc=1; roc <= numberROC; roc++) {
         const PixelROC * pROC = pLink->roc(roc);
         if (pROC==0) continue;
-        if (pROC->idInLink() != roc) 
-            std::cout << "PROBLEM WITH ROC NUMBER!!!!" << std::endl;
+        //if (pROC->idInLink() != roc) 
+	//  std::cout << "PROBLEM WITH ROC NUMBER!!!!" << std::endl;
         Key key = {fed, link, roc}; 
         theMap[key] = (*pROC);
       }
     } 
   } // fed loop   
  
-  std::cout<<" SiPixelFedCablingMap CTOR: end"<<std::endl;
 }
 
 std::unique_ptr<SiPixelFedCablingTree>  SiPixelFedCablingMap::cablingTree() const {
