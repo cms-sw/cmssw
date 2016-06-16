@@ -118,7 +118,7 @@ HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
   L1SeedOutput->getObjects(TriggerL1Jet, l1Jets);
 
   std::vector<l1t::TauRef> l1Taus;
-  L1SeedOutput->getObjects(TriggerL1Jet, l1Taus);
+  L1SeedOutput->getObjects(TriggerL1Tau, l1Taus);
 
   int countCand=0;
   for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
