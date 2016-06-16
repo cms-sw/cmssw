@@ -25,7 +25,6 @@ RunInfoAdder::~RunInfoAdder() {};
 
 void RunInfoAdder::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_)
 {
-  // TODO: add recursive search here.
   std::vector<std::string> dirs;
   igetter_.getContents(dirs, false);
   for (auto& d : dirs) {
@@ -49,6 +48,7 @@ void RunInfoAdder::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& ige
       }
 
       std::string title(th1->GetTitle());
+      // Check to prevent double adding. This _should_ not be needed.
       if (title.find("(Run") == std::string::npos) {
         std::stringstream newtitle;
         newtitle << title;
@@ -73,6 +73,7 @@ void RunInfoAdder::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore:
   if (run_ != 0 && iLumi.run() != run_) addRunNumber_ = false; 
   run_ = iLumi.run();
   // TODO: See what we can do here in terms of harvesting.
+  // Maybe call dqmEndJob to do the work when we do online harvesting.
 }
 
 // Define this as a plug-in
