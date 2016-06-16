@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/GRun/V123 (CMSSW_8_0_10)
+# /dev/CMSSW_8_0_0/GRun/V124 (CMSSW_8_0_10)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V123')
+  tableName = cms.string('/dev/CMSSW_8_0_0/GRun/V124')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -10033,14 +10033,14 @@ fragment.hltPreDoubleEle2422eta2p1WPLooseGsf = cms.EDFilter( "HLTPrescaler",
 )
 fragment.hltRechitInRegionsECAL = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProducer",
     l1InputRegions = cms.VPSet( 
-      cms.PSet(  maxEt = cms.double( 999.0 ),
+      cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 5.0 ),
         regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
         type = cms.string( "EGamma" )
       ),
-      cms.PSet(  maxEt = cms.double( 999.0 ),
+      cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 200.0 ),
         regionPhiMargin = cms.double( 1.2 ),
@@ -10054,14 +10054,14 @@ fragment.hltRechitInRegionsECAL = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsPr
 )
 fragment.hltRechitInRegionsES = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProducer",
     l1InputRegions = cms.VPSet( 
-      cms.PSet(  maxEt = cms.double( 999.0 ),
+      cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 5.0 ),
         regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','EGamma' ),
         type = cms.string( "EGamma" )
       ),
-      cms.PSet(  maxEt = cms.double( 999.0 ),
+      cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
         minEt = cms.double( 200.0 ),
         regionPhiMargin = cms.double( 1.2 ),
