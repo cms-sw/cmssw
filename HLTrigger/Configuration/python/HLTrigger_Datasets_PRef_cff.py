@@ -11,7 +11,7 @@ streamA_datasetEmptyBX_selector.l1tResults = cms.InputTag('')
 streamA_datasetEmptyBX_selector.throw      = cms.bool(False)
 streamA_datasetEmptyBX_selector.triggerConditions = cms.vstring('HLT_L1Tech5_BPTX_PlusOnly_v3', 
     'HLT_L1Tech6_BPTX_MinusOnly_v2', 
-    'HLT_L1Tech7_NoBPTX_v2')
+    'HLT_L1Tech7_NoBPTX_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHLTPhysics_selector
 streamA_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -54,7 +54,7 @@ streamA_datasetL1MinimumBias_selector.throw      = cms.bool(False)
 streamA_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF1AND_v2', 
     'HLT_L1MinimumBiasHF1OR_v2', 
     'HLT_L1MinimumBiasHF2AND_v2', 
-    'HLT_L1MinimumBiasHF2ORNoBptxGating_v2', 
+    'HLT_L1MinimumBiasHF2ORNoBptxGating_v3', 
     'HLT_L1MinimumBiasHF2OR_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_minBias_selector
@@ -74,7 +74,7 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
-    'HLT_ZeroBias_v3')
+    'HLT_ZeroBias_v4')
 
 
 # dump of the Stream PhysicsHadronsTaus Datasets defined in the HLT table as Stream A Datasets
