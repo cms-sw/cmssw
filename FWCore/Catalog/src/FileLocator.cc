@@ -221,11 +221,11 @@ namespace edm {
     /*first of all do the lfn-to-pfn bit*/
     {
       DOMNodeList* rules = doc->getElementsByTagName(_toDOMS("lfn-to-pfn"));
-      unsigned int const ruleTagsNum = rules->getLength();
+      XMLSize_t const ruleTagsNum = rules->getLength();
 
       // FIXME: we should probably use a DTD for checking validity
 
-      for (unsigned int i = 0; i < ruleTagsNum; ++i) {
+      for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
         DOMNode* ruleNode = rules->item(i);
         parseRule(ruleNode, m_directRules);
       }
@@ -233,9 +233,9 @@ namespace edm {
     /*Then we handle the pfn-to-lfn bit*/
     {
       DOMNodeList* rules = doc->getElementsByTagName(_toDOMS("pfn-to-lfn"));
-      unsigned int ruleTagsNum = rules->getLength();
+      XMLSize_t ruleTagsNum = rules->getLength();
 
-      for (unsigned int i = 0; i < ruleTagsNum; ++i) {
+      for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
         DOMNode* ruleNode = rules->item(i);
         parseRule(ruleNode, m_inverseRules);
       }

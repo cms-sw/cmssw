@@ -50,7 +50,7 @@ void MVATrainerContainerSave::analyze(const edm::Event& event,
 
 	edm::LogInfo("MVATrainerSave") << "Got the trained calibration data";
 
-	std::auto_ptr<Calibration::MVAComputerContainer> calib(
+	std::unique_ptr<Calibration::MVAComputerContainer> calib(
 					new Calibration::MVAComputerContainer);
 
 	for(std::vector<std::string>::const_iterator iter = toCopy.begin();
@@ -61,7 +61,7 @@ void MVATrainerContainerSave::analyze(const edm::Event& event,
 	    iter != toPut.end(); iter++)
 		calib->add(*iter) = toPutCalib->find(*iter);
 
-	this->calib = calib;
+	this->calib = std::move(calib);
 }
 
 void MVATrainerContainerSave::endJob()
