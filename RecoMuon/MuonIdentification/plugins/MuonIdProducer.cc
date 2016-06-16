@@ -763,7 +763,6 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 
 bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
 {
-  // need to update min cuts on pt
   if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
   return ( muon.numberOfMatches( reco::Muon::GEMSegmentAndTrackArbitration ) >= 1 );    
 }
