@@ -9,8 +9,4 @@ totemRPDQMSource = cms.EDAnalyzer("TotemRPDQMSource",
     tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
   
     verbosity = cms.untracked.uint32(0),
-
-    buildCorrelationPlots = cms.untracked.bool(False),
-    correlationPlotsLimit = cms.untracked.uint32(50),
-    correlationPlotsFilter = cms.untracked.string("default=0,1")
 )
