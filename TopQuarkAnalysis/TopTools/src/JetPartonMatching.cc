@@ -391,15 +391,18 @@ JetPartonMatching::print()
   }
   log << "\n";
   log << " useDeltaR : ";
-  switch(useDeltaR_) {
-  case false : log << "false"; break;
-  case true  : log << "true ";
+  if (useDeltaR_) { 
+    log << "true ";
+  }
+  else { 
+    log << "false";
   }
   log << "\n";
   log << " useMaxDist: ";
-  switch(useMaxDist_) {
-  case false : log << "false"; break;
-  case true  : log << "true ";
+  if (useMaxDist_) {
+    log << "true ";
+  else {
+    log << "false";
   }
   log << "      maxDist: " << maxDist_ << "\n";
   log << " number of partons / jets: " << partons.size() << " / " << jets.size() << "\n";
