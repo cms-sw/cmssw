@@ -40,6 +40,7 @@ from EventFilter.Utilities.tcdsRawToDigi_cfi import *
 tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 from L1Trigger.Configuration.L1TRawToDigi_cff import *
+from EventFilter.TotemRawToDigi.totemRawToDigi_cff import *
 
 RawToDigi = cms.Sequence(L1TRawToDigi
                          +siPixelDigis
@@ -77,11 +78,19 @@ muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
-
+totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
+totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 if eras.phase1Pixel.isChosen() :
     RawToDigi.remove(siPixelDigis)
     RawToDigi.remove(castorDigis)
 
+# add CTPPS 2016 raw-to-digi modules
+_ctpps_2016_RawToDigi = RawToDigi.copy()
+_ctpps_2016_RawToDigi += totemTriggerRawToDigi + totemRPRawToDigi
+eras.ctpps_2016.toReplaceWith(RawToDigi, _ctpps_2016_RawToDigi)
 
+_ctpps_2016_RawToDigi_noTk = RawToDigi_noTk.copy()
+_ctpps_2016_RawToDigi_noTk += totemTriggerRawToDigi + totemRPRawToDigi
+eras.ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
 

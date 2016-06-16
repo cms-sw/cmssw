@@ -6,7 +6,6 @@ process.load("Configuration.TotemCommon.LoggerMin_cfi")
 
 # geometry
 process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
-process.XMLIdealGeometryESSource.geomXMLFiles.append('Geometry/VeryForwardData/data/RP_Garage/RP_Dist_Beam_Cent.xml')
 
 # no events to process
 process.source = cms.Source("EmptySource")
