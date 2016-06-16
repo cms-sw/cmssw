@@ -1,14 +1,17 @@
 #ifndef DQM_L1TMonitor_L1TStage2EMTF_h
 #define DQM_L1TMonitor_L1TStage2EMTF_h
 
-#include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit.h"
+#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 
 class L1TStage2EMTF : public DQMEDAnalyzer {
@@ -27,73 +30,39 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
 
  private:
 
-  edm::EDGetTokenT<l1t::EMTFDaqOutCollection> emtfToken;
+  edm::EDGetTokenT<l1t::EMTFDaqOutCollection> daqToken;
+  edm::EDGetTokenT<l1t::EMTFHitCollection> hitToken;
+  edm::EDGetTokenT<l1t::EMTFTrackCollection> trackToken;
+  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken;
   std::string monitorDir;
   bool verbose;
 
-  MonitorElement* emtferrors;
-  MonitorElement* emtflcts;
-  MonitorElement* emtfChamberOccupancy;
+  MonitorElement* emtfErrors;
 
-  MonitorElement* emtf_strip_ME11_NEG;
-  MonitorElement* emtf_wire_ME11_NEG;
-  MonitorElement* emtf_strip_ME12_NEG;
-  MonitorElement* emtf_wire_ME12_NEG;
-  MonitorElement* emtf_strip_ME13_NEG;
-  MonitorElement* emtf_wire_ME13_NEG;
-  MonitorElement* emtf_strip_ME21_NEG;
-  MonitorElement* emtf_wire_ME21_NEG;
-  MonitorElement* emtf_strip_ME22_NEG;
-  MonitorElement* emtf_wire_ME22_NEG;
-  MonitorElement* emtf_strip_ME31_NEG;
-  MonitorElement* emtf_wire_ME31_NEG;
-  MonitorElement* emtf_strip_ME32_NEG;
-  MonitorElement* emtf_wire_ME32_NEG;
-  MonitorElement* emtf_strip_ME41_NEG;
-  MonitorElement* emtf_wire_ME41_NEG;
-  MonitorElement* emtf_strip_ME42_NEG;
-  MonitorElement* emtf_wire_ME42_NEG;
+  MonitorElement* emtfHitBX;
+  MonitorElement* emtfHitStrip[18];
+  MonitorElement* emtfHitWire[18];
+  MonitorElement* emtfChamberStrip[18];
+  MonitorElement* emtfChamberWire[18];
+  MonitorElement* emtfHitOccupancy;
   
-  MonitorElement* emtf_strip_ME11_POS;
-  MonitorElement* emtf_wire_ME11_POS;
-  MonitorElement* emtf_strip_ME12_POS;
-  MonitorElement* emtf_wire_ME12_POS;
-  MonitorElement* emtf_strip_ME13_POS;
-  MonitorElement* emtf_wire_ME13_POS;
-  MonitorElement* emtf_strip_ME21_POS;
-  MonitorElement* emtf_wire_ME21_POS;
-  MonitorElement* emtf_strip_ME22_POS;
-  MonitorElement* emtf_wire_ME22_POS;
-  MonitorElement* emtf_strip_ME31_POS;
-  MonitorElement* emtf_wire_ME31_POS;
-  MonitorElement* emtf_strip_ME32_POS;
-  MonitorElement* emtf_wire_ME32_POS;
-  MonitorElement* emtf_strip_ME41_POS;
-  MonitorElement* emtf_wire_ME41_POS;
-  MonitorElement* emtf_strip_ME42_POS;
-  MonitorElement* emtf_wire_ME42_POS;
-  
-  MonitorElement* emtf_chamberstrip_ME21_NEG;
-  MonitorElement* emtf_chamberstrip_ME22_NEG;
-  MonitorElement* emtf_chamberstrip_ME31_NEG;
-  MonitorElement* emtf_chamberstrip_ME32_NEG;
-  MonitorElement* emtf_chamberstrip_ME41_NEG;
-  MonitorElement* emtf_chamberstrip_ME42_NEG;
-  
-  MonitorElement* emtf_chamberstrip_ME21_POS;
-  MonitorElement* emtf_chamberstrip_ME22_POS;
-  MonitorElement* emtf_chamberstrip_ME31_POS;
-  MonitorElement* emtf_chamberstrip_ME32_POS;
-  MonitorElement* emtf_chamberstrip_ME41_POS;
-  MonitorElement* emtf_chamberstrip_ME42_POS;
-
   MonitorElement* emtfnTracks;
-  MonitorElement* emtfnLCTs;
+  MonitorElement* emtfTracknHits;
   MonitorElement* emtfTrackBX;
   MonitorElement* emtfTrackPt;
   MonitorElement* emtfTrackEta;
   MonitorElement* emtfTrackPhi;
+  MonitorElement* emtfTrackPhiHighQuality;
   MonitorElement* emtfTrackOccupancy;
+  MonitorElement* emtfTrackMode;
+  MonitorElement* emtfTrackQuality;
+  MonitorElement* emtfTrackQualityVsMode;
+
+  MonitorElement* emtfMuonBX;
+  MonitorElement* emtfMuonhwPt;
+  MonitorElement* emtfMuonhwEta;
+  MonitorElement* emtfMuonhwPhi;
+  MonitorElement* emtfMuonhwQual;
 };
 
 #endif
