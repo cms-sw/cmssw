@@ -44,6 +44,9 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
+# Cosmic During Collisions
+from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
+
 localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
@@ -100,7 +103,8 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              btagging*
                              recoPFMET*
                              PFTau*
-                             reducedRecHits
+                             reducedRecHits*
+                             cosmicDCTracksSeq
                              )
 
 
