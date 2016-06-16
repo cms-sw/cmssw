@@ -307,7 +307,8 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
     NTupleVariable("mprunedcorr",    lambda x : x.mprunedcorr,    help="Pruned Mass L2+L3 corrected"),
     NTupleVariable("JEC_L2L3",    lambda x : x.mprunedcorr,    help="L2+L3 correction factor for pruned mass"),	
     NTupleVariable("JEC_L1L2L3",    lambda x : x.mprunedcorr,    help="L1+L2+L3 correction factor for ungroomed pt"),	
-
+    #NTupleVariable("JEC_L2L3Unc",    lambda x : x.JEC_L2L3Unc,    help="Unc L2+L3 correction factor for pruned mass"),
+    #NTupleVariable("JEC_L1L2L3Unc",    lambda x : x.JEC_L1L2L3Unc,    help="Unc L1+L2+L3 correction factor for ungroomed pt"),
 
     NTupleVariable("bbtag",  lambda x : x.bbtag, help="Hbb b-tag score"),
     NTupleVariable("id_Tight",  lambda x : (x.numberOfDaughters()>1 and x.neutralEmEnergyFraction() <0.90 and x.neutralHadronEnergyFraction()<0.90 and x.muonEnergyFraction()  < 0.8) and (x.eta>2.4 or (x.chargedEmEnergyFraction()<0.90 and x.chargedHadronEnergyFraction()>0 and x.chargedMultiplicity()>0)) , help="POG Tight jet ID lep veto"),
