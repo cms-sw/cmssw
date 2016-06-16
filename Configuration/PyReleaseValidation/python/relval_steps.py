@@ -1576,9 +1576,9 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_8_1_0_pre5-80X_upgrade2017_realistic_v4_resubUPG17-v'
-defaultDataSets['2023GReco']='CMSSW_8_1_0_pre4-80X_mcRun2_asymptotic_v13_2023LReco-v'
-defaultDataSets['2023LReco']='CMSSW_8_1_0_pre4-80X_mcRun2_asymptotic_v13_2023LReco-v'
-defaultDataSets['2023tilted']='CMSSW_8_1_0_pre4-80X_mcRun2_asymptotic_v13_2023tilted-v'
+defaultDataSets['2023GReco']=''
+defaultDataSets['2023LReco']=''
+defaultDataSets['2023tilted']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
