@@ -28,6 +28,7 @@ namespace L1Analysis
     phi.clear();
     isLooseMuon.clear();
     isMediumMuon.clear();
+    isTightMuon.clear();
     iso.clear();
     hlt_isomu.clear();
     hlt_mu.clear();
@@ -43,6 +44,7 @@ namespace L1Analysis
     std::vector<float> phi;
     std::vector<bool> isLooseMuon;
     std::vector<bool> isMediumMuon;
+    std::vector<bool> isTightMuon;
     std::vector<float> iso;
     std::vector<short> hlt_isomu;
     std::vector<short> hlt_mu;
