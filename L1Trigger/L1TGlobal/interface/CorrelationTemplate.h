@@ -27,14 +27,13 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalDefinitions.h"
 // forward declarations
 
 // class declaration
-class CorrelationTemplate : public GtCondition
+class CorrelationTemplate : public GlobalCondition
 {
 
 public:
@@ -67,15 +66,23 @@ public:
     /// typedef for correlation parameters
     struct CorrelationParameter
     {
-        std::string deltaEtaRange;
+	
+	//Cut values in hardware
+	long long minEtaCutValue;
+	long long maxEtaCutValue; 
+	unsigned int precEtaCut;
 
-        std::string deltaPhiRange;
-        unsigned int deltaPhiMaxbits;
+	long long minPhiCutValue;
+	long long maxPhiCutValue; 
+	unsigned int precPhiCut;
 
-	//BLW these might require further modification temp to start
-	//TO DO They need to be made integers when we have proper scales.
-	double minCutValue;
-	double maxCutValue; 
+	long long minDRCutValue;
+	long long maxDRCutValue;
+	unsigned int precDRCut; 
+
+	long long minMassCutValue;
+	long long maxMassCutValue;
+	unsigned int precMassCut; 
 
         //Requirement on charge of legs (currently only Mu-Mu).	
 	unsigned int chargeCorrelation;

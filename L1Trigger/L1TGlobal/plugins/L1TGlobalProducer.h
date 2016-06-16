@@ -1,32 +1,26 @@
-//L1TGlobalProducer - Emulate L1T uGT
-//Author: Brian Winer  Ohio State
+#ifndef L1TGlobalProducer_h
+#define L1TGlobalProducer_h
 
-#ifndef L1TGLOBALPRODUCER_H
-#define L1TGLOBALPRODUCER_H
+// Emulator for L1T Global
+// author: Brian Winer  Ohio State
 
-// system include files
 #include <string>
 #include <vector>
-#include<iostream>
-#include<fstream>
-
-#include <boost/cstdint.hpp>
-
-// user include files
-
-// Upgrade Board
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include <iostream>
+#include <fstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class GlobalStableParameters;
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
+
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+
+class L1TGlobalParameters;
 class L1GtParameters;
 class L1GtBoardMaps;
 
@@ -37,8 +31,7 @@ class TriggerMenu;
 
 // class declaration
 
-
-  class L1TGlobalProducer : public edm::EDProducer
+class L1TGlobalProducer : public edm::stream::EDProducer<>
 {
 
 public:
@@ -46,58 +39,44 @@ public:
     explicit L1TGlobalProducer(const edm::ParameterSet&);
     ~L1TGlobalProducer();
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    // return pointer to uGt GtBoard  QUESTION: Is this used anywhere?
-    //inline const l1t::GtBoard* gtBrd() const
-    //{
-    //    return m_uGtBrd;
-    //}     
 
 private:
 
     /// cached stuff
 
     /// stable parameters
-    const GlobalStableParameters* m_l1GtStablePar;
-    unsigned long long m_l1GtStableParCacheID;
+    const L1TGlobalParameters* m_l1GtStablePar;
+    unsigned long long m_l1GtParCacheID;
 
     // trigger menu
     const TriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
-    /// number of physics triggers
+    // number of physics triggers
     unsigned int m_numberPhysTriggers;
 
-    /// number of DAQ partitions
+    // number of DAQ partitions
     unsigned int m_numberDaqPartitions;
 
-    /// number of objects of each type
-    ///    { Mu, NoIsoEG, IsoEG, Jet, Tau, ETM, ETT, HTT, JetCounts };
+    // number of objects of each type
     int m_nrL1Mu;
     int m_nrL1EG;
     int m_nrL1Tau;    
 
     int m_nrL1Jet;
 
-//  *** ??? Do we still need this?
-    int m_nrL1JetCounts;
-
     // ... the rest of the objects are global
-
     int m_ifMuEtaNumberBits;
     int m_ifCaloEtaNumberBits;
-
-
-    /// parameters
-    const L1GtParameters* m_l1GtPar;
-    unsigned long long m_l1GtParCacheID;
 
     ///    total number of Bx's in the event coming from EventSetup
     int m_totalBxInEvent;
 
     ///    active boards in L1 GT DAQ record 
-    boost::uint16_t m_activeBoardsGtDaq;
+    uint16_t m_activeBoardsGtDaq;
 
     /// length of BST record (in bytes) from event setup
     unsigned int m_bstLengthBytes;
@@ -106,19 +85,15 @@ private:
     const L1GtBoardMaps* m_l1GtBM;
     unsigned long long m_l1GtBMCacheID;
 
-
     /// prescale factors
     const L1GtPrescaleFactors* m_l1GtPfAlgo;
     unsigned long long m_l1GtPfAlgoCacheID;
-
-
 
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
     std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
 
     /// CSV file for prescales
     std::string m_prescalesFile;
-
 
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
@@ -127,21 +102,13 @@ private:
     const L1GtTriggerMask* m_l1GtTmVetoAlgo;
     unsigned long long m_l1GtTmVetoAlgoCacheID;
 
-
     const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
     std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
 
     const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
     std::vector<unsigned int> m_initialTriggerMaskVetoAlgoTrig;
 
-private:
-
-/*
-    GtProducerPSB* m_gtPSB;
-    GtProducerGTL* m_gtGTL;
-    GtProducerFDL* m_gtFDL;
-*/
-    l1t::GtBoard* m_uGtBrd;
+    l1t::GlobalBoard* m_uGtBrd;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;
@@ -186,7 +153,6 @@ private:
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
 
-
     /// prescale set used
     unsigned int m_prescaleSet;
 
@@ -199,9 +165,6 @@ private:
     ///     will overwrite the event setup
     bool m_algorithmTriggersUnmasked;
 
-
-private:
-
     /// verbosity level
     int m_verbosity;
     bool m_isDebugEnabled;
@@ -209,4 +172,4 @@ private:
 };
 
 
-#endif /*GtProducer_h*/
+#endif /*L1TGlobalProducer_h*/

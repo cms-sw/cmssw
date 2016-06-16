@@ -9,7 +9,7 @@ SUSY_HLT_MET_BTAG = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   TriggerPath = cms.string('HLT_PFMET120_BTagCSV_p067_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
   TriggerFilter = cms.InputTag('hltPFMET120Filter', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 

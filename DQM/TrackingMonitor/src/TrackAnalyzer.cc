@@ -41,10 +41,12 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doTestPlots_                     ( conf_.getParameter<bool>("doTestPlots") )
     , doHIPlots_                       ( conf_.getParameter<bool>("doHIPlots")  )
     , doSIPPlots_                      ( conf_.getParameter<bool>("doSIPPlots") )
-    , doEffFromHitPattern_             ( conf_.getParameter<bool>("doEffFromHitPattern") )
+    , doEffFromHitPatternVsPU_         ( conf_.getParameter<bool>("doEffFromHitPatternVsPU") )
+    , doEffFromHitPatternVsBX_         ( conf_.getParameter<bool>("doEffFromHitPatternVsBX") )
     , pvNDOF_                          ( conf_.getParameter<int> ("pvNDOF") )
     , qualityString_                   ( conf_.getParameter<std::string>("qualityString"))
     , good_vertices_(0)
+    , bx_(0)
 {
   initHistos();
   TopFolder_ = conf_.getParameter<std::string>("FolderName"); 
@@ -103,6 +105,9 @@ void TrackAnalyzer::initHistos()
   zPointOfClosestApproachVsPhi = nullptr;
   algorithm = nullptr;
   oriAlgo = nullptr;
+  stoppingSource = nullptr;
+  stoppingSourceVSeta = nullptr;
+  stoppingSourceVSphi = nullptr;
     // TESTING
   TESTDistanceOfClosestApproachToBS = nullptr;
   TESTDistanceOfClosestApproachToBSVsPhi = nullptr;
@@ -142,7 +147,8 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup
   bookHistosForHitProperties(ibooker);
   bookHistosForBeamSpot(ibooker);
   bookHistosForLScertification( ibooker);
-  bookHistosForEfficiencyFromHitPatter(ibooker, iSetup);
+  if (doEffFromHitPatternVsPU_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "");
+  if (doEffFromHitPatternVsBX_ || doAllPlots_) bookHistosForEfficiencyFromHitPatter(ibooker, iSetup, "VsBX");
 
   // book tracker specific related histograms
   // ---------------------------------------------------------------------------------//
@@ -174,10 +180,26 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup
 }
 
 void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker,
-                                                         const edm::EventSetup & iSetup)
+                                                         const edm::EventSetup & iSetup,
+							 const std::string suffix)
 {
-  if (doEffFromHitPattern_ || doAllPlots_) {
-    ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern");
+  if (doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doAllPlots_) {
+
+    ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + suffix);
+    
+    int NBINS[] = { 50, 3564 };
+    float MAX[] = { 50.5, 3564.5 };
+    
+    int mon = -1;
+    int nbins = -1;
+    float max = -1.;
+    for (int i=0; i<monQuantity::END; i++) {
+      if (monName[i] == suffix) {
+	mon = i;
+	nbins = NBINS[i];
+	max = MAX[i];
+      }
+    }
   
     edm::ESHandle<TrackerGeometry> trackerGeometry;
     iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
@@ -200,32 +222,32 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
         for (unsigned int cat = 0;
              cat < sizeof(hit_category)/sizeof(char *); ++cat) {
           memset(title, 0, sizeof(title));
-          snprintf(title, sizeof(title), "Hits_%s_%s_Subdet%d", hit_category[cat], dets[det], sub_det);
+          snprintf(title, sizeof(title), "Hits%s_%s_%s_Subdet%d", suffix.c_str(), hit_category[cat], dets[det], sub_det);
           switch(cat) {
             case 0:
               hits_valid_.insert(std::make_pair(
-                  Key(det, sub_det),
-                  ibooker.book1D(title, title, 50, 0.5, 50.5)));
+		  Key(det, sub_det, mon),
+		  ibooker.book1D(title, title, nbins, 0.5, max)));
               break;
             case 1:
               hits_missing_.insert(std::make_pair(
-                  Key(det, sub_det),
-                  ibooker.book1D(title, title, 50, 0.5, 50.5)));
+		  Key(det, sub_det, mon),
+                  ibooker.book1D(title, title, nbins, 0.5, max)));
               break;
             case 2:
               hits_inactive_.insert(std::make_pair(
-                  Key(det, sub_det),
-                  ibooker.book1D(title, title, 50, 0.5, 50.5)));
+		  Key(det, sub_det, mon),
+                  ibooker.book1D(title, title, nbins, 0.5, max)));
               break;
             case 3:
               hits_bad_.insert(std::make_pair(
-                  Key(det, sub_det),
-                  ibooker.book1D(title, title, 50, 0.5, 50.5)));
+		  Key(det, sub_det, mon),
+                  ibooker.book1D(title, title, nbins, 0.5, max)));
               break;
             case 4:
               hits_total_.insert(std::make_pair(
-                  Key(det, sub_det),
-                  ibooker.book1D(title, title, 50, 0.5, 50.5)));
+		  Key(det, sub_det, mon),
+                  ibooker.book1D(title, title, nbins, 0.5, max)));
               break;
             default:
               LogDebug("TrackAnalyzer") << "Invalid hit category used " << cat << " ignored\n";
@@ -236,6 +258,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
   }
 }
 
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
   
     // parameters from the configuration
@@ -508,6 +531,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       algorithm = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize));
       algorithm->setAxisTitle("Tracking algorithm",1);
       algorithm->setAxisTitle("Number of Tracks",2);
+
       histname = "originalAlgorithm_";
       oriAlgo = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize));
       oriAlgo->setAxisTitle("Tracking algorithm",1);
@@ -517,6 +541,31 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 	algorithm->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
         oriAlgo->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
       }
+
+      // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
+      std::vector<std::string> StopReasonName = { "UNINITIALIZED", "MAX_HITS", "MAX_LOST_HITS", "MAX_CONSECUTIVE_LOST_HITS", "LOST_HIT_FRACTION", "MIN_PT", "CHARGE_SIGNIFICANCE", "LOOPER", "MAX_CCC_LOST_HITS", "NO_SEGMENTS_FOR_VALID_LAYERS", "NOT_STOPPED" };
+
+      histname = "stoppingSource_";
+      stoppingSource = ibooker.book1D(histname+CategoryName, histname+CategoryName, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSource->setAxisTitle("stopping reason",1);
+      stoppingSource->setAxisTitle("Number of Tracks",2);
+      
+      histname = "stoppingSourceVSeta_";
+      stoppingSourceVSeta = ibooker.book2D(histname+CategoryName, histname+CategoryName, EtaBin, EtaMin, EtaMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSourceVSeta->setAxisTitle("track #eta",1);
+      stoppingSourceVSeta->setAxisTitle("stopping reason",2);
+      
+      histname = "stoppingSourceVSphi_";
+      stoppingSourceVSphi = ibooker.book2D(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, StopReasonName.size(), 0., double(StopReasonName.size()));
+      stoppingSourceVSphi->setAxisTitle("track #phi",1);
+      stoppingSourceVSphi->setAxisTitle("stopping reason",2);
+
+      for (size_t ibin=0; ibin<StopReasonName.size(); ibin++) {
+	stoppingSource->setBinLabel(ibin+1,StopReasonName[ibin],1);
+	stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName[ibin],2);
+	stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName[ibin],2);
+      }
+
     }
 
 }
@@ -635,7 +684,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       histname = "zPointOfClosestApproachVsPhi_";
       zPointOfClosestApproachVsPhi = ibooker.bookProfile(histname+CategoryName, histname+CategoryName, PhiBin, PhiMin, PhiMax, VZBinProf, VZMinProf, VZMaxProf, "");
       zPointOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
-      zPointOfClosestApproachVsPhi->setAxisTitle("y component of Track PCA to beam line (cm)",2);
+      zPointOfClosestApproachVsPhi->setAxisTitle("z component of Track PCA to beam line (cm)",2);
     }
     
     if(doDCAPlots_ || doPVPlots_ || doAllPlots_) {
@@ -817,6 +866,10 @@ void TrackAnalyzer::setNumberOfGoodVertices(const edm::Event & iEvent) {
           ++good_vertices_;
 }
 
+void TrackAnalyzer::setBX(const edm::Event & iEvent) {
+  bx_ = iEvent.bunchCrossing();
+}
+
 void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track)
 {
   double phi   = track.phi();
@@ -870,53 +923,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   }
 
-  if (doEffFromHitPattern_ || doAllPlots_) {
-    if (track.pt() > 1.0 && track.dxy() < 0.1 and good_vertices_ > 0) {
-      auto hp = track.hitPattern();
-      // Here hit_category is meant to iterate over
-      // reco::HitPattern::HitCategory, defined here:
-      // http://cmslxr.fnal.gov/dxr/CMSSW/source/DataFormats/TrackReco/interface/HitPattern.h
-      for (unsigned int category = 0; category < 3; ++category) {
-        for (int hit = 0; hit < hp.numberOfHits((reco::HitPattern::HitCategory)(category)); ++hit) {
-          auto pattern = hp.getHitPattern((reco::HitPattern::HitCategory)(category), hit);
-          // Boolean bad is missing simply because it is inferred and the only missing case.
-          bool valid = hp.validHitFilter(pattern);
-          bool missing = hp.missingHitFilter(pattern);
-          bool inactive = hp.inactiveHitFilter(pattern);
-          int hit_type = -1;
-          hit_type = valid ? 0 :
-              ( missing ? 1 :
-                ( inactive ? 2 : 3));
-          if (hits_valid_.find(Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern))) == hits_valid_.end()) {
-            LogDebug("TrackAnalyzer") << "Invalid combination of detector and subdetector: ("
-                                      << hp.getSubStructure(pattern) << ", "
-                                      << hp.getSubSubStructure(pattern)
-                                      << "): ignoring it.\n";
-            continue;
-          }
-          switch (hit_type) {
-            case 0:
-              hits_valid_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern))]->Fill(good_vertices_);
-              hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern))]->Fill(good_vertices_);
-              break;
-            case 1:
-              hits_missing_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern))]->Fill(good_vertices_);
-              hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern))]->Fill(good_vertices_);
-              break;
-            case 2:
-              hits_inactive_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern))]->Fill(good_vertices_);
-              break;
-            case 3:
-              hits_bad_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern))]->Fill(good_vertices_);
-              break;
-            default:
-              LogDebug("TrackAnalyzer") << "Invalid hit category used " << hit_type << " ignored\n";
-          }
-        }
-      }
-    }
-  }
-  
+  if (doEffFromHitPatternVsPU_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"",     good_vertices_);
+  if (doEffFromHitPatternVsBX_ || doAllPlots_) fillHistosForEfficiencyFromHitPatter(track,"VsBX", bx_);
+
+
   if (doGeneralPropertiesPlots_ || doAllPlots_){
     // fitting
     Chi2     -> Fill(chi2);
@@ -940,6 +950,13 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     // algorithm
     algorithm->Fill(static_cast<double>(track.algo()));
     oriAlgo->Fill(static_cast<double>(track.originalAlgo()));
+
+    // stopping source
+    int max = stoppingSource->getNbinsX();
+    double stop = track.stopReason() > max ? double(max-1) : static_cast<double>(track.stopReason());
+    stoppingSource->Fill(stop);
+    stoppingSourceVSeta->Fill(track.eta(),stop);
+    stoppingSourceVSphi->Fill(track.phi(),stop);
   }
 
   if ( doLumiAnalysis_ ) {
@@ -1070,6 +1087,63 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if ( doAllPlots_ ) {
   }
 
+}
+
+void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const unsigned int monitoring) {
+
+  if (doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doAllPlots_) {
+    
+    int mon = -1;
+    for (int i=0; i<monQuantity::END; i++) {
+      if (monName[i] == suffix) mon = i;
+    }
+
+    if (track.pt() > 1.0 && track.dxy() < 0.1 and monitoring > 0) {
+      auto hp = track.hitPattern();
+      // Here hit_category is meant to iterate over
+      // reco::HitPattern::HitCategory, defined here:
+      // http://cmslxr.fnal.gov/dxr/CMSSW/source/DataFormats/TrackReco/interface/HitPattern.h
+      for (unsigned int category = 0; category < 3; ++category) {
+        for (int hit = 0; hit < hp.numberOfHits((reco::HitPattern::HitCategory)(category)); ++hit) {
+          auto pattern = hp.getHitPattern((reco::HitPattern::HitCategory)(category), hit);
+          // Boolean bad is missing simply because it is inferred and the only missing case.
+          bool valid = hp.validHitFilter(pattern);
+          bool missing = hp.missingHitFilter(pattern);
+          bool inactive = hp.inactiveHitFilter(pattern);
+          int hit_type = -1;
+          hit_type = valid ? 0 :
+              ( missing ? 1 :
+                ( inactive ? 2 : 3));
+          if (hits_valid_.find(Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)) == hits_valid_.end()) {
+            LogDebug("TrackAnalyzer") << "Invalid combination of detector and subdetector: ("
+                                      << hp.getSubStructure(pattern) << ", "
+                                      << hp.getSubSubStructure(pattern)
+                                      << "): ignoring it.\n";
+            continue;
+          }
+          switch (hit_type) {
+            case 0:
+              hits_valid_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
+              hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
+              break;
+            case 1:
+              hits_missing_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
+              hits_total_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
+              break;
+            case 2:
+              hits_inactive_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
+              break;
+            case 3:
+              hits_bad_[Key(hp.getSubStructure(pattern), hp.getSubSubStructure(pattern), mon)]->Fill(monitoring);
+              break;
+            default:
+              LogDebug("TrackAnalyzer") << "Invalid hit category used " << hit_type << " ignored\n";
+          }
+        }
+      }
+    }
+  }
+  
 }
 
 // book histograms at differnt measurement points

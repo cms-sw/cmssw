@@ -289,12 +289,14 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     if not self.config.profiling:
       self.data += """
-# enable the TrigReport and TimeReport
+# enable TrigReport, TimeReport and MultiThreading
 %(process)s.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True )
+    wantSummary = cms.untracked.bool( True ),
+    numberOfThreads = cms.untracked.uint32( 4 ),
+    numberOfStreams = cms.untracked.uint32( 0 ),
+    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 """
-
 
   def _fix_parameter(self, **args):
     """arguments:
@@ -398,7 +400,7 @@ if 'GlobalTag' in %(dict)s:
       self.config.l1cond = None
 
     if self.config.globaltag or self.config.l1cond:
-      text += "    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag\n"
+      text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
       text += "    %(process)s.GlobalTag = customiseGlobalTag(%(process)s.GlobalTag"
       if self.config.globaltag:
         text += ", globaltag = %s"  % repr(self.config.globaltag)
@@ -428,12 +430,12 @@ from HLTrigger.Configuration.CustomConfigs import L1XML
 
   def runL1Emulator(self):
     # if requested, run the Full L1T emulator, then repack the data into a new RAW collection, to be used by the HLT
-    if self.config.emulator == 'Full':
+    if self.config.emulator:
       text = """
 # run the Full L1T emulator, then repack the data into a new RAW collection, to be used by the HLT
 from HLTrigger.Configuration.CustomConfigs import L1REPACK
-%(process)s = L1REPACK(%(process)s)
-"""
+%%(process)s = L1REPACK(%%(process)s,"%s")
+""" % (self.config.emulator)
       self.data += text
 
   def overrideOutput(self):
@@ -705,12 +707,16 @@ if 'GlobalTag' in %%(dict)s:
       else:
         # drop all output endpaths
         paths.append( "-*Output" )
+        paths.append( "-RatesMonitoring")
+        paths.append( "-DQMHistograms")
     elif self.config.output == 'minimal':
       # drop all output endpaths but HLTDQMResultsOutput
       if self.config.paths:
         paths.append( "HLTDQMResultsOutput" )
       else:
         paths.append( "-*Output" )
+        paths.append( "-RatesMonitoring")
+        paths.append( "-DQMHistograms")
         paths.append( "HLTDQMResultsOutput" )
     else:
       # keep / add back all output endpaths

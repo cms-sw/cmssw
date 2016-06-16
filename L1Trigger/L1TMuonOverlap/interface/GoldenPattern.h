@@ -8,6 +8,7 @@
 
 class OMTFConfigMaker;
 class OMTFProcessor;
+class OMTFConfiguration;
 //////////////////////////////////
 // Key
 //////////////////////////////////
@@ -54,7 +55,7 @@ class GoldenPattern {
   //
   // GoldenPatterns methods
   //
- GoldenPattern(const Key & aKey) : theKey(aKey){}
+ GoldenPattern(const Key & aKey, const OMTFConfiguration * omtfConfig) : theKey(aKey), myOmtfConfig(omtfConfig){}
   
   Key key() const {return theKey;}
 
@@ -119,6 +120,8 @@ class GoldenPattern {
   ///Vector holding number of counts.
   ///Used for making the patterns
   vector2D meanDistPhiCounts;
+
+  const OMTFConfiguration  * myOmtfConfig;
 
 };
 //////////////////////////////////

@@ -13,6 +13,8 @@
 #include "UCTGeometry.hh"
 #include "UCTLogging.hh"
 
+using namespace l1tcalo;
+
 UCTLayer1::UCTLayer1() : uctSummary(0) {
   UCTGeometry g;
   crates.reserve(g.getNCrates());
@@ -35,8 +37,7 @@ bool UCTLayer1::clearEvent() {
 }
 
 const UCTRegion* UCTLayer1::getRegion(int regionEtaIndex, uint32_t regionPhiIndex) const {
-  if(regionEtaIndex == 0 || regionEtaIndex < -7 || regionEtaIndex > 7 ||
-     regionPhiIndex <= 0 || regionPhiIndex >= 19) {
+  if(regionEtaIndex == 0 || (uint32_t) std::abs(regionEtaIndex) > NRegionsInCard || regionPhiIndex >= MaxUCTRegionsPhi) {
     return 0;
   }
   // Get (0,0) tower region information

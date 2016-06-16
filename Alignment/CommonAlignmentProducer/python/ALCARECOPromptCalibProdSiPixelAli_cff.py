@@ -97,6 +97,7 @@ SiPixelAliMilleAlignmentProducer.tjTkAssociationMapTag = 'SiPixelAliTrackRefitte
 
 SiPixelAliMilleAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliMilleAlignmentProducer.algoConfig.mode = 'mille'
+SiPixelAliMilleAlignmentProducer.algoConfig.runAtPCL = True
 SiPixelAliMilleAlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
 SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary_0.dat'
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
@@ -119,7 +120,7 @@ SiPixelAliTrackerTrackHitFilter = HitFilter.TrackerTrackHitFilter.clone(
     rejectBadStoNHits = True,
     commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC"), #,"drop TID stereo","drop TEC stereo")
     stripAllInvalidHits = False,
-    StoNcommands = cms.vstring("ALL 18.0"),
+    StoNcommands = cms.vstring("ALL 12.0"),
     rejectLowAngleHits = True,
     TrackAngleCut = 0.17, # in rads, starting from the module surface; .35 for cosmcics ok, .17 for collision tracks
     usePixelQualityFlag = True #False

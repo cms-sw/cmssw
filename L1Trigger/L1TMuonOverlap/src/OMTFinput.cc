@@ -8,8 +8,9 @@
 
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
-OMTFinput::OMTFinput(){
+OMTFinput::OMTFinput(const OMTFConfiguration* omtfConfig){
 
+  myOmtfConfig = omtfConfig;
   clear();
   
 }
@@ -28,10 +29,10 @@ std::bitset<128> OMTFinput::getRefHits(unsigned int iProcessor) const{
   std::bitset<128> refHits;
 
   unsigned int iRefHit = 0;
-  for(auto iRefHitDef:OMTFConfiguration::instance()->refHitsDefs[iProcessor]){
-    int iPhi = getLayerData(OMTFConfiguration::instance()->refToLogicNumber[iRefHitDef.iRefLayer])[iRefHitDef.iInput];    
-    int iEta = getLayerData(OMTFConfiguration::instance()->refToLogicNumber[iRefHitDef.iRefLayer],true)[iRefHitDef.iInput];
-    if(iPhi<(int)OMTFConfiguration::instance()->nPhiBins){
+  for(auto iRefHitDef:myOmtfConfig->getRefHitsDefs()[iProcessor]){
+    int iPhi = getLayerData(myOmtfConfig->getRefToLogicNumber()[iRefHitDef.iRefLayer])[iRefHitDef.iInput];    
+    int iEta = getLayerData(myOmtfConfig->getRefToLogicNumber()[iRefHitDef.iRefLayer],true)[iRefHitDef.iInput];
+    if(iPhi<(int)myOmtfConfig->nPhiBins()){
       refHits.set(iRefHit, iRefHitDef.fitsRange(iPhi));    
       refHitsEta[iRefHit] = iEta;
     }
@@ -46,12 +47,12 @@ bool OMTFinput::addLayerHit(unsigned int iLayer,
 			    unsigned int iInput,
 			    int iPhi, int iEta){
 
-  assert(iLayer<OMTFConfiguration::instance()->nLayers);
+  assert(iLayer<myOmtfConfig->nLayers());
   assert(iInput<14);
 
-  if(iPhi>=(int)OMTFConfiguration::instance()->nPhiBins) return true;
+  if(iPhi>=(int)myOmtfConfig->nPhiBins()) return true;
 
-  if(measurementsPhi[iLayer][iInput]!=(int)OMTFConfiguration::instance()->nPhiBins) ++iInput;
+  if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) ++iInput;
   
   if(iInput>13) return false;
   
@@ -74,18 +75,13 @@ void OMTFinput::readData(XMLConfigReader *aReader,
 ///////////////////////////////////////////////////
 void OMTFinput::mergeData(const OMTFinput *aInput){
 
-  for(unsigned int iLayer=0;iLayer<OMTFConfiguration::instance()->nLayers;++iLayer){
+  for(unsigned int iLayer=0;iLayer<myOmtfConfig->nLayers();++iLayer){
     const OMTFinput::vector1D & aPhiVec = aInput->getLayerData(iLayer,false);
     const OMTFinput::vector1D & aEtaVec = aInput->getLayerData(iLayer,true);
     if(!aPhiVec.size()) continue;
 
     OMTFinput::vector1D layerData = getLayerData(iLayer, false);
-    
-    for(unsigned int iInput=0;iInput<14;++iInput){
-
-      //if(aPhiVec[iInput]==layerData[iInput] &&
-      // aPhiVec[iInput]!=(int)OMTFConfiguration::instance()->nPhiBins) std::cout<<"Same HIT!"<<std::endl;
-      
+    for(unsigned int iInput=0;iInput<14;++iInput){      
       addLayerHit(iLayer,iInput,aPhiVec[iInput],aEtaVec[iInput]);
     }
   }
@@ -94,30 +90,29 @@ void OMTFinput::mergeData(const OMTFinput *aInput){
 ///////////////////////////////////////////////////
 void OMTFinput::clear(){
 
-  vector1D aLayer1D(14,OMTFConfiguration::instance()->nPhiBins);
-  measurementsPhi.assign(OMTFConfiguration::instance()->nLayers,aLayer1D);
-  measurementsEta.assign(OMTFConfiguration::instance()->nLayers,aLayer1D);
-  refHitsEta.assign(128,OMTFConfiguration::instance()->nPhiBins);
+  vector1D aLayer1D(14,myOmtfConfig->nPhiBins());
+  measurementsPhi.assign(myOmtfConfig->nLayers(),aLayer1D);
+  measurementsEta.assign(myOmtfConfig->nLayers(),aLayer1D);
+  refHitsEta.assign(128,myOmtfConfig->nPhiBins());
 
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 void  OMTFinput::shiftMyPhi(int phiShift){
 
-
-  int lowScaleEnd = std::pow(2,OMTFConfiguration::instance()->nPhiBits-1);
+  int lowScaleEnd = std::pow(2,myOmtfConfig->nPhiBits()-1);
   int highScaleEnd = lowScaleEnd-1;
 
 for(unsigned int iLogicLayer=0;iLogicLayer<measurementsPhi.size();++iLogicLayer){
     for(unsigned int iHit=0;iHit<measurementsPhi[iLogicLayer].size();++iHit){
-      if(!OMTFConfiguration::instance()->bendingLayers.count(iLogicLayer) &&
-	 measurementsPhi[iLogicLayer][iHit]<(int)OMTFConfiguration::instance()->nPhiBins){
-	if(measurementsPhi[iLogicLayer][iHit]<0) measurementsPhi[iLogicLayer][iHit]+=OMTFConfiguration::instance()->nPhiBins;
+      if(!myOmtfConfig->getBendingLayers().count(iLogicLayer) &&
+	 measurementsPhi[iLogicLayer][iHit]<(int)myOmtfConfig->nPhiBins()){
+	if(measurementsPhi[iLogicLayer][iHit]<0) measurementsPhi[iLogicLayer][iHit]+=myOmtfConfig->nPhiBins();
 	measurementsPhi[iLogicLayer][iHit]-=phiShift;
-	if(measurementsPhi[iLogicLayer][iHit]<0) measurementsPhi[iLogicLayer][iHit]+=OMTFConfiguration::instance()->nPhiBins;
+	if(measurementsPhi[iLogicLayer][iHit]<0) measurementsPhi[iLogicLayer][iHit]+=myOmtfConfig->nPhiBins();
 	measurementsPhi[iLogicLayer][iHit]+=-lowScaleEnd;
 	if(measurementsPhi[iLogicLayer][iHit]<-lowScaleEnd ||
-	   measurementsPhi[iLogicLayer][iHit]>highScaleEnd) measurementsPhi[iLogicLayer][iHit] = (int)OMTFConfiguration::instance()->nPhiBins;	   
+	   measurementsPhi[iLogicLayer][iHit]>highScaleEnd) measurementsPhi[iLogicLayer][iHit] = (int)myOmtfConfig->nPhiBins();	   
       }
     }
   }
@@ -134,8 +129,6 @@ for(unsigned int iLogicLayer=0;iLogicLayer<aInput.measurementsPhi.size();++iLogi
     out<<std::endl;
   }
   return out;
-
-
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////

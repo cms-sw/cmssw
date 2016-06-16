@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <TMatrixDSym.h>
 #include <TMatrixD.h>
@@ -88,6 +89,12 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   // This one will be called since it matches the interface of the base class
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup);
+
+  /// called at begin of luminosity block (resets Mille binary in mille mode)
+  virtual void beginLuminosityBlock(const edm::EventSetup&) override;
+
+  /// called at end of luminosity block
+  virtual void endLuminosityBlock(const edm::EventSetup&) override;
 
 
 /*   virtual void beginLuminosityBlock(const edm::EventSetup &setup) {} */
@@ -235,12 +242,12 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::string               theDir; /// directory for all kind of files
   AlignmentParameterStore  *theAlignmentParameterStore;
   std::vector<Alignable*>   theAlignables;
-  AlignableNavigator       *theAlignableNavigator;
-  MillePedeMonitor         *theMonitor;
-  Mille                    *theMille;
-  PedeLabelerBase          *thePedeLabels;
-  PedeSteerer              *thePedeSteer;
-  TrajectoryFactoryBase    *theTrajectoryFactory;
+  std::unique_ptr<AlignableNavigator>    theAlignableNavigator;
+  std::unique_ptr<MillePedeMonitor>      theMonitor;
+  std::unique_ptr<Mille>                 theMille;
+  std::unique_ptr<PedeLabelerBase>       thePedeLabels;
+  std::unique_ptr<PedeSteerer>           thePedeSteer;
+  std::unique_ptr<TrajectoryFactoryBase> theTrajectoryFactory;
   std::vector<IntegratedCalibrationBase*> theCalibrations;
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
@@ -251,8 +258,10 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::vector<int>          theIntBuffer;
   bool                      theDoSurveyPixelBarrel;
   // CHK for GBL
-  gbl::MilleBinary              *theBinary;
+  std::unique_ptr<gbl::MilleBinary> theBinary;
   bool                      theGblDoubleBinary;
+
+  const bool                runAtPCL_;
 };
 
 #endif

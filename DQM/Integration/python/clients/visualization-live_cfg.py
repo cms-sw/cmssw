@@ -9,7 +9,8 @@ from DQM.Integration.config.inputsource_cfi import options,runType,source
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppRun2','cosmic_run':'cosmicsRun2','hi_run':'HeavyIons'}
-scenarios = {'pp_run': 'ppRun2','pp_run_stage1': 'ppRun2','cosmic_run':'cosmicsRun2','cosmic_run_stage1':'cosmicsRun2','hi_run':'HeavyIonsRun2'}
+#scenarios = {'pp_run': 'ppRun2','pp_run_stage1': 'ppRun2','cosmic_run':'cosmicsRun2','cosmic_run_stage1':'cosmicsRun2','hi_run':'HeavyIonsRun2'}
+scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsRun2','hi_run':'HeavyIonsRun2'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()

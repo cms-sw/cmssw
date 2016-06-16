@@ -16,7 +16,7 @@ SUSY_HLT_MET_HT_MUON_ER = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
   etaMuonOffline = cms.untracked.double(2.1), 
   HTOffline = cms.untracked.double(300.0),
   METOffline = cms.untracked.double(300.0),
-  PtThrJet = cms.untracked.double(40.0),
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 

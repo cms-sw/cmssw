@@ -19,6 +19,9 @@ def Base(process):
 #   default modifications
 
     process.options.wantSummary = cms.untracked.bool(True)
+    process.options.numberOfThreads = cms.untracked.uint32( 4 )
+    process.options.numberOfStreams = cms.untracked.uint32( 0 )
+    process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
@@ -124,12 +127,12 @@ def MassReplaceParameter(process,name="label",old="rawDataCollector",new="rawDat
         massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
     return(process)
 
-def L1REPACK(process):
+def L1REPACK(process,sequence="Full"):
 
     from Configuration.StandardSequences.Eras import eras
 
     l1repack = cms.Process('L1REPACK',eras.Run2_2016)
-    l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_Full_cff')
+    l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
     for module in l1repack.es_sources_():
         if (not hasattr(process,module)):

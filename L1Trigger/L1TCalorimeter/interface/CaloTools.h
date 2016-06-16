@@ -83,6 +83,8 @@ namespace l1t {
     static float towerPhiSize(int ieta);
 
     // conversion to other index systems
+    static int mpEta(int ieta);      // convert to internal MP numbering
+    static int caloEta(int ietaMP);  // convert from internal MP to Calo ieta
     static int regionEta(int ieta);  // RCT region
     static int gtEta(int ieta);      // GT eta scale
     static int gtPhi(int ieta, int iphi);      // GT phi scale
@@ -100,6 +102,8 @@ namespace l1t {
     static l1t::Jet    jetP4MP(l1t::Jet&);
     static l1t::EtSum  etSumP4MP(l1t::EtSum&);
 
+	static const int32_t cos_coeff[72];
+	static const int32_t sin_coeff[72];
 
   private:
     // trigger tower eta boundaries

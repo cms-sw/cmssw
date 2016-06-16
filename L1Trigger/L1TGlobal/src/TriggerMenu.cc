@@ -22,8 +22,7 @@
 #include <iomanip>
 
 // user include files
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
-#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 
 // forward declarations
@@ -32,7 +31,7 @@
 TriggerMenu::TriggerMenu()
   : m_triggerMenuInterface( "NULL" ),
     m_triggerMenuName( "NULL" ),
-    m_triggerMenuImplementation( "NULL" ),
+    m_triggerMenuImplementation( 0x0 ),
     m_scaleDbKey( "NULL" )
 {
     // empty
@@ -53,7 +52,7 @@ TriggerMenu::TriggerMenu(
 ) :
     m_triggerMenuInterface( "NULL" ),
     m_triggerMenuName(triggerMenuNameVal),
-    m_triggerMenuImplementation( "NULL" ),
+    m_triggerMenuImplementation( 0x0 ),
     m_scaleDbKey( "NULL" ),
             m_vecMuonTemplate(vecMuonTemplateVal),
             m_vecCaloTemplate(vecCaloTemplateVal),
@@ -66,6 +65,7 @@ TriggerMenu::TriggerMenu(
 {
 
     m_conditionMap.resize(numberConditionChips);
+    m_triggerMenuUUID = 0;
     buildGtConditionMap();
 
 }
@@ -78,6 +78,7 @@ TriggerMenu::TriggerMenu(const TriggerMenu& rhs)
     m_triggerMenuName = rhs.m_triggerMenuName;
     m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
     m_scaleDbKey = rhs.m_scaleDbKey ;
+    m_triggerMenuUUID = rhs.m_triggerMenuUUID;
 
     // copy physics conditions
     m_vecMuonTemplate = rhs.m_vecMuonTemplate;
@@ -129,6 +130,7 @@ TriggerMenu& TriggerMenu::operator=(const TriggerMenu& rhs) {
         m_triggerMenuInterface = rhs.m_triggerMenuInterface;
         m_triggerMenuName = rhs.m_triggerMenuName;
         m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
+	m_triggerMenuUUID = rhs.m_triggerMenuUUID;
 
         m_vecMuonTemplate = rhs.m_vecMuonTemplate;
         m_vecCaloTemplate = rhs.m_vecCaloTemplate;
@@ -311,9 +313,14 @@ void TriggerMenu::setGtTriggerMenuName(const std::string& menuName) {
     m_triggerMenuName = menuName;
 }
 
-void TriggerMenu::setGtTriggerMenuImplementation(const std::string& menuImplementation) {
+void TriggerMenu::setGtTriggerMenuImplementation(const unsigned long menuImplementation) {
     m_triggerMenuImplementation = menuImplementation;
 }
+
+void TriggerMenu::setGtTriggerMenuUUID(const unsigned long uuid) {
+    m_triggerMenuUUID = uuid;
+}
+
 
 // set menu associated scale key
 void TriggerMenu::setGtScaleDbKey(const std::string& scaleKey) {
@@ -321,7 +328,7 @@ void TriggerMenu::setGtScaleDbKey(const std::string& scaleKey) {
 }
 
 // set menu associated scale key
-void TriggerMenu::setGtScales(const l1t::L1TGlobalScales& scales) {
+void TriggerMenu::setGtScales(const l1t::GlobalScales& scales) {
     m_gtScales = scales;
 }
 
@@ -399,10 +406,10 @@ void TriggerMenu::setGtTechnicalTriggerMap(const l1t::AlgorithmMap& ttMap) {
 // print the trigger menu (bit number, algorithm name, logical expression)
 void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
-    // use another map <int, L1GtAlgorithm> to get the menu sorted after bit number
+    // use another map <int, GlobalAlgorithm> to get the menu sorted after bit number
     // both algorithm and bit numbers are unique
-    std::map<int, const L1GtAlgorithm*> algoBitToAlgo;
-    typedef std::map<int, const L1GtAlgorithm*>::const_iterator CItBit;
+    std::map<int, const GlobalAlgorithm*> algoBitToAlgo;
+    typedef std::map<int, const GlobalAlgorithm*>::const_iterator CItBit;
 
     for (l1t::CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
 
@@ -414,7 +421,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
 /*
     // idem for technical trigger map - only name and bit number are relevant for them
-    std::map<int, const L1GtAlgorithm*> ttBitToTt;
+    std::map<int, const GlobalAlgorithm*> ttBitToTt;
 
     for (l1t::CItAlgo itAlgo = m_technicalTriggerMap.begin(); itAlgo
             != m_technicalTriggerMap.end(); itAlgo++) {
@@ -434,9 +441,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number "
@@ -483,9 +491,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number "
@@ -531,9 +540,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << std::endl;

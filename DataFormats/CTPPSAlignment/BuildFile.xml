@@ -1,0 +1,6 @@
+<use   name="FWCore/Framework"/>
+<use   name="DataFormats/Common"/>
+<use   name="rootmath"/>
+<export>
+  <lib   name="1"/>
+</export>
