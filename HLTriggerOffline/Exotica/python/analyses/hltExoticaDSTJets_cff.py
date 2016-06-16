@@ -15,8 +15,6 @@ DSTJetsPSet = cms.PSet(
         "DST_HT250_CaloBTagScouting_v",
         "DST_L1HTT_CaloBTagScouting_v",
         "DST_CaloJet40_CaloBTagScouting_v",
-        "DST_DiCaloWideJetMass200_CaloScouting_v",
-        "DST_DiCaloWideJetMass200_CaloBTagScouting_v",
         # For backward compatibility
         "DST_HT250_CaloScouting_v", 
         "DST_CaloJet40_CaloScouting_v", 
