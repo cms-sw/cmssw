@@ -225,7 +225,12 @@ void Phase2ITPixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, Digi
 #ifdef PIXELREGRESSION
     int adcOld = calibrate(di->adc(),col,row);
     //assert(adc==adcOld);
-    if (adc!=adcOld) std::cout << "VI " << eqD  <<' '<< ic  <<' '<< end-begin <<' '<< i <<' '<< di->adc() <<' ' << adc <<' '<< adcOld << std::endl; else ++eqD;
+    if (adc!=adcOld) {
+      LogWarning("Phase2ITPixelThresholdClusterizer") << eqD  <<' '<< ic  <<' '<< end-begin <<' '<< i <<' '<< di->adc() <<' ' << adc <<' '<< adcOld;
+    }  else { 
+      ++eqD;
+    }
+
 #endif
     if ( adc >= thePixelThreshold) {
       theBuffer.set_adc( row, col, adc);
@@ -359,20 +364,8 @@ Phase2ITPixelThresholdClusterizer::make_cluster( const Phase2ITPixelCluster::Pix
   //The only difference between dead/noisy pixels and standard ones is that for dead/noisy pixels,
   //We consider the charge of the pixel to always be zero.
 
-  /*  this is not possible as dead and noisy pixel cannot make it into a seed...
-  if ( doMissCalibrate &&
-       (theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row()) || 
-	theSiPixelGainCalibrationService_->isNoisy(detid_,pix.col(),pix.row())) )
-    {
-      std::cout << "IMPOSSIBLE" << std::endl;
-      seed_adc = 0;
-      theBuffer.set_adc(pix, 1);
-    }
-    else {
-  */
   seed_adc = theBuffer(pix.row(), pix.col());
   theBuffer.set_adc( pix, 1);
-      //  }
   
   AccretionCluster acluster;
   acluster.add(pix, seed_adc);

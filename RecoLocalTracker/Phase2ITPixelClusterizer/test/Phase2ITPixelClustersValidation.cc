@@ -64,7 +64,7 @@ struct ClusterHistos {
     TH1F* otherSimHits;
 };
 
-class Phase2ITPixelClustersValidation : public edm::EDAnalyzer {
+class Phase2ITPixelClustersValidation : public edm::one::EDAnalyzer {
 
     public:
 
@@ -117,6 +117,7 @@ class Phase2ITPixelClustersValidation : public edm::EDAnalyzer {
         trackerLayoutXY_ = td.make< TH2F >("XVsY", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
         trackerLayoutXYBar_ = td.make< TH2F >("XVsYBar", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
         trackerLayoutXYEC_ = td.make< TH2F >("XVsYEC", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
+
     }
 
 void Phase2ITPixelClustersValidation::endJob() { }

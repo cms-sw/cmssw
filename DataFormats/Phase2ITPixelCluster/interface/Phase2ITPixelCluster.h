@@ -20,12 +20,8 @@
 #include <vector>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-#ifndef CMS_NOCXX11
-#include <cstdint>
-#else
-#include "boost/cstdint.hpp"
-#endif
 
+#include <cstdint>
 #include <cassert>
 
 class PixelDigi;
@@ -72,19 +68,11 @@ public:
   
   typedef std::vector<PixelDigi>::const_iterator   PixelDigiIter;
   typedef std::pair<PixelDigiIter,PixelDigiIter>   PixelDigiRange;
-  
-  
-#ifndef CMS_NOCXX11
+    
   static constexpr unsigned int POSBITS=20;
   static constexpr unsigned int SPANBITS=12;
   static constexpr unsigned int MAXSPAN=127;
   static constexpr unsigned int MAXPOS=2047;
-#else
-  static const unsigned int POSBITS=20;
-  static const unsigned int SPANBITS=12;
-  static const unsigned int MAXSPAN=127;
-  static const unsigned int MAXPOS=2047;
-#endif  
   
   /** Construct from a range of digis that form a cluster and from 
    *  a DetID. The range is assumed to be non-empty.
