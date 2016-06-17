@@ -390,20 +390,9 @@ JetPartonMatching::print()
   default               : log << "UNKNOWN         ";
   }
   log << "\n";
-  log << " useDeltaR : ";
-  if (useDeltaR_) { 
-    log << "true ";
-  }
-  else { 
-    log << "false";
-  }
+  log << " useDeltaR : " <<std::boolalpha << useDeltaR_;
   log << "\n";
-  log << " useMaxDist: ";
-  if (useMaxDist_) {
-    log << "true ";
-  else {
-    log << "false";
-  }
+  log << " useMaxDist: " << std::boolalpha << useMaxDist_;
   log << "      maxDist: " << maxDist_ << "\n";
   log << " number of partons / jets: " << partons.size() << " / " << jets.size() << "\n";
   log << " number of available combinations: " << getNumberOfAvailableCombinations() << "\n";
