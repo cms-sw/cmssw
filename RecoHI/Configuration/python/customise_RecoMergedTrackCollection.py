@@ -36,7 +36,7 @@ def customiseAddMergedTrackCollection(process):
 
     ###keep only merged collection
     #process.AODoutput.outputCommands += ['keep *_hiConformalPixelTracks_*_*']
-    process.AODoutput.outputCommands += ['drop *_hiGeneralTracks_*_*']
+    #process.AODoutput.outputCommands += ['drop *_hiGeneralTracks_*_*']
 
     ###Add pixel tracks and merging procedure in the sequence
     process.reconstruction_step += process.hiMergedConformalPixelTracking
