@@ -213,7 +213,10 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int fgBit     = egammas_raw.at(iEG).hwQual()    & (0x1);
       int hOverEBit = egammas_raw.at(iEG).hwQual()>>1 & (0x1);
       int shapeBit  = egammas_raw.at(iEG).hwQual()>>2 & (0x1);
-      if(!fgBit || !shapeBit || !hOverEBit) continue;
+
+      bool IDcuts = (fgBit && hOverEBit && shapeBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE());
+
+      if(!IDcuts) continue;
 
       if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
       else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
