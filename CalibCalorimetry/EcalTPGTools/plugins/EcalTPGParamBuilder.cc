@@ -110,14 +110,8 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
   if(m_write_ped != 0 && m_write_ped != 1 ) ped_conf_id_=m_write_ped;
   
-  try {
     if (writeToDB_) edm::LogInfo("WriteToDB Info : ") << "data will be saved with tag and version="<< tag_<< ".version"<<version_<< "\n";
     db_ = new EcalTPGDBApp(DBsid, DBuser, DBpass) ;
-  } catch (exception &e) {
-    edm::LogInfo("WriteToDB Info : ") << "ERROR:  " << e.what() << "\n";
-  } catch (...) {
-    edm::LogInfo("WriteToDB Info : ") << "Unknown error caught\n";
-  }
 
   writeToFiles_ =  pSet.getParameter<bool>("writeToFiles") ;
   if (writeToFiles_) {
@@ -522,7 +516,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     FEConfigMainInfo fe_main_info;
     fe_main_info.setConfigTag(tag_);
-    try {
       edm::LogInfo("Pedestals Info : ") << "trying to read previous tag if it exists tag="<< tag_<< ".version"<<version_<< "\n";
       db_-> fetchConfigSet(&fe_main_info);
       if(fe_main_info.getPedId()>0 ) ped_conf_id_=fe_main_info.getPedId();
@@ -595,12 +588,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       }
       
       
-    } catch (exception &e) {
-      edm::LogInfo("Pedestals Info : ") << " error reading previous pedestals " << "\n";
-    } catch (...) {
-      edm::LogInfo("Pedestals Info : ") << "Unknown error reading previous pedestals " << "\n";
-    }
-    
 
       
 
@@ -611,7 +598,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     EcalPedestals peds ;
 
-      try {
+      
 
 	  FEConfigPedInfo fe_ped_info;
 	  fe_ped_info.setId(m_write_ped);
@@ -677,14 +664,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	  }
 	  
 
-      } catch (exception &e) {
-	edm::LogInfo("Pedestals Info : ") << " error reading previous pedestals " << "\n";
-      } catch (...) {
-	edm::LogInfo("Pedestals Info : ") << "Unknown error reading previous pedestals " <<  "\n";
-      }
-
-
-  }
+    }
 
 
   // Intercalib constants
@@ -829,7 +809,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
     FEConfigMainInfo fe_main_info;
     fe_main_info.setConfigTag(tag_);
-    try {
+    
       edm::LogInfo("ADCToGeV Info : ") << "trying to read previous tag if it exists tag="<< tag_<< ".version"<<version_<< "\n";
 
       db_-> fetchConfigSet(&fe_main_info);
@@ -846,13 +826,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       if(fe_main_info.getBstId()>0 && bst_conf_id_==0 ) bst_conf_id_=fe_main_info.getBstId();
       // those that are not written specifically in this program are propagated
       // from the previous record with the same tag and the highest version
-
-
-    } catch (exception &e) {
-      edm::LogInfo("ADCToGeV Info : ") << " tag did not exist a new tag will be created " << "\n" ;
-    } catch (...) {
-      edm::LogInfo("ADCToGeV Info : ") << "Unknown error caught" << "\n";
-    }
 
   }
 
