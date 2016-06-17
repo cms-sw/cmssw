@@ -54,10 +54,10 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
            label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
-         trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-           workingPoint = cms.double(3.41)
-         ),
+#         trackCountingPur = cms.PSet(
+#           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+#           workingPoint = cms.double(3.41)
+#         ),
          secondaryVertex  = cms.PSet(
            label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
            workingPoint = cms.double(0.890)
@@ -194,10 +194,10 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
            label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
-         trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
-           workingPoint = cms.double(3.41)
-         ),
+#         trackCountingPur = cms.PSet(
+#           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+#           workingPoint = cms.double(3.41)
+#         ),
          secondaryVertex  = cms.PSet(
            label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
            workingPoint = cms.double(0.890)
@@ -215,7 +215,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     triggerExtras = cms.PSet(
 			src   = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016
-			paths = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])		
+			paths = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele25_WPTight_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])		
 		)
 	),	
   ## ------------------------------------------------------
@@ -229,7 +229,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
 		trigger = cms.PSet(
 			src    = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                                 
-			select = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])
+			select = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele25_WPTight_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])
 			),
     ## [optional] : when omitted no preselection is applied
 		vertex = cms.PSet(
