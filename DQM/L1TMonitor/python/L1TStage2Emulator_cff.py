@@ -56,6 +56,16 @@ from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 valEmtfStage2Digis = simEmtfDigis.clone()
 valEmtfStage2Digis.CSCInput = "csctfDigis"
 
+# uGMT
+from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
+valGmtCaloSumDigis = simGmtCaloSumDigis.clone()
+valGmtCaloSumDigis.caloStage2Layer2Label = cms.InputTag("l1tCaloLayer1Digis")
+valGmtStage2Digis = simGmtStage2Digis.clone()
+valGmtStage2Digis.barrelTFInput = cms.InputTag("gmtStage2Digis", "BMTF")
+valGmtStage2Digis.overlapTFInput = cms.InputTag("gmtStage2Digis", "OMTF")
+valGmtStage2Digis.forwardTFInput = cms.InputTag("gmtStage2Digis", "EMTF")
+valGmtStage2Digis.triggerTowerInput = cms.InputTag("valGmtCaloSumDigis", "TriggerTowerSums")
+
 # uGT
 from L1Trigger.L1TGlobal.simGtStage2Digis_cfi import simGtStage2Digis
 from L1Trigger.L1TGlobal.simGtExtFakeProd_cfi import simGtExtFakeProd
@@ -74,6 +84,8 @@ Stage2L1HardwareValidation = cms.Sequence(
     valCaloStage2Layer1Digis +
     valCaloStage2Layer2Digis +
     valEmtfStage2Digis +
+    valGmtCaloSumDigis +
+    valGmtStage2Digis +
     valGtStage2Digis
 )
 
@@ -90,6 +102,9 @@ from DQM.L1TMonitor.L1TStage2CaloLayer2Emul_cfi import *
 # EMTF
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
 
+# uGMT
+from DQM.L1TMonitor.L1TStage2uGMTEmul_cfi import *
+
 # uGT
 from DQM.L1TMonitor.L1TStage2uGTEmul_cfi import *
 
@@ -102,5 +117,6 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     # to be able to divide them in the MonitorClient
     l1tStage2CaloLayer2 + l1tStage2CaloLayer2Emul +
     l1tdeStage2Emtf +
+    l1tStage2uGMTEmul +
     l1tStage2uGtEmul
 )

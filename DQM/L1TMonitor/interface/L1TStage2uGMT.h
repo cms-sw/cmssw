@@ -35,6 +35,7 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtEMTFToken;
   edm::EDGetTokenT<l1t::MuonBxCollection> ugmtMuonToken;
   std::string monitorDir;
+  bool emul;
   bool verbose;
 
   MonitorElement* ugmtBMTFBX;
