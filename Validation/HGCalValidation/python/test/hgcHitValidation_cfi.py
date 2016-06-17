@@ -7,7 +7,8 @@ hgcHitAnalysis = cms.EDAnalyzer("HGCHitValidation",
                                 eeSimHitSource = cms.InputTag("g4SimHits","HGCHitsEE"),
                                 fhSimHitSource = cms.InputTag("g4SimHits","HGCHitsHEfront"),
                                 bhSimHitSource = cms.InputTag("g4SimHits","HcalHits"),
-                                eeUncalibRecHitSource = cms.InputTag("HGCalUncalibRecHit","HGCEEUncalibRecHits"),
-                                fhUncalibRecHitSource = cms.InputTag("HGCalUncalibRecHit","HGCHEFUncalibRecHits"),
-                                bhUncalibRecHitSource = cms.InputTag("hbheUpgradeReco")
+                                eeRecHitSource = cms.InputTag("HGCalRecHit","HGCEERecHits"),
+                                fhRecHitSource = cms.InputTag("HGCalRecHit","HGCHEFRecHits"),
+                                bhRecHitSource = cms.InputTag("hbheUpgradeReco"),
+                                ietaExcludeBH  = cms.vint32([])
                                 )

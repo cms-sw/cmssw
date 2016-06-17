@@ -143,7 +143,8 @@ process.analysis_step = cms.Path(process.hgcalBHValidation)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.digi2raw_step,process.recotest_step,process.analysis_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.recotest_step,process.analysis_step)
+#process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.digi2raw_step,process.recotest_step,process.analysis_step)
 #process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.recotest_step,process.analysis_step)
 # filter all path with the production filter sequence
 for path in process.paths:
