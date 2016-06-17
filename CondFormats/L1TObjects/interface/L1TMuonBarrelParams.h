@@ -19,7 +19,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
-
+#include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
 
 class L1TMuonBarrelParams {
 public:
@@ -56,12 +56,14 @@ public:
 	 OutOfTime_Filter,
 	 Open_LUTs,
 	 EtaTrackFinder,
-	 Extrapolation_21, 
+	 Extrapolation_21,
+	 DisableNewAlgo,
 	 NUM_CONFIG_PARAMS};
 
   // after initial integration with downstream code, a small update will change:
   L1MuDTTFParameters  l1mudttfparams;
   L1MuDTTFMasks       l1mudttfmasks;
+  L1MuDTExtLut        l1mudttfextlut;
   // to this:
   //L1MuDTTFParameters & l1mudttfparams(){return l1mudttfparams_[0]; }
   //L1MuDTTFMasks &      l1mudttfmasks(){return l1mudttfmasks_[0]; }
@@ -74,7 +76,7 @@ public:
   typedef std::map< LUTID, LUTCONT > qpLUT;
   ///Eta Pattern LUT
   typedef std::map<short, L1MuDTEtaPattern, std::less<short> > etaLUT;
-  
+
   class LUTParams{
   public:
     std::vector<LUT> pta_lut_;
@@ -94,31 +96,31 @@ public:
     LUTParams() : pta_lut_(0), phi_lut_(0), pta_threshold_(6), ext_lut_(0){  }
     COND_SERIALIZABLE;
   };
-  
-  
+
+
 
 
   std::string AssLUTPath() const  { return pnodes_[CONFIG].sparams_.size() > 0 ? pnodes_[CONFIG].sparams_[0] : ""; }
   void setAssLUTPath        (std::string path) { pnodes_[CONFIG].sparams_.push_back(path); }
-  
+
   void setpta_lut(std::vector<LUT> ptalut) { lutparams_.pta_lut_ = ptalut; };
   std::vector<LUT> pta_lut() const {return lutparams_.pta_lut_; };
   void setpta_threshold(std::vector<int> ptathresh) { lutparams_.pta_threshold_ = ptathresh;  };
   std::vector<int> pta_threshold() const { return lutparams_.pta_threshold_;  };
-  
+
   void setphi_lut(std::vector<LUT> philut) { lutparams_.phi_lut_ = philut; };
   std::vector<LUT> phi_lut() const {return lutparams_.phi_lut_; };
-  
+
   void setext_lut(std::vector<LUTParams::extLUT> extlut) { lutparams_.ext_lut_ = extlut; };
   std::vector<LUTParams::extLUT> ext_lut() const {return lutparams_.ext_lut_; };
-  
+
   void setqp_lut(qpLUT qplut) { lutparams_.qp_lut_ = qplut; };
   qpLUT qp_lut() const {return lutparams_.qp_lut_; };
-  
+
   void seteta_lut(etaLUT eta_lut) { lutparams_.eta_lut_ = eta_lut; };
   etaLUT eta_lut() const {return lutparams_.eta_lut_; };
-  
-  
+
+
   void set_PT_Assignment_nbits_Phi(int par1) {pnodes_[CONFIG].iparams_[PT_Assignment_nbits_Phi] = par1;}
   void set_PT_Assignment_nbits_PhiB(int par1) {pnodes_[CONFIG].iparams_[PT_Assignment_nbits_PhiB] = par1;}
   void set_PHI_Assignment_nbits_Phi(int par1) {pnodes_[CONFIG].iparams_[PHI_Assignment_nbits_Phi] = par1;}
@@ -133,7 +135,8 @@ public:
   void set_Open_LUTs(bool par1) {pnodes_[CONFIG].iparams_[Open_LUTs] = par1;}
   void set_EtaTrackFinder(bool par1) {pnodes_[CONFIG].iparams_[EtaTrackFinder] = par1;}
   void set_Extrapolation_21(bool par1) {pnodes_[CONFIG].iparams_[Extrapolation_21] = par1;}
-  
+  void set_DisableNewAlgo(bool par1) {pnodes_[CONFIG].iparams_[DisableNewAlgo] = par1;}
+
 
   int get_PT_Assignment_nbits_Phi() const{return pnodes_[CONFIG].iparams_[PT_Assignment_nbits_Phi];}
   int get_PT_Assignment_nbits_PhiB() const {return pnodes_[CONFIG].iparams_[PT_Assignment_nbits_PhiB];}
@@ -145,12 +148,14 @@ public:
   int get_BX_max() const {return pnodes_[CONFIG].iparams_[BX_max];}
   int get_Extrapolation_Filter() const {return pnodes_[CONFIG].iparams_[Extrapolation_Filter];}
   int get_OutOfTime_Filter_Window() const {return pnodes_[CONFIG].iparams_[OutOfTime_Filter_Window] ;}
-  
+
+
   bool get_OutOfTime_Filter() const {return pnodes_[CONFIG].iparams_[OutOfTime_Filter];}
   bool get_Open_LUTs() const {return pnodes_[CONFIG].iparams_[Open_LUTs] ;}
   bool get_EtaTrackFinder() const {return pnodes_[CONFIG].iparams_[EtaTrackFinder] ;}
   bool get_Extrapolation_21() const {return pnodes_[CONFIG].iparams_[Extrapolation_21] ;}
-  
+  bool get_DisableNewAlgo() const {return pnodes_[CONFIG].iparams_[DisableNewAlgo] ;}
+
   ~L1TMuonBarrelParams() {}
 
   // FW version
@@ -163,13 +168,13 @@ public:
  private:
   unsigned version_;
   unsigned fwVersion_;
-  
+
   std::vector<Node> pnodes_;
   // std::vector here is just so we can use "blob" in DB and evade max size limitations...
   std::vector<L1MuDTTFParameters> l1mudttfparams_;
-  std::vector<L1MuDTTFMasks>      l1mudttfmasks_;  
+  std::vector<L1MuDTTFMasks>      l1mudttfmasks_;
   LUTParams lutparams_;
-  
+
   COND_SERIALIZABLE;
 };
 #endif
