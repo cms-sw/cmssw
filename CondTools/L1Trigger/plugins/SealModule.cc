@@ -217,8 +217,10 @@ REGISTER_L1_WRITER(L1CaloGeometryRecord, L1CaloGeometry);
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/CaloConfig.h"
 #include "CondFormats/DataRecord/interface/L1TCaloConfigRcd.h"
 using namespace l1t;
 REGISTER_L1_WRITER(L1TCaloParamsRcd, CaloParams);
+REGISTER_L1_WRITER(L1TCaloStage2ParamsRcd, CaloParams);
 REGISTER_L1_WRITER(L1TCaloConfigRcd, CaloConfig);

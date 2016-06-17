@@ -1,0 +1,63 @@
+<system id="ugmt">
+  <creator>ugmt::hardware::UGMTSystem</creator>
+  <crates>
+    <crate id="Vadatech">
+      <description>P5 uGMT system</description>
+      <location>P5 s1e04-43</location>
+    </crate>
+  </crates>
+  <processors>
+    <processor id="ugmt_processor">
+      <creator>ugmt::hardware::UGMTProcessor</creator>
+      <hw-type>MP7 XE</hw-type>
+      <role>processors</role>
+      <uri>chtcp-2.0://bridge-s1e04-43:10203?target=amc-s1e04-43-09:50001</uri>
+      <address-table>file:///cmsnfshome0/nfshome0/ugmtts/test/address_tables/mp7xe_infra.xml</address-table>
+      <crate>Vadatech</crate>
+      <slot>9</slot>
+      <rx-port pid="[08:36]" name="CaloL2_[01:29]"/>
+      <rx-port pid="[36:42]" name="EMTF+_[01:07]"/>
+      <rx-port pid="[42:48]" name="OMTF+_[01:07]"/>
+      <rx-port pid="[48:60]" name="BMTF_[01:13]"/>
+      <rx-port pid="[60:66]" name="OMTF-_[01:07]"/>
+      <rx-port pid="[66:72]" name="EMTF-_[01:07]"/>
+      <tx-port pid="[00:04]" name="uGT_[01:05]"/>
+    </processor>
+  </processors>
+  <daqttc-mgrs>
+    <daqttc-mgr id="ugmt_amc13">
+      <creator>swatch::amc13::AMC13Manager</creator>
+      <role>daqttcs</role>
+      <crate>Vadatech</crate>
+      <slot>13</slot>
+      <uri id="t1">chtcp-2.0://bridge-s1e04-43:10203?target=amc-s1e04-43-13-t1.cms:50001</uri>
+      <uri id="t2">chtcp-2.0://bridge-s1e04-43:10203?target=amc-s1e04-43-13-t2.cms:50001</uri>
+      <address-table id="t1">file:///opt/cactus/etc/amc13/AMC13XG_T1.xml</address-table>
+      <address-table id="t2">file:///opt/cactus/etc/amc13/AMC13XG_T2.xml</address-table>
+      <fed-id>1402</fed-id>
+    </daqttc-mgr>
+  </daqttc-mgrs>
+  <links/>
+  <connected-feds>
+    <connected-fed id="1385">
+      <port id="ugmt_processor.inputPorts.EMTF+_[01:07]"/>
+    </connected-fed>
+    <connected-fed id="1381">
+      <port id="ugmt_processor.inputPorts.OMTF+_[01:07]"/>
+    </connected-fed>
+    <connected-fed id="1376">
+      <port id="ugmt_processor.inputPorts.BMTF_[01:07]"/>
+    </connected-fed>
+    <connected-fed id="1377">
+      <port id="ugmt_processor.inputPorts.BMTF_[07:13]"/>
+    </connected-fed>
+    <connected-fed id="1380">
+      <port id="ugmt_processor.inputPorts.OMTF-_[01:07]"/>
+    </connected-fed>
+    <connected-fed id="1384">
+      <port id="ugmt_processor.inputPorts.EMTF-_[01:07]"/>
+    </connected-fed>
+  </connected-feds>
+  <excluded-boards/>
+</system>
+
