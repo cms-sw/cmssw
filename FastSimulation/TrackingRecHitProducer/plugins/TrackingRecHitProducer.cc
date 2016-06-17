@@ -92,6 +92,15 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
     produces<FastTrackerRecHitRefCollection>("simHit2RecHitMap");
 }
 
+TrackingRecHitProducer::~TrackingRecHitProducer()
+{
+    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    {
+        delete algo;
+    }
+    _recHitAlgorithms.clear();
+}
+
 void TrackingRecHitProducer::beginStream(edm::StreamID id)
 {
     for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
@@ -238,10 +247,5 @@ void TrackingRecHitProducer::endStream()
         algo->endStream();
     }
 }
-
-TrackingRecHitProducer::~TrackingRecHitProducer()
-{
-}
-
 
 DEFINE_FWK_MODULE(TrackingRecHitProducer);
