@@ -38,6 +38,8 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   
   std::vector<int> v_DB_reco_flags_;
   bool killDeadChannels_;
+
+  std::vector<float> rcorr_;
   
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
 };

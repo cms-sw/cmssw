@@ -186,6 +186,11 @@ class MatrixInjector(object):
             wmsplit['RECODR2_50nsreHLT']=5
             wmsplit['RECODR2_25nsreHLT']=5
             wmsplit['RECODR2_2016reHLT']=5
+            wmsplit['RECODR2_2016reHLT_skimSingleMu']=5
+            wmsplit['RECODR2_2016reHLT_skimDoubleEG']=5
+            wmsplit['RECODR2_2016reHLT_skimMuonEG']=5
+            wmsplit['RECODR2_2016reHLT_skimJetHT']=5
+            wmsplit['RECODR2_2016reHLT_skimMuOnia']=5
             wmsplit['HLTDR2_50ns']=1
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1

@@ -113,8 +113,8 @@ corresponds to the Pixel Barrel and Forward detector. Therefore only them will b
 | _not used_ | 22 | 0x1 | 1 | | |
 | Disk | 18 | 0xF | 4 | pxfDisk(id) or layer(id) | increasing abs(z) |
 | _Blade_ | 12 | 0x3F | 6 | pxfBlade(id) | increasing phi and r: first inner ring blades and the outer ring blades |
-| Panel | 10 | 0x3 | 2 | pxbPanel(id) | 1=forward 2=backward |
-| Module | 2 | 0xFF | 8 | _pxbModule(id)_ | always = 1 |
+| Panel | 10 | 0x3 | 2 | pxfPanel(id) | 1=forward 2=backward |
+| Module | 2 | 0xFF | 8 | pxfModule(id) | always = 1 |
 | _not used_ | 0 | 0x3 | 2 | | |
 
 Subdetectors 3 to 6 are as for the Run 1 detector since the SiStrip Tracker is the same in phase1.
@@ -145,8 +145,8 @@ With this subdetector, the flat geometry is compatible using just the central ba
 | _not used_ | 22 | 0x1 | 1 | | |
 | Disk | 18 | 0xF | 4 | pxfDisk(id) or layer(id) | increasing abs(z) |
 | _Blade_ | 12 | 0x3F | 6 | pxfBlade(id) | increasing phi and r: first inner ring blades and the outer ring blades |
-| Panel | 10 | 0x3 | 2 | pxbPanel(id) | 1=forward 2=backward |
-| Module | 2 | 0xFF | 8 | _pxbModule(id)_ | always = 1 |
+| Panel | 10 | 0x3 | 2 | pxfPanel(id) | 1=forward 2=backward |
+| Module | 2 | 0xFF | 8 | pxfModule(id) | always = 1 |
 | _not used_ | 0 | 0x3 | 2 | | |
 
 * Subdetector 5  (`DetId::subDetId() == StripSubdetector::TOB`): Phase2 Outer Tracker Barrel

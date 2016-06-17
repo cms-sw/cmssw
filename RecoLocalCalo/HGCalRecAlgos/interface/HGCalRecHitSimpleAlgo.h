@@ -10,6 +10,7 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalRecHitAbsAlgo.h"
 #include "DataFormats/HGCDigi/interface/HGCDataFrame.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include <iostream>
 
 class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
@@ -18,6 +19,10 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
   HGCalRecHitSimpleAlgo() {
     adcToGeVConstant_ = -1;
     adcToGeVConstantIsSet_ = false;
+  }
+
+  virtual void setLayerWeights(const std::vector<float>& weights) override {
+    weights_ = weights;
   }
   
   virtual void setADCToGeVConstant(const float value) override {
@@ -38,8 +43,10 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
         << "makeRecHit: adcToGeVConstant_ not set before calling this method!";
     }
     
+    HGCalDetId hid(uncalibRH.id());
+
     //    float clockToNsConstant = 25;
-    float energy = uncalibRH.amplitude() * adcToGeVConstant_;
+    float energy = uncalibRH.amplitude() * weights_[hid.layer()] * 0.001f;
     float time   = uncalibRH.jitter();
 
     //if(time<0) time   = 0; // fast-track digi conversion
@@ -56,5 +63,6 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
 private:
   float adcToGeVConstant_;
   bool  adcToGeVConstantIsSet_;
+  std::vector<float> weights_;
 };
 #endif

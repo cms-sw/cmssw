@@ -24,6 +24,7 @@ class HGCalRecHitAbsAlgo
   virtual ~HGCalRecHitAbsAlgo() { };
 
   /// make rechits from dataframes
+  virtual void setLayerWeights(const std::vector<float>& weights) {};
 
   virtual void setADCToGeVConstant(const float value) = 0;
   virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t &flags) const = 0;
