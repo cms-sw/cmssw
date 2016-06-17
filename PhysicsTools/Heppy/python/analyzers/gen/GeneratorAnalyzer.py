@@ -1,6 +1,6 @@
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
-from PhysicsTools.Heppy.physicsutils.genutils import isNotFromHadronicShower, realGenMothers, realGenDaughters
+from PhysicsTools.Heppy.physicsutils.genutils import isNotFromHadronicShower, realGenMothers, realGenDaughters, motherRef
 
 def interestingPdgId(id,includeLeptons=False):        
     id = abs(id)
@@ -135,20 +135,21 @@ class GeneratorAnalyzer( Analyzer ):
         for igp,gp in enumerate(good):
             gp.motherIndex = -1
             gp.sourceId    = 99
+            gp.promptHardFlag = gp.isPromptFinalState() or gp.isDirectPromptTauDecayProductFinalState() or gp.isHardProcess() 
             gp.genSummaryIndex = igp
-            ancestor = None if gp.numberOfMothers() == 0 else gp.motherRef(0)
-            while ancestor != None and ancestor.isNonnull():
-                if ancestor.key() in keymap:
-                    gp.motherIndex = keymap[ancestor.key()]
+            (ancestor, ancestorKey) = (None,-1) if gp.numberOfMothers() == 0 else motherRef(gp)
+            while ancestor:
+                if ancestorKey in keymap:
+                    gp.motherIndex = keymap[ancestorKey]
                     if ancestor.pdgId() != good[gp.motherIndex].pdgId():
                         print "Error keying %d: motherIndex %d, ancestor.pdgId %d, good[gp.motherIndex].pdgId() %d " % (igp, gp.motherIndex, ancestor.pdgId(),  good[gp.motherIndex].pdgId())
                     break
-                ancestor = None if ancestor.numberOfMothers() == 0 else ancestor.motherRef(0)
+                (ancestor, ancestorKey) = (None,-1) if ancestor.numberOfMothers() == 0 else motherRef(ancestor)
             if abs(gp.pdgId()) not in [1,2,3,4,5,11,12,13,14,15,16,21]:
                 gp.sourceId = gp.pdgId()
             if gp.motherIndex != -1:
                 ancestor = good[gp.motherIndex]
-                if ancestor.sourceId != 99 and (ancestor.mass() > gp.mass() or gp.sourceId == 99):
+                if hasattr(ancestor, "sourceId") and ancestor.sourceId != 99 and (ancestor.mass() > gp.mass() or gp.sourceId == 99):
                     gp.sourceId = ancestor.sourceId
         event.generatorSummary = good
         # add the ID of the mother to be able to recreate last decay chains

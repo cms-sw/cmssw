@@ -132,11 +132,12 @@ class NTupleSubObject:
 
 class NTupleObject:
     """Type defining a set of branches associated to a single object (i.e. an instance of NTupleObjectType)"""
-    def __init__(self, name, objectType, help="", mcOnly=False):
+    def __init__(self, name, objectType, help="", mcOnly=False, nillable=False):
         self.name = name
         self.objectType = objectType
         self.mcOnly = mcOnly
         self.help = ""
+        self.nillable = nillable
     def makeBranches(self,treeNumpy,isMC):
         if not isMC and self.mcOnly: return
         allvars = self.objectType.allVars(isMC)
@@ -146,6 +147,9 @@ class NTupleObject:
             treeNumpy.var("%s_%s" % (self.name, v.name), type=v.type, default=v.default, title=h, filler=v.filler)
     def fillBranches(self,treeNumpy,object,isMC):
         if self.mcOnly and not isMC: return
+        if object is None:
+            if self.nillable: return
+            raise RuntimeError, "Error, object not found or None when filling branch %s" % self.name
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
             treeNumpy.fill("%s_%s" % (self.name, v.name), v(object))
