@@ -22,10 +22,13 @@ public:
   float timeFalling() const { return timeFalling_; }
   HcalDetId id() const { return HcalDetId(detid()); }
 
+  inline void setAuxHF(const uint32_t u) {auxHF_ = u;}
+  inline uint32_t getAuxHF() const {return auxHF_;}
+
 private:
 
   float timeFalling_;
-
+  uint32_t auxHF_;
 };
 
 std::ostream& operator<<(std::ostream& s, const HFRecHit& hit);
