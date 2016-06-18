@@ -11,13 +11,15 @@
     <version ClassVersion="11" checksum="1379911758"/>
     <version ClassVersion="10" checksum="1697427050"/>
    </class>
-   <class name="HFQIE10Info" ClassVersion="3">
+   <class name="HFQIE10Info" ClassVersion="4">
+    <version ClassVersion="4" checksum="3261445918"/>
     <version ClassVersion="3" checksum="1025085409"/>
    </class>
    <class name="HFPreRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="224636588"/>
    </class>
-   <class name="HFRecHit" ClassVersion="13">
+   <class name="HFRecHit" ClassVersion="14">
+    <version ClassVersion="14" checksum="3957655113"/>
     <version ClassVersion="13" checksum="1446699820"/>
     <version ClassVersion="12" checksum="1242817974"/>
     <version ClassVersion="10" checksum="1310006561"/>

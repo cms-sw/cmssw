@@ -81,10 +81,14 @@ def customise_Hcal2017(process):
         process.hbheprereco.digiLabel = cms.InputTag("simHcalDigis")
         process.hbheprereco.setNoiseFlags = cms.bool(False)
         process.horeco.digiLabel = cms.InputTag("simHcalDigis")
-        process.hfreco.digiLabel = cms.InputTag("simHcalDigis")
         process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
         process.zdcreco.digiLabelhcal = cms.InputTag("simHcalUnsuppressedDigis")
         process.hcalnoise.digiCollName = cms.string('simHcalDigis')
+        process.load("RecoLocalCalo.HcalRecProducers.hfprereco_cfi")
+        process.hfprereco.digiLabel = cms.InputTag("simHcalDigis", "HFQIE10DigiCollection")
+        process.localreco += process.hfprereco
+        from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco
+        process.globalReplace("hfreco", hfreco)
     if hasattr(process,'datamixing_step'):
         process=customise_mixing(process)
     

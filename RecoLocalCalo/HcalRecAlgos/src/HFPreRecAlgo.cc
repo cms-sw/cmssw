@@ -26,8 +26,32 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
         const float timeRising = s.le_tdc();
         const float timeFalling = s.te_tdc();
 
-        result = HFQIE10Info(digi.id(), s.adc(), charge, energy,
-                             timeRising, timeFalling);
+        // Figure out the window in the raw data
+        // that we want to store. This window will
+        // have the width given by "nStore" and
+        // will start at "shift".
+        int shift = 0;
+        int nStore = nRead;
+        if (nRead > static_cast<int>(HFQIE10Info::N_RAW_MAX))
+        {
+            nStore = HFQIE10Info::N_RAW_MAX;
+
+            // Try to center the window on "tsToUse"
+            const int winCenter = nStore/2;
+            if (tsToUse > winCenter)
+                shift = tsToUse - winCenter;
+            if (shift + nStore > nRead)
+                shift = nRead - nStore;
+        }
+
+        // Fill an array of raw values
+        HFQIE10Info::raw_type raw[HFQIE10Info::N_RAW_MAX];
+        for (int i=0; i<nStore; ++i)
+            raw[i] = digi[i + shift].wideRaw();
+
+        result = HFQIE10Info(digi.id(), charge, energy,
+                             timeRising, timeFalling,
+                             raw, nStore, tsToUse - shift);
     }
     return result;
 }

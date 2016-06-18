@@ -183,6 +183,21 @@ HcalDetId HcalDetId::baseDetId() const {
   }
 }
 
+HcalDetId HcalDetId::secondAnodeId() const {
+  if (subdet() != HcalForward || depth() > 2) {
+    return HcalDetId(id_);
+  } else {
+    int zsid, eta, phi, dep;
+    unpackId(id_, zsid, eta, phi, dep);
+    dep     += 2;
+    uint32_t rawid    = id_&kHcalIdMask;
+    rawid   |= (kHcalIdFormat2) | ((dep&kHcalDepthMask2)<<kHcalDepthOffset2) |
+      ((zsid>0)?(kHcalZsideMask2|(eta<<kHcalEtaOffset2)):((eta)<<kHcalEtaOffset2)) |
+      (phi&kHcalPhiMask2);
+    return HcalDetId(rawid);
+  }
+}
+
 int HcalDetId::crystal_iphi_low() const { 
   int simple_iphi=((iphi()-1)*5)+1; 
   simple_iphi+=10;
