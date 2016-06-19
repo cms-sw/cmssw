@@ -38,6 +38,7 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
     recoMuon_.et.push_back(it->et());    
     recoMuon_.eta.push_back(it->eta());
     recoMuon_.phi.push_back(it->phi());
+    recoMuon_.charge.push_back(it->charge());
 
     //check isLooseMuon
     bool flagLoose = isLooseMuonCustom(*it);
