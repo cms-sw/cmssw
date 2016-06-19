@@ -98,6 +98,12 @@ namespace {
                 ps.getParameter<std::vector<double> >("energyWeights");
             const unsigned soiPhase =
                 ps.getParameter<unsigned>("soiPhase");
+            const float timeShift =
+                ps.getParameter<double>("timeShift");
+            const float triseIfNoTDC =
+                ps.getParameter<double>("triseIfNoTDC");
+            const float tfallIfNoTDC =
+                ps.getParameter<double>("tfallIfNoTDC");
             const bool rejectAllFailures =
                 ps.getParameter<bool>("rejectAllFailures");
 
@@ -116,8 +122,9 @@ namespace {
                     to[i] = energyWeightsVec[i];
 
                 algo = std::unique_ptr<AbsHFPhase1Algo>(
-                    new HFSimpleTimeCheck(tlimits, energyWeights,
-                                          soiPhase, rejectAllFailures));
+                    new HFSimpleTimeCheck(tlimits, energyWeights, soiPhase,
+                                          timeShift, triseIfNoTDC, tfallIfNoTDC,
+                                          rejectAllFailures));
             }
         }
 
@@ -277,11 +284,16 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     for (HFPreRecHitCollection::const_iterator it = preRecHits->begin();
          it != preRecHits->end(); ++it)
     {
+        // The check whether this PMT is single-anode one should go here.
+        // Fix this piece of code if/when mixed-anode readout configurations
+        // become available.
+        const bool thisIsSingleAnodePMT = false;
+
         // Check if the anodes were tagged bad in the database
         bool taggedBadByDb[2] = {false, false};
         if (useChannelQualityFromDB_)
         {
-            if (checkChannelQualityForDepth3and4_)
+            if (checkChannelQualityForDepth3and4_ && !thisIsSingleAnodePMT)
             {
                 HcalDetId anodeIds[2];
                 anodeIds[0] = it->id();
@@ -303,7 +315,8 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
         // Reconstruct the rechit
         const HFRecHit& rh = reco_->reconstruct(
-            *it, conditions->getHcalCalibrations(it->id()), taggedBadByDb);
+            *it, conditions->getHcalCalibrations(it->id()),
+            taggedBadByDb, thisIsSingleAnodePMT);
 
         // The rechit will have the id of 0 if the algorithm
         // decides that it should be dropped

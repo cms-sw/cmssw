@@ -41,7 +41,8 @@ public:
     // should have its id (of type HcalDetId) set to 0.
     virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
                                  const HcalCalibrations& calibs,
-                                 const bool flaggedBadInDB[2]) = 0;
+                                 const bool flaggedBadInDB[2],
+                                 bool expectSingleAnodePMT) = 0;
 };
 
 #endif // RecoLocalCalo_HcalRecAlgos_AbsHFPhase1Algo_h_
