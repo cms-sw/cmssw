@@ -26,6 +26,7 @@ namespace L1Analysis
     pt.clear();
     eta.clear();
     phi.clear();
+    charge.clear();
     isLooseMuon.clear();
     isMediumMuon.clear();
     isTightMuon.clear();
@@ -42,6 +43,7 @@ namespace L1Analysis
     std::vector<float> pt;
     std::vector<float> eta;
     std::vector<float> phi;
+    std::vector<float> charge;
     std::vector<bool> isLooseMuon;
     std::vector<bool> isMediumMuon;
     std::vector<bool> isTightMuon;
