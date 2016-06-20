@@ -154,7 +154,7 @@ void GoldenPattern::normalise(unsigned int nPdfAddrBits){
     for (unsigned int iLayer=0;iLayer<pdfAllRef.size();++iLayer){   
       for (unsigned int iPdf=0;iPdf<pdfAllRef[iLayer][iRefLayer].size();++iPdf){   
 	float pVal = log((float)pdfAllRef[iLayer][iRefLayer][iPdf]/meanDistPhiCounts[myOmtfConfig->getRefToLogicNumber()[iRefLayer]][iRefLayer]);
-	//TEST AK if(pVal<log(myOmtfConfig->minPdfVal())) continue;
+	if(pVal<log(myOmtfConfig->minPdfVal())) continue;
 	meanDistPhi[iLayer][iRefLayer]+=(iPdf - exp2(myOmtfConfig->nPdfAddrBits()-1))*pdfAllRef[iLayer][iRefLayer][iPdf];
 	if((int)iLayer!=myOmtfConfig->getRefToLogicNumber()[iRefLayer]) meanDistPhiCounts[iLayer][iRefLayer]+=pdfAllRef[iLayer][iRefLayer][iPdf];
       }
