@@ -67,7 +67,7 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       GoldenPattern::vector1D meanDistPhi1D(myOmtfConfig->nRefLayers());
       for(unsigned int iRefLayer=0;iRefLayer<myOmtfConfig->nRefLayers();++iRefLayer){
 	address = iRefLayer + iLayer*myOmtfConfig->nRefLayers() + iGP*(myOmtfConfig->nRefLayers()*myOmtfConfig->nLayers());
-	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));	
+	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));
       }
       meanDistPhi2D[iLayer] = meanDistPhi1D;    
       ///Pdf data
@@ -83,12 +83,13 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       }
       pdf3D[iLayer] = pdf2D;
     }
+    
     Key aKey(iEta,iPt,iCharge);
 
     GoldenPattern *aGP = new GoldenPattern(aKey, myOmtfConfig);
     aGP->setMeanDistPhi(meanDistPhi2D);
     aGP->setPdf(pdf3D);
-    addGP(aGP);    
+    if(iPt) addGP(aGP);    
   }
   return true;
 }

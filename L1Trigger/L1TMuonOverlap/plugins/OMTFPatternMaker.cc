@@ -78,9 +78,10 @@ void OMTFPatternMaker::beginRun(edm::Run const& run, edm::EventSetup const& iSet
   myOMTFConfigMaker = new OMTFConfigMaker(myOMTFConfig);
   
   ///Clear existing GoldenPatterns
-  const std::map<Key,GoldenPattern*> & theGPs = myOMTF->getPatterns();
-  for(auto itGP: theGPs) itGP.second->reset();
-  
+  if(!mergeXMLFiles){
+    const std::map<Key,GoldenPattern*> & theGPs = myOMTF->getPatterns();
+    for(auto itGP: theGPs) itGP.second->reset();
+  }  
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
@@ -178,7 +179,7 @@ void OMTFPatternMaker::writeMergedGPs(){
   dummy->reset();
 
   unsigned int iPtMin = 9;
-  Key aKey = Key(0, iPtMin,-1);
+  Key aKey = Key(0, iPtMin, 1);
   while(myGPmap.find(aKey)!=myGPmap.end()){
 
     GoldenPattern *aGP1 = myGPmap.find(aKey)->second;
@@ -205,22 +206,22 @@ void OMTFPatternMaker::writeMergedGPs(){
 
     ///Write the opposite charge.
     Key aTmpKey = aGP1->key();
-    aTmpKey.theCharge = 1;
+    aTmpKey.theCharge = -1;
     if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP1 =  myGPmap.find(aTmpKey)->second;
     else aGP1 = dummy;
 
     aTmpKey = aGP2->key();
-    aTmpKey.theCharge = 1;
+    aTmpKey.theCharge = -1;
     if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP2 =  myGPmap.find(aTmpKey)->second;
     else aGP2 = dummy;
 
     aTmpKey = aGP3->key();
-    aTmpKey.theCharge = 1;
+    aTmpKey.theCharge = -1;
     if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP3 =  myGPmap.find(aTmpKey)->second;
     else aGP3 = dummy;
 
     aTmpKey = aGP4->key();
-    aTmpKey.theCharge = 1;
+    aTmpKey.theCharge = -1;
     if(myGPmap.find(aTmpKey)!=myGPmap.end()) aGP4 =  myGPmap.find(aTmpKey)->second;
     else aGP4 = dummy;
     
