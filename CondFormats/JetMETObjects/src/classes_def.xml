@@ -17,6 +17,17 @@
      <field name="m_buffer" mapping="blob"/>
   </class>
 
+
+  <class name="METCorrectorParameters"/>
+  <class name="METCorrectorParametersCollection"/>
+  <class name="METCorrectorParametersCollection::collection_type"/>
+  <class name="METCorrectorParametersCollection::pair_type"/>
+  <class name="METCorrectorParameters::Definitions"/>
+  <class name="METCorrectorParameters::Record"/>
+  <class name="std::vector<METCorrectorParameters>"/>
+  <class name="std::vector<METCorrectorParameters::Record>"/>
+  <class name="std::vector<METCorrectorParametersCollection>"/>
+
   <class name="QGLikelihoodCategory"/>
   <class name="QGLikelihoodParameters"/>
   <class name="QGLikelihoodObject" class_version="0">
@@ -33,7 +44,6 @@
   <class name="QGLikelihoodSystematicsObject::Entry"/>
   <class name="std::vector<QGLikelihoodSystematicsObject::Entry>"/>     
 
-  <class name="METCorrectorParameters"/>
 
   <class name="JME::JetResolutionObject"/>
   <class name="JME::JetResolutionObject::Definition"/>

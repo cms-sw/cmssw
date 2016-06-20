@@ -47,6 +47,15 @@ AddCorrectionsToGenericMET::getCorrectedPFMET(const reco::PFMET& srcMET, edm::Ev
   return outMET;
 }
 
+//pat::MET
+//AddCorrectionsToGenericMET::getCorrectedPFMET(const pat::MET& srcMET, edm::Event& evt, const edm::EventSetup& es) {
+//  
+//  CorrMETData corr = getCorrection(srcMET, evt, es);
+//  pat::MET outMET(srcMET.getSpecific(),srcMET.sumEt()+corr.sumet, constructP4From(srcMET, corr), srcMET.vertex() );
+//  
+//  return outMET;
+//}
+
 
 reco::CaloMET
 AddCorrectionsToGenericMET::getCorrectedCaloMET(const reco::CaloMET& srcMET, edm::Event& evt, const edm::EventSetup& es) {

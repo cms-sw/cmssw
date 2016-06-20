@@ -5,14 +5,19 @@ process = cms.Process("JERDBLocalReader")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
+#from CondCore.DBCommon.CondDBSetup_cfi import *
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.source = cms.Source("EmptySource")
 
+        #CondDBSetup,
+myCondDBpara=CondDB
+myCondDBpara.connect=cms.string('sqlite:Summer15_V0_MC_JER.db')
+
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-        CondDBSetup,
+        myCondDBpara,
         toGet = cms.VPSet(
             # Resolution
             cms.PSet(
@@ -28,7 +33,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                 label  = cms.untracked.string('AK5PFchs')
                 ),
             ),
-        connect = cms.string('sqlite:Summer15_V0_MC_JER.db')
+        #connect = cms.string('sqlite:Summer15_V0_MC_JER.db')
         )
 
 

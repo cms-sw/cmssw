@@ -1,5 +1,6 @@
 // Generic parameters for MET corrections
 //
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/Utilities.h"
 #include <iostream>
@@ -16,13 +17,13 @@
 //--- METCorrectorParameters::Definitions constructor --------------------
 //--- takes specific arguments for the member variables ------------------
 //------------------------------------------------------------------------
-METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula )
+METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<int>& fParVar, const std::string& fFormula )
 {
   for(unsigned i=0;i<fBinVar.size();i++)
     mBinVar.push_back(fBinVar[i]);
   for(unsigned i=0;i<fParVar.size();i++)
     mParVar.push_back(fParVar[i]);
-  mFormula    = fFormula;
+  mFormula      = fFormula;
 }
 //------------------------------------------------------------------------
 //--- METCorrectorParameters::Definitions constructor --------------------
@@ -31,36 +32,36 @@ METCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
 METCorrectorParameters::Definitions::Definitions(const std::string& fLine)
 {
   std::vector<std::string> tokens = getTokens(fLine);
-  // corrType N_bin binVa.. N_var var... formula
+  // corrType N_bin binVa.. var formula
   if (!tokens.empty())
   { 
     if (tokens.size() < 6) 
     {
       std::stringstream sserr;
-      sserr<<"(line "<<fLine<<"): less than 6 expected tokens:"<<tokens.size();
+      sserr<<"(line "<<fLine<<"): Great than or equal to 6 expected tokens:"<<tokens.size();
       handleError("METCorrectorParameters::Definitions",sserr.str());
     }
     // No. of Bin Variable
-    std::cout<<"Definitions==========="<<std::endl;
-    ptclType = getSigned(tokens[0]);
-    std::cout<<tokens[0]<<"\t";
+    LogDebug ("default")<<"Definitions===========";
+    ptclType_ = getSigned(tokens[0]);
     unsigned nBinVar = getUnsigned(tokens[1]);
-    std::cout<<tokens[1]<<"\t";
-    // No of Parameterization Variable
-    unsigned nParVar = getUnsigned(tokens[nBinVar+2]);
-    std::cout<<tokens[2]<<"\t";
     for(unsigned i=0;i<nBinVar;i++)
     {
       mBinVar.push_back(tokens[i+2]);
-      std::cout<<tokens[i+2]<<"\t";
     }
+    // Num.o of Parameterization Variable
+    unsigned nParVar = getUnsigned(tokens[nBinVar+2]);
     for(unsigned i=0;i<nParVar;i++)
     {
-      mParVar.push_back(tokens[nBinVar+3+i]);
-      std::cout<<tokens[nBinVar+3+i]<<"\t";
+      mParVar.push_back(getSigned(tokens[nBinVar+3+i]));
     }
     mFormula = tokens[nParVar+nBinVar+3];
-    std::cout<<tokens[nParVar+nBinVar+3]<<std::endl;
+    if (tokens.size() != nParVar+nBinVar+4 ) 
+    {
+      std::stringstream sserr;
+      sserr<<"(line "<<fLine<<"): token size should be:"<<nParVar+nBinVar+3<<" but it is "<<tokens.size();
+      handleError("METCorrectorParameters::Definitions",sserr.str());
+    }
   }
 }
 //------------------------------------------------------------------------
@@ -74,38 +75,33 @@ METCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
   std::vector<std::string> tokens = getTokens(fLine);
   if (!tokens.empty())
   { 
-    if (tokens.size() < 6) 
+    if (tokens.size() < 5) 
     {
       std::stringstream sserr;
       sserr<<"(line "<<fLine<<"): "<<"three tokens expected, "<<tokens.size()<<" provided.";
       handleError("METCorrectorParameters::Record",sserr.str());
     }
-    std::cout<<"Record ==============="<<std::endl;
+    mMetAxis = tokens[0];
     for(unsigned i=0;i<mNvar;i++)
     {
-      mMin.push_back(getFloat(tokens[i*2]));
-      mMax.push_back(getFloat(tokens[i*2+1]));
-      std::cout<<tokens[i*2]<<"\t";
-      std::cout<<tokens[i*2+1]<<"\t";
+      mMin.push_back(getFloat(tokens[i*2+1]));
+      mMax.push_back(getFloat(tokens[i*2+2]));
     }
-    unsigned nParam = getUnsigned(tokens[2*mNvar]);
-    std::cout<<tokens[2*mNvar]<<"\t";
-    if (nParam != tokens.size()-(2*mNvar+1)) 
+    unsigned nParam = getUnsigned(tokens[2*mNvar+1]);
+    if (nParam != tokens.size()-(2*mNvar+2)) 
     {
       std::stringstream sserr;
       sserr<<"(line "<<fLine<<"): "<<tokens.size()-(2*mNvar+1)<<" parameters, but nParam="<<nParam<<".";
       handleError("METCorrectorParameters::Record",sserr.str());
     }
-    for (unsigned i = (2*mNvar+1); i < tokens.size(); ++i)
+    for (unsigned i = (2*mNvar+2); i < tokens.size(); ++i)
     {
       mParameters.push_back(getFloat(tokens[i]));
-      std::cout<<tokens[i]<<"\t";
     }
-    std::cout<<std::endl;
   }
 }
 //------------------------------------------------------------------------
-//--- JetCorrectorParameters constructor ---------------------------------
+//--- METCorrectorParameters constructor ---------------------------------
 //--- reads the member variables from a string ---------------------------
 //------------------------------------------------------------------------
 METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const std::string& fSection) 
@@ -116,7 +112,6 @@ METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const s
   std::string currentDefinitions = "";
   while (std::getline(input,line)) 
   {
-    //std::cout << " Line of parameters " << line << std::endl;
     std::string section = getSection(line);
     std::string tmp = getDefinitions(line);
     if (!section.empty() && tmp.empty()) 
@@ -158,123 +153,14 @@ METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const s
   valid_ = true;
 }
 //------------------------------------------------------------------------
-//--- returns the index of the record defined by fX ----------------------
-//------------------------------------------------------------------------
-/*
-int METCorrectorParameters::binIndex(const std::vector<float>& fX) const 
-{
-  int result = -1;
-  unsigned N = mDefinitions.nVar();
-  if (N != fX.size()) 
-    {
-      std::stringstream sserr; 
-      sserr<<"# bin variables "<<N<<" doesn't correspont to requested #: "<<fX.size();
-      handleError("METCorrectorParameters",sserr.str());
-    }
-  unsigned tmp;
-  for (unsigned i = 0; i < size(); ++i) 
-    {
-      tmp = 0;
-      for (unsigned j=0;j<N;j++)
-        if (fX[j] >= record(i).xMin(j) && fX[j] < record(i).xMax(j))
-          tmp+=1;
-      if (tmp==N)
-        { 
-          result = i;
-          break;
-        }
-    } 
-  return result;
-}
-*/
-//------------------------------------------------------------------------
-//--- returns the neighbouring bins of fIndex in the direction of fVar ---
-//------------------------------------------------------------------------
-/*
-int METCorrectorParameters::neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const 
-{
-  int result = -1;
-  unsigned N = mDefinitions.nVar();
-  if (fVar >= N) 
-    {
-      std::stringstream sserr; 
-      sserr<<"# of bin variables "<<N<<" doesn't correspond to requested #: "<<fVar;
-      handleError("METCorrectorParameters",sserr.str()); 
-    }
-  unsigned tmp;
-  for (unsigned i = 0; i < size(); ++i) 
-    {
-      tmp = 0;
-      for (unsigned j=0;j<fVar;j++)
-        if (fabs(record(i).xMin(j)-record(fIndex).xMin(j))<0.0001)
-          tmp+=1;
-      for (unsigned j=fVar+1;j<N;j++)
-        if (fabs(record(i).xMin(j)-record(fIndex).xMin(j))<0.0001)
-          tmp+=1;
-      if (tmp<N-1)
-        continue; 
-      if (tmp==N-1)
-        {
-          if (fNext)
-            if (fabs(record(i).xMin(fVar)-record(fIndex).xMax(fVar))<0.0001)
-              tmp+=1;
-          if (!fNext)
-            if (fabs(record(i).xMax(fVar)-record(fIndex).xMin(fVar))<0.0001)
-              tmp+=1;
-        } 
-      if (tmp==N)
-        { 
-          result = i;
-          break;
-        }
-    } 
-  return result;
-}
-*/
-//------------------------------------------------------------------------
-//--- returns the number of bins in the direction of fVar ----------------
-//------------------------------------------------------------------------
-/*
-unsigned METCorrectorParameters::size(unsigned fVar) const
-{
-  if (fVar >= mDefinitions.nVar()) 
-    { 
-      std::stringstream sserr; 
-      sserr<<"requested bin variable index "<<fVar<<" is greater than number of variables "<<mDefinitions.nVar();
-      handleError("METCorrectorParameters",sserr.str()); 
-    }    
-  unsigned result = 0;
-  float tmpMin(-9999),tmpMax(-9999);
-  for (unsigned i = 0; i < size(); ++i)
-    if (record(i).xMin(fVar) > tmpMin && record(i).xMax(fVar) > tmpMax)
-      { 
-        result++;
-        tmpMin = record(i).xMin(fVar);
-        tmpMax = record(i).xMax(fVar);
-      }
-  return result; 
-}
-*/
-//------------------------------------------------------------------------
-//--- returns the vector of bin centers of fVar --------------------------
-//------------------------------------------------------------------------
-/*
-std::vector<float> METCorrectorParameters::binCenters(unsigned fVar) const 
-{
-  std::vector<float> result;
-  for (unsigned i = 0; i < size(); ++i)
-    result.push_back(record(i).xMiddle(fVar));
-  return result;
-}
-*/
-//------------------------------------------------------------------------
 //--- prints parameters on screen ----------------------------------------
 //------------------------------------------------------------------------
-void METCorrectorParameters::printScreen() const
+void METCorrectorParameters::printScreen(const std::string &Section) const
 {
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"////////  PARAMETERS: //////////////////////"<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
+  std::cout<<"["<<Section<<"]"<<"\n";
   std::cout<<"Number of binning variables:   "<<definitions().nBinVar()<<std::endl;
   std::cout<<"Names of binning variables:    ";
   for(unsigned i=0;i<definitions().nBinVar();i++)
@@ -290,72 +176,141 @@ void METCorrectorParameters::printScreen() const
   std::cout<<"Parametrization Formula:       "<<definitions().formula()<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"------- Bin contents -----------------------"<<std::endl;
-  for(unsigned i=0;i<size();i++)
-    {
-      for(unsigned j=0;j<definitions().nBinVar();j++)
-        std::cout<<record(i).xMin(j)<<" "<<record(i).xMax(j)<<" ";
-      std::cout<<record(i).nParameters()<<" ";
-      for(unsigned j=0;j<record(i).nParameters();j++)
-        std::cout<<record(i).parameter(j)<<" ";
-      std::cout<<std::endl;
-    }
+  for(unsigned i=0;i<size();i++) //mRecords size
+  {
+    std::cout<<record(i).MetAxis()<<"  ";
+    std::cout<<"nBinVar ("<<definitions().nBinVar()<<")  ";
+    for(unsigned j=0;j<definitions().nBinVar();j++)
+      std::cout<<record(i).xMin(j)<<" "<<record(i).xMax(j)<<" ";
+    std::cout<<"nParameters ("<<record(i).nParameters()<<") ";
+    for(unsigned j=0;j<record(i).nParameters();j++)
+      std::cout<<record(i).parameter(j)<<" ";
+    std::cout<<std::endl;
+  }
 }
 //------------------------------------------------------------------------
 //--- prints parameters on file ----------------------------------------
 //------------------------------------------------------------------------
-void METCorrectorParameters::printFile(const std::string& fFileName) const
+void METCorrectorParameters::printFile(const std::string& fFileName,const std::string &Section) const
 {
   std::ofstream txtFile;
-  txtFile.open(fFileName.c_str());
+  txtFile.open(fFileName.c_str(),std::ofstream::app);
   txtFile.setf(std::ios::right);
-  txtFile<<"{"<<definitions().nBinVar()<<std::setw(15);
+  txtFile<<"["<<Section<<"]"<<"\n";
+  txtFile<<"{"<<" "<<definitions().ptclType()<<"  "<<definitions().nBinVar();
   for(unsigned i=0;i<definitions().nBinVar();i++)
-    txtFile<<definitions().binVar(i)<<std::setw(15);
-  txtFile<<definitions().nParVar()<<std::setw(15);
+    txtFile<<"  "<<definitions().binVar(i);
+  txtFile<<"  "<<definitions().nParVar();
   for(unsigned i=0;i<definitions().nParVar();i++)
-    txtFile<<definitions().parVar(i)<<std::setw(15);
-  txtFile<<std::setw(definitions().formula().size()+15)<<definitions().formula()<<std::setw(15);
+    txtFile<<"  "<<definitions().parVar(i);
+  txtFile<<"  "<<definitions().formula();
   txtFile<<"}"<<"\n";
-  for(unsigned i=0;i<size();i++)
-    {
-      for(unsigned j=0;j<definitions().nBinVar();j++)
-        txtFile<<record(i).xMin(j)<<std::setw(15)<<record(i).xMax(j)<<std::setw(15);
-      txtFile<<record(i).nParameters()<<std::setw(15);
-      for(unsigned j=0;j<record(i).nParameters();j++)
-        txtFile<<record(i).parameter(j)<<std::setw(15);
-      txtFile<<"\n";
-    }
+  for(unsigned i=0;i<size();i++) //mRecords size
+  {
+    txtFile<<record(i).MetAxis();
+    for(unsigned j=0;j<definitions().nBinVar();j++)
+      txtFile<<"  "<<record(i).xMin(j)<<"  "<<record(i).xMax(j);
+    txtFile<<"  "<<record(i).nParameters();
+    for(unsigned j=0;j<record(i).nParameters();j++)
+      txtFile<<"  "<<record(i).parameter(j);
+    txtFile<<"\n";
+  }
   txtFile.close();
 }
 
 namespace {
 const std::vector<std::string> labels_ = {
-  "MiniAod"
+  "XYshiftMC",
+  "XYshiftDY",
+  "XYshiftTTJets",
+  "XYshiftWJets",
+  "XYshiftData"
 };
-const std::vector<std::string> MiniAodSource_ = {
-  "MiniAod_ShiftX",
-  "MiniAod_ShiftY"
+const std::vector<std::string> XYshiftFlavors_ = {
+  "hEtaPlus",
+  "hEtaMinus",
+  "h0Barrel",
+  "h0EndcapPlus",
+  "h0EndcapMinus",
+  "gammaBarrel",
+  "gammaEndcapPlus",
+  "gammaEndcapMinus",
+  "hHFPlus",
+  "hHFMinus",
+  "egammaHFPlus",
+  "egammaHFMinus"
 };
 
 }//namespace
 
 std::string
 METCorrectorParametersCollection::findLabel( key_type k ){
-  std::cout<<"findLabel with key_type: "<<k<<std::endl;
-  if( isMiniAod(k) )
-  {
-    std::cout<<"is MiniAod"<<std::endl;
-    return findMiniAodSource(k);
+  if( isXYshiftMC(k) ){
+    return findXYshiftMCflavor(k);
+  }else if( isXYshiftDY(k) ){
+    return findXYshiftDYflavor(k);
+  }else if( isXYshiftTTJets(k) ){
+    return findXYshiftTTJetsFlavor(k);
+  }else if( isXYshiftWJets(k) ){
+    return findXYshiftWJetsFlavor(k);
+  }else if( isXYshiftData(k) ){
+    return findXYshiftDataFlavor(k);
   }
+
   return labels_[k];
 }
 std::string
-METCorrectorParametersCollection::findMiniAodSource( key_type k)
-{
-  if( k == MiniAod) return labels_[MiniAod];
-  else
-    return MiniAodSource_[k - MiniAod*100 -1];
+METCorrectorParametersCollection::levelName( key_type k ){
+  if( isXYshiftMC(k) ){
+    return labels_[XYshiftMC];
+  }else if( isXYshiftDY(k) ){
+    return labels_[XYshiftDY];
+  }else if( isXYshiftTTJets(k) ){
+    return labels_[XYshiftTTJets];
+  }else if( isXYshiftWJets(k) ){
+    return labels_[XYshiftWJets];
+  }else if( isXYshiftData(k) ){
+    return labels_[XYshiftData];
+  }else{ return "Can't find the level name !!!!";}
+
 }
+
+std::string
+METCorrectorParametersCollection::findXYshiftMCflavor( key_type k)
+{
+  if( k == XYshiftMC) return labels_[XYshiftMC];
+  else
+    return XYshiftFlavors_[k - (XYshiftMC+1)*100 -1];
+}
+std::string
+METCorrectorParametersCollection::findXYshiftDYflavor( key_type k)
+{
+  if( k == XYshiftDY) return labels_[XYshiftDY];
+  else
+    return XYshiftFlavors_[k - (XYshiftDY+1)*100 -1];
+}
+std::string
+METCorrectorParametersCollection::findXYshiftTTJetsFlavor( key_type k)
+{
+  if( k == XYshiftTTJets) return labels_[XYshiftTTJets];
+  else
+    return XYshiftFlavors_[k - (XYshiftTTJets+1)*100 -1];
+}
+std::string
+METCorrectorParametersCollection::findXYshiftWJetsFlavor( key_type k)
+{
+  if( k == XYshiftWJets) return labels_[XYshiftWJets];
+  else
+    return XYshiftFlavors_[k - (XYshiftWJets+1)*100 -1];
+}
+std::string
+METCorrectorParametersCollection::findXYshiftDataFlavor( key_type k)
+{
+  if( k == XYshiftData) return labels_[XYshiftData];
+  else
+    return XYshiftFlavors_[k - (XYshiftData+1)*100 -1];
+}
+
 void METCorrectorParametersCollection::getSections( std::string inputFile,
 						    std::vector<std::string> & outputs )
 {
@@ -372,21 +327,31 @@ void METCorrectorParametersCollection::getSections( std::string inputFile,
       }
     }
   }
-  std::cout << "Found these sections for file: " << std::endl;
   copy(outputs.begin(),outputs.end(), std::ostream_iterator<std::string>(std::cout, "\n") );
 }
 
 // Add a METCorrectorParameter object. 
-void METCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const &source )
+void METCorrectorParametersCollection::push_back( key_type i, value_type const & j, label_type const &flav )
 { 
-  std::cout << "i    = " << i << std::endl;  
-  std::cout << "source = " << source << std::endl;
-  if( isMiniAod(i))
+  if( isXYshiftMC(i))
   {
-    std::cout << "This is MiniAod, getMiniAodBin = " << getMiniAodBin(source) << std::endl;
-    correctionsMiniAod_.push_back( pair_type(getMiniAodBin(source),j) );
+    correctionsXYshift_.push_back( pair_type(getXYshiftMcFlavBin(flav),j) );
+  }else if( isXYshiftDY(i))
+  {
+    correctionsXYshift_.push_back( pair_type(getXYshiftDyFlavBin(flav),j) );
+  }else if( isXYshiftTTJets(i))
+  {
+    correctionsXYshift_.push_back( pair_type(getXYshiftTTJetsFlavBin(flav),j) );
+  }else if( isXYshiftWJets(i))
+  {
+    correctionsXYshift_.push_back( pair_type(getXYshiftWJetsFlavBin(flav),j) );
+  }else if( isXYshiftData(i))
+  {
+    correctionsXYshift_.push_back( pair_type(getXYshiftDataFlavBin(flav),j) );
   }else{
-    std::cout << "***** NOT ADDING " << source << ", corresponding position in METCorrectorParameters is not found." << std::endl;
+    std::stringstream sserr;
+    sserr<<"The level type: "<<i<<" is not in the level list";
+    handleError("METCorrectorParameters::Definitions",sserr.str());
   }
 }
 
@@ -394,9 +359,9 @@ void METCorrectorParametersCollection::push_back( key_type i, value_type const &
 // key_type is hashed to deal with the three collections
 METCorrectorParameters const & METCorrectorParametersCollection::operator[]( key_type k ) const {
   collection_type::const_iterator ibegin, iend, i;
-  if ( isMiniAod(k) ) {
-    ibegin = correctionsMiniAod_.begin();
-    iend = correctionsMiniAod_.end();
+  if ( isXYshiftMC(k) || isXYshiftDY(k) || isXYshiftTTJets(k) || isXYshiftWJets(k) || isXYshiftData(k) ) {
+    ibegin = correctionsXYshift_.begin();
+    iend = correctionsXYshift_.end();
     i = ibegin;
   }
   for ( ; i != iend; ++i ) {
@@ -410,27 +375,100 @@ METCorrectorParameters const & METCorrectorParametersCollection::operator[]( key
 // that are aware of all three collections.
 void METCorrectorParametersCollection::validKeys(std::vector<key_type> & keys ) const {
   keys.clear();
-  for ( collection_type::const_iterator ibegin = correctionsMiniAod_.begin(),
-	  iend = correctionsMiniAod_.end(), i = ibegin; i != iend; ++i ) {
+  for ( collection_type::const_iterator ibegin = correctionsXYshift_.begin(),
+	  iend = correctionsXYshift_.end(), i = ibegin; i != iend; ++i ) {
     keys.push_back( i->first );
   }
 }
 
 
 METCorrectorParametersCollection::key_type
-METCorrectorParametersCollection::getMiniAodBin( std::string const & source ){
+METCorrectorParametersCollection::getXYshiftMcFlavBin( std::string const & flav ){
   std::vector<std::string>::const_iterator found =
-    find( MiniAodSource_.begin(), MiniAodSource_.end(), source );
-  if ( found != MiniAodSource_.end() ) {
-    return (found - MiniAodSource_.begin() + 1)+ MiniAod * 100;
+    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), flav );
+  if ( found != XYshiftFlavors_.end() ) {
+    return (found - XYshiftFlavors_.begin() + 1)+ (XYshiftMC+1) * 100;
   }
-  else return MiniAod;
+  else{
+    throw cms::Exception("InvalidInput") <<
+    "************** Can't find XYshiftSection: "<<flav<<std::endl;
+  }
+  return 0;
+}
+METCorrectorParametersCollection::key_type
+METCorrectorParametersCollection::getXYshiftDyFlavBin( std::string const & flav ){
+  std::vector<std::string>::const_iterator found =
+    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), flav );
+  if ( found != XYshiftFlavors_.end() ) {
+    return (found - XYshiftFlavors_.begin() + 1)+ (XYshiftDY+1) * 100;
+  }
+  else{
+    throw cms::Exception("InvalidInput") <<
+    "************** Can't find XYshiftSection: "<<flav<<std::endl;
+  }
+  return 0;
+}
+METCorrectorParametersCollection::key_type
+METCorrectorParametersCollection::getXYshiftTTJetsFlavBin( std::string const & flav ){
+  std::vector<std::string>::const_iterator found =
+    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), flav );
+  if ( found != XYshiftFlavors_.end() ) {
+    return (found - XYshiftFlavors_.begin() + 1)+ (XYshiftTTJets+1) * 100;
+  }
+  else{
+    throw cms::Exception("InvalidInput") <<
+    "************** Can't find XYshiftSection: "<<flav<<std::endl;
+  }
+  return 0;
+}
+METCorrectorParametersCollection::key_type
+METCorrectorParametersCollection::getXYshiftWJetsFlavBin( std::string const & flav ){
+  std::vector<std::string>::const_iterator found =
+    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), flav );
+  if ( found != XYshiftFlavors_.end() ) {
+    return (found - XYshiftFlavors_.begin() + 1)+ (XYshiftWJets+1) * 100;
+  }
+  else{
+    throw cms::Exception("InvalidInput") <<
+    "************** Can't find XYshiftSection: "<<flav<<std::endl;
+  }
+  return 0;
+}
+METCorrectorParametersCollection::key_type
+METCorrectorParametersCollection::getXYshiftDataFlavBin( std::string const & flav ){
+  std::vector<std::string>::const_iterator found =
+    find( XYshiftFlavors_.begin(), XYshiftFlavors_.end(), flav );
+  if ( found != XYshiftFlavors_.end() ) {
+    return (found - XYshiftFlavors_.begin() + 1)+ (XYshiftData+1) * 100;
+  }
+  else{
+    throw cms::Exception("InvalidInput") <<
+    "************** Can't find XYshiftSection: "<<flav<<std::endl;
+  }
+  return 0;
 }
 
-bool METCorrectorParametersCollection::isMiniAod( key_type k ) {
-  return k == MiniAod ||
-    (k > MiniAod*100 && k < MiniAod*100 + 100);
+bool METCorrectorParametersCollection::isXYshiftMC( key_type k ) {
+  return k == XYshiftMC ||
+    (k > (XYshiftMC+1)*100 && k < (XYshiftMC + 2)*100 );
 }
+bool METCorrectorParametersCollection::isXYshiftDY( key_type k ) {
+  return k == XYshiftDY ||
+    (k > (XYshiftDY+1)*100 && k < (XYshiftDY + 2)*100 );
+}
+bool METCorrectorParametersCollection::isXYshiftTTJets( key_type k ) {
+  return k == XYshiftTTJets ||
+    (k > (XYshiftTTJets+1)*100 && k < (XYshiftTTJets + 2)*100 );
+}
+bool METCorrectorParametersCollection::isXYshiftWJets( key_type k ) {
+  return k == XYshiftWJets ||
+    (k > (XYshiftWJets+1)*100 && k < (XYshiftWJets + 2)*100 );
+}
+bool METCorrectorParametersCollection::isXYshiftData( key_type k ) {
+  return k == XYshiftData ||
+    (k > (XYshiftData+1)*100 && k < (XYshiftData + 2)*100 );
+}
+
 
 #include "FWCore/Utilities/interface/typelookup.h"
  
