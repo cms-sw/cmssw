@@ -6,8 +6,7 @@
 #include <boost/spirit/include/qi.hpp>
 
 #include "HLTrigger/HLTcore/interface/TriggerExpressionPathReader.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionL1AlgoReader.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionL1TechReader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionL1uGTReader.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionOperators.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionPrescaler.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionConstant.h"
@@ -28,13 +27,11 @@ public:
     Parser::base_type(expression)
   {
     token_l1algo    %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
-    token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_path      %= qi::raw[qi::lexeme[             +(qi::char_("a-zA-Z0-9_*?"))]];
 
     token            = ( qi::lit("TRUE")                [qi::_val = new_<Constant>(true)]
                        | qi::lit("FALSE")               [qi::_val = new_<Constant>(false)]
-                       | token_l1algo                   [qi::_val = new_<L1AlgoReader>(qi::_1)]
-                       | token_l1tech                   [qi::_val = new_<L1TechReader>(qi::_1)]
+                       | token_l1algo                   [qi::_val = new_<L1uGTReader>(qi::_1)]
                        | token_path                     [qi::_val = new_<PathReader>(qi::_1)]
                        );
 
@@ -62,7 +59,6 @@ private:
   typedef qi::rule<Iterator, Evaluator*(),  ascii::space_type> rule;
 
   name_rule token_l1algo;
-  name_rule token_l1tech;
   name_rule token_path;
 
   rule token;

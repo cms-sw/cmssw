@@ -1,5 +1,5 @@
-#ifndef HLTrigger_HLTfilters_TriggerExpressionL1AlgoReader_h
-#define HLTrigger_HLTfilters_TriggerExpressionL1AlgoReader_h
+#ifndef HLTrigger_HLTfilters_TriggerExpressionL1uGTReader_h
+#define HLTrigger_HLTfilters_TriggerExpressionL1uGTReader_h
 
 #include <vector>
 #include <string>
@@ -8,9 +8,9 @@
 
 namespace triggerExpression {
 
-class L1AlgoReader : public Evaluator {
+class L1uGTReader : public Evaluator {
 public:
-  L1AlgoReader(const std::string & pattern) :
+  L1uGTReader(const std::string & pattern) :
     m_pattern(pattern),
     m_triggers()
   { }
@@ -28,4 +28,4 @@ private:
 
 } // namespace triggerExpression
 
-#endif // HLTrigger_HLTfilters_TriggerExpressionL1AlgoReader_h
+#endif // HLTrigger_HLTfilters_TriggerExpressionL1uGTReader_h
