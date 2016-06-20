@@ -909,7 +909,7 @@ void TrackAnalyzer::setLumi(const edm::Event & iEvent, const edm::EventSetup& iS
 
   edm::Handle<LumiScalersCollection> lumiScalers;
   iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if ( lumiScalers.isValid() ) {
+  if ( lumiScalers.isValid() && lumiScalers->size() ) {
     LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
     scal_lumi_ = scalit->instantLumi();
   } else 
