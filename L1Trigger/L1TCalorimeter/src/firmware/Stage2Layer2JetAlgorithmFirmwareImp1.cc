@@ -55,13 +55,12 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
   // find jets
   create(towers, jets, alljets, params_->jetPUSType());
 
-  // jet energy corrections
-  calibrate(jets, 0); // pass the jet collection and the hw threshold above which to calibrate
+  // calibrate all jets
   calibrate(alljets, 0); // pass all jets and the hw threshold above which to calibrate
 
+  // jets accumulated sort
   accuSort(jets);
-  //accuSort(alljets);
-  
+    
 }
 
 
@@ -165,7 +164,10 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	  }
 	  
 	}
-	
+
+	 // jet energy corrections
+	calibrate(jetsRing, 0); // pass the jet collection and the hw threshold above which to calibrate
+
 	// sort these jets and keep top 6
 	start_ = jetsRing.begin();  
 	end_   = jetsRing.end();
@@ -192,7 +194,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
       jetsHalf.insert(jetsHalf.end(), jetsAccu.begin(), jetsAccu.end());
       
     }
-    
+    for(uint i=0; i<jetsHalf.size();i++) std::cout << "jet pt = " << jetsHalf[i].hwPt() << std::endl;
     // sort the 24 jets and keep top 6
     start_ = jetsHalf.begin();  
     end_   = jetsHalf.end();
