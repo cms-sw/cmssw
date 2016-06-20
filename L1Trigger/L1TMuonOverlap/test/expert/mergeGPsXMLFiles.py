@@ -23,15 +23,11 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-
-path = "job_3_pat/8_0_0_29_01_2016/" #Note: make a link of job_3_pat directory under CMSSW/src
-
-path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Emulator/job_3_pat/"
+path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Emulator/job_3_pat/8_0_9_20_06_2016/"
 
 # Strip XML files from heading and trailing OMTF tags
 sedCommand = "sed '/OMTF/d' "
 command = "echo \<OMTF version=\\\"0x0004\\\"\> > mergedPatterns.xml"
-print command
 os.system(command)
 for ipt in xrange(4,32):
 
