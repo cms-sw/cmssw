@@ -9,6 +9,7 @@
 #include "CSCSegFit.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
@@ -21,7 +22,7 @@ CSCSegAlgoRU::CSCSegAlgoRU(const edm::ParameterSet& ps)
   : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoRU"), sfit_(0) { 
 
   doCollisions = ps.getParameter<bool>("doCollisions"); 
-  chi2_str_   = ps.getParameter<double>("chi2_str_"); 
+  chi2_str_   = ps.getParameter<double>("chi2_str"); 
   chi2Norm_2D_   = ps.getParameter<double>("chi2Norm_2D_");    
   dRMax       = ps.getParameter<double>("dRMax"); 
   dPhiMax        = ps.getParameter<double>("dPhiMax"); 
@@ -77,20 +78,11 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const ChamberHitContainer& u
   double z1 = theChamber->layer(1)->position().z(); 
   double z6 = theChamber->layer(6)->position().z(); 
 
-  if ( z1 > 0. ) { 
-    if ( z1 > z6 ) {  
-      reverse(layerIndex.begin(), layerIndex.end()); 
-      reverse(rechits.begin(), rechits.end()); 
-    }     
-  } 
-
-  else if ( z1 < 0. ) { 
-    if ( z1 < z6 ) { 
-      reverse(layerIndex.begin(), layerIndex.end()); 
-      reverse(rechits.begin(), rechits.end()); 
-    }     
-  } 
-
+  if (std::abs(z1) > std::abs(z6)){ 
+    reverse(layerIndex.begin(), layerIndex.end()); 
+    reverse(rechits.begin(), rechits.end()); 
+  }     
+ 
   if (rechits.size() < 2) { 
     return std::vector<CSCSegment>();  
   } 
@@ -323,19 +315,19 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const ChamberHitContainer& u
   while(it != segments.end()) { 
     if((*it).nRecHits() == 3){ 
       bool found_common = false; 
-      std::vector<CSCRecHit2D> theseRH = (*it).specificRecHits(); 
+      const std::vector<CSCRecHit2D>& theseRH = (*it).specificRecHits(); 
       for (ChamberHitContainerCIt i1 = ib; i1 != ie; ++i1) { 
 	if(used[i1-ib] && used3p[i1-ib]){ 
 	  const CSCRecHit2D* sh1 = *i1; 
 
-	  CSCDetId id = (CSCDetId)(*sh1).cscDetId(); 
+	  CSCDetId id = sh1->cscDetId(); 
 	  int sh1layer = id.layer(); 
 	  int RH_centerid     =  sh1->nStrips()/2; 
 	  int RH_centerStrip =  sh1->channels(RH_centerid); 
 	  int RH_wg = sh1->hitWire();
 	  std::vector<CSCRecHit2D>::const_iterator sh; 
 	  for(sh = theseRH.begin(); sh != theseRH.end(); ++sh){ 
-	    CSCDetId idRH = (CSCDetId)(*sh).cscDetId();
+	    CSCDetId idRH = sh->cscDetId();
 
 	    //find segment hit coord 
 	    int shlayer = idRH.layer(); 
@@ -410,7 +402,7 @@ void CSCSegAlgoRU::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
 
 bool CSCSegAlgoRU::areHitsCloseInR(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const { 
   float maxWG_width[10] = {0, 0, 4.1, 5.69, 2.49, 5.06, 2.49, 5.06, 1.87, 5.06}; 
-  CSCDetId id = (CSCDetId)(*h1).cscDetId(); 
+  CSCDetId id = h1->cscDetId(); 
   int iStn = id.iChamberType()-1; 
 
   //find maxWG_width for ME11 (tilt = 29deg) 
@@ -461,21 +453,13 @@ bool CSCSegAlgoRU::areHitsCloseInGlobalPhi(const CSCRecHit2D* h1, const CSCRecHi
   float err_stpos_h1 = h1->errorWithinStrip(); 
   float err_stpos_h2 = h2->errorWithinStrip(); 
 
-  CSCDetId id = (CSCDetId)(*h1).cscDetId(); 
+  CSCDetId id = h1->cscDetId(); 
   int iStn = id.iChamberType()-1; 
   
 
   float dphi_incr = 0; 
   if(err_stpos_h1>0.25*strip_width[iStn] || err_stpos_h2>0.25*strip_width[iStn])dphi_incr = 0.5*strip_width[iStn]; 
-  float h1p = gp1.phi(); 
-  float h2p = gp2.phi(); 
-  float dphi12 = h1p - h2p; 
-
-  // Into range [-pi, pi) (phi() returns values in this range) 
-  if (dphi12 < -M_PI)  
-    dphi12 += 2.*M_PI;   
-  if (dphi12 >  M_PI)  
-    dphi12 -= 2.*M_PI; 
+  float dphi12 = deltaPhi(gp1.phi(),gp2.phi());
 
   return (fabs(dphi12) < (dPhiMax*strip_iadd+dphi_incr))? true:false;  // +v 
 } 
@@ -511,7 +495,7 @@ bool CSCSegAlgoRU::isHitNearSegment(const CSCRecHit2D* h) const {
     phidif -= 2.*M_PI;          // into range (-pi, pi] 
 
   SVector6 r_glob; 
-  CSCDetId id = (CSCDetId)(*h).cscDetId(); 
+  CSCDetId id = h->cscDetId(); 
   int iStn = id.iChamberType()-1; 
   float dphi_incr = 0; 
   float pos_str = 1; 
@@ -659,34 +643,36 @@ void CSCSegAlgoRU::baseline(int n_seg_min){
   SVector6 sp; 
   SVector6 se;  
 
-  ChamberHitContainer buffer1; 
-  buffer1.clear(); 
-
   unsigned int init_size = proto_segment.size(); 
-  while (buffer1.size()< init_size){ 
+  
+  ChamberHitContainer buffer; 
+  buffer.clear(); 
+  buffer.reserve(init_size);
+  
+  while (buffer.size()< init_size){ 
     ChamberHitContainer::iterator min; 
     int min_layer = 10; 
     for(ChamberHitContainer::iterator k = proto_segment.begin(); k != proto_segment.end(); k++){       
       const CSCRecHit2D* iRHk = *k;  
-      CSCDetId idRHk = (CSCDetId)(*iRHk).cscDetId(); 
+      CSCDetId idRHk = iRHk->cscDetId(); 
       int kLayer   = idRHk.layer(); 
       if(kLayer < min_layer){ 
 	min_layer = kLayer; 
 	min = k; 
       } 
     } 
-    buffer1.push_back(*min); 
+    buffer.push_back(*min); 
     proto_segment.erase(min); 
   }//while 
   proto_segment.clear();  
 
-  for (ChamberHitContainer::const_iterator cand = buffer1.begin(); cand != buffer1.end(); cand++) { 
+  for (ChamberHitContainer::const_iterator cand = buffer.begin(); cand != buffer.end(); cand++) { 
     proto_segment.push_back(*cand); 
   } 
 
   for(ChamberHitContainer::const_iterator iRH = proto_segment.begin(); iRH != proto_segment.end(); iRH++){       
     const CSCRecHit2D* iRHp = *iRH;
-    CSCDetId idRH = (CSCDetId)(*iRHp).cscDetId();
+    CSCDetId idRH = iRHp->cscDetId();
     int kRing    = idRH.ring();
     int kStation = idRH.station();
     int kLayer = idRH.layer();
@@ -704,7 +690,7 @@ void CSCSegAlgoRU::baseline(int n_seg_min){
   } 
 
   float chi2_str; 
-  fitX(sp, se, chi2_str); 
+   fitX(sp, se, -1, -1, chi2_str); 
 
   //----------------------------------------------------- 
   // Optimal point rejection method 
@@ -715,38 +701,38 @@ void CSCSegAlgoRU::baseline(int n_seg_min){
   int i2b = 0;  
   int iworst = -1;  
   int bad_layer = -1; 
-  ChamberHitContainer::iterator rh_to_be_deleted_1; 
-  ChamberHitContainer::iterator rh_to_be_deleted_2; 
+  ChamberHitContainer::const_iterator rh_to_be_deleted_1; 
+  ChamberHitContainer::const_iterator rh_to_be_deleted_2; 
   if ( nhits > n_seg_min && (chi2_str/(nhits-2)) > chi2_str_*chi2D_iadd){ 
-    for (ChamberHitContainer::iterator i1 = proto_segment.begin(); i1 != proto_segment.end();++i1) { 
+    for (ChamberHitContainer::const_iterator i1 = proto_segment.begin(); i1 != proto_segment.end();++i1) { 
       ++i1b; 
       const CSCRecHit2D* i1_1 = *i1;  
-      CSCDetId idRH1 = (CSCDetId)(*i1_1).cscDetId(); 
+      CSCDetId idRH1 = i1_1->cscDetId(); 
       int z1 = idRH1.layer(); 
       i2b = i1b; 
-      for (ChamberHitContainer::iterator i2 = i1+1; i2 != proto_segment.end(); ++i2) { 
+      for (ChamberHitContainer::const_iterator i2 = i1+1; i2 != proto_segment.end(); ++i2) { 
 	++i2b;  
 	const CSCRecHit2D* i2_1 = *i2; 
-	CSCDetId idRH2 = (CSCDetId)(*i2_1).cscDetId(); 
+	CSCDetId idRH2 = i2_1->cscDetId(); 
 	int z2 = idRH2.layer(); 
 	int irej = 0; 
 
-	for ( ChamberHitContainer::iterator ir = proto_segment.begin(); ir != proto_segment.end(); ++ir) { 
+	for ( ChamberHitContainer::const_iterator ir = proto_segment.begin(); ir != proto_segment.end(); ++ir) { 
 	  ++irej;  
 
 	  if (ir == i1 || ir == i2) continue;  
 	  float dsum = 0; 
 	  int hit_nr = 0; 
 	  const CSCRecHit2D* ir_1 = *ir; 
-	  CSCDetId idRH = (CSCDetId)(*ir_1).cscDetId(); 
+	  CSCDetId idRH = ir_1->cscDetId(); 
 	  int worst_layer = idRH.layer(); 
-	  for (ChamberHitContainer::iterator i = proto_segment.begin(); i != proto_segment.end(); ++i) {  
+	  for (ChamberHitContainer::const_iterator i = proto_segment.begin(); i != proto_segment.end(); ++i) {  
 	    ++hit_nr;   
 	    const CSCRecHit2D* i_1 = *i; 
 	    if (i == i1 || i == i2 || i == ir) continue;  
 	    float slope = (sp(z2-1)-sp(z1-1))/(z2-z1); 
 	    float intersept = sp(z1-1) - slope*z1; 
-	    CSCDetId idRH = (CSCDetId)(*i_1).cscDetId(); 
+	    CSCDetId idRH = i_1->cscDetId(); 
 	    int z = idRH.layer(); 
 	    float di = fabs(sp(z-1) - intersept - slope*z); 
 	    dsum = dsum + di; 
@@ -760,7 +746,7 @@ void CSCSegAlgoRU::baseline(int n_seg_min){
 	}//ir  
       }//i2 
     }//i1 
-    fitX_ir(sp, se, bad_layer, chi2_str); 
+    fitX(sp, se, bad_layer, -1, chi2_str); 
   }//if chi2prob<1.0e-4 
 
   //find worst from n-1 hits 
@@ -771,44 +757,44 @@ void CSCSegAlgoRU::baseline(int n_seg_min){
     float minSum = 1000; 
     int i1b = 0; 
     int i2b = 0;  
-    for (ChamberHitContainer::iterator i1 = proto_segment.begin(); i1 != proto_segment.end();++i1) { 
+    for (ChamberHitContainer::const_iterator i1 = proto_segment.begin(); i1 != proto_segment.end();++i1) { 
       ++i1b;  
       const CSCRecHit2D* i1_1 = *i1; 
-      CSCDetId idRH1 = (CSCDetId)(*i1_1).cscDetId(); 
+      CSCDetId idRH1 = i1_1->cscDetId(); 
       int z1 = idRH1.layer(); 
       i2b = i1b; 
-      for ( ChamberHitContainer::iterator i2 = i1+1; i2 != proto_segment.end(); ++i2) { 
+      for ( ChamberHitContainer::const_iterator i2 = i1+1; i2 != proto_segment.end(); ++i2) { 
 	++i2b;  
 	const CSCRecHit2D* i2_1 = *i2; 
 
-	CSCDetId idRH2 = (CSCDetId)(*i2_1).cscDetId(); 
+	CSCDetId idRH2 = i2_1->cscDetId(); 
 	int z2 = idRH2.layer(); 
 	int irej = 0; 
 
-	for ( ChamberHitContainer::iterator ir = proto_segment.begin(); ir != proto_segment.end(); ++ir) { 
+	for ( ChamberHitContainer::const_iterator ir = proto_segment.begin(); ir != proto_segment.end(); ++ir) { 
 
 	  ++irej;   
 	  int irej2 = 0; 
 	  if (ir == i1 || ir == i2 ) continue;  
 	  const CSCRecHit2D* ir_1 = *ir; 
-	  CSCDetId idRH = (CSCDetId)(*ir_1).cscDetId(); 
+	  CSCDetId idRH = ir_1->cscDetId(); 
 	  int worst_layer = idRH.layer(); 
-	  for (  ChamberHitContainer::iterator ir2 = proto_segment.begin(); ir2 != proto_segment.end(); ++ir2) { 
+	  for (  ChamberHitContainer::const_iterator ir2 = proto_segment.begin(); ir2 != proto_segment.end(); ++ir2) { 
 
             ++irej2;   
 	    if (ir2 == i1 || ir2 == i2 || ir2 ==ir ) continue;  
 	    float dsum = 0; 
 	    int hit_nr = 0; 
 	    const CSCRecHit2D* ir2_1 = *ir2; 
-	    CSCDetId idRH = (CSCDetId)(*ir2_1).cscDetId(); 
+	    CSCDetId idRH = ir2_1->cscDetId(); 
 	    int worst_layer2 = idRH.layer(); 
-	    for (  ChamberHitContainer::iterator i = proto_segment.begin(); i != proto_segment.end(); ++i) {  
+	    for (  ChamberHitContainer::const_iterator i = proto_segment.begin(); i != proto_segment.end(); ++i) {  
 	      ++hit_nr;  
 	      const CSCRecHit2D* i_1 = *i; 
 	      if (i == i1 || i == i2 || i == ir|| i == ir2 ) continue;  
 	      float slope = (sp(z2-1)-sp(z1-1))/(z2-z1); 
 	      float intersept = sp(z1-1) - slope*z1; 
-	      CSCDetId idRH = (CSCDetId)(*i_1).cscDetId(); 
+	      CSCDetId idRH = i_1->cscDetId(); 
 	      int z = idRH.layer(); 
 	      float di = fabs(sp(z-1) - intersept - slope*z); 
 	      dsum = dsum + di; 
@@ -827,7 +813,7 @@ void CSCSegAlgoRU::baseline(int n_seg_min){
       }//i2 
     }//i1	 
 
-    fitX_ir2(sp, se, bad_layer ,bad_layer2, chi2_str); 
+    fitX(sp, se, bad_layer ,bad_layer2, chi2_str); 
   }//if prob(n-1)<e-4 
 
   //---------------------------------- 
@@ -843,103 +829,7 @@ void CSCSegAlgoRU::baseline(int n_seg_min){
   } 
 } 
 
-float CSCSegAlgoRU::fit_sp(SVector6 points, SVector6 errors, int layer){ 
-
-  float S   = 0; 
-  float Sx  = 0; 
-  float Sy  = 0; 
-  float Sxx = 0; 
-  float Sxy = 0; 
-  float sigma2 = 0; 
-  for (int i=1;i<7;i++){ 
-    if (points(i-1) == 0.) continue; 
-    sigma2 = errors(i-1)*errors(i-1); 
-    S = S + (1/sigma2); 
-    Sy = Sy + (points(i-1)/sigma2); 
-    Sx = Sx + ((i)/sigma2); 
-    Sxx = Sxx + (i*i)/sigma2; 
-    Sxy = Sxy + (((i)*points(i-1))/sigma2); 
-  } 
-  float delta = S*Sxx - Sx*Sx; 
-  float intercept = (Sxx*Sy - Sx*Sxy)/delta; 
-  float slope = (S*Sxy - Sx*Sy)/delta; 
-  return (intercept + slope*layer); 
-} 
-
-float  CSCSegAlgoRU::fitX(SVector6 points, SVector6 errors, float &chi2_str){ 
-
-  float S   = 0; 
-  float Sx  = 0; 
-  float Sy  = 0; 
-  float Sxx = 0; 
-  float Sxy = 0; 
-  float sigma2 = 0; 
-
-  for (int i=1;i<7;i++){ 
-    if (points(i-1) == 0.) continue; 
-    sigma2 = errors(i-1)*errors(i-1); 
-    float i1 = i - 3.5; 
-    S = S + (1/sigma2); 
-    Sy = Sy + (points(i-1)/sigma2); 
-    Sx = Sx + ((i1)/sigma2); 
-    Sxx = Sxx + (i1*i1)/sigma2; 
-    Sxy = Sxy + (((i1)*points(i-1))/sigma2); 
-  } 
-
-  float delta = S*Sxx - Sx*Sx; 
-  float intercept = (Sxx*Sy - Sx*Sxy)/delta; 
-  float slope = (S*Sxy - Sx*Sy)/delta; 
-
-  float chi_str = 0; 
-  chi2_str = 0; 
-
-  // calculate chi2_str 
-  for (int i=1;i<7;i++){ 
-    if (points(i-1) == 0.) continue; 
-    chi_str = (points(i-1) - intercept - slope*(i-3.5))/(errors(i-1)); 
-    chi2_str = chi2_str + chi_str*chi_str;  
-  } 
-  return (intercept + slope*0); 
-} 
-
-float CSCSegAlgoRU::fitX_ir(SVector6 points, SVector6 errors, int ir, float &chi2_str){ 
-
-  float S   = 0; 
-  float Sx  = 0; 
-  float Sy  = 0; 
-  float Sxx = 0; 
-  float Sxy = 0; 
-  float sigma2 = 0; 
-
-  for (int i=1;i<7;i++){ 
-    if (i == ir || points(i-1) == 0.) continue; 
-    sigma2 = errors(i-1)*errors(i-1); 
-    float i1 = i - 3.5; 
-    S = S + (1/sigma2); 
-    Sy = Sy + (points(i-1)/sigma2); 
-    Sx = Sx + ((i1)/sigma2); 
-    Sxx = Sxx + (i1*i1)/sigma2; 
-    Sxy = Sxy + (((i1)*points(i-1))/sigma2); 
-  } 
-
-  float delta = S*Sxx - Sx*Sx; 
-  float intercept = (Sxx*Sy - Sx*Sxy)/delta; 
-  float slope = (S*Sxy - Sx*Sy)/delta; 
-
-  float chi_str = 0; 
-  chi2_str = 0; 
-
-  // calculate chi2_str 
-  for (int i=1;i<7;i++){ 
-    if (i == ir || points(i-1) == 0.) continue; 
-    chi_str = (points(i-1) - intercept - slope*(i-3.5))/(errors(i-1)); 
-    chi2_str = chi2_str + chi_str*chi_str;  
-  } 
-
-  return (intercept + slope*0); 
-} 
-
-float CSCSegAlgoRU::fitX_ir2(SVector6 points, SVector6 errors, int ir, int ir2, float &chi2_str){ 
+float CSCSegAlgoRU::fitX(SVector6 points, SVector6 errors, int ir, int ir2, float &chi2_str){ 
 
   float S   = 0; 
   float Sx  = 0; 
@@ -991,7 +881,7 @@ bool CSCSegAlgoRU::hasHitOnLayer(int layer) const {
 bool CSCSegAlgoRU::replaceHit(const CSCRecHit2D* h, int layer) { 
 
   // replace a hit from a layer  
-  ChamberHitContainer::iterator it; 
+  ChamberHitContainer::const_iterator it; 
   for (it = proto_segment.begin(); it != proto_segment.end();) { 
     if ((*it)->cscDetId().layer() == layer) 
       it = proto_segment.erase(it); 
