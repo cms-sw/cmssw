@@ -102,8 +102,12 @@ jetMETHLTOfflineSourceAK4 = cms.EDAnalyzer(
 jetMETHLTOfflineSourceAK8 = jetMETHLTOfflineSourceAK4.clone(
     dirname = cms.untracked.string('HLT/JetMET/AK8'),
     #    CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"), #ak8 not available in RECO anymore, so keep ak4...
-    PFJetCollectionLabel   = cms.InputTag("ak8PFJetsCHS"),
-    PFJetCorLabel        = cms.InputTag("ak8PFCHSL1FastjetL2L3ResidualCorrector"),
+    #    PFJetCollectionLabel   = cms.InputTag("ak8PFJetsCHS"), # does not work in all matrix tests, yet
+    #    PFJetCorLabel        = cms.InputTag("ak8PFCHSL1FastjetL2L3ResidualCorrector"), # does not work in all matrix tests, yet 
+    PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
+    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+
+ 
     pathFilter = cms.untracked.vstring('HLT_AK8PFJet', 
     ),
     pathPairs = cms.VPSet(cms.PSet(
