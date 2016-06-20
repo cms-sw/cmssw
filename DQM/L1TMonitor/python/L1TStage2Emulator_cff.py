@@ -103,7 +103,7 @@ from DQM.L1TMonitor.L1TStage2CaloLayer2Emul_cfi import *
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
 
 # uGMT
-from DQM.L1TMonitor.L1TStage2uGMTEmul_cfi import *
+from DQM.L1TMonitor.L1TdeStage2uGMT_cfi.py import *
 
 # uGT
 from DQM.L1TMonitor.L1TStage2uGTEmul_cfi import *
