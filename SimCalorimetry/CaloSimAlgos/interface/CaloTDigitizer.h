@@ -7,7 +7,6 @@
 
 */
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseHitGenerator.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -47,7 +46,6 @@ public:
 
   CaloTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
   :  theHitResponse(hitResponse),
-     theNoiseHitGenerator(0),
      theNoiseSignalGenerator(0),
      theElectronicsSim(electronicsSim),
      theDetIds(0),
@@ -62,11 +60,6 @@ public:
   /// tell the digitizer which cells exist
   const std::vector<DetId>&  detIds() const {assert( 0 != theDetIds ) ; return *theDetIds;}
   void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
-
-  void setNoiseHitGenerator(CaloVNoiseHitGenerator * generator) 
-  {
-    theNoiseHitGenerator = generator;
-  }
 
   void setNoiseSignalGenerator(CaloVNoiseSignalGenerator * generator)
   {
@@ -98,7 +91,6 @@ public:
 
     assert(theDetIds->size() != 0);
 
-    if(theNoiseHitGenerator != 0) addNoiseHits(engine);
     if(theNoiseSignalGenerator != 0) addNoiseSignals(engine);
 
     theElectronicsSim->newEvent(engine);
@@ -130,17 +122,6 @@ public:
     theHitResponse->clear();
   }
 
-  void addNoiseHits(CLHEP::HepRandomEngine* engine)
-  {
-    std::vector<PCaloHit> noiseHits;
-    theNoiseHitGenerator->getNoiseHits(noiseHits);
-    for(std::vector<PCaloHit>::const_iterator hitItr = noiseHits.begin(),
-        hitEnd = noiseHits.end(); hitItr != hitEnd; ++hitItr)
-    {
-      theHitResponse->add(*hitItr, engine);
-    }
-  }
-
   void addNoiseSignals(CLHEP::HepRandomEngine* engine)
   {
     std::vector<CaloSamples> noiseSignals;
@@ -157,7 +138,6 @@ public:
 private:
   runHelper<Traits> runAnalogToDigital;
   CaloHitResponse * theHitResponse;
-  CaloVNoiseHitGenerator * theNoiseHitGenerator;
   CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   ElectronicsSim * theElectronicsSim;
   const std::vector<DetId>* theDetIds;
