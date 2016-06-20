@@ -44,9 +44,10 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     }
     
     HGCalDetId hid(uncalibRH.id());
+    const unsigned layer = ( hid.subdetId() == HGCHEF ? hid.layer() + 28 : hid.layer() );
 
-    //    float clockToNsConstant = 25;
-    float energy = uncalibRH.amplitude() * weights_[hid.layer()] * 0.001f;
+    //    float clockToNsConstant = 25;    
+    float energy = uncalibRH.amplitude() * weights_[layer] * 0.001f;
     float time   = uncalibRH.jitter();
 
     //if(time<0) time   = 0; // fast-track digi conversion
