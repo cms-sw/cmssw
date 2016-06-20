@@ -60,7 +60,7 @@ public:
     // non-standard i.e. packed-bit implementation which is not a standard STL container. 
     // We don't need what it offers and it could lead to unexpected trouble in the future.
 
-    typedef std::deque<bool> BoolContainer;
+    typedef std::vector<bool> BoolContainer;
     
     /// Constructor
     explicit CSCSegAlgoRU(const edm::ParameterSet& ps);
@@ -111,10 +111,7 @@ private:
     bool addHit(const CSCRecHit2D* hit, int layer);
     void updateParameters(void);
     float fit_r_phi(SVector6 points, int layer) const;
-    float fitX(SVector6 points, SVector6 errors, float &chi2_str);
-    float fit_sp(SVector6 points, SVector6 errors, int layer);
-    float fitX_ir(SVector6 points, SVector6 errors, int ir, float &chi2_str);
-    float fitX_ir2(SVector6 points, SVector6 errors, int ir, int ir2, float &chi2_str);
+    float fitX(SVector6 points, SVector6 errors, int ir, int ir2, float &chi2_str);
     void baseline(int n_seg_min);//function for arasing bad hits in case of bad chi2/NDOF 
    /**
      * Always enforce direction of segment to point from IP outwards
