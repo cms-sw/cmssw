@@ -11,9 +11,13 @@ PUJSON=pileup_latest.txt
 #MINBIASM=72450
 #MINBIAS=71000
 
-pileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON  --calcMode true --minBiasXsec 69000 --maxPileupBin 50 --numPileupBins 50  outputData.root
-pileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON  --calcMode true --minBiasXsec 72450 --maxPileupBin 50 --numPileupBins 50  outputDataP.root
-pileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON  --calcMode true --minBiasXsec 65715 --maxPileupBin 50 --numPileupBins 50  outputDataM.root
+MINBIAS=71300
+MINBIASP=74865
+MINBIASM=67735
+
+pileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON  --calcMode true --minBiasXsec $MINBIAS --maxPileupBin 50 --numPileupBins 50  outputData.root
+pileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON  --calcMode true --minBiasXsec $MINBIASP --maxPileupBin 50 --numPileupBins 50  outputDataP.root
+pileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON  --calcMode true --minBiasXsec $MINBIASM --maxPileupBin 50 --numPileupBins 50  outputDataM.root
 
 #ileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON --calcMode true --minBiasXsec $MINBIAS --maxPileupBin 52 --numPileupBins 52  outputfile.root
 #pileupCalc.py -i ${JSON} --inputLumiJSON $PUJSON --calcMode true --minBiasXsec $MINBIASP --maxPileupBin 60 --numPileupBins 60  outputfileP.root
