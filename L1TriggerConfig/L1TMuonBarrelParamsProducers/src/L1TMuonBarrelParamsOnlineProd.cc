@@ -6,7 +6,7 @@
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 using namespace XERCES_CPP_NAMESPACE;
