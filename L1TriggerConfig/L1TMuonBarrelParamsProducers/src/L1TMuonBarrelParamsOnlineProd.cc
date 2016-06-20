@@ -220,12 +220,9 @@ for(auto &conf : payloads[kRS]){
                 output.close();
             }
 
-//        L1TMuonBarrelParamsHelper m_params_helper( *(baseSettings.product()) );
-//        m_params_helper.loadFromOnline(parsedXMLs);
-
-//        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams(m_params_helper) ) ;
-
-        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams( *(baseSettings.product()) ) );
+        L1TMuonBarrelParamsHelper m_params_helper(*(baseSettings.product()) );
+        m_params_helper.configFromDB(parsedXMLs);
+        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams(m_params_helper) ) ;
  
         return retval;
 
