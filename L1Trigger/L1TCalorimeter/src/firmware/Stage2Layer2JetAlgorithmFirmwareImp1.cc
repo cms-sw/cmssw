@@ -194,7 +194,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
       jetsHalf.insert(jetsHalf.end(), jetsAccu.begin(), jetsAccu.end());
       
     }
-    for(uint i=0; i<jetsHalf.size();i++) std::cout << "jet pt = " << jetsHalf[i].hwPt() << std::endl;
+
     // sort the 24 jets and keep top 6
     start_ = jetsHalf.begin();  
     end_   = jetsHalf.end();
