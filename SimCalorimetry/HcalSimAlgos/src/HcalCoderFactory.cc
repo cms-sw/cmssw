@@ -10,7 +10,7 @@ HcalCoderFactory::HcalCoderFactory(CoderType coderType)
 
 std::unique_ptr<HcalCoder> HcalCoderFactory::coder(const DetId & id) const {
   HcalCoder * result = 0;
-  if (theCoderType == DB || theCoderType == UPGRADE) {
+  if (theCoderType == DB) {
     assert(theDbService != 0);
     HcalGenericDetId hcalGenDetId(id);
     const HcalQIECoder * qieCoder = theDbService->getHcalCoder(hcalGenDetId );
