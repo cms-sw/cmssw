@@ -48,7 +48,7 @@ std::vector<bool> HGCalBestChoiceCodecImpl::encode(const HGCalBestChoiceCodecImp
                     << "      : Number of energy values = "<<nData_<<"\n";
             }
             // Saturate and truncate energy values
-            if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_);
+            if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)
             {
                 result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+triggerCellTruncationBits_)));// remove the lowest bits (=triggerCellTruncationBits_)
