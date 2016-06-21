@@ -8,7 +8,7 @@
  *  (last update by $Author: wmtan $)
  */
 
-#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
+#include "MillePedeAlignmentAlgorithm.h"
 //#include "MillePedeAlignmentAlgorithm.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,9 +22,9 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeMonitor.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariablesIORoot.h"
-#include "Mille.h"       // 'unpublished' interface located in src
-#include "PedeSteerer.h" // dito
-#include "PedeReader.h" // dito
+#include "Alignment/MillePedeAlignmentAlgorithm/src/Mille.h"       // 'unpublished' interface located in src
+#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteerer.h" // dito
+#include "Alignment/MillePedeAlignmentAlgorithm/src/PedeReader.h" // dito
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h" // dito
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerPluginFactory.h" // dito
 

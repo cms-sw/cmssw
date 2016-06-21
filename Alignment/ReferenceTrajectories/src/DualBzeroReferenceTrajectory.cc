@@ -22,11 +22,7 @@ DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory(const TrajectoryState
                           config),
     theMomentumEstimate(config.momentumEstimate)
 {
-    theValidityFlag = DualReferenceTrajectory::construct(tsos,
-                                                         forwardRecHits,
-                                                         backwardRecHits,
-                                                         magField,
-                                                         beamSpot);
+  theValidityFlag = construct(tsos, forwardRecHits, backwardRecHits, magField, beamSpot);
 }
 
 
