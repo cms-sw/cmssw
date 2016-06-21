@@ -398,13 +398,13 @@ def _mapCollectionToAlgoQuality(collName):
     hasPtCut = False
     if "Pt" in collName:
         if "Step" in collName:
-            hasPtCut = collName.index("Pt") > collName.index("Step")
+            hasPtCut = collName.rindex("Pt") > collName.index("Step")
         else:
             hasPtCut = True
     collNameNoQuality = collName.replace("Hp", "")
     if hasPtCut:
         quality += "Pt"
-        collNameNoQuality = collNameNoQuality.replace("Pt", "")
+        collNameNoQuality = "".join(collNameNoQuality.rsplit("Pt", 1)) # rreplace
     if "ByOriginalAlgo" in collName:
         quality += "ByOriginalAlgo"
         collNameNoQuality = collNameNoQuality.replace("ByOriginalAlgo", "")
