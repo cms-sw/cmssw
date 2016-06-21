@@ -7,6 +7,7 @@
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
+#include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -19,8 +20,9 @@
 
 //using namespace std;
 
-TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
-  : eventAction_(e),currentTrack_(nullptr),g4Track_(nullptr),
+TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p,
+			       CMSSteppingVerbose* sv) 
+  : eventAction_(e),currentTrack_(nullptr),steppingVerbose_(sv),g4Track_(nullptr),
   detailedTiming(p.getUntrackedParameter<bool>("DetailedTiming",false)),
   checkTrack(p.getUntrackedParameter<bool>("CheckTrack",false)),
   trackMgrVerbose(p.getUntrackedParameter<int>("G4TrackManagerVerbosity",0)) 
@@ -63,11 +65,16 @@ void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
     << " compared to " << kOutside << G4endl;
   */
   // VI: why this check is TrackingAction?
+  bool killed = false;
   if (worldSolid->Inside(aTrack->GetVertexPosition()) == kOutside) {
     //      G4cout << "Kill Track " << aTrack->GetTrackID() << G4endl;
     G4Track* theTrack = (G4Track *)(aTrack);
     theTrack->SetTrackStatus(fStopAndKill);
-  }      
+    killed = true;
+  }
+  if(nullptr != steppingVerbose_) { 
+    steppingVerbose_->TrackStarted(aTrack, killed); 
+  }
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
@@ -132,14 +139,15 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
       delete currentTrack_;
     }
   }
+  if(nullptr != steppingVerbose_) { steppingVerbose_->TrackEnded(aTrack); }
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);
-  currentTrack_ = 0; // reset for next track
+  currentTrack_ = nullptr; // reset for next track
 }
 
 G4TrackingManager * TrackingAction::getTrackManager()
 {
-  G4TrackingManager * theTrackingManager = 0;
+  G4TrackingManager * theTrackingManager = nullptr;
   theTrackingManager = fpTrackingManager;
   theTrackingManager->SetVerboseLevel(trackMgrVerbose);
   return theTrackingManager;

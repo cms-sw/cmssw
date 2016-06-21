@@ -47,6 +47,7 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
+class CMSSteppingVerbose;
 
 class DDDWorld;
 class DDG4ProductionCuts;
@@ -148,6 +149,7 @@ private:
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
   std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
+  std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   SimActivityRegistry m_registry;
   std::vector<std::shared_ptr<SimWatcher> > m_watchers;
   std::vector<std::shared_ptr<SimProducer> > m_producers;
