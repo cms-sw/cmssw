@@ -59,7 +59,7 @@ valEmtfStage2Digis.CSCInput = "csctfDigis"
 # uGMT
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
 valGmtCaloSumDigis = simGmtCaloSumDigis.clone()
-valGmtCaloSumDigis.caloStage2Layer2Label = cms.InputTag("l1tCaloLayer1Digis")
+valGmtCaloSumDigis.caloStage2Layer2Label = cms.InputTag("valCaloStage2Layer1Digis")
 valGmtStage2Digis = simGmtStage2Digis.clone()
 valGmtStage2Digis.barrelTFInput = cms.InputTag("gmtStage2Digis", "BMTF")
 valGmtStage2Digis.overlapTFInput = cms.InputTag("gmtStage2Digis", "OMTF")
