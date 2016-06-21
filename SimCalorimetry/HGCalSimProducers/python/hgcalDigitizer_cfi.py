@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # Base configurations for HGCal digitizers
 eV_per_eh_pair = 3.62
+fC_per_ele     = 1.6020506e-4
+nonAgedNoises = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
 
 # ECAL
 hgceeDigitizer = cms.PSet( 
@@ -18,7 +20,7 @@ hgceeDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet( 
         keV2fC           = cms.double(0.044259), #1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
-        noise_fC         = cms.double(0.336),
+        noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
@@ -70,7 +72,7 @@ hgchefrontDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(        
         keV2fC           = cms.double(0.044259), #1000 eV / 3.62 (eV per e) / 6.24150934e3 (e per fC)
-        noise_fC         = cms.double(0.336),                                                    
+        noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
@@ -141,3 +143,7 @@ hgchebackDigitizer = cms.PSet(
         )                              
     )
 
+#function to set noise to aged HGCal
+endOfLifeNoises = [2400.0,2250.0,1750.0]
+def HGCal_setEndOfLifeNoise(digitizer):
+    digitizer.digiCfg.noise_fC = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] )

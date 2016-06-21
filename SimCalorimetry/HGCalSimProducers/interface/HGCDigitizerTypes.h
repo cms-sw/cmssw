@@ -17,6 +17,7 @@ namespace hgc_digi {
     //1st array=energy, 2nd array=energy weighted time-of-flight
     std::array<HGCSimHitData,2> hit_info;
     int thickness;
+    double size;
   };
   
   typedef std::unordered_map<uint32_t, HGCCellInfo > HGCSimHitDataAccumulator; 

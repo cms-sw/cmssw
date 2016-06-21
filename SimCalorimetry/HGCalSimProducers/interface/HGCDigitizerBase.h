@@ -27,17 +27,7 @@ class HGCDigitizerBase {
   /**
      @short CTOR
   */
-  HGCDigitizerBase(const edm::ParameterSet &ps)  {
-    bxTime_        = ps.getParameter<double>("bxTime");
-    myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
-    doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
-    if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");    
-    else                          keV2fC_   = 1.0;
-    if(myCfg_.exists("noise_fC")) noise_fC_ = myCfg_.getParameter<double>("noise_fC");
-    else                          noise_fC_ = 1.0;
-    edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
-    myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
-  }
+  HGCDigitizerBase(const edm::ParameterSet &ps); 
       
  /**
     @short steer digitization mode
@@ -86,7 +76,7 @@ class HGCDigitizerBase {
   float keV2fC_;
   
   //noise level
-  float noise_fC_;
+  std::vector<float> noise_fC_;
   
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;
