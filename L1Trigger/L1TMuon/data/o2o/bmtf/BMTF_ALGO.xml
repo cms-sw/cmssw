@@ -6,11 +6,11 @@
 		  <rows>
 		    <row>payload.run.run_param.open_lut | 0</row>
 			<row>payload.run.run_param.sel_21 | 0</row>
-			<row>payload.run.run_param.dis_newalgo | 1</row>
+			<row>payload.run.run_param.dis_newalgo | 0</row>
 			<row>payload.internal_check.patgen_ctrl.intern_bc0_gen | 0</row>
 			<row>payload.internal_check.patgen_ctrl.patgen_wheel_ena | 0x000000000</row>
 			<row>payload.internal_check.patgen_ctrl | 0x000000000</row>
-			<row>payload.algo.algo_ctrl.deser_cntr_start | 3</row>
+			<row>payload.algo.algo_ctrl.deser_cntr_start | 0</row>
 			<row>payload.algo.algo_ctrl.bcnt_del | 0x0A</row>
 			<row>payload.algo.algo_ctrl.valid_pol | 0</row>
 			<row>payload.internal_check.patgen_ctrl.check_run | 0</row>
