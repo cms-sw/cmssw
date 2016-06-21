@@ -29,6 +29,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"

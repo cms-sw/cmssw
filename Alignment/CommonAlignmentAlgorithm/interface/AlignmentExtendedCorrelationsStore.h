@@ -31,47 +31,47 @@ public:
   /// Write correlations directly to the covariance matrix starting at the
   /// given position. Indices are assumed to start from 0.
   virtual void correlations( Alignable* ap1, Alignable* ap2,
-			     AlgebraicSymMatrix& cov, int row, int col ) const;
+			     AlgebraicSymMatrix& cov, int row, int col ) const override;
 
   /// Get correlations directly from the given position of the covariance
   /// matrix and store them. Indices are assumed to start from 0.
   virtual void setCorrelations( Alignable* ap1, Alignable* ap2,
-				const AlgebraicSymMatrix& cov, int row, int col );
+				const AlgebraicSymMatrix& cov, int row, int col ) override;
 
   /// Set correlations without checking whether the maximum
   /// number of updates has already been reached.
-  virtual void setCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat );
+  virtual void setCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat ) override;
 
   /// Get correlations.
   virtual void getCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat ) const;
 
   /// Check whether correlations are stored for a given pair of alignables.
-  virtual bool correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const;
+  virtual bool correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const override;
 
   /// Reset correlations.
-  virtual void resetCorrelations( void );
+  virtual void resetCorrelations( void ) override;
 
   /// Get number of stored correlations.
-  virtual unsigned int size( void ) const;
+  virtual unsigned int size( void ) const override;
 
-protected:
+private:
 
-  virtual void fillCorrelationsTable( Alignable* ap1, Alignable* ap2,
-				      ExtendedCorrelationsTable* table,
-				      const AlgebraicSymMatrix& cov,
-				      int row, int col, bool transpose );
+  void fillCorrelationsTable( Alignable* ap1, Alignable* ap2,
+                              ExtendedCorrelationsTable* table,
+                              const AlgebraicSymMatrix& cov,
+                              int row, int col, bool transpose );
 
-  virtual void fillCovariance( Alignable* ap1, Alignable* ap2, const ExtendedCorrelationsEntry& entry,
-			       AlgebraicSymMatrix& cov, int row, int col ) const;
+  void fillCovariance( Alignable* ap1, Alignable* ap2, const ExtendedCorrelationsEntry& entry,
+                       AlgebraicSymMatrix& cov, int row, int col ) const;
 
-  virtual void fillCovarianceT( Alignable* ap1, Alignable* ap2, const ExtendedCorrelationsEntry& entry,
-				AlgebraicSymMatrix& cov, int row, int col ) const;
+  void fillCovarianceT( Alignable* ap1, Alignable* ap2, const ExtendedCorrelationsEntry& entry,
+                        AlgebraicSymMatrix& cov, int row, int col ) const;
 
-  virtual void readFromCovariance( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
-				   const AlgebraicSymMatrix& cov, int row, int col );
+  void readFromCovariance( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
+                           const AlgebraicSymMatrix& cov, int row, int col );
 
-  virtual void readFromCovarianceT( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
-				    const AlgebraicSymMatrix& cov, int row, int col );
+  void readFromCovarianceT( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
+                            const AlgebraicSymMatrix& cov, int row, int col );
 
   void resizeCorruptCorrelations( ExtendedCorrelationsEntry& entry, double maxCorr );
 
