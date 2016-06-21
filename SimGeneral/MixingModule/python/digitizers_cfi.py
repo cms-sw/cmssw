@@ -9,6 +9,7 @@ from SimGeneral.MixingModule.hcalDigitizer_cfi import *
 from SimGeneral.MixingModule.castorDigitizer_cfi import *
 from SimGeneral.MixingModule.pileupVtxDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducerSelection_cfi import *
+from SimGeneral.MixingModule.caloTruthProducer_cfi import *
 from FastSimulation.Tracking.recoTrackAccumulator_cfi import *
 
 theDigitizers = cms.PSet(
@@ -42,17 +43,21 @@ if eras.fastSim.isChosen():
     setattr(theDigitizers,"tracks",recoTrackAccumulator)
 
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer 
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
     
 eras.phase2_hgcal.toModify( theDigitizers,
                             hgceeDigitizer = cms.PSet(hgceeDigitizer),
+                            hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
     
 theDigitizersValid = cms.PSet(
     theDigitizers,
-    mergedtruth = cms.PSet(
-        trackingParticles
+#    mergedtruth = cms.PSet(
+#        trackingParticles
+#        ),
+    calotruth = cms.PSet(
+        caloParticles
         )
     )
