@@ -160,7 +160,9 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
         if (!surface.mediumProperties().isValid()) {
           LogError("TrackingRecoMaterialAnalyser")
             << "Medium properties for material linked to detector "
-            << " are invalid!" << endl;
+            << " are invalid at: "
+            << current_tsos.globalPosition()
+            << endl;
           continue;
         }
         float p2 = localP.mag2();
