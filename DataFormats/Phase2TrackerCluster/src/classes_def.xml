@@ -12,5 +12,6 @@
     <class name="edm::Wrapper< edmNew::DetSetVector< Phase2TrackerCluster1D > >"/>
     <class name="edm::Wrapper< edm::Ref< edmNew::DetSetVector< Phase2TrackerCluster1D >, Phase2TrackerCluster1D > >"/>
     <class name="edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> >"/>
+    <class name="edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> >" />
     <class name="edm::Wrapper<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >"/>
 </lcgdict>
