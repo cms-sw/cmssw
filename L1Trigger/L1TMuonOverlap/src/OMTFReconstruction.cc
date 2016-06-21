@@ -12,6 +12,7 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFReconstruction.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
 #include "L1Trigger/L1TMuonOverlap/interface/XMLConfigWriter.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OmtfName.h"
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 
@@ -120,43 +121,62 @@ void OMTFReconstruction::loadAndFilterDigis(const edm::Event& iEvent){
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 void OMTFReconstruction::getProcessorCandidates(unsigned int iProcessor, l1t::tftype mtfType, int bx,
-               l1t::RegionalMuonCandBxCollection & OTFCandidates){
+               l1t::RegionalMuonCandBxCollection & omtfCandidates){
+
   
+  m_InputMaker.setFlag(0);
   OMTFinput input = m_InputMaker.buildInputForProcessor(dtPhDigis.product(),
                 dtThDigis.product(),
                 cscDigis.product(),
                 rpcDigis.product(),
                 iProcessor, mtfType);
+  int flag = m_InputMaker.getFlag();
   
   const std::vector<OMTFProcessor::resultsMap> & results = m_OMTF->processInput(iProcessor,input);
 
   std::vector<AlgoMuon> algoCandidates;
 
   m_Sorter.sortRefHitResults(results, algoCandidates);  
-  m_GhostBuster.select(algoCandidates); 
-  m_Sorter.sortProcessorAndFillCandidates(iProcessor, mtfType, algoCandidates, OTFCandidates, bx);
 
-  writeResultToXML(iProcessor, input, results);
+  // perform GB 
+  m_GhostBuster.select(algoCandidates); 
+
+  // fill RegionalMuonCand colleciton
+  std::vector<l1t::RegionalMuonCand> candMuons = m_Sorter.candidates(iProcessor, mtfType, algoCandidates);
+
+  //fill outgoing collection
+  for (auto & candMuon :  candMuons) {
+     candMuon.setHwQual( candMuon.hwQual() | flag);         //FIXME temporary debug fix
+     omtfCandidates.push_back(bx, candMuon);
+  }
+  
+  //dump to XML
+  writeResultToXML(iProcessor, mtfType,  input, results, candMuons);
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-void OMTFReconstruction::writeResultToXML(unsigned int iProcessor, const OMTFinput &input, 
-               const std::vector<OMTFProcessor::resultsMap> & results){
+void OMTFReconstruction::writeResultToXML(unsigned int iProcessor,  l1t::tftype mtfType,  const OMTFinput &input, 
+               const std::vector<OMTFProcessor::resultsMap> & results,
+               const std::vector<l1t::RegionalMuonCand> & candMuons ){
+
+  int endcap =  (mtfType == l1t::omtf_neg) ? -1 : ( ( mtfType == l1t::omtf_pos) ? +1 : 0 );
+  OmtfName board(iProcessor, endcap); 
 
   //Write data to XML file
   if(dumpResultToXML){
-    xercesc::DOMElement * aProcElement = m_Writer->writeEventData(aTopElement,iProcessor,input);
+    xercesc::DOMElement * aProcElement = m_Writer->writeEventData(aTopElement, board, input);
     for(unsigned int iRefHit=0;iRefHit<m_OMTFConfig->nTestRefHits();++iRefHit){
       ///Dump only regions, where a candidate was found
-      AlgoMuon myCand = m_Sorter.sortRefHitResults(results[iRefHit],0);//charge=0 means ignore charge
-      if(myCand.getPt()) {
-        m_Writer->writeCandidateData(aProcElement,iRefHit,myCand);
+      AlgoMuon algoMuon = m_Sorter.sortRefHitResults(results[iRefHit],0);//charge=0 means ignore charge
+      if(algoMuon.getPt()) {
+        m_Writer->writeAlgoMuon(aProcElement,iRefHit,algoMuon);
         if(dumpDetailedResultToXML){
           for(auto & itKey: results[iRefHit])
             m_Writer->writeResultsData(aProcElement, iRefHit, itKey.first,itKey.second);
         }
       }
     }
+    for (auto & candMuon :  candMuons) m_Writer->writeCandMuon(aProcElement, candMuon);
   }
 }
 /////////////////////////////////////////////////////
