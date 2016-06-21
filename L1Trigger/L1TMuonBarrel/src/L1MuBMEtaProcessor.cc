@@ -213,8 +213,12 @@ void L1MuBMEtaProcessor::print() const {
 //
 void L1MuBMEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
-  c.get< L1MuDTTFMasksRcd >().get( msks );
-
+  //c.get< L1MuDTTFMasksRcd >().get( msks );
+  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
+  bmtfParamsRcd.get(bmtfParamsHandle);
+  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+  msks =  bmtfParams.l1mudttfmasks;
+  
   edm::Handle<L1MuDTChambThContainer> dttrig;
 //  e.getByLabel(L1MuBMTFConfig::getBMThetaDigiInputTag(),dttrig);
   e.getByToken(m_DTDigiToken,dttrig);
@@ -237,9 +241,9 @@ void L1MuBMEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::Eve
       if ( wheel < 0 ) lwheel = wheel-1;
 
       bool masked = false;
-      if ( stat == 1 ) masked = msks->get_etsoc_chdis_st1(lwheel, sector);
-      if ( stat == 2 ) masked = msks->get_etsoc_chdis_st2(lwheel, sector);
-      if ( stat == 3 ) masked = msks->get_etsoc_chdis_st3(lwheel, sector);
+      if ( stat == 1 ) masked = msks.get_etsoc_chdis_st1(lwheel, sector);
+      if ( stat == 2 ) masked = msks.get_etsoc_chdis_st2(lwheel, sector);
+      if ( stat == 3 ) masked = msks.get_etsoc_chdis_st3(lwheel, sector);
 
       if ( !masked ) m_mask = false;
 

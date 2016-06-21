@@ -224,7 +224,8 @@ void L1MuBMAssignmentUnit::PtAU(const edm::EventSetup& c) {
   int pt = thePtaLUTs->getPt(lut_idx,bend_angle );
   //int pt = getPt(lut_idx, bend_angle, bmtfParams->pta_lut());
 
-if(bmtfParams.fwVersion()==2){
+if(!bmtfParams.get_DisableNewAlgo()){
+
     if (Quality() < 4) {
     int ptj = pt;
     L1MuBMLUTHandler::PtAssMethod jj1 = getPt1Method(m_ptAssMethod);
