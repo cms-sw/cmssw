@@ -67,7 +67,7 @@ private:
   // Member Variables
   HLTMuonMatchAndPlotContainer plotterContainer_;
   HLTConfigProvider hltConfig_;
-
+  
 };
 
 
@@ -104,13 +104,24 @@ HLTMuonOfflineAnalyzer::moduleLabels(string path)
 
   vector<string> modules = hltConfig_.moduleLabels(path);
   vector<string>::iterator iter = modules.begin();
-
-  while (iter != modules.end())
-    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)) 
+  while (iter != modules.end()){
+    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)){
       iter = modules.erase(iter);
-    else
-      ++iter;
+    }
+    else if (iter->find("L1Filtered0") != string::npos)
+      iter = modules.erase(iter);
+    else ++iter;
+  }
+//  iter = modules.begin();
+//  while (iter != modules.end()){
+//    if ((iter->find("Filtered0") == string::npos)){
+//      std::cout<< *iter << std::endl;
+//      iter = modules.erase(iter);
+//    }
+//    else ++iter;
+//  }
 
+  
   return modules;
   
 }
@@ -140,11 +151,14 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
   
   // Initialize the plotters
   set<string>::iterator iPath;
+  vector<string>::const_iterator ilabel;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
     string path = * iPath;
     vector<string> labels = moduleLabels(path);
-    if (labels.size() > 0) {
-      plotterContainer_.addPlotter(pset_, path, moduleLabels(path));
+    bool isLastLabel = false;
+    for (ilabel = labels.begin(); ilabel != labels.end(); ilabel++) {
+      if (*ilabel == labels.back()) isLastLabel = true;
+      plotterContainer_.addPlotter(pset_, path, *ilabel,isLastLabel);
     }
   }
 
