@@ -1,0 +1,41 @@
+<system id="bmtf" creator="bmtf::System">
+
+  <crate id="S2D11-29" 
+        location="Point5, S2D11-29" description="Calorimeter trigger layer 2 main processor crate"/>
+
+  <processor id="MP8"
+       creator="bmtf::MainProcessor"
+       hw-type="MP7-XE"
+       role="procMP7"
+       uri="chtcp-2.0://ctrl-bmtf:10203?target=amc-s2d11-29-09:50001"
+       address-table="file:///opt/cactus/etc/mp7/addrtab/xe_v2_0_0/mp7xe_infra.xml"
+       crate="S2D11-29"
+       slot="9"
+       >
+    <rx-port name="Rx[0:72]" pid="[0:72]"/>
+    <tx-port name="Tx[60:66]" pid="[60:66]"/>
+  </processor>
+  <daqttc-mgr 
+      id="AMC13"
+      creator="swatch::amc13::AMC13Manager"
+      role="daqttc"
+      crate="S2D11-29"
+      slot="13"
+      uri-t1="chtcp-2.0://ctrl-bmtf:10203?target=amc-s2d11-29-13-t1:50001"
+      address-table-t1="file:///opt/cactus/etc/amc13/AMC13XG_T1.xml"
+      uri-t2="chtcp-2.0://ctrl-bmtf:10203?target=amc-s2d11-29-13-t2:50001"
+      address-table-t2="file:///opt/cactus/etc/amc13/AMC13XG_T2.xml"
+      fed-id="1360"
+      />
+
+
+  <link id="MP8_Tx_[60:66]" tx="MP8" tx-port="Tx[60:66]" rx="DEMUX" rx-port="Rx[39:72:6]"/>
+
+
+  <connected-fed id="1356">
+    <port id="MP8.inputPorts.Rx[00:10]"/>
+    <port id="MP8.inputPorts.Rx[58:72]"/>
+  </connected-fed>
+
+</system>
+
