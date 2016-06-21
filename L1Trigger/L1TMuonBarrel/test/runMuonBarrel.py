@@ -14,7 +14,7 @@ process.source = cms.Source('PoolSource',
  fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gflouris/public/SingleMuPt6180_noanti_10k_eta1.root')
 	                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 # PostLS1 geometry used
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
@@ -27,6 +27,12 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ####Event Setup Producer
 process.load('L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff')
+process.fakeBmtfParams.configFromXML = cms.bool(True)
+process.fakeBmtfParams.hwXmlFile = cms.string('L1Trigger/L1TMuon/data/o2o/bmtf/BMTF_HW.xml')
+process.fakeBmtfParams.topCfgXmlFile = cms.string('L1Trigger/L1TMuon/data/o2o/bmtf/bmtf_top_config_p5.xml')
+process.fakeBmtfParams.DisableNewAlgo = cms.bool(True)
+#process.fakeBmtfParams.configFromDB = cms.bool(True)
+
 process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(
       cms.PSet(record = cms.string('L1TMuonBarrelParamsRcd'),
@@ -47,8 +53,8 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 process.L1TMuonSeq = cms.Sequence( process.esProd          
 				   + process.simTwinMuxDigis 
                                    + process.simBmtfDigis 
-                                   + process.dumpED
-                                   + process.dumpES
+#                                   + process.dumpED
+#                                   + process.dumpES
 )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
