@@ -459,7 +459,7 @@ bool CSCSegAlgoRU::areHitsCloseInGlobalPhi(const CSCRecHit2D* h1, const CSCRecHi
 
   float dphi_incr = 0; 
   if(err_stpos_h1>0.25*strip_width[iStn] || err_stpos_h2>0.25*strip_width[iStn])dphi_incr = 0.5*strip_width[iStn]; 
-  float dphi12 = deltaPhi(gp1.phi(),gp2.phi());
+  float dphi12 = deltaPhi(gp1.barePhi(),gp2.barePhi());
 
   return (fabs(dphi12) < (dPhiMax*strip_iadd+dphi_incr))? true:false;  // +v 
 } 
