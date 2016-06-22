@@ -27,7 +27,7 @@ class JetDistanceCompare{
 
 class Qjets{
  private:
-  double Omega;
+  double omega;
   bool _rand_seed_set;
   unsigned int _seed;
   double _zcut, _dcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr;
@@ -69,8 +69,8 @@ class Qjets{
 class QjetsBaseExtras : public fastjet::ClusterSequence::Extras {
 public:
  QjetsBaseExtras():_wij(-1.) {}
-  virtual ~QjetsBaseExtras() {};
-  virtual double weight() const {return _wij;};
+  virtual ~QjetsBaseExtras() {}
+  virtual double weight() const {return _wij;}
   friend class Qjets;
 
   protected:

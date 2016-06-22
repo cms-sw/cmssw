@@ -1,4 +1,4 @@
-#include "../interface/HEPTopTaggerV2.h"
+#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerV2.h"
 
 // Do not change next line, it's needed by the sed-code that makes the tagger CMSSW-compatible.
 namespace external {
@@ -8,18 +8,17 @@ double R_opt_calc_funct(double pt_filt) {
   return 327./pt_filt;
 }
 
-bool HEPTopTaggerV2_fixed_R::_first_time = true;
-
 void HEPTopTaggerV2_fixed_R::print_banner() {
   if (!_first_time) {return;}
   _first_time = false;
 
-  std::cout << "#--------------------------------------------------------------------------\n";
-  std::cout << "#                   HEPTopTaggerV2 - under construction                      \n";
-  std::cout << "#                                                                          \n";
-  std::cout << "# Please cite JHEP 1010 (2010) 078 [arXiv:1006.2833 [hep-ph]]              \n";
-  std::cout << "# and Phys.Rev. D89 (2014) 074047 [arXiv:1312.1504 [hep-ph]]               \n";
-  std::cout << "#--------------------------------------------------------------------------\n";
+
+  edm::LogInfo("HEPTopTaggerV2")  << "#--------------------------------------------------------------------------\n";
+  edm::LogInfo("HEPTopTaggerV2")  << "#                   HEPTopTaggerV2 - under construction                      \n";
+  edm::LogInfo("HEPTopTaggerV2")  << "#                                                                          \n";
+  edm::LogInfo("HEPTopTaggerV2")  << "# Please cite JHEP 1010 (2010) 078 [arXiv:1006.2833 [hep-ph]]              \n";
+  edm::LogInfo("HEPTopTaggerV2")  << "# and Phys.Rev. D89 (2014) 074047 [arXiv:1312.1504 [hep-ph]]               \n";
+  edm::LogInfo("HEPTopTaggerV2")  << "#--------------------------------------------------------------------------\n";
 }
 
 //pt wrt a reference vector
@@ -106,21 +105,28 @@ bool HEPTopTaggerV2_fixed_R::check_mass_criteria(const std::vector<PseudoJet> & 
   double m13 = (top_subs[0] + top_subs[2]).m();
   double m23 = (top_subs[1] + top_subs[2]).m();
   double m123 = (top_subs[0] + top_subs[1] + top_subs[2]).m();
+  double atan1312 = atan(m13/m12);
+  double m23_over_m123 = m23/m123;
+  double m23_over_m123_square = m23_over_m123 * m23_over_m123;
+  double rmin_square = _rmin * _rmin;
+  double rmax_square = _rmax * _rmax;
+  double m13m12_square_p1 = (1 + (m13/m12) * (m13/m12));
+  double m12m13_square_p1 = (1 + (m12/m13) * (m12/m13));
   if (
-      (atan(m13/m12) > _m13cutmin && _m13cutmax > atan(m13/m12)
-       && (m23/m123 > _rmin && _rmax > m23/m123))
+      (atan1312 > _m13cutmin && _m13cutmax > atan1312
+       && (m23_over_m123 > _rmin && _rmax > m23_over_m123))
       ||
-      (((m23/m123) * (m23/m123) < 1 - _rmin * _rmin* (1 + (m13/m12) * (m13/m12)))
+      ((m23_over_m123_square < 1 - rmin_square * m13m12_square_p1)
        &&
-       ((m23/m123) * (m23/m123) > 1 - _rmax * _rmax * (1 + (m13/m12) * (m13/m12)))
+       (m23_over_m123_square > 1 - rmax_square * m13m12_square_p1)
        && 
-       (m23/m123 > _m23cut))
+       (m23_over_m123 > _m23cut))
       ||
-      (((m23/m123) * (m23/m123) < 1 - _rmin * _rmin * (1 + (m12/m13) * (m12/m13)))
+      ((m23_over_m123_square < 1 - rmin_square * m12m13_square_p1)
        &&
-       ((m23/m123) * (m23/m123) > 1 - _rmax * _rmax * (1 + (m12/m13) * (m12/m13)))
+       (m23_over_m123_square > 1 - rmax_square * m12m13_square_p1)
        && 
-       (m23/m123 > _m23cut))
+       (m23_over_m123 > _m23cut))
       ) { 
     is_passed = true;
   }
@@ -141,7 +147,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(0),
 					       _zcut(0.1), _rcut_factor(0.5),
 					       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(0),
 					       //_qjet_plugin(_q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr),
-					       _debug(false)
+                                               _debug(false),_first_time(true)  
 {
   _djsum = 0.;
   _delta_top = 1000000000000.0;
@@ -168,7 +174,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _
 									   _zcut(0.1), _rcut_factor(0.5),
 									   _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
 									   _fat(jet), _rnEngine(0),
-									   _debug(false)
+                                                                           _debug(false),_first_time(true)  									  
 {}
 
 HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet, 
@@ -182,7 +188,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet,
 									   _zcut(0.1), _rcut_factor(0.5),
 									   _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
 									   _fat(jet), _rnEngine(0),
-									   _debug(false)
+                                                                           _debug(false),_first_time(true)  
 {}
 
 void HEPTopTaggerV2_fixed_R::run() {
@@ -193,7 +199,7 @@ void HEPTopTaggerV2_fixed_R::run() {
       && (_mode != EARLY_MASSRATIO_SORT_MODDJADE)
       && (_mode != LATE_MASSRATIO_SORT_MODDJADE)
       && (_mode != TWO_STEP_FILTER) ) {
-    std::cout << "ERROR: UNKNOWN MODE" << std::endl;
+    edm::LogError("HEPTopTaggerV2") << "ERROR: UNKNOWN MODE" << std::endl;
     return;
   }
   
@@ -234,7 +240,7 @@ void HEPTopTaggerV2_fixed_R::run() {
   FindHardSubst(_jet, _top_parts);
     
   if (_top_parts.size() < 3) { 
-    if (_debug) {std::cout << "< 3 hard substructures " << std::endl;}
+    if (_debug) {edm::LogInfo("HEPTopTaggerV2") << "< 3 hard substructures " << std::endl;}
     return; //such events are not interesting   
   }
   
@@ -317,7 +323,7 @@ void HEPTopTaggerV2_fixed_R::run() {
 	  better = true;
 	} 
 	else {
-	  std::cout << "ERROR: UNKNOWN MODE (IN DISTANCE MEASURE SELECTION)" << std::endl;
+	  edm::LogError("HEPTopTaggerV2") << "ERROR: UNKNOWN MODE (IN DISTANCE MEASURE SELECTION)" << std::endl;
 	  return;
 	}
 
@@ -355,51 +361,51 @@ void HEPTopTaggerV2_fixed_R::run() {
 }
 
 void HEPTopTaggerV2_fixed_R::get_info() const {  
-  std::cout << "#--------------------------------------------------------------------------\n";
-  std::cout << "#                          HEPTopTaggerV2 Result" << std::endl;
-  std::cout << "#" << std::endl;
-  std::cout << "# is top candidate: " << _is_maybe_top << std::endl;
-  std::cout << "# mass plane cuts passed: " << _is_masscut_passed << std::endl;
-  std::cout << "# top candidate mass: " << _top_candidate.m() << std::endl;
-  std::cout << "# top candidate (pt, eta, phi): (" 
+  edm::LogInfo("HEPTopTaggerV2")  << "#--------------------------------------------------------------------------\n";
+  edm::LogInfo("HEPTopTaggerV2")  << "#                          HEPTopTaggerV2 Result" << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#" << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# is top candidate: " << _is_maybe_top << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# mass plane cuts passed: " << _is_masscut_passed << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# top candidate mass: " << _top_candidate.m() << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# top candidate (pt, eta, phi): (" 
 	    << _top_candidate.perp() << ", "
 	    << _top_candidate.eta() << ", "
 	    << _top_candidate.phi_std() << ")" << std::endl;
-  std::cout << "# top hadrons: " << _top_hadrons.size() << std::endl;
-  std::cout << "# hard substructures: " << _parts_size << std::endl;
-  std::cout << "# |m - mtop| : " << _delta_top << std::endl; 
-  std::cout << "# djsum : " << _djsum << std::endl;
-  std::cout << "# is consistency cut passed: " << _is_ptmincut_passed << std::endl; 
-  std::cout << "#--------------------------------------------------------------------------\n";
+  edm::LogInfo("HEPTopTaggerV2")  << "# top hadrons: " << _top_hadrons.size() << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# hard substructures: " << _parts_size << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# |m - mtop| : " << _delta_top << std::endl; 
+  edm::LogInfo("HEPTopTaggerV2")  << "# djsum : " << _djsum << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# is consistency cut passed: " << _is_ptmincut_passed << std::endl; 
+  edm::LogInfo("HEPTopTaggerV2")  << "#--------------------------------------------------------------------------\n";
   return;
 }
 
 void HEPTopTaggerV2_fixed_R::get_setting() const {
-  std::cout << "#--------------------------------------------------------------------------\n";
-  std::cout << "#                         HEPTopTaggerV2 Settings" << std::endl;
-  std::cout << "#" << std::endl;
-  std::cout << "# mode: " << _mode << " (0 = EARLY_MASSRATIO_SORT_MASS) " << std::endl;
-  std::cout << "#        "         << " (1 = LATE_MASSRATIO_SORT_MASS)  " << std::endl;
-  std::cout << "#        "         << " (2 = EARLY_MASSRATIO_SORT_MODDJADE)  " << std::endl;
-  std::cout << "#        "         << " (3 = LATE_MASSRATIO_SORT_MODDJADE)  " << std::endl;
-  std::cout << "#        "         << " (4 = TWO_STEP_FILTER)  " << std::endl;
-  std::cout << "# top mass: " << _mtmass << "    ";
-  std::cout << "W mass: " << _mwmass << std::endl;
-  std::cout << "# top mass window: [" << _mtmin << ", " << _mtmax << "]" << std::endl;
-  std::cout << "# W mass ratio: [" << _rmin << ", " << _rmax << "] (["
+  edm::LogInfo("HEPTopTaggerV2")  << "#--------------------------------------------------------------------------\n";
+  edm::LogInfo("HEPTopTaggerV2")  << "#                         HEPTopTaggerV2 Settings" << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#" << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# mode: " << _mode << " (0 = EARLY_MASSRATIO_SORT_MASS) " << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#        "         << " (1 = LATE_MASSRATIO_SORT_MASS)  " << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#        "         << " (2 = EARLY_MASSRATIO_SORT_MODDJADE)  " << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#        "         << " (3 = LATE_MASSRATIO_SORT_MODDJADE)  " << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#        "         << " (4 = TWO_STEP_FILTER)  " << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# top mass: " << _mtmass << "    ";
+  edm::LogInfo("HEPTopTaggerV2")  << "W mass: " << _mwmass << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# top mass window: [" << _mtmin << ", " << _mtmax << "]" << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# W mass ratio: [" << _rmin << ", " << _rmax << "] (["
 	    <<_rmin*_mtmass/_mwmass<< "%, "<< _rmax*_mtmass/_mwmass << "%])"<< std::endl;
-  std::cout << "# mass plane cuts: (m23cut, m13min, m13max) = (" 
+  edm::LogInfo("HEPTopTaggerV2")  << "# mass plane cuts: (m23cut, m13min, m13max) = (" 
 	    << _m23cut << ", " << _m13cutmin << ", " << _m13cutmax << ")" << std::endl;
-  std::cout << "# mass_drop_threshold: " << _mass_drop_threshold << "    ";
-  std::cout << "max_subjet_mass: " << _max_subjet_mass << std::endl;
-  std::cout << "# R_filt: " << _Rfilt << "    ";
-  std::cout << "n_filt: " << _nfilt << std::endl;
-  std::cout << "# minimal subjet pt: " << _minpt_subjet << std::endl;
-  std::cout << "# minimal reconstructed pt: " << _minpt_tag << std::endl;
-  std::cout << "# internal jet algorithms (0 = kt, 1 = C/A, 2 = anti-kt): " << std::endl; 
-  std::cout << "#   filtering: "<< _jet_algorithm_filter << std::endl;
-  std::cout << "#   reclustering: "<< _jet_algorithm_recluster << std::endl;
-  std::cout << "#--------------------------------------------------------------------------\n";
+  edm::LogInfo("HEPTopTaggerV2")  << "# mass_drop_threshold: " << _mass_drop_threshold << "    ";
+  edm::LogInfo("HEPTopTaggerV2")  << "max_subjet_mass: " << _max_subjet_mass << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# R_filt: " << _Rfilt << "    ";
+  edm::LogInfo("HEPTopTaggerV2")  << "n_filt: " << _nfilt << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# minimal subjet pt: " << _minpt_subjet << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# minimal reconstructed pt: " << _minpt_tag << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "# internal jet algorithms (0 = kt, 1 = C/A, 2 = anti-kt): " << std::endl; 
+  edm::LogInfo("HEPTopTaggerV2")  << "#   filtering: "<< _jet_algorithm_filter << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#   reclustering: "<< _jet_algorithm_recluster << std::endl;
+  edm::LogInfo("HEPTopTaggerV2")  << "#--------------------------------------------------------------------------\n";
   
   return;
 }
@@ -481,7 +487,6 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet,
 {}
 
 void HEPTopTaggerV2::run() {
-  //cout << "--- new Tagger run ---" << endl;
 
   QjetsPlugin _qjet_plugin(_q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr);
   int maxR = int(_max_fatjet_R * 10);
@@ -546,7 +551,7 @@ void HEPTopTaggerV2::run() {
     for (int R = maxR; R >= minR; R -= stepR) {
       UnclusterFatjets(big_fatjets, small_fatjets, *_seq, R / 10.);
           
-      if (_debug) {cout << "R = " << R << " -> n_small_fatjets = " << small_fatjets.size() << endl;}
+      if (_debug) {edm::LogInfo("HEPTopTaggerV2") << "R = " << R << " -> n_small_fatjets = " << small_fatjets.size() << endl;}
     
       _n_small_fatjets[R] = small_fatjets.size();
 

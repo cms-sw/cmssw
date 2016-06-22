@@ -157,9 +157,9 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
     _tau1Filtered(-1.),
     _tau2Filtered(-1.),
     _tau3Filtered(-1.),
-    _Qweight(-1.),    
-    _Qepsilon(-1.),    
-    _QsigmaM(-1.),    
+    _qweight(-1.),    
+    _qepsilon(-1.),    
+    _qsigmaM(-1.),    
     W_rec(recombiner), 
     rW_(){}
   
@@ -217,10 +217,10 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
 
    /// returns Ropt
-   inline double Ropt() const {return _Ropt;}
+   inline double ropt() const {return _ropt;}
 
    /// returns calculated Ropt
-   inline double RoptCalc() const {return _RoptCalc;}
+   inline double roptCalc() const {return _roptCalc;}
 
    /// returns the filtered pT for calculating R_opt
    inline double ptForRoptCalc() const {return _ptForRoptCalc;}
@@ -233,9 +233,9 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
    inline double Tau2Filtered() const {return _tau2Filtered;}
    inline double Tau3Filtered() const {return _tau3Filtered;}
 
-   inline double Qweight() const {return _Qweight;}
-   inline double Qepsilon() const {return _Qepsilon;}
-   inline double QsigmaM() const {return _QsigmaM;}   
+   inline double qweight() const {return _qweight;}
+   inline double qepsilon() const {return _qepsilon;}
+   inline double qsigmaM() const {return _qsigmaM;}   
     
  protected:
 
@@ -250,8 +250,8 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
       double _fRec;
       int _mass_ratio_passed;
       double _ptForRoptCalc;
-      double _Ropt;
-      double _RoptCalc;
+      double _ropt;
+      double _roptCalc;
 
       double _tau1Unfiltered;
       double _tau2Unfiltered;
@@ -259,9 +259,9 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
       double _tau1Filtered;
       double _tau2Filtered;
       double _tau3Filtered;
-      double _Qweight;
-      double _Qepsilon;
-      double _QsigmaM;
+      double _qweight;
+      double _qepsilon;
+      double _qsigmaM;
 
       const JetDefinition::Recombiner  * W_rec;
  

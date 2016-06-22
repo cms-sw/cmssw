@@ -217,8 +217,8 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     properties.fRec		 = s->fRec();
     properties.massRatioPassed   = s->mass_ratio_passed();
     
-    properties.Ropt	          = s->Ropt();
-    properties.RoptCalc           = s->RoptCalc();
+    properties.ropt	          = s->ropt();
+    properties.roptCalc           = s->roptCalc();
     properties.ptForRoptCalc      = s->ptForRoptCalc();
     
     properties.tau1Unfiltered     = s->Tau1Unfiltered();
@@ -227,9 +227,9 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     properties.tau1Filtered	  = s->Tau1Filtered();
     properties.tau2Filtered	  = s->Tau2Filtered();
     properties.tau3Filtered	  = s->Tau3Filtered();
-    properties.QWeight		  = s->Qweight();
-    properties.QEpsilon		  = s->Qepsilon(); 
-    properties.QSigmaM            = s->QsigmaM();
+    properties.qWeight		  = s->qweight();
+    properties.qEpsilon		  = s->qepsilon(); 
+    properties.qSigmaM            = s->qsigmaM();
 
     tagInfo.insert(rtb, properties );
     tagInfos->push_back( tagInfo );   

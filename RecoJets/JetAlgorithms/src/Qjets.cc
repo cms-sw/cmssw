@@ -46,7 +46,7 @@ JetDistance Qjets::GetNextDistance(){
     tot_weight += (*it).second/norm;
     if(tot_weight >= rand){
       ret = (*it).first;
-      Omega *= ((*it).second);
+      omega *= ((*it).second);
       break;
     }
   }
@@ -60,7 +60,7 @@ JetDistance Qjets::GetNextDistance(){
 }
 
 void Qjets::Cluster(fastjet::ClusterSequence & cs){
-  Omega = 1.;
+  omega = 1.;
   QjetsBaseExtras * extras = new QjetsBaseExtras();
   computeDCut(cs);
 
@@ -96,7 +96,7 @@ void Qjets::Cluster(fastjet::ClusterSequence & cs){
     jd = GetNextDistance();
   } 
 
-  extras->_wij = Omega;
+  extras->_wij = omega;
   cs.plugin_associate_extras(std::auto_ptr<fastjet::ClusterSequence::Extras>(extras));
 
   // merge remaining jets with beam

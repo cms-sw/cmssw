@@ -19,14 +19,14 @@
 
 #include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapperV2.h"
 
-#include <fastjet/Error.hh>
-#include <fastjet/JetDefinition.hh>
-#include <fastjet/ClusterSequence.hh>
+#include "fastjet/Error.hh"
+#include "fastjet/JetDefinition.hh"
+#include "fastjet/ClusterSequence.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/tools/Filter.hh"
 
-#include <math.h>
+#include <cmath>
 #include <limits>
 #include <cassert>
 using namespace std;
@@ -105,9 +105,9 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   tagger.set_optimalR_calc_fun(R_min_expected_function);
 
   
-  double Qweight  = -1;
-  double Qepsilon = -1;
-  double QsigmaM  = -1;
+  double qweight  = -1;
+  double qepsilon = -1;
+  double qsigmaM  = -1;
 
   if (DoQjets_){
     
@@ -147,14 +147,14 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
     }
     
     tagger = best_tagger;
-    Qweight = weight_q1;
-    Qepsilon = float(qtags)/float(niter);
+    qweight = weight_q1;
+    qepsilon = float(qtags)/float(niter);
     
     // calculate width of tagged mass distribution if we have at least one candidate
     if (qtags > 0){
       double mean_m = m_sum / qtags;
       double mean_m2 = m2_sum / qtags;
-      QsigmaM = sqrt(mean_m2 - mean_m*mean_m);
+      qsigmaM = sqrt(mean_m2 - mean_m*mean_m);
     }
   }
   else{
@@ -204,19 +204,19 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
     s->_tau3Filtered = tagger.nsub_filtered(3);
   }
 
-  s->_Qweight = Qweight;
-  s->_Qepsilon = Qepsilon;
-  s->_QsigmaM = QsigmaM;
+  s->_qweight = qweight;
+  s->_qepsilon = qepsilon;
+  s->_qsigmaM = qsigmaM;
 
 
   if (DoOptimalR_){
-    s->_Ropt = tagger.Ropt();
-    s->_RoptCalc = tagger.Ropt_calc();
+    s->_ropt = tagger.Ropt();
+    s->_roptCalc = tagger.Ropt_calc();
     s->_ptForRoptCalc = tagger.pt_for_Ropt_calc();
   }
   else {
-    s->_Ropt = -1;
-    s->_RoptCalc = -1;
+    s->_ropt = -1;
+    s->_roptCalc = -1;
     s->_ptForRoptCalc = -1;
   }
 

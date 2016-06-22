@@ -1,9 +1,9 @@
-#ifndef __HEPTOPTAGGERV2_HH__
-#define __HEPTOPTAGGERV2_HH__
+#ifndef RecoJets_JetAlgorithms_interface_HEPTopTaggerV2_h
+#define RecoJets_JetAlgorithms_interface_HEPTopTaggerV2_h
 
 #include <vector>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/tools/Pruner.hh"
@@ -12,6 +12,8 @@
 #include "fastjet/contrib/Nsubjettiness.hh"
 #include "QjetsPlugin.h"
 #include "CLHEP/Random/RandomEngine.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Allow putting evertything into a separate namepsace
 // Do not change next line, it's needed by the sed-code that makes the tagger CMSSW-compatible.
@@ -161,7 +163,7 @@ private:
   std::vector<PseudoJet> _top_hadrons;
   std::vector<PseudoJet> _top_parts;
 
-  static bool _first_time;
+  bool _first_time;
   double _qweight;
   
   //internal functions
