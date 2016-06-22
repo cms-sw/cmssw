@@ -27,7 +27,7 @@ public:
 
     // Special value for the rise time used in case the QIE10 pulse
     // is always above the discriminator
-    static constexpr float UNKNOWN_T_OVERSHOOT = -101.f;
+    static constexpr float UNKNOWN_T_OVERSHOOT = -110.f;
 
     HFQIE10Info();
 
