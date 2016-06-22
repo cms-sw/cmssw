@@ -48,6 +48,8 @@ void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts
 
 
 	m_params_helper.l1mudttfparams.reset();
+	m_params_helper.l1mudttfqualplut.load();
+	m_params_helper.l1mudttfetaplut.load();
 
 	for( int wh=-3; wh<4; wh++ ) {
 	   int sec = 0;
