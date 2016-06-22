@@ -162,7 +162,7 @@ void L1MuBMEtaProcessor::print() const {
      cout << "Found patterns :" << endl;
      vector<int>::const_iterator iter;
      for ( iter = m_foundPattern.begin(); iter != m_foundPattern.end(); iter++ ) {
-        const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(*iter);
+        const L1MuDTEtaPattern p = theEtaPatternLUT.getPattern(*iter);
         int qualitycode = p.quality();
         cout << "ID = " << setw(4) << p.id() << "  "
              << "eta = " << setw(3) << p.eta() << "  "
@@ -185,9 +185,9 @@ void L1MuBMEtaProcessor::print() const {
       cout << "Matched patterns : " << endl;
       for ( int i = 0; i < 12; i++ ) {
         if ( m_fine[i] ) {
-          const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(m_pattern[i]);
+          const L1MuDTEtaPattern p = theEtaPatternLUT.getPattern(m_pattern[i]);
           int fineeta = p.eta();
-          int coarseeta = theQualPatternLUT->getCoarseEta(i/2+1,m_address[i]);
+          int coarseeta = theQualPatternLUT.getCoarseEta(i/2+1,m_address[i]);
           cout << "Index = " << setw(2) << i << ", "
                << "address = " << setw(2) << m_address[i] << " --> "
                << "pattern = " << setw(4) << m_pattern[i] << " "
@@ -218,7 +218,9 @@ void L1MuBMEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::Eve
   bmtfParamsRcd.get(bmtfParamsHandle);
   const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
   msks =  bmtfParams.l1mudttfmasks;
-  
+  theEtaPatternLUT = bmtfParams.l1mudttfetaplut;  // ETF look-up table
+  theQualPatternLUT = bmtfParams.l1mudttfqualplut; // EMU look-up tables
+
   edm::Handle<L1MuDTChambThContainer> dttrig;
 //  e.getByLabel(L1MuBMTFConfig::getBMThetaDigiInputTag(),dttrig);
   e.getByToken(m_DTDigiToken,dttrig);
@@ -307,7 +309,11 @@ void L1MuBMEtaProcessor::receiveAddresses() {
 //
 void L1MuBMEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
 
-  c.get< L1MuDTEtaPatternLutRcd >().get( theEtaPatternLUT );
+  //c.get< L1MuDTEtaPatternLutRcd >().get( theEtaPatternLUT );
+  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
+  bmtfParamsRcd.get(bmtfParamsHandle);
+  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+  theEtaPatternLUT = bmtfParams.l1mudttfetaplut;  // ETF look-up table
 
   // check if there are any data
   bool empty = true;
@@ -319,8 +325,8 @@ void L1MuBMEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
   // Pattern comparator:
   // loop over all patterns and compare with local chamber pattern
   // result : list of valid pattern IDs ( m_foundPattern )
-  L1MuDTEtaPatternLut::ETFLut_iter it = theEtaPatternLUT->begin();
-  while ( it != theEtaPatternLUT->end() ) {
+  L1MuDTEtaPatternLut::ETFLut_iter it = theEtaPatternLUT.begin();
+  while ( it != theEtaPatternLUT.end() ) {
 
     const L1MuDTEtaPattern pattern = (*it).second;
     int qualitycode = pattern.quality();
@@ -354,7 +360,12 @@ void L1MuBMEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
 //
 void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
 
-  c.get< L1MuDTQualPatternLutRcd >().get( theQualPatternLUT );
+  //c.get< L1MuDTQualPatternLutRcd >().get( theQualPatternLUT );
+  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
+  bmtfParamsRcd.get(bmtfParamsHandle);
+  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+  theQualPatternLUT = bmtfParams.l1mudttfqualplut; // EMU look-up tables
+
 
   // loop over all addresses
   for ( int i = 0; i < 12; i++ ) {
@@ -364,7 +375,7 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     int sp = i/2 + 1;       //sector processor [1,6]
 
     // assign coarse eta value
-    if ( !m_mask ) m_eta[i] = theQualPatternLUT->getCoarseEta(sp,adr);
+    if ( !m_mask ) m_eta[i] = theQualPatternLUT.getCoarseEta(sp,adr);
     if ( m_eta[i] == 99 ) m_eta[i] = 32;
     if ( m_eta[i] > 31 ) m_eta[i] -= 64;
     //m_eta[i] += 32;
@@ -373,14 +384,14 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
 
     // get list of qualified patterns ordered by quality
     // and compare with found patterns
-    const vector<short>& qualifiedPatterns = theQualPatternLUT->getQualifiedPatterns(sp,adr);
+    const vector<short>& qualifiedPatterns = theQualPatternLUT.getQualifiedPatterns(sp,adr);
     vector<short>::const_iterator iter;
     vector<int>::const_iterator f_iter;
     for ( iter = qualifiedPatterns.begin(); iter != qualifiedPatterns.end(); iter++ ) {
       f_iter = find(m_foundPattern.begin(),m_foundPattern.end(),(*iter));
       // found
       if ( f_iter != m_foundPattern.end() ) {
-        const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(*f_iter);
+        const L1MuDTEtaPattern p = theEtaPatternLUT.getPattern(*f_iter);
         // assign fine eta value
         m_fine[i] = true;
         m_eta[i]  = p.eta();  // improved eta
@@ -406,13 +417,13 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
     if ( adr1 == 0 || adr2 == 0 ) continue;
     if ( adr1 == adr2 && !m_mask ) {
       // both tracks get coarse (default) eta value
-      m_eta[idx1]  = theQualPatternLUT->getCoarseEta(i+1,adr1);
+      m_eta[idx1]  = theQualPatternLUT.getCoarseEta(i+1,adr1);
       if ( m_eta[idx1] == 99 ) m_eta[idx1] = 32;
       if ( m_eta[idx1] > 31 ) m_eta[idx1] -= 64;
       //m_eta[idx1] += 32;
       m_pattern[idx1] = 0;
       m_fine[idx1] = false;
-      m_eta[idx2]  = theQualPatternLUT->getCoarseEta(i+1,adr2);
+      m_eta[idx2]  = theQualPatternLUT.getCoarseEta(i+1,adr2);
       if ( m_eta[idx2] == 99 ) m_eta[idx2] = 32;
       if ( m_eta[idx2] > 31 ) m_eta[idx2] -= 64;
       //m_eta[idx2] += 32;
@@ -442,7 +453,7 @@ void L1MuBMEtaProcessor::assign() {
         m_TrackCand[i]->setFineEtaBit();
         m_TracKCand[i]->setFineEtaBit();
         // find all contributing track segments
-        const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(m_pattern[i]);
+        const L1MuDTEtaPattern p = theEtaPatternLUT.getPattern(m_pattern[i]);
         vector<const L1MuBMTrackSegEta*> TSeta;
         const L1MuBMTrackSegEta* ts = 0;
         for ( int stat = 0; stat < 3; stat++ ) {
