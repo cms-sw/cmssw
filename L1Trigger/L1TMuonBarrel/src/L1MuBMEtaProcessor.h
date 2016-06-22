@@ -125,11 +125,13 @@ class L1MuBMEtaProcessor {
     L1MuBMTrack*                              m_TracKCand[12];
     std::vector<const L1MuBMTrackSegEta*>     m_tseta;
 
-    edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
-    edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
+    //edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table
+    //edm::ESHandle< L1MuDTQualPatternLut > theQualPatternLUT; // EMU look-up tables
     //edm::ESHandle< L1MuDTTFMasks >        msks;
     edm::ESHandle< L1TMuonBarrelParams > bmtfParamsHandle;
     L1MuDTTFMasks       msks;
+    L1MuDTEtaPatternLut   theEtaPatternLUT;  // ETF look-up table
+    L1MuDTQualPatternLut  theQualPatternLUT; // EMU look-up tables
 
     edm::EDGetTokenT<L1MuDTChambThContainer>  m_DTDigiToken;
 
