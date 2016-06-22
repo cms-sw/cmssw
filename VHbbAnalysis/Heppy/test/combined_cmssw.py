@@ -300,12 +300,12 @@ def initialize(**kwargs):
         if fatjet_name == "slimmedJetsAK8":        
             delta_r = 0.8
             maxSVDeltaRToJet = 0.7
-            weightFile = 'RecoBTag/SecondaryVertex/data/BoostedDoubleSV_AK8_BDT_v2.weights.xml.gz'
+            weightFile = 'RecoBTag/SecondaryVertex/data/BoostedDoubleSV_AK8_BDT_v3.weights.xml.gz'
             jetAlgo = "AntiKt"
         elif fatjet_name == "ca15PFJetsCHS":        
             delta_r = 1.5
             maxSVDeltaRToJet = 1.3
-            weightFile = 'RecoBTag/SecondaryVertex/data/BoostedDoubleSV_CA15_BDT_v2.weights.xml.gz'
+            weightFile = 'RecoBTag/SecondaryVertex/data/BoostedDoubleSV_CA15_BDT_v3.weights.xml.gz'
             jetAlgo = "CambridgeAachen"
         else:
             print "Invalid fatjet for b-tagging: ", fatjet_name
