@@ -35,9 +35,11 @@ private:
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<reco::PFCandidate> >   tokenPFCandidates_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   tokenMuons_;
 
   const bool taggingMode_;
   const bool debug_;
+  const int             algo_;
   const double          minDZ_;
   const double          minMuPt_;
   const double          minTrkPtError_;
@@ -49,8 +51,10 @@ private:
 //
 BadPFMuonFilter::BadPFMuonFilter(const edm::ParameterSet& iConfig)
   : tokenPFCandidates_ ( consumes<edm::View<reco::PFCandidate> >(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
+  , tokenMuons_ ( consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag> ("muons")  ))
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode") )
   , debug_                ( iConfig.getParameter<bool>    ("debug") )
+  , algo_                 ( iConfig.getParameter<int>  ("algo") )
   , minDZ_                ( iConfig.getParameter<double>  ("minDZ") )
   , minMuPt_              ( iConfig.getParameter<double>  ("minMuPt") )
   , minTrkPtError_        ( iConfig.getParameter<double>  ("minTrkPtError") )
@@ -76,18 +80,60 @@ BadPFMuonFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventS
   Handle<CandidateView> pfCandidates;
   iEvent.getByToken(tokenPFCandidates_,pfCandidates);
 
+  typedef View<reco::Muon> MuonView;
+  Handle<MuonView> muons;
+  iEvent.getByToken(tokenMuons_,muons);
+
   bool foundBadPFMuon = false;
 
-  for ( unsigned j=0; j < pfCandidates->size(); ++j ) {
+  for ( unsigned i=0; i < muons->size(); ++i ) { // loop over all muons
+    
+    const reco::Muon & muon = (*muons)[i];
+
+    reco::TrackRef innerMuonTrack = muon.innerTrack();
+
+    if ( innerMuonTrack.isNull() ) { 
+      if (debug_) cout<<"Skipping this muon because it has no inner track"<<endl; 
+      continue; 
+    };
+
+    if ( innerMuonTrack->pt() ) {
+      if (debug_) cout<<"Skipping this muon because inner track pt."<<endl; 
+      continue;
+    }
+
+    if ( innerMuonTrack->quality(reco::TrackBase::highPurity) ) { 
+      if (debug_) cout<<"Skipping this muon because inner track is high purity."<<endl; 
+      continue;
+    }
+
+    // Consider only muons with large relative pt error
+    if (debug_) cout<<"Muon inner track pt rel err: "<<innerMuonTrack->ptError()/innerMuonTrack->pt()<<endl;
+    if (not ( innerMuonTrack->ptError()/innerMuonTrack->pt() > minTrkPtError_ ) ) {
+      if (debug_) cout<<"Skipping this muon because seems well measured."<<endl; 
+      continue;
+    }
+
+    // Consider only muons from muonSeededStepOutIn algo
+    if (debug_) cout<<"Muon inner track original algo: "<<innerMuonTrack->originalAlgo() << endl;
+    if (not ( innerMuonTrack->originalAlgo() == algo_  && innerMuonTrack->algo() == algo_ ) ) {
+      if (debug_) cout<<"Skipping this muon because is not coming from the muonSeededStepOutIn"<<endl; 
+      continue;
+    }
+    
+    for ( unsigned j=0; j < pfCandidates->size(); ++j ) {
       const reco::PFCandidate & pfCandidate = (*pfCandidates)[j];
-      // look for charged hadrons
+      // look for pf muon
       if ( not ( ( abs(pfCandidate.pdgId()) == 13) and (pfCandidate.pt() > minMuPt_) ) ) continue;
-      reco::TrackRef innerMuonTrack = pfCandidate.muonRef()->innerTrack();
-      if (innerMuonTrack.isNull() or innerMuonTrack->quality(reco::TrackBase::highPurity)) continue;
-      if ( ( abs(innerMuonTrack->dz()) > minDZ_ ) and ( innerMuonTrack->ptError()>minTrkPtError_ ) ) {
-            foundBadPFMuon = true;
-            break;
-      }
+      // require small dR
+      float dr = deltaR( muon.eta(), muon.phi(), pfCandidate.eta(), pfCandidate.phi() );
+      if( dr < 0.5 ) foundBadPFMuon=true;
+      cout <<"found bad muon!"<<endl; 
+      break;
+    }
+
+    if (foundBadPFMuon) { break; };
+
   }
 
   bool pass = !foundBadPFMuon;
