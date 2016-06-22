@@ -165,7 +165,7 @@ namespace stage2 {
     
        methf.setHwPt(raw_data & 0xFFF);
        methf.setHwPhi((raw_data >> 12) & 0xFF);
-       methf.setType(l1t::EtSum::kMissingEt2);       
+       methf.setType(l1t::EtSum::kMissingEtHF);       
        methf.setP4( l1t::CaloTools::p4Demux(&methf) );
 
        LogDebug("L1T") << "METHF: phi " << methf.hwPhi() << " pT " << methf.hwPt() << " bx " << bx;
@@ -176,16 +176,16 @@ namespace stage2 {
 
        raw_data = block.payload()[iFrame+5];
 
-       l1t::EtSum mht2 = l1t::EtSum();
+       l1t::EtSum mhthf = l1t::EtSum();
     
-       mht2.setHwPt(raw_data & 0xFFF);
-       mht2.setHwPhi((raw_data >> 12) & 0xFF);
-       mht2.setType(l1t::EtSum::kMissingHt2);       
-       mht2.setP4( l1t::CaloTools::p4Demux(&mht2) );
+       mhthf.setHwPt(raw_data & 0xFFF);
+       mhthf.setHwPhi((raw_data >> 12) & 0xFF);
+       mhthf.setType(l1t::EtSum::kMissingHtHF);       
+       mhthf.setP4( l1t::CaloTools::p4Demux(&mhthf) );
 
-       LogDebug("L1T") << "MHT2: phi " << mht2.hwPhi() << " pT " << mht2.hwPt() << " bx " << bx;
+       LogDebug("L1T") << "MHThf: phi " << mhthf.hwPhi() << " pT " << mhthf.hwPt() << " bx " << bx;
 
-       res_->push_back(bx,mht2);
+       res_->push_back(bx,mhthf);
        
        
      }

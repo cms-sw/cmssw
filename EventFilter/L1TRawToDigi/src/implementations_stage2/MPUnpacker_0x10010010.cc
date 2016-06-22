@@ -62,27 +62,27 @@ namespace stage2 {
 
      switch(block.header().getID()){
      case 123: // 61
-       ethf.setType(l1t::EtSum::kTotalEt2);
+       ethf.setType(l1t::EtSum::kTotalEtHF);
        ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case 121: // 60
-       ethf.setType(l1t::EtSum::kTotalEtx2);
+       ethf.setType(l1t::EtSum::kTotalEtxHF);
        ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 127: // 63
-       ethf.setType(l1t::EtSum::kTotalEty2);
+       ethf.setType(l1t::EtSum::kTotalEtyHF);
        ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 125: // 62
-       ethf.setType(l1t::EtSum::kTotalEt2);
+       ethf.setType(l1t::EtSum::kTotalEtHF);
        ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
        break;
      case 131: // 65
-       ethf.setType(l1t::EtSum::kTotalEtx2);
+       ethf.setType(l1t::EtSum::kTotalEtxHF);
        ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      case 129: // 64
-       ethf.setType(l1t::EtSum::kTotalEty2); 
+       ethf.setType(l1t::EtSum::kTotalEtyHF); 
        ethf.setHwPt( static_cast<int32_t>( uint32_t(raw_data) ) );
        break;
      default: 
@@ -143,12 +143,12 @@ namespace stage2 {
      //hthf.setHwPt(raw_data & 0xFFFFF);
      hthf.setHwPt( static_cast<int32_t>( uint32_t(raw_data & 0xFFFFFF) << 16 ) >> 16 );
      switch(block.header().getID()){
-     case 123:  hthf.setType(l1t::EtSum::kTotalHt2);  break;
-     case 121:  hthf.setType(l1t::EtSum::kTotalHtx2); break;
-     case 127:  hthf.setType(l1t::EtSum::kTotalHty2); break;
-     case 125:  hthf.setType(l1t::EtSum::kTotalHt2);  break;
-     case 131:  hthf.setType(l1t::EtSum::kTotalHtx2); break;
-     case 129:  hthf.setType(l1t::EtSum::kTotalHty2); break;
+     case 123:  hthf.setType(l1t::EtSum::kTotalHtHF);  break;
+     case 121:  hthf.setType(l1t::EtSum::kTotalHtxHF); break;
+     case 127:  hthf.setType(l1t::EtSum::kTotalHtyHF); break;
+     case 125:  hthf.setType(l1t::EtSum::kTotalHtHF);  break;
+     case 131:  hthf.setType(l1t::EtSum::kTotalHtxHF); break;
+     case 129:  hthf.setType(l1t::EtSum::kTotalHtyHF); break;
      default: break;
      }
 
