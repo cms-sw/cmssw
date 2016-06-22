@@ -46,6 +46,8 @@ class MillePedeFileExtractor :
     return (nBinaries_ >= maxNumberOfBinaries_) && hasBinaryNumberLimit(); }
   bool hasBinaryNumberLimit() { return maxNumberOfBinaries_ > -1; }
 
+  static void writeGzipped(const FileBlob&, const std::string&);
+
   const std::string outputDir_;
   const std::string outputFileName_;
 
