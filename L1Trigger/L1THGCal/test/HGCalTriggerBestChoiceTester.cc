@@ -26,14 +26,24 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "SimDataFormats/CaloTest/src/HGCalTestNumbering.cc"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/CaloTopology/interface/HGCalTopology.h"
+
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
 
 #include <stdlib.h> 
+#include <map> 
 #include "TH2.h"
 
 using namespace std;
+using namespace edm;
+using namespace reco;
 
 class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer 
 {
@@ -48,27 +58,46 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
         void rerunBestChoiceFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
-                const HGCalBestChoiceDataPayload&,
-                const vector<pair<HGCalDetId, uint32_t > >& );
+        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const vector<pair<HGCalDetId, uint32_t > >&, const HGCalBestChoiceDataPayload&,  const HGCalBestChoiceDataPayload&,const HGCalBestChoiceDataPayload&,   map <HGCalDetId,double>&,  map<uint32_t, double>& );
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
+        bool is_Simhit_comp_;
+        edm::EDGetToken SimHits_inputee_, SimHits_inputfh_, SimHits_inputbh_;
         //
         std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_; 
         std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
         edm::Service<TFileService> fs_;
+        edm::ESHandle<HGCalGeometry> hgceeGeoHandle_; 
+        edm::ESHandle<HGCalGeometry> hgchefGeoHandle_; 
+    
         // histos
-        TH1F* hgcCellsPerModule_;
         TH1F* hgcCellData_;
-        TH1F* hgcCellData_linampl_;
+        TH1F* hgcCellData_SimHitasso_;
+        TH1F* hgcCellSimHits_;
+        TH2F* hgcCellData_vsSimHits_;
+        TH1F* hgcCellsPerModule_;
         TH1F* hgcCellModuleSum_;
-        TH1F* triggerCellsPerModule_;
+        //
+        TH1F* hgcCellData_linampl_;
+        TH2F* hgcCellData_linampl_vsSimHits_;
+        TH2F* hgcCellData_linampl_vsSimHits_zoom_;
+        TH1F* triggerCellData_noBestChoice_;
+        TH2F* triggerCellData_noBestChoice_vsSimHits_;
+        TH1F* triggerCellSimHits_noBestChoice_;
+        TH1F* triggerCellData_BestChoice_;
+        TH2F* triggerCellData_BestChoice_vsSimHits_;
         TH1F* triggerCellData_;
+        TH2F* triggerCellData_vsSimHits_;
+        TH1F* triggerCellsPerModule_;
         TH1F* triggerCellModuleSum_;
+        //
         TH2F* selectedCellsVsAllCells_ee_; 
         TH2F* energyLossVsNCells_ee_;
         TH2F* selectedCellsVsAllCells_fh_; 
         TH2F* energyLossVsNCells_fh_;
+        //
+        const HGCalGeometry* geom_ = nullptr;
+        const HGCalGeometry* geom_fh_ = nullptr;
 
 };
 
@@ -79,7 +108,11 @@ HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterS
   inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
   //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
   inputbeall_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersAll"))),
-  inputbeselect_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersSelect")))
+  inputbeselect_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("beClustersSelect"))),
+  is_Simhit_comp_(conf.getParameter<bool>("isSimhitComp")),
+  SimHits_inputee_(consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("eeSimHits"))),
+  SimHits_inputfh_(consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("fhSimHits")))
+  // SimHits_inputbh_(consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("bhSimHits")))
 /*****************************************************************/
 {
     //setup geometry 
@@ -93,20 +126,40 @@ HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterS
     codec_.reset( new HGCalBestChoiceCodecImpl(feCodecConfig) );
 
     // initialize output trees
-    hgcCellsPerModule_       = fs_->make<TH1F>("hgcCellsPerModule","Number of cells per module", 64, 0., 64.);
-    hgcCellData_             = fs_->make<TH1F>("hgcCellData","Cell values", 500, 0., 500.);
+     // HGC Cells
+    hgcCellData_             = fs_->make<TH1F>("hgcCellData","Cell values", 1000, 0., 2000.);
+    if (is_Simhit_comp_) {
+      hgcCellData_SimHitasso_ = fs_->make<TH1F>("hgcCellData_SimHitasso_","Cell values with an associated SimHit", 1000, 0, 2000.);
+      hgcCellSimHits_          = fs_->make<TH1F>("hgcCellSimHits_","Cell simhit energies", 500, 0, 0.16);
+      hgcCellData_vsSimHits_   = fs_->make<TH2F>("hgcCellData_vsSimHits_","Cell values vs simhit energies", 500,0,0.16,1000, 0., 2000.); 
+    }
+    hgcCellsPerModule_       = fs_->make<TH1F>("hgcCellsPerModule","Number of cells per module", 128, 0., 128.);
+    hgcCellModuleSum_        = fs_->make<TH1F>("hgcCellModuleSum","Cell sum in modules", 1000, 0., 3000.);
     //
-    hgcCellData_linampl_     = fs_->make<TH1F>("hgcCellData_linampl_","Cell linearized amplitudes values All", 1250, 0, 25000);
-    //
-    hgcCellModuleSum_        = fs_->make<TH1F>("hgcCellModuleSum","Cell sum in modules", 1000, 0., 1000.);
-    triggerCellsPerModule_   = fs_->make<TH1F>("TriggerCellsPerModule","Number of trigger cells per module", 64, 0., 64.);
-    triggerCellData_         = fs_->make<TH1F>("TriggerCellData","Trigger cell values", 500, 0., 500.);
-    triggerCellModuleSum_    = fs_->make<TH1F>("TriggerCellModuleSum","Trigger cell sum in modules", 1000, 0., 1000.);
+    hgcCellData_linampl_     = fs_->make<TH1F>("hgcCellData_linampl_","Cell linearized amplitudes values All", 1000, 0, 70000);
+    if (is_Simhit_comp_) {
+    hgcCellData_linampl_vsSimHits_      = fs_->make<TH2F>("hgcCellData_linampl_vsSimHits_","Cell linearized amplitudes vs  simhit energies",500,0,0.16,1000,0,70000); 
+    hgcCellData_linampl_vsSimHits_zoom_ = fs_->make<TH2F>("hgcCellData_linampl_vsSimHits_zoom_","Cell linearized amplitudes vssimhit energies, zoomed",1000,0,0.002,1000,0,1000); 
+    }
+
+    // HGC Trigger cells
+    triggerCellData_noBestChoice_ = fs_->make<TH1F>("triggerCellData_noBestChoice_","Trigger cell values, no best choice", 1000, 0., 70000.);
+    if (is_Simhit_comp_){
+      triggerCellData_noBestChoice_vsSimHits_ = fs_->make<TH2F>("triggerCellData_noBestChoice_vsSimHits_","Trigger cell values vs simhit energies, no best choice", 500,0,0.16,1000, 0., 70000.);
+      triggerCellSimHits_noBestChoice_  = fs_->make<TH1F>("triggerCellSimHits_noBestChoice","Trigger cell simhit energies, no best choice", 500, 0, 0.16);
+    }
+    triggerCellData_BestChoice_ = fs_->make<TH1F>("triggerCellData_BestChoice_","Trigger cell values, best choice", 1000, 0., 70000.);
+    if (is_Simhit_comp_) triggerCellData_BestChoice_vsSimHits_ = fs_->make<TH2F>("triggerCellData_BestChoice_vsSimHits_","Trigger cell values vs simhit energies, best choice", 500,0,0.16,1000, 0., 70000.);;
+    triggerCellData_            = fs_->make<TH1F>("triggerCellData","Trigger cell values", 1100, 0., 1100.);
+     if (is_Simhit_comp_) triggerCellData_vsSimHits_  = fs_->make<TH2F>("triggerCellData_vsSimHits_","Trigger cell values vs simhit energies", 500,0,0.16,1100, 0., 1100.);
+    triggerCellsPerModule_      = fs_->make<TH1F>("triggerCellsPerModule","Number of trigger cells per module", 64, 0., 64.);
+    triggerCellModuleSum_       = fs_->make<TH1F>("TriggerCellModuleSum","Trigger cell sum in modules", 1000, 0., 10000.);
     //
     selectedCellsVsAllCells_ee_ = fs_->make<TH2F>("selectedCellsVsAllCells_ee","Number of selected cells vs number of cell", 128, 0, 128, 128, 0., 128.);
     energyLossVsNCells_ee_      = fs_->make<TH2F>("energyLossVsNCells_ee","Relative energy loss after selection vs number of cell", 128, 0., 128., 101, 0, 1.01);
     selectedCellsVsAllCells_fh_ = fs_->make<TH2F>("selectedCellsVsAllCells_fh","Number of selected cells vs number of cell", 128, 0, 128, 128, 0., 128.);
     energyLossVsNCells_fh_      = fs_->make<TH2F>("energyLossVsNCells_fh","Relative energy loss after selection vs number of cell", 128, 0., 128., 101, 0, 1.01);
+
 }
 
 
@@ -134,6 +187,11 @@ void HGCalTriggerBestChoiceTester::beginRun(const edm::Run& /*run*/,
     es.get<IdealGeometryRecord>().get(fh_sd_name,info.topo_fh);
     es.get<IdealGeometryRecord>().get(bh_sd_name,info.topo_bh);
     triggerGeometry_->initialize(info);
+
+    es.get<IdealGeometryRecord>().get("HGCalEESensitive",hgceeGeoHandle_) ; 
+    geom_ = hgceeGeoHandle_.product();
+    es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle_) ; 
+    geom_fh_ = hgchefGeoHandle_.product();
 }
 
 /*****************************************************************/
@@ -223,88 +281,248 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
 
     HGCalBestChoiceDataPayload data;
 
+    // retrieve simhit collections
+    map<HGCalDetId, double> simhit_energies;
+    if (is_Simhit_comp_) {
+      edm::Handle<edm::PCaloHitContainer> ee_simhits_h;
+      e.getByToken(SimHits_inputee_,ee_simhits_h);
+      const edm::PCaloHitContainer& ee_simhits = *ee_simhits_h;
+      edm::Handle<edm::PCaloHitContainer> fh_simhits_h;
+      e.getByToken(SimHits_inputfh_,fh_simhits_h);
+      const edm::PCaloHitContainer& fh_simhits = *fh_simhits_h;
+    
+      // simhit/digi association EE
+      HGCalDetId digiid, simid;
+      int ndigi=0;
+      int nsimhit=0;
+      int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
+      ForwardSubdetector mysubdet;
+      HGCalDetId recoDetId ;
+      const HGCalTopology& topo = geom_->topology();
+      const HGCalDDDConstants& dddConst = topo.dddConstants();
+      int n_hits_asso=0;
+      
+      for(const auto& eedata : ee_digis) {
+        if (ndigi%10000==0) cout<< "ee digi number : "<<ndigi<<endl;
+        ndigi++;
+        digiid= (HGCalDetId) eedata.id();
+        bool is_hitasso=false;
+        nsimhit=0;
+        double hit_energy=0;
+        
+        for( const auto& eesimhit : ee_simhits ) { 
+          nsimhit++;
+          simid = (HGCalDetId) eesimhit.id();
+          HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
+          mysubdet = (ForwardSubdetector)(subdet);
+          std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
+          cell  = recoLayerCell.first;
+          layer = recoLayerCell.second;
+          if (layer<0 || cell<0) {
+            continue;
+          }
+          recoDetId = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
+          if (recoDetId==digiid) {
+            hit_energy+=eesimhit.energy();
+            is_hitasso=true;
+          }
+        }
+        if (is_hitasso) n_hits_asso++;    
+        HGCalDetId id =(HGCalDetId)  eedata.id();
+        simhit_energies[id] =  hit_energy; 
+      }
+
+      // simhit/digi association FH
+      HGCalDetId digiid_fh, simid_fh;
+      int ndigi_fh=0;
+      int nsimhit_fh=0;
+      int layer_fh=0,cell_fh=0, sec_fh=0, subsec_fh=0, zp_fh=0,subdet_fh=0;
+      ForwardSubdetector mysubdet_fh;
+      HGCalDetId recoDetId_fh ;
+      const HGCalTopology& topo_fh = geom_fh_->topology();
+      const HGCalDDDConstants& dddConst_fh = topo_fh.dddConstants();
+      map<HGCalDetId, double> simhit_energies_fh;
+      int n_hits_asso_fh=0;
+      
+      for(const auto& fhdata : fh_digis) {
+        if (ndigi_fh%10000==0) cout<< "fh digi number : "<<ndigi_fh<<endl;
+        ndigi++;
+        ndigi_fh++;
+        digiid_fh= (HGCalDetId) fhdata.id();
+        bool is_hitasso=false;
+        nsimhit_fh=0;
+        double hit_energy=0;
+        
+        for( const auto& fhsimhit : fh_simhits ) { 
+          nsimhit_fh++;
+          if (ndigi_fh==0) nsimhit++;
+          simid_fh = (HGCalDetId) fhsimhit.id();
+          HGCalTestNumbering::unpackHexagonIndex(simid_fh, subdet_fh, zp_fh, layer_fh, sec_fh, subsec_fh, cell_fh); 
+          mysubdet_fh = (ForwardSubdetector)(subdet_fh);
+          std::pair<int,int> recoLayerCell=dddConst_fh.simToReco(cell_fh,layer_fh,sec_fh,topo_fh.detectorType());
+          cell_fh  = recoLayerCell.first;
+          layer_fh = recoLayerCell.second;
+          if (layer_fh<0 || cell_fh<0) {
+            continue;
+          }
+          recoDetId_fh = HGCalDetId(mysubdet_fh,zp_fh,layer_fh,subsec_fh,sec_fh,cell_fh);
+          if (recoDetId_fh==digiid_fh) {
+            hit_energy+=fhsimhit.energy();
+            is_hitasso=true;
+          }
+        }
+        if (is_hitasso){ n_hits_asso_fh++; n_hits_asso++;}    
+        HGCalDetId id_fh =(HGCalDetId)  fhdata.id();
+        simhit_energies[id_fh] =  hit_energy; 
+      }
+      cout<<" Number of digis= "<<ndigi<<" Number of simhits= "<< nsimhit<<" Number of digis associated to simhits= "<<n_hits_asso<<endl;
+    }
+
     //loop on modules
     for( const auto& module : triggerGeometry_->modules() ) {        
-        HGCalDetId moduleId(module.first);
-        // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        vector<pair<HGCalDetId, uint32_t > > linearized_dataframes;
+      HGCalDetId moduleId(module.first);
+      // prepare input data
+      std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
+      vector<pair<HGCalDetId, uint32_t > > linearized_dataframes;
 
-        // loop over EE or FH digis and fill digis belonging to that module
-        if(moduleId.subdetId()==ForwardSubdetector::HGCEE) {
-            for(const auto& eedata : ee_digis) {
-                if(module.second->containsCell(eedata.id())) {
-                    dataframes.emplace_back(eedata.id());
-                    for(int i=0; i<eedata.size(); i++) {
-                        dataframes.back().setSample(i, eedata.sample(i));
-                    }
-                }
-            }  
+      // loop over EE or FH digis and fill digis belonging to that module
+      if(moduleId.subdetId()==ForwardSubdetector::HGCEE) {
+        for(const auto& eedata : ee_digis) {
+          if(module.second->containsCell(eedata.id())) {
+             dataframes.emplace_back(eedata.id());
+             for(int i=0; i<eedata.size(); i++) {
+              dataframes.back().setSample(i, eedata.sample(i));
+             }
+          }
+        }  
+      }
+      else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF) {
+        for(const auto& fhdata : fh_digis) {
+          if(module.second->containsCell(fhdata.id())) {
+            dataframes.emplace_back(fhdata.id());
+            for(int i=0; i<fhdata.size(); i++) {
+              dataframes.back().setSample(i, fhdata.sample(i));
+            }
+          }
+        }  
+      }
+      // Association simhit energies with trigger cells
+      map<uint32_t, double> TC_simhit_energies;
+      if (is_Simhit_comp_) {
+        for(const auto& tc_c : module.second->triggerCellComponents()){
+          HGCalDetId triggercellid( tc_c.first );
+          uint32_t cellid = triggercellid.cell();
+          TC_simhit_energies.insert( std::make_pair(cellid, 0) );
+          double simenergy = simhit_energies[tc_c.second];
+          TC_simhit_energies[cellid]+=simenergy;
         }
-        else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF) {
-            for(const auto& fhdata : fh_digis) {
-                if(module.second->containsCell(fhdata.id())) {
-                    dataframes.emplace_back(fhdata.id());
-                    for(int i=0; i<fhdata.size(); i++) {
-                        dataframes.back().setSample(i, fhdata.sample(i));
-                    }
-                }
-            }  
-        }
-
-        //  Best choice encoding
-        data.reset();
-        codec_->linearize(*(module.second), dataframes, linearized_dataframes);
-        codec_->triggerCellSums(*(module.second), linearized_dataframes, data);
-        codec_->bestChoiceSelect(data);
-        std::vector<bool> dataword = codec_->encode(data);
-        HGCalBestChoiceDataPayload datadecoded = codec_->decode(dataword);
-        fillModule(dataframes, datadecoded, linearized_dataframes);
+      }
+      
+      //  Best choice encoding
+      data.reset();
+      codec_->linearize(*(module.second), dataframes, linearized_dataframes);
+      codec_->triggerCellSums(*(module.second), linearized_dataframes, data);
+      HGCalBestChoiceDataPayload data_TCsums_woBestChoice = data;
+      codec_->bestChoiceSelect(data);
+      HGCalBestChoiceDataPayload data_TCsums_BestChoice = data;
+      std::vector<bool> dataword = codec_->encode(data);
+      HGCalBestChoiceDataPayload datadecoded = codec_->decode(dataword);
+      fillModule(dataframes, linearized_dataframes, data_TCsums_woBestChoice,data_TCsums_BestChoice, datadecoded,  simhit_energies, TC_simhit_energies);
+      
     } //end loop on modules
-
+    
 }
 
 
 /*****************************************************************/
-void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
-        const HGCalBestChoiceDataPayload& fe_payload,
-        const vector<pair<HGCalDetId, uint32_t > >& linearized_dataframes)
+void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const vector<pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalBestChoiceDataPayload& fe_payload, map <HGCalDetId,double>& simhit_energies,  map<uint32_t, double>& TC_simhit_energies)
+
 /*****************************************************************/
 {
     // HGC cells part
     size_t nHGCDigi = 0;
     unsigned hgcCellModuleSum = 0;
+    // digis, cell based info
     for(const auto& frame : dataframes)
-    {
+      {
         uint32_t value = frame[2].data();
-        if(value>0)
-        {
-            nHGCDigi++;
-            hgcCellModuleSum += value;
-            hgcCellData_->Fill(value);
+        nHGCDigi++;
+        hgcCellModuleSum += value;
+        hgcCellData_->Fill(value);
+        if (is_Simhit_comp_){
+          double sim_energy= simhit_energies[(HGCalDetId)frame.id()];
+          if (sim_energy >0){
+            hgcCellData_SimHitasso_->Fill(value);
+            hgcCellSimHits_->Fill(sim_energy);
+            hgcCellData_vsSimHits_->Fill(sim_energy,value);
+          }
         }
-    }
+      }
     hgcCellsPerModule_->Fill(nHGCDigi);
     hgcCellModuleSum_->Fill(hgcCellModuleSum);
-
+    
+    // linearized samples, cell based info
     for(const auto& frame : linearized_dataframes){
-        hgcCellData_linampl_-> Fill(frame.second);
+      hgcCellData_linampl_-> Fill(frame.second);
+      if (is_Simhit_comp_){
+        double sim_energy= simhit_energies[(HGCalDetId)frame.first];
+        if (sim_energy >0){ 
+          hgcCellData_linampl_vsSimHits_-> Fill(sim_energy,frame.second);
+          hgcCellData_linampl_vsSimHits_zoom_-> Fill(sim_energy,frame.second);
+        }
+      }
+    }
+    
+    // trigger cells part
+    // after sum, no best choice, no encode/decode
+    int ncells_noBestChoice = 0;
+    for(const auto& tc : fe_payload_TCsums_woBestChoice.payload)
+    {
+      if(tc>0)
+        {
+          triggerCellData_noBestChoice_->Fill(tc);
+          if (is_Simhit_comp_){
+            if (TC_simhit_energies[ncells_noBestChoice] >0){
+              triggerCellSimHits_noBestChoice_->Fill(TC_simhit_energies[ncells_noBestChoice]);
+              triggerCellData_noBestChoice_vsSimHits_->Fill(TC_simhit_energies[ncells_noBestChoice],tc);
+            }
+          }
+        }
+      ncells_noBestChoice++;
+    }
+    
+    // after sum, best choice, no encode/decode
+    int ncells_BestChoice = 0;
+    for(const auto& tc : fe_payload_TCsums_BestChoice.payload)
+    {
+      if(tc>0)
+        {
+          triggerCellData_BestChoice_->Fill(tc);
+          if (is_Simhit_comp_){
+            if (TC_simhit_energies[ncells_BestChoice]>0)  triggerCellData_BestChoice_vsSimHits_->Fill(TC_simhit_energies[ncells_BestChoice],tc);
+          }
+        }
+      ncells_BestChoice++;
     }
 
-    // trigger cells part
-
+    // after sum, best choice, encode/decode
+    int ncells = 0;
     size_t nFEDigi = 0;
     unsigned triggerCellModuleSum = 0;
     for(const auto& tc : fe_payload.payload)
-    {
+      {
         uint32_t tcShifted = (tc<<2);
         if(tcShifted>0)
-        {
+          {          
             nFEDigi++;
             triggerCellModuleSum += tcShifted;
             triggerCellData_->Fill(tcShifted);
-        }
-    }
+            if (is_Simhit_comp_){
+              if (TC_simhit_energies[ncells]>0)  triggerCellData_vsSimHits_->Fill(TC_simhit_energies[ncells],tcShifted);
+            }
+          }
+        ncells++;
+      }
     triggerCellsPerModule_->Fill(nFEDigi);
     triggerCellModuleSum_->Fill(triggerCellModuleSum);
 }
