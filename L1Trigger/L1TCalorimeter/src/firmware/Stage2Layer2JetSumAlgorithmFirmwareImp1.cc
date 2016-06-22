@@ -16,9 +16,9 @@ l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwar
   mhtJetThresholdHw_ = floor(params_->etSumEtThreshold(3)/params_->jetLsb());
 
   httEtaMax_  = params_->etSumEtaMax(1);
-  httEtaMax2_ = CaloTools::kHFEnd;
+  httEtaMaxHF_ = CaloTools::kHFEnd;
   mhtEtaMax_  = params_->etSumEtaMax(3);
-  mhtEtaMax2_ = CaloTools::kHFEnd;
+  mhtEtaMaxHF_ = CaloTools::kHFEnd;
 }
 
 
@@ -35,7 +35,7 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
     int32_t hx(0), hy(0), ht(0);
-    int32_t hx2(0), hy2(0), ht2(0);
+    int32_t hxHF(0), hyHF(0), htHF(0);
   
     // loop over rings    
     for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
@@ -43,7 +43,7 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       int ieta = etaSide * absieta;
 
       int32_t ringHx(0), ringHy(0), ringHt(0); 
-      int32_t ringHx2(0), ringHy2(0), ringHt2(0); 
+      int32_t ringHxHF(0), ringHyHF(0), ringHtHF(0); 
       
       // loop over phi
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
@@ -69,16 +69,16 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 		  ringHx += ((CaloTools::cos_coeff[iphi - 1] > 0 ) - (CaloTools::cos_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::cos_coeff[iphi - 1])) ) >> 4 );
 		  ringHy += ((CaloTools::sin_coeff[iphi - 1] > 0 ) - (CaloTools::sin_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::sin_coeff[iphi - 1])) ) >> 4 );
 		}
-		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(mhtEtaMax2_)) {
-		  ringHx2 += ((CaloTools::cos_coeff[iphi - 1] > 0 ) - (CaloTools::cos_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::cos_coeff[iphi - 1])) ) >> 4 );
-		  ringHy2 += ((CaloTools::sin_coeff[iphi - 1] > 0 ) - (CaloTools::sin_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::sin_coeff[iphi - 1])) ) >> 4 );
+		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(mhtEtaMaxHF_)) {
+		  ringHxHF += ((CaloTools::cos_coeff[iphi - 1] > 0 ) - (CaloTools::cos_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::cos_coeff[iphi - 1])) ) >> 4 );
+		  ringHyHF += ((CaloTools::sin_coeff[iphi - 1] > 0 ) - (CaloTools::sin_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::sin_coeff[iphi - 1])) ) >> 4 );
 		}
 		
 		if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(httEtaMax_)) {
 		  ringHt += thisJet.hwPt();
 		}
-		if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(httEtaMax2_)) {
-		  ringHt2 += thisJet.hwPt();
+		if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(httEtaMaxHF_)) {
+		  ringHtHF += thisJet.hwPt();
 		}
       }
 
@@ -86,9 +86,9 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
       hy += ringHy;
       ht += ringHt;
       
-      hx2 += ringHx2;
-      hy2 += ringHy2;
-      ht2 += ringHt2;
+      hxHF += ringHxHF;
+      hyHF += ringHyHF;
+      htHF += ringHtHF;
 
     }
 
@@ -98,17 +98,17 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
     l1t::EtSum htSumHx(p4,l1t::EtSum::EtSumType::kTotalHtx,hx,0,0,0);
     l1t::EtSum htSumHy(p4,l1t::EtSum::EtSumType::kTotalHty,hy,0,0,0);
 
-    l1t::EtSum htSumHt2(p4,l1t::EtSum::EtSumType::kTotalHt2,ht2,0,0,0);
-    l1t::EtSum htSumHx2(p4,l1t::EtSum::EtSumType::kTotalHtx2,hx2,0,0,0);
-    l1t::EtSum htSumHy2(p4,l1t::EtSum::EtSumType::kTotalHty2,hy2,0,0,0);
+    l1t::EtSum htSumHtHF(p4,l1t::EtSum::EtSumType::kTotalHtHF,htHF,0,0,0);
+    l1t::EtSum htSumHxHF(p4,l1t::EtSum::EtSumType::kTotalHtxHF,hxHF,0,0,0);
+    l1t::EtSum htSumHyHF(p4,l1t::EtSum::EtSumType::kTotalHtyHF,hyHF,0,0,0);
     
     htsums.push_back(htSumHt);
     htsums.push_back(htSumHx);
     htsums.push_back(htSumHy);
      
-    htsums.push_back(htSumHt2);
-    htsums.push_back(htSumHx2);
-    htsums.push_back(htSumHy2);
+    htsums.push_back(htSumHtHF);
+    htsums.push_back(htSumHxHF);
+    htsums.push_back(htSumHyHF);
     
   }
 }
