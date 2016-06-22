@@ -67,7 +67,7 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       GoldenPattern::vector1D meanDistPhi1D(myOmtfConfig->nRefLayers());
       for(unsigned int iRefLayer=0;iRefLayer<myOmtfConfig->nRefLayers();++iRefLayer){
 	address = iRefLayer + iLayer*myOmtfConfig->nRefLayers() + iGP*(myOmtfConfig->nRefLayers()*myOmtfConfig->nLayers());
-	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));	
+	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));
       }
       meanDistPhi2D[iLayer] = meanDistPhi1D;    
       ///Pdf data
@@ -83,12 +83,13 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       }
       pdf3D[iLayer] = pdf2D;
     }
+    
     Key aKey(iEta,iPt,iCharge);
 
     GoldenPattern *aGP = new GoldenPattern(aKey, myOmtfConfig);
     aGP->setMeanDistPhi(meanDistPhi2D);
     aGP->setPdf(pdf3D);
-    addGP(aGP);    
+    if(iPt) addGP(aGP);    
   }
   return true;
 }
@@ -280,7 +281,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 			       const OMTFinput & aInput,
 			       const SimTrack* aSimMuon){
 
-  int theCharge = abs(aSimMuon->type()) == 13 ? -1 : 1; 
+  int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0;
   unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
   ///Stupid conersion. Have to go through PAC pt scale, as we later
   ///shift resulting pt code by +1

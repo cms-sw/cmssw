@@ -88,14 +88,14 @@ void XMLConfigWriter::initialiseXMLDocument(const std::string & docName){
   theDoc = domImpl->createDocument(0,_toDOMS(docName.c_str()), 0);
   theTopElement = theDoc->getDocumentElement();
   
-  unsigned int version = myOMTFConfig->fwVersion();
-  unsigned int mask32bits = pow(2,32)-1;
+  unsigned int version = myOMTFConfig->patternsVersion();
+  unsigned int mask16bits = 0xFFFF;
   
-  version &=mask32bits;
+  version &=mask16bits;
   
   std::ostringstream stringStr;
   stringStr.str("");
-  stringStr<<"0x"<<std::hex<<std::setfill('0')<<std::setw(8)<<version;
+  stringStr<<"0x"<<std::hex<<std::setfill('0')<<std::setw(4)<<version;
   theTopElement->setAttribute(_toDOMS("version"), _toDOMS(stringStr.str()));
 
 }
