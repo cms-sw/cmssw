@@ -263,12 +263,23 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       const auto w1LVec = lepton1.p4()+nu1.p4();
       const auto w2LVec = lepton2.p4()+nu2.p4();
 
+      // Remove jets overlap with selected leptons
+      std::vector<size_t> selBjets;
+      for ( auto i : bjetIdxs ) {
+        if ( deltaR(jets->at(i).p4(), lepton1.p4()) < 0.4 ) continue;
+        if ( deltaR(jets->at(i).p4(), lepton2.p4()) < 0.4 ) continue;
+
+        selBjets.push_back(i);
+      }
+      if ( selBjets.size() < 2 ) break;
+
       // Contiue to top quarks
       dm = 1e9; // Reset once again for top combination.
       int selB1 = -1, selB2 = -1;
-      for ( auto i : bjetIdxs ) {
+      for ( auto i : selBjets ) {
+        // overlap checking
         const double dm1 = std::abs((w1LVec+jets->at(i).p4()).mass()-tMass_);
-        for ( auto j : bjetIdxs ) {
+        for ( auto j : selBjets ) {
           if ( i == j ) continue;
           const double dm2 = std::abs((w2LVec+jets->at(j).p4()).mass()-tMass_);
           const double newDm = dm1+dm2;
@@ -324,6 +335,19 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       }
       if ( hasVetoLepton ) break;
 
+      // Remove jets overlap with selected leptons
+      std::vector<size_t> selBjets, selLjets;
+      for ( auto i : bjetIdxs ) {
+        if ( deltaR(jets->at(i).p4(), lepton.p4()) < 0.4 ) continue;
+        selBjets.push_back(i);
+      }
+      for ( auto i : ljetIdxs ) {
+        if ( deltaR(jets->at(i).p4(), lepton.p4()) < 0.4 ) continue;
+        selLjets.push_back(i);
+      }
+      if ( selBjets.size() < 2 ) break;
+      if ( selLjets.size() < 2 ) break;
+
       // Calculate MET
       double metX = 0, metY = 0;
       for ( auto neutrino : *neutrinos ) {
@@ -352,23 +376,23 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       // Continue to build leptonic pseudo top
       double minDR = 1e9;
       int selB1 = -1;
-      for ( auto b1Itr = bjetIdxs.begin(); b1Itr != bjetIdxs.end(); ++b1Itr ) {
-        const double dR = deltaR(jets->at(*b1Itr).p4(), w1LVec);
-        if ( dR < minDR ) { selB1 = *b1Itr; minDR = dR; }
+      for ( size_t i : selBjets ) {
+        const double dR = deltaR(jets->at(i).p4(), w1LVec);
+        if ( dR < minDR ) { selB1 = i; minDR = dR; }
       }
       if ( selB1 == -1 ) break;
       const auto& bJet1 = jets->at(selB1);
       const auto t1LVec = w1LVec + bJet1.p4();
 
       // Build hadronic pseudo W, take leading two jets (ljetIdxs are (implicitly) sorted by pT)
-      const auto& wJet1 = jets->at(ljetIdxs[0]);
-      const auto& wJet2 = jets->at(ljetIdxs[1]);
+      const auto& wJet1 = jets->at(selLjets[0]);
+      const auto& wJet2 = jets->at(selLjets[1]);
       const auto w2LVec = wJet1.p4() + wJet2.p4();
 
       // Contiue to top quarks
       double dm = 1e9;
       int selB2 = -1;
-      for ( auto i : bjetIdxs ) {
+      for ( size_t i : selBjets ) {
         if ( int(i) == selB1 ) continue;
         const double newDm = std::abs((w2LVec+jets->at(i).p4()).mass()-tMass_);
         if ( newDm < dm ) { dm = newDm; selB2 = i; }
