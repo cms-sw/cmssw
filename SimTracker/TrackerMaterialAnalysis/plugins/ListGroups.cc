@@ -319,6 +319,7 @@ ListGroups::overlayEtaReferences() {
 void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   const double scale = 10.;
   std::vector<TText *> nukem_text;
+  static int markerStyles[10] = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kOpenCircle, kOpenSquare, kOpenTriangleUp, kOpenDiamond, kOpenCross, kFullStar};
 
   edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
@@ -360,8 +361,9 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
                   6000., -300., 300, 1200., 0., 120.)); // 10x10 points per cm2
     TH2F &current = *m_plots.back();
     current.SetMarkerColor(m_color[color_index]);
-    current.SetMarkerStyle( color_index%2 == 0 ? kFullCircle : kOpenCircle);
+    current.SetMarkerStyle(markerStyles[color_index%10]);
     current.SetMarkerSize(0.8);
+    current.SetLineWidth(1);
     for (auto element : g->elements()) {
       current.Fill(element.z(), element.perp());
       radlen->Fill(element.z(), element.perp(), m_values[g->name()].first);
