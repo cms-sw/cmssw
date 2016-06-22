@@ -65,7 +65,7 @@ namespace l1t {
     bool m_doTaus;
     bool m_doJets;
     bool m_doSums;
-  
+    
     bool doText_;
     bool doHistos_;
  
@@ -79,25 +79,25 @@ namespace l1t {
       SumETEm=7,
       SumHT=8,
       SumMET=9,
-      SumMET2=10,
+      SumMETHF=10,
       SumMHT=11,
-      SumMHT2=12,
+      SumMHTHF=12,
       MPEG=13,
       MPTau=14,
       MPJet=15,
       MPSum=16,
       MPSumET=17,
-      MPSumET2=18,
+      MPSumETHF=18,
       MPSumMETx=19,
-      MPSumMETx2=20,
+      MPSumMETxHF=20,
       MPSumMETy=21,
-      MPSumMETy2=22,
+      MPSumMETyHF=22,
       MPSumHT=23,
-      MPSumHT2=24,
+      MPSumHTHF=24,
       MPSumMHTx=25,
-      MPSumMHTx2=26,
+      MPSumMHTxHF=26,
       MPSumMHTy=27,
-      MPSumMHTy2=28,
+      MPSumMHTyHF=28,
       MPMinBiasHFP1=29,
       MPMinBiasHFM1=30,
       MPMinBiasHFP0=31,
@@ -198,24 +198,24 @@ namespace l1t {
     m_doSums           = !(sumTag==nullTag);
 
     std::cout << "Processing " << sumTag.label() << std::endl;
-
+  
     types_.push_back( Tower );
     types_.push_back( Cluster );
     types_.push_back( MPEG );
     types_.push_back( MPTau );
     types_.push_back( MPJet );
     types_.push_back( MPSumET );
-    types_.push_back( MPSumET2 );
+    types_.push_back( MPSumETHF );
     types_.push_back( MPSumMETx );
-    types_.push_back( MPSumMETx2 );
+    types_.push_back( MPSumMETxHF );
     types_.push_back( MPSumMETy );
-    types_.push_back( MPSumMETy2 );
+    types_.push_back( MPSumMETyHF );
     types_.push_back( MPSumHT );
-    types_.push_back( MPSumHT2 );
+    types_.push_back( MPSumHTHF );
     types_.push_back( MPSumMHTx );
-    types_.push_back( MPSumMHTx2 );
+    types_.push_back( MPSumMHTxHF );
     types_.push_back( MPSumMHTy );
-    types_.push_back( MPSumMHTy2 );
+    types_.push_back( MPSumMHTyHF );
     types_.push_back( EG );
     types_.push_back( Tau );
     types_.push_back( Jet );
@@ -223,9 +223,9 @@ namespace l1t {
     types_.push_back( SumETEm );
     types_.push_back( SumHT );
     types_.push_back( SumMET );
-    types_.push_back( SumMET2 );
+    types_.push_back( SumMETHF );
     types_.push_back( SumMHT );
-    types_.push_back( SumMHT2 );
+    types_.push_back( SumMHTHF );
     types_.push_back( MPMinBiasHFP0 );
     types_.push_back( MPMinBiasHFM0 );
     types_.push_back( MPMinBiasHFP1 );
@@ -241,17 +241,17 @@ namespace l1t {
     typeStr_.push_back( "mptau" );
     typeStr_.push_back( "mpjet" );
     typeStr_.push_back( "mpsumet" );
-    typeStr_.push_back( "mpsumet2" );
+    typeStr_.push_back( "mpsumethf" );
     typeStr_.push_back( "mpsummetx" );
-    typeStr_.push_back( "mpsummetx2" );
+    typeStr_.push_back( "mpsummetxhf" );
     typeStr_.push_back( "mpsummety" );
-    typeStr_.push_back( "mpsummety2" );
+    typeStr_.push_back( "mpsummetyhf" );
     typeStr_.push_back( "mpsumht" );
-    typeStr_.push_back( "mpsumht2" );
+    typeStr_.push_back( "mpsumhthf" );
     typeStr_.push_back( "mpsummhtx" );
-    typeStr_.push_back( "mpsummhtx2" );
+    typeStr_.push_back( "mpsummhtxhf" );
     typeStr_.push_back( "mpsummhty" );
-    typeStr_.push_back( "mpsummhty2" );
+    typeStr_.push_back( "mpsummhtyhf" );
     typeStr_.push_back( "eg" );
     typeStr_.push_back( "tau" );
     typeStr_.push_back( "jet" );
@@ -259,9 +259,9 @@ namespace l1t {
     typeStr_.push_back( "sumetem" );
     typeStr_.push_back( "sumht" );
     typeStr_.push_back( "summet" );
-    typeStr_.push_back( "summet2" );
+    typeStr_.push_back( "summethf" );
     typeStr_.push_back( "summht" );
-    typeStr_.push_back( "summht2" );
+    typeStr_.push_back( "summhthf" );
     typeStr_.push_back( "mpminbiashfp0" );
     typeStr_.push_back( "mpminbiashfm0" );
     typeStr_.push_back( "mpminbiashfp1" );
@@ -418,7 +418,7 @@ namespace l1t {
           hphi_.at(MPTau)->Fill( itr->hwPhi() );
           hetaphi_.at(MPTau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
-          text << "MP Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
+	  text << "MP Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
 
           if (m_doEvtDisp) hEvtMPTau->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
         }
@@ -493,25 +493,25 @@ namespace l1t {
 
           switch(itr->getType()){
           case l1t::EtSum::EtSumType::kTotalEt:     het_.at(MPSumET)       ->Fill( itr->hwPt() ); break;
-          case l1t::EtSum::EtSumType::kTotalEt2:    het_.at(MPSumET2)      ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalEtHF:    het_.at(MPSumETHF)      ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEtx:    het_.at(MPSumMETx)     ->Fill( itr->hwPt() ); break;
-          case l1t::EtSum::EtSumType::kTotalEtx2:   het_.at(MPSumMETx2)    ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalEtxHF:   het_.at(MPSumMETxHF)    ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEty:    het_.at(MPSumMETy)     ->Fill( itr->hwPt() ); break;
-          case l1t::EtSum::EtSumType::kTotalEty2:   het_.at(MPSumMETy2)    ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalEtyHF:   het_.at(MPSumMETyHF)    ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHt:     het_.at(MPSumHT)       ->Fill( itr->hwPt() ); break;
-	  case l1t::EtSum::EtSumType::kTotalHt2:    het_.at(MPSumHT2)      ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kTotalHtHF:    het_.at(MPSumHTHF)      ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHtx:    het_.at(MPSumMHTx)     ->Fill( itr->hwPt() ); break;
-          case l1t::EtSum::EtSumType::kTotalHtx2:   het_.at(MPSumMHTx2)    ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalHtxHF:   het_.at(MPSumMHTxHF)    ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHty:    het_.at(MPSumMHTy)     ->Fill( itr->hwPt() ); break;
-	  case l1t::EtSum::EtSumType::kTotalHty2:   het_.at(MPSumMHTy2)    ->Fill( itr->hwPt() ); break;
+	  case l1t::EtSum::EtSumType::kTotalHtyHF:   het_.at(MPSumMHTyHF)    ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFP0: het_.at(MPMinBiasHFP0) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFM0: het_.at(MPMinBiasHFM0) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MPMinBiasHFP1) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFM1: het_.at(MPMinBiasHFM1) ->Fill( itr->hwPt() ); break;
           default: std::cout<<"wrong type of MP sum"<<std::endl;
           }
-
-          text << "MP Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+	  
+	  text << "MP Sum : " << " type=" << itr->getType() << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
         }
 
       }
@@ -534,7 +534,7 @@ namespace l1t {
           hphi_.at(EG)->Fill( itr->hwPhi() );
           hetaphi_.at(EG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
-          text << "EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+	  text << "EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
           if (m_doEvtDisp) hEvtDemuxEG->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
         }
@@ -559,7 +559,7 @@ namespace l1t {
           hphi_.at(Tau)->Fill( itr->hwPhi() );
           hetaphi_.at(Tau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
-          text << "Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+	  text << "Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
           if (m_doEvtDisp) hEvtDemuxTau->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
         }
@@ -589,7 +589,7 @@ namespace l1t {
           hphi_.at(Jet)->Fill( itr->hwPhi() );
           hetaphi_.at(Jet)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
-          text << "Jet : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
+	  text << "Jet : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
           if (m_doEvtDisp) hEvtDemuxJet->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
@@ -624,9 +624,9 @@ namespace l1t {
           case l1t::EtSum::EtSumType::kTotalEtEm:   het_.at(SumETEm)     ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHt:     het_.at(SumHT)       ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMissingEt:   het_.at(SumMET)      ->Fill( itr->hwPt() ); hphi_.at(SumMET)  ->Fill( itr->hwPhi() ); break;
-          case l1t::EtSum::EtSumType::kMissingEt2:  het_.at(SumMET2)     ->Fill( itr->hwPt() ); hphi_.at(SumMET2) ->Fill( itr->hwPhi() ); break;
+          case l1t::EtSum::EtSumType::kMissingEtHF:  het_.at(SumMETHF)     ->Fill( itr->hwPt() ); hphi_.at(SumMETHF) ->Fill( itr->hwPhi() ); break;
           case l1t::EtSum::EtSumType::kMissingHt:   het_.at(SumMHT)      ->Fill( itr->hwPt() ); hphi_.at(SumMHT)  ->Fill( itr->hwPhi() ); break;
-	  case l1t::EtSum::EtSumType::kMissingHt2:  het_.at(SumMHT2)     ->Fill( itr->hwPt() ); hphi_.at(SumMHT2) ->Fill( itr->hwPhi() ); break;
+	  case l1t::EtSum::EtSumType::kMissingHtHF:  het_.at(SumMHTHF)     ->Fill( itr->hwPt() ); hphi_.at(SumMHTHF) ->Fill( itr->hwPhi() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFP0: het_.at(MinBiasHFP0) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFM0: het_.at(MinBiasHFM0) ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kMinBiasHFP1: het_.at(MinBiasHFP1) ->Fill( itr->hwPt() ); break;
@@ -659,10 +659,10 @@ namespace l1t {
 
       dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
 
-      if (*itr==MPSumMETx || *itr == MPSumMETx2 || *itr==MPSumMETy || *itr==MPSumMETy2  || *itr==MPSumMHTx  || *itr==MPSumMHTx2  || *itr==MPSumMHTy || *itr==MPSumMHTy2 ) {
+      if (*itr==MPSumMETx || *itr == MPSumMETxHF || *itr==MPSumMETy || *itr==MPSumMETyHF  || *itr==MPSumMHTx  || *itr==MPSumMHTxHF  || *itr==MPSumMHTy || *itr==MPSumMHTyHF ) {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 2000, -199999.5, 200000.5) ));
       }
-      else if (*itr==SumET || *itr==SumETEm || *itr==MPSumET || *itr==MPSumET2 || *itr==SumHT || *itr==MPSumHT || *itr==MPSumHT2 ) {
+      else if (*itr==SumET || *itr==SumETEm || *itr==MPSumET || *itr==MPSumETHF || *itr==SumHT || *itr==MPSumHT || *itr==MPSumHTHF ) {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 7000, -0.5, 6999.5) )); 
       }
       else if (*itr==MPMinBiasHFP0 ||
@@ -691,7 +691,7 @@ namespace l1t {
         hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0.5, 72.5) ));
         hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));
       }
-      else if (*itr==SumMET || *itr==SumMET2 || *itr==SumMHT || *itr==SumMHT2) {
+      else if (*itr==SumMET || *itr==SumMETHF || *itr==SumMHT || *itr==SumMHTHF) {
         hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 1008, -0.5, 1007.5) ));
       }
 
