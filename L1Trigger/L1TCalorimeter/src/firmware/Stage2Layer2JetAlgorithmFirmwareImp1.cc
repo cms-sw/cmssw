@@ -173,39 +173,13 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	end_   = jetsRing.end();
 	BitonicSort<l1t::Jet>(down, start_, end_);
 	if (jetsRing.size()>6) jetsRing.resize(6);
-	  
-	// merge with the accumulated jets
-	std::vector<l1t::Jet> jetsSort;
-	jetsSort.insert(jetsSort.end(), jetsAccu.begin(), jetsAccu.end());
-	jetsSort.insert(jetsSort.end(), jetsRing.begin(), jetsRing.end());
 	
-	// sort and truncate
-	start_ = jetsSort.begin();
-	end_   = jetsSort.end();
-	BitonicSort<l1t::Jet>(down, start_, end_); // or just use BitonicMerge
-	if (jetsSort.size()>6) jetsSort.resize(6);
-	
-	// update accumulated jets
-	jetsAccu = jetsSort;
-	
+	// update jets
+	jets.insert(jets.end(),jetsRing.begin(),jetsRing.end());
+
       }
-      
-      // add to final jets in this eta side
-      jetsHalf.insert(jetsHalf.end(), jetsAccu.begin(), jetsAccu.end());
-      
     }
-
-    // sort the 24 jets and keep top 6
-    start_ = jetsHalf.begin();  
-    end_   = jetsHalf.end();
-    BitonicSort<l1t::Jet>(down, start_, end_);
-    if (jetsHalf.size()>6) jetsHalf.resize(6);
-
-    // add to final jets
-    jets.insert(jets.end(), jetsHalf.begin(), jetsHalf.end());
-    
-  }
-
+  } 
 }
 
 
@@ -216,17 +190,18 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
   l1t::Jet tempJet (emptyP4, 0, 0, 0, 0);
   std::vector< std::vector<l1t::Jet> > jetEtaPos( 41 , std::vector<l1t::Jet>(18, tempJet));
   std::vector< std::vector<l1t::Jet> > jetEtaNeg( 41 , std::vector<l1t::Jet>(18, tempJet));
+  
   for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
     {
       if (jets.at(iJet).hwEta() > 0) jetEtaPos.at(jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
-      else                           jetEtaNeg.at(-(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      else  jetEtaNeg.at(-(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
     }
-
-  AccumulatingSort <l1t::Jet> etaPosSorter(6);
-  AccumulatingSort <l1t::Jet> etaNegSorter(6);
+  
+  AccumulatingSort <l1t::Jet> etaPosSorter(7);
+  AccumulatingSort <l1t::Jet> etaNegSorter(7);
   std::vector<l1t::Jet> accumEtaPos;
   std::vector<l1t::Jet> accumEtaNeg;
-
+    
   for( int ieta = 0 ; ieta < 41 ; ++ieta)
     {
       // eta +
@@ -235,15 +210,29 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
       end_   = jetEtaPos.at(ieta).end();
       BitonicSort<l1t::Jet>(down, start_, end_);
       etaPosSorter.Merge( jetEtaPos.at(ieta) , accumEtaPos );
-        
+      
       // eta -
       start_ = jetEtaNeg.at(ieta).begin();  
       end_   = jetEtaNeg.at(ieta).end();
       BitonicSort<l1t::Jet>(down, start_, end_);
       etaNegSorter.Merge( jetEtaNeg.at(ieta) , accumEtaNeg );
-
+      
     }
+ 
+  //check for 6 & 7th jets with same et and eta. Keep jet with larger phi
+  if(accumEtaPos.at(6).hwPt()==accumEtaPos.at(5).hwPt() && accumEtaPos.at(6).hwEta()==accumEtaPos.at(5).hwEta()
+     && accumEtaPos.at(6).hwPhi() > accumEtaPos.at(5).hwPhi()){
+    accumEtaPos.at(5)=accumEtaPos.at(6);
+  }
+  if(accumEtaNeg.at(6).hwPt()==accumEtaNeg.at(5).hwPt() && accumEtaNeg.at(6).hwEta()==accumEtaNeg.at(5).hwEta()
+     && accumEtaNeg.at(6).hwPhi() > accumEtaNeg.at(5).hwPhi()){
+    accumEtaNeg.at(5)=accumEtaNeg.at(6);
+  }
 
+  //truncate
+  accumEtaPos.resize(6);
+  accumEtaNeg.resize(6);
+ 
   // put all 12 candidates in the original jet vector, removing zero energy ones
   jets.clear();
   for (l1t::Jet accjet : accumEtaPos)
@@ -254,10 +243,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
     {
       if (accjet.hwPt() > 0) jets.push_back(accjet);
     }
-
-
-
   
+   
 }
 
 
