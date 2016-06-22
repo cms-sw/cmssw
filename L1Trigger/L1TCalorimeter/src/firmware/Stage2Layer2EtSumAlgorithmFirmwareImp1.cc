@@ -18,14 +18,14 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
   // Add some LogDebug for these settings
 
   metTowThresholdHw_ = floor(params_->etSumEtThreshold(0)/params_->towerLsbSum());
-  metTowThresholdHw2_ = metTowThresholdHw_;
+  metTowThresholdHwHF_ = metTowThresholdHw_;
   ettTowThresholdHw_ = floor(params_->etSumEtThreshold(2)/params_->towerLsbSum());
-  ettTowThresholdHw2_ = ettTowThresholdHw_; 
+  ettTowThresholdHwHF_ = ettTowThresholdHw_; 
 
   metEtaMax_ = params_->etSumEtaMax(0);
-  metEtaMax2_ = CaloTools::mpEta(CaloTools::kHFEnd);
+  metEtaMaxHF_ = CaloTools::mpEta(CaloTools::kHFEnd);
   ettEtaMax_ = params_->etSumEtaMax(2);
-  ettEtaMax2_ = CaloTools::kHFEnd;
+  ettEtaMaxHF_ = CaloTools::kHFEnd;
 }
 
 
@@ -39,7 +39,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
     int32_t ex(0), ey(0), et(0);
-    int32_t ex2(0), ey2(0), et2(0);
+    int32_t exHF(0), eyHF(0), etHF(0);
     uint32_t mb0(0), mb1(0);
 
     for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
@@ -49,7 +49,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       // TODO add the eta and Et thresholds
 
       int32_t ringEx(0), ringEy(0), ringEt(0);
-      int32_t ringEx2(0), ringEy2(0), ringEt2(0);
+      int32_t ringExHF(0), ringEyHF(0), ringEtHF(0);
       uint32_t ringMB0(0), ringMB1(0);
 
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
@@ -71,9 +71,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
 
 	// MET *with* HF
-	if (tower.hwPt()>metTowThresholdHw2_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMax2_) {
-	  ringEx2 += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
-	  ringEy2 += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
+	if (tower.hwPt()>metTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMaxHF_) {
+	  ringExHF += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
+	  ringEyHF += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
 	  
 	// scalar sum
@@ -81,8 +81,8 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	  ringEt += tower.hwPt();
   
 	// scalar sum including HF
-	if (tower.hwPt()>ettTowThresholdHw2_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax2_) 
-	  ringEt2 += tower.hwPt();
+	if (tower.hwPt()>ettTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMaxHF_) 
+	  ringEtHF += tower.hwPt();
 		
 	// count HF tower HCAL flags
 	if (CaloTools::mpEta(abs(tower.hwEta()))>CaloTools::kHFBegin &&
@@ -95,9 +95,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       ex += ringEx;
       ey += ringEy;
       et += ringEt;
-      et2 += ringEt2;
-      ex2 += ringEx2;
-      ey2 += ringEy2;
+      etHF += ringEtHF;
+      exHF += ringExHF;
+      eyHF += ringEyHF;
       mb0 += ringMB0;
       mb1 += ringMB1;
 
@@ -112,9 +112,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
     l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEty,ey,0,0,0);
 
-    l1t::EtSum etSumTotalEt2(p4,l1t::EtSum::EtSumType::kTotalEt2,et2,0,0,0);
-    l1t::EtSum etSumEx2(p4,l1t::EtSum::EtSumType::kTotalEtx2,ex2,0,0,0);
-    l1t::EtSum etSumEy2(p4,l1t::EtSum::EtSumType::kTotalEty2,ey2,0,0,0);
+    l1t::EtSum etSumTotalEtHF(p4,l1t::EtSum::EtSumType::kTotalEtHF,etHF,0,0,0);
+    l1t::EtSum etSumExHF(p4,l1t::EtSum::EtSumType::kTotalEtxHF,exHF,0,0,0);
+    l1t::EtSum etSumEyHF(p4,l1t::EtSum::EtSumType::kTotalEtyHF,eyHF,0,0,0);
 
     l1t::EtSum::EtSumType type0 = l1t::EtSum::EtSumType::kMinBiasHFP0;
     l1t::EtSum::EtSumType type1 = l1t::EtSum::EtSumType::kMinBiasHFP1;
@@ -129,9 +129,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     etsums.push_back(etSumEx);
     etsums.push_back(etSumEy);
     
-    etsums.push_back(etSumTotalEt2);
-    etsums.push_back(etSumEx2);
-    etsums.push_back(etSumEy2);
+    etsums.push_back(etSumTotalEtHF);
+    etsums.push_back(etSumExHF);
+    etsums.push_back(etSumEyHF);
 
     etsums.push_back(etSumMinBias0);
     etsums.push_back(etSumMinBias1);
