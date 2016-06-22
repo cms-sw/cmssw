@@ -271,25 +271,22 @@ PixelQuadrupletGenerator::hitQuadruplets (const TrackingRegion& region, OrderedH
 {
 
   if (theComparitor) theComparitor->init (ev, es);
-
-
   HitPairGeneratorFromLayerPair thePairGenerator(0, 1, theLayerCache);
+ 
   std::vector<CACell::CAntuplet> foundQuadruplets;
   
   std::vector<const HitDoublets*> layersDoublets(3);
 
   HitDoublets doublets0 =  thePairGenerator.doublets(region, ev, es, fourLayers[0], fourLayers[1] );
   HitDoublets doublets1 =  thePairGenerator.doublets(region, ev, es, fourLayers[1], fourLayers[2] );
-  HitDoublets doublets2  = thePairGenerator.doublets(region, ev, es, fourLayers[2], fourLayers[3] );
+  HitDoublets doublets2 =  thePairGenerator.doublets(region, ev, es, fourLayers[2], fourLayers[3] );
 
   layersDoublets[0] = &(doublets0);
   layersDoublets[1] = &(doublets1);
   layersDoublets[2] = &(doublets2);
-
-
+  
+  
   CellularAutomaton<4> ca;
-
-
 
   ca.create_and_connect_cells (layersDoublets, fourLayers, region);
 

@@ -4,51 +4,42 @@
 template <unsigned int numberOfLayers>
 void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<const HitDoublets*> doublets, const SeedingLayerSetsHits::SeedingLayerSet& fourLayers, const TrackingRegion& region)
 {
-
   unsigned int cellId = 0;
   constexpr unsigned int numberOfLayerPairs =   numberOfLayers - 1;
   float ptmin = region.ptMin();
+  unsigned int layerPairId = 0;
+  auto innerLayerId = layerPairId;
+  auto outerLayerId = innerLayerId + 1;
+  auto numberOfDoublets = doublets[layerPairId]->size ();
 
-  for (unsigned int layerPairId = 0; layerPairId < numberOfLayerPairs; ++layerPairId)
+  isOuterHitOfCell[outerLayerId].resize(fourLayers[outerLayerId].hits().size());
+  theFoundCellsPerLayer[layerPairId].reserve (numberOfDoublets);
+  for (unsigned int i = 0; i < numberOfDoublets; ++i)
   {
-    auto innerLayerId = layerPairId;
-    auto outerLayerId = innerLayerId + 1;
-    auto numberOfDoublets = doublets[layerPairId]->size ();
+    theFoundCellsPerLayer[layerPairId].emplace_back (doublets[layerPairId], i,  cellId,  doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i));
 
+    isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
+    cellId++;
 
+  }
+
+  for (layerPairId = 1; layerPairId < numberOfLayerPairs; ++layerPairId)
+  {
+
+    innerLayerId = layerPairId;
+    outerLayerId = innerLayerId + 1;
+    numberOfDoublets = doublets[layerPairId]->size ();
     isOuterHitOfCell[outerLayerId].resize(fourLayers[outerLayerId].hits().size());
 
     theFoundCellsPerLayer[layerPairId].reserve (numberOfDoublets);
-
-    if (layerPairId == 0)
+    for (unsigned int i = 0; i < numberOfDoublets; ++i)
     {
-      for (unsigned int i = 0; i < numberOfDoublets; ++i)
+      theFoundCellsPerLayer[layerPairId].emplace_back (doublets[layerPairId], i, cellId, doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i));
+      isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
+      cellId++;
+      for (auto neigCell : isOuterHitOfCell[innerLayerId][doublets[layerPairId]->innerHitId(i)])
       {
-        theFoundCellsPerLayer[layerPairId].emplace_back (CACell(doublets[layerPairId], i,  cellId++,  doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i)));
-
-
-        isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
-      }
-    }// if the layer is not the innermost one we check the compatibility between the two cells that share the same hit: one in the inner layer, previously created,
-      // and the one we are about to create. If these two cells meet the neighboring conditions, they become one the neighbor of the other.
-    else
-    {
-      for (unsigned int i = 0; i < numberOfDoublets; ++i)
-      {
-
-
-        theFoundCellsPerLayer[layerPairId].emplace_back (CACell(doublets[layerPairId], i, cellId++, doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i)));
-
-        isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
-
-
-
-        for (auto neigCell : isOuterHitOfCell[innerLayerId][doublets[layerPairId]->innerHitId(i)])
-        {
-          theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, ptmin);
-
-        }
-
+        theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, ptmin);
       }
     }
   }
@@ -77,8 +68,6 @@ CellularAutomaton<numberOfLayers>::evolve ()
       for (auto& cell : theFoundCellsPerLayer[innerLayerId])
       {
         cell.update_state();
-
-
       }
     }
   }
@@ -97,11 +86,8 @@ CellularAutomaton<numberOfLayers>::evolve ()
     if (cell.is_root_cell (numberOfLayers - 2 ))
     {
       theRootCells.push_back (&cell);
-
     }
-
   }
-
 }
 
 template <unsigned int numberOfLayers>
@@ -119,3 +105,5 @@ CellularAutomaton<numberOfLayers>::find_ntuplets(std::vector<CACell::CAntuplet>&
   }
 
 }
+
+template class CellularAutomaton<4>;

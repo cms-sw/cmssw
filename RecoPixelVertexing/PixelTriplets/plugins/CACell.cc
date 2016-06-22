@@ -1,5 +1,5 @@
 #include "CACell.h"
-//#include "DataFormats/Math/interface/FastMath.h"
+
 
 bool CACell::have_similar_curvature(const CACell* otherCell , const TrackingRegion& region) const
 {
