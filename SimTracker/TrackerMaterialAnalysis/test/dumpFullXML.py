@@ -70,11 +70,14 @@ def produceXMLFromParameterFile():
         for parameter in spec_par.iter('%sParameter' % TAG_PREFIX):
             print current_detector, parameter.attrib['name'], parameter.attrib['value']
             updated_current_detector_node = root_updated.find(".//Group[@name='%s']" % current_detector)
-            for child in updated_current_detector_node:
-                if child.attrib['name'] == parameter.attrib['name']:
-                    parameter.set('name', child.attrib['name'])
-                    parameter.set('value', child.attrib['value'])
-                    print current_detector, parameter.attrib['name'], parameter.attrib['value']
+            if updated_current_detector_node:
+              for child in updated_current_detector_node:
+                  if child.attrib['name'] == parameter.attrib['name']:
+                      parameter.set('name', child.attrib['name'])
+                      parameter.set('value', child.attrib['value'])
+                      print current_detector, parameter.attrib['name'], parameter.attrib['value']
+            else:
+              print "Missing group: %s" % current_detector
     tree.write('trackerRecoMaterial.xml', encoding='UTF-8', xml_declaration=True)
 
 def compareNewXMLWithOld(format_for_twiki):
