@@ -9,6 +9,7 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/Selector.hh"
 #include "fastjet/PseudoJet.hh"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 using namespace fastjet;
 using namespace std;
@@ -30,7 +31,7 @@ float PrimaryVertexSorting::score(const reco::Vertex & pv,const  std::vector<con
 	if(c->pt()!=0) {
        		 scale=(c->pt()-c->bestTrack()->ptError())/c->pt();
 	}
- 	if(isnan(scale)) { 
+ 	if(edm::isNotFinite(scale)) { 
 		edm::LogWarning("PrimaryVertexSorting") << "Scaling is NAN ignoring this candidate/track" << std::endl;
 		scale=0; 
         }
