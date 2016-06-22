@@ -1,7 +1,7 @@
 # Auto generated configuration file
-# using: 
-# Revision: 1.19 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# using:
+# Revision: 1.19
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v
 # with command line options: step3 --conditions auto:run2_mc -s RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM --datatier GEN-SIM-RECO,DQMIO -n 10 --era Run2_2016 --eventcontent RECOSIM,DQM --filein file:step2.root --fileout file:step3.root
 import FWCore.ParameterSet.Config as cms
 
@@ -32,6 +32,7 @@ options.parseArguments()
 output_file_inRECO = 'file:matbdgForReco_FromReco_%s.root' % options.sample
 output_file_inDQM  = 'file:matbdgForReco_FromReco_%s_inDQM.root'% options.sample
 input_file = '/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt100_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/58AD9241-0A2A-E611-AB04-0025905B856E.root'
+input_files = []
 
 if options.fromLocalXML == True:
   output_file_inRECO = 'file:matbdgForReco_FromReco_%s_FromLocalXML.root' % options.sample
@@ -39,6 +40,30 @@ if options.fromLocalXML == True:
 
 if options.sample == 'SingleMuPt10':
   input_file = '/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/0263098F-092A-E611-AC04-0CC47A745250.root'
+
+if options.sample == 'SingleElectronPt35':
+  input_file = '/store/relval/CMSSW_8_1_0_pre6/RelValSingleElectronPt35_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/64866125-092A-E611-ACC3-0025905B8612.root'
+
+if options.sample == 'SingleElectronPt10':
+  input_file = '/store/relval/CMSSW_8_1_0_pre6/RelValSingleElectronPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/E05284C8-092A-E611-AED9-0CC47A4D75EC.root'
+
+if options.sample == 'TTbar_PU25':
+  input_files = ['/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/C262684A-B92C-E611-A9CD-0CC47A4C8F08.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/C2EC8F1F-BA2C-E611-9EF5-0CC47A4C8E56.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/C4989350-B92C-E611-998D-0CC47A4D76AC.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/C68B5B52-B92C-E611-9AA3-0025905A613C.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/CADAE916-B92C-E611-AC71-0CC47A78A414.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/CC36B308-B92C-E611-B34B-003048FFD7AA.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/CC92BC5C-B92C-E611-B68B-0025905B857A.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/DE9B7443-B92C-E611-BD58-0CC47A78A2EC.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/E6DCC67A-B92C-E611-A83A-0CC47A4D76B2.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/EAFB710C-B92C-E611-A31D-0025905B85AA.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/F628B94F-B92C-E611-836C-0CC47A4D7646.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/FAA55833-BA2C-E611-BAFA-0025905A6092.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/FC4C281A-BA2C-E611-B1C3-0CC47A4C8F06.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/FC5E3132-B92C-E611-8C42-0025905B85FC.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/FC929909-B92C-E611-851F-0025905B85D2.root',
+                 '/store/relval/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_80X_mcRun2_asymptotic_v14-v1/00000/FEBE1221-B92C-E611-B8CE-0025905A608E.root']
 
 if options.inputFile is not None:
   input_file = options.inputFile
@@ -73,7 +98,9 @@ process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('file:/data/rovere/RelVal/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/4A127630-092A-E611-AC30-0025905B858A.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
-
+if len(input_file):
+  process.source.fileNames = cms.untracked.vstring()
+  process.source.fileNames.extend(input_files)
 process.options = cms.untracked.PSet(
 
 )
@@ -151,7 +178,7 @@ process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_ste
 # customisation of the process.
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
-from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn 
+from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
 
 #call to customisation function setCrossingFrameOn imported from SimGeneral.MixingModule.fullMixCustomize_cff
 process = setCrossingFrameOn(process)
