@@ -66,12 +66,12 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 		  // (see Stage2Layer2DemuxSumsAlgoFirmwareImp1.cc)
 
 		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(mhtEtaMax_)) {
-		  ringHx += (int32_t) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
-		  ringHy += (int32_t) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
+		  ringHx += ((CaloTools::cos_coeff[iphi - 1] > 0 ) - (CaloTools::cos_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::cos_coeff[iphi - 1])) ) >> 4 );
+		  ringHy += ((CaloTools::sin_coeff[iphi - 1] > 0 ) - (CaloTools::sin_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::sin_coeff[iphi - 1])) ) >> 4 );
 		}
 		if (thisJet.hwPt()>mhtJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(mhtEtaMax2_)) {
-		  ringHx2 += (int32_t) (( thisJet.hwPt() * CaloTools::cos_coeff[iphi - 1] ) >> 4 );
-		  ringHy2 += (int32_t) (( thisJet.hwPt() * CaloTools::sin_coeff[iphi - 1] ) >> 4 );
+		  ringHx2 += ((CaloTools::cos_coeff[iphi - 1] > 0 ) - (CaloTools::cos_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::cos_coeff[iphi - 1])) ) >> 4 );
+		  ringHy2 += ((CaloTools::sin_coeff[iphi - 1] > 0 ) - (CaloTools::sin_coeff[iphi - 1] < 0 )) * (int32_t) (( (uint64_t)(thisJet.hwPt() * abs(CaloTools::sin_coeff[iphi - 1])) ) >> 4 );
 		}
 		
 		if (thisJet.hwPt()>httJetThresholdHw_ && CaloTools::mpEta(abs(thisJet.hwEta()))<=CaloTools::mpEta(httEtaMax_)) {
