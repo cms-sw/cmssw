@@ -202,6 +202,8 @@ def _calculateRatios(histos, ratioUncertainty=False):
             self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
         def makeRatio(self):
             pass
+        def getRatio(self):
+            return self._ratio
 
     class WrapTGraph:
         def __init__(self, gr, uncertainty):
@@ -263,6 +265,8 @@ def _calculateRatios(histos, ratioUncertainty=False):
                                                  array.array("d", self._xerrslow), array.array("d", self._xerrshigh),
                                                  array.array("d", self._yerrslow), array.array("d", self._yerrshigh))
             _copyStyle(self._gr, self._ratio)
+        def getRatio(self):
+            return self._ratio
     class WrapTGraph2D(WrapTGraph):
         def __init__(self, gr, uncertainty):
             WrapTGraph.__init__(self, gr, uncertainty)
@@ -364,6 +368,36 @@ def _getYminIgnoreOutlier(th1):
 
     return min_val
 
+def _getYminMaxAroundMedian(obj, coverage):
+    if isinstance(obj, ROOT.TH1):
+        yvals = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1)]
+        yvals = filter(lambda x: x != 0, yvals)
+    elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
+        yvals = [obj.GetY()[i] for i in xrange(0, obj.GetN())]
+    else:
+        raise Exception("Unsupported type %s" % str(obj))
+    if len(yvals) == 0:
+        return (0, 0)
+    if len(yvals) == 1:
+        return (yvals[0], yvals[0])
+    if len(yvals) == 2:
+        return (yvals[0], yvals[1])
+
+    yvals.sort()
+    nvals = int(len(yvals)*coverage)
+    if nvals < 2:
+        # Take median and +- 1 values
+        if len(yvals) % 2 == 0:
+            half = len(yvals)/2
+            return ( yvals[half-1], yvals[half] )
+        else:
+            middle = len(yvals)/2
+            return ( yvals[middle-1], yvals[middle+1] )
+    ind_min = (len(yvals)-nvals)/2
+    ind_max = len(yvals)-1 - ind_min
+
+    return (yvals[ind_min], yvals[ind_max])
+
 def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
     """Find x-y axis boundaries encompassing a list of TH1s if the bounds are not given in arguments.
 
@@ -374,34 +408,18 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
     Keyword arguments:
     xmin -- Minimum x value; if None, take the minimum of TH1s
     xmax -- Maximum x value; if None, take the maximum of TH1s
-    xmin -- Minimum y value; if None, take the minimum of TH1s
-    xmax -- Maximum y value; if None, take the maximum of TH1s
+    ymin -- Minimum y value; if None, take the minimum of TH1s
+    ymax -- Maximum y value; if None, take the maximum of TH1s
     """
 
-    def y_scale_max(y):
-        if ylog:
-            return 1.5*y
-        return 1.05*y
+    (ymin, ymax) = _findBoundsY(th1s, ylog, ymin, ymax)
 
-    def y_scale_min(y):
-        # assuming log
-        return 0.9*y
-
-    if xmin is None or xmax is None or ymin is None or ymax is None or \
-       isinstance(xmin, list) or isinstance(max, list) or isinstance(ymin, list) or isinstance(ymax, list):
+    if xmin is None or xmax is None or isinstance(xmin, list) or isinstance(max, list):
         xmins = []
         xmaxs = []
-        ymins = []
-        ymaxs = []
         for th1 in th1s:
             xmins.append(_getXmin(th1, limitToNonZeroContent=isinstance(xmin, list)))
             xmaxs.append(_getXmax(th1, limitToNonZeroContent=isinstance(xmax, list)))
-            if ylog and isinstance(ymin, list):
-                ymins.append(_getYminIgnoreOutlier(th1))
-            else:
-                ymins.append(_getYmin(th1))
-            ymaxs.append(_getYmax(th1))
-#            ymaxs.append(_getYmaxWithError(th1))
 
         # Filter out cases where histograms have zero content
         xmins = filter(lambda h: h is not None, xmins)
@@ -443,6 +461,53 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                 else:
                     xmax = min(xmaxs_above)
 
+    for th1 in th1s:
+        th1.GetXaxis().SetRangeUser(xmin, xmax)
+
+    return (xmin, ymin, xmax, ymax)
+
+def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None):
+    """Find y axis boundaries encompassing a list of TH1s if the bounds are not given in arguments.
+
+    Arguments:
+    th1s -- List of TH1s
+    ylog -- Boolean indicating if y axis is in log scale or not (affects the automatic ymax)
+
+    Keyword arguments:
+    ymin -- Minimum y value; if None, take the minimum of TH1s
+    ymax -- Maximum y value; if None, take the maximum of TH1s
+    coverage -- If set, use only values within the 'coverage' part around the median are used for min/max (useful for ratio)
+    """
+    if coverage is not None:
+        # the only use case for coverage for now is ratio, for which
+        # the scalings are not needed (actually harmful), so let's
+        # just ignore them if 'coverage' is set
+        y_scale_max = lambda y: y
+        y_scale_min = lambda y: y
+    else:
+        if ylog:
+            y_scale_max = lambda y: y*1.5
+        else:
+            y_scale_max = lambda y: y*1.05
+        y_scale_min = lambda y: y*0.9 # assuming log
+
+    if ymin is None or ymax is None or isinstance(ymin, list) or isinstance(ymax, list):
+        ymins = []
+        ymaxs = []
+        for th1 in th1s:
+            if coverage is not None:
+                (_ymin, _ymax) = _getYminMaxAroundMedian(th1, coverage)
+            else:
+                if ylog and isinstance(ymin, list):
+                    _ymin = _getYminIgnoreOutlier(th1)
+                else:
+                    _ymin = _getYmin(th1)
+                _ymax = _getYmax(th1)
+#                _ymax = _getYmaxWithError(th1)
+
+            ymins.append(_ymin)
+            ymaxs.append(_ymax)
+
         if ymin is None:
             ymin = min(ymins)
         elif isinstance(ymin, list):
@@ -474,10 +539,9 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                 ymax = min(ymaxs_above)
 
     for th1 in th1s:
-        th1.GetXaxis().SetRangeUser(xmin, xmax)
         th1.GetYaxis().SetRangeUser(ymin, ymax)
 
-    return (xmin, ymin, xmax, ymax)
+    return (ymin, ymax)
 
 class Subtract:
     """Class for subtracting two histograms"""
@@ -1203,8 +1267,8 @@ class Plot:
         legendDh     -- Float for changing TLegend height for separate=True (default None)
         legend       -- Bool to enable/disable legend (default True)
         adjustMarginRight  -- Float for adjusting right margin (default None)
-        ratioYmin    -- Float for y axis minimum in ratio pad (default 0.9)
-        ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
+        ratioYmin    -- Float for y axis minimum in ratio pad (default: list of values)
+        ratioYmax    -- Float for y axis maximum in ratio pad (default: list of values)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
         """
@@ -1268,8 +1332,8 @@ class Plot:
 
         _set("adjustMarginRight", None)
 
-        _set("ratioYmin", 0.9)
-        _set("ratioYmax", 1.1)
+        _set("ratioYmin", [0, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95])
+        _set("ratioYmax", [1.05, 1.1, 1.2, 1.3, 1.5, 1.8, 2, 2.5, 3, 4, 5])
         _set("ratioUncertainty", True)
 
         _set("histogramModifier", None)
@@ -1596,6 +1660,15 @@ class Plot:
                              xmin=self._xmin, xmax=self._xmax,
                              ymin=self._ymin, ymax=self._ymax)
 
+        if ratio:
+            self._ratios = _calculateRatios(histos, self._ratioUncertainty) # need to keep these in memory too ...
+            ratioHistos = filter(lambda h: h is not None, [r.getRatio() for r in self._ratios[1:]])
+
+            if len(ratioHistos) > 0:
+                ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68)
+            else:
+                ratioBoundsY = (0.9, 1,1) # hardcoded default in absence of valida ratio calculations
+
         # Create bounds before stats in order to have the
         # SetRangeUser() calls made before the fit
         #
@@ -1610,7 +1683,7 @@ class Plot:
             frame = FrameTGraph2D(pad, bounds, histos, ratioOrig, ratioFactor)
         else:
             if ratio:
-                ratioBounds = (bounds[0], self._ratioYmin, bounds[2], self._ratioYmax)
+                ratioBounds = (bounds[0], ratioBoundsY[0], bounds[2], ratioBoundsY[1])
                 frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
             else:
                 frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
@@ -1667,13 +1740,13 @@ class Plot:
         # Draw ratios
         if ratio and len(histos) > 0:
             frame._padRatio.cd()
-            self._ratios = _calculateRatios(histos, self._ratioUncertainty) # need to keep these in memory too ...
-            if self._ratioUncertainty and self._ratios[0]._ratio is not None:
-                self._ratios[0]._ratio.SetFillStyle(1001)
-                self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
-                self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
-                self._ratios[0]._ratio.SetMarkerColor(ROOT.kGray)
-                self._ratios[0]._ratio.SetMarkerSize(0)
+            firstRatio = self._ratios[0].getRatio()
+            if self._ratioUncertainty and firstRatio is not None:
+                firstRatio.SetFillStyle(1001)
+                firstRatio.SetFillColor(ROOT.kGray)
+                firstRatio.SetLineColor(ROOT.kGray)
+                firstRatio.SetMarkerColor(ROOT.kGray)
+                firstRatio.SetMarkerSize(0)
                 self._ratios[0].draw("E2")
                 frame._padRatio.RedrawAxis("G") # redraw grid on top of the uncertainty of denominator
             for r in self._ratios[1:]:
