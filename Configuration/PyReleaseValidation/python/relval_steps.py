@@ -1659,7 +1659,7 @@ for k in upgradeKeys:
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                       '-n':'10',
                                       '--runUnscheduled':'',
-                                      '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
+                                      '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
