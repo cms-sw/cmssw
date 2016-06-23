@@ -15,13 +15,15 @@ class OMTFConfiguration;
 struct Key {
 
 Key(int iEta=99, unsigned int iPt=0, int iCharge= 0): 
-  theEtaCode(iEta), thePtCode(iPt), theCharge(iCharge){}
+  theEtaCode(iEta), thePtCode(iPt), theCharge(iCharge), theNumber(999) {}
     
-    inline bool operator< (const Key & o) const {
+  inline bool operator< (const Key & o) const { return (theNumber < o.theNumber);
+   /*
     if (thePtCode > o.thePtCode) return true;
     else if (thePtCode==o.thePtCode && theCharge < o.theCharge) return true;
     else if (theCharge*thePtCode==o.theCharge*o.thePtCode && theEtaCode<o.theEtaCode) return true;
     else return false;
+    */
   }
    
   bool operator==(const Key& o) const {
@@ -29,13 +31,17 @@ Key(int iEta=99, unsigned int iPt=0, int iCharge= 0):
   }
   
   friend std::ostream & operator << (std::ostream &out, const Key & o) {
-    out << "Key: (eta="<<o.theEtaCode<<", pt="<<o.thePtCode<<", charge="<<o.theCharge<<")";
+    out << "Key_"<<o.theNumber<<": (eta="<<o.theEtaCode<<", pt="<<o.thePtCode<<", charge="<<o.theCharge<<")";
     return out;
   }
+
+  unsigned int number() const {return theNumber;}
+  void setNumber(unsigned int aNum) { theNumber=aNum; }
 
   int theEtaCode;
   unsigned int thePtCode; 
   int          theCharge;
+  unsigned int theNumber;
 
  };
 //////////////////////////////////
