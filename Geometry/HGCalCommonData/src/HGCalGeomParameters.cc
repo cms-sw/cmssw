@@ -23,13 +23,13 @@ const double k_ScaleFromDDD = 0.1;
 
 HGCalGeomParameters::HGCalGeomParameters() {
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters::HGCalGeomParameters() constructor" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters::HGCalGeomParameters() constructor" << std::endl;
 #endif
 }
 
 HGCalGeomParameters::~HGCalGeomParameters() { 
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters::destructed!!!" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters::destructed!!!" << std::endl;
 #endif
 }
 
@@ -112,17 +112,20 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
     }
   }
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters finds " << php.layerIndex_.size() 
-	    << " modules for "  << sdTag << " with " << php.nSectors_ 
-	    << " sectors and " << trforms.size() << " transformation matrices" 
-	    << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters finds " << php.layerIndex_.size() 
+			    << " modules for "  << sdTag << " with "
+			    << php.nSectors_ << " sectors and "
+			    << trforms.size() << " transformation matrices" 
+			    << std::endl;
   for (unsigned int i=0; i<php.layerIndex_.size(); ++i) {
     int k = php.layerIndex_[i];
-    std::cout << "Module[" << i << ":" << k << "] Layer " << php.layer_[k] 
-	      << ":" << php.moduleLayS_[k] << " dx " << php.moduleBlS_[k] 
-	      << ":" << php.moduleTlS_[k] << " dy " << php.moduleHS_[k] 
-	      << " dz " << php.moduleDzS_[k] << " alpha "<< php.moduleAlphaS_[k]
-	      << " cell " << php.moduleCellS_[k] << std::endl;
+    edm::LogInfo("HGCalGeom") << "Module[" << i << ":" << k << "] Layer "
+			      << php.layer_[k] << ":" << php.moduleLayS_[k]
+			      << " dx " << php.moduleBlS_[k] << ":" 
+			      << php.moduleTlS_[k] << " dy "<< php.moduleHS_[k]
+			      << " dz " << php.moduleDzS_[k] << " alpha "
+			      << php.moduleAlphaS_[k] << " cell "
+			      << php.moduleCellS_[k] << std::endl;
   }
 #endif
   int depth(0);
@@ -154,16 +157,18 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
     }
   }
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters has " << php.depthIndex_.size() 
-	    << " depths" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters has " << php.depthIndex_.size() 
+			    << " depths" << std::endl;
   for (unsigned int i=0; i<php.depthIndex_.size(); ++i) {
     int k = php.depthIndex_[i];
-    std::cout << "Module[" << i << ":" << k << "]  First Layer " 
-	      << php.depthLayerF_[i] << " Depth " << php.depth_[k] 
-	      << ":" << php.moduleLayR_[k] << " dx " << php.moduleBlR_[k] 
-	      << ":" << php.moduleTlR_[k] << " dy " << php.moduleHR_[k] 
-	      << " dz " << php.moduleDzR_[k] << " alpha "<< php.moduleAlphaR_[k]
-	      << " cellSize " << php.moduleCellR_[k] << std::endl;
+    edm::LogInfo("HGCalGeom") << "Module[" << i << ":" << k <<"]  First Layer "
+			      << php.depthLayerF_[i] << " Depth "
+			      << php.depth_[k] << ":" << php.moduleLayR_[k]
+			      << " dx " << php.moduleBlR_[k] << ":"
+			      << php.moduleTlR_[k] << " dy " <<php.moduleHR_[k]
+			      << " dz " << php.moduleDzR_[k] << " alpha "
+			      << php.moduleAlphaR_[k] << " cellSize "
+			      << php.moduleCellR_[k] << std::endl;
   }
 #endif
   for (unsigned int i=0; i<php.layer_.size(); ++i) {
@@ -192,18 +197,23 @@ void HGCalGeomParameters::loadGeometrySquare(const DDFilteredView& _fv,
     }
   }
 #ifdef DebugLog
-  std::cout << "Obtained " << php.trformIndex_.size() 
-	    << " transformation matrices"  << std::endl;
+  edm::LogInfo("HGCalGeom") << "Obtained " << php.trformIndex_.size() 
+			    << " transformation matrices"  << std::endl;
   for (unsigned int k=0; k<php.trformIndex_.size(); ++k) {
-    std::cout << "Matrix[" << k << "] (" << std::hex << php.trformIndex_[k]
-	      << std::dec << ") Trnaslation (" << php.trformTranX_[k] << ", "
-	      << php.trformTranY_[k] << ", " << php.trformTranZ_[k]
-	      << ") Rotation (" << php.trformRotXX_[k] << ", "
-	      << php.trformRotYX_[k] << ", " << php.trformRotZX_[k] << ", "
-	      << php.trformRotXY_[k] << ", " << php.trformRotYY_[k] << ", "
-	      << php.trformRotZY_[k] << ", " << php.trformRotXZ_[k] << ", "
-	      << php.trformRotYZ_[k] << ", " << php.trformRotZZ_[k] << ")"
-	      << std::endl;
+    edm::LogInfo("HGCalGeom") << "Matrix[" << k << "] (" << std::hex
+			      << php.trformIndex_[k] << std::dec
+			      << ") Trnaslation (" << php.trformTranX_[k]
+			      << ", " << php.trformTranY_[k] << ", " 
+			      << php.trformTranZ_[k] << ") Rotation ("
+			      << php.trformRotXX_[k] << ", "
+			      << php.trformRotYX_[k] << ", "
+			      << php.trformRotZX_[k] << ", "
+			      << php.trformRotXY_[k] << ", "
+			      << php.trformRotYY_[k] << ", "
+			      << php.trformRotZY_[k] << ", "
+			      << php.trformRotXZ_[k] << ", "
+			      << php.trformRotYZ_[k] << ", "
+			      << php.trformRotZZ_[k] << ")" << std::endl;
   }
 #endif
 }
@@ -404,9 +414,10 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	      xx += (k_ScaleFromDDD*(p2.X()));
 	      yy += (k_ScaleFromDDD*(p2.Y()));
 #ifdef DebugLog
-	      std::cout << "Type " << type << " Cell " << cellx << " local " 
-			<< xx << ":" << yy << " new " << p1 << ":" << p2 
-			<< std::endl;
+	      edm::LogInfo("HGCalGeom") << "Type " << type << " Cell " << cellx
+					<< " local " << xx << ":" << yy 
+					<< " new " << p1 << ":" << p2 
+					<< std::endl;
 #endif
 	    }
 	    HGCalGeomParameters::cellParameters cp(half,wafer,GlobalPoint(xx,yy,0));
@@ -553,63 +564,79 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   mytr.dz = 3*dz;
   php.fillModule(mytr, true);
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters finds " << php.zLayerHex_.size()
-	    << " layers" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters finds "
+			    << php.zLayerHex_.size() << " layers" << std::endl;
   for (unsigned int i=0; i<php.zLayerHex_.size(); ++i) {
     int k = php.layerIndex_[i];
-    std::cout << "Layer[" << i << ":" << k << ":" << php.layer_[k] 
-	      << "] with r = " << php.rMinLayHex_[i] << ":" 
-	      << php.rMaxLayHex_[i] << " at z = " << php.zLayerHex_[i] 
-	      << std::endl;
+    edm::LogInfo("HGCalGeom") << "Layer[" << i << ":" << k << ":"
+			      << php.layer_[k] << "] with r = "
+			      << php.rMinLayHex_[i] << ":" 
+			      << php.rMaxLayHex_[i] << " at z = " 
+			      << php.zLayerHex_[i] << std::endl;
   }
-  std::cout << "HGCalGeomParameters has " << php.depthIndex_.size() 
-	    << " depths" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters has " 
+			    << php.depthIndex_.size() << " depths" <<std::endl;
   for (unsigned int i=0; i<php.depthIndex_.size(); ++i) {
     int k = php.depthIndex_[i];
-    std::cout << "Reco Layer[" << i << ":" << k << "]  First Layer " 
-	      << php.depthLayerF_[i] << " Depth " << php.depth_[k] 
-	      << std::endl;
+    edm::LogInfo("HGCalGeom") << "Reco Layer[" << i << ":" << k 
+			      << "]  First Layer "  << php.depthLayerF_[i]
+			      << " Depth " << php.depth_[k] << std::endl;
   }
-  std::cout << "HGCalGeomParameters finds " << php.nSectors_ << " wafers" 
-	    << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters finds " << php.nSectors_
+			    << " wafers" << std::endl;
   for (unsigned int i=0; i<php.waferCopy_.size(); ++i) 
-    std::cout << "Wafer[" << i << ": " <<php.waferCopy_[i] << "] type " 
-	      << php.waferTypeL_[i] << ":" << php.waferTypeT_[i] << " at (" 
-	      << php.waferPosX_[i] << "," << php.waferPosY_[i] << ",0)" 
-	      << std::endl;
-  std::cout << "HGCalGeomParameters: wafer radius " << php.waferR_ 
-	    << " and dimensions of the wafers:" << std::endl;
-  std::cout << "Sim[0] " << php.moduleLayS_[0] << " dx " << php.moduleBlS_[0]
-	      << ":" << php.moduleTlS_[0] << " dy " << php.moduleHS_[0] 
-	      << " dz " << php.moduleDzS_[0] << " alpha "
-	    << php.moduleAlphaS_[0] << std::endl;
+    edm::LogInfo("HGCalGeom") << "Wafer[" << i << ": " << php.waferCopy_[i]
+			      << "] type " << php.waferTypeL_[i] << ":"
+			      << php.waferTypeT_[i] << " at (" 
+			      << php.waferPosX_[i] << "," << php.waferPosY_[i]
+			      << ",0)" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: wafer radius " 
+			    << php.waferR_  << " and dimensions of the wafers:"
+			    << std::endl;
+  edm::LogInfo("HGCalGeom") << "Sim[0] " << php.moduleLayS_[0] << " dx "
+			    << php.moduleBlS_[0] << ":" << php.moduleTlS_[0]
+			    << " dy " << php.moduleHS_[0] << " dz " 
+			    << php.moduleDzS_[0] << " alpha "
+			    << php.moduleAlphaS_[0] << std::endl;
   for (unsigned int k=0; k<php.moduleLayR_.size(); ++k)
-    std::cout << "Rec[" << k << "] " << php.moduleLayR_[k] << " dx " 
-	      << php.moduleBlR_[k] << ":" << php.moduleTlR_[k] << " dy " 
-	      << php.moduleHR_[k]  << " dz " << php.moduleDzR_[k] 
-	      << " alpha " << php.moduleAlphaR_[k] << std::endl;
-  std::cout << "HGCalGeomParameters finds " << php.cellFineX_.size() 
-	    << " fine cells in a  wafer" << std::endl;
+    edm::LogInfo("HGCalGeom") << "Rec[" << k << "] " << php.moduleLayR_[k]
+			      << " dx " << php.moduleBlR_[k] << ":"
+			      << php.moduleTlR_[k] << " dy " 
+			      << php.moduleHR_[k]  << " dz " 
+			      << php.moduleDzR_[k] << " alpha "
+			      << php.moduleAlphaR_[k] << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters finds " 
+			    << php.cellFineX_.size() 
+			    << " fine cells in a  wafer" << std::endl;
   for (unsigned int i=0; i<php.cellFineX_.size(); ++i) 
-    std::cout << "Fine Cell[" << i << "] at (" << php.cellFineX_[i] << ","
-	      << php.cellFineY_[i] << ",0)" << std::endl;
-  std::cout << "HGCalGeomParameters finds " << php.cellCoarseX_.size() 
-	    << " coarse cells in a wafer" << std::endl;
+    edm::LogInfo("HGCalGeom") << "Fine Cell[" << i << "] at (" 
+			      << php.cellFineX_[i] << ","
+			      << php.cellFineY_[i] << ",0)" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters finds "
+			    << php.cellCoarseX_.size() 
+			    << " coarse cells in a wafer" << std::endl;
   for (unsigned int i=0; i<php.cellCoarseX_.size(); ++i) 
-    std::cout << "Coarse Cell[" << i << "] at (" << php.cellCoarseX_[i]
-	      << "," << php.cellCoarseY_[i] << ",0)" << std::endl;
-  std::cout << "Obtained " << php.trformIndex_.size() 
-	    << " transformation matrices"  << std::endl;
+    edm::LogInfo("HGCalGeom") << "Coarse Cell[" << i << "] at ("
+			      << php.cellCoarseX_[i]
+			      << "," << php.cellCoarseY_[i] << ",0)" 
+			      << std::endl;
+  edm::LogInfo("HGCalGeom") << "Obtained " << php.trformIndex_.size() 
+			    << " transformation matrices"  << std::endl;
   for (unsigned int k=0; k<php.trformIndex_.size(); ++k) {
-    std::cout << "Matrix[" << k << "] (" << std::hex << php.trformIndex_[k]
-	      << std::dec << ") Trnaslation (" << php.trformTranX_[k] << ", "
-	      << php.trformTranY_[k] << ", " << php.trformTranZ_[k]
-	      << " Rotation (" << php.trformRotXX_[k] << ", "
-	      << php.trformRotYX_[k] << ", " << php.trformRotZX_[k] << ", "
-	      << php.trformRotXY_[k] << ", " << php.trformRotYY_[k] << ", "
-	      << php.trformRotZY_[k] << ", " << php.trformRotXZ_[k] << ", "
-	      << php.trformRotYZ_[k] << ", " << php.trformRotZZ_[k] << ")"
-	      << std::endl;
+    edm::LogInfo("HGCalGeom") << "Matrix[" << k << "] (" << std::hex 
+			      << php.trformIndex_[k] << std::dec
+			      << ") Trnaslation (" << php.trformTranX_[k] 
+			      << ", "  << php.trformTranY_[k] << ", " 
+			      << php.trformTranZ_[k] << " Rotation (" 
+			      << php.trformRotXX_[k] << ", "
+			      << php.trformRotYX_[k] << ", " 
+			      << php.trformRotZX_[k] << ", "
+			      << php.trformRotXY_[k] << ", "
+			      << php.trformRotYY_[k] << ", "
+			      << php.trformRotZY_[k] << ", " 
+			      << php.trformRotXZ_[k] << ", "
+			      << php.trformRotYZ_[k] << ", "
+			      << php.trformRotZZ_[k] << ")" << std::endl;
   }
 #endif
 }
@@ -622,13 +649,12 @@ void HGCalGeomParameters::loadSpecParsSquare(const DDFilteredView& fv,
   php.nCells_    = 0;
   php.cellSize_  = getDDDArray("Granularity",sv,php.nCells_);
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: " << php.nCells_ <<" entries for cellSize_"
-	    << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: " << php.nCells_ 
+			    << " entries for cellSize_"  << std::endl;
   for (int i=0; i<php.nCells_; i++) {
-    std::cout << " [" << i << "] = " << php.cellSize_[i];
-    if (i%8 == 7) std::cout << std::endl;
+    edm::LogInfo("HGCalGeom") << " [" << i << "] = " << php.cellSize_[i]
+			      << std::endl;
   }
-  if ((php.nCells_-1)%8 != 7) std::cout << std::endl;
 #endif
 
   //Grouping in the detector plane
@@ -637,26 +663,24 @@ void HGCalGeomParameters::loadSpecParsSquare(const DDFilteredView& fv,
   std::vector<double> slp = getDDDArray("Slope",sv,nmin);
   php.slopeMin_    = slp[0];
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: minimum slope " << php.slopeMin_
-	    << " and " << php.nCells_ << " entries for cellFactor_" 
-	    << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: minimum slope " 
+			    << php.slopeMin_ << " and " << php.nCells_ 
+			    << " entries for cellFactor_" << std::endl;
   for (int i=0; i<php.nCells_; i++) {
-    std::cout << " [" << i << "] = " << php.cellFactor_[i];
-    if (i%8 == 7) std::cout << std::endl;
+    edm::LogInfo("HGCalGeom") << " [" << i << "] = " << php.cellFactor_[i]
+			      << std::endl;
   }
-  if ((php.nCells_-1)%8 != 7) std::cout << std::endl;
 #endif
   
   //Grouping of layers
   php.layerGroup_  = dbl_to_int(getDDDArray("GroupingZ",sv,php.nCells_));
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: " << php.nCells_ 
-	    << " entries for layerGroup_" << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: " << php.nCells_ 
+			    << " entries for layerGroup_" << std::endl;
   for (int i=0; i<php.nCells_; i++) {
-    std::cout << " [" << i << "] = " << php.layerGroup_[i];
-    if (i%8 == 7) std::cout << std::endl;
+    edm::LogInfo("HGCalGeom") << " [" << i << "] = " << php.layerGroup_[i]
+			      << std::endl;
   }
-  if ((php.nCells_-1)%8 != 7) std::cout << std::endl;
 #endif
 }
 
@@ -672,9 +696,9 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   for (unsigned int k=0; k<php.boundR_.size(); ++k) 
     php.boundR_[k] *= k_ScaleFromDDD;
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: wafer radius ranges for cell grouping " 
-	    << php.boundR_[0] << ":" << php.boundR_[1] << ":"
-	    << php.boundR_[2] << ":" << php.boundR_[3] << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: wafer radius ranges for cell grouping " 
+			    << php.boundR_[0] << ":" << php.boundR_[1] << ":"
+			    << php.boundR_[2] << ":" << php.boundR_[3] << std::endl;
 #endif
 
   //Grouping of layers
@@ -686,11 +710,13 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   std::vector<double> slp = getDDDArray("Slope",sv,nmin);
   php.slopeMin_    = slp[0];
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: minimum slope " << php.slopeMin_
-	    << " and layer groupings for the 3 ranges:"  << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: minimum slope "
+			    << php.slopeMin_ << " and layer groupings for"
+			    << " the 3 ranges:"  << std::endl;
   for (int k=0; k<nmin; ++k)
-    std::cout << "[" << k << "] " << php.layerGroup_[k] << ":" 
-	      << php.layerGroupM_[k] << ":" << php.layerGroupO_[k] << std::endl;
+    edm::LogInfo("HGCalGeom") << "[" << k << "] " << php.layerGroup_[k] << ":" 
+			      << php.layerGroupM_[k] << ":" 
+			      << php.layerGroupO_[k] << std::endl;
 #endif
 
   //Wafer size
@@ -707,7 +733,7 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
     waferSize_ = dummy[0];
   }
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: Wafer Size: " << waferSize_ << std::endl;
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: Wafer Size: " << waferSize_ << std::endl;
 #endif
 
   //Cell size
@@ -722,11 +748,10 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
     php.cellSize_ = getDDDArray("CellSize",sv,nmin);
   }
 #ifdef DebugLog
-  std::cout << "HGCalGeomParameters: " << php.cellSize_.size() 
-	    << " cells of sizes:";
+  edm::LogInfo("HGCalGeom") << "HGCalGeomParameters: " << php.cellSize_.size() 
+			    << " cells of sizes:";
   for (unsigned int k=0; k<php.cellSize_.size(); ++k)
-    std::cout << " [" << k << "] " << php.cellSize_[k];
-  std::cout << std::endl;
+    edm::LogInfo("HGCalGeom") << " [" << k << "] " << php.cellSize_[k] << "\n";
 #endif
 
 }
