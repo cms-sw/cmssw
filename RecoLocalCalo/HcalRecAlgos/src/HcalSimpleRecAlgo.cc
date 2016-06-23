@@ -3,6 +3,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/rawEnergy.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/timeshift_ns_hbheho.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include <algorithm>
@@ -107,14 +108,7 @@ void HcalSimpleRecAlgo::setBXInfo(const BunchXParameter* info,
     lenBunchCrossingInfo_ = lenInfo;
 }
 
-///Timeshift correction for HPDs based on the position of the peak ADC measurement.
-///  Allows for an accurate determination of the relative phase of the pulse shape from
-///  the HPD.  Calculated based on a weighted sum of the -1,0,+1 samples relative to the peak
-///  as follows:  wpksamp = (0*sample[0] + 1*sample[1] + 2*sample[2]) / (sample[0] + sample[1] + sample[2])
-///  where sample[1] is the maximum ADC sample value.
-static float timeshift_ns_hbheho(float wpksamp);
-
-///Same as above, but for the HF PMTs.
+///Timeshift correction for the HF PMTs.
 static float timeshift_ns_hf(float wpksamp);
 
 /// Ugly hack to apply energy corrections to some HB- cells
