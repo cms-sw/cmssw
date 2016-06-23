@@ -6,7 +6,7 @@ BadPFMuonFilter = cms.EDFilter(
     taggingMode   = cms.bool(False),
     debug         = cms.bool(False),
     algo          = cms.int32(14),
-    minDZ         = cms.double(0.1),              # dz threshold on PF muons to consider
+    minDZ         = cms.double(0.1),              # dz threshold on PF muons to consider; this is not used
     minMuPt       = cms.double(100),               # pt threshold on PF muons 
-    minTrkPtError  = cms.double(-1),               # threshold on inner track pt Error 
+    minTrkPtError  = cms.double(0.5),               # threshold on inner track pt Error
 )
