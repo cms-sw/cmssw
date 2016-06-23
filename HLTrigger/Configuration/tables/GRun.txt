@@ -746,12 +746,13 @@ HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 #RatesMonitoring						# only in 'online', not in 'GRun'
 #DQMHistograms							# only in 'online', not in 'GRun'
-PhysicsHLTPhysicsOutput
 PhysicsEndOfFillOutput
-PhysicsEGammaCommissioningOutput
+PhysicsCommissioningOutput
+PhysicsEGammaOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 ParkingOutput							# JIRA: CMSHLT-487, CMSHLT-603
+ParkingHLTPhysicsOutput
 PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
 ScoutingCaloOutput						# JIRA: CMSHLT-548
 ScoutingPFOutput						# JIRA: CMSHLT-548
