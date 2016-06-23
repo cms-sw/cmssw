@@ -138,8 +138,9 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   int offsetLoc = lround( ((ichamber-1)*M_PI/6+M_PI/12.)/hsPhiPitch );
   double scale = 1./4096/hsPhiPitch;
-
-  int phi = static_cast<int>(phiDT*scale) + offsetLoc;
+  int scale_coeff = lround(scale* pow(2,11));
+//  int phi = static_cast<int>(phiDT*scale) + offsetLoc;
+  int phi = floor(phiDT*scale_coeff/pow(2,11)) + offsetLoc;
 
   return phi;
 }
@@ -298,7 +299,7 @@ int AngleConverter::getGlobalEta(unsigned int rawid,
   else if (  bti_group == -1 && aDigi.stNum() == 2)  iEta = 79; 
   else if (  bti_group == -1 && aDigi.stNum() == 3)  iEta = 75; 
   else if (baseid.station() != 4 && bti_group >= 0) {
-    bti_group = 6-bti_group;
+//    bti_group = 6-bti_group;
     unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;  
     DTBtiId thetaBTI = DTBtiId(baseid,2,bti_actual);
     GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);

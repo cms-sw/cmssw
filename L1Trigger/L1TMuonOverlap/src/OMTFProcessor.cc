@@ -52,11 +52,14 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
   unsigned int address = 0;
   unsigned int iEta, iPt;
   int iCharge;
+  int iPatNum = -1;
   for(unsigned int iGP=0;iGP<nGPs;++iGP){
     address = iGP;
     iEta = etaLUT->data(address);
     iCharge = chargeLUT->data(address)==0? -1:1;
     iPt = ptLUT->data(address);
+    iPatNum++;
+    if (iPt <= 71 && iPatNum%4==2) iPatNum +=2;   // FIXME: this depents on pattern structure. 
 
     GoldenPattern::vector2D meanDistPhi2D(myOmtfConfig->nLayers());
     GoldenPattern::vector1D pdf1D(exp2(myOmtfConfig->nPdfAddrBits()));
@@ -67,7 +70,7 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       GoldenPattern::vector1D meanDistPhi1D(myOmtfConfig->nRefLayers());
       for(unsigned int iRefLayer=0;iRefLayer<myOmtfConfig->nRefLayers();++iRefLayer){
 	address = iRefLayer + iLayer*myOmtfConfig->nRefLayers() + iGP*(myOmtfConfig->nRefLayers()*myOmtfConfig->nLayers());
-	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));
+	meanDistPhi1D[iRefLayer] = meanDistPhiLUT->data(address) - (1<<(meanDistPhiLUT->nrBitsData() -1));	
       }
       meanDistPhi2D[iLayer] = meanDistPhi1D;    
       ///Pdf data
@@ -83,8 +86,8 @@ bool OMTFProcessor::configure(const OMTFConfiguration * omtfConfig,
       }
       pdf3D[iLayer] = pdf2D;
     }
-    
     Key aKey(iEta,iPt,iCharge);
+    aKey.setNumber( static_cast<unsigned int>(iPatNum) );
 
     GoldenPattern *aGP = new GoldenPattern(aKey, myOmtfConfig);
     aGP->setMeanDistPhi(meanDistPhi2D);
@@ -255,7 +258,8 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
   myStr<<"Input: ------------"<<std::endl;
   myStr<<aInput<<std::endl; 
   edm::LogInfo("OMTF processor")<<myStr.str();
-  
+
+
   return myResults;
 }   
 ////////////////////////////////////////////
@@ -281,7 +285,7 @@ void OMTFProcessor::fillCounts(unsigned int iProcessor,
 			       const OMTFinput & aInput,
 			       const SimTrack* aSimMuon){
 
-  int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0;
+  int theCharge = (abs(aSimMuon->type()) == 13) ? aSimMuon->type()/-13 : 0; 
   unsigned int  iPt =  RPCConst::iptFromPt(aSimMuon->momentum().pt());
   ///Stupid conersion. Have to go through PAC pt scale, as we later
   ///shift resulting pt code by +1
