@@ -66,7 +66,7 @@ void EcalClusterLazyToolsBase::getGeometry( const edm::EventSetup &es, bool doES
             ecalPS_topology_.reset(new EcalPreshowerTopology(geometry_));
           } else {
             ecalPS_topology_.reset();
-            edm::LogWarning("subdetector geometry not available") << "EcalPreshower geometry is missing" << std::endl;
+            edm::LogInfo("subdetector geometry not available") << "EcalPreshower geometry is missing" << std::endl;
           }
         }
         else {
