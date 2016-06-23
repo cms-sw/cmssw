@@ -222,8 +222,8 @@ HLT_PFHT900_v*                          			# JIRA: CMSHLT-739
 HLT_PFHT300_PFMET100_v*						# JIRA: CMSHLT-742
 HLT_PFHT300_PFMET110_v*						# JIRA: CMSHLT-742
 
-HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105, CMSHLT-479, CMSHLT-652
-HLT_PFMET170_JetIdCleaned_v*                          		# JIRA: CMSHLT-479
+#HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105, CMSHLT-479, CMSHLT-652,  removed by CMSHLT-882
+#HLT_PFMET170_JetIdCleaned_v*                          		# JIRA: CMSHLT-479,  removed by CMSHLT-882
 HLT_PFMET170_HBHECleaned_v*                          		# JIRA: CMSHLT-479, CMSHLT-652
 HLT_PFMET170_NotCleaned_v*                          		# JIRA: CMSHLT-479, renamed by CMSHLT-711
 HLT_PFMET170_BeamHaloCleaned_v*					# JIRA: CMSHLT-836
