@@ -69,9 +69,9 @@ ALCAHARVESTSiStripGains_dbOutput = cms.PSet(record = cms.string('SiStripApvGainR
                                             )
 
 # SiStrip Gains (AfterAbortGap)
-ALCAHARVESTSiStripGainsAfterAbortGap_metadata = cms.PSet(record = cms.untracked.string('SiStripApvGainRcd'))
+ALCAHARVESTSiStripGainsAfterAbortGap_metadata = cms.PSet(record = cms.untracked.string('SiStripApvGainRcdAfterAbortGap'))
 
-ALCAHARVESTSiStripGainsAfterAbortGap_dbOutput = cms.PSet(record = cms.string('SiStripApvGainRcd'),
+ALCAHARVESTSiStripGainsAfterAbortGap_dbOutput = cms.PSet(record = cms.string('SiStripApvGainRcdAfterAbortGap'),
                                                          tag = cms.string('SiStripApvGainAfterAbortGap_pcl'),
                                                          timetype   = cms.untracked.string('runnumber')
                                                          )
