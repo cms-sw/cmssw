@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V127 (CMSSW_8_0_12)
+# /dev/CMSSW_8_0_0/PIon/V128 (CMSSW_8_0_12)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V127')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V128')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -7200,10 +7200,17 @@ fragment.hltRechitInRegionsECAL = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsPr
       ),
       cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
-        minEt = cms.double( 200.0 ),
+        minEt = cms.double( 170.0 ),
         regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
         type = cms.string( "Jet" )
+      ),
+      cms.PSet(  maxEt = cms.double( 999999.0 ),
+        regionEtaMargin = cms.double( 0.9 ),
+        minEt = cms.double( 100.0 ),
+        regionPhiMargin = cms.double( 1.2 ),
+        inputColl = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+        type = cms.string( "Tau" )
       )
     ),
     recHitLabels = cms.VInputTag( 'hltEcalRecHit:EcalRecHitsEB','hltEcalRecHit:EcalRecHitsEE' ),
@@ -7221,10 +7228,17 @@ fragment.hltRechitInRegionsES = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProd
       ),
       cms.PSet(  maxEt = cms.double( 999999.0 ),
         regionEtaMargin = cms.double( 0.9 ),
-        minEt = cms.double( 200.0 ),
+        minEt = cms.double( 170.0 ),
         regionPhiMargin = cms.double( 1.2 ),
         inputColl = cms.InputTag( 'hltCaloStage2Digis','Jet' ),
         type = cms.string( "Jet" )
+      ),
+      cms.PSet(  maxEt = cms.double( 999999.0 ),
+        regionEtaMargin = cms.double( 0.9 ),
+        minEt = cms.double( 100.0 ),
+        regionPhiMargin = cms.double( 1.2 ),
+        inputColl = cms.InputTag( 'hltCaloStage2Digis','Tau' ),
+        type = cms.string( "Tau" )
       )
     ),
     recHitLabels = cms.VInputTag( 'hltEcalPreshowerRecHit:EcalRecHitsES' ),
