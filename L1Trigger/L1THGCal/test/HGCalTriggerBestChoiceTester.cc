@@ -62,7 +62,8 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
         std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_; 
         std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
         edm::Service<TFileService> fs_;
-  
+        HGCalTriggerGeometryBase::es_info info_;
+ 
         // histos
         TH1F* hgcCellData_;
         TH1F* hgcCellData_SimHitasso_;
@@ -90,7 +91,6 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
         TH2F* energyLossVsNCells_fh_;
         //
 
-        HGCalTriggerGeometryBase::es_info info_;
 };
 
 
@@ -141,9 +141,9 @@ HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterS
       triggerCellSimHits_noBestChoice_  = fs_->make<TH1F>("triggerCellSimHits_noBestChoice","Trigger cell simhit energies, no best choice", 500, 0, 0.16);
     }
     triggerCellData_BestChoice_ = fs_->make<TH1F>("triggerCellData_BestChoice_","Trigger cell values, best choice", 1000, 0., 70000.);
-    if (is_Simhit_comp_) triggerCellData_BestChoice_vsSimHits_ = fs_->make<TH2F>("triggerCellData_BestChoice_vsSimHits_","Trigger cell values vs simhit energies, best choice", 500,0,0.16,1000, 0., 70000.);;
+    if (is_Simhit_comp_) triggerCellData_BestChoice_vsSimHits_ = fs_->make<TH2F>("triggerCellData_BestChoice_vsSimHits_","Trigger cell values vs simhit energies, best choice", 500,0,0.16,1000, 0., 70000.);
     triggerCellData_            = fs_->make<TH1F>("triggerCellData","Trigger cell values", 1100, 0., 1100.);
-     if (is_Simhit_comp_) triggerCellData_vsSimHits_  = fs_->make<TH2F>("triggerCellData_vsSimHits_","Trigger cell values vs simhit energies", 500,0,0.16,1100, 0., 1100.);
+    if (is_Simhit_comp_) triggerCellData_vsSimHits_  = fs_->make<TH2F>("triggerCellData_vsSimHits_","Trigger cell values vs simhit energies", 500,0,0.16,1100, 0., 1100.);
     triggerCellsPerModule_      = fs_->make<TH1F>("triggerCellsPerModule","Number of trigger cells per module", 64, 0., 64.);
     triggerCellModuleSum_       = fs_->make<TH1F>("TriggerCellModuleSum","Trigger cell sum in modules", 1000, 0., 10000.);
     //
@@ -168,7 +168,6 @@ void HGCalTriggerBestChoiceTester::beginRun(const edm::Run& /*run*/,
 /*****************************************************************/
 {
     triggerGeometry_->reset();
-    //membre de classe
     const std::string& ee_sd_name = triggerGeometry_->eeSDName();
     const std::string& fh_sd_name = triggerGeometry_->fhSDName();
     const std::string& bh_sd_name = triggerGeometry_->bhSDName();
@@ -281,27 +280,22 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
     
       // simhit/digi association EE
       HGCalDetId digiid, simid;
-      int ndigi=0;
-      int nsimhit=0;
       int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
       ForwardSubdetector mysubdet;
       HGCalDetId recoDetId ;
       int n_hits_asso=0;
       
       for(const auto& eedata : ee_digis) {
-        ndigi++;
         digiid= (HGCalDetId) eedata.id();
         bool is_hitasso=false;
-        nsimhit=0;
         double hit_energy=0;
         
         for( const auto& eesimhit : ee_simhits ) { 
-          nsimhit++;
           simid = (HGCalDetId) eesimhit.id();
           HGCalTestNumbering::unpackHexagonIndex(simid, subdet, zp, layer, sec, subsec, cell); 
           mysubdet = (ForwardSubdetector)(subdet);
           std::pair<int,int> recoLayerCell=info_.topo_ee->dddConstants().simToReco(cell,layer,sec,info_.topo_ee->detectorType());
-         cell  = recoLayerCell.first;
+          cell  = recoLayerCell.first;
           layer = recoLayerCell.second;
           if (layer<0 || cell<0) {
             continue;
@@ -318,24 +312,17 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
 
       // simhit/digi association FH
       HGCalDetId digiid_fh, simid_fh;
-      int ndigi_fh=0;
-      int nsimhit_fh=0;
       int layer_fh=0,cell_fh=0, sec_fh=0, subsec_fh=0, zp_fh=0,subdet_fh=0;
       ForwardSubdetector mysubdet_fh;
       HGCalDetId recoDetId_fh ;
       int n_hits_asso_fh=0;
       
       for(const auto& fhdata : fh_digis) {
-        ndigi++;
-        ndigi_fh++;
         digiid_fh= (HGCalDetId) fhdata.id();
         bool is_hitasso=false;
-        nsimhit_fh=0;
         double hit_energy=0;
         
         for( const auto& fhsimhit : fh_simhits ) { 
-          nsimhit_fh++;
-          if (ndigi_fh==0) nsimhit++;
           simid_fh = (HGCalDetId) fhsimhit.id();
           HGCalTestNumbering::unpackHexagonIndex(simid_fh, subdet_fh, zp_fh, layer_fh, sec_fh, subsec_fh, cell_fh); 
           mysubdet_fh = (ForwardSubdetector)(subdet_fh);
