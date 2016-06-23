@@ -111,9 +111,6 @@ void HcalSimpleRecAlgo::setBXInfo(const BunchXParameter* info,
 ///Timeshift correction for the HF PMTs.
 static float timeshift_ns_hf(float wpksamp);
 
-/// Ugly hack to apply energy corrections to some HB- cells
-static float eCorr(int ieta, int iphi, double ampl, int runnum);
-
 /// Leak correction 
 static float leakCorr(double energy);
 
@@ -390,9 +387,9 @@ namespace HcalSimpleRecAlgoImpl {
       if (cell.subdet() == HcalBarrel) {
         const int ieta = cell.ieta();
         const int iphi = cell.iphi();
-        uncorr_ampl *= eCorr(ieta, iphi, uncorr_ampl, runnum);
-        ampl *= eCorr(ieta, iphi, ampl, runnum);
-        m3_ampl *= eCorr(ieta, iphi, m3_ampl, runnum);
+        uncorr_ampl *= hbminus_special_ecorr(ieta, iphi, uncorr_ampl, runnum);
+        ampl *= hbminus_special_ecorr(ieta, iphi, ampl, runnum);
+        m3_ampl *= hbminus_special_ecorr(ieta, iphi, m3_ampl, runnum);
       }
     }
 
@@ -498,9 +495,9 @@ namespace HcalSimpleRecAlgoImpl {
       if (cell.subdet() == HcalBarrel) {
 	const int ieta = cell.ieta();
 	const int iphi = cell.iphi();
-	uncorr_ampl *= eCorr(ieta, iphi, uncorr_ampl, runnum);
-        ampl *= eCorr(ieta, iphi, ampl, runnum);
-        m3_ampl *= eCorr(ieta, iphi, m3_ampl, runnum);
+	uncorr_ampl *= hbminus_special_ecorr(ieta, iphi, uncorr_ampl, runnum);
+        ampl *= hbminus_special_ecorr(ieta, iphi, ampl, runnum);
+        m3_ampl *= hbminus_special_ecorr(ieta, iphi, m3_ampl, runnum);
       }
     }
 
@@ -659,7 +656,7 @@ HFRecHit HcalSimpleRecAlgo::reconstructHFUpgrade(const HcalUpgradeDataFrame& dig
 
 
 /// Ugly hack to apply energy corrections to some HB- cells
-float eCorr(int ieta, int iphi, double energy, int runnum) {
+float hbminus_special_ecorr(int ieta, int iphi, double energy, int runnum) {
 // return energy correction factor for HBM channels 
 // iphi=6 ieta=(-1,-15) and iphi=32 ieta=(-1,-7)
 // I.Vodopianov 28 Feb. 2011

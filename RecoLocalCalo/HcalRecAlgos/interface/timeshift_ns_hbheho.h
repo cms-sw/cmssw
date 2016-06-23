@@ -8,4 +8,7 @@
 ///  where sample[1] is the maximum ADC sample value.                                                                          
 float timeshift_ns_hbheho(float wpksamp);
 
+/// Special energy correction for some HB- cells
+float hbminus_special_ecorr(int ieta, int iphi, double energy, int runnum);
+
 #endif // RecoLocalCalo_HcalRecAlgos_timeshift_ns_hbheho_h_
