@@ -63,6 +63,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
+    SteppingVerbosity = cms.int32(0),
+    StepVerboseThreshold = cms.double(0.1), # in GeV
+    VerboseEvents = cms.vint32(),
+    VerboseTracks = cms.vint32(),
     FileNameField = cms.untracked.string(''),
     FileNameGDML = cms.untracked.string(''),
     FileNameRegions = cms.untracked.string(''),
