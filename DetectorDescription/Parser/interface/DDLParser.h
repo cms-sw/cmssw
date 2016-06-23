@@ -1,32 +1,24 @@
-#ifndef DDL_Parser_H
-#define DDL_Parser_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_DDL_PARSER_H
+#define DETECTOR_DESCRIPTION_PARSER_DDL_PARSER_H
 
-#include <stddef.h>
+#include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
-// Xerces C++ dependencies
 #include <xercesc/util/XercesDefs.hpp>
+#include <xercesc/util/XercesVersion.hpp>
 #include <iosfwd>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
-#include "xercesc/util/XercesVersion.hpp"
+#include <cstddef>
 
 class DDCompactView;
 class DDLDocumentProvider;
-class DDLSAX2ExpressionHandler;
-class DDLSAX2FileHandler;
-class DDLSAX2Handler;
 
 /// DDLParser is the main class of Detector Description Language Parser.
 /** @class DDLParser
@@ -67,20 +59,17 @@ class DDLSAX2Handler;
  *         for CMSSW Framework example see XMLIdealGeometryESSource (different
  *         DDLDocumentProvider completely
  */
-class DDLParser 
-
+class DDLParser
 {
  public:
   typedef XERCES_CPP_NAMESPACE::SAX2XMLReader SAX2XMLReader;
 
   typedef std::map< int, std::pair<std::string, std::string> > FileNameHolder;
   
-  DDLParser ( DDCompactView& cpv );
+  DDLParser( DDCompactView& cpv );
 
- protected:
-  DDLParser( );
+  DDLParser() = delete; 
   
- public:
   ~DDLParser();
 
   /// Parse all files. Return is meaningless.
@@ -114,9 +103,6 @@ class DDLParser
   //old way  void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
   void parse( const std::vector<unsigned char>& ablob, unsigned int bsize ) ;
 
-  /// Return list of files
-  std::vector<std::string> getFileList();
-
   /// Get the SAX2Parser from the DDLParser.  USE WITH CAUTION.  Set your own handler, etc.
   SAX2XMLReader* getXMLParser();
 
@@ -126,28 +112,26 @@ class DDLParser
    */
   DDLSAX2FileHandler* getDDLSAX2FileHandler();
   
+  /// Clear the file list - see Warning!
+  /**
+   *  This could result in mangled geometry if the Core has not been cleared.
+   **/
+  void clearFiles();
+
+ private:
+  /// Parse File.  Just to hold some common looking code.
+  void parseFile (const int& numtoproc);
+
   /// Is the file already known by the DDLParser?  Returns 0 if not found, and index if found.
   size_t isFound(const std::string& filename);
   
   /// Is the file already parsed?
   bool isParsed(const std::string& filename);
 
-  /// Clear the file list - see Warning!
-  /**
-   *  This could result in mangled geometry if the Core has not been cleared.
-   **/
-  void clearFiles () ;
+  std::string const extractFileName( const std::string& fullname );
 
-  std::string extractFileName(std::string fullname);
-  std::string getNameSpace(const std::string& fname);
-
- protected:
+  std::string const getNameSpace( const std::string& fname );
   
-  /// Parse File.  Just to hold some common looking code.
-  void parseFile (const int& numtoproc);
-
- private:
-
   /// reference to storage
   DDCompactView& cpv_;
 
@@ -158,7 +142,7 @@ class DDLParser
   std::map<int, bool> parsed_;
 
   /// Number of files + 1.
-  int nFiles_;
+  size_t nFiles_;
 
   /// Which file is currently being processed.
   std::string currFileName_;
@@ -169,8 +153,6 @@ class DDLParser
   DDLSAX2FileHandler* fileHandler_;
   DDLSAX2ExpressionHandler* expHandler_;
   DDLSAX2Handler* errHandler_;
-  
-  
 };
 
 #endif
