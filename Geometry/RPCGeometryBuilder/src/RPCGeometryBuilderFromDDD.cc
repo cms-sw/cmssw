@@ -175,8 +175,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     geometry->add(r);
 
     auto rls = chids.find(chid);
-    if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::set<RPCRoll*>())).first;
-    rls->second.insert(r);
+    if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list<RPCRoll*>())).first;
+    rls->second.push_back(r);
 
     doSubDets = fview.nextSibling(); // go to next layer
   }
@@ -191,7 +191,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       // First set the baseline plane to calculate relative poisions
       const auto& refSurf = (*rls.begin())->surface();
       if ( chid.region() == 0 ) {
-        float corners[4] = {0,0,0,0};
+        float corners[6] = {0,0,0,0,0,0};
         for ( auto rl : rls ) {
           const double h2 = rl->surface().bounds().length()/2;
           const double w2 = rl->surface().bounds().width()/2;
@@ -201,14 +201,18 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
           corners[1] = std::min(corners[1], x1y1AtRef.y());
           corners[2] = std::max(corners[2], x2y2AtRef.x());
           corners[3] = std::max(corners[3], x2y2AtRef.y());
+
+          corners[4] = std::min(corners[4], x1y1AtRef.z());
+          corners[5] = std::max(corners[5], x1y1AtRef.z());
         }
         const LocalPoint lpOfCentre((corners[0]+corners[2])/2, (corners[1]+corners[3])/2, 0);
         const auto gpOfCentre = refSurf.toGlobal(lpOfCentre);
-        auto bounds = new RectangularPlaneBounds((corners[2]-corners[0])/2, (corners[3]-corners[1])/2, 1);
+        auto bounds = new RectangularPlaneBounds((corners[2]-corners[0])/2, (corners[3]-corners[1])/2, (corners[5]-corners[4])+0.5);
         bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
       }
       else {
-        float cornersLo[3] = {0,}, cornersHi[3] = {0,};
+        float cornersLo[3] = {0,0,0}, cornersHi[3] = {0,0,0};
+        float cornersZ[2] = {0,0};
         for ( auto rl : rls ) {
           const double h2 = rl->surface().bounds().length()/2;
           const double w2 = rl->surface().bounds().width()/2;
@@ -229,10 +233,13 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
           cornersHi[0] = std::min(cornersHi[0], x1y2AtRef.x());
           cornersHi[1] = std::max(cornersHi[1], x2y2AtRef.x());
           cornersHi[2] = std::max(cornersHi[2], x1y2AtRef.y());
+
+          cornersZ[0] = std::min(cornersZ[0], x1y1AtRef.z());
+          cornersZ[1] = std::max(cornersZ[1], x1y1AtRef.z());
         }
         const LocalPoint lpOfCentre((cornersHi[0]+cornersHi[1])/2, (cornersLo[2]+cornersHi[2])/2, 0);
         const auto gpOfCentre = refSurf.toGlobal(lpOfCentre);
-        auto bounds = new TrapezoidalPlaneBounds((cornersLo[1]-cornersLo[0])/2, (cornersHi[1]-cornersHi[0])/2, (cornersHi[2]-cornersLo[2])/2, 1);
+        auto bounds = new TrapezoidalPlaneBounds((cornersLo[1]-cornersLo[0])/2, (cornersHi[1]-cornersHi[0])/2, (cornersHi[2]-cornersLo[2])/2, (cornersZ[1]-cornersZ[0])+0.5);
         bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
       }
     }
