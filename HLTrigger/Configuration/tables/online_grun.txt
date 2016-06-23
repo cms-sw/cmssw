@@ -625,6 +625,10 @@ HLT_DoublePhoton60_v*						# JIRA: CMSHLT-563
 
 HLT_DiSC30_18_EIso_AND_HE_Mass70_v*				# JIRA: CMSHLT-533, CMSHLT-747
 
+HLT_Ele45_WPLoose_Gsf_L1JetTauSeeded_v*				# JIRA: CMSHLT-874
+HLT_Ele27_WPTight_Gsf_L1JetTauSeeded_v*				# JIRA: CMSHLT-874
+HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_v*	# JIRA: CMSHLT-874
+
 #HLT_Photon150_v*						# JIRA: CMSHLT-564 (for 0T menu)
 #HLT_Photon90_CaloIdL_HT300_v*					# JIRA: CMSHLT-565 (for 0T menu)
 #HLT_HT250_CaloMET70_v*						# JIRA: CMSHLT-565, CMSHLT-601, CMSHLT-711 (for 0T menu)
