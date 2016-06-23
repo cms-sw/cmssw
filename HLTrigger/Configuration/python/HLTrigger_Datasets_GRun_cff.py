@@ -458,8 +458,6 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_PFMET120_PFMHT120_IDTight_v4', 
     'HLT_PFMET170_BeamHaloCleaned_v2', 
     'HLT_PFMET170_HBHECleaned_v4', 
-    'HLT_PFMET170_JetIdCleaned_v4', 
-    'HLT_PFMET170_NoiseCleaned_v5', 
     'HLT_PFMET170_NotCleaned_v3', 
     'HLT_PFMET300_v3', 
     'HLT_PFMET400_v3', 
