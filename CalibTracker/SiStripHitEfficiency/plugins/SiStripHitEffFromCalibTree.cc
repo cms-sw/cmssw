@@ -704,6 +704,14 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   found->SetBinContent(0,-1);
   all->SetBinContent(0,1);
   
+  // new ROOT version: TGraph::Divide don't handle null or negative values
+  for (Long_t i=1; i< nLayers+2; ++i) {
+  	found->SetBinContent(i,1e-6);
+	all->SetBinContent(i,1);
+  	found2->SetBinContent(i,1e-6);
+	all2->SetBinContent(i,1);
+  }
+  
   TCanvas *c7 =new TCanvas("c7"," test ",10,10,800,600);
   c7->SetFillColor(0);
   c7->SetGrid();
@@ -717,18 +725,12 @@ void SiStripHitEffFromCalibTree::makeSummary() {
     if (goodlayertotal[i] > 5) {
       found->SetBinContent(i,goodlayerfound[i]);
       all->SetBinContent(i,goodlayertotal[i]);
-    } else {
-      found->SetBinContent(i,0);
-      all->SetBinContent(i,10);
     }
     
     cout << "Filling all modules layer " << i << ":  S = " << alllayerfound[i] << "    B = " << alllayertotal[i] << endl;
     if (alllayertotal[i] > 5) {
       found2->SetBinContent(i,alllayerfound[i]);
       all2->SetBinContent(i,alllayertotal[i]);
-    } else {
-      found2->SetBinContent(i,0);
-      all2->SetBinContent(i,10);
     }
 
   }
