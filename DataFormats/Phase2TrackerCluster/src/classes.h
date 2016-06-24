@@ -16,6 +16,7 @@ namespace {
         edm::Wrapper< edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D > > cl5;
 
         edm::ContainerMask<Phase2TrackerCluster1DCollectionNew > cm1;
+        edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> > cm2;
         edm::Wrapper<edm::ContainerMask<Phase2TrackerCluster1DCollectionNew> > w_cm1;
     };
 }
