@@ -155,7 +155,7 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
       /// Sort the vector by row index
       std::sort( candCluster.begin(), candCluster.end(), CompareClusters );
 
-      if ( fabs( candCluster.at(0)->row() - candCluster.back()->row() ) < mWidthCut || /// one should add 1 to use <=
+      if ( abs( candCluster.at(0)->row() - candCluster.back()->row() ) < mWidthCut || /// one should add 1 to use <=
            mWidthCut < 1 )
       {
         output.push_back( candCluster );
@@ -169,7 +169,7 @@ void TTClusterAlgorithm_official< Ref_Phase2TrackerDigi_ >::Cluster( std::vector
       /// Sort the vector by row index
       std::sort( candCluster.begin(), candCluster.end(), CompareClusters );
 
-      if ( fabs( candCluster.at(0)->row() - candCluster.back()->row() ) < mWidthCut || /// one should add 1 to use <=
+      if ( abs( candCluster.at(0)->row() - candCluster.back()->row() ) < mWidthCut || /// one should add 1 to use <=
            mWidthCut < 1 )
       {
         output.push_back( candCluster );

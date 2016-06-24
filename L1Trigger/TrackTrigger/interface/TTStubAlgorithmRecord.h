@@ -16,11 +16,12 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "boost/mpl/vector.hpp"
 
 class TTStubAlgorithmRecord
-  : public edm::eventsetup::DependentRecordImplementation< TTStubAlgorithmRecord, boost::mpl::vector< TrackerDigiGeometryRecord, IdealGeometryRecord, IdealMagneticFieldRecord > >{};
+  : public edm::eventsetup::DependentRecordImplementation< TTStubAlgorithmRecord, boost::mpl::vector< TrackerDigiGeometryRecord, TrackerTopologyRcd, IdealMagneticFieldRecord > >{};
 
 #endif
 

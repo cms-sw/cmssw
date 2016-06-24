@@ -136,7 +136,7 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
       const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
       edm::ESHandle<TrackerTopology> tTopoHandle;
-      record.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+      record.getRecord< TrackerTopologyRcd >().get(tTopoHandle);
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_official< T >( theTrackerGeom, theTrackerTopo, 
@@ -149,4 +149,5 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
 };
 
 #endif
+
 

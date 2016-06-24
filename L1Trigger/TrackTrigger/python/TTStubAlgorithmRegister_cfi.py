@@ -6,16 +6,17 @@ import FWCore.ParameterSet.Config as cms
 TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_official_Phase2TrackerDigi_",
    zMatchingPS = cms.bool(False),
    zMatching2S = cms.bool(True),
-   BarrelCut = cms.vdouble( 0, 2.5, 2.5, 3.0, 4.5, 5.5, 6.5 ), #Use 0 as dummy to have direct access using DetId to the correct element
+   # 2GeV/c Threshold
+   # --> Keep 99% of the stubs between 2 and 10 GeV/c
+   BarrelCut = cms.vdouble( 0, 1.5, 1.5, 2.5, 4, 5, 6.5), 
    EndcapCutSet = cms.VPSet(
-     cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
-     cms.PSet( EndcapCut = cms.vdouble( 0, 2.0, 2.0, 2.0, 2.0, 2.5, 2.5, 2.5, 3.0, 3.5, 4.5, 3.0, 3.5, 4.0, 4.5, 5.0 ) ), #D1
-     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 2.0, 2.0, 2.0, 2.0, 2.5, 2.5, 2.5, 3.0, 4.0, 2.5, 3.0, 3.5, 4.0, 4.5 ) ), #D2 ...
-     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 2.0, 2.0, 2.0, 2.0, 2.0, 2.5, 2.5, 2.5, 3.5, 4.0, 2.5, 3.0, 3.5, 4.0 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 2.0, 2.0, 2.0, 2.0, 2.5, 2.5, 3.0, 3.5, 2.5, 2.5, 3.0, 3.5 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 1.5, 1.5, 2.0, 2.0, 2.0, 2.5, 2.5, 3.0, 3.5, 2.5, 2.5, 3.0 ) ), # missing rings are not taken into account in numbering, so everything
-                                                                                                      # always starts from 1 to N, with increasing r
-   )
+        cms.PSet( EndcapCut = cms.vdouble( 0 ) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1.5, 1.5, 2, 2, 2.5, 2.5, 3, 4, 2.5, 3, 3.5, 4, 5) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1.5, 1.5, 2, 2, 2.5, 2.5, 3.5, 2, 2.5, 3, 3.5, 4) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1.5, 1.5, 1.5, 2, 2, 2, 3, 3.5, 2, 2.5, 3, 3.5) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1, 1, 1.5, 2, 2, 2, 2.5, 3, 2, 2, 2.5, 3) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1, 1, 1.5, 1.5, 2, 2, 2, 3, 3, 2, 2, 2.5) ),
+        )
 )
 
 # CBC3 hit matching algorithm
