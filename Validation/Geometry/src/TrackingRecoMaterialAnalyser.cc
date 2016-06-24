@@ -45,6 +45,13 @@ class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
     std::unordered_map<std::string, MonitorElement *> histosEta_;
     MonitorElement * histo_RZ_;
     MonitorElement * histo_RZ_Ori_;
+    MonitorElement * deltaPt_in_out_2d_;
+    MonitorElement * deltaP_in_out_vs_eta_;
+    MonitorElement * deltaP_in_out_vs_z_;
+    MonitorElement * deltaPt_in_out_vs_eta_;
+    MonitorElement * deltaPt_in_out_vs_z_;
+    MonitorElement * deltaPl_in_out_vs_eta_;
+    MonitorElement * deltaPl_in_out_vs_z_;
 };
 
 //-------------------------------------------------------------------------
@@ -73,6 +80,20 @@ void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker & ibook,
                                   600, -300., 300, 120, 0., 120., 0., 1.);
   histo_RZ_ = ibook.bookProfile2D("RadLen", "RadLen",
                                   600, -300., 300, 120, 0., 120., 0., 1.);
+  deltaP_in_out_vs_eta_ = ibook.book1D("DeltaP_in_out_vs_eta", "DeltaP_in_out_vs_eta",
+                                      250, -2.5, 2.5);
+  deltaP_in_out_vs_z_   = ibook.book1D("DeltaP_in_out_vs_z", "DeltaP_in_out_vs_z",
+                                      600, -300, 300);
+  deltaPt_in_out_vs_eta_ = ibook.book1D("DeltaPt_in_out_vs_eta", "DeltaPt_in_out_vs_eta",
+                                      250, -2.5, 2.5);
+  deltaPt_in_out_vs_z_   = ibook.book1D("DeltaPt_in_out_vs_z", "DeltaPt_in_out_vs_z",
+                                      600, -300, 300);
+  deltaPl_in_out_vs_eta_ = ibook.book1D("DeltaPz_in_out_vs_eta", "DeltaPz_in_out_vs_eta",
+                                      250, -2.5, 2.5);
+  deltaPl_in_out_vs_z_   = ibook.book1D("DeltaPz_in_out_vs_z", "DeltaPz_in_out_vs_z",
+                                      600, -300, 300);
+  deltaPt_in_out_2d_     = ibook.bookProfile2D("DeltaPt 2D", "DeltaPt 2D",
+                                               600, -300., 300, 120, 0., 120., -100., 100.);
   char title[50];
   char key[20];
   for (unsigned int det = 1; det < sDETS.size(); ++det ) {
@@ -145,6 +166,15 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
   for (auto const track : *tracks) {
     if (!selector(track)  and false)
       continue;
+    auto const inner = track.innerMomentum();
+    auto const outer = track.outerMomentum();
+    deltaP_in_out_vs_eta_->Fill(inner.R() - outer.R(), inner.eta());
+    deltaP_in_out_vs_z_->Fill(inner.R() - outer.R(), track.outerZ());
+    deltaPt_in_out_vs_eta_->Fill(inner.rho() - outer.rho(), inner.eta());
+    deltaPt_in_out_vs_z_->Fill(inner.rho() - outer.rho(), track.outerZ());
+    deltaPl_in_out_vs_eta_->Fill(inner.z() - outer.z(), inner.eta());
+    deltaPl_in_out_vs_z_->Fill(inner.z() - outer.z(), track.outerZ());
+    deltaPt_in_out_2d_->Fill(track.outerZ(), track.outerPosition().rho(), inner.rho() - outer.rho());
     vector<Trajectory> traj  = refitter_.transform(track);
     if (traj.size() > 1 || traj.size() == 0)
       continue;
