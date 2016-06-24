@@ -178,10 +178,9 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
         theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel, tTopo, engine);
           
 		  //APV Killer to simulate HIP effect
-		  //------------------------------------------------------
-		  
-	if(APVSaturationFromHIP){
-	  if(mapOfAPVprobabilities.count(detId)>0){
+		  //------------------------------------------------------		  
+        if(APVSaturationFromHIP){
+          if(mapOfAPVprobabilities.count(detId)>0){
             if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]){ 
               int FirstAPV = localFirstChannel/128;
               int LastAPV = (localLastChannel-1)/128;
@@ -190,7 +189,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
               }
             }
           }
-	}             
+        }             
 		
     
         if(thisFirstChannelWithSignal > localFirstChannel) thisFirstChannelWithSignal = localFirstChannel;
