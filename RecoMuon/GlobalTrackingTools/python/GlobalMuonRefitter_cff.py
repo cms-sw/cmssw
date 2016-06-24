@@ -44,3 +44,9 @@ GlobalMuonRefitter = cms.PSet(
 
     RefitFlag = cms.bool( True )
 )
+
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_tracker.toModify(GlobalMuonRefitter, TrackerRecHitBuilder = 'WithTrackAngle') # FIXME
+
