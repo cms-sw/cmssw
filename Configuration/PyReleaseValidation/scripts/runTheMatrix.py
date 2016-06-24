@@ -53,7 +53,7 @@ if __name__ == '__main__':
                      4.22, #cosmic data
                      1000, #data+prompt
                      1001, #data+express
-                     134.911, #2015D Photon data
+                     136.731, #2016B Photon data
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
                      135.4 #Run 2 Zee ttbar
