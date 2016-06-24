@@ -182,7 +182,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 		  
 	if(APVSaturationFromHIP){
 	  if(mapOfAPVprobabilities.count(detId)>0){
-            if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]){ //5 is to mimick PU
+            if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]){ 
               int FirstAPV = localFirstChannel/128;
               int LastAPV = (localLastChannel-1)/128;
               for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
