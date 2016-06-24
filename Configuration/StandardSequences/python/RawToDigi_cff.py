@@ -80,7 +80,7 @@ totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # until we have hcal raw data for phase 2...
-eras.phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
+eras.phase2_hcal.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
 
 
 # Remove siPixelDigis until we have phase1 pixel digis

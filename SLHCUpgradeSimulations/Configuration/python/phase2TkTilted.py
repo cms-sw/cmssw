@@ -315,9 +315,6 @@ def customise_Reco(process,pileup):
     process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
     process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
 
-    process.caloTowerForTrk.hbheInput = cms.InputTag("hbheUpgradeReco")
-    process.caloTowerForTrk.hfInput = cms.InputTag("hfUpgradeReco")
-
     # STILL TO DO (when the ph2 PF will be included):
     # Particle flow needs to know that the eta range has increased, for
     # when linking tracks to HF clusters
@@ -325,8 +322,6 @@ def customise_Reco(process,pileup):
 
     process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters')
     process.MeasurementTrackerEvent.stripClusterProducer = cms.string('')
-    # FIXME::process.electronSeedsSeq broken
-    process.ckftracks.remove(process.electronSeedsSeq)
  
     return process
 
