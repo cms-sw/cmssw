@@ -190,8 +190,6 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
               }
             }
           }
-	  int pdg_id = simHitIter->particleType();
-	  particle = pdt->particle(pdg_id);
 	}             
 		
     
