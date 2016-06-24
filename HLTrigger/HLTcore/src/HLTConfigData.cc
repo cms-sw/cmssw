@@ -165,7 +165,7 @@ void HLTConfigData::extract()
        if (label.front()!='-' && moduleType(label) == "HLTL1TSeed") {
 	 const ParameterSet& pset(modulePSet(label));
 	 if (pset!=ParameterSet()) {
-	   const string l1Gtag(pset.getParameter<string>("L1GlobalInputTag"));
+	   const string l1Gtag(pset.getParameter<edm::InputTag>("L1GlobalInputTag").label());
 	   // Emulator output is used to ignore L1T prescales
 	   if (l1Gtag!="hltGtStage2ObjectMap") {
 	     const string l1Seed(pset.getParameter<string>("L1SeedsLogicalExpression"));
