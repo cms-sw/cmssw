@@ -30,6 +30,11 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CLHEP/Random/RandFlat.h"
 
+#include <string.h>
+#include <sstream>
+
+#include <boost/algorithm/string.hpp>
+
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf):
   lorentzAngleName(conf.getParameter<std::string>("LorentzAngle")),
   theThreshold(conf.getParameter<double>("NoiseSigmaThreshold")),
@@ -71,6 +76,21 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   else LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: OFF";
   if(CommonModeNoise) LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: ON";
   else LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: OFF";
+  
+  std::string line; 
+  APVProbaFile.open("APVProbaList.txt");
+  if (APVProbaFile.is_open())
+  {
+    while ( getline (APVProbaFile,line) )
+    {
+	std::vector<std::string> strs;
+	boost::split(strs,line,boost::is_any_of(" "));
+        if(strs.size()==2){
+		mapOfAPVprobabilities[std::stoi(strs.at(0))]=std::stof(strs.at(1));
+         }
+    }
+    APVProbaFile.close();
+  }
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -160,28 +180,19 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 		  //APV Killer to simulate HIP effect
 		  //------------------------------------------------------
 		  
-		  if(APVSaturationFromHIP&&!zeroSuppression){
-		    int pdg_id = simHitIter->particleType();
-			particle = pdt->particle(pdg_id);
-			if(particle != NULL){
-				float charge = particle->charge();
-				bool isHadron = particle->isHadron();
-			    if(charge!=0 && isHadron){
-					if(CLHEP::RandFlat::shoot(engine) < APVSaturationProb){
-                                                int FirstAPV = localFirstChannel/128;
-				 		int LastAPV = (localLastChannel-1)/128;
-						//std::cout << "-------------------HIP--------------" << std::endl;
-						//std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
-				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
-							badChannels[strip] = true;
-						}
-						//doing like that I remove the signal information only after the 
-						//stip that got the HIP but it remains the signal of the previous
-						//one. I'll make a further loop to remove all signal
-			  		}
-				}
-			}
-	      }             
+	if(APVSaturationFromHIP){
+	  if(mapOfAPVprobabilities.count(detId)>0){
+            if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]){ //5 is to mimick PU
+              int FirstAPV = localFirstChannel/128;
+              int LastAPV = (localLastChannel-1)/128;
+              for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
+                badChannels[strip] = true;
+              }
+            }
+          }
+	  int pdg_id = simHitIter->particleType();
+	  particle = pdt->particle(pdg_id);
+	}             
 		
     
         if(thisFirstChannelWithSignal > localFirstChannel) thisFirstChannelWithSignal = localFirstChannel;

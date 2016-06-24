@@ -33,6 +33,9 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 
+#include <iostream>
+#include <fstream>
+
 class TrackerTopology;
 
 namespace edm {
@@ -153,6 +156,8 @@ class SiStripDigitizerAlgorithm {
   /// Structure that holds the information on the SimTrack contributions. Only filled if makeDigiSimLinks_ is true.
   AssociationInfoForDetId associationInfoForDetId_;
 
+  std::ifstream APVProbaFile;
+  std::map < int , float> mapOfAPVprobabilities;
 };
 
 #endif
