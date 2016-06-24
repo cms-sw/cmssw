@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import * 
 GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS"
 GlobalTag.pfnPrefix = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/")
-# Deafult Express GT: it is the GT that will be used in case we are not able
+# Default Express GT: it is the GT that will be used in case we are not able
 # to retrieve the one used at Tier0.
 # It should be kept in synch with Express processing at Tier0.
-GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v8" )
+GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v10" )
 es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
