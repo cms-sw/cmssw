@@ -101,7 +101,7 @@ class SiStripDigitizerAlgorithm {
   const double cmnRMStob;
   const double cmnRMStid;
   const double cmnRMStec;
-  const double APVSaturationProb;          
+  const double APVSaturationProbScaling;          
   const bool makeDigiSimLinks_; //< Whether or not to create the association to sim truth collection. Set in configuration.
   const bool peakMode;
   const bool noise;

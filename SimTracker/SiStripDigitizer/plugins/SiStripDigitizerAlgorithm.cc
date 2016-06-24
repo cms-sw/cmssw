@@ -42,7 +42,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   cmnRMStob(conf.getParameter<double>("cmnRMStob")),
   cmnRMStid(conf.getParameter<double>("cmnRMStid")),
   cmnRMStec(conf.getParameter<double>("cmnRMStec")),
-  APVSaturationProb(conf.getParameter<double>("APVSaturationProb")),
+  APVSaturationProbScaling(conf.getParameter<double>("APVSaturationProbScaling")),
   makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false)),
   peakMode(conf.getParameter<bool>("APVpeakmode")),
   noise(conf.getParameter<bool>("Noise")),
@@ -90,7 +90,8 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
          }
     }
     APVProbaFile.close();
-  }
+  }else throw cms::Exception("MissingInput")
+         << "It seems that the APV probability list is missing\n";
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -181,7 +182,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 		  //------------------------------------------------------		  
         if(APVSaturationFromHIP){
           if(mapOfAPVprobabilities.count(detId)>0){
-            if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]){ 
+            if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]*APVSaturationProbScaling){ 
               int FirstAPV = localFirstChannel/128;
               int LastAPV = (localLastChannel-1)/128;
               for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
