@@ -11,14 +11,18 @@
 // Includes
 // -------------------------------------------------------------------------
 
+#include <stddef.h>
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 // -------------------------------------------------------------------------
 // Class declaration

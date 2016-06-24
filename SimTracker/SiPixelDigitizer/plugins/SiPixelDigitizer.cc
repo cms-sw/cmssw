@@ -290,14 +290,14 @@ namespace cms
     }
     
     // Step C: create collection with the cache vector of DetSet 
-    std::auto_ptr<edm::DetSetVector<PixelDigi> > 
+    std::unique_ptr<edm::DetSetVector<PixelDigi> > 
       output(new edm::DetSetVector<PixelDigi>(theDigiVector) );
-    std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > 
+    std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> > 
       outputlink(new edm::DetSetVector<PixelDigiSimLink>(theDigiLinkVector) );
 
     // Step D: write output to file 
-    iEvent.put(output);
-    iEvent.put(outputlink);
+    iEvent.put(std::move(output));
+    iEvent.put(std::move(outputlink));
   }
 
   CLHEP::HepRandomEngine* SiPixelDigitizer::randomEngine(edm::StreamID const& streamID) {

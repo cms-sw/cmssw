@@ -24,20 +24,20 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 trackerGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
-from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *
-from Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring('HCAL'          , 
+    SelectedCalos = cms.vstring('HCAL'          ,
                                 'ZDC'           ,
                                 'CASTOR'        ,
-                                'EcalBarrel'    , 
+                                'EcalBarrel'    ,
+                                'EcalEndcap'    ,
                                 'TOWER'           )
 )
 
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+from Geometry.EcalAlgo.EcalEndcapGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *

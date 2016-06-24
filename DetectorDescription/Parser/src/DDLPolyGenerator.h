@@ -1,9 +1,12 @@
 #ifndef DDL_PolyGenerator_H
 #define DDL_PolyGenerator_H
 
+#include <string>
+
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLPolyGenerator processes DDL XML Polycone and DDL XML Polyhedra elements.
 /** @class DDLPolyGenerator

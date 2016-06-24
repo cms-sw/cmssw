@@ -10,6 +10,7 @@
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalUMNioDigi.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace DataFormats_HcalDigi {
@@ -65,6 +66,7 @@ namespace DataFormats_HcalDigi {
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
     edm::Wrapper<HcalUnpackerReport> theReport_;
     edm::Wrapper<HcalLaserDigi> theLaserw_;
+    edm::Wrapper<HcalUMNioDigi> theUMNIOw_;
     edm::Wrapper<HcalTTPDigiCollection> theTTPw_;
     edm::Wrapper<HBHEUpgradeDigiCollection> theUHBHEw_;
     edm::Wrapper<HFUpgradeDigiCollection> theUHFw_;

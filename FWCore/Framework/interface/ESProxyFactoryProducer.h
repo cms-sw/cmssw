@@ -81,7 +81,7 @@ class ESProxyFactoryProducer : public eventsetup::DataProxyProvider
 
    public:
       ESProxyFactoryProducer();
-      virtual ~ESProxyFactoryProducer();
+      virtual ~ESProxyFactoryProducer() noexcept(false);
 
       // ---------- const member functions ---------------------
 

@@ -28,7 +28,6 @@
 #include "TText.h"
 #include "TTree.h"
 
-using namespace std;
 
 enum PlotType {ScatterPlot,Profile,Histogram,OrgHistogram,Resolution};
 enum Statistic {Minimum, Maximum, Average, RMS};
@@ -56,6 +55,8 @@ TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "thet
 Bool_t relativearray[ysize]    = {true, false, false, false, false, false, false,   false,     false};
 
 TList *stufftodelete = new TList();
+
+TString subdetector = "PIXEL";
 
 /***********************************
 Table Of Contents

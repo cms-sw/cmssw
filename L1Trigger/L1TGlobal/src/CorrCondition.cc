@@ -565,11 +565,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  lutObj0 = "HTT";
 		  break;
 		case gtETM2:
-		  type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMissingEt2;
+		  type = l1t::EtSum::EtSumType::kMissingEt2;//type = l1t::EtSum::EtSumType::kMissingEt2;
 		  lutObj0 = "ETM2";
 		  break;
-		case gtMinBias:
-		  type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMinBias;
+		case gtMinBiasHFP0:
+		case gtMinBiasHFM0:
+		case gtMinBiasHFP1:
+		case gtMinBiasHFM1:
+		  type = l1t::EtSum::EtSumType::kMinBiasHFP0;
 		  lutObj0 = "MinBias";
 		  break;
 		default:
@@ -843,13 +846,16 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		     lutObj1 = "HTT";
 		     break;
 		   case gtETM2:
-		     type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMissingEt2;
+		     type = l1t::EtSum::EtSumType::kMissingEt2;
 		     lutObj1 = "ETM2";
 		     break;
-		   case gtMinBias:
-		     type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMinBias;
+		   case gtMinBiasHFP0:
+		   case gtMinBiasHFM0:
+		   case gtMinBiasHFP1:
+		   case gtMinBiasHFM1:
+		     type = l1t::EtSum::EtSumType::kMinBiasHFP0;
 		     lutObj1 = "MinBias";
-		     break;		     
+		  break;		     
 		   default:
 		     edm::LogError("L1TGlobal")
 		       << "\n  Error: "

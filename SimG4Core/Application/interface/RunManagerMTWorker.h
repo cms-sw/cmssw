@@ -28,6 +28,7 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
+class CMSSteppingVerbose;
 
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
@@ -90,6 +91,7 @@ private:
   static thread_local TLSData *m_tls;
 
   std::unique_ptr<G4SimEvent> m_simEvent;
+  std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
 };
 
 #endif

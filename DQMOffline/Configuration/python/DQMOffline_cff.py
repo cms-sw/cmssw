@@ -19,6 +19,7 @@ from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
+from DQM.CTPPS.totemDQM_cff import *
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
@@ -32,9 +33,6 @@ DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  es_dqm_source_offline *
                                  castorSources *
                                  HcalDQMOfflineSequence )
-eras.phase1Pixel.toReplaceWith(DQMOfflinePreDPG, DQMOfflinePreDPG.copyAndExclude([ # FIXME
-    siPixelOfflineDQM_source, # Pixel DQM needs to be updated for phase1
-]))
 
 DQMOfflineDPG = cms.Sequence( DQMOfflinePreDPG *
                               DQMMessageLogger )
@@ -65,7 +63,6 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  produceDenoms *
                                  pfTauRunDQMValidation)
 eras.phase1Pixel.toReplaceWith(DQMOfflinePrePOG, DQMOfflinePrePOG.copyAndExclude([ # FIXME
-    TrackingDQMSourceTier0,  # Tracking DQM needs to be migrated for phase1
     triggerOfflineDQMSource, # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
     pfTauRunDQMValidation,   # Excessive printouts because 2017 doesn't have HLT yet
 ]))
@@ -83,6 +80,14 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
 eras.phase1Pixel.toReplaceWith(DQMOffline, DQMOffline.copyAndExclude([
     HLTMonitoring # No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
 ]))
+
+_ctpps_2016_DQMOffline = DQMOffline.copy()
+_ctpps_2016_DQMOffline *= totemDQM
+eras.ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
+
+_ctpps_2016_DQMOffline = DQMOffline.copy()
+_ctpps_2016_DQMOffline *= totemDQM
+eras.ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
@@ -128,9 +133,6 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
 DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
                                    pvMonitor
                                  )
-eras.phase1Pixel.toReplaceWith(DQMOfflineTracking, DQMOfflineTracking.copyAndExclude([ # FIXME
-    TrackingDQMSourceTier0Common # Tracking DQM needs to be migrated for phase1
-]))
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *

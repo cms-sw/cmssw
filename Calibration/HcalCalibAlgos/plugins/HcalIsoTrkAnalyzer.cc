@@ -118,7 +118,7 @@ private:
   int                        t_Run, t_Event, t_ieta, t_goodPV, t_DataType; 
   double                     t_EventWeight, t_l1pt, t_l1eta, t_l1phi;
   double                     t_l3pt, t_l3eta, t_l3phi, t_p, t_mindR1;
-  double                     t_mindR2, t_eMipDR, t_eHcal, t_hmaxNearP;
+  double                     t_mindR2, t_eMipDR, t_eHcal, t_eHcalDelta, t_hmaxNearP;
   bool                       t_selectTk,t_qltyFlag,t_qltyMissFlag,t_qltyPVFlag;
   std::vector<unsigned int> *t_DetIds;
   std::vector<double>       *t_HitEnergies, pbin;
@@ -483,6 +483,7 @@ void HcalIsoTrkAnalyzer::beginJob() {
   tree->Branch("t_mindR2",      &t_mindR2,      "t_mindR2/D");
   tree->Branch("t_eMipDR",      &t_eMipDR,      "t_eMipDR/D");
   tree->Branch("t_eHcal",       &t_eHcal,       "t_eHcal/D");
+  tree->Branch("t_eHcalDelta",  &t_eHcalDelta,  "t_eHcalDelta/D");
   tree->Branch("t_hmaxNearP",   &t_hmaxNearP,   "t_hmaxNearP/D");
   tree->Branch("t_selectTk",    &t_selectTk,    "t_selectTk/O");
   tree->Branch("t_qltyFlag",    &t_qltyFlag,    "t_qltyFlag/O");
@@ -631,13 +632,20 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 				 endcapRecHitsHandle, trkDetItr->pointHCAL,
 				 trkDetItr->pointECAL, a_mipR_, 
 				 trkDetItr->directionECAL, nRH_eMipDR);
-      t_DetIds->clear(); t_HitEnergies->clear();
       std::vector<DetId> ids;
-      t_eHcal = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
-				trkDetItr->pointECAL, a_coneR_, 
-				trkDetItr->directionHCAL,nRecHits, 
-				ids, *t_HitEnergies, useRaw_);
-      t_eHcal *= hcalScale_;
+      t_DetIds->clear(); t_HitEnergies->clear();
+      t_eHcalDelta = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				     trkDetItr->pointECAL, a_charIsoR_, 
+				     trkDetItr->directionHCAL,nRecHits, 
+				     ids, *t_HitEnergies, useRaw_);
+      t_DetIds->clear(); t_HitEnergies->clear();
+      t_eHcal       = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL, 
+				      trkDetItr->pointECAL, a_coneR_, 
+				      trkDetItr->directionHCAL,nRecHits, 
+				      ids, *t_HitEnergies, useRaw_);
+      t_eHcalDelta -= t_eHcal;
+      t_eHcalDelta *= hcalScale_;
+      t_eHcal      *= hcalScale_;
       for (unsigned int k=0; k<ids.size(); ++k) {
 	t_DetIds->push_back(ids[k].rawId());
       }
@@ -650,8 +658,8 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 				   << pTrack->phi() << "|" << t_p;
       edm::LogInfo("HcalIsoTrack") << "e_MIP " << t_eMipDR 
 				   << " Chg Isolation " << t_hmaxNearP 
-				   << " eHcal" << t_eHcal << " ieta " 
-				   << t_ieta << " Quality " 
+				   << " eHcal" << t_eHcal << ":" << t_eHcalDelta
+				   << " ieta " << t_ieta << " Quality " 
 				   << t_qltyMissFlag << ":" 
 				   << t_qltyPVFlag << ":" << t_selectTk;
       for (unsigned int lll=0;lll<t_DetIds->size();lll++) {

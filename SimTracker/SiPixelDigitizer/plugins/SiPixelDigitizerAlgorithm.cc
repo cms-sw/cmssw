@@ -1534,7 +1534,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
-  std::auto_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
+  std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
 
   int chipIndex = 0;
   int rowROC = 0;
@@ -1701,7 +1701,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const PixelGeomDe
   // Use the pixel-by-pixel calibrations
   //transform to ROC index coordinates
   //int chipIndex=0, colROC=0, rowROC=0;
-  //std::auto_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
+  //std::unique_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
   //pIndexConverter->transformToROC(col,row,chipIndex,colROC,rowROC);
 
   // Use calibration from a file

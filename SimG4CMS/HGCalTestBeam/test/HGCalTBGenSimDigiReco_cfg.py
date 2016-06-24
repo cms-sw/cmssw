@@ -9,7 +9,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimG4CMS.HGCalTestBeam.HGCalTB160XML_cfi')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTB160Module4XML_cfi')
 process.load('Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi')
 process.load('Geometry.HGCalCommonData.hgcalParametersInitialization_cfi')
 process.load('Geometry.CaloEventSetup.HGCalTopology_cfi')
@@ -63,7 +63,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TBGenSimDigiReco.root')
+                                   fileName = cms.string('TBProt4MGenSimDigiReco.root')
                                    )
 
 # Other statements
@@ -72,21 +72,21 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
-    AddAntiParticle = cms.bool(True),
+    AddAntiParticle = cms.bool(False),
     PGunParameters = cms.PSet(
-        MinE = cms.double(99.99),
-        MaxE = cms.double(100.01),
+        MinE = cms.double(120.0),
+        MaxE = cms.double(120.0),
         MinTheta = cms.double(0.0),
         MaxTheta = cms.double(0.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        PartID = cms.vint32(13)
+        PartID = cms.vint32(2212)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single muon E 100')
 )
-process.VtxSmeared.MeanZ = 10
+process.VtxSmeared.MeanZ = -10.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalUncalibRecHit.HGCHEFConfig.isSiFE = False
 

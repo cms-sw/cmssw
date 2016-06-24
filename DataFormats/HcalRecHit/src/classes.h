@@ -1,5 +1,6 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include <boost/cstdint.hpp> 
+#include "DataFormats/HcalRecHit/interface/HFPreRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
@@ -21,6 +22,7 @@ namespace DataFormats_HcalRecHit {
   struct dictionary {
     std::vector<HBHERecHit> vHBHE_;
     std::vector<HORecHit> vHO_;
+    std::vector<HFPreRecHit> vPreHF_;
     std::vector<HFRecHit> vHF_;
     std::vector<ZDCRecHit> vZDC_;
     std::vector<CastorRecHit> vCastor_;
@@ -28,6 +30,7 @@ namespace DataFormats_HcalRecHit {
 
     HBHERecHitCollection theHBHE_;
     HORecHitCollection theHO_;
+    HFPreRecHitCollection thePreHF_;
     HFRecHitCollection theHF_;
     ZDCRecHitCollection theZDC_;
     CastorRecHitCollection theCastor_;
@@ -36,6 +39,7 @@ namespace DataFormats_HcalRecHit {
 
     edm::Wrapper<HBHERecHitCollection> theHBHEw_;
     edm::Wrapper<HORecHitCollection> theHOw_;
+    edm::Wrapper<HFPreRecHitCollection> thePreHFw_;
     edm::Wrapper<HFRecHitCollection> theHFw_;
     edm::Wrapper<ZDCRecHitCollection> theZDCw_;
     edm::Wrapper<CastorRecHitCollection> theCastorw_;
@@ -44,6 +48,7 @@ namespace DataFormats_HcalRecHit {
 
     edm::Ref<HBHERecHitCollection> theHBHEr_;
     edm::Ref<HORecHitCollection> theHOr_;
+    edm::Ref<HFPreRecHitCollection> thePreHFr_;
     edm::Ref<HFRecHitCollection> theHFr_;
     edm::Ref<ZDCRecHitCollection> theZDCr_;
     edm::Ref<CastorRecHitCollection> theCastorr_;
@@ -51,6 +56,7 @@ namespace DataFormats_HcalRecHit {
 
     edm::RefProd<HBHERecHitCollection> theHBHErp_;
     edm::RefProd<HORecHitCollection> theHOrp_;
+    edm::RefProd<HFPreRecHitCollection> thePreHFrp_;
     edm::RefProd<HFRecHitCollection> theHFrp_;
     edm::RefProd<ZDCRecHitCollection> theZDCrp_;
     edm::RefProd<CastorRecHitCollection> theCastorrp_;
@@ -58,6 +64,7 @@ namespace DataFormats_HcalRecHit {
 
     edm::RefVector<HBHERecHitCollection> theHBHErv_;
     edm::RefVector<HORecHitCollection> theHOrv_;
+    edm::RefVector<HFPreRecHitCollection> thePreHFrv_;
     edm::RefVector<HFRecHitCollection> theHFrv_;
     edm::RefVector<ZDCRecHitCollection> theZDCrv_;
     edm::RefVector<CastorRecHitCollection> theCastorrv_;

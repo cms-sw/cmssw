@@ -14,8 +14,7 @@ phase2TrackerDigitizer = cms.PSet(
 # Common for Algos
     AlgorithmCommon = cms.PSet(
       DeltaProductionCut = cms.double(0.03),
-      ElectronPerAdc = cms.double(135.0),	#D.B.:used for misscalibration
-      AdcFullScale = cms.int32(255)
+      ElectronPerAdc = cms.double(135.0)	#D.B.:used for misscalibration
     ),
 # Specific parameters
 #Pixel Digitizer Algorithm
@@ -28,7 +27,8 @@ phase2TrackerDigitizer = cms.PSet(
       ThresholdSmearing_Barrel = cms.double(245.0),
       ThresholdSmearing_Endcap = cms.double(210.0),
       NoiseInElectrons = cms.double(175.0),
-      DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
+      DigitalReadout           = cms.bool(False), # Flag to decide analog or digital readout 
+      AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
       AddNoisyPixels = cms.bool(True),
@@ -50,11 +50,7 @@ phase2TrackerDigitizer = cms.PSet(
       EfficiencyFactors_Barrel = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999 ),
       EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
       0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
-      CellsToKill = cms.VPSet(cms.PSet(row = cms.int32(39),col = cms.int32(26)), 
-			    cms.PSet(row = cms.int32(40),col = cms.int32(26)), 
-			    cms.PSet(row = cms.int32(80),col = cms.int32(26)), 
-			    cms.PSet(row = cms.int32(119),col = cms.int32(26)), 
-			    cms.PSet(row = cms.int32(120),col = cms.int32(26))) 
+      CellsToKill = cms.VPSet()
     ),
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
@@ -68,6 +64,7 @@ phase2TrackerDigitizer = cms.PSet(
       ThresholdSmearing_Endcap = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 245.0)
       NoiseInElectrons = cms.double(300),	         # 30% of the readout noise (should be changed in future)
       DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
+      AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
       AddNoisyPixels = cms.bool(True),
@@ -103,6 +100,7 @@ phase2TrackerDigitizer = cms.PSet(
       ThresholdSmearing_Endcap = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 245.0)
       NoiseInElectrons = cms.double(300),	         # 30% of the readout noise (should be changed in future)
       DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
+      AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
       AddNoisyPixels = cms.bool(True),
@@ -138,6 +136,7 @@ phase2TrackerDigitizer = cms.PSet(
       ThresholdSmearing_Endcap = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 245.0)
       NoiseInElectrons = cms.double(300),	         # 30% of the readout noise (should be changed in future)
       DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
+      AdcFullScale = cms.int32(255),
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
       AddNoisyPixels = cms.bool(True),

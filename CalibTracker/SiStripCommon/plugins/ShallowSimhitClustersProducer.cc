@@ -47,18 +47,18 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent,clusters_token_);
 
   int size = clustermap.size();
-  std::auto_ptr<std::vector<unsigned> >       hits         ( new std::vector<unsigned>    (size,    0)   );
-  std::auto_ptr<std::vector<float> >          strip        ( new std::vector<float>       (size, -100)   );
-  std::auto_ptr<std::vector<float> >          localtheta   ( new std::vector<float>       (size, -100)   );
-  std::auto_ptr<std::vector<float> >          localphi     ( new std::vector<float>       (size, -100)   );
-  std::auto_ptr<std::vector<float> >          localx       ( new std::vector<float>       (size, -100)   );
-  std::auto_ptr<std::vector<float> >          localy       ( new std::vector<float>       (size, -100)   );
-  std::auto_ptr<std::vector<float> >          localz       ( new std::vector<float>       (size, -100)   );
-  std::auto_ptr<std::vector<float> >          momentum     ( new std::vector<float>       (size, 0)      );
-  std::auto_ptr<std::vector<float> >          energyloss   ( new std::vector<float>       (size, -1)     );
-  std::auto_ptr<std::vector<float> >          time         ( new std::vector<float>       (size, -1)     );
-  std::auto_ptr<std::vector<int> >            particle     ( new std::vector<int>         (size,-500)    );
-  std::auto_ptr<std::vector<unsigned short> > process      ( new std::vector<unsigned short> (size,0)    );
+  auto          hits         = std::make_unique <std::vector<unsigned>>       (size, 0);
+  auto          strip        = std::make_unique <std::vector<float>>          (size, -100);
+  auto          localtheta   = std::make_unique <std::vector<float>>          (size, -100);
+  auto          localphi     = std::make_unique <std::vector<float>>          (size, -100);
+  auto          localx       = std::make_unique <std::vector<float>>          (size, -100);
+  auto          localy       = std::make_unique <std::vector<float>>          (size, -100);
+  auto          localz       = std::make_unique <std::vector<float>>          (size, -100);
+  auto          momentum     = std::make_unique <std::vector<float>>          (size, 0);
+  auto          energyloss   = std::make_unique <std::vector<float>>          (size, -1);
+  auto          time         = std::make_unique <std::vector<float>>          (size, -1);
+  auto          particle     = std::make_unique <std::vector<int>>            (size, -500);
+  auto          process      = std::make_unique <std::vector<unsigned short>> (size, 0);
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   edm::ESHandle<MagneticField> magfield;		     iSetup.get<IdealMagneticFieldRecord>().get(magfield);		      
@@ -98,18 +98,18 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     } 
   }
 
-  iEvent.put( hits,        Prefix + "hits"      );
-  iEvent.put( strip,       Prefix + "strip"      );
-  iEvent.put( localtheta,  Prefix + "localtheta" );
-  iEvent.put( localphi,    Prefix + "localphi" );
-  iEvent.put( localx,      Prefix + "localx" );
-  iEvent.put( localy,      Prefix + "localy" );
-  iEvent.put( localz,      Prefix + "localz" );
-  iEvent.put( momentum,    Prefix + "momentum" );
-  iEvent.put( energyloss,  Prefix + "energyloss" );
-  iEvent.put( time,        Prefix + "time" );
-  iEvent.put( particle,    Prefix + "particle" );
-  iEvent.put( process,     Prefix + "process" );
+  iEvent.put(std::move(hits),        Prefix + "hits"      );
+  iEvent.put(std::move(strip),       Prefix + "strip"      );
+  iEvent.put(std::move(localtheta),  Prefix + "localtheta" );
+  iEvent.put(std::move(localphi),    Prefix + "localphi" );
+  iEvent.put(std::move(localx),      Prefix + "localx" );
+  iEvent.put(std::move(localy),      Prefix + "localy" );
+  iEvent.put(std::move(localz),      Prefix + "localz" );
+  iEvent.put(std::move(momentum),    Prefix + "momentum" );
+  iEvent.put(std::move(energyloss),  Prefix + "energyloss" );
+  iEvent.put(std::move(time),        Prefix + "time" );
+  iEvent.put(std::move(particle),    Prefix + "particle" );
+  iEvent.put(std::move(process),     Prefix + "process" );
 }
 
 shallow::CLUSTERMAP::const_iterator ShallowSimhitClustersProducer::

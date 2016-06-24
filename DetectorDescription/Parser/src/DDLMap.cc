@@ -9,8 +9,14 @@
 
 #include "DetectorDescription/Parser/src/DDLMap.h"
 
+#include <stddef.h>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+
+class DDCompactView;
 
 using namespace boost::spirit::classic;
 

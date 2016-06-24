@@ -24,6 +24,10 @@ int QIE11DataFrame::presamples() const {
   return -1;
 }
 
+void QIE11DataFrame::setZSInfo(bool markAndPass){
+	if(markAndPass) m_data[0] |= (markAndPass&MASK_FLAVOR)<<OFFSET_FLAVOR;
+}
+
 void QIE11DataFrame::setSample(edm::DataFrame::size_type isample, int adc, int tdc, bool soi) {
   if (isample>=size()) return;
   m_data[isample+1]=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|((tdc&Sample::MASK_TDC)<<Sample::OFFSET_TDC);

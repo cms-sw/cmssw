@@ -38,6 +38,7 @@ import logging
 import cStringIO
 
 import pycurl
+import socket
 import copy
 
 def getInput(default, prompt = ''):
@@ -432,6 +433,8 @@ class ConditionsUploader(object):
         ''' init the server.
         '''
         self.http = HTTP()
+        if socket.getfqdn().strip().endswith('.cms'):
+            self.http.setProxy('https://cmsproxy.cms:3128/')
         self.http.setBaseUrl(self.urlTemplate % self.hostname)
         '''Signs in the server.
         '''
@@ -586,9 +589,12 @@ class ConditionsUploader(object):
 
 def authenticateUser(dropBox, options):
 
+    netrcPath = None
+    if options.authPath is not None:
+        netrcPath = os.path.join( options.authPath,'.netrc' )
     try:
         # Try to find the netrc entry
-        (username, account, password) = netrc.netrc().authenticators(options.netrcHost)
+        (username, account, password) = netrc.netrc( netrcPath ).authenticators(options.netrcHost)
     except Exception:
         # netrc entry not found, ask for the username and password
         logging.info(
@@ -630,6 +636,29 @@ def uploadAllFiles(options, arguments):
             errMsg = 'Impossible to open SQLite data file %s' %dataFilename
             logging.error( errMsg )
             ret['status'] = -3
+            ret['error'] = errMsg
+            return ret
+
+        # Check the data file
+        empty = True
+        try:
+            dbcon = sqlite3.connect( dataFilename )
+            dbcur = dbcon.cursor()
+            dbcur.execute('SELECT * FROM IOV')
+            rows = dbcur.fetchall()
+            for r in rows:
+                empty = False
+            dbcon.close()
+            if empty:
+                errMsg = 'The input SQLite data file %s contains no data.' %dataFilename
+                logging.error( errMsg )
+                ret['status'] = -4
+                ret['error'] = errMsg
+                return ret
+        except Exception as e:
+            errMsg = 'Check on input SQLite data file %s failed: %s' %(dataFilename,str(e))
+            logging.error( errMsg )
+            ret['status'] = -5
             ret['error'] = errMsg
             return ret
 
@@ -785,6 +814,12 @@ def main():
         dest = 'netrcHost',
         default = defaultNetrcHost,
         help = 'The netrc host (machine) from where the username and password will be read. Default: %default',
+    )
+
+    parser.add_option('-a', '--authPath',
+        dest = 'authPath',
+        default = None,
+        help = 'The path of the .netrc file for the authentication. Default: $HOME',
     )
 
     (options, arguments) = parser.parse_args()

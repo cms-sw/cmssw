@@ -127,7 +127,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (gotTracks) {
     outputFile<<"\n=================== Starting SimTrack access ==================="<<std::endl;
 
-    std::auto_ptr<MixCollection<SimTrack> > col1(new MixCollection<SimTrack>(cf_simtrack.product()));
+    std::unique_ptr<MixCollection<SimTrack> > col1(new MixCollection<SimTrack>(cf_simtrack.product()));
     MixCollection<SimTrack>::iterator cfi1;
     int count1=0;
     std::cout <<" \nWe got "<<col1->sizeSignal()<<" signal tracks and "<<col1->sizePileup()<<" pileup tracks, total: "<<col1->size()<<std::endl;
@@ -158,7 +158,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (!gotSimVertex) outputFile<<" Could not read Simvertices !!!!"<<std::endl;
   else {
     outputFile<<"\n=================== Starting SimVertex access ==================="<<std::endl;
-    std::auto_ptr<MixCollection<SimVertex> > col2(new MixCollection<SimVertex>(cf_simvtx.product()));
+    std::unique_ptr<MixCollection<SimVertex> > col2(new MixCollection<SimVertex>(cf_simvtx.product()));
     MixCollection<SimVertex>::iterator cfi2;
     int count2=0;
     outputFile <<" \nWe got "<<col2->sizeSignal()<<" signal vertices and "<<col2->sizePileup()<<" pileup vertices, total: "<<col2->size()<<std::endl;
@@ -182,7 +182,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (!gotHepMCP) std::cout<<" Could not read HepMCProducts!!!!"<<std::endl;
   else {
     outputFile<<"\n=================== Starting HepMCProduct access ==================="<<std::endl;
-    std::auto_ptr<MixCollection<edm::HepMCProduct> > colhepmc(new MixCollection<edm::HepMCProduct>(cf_hepmc.product()));
+    std::unique_ptr<MixCollection<edm::HepMCProduct> > colhepmc(new MixCollection<edm::HepMCProduct>(cf_hepmc.product()));
     MixCollection<edm::HepMCProduct>::iterator cfihepmc;
     
     int count3=0;
@@ -208,7 +208,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (!gotPCaloHit) outputFile<<" Could not read CaloHits with label "<<subdetcalo<<"!!!!"<<std::endl;
   else {
     outputFile<<"\n\n=================== Starting CaloHit access, subdet "<<subdetcalo<<"  ==================="<<std::endl;
-    std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf_calo.product()));
+    std::unique_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf_calo.product()));
     //outputFile<<*(colcalo.get())<<std::endl;
     MixCollection<PCaloHit>::iterator cficalo;
     int count4=0;
@@ -234,7 +234,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   else {
     outputFile<<"\n\n=================== Starting SimHit access, subdet "<<subdet<<"  ==================="<<std::endl;
 
-    std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf_simhit.product()));
+    std::unique_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf_simhit.product()));
     //outputFile<<*(col.get())<<std::endl;
     MixCollection<PSimHit>::iterator cfi;
     int count5=0;
@@ -268,7 +268,7 @@ TestMixedSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   else {
     outputFile<<"\n\n=================== Starting SimHit access, subdet "<<subdet1<<"  ==================="<<std::endl;
 
-    std::auto_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf_simhit1.product()));
+    std::unique_ptr<MixCollection<PSimHit> > col(new MixCollection<PSimHit>(cf_simhit1.product()));
     //outputFile<<*(col.get())<<std::endl;
     MixCollection<PSimHit>::iterator cfi;
     int count5=0;

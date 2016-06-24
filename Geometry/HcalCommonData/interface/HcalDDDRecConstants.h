@@ -74,8 +74,10 @@ public:
   std::vector<HFCellParameters>    getHFCellParameters() const;
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(const int itype, const int ieta) const;
+  int                       getMinDepth(const int itype, const int ieta) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   int                       getNoff(const int i) const {return hpar->noff[i];}
+  int                       getNPhi(const int type) const {return nPhiBins[type];}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
   const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}
@@ -84,8 +86,9 @@ public:
   double                    getRZ(int subdet, int ieta, int depth) const;
   std::vector<HcalActiveLength>    getThickActive(const int type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
-  int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
+  int                       getTriggerMode() const {return ((((hpar->topologyMode)&0xFF) == 0) ? 0 : (((hpar->topologyMode)>>8)&0xFF));}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  bool                      isBH() const {return hcons.isBH();}
   int                       maxHFDepth(int ieta, int iphi) const {return hcons.maxHFDepth(ieta,iphi);}
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
@@ -103,6 +106,7 @@ private:
   std::vector<int>    ietaMap;    // Map Sim level ieta to Rec level ieta
   std::vector<int>    iEtaMin, iEtaMax; // Minimum and maximum eta
   std::vector<int>    maxDepth;   // Maximum depth in HB/HE/HF/HO 
+  std::vector<int>    nPhiBins;   // Number of phi bis for HB/HE/HF/HO
   std::vector<double> phibin;     // Phi step for all eta bins (HB, HE, HO)
   std::vector<int>    phiUnitS;   // Phi unit at SIM stage
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB

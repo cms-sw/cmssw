@@ -219,7 +219,7 @@ namespace edm {
     std::vector<std::string> digiNames = digiPSet.getParameterNames();
     for(auto const& digiName : digiNames) {
         ParameterSet const& pset = digiPSet.getParameterSet(digiName);
-        std::auto_ptr<DigiAccumulatorMixMod> accumulator = std::auto_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
+        std::unique_ptr<DigiAccumulatorMixMod> accumulator = std::unique_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
         // Create appropriate DigiAccumulator
         if(accumulator.get() != 0) {
           digiAccumulators_.push_back(accumulator.release());
@@ -461,7 +461,7 @@ namespace edm {
 
     // Keep track of pileup accounting...
 
-    std::auto_ptr<PileupMixingContent> PileupMixing_;
+    std::unique_ptr<PileupMixingContent> PileupMixing_;
 
     std::vector<int> numInteractionList;
     std::vector<int> bunchCrossingList;
@@ -489,13 +489,13 @@ namespace edm {
     }
 
 
-    PileupMixing_ = std::auto_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
+    PileupMixing_ = std::unique_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
                                                                                numInteractionList,
                                                                                TrueInteractionList,
 									       eventInfoList,
 									       bunchSpace_));
 
-    e.put(PileupMixing_);
+    e.put(std::move(PileupMixing_));
 
     // we have to do the ToF transformation for PSimHits once all pileup has been added
     for (unsigned int ii=0;ii<workers_.size();++ii) {
@@ -507,8 +507,8 @@ namespace edm {
   void MixingModule::put(edm::Event &e, const edm::EventSetup& setup) {
 
     if (playbackInfo_) {
-      std::auto_ptr<CrossingFramePlaybackInfoNew> pOut(playbackInfo_);
-      e.put(pOut);
+      std::unique_ptr<CrossingFramePlaybackInfoNew> pOut(playbackInfo_);
+      e.put(std::move(pOut));
     }
   }
 

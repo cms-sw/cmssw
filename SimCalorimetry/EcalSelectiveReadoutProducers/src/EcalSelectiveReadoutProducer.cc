@@ -49,7 +49,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
       "Selective readout configuration will be read from python file.";
   }
   if(!useCondDb_){
-    settingsFromFile_ = auto_ptr<EcalSRSettings>(new EcalSRSettings());
+    settingsFromFile_ = unique_ptr<EcalSRSettings>(new EcalSRSettings());
     EcalSRCondTools::importParameterSet(*settingsFromFile_, params);
     settings_ = settingsFromFile_.get();
   }
@@ -116,19 +116,19 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     :&dummyEeDigiColl;
 
   //runs the selective readout algorithm:
-  auto_ptr<EBDigiCollection> selectedEBDigis;
-  auto_ptr<EEDigiCollection> selectedEEDigis;
-  auto_ptr<EBSrFlagCollection> ebSrFlags;
-  auto_ptr<EESrFlagCollection> eeSrFlags;
+  unique_ptr<EBDigiCollection> selectedEBDigis;
+  unique_ptr<EEDigiCollection> selectedEEDigis;
+  unique_ptr<EBSrFlagCollection> ebSrFlags;
+  unique_ptr<EESrFlagCollection> eeSrFlags;
 
   if(produceDigis_){
-    selectedEBDigis = auto_ptr<EBDigiCollection>(new EBDigiCollection);
-    selectedEEDigis = auto_ptr<EEDigiCollection>(new EEDigiCollection);
+    selectedEBDigis = unique_ptr<EBDigiCollection>(new EBDigiCollection);
+    selectedEEDigis = unique_ptr<EEDigiCollection>(new EEDigiCollection);
   }
 
   if(writeSrFlags_){
-    ebSrFlags = auto_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
-    eeSrFlags = auto_ptr<EESrFlagCollection>(new EESrFlagCollection);
+    ebSrFlags = unique_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
+    eeSrFlags = unique_ptr<EESrFlagCollection>(new EESrFlagCollection);
   }
 
   if(suppressor_.get() == 0){
@@ -136,7 +136,7 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
     checkValidity(*settings_);
     
     //instantiates the selective readout algorithm:
-    suppressor_ = auto_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
+    suppressor_ = unique_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
 
     // check that everything is up-to-date
     checkGeometry(eventSetup);
@@ -171,14 +171,14 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 
   if(produceDigis_){
     //puts the selected digis into the event:
-    event.put(selectedEBDigis, ebSRPdigiCollection_);
-    event.put(selectedEEDigis, eeSRPdigiCollection_);
+    event.put(std::move(selectedEBDigis), ebSRPdigiCollection_);
+    event.put(std::move(selectedEEDigis), eeSRPdigiCollection_);
   }
 
   //puts the SR flags into the event:
   if(writeSrFlags_) {
-    event.put(ebSrFlags, ebSrFlagCollection_);
-    event.put(eeSrFlags, eeSrFlagCollection_);
+    event.put(std::move(ebSrFlags), ebSrFlagCollection_);
+    event.put(std::move(eeSrFlags), eeSrFlagCollection_);
   }
 }
 

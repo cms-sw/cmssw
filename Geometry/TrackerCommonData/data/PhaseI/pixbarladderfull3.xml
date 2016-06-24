@@ -148,19 +148,19 @@
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle1" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle1"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle2" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle2"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle3" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle3"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle4" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle4"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCFStripHoleFull" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCFStripHoleFull"/>

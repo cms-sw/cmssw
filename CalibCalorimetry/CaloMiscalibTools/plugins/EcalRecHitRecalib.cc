@@ -63,8 +63,8 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > RecalibEBRecHitCollection( new EBRecHitCollection );
-  std::auto_ptr< EERecHitCollection > RecalibEERecHitCollection( new EERecHitCollection );
+  auto RecalibEBRecHitCollection = std::make_unique<EBRecHitCollection>();
+  auto RecalibEERecHitCollection = std::make_unique<EERecHitCollection>();
 
 
   // Intercalib constants
@@ -130,8 +130,8 @@ EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //Put Recalibrated rechit in the event
-  iEvent.put( RecalibEBRecHitCollection, RecalibBarrelHits_);
-  iEvent.put( RecalibEERecHitCollection, RecalibEndcapHits_);
+  iEvent.put(std::move(RecalibEBRecHitCollection), RecalibBarrelHits_);
+  iEvent.put(std::move(RecalibEERecHitCollection), RecalibEndcapHits_);
   
 }
 

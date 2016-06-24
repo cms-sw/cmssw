@@ -62,6 +62,8 @@ def main(opts):
         }
 
     val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
+    if opts.extended:
+        val.doPlots(trackingPlots.plotterExt, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
     val.doPlots(trackingPlots.timePlotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     val.doPlots(vertexPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     print
@@ -91,6 +93,8 @@ if __name__ == "__main__":
                         help="Comma separated list of tracking algos to limit to. (default: all algos; conflicts with --limit-relval)")
     parser.add_argument("--limit-relval", action="store_true",
                         help="Limit set of plots to those in release validation (almost). (default: all plots in the DQM files; conflicts with --limit-tracking-algo)")
+    parser.add_argument("--extended", action="store_true",
+                        help="Include extended set of plots (e.g. bunch of distributions; default off)")
     parser.add_argument("--html", action="store_true",
                         help="Generate HTML pages")
     parser.add_argument("--html-prefix", default="plots",

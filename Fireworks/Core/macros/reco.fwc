@@ -1213,6 +1213,15 @@
       <string>phi</string>
       <string>phi</string>
       <string>3</string>
+      <string>electronEnergyFraction</string>
+      <string>electronEnergyFraction</string>
+      <string>3</string>
+      <string>muonEnergyFraction</string>
+      <string>muonEnergyFraction</string>
+      <string>3</string>
+      <string>photonEnergyFraction</string>
+      <string>photonEnergyFraction</string>
+      <string>3</string>
     </config>
     <config name="reco::MET" version="1">
       <string>MET</string>

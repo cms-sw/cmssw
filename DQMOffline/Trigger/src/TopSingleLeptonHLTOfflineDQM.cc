@@ -125,8 +125,8 @@ namespace HLTOfflineDQMTopSingleLepton {
       if( includeBTag_ ){
         edm::ParameterSet btagEff=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingEff");
         btagEff_= iC.consumes< reco::JetTagCollection >(btagEff.getParameter<edm::InputTag>("label")); btagEffWP_= btagEff.getParameter<double>("workingPoint");
-        edm::ParameterSet btagPur=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingPur");
-        btagPur_= iC.consumes< reco::JetTagCollection >(btagPur.getParameter<edm::InputTag>("label")); btagPurWP_= btagPur.getParameter<double>("workingPoint");
+//        edm::ParameterSet btagPur=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingPur");
+//        btagPur_= iC.consumes< reco::JetTagCollection >(btagPur.getParameter<edm::InputTag>("label")); btagPurWP_= btagPur.getParameter<double>("workingPoint");
         edm::ParameterSet btagVtx=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("secondaryVertex" );
         btagVtx_= iC.consumes< reco::JetTagCollection >(btagVtx.getParameter<edm::InputTag>("label")); btagVtxWP_= btagVtx.getParameter<double>("workingPoint");
       }
@@ -153,7 +153,9 @@ namespace HLTOfflineDQMTopSingleLepton {
     // and don't forget to do the histogram booking
     folder_=cfg.getParameter<std::string>("directory");
 
-    triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","",processName_));
+//    triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","",processName_));
+	triggerSummaryTokenRAW = iC.consumes <trigger::TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryRAW","",processName_));
+	triggerSummaryTokenAOD = iC.consumes <trigger::TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryAOD","",processName_));
 
   }
 
@@ -198,9 +200,9 @@ namespace HLTOfflineDQMTopSingleLepton {
       // btag discriminator for track counting high efficiency for jets with pt(L2L3)>20
       hists_["jetBDiscEff_"] = store_.book1D("JetBDiscProb", "Disc_{b/prob}(jet)",     25,     0.,     2.5);   
       // multiplicity of btagged jets (for track counting high purity) with pt(L2L3)>20
-      hists_["jetMultBPur_"] = store_.book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
+//      hists_["jetMultBPur_"] = store_.book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
       // btag discriminator for track counting high purity
-      hists_["jetBDiscPur_"] = store_.book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
+//      hists_["jetBDiscPur_"] = store_.book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
       // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>20
       hists_["jetMultBVtx_"] = store_.book1D("JetMultBVtx", "N_{20}(b/vtx)"    ,     10,     0.,     10.);   
       // btag discriminator for simple secondary vertex
@@ -340,7 +342,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx;
       if( includeBTag_ ){ 
         if( !event.getByToken(btagEff_, btagEff) ) return;
-        if( !event.getByToken(btagPur_, btagPur) ) return;
+//        if( !event.getByToken(btagPur_, btagPur) ) return;
         if( !event.getByToken(btagVtx_, btagVtx) ) return;
       }
       // load jet corrector if configured such
@@ -368,7 +370,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       // loop jet collection
       std::vector<reco::Jet> correctedJets;
-      unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
+      unsigned int mult=0, multBEff=0, multBVtx=0; //multBPur=0;
 
       edm::Handle<edm::View<reco::Jet> > jets; 
       if( !event.getByToken(jets_, jets) ) {
@@ -414,18 +416,18 @@ namespace HLTOfflineDQMTopSingleLepton {
           fill("jetBDiscEff_", btagEffDisc); 
           if( (*btagEff)[jetRef]>btagEffWP_ ) ++multBEff; 
           // for the btagPur collection
-          double btagPurDisc = (*btagPur)[jetRef];
-          fill("jetBDiscPur_", btagPurDisc); 
-          if( (*btagPur)[jetRef]>btagPurWP_ ) {if(multBPur == 0) bJetCand = *jet; ++multBPur;} 
+//          double btagPurDisc = (*btagPur)[jetRef];
+//          fill("jetBDiscPur_", btagPurDisc); 
+//          if( (*btagPur)[jetRef]>btagPurWP_ ) {if(multBPur == 0) bJetCand = *jet; ++multBPur;} 
           // for the btagVtx collection
           double btagVtxDisc = (*btagVtx)[jetRef];
           fill("jetBDiscVtx_", btagVtxDisc);
-          if( (*btagVtx)[jetRef]>btagVtxWP_ ) ++multBVtx; 
+          if( (*btagVtx)[jetRef]>btagVtxWP_ ) { if(multBVtx == 0) bJetCand= *jet; ++multBVtx;} 
         }
       }
       fill("jetMult_"    , mult    );
       fill("jetMultBEff_", multBEff);
-      fill("jetMultBPur_", multBPur);
+//      fill("jetMultBPur_", multBPur);
       fill("jetMultBVtx_", multBVtx);
 
       /* 
@@ -475,13 +477,13 @@ namespace HLTOfflineDQMTopSingleLepton {
           ++logged_;
         }
       }
-      if(multBPur != 0 && mMultIso == 1 ){
+      if(multBVtx != 0 && mMultIso == 1 ){
         double mtW = eventKinematics.tmassWBoson(&mu,mET,bJetCand); if (mtW == mtW) fill("MTWm_",mtW);
         double Mlb = eventKinematics.masslb(&mu,mET,bJetCand); if (Mlb == Mlb) fill("mMub_", Mlb);
         double MTT = eventKinematics.tmassTopQuark(&mu,mET,bJetCand); if (MTT == MTT) fill("mMTT_", MTT);
       }
 
-      if(multBPur != 0 && eMultIso == 1 ){
+      if(multBVtx != 0 && eMultIso == 1 ){
         double mtW = eventKinematics.tmassWBoson(&mu,mET,bJetCand); if (mtW == mtW)fill("MTWe_",mtW);
         double Mlb = eventKinematics.masslb(&mu,mET,bJetCand); if (Mlb == Mlb) fill("mEb_", Mlb);
         double MTT = eventKinematics.tmassTopQuark(&mu,mET,bJetCand); if (MTT == MTT) fill("eMTT_", MTT);
@@ -496,12 +498,31 @@ namespace HLTOfflineDQMTopSingleLepton {
          ------------------------------------------------------------
          */
 
-      edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle;
-      if(event.getByToken(triggerEventWithRefsTag_,triggerEventWithRefsHandle)) {
+//      edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle;
+//      if(event.getByToken(triggerEventWithRefsTag_,triggerEventWithRefsHandle)) {
 
+		edm::Handle<trigger::TriggerEventWithRefs> rawTriggerEvent;
+		event.getByToken(triggerSummaryTokenRAW,rawTriggerEvent);
+	 
+		edm::Handle<trigger::TriggerEventWithRefs> aodTriggerEvent;
+		event.getByToken(triggerSummaryTokenAOD,aodTriggerEvent);
+	  
+		hasRawTriggerSummary=true;
+		if(!rawTriggerEvent.isValid()){ 
+			hasRawTriggerSummary=false;
+			edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
+			<< "No RAW trigger summary found! Returning... \n";
+
+			if(!aodTriggerEvent.isValid()){
+				edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
+				<< "No AOD trigger summary found! Returning... \n";
+				return;
+			}	  
+		}	  	
+		
         const edm::TriggerNames& triggerNames = event.triggerNames(*triggerTable);
         // loop over trigger paths 
-        for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
+		for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
           // consider only path from triggerPaths
           string name = triggerNames.triggerNames()[i];
           bool isInteresting = false;
@@ -526,20 +547,41 @@ namespace HLTOfflineDQMTopSingleLepton {
             const string& moduleLabel(moduleLabels[k]);
             const string  moduleType(hltConfig.moduleType(moduleLabel));
             // check whether the module is packed up in TriggerEventWithRef product
-            const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
-            if (filterIndex<triggerEventWithRefsHandle->size()) {
-              triggerEventWithRefsHandle->getObjects(filterIndex,electronIds_,electronRefs_);
-              const unsigned int nElectrons(electronIds_.size());
-              if (nElectrons>0) kElec = k;
+//            const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndex(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
+				if (filterIndex<rawTriggerEvent->size()) {
+				  rawTriggerEvent->getObjects(filterIndex,electronIds_,electronRefs_);
+				  const unsigned int nElectrons(electronIds_.size());
+				  if (nElectrons>0) kElec = k;
 
-              triggerEventWithRefsHandle->getObjects(filterIndex,muonIds_,muonRefs_);
-              const unsigned int nMuons(muonIds_.size());
-              if (nMuons>0) kMuon = k;
+				  rawTriggerEvent->getObjects(filterIndex,muonIds_,muonRefs_);
+				  const unsigned int nMuons(muonIds_.size());
+				  if (nMuons>0) kMuon = k;
 
-              triggerEventWithRefsHandle->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
-              const unsigned int nPFJets(pfjetIds_.size());
-              if (nPFJets>0) kJet = k;
-            }
+				  rawTriggerEvent->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
+				  const unsigned int nPFJets(pfjetIds_.size());
+				  if (nPFJets>0) kJet = k;
+				}
+			}
+			
+			else{
+				const unsigned int filterIndex(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
+				if (filterIndex<aodTriggerEvent->size()) {
+				  aodTriggerEvent->getObjects(filterIndex,electronIds_,electronRefs_);
+				  const unsigned int nElectrons(electronIds_.size());
+				  if (nElectrons>0) kElec = k;
+
+				  aodTriggerEvent->getObjects(filterIndex,muonIds_,muonRefs_);
+				  const unsigned int nMuons(muonIds_.size());
+				  if (nMuons>0) kMuon = k;
+
+				  aodTriggerEvent->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
+				  const unsigned int nPFJets(pfjetIds_.size());
+				  if (nPFJets>0) kJet = k;
+				}
+			}
+					
           }
           bool isMatched = true;
           bool lMatched = false;
@@ -553,8 +595,18 @@ namespace HLTOfflineDQMTopSingleLepton {
           if (kElec > 0) {
             const string& moduleLabelElec(moduleLabels[kElec]);
             const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
-            const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
-            triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
+//            const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+//            triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
+
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndexElec(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+				rawTriggerEvent->getObjects(filterIndexElec,electronIds_,electronRefs_);
+			}
+			else{
+				const unsigned int filterIndexElec(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+				aodTriggerEvent->getObjects(filterIndexElec,electronIds_,electronRefs_);
+			}				
+            
             for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
               double deltar = deltaR(*electronRefs_[0],*isoElecs[inde]); 
               if (deltar < eDeltaRMin) {
@@ -571,8 +623,18 @@ namespace HLTOfflineDQMTopSingleLepton {
           if (kMuon > 0) {
             const string& moduleLabelMuon(moduleLabels[kMuon]);
             const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
-            const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
-            triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+//            const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+//            triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+			
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndexMuon(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+				rawTriggerEvent->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+			}
+			else{
+				const unsigned int filterIndexMuon(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+				aodTriggerEvent->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+			}		
+            
             for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
               double deltar = deltaR(*muonRefs_[0],*isoMuons[indm]); 
               if (deltar < mDeltaRMin) {
@@ -594,8 +656,18 @@ namespace HLTOfflineDQMTopSingleLepton {
           if (kJet > 0) {
             const string& moduleLabelJet(moduleLabels[kJet]);
             const string  moduleTypeJet(hltConfig.moduleType(moduleLabelJet));
-            const unsigned int filterIndexJet(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
-            triggerEventWithRefsHandle->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
+//            const unsigned int filterIndexJet(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
+//            triggerEventWithRefsHandle->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
+
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndexJet(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
+				rawTriggerEvent->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
+			}
+			else{
+				const unsigned int filterIndexJet(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
+				aodTriggerEvent->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);				
+			}
+				
             for (unsigned int indj = 0; indj < correctedJets.size(); indj++) {
               double deltar1 = deltaR(*pfjetRefs_[0],correctedJets[indj]); 
               if (deltar1 < j1DeltaRMin) {j1DeltaRMin = deltar1; j1IndMatched = indj;}
@@ -650,7 +722,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 
         }
 
-      }
+//      }
     }
 
 }

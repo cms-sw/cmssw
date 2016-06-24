@@ -98,7 +98,7 @@ namespace edm {
     explicit InputSource(ParameterSet const&, InputSourceDescription const&);
 
     /// Destructor
-    virtual ~InputSource();
+    virtual ~InputSource() noexcept(false);
 
     InputSource(InputSource const&) = delete; // Disallow copying and moving
     InputSource& operator=(InputSource const&) = delete; // Disallow copying and moving

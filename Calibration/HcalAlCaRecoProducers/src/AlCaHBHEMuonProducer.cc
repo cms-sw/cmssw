@@ -51,7 +51,7 @@ public:
   ~AlCaHBHEMuonProducer();
   
   static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<AlCaHBHEMuons::Counters>(new AlCaHBHEMuons::Counters());
+    return std::make_unique<AlCaHBHEMuons::Counters>();
   }
 
   virtual void produce(edm::Event &, const edm::EventSetup&) override;
@@ -175,18 +175,18 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
 #endif
 
   //For accepted events
-  std::auto_ptr<reco::BeamSpot>         outputBeamSpot(new reco::BeamSpot());
-  std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
-  std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
-  std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
-  std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
-  std::auto_ptr<reco::MuonCollection>   outputMColl(new reco::MuonCollection);
+  auto outputBeamSpot = std::make_unique<reco::BeamSpot>();
+  auto outputVColl = std::make_unique<reco::VertexCollection>();
+  auto outputEBColl = std::make_unique<EBRecHitCollection>();
+  auto outputEEColl = std::make_unique<EERecHitCollection>();
+  auto outputHBHEColl = std::make_unique<HBHERecHitCollection>();
+  auto outputMColl = std::make_unique<reco::MuonCollection>();
 
   if (valid) {
     const reco::BeamSpot beam = *(bmspot.product());
-    outputBeamSpot = std::auto_ptr<reco::BeamSpot>(new reco::BeamSpot(beam.position(),beam.sigmaZ(),
+    outputBeamSpot =  std::make_unique<reco::BeamSpot>(beam.position(),beam.sigmaZ(),
 					beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
-								      beam.covariance(),beam.type()));
+								      beam.covariance(),beam.type());
     const reco::VertexCollection vtx = *(vt.product());
     const EcalRecHitCollection ebcoll = *(barrelRecHitsHandle.product());
     const EcalRecHitCollection eecoll = *(endcapRecHitsHandle.product());
@@ -215,12 +215,12 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
     }
   }
 
-  iEvent.put(outputBeamSpot,       labelBS_.label());
-  iEvent.put(outputVColl,          labelVtx_.label());
-  iEvent.put(outputEBColl,         labelEB_.instance());
-  iEvent.put(outputEEColl,         labelEE_.instance());
-  iEvent.put(outputHBHEColl,       labelHBHE_.label());
-  iEvent.put(outputMColl,          labelMuon_.label());
+  iEvent.put(std::move(outputBeamSpot),       labelBS_.label());
+  iEvent.put(std::move(outputVColl),          labelVtx_.label());
+  iEvent.put(std::move(outputEBColl),         labelEB_.instance());
+  iEvent.put(std::move(outputEEColl),         labelEE_.instance());
+  iEvent.put(std::move(outputHBHEColl),       labelHBHE_.label());
+  iEvent.put(std::move(outputMColl),          labelMuon_.label());
 }
 
 void AlCaHBHEMuonProducer::endStream() {

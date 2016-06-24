@@ -1,127 +1,146 @@
 #ifndef DigiTask_h
 #define DigiTask_h
 
-/*
+/**
  *	file:			DigiTask.h
- *	Author:			Viktor Khristenko
- *	Date:			16.10.2015
+ *	Author:			VK
+ *	Description:
+ *		HCAL DIGI Data Tier Processing.
+ *
+ *	Online:
+ *		
+ *	Offline:
+ *		- HF Q2/(Q1+Q2) is not included.
  */
 
 #include "DQM/HcalCommon/interface/DQTask.h"
 #include "DQM/HcalCommon/interface/Utilities.h"
+#include "DQM/HcalCommon/interface/HashFilter.h"
+#include "DQM/HcalCommon/interface/ElectronicsMap.h"
 #include "DQM/HcalCommon/interface/Container1D.h"
 #include "DQM/HcalCommon/interface/Container2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
-#include "DQM/HcalCommon/interface/ContainerSingle2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle1D.h"
-#include "DQM/HcalCommon/interface/ContainerSingleProf1D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
+#include "DQM/HcalCommon/interface/ContainerXXX.h"
 
-using namespace hcaldqm;
-class DigiTask : public DQTask
+class DigiTask : public hcaldqm::DQTask
 {
 	public:
 		DigiTask(edm::ParameterSet const&);
-		virtual ~DigiTask()
-		{}
-
+		virtual ~DigiTask() {}
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
 			edm::EventSetup const&);
 
+	protected:
+		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		edm::InputTag		_tagHBHE;
+		edm::InputTag		_tagHO;
+		edm::InputTag		_tagHF;
+		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
+		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
+		double _thresh_unihf;
+
+		//	flag vector
+		std::vector<hcaldqm::flag::Flag> _vflags;
 		enum DigiFlag
 		{
-			fLowOcp = 0,
-			fDigiSize = 1,
-			fUniphi = 2,
-			fMsn1LS = 3,
-			fCapIdRot = 4,
-
-			nDigiFlag = 5
+			fDigiSize=0,
+			fUni = 1,
+			fNChsHF = 2,
+			nDigiFlag = 3
 		};
 
-	protected:
-		//	funcs
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(UpdateFreq);
+		//	hashes/FED vectors
+		std::vector<uint32_t> _vhashFEDs;
 
-		//	Tags and corresponding Tokens
-		edm::InputTag	_tagHBHE;
-		edm::InputTag	_tagHO;
-		edm::InputTag	_tagHF;
-		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-		edm::EDGetTokenT<HODigiCollection> _tokHO;
-		edm::EDGetTokenT<HFDigiCollection> _tokHF;
+		//	emap
+		HcalElectronicsMap const* _emap;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
 
-		//	Flag Names
-		std::vector<std::string> _fNames;
+		//	Filters
+		hcaldqm::filter::HashFilter _filter_VME;
+		hcaldqm::filter::HashFilter _filter_uTCA;
+		hcaldqm::filter::HashFilter _filter_FEDHF;
+		hcaldqm::filter::HashFilter _filter_HF;
 
-		//	Counters
-		int				_numDigis[constants::SUBDET_NUM];
-		int				_numDigisCut[constants::SUBDET_NUM];
-		int				_nMsn[constants::SUBDET_NUM];
-		int				_nCapIdRots[constants::SUBDET_NUM];
-		bool			_occ_1LS[constants::SUBDET_NUM][constants::IPHI_NUM][constants::IETA_NUM][constants::DEPTH_NUM];
-		bool			_error_1LS[constants::SUBDET_NUM][constants::IPHI_NUM][constants::IETA_NUM][constants::DEPTH_NUM];
-		bool			_occ_10LS[constants::SUBDET_NUM][constants::IPHI_NUM][constants::IETA_NUM][constants::DEPTH_NUM];
-		bool			_occ_Always[constants::SUBDET_NUM][constants::IPHI_NUM][constants::IETA_NUM][constants::DEPTH_NUM];
+		/* Containers */
+		//	ADC, fC - Charge - just filling - no summary!
+		hcaldqm::Container1D _cADC_SubdetPM;
+		hcaldqm::Container1D _cfC_SubdetPM;
+		hcaldqm::Container1D _cSumQ_SubdetPM;
+		hcaldqm::ContainerProf2D	_cSumQ_depth;
+		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM;
+		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
 
-		//	Cuts
-		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
-
-		// Containers by quantities
-
-		//	Signal, ADC, fC, SumQ
-		Container1D		_cfCperTS_SubDet;
-		Container1D		_cADCperTS_SubDet;
-		Container1D		_cSumQ_SubDetPM_iphi;
-		ContainerProf2D	_cSumQ_depth;
-		ContainerProf1D	_cSumQvsLS_SubDetPM_iphi;
-
-		//	Shape
-		Container1D		_cShape_SubDetPM_iphi;
-		Container1D		_cShapeCut_SubDetPM_iphi;
-		ContainerSingle1D		_cShapeCut_p3e41d2;
-		ContainerSingle1D		_cShapeCut_p3em41d2;
+		//	Shape - just filling - not summary!
+		hcaldqm::Container1D _cShapeCut_FED;
 
 		//	Timing
-		Container1D		_cTimingCut_SubDetPM_iphi;
-		ContainerProf1D	_cTimingCutvsieta_SubDet_iphi;
-		ContainerProf1D _cTimingCutvsiphi_SubDet_ieta;
-		ContainerProf1D _cTimingCutvsLS_SubDetPM_iphi;
-		ContainerProf2D	_cTimingCut_depth;
+		//	just filling - no summary!
+		hcaldqm::Container1D		_cTimingCut_SubdetPM;
+		hcaldqm::ContainerProf2D _cTimingCut_FEDVME;
+		hcaldqm::ContainerProf2D	_cTimingCut_FEDuTCA;
+		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsVME;
+		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
+		hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
+		hcaldqm::ContainerProf2D _cTimingCut_depth;
+		hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM;	// online only!
+		hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;	// online only!
 
-		//	Specific
-		ContainerProf1D _cQ2Q12CutvsLS_HFPM_iphi;
-		ContainerSingleProf1D _cQ2Q12CutvsLS_p3e41d2;
-		ContainerSingleProf1D _cQ2Q12CutvsLS_p3em41d2;
-		ContainerProf1D	_cDigiSizevsLS_SubDet;
-		Container2D		_cCapIdRots_depth;
+		//	Only for Online mode! just filling - no summary!
+		hcaldqm::ContainerProf1D _cQ2Q12CutvsLS_FEDHF;	//	online only!
 
-		//	Occupancy
-		Container1D		_cOccupancyvsiphi_SubDetPM;
-		Container1D		_cOccupancyCutvsiphi_SubDetPM;
-		ContainerProf1D _cOccupancyvsLS_SubDet;
-		ContainerProf1D	_cOccupancyCutvsLS_SubDet;
-		Container2D		_cOccupancy_depth;
-		Container2D		_cOccupancyCut_depth;
-//		ContainerProf2D	_cOccupancyCutiphivsLS_SubDet;
-		Container2D		_cOccupancyOnce_depth;
-		Container2D		_cMsn1LS_depth;
-		Container2D		_cMsn10LS_depth;
-		ContainerProf1D	_cMsn1LSvsLS_SubDet;
+		//	Occupancy w/o a Cut - whatever is sitting in the Digi Collection
+		//	used to determine Missing Digis => used for Summary!
+		hcaldqm::Container2D _cOccupancy_FEDVME;
+		hcaldqm::Container2D _cOccupancy_FEDuTCA;
+		hcaldqm::Container2D _cOccupancy_ElectronicsVME;
+		hcaldqm::Container2D _cOccupancy_ElectronicsuTCA;
+		hcaldqm::Container2D _cOccupancy_depth;
+		hcaldqm::Container1D _cOccupancyvsiphi_SubdetPM; // online only
+		hcaldqm::Container1D _cOccupancyvsieta_Subdet;	// online only
 
-		//	Summaries
-		ContainerSingle2D		_cSummary;
-		Container2D		_cSummaryvsLS_SubDet;
+		//	Occupancy w/ a Cut
+		//	used to determine if occupancy is symmetric or not. =>
+		//	used for Summary
+		hcaldqm::Container2D _cOccupancyCut_FEDVME;
+		hcaldqm::Container2D _cOccupancyCut_FEDuTCA;
+		hcaldqm::Container2D _cOccupancyCut_ElectronicsVME;
+		hcaldqm::Container2D _cOccupancyCut_ElectronicsuTCA;
+		hcaldqm::Container2D _cOccupancyCut_depth;
+		hcaldqm::Container1D _cOccupancyCutvsiphi_SubdetPM; // online only
+		hcaldqm::Container1D _cOccupancyCutvsieta_Subdet;	// online only
+		hcaldqm::Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
+		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
+
+		//	Occupancy w/o and w/ a Cut vs BX and vs LS
+		hcaldqm::ContainerProf1D _cOccupancyvsLS_Subdet;
+		hcaldqm::ContainerProf1D _cOccupancyCutvsLS_Subdet;	// online only
+		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only
+
+		//	#Time Samples for a digi. Used for Summary generation
+		hcaldqm::Container1D _cDigiSize_FED;
+		hcaldqm::ContainerProf1D _cDigiSizevsLS_FED;	// online only
+		hcaldqm::ContainerXXX<uint32_t> _xDigiSize; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
+
+		//	#events counters
+		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
+
+		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
+		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 };
 
 #endif
-
-
-
-
-
-
-

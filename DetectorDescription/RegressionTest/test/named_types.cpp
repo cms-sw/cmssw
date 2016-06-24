@@ -1,8 +1,14 @@
 #include <iostream>
-#include "DetectorDescription/Core/interface/DDNumeric.h"
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-#include "DetectorDescription/Core/interface/DDMap.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;

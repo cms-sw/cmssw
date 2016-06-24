@@ -2,6 +2,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "DataFormats/Math/interface/Vector3D.h"  // to use math::XYZVector
+
 using namespace std;
 using namespace edm;
 
@@ -641,8 +643,9 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
     }
     
     float en1 = it_bc->energy();
-    float theta1 = 2. * atan(exp(-it_bc->position().eta()));
-    float pt1 = en1*sin(theta1);
+    math::XYZVector v1(it_bc->position());  // set vector as cluster position                                                                                          
+    v1 *= (en1 / v1.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless particles)                                   
+    float pt1 = v1.Rho();   // Rho is equivalent to Pt when using XYZVector  
  
     int ind1 = int( it_bc - clusterCollection->begin() );
     std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind1);
@@ -657,9 +660,11 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
 	std::vector<int>::iterator it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),int(it_bc2 - clusterCollection->begin()) );
 	if( it != indClusPi0Candidates.end()) continue; 
       }
+
       float en2 = it_bc2 ->energy();
-      float theta2 = 2. * atan(exp(-it_bc2->position().eta()));
-      float pt2 = en2*sin(theta2);
+      math::XYZVector v2(it_bc2->position());  // set vector as cluster position                    
+      v2 *= (en2 / v2.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless particles)    
+      float pt2 = v2.Rho();   // Rho is equivalent to Pt when using XYZVector         
       
       int ind2 = int( it_bc2 - clusterCollection->begin() );
       std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind2);
@@ -1022,33 +1027,33 @@ void HLTRegionalEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &b
 
 void HLTRegionalEcalResonanceFilter::calcPaircluster(const reco::BasicCluster &bc1, const reco::BasicCluster &bc2,float &m_pair,float &pt_pair,float &eta_pair, float &phi_pair){
     
-
-  // use TVector3 instead of TLorentzVector to make things faster (and initialize with cartesian coordinates).
+  // use XYZVector instead of TLorentzVector to make things faster (and initialize with cartesian coordinates).
   // We are interested in the momentum vector:  however, we start from cartesian coordinates to get the vector direction, 
   // then we set the vector's magnitude to obtain momentum coordinates. The magnitude we set is equal to the particle's energy.
   // We can do this because, assuming massless particles (or negligible mass), the magnitude of the momentum vector is given by the energy.
 
-  // Define a TVector3 and initialize it with the first cluster's cartesian coordinates
-  TVector3 v1( bc1.x(), bc1.y(), bc1.z() );
-  //start creating the sum of energies of the two input clusters. Here we only sum the first so that we can use it to set the magnitude of v1
+  math::XYZVector v1(bc1.position()); 
   float en1 = bc1.energy();
-  v1.SetMag(en1);
+  float scaleFactor = en1 / v1.R();  // XYZVector::R() returns sqrt(Mag2()), where Mag2()= fx*fx + fy*fy + fz*fz 
+  // here I'm assuming that the vector initial magnitude is always different from 0 (the cluster must be somewhere in the detector, so the distance is greater than 0)
+  v1 *= scaleFactor;
+
   // vsum would be v1 + v2, but instead of declaring both v2 and vsum, just declare vsum, initialize as if it is v2 and then sum v1.
-  TVector3 vsum( bc2.x(), bc2.y(), bc2.z() );
+  math::XYZVector vsum(bc2.position());
   // define energy sum initializing it to energy2, so that we can use it before summing energy1
   float energysum = bc2.energy();
-  vsum.SetMag(energysum);
+  scaleFactor = energysum / vsum.R();
+  vsum *= scaleFactor;
+
   vsum += v1;
   // now sum the energy of the second basic cluster to get total energy
   energysum += en1;
 
   // finally, assign values 
   m_pair = sqrt( energysum * energysum - vsum.Mag2());    // M_pi0 = sqrt(E_pi0^2 - |p_pi0|^2)
-  pt_pair = vsum.Pt();
-  eta_pair = vsum.PseudoRapidity();  // could call vsum.Eta() but this would just call vsum.Pseudorapidity(), so let's skip one step
-  // note that Pseudorapidity is defined as the rapidity (see TVector3 documentation), that is, under the assumption of massless particle
+  pt_pair = vsum.Rho(); // Rho method is the equivalent of Pt: returns sqrt( fx*fx + fy*fy )
+  eta_pair = vsum.Eta();  
   phi_pair = vsum.Phi();
-
   
   
 }

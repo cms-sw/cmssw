@@ -608,7 +608,7 @@ int electronCompare()
        } while (cat.empty()) ;
      }
    }
-  std::cout << "on ferme le fichier : " << histo_file2 << std::endl;
+//  std::cout << "on ferme le fichier : " << histo_file2 << std::endl;
   histo_file2.close() ;
   web_page<<"</td></tr></table>\n" ;
 

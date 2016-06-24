@@ -4,7 +4,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include<memory>
 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class SiStripRecHitMatcher;

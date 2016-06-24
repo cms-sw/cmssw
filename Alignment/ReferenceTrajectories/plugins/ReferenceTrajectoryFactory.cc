@@ -96,11 +96,14 @@ ReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if ( input.first.isValid() )
     {
+      ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+      config.useBeamSpot = useBeamSpot_;
+      config.includeAPEs = includeAPEs_;
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
-      trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
-                                                                            magneticField.product(), materialEffects(),
-                                                                            propagationDirection(), theMass, 
-                                                                            theUseBeamSpot, beamSpot)));
+      config.hitsAreReverse = false;
+      trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
+                                                                            magneticField.product(),
+                                                                            beamSpot, config)));
     }
 
     ++itTracks;
@@ -144,22 +147,28 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     {
       if ( (*itExternal).isValid() && sameSurface( (*itExternal).surface(), input.first.surface() ) )
       {
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
         // set the flag for reversing the RecHits to false, since they are already in the correct order.
-	ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
-                                                                 magneticField.product(), materialEffects(),
-                                                                 propagationDirection(), theMass,
-                                                                 theUseBeamSpot, beamSpot) );
-	  
+        config.hitsAreReverse = false;
+        ReferenceTrajectoryPtr refTraj(new ReferenceTrajectory(*itExternal, input.second,
+                                                               magneticField.product(),
+                                                               beamSpot, config));
+
         AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
         refTraj->setParameterErrors( externalParamErrors );
 	trajectories.push_back( refTraj );
       }
       else
       {
-        trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
-                                                                              magneticField.product(), materialEffects(),
-                                                                              propagationDirection(), theMass,
-                                                                              theUseBeamSpot, beamSpot)));
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
+        config.hitsAreReverse = false;
+        trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
+                                                                              magneticField.product(),
+                                                                              beamSpot, config)));
       }
     }
     

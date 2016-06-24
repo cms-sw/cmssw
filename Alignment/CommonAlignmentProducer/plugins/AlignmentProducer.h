@@ -47,7 +47,7 @@
 
 class Alignments;
 class IntegratedCalibrationBase;
-class SurveyErrors;
+struct SurveyErrors;
 namespace edm {
   class Run;
   class LuminosityBlock;

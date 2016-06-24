@@ -64,8 +64,8 @@ namespace {
 
       DOMNodeList *childList = nodeToConvert.getChildNodes();
 
-      unsigned int numNodes = childList->getLength();
-      for (unsigned int i = 0; i < numNodes; ++i) {
+      XMLSize_t numNodes = childList->getLength();
+      for (XMLSize_t i = 0; i < numNodes; ++i) {
         DOMNode *childNode = childList->item(i);
         if (childNode->getNodeType() != DOMNode::ELEMENT_NODE) {
             continue;
@@ -73,8 +73,8 @@ namespace {
         DOMElement *child = static_cast<DOMElement *>(childNode);
 
         DOMNamedNodeMap *attributes = child->getAttributes();
-        unsigned int numAttributes = attributes->getLength();
-        for (unsigned int j = 0; j < numAttributes; ++j) {
+        XMLSize_t numAttributes = attributes->getLength();
+        for (XMLSize_t j = 0; j < numAttributes; ++j) {
             DOMNode *attributeNode = attributes->item(j);
             if (attributeNode->getNodeType() != DOMNode::ATTRIBUTE_NODE) {
               continue;
@@ -391,8 +391,8 @@ namespace edm {
         // FIXME: should probably use the parser for validating the XML.
 
         DOMNodeList *sites = doc->getElementsByTagName(_toDOMS("site"));
-        unsigned int numSites = sites->getLength();
-        for (unsigned int i = 0; i < numSites; ++i) {
+        XMLSize_t numSites = sites->getLength();
+        for (XMLSize_t i = 0; i < numSites; ++i) {
           DOMElement *site = static_cast<DOMElement *>(sites->item(i));
 
           // Parse the site name
@@ -529,8 +529,8 @@ namespace edm {
                 DOMNodeList *childList = nativeProtocol->getChildNodes();
 
                 XMLCh* prefixXMLCh = _toDOMS("prefix");
-                unsigned int numNodes = childList->getLength();
-                for (unsigned int i = 0; i < numNodes; ++i) {
+                XMLSize_t numNodes = childList->getLength();
+                for (XMLSize_t i = 0; i < numNodes; ++i) {
                   DOMNode *childNode = childList->item(i);
                   if (childNode->getNodeType() != DOMNode::ELEMENT_NODE) {
                     continue;

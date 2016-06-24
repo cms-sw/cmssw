@@ -35,7 +35,7 @@ SUSY_HLT_Mu17_TrkIsoVVL = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu17_TrkIsoVVL_v'),
-  TriggerFilter = cms.InputTag('hltL3fL1sMu12L1f0L2f12L3Filtered17TkIsoFiltered0p4', '', 'HLT'), #the last filter in the path                                 
+  TriggerFilter = cms.InputTag('hltL3fL1sMu1lqL1f0L2f10L3Filtered17TkIsoFiltered0p4', '', 'HLT'), #the last filter in the path                                 
 )
 
 SUSY_HLT_Mu17_TrkIsoVVL_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
@@ -50,7 +50,7 @@ SUSY_HLT_Mu17 = cms.EDAnalyzer("SUSY_HLT_MuonFakes",
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu17_v'),
-  TriggerFilter = cms.InputTag('hltL3fL1sMu12L1f0L2f12L3Filtered17', '', 'HLT'), #the last filter in the path                                 
+  TriggerFilter = cms.InputTag('hltL3fL1sMu10lqL1f0L2f10L3Filtered17', '', 'HLT'), #the last filter in the path                                 
 )
 
 SUSY_HLT_Mu17_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",

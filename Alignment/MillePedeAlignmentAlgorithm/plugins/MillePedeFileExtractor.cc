@@ -1,61 +1,66 @@
 // Original Author:  Broen van Besien
 //         Created:  Mon, 23 Mar 2015 14:56:15 GMT
 
-#include <memory>
-
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileExtractor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h" 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
-    : theOutputDir(iConfig.getParameter<std::string>("fileDir")),
-      theOutputFileName(iConfig.getParameter<std::string>("outputBinaryFile")) {
+    : outputDir_(iConfig.getParameter<std::string>("fileDir")),
+      outputFileName_(iConfig.getParameter<std::string>("outputBinaryFile")),
+      maxNumberOfBinaries_(iConfig.getParameter<int>("maxNumberOfBinaries")) {
 
-  edm::InputTag fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
-  theFileBlobToken = consumes<FileBlobCollection, edm::BranchType::InRun>(fileBlobInputTag);
-  // nothing else in the constructor
+  auto fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
+  fileBlobToken_ = consumes<FileBlobCollection, edm::BranchType::InLumi>(fileBlobInputTag);
+  if (hasBinaryNumberLimit()) {
+    edm::LogInfo("MillePedeFileActions")
+      << "Limiting the number of extracted binary files to "
+      << maxNumberOfBinaries_;
+  }
 }
 
 MillePedeFileExtractor::~MillePedeFileExtractor() {}
 
-void MillePedeFileExtractor::endRun(const edm::Run& iRun,
-                                    edm::EventSetup const&) {
+void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
+                                                const edm::EventSetup&)
+{
+  if (enoughBinaries()) return;
+
   // Getting our hands on the vector of FileBlobs
-  edm::Handle<FileBlobCollection> theFileBlobCollection;
-  iRun.getByToken(theFileBlobToken, theFileBlobCollection);
-  if (theFileBlobCollection.isValid()) {
+  edm::Handle<FileBlobCollection> fileBlobCollection;
+  iLumi.getByToken(fileBlobToken_, fileBlobCollection);
+  if (fileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
-    int theVectorSize = theFileBlobCollection->size();
-    edm::LogInfo("MillePedeFileActions") << "Root file contains "
-                                         << theVectorSize << " FileBlob(s).";
+    edm::LogInfo("MillePedeFileActions")
+      << "Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
     // Loop over the FileBlobs in the vector, and write them to files:
-    for (std::vector<FileBlob>::const_iterator it =
-             theFileBlobCollection->begin();
-         it != theFileBlobCollection->end(); ++it) {
+    for (const auto& blob: *fileBlobCollection) {
+      if (enoughBinaries()) break;
       // We format the filename with a number, starting from 0 to the size of
       // our vector.
       // For this to work, the outputBinaryFile config parameter must contain a
       // formatting directive for a number, like %04d.
       char theNumberedOutputFileName[200];
-      int theNumber = it - theFileBlobCollection->begin();
-      sprintf(theNumberedOutputFileName, theOutputFileName.c_str(), theNumber);
+      sprintf(theNumberedOutputFileName, outputFileName_.c_str(), nBinaries_);
       // Log the filename to which we will write...
       edm::LogInfo("MillePedeFileActions")
           << "Writing FileBlob file to file "
-          << theOutputDir + theNumberedOutputFileName << ".";
+          << outputDir_ + theNumberedOutputFileName << ".";
       // ...and perform the writing operation.
-      it->write(theOutputDir + theNumberedOutputFileName);
-      // Carefull, it seems that when writing to an impossible file, this is
-      // swallowed by the FileBlob->write operation and no error is thrown.
+      blob.write(outputDir_ + theNumberedOutputFileName);
+      // Careful, it seems that when writing to an impossible file, this is
+      // swallowed by the FileBlob.write operation and no error is thrown.
+      ++nBinaries_;
     }
   } else {
     edm::LogError("MillePedeFileActions")
         << "Error: The root file does not contain any vector of FileBlob.";
   }
 }
+
 
 // Manage the parameters for the module:
 // (Note that this will autogenerate the _cfi.py file.)
@@ -78,6 +83,9 @@ void MillePedeFileExtractor::fillDescriptions(
       "root file. Make sure you overwrite this, if you have changed "
       "this is the configuration of the MillePedeFileConverter.");
 
+  desc.add<int>("maxNumberOfBinaries", 1000)->setComment(
+      "Number of binaries to be extracted from the input files. "
+      "Use a negative value to apply no limit.");
 
   descriptions.add("millePedeFileExtractor", desc);
   descriptions.setComment(

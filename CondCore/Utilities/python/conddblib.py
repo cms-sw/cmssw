@@ -158,6 +158,7 @@ class Synchronization(Enum):
     express    = 'express'
     prompt     = 'prompt'
     pcl        = 'pcl'
+    offline    = 'offline'
 
 class TimeType(Enum):
     run  = 'Run'

@@ -10,7 +10,7 @@ namespace edm {
   class ThrowingSource : public ProducerSourceBase {
   public:
     explicit ThrowingSource(ParameterSet const&, InputSourceDescription const&);
-    ~ThrowingSource();
+    ~ThrowingSource() noexcept(false) ;
 
     virtual void beginJob();
     virtual void endJob();
@@ -55,7 +55,7 @@ namespace edm {
 
   }
 
-  ThrowingSource::~ThrowingSource() {
+  ThrowingSource::~ThrowingSource() noexcept(false) {
     if (whenToThrow_ == kDestructor) throw cms::Exception("TestThrow") << "ThrowingSource destructor";
   }
 

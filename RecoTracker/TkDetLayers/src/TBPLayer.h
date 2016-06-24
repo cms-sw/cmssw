@@ -13,7 +13,7 @@
  *  
  */
 #pragma GCC visibility push(hidden)
-class TBPLayer final : public TBLayer {
+class TBPLayer : public TBLayer {
  public:
   typedef PeriodicBinFinderInPhi<float>   BinFinderType;
 
@@ -34,6 +34,8 @@ class TBPLayer final : public TBLayer {
   ~TBPLayer()  __attribute__ ((cold));
 
   
+  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const __attribute__ ((cold));
+
  
 
  private:
@@ -67,8 +69,6 @@ class TBPLayer final : public TBLayer {
   BinFinderType    theOuterBinFinder;
 
   
-  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const __attribute__ ((cold));
-
     
 };
 

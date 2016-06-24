@@ -67,7 +67,7 @@ TrackFromPVSelector::~TrackFromPVSelector(){}
 //______________________________________________________________________________
 void TrackFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {  
-  std::auto_ptr<std::vector<reco::Track> > goodTracks(new std::vector<reco::Track >);
+  std::unique_ptr<std::vector<reco::Track> > goodTracks(new std::vector<reco::Track >);
   
   edm::Handle< std::vector<reco::Vertex> > VertexHandle;
   iEvent.getByToken( v_recoVertexToken_, VertexHandle );
@@ -77,7 +77,7 @@ void TrackFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSet
   
   if( (VertexHandle->size() == 0) || (TrackHandle->size() == 0) ) 
   {
-    iEvent.put(goodTracks);
+    iEvent.put(std::move(goodTracks));
     return ;
   }
   
@@ -92,7 +92,7 @@ void TrackFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSet
     }
   }  
   
-  iEvent.put(goodTracks);
+  iEvent.put(std::move(goodTracks));
   
 }
 

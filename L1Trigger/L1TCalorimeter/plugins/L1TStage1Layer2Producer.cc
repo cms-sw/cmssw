@@ -160,14 +160,14 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast = caloRegions->getLastBX();
 
   //outputs
-  std::auto_ptr<EGammaBxCollection> egammas (new EGammaBxCollection);
-  std::auto_ptr<TauBxCollection> taus (new TauBxCollection);
-  std::auto_ptr<TauBxCollection> isoTaus (new TauBxCollection);
-  std::auto_ptr<JetBxCollection> jets (new JetBxCollection);
-  std::auto_ptr<JetBxCollection> preGtJets (new JetBxCollection);
-  std::auto_ptr<EtSumBxCollection> etsums (new EtSumBxCollection);
-  std::auto_ptr<CaloSpareBxCollection> hfSums (new CaloSpareBxCollection);
-  std::auto_ptr<CaloSpareBxCollection> hfCounts (new CaloSpareBxCollection);
+  std::unique_ptr<EGammaBxCollection> egammas (new EGammaBxCollection);
+  std::unique_ptr<TauBxCollection> taus (new TauBxCollection);
+  std::unique_ptr<TauBxCollection> isoTaus (new TauBxCollection);
+  std::unique_ptr<JetBxCollection> jets (new JetBxCollection);
+  std::unique_ptr<JetBxCollection> preGtJets (new JetBxCollection);
+  std::unique_ptr<EtSumBxCollection> etsums (new EtSumBxCollection);
+  std::unique_ptr<CaloSpareBxCollection> hfSums (new CaloSpareBxCollection);
+  std::unique_ptr<CaloSpareBxCollection> hfCounts (new CaloSpareBxCollection);
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);
@@ -240,14 +240,14 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
-  iEvent.put(egammas);
-  iEvent.put(taus,"rlxTaus");
-  iEvent.put(isoTaus,"isoTaus");
-  iEvent.put(jets);
-  iEvent.put(preGtJets,"preGtJets");
-  iEvent.put(etsums);
-  iEvent.put(hfSums,"HFRingSums");
-  iEvent.put(hfCounts,"HFBitCounts");
+  iEvent.put(std::move(egammas));
+  iEvent.put(std::move(taus),"rlxTaus");
+  iEvent.put(std::move(isoTaus),"isoTaus");
+  iEvent.put(std::move(jets));
+  iEvent.put(std::move(preGtJets),"preGtJets");
+  iEvent.put(std::move(etsums));
+  iEvent.put(std::move(hfSums),"HFRingSums");
+  iEvent.put(std::move(hfCounts),"HFBitCounts");
 }
 
 // ------------ method called once each job just before starting event loop ------------

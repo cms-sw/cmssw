@@ -84,6 +84,15 @@ class CSCCorrelatedLCTDigi
   /// set quality code
   void setQuality(unsigned int q) {quality=q;}
 
+  /// set CLCT pattern
+  void setCLCTPattern(unsigned int p) {pattern=p;}
+
+  /// set valid
+  void setValid(unsigned int v) {valid=v;}
+
+  /// set bending
+  void setBend(unsigned int b) {bend=b;}
+
  private:
   uint16_t trknmb;
   uint16_t valid;

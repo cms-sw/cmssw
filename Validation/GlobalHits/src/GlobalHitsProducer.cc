@@ -245,7 +245,7 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
+  std::unique_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
 
   if (verbosity > 2)
     edm::LogInfo (MsgLoggerCat)
@@ -264,7 +264,7 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
   storeHCal(*pOut);
 
   // store information in event
-  iEvent.put(pOut,label);
+  iEvent.put(std::move(pOut),label);
 
   return;
 }

@@ -66,7 +66,7 @@ namespace edm
 
       // 
 
-      std::auto_ptr<reco::TrackCollection> NewTrackList_;
+      std::unique_ptr<reco::TrackCollection> NewTrackList_;
 
 
     };

@@ -97,7 +97,7 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup&
     edm::Handle<CrossingFrame<PSimHit> > xFrame;
     LogTrace("DTHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<DTsimhitsXFTag;
     iEvent.getByLabel(DTsimhitsXFTag,xFrame);
-    auto_ptr<MixCollection<PSimHit> > 
+    unique_ptr<MixCollection<PSimHit> > 
       DTsimhits( new MixCollection<PSimHit>(xFrame.product()) );
     LogTrace("DTHitAssociator") <<"... size = "<<DTsimhits->size();
     MixCollection<PSimHit>::MixItr isimhit;

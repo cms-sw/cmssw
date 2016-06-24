@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 triggerStreamResultsFilter = cms.EDFilter('TriggerResultsFilter',
- hltResults = cms.InputTag('TriggerResults'), # HLT results - set to empty to ignore HLT                                                                                                 
- l1tResults = cms.InputTag(''), # L1 GT results - set to empty to ignore L1                                                                                                               
- l1tIgnoreMask = cms.bool(False), # use L1 mask                                                                                                                                           
- l1techIgnorePrescales = cms.bool(False), # read L1 technical bits from PSB#9, bypassing the prescales                                                                                    
- daqPartitions = cms.uint32(0x01), # used by the definition of the L1 mask                                                                                                                
- throw = cms.bool(True), # throw exception on unknown trigger names                                                                                                                       
+ hltResults = cms.InputTag('TriggerResults'),   # HLT results - set to empty to ignore HLT
+ l1tResults = cms.InputTag(''),                 # L1 uGT results - set to empty to ignore L1
+ l1tIgnoreMaskAndPrescale = cms.bool(False),    # use L1 results before masks and prescales
+ throw = cms.bool(True),                        # throw exception on unknown trigger names
  triggerConditions = cms.vstring(
   'HLT_Ele27_eta2p1_WP85_Gsf_v1',
   'HLT_Ele27_eta2p1_WP85_PFMET_MT50_Gsf_v1',

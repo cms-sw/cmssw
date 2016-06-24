@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('SIMDIGIRECO')
+process = cms.Process('SIMDIGIRECO',eras.Phase2LReco)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -134,12 +135,13 @@ for path in process.paths:
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCalMuon
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
 
-#call to customisation function cust_2023HGCalMuon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023HGCalMuon(process)
+#call to customisation function cust_2023LReco imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023LReco(process)
 
 # End of customisation functions
-
-#outfile = open("EdmDumpPyhon.py","w")
-#outfile.write(process.dumpPython())
+for label, prod in process.producers_().iteritems():
+        if prod.type_() == "OscarMTProducer":
+            # ugly hack
+            prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

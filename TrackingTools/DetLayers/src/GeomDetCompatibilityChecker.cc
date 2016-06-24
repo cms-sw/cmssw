@@ -2,8 +2,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define STAT_TSB
+// #define STAT_TSB
 
 #ifdef STAT_TSB
 #include<iostream>
@@ -55,10 +56,10 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
 					  const MeasurementEstimator& est) {
   stat.ntot++;
 
-  auto const sagCut = est.maxSagitta();
+  auto const sagCut =  est.maxSagitta();
   auto const minTol2 = est.minTolerance2();
 
-  // std::cout << "param " << sagCut << ' ' << minTol2 << std::endl;
+  // std::cout << "param " << sagCut << ' ' << std::sqrt(minTol2) << std::endl;
 
   /*
   auto err2 = tsos.curvilinearError().matrix()(3,3);
@@ -82,6 +83,7 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
       // sagitta = d^2*c/2
       sagitta = 0.5f*std::abs(tpath2*tsos.globalParameters().transverseCurvature());
       close = sagitta<sagCut;
+      LogDebug("TkDetLayer") << "GeomDetCompatibilityChecker: sagitta " << sagitta << std::endl; 
       if (close) { 
          stat.nth++;
          auto pos = plane.toLocal(GlobalPoint(crossing.position(path.second)));
@@ -89,7 +91,7 @@ GeomDetCompatibilityChecker::isCompatible(const GeomDet* theDet,
          auto tollL2 = std::max(sagitta*sagitta,minTol2);
          auto toll = LocalError(tollL2,0,tollL2);
          isIn = plane.bounds().inside(pos,toll);
-         if (!isIn) { stat.ns2++;
+         if (!isIn) { stat.ns2++;  LogDebug("TkDetLayer") <<"GeomDetCompatibilityChecker: not in " << pos << std::endl;
                       return std::make_pair( false,TrajectoryStateOnSurface());  
                      }
       }

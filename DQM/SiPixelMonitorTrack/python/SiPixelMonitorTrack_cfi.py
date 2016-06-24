@@ -28,7 +28,8 @@ SiPixelTrackResidualSource = cms.EDAnalyzer("SiPixelTrackResidualSource",
     PtMinRes = cms.untracked.double(4.0),
     vtxsrc= cms.untracked.string("offlinePrimaryVertices"),
 
-    trajectoryInput = cms.InputTag('generalTracks')              
+    trajectoryInput = cms.InputTag('generalTracks'),              
+    digisrc = cms.InputTag("siPixelDigis") 
 )
 
 # Modify for if the phase 1 pixel detector is active

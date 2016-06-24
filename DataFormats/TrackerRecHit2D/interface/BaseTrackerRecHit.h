@@ -62,6 +62,7 @@ public:
   bool isMulti() const { return trackerHitRTTI::isMulti(*this);}
 
   virtual bool isPixel() const { return false;}
+  virtual bool isPhase2() const { return false;}
 
  // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const=0;

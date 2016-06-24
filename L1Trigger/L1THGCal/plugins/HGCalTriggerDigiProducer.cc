@@ -84,7 +84,7 @@ void HGCalTriggerDigiProducer::beginRun(const edm::Run& /*run*/,
 }
 
 void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-  std::auto_ptr<l1t::HGCFETriggerDigiCollection> 
+  std::unique_ptr<l1t::HGCFETriggerDigiCollection> 
     fe_output( new l1t::HGCFETriggerDigiCollection );
   
   edm::Handle<HGCEEDigiCollection> ee_digis_h;
@@ -114,7 +114,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   }
 
   // get the orphan handle and fe digi collection
-  auto fe_digis_handle = e.put(fe_output);
+  auto fe_digis_handle = e.put(std::move(fe_output));
   auto fe_digis_coll = *fe_digis_handle;
   
   //now we run the emulation of the back-end processor

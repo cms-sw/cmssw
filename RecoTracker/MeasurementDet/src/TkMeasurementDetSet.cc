@@ -1,8 +1,4 @@
 #include "TkMeasurementDetSet.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 void StMeasurementConditionSet::init(int size) {
   activeThisPeriod_.resize(size,true);
@@ -42,4 +38,8 @@ void PxMeasurementConditionSet::init(int size) {
   id_.resize(size);
 }
 
+void Phase2OTMeasurementConditionSet::init(int size) {
+  activeThisPeriod_.resize(size,true);
+  id_.resize(size);
+}
 

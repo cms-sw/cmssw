@@ -172,8 +172,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
   iEvent.getByToken(hcalTPSource, hcalTPs);
 
-  std::auto_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
-  std::auto_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
+  std::unique_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
+  std::unique_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
 
   uint32_t expectedTotalET = 0;
   if(!layer1->clearEvent()) {
@@ -187,14 +187,12 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int caloPhi = ecalTp.id().iphi();
     int et = ecalTp.compressedEt();
     bool fgVeto = ecalTp.fineGrain();
-    if(et != 0) {
-      UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
-      if(!layer1->setECALData(t,fgVeto,et)) {
-	LOG_ERROR << "UCT: Failed loading an ECAL tower" << std::endl;
-	return;
-      }
-      expectedTotalET += et;
+    UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
+    if(!layer1->setECALData(t,fgVeto,et)) {
+      LOG_ERROR << "UCT: Failed loading an ECAL tower" << std::endl;
+      return;
     }
+    expectedTotalET += et;
   }
 
   for ( const auto& hcalTp : *hcalTPs ) {
@@ -215,20 +213,17 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool fg  = hcalTp.t0().fineGrain(0);
       bool fg2 = hcalTp.t0().fineGrain(1);
       if(caloPhi <= 72) {
-	if(et != 0) {
-	  UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
-	  uint32_t featureBits = 0;
-          if(fg)  featureBits |= 0b01;
-          // fg2 should only be set for HF
-          if(absCaloEta > 29 && fg2) featureBits |= 0b10;
-	  if(!layer1->setHCALData(t, featureBits, et)) {
-	    LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
-	    LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
-	    return;
-	    
-	  }
-	  expectedTotalET += et;
-	}
+        UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
+        uint32_t featureBits = 0;
+        if(fg)  featureBits |= 0b01;
+        // fg2 should only be set for HF
+        if(absCaloEta > 29 && fg2) featureBits |= 0b10;
+        if(!layer1->setHCALData(t, featureBits, et)) {
+          LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
+          LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
+          return;
+        }
+        expectedTotalET += et;
       }
       else {
 	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << "; et = " << et << std::endl;	
@@ -258,7 +253,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     towersColl->push_back(theBX, caloTower);
   }
 
-  iEvent.put(towersColl);
+  iEvent.put(std::move(towersColl));
 
   UCTGeometry g;
   vector<UCTCrate*> crates = layer1->getCrates();
@@ -282,7 +277,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
   }  
-  iEvent.put(rgnCollection);
+  iEvent.put(std::move(rgnCollection));
 
 }
 

@@ -140,3 +140,10 @@ reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(interestingEcalDetIdEB*interes
                                           reducedEcalRecHitsEB*
                                           reducedEcalRecHitsEE*
                                           seldigis)                                          
+
+
+_phase2_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copy()
+_phase2_reducedEcalRecHitsSequence.remove(reducedEcalRecHitsES)
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_common.toReplaceWith( reducedEcalRecHitsSequence , _phase2_reducedEcalRecHitsSequence )

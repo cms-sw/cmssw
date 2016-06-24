@@ -61,14 +61,14 @@ IsoTracks::~IsoTracks(){}
 void IsoTracks::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr<std::vector<reco::Track> > IsoTracks(new std::vector<reco::Track >);
+  std::unique_ptr<std::vector<reco::Track> > IsoTracks(new std::vector<reco::Track >);
   
   edm::Handle< std::vector<reco::Track> > dirtyTracks;
   iEvent.getByToken( v_recoTrackToken_, dirtyTracks );
   
   if( dirtyTracks->size() == 0 ) 
   {
-    iEvent.put(IsoTracks);
+    iEvent.put(std::move(IsoTracks));
     return ;
   }
   
@@ -92,7 +92,7 @@ void IsoTracks::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 	  IsoTracks -> push_back( *dirtyTrackIt ) ; 
 	}
   }
-  iEvent.put(IsoTracks);
+  iEvent.put(std::move(IsoTracks));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

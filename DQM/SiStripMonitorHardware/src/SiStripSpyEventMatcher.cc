@@ -229,10 +229,9 @@ namespace sistrip {
     MatchingOutput mo(outputRawData);
     source_->loopSpecified(*eventPrincipal_,fileNameHash,matchingEvents->begin(),matchingEvents->end(),boost::bind(&SpyEventMatcher::getCollections,this,_1,
                                                        eventId,apvAddress,boost::cref(cabling),boost::ref(mo)));
-    SpyDataCollections collections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
+    collectionsToCreate = SpyDataCollections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
                                    mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),
                                    mo.outputReorderedDigisVector_.get(),mo.outputVirginRawDigisVector_.get());
-    collectionsToCreate = collections;
   }
   
   void SpyEventMatcher::findMatchingFeds(const uint32_t eventId, const uint8_t apvAddress,
@@ -410,18 +409,6 @@ namespace sistrip {
       reorderedDigis(),
       virginRawDigis()
   {}
-  
-  SpyEventMatcher::SpyDataCollections& SpyEventMatcher::SpyDataCollections::operator = (SpyDataCollections original)
-  {
-    rawData = original.rawData;
-    totalEventCounters = original.totalEventCounters;
-    l1aCounters = original.l1aCounters;
-    apvAddresses = original.apvAddresses;
-    scopeDigis = original.scopeDigis;
-    payloadDigis = original.payloadDigis;
-    virginRawDigis = original.virginRawDigis;
-    return *this;
-  }
   
   SpyEventMatcher::CountersWrapper::CountersWrapper(const Counters* theCounters)
     : pConst(theCounters),

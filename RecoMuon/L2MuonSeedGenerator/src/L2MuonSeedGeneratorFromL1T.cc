@@ -217,6 +217,11 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         if( pt < 1.0) pt = 1.0;
       }
       
+      // Fallback solution using ME2
+      DetId fallback_id;
+      theta < Geom::pi()/2. ? fallback_id = CSCDetId(1,2,0,0,0) : fallback_id = CSCDetId(2,2,0,0,0); 
+      const DetLayer* ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
+
       vec.setMag(radius);
   
       GlobalPoint pos(vec.x(),vec.y(),vec.z());
@@ -292,6 +297,15 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
             detsWithStates = detLayer->compatibleDets(tsos, 
                               *theService->propagator(thePropagatorName), 
                               *theEstimator);   
+
+          if (detsWithStates.size() == 0 && barrel ) {
+            // try again to propagate but using ME2 as reference
+            tsos = theService->propagator(thePropagatorName)->propagate(state, ME2DetLayer->surface());
+            detsWithStates = ME2DetLayer->compatibleDets(tsos, 
+                                           *theService->propagator(thePropagatorName), 
+                                           *theEstimator);   
+          }
+
           if (detsWithStates.size()){
   
             TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;

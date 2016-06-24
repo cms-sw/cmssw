@@ -153,6 +153,8 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
         general["workdir"] = self.get(internal_section, "workdir")
+        for dir in "workdir", "datadir", "logdir", "eosdir":
+            general[dir] = os.path.expandvars(general[dir])
         return general
     
     def checkInput(self, section, knownSimpleOptions=[], knownKeywords=[],

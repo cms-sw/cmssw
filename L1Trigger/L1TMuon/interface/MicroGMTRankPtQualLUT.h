@@ -13,6 +13,7 @@ namespace l1t {
     public:
       MicroGMTRankPtQualLUT() {};
       explicit MicroGMTRankPtQualLUT(const std::string&, const unsigned, const unsigned);
+      explicit MicroGMTRankPtQualLUT(l1t::LUT*);
       virtual ~MicroGMTRankPtQualLUT() {};
 
       int lookup(int pt, int qual) const;

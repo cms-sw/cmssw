@@ -109,6 +109,16 @@ class Photon(PhysicsObject ):
         "POG_SPRING15_50ns_Tight": {"conversionVeto": [True,True], "H/E":[0.05,0.05],"sigmaIEtaIEta":[0.0100,0.0267],
         "chaHadIso":[0.91,0.65],"neuHadIso":[[0.33,0.0044,0.5809],[0.93, 0.0040,0.9402]],"phoIso":[[0.61,0.0043],[0.54,0.0041]]},
 
+        # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#SPRING15_selections_25_ns
+        "POG_SPRING15_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.05,0.05],"sigmaIEtaIEta":[0.0102,0.0274],
+        "chaHadIso":[3.32,1.97],"neuHadIso":[[1.92,0.0014,0.000019],[11.86, 0.00139,0.000025]],"phoIso":[[0.81,0.0053],[0.83,0.0034]]},
+
+        "POG_SPRING15_25ns_Medium": {"conversionVeto": [True,True], "H/E":[0.05,0.05],"sigmaIEtaIEta":[0.0102,0.0268],
+        "chaHadIso":[1.37,1.10],"neuHadIso":[[1.06,0.0014,0.000019],[2.69, 0.00139,0.000025]],"phoIso":[[0.28,0.0053],[0.39,0.0034]]},
+
+        "POG_SPRING15_25ns_Tight": {"conversionVeto": [True,True], "H/E":[0.05,0.05],"sigmaIEtaIEta":[0.0100,0.0268],
+        "chaHadIso":[0.76,0.56],"neuHadIso":[[0.97,0.0014,0.000019],[2.09, 0.00139,0.000025]],"phoIso":[[0.08,0.0053],[0.16,0.0034]]},
+
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#CSA14_selections_for_20_bx_25_sc
         "POG_CSA14_25ns_Loose": {"conversionVeto": [True,True], "H/E":[0.553,0.062],"sigmaIEtaIEta":[0.0099,0.0284],
         "chaHadIso":[2.49,1.04],"neuHadIso":[[15.43,0.007],[19.71,0.0129]],"phoIso":[[9.42,0.0033],[11.88,0.0108]]},
@@ -141,9 +151,11 @@ class Photon(PhysicsObject ):
     def calScaledIsoValueLin(self,offset,slope):
         return slope*self.pt()+offset
 
+    def calScaledIsoValueQuadr(self,offset,term_1,term_2):
+        return offset + term_1*self.pt() + term_2*pow(self.pt(),2)
+
     def calScaledIsoValueExp(self,offset,slope_exp,offset_exp):
         return offset + exp(slope_exp*self.pt()+offset_exp)
-
 
     def passPhotonID(self,name,conversionSafe_eleVeto=False):
         
@@ -175,6 +187,9 @@ class Photon(PhysicsObject ):
                 passPhotonIso = False
         elif "POG_SPRING15_50ns" in name:
              if self.calScaledIsoValueExp(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
+                 passPhotonIso = False
+        elif "POG_SPRING15_25ns" in name:
+             if self.calScaledIsoValueQuadr(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):
                  passPhotonIso = False
         else:
             if self.calScaledIsoValueLin(*self.CutBasedIDWP(name)["neuHadIso"][idForBarrel]) < self.neutralHadronIso(isocorr):

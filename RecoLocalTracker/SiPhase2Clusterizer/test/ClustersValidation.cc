@@ -33,7 +33,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigiCommon.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
@@ -199,7 +198,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
         // Get the detector unit's id
         unsigned int rawid(DSViter->detId()); 
         DetId detId(rawid);
-        unsigned int layer(phase2trackerdigi::getLayerNumber(rawid, tTopo));
+        unsigned int layer=tTopo->getOTLayerNumber(rawid);
 
         // Get the geometry of the tracker
         const TrackerGeomDet* geomDetUnit(tkGeom->idToDetUnit(detId));

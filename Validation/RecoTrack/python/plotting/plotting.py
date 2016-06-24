@@ -1,5 +1,6 @@
 import sys
 import math
+import copy
 import array
 import difflib
 
@@ -926,6 +927,7 @@ class Plot:
 
         Keyword arguments:
         fallback     -- Dictionary for specifying fallback (default None)
+        outname      -- String for an output name of the plot (default None for the same as 'name')
         title        -- String for a title of the plot (default None)
         xtitle       -- String for x axis title (default None)
         xtitlesize   -- Float for x axis title size (default None)
@@ -957,6 +959,8 @@ class Plot:
         xbinlabels   -- List of x axis bin labels (if given, default None)
         xbinlabelsize -- Size of x axis bin labels (default None)
         xbinlabeloption -- Option string for x axis bin labels (default None)
+        removeEmptyBins -- Bool for removing empty bins, but only if histogram has bin labels (default False)
+        printBins    -- Bool for printing bin values, but only if histogram has bin labels (default False)
         drawStyle    -- If "hist", draw as line instead of points (default None)
         drawCommand  -- Deliver this to Draw() (default: None for same as drawStyle)
         lineWidth    -- If drawStyle=="hist", the width of line (default 2)
@@ -964,6 +968,7 @@ class Plot:
         legendDy     -- Float for moving TLegend in y direction for separate=True (default None)
         legendDw     -- Float for changing TLegend width for separate=True (default None)
         legendDh     -- Float for changing TLegend height for separate=True (default None)
+        legend       -- Bool to enable/disable legend (default True)
         adjustMarginRight  -- Float for adjusting right margin (default None)
         ratioYmin    -- Float for y axis minimum in ratio pad (default 0.9)
         ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
@@ -976,6 +981,7 @@ class Plot:
             setattr(self, "_"+attr, kwargs.get(attr, default))
 
         _set("fallback", None)
+        _set("outname", None)
 
         _set("title", None)
         _set("xtitle", None)
@@ -1014,6 +1020,8 @@ class Plot:
         _set("xbinlabels", None)
         _set("xbinlabelsize", None)
         _set("xbinlabeloption", None)
+        _set("removeEmptyBins", False)
+        _set("printBins", False)
 
         _set("drawStyle", "EP")
         _set("drawCommand", None)
@@ -1023,6 +1031,7 @@ class Plot:
         _set("legendDy", None)
         _set("legendDw", None)
         _set("legendDh", None)
+        _set("legend", True)
 
         _set("adjustMarginRight", None)
 
@@ -1040,6 +1049,13 @@ class Plot:
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
 
+    def clone(self, **kwargs):
+        if not self.isEmpty():
+            raise Exception("Plot can be cloned only before histograms have been created")
+        cl = copy.copy(self)
+        cl.setProperties(**kwargs)
+        return cl
+
     def getNumberOfHistograms(self):
         """Return number of existing histograms."""
         return len(filter(lambda h: h is not None, self._histograms))
@@ -1055,6 +1071,8 @@ class Plot:
         return False
 
     def getName(self):
+        if self._outname is not None:
+            return self._outname
         if isinstance(self._name, list):
             return str(self._name[0])
         else:
@@ -1175,7 +1193,8 @@ class Plot:
             i = h.Integral()
             if i == 0:
                 continue
-            h.Sumw2()
+            if h.GetSumw2().fN <= 0: # to suppress warning
+                h.Sumw2()
             h.Scale(1.0/i)
 
     def draw(self, pad, ratio, ratioFactor, nrows):
@@ -1231,9 +1250,10 @@ class Plot:
 
         # Extract x bin labels, make sure that only bins with same
         # label are compared with each other
+        histosHaveBinLabels = len(histos[0].GetXaxis().GetBinLabel(1)) > 0
         xbinlabels = self._xbinlabels
         if xbinlabels is None:
-            if len(histos[0].GetXaxis().GetBinLabel(1)) > 0:
+            if histosHaveBinLabels:
                 xbinlabels = [histos[0].GetXaxis().GetBinLabel(i) for i in xrange(1, histos[0].GetNbinsX()+1)]
                 # Merge bin labels with difflib
                 for h in histos[1:]:
@@ -1270,6 +1290,65 @@ class Plot:
                     histos_new.append(h_new)
                 self._tmp_histos = histos_new # need to keep these in memory too ...
                 histos = histos_new
+
+        # Remove empty bins, but only if histograms have bin labels
+        if self._removeEmptyBins and histosHaveBinLabels:
+            # at this point, all histograms have been "equalized" by their x binning and labels
+            # therefore remove bins which are empty in all histograms
+            binsToRemove = set()
+            for b in xrange(1, histos[0].GetNbinsX()+1):
+                binEmpty = True
+                for h in histos:
+                    if h.GetBinContent(b) > 0:
+                        binEmpty = False
+                        break
+                if binEmpty:
+                    binsToRemove.add(b)
+
+            if len(binsToRemove) > 0:
+                # filter xbinlabels
+                xbinlab_new = []
+                for i in xrange(len(xbinlabels)):
+                    if (i+1) not in binsToRemove:
+                        xbinlab_new.append(xbinlabels[i])
+                xbinlabels = xbinlab_new
+
+                # filter histogram bins
+                histos_new = []
+                for h in histos:
+                    values = []
+                    for b in xrange(1, h.GetNbinsX()+1):
+                        if b not in binsToRemove:
+                            values.append( (h.GetXaxis().GetBinLabel(b), h.GetBinContent(b), h.GetBinError(b)) )
+
+                    if len(values) > 0:
+                        h_new = h.Clone(h.GetName()+"_empty")
+                        h_new.SetBins(len(values), h.GetBinLowEdge(1), h.GetBinLowEdge(1)+len(values))
+                        for b, (l, v, e) in enumerate(values):
+                            h_new.GetXaxis().SetBinLabel(b+1, l)
+                            h_new.SetBinContent(b+1, v)
+                            h_new.SetBinError(b+1, e)
+
+                        histos_new.append(h_new)
+
+                self._tmp_histos = histos_new # need to keep these in memory too ...
+                histos = histos_new
+                if len(histos) == 0:
+                    if verbose:
+                        print "No histograms with non-empty bins for plot {name}".format(name=self.getName())
+                    return
+
+        if self._printBins and histosHaveBinLabels:
+            print "####################"
+            print self._name
+            width = max([len(l) for l in xbinlabels])
+            tmp = "%%-%ds " % width
+            for b in xrange(1, histos[0].GetNbinsX()+1):
+                s = tmp % xbinlabels[b-1]
+                for h in histos:
+                    s += "%.3f " % h.GetBinContent(b)
+                print s
+            print
 
         bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
@@ -1608,6 +1687,12 @@ class PlotGroup:
 
         self._ratioFactor = 1.25
 
+    def setProperties(self, **kwargs):
+        for name, value in kwargs.iteritems():
+            if not hasattr(self, "_"+name):
+                raise Exception("No attribute '%s'" % name)
+            setattr(self, "_"+name, value)
+
     def getName(self):
         return self._name
 
@@ -1620,6 +1705,9 @@ class PlotGroup:
                 del self._plots[i]
                 return
         raise Exception("Did not find Plot '%s' from PlotGroup '%s'" % (name, self._name))
+
+    def clear(self):
+        self._plots = []
 
     def append(self, plot):
         self._plots.append(plot)
@@ -1753,27 +1841,27 @@ class PlotGroup:
             canvas.cd()
             plot.draw(canvas, ratio, self._ratioFactor, 1)
 
+            if plot._legend:
+                # Setup legend
+                lx1 = lx1def
+                lx2 = lx2def
+                ly1 = ly1def
+                ly2 = ly2def
 
-            # Setup legend
-            lx1 = lx1def
-            lx2 = lx2def
-            ly1 = ly1def
-            ly2 = ly2def
+                if plot._legendDx is not None:
+                    lx1 += plot._legendDx
+                    lx2 += plot._legendDx
+                if plot._legendDy is not None:
+                    ly1 += plot._legendDy
+                    ly2 += plot._legendDy
+                if plot._legendDw is not None:
+                    lx2 += plot._legendDw
+                if plot._legendDh is not None:
+                    ly1 -= plot._legendDh
 
-            if plot._legendDx is not None:
-                lx1 += plot._legendDx
-                lx2 += plot._legendDx
-            if plot._legendDy is not None:
-                ly1 += plot._legendDy
-                ly2 += plot._legendDy
-            if plot._legendDw is not None:
-                lx2 += plot._legendDw
-            if plot._legendDh is not None:
-                ly1 -= plot._legendDh
-
-            canvas.cd()
-            legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
-                                        denomUncertainty=(ratio and plot.drawRatioUncertainty))
+                canvas.cd()
+                legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
+                                            denomUncertainty=(ratio and plot.drawRatioUncertainty))
 
             ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
         return ret
@@ -1859,6 +1947,8 @@ class PlotFolder:
         Keyword arguments
         loopSubFolders -- Should the subfolders be looped over? (default: True)
         onlyForPileup  -- Plots this folder only for pileup samples
+        onlyForElectron -- Plots this folder only for electron samples
+        onlyForConversion -- Plots this folder only for conversion samples
         purpose        -- html.PlotPurpose member class for the purpose of the folder, used for grouping of the plots to the HTML pages
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
@@ -1866,6 +1956,8 @@ class PlotFolder:
         self._plotGroups = list(plotGroups)
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
         self._onlyForPileup = kwargs.pop("onlyForPileup", False)
+        self._onlyForElectron = kwargs.pop("onlyForElectron", False)
+        self._onlyForConversion = kwargs.pop("onlyForConversion", False)
         self._purpose = kwargs.pop("purpose", None)
         self._page = kwargs.pop("page", None)
         self._section = kwargs.pop("section", None)
@@ -1879,6 +1971,12 @@ class PlotFolder:
     def onlyForPileup(self):
         """Return True if the folder is intended only for pileup samples"""
         return self._onlyForPileup
+
+    def onlyForElectron(self):
+        return self._onlyForElectron
+
+    def onlyForConversion(self):
+        return self._onlyForConversion
 
     def getPurpose(self):
         return self._purpose
@@ -2036,6 +2134,12 @@ class PlotterFolder:
 
     def onlyForPileup(self):
         return self._plotFolder.onlyForPileup()
+
+    def onlyForElectron(self):
+        return self._plotFolder.onlyForElectron()
+
+    def onlyForConversion(self):
+        return self._plotFolder.onlyForConversion()
 
     def getPossibleDQMFolders(self):
         return self._possibleDqmFolders

@@ -16,7 +16,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	std::vector<ConvertedHit> Thits = Sout.Hits();
 	std::vector<std::vector<Winner>> Winners = Sout.Winners();
 	std::vector<int> segment (4,0);
-	int phdiff[4] = {15,15,7,7};
+	int phdiff[4] = {15,15,8,8};
 	
 	/////////////////////////////////////////
 	//// Set Null Ph and Th outputs /////////
@@ -41,19 +41,20 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 			
 			if(Winners[z][w].Rank()){//is there a winner present?	
 			
-				if(verbose) std::cout<<"Winner position-"<<Winners[z][w].Strip()<<". Zone = "<<z<<std::endl;			
+				if(verbose) std::cout<<"\n\nWinner position-"<<Winners[z][w].Strip()<<". Zone = "<<z<<std::endl;			
 				
 				for(std::vector<ConvertedHit>::iterator i = Thits.begin();i != Thits.end();i++){//Possible associated hits
 				
 					//int id = i->Id();
 					
-					if(verbose) std::cout<<"strip = "<<i->Strip()<<", keywire = "<<i->Wire()<<" and zhit-"<<i->Zhit()<<std::endl;
-					
-					bool inzone = 0;///Is the converted hit in the zone we're looking at now?
-					for(std::vector<int>::iterator znc = i->ZoneContribution().begin();znc != i->ZoneContribution().end();znc++){
-						if((*znc) == z)
-							inzone = 1;//yes
-					}
+					if(verbose) std::cout<<"strip = "<<i->Strip()<<", keywire = "<<i->Wire()<<" and zhit-"<<i->Zhit()<<std:: endl;
+
+					// Unused variable
+					/* bool inzone = 0;///Is the converted hit in the zone we're looking at now? */
+					/* for(std::vector<int>::iterator znc = i->ZoneContribution().begin();znc != i->ZoneContribution().end();znc++){ */
+					/* 	if((*znc) == z) */
+					/* 		inzone = 1;//yes */
+					/* } */
 					
 					////////////////////////////////////////////////////////////////////////////////////////////
 					/////////////////// Setting the matched hits based on phi //////////////////////////////////
@@ -65,10 +66,10 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 					//if(one || two)
 					//	setstation++;
 					
-					if(inzone && verbose)
+					if(verbose)
 						std::cout<<"setstation = "<<setstation<<std::endl;
 					
-					if((fabs((Winners[z][w].Strip()) - i->Zhit()) < phdiff[setstation]) ){//is close to winner keystrip and in same zone?
+					if((fabs((Winners[z][w].Strip()) - i->Zhit()) <= phdiff[setstation]) ){//is close to winner keystrip and in same zone?
 					
 						if(ph_output[z][w][setstation].Phi() == -999){//has this already been set? no
 						

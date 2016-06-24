@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('SIM')
+process = cms.Process('SIM',eras.Phase2LReco)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -117,10 +118,16 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 	
-	# customisation of the process.
-	# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-	from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCalV6Muon
-	
-#call to customisation function cust_2023HGCalMuon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023HGCalV6Muon(process)
+# customisation of the process.
 
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
+
+#call to customisation function cust_2023LReco imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2023LReco(process)
+
+# End of customisation functions
+for label, prod in process.producers_().iteritems():
+        if prod.type_() == "OscarMTProducer":
+            # ugly hack
+            prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

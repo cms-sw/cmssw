@@ -72,8 +72,6 @@ namespace popcon {
     
     bool m_LoggingOn;
 
-    bool m_IsDestDbCheckedInQueryLog;
-    
     std::string m_tag;
     
     cond::TagInfo_t m_tagInfo;
@@ -81,9 +79,10 @@ namespace popcon {
     cond::LogDBEntry_t m_logDBEntry;
 
     bool m_close;
+    
     Time_t m_lastTill;
 
-    
+    static constexpr const char* const s_version = "5.0";
   };
 
 
@@ -103,15 +102,15 @@ namespace popcon {
   
   template<typename Container>
   const std::string displayIovHelper(Container const & payloads) {
-    if (payloads.empty()) return "Nothing to transfer;";
-    std::ostringstream s;    
+    if (payloads.empty()) return std::string("Nothing to transfer;");
+    std::ostringstream s;
     // when only 1 payload is transferred; 
-    if ( payloads.size()==1)  
-      s <<"Since " << (*payloads.begin()).time <<  "; " ;
+    if ( payloads.size()==1)
+      s << "Since " << (*payloads.begin()).time <<  "; " ;
     else{
       // when more than one payload are transferred;  
-      s <<   "first payload Since " <<  (*payloads.begin()).time <<  ","
-	<< "last payload Since "  << (*payloads.rbegin()).time <<  ";" ;  
+      s << "first payload Since " <<  (*payloads.begin()).time <<  ", "
+        << "last payload Since "  << (*payloads.rbegin()).time <<  "; " ;  
     }  
     return s.str();
   }
@@ -129,12 +128,12 @@ namespace popcon {
   								 m_tagInfo,m_logDBEntry); 
     Container const & payloads = *ret.first;
     
-    if(m_LoggingOn)
-      m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v4.0; " + 
-					 displayIovHelper(payloads) +  ret.second);
-    //m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v4.0; " + 
-    //				 cond::userInfo() + displayIovHelper(payloads) +  ret.second);
-    
+    if(m_LoggingOn) {
+      std::ostringstream s;
+      s << "PopCon v" << s_version << "; " << displayIovHelper(payloads) << ret.second;
+      //s << "PopCon v" << s_version << "; " << cond::userInfo() << displayIovHelper(payloads) << ret.second;
+      m_dbService->setLogHeaderForRecord(m_record,source.id(),s.str());
+    }
     displayHelper(payloads);
     
     std::for_each(payloads.begin(),payloads.end(),

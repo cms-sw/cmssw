@@ -109,19 +109,18 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 std::pair<double,double> 
 HcalDDDRecConstants::getEtaPhi(int subdet, int ieta, int iphi) const {
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
-  const double fiveDegInRad = 2*M_PI/72;
   double eta(0), phi(0);
   if ((subdet == static_cast<int>(HcalBarrel)) || 
       (subdet == static_cast<int>(HcalEndcap)) ||
       (subdet == static_cast<int>(HcalOuter))) {  // Use Eta Table
-    int unit    = (int)(phibin[ietaAbs-1]/fiveDegInRad+0.5);
+    int unit    = hcons.unitPhi(phibin[ietaAbs-1]);
     int kphi    = (unit == 2) ? ((iphi-1)/2 + 1) : iphi;
     double foff = (ietaAbs <= iEtaMax[0]) ? hpar->phioff[0] : hpar->phioff[1];
     eta         = 0.5*(etaTable[ietaAbs-1]+etaTable[ietaAbs]);
     phi         = foff + (kphi-0.5)*phibin[ietaAbs-1];
   } else {
     ietaAbs    -= iEtaMin[2];
-    int unit    = (int)(hpar->phitable[ietaAbs-1]/fiveDegInRad+0.5);
+    int unit    = hcons.unitPhi(hpar->phitable[ietaAbs-1]);
     int kphi    = (unit == 4) ? ((iphi-3)/4 + 1) : ((iphi-1)/2 + 1);
     double foff = (unit > 2) ? hpar->phioff[4] : hpar->phioff[2];
     eta         = 0.5*(hpar->etaTableHF[ietaAbs-1]+hpar->etaTableHF[ietaAbs]);
@@ -253,6 +252,22 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta) const {
     if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29(0);
   }
   return lmax;
+}
+
+int HcalDDDRecConstants::getMinDepth (const int itype, const int ieta) const {
+
+  int lmin(1);
+  if (itype == 2) { // HF
+  } else if (itype == 3) { //HO
+    lmin = maxDepth[3];
+  } else {
+    unsigned int type  = (itype == 0) ? 0 : 1;
+    if (layerGroupSize(ieta-1) > 0) {
+      lmin = (int)(layerGroup(ieta-1, 0));
+      if (type == 1 && ieta == iEtaMin[type]) lmin = hcons.getDepthEta16(1);
+    }
+  }
+  return lmin;
 }
 
 double HcalDDDRecConstants::getRZ(int subdet, int ieta, int depth) const {
@@ -467,18 +482,30 @@ void HcalDDDRecConstants::initialize(void) {
   iEtaMax[1] = ietaHEM;
 
   // Then Phi bins
+  nPhiBins.clear();
+  for (unsigned int k=0; k<4; ++k) nPhiBins.push_back(0);
   ieta = 0;
   phibin.clear(); phiUnitS.clear();
   for (int i=0; i<nEta; ++i) {
     double dphi = (hpar->phigroup[i])*(hpar->phibin[ieta]);
     phibin.push_back(dphi);
+    int    nphi = (int)((CLHEP::twopi + 0.001)/dphi);
+    if (ieta <= iEtaMax[0]) {
+      if (nphi > nPhiBins[0]) nPhiBins[3] = nPhiBins[0] = nphi;
+    }
+    if (ieta >= iEtaMin[1]) {
+      if (nphi > nPhiBins[1]) nPhiBins[1] = nphi;
+    }
     ieta += (hpar->etagroup[i]);
   }
   for (unsigned int i=1; i<hpar->etaTable.size(); ++i) {
     int unit = hcons.unitPhi(hpar->phibin[i-1]);
     phiUnitS.push_back(unit);
   }
-
+  for (unsigned int i=0; i<hpar->phitable.size(); ++i)  {
+    int  nphi = (int)((CLHEP::twopi + 0.001)/hpar->phitable[i]);
+    if (nphi > nPhiBins[2]) nPhiBins[2] = nphi;
+  }
 #ifdef DebugLog
   std::cout << "Modified eta/deltaphi table for " << nEta << " bins" << std::endl;
   for (int i=0; i<nEta; ++i)
@@ -488,6 +515,10 @@ void HcalDDDRecConstants::initialize(void) {
   std::cout << "PhiUnitS";
   for (unsigned int i=0; i<phiUnitS.size(); ++i)
     std::cout << " [" << i << "] = " << phiUnitS[i];
+  std::cout << std::endl;
+  std::cout << "nPhiBins";
+  for (unsigned int i=0; i<nPhiBins.size(); ++i)
+    std::cout << " [" << i << "] = " << nPhiBins[i];
   std::cout << std::endl;
   std::cout << "EtaTableHF";
   for (unsigned int i=0; i<hpar->etaTableHF.size(); ++i)

@@ -82,46 +82,46 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int size = clustermap.size();
 
 	//links
-  std::auto_ptr<std::vector<int> > clusterIdx        ( new std::vector<int>() ); //link: on trk cluster --> general cluster info 
-  std::auto_ptr<std::vector<int> > onTrkClusterIdx   ( new std::vector<int>(size,   -1)   ); //link: general cluster info --> on track cluster
-	std::auto_ptr<std::vector<int> > onTrkClustersBegin (new std::vector<int>( tracks->size(), -1 ) ); //link: track --> on trk cluster
-	std::auto_ptr<std::vector<int> > onTrkClustersEnd   (new std::vector<int>( tracks->size(), -1 ) ); //link: track --> on trk cluster
-  std::auto_ptr<std::vector<int> > trackindex    ( new std::vector<int>()   ); //link: on track cluster --> track
+  auto clusterIdx        = std::make_unique<std::vector<int>>(); //link: on trk cluster --> general cluster info 
+  auto onTrkClusterIdx   = std::make_unique<std::vector<int>>(size,   -1); //link: general cluster info --> on track cluster
+  auto onTrkClustersBegin = std::make_unique<std::vector<int>>( tracks->size(), -1 ); //link: track --> on trk cluster
+  auto onTrkClustersEnd   = std::make_unique<std::vector<int>>( tracks->size(), -1 ); //link: track --> on trk cluster
+  auto trackindex    = std::make_unique<std::vector<int>>(); //link: on track cluster --> track
 	clusterIdx->reserve(size);
 	trackindex->reserve(size);
 	
-  std::auto_ptr<std::vector<unsigned int> > trackmulti   ( new std::vector<unsigned int>()); trackmulti  ->reserve(size);
-  std::auto_ptr<std::vector<float> >        localtheta   ( new std::vector<float>       ()); localtheta  ->reserve(size);
-  std::auto_ptr<std::vector<float> >        localphi     ( new std::vector<float>       ()); localphi    ->reserve(size);
-  std::auto_ptr<std::vector<float> >        localpitch   ( new std::vector<float>       ()); localpitch  ->reserve(size);
-  std::auto_ptr<std::vector<float> >        localx       ( new std::vector<float>       ()); localx      ->reserve(size);
-  std::auto_ptr<std::vector<float> >        localy       ( new std::vector<float>       ()); localy      ->reserve(size);
-  std::auto_ptr<std::vector<float> >        localz       ( new std::vector<float>       ()); localz      ->reserve(size);
-  std::auto_ptr<std::vector<float> >        strip        ( new std::vector<float>       ()); strip       ->reserve(size);
-  std::auto_ptr<std::vector<float> >        globaltheta  ( new std::vector<float>       ()); globaltheta ->reserve(size);
-  std::auto_ptr<std::vector<float> >        globalphi    ( new std::vector<float>       ()); globalphi   ->reserve(size);
-  std::auto_ptr<std::vector<float> >        globalx      ( new std::vector<float>       ()); globalx     ->reserve(size);
-  std::auto_ptr<std::vector<float> >        globaly      ( new std::vector<float>       ()); globaly     ->reserve(size);
-  std::auto_ptr<std::vector<float> >        globalz      ( new std::vector<float>       ()); globalz     ->reserve(size);
-  std::auto_ptr<std::vector<float> >        insidistance ( new std::vector<float>       ()); insidistance->reserve(size);
-  std::auto_ptr<std::vector<float> >        projwidth    ( new std::vector<float>       ()); projwidth   ->reserve(size);
-  std::auto_ptr<std::vector<float> >        BdotY        ( new std::vector<float>       ()); BdotY       ->reserve(size);
-  std::auto_ptr<std::vector<float> >        covered      ( new std::vector<float>       ()); covered     ->reserve(size);
-  std::auto_ptr<std::vector<float> >  rhlocalx   ( new std::vector<float>()); rhlocalx   ->reserve(size);
-  std::auto_ptr<std::vector<float> >  rhlocaly   ( new std::vector<float>()); rhlocaly   ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  rhlocalxerr( new std::vector<float>()); rhlocalxerr->reserve(size);  
-  std::auto_ptr<std::vector<float> >  rhlocalyerr( new std::vector<float>()); rhlocalyerr->reserve(size);    
-  std::auto_ptr<std::vector<float> >  rhglobalx  ( new std::vector<float>()); rhglobalx  ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  rhglobaly  ( new std::vector<float>()); rhglobaly  ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  rhglobalz  ( new std::vector<float>()); rhglobalz  ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  rhstrip    ( new std::vector<float>()); rhstrip    ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  rhmerr     ( new std::vector<float>()); rhmerr     ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  ubstrip    ( new std::vector<float>()); ubstrip    ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  ubmerr     ( new std::vector<float>()); ubmerr     ->reserve(size);  
-  std::auto_ptr<std::vector<float> >  driftx     ( new std::vector<float>());	driftx     ->reserve(size);
-  std::auto_ptr<std::vector<float> >  drifty     ( new std::vector<float>());	drifty     ->reserve(size);
-  std::auto_ptr<std::vector<float> >  driftz     ( new std::vector<float>());	driftz     ->reserve(size);
-  std::auto_ptr<std::vector<float> >  globalZofunitlocalY ( new std::vector<float>()); globalZofunitlocalY->reserve(size);
+  auto  trackmulti   = std::make_unique<std::vector<unsigned int>>(); trackmulti  ->reserve(size);
+  auto  localtheta   = std::make_unique<std::vector<float>>(); localtheta  ->reserve(size);
+  auto  localphi     = std::make_unique<std::vector<float>>(); localphi    ->reserve(size);
+  auto  localpitch   = std::make_unique<std::vector<float>>(); localpitch  ->reserve(size);
+  auto  localx       = std::make_unique<std::vector<float>>(); localx      ->reserve(size);
+  auto  localy       = std::make_unique<std::vector<float>>(); localy      ->reserve(size);
+  auto  localz       = std::make_unique<std::vector<float>>(); localz      ->reserve(size);
+  auto  strip        = std::make_unique<std::vector<float>>(); strip       ->reserve(size);
+  auto  globaltheta  = std::make_unique<std::vector<float>>(); globaltheta ->reserve(size);
+  auto  globalphi    = std::make_unique<std::vector<float>>(); globalphi   ->reserve(size);
+  auto  globalx      = std::make_unique<std::vector<float>>(); globalx     ->reserve(size);
+  auto  globaly      = std::make_unique<std::vector<float>>(); globaly     ->reserve(size);
+  auto  globalz      = std::make_unique<std::vector<float>>(); globalz     ->reserve(size);
+  auto  insidistance = std::make_unique<std::vector<float>>(); insidistance->reserve(size);
+  auto  projwidth    = std::make_unique<std::vector<float>>(); projwidth   ->reserve(size);
+  auto  BdotY        = std::make_unique<std::vector<float>>(); BdotY       ->reserve(size);
+  auto  covered      = std::make_unique<std::vector<float>>(); covered     ->reserve(size);
+  auto  rhlocalx     = std::make_unique<std::vector<float>>(); rhlocalx   ->reserve(size);
+  auto  rhlocaly     = std::make_unique<std::vector<float>>(); rhlocaly   ->reserve(size);  
+  auto  rhlocalxerr  = std::make_unique<std::vector<float>>(); rhlocalxerr->reserve(size);  
+  auto  rhlocalyerr  = std::make_unique<std::vector<float>>(); rhlocalyerr->reserve(size);    
+  auto  rhglobalx    = std::make_unique<std::vector<float>>(); rhglobalx  ->reserve(size);  
+  auto  rhglobaly    = std::make_unique<std::vector<float>>(); rhglobaly  ->reserve(size);  
+  auto  rhglobalz    = std::make_unique<std::vector<float>>(); rhglobalz  ->reserve(size);  
+  auto  rhstrip      = std::make_unique<std::vector<float>>(); rhstrip    ->reserve(size);  
+  auto  rhmerr       = std::make_unique<std::vector<float>>(); rhmerr     ->reserve(size);  
+  auto  ubstrip      = std::make_unique<std::vector<float>>(); ubstrip    ->reserve(size);  
+  auto  ubmerr       = std::make_unique<std::vector<float>>(); ubmerr     ->reserve(size);  
+  auto  driftx       = std::make_unique<std::vector<float>>(); driftx     ->reserve(size);
+  auto  drifty       = std::make_unique<std::vector<float>>(); drifty     ->reserve(size);
+  auto  driftz       = std::make_unique<std::vector<float>>(); driftz     ->reserve(size);
+  auto  globalZofunitlocalY = std::make_unique<std::vector<float>>(); globalZofunitlocalY->reserve(size);
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   edm::ESHandle<MagneticField> magfield;		     iSetup.get<IdealMagneticFieldRecord>().get(magfield);		      
@@ -227,42 +227,42 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   } //for(TrajTrackAssociationCollection::const_iterator association = associations->begin();
 
-  iEvent.put(clusterIdx        , Prefix + "clusterIdx" + Suffix );
-  iEvent.put(onTrkClusterIdx   , Prefix + "onTrkClusterIdx" + Suffix );
-	iEvent.put(onTrkClustersBegin, Prefix + "onTrkClustersBegin" + Suffix );
-	iEvent.put(onTrkClustersEnd  , Prefix + "onTrkClustersEnd" + Suffix );
-  iEvent.put(trackindex,  Prefix + "trackindex"  + Suffix );
+  iEvent.put(std::move(clusterIdx        ), Prefix + "clusterIdx" + Suffix );
+  iEvent.put(std::move(onTrkClusterIdx   ), Prefix + "onTrkClusterIdx" + Suffix );
+  iEvent.put(std::move(onTrkClustersBegin), Prefix + "onTrkClustersBegin" + Suffix );
+  iEvent.put(std::move(onTrkClustersEnd  ), Prefix + "onTrkClustersEnd" + Suffix );
+  iEvent.put(std::move(trackindex),  Prefix + "trackindex"  + Suffix );
 
-  iEvent.put(trackmulti,  Prefix + "trackmulti"  + Suffix );
-  iEvent.put(localtheta,  Prefix + "localtheta"  + Suffix );
-  iEvent.put(localphi,    Prefix + "localphi"    + Suffix );
-  iEvent.put(localpitch,  Prefix + "localpitch"  + Suffix );
-  iEvent.put(localx,      Prefix + "localx"      + Suffix );
-  iEvent.put(localy,      Prefix + "localy"      + Suffix );
-  iEvent.put(localz,      Prefix + "localz"      + Suffix );
-  iEvent.put(strip,       Prefix + "strip"       + Suffix );
-  iEvent.put(globaltheta, Prefix + "globaltheta" + Suffix );
-  iEvent.put(globalphi,   Prefix + "globalphi"   + Suffix );
-  iEvent.put(globalx,     Prefix + "globalx"     + Suffix );
-  iEvent.put(globaly,     Prefix + "globaly"     + Suffix );
-  iEvent.put(globalz,     Prefix + "globalz"     + Suffix );  
-  iEvent.put(insidistance,Prefix + "insidistance"+ Suffix );
-  iEvent.put(covered,     Prefix + "covered"     + Suffix );
-  iEvent.put(projwidth,   Prefix + "projwidth"   + Suffix );
-  iEvent.put(BdotY,       Prefix + "BdotY"       + Suffix );
-  iEvent.put(rhlocalx,    Prefix + "rhlocalx"    + Suffix );   
-  iEvent.put(rhlocaly,    Prefix + "rhlocaly"    + Suffix );   
-  iEvent.put(rhlocalxerr, Prefix + "rhlocalxerr" + Suffix );   
-  iEvent.put(rhlocalyerr, Prefix + "rhlocalyerr" + Suffix );   
-  iEvent.put(rhglobalx,   Prefix + "rhglobalx"   + Suffix );   
-  iEvent.put(rhglobaly,   Prefix + "rhglobaly"   + Suffix );   
-  iEvent.put(rhglobalz,   Prefix + "rhglobalz"   + Suffix );   
-  iEvent.put(rhstrip,     Prefix + "rhstrip"     + Suffix );   
-  iEvent.put(rhmerr,      Prefix + "rhmerr"      + Suffix );   
-  iEvent.put(ubstrip,     Prefix + "ubstrip"     + Suffix );   
-  iEvent.put(ubmerr,      Prefix + "ubmerr"      + Suffix );   
-  iEvent.put( driftx,     Prefix + "driftx"      + Suffix );
-  iEvent.put( drifty,     Prefix + "drifty"      + Suffix );
-  iEvent.put( driftz,     Prefix + "driftz"      + Suffix );
-  iEvent.put( globalZofunitlocalY, Prefix + "globalZofunitlocalY" + Suffix );
+  iEvent.put(std::move(trackmulti),  Prefix + "trackmulti"  + Suffix );
+  iEvent.put(std::move(localtheta),  Prefix + "localtheta"  + Suffix );
+  iEvent.put(std::move(localphi),    Prefix + "localphi"    + Suffix );
+  iEvent.put(std::move(localpitch),  Prefix + "localpitch"  + Suffix );
+  iEvent.put(std::move(localx),      Prefix + "localx"      + Suffix );
+  iEvent.put(std::move(localy),      Prefix + "localy"      + Suffix );
+  iEvent.put(std::move(localz),      Prefix + "localz"      + Suffix );
+  iEvent.put(std::move(strip),       Prefix + "strip"       + Suffix );
+  iEvent.put(std::move(globaltheta), Prefix + "globaltheta" + Suffix );
+  iEvent.put(std::move(globalphi),   Prefix + "globalphi"   + Suffix );
+  iEvent.put(std::move(globalx),     Prefix + "globalx"     + Suffix );
+  iEvent.put(std::move(globaly),     Prefix + "globaly"     + Suffix );
+  iEvent.put(std::move(globalz),     Prefix + "globalz"     + Suffix );  
+  iEvent.put(std::move(insidistance),Prefix + "insidistance"+ Suffix );
+  iEvent.put(std::move(covered),     Prefix + "covered"     + Suffix );
+  iEvent.put(std::move(projwidth),   Prefix + "projwidth"   + Suffix );
+  iEvent.put(std::move(BdotY),       Prefix + "BdotY"       + Suffix );
+  iEvent.put(std::move(rhlocalx),    Prefix + "rhlocalx"    + Suffix );   
+  iEvent.put(std::move(rhlocaly),    Prefix + "rhlocaly"    + Suffix );   
+  iEvent.put(std::move(rhlocalxerr), Prefix + "rhlocalxerr" + Suffix );   
+  iEvent.put(std::move(rhlocalyerr), Prefix + "rhlocalyerr" + Suffix );   
+  iEvent.put(std::move(rhglobalx),   Prefix + "rhglobalx"   + Suffix );   
+  iEvent.put(std::move(rhglobaly),   Prefix + "rhglobaly"   + Suffix );   
+  iEvent.put(std::move(rhglobalz),   Prefix + "rhglobalz"   + Suffix );   
+  iEvent.put(std::move(rhstrip),     Prefix + "rhstrip"     + Suffix );   
+  iEvent.put(std::move(rhmerr),      Prefix + "rhmerr"      + Suffix );   
+  iEvent.put(std::move(ubstrip),     Prefix + "ubstrip"     + Suffix );   
+  iEvent.put(std::move(ubmerr),      Prefix + "ubmerr"      + Suffix );   
+  iEvent.put(std::move(driftx),      Prefix + "driftx"      + Suffix );
+  iEvent.put(std::move(drifty),      Prefix + "drifty"      + Suffix );
+  iEvent.put(std::move(driftz),      Prefix + "driftz"      + Suffix );
+  iEvent.put(std::move(globalZofunitlocalY), Prefix + "globalZofunitlocalY" + Suffix );
 }

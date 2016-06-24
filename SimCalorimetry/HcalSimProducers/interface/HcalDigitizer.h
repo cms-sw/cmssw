@@ -4,10 +4,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalUpgradeTraits.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE10Traits.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalQIE1011Traits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
@@ -61,6 +58,8 @@ public:
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
   void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*, const HcalTopology *h);
@@ -76,17 +75,19 @@ private:
 
   void buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
   void buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
+  void buildHBHEQIECells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
 
   //function to evaluate aging at the digi level
   void darkening(std::vector<PCaloHit>& hcalHits);
   
   /** Reconstruction algorithm*/
-  typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
-  typedef CaloTDigitizer<HODigitizerTraits>   HODigitizer;
-  typedef CaloTDigitizer<HFDigitizerTraits>   HFDigitizer;
-  typedef CaloTDigitizer<ZDCDigitizerTraits>  ZDCDigitizer;
-  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits> UpgradeDigitizer;
-  typedef CaloTDigitizer<HcalQIE10DigitizerTraits,CaloTDigitizerQIE10Run> QIE10Digitizer;
+  typedef CaloTDigitizer<HBHEDigitizerTraits,CaloTDigitizerQIE8Run> HBHEDigitizer;
+  typedef CaloTDigitizer<HODigitizerTraits,CaloTDigitizerQIE8Run>   HODigitizer;
+  typedef CaloTDigitizer<HFDigitizerTraits,CaloTDigitizerQIE8Run>   HFDigitizer;
+  typedef CaloTDigitizer<ZDCDigitizerTraits,CaloTDigitizerQIE8Run>  ZDCDigitizer;
+  typedef CaloTDigitizer<HcalUpgradeDigitizerTraits,CaloTDigitizerQIE8Run> UpgradeDigitizer;
+  typedef CaloTDigitizer<HcalQIE10DigitizerTraits,CaloTDigitizerQIE1011Run> QIE10Digitizer;
+  typedef CaloTDigitizer<HcalQIE11DigitizerTraits,CaloTDigitizerQIE1011Run> QIE11Digitizer;
 
   HcalSimParameterMap * theParameterMap;
   HcalShapes * theShapes;
@@ -105,10 +106,11 @@ private:
   HcalAmplifier * theHFAmplifier;
   HcalAmplifier * theHOAmplifier;
   HcalAmplifier * theZDCAmplifier;
+  HcalAmplifier * theHFQIE10Amplifier;
+  HcalAmplifier * theHBHEQIE11Amplifier;
 
   HPDIonFeedbackSim * theIonFeedback;
   HcalCoderFactory * theCoderFactory;
-  HcalCoderFactory * theUpgradeCoderFactory;
 
   HcalElectronicsSim * theHBHEElectronicsSim;
   HcalElectronicsSim * theHFElectronicsSim;
@@ -117,20 +119,20 @@ private:
   HcalElectronicsSim * theUpgradeHBHEElectronicsSim;
   HcalElectronicsSim * theUpgradeHFElectronicsSim;
   HcalElectronicsSim * theHFQIE10ElectronicsSim;
+  HcalElectronicsSim * theHBHEQIE11ElectronicsSim;
 
   HBHEHitFilter theHBHEHitFilter;
+  HBHEHitFilter theHBHEQIE11HitFilter;
   HFHitFilter   theHFHitFilter;
-  HOHitFilter   theHOHitFilter;
-  HcalHitFilter theHOSiPMHitFilter;
+  HFHitFilter   theHFQIE10HitFilter;
+  HOHitFilter theHOHitFilter;
+  HOHitFilter theHOSiPMHitFilter;
   ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
   HcalTimeSlewSim * theTimeSlewSim;
-  CaloVNoiseSignalGenerator * theNoiseGenerator;
-  CaloVNoiseHitGenerator * theNoiseHitGenerator;
 
   HBHEDigitizer * theHBHEDigitizer;
-  HBHEDigitizer * theHBHESiPMDigitizer;
   HODigitizer* theHODigitizer;
   HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
@@ -138,17 +140,20 @@ private:
   UpgradeDigitizer * theHBHEUpgradeDigitizer;
   UpgradeDigitizer * theHFUpgradeDigitizer;
   QIE10Digitizer * theHFQIE10Digitizer;
+  QIE11Digitizer * theHBHEQIE11Digitizer;
   HcalHitRelabeller* theRelabeller;
 
   // need to cache some DetIds for the digitizers,
   // if they don't come straight from the geometry
-  std::vector<DetId> theHBHEDetIds;
+  std::vector<DetId> hbheCells;
+  std::vector<DetId> theHBHEQIE8DetIds, theHBHEQIE11DetIds;
   std::vector<DetId> theHOHPDDetIds;
   std::vector<DetId> theHOSiPMDetIds;
   std::vector<DetId> theHFQIE8DetIds, theHFQIE10DetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
-  bool relabel_;
+  bool testNumbering_;
+  bool doHFWindow_;
 
   std::string hitsProducer_;
 

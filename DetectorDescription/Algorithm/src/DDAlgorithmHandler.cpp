@@ -1,7 +1,14 @@
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
+
+#include <utility>
+
+#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDSplit.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+
+class DDCompactView;
 
 DDAlgorithmHandler::DDAlgorithmHandler()
   : algo_(0)

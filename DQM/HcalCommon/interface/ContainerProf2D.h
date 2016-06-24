@@ -17,28 +17,40 @@
 
 namespace hcaldqm
 {
-	using namespace axis;
 	class ContainerProf2D : public Container2D
 	{
 		public:
 			ContainerProf2D();
 			ContainerProf2D(std::string const& folder, 
-				std::string const &nametitle,
-				MapperType mt, 
-				Axis *xaxis, 
-				Axis *yaxis = new CoordinateAxis(axis::fYaxis, axis::fiphi), 
-				Axis *zaxis = new ValueAxis(axis::fZaxis, axis::fEntries));
+				hashfunctions::HashType,
+				quantity::Quantity*, quantity::Quantity*, 
+				quantity::Quantity* qz = new quantity::ValueQuantity(quantity::fEnergy));
 			virtual ~ContainerProf2D() {}
 			
 			virtual void initialize(std::string const& folder, 
-				std::string const &nametitle,
-				MapperType mt, 
-				Axis *xaxis, 
-				Axis *yaxis = new CoordinateAxis(axis::fYaxis, axis::fiphi), 
-				Axis *zaxis = new ValueAxis(axis::fZaxis, axis::fEntries),
+				hashfunctions::HashType,
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fEnergy),
+				int debug=0);
+
+			virtual void initialize(std::string const& folder, 
+				std::string const& qname,
+				hashfunctions::HashType,
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fEnergy),
 				int debug=0);
 
 			virtual void book(DQMStore::IBooker&,
+				HcalElectronicsMap const*,
+				std::string subsystem="Hcal", std::string aux="");
+			virtual void book(DQMStore::IBooker&,
+				HcalElectronicsMap const*, filter::HashFilter const&,
+				std::string subsystem="Hcal", std::string aux="");
+			virtual void book(DQMStore*,
+				HcalElectronicsMap const*,
+				std::string subsystem="Hcal", std::string aux="");
+			virtual void book(DQMStore*,
+				HcalElectronicsMap const*, filter::HashFilter const&,
 				std::string subsystem="Hcal", std::string aux="");
 
 		protected:

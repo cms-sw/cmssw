@@ -58,6 +58,9 @@ pfBTagging = cms.Sequence(
         pfSimpleInclusiveSecondaryVertexHighEffBJetTags *
         pfCombinedInclusiveSecondaryVertexV2BJetTags
 
+        + pfGhostTrackVertexTagInfos *
+        pfGhostTrackBJetTags
+
       ) +
 
       # soft lepton tag infos and algos

@@ -1,7 +1,7 @@
 #include "vppc_sim_lib.h"
 #include "string.h"
 #include "stdio.h"
-
+using namespace std;
 bool   __glob_change__ = false; // global change flag
 size_t __glob_alwaysn__ = 0; // current always block number
 size_t gan = 1; // glob_always next value

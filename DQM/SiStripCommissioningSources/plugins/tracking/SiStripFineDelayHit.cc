@@ -482,8 +482,8 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    // add the selected hits to the event.
    LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
-   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
-   iEvent.put(formatedOutput,"FineDelaySelection");
+   std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
+   iEvent.put(std::move(formatedOutput),"FineDelaySelection");
 }
 
 // Simple solution when tracking is not available/ not working
@@ -558,8 +558,8 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    }
    // add the selected hits to the event.
    LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
-   std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
-   iEvent.put(formatedOutput,"FineDelaySelection");
+   std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
+   iEvent.put(std::move(formatedOutput),"FineDelaySelection");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

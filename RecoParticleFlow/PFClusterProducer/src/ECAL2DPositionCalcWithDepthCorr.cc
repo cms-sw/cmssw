@@ -24,15 +24,16 @@ update(const edm::EventSetup& es) {
     _ebGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     _eeGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
     _esGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
-    // ripped from RecoEcal/EgammaCoreTools 
-    for( uint32_t ic = 0; 
-	 ic < _esGeom->getValidDetIds().size() && 
-	   ( !_esPlus || !_esMinus ); ++ic ) {
-	const double z = _esGeom->getGeometry( _esGeom->getValidDetIds()[ic] )->getPosition().z();
-	_esPlus = _esPlus || ( 0 < z ) ;
-	_esMinus = _esMinus || ( 0 > z ) ;
-    }  
-  
+    if(_esGeom){
+      // ripped from RecoEcal/EgammaCoreTools 
+      for( uint32_t ic = 0; 
+	   ic < _esGeom->getValidDetIds().size() && 
+	     ( !_esPlus || !_esMinus ); ++ic ) {
+        const double z = _esGeom->getGeometry( _esGeom->getValidDetIds()[ic] )->getPosition().z();
+        _esPlus = _esPlus || ( 0 < z ) ;
+        _esMinus = _esMinus || ( 0 > z ) ;
+      }  
+    }
 }
 
 void ECAL2DPositionCalcWithDepthCorr::

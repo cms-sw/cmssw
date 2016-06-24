@@ -51,7 +51,7 @@ eras.trackingPhase1.toModify(
         'lowPtQuadStepTracks',
         'lowPtTripletStepTracks',
         'detachedQuadStepTracks',
-        #'detachedTripletStepTracks', # FIXME: disabled for now
+        'detachedTripletStepTracks',
         'mixedTripletStepTracks',
         'pixelLessStepTracks',
         'tobTecStepTracks'
@@ -63,7 +63,7 @@ eras.trackingPhase1.toModify(
         "lowPtQuadStep",
         "lowPtTripletStep",
         "detachedQuadStep",
-        #"detachedTripletStep", # FIXME: disabled for now
+        "detachedTripletStep",
         "mixedTripletStep",
         "pixelLessStep",
         "tobTecStep"

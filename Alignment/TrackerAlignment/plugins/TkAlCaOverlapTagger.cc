@@ -220,7 +220,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
 
   // prepare output 
-  std::auto_ptr<AliClusterValueMap> hitvalmap( new AliClusterValueMap);
+  auto hitvalmap = std::make_unique<AliClusterValueMap>();
   AliClusterValueMap::Filler mapfiller(*hitvalmap); 
 
   edm::TestHandle<std::vector<AlignmentClusterFlag> > fakePixelHandle( &pixelvalues,pixelclusters.id());
@@ -234,8 +234,8 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
 
 
-  // iEvent.put(stripmap);
-  iEvent.put(hitvalmap);
+  // iEvent.put(std::move(stripmap));
+  iEvent.put(std::move(hitvalmap));
 }//end  TkAlCaOverlapTagger::produce
 int TkAlCaOverlapTagger::layerFromId (const DetId& id, const TrackerTopology* tTopo) const
 {

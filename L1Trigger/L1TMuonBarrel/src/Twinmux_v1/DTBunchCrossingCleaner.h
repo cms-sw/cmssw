@@ -17,7 +17,7 @@ namespace edm{
   class ParameterSet;
 }
 
-using namespace L1TMuon;
+
 
 namespace L1TwinMux {
 
@@ -26,7 +26,7 @@ namespace L1TwinMux {
     DTBunchCrossingCleaner();
     ~DTBunchCrossingCleaner() {}
 
-    TriggerPrimitiveCollection clean(const TriggerPrimitiveCollection&)
+    L1TMuon::TriggerPrimitiveCollection clean(const L1TMuon::TriggerPrimitiveCollection&)
       const;
 
   private:

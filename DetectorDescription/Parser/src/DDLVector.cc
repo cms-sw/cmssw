@@ -7,13 +7,19 @@
 
 #include "DetectorDescription/Parser/src/DDLVector.h"
 
-#include "DetectorDescription/Core/interface/DDStrVector.h"
+#include <stddef.h>
+#include <map>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
-
+#include "DetectorDescription/Core/interface/DDStrVector.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
-
-// Boost parser, spirit, for parsing the std::vector elements.
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "boost/spirit/include/classic.hpp"
+
+class DDCompactView;
 
 namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 

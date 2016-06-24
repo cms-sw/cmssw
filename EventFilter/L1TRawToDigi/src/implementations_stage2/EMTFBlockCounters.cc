@@ -60,6 +60,8 @@ namespace l1t {
 
       bool CountersBlockUnpacker::unpack(const Block& block, UnpackerCollections *coll) {
 	
+	// std::cout << "Inside EMTFBlockCounters.cc: unpack" << std::endl;
+	
 	// Get the payload for this block, made up of 16-bit words (0xffff)
 	// Format defined in MTF7Payload::getBlock() in src/Block.cc
 	// payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
@@ -75,10 +77,10 @@ namespace l1t {
         uint16_t BCc = payload[2];
         uint16_t BCd = payload[3];
 
-	// res is a pointer to a collection of EMTFOutput class objects
-	// There is one EMTFOutput for each MTF7 (60 deg. sector) in the event
-	EMTFOutputCollection* res;
-	res = static_cast<EMTFCollections*>(coll)->getEMTFOutputs();
+	// res is a pointer to a collection of EMTFDaqOut class objects
+	// There is one EMTFDaqOut for each MTF7 (60 deg. sector) in the event
+	EMTFDaqOutCollection* res;
+	res = static_cast<EMTFCollections*>(coll)->getEMTFDaqOuts();
 	int iOut = res->size() - 1;
 
 	///////////////////////////////

@@ -269,7 +269,9 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
      m_geomRecord->slaveGeometry( detId );
      m_fwGeometry->extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
   }
-  catch (...) {}
+    catch (std::runtime_error &e) {
+       std::cerr << e.what() << std::endl; 
+    }
 }
 
 void
@@ -283,6 +285,28 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   try 
   {
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+    
+    // add in superChambers - gem Segments are based on superChambers
+    for(auto sc : gemGeom->superChambers())
+    { 
+      if( sc )
+      {
+	unsigned int rawid = sc->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, sc );
+      }
+    }
+    // add in chambers
+    for(auto ch : gemGeom->chambers())
+    { 
+      if( ch )
+      {
+	unsigned int rawid = ch->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, ch );
+      }
+    }    
+    // add in etaPartitions - gem rechits are based on etaPartitions
     for(auto roll : gemGeom->etaPartitions())
     { 
       if( roll )
@@ -311,12 +335,14 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       m_geomRecord->slaveGeometry( detId );
       m_fwGeometry->extraDet.Add(new TNamed("GE2", "GEM endcap station 2"));
     }
-    catch (...) {}
+    catch (std::runtime_error &e) {
+       std::cerr << e.what() << std::endl; 
+    }
 
   }
   catch( cms::Exception &exception )
   {
-    edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
+    edm::LogError("FWRecoGeometry") << " GEM geometry not found " << exception.what() << std::endl;
   }
 }
 
@@ -356,7 +382,7 @@ FWRecoGeometryESProducer::addME0Geometry( void )
   }
   catch( cms::Exception &exception )
   {
-    edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
+    edm::LogError("FWRecoGeometry") << " ME0 geometry not found " << exception.what() << std::endl;
   }
 }  
 

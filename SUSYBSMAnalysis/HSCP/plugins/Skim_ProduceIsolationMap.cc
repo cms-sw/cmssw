@@ -131,7 +131,7 @@ ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(!TKHandle.isValid() ){  edm::LogError("ProduceIsolationMap") << "TK Tracks collection not found";    return;   }
 
    //Create empty output collections
-   auto_ptr<ValueMap<HSCPIsolation> > trackHSCPIsolMap(new ValueMap<HSCPIsolation> );
+   unique_ptr<ValueMap<HSCPIsolation> > trackHSCPIsolMap(new ValueMap<HSCPIsolation> );
    ValueMap<HSCPIsolation>::Filler    filler(*trackHSCPIsolMap);
 
    //loop through tracks.
@@ -168,7 +168,7 @@ ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    filler.insert(tkTracks, IsolationInfoColl.begin(), IsolationInfoColl.end());
    filler.fill();
-   iEvent.put(trackHSCPIsolMap);
+   iEvent.put(std::move(trackHSCPIsolMap));
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(ProduceIsolationMap);

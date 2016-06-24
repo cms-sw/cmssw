@@ -56,6 +56,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLT_GlobalRunHPDNoise_v*",
       "HLT_L1TrackerCosmics_v*",
       "HLT_HcalUTCA_v*",
+      "HLT_L1FatEvents_v*",
 
       # TODO: paths not supported by FastSim, but for which a recovery should be attempted
       "HLT_DoubleMu33NoFiltersNoVtx_v*",
@@ -224,6 +225,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltPixelTracksForHighPt",
       "hltHighPtPixelTracks",
       "hltPixelTracksForNoPU",
+      "hltPixelTracksForSeedsTau3mu",
 
       "hltFastPixelHitsVertex",
       "hltFastPixelTracks",
@@ -278,6 +280,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTDoLocalPixelSequenceRegForBTag",
       "HLTDoLocalPixelSequenceRegForNoPU",
       "HLTBeginSequence",
+      "HLTBeginSequenceL1Fat",
       "HLTBeginSequenceNZS",
       "HLTBeginSequenceBPTX",
       "HLTBeginSequenceAntiBPTX",
@@ -304,6 +307,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "HLTIterativeTrackingDisplacedJpsiIter02",
       "HLTIterativeTrackingDisplacedPsiPrimeIter02",
       "HLTIterativeTrackingDisplacedNRMuMuIter02",
+      "HLTIterativeTrackingDisplacedTau3muIter02",
       "HLTIterativeTrackingForBTagIteration0",
       "HLTIterativeTrackingIteration4DisplacedJets",
       "HLTRegionalCKFTracksForL3Isolation",
@@ -447,6 +451,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltIter2DisplacedJpsiMerged', 'generalTracks'),
       ('hltIter2DisplacedPsiPrimeMerged', 'generalTracks'),
       ('hltIter2DisplacedNRMuMuMerged', 'generalTracks'),
+      ('hltIter2DisplacedTau3muMerged', 'generalTracks'),
       ('hltIter0PFlowTrackSelectionHighPurityForBTag', 'generalTracks'),
       ('hltIter4HighPtMerged', 'generalTracks'),
       ('hltIterativeTrackingForPAMerged', 'generalTracks'),
@@ -464,6 +469,7 @@ def customizeHLTforMC(process,_fastSim=False):
       ('hltPixelTracksForHighPt','hltPixelTracks'),
       ('hltHighPtPixelTracks','hltPixelTracks'),
       ('hltPixelTracksForNoPU','hltPixelTracks'),
+      ('hltPixelTracksForSeedsTau3mu','hltPixelTracks'),
 
       ('hltL1extraParticles','l1extraParticles'),
       ('hltL1extraParticles:Central','l1extraParticles:Central'),
@@ -517,9 +523,6 @@ def customizeHLTforMC(process,_fastSim=False):
       full2fast.modify_hltL3TrajSeedIOHit(fastsim.hltL3TrajSeedIOHit)
     if hasattr(fastsim,"hltL3NoFiltersTrajSeedIOHit"):
       full2fast.modify_hltL3NoFiltersTrajSeedIOHit(fastsim.hltL3NoFiltersTrajSeedIOHit)
-
-    if hasattr(fastsim,'hltL1extraParticles'):
-      getattr(fastsim,'HLTBeginSequence').remove(getattr(process,'offlineBeamSpot'))
 
     return fastsim
 

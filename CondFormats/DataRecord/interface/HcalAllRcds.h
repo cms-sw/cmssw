@@ -4,6 +4,7 @@
 #include "CondFormats/DataRecord/interface/HcalCalibrationQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
+#include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalL1TriggerObjectsRcd.h"

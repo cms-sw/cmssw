@@ -26,5 +26,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/'
 process.AlignmentProducer.algoConfig.iterationFile = 'IOIteration_serial.root'
 process.AlignmentProducer.saveToDB = True
-
-
+process.AlignmentProducer.checkDbAlignmentValidity= False 
+#process.AlignmentProducer.RunRangeSelection = [
+#    cms.PSet(RunRanges = cms.vstring(
+#            '1',
+#            '246978',
+#            '256715'),
+#    selector = cms.vstring( 'TrackerTPBModule,111111',
+#                            'TrackerTPEModule,111111')
+#        )
+#    ]

@@ -85,7 +85,7 @@ L1TMuonTriggerPrimitiveProducer::L1TMuonTriggerPrimitiveProducer(const PSet& p) 
 
 void L1TMuonTriggerPrimitiveProducer::produce(edm::Event& ev, 
 					     const edm::EventSetup& es) {
-  std::auto_ptr<TriggerPrimitiveCollection> 
+  std::unique_ptr<TriggerPrimitiveCollection> 
     master_out(new TriggerPrimitiveCollection);
 
   geom->checkAndUpdateGeometry(es);
@@ -95,7 +95,7 @@ void L1TMuonTriggerPrimitiveProducer::produce(edm::Event& ev,
   
   double eta,phi,bend;
   for( ; coll_itr != cend; ++coll_itr ) {
-    std::auto_ptr<TriggerPrimitiveCollection> 
+    std::unique_ptr<TriggerPrimitiveCollection> 
       subs_out(new TriggerPrimitiveCollection);
     auto& collector = coll_itr->second;
     
@@ -116,10 +116,10 @@ void L1TMuonTriggerPrimitiveProducer::produce(edm::Event& ev,
 		       subs_out->begin(),
 		       subs_out->end());
 
-    ev.put(subs_out,coll_itr->first);
+    ev.put(std::move(subs_out),coll_itr->first);
   }
 
-  ev.put(master_out);
+  ev.put(std::move(master_out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
