@@ -425,7 +425,7 @@ void DQMProvInfo::endLuminosityBlockEventInfo(const int currentLSNumber) {
 
   // Part3: Using LHC status info, fill in VBIN_MOMENTUM and VBIN_STABLE_BEAM
   // Fill 13 TeV bit in y bin VBIN_MOMENTUM
-  if (momentum_ == 6500) {
+  if (momentum_ >= MAX_MOMENTUM - MOMENTUM_OFFSET) {
     reportSummary_->Fill(1.);
     reportSummaryMap_->setBinContent(currentLSNumber, VBIN_MOMENTUM, 1.);
   } else {
