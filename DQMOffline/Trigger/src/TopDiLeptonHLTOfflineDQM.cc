@@ -200,7 +200,6 @@ namespace HLTOfflineDQMTopDiLepton {
       if(!triggerTable_.isUninitialized()) {
         if( !event.getByToken(triggerTable_, triggerTable) ) return;
       }
-
       /*
          ------------------------------------------------------------
 
@@ -228,8 +227,8 @@ namespace HLTOfflineDQMTopDiLepton {
           << "Muon collection not found \n";
         return;
       }
-
-      for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
+      
+	  for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
         // restrict to globalMuons
         if( muon->isGlobalMuon() ){ 
           // apply preselection
@@ -351,7 +350,6 @@ namespace HLTOfflineDQMTopDiLepton {
         }
       }
       fill("jetMult_", mult);
-
       /* 
          ------------------------------------------------------------
 
@@ -374,7 +372,6 @@ namespace HLTOfflineDQMTopDiLepton {
           }
         }
       }
-
 
       /* 
          ------------------------------------------------------------

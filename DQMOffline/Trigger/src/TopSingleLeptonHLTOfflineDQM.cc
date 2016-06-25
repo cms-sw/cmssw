@@ -275,12 +275,14 @@ namespace HLTOfflineDQMTopSingleLepton {
          */
 
       // fill monitoring plots for electrons
-      edm::Handle<edm::View<reco::GsfElectron> > elecs;
+   
+	  edm::Handle<edm::View<reco::GsfElectron> > elecs;
       if( !event.getByToken(elecs_, elecs) ) {
         edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
           << "Electron collection not found \n";
         return;
       }
+
 
       // check availability of electron id
       edm::Handle<edm::ValueMap<float> > electronId; 
@@ -411,9 +413,9 @@ namespace HLTOfflineDQMTopSingleLepton {
         if( includeBTag_ ){
           // fill b-discriminators
           edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);	
-          // for the btagEff collection 
+          // for the btagEff collection
           double btagEffDisc = (*btagEff)[jetRef];
-          fill("jetBDiscEff_", btagEffDisc); 
+          fill("jetBDiscEff_", btagEffDisc);
           if( (*btagEff)[jetRef]>btagEffWP_ ) ++multBEff; 
           // for the btagPur collection
 //          double btagPurDisc = (*btagPur)[jetRef];
@@ -425,11 +427,12 @@ namespace HLTOfflineDQMTopSingleLepton {
           if( (*btagVtx)[jetRef]>btagVtxWP_ ) { if(multBVtx == 0) bJetCand= *jet; ++multBVtx;} 
         }
       }
+
       fill("jetMult_"    , mult    );
       fill("jetMultBEff_", multBEff);
 //      fill("jetMultBPur_", multBPur);
       fill("jetMultBVtx_", multBVtx);
-
+		
       /* 
          ------------------------------------------------------------
 
@@ -588,7 +591,8 @@ namespace HLTOfflineDQMTopSingleLepton {
           bool j1Matched = false;
           bool j2Matched = false;
           bool j3Matched = false;
-          // access to hlt elecs
+
+// access to hlt elecs
           double eDeltaRMin = 500.;
           unsigned int eIndMatched = 500;
           electronIds_.clear(); electronRefs_.clear();
@@ -616,7 +620,8 @@ namespace HLTOfflineDQMTopSingleLepton {
             }
             if (eDeltaRMin < DRMIN) lMatched = true;
           }
-          // access to hlt muons
+
+// access to hlt muons
           muonIds_.clear(); muonRefs_.clear();
           double mDeltaRMin = 500.;
           unsigned int mIndMatched = 500;
@@ -643,8 +648,9 @@ namespace HLTOfflineDQMTopSingleLepton {
               }
             }
             if (mDeltaRMin < DRMIN) lMatched = true;
-          }
-          // access to hlt pf jets
+          }          
+
+// access to hlt pf jets
           const unsigned int nPFJets(pfjetIds_.size());
           pfjetIds_.clear();    pfjetRefs_.clear();
           double j1DeltaRMin = 500.;   
@@ -684,17 +690,21 @@ namespace HLTOfflineDQMTopSingleLepton {
             if (nPFJets > 1 && j2DeltaRMin < DRMIN) j2Matched = true;
             if (nPFJets > 2 && j3DeltaRMin < DRMIN) j3Matched = true;
           }
+
           if (eIndMatched < 500) {
             fill("leptDeltaREta_", isoElecs[eIndMatched]->eta(), eDeltaRMin);   
             if (lMatched) fill("leptResolution_", fabs(isoElecs[eIndMatched]->pt()-electronRefs_[0]->pt())/isoElecs[eIndMatched]->pt() );   
           }
-          if (mIndMatched < 500) {
+		  
+		  if (mIndMatched < 500) {
             fill("leptDeltaREta_", isoMuons[mIndMatched]->eta(), mDeltaRMin);   
             if (lMatched) fill("leptResolution_", fabs(isoMuons[mIndMatched]->pt()-muonRefs_[0]->pt())/isoMuons[mIndMatched]->pt() );   
           }
-          if (lMatched) fill("matchingMon_", 0.5 );
+          
+		  if (lMatched) fill("matchingMon_", 0.5 );
           else isMatched = false;
-          if (j1IndMatched < 500) {
+		  
+		  if (j1IndMatched < 500) {
             fill("jetDeltaREta_", correctedJets[j1IndMatched].eta(), j1DeltaRMin);   
             if (j1Matched) {
               fill("jetResolution_", fabs(correctedJets[j1IndMatched].pt()-pfjetRefs_[0]->pt())/correctedJets[j1IndMatched].pt() );   
@@ -783,7 +793,7 @@ TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterS
   }
 }
 
-  void
+void
 TopSingleLeptonHLTOfflineDQM::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   using namespace std;
