@@ -49,7 +49,7 @@ class DQMProvInfo : public DQMEDAnalyzer {
 
   // To max amount of lumisections we foresee for the plots
   // DQM GUI renderplugins provide scaling to actual amount
-  const static int MAX_LUMIS = 2500;
+  const static int MAX_LUMIS = 6000;
   
   // Numbers of each of the vertical bins
   const static int VBIN_CSC_P = 1;
