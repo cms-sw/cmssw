@@ -1199,7 +1199,7 @@ MTVHistoProducerAlgoForTracker::getPt(double pt) {
 }
 
 unsigned int MTVHistoProducerAlgoForTracker::getSeedingLayerSetBin(const reco::Track& track, const TrackerTopology& ttopo) {
-  if(track.seedRef().isNull())
+  if(track.seedRef().isNull() || !track.seedRef().isAvailable())
     return seedingLayerSetNames.size()-1;
 
   const TrajectorySeed& seed = *(track.seedRef());
