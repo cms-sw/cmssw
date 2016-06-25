@@ -90,6 +90,18 @@ class DQMProvInfo : public DQMEDAnalyzer {
   
   const static int MAX_VBINS = 29;
 
+  // Beam momentum at flat top, used to determine if collisions are
+  // occurring with the beams at the energy allowed for physics production.
+  const static int MAX_MOMENTUM = 6500;
+
+  // Beam momentum allowed offset: it is a momentum value subtracted to
+  // maximum momentum in order to decrease the threshold for beams going to
+  // collisions for physics production. This happens because BST sends from
+  // time to time a value of the beam momentum slightly below the nominal values,
+  // even during stable collisions: in this way, we provide a correct information
+  // at the cost of not requiring the exact momentum being measured by BST.
+  const static int MOMENTUM_OFFSET = 1;
+
   // Process parameters
   std::string subsystemname_;
   std::string provinfofolder_;
