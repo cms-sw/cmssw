@@ -34,7 +34,7 @@ private:
 
       // ----------member data ---------------------------
 
-  edm::EDGetTokenT<edm::View<reco::PFCandidate> >   tokenPFCandidates_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> >   tokenPFCandidates_;
   edm::EDGetTokenT<edm::View<reco::Muon> >   tokenMuons_;
 
   const bool taggingMode_;
@@ -50,7 +50,7 @@ private:
 // constructors and destructor
 //
 BadPFMuonFilter::BadPFMuonFilter(const edm::ParameterSet& iConfig)
-  : tokenPFCandidates_ ( consumes<edm::View<reco::PFCandidate> >(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
+  : tokenPFCandidates_ ( consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
   , tokenMuons_ ( consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag> ("muons")  ))
   , taggingMode_          ( iConfig.getParameter<bool>    ("taggingMode") )
   , debug_                ( iConfig.getParameter<bool>    ("debug") )
@@ -76,7 +76,7 @@ BadPFMuonFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventS
   using namespace std;
   using namespace edm;
 
-  typedef View<reco::PFCandidate> CandidateView;
+  typedef View<reco::Candidate> CandidateView;
   Handle<CandidateView> pfCandidates;
   iEvent.getByToken(tokenPFCandidates_,pfCandidates);
 
@@ -122,7 +122,7 @@ BadPFMuonFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventS
     }
     
     for ( unsigned j=0; j < pfCandidates->size(); ++j ) {
-      const reco::PFCandidate & pfCandidate = (*pfCandidates)[j];
+      const reco::Candidate & pfCandidate = (*pfCandidates)[j];
       // look for pf muon
       if ( not ( ( abs(pfCandidate.pdgId()) == 13) and (pfCandidate.pt() > minMuPt_) ) ) continue;
       // require small dR
