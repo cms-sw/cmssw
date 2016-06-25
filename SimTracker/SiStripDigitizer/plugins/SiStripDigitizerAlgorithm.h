@@ -133,6 +133,7 @@ class SiStripDigitizerAlgorithm {
 
   // bad channels for each detector ID
   std::map<unsigned int, std::vector<bool> > allBadChannels;
+  std::map<unsigned int, std::vector<bool> > allHIPChannels;
   // first and last channel wit signal for each detector ID
   std::map<unsigned int, size_t> firstChannelsWithSignal;
   std::map<unsigned int, size_t> lastChannelsWithSignal;
