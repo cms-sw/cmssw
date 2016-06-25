@@ -77,6 +77,7 @@ SiStripSimBlock = cms.PSet(
     BaselineShift              = cms.bool(True),
     APVSaturationFromHIP       = cms.bool(False),
     APVSaturationProbScaling   = cms.double(1.0),
+    APVProbabilityFile         = cms.FileInPath("SimTracker/SiStripDigitizer/data/APVProbaList.txt"),
     cmnRMStib                  = cms.double(5.92),
     cmnRMStob                  = cms.double(1.08),
     cmnRMStid                  = cms.double(3.08),

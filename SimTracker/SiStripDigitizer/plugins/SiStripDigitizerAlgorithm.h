@@ -155,6 +155,8 @@ class SiStripDigitizerAlgorithm {
   typedef std::map<uint32_t, AssociationInfoForChannel>  AssociationInfoForDetId;
   /// Structure that holds the information on the SimTrack contributions. Only filled if makeDigiSimLinks_ is true.
   AssociationInfoForDetId associationInfoForDetId_;
+  
+  edm::FileInPath APVProbabilityFile;
 
   std::ifstream APVProbaFile;
   std::map < int , float> mapOfAPVprobabilities;

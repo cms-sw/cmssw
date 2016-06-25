@@ -65,7 +65,8 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiPileUpSignals(new SiPileUpSignals()),
   theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold)),
   theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, PreMixing_)),
-  theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)) {
+  theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
+  APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")) {
 
   if (peakMode) {
     LogDebug("StripDigiInfo")<<"APVs running in peak mode (poor time resolution)";
@@ -78,7 +79,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   else LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: OFF";
   
   std::string line; 
-  APVProbaFile.open("APVProbaList.txt");
+  APVProbaFile.open((APVProbabilityFile.fullPath()).c_str());
   if (APVProbaFile.is_open())
   {
     while ( getline (APVProbaFile,line) )
@@ -181,6 +182,18 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 		  //APV Killer to simulate HIP effect
 		  //------------------------------------------------------		  
         if(APVSaturationFromHIP){
+	// This is a relatively preliminary version of the new APV killing method. Most of the work is actually done separately by computing the probabilities in mapOfAPVprobabilities map.
+	// Here is a short explanation:
+	// 	These probabilities are computed with different ingredients
+	// 	a) The probability for a given module to be crossed by a hadron: this is highly PU dependent
+	// 	b) Module thickness: the probability is rescaled according to the module thickness (1-> ~3/5 if the module is thick)
+	// 	c) Angular dependancy of path length: the elongation of the hadron path length in matter depends on the angle between the module normal vector and particle propagation vector.
+	// 	d) the probability for a hadron to generate a HIP,per path length unit.
+	// 	The product of these terms gives the probabilty for one module to have a HIP per event. The multiplication of this probability by the ratio of the APV recovery time and BX delta T 
+	// 	allows to take into account the presence of 'dead' APV across several bunch crossings.
+	// What is done here is very simple: for this detId, the code draws a random number fo check if it is smaller than than the corresponding mapOfAPVprobabilities[detId] entry.
+	// If yes --> the APV is flagged as bad
+	// If no  --> nothing particular happens
           if(mapOfAPVprobabilities.count(detId)>0){
             if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]*APVSaturationProbScaling){ 
               int FirstAPV = localFirstChannel/128;
