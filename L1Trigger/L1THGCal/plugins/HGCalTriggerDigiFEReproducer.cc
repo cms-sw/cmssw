@@ -91,6 +91,8 @@ void HGCalTriggerDigiFEReproducer::produce(edm::Event& e, const edm::EventSetup&
 
     const l1t::HGCFETriggerDigiCollection& digis = *digis_h;
 
+    fe_output->reserve(digis.size());
+    std::stringstream output;
     for( const auto& digi_in : digis ) 
     {    
         const auto& module = triggerGeometry_->modules().at(digi_in.id());
@@ -99,11 +101,12 @@ void HGCalTriggerDigiFEReproducer::produce(edm::Event& e, const edm::EventSetup&
         codec_->setDataPayload(*module, digi_in);
         codec_->encode(digi_out);
         digi_out.setDetId( digi_in.getDetId<HGCalDetId>() );
-        std::stringstream output;
         codec_->print(digi_out,output);
         edm::LogInfo("HGCalTriggerDigiFEReproducer")
             << output.str();
         codec_->unSetDataPayload();
+        output.str(std::string());
+        output.clear();
     }
 
     // get the orphan handle and fe digi collection

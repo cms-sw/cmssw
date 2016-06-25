@@ -100,17 +100,20 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
   //we produce one output trigger digi per module in the FE
   //so we use the geometry to tell us what to loop over
+  fe_output->reserve(triggerGeometry_->modules().size());
+  std::stringstream output;
   for( const auto& module : triggerGeometry_->modules() ) {    
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
     codec_->setDataPayload(*(module.second),ee_digis,fh_digis,bh_digis);
     codec_->encode(digi);
     digi.setDetId( HGCalDetId(module.first) );
-    std::stringstream output;
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")
       << output.str();
     codec_->unSetDataPayload();
+    output.str(std::string());
+    output.clear();
   }
 
   // get the orphan handle and fe digi collection
