@@ -19,7 +19,7 @@
 #include <string> 
 
 CSCSegAlgoRU::CSCSegAlgoRU(const edm::ParameterSet& ps)
-  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoRU"), sfit_(0) { 
+  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoRU"), sfit_(nullptr) { 
 
   doCollisions = ps.getParameter<bool>("doCollisions"); 
   chi2_str_   = ps.getParameter<double>("chi2_str"); 
@@ -262,7 +262,6 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const ChamberHitContainer& u
 	// Create an actual CSCSegment - retrieve all info from the fit
 	CSCSegment temp(sfit_->hits(), sfit_->intercept(),
                        sfit_->localdir(), sfit_->covarianceMatrix(), sfit_->chi2());
-	delete sfit_;
 	sfit_ = 0;
 	segments.push_back(temp);                         
 	//if the segment has 3 hits flag them as used in a particular way 
@@ -608,9 +607,8 @@ bool CSCSegAlgoRU::addHit(const CSCRecHit2D* aHit, int layer) {
 } 
 
 void CSCSegAlgoRU::updateParameters() { 
-  // Delete input CSCSegFit, create a new one and make the fit
-  delete sfit_;
-  sfit_ = new CSCSegFit( theChamber, proto_segment );
+  // update the current CSCSegFit one and make the fit
+  sfit_.reset(new CSCSegFit( theChamber, proto_segment ));
   sfit_->fit();
 } 
 
@@ -893,36 +891,27 @@ bool CSCSegAlgoRU::replaceHit(const CSCRecHit2D* h, int layer) {
 } 
 
 void CSCSegAlgoRU::compareProtoSegment(const CSCRecHit2D* h, int layer) { 
+   // Copy the input CSCSegFit                                                                                                                                                       
+  std::unique_ptr<CSCSegFit> oldfit;// =  new CSCSegFit( *sfit_ );                                                                                                                  
+  oldfit.reset(new CSCSegFit( theChamber, proto_segment ));
+  oldfit->fit();
 
-  // Copy the input CSCSegFit
-  CSCSegFit* oldfit = new CSCSegFit( *sfit_ );
-
-  // May create a new fit
+   // May create a new fit
   bool ok = replaceHit(h, layer);
 
-  if ( ( sfit_->chi2() < oldfit->chi2() ) && ok ) {
-    delete oldfit;  // new fit is better
-  }
-  else {
-    // keep original fit
-    delete sfit_; // now the new fit
-    sfit_ = oldfit;  // reset to the original input fit
+  if ( ( sfit_->chi2() >= oldfit->chi2() ) || !ok ) {
+    sfit_ = std::move(oldfit); // reset to the original input fit 
   }
 } 
 
 void CSCSegAlgoRU::increaseProtoSegment(const CSCRecHit2D* h, int layer, int chi2_factor) { 
-  // Copy input fit
-  CSCSegFit* oldfit = new CSCSegFit( *sfit_ );
+  // Creates a new fit                                                                                                                                                              
+  std::unique_ptr<CSCSegFit> oldfit;
+  oldfit.reset(new CSCSegFit( theChamber, proto_segment ));
 
-  // Creates a new fit
   bool ok = addHit(h, layer);
   //@@ TEST ON ndof<=0 IS JUST TO ACCEPT nhits=2 CASE??
-  if ( ok && ( (sfit_->ndof() <= 0) || (sfit_->chi2()/sfit_->ndof() < chi2Max)) ) {
-    delete oldfit;  // new fit is better
-  }
-  else {
-    // reset to original fit
-    delete sfit_;
-    sfit_ = oldfit;
+  if ( !ok || ( (sfit_->ndof() > 0) && (sfit_->chi2()/sfit_->ndof() >= chi2Max)) ) {
+    sfit_ = std::move(oldfit);
   }
 }
