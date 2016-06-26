@@ -12,7 +12,7 @@ import sys,os
 # miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
 # filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
 
-miniaod_version = "RunIISpring16MiniAODv2-PUSpring16*_80X_mcRun2_asymptotic_2016_miniAODv2*"
+miniaod_version = "RunIISpring16MiniAODv2-PUSpring16*_80X_mcRun2_asymptotic*"
 filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X.txt'
 
 # REMOVE DATASET NAMES CONTAINING:
@@ -52,7 +52,7 @@ remove = [
           'TT_TuneCUETP8M1mpiOFF','TT_TuneCUETP8M1noCR','TT_TuneEE5CmpiOFF','WGstarToLNu','TT_widthx4','X53ToTW_M-',
           'GluGluSpin0ToGG_W-','NMSSM_HToAATo4Mu_M-','HToZATo2Nu2B_MH-','GluGluH2JetsToTauTau','Graviton2PBToWW',
           'Graviton2PBToZZ','Graviton2PBqqbarToWW','Graviton2PBqqbarToZZ','HPlusPlusHMinusMinusHTo4L_M','ContinZZTo',
-          'ALCATkAlMinBias',
+          'ALCATkAlMinBias','RECODEBUG','percentMaterial','HToZATo2L2B','GluGluToPhiToTTBar',
           # '/ttHJetToNonbb_M120_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9_ext1-v3/MINIAODSIM',
