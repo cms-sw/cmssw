@@ -3,7 +3,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/rawEnergy.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/timeshift_ns_hbheho.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include <algorithm>
