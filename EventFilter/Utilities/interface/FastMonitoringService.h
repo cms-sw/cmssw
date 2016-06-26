@@ -112,6 +112,7 @@ namespace evf{
 
       // the names of the states - some of them are never reached in an online app
       static const std::string macroStateNames[FastMonitoringThread::MCOUNT];
+      static const std::string inputStateNames[FastMonitoringThread::inCOUNT]; 
       // Reserved names for microstates
       // moved into base class in EventFilter/Utilities for compatibility with MicroStateServiceClassic
       static const std::string nopath_;
@@ -121,6 +122,7 @@ namespace evf{
      
       std::string makePathLegendaJson();
       std::string makeModuleLegendaJson();
+      std::string makeInputLegendaJson();
 
       void preallocate(edm::service::SystemBounds const&);
       void jobFailure();
@@ -169,6 +171,8 @@ namespace evf{
       }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
       void setInputSource(FedRawDataInputSource *inputSource) {inputSource_=inputSource;}
+      void setInState(FastMonitoringThread::InputState inputState) {inputState_=inputState;}
+      void setInStateSup(FastMonitoringThread::InputState inputState) {inputSupervisorState_=inputState;}
 
     private:
 
@@ -184,7 +188,10 @@ namespace evf{
 	while (!fmt_.m_stoprequest) {
 	  edm::LogInfo("FastMonitoringService") << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
 	            << " ms=" << encPath_[0].encode(ministate_[0])
-	            << " us=" << encModule_.encode(microstate_[0]) << std::endl;
+	            << " us=" << encModule_.encode(microstate_[0])
+	            << " is=" << inputStateNames[inputState_]
+	            << " iss="<< inputStateNames[inputSupervisorState_]
+                    << std::endl;
 
 	  {
             std::lock_guard<std::mutex> lock(fmt_.monlock_);
@@ -202,7 +209,7 @@ namespace evf{
             snapCounter_++;
             
           }
-	  ::sleep(sleepTime_);
+	  ::usleep(sleepTime_);
 	}
       }
 
@@ -211,6 +218,8 @@ namespace evf{
       Encoding encModule_;
       std::vector<Encoding> encPath_;
       FedRawDataInputSource * inputSource_ = nullptr;
+      FastMonitoringThread::InputState inputState_;
+      FastMonitoringThread::InputState inputSupervisorState_;
 
       unsigned int nStreams_;
       unsigned int nThreads_;
@@ -269,6 +278,7 @@ namespace evf{
       std::string moduleLegendFileJson_;
       std::string pathLegendFile_;
       std::string pathLegendFileJson_;
+      std::string inputLegendFileJson_;
       bool pathLegendWritten_ = false;
       unsigned int nOutputModules_ =0;
 
