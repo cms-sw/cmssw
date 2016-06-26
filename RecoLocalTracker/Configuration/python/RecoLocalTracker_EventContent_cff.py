@@ -23,3 +23,10 @@ RecoLocalTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep ClusterSummary_clusterSummaryProducer_*_*')
 )
 
+from Configuration.StandardSequences.Eras import eras
+def _updateOutput( era, outputPSets, commands):
+   for o in outputPSets:
+      era.toModify( o, outputCommands = o.outputCommands + commands )
+
+_outputs = [RecoLocalTrackerFEVT, RecoLocalTrackerRECO]
+_updateOutput(eras.phase2_tracker, _outputs, ['keep *_siPhase2Clusters_*_*'])
