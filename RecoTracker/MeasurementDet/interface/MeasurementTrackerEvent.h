@@ -68,7 +68,7 @@ private:
    const StMeasurementDetSet *theStripData=nullptr;
    const PxMeasurementDetSet *thePixelData=nullptr;
    const Phase2OTMeasurementDetSet *thePhase2OTData=nullptr;
-   bool  theOwner=false; // do I own the two above?
+   bool  theOwner=false; // do I own the tree above?
    // these  could be const pointers as well, but ContainerMask doesn't expose the vector
    std::vector<bool> theStripClustersToSkip;
    std::vector<bool> thePixelClustersToSkip;
