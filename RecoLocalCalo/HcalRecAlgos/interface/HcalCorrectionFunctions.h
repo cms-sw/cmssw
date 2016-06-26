@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HcalRecAlgos_timeshift_ns_hbheho_h_
-#define RecoLocalCalo_HcalRecAlgos_timeshift_ns_hbheho_h_
+#ifndef RecoLocalCalo_HcalRecAlgos_HcalCorrectionFunctions_h_
+#define RecoLocalCalo_HcalRecAlgos_HcalCorrectionFunctions_h_
 
 ///Timeshift correction for HPDs based on the position of the peak ADC measurement.                                            
 ///  Allows for an accurate determination of the relative phase of the pulse shape from                                        
@@ -11,4 +11,4 @@ float timeshift_ns_hbheho(float wpksamp);
 /// Special energy correction for some HB- cells
 float hbminus_special_ecorr(int ieta, int iphi, double energy, int runnum);
 
-#endif // RecoLocalCalo_HcalRecAlgos_timeshift_ns_hbheho_h_
+#endif // RecoLocalCalo_HcalRecAlgos_HcalCorrectionFunctions_h_
