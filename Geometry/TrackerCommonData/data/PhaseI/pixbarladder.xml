@@ -2,11 +2,11 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="pixbarladder.xml" eval="true">
- <Constant name="Length"            value="53.6*cm"/>
- <Constant name="ExternalLength"    value="54.00*cm"/> <!--55.40 -->
- <Constant name="Modules"           value="8"/>
+ <Constant name="Length"            value="53.6*cm"/> 
+ <Constant name="ExternalLength"    value="54.00*cm"/> 
+ <Constant name="Modules"           value="8"/> 
  <Constant name="ModulesPerSide"    value="[Modules]/2"/>
- <Constant name="BaseThick"         value="0.30*mm"/>
+ <Constant name="BaseThick"         value="0.20*mm"/>
 <!-- <Constant name="ROChipThick"       value="0.18*mm"/> -->
  <Constant name="ROChipThick0"       value="0.075*mm"/>
  <Constant name="ROChipThick123"       value="0.175*mm"/>
@@ -14,9 +14,10 @@
  <Constant name="SensorDz"          value="6.66*cm"/>
  <Constant name="SensorEdge"        value="1.20*mm"/>
  <Constant name="ActiveDz"          value="6.48*cm"/>
- <Constant name="HybridThick"       value="0.044*mm"/>
+ <Constant name="HybridThick"       value="0.050*mm"/>
  <Constant name="HybridDz"          value="6.50*cm"/>
- <Constant name="CableThick"        value="0.150*mm"/> <!-- cc 0.300mmm-->
+ <Constant name="ModuleCapThick"       value="0.070*mm"/>
+ <Constant name="CableThick"        value="1.5*mm"/> 
  <Constant name="Cable1Length"          value="21.02*cm"/>
  <Constant name="Cable2Length"          value="14.32*cm"/>
  <Constant name="Cable3Length"          value="7.62*cm"/>
@@ -26,7 +27,7 @@
  <Constant name="Cable2Dz"          value="[Cable2Length]+[CableDzOverModule]"/>
  <Constant name="Cable3Dz"          value="[Cable3Length]+[CableDzOverModule]"/>
  <Constant name="Cable4Dz"          value="[Cable4Length]+[CableDzOverModule]"/>
- <Constant name="CableBoundleDiameter"     value="1.50*mm"/> 
+ <Constant name="CableBoundleDiameter"     value="1.5*mm"/> 
  <Constant name="CableBoxThick"     value="[CableBoundleDiameter]"/> 
  <Constant name="CapacitorZ"        value="2.80*cm"/> 
  <Constant name="CapacitorThick"    value="1.50*mm"/>
@@ -41,11 +42,11 @@
  
  <!-- Module thick uses CapacitorThick since it is the highest object on the Hybrid surface -->
  <Constant name="Module0Thick"       value="([ROChipThick0]+
-           [SensorThick]+[HybridThick]+[CapacitorStripThick])"/> 
- <Constant name="Module1Thick"       value="([ROChipThick123]+
-           [SensorThick]+[HybridThick]+[CapacitorStripThick])"/> 
+           [SensorThick]+[HybridThick]+[CapacitorStripThick]+[pixbarladder:ModuleCapThick])"/> 
+ <Constant name="Module1Thick"       value="([BaseThick]+[ROChipThick123]+
+           [SensorThick]+[HybridThick]+[CapacitorStripThick]+[pixbarladder:ModuleCapThick])"/>
  <Constant name="Module23Thick"       value="([BaseThick]+[ROChipThick123]+
-           [SensorThick]+[HybridThick]+[CapacitorStripThick])"/> 
+           [SensorThick]+[HybridThick]+[CapacitorStripThick]+[pixbarladder:ModuleCapThick])"/> 
  
  <Constant name="ModuleDz"          value="[Length]/[Modules]"/>
  <Constant name="ModuleZ"           value="-([Length]-[ModuleDz])/2"/>
