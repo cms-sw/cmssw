@@ -40,3 +40,7 @@ DEFINE_FWK_SERVICE(SiStripBaseDelayGenerator);
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripConfObjectGenerator.h"
 DEFINE_FWK_SERVICE(SiStripConfObjectGenerator);
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripBadModuleFedErrService.h"
+DEFINE_FWK_SERVICE(SiStripBadModuleFedErrService);

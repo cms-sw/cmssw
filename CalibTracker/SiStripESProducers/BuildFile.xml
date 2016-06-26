@@ -10,7 +10,9 @@
 <use   name="CondFormats/RunInfo"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>
+<use   name="DQMServices/Core"/>
 <use   name="boost"/>
+<use   name="classlib"/>
 <export>
   <lib   name="1"/>
 </export>
