@@ -18,6 +18,22 @@ namespace evf{
     // a copy of the Framework/EventProcessor states 
     enum Macrostate { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
 		      sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid,MCOUNT}; 
+
+    enum InputState { inIgnore = 0, inInit, inWaitInput, inNewLumi, inRunEnd, inProcessingFile, inWaitChunk , inChunkReceived, 
+                      inChecksumEvent, inCachedEvent, inReadEvent, inReadCleanup, inNoRequest,inNoRequestWithIdleThreads, 
+                      //supervisor thread and worker threads state
+                      inSupFileLimit, inSupWaitFreeChunk, inSupWaitFreeThread, inSupBusy, inSupLockPolling,
+                      inSupNoFile,inSupNewFile,inSupNewFileWaitThreadCopying,inSupNewFileWaitThread,
+                      inSupNewFileWaitChunkCopying,inSupNewFileWaitChunk,
+                      //combined with inWaitInput and inWaitChunk
+                      inWaitInput_fileLimit,inWaitInput_waitFreeChunk,inWaitInput_waitFreeThread,inWaitInput_busy,inWaitInput_lockPolling,inWaitInput_runEnd,
+                      inWaitInput_noFile,inWaitInput_newFile,inWaitInput_newFileWaitThreadCopying,inWaitInput_newFileWaitThread,
+                      inWaitInput_newFileWaitChunkCopying,inWaitInput_newFileWaitChunk,
+                      inWaitChunk_fileLimit,inWaitChunk_waitFreeChunk,inWaitChunk_waitFreeThread,inWaitChunk_busy,inWaitChunk_lockPolling,inWaitChunk_runEnd,
+                      inWaitChunk_noFile,inWaitChunk_newFile,inWaitChunk_newFileWaitThreadCopying,inWaitChunk_newFileWaitThread,
+                      inWaitChunk_newFileWaitChunkCopying,inWaitChunk_newFileWaitChunk,
+                      inCOUNT}; 
+
     struct MonitorData
     {
       //fastpath global monitorables
@@ -27,6 +43,7 @@ namespace evf{
       jsoncollector::IntJ fastFilesProcessedJ_;
       jsoncollector::DoubleJ fastLockWaitJ_;
       jsoncollector::IntJ fastLockCountJ_;
+      jsoncollector::IntJ fastEventsProcessedJ_;
 
       unsigned int varIndexThrougput_;
 
@@ -36,6 +53,7 @@ namespace evf{
       std::vector<jsoncollector::AtomicMonUInt*> processed_;
       jsoncollector::IntJ fastPathProcessedJ_;
       std::vector<unsigned int> threadMicrostateEncoded_;
+      std::vector<unsigned int> inputState_;
 
       //tracking luminosity of a stream
       std::vector<unsigned int> streamLumi_;
@@ -44,6 +62,7 @@ namespace evf{
       unsigned int macrostateBins_;
       unsigned int ministateBins_;
       unsigned int microstateBins_;
+      unsigned int inputstateBins_;
 
       //unsigned int prescaleindex_; // ditto
 
@@ -86,6 +105,8 @@ namespace evf{
 	microstateEncoded_.resize(nStreams);
 	ministateEncoded_.resize(nStreams);
 	threadMicrostateEncoded_.resize(nThreads);
+	inputState_.resize(nStreams);
+        for (unsigned int j=0;j<inputState_.size();j++) inputState_[j]=0;
 
 	//tell FM to track these int vectors
         fm->registerStreamMonitorableUIntVec("Ministate", &ministateEncoded_,true,&ministateBins_);
@@ -97,11 +118,15 @@ namespace evf{
 
         fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
 
+        //input source state tracking (not stream, but other than first item in vector is set to Ignore state) 
+        fm->registerStreamMonitorableUIntVec("Inputstate",&inputState_,true,&inputstateBins_);
+
         //global cumulative event counter is used for fast path
         fm->registerFastGlobalMonitorable(&fastPathProcessedJ_);
 
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm->commit(&streamLumi_);
+        //1,215,194,2407,0,0.0276364,0,0,14
       }
     };
 
