@@ -930,9 +930,21 @@ void FedRawDataInputSource::readSupervisor()
     {
       //report state to monitoring
       if (fms_) {
+        bool copy_active=false;
+        for (auto j : tid_active_) if (j) copy_active=true;
         if (readingFilesCount_>=maxBufferedFiles_) fms_->setInStateSup(evf::FastMonitoringThread::inSupFileLimit);
-        else if (freeChunks_.empty()) fms_->setInStateSup(evf::FastMonitoringThread::inSupWaitFreeChunk);
-        else fms_->setInStateSup(evf::FastMonitoringThread::inSupWaitFreeThread);
+        else if (freeChunks_.empty()) {
+          if (copy_active)
+            fms_->setInStateSup(evf::FastMonitoringThread::inSupWaitFreeChunkCopying);
+          else
+            fms_->setInStateSup(evf::FastMonitoringThread::inSupWaitFreeChunk);
+        }
+        else {
+          if (copy_active)
+            fms_->setInStateSup(evf::FastMonitoringThread::inSupWaitFreeThreadCopying);
+          else
+            fms_->setInStateSup(evf::FastMonitoringThread::inSupWaitFreeThread);
+        }
       }
       std::unique_lock<std::mutex> lkw(mWakeup_);
       //sleep until woken up by condition or a timeout

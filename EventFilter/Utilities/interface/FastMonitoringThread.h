@@ -20,16 +20,20 @@ namespace evf{
 		      sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid,MCOUNT}; 
 
     enum InputState { inIgnore = 0, inInit, inWaitInput, inNewLumi, inRunEnd, inProcessingFile, inWaitChunk , inChunkReceived, 
-                      inChecksumEvent, inCachedEvent, inReadEvent, inReadCleanup, inNoRequest,inNoRequestWithIdleThreads, 
+                      inChecksumEvent, inCachedEvent, inReadEvent, inReadCleanup, inNoRequest, inNoRequestWithIdleThreads,
+                      inNoRequestWithIdleAndEoLThreads, inNoRequestWithGlobalEoL, inNoRequestWithAllEoLThreads, inNoRequestWithEoLThreads,
                       //supervisor thread and worker threads state
-                      inSupFileLimit, inSupWaitFreeChunk, inSupWaitFreeThread, inSupBusy, inSupLockPolling,
-                      inSupNoFile,inSupNewFile,inSupNewFileWaitThreadCopying,inSupNewFileWaitThread,
+                      inSupFileLimit, inSupWaitFreeChunk, inSupWaitFreeChunkCopying, inSupWaitFreeThread, inSupWaitFreeThreadCopying, inSupBusy, inSupLockPolling,
+                      inSupLockPollingCopying,inSupNoFile,inSupNewFile,inSupNewFileWaitThreadCopying,inSupNewFileWaitThread,
                       inSupNewFileWaitChunkCopying,inSupNewFileWaitChunk,
-                      //combined with inWaitInput and inWaitChunk
-                      inWaitInput_fileLimit,inWaitInput_waitFreeChunk,inWaitInput_waitFreeThread,inWaitInput_busy,inWaitInput_lockPolling,inWaitInput_runEnd,
+                      //combined with inWaitInput
+                      inWaitInput_fileLimit,inWaitInput_waitFreeChunk,inWaitInput_waitFreeChunkCopying,inWaitInput_waitFreeThread,inWaitInput_waitFreeThreadCopying,
+                      inWaitInput_busy,inWaitInput_lockPolling,inWaitInput_lockPollingCopying,inWaitInput_runEnd,
                       inWaitInput_noFile,inWaitInput_newFile,inWaitInput_newFileWaitThreadCopying,inWaitInput_newFileWaitThread,
                       inWaitInput_newFileWaitChunkCopying,inWaitInput_newFileWaitChunk,
-                      inWaitChunk_fileLimit,inWaitChunk_waitFreeChunk,inWaitChunk_waitFreeThread,inWaitChunk_busy,inWaitChunk_lockPolling,inWaitChunk_runEnd,
+                      //combined with inWaitChunk
+                      inWaitChunk_fileLimit,inWaitChunk_waitFreeChunk,inWaitChunk_waitFreeChunkCopying,inWaitChunk_waitFreeThread,inWaitChunk_waitFreeThreadCopying,
+                      inWaitChunk_busy,inWaitChunk_lockPolling,inWaitChunk_lockPollingCopying,inWaitChunk_runEnd,
                       inWaitChunk_noFile,inWaitChunk_newFile,inWaitChunk_newFileWaitThreadCopying,inWaitChunk_newFileWaitThread,
                       inWaitChunk_newFileWaitChunkCopying,inWaitChunk_newFileWaitChunk,
                       inCOUNT}; 
@@ -126,7 +130,6 @@ namespace evf{
 
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm->commit(&streamLumi_);
-        //1,215,194,2407,0,0.0276364,0,0,14
       }
     };
 

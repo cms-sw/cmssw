@@ -199,17 +199,30 @@ namespace evf{
             doSnapshot(lastGlobalLumi_,false);
 
             if (fastMonIntervals_ && (snapCounter_%fastMonIntervals_)==0) {
-              std::string CSV = fmt_.jsonMonitor_->getCSVString();
-              //release mutex before writing out fast path file
-              fmt_.monlock_.unlock();
-              if (CSV.size())
-                fmt_.jsonMonitor_->outputCSV(fastPath_,CSV);
+              if (filePerFwkStream_) {
+                std::vector<std::string> CSVv;
+                for (unsigned int i=0;i<nStreams_;i++) {
+                  CSVv.push_back(fmt_.jsonMonitor_->getCSVString((int)i));
+                }
+                fmt_.monlock_.unlock();
+                for (unsigned int i=0;i<nStreams_;i++) {
+                  if (CSVv[i].size())
+                    fmt_.jsonMonitor_->outputCSV(fastPathList_[i],CSVv[i]);
+                }
+              }
+              else {
+                std::string CSV = fmt_.jsonMonitor_->getCSVString();
+                //release mutex before writing out fast path file
+                fmt_.monlock_.unlock();
+                if (CSV.size())
+                  fmt_.jsonMonitor_->outputCSV(fastPath_,CSV);
+              }
             }
 
             snapCounter_++;
             
           }
-	  ::usleep(sleepTime_);
+	  ::sleep(sleepTime_);
 	}
       }
 
@@ -228,6 +241,7 @@ namespace evf{
       unsigned int snapCounter_ = 0;
       std::string microstateDefPath_, fastMicrostateDefPath_;
       std::string fastName_, fastPath_, slowName_;
+      bool filePerFwkStream_;
 
       //variables that are used by/monitored by FastMonitoringThread / FastMonitor
 
@@ -286,6 +300,8 @@ namespace evf{
       bool exception_detected_ = false;
       std::vector<unsigned int> exceptionInLS_;
       bool emptyLumisectionMode_ = false;
+      std::vector<std::string> fastPathList_;
+
     };
 
 }
