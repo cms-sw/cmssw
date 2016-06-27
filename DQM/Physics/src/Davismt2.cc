@@ -50,7 +50,7 @@ dqm::Davismt2::~Davismt2(){}
 double dqm::Davismt2::get_mt2(){
 	if (!momenta_set)
 	{
-		cout << "dqm::Davismt2::get_mt2() ==> Please set momenta first!" << endl;
+        edm::LogError("MT2") <<  "dqm::Davismt2::get_mt2() ==> Please set momenta first!" << endl;
 		return 0;
 	}
 
@@ -133,10 +133,10 @@ void dqm::Davismt2::set_mn(double mn0){
 }
 
 void dqm::Davismt2::print(){
-	cout << " dqm::Davismt2::print() ==> pax = " << pax*scale << ";   pay = " << pay*scale << ";   ma = " << ma*scale <<";"<< endl;
-	cout << " dqm::Davismt2::print() ==> pbx = " << pbx*scale << ";   pby = " << pby*scale << ";   mb = " << mb*scale <<";"<< endl;
-	cout << " dqm::Davismt2::print() ==> pmissx = " << pmissx*scale << ";   pmissy = " << pmissy*scale <<";"<< endl;
-	cout << " dqm::Davismt2::print() ==> mn = " << mn_unscale<<";" << endl;
+    edm::LogPrint("MT2") << " dqm::Davismt2::print() ==> pax = " << pax*scale << ";   pay = " << pay*scale << ";   ma = " << ma*scale <<";"<< endl;
+    edm::LogPrint("MT2") << " dqm::Davismt2::print() ==> pbx = " << pbx*scale << ";   pby = " << pby*scale << ";   mb = " << mb*scale <<";"<< endl;
+    edm::LogPrint("MT2") << " dqm::Davismt2::print() ==> pmissx = " << pmissx*scale << ";   pmissy = " << pmissy*scale <<";"<< endl;
+    edm::LogPrint("MT2") << " dqm::Davismt2::print() ==> mn = " << mn_unscale<<";" << endl;
 }
 
 //special case, the visible particle is massless
@@ -233,7 +233,7 @@ void dqm::Davismt2::mt2_massless(){
 		if(foundhigh==0) 
 		{
 
-			if(verbose > 0) cout << "dqm::Davismt2::mt2_massless() ==> Deltasq_high not found at event " << nevt <<endl;
+			if(verbose > 0) edm::LogInfo("MT2") << "dqm::Davismt2::mt2_massless() ==> Deltasq_high not found at event " << nevt <<endl;
 
 
 			mt2_b = (double)sqrt(Deltasq_low+mnsq);
@@ -243,9 +243,9 @@ void dqm::Davismt2::mt2_massless(){
 
 	if(nsols_high == nsols_low)
 	{ 
-		if(verbose > 0) cout << "dqm::Davismt2::mt2_massless() ==> error: nsols_low=nsols_high=" << nsols_high << endl;
-		if(verbose > 0) cout << "dqm::Davismt2::mt2_massless() ==> Deltasq_high=" << Deltasq_high << endl;
-		if(verbose > 0) cout << "dqm::Davismt2::mt2_massless() ==> Deltasq_low= "<< Deltasq_low << endl;
+		if(verbose > 0) edm::LogVerbatim("MT2") << "dqm::Davismt2::mt2_massless() ==> error: nsols_low=nsols_high=" << nsols_high << endl;
+		if(verbose > 0) edm::LogVerbatim("MT2") << "dqm::Davismt2::mt2_massless() ==> Deltasq_high=" << Deltasq_high << endl;
+		if(verbose > 0) edm::LogVerbatim("MT2") << "dqm::Davismt2::mt2_massless() ==> Deltasq_low= "<< Deltasq_low << endl;
 
 		mt2_b = sqrt(mnsq + Deltasq_low);
 		return;
@@ -332,7 +332,6 @@ int dqm::Davismt2::nsols_massless(double Dsq){
 void dqm::Davismt2::mt2_bisect(){
 
 	solved = true;
-	cout.precision(11);
 
 //if masses are very small, use code for massless case.  
 	if(masq < MIN_MASS && mbsq < MIN_MASS){ 
@@ -425,7 +424,6 @@ void dqm::Davismt2::mt2_bisect(){
 //number of solutions at Deltasq_low should not be larger than zero
 	if( nsols(Deltasq_low) > 0 )
 	{
-//cout << "dqm::Davismt2::mt2_bisect() ==> nsolutions(Deltasq_low) > 0"<<endl;
 		mt2_b = (double) sqrt(mnsq+Deltasq0);
 		return;
 	}
@@ -447,7 +445,7 @@ void dqm::Davismt2::mt2_bisect(){
 		foundhigh = find_high(Deltasq_high);
 		if(foundhigh == 0) 
 		{
-			if(verbose > 0) cout << "dqm::Davismt2::mt2_bisect() ==> Deltasq_high not found at event " << nevt << endl;
+			if(verbose > 0) edm::LogVerbatim("MT2") << "dqm::Davismt2::mt2_bisect() ==> Deltasq_high not found at event " << nevt << endl;
 			mt2_b = sqrt( Deltasq_low + mnsq );
 			return;
 		}
@@ -526,7 +524,7 @@ int dqm::Davismt2::scan_high(double & Deltasq_high){
 	double tempmass, maxmass;
 	tempmass = mn + ma;
 	maxmass  = sqrt(mnsq + Deltasq_high);
-	if (nevt == 32334) cout << "dqm::Davismt2::scan_high() ==> Deltasq_high = " << Deltasq_high << endl; // ???
+	if (nevt == 32334) edm::LogInfo("MT2") << "dqm::Davismt2::scan_high() ==> Deltasq_high = " << Deltasq_high << endl; // ???
 	for(double mass = tempmass + SCANSTEP; mass < maxmass; mass += SCANSTEP)
 	{
 		Deltasq_high = mass*mass - mnsq;
