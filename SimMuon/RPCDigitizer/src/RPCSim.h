@@ -43,14 +43,6 @@ class RPCSim
   virtual void simulateNoise(const RPCRoll* roll,
                              CLHEP::HepRandomEngine*)=0;
 
-  virtual void simulateIRPC(const RPCRoll* roll,
-                        const edm::PSimHitContainer& rpcHits,
-                        CLHEP::HepRandomEngine*){}
-
-  virtual void simulateIRPCNoise(const RPCRoll* roll,
-                             CLHEP::HepRandomEngine*){}
-
-
   virtual void fillDigis(int rollDetId, RPCDigiCollection& digis);
 
   void setRPCSimSetUp(RPCSimSetUp* setup){theSimSetUp = setup;}

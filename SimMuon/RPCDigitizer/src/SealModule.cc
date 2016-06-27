@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
+#include "SimMuon/RPCDigitizer/src/RPCandIRPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 
 #include "SimMuon/RPCDigitizer/src/RPCSimTriv.h"
@@ -12,20 +13,12 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimAsymmetricCls.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimModelTiming.h"
-
 #include "SimMuon/RPCDigitizer/src/RPCNeutronWriter.h"
 
 DEFINE_FWK_MODULE(RPCDigiProducer);
+DEFINE_FWK_MODULE(RPCandIRPCDigiProducer);
 
-//DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimTriv,"RPCSimTriv");
-
-//DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimSimple,"RPCSimSimple");
-//DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimParam,"RPCSimParam");
-//DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverage,"RPCSimAverage");
-//DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoise,"RPCSimAverageNoise");
-//DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoiseEff,"RPCSimAverageNoiseEff");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAverageNoiseEffCls,"RPCSimAverageNoiseEffCls");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimAsymmetricCls,"RPCSimAsymmetricCls");
 DEFINE_EDM_PLUGIN(RPCSimFactory,RPCSimModelTiming,"RPCSimModelTiming");
-
 DEFINE_FWK_MODULE(RPCNeutronWriter);

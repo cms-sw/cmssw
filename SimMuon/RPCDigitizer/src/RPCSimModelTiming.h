@@ -28,15 +28,42 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPCSimModelTiming : public RPCSimAverageNoiseEffCls// inherits RPCSimAverageNoiseEffCls to coupe with the condidions
+class RPCSimModelTiming : public RPCSim
 {
  public:
   RPCSimModelTiming(const edm::ParameterSet& config);
   ~RPCSimModelTiming();
-  void simulateIRPC(const RPCRoll* roll,
+  void simulate(const RPCRoll* roll,
                 const edm::PSimHitContainer& rpcHits,
                  CLHEP::HepRandomEngine*) override;
-  void simulateIRPCNoise(const RPCRoll*,
+  void simulateNoise(const RPCRoll*,
                      CLHEP::HepRandomEngine*) override;
+  int getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*);
+
+ protected:
+  void init(){};
+  
+  double aveEff;
+  double aveCls;
+  double resRPC;
+  double timOff;
+  double dtimCs;
+  double resEle;
+  double sspeed;
+  double lbGate;
+  bool rpcdigiprint;
+  
+  int N_hits;
+  int nbxing;
+  double rate;
+  double gate;
+  double frate;
+
+  std::map< int, std::vector<double> > clsMap;
+  std::vector<double> sum_clsize;
+  std::vector<double> clsForDetId;
+  std::ifstream *infile;
+
+  RPCSynchronizer* _rpcSync;
 };
 #endif

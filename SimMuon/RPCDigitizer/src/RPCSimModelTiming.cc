@@ -36,19 +36,44 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
-//fast trick to coupe with the condidions
-//RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSimAsymmetricCls(config)
-RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSimAverageNoiseEffCls(config) //, IRPCPreciseTiming(config)
+RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(config)
 {
+  aveEff = config.getParameter<double>("averageEfficiency");
+  aveCls = config.getParameter<double>("averageClusterSize");
+  resRPC = config.getParameter<double>("timeResolution");
+  timOff = config.getParameter<double>("timingRPCOffset");
+  dtimCs = config.getParameter<double>("deltatimeAdjacentStrip");
+  resEle = config.getParameter<double>("timeJitter");
+  sspeed = config.getParameter<double>("signalPropagationSpeed");
+  lbGate = config.getParameter<double>("linkGateWidth");
+  rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
+
+  rate=config.getParameter<double>("Rate");
+  nbxing=config.getParameter<int>("Nbxing");
+  gate=config.getParameter<double>("Gate");
+  frate=config.getParameter<double>("Frate");
+
+  if (rpcdigiprint) {
+    std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
+    std::cout <<"Average Cluster Size      = "<<aveCls<<" strips"<<std::endl;
+    std::cout <<"RPC Time Resolution       = "<<resRPC<<" ns"<<std::endl;
+    std::cout <<"RPC Signal formation time = "<<timOff<<" ns"<<std::endl;
+    std::cout <<"RPC adjacent strip delay  = "<<dtimCs<<" ns"<<std::endl;
+    std::cout <<"Electronic Jitter         = "<<resEle<<" ns"<<std::endl;
+    std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
+    std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
+  }
+
+  _rpcSync = new RPCSynchronizer(config);
 
 }
 
 RPCSimModelTiming::~RPCSimModelTiming()
 {
-
+  delete _rpcSync;
 }
 
-void RPCSimModelTiming::simulateIRPC(const RPCRoll* roll,
+void RPCSimModelTiming::simulate(const RPCRoll* roll,
                 const edm::PSimHitContainer& rpcHits,
                  CLHEP::HepRandomEngine* engine) 
 {
@@ -68,7 +93,6 @@ void RPCSimModelTiming::simulateIRPC(const RPCRoll* roll,
        _hit != rpcHits.end(); ++_hit){
 
     if(_hit-> particleType() == 11) continue;
-
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
 
@@ -150,17 +174,20 @@ void RPCSimModelTiming::simulateIRPC(const RPCRoll* roll,
   }
 }
 
-void RPCSimModelTiming::simulateIRPCNoise(const RPCRoll* roll,
+void RPCSimModelTiming::simulateNoise(const RPCRoll* roll,
                      CLHEP::HepRandomEngine* engine) 
 {
+//std::cout<<"RPCSimModelTiming::simulateNoise"<<std::endl;
 
 RPCDetId rpcId = roll->id();
-
+//std::cout<<"RPCSimModelTiming::simulateNoise X1"<<std::endl;
   RPCGeomServ RPCname(rpcId);
-
+//std::cout<<"RPCSimModelTiming::simulateNoise X2"<<std::endl;
+// std::cout<<"rpcId.rawId() = "<<rpcId.rawId()<<std::endl;
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
+//std::cout<<"RPCSimModelTiming::simulateNoise X3"<<std::endl;
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
-
+//std::cout<<"RPCSimModelTiming::simulateNoise X4"<<std::endl;
   unsigned int nstrips = roll->nstrips();
   double area = 0.0;
 
@@ -191,8 +218,8 @@ RPCDetId rpcId = roll->id();
 
     CLHEP::RandPoissonQ randPoissonQ(*engine, ave);
     N_hits = randPoissonQ.fire();
-
-    for (int i = 0; i < N_hits; i++ ){
+ for (int i = 0; i < N_hits; i++ ){   
+ 
       
       double precise_time = CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate);
       int time_hit = (static_cast<int>(precise_time)) - nbxing/2;
@@ -208,3 +235,52 @@ RPCDetId rpcId = roll->id();
 
 }
 
+
+int RPCSimModelTiming::getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine* engine)
+{
+  std::vector<double> clsForDetId = getRPCSimSetUp()->getCls(id);
+
+  int cnt = 1;
+  int min = 1;
+  double func=0.0;
+  std::vector<double> sum_clsize;
+
+  sum_clsize.clear();
+  sum_clsize = clsForDetId;
+  int vectOffset(0);
+
+  double rr_cl = CLHEP::RandFlat::shoot(engine);
+
+  if(0.0 <= posX && posX < 0.2)  {
+    func = clsForDetId[19]*(rr_cl);
+    vectOffset = 0;
+  }
+  if(0.2 <= posX && posX < 0.4) {
+    func = clsForDetId[39]*(rr_cl);
+    vectOffset = 20;
+  }
+  if(0.4 <= posX && posX < 0.6) {
+    func = clsForDetId[59]*(rr_cl);
+    vectOffset = 40;
+  }
+  if(0.6 <= posX && posX < 0.8) {
+    func = clsForDetId[79]*(rr_cl);
+    vectOffset = 60;
+  }  
+  if(0.8 <= posX && posX < 1.0)  {
+    func = clsForDetId[89]*(rr_cl);
+    vectOffset = 80;
+  }
+  
+
+  for(int i = vectOffset; i<(vectOffset+20); i++){
+    cnt++;
+    if(func > clsForDetId[i]){
+      min = cnt;
+    }
+    else if(func < clsForDetId[i]){
+      break;
+    }
+  }
+  return min;
+}
