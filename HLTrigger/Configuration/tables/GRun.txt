@@ -753,6 +753,7 @@ PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 ParkingOutput							# JIRA: CMSHLT-487, CMSHLT-603
 ParkingHLTPhysicsOutput
+ParkingZeroBiasOutput
 PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
 ScoutingCaloOutput						# JIRA: CMSHLT-548
 ScoutingPFOutput						# JIRA: CMSHLT-548
