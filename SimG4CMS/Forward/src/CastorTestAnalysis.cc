@@ -41,7 +41,7 @@ CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet &p) {
   stepNtFileName           = m_Anal.getParameter<std::string>("StepNtupleFileName");
   eventNtFileName          = m_Anal.getParameter<std::string>("EventNtupleFileName");
 
-  if (verbosity > 0)
+  if (verbosity > 0) {
    std::cout<<std::endl;
    std::cout<<"============================================================================"<<std::endl;
    std::cout << "CastorTestAnalysis:: Initialized as observer"<< std::endl;
@@ -55,7 +55,7 @@ CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet &p) {
    }
    std::cout<<"============================================================================"<<std::endl;
    std::cout<<std::endl;
-  
+  }
   if (doNTcastorstep  > 0)  
   castorstepntuple = new TNtuple("NTcastorstep","NTcastorstep","evt:trackid:charge:pdgcode:x:y:z:stepl:stepe:eta:phi:vpx:vpy:vpz");
   
