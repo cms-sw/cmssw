@@ -39,7 +39,15 @@ bool UCTTower::process() {
     calibratedHCALET = value & etInputMax;
     logHCALET = (value & 0x7000) >> 12;
   }
-  towerData = calibratedECALET + calibratedHCALET;
+  if(calibratedECALET==0xFF && calibratedHCALET==0xFF)
+    towerData = 0x1FF;
+  else if(calibratedECALET==0xFF)
+    towerData = 0x1FE;
+  else if(calibratedHCALET==0xFF)
+    towerData = 0x1FD;
+  else
+    towerData = calibratedECALET + calibratedHCALET;
+
   if(towerData > etMask) towerData = etMask;
   uint32_t er = 0;
   if(calibratedECALET == 0 || calibratedHCALET == 0) {
