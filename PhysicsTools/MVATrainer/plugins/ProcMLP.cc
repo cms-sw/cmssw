@@ -239,9 +239,9 @@ void ProcMLP::trainData(const std::vector<double> *values,
 		weight = limiter;
 	}
 
-	if (iteration == ITER_COUNT) {
+	if (iteration == ITER_COUNT)
 		count++;
-		weightSum += weight; }
+   weightSum += weight; 
 
 	if (iteration != ITER_TRAIN)
 		return;
