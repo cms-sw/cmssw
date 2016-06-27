@@ -16,7 +16,7 @@
 #include <iostream>
 #include <math.h>
 #include "TObject.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // using namespace std;
 namespace dqm{
 
