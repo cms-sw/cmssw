@@ -63,6 +63,12 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
    std::vector<bool> msb;
    incoder_->lookupMSB(frame, msb);
 
+   if (abs(ids[0].ieta()) < first_he_tower and upgrade_hb_) {
+      edm::LogError("HCALTPAlgo") << "Upgrade hb but received " << ids[0] << " (" << ids.size() << ")";
+   } else if (abs(ids[0].ieta()) >= first_he_tower and upgrade_he_) {
+      edm::LogError("HCALTPAlgo") << "Upgrade he but received " << ids[0] << " (" << ids.size() << ")";
+   }
+
    if(ids.size() == 2) {
       // make a second trigprim for the other one, and split the energy
       IntegerCaloSamples samples2(ids[1], samples1.size());
@@ -192,6 +198,35 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
 void
 HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
 {
+   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(frame.id());
+   assert(ids.size() == 1 || ids.size() == 2);
+   IntegerCaloSamples samples1(ids[0], int(frame.samples()));
+
+   samples1.setPresamples(frame.presamples());
+   incoder_->adc2Linear(frame, samples1);
+
+   std::vector<bool> msb(frame.samples(), false);
+   // incoder_->lookupMSB(frame, msb);
+
+   if (abs(ids[0].ieta()) < first_he_tower and not upgrade_hb_) {
+      edm::LogError("HCALTPAlgo") << "No upgrade hb but received " << ids[0] << " (" << ids.size() << ")";
+   } else if (abs(ids[0].ieta()) >= first_he_tower and not upgrade_he_) {
+      edm::LogError("HCALTPAlgo") << "No upgrade he but received " << ids[0] << " (" << ids.size() << ")";
+   }
+
+   if(ids.size() == 2) {
+      // make a second trigprim for the other one, and split the energy
+      IntegerCaloSamples samples2(ids[1], samples1.size());
+      for(int i = 0; i < samples1.size(); ++i) {
+         samples1[i] = uint32_t(samples1[i]*0.5);
+         samples2[i] = samples1[i];
+      }
+      samples2.setPresamples(frame.presamples());
+      addSignal(samples2);
+      addFG(ids[1], msb);
+   }
+   addSignal(samples1);
+   addFG(ids[0], msb);
 }
 
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
@@ -286,6 +321,13 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
       }
    }
    outcoder_->compress(output, finegrain, result);
+}
+
+
+void
+HcalTriggerPrimitiveAlgo::analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result)
+{
+   analyze(samples, result);
 }
 
 
@@ -398,7 +440,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
     
 }
 
-void HcalTriggerPrimitiveAlgo::analyzeHF2017(
+void HcalTriggerPrimitiveAlgo::analyzeHFPhase1(
         const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
         const int hf_lumi_shift, const HcalFeatureBit* hcalfem)
 {

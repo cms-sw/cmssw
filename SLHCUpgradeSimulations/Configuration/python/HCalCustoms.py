@@ -140,6 +140,10 @@ def customise_HcalPhase1(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
+    if hasattr(process,'simHcalTriggerPrimitiveDigis'):
+        process.simHcalTriggerPrimitiveDigis.upgradeHF = cms.bool(True)
+        process.simHcalTriggerPrimitiveDigis.upgradeHE = cms.bool(True)
+        process.simHcalTriggerPrimitiveDigis.upgradeHB = cms.bool(True)
     process=customise_condOverRides(process)
     return process
 
