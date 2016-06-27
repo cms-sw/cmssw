@@ -49,7 +49,6 @@ namespace {
     else {
       size_t count3D = 0;
       for ( auto it = tk.recHitsBegin(), et = tk.recHitsEnd(); it!=et; ++it) {
-	//	const TrackingRecHit* hit = it->get();
 	const TrackingRecHit* hit = (*it);
 	if ( trackerHitRTTI::isUndef(*hit) ) continue;
 	
