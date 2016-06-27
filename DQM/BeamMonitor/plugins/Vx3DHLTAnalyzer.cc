@@ -34,7 +34,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   debugMode          = true;
   nLumiFit           = 2;     // Number of integrated lumis to perform the fit
   maxLumiIntegration = 15;    // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
-  nLumiXaxisRange    = 5000;  // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
+  nLumiXaxisRange    = 5000;  // Correspond to about 32h of data taking: 32h * 60min * 60s / 23s per lumi-block = 5009
   dataFromFit        = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
   minNentries        = 20;    // Minimum number of good vertices to perform the fit
   xRange             = 0.8;   // [cm]
