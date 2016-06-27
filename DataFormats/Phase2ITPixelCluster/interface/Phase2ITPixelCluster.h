@@ -7,14 +7,8 @@
 //!
 //!  Class to contain and store all the topological information of pixel clusters:
 //!  charge, global size, size and the barycenter in x and y
-//!  local directions. It builds a vector of SiPixel (which is
+//!  local directions. It builds a vector of Pixel (which is
 //!  an inner class) and a container of channels. 
-//!
-//!  March 2007: Edge methods moved to RectangularPixelTopology class (V.Chiochia)
-//!  Feb 2008: Modify the Pixel class from float to shorts
-//!  May   2008: Offset based packing (D.Fehling / A. Rizzi)
-//!  Sep 2012: added Max back, removed detId (V.I.)
-//!  sizeX and sizeY now clipped at 127
 //---------------------------------------------------------------------------
 
 #include <vector>
@@ -220,7 +214,6 @@ public:
     packRow(minRow,maxRow);
   }
   
-  // ggiurgiu@fnal.gov, 01/05/12 
   // Getters and setters for the newly added data members (err_x and err_y). See below. 
   void setSplitClusterErrorX( float errx ) { err_x = errx; }
   void setSplitClusterErrorY( float erry ) { err_y = erry; }
