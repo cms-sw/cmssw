@@ -3,6 +3,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+
 #include <cassert>
 
 #include "getBestVertex.h"
@@ -40,9 +42,24 @@ namespace {
     return tk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
   }
   
-  inline int n3DLayers(reco::Track const & tk) {
-    return tk.hitPattern().pixelLayersWithMeasurement() +
-      tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+  inline int n3DLayers(reco::Track const & tk, bool isHLT) {
+    uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement();    
+    if (!isHLT)
+      nlayers3D += tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+    else {
+      size_t count3D = 0;
+      for ( auto it = tk.recHitsBegin(), et = tk.recHitsEnd(); it!=et; ++it) {
+	const TrackingRecHit* hit = (*it);
+	if ( trackerHitRTTI::isUndef(*hit) ) continue;
+	
+	if ( hit->dimension()==2 ) {
+	  auto const & thit = static_cast<BaseTrackerRecHit const&>(*hit);
+	  if (thit.isMatched()) count3D++;
+	}
+      }
+      nlayers3D += count3D;
+    }
+    return nlayers3D;
   }
   
   inline int nPixelHits(reco::Track const & tk) {
@@ -121,6 +138,7 @@ namespace {
   struct Cuts {
     
     Cuts(const edm::ParameterSet & cfg) {
+      isHLT = cfg.getParameter<bool>("isHLT");
       fillArrayF(minNdof,      cfg,"minNdof");
       fillArrayF(maxChi2,      cfg,"maxChi2");
       fillArrayF(maxChi2n,     cfg,"maxChi2n");
@@ -167,7 +185,7 @@ namespace {
       ret = std::min(ret,cut(chi2n(trk),maxChi2,std::less_equal<float>()));
       if (ret==-1.f) return ret;
      
-      ret = std::min(ret,cut(n3DLayers(trk),min3DLayers,std::greater_equal<int>()));
+      ret = std::min(ret,cut(n3DLayers(trk,isHLT),min3DLayers,std::greater_equal<int>()));
       if (ret==-1.f) return ret;
 
       ret = std::min(ret,cut(nPixelHits(trk),minPixelHits,std::greater_equal<int>()));
@@ -266,6 +284,7 @@ namespace {
     static const char * name() { return "TrackCutClassifier";}
 
     static void fillDescriptions(edm::ParameterSetDescription & desc) {
+      desc.add<bool>("isHLT",false);
       desc.add<std::vector<int>>("minPixelHits", { 0, 0, 1});
       desc.add<std::vector<int>>("minLayers",    { 3, 4, 5});
       desc.add<std::vector<int>>("min3DLayers",  { 1, 2, 3});
@@ -298,6 +317,7 @@ namespace {
 
     }
 
+    bool isHLT;
     float minNdof[3];
     float maxChi2[3];
     float maxChi2n[3];
