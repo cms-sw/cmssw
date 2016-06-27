@@ -12,7 +12,7 @@ import sys,os
 # miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
 # filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
 
-miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
+miniaod_version = "RunIISpring16MiniAODv2-PUSpring16*_80X_mcRun2_asymptotic*"
 filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X.txt'
 
 # REMOVE DATASET NAMES CONTAINING:
@@ -31,7 +31,7 @@ remove = [
           'BulkGravTohhTohtatahbb_narrow_M-1600','BulkGravTohhTohtatahbb_narrow_M-2000',
           'BulkGravTohhTohtatahbb_narrow_M-2500','BulkGravTohhTohtatahbb_narrow_M-1800',
           'BulkGravTohhTohtatahbb_narrow_M-3000','BulkGravTohhTohtatahbb_narrow_M-3500','BulkGravTohhTohtatahbb_narrow_M-4000',
-          'BulkGravTohhTohtatahbb_narrow_M-4500','HToEMu','X53X53_M','LongLivedChi0','SMS-T1','WZTo1L3Nu',
+          'BulkGravTohhTohtatahbb_narrow_M-4500','HToEMu','X53X53_M','LongLivedChi0','SMS-','WZTo1L3Nu',
           'ZToEE_NNPDF30_13TeV-powheg_M_6000','ZToMuMu_NNPDF30_13TeV-powheg_M_800','ZToEE_NNPDF30_13TeV-powheg_M_1400',
           'ZToEE_NNPDF30_13TeV-powheg_M_3500','ZToEE_NNPDF30_13TeV-powheg_M_400','ZToMuMu_NNPDF30_13TeV-powheg_M_120',
           'ZToMuMu_NNPDF30_13TeV-powheg_M_4500','ZToMuMu_NNPDF30_13TeV-powheg_M_50','ZToMuMu_NNPDF30_13TeV-powheg_M_6000',
@@ -44,12 +44,15 @@ remove = [
           'BdToKstarMuMu','Estar_EG','ZGTo2LG','Mustar_MuG','Estar_EG','InclusivebtoMu','GluGluHToEEG','InclusiveBtoJpsi',
           '/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM',
           'BlackHole_','DMS_','DMV_','/DsTo','AxialMonoW_Mphi','X53X53To2L2Nu','VectorMono','AxialMono','StringBall',
-          'top_5f_DS_','ExtendedWeakIsospinModel','SMS-T2tt','SinglePi','SingleNeutrin','H0ToUps','SLQ_Rhanded-MLQ',
+          'top_5f_DS_','ExtendedWeakIsospinModel','SinglePi','SingleNeutrin','H0ToUps','SLQ_Rhanded-MLQ',
           'ContinToZZ','SingleNeutron','BuToJpsiPi','Chib0ToUps','DYToLL_M_1_T','EEG_PTG','GluGluWWTo2E2Nu','HToZATo2L2Tau',
           'MinBias_chMulti85','MuMuG_PTG130To400','SingleK0','WLLJJ','WZJJ','ChMulti85','Chib0ToUps','DYToEE_NNPDF30','ZToEE_NNPDF',
           'GluGluToHiggs0PMToZZ','/TTTT_','WWJJToLNuLNu_EWK_QCD_noTop','SeesawTypeIII','RPVStopStop','gluinoGMSB_M',
           'GluGluSpin0ToZG','DYBBJetsToLL_M-50_T','EWKWMinus2Jets_WToLNu','EWKWPlus2Jets_WToLNu','EWKZ2Jets_ZToNuNu',
-          'TT_TuneCUETP8M1mpiOFF','TT_TuneCUETP8M1noCR','TT_TuneEE5CmpiOFF','WGstarToLNu','TT_widthx4',
+          'TT_TuneCUETP8M1mpiOFF','TT_TuneCUETP8M1noCR','TT_TuneEE5CmpiOFF','WGstarToLNu','TT_widthx4','X53ToTW_M-',
+          'GluGluSpin0ToGG_W-','NMSSM_HToAATo4Mu_M-','HToZATo2Nu2B_MH-','GluGluH2JetsToTauTau','Graviton2PBToWW',
+          'Graviton2PBToZZ','Graviton2PBqqbarToWW','Graviton2PBqqbarToZZ','HPlusPlusHMinusMinusHTo4L_M','ContinZZTo',
+          'ALCATkAlMinBias','RECODEBUG','percentMaterial','HToZATo2L2B','GluGluToPhiToTTBar',
           # '/ttHJetToNonbb_M120_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9_ext1-v3/MINIAODSIM',
