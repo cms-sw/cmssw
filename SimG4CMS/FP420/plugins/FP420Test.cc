@@ -953,37 +953,37 @@ void FP420Test::update(const EndOfEvent * evt) {
 
   // prim.vertex:
   G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-  if (nvertex !=1)
+  if (nvertex !=1) 
     std::cout << "FP420Test: My warning: NumberOfPrimaryVertex != 1  -->  = " << nvertex <<  std::endl;
 
-    for (int i = 0 ; i<nvertex; i++) {
-      G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-      if (avertex == 0)
-	std::cout << "FP420Test  End Of Event ERR: pointer to vertex = 0"
-	     << std::endl;
+  for (int i = 0 ; i<nvertex; i++) {
+    G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
+    if (avertex == 0)
+      std::cout << "FP420Test  End Of Event ERR: pointer to vertex = 0"
+      << std::endl;
     G4int npart = avertex->GetNumberOfParticle();
     if (npart !=1)
       std::cout << "FP420Test: My warning: NumberOfPrimaryPart != 1  -->  = " << npart <<  std::endl;
     if (npart ==0)
       std::cout << "FP420Test End Of Event ERR: no NumberOfParticle" << std::endl;
 
-    // find just primary track:                                                             track pointer: thePrim
+  // find just primary track:                                                             track pointer: thePrim
     if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
 
-       if (thePrim!=0) {
-	 // primary vertex:
-	 G4double vx=0.,vy=0.,vz=0.;
-	 vx = avertex->GetX0();
-	 vy = avertex->GetY0();
-	 vz = avertex->GetZ0();
-	 //UserNtuples->fillh01(vx);
-	 //UserNtuples->fillh02(vy);
-	 //UserNtuples->fillh03(vz);
-	 TheHistManager->GetHisto("VtxX")->Fill(vx);
-	 TheHistManager->GetHisto("VtxY")->Fill(vy);
-	 TheHistManager->GetHisto("VtxZ")->Fill(vz);
-       }
+    if (thePrim!=0) {
+      // primary vertex:
+      G4double vx=0.,vy=0.,vz=0.;
+      vx = avertex->GetX0();
+      vy = avertex->GetY0();
+      vz = avertex->GetZ0();
+      //UserNtuples->fillh01(vx);
+      //UserNtuples->fillh02(vy);
+      //UserNtuples->fillh03(vz);
+      TheHistManager->GetHisto("VtxX")->Fill(vx);
+      TheHistManager->GetHisto("VtxY")->Fill(vy);
+      TheHistManager->GetHisto("VtxZ")->Fill(vz);
     }
+  }
   // prim.vertex loop end
 
 //=========================== thePrim != 0 ================================================================================
