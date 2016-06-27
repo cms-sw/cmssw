@@ -75,7 +75,7 @@ public:
   EtaPhiRegionData(const edm::ParameterSet& para,edm::ConsumesCollector & consumesColl):
     minEt_(para.getParameter<double>("minEt")),
     maxEt_(para.getParameter<double>("maxEt")),
-    maxDeltaR2_(para.getParameter<double>("maxDeltaR2")),
+    maxDeltaR2_(para.getParameter<double>("maxDeltaR")*para.getParameter<double>("maxDeltaR")),
     maxDEta_(para.getParameter<double>("maxDEta")),
     maxDPhi_(para.getParameter<double>("maxDPhi")),
     token_(consumesColl.consumes<T1>(para.getParameter<edm::InputTag>("inputColl"))){}
@@ -128,7 +128,7 @@ HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::HLTCaloObjInRegionsPro
   }
 
   outputProductNames_=para.getParameter<std::vector<std::string>>("outputProductNames");
-  inputCollTags_=para.getParameter<std::vector<edm::InputTag>>("inputTags");
+  inputCollTags_=para.getParameter<std::vector<edm::InputTag>>("inputCollTags");
   for (unsigned int collNr=0; collNr<inputCollTags_.size(); collNr++) { 
     inputTokens_.push_back(consumes<CaloObjCollType>(inputCollTags_[collNr]));
     produces<CaloObjCollType> (outputProductNames_[collNr]);
@@ -143,18 +143,18 @@ void HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::fillDescriptions(
   outputProductNames.push_back("EcalRegionalRecHitsEB");
   desc.add<std::vector<std::string>>("outputProductNames", outputProductNames);
   std::vector<edm::InputTag> inputColls;
-  inputColls.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-  desc.add<std::vector<edm::InputTag>>("inputColls", inputColls);
+  inputColls.push_back(edm::InputTag("hltHcalDigis"));
+  desc.add<std::vector<edm::InputTag>>("inputCollTags", inputColls);
   std::vector<edm::ParameterSet> etaPhiRegions;
  
   edm::ParameterSet ecalCandPSet;
-  ecalCandPSet.addParameter<std::string>("type","EGamma");
+  ecalCandPSet.addParameter<std::string>("type","RecoEcalCandidate");
   ecalCandPSet.addParameter<double>("minEt",-1);
   ecalCandPSet.addParameter<double>("maxEt",-1);
   ecalCandPSet.addParameter<double>("maxDeltaR",0.5);
   ecalCandPSet.addParameter<double>("maxDEta",0.);
   ecalCandPSet.addParameter<double>("maxDPhi",0.);
-  ecalCandPSet.addParameter<edm::InputTag>("inputColl",edm::InputTag("hltCaloStage2Digis"));
+  ecalCandPSet.addParameter<edm::InputTag>("inputColl",edm::InputTag("hltEgammaCandidates"));
   etaPhiRegions.push_back(ecalCandPSet);
   
 
@@ -162,8 +162,9 @@ void HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::fillDescriptions(
   etaPhiRegionDesc.add<std::string>("type");
   etaPhiRegionDesc.add<double>("minEt");
   etaPhiRegionDesc.add<double>("maxEt");
-  etaPhiRegionDesc.add<double>("regionEtaMargin");
-  etaPhiRegionDesc.add<double>("regionPhiMargin");
+  etaPhiRegionDesc.add<double>("maxDeltaR");
+  etaPhiRegionDesc.add<double>("maxDEta");
+  etaPhiRegionDesc.add<double>("maxDPhi");
   etaPhiRegionDesc.add<edm::InputTag>("inputColl");
   desc.addVPSet("etaPhiRegions",etaPhiRegionDesc,etaPhiRegions);
   
