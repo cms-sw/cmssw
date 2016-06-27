@@ -13,7 +13,8 @@ namespace evf{
       edm::ModuleDescription("Dummy","Input"), 
       edm::ModuleDescription("Dummy","DQM"),
       edm::ModuleDescription("Dummy","BoL"), 
-      edm::ModuleDescription("Dummy","EoL")};
+      edm::ModuleDescription("Dummy","EoL"),
+      edm::ModuleDescription("Dummy","GlobalEoL")};
 
   const std::string MicroStateService::default_return_="NotImplemented";
 

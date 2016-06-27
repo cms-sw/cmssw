@@ -99,13 +99,13 @@ public:
 	}
 
 	//fastpath (not implemented now)
-	std::string fastOutCSV();
+	std::string fastOutCSV(int sid=-1);
 
 	//pointed object should be available until discard
 	JsonMonitorable * mergeAndRetrieveValue(unsigned int forLumi);
 
 	//get everything collected prepared for output
-	void mergeAndSerialize(Json::Value& jsonRoot, unsigned int lumi, bool initJsonValue);
+	void mergeAndSerialize(Json::Value& jsonRoot, unsigned int lumi, bool initJsonValue, int sid);
 
 	//cleanup lumi
 	void discardCollected(unsigned int forLumi);
