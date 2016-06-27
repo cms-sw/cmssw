@@ -229,16 +229,12 @@ private:
   
   uint32_t thePixelRow; // Minimum and span pixel index in the x direction (low edge).
   uint32_t thePixelCol; // Minimum and span pixel index in the y direction (left edge).
-  // Need 10 bits for Postion information. the other 6 used for span
+  // Need 10 bits for Position information. the other 6 used for span
   
-  // ggiurgiu@fnal.gov, 01/05/12
-  // Add cluster errors to be used by rechits from split clusters. 
-  // A rechit from a split cluster has larger errors than rechits from normal clusters. 
+  // A rechit from a split cluster should have larger errors than rechits from normal clusters. 
   // However, when presented with a cluster, the CPE does not know if the cluster comes 
   // from a splitting procedure or not. That's why we have to instruct the CPE to use 
   // appropriate errors for split clusters.
-  // To avoid increase of data size on disk,these new data members are set as transient in: 
-  // DataFormats/Phase2ITPixelCluster/src/classes_def.xml
   float err_x;
   float err_y;
   
