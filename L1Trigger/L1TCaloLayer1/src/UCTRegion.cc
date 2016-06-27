@@ -23,8 +23,8 @@ using namespace l1tcalo;
 // For the moment we use floating point arithmetic 
 
 const float activityFraction = 0.125;
-const float ecalActivityFraction = 0.125;
-const float miscActivityFraction = 0.125;
+const float ecalActivityFraction = 0.25;
+const float miscActivityFraction = 0.25;
 
 bool vetoBit(bitset<4> etaPattern, bitset<4> phiPattern) {
 
@@ -43,9 +43,10 @@ bool vetoBit(bitset<4> etaPattern, bitset<4> phiPattern) {
      etaPattern != badPattern10 && etaPattern != badPattern11 &&
      etaPattern != badPattern13 && etaPattern != badPattern14 &&
      etaPattern != badPattern15 && phiPattern != badPattern5 && 
-     phiPattern != badPattern7 && phiPattern != badPattern10 && 
+     //     phiPattern != badPattern7 && phiPattern != badPattern10 && 
+     phiPattern != badPattern10 && 
      phiPattern != badPattern11 && phiPattern != badPattern13 && 
-     phiPattern != badPattern14 && phiPattern != badPattern15 &&
+     //phiPattern != badPattern14 && phiPattern != badPattern15 &&
      etaPattern != badPattern9 && phiPattern != badPattern9){
     answer = false;
   }
