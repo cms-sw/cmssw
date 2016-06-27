@@ -98,7 +98,7 @@ class GenericValidation:
                 "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
                 "alignmentName": alignment.name,
                 "condLoad": alignment.getConditions(),
-                "condLoad": alignment.getConditions(),
+                "LoadGlobalTagTemplate": configTemplates.loadGlobalTagTemplate,
                 })
         return result
 
