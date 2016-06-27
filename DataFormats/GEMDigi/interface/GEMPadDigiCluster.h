@@ -12,27 +12,26 @@
 
 #include <boost/cstdint.hpp>
 #include <iosfwd>
+#include <vector>
 
 class GEMPadDigiCluster{
 
 public:
-  explicit GEMPadDigiCluster (int firstPad, int lastPad, int bx);
+  explicit GEMPadDigiCluster (std::vector<uint16_t> pads, int bx);
   GEMPadDigiCluster ();
 
   bool operator==(const GEMPadDigiCluster& digi) const;
   bool operator!=(const GEMPadDigiCluster& digi) const;
   bool operator<(const GEMPadDigiCluster& digi) const;
 
-  int firstPad() const { return firstPad_; }
-  int lastPad() const { return lastPad_; }
+  const std::vector<uint16_t>& pads() const { return v_; }
   int bx() const { return bx_; }
 
   void print() const;
 
 private:
-  uint16_t firstPad_;
-  uint16_t lastPad_;
-  int32_t  bx_; 
+  std::vector<uint16_t> v_;
+  int32_t  bx_;
 };
 
 std::ostream & operator<<(std::ostream & o, const GEMPadDigiCluster& digi);
