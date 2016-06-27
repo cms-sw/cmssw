@@ -585,6 +585,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
 
 
+                // the index of the object type is the same as the index of the object
                 size_t iType = std::distance((*itComb).begin(), itObject);
 
                 // get object type and push indices on the list
