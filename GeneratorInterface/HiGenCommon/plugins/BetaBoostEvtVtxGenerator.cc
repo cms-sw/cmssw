@@ -25,9 +25,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
@@ -102,15 +104,15 @@ private:
   TMatrixD *boost_;
   double fTimeOffset;
   
-  edm::InputTag            sourceLabel;
+  edm::EDGetTokenT<HepMCProduct> sourceLabel;
 
   bool verbosity_;
 };
 
 
-BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p ):
+BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p):
   fVertex(0), boost_(0), fTimeOffset(0),
-  sourceLabel(p.getParameter<edm::InputTag>("src")),
+  sourceLabel(consumes<HepMCProduct>(p.getParameter<edm::InputTag>("src"))),
   verbosity_(p.getUntrackedParameter<bool>("verbosity",false))
 {
   fX0 =        p.getParameter<double>("X0")*cm;
@@ -261,8 +263,8 @@ void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   CLHEP::HepRandomEngine* engine = &rng->getEngine(evt.streamID());
   
   Handle<HepMCProduct> HepUnsmearedMCEvt;
-  evt.getByLabel(sourceLabel, HepUnsmearedMCEvt);
-  
+  evt.getByToken(sourceLabel, HepUnsmearedMCEvt);
+
   // Copy the HepMC::GenEvent
   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
   std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
@@ -275,6 +277,7 @@ void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
   evt.put(std::move(HepMCEvt));
+
   return ;
 }
 
