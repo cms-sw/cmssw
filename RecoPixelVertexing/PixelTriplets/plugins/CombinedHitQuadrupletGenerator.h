@@ -41,6 +41,7 @@ private:
 
   std::unique_ptr<HitQuadrupletGeneratorFromTripletAndLayers> theGenerator;
   
-  bool useCellularAutomaton;
+  bool useCellularAutomaton = false;
+
 };
 #endif

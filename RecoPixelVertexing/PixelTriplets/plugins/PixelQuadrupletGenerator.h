@@ -105,7 +105,9 @@ private:
   const bool fitFastCircle;
   const bool fitFastCircleChi2Cut;
   const bool useBendingCorrection;
+  
+  float CAThetaCut = 0.00125f;
+  float CAPhiCut = 10.f;
+  
+
 };
-
-
-

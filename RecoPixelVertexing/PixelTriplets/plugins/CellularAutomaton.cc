@@ -2,11 +2,14 @@
 #include "CellularAutomaton.h"
 
 template <unsigned int numberOfLayers>
-void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<const HitDoublets*> doublets, const SeedingLayerSetsHits::SeedingLayerSet& fourLayers, const TrackingRegion& region)
+void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<const HitDoublets*> doublets, const SeedingLayerSetsHits::SeedingLayerSet& fourLayers, const TrackingRegion& region, const float thetaCut, const float phiCut)
 {
   unsigned int cellId = 0;
   constexpr unsigned int numberOfLayerPairs =   numberOfLayers - 1;
   float ptmin = region.ptMin();
+  float region_origin_x = region.origin().x();
+  float region_origin_y = region.origin().y();
+  float region_origin_radius = region.originRBound();
   unsigned int layerPairId = 0;
   auto innerLayerId = layerPairId;
   auto outerLayerId = innerLayerId + 1;
@@ -39,7 +42,7 @@ void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<co
       cellId++;
       for (auto neigCell : isOuterHitOfCell[innerLayerId][doublets[layerPairId]->innerHitId(i)])
       {
-        theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, ptmin);
+        theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut, phiCut);
       }
     }
   }
