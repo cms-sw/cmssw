@@ -26,7 +26,7 @@ RefHitDef::RefHitDef(unsigned int aInput,
 bool RefHitDef::fitsRange(int iPhi) const{
 
   return iPhi>=range.first && 
-         iPhi<range.second;
+         iPhi<=range.second;
 
 }
 ///////////////////////////////////////////////
