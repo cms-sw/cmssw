@@ -53,7 +53,7 @@ MaskedMeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::Ev
     iEvent.getByToken(src_, mte);
 
     // prepare output
-    std::auto_ptr<MeasurementTrackerEvent> out;
+    std::unique_ptr<MeasurementTrackerEvent> out;
 
     if (skipClusters_) {
 
@@ -62,7 +62,7 @@ MaskedMeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::Ev
       edm::Handle<StripMask> maskStrips;
       iEvent.getByToken(maskStrips_, maskStrips);
 
-      out.reset(new MeasurementTrackerEvent(*mte, *maskStrips, *maskPixels));
+      out = std::make_unique<MeasurementTrackerEvent>(*mte, *maskStrips, *maskPixels);
 
     } else if (phase2skipClusters_) {
 
@@ -71,11 +71,11 @@ MaskedMeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::Ev
       edm::Handle<Phase2OTMask> maskPhase2OTs;
       iEvent.getByToken(maskPhase2OTs_, maskPhase2OTs);
 
-      out.reset(new MeasurementTrackerEvent(*mte, *maskPixels, *maskPhase2OTs));
+      out = std::make_unique<MeasurementTrackerEvent>(*mte, *maskPixels, *maskPhase2OTs);
     }
 
     // put into event
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

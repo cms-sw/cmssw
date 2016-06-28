@@ -29,12 +29,10 @@ MeasurementTrackerEvent::MeasurementTrackerEvent(const MeasurementTrackerEvent &
                            const edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > & stripClustersToSkip,
                            const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip) :
      theTracker(trackerEvent.theTracker),
-     theStripData(trackerEvent.theStripData), thePixelData(trackerEvent.thePixelData),
-     thePhase2OTData(0),
-     theOwner(false),
-     theStripClustersToSkip(),
-     thePixelClustersToSkip(),
-     thePhase2OTClustersToSkip()
+     theStripData(trackerEvent.theStripData), 
+     thePixelData(trackerEvent.thePixelData),
+     thePhase2OTData(nullptr),
+     theOwner(false)
 {
     //std::cout << "Creatign non-owned MT @ " << this << " from @ " << & trackerEvent << " (strip data @ " << trackerEvent.theStripData << ")" << std::endl;
     if (stripClustersToSkip.refProd().id() != theStripData->handle().id() ){
@@ -59,12 +57,10 @@ MeasurementTrackerEvent::MeasurementTrackerEvent(const MeasurementTrackerEvent &
                            const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip,
                            const edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > & phase2OTClustersToSkip) :
      theTracker(trackerEvent.theTracker),
-     theStripData(0), thePixelData(trackerEvent.thePixelData),
+     theStripData(nullptr), 
+     thePixelData(trackerEvent.thePixelData),
      thePhase2OTData(trackerEvent.thePhase2OTData),
-     theOwner(false),
-     theStripClustersToSkip(),
-     thePixelClustersToSkip(),
-     thePhase2OTClustersToSkip()
+     theOwner(false)
 {
 
     if (pixelClustersToSkip.refProd().id() != thePixelData->handle().id()){
