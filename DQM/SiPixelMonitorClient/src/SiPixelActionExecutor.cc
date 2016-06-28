@@ -392,7 +392,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 		(*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		(*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	  prefix="SUMCLU";
-          if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	else if((*iv)=="residualX"||(*iv)=="residualY")
 	  prefix="SUMTRK";
 	else if((*iv)=="ClustX"||(*iv)=="ClustY"||(*iv)=="nRecHits"||(*iv)=="ErrorX"||(*iv)=="ErrorY")
@@ -967,7 +967,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker & iBo
 		    (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		    (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	      prefix="SUMCLU";
-	      if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	    if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	    else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 		    (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
 	      prefix="SUMTRK";
@@ -1215,7 +1215,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker& iBoo
 		    (*iv)=="size"||(*iv)=="sizeX"||(*iv)=="sizeY"||(*iv)=="minrow"||
 		    (*iv)=="maxrow"||(*iv)=="mincol"||(*iv)=="maxcol")
 	      prefix="SUMCLU";
-	      if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
+	    if(currDir.find("Track")!=string::npos) prefix="SUMTRK";
 	    else if((*iv)=="residualX_mean"||(*iv)=="residualY_mean"||
 		    (*iv)=="residualX_RMS"||(*iv)=="residualY_RMS")
 	      prefix="SUMTRK";
