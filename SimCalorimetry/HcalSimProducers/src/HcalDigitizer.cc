@@ -560,10 +560,20 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   hbheCells = hbCells;
   hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
   //handle mixed QIE8/11 scenario in HBHE
-  if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->setDetIds(hbheCells);
-  else buildHBHEQIECells(hbheCells,eventSetup);
+  if(theHBHEUpgradeDigitizer) {
+    theHBHEUpgradeDigitizer->setDetIds(hbheCells);
+    if(theHBHESiPMResponse)
+      ((HcalSiPMHitResponse *)theHBHESiPMResponse)->setDetIds(hbheCells);
+  }
+  else {
+    buildHBHEQIECells(hbheCells,eventSetup);
+    if(theHBHESiPMResponse)
+      ((HcalSiPMHitResponse *)theHBHESiPMResponse)->setDetIds(theHBHEQIE11DetIds);
+  }
   
   buildHOSiPMCells(hoCells, eventSetup);
+  if(theHOSiPMResponse)
+    ((HcalSiPMHitResponse *)theHOSiPMResponse)->setDetIds(hoCells);
   
   //handle mixed QIE8/10 scenario in HF
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setDetIds(hfCells);
