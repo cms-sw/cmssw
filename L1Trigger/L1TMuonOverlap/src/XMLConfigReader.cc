@@ -74,6 +74,7 @@ void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig
   
   ///Fill payload string  
   const std::vector<GoldenPattern *> & aGPs = readPatterns(aConfig);
+
   unsigned int in = 0;
   int out = 0;
   for(auto it: aGPs){
@@ -203,20 +204,13 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   GoldenPattern::vector3D pdf3D(aConfig.nLayers());
   GoldenPattern::vector2D pdf2D(aConfig.nRefLayers());
 
-  if(false && iPt==0){///Build empty GP
+  if(iPt==0){///Build empty GP
     GoldenPattern::vector1D meanDistPhi1D(aConfig.nRefLayers());
-    for(unsigned int iLayer=0;iLayer<nLayers;++iLayer){
-      meanDistPhi2D[iLayer] = meanDistPhi1D;
-      ///PDF vector      
-      for(unsigned int iRefLayer=0;iRefLayer<(unsigned) aConfig.nRefLayers();++iRefLayer){
-	pdf1D.assign(exp2(aConfig.nPdfAddrBits()),0);
-	for(unsigned int iPdf=0;iPdf<exp2(aConfig.nPdfAddrBits());++iPdf){
-	  pdf1D[iPdf] = 0;
-	}
-	pdf2D[iRefLayer] = pdf1D;
-      }
-      pdf3D[iLayer] = pdf2D;
-    }
+    meanDistPhi2D.assign(aConfig.nRefLayers(),meanDistPhi1D);
+    pdf1D.assign(exp2(aConfig.nPdfAddrBits()),0);
+    pdf2D.assign(aConfig.nRefLayers(),pdf1D);
+    pdf3D.assign(aConfig.nLayers(),pdf2D);
+
     Key aKey(iEta,iPt,iCharge, aGPNumber);
     GoldenPattern *aGP = new GoldenPattern(aKey,0);
     aGP->setMeanDistPhi(meanDistPhi2D);
