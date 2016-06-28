@@ -68,7 +68,7 @@ class MillePedeDQMModule : public DQMEDHarvester {
   //========================== PRIVATE DATA ====================================
   //============================================================================
 
-    const edm::ParameterSet& mpReaderConfig_;
+    const edm::ParameterSet mpReaderConfig_;
     MillePedeFileReader mpReader;
 
     // Signifiance of movement must be above
