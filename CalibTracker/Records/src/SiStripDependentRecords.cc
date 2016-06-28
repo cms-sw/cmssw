@@ -16,3 +16,4 @@ EVENTSETUP_RECORD_REG(SiStripBackPlaneCorrectionDepRcd);
 EVENTSETUP_RECORD_REG(SiStripHashedDetIdRcd);
 EVENTSETUP_RECORD_REG(SiStripNoisesDepRcd);
 EVENTSETUP_RECORD_REG(SiStripBadModuleDepRcd);
+EVENTSETUP_RECORD_REG(SiStripBadModuleFedErrRcd);
