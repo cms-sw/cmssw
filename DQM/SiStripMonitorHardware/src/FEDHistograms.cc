@@ -108,6 +108,7 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
   getConfigForHistogram(fedIdVsApvId_,"FedIdVsApvId",iConfig,pDebugStream);
 
+  getConfigForHistogram(fedErrorsVsId_,"FedErrorsVsId",iConfig,pDebugStream);
 }
 
 void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
