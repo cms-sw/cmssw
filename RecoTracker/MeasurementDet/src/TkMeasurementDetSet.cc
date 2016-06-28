@@ -26,8 +26,7 @@ void StMeasurementConditionSet::set128StripStatus(int i, bool good, int idx) {
 	   // so I don't care if it's not optimized
 	     hasAny128StripBad_[i] = true;
 	     for (int j = 0; i < (totalStrips_[j] >> 7); j++) {
-	       if (bad128Strip_[j+offset] == false) hasAny128StripBad_[i] = false;
-          break;
+	       if (bad128Strip_[j+offset] == false) {hasAny128StripBad_[i] = false; break;}
 	     }
       }    
     } 
