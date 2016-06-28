@@ -54,6 +54,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalUncalIsolElectron_cff import 
 # -- alcarereco (rereco done starting from alcaraw
 #from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_cff import *
+# -- alcareco for trigger studies
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_cff import *
 
 ###############################################################
 # HCAL Calibration
@@ -158,7 +160,7 @@ pathALCARECOEcalUncalWElectron   = cms.Path(seqALCARECOEcalUncalWElectron)
 #pathALCARECOEcalRecalElectron = cms.Path(seqALCARECOEcalRecalElectron)
 
 pathALCARECOEcalESAlign      = cms.Path(seqEcalESAlign)
-
+pathALCARECOEcalTrg          = cms.Path(seqALCARECOEcalTrg)
 ####
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets*ALCARECOHcalCalDiJetsDQM)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
@@ -385,6 +387,15 @@ ALCARECOStreamEcalESAlign    = cms.FilteredStream(
     paths = (pathALCARECOEcalESAlign),
     content = OutALCARECOEcalESAlign.outputCommands,
     selectEvents = OutALCARECOEcalESAlign.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+)
+
+ALCARECOStreamEcalTrg = cms.FilteredStream(
+    responsible = 'Shervin Nourbakhsh',
+    name = 'EcalTrg',
+    paths = pathALCARECOEcalTrg,
+    content=  OutALCARECOEcalTrg.outputCommands,
+    selectEvents = OutALCARECOEcalTrg.SelectEvents,
     dataTier = cms.untracked.string('ALCARECO')
 )
 
