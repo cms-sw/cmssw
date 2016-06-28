@@ -2583,24 +2583,24 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
               float adcmax=0.0;
  
               for(unsigned int i=0;i<recIt->nStrips();i++) 
-           		for(unsigned int j=0;j<recIt->nTimeBins();j++)
-           		  if(recIt->adcs(i,j)>adcmax) {
-           		    adcmax=recIt->adcs(i,j); 
-           		    binmx=j;
-           		  }
+                for(unsigned int j=0;j<recIt->nTimeBins();j++)
+                  if(recIt->adcs(i,j)>adcmax) {
+                    adcmax=recIt->adcs(i,j); 
+                    binmx=j;
+                  }
 
-      	      adc_3_3_sum=0.0;
-      	      //well, this really only works for 3 strips in readout - not sure the right fix for general case
+               adc_3_3_sum=0.0;
+               //well, this really only works for 3 strips in readout - not sure the right fix for general case
                for(unsigned int i=0;i<recIt->nStrips();i++) 
-      	         for(unsigned int j=binmx-1;j<=binmx+1;j++) 
-      	              adc_3_3_sum+=recIt->adcs(i,j);
+                  for(unsigned int j=binmx-1;j<=binmx+1;j++) 
+                       adc_3_3_sum+=recIt->adcs(i,j);
       
       
                   // ADC weighted time bin
                if(adc_3_3_sum > 100.0) {
                            
       
-      	        int centerStrip=recIt->channels(1); //take central from 3 strips;
+                 int centerStrip=recIt->channels(1); //take central from 3 strips;
                  // temporary fix
                  int flag=0;
                  if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
