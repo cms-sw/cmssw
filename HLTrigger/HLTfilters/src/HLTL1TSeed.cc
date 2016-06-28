@@ -577,13 +577,16 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
 
+            LogTrace("HLTL1TSeed")
+            << setw(15) << "\tnew combination" << endl;
+
             // loop over objects in a combination for a given condition
             //
             for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
 
-              // loop over types for the object in a combination.  This object might have more then one type (i.e. mu-eg)
-              //
-              for (size_t iType =0; iType < condObjType.size(); iType++) {
+
+                // the index of the object type is the same as the index of the object
+                size_t iType = std::distance((*itComb).begin(), itObject);
 
                 // get object type and push indices on the list
                 //
@@ -658,8 +661,6 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                     break;
 
                 } // end switch objTypeVal
-
-            } // end for iType 
 
           } // end for itObj
 
