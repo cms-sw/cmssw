@@ -341,6 +341,28 @@ State prescaled_state(int state, int path, int module, HLTConfigInterface const 
   return (State) state;
 }
 
+// return a copy of a string denoting an InputTag without the process name
+// i.e.
+//    "module"                  --> "module"
+//    "module:instance"         --> "module:instance"
+//    "module::process"         --> "module"
+//    "module:instance:process" --> "module:instance"
+//
+std::string strip_process_name(std::string const & s) {
+  if (std::count(s.begin(), s.end(), ':') == 2) {
+    // remove the process name and the second ':' separator
+    size_t end = s.find_last_of(':');
+    if (end > 0 and s.at(end-1) == ':')
+      // no instance name, remove also the first ':' separator
+      --end;
+    return s.substr(0, end);
+  } else {
+    // no process name, return the string unchanged
+    return s;
+  }
+}
+
+
 void print_detailed_path_state(std::ostream & out, State state, int path, int module, HLTConfigInterface const & config) {
   auto const & label = config.moduleLabel(path, module);
   auto const & type  = config.moduleType(path, module);
@@ -355,7 +377,7 @@ void print_detailed_path_state(std::ostream & out, State state, int path, int mo
 void print_trigger_candidates(std::ostream & out, trigger::TriggerEvent const & summary, edm::InputTag const & filter) {
   // find the index of the collection of trigger candidates corresponding to the filter
   unsigned int index = summary.filterIndex(filter);
-  
+
   if (index >= summary.sizeFilters()) {
     // the collection of trigger candidates corresponding to the filter could not be found
     out << "            not found\n";
@@ -372,7 +394,7 @@ void print_trigger_candidates(std::ostream & out, trigger::TriggerEvent const & 
     auto key = summary.filterKeys(index)[i];
     auto id  = summary.filterIds(index)[i];
     trigger::TriggerObject const & candidate = summary.getObjects().at(key);
-    out << "            " 
+    out << "            "
         << "filter id: " << id               << ", "
         << "object id: " << candidate.id()   << ", "
         << "pT: "        << candidate.pt()   << ", "
@@ -402,7 +424,7 @@ void print_trigger_collection(std::ostream & out, trigger::TriggerEvent const & 
 
   for (unsigned int key = begin; key < end; ++key) {
     trigger::TriggerObject const & candidate = summary.getObjects().at(key);
-    out << "            " 
+    out << "            "
         << "object id: " << candidate.id()   << ", "
         << "pT: "        << candidate.pt()   << ", "
         << "eta: "       << candidate.eta()  << ", "
@@ -662,15 +684,18 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
     // compare the TriggerEvent
     if (affected_event and verbose > 2 and old_summary and new_summary) {
-      std::set<std::string> names;
-      names.insert(old_summary->collectionTags().begin(), old_summary->collectionTags().end());
-      names.insert(new_summary->collectionTags().begin(), new_summary->collectionTags().end());
-      for (auto const & collection: names) {
-        std::cout << "    Collection " << collection << ":\n";
+      std::map<std::string, std::pair<std::string, std::string>> collections;
+      for (auto const & old_collection: old_summary->collectionTags())
+        collections[strip_process_name(old_collection)].first  = old_collection;
+      for (auto const & new_collection: new_summary->collectionTags())
+        collections[strip_process_name(new_collection)].second = new_collection;
+
+      for (auto const & collection: collections) {
+        std::cout << "    Collection " << collection.first << ":\n";
         std::cout << "        old trigger candidates:\n";
-        print_trigger_collection(std::cout, * old_summary, collection);
+        print_trigger_collection(std::cout, * old_summary, collection.second.first);
         std::cout << "        new trigger candidates:\n";
-        print_trigger_collection(std::cout, * new_summary, collection);
+        print_trigger_collection(std::cout, * new_summary, collection.second.second);
         std::cout << std::endl;
       }
     }
