@@ -23,18 +23,15 @@ GoldenPattern::layerResult GoldenPattern::process1Layer1RefLayer(unsigned int iR
   ///distribution in given layer
   for(auto itHit: layerHits){
     if(itHit>=(int)myOmtfConfig->nPhiBins()) continue;    
-    if(abs(itHit-phiMean-phiRefHit)<abs(phiDist)) phiDist = itHit-phiMean-phiRefHit;
+    if(abs(itHit-phiMean-phiRefHit)<abs(phiDist)) phiDist = itHit-phiMean-phiRefHit;   
   }
+   
+  ///Check if phiDist is within pdf range -63 +63 
+  if(abs(phiDist)>(exp2(myOmtfConfig->nPdfAddrBits()-1) -1)) return aResult;
 
   ///Shift phidist, so 0 is at the middle of the range
   phiDist+=exp2(myOmtfConfig->nPdfAddrBits()-1);
-  ///Check if phiDist is within pdf range
-  ///in -64 +63 U2 code
-  ///Find more elegant way to check this.
-  if(phiDist<0 ||
-     phiDist>exp2(myOmtfConfig->nPdfAddrBits())-1){    
-    return aResult;
-  }
+
   int pdfVal = pdfAllRef[iLayer][iRefLayer][phiDist];
 
   return GoldenPattern::layerResult(pdfVal,pdfVal>0);
