@@ -157,7 +157,8 @@ namespace ecaldqm
         meanFED = meanFEDEE;
         rmsFED  = rmsFEDEE;
       }
-      if ( meanFED > 100. && Nentries[iDCC] < meanFED - nRMS*rmsFED )
+      float threshold( meanFED < nRMS*rmsFED ? 10. : meanFED - nRMS*rmsFED );
+      if ( meanFED > 100. && Nentries[iDCC] < threshold )
         meEmulQualitySummary.setBinContent( ttid, meEmulQualitySummary.maskMatches(ttid, mask, statusManager_) ? kMBad : kBad );
     }
 
