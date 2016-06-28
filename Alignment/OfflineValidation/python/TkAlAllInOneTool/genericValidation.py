@@ -20,6 +20,7 @@ class GenericValidation:
         self.configFiles = []
         self.filesToCompare = {}
         self.config = config
+        self.jobid = ""
 
         defaults = {"jobmode":      self.general["jobmode"],
                     "cmssw":        os.environ['CMSSW_BASE'],
