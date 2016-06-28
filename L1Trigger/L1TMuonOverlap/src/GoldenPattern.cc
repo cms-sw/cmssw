@@ -111,19 +111,20 @@ std::ostream & operator << (std::ostream &out, const GoldenPattern & aPattern){
       out<<")"<<std::endl;
     }
   }
-  /*
+
+  unsigned int nPdfAddrBits = 7;
   out<<"PDF per layer:"<<std::endl;
   for (unsigned int iRefLayer=0;iRefLayer<aPattern.pdfAllRef[0].size();++iRefLayer){
     out<<"Ref layer: "<<iRefLayer;
     for (unsigned int iLayer=0;iLayer<aPattern.pdfAllRef.size();++iLayer){   
       out<<", measurement layer: "<<iLayer<<std::endl;
-      for (unsigned int iPdf=0;iPdf<exp2(myOmtfConfig->nPdfAddrBits());++iPdf){   
+      for (unsigned int iPdf=0;iPdf<exp2(nPdfAddrBits);++iPdf){   
 	out<<std::setw(2)<<aPattern.pdfAllRef[iLayer][iRefLayer][iPdf]<<" ";
       }
       out<<std::endl;
     }
   }
-  */
+  
   return out;
 }
 ////////////////////////////////////////////////////
