@@ -48,7 +48,7 @@ void CombinedHitQuadrupletGenerator::hitQuadruplets(
   if(layers.numberOfLayersInSet() != 4)
     throw cms::Exception("Configuration") << "CombinedHitQuadrupletsGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 4, got " << layers.numberOfLayersInSet();
 
-  useCellularAutomaton = true;
+
   if(useCellularAutomaton)
   {
     for(unsigned int j=0; j<layers.size();j++) {
