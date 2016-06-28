@@ -71,12 +71,9 @@ RecoMuonRECO = cms.PSet(
                                            'keep TrackingRecHitsOwned_cosmicMuons_*_*',
                                            'keep recoTrackExtras_cosmicMuons1Leg_*_*',
                                            'keep TrackingRecHitsOwned_cosmicMuons1Leg_*_*',
-                                           'keep recoTracks_cosmicsVetoTracks_*_*',
-                                           # standAloneSETMuons for the DT DQM
-                                           'keep recoTracks_standAloneSETMuons_*_*',
-                                           'keep recoTrackExtras_standAloneSETMuons_*_*')
+                                           'keep recoTracks_cosmicsVetoTracks_*_*')
 )
-# Full Event content 
+# Full Event content
 RecoMuonFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
