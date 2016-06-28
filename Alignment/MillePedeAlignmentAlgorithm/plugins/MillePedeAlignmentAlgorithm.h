@@ -263,6 +263,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool                      theGblDoubleBinary;
 
   const bool                runAtPCL_;
+  const bool                ignoreHitsWithoutGlobalDerivatives_;
 };
 
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory,
