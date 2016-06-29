@@ -140,7 +140,7 @@ def storeCaloTowersAOD(process):
 def customisePPwithHI(process):
 
     process=addHIIsolationProducer(process)
-    process=modifyClusterLimits(process)
+    #process=modifyClusterLimits(process)
     process=storeCaloTowersAOD(process)
 
     return process
