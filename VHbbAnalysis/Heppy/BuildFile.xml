@@ -1,0 +1,24 @@
+<use name="root"/>
+<use name="rootcore"/>
+<use name="rootinteractive"/>
+
+<use name="rootpy"/>
+<use name="clhepheader"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="fastjet"/>
+<use name="ktjet"/>
+<use name="EgammaAnalysis/ElectronTools"/>
+<use name="MagneticField/UniformEngine"/>
+<use name="MagneticField/ParametrizedEngine"/>
+<use name="RecoVertex/KalmanVertexFit"/>
+<use name="RecoVertex/VertexTools"/>
+<use name="TrackingTools/IPTools"/>
+<use name="boost"/>
+<use name="lhapdf"/>
+<export>
+  <lib name="1"/>
+</export>
+
+
