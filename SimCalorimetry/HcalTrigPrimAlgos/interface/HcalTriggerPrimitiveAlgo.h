@@ -20,6 +20,16 @@ class IntegerCaloSamples;
 
 class HcalTriggerPrimitiveAlgo {
 public:
+   struct DatabaseParameters {
+      // TEMPORARY
+      // This parameters should be in the conditions, this struct is
+      // temporary container to hardcode them.
+
+      uint64_t hf_tdc_mask = 0x200000FFFFFFFFFF;
+      // uint64_t hf_tdc_mask = 0x2FFFFFFFFFFFFFFF;
+      uint16_t hf_adc_thresh = 0;
+   };
+
   HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, 
                            int latency,
                            bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
@@ -116,6 +126,8 @@ public:
   uint32_t PMT_NoiseThreshold_; 
   int NCTScaleShift;
   int RCTScaleShift;  
+
+  DatabaseParameters params_;
 
   // Algo1: isPeak = TS[i-1] < TS[i] && TS[i] >= TS[i+1]
   // Algo2: isPeak = TSS[i-1] < TSS[i] && TSS[i] >= TSS[i+1],
