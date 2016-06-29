@@ -1,4 +1,4 @@
-/// -*- C++ -*-
+//// -*- C++ -*-
 //
 // Package:    HGCHitValidation
 // Class:      HGCHitValidation
@@ -187,11 +187,11 @@ void HGCHitValidation::beginJob() {
 
   heeEnRec = fs->make<TH1F>("heeEnRec","",1000,0,10);
   heeEnSim = fs->make<TH1F>("heeEnSim","",1000,0,0.01);
-  heeEnSimRec = fs->make<TH2F>("heeEnSimRec","",200,0,0.02,200,0,0.1);
+  heeEnSimRec = fs->make<TH2F>("heeEnSimRec","",200,0,0.002,200,0,0.2);
 
   hefEnRec = fs->make<TH1F>("hefEnRec","",1000,0,10);
   hefEnSim = fs->make<TH1F>("hefEnSim","",1000,0,0.01);
-  hefEnSimRec = fs->make<TH2F>("hefEnSimRec","",200,0,0.02,200,0,0.1);
+  hefEnSimRec = fs->make<TH2F>("hefEnSimRec","",200,0,0.001,200,0,0.5);
 
   hebEnRec = fs->make<TH1F>("hebEnRec","",1000,0,15);
   hebEnSim = fs->make<TH1F>("hebEnSim","",1000,0,0.01);
