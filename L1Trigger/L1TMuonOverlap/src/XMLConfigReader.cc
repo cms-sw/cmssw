@@ -71,7 +71,7 @@ void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig
   
   ///Prepare the header 
   strStream <<"#<header> V1 "<<totalInWidth<<" "<<outWidth<<" </header> "<<std::endl;
-  
+
   ///Fill payload string  
   const std::vector<GoldenPattern *> & aGPs = readPatterns(aConfig);
 
@@ -105,7 +105,8 @@ void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig
       strStream<<in<<" "<<out<<std::endl;
       ++in;
     }
-  } 
+  }
+
   ///Read the data into LUT
   lut->read(strStream);
 }
@@ -206,7 +207,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
 
   if(iPt==0){///Build empty GP
     GoldenPattern::vector1D meanDistPhi1D(aConfig.nRefLayers());
-    meanDistPhi2D.assign(aConfig.nRefLayers(),meanDistPhi1D);
+    meanDistPhi2D.assign(aConfig.nLayers(),meanDistPhi1D);
     pdf1D.assign(exp2(aConfig.nPdfAddrBits()),0);
     pdf2D.assign(aConfig.nRefLayers(),pdf1D);
     pdf3D.assign(aConfig.nLayers(),pdf2D);
