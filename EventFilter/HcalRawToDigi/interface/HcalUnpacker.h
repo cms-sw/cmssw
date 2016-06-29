@@ -33,6 +33,7 @@ public:
     std::vector<HcalTTPDigi>* ttp;
     QIE10DigiCollection* qie10;
     QIE11DigiCollection* qie11;
+    HcalUMNioDigi* umnio;
 
   };
 

@@ -796,6 +796,7 @@ HcalUnpacker::Collections::Collections() {
   ttp=0;
   qie10=0;
   qie11=0;
+  umnio=0;
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {

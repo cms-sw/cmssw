@@ -1,6 +1,7 @@
 #include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalUMNioDigi.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -21,6 +22,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
   unpackTTP_(conf.getUntrackedParameter<bool>("UnpackTTP",false)),
+  unpackUMNio_(conf.getUntrackedParameter<bool>("UnpackUMNio",false)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
   complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
   unpackerMode_(conf.getUntrackedParameter<int>("UnpackerMode",0)),
@@ -59,6 +61,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<ZDCDigiCollection>();
   if (unpackTTP_)
     produces<HcalTTPDigiCollection>();
+  if (unpackUMNio_)
+    produces<HcalUMNioDigi>();
   produces<QIE10DigiCollection>();
   produces<QIE11DigiCollection>();
   
@@ -79,6 +83,7 @@ void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<bool>("UnpackZDC",true);
   desc.addUntracked<bool>("UnpackCalib",true);
   desc.addUntracked<bool>("UnpackTTP",true);
+  desc.addUntracked<bool>("UnpackUMNio",true);
   desc.addUntracked<bool>("silent",true);
   desc.addUntracked<bool>("ComplainEmptyData",false);
   desc.addUntracked<int>("UnpackerMode",0);
@@ -272,8 +277,15 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     e.put(prod);
   }
   e.put(report);
+  /// umnio
+  if (unpackUMNio_) {
+    std::cout << "Putting UMNIO in event" << std::endl;
+    std::auto_ptr<HcalUMNioDigi> prod(new HcalUMNioDigi());
+    prod = std::auto_ptr<HcalUMNioDigi>(colls.umnio);
+    e.put(prod);
 
 
+  }
 }
 
 
