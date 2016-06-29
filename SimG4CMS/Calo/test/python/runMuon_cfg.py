@@ -116,7 +116,7 @@ process.simulation_step = cms.Path(process.psim)
 process.analysis_step   = cms.Path(process.caloSimHitStudy)
 process.out_step = cms.EndPath(process.output)
 
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.Verbosity = 0
 process.g4SimHits.CaloSD.UseResponseTables = [1,1,0,1]
 process.g4SimHits.CaloResponse.UseResponseTable  = True

@@ -45,11 +45,11 @@ process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('Simevent_zeer_QGSP_BERT_EML95.root')
+    fileName = cms.untracked.string('Simevent_zeer_QGSP_FTFP_BERT_EML.root')
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('zeer_QGSP_BERT_EML95.root')
+    fileName = cms.string('zeer_QGSP_FTFP_BERT_EML.root')
 )
 
 process.generation_step = cms.Path(process.pgen)
@@ -57,7 +57,7 @@ process.simulation_step = cms.Path(process.psim)
 process.analysis_step   = cms.Path(process.electronStudy)
 process.out_step = cms.EndPath(process.output)
 
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML95'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,

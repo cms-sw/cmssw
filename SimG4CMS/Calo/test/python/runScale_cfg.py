@@ -70,7 +70,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('runScale14_QGSP_BERT_EML.root')
+    fileName = cms.string('runScale14_QGSP_FTFP_BERT_EML.root')
 )
 
 process.generation_step = cms.Path(process.pgen)
@@ -80,7 +80,7 @@ process.analysis_step   = cms.Path(process.caloSimHitStudy)
 process.caloSimHitStudy.MaxEnergy = 60.0
 process.caloSimHitStudy.TimeCut   = 100.0
 process.caloSimHitStudy.MIPCut    = 0.75
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,

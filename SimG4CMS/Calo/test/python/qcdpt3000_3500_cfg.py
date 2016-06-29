@@ -100,13 +100,13 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('qcdpt_3000_3500_QGSP_BERT_EML.root')
+    fileName = cms.string('qcdpt_3000_3500_QGSP_FTFP_BERT_EML.root')
 )
 
 # Event output
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent_qcdpt_3000_3500_QGSP_BERT_EML.root')
+    fileName = cms.untracked.string('simevent_qcdpt_3000_3500_QGSP_FTFP_BERT_EML.root')
 )
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
@@ -115,7 +115,7 @@ process.out_step = cms.EndPath(process.output)
 
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 
 # process.g4SimHits.ECalSD.IgnoreTrackID      = True
 # process.g4SimHits.HCalSD.IgnoreTrackID      = True

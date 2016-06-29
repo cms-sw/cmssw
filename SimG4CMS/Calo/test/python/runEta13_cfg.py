@@ -73,16 +73,16 @@ process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.out_step = cms.EndPath(process.output)
 
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 #process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 
-# Schedule definition                                                          
+# Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
                                 process.simulation_step,
                                 process.out_step
                                 )
 
-# filter all path with the production filter sequence                          
+# filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 

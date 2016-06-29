@@ -83,7 +83,7 @@ process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.out_step = cms.EndPath(process.output)
 
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
