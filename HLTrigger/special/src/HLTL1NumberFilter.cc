@@ -58,7 +58,7 @@ HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<unsigned int>("period",4096);
   desc.add<bool>("invert",true);
   desc.add<int>("fedId",812);
-  desc.add<int>("useFED1024L1Count",false);
+  desc.add<bool>("useFED1024L1Count",false);
   descriptions.add("hltL1NumberFilter",desc);
 }
 //
