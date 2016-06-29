@@ -154,7 +154,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
   unsigned int detID = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();  
 
-  std::vector<bool>& hipChannels = allHIPChannels[detID];
+  std::vector<bool>& badChannels = allBadChannels[detID];
   size_t thisFirstChannelWithSignal = numStrips;
   size_t thisLastChannelWithSignal = 0;
 
@@ -206,7 +206,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
               int LastAPV = (localLastChannel-1)/128;
 //		std::cout<<"Setting to bad an APV in detId="<<detId<<std::endl;
               for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
-                hipChannels[strip] = true;
+                badChannels[strip] = true;
               }
             }
           }
@@ -301,10 +301,6 @@ SiStripDigitizerAlgorithm::digitize(
 	  if(!badChannels[strip]){
 	    float gainValue = gainHandle->getStripGain(strip, detGainRange); 
 	    noiseRMSv[strip] = (noiseHandle->getNoise(strip,detNoiseRange))* theElectronPerADC/gainValue;
-	   if(hipChannels[strip]){
-//	        std::cout<<"Noise in strip reduced by a factor "<<sf<<std::endl;
-		noiseRMSv[strip]*=sf;
-	   }
 	    //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: gainValue: "<<gainValue<<"\tnoiseRMSv["<<strip<<"]: "<<noiseRMSv[strip]<<std::endl;
 	  }
 	}
