@@ -40,7 +40,9 @@ SimMuonAOD = cms.PSet(
 )
 
 from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*', 'keep *_simMuonGEMPadDigis_*_*'] )
+eras.run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonGEMDigis_*_*',
+                                                                                              'keep *_simMuonGEMPadDigis_*_*',
+                                                                                              'keep *_simMuonGEMPadDigiClusters_*_*'] )
 eras.run3_GEM.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 eras.run3_GEM.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 eras.phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonME0Digis_*_*'] )

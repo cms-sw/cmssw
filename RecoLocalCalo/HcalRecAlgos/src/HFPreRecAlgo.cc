@@ -11,6 +11,14 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
                                       const HcalCoder& coder,
                                       const HcalCalibrations& calib)
 {
+    // Conversion from TDC to ns for the QIE10 chip
+    static const float qie10_tdc_to_ns = 0.5f;
+
+    // TDC values produced in case the pulse is always above/below
+    // the discriminator
+    static const int qie10_tdc_code_overshoot = 62;
+    static const int qie10_tdc_code_undershoot = 63;
+
     HFQIE10Info result;
 
     CaloSamples cs;
@@ -23,8 +31,17 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
         const int capid = s.capid();
         const float charge = cs[tsToUse] - calib.pedestal(capid);
         const float energy = charge*calib.respcorrgain(capid);
-        const float timeRising = s.le_tdc();
-        const float timeFalling = s.te_tdc();
+
+        const int tdc = s.le_tdc();
+        float timeRising = qie10_tdc_to_ns*tdc;
+        if (tdc == qie10_tdc_code_overshoot)
+            timeRising = HFQIE10Info::UNKNOWN_T_OVERSHOOT;
+        else if (tdc == qie10_tdc_code_undershoot)
+            timeRising = HFQIE10Info::UNKNOWN_T_UNDERSHOOT;
+
+        // We will assume for now that the trailing edge time
+        // is ok as long as the leading edge is ok
+        const float timeFalling = qie10_tdc_to_ns*s.te_tdc();
 
         // Figure out the window in the raw data
         // that we want to store. This window will

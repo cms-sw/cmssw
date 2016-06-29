@@ -40,8 +40,17 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
             0.0, 1.0   # {FAILED_OTHER, OK}
         ),
 
-        # Into which byte the sample of interest ADC will be placed?
+        # Into which byte (0, 1, or 2) of the aux word the sample
+        # of interest ADC will be placed?
         soiPhase = cms.uint32(1),
+
+        # Time shift added to all "normal" QIE10 TDC time measurements
+        timeShift = cms.double(0.0),
+
+        # Rise and fall time of the rechit will be set to these values
+        # if neither anode has valid TDC info
+        triseIfNoTDC = cms.double(-100.0),
+        tfallIfNoTDC = cms.double(-101.0),
 
         # Do not construct rechits with problems
         rejectAllFailures = cms.bool(True)
