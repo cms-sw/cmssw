@@ -1,0 +1,9 @@
+/HTMHT/Run2015B-PromptReco-v1/MINIAOD
+/Jet/Run2015B-PromptReco-v1/MINIAOD
+/JetHT/Run2015B-PromptReco-v1/MINIAOD
+/MET/Run2015B-PromptReco-v1/MINIAOD
+/SingleElectron/Run2015B-PromptReco-v1/MINIAOD
+/SingleMuon/Run2015B-PromptReco-v1/MINIAOD
+/DoubleEG/Run2015B-PromptReco-v1/MINIAOD
+/DoubleMuon/Run2015B-PromptReco-v1/MINIAOD
+/MuonEG/Run2015B-PromptReco-v1/MINIAOD

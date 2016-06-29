@@ -56,7 +56,8 @@ class Looper(object):
                   nPrint=0,
                   timeReport=False,
                   quiet=False,
-                  memCheckFromEvent=-1):
+                  memCheckFromEvent=-1,
+                  stopFlag = None):
         """Handles the processing of an event sample.
         An Analyzer is built for each Config.Analyzer present
         in sequence. The Looper can then be used to process an event,
@@ -68,6 +69,12 @@ class Looper(object):
         nEvents : number of events to process. Defaults to all.
         firstEvent : first event to process. Defaults to the first one.
         nPrint  : number of events to print at the beginning
+    
+        stopFlag: it should be a multiprocessing.Value instance, that is set to 1 
+                  when this thread, or any other, receives a SIGUSR2 to ask for
+                  a graceful job termination. In this case, the looper will also
+                  set up a signal handler for SIGUSR2.
+                  (if set to None, nothing of all this happens)
         """
 
         self.config = config
@@ -89,6 +96,13 @@ class Looper(object):
         self.timeReport = [ {'time':0.0,'events':0} for a in self.analyzers ] if timeReport else False
         self.memReportFirstEvent = memCheckFromEvent
         self.memLast=0
+        self.stopFlag = stopFlag
+        if stopFlag:
+            import signal
+            def doSigUsr2(sig,frame):
+                print 'SIGUSR2 received, signaling graceful stop'
+                self.stopFlag.value = 1
+            signal.signal(signal.SIGUSR2, doSigUsr2)
         tree_name = None
         if( hasattr(self.cfg_comp, 'tree_name') ):
             tree_name = self.cfg_comp.tree_name
@@ -184,6 +198,9 @@ class Looper(object):
                 self.process( iEv )
                 if iEv<self.nPrint:
                     print self.event
+                if self.stopFlag and self.stopFlag.value:
+                    print 'stopping gracefully at event %d' % (iEv)
+                    break
 
         except UserWarning:
             print 'Stopped loop following a UserWarning exception'
