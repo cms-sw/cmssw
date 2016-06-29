@@ -137,10 +137,17 @@ def storeCaloTowersAOD(process):
 
     return process
 
-def customisePPwithHI(process):
+def customisePPrecoforPPb(process):
 
     process=addHIIsolationProducer(process)
-    #process=modifyClusterLimits(process)
+    process=storeCaloTowersAOD(process)
+
+    return process
+
+def customisePPrecoForPeripheralPbPb(process):
+
+    process=addHIIsolationProducer(process)
+    process=modifyClusterLimits(process)
     process=storeCaloTowersAOD(process)
 
     return process
