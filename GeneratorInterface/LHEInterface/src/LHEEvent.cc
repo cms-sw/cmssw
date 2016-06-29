@@ -288,7 +288,7 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 		double cTau = hepeup.VTIMUP.at(i);	// decay time
 	
 		// current particle has a mother? --- Sorry, parent! We're PC.
-		if (mother1) {
+		if (mother1)
 			mother1--;      // FORTRAN notation!
 		if (mother2)
 			mother2--;
@@ -306,7 +306,7 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 			genVertices.push_back(current_vtx);
 		}
 
-		for(unsigned int j = mother1; j <= mother2; j++)	// set mother-daughter relations
+		for(unsigned int j = mother1; j <= mother2; j++) {	// set mother-daughter relations
 			if (!genParticles.at(j)->end_vertex())
 				current_vtx->add_particle_in(genParticles.at(j));
 
