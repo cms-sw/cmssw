@@ -62,18 +62,18 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.907,0.915,0.920,0.921)
     ),
     hbUpgrade = cms.PSet(
-        pedestal      = cms.double(18.),
-        pedestalWidth = cms.double(5.),
-        gain          = cms.vdouble(1/900.), #90 is pe/GeV 10 is fC/pe.
+        pedestal      = cms.double(17.3),
+        pedestalWidth = cms.double(1.5),
+        gain          = cms.vdouble(1/3568.), #62.06 is pe/GeV 57.5 is fC/pe.
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
         qieSlope      = cms.vdouble(0.333,0.333,0.333,0.333)
     ),
     heUpgrade = cms.PSet(
-        pedestal      = cms.double(18.),
-        pedestalWidth = cms.double(5.),
-        gain          = cms.vdouble(1/900.), #90 is pe/GeV 10 is fC/pe.
+        pedestal      = cms.double(17.3),
+        pedestalWidth = cms.double(1.5),
+        gain          = cms.vdouble(1/3568.), #62.06 is pe/GeV 57.5 is fC/pe.
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),

@@ -114,7 +114,9 @@ eras.run2_common.toModify( hcalSimParameters,
 
 eras.run2_HE_2017.toModify( hcalSimParameters,
     he = dict(
-        photoelectronsToAnalog = cms.vdouble([10.]*14),
-        pixels = cms.int32(4500*4*2)
-    )
+        photoelectronsToAnalog = cms.vdouble([57.5]*14),
+        pixels = cms.int32(27370), 
+        sipmDarkCurrentuA = cms.double(0.055),
+        sipmCrossTalk = cms.double(0.32)
+        )
 )
