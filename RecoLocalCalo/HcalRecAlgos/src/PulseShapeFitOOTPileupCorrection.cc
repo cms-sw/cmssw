@@ -473,3 +473,13 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
      chargevalfit=-999.;
    }
 }
+
+void PulseShapeFitOOTPileupCorrection::phase1Apply(
+    const HBHEChannelInfo& channelData,
+    const HcalCalibrations& calibs,
+    float* reconstructedEnergy,
+    float* reconstructedTime,
+    bool* usedTripleTemplate) const
+{
+    // IMPLEMENT THIS!!!
+}

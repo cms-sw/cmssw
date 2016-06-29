@@ -80,6 +80,7 @@ def customise_Hcal2017(process):
     if hasattr(process,'reconstruction_step'):
         process.hbheprereco.digiLabel = cms.InputTag("simHcalDigis")
         process.hbheprereco.setNoiseFlags = cms.bool(False)
+        # process.hbheprereco.puCorrMethod = cms.int32(0)
         process.horeco.digiLabel = cms.InputTag("simHcalDigis")
         process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
         process.zdcreco.digiLabelhcal = cms.InputTag("simHcalUnsuppressedDigis")
@@ -100,7 +101,14 @@ def customise_Hcal2017Full(process):
     
     #use HE phase1 conditions - test SiPM/QIE11
     process.es_hardcode.useHEUpgrade = cms.bool(True)
-    
+
+    if hasattr(process,'reconstruction_step'):
+        # Customise HB/HE reco
+        from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
+        process.globalReplace("hbheprereco", hbheprereco)
+        process.hbheprereco.saveInfos = cms.bool(True)
+        process.hbheprereco.digiLabelHB = cms.InputTag("simHcalDigis")
+
     return process
     
 def customise_HcalPhase1(process):

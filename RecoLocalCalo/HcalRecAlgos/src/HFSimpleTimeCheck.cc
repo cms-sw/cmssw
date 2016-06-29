@@ -1,11 +1,40 @@
 #include <cstring>
 #include <climits>
 
+#include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFSimpleTimeCheck.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFRecHitAuxSetter.h"
 
 // Rechit status bit assignments
 // #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+
+namespace {  
+    inline float build_rechit_time(const float weightedEnergySum,
+                                   const float weightedSum,
+                                   const float sum,
+                                   const unsigned count,
+                                   const float valueIfNothingWorks,
+                                   bool* resultComesFromTDC)
+    {
+        if (weightedEnergySum > 0.f)
+        {
+            *resultComesFromTDC = true;
+            return weightedSum/weightedEnergySum;
+        }
+        else if (count)
+        {
+            *resultComesFromTDC = true;
+            return sum/count;
+        }
+        else
+        {
+            *resultComesFromTDC = false;
+            return valueIfNothingWorks;
+        }
+    }
+}
+
 
 HFSimpleTimeCheck::HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
                                      const float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2],
@@ -58,8 +87,7 @@ unsigned HFSimpleTimeCheck::determineAnodeStatus(
 
     // Check the time limits
     float trise = anode.timeRising();
-    const bool timeIsKnown = !(trise == HFQIE10Info::UNKNOWN_T_UNDERSHOOT ||
-                               trise == HFQIE10Info::UNKNOWN_T_OVERSHOOT);
+    const bool timeIsKnown = !HcalSpecialTimes::isSpecial(trise);
     trise += timeShift_;
     if (timeIsKnown &&
         tlimits_[ianode].first <= trise && trise <= tlimits_[ianode].second)
@@ -118,9 +146,10 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
         // or was mapped into that status by "mapStatusIntoIndex" method
         //
         const float* weights = &energyWeights_[lookupInd][0];
-        float energy = 0.f, t = 0.f, tfall = 0.f, weightedEnergySum = 0.f;
-        float tsum = 0.f, tfallsum = 0.f;
-        unsigned knownTimeCount = 0;
+        float energy = 0.f, tfallWeightedEnergySum = 0.f, triseWeightedEnergySum = 0.f;
+        float tfallWeightedSum = 0.f, triseWeightedSum = 0.f;
+        float tfallSum = 0.f, triseSum = 0.f;
+        unsigned tfallCount = 0, triseCount = 0;
 
         for (unsigned ianode=0; ianode<2; ++ianode)
         {
@@ -129,58 +158,53 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
             {
                 const float weightedEnergy = weights[ianode]*anodeInfo->energy();
                 energy += weightedEnergy;
-                float trising = anodeInfo->timeRising();
-                const bool timeIsKnown = !(trising == HFQIE10Info::UNKNOWN_T_UNDERSHOOT ||
-                                           trising == HFQIE10Info::UNKNOWN_T_OVERSHOOT);
-                if (timeIsKnown)
-                {
-                    trising += timeShift_;
-                    tsum += trising;
-                    const float tfalling = anodeInfo->timeFalling() + timeShift_;
-                    tfallsum += tfalling;
 
+                float trise = anodeInfo->timeRising();
+                if (!HcalSpecialTimes::isSpecial(trise))
+                {
+                    trise += timeShift_;
+                    triseSum += trise;
+                    ++triseCount;
                     if (weightedEnergy > 0.f)
                     {
-                        weightedEnergySum += weightedEnergy;
-                        t += trising*weightedEnergy;
-                        tfall += tfalling*weightedEnergy;
+                        triseWeightedSum += trise*weightedEnergy;
+                        triseWeightedEnergySum += weightedEnergy;
                     }
+                }
 
-                    ++knownTimeCount;
+                float tfall = anodeInfo->timeFalling();
+                if (!HcalSpecialTimes::isSpecial(tfall))
+                {
+                    tfall += timeShift_;
+                    tfallSum += tfall;
+                    ++tfallCount;
+                    if (weightedEnergy > 0.f)
+                    {
+                        tfallWeightedSum += tfall*weightedEnergy;
+                        tfallWeightedEnergySum += weightedEnergy;
+                    }
                 }
             }
         }
 
-        // uint32_t timingFromTDC = 1;
-        if (weightedEnergySum > 0.f)
-        {
-            // Normally, determine TDC rise and fall time
-            // by using energy-weighted anode values
-            t /= weightedEnergySum;
-            tfall /= weightedEnergySum;
-        }
-        else if (knownTimeCount)
-        {
-            // But if energies are negative, use simple averages
-            t = tsum/knownTimeCount;
-            tfall = tfallsum/knownTimeCount;
-        }
-        else
-        {
-            // If we are here, neither anode provided valid time
-            // information
-            t = triseIfNoTDC_;
-            tfall = tfallIfNoTDC_;
-            // timingFromTDC = 0;
-        }
+        bool triseFromTDC = false;
+        const float trise = build_rechit_time(
+            triseWeightedEnergySum, triseWeightedSum, triseSum,
+            triseCount, triseIfNoTDC_, &triseFromTDC);
 
-        rh = HFRecHit(prehit.id(), energy, t, tfall);
+        bool tfallFromTDC = false;
+        const float tfall = build_rechit_time(
+            tfallWeightedEnergySum, tfallWeightedSum, tfallSum,
+            tfallCount, tfallIfNoTDC_, &tfallFromTDC);
+
+        rh = HFRecHit(prehit.id(), energy, trise, tfall);
         HFRecHitAuxSetter::setAux(prehit, states, soiPhase_, &rh);
 
         // When Phase 1 rechit status bit assignments are understood,
         // set the "timing from TDC" flag as follows:
         //
-        // rh.setFlagField(timingFromTDC, HcalCaloFlagLabels::?properFlagName?);
+        // const uint32_t flag = triseFromTDC ? 1U : 0U;
+        // rh.setFlagField(flag, HcalCaloFlagLabels::?properFlagName?);
     }
 
     return rh;

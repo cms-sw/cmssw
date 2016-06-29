@@ -8,6 +8,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -19,6 +20,11 @@ class HcalDeterministicFit {
   ~HcalDeterministicFit();
 
   void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, NegStrategy nStrat, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
+
+  void phase1Apply(const HBHEChannelInfo& channelData,
+                   const HcalCalibrations& calibs,
+                   float* reconstructedEnergy,
+                   float* reconstructedTime) const;
 
   // This is the CMSSW Implementation of the apply function
   template<class Digi>

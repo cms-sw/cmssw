@@ -1,6 +1,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFPreRecAlgo.h"
 
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
+#include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
@@ -19,6 +20,11 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
     static const int qie10_tdc_code_overshoot = 62;
     static const int qie10_tdc_code_undershoot = 63;
 
+    // Scrap the trailing edge time for now -- until the front-end
+    // FPGA firmware is finalized and the description of the FPGA
+    // output becomes available
+    static const float timeFalling = HcalSpecialTimes::UNKNOWN_T_NOTDC;
+
     HFQIE10Info result;
 
     CaloSamples cs;
@@ -35,13 +41,9 @@ HFQIE10Info HFPreRecAlgo::reconstruct(const QIE10DataFrame& digi,
         const int tdc = s.le_tdc();
         float timeRising = qie10_tdc_to_ns*tdc;
         if (tdc == qie10_tdc_code_overshoot)
-            timeRising = HFQIE10Info::UNKNOWN_T_OVERSHOOT;
+            timeRising = HcalSpecialTimes::UNKNOWN_T_OVERSHOOT;
         else if (tdc == qie10_tdc_code_undershoot)
-            timeRising = HFQIE10Info::UNKNOWN_T_UNDERSHOOT;
-
-        // We will assume for now that the trailing edge time
-        // is ok as long as the leading edge is ok
-        const float timeFalling = qie10_tdc_to_ns*s.te_tdc();
+            timeRising = HcalSpecialTimes::UNKNOWN_T_UNDERSHOOT;
 
         // Figure out the window in the raw data
         // that we want to store. This window will
