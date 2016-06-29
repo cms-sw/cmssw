@@ -47,16 +47,16 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, 
     
 eras.phase2_hgcal.toModify( theDigitizers,
                             hgceeDigitizer = cms.PSet(hgceeDigitizer),
-                            hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
+                            #hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
     
 theDigitizersValid = cms.PSet(
     theDigitizers,
-#    mergedtruth = cms.PSet(
-#        trackingParticles
-#        ),
+    mergedtruth = cms.PSet(
+        trackingParticles
+        ),
     calotruth = cms.PSet(
         caloParticles
         )
