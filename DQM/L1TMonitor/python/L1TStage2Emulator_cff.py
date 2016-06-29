@@ -118,5 +118,6 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tStage2CaloLayer2 + l1tStage2CaloLayer2Emul +
     l1tdeStage2Emtf +
     l1tStage2uGMTEmul +
+    l1tdeStage2uGMT +
     l1tStage2uGtEmul
 )
