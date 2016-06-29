@@ -4,9 +4,9 @@ from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfig_cff import 
 
 trackingEffFromHitPatternHLT = trackingEffFromHitPattern.clone()
 trackingEffFromHitPatternHLT.subDirs = cms.untracked.vstring(
-   "HLT/Tracking/pixelTracks/HitEffFromHitPattern",
-   "HLT/Tracking/iter0HP/HitEffFromHitPattern",
-   "HLT/Tracking/iter2Merged/HitEffFromHitPattern"
+   "HLT/Tracking/pixelTracks/HitEffFromHitPattern*",
+   "HLT/Tracking/iter0HP/HitEffFromHitPattern*",
+   "HLT/Tracking/iter2Merged/HitEffFromHitPattern*"
 )
 
 # Sequence
