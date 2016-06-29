@@ -255,10 +255,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   }
 
   // differentiatePreciseSamples(signal, 1.);
-
-  // std::cout << "sum pe: " << sumPE 
-  // 	    << " sum sipm pixels: " << sumHits
-  // 	    << std::endl;
   
   return signal;
 }
@@ -299,7 +295,5 @@ void HcalSiPMHitResponse::setDetIds(const std::vector<DetId> & detIds) {
 				      << " theCrossTalk: "       << pars.sipmCrossTalk()
 				      << " sipmDarkCurrentuA: "  << pars.sipmDarkCurrentuA();
 				      
-  //theSiPM->setCrossTalk(0.081); // binom
-  //theSiPM->setCrossTalk(0.32);  // borel
   theSiPM->setCrossTalk(pars.sipmCrossTalk());
 }

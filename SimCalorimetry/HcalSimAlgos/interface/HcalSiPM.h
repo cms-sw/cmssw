@@ -9,7 +9,6 @@
   \brief A general implementation for the response of a SiPM.
 
 */
-#include <map>
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
@@ -40,7 +39,7 @@ class HcalSiPM {
 
   void setNCells(int nCells);
   void setTau(double tau) {theTauInv=1.0/tau;}
-  void setCrossTalk(double xtalk); // prob for Binomial, "lambda" for Borel-Tanner
+  void setCrossTalk(double xtalk); //  Borel-Tanner "lambda"
   void setTemperatureDependence(double tempDep);
   void setDarkCurrent(double dc_uA) {darkCurrent_uA = dc_uA;}
 
@@ -52,9 +51,7 @@ class HcalSiPM {
   // void expRecover(double dt);
 
   double cellCharge(double deltaTime) const;
-  unsigned int addCrossTalkCells_old  (CLHEP::HepRandomEngine* engine, unsigned int in_pes);
-  //unsigned int addCrossTalkCells_binom(CLHEP::HepRandomEngine* engine, unsigned int in_pes);
-  unsigned int addCrossTalkCells_borel(CLHEP::HepRandomEngine* engine, unsigned int in_pes);
+  unsigned int addCrossTalkCells(CLHEP::HepRandomEngine* engine, unsigned int in_pes);
 
   //numerical random generation from Borel-Tanner distribution
   double Borel(unsigned int n, double lambda, unsigned int k);

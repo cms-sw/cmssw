@@ -1,4 +1,5 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -21,35 +22,6 @@ HcalSiPM::HcalSiPM(int nCells, double tau) :
 HcalSiPM::~HcalSiPM() {
 }
 
-unsigned int HcalSiPM::addCrossTalkCells_old(CLHEP::HepRandomEngine* engine,
-					     unsigned int in_pes) {
-  CLHEP::RandPoissonQ randPoissonQ(*engine, in_pes/(1. - theCrossTalk) - in_pes);
-  return randPoissonQ.fire();
-}
-#if 0
-unsigned int HcalSiPM::addCrossTalkCells_binom(CLHEP::HepRandomEngine* engine,
-					       unsigned int in_pes) {
-  const int ngen_xtalk = 6; // maximum number of generations allowed
-  const int n_nghbrs_xtalk = 4; // # of neighboring pixels that are fired
-
-  unsigned int secondary_pe_tot = 0;
-  for(unsigned int iorig = 0; iorig < in_pes; ++iorig){
-    int gen_prev = 1;
-
-    for(int igen = 0; igen < ngen_xtalk; ++igen){
-      int gen_next = 0;
-      for(int ipe = 0; ipe < gen_prev; ++ipe)
-	gen_next += theRndBinom->fire(n_nghbrs_xtalk,theCrossTalk);
-
-      if(!gen_next) break;
-      secondary_pe_tot += gen_next;
-      gen_prev = gen_next;
-    }
-  }
-  return secondary_pe_tot;
-}
-#endif
-
 //================================================================================
 //implementation of Borel-Tanner distribution
 double HcalSiPM::Borel(unsigned int n, double lambda, unsigned int k){
@@ -67,7 +39,6 @@ double HcalSiPM::Borel(unsigned int n, double lambda, unsigned int k){
     else
       b *= exp( logb );
   }
-  //cout << n << "\t" << k << "\t" << logb << "\t" << b;
   return b;
 }
 
@@ -86,7 +57,6 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k){
     for (i=0; ; i++) {
       b = Borel(k+i,theCrossTalk,k);
       sumb += b;
-      //cout << "\t" << sumb << endl;
       if (sumb >= EPSILON) break;
     }
 
@@ -97,8 +67,6 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k){
     for(++i; ; ++i){
       b = Borel(k+i,theCrossTalk,k);
       sumb += b;
-      //cout << "\t" << sumb << endl;
-      //cout << k+i << "\t" << b << "\t" << cdf[i-1]+b << endl;
       cdf.push_back(sumb);
       if (1-sumb < EPSILON) break;
     }
@@ -109,19 +77,18 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k){
   return it->second;
 }
 
-unsigned int HcalSiPM::addCrossTalkCells_borel(CLHEP::HepRandomEngine* engine,
-					       unsigned int in_pes) {
+unsigned int HcalSiPM::addCrossTalkCells(CLHEP::HepRandomEngine* engine,
+					 unsigned int in_pes) {
   const cdfpair& cdf = BorelCDF(in_pes);
 
   double U = CLHEP::RandFlat::shoot(engine);
   std::vector<double>::const_iterator up;
   up= std::lower_bound (cdf.second.cbegin(), cdf.second.cend(), U);
 
-  // std::cout << "cdf.size = " << cdf.size()
-  // 	    << ", U = " << U
-  // 	    << ", in_pes = " << in_pes
-  // 	    << ", 2ndary_pes = " << (up-cdf.begin())
-  // 	    << std::endl;
+  LogDebug("HcalSiPM") << "cdf size = " << cdf.second.size()
+		       << ", U = " << U
+		       << ", in_pes = " << in_pes
+		       << ", 2ndary_pes = " << (up-cdf.second.cbegin()+cdf.first);
 
   // returns the number of secondary pes produced
   return (up - cdf.second.cbegin() + cdf.first);
@@ -139,7 +106,7 @@ double HcalSiPM::hitCells(CLHEP::HepRandomEngine* engine, unsigned int pes, doub
   // number of hit pixels.
 
   if ((theCrossTalk > 0.) && (theCrossTalk < 1.)) 
-    pes += addCrossTalkCells_borel(engine, pes);
+    pes += addCrossTalkCells(engine, pes);
 
   unsigned int pixel;
   double sum(0.), hit(0.);
