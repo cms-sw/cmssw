@@ -303,7 +303,7 @@ L1TComparison::analyze(Event const& iEvent, EventSetup const& iSetup)
 	    if (itA->getType() != itB->getType()){
 	      cout << "L1T COMPARISON FAILURE:  EtSum type:" << itA->getType() << " vs " << itB->getType() << "\n";
 	    }	    
-	    if (itA->getType() < EtSum::kMissingEt2) {
+	    if (itA->getType() < EtSum::kMissingEtHF) {
 	      bool fail = compare_l1candidate(*itA, *itB);
 	      if (fail){ cout << "L1T COMPARISON FAILURE:  for type " << itA->getType() << "\n";}
 	      if (! fail) { sumCount_++; }
