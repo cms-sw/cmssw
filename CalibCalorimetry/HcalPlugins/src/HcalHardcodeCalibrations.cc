@@ -255,10 +255,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams);
       findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
-    if ((*objectName == "CholeskyMatrices") || all) {
-      setWhatProduced (this, &HcalHardcodeCalibrations::produceCholeskyMatrices);
-      findingRecord <HcalCholeskyMatricesRcd> ();
-    }
     if ((*objectName == "CovarianceMatrices") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceCovarianceMatrices);
       findingRecord <HcalCovarianceMatricesRcd> ();
@@ -738,30 +734,6 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
   return result;
 } 
 
-
-std::unique_ptr<HcalCholeskyMatrices> HcalHardcodeCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rec) {
-
-  edm::ESHandle<HcalTopology> htopo;
-  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  auto result = std::make_unique<HcalCholeskyMatrices>(topo);
-
-  std::vector <HcalGenericDetId> cells = allCells(*topo);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-
-    int sub = cell->genericSubdet();
-
-    if (sub == HcalGenericDetId::HcalGenBarrel  || 
-        sub == HcalGenericDetId::HcalGenEndcap  ||
-	sub == HcalGenericDetId::HcalGenOuter   ||
-	sub == HcalGenericDetId::HcalGenForward  ) {
-      HcalCholeskyMatrix item(cell->rawId());
-      result->addValues(item);
-    }
-  }
-  return result;
-
-}
 
 std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rec) {
 
