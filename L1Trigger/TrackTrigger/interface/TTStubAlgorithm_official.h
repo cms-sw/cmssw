@@ -127,7 +127,7 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
       setBarrelCut = p.getParameter< std::vector< double > >("BarrelCut");
 
       std::vector< edm::ParameterSet > vPSet  = p.getParameter< std::vector< edm::ParameterSet > >("EndcapCutSet");
-      std::vector< edm::ParameterSet > vPSet2 = p.getParameter< std::vector< edm::ParameterSet > >("TiltedCutSet");
+      std::vector< edm::ParameterSet > vPSet2 = p.getParameter< std::vector< edm::ParameterSet > >("TiltedBarrelCutSet");
 
       std::vector< edm::ParameterSet >::const_iterator iPSet;
       for ( iPSet = vPSet.begin(); iPSet != vPSet.end(); iPSet++ )
