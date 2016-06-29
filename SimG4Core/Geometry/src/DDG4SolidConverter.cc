@@ -64,7 +64,7 @@ G4VSolid * DDG4SolidConverter::convert(const DDSolid & s)
 #include "G4Box.hh"
 G4VSolid * DDG4SolidConverter::box(const DDSolid & s)
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: box = " << s ;
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: box = " << s;
    return new G4Box(s.name().name(), (*par_)[0],(*par_)[1],(*par_)[2]);
 }
 
@@ -72,7 +72,7 @@ G4VSolid * DDG4SolidConverter::box(const DDSolid & s)
 #include "G4Tubs.hh"
 G4VSolid * DDG4SolidConverter::tubs(const DDSolid & s)
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: tubs = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: tubs = " << s;  
    return new G4Tubs(s.name().name(), (*par_)[1], // rmin
                                (*par_)[2], // rmax
 			       (*par_)[0], // dzHalf
@@ -84,7 +84,7 @@ G4VSolid * DDG4SolidConverter::tubs(const DDSolid & s)
 #include "G4Trap.hh"
 G4VSolid * DDG4SolidConverter::trap(const DDSolid & s)
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: trap = " << s ;
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: trap = " << s;
    return new G4Trap(s.name().name(), (*par_)[0],  // pDz
                                (*par_)[1],  // theta
 			       (*par_)[2],  // phi
@@ -102,7 +102,7 @@ G4VSolid * DDG4SolidConverter::trap(const DDSolid & s)
 #include "G4Cons.hh"
 G4VSolid * DDG4SolidConverter::cons(const DDSolid & s) 
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: cons = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: cons = " << s;  
    return new G4Cons(s.name().name(), (*par_)[1],  // rmin -z
                                (*par_)[2],  // rmax -z
 			       (*par_)[3],  // rmin +z
@@ -116,19 +116,19 @@ G4VSolid * DDG4SolidConverter::cons(const DDSolid & s)
 #include "G4Polycone.hh"
 G4VSolid * DDG4SolidConverter::polycone_rz(const DDSolid & s)
 {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pcon_rz = " << s ;  
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pcon_rz = " << s;  
   vector<double> r;
   vector<double> z;
   vector<double>::const_iterator i = (*par_).begin()+2;
   int count=0;
   for(; i!=(*par_).end(); ++i) {
-    LogDebug("SimG4CoreGeometry") << "z=" << *i ;
+    LogDebug("SimG4CoreGeometry") << "z=" << *i/cm;
     z.push_back(*i); ++i;
-    LogDebug("SimG4CoreGeometry") << " r=" << *i ;
+    LogDebug("SimG4CoreGeometry") << " r=" << *i/cm;
     r.push_back(*i);
     count++;
    }
-   LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
+   LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg;
    /*
    std::cout << "### Polycone_RZ: " << "sp=" << (*par_)[0]/deg 
 	     << " ep=" << (*par_)[1]/deg 
@@ -146,22 +146,22 @@ G4VSolid * DDG4SolidConverter::polycone_rz(const DDSolid & s)
 
 G4VSolid * DDG4SolidConverter::polycone_rrz(const DDSolid & s)
 {
-    LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pcon_rrz = " << s ;  
+    LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pcon_rrz = " << s;  
     vector<double> z_p;
     vector<double> rmin_p;
     vector<double> rmax_p;
     vector<double>::const_iterator i = par_->begin()+2;
     int count = 0;
     for (; i!=par_->end(); ++i) {
-        LogDebug("SimG4CoreGeometry") << "z=" << *i ;
+        LogDebug("SimG4CoreGeometry") << "z=" << *i/cm;
 	z_p.push_back(*i); ++i;
-        LogDebug("SimG4CoreGeometry") << "rmin=" << *i ;
+        LogDebug("SimG4CoreGeometry") << "rmin=" << *i/cm;
 	rmin_p.push_back(*i); ++i;
-        LogDebug("SimG4CoreGeometry") << "rmax=" << *i ;
+        LogDebug("SimG4CoreGeometry") << "rmax=" << *i/cm;
 	rmax_p.push_back(*i); 
       count++;
     }
-    LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
+    LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg;
     /*
     std::cout << "### Polycone_RRZ: " << "sp=" << (*par_)[0]/deg 
 	      << " ep=" << (*par_)[1]/deg 
@@ -182,7 +182,7 @@ G4VSolid * DDG4SolidConverter::polycone_rrz(const DDSolid & s)
 #include "G4Polyhedra.hh"
 G4VSolid * DDG4SolidConverter::polyhedra_rz(const DDSolid & s)
 {
-    LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: phed_rz = " << s ;  
+    LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: phed_rz = " << s;  
     vector<double> r;
     vector<double> z;
     vector<double>::const_iterator i = par_->begin()+3;
@@ -203,22 +203,22 @@ G4VSolid * DDG4SolidConverter::polyhedra_rz(const DDSolid & s)
 
 G4VSolid * DDG4SolidConverter::polyhedra_rrz(const DDSolid & s)
 {
-    LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: phed_rrz = " << s ;  
+    LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: phed_rrz = " << s;  
     vector<double> z_p;
     vector<double> rmin_p;
     vector<double> rmax_p;
     vector<double>::const_iterator i = par_->begin()+3;
     int count = 0;
     for (; i!=par_->end(); ++i) {
-        LogDebug("SimG4CoreGeometry") << "z=" << *i ;
+        LogDebug("SimG4CoreGeometry") << "z=" << *i/cm;
 	z_p.push_back(*i); ++i;
-        LogDebug("SimG4CoreGeometry") << "rmin=" << *i ;
+        LogDebug("SimG4CoreGeometry") << "rmin=" << *i/cm;
 	rmin_p.push_back(*i); ++i;
-        LogDebug("SimG4CoreGeometry") << "rmax=" << *i ;
+        LogDebug("SimG4CoreGeometry") << "rmax=" << *i/cm;
 	rmax_p.push_back(*i); 
       count++;
     }
-    LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
+    LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg;
     return new G4Polyhedra(s.name().name(), (*par_)[1], (*par_)[2], int((*par_)[0]), // start,delta-phi,sides
 			   count, // sections
 			   &(z_p[0]),
@@ -229,7 +229,7 @@ G4VSolid * DDG4SolidConverter::polyhedra_rrz(const DDSolid & s)
 #include "G4Torus.hh"
 G4VSolid * DDG4SolidConverter::torus(const DDSolid & s)
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: torus = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: torus = " << s;  
    return new G4Torus(s.name().name(), (*par_)[0], // rmin
                                (*par_)[1], // rmax
 			       (*par_)[2], // Rtor
@@ -246,7 +246,7 @@ namespace {
 
 G4VSolid * DDG4SolidConverter::reflected(const DDSolid & s)
 {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: reflected = " << s ;  
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: reflected = " << s;  
   G4ReflectedSolid * rs = 0;
   DDReflectionSolid rfs(s); 
   if (rfs) {	
@@ -262,7 +262,7 @@ G4VSolid * DDG4SolidConverter::reflected(const DDSolid & s)
 #include "G4UnionSolid.hh"
 G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & s)
 {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: unionsolid = " << s.name() ;
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: unionsolid = " << s.name();
   G4UnionSolid * us = 0;
   DDBooleanSolid bs(s);
   if (bs) {
@@ -291,7 +291,7 @@ G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & s)
 #include <sstream>
 G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & s)
 {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: subtraction = " << s ;
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: subtraction = " << s;
   G4SubtractionSolid * us = 0;
   DDBooleanSolid bs(s);
   if (bs) {
@@ -319,7 +319,7 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & s)
 #include "G4IntersectionSolid.hh"
 G4VSolid * DDG4SolidConverter::intersection(const DDSolid & s)
 {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: intersection = " << s ;
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: intersection = " << s;
   G4IntersectionSolid * us = 0;
   DDBooleanSolid bs(s);
   if (bs) {
@@ -349,7 +349,7 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & s)
     rot->rotateX(90.*deg);
   }    
 
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pseudoTrap = " << s ;
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pseudoTrap = " << s;
   G4Trd * trap = 0;
   G4Tubs * tubs = 0;
   G4VSolid * result = 0;
@@ -475,7 +475,7 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
   double r(cutAtStart), R(cutAtDelta);
   G4VSolid * result(0);
   G4VSolid * tubs = new G4Tubs(name,rIn,rOut,zHalf,startPhi,deltaPhi);
-  LogDebug("SimG4CoreGeometry") << "G4Tubs: " << rIn << ' ' << rOut << ' ' << zHalf << ' ' << startPhi/deg << ' ' << deltaPhi/deg;
+  LogDebug("SimG4CoreGeometry") << "G4Tubs: " << rIn/cm << ' ' << rOut/cm << ' ' << zHalf/cm << ' ' << startPhi/deg << ' ' << deltaPhi/deg;
   LogDebug("SimG4CoreGeometry") << s;
   // length & hight of the box 
   double boxX(30.*rOut), boxY(20.*rOut); // exaggerate dimensions - does not matter, it's subtracted!
@@ -489,12 +489,12 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
   double cos_alpha = cath/hypo;
 
   double alpha = -acos(cos_alpha);
-  LogDebug("SimG4CoreGeometry") << "cath=" << cath/m;
-  LogDebug("SimG4CoreGeometry") << "hypo=" << hypo/m;
+  LogDebug("SimG4CoreGeometry") << "cath=" << cath/cm;
+  LogDebug("SimG4CoreGeometry") << "hypo=" << hypo/cm;
   LogDebug("SimG4CoreGeometry") << "al=" << acos(cath/hypo)/deg;
   LogDebug("SimG4CoreGeometry") << "deltaPhi=" << deltaPhi/deg << "\n"
-				<< "r=" << r/m << "\n"
-				<<  "R=" << R/m;
+				<< "r=" << r/cm << "\n"
+				<<  "R=" << R/cm;
 
   LogDebug("SimG4CoreGeometry") << "alpha=" << alpha/deg;
     
@@ -524,7 +524,7 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
 #include "G4Sphere.hh"
 G4VSolid * DDG4SolidConverter::sphere(const DDSolid & s) 
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: sphere = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: sphere = " << s;  
    DDSphere sp(s);
    return new G4Sphere(s.name().name(), sp.innerRadius(),
 		       sp.outerRadius(),
@@ -537,7 +537,7 @@ G4VSolid * DDG4SolidConverter::sphere(const DDSolid & s)
 #include "G4Orb.hh"
 G4VSolid * DDG4SolidConverter::orb(const DDSolid & s) 
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: orb = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: orb = " << s;  
    DDOrb sp(s);
    return new G4Orb(s.name().name(), sp.radius());
 }
@@ -545,7 +545,7 @@ G4VSolid * DDG4SolidConverter::orb(const DDSolid & s)
 #include "G4EllipticalTube.hh"
 G4VSolid * DDG4SolidConverter::ellipticaltube(const DDSolid & s) 
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipticaltube = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipticaltube = " << s;  
    DDEllipticalTube sp(s);
    return new G4EllipticalTube(s.name().name(),
 			       sp.xSemiAxis(),
@@ -556,7 +556,7 @@ G4VSolid * DDG4SolidConverter::ellipticaltube(const DDSolid & s)
 #include "G4Ellipsoid.hh"
 G4VSolid * DDG4SolidConverter::ellipsoid(const DDSolid & s) 
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipsoid = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipsoid = " << s;  
    DDEllipsoid sp(s);
    return new G4Ellipsoid(s.name().name(),
 			  sp.xSemiAxis(),
@@ -569,7 +569,7 @@ G4VSolid * DDG4SolidConverter::ellipsoid(const DDSolid & s)
 #include "G4Para.hh"
 G4VSolid * DDG4SolidConverter::para(const DDSolid & s) 
 {
-   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: parallelepiped = " << s ;  
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: parallelepiped = " << s;  
    DDParallelepiped sp(s);
    return new G4Para(s.name().name(),
 		     sp.xHalf(),
