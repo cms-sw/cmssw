@@ -49,6 +49,9 @@ class MatrixInjector(object):
         self.testMode=((mode!='submit') and (mode!='force'))
         self.version =1
         self.keep = opt.keep
+        self.memory = 0
+        if(opt.memory):
+            self.memory = int(opt.memory)
 
         #wagemt stuff
         if not self.wmagent:
@@ -349,6 +352,9 @@ class MatrixInjector(object):
                                 # now change to 1.5GB / additional thread according to discussion:
                                 # https://hypernews.cern.ch/HyperNews/CMS/get/relval/4817/1/1.html
                                 chainDict['nowmTasklist'][-1]['Memory'] = 3000 + int( chainDict['nowmTasklist'][-1]['Multicore']  -1 )*1500
+                                if( self.memory > 0 ):
+#                                    setmemory = 3000 + self.memory
+                                    chainDict['nowmTasklist'][-1]['Memory'] = self.memory
 
                         index+=1
                     #end of loop through steps

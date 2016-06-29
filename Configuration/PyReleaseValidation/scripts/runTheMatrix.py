@@ -73,6 +73,10 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage)
 
+    parser.add_option('-m','--memory',
+                      help='memory parameter of the wf',
+                      dest='memory'
+                     )
     parser.add_option('-j','--nproc',
                       help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
                       dest='nProcs',
