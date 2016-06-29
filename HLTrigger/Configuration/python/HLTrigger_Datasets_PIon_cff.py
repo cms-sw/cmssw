@@ -9,7 +9,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamA_datasetHLTPhysics_selector.throw      = cms.bool(False)
-streamA_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v3')
+streamA_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

@@ -5,19 +5,11 @@ import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream PhysicsCommissioning Datasets defined in the HLT table as Stream A Datasets
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEmptyBX_selector
-streamA_datasetEmptyBX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetEmptyBX_selector.l1tResults = cms.InputTag('')
-streamA_datasetEmptyBX_selector.throw      = cms.bool(False)
-streamA_datasetEmptyBX_selector.triggerConditions = cms.vstring('HLT_L1Tech5_BPTX_PlusOnly_v3', 
-    'HLT_L1Tech6_BPTX_MinusOnly_v2', 
-    'HLT_L1Tech7_NoBPTX_v3')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHLTPhysics_selector
 streamA_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamA_datasetHLTPhysics_selector.throw      = cms.bool(False)
-streamA_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v3')
+streamA_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighPtLowerPhotons_selector
 streamA_datasetHighPtLowerPhotons_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -46,16 +38,6 @@ streamA_datasetHighPtPhoton30AndZ_selector.triggerConditions = cms.vstring('HLT_
     'HLT_HISinglePhoton50_Eta3p1ForPPRef_v2', 
     'HLT_HISinglePhoton60_Eta1p5ForPPRef_v2', 
     'HLT_HISinglePhoton60_Eta3p1ForPPRef_v2')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetL1MinimumBias_selector
-streamA_datasetL1MinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetL1MinimumBias_selector.l1tResults = cms.InputTag('')
-streamA_datasetL1MinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF1AND_v2', 
-    'HLT_L1MinimumBiasHF1OR_v2', 
-    'HLT_L1MinimumBiasHF2AND_v2', 
-    'HLT_L1MinimumBiasHF2ORNoBptxGating_v3', 
-    'HLT_L1MinimumBiasHF2OR_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_minBias_selector
 streamA_datasetTOTEM_minBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
