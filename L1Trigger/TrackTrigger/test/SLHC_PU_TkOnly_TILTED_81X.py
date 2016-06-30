@@ -32,6 +32,9 @@ process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+
+from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)
 )
@@ -61,6 +64,10 @@ process.RandomNumberGeneratorService.generator.initialSeed      = 20
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed     = 2
 process.RandomNumberGeneratorService.g4SimHits.initialSeed      = 178
 process.RandomNumberGeneratorService.mix.initialSeed            = 210
+
+
+process.TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(True)
+process.TTStubAlgorithm_official_Phase2TrackerDigi_.isTilted    = cms.bool(True)
 
 
 # Generate particle gun events
