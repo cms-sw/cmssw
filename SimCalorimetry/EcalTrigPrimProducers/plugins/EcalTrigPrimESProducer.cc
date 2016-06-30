@@ -709,9 +709,10 @@ void EcalTrigPrimESProducer::parseTextFile()
 	}
       }
       
-      if(flagPrint_)
+      if(flagPrint_) {
         std::cout<<std::endl ;
         std::cout<<std::endl ;
+      }
 	
       mapLut_[id] = param ;
     }
