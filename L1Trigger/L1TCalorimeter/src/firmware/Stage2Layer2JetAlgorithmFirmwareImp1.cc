@@ -106,7 +106,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	  if (jetsRing.size()==18) break;
 	  
 	  // seed tower
-	  const CaloTower& tow = CaloTools::getTower(towers, ieta, iphi); 
+	  const CaloTower& tow = CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi); 
 	  
 	  int seedEt = tow.hwPt();
 	  int iEt = seedEt;
@@ -132,7 +132,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	      if (ieta < 0 && ietaTest >=0) ietaTest += 1;
 	   
 	      // check jet mask and sum tower et
-	      const CaloTower& towTest = CaloTools::getTower(towers, ietaTest, iphiTest);
+	      const CaloTower& towTest = CaloTools::getTower(towers, CaloTools::caloEta(ietaTest), iphiTest);
 	      towEt = towTest.hwPt();
 	      
               if      (mask_[8-(dphi+4)][deta+4] == 0) continue;
@@ -282,11 +282,11 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
       towerEta=ieta;
     }
     
-    const CaloTower& tow = CaloTools::getTower(towers, towerEta, iphiUp);
+    const CaloTower& tow = CaloTools::getTower(towers, CaloTools::caloEta(towerEta), iphiUp);
     int towEt = tow.hwPt();
     ring[0]+=towEt;
     
-    const CaloTower& tow2 = CaloTools::getTower(towers, towerEta, iphiDown);
+    const CaloTower& tow2 = CaloTools::getTower(towers, CaloTools::caloEta(towerEta), iphiDown);
     towEt = tow2.hwPt();
     ring[1]+=towEt;
     
@@ -299,11 +299,11 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
     while ( towerPhi > CaloTools::kHBHENrPhi ) towerPhi -= CaloTools::kHBHENrPhi;
     while ( towerPhi < 1 ) towerPhi += CaloTools::kHBHENrPhi;
     
-    const CaloTower& tow = CaloTools::getTower(towers, ietaUp, towerPhi);
+    const CaloTower& tow = CaloTools::getTower(towers, CaloTools::caloEta(ietaUp), towerPhi);
     int towEt = tow.hwPt();
     ring[2]+=towEt;
     
-    const CaloTower& tow2 = CaloTools::getTower(towers, ietaDown, towerPhi);
+    const CaloTower& tow2 = CaloTools::getTower(towers, CaloTools::caloEta(ietaDown), towerPhi);
     towEt = tow2.hwPt();
     ring[3]+=towEt;
   } 
@@ -348,11 +348,11 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
       if (jetEta>0 && towEta<=0) towEta-=1;
       if (jetEta<0 && towEta>=0) towEta+=1;
             
-      const CaloTower& towPhiUp = CaloTools::getTower(towers, towEta, iphiUp);
+      const CaloTower& towPhiUp = CaloTools::getTower(towers, CaloTools::caloEta(towEta), iphiUp);
       int towEt = towPhiUp.hwPt();
       ring[0] += towEt;
             
-      const CaloTower& towPhiDown = CaloTools::getTower(towers, towEta, iphiDown);
+      const CaloTower& towPhiDown = CaloTools::getTower(towers, CaloTools::caloEta(towEta), iphiDown);
       towEt = towPhiDown.hwPt();
       ring[1] += towEt;
             
@@ -366,7 +366,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
 
-        const CaloTower& towEtaUp = CaloTools::getTower(towers, ietaUp, towPhi);
+        const CaloTower& towEtaUp = CaloTools::getTower(towers, CaloTools::caloEta(ietaUp), towPhi);
         int towEt = towEtaUp.hwPt();
         ring[2] += towEt;
       }else{
@@ -384,7 +384,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
         while ( towPhi > CaloTools::kHBHENrPhi ) towPhi -= CaloTools::kHBHENrPhi;
         while ( towPhi < 1 ) towPhi += CaloTools::kHBHENrPhi;
 	
-        const CaloTower& towEtaDown = CaloTools::getTower(towers, ietaDown, towPhi);
+        const CaloTower& towEtaDown = CaloTools::getTower(towers, CaloTools::caloEta(ietaDown), towPhi);
         int towEt = towEtaDown.hwPt();
         ring[3] += towEt;
       }else{
