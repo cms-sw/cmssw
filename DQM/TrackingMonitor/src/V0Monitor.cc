@@ -211,10 +211,6 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 				    -1*((bs.position().y() - v0.vy()) + (v0.vz() - bs.position().z()) * bs.dydz()), 0);
     //    float dxyWRTbs = v0.dxy(bs.position());
     //    float dxyWRTpv = v0.dxy(pv->position());
-    std::cout << "displacementFromPV: " << displacementFromPV.perp() << std::endl;
-    std::cout << "displacementFromBS: " << displacementFromBS.perp() << std::endl;
-    //    std::cout << "dxyWRTbs: " << dxyWRTbs << std::endl;
-    //    std::cout << "dxyWRTpv: " << dxyWRTpv << std::endl;
     
     float lxy = ( pv==nullptr ? -9. : displacementFromPV.perp() );
 
@@ -237,23 +233,18 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     v0_Lxy_vs_PU_   -> Fill(nPV, lxy);
 
     float PDGmass = 0.;
-    std::cout << "pdgID: " << pdgID;
     switch(pdgID) {
     case 130: // K_s
     case 310: // K_L
-      std::cout << " --> Kshort" << std::endl;
       PDGmass = 0.497614; // GeV
       break;
     case 3122: // Lambda
-      std::cout << "--> Lambda" << std::endl;
       PDGmass = 1.115683; // GeV
     case 4122: // Lambda_c
     case 5122: // Lambda_b
     default:
-      std::cout << "--> UNKNOWN !" << std::endl;
       break;
     }
-    std::cout << "PDGmass: " << PDGmass << std::endl;
     float delta = (PDGmass > 0. ? (mass-PDGmass)/PDGmass : -9.);
     v0_deltaMass_         -> Fill (delta);
     v0_deltaMass_vs_pt_   -> Fill (pt,  delta);
@@ -266,8 +257,6 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     v0_Lxy_vs_pt_        -> Fill (pt,   lxy);
     v0_Lxy_vs_eta_       -> Fill (eta,  lxy);
   }
-
-  std::cout << "got handle" << std::endl;
 
 }
 
