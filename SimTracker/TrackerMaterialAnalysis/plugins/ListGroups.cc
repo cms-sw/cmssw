@@ -385,7 +385,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     color_index  = color_index%m_color.size();
   }
   leg->Draw();
-  canvas->SaveAs("Grouping.pdf");
+  canvas->SaveAs("Grouping.png");
 
   std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > > lines = overlayEtaReferences();
 
@@ -398,7 +398,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     line.first->Draw();
     line.second->Draw();
   }
-  canvas->SaveAs("RadLenValues.pdf");
+  canvas->SaveAs("RadLenValues.png");
 
   canvas->Clear();
   eneloss->SetMinimum(0.00001);
@@ -409,7 +409,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     line.first->Draw();
     line.second->Draw();
   }
-  canvas->SaveAs("EnergyLossValues.pdf");
+  canvas->SaveAs("EnergyLossValues.png");
 
   canvas->Clear();
   gStyle->SetPalette( m_gradient.size(), & m_gradient.front() );
@@ -422,7 +422,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     line.first->Draw();
     line.second->Draw();
   }
-  canvas->SaveAs("RadLenChanges.pdf");
+  canvas->SaveAs("RadLenChanges.png");
 
   canvas->Clear();
   eneloss_diff->SetMinimum(-100);
@@ -433,7 +433,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
     line.first->Draw();
     line.second->Draw();
   }
-  canvas->SaveAs("EnergyLossChanges.pdf");
+  canvas->SaveAs("EnergyLossChanges.png");
 
   for (auto g : nukem_text)
     delete g;

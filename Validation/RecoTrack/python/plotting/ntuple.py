@@ -365,7 +365,7 @@ class TrackMatchInfo(_Object):
     The point of this class is to provide, in addition to the matched
     Track, also other information about the match (e.g. shared hit fraction.
     """
-    def __init__(self, tree, index, trkindex, prefix, postfix):
+    def __init__(self, tree, index, trkindex, prefix):
         """Constructor.
 
         Arguments:
@@ -599,7 +599,7 @@ class TrackingParticle(_Object, _HitAdaptor):
         The generator returns TrackMatchInfo objects.
         """
         self._checkIsValid()
-        for imach in xrange(self._nMatchedTracks()):
+        for imatch in xrange(self._nMatchedTracks()):
             yield TrackMatchInfo(self._tree, self._index, imatch, self._prefix)
 
     def parentVertex(self):

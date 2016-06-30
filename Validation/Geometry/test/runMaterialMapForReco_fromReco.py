@@ -26,6 +26,12 @@ options.register('sample',
                 VarParsing.multiplicity.singleton,
                 VarParsing.varType.string,
                 "Input sample to use. Will also modify the output filename accordingly")
+options.register('ntuple',
+                False,
+                VarParsing.multiplicity.singleton,
+                VarParsing.varType.bool,
+                "Flag to trigger the production of MTV ntuple",
+                )
 options.parseArguments()
 
 # DEFAULT VALUES
@@ -39,7 +45,11 @@ if options.fromLocalXML == True:
   output_file_inDQM  = 'file:matbdgForReco_FromReco_%s_FromLocalXML_inDQM.root' % options.sample
 
 if options.sample == 'SingleMuPt10':
-  input_file = '/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/0263098F-092A-E611-AC04-0CC47A745250.root'
+  input_file = ['/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/0263098F-092A-E611-AC04-0CC47A745250.root',
+                '/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/2081A255-092A-E611-9EA6-0CC47A4C8E2E.root',
+                '/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/80727153-092A-E611-948F-0CC47A745294.root',
+                '/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/E676F884-092A-E611-8121-0CC47A4D7602.root',
+                '/store/relval/CMSSW_8_1_0_pre6/RelValSingleMuPt10_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/F06FBE84-092A-E611-ADA9-0CC47A4D769C.root']
 
 if options.sample == 'SingleElectronPt35':
   input_file = '/store/relval/CMSSW_8_1_0_pre6/RelValSingleElectronPt35_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/00000/64866125-092A-E611-ACC3-0025905B8612.root'
@@ -98,7 +108,7 @@ process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('file:/data/rovere/RelVal/CMSSW_8_1_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/80X_mcRun2_asymptotic_v14-v1/4A127630-092A-E611-AC30-0025905B858A.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
-if len(input_file):
+if len(input_files):
   process.source.fileNames = cms.untracked.vstring()
   process.source.fileNames.extend(input_files)
 process.options = cms.untracked.PSet(
@@ -189,3 +199,8 @@ process = setCrossingFrameOn(process)
 process.options.numberOfThreads=cms.untracked.uint32(6)
 process.options.numberOfStreams=cms.untracked.uint32(0)
 
+if options.ntuple:
+  from Validation.RecoTrack.customiseTrackingNtuple import customiseTrackingNtuple
+  process = customiseTrackingNtuple(process)
+  process.trackingNtuple.includeAllHits = False
+  process.trackingNtuple.includeSeeds = False
