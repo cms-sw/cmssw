@@ -108,6 +108,7 @@ def customise_Hcal2017Full(process):
         process.globalReplace("hbheprereco", hbheprereco)
         process.hbheprereco.saveInfos = cms.bool(True)
         process.hbheprereco.digiLabelHB = cms.InputTag("simHcalDigis")
+        process.hbheprereco.digiLabelHE = cms.InputTag("simHcalDigis", "HBHEQIE11DigiCollection")
 
     return process
     
