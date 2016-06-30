@@ -29,10 +29,12 @@ bool l1t::CaloTools::insertTower(std::vector<l1t::CaloTower>& towers, const l1t:
 //with standarising the layout of std::vector<l1t::CaloTower>
 const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi)
 {
+  if(abs(iEta) > CaloTools::kHFEnd) return nullTower_;
+
   size_t towerIndex = CaloTools::caloTowerHash(iEta, iPhi);
   if(towerIndex<towers.size()){
     if(towers[towerIndex].hwEta()!=iEta || towers[towerIndex].hwPhi()!=iPhi){ //it failed, this is bad, but we will not log the error due to policy and silently attempt to do a brute force search instead 
-      // std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
+      //std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
       for(size_t towerNr=0;towerNr<towers.size();towerNr++){
 	if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
       }     
@@ -116,7 +118,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
       int towerIPhi = l1t::CaloStage2Nav::offsetIPhi(iPhi,phiNr);
       if(abs(towerIEta)<=iEtaAbsMax){
-	const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
+	const l1t::CaloTower& tower = getTower(towers,CaloTools::caloEta(towerIEta),towerIPhi);
 	if(etMode==ECAL) hwEtSum+=tower.hwEtEm();
 	else if(etMode==HCAL) hwEtSum+=tower.hwEtHad();
 	else if(etMode==CALO) hwEtSum+=tower.hwPt();
@@ -134,7 +136,7 @@ size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiM
   while(nav.currIEta()<=iEtaMax){
     bool finishPhi = false;
     while(!finishPhi){
-      const l1t::CaloTower& tower = l1t::CaloTools::getTower(towers,nav.currIEta(),nav.currIPhi());
+      const l1t::CaloTower& tower = l1t::CaloTools::getTower(towers,CaloTools::caloEta(nav.currIEta()),nav.currIPhi());
       int towerHwEt =0;
       if(etMode==ECAL) towerHwEt+=tower.hwEtEm();
       else if(etMode==HCAL) towerHwEt+=tower.hwEtHad();

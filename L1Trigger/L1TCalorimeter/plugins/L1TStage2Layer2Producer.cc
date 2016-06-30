@@ -174,12 +174,11 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	tower != towers->end(ibx);
 	++tower) {
 
-      int mpEta = CaloTools::mpEta(tower->hwEta());
       CaloTower tow(tower->p4(),
 		    tower->etEm(),
 		    tower->etHad(),
 		    tower->hwPt(),
-		    mpEta,
+		    tower->hwEta(),
 		    tower->hwPhi(),
 		    tower->hwQual(),
 		    tower->hwEtEm(),
