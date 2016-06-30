@@ -60,17 +60,17 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int iPhiP2 = caloNav.offsetIPhi(iPhi,  2);
       int iPhiM  = caloNav.offsetIPhi(iPhi, -1);
       int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
-      const l1t::CaloTower& seed    = l1t::CaloTools::getTower(towers, iEta , iPhi );
-      const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, iEtaM, iPhiM);
-      const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iEta , iPhiM);
-      const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, iEtaP, iPhiM);
-      const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, iEtaP, iPhi );
-      const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iEtaP, iPhiP);
-      const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iEta , iPhiP);
-      const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iEtaM, iPhiP);
-      const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iEtaM, iPhi );
-      const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iEta , iPhiM2);
-      const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iEta , iPhiP2);
+      const l1t::CaloTower& seed    = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhi );
+      const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhiM);
+      const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiM);
+      const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhiM);
+      const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhi );
+      const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaP), iPhiP);
+      const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiP);
+      const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhiP);
+      const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEtaM), iPhi );
+      const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiM2);
+      const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, CaloTools::caloEta(iEta) , iPhiP2);
       //
 
       int seedEt    = seed   .hwPt();
