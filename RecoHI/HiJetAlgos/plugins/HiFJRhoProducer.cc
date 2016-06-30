@@ -102,9 +102,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<double>> areaJetsOut ( new std::vector<double>(njets,1e-6));
   std::auto_ptr<std::vector<double>> etaJetsOut ( new std::vector<double>(njets,1e-6));
     
-  static double rhoVec[999];
-  static double rhomVec[999];
-  static double etaVec[999];
+  double rhoVec[999];
+  double rhomVec[999];
+  double etaVec[999];
 
   // int neta = (int)mapEtaRangesOut->size();
   int nacc = 0;
@@ -141,9 +141,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //calculate rho and rhom in eta ranges
   double radius = 0.2; //distance kt clusters needs to be from edge
   for(int ieta = 0; ieta<(neta-1); ieta++) {
-    static double rhoVecCur[999] = {0.};
-    static double rhomVecCur[999]= {0.};
-
+    double rhoVecCur[999] = {0.};
+    double rhomVecCur[999]= {0.};
+    
     double etaMin = mapEtaRangesOut->at(ieta)+radius;
     double etaMax = mapEtaRangesOut->at(ieta+1)-radius;
      
