@@ -189,7 +189,8 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v1a.xml')
+process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v2c.xml')
+#process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_test_ettem_etmhf.xml')
 #process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
 
 ## Fill External conditions
@@ -212,7 +213,7 @@ process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtInput")
-process.simGtStage2Digis.EmulateBxInEvent = cms.int32(5)
+process.simGtStage2Digis.EmulateBxInEvent = cms.int32(1)
 #process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
 #process.simGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(True)
 #process.simGtStage2Digis.AlgorithmTriggersUnmasked = cms.bool(True)
@@ -225,15 +226,18 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		etsumInputTag = cms.InputTag("gtInput"),
 		uGtAlgInputTag = cms.InputTag("simGtStage2Digis"),
 		uGtExtInputTag = cms.InputTag("simGtExtFakeProd"),
+		uGtObjectMapInputTag = cms.InputTag("simGtStage2Digis"),
 		bxOffset       = cms.int32(skip),
 		minBx          = cms.int32(-2),
 		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
+		dumpGTObjectMap= cms.bool(True),
                 dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+		tvVersion      = cms.int32(2),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
                 psColumn       = cms.int32(1),
 		unprescaleL1Algos = cms.bool(False),
@@ -284,12 +288,14 @@ process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		etsumInputTag = cms.InputTag("newGtStage2Digis","EtSum"),
 		uGtAlgInputTag = cms.InputTag("newGtStage2Digis"),
 		uGtExtInputTag = cms.InputTag("newGtStage2Digis"),
+		uGtObjectMapInputTag = cms.InputTag("simGtStage2Digis"),
 		bxOffset       = cms.int32(skip),
-		minBx          = cms.int32(-2),
-		maxBx          = cms.int32(2),
+		minBx          = cms.int32(0),
+		maxBx          = cms.int32(0),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
+		dumpGTObjectMap= cms.bool(True),
                 dumpTrigResults= cms.bool(False),
 		dumpVectors    = cms.bool(False),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
