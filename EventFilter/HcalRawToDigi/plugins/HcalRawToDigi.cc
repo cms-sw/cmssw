@@ -22,12 +22,13 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
   unpackTTP_(conf.getUntrackedParameter<bool>("UnpackTTP",false)),
-  unpackUMNio_(conf.getUntrackedParameter<bool>("UnpackUMNio",false)),
+  unpackUMNio_(conf.getUntrackedParameter<bool>("UnpackUMNio",true)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
   complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
   unpackerMode_(conf.getUntrackedParameter<int>("UnpackerMode",0)),
   expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
 {
+  std::cout <<"Flag for uMNio set to: "<<unpackUMNio_ <<std::endl;
   electronicsMapLabel_ = conf.getParameter<std::string>("ElectronicsMap");
   tok_data_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
 
@@ -83,7 +84,6 @@ void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<bool>("UnpackZDC",true);
   desc.addUntracked<bool>("UnpackCalib",true);
   desc.addUntracked<bool>("UnpackTTP",true);
-  desc.addUntracked<bool>("UnpackUMNio",true);
   desc.addUntracked<bool>("silent",true);
   desc.addUntracked<bool>("ComplainEmptyData",false);
   desc.addUntracked<int>("UnpackerMode",0);
@@ -279,7 +279,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(report);
   /// umnio
   if (unpackUMNio_) {
-    std::cout << "Putting UMNIO in event" << std::endl;
+    std::cout << "Putting UMNIO in event" << unpackUMNio_ << std::endl;
     std::auto_ptr<HcalUMNioDigi> prod(new HcalUMNioDigi());
     prod = std::auto_ptr<HcalUMNioDigi>(colls.umnio);
     e.put(prod);
