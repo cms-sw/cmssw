@@ -56,6 +56,8 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
     // read module mapping file
     std::map<short, short> wafer_to_module_ee;
     std::map<short, short> wafer_to_module_fh;
+    std::map<short, std::map<short,short>> module_to_wafers_ee;
+    std::map<short, std::map<short,short>> module_to_wafers_fh;
     std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
     if(!l1tModulesMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TModulesMapping file\n";
     short subdet  = 0;
@@ -63,14 +65,25 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
     short module  = 0;
     for(; l1tModulesMappingStream>>subdet>>wafer>>module; )
     {
-        if(subdet==3) wafer_to_module_ee.emplace(wafer,module);
-        else if(subdet==4) wafer_to_module_fh.emplace(wafer,module);
+        if(subdet==3)
+        {
+            wafer_to_module_ee.emplace(wafer,module);
+            auto itr_insert = module_to_wafers_ee.emplace(module, std::map<short,short>());
+            itr_insert.first->second.emplace(wafer, 0);
+        }
+        else if(subdet==4)
+        {
+            wafer_to_module_fh.emplace(wafer,module);
+            auto itr_insert = module_to_wafers_fh.emplace(module, std::map<short,short>());
+            itr_insert.first->second.emplace(wafer, 0);
+        }
         else edm::LogWarning("HGCalTriggerGeometry") << "Unsupported subdetector number ("<<subdet<<") in L1TModulesMapping file\n";
     }
     if(!l1tModulesMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TModulesMapping '"<<wafer<<" "<<module<<"' \n";
     l1tModulesMappingStream.close();
     // read trigger cell mapping file
     std::map<std::pair<short,short>, short> cells_to_trigger_cells;
+    std::map<short, short> number_trigger_cells_in_wafers; // the map key is the wafer type
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());
     if(!l1tCellsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellsMapping file\n";
     short waferType   = 0;
@@ -79,9 +92,35 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
     for(; l1tCellsMappingStream>>waferType>>cell>>triggerCell; )
     {
         cells_to_trigger_cells.emplace(std::make_pair((waferType?1:-1),cell), triggerCell);
+        auto itr_insert = number_trigger_cells_in_wafers.emplace((waferType?1:-1), 0);
+        if(triggerCell+1 > itr_insert.first->second) itr_insert.first->second = triggerCell+1;
     }
     if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping'"<<waferType<<" "<<cell<<" "<<triggerCell<<"' \n";
     l1tCellsMappingStream.close();
+    // For each wafer compute the trigger cell offset according to the wafer position inside
+    // the module. The first wafer will have an offset equal to 0, the second an offset equal to the
+    // number of trigger cells in the first wafer, etc.
+    short offset = 0;
+    for(auto& module_wafers : module_to_wafers_ee)
+    {
+        offset = 0;
+        for(auto& wafer_offset : module_wafers.second)
+        {
+            wafer_offset.second = offset;
+            int wafer_type = (esInfo.topo_ee->dddConstants().waferTypeT(wafer_offset.first)==1?1:-1);
+            offset += number_trigger_cells_in_wafers.at(wafer_type);
+        }
+    }
+    for(auto& module_wafers : module_to_wafers_fh)
+    {
+        offset = 0;
+        for(auto& wafer_offset : module_wafers.second)
+        {
+            wafer_offset.second = offset;
+            int wafer_type = (esInfo.topo_fh->dddConstants().waferTypeT(wafer_offset.first)==1?1:-1);
+            offset += number_trigger_cells_in_wafers.at(wafer_type);
+        }
+    }
     //
     // Loop over HGC cells
     // EE
@@ -90,13 +129,17 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
         if(id.rawId()==0) continue;
         HGCalDetId waferDetId(id); 
         short module      = wafer_to_module_ee[waferDetId.wafer()];
+        short triggercell_offset = module_to_wafers_ee.at(module).at(waferDetId.wafer());
         int nCells = esInfo.topo_ee->dddConstants().numberCellsHexagon(waferDetId.wafer());
         for(int c=0;c<nCells;c++)
         {
             short triggerCellId = cells_to_trigger_cells[std::make_pair(waferDetId.waferType(),c)];
             // Fill cell -> trigger cell mapping
             HGCalDetId cellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), c); 
-            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), triggerCellId); 
+            // The module id is used instead of the wafer id for the trigger cells
+            // Since there are several wafers per module, an offset is applied on the HGCalDetId::cell field
+            if(triggercell_offset+triggerCellId >= HGCalDetId::kHGCalCellMask) edm::LogError("HGCalTriggerGeometry") << "Trigger cell id requested with a cell field larger than available in HGCalDetId (" << triggercell_offset+triggerCellId << " >= " << HGCalDetId::kHGCalCellMask << ")\n";
+            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, triggercell_offset + triggerCellId);
             cells_to_trigger_cells_.emplace(cellDetId, triggerCellDetId);
             // Fill trigger cell -> module mapping
             HGCalDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCalDetId::kHGCalCellMask);
@@ -109,13 +152,17 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
         if(id.rawId()==0) continue;
         HGCalDetId waferDetId(id); 
         short module      = wafer_to_module_fh[waferDetId.wafer()];
+        short triggercell_offset = module_to_wafers_fh.at(module).at(waferDetId.wafer());
         int nCells = esInfo.topo_fh->dddConstants().numberCellsHexagon(waferDetId.wafer());
         for(int c=0;c<nCells;c++)
         {
             short triggerCellId = cells_to_trigger_cells[std::make_pair(waferDetId.waferType(),c)];
             // Fill cell -> trigger cell mapping
             HGCalDetId cellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), c); 
-            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), waferDetId.wafer(), triggerCellId); 
+            // The module id is used instead of the wafer id for the trigger cells
+            // Since there are several wafers per module, an offset is applied on the HGCalDetId::cell field
+            if(triggercell_offset+triggerCellId >= HGCalDetId::kHGCalCellMask) edm::LogError("HGCalTriggerGeometry") << "Trigger cell id requested with a cell field larger than available in HGCalDetId (" << triggercell_offset+triggerCellId << " >= " << HGCalDetId::kHGCalCellMask << ")\n";
+            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, triggercell_offset + triggerCellId);
             cells_to_trigger_cells_.emplace(cellDetId, triggerCellDetId);
             // Fill trigger cell -> module mapping
             HGCalDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCalDetId::kHGCalCellMask);
