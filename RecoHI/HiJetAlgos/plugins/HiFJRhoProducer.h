@@ -34,7 +34,8 @@ class HiFJRhoProducer : public edm::stream::EDProducer<> {
       virtual void beginStream(edm::StreamID) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endStream() override;
-      
+
+      double calcMedian(std::vector<double> &v);
       double calcMd(const reco::Jet *jet);
       bool   isPackedCandidate(const reco::Candidate* candidate);
 

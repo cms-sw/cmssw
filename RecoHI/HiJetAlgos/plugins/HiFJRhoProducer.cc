@@ -19,8 +19,6 @@
 #include <memory>
 #include <string>
 
-#include "TMath.h"
-
 #include "RecoHI/HiJetAlgos/plugins/HiFJRhoProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -128,9 +126,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       rhoVec[nacc] = pt/area;
       rhomVec[nacc] = calcMd(&*jet)/area;
       etaVec[nacc] = eta;
-	  ptJetsOut->at(nacc) = pt;
-	  areaJetsOut->at(nacc) = area;
-	  etaJetsOut->at(nacc) = eta;
+      ptJetsOut->at(nacc) = pt;
+      areaJetsOut->at(nacc) = area;
+      etaJetsOut->at(nacc) = eta;
       ++nacc;
     }
   }
@@ -141,8 +139,8 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //calculate rho and rhom in eta ranges
   double radius = 0.2; //distance kt clusters needs to be from edge
   for(int ieta = 0; ieta<(neta-1); ieta++) {
-    double rhoVecCur[999] = {0.};
-    double rhomVecCur[999]= {0.};
+    std::vector<double> rhoVecCur;
+    std::vector<double> rhomVecCur;
     
     double etaMin = mapEtaRangesOut->at(ieta)+radius;
     double etaMax = mapEtaRangesOut->at(ieta+1)-radius;
@@ -152,8 +150,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double rhomCurSum = 0.;
     for(int i = 0; i<nacc; i++) {
       if(etaVec[i]>=etaMin && etaVec[i]<etaMax) {
-        rhoVecCur[naccCur] = rhoVec[i];
-        rhomVecCur[naccCur] = rhomVec[i];
+        rhoVecCur.push_back(rhoVec[i]);
+        rhomVecCur.push_back(rhomVec[i]);
+        
         rhoCurSum += rhoVec[i];
         rhomCurSum += rhomVec[i];
         ++naccCur;
@@ -161,8 +160,8 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }//accepted jet loop
 
     if(naccCur>0) {
-      double rhoCur = TMath::Median(naccCur, rhoVecCur);
-      double rhomCur = TMath::Median(naccCur, rhomVecCur);
+      double rhoCur = calcMedian(rhoVecCur);
+      double rhomCur = calcMedian(rhomVecCur);
       mapToRhoOut->at(ieta) = rhoCur;
       mapToRhoMOut->at(ieta) = rhomCur;
     }
@@ -241,6 +240,25 @@ void HiFJRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("ptMinExcl2",20.);
   desc.add<std::vector<double> >("etaRanges");
   descriptions.add("hiFJRhoProducer",desc);
+}
+
+
+//--------- method to calculate median ------------------
+double HiFJRhoProducer::calcMedian(std::vector<double> &v)
+{
+  //post-condition: After returning, the elements in v may be reordered and the resulting order is implementation defined.
+  //works for even and odd collections
+  if(v.empty()) {
+    return 0.0;
+  }
+  auto n = v.size() / 2;
+  std::nth_element(v.begin(), v.begin()+n, v.end());
+  auto med = v[n];
+  if(!(v.size() & 1)) { //If the set size is even
+    auto max_it = std::max_element(v.begin(), v.begin()+n);
+    med = (*max_it + med) / 2.0;
+  }
+  return med;    
 }
 
 
