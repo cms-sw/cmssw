@@ -8,7 +8,10 @@
 
 #include "FWCore/Framework/interface/Run.h"
 
-#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+// We will likely have to remap the rechit status bits, so the relevant
+// header is commented out for now
+//
+// #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 // Maximum fractional error for calculating Method 0
 // pulse containment correction
@@ -112,8 +115,8 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     HBHERecHitAuxSetter::setAux(info, &rh);
 
     // Set some rechit flags
-    if (useTriple)
-        rh.setFlagField(1, HcalCaloFlagLabels::HBHEPulseFitBit);
+    // if (useTriple)
+    //    rh.setFlagField(1, HcalCaloFlagLabels::HBHEPulseFitBit);
 
     return rh;
 }
