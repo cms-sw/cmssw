@@ -5,7 +5,7 @@ from DQM.TrackingMonitor.V0Monitor_cfi import *
 KshortMonitor = v0Monitor.clone()
 KshortMonitor.FolderName = cms.string("Tracking/V0Monitoring/Ks")
 KshortMonitor.v0         = cms.InputTag('generalV0Candidates:Kshort')
-KshortMonitor.massPSet = cms.PSet(
+KshortMonitor.histoPSet.massPSet = cms.PSet(
    nbins = cms.int32 ( 100 ),
    xmin  = cms.double( 0.400),
    xmax  = cms.double( 0.600),
@@ -14,7 +14,7 @@ KshortMonitor.massPSet = cms.PSet(
 LambdaMonitoring = v0Monitor.clone()
 LambdaMonitoring.FolderName = cms.string("Tracking/V0Monitoring/Lambda")
 LambdaMonitoring.v0         = cms.InputTag('generalV0Candidates:Lambda')
-LambdaMonitoring.massPSet = cms.PSet(
+LambdaMonitoring.histoPSet.massPSet = cms.PSet(
    nbins = cms.int32 ( 100 ),
    xmin  = cms.double( 1.050 ),
    xmax  = cms.double( 1.250 )
