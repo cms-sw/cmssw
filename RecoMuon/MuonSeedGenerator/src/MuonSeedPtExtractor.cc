@@ -211,7 +211,8 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     //eta = innerPoint.eta();
     GlobalVector gv = innerHit->globalDirection();
     double gvPerpPos = gv.x()*gv.x() + gv.y()*gv.y();
-    if (gvPerpPos < 1e-32) gvPerpPos = 1e-32; gvPerpPos=sqrt(gvPerpPos);
+    if (gvPerpPos < 1e-32) gvPerpPos = 1e-32;
+    gvPerpPos=sqrt(gvPerpPos);
     // Psi is angle between the segment origin and segment direction
     // Use dot product between two vectors to get Psi in global x-y plane
     double cosDpsi  = (gv.x()*innerPoint.x() + gv.y()*innerPoint.y());
