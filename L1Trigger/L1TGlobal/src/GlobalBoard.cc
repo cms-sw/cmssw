@@ -179,10 +179,17 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
 
               //Loop over EG in this bx
+	      int nObj = 0;
               for(std::vector<l1t::EGamma>::const_iterator eg = egData->begin(i); eg != egData->end(i); ++eg) {
 
-	        (*m_candL1EG).push_back(i,&(*eg));
-	        LogDebug("L1TGlobal") << "EG  Pt " << eg->hwPt() << " Eta  " << eg->hwEta() << " Phi " << eg->hwPhi() << "  Qual " << eg->hwQual() <<"  Iso " << eg->hwIso() << std::endl;
+	        if(nObj<nrL1EG) {
+		  (*m_candL1EG).push_back(i,&(*eg));
+	        } else {
+		  edm::LogWarning("L1TGlobal") << " Too many EG ("<<nObj<<") for uGT Configuration maxEG =" <<nrL1EG << std::endl;
+		}
+		LogDebug("L1TGlobal") << "EG  Pt " << eg->hwPt() << " Eta  " << eg->hwEta() << " Phi " << eg->hwPhi() << "  Qual " << eg->hwQual() <<"  Iso " << eg->hwIso() << std::endl;
+		
+		nObj++;
               } //end loop over EG in bx
 	   } //end loop over bx   
 
@@ -211,11 +218,19 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
 
               //Loop over tau in this bx
+	      int nObj = 0;
               for(std::vector<l1t::Tau>::const_iterator tau = tauData->begin(i); tau != tauData->end(i); ++tau) {
 
-	        (*m_candL1Tau).push_back(i,&(*tau));
+	        if(nObj<nrL1Tau) {
+		   (*m_candL1Tau).push_back(i,&(*tau));
+	        } else {
+		  edm::LogWarning("L1TGlobal") << " Too many Tau ("<<nObj<<") for uGT Configuration maxTau =" <<nrL1Tau << std::endl;
+		}
+		   
 	        LogDebug("L1TGlobal") << "tau  Pt " << tau->hwPt() << " Eta  " << tau->hwEta() << " Phi " << tau->hwPhi() << "  Qual " << tau->hwQual() <<"  Iso " << tau->hwIso() << std::endl;
-              } //end loop over tau in bx
+                nObj++;
+		
+	      } //end loop over tau in bx
 	   } //end loop over bx   
 
         } //end if over valid tau data
@@ -243,10 +258,17 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
 
               //Loop over jet in this bx
+	      int nObj = 0;
               for(std::vector<l1t::Jet>::const_iterator jet = jetData->begin(i); jet != jetData->end(i); ++jet) {
 
-	        (*m_candL1Jet).push_back(i,&(*jet));
+	        if(nObj<nrL1Jet) {
+		   (*m_candL1Jet).push_back(i,&(*jet));
+	        } else {
+		  edm::LogWarning("L1TGlobal") << " Too many Jets ("<<nObj<<") for uGT Configuration maxJet =" <<nrL1Jet << std::endl;
+		}
+
 	        LogDebug("L1TGlobal") << "Jet  Pt " << jet->hwPt() << " Eta  " << jet->hwEta() << " Phi " << jet->hwPhi() << "  Qual " << jet->hwQual() <<"  Iso " << jet->hwIso() << std::endl;
+		nObj++;
               } //end loop over jet in bx
 	   } //end loop over bx   
 
@@ -346,10 +368,17 @@ void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
 	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
 
               //Loop over Muons in this bx
+	      int nObj = 0;
               for(std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
 
-	        (*m_candL1Mu).push_back(i,&(*mu));
+	        if(nObj<nrL1Mu) {
+		   (*m_candL1Mu).push_back(i,&(*mu));
+	        } else {
+		  edm::LogWarning("L1TGlobal") << " Too many Muons ("<<nObj<<") for uGT Configuration maxMu =" <<nrL1Mu << std::endl;
+		}
+		   
 	        LogDebug("L1TGlobal") << "Muon  Pt " << mu->hwPt() << " Eta  " << mu->hwEta() << " Phi " << mu->hwPhi() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
+		nObj++;
               } //end loop over muons in bx
 	   } //end loop over bx   
 
@@ -746,7 +775,7 @@ void l1t::GlobalBoard::runGTL(
 	    std::ostringstream myCout1;
 	    objMap.print(myCout1);
 	    
-	    LogTrace("L1TGlobal") << myCout1.str() << std::endl;
+	    LogTrace("L1TGlobal")  << myCout1.str() << std::endl;
 	  }
 
 	  objMapVec.push_back(objMap);
