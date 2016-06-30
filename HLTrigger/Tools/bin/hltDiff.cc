@@ -1413,25 +1413,25 @@ public:
         if (verbose > 0)
           std::cout << std::endl;
       }
-    }
-    if (affected_event)
-      ++affected;
+      if (event_affected)
+        ++affected;
 
-    // compare the TriggerEvent
-    if (affected_event and verbose > 2 and old_summary and new_summary) {
-      std::map<std::string, std::pair<std::string, std::string>> collections;
-      for (auto const & old_collection: old_summary->collectionTags())
-        collections[strip_process_name(old_collection)].first  = old_collection;
-      for (auto const & new_collection: new_summary->collectionTags())
-        collections[strip_process_name(new_collection)].second = new_collection;
+      // compare the TriggerEvent
+      if (event_affected and verbose > 2 and old_summary and new_summary) {
+        std::map<std::string, std::pair<std::string, std::string>> collections;
+        for (auto const & old_collection: old_summary->collectionTags())
+          collections[strip_process_name(old_collection)].first  = old_collection;
+        for (auto const & new_collection: new_summary->collectionTags())
+          collections[strip_process_name(new_collection)].second = new_collection;
 
-      for (auto const & collection: collections) {
-        std::cout << "    Collection " << collection.first << ":\n";
-        std::cout << "        old trigger candidates:\n";
-        print_trigger_collection(std::cout, * old_summary, collection.second.first);
-        std::cout << "        new trigger candidates:\n";
-        print_trigger_collection(std::cout, * new_summary, collection.second.second);
-        std::cout << std::endl;
+        for (auto const & collection: collections) {
+          std::cout << "    Collection " << collection.first << ":\n";
+          std::cout << "        old trigger candidates:\n";
+          print_trigger_collection(std::cout, * old_summary, collection.second.first);
+          std::cout << "        new trigger candidates:\n";
+          print_trigger_collection(std::cout, * new_summary, collection.second.second);
+          std::cout << std::endl;
+        }
       }
 
       ++counter;
