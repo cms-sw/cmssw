@@ -590,7 +590,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
     //Check to make sure uMNio is not unpacked here
     if(uhtr.getFormatVersion() != 1) {
-      unpackUMNio(raw, slot, *(colls.umnio));
+      unpackUMNio(raw, slot, colls.umnio);
     }  
 #ifdef DebugLog
     //debug printouts
@@ -867,11 +867,16 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& u
   for (int iamc=0; iamc<namc; iamc++) {
     if (amc13->AMCSlot(iamc) == slot) namc = iamc;
   }
-  if (namc==amc13->NAMC()) return;
-  
+  if (namc==amc13->NAMC()) {
+    std::cout << "uMNio in slot: " <<slot<<" not found in raw data"<< std::endl;
+    return;
+  }
   const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
   size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
-
-  umnio = HcalUMNioDigi(data, nwords);
-  
+  std::cout<<"uMNio data found with: "<<nwords<<" words"<<std::endl;
+  HcalUMNioDigi umnioDigi = HcalUMNioDigi(data, nwords);
+  std::cout<<"Setting given empty class"<<std::endl;
+  umnio = umnioDigi; //this line segfaults
+  std::cout<<"Done here"<<std::endl;
+  return;
 }
