@@ -40,25 +40,37 @@ namespace stage2 {
       uint32_t ht_word = 0;
       uint32_t met_word = 0;
       uint32_t mht_word = 0;
+      uint32_t methf_word = 0;
+      uint32_t mhthf_word = 0;
 
       for (int i = etSums->getFirstBX(); i <= etSums->getLastBX(); ++i) {
-         for (auto j = etSums->begin(i); j != etSums->end(i); ++j) {
-	   uint32_t word = std::min(j->hwPt(), 0xFFF);
-	   if ((j->getType()==l1t::EtSum::kMissingEt) || (j->getType()==l1t::EtSum::kMissingHt))
-	     word = word | ((j->hwPhi() & 0xFF) << 12);
-	   
-	   if (j->getType()==l1t::EtSum::kTotalEt)   et_word = word;
-	   if (j->getType()==l1t::EtSum::kTotalHt)   ht_word = word;
-	   if (j->getType()==l1t::EtSum::kMissingEt) met_word = word;
-	   if (j->getType()==l1t::EtSum::kMissingHt) mht_word = word;
-         }
+	for (auto j = etSums->begin(i); j != etSums->end(i); ++j) {
+	  uint32_t word = std::min(j->hwPt(), 0xFFF);
+	  if ((j->getType()==l1t::EtSum::kMissingEt) || (j->getType()==l1t::EtSum::kMissingHt) 
+	      || (j->getType()==l1t::EtSum::kMissingEtHF) || (j->getType()==l1t::EtSum::kMissingHtHF))
+	    word = word | ((j->hwPhi() & 0xFF) << 12);
+	  
+	  if (j->getType()==l1t::EtSum::kTotalEt)       et_word  |= word;
+	  if (j->getType()==l1t::EtSum::kTotalEtEm)     et_word  |= (word << 12);
+	  if (j->getType()==l1t::EtSum::kMinBiasHFP0)   et_word  |= (word << 28);
+	  if (j->getType()==l1t::EtSum::kTotalHt)       ht_word  |= word;
+	  if (j->getType()==l1t::EtSum::kMinBiasHFM0)   ht_word  |= (word << 28);
+	  if (j->getType()==l1t::EtSum::kMissingEt)     met_word |= word;
+	  if (j->getType()==l1t::EtSum::kMinBiasHFP1)   met_word |= (word << 28);
+	  if (j->getType()==l1t::EtSum::kMissingHt)     mht_word |= word;
+	  if (j->getType()==l1t::EtSum::kMinBiasHFM1)   mht_word |= (word << 28);
+	  if (j->getType()==l1t::EtSum::kMissingEtHF)   methf_word |= word;
+	  if (j->getType()==l1t::EtSum::kMissingHtHF)   mhthf_word |= word;
+	}
       }
-
+      
       std::vector<uint32_t> load;
       load.push_back(et_word);
       load.push_back(ht_word);
       load.push_back(met_word);
       load.push_back(mht_word);
+      load.push_back(methf_word);
+      load.push_back(mhthf_word);
       while (load.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load.push_back(0);
 
       return {Block(b1_, load)};
