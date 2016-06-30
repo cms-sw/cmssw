@@ -25,7 +25,7 @@ GlobalParameters = cms.ESProducer("StableParametersTrivialProducer",
     # trigger objects
 
     # muons
-    NumberL1Muon = cms.uint32(12),
+    NumberL1Muon = cms.uint32(8),
     
     # e/gamma and isolated e/gamma objects
     NumberL1EGamma = cms.uint32(12),
@@ -34,7 +34,7 @@ GlobalParameters = cms.ESProducer("StableParametersTrivialProducer",
     NumberL1Jet = cms.uint32(12),
 
     # taus
-    NumberL1Tau = cms.uint32(8),
+    NumberL1Tau = cms.uint32(12),
 
     # hardware
 
