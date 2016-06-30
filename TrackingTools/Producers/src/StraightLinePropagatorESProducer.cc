@@ -33,7 +33,7 @@ StraightLinePropagatorESProducer::produce(const TrackingComponentsRecord & iReco
 
   PropagationDirection dir = alongMomentum;
 
-  if (pdir == "oppositeToMomentum, alongMomentum, anyDirection")
+//  if (pdir == "oppositeToMomentum, alongMomentum, anyDirection")
     if (pdir == "oppositeToMomentum") dir = oppositeToMomentum;
     if (pdir == "alongMomentum") dir = alongMomentum;
     if (pdir == "anyDirection") dir = anyDirection;
