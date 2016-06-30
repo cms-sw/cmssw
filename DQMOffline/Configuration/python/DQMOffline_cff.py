@@ -86,7 +86,7 @@ _ctpps_2016_DQMOffline *= totemDQM
 eras.ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 _ctpps_2016_DQMOffline = DQMOffline.copy()
-_ctpps_2016_DQMOffline *= totemDQM
+#_ctpps_2016_DQMOffline *= totemDQM
 eras.ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
