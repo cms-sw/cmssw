@@ -44,7 +44,8 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
    thePE2fCByRing( p.getParameter<std::vector<double> >("photoelectronsToAnalog") ),
    thePixels(0), theSiPMSmearing(false),
-   doTimeSmear_( p.getParameter<bool>("timeSmearing"))
+   doTimeSmear_( p.getParameter<bool>("timeSmearing")),
+   theSiPMdarkCurrentuA(0.),theSiPMcrossTalk(0.)
 {
   if(p.exists("pixels"))
   {

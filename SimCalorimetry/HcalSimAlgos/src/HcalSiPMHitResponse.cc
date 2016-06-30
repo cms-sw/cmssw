@@ -283,7 +283,10 @@ double HcalSiPMHitResponse::Y11TimePDF(double t) {
 }
 
 void HcalSiPMHitResponse::setDetIds(const std::vector<DetId> & detIds) {
+
   theDetIds = &detIds;
+
+  if (!theDetIds->size()) return;
 
   // Now that we know what subdet we're in we can access the xtalk parameter
   HcalDetId id(*theDetIds->begin());

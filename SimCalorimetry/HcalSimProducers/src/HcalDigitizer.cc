@@ -571,9 +571,11 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
       ((HcalSiPMHitResponse *)theHBHESiPMResponse)->setDetIds(theHBHEQIE11DetIds);
   }
   
-  buildHOSiPMCells(hoCells, eventSetup);
-  if(theHOSiPMResponse)
-    ((HcalSiPMHitResponse *)theHOSiPMResponse)->setDetIds(hoCells);
+  if(theHOSiPMDigitizer) {
+    buildHOSiPMCells(hoCells, eventSetup);
+    if(theHOSiPMResponse)
+      ((HcalSiPMHitResponse *)theHOSiPMResponse)->setDetIds(hoCells);
+  }
   
   //handle mixed QIE8/10 scenario in HF
   if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setDetIds(hfCells);

@@ -95,10 +95,14 @@ hcalSimParameters = cms.PSet(
 hcalSimParameters.hoZecotek = hcalSimParameters.ho.clone()
 hcalSimParameters.hoZecotek.pixels = cms.int32(36000)
 hcalSimParameters.hoZecotek.photoelectronsToAnalog = [3.0]*16
+hcalSimParameters.hoZecotek.sipmDarkCurrentuA = cms.double(0.055)
+hcalSimParameters.hoZecotek.sipmCrossTalk = cms.double(0.32)
 
 hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
 hcalSimParameters.hoHamamatsu.pixels = cms.int32(960)
 hcalSimParameters.hoHamamatsu.photoelectronsToAnalog = [3.0]*16
+hcalSimParameters.hoHamamatsu.sipmDarkCurrentuA = cms.double(0.055)
+hcalSimParameters.hoHamamatsu.sipmCrossTalk = cms.double(0.32)
 
 # Customises the HCal digitiser for post LS1 running
 eras.run2_common.toModify( hcalSimParameters, 
