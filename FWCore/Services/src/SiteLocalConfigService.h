@@ -7,6 +7,7 @@
 #include <vector>
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include <xercesc/util/XercesDefs.hpp>
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -85,6 +86,28 @@ namespace edm {
             std::set<std::string> m_statisticsInfo;
             bool m_statisticsInfoAvail;
             std::string         m_siteName;
+	    XMLCh *m_str_site;
+	    XMLCh *m_str_name;
+	    XMLCh *m_str_event_data;
+	    XMLCh *m_str_catalog;
+	    XMLCh *m_str_url;
+	    XMLCh *m_str_rfiotype;
+	    XMLCh *m_str_value;
+	    XMLCh *m_str_calib_data;
+	    XMLCh *m_str_frontier_connect;
+	    XMLCh *m_str_source_config;
+	    XMLCh *m_str_cache_temp_dir;
+	    XMLCh *m_str_cache_min_free;
+	    XMLCh *m_str_cache_hint;
+	    XMLCh *m_str_clone_cache_hint;
+	    XMLCh *m_str_read_hint;
+	    XMLCh *m_str_ttree_cache_size;
+	    XMLCh *m_str_timeout_in_seconds;
+	    XMLCh *m_str_statistics_destination;
+	    XMLCh *m_str_endpoint;
+	    XMLCh *m_str_info;
+	    XMLCh *m_str_prefetching;
+	    XMLCh *m_str_native_protocols;
          };
 
          inline
