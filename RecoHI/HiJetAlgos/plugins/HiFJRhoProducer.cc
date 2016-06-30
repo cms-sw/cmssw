@@ -33,9 +33,8 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 using namespace edm;
-using namespace pat;
-
-//using ival = boost::icl::interval<double>;
+using namespace reco;
+//using namespace pat;
 
 //
 // constants, enums and typedefs
@@ -50,12 +49,12 @@ using namespace pat;
 // constructors and destructor
 //
 HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) : 
-  nExcl_(iConfig.getUntrackedParameter<unsigned int>("nExcl",0)),
-  etaMaxExcl_(iConfig.getUntrackedParameter<double>("etaMaxExcl",2.)),
-  ptMinExcl_(iConfig.getUntrackedParameter<double>("ptMinExcl",20.)),
-  nExcl2_(iConfig.getUntrackedParameter<unsigned int>("nExcl2",0)),
-  etaMaxExcl2_(iConfig.getUntrackedParameter<double>("etaMaxExcl2",3.)),
-  ptMinExcl2_(iConfig.getUntrackedParameter<double>("ptMinExcl2",20.)),
+  nExcl_(iConfig.getParameter<unsigned int>("nExcl")),
+  etaMaxExcl_(iConfig.getParameter<double>("etaMaxExcl")),
+  ptMinExcl_(iConfig.getParameter<double>("ptMinExcl")),
+  nExcl2_(iConfig.getParameter<unsigned int>("nExcl2")),
+  etaMaxExcl2_(iConfig.getParameter<double>("etaMaxExcl2")),
+  ptMinExcl2_(iConfig.getParameter<double>("ptMinExcl2")),
   checkJetCand(true),
   usingPackedCand(false)
 {
@@ -68,7 +67,7 @@ HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) :
   produces<std::vector<double > >("ptJets");
   produces<std::vector<double > >("areaJets");
   produces<std::vector<double > >("etaJets");
-  etaRanges = iConfig.getUntrackedParameter<std::vector<double> >("etaRanges");
+  etaRanges = iConfig.getParameter<std::vector<double> >("etaRanges");
 
 }
 
@@ -83,9 +82,7 @@ HiFJRhoProducer::~HiFJRhoProducer()
 
 // ------------ method called to produce the data  ------------
 void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  using namespace edm;
-  
+{  
   // Get the vector of jets
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(jetsToken_, jets);
@@ -178,7 +175,19 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(ptJetsOut,"ptJets");
   iEvent.put(areaJetsOut,"areaJets");
   iEvent.put(etaJetsOut,"etaJets");
-  
+
+  return;
+}
+
+// ------------ method called once each stream before processing any runs, lumis or events  ------------
+void
+HiFJRhoProducer::beginStream(edm::StreamID)
+{
+}
+
+// ------------ method called once each stream after processing all runs, lumis and events  ------------
+void
+HiFJRhoProducer::endStream() {
 }
 
 double HiFJRhoProducer::calcMd(const reco::Jet *jet) {
@@ -213,26 +222,25 @@ bool HiFJRhoProducer::isPackedCandidate(const reco::Candidate* candidate){
 }
 
 
+// HiFJRhoProducer::beginJob() { //Stream(edm::StreamID) {
+// }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HiFJRhoProducer::beginJob()
-{
-
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HiFJRhoProducer::endJob() {
-}
+// void HiFJRhoProducer::endJob() {
+// }
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HiFJRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<int>("nExcl", 2);
+  desc.add<double>("etaMaxExcl",2.);
+  desc.add<double>("ptMinExcl",20.);
+  desc.add<int>("nExcl2", 2);
+  desc.add<double>("etaMaxExcl2",2.);
+  desc.add<double>("ptMinExcl2",20.);
+  desc.add<std::vector<double> >("etaRanges");
+  descriptions.add("hiFJRhoProducer",desc);
 }
 
 
