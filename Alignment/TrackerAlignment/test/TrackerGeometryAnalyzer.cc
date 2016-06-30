@@ -302,17 +302,23 @@ void TrackerGeometryAnalyzer
     if (detId.det() == DetId::Tracker) {
       switch (detId.subdetId()) {
         case PixelSubdetector::PixelBarrel:
-          if (analyzePXB_) analyzePXBDetUnit(detId, ss); break;
+          if (analyzePXB_) analyzePXBDetUnit(detId, ss);
+          break;
         case PixelSubdetector::PixelEndcap:
-          if (analyzePXE_) analyzePXEDetUnit(detId, ss); break;
+          if (analyzePXE_) analyzePXEDetUnit(detId, ss);
+          break;
         case StripSubdetector::TIB:
-          if (analyzeTIB_) analyzeTIBDetUnit(detId, ss); break;
+          if (analyzeTIB_) analyzeTIBDetUnit(detId, ss);
+          break;
         case StripSubdetector::TID:
-          if (analyzeTID_) analyzeTIDDetUnit(detId, ss); break;
+          if (analyzeTID_) analyzeTIDDetUnit(detId, ss);
+          break;
         case StripSubdetector::TOB:
-          if (analyzeTOB_) analyzeTOBDetUnit(detId, ss); break;
+          if (analyzeTOB_) analyzeTOBDetUnit(detId, ss);
+          break;
         case StripSubdetector::TEC:
-          if (analyzeTEC_) analyzeTECDetUnit(detId, ss); break;
+          if (analyzeTEC_) analyzeTECDetUnit(detId, ss);
+          break;
       }
     }
   }
