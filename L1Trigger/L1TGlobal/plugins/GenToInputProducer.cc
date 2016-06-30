@@ -448,6 +448,10 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
    l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0);    
 
+// Scale down ETTem as an estimate
+   pt  = convertPtToHW( sumEt*0.6, 2047, PtStep_ );
+   l1t::EtSum etEmTotal(*p4, l1t::EtSum::EtSumType::kTotalEtEm,pt, 0, 0, 0); 
+
    pt  = convertPtToHW( sumEt*0.9, 2047, PtStep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
 
@@ -471,6 +475,8 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
    int mpt = 0;
    int mphi= 0;
+   int mptHf = 0;
+   int mphiHf= 0;   
    int mhpt = 0;
    int mhphi= 0;  
    edm::Handle<reco::GenMETCollection> genMet;
@@ -478,6 +484,10 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    if( iEvent.getByToken(genMetToken, genMet) ){
      mpt  = convertPtToHW( genMet->front().pt(), MaxEt_, PtStep_ );
      mphi = convertPhiToHW( genMet->front().phi(), PhiStepCalo_ );
+
+     // Make Missing Et with HF slightly largeer and rotated (These are all fake inputs anyway...not supposed to be realistic)
+     mptHf  = convertPtToHW( genMet->front().pt()*1.1, MaxEt_, PtStep_ );
+     mphiHf = convertPhiToHW( genMet->front().phi()+ 3.14/7., PhiStepCalo_ );
 
      // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
      mhpt  = convertPtToHW( genMet->front().pt()*0.9, MaxEt_, PtStep_ );
@@ -489,10 +499,12 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // Missing Et and missing htt
    l1t::EtSum etmiss(*p4, l1t::EtSum::EtSumType::kMissingEt,mpt, 0,mphi, 0); 
+   l1t::EtSum etmissHF(*p4, l1t::EtSum::EtSumType::kMissingEtHF,mptHf, 0,mphiHf, 0);    
    l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,mhpt, 0,mhphi, 0); 
 
 // Fill the EtSums in the Correct order
    etsumVec.push_back(etTotal);
+   etsumVec.push_back(etEmTotal);
    etsumVec.push_back(hfP0);
    etsumVec.push_back(htTotal);
    etsumVec.push_back(hfM0); 
@@ -500,6 +512,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    etsumVec.push_back(hfP1);
    etsumVec.push_back(htmiss);
    etsumVec.push_back(hfM1);
+   etsumVec.push_back(etmissHF);
  
 // Fill in some external conditions for testing
    if((iEvent.id().event())%2 == 0 ) {

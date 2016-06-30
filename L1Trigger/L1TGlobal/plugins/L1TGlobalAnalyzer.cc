@@ -149,9 +149,12 @@ private:
   TH2F* hDmxVsGTJetEta_;
   TH2F* hDmxVsGTJetPhi_;
   TH2F* hDmxVsGTSumEt_ETT_;
+  TH2F* hDmxVsGTSumEt_ETTem_;  
   TH2F* hDmxVsGTSumEt_HTT_;
   TH2F* hDmxVsGTSumEt_ETM_;
   TH2F* hDmxVsGTSumPhi_ETM_;
+  TH2F* hDmxVsGTSumEt_ETMHF_;
+  TH2F* hDmxVsGTSumPhi_ETMHF_;  
   TH2F* hDmxVsGTSumEt_HTM_;
   TH2F* hDmxVsGTSumPhi_HTM_;
   TH2F* hDmxVsGTSumEt_HFP0_;
@@ -811,7 +814,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  case l1t::EtSum::EtSumType::kTotalEt:
   	      hDmxVsGTSumEt_ETT_->Fill(gtSumEt,dmxSumEt);
 
-              break;  
+              break;
+	  case l1t::EtSum::EtSumType::kTotalEtEm:
+  	      hDmxVsGTSumEt_ETTem_->Fill(gtSumEt,dmxSumEt);
+
+              break;	        
 	  case l1t::EtSum::EtSumType::kTotalHt:
   	      hDmxVsGTSumEt_HTT_->Fill(gtSumEt,dmxSumEt);
 
@@ -819,7 +826,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  case l1t::EtSum::EtSumType::kMissingEt:
   	      hDmxVsGTSumEt_ETM_->Fill(gtSumEt,dmxSumEt);
               hDmxVsGTSumPhi_ETM_->Fill(gtSumPhi,dmxSumPhi);
-              break;  
+              break; 
+	  case l1t::EtSum::EtSumType::kMissingEtHF:
+  	      hDmxVsGTSumEt_ETMHF_->Fill(gtSumEt,dmxSumEt);
+              hDmxVsGTSumPhi_ETMHF_->Fill(gtSumPhi,dmxSumPhi);
+              break;  	       
 	  case l1t::EtSum::EtSumType::kMissingHt:
   	      hDmxVsGTSumEt_HTM_->Fill(gtSumEt,dmxSumEt);
               hDmxVsGTSumPhi_HTM_->Fill(gtSumPhi,dmxSumPhi);
@@ -857,7 +868,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  case l1t::EtSum::EtSumType::kTotalEt:
   	      hDmxVsGTSumEt_ETT_->Fill(gtSumEt,dmxSumEt);
 
-              break;  
+              break;
+	  case l1t::EtSum::EtSumType::kTotalEtEm:
+  	      hDmxVsGTSumEt_ETTem_->Fill(gtSumEt,dmxSumEt);
+
+              break;	        
 	  case l1t::EtSum::EtSumType::kTotalHt:
   	      hDmxVsGTSumEt_HTT_->Fill(gtSumEt,dmxSumEt);
 
@@ -865,7 +880,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  case l1t::EtSum::EtSumType::kMissingEt:
   	      hDmxVsGTSumEt_ETM_->Fill(gtSumEt,dmxSumEt);
               hDmxVsGTSumPhi_ETM_->Fill(gtSumPhi,dmxSumPhi);
-              break;  
+              break; 
+	  case l1t::EtSum::EtSumType::kMissingEtHF:
+  	      hDmxVsGTSumEt_ETMHF_->Fill(gtSumEt,dmxSumEt);
+              hDmxVsGTSumPhi_ETMHF_->Fill(gtSumPhi,dmxSumPhi);
+              break; 	       
 	  case l1t::EtSum::EtSumType::kMissingHt:
   	      hDmxVsGTSumEt_HTM_->Fill(gtSumEt,dmxSumEt);
               hDmxVsGTSumPhi_HTM_->Fill(gtSumPhi,dmxSumPhi);
@@ -1025,9 +1044,12 @@ L1TGlobalAnalyzer::beginJob()
   hDmxVsGTJetPhi_ = dmxVGtDir_.make<TH2F>("hDmxVsGTJetPhi","Dmx Jet Phi versus GT Jet Phi",144,-0.5,143.5,144,-0.5,143.5);
  
   hDmxVsGTSumEt_ETT_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_ETT","Dmx ETT versus GT ETT",256,-0.5,2047.5,256,-0.5,2047.5);
+  hDmxVsGTSumEt_ETTem_= dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_ETTem","Dmx ETTem versus GT ETTem",256,-0.5,2047.5,256,-0.5,2047.5);  
   hDmxVsGTSumEt_HTT_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_HTT","Dmx HTT versus GT HTT",256,-0.5,2047.5,256,-0.5,2047.5);
   hDmxVsGTSumEt_ETM_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_ETM","Dmx ETM versus GT ETM",500,-0.5,499.5,500,-0.5,499.5);
   hDmxVsGTSumPhi_ETM_ = dmxVGtDir_.make<TH2F>("hDmxVsGTSumPhi_ETM","Dmx ETM Phi versus GT ETM Phi",144,-0.5,143.5,144,-0.5,143.5);
+  hDmxVsGTSumEt_ETMHF_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_ETMHF","Dmx ETMHF versus GT ETMHF",500,-0.5,499.5,500,-0.5,499.5);
+  hDmxVsGTSumPhi_ETMHF_ = dmxVGtDir_.make<TH2F>("hDmxVsGTSumPhi_ETMHF","Dmx ETMHF Phi versus GT ETMHF Phi",144,-0.5,143.5,144,-0.5,143.5);
   hDmxVsGTSumEt_HTM_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_HTM","Dmx HTM versus GT HTM",500,-0.5,499.5,500,-0.5,499.5);
   hDmxVsGTSumPhi_HTM_ = dmxVGtDir_.make<TH2F>("hDmxVsGTSumPhi_HTM","Dmx HTM Phi versus GT HTM Phi",144,-0.5,143.5,144,-0.5,143.5);
   
