@@ -7,6 +7,14 @@ initialStepSeedClusterMask = seedClusterRemover.clone(
     oldClusterRemovalInfo = cms.InputTag("pixelLessStepClusters")
 )
 eras.trackingPhase1PU70.toModify(initialStepSeedClusterMask, oldClusterRemovalInfo = "highPtTripletStepClusters")
+
+from RecoLocalTracker.SubCollectionProducers.seedClusterRemoverPhase2_cfi import seedClusterRemoverPhase2
+_initialStepSeedClusterMask = seedClusterRemoverPhase2.clone(
+    trajectories = cms.InputTag("initialStepSeeds"),
+    oldClusterRemovalInfo = cms.InputTag("highPtTripletStepClusters")
+)
+eras.trackingPhase2PU140.toReplaceWith(initialStepSeedClusterMask, _initialStepSeedClusterMask)
+
 highPtTripletStepSeedClusterMask = seedClusterRemover.clone( # for Phase1PU70
     trajectories = "highPtTripletStepSeeds",
     oldClusterRemovalInfo = cms.InputTag("initialStepSeedClusterMask")
@@ -16,6 +24,18 @@ pixelPairStepSeedClusterMask = seedClusterRemover.clone(
     oldClusterRemovalInfo = cms.InputTag("initialStepSeedClusterMask")
 )
 eras.trackingPhase1PU70.toModify(pixelPairStepSeedClusterMask, oldClusterRemovalInfo = "highPtTripletStepSeedClusterMask")
+
+_highPtTripletStepSeedClusterMask = seedClusterRemoverPhase2.clone(
+    trajectories = cms.InputTag("highPtTripletStepSeeds"),
+    oldClusterRemovalInfo = cms.InputTag("initialStepSeedClusterMask")
+)
+eras.trackingPhase2PU140.toReplaceWith(highPtTripletStepSeedClusterMask, _highPtTripletStepSeedClusterMask)
+_pixelPairStepSeedClusterMask = seedClusterRemoverPhase2.clone(
+    trajectories = cms.InputTag("pixelPairStepSeeds"),
+    oldClusterRemovalInfo = cms.InputTag("highPtTripletStepSeedClusterMask")
+)
+eras.trackingPhase2PU140.toReplaceWith(pixelPairStepSeedClusterMask, _pixelPairStepSeedClusterMask)
+
 # This is a pure guess to use detachedTripletStep for phase1 here instead of the pixelPair in Run2 configuration
 detachedTripletStepSeedClusterMask = seedClusterRemover.clone(
     trajectories = cms.InputTag("lowPtTripletStepSeeds"),
@@ -28,6 +48,7 @@ mixedTripletStepSeedClusterMask = seedClusterRemover.clone(
 eras.trackingPhase1.toModify(mixedTripletStepSeedClusterMask,
     oldClusterRemovalInfo = "detachedTripletStepSeedClusterMask"
 )
+
 pixelLessStepSeedClusterMask = seedClusterRemover.clone(
     trajectories = cms.InputTag("pixelLessStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("mixedTripletStepSeedClusterMask")
@@ -67,6 +88,11 @@ eras.trackingPhase1PU70.toModify(tripletElectronSeedLayers,
     BPix = dict(skipClusters = 'pixelPairStepSeedClusterMask'),
     FPix = dict(skipClusters = 'pixelPairStepSeedClusterMask')
 )
+eras.trackingPhase2PU140.toModify(tripletElectronSeedLayers,
+    layerList = _layerListForPhase1,
+    BPix = dict(skipClusters = 'pixelPairStepSeedClusterMask'),
+    FPix = dict(skipClusters = 'pixelPairStepSeedClusterMask')
+)
 
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
@@ -84,12 +110,22 @@ tripletElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('triple
 eras.trackingPhase1PU70.toModify(tripletElectronSeeds,
     OrderedHitsFactoryPSet = dict(maxElement = cms.uint32(0)), # not sure if this has any effect
 )
+eras.trackingPhase2PU140.toModify(tripletElectronSeeds,
+    ClusterCheckPSet = dict( doClusterCheck = False ),
+    OrderedHitsFactoryPSet = dict( GeneratorPSet = dict( maxElement = 0 )),
+    SeedCreatorPSet = dict( magneticField = '', propagator = 'PropagatorWithMaterial')
+)
 
 from RecoLocalTracker.SubCollectionProducers.SeedClusterRemover_cfi import seedClusterRemover
 tripletElectronClusterMask = seedClusterRemover.clone(
     trajectories = cms.InputTag("tripletElectronSeeds"),
     oldClusterRemovalInfo = cms.InputTag("pixelLessStepSeedClusterMask")
 )
+_tripletElectronClusterMask = seedClusterRemoverPhase2.clone(
+    trajectories = cms.InputTag("tripletElectronSeeds"),
+    oldClusterRemovalInfo = cms.InputTag("pixelLessStepSeedClusterMask")
+)
+eras.trackingPhase2PU140.toReplaceWith(tripletElectronClusterMask, _tripletElectronClusterMask)
 
 pixelPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
@@ -191,6 +227,12 @@ eras.trackingPhase1PU70.toModify(newCombinedSeeds, seedCollections = [
     'pixelPairStepSeeds',
     'tripletElectronSeeds'
 ])
+eras.trackingPhase2PU140.toModify(newCombinedSeeds, seedCollections = [
+    'initialStepSeeds',
+    'highPtTripletStepSeeds',
+    'pixelPairStepSeeds',
+    'tripletElectronSeeds'
+])
 
 electronSeedsSeq = cms.Sequence( initialStepSeedClusterMask*
                                  pixelPairStepSeedClusterMask*
@@ -215,3 +257,12 @@ eras.trackingPhase1PU70.toReplaceWith(electronSeedsSeq, cms.Sequence(
     tripletElectronSeeds*
     newCombinedSeeds
 ))
+eras.trackingPhase2PU140.toReplaceWith(electronSeedsSeq, cms.Sequence(
+    initialStepSeedClusterMask*
+    highPtTripletStepSeedClusterMask*
+    pixelPairStepSeedClusterMask*
+    tripletElectronSeedLayers*
+    tripletElectronSeeds*
+    newCombinedSeeds
+))
+

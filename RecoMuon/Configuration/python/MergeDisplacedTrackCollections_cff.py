@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 #
 #  FIXME most probably this part is not needed for dispaced muons...
@@ -28,6 +29,7 @@ duplicateDisplacedTrackClassifier.mva.maxChi2n = [9999.,9999.,9999.]
 duplicateDisplacedTrackClassifier.mva.minLayers = [0,0,0]
 duplicateDisplacedTrackClassifier.mva.min3DLayers = [0,0,0]
 duplicateDisplacedTrackClassifier.mva.maxLostLayers = [99,99,99]
+eras.trackingPhase2PU140.toModify(duplicateDisplacedTrackClassifier, vertices = "pixelVertices")
 
 
 #for displaced global muons

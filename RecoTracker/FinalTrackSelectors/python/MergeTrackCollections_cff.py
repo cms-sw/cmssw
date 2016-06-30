@@ -26,6 +26,7 @@ duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
 # phase2 pixel
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_tracker.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
+eras.trackingPhase2PU140.toModify(duplicateTrackClassifier, vertices = "pixelVertices")
 
 generalTracks = DuplicateListMerger.clone()
 generalTracks.originalSource = cms.InputTag("preDuplicateMergingGeneralTracks")

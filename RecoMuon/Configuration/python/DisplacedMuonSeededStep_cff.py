@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 ###### Muon reconstruction module #####
 from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyDisplacedMuons
@@ -59,7 +60,7 @@ muonSeededTracksOutInDisplaced = RecoTracker.TrackProducer.TrackProducer_cfi.Tra
 #for displaced global muons
 muonSeededTracksOutInDisplacedClassifier = RecoTracker.IterativeTracking.MuonSeededStep_cff.muonSeededTracksOutInClassifier.clone()
 muonSeededTracksOutInDisplacedClassifier.src='muonSeededTracksOutInDisplaced'
-
+eras.trackingPhase2PU140.toModify( muonSeededTracksOutInDisplacedClassifier , vertices = "pixelVertices")
 
 #for displaced global muons
 muonSeededStepCoreDisplaced = cms.Sequence(
