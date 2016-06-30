@@ -232,7 +232,7 @@ namespace {
 TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
 {
    void* ud = ds->GetUserData(idx);
-   if (ud);
+   if (ud)
    {
       reco::PFRecHit* hit = (reco::PFRecHit*) ud;
       // printf("idx %d %p hit data %p\n", idx, (void*)hit, ud);
@@ -241,6 +241,7 @@ TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
       else
          return "ERROR";
    }
+   return "NULL";
 }
 }
 //______________________________________________________________________________
