@@ -584,6 +584,16 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
             //
             for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
 
+                // in case of object-less triggers (e.g. L1_ZeroBias) condObjType vector is empty, so don't seed!
+                //
+                if(condObjType.size() == 0) {
+
+                  LogTrace("HLTL1TSeed")
+                  << "\talgoName = " << objMap->algoName() << " is object-less L1 algorithm, so do not attempt to store any objects to the list of seeds.\n"
+                  << std::endl;
+                  continue;
+
+                }
 
                 // the index of the object type is the same as the index of the object
                 size_t iType = std::distance((*itComb).begin(), itObject);
