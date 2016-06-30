@@ -226,7 +226,6 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
   for (const auto digiIt: *dtPhDigis->getContainer()) {
 
     DTChamberId detid(digiIt.whNum(),digiIt.stNum(),digiIt.scNum()+1);
-//    std::cout << detid << "Digi   q: " <<digiIt.code() << " bx: "<<digiIt.bxNum()<<" BxCnt: " << digiIt.BxCnt() <<" phi: "<<myAngleConverter.getProcessorPhi(iProcessor, type, digiIt) << std::endl;
 
     ///Check it the data fits into given processor input range
     if(!acceptDigi(detid.rawId(), iProcessor, type)) continue;
@@ -238,7 +237,6 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     // FIXME (MK): at least Ts2Tag selection is not correct! Check it
 //    if (digiIt.bxNum()!= 0 || digiIt.BxCnt()!= 0 || digiIt.Ts2Tag()!= 0 || digiIt.code()<4) continue;
     if (digiIt.bxNum()!= 0) continue;
-//    if (digiIt.code() != 1 && digiIt.code() !=2 && digiIt.code() !=3) continue;
     if (digiIt.code() != 4 && digiIt.code() != 5 && digiIt.code() != 6) continue;
 
     unsigned int hwNumber = myOmtfConfig->getLayerNumber(detid.rawId());
@@ -251,7 +249,6 @@ OMTFinput OMTFinputMaker::processDT(const L1MuDTChambPhContainer *dtPhDigis,
     unsigned int iInput= getInputNumber(detid.rawId(), iProcessor, type);    
     result.addLayerHit(iLayer,iInput,iPhi,iEta);
     result.addLayerHit(iLayer+1,iInput,digiIt.phiB(),iEta);    
-//    std::cout <<"Hit added, iPhi : " << iPhi << " input: " << iInput << std::endl;
   }
 
   return result;
@@ -291,8 +288,9 @@ OMTFinput OMTFinputMaker::processCSC(const CSCCorrelatedLCTDigiCollection *cscDi
       ///The nominal OMTF range is up to 1.24, but cutting at 1.24
       ///kill efficnency at the edge. 1.26 is one eta bin above nominal.
       //if(abs(iEta)>1.26/2.61*240) continue;
-      if (abs(iEta) > 115) continue;
+      //if (abs(iEta) > 115) continue;
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);      
+//    std::cout <<" ADDING CSC hit, proc: "<<iProcessor<<" iPhi : " << iPhi <<" iEta: "<< iEta << std::endl; 
       result.addLayerHit(iLayer,iInput,iPhi,iEta);     
     }
   }      
@@ -311,14 +309,18 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
   if(!rpcDigis) return result;
   std::stringstream str;
 
+//  std::cout <<" RPC HITS, processor : " << iProcessor << std::endl;
+
   const RPCDigiCollection & rpcDigiCollection = *rpcDigis;
   for (auto rollDigis : rpcDigiCollection) {
     RPCDetId roll = rollDigis.first;    
     unsigned int rawid = roll.rawId();
+    int nClusters = 0;
     if(!acceptDigi(rawid, iProcessor, type)) continue;    
     ///Find clusters of consecutive fired strips.
     ///Have to copy the digis in chamber to sort them (not optimal).
     ///NOTE: when copying I select only digis with bx==0       //FIXME: find a better place/way to filtering digi against quality/BX etc.
+//    for (auto tdigi = rollDigis.second.first; tdigi != rollDigis.second.second; tdigi++) { std::cout << "RPC DIGIS: " << roll.rawId()<< " "<<roll<<" digi: " << tdigi->strip() <<" bx: " << tdigi->bx() << std::endl; }
     std::vector<RPCDigi> digisCopy;
     std::copy_if(rollDigis.second.first, rollDigis.second.second, std::back_inserter(digisCopy), [](const RPCDigi & aDigi){return (aDigi.bx()==0);});
     std::sort(digisCopy.begin(),digisCopy.end(),rpcPrimitiveCmp);
@@ -331,24 +333,35 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
     }
 
     for (auto & cluster: clusters) {
-      int iPhiHalfStrip1 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.first);
-      int iPhiHalfStrip2 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.second);
-      int iPhi = (iPhiHalfStrip1+iPhiHalfStrip2)/2;
+//      int iPhiHalfStrip1 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.first);
+//      int iPhiHalfStrip2 = myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.second);
+      int iPhi =  myAngleConverter.getProcessorPhi(iProcessor, type, roll, cluster.first, cluster.second);
+      int cSize =  abs(int(cluster.first)-int(cluster.second))+1;
+//      std::cout << " HStrip_1: " << iPhiHalfStrip1 <<" HStrip_2: "<<iPhiHalfStrip2<<" iPhi: " << iPhi << " cluster: ["<< cluster.first << ", "<<  cluster.second <<"]"<< std::endl;
+      if (cSize>3) continue;
       int iEta =  myAngleConverter.getGlobalEta(rawid, cluster.first);      
       unsigned int hwNumber = myOmtfConfig->getLayerNumber(rawid);
       unsigned int iLayer = myOmtfConfig->getHwToLogicLayer().at(hwNumber);
       unsigned int iInput= getInputNumber(rawid, iProcessor, type);
-      result.addLayerHit(iLayer,iInput,iPhi,iEta);
+//      std::cout <<"ADDING HIT: iLayer = " << iLayer << " iInput: " << iInput << " iPhi: " << iPhi << std::endl;
+      if (iLayer==17 && (iInput==0 || iInput==1)) continue;  // FIXME (MK) there is no RPC link for that input, because it is taken by DAQ link
+      bool outres = 
+        result.addLayerHit(iLayer,iInput,iPhi,iEta);
+//      if (cSize>2) flag |= 2;
+//      if (!outres) flag |= 1;
+      nClusters++;
 
-      str<<" RPC halfDigi "
+      str <<" RPC halfDigi "
            <<" begin: "<<cluster.first<<" end: "<<cluster.second
            <<" iPhi: "<<iPhi
            <<" iEta: "<<iEta
            <<" hwNumber: "<<hwNumber
            <<" iInput: "<<iInput
            <<" iLayer: "<<iLayer
+           <<" out: " << outres
            <<std::endl;      
     }
+//    if (nClusters > 2) flag=1;
   }
 
   edm::LogInfo("OMTFInputMaker")<<str.str();
