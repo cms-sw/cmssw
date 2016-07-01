@@ -29,6 +29,7 @@ process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
     ClusterMatchingMethod  = cms.untracked.int32(4),     # default 0  case0,1,2,3,4
     ClusterTrajDist   = cms.untracked.double(64),   # default 64
     StripsApvEdge     = cms.untracked.double(10),   # default 10  
+    ShowRings         = cms.untracked.bool(True),  # default False
     showTOB6TEC9      = cms.untracked.bool(False),  # default False
     TkMapMin          = cms.untracked.double(0.95), # default 0.90
     EffPlotMin        = cms.untracked.double(0.90), # default 0.90

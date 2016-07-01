@@ -122,10 +122,13 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     float _clusterTrajDist;
     float _stripsApvEdge;
     unsigned int _bunchx;
-	bool  _showTOB6TEC9;
-	float _tkMapMin;
-	float _effPlotMin;
-	TString _title;
+    bool  _showRings;
+    bool  _showTOB6TEC9;
+    float _tkMapMin;
+    float _effPlotMin;
+    TString _title;
+	
+    unsigned int nTEClayers;
 	
     vector<hit> hits[23];
     vector<TH2F*> HotColdMaps;
@@ -157,11 +160,15 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   _clusterTrajDist = conf.getUntrackedParameter<double>("ClusterTrajDist",64.0);
   _stripsApvEdge = conf.getUntrackedParameter<double>("StripsApvEdge",10.0);
   _bunchx = conf.getUntrackedParameter<int>("BunchCrossing",0);
+  _showRings = conf.getUntrackedParameter<bool>("ShowRings",false);
   _showTOB6TEC9 = conf.getUntrackedParameter<bool>("ShowTOB6TEC9",false);
   _tkMapMin = conf.getUntrackedParameter<double>("TkMapMin",0.9);
   _effPlotMin = conf.getUntrackedParameter<double>("EffPlotMin",0.9);
   _title = conf.getParameter<std::string>("Title"); 
   reader = new SiStripDetInfoFileReader(FileInPath_.fullPath());
+  
+  nTEClayers = 9; // number of wheels
+  if(_showRings) nTEClayers = 7; // number of rings
   
   quality_ = new SiStripQuality;
 }
@@ -227,7 +234,12 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     unsigned int quality = (unsigned int)sistripLf->GetValue();
     unsigned int id = (unsigned int)idLf->GetValue();
     unsigned int accept = (unsigned int)acceptLf->GetValue();
-    unsigned int layer = (unsigned int)layerLf->GetValue();
+    unsigned int layer_wheel = (unsigned int)layerLf->GetValue();
+    unsigned int layer = layer_wheel;
+    if(_showRings && layer >10) { // use rings instead of wheels
+      if(layer<14) layer = 10 + ((id>>9)&0x3); //TID   3 disks and also 3 rings -> use the same container
+      else layer = 13 + ((id>>5)&0x7); //TEC
+    }
     unsigned int nHits = (unsigned int)nHitsLf->GetValue();
     double x = xLf->GetValue();
     double y = yLf->GetValue();
@@ -250,7 +262,10 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     if(accept != 1 || nHits < 8) continue;
     if(quality == 1) badquality = true;
     
+    // don't compute efficiencies in modules from TOB6 and TEC9
+    if(!_showTOB6TEC9 && (layer_wheel==10 || layer_wheel==22)) continue; 
 	
+		
     //Now that we have a good event, we need to look at if we expected it or not, and the location
     //if we didn't
     //Fill the missing hit information first
@@ -327,6 +342,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	}
 	
 	
+	
     if(badflag && !badquality) {   
       hit temphit;         
       temphit.x = x;
@@ -369,8 +385,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
           goodlayertotal[layer+3]++;
 	}
 	else if( ((id>>18)&0x3) == 2) {
-	  if(!badflag) goodlayerfound[layer+12]++;
-          goodlayertotal[layer+12]++;
+	  if(!badflag) goodlayerfound[layer+3+nTEClayers]++;
+          goodlayertotal[layer+3+nTEClayers]++;
 	}
       } 
     }
@@ -395,8 +411,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         alllayertotal[layer+3]++;
       }
       else if( ((id>>18)&0x3) == 2) {
-        if(!badflag) alllayerfound[layer+12]++;
-        alllayertotal[layer+12]++;
+        if(!badflag) alllayerfound[layer+3+nTEClayers]++;
+        alllayertotal[layer+3+nTEClayers]++;
       }
     }  
     //At this point, both of our maps are loaded with the correct information
@@ -723,42 +739,41 @@ void SiStripHitEffFromCalibTree::makeTKMap() {
 	//the map of the efficiencies
 	layertotal[i] = 0;
 	layerfound[i] = 0;
-	if((i!=10 && i!=22) || _showTOB6TEC9){ //skipping TOB6 and TEC9
-      map<unsigned int, pair<unsigned int, unsigned int> >::const_iterator ih;
-      for( ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
-    	//We should be in the layer in question, and looping over all of the modules in said layer
-    	//Generate the list for the TKmap, and the bad module list
-		mynum = (double)(((*ih).second).second);
-		myden = (double)(((*ih).second).first);
-    	myeff = mynum/myden;
-    	if ( (myden >= nModsMin) && (myeff < threshold) ) {
-          //We have a bad module, put it in the list!
-		  BadModules[(*ih).first] = myeff;
-		  tkmapbad->fillc((*ih).first,255,0,0);
-		  cout << "Layer " << i << " module " << (*ih).first << " efficiency " << myeff << " " << (((*ih).second).second) << "/" << (((*ih).second).first) << endl;
-    	}
-    	else {
-          //Fill the bad list with empty results for every module
-          tkmapbad->fillc((*ih).first,255,255,255);
-    	}
-    	if(myden < 50 ) {
-          cout << "Module " << (*ih).first << " layer " << i << " is under occupancy at " << (((*ih).second).first) << endl;
-    	}
-    	//Put any module into the TKMap
-    	//Should call module ID, and then 1- efficiency for that module
-    	//if((*ih).first == 369137820) {
-    	//  cout << "Module 369137820 has 1-eff of " << 1.-myeff << endl;
-	  //cout << "Which is " << ((*ih).second).second << "/" << ((*ih).second).first << endl;
-    	//}
-    	tkmap->fill((*ih).first,1.-myeff);
-        tkmapeff->fill((*ih).first,myeff);
-        tkmapnum->fill((*ih).first,mynum);
-        tkmapden->fill((*ih).first,myden);
-    	//Find the total number of hits in the module
-    	layertotal[i] += int(myden);
-    	layerfound[i] += int(mynum);
+    map<unsigned int, pair<unsigned int, unsigned int> >::const_iterator ih;
+    for( ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
+      //We should be in the layer in question, and looping over all of the modules in said layer
+      //Generate the list for the TKmap, and the bad module list
+	  mynum = (double)(((*ih).second).second);
+	  myden = (double)(((*ih).second).first);
+      if(myden>0) myeff = mynum/myden;
+	  else myeff=0;
+      if ( (myden >= nModsMin) && (myeff < threshold) ) {
+        //We have a bad module, put it in the list!
+		BadModules[(*ih).first] = myeff;
+		tkmapbad->fillc((*ih).first,255,0,0);
+		cout << "Layer " << i << " module " << (*ih).first << " efficiency " << myeff << " " << (((*ih).second).second) << "/" << (((*ih).second).first) << endl;
       }
-	}
+      else {
+        //Fill the bad list with empty results for every module
+        tkmapbad->fillc((*ih).first,255,255,255);
+      }
+      if(myden < 50 ) {
+        cout << "Module " << (*ih).first << " layer " << i << " is under occupancy at " << (((*ih).second).first) << endl;
+      }
+      //Put any module into the TKMap
+      //Should call module ID, and then 1- efficiency for that module
+      //if((*ih).first == 369137820) {
+      //  cout << "Module 369137820 has 1-eff of " << 1.-myeff << endl;
+	//cout << "Which is " << ((*ih).second).second << "/" << ((*ih).second).first << endl;
+      //}
+      tkmap->fill((*ih).first,1.-myeff);
+      tkmapeff->fill((*ih).first,myeff);
+      tkmapnum->fill((*ih).first,mynum);
+      tkmapden->fill((*ih).first,myden);
+      //Find the total number of hits in the module
+      layertotal[i] += int(myden);
+      layerfound[i] += int(mynum);
+    }
   }
   tkmap->save(true, 0, 0, "SiStripHitEffTKMap.png");
   tkmapbad->save(true, 0, 0, "SiStripHitEffTKMapBad.png");
@@ -830,6 +845,7 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   //setTDRStyle();
   
   int nLayers = 34;
+  if(_showRings) nLayers = 30;
   
   TH1F *found = fs->make<TH1F>("found","found",nLayers+1,0,nLayers+1);
   TH1F *all = fs->make<TH1F>("all","all",nLayers+1,0,nLayers+1);
@@ -852,10 +868,6 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   c7->SetGrid();
 
   for (Long_t i=1; i< nLayers+1; ++i) {
-    if (i==10 && !_showTOB6TEC9) i++;
-    if (i==25 && !_showTOB6TEC9) i++;
-    if (i==34 && !_showTOB6TEC9) break;
-
     cout << "Fill only good modules layer " << i << ":  S = " << goodlayerfound[i] << "    B = " << goodlayertotal[i] << endl;
     if (goodlayertotal[i] > 5) {
       found->SetBinContent(i,goodlayerfound[i]);
@@ -913,22 +925,21 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   //cout << "starting labels" << endl;
   //for ( int k=1; k<nLayers+1; k++) {
   for ( Long_t k=1; k<nLayers+1; k++) {
-    if (k==10 && !_showTOB6TEC9) k++;
-    if (k==25 && !_showTOB6TEC9) k++;
-    if (k==34 && !_showTOB6TEC9) break;
     TString label;
+	TString ringlabel="";
+	if(_showRings) ringlabel="R";
     if (k<5) {
       label = TString("TIB  ") + k;
     } else if (k>4&&k<11) {
       label = TString("TOB  ")+(k-4);
     } else if (k>10&&k<14) {
-      label = TString("TID- ")+(k-10);
+      label = TString("TID- ")+ringlabel+(k-10);
     } else if (k>13&&k<17) {
-      label = TString("TID+ ")+(k-13);
-    } else if (k>16&&k<26) {
-      label = TString("TEC- ")+(k-16);
-    } else if (k>25) {
-      label = TString("TEC+ ")+(k-25);
+      label = TString("TID+ ")+ringlabel+(k-13);
+    } else if (k>16&&k<17+nTEClayers) {
+      label = TString("TEC- ")+ringlabel+(k-16);
+    } else if (k>16+nTEClayers) {
+      label = TString("TEC+ ")+ringlabel+(k-16-nTEClayers);
     }
     gr->GetXaxis()->SetBinLabel(((k+1)*100+5)/(nLayers)-4,label);
     gr2->GetXaxis()->SetBinLabel(((k+1)*100+5)/(nLayers)-4,label);
