@@ -10,14 +10,13 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-
 process.load("Configuration.EventContent.EventContent_cff")
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
-
-process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
@@ -95,7 +94,7 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     )
 )
 
-process.o1 = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent.root')
 )
@@ -104,9 +103,11 @@ process.Timing = cms.Service("Timing")
 
 process.Tracer = cms.Service("Tracer")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
-process.outpath = cms.EndPath(process.o1)
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(process.psim)
+process.out_step = cms.EndPath(process.output)
+
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.MonopoleCharge = 1
 process.g4SimHits.Physics.MonopoleDeltaRay = False
 process.g4SimHits.Physics.Verbosity = 1
@@ -179,3 +180,12 @@ process.g4SimHits.Watchers = cms.VPSet(
    )
 )
 
+# Schedule definition                                                          
+process.schedule = cms.Schedule(process.generation_step,
+                                process.simulation_step,
+                                process.out_step
+                                )
+
+# filter all path with the production filter sequence                          
+for path in process.paths:
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
