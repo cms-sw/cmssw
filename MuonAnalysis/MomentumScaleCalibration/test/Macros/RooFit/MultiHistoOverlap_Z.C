@@ -172,7 +172,7 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
+  //cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -212,7 +212,7 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
+  //cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -250,7 +250,7 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
+  //cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -288,7 +288,7 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
+  //cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -326,7 +326,7 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
+  //cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -367,7 +367,7 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
+  //cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
@@ -407,7 +407,7 @@ void MultiHistoOverlap_Z(bool switchONfitEta = false, bool switchONfit = false){
   }
 
   leg->Draw("same");
-  cmsPlotTitle->Draw("same");
+  //cmsPlotTitle->Draw("same");
   c[pIndex]->RedrawAxis();
   c[pIndex]->Modified();
   c[pIndex]->Update();
