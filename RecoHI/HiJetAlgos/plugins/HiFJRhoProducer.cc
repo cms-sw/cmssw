@@ -19,23 +19,22 @@
 #include <memory>
 #include <string>
 
-#include "TMath.h"
-
 #include "RecoHI/HiJetAlgos/plugins/HiFJRhoProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-using namespace edm;
-using namespace pat;
-
-//using ival = boost::icl::interval<double>;
+//using namespace edm;
+using namespace reco;
+//using namespace pat;
 
 //
 // constants, enums and typedefs
@@ -49,17 +48,18 @@ using namespace pat;
 //
 // constructors and destructor
 //
-HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) : 
-  nExcl_(iConfig.getUntrackedParameter<unsigned int>("nExcl",0)),
-  etaMaxExcl_(iConfig.getUntrackedParameter<double>("etaMaxExcl",2.)),
-  ptMinExcl_(iConfig.getUntrackedParameter<double>("ptMinExcl",20.)),
-  nExcl2_(iConfig.getUntrackedParameter<unsigned int>("nExcl2",0)),
-  etaMaxExcl2_(iConfig.getUntrackedParameter<double>("etaMaxExcl2",3.)),
-  ptMinExcl2_(iConfig.getUntrackedParameter<double>("ptMinExcl2",20.)),
+HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) :
+  src_(iConfig.getParameter<edm::InputTag>("jetSource")),
+  nExcl_(iConfig.getParameter<int>("nExcl")),
+  etaMaxExcl_(iConfig.getParameter<double>("etaMaxExcl")),
+  ptMinExcl_(iConfig.getParameter<double>("ptMinExcl")),
+  nExcl2_(iConfig.getParameter<int>("nExcl2")),
+  etaMaxExcl2_(iConfig.getParameter<double>("etaMaxExcl2")),
+  ptMinExcl2_(iConfig.getParameter<double>("ptMinExcl2")),
   checkJetCand(true),
   usingPackedCand(false)
 {
-  jetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
+  jetsToken_ = consumes<edm::View<reco::Jet> >(src_);
 
   //register your products
   produces<std::vector<double > >("mapEtaEdges");
@@ -68,7 +68,7 @@ HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) :
   produces<std::vector<double > >("ptJets");
   produces<std::vector<double > >("areaJets");
   produces<std::vector<double > >("etaJets");
-  etaRanges = iConfig.getUntrackedParameter<std::vector<double> >("etaRanges");
+  etaRanges = iConfig.getParameter<std::vector<double> >("etaRanges");
 
 }
 
@@ -83,9 +83,7 @@ HiFJRhoProducer::~HiFJRhoProducer()
 
 // ------------ method called to produce the data  ------------
 void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  using namespace edm;
-  
+{  
   // Get the vector of jets
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(jetsToken_, jets);
@@ -105,9 +103,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<double>> areaJetsOut ( new std::vector<double>(njets,1e-6));
   std::auto_ptr<std::vector<double>> etaJetsOut ( new std::vector<double>(njets,1e-6));
     
-  static double rhoVec[999];
-  static double rhomVec[999];
-  static double etaVec[999];
+  double rhoVec[999];
+  double rhomVec[999];
+  double etaVec[999];
 
   // int neta = (int)mapEtaRangesOut->size();
   int nacc = 0;
@@ -131,9 +129,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       rhoVec[nacc] = pt/area;
       rhomVec[nacc] = calcMd(&*jet)/area;
       etaVec[nacc] = eta;
-	  ptJetsOut->at(nacc) = pt;
-	  areaJetsOut->at(nacc) = area;
-	  etaJetsOut->at(nacc) = eta;
+      ptJetsOut->at(nacc) = pt;
+      areaJetsOut->at(nacc) = area;
+      etaJetsOut->at(nacc) = eta;
       ++nacc;
     }
   }
@@ -144,9 +142,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //calculate rho and rhom in eta ranges
   double radius = 0.2; //distance kt clusters needs to be from edge
   for(int ieta = 0; ieta<(neta-1); ieta++) {
-    static double rhoVecCur[999] = {0.};
-    static double rhomVecCur[999]= {0.};
-
+    std::vector<double> rhoVecCur;
+    std::vector<double> rhomVecCur;
+    
     double etaMin = mapEtaRangesOut->at(ieta)+radius;
     double etaMax = mapEtaRangesOut->at(ieta+1)-radius;
      
@@ -155,8 +153,9 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double rhomCurSum = 0.;
     for(int i = 0; i<nacc; i++) {
       if(etaVec[i]>=etaMin && etaVec[i]<etaMax) {
-        rhoVecCur[naccCur] = rhoVec[i];
-        rhomVecCur[naccCur] = rhomVec[i];
+        rhoVecCur.push_back(rhoVec[i]);
+        rhomVecCur.push_back(rhomVec[i]);
+        
         rhoCurSum += rhoVec[i];
         rhomCurSum += rhomVec[i];
         ++naccCur;
@@ -164,8 +163,8 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }//accepted jet loop
 
     if(naccCur>0) {
-      double rhoCur = TMath::Median(naccCur, rhoVecCur);
-      double rhomCur = TMath::Median(naccCur, rhomVecCur);
+      double rhoCur = calcMedian(rhoVecCur);
+      double rhomCur = calcMedian(rhomVecCur);
       mapToRhoOut->at(ieta) = rhoCur;
       mapToRhoMOut->at(ieta) = rhomCur;
     }
@@ -178,7 +177,19 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(ptJetsOut,"ptJets");
   iEvent.put(areaJetsOut,"areaJets");
   iEvent.put(etaJetsOut,"etaJets");
-  
+
+  return;
+}
+
+// ------------ method called once each stream before processing any runs, lumis or events  ------------
+void
+HiFJRhoProducer::beginStream(edm::StreamID)
+{
+}
+
+// ------------ method called once each stream after processing all runs, lumis and events  ------------
+void
+HiFJRhoProducer::endStream() {
 }
 
 double HiFJRhoProducer::calcMd(const reco::Jet *jet) {
@@ -213,26 +224,45 @@ bool HiFJRhoProducer::isPackedCandidate(const reco::Candidate* candidate){
 }
 
 
+// HiFJRhoProducer::beginJob() { //Stream(edm::StreamID) {
+// }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HiFJRhoProducer::beginJob()
-{
-
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HiFJRhoProducer::endJob() {
-}
+// void HiFJRhoProducer::endJob() {
+// }
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HiFJRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("jetSource",edm::InputTag("kt4PFJets"));
+  desc.add<int>("nExcl", 2);
+  desc.add<double>("etaMaxExcl",2.);
+  desc.add<double>("ptMinExcl",20.);
+  desc.add<int>("nExcl2", 2);
+  desc.add<double>("etaMaxExcl2",2.);
+  desc.add<double>("ptMinExcl2",20.);
+  desc.add<std::vector<double> >("etaRanges");
+  descriptions.add("hiFJRhoProducer",desc);
+}
+
+
+//--------- method to calculate median ------------------
+double HiFJRhoProducer::calcMedian(std::vector<double> &v)
+{
+  //post-condition: After returning, the elements in v may be reordered and the resulting order is implementation defined.
+  //works for even and odd collections
+  if(v.empty()) {
+    return 0.0;
+  }
+  auto n = v.size() / 2;
+  std::nth_element(v.begin(), v.begin()+n, v.end());
+  auto med = v[n];
+  if(!(v.size() & 1)) { //If the set size is even
+    auto max_it = std::max_element(v.begin(), v.begin()+n);
+    med = (*max_it + med) / 2.0;
+  }
+  return med;    
 }
 
 
