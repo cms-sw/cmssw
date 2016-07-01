@@ -17,8 +17,8 @@
 <LayerMap hwName = "MB3"    hwNumber = "103"  logicNumber = "4"  bendingLayer = "0" connectedToLayer="5"/>
 <LayerMap hwName = "MB3b"   hwNumber = "1103" logicNumber = "5"  bendingLayer = "1" connectedToLayer="4"/>
 <LayerMap hwName = "ME1/3"  hwNumber = "201"  logicNumber = "6"  bendingLayer = "0" connectedToLayer="6"/>
-<LayerMap hwName = "ME2/3"  hwNumber = "202"  logicNumber = "7"  bendingLayer = "0" connectedToLayer="7"/>
-<LayerMap hwName = "ME3/3"  hwNumber = "203"  logicNumber = "8"  bendingLayer = "0" connectedToLayer="8"/>
+<LayerMap hwName = "ME2/2"  hwNumber = "202"  logicNumber = "7"  bendingLayer = "0" connectedToLayer="7"/>
+<LayerMap hwName = "ME3/2"  hwNumber = "203"  logicNumber = "8"  bendingLayer = "0" connectedToLayer="8"/>
 <LayerMap hwName = "ME1/2"  hwNumber = "2011"  logicNumber = "9"  bendingLayer = "0" connectedToLayer="9"/>
 <LayerMap hwName = "RB1in"  hwNumber = "301"  logicNumber = "10" bendingLayer = "0" connectedToLayer="10"/>
 <LayerMap hwName = "RB1out" hwNumber = "302"  logicNumber = "11" bendingLayer = "0" connectedToLayer="11"/>
