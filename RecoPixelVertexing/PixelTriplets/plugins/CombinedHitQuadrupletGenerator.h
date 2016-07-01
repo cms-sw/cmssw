@@ -40,5 +40,8 @@ private:
   LayerCacheType            theLayerCache;
 
   std::unique_ptr<HitQuadrupletGeneratorFromTripletAndLayers> theGenerator;
+  
+  bool useCellularAutomaton = false;
+
 };
 #endif

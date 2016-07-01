@@ -17,6 +17,12 @@ using namespace ctfseeding;
 CombinedHitQuadrupletGenerator::CombinedHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
   theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers")))
 {
+  if(cfg.exists("useCellularAutomaton")) 
+  {
+    useCellularAutomaton = cfg.getParameter<bool>("useCellularAutomaton");
+  }
+
+  
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
   std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
   edm::ParameterSet tripletGeneratorPSet = cfg.getParameter<edm::ParameterSet>("TripletGeneratorPSet");
@@ -42,9 +48,21 @@ void CombinedHitQuadrupletGenerator::hitQuadruplets(
   if(layers.numberOfLayersInSet() != 4)
     throw cms::Exception("Configuration") << "CombinedHitQuadrupletsGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 4, got " << layers.numberOfLayersInSet();
 
-  std::vector<LayerQuadruplets::LayerSetAndLayers> quadlayers = LayerQuadruplets::layers(layers);
-  for(const auto& tripletAndLayers: quadlayers) {
-    theGenerator->hitQuadruplets(region, result, ev, es, tripletAndLayers.first, tripletAndLayers.second);
+
+  if(useCellularAutomaton)
+  {
+    for(unsigned int j=0; j<layers.size();j++) {
+        theGenerator->hitQuadruplets(region, result, ev, es, layers[j]);
+    }
   }
+  else
+  {
+
+    std::vector<LayerQuadruplets::LayerSetAndLayers> quadlayers = LayerQuadruplets::layers(layers);
+    for(const auto& tripletAndLayers: quadlayers) {
+      theGenerator->hitQuadruplets(region, result, ev, es, tripletAndLayers.first, tripletAndLayers.second);
+    }
+  }
+  
   theLayerCache.clear();
 }

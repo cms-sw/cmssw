@@ -29,6 +29,10 @@ public:
                                const SeedingLayerSetsHits::SeedingLayerSet& tripletLayers,
                                const std::vector<SeedingLayerSetsHits::SeedingLayer>& fourthLayers) = 0;
 
+  virtual void hitQuadruplets( const TrackingRegion& region, OrderedHitSeeds& result,
+                               const edm::Event& ev, const edm::EventSetup& es,
+                               const SeedingLayerSetsHits::SeedingLayerSet& fourLayers) = 0;
+  
 protected:
   std::unique_ptr<HitTripletGeneratorFromPairAndLayers> theTripletGenerator;
   LayerCacheType *theLayerCache;
