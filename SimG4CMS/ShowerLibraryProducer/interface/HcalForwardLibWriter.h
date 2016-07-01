@@ -25,7 +25,7 @@
 #include "TTree.h"
 
 
-class HcalForwardLibWriter : public edm::EDAnalyzer {
+class HcalForwardLibWriter : public edm::one::EDAnalyzer<> {
 public:
   struct FileHandle{
     std::string name;
