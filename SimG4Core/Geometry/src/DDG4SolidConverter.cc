@@ -113,9 +113,9 @@ G4VSolid * DDG4SolidConverter::polycone_rz(const DDSolid & solid) {
   std::vector<double>::const_iterator i = (*par_).begin()+2;
   int count=0;
   for(; i!=(*par_).end(); ++i) {
-    LogDebug("SimG4CoreGeometry") << "z=" << *i/CLHEP::cm;
+    LogDebug("SimG4CoreGeometry") << " z=" << *i/CLHEP::cm;
     z.push_back(*i); ++i;
-    LogDebug("SimG4CoreGeometry") << " r=" << *i/cm;
+    LogDebug("SimG4CoreGeometry") << " r=" << *i/CLHEP::cm;
     r.push_back(*i);
     count++;
   }
