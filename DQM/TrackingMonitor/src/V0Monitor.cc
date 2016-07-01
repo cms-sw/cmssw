@@ -23,11 +23,13 @@ V0Monitor::V0Monitor( const edm::ParameterSet& iConfig ) :
   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this))
 {
 
+  v0_N_                = nullptr;
   v0_mass_             = nullptr;
   v0_pt_               = nullptr;
   v0_eta_              = nullptr;
   v0_phi_              = nullptr;
   v0_Lxy_              = nullptr;
+  v0_Lxy_wrtBS_        = nullptr;
   v0_chi2oNDF_         = nullptr;
   v0_mass_vs_p_        = nullptr;
   v0_mass_vs_pt_       = nullptr;
@@ -40,14 +42,17 @@ V0Monitor::V0Monitor( const edm::ParameterSet& iConfig ) :
   v0_Lxy_vs_pt_        = nullptr;
   v0_Lxy_vs_eta_       = nullptr;
   
+  v0_N_vs_BX_         = nullptr;
   v0_mass_vs_BX_      = nullptr;
   v0_Lxy_vs_BX_       = nullptr;
   v0_deltaMass_vs_BX_ = nullptr;
   
+  v0_N_vs_lumi_         = nullptr;
   v0_mass_vs_lumi_      = nullptr;
   v0_Lxy_vs_lumi_       = nullptr;
   v0_deltaMass_vs_lumi_ = nullptr;
   
+  v0_N_vs_PU_         = nullptr;
   v0_mass_vs_PU_      = nullptr;
   v0_Lxy_vs_PU_       = nullptr;
   v0_deltaMass_vs_PU_ = nullptr;
@@ -111,9 +116,10 @@ void V0Monitor::bookHistograms(DQMStore::IBooker     & ibooker,
   v0_pt_       = bookHisto1D(ibooker,"v0_pt",       "pt",       "p_{T} [GeV]",               "events",pt_binning_  );
   v0_eta_      = bookHisto1D(ibooker,"v0_eta",      "eta",      "#eta",                      "events",eta_binning_ );
   MEbinning phi_binning; phi_binning.nbins = 34; phi_binning.xmin = -3.2; phi_binning.xmax = 3.2;
-  v0_phi_      = bookHisto1D(ibooker,"v0_phi",      "phi",      "#phi [rad]",                "events",phi_binning  );
-  v0_Lxy_      = bookHisto1D(ibooker,"v0_Lxy",      "Lxy",      "L_{xy} [cm]",               "events",Lxy_binning_ );
-  v0_chi2oNDF_ = bookHisto1D(ibooker,"v0_chi2oNDF", "chi2oNDF", "vertex normalized #chi^{2}","events",chi2oNDF_binning_ ); 
+  v0_phi_       = bookHisto1D(ibooker,"v0_phi",      "phi",      "#phi [rad]",                "events",phi_binning  );
+  v0_Lxy_       = bookHisto1D(ibooker,"v0_Lxy",      "Lxy",      "L_{xy} w.r.t. PV [cm]",     "events",Lxy_binning_ );
+  v0_Lxy_wrtBS_ = bookHisto1D(ibooker,"v0_Lxy_wrtBS","Lxy",      "L_{xy} w.r.t. BS [cm]",     "events",Lxy_binning_ );
+  v0_chi2oNDF_  = bookHisto1D(ibooker,"v0_chi2oNDF", "chi2oNDF", "vertex normalized #chi^{2}","events",chi2oNDF_binning_ ); 
 
   v0_mass_vs_p_   = bookProfile(ibooker,"v0_mass_vs_p",  "mass vs p",  "p [GeV]","mass [GeV]",    pt_binning_, mass_binning_);
   v0_mass_vs_pt_  = bookProfile(ibooker,"v0_mass_vs_pt", "mass vs pt", "p_{T} [GeV]","mass [GeV]",pt_binning_, mass_binning_);
@@ -170,7 +176,9 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
   edm::Handle<reco::BeamSpot> beamspotHandle;
   iEvent.getByToken(bsToken_,beamspotHandle);
-  const reco::BeamSpot& bs = *beamspotHandle;
+  reco::BeamSpot const * bs = nullptr;
+  if (beamspotHandle.isValid())
+    bs = &(*beamspotHandle);
 
 
   edm::Handle< reco::VertexCollection > pvHandle;
@@ -206,19 +214,21 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     float phi      = v0.phi();
     int pdgID      = v0.pdgId();
     float chi2oNDF = v0.vertexNormalizedChi2();
-    GlobalPoint displacementFromPV( (pv->x() - v0.vx()), (pv->y() - v0.vy()), 0. );
-    GlobalPoint displacementFromBS( -1*((bs.position().x() - v0.vx()) + (v0.vz() - bs.position().z()) * bs.dxdz()),
-				    -1*((bs.position().y() - v0.vy()) + (v0.vz() - bs.position().z()) * bs.dydz()), 0);
-    //    float dxyWRTbs = v0.dxy(bs.position());
-    //    float dxyWRTpv = v0.dxy(pv->position());
-    
-    float lxy = ( pv==nullptr ? -9. : displacementFromPV.perp() );
+    GlobalPoint displacementFromPV = ( pv==nullptr ? GlobalPoint(-9.,-9.,0) : GlobalPoint( (pv->x() - v0.vx()), 
+											   (pv->y() - v0.vy()), 
+											   0. ) );
+    GlobalPoint displacementFromBS = ( bs==nullptr ? GlobalPoint(-9.-9.,0.) : GlobalPoint( -1*((bs->position().x() - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
+											   -1*((bs->position().y() - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
+											   0 ) );
+    float lxy      = ( pv==nullptr ? -9. : displacementFromPV.perp() );
+    float lxyWRTbs = ( bs==nullptr ? -9. : displacementFromBS.perp() );
 
     v0_mass_     -> Fill(mass);
     v0_pt_       -> Fill(pt);
     v0_eta_      -> Fill(eta);
     v0_phi_      -> Fill(phi);
     v0_Lxy_      -> Fill(lxy);
+    v0_Lxy_wrtBS_-> Fill(lxyWRTbs);
     v0_chi2oNDF_ -> Fill(chi2oNDF);
     
     v0_mass_vs_p_    -> Fill(p,   mass);
