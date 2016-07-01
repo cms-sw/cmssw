@@ -16,99 +16,48 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4Material.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
 
 HGCalTB16SD01::HGCalTB16SD01(G4String name, const DDCompactView & cpv,
-			       const SensitiveDetectorCatalog & clg,
-			       edm::ParameterSet const & p, 
-			       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, clg, p, manager) {
-
+			     const SensitiveDetectorCatalog & clg,
+			     edm::ParameterSet const & p, 
+			     const SimTrackManager* manager) : 
+  CaloSD(name, cpv, clg, p, manager), initialize_(true) {
+  
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
-  edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
-  useBirk    = m_HC.getParameter<bool>("UseBirkLaw");
-  birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2      = m_HC.getParameter<double>("BirkC2");
-  birk3      = m_HC.getParameter<double>("BirkC3");
+  edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HGCalTestBeamSD");
+  matName_   = m_HC.getParameter<std::string>("Material");
+  useBirk_   = m_HC.getParameter<bool>("UseBirkLaw");
+  birk1_     = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
+  birk2_     = m_HC.getParameter<double>("BirkC2");
+  birk3_     = m_HC.getParameter<double>("BirkC3");
+  matScin_   = nullptr;
 
-#ifdef DebugLog
-  std::cout << "HGCalTB16SD01:: Use of Birks law is set to "  << useBirk 
-	    << "  with three constants kB = " << birk1 << ", C1 = " << birk2 
-	    << ", C2 = " << birk3 << std::endl;
-#endif
-
-  //Material list for scintillator detector
-  std::string attribute = "ReadOutName";
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,name,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-
-  std::map<G4String,int> matNames;
-  while (dodet) {
-    const DDLogicalPart & log = fv.logicalPart();
-    matName = log.material().name().name();
-    std::map<G4String,int>::iterator itr = matNames.find(matName);
-    if (itr != matNames.end()) {
-      ++itr;
-    } else {
-      matNames[matName] = 1;
-    }
-    dodet = fv.next();
-  }
-  if (matNames.size() > 0) {
-    int occ(0);
-    for (std::map<G4String,int>::iterator itr=matNames.begin(); 
-	 itr != matNames.end(); ++itr) {
-      if (itr->second > occ) {
-	occ     = itr->second;
-	matName = itr->first;
-      }
-    }
-  } else {
-    matName = "Not Found";
-  }
-
-#ifdef DebugLog
-  std::cout << "HGCalTB16SD01: Material name for "  << attribute << " = " 
-	    << name << ":" << matName << std::endl;
-#endif
-  matScin = nullptr;
-  const G4MaterialTable * matTab = G4Material::GetMaterialTable();
-  std::vector<G4Material*>::const_iterator matite;
-  unsigned int kount(0);
-  for (matite = matTab->begin(); matite != matTab->end(); ++matite, ++kount)
-    std::cout << "Material[" << kount << "] " << (*matite)->GetName() << std::endl;
-  matScin = G4Material::GetMaterial(matName);
+  edm::LogInfo("HGCSim") << "HGCalTB16SD01:: Use of Birks law is set to " 
+			 << useBirk_ << " for " << matName_ 
+			 << " with three constants kB = " << birk1_ 
+			 << ", C1 = " << birk2_ << ", C2 = " << birk3_;
 }
 
 HGCalTB16SD01::~HGCalTB16SD01() {}
 
-void HGCalTB16SD01::initRun() {
-
-  const G4MaterialTable * matTab = G4Material::GetMaterialTable();
-  std::vector<G4Material*>::const_iterator matite;
-  std::cout << "Material table pointers " << (matTab->begin() == matTab->end()) << std::endl;
-  unsigned int kount(0);
-  for (matite = matTab->begin(); matite != matTab->end(); ++matite, ++kount)
-    std::cout << "Material[" << kount << "] " << (*matite)->GetName() << std::endl;
-}
-
 double HGCalTB16SD01::getEnergyDeposit(G4Step* aStep) {
 
+  G4StepPoint* point = aStep->GetPreStepPoint();
+  if (initialize_) initialize(point);
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  if (useBirk && matScin == aStep->GetPreStepPoint()->GetMaterial()) {
-    weight *= getAttenuation(aStep, birk1, birk2, birk3);
+  if (useBirk_ && matScin_ == point->GetMaterial()) {
+    weight *= getAttenuation(aStep, birk1_, birk2_, birk3_);
   }
 #ifdef DebugLog
   std::cout << "HGCalTB16SD01: Detector " 
-	    << aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
-	    << " weight " << weight << std::endl;
+	    << point->GetTouchable()->GetVolume()->GetName() << " with "
+	    << point->GetMaterial()->GetName() << " weight " << weight 
+	    << std::endl;
 #endif
   return weight*destep;
 }
@@ -156,18 +105,13 @@ void HGCalTB16SD01::unpackIndex(const uint32_t & idx, int& det, int& lay,
 
 }
 
-std::vector<G4String> HGCalTB16SD01::getNames(DDFilteredView& fv) {
- 
-  std::vector<G4String> tmp;
-  bool dodet = fv.firstChild();
-  while (dodet) {
-    const DDLogicalPart & log = fv.logicalPart();
-    G4String name = log.name().name();
-    bool ok = true;
-    for (unsigned int i=0; i<tmp.size(); i++)
-      if (name == tmp[i]) ok = false;
-    if (ok) tmp.push_back(name);
-    dodet = fv.next();
+void HGCalTB16SD01::initialize(G4StepPoint* point) {
+  if (matName_ == point->GetMaterial()->GetName()) {
+    matScin_    =  point->GetMaterial();
+    initialize_ = false;
   }
-  return tmp;
+#ifdef DebugLog
+  std::cout << "HGCalTB16SD01: Material pointer for " << matName_
+	    << " is initialized to : " << matScin_ << std::endl;
+#endif
 }
