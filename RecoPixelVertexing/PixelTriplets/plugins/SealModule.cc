@@ -21,6 +21,10 @@ DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitTripletGenerator, "Sta
 #include "CombinedHitQuadrupletGenerator.h"
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitQuadrupletGenerator, "CombinedHitQuadrupletGenerator");
 
+#include "CAHitQuadrupletGenerator.h"
+DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CAHitQuadrupletGenerator, "CAHitQuadrupletGenerator");
+
+
 #include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGeneratorFromTripletAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitQuadrupletGeneratorFromTripletAndLayersFactory.h"
 #include "PixelQuadrupletGenerator.h"
