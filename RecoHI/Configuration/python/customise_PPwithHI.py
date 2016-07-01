@@ -136,14 +136,13 @@ def storeCaloTowersAOD(process):
         process.AODSIMoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
 
     return process
-	
+
 # Add rhoProducer to AOD event content
 def addRhoProducer(process):
     process.load('RecoJets.JetProducers.kt4PFJets_cfi')
     process.load('RecoHI.HiJetAlgos.hiFJRhoProducer')
     process.load('RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff')
 
-	# process.kt4PFJets.src = cms.InputTag('particleFlowTmp')
     process.kt4PFJets.doAreaFastjet = True
     process.kt4PFJets.jetPtMin      = cms.double(0.0)
     process.kt4PFJets.GhostArea     = cms.double(0.005)
@@ -172,13 +171,19 @@ def addRhoProducer(process):
         process.RECOoutput.outputCommands.extend(['keep *_hiFJRhoProducer_*_*'])
 
     return process
-
-def customisePPwithHI(process):
+	
+def customisePPrecoforPPb(process):
+ 
+     process=addHIIsolationProducer(process)
+     process=storeCaloTowersAOD(process)
+     process=addRhoProducer(process)
+	 
+     return process
+ 
+def customisePPrecoForPeripheralPbPb(process):
 
     process=addHIIsolationProducer(process)
     process=modifyClusterLimits(process)
     process=storeCaloTowersAOD(process)
-    process=addRhoProducer(process)
 
     return process
-
