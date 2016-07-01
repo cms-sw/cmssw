@@ -441,6 +441,13 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BirkC3 = cms.double(1.75),
         BirkC2 = cms.double(0.0568)
     ),
+    HGCalTestBeamSD = cms.PSet(
+        Material   = cms.string('Scintillator'),
+        UseBirkLaw = cms.bool(False),
+        BirkC1 = cms.double(0.013),
+        BirkC3 = cms.double(1.75),
+        BirkC2 = cms.double(0.0568),
+    ),
     HcalTB06BeamSD = cms.PSet(
         UseBirkLaw = cms.bool(False),
         BirkC1 = cms.double(0.013),
