@@ -71,6 +71,7 @@ private:
   MonitorElement* v0_eta_;
   MonitorElement* v0_phi_;
   MonitorElement* v0_Lxy_;
+  MonitorElement* v0_Lxy_wrtBS_;
   MonitorElement* v0_chi2oNDF_;
   MonitorElement* v0_mass_vs_p_;
   MonitorElement* v0_mass_vs_pt_;
