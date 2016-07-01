@@ -239,9 +239,13 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
       PDGmass = 0.497614; // GeV
       break;
     case 3122: // Lambda
+    case -3122: // Lambda
       PDGmass = 1.115683; // GeV
+      break;
     case 4122: // Lambda_c
+    case -4122: // Lambda_c
     case 5122: // Lambda_b
+    case -5122: // Lambda_b
     default:
       break;
     }
