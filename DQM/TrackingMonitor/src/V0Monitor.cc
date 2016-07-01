@@ -140,10 +140,10 @@ void V0Monitor::bookHistograms(DQMStore::IBooker     & ibooker,
   v0_Lxy_vs_BX_       = bookProfile(ibooker,"v0_Lxy_vs_BX",      "L_{xy} vs BX",   "BX", "L_{xy} [cm]",      bx_binning, Lxy_binning_ );
   v0_deltaMass_vs_BX_ = bookProfile(ibooker,"v0_deltaMass_vs_BX","deltaMass vs BX","BX", "m-m_{PDG}/m_{DPG}",bx_binning, delta_binning);
 
-  v0_N_vs_lumi_         = bookProfile(ibooker,"v0_N_vs_lumi",        "# v0 vs lumi",     "inst. lumi [Hz cm^{-2}]", "# v0",             lumi_binning_, N_binning   );
-  v0_mass_vs_lumi_      = bookProfile(ibooker,"v0_mass_vs_lumi",     "mass vs lumi",     "inst. lumi [Hz cm^{-2}]", "mass [GeV]",       lumi_binning_, mass_binning_);
-  v0_Lxy_vs_lumi_       = bookProfile(ibooker,"v0_Lxy_vs_lumi",      "L_{xy} vs lumi",   "inst. lumi [Hz cm^{-2}]", "L_{xy} [cm]",      lumi_binning_, Lxy_binning_ );
-  v0_deltaMass_vs_lumi_ = bookProfile(ibooker,"v0_deltaMass_vs_lumi","deltaMass vs lumi","inst. lumi [Hz cm^{-2}]", "m-m_{PDG}/m_{DPG}",lumi_binning_, delta_binning);
+  v0_N_vs_lumi_         = bookProfile(ibooker,"v0_N_vs_lumi",        "# v0 vs lumi",     "inst. lumi x10^{30} [Hz cm^{-2}]", "# v0",             lumi_binning_, N_binning   );
+  v0_mass_vs_lumi_      = bookProfile(ibooker,"v0_mass_vs_lumi",     "mass vs lumi",     "inst. lumi x10^{30} [Hz cm^{-2}]", "mass [GeV]",       lumi_binning_, mass_binning_);
+  v0_Lxy_vs_lumi_       = bookProfile(ibooker,"v0_Lxy_vs_lumi",      "L_{xy} vs lumi",   "inst. lumi x10^{30} [Hz cm^{-2}]", "L_{xy} [cm]",      lumi_binning_, Lxy_binning_ );
+  v0_deltaMass_vs_lumi_ = bookProfile(ibooker,"v0_deltaMass_vs_lumi","deltaMass vs lumi","inst. lumi x10^{30} [Hz cm^{-2}]", "m-m_{PDG}/m_{DPG}",lumi_binning_, delta_binning);
 
 
   v0_N_vs_PU_         = bookProfile(ibooker,"v0_N_vs_PU",        "# v0 vs PU",     "# good PV", "# v0",             pu_binning_, N_binning   );
