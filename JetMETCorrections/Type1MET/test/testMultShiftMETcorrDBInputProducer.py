@@ -41,7 +41,7 @@ process.source = cms.Source(
 process.load('Configuration.StandardSequences.Services_cff')
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'MCRUN2_75_V1'
-process.load('JetMETCorrections.Type1MET.correctionTermsPfMetMult_cff')
+process.load('JetMETCorrections.Type1MET.correctionTermsPfMetMultDB_cff')
 process.corrPfMetXYMultDB.payloadName = cms.string('PfType1MetLocal')
 #process.corrPfMetXYMultDB.isData = cms.bool(True)
 process.corrPfMetXYMultDB.isData = cms.bool(False)
