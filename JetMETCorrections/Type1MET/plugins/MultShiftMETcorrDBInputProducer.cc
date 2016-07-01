@@ -31,9 +31,9 @@ MultShiftMETcorrDBInputProducer::MultShiftMETcorrDBInputProducer(const edm::Para
   moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
   
-  mPayloadName    = cfg.getUntrackedParameter<std::string>("payloadName");
-  mSampleType     = cfg.getUntrackedParameter< std::string >("sampleType","MC");
-  mIsData         = cfg.getUntrackedParameter< bool >("isData");
+  mPayloadName    = cfg.getParameter<std::string>("payloadName");
+  mSampleType     = (cfg.exists("sampleType")) ? cfg.getParameter< std::string >("sampleType"): "MC";
+  mIsData         = cfg.getParameter< bool >("isData");
 
   pflow_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter< edm::InputTag >("srcPFlow") );
   vertices_ = consumes<edm::View<reco::Vertex> >( cfg.getParameter< edm::InputTag >("vertexCollection") );

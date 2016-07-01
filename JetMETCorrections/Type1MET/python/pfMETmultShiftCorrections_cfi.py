@@ -36,8 +36,9 @@ pfMEtMultShiftCorr = cms.EDProducer("MultShiftMETcorrInputProducer",
 pfMEtMultShiftCorrDB = cms.EDProducer("MultShiftMETcorrDBInputProducer",
     srcPFlow = cms.InputTag('packedPFCandidates', ''),
     vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices'),
-    isData = cms.untracked.bool(False),
-    #sampleType = cms.untracked.string('MC') # MC, Data, DY, TTJets, WJets: MC is default, Data don't need to be specified because of "isData".
+    isData = cms.bool(False),
+    payloadName = cms.string('PfType1Met'),
+    #sampleType = cms.string('MC') # MC, Data, DY, TTJets, WJets: MC is default, Data don't need to be specified because of "isData".
     )
 
 

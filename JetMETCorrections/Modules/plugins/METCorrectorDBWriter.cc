@@ -14,7 +14,10 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
 
-class  METCorrectorDBWriter : public edm::EDAnalyzer
+
+namespace{
+
+class  METCorrectorDBWriter : public edm::one::EDAnalyzer<>
 {
  public:
   METCorrectorDBWriter(const edm::ParameterSet&);
@@ -30,6 +33,7 @@ class  METCorrectorDBWriter : public edm::EDAnalyzer
   std::string inputTxtFile;
   std::string payloadTag;
 };
+}
 
 METCorrectorDBWriter::METCorrectorDBWriter(const edm::ParameterSet& pSet)
 {

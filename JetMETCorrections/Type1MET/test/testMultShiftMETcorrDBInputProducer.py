@@ -42,9 +42,9 @@ process.load('Configuration.StandardSequences.Services_cff')
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'MCRUN2_75_V1'
 process.load('JetMETCorrections.Type1MET.correctionTermsPfMetMult_cff')
-process.corrPfMetXYMultDB.payloadName = cms.untracked.string('PfType1MetLocal')
-#process.corrPfMetXYMultDB.isData = cms.untracked.bool(True)
-process.corrPfMetXYMultDB.isData = cms.untracked.bool(False)
+process.corrPfMetXYMultDB.payloadName = cms.string('PfType1MetLocal')
+#process.corrPfMetXYMultDB.isData = cms.bool(True)
+process.corrPfMetXYMultDB.isData = cms.bool(False)
 #process.corrPfMetXYMultDB.sampleType = cms.untracked.string('MC') #DY, MC (default), TTJets, WJets, Data
 
 process.out = cms.OutputModule("PoolOutputModule",

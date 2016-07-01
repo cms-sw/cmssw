@@ -32,8 +32,9 @@
 //
 // class declaration
 //
+namespace{
 
-class METCorrectorDBReader : public edm::EDAnalyzer {
+class METCorrectorDBReader : public edm::one::EDAnalyzer<> {
 public:
   explicit METCorrectorDBReader(const edm::ParameterSet&);
   ~METCorrectorDBReader();
@@ -47,6 +48,8 @@ private:
   std::string mPayloadName,mGlobalTag;
   bool mCreateTextFile,mPrintScreen;
 };
+
+}
 
 
 METCorrectorDBReader::METCorrectorDBReader(const edm::ParameterSet& iConfig)
