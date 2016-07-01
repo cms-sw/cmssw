@@ -232,7 +232,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     v0_Lxy_vs_lumi_ -> Fill(lumi,lxy);
     v0_Lxy_vs_PU_   -> Fill(nPV, lxy);
 
-    float PDGmass = 0.;
+    float PDGmass = -9999.;
     switch(pdgID) {
     case 130: // K_s
     case 310: // K_L
