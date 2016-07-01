@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -95,11 +96,16 @@ namespace edm {
 
   void
   StreamerInputSource::declareStreamers(SendDescs const& descs) {
+    std::vector<std::string> missingDictionaries;
     for(auto const& item : descs) {
         //pi->init();
         std::string const real_name = wrappedClassName(item.className());
         FDEBUG(6) << "declare: " << real_name << std::endl;
-        loadCap(real_name);
+        loadCap(real_name, missingDictionaries);
+    }
+    if (!missingDictionaries.empty()) {
+      std::string context("Calling StreamerInputSource::declareStreamers, checking dictionaries for input types");
+      throwMissingDictionariesException(missingDictionaries, context);
     }
   }
 

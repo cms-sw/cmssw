@@ -8,27 +8,45 @@ the CMS event model.
 
 ----------------------------------------------------------------------*/
 
-#include <set>
 #include <string>
 #include <vector>
 
-#include "FWCore/Utilities/interface/TypeID.h"
+class TClass;
 
 namespace edm {
 
-class TypeID;
-class TypeWithDict;
-using TypeSet = std::set<TypeID>;
+  class TypeID;
+  class TypeWithDict;
 
-bool checkClassDictionary(TypeID const& type, TypeSet& missingTypes);
-void checkClassDictionaries(TypeID const& type, TypeSet& missingTypes, bool recursive = true);
-bool checkTypeDictionary(TypeID const& type, TypeSet& missingTypes);
-void checkTypeDictionaries(TypeID const& type, TypeSet& missingTypes, bool recursive = true);
-void throwMissingDictionariesException(TypeSet const&);
-void loadMissingDictionaries(TypeSet missingTypes);
+  bool checkDictionary(std::vector<std::string>& missingDictionaries,
+                       TypeID const& typeID);
 
-void public_base_classes(TypeWithDict const& type,
-                         std::vector<TypeWithDict>& baseTypes);
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                    TypeID const& unwrappedTypeID);
+
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                    std::string const& unwrappedName);
+
+  bool checkDictionary(std::vector<std::string>& missingDictionaries,
+                       std::string const& name,
+                       TypeWithDict const& typeWithDict);
+
+  bool checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                              TypeID const& typeID);
+
+  bool checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                              std::string const& name,
+                              TypeWithDict const& typeWithDict);
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context);
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context,
+                                         std::vector<std::string>& branchNames);
+
+  void public_base_classes(TypeWithDict const& type,
+                           std::vector<TypeWithDict>& baseTypes);
 } // namespace edm
 
 #endif // FWCore_Utilities_DictionaryTools_h

@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/TestObjects/interface/MissingDictionaryTestObject.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -113,5 +114,9 @@ struct dictionary {
 
   edm::Wrapper<edm::EventID> wrapperEventID;
   edm::Wrapper<edm::ProductID> wrapperProductID;
+
+  std::vector<edmtest::MissingDictionaryTestI> mddummy1;
+  edm::Wrapper<edmtest::MissingDictionaryTestA> mddummy2;
+  edm::Wrapper<std::vector<edmtest::MissingDictionaryTestA> > mddummy3;
 };
 }

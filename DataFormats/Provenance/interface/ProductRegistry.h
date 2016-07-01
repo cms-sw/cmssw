@@ -13,7 +13,6 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include "boost/array.hpp"
@@ -27,7 +26,9 @@
 #include <vector>
 
 namespace edm {
+
   class ProductResolverIndexHelper;
+  class TypeID;
 
   class ProductRegistry {
 
@@ -53,7 +54,7 @@ namespace edm {
 
     void setFrozen(bool initializeLookupInfo = true);
 
-    void setFrozen(std::set<TypeID> const& typesConsumed);
+    void setFrozen(std::set<TypeID> const& productTypesConsumed, std::set<TypeID> const& elementTypesConsumed);
 
     std::string merge(ProductRegistry const& other,
         std::string const& fileName,
@@ -111,14 +112,6 @@ namespace edm {
     bool productProduced(BranchType branchType) const {return transient_.productProduced_[branchType];}
     bool anyProductProduced() const {return transient_.anyProductProduced_;}
 
-    std::vector<TypeID> const& missingDictionaries() const {
-      return transient_.missingDictionaries_;
-    }
-
-    std::vector<TypeID>& missingDictionariesForUpdate() {
-      return transient_.missingDictionaries_;
-    }
-
     std::vector<std::pair<std::string, std::string> > const& aliasToOriginal() const {
       return transient_.aliasToOriginal_;
     }
@@ -155,8 +148,6 @@ namespace edm {
 
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
 
-      std::vector<TypeID> missingDictionaries_;
-
       std::vector<std::pair<std::string, std::string> > aliasToOriginal_;
     };
 
@@ -168,7 +159,11 @@ namespace edm {
 
     void freezeIt(bool frozen = true) {transient_.frozen_ = frozen;}
 
-    void initializeLookupTables(std::set<TypeID> const* typesConsumed);
+    void initializeLookupTables(std::set<TypeID> const* productTypesConsumed,
+                                std::set<TypeID> const* elementTypesConsumed);
+    void checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
+                                          std::set<TypeID> const* elementTypesConsumed,
+                                          std::map<TypeID, TypeID> const& containedTypeMap);
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
