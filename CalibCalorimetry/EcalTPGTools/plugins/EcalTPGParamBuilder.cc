@@ -401,33 +401,32 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   edm::ESHandle<EcalLaserAlphas> handle;
   evtSetup.get<EcalLaserAlphasRcd>().get(handle);
   edm::LogInfo("Alphas Info : ") << "EcalLaserDbAnalyzer::analyze-> got EcalLaserDbRecord: " << "\n";
-  EcalLaserAlpha alpha;
   const EcalLaserAlphaMap& laserAlphaMap = handle.product()->getMap(); // map of apdpns
 
-  //modif-alex-27-july-2015-beg
+  //modif-alex-27-july-2015-+ Jean june 2016 beg
   // use alpha to check
-  int cnt =0;
-  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
-    if(ieta==0) continue;
-    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      EBDetId ebdetid(ieta,iphi);
-      EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find( ebdetid );
-      if ( italpha != laserAlphaMap.end() ) {
-        alpha = (*italpha);
-        if (cnt %1000 == 0) edm::LogInfo("Alphas Info : ") << " eta " << ieta << " phi " << iphi 
-				 << " ALPHA = " << alpha 
-				 << " cmsswID=" << ebdetid.rawId() << "\n";
-
-	//EBDetId barrel_detid(ebdetid.rawId());
-	//cout << "test detid=" << barrel_detid << " " << EBDetId::MAX_IETA << endl;
-      } else {
-	edm::LogError("EcalLaserDbService") << "error with laserAlphaMap!" << "\n";
-        edm::LogInfo("Alphas Info : ") << " eta " << ieta << " phi " << iphi << "error with laserAlphaMap!" << "\n";
-      }
-      cnt++;
+  EcalLaserAlphaMap::const_iterator italpha;
+  int cnt = 0;
+  // Barrel loop
+  for(italpha = laserAlphaMap.barrelItems().begin(); italpha != laserAlphaMap.barrelItems().end(); ++italpha) {
+    if (cnt %1000 == 0) {
+      EBDetId ebdetid = EBDetId::unhashIndex(cnt);
+      edm::LogInfo("Barrel EcalLaserAlphas: ") << (*italpha) << " cmsswId " << ebdetid.rawId() << "\n";
     }
+    cnt++;
+  } 
+  edm::LogInfo("Number of barrel Alpha paramters : ") << cnt << "\n";
+  // Endcap loop
+  cnt = 0;
+  for(italpha = laserAlphaMap.endcapItems().begin(); italpha != laserAlphaMap.endcapItems().end(); ++italpha) {
+    if (cnt %1000 == 0) {
+      EEDetId eedetid = EEDetId::unhashIndex(cnt);
+      edm::LogInfo("Endcap EcalLaserAlphas: ") << (*italpha) << " cmsswId " << eedetid.rawId() << "\n";
+    }
+    cnt++;
   }
-  //modif-alex-27-july-2015-end
+  edm::LogInfo("Number of Endcap Alpha paramters : ") << cnt << "\n";
+  //modif-alex-27-july-2015 +-Jean june 2016-end
   
   // histo
   TFile saving ("EcalTPGParam.root","recreate") ;
@@ -1412,20 +1411,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   const int NWEIGROUPS = 2 ; 
   std::vector<unsigned int> weights[NWEIGROUPS] ;
 
-#if (CMSSW_VERSION>=340)
   EBShape shapeEB ;
   EEShape shapeEE ;
   weights[0] = computeWeights(shapeEB, hshapeEB) ;
   weights[1] = computeWeights(shapeEE, hshapeEE) ;
-#else
-  // loading reference signal representation
-  EcalSimParameterMap parameterMap;  
-  EBDetId   barrel(1,1);
-  double    phase = parameterMap.simParameters(barrel).timePhase();
-  EcalShape shape(phase); 
-  weights[0] = computeWeights(shape, hshapeEB) ;
-  weights[1] = weights[0] ;
-#endif
 
   map<EcalLogicID, FEConfigWeightGroupDat> dataset;
 
@@ -2155,26 +2144,16 @@ int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2)
   return iweight ;
 }
 
-double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
-{
+double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2) {
   double weight = double(iweight)/pow(2., 6.) ;
   // test if negative weight:
   if ( (iweight & (1<<(complement2-1))) != 0) weight = (double(iweight)-pow(2., complement2))/pow(2., 6.) ;
   return weight ;
 }
 
-#if (CMSSW_VERSION>=340)
-std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape, TH1F * histo)
-#else
-std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape, TH1F * histo)
-#endif
-{
+std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape, TH1F * histo) {
   edm::LogInfo("Weights Info : ") <<"Computing Weights..."<< "\n" ;
-#if (CMSSW_VERSION>=340)
   double timeMax = shape.timeOfMax() - shape.timeOfThr() ; // timeMax w.r.t begining of pulse
-#else
-  double timeMax = shape.computeTimeOfMaximum() - shape.computeT0() ; // timeMax w.r.t begining of pulse
-#endif
   double max = shape(timeMax) ;
 
   double sumf = 0. ;

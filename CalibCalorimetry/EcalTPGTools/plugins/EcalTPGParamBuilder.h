@@ -4,9 +4,6 @@
 //Author: Pascal Paganini - LLR
 //Date: 2006/07/10 15:58:06 $
 
-#define CMSSW_VERSION 340
-
-
 // system include files
 #include <memory>
 
@@ -30,12 +27,7 @@
 //modif-alex-27-july-2015
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 
-#if (CMSSW_VERSION>=340)
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShapeBase.h"
-#else
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
-#endif
-
 
 #include <TH1F.h>
 
@@ -78,11 +70,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   void create_header() ;
   int uncodeWeight(double weight, int complement2 = 7) ;
   double uncodeWeight(int iweight, int complement2 = 7) ;
-#if (CMSSW_VERSION>=340)
   std::vector<unsigned int> computeWeights(EcalShapeBase & shape, TH1F * histo) ;
-#else
-  std::vector<unsigned int> computeWeights(EcalShape & shape, TH1F * histo) ;
-#endif
   void computeLUT(int * lut, std::string det="EB")  ;
   //void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ; //modif-alex-27-july-2015 uncomment to go back
   void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId) ;
