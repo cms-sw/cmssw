@@ -11,6 +11,6 @@ CAHitQuadrupletGenerator = cms.PSet(
     fitFastCircle = cms.bool(False),
     fitFastCircleChi2Cut = cms.bool(False),
     useBendingCorrection = cms.bool(False),
-    CAThetaCut = 0.00125,
-    CAPhiCut = 10.0,
+    CAThetaCut = cms.double(0.00125),
+    CAPhiCut = cms.double(10),
 )
