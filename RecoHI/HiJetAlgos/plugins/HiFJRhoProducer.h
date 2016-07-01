@@ -44,6 +44,7 @@ class HiFJRhoProducer : public edm::stream::EDProducer<> {
       edm::EDGetTokenT<edm::View<reco::Jet>>    jetsToken_;
       
       //members
+      edm::InputTag  src_;                // input kt jet source
       unsigned int   nExcl_;              //Number of leading jets to exclude
       double         etaMaxExcl_;         //max eta for jets to exclude
       double         ptMinExcl_;          //min pt for excluded jets

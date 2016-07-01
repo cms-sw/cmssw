@@ -24,13 +24,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-using namespace edm;
+//using namespace edm;
 using namespace reco;
 //using namespace pat;
 
@@ -46,17 +48,18 @@ using namespace reco;
 //
 // constructors and destructor
 //
-HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) : 
-  nExcl_(iConfig.getParameter<unsigned int>("nExcl")),
+HiFJRhoProducer::HiFJRhoProducer(const edm::ParameterSet& iConfig) :
+  src_(iConfig.getParameter<edm::InputTag>("jetSource")),
+  nExcl_(iConfig.getParameter<int>("nExcl")),
   etaMaxExcl_(iConfig.getParameter<double>("etaMaxExcl")),
   ptMinExcl_(iConfig.getParameter<double>("ptMinExcl")),
-  nExcl2_(iConfig.getParameter<unsigned int>("nExcl2")),
+  nExcl2_(iConfig.getParameter<int>("nExcl2")),
   etaMaxExcl2_(iConfig.getParameter<double>("etaMaxExcl2")),
   ptMinExcl2_(iConfig.getParameter<double>("ptMinExcl2")),
   checkJetCand(true),
   usingPackedCand(false)
 {
-  jetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
+  jetsToken_ = consumes<edm::View<reco::Jet> >(src_);
 
   //register your products
   produces<std::vector<double > >("mapEtaEdges");
@@ -232,6 +235,7 @@ void HiFJRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jetSource",edm::InputTag("kt4PFJets"));
   desc.add<int>("nExcl", 2);
   desc.add<double>("etaMaxExcl",2.);
   desc.add<double>("ptMinExcl",20.);

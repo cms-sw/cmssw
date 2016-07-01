@@ -453,6 +453,12 @@ void HiFJGridEmptyAreaCalculator::fillDescriptions(edm::ConfigurationDescription
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jetSource",edm::InputTag("kt4PFJets"));
+  desc.add<edm::InputTag>("CentralityBinSrc",edm::InputTag("centralityBin"));
+  desc.add<edm::InputTag>("mapEtaEdges",edm::InputTag("mapEtaEdges"));
+  desc.add<edm::InputTag>("mapToRho",edm::InputTag("mapToRho"));
+  desc.add<edm::InputTag>("mapToRhoM",edm::InputTag("mapToRhoM"));
+  desc.add<edm::InputTag>("pfCandSource",edm::InputTag("particleFlow"));
   desc.add<double>("gridWidth",0.05);
   desc.add<double>("bandWidth",0.2);
   desc.add<bool>("doCentrality", true);
