@@ -17,7 +17,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 process.DTGeometryESModule.fromDDD = False
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -29,15 +29,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBSetup,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:t0.db'),
-    authenticationMethod = cms.untracked.uint32(0),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
         tag = cms.string('t0')
     ))
 )
+process.PoolDBOutputService.connect = cms.string('sqlite_file:t0.db')
 
 process.load("CalibMuon.DTCalibration.dtT0FillChamberFromDBCorrection_cfi")
 process.dtT0FillChamberFromDBCorrection.correctionAlgoConfig.dbLabelRef = 't0Ref'
