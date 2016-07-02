@@ -67,6 +67,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(
   edm::Handle<SeedingLayerSetsHits> hlayers;
   ev.getByToken(theSeedingLayerToken, hlayers);
   const SeedingLayerSetsHits& layers = *hlayers;
+  std::cout << "yuhuuu" << std::endl;
   if (layers.numberOfLayersInSet() != 4)
     throw cms::Exception("Configuration") << "CAHitQuadrupletsGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 4, got " << layers.numberOfLayersInSet();
   for (unsigned int j=0; j < layers.size(); j++)
@@ -118,12 +119,10 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
 
   unsigned int numberOfFoundQuadruplets = foundQuadruplets.size();
 
-  //  std::cout << "entering the found quadruplets loop" << std::endl;
   // Loop over quadruplets
   for (unsigned int quadId = 0; quadId < numberOfFoundQuadruplets; ++quadId)
   {
 
-    //    std::cout << "checking quadruplet " << quadId << " with outer hit id " << foundQuadruplets[quadId][2]->get_outer_hit_id() << std::endl;
     auto isBarrel = [](const unsigned id) -> bool
     {
       return id == PixelSubdetector::PixelBarrel;
@@ -204,8 +203,6 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
       if (fitFastCircleChi2Cut && chi2 > thisMaxChi2)
         continue;
     }
-
-    //    std::cout << "it has chi2: " << chi2 << std::endl;
 
     result.emplace_back(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][1]->get_inner_hit(), foundQuadruplets[quadId][2]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
 
