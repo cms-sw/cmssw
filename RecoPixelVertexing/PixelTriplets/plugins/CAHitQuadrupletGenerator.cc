@@ -67,7 +67,6 @@ void CAHitQuadrupletGenerator::hitQuadruplets(
   edm::Handle<SeedingLayerSetsHits> hlayers;
   ev.getByToken(theSeedingLayerToken, hlayers);
   const SeedingLayerSetsHits& layers = *hlayers;
-  std::cout << "yuhuuu" << std::endl;
   if (layers.numberOfLayersInSet() != 4)
     throw cms::Exception("Configuration") << "CAHitQuadrupletsGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 4, got " << layers.numberOfLayersInSet();
   for (unsigned int j=0; j < layers.size(); j++)
@@ -191,6 +190,7 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
     if (edm::isNotFinite(chi2) || chi2 > thisMaxChi2)
     {
       continue;
+              
     }
     // TODO: Do we have any use case to not use circle fit? Maybe
     // HLT where low-pT inefficiency is not a problem?
