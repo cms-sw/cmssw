@@ -26,43 +26,13 @@ for era in _cfg.allEras():
     pf = _cfg.postfix(era)
     _seedProd = ["initialStepSeedsPreSplitting"]
     _trackProd = ["initialStepTracksPreSplitting"]
-    if era in ["trackingLowPU", "trackingPhase1PU70"]: # these don't have preSplitting
+    if era in ["trackingLowPU", "trackingPhase1PU70", "trackingPhase2PU140"]: # these don't have preSplitting
         _seedProd = []
         _trackProd = []
 
     locals()["_algos"+pf] = ["generalTracks"] + _cfg.iterationAlgos(era) + ["duplicateMerge"]
     locals()["_seedProducers"+pf] = _seedProd + _cfg.seedProducers(era)
     locals()["_trackProducers"+pf] = _trackProd + _cfg.trackProducers(era)
-
-# FIXME ::  this part will be removed when phase2 tracking is migrated to eras
-_algos_trackingPhase2PU140 = [
-    "generalTracks",
-    "initialStep",
-    "highPtTripletStep",
-    "lowPtQuadStep",
-    "lowPtTripletStep",
-    "detachedQuadStep",
-    "pixelPairStep",
-    "muonSeededStepInOut",
-]
-_seedProducers_trackingPhase2PU140 = [
-    "initialStepSeeds",
-    "highPtTripletStepSeeds",
-    "lowPtQuadStepSeeds",
-    "lowPtTripletStepSeeds",
-    "detachedQuadStepSeeds",
-    "pixelPairStepSeeds",
-    "muonSeededSeedsInOut",
-]
-_trackProducers_trackingPhase2PU140 = [
-    "initialStepTracks",
-    "highPtTripletStepTracks",
-    "lowPtQuadStepTracks",
-    "lowPtTripletStepTracks",
-    "detachedQuadStepTracks",
-    "pixelPairStepTracks",
-    "muonSeededTracksInOut",
-]
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",

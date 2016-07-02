@@ -157,8 +157,12 @@ def _seedOrTrackProducers(era, typ):
         else:
             ret.append(seeder)
 
-    for i in _iterations_muonSeeded:
-        ret.append(_modulePrefix(i).replace("Step", typ))
+    if era == "trackingPhase2PU140":
+        for i in _iterations_muonSeeded_trackingPhase2PU140:
+            ret.append(_modulePrefix(i).replace("Step", typ))
+    else :
+        for i in _iterations_muonSeeded:
+            ret.append(_modulePrefix(i).replace("Step", typ))
 
     return ret
 
