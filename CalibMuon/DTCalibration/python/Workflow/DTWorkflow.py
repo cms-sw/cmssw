@@ -248,10 +248,10 @@ class DTWorkflow(CLIHelper, CrabHelper):
                            connect='sqlite_file:',
                            label='',):
 
-        from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+        from CondCore.CondDB.CondDB_cfi import CondDB
 
         calibDB = cms.ESSource("PoolDBESSource",
-                               CondDBSetup,
+                               CondDB,
                                timetype = cms.string('runnumber'),
                                toGet = cms.VPSet(cms.PSet(
                                    record = cms.string(record),

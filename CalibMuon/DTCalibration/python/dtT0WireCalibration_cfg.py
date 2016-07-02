@@ -19,7 +19,7 @@ process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ""
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
 
@@ -70,15 +70,14 @@ process.dtunpacker = cms.EDProducer("DTUnpackingModule",
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBSetup,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:t0.db'),
-    authenticationMethod = cms.untracked.uint32(0),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
         tag = cms.string('t0')
     ))
 )
+process.PoolDBOutputService.connect = cms.string('sqlite_file:t0.db')
 
 process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
     eventInfoFolder = cms.untracked.string('EventInfo/')

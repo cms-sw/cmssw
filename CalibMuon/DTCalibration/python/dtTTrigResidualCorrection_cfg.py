@@ -10,7 +10,7 @@ process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ''
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -22,15 +22,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBSetup,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:ttrig.db'),
-    authenticationMethod = cms.untracked.uint32(0),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('DTTtrigRcd'),
         tag = cms.string('ttrig')
     ))
 )
+process.PoolDBOutputService.connect = cms.string('sqlite_file:ttrig.db')
 
 process.load("CalibMuon.DTCalibration.dtTTrigResidualCorrection_cfi")
 process.dtTTrigResidualCorrection.correctionAlgoConfig.residualsRootFile = 'DTkFactValidation.root'

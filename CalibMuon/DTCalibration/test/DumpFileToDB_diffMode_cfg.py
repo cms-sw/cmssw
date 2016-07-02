@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DumpFileToDB")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -20,8 +20,7 @@ process.GlobalTag.globaltag = "GR10_P_V5::All"
 
 
 # process.calibDB = cms.ESSource("PoolDBESSource",
-#      process.CondDBSetup,
-#      authenticationMethod = cms.untracked.uint32(0),
+#      process.CondDB,
 #      toGet = cms.VPSet(cms.PSet(
 #          # VDrift
 #          #record = cms.string("DTMtimeRcd"),
@@ -33,17 +32,16 @@ process.GlobalTag.globaltag = "GR10_P_V5::All"
 #          record = cms.string('DTTtrigRcd'),
 #          tag = cms.string('ttrig_test')
 #      )),
-#      connect = cms.string('sqlite_file:ttrig_test.db')
 #  )
+#process.calibDB.connect = cms.string('sqlite_file:ttrig_test.db')
 
 # VDrift, TTrig, TZero, Noise or channels Map into DB
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDBSetup,
-                                          connect = cms.string("sqlite_file:ttrignew.db"),
+                                          process.CondDB,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string("DTTtrigRcd"),
                                                                      tag = cms.string("ttrig"))))
 
-
+process.PoolDBOutputService.connect = cms.string("sqlite_file:ttrignew.db")
 #Module to dump a file into a DB
 process.dumpToDB = cms.EDFilter("DumpFileToDB",
                                 differentialMode = cms.untracked.bool(True),

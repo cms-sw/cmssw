@@ -11,7 +11,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 process.DTGeometryESModule.fromDDD = False
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.source = cms.Source("EmptySource")
 
@@ -19,11 +19,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+# tried following
+# https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_4_1/doc/html/d3/d48/popcon2dropbox__job__conf_8py_source.html
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBSetup,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:ttrig.db'),
-    authenticationMethod = cms.untracked.uint32(0),
+    logconnect = cms.string('sqlite_file:ttrig.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('DTTtrigRcd'),
         tag = cms.string('ttrig')

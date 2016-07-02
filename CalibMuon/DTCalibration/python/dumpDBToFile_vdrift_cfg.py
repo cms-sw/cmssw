@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DumpDBToFile")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -14,14 +14,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.calibDB = cms.ESSource("PoolDBESSource",
-    process.CondDBSetup,
-    authenticationMethod = cms.untracked.uint32(0),
+    process.CondDB,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTMtimeRcd'),
         tag = cms.string('vDrift')
     )),
-    connect = cms.string('sqlite_file:vDrift.db')
 )
+process.calibDB.connect = cms.string('sqlite_file:vDrift.db')
 
 process.dumpToFile = cms.EDAnalyzer("DumpDBToFile",
     # Choose what database you want to write
