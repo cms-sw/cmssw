@@ -37,6 +37,15 @@ public:
     // aux words of the HFRecHit. For more detail, see comments
     // inside the HFRecHitAuxSetter.h header.
     //
+    // "timeShift" value (in ns) will be added to all valid times
+    // returned by QIE10 TDCs. This shift is used both for applying
+    // the timing cuts and for rechit construction.
+    //
+    // "triseIfNoTDC" and "tfallIfNoTDC": the rechit rise and
+    // fall times will be set to these values in case meaningful
+    // TDC information is not available for any of the PMT anodes
+    // (time shift is not added to these numbers).
+    //
     // For monitoring purposes, "rejectAllFailures" can be set to
     // "false". In this case, for the energy reconstruction purposes,
     // all status values indicating that the anode is not passing
@@ -45,7 +54,8 @@ public:
     //
     HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
                       const float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2],
-                      unsigned soiPhase,
+                      unsigned soiPhase, float timeShift,
+                      float triseIfNoTDC, float tfallIfNoTDC,
                       bool rejectAllFailures = true);
 
     inline virtual ~HFSimpleTimeCheck() {}
@@ -54,9 +64,13 @@ public:
 
     virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
                                  const HcalCalibrations& calibs,
-                                 const bool flaggedBadInDB[2]) override;
+                                 const bool flaggedBadInDB[2],
+                                 bool expectSingleAnodePMT) override;
 
     inline unsigned soiPhase() const {return soiPhase_;}
+    inline float timeShift() const {return timeShift_;}
+    inline float triseIfNoTDC() const {return triseIfNoTDC_;}
+    inline float tfallIfNoTDC() const {return tfallIfNoTDC_;}
     inline bool rejectingAllFailures() const {return rejectAllFailures_;}
 
 protected:
@@ -69,6 +83,9 @@ private:
     std::pair<float,float> tlimits_[2];
     float energyWeights_[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2];
     unsigned soiPhase_;
+    float timeShift_;
+    float triseIfNoTDC_;
+    float tfallIfNoTDC_;
     bool rejectAllFailures_;
 };
 

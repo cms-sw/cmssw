@@ -13,7 +13,6 @@
 #include <string>
 
 class DDCompactView;
-class DDFilteredView;
 class G4Step;
 class G4Material;
 
@@ -25,21 +24,20 @@ public:
 		const SensitiveDetectorCatalog &, edm::ParameterSet const &, 
 		const SimTrackManager*);
   virtual ~HGCalTB16SD01();
-  virtual void   initRun();
-  virtual double getEnergyDeposit(G4Step* );
+  virtual double   getEnergyDeposit(G4Step* );
   virtual uint32_t setDetUnitId(G4Step* step);
   static uint32_t  packIndex(int det, int lay, int x, int y);
   static void      unpackIndex(const uint32_t & idx, int& det, int& lay,
 			       int& x, int& y);
 
 private:    
+  void             initialize(G4StepPoint* point);
 
-  std::vector<G4String> getNames(DDFilteredView&);
-
-  bool                  useBirk;
-  double                birk1, birk2, birk3;
-  G4String              matName;
-  const G4Material*     matScin;
+  std::string      matName_;
+  bool             useBirk_;
+  double           birk1_, birk2_, birk3_;
+  bool             initialize_;
+  G4Material*      matScin_;
 };
 
 #endif // HGCalTB16SD01_h

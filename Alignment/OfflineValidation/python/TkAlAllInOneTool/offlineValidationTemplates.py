@@ -143,12 +143,7 @@ process.TrackRefitter2 = process.TrackRefitter1.clone(
  ##
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  
- ##
- ## GlobalTag Conditions (if needed)
- ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-
+.oO[LoadGlobalTagTemplate]Oo.
 
 .oO[LorentzAngleTemplate]Oo.
   
@@ -284,3 +279,34 @@ process.TrackerTrackHitFilter.usePixelQualityFlag= True
 
 """
 
+
+######################################################################
+######################################################################
+extendedValidationExecution="""
+#run extended offline validation scripts
+echo -e "\n\nRunning extended offline validation"
+
+rfcp .oO[extendedValScriptPath]Oo. .
+root -x -b -q -l TkAlExtendedOfflineValidation.C
+
+"""
+
+
+######################################################################
+######################################################################
+extendedValidationTemplate="""
+#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
+void TkAlExtendedOfflineValidation()
+{
+  // load framework lite just to find the CMSSW libs...
+  gSystem->Load("libFWCoreFWLite");
+  FWLiteEnabler::enable();
+
+  .oO[extendedInstantiation]Oo.
+  p.setOutputDir(".oO[datadir]Oo./ExtendedOfflineValidation_Images");
+  p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
+  p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
+  p.plotSurfaceShapes(".oO[SurfaceShapes]Oo.");
+  p.plotChi2("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[resultPlotFile]Oo._result.root");
+}
+"""

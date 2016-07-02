@@ -502,8 +502,10 @@ void HOSimHitStudy::analyzeHits () {
   eHO17T_->Fill(etaInc,eHO17T);
   eHO18T_->Fill(etaInc,eHO18T);
   int nHO=0, nHOT=0;
-  if (eHO17 > 0) nHO++; if (eHO17T > 0) nHOT++;
-  if (eHO18 > 0) nHO++; if (eHO18T > 0) nHOT++;
+  if (eHO17 > 0) nHO++; 
+  if (eHO17T > 0) nHOT++;
+  if (eHO18 > 0) nHO++; 
+  if (eHO18T > 0) nHOT++;
   nHO1_->Fill(etaInc,(double)(nHO));
   nHO2_->Fill(etaInc,phiInc,(double)(nHO));
   nHO1T_->Fill(etaInc,(double)(nHOT));
@@ -529,8 +531,10 @@ void HOSimHitStudy::analyzeHits () {
     nHOE1T_[ieta]->Fill((double)(nHOT));
     nHOE2T_[ieta]->Fill(phiInc,(double)(nHOT));
     int nHOE=0, nHOET=0;
-    if (eHOE17[ieta] > 0) nHOE++; if (eHOE17T[ieta] > 0) nHOET++;
-    if (eHOE18[ieta] > 0) nHOE++; if (eHOE18T[ieta] > 0) nHOET++;
+    if (eHOE17[ieta] > 0) nHOE++;
+    if (eHOE17T[ieta] > 0) nHOET++;
+    if (eHOE18[ieta] > 0) nHOE++; 
+    if (eHOE18T[ieta] > 0) nHOET++;
     nHOEta1_[ieta]->Fill((double)(nHOE));
     nHOEta2_[ieta]->Fill(phiInc,(double)(nHOE));
     nHOEta1T_[ieta]->Fill((double)(nHOET));

@@ -73,7 +73,7 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
   TH1D                                    *hSimHitE_[2], *hSimHitT_[2];
   TH1D                                    *hDigiADC_[2], *hDigiLng_[2];
-  TH1D                                    *hRecHitE_[2], *hBeam_;
+  TH1D                                    *hRecHitE_[2], *hSimHitEn_[2], *hBeam_;
   TH2D                                    *hDigiOcc_[2], *hRecHitOcc_[2];
   TProfile                                *hSimHitLng_[2], *hSimHitLng1_[2];
   TProfile                                *hSimHitLng2_[2];
@@ -154,7 +154,10 @@ void HGCalTBAnalyzer::beginJob() {
     if (doSimHits_ && book) {
       sprintf (name, "SimHitEn%s", det.c_str());
       sprintf (title,"Sim Hit Energy for %s", det.c_str());
-      hSimHitE_[i] = fs_->make<TH1D>(name,title,5000,0.,1.0);
+      hSimHitE_[i] = fs_->make<TH1D>(name,title,100000,0.,0.2);
+      sprintf (name, "SimHitEnX%s", det.c_str());
+      sprintf (title,"Sim Hit Energy for %s", det.c_str());
+      hSimHitEn_[i] = fs_->make<TH1D>(name,title,100000,0.,0.2);
       sprintf (name, "SimHitTm%s", det.c_str());
       sprintf (title,"Sim Hit Timing for %s", det.c_str());
       hSimHitT_[i] = fs_->make<TH1D>(name,title,5000,0.,500.0);
@@ -222,12 +225,12 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       sprintf (name, "SimHitEnA%d%s", l, detectorEE_.c_str());
       sprintf (title,"Sim Hit Energy in SIM layer %d for %s",l+1,
 	       detectorEE_.c_str());
-      hSimHitLayEn1E_.push_back(fs_->make<TH1D>(name,title,5000,0.,1.0));
+      hSimHitLayEn1E_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
       if (l%3 == 0) {
 	sprintf (name, "SimHitEnB%d%s", (l/3+1), detectorEE_.c_str());
 	sprintf (title,"Sim Hit Energy in layer %d for %s",(l/3+1),
 		 detectorEE_.c_str());
-	hSimHitLayEn2E_.push_back(fs_->make<TH1D>(name,title,5000,0.,1.0));
+	hSimHitLayEn2E_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
       }
     }
 #ifdef DebugLog
@@ -254,12 +257,12 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       sprintf (name, "SimHitEnA%d%s", l, detectorHE_.c_str());
       sprintf (title,"Sim Hit Energy in layer %d for %s",l+1,
 	       detectorHE_.c_str());
-      hSimHitLayEn1H_.push_back(fs_->make<TH1D>(name,title,5000,0.,1.0));
+      hSimHitLayEn1H_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
       if (l%3 == 0) {
 	sprintf (name, "SimHitEnB%d%s", (l/3+1), detectorHE_.c_str());
 	sprintf (title,"Sim Hit Energy in layer %d for %s",(l/3+1),
 		 detectorHE_.c_str());
-	hSimHitLayEn2E_.push_back(fs_->make<TH1D>(name,title,5000,0.,1.0));
+	hSimHitLayEn2E_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
       }
     }
 #ifdef DebugLog
@@ -415,12 +418,12 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
   std::map<uint32_t,double>                 map_hits;
   std::map<int,double>                      map_hitLayer;
   std::map<int,std::pair<uint32_t,double> > map_hitCell;
-  map_hits.clear();
-
+  double                                    entot(0);
   for (unsigned int i=0; i<hits.size(); i++) {
     double energy      = hits[i].energy();
     double time        = hits[i].time();
     uint32_t id        = hits[i].id();
+    entot             += energy;
     int      subdet, zside, layer, sector, subsector, cell;
     HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector,
 					   subsector, cell);
@@ -443,6 +446,7 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     hSimHitT_[type]->Fill(time,energy);
   }
 
+  hSimHitEn_[type]->Fill(entot);
   for (std::map<uint32_t,double>::iterator itr = map_hits.begin() ; 
        itr != map_hits.end(); ++itr)   {
     hSimHitE_[type]->Fill(itr->second);

@@ -943,7 +943,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
               std::cout << tempbuf1 << std::endl;
               w=0;
               ddu_h1_check=true;
-              ddu_inst_l1a=0;
               cfeb_sample=0;
             }
         }
@@ -1027,7 +1026,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
         {
           dmb_inst_crate=0;
           dmb_inst_slot=0;
-          dmb_inst_l1a=0;
           dmb_inst_l1a=((buf[i]&0x0FFF)+((buf[i+1]&0xFFF)<<12));
           dmb_l1a_coll.push_back(dmb_inst_l1a);
           if (dmb_h2_check[2])
@@ -1092,7 +1090,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           alct_h1_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          alct_inst_l1a=0;
         }
 
       else if ((alct_h1_check[0])&&(alct_h2_check[2]))
@@ -1105,7 +1102,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           alct_h2_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          alct_inst_bxn=0;
         }
 
       //ALCT Trailer 1
@@ -1127,7 +1123,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           alct_t1_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          alct_inst_wcnt1=0;
           alct_inst_wcnt2=0;
         }
 
@@ -1196,7 +1191,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
           tmb_h1_coll.push_back(word_numbering);
           std::cout << tempbuf1 << std::endl;
           w=0;
-          tmb_inst_l1a=0;
         }
       else if (tmb_tr1_check[1])
         {
@@ -1225,7 +1219,6 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
                   word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
                   sign1,cfeb_common,cfeb_tr1,sign1,cfeb_common_sample,cfeb_sample);
           cfeb_t1_coll.push_back(word_numbering);
-          w=0;
           std::cout << tempbuf1 << std::endl;
           w=0;
         }

@@ -102,8 +102,8 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
 StudyHLT::~StudyHLT() {}
 
 void StudyHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-if (verbosity > 0) 
-  edm::LogInfo("IsoTrack") << "Event starts===================================="; 
+  if (verbosity > 0) 
+    edm::LogInfo("IsoTrack") << "Event starts===================================="; 
   int RunNo = iEvent.id().run();
   int EvtNo = iEvent.id().event();
   int Lumi  = iEvent.luminosityBlock();

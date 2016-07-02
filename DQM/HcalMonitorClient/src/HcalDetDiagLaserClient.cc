@@ -921,9 +921,11 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
   htmlFile << state[ind2] << HEP[1] <<"</td>" << endl;
   htmlFile << "</tr><tr>" << endl;
   htmlFile << "<td class=\"s1\" align=\"center\">HE-</td>" << endl;
-  if(HEM[0]==0) ind1=2; if(HEM[0]>0 && HEM[0]<=12) ind1=1;
+  if(HEM[0]==0) ind1=2;
+  if(HEM[0]>0 && HEM[0]<=12) ind1=1;
   if(HEM[0]>12) ind1=0; 
-  if(HEM[1]==0) ind2=2; if(HEM[1]>0 && HEM[1]<=12) ind2=1;
+  if(HEM[1]==0) ind2=2;
+  if(HEM[1]>0 && HEM[1]<=12) ind2=1;
   if(HEM[1]>12) ind2=0; 
   if(!HEpresent_) ind1=ind2=3;  
   if(ind1==0 || ind2==0) status|=2; 
