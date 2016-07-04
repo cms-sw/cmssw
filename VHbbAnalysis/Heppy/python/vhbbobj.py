@@ -370,10 +370,11 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
 ## Subjet
 ##------------------------------------------  
 
-# Four Vector + b-Tag
+# Four Vector + b-Tag + JetID 
 
 subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], variables = [
     NTupleVariable("btag",    lambda x : x.btag, help="CVS IVF V2 btag-score"),
+    NTupleVariable("jetID",    lambda x : x.jetID, help="Jet ID (loose) + pT/eta cuts"),
     NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
 ],)
 
@@ -406,7 +407,8 @@ httType = NTupleObjectType("htt",  baseObjectTypes = [ fourVectorType ], variabl
     NTupleVariable("Ropt",  lambda x : x.Ropt, help="optimal value of R"),
     NTupleVariable("RoptCalc",  lambda x : x.RoptCalc, help="expected value of optimal R"),
     NTupleVariable("ptForRoptCalc",  lambda x : x.ptForRoptCalc, help="pT used for calculation of RoptCalc"),
-
+    NTupleVariable("subjetIDPassed",  lambda x : x.subjetIDPassed, help="Do all the subjets pass jet id criteria?"),
+    
     # Leading W Subjet (pt)
     NTupleVariable("sjW1ptcal",lambda x : x.sjW1ptcal,help = "Leading W Subjet pT (calibrated)"),
     NTupleVariable("sjW1pt",   lambda x : x.sjW1pt,   help = "Leading W Subjet pT"),
