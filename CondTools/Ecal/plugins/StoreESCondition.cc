@@ -204,7 +204,7 @@ void StoreESCondition::fillHeader(char* header) {
 
 ESThresholds* StoreESCondition::readESThresholdsFromFile(const char* inputFile) {
 
-  ifstream ESThresholdsFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream ESThresholdsFile(edm::FileInPath(inputFile).fullPath().c_str());
   float ts2, zs;   //2nd time sample, ZS threshold
   ESThresholdsFile >> ts2;
   ESThresholdsFile >> zs;
@@ -215,7 +215,7 @@ ESThresholds* StoreESCondition::readESThresholdsFromFile(const char* inputFile) 
 
 ESEEIntercalibConstants* StoreESCondition::readESEEIntercalibConstantsFromFile(const char* inputFile) {
 
-  ifstream ESEEIntercalibFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream ESEEIntercalibFile(edm::FileInPath(inputFile).fullPath().c_str());
   float gammaLow0, alphaLow0, gammaHigh0, alphaHigh0, gammaLow1, alphaLow1, gammaHigh1, alphaHigh1,
     gammaLow2, alphaLow2, gammaHigh2, alphaHigh2, gammaLow3, alphaLow3, gammaHigh3, alphaHigh3;
   //  const float ESEEIntercalibValue[16];
@@ -250,7 +250,7 @@ ESEEIntercalibConstants* StoreESCondition::readESEEIntercalibConstantsFromFile(c
 
 ESMissingEnergyCalibration* StoreESCondition::readESMissingEnergyFromFile(const char* inputFile) {
 
-  ifstream ESMissingEnergyFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream ESMissingEnergyFile(edm::FileInPath(inputFile).fullPath().c_str());
   float ConstAEta0, ConstBEta0, ConstAEta1, ConstBEta1, ConstAEta2, ConstBEta2, ConstAEta3, ConstBEta3;
   ESMissingEnergyFile >> ConstAEta0;
   ESMissingEnergyFile >> ConstBEta0;
@@ -279,7 +279,7 @@ ESPedestals* StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
 	    ped[i][j][k][m][n] = 0;
 
   int iz, ip, ix, iy, is, ped_, zside;
-  ifstream pedestalFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream pedestalFile(edm::FileInPath(inputFile).fullPath().c_str());
   
   for (int i=0; i<137216; ++i) {
     pedestalFile >> iz >> ip >> ix >> iy >> is >> ped_;
@@ -304,7 +304,7 @@ ESPedestals* StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
 	    
 	      if(ESDetId::validDetId(istrip, ix, iy, iplane, iz)) {
 		ESDetId esId(istrip, ix, iy, iplane, iz);
-		esPedestals->insert(make_pair(esId.rawId(), ESitem));
+		esPedestals->insert(std::make_pair(esId.rawId(), ESitem));
 	      }
 	  }
   }
@@ -314,7 +314,7 @@ ESPedestals* StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
 
 ESRecHitRatioCuts* StoreESCondition::readESRecHitRatioCutsFromFile(const char* inputFile) {
 
-  ifstream ESRecHitRatioCutsFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream ESRecHitRatioCutsFile(edm::FileInPath(inputFile).fullPath().c_str());
 
   float r12Low, r23Low, r12High, r23High;
   ESRecHitRatioCutsFile >> r12Low;
@@ -338,7 +338,7 @@ ESRecHitRatioCuts* StoreESCondition::readESRecHitRatioCutsFromFile(const char* i
 
 ESGain* StoreESCondition::readESGainFromFile(const char* inputFile) {
 
-  ifstream amplFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream amplFile(edm::FileInPath(inputFile).fullPath().c_str());
 
   int gain;
   amplFile >> gain;
@@ -350,7 +350,7 @@ ESGain* StoreESCondition::readESGainFromFile(const char* inputFile) {
 
 ESTimeSampleWeights* StoreESCondition::readESTimeSampleWeightsFromFile(const char* inputFile) {
 
-  ifstream amplFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream amplFile(edm::FileInPath(inputFile).fullPath().c_str());
 
   float w[3];
   for (int k = 0; k < 3; ++k) {
@@ -369,7 +369,7 @@ ESIntercalibConstants* StoreESCondition::readESIntercalibConstantsFromFile(const
 
   ESIntercalibConstants* ical = new ESIntercalibConstants();
 
-  ifstream mipFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream mipFile(edm::FileInPath(inputFile).fullPath().c_str());
 
   for (int i=0; i<137216; ++i) {
     int iz, ip, ix, iy, is;
@@ -395,7 +395,7 @@ ESChannelStatus* StoreESCondition::readESChannelStatusFromFile(const char* input
   
 
   int z[1000], p[1000], x[1000], y[1000], nsensors;
-  ifstream statusFile(edm::FileInPath(inputFile).fullPath().c_str());
+  std::ifstream statusFile(edm::FileInPath(inputFile).fullPath().c_str());
   statusFile >> nsensors;
   edm::LogInfo("StoreESCondition")  << " nsensors " << nsensors << "\n";
   if(nsensors >= 1000) {
@@ -421,7 +421,7 @@ ESChannelStatus* StoreESCondition::readESChannelStatusFromFile(const char* input
 	    if(ESDetId::validDetId(istrip,ix,iy,iplane,izeta)) {
 	      ESDetId anESId(istrip,ix,iy,iplane,izeta);
 	      int status = 0;
-	      //	      ifstream statusFile(edm::FileInPath(inputFile).fullPath().c_str());
+	      //	      std::ifstream statusFile(edm::FileInPath(inputFile).fullPath().c_str());
 	      Nbstrip++;
 	      for (int i=0; i<nsensors; ++i) {
 		if (izeta == z[i] && iplane == p[i] && ix == x[i] && iy == y[i]) status = 1; 

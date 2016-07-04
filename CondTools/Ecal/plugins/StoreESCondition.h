@@ -2,6 +2,15 @@
 #define StoreESCondition_h
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include <string>
+#include <map>
+#include <iostream>
+#include <fstream>
+#include <cstdio>
+#include <typeinfo>
+#include <sstream>
+
 #include "CondFormats/ESObjects/interface/ESTimeSampleWeights.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
@@ -13,20 +22,11 @@
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
-#include <string>
-#include <map>
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <typeinfo>
-#include <sstream>
-
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
 }
-using namespace std;
 
 class  StoreESCondition : public edm::EDAnalyzer {
 
@@ -41,7 +41,7 @@ class  StoreESCondition : public edm::EDAnalyzer {
   ESIntercalibConstants* readESIntercalibConstantsFromFile(const char*);
   ESMissingEnergyCalibration* readESMissingEnergyFromFile(const char*);
   ESEEIntercalibConstants* readESEEIntercalibConstantsFromFile(const char*);
-  void writeToLogFile(string , string, unsigned long long) ;
+  void writeToLogFile(std::string , std::string, unsigned long long) ;
   void writeToLogFileResults(char* ) ;
   
   explicit  StoreESCondition(const edm::ParameterSet& iConfig );
