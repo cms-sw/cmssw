@@ -141,4 +141,3 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
   } /// End of stub is accepted
 
 }
-

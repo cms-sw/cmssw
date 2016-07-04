@@ -24,11 +24,11 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
-process.load('Configuration.Geometry.GeometryExtended2023TkOnlysimReco_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
 process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -102,27 +102,25 @@ process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_mix_Tracker_*')
 
 # Path and EndPath definitions
-process.generation_step       = cms.Path(process.pgen)
-process.simulation_step       = cms.Path(process.psim)
-process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.digitisation_step     = cms.Path(process.pdigi_valid)
-process.L1TrackTrigger_step   = cms.Path(process.TrackTriggerClustersStubs)
-process.L1TTAssociator_step   = cms.Path(process.TrackTriggerAssociatorClustersStubs)
-process.endjob_step           = cms.EndPath(process.endOfProcess)
-process.RAWSIMoutput_step     = cms.EndPath(process.RAWSIMoutput)
+process.generation_step         = cms.Path(process.pgen)
+process.simulationTkOnly_step   = cms.Path(process.psim)
+process.genfiltersummary_step   = cms.EndPath(process.genFilterSummary)
+process.digitisationTkOnly_step = cms.Path(process.pdigi_valid)
+process.L1TrackTrigger_step     = cms.Path(process.TrackTriggerClustersStubs)
+process.L1TTAssociator_step     = cms.Path(process.TrackTriggerAssociatorClustersStubs)
+process.endjob_step             = cms.EndPath(process.endOfProcess)
+process.RAWSIMoutput_step       = cms.EndPath(process.RAWSIMoutput)
 
 
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1TrackTrigger_step,process.L1TTAssociator_step,process.endjob_step,process.RAWSIMoutput_step)
-
-#process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulationTkOnly_step,process.digitisationTkOnly_step,process.L1TrackTrigger_step,process.L1TTAssociator_step,process.endjob_step,process.RAWSIMoutput_step)
 
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 	
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LRecoTkOnly 
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023LReco
 
-process = cust_2023LRecoTkOnly(process)
+process = cust_2023LReco(process)
 # End of customisation functions	
 

@@ -29,6 +29,8 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 
 template< typename T >
 class TTStubAssociationMap
@@ -123,6 +125,7 @@ std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > TTSt
   return tempVector;
 }
 
+
 /// MC truth
 template< typename T >
 bool TTStubAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const
@@ -156,8 +159,7 @@ bool TTStubAssociationMap< T >::isUnknown( edm::Ref< edmNew::DetSetVector< TTStu
   /// Sanity check
   if ( theClusterAssociationMap.isNull() )
   {
-    std::cerr << "E R R O R! theClusterAssociationMap is not correctly set!" << std::endl;
-    exit (EXIT_FAILURE);
+    return true;
   }
 
   if ( theClusterAssociationMap->isUnknown( theseClusters.at(0) ) &&
@@ -166,6 +168,7 @@ bool TTStubAssociationMap< T >::isUnknown( edm::Ref< edmNew::DetSetVector< TTStu
 
   return false;
 }
+
 
 #endif
 

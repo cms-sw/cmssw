@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef L1_TRACK_TRIGGER_STUB_ALGO_TAB2013_H
-#define L1_TRACK_TRIGGER_STUB_ALGO_TAB2013_H
+#ifndef L1_TRACK_TRIGGER_STUB_ALGO_official_H
+#define L1_TRACK_TRIGGER_STUB_ALGO_official_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

@@ -20,7 +20,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-//#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" /// NOTE: this is needed even if it seems not
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
@@ -118,6 +117,7 @@ std::vector< edm::Ptr< TrackingParticle > > TTClusterAssociationMap< T >::findTr
   tempVector.clear();
   return tempVector;
 }
+
 
 /// MC truth
 /// Table to define Genuine, Combinatoric and Unknown
@@ -269,4 +269,5 @@ edm::Ptr< TrackingParticle > TTClusterAssociationMap< T >::findTrackingParticleP
 }
 
 #endif
+
 

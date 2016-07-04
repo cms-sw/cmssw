@@ -123,10 +123,7 @@ void TTClusterAssociator< T >::beginRun( const edm::Run& run, const edm::EventSe
   iSetup.get<TrackerTopologyRcd>().get(theTrackerTopology);
 
   /// Print some information when loaded
-  std::cout << std::endl;
-  std::cout << "TTClusterAssociator< " << templateNameFinder< T >() << " > loaded."
-            << std::endl;
-  std::cout << std::endl;
+  edm::LogInfo("TTClusterAssociator< ") << templateNameFinder< T >() << " > loaded.";
 }
 
 /// End run

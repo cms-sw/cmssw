@@ -26,7 +26,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
-process.load('Configuration.Geometry.GeometryExtended2023TkOnlytiltedReco_cff')
+process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -102,12 +102,12 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # Path and EndPath definitions
 process.generation_step      = cms.Path(process.pgen)
-process.simulation_step      = cms.Path(process.psim)
+process.simulationTkOnly_step= cms.Path(process.psim)
 process.genfiltersummary_step= cms.EndPath(process.genFilterSummary)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulationTkOnly_step,process.endjob_step,process.RAWSIMoutput_step)
 
 # filter all path with the production filter sequence
 for path in process.paths:
@@ -115,8 +115,8 @@ for path in process.paths:
 
 	
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tiltedTkOnly 
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
 
-process = cust_2023tiltedTkOnly(process)
+process = cust_2023tilted(process)
 # End of customisation functions	
 

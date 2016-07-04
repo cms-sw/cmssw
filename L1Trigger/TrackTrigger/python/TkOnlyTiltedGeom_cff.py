@@ -1,6 +1,31 @@
+################
+#
+#  Tracking-Only Geometry config script (Tilted case)
+#  
+# This script is used for processing fast stub building in the tracker only geometry
+# See the available scripts in the test directory
+#
+# S.Viret (viret_at_ipnl.in2p3.fr): 04/07/16
+#
+################
+
 import FWCore.ParameterSet.Config as cms
 
-## 2015 + new phase 1 pixel detector
+#Tracker stuff
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
+from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
+
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+
+#  Alignment
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
+trackerGeometry.applyAlignment = cms.bool(False)
+
+## Here we put the xml stuff for the tracker-only geometry
+#
+# Need to remove the rest in order to avoid SD-related crashes in Geant4
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/PhaseII/materials.xml',
@@ -10,15 +35,9 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',
-        #'Geometry/CMSCommonData/data/PhaseII/caloBase.xml',
-        #'Geometry/CMSCommonData/data/cmsCalo.xml',
-        #'Geometry/CMSCommonData/data/PhaseII/muonBase.xml',
-        #'Geometry/CMSCommonData/data/cmsMuon.xml',
         'Geometry/CMSCommonData/data/mgnt.xml',
         'Geometry/CMSCommonData/data/PhaseII/beampipe.xml',
         'Geometry/CMSCommonData/data/cmsBeam.xml',
-        #'Geometry/CMSCommonData/data/muonMB.xml',
-        #'Geometry/CMSCommonData/data/muonMagnet.xml',
         'Geometry/CMSCommonData/data/cavern.xml',
         'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
         'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
@@ -77,5 +96,6 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
+
 
 
