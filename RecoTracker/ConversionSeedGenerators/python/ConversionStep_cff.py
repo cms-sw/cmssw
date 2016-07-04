@@ -22,17 +22,19 @@ eras.trackingPhase1PU70.toReplaceWith(convClusters, _convClustersBase.clone(
   overrideTrkQuals      = "tobTecStepSelector:tobTecStep",
 ))
 
-from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import *
-_convClustersForPhase2PU140 = phase2trackClusterRemover.clone(
-   maxChi2               = cms.double(30.0),
-   trajectories          = cms.InputTag("pixelPairStepTracks"),
-   phase2pixelClusters   = cms.InputTag("siPixelClusters"),
-   phase2OTClusters      = cms.InputTag("siPhase2Clusters"),
-   oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
-   overrideTrkQuals      = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
-   TrackQuality          = cms.string('highPurity'),
+#Phase2 : configuring the phase2 track Cluster Remover
+from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
+eras.trackingPhase2PU140.toReplaceWith(convClusters, _phase2trackClusterRemover.clone(
+    maxChi2                                  = 30.0,
+    phase2pixelClusters                      = "siPixelClusters",
+    phase2OTClusters                         = "siPhase2Clusters",
+    TrackQuality                             = 'highPurity',
+    minNumberOfLayersWithMeasBeforeFiltering = 0,
+    trajectories                             = cms.InputTag("pixelPairStepTracks"),
+    oldClusterRemovalInfo                    = cms.InputTag("pixelPairStepClusters"),
+    overrideTrkQuals                         = cms.InputTag("pixelPairStepSelector","pixelPairStep"),
+    )
 )
-eras.trackingPhase2PU140.toReplaceWith(convClusters, _convClustersForPhase2PU140)
 
 convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 

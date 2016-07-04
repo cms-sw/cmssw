@@ -70,6 +70,5 @@ eras.trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg,
     ),
     OrderedHitsFactoryPSet = dict(maxElement = 100000),
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.3)),
-    primaryVerticesTag   = cms.InputTag("offlinePrimaryVertices"),
 )
 

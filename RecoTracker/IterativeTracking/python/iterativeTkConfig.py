@@ -94,13 +94,13 @@ _trackClusterRemoverBase = _trackClusterRemover.clone(
 )
 
 #Phase2 : configuring the phase2 track Cluster Remover
-from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import *
-__trackClusterRemoverBase_Phase2PU140 = phase2trackClusterRemover.clone(
-    maxChi2                                  = cms.double(9.0),
-    phase2pixelClusters                      = cms.InputTag("siPixelClusters"),
-    phase2OTClusters                         = cms.InputTag("siPhase2Clusters"),
-    TrackQuality                             = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
+from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
+_trackClusterRemoverBase_trackingPhase2PU140 = _phase2trackClusterRemover.clone(
+    maxChi2                                  = 9.0,
+    phase2pixelClusters                      = "siPixelClusters",
+    phase2OTClusters                         = "siPhase2Clusters",
+    TrackQuality                             = 'highPurity',
+    minNumberOfLayersWithMeasBeforeFiltering = 0,
 )
 
 def postfix(era):
@@ -139,8 +139,8 @@ def createEarlySequence(era, modDict):
     return seq
 
 def iterationAlgos(era):
-  if era == "trackingPhase2PU140": return [_modulePrefix(i) for i in globals()["_iterations"+postfix(era)] + _iterations_muonSeeded_trackingPhase2PU140]
-  return [_modulePrefix(i) for i in globals()["_iterations"+postfix(era)] + _iterations_muonSeeded]
+    muonVariable = "_iterations_muonSeeded"+postfix(era)
+    return [_modulePrefix(i) for i in globals()["_iterations"+postfix(era)] + globals().get(muonVariable, _iterations_muonSeeded)]
 
 def _seedOrTrackProducers(era, typ):
     ret = []
@@ -157,12 +157,8 @@ def _seedOrTrackProducers(era, typ):
         else:
             ret.append(seeder)
 
-    if era == "trackingPhase2PU140":
-        for i in _iterations_muonSeeded_trackingPhase2PU140:
-            ret.append(_modulePrefix(i).replace("Step", typ))
-    else :
-        for i in _iterations_muonSeeded:
-            ret.append(_modulePrefix(i).replace("Step", typ))
+    for i in globals().get("_iterations_muonSeeded"+postfix(era), _iterations_muonSeeded):
+        ret.append(_modulePrefix(i).replace("Step", typ))
 
     return ret
 
@@ -176,7 +172,7 @@ def clusterRemoverForIter(iteration, era="", module=None):
     if module is None:
         module = _trackClusterRemoverBase.clone()
     if era == "trackingPhase2PU140":
-        module = __trackClusterRemoverBase_Phase2PU140.clone()
+        module = globals().get("_trackClusterRemoverBase"+postfix(era), _trackClusterRemoverBase)
 
     pf = postfix(era)
     iters = globals()["_iterations"+pf]
@@ -194,12 +190,11 @@ def clusterRemoverForIter(iteration, era="", module=None):
         trajectories          = _tracks(prevIter),
         oldClusterRemovalInfo = _clusterRemover(prevIter) if ind >= 2 else "", # 1st iteration does not have cluster remover
     )
-    if era == "trackingPhase1PU70" or era == "trackingPhase2PU140":
+    if era in ["trackingPhase1PU70", "trackingPhase2PU140"]:
         customize["overrideTrkQuals"] = _classifier(prevIter, oldStyle=True) # old-style selector
     elif era == "trackingLowPU":
         customize["overrideTrkQuals"] = _classifier(prevIter, oldStyle=True, oldStyleQualityMasks=True) # old-style selector with 'QualityMasks' instance label
     else:
         customize["trackClassifier"] = _classifier(prevIter)
-#    overrideTrkQuals                         = cms.InputTag('initialStepSelector','initialStep'),
 
     return module.clone(**customize)

@@ -45,8 +45,7 @@ eras.trackingPhase1PU70.toReplaceWith(preDuplicateMergingGeneralTracks, _trackLi
 ))
 
 # For Phase2PU140
-from RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi import earlyGeneralTracks as _earlyGeneralTracks
-eras.trackingPhase2PU140.toReplaceWith(preDuplicateMergingGeneralTracks, _earlyGeneralTracks.clone(
+eras.trackingPhase2PU140.toReplaceWith(preDuplicateMergingGeneralTracks, _trackListMerger.clone(
     TrackProducers = cms.VInputTag(
         cms.InputTag("earlyGeneralTracks"),
         cms.InputTag("muonSeededTracksInOut"),
@@ -67,6 +66,8 @@ eras.trackingPhase2PU140.toReplaceWith(preDuplicateMergingGeneralTracks, _earlyG
     FoundHitBonus  = 100.0,
     LostHitPenalty =   1.0,
     indivShareFrac = cms.vdouble(1.0, 0.16, 0.095, 0.09, 0.095,0.095, 0.095, 0.08),
+    copyExtras = True,
+    makeReKeyedSeeds = cms.untracked.bool(False)
     )
 )
 

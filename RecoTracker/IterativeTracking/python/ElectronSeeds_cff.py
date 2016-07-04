@@ -121,11 +121,11 @@ tripletElectronClusterMask = seedClusterRemover.clone(
     trajectories = cms.InputTag("tripletElectronSeeds"),
     oldClusterRemovalInfo = cms.InputTag("pixelLessStepSeedClusterMask")
 )
-_tripletElectronClusterMask = seedClusterRemoverPhase2.clone(
+eras.trackingPhase2PU140.toReplaceWith(tripletElectronClusterMask, seedClusterRemoverPhase2.clone(
     trajectories = cms.InputTag("tripletElectronSeeds"),
     oldClusterRemovalInfo = cms.InputTag("pixelLessStepSeedClusterMask")
+    )
 )
-eras.trackingPhase2PU140.toReplaceWith(tripletElectronClusterMask, _tripletElectronClusterMask)
 
 pixelPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
