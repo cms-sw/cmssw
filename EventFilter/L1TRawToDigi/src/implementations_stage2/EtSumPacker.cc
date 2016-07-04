@@ -36,14 +36,18 @@ namespace stage2 {
       edm::Handle<EtSumBxCollection> etSums;
       event.getByToken(static_cast<const CommonTokens*>(toks)->getEtSumToken(), etSums);
 
-      uint32_t et_word = 0;
-      uint32_t ht_word = 0;
-      uint32_t met_word = 0;
-      uint32_t mht_word = 0;
-      uint32_t methf_word = 0;
-      uint32_t mhthf_word = 0;
-
+      std::vector<uint32_t> load;
+      int nBx = 0;
+      
       for (int i = etSums->getFirstBX(); i <= etSums->getLastBX(); ++i) {
+	
+	uint32_t et_word = 0;
+	uint32_t ht_word = 0;
+	uint32_t met_word = 0;
+	uint32_t mht_word = 0;
+	uint32_t methf_word = 0;
+	uint32_t mhthf_word = 0;
+	
 	for (auto j = etSums->begin(i); j != etSums->end(i); ++j) {
 	  uint32_t word = std::min(j->hwPt(), 0xFFF);
 	  if ((j->getType()==l1t::EtSum::kMissingEt) || (j->getType()==l1t::EtSum::kMissingHt) 
@@ -62,16 +66,20 @@ namespace stage2 {
 	  if (j->getType()==l1t::EtSum::kMissingEtHF)   methf_word |= word;
 	  if (j->getType()==l1t::EtSum::kMissingHtHF)   mhthf_word |= word;
 	}
+	
+	load.push_back(et_word);
+	load.push_back(ht_word);
+	load.push_back(met_word);
+	load.push_back(mht_word);
+	load.push_back(methf_word);
+	load.push_back(mhthf_word);
+
+	//pad with zeros to fill out block; must do this for each BX
+	while (load.size() -nBx*l1t::stage2::layer2::demux::nOutputFramePerBX <l1t::stage2::layer2::demux::nOutputFramePerBX) load.push_back(0);
+	nBx++;
+      
       }
       
-      std::vector<uint32_t> load;
-      load.push_back(et_word);
-      load.push_back(ht_word);
-      load.push_back(met_word);
-      load.push_back(mht_word);
-      load.push_back(methf_word);
-      load.push_back(mhthf_word);
-      while (load.size()<l1t::stage2::layer2::demux::nOutputFramePerBX) load.push_back(0);
 
       return {Block(b1_, load)};
    }
