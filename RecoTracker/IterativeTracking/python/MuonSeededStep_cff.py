@@ -225,8 +225,6 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
             ),
         ) #end of vpset
     ) #end of clone
-eras.trackingPhase2PU140.toModify(muonSeededTracksInOutSelector, vertices = "pixelVertices")
-eras.trackingPhase2PU140.toModify(muonSeededTracksOutInSelector, vertices = "pixelVertices")
 
 muonSeededStepCoreInOut = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut

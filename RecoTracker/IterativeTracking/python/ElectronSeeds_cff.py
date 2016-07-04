@@ -9,11 +9,11 @@ initialStepSeedClusterMask = seedClusterRemover.clone(
 eras.trackingPhase1PU70.toModify(initialStepSeedClusterMask, oldClusterRemovalInfo = "highPtTripletStepClusters")
 
 from RecoLocalTracker.SubCollectionProducers.seedClusterRemoverPhase2_cfi import seedClusterRemoverPhase2
-_initialStepSeedClusterMask = seedClusterRemoverPhase2.clone(
+eras.trackingPhase2PU140.toReplaceWith(initialStepSeedClusterMask, seedClusterRemoverPhase2.clone(
     trajectories = cms.InputTag("initialStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("highPtTripletStepClusters")
+    )
 )
-eras.trackingPhase2PU140.toReplaceWith(initialStepSeedClusterMask, _initialStepSeedClusterMask)
 
 highPtTripletStepSeedClusterMask = seedClusterRemover.clone( # for Phase1PU70
     trajectories = "highPtTripletStepSeeds",
@@ -25,16 +25,16 @@ pixelPairStepSeedClusterMask = seedClusterRemover.clone(
 )
 eras.trackingPhase1PU70.toModify(pixelPairStepSeedClusterMask, oldClusterRemovalInfo = "highPtTripletStepSeedClusterMask")
 
-_highPtTripletStepSeedClusterMask = seedClusterRemoverPhase2.clone(
+eras.trackingPhase2PU140.toReplaceWith(highPtTripletStepSeedClusterMask, seedClusterRemoverPhase2.clone(
     trajectories = cms.InputTag("highPtTripletStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("initialStepSeedClusterMask")
+    )
 )
-eras.trackingPhase2PU140.toReplaceWith(highPtTripletStepSeedClusterMask, _highPtTripletStepSeedClusterMask)
-_pixelPairStepSeedClusterMask = seedClusterRemoverPhase2.clone(
+eras.trackingPhase2PU140.toReplaceWith(pixelPairStepSeedClusterMask, seedClusterRemoverPhase2.clone(
     trajectories = cms.InputTag("pixelPairStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("highPtTripletStepSeedClusterMask")
+    )
 )
-eras.trackingPhase2PU140.toReplaceWith(pixelPairStepSeedClusterMask, _pixelPairStepSeedClusterMask)
 
 # This is a pure guess to use detachedTripletStep for phase1 here instead of the pixelPair in Run2 configuration
 detachedTripletStepSeedClusterMask = seedClusterRemover.clone(

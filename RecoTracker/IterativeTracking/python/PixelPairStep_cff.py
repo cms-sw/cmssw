@@ -134,13 +134,11 @@ pixelPairStepTrajectoryFilter = cms.PSet(
     #    cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))
     ),
 )
-_pixelPairStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    maxLostHitsFraction = cms.double(1./10.),
-    constantValueForLostHitsFractionFilter = cms.double(0.701),
-    minimumNumberOfHits = 3,
-    minPt = 0.1
+eras.trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilter, TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+    maxLostHitsFraction = 1./10.,
+    constantValueForLostHitsFractionFilter = 0.701,
+    )
 )
-eras.trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilter, _pixelPairStepTrajectoryFilter)
 
 
 
