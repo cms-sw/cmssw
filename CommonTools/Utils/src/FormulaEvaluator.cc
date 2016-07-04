@@ -239,7 +239,7 @@ namespace {
         if( nullptr == leftEvaluatorInfo.evaluator.get() ) {
           return leftEvaluatorInfo;
         }
-        leftEvaluatorInfo.evaluator = std::make_shared<reco::formula::UnaryMinusEvaluator>( std::move(leftEvaluatorInfo.evaluator));
+        leftEvaluatorInfo.evaluator = std::make_shared<reco::formula::UnaryMinusEvaluator>( std::move(leftEvaluatorInfo.top));
         leftEvaluatorInfo.top = leftEvaluatorInfo.evaluator;
       }
       //Start with '('
