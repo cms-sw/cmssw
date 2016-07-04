@@ -322,7 +322,7 @@ eras.trackingPhase1PU70.toModify(convLayerPairs,
     TOB5 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
     TOB6 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
 )
-_convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
+eras.trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2',
                                                         'BPix2+BPix3',
                                                         'BPix3+BPix4',
@@ -356,8 +356,8 @@ _convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     useErrorsFromParam = cms.bool(True),
                                     skipClusters = cms.InputTag('convClusters'),
                                     )
+    )
 )
-eras.trackingPhase2PU140.toReplaceWith(convLayerPairs, _convLayerPairs)
 
 photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrimaryVertices')
@@ -365,7 +365,6 @@ photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrim
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
 eras.trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = "pixelVertices")
 eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
-eras.trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
 
 # TRACKER DATA CONTROL
 
@@ -488,7 +487,6 @@ convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiT
             ),
         ) #end of vpset
     ) #end of clone
-eras.trackingPhase2PU140.toModify(convStepSelector, vertices = "pixelVertices")
 
 ConvStep = cms.Sequence( convClusters 
                          + convLayerPairs
