@@ -153,7 +153,8 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 				      (theMonoDet->hasAllGoodChannels() || 
 				       testStrips(stateOnThisDet,gluedPlane,*theMonoDet)
 				       )
-				      ) /*Mono OK*/ || 
+				      ) /*Mono OK*/ 
+                                     && // was || 
 				     (theStereoDet->isActive(data) && 
 				      (theStereoDet->hasAllGoodChannels() || 
 				       testStrips(stateOnThisDet,gluedPlane,*theStereoDet)
