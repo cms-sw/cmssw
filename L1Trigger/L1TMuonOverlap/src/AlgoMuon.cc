@@ -10,6 +10,8 @@ bool AlgoMuon::isValid() const{
 bool AlgoMuon::operator< (const AlgoMuon & o) const{ 
   if(this->getQ() > o.getQ()) return false;
   else if(this->getQ()==o.getQ() && this->getDisc() > o.getDisc()) return false;
+  else if (getQ()==o.getQ() && getDisc() == o.getDisc() && getPatternNumber() > o.getPatternNumber() ) return false;
+  else if (getQ()==o.getQ() && getDisc() == o.getDisc() && getPatternNumber() == o.getPatternNumber() && getRefHitNumber() < o.getRefHitNumber()) return false;
   else return true;
 }
 
