@@ -465,17 +465,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			        sumTkPt += tkpt;
 				bool inVtx0 = false; 
 				bool inVtxOther = false; 
-				/*
-				if (lPack->fromPV() == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
-				if (lPack->fromPV() == 0) inVtxOther = true;
-				double dZ0 = lPack->dz();
-				double dZ_tmp = dZ0;
-				*/
 				double dZ0=9999.;
-				inVtx0 = false;
-				inVtxOther = false;
 				double dZ_tmp = 9999.;
-				//				for (const auto& iv: allvtx) {
 				for (unsigned vtx_i = 0 ; vtx_i < allvtx.size() ; vtx_i++ ) {
          			        auto iv = allvtx[vtx_i];
 
