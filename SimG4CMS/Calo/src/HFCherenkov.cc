@@ -285,7 +285,6 @@ int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta,
 #endif
 	if (rand < 1.0) { // survived all the times and sent to photo-cathode
 	  wlatten.push_back(lambda);
-	  rand = G4UniformRand();
 	  double qEffic = computeQEff(lambda);//Quantum efficiency of the PMT
 	  rand = G4UniformRand();
 #ifdef DebugLog

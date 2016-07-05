@@ -28,7 +28,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500)
+    input = cms.untracked.int32(1000)
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
@@ -104,9 +104,9 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         #PartID = cms.vint32(11), #--->electron
         PartID = cms.vint32(13), #--->muon
         #PartID = cms.vint32(211), #--->pion
-        MaxEta = cms.double(2.9),
+        MaxEta = cms.double(3.0),
         MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(1.6),
+        MinEta = cms.double(1.2),
         MinPhi = cms.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
