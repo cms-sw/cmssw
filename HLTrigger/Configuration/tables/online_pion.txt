@@ -25,7 +25,8 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 #HLTAnalyzerEndpath			# only in 'GRun', not in 'online'
 
-PhysicsEGammaCommissioningOutput
+PhysicsCommissioningOutput
+PhysicsEGammaOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 RatesMonitoring				# only in 'online'
