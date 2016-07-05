@@ -54,7 +54,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
       
-        l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
+        l1t::CaloTower tower = l1t::CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi);
 	
 	
 	// MET without HF
