@@ -118,8 +118,8 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
   std::map<uint32_t,DTTimeEvolutionHisto* > trendHistos;
   MonitorElement* nEventMonitor;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_phi_Token_;
-  edm::EDGetTokenT<L1MuDTChambThContainer> dcc_theta_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_phi_Token_;
+  edm::EDGetTokenT<L1MuDTChambThContainer> tm_theta_Token_;
   edm::EDGetTokenT<DTLocalTriggerCollection> trig_Token_;
 };
 

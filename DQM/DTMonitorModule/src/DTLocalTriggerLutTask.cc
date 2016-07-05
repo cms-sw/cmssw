@@ -36,7 +36,7 @@ DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trig
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: Constructor"<<endl;
 
-  dcc_Token_   = consumes<L1MuDTChambPhContainer>(
+  tm_Token_   = consumes<L1MuDTChambPhContainer>(
       ps.getUntrackedParameter<InputTag>("inputTagTM"));
   seg_Token_   = consumes<DTRecSegment4DCollection>(
       ps.getUntrackedParameter<InputTag>("inputTagSEG"));
@@ -163,7 +163,7 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
   nEvents++;
 
   edm::Handle<L1MuDTChambPhContainer> trigHandle;
-  e.getByToken(dcc_Token_, trigHandle);
+  e.getByToken(tm_Token_, trigHandle);
   vector<L1MuDTChambPhDigi> const* trigs = trigHandle->getContainer();
   searchDccBest(trigs);
 

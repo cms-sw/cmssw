@@ -76,9 +76,9 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
   processTM   = ps.getUntrackedParameter<bool>("processTM");
   processDDU   = ps.getUntrackedParameter<bool>("processDDU");
 
-  dcc_phi_Token_ = consumes<L1MuDTChambPhContainer>(
+  tm_phi_Token_ = consumes<L1MuDTChambPhContainer>(
       ps.getUntrackedParameter<InputTag>("inputTagTM"));
-  dcc_theta_Token_ = consumes<L1MuDTChambThContainer>(
+  tm_theta_Token_ = consumes<L1MuDTChambThContainer>(
       ps.getUntrackedParameter<InputTag>("inputTagTM"));
   trig_Token_ = consumes<DTLocalTriggerCollection>(
       ps.getUntrackedParameter<InputTag>("inputTagDDU"));
@@ -186,8 +186,8 @@ void DTLocalTriggerBaseTask::analyze(const edm::Event& e, const edm::EventSetup&
   if (processTM) {
     InputTag inputTagTM = theParams.getUntrackedParameter<InputTag>("inputTagTM");
 
-    e.getByToken(dcc_phi_Token_, phiTrigsTM);
-    e.getByToken(dcc_theta_Token_, thetaTrigsTM);
+    e.getByToken(tm_phi_Token_, phiTrigsTM);
+    e.getByToken(tm_theta_Token_, thetaTrigsTM);
 
     if (phiTrigsTM.isValid() && thetaTrigsTM.isValid()) {
       runTMAnalysis(phiTrigsTM->getContainer(),thetaTrigsTM->getContainer());

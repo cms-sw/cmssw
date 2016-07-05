@@ -46,11 +46,11 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
   tpMode           = ps.getUntrackedParameter<bool>("testPulseMode", false);
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis", false);
   doTMTheta       = ps.getUntrackedParameter<bool>("enableTMTheta", false);
-  dcc_Token_       = consumes<L1MuDTChambPhContainer>(
-      edm::InputTag(ps.getUntrackedParameter<string>("dcc_label", "dttpgprod")));
+  tm_Token_       = consumes<L1MuDTChambPhContainer>(
+      edm::InputTag(ps.getUntrackedParameter<string>("tm_label", "dttpgprod")));
 // NEW (M.C Fouz July14) Needed, since at least version 710 
-  dccTh_Token_       = consumes<L1MuDTChambThContainer>(
-      edm::InputTag(ps.getUntrackedParameter<string>("dcc_label", "dttpgprod")));
+  tmTh_Token_       = consumes<L1MuDTChambThContainer>(
+      edm::InputTag(ps.getUntrackedParameter<string>("tm_label", "dttpgprod")));
 // end NEW
 
   ros_Token_       = consumes<DTLocalTriggerCollection>(
@@ -105,7 +105,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
     vector<string>::const_iterator trigSrcIt  = trigSources.begin();
     vector<string>::const_iterator trigSrcEnd = trigSources.end();
 
-    if(parameters.getUntrackedParameter<bool>("process_dcc", true)) {
+    if(parameters.getUntrackedParameter<bool>("process_tm", true)) {
       bookBarrelHistos(ibooker, "TM_ErrorsChamberID");
     }
 
@@ -115,7 +115,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	  for (int sect=1;sect<13;++sect){
 	    DTChamberId dtChId(wh,stat,sect);
 
-	    if (parameters.getUntrackedParameter<bool>("process_dcc", true)){ // TM data
+	    if (parameters.getUntrackedParameter<bool>("process_tm", true)){ // TM data
 	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BXvsQual"+(*trigSrcIt));
 	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_QualvsPhirad"+(*trigSrcIt));
 	    }
@@ -131,14 +131,14 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
     else {
       for (;trigSrcIt!=trigSrcEnd;++trigSrcIt){
 	for (int wh=-2;wh<3;++wh){
-	  if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
+	  if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
 	      parameters.getUntrackedParameter<bool>("process_ros", true)){ // TM+DDU data
 	    bookWheelHistos(ibooker, wh,"COM_BXDiff"+(*trigSrcIt));
 	  }
 	  for (int sect=1;sect<13;++sect){
 	    for (int stat=1;stat<5;++stat){
 	      DTChamberId dtChId(wh,stat,sect);
-	      if (parameters.getUntrackedParameter<bool>("process_dcc", true)){ // TM data
+	      if (parameters.getUntrackedParameter<bool>("process_tm", true)){ // TM data
 
 		bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BXvsQual"+(*trigSrcIt));
 		if (detailedAnalysis) {
@@ -196,7 +196,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
 	      }
 
-	      if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
+	      if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
 		  parameters.getUntrackedParameter<bool>("process_ros", true)){ // TM+DDU data
 		bookHistos(ibooker, dtChId,"LocalTriggerPhi","COM_QualDDUvsQualTM"+(*trigSrcIt));
 	      }
@@ -205,7 +205,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	  }
 	  for (int sect=13;sect<15;++sect){
 	    DTChamberId dtChId(wh,4,sect);
-	    if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
+	    if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
 		parameters.getUntrackedParameter<bool>("process_seg", true)){ // TM+SEG LUTs data
 	      bookHistos(ibooker, dtChId,"Segment","TM_PhitkvsPhitrig"+(*trigSrcIt));
 	      bookHistos(ibooker, dtChId,"Segment","TM_PhibtkvsPhibtrig"+(*trigSrcIt));
@@ -246,12 +246,12 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if (!nevents){
 
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-    e.getByToken(dcc_Token_, l1DTTPGPh);
+    e.getByToken(tm_Token_, l1DTTPGPh);
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    // e.getByToken(dcc_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
-    e.getByToken(dccTh_Token_, l1DTTPGTh); // CHANGED (F.R.Cavallo Nov14)
+    // e.getByToken(tm_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
+    e.getByToken(tmTh_Token_, l1DTTPGTh); // CHANGED (F.R.Cavallo Nov14)
 
-    useTM = (l1DTTPGPh.isValid() || l1DTTPGTh.isValid()) && parameters.getUntrackedParameter<bool>("process_dcc", true) ;
+    useTM = (l1DTTPGPh.isValid() || l1DTTPGTh.isValid()) && parameters.getUntrackedParameter<bool>("process_tm", true) ;
 
     Handle<DTLocalTriggerCollection> l1DDUTrigs;
     e.getByToken(ros_Token_,l1DDUTrigs);
@@ -269,12 +269,12 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( useTM ) {
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-    e.getByToken(dcc_Token_, l1DTTPGPh);
+    e.getByToken(tm_Token_, l1DTTPGPh);
     vector<L1MuDTChambPhDigi> const*  l1PhTrig = l1DTTPGPh->getContainer();
 
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    //e.getByToken(dcc_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
-    e.getByToken(dccTh_Token_, l1DTTPGTh);// CHANGED (F.R. Cavallo Nov14)
+    //e.getByToken(tm_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
+    e.getByToken(tmTh_Token_, l1DTTPGTh);// CHANGED (F.R. Cavallo Nov14)
 
     vector<L1MuDTChambThDigi> const*  l1ThTrig = l1DTTPGTh->getContainer();
 
@@ -304,8 +304,8 @@ void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker & ibooker, string hi
   bool isTM = histoTag.substr(0,2) == "TM";
   ibooker.setCurrentFolder(topFolder(isTM));
   if (histoTag == "TM_ErrorsChamberID") {
-    dcc_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(),"TM Data ID Error",5,-2,3);
-    dcc_IDDataErrorPlot->setAxisTitle("wheel",1);
+    tm_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(),"TM Data ID Error",5,-2,3);
+    tm_IDDataErrorPlot->setAxisTitle("wheel",1);
   }
 
   return;
@@ -530,7 +530,7 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
 
     // FIXME: workaround for TM data with station ID
     if(phst == 0) {
-      dcc_IDDataErrorPlot->Fill(phwheel);
+      tm_IDDataErrorPlot->Fill(phwheel);
       continue;
     }
 
