@@ -38,10 +38,20 @@ Context *DavixFile::getDavixInstance() {
 }
 
 void DavixFile::close(void) {
+  if (davixPosix != NULL && m_fd != NULL) {
+    DavixError *err;
+    davixPosix->close(m_fd, &err);
+    delete davixPosix;
+  }
   return;
 }
 
 void DavixFile::abort(void) {
+  if (davixPosix != NULL && m_fd != NULL) {
+    DavixError *err;
+    davixPosix->close(m_fd, &err);
+    delete davixPosix;
+  }
   return;
 }
 
