@@ -1,8 +1,7 @@
 #include "SimG4CMS/ShowerLibraryProducer/interface/FiberG4Hit.h"
 #include <iostream>
 
-
-G4ThreadLocal G4Allocator<FiberG4Hit> *fFiberG4HitAllocator = 0;
+G4ThreadLocal G4Allocator<FiberG4Hit> *fFiberG4HitAllocator = nullptr;
 
 FiberG4Hit::FiberG4Hit() : theTowerId(0), theDepth(0), theTrackId(0),
 			   theNpe(0), theTime(0), theLogV(0) {

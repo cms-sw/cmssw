@@ -95,7 +95,7 @@ void createWatchers(const edm::ParameterSet& iP,
   for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
       itWatcher != watchers.end();
       ++itWatcher) {
-    std::auto_ptr<SimWatcherMakerBase> maker( 
+    std::shared_ptr<SimWatcherMakerBase> maker( 
       SimWatcherFactory::get()->create
       (itWatcher->getParameter<std::string> ("type")) );
     if(maker.get()==0) {
@@ -221,7 +221,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     }
 
   // we need the track manager now
-  m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
+  m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
 
   // attach sensitive detector
   m_attach = new AttachSD;
@@ -248,7 +248,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 
   m_primaryTransformer = new PrimaryTransformer();
 
-  std::auto_ptr<PhysicsListMakerBase> 
+  std::unique_ptr<PhysicsListMakerBase> 
     physicsMaker(PhysicsListFactory::get()->create(
       m_pPhysics.getParameter<std::string> ("type")));
   if (physicsMaker.get()==nullptr) {
