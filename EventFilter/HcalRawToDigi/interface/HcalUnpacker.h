@@ -48,7 +48,7 @@ public:
 private:
   void unpackVME(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
   void unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
-  void unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& umnio);
+  void unpackUMNio(const FEDRawData& raw, int slot, Collections& colls);
 
 
   int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id

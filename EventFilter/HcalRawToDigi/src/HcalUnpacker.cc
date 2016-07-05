@@ -590,7 +590,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
     //Check to make sure uMNio is not unpacked here
     if(uhtr.getFormatVersion() != 1) {
-      unpackUMNio(raw, slot, colls.umnio);
+      unpackUMNio(raw, slot, colls);
     }  
 #ifdef DebugLog
     //debug printouts
@@ -860,7 +860,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   }
 }
 // Method to unpack uMNio data
-void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& umnio) {
+void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& colls) {
   const hcal::AMC13Header* amc13=(const hcal::AMC13Header*)(raw.data());
   int namc=amc13->NAMC();
   //Find AMC corresponding to uMNio slot
@@ -874,9 +874,12 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& u
   const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
   size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
   std::cout<<"uMNio data found with: "<<nwords<<" words"<<std::endl;
-  HcalUMNioDigi umnioDigi = HcalUMNioDigi(data, nwords);
+  HcalUMNioDigi* umnioDigi = new HcalUMNioDigi(data, nwords);
   std::cout<<"Setting given empty class"<<std::endl;
-  umnio = umnioDigi; //this line segfaults
+  if(umnioDigi->invalid()) return;
+  
+  colls.umnio = umnioDigi; //this line segfaults
+  
   std::cout<<"Done here"<<std::endl;
   return;
 }
