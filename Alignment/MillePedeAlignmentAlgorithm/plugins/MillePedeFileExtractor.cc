@@ -3,6 +3,8 @@
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileExtractor.h"
 
+#include <zlib.h>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -45,19 +47,44 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
       // formatting directive for a number, like %04d.
       char theNumberedOutputFileName[200];
       sprintf(theNumberedOutputFileName, outputFileName_.c_str(), nBinaries_);
+
       // Log the filename to which we will write...
       edm::LogInfo("MillePedeFileActions")
           << "Writing FileBlob file to file "
           << outputDir_ + theNumberedOutputFileName << ".";
+
       // ...and perform the writing operation.
-      blob.write(outputDir_ + theNumberedOutputFileName);
-      // Careful, it seems that when writing to an impossible file, this is
-      // swallowed by the FileBlob.write operation and no error is thrown.
+      writeGzipped(blob, outputDir_ + theNumberedOutputFileName);
+
       ++nBinaries_;
     }
   } else {
     edm::LogError("MillePedeFileActions")
         << "Error: The root file does not contain any vector of FileBlob.";
+  }
+}
+
+
+void MillePedeFileExtractor::writeGzipped(const FileBlob& blob,
+					  const std::string& fileName) {
+  // - use zlib directly to avoid boost dependencies for this simple task
+  // - zlib and gzip compression differ -> get uncompressed blob first
+  auto uncompressedBlob = blob.getUncompressedBlob();
+  gzFile fp = gzopen(fileName.c_str(), "wb");
+  if (fp == NULL) {
+    edm::LogError("MillePedeFileActions")
+      << "Problem while opening gzipped file '" << fileName << "'.";
+  }
+  auto nBytes = gzwrite(fp, &uncompressedBlob->front(), uncompressedBlob->size());
+  if (nBytes == 0 ||
+      nBytes != static_cast<decltype(nBytes)>(uncompressedBlob->size())) {
+    edm::LogError("MillePedeFileActions")
+      << "Problem while writing FileBlob to gzipped file '" << fileName << "'.";
+  }
+  auto zerr = gzclose(fp);
+  if (zerr != 0) {
+    edm::LogError("MillePedeFileActions")
+      << "Problem while closing gzipped file '" << fileName << "'.";
   }
 }
 
