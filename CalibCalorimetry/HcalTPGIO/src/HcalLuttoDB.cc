@@ -47,7 +47,7 @@ using namespace edm;
 using namespace std;
 #include <iostream>
 #include <fstream>
-#include "FWCore/Utilities/interface/md5.h"
+#include "md5.h"
 
 //
 // class decleration
