@@ -16,6 +16,7 @@ namespace L1Analysis
       tfMuonHwPt.clear();
       tfMuonHwEta.clear();
       tfMuonHwPhi.clear();
+      tfMuonGlobalPhi.clear();
       tfMuonHwSign.clear();
       tfMuonHwSignValid.clear();
       tfMuonHwQual.clear();
@@ -30,6 +31,7 @@ namespace L1Analysis
     std::vector<short int> tfMuonHwPt;
     std::vector<short int> tfMuonHwEta;
     std::vector<short int> tfMuonHwPhi;
+    std::vector<short int> tfMuonGlobalPhi;
     std::vector<short int> tfMuonHwSign;
     std::vector<short int> tfMuonHwSignValid;
     std::vector<short int> tfMuonHwQual;
