@@ -13,6 +13,7 @@ public:
             int perms = 0666);
   ~DavixFile(void);
   static Davix::Context *getDavixInstance();
+  static void configureDavixLogLevel();
 
   virtual void create(const char *name, bool exclusive = false,
                       int perms = 0666);

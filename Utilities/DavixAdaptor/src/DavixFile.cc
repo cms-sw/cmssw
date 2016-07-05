@@ -26,6 +26,7 @@ DavixFile::DavixFile(const std::string &name, int flags /* = IOFlags::OpenRead *
 }
 
 DavixFile::~DavixFile(void) {
+  configureDavixLogLevel();
   close();
   return;
 }
@@ -53,6 +54,47 @@ void DavixFile::abort(void) {
     delete davixPosix;
   }
   return;
+}
+
+void DavixFile::configureDavixLogLevel() {
+  long logLevel = 0;
+  char *logptr;
+  char *davixDebug = getenv("Davix_Debug");
+  if (davixDebug != NULL) {
+    logLevel = strtol(davixDebug, &logptr, 0);
+    if (errno) {
+      edm::LogWarning("DavixFile") << "Got error while converting "
+                                   << "Davix_Debug env variable to integer. "
+                                      "Will use default log level 0";
+      logLevel = 0;
+    }
+    if (logptr == davixDebug) {
+      edm::LogWarning("DavixFile") << "Failed to convert to integer "
+                                   << "Davix_Debug env variable; Will use default log level 0";
+      logLevel = 0;
+    } else if (*logptr != '\0') {
+      edm::LogWarning("DavixFile") << "Failed to parse extra junk "
+                                   << "from Davix_Debug env variable. Will use default log level 0";
+      logLevel = 0;
+    }
+  }
+  switch (logLevel) {
+  case 0:
+    davix_set_log_level(0);
+    break;
+  case 1:
+    davix_set_log_level(DAVIX_LOG_WARNING);
+    break;
+  case 2:
+    davix_set_log_level(DAVIX_LOG_VERBOSE);
+    break;
+  case 3:
+    davix_set_log_level(DAVIX_LOG_DEBUG);
+    break;
+  default:
+    davix_set_log_level(DAVIX_LOG_ALL);
+    break;
+  }
 }
 
 static int X509Authentication(void *userdata, const SessionInfo &info, X509Credential *cert,
@@ -126,6 +168,7 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
     throw ex;
   }
 
+  configureDavixLogLevel();
   // Translate our flags to system flags
   int openflags = 0;
 
