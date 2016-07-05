@@ -19,13 +19,10 @@ using namespace xercesc;
 namespace {
 
   inline std::string _toString(XMLCh const* toTranscode) {
-    std::string tmp(XMLString::transcode(toTranscode));
+    char* localForm = XMLString::transcode(toTranscode);
+    std::string tmp(localForm);
+    XMLString::release(&localForm);
     return tmp;
-  }
-
-  inline XMLCh*  _toDOMS(std::string temp) {
-    XMLCh* buff = XMLString::transcode(temp.c_str());
-    return  buff;
   }
 
   std::string
@@ -77,7 +74,13 @@ namespace edm {
   }
 
   FileLocator::~FileLocator()
-  {}
+  {
+    XMLString::release(&m_str_protocol);
+    XMLString::release(&m_str_destination_match);
+    XMLString::release(&m_str_path_match);
+    XMLString::release(&m_str_result);
+    XMLString::release(&m_str_chain);    
+  }
 
 
   std::string
@@ -112,19 +115,19 @@ namespace edm {
     // a `getElementsByTagName()` in the calling method.
     DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);
 
-    std::string const protocol = _toString(ruleElement->getAttribute(_toDOMS("protocol")));
-    std::string destinationMatchRegexp = _toString(ruleElement->getAttribute(_toDOMS("destination-match")));
+    std::string const protocol = _toString(ruleElement->getAttribute(m_str_protocol));
+    std::string destinationMatchRegexp = _toString(ruleElement->getAttribute(m_str_destination_match));
 
     if (destinationMatchRegexp.empty()) {
       destinationMatchRegexp = ".*";
     }
 
     std::string const pathMatchRegexp
-      = _toString(ruleElement->getAttribute(_toDOMS("path-match")));
+      = _toString(ruleElement->getAttribute(m_str_path_match));
     std::string const result
-      = _toString(ruleElement->getAttribute(_toDOMS("result")));
+      = _toString(ruleElement->getAttribute(m_str_result));
     std::string const chain
-      = _toString(ruleElement->getAttribute(_toDOMS("chain")));
+      = _toString(ruleElement->getAttribute(m_str_chain));
 
     Rule rule;
     rule.pathMatch.assign(pathMatchRegexp);
@@ -137,7 +140,12 @@ namespace edm {
   void
   FileLocator::init(std::string const& catUrl, bool fallback) {
     std::string m_url = catUrl;
-
+    m_str_protocol = XMLString::transcode("protocol");
+    m_str_destination_match = XMLString::transcode("destination-match");
+    m_str_path_match = XMLString::transcode("path-match");
+    m_str_result = XMLString::transcode("result");
+    m_str_chain = XMLString::transcode("chain");
+      
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
@@ -220,7 +228,9 @@ namespace edm {
 
     /*first of all do the lfn-to-pfn bit*/
     {
-      DOMNodeList* rules = doc->getElementsByTagName(_toDOMS("lfn-to-pfn"));
+      XMLCh* lfn_to_pfn = XMLString::transcode("lfn-to-pfn");
+      DOMNodeList* rules = doc->getElementsByTagName(lfn_to_pfn);
+      XMLString::release(&lfn_to_pfn);
       XMLSize_t const ruleTagsNum = rules->getLength();
 
       // FIXME: we should probably use a DTD for checking validity
@@ -232,7 +242,9 @@ namespace edm {
     }
     /*Then we handle the pfn-to-lfn bit*/
     {
-      DOMNodeList* rules = doc->getElementsByTagName(_toDOMS("pfn-to-lfn"));
+      XMLCh* pfn_to_lfn = XMLString::transcode("pfn-to-lfn");
+      DOMNodeList* rules = doc->getElementsByTagName(pfn_to_lfn);
+      XMLString::release(&pfn_to_lfn);
       XMLSize_t ruleTagsNum = rules->getLength();
 
       for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
@@ -240,6 +252,7 @@ namespace edm {
         parseRule(ruleNode, m_inverseRules);
       }
     }
+    delete parser;
   }
 
   std::string
