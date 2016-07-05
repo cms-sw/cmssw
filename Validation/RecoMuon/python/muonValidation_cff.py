@@ -43,27 +43,6 @@ glbMuonTrackVTrackAssoc.label = ('globalMuons',)
 glbMuonTrackVTrackAssoc.usetracker = True
 glbMuonTrackVTrackAssoc.usemuon = True
 
-staSETMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-staSETMuonTrackVTrackAssoc.associatormap = 'tpToStaSETTrackAssociation'
-staSETMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
-staSETMuonTrackVTrackAssoc.label = ('standAloneSETMuons',)
-staSETMuonTrackVTrackAssoc.usetracker = False
-staSETMuonTrackVTrackAssoc.usemuon = True
-
-staSETUpdMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-staSETUpdMuonTrackVTrackAssoc.associatormap = 'tpToStaSETUpdTrackAssociation'
-staSETUpdMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
-staSETUpdMuonTrackVTrackAssoc.label = ('standAloneSETMuons:UpdatedAtVtx',)
-staSETUpdMuonTrackVTrackAssoc.usetracker = False
-staSETUpdMuonTrackVTrackAssoc.usemuon = True
-
-glbSETMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-glbSETMuonTrackVTrackAssoc.associatormap = 'tpToGlbSETTrackAssociation'
-glbSETMuonTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
-glbSETMuonTrackVTrackAssoc.label = ('globalSETMuons',)
-glbSETMuonTrackVTrackAssoc.usetracker = True
-glbSETMuonTrackVTrackAssoc.usemuon = True
-
 tevMuonFirstTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 tevMuonFirstTrackVTrackAssoc.associatormap = 'tpToTevFirstTrackAssociation'
 tevMuonFirstTrackVTrackAssoc.associators = ('trackAssociatorByDeltaR',)
@@ -185,27 +164,6 @@ displacedGlbMuonTrackVMuonAssoc.usetracker = True
 displacedGlbMuonTrackVMuonAssoc.usemuon = True
 displacedGlbMuonTrackVMuonAssoc.tipTP = cms.double(85.)
 displacedGlbMuonTrackVMuonAssoc.lipTP = cms.double(210.)
-
-staSETMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-staSETMuonTrackVMuonAssoc.associatormap = 'tpToStaSETMuonAssociation'
-staSETMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
-staSETMuonTrackVMuonAssoc.label = ('standAloneSETMuons',)
-staSETMuonTrackVMuonAssoc.usetracker = False
-staSETMuonTrackVMuonAssoc.usemuon = True
-
-staSETUpdMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-staSETUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaSETUpdMuonAssociation'
-staSETUpdMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
-staSETUpdMuonTrackVMuonAssoc.label = ('standAloneSETMuons:UpdatedAtVtx',)
-staSETUpdMuonTrackVMuonAssoc.usetracker = False
-staSETUpdMuonTrackVMuonAssoc.usemuon = True
-
-glbSETMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-glbSETMuonTrackVMuonAssoc.associatormap = 'tpToGlbSETMuonAssociation'
-glbSETMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
-glbSETMuonTrackVMuonAssoc.label = ('globalSETMuons',)
-glbSETMuonTrackVMuonAssoc.usetracker = True
-glbSETMuonTrackVMuonAssoc.usemuon = True
 
 tevMuonFirstTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 tevMuonFirstTrackVMuonAssoc.associatormap = 'tpToTevFirstMuonAssociation'
@@ -436,12 +394,6 @@ muonValidationDisplaced_seq = cms.Sequence(
     +tpToDisplacedGlbMuonAssociation + displacedGlbMuonTrackVMuonAssoc
 )
 
-muonValidationSET_seq = cms.Sequence(
-    tpToStaSETMuonAssociation + staSETMuonTrackVMuonAssoc
-    +tpToStaSETUpdMuonAssociation + staSETUpdMuonTrackVMuonAssoc
-    +tpToGlbSETMuonAssociation + glbSETMuonTrackVMuonAssoc
-)
-
 muonValidationCosmic_seq = cms.Sequence(
     tpToTkCosmicSelMuonAssociation + trkCosmicMuonTrackVSelMuonAssoc
     +tpToTkCosmic1LegSelMuonAssociation + trkCosmic1LegMuonTrackVSelMuonAssoc
@@ -453,11 +405,11 @@ muonValidationCosmic_seq = cms.Sequence(
 
 # The full offline muon validation sequence
 recoMuonValidation = cms.Sequence(
-    muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq + muonValidationSET_seq
+    muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq + muonValidationDisplaced_seq
 )
 
 from Configuration.StandardSequences.Eras import eras
-# no displaces or SET muons in fastsim
+# no displaces in fastsim
 if eras.fastSim.isChosen():
     recoMuonValidation = cms.Sequence(muonValidation_seq + muonValidationTEV_seq + muonValidationRefit_seq)
 

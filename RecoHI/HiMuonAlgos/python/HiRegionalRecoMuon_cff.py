@@ -33,11 +33,6 @@ remuonEcalDetIds = muonEcalDetIds.clone()
 remuonEcalDetIds.inputCollection                = "remuons"
 
 #muons.fillGlobalTrackRefits = False
-# calomuons
-recalomuons   = calomuons.clone()
-recalomuons.inputTracks          = hiReMuTracks
-recalomuons.inputCollection      = 'remuons'
-recalomuons.inputMuons           = 'remuons'
 
 # deposits
 remuIsoDepositTk = muIsoDepositTk.clone()
@@ -52,7 +47,7 @@ remuonShowerInformation.muonCollection        = "remuons"
 
 # replace the new names
 
-remuonIdProducerSequence = cms.Sequence(reglbTrackQual*remuons*recalomuons*remuonEcalDetIds*remuonShowerInformation)
+remuonIdProducerSequence = cms.Sequence(reglbTrackQual*remuons*remuonEcalDetIds*remuonShowerInformation)
 remuIsoDeposits_muons    = cms.Sequence(remuIsoDepositTk+remuIsoDepositCalByAssociatorTowers+remuIsoDepositJets)
 remuIsolation_muons      = cms.Sequence(remuIsoDeposits_muons)
 remuIsolation            = cms.Sequence(remuIsolation_muons)
