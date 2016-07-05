@@ -27,4 +27,5 @@ public:
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, DavixStorageMaker, "http");
+DEFINE_EDM_PLUGIN (StorageMakerFactory, DavixStorageMaker, "https");
 DEFINE_EDM_PLUGIN (StorageMakerFactory, DavixStorageMaker, "web");

@@ -41,6 +41,7 @@ private:
   Davix_fd *m_fd;
   Davix::Context *davixContext;
   Davix::DavPosix *davixPosix;
+  Davix::RequestParams *davixReqParams;
   std::string m_name;
 };
 

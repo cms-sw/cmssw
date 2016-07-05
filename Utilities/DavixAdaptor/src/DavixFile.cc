@@ -55,6 +55,43 @@ void DavixFile::abort(void) {
   return;
 }
 
+static int X509Authentication(void *userdata, const SessionInfo &info, X509Credential *cert,
+                              DavixError **davixErr) {
+  std::string ucert, ukey;
+  char default_proxy[64];
+  snprintf(default_proxy, sizeof(default_proxy), "/tmp/x509up_u%d", geteuid());
+  // X509_USER_PROXY
+  if (getenv("X509_USER_PROXY")) {
+    edm::LogInfo("DavixFile") << "X509_USER_PROXY found in environment."
+                              << " Will use it for authentication";
+    ucert = ukey = getenv("X509_USER_PROXY");
+  }
+  // Default proxy location
+  else if (access(default_proxy, R_OK) == 0) {
+    edm::LogInfo("DavixFile") << "Found proxy in default location " << default_proxy
+                              << " Will use it for authentication";
+    ucert = ukey = default_proxy;
+  }
+  // X509_USER_CERT
+  else if (getenv("X509_USER_CERT")) {
+    ucert = getenv("X509_USER_CERT");
+  }
+  // X509_USER_KEY only if X509_USER_CERT was found
+  if (!ucert.empty() && getenv("X509_USER_KEY")) {
+    edm::LogInfo("DavixFile") << "X509_USER_{CERT|KEY} found in environment"
+                              << " Will use it for authentication";
+    ukey = getenv("X509_USER_KEY");
+  }
+  // Check if vars are set...
+  if (ucert.empty() || ukey.empty()) {
+    edm::LogWarning("DavixFile") << "Was not able to find proxy in $X509_USER_PROXY, "
+                                 << "X509_USER_{CERT|KEY} or default proxy creation location. "
+                                 << "Will try without authentication";
+    return -1;
+  }
+  return cert->loadFromFilePEM(ukey, ucert, "", davixErr);
+}
+
 void DavixFile::create(const char *name, bool exclusive /* = false */, int perms /* = 066 */) {
   open(name, (IOFlags::OpenCreate | IOFlags::OpenWrite | IOFlags::OpenTruncate |
               (exclusive ? IOFlags::OpenExclusive : 0)),
@@ -96,8 +133,17 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
     openflags |= O_RDONLY;
 
   DavixError *davixErr;
+  davixReqParams = new RequestParams();
+  // Set up X509 authentication
+  davixReqParams->setClientCertCallbackX509(&X509Authentication, NULL);
+  // Set also CERT_DIR if it is set in envinroment, otherwise use default
+  const char *cert_dir = NULL;
+  if ((cert_dir = getenv("X509_CERT_DIR")) == NULL)
+    cert_dir = "/etc/grid-security/certificates";
+  davixReqParams->addCertificateAuthorityPath(cert_dir);
+
   davixPosix = new DavPosix(getDavixInstance());
-  m_fd = davixPosix->open(NULL, name, openflags, &davixErr);
+  m_fd = davixPosix->open(davixReqParams, name, openflags, &davixErr);
   m_name = name;
 }
 
