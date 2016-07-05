@@ -75,6 +75,7 @@ class DTLocalTriggerTask: public DQMEDAnalyzer{
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
+  void setQLabelsTheta(MonitorElement* me, short int iaxis);
 
   /// Run analysis on TM data
   void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
