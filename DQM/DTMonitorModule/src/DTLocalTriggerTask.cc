@@ -301,7 +301,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker & ibooker, string histoTag) {
 
-  bool isTM = histoTag.substr(0,3) == "TM";
+  bool isTM = histoTag.substr(0,2) == "TM";
   ibooker.setCurrentFolder(topFolder(isTM));
   if (histoTag == "TM_ErrorsChamberID") {
     dcc_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(),"TM Data ID Error",5,-2,3);
@@ -324,8 +324,8 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
   double maxBX=0;
   int  rangeBX=0;
 
-  string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
-  bool isTM = histoTag.substr(0,3) == "TM";
+  string histoType = histoTag.substr(3,histoTag.find("_",3)-3);
+  bool isTM = histoTag.substr(0,2) == "TM";
 
   ibooker.setCurrentFolder(topFolder(isTM) + "Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
@@ -338,7 +338,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
 						       << "/Station"<< station.str() << "/" << folder << "/" << histoName << endl;
 
   if (histoType.find("BX") != string::npos){
-    if (histoTag.substr(0,3) == "TM"){
+    if (histoTag.substr(0,2) == "TM"){
       minBX= parameters.getUntrackedParameter<int>("minBXTM",-2) - 0.5;
       maxBX= parameters.getUntrackedParameter<int>("maxBXTM",2) + 0.5;
     }
@@ -480,8 +480,8 @@ void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker & ibooker, int wh, st
 
   stringstream wheel; wheel << wh;
 
-  string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
-  bool isTM = histoTag.substr(0,3) == "TM";
+  string histoType = histoTag.substr(3,histoTag.find("_",3)-3);
+  bool isTM = histoTag.substr(0,2) == "TM";
 
   ibooker.setCurrentFolder(topFolder(isTM) + "Wheel" + wheel.str() + "/");
 
