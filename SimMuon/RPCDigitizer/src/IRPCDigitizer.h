@@ -1,11 +1,11 @@
-#ifndef SimMuon_RPCDigitizer_h
-#define SimMuon_RPCDigitizer_h
+#ifndef SimMuon_IRPCDigitizer_h
+#define SimMuon_IRPCDigitizer_h
 // 
 
-/** \class RPCDigitizer
+/** \class IRPCDigitizer
  *  Digitizer class for RPC
  *
- *  \author Marcello Maggi -- INFN Bari
+ *  \author Borislav Pavlov -- University of Sofia
  *
  */
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -30,12 +30,12 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPCDigitizer
+class IRPCDigitizer
 {
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
-  RPCDigitizer(const edm::ParameterSet& config);
-  ~RPCDigitizer();
+  IRPCDigitizer(const edm::ParameterSet& config);
+  ~IRPCDigitizer();
   
   // *** digitize ***
   void doAction(MixCollection<PSimHit> & simHits,

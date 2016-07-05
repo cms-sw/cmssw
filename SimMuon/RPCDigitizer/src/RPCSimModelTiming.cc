@@ -1,6 +1,6 @@
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-#include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimModelTiming.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
@@ -14,7 +14,7 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -36,12 +36,8 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
-using namespace std;
-
-RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& config) : 
-  RPCSim(config)
+RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(config)
 {
-
   aveEff = config.getParameter<double>("averageEfficiency");
   aveCls = config.getParameter<double>("averageClusterSize");
   resRPC = config.getParameter<double>("timeResolution");
@@ -72,111 +68,16 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
 
 }
 
-RPCSimAverageNoiseEffCls::~RPCSimAverageNoiseEffCls()
+RPCSimModelTiming::~RPCSimModelTiming()
 {
   delete _rpcSync;
 }
 
-
-int RPCSimAverageNoiseEffCls::getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine* engine)
-{
-  std::vector<double> clsForDetId = getRPCSimSetUp()->getCls(id);
-
-  int cnt = 1;
-  int min = 1;
-  double func=0.0;
-  std::vector<double> sum_clsize;
-
-  sum_clsize.clear();
-  sum_clsize = clsForDetId;
-  int vectOffset(0);
-
-  double rr_cl = CLHEP::RandFlat::shoot(engine);
-
-  if(0.0 <= posX && posX < 0.2)  {
-    func = clsForDetId[19]*(rr_cl);
-    vectOffset = 0;
-  }
-  if(0.2 <= posX && posX < 0.4) {
-    func = clsForDetId[39]*(rr_cl);
-    vectOffset = 20;
-  }
-  if(0.4 <= posX && posX < 0.6) {
-    func = clsForDetId[59]*(rr_cl);
-    vectOffset = 40;
-  }
-  if(0.6 <= posX && posX < 0.8) {
-    func = clsForDetId[79]*(rr_cl);
-    vectOffset = 60;
-  }  
-  if(0.8 <= posX && posX < 1.0)  {
-    func = clsForDetId[89]*(rr_cl);
-    vectOffset = 80;
-  }
-  
-
-  for(int i = vectOffset; i<(vectOffset+20); i++){
-    cnt++;
-    if(func > clsForDetId[i]){
-      min = cnt;
-    }
-    else if(func < clsForDetId[i]){
-      break;
-    }
-  }
-  return min;
-}
-
-int RPCSimAverageNoiseEffCls::getClSize(float posX, CLHEP::HepRandomEngine* engine)
+void RPCSimModelTiming::simulate(const RPCRoll* roll,
+                const edm::PSimHitContainer& rpcHits,
+                 CLHEP::HepRandomEngine* engine) 
 {
 
-  std::map< int, std::vector<double> > clsMap = getRPCSimSetUp()->getClsMap();
-
-  int cnt = 1;
-  int min = 1;
-  double func=0.0;
-  std::vector<double> sum_clsize;
-
-  double rr_cl = CLHEP::RandFlat::shoot(engine);
-  if(0.0 <= posX && posX < 0.2)  {
-    func = (clsMap[1])[(clsMap[1]).size()-1]*(rr_cl);
-    sum_clsize = clsMap[1];
-  }
-  if(0.2 <= posX && posX < 0.4) {
-    func = (clsMap[2])[(clsMap[2]).size()-1]*(rr_cl);
-    sum_clsize = clsMap[2];
-  }
-  if(0.4 <= posX && posX < 0.6) {
-    func = (clsMap[3])[(clsMap[3]).size()-1]*(rr_cl);
-    sum_clsize = clsMap[3];
-  }
-  if(0.6 <= posX && posX < 0.8) {
-    func = (clsMap[4])[(clsMap[4]).size()-1]*(rr_cl);
-    sum_clsize = clsMap[4];
-  }
-  if(0.8 <= posX && posX < 1.0)  {
-    func = (clsMap[5])[(clsMap[5]).size()-1]*(rr_cl);
-    sum_clsize = clsMap[5];
-  }
-
-  for(vector<double>::iterator iter = sum_clsize.begin();
-      iter != sum_clsize.end(); ++iter){
-    cnt++;
-    if(func > (*iter)){
-      min = cnt;
-    }
-    else if(func < (*iter)){
-      break;
-    }
-  }
-  return min;
-}
-
-void
-RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
-                                   const edm::PSimHitContainer& rpcHits,
-                                   CLHEP::HepRandomEngine* engine)
-{
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
   theDetectorHitMap.clear();
@@ -195,7 +96,9 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
 
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
+    int time_hit = _rpcSync->getSimHitBxAndTimingForIRPC(&(*_hit), engine);
+    double precise_time = _rpcSync->getSmearedTime();
+
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
@@ -250,41 +153,48 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
 	if(*i != centralStrip){
 	  if(CLHEP::RandFlat::shoot(engine) < veff[*i-1]){
 	    std::pair<int, int> digi(*i,time_hit);
-	    strips.insert(digi);
+            RPCDigi adigi(*i,time_hit);
+            adigi.hasTime(true);
+            adigi.setTime(precise_time);
+            irpc_digis.insert(adigi);
 
 	    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	  }
 	} 
 	else {
 	  std::pair<int, int> digi(*i,time_hit);
-	  theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
-
-	  strips.insert(digi);
+	  RPCDigi adigi(*i,time_hit);
+          adigi.hasTime(true);
+          adigi.setTime(precise_time);
+          irpc_digis.insert(adigi);
+ theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	}
       }
     }
   }
 }
 
-void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll,
-                                             CLHEP::HepRandomEngine* engine)
+void RPCSimModelTiming::simulateNoise(const RPCRoll* roll,
+                     CLHEP::HepRandomEngine* engine) 
 {
+//std::cout<<"RPCSimModelTiming::simulateNoise"<<std::endl;
 
-  RPCDetId rpcId = roll->id();
-
+RPCDetId rpcId = roll->id();
+//std::cout<<"RPCSimModelTiming::simulateNoise X1"<<std::endl;
   RPCGeomServ RPCname(rpcId);
-  //std::string nameRoll = RPCname.name();
-
+//std::cout<<"RPCSimModelTiming::simulateNoise X2"<<std::endl;
+// std::cout<<"rpcId.rawId() = "<<rpcId.rawId()<<std::endl;
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
+//std::cout<<"RPCSimModelTiming::simulateNoise X3"<<std::endl;
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
-
+//std::cout<<"RPCSimModelTiming::simulateNoise X4"<<std::endl;
   unsigned int nstrips = roll->nstrips();
   double area = 0.0;
-  
+
   if ( rpcId.region() == 0 )
     {
       const RectangularStripTopology* top_ = dynamic_cast<const
-	RectangularStripTopology*>(&(roll->topology()));
+        RectangularStripTopology*>(&(roll->topology()));
       float xmin = (top_->localPosition(0.)).x();
       float xmax = (top_->localPosition((float)roll->nstrips())).x();
       float striplength = (top_->stripLength());
@@ -300,29 +210,77 @@ void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll,
     }
 
   for(unsigned int j = 0; j < vnoise.size(); ++j){
-    
-    if(j >= nstrips) break; 
 
-    // The efficiency of 0% does not imply on the noise rate.
-    // If the strip is masked the noise rate should be 0 Hz/cm^2
-    //    if(veff[j] == 0) continue;
-    
-    //    double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
-    // The vnoise is the noise rate per strip, so we shout multiply not
-    // by the chamber area,
-    // but the strip area which is area/((float)roll->nstrips()));
+    if(j >= nstrips) break;
+
     double ave =
       vnoise[j]*nbxing*gate*area*1.0e-9*frate/((float)roll->nstrips());
 
     CLHEP::RandPoissonQ randPoissonQ(*engine, ave);
     N_hits = randPoissonQ.fire();
-
-    for (int i = 0; i < N_hits; i++ ){
+ for (int i = 0; i < N_hits; i++ ){   
+ 
       
-      int time_hit = (static_cast<int>(CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate))) - nbxing/2;
-      std::pair<int, int> digi(j+1,time_hit);
-      strips.insert(digi);
+      double precise_time = CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate);
+      int time_hit = (static_cast<int>(precise_time)) - nbxing/2;
+//      std::pair<int, int> digi(j+1,time_hit);
+//      strips.insert(digi);
+            RPCDigi adigi(j+1,time_hit);
+            irpc_digis.insert(adigi);
+
     }
   }
+
+
+
 }
 
+
+int RPCSimModelTiming::getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine* engine)
+{
+  std::vector<double> clsForDetId = getRPCSimSetUp()->getCls(id);
+
+  int cnt = 1;
+  int min = 1;
+  double func=0.0;
+  std::vector<double> sum_clsize;
+
+  sum_clsize.clear();
+  sum_clsize = clsForDetId;
+  int vectOffset(0);
+
+  double rr_cl = CLHEP::RandFlat::shoot(engine);
+
+  if(0.0 <= posX && posX < 0.2)  {
+    func = clsForDetId[19]*(rr_cl);
+    vectOffset = 0;
+  }
+  if(0.2 <= posX && posX < 0.4) {
+    func = clsForDetId[39]*(rr_cl);
+    vectOffset = 20;
+  }
+  if(0.4 <= posX && posX < 0.6) {
+    func = clsForDetId[59]*(rr_cl);
+    vectOffset = 40;
+  }
+  if(0.6 <= posX && posX < 0.8) {
+    func = clsForDetId[79]*(rr_cl);
+    vectOffset = 60;
+  }  
+  if(0.8 <= posX && posX < 1.0)  {
+    func = clsForDetId[89]*(rr_cl);
+    vectOffset = 80;
+  }
+  
+
+  for(int i = vectOffset; i<(vectOffset+20); i++){
+    cnt++;
+    if(func > clsForDetId[i]){
+      min = cnt;
+    }
+    else if(func < clsForDetId[i]){
+      break;
+    }
+  }
+  return min;
+}
