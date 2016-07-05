@@ -101,6 +101,9 @@
        std::vector<MonitorElement*> meClPosDiskpz;
        std::vector<MonitorElement*> meClPosDiskmz;
   
+       MonitorElement* meClusBarrelProf;
+       MonitorElement* meClusEndcapProf;
+
        int noOfLayers;
        int noOfDisks;
 
