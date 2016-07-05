@@ -101,6 +101,28 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
   m_name = name;
 }
 
+IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
+  assert(!buffers || into);
+
+  // Davix does not support 0 buffers;
+  if (buffers == 0)
+    return 0;
+
+  DavixError *davixErr;
+
+  DavIOVecInput input_vector[buffers];
+  DavIOVecOuput output_vector[buffers];
+  IOSize total = 0; // Total requested bytes
+  for (IOSize i = 0; i < buffers; ++i) {
+    input_vector[i].diov_size = into[i].size();
+    input_vector[i].diov_buffer = (char *)into[i].data();
+    total += into[i].size();
+  }
+
+  ssize_t s = davixPosix->preadVec(m_fd, input_vector, output_vector, buffers, &davixErr);
+  return total;
+}
+
 IOSize DavixFile::read(void *into, IOSize n) {
   DavixError *davixErr;
   davixPosix->fadvise(m_fd, 0, n, AdviseRandom);
