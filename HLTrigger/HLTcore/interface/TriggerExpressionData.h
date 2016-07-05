@@ -7,7 +7,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 
 namespace edm {
   class Event;
@@ -15,8 +15,7 @@ namespace edm {
   class TriggerNames;
 }
 
-class L1GtTriggerMenu;
-class L1GtTriggerMask;
+class L1TUtmTriggerMenu;
 
 namespace triggerExpression {
 
@@ -29,15 +28,11 @@ public:
     m_hltResultsToken(),
     m_l1tResultsTag(""),
     m_l1tResultsToken(),
-    m_daqPartitions(0x01),
-    m_l1tIgnoreMask(false),
-    m_l1techIgnorePrescales(false),
+    m_l1tIgnoreMaskAndPrescale(false),
     m_throw(true),
     // l1 values and status
-    m_l1tResults(0),
+    m_l1tResults(nullptr),
     m_l1tMenu(0),
-    m_l1tAlgoMask(0),
-    m_l1tTechMask(0),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
@@ -56,15 +51,11 @@ public:
     m_hltResultsToken(),
     m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
     m_l1tResultsToken(),
-    m_daqPartitions(config.getParameter<unsigned int>("daqPartitions")),
-    m_l1tIgnoreMask(config.getParameter<bool>("l1tIgnoreMask")),
-    m_l1techIgnorePrescales(config.getParameter<bool>("l1techIgnorePrescales")),
+    m_l1tIgnoreMaskAndPrescale(config.getParameter<bool>("l1tIgnoreMaskAndPrescale")),
     m_throw(config.getParameter<bool>("throw")),
     // l1 values and status
-    m_l1tResults(0),
+    m_l1tResults(nullptr),
     m_l1tMenu(0),
-    m_l1tAlgoMask(0),
-    m_l1tTechMask(0),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
@@ -76,16 +67,14 @@ public:
     m_eventNumber()
       {
 	if (not m_hltResultsTag.label().empty()) m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
-	if (not m_l1tResultsTag.label().empty()) m_l1tResultsToken = iC.consumes<L1GlobalTriggerReadoutRecord>(m_l1tResultsTag);
+	if (not m_l1tResultsTag.label().empty()) m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
       }
 
   // explicit c'tor from single arguments
   Data(
     edm::InputTag const & hltResultsTag,
     edm::InputTag const & l1tResultsTag,
-    unsigned int          daqPartitions,
-    bool                  l1tIgnoreMask,
-    bool                  l1techIgnorePrescales,
+    bool                  l1tIgnoreMaskAndPrescale,
     bool                  doThrow,
     edm::ConsumesCollector && iC  ) :
     // configuration
@@ -93,15 +82,11 @@ public:
     m_hltResultsToken(),
     m_l1tResultsTag(l1tResultsTag),
     m_l1tResultsToken(),
-    m_daqPartitions(daqPartitions),
-    m_l1tIgnoreMask(l1tIgnoreMask),
-    m_l1techIgnorePrescales(l1techIgnorePrescales),
+    m_l1tIgnoreMaskAndPrescale(l1tIgnoreMaskAndPrescale),
     m_throw(doThrow),
     // l1 values and status
-    m_l1tResults(0),
+    m_l1tResults(nullptr),
     m_l1tMenu(0),
-    m_l1tAlgoMask(0),
-    m_l1tTechMask(0),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
@@ -113,7 +98,7 @@ public:
     m_eventNumber()
       {
 	if (not m_hltResultsTag.label().empty()) m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
-	if (not m_l1tResultsTag.label().empty()) m_l1tResultsToken = iC.consumes<L1GlobalTriggerReadoutRecord>(m_l1tResultsTag);
+	if (not m_l1tResultsTag.label().empty()) m_l1tResultsToken = iC.consumes<GlobalAlgBlkBxCollection>(m_l1tResultsTag);
       }
 
   // set the new event
@@ -129,16 +114,8 @@ public:
     m_l1tResultsTag = tag;
   }
 
-  void setDaqPartitions(unsigned int daqPartitions) {
-    m_daqPartitions = daqPartitions;
-  }
-
-  void setL1tIgnoreMask(bool l1tIgnoreMask) {
-    m_l1tIgnoreMask = l1tIgnoreMask;
-  }
-
-  void setL1techIgnorePrescales(bool l1techIgnorePrescales) {
-    m_l1techIgnorePrescales = l1techIgnorePrescales;
+  void setL1tIgnoreMaskAndPrescale(bool l1tIgnoreMaskAndPrescale) {
+    m_l1tIgnoreMaskAndPrescale = l1tIgnoreMaskAndPrescale;
   }
 
   void setThrow(bool doThrow) {
@@ -163,20 +140,12 @@ public:
     return * m_hltMenu;
   }
 
-  const L1GlobalTriggerReadoutRecord & l1tResults() const {
+  const std::vector<bool> & l1tResults() const {
     return * m_l1tResults;
   }
 
-  const L1GtTriggerMenu & l1tMenu() const {
+  const L1TUtmTriggerMenu & l1tMenu() const {
     return * m_l1tMenu;
-  }
-
-  const L1GtTriggerMask & l1tAlgoMask() const {
-    return * m_l1tAlgoMask;
-  }
-
-  const L1GtTriggerMask & l1tTechMask() const {
-    return * m_l1tTechMask;
   }
 
   bool hltConfigurationUpdated() const {
@@ -199,45 +168,32 @@ public:
     return m_throw;
   }
 
-  bool ignoreL1Mask() const {
-    return m_l1tIgnoreMask;
+  bool ignoreL1MaskAndPrescale() const {
+    return m_l1tIgnoreMaskAndPrescale;
   }
 
-  bool ignoreL1TechPrescales() const {
-    return m_l1techIgnorePrescales;
-  }
-
-  unsigned int daqPartitions() const {
-    return m_daqPartitions;
-  }
-
-private:
   // configuration
-  edm::InputTag                                  m_hltResultsTag;
-  edm::EDGetTokenT<edm::TriggerResults>          m_hltResultsToken;
-  edm::InputTag                                  m_l1tResultsTag;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1tResultsToken;
-  unsigned int  m_daqPartitions;
-  bool          m_l1tIgnoreMask;
-  bool          m_l1techIgnorePrescales;
-  bool          m_throw;
+  edm::InputTag                                 m_hltResultsTag;
+  edm::EDGetTokenT<edm::TriggerResults>         m_hltResultsToken;
+  edm::InputTag                                 m_l1tResultsTag;
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection>    m_l1tResultsToken;
+  bool                                          m_l1tIgnoreMaskAndPrescale;
+  bool                                          m_throw;
 
   // l1 values and status
-  const L1GlobalTriggerReadoutRecord  * m_l1tResults;
-  const L1GtTriggerMenu               * m_l1tMenu;
-  const L1GtTriggerMask               * m_l1tAlgoMask;
-  const L1GtTriggerMask               * m_l1tTechMask;
-  unsigned long long                    m_l1tCacheID;
-  bool                                  m_l1tUpdated;
+  const std::vector<bool>         * m_l1tResults;
+  const L1TUtmTriggerMenu         * m_l1tMenu;
+  unsigned long long                m_l1tCacheID;
+  bool                              m_l1tUpdated;
 
   // hlt values and status
-  const edm::TriggerResults           * m_hltResults;
-  const edm::TriggerNames             * m_hltMenu;
-  edm::ParameterSetID                   m_hltCacheID;
-  bool                                  m_hltUpdated;
+  const edm::TriggerResults       * m_hltResults;
+  const edm::TriggerNames         * m_hltMenu;
+  edm::ParameterSetID               m_hltCacheID;
+  bool                              m_hltUpdated;
 
   // event values
-  edm::EventNumber_t                    m_eventNumber;
+  edm::EventNumber_t                m_eventNumber;
 };
 
 } // namespace triggerExpression

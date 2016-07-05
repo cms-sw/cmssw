@@ -5,32 +5,30 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
-#include "HLTrigger/HLTcore/interface/TriggerExpressionL1AlgoReader.h"
+#include "HLTrigger/HLTcore/interface/TriggerExpressionL1uGTReader.h"
 
 namespace triggerExpression {
 
 // define the result of the module from the L1 reults
-bool L1AlgoReader::operator()(const Data & data) const {
+bool L1uGTReader::operator()(const Data & data) const {
   if (not data.hasL1T())
     return false;
 
-  const std::vector<bool> & word = data.l1tResults().decisionWord();
+  std::vector<bool> const & word = data.l1tResults();
   if (word.empty())
     return false;
 
-  typedef std::pair<std::string, unsigned int> value_type;
-  BOOST_FOREACH(const value_type & trigger, m_triggers)
+  for (auto const & trigger: m_triggers)
     if (trigger.second < word.size() and word[trigger.second])
       return true;
 
   return false;
 }
 
-void L1AlgoReader::dump(std::ostream & out) const {
+void L1uGTReader::dump(std::ostream & out) const {
   if (m_triggers.size() == 0) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
@@ -43,24 +41,23 @@ void L1AlgoReader::dump(std::ostream & out) const {
   }
 }
 
-void L1AlgoReader::init(const Data & data) {
+void L1uGTReader::init(const Data & data) {
   if (not data.hasL1T())
     return;
 
-  const L1GtTriggerMenu & menu = data.l1tMenu();
-  const L1GtTriggerMask & mask = data.l1tAlgoMask();
+  const L1TUtmTriggerMenu & menu = data.l1tMenu();
 
   // clear the previous configuration
   m_triggers.clear();
 
   // check if the pattern has is a glob expression, or a single trigger name
+  auto const & triggerMap = menu.getAlgorithmMap();
   if (not edm::is_glob(m_pattern)) {
     // no wildcard expression
-    const AlgorithmMap & triggerMap = menu.gtAlgorithmAliasMap();
-    AlgorithmMap::const_iterator entry = triggerMap.find(m_pattern);
+    auto entry = triggerMap.find(m_pattern);
     if (entry != triggerMap.end()) {
       // single L1 bit
-      m_triggers.push_back( std::make_pair(m_pattern, entry->second.algoBitNumber()) );
+      m_triggers.push_back( std::make_pair(m_pattern, entry->second.getIndex()) );
     } else
       // trigger not found in the current menu
       if (data.shouldThrow())
@@ -71,12 +68,10 @@ void L1AlgoReader::init(const Data & data) {
     // expand wildcards in the pattern
     bool match = false;
     boost::regex re(edm::glob2reg(m_pattern));
-    const AlgorithmMap & triggerMap = menu.gtAlgorithmAliasMap();
-    BOOST_FOREACH(const AlgorithmMap::value_type & entry, triggerMap)
+    for (auto const & entry: triggerMap)
       if (boost::regex_match(entry.first, re)) {
         match = true;
-        if (data.ignoreL1Mask() or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & data.daqPartitions()) != data.daqPartitions()) // unmasked in one or more partitions
-          m_triggers.push_back( std::make_pair(entry.first, entry.second.algoBitNumber()) );
+        m_triggers.push_back( std::make_pair(entry.first, entry.second.getIndex()) );
       }
 
     if (not match) {
