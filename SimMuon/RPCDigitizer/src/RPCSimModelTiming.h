@@ -1,5 +1,5 @@
-#ifndef RPCDigitizer_RPCSimAverageNoiseEffCls_h
-#define RPCDigitizer_RPCSimAverageNoiseEffCls_h
+#ifndef RPCDigitizer_RPCSimModelTiming_h
+#define RPCDigitizer_RPCSimModelTiming_h
 
 /** \class RPCSimAverage
  *   Class for the RPC strip response simulation based
@@ -9,6 +9,8 @@
  */
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 #include "SimMuon/RPCDigitizer/src/RPCSynchronizer.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimAsymmetricCls.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimAverageNoiseEffCls.h"
 
 #include<cstring>
 #include<iostream>
@@ -18,31 +20,26 @@
 #include<stdlib.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class RPCGeometry;
-//class RPCSimSetUp;
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPCSimAverageNoiseEffCls : public RPCSim
+class RPCSimModelTiming : public RPCSim
 {
  public:
-  RPCSimAverageNoiseEffCls(const edm::ParameterSet& config);
-  ~RPCSimAverageNoiseEffCls();
-
+  RPCSimModelTiming(const edm::ParameterSet& config);
+  ~RPCSimModelTiming();
   void simulate(const RPCRoll* roll,
-		const edm::PSimHitContainer& rpcHits,
-                CLHEP::HepRandomEngine*) override;
-
+                const edm::PSimHitContainer& rpcHits,
+                 CLHEP::HepRandomEngine*) override;
   void simulateNoise(const RPCRoll*,
                      CLHEP::HepRandomEngine*) override;
-
-  int getClSize(float posX, CLHEP::HepRandomEngine*);
   int getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*);
 
-// private:
  protected:
   void init(){};
   

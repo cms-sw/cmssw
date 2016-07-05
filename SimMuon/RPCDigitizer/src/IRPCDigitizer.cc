@@ -1,4 +1,4 @@
-#include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
+#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -9,19 +9,19 @@
 
 // default constructor allocates default wire and strip digitizers
 
-RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
-  theName = config.getParameter<std::string>("digiModel");
-  theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiModelConfig"));
+IRPCDigitizer::IRPCDigitizer(const edm::ParameterSet& config) {
+  theName = config.getParameter<std::string>("digiIRPCModel");
+  theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiIRPCModelConfig"));
   theNoise=config.getParameter<bool>("doBkgNoise");
 }
 
-RPCDigitizer::~RPCDigitizer() {
+IRPCDigitizer::~IRPCDigitizer() {
   if( theRPCSim )
     delete theRPCSim;
   theRPCSim = 0;
 }
 
-void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
+void IRPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
                             RPCDigiCollection & rpcDigis,
 			    RPCDigiSimLinks & rpcDigiSimLink,
                             CLHEP::HepRandomEngine* engine)
@@ -39,7 +39,7 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   
   if ( ! theGeometry) {
     throw cms::Exception("Configuration")
-      << "RPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the service\n in the configuration file or remove the modules that require it.";
+      << "IRPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the service\n in the configuration file or remove the modules that require it.";
   }
   
   
@@ -50,21 +50,21 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     RPCDetId id = (*r)->id();
     const edm::PSimHitContainer & rollSimHits = hitMap[id];
   
-    
-    if(!((*r)->isIRPC())){  
+    if((*r)->isIRPC()){  
       theRPCSim->simulate(*r, rollSimHits, engine);
       
       if(theNoise){
 	theRPCSim->simulateNoise(*r, engine);
       }
     }
+   
 	
     theRPCSim->fillDigis((*r)->id(),rpcDigis);
     rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
   }
 }
 
-const RPCRoll * RPCDigitizer::findDet(int detId) const {
+const RPCRoll * IRPCDigitizer::findDet(int detId) const {
   assert(theGeometry != 0);
   const GeomDetUnit* detUnit = theGeometry->idToDetUnit(RPCDetId(detId));
   return dynamic_cast<const RPCRoll *>(detUnit);
