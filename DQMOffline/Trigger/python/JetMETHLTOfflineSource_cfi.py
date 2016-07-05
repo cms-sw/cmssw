@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-jetMETHLTOfflineSource = cms.EDAnalyzer(
+jetMETHLTOfflineSourceAK4 = cms.EDAnalyzer(
     "JetMETHLTOfflineSource",
     dirname = cms.untracked.string("HLT/JetMET"),
     #
@@ -20,12 +20,10 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
     CaloMETCollectionLabel = cms.InputTag("caloMet"),
     PFMETCollectionLabel   = cms.InputTag("pfMet"),
     #Use on-the-fly correction
-    #CaloJetCollectionLabel = cms.InputTag("ak4CaloJetsL1FastL2L3"),
-    #PFJetCollectionLabel   = cms.InputTag("ak4PFJetsL1FastL2L3"),
     CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"),
     PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
-    CaloJetCorLabel      = cms.InputTag("ak4CaloL1FastL2L3Corrector"),
-    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3Corrector"),
+    CaloJetCorLabel      = cms.InputTag("ak4CaloL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
     #
     fEMF       = cms.untracked.double(0.01),
     feta       = cms.untracked.double(2.6),
@@ -99,3 +97,56 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
         eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
         )
 )
+
+
+jetMETHLTOfflineSourceAK8 = jetMETHLTOfflineSourceAK4.clone(
+    dirname = cms.untracked.string('HLT/JetMET/AK8'),
+    #    CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"), #ak8 not available in RECO anymore, so keep ak4...
+    #    PFJetCollectionLabel   = cms.InputTag("ak8PFJetsCHS"), # does not work in all matrix tests, yet
+    #    PFJetCorLabel        = cms.InputTag("ak8PFCHSL1FastjetL2L3ResidualCorrector"), # does not work in all matrix tests, yet 
+    PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
+    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+
+ 
+    pathFilter = cms.untracked.vstring('HLT_AK8PFJet', 
+    ),
+    pathPairs = cms.VPSet(cms.PSet(
+        denompathname = cms.string('HLT_AK8PFJet40_v'),
+        pathname = cms.string('HLT_AK8PFJet60_v')
+    ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet60_v'),
+            pathname = cms.string('HLT_AK8PFJet80_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet80_v'),
+            pathname = cms.string('HLT_AK8PFJet140_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet140_v'),
+            pathname = cms.string('HLT_AK8PFJet200_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet200_v'),
+            pathname = cms.string('HLT_AK8PFJet260_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet260_v'),
+            pathname = cms.string('HLT_AK8PFJet320_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet320_v'),
+            pathname = cms.string('HLT_AK8PFJet400_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet400_v'),
+            pathname = cms.string('HLT_AK8PFJet450_v')
+        ), 
+        cms.PSet(
+            denompathname = cms.string('HLT_AK8PFJet450_v'),
+            pathname = cms.string('HLT_AK8PFJet500_v')
+        )),
+
+)
+
+jetMETHLTOfflineSource = cms.Sequence( jetMETHLTOfflineSourceAK4 * jetMETHLTOfflineSourceAK8 )
