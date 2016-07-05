@@ -71,9 +71,11 @@ else:
     simOmtfDigis.srcRPC              = cms.InputTag('unpackRPC')
     # simOmtfDigis.srcDTPh             = cms.InputTag("simDtTriggerPrimitiveDigis")    # DEFAULT
     # simOmtfDigis.srcDTTh             = cms.InputTag("simDtTriggerPrimitiveDigis")    # DEFAULT
+    simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf")   
     # simOmtfDigis.srcCSC              = cms.InputTag("simCscTriggerPrimitiveDigis")   # DEFAULT
 
     # EMTF
+    simEmtfDigis.CSCInput            = cms.InputTag("unpackCsctf")
     # simEmtfDigis.CSCInput            = cms.InputTag("simCscTriggerPrimitiveDigis")     # DEFAULT
 
     # simCaloStage2Layer1Digis.ecalToken = cms.InputTag('simEcalTriggerPrimitiveDigis')  # DEFAULT
