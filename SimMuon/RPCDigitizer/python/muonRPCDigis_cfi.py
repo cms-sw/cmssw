@@ -17,7 +17,8 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
         Gate = cms.double(25.0),
         averageEfficiency = cms.double(0.95),
         Nbxing = cms.int32(9),
-        timeJitter = cms.double(1.0)
+        timeJitter = cms.double(1.0),
+        digitizeElectrons = cms.bool(False), # False - do not digitize electron hits (they are included in bkg simulation configured with doBkgNoise)
     ),
     doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
     Signal = cms.bool(True),
@@ -29,7 +30,4 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
 )
 
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
-    simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
-    
+
