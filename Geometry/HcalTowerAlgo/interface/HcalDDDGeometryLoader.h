@@ -44,7 +44,7 @@ private:
   const HcalDDDRecConstants* hcalConstants;
 
   HcalTopology* dummyTopology_;
-
+  bool          isBH_;
 };
 
 #endif

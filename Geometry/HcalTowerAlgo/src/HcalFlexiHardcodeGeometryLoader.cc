@@ -26,11 +26,13 @@ CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopolog
   if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( fTopology.ncells()+fTopology.getHFSize() );
   if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (hcalGeometry->numberOfShapes(),
 							       HcalGeometry::k_NumberOfParametersPerShape ) ;
+  isBH_ = hcons.isBH();
 #ifdef DebugLog
   std::cout << "FlexiGeometryLoader initialize with ncells " 
 	    << fTopology.ncells() << " and shapes " 
 	    << hcalGeometry->numberOfShapes() << ":"
-	    << HcalGeometry::k_NumberOfParametersPerShape << std::endl;
+	    << HcalGeometry::k_NumberOfParametersPerShape 
+	    << " with BH Flag " << isBH_ << std::endl;
 #endif
   if (fTopology.mode() == HcalTopologyMode::H2) {  // TB geometry
     fillHBHO (hcalGeometry, makeHBCells(hcons), true);
@@ -292,7 +294,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry
 	float perp = param.zMin / sinh (etaCenter);
 	float x = perp * cos (phiCenter);
 	float y = perp * sin (phiCenter);
-	float z = iside * param.zMin;
+	float z = (isBH_) ? (iside*0.5*(param.zMin+param.zMax)) : (iside*param.zMin);
 	// make cell geometry
 	GlobalPoint refPoint (x,y,z); // center of the cell's face
 	std::vector<CCGFloat> cellParams;
