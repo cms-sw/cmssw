@@ -134,7 +134,6 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    if (result.size()>oldSize) return true;
    
    auto id = geomDet().geographicalId().subdetId()-3;
-   // auto barrel = 0==(id%2);  // TIB1,2 TOB1,2	always inactive
    auto l = TOBDetId(geomDet().geographicalId()).layer();
    bool killHIP = (1==l) && (2==id); //TOB1
    killHIP &= stateOnThisDet.globalMomentum().perp2()>0.81f;
