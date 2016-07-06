@@ -33,7 +33,6 @@ pfMEtMultShiftCorr = cms.EDProducer("MultShiftMETcorrInputProducer",
     parameters = multPhiCorrParams_Txy_25ns
 )
 
-
 pfMEtSysShiftCorrSequence = cms.Sequence( pfMEtMultShiftCorr )
 
 #from Configuration.StandardSequences.Eras import eras

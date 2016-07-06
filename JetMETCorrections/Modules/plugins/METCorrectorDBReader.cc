@@ -16,6 +16,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -69,7 +70,7 @@ METCorrectorDBReader::~METCorrectorDBReader()
 void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::ESHandle<METCorrectorParametersCollection> METCorParamsColl;
-  std::cout <<"Inspecting MET payload with label: "<< mPayloadName <<std::endl;
+  edm::LogInfo("METCorrectorDBReader") <<"Inspecting MET payload with label: "<< mPayloadName;
   iSetup.get<METCorrectionsRecord>().get(mPayloadName,METCorParamsColl);
 
   // get the sections from Collection (pair of section and METCorr.Par class)
@@ -77,55 +78,51 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
   // save level to keys for each METParameter in METParameter collection
   METCorParamsColl->validKeys( keys );
   //METCorParamsColl->validSections( sections );
-  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
-	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
-    std::cout<<"--------------------------------------" << std::endl;
-    std::cout<<"Processing key = " << *ikey << std::endl;
+  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator 
+	  ikey = keys.begin(); ikey != keys.end(); ++ikey ) {
     std::string sectionName= METCorParamsColl->findLabel(*ikey);
-    std::cout<<"object label: "<<sectionName<<std::endl;
+    edm::LogInfo("METCorrectorDBReader")
+    	<<"Processing key = " << *ikey
+    	<<"object label: "<<sectionName;
     METCorrectorParameters const & METCorParams = (*METCorParamsColl)[*ikey];
 
     if (mCreateTextFile)
     {
+	std::string outFileName(mGlobalTag+"_XYshift");
+	std::string shiftType("MC");
+
         if(METCorParamsColl->isXYshiftMC(*ikey) )
         {
-	  std::string outFileName(mGlobalTag+"_XYshiftMC_"+mPayloadName+".txt");
-	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          METCorParams.printFile(outFileName, sectionName);
+	  shiftType = "MC";
         }else if(METCorParamsColl->isXYshiftDY(*ikey) )
         {
-	  std::string outFileName(mGlobalTag+"_XYshiftDY_"+mPayloadName+".txt");
-	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          METCorParams.printFile(outFileName, sectionName);
+	  shiftType = "DY";
         }else if(METCorParamsColl->isXYshiftTTJets(*ikey) )
         {
-	  std::string outFileName(mGlobalTag+"_XYshiftTTJets_"+mPayloadName+".txt");
-	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          METCorParams.printFile(outFileName, sectionName);
+	  shiftType = "TTJets";
         }else if(METCorParamsColl->isXYshiftWJets(*ikey) )
         {
-	  std::string outFileName(mGlobalTag+"_XYshiftWJets_"+mPayloadName+".txt");
-	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          METCorParams.printFile(outFileName, sectionName);
+	  shiftType = "WTJets";
         }else if(METCorParamsColl->isXYshiftData(*ikey) )
         {
-	  std::string outFileName(mGlobalTag+"_XYshiftData_"+mPayloadName+".txt");
-	  std::cout<<"outFileName: "<<outFileName<<std::endl;
-          METCorParams.printFile(outFileName, sectionName);
+	  shiftType = "Data";
 	}else{
 	  throw cms::Exception("InvalidKey") <<
 	    "************** Can't interpret the stored key: "<<*ikey<<std::endl;
 	}
+	outFileName += shiftType + "_" + mPayloadName + ".txt";
+	edm::LogInfo("METCorrectorDBReader")<<"outFileName: "<<outFileName;
+        METCorParams.printFile(outFileName, sectionName);
     }
     
     if (mPrintScreen)
     {
-      std::cout<<"Level: "<<METCorParamsColl->levelName(*ikey)<<std::endl;
+      edm::LogInfo("METCorrectorDBReader")<<"Level: "<<METCorParamsColl->levelName(*ikey);
       METCorParams.printScreen(sectionName);
     }
   }
 
-  std::cout<<"Finished --------------------------" << std::endl;
+  edm::LogInfo("METCorrectorDBReader")<<"Finished --------------------------";
 }
 
 void 

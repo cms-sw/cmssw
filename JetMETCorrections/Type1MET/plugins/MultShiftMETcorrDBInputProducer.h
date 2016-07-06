@@ -54,8 +54,8 @@ class MultShiftMETcorrDBInputProducer : public edm::stream::EDProducer<>
   std::vector<double> etaMin_, etaMax_;
   int counts_;
   double sumPt_;
-  TF1* formula_x_;
-  TF1* formula_y_;
+  std::unique_ptr< TF1 > formula_x_;
+  std::unique_ptr< TF1 > formula_y_;
 };
 
 #endif

@@ -108,14 +108,16 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
 
     if( !mIsData){
 
-      if(mSampleType == "MC")
+      if(mSampleType == "MC"){
         if(!METCorParamsColl->isXYshiftMC(*ikey)) continue;
-      if(mSampleType == "DY")
+      }else if(mSampleType == "DY"){
         if(!METCorParamsColl->isXYshiftDY(*ikey)) continue;
-      if(mSampleType == "TTJets")
+      }else if(mSampleType == "TTJets"){
         if(!METCorParamsColl->isXYshiftTTJets(*ikey)) continue;
-      if(mSampleType == "WJets")
+      }else if(mSampleType == "WJets"){
         if(!METCorParamsColl->isXYshiftWJets(*ikey)) continue;
+      }else throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
+	<< "SampleType: "<<mSampleType<<" is not reserved !!!\n";
     }
 
     std::string sectionName= METCorParamsColl->findLabel(*ikey);
@@ -135,19 +137,24 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
       }
     }
     double val(0.);
+    int parVar = METCorParams.definitions().parVar(0);
 
-    if ( METCorParams.definitions().parVar(0) ==0) {
+    if ( parVar ==0) {
       val = counts_;
-    } 
-    if ( METCorParams.definitions().parVar(0) ==1) {
+
+    }else if ( parVar ==1) { 
       val = ngoodVertices; 
-    } 
-    if ( METCorParams.definitions().parVar(0) ==2) {
+
+    }else if ( parVar ==2) { 
       val = sumPt_;
+
+    }else{
+	throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
+	  << "parVar: "<<parVar<<" is not reserved !!!\n";
     }
 
-    formula_x_ = new TF1("corrPx", METCorParams.definitions().formula().c_str());
-    formula_y_ = new TF1("corrPy", METCorParams.definitions().formula().c_str());
+    formula_x_.reset( new TF1("corrPx", METCorParams.definitions().formula().c_str()));
+    formula_y_.reset( new TF1("corrPy", METCorParams.definitions().formula().c_str()));
 
     for( unsigned i(0); i<METCorParams.record(0).nParameters(); i++)
     {
