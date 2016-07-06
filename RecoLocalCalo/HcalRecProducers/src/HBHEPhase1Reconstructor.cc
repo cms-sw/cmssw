@@ -168,8 +168,8 @@ private:
 
     // Configuration parameters
     std::string algoConfigClass_;
-    bool processHB_;
-    bool processHE_;
+    bool processQIE8_;
+    bool processQIE11_;
     bool saveInfos_;
     bool saveDroppedInfos_;
     bool makeRecHits_;
@@ -178,8 +178,8 @@ private:
     bool recoParamsFromDB_;
 
     // Other members
-    edm::EDGetTokenT<HBHEDigiCollection> tok_hb_;
-    edm::EDGetTokenT<QIE11DigiCollection> tok_he_;
+    edm::EDGetTokenT<HBHEDigiCollection> tok_qie8_;
+    edm::EDGetTokenT<QIE11DigiCollection> tok_qie11_;
     std::unique_ptr<AbsHBHEPhase1Algo> reco_;
     std::unique_ptr<AbsHFPhase1AlgoData> recoConfig_;
     std::unique_ptr<HcalRecoParams> paramTS_;
@@ -212,8 +212,8 @@ private:
 //
 HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
     : algoConfigClass_(conf.getParameter<std::string>("algoConfigClass")),
-      processHB_(conf.getParameter<bool>("processHB")),
-      processHE_(conf.getParameter<bool>("processHE")),
+      processQIE8_(conf.getParameter<bool>("processQIE8")),
+      processQIE11_(conf.getParameter<bool>("processQIE11")),
       saveInfos_(conf.getParameter<bool>("saveInfos")),
       saveDroppedInfos_(conf.getParameter<bool>("saveDroppedInfos")),
       makeRecHits_(conf.getParameter<bool>("makeRecHits")),
@@ -228,13 +228,13 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
             << "Invalid HBHEPhase1Algo algorithm configuration"
             << std::endl;
 
-    if (processHB_)
-        tok_hb_ = consumes<HBHEDigiCollection>(
-            conf.getParameter<edm::InputTag>("digiLabelHB"));
+    if (processQIE8_)
+        tok_qie8_ = consumes<HBHEDigiCollection>(
+            conf.getParameter<edm::InputTag>("digiLabelQIE8"));
 
-    if (processHE_)
-        tok_he_ = consumes<QIE11DigiCollection>(
-            conf.getParameter<edm::InputTag>("digiLabelHE"));
+    if (processQIE11_)
+        tok_qie11_ = consumes<QIE11DigiCollection>(
+            conf.getParameter<edm::InputTag>("digiLabelQIE11"));
 
     if (saveInfos_)
         produces<HBHEChannelInfoCollection>();
@@ -397,16 +397,16 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
     // Find the input data
     unsigned maxOutputSize = 0;
     Handle<HBHEDigiCollection> hbDigis;
-    if (processHB_)
+    if (processQIE8_)
     {
-        e.getByToken(tok_hb_, hbDigis);
+        e.getByToken(tok_qie8_, hbDigis);
         maxOutputSize += hbDigis->size();
     }
 
     Handle<QIE11DigiCollection> heDigis;
-    if (processHE_)
+    if (processQIE11_)
     {
-        e.getByToken(tok_he_, heDigis);
+        e.getByToken(tok_qie11_, heDigis);
         maxOutputSize += heDigis->size();
     }
 
@@ -427,14 +427,14 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
     // Process the input collections, filling the output ones
     const bool isData = e.isRealData();
-    if (processHB_)
+    if (processQIE8_)
     {
         HBHEChannelInfo channelInfo(false);
         processData<HBHEDataFrame>(*hbDigis, *conditions, *p, *mycomputer,
                                    isData, &channelInfo, infos.get(), out.get());
     }
 
-    if (processHE_)
+    if (processQIE11_)
     {
         HBHEChannelInfo channelInfo(true);
         processData<QIE11DataFrame>(*heDigis, *conditions, *p, *mycomputer,
@@ -492,11 +492,11 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
 {
     edm::ParameterSetDescription desc;
 
-    desc.add<edm::InputTag>("digiLabelHB");
-    desc.add<edm::InputTag>("digiLabelHE");
+    desc.add<edm::InputTag>("digiLabelQIE8");
+    desc.add<edm::InputTag>("digiLabelQIE11");
     desc.add<std::string>("algoConfigClass");
-    desc.add<bool>("processHB");
-    desc.add<bool>("processHE");
+    desc.add<bool>("processQIE8");
+    desc.add<bool>("processQIE11");
     desc.add<bool>("saveInfos");
     desc.add<bool>("saveDroppedInfos");
     desc.add<bool>("makeRecHits");

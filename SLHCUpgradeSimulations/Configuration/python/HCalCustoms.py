@@ -107,8 +107,8 @@ def customise_Hcal2017Full(process):
         from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
         process.globalReplace("hbheprereco", hbheprereco)
         process.hbheprereco.saveInfos = cms.bool(True)
-        process.hbheprereco.digiLabelHB = cms.InputTag("simHcalDigis")
-        process.hbheprereco.digiLabelHE = cms.InputTag("simHcalDigis", "HBHEQIE11DigiCollection")
+        process.hbheprereco.digiLabelQIE8 = cms.InputTag("simHcalDigis")
+        process.hbheprereco.digiLabelQIE11 = cms.InputTag("simHcalDigis", "HBHEQIE11DigiCollection")
 
     return process
     
