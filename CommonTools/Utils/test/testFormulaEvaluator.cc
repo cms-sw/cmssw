@@ -823,4 +823,38 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     }
   }
 
+  {
+    std::vector<double> x = {425.92155818};
+    std::vector<double> v = {0.945459,2.78658,1.65054,-48.1061,0.0287239,-10.8759};
+    std::vector<double> xValues = {425.92155818};
+
+    reco::FormulaEvaluator f("-[4]*(log10(x)-[5])*(log10(x)-[5])"); 
+    auto func =[&v](double x) {return -v[4]*(std::log10(x)-v[5])*(std::log10(x)-v[5]); };
+
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+       CPPUNIT_ASSERT(compare(f.evaluate(x, v), func(x[0])));
+    }
+
+  }
+
+  {
+    reco::FormulaEvaluator f("max(0.0001,[0]+[1]/(pow(log10(x),2)+[2])+[3]*exp(-[4]*(log10(x)-[5])*(log10(x)-[5])))");
+
+    std::vector<double> x = {10.};
+
+    std::vector<double> v = {0.88524, 28.4947, 4.89135, -19.0245, 0.0227809, -6.97308};
+    std::vector<double> xValues = {10.};
+
+
+    auto func =[&v](double x) {return std::max(0.0001,v[0]+v[1]/(std::pow(std::log(x)/std::log(10), 2)+v[2])+v[3]*std::exp(-v[4]*(std::log(x)/std::log(10)-v[5])*(std::log(x)/std::log(10)-v[5]))); };
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, v), func(x[0])));
+    }
+  }
+
+
 }
