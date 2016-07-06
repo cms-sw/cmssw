@@ -168,6 +168,8 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
     throw ex;
   }
 
+  if (davixPosix && m_fd)
+      close();
   configureDavixLogLevel();
   // Translate our flags to system flags
   int openflags = 0;
