@@ -69,9 +69,7 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
     std::vector<ME0Segment> segv = algo->run(ensemble, me0RecHits);
     ME0DetId mid(enIt->first);
     
-    //FIXME
-    //HACK to make it a chamberID
-    ME0DetId midchamber(mid.region(),1,mid.chamber(),0);
+    ME0DetId midchamber(mid.chamberId());
 
     #ifdef EDM_ML_DEBUG
     LogDebug("ME0SegmentBuilder") << "found " << segv.size() << " segments in chamber " << mid;

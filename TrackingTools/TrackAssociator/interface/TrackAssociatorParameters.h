@@ -28,7 +28,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 class TrackAssociatorParameters {
  public:
@@ -72,6 +73,8 @@ class TrackAssociatorParameters {
    bool usePreshower;
    bool useMuon;
    bool truthMatch;
+   bool useGEM;
+   bool useME0;
    
    /// Labels of the detector EDProducts 
    edm::InputTag theEBRecHitCollectionLabel;
@@ -81,7 +84,9 @@ class TrackAssociatorParameters {
    edm::InputTag theHORecHitCollectionLabel;
    edm::InputTag theDTRecSegment4DCollectionLabel;
    edm::InputTag theCSCSegmentCollectionLabel;
-   
+   edm::InputTag theGEMSegmentCollectionLabel;
+   edm::InputTag theME0SegmentCollectionLabel;
+
    // Specify if we want to widen the search pass of the crossed
    // calorimeter elements taking into account uncertainty
    // of the track trajectory. The parameter below
@@ -97,6 +102,8 @@ class TrackAssociatorParameters {
    edm::EDGetTokenT<HORecHitCollection> HOcollToken;
    edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken;
    edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken;
+   edm::EDGetTokenT<GEMSegmentCollection> gemSegmentsToken;
+   edm::EDGetTokenT<ME0SegmentCollection> me0SegmentsToken;
    edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken;
    edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken;
    edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
