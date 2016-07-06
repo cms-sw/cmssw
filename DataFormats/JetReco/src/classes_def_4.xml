@@ -139,13 +139,13 @@
    <class name="edm::Association<reco::FFTCaloJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> >" />
 
-   <class name="reco::HTTTopJetProperties" ClassVersion="4">
-     <version ClassVersion="4" checksum="3737009156"/>
+   <class name="reco::HTTTopJetProperties" ClassVersion="3">
+     <version ClassVersion="3" checksum="3737009156"/>
    </class>
    <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
   
-   <class name="reco::HTTTopJetTagInfo" ClassVersion="5">
-     <version ClassVersion="5" checksum="3013029993"/>
+   <class name="reco::HTTTopJetTagInfo" ClassVersion="3">
+     <version ClassVersion="3" checksum="3013029993"/>
    </class>
    <class name="reco::HTTTopJetTagInfoCollection"/>
    <class name="reco::HTTTopJetTagInfoRef"/>
