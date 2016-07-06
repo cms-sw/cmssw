@@ -897,8 +897,14 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
        if (matchedSegChDy < maxAbsDy_) matchedY = true;
        if (matchedSegment.xErr>0 && matchedChamber.xErr>0 && matchedSegChPullX < maxAbsPullX_) matchedX = true;
        if (matchedSegment.yErr>0 && matchedChamber.yErr>0 && matchedSegChPullY < maxAbsPullY_) matchedY = true;
-       if (matchedX && matchedY) matchedChamber.segmentMatches.push_back(matchedSegment);
-     }
+       if (matchedX && matchedY){
+	 if (matchedChamber.id.subdetId() == MuonSubdetId::ME0)
+	   matchedChamber.me0Matches.push_back(matchedSegment);
+	 else if (matchedChamber.id.subdetId() == MuonSubdetId::GEM)
+	   matchedChamber.gemMatches.push_back(matchedSegment);
+	 else matchedChamber.segmentMatches.push_back(matchedSegment);
+       }
+     }	 
      muonChamberMatches.push_back(matchedChamber);
    }
 

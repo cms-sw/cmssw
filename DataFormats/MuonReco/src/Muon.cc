@@ -70,21 +70,23 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          matches += chamberMatch->rpcMatches.size();
          continue;
       }
+      if(type == ME0SegmentAndTrackArbitration) {
+         if(chamberMatch->me0Matches.empty()) continue;
+	  matches += chamberMatch->me0Matches.size();
+	continue;
+      }
+      if(type == GEMSegmentAndTrackArbitration) {
+         if(chamberMatch->gemMatches.empty()) continue;
+	  matches += chamberMatch->gemMatches.size();
+	continue;
+      }
 
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
          matches++;
          continue;
       }
-      if(type == ME0SegmentAndTrackArbitration) {
-	if (chamberMatch->id.subdetId() == MuonSubdetId::ME0) matches += chamberMatch->segmentMatches.size();
-	continue;
-      }
-      if(type == GEMSegmentAndTrackArbitration) {
-	if (chamberMatch->id.subdetId() == MuonSubdetId::GEM) matches += chamberMatch->segmentMatches.size();
-	continue;
-      }
-
+      
       for( std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
             segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
       {
