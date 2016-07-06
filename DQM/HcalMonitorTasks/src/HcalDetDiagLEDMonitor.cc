@@ -658,7 +658,7 @@ void HcalDetDiagLEDMonitor::fillHistos(){
   for(int i=0;i<18;i++) for(int j=0;j<4;j++)
    ho0[i][j]=nho0[i][j]=ho1p[i][j]=nho1p[i][j]=ho2p[i][j]=nho2p[i][j]=ho1m[i][j]=nho1m[i][j]=ho2m[i][j]=nho2m[i][j]=0;
 
-   std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
+  std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
    for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
       DetId detid=emap->lookup(*eid);
       if(detid.det()!=DetId::Hcal) continue;

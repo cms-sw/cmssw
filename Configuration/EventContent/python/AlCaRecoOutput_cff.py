@@ -58,6 +58,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import *
 # ECAL ES alignment
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_Output_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_Output_cff import *
+
 ###############################################################
 # HCAL Calibration
 ###############################################################

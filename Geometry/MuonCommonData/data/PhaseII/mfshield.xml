@@ -11,8 +11,8 @@
    <ZSection z="6590*mm" rMin="675*mm" rMax="850*mm"/>
    <ZSection z="6835*mm" rMin="701*mm" rMax="850*mm"/>
   </Polycone>
-  <Tubs name="ShieldingBoronPoly_1_ME0" rMin="[mf:rMinME0]" rMax="[mf:rMinME0] + 50*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="ShieldingAntinomyLead_1_ME0" rMin="[mf:rMinME0] + 50*mm" rMax="[mf:rMinME0] + 100*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME0" rMin="[mf:rMinME0]" rMax="[mf:rMinME0] + 50*mm" dz="148*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME0" rMin="[mf:rMinME0] + 50*mm" rMax="[mf:rMinME0] + 100*mm" dz="148*cm " startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="ShieldingBoronPoly_0_ME1"    rMin="1150*mm" rMax="1227*mm" dz="16*mm" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="ShieldingAntinomyLead_0_ME1" rMin="1227*mm" rMax="1240*mm" dz="42.5*mm"  startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="ShieldingBoronPoly_1_ME1"    rMin="936*mm"  rMax="1227*mm" dz="20*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -223,13 +223,13 @@
    <rParent name="mf:ME0RingP"/>
    <rChild name="mfshield:ShieldingBoronPoly_1_ME0"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+   <Translation x="0*fm " y="0*fm " z="5393*mm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME0RingP"/>
    <rChild name="mfshield:ShieldingAntinomyLead_1_ME0"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+   <Translation x="0*fm " y="0*fm " z="5393*mm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME1RingP"/>
@@ -319,13 +319,13 @@
    <rParent name="mf:ME0RingN"/>
    <rChild name="mfshield:ShieldingBoronPoly_1_ME0"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+   <Translation x="0*fm " y="0*fm " z="5393*mm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME0RingN"/>
    <rChild name="mfshield:ShieldingAntinomyLead_1_ME0"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+   <Translation x="0*fm " y="0*fm " z="5393*mm"/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME1RingN"/>

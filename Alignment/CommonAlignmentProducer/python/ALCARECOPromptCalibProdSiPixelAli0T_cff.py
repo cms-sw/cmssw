@@ -83,10 +83,10 @@ SiPixelAliMilleAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
         'TrackerTPBHalfBarrel,111111',
         'TrackerTPEHalfCylinder,111111',
 
-        'TrackerTIBHalfBarrel,ffffff',
-        'TrackerTOBHalfBarrel,ffffff',
-        'TrackerTIDEndcap,ffffff',
-        'TrackerTECEndcap,ffffff'
+        'TrackerTIBHalfBarrel,000000',
+        'TrackerTOBHalfBarrel,000000',
+        'TrackerTIDEndcap,000000',
+        'TrackerTECEndcap,000000'
         )
     )
 

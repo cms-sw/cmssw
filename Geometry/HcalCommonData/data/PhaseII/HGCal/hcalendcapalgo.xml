@@ -150,7 +150,7 @@
     <Numeric name="ModuleThick"   value="9.0*mm"/>
     <Numeric name="LayerThick"    value="7.0*mm"/>
     <Numeric name="ScintThick"    value="3.7*mm"/>
-    <Numeric name="RMaxFront"     value="[rMaxHECal1]"/>
+    <Numeric name="RMaxFront"     value="[rMaxHECalP3]"/>
     <Numeric name="RMaxBack"      value="[rMaxHECalP3]"/>
     <Numeric name="TrimLeft"      value="0.5*mm"/>
     <Numeric name="TrimRight"     value="0.5*mm"/>

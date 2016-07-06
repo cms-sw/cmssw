@@ -322,5 +322,6 @@ void CMSSteppingVerbose::NextStep(const G4Step* step,
 	   << std::setw(18)
 	   << (*tv)[i]->GetDefinition()->GetParticleName() << G4endl;
   }
+  G4cout.precision(prec);
 }
 
