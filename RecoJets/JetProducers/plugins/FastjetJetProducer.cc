@@ -157,6 +157,16 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       yCut_ = iConfig.getParameter<double>("yCut");
     }
 
+    if ( iConfig.exists("useSoftDrop") ) {
+      if ( usePruning_ ) {   /// Can't use these together
+	throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;
+      }
+      useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
+      zCut_ = iConfig.getParameter<double>("zcut");
+      beta_ = iConfig.getParameter<double>("beta");
+      R0_ = iConfig.getParameter<double>("R0");
+    }
+
     if ( iConfig.exists("useFiltering") ) {
       useFiltering_ = iConfig.getParameter<bool>("useFiltering");
       rFilt_ = iConfig.getParameter<double>("rFilt");
@@ -205,16 +215,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       useConstituentSubtraction_ = iConfig.getParameter<bool>("useConstituentSubtraction");
       csRho_EtaMax_ = iConfig.getParameter<double>("csRho_EtaMax");
       csRParam_ = iConfig.getParameter<double>("csRParam");
-    }
-
-    if ( iConfig.exists("useSoftDrop") ) {
-      if ( usePruning_ ) {   /// Can't use these together
-	throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;
-      }
-      useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
-      zCut_ = iConfig.getParameter<double>("zcut");
-      beta_ = iConfig.getParameter<double>("beta");
-      R0_ = iConfig.getParameter<double>("R0");
     }
 
   }
