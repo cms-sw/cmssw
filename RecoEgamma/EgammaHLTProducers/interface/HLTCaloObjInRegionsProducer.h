@@ -217,16 +217,16 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 	const CaloCellGeometry* objGeom = subDetGeom->getGeometry(obj.id());
 	if(objGeom==nullptr){
 	  //wondering what to do here
-	  //something is very very wrong, either throw or auto accept the hit?
-	  throw cms::Exception("NullPointerError ") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<obj.id()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong"<<std::endl;
+	  //something is very very wrong
+	  //given HLT should never crash or throw, decided to log an error and 
+	  edm::LogError("HLTCaloObjInRegionsProducer") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<obj.id()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting hit";
+	  outputColl->push_back(obj);
 	}
 	float eta = objGeom->getPosition().eta();
 	float phi = objGeom->getPosition().phi();
 	
-       	bool wasAdded=false;
 	for(const auto& region : regions){
 	  if(region(eta,phi)) {
-	    wasAdded=true;
 	    outputColl->push_back(obj);
 	    break;
 	  }
