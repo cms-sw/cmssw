@@ -45,9 +45,12 @@ else:
 
     # Second, Re-Emulate the entire L1T
 
-    #from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
-    from L1Trigger.Configuration.CaloTriggerPrimitives_cff import *
+    from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
+    #from L1Trigger.Configuration.CaloTriggerPrimitives_cff import *
+    simEcalTriggerPrimitiveDigis.InstanceEB = cms.string('ebDigis')
+    simEcalTriggerPrimitiveDigis.InstanceEE = cms.string('eeDigis')
     simEcalTriggerPrimitiveDigis.Label = 'unpackEcal'
+    from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
     simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
         cms.InputTag('unpackHcal'),
         cms.InputTag('unpackHcal')
