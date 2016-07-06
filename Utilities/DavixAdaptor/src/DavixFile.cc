@@ -187,6 +187,21 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
 
   davixPosix = new DavPosix(getDavixInstance());
   m_fd = davixPosix->open(davixReqParams, name, openflags, &davixErr);
+
+  // Check Davix Error
+  if (davixErr) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Davix::open(name='" << m_name << "') failed with "
+       << "error '" << davixErr->getErrMsg().c_str() << " and error code " << davixErr->getStatus();
+    ex.addContext("Calling DavixFile::open()");
+    throw ex;
+  }
+  if (m_fd == NULL) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Davix::open(name='" << m_name << "') failed as fd is NULL";
+    ex.addContext("Calling DavixFile::open()");
+    throw ex;
+  }
   m_name = name;
 }
 
@@ -209,6 +224,20 @@ IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
   }
 
   ssize_t s = davixPosix->preadVec(m_fd, input_vector, output_vector, buffers, &davixErr);
+  if (davixErr) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "Davix::readv(name='" << m_name << "', buffers=" << (buffers) << ") failed with error "
+       << davixErr->getErrMsg().c_str() << " and error code " << davixErr->getStatus()
+       << " and call returned " << s << " bytes";
+    ex.addContext("Calling DavixFile::readv()");
+    throw ex;
+  }
+  if (s < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "Davix::readv(name='" << m_name << "') failed and call returned " << s;
+    ex.addContext("Calling DavixFile::readv()");
+    throw ex;
+  }
   return total;
 }
 
@@ -231,6 +260,23 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
     total += into[i].size();
   }
   ssize_t s = davixPosix->preadVec(m_fd, input_vector, output_vector, buffers, &davixErr);
+  if (davixErr) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "Davix::readv(name='" << m_name << "', n=" << buffers << ") failed with error "
+       << davixErr->getErrMsg().c_str() << " and error code " << davixErr->getStatus()
+       << " and call returned " << s << " bytes";
+    ex.addContext("Calling DavixFile::readv()");
+    throw ex;
+  }
+  if (s < 0) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "Davix::readv(name='" << m_name << "', n=" << buffers << ") failed and call returned "
+       << s;
+    ex.addContext("Calling DavixFile::readv()");
+    throw ex;
+  } else if (s == 0)
+    return 0; // end of file
+
   return total;
 }
 
@@ -240,22 +286,54 @@ IOSize DavixFile::read(void *into, IOSize n) {
   IOSize done = 0;
   while (done < n) {
     ssize_t s = davixPosix->read(m_fd, (char *)into + done, n - done, &davixErr);
+    if (davixErr) {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "Davix::read(name='" << m_name << "', n=" << (n - done) << ") failed with error "
+         << davixErr->getErrMsg().c_str() << " and error code " << davixErr->getStatus()
+         << " and call returned " << s << " bytes";
+      ex.addContext("Calling DavixFile::read()");
+      throw ex;
+    }
+    if (s < 0) {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "Davix::read(name='" << m_name << "', n=" << (n - done) << ") failed and call returned "
+         << s;
+      ex.addContext("Calling DavixFile::read()");
+      throw ex;
+    } else if (s == 0)
+      // end of file
+      break;
     done += s;
   }
   return done;
 }
 
 IOSize DavixFile::write(const void *from, IOSize n) {
-  cms::Exception ex("FileResizeError");
-  ex << "DavixFile::resize(name='" << m_name << "') not implemented";
+  cms::Exception ex("FileWriteError");
+  ex << "DavixFile::write(name='" << m_name << "') not implemented";
   throw ex;
 }
 
 IOOffset DavixFile::position(IOOffset offset, Relative whence /* = SET */) {
   DavixError *davixErr;
+  if (whence != CURRENT && whence != SET && whence != END) {
+    cms::Exception ex("FilePositionError");
+    ex << "DavixFile::position() called with incorrect 'whence' parameter";
+    throw ex;
+  }
   IOOffset result;
   size_t mywhence = (whence == SET ? SEEK_SET : whence == CURRENT ? SEEK_CUR : SEEK_END);
-  result = davixPosix->lseek(m_fd, offset, mywhence, &davixErr);
+
+  if ((result = davixPosix->lseek(m_fd, offset, mywhence, &davixErr)) == -1) {
+    cms::Exception ex("FilePositionError");
+    ex << "Davix::lseek(name='" << m_name << "', offset=" << offset << ", whence=" << mywhence
+       << ") failed with error " << davixErr->getErrMsg().c_str() << " and "
+       << "error code " << davixErr->getStatus() << " and "
+       << "call returned " << result;
+    ex.addContext("Calling DavixFile::position()");
+    throw ex;
+  }
+
   return result;
 }
 
