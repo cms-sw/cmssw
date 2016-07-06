@@ -246,7 +246,7 @@ void TkAlTrackSplitPlot()
 {
     TkAlStyle::legendheader = ".oO[legendheader]Oo.";
     TkAlStyle::legendoptions = ".oO[legendoptions]Oo.";
-    TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.");
+    TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
     //fillmatrix();                                                         //(C)
     subdetector = ".oO[subdetector]Oo.";
     makePlots(

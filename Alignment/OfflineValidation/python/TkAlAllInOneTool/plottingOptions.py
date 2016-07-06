@@ -18,6 +18,7 @@ class BasePlottingOptions:
                     "cmssw" : os.environ["CMSSW_BASE"],
                     "publicationstatus" : "",
                     "customtitle" : "",
+                    "customrighttitle" : "",
                     "era" : "NONE",
                     "legendheader" : "",
                     "legendoptions":"all",
@@ -69,6 +70,9 @@ class BasePlottingOptions:
             raise AllInOneError("If you would like to use a custom title, please leave out the 'publicationstatus' parameter")
         if self.general["publicationstatus"] == "CUSTOM" and not self.general["customtitle"]:
             raise AllInOneError("If you want to use a custom title, you should provide it using 'customtitle' in the [plots:%s] section" % valType)
+
+        if self.general["era"] != "NONE" and self.general["customrighttitle"]:
+            raise AllInOneError("If you would like to use a custom right title, please leave out the 'era' parameter")
 
         publicationstatusenum = ["INTERNAL", "INTERNAL_SIMULATION", "PRELIMINARY", "PUBLIC", "SIMULATION", "UNPUBLISHED", "CUSTOM"]
         eraenum = ["NONE", "CRUZET15", "CRAFT15", "COLL0T15"]

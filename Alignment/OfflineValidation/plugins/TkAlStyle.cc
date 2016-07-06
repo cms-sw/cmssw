@@ -58,7 +58,7 @@ static TString toTString(const Era era) {
 class TkAlStyle {
 public:
   // Adjusts the gStyle settings and store the PublicationStatus
-  static void set(const PublicationStatus status, const Era era = NONE, const TString customTitle = "");
+  static void set(const PublicationStatus status, const Era era = NONE, const TString customTitle = "", const TString customRightTitle = "");
   static void set(const TString customTitle);
   static PublicationStatus status() { return publicationStatus_; }
 
@@ -196,6 +196,7 @@ private:
   static PublicationStatus publicationStatus_;
   static Era era_;
   static TString customTitle_;
+  static TString customRightTitle_;
   static double lineHeight_;
   static double margin_;
   static double textSize_;
@@ -225,6 +226,7 @@ Era TkAlStyle::era_ = NONE;
 TString TkAlStyle::legendheader = "";
 TString TkAlStyle::legendoptions = "all";
 TString TkAlStyle::customTitle_ = "";
+TString TkAlStyle::customRightTitle_ = "";
 double TkAlStyle::lineHeight_ = 0.042;
 double TkAlStyle::margin_ = 0.04;
 double TkAlStyle::textSize_ = 0.035;
@@ -386,16 +388,21 @@ TString TkAlStyle::header(const PublicationStatus status) {
 TString TkAlStyle::rightheader(const Era era)
 {
   TString txt = "";
-  if( era != NONE ) txt += toTString(era);
+  if( era != NONE ) {
+    txt = toTString(era);
+  } else {
+    txt = customRightTitle_;
+  }
   return txt;
 }
 
 
 // --------------------------------------------------------------
-void TkAlStyle::set(const PublicationStatus status, const Era era, const TString customTitle) {
+void TkAlStyle::set(const PublicationStatus status, const Era era, const TString customTitle, const TString customRightTitle) {
   // Store the PublicationStatus for later usage, e.g. in the title
   publicationStatus_ = status;
   customTitle_ = customTitle;
+  customRightTitle_ = customRightTitle;
   era_ = era;
   if (publicationStatus_ == CUSTOM && customTitle_ == "")
     std::cout << "Error: you are trying to use a custom title, but you don't provide it" << std::endl;
