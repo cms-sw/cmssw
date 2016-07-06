@@ -41,6 +41,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
+
 class EtaPhiRegion{
 private:
     float centreEta_;
@@ -53,7 +55,9 @@ private:
       centreEta_(iEta),centrePhi_(iPhi),maxDeltaR2_(iDR*iDR),
       maxDEta_(iDEta),maxDPhi_(iDPhi){}
     ~EtaPhiRegion(){}
-    bool operator()(float eta,float phi)const{return reco::deltaR2(eta,phi,centreEta_,centrePhi_)<maxDeltaR2_ || (std::abs(eta-centreEta_)<maxDEta_ && std::abs(reco::deltaPhi(phi,centrePhi_)<maxDPhi_));}
+  bool operator()(float eta,float phi)const{
+    return reco::deltaR2(eta,phi,centreEta_,centrePhi_)<maxDeltaR2_ ||
+      (std::abs(eta-centreEta_)<maxDEta_ && std::abs(reco::deltaPhi(phi,centrePhi_)<maxDPhi_));}
 
 };
 
@@ -67,7 +71,7 @@ template<typename T1> class EtaPhiRegionData : public EtaPhiRegionDataBase{
 private:
   float minEt_;
   float maxEt_;
-  float maxDeltaR2_;
+  float maxDeltaR_;
   float maxDEta_;
   float maxDPhi_;
   edm::EDGetTokenT<T1> token_;
@@ -75,7 +79,7 @@ public:
   EtaPhiRegionData(const edm::ParameterSet& para,edm::ConsumesCollector & consumesColl):
     minEt_(para.getParameter<double>("minEt")),
     maxEt_(para.getParameter<double>("maxEt")),
-    maxDeltaR2_(para.getParameter<double>("maxDeltaR")*para.getParameter<double>("maxDeltaR")),
+    maxDeltaR_(para.getParameter<double>("maxDeltaR")),
     maxDEta_(para.getParameter<double>("maxDEta")),
     maxDPhi_(para.getParameter<double>("maxDPhi")),
     token_(consumesColl.consumes<T1>(para.getParameter<edm::InputTag>("inputColl"))){}
@@ -93,7 +97,6 @@ template<typename CaloObjType,
 	 typename CaloObjCollType =edm::SortedCollection<CaloObjType> >
 class HLTCaloObjInRegionsProducer : public edm::stream::EDProducer<> {
   
-  //  using  CaloObjCollType =edm::SortedCollection<CaloObjType>;
   
  public:
  
@@ -220,8 +223,10 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 	float eta = objGeom->getPosition().eta();
 	float phi = objGeom->getPosition().phi();
 	
+       	bool wasAdded=false;
 	for(const auto& region : regions){
 	  if(region(eta,phi)) {
+	    wasAdded=true;
 	    outputColl->push_back(obj);
 	    break;
 	  }
@@ -272,9 +277,8 @@ void EtaPhiRegionData<CandCollType>::getEtaPhiRegions(const edm::Event& event,st
   
   for(auto candIt = beginIt(*cands);candIt!=endIt(*cands);++candIt){
     if(candIt->et() >= minEt_ && (maxEt_<0 || candIt->et() < maxEt_)){
-    
-      regions.push_back(EtaPhiRegion(candIt->eta(),candIt->phi(),
-				     maxDeltaR2_,maxDEta_,maxDPhi_));
+       regions.push_back(EtaPhiRegion(candIt->eta(),candIt->phi(),
+				      maxDeltaR_,maxDEta_,maxDPhi_));
     }
     
   }
