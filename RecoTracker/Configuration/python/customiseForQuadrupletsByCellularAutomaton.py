@@ -11,8 +11,8 @@ def customiseForQuadrupletsByCellularAutomaton(process):
 	    continue    
         # Adjust seeding layers
         seedingLayersName = module.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
-        seedingLayersModule = getattr(process, seedingLayersName)
-        seedingLayersModule.layerList = process.PixelSeedMergerQuadruplets.layerList.value()
+   
+
 
         # Configure seed generator / pixel track producer
         quadruplets = module.OrderedHitsFactoryPSet.clone()
