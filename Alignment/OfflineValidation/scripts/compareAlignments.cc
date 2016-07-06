@@ -27,6 +27,7 @@ TFile *Target;
 std::vector< std::string > lowestlevels;
 std::vector< int > theColors;
 std::vector< int > theStyles;
+std::vector< int > phases;
 
 void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, bool bigtext );
 void nicePad(Int_t logx,Int_t logy);
@@ -57,6 +58,16 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
       TFile* currentFile = TFile::Open(aFileLegPair->At(0)->GetName());
       if( currentFile != NULL && !currentFile->IsZombie() ){
         FileList->Add( currentFile  );  // 2
+        if ( currentFile->Get("TrackerOfflineValidationStandalone/Pixel/P1PXBBarrel_1") ) {
+          cout << "phase 1" << endl;
+          phases.push_back(1);
+        } else if ( currentFile->Get("TrackerOfflineValidationStandalone/Pixel/TPBBarrel_1") ) {
+          cout << "phase 0" << endl;
+          phases.push_back(0);
+        } else {
+          cout << "Unknown phase for file " << aFileLegPair->At(0)->GetName() << endl;
+          assert(false);
+        }
         if(TString(aFileLegPair->At(1)->GetName()).Contains("|")){
           TObjArray* formatedLegendEntry = TString(aFileLegPair->At(1)->GetName()).Tokenize("|");
           LabelList->Add( formatedLegendEntry->At(0) );
@@ -104,11 +115,14 @@ void compareAlignments(TString namesandlabels="readFromFile", TString legendhead
   lowestlevels.push_back("TIDRing");
   lowestlevels.push_back("TOBRod");
   lowestlevels.push_back("TECSide");
-//  lowestlevels.push_back("Det");
+  // phase 1
+  // it checks each one independently so no harm in having
+  // both phase 0 and 1 together in the vector
+  lowestlevels.push_back("P1PXBLadder");
+  lowestlevels.push_back("P1PXECPanel");
 
 
-
-   MergeRootfile( Target, FileList, LabelList, bigtext );
+  MergeRootfile( Target, FileList, LabelList, bigtext );
 
 }
 
@@ -143,6 +157,9 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, boo
     // read object from first source file
     first_source->cd( path );
     TObject *obj = key->ReadObj();
+
+    auto itphase = phases.begin();
+    int firstfilephase = *itphase;
 
     if ( obj->IsA()->InheritsFrom( TH1::Class() ) ) {
       // descendant of TH1 -> merge it
@@ -203,10 +220,19 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, boo
       histarray->Add(h1);
       while ( nextsource ) {
 
-        // make sure we are at the correct directory level by cd'ing to path
+        TKey *key2;
+        bool wrongphase = false;
+        ++itphase;
 
+        if (firstfilephase != *itphase && path.Contains("TrackerOfflineValidationStandalone/Pixel")) {
+          //skip this one
+          key2 = 0;
+          wrongphase = true;
+        } else {
+          // make sure we are at the correct directory level by cd'ing to path
         nextsource->cd( path );
-        TKey *key2 = (TKey*)gDirectory->GetListOfKeys()->FindObject(h1->GetName());
+          key2 = (TKey*)gDirectory->GetListOfKeys()->FindObject(h1->GetName());
+        }
         if (key2) {
           ++q;
           TH1 *h2 = (TH1*)key2->ReadObj();
@@ -231,6 +257,8 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, boo
           leg.AddEntry(c.FindObject(h2->GetName()),nextlabel->String().Data(),"L");
           histarray->Add(c.FindObject(h2->GetName()));
           delete h2;
+        } else if (wrongphase) {
+          //nothing
         } else {
           std::cerr << "Histogram "<< key2->GetTitle() << " is not present in file " << nextsource->GetName() << std::endl;
         }
