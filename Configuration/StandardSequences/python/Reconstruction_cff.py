@@ -34,6 +34,7 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 #local reconstruction
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
+from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import *
 #
 # new tau configuration
 #
@@ -43,8 +44,19 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
+# Cosmic During Collisions
+from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
+
 localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+
+_ctpps_2016_localreco = localreco.copy()
+_ctpps_2016_localreco += totemRPLocalReconstruction
+eras.ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
+
+_ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
+_ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction
+eras.ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
@@ -91,7 +103,8 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              btagging*
                              recoPFMET*
                              PFTau*
-                             reducedRecHits
+                             reducedRecHits*
+                             cosmicDCTracksSeq
                              )
 
 

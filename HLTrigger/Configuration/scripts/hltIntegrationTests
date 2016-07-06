@@ -28,9 +28,9 @@ Usage:
   -n | --size     EVENTS      Run on EVENTS events (-1 for all, default is 100)
   -k | --skip     EVENTS      Skip the first EVENTS (default is 0)
   -e | --events   EVENTS      Run on a comma-separated list of EVENTS, a VEventRange
-  -j | --jobs     JOBS        Run JOBS single trigger jobs in parallel (defaults to the number of CPUs)
+  -j | --jobs     JOBS        Run JOBS single trigger jobs in parallel (default 4)
        --streams  STREAMS     Run with STREAMS parallel streams (i.e. events) (default 0 means as many streams as threads)
-       --threads  THREADS     Run with THREADS threads when running the whole HLT (defaults to the number of CPUs)
+       --threads  THREADS     Run with THREADS threads when running the whole HLT (default 4)
   -x | --extra    OPTIONS     Pass OPTIONS directly to hltGetConfiguration
        --mc                   Run over MC instead of data (the default)
   -h | --help                 Print this help message and exit.
@@ -89,8 +89,8 @@ INPUT=""
 SIZE=100
 SKIP=0
 EVENTS=""
-JOBS=$CPUS
-THREADS=$CPUS
+JOBS=4
+THREADS=4
 STREAMS=0
 WORKDIR="hltintegration"
 EXTRA=""

@@ -1,14 +1,14 @@
 <lcgdict>
     <class name="TrackProbabilityCategoryData"/>
 	<class name="TrackProbabilityCalibration::Entry"/>
-	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>     
+	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>
     <class name="TrackProbabilityCalibration" class_version="0">
         <field name="data" mapping="blob"/>
     </class>
 
     <class name="CombinedSVCategoryData"/>
 	<class name="CombinedSVCalibration::Entry"/>
-	<class name="std::vector<CombinedSVCalibration::Entry>"/>     
+	<class name="std::vector<CombinedSVCalibration::Entry>"/>
     <class name="CombinedSVCalibration" class_version="0">
        <field name="data" mapping="blob"/>
     </class>
@@ -28,5 +28,4 @@
         <field name="tagger_" mapping="string"/>
         <field name="data_" mapping="blob"/>
     </class>
-    <class name="BTagCalibrationReader" class_version="0"/>
-</lcgdict>   
+</lcgdict>
