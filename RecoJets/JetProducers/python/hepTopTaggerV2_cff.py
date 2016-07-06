@@ -8,7 +8,7 @@ from RecoJets.JetProducers.PFJetParameters_cfi import *
 chsForHTT = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))  
 
 # Schedule HEPTopTagger
-HEPTopTaggerV2 = cms.EDProducer(
+hepTopTaggerV2 = cms.EDProducer(
     "HTTTopJetProducer",
     PFJetParameters.clone(
         src               = cms.InputTag("chsForHTT"),

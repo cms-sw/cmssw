@@ -28,12 +28,12 @@ process.options = cms.untracked.PSet(
 # HEPTopTagger V2
 ########################################
 
-from RecoJets.JetProducers.HEPTopTaggerV2_cfi import chsForHTT, HEPTopTaggerV2
+from RecoJets.JetProducers.hepTopTaggerV2_cff import chsForHTT, hepTopTaggerV2
 
 process.chsForHTT = chsForHTT
-process.HEPTopTaggerV2 = HEPTopTaggerV2
+process.hepTopTaggerV2 = hepTopTaggerV2
 
-process.OUT.outputCommands.append("keep *_HEPTopTaggerV2_*_Demo")
+process.OUT.outputCommands.append("keep *_hepTopTaggerV2_*_Demo")
         
 
 
