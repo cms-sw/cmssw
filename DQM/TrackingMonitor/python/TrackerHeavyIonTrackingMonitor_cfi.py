@@ -35,7 +35,7 @@ TrackerHeavyIonTrackMon.TkSizeMax             = cms.double(1799.5)
 TrackerHeavyIonTrackMon.TkSizeMin             = cms.double(-0.5)
 
 # chi2 dof
-TrackerHeavyIonTrackMon.Chi2NDFBin            = cms.int32(100)
-TrackerHeavyIonTrackMon.Chi2NDFMax            = cms.double(49.5)
+TrackerHeavyIonTrackMon.Chi2NDFBin            = cms.int32(160)
+TrackerHeavyIonTrackMon.Chi2NDFMax            = cms.double(79.5)
 TrackerHeavyIonTrackMon.Chi2NDFMin            = cms.double(-0.5)
                 
