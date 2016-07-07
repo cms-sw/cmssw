@@ -1483,7 +1483,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
           col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
         else {
           c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
-          vc.push_back(c);}
+          vc.push_back(c);
+          }
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -1764,7 +1765,8 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
 	else {
 	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
-	  vc.push_back(c);}
+	  vc.push_back(c);
+          }
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
