@@ -1,16 +1,18 @@
 /*
-  Takes in the output of Deltas module and sorts to find 
-  three best tracks per given sector.
+Takes in the output of Deltas module and sorts to find 
+three best tracks per given sector.
 
-  Author: Matthew R. Carver
-  Date: 7/29/13
+
+Author: Matthew R. Carver
+Date: 7/29/13
 */
 
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 
+
 std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
-  
-  //bool verbose = false;
+
+  bool verbose = false;
   
   int larger[12][12] = {{0},{0}}, kill[12] = {0};
   int exists[12] = {0};
@@ -20,7 +22,9 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
   for(int r=0;r<4;r++){
     for(int t=0;t<3;t++){
       for(int d=0;d<4;d++){
+	
 	phi[r][t][d] = Dout[r][t].GetMatchOut().PhiMatch()[r][t][d].Phi();
+	//if(phi[r][t][d] != -999) std::cout<<"phi = "<<phi[r][t][d]<<"\n";
 	id[r][t][d] = Dout[r][t].GetMatchOut().PhiMatch()[r][t][d].Id();
       }
     }
@@ -30,9 +34,7 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
   std::vector<BTrack> output (3,tmp);
 	
   for(int zone=0;zone<4;zone++){
-    
     for(int winner=0;winner<3;winner++){
-      
       for(int station=0;station<4;station++){
 	
 	int cham = Dout[zone][winner].GetMatchOut().PhiMatch()[zone][winner][station].Id();
@@ -68,11 +70,10 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
 	
 	//if(phi[zone][winner][relst] != -999 && verbose)
 	//	std::cout<<"st:"<<relst<<"::real phi = "<<phi[zone][winner][relst]<<" and id = "<<id[zone][winner][relst]<<std::endl;
-	
       }
     }
   }
-	
+  
   ///Here we compare the best three ranks from each zone with each other
   for(int i=0;i<12;i++){
     
@@ -82,6 +83,11 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
     for(int j=0;j<12;j++){
       
       int rankj = Dout[j%4][j/4].GetWinner().Rank();
+      if(ranki && rankj){
+	
+	//std::cout<<"ranki = "<<ranki<<", and rankj = "<<rankj<<"\n";
+	
+      }
       bool greater = (ranki > rankj);
       bool equal = (ranki == rankj);
       
@@ -94,11 +100,8 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
   
   // ghost cancelltion. only in current BX so far(as in firmware as well)
   for(int k=0;k<12;k++){
-    
     for(int l=0;l<12;l++){
-      
       int sh_seg = 0;
-      
       for(int s=0;s<4;s++){
 	
 	//if(id[k%4][k/4][s] && (k != l) && ((phi[k%4][k/4][s] != -999) && (phi[l%4][l/4][s] != -999)) && verbose)
@@ -112,47 +115,36 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
 	  
 	  sh_seg++;
 	}
-	
       }
       
       if(sh_seg){
-	
 	//kill candidate that has lower rank
 	//if(verbose) std::cout<<"\nsh_seg != 0\nk = "<<k<<" and l = "<<l<<"\n";
 	if(larger[k][l]){kill[l] = 1;}
 	else{kill[k] = 1;}
       }
-      
     }
   }
   
   //remove ghosts according to kill array
   for(int q=0;q<12;q++){
-    
     if(kill[q]){exists[q] = 0;}
   }
   
-  
   for(int p=0;p<12;p++){
-    
     if(exists[p]){
-      
       for(int x=0;x<12;x++){
-	
 	if(!exists[x]){larger[p][x] = 1;}
       }
     }
     else{
-      
       for(int x=0;x<12;x++){
-	
 	larger[p][x] = 0;
       }
     }
     
     int sum = 0;
     for(int j=0;j<12;j++){
-      
       if(!larger[p][j]){sum++;}
     }
     
@@ -160,17 +152,26 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
   }
   
   for(int n=0;n<3;n++){
-    
     for(int i=0;i<12;i++){
-      
       if(winner[n][i]){
 	
 	BTrack bests;
+	int mode = 0;
+	if(Dout[i%4][i/4].GetWinner().Rank() & 32)
+	  mode |= 8;
+	if(Dout[i%4][i/4].GetWinner().Rank() & 8)
+	  mode |= 4;
+	if(Dout[i%4][i/4].GetWinner().Rank() & 2)
+	  mode |= 2;
+	if(Dout[i%4][i/4].GetWinner().Rank() & 1)
+	  mode |= 1;
 	
-	//if(verbose) std::cout<<"Best Rank "<<n<<" = "<<Dout[i%4][i/4].GetWinner().Rank()<<"\n\n";
-	//if(verbose) std::cout<<"Phi = "<<Dout[i%4][i/4].Phi()<<" and Theta = "<<Dout[i%4][i/4].Theta()<<"\n\n";
-	//if(verbose) std::cout<<"Ph Deltas: "<<Dout[i%4][i/4].Deltas()[0][0]<<" "<<Dout[i%4][i/4].Deltas()[0][1]<<"   Th Deltas: "<<Dout[i%4][i/4].Deltas()[1][0]
-	//													     <<" "<<Dout[i%4][i/4].Deltas()[1][1]<<"\n\n";
+	if(verbose) std::cout<<"Best Rank "<<n<<" = "<<Dout[i%4][i/4].GetWinner().Rank()<<" and mode = "<<mode<<"\n\n";
+	if(verbose) std::cout<<"Phi = "<<Dout[i%4][i/4].Phi()<<" and Theta = "<<Dout[i%4][i/4].Theta()<<"\n\n";
+	if(verbose) std::cout<<"Ph Deltas: "<<Dout[i%4][i/4].Deltas()[0][0]<<" "<<Dout[i%4][i/4].Deltas()[0][1]<<" "<<Dout[i%4][i/4].Deltas()[0][2]<<" "<<Dout[i%4][i/4].Deltas()[0][3]
+			     <<" "<<Dout[i%4][i/4].Deltas()[0][4]<<" "<<Dout[i%4][i/4].Deltas()[0][5]<<"   \nTh Deltas: "<<Dout[i%4][i/4].Deltas()[1][0]
+			     <<" "<<Dout[i%4][i/4].Deltas()[1][1]<<" "<<Dout[i%4][i/4].Deltas()[1][2]<<" "<<Dout[i%4][i/4].Deltas()[1][3]
+			     <<" "<<Dout[i%4][i/4].Deltas()[1][4]<<" "<<Dout[i%4][i/4].Deltas()[1][5]<<"\n\n";
 	
 	bests.winner = Dout[i%4][i/4].GetWinner();
 	bests.phi = Dout[i%4][i/4].Phi();
@@ -178,13 +179,31 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
 	bests.deltas = Dout[i%4][i/4].Deltas();
 	bests.clctpattern = Dout[i%4][i/4].GetMatchOut().PhiMatch()[i%4][i/4][0].Pattern();
 	bests.AHits = Dout[i%4][i/4].GetMatchOut().PhiMatch()[i%4][i/4];
+
+	if (bests.phi != 0 && bests.theta == 0)
+	  std::cout << "In BestTracks.h, phi = " << bests.phi << " and theta = " << bests.theta << std::endl;
 	
 	output[n] = bests;
 	
       }
     }
   }
-  
-  return output;
 
+  return output;
+  
 }
+
+std::vector<std::vector<BTrack>> BestTracks_Hold(std::vector<std::vector<std::vector<DeltaOutput>>> Dout){
+	
+  BTrack tmp;
+  std::vector<BTrack> output (3,tmp);
+  std::vector<std::vector<BTrack>> full_output (3,output);
+  
+  for(int bx=0;bx<3;bx++){
+    full_output[bx] = BestTracks(Dout[bx]);
+  }
+
+  return full_output;
+  
+}
+

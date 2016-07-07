@@ -926,6 +926,11 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
     //////////////////////////////////////////////////
     //// Calculate Delta Phi and Eta Combinations ////
     //////////////////////////////////////////////////
+
+    for(int d=0;d<6;d++){
+      dphi[d] = track.deltas[0][d];
+      deta[d] = track.deltas[1][d];
+    }
 	
     if(phis[0] > 0 && phis[1] > 0){ // 1 - 2
       dphi[0] = phis[1] - phis[0];
@@ -1520,16 +1525,11 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
 	if (dPhi12<0) dPhi12Sign = -1;
 	if (dPhi23<0) dPhi23Sign = -1;
 	if (dPhi34<0) dPhi34Sign = -1;
-      
-	if (dPhi12Sign==-1 && dPhi23Sign==-1 && dPhi34Sign==-1)
-	  { dPhi12Sign=1;dPhi23Sign=1;dPhi34Sign=1;}
-	else if (dPhi12Sign==-1 && dPhi23Sign==1 && dPhi34Sign==1)
-	  { dPhi12Sign=1;dPhi23Sign=-1;dPhi34Sign=-1;}
-	else if (dPhi12Sign==-1 && dPhi23Sign==-1 && dPhi34Sign==1)
-	  { dPhi12Sign=1;dPhi23Sign=1;dPhi34Sign=-1;}
-	else if (dPhi12Sign==-1 && dPhi23Sign==1 && dPhi34Sign==-1)
-	  { dPhi12Sign=1;dPhi23Sign=-1;dPhi34Sign=1;}
-      
+
+	dPhi23Sign *= dPhi12Sign;
+	dPhi34Sign *= dPhi12Sign;
+	dPhi12Sign = 1;
+
 	// Make Pt LUT Address
 	int dPhi12_ = getNLBdPhiBin(dPhi12, 7, 512);
 	int dPhi23_ = getNLBdPhiBin(dPhi23, 5, 256);
@@ -1539,7 +1539,7 @@ unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, 
 	int FR1_ = FR1;
 	int eta_ = getEtaInt(TrackEta, 5);
 	int Mode_ = mode_inv;
-      
+
 	Address += ( dPhi12_ & ((1<<7)-1)) << 0;
 	Address += ( dPhi23_ & ((1<<5)-1)) << (0+7);
 	Address += ( dPhi34_ & ((1<<6)-1)) << (0+7+5);
