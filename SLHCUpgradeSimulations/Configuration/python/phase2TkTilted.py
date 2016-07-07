@@ -19,7 +19,7 @@ def customise(process):
             sys.exit(1)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process,float(n))
-    if hasattr(process,'simultationTkOnly_step'):
+    if hasattr(process,'simulationTkOnly_step'):
         process=customise_SimTkOnly(process)
     if hasattr(process,'digitisationTkOnly_step'):
         process=customise_DigiTkOnly(process)
