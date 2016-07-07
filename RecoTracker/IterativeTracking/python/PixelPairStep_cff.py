@@ -125,6 +125,10 @@ eras.trackingPhase1PU70.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelP
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.801,
 ))
+eras.trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
+    maxLostHitsFraction = 1./10.,
+    constantValueForLostHitsFractionFilter = 0.701,
+))
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 pixelPairStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
 pixelPairStepTrajectoryFilter = cms.PSet(
@@ -133,11 +137,6 @@ pixelPairStepTrajectoryFilter = cms.PSet(
         cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterBase')),
     #    cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))
     ),
-)
-eras.trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilter, TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    maxLostHitsFraction = 1./10.,
-    constantValueForLostHitsFractionFilter = 0.701,
-    )
 )
 
 

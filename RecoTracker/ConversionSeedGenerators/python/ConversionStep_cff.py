@@ -403,9 +403,6 @@ convCkfTrajectoryBuilder = _convCkfTrajectoryBuilderBase.clone(
 eras.trackingPhase1PU70.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
     maxCand = 2,
 ))
-eras.trackingPhase1PU70.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
-    maxCand = 2,
-))
 eras.trackingPhase2PU140.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
     maxCand = 2,
 ))

@@ -60,6 +60,7 @@ muonSeededTracksOutInDisplaced = RecoTracker.TrackProducer.TrackProducer_cfi.Tra
 muonSeededTracksOutInDisplacedClassifier = RecoTracker.IterativeTracking.MuonSeededStep_cff.muonSeededTracksOutInClassifier.clone()
 muonSeededTracksOutInDisplacedClassifier.src='muonSeededTracksOutInDisplaced'
 
+
 #for displaced global muons
 muonSeededStepCoreDisplaced = cms.Sequence(
     cms.SequencePlaceholder("muonSeededStepCoreInOut") +
@@ -88,4 +89,3 @@ muonSeededStepDebugDisplaced = cms.Sequence(
     muonSeededSeedsOutInDisplacedAsTracks + muonSeededTrackCandidatesOutInDisplacedAsTracks +
     cms.SequencePlaceholder("muonSeededStepDebugInOut")
 )
-
