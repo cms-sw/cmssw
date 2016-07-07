@@ -171,6 +171,10 @@ trackingDQMgoodOfflinePrimaryVertices.filterParams = pvSelector.clone( minNdof =
 trackingDQMgoodOfflinePrimaryVertices.src=cms.InputTag('offlinePrimaryVertices')
 trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
 
+
+# import v0 monitoring
+from DQM.TrackingMonitor.V0Monitor_cff import *
+
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence()
 # dEdx monitoring
