@@ -31,14 +31,36 @@ std::vector<std::vector<ConvertedHit>> GroupBX(std::vector<ConvertedHit> ConvHit
       output[1].push_back(*i);
   }
   
+  for(int i=0;i<3;i++){
+		
+    for(std::vector<ConvertedHit>::iterator it = output[i].begin();it != output[i].end();it++){
+      for(std::vector<ConvertedHit>::iterator it2 = it;it2 != output[i].end();it2++){
+	
+	if(it == it2) continue;
+	
+	//add that phis have to be equal if assuming that a phi position can have only 2 possible thetas
+	if(it->Station() == it2->Station() && it->Id() == it2->Id() ){
+	  
+	  it->SetTheta2(it2->Theta());
+	  it2->SetTheta2(it->Theta());
+	  
+	  it->AddTheta(it2->Theta());
+	  it2->AddTheta(it->Theta());
+	}
+	
+      }
+    }
+    
+  }
+  
   return output;
   
 }
 
 PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
-  
+
   std::vector<int> tmp (192,0);//was 128
-  std::vector<std::vector<int>> rank (4,tmp), layer(4,tmp),straightness(4,tmp);
+  std::vector<std::vector<int>> rank (4,tmp), layer(4,tmp),straightness(4,tmp),bxgroup(4,tmp);
   std::vector<ConvertedHit> Hits;
   
   for(int i=0;i<3;i++){
@@ -48,17 +70,18 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
     for(int zone=0;zone<4;zone++){
       for(int strip=0;strip<192;strip++){//was 128
 	
-	if(Pout[i].detected.rank[zone][strip] >= rank[zone][strip]){
+	if(Pout[i].detected.rank[zone][strip] > rank[zone][strip]){
 	  
 	  rank[zone][strip] = Pout[i].detected.rank[zone][strip];
 	  layer[zone][strip] = Pout[i].detected.layer[zone][strip];
 	  straightness[zone][strip] = Pout[i].detected.straightness[zone][strip];
+	  bxgroup[zone][strip] = i+1;
 	  set = 1;
 	}
       }
     }
     
-    if(set && (Pout[i].hits.size() > Hits.size())){
+    if(set ){/*//&& (Pout[i].hits.size() >= Hits.size())){*/
       
       std::vector<ConvertedHit> test = Pout[i].hits;
       
@@ -70,16 +93,15 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
   }
   
   QualityOutput qout;
-  
   qout.rank = rank;
   qout.layer = layer;
   qout.straightness = straightness;
+  qout.bxgroup = bxgroup;
   
   PatternOutput output;
-  
   output.detected = qout;
   output.hits = Hits;
-  
+	
   return output;
   
 }
