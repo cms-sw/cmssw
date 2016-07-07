@@ -162,6 +162,7 @@ workflows[136.731] = ['',['RunSinglePh2016B','HLTDR2_2016','RECODR2_2016reHLT','
 workflows[136.732] = ['',['RunZeroBias2016B','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
 workflows[136.733] = ['',['RunCosmics2016B','RECOCOSDRUN2','ALCACOSDRUN2','HARVESTDCRUN2']]
 workflows[136.734] = ['',['RunMuOnia2016B','HLTDR2_2016','RECODR2_2016reHLT_skimMuOnia','HARVESTDR2']]
+workflows[136.7321] = ['',['RunZeroBias2016BnewL1repack','HLTDR2newL1repack_2016','RECODR2newL1repack_2016reHLT','HARVESTDR2']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
