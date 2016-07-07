@@ -199,6 +199,7 @@ steps['RunSingleMu2016B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016B-v2/RA
 steps['RunSinglePh2016B']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016B-v2/RAW',label='sigPh2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunZeroBias2016B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016B-v2/RAW',label='zb2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunMuOnia2016B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016B-v2/RAW',label='muOnia2016B',events=100000,location='STD', ls=Run2016B)}
+steps['RunZeroBias2016BnewL1repack']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016B-v2/RAW',label='zb2016BnewL1rep',events=100000,location='STD', ls=Run2016B)}
 
 # Highstat HLTPhysics 
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -1011,6 +1012,7 @@ steps['HLTDR2_25ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--cond
 hltKey2016='relval2016'
 menuR2_2016 = autoHLT[hltKey2016]
 steps['HLTDR2_2016']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
+steps['HLTDR2newL1repack_2016']=merge( [ {'-s':'L1REPACK:FullSimTP,HLT:@%s'%hltKey2016,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2016'},steps['HLTD'] ] )
 
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
@@ -1137,6 +1139,7 @@ steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:
 steps['RECODR2_25nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_25ns']])
 steps['RECODR2_50nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_50ns']])
 steps['RECODR2_2016reHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_2016']])
+steps['RECODR2newL1repack_2016reHLT']=merge([{'-s':'L1REPACK:FullSimTP,RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@miniAODDQM','--hltProcess':'reHLT'},steps['RECODR2_2016']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval'},steps['RECODR2AlCaEle']])
 
 
