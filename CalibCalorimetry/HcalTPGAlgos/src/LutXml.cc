@@ -19,7 +19,7 @@
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-#include "FWCore/Utilities/interface/md5.h"
+#include "md5.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcalEmap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
