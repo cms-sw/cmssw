@@ -224,9 +224,12 @@ HLT_PFHT300_PFMET110_v*						# JIRA: CMSHLT-742
 
 #HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105, CMSHLT-479, CMSHLT-652,  removed by CMSHLT-882
 #HLT_PFMET170_JetIdCleaned_v*                          		# JIRA: CMSHLT-479,  removed by CMSHLT-882
-HLT_PFMET170_HBHECleaned_v*                          		# JIRA: CMSHLT-479, CMSHLT-652
 HLT_PFMET170_NotCleaned_v*                          		# JIRA: CMSHLT-479, renamed by CMSHLT-711
+HLT_PFMET170_HBHECleaned_v*                          		# JIRA: CMSHLT-479, CMSHLT-652
 HLT_PFMET170_BeamHaloCleaned_v*					# JIRA: CMSHLT-836
+HLT_PFMET170_HBHE_BeamHaloCleaned_v*				# JIRA: CMSHLT-901
+HLT_PFMETTypeOne190_HBHE_BeamHaloCleaned_v*			# JIRA: CMSHLT-908
+
 HLT_PFMET120_BTagCSV_p067_v*					# JIRA: CMSHLT-105, CMSHLT-405, CMSHLT-479, CMSHLT-601, CMSHLT-666, CMSHLT-711
 HLT_PFMET120_Mu5_v*						# JIRA: CMSHLT-120, CMSHLT-190, CMSHLT-479, CMSHLT-601, CMSHLT-711
 
@@ -427,6 +430,7 @@ HLT_VBF_DisplacedJet40_TightID_Hadronic_v*			# JIRA: CMSHLT-196, CMSHLT-745 (onl
 
 HLT_PFMET90_PFMHT90_IDTight_v*					# JIRA: CMSHLT-203 (only for 7e33), CMSHLT-333, CMSHLT-711
 HLT_PFMET100_PFMHT100_IDTight_v*				# JIRA: CMSHLT-203 (only for 7e33), CMSHLT-333, CMSHLT-711
+HLT_PFMET100_PFMHT100_IDTight_BeamHaloCleaned_v*		# JIRA: CMSHLT-901
 HLT_PFMET110_PFMHT110_IDTight_v*				# JIRA: CMSHLT-203 (only for 7e33), CMSHLT-333, CMSHLT-711
 
 HLT_Dimuon16_Jpsi_v*						# JIRA: CMSHLT-211 (only for 7e33)
@@ -644,8 +648,9 @@ HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_L1JetTauSeeded_v*	# JIRA: CMSHLT-874
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
+HLT_ZeroBias_FirstCollisionAfterAbortGap_v*			# JIRA: CMSHLT-798, CMSHLT-903
+HLT_ZeroBias_FirstCollisionAfterAbortGap_copy_v*		# JIRA: CMSHLT-798, CMSHLT-903
 HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_v*		# JIRA: CMSHLT-847
-HLT_ZeroBias_FirstCollisionAfterAbortGap_v*			# JIRA: CMSHLT-798
 HLT_ZeroBias_IsolatedBunches_v*					# JIRA: CMSHLT-595
 
 HLT_L1BeamGasMinus_v*						# JIRA: CMSHLT-809

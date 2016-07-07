@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V134 (CMSSW_8_0_12)
+# /dev/CMSSW_8_0_0/PRef/V138 (CMSSW_8_0_12)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V134')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V138')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -3028,7 +3028,7 @@ fragment.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngle
 fragment.ThroughputService = cms.Service( "ThroughputService",
     dqmPath = cms.untracked.string( "HLT/Throughput" ),
     timeRange = cms.untracked.double( 60000.0 ),
-    timeResolution = cms.untracked.double( 10.0 )
+    timeResolution = cms.untracked.double( 5.828 )
 )
 
 fragment.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
