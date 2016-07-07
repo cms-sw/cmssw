@@ -38,7 +38,7 @@ namespace {
     CharType const* ptr() const { return m_array.get(); }
 
   private:
-    std::shared_ptr< CharType >   m_array;
+    std::unique_ptr< CharType, void (*)(CharType*) > m_array;
   };
   
   inline void dispose(XMLCh* ptr) { XMLString::release(&ptr); }
