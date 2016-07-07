@@ -128,7 +128,7 @@ void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
   TrackRef mu_track;
   if(inputMuon->isGlobalMuon()) {
     mu_track = inputMuon->globalTrack();
-  } else if(inputMuon->isTrackerMuon() || inputMuon->isRPCMuon()) {
+  } else if(inputMuon->isTrackerMuon() || inputMuon->isRPCMuon() || inputMuon->isGEMMuon() || inputMuon->isME0Muon()) {
     mu_track = inputMuon->innerTrack();
   } else 
     mu_track = inputMuon->outerTrack();
@@ -174,7 +174,7 @@ void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
       mup4 = LorentzVector(inputMuon->globalTrack()->px(), inputMuon->globalTrack()->py(),
 			   inputMuon->globalTrack()->pz(), inputMuon->globalTrack()->p());
     }	
-  } else if(inputMuon->isTrackerMuon() || inputMuon->isRPCMuon()) {
+  } else if(inputMuon->isTrackerMuon() || inputMuon->isRPCMuon() || inputMuon->isGEMMuon() || inputMuon->isME0Muon()) {
     mup4 = LorentzVector(inputMuon->innerTrack()->px(), inputMuon->innerTrack()->py(),
 			 inputMuon->innerTrack()->pz(), inputMuon->innerTrack()->p());
   } else 

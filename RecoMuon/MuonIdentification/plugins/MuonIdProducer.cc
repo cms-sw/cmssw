@@ -556,8 +556,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          bool newMuon = true;
          const bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
          const bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
-         const bool goodGEMMuon = isGEMMuon( trackerMuon );
-         const bool goodME0Muon = isME0Muon( trackerMuon );
+         const bool goodGEMMuon = isGoodGEMMuon( trackerMuon );
+         const bool goodME0Muon = isGoodME0Muon( trackerMuon );
          if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
          if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
          if ( goodGEMMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::GEMMuon );
@@ -761,13 +761,13 @@ bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
   return ( muon.numberOfMatchedRPCLayers( reco::Muon::RPCHitAndTrackArbitration ) > minNumberOfMatches_ );
 }
 
-bool MuonIdProducer::isGEMMuon( const reco::Muon& muon )
+bool MuonIdProducer::isGoodGEMMuon( const reco::Muon& muon )
 {
   if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
   return ( muon.numberOfMatches( reco::Muon::GEMSegmentAndTrackArbitration ) >= 1 );    
 }
 
-bool MuonIdProducer::isME0Muon( const reco::Muon& muon )
+bool MuonIdProducer::isGoodME0Muon( const reco::Muon& muon )
 {
   // need to update min cuts on pt
   if(muon.track()->p() < minP_) return false;
