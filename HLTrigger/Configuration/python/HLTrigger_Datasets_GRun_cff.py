@@ -72,7 +72,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetNoBPTX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamA_datasetNoBPTX_selector.throw      = cms.bool(False)
-streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_v2', 
+streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_v3', 
     'HLT_JetE30_NoBPTX_v3', 
     'HLT_JetE50_NoBPTX3BX_v2', 
     'HLT_JetE70_NoBPTX3BX_v2', 
@@ -87,6 +87,7 @@ streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_v1', 
+    'HLT_ZeroBias_FirstCollisionAfterAbortGap_copy_v1', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_v2', 
     'HLT_ZeroBias_IsolatedBunches_v3', 
     'HLT_ZeroBias_v4')
@@ -425,6 +426,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_Mu3er_PFHT140_PFMET125_v3', 
     'HLT_Mu6_PFHT200_PFMET100_v2', 
     'HLT_Mu6_PFHT200_PFMET80_BTagCSV_p067_v2', 
+    'HLT_PFMET100_PFMHT100_IDTight_BeamHaloCleaned_v1', 
     'HLT_PFMET100_PFMHT100_IDTight_v4', 
     'HLT_PFMET110_PFMHT110_IDTight_v4', 
     'HLT_PFMET120_BTagCSV_p067_v3', 
@@ -432,6 +434,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_PFMET120_PFMHT120_IDTight_v4', 
     'HLT_PFMET170_BeamHaloCleaned_v2', 
     'HLT_PFMET170_HBHECleaned_v4', 
+    'HLT_PFMET170_HBHE_BeamHaloCleaned_v1', 
     'HLT_PFMET170_NotCleaned_v3', 
     'HLT_PFMET300_v3', 
     'HLT_PFMET400_v3', 
@@ -441,7 +444,8 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v4', 
     'HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v4', 
     'HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v4', 
-    'HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v4')
+    'HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v4', 
+    'HLT_PFMETTypeOne190_HBHE_BeamHaloCleaned_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTau_selector
 streamA_datasetTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
