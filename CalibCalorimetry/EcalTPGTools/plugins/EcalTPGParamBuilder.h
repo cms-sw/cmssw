@@ -78,7 +78,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   void getCoeff(coeffStruc & coeff, const std::map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId) ;
 
   //modif-alex-27-july-2015
-  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, const EcalLaserAlphaMap& laserAlphaMap,  uint rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, const EcalLaserAlphaMap& laserAlphaMap,  uint rawId, std::string & ss) ;
 
   void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
