@@ -132,6 +132,8 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 //__________DQM_base_class_______________________________________________
 L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
 
+  m_verbose = ps.getUntrackedParameter<bool>("verbose");
+
   if (m_verbose) {
     cout << "[L1TEfficiencyMuons_Offline:] ____________ Storage initialization ____________ " << endl;
   }
@@ -147,7 +149,7 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
 
   m_trigInputTag = consumes<trigger::TriggerEvent>(ps.getUntrackedParameter<InputTag>("trigInputTag"));
   m_trigProcess  = ps.getUntrackedParameter<string>("trigProcess");
-  m_trigProcess_token  = consumes<edm::TriggerResults>(ps.getUntrackedParameter<string>("trigProcess_token"));
+  m_trigProcess_token  = consumes<edm::TriggerResults>(ps.getUntrackedParameter<InputTag>("trigProcess_token"));
   m_trigNames    = ps.getUntrackedParameter<vector<string> >("triggerNames");
 
   // CB do we need them from cfi?
@@ -255,10 +257,10 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
   edm::Handle<trigger::TriggerEvent> trigEvent;
   iEvent.getByToken(m_trigInputTag,trigEvent);
 
-  eventSetup.get<IdealMagneticFieldRecord>().get(m_BField);
+ eventSetup.get<IdealMagneticFieldRecord>().get(m_BField);												
 
-  eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny",m_propagatorAlong);
-  eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite",m_propagatorOpposite);
+ eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny",m_propagatorAlong);					
+ eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite",m_propagatorOpposite);		
 
   const Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
