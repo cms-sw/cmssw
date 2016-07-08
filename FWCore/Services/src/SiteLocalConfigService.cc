@@ -26,14 +26,17 @@ using namespace xercesc;
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 namespace {
+  
+  inline void dispose(XMLCh* ptr) { XMLString::release(&ptr); }
+  inline void dispose(char* ptr)  { XMLString::release(&ptr); }
 
   template< class CharType >
   class ZStr      // Zero-terminated string.
   {
   public:
-    ZStr(CharType const* str, void (*deleter)(CharType*))
-      : m_array(const_cast<CharType*>(str), deleter)
-    { assert(deleter != 0); }
+    ZStr(CharType const* str)
+      : m_array(const_cast<CharType*>(str), &dispose)
+    {}
     
     CharType const* ptr() const { return m_array.get(); }
 
@@ -41,17 +44,14 @@ namespace {
     std::unique_ptr< CharType, void (*)(CharType*) > m_array;
   };
   
-  inline void dispose(XMLCh* ptr) { XMLString::release(&ptr); }
-  inline void dispose(char* ptr)  { XMLString::release(&ptr); }
-
   inline ZStr<XMLCh> uStr(char const* str)
   {
-    return ZStr<XMLCh>(XMLString::transcode(str), &dispose);
+    return ZStr<XMLCh>(XMLString::transcode(str));
   }
  
   inline ZStr<char> cStr(XMLCh const* str)
   {
-    return ZStr<char>(XMLString::transcode(str), &dispose);
+    return ZStr<char>(XMLString::transcode(str));
   }
   
   inline std::string _toString(XMLCh const* toTranscode) {
