@@ -1,9 +1,15 @@
 #ifndef IOPool_Streamer_RawEventOutputModuleForBU_h
 #define IOPool_Streamer_RawEventOutputModuleForBU_h
 
+<<<<<<< HEAD
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+=======
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+>>>>>>> 7418a65... *end EvFBuildingThrottle throttling using edm::shutdown flag. Raw output module will shuth down through the framework mechanisms,
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -22,7 +28,7 @@
 
 class FRDEventMsgView;
 template <class Consumer>
-class RawEventOutputModuleForBU : public edm::OutputModule
+class RawEventOutputModuleForBU : public edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>
 {
   typedef unsigned int uint32;
   /**
@@ -63,7 +69,8 @@ class RawEventOutputModuleForBU : public edm::OutputModule
 
 template <class Consumer>
 RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet const& ps) :
-  edm::OutputModule(ps),
+  edm::one::OutputModuleBase::OutputModuleBase(ps),
+  edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>(ps),
   templateConsumer_(new Consumer(ps)),
   label_(ps.getUntrackedParameter<std::string>("ProductLabel","source")),
   instance_(ps.getUntrackedParameter<std::string>("ProductInstance","")),
