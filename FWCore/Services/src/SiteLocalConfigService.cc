@@ -14,7 +14,7 @@
 #include <boost/algorithm/string.hpp>
 
 using namespace xercesc;
-using namespace cms::utils;
+using namespace cms::xerces;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
