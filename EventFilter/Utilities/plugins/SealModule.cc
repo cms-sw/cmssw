@@ -32,8 +32,6 @@ DEFINE_FWK_SERVICE_MAKER(FastMonitoringService, FastMonitoringServiceMaker);
 DEFINE_FWK_SERVICE(EvFBuildingThrottle);
 DEFINE_FWK_SERVICE(EvFDaqDirector);
 DEFINE_FWK_MODULE(ExceptionGenerator);
-DEFINE_FWK_MODULE(EvFRecordInserter);
-DEFINE_FWK_MODULE(EvFRecordUnpacker);
 DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
 DEFINE_FWK_MODULE(EvFOutputModule);
 DEFINE_FWK_MODULE(ShmStreamConsumer);

@@ -7,7 +7,6 @@
  *  \author N. Amapane - CERN
  */
 
-#include "EvffedFillerRB.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -50,8 +49,6 @@ private:
 		float width);
   void fillGTPFED(edm::EventID& eID,
 		   FEDRawDataCollection& data,timeval * now);
-  void fillFED1023(edm::EventID& eID,
-		   FEDRawDataCollection& data,timeval * now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
  private:
   //
@@ -65,7 +62,6 @@ private:
   unsigned int        injected_errors_per_million_events;
   unsigned int        modulo_error_events;
   unsigned int        fakeLs_=0;
-  evf::EvffedFillerRB frb;
 };
 
 #endif
