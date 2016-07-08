@@ -8,7 +8,7 @@ HcalUMNioDigi::HcalUMNioDigi(const uint16_t* ptr, int words) {
   payload_.reserve(words);
   std::cout << "Entering pointer loop" <<std::endl;
   for (int i=0; i<words; i++) {
-    std::cout << "Adding word: "<<i<<" : "<<ptr[i]<<std::endl;
+    std::cout << "Adding word: "<< i<<" : "<<std::hex<<ptr[i]<<std::endl;
     payload_.push_back(ptr[i]);
   }
   std::cout << "Done constructing" <<std::endl;
