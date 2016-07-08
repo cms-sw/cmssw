@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# TEST !!!
-
 # TrackingParticle (MC truth) selectors
 muonTPSet = cms.PSet(
     src = cms.InputTag("mix", "MergedTrackTruth"),
