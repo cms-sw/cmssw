@@ -9,7 +9,7 @@ XERCES_CPP_NAMESPACE_USE
 #endif
 
 namespace cms {
-  namespace utils {
+  namespace xerces {
     inline void dispose(XMLCh* ptr) { XMLString::release(&ptr); }
     inline void dispose(char* ptr)  { XMLString::release(&ptr); }
 
