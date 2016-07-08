@@ -8,12 +8,13 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
-#include <xercesc/util/XMLString.hpp>
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <sstream>
 #include <memory>
 #include <boost/algorithm/string.hpp>
 
 using namespace xercesc;
+using namespace cms::utils;
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -27,58 +28,6 @@ using namespace xercesc;
 
 namespace {
   
-  inline void dispose(XMLCh* ptr) { XMLString::release(&ptr); }
-  inline void dispose(char* ptr)  { XMLString::release(&ptr); }
-
-  template< class CharType >
-  class ZStr      // Zero-terminated string.
-  {
-  public:
-    ZStr(CharType const* str)
-      : m_array(const_cast<CharType*>(str), &dispose)
-    {}
-    
-    CharType const* ptr() const { return m_array.get(); }
-
-  private:
-    std::unique_ptr< CharType, void (*)(CharType*) > m_array;
-  };
-  
-  inline ZStr<XMLCh> uStr(char const* str)
-  {
-    return ZStr<XMLCh>(XMLString::transcode(str));
-  }
- 
-  inline ZStr<char> cStr(XMLCh const* str)
-  {
-    return ZStr<char>(XMLString::transcode(str));
-  }
-  
-  inline std::string _toString(XMLCh const* toTranscode) {
-    return std::string(cStr(toTranscode).ptr());
-  }
-
-  inline unsigned int _toUInt(XMLCh const* toTranscode) {
-     std::istringstream iss(_toString(toTranscode));
-     unsigned int returnValue;
-     iss >> returnValue;
-     return returnValue;
-  }
-
-  inline bool _toBool(XMLCh const* toTranscode) {
-    std::string value = _toString(toTranscode);
-    if ((value == "true") || (value == "1"))
-      return true;
-    return false;
-  }
-
-  inline double _toDouble(XMLCh const* toTranscode) {
-     std::istringstream iss(_toString(toTranscode));
-     double returnValue;
-     iss >> returnValue;
-     return returnValue;
-  }
-
   // concatenate all the XML node attribute/value pairs into a
   // paren-separated string (for use by CORAL and frontier_client)
   inline std::string _toParenString(DOMNode const& nodeToConvert) {
@@ -103,9 +52,9 @@ namespace {
             }
             DOMAttr *attribute = static_cast<DOMAttr *>(attributeNode);
 
-            oss << "(" << _toString(child->getTagName()) <<
-                          _toString(attribute->getName()) << "=" <<
-                          _toString(attribute->getValue()) << ")";
+            oss << "(" << toString(child->getTagName()) <<
+                          toString(attribute->getName()) << "=" <<
+                          toString(attribute->getValue()) << ")";
         }
       }
       return oss.str();
@@ -419,7 +368,7 @@ namespace edm {
 	    DOMElement *site = static_cast<DOMElement *>(sites->item(i));
 	    
 	    // Parse the site name
-	    m_siteName = _toString(site->getAttribute(uStr("name").ptr()));
+	    m_siteName = toString(site->getAttribute(uStr("name").ptr()));
 	    
 	    // Parsing of the event data section
 	    {
@@ -431,19 +380,19 @@ namespace edm {
 		
 		if (catalogs->getLength() > 0) {
 		  DOMElement * catalog = static_cast<DOMElement *>(catalogs->item(0));
-		  m_dataCatalog = _toString(catalog->getAttribute(uStr("url").ptr()));
+		  m_dataCatalog = toString(catalog->getAttribute(uStr("url").ptr()));
 		}
 		
 		if (catalogs->getLength() > 1) {
 		  DOMElement * catalog = static_cast<DOMElement *>(catalogs->item(1));
-		  m_fallbackDataCatalog = _toString(catalog->getAttribute(uStr("url").ptr()));
+		  m_fallbackDataCatalog = toString(catalog->getAttribute(uStr("url").ptr()));
 		}
 		
 		DOMNodeList* rfiotypes = eventData->getElementsByTagName(uStr("rfiotype").ptr());
 		
 		if (rfiotypes->getLength() > 0) {
 		  DOMElement* rfiotype = static_cast<DOMElement *>(rfiotypes->item(0));
-		  m_rfioType = _toString(rfiotype->getAttribute(uStr("value").ptr()));
+		  m_rfioType = toString(rfiotype->getAttribute(uStr("value").ptr()));
 		}
 	      }
 	    }
@@ -472,7 +421,7 @@ namespace edm {
 		
 		if (cacheTempDirList->getLength() > 0) {
 		  DOMElement *cacheTempDir = static_cast<DOMElement *>(cacheTempDirList->item(0));
-		  m_cacheTempDir = _toString(cacheTempDir->getAttribute(uStr("name").ptr()));
+		  m_cacheTempDir = toString(cacheTempDir->getAttribute(uStr("name").ptr()));
 		  m_cacheTempDirPtr = &m_cacheTempDir;
 		}
 		
@@ -480,7 +429,7 @@ namespace edm {
 		
 		if (cacheMinFreeList->getLength() > 0) {
 		  DOMElement *cacheMinFree = static_cast<DOMElement *>(cacheMinFreeList->item(0));
-		  m_cacheMinFree = _toDouble(cacheMinFree->getAttribute(uStr("value").ptr()));
+		  m_cacheMinFree = toDouble(cacheMinFree->getAttribute(uStr("value").ptr()));
 		  m_cacheMinFreePtr = &m_cacheMinFree;
 		}
 		
@@ -488,7 +437,7 @@ namespace edm {
 		
 		if (cacheHintList->getLength() > 0) {
 		  DOMElement *cacheHint = static_cast<DOMElement *>(cacheHintList->item(0));
-		  m_cacheHint = _toString(cacheHint->getAttribute(uStr("value").ptr()));
+		  m_cacheHint = toString(cacheHint->getAttribute(uStr("value").ptr()));
 		  m_cacheHintPtr = &m_cacheHint;
 		}
 		
@@ -496,7 +445,7 @@ namespace edm {
 		
 		if (cloneCacheHintList->getLength() > 0) {
 		  DOMElement *cloneCacheHint = static_cast<DOMElement *>(cloneCacheHintList->item(0));
-		  m_cloneCacheHint = _toString(cloneCacheHint->getAttribute(uStr("value").ptr()));
+		  m_cloneCacheHint = toString(cloneCacheHint->getAttribute(uStr("value").ptr()));
 		  m_cloneCacheHintPtr = &m_cloneCacheHint;
 		}
 		
@@ -504,7 +453,7 @@ namespace edm {
 		
 		if (readHintList->getLength() > 0) {
 		  DOMElement *readHint = static_cast<DOMElement *>(readHintList->item(0));
-		  m_readHint = _toString(readHint->getAttribute(uStr("value").ptr()));
+		  m_readHint = toString(readHint->getAttribute(uStr("value").ptr()));
 		  m_readHintPtr = &m_readHint;
 		}
 		
@@ -512,7 +461,7 @@ namespace edm {
 		
 		if (ttreeCacheSizeList->getLength() > 0) {
 		  DOMElement *ttreeCacheSize = static_cast<DOMElement *>(ttreeCacheSizeList->item(0));
-		  m_ttreeCacheSize = _toUInt(ttreeCacheSize->getAttribute(uStr("value").ptr()));
+		  m_ttreeCacheSize = toUInt(ttreeCacheSize->getAttribute(uStr("value").ptr()));
 		  m_ttreeCacheSizePtr = &m_ttreeCacheSize;
 		}
 		
@@ -520,7 +469,7 @@ namespace edm {
 		
 		if (timeoutList->getLength() > 0) {
 		  DOMElement *timeout = static_cast<DOMElement *>(timeoutList->item(0));
-		  m_timeout = _toUInt(timeout->getAttribute(uStr("value").ptr()));
+		  m_timeout = toUInt(timeout->getAttribute(uStr("value").ptr()));
 		  m_timeoutPtr = &m_timeout;
 		}
 		
@@ -528,11 +477,11 @@ namespace edm {
 		
 		if (statsDestList->getLength() > 0) {
 		  DOMElement *statsDest = static_cast<DOMElement *>(statsDestList->item(0));
-		  m_statisticsDestination = _toString(statsDest->getAttribute(uStr("endpoint").ptr()));
+		  m_statisticsDestination = toString(statsDest->getAttribute(uStr("endpoint").ptr()));
 		  if (!m_statisticsDestination.size()) {
-		    m_statisticsDestination = _toString(statsDest->getAttribute(uStr("name").ptr()));
+		    m_statisticsDestination = toString(statsDest->getAttribute(uStr("name").ptr()));
 		  }
-		  std::string tmpStatisticsInfo = _toString(statsDest->getAttribute(uStr("info").ptr()));
+		  std::string tmpStatisticsInfo = toString(statsDest->getAttribute(uStr("info").ptr()));
 		  boost::split(m_statisticsInfo, tmpStatisticsInfo, boost::is_any_of("\t ,"));
 		  m_statisticsInfoAvail = !tmpStatisticsInfo.empty();
 		}
@@ -541,7 +490,7 @@ namespace edm {
 		
 		if (prefetchingList->getLength() > 0) {
 		  DOMElement *prefetching = static_cast<DOMElement *>(prefetchingList->item(0));
-		  m_enablePrefetching = _toBool(prefetching->getAttribute(uStr("value").ptr()));
+		  m_enablePrefetching = toBool(prefetching->getAttribute(uStr("value").ptr()));
 		  m_enablePrefetchingPtr = &m_enablePrefetching;
 		}
 		
@@ -558,7 +507,7 @@ namespace edm {
 		      continue;
 		    }
 		    DOMElement *child = static_cast<DOMElement *>(childNode);
-		    m_nativeProtocols.push_back(_toString(child->getAttribute(uStr("prefix").ptr())));
+		    m_nativeProtocols.push_back(toString(child->getAttribute(uStr("prefix").ptr())));
 		  }
 		  m_nativeProtocolsPtr = &m_nativeProtocols;
 		}
