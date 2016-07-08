@@ -376,6 +376,7 @@ HLT_HT750_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT650_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*		# JIRA: CMSHLT-168
 HLT_HT350_DisplacedDijet80_DisplacedTrack_v*			# JIRA: CMSHLT-168
+HLT_HT550_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-927
 
 HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v*			  	# JIRA: CMSHLT-601, CMSHLT-711
 HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v*			# JIRA: CMSHLT-742
