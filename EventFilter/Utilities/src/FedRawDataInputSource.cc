@@ -1013,7 +1013,6 @@ void FedRawDataInputSource::readSupervisor()
       if (stat_res==-1) {
         edm::LogError("FedRawDataInputSource") << "Can not stat file (" << errno << "):-"<< rawFile << std::endl;
         setExceptionState_=true;
-	stop=true;
         break;
       }
       fileSize=st.st_size;
