@@ -46,7 +46,7 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const PSet& p) {
   bxShiftCSC = p.getUntrackedParameter<int>("CSCInputBxShift", 0);
   inputTokenRPC = consumes<RPCDigiCollection>(p.getParameter<edm::InputTag>("RPCInput"));
   
-  produces<l1t::RegionalMuonCandBxCollection >("");
+  produces<l1t::RegionalMuonCandBxCollection >("EMTF");
   produces< l1t::EMTFTrackCollection >("");
   produces< l1t::EMTFHitCollection >("");  
   produces< l1t::EMTFTrackExtraCollection >("");
