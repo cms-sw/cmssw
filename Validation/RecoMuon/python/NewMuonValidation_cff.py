@@ -303,7 +303,7 @@ NEWrecoMuonValidation = cms.Sequence(
     )
 
 from Configuration.StandardSequences.Eras import eras
-# no displaces or SET muons in fastsim
+# no displaced muons in fastsim
 if eras.fastSim.isChosen():
     NEWrecoMuonValidation = cms.Sequence(NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq)
 

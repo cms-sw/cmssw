@@ -145,7 +145,7 @@ class NewMuonTrackValidatorBase {
     }
   
   /// Destructor
-  virtual ~NewMuonTrackValidatorBase(){ }
+  virtual ~NewMuonTrackValidatorBase() noexcept(false) { }
  
   template<typename T> void fillPlotNoFlow (MonitorElement* h, T val) {
     h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
