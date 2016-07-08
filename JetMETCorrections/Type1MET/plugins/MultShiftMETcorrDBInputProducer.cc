@@ -89,8 +89,8 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
 
 
   // check DB
-  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
-	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
+  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ikey = keys.begin();
+	   ikey != keys.end(); ++ikey ) {
     if(mIsData)
     {
       if(!METCorParamsColl->isXYshiftData(*ikey) )
@@ -103,8 +103,8 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
     }
   }
 
-  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
-	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
+  for ( std::vector<METCorrectorParametersCollection::key_type>::const_iterator ikey = keys.begin();
+	   ikey != keys.end(); ++ikey ) {
 
     if( !mIsData){
 
