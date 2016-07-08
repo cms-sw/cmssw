@@ -353,7 +353,6 @@ class MatrixInjector(object):
                                 # https://hypernews.cern.ch/HyperNews/CMS/get/relval/4817/1/1.html
                                 chainDict['nowmTasklist'][-1]['Memory'] = 3000 + int( chainDict['nowmTasklist'][-1]['Multicore']  -1 )*1500
                                 if( self.memory > 0 ):
-#                                    setmemory = 3000 + self.memory
                                     chainDict['nowmTasklist'][-1]['Memory'] = self.memory
 
                         index+=1
