@@ -8,7 +8,7 @@ defaultMuonHistoParameters = cms.PSet(
     #
     minPt = cms.double(0.9),
     maxPt = cms.double(2000.),
-    nintPt = cms.int32(50),      # TRK ha 40 con scala LOG da 0.05 a 1 TeV - e' ok con scala LOG (vd trk)
+    nintPt = cms.int32(50),
     useLogPt=cms.untracked.bool(True),
     useInvPt = cms.bool(False),
     #
@@ -16,22 +16,22 @@ defaultMuonHistoParameters = cms.PSet(
     maxPhi = cms.double(3.1416),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(-2.),  # per prompt particles e' ok cosi', per displaced muons vanno cambiati !
-    maxDxy = cms.double(2.),   # metto 40 bins da -10. a 10.
-    nintDxy = cms.int32(40),   # TRK ha 100 bins da -25. a +25 cm !!!
+    minDxy = cms.double(-2.),
+    maxDxy = cms.double(2.),
+    nintDxy = cms.int32(40),
     #
-    minDz = cms.double(-30.),  # come TRK e' rispetto al beamspot !!!  
+    minDz = cms.double(-30.),
     maxDz = cms.double(30.),
     nintDz = cms.int32(60),
-    # TP production Radius        # per non disdpalced  muons ok cosi ' ??
-    minRpos = cms.double(0.),     # per displaced per es. da 0. a 85. e 85 bins
-    maxRpos = cms.double(4.),    # TRK ha 60 \bins da 0. a 60cm
+    #
+    minRpos = cms.double(0.),
+    maxRpos = cms.double(4.),
     nintRpos = cms.int32(40),
-    # TP production Z position    # cosi' e \' il TRK (il select per displaced va fino a 210cm in Z !)
-    minZpos = cms.double(-30.),    # TRK ha 60 bins da --30 a 30cm   (e' rispetto al BeamSPot -> bunch length !!
-    maxZpos = cms.double(30.),     # per diaplced fino a -210 - +210 cm -> 105 bins ?
+    #
+    minZpos = cms.double(-30.),
+    maxZpos = cms.double(30.),
     nintZpos = cms.int32(60),
-    # Number of vertices (PU summary info)
+    #
     minPU = cms.double(-0.5),                            
     maxPU = cms.double(199.5),
     nintPU = cms.int32(100),
@@ -39,6 +39,7 @@ defaultMuonHistoParameters = cms.PSet(
     # switches to be set according to the input Track collection to properly count the number of hits in Eff vs N(SimHits)
     usetracker = cms.bool(True),
     usemuon = cms.bool(True),
+    #
     # here set for GLB tracks, redefined for TRK and STA tracks
     minNHit = cms.double(-0.5),                            
     maxNHit = cms.double(80.5),
@@ -60,40 +61,36 @@ defaultMuonHistoParameters = cms.PSet(
     maxRPCHit = cms.double(10.5),
     nintRPCHit = cms.int32(11),
     #
-    # n TRK layers
     minLayers = cms.double(-0.5),                            
     maxLayers = cms.double(20.5),
     nintLayers = cms.int32(21),
-    # n Pixel layers
+    #
     minPixels = cms.double(-0.5),                            
     maxPixels = cms.double(5.5),
     nintPixels = cms.int32(6),
     #
-    ptRes_nbin = cms.int32(200),       # avevo provato 120 bins da -0.3 a 0.3 : la sigma a 1Tev e' circa 0.15                     
-    ptRes_rangeMin = cms.double(-0.5),    # TRK ha -0.1 / 0.1   con 100 bins 
-    ptRes_rangeMax = cms.double(0.5),    # provo con 120 tra -3. e 3. x STA  n.b. x pt=1000 e' ancora poco...
+    ptRes_nbin = cms.int32(200),                 
+    ptRes_rangeMin = cms.double(-0.5),
+    ptRes_rangeMax = cms.double(0.5),
     #
-    # TRK ha 300 bins da -0.01 a +0.01    # muo aveva 100 bins da -0.05 a 0.05
-    phiRes_nbin = cms.int32(200),         # devo allargarla per STA tracks tipo 100 bins da -0.1 a 0.1
+    phiRes_nbin = cms.int32(200),
     phiRes_rangeMin = cms.double(-0.01),
     phiRes_rangeMax = cms.double(0.01),
     #
     etaRes_nbin = cms.int32(100),               
-    etaRes_rangeMin = cms.double(-0.02),     # ok per GLB e TRK limitare a 0.02 !!!  STA invece -0.1 - 0.1
-    etaRes_rangeMax = cms.double(0.02),      # TRK ha 200 bins da -0.1 a 0.1 
+    etaRes_rangeMin = cms.double(-0.02),
+    etaRes_rangeMax = cms.double(0.02),
     #
-    #     TRK ha 300 bins  da -0.02 a +0.02     // MUO aveva 120 bins tra -0.01 e 0.01
-    cotThetaRes_nbin = cms.int32(100),           # per STA allargo a -0.05 - 0.05  e 80- bins -> allargo a -0.1 +0.1 e 100 bins
+    cotThetaRes_nbin = cms.int32(100),
     cotThetaRes_rangeMin = cms.double(-0.01),
     cotThetaRes_rangeMax = cms.double(0.01),
     #
-    # TRK ha 500 bins tra -0.1 e +0.1     // MUO ora ha 100 bins da -0.02 a 0.02
     dxyRes_nbin = cms.int32(100),         
-    dxyRes_rangeMin = cms.double(-0.02),   # per STA provo 100 bins tra -4. e 4.  (400 um) -> non copre -> allargo tra -10 e 10.
+    dxyRes_rangeMin = cms.double(-0.02), 
     dxyRes_rangeMax = cms.double(0.02),    
-    # TRK ha 150 bins tra -0.05  e +0.05  // MUO aveva lo stesso ora
-    dzRes_nbin = cms.int32(100),           # riduco a 100 bins                       
-    dzRes_rangeMin = cms.double(-0.05),    # per STA faccio 100 bins tra -4. e 4. -> non copre -> allargo tra -25 e 25.
+    #
+    dzRes_nbin = cms.int32(100),             
+    dzRes_rangeMin = cms.double(-0.05),
     dzRes_rangeMax = cms.double(0.05)
 )
 

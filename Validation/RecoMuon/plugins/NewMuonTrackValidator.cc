@@ -134,9 +134,7 @@ void NewMuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
 					    nintEta,minEta,maxEta, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
       ptres_vs_phi.push_back( ibooker.book2D("ptres_vs_phi","p_{T} Relative Residual vs #phi",
 					     nintPhi,minPhi,maxPhi, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-      //      ptres_vs_pt.push_back(ibooker.book2D("ptres_vs_pt","p_{T} Relative Residual vs p_{T}^{REC}",
-      //				   nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
-      ptres_vs_pt.push_back(ibooker.book2D("ptres_vs_pt","p_{T} Relative Residual vs p_{T}^{TRUE}",
+      ptres_vs_pt.push_back(ibooker.book2D("ptres_vs_pt","p_{T} Relative Residual vs p_{T}",
 					   nintPt,minPt,maxPt, ptRes_nbin, ptRes_rangeMin, ptRes_rangeMax));
       h_ptpull.push_back( ibooker.book1D("ptpull", "p_{T} Pull", 100, -10., 10.) );
       ptpull_vs_eta.push_back(ibooker.book2D("ptpull_vs_eta","p_{T} Pull vs #eta",nintEta,minEta,maxEta,100,-10.,10.));
@@ -149,9 +147,7 @@ void NewMuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
 
       thetaCotres_vs_eta.push_back(ibooker.book2D("thetaCotres_vs_eta","cot(#theta) Residual vs #eta",
 						  nintEta,minEta,maxEta,cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
-      //      thetaCotres_vs_pt.push_back(ibooker.book2D("thetaCotres_vs_pt","cot(#theta) Residual vs p_{T}^{REC}",
-      //					 nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
-      thetaCotres_vs_pt.push_back(ibooker.book2D("thetaCotres_vs_pt","cot(#theta) Residual vs p_{T}^{TRUE}",
+      thetaCotres_vs_pt.push_back(ibooker.book2D("thetaCotres_vs_pt","cot(#theta) Residual vs p_{T}",
 						 nintPt,minPt,maxPt, cotThetaRes_nbin, cotThetaRes_rangeMin, cotThetaRes_rangeMax));
       h_thetapull.push_back( ibooker.book1D("thetapull","#theta Pull",100,-10.,10.) );
       thetapull_vs_eta.push_back(ibooker.book2D("thetapull_vs_eta","#theta Pull vs #eta",nintEta,minEta,maxEta,100,-10,10));
@@ -159,9 +155,7 @@ void NewMuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
 
       phires_vs_eta.push_back(ibooker.book2D("phires_vs_eta","#phi Residual vs #eta",
 					     nintEta,minEta,maxEta, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-      //      phires_vs_pt.push_back(ibooker.book2D("phires_vs_pt","#phi Residual vs p_{T}^{REC}",
-      //				    nintPt,minPt,maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
-      phires_vs_pt.push_back(ibooker.book2D("phires_vs_pt","#phi Residual vs p_{T}^{TRUE}",
+      phires_vs_pt.push_back(ibooker.book2D("phires_vs_pt","#phi Residual vs p_{T}",
 						nintPt,minPt,maxPt, phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
       phires_vs_phi.push_back(ibooker.book2D("phires_vs_phi","#phi Residual vs #phi",
 					     nintPhi,minPhi,maxPhi,phiRes_nbin, phiRes_rangeMin, phiRes_rangeMax));
@@ -171,18 +165,14 @@ void NewMuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
 
       dxyres_vs_eta.push_back(ibooker.book2D("dxyres_vs_eta","dxy Residual vs #eta",
 					     nintEta,minEta,maxEta,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-      //      dxyres_vs_pt.push_back( ibooker.book2D("dxyres_vs_pt","dxy Residual vs p_{T}^{REC}",
-      //				     nintPt,minPt,maxPt,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
-      dxyres_vs_pt.push_back( ibooker.book2D("dxyres_vs_pt","dxy Residual vs p_{T}^{TRUE}",
+      dxyres_vs_pt.push_back( ibooker.book2D("dxyres_vs_pt","dxy Residual vs p_{T}",
 						 nintPt,minPt,maxPt,dxyRes_nbin, dxyRes_rangeMin, dxyRes_rangeMax));
       h_dxypull.push_back( ibooker.book1D("dxypull","dxy Pull",100,-10.,10.) );
       dxypull_vs_eta.push_back(ibooker.book2D("dxypull_vs_eta","dxy Pull vs #eta",nintEta,minEta,maxEta,100,-10,10));
 
       dzres_vs_eta.push_back(ibooker.book2D("dzres_vs_eta","dz Residual vs #eta",
 					    nintEta,minEta,maxEta,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-      //      dzres_vs_pt.push_back(ibooker.book2D("dzres_vs_pt","dz Residual vs p_{T}^{REC}",
-      //				   nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
-      dzres_vs_pt.push_back(ibooker.book2D("dzres_vs_pt","dz Residual vs p_{T}^{TRUE}",
+      dzres_vs_pt.push_back(ibooker.book2D("dzres_vs_pt","dz Residual vs p_{T}",
 					       nintPt,minPt,maxPt,dzRes_nbin, dzRes_rangeMin, dzRes_rangeMax));
       h_dzpull.push_back( ibooker.book1D("dzpull","dz Pull",100,-10.,10.) );
       dzpull_vs_eta.push_back(ibooker.book2D("dzpull_vs_eta","dz Pull vs #eta",nintEta,minEta,maxEta,100,-10,10));
@@ -275,19 +265,6 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   event.getByToken(bsSrc_Token,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;
-
-  /*
-  edm::Handle< std::vector<PileupSummaryInfo> > puinfoH;
-  event.getByToken(pileupinfo_Token,puinfoH);
-  int PU_NumInteractions(-1);
-
-  for (std::vector<PileupSummaryInfo>::const_iterator puInfoIt = puinfoH->begin(); puInfoIt != puinfoH->end(); ++puInfoIt) {
-    if (puInfoIt->getBunchCrossing()==0) {
-      PU_NumInteractions = puInfoIt->getPU_NumInteractions();
-      break;
-    }
-  }
-  */
 
   std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
   if (UseAssociators) {
@@ -428,23 +405,17 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	}
 	edm::LogVerbatim("NewMuonTrackValidator") << "\t N simhits = "<< nSimHits<<"\n";
 
-	//	std::vector<std::pair<RefToBase<Track>, double> > rt;
-	//	const reco::Track* assoc_recoTrack=0;
 	int assoc_recoTrack_NValidHits = 0;
 	if(simRecColl.find(tpr) != simRecColl.end()) {
 	  auto const & rt = simRecColl[tpr];
-	  //	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
 	  if (rt.size()!=0) {
 	    RefToBase<Track> assoc_recoTrack = rt.begin()->first;
 	    edm::LogVerbatim("NewMuonTrackValidator")<<"-----------------------------associated Track #"<<assoc_recoTrack.key();
-	    //assoc_recoTrack = rt.begin()->first.get();
-	    //edm::LogVerbatim("NewMuonTrackValidator")<<"-----------------------------associated Track #"<<assoc_recoTrack->key(); // cosi' non va !
 	    TP_is_matched = true;
 	    ats++;
 	    if (assoc_recoTrack->charge() != tpr->charge()) isChargeOK = false;
 	    quality = rt.begin()->second;
 	    assoc_recoTrack_NValidHits = assoc_recoTrack->numberOfValidHits();
-	    //	    edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st
 	    edm::LogVerbatim("NewMuonTrackValidator") << "TrackingParticle #" <<tpr.key()
 						   << " with pt=" << sqrt(momentumTP.perp2())
 						   << " associated with quality:" << quality <<"\n";
@@ -501,25 +472,23 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	if (TP_is_matched) fillPlotNoFlow(h_assocZpos[w], TPzpos);
 
 	// histos for efficiency vs Number of Hits
-	fillPlotNoFlow(h_simulhit[w], nSimHits );  //  **** PROBLEMA il tipo in o float ? ***
+	fillPlotNoFlow(h_simulhit[w], nSimHits );
 	if (TP_is_matched) {
 	  fillPlotNoFlow(h_assochit[w], nSimHits );
-	  //	  nRecHits_vs_nSimHits[w]->Fill(nSimHits, assoc_recoTrack->numberOfValidHits() );
 	  nRecHits_vs_nSimHits[w]->Fill(nSimHits, assoc_recoTrack_NValidHits);
 
-	  // charge misid might be (more?) useful w.r.t. nRecHits - to be considered
-	  //	  if (!isChargeOK) fillPlotNoFlow(h_misidhit[w], nSimHits);
+	  // charge misid is more useful w.r.t. nRecHits (filled after)
+	  //if (!isChargeOK) fillPlotNoFlow(h_misidhit[w], nSimHits);
 	}
 	
 	// histos for efficiency vs PileUp
-	fillPlotNoFlow(h_simulpu[w], PU_NumInteractions);    //  **** PROBLEMA il tipo in o float ? ***
+	fillPlotNoFlow(h_simulpu[w], PU_NumInteractions);
 	if (TP_is_matched) {
 	  fillPlotNoFlow(h_assocpu[w], PU_NumInteractions);
 	  if (!isChargeOK) fillPlotNoFlow(h_misidpu[w], PU_NumInteractions);
 	}
 	
       } // End for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
-      // if (st!=0) h_tracksSIM[w]->Fill(st);
       
       //
       //fill reconstructed track histograms
@@ -550,10 +519,6 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	      tpr = tp.begin()->first;	
 	      // RtS and StR must associate the same pair !
 	      if(simRecColl.find(tpr) != simRecColl.end()) {
-		//		std::vector<std::pair<RefToBase<Track>, double> > track_checkback = simRecColl[tpr];
-		///////////////		auto const & track_checkback = simRecColl[tpr];
-		//		RefToBase<Track> assoc_track_checkback;
-		//		assoc_track_checkback = track_checkback.begin()->first;
 		auto const & assoc_track_checkback = simRecColl[tpr].begin()->first;
 		
 		if ( assoc_track_checkback.key() == track.key() ) {
@@ -647,7 +612,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	}
 
 	// histos for fake rate vs Number of RecHits in track 
-	fillPlotNoFlow(h_recohit[w], nRecHits);  // PROBLEMA (int) ??? (vedi vecchio codice)
+	fillPlotNoFlow(h_recohit[w], nRecHits);
 	if (Track_is_matched) {
 	  fillPlotNoFlow(h_assoc2hit[w], nRecHits);
 	  // charge misid w.r.t. nRecHits
@@ -655,7 +620,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	}
 
 	// histos for fake rate vs Number of PU interactions
-	fillPlotNoFlow(h_recopu[w], PU_NumInteractions);  // PROBLEMA (int) ??? (vedi vecchio codice)
+	fillPlotNoFlow(h_recopu[w], PU_NumInteractions);
 	if (Track_is_matched) {
 	  fillPlotNoFlow(h_assoc2pu[w], PU_NumInteractions);
 	}
@@ -728,7 +693,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	double ptSim = sqrt(momentumTP.perp2());
 	double xptSim = getPt(ptSim);
 	double qoverpSim = tpr->charge() /
-	  sqrt(momentumTP.x()*momentumTP.x()+momentumTP.y()*momentumTP.y()+momentumTP.z()*momentumTP.z()); // TROVA IL METODO CHE DA P
+	  sqrt(momentumTP.x()*momentumTP.x()+momentumTP.y()*momentumTP.y()+momentumTP.z()*momentumTP.z());
 	double etaSim = momentumTP.eta();
 	double thetaSim = momentumTP.theta();
 	double phiSim = momentumTP.phi();
@@ -737,7 +702,6 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	                               sqrt(momentumTP.perp2()) * momentumTP.z()/sqrt(momentumTP.perp2());
 	
 	double etares = etaRec - etaSim;
-	// CAMBIO la definizione del residuo relativo dividendo per il pt simulato !!!
 	double ptRelRes = (ptRec - ptSim) / ptSim;    // relative residual -> resolution
 	double ptPull = (ptRec - ptSim) / ptError; 
 	double qoverpPull = (qoverpRec-qoverpSim) / qoverpError;
@@ -754,9 +718,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	h_etaRes[w]->Fill(etares);
 	etares_vs_eta[w]->Fill(xetaRec, etares);
 	
-	//****** e' il relative residual ma normalizzato al ptrec !!! ha senso ? e fatto rispetto alla eta ricostruita ! questi non sono plots data-driven
 	ptres_vs_eta[w]->Fill(xetaRec,ptRelRes);
-	//ptres_vs_pt[w]->Fill(xptRec,ptRelRes);
 	ptres_vs_pt[w]->Fill(xptSim,ptRelRes);
 	ptres_vs_phi[w]->Fill(phiRec,ptRelRes);
 	h_ptpull[w]->Fill(ptPull);
@@ -765,14 +727,12 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	h_qoverppull[w]->Fill(qoverpPull);
 
 	thetaCotres_vs_eta[w]->Fill(xetaRec, cos(thetaRec)/sin(thetaRec) - cos(thetaSim)/sin(thetaSim));
-	//thetaCotres_vs_pt[w]->Fill(xptRec, cos(thetaRec)/sin(thetaRec) - cos(thetaSim)/sin(thetaSim));
 	thetaCotres_vs_pt[w]->Fill(xptSim, cos(thetaRec)/sin(thetaRec) - cos(thetaSim)/sin(thetaSim));
 	h_thetapull[w]->Fill(thetaPull);
 	thetapull_vs_eta[w]->Fill(xetaRec,thetaPull);
 	thetapull_vs_phi[w]->Fill(phiRec,thetaPull);
 
 	phires_vs_eta[w]->Fill(xetaRec,phiDiff);
-	//phires_vs_pt[w]->Fill(xptRec,phiDiff);
 	phires_vs_pt[w]->Fill(xptSim,phiDiff);
 	phires_vs_phi[w]->Fill(phiRec,phiDiff);
 	h_phipull[w]->Fill(phiPull);
@@ -780,13 +740,11 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	phipull_vs_phi[w]->Fill(phiRec,phiPull);
 
 	dxyres_vs_eta[w]->Fill(xetaRec,dxyRec-dxySim);
-	//dxyres_vs_pt[w]->Fill(xptRec,dxyRec-dxySim);
 	dxyres_vs_pt[w]->Fill(xptSim,dxyRec-dxySim);
 	h_dxypull[w]->Fill(dxyPull);
 	dxypull_vs_eta[w]->Fill(xetaRec,dxyPull);
 
 	dzres_vs_eta[w]->Fill(xetaRec,dzRec-dzSim);
-	//dzres_vs_pt[w]->Fill(xptRec,dzRec-dzSim);
 	dzres_vs_pt[w]->Fill(xptSim,dzRec-dzSim);
 	h_dzpull[w]->Fill(dzPull);	
 	dzpull_vs_eta[w]->Fill(xetaRec,dzPull);

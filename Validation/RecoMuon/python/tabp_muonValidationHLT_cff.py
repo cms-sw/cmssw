@@ -1,3 +1,6 @@
+# configuration for FullSim: muon track validation using TrackAssociatorByPosition
+#  (backup solution, incomplete, not run by default)
+#
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.selectors_cff import *

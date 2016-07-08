@@ -24,7 +24,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-// #include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 
@@ -133,10 +132,9 @@ class NewMuonTrackValidatorBase {
       dzRes_rangeMin = muonHistoParameters.getParameter<double>("dzRes_rangeMin");
       dzRes_rangeMax = muonHistoParameters.getParameter<double>("dzRes_rangeMax");
       dzRes_nbin = muonHistoParameters.getParameter<int>("dzRes_nbin");
-      //****
+      //
       usetracker = muonHistoParameters.getParameter<bool>("usetracker");
       usemuon = muonHistoParameters.getParameter<bool>("usemuon");
-      //****
       do_TRKhitsPlots = muonHistoParameters.getParameter<bool>("do_TRKhitsPlots");
       do_MUOhitsPlots = muonHistoParameters.getParameter<bool>("do_MUOhitsPlots");
       
@@ -179,38 +177,6 @@ class NewMuonTrackValidatorBase {
     else return pt;
   }
   
-  void fillPlotFromVector(MonitorElement* h, std::vector<int>& vec) {
-    for (unsigned int j=0; j<vec.size(); j++){
-      h->setBinContent(j+1, vec[j]);
-    }
-  }
-
-  /*
-  void fillPlotFromVectors(MonitorElement* h, std::vector<int>& numerator, std::vector<int>& denominator,std::string type){
-    double value,err;
-    for (unsigned int j=0; j<numerator.size(); j++){
-      if (denominator[j]!=0){
-	if (type=="effic")
-	  value = ((double) numerator[j])/((double) denominator[j]);
-	else if (type=="fakerate")
-	  value = 1-((double) numerator[j])/((double) denominator[j]);
-	//else if (type=="pileup"){
-	//	value = ((double) numerator[j])*1./((double) denominator[j]);
-	//        err = sqrt( value*(1+value)/(double) denominator[j] );
-	//      }
-	else return;
-	err = sqrt( value*(1-value)/(double) denominator[j] );
-	h->setBinContent(j+1, value);
-	h->setBinError(j+1,err);
-      }
-      else {
-	h->setBinContent(j+1, 0);
-	h->setBinError(j+1, 0.);
-      }
-    }
-  }
-  */
-
   void BinLogX(TH1*h) {
     
     TAxis *axis = h->GetXaxis();
@@ -278,8 +244,6 @@ class NewMuonTrackValidatorBase {
 
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_nhits, h_charge;
-  //trk
-  //  std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_looprate, h_misidrate;
   std::vector<MonitorElement*> h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_misideta;
   std::vector<MonitorElement*> h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_misidpT;
   std::vector<MonitorElement*> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_misidhit;
@@ -290,63 +254,30 @@ class NewMuonTrackValidatorBase {
 
   std::vector<MonitorElement*> h_assocRpos, h_simulRpos, h_assocZpos, h_simulZpos;
   std::vector<MonitorElement*> h_etaRes;
-  
-  //  std::vector<MonitorElement*> h_assoceta_Quality05, h_assoceta_Quality075;
-  //  std::vector<MonitorElement*> h_assocpT_Quality05, h_assocpT_Quality075;
-  //  std::vector<MonitorElement*> h_assocphi_Quality05, h_assocphi_Quality075;
 
-  //2D
-  //  std::vector<MonitorElement*> nrecHit_vs_nsimHit_sim2rec;
-  //  std::vector<MonitorElement*> nrecHit_vs_nsimHit_rec2sim;
-  std::vector<MonitorElement*> nRecHits_vs_nSimHits;
-
-  //assoc hits
-  std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
-
-  //#hit vs eta: to be used with doProfileX
-    std::vector<MonitorElement*> nhits_vs_eta,nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta;
-  // NON SERVE, lo fa il Postprocessor
-  //  std::vector<MonitorElement*> nhitsMean_vs_eta,nDThitsMean_vs_eta, nCSChitsMean_vs_eta,nRPChitsMean_vs_eta;
- 
-  ////////////////////////////////////////////////////////////////////////////////////////
-  // copiati da MuonTrackValidator.h : non piace neanche cosi' ma almeno sono tutti nello stesso posto
-  //1D
   std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits;
   std::vector<MonitorElement*> h_nmisslayers_inner,h_nmisslayers_outer,h_nlosthits;
-
+  std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
+  std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
+  
   //2D
+  std::vector<MonitorElement*> nRecHits_vs_nSimHits;
+  std::vector<MonitorElement*> h_PurityVsQuality;
   std::vector<MonitorElement*> chi2_vs_nhits, etares_vs_eta;
-  // NON SERVE ? Lo fa il PostProcessor  std::vector<MonitorElement*> h_ptshifteta;
   std::vector<MonitorElement*> ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
 
-  //Profile2D
-  // NON LI USIAMO !!!
-  //  std::vector<MonitorElement*> ptmean_vs_eta_phi, phimean_vs_eta_phi;
-
-  //assoc chi2
-  std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
-
-  //chi2 and # lost hits vs eta: to be used with doProfileX
+  std::vector<MonitorElement*> nhits_vs_eta,nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta;
   std::vector<MonitorElement*> chi2_vs_eta, nlosthits_vs_eta;
-  //  PostPorcessor ?  std::vector<MonitorElement*> nlosthits_vs_eta_prof;
-  //  PostPorcessor ?   std::vector<MonitorElement*> nhits_vs_phi_prof;
-  //  PostPorcessor ?   std::vector<MonitorElement*> chi2mean_vs_nhits, chi2mean_vs_eta, chi2mean_vs_phi;
   std::vector<MonitorElement*> nTRK_LayersWithMeas_vs_eta,nPixel_LayersWithMeas_vs_eta;
 
-  //resolution of track params: to be used with fitslicesytool
   std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, thetaCotres_vs_eta;
   std::vector<MonitorElement*> dxyres_vs_pt, ptres_vs_pt, dzres_vs_pt, phires_vs_pt, thetaCotres_vs_pt;
-  //  std::vector<MonitorElement*> dxyres_vs_pttrue, ptres_vs_pttrue, dzres_vs_pttrue, phires_vs_pttrue, thetaCotres_vs_pttrue;
 
-  //pulls of track params vs eta: to be used with fitslicesytool
   std::vector<MonitorElement*> dxypull_vs_eta, ptpull_vs_eta, dzpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
   std::vector<MonitorElement*> ptpull_vs_phi, phipull_vs_phi, thetapull_vs_phi;
   std::vector<MonitorElement*> h_dxypulleta, h_ptpulleta, h_dzpulleta, h_phipulleta, h_thetapulleta;
   std::vector<MonitorElement*> h_ptpullphi, h_phipullphi, h_thetapullphi;
   std::vector<MonitorElement*> h_ptpull, h_qoverppull, h_thetapull, h_phipull, h_dxypull, h_dzpull;
-  
-  // for muon Validation (SimToReco distributions for Quality > 0.5, 0.75)
-  std::vector<MonitorElement*> h_PurityVsQuality;
 
 };
 

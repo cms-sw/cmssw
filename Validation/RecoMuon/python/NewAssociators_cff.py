@@ -16,7 +16,7 @@ onlineTrackAssociatorByHits.ThreeHitTracksAreSpecial = False
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 probeTracks = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 #probeTracks.quality = cms.vstring('highPurity')
-#probeTracks.quality = cms.vstring('loose'),
+#probeTracks.quality = cms.vstring('loose'),      # default
 probeTracks.tip = 3.5
 probeTracks.lip = 30.
 probeTracks.ptMin = 4.0
@@ -62,7 +62,7 @@ MABH = SimMuon.MCTruth.NewMuonAssociatorByHits_cfi.NewMuonAssociatorByHits.clone
 MABH.EfficiencyCut_track = 0.5
 MABH.PurityCut_track = 0.75
 #MABH.EfficiencyCut_muon = 0.5
-MABH.EfficiencyCut_muon = 0.     # for high pt muons this should be a better choice
+MABH.EfficiencyCut_muon = 0.     # for high pt muons this is a better choice
 MABH.PurityCut_muon = 0.75
 MABH.includeZeroHitMuons = False
 #
@@ -126,21 +126,6 @@ NEWtpToDisplacedGlbMuonAssociation = MABH.clone()
 NEWtpToDisplacedGlbMuonAssociation.tracksTag = 'displacedGlobalMuons'
 NEWtpToDisplacedGlbMuonAssociation.UseTracker = True
 NEWtpToDisplacedGlbMuonAssociation.UseMuon = True
-
-NEWtpToStaSETMuonAssociation = MABH.clone()
-NEWtpToStaSETMuonAssociation.tracksTag = 'standAloneSETMuons'
-NEWtpToStaSETMuonAssociation.UseTracker = False
-NEWtpToStaSETMuonAssociation.UseMuon = True
-
-NEWtpToStaSETUpdMuonAssociation = MABH.clone()
-NEWtpToStaSETUpdMuonAssociation.tracksTag = 'standAloneSETMuons:UpdatedAtVtx'
-NEWtpToStaSETUpdMuonAssociation.UseTracker = False
-NEWtpToStaSETUpdMuonAssociation.UseMuon = True
-
-NEWtpToGlbSETMuonAssociation = MABH.clone()
-NEWtpToGlbSETMuonAssociation.tracksTag = 'globalSETMuons'
-NEWtpToGlbSETMuonAssociation.UseTracker = True
-NEWtpToGlbSETMuonAssociation.UseMuon = True
 
 NEWtpToTevFirstMuonAssociation = MABH.clone()
 NEWtpToTevFirstMuonAssociation.tracksTag = 'tevMuons:firstHit'
@@ -241,10 +226,6 @@ NewMuonAssociationDisplaced_seq = cms.Sequence(
 
 NewMuonAssociationRefit_seq = cms.Sequence(
     NEWtpToStaRefitMuonAssociation+NEWtpToStaRefitUpdMuonAssociation
-    )
-
-NewMuonAssociationSET_seq = cms.Sequence(
-    NEWtpToStaSETMuonAssociation+NEWtpToStaSETUpdMuonAssociation+NEWtpToGlbSETMuonAssociation
     )
 
 NewMuonAssociationCosmic_seq = cms.Sequence(

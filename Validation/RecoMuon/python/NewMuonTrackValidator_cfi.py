@@ -5,7 +5,6 @@ from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoMuon.NewSelectors_cff import *
 from Validation.RecoMuon.histoParameters_cff import *
 
-### va bene dare lo stesso nome al modulo e alla classe ??
 NewMuonTrackValidator = cms.EDAnalyzer("NewMuonTrackValidator",
     # define the TrackingParticleSelector for evaluation of efficiency
     muonTPSelector = cms.PSet(NewMuonTPSet),

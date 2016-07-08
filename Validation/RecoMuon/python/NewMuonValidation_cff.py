@@ -83,21 +83,6 @@ NEWdisplacedGlbMuonTrackVMuonAssoc.label = ('displacedGlobalMuons',)
 NEWdisplacedGlbMuonTrackVMuonAssoc.muonTPSelector = NewDisplacedMuonTPSet
 NEWdisplacedGlbMuonTrackVMuonAssoc.muonHistoParameters = displacedGlbMuonHistoParameters
 
-NEWstaSETMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
-NEWstaSETMuonTrackVMuonAssoc.associatormap = 'NEWtpToStaSETMuonAssociation'
-NEWstaSETMuonTrackVMuonAssoc.label = ('standAloneSETMuons',)
-NEWstaSETMuonTrackVMuonAssoc.muonHistoParameters = staMuonHistoParameters
-
-NEWstaSETUpdMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
-NEWstaSETUpdMuonTrackVMuonAssoc.associatormap = 'NEWtpToStaSETUpdMuonAssociation'
-NEWstaSETUpdMuonTrackVMuonAssoc.label = ('standAloneSETMuons:UpdatedAtVtx',)
-NEWstaSETUpdMuonTrackVMuonAssoc.muonHistoParameters = staUpdMuonHistoParameters
-
-NEWglbSETMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
-NEWglbSETMuonTrackVMuonAssoc.associatormap = 'NEWtpToGlbSETMuonAssociation'
-NEWglbSETMuonTrackVMuonAssoc.label = ('globalSETMuons',)
-NEWglbSETMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
-
 NEWtevMuonFirstTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWtevMuonFirstTrackVMuonAssoc.associatormap = 'NEWtpToTevFirstMuonAssociation'
 NEWtevMuonFirstTrackVMuonAssoc.label = ('tevMuons:firstHit',)
@@ -188,12 +173,6 @@ NEWmuonValidationDisplaced_seq = cms.Sequence(
     +NEWtpToDisplacedStaMuonAssociation + NEWdisplacedStaMuonTrackVMuonAssoc
     +NEWtpToDisplacedTrkMuonAssociation + NEWdisplacedTrackVMuonAssoc
     +NEWtpToDisplacedGlbMuonAssociation + NEWdisplacedGlbMuonTrackVMuonAssoc
-)
-
-NEWmuonValidationSET_seq = cms.Sequence(
-    NEWtpToStaSETMuonAssociation + NEWstaSETMuonTrackVMuonAssoc
-    +NEWtpToStaSETUpdMuonAssociation + NEWstaSETUpdMuonTrackVMuonAssoc
-    +NEWtpToGlbSETMuonAssociation + NEWglbSETMuonTrackVMuonAssoc
 )
 
 NEWmuonValidationCosmic_seq = cms.Sequence(
@@ -319,7 +298,7 @@ muonValidationRMV_seq = cms.Sequence(
 # The full offline muon validation sequence
 #
 NEWrecoMuonValidation = cms.Sequence(
-    NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq + NEWmuonValidationDisplaced_seq + NEWmuonValidationSET_seq
+    NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq + NEWmuonValidationDisplaced_seq
     + muonValidationRMV_seq
     )
 

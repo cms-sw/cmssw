@@ -28,7 +28,7 @@ NEWpostProcessorMuonTrack = cms.EDAnalyzer("DQMGenericClient",
         "chargeMisId_vs_dxy 'Charge MisID rate vs dxy' num_chargemisid_dxy num_assoSimToReco_dxy", 
         "chargeMisId_vs_dz 'Charge MisID rate vs dz' num_chargemisid_dz num_assoSimToReco_dz",
         "chargeMisId_vs_pu 'Charge MisID rate vs number of pile-up interactions' num_chargemisid_pu num_assoSimToReco_pu",
-        # charge MisId determined vs number of RecHits !
+        # charge MisId determined vs number of RecHits
         "chargeMisId_vs_hit 'Charge MisID rate vs number of RecHits' num_chargemisid_hit num_assoRecoToSim_hit"
     ),
     profile = cms.untracked.vstring(
