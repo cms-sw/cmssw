@@ -680,7 +680,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   }
   
   //ev.put( FoundTracks, "DataITC");
-  ev.put( OutputCands, "");
+  ev.put( OutputCands, "EMTF");
   ev.put( OutHits, "");      // EMTFHitCollection
   ev.put( OutTracks, "");    // EMTFTrackCollection
   ev.put( OutputHits, "CSC");   // EMTFHitExtraCollection
