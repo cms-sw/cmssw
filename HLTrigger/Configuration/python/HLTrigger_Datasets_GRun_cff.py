@@ -283,6 +283,7 @@ streamA_datasetDisplacedJet_selector.triggerConditions = cms.vstring('HLT_HT200_
     'HLT_HT425_v3', 
     'HLT_HT500_DisplacedDijet40_Inclusive_v4', 
     'HLT_HT550_DisplacedDijet40_Inclusive_v4', 
+    'HLT_HT550_DisplacedDijet80_Inclusive_v1', 
     'HLT_HT575_v3', 
     'HLT_HT650_DisplacedDijet80_Inclusive_v4', 
     'HLT_HT750_DisplacedDijet80_Inclusive_v4', 
