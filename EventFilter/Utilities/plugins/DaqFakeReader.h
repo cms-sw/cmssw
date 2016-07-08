@@ -8,7 +8,7 @@
  */
 
 #include "EvffedFillerRB.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -19,7 +19,7 @@
 
 
 
-class DaqFakeReader : public edm::EDProducer
+class DaqFakeReader : public edm::one::EDProducer<>
 {
  public:
   //
