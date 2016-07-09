@@ -14,7 +14,9 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 //#define DebugLog
 
 HcalDDDGeometryLoader::HcalDDDGeometryLoader(const HcalDDDRecConstants* hcons)
-  : hcalConstants(hcons) { }
+  : hcalConstants(hcons) { 
+  isBH_ = hcalConstants->isBH();
+}
 
 HcalDDDGeometryLoader::~HcalDDDGeometryLoader() {
 }
@@ -192,6 +194,7 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
   } else {
     z          = hcalCell.depthMin();
     thickness  = hcalCell.depthMax() - z;
+    if (isBH_) z += (0.5*thickness);
     z         *= detId.zside(); // get the sign right.
     r          = z * tan(theta);
     thickness /= std::abs(cos(theta));
