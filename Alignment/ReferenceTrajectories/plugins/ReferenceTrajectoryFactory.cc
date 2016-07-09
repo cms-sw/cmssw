@@ -99,6 +99,7 @@ ReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
       config.useBeamSpot = useBeamSpot_;
       config.includeAPEs = includeAPEs_;
+      config.allowZeroMaterial = allowZeroMaterial_;
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       config.hitsAreReverse = false;
       trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
@@ -150,6 +151,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
         config.useBeamSpot = useBeamSpot_;
         config.includeAPEs = includeAPEs_;
+        config.allowZeroMaterial = allowZeroMaterial_;
         // set the flag for reversing the RecHits to false, since they are already in the correct order.
         config.hitsAreReverse = false;
         ReferenceTrajectoryPtr refTraj(new ReferenceTrajectory(*itExternal, input.second,
@@ -165,6 +167,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
         config.useBeamSpot = useBeamSpot_;
         config.includeAPEs = includeAPEs_;
+        config.allowZeroMaterial = allowZeroMaterial_;
         config.hitsAreReverse = false;
         trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
                                                                               magneticField.product(),

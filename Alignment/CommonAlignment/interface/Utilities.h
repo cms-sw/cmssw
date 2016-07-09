@@ -11,6 +11,7 @@
  */
 
 #include <map>
+#include <memory>
 
 #include "CondFormats/Alignment/interface/Definitions.h"
 
@@ -25,10 +26,9 @@ namespace align
   typedef std::vector<GlobalVector> GlobalVectors;
   typedef std::vector<LocalPoint>   LocalPoints;
   typedef std::vector<LocalVector>  LocalVectors;
-  typedef std::vector<LocalVector>  LocalVectors;
   typedef std::vector<Alignable*>   Alignables;
   typedef std::vector<AlignmentParameters*> Parameters;
-  typedef std::vector<AlignmentLevel*> AlignmentLevels;
+  typedef std::vector<std::unique_ptr<AlignmentLevel> > AlignmentLevels;
 
   typedef std::map<std::pair<Alignable*, Alignable*>, AlgebraicMatrix> Correlations;
 

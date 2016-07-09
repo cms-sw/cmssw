@@ -24,7 +24,7 @@ namespace align
 //_____________________________________________________________________________
 TrackerAlignmentLevelBuilder
 ::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology) :
-  trackerTopology(trackerTopology)
+  trackerTopology_(trackerTopology)
 {
 }
 
@@ -32,13 +32,6 @@ TrackerAlignmentLevelBuilder
 TrackerAlignmentLevelBuilder::
 ~TrackerAlignmentLevelBuilder()
 {
-  // cleanup; AlignmentLevels were created here, so this level-builder is
-  // also responsible for deleting them
-  for (auto* subLevels : levels) {
-    for (auto* level : *subLevels) {
-      delete level;
-    }
-  }
 }
 
 //_____________________________________________________________________________
@@ -58,23 +51,16 @@ void TrackerAlignmentLevelBuilder
 }
 
 //_____________________________________________________________________________
-std::vector<align::AlignmentLevels*> TrackerAlignmentLevelBuilder
+std::vector<align::AlignmentLevels> TrackerAlignmentLevelBuilder
 ::build()
 {
-  buildPXBAlignmentLevels();
-  buildPXEAlignmentLevels();
-  buildTIBAlignmentLevels();
-  buildTIDAlignmentLevels();
-  buildTOBAlignmentLevels();
-  buildTECAlignmentLevels();
-
-  levels.push_back(&pxb);
-  levels.push_back(&pxe);
-  levels.push_back(&tib);
-  levels.push_back(&tid);
-  levels.push_back(&tob);
-  levels.push_back(&tec);
-
+  std::vector<align::AlignmentLevels> levels;
+  levels.push_back(buildPXBAlignmentLevels());
+  levels.push_back(buildPXEAlignmentLevels());
+  levels.push_back(buildTIBAlignmentLevels());
+  levels.push_back(buildTIDAlignmentLevels());
+  levels.push_back(buildTOBAlignmentLevels());
+  levels.push_back(buildTECAlignmentLevels());
   return levels;
 }
 
@@ -88,120 +74,120 @@ std::vector<align::AlignmentLevels*> TrackerAlignmentLevelBuilder
 void TrackerAlignmentLevelBuilder
 ::addPXBDetUnitInfo(const DetId& detId)
 {
-  auto layerID  = trackerTopology->pxbLayer(detId);
-  auto ladderID = trackerTopology->pxbLadder(detId);
-  auto moduleID = trackerTopology->module(detId);
+  auto layerID  = trackerTopology_->pxbLayer(detId);
+  auto ladderID = trackerTopology_->pxbLadder(detId);
+  auto moduleID = trackerTopology_->module(detId);
 
-  if (pxbLaddersPerLayer[layerID-1] < ladderID) {
-    pxbLaddersPerLayer[layerID-1] = ladderID;
+  if (pxbLaddersPerLayer_[layerID-1] < ladderID) {
+    pxbLaddersPerLayer_[layerID-1] = ladderID;
   }
 
-  pxbLayerIDs. insert(layerID);
-  pxbLadderIDs.insert(ladderID);
-  pxbModuleIDs.insert(moduleID);
+  pxbLayerIDs_. insert(layerID);
+  pxbLadderIDs_.insert(ladderID);
+  pxbModuleIDs_.insert(moduleID);
 }
 
 //_____________________________________________________________________________
 void TrackerAlignmentLevelBuilder
 ::addPXEDetUnitInfo(const DetId& detId)
 {
-  auto sideID   = trackerTopology->pxfSide(detId);
-  auto diskID   = trackerTopology->pxfDisk(detId);
-  auto bladeID  = trackerTopology->pxfBlade(detId);
-  auto panelID  = trackerTopology->pxfPanel(detId);
-  auto moduleID = trackerTopology->module(detId);
+  auto sideID   = trackerTopology_->pxfSide(detId);
+  auto diskID   = trackerTopology_->pxfDisk(detId);
+  auto bladeID  = trackerTopology_->pxfBlade(detId);
+  auto panelID  = trackerTopology_->pxfPanel(detId);
+  auto moduleID = trackerTopology_->module(detId);
 
-  pxeSideIDs.  insert(sideID);
-  pxeDiskIDs.  insert(diskID);
-  pxeBladeIDs. insert(bladeID);
-  pxePanelIDs. insert(panelID);
-  pxeModuleIDs.insert(moduleID);
+  pxeSideIDs_.  insert(sideID);
+  pxeDiskIDs_.  insert(diskID);
+  pxeBladeIDs_. insert(bladeID);
+  pxePanelIDs_. insert(panelID);
+  pxeModuleIDs_.insert(moduleID);
 }
 
 //_____________________________________________________________________________
 void TrackerAlignmentLevelBuilder
 ::addTIBDetUnitInfo(const DetId& detId)
 {
-  auto sideID    = trackerTopology->tibSide(detId);
-  auto layerID   = trackerTopology->tibLayer(detId);
-  auto layerSide = trackerTopology->tibOrder(detId);
-  auto stringID  = trackerTopology->tibString(detId);
-  auto moduleID  = trackerTopology->module(detId);
+  auto sideID    = trackerTopology_->tibSide(detId);
+  auto layerID   = trackerTopology_->tibLayer(detId);
+  auto layerSide = trackerTopology_->tibOrder(detId);
+  auto stringID  = trackerTopology_->tibString(detId);
+  auto moduleID  = trackerTopology_->module(detId);
 
   if (layerSide == 1) {
-    if (tidStringsInnerLayer[layerID-1] < stringID) {
-      tidStringsInnerLayer[layerID-1] = stringID;
+    if (tidStringsInnerLayer_[layerID-1] < stringID) {
+      tidStringsInnerLayer_[layerID-1] = stringID;
     }
   } else {
-    if (tidStringsOuterLayer[layerID-1] < stringID) {
-      tidStringsOuterLayer[layerID-1] = stringID;
+    if (tidStringsOuterLayer_[layerID-1] < stringID) {
+      tidStringsOuterLayer_[layerID-1] = stringID;
     }
   }
 
-  tibSideIDs.  insert(sideID);
-  tibLayerIDs. insert(layerID);
-  tibStringIDs.insert(stringID);
-  tibModuleIDs.insert(moduleID);
+  tibSideIDs_.  insert(sideID);
+  tibLayerIDs_. insert(layerID);
+  tibStringIDs_.insert(stringID);
+  tibModuleIDs_.insert(moduleID);
 }
 
 //_____________________________________________________________________________
 void TrackerAlignmentLevelBuilder
 ::addTIDDetUnitInfo(const DetId& detId)
 {
-  auto sideID   = trackerTopology->tidSide(detId);
-  auto wheelID  = trackerTopology->tidWheel(detId);
-  auto ringID   = trackerTopology->tidRing(detId);
-  auto moduleID = trackerTopology->module(detId);
+  auto sideID   = trackerTopology_->tidSide(detId);
+  auto wheelID  = trackerTopology_->tidWheel(detId);
+  auto ringID   = trackerTopology_->tidRing(detId);
+  auto moduleID = trackerTopology_->module(detId);
 
   // tidOrder
-  tidSideIDs.  insert(sideID);
-  tidWheelIDs. insert(wheelID);
-  tidRingIDs.  insert(ringID);
-  tidModuleIDs.insert(moduleID);
+  tidSideIDs_.  insert(sideID);
+  tidWheelIDs_. insert(wheelID);
+  tidRingIDs_.  insert(ringID);
+  tidModuleIDs_.insert(moduleID);
 }
 
 //_____________________________________________________________________________
 void TrackerAlignmentLevelBuilder
 ::addTOBDetUnitInfo(const DetId& detId)
 {
-  auto layerID  = trackerTopology->tobLayer(detId);
-  auto sideID   = trackerTopology->tobSide(detId);
-  auto rodID    = trackerTopology->tobRod(detId);
-  auto moduleID = trackerTopology->module(detId);
+  auto layerID  = trackerTopology_->tobLayer(detId);
+  auto sideID   = trackerTopology_->tobSide(detId);
+  auto rodID    = trackerTopology_->tobRod(detId);
+  auto moduleID = trackerTopology_->module(detId);
 
-  tobLayerIDs. insert(layerID);
-  tobSideIDs.  insert(sideID);
-  tobRodIDs.   insert(rodID);
-  tobModuleIDs.insert(moduleID);
+  tobLayerIDs_. insert(layerID);
+  tobSideIDs_.  insert(sideID);
+  tobRodIDs_.   insert(rodID);
+  tobModuleIDs_.insert(moduleID);
 }
 
 //_____________________________________________________________________________
 void TrackerAlignmentLevelBuilder
 ::addTECDetUnitInfo(const DetId& detId)
 {
-  auto sideID   = trackerTopology->tecSide(detId);
-  auto wheelID  = trackerTopology->tecWheel(detId);
-  auto petalID  = trackerTopology->tecPetalNumber(detId);
-  auto ringID   = trackerTopology->tecRing(detId);
-  auto moduleID = trackerTopology->module(detId);
+  auto sideID   = trackerTopology_->tecSide(detId);
+  auto wheelID  = trackerTopology_->tecWheel(detId);
+  auto petalID  = trackerTopology_->tecPetalNumber(detId);
+  auto ringID   = trackerTopology_->tecRing(detId);
+  auto moduleID = trackerTopology_->module(detId);
 
-  tecSideIDs.  insert(sideID);
-  tecWheelIDs. insert(wheelID);
-  tecPetalIDs. insert(petalID);
-  tecRingIDs.  insert(ringID);
-  tecModuleIDs.insert(moduleID);
+  tecSideIDs_.  insert(sideID);
+  tecWheelIDs_. insert(wheelID);
+  tecPetalIDs_. insert(petalID);
+  tecRingIDs_.  insert(ringID);
+  tecModuleIDs_.insert(moduleID);
 }
 
 
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder
+align::AlignmentLevels TrackerAlignmentLevelBuilder
 ::buildPXBAlignmentLevels()
 {
-  int maxNumModules = pxbModuleIDs.size();
-  int maxNumLadders = pxbLadderIDs.size() / 2; // divide by 2 since we have
+  int maxNumModules = pxbModuleIDs_.size();
+  int maxNumLadders = pxbLadderIDs_.size() / 2; // divide by 2 since we have
                                                // HalfBarrels
-  int maxNumLayers  = pxbLayerIDs.size();
+  int maxNumLayers  = pxbLayerIDs_.size();
 
   std::ostringstream ss;
   ss << "determined following numbers for "
@@ -209,11 +195,11 @@ void TrackerAlignmentLevelBuilder
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of ladders: " << maxNumLadders                  << "\n";
 
-  for (size_t layer = 0; layer < pxbLaddersPerLayer.size(); ++layer) {
+  for (size_t layer = 0; layer < pxbLaddersPerLayer_.size(); ++layer) {
     // divide by 4, because we need the ladders per quarter cylinder
-    align::tpb::lpqc.push_back(pxbLaddersPerLayer[layer] / 4);
+    align::tpb::lpqc.push_back(pxbLaddersPerLayer_[layer] / 4);
     ss << "      ladders in layer-" << layer << ": "
-       << pxbLaddersPerLayer[layer] << "\n";
+       << pxbLaddersPerLayer_[layer] << "\n";
   }
 
   ss << "   max. number of layers:  " << maxNumLayers;
@@ -221,22 +207,24 @@ void TrackerAlignmentLevelBuilder
      << "@SUB=TrackerAlignmentLevelBuilder::buildPXBAlignmentLevels"
      << ss.str();
 
-  pxb.push_back(new AlignmentLevel(align::TPBModule,     maxNumModules, false));
-  pxb.push_back(new AlignmentLevel(align::TPBLadder,     maxNumLadders, true));
-  pxb.push_back(new AlignmentLevel(align::TPBLayer,      maxNumLayers,  false));
-  pxb.push_back(new AlignmentLevel(align::TPBHalfBarrel, 2,             false));
-  pxb.push_back(new AlignmentLevel(align::TPBBarrel,     1,             false));
+  align::AlignmentLevels pxb;
+  pxb.push_back(std::make_unique<AlignmentLevel>(align::TPBModule,     maxNumModules, false));
+  pxb.push_back(std::make_unique<AlignmentLevel>(align::TPBLadder,     maxNumLadders, true));
+  pxb.push_back(std::make_unique<AlignmentLevel>(align::TPBLayer,      maxNumLayers,  false));
+  pxb.push_back(std::make_unique<AlignmentLevel>(align::TPBHalfBarrel, 2,             false));
+  pxb.push_back(std::make_unique<AlignmentLevel>(align::TPBBarrel,     1,             false));
+  return pxb;
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder
+align::AlignmentLevels TrackerAlignmentLevelBuilder
 ::buildPXEAlignmentLevels()
 {
-  int maxNumModules = pxeModuleIDs.size();
-  int maxNumPanels  = pxePanelIDs.size();
-  int maxNumBlades  = pxeBladeIDs.size() / 2;
-  int maxNumDisks   = pxeDiskIDs.size();
-  int maxNumSides   = pxeSideIDs.size();
+  int maxNumModules = pxeModuleIDs_.size();
+  int maxNumPanels  = pxePanelIDs_.size();
+  int maxNumBlades  = pxeBladeIDs_.size() / 2;
+  int maxNumDisks   = pxeDiskIDs_.size();
+  int maxNumSides   = pxeSideIDs_.size();
 
   std::ostringstream ss;
   ss << "determined following numbers for "
@@ -254,22 +242,24 @@ void TrackerAlignmentLevelBuilder
      << "@SUB=TrackerAlignmentLevelBuilder::buildPXEAlignmentLevels"
      << ss.str();
 
-  pxe.push_back(new AlignmentLevel(align::TPEModule,       maxNumModules, false));
-  pxe.push_back(new AlignmentLevel(align::TPEPanel,        maxNumPanels,  true));
-  pxe.push_back(new AlignmentLevel(align::TPEBlade,        maxNumBlades,  true));
-  pxe.push_back(new AlignmentLevel(align::TPEHalfDisk,     maxNumDisks,   false));
-  pxe.push_back(new AlignmentLevel(align::TPEHalfCylinder, 2,             false));
-  pxe.push_back(new AlignmentLevel(align::TPEEndcap,       maxNumSides,   false));
+  align::AlignmentLevels pxe;
+  pxe.push_back(std::make_unique<AlignmentLevel>(align::TPEModule,       maxNumModules, false));
+  pxe.push_back(std::make_unique<AlignmentLevel>(align::TPEPanel,        maxNumPanels,  true));
+  pxe.push_back(std::make_unique<AlignmentLevel>(align::TPEBlade,        maxNumBlades,  true));
+  pxe.push_back(std::make_unique<AlignmentLevel>(align::TPEHalfDisk,     maxNumDisks,   false));
+  pxe.push_back(std::make_unique<AlignmentLevel>(align::TPEHalfCylinder, 2,             false));
+  pxe.push_back(std::make_unique<AlignmentLevel>(align::TPEEndcap,       maxNumSides,   false));
+  return pxe;
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder
+align::AlignmentLevels TrackerAlignmentLevelBuilder
 ::buildTIBAlignmentLevels()
 {
-  int maxNumModules = tibModuleIDs.size();
-  int maxNumStrings = tibStringIDs.size();
-  int maxNumLayers  = tibLayerIDs.size();
-  int maxNumSides   = tibSideIDs.size();
+  int maxNumModules = tibModuleIDs_.size();
+  int maxNumStrings = tibStringIDs_.size();
+  int maxNumLayers  = tibLayerIDs_.size();
+  int maxNumSides   = tibSideIDs_.size();
 
   std::ostringstream ss;
   ss << "determined following numbers for "
@@ -277,15 +267,15 @@ void TrackerAlignmentLevelBuilder
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of strings: " << maxNumStrings                  << "\n";
 
-  for (size_t layer = 0; layer < tidStringsInnerLayer.size(); ++layer) {
+  for (size_t layer = 0; layer < tidStringsInnerLayer_.size(); ++layer) {
     // divide by 2, because we have HalfShells
-    align::tib::sphs.push_back(tidStringsInnerLayer[layer] / 2);
-    align::tib::sphs.push_back(tidStringsOuterLayer[layer] / 2);
+    align::tib::sphs.push_back(tidStringsInnerLayer_[layer] / 2);
+    align::tib::sphs.push_back(tidStringsOuterLayer_[layer] / 2);
 
     ss << "      strings in layer-" << layer << " (inside):  "
-       << tidStringsInnerLayer[layer] << "\n"
+       << tidStringsInnerLayer_[layer] << "\n"
        << "      strings in layer-" << layer << " (outside): "
-       << tidStringsOuterLayer[layer] << "\n";
+       << tidStringsOuterLayer_[layer] << "\n";
   }
 
   ss << "   max. number of layers:  " << maxNumLayers                   << "\n"
@@ -294,25 +284,27 @@ void TrackerAlignmentLevelBuilder
        << "@SUB=TrackerAlignmentLevelBuilder::buildTIBAlignmentLevels"
        << ss.str();
 
-  tib.push_back(new AlignmentLevel(align::TIBModule,     maxNumModules, false));
-  tib.push_back(new AlignmentLevel(align::TIBString,     maxNumStrings, true));
-  tib.push_back(new AlignmentLevel(align::TIBSurface,    2, false)); // 2 surfaces per half shell
-  tib.push_back(new AlignmentLevel(align::TIBHalfShell,  2, false)); // 2 half shells per layer
-  tib.push_back(new AlignmentLevel(align::TIBLayer,      maxNumLayers, false));
-  tib.push_back(new AlignmentLevel(align::TIBHalfBarrel, 2, false));
-  tib.push_back(new AlignmentLevel(align::TIBBarrel,     1, false));
+  align::AlignmentLevels tib;
+  tib.push_back(std::make_unique<AlignmentLevel>(align::TIBModule,     maxNumModules, false));
+  tib.push_back(std::make_unique<AlignmentLevel>(align::TIBString,     maxNumStrings, true));
+  tib.push_back(std::make_unique<AlignmentLevel>(align::TIBSurface,    2, false)); // 2 surfaces per half shell
+  tib.push_back(std::make_unique<AlignmentLevel>(align::TIBHalfShell,  2, false)); // 2 half shells per layer
+  tib.push_back(std::make_unique<AlignmentLevel>(align::TIBLayer,      maxNumLayers, false));
+  tib.push_back(std::make_unique<AlignmentLevel>(align::TIBHalfBarrel, 2, false));
+  tib.push_back(std::make_unique<AlignmentLevel>(align::TIBBarrel,     1, false));
+  return tib;
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder
+align::AlignmentLevels TrackerAlignmentLevelBuilder
 ::buildTIDAlignmentLevels()
 {
-  int maxNumModules = tidModuleIDs.size();
-  int maxNumRings   = tidRingIDs.size();
+  int maxNumModules = tidModuleIDs_.size();
+  int maxNumRings   = tidRingIDs_.size();
   // TODO: for PhaseII geometry the method name for tidWheel changes:
   //       -> trackerTopology->tidDisk(detId);
-  int maxNumWheels  = tidWheelIDs.size();
-  int maxNumSides   = tidSideIDs.size();
+  int maxNumWheels  = tidWheelIDs_.size();
+  int maxNumSides   = tidSideIDs_.size();
 
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTIDAlignmentLevels"
@@ -323,21 +315,23 @@ void TrackerAlignmentLevelBuilder
      << "   max. number of wheels:  " << maxNumWheels                   << "\n"
      << "   max. number of sides:   " << maxNumSides;
 
-  tid.push_back(new AlignmentLevel(align::TIDModule, maxNumModules, false));
-  tid.push_back(new AlignmentLevel(align::TIDSide,   2,             false)); // 2 sides per ring
-  tid.push_back(new AlignmentLevel(align::TIDRing,   maxNumRings,   false));
-  tid.push_back(new AlignmentLevel(align::TIDDisk,   maxNumWheels,  false));
-  tid.push_back(new AlignmentLevel(align::TIDEndcap, 2,             false)); // 2 endcaps in TID
+  align::AlignmentLevels tid;
+  tid.push_back(std::make_unique<AlignmentLevel>(align::TIDModule, maxNumModules, false));
+  tid.push_back(std::make_unique<AlignmentLevel>(align::TIDSide,   2,             false)); // 2 sides per ring
+  tid.push_back(std::make_unique<AlignmentLevel>(align::TIDRing,   maxNumRings,   false));
+  tid.push_back(std::make_unique<AlignmentLevel>(align::TIDDisk,   maxNumWheels,  false));
+  tid.push_back(std::make_unique<AlignmentLevel>(align::TIDEndcap, 2,             false)); // 2 endcaps in TID
+  return tid;
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder
+align::AlignmentLevels TrackerAlignmentLevelBuilder
 ::buildTOBAlignmentLevels()
 {
-  int maxNumModules = tobModuleIDs.size();
-  int maxNumRods    = tobRodIDs.size();
-  int maxNumSides   = tobSideIDs.size();
-  int maxNumLayers  = tobLayerIDs.size();
+  int maxNumModules = tobModuleIDs_.size();
+  int maxNumRods    = tobRodIDs_.size();
+  int maxNumSides   = tobSideIDs_.size();
+  int maxNumLayers  = tobLayerIDs_.size();
 
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTOBAlignmentLevels"
@@ -348,22 +342,24 @@ void TrackerAlignmentLevelBuilder
      << "   max. number of sides:   " << maxNumSides                    << "\n"
      << "   max. number of layers:  " << maxNumLayers;
 
-  tob.push_back(new AlignmentLevel(align::TOBModule,     maxNumModules, false));
-  tob.push_back(new AlignmentLevel(align::TOBRod,        maxNumRods,    true));
-  tob.push_back(new AlignmentLevel(align::TOBLayer,      maxNumLayers,  false));
-  tob.push_back(new AlignmentLevel(align::TOBHalfBarrel, maxNumSides,   false));
-  tob.push_back(new AlignmentLevel(align::TOBBarrel,     1,             false));
+  align::AlignmentLevels tob;
+  tob.push_back(std::make_unique<AlignmentLevel>(align::TOBModule,     maxNumModules, false));
+  tob.push_back(std::make_unique<AlignmentLevel>(align::TOBRod,        maxNumRods,    true));
+  tob.push_back(std::make_unique<AlignmentLevel>(align::TOBLayer,      maxNumLayers,  false));
+  tob.push_back(std::make_unique<AlignmentLevel>(align::TOBHalfBarrel, maxNumSides,   false));
+  tob.push_back(std::make_unique<AlignmentLevel>(align::TOBBarrel,     1,             false));
+  return tob;
 }
 
 //_____________________________________________________________________________
-void TrackerAlignmentLevelBuilder
+align::AlignmentLevels TrackerAlignmentLevelBuilder
 ::buildTECAlignmentLevels()
 {
-  int maxNumModules = tecModuleIDs.size();
-  int maxNumRings   = tecRingIDs.size();
-  int maxNumPetals  = tecPetalIDs.size();
-  int maxNumDisks   = tecWheelIDs.size();
-  int maxNumSides   = tecSideIDs.size();
+  int maxNumModules = tecModuleIDs_.size();
+  int maxNumRings   = tecRingIDs_.size();
+  int maxNumPetals  = tecPetalIDs_.size();
+  int maxNumDisks   = tecWheelIDs_.size();
+  int maxNumSides   = tecSideIDs_.size();
 
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTECAlignmentLevels"
@@ -375,10 +371,12 @@ void TrackerAlignmentLevelBuilder
      << "   max. number of wheels:  " << maxNumDisks                    << "\n"
      << "   max. number of sides:   " << maxNumSides;
 
-  tec.push_back(new AlignmentLevel(align::TECModule, maxNumModules, false));
-  tec.push_back(new AlignmentLevel(align::TECRing,   maxNumRings,   true));
-  tec.push_back(new AlignmentLevel(align::TECPetal,  maxNumPetals,  true));
-  tec.push_back(new AlignmentLevel(align::TECSide,   2,             false)); // 2 sides per disk
-  tec.push_back(new AlignmentLevel(align::TECDisk,   maxNumDisks,   false));
-  tec.push_back(new AlignmentLevel(align::TECEndcap, 2,             false));
+  align::AlignmentLevels tec;
+  tec.push_back(std::make_unique<AlignmentLevel>(align::TECModule, maxNumModules, false));
+  tec.push_back(std::make_unique<AlignmentLevel>(align::TECRing,   maxNumRings,   true));
+  tec.push_back(std::make_unique<AlignmentLevel>(align::TECPetal,  maxNumPetals,  true));
+  tec.push_back(std::make_unique<AlignmentLevel>(align::TECSide,   2,             false)); // 2 sides per disk
+  tec.push_back(std::make_unique<AlignmentLevel>(align::TECDisk,   maxNumDisks,   false));
+  tec.push_back(std::make_unique<AlignmentLevel>(align::TECEndcap, 2,             false));
+  return tec;
 }

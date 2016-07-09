@@ -35,3 +35,20 @@
   <use   name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="AlignmentTrackerAlignmentRecordGeneratorPlugins"
+	 file="CreateTrackerAlignmentRcds.cc">
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="Alignment/CommonAlignment"/>
+  <use name="CondFormats/AlignmentRecord"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="CondFormats/Alignment"/>
+  <use name="DataFormats/TrackerCommon" />
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="CLHEP"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
