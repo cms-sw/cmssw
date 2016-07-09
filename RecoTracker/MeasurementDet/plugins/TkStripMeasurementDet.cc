@@ -80,14 +80,16 @@ bool TkStripMeasurementDet::recHits(SimpleHitContainer & result,
       SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), leftCluster); 
       bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), tmp);
       if(!isCompatible) break; // exit loop on first incompatible hit
-      for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h))); tmp.clear();								
+      for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h)));
+      tmp.clear();								
     }
   }
   for ( ; rightCluster != detSet.end(); rightCluster++) {
     SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), rightCluster); 
     bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), tmp);
     if(!isCompatible) break; // exit loop on first incompatible hit
-    for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h))); tmp.clear();
+    for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h))); 
+    tmp.clear();
   }
   
   return result.size()>oldSize;
