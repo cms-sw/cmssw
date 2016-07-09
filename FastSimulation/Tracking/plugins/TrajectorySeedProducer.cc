@@ -200,7 +200,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         std::vector<const FastTrackerRecHit * > seedHitCandidates;
         for (const auto & _hit : recHitCombination )
         {
-            if(hitMasks && fastTrackingUtilities::hitIsMasked(_hit.get(),hitMasks))
+            if(hitMasks && fastTrackingUtilities::hitIsMasked(_hit.get(),*hitMasks))
             {
                 continue;
             }
