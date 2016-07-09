@@ -130,6 +130,7 @@ public:
     bool useRefittedState{false};
     bool constructTsosWithErrors{false};
     bool includeAPEs{false};
+    bool allowZeroMaterial{false};
   };
 
   virtual ~ReferenceTrajectoryBase() {}
