@@ -79,7 +79,7 @@ macros that make rate plots and kinematical plots.
 //
 // class declaration
 //
-class CosmicRateAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class CosmicRateAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
    public:
       explicit CosmicRateAnalyzer(const edm::ParameterSet&);
       ~CosmicRateAnalyzer();
@@ -172,12 +172,13 @@ class CosmicRateAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 // constructors and destructor
 //
 CosmicRateAnalyzer::CosmicRateAnalyzer(const edm::ParameterSet& iConfig):
-  trackTags_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
-  clustercollectionToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("tracks"))),
-  muonTags_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons")))
+  trackTags_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
+  clustercollectionToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("tracksInputTag"))),
+  muonTags_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonsInputTag")))
 {
    //now do what ever initialization is needed
    //
+    usesResource(TFileService::kSharedResource);
     treeEvent = fs->make<TTree>("Event","");
     treeRun = fs->make<TTree>("Run","");
     treeCluster = fs->make<TTree>("Cluster","");
@@ -520,7 +521,9 @@ CosmicRateAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.setComment("Create tuple with all variables required to calculate cosmic event and track rates.");
+  desc.add<edm::InputTag> ("tracksInputTag",edm::InputTag("ALCARECOTkAlCosmicsCTF0T"));
+  desc.add<edm::InputTag> ("muonsInputTag",edm::InputTag("muons1Leg"));
   descriptions.addDefault(desc);
 }
 

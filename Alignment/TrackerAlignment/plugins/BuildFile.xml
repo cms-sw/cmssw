@@ -37,7 +37,6 @@
 </library>
 
 <library file="CosmicRateAnalyzer.cc" name="AlignmentCosmicRateAnalyzerPlugins">
-  <use   name="Alignment/TrackerAlignment"/>
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="CommonTools/UtilAlgos"/>
