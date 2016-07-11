@@ -76,6 +76,7 @@
 #include "TGraphAsymmErrors.h"
 #include "TLatex.h"
 #include "TLegend.h"
+#include "TEfficiency.h"
 
 using namespace edm;
 using namespace reco;
@@ -103,6 +104,9 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     void makeSQLite();
     void totalStatistics();
     void makeSummary();
+    void makeSummaryVsBx();
+    TString GetLayerName(Long_t k);
+    TString GetLayerSideName(Long_t k);
     float calcPhi(float x, float y);
 
     edm::Service<TFileService> fs;
@@ -139,6 +143,8 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     TrackerMap *tkmapden;
     int layerfound[23];
     int layertotal[23];
+    map< unsigned int, vector<int> > layerfound_perBx;
+    map< unsigned int, vector<int> > layertotal_perBx;
     int goodlayertotal[35];
     int goodlayerfound[35];
     int alllayertotal[35];
@@ -212,16 +218,14 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   TLeaf* TrajLocXLf = CalibTree->GetLeaf("TrajLocX");
   TLeaf* TrajLocYLf = CalibTree->GetLeaf("TrajLocY");
   TLeaf* ClusterLocXLf = CalibTree->GetLeaf("ClusterLocX");
-  TLeaf* BunchLf(0);
+  TLeaf* BunchLf = CalibTree->GetLeaf("bunchx");
   for(int l=0; l < 35; l++) {
     goodlayertotal[l] = 0;
     goodlayerfound[l] = 0;
     alllayertotal[l] = 0;
     alllayerfound[l] = 0;
   }
-  if(_bunchx != 0) {
-    BunchLf = CalibTree->GetLeaf("bunchx");
-  }
+
   int nevents = CalibTree->GetEntries();
   cout << "Successfully loaded analyze function with " << nevents << " events!\n";
   cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
@@ -251,9 +255,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     double stripTrajMid;
     double stripCluster;
     bool badquality = false;
-    if(_bunchx != 0) {
-      if(_bunchx != BunchLf->GetValue()) continue;
-    }
+    unsigned int bx = (unsigned int)BunchLf->GetValue();
+    if(_bunchx > 0 && _bunchx != bx) continue;
+
     //We have two things we want to do, both an XY color plot, and the efficiency measurement
     //First, ignore anything that isn't in acceptance and isn't good quality
     
@@ -363,6 +367,14 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         ((*it).second.first)++;
         if(!badflag) ((*it).second.second)++;
       }
+
+	  if(layerfound_perBx.find(bx)==layerfound_perBx.end()) {
+	    layerfound_perBx[bx] = vector<int>(23, 0);
+	    layertotal_perBx[bx] = vector<int>(23, 0);
+	  }
+	  if(!badflag) layerfound_perBx[bx][layer]++;
+	  layertotal_perBx[bx][layer]++;
+
       //Have to do the decoding for which side to go on (ugh)
       if(layer <= 10) {
         if(!badflag) goodlayerfound[layer]++;
@@ -421,6 +433,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   makeSQLite();
   totalStatistics();
   makeSummary();
+  makeSummaryVsBx();
   
   ////////////////////////////////////////////////////////////////////////
   //try to write out what's in the quality record
@@ -963,6 +976,125 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   leg->Draw("same");
   
   c7->SaveAs("Summary.png");
+}
+
+void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
+  cout<<"Computing efficiency vs bx"<<endl;
+  
+  unsigned int nLayers = 22;
+  if(_showRings) nLayers = 20;
+  
+  for(unsigned int ilayer=1; ilayer<nLayers; ilayer++) {
+    TH1F *hfound = fs->make<TH1F>(Form("foundVsBx_layer%i", ilayer),Form("layer %i", ilayer),3565,0,3565);
+    TH1F *htotal = fs->make<TH1F>(Form("totalVsBx_layer%i", ilayer),Form("layer %i", ilayer),3565,0,3565);
+	
+	for(unsigned int ibx=0; ibx<3566; ibx++){
+	  hfound->SetBinContent(ibx, 1e-6);
+	  htotal->SetBinContent(ibx, 1);
+	}
+	map<unsigned int, vector<int> >::iterator iterMapvsBx;
+	for(iterMapvsBx=layerfound_perBx.begin(); iterMapvsBx!=layerfound_perBx.end(); ++iterMapvsBx) 
+	  hfound->SetBinContent( iterMapvsBx->first, iterMapvsBx->second[ilayer]);
+	for(iterMapvsBx=layertotal_perBx.begin(); iterMapvsBx!=layertotal_perBx.end(); ++iterMapvsBx)
+	  if(iterMapvsBx->second[ilayer]>0) htotal->SetBinContent( iterMapvsBx->first, iterMapvsBx->second[ilayer]);
+		
+	hfound->Sumw2();
+	htotal->Sumw2();
+	
+	TGraphAsymmErrors *geff = fs->make<TGraphAsymmErrors>(3564);
+	geff->SetName(Form("effVsBx_layer%i", ilayer));
+	geff->SetTitle("Hit Efficiency vs bx - "+GetLayerName(ilayer));
+	geff->BayesDivide(hfound,htotal);
+	
+	//Average over trains
+	TGraphAsymmErrors *geff_avg = fs->make<TGraphAsymmErrors>();
+	geff_avg->SetName(Form("effVsBxAvg_layer%i", ilayer));
+	geff_avg->SetTitle("Hit Efficiency vs bx - "+GetLayerName(ilayer));
+	geff_avg->SetMarkerStyle(20);
+	int ibx=0;
+	int previous_bx=-80;
+	int delta_bx=0;
+	int nbx=0;
+	int found=0;
+	int total=0;
+	double sum_bx=0;
+	int ipt=0;
+	float low, up, eff;
+	int firstbx=0;
+	for(iterMapvsBx=layertotal_perBx.begin(); iterMapvsBx!=layertotal_perBx.end(); ++iterMapvsBx){
+	  ibx=iterMapvsBx->first;
+	  delta_bx=ibx-previous_bx;
+	  // consider a new train
+	  if(delta_bx>25 && nbx>0 && total>0){
+	    eff=found/(float)total;
+	    //cout<<"new train "<<ipt<<" "<<sum_bx/nbx<<" "<<eff<<endl;
+	    geff_avg->SetPoint(ipt, sum_bx/nbx, eff);
+	    low = TEfficiency::Bayesian(total, found, .683, 1, 1, false);
+	    up = TEfficiency::Bayesian(total, found, .683, 1, 1, true);
+	    geff_avg->SetPointError(ipt, sum_bx/nbx-firstbx, previous_bx-sum_bx/nbx, eff-low, up-eff);
+	    ipt++;
+	    sum_bx=0;
+	    found=0;
+	    total=0;
+	    nbx=0;
+	    firstbx=ibx;
+	  }
+	  sum_bx+=ibx;
+	  found+=hfound->GetBinContent(ibx);
+	  total+=htotal->GetBinContent(ibx);
+	  nbx++;
+	  
+	  previous_bx=ibx;
+	}
+	//last train
+	eff=found/(float)total;
+	//cout<<"new train "<<ipt<<" "<<sum_bx/nbx<<" "<<eff<<endl;
+	geff_avg->SetPoint(ipt, sum_bx/nbx, eff);
+	low = TEfficiency::Bayesian(total, found, .683, 1, 1, false);
+	up = TEfficiency::Bayesian(total, found, .683, 1, 1, true);
+	geff_avg->SetPointError(ipt, sum_bx/nbx-firstbx, previous_bx-sum_bx/nbx, eff-low, up-eff);
+  }
+}
+
+
+TString SiStripHitEffFromCalibTree::GetLayerName(Long_t k) {
+
+    TString layername="";
+    TString ringlabel="D";
+    if(_showRings) ringlabel="R";
+    if (k>0 && k<5) {
+      layername = TString("TIB L") + k;
+    } else if (k>4 && k<11) {
+      layername = TString("TOB L")+(k-4);
+    } else if (k>10 && k<14) {
+      layername = TString("TID ")+ringlabel+(k-10);
+    } else if (k>13 && k<14+nTEClayers) {
+      layername = TString("TEC ")+ringlabel+(k-13);
+	}
+   
+    return layername;
+}
+
+TString SiStripHitEffFromCalibTree::GetLayerSideName(Long_t k) {
+
+    TString layername="";
+    TString ringlabel="D";
+    if(_showRings) ringlabel="R";
+    if (k>0 && k<5) {
+      layername = TString("TIB L") + k;
+    } else if (k>4&&k<11) {
+      layername = TString("TOB L")+(k-4);
+    } else if (k>10&&k<14) {
+      layername = TString("TID- ")+ringlabel+(k-10);
+    } else if (k>13&&k<17) {
+      layername = TString("TID+ ")+ringlabel+(k-13);
+    } else if (k>16&&k<17+nTEClayers) {
+      layername = TString("TEC- ")+ringlabel+(k-16);
+    } else if (k>16+nTEClayers) {
+      layername = TString("TEC+ ")+ringlabel+(k-16-nTEClayers);
+    }
+   
+    return layername;
 }
 
 SiStripBadStrip* SiStripHitEffFromCalibTree::getNewObject() {
