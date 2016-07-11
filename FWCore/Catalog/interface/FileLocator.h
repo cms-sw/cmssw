@@ -57,11 +57,6 @@ namespace edm {
     std::string                 m_filename;
     std::vector<std::string>    m_protocols;
     std::string                 m_destination;
-    XMLCh*                      m_str_protocol;
-    XMLCh*                      m_str_destination_match;
-    XMLCh*                      m_str_path_match;
-    XMLCh*                      m_str_result;
-    XMLCh*                      m_str_chain;
   };
 }
 

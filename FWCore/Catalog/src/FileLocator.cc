@@ -4,6 +4,7 @@
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -15,15 +16,9 @@
 #include <sstream>
 
 using namespace xercesc;
+using namespace cms::xerces;
 
 namespace {
-
-  inline std::string _toString(XMLCh const* toTranscode) {
-    char* localForm = XMLString::transcode(toTranscode);
-    std::string tmp(localForm);
-    XMLString::release(&localForm);
-    return tmp;
-  }
 
   std::string
   replaceWithRegexp(std::smatch const& matches,
@@ -61,9 +56,9 @@ namespace edm {
     catch (XMLException const& e) {
       // << "Xerces-c error in initialization \n"
       //      << "Exception message is:  \n"
-      //      << _toString(e.getMessage()) <<
+      //      << toString(e.getMessage()) <<
       throw
-        cms::Exception("TrivialFileCatalog", std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
+        cms::Exception("TrivialFileCatalog", std::string("Fatal Error on edm::FileLocator:")+ toString(e.getMessage()));
     }
     ++s_numberOfInstances;
 
@@ -74,14 +69,7 @@ namespace edm {
   }
 
   FileLocator::~FileLocator()
-  {
-    XMLString::release(&m_str_protocol);
-    XMLString::release(&m_str_destination_match);
-    XMLString::release(&m_str_path_match);
-    XMLString::release(&m_str_result);
-    XMLString::release(&m_str_chain);    
-  }
-
+  {}
 
   std::string
   FileLocator::pfn(std::string const& ilfn) const {
@@ -115,19 +103,19 @@ namespace edm {
     // a `getElementsByTagName()` in the calling method.
     DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);
 
-    std::string const protocol = _toString(ruleElement->getAttribute(m_str_protocol));
-    std::string destinationMatchRegexp = _toString(ruleElement->getAttribute(m_str_destination_match));
+    std::string const protocol = toString(ruleElement->getAttribute(uStr("protocol").ptr()));
+    std::string destinationMatchRegexp = toString(ruleElement->getAttribute(uStr("destination-match").ptr()));
 
     if (destinationMatchRegexp.empty()) {
       destinationMatchRegexp = ".*";
     }
 
     std::string const pathMatchRegexp
-      = _toString(ruleElement->getAttribute(m_str_path_match));
+      = toString(ruleElement->getAttribute(uStr("path-match").ptr()));
     std::string const result
-      = _toString(ruleElement->getAttribute(m_str_result));
+      = toString(ruleElement->getAttribute(uStr("result").ptr()));
     std::string const chain
-      = _toString(ruleElement->getAttribute(m_str_chain));
+      = toString(ruleElement->getAttribute(uStr("chain").ptr()));
 
     Rule rule;
     rule.pathMatch.assign(pathMatchRegexp);
@@ -140,11 +128,6 @@ namespace edm {
   void
   FileLocator::init(std::string const& catUrl, bool fallback) {
     std::string m_url = catUrl;
-    m_str_protocol = XMLString::transcode("protocol");
-    m_str_destination_match = XMLString::transcode("destination-match");
-    m_str_path_match = XMLString::transcode("path-match");
-    m_str_result = XMLString::transcode("result");
-    m_str_chain = XMLString::transcode("chain");
       
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
@@ -228,9 +211,7 @@ namespace edm {
 
     /*first of all do the lfn-to-pfn bit*/
     {
-      XMLCh* lfn_to_pfn = XMLString::transcode("lfn-to-pfn");
-      DOMNodeList* rules = doc->getElementsByTagName(lfn_to_pfn);
-      XMLString::release(&lfn_to_pfn);
+      DOMNodeList* rules = doc->getElementsByTagName(uStr("lfn-to-pfn").ptr());
       XMLSize_t const ruleTagsNum = rules->getLength();
 
       // FIXME: we should probably use a DTD for checking validity
@@ -242,9 +223,7 @@ namespace edm {
     }
     /*Then we handle the pfn-to-lfn bit*/
     {
-      XMLCh* pfn_to_lfn = XMLString::transcode("pfn-to-lfn");
-      DOMNodeList* rules = doc->getElementsByTagName(pfn_to_lfn);
-      XMLString::release(&pfn_to_lfn);
+      DOMNodeList* rules = doc->getElementsByTagName(uStr("pfn-to-lfn").ptr());
       XMLSize_t ruleTagsNum = rules->getLength();
 
       for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
