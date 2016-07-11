@@ -12,7 +12,6 @@ public:
   DavixFile(const std::string &name, int flags = IOFlags::OpenRead,
             int perms = 0666);
   ~DavixFile(void);
-  static Davix::Context *getDavixInstance();
   static void configureDavixLogLevel();
 
   virtual void create(const char *name, bool exclusive = false,
@@ -39,11 +38,13 @@ public:
   virtual void abort(void);
 
 private:
+  // Cannot use as C++ smart pointer for Davix_fd
+  // Because Davix_fd is not available in C++ header files and
+  // sizeof cannot with incomplete types
   Davix_fd *m_fd;
-  Davix::Context *davixContext;
-  Davix::DavPosix *davixPosix;
-  Davix::RequestParams *davixReqParams;
-  std::string m_name;
+  std::unique_ptr<Davix::DavPosix> davixPosix;
+  std::unique_ptr<Davix::RequestParams> davixReqParams;
+  std::unique_ptr<std::string> m_name;
 };
 
 #endif // DAVIX_ADAPTOR_DAVIX_FILE_H
