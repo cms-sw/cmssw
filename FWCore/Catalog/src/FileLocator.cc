@@ -190,48 +190,52 @@ namespace edm {
 
     configFile.close();
 
-    XercesDOMParser* parser = new XercesDOMParser;
-    parser->setValidationScheme(XercesDOMParser::Val_Auto);
-    parser->setDoNamespaces(false);
-    parser->parse(m_filename.c_str());
-    DOMDocument* doc = parser->getDocument();
-    assert(doc);
+    auto parser = std::make_unique<XercesDOMParser>();
+    try {
+      parser->setValidationScheme(XercesDOMParser::Val_Auto);
+      parser->setDoNamespaces(false);
+      parser->parse(m_filename.c_str());
+      DOMDocument* doc = parser->getDocument();
+      assert(doc);
 
-    /* trivialFileCatalog matches the following xml schema
-       FIXME: write a proper DTD
-       <storage-mapping>
-       <lfn-to-pfn protocol="direct" destination-match=".*"
-       path-match="lfn/guid match regular expression"
-       result="/castor/cern.ch/cms/$1"/>
-       <pfn-to-lfn protocol="srm"
-       path-match="lfn/guid match regular expression"
-       result="$1"/>
-       </storage-mapping>
-    */
+      /* trivialFileCatalog matches the following xml schema
+	 FIXME: write a proper DTD
+	 <storage-mapping>
+	 <lfn-to-pfn protocol="direct" destination-match=".*"
+	 path-match="lfn/guid match regular expression"
+	 result="/castor/cern.ch/cms/$1"/>
+	 <pfn-to-lfn protocol="srm"
+	 path-match="lfn/guid match regular expression"
+	 result="$1"/>
+	 </storage-mapping>
+      */
 
-    /*first of all do the lfn-to-pfn bit*/
-    {
-      DOMNodeList* rules = doc->getElementsByTagName(uStr("lfn-to-pfn").ptr());
-      XMLSize_t const ruleTagsNum = rules->getLength();
+      /*first of all do the lfn-to-pfn bit*/
+      {
+	DOMNodeList* rules = doc->getElementsByTagName(uStr("lfn-to-pfn").ptr());
+	XMLSize_t const ruleTagsNum = rules->getLength();
 
-      // FIXME: we should probably use a DTD for checking validity
+	// FIXME: we should probably use a DTD for checking validity
 
-      for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-        DOMNode* ruleNode = rules->item(i);
-        parseRule(ruleNode, m_directRules);
+	for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
+	  DOMNode* ruleNode = rules->item(i);
+	  parseRule(ruleNode, m_directRules);
+	}
+      }
+      /*Then we handle the pfn-to-lfn bit*/
+      {
+	DOMNodeList* rules = doc->getElementsByTagName(uStr("pfn-to-lfn").ptr());
+	XMLSize_t ruleTagsNum = rules->getLength();
+	
+	for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
+	  DOMNode* ruleNode = rules->item(i);
+	  parseRule(ruleNode, m_inverseRules);
+	}
       }
     }
-    /*Then we handle the pfn-to-lfn bit*/
-    {
-      DOMNodeList* rules = doc->getElementsByTagName(uStr("pfn-to-lfn").ptr());
-      XMLSize_t ruleTagsNum = rules->getLength();
-
-      for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-        DOMNode* ruleNode = rules->item(i);
-        parseRule(ruleNode, m_inverseRules);
-      }
+    catch (xercesc::DOMException const& e) {
+      throw cms::Exception("TrivialFileCatalog") << "Xerces XML parser threw this exception: " << cStr(e.getMessage()).ptr() << std::endl;
     }
-    delete parser;
   }
 
   std::string
