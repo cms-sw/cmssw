@@ -157,8 +157,12 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
     throw ex;
   }
 
-  if (davixPosix && m_fd)
-    close();
+  if (davixPosix && m_fd) {
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex << "Davix::open(name='" << m_name->c_str() << "') failed on already open file";
+    ex.addContext("Calling DavixFile::open()");
+    throw ex;
+  }
   configureDavixLogLevel();
   // Translate our flags to system flags
   int openflags = 0;
@@ -230,6 +234,16 @@ IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
     ex << "Davix::readv(name='" << m_name->c_str() << "') failed and call returned " << s;
     ex.addContext("Calling DavixFile::readv()");
     throw ex;
+  } else if (s == 0) {
+    // end of file
+    return 0;
+  }
+  if (IOSize(s) != total) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "Davix::readv(name='" << m_name->c_str() << "') failed and call returned " << s
+       << " bytes while requested " << total << " bytes";
+    ex.addContext("Calling DavixFile::readv()");
+    throw ex;
   }
   return total;
 }
@@ -268,9 +282,17 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
        << ") failed and call returned " << s;
     ex.addContext("Calling DavixFile::readv()");
     throw ex;
-  } else if (s == 0)
-    return 0; // end of file
-
+  } else if (s == 0) {
+    // end of file
+    return 0;
+  }
+  if (IOSize(s) != total) {
+    edm::Exception ex(edm::errors::FileReadError);
+    ex << "Davix::readv(name='" << m_name->c_str() << "') failed and call returned " << s
+       << " bytes while requested " << total << " bytes";
+    ex.addContext("Calling DavixFile::readv()");
+    throw ex;
+  }
   return total;
 }
 
@@ -295,9 +317,10 @@ IOSize DavixFile::read(void *into, IOSize n) {
          << ") failed and call returned " << s;
       ex.addContext("Calling DavixFile::read()");
       throw ex;
-    } else if (s == 0)
+    } else if (s == 0) {
       // end of file
       break;
+    }
     done += s;
   }
   return done;
@@ -306,6 +329,7 @@ IOSize DavixFile::read(void *into, IOSize n) {
 IOSize DavixFile::write(const void *from, IOSize n) {
   cms::Exception ex("FileWriteError");
   ex << "DavixFile::write(name='" << m_name->c_str() << "') not implemented";
+  ex.addContext("Calling DavixFile::write()");
   throw ex;
 }
 
@@ -314,6 +338,7 @@ IOOffset DavixFile::position(IOOffset offset, Relative whence /* = SET */) {
   if (whence != CURRENT && whence != SET && whence != END) {
     cms::Exception ex("FilePositionError");
     ex << "DavixFile::position() called with incorrect 'whence' parameter";
+    ex.addContext("Calling DavixFile::position()");
     throw ex;
   }
   IOOffset result;
@@ -335,5 +360,6 @@ IOOffset DavixFile::position(IOOffset offset, Relative whence /* = SET */) {
 void DavixFile::resize(IOOffset /* size */) {
   cms::Exception ex("FileResizeError");
   ex << "DavixFile::resize(name='" << m_name->c_str() << "') not implemented";
+  ex.addContext("Calling DavixFile::resize()");
   throw ex;
 }
