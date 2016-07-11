@@ -1,22 +1,11 @@
-/***************************************************************************
-                          DDLSAX2FileHandler.cc  -  description
-                             -------------------
-    begin                : Tue Oct 23 2001
-***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
-
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "DetectorDescription/Parser/src/StrX.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
+
+using namespace cms::xerces;
 
 class DDCompactView;
 
@@ -51,7 +40,7 @@ DDLSAX2FileHandler::startElement(const XMLCh* const uri
 {
   DCOUT_V('P', "DDLSAX2FileHandler::startElement started");
 
-  std::string myElementName(StrX(qname).localForm());
+  std::string myElementName(cStr(qname).ptr());
   size_t i = 0;
   for (; i < namesMap_.size(); ++i) {
     if ( myElementName == namesMap_.at(i) ) {
@@ -75,12 +64,8 @@ DDLSAX2FileHandler::startElement(const XMLCh* const uri
 
   for (unsigned int i = 0; i < numAtts; ++i)
   {
-    //       char* temp2 = XMLString::transcode(attrs.getLocalName(i));
-    //       char* temp3 = XMLString::transcode(attrs.getValue(i));
-    attrNames.push_back(std::string(StrX(attrs.getLocalName(i)).localForm()));
-    attrValues.push_back(std::string(StrX(attrs.getValue(i)).localForm()));
-    //       XMLString::release(&temp2);
-    //       XMLString::release(&temp3);
+    attrNames.push_back(std::string(cStr(attrs.getLocalName(i)).ptr()));
+    attrValues.push_back(std::string(cStr(attrs.getValue(i)).ptr()));
   }
   
   myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace_, cpv_);
@@ -94,7 +79,7 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
 				const XMLCh* const localname,
 				const XMLCh* const qname )
 {
-  std::string ts(StrX(qname).localForm());
+  std::string ts(cStr(qname).ptr());
   const std::string&  myElementName = self();
   DCOUT_V('P', "DDLSAX2FileHandler::endElement started");
   DCOUT_V('P', "    " + myElementName);

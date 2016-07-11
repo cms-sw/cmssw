@@ -1,23 +1,10 @@
-/***************************************************************************
-                          DDLSAX2Handler.cc  -  description
-                             -------------------
-    begin                : Mon Oct 22 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-
-#include <iostream>
-
-#include "DetectorDescription/Parser/src/StrX.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
+#include <iostream>
+
+using namespace cms::xerces;
 
 DDLSAX2Handler::DDLSAX2Handler( void )
   : attrCount_(0),
@@ -102,10 +89,10 @@ DDLSAX2Handler::error( const SAXParseException& e )
 {
   sawErrors_ = true;
   edm::LogError("DetectorDescription_Parser_DDLSAX2Handler") 
-    << "\nError at file " << StrX(e.getSystemId())
+    << "\nError at file " << cStr(e.getSystemId()).ptr()
     << ", line " << e.getLineNumber()
     << ", char " << e.getColumnNumber()
-    << "\n  Message: " << StrX(e.getMessage()) << std::endl;
+    << "\n  Message: " << cStr(e.getMessage()).ptr() << std::endl;
 }
 
 void
@@ -113,14 +100,14 @@ DDLSAX2Handler::fatalError( const SAXParseException& e )
 {
   sawErrors_ = true;
   edm::LogError("DetectorDescription_Parser_DDLSAX2Handler") 
-    << "\nFatal Error at file " << StrX(e.getSystemId())
+    << "\nFatal Error at file " << cStr(e.getSystemId()).ptr()
     << ", line " << e.getLineNumber()
     << ", char " << e.getColumnNumber()
     << "\n  Message: " 
-    << StrX(e.getMessage()) << std::endl;
+    << cStr(e.getMessage()).ptr() << std::endl;
   throw cms::Exception("DDException") << "DetectorDescription_Parser_Unrecoverable_Error_from_Xerces: "
-    << std::string(StrX(e.getMessage()).localForm())
-    << " file: " << std::string(StrX(e.getSystemId()).localForm())
+    << toString(e.getMessage())
+    << " file: " << toString(e.getSystemId())
     << " line: " << e.getLineNumber() << " col: " << e.getColumnNumber();
 }
 
@@ -128,10 +115,10 @@ void
 DDLSAX2Handler::warning( const SAXParseException& e )
 {
   edm::LogWarning("DetectorDescription_Parser_DDLSAX2Handler") 
-    << "\nWarning at file " << StrX(e.getSystemId())
+    << "\nWarning at file " << cStr(e.getSystemId()).ptr()
     << ", line " << e.getLineNumber()
     << ", char " << e.getColumnNumber()
-    << "\n  Message: " << StrX(e.getMessage()) << std::endl;
+    << "\n  Message: " << cStr(e.getMessage()).ptr() << std::endl;
 }
 
 void

@@ -32,11 +32,7 @@ class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler
 		    const XMLCh* const qname, const Attributes& attrs) override;
   
   void endElement(const XMLCh* const uri, const XMLCh* const localname,
-		    const XMLCh* const qname) override;
-
- private:
-  
-  std::string pElementName;
+		  const XMLCh* const qname) override;
 };
 
 #endif
