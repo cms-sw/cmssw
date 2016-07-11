@@ -213,11 +213,13 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
   double stripPhi1 = (roll->toGlobal(roll->centreOfStrip((int)digi1))).phi(); // note [-pi,pi]
   double stripPhi2 = (roll->toGlobal(roll->centreOfStrip((int)digi2))).phi(); // note [-pi,pi]
 
-  // adjust [0,2pi] and [-pi,pi] to get deltaPhi difference properly
+  // stripPhi from geometry is given in [-pi,pi] range.  
+  // Keep like that for OMTFp1 [15-10deg,75deg] and OMTFp6 [-45-10deg,15deg]. 
+  // For OMTFp2..OMTFp5  move to [0,2pi] range
   switch (processor) {
     case 1: break;
     case 6: {phi15deg -= 2*M_PI; break; }
-    default : { if (stripPhi1 < 0 || stripPhi2 < 0 ) { stripPhi1 += 2*M_PI; stripPhi2 += 2*M_PI; break; } }
+    default : { if (stripPhi1 < 0) stripPhi1 += 2*M_PI; if(stripPhi2 < 0 ) stripPhi2 += 2*M_PI; break; }
   }
 
   // local angle in CSC halfStrip usnits
