@@ -62,7 +62,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     if ( status == 1 ) continue;
 
     // Collect B-hadrons, to be used in b tagging
-    if ( isBHadron(&p) ) bHadronIdxs.insert(-i);
+    if ( isBHadron(&p) ) bHadronIdxs.insert(-i-1);
   }
 
   // Collect stable leptons and neutrinos
@@ -178,7 +178,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   //// Also don't forget to put B hadrons
   for ( auto index : bHadronIdxs )
   {
-    const reco::Candidate& p = genParticleHandle->at(abs(index));
+    const reco::Candidate& p = genParticleHandle->at(abs(index+1));
     if ( std::isnan(p.pt()) or p.pt() <= 0 ) continue;
 
     const double scale = 1e-20/p.p();
