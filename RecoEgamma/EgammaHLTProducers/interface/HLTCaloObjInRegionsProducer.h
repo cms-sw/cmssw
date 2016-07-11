@@ -42,7 +42,17 @@
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
+/**************************************************************
+/ purpose: enable filtering of calo objects in eta/phi or deltaR
+/          regions around generic objects 
+/
+/ operation : accepts all objects with
+/             (dEta <dEtaMax  && dPhi < dPhiMax) || dR < dRMax
+/             so the OR of a rectangular region and cone region
+****************************************************************/
 
+//this is a struct which contains all the eta/phi regions
+//from which to filter the calo objs
 class EtaPhiRegion{
 private:
     float centreEta_;
@@ -67,6 +77,9 @@ public:
   virtual void getEtaPhiRegions(const edm::Event&,std::vector<EtaPhiRegion>&)const=0;
 };
 
+
+//this class stores the tokens to access the objects around which we wish to filter
+//it makes a vector of EtaPhiRegions which are then used to filter the CaloObjs
 template<typename T1> class EtaPhiRegionData : public EtaPhiRegionDataBase{
 private:
   float minEt_;
