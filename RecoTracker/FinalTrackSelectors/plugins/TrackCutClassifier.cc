@@ -39,7 +39,7 @@ namespace {
   inline float chi2n(reco::Track const & tk) { return tk.normalizedChi2();}
 
   inline float relPtErr(reco::Track const & tk) {
-    return  float(tk.ptError())/float(tk.pt());
+    return  (tk.pt() != 0. ? float(tk.ptError())/float(tk.pt()) : 9999999.);
   }
 
   inline int lostLayers(reco::Track const & tk) {
