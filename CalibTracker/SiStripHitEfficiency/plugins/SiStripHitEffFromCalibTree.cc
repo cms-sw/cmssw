@@ -111,9 +111,8 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     SiStripQuality* quality_;
     SiStripBadStrip* getNewObject() override;
     
-    TFile* CalibTreeFile;
-    TTree* CalibTree;
-    TString CalibTreeFilename; 
+    TChain* CalibTree;
+    vector<string> CalibTreeFilenames; 
     float threshold;
     unsigned int nModsMin;
     unsigned int doSummary;
@@ -151,7 +150,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   ConditionDBWriter<SiStripBadStrip>(conf),
   FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 {
-  CalibTreeFilename = conf.getParameter<std::string>("CalibTreeFilename"); 
+  CalibTreeFilenames = conf.getUntrackedParameter<vector<std::string> >("CalibTreeFilenames");
   threshold = conf.getParameter<double>("Threshold");
   nModsMin = conf.getParameter<int>("nModsMin");
   doSummary = conf.getParameter<int>("doSummary");
@@ -197,9 +196,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //Open the ROOT Calib Tree
-  CalibTreeFile = TFile::Open(CalibTreeFilename,"READ");
-  CalibTreeFile->cd("anEff"); 
-  CalibTree = (TTree*)(gDirectory->Get("traj")) ;
+  CalibTree = new TChain("hitefftree");
+  for( unsigned int ifile=0; ifile < CalibTreeFilenames.size(); ifile++)
+    CalibTree->Add((CalibTreeFilenames[ifile]+"/anEff/traj").c_str());
   TLeaf* BadLf = CalibTree->GetLeaf("ModIsBad");
   TLeaf* sistripLf = CalibTree->GetLeaf("SiStripQualBad");
   TLeaf* idLf = CalibTree->GetLeaf("Id");
@@ -417,7 +416,6 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     }  
     //At this point, both of our maps are loaded with the correct information
   }
-  //CalibTreeFile->Close();
   makeHotColdMaps();
   makeTKMap();
   makeSQLite();
