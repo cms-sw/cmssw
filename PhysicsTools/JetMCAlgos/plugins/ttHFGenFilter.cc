@@ -50,6 +50,7 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
       virtual void endStream() override;
 
       virtual bool HasAdditionalBHadron(const std::vector<int>&, const std::vector<int>&,const std::vector<reco::GenParticle>&);
+      virtual bool analyzeMothersRecursive(const reco::Candidate*);
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -61,6 +62,7 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
       const edm::EDGetTokenT<std::vector<reco::GenParticle> > genBHadPlusMothersToken_;
       const edm::EDGetTokenT<std::vector<std::vector<int> > > genBHadPlusMothersIndicesToken_;
       const edm::EDGetTokenT<std::vector<int> > genBHadIndexToken_;
+
 
       // ----------member data ---------------------------
 };
@@ -127,28 +129,69 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<std::vector<int> > genBHadIndex;
    iEvent.getByToken(genBHadIndexToken_, genBHadIndex);
 
+
    //check whether the event has additional b-hadrons not coming from top/topbar decay
-   cout << "Filter wird ausgefuehrt" << endl;
-   cout << "has additional b hadron " << HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers) << endl;
+   //cout << "Filter wird ausgefuehrt" << endl;
+   //cout << "has additional b hadron " << HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers) << endl;
    return HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers);
 
    //TODO check whether the b-hadron is coming from the hard interaction or from underlying event
 }
 
 bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, const std::vector<int>& genBHadFlavour,const std::vector<reco::GenParticle>& genBHadPlusMothers){
+  int bhadfromhp=0;
   for(uint i=0; i<genBHadIndex.size();i++){
+
     const reco::GenParticle* bhadron = genBHadIndex[i]>=0&&genBHadIndex[i]<int(genBHadPlusMothers.size()) ? &(genBHadPlusMothers[genBHadIndex[i]]) : 0;
     int motherflav = genBHadFlavour[i];
     bool from_tth=(abs(motherflav)==6||abs(motherflav)==25); //b-hadron comes from top or higgs decay
+    bool fromhp=false;
+
+
+    if(bhadron!=0&&i==genBHadIndex.size()-1&&genBHadIndex.size()>2){
+      if(!from_tth&&analyzeMothersRecursive(bhadron)){
+        bhadfromhp++;
+      }
+      std::cout << "bhadindex size = " << genBHadIndex.size() << " , mothers from hard process = " << bhadfromhp << std::endl;
+    }
 
     if(bhadron!=0&&!from_tth){
+      std::cout << "PT: " << bhadron->pt() << " , eta: " << bhadron->eta() << std::endl;
+
+      fromhp=analyzeMothersRecursive(bhadron);
+      if(fromhp){
+        bhadfromhp++;
+
       return true;
+      }
     }
     if(i==genBHadIndex.size()-1){
       return false;
     }
   }
+
   return false;
+}
+bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle){
+  //std::cout << "Particle: " << particle->pdgId() << " , Status: " << particle->status() << " , numberOfMothers: " << particle->numberOfMothers() << std::endl;
+  if(particle->status()>20&&particle->status()<30){
+    return true;
+  }
+    bool IsFromHardProcess=false;
+  /*if(analyzeMothersRecursive(particle)){
+    return true;
+  }*/
+    for(uint i=0;i<particle->numberOfMothers();i++){
+      //std::cout << "i " <<  i << std::endl;
+      const reco::Candidate* mother = particle->mother(i);
+      IsFromHardProcess=analyzeMothersRecursive(mother);
+      if(IsFromHardProcess){
+        return true;
+      }
+
+    }
+
+  return IsFromHardProcess;
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
