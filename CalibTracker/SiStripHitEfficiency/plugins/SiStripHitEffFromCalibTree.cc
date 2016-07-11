@@ -230,6 +230,12 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   cout << "Successfully loaded analyze function with " << nevents << " events!\n";
   cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
 
+  TH1F* resolutionPlots[23];
+  for(Long_t ilayer = 0; ilayer <23; ilayer++) {
+    resolutionPlots[ilayer] = fs->make<TH1F>(Form("resol_layer_%i",(int)(ilayer)),GetLayerName(ilayer),125,-125,125);
+    resolutionPlots[ilayer]->GetXaxis()->SetTitle("trajX-clusX [strip unit]");
+  }
+
   //Loop through all of the events
   for(int j =0; j < nevents; j++) {
     CalibTree->GetEvent(j);
@@ -319,6 +325,12 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	}
 	
 	
+	if(!badquality && layer<23) {
+	  if(resxsig!=1000.0) resolutionPlots[layer]->Fill(stripTrajMid-stripCluster);
+	  else resolutionPlots[layer]->Fill(1000);
+	}
+	
+		
 	// New matching methods
     int   tapv   = -9;
     int   capv    = -9;
