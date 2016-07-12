@@ -394,6 +394,8 @@ L1JetRecoTreeProducer::doPFMet(edm::Handle<reco::PFMETCollection> pfMet) {
   met_data->met     = theMet.et();
   met_data->metPhi  = theMet.phi();
   met_data->sumEt   = theMet.sumEt();
+  met_data->metPx   = theMet.px();
+  met_data->metPy   = theMet.py();
 
 }
 

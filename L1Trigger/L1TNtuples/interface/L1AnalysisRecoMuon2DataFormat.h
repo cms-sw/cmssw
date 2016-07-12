@@ -26,7 +26,6 @@ namespace L1Analysis
     pt.clear();
     eta.clear();
     phi.clear();
-    charge.clear();
     isLooseMuon.clear();
     isMediumMuon.clear();
     isTightMuon.clear();
@@ -35,6 +34,10 @@ namespace L1Analysis
     hlt_mu.clear();
     hlt_isoDeltaR.clear();
     hlt_deltaR.clear();
+    passesSingleMuon.clear();
+    charge.clear();
+    mt.clear();
+    met.clear();
     }
 
     unsigned short nMuons;
@@ -43,7 +46,6 @@ namespace L1Analysis
     std::vector<float> pt;
     std::vector<float> eta;
     std::vector<float> phi;
-    std::vector<float> charge;
     std::vector<bool> isLooseMuon;
     std::vector<bool> isMediumMuon;
     std::vector<bool> isTightMuon;
@@ -52,9 +54,13 @@ namespace L1Analysis
     std::vector<short> hlt_mu;
     std::vector<float> hlt_isoDeltaR;
     std::vector<float> hlt_deltaR;
-
+    std::vector<int> passesSingleMuon;
+    std::vector<int> charge;
+    std::vector<double> met;
+    std::vector<double> mt;
   };
 }
 #endif
+
 
 
