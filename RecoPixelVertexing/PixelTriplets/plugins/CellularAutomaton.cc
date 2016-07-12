@@ -13,34 +13,36 @@ void CellularAutomaton<numberOfLayers>::createAndConnectCells (std::vector<const
   unsigned int layerPairId = 0;
   auto innerLayerId = layerPairId;
   auto outerLayerId = innerLayerId + 1;
-  auto numberOfDoublets = doublets[layerPairId]->size ();
+  auto & doubletLayerPairId = doublets[layerPairId];
+  auto numberOfDoublets = doubletLayerPairId->size ();
 
   isOuterHitOfCell[outerLayerId].resize(fourLayers[outerLayerId].hits().size());
+
   theFoundCellsPerLayer[layerPairId].reserve (numberOfDoublets);
   for (unsigned int i = 0; i < numberOfDoublets; ++i)
   {
-    theFoundCellsPerLayer[layerPairId].emplace_back (doublets[layerPairId], i,  cellId,  doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i));
+    theFoundCellsPerLayer[layerPairId].emplace_back (doubletLayerPairId, i,  cellId,  doubletLayerPairId->innerHitId(i), doubletLayerPairId->outerHitId(i));
 
-    isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
+    isOuterHitOfCell[outerLayerId][doubletLayerPairId->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
     cellId++;
 
   }
 
   for (layerPairId = 1; layerPairId < numberOfLayerPairs; ++layerPairId)
   {
-
+	doubletLayerPairId = doublets[layerPairId];
     innerLayerId = layerPairId;
     outerLayerId = innerLayerId + 1;
-    numberOfDoublets = doublets[layerPairId]->size ();
+    numberOfDoublets =doubletLayerPairId->size ();
     isOuterHitOfCell[outerLayerId].resize(fourLayers[outerLayerId].hits().size());
 
     theFoundCellsPerLayer[layerPairId].reserve (numberOfDoublets);
     for (unsigned int i = 0; i < numberOfDoublets; ++i)
     {
-      theFoundCellsPerLayer[layerPairId].emplace_back (doublets[layerPairId], i, cellId, doublets[layerPairId]->innerHitId(i), doublets[layerPairId]->outerHitId(i));
-      isOuterHitOfCell[outerLayerId][doublets[layerPairId]->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
+      theFoundCellsPerLayer[layerPairId].emplace_back (doublets[layerPairId], i, cellId, doubletLayerPairId->innerHitId(i), doubletLayerPairId->outerHitId(i));
+      isOuterHitOfCell[outerLayerId][doubletLayerPairId->outerHitId(i)].push_back (&(theFoundCellsPerLayer[layerPairId][i]));
       cellId++;
-      for (auto neigCell : isOuterHitOfCell[innerLayerId][doublets[layerPairId]->innerHitId(i)])
+      for (auto neigCell : isOuterHitOfCell[innerLayerId][doubletLayerPairId->innerHitId(i)])
       {
         theFoundCellsPerLayer[layerPairId][i].checkAlignmentAndTag (neigCell, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut, phiCut);
       }
@@ -110,3 +112,5 @@ CellularAutomaton<numberOfLayers>::findNtuplets(std::vector<CACell::CAntuplet>& 
 }
 
 template class CellularAutomaton<4>;
+
+
