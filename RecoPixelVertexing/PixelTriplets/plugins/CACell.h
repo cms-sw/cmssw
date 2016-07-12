@@ -111,8 +111,8 @@ public:
         float r1 = otherCell->getInnerR();
         float z1 = otherCell->getInnerZ();
         float distance_13_squared = (r1 - theOuterR)*(r1 - theOuterR) + (z1 - theOuterZ)*(z1 - theOuterZ);
-        float tan_12_13_half = fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) / distance_13_squared;
-        return tan_12_13_half * ptmin <= thetaCut;
+        float tan_12_13_half_mul_distance_13_squared = fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) ;
+        return tan_12_13_half_mul_distance_13_squared * ptmin <= thetaCut * distance_13_squared;
     }
 
     void tagAsOuterNeighbor(CACell* otherCell) {
