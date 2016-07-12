@@ -2,7 +2,7 @@
 #include "CellularAutomaton.h"
 
 template <unsigned int numberOfLayers>
-void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<const HitDoublets*> doublets, const SeedingLayerSetsHits::SeedingLayerSet& fourLayers, const TrackingRegion& region, const float thetaCut, const float phiCut)
+void CellularAutomaton<numberOfLayers>::createAndConnectCells (std::vector<const HitDoublets*> doublets, const SeedingLayerSetsHits::SeedingLayerSet& fourLayers, const TrackingRegion& region, const float thetaCut, const float phiCut)
 {
   unsigned int cellId = 0;
   constexpr unsigned int numberOfLayerPairs =   numberOfLayers - 1;
@@ -42,7 +42,7 @@ void CellularAutomaton<numberOfLayers>::create_and_connect_cells (std::vector<co
       cellId++;
       for (auto neigCell : isOuterHitOfCell[innerLayerId][doublets[layerPairId]->innerHitId(i)])
       {
-        theFoundCellsPerLayer[layerPairId][i].check_alignment_and_tag (neigCell, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut, phiCut);
+        theFoundCellsPerLayer[layerPairId][i].checkAlignmentAndTag (neigCell, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut, phiCut);
       }
     }
   }
@@ -70,7 +70,7 @@ CellularAutomaton<numberOfLayers>::evolve ()
 
       for (auto& cell : theFoundCellsPerLayer[innerLayerId])
       {
-        cell.update_state();
+        cell.updateState();
       }
     }
   }
@@ -85,8 +85,8 @@ CellularAutomaton<numberOfLayers>::evolve ()
 
   for (auto& cell : theFoundCellsPerLayer[0])
   {
-    cell.update_state();
-    if (cell.is_root_cell (numberOfLayers - 2 ))
+    cell.updateState();
+    if (cell.isRootCell (numberOfLayers - 2 ))
     {
       theRootCells.push_back (&cell);
     }
@@ -95,7 +95,7 @@ CellularAutomaton<numberOfLayers>::evolve ()
 
 template <unsigned int numberOfLayers>
 void
-CellularAutomaton<numberOfLayers>::find_ntuplets(std::vector<CACell::CAntuplet>& foundNtuplets,  const unsigned int minHitsPerNtuplet)
+CellularAutomaton<numberOfLayers>::findNtuplets(std::vector<CACell::CAntuplet>& foundNtuplets,  const unsigned int minHitsPerNtuplet)
 {
   std::vector<CACell*> tmpNtuplet;
   tmpNtuplet.reserve(numberOfLayers);
@@ -104,7 +104,7 @@ CellularAutomaton<numberOfLayers>::find_ntuplets(std::vector<CACell::CAntuplet>&
   {
     tmpNtuplet.clear();
     tmpNtuplet.push_back(root_cell);
-    root_cell->find_ntuplets (foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
+    root_cell->findNtuplets (foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
   }
 
 }

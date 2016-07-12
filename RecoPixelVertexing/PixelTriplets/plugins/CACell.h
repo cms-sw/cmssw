@@ -1,5 +1,5 @@
-#ifndef CACELL_H_
-#define CACELL_H_
+#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CACELL_h
+#define RECOPIXELVERTEXING_PIXELTRIPLETS_CACELL_h
 
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
@@ -21,63 +21,63 @@ public:
     theInnerZ(doublets->z(doubletId, HitDoublets::inner)), theOuterZ(doublets->z(doubletId, HitDoublets::outer)) {
     }
 
-    unsigned int get_cell_id() const {
+    unsigned int getCellId() const {
         return theCellId;
     }
 
-    Hit const & get_inner_hit() const {
+    Hit const & getInnerHit() const {
         return theDoublets->hit(theDoubletId, HitDoublets::inner);
     }
 
-    Hit const & get_outer_hit() const {
+    Hit const & getOuterHit() const {
         return theDoublets->hit(theDoubletId, HitDoublets::outer);
     }
 
-    float get_inner_x() const {
+    float getInnerX() const {
         return theDoublets->x(theDoubletId, HitDoublets::inner);
     }
 
-    float get_outer_x() const {
+    float getOuterX() const {
         return theDoublets->x(theDoubletId, HitDoublets::outer);
     }
 
-    float get_inner_y() const {
+    float getInnerY() const {
         return theDoublets->y(theDoubletId, HitDoublets::inner);
     }
 
-    float get_outer_y() const {
+    float getOuterY() const {
         return theDoublets->y(theDoubletId, HitDoublets::outer);
     }
 
-    float get_inner_z() const {
+    float getInnerZ() const {
         return theInnerZ;
     }
 
-    float get_outer_z() const {
+    float getOuterZ() const {
         return theOuterZ;
     }
 
-    float get_inner_r() const {
+    float getInnerR() const {
         return theInnerR;
     }
 
-    float get_outer_r() const {
+    float getOuterR() const {
         return theOuterR;
     }
 
-    float get_inner_phi() const {
+    float getInnerPhi() const {
         return theDoublets->phi(theDoubletId, HitDoublets::inner);
     }
 
-    float get_outer_phi() const {
+    float getOuterPhi() const {
         return theDoublets->phi(theDoubletId, HitDoublets::outer);
     }
 
-    unsigned int get_inner_hit_id() const {
+    unsigned int getInnerHitId() const {
         return theInnerHitId;
     }
 
-    unsigned int get_outer_hit_id() const {
+    unsigned int getOuterHitId() const {
         return theOuterHitId;
     }
 
@@ -88,7 +88,7 @@ public:
 
         for (unsigned int i = 0; i < numberOfNeighbors; ++i) {
 
-            if (theOuterNeighbors[i]->get_CA_state() == theCAState) {
+            if (theOuterNeighbors[i]->getCAState() == theCAState) {
 
                 hasSameStateNeighbors = 1;
 
@@ -98,41 +98,41 @@ public:
 
     }
 
-    void check_alignment_and_tag(CACell* innerCell, const float ptmin, const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float thetaCut, const float phiCut) {
+    void checkAlignmentAndTag(CACell* innerCell, const float ptmin, const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float thetaCut, const float phiCut) {
 
-        if (are_aligned_RZ(innerCell, ptmin, thetaCut) && have_similar_curvature(innerCell, region_origin_x, region_origin_y, region_origin_radius, phiCut)) {
-            tag_as_inner_neighbor(innerCell);
-            innerCell->tag_as_outer_neighbor(this);
+        if (areAlignedRZ(innerCell, ptmin, thetaCut) && haveSimilarCurvature(innerCell, region_origin_x, region_origin_y, region_origin_radius, phiCut)) {
+            tagAsInnerNeighbor(innerCell);
+            innerCell->tagAsOuterNeighbor(this);
         }
     }
 
-    bool are_aligned_RZ(const CACell* otherCell, const float ptmin, const float thetaCut) const {
+    bool areAlignedRZ(const CACell* otherCell, const float ptmin, const float thetaCut) const {
 
-        float r1 = otherCell->get_inner_r();
-        float z1 = otherCell->get_inner_z();
+        float r1 = otherCell->getInnerR();
+        float z1 = otherCell->getInnerZ();
         float distance_13_squared = (r1 - theOuterR)*(r1 - theOuterR) + (z1 - theOuterZ)*(z1 - theOuterZ);
         float tan_12_13_half = fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) / distance_13_squared;
         return tan_12_13_half * ptmin <= thetaCut;
     }
 
-    void tag_as_outer_neighbor(CACell* otherCell) {
+    void tagAsOuterNeighbor(CACell* otherCell) {
         theOuterNeighbors.push_back(otherCell);
     }
 
-    void tag_as_inner_neighbor(CACell* otherCell) {
+    void tagAsInnerNeighbor(CACell* otherCell) {
         theInnerNeighbors.push_back(otherCell);
     }
 
-    bool have_similar_curvature(const CACell* otherCell,
+    bool haveSimilarCurvature(const CACell* otherCell,
             const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float phiCut) const {
-        auto x1 = otherCell->get_inner_x();
-        auto y1 = otherCell->get_inner_y();
+        auto x1 = otherCell->getInnerX();
+        auto y1 = otherCell->getInnerY();
 
-        auto x2 = get_inner_x();
-        auto y2 = get_inner_y();
+        auto x2 = getInnerX();
+        auto y2 = getInnerY();
 
-        auto x3 = get_outer_x();
-        auto y3 = get_outer_y();
+        auto x3 = getOuterX();
+        auto y3 = getOuterY();
 
         auto precision = 0.5f;
         auto offset = x2 * x2 + y2*y2;
@@ -169,23 +169,23 @@ public:
 
     }
 
-    unsigned int get_CA_state() const {
+    unsigned int getCAState() const {
         return theCAState;
     }
     // if there is at least one left neighbor with the same state (friend), the state has to be increased by 1.
 
-    void update_state() {
+    void updateState() {
         theCAState += hasSameStateNeighbors;
     }
 
-    bool is_root_cell(const unsigned int minimumCAState) const {
+    bool isRootCell(const unsigned int minimumCAState) const {
         return (theCAState >= minimumCAState);
     }
 
     // trying to free the track building process from hardcoded layers, leaving the visit of the graph
     // based on the neighborhood connections between cells.
 
-    void find_ntuplets(std::vector<CAntuplet>& foundNtuplets, CAntuplet& tmpNtuplet, const unsigned int minHitsPerNtuplet) const {
+    void findNtuplets(std::vector<CAntuplet>& foundNtuplets, CAntuplet& tmpNtuplet, const unsigned int minHitsPerNtuplet) const {
 
         // the building process for a track ends if:
         // it has no right neighbor
@@ -201,7 +201,7 @@ public:
             unsigned int numberOfOuterNeighbors = theOuterNeighbors.size();
             for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
                 tmpNtuplet.push_back((theOuterNeighbors[i]));
-                theOuterNeighbors[i]->find_ntuplets(foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
+                theOuterNeighbors[i]->findNtuplets(foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
                 tmpNtuplet.pop_back();
             }
         }

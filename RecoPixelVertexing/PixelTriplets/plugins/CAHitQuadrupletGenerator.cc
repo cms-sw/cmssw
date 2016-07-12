@@ -100,11 +100,11 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
 
   CellularAutomaton<4> ca;
 
-  ca.create_and_connect_cells (layersDoublets, fourLayers, region, CAThetaCut, CAPhiCut);
+  ca.createAndConnectCells (layersDoublets, fourLayers, region, CAThetaCut, CAPhiCut);
 
   ca.evolve();
 
-  ca.find_ntuplets(foundQuadruplets, 4);
+  ca.findNtuplets(foundQuadruplets, 4);
 
   const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
@@ -127,21 +127,21 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
       return id == PixelSubdetector::PixelBarrel;
     };
 
-    gps[0] = foundQuadruplets[quadId][0]->get_inner_hit()->globalPosition();
-    ges[0] = foundQuadruplets[quadId][0]->get_inner_hit()->globalPositionError();
-    barrels[0] = isBarrel(foundQuadruplets[quadId][0]->get_inner_hit()->geographicalId().subdetId());
+    gps[0] = foundQuadruplets[quadId][0]->getInnerHit()->globalPosition();
+    ges[0] = foundQuadruplets[quadId][0]->getInnerHit()->globalPositionError();
+    barrels[0] = isBarrel(foundQuadruplets[quadId][0]->getInnerHit()->geographicalId().subdetId());
 
-    gps[1] = foundQuadruplets[quadId][1]->get_inner_hit()->globalPosition();
-    ges[1] = foundQuadruplets[quadId][1]->get_inner_hit()->globalPositionError();
-    barrels[1] = isBarrel(foundQuadruplets[quadId][1]->get_inner_hit()->geographicalId().subdetId());
+    gps[1] = foundQuadruplets[quadId][1]->getInnerHit()->globalPosition();
+    ges[1] = foundQuadruplets[quadId][1]->getInnerHit()->globalPositionError();
+    barrels[1] = isBarrel(foundQuadruplets[quadId][1]->getInnerHit()->geographicalId().subdetId());
 
-    gps[2] = foundQuadruplets[quadId][2]->get_inner_hit()->globalPosition();
-    ges[2] = foundQuadruplets[quadId][2]->get_inner_hit()->globalPositionError();
-    barrels[2] = isBarrel(foundQuadruplets[quadId][2]->get_inner_hit()->geographicalId().subdetId());
+    gps[2] = foundQuadruplets[quadId][2]->getInnerHit()->globalPosition();
+    ges[2] = foundQuadruplets[quadId][2]->getInnerHit()->globalPositionError();
+    barrels[2] = isBarrel(foundQuadruplets[quadId][2]->getInnerHit()->geographicalId().subdetId());
 
-    gps[3] = foundQuadruplets[quadId][2]->get_outer_hit()->globalPosition();
-    ges[3] = foundQuadruplets[quadId][2]->get_outer_hit()->globalPositionError();
-    barrels[3] = isBarrel(foundQuadruplets[quadId][2]->get_outer_hit()->geographicalId().subdetId());
+    gps[3] = foundQuadruplets[quadId][2]->getOuterHit()->globalPosition();
+    ges[3] = foundQuadruplets[quadId][2]->getOuterHit()->globalPositionError();
+    barrels[3] = isBarrel(foundQuadruplets[quadId][2]->getOuterHit()->geographicalId().subdetId());
 
     PixelRecoLineRZ line(gps[0], gps[2]);
     ThirdHitPredictionFromCircle predictionRPhi(gps[0], gps[2], extraHitRPhitolerance);
@@ -151,7 +151,7 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
 
     if (theComparitor)
     {
-      SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][2]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
+      SeedingHitSet tmpTriplet(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
 
 
       if (!theComparitor->compatible(tmpTriplet, region) )
@@ -204,7 +204,7 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
         continue;
     }
 
-    result.emplace_back(foundQuadruplets[quadId][0]->get_inner_hit(), foundQuadruplets[quadId][1]->get_inner_hit(), foundQuadruplets[quadId][2]->get_inner_hit(), foundQuadruplets[quadId][2]->get_outer_hit());
+    result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
 
   }
 
