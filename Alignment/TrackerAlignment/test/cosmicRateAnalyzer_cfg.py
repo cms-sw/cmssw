@@ -1,3 +1,7 @@
+# Implementation : Description of running this tool can be find  at :
+# https://twiki.cern.ch/twiki/bin/view/CMS/TkAlCosmicsRateMonitoring
+
+
 import FWCore.ParameterSet.Config as cms
 
 import os
