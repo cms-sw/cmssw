@@ -35,37 +35,45 @@ return;
 
 void CosmicRateTool_MakeIdList(const char* fileName)
 {
-   	TString InputFile= Form("../test/%s",fileName); 
-   	TFile *file = new TFile(InputFile);
-   	TTree *tree;
-   	tree = (TTree*)file->Get("demo/Cluster");
-	
-	ofstream output("IdList.txt");
+   TString InputFile= Form("%s",fileName); 
+   TFile *file = new TFile(InputFile);
 
-	UInt_t Id;
-	long x;
-	tree->SetBranchAddress("DetID",&Id);
+   bool IsFileExist;
+   IsFileExist = file->IsZombie();
+   if(IsFileExist)
+   {   
+      cout<<endl<<"====================================================================================================="<<endl;
+      cout<<fileName << " is not found. Check the file!"<<endl;
+      cout<<"====================================================================================================="<<endl<<endl;
+      exit (EXIT_FAILURE);
+   } 
 
-	vector<DATA>* dataIn = new vector<DATA>();
+   TTree *tree;
+   tree = (TTree*)file->Get("cosmicRateAnalyzer/Cluster");
 
-	long int nentries = (int)tree->GetEntries();
-	cout<<"entries : "<<nentries<<endl;
-	for(long int i=0; i < nentries; i++)
-	{
-		tree->GetEntry(i);
-		x=Id;
-		Counting(dataIn,x);
+   ofstream output("IdList.txt");
+   UInt_t Id;
+   long x;
+   tree->SetBranchAddress("DetID",&Id);
 
-		if(i%10000==0)cout<<"At : "<<i<<endl;
+   vector<DATA>* dataIn = new vector<DATA>();
+   
+   long int nentries = (int)tree->GetEntries();
+   cout<<"entries : "<<nentries<<endl;
+   for(long int i=0; i < nentries; i++)
+   {
+   	tree->GetEntry(i);
+   	x=Id;
+   	Counting(dataIn,x);
+   
+   	if(i%10000==0)cout<<"At : "<<i<<endl;
 //		if (i==10000) break;
-	}	
+   }	
 
-
-	for(unsigned int j=0;j<dataIn->size();)
-	{
-		output<<(dataIn->at(j).d)<<" "<<(dataIn->at(j).f)<<endl;
-		j++;
-	}
-
-	output.close();
+   for(unsigned int j=0;j<dataIn->size();)
+   {
+	output<<(dataIn->at(j).d)<<" "<<(dataIn->at(j).f)<<endl;
+	j++;
+   }
+   output.close();
 }

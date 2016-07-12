@@ -7,10 +7,22 @@
 
 void CosmicRateTool_Kinematics(const char* fileName)
 {
-        TString InputFile= Form("../test/%s",fileName); 
-        TFile *file = new TFile(InputFile);
-	TTree *tree;
-	tree = (TTree*)file->Get("demo/Event");
+        
+   TString InputFile= Form("%s",fileName); 
+   TFile *file = new TFile(InputFile);
+
+   bool IsFileExist;
+   IsFileExist = file->IsZombie();
+   if(IsFileExist)
+   {   
+      cout<<endl<<"====================================================================================================="<<endl;
+      cout<<fileName << " is not found. Check the file!"<<endl;
+      cout<<"====================================================================================================="<<endl<<endl;
+      exit (EXIT_FAILURE);
+   }
+
+   TTree *tree;
+   tree = (TTree*)file->Get("cosmicRateAnalyzer/Event");
 	
    vector<double>  *pt;
    vector<double>  *charge;

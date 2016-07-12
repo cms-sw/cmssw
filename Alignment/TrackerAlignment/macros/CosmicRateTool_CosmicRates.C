@@ -7,10 +7,21 @@
 
 void CosmicRateTool_CosmicRates(const char* fileName, unsigned int runLow=0, unsigned int runUp=0)
 {
-   TString InputFile= Form("../test/%s",fileName); 
+   TString InputFile= Form("%s",fileName); 
    TFile *file = new TFile(InputFile);
+   
+   bool IsFileExist;
+   IsFileExist = file->IsZombie();
+   if(IsFileExist)
+   {
+      cout<<endl<<"====================================================================================================="<<endl;
+      cout<<fileName << " is not found. Check the file!"<<endl;
+      cout<<"====================================================================================================="<<endl<<endl;
+      exit (EXIT_FAILURE);
+   }
+
    TTree *tree;
-   tree = (TTree*)file->Get("demo/Run");
+   tree = (TTree*)file->Get("cosmicRateAnalyzer/Run");
 
    FILE * pFile;
    pFile = fopen ("tracksInfo.txt","w");
