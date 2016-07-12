@@ -49,9 +49,7 @@ class MatrixInjector(object):
         self.testMode=((mode!='submit') and (mode!='force'))
         self.version =1
         self.keep = opt.keep
-        self.memory = 0
-        if(opt.memory):
-            self.memory = int(opt.memory)
+        self.memory = opt.memory
 
         #wagemt stuff
         if not self.wmagent:

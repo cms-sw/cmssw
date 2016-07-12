@@ -74,8 +74,9 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(usage)
 
     parser.add_option('-m','--memory',
-                      help='memory parameter of the wf',
+                      help='memory parameter of the wf, default = 0 (means memory is set to: 3000 + (nThreads-1)*1500 )',
                       dest='memory'
+                      default=0
                      )
     parser.add_option('-j','--nproc',
                       help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
@@ -259,6 +260,10 @@ if __name__ == '__main__':
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
+    if (opt.memory):
+        opt.memory=int(opt.memory)
+    else:
+        opt.memory = 0
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
