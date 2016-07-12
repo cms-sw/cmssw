@@ -137,9 +137,9 @@ public:
         auto precision = 0.5f;
         auto offset = x2 * x2 + y2*y2;
 
-        auto bc = (x1 * x1 + y1 * y1 - offset) / 2.f;
+        auto bc = (x1 * x1 + y1 * y1 - offset)*0.5f;
 
-        auto cd = (offset - x3 * x3 - y3 * y3) / 2.f;
+        auto cd = (offset - x3 * x3 - y3 * y3)*0.5f;
 
         auto det = (x1 - x2) * (y2 - y3) - (x2 - x3)* (y1 - y2);
 
