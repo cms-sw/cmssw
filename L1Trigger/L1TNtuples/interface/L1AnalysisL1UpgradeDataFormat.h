@@ -67,6 +67,7 @@ namespace L1Analysis
       tauNTT.clear();
       tauHasEM.clear();
       tauIsMerged.clear();
+      tauHwQual.clear();
 
       nJets = 0;
       jetEt.clear();
@@ -141,6 +142,7 @@ namespace L1Analysis
     std::vector<short int> tauNTT;
     std::vector<short int> tauHasEM;
     std::vector<short int> tauIsMerged;
+    std::vector<short int> tauHwQual;
 
     unsigned short int nJets;
     std::vector<float> jetEt;

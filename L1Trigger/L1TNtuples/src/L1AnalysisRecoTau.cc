@@ -17,7 +17,7 @@ L1Analysis::L1AnalysisRecoTau::~L1AnalysisRecoTau()
 
 void L1Analysis::L1AnalysisRecoTau::SetTau(const edm::Event& event,
 					   const edm::EventSetup& setup,
-					   edm::Handle<reco::PFTauCollection> taus, edm::Handle<reco::PFTauDiscriminator> DMFindingOldTaus, edm::Handle<reco::PFTauDiscriminator> DMFindingTaus, edm::Handle<reco::PFTauDiscriminator> TightIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseAntiMuon, edm::Handle<reco::PFTauDiscriminator> TightAntiMuon, edm::Handle<reco::PFTauDiscriminator> VLooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> LooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> TightAntiElectron, unsigned maxTau)
+					   edm::Handle<reco::PFTauCollection> taus, edm::Handle<reco::PFTauDiscriminator> DMFindingOldTaus, edm::Handle<reco::PFTauDiscriminator> DMFindingTaus, edm::Handle<reco::PFTauDiscriminator> TightIsoTaus, edm::Handle<reco::PFTauDiscriminator> TightRawIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseAntiMuon, edm::Handle<reco::PFTauDiscriminator> TightAntiMuon, edm::Handle<reco::PFTauDiscriminator> VLooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> LooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> TightAntiElectron, unsigned maxTau)
 {
   recoTau_.nTaus=0;
 
@@ -33,6 +33,7 @@ void L1Analysis::L1AnalysisRecoTau::SetTau(const edm::Event& event,
 
     edm::Ref<reco::PFTauCollection> tauEdmRef(taus,recoTau_.nTaus);
     recoTau_.TightIsoFlag.push_back((*TightIsoTaus)[tauEdmRef]);
+    recoTau_.RawIso.push_back((*TightRawIsoTaus)[tauEdmRef]);
     recoTau_.LooseIsoFlag.push_back((*LooseIsoTaus)[tauEdmRef]);
     recoTau_.LooseAntiMuonFlag.push_back((*LooseAntiMuon)[tauEdmRef]);
     recoTau_.TightAntiMuonFlag.push_back((*TightAntiMuon)[tauEdmRef]);
@@ -41,6 +42,7 @@ void L1Analysis::L1AnalysisRecoTau::SetTau(const edm::Event& event,
     recoTau_.TightAntiElectronFlag.push_back((*TightAntiElectron)[tauEdmRef]);
     recoTau_.DMFindingOldDMs.push_back((*DMFindingOldTaus)[tauEdmRef]);
     recoTau_.DMFindingNewDMs.push_back((*DMFindingTaus)[tauEdmRef]);
+    recoTau_.charge.push_back(it->charge());
 
     recoTau_.nTaus++;
 
