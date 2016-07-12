@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     parser.add_option('-m','--memory',
                       help='memory parameter of the wf, default = 0 (means memory is set to: 3000 + (nThreads-1)*1500 )',
-                      dest='memory'
+                      dest='memory',
                       default=0
                      )
     parser.add_option('-j','--nproc',
