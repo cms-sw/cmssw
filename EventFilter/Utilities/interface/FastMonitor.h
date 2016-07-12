@@ -62,7 +62,7 @@ public:
   void snapStreamAtomic(unsigned int ls, unsigned int streamID);
 
   //fastpath CSV string
-  std::string getCSVString();
+  std::string getCSVString(int sid=-1);
 
   //fastpath file output
   void outputCSV(std::string const& path, std::string const& csvString);
@@ -71,7 +71,8 @@ public:
   JsonMonitorable* getMergedIntJForLumi(std::string const& name,unsigned int forLumi);
 
   // merges and outputs everything collected for the given stream to JSON file
-  bool outputFullJSON(std::string const& path, unsigned int lumi, bool log=true);
+  bool outputFullJSONs(std::string const& pathstem, std::string const& ext, unsigned int lumi);
+  bool outputFullJSON(std::string const& path, unsigned int lumi);
 
   //discard what was collected for a lumisection
   void discardCollected(unsigned int forLumi);
