@@ -157,7 +157,8 @@ namespace ecaldqm
         float intensity(aMean / expectedAmplitude_[wlItr->second]);
         if(isForward(id)) intensity /= forwardFactor_;
 
-        if(intensity < toleranceAmplitude_ || aRms > aMean * toleranceAmpRMSRatio_ ||
+        float aRmsThr( sqrt(pow(aMean*toleranceAmpRMSRatio_,2) + pow(3.,2)) );
+        if(intensity < toleranceAmplitude_ || aRms > aRmsThr ||
            abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ || tRms > toleranceTimRMS_)
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
