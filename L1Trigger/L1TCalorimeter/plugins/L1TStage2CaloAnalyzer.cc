@@ -498,7 +498,7 @@ namespace l1t {
           case l1t::EtSum::EtSumType::kTotalEtxHF:   het_.at(MPSumMETxHF)    ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEty:    het_.at(MPSumMETy)     ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEtyHF:   het_.at(MPSumMETyHF)    ->Fill( itr->hwPt() ); break;
-          case l1t::EtSum::EtSumType::kTotalHt:     het_.at(MPSumHT)       ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalHt:      het_.at(MPSumHT)       ->Fill( itr->hwPt() ); break;
 	  case l1t::EtSum::EtSumType::kTotalHtHF:    het_.at(MPSumHTHF)      ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHtx:    het_.at(MPSumMHTx)     ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalHtxHF:   het_.at(MPSumMHTxHF)    ->Fill( itr->hwPt() ); break;
@@ -640,6 +640,7 @@ namespace l1t {
       }
     }
 
+    std::cout << text.str() << std::endl;
     if (doText_) edm::LogVerbatim("L1TCaloEvents") << text.str();
 
   }
@@ -660,7 +661,7 @@ namespace l1t {
       dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
 
       if (*itr==MPSumMETx || *itr == MPSumMETxHF || *itr==MPSumMETy || *itr==MPSumMETyHF  || *itr==MPSumMHTx  || *itr==MPSumMHTxHF  || *itr==MPSumMHTy || *itr==MPSumMHTyHF ) {
-        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 2000, -199999.5, 200000.5) ));
+        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100000, -199999.5, 200000.5) ));
       }
       else if (*itr==SumET || *itr==SumETEm || *itr==MPSumET || *itr==MPSumETHF || *itr==SumHT || *itr==MPSumHT || *itr==MPSumHTHF ) {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 7000, -0.5, 6999.5) )); 
@@ -683,7 +684,7 @@ namespace l1t {
 
       if (*itr==EG || *itr==Jet || *itr==Tau) {
         heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 227, -113.5, 113.5) ));
-        hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 288, -0.5, 143.5) ));
+        hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 144, -0.5, 143.5) ));
         hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 227, -113.5, 113.5, 144, -0.5, 143.5) ));
       }
       else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau) {
