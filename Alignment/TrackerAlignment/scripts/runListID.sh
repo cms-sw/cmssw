@@ -7,9 +7,11 @@ then
   exit 1;
 fi
 
+INPUTFILE=$1
+CWD=`pwd`
+FILE=\"$CWD/$INPUTFILE\"
 
-INPUTFILE=\"$1\"
 if [ "$#" == 1 ]
 then
-root -l -b -q "$CMSSW_BASE/src/Alignment/TrackerAlignment/macros/CosmicRateTool_MakeIdList.C(${INPUTFILE})"
+root -l -b -q "$CMSSW_BASE/src/CosmicRateTool/TrackAnalyzer/macros/CosmicRateTool_MakeIdList.C(${FILE})"
 fi
