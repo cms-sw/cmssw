@@ -155,7 +155,7 @@ public:
         auto radius = std::sqrt((x2 - x_center)*(x2 - x_center) + (y2 - y_center)*(y2 - y_center));
         auto centers_distance_squared = (x_center - region_origin_x)*(x_center - region_origin_x) + (y_center - region_origin_y)*(y_center - region_origin_y);
 
-        auto minimumOfInteserctionRange = (radius - region_origin_radius)*(radius - region_origin_radius) - phiCut;
+        auto minimumOfIntersectionRange = (radius - region_origin_radius)*(radius - region_origin_radius) - phiCut;
 
         if (centers_distance_squared >= minimumOfIntersectionRange) {
             auto minimumOfIntersectionRange = (radius + region_origin_radius)*(radius + region_origin_radius) + phiCut;
