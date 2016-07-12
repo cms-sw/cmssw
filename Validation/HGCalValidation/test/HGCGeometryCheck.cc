@@ -29,7 +29,7 @@
 
 #include <TH2.h>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 class HGCGeometryCheck : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
@@ -68,7 +68,7 @@ HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
 
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
   geometrySource_ = cfg.getUntrackedParameter< std::vector<std::string> >("geometrySource");
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCGeometryCheck:: use information from "
 	    << cfg.getParameter<edm::InputTag>("g4Source") << " and "
 	    << geometrySource_.size() << " geometry records:";
@@ -137,7 +137,7 @@ void HGCGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup) 
 void HGCGeometryCheck::analyze(const edm::Event &iEvent, 
 			       const edm::EventSetup &iSetup) {
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCGeometryCheck::Run " << iEvent.id().run() << " Event " 
 	    << iEvent.id().event() << " Luminosity " 
 	    << iEvent.luminosityBlock() << " Bunch " 
@@ -169,7 +169,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
 	if (subdet==(int)(HGCEE)) {
 	  double zp = hgcGeometry_[0]->waferZ(layer,false); //cm 
 	  if (zside < 0) zp = -zp;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	  std::cout << "Info[" << i << "] Detector Information " << hitDet[i]
 		    << ":" << subdet << ":" << zside << ":" << layer << ":"
 		    << wafer << ":" << celltype << ":" << cell << " Z "
@@ -181,7 +181,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
 	} else if (subdet==(int)(HGCHEF)) {
 	  double zp = hgcGeometry_[1]->waferZ(layer,false); //cm 
 	  if (zside < 0) zp = -zp;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	  std::cout << "Info[" << i << "] Detector Information " << hitDet[i]
 		    << ":" << subdet << ":" << zside << ":" << layer << ":"
 		    << wafer << ":" << celltype << ":" << cell << " z "
@@ -199,7 +199,7 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
 	HcalCellType::HcalCell cell = hcons_->cell(subdet, zside, lay, eta, phi);
 	double zp = cell.rz/10; //mm --> cm
 	if (zside == 0) zp = -zp;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	std::cout << "Info[" << i << "] Detector Information " << hitDet[i]
 		  << ":" << subdet << ":" << zside << ":" << depth << ":"
 		  << eta << ":" << phi << ":" << lay << " z "  << zp << ":"

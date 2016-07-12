@@ -593,14 +593,14 @@ void HcalDDDSimConstants::initialize( void ) {
 #endif
 
   int noffsize = 7 + hpar->noff[5] + hpar->noff[6];
-  int noffl(noffsize);
+  int noffl(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+3)) {
     depthEta16[0] = hpar->noff[noffsize];
     depthEta16[1] = hpar->noff[noffsize+1];
     depthEta29[0] = hpar->noff[noffsize+2];
     depthEta29[1] = hpar->noff[noffsize+3];
     if ((int)(hpar->noff.size()) > (noffsize+4)) {
-      noffl += (5+hpar->noff[noffsize+4]);
+      noffl += (2*hpar->noff[noffsize+4]);
       if ((int)(hpar->noff.size()) > noffl) isBH_ = (hpar->noff[noffl] > 0);
     }
   } else {
