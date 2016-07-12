@@ -146,6 +146,16 @@ void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run 
   meClusEndcapProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
   meClusEndcapProf->getTH1()->SetCanExtend(TH1::kAllAxes);
 
+  ss1.str(std::string()); ss1 << "totalNumberOfClustersProfile_siPixelClusters_FPIX+";
+  ss2.str(std::string()); ss2 << "Total number of FPIX+ clusters profile;Lumisection;";
+  meClusFpixPProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
+  meClusFpixPProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+
+  ss1.str(std::string()); ss1 << "totalNumberOfClustersProfile_siPixelClusters_FPIX-";
+  ss2.str(std::string()); ss2 << "Total number of FPIX- clusters profile;Lumisection;";
+  meClusFpixMProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
+  meClusFpixMProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+
 }
 
 //------------------------------------------------------------------
@@ -179,13 +189,15 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   int nEventFpixClusters = 0;
 
   int nEventsBarrel = 0;
-  int nEventsEndcap = 0;
+  int nEventsFPIXm = 0;
+  int nEventsFPIXp = 0;
+  
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
     int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,
-							   &nEventsBarrel, &nEventsEndcap,
+							   &nEventsBarrel, &nEventsFPIXp, &nEventsFPIXm,
 							   meClPosLayer,
 							   meClPosDiskpz,
 							   meClPosDiskmz,
@@ -205,7 +217,9 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   float trendVar = iEvent.orbitNumber()/262144.0; //lumisection : seconds - matches strip trend plot
 
   meClusBarrelProf->Fill(trendVar,nEventsBarrel);
-  meClusEndcapProf->Fill(trendVar,nEventsEndcap);
+  meClusEndcapProf->Fill(trendVar,nEventsFPIXm + nEventsFPIXp);
+  meClusFpixPProf->Fill(trendVar,nEventsFPIXp);
+  meClusFpixMProf->Fill(trendVar,nEventsFPIXm);
   
   //std::cout<<"nEventFpixClusters: "<<nEventFpixClusters<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
   
