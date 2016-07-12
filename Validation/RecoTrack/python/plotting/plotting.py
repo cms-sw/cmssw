@@ -1267,6 +1267,7 @@ class Plot:
         legendDh     -- Float for changing TLegend height for separate=True (default None)
         legend       -- Bool to enable/disable legend (default True)
         adjustMarginRight  -- Float for adjusting right margin (default None)
+        ratio        -- Possibility to disable ratio for this particular plot (default None)
         ratioYmin    -- Float for y axis minimum in ratio pad (default: list of values)
         ratioYmax    -- Float for y axis maximum in ratio pad (default: list of values)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
@@ -1332,6 +1333,7 @@ class Plot:
 
         _set("adjustMarginRight", None)
 
+        _set("ratio", None)
         _set("ratioYmin", [0, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95])
         _set("ratioYmax", [1.05, 1.1, 1.2, 1.3, 1.5, 1.8, 2, 2.5, 3, 4, 5])
         _set("ratioUncertainty", True)
@@ -1366,6 +1368,11 @@ class Plot:
             if isinstance(h, ROOT.TGraph2D):
                 return True
         return False
+
+    def isRatio(self, ratio):
+        if self._ratio is None:
+            return ratio
+        return ratio and self._ratio
 
     def getName(self):
         if self._outname is not None:
@@ -1667,7 +1674,7 @@ class Plot:
             if len(ratioHistos) > 0:
                 ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68)
             else:
-                ratioBoundsY = (0.9, 1,1) # hardcoded default in absence of valida ratio calculations
+                ratioBoundsY = (0.9, 1,1) # hardcoded default in absence of valid ratio calculations
 
         # Create bounds before stats in order to have the
         # SetRangeUser() calls made before the fit
@@ -1897,7 +1904,7 @@ class PlotGroup:
 
         canvas.Divide(self._ncols, nrows)
         if ratio:
-            for i in xrange(0, len(self._plots)):
+            for i, plot in enumerate(self._plots):
                 pad = canvas.cd(i+1)
                 self._modifyPadForRatio(pad)
 
@@ -1940,15 +1947,16 @@ class PlotGroup:
         """Internal method to do the drawing to separate files per Plot instead of a file per PlotGroup"""
         width = 500
         height = 500
-        if ratio:
-            height = int(height*self._ratioFactor)
 
         canvas = _createCanvas(self._name+"Single", width, height)
+        canvasRatio = _createCanvas(self._name+"SingleRatio", width, int(height*self._ratioFactor))
+
         # from TDRStyle
-        canvas.SetTopMargin(0.05)
-        canvas.SetBottomMargin(0.13)
-        canvas.SetLeftMargin(0.16)
-        canvas.SetRightMargin(0.05)
+        for c in [canvas, canvasRatio]:
+            c.SetTopMargin(0.05)
+            c.SetBottomMargin(0.13)
+            c.SetLeftMargin(0.16)
+            c.SetRightMargin(0.05)
 
         lx1def = 0.6
         lx2def = 0.95
@@ -1961,13 +1969,16 @@ class PlotGroup:
             if plot.isEmpty():
                 continue
 
-            if ratio:
-                canvas.cd()
-                self._modifyPadForRatio(canvas)
+            ratioForThisPlot = plot.isRatio(ratio)
+            c = canvas
+            if ratioForThisPlot:
+                c = canvasRatio
+                c.cd()
+                self._modifyPadForRatio(c)
 
             # Draw plot to canvas
-            canvas.cd()
-            plot.draw(canvas, ratio, self._ratioFactor, 1)
+            c.cd()
+            plot.draw(c, ratioForThisPlot, self._ratioFactor, 1)
 
             if plot._legend:
                 # Setup legend
@@ -1987,11 +1998,11 @@ class PlotGroup:
                 if plot._legendDh is not None:
                     ly1 -= plot._legendDh
 
-                canvas.cd()
+                c.cd()
                 legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03,
-                                            denomUncertainty=(ratio and plot.drawRatioUncertainty))
+                                            denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
 
-            ret.extend(self._save(canvas, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
+            ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="_"+plot.getName(), single=True))
         return ret
 
     def _modifyPadForRatio(self, pad):
