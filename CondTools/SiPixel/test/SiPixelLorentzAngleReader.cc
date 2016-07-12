@@ -30,11 +30,11 @@ SiPixelLorentzAngleReader::SiPixelLorentzAngleReader( const edm::ParameterSet& i
 SiPixelLorentzAngleReader::~SiPixelLorentzAngleReader(){}
 
 void SiPixelLorentzAngleReader::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
- edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_; 
- if(useSimRcd_ == true)
-  iSetup.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
- else
-  iSetup.get<SiPixelLorentzAngleRcd>().get(SiPixelLorentzAngle_);
+  edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_; 
+  if(useSimRcd_ == true)
+   iSetup.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
+  else
+   iSetup.get<SiPixelLorentzAngleRcd>().get(SiPixelLorentzAngle_);
   edm::LogInfo("SiPixelLorentzAngleReader") << "[SiPixelLorentzAngleReader::analyze] End Reading SiPixelLorentzAngle" << std::endl;
   edm::Service<TFileService> fs;
   LorentzAngleBarrel_ = fs->make<TH1F>("LorentzAngleBarrelPixel","LorentzAngleBarrelPixel",150,0,0.15);
