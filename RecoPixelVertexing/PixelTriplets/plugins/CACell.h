@@ -157,9 +157,9 @@ public:
 
         auto minimumOfInteserctionRange = (radius - region_origin_radius)*(radius - region_origin_radius) - phiCut;
 
-        if (centers_distance_squared >= minimumOfintersectionRange) {
-            auto maximumOfintersectionRange = (radius + region_origin_radius)*(radius + region_origin_radius) + phiCut;
-            return centers_distance_squared <= maximumOfintersectionRange;
+        if (centers_distance_squared >= minimumOfIntersectionRange) {
+            auto minimumOfIntersectionRange = (radius + region_origin_radius)*(radius + region_origin_radius) + phiCut;
+            return centers_distance_squared <= minimumOfIntersectionRange;
         } else {
 
             return false;
