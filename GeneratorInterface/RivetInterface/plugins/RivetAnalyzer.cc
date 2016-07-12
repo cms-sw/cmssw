@@ -31,6 +31,10 @@ _produceDQM(pset.getParameter<bool>("ProduceDQMOutput"))
     if (!pset.exists("GenEventInfoCollection")){
       throw cms::Exception("RivetAnalyzer") << "when using an external event weight you have to specify the GenEventInfoProduct collection from which the weight has to be taken " ; 
     }
+    _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
+    _useLHEweights          = pset.getParameter<bool>("useLHEweights");
+    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");    
+    
     _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
     _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
     _useLHEweights          = pset.getParameter<bool>("useLHEweights");
