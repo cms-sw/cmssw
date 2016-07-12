@@ -48,9 +48,9 @@ class RecoTrackAccumulator : public DigiAccumulatorMixMod
  private:
   template<class T> void accumulateEvent(const T& e, edm::EventSetup const& c,const edm::InputTag & label);
 
-  std::auto_ptr<reco::TrackCollection>  newTracks_;
-  std::auto_ptr<reco::TrackExtraCollection> newTrackExtras_;
-  std::auto_ptr<TrackingRecHitCollection> newHits_;
+  std::unique_ptr<reco::TrackCollection>  newTracks_;
+  std::unique_ptr<reco::TrackExtraCollection> newTrackExtras_;
+  std::unique_ptr<TrackingRecHitCollection> newHits_;
 
   reco::TrackRefProd rNewTracks;
   reco::TrackExtraRefProd rNewTrackExtras;

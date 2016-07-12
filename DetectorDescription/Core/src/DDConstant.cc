@@ -1,5 +1,13 @@
 #include "DetectorDescription/Core/interface/DDConstant.h"
+
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Base/interface/Store.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 DDConstant::DDConstant() : DDBase<DDName,double*>() { }
 

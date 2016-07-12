@@ -13,7 +13,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/LooperTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/SeedExtensionTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MaxCCCLostHitsTrajectoryFilter.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
 public:
@@ -67,6 +67,7 @@ public:
 protected:
 
   template <class T> bool QF(const T& traj) const{
+    if (!theSeedExtensionTrajectoryFilter->qualityFilter(traj)) return false;
     if (!theChargeSignificanceTrajectoryFilter->qualityFilter(traj)) return false;            
     if (!theMinHitsTrajectoryFilter->qualityFilter(traj)) return false;
     if (!theMinPtTrajectoryFilter->qualityFilter(traj)) return false;

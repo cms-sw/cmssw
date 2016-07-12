@@ -12,7 +12,6 @@ RootOutputTree.h // used by ROOT output modules
 
 #include <memory>
 
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 

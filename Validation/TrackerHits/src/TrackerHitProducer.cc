@@ -152,8 +152,8 @@ void TrackerHitProducer::produce(edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity > 0)
       edm::LogInfo ("TrackerHitProducer::produce")
@@ -193,7 +193,7 @@ void TrackerHitProducer::produce(edm::Event& iEvent,
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PTrackerSimHit> pOut(new PTrackerSimHit);
+  std::unique_ptr<PTrackerSimHit> pOut(new PTrackerSimHit);
 
   if (verbosity > 2)
     edm::LogInfo ("TrackerHitProducer::produce")
@@ -206,7 +206,7 @@ void TrackerHitProducer::produce(edm::Event& iEvent,
   storeTrk(*pOut);
 
   // store information in event
-  iEvent.put(pOut,label);
+  iEvent.put(std::move(pOut),label);
 
   return;
 }

@@ -41,6 +41,7 @@ hiPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
 	
     # Cleaner
     CleanerPSet = cms.PSet(  
-      ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) 
+      ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+      useQuadrupletAlgo = cms.bool(False),
     )
 )

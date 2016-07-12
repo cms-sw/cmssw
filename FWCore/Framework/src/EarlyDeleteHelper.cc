@@ -32,7 +32,7 @@ using namespace edm;
 //
 EarlyDeleteHelper::EarlyDeleteHelper(unsigned int* iBeginIndexItr,
                                      unsigned int* iEndIndexItr,
-                                     std::vector<std::pair<edm::BranchID,unsigned int>>* iBranchCounts):
+                                     std::vector<BranchToCount>* iBranchCounts):
 pBeginIndex_(iBeginIndexItr),
 pEndIndex_(iEndIndexItr),
 pBranchCounts_(iBranchCounts),
@@ -41,10 +41,15 @@ nPathsOn_(0)
 {
 }
 
-// EarlyDeleteHelper::EarlyDeleteHelper(const EarlyDeleteHelper& rhs)
-// {
-//    // do actual copying here;
-// }
+EarlyDeleteHelper::EarlyDeleteHelper(const EarlyDeleteHelper& rhs):
+pBeginIndex_(rhs.pBeginIndex_),
+pEndIndex_(rhs.pEndIndex_),
+pBranchCounts_(rhs.pBranchCounts_),
+pathsLeftToComplete_(rhs.pathsLeftToComplete_.load()),
+nPathsOn_(rhs.nPathsOn_)
+{
+  
+}
 
 //EarlyDeleteHelper::~EarlyDeleteHelper()
 //{
@@ -70,19 +75,26 @@ EarlyDeleteHelper::moduleRan(EventPrincipal const& iEvent) {
   pathsLeftToComplete_=0;
   for(auto it = pBeginIndex_; it != pEndIndex_;++it) {
     auto& count = (*pBranchCounts_)[*it];
-    assert(count.second>0);
-    --(count.second);
-    if(count.second==0) {
-      iEvent.deleteProduct(count.first);
+    assert(count.count>0);
+    auto value = --(count.count);
+    if(value==0) {
+      iEvent.deleteProduct(count.branch);
     }
   }
 }
 
 void 
 EarlyDeleteHelper::pathFinished(EventPrincipal const& iEvent) {
-  if(pathsLeftToComplete_>0 && --pathsLeftToComplete_ == 0) {
-    //we can never reach this module now so declare it as run
-    moduleRan(iEvent);
+  unsigned int value = pathsLeftToComplete_;
+  while(value > 0) {
+    if( pathsLeftToComplete_.compare_exchange_strong(value, value-1)) {
+      //we were the thread that changed the value
+      if( value == 1) {
+        //we can never reach this module now so declare it as run
+        moduleRan(iEvent);
+      }
+      break;
+    }
   }
 }
 

@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -23,7 +22,7 @@ class SiStripDelayESProducer : public edm::ESProducer {
   SiStripDelayESProducer(const edm::ParameterSet&);
   ~SiStripDelayESProducer(){};
   
-  boost::shared_ptr<SiStripDelay> produce(const SiStripDelayRcd&);
+  std::shared_ptr<SiStripDelay> produce(const SiStripDelayRcd&);
    
  private:
 
@@ -34,7 +33,7 @@ class SiStripDelayESProducer : public edm::ESProducer {
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
 
-  boost::shared_ptr<SiStripDelay> delay;
+  std::shared_ptr<SiStripDelay> delay;
 };
 
 #endif

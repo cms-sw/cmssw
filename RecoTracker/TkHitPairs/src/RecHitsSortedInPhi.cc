@@ -18,9 +18,9 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
   // cosmic region never used here
   // assert(origin.x()==0 && origin.y()==0);
 
-  for (std::vector<Hit>::const_iterator i=hits.begin(); i!=hits.end(); i++) {
-    theHits.push_back(HitWithPhi(*i));
-  }
+  theHits.reserve(hits.size());
+  for (auto const & hp : hits) theHits.emplace_back(hp);
+  
   std::sort( theHits.begin(), theHits.end(), HitLessPhi());
 
   for (unsigned int i=0; i!=theHits.size(); ++i) {

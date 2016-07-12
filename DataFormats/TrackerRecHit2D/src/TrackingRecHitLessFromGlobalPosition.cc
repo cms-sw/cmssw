@@ -1,8 +1,14 @@
 #include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include <cmath>
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
 bool TrackingRecHitLessFromGlobalPosition::insideOutLess(  const TrackingRecHit& a, const TrackingRecHit& b) const{
   

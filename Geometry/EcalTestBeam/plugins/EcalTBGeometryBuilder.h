@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -38,7 +37,7 @@ class EcalTBGeometryBuilder : public edm::ESProducer {
   EcalTBGeometryBuilder(const edm::ParameterSet&);
   ~EcalTBGeometryBuilder();
 
-  typedef std::auto_ptr<CaloGeometry> ReturnType;
+  typedef std::unique_ptr<CaloGeometry> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 private:

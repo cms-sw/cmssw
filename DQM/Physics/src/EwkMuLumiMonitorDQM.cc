@@ -356,7 +356,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
     } else {
       name = fullname;
     }
-    if (&toc != 0) {
+    if (!toc.empty()) {
       const trigger::Keys& k = handleTriggerEvent->filterKeys(ia);
       for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
         // looking at all the single muon l3 trigger present, for example

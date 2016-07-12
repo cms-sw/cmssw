@@ -18,7 +18,7 @@ GlobalDetLayerGeometryESProducer::GlobalDetLayerGeometryESProducer(const edm::Pa
  
 GlobalDetLayerGeometryESProducer::~GlobalDetLayerGeometryESProducer() {}
 
-boost::shared_ptr<DetLayerGeometry> 
+std::shared_ptr<DetLayerGeometry> 
 GlobalDetLayerGeometryESProducer::produce(const RecoGeometryRecord & iRecord){ 
   
   edm::ESHandle<GeometricSearchTracker> tracker;  
@@ -27,8 +27,7 @@ GlobalDetLayerGeometryESProducer::produce(const RecoGeometryRecord & iRecord){
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(tracker);
   iRecord.getRecord<MuonRecoGeometryRecord>().get(muon);
 
-  geometry_  = boost::shared_ptr<DetLayerGeometry>(new GlobalDetLayerGeometry(tracker.product(),
-									      muon.product() ));
+  geometry_ = std::make_shared<GlobalDetLayerGeometry>(tracker.product(), muon.product());
   return geometry_;
 }
 

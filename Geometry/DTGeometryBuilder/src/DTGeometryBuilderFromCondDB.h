@@ -25,7 +25,7 @@ class DetId;
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
 /* C++ Headers */
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <vector>
 
 /* ====================================================================== */
@@ -43,7 +43,7 @@ class DTGeometryBuilderFromCondDB{
     virtual ~DTGeometryBuilderFromCondDB() ;
 
 /* Operations */ 
-    void build(boost::shared_ptr<DTGeometry> theGeometry,
+    void build(std::shared_ptr<DTGeometry> theGeometry,
                const RecoIdealGeometry& rig);
 
   private:

@@ -12,9 +12,12 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Parser/src/StrX.h"
 
+#include <iostream>
+
+#include "DetectorDescription/Parser/src/StrX.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 DDLSAX2Handler::DDLSAX2Handler( void )
   : attrCount_(0),
@@ -52,20 +55,20 @@ DDLSAX2Handler::endElement( const XMLCh* const uri,
 
 void
 DDLSAX2Handler::characters( const XMLCh* const chars,
-			    const unsigned int length )
+			    const XMLSize_t length )
 {
   characterCount_ += length;
 }
 
 void
-DDLSAX2Handler::comment( const XMLCh *const chars, const unsigned int length )
+DDLSAX2Handler::comment( const XMLCh *const chars, const XMLSize_t length )
 {
   // do nothing default..
 }
 
 void
 DDLSAX2Handler::ignorableWhitespace( const XMLCh* const chars,
-				     const unsigned int length )
+				     const XMLSize_t length )
 {
   spaceCount_ += length;
 }

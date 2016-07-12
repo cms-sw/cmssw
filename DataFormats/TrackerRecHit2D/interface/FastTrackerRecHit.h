@@ -11,7 +11,6 @@
 #define FastTrackerRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
-#include "stdint.h"
 
 namespace fastTrackerRecHitType {
     enum HitType {

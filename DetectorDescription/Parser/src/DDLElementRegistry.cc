@@ -13,6 +13,16 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <stddef.h>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
 #include "DetectorDescription/Parser/src/DDLBox.h"
@@ -20,8 +30,8 @@
 #include "DetectorDescription/Parser/src/DDLCone.h"
 #include "DetectorDescription/Parser/src/DDLDivision.h"
 #include "DetectorDescription/Parser/src/DDLElementaryMaterial.h"
-#include "DetectorDescription/Parser/src/DDLEllipticalTube.h"
 #include "DetectorDescription/Parser/src/DDLEllipsoid.h"
+#include "DetectorDescription/Parser/src/DDLEllipticalTube.h"
 #include "DetectorDescription/Parser/src/DDLLogicalPart.h"
 #include "DetectorDescription/Parser/src/DDLMap.h"
 #include "DetectorDescription/Parser/src/DDLNumeric.h"
@@ -31,8 +41,8 @@
 #include "DetectorDescription/Parser/src/DDLPosPart.h"
 #include "DetectorDescription/Parser/src/DDLPseudoTrap.h"
 #include "DetectorDescription/Parser/src/DDLReflectionSolid.h"
-#include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
+#include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
 #include "DetectorDescription/Parser/src/DDLRotationSequence.h"
 #include "DetectorDescription/Parser/src/DDLShapelessSolid.h" 
 #include "DetectorDescription/Parser/src/DDLSpecPar.h"
@@ -42,11 +52,8 @@
 #include "DetectorDescription/Parser/src/DDLTrapezoid.h"
 #include "DetectorDescription/Parser/src/DDLTubs.h"
 #include "DetectorDescription/Parser/src/DDLVector.h"
-
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-
-#include <iostream>
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDLElementRegistry::DDLElementRegistry( void )
 {}

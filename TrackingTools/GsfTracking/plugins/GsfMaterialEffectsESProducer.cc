@@ -26,7 +26,7 @@ GsfMaterialEffectsESProducer::GsfMaterialEffectsESProducer(const edm::ParameterS
 
 GsfMaterialEffectsESProducer::~GsfMaterialEffectsESProducer() {}
 
-boost::shared_ptr<GsfMaterialEffectsUpdator> 
+std::shared_ptr<GsfMaterialEffectsUpdator> 
 GsfMaterialEffectsESProducer::produce(const TrackingComponentsRecord & iRecord){ 
   double mass = pset_.getParameter<double>("Mass");
   std::string msName = pset_.getParameter<std::string>("MultipleScatteringUpdator");
@@ -50,8 +50,8 @@ GsfMaterialEffectsESProducer::produce(const TrackingComponentsRecord & iRecord){
     elUpdator = new GsfMaterialEffectsAdapter(EnergyLossUpdator(mass));
   }
 
-  boost::shared_ptr<GsfMaterialEffectsUpdator> updator =
-    boost::shared_ptr<GsfMaterialEffectsUpdator>(new GsfCombinedMaterialEffectsUpdator(*msUpdator,
+  std::shared_ptr<GsfMaterialEffectsUpdator> updator =
+    std::shared_ptr<GsfMaterialEffectsUpdator>(new GsfCombinedMaterialEffectsUpdator(*msUpdator,
 										       *elUpdator));
   delete msUpdator;
   delete elUpdator;

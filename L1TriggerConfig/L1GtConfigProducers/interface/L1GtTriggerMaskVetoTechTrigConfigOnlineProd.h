@@ -16,7 +16,7 @@
  */
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
 
 // user include files
@@ -42,7 +42,7 @@ public:
     ~L1GtTriggerMaskVetoTechTrigConfigOnlineProd();
 
     /// public methods
-    virtual boost::shared_ptr<L1GtTriggerMask> newObject(const std::string& objectKey);
+    virtual std::shared_ptr<L1GtTriggerMask> newObject(const std::string& objectKey);
 
 private:
 

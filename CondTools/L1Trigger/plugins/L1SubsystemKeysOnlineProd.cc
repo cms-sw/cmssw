@@ -81,7 +81,7 @@ L1SubsystemKeysOnlineProd::ReturnType
 L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TriggerKey> pL1TriggerKey ;
+   std::shared_ptr<L1TriggerKey> pL1TriggerKey ;
 
    // Get L1TriggerKeyList
    L1TriggerKeyList keyList ;
@@ -97,8 +97,7 @@ L1SubsystemKeysOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
        m_forceGeneration )
      {
        // Instantiate new L1TriggerKey
-       pL1TriggerKey = boost::shared_ptr< L1TriggerKey >(
-	 new L1TriggerKey() ) ;
+       pL1TriggerKey = std::make_shared< L1TriggerKey >() ;
        pL1TriggerKey->setTSCKey( m_tscKey ) ;
 
        edm::LogVerbatim( "L1-O2O" ) << "TSC KEY " << m_tscKey ;

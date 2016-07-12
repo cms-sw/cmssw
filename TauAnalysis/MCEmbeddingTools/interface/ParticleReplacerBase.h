@@ -28,7 +28,7 @@ class ParticleReplacerBase
 {
  public:
   explicit ParticleReplacerBase(const edm::ParameterSet&);
-  virtual ~ParticleReplacerBase() {}
+  virtual ~ParticleReplacerBase() noexcept(false) {}
 
   virtual void declareExtraProducts(MCParticleReplacer*) {}
 

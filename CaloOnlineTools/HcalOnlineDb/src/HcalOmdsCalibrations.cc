@@ -140,14 +140,14 @@ const static std::string default_version = "";
 const static std::string default_query = "";
 
 template <class T>
-std::auto_ptr<T> produce_impl (const HcalTopology* topo,
+std::unique_ptr<T> produce_impl (const HcalTopology* topo,
 			       const std::string & fTag, 
 			       const std::string & fVersion=default_version, 
 			       const int fSubversion=1, 
 			       const int fIOVBegin=1,
 			       const std::string & fQuery = default_query, 
 			       const std::string& fAccessor = omds_occi_default_accessor ) {
-  std::auto_ptr<T> result (new T (topo));
+  std::unique_ptr<T> result (new T (topo));
 
   HCALConfigDB * db = new HCALConfigDB();
   try {
@@ -168,13 +168,13 @@ std::auto_ptr<T> produce_impl (const HcalTopology* topo,
   return result;
 }
 template <class T>
-std::auto_ptr<T> produce_impl (const std::string & fTag, 
+std::unique_ptr<T> produce_impl (const std::string & fTag, 
 			       const std::string & fVersion=default_version, 
 			       const int fSubversion=1, 
 			       const int fIOVBegin=1,
 			       const std::string & fQuery = default_query, 
 			       const std::string& fAccessor = omds_occi_default_accessor ) {
-  std::auto_ptr<T> result (new T ());
+  std::unique_ptr<T> result (new T ());
 
   HCALConfigDB * db = new HCALConfigDB();
   try {
@@ -197,7 +197,7 @@ std::auto_ptr<T> produce_impl (const std::string & fTag,
 
 
 
-std::auto_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalPedestalsRcd& rcd) {
+std::unique_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalPedestalsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -210,7 +210,7 @@ std::auto_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalP
 				      mAccessor["Pedestals"]);
 }
 
-std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd& rcd) {
+std::unique_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -222,7 +222,7 @@ std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (c
 					   mAccessor["PedestalWidths"]);
 }
 
-std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd& rcd) {
+std::unique_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -234,7 +234,7 @@ std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd&
 				  mAccessor["Gains"]);
 }
 
-std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const HcalGainWidthsRcd& rcd) {
+std::unique_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const HcalGainWidthsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -246,7 +246,7 @@ std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const Hca
 				       mAccessor["GainWidths"]);
 }
 
-std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
+std::unique_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -258,7 +258,7 @@ std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDa
 				    mAccessor["QIEData"]);
 }
 
-std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
+std::unique_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -270,7 +270,7 @@ std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (c
 					   mAccessor["ChannelQuality"]);
 }
 
-std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
+std::unique_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -282,7 +282,7 @@ std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const
 					 mAccessor["ZSThresholds"]);
 }
 
-std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
+std::unique_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -294,7 +294,7 @@ std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalR
 				      mAccessor["RespCorrs"]);
 }
 
-std::auto_ptr<HcalL1TriggerObjects> HcalOmdsCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
+std::unique_ptr<HcalL1TriggerObjects> HcalOmdsCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -306,7 +306,7 @@ std::auto_ptr<HcalL1TriggerObjects> HcalOmdsCalibrations::produceL1TriggerObject
 					     mAccessor["L1TriggerObjects"]);
 }
 
-std::auto_ptr<HcalElectronicsMap> HcalOmdsCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
+std::unique_ptr<HcalElectronicsMap> HcalOmdsCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
   return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"], 
 					   mVersion["ElectronicsMap"], 
 					   mSubversion["ElectronicsMap"], 
@@ -315,7 +315,7 @@ std::auto_ptr<HcalElectronicsMap> HcalOmdsCalibrations::produceElectronicsMap (c
 					   mAccessor["ElectronicsMap"]);
 }
 
-std::auto_ptr<HcalValidationCorrs> HcalOmdsCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
+std::unique_ptr<HcalValidationCorrs> HcalOmdsCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -327,7 +327,7 @@ std::auto_ptr<HcalValidationCorrs> HcalOmdsCalibrations::produceValidationCorrs 
 					    mAccessor["ValidationCorrs"]);
 }
 
-std::auto_ptr<HcalLutMetadata> HcalOmdsCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
+std::unique_ptr<HcalLutMetadata> HcalOmdsCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
@@ -339,7 +339,7 @@ std::auto_ptr<HcalLutMetadata> HcalOmdsCalibrations::produceLutMetadata (const H
 					mAccessor["LutMetadata"]);
 }
 
-std::auto_ptr<HcalDcsValues> HcalOmdsCalibrations::produceDcsValues (const HcalDcsRcd& rcd) {
+std::unique_ptr<HcalDcsValues> HcalOmdsCalibrations::produceDcsValues (const HcalDcsRcd& rcd) {
   return produce_impl<HcalDcsValues> (mInputs ["DcsValues"], 
 					mVersion["DcsValues"], 
 					mSubversion["DcsValues"], 

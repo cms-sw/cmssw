@@ -49,4 +49,7 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     Min_dr = cms.double(0.2)
 )
 
-
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_tracker.toModify(trackerDrivenElectronSeeds, TTRHBuilder  = 'WithTrackAngle') # FIXME

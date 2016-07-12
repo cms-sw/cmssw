@@ -11,7 +11,7 @@
 // describes the functionality of value_ptr.
 //
 // This allows the value of the pointer to be changed atomically.
-// Note that copy/move construction amd copy/move assignment
+// Note that copy/move construction and copy/move assignment
 // are *not* atomic, as an object of type T must be copied or moved.
 // ----------------------------------------------------------------------
 
@@ -103,20 +103,6 @@ namespace edm {
     }
 
     // --------------------------------------------------
-    // Copy-like construct/assign from auto_ptr<>:
-    // --------------------------------------------------
-
-    atomic_value_ptr(std::auto_ptr<T> orig) :
-      myP(orig.release()) {
-    }
-
-    atomic_value_ptr& operator=(std::auto_ptr<T> orig) {
-      atomic_value_ptr<T> local(orig);
-      exchangeWithLocal(local);
-      return *this;
-    }
-
-    // --------------------------------------------------
     // move-like construct/assign from unique_ptr<>:
     // --------------------------------------------------
 
@@ -126,7 +112,7 @@ namespace edm {
     }
 
     atomic_value_ptr& operator=(std::unique_ptr<T> orig) {
-      atomic_value_ptr<T> local(orig);
+      atomic_value_ptr<T> local(std::move(orig));
       exchangeWithLocal(local);
       return *this;
     }

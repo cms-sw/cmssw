@@ -1,7 +1,7 @@
 #include "TkGluedMeasurementDet.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "NonPropagatingDetMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -218,9 +218,12 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, const
 #endif
 
 #include<cstdint>
+#ifdef VI_STAT
 #include<cstdio>
+#endif
 namespace {
   struct Stat {
+#ifdef VI_STAT
     double totCall=0;
     double totMono=0;
     double totStereo=0;
@@ -259,8 +262,15 @@ namespace {
 	       totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/matchT,
 	       filtMono/totCall,filtStereo/totCall,filtComb/matchF);
     }
+#else
+   Stat(){}
+   void match(uint64_t) const{}
+   void operator()(uint64_t,uint64_t, uint64_t, uint64_t) const {}
+#endif
   };
-
+#ifndef VI_STAT
+  const
+#endif
   Stat stat;
 }
 

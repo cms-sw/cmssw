@@ -28,8 +28,8 @@ value_( cfg.getParameter<double>( "value" ) ){
 }
 
 void DoubleProducer::produce( Event & evt, const EventSetup & ) {
-  auto_ptr<double> value( new double( value_ ) );
-  evt.put( value );
+  unique_ptr<double> value( new double( value_ ) );
+  evt.put(std::move(value));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

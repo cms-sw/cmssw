@@ -46,4 +46,13 @@ particleFlowCluster = cms.Sequence(
     pfClusteringHO 
 )
 
+#HGCal
 
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import particleFlowRecHitHGC
+pfClusteringHGCal = cms.Sequence(particleFlowRecHitHGC)
+
+_phase2_particleFlowCluster = particleFlowCluster.copy()
+_phase2_particleFlowCluster += pfClusteringHGCal
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toReplaceWith( particleFlowCluster, _phase2_particleFlowCluster )

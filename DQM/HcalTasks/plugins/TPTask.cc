@@ -1,5 +1,6 @@
 #include "DQM/HcalTasks/interface/TPTask.h"
-
+using namespace hcaldqm;
+using namespace constants;
 TPTask::TPTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

@@ -13,3 +13,9 @@ vertexValidationStandalone = cms.Sequence(
     tracksValidationTruth
     * vertexValidation
 )
+
+vertexValidationTrackingOnly = cms.Sequence(
+    tracksValidationTruth
+    + v0Validator
+    + vertexAnalysisSequenceTrackingOnly
+)

@@ -12,21 +12,31 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDLDivision.h"
-#include "DetectorDescription/Parser/src/DDDividedBox.h"
-#include "DetectorDescription/Parser/src/DDDividedTubs.h"
-#include "DetectorDescription/Parser/src/DDDividedTrd.h"
-#include "DetectorDescription/Parser/src/DDDividedCons.h"
-#include "DetectorDescription/Parser/src/DDDividedPolycone.h"
-#include "DetectorDescription/Parser/src/DDDividedPolyhedra.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
+#include <stddef.h>
+#include <map>
+#include <ostream>
+#include <utility>
+
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDDividedBox.h"
+#include "DetectorDescription/Parser/src/DDDividedCons.h"
+#include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
+#include "DetectorDescription/Parser/src/DDDividedPolycone.h"
+#include "DetectorDescription/Parser/src/DDDividedPolyhedra.h"
+#include "DetectorDescription/Parser/src/DDDividedTrd.h"
+#include "DetectorDescription/Parser/src/DDDividedTubs.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDCompactView;
 
 DDLDivision::DDLDivision( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )

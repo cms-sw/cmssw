@@ -40,9 +40,11 @@ public:
   const std::vector<const DetLayer *>& layerDets() const { return theLayerDets; }
   void hits(const edm::Event& ev, const edm::EventSetup& es, std::vector<unsigned int> & indices, ctfseeding::SeedingLayer::Hits & hits) const;
 
+  using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, ctfseeding::SeedingLayer::Side, int>;
+  static SeedingLayerId nameToEnumId(const std::string& name);
+  static std::vector<std::vector<std::string> > layerNamesInSets(const std::vector<std::string> & namesPSet) ;
+
 private:
-  std::vector<std::vector<std::string> > layerNamesInSets(
-    const std::vector<std::string> & namesPSet) ;
   edm::ParameterSet layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const;
 
   edm::ESWatcher<TrackerRecoGeometryRecord> geometryWatcher_;

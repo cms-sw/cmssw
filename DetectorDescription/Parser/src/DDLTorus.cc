@@ -14,11 +14,17 @@
 
 #include "DetectorDescription/Parser/src/DDLTorus.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include <map>
+#include <utility>
 
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLTorus::DDLTorus( DDLElementRegistry* myreg )
   : DDLSolid( myreg )

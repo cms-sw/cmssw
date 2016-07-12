@@ -25,11 +25,11 @@ useMap		= False
 #	Central DQM Stuff imports
 #-------------------------------------
 from DQM.Integration.config.online_customizations_cfi import *
+process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useOfflineGT:
-	process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-	process.GlobalTag.globaltag = '74X_dataRun2_HLT_v1'
-else:
-	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
+	# DB condition for offline test: change and possibly customise the GT
+	from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+	process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_hlt', '')
 if useFileInput:
 	process.load("DQM.Integration.config.fileinputsource_cfi")
 else:

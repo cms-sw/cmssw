@@ -1,7 +1,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"

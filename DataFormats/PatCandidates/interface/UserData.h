@@ -51,7 +51,7 @@ namespace pat {
     /// Make a UserData pointer from some value, wrapping it appropriately.
     /// It will check for dictionaries, unless 'transientOnly' is true
     template<typename T>
-    static std::auto_ptr<UserData> make(const T &value, bool transientOnly=false) ;
+    static std::unique_ptr<UserData> make(const T &value, bool transientOnly=false) ;
 
   protected:
     /// Get out the data (can't template non virtual functions)
@@ -86,12 +86,12 @@ namespace pat {
 
 
 template<typename T>
-std::auto_ptr<pat::UserData> pat::UserData::make(const T &value, bool transientOnly) {
+std::unique_ptr<pat::UserData> pat::UserData::make(const T &value, bool transientOnly) {
     if (!transientOnly) {
         checkDictionaries(typeid(T));
         checkDictionaries(typeid(pat::UserHolder<T>));
     }
-    return std::auto_ptr<UserData>(new pat::UserHolder<T>(value));  
+    return std::unique_ptr<UserData>(new pat::UserHolder<T>(value));  
 }
 
 template<typename T> 

@@ -108,12 +108,12 @@ class EventSetupProvider {
    protected:
 
       template <typename T>
-         void insert(std::auto_ptr<T> iRecordProvider) {
-            std::auto_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
+         void insert(std::unique_ptr<T> iRecordProvider) {
+            std::unique_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
             insert(eventsetup::heterocontainer::makeKey<
                     typename T::RecordType,
                        eventsetup::EventSetupRecordKey>(),
-                    temp);
+                    std::move(temp));
          }
 
    private:
@@ -121,7 +121,7 @@ class EventSetupProvider {
 
       EventSetupProvider const& operator=(EventSetupProvider const&); // stop default
 
-      void insert(EventSetupRecordKey const&, std::auto_ptr<EventSetupRecordProvider>);
+      void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 
       // ---------- member data --------------------------------
       EventSetup eventSetup_;

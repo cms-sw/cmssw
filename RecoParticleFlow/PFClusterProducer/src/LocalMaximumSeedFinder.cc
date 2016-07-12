@@ -1,12 +1,13 @@
 #include "LocalMaximumSeedFinder.h"
 
-const reco::PFRecHitRefVector LocalMaximumSeedFinder::_noNeighbours;
+#include <algorithm>
+#include <queue>
+#include <cfloat>
+#include "CommonTools/Utils/interface/DynArray.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
-  bool greaterByEnergy(const std::pair<unsigned,double>& a,
-		       const std::pair<unsigned,double>& b) {
-    return a.second > b.second;
-  }
+  const reco::PFRecHit::Neighbours  _noNeighbours(nullptr,0);
 }
 
 LocalMaximumSeedFinder::
@@ -21,7 +22,7 @@ LocalMaximumSeedFinder(const edm::ParameterSet& conf) :
 	      {"HCAL_BARREL1",(int)PFLayer::HCAL_BARREL1},
 	      {"HCAL_BARREL2_RING0",(int)PFLayer::HCAL_BARREL2},
               // hack to deal with ring1 in HO 
-	      {"HCAL_BARREL2_RING1",100*(int)PFLayer::HCAL_BARREL2}, 
+	      {"HCAL_BARREL2_RING1", 19}, 
 	      {"HCAL_ENDCAP",(int)PFLayer::HCAL_ENDCAP},
 	      {"HF_EM",(int)PFLayer::HF_EM},
 	      {"HF_HAD",(int)PFLayer::HF_HAD} }) {
@@ -38,8 +39,8 @@ LocalMaximumSeedFinder(const edm::ParameterSet& conf) :
 	<< "Detector layer : " << det << " is not in the list of recognized"
 	<< " detector layers!";
     }
-    _thresholds.emplace(_layerMap.find(det)->second, 
-			std::make_pair(thresh_E,thresh_pT2));
+    _thresholds[entry->second+layerOffset]= 
+			std::make_pair(thresh_E,thresh_pT2);
   }
 }
 
@@ -48,62 +49,72 @@ void LocalMaximumSeedFinder::
 findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
 	   const std::vector<bool>& mask,
 	   std::vector<bool>& seedable ) {
-  std::vector<bool> usable(input->size(),true);
+
+  auto nhits = input->size();
+  initDynArray(bool,nhits,usable,true);
   //need to run over energy sorted rechits
-  std::vector<std::pair<unsigned,double> > ordered_hits;
-  ordered_hits.reserve(input->size());
-  for( unsigned i = 0; i < input->size(); ++i ) {
-    std::pair<unsigned,double> val = std::make_pair(i,input->at(i).energy());
-    auto pos = std::upper_bound(ordered_hits.begin(),ordered_hits.end(),
-				val, greaterByEnergy);
-    ordered_hits.insert(pos,val);
+  declareDynArray(float,nhits,energies);
+  unInitDynArray(int,nhits,qst); // queue storage
+  auto cmp = [&](int i, int j) { return energies[i] < energies[j]; };
+  std::priority_queue<int, DynArray<int>, decltype(cmp)> ordered_hits(cmp,std::move(qst));
+
+  for( unsigned i = 0; i < nhits; ++i ) {
+    if( !mask[i] ) continue; // cannot seed masked objects
+    const auto & maybeseed = (*input)[i];
+    energies[i]=maybeseed.energy();
+    int seedlayer = (int)maybeseed.layer();
+    if( seedlayer == PFLayer::HCAL_BARREL2 &&
+        std::abs(maybeseed.positionREP().eta()) > 0.34 ) {
+      seedlayer = 19;
+    }
+    auto const & thresholds = _thresholds[seedlayer+layerOffset];
+    if( maybeseed.energy() < thresholds.first ||
+        maybeseed.pt2() < thresholds.second   ) usable[i] = false;
+    if( !usable[i] ) continue;
+    ordered_hits.push(i);
   }      
 
-  for( const auto& idx_e : ordered_hits ) {    
-    const unsigned idx = idx_e.first;    
-    if( !mask[idx] ) continue; // cannot seed masked objects
-    const reco::PFRecHit& maybeseed = input->at(idx);
-    int seedlayer = (int)maybeseed.layer();
-    if( seedlayer == PFLayer::HCAL_BARREL2 && 
-	std::abs(maybeseed.positionREP().eta()) > 0.34 ) {
-      seedlayer *= 100;
-    }    
-    const std::pair<double,double>& thresholds =
-      _thresholds.find(seedlayer)->second;
-    if( maybeseed.energy() < thresholds.first || 
-	maybeseed.pt2() < thresholds.second   ) usable[idx] = false;      
+
+  while(!ordered_hits.empty() ) {
+    auto idx = ordered_hits.top();
+    ordered_hits.pop();  
     if( !usable[idx] ) continue;
     //get the neighbours of this seed
-    const reco::PFRecHitRefVector* myNeighbours;
+    const auto & maybeseed = (*input)[idx];
+    reco::PFRecHit::Neighbours  myNeighbours;
     switch( _nNeighbours ) {
     case -1:
-      myNeighbours = &maybeseed.neighbours();
+      myNeighbours = maybeseed.neighbours();
       break;
     case 0: // for HF clustering
-      myNeighbours = &_noNeighbours;
+      myNeighbours = _noNeighbours;
       break;
     case 4:
-      myNeighbours = &maybeseed.neighbours4();
+      myNeighbours = maybeseed.neighbours4();
       break;
     case 8:
-      myNeighbours = &maybeseed.neighbours8();
+      myNeighbours = maybeseed.neighbours8();
       break;
     default:
       throw cms::Exception("InvalidConfiguration")
 	<< "LocalMaximumSeedFinder only accepts nNeighbors = {-1,0,4,8}";    
     }
     seedable[idx] = true;
-    for( const reco::PFRecHitRef& neighbour : *myNeighbours ) {
-      if( !mask[neighbour.key()] ) continue;
-      if( neighbour->energy() > maybeseed.energy() ) {
+    for( auto neighbour : myNeighbours ) {
+      if( !mask[neighbour] ) continue;
+      if( energies[neighbour] > energies[idx] ) {
+//        std::cout << "how this can be?" << std::endl;
 	seedable[idx] = false;	
 	break;
       }
     }
     if( seedable[idx] ) {
-      for( const reco::PFRecHitRef& neighbour : *myNeighbours ) {
-	usable[neighbour.key()] = false;
+      for( auto neighbour : myNeighbours ) {
+	usable[neighbour] = false;
       }
     }
   }
+
+  LogDebug("LocalMaximumSeedFinder") << " found " << std::count(seedable.begin(),seedable.end(),true) << " seeds";
+
 }

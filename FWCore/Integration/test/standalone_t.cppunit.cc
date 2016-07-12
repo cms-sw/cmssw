@@ -31,7 +31,7 @@ class testStandalone: public CppUnit::TestFixture
 
   void setUp()
   {
-    m_handler = std::unique_ptr<edm::AssertHandler>(new edm::AssertHandler());
+    m_handler = std::make_unique<edm::AssertHandler>();
   }
 
   void tearDown(){

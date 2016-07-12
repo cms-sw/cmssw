@@ -80,7 +80,7 @@
 ///
 ///
 ///
-class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer>, public TObject {
+class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
 
  public:
 

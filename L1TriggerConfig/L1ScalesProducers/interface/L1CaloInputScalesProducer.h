@@ -20,7 +20,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -39,11 +38,11 @@ class L1CaloInputScalesProducer : public edm::ESProducer {
       L1CaloInputScalesProducer(const edm::ParameterSet&);
       ~L1CaloInputScalesProducer();
 
-      //typedef boost::shared_ptr<L1CaloInputScale> ReturnType;
+      //typedef std::shared_ptr<L1CaloInputScale> ReturnType;
 
-      boost::shared_ptr<L1CaloEcalScale>
+      std::shared_ptr<L1CaloEcalScale>
 	produceEcalScale(const L1CaloEcalScaleRcd&);
-      boost::shared_ptr<L1CaloHcalScale>
+      std::shared_ptr<L1CaloHcalScale>
 	produceHcalScale(const L1CaloHcalScaleRcd&);
    private:
       // ----------member data ---------------------------

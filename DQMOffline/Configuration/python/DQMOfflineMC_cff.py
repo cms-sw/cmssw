@@ -20,3 +20,11 @@ cscMonitor.FEDRawDataCollectionTag = 'rawDataCollector'
 
 # L1 Trigger - remove emulator and adapt labels for private unpacking
 from DQMOffline.L1Trigger.L1TriggerDqmOfflineMC_cff import *
+
+for tracks in selectedTracks :
+    label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
+    locals()[label].doEffFromHitPatternVsBX = False
+
+    label = 'TrackerCollisionSelectedTrackMonMB' + str(tracks)
+    locals()[label].doEffFromHitPatternVsBX = False
+

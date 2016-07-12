@@ -1,12 +1,22 @@
 #ifndef GUARD_DDCoreToDDXMLOutput_H
 #define GUARD_DDCoreToDDXMLOutput_H
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDPosData.h"
-
 #include <iostream>
 #include <set>
+#include <string>
+#include <utility>
+
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+
+class DDPartSelection;
+class DDRotation;
+struct DDPosData;
 
 /** @class DDCoreToDDXMLOutput DDCoreToDDXMLOutput.h
  *

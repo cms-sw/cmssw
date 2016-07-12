@@ -50,7 +50,7 @@ class CmsShowMainBase
 {
 public:
    CmsShowMainBase();
-   virtual ~CmsShowMainBase();
+   virtual ~CmsShowMainBase() noexcept(false);
 
    FWModelChangeManager       *changeManager() {return m_changeManager.get(); }
    FWColorManager             *colorManager() { return  m_colorManager.get(); }

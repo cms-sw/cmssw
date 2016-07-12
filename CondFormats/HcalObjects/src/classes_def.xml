@@ -132,6 +132,12 @@
  <class name="std::vector<HcalElectronicsMap::PrecisionItem>"/>
  <class name="std::vector<HcalElectronicsMap::TriggerItem>"/>
 
+ <class name="HcalFrontEndMap">
+  <field name="mPItemsById" transient="true"/>
+ </class>
+ <class name="HcalFrontEndMap::PrecisionItem"/>
+ <class name="std::vector<HcalFrontEndMap::PrecisionItem>"/>
+
  <class name="HcalChannelStatus"/>
  <class name="std::vector<HcalChannelStatus>"/>
  <class name="std::pair<std::string, std::vector<HcalChannelStatus> >"/>

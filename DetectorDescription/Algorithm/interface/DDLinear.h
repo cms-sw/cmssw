@@ -1,8 +1,14 @@
 #ifndef ALGORITHM_DD_LINEAR_H
 # define ALGORITHM_DD_LINEAR_H
 
-# include "DetectorDescription/Base/interface/DDTypes.h"
+#include <string>
+#include <utility>
+#include <vector>
+
 # include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+# include "DetectorDescription/Base/interface/DDTypes.h"
+
+class DDCompactView;
 
 class DDLinear : public DDAlgorithm
 {

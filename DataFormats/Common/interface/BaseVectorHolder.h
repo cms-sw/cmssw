@@ -51,7 +51,7 @@ namespace edm {
 
       struct const_iterator : public std::iterator <std::random_access_iterator_tag, RefToBase<T> >{
         typedef base_ref_type value_type;
-        typedef std::auto_ptr<value_type> pointer;
+        typedef std::unique_ptr<value_type> pointer;
         typedef std::ptrdiff_t difference_type;
 
         const_iterator() : i(0) { }
@@ -153,7 +153,7 @@ namespace edm {
       virtual const_iterator begin() const = 0;
       virtual const_iterator end() const = 0;
       virtual void push_back(BaseHolder<T> const*) = 0;
-      virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const = 0;
+      virtual std::unique_ptr<RefVectorHolderBase> vectorHolder() const = 0;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.

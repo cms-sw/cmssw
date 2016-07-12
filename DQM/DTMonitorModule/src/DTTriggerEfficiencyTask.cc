@@ -48,7 +48,7 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
 
   muons_Token_ = consumes<reco::MuonCollection>(
       parameters.getUntrackedParameter<edm::InputTag>("inputTagMuons"));
-  dcc_Token_   = consumes<L1MuDTChambPhContainer>(
+  tm_Token_   = consumes<L1MuDTChambPhContainer>(
       parameters.getUntrackedParameter<edm::InputTag>("inputTagTM"));
   ddu_Token_   = consumes<DTLocalTriggerCollection>(
       parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU"));
@@ -129,7 +129,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   // Getting best TM Stuff
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-  e.getByToken(dcc_Token_, l1DTTPGPh);
+  e.getByToken(tm_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
 
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();

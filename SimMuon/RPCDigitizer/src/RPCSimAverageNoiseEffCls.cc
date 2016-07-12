@@ -177,7 +177,6 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
                                    const edm::PSimHitContainer& rpcHits,
                                    CLHEP::HepRandomEngine* engine)
 {
-
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
   theDetectorHitMap.clear();
@@ -193,7 +192,6 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
        _hit != rpcHits.end(); ++_hit){
 
     if(_hit-> particleType() == 11) continue;
-
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
 

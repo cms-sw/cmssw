@@ -1,13 +1,16 @@
 #ifndef DDL_RotationAndReflection_H
 #define DDL_RotationAndReflection_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLRotationAndReflection handles RotationCMSIM and ReflectionRotation elements.
 /** @class DDLRotationAndReflection

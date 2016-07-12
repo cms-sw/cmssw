@@ -26,7 +26,7 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -40,7 +40,7 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -53,7 +53,7 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -67,7 +67,7 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
@@ -80,7 +80,7 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<ThingCollection> result(new ThingCollection);  //Empty
+    auto result = std::make_unique<ThingCollection>();  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);

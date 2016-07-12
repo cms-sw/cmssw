@@ -98,20 +98,20 @@ SimG4HcalValidation::~SimG4HcalValidation() {
 
 void SimG4HcalValidation::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<PHcalValidInfoLayer> productLayer(new PHcalValidInfoLayer);
+  std::unique_ptr<PHcalValidInfoLayer> productLayer(new PHcalValidInfoLayer);
   layerAnalysis(*productLayer);
-  e.put(productLayer,labelLayer);
+  e.put(std::move(productLayer),labelLayer);
 
   if (infolevel > 0) {
-    std::auto_ptr<PHcalValidInfoNxN> productNxN(new PHcalValidInfoNxN);
+    std::unique_ptr<PHcalValidInfoNxN> productNxN(new PHcalValidInfoNxN);
     nxNAnalysis(*productNxN);
-    e.put(productNxN,labelNxN);
+    e.put(std::move(productNxN),labelNxN);
   }
 
   if (infolevel > 1) {
-    std::auto_ptr<PHcalValidInfoJets> productJets(new PHcalValidInfoJets);
+    std::unique_ptr<PHcalValidInfoJets> productJets(new PHcalValidInfoJets);
     jetAnalysis(*productJets);
-    e.put(productJets,labelJets);
+    e.put(std::move(productJets),labelJets);
   }
 }
 

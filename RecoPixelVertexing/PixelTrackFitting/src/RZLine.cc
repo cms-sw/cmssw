@@ -19,11 +19,11 @@ RZLine::RZLine(const std::vector<float> & aR,
   } 
 }
 
-RZLine::RZLine(const vector<GlobalPoint> & points, 
-	       const vector<GlobalError> & errors, 
-	       const vector<bool>& isBarrel) : 
-  storage(3*points.size()) {
-  nPoints = points.size();
+RZLine::RZLine( const GlobalPoint * points,
+          const GlobalError * errors,
+          const bool * isBarrel, unsigned int size):
+  storage(3*size) {
+  nPoints = size;
   r = &storage.front();
   z = r+nPoints;
   errZ2 = z+nPoints;

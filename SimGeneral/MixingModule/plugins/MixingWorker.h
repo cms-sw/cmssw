@@ -155,8 +155,8 @@ namespace edm
       void setTof();
 
       virtual void put(edm::Event &e) {	
-        std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
-	e.put(pOut,label_);
+        std::unique_ptr<CrossingFrame<T> > pOut(crFrame_);
+	e.put(std::move(pOut),label_);
 	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
       }
 

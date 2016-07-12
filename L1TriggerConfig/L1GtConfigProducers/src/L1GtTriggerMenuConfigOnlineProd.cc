@@ -79,15 +79,14 @@ void L1GtTriggerMenuConfigOnlineProd::init(const int numberConditionChips) {
 
 }
 
-boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
+std::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // FIXME seems to not work anymore in constructor...
     m_isDebugEnabled = edm::isDebugEnabled();
 
     // shared pointer for L1GtTriggerMenu - empty menu
-    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenuEmpty =
-            boost::shared_ptr<L1GtTriggerMenu>(new L1GtTriggerMenu());
+    auto pL1GtTriggerMenuEmpty = std::make_shared<L1GtTriggerMenu>();
 
     // FIXME get it from L1GtStableParameters?
     //       initialize once, from outside
@@ -153,8 +152,8 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
     addConditions();
 
     // fill the record
-    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu = boost::shared_ptr<L1GtTriggerMenu>(
-                new L1GtTriggerMenu(menuName, numberConditionChips,
+    auto pL1GtTriggerMenu = std::make_shared<L1GtTriggerMenu>(
+                        menuName, numberConditionChips,
                         m_vecMuonTemplate,
                         m_vecCaloTemplate,
                         m_vecEnergySumTemplate,
@@ -167,7 +166,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuConfigOnlineProd::newObject(
                         m_vecCorrelationTemplate,
                         m_corMuonTemplate,
                         m_corCaloTemplate,
-                        m_corEnergySumTemplate) );
+                        m_corEnergySumTemplate);
 
     pL1GtTriggerMenu->setGtTriggerMenuInterface(m_tableMenuGeneral.menuInterface);
     pL1GtTriggerMenu->setGtTriggerMenuImplementation(m_tableMenuGeneral.menuImplementation);

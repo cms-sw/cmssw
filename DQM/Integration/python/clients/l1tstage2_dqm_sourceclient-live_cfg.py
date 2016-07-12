@@ -7,11 +7,12 @@ process = cms.Process("DQM")
 
 # Live Online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # Testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+
+# Required to load Global Tag
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi") 
 
 # Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")

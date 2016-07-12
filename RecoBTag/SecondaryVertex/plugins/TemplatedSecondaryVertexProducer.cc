@@ -818,7 +818,8 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 			const SecondaryVertex &sv = SVs[vtxIndices[idx]];
 
 			svData[idx].vertex = sv;
-			svData[idx].dist2d = sv.dist2d();
+			svData[idx].dist1d = sv.dist1d();
+                        svData[idx].dist2d = sv.dist2d();
 			svData[idx].dist3d = sv.dist3d();
 			svData[idx].direction = flightDirection(pv,sv);
 			// mark tracks successfully used in vertex fit

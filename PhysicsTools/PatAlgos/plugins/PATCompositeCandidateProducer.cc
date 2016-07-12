@@ -51,7 +51,7 @@ void PATCompositeCandidateProducer::produce(Event & iEvent, const EventSetup & i
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
-  auto_ptr<vector<pat::CompositeCandidate> > myCompositeCandidates ( new vector<pat::CompositeCandidate>() );
+  auto myCompositeCandidates = std::make_unique<vector<pat::CompositeCandidate> >();
 
   if ( cands.isValid() ) {
 
@@ -68,12 +68,12 @@ void PATCompositeCandidateProducer::produce(Event & iEvent, const EventSetup & i
       if (efficiencyLoader_.enabled()) efficiencyLoader_.setEfficiencies( cand, cands->refAt(i - cands->begin()) );
       if (resolutionLoader_.enabled()) resolutionLoader_.setResolutions(cand);
 
-      myCompositeCandidates->push_back( cand );
+      myCompositeCandidates->push_back( std::move(cand) );
     }
 
   }// end if the two handles are valid
 
-  iEvent.put(myCompositeCandidates);
+  iEvent.put(std::move(myCompositeCandidates));
 
 }
 

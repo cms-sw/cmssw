@@ -137,13 +137,13 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
  	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
  	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
  	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
- 	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+ 	    if (NFa==1) {fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFb==1) {fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFc==1) {fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFd==1) {fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFe==1) {fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NF2==1) {fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (L1A==1) {fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
  	    chanNmbr = 0;  // signifies channel not known
  	    break; }
  	  case(29) : {
@@ -234,13 +234,13 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
  	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
  	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
  	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
- 	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+ 	    if (NFa==1) {fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFb==1) {fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFc==1) {fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFd==1) {fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFe==1) {fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NF2==1) {fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (L1A==1) {fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
  	    chanNmbr = 0;
  	    break; }
  	  case(29) : {
@@ -330,13 +330,13 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
  	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
  	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
  	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
- 	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
- 	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+ 	    if (NFa==1) {fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFb==1) {fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFc==1) {fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFd==1) {fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NFe==1) {fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (NF2==1) {fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
+ 	    if (L1A==1) {fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);}
  	    chanNmbr = 0;
  	    break; }
  	  case(29) : {
@@ -503,13 +503,13 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
  	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
  	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
  	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
- 	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
- 	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
- 	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
- 	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
- 	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
- 	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
- 	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
+ 	    if (NFa==1) {fullType = 1; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);}
+ 	    if (NFb==1) {fullType = 2; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);}
+ 	    if (NFc==1) {fullType = 3; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);}
+ 	    if (NFd==1) {fullType = 4; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);}
+ 	    if (NFe==1) {fullType = 5; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);}
+ 	    if (NF2==1) {fullType = 6; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);}
+ 	    if (L1A==1) {fullType = 7; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);}
  	    chanNmbr = 0;
  	    break; }
  	  case(29) : {

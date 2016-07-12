@@ -5,11 +5,11 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, 
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = cms.EDProducer(
     "HGCalUncalibRecHitProducer",
-    HGCEEdigiCollection = cms.InputTag("mix","HGCDigisEE"),
+    HGCEEdigiCollection = cms.InputTag('mix:HGCDigisEE'),
     HGCEEhitCollection = cms.string('HGCEEUncalibRecHits'),
-    HGCHEFdigiCollection = cms.InputTag("mix","HGCDigisHEfront"),
+    HGCHEFdigiCollection = cms.InputTag('mix:HGCDigisHEfront'),
     HGCHEFhitCollection = cms.string('HGCHEFUncalibRecHits'),
-    HGCHEBdigiCollection = cms.InputTag("mix","HGCDigisHEback"),
+    HGCHEBdigiCollection = cms.InputTag('mix:HGCDigisHEback'),
     HGCHEBhitCollection = cms.string('HGCHEBUncalibRecHits'),
     
     HGCEEConfig = cms.PSet(
@@ -21,7 +21,8 @@ HGCalUncalibRecHit = cms.EDProducer(
         tdcNbits      = hgceeDigitizer.digiCfg.feCfg.tdcNbits,
         tdcSaturation = hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
         tdcOnset      = hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC,
-        toaLSB_ns     = hgceeDigitizer.digiCfg.feCfg.toaLSB_ns
+        toaLSB_ns     = hgceeDigitizer.digiCfg.feCfg.toaLSB_ns,
+        fCPerMIP      = cms.vdouble(1.25,2.57,3.88) #100um, 200um, 300um
         ),
     
     HGCHEFConfig = cms.PSet(
@@ -33,7 +34,8 @@ HGCalUncalibRecHit = cms.EDProducer(
         tdcNbits      = hgchefrontDigitizer.digiCfg.feCfg.tdcNbits,
         tdcSaturation = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC,
         tdcOnset      = hgchefrontDigitizer.digiCfg.feCfg.tdcOnset_fC,
-        toaLSB_ns     = hgchefrontDigitizer.digiCfg.feCfg.toaLSB_ns
+        toaLSB_ns     = hgchefrontDigitizer.digiCfg.feCfg.toaLSB_ns,
+        fCPerMIP      = cms.vdouble(1.25,2.57,3.88) #100um, 200um, 300um
         ),
 
     HGCHEBConfig = cms.PSet(

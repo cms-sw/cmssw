@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "RecoJets/JetProducers/interface/QjetsAdder.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"

@@ -60,6 +60,6 @@ private:
   uint32_t m_globaleventnumber;
   int32_t m_eventnumber_shift;
   int getEventNumberFromFillWords(const std::vector<uint64_t>& data, uint32_t &totword);
-  std::auto_ptr<FEDRawDataCollection> buffers;
+  std::unique_ptr<FEDRawDataCollection> buffers;
 };
 #endif

@@ -33,8 +33,8 @@ namespace edm {
       virtual size_type size() const override;
       virtual void clear() override;
       virtual base_ref_type const at(size_type idx) const override;
-      virtual std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const override {
-	return std::auto_ptr<reftobase::RefVectorHolderBase>( helper_->clone() );
+      virtual std::unique_ptr<reftobase::RefVectorHolderBase> vectorHolder() const override {
+	return std::unique_ptr<reftobase::RefVectorHolderBase>( helper_->clone() );
       }
       virtual void push_back( const BaseHolder<T> * r ) override {
 	typedef IndirectHolder<T> holder_type;

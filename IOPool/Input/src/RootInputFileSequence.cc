@@ -82,10 +82,10 @@ namespace edm {
   // readEvent() is responsible for setting up the EventPrincipal.
   //
   //   1. fill an EventPrincipal with a unique EventID
-  //   2. For each entry in the provenance, put in one ProductHolder,
+  //   2. For each entry in the provenance, put in one ProductResolver,
   //      holding the Provenance for the corresponding EDProduct.
   //   3. set up the caches in the EventPrincipal to know about this
-  //      ProductHolder.
+  //      ProductResolver.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
@@ -234,7 +234,7 @@ namespace edm {
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
     try {
-      std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
+      std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
       filePtr = std::make_shared<InputFile>(gSystem->ExpandPathName(fileName().c_str()), "  Initiating request to open file ", inputType);
     }
     catch (cms::Exception const& e) {
@@ -259,7 +259,7 @@ namespace edm {
     if(!filePtr && (hasFallbackUrl)) {
       try {
         usedFallback_ = true;
-        std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
+        std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
         std::string fallbackFullName = gSystem->ExpandPathName(fallbackFileName().c_str());
         filePtr.reset(new InputFile(fallbackFullName.c_str(), "  Fallback request to file ", inputType));
       }

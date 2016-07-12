@@ -84,17 +84,17 @@ EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*
 }
 
 void
-EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
+EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
   assert(not m_streamModules.empty());
   m_streamModules[0]->itemsToGet(iType,iIndices);
 }
 void
-EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
+EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
   assert(not m_streamModules.empty());
   m_streamModules[0]->itemsMayGet(iType,iIndices);  
 }
 
-std::vector<edm::ProductHolderIndexAndSkipBit> const&
+std::vector<edm::ProductResolverIndexAndSkipBit> const&
 EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
   assert(not m_streamModules.empty());
   return m_streamModules[0]->itemsToGetFromEvent();  
@@ -102,7 +102,7 @@ EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
 
 void
 EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
-                                    ProductHolderIndexHelper const& iHelper) {
+                                    ProductResolverIndexHelper const& iHelper) {
   for(auto mod: m_streamModules) {
     mod->updateLookup(iType,iHelper);
   }

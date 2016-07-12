@@ -1,6 +1,12 @@
+import copy
 import collections
 
+import ROOT
+ROOT.gROOT.SetBatch(True)
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+
 from plotting import Subtract, FakeDuplicate, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
+import plotting
 import validation
 from html import PlotPurpose
 
@@ -24,11 +30,64 @@ _maxLayers = [5, 10, 25]
 _maxPixelLayers = 8
 _min3DLayers = [0, 5, 10]
 _max3DLayers = [5, 10, 20]
+_minPU = [0, 10, 20, 50, 100, 150]
+_maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
 
-_legendDy_4rows = 0.09
+_legendDy_1row = 0.46
 _legendDy_2rows = -0.025
 _legendDy_2rows_3cols = -0.17
+_legendDy_4rows = 0.09
 
+def _makeEffFakeDupPlots(postfix, quantity, unit="", common={}, effopts={}, fakeopts={}):
+    p = postfix
+    q = quantity
+    xq = q
+    if unit != "":
+        xq += " (" + unit + ")"
+
+    effargs  = dict(xtitle="TP "+xq   , ytitle="efficiency vs "+q          , ymax=_maxEff)
+    fakeargs = dict(xtitle="track "+xq, ytitle="fake+duplicates rate vs "+q, ymax=_maxFake)
+    effargs.update(common)
+    fakeargs.update(common)
+    effargs.update(effopts)
+    fakeargs.update(fakeopts)
+
+    return [
+        Plot("effic_vs_"+p, **effargs),
+        Plot(FakeDuplicate("fakeduprate_vs_"+p, assoc="num_assoc(recoToSim)_"+p, dup="num_duplicate_"+p, reco="num_reco_"+p, title="fake+duplicates vs "+q), **fakeargs)
+    ]
+
+def _makeFakeDupPileupPlots(postfix, quantity, unit="", xquantity="", xtitle=None, common={}):
+    p = postfix
+    q = quantity
+    if xtitle is None:
+        if xquantity != "":
+            xq = xquantity
+        else:
+            xq = q
+            if unit != "":
+                xq += " (" + unit + ")"
+        xtitle="track "+xq
+
+    return [
+        Plot("fakerate_vs_"+p   , xtitle=xtitle, ytitle="fakerate vs "+q       , ymax=_maxFake, **common),
+        Plot("duplicatesRate_"+p, xtitle=xtitle, ytitle="duplicates rate vs "+q, ymax=_maxFake, **common),
+        Plot("pileuprate_"+p    , xtitle=xtitle, ytitle="pileup rate vs "+q    , ymax=_maxFake, **common),
+    ]
+
+def _makeDistPlots(postfix, quantity, common={}):
+    p = postfix
+    q = quantity
+
+    args = dict(xtitle="track "+q, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
+    args.update(common)
+
+    return [
+        Plot("num_reco_"+p            , ytitle="tracks", **args),
+        Plot("num_assoc(recoToSim)_"+p, ytitle="true tracks", **args),
+        Plot(Subtract("num_fake_"+p, "num_reco_"+p, "num_assoc(recoToSim)_"+p), ytitle="fake tracks", **args),
+        Plot("num_duplicate_"+p       , ytitle="duplicate tracks", **args),
+    ]
 
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
@@ -37,55 +96,32 @@ _effandfake1 = PlotGroup("effandfake1", [
     Plot("effic", xtitle="TP #eta", ytitle="efficiency vs #eta", title="", ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_eta", assoc="num_assoc(recoToSim)_eta", dup="num_duplicate_eta", reco="num_reco_eta", title=""),
          xtitle="track #eta", ytitle="fake+duplicates rate vs #eta", ymax=_maxFake),
-    Plot("effic_vs_phi", xtitle="TP #phi", ytitle="efficiency vs #phi", ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_phi", assoc="num_assoc(recoToSim)_phi", dup="num_duplicate_phi", reco="num_reco_phi", title="fake+duplicates vs #phi"),
-         xtitle="track #phi", ytitle="fake+duplicates rate vs #phi", ymax=_maxFake),
-])
+] +
+    _makeEffFakeDupPlots("phi", "#phi")
+)
 
-_effandfake2 = PlotGroup("effandfake2", [
-    Plot("effic_vs_dxy", title="Efficiency vs dxy", xtitle="TP dxy (cm)", ytitle="efficiency vs dxy", ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_dxy", assoc="num_assoc(recoToSim)_dxy", dup="num_duplicate_dxy", reco="num_reco_dxy", title="fake+duplicates vs dxy"),
-         xtitle="track dxy (cm)", ytitle="fake+duplicates rate vs dxy", ymax=_maxFake),
-    Plot("effic_vs_dxypv", title="Efficiency vs dxy(PV)", xtitle="TP dxy(PV) (cm)", ytitle="efficiency vs dxy(PV)", ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_dxypv", assoc="num_assoc(recoToSim)_dxypv", dup="num_duplicate_dxypv", reco="num_reco_dxypv", title="fake+duplicates vs dxy(PV)"),
-         xtitle="track dxy(PV) (cm)", ytitle="fake+duplicates rate vs dxy(PV)", ymax=_maxFake),
-    Plot("effic_vs_dz", xtitle="TP dz (cm)", ytitle="Efficiency vs dz", title="", ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_dz", assoc="num_assoc(recoToSim)_dz", dup="num_duplicate_dz", reco="num_reco_dz", title=""),
-         xtitle="track dz (cm)", ytitle="fake+duplicates rate vs dz", ymax=_maxFake),
-    Plot("effic_vs_dzpv", xtitle="TP dz(PV) (cm)", ytitle="Efficiency vs dz(PV)", title="", ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_dz(PV)", assoc="num_assoc(recoToSim)_dzpv", dup="num_duplicate_dzpv", reco="num_reco_dzpv", title=""),
-         xtitle="track dz(PV) (cm)", ytitle="fake+duplicates rate vs dz(PV)", ymax=_maxFake),
-],
+_effandfake2 = PlotGroup("effandfake2",
+                         _makeEffFakeDupPlots("dxy"  , "dxy"    , "cm") +
+                         _makeEffFakeDupPlots("dxypv", "dxy(PV)", "cm") +
+                         _makeEffFakeDupPlots("dz"   , "dz"     , "cm") +
+                         _makeEffFakeDupPlots("dzpv" , "dz(PV)" , "cm"),
                          legendDy=_legendDy_4rows
 )
-_effandfake3 = PlotGroup("effandfake3", [
-    Plot("effic_vs_hit", xtitle="TP hits", ytitle="efficiency vs hits", xmin=_minHits, xmax=_maxHits, ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_hit", assoc="num_assoc(recoToSim)_hit", dup="num_duplicate_hit", reco="num_reco_hit", title="fake+duplicates vs hit"),
-         xtitle="track hits", ytitle="fake+duplicates rate vs hits", xmin=_minHits, xmax=_maxHits, ymax=_maxFake),
-    Plot("effic_vs_layer", xtitle="TP layers", ytitle="efficiency vs layers", xmin=_minLayers, xmax=_maxLayers, ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_layer", assoc="num_assoc(recoToSim)_layer", dup="num_duplicate_layer", reco="num_reco_layer", title="fake+duplicates vs layer"),
-         xtitle="track layers", ytitle="fake+duplicates rate vs layers", xmin=_minLayers, xmax=_maxLayers, ymax=_maxFake),
-    Plot("effic_vs_pixellayer", xtitle="TP pixel layers", ytitle="efficiency vs pixel layers", title="", xmax=_maxPixelLayers, ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_pixellayer", assoc="num_assoc(recoToSim)_pixellayer", dup="num_duplicate_pixellayer", reco="num_reco_pixellayer", title=""),
-         xtitle="track pixel layers", ytitle="fake+duplicates rate vs pixel layers", xmax=_maxPixelLayers, ymax=_maxFake),
-    Plot("effic_vs_3Dlayer", xtitle="TP 3D layers", ytitle="efficiency vs 3D layers", xmin=_min3DLayers, xmax=_max3DLayers, ymax=_maxEff),
-    Plot(FakeDuplicate("fakeduprate_vs_3Dlayer", assoc="num_assoc(recoToSim)_3Dlayer", dup="num_duplicate_3Dlayer", reco="num_reco_3Dlayer", title="fake+duplicates vs 3D layer"),
-         xtitle="track 3D layers", ytitle="fake+duplicates rate vs 3D layers", xmin=_min3DLayers, xmax=_max3DLayers, ymax=_maxFake),
-],
+_effandfake3 = PlotGroup("effandfake3",
+                         _makeEffFakeDupPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
+                         _makeEffFakeDupPlots("layer"     , "layers"      , common=dict(xmin=_minLayers  , xmax=_maxLayers)) +
+                         _makeEffFakeDupPlots("pixellayer", "pixel layers", common=dict(                   xmax=_maxPixelLayers)) +
+                         _makeEffFakeDupPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                          legendDy=_legendDy_4rows
 )
 _common = {"ymin": 0, "ymax": _maxEff}
-_effandfake4 = PlotGroup("effandfake4", [
-    Plot("effic_vs_vertpos", xtitle="TP vert xy (cm)", ytitle="efficiency vs vert xy", **_common),
-    Plot(FakeDuplicate("fakeduprate_vs_vertpos", assoc="num_assoc(recoToSim)_vertpos", dup="num_duplicate_vertpos", reco="num_reco_vertpos", title="fake+duplicates vs. ref. point xy"),
-         xtitle="track ref. point xy (cm)", ytitle="fake+duplicates vs xy", ymax=_maxFake),
-    Plot("effic_vs_zpos", xtitle="TP vert z (cm)", ytitle="efficiency vs vert z", **_common),
-    Plot(FakeDuplicate("fakeduprate_vs_zpos", assoc="num_assoc(recoToSim)_zpos", dup="num_duplicate_zpos", reco="num_reco_zpos", title="fake+duplicates vs. ref. point z"),
-         xtitle="track ref. point z (cm)", ytitle="fake+duplicates vs z", ymax=_maxFake),
-    Plot("effic_vs_dr", xlog=True, xtitle="TP min #DeltaR", ytitle="efficiency vs dr", **_common),
-    Plot(FakeDuplicate("fakeduprate_vs_dr", assoc="num_assoc(recoToSim)_dr", dup="num_duplicate_dr", reco="num_reco_dr", title="fake+duplicates vs. #DeltaR"),
-         xtitle="track min #DeltaR", ytitle="fake+duplicates vs #DeltaR", xlog=True, ymax=_maxFake),
-])
+_effandfake4 = PlotGroup("effandfake4",
+                         _makeEffFakeDupPlots("vertpos", "vert xy", "cm", fakeopts=dict(xtitle="track ref. point xy (cm)", ytitle="fake+duplicates vs. xy")) +
+                         _makeEffFakeDupPlots("zpos"   , "vert z" , "cm", fakeopts=dict(xtitle="track ref. point z (cm)" , ytitle="fake+duplicates vs. z")) +
+                         _makeEffFakeDupPlots("dr"     , "#DeltaR", effopts=dict(xtitle="TP min #DeltaR"), fakeopts=dict(xtitle="track min #DeltaR"), common=dict(xlog=True)) +
+                         _makeEffFakeDupPlots("pu"     , "PU"     , common=dict(xtitle="Pileup", xmin=_minPU, xmax=_maxPU)),
+                         legendDy=_legendDy_4rows
+)
 
 _dupandfake1 = PlotGroup("dupandfake1", [
     Plot("fakeratePt", xtitle="track p_{T} (GeV)", ytitle="fakerate vs p_{T}", xlog=True, ymax=_maxFake),
@@ -94,67 +130,38 @@ _dupandfake1 = PlotGroup("dupandfake1", [
     Plot("fakerate", xtitle="track #eta", ytitle="fakerate vs #eta", title="", ymax=_maxFake),
     Plot("duplicatesRate", xtitle="track #eta", ytitle="duplicates rate vs #eta", title="", ymax=_maxFake),
     Plot("pileuprate", xtitle="track #eta", ytitle="pileup rate vs #eta", title="", ymax=_maxFake),
-    Plot("fakerate_vs_phi", xtitle="track #phi", ytitle="fakerate vs #phi", ymax=_maxFake),
-    Plot("duplicatesRate_phi", xtitle="track #phi", ytitle="duplicates rate vs #phi", ymax=_maxFake),
-    Plot("pileuprate_phi", xtitle="track #phi", ytitle="pileup rate vs #phi", ymax=_maxFake),
-], ncols=3)
-_dupandfake2 = PlotGroup("dupandfake2", [
-    Plot("fakerate_vs_dxy", xtitle="track dxy (cm)", ytitle="fakerate vs dxy", ymax=_maxFake),
-    Plot("duplicatesRate_dxy", xtitle="track dxy (cm)", ytitle="duplicates rate vs dxy", ymax=_maxFake),
-    Plot("pileuprate_dxy", xtitle="track dxy (cm)", ytitle="pileup rate vs dxy", ymax=_maxFake),
-    #
-    Plot("fakerate_vs_dxypv", xtitle="track dxy(PV) (cm)", ytitle="fakerate vs dxy(PV)", ymax=_maxFake),
-    Plot("duplicatesRate_dxypv", xtitle="track dxy(PV) (cm)", ytitle="duplicates rate vs dxy(PV)", ymax=_maxFake),
-    Plot("pileuprate_dxypv", xtitle="track dxy(PV) (cm)", ytitle="pileup rate vs dxy(PV)", ymax=_maxFake),
-    #
-    Plot("fakerate_vs_dz", xtitle="track dz (cm)", ytitle="fakerate vs dz", title="", ymax=_maxFake),
-    Plot("duplicatesRate_dz", xtitle="track dz (cm)", ytitle="duplicates rate vs dz", title="", ymax=_maxFake),
-    Plot("pileuprate_dz", xtitle="track dz (cm)", ytitle="pileup rate vs dz", title="", ymax=_maxFake),
-    #
-    Plot("fakerate_vs_dzpv", xtitle="track dz(PV) (cm)", ytitle="fakerate vs dz(PV)", title="", ymax=_maxFake),
-    Plot("duplicatesRate_dzpv", xtitle="track dz(PV) (cm)", ytitle="duplicates rate vs dz(PV)", title="", ymax=_maxFake),
-    Plot("pileuprate_dzpv", xtitle="track dz(PV) (cm)", ytitle="pileup rate vs dz(PV)", title="", ymax=_maxFake),
-],
+] + _makeFakeDupPileupPlots("phi", "#phi"),
+                         ncols=3
+)
+_dupandfake2 = PlotGroup("dupandfake2",
+                         _makeFakeDupPileupPlots("dxy"  , "dxy"  , "cm") +
+                         _makeFakeDupPileupPlots("dxypv", "dxypv", "cm") +
+                         _makeFakeDupPileupPlots("dz"   , "dz"   , "cm") +
+                         _makeFakeDupPileupPlots("dzpv" , "dzpv" , "cm"),
                          ncols=3, legendDy=_legendDy_4rows
 )
-_dupandfake3 = PlotGroup("dupandfake3", [
-    Plot("fakerate_vs_hit", xtitle="track hits", ytitle="fakerate vs hits", ymax=_maxFake, xmin=_minHits, xmax=_maxHits),
-    Plot("duplicatesRate_hit", xtitle="track hits", ytitle="duplicates rate vs hits", ymax=_maxFake, xmin=_minHits, xmax=_maxHits),
-    Plot("pileuprate_hit", xtitle="track hits", ytitle="pileup rate vs hits", ymax=_maxFake, xmin=_minHits, xmax=_maxHits),
-    #
-    Plot("fakerate_vs_layer", xtitle="track layers", ytitle="fakerate vs layer", ymax=_maxFake, xmin=_minLayers, xmax=_maxLayers),
-    Plot("duplicatesRate_layer", xtitle="track layers", ytitle="duplicates rate vs layers", ymax=_maxFake, xmin=_minLayers, xmax=_maxLayers),
-    Plot("pileuprate_layer", xtitle="track layers", ytitle="pileup rate vs layers", ymax=_maxFake, xmin=_minLayers, xmax=_maxLayers),
-    #
-    Plot("fakerate_vs_pixellayer", xtitle="track pixel layers", ytitle="fakerate vs pixel layers", title="", ymax=_maxFake, xmax=_maxPixelLayers),
-    Plot("duplicatesRate_pixellayer", xtitle="track pixel layers", ytitle="duplicates rate vs pixel layers", title="", ymax=_maxFake, xmax=_maxPixelLayers),
-    Plot("pileuprate_pixellayer", xtitle="track pixel layers", ytitle="pileup rate vs pixel layers", title="", ymax=_maxFake, xmax=_maxPixelLayers),
-    #
-    Plot("fakerate_vs_3Dlayer", xtitle="track 3D layers", ytitle="fakerate vs 3D layers", ymax=_maxFake, xmin=_min3DLayers, xmax=_max3DLayers),
-    Plot("duplicatesRate_3Dlayer", xtitle="track 3D layers", ytitle="duplicates rate vs 3D layers", ymax=_maxFake, xmin=_min3DLayers, xmax=_max3DLayers),
-    Plot("pileuprate_3Dlayer", xtitle="track 3D layers", ytitle="pileup rate vs 3D layers", ymax=_maxFake, xmin=_min3DLayers, xmax=_max3DLayers)
-],
+_dupandfake3 = PlotGroup("dupandfake3",
+                         _makeFakeDupPileupPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
+                         _makeFakeDupPileupPlots("layer"     , "layers"      , common=dict(xmin=_minLayers  , xmax=_maxLayers)) +
+                         _makeFakeDupPileupPlots("pixellayer", "pixel layers", common=dict(                   xmax=_maxPixelLayers)) +
+                         _makeFakeDupPileupPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
                          ncols=3, legendDy=_legendDy_4rows
 )
-_dupandfake4 = PlotGroup("dupandfake4", [
-    Plot("fakerate_vs_vertpos", xtitle="track ref. point xy (cm)", ytitle="fakerate vs xy", ymax=_maxFake),
-    Plot("duplicatesRate_vertpos", xtitle="track ref. point xy (cm)", ytitle="duplicates rate vs xy", ymax=_maxFake),
-    Plot("pileuprate_vertpos", xtitle="track ref. point xy (cm)", ytitle="pileup rate vs xy", ymax=_maxFake),
-    #
-    Plot("fakerate_vs_zpos", xtitle="track ref. point z (cm)", ytitle="fakerate vs z", ymax=_maxFake),
-    Plot("duplicatesRate_zpos", xtitle="track ref. point z (cm)", ytitle="duplicates rate vs z", ymax=_maxFake),
-    Plot("pileuprate_zpos", xtitle="track ref. point z (cm)", ytitle="pileup rate vs z", ymax=_maxFake),
-    #
-    Plot("fakerate_vs_dr", xtitle="track min #DeltaR", ytitle="fakerate vs #DeltaR", xlog=True, ymax=_maxFake),
-    Plot("duplicatesRate_dr", xtitle="track min #DeltaR", ytitle="duplicates rate vs #DeltaR", xlog=True, ymax=_maxFake),
-    Plot("pileuprate_dr", xtitle="track min #DeltaR", ytitle="pileup rate vs #DeltaR", xlog=True, ymax=_maxFake),
-    #
-    Plot("fakerate_vs_chi2", xtitle="track #chi^{2}", ytitle="fakerate vs #chi^{2}", ymax=_maxFake),
-    Plot("duplicatesRate_chi2", xtitle="track #chi^{2}", ytitle="duplicates rate vs #chi^{2}", ymax=_maxFake),
-    Plot("pileuprate_chi2", xtitle="track #chi^{2}", ytitle="pileup rate vs #chi^{2}", ymax=_maxFake)
-],
+_dupandfake4 = PlotGroup("dupandfake4",
+                         _makeFakeDupPileupPlots("vertpos", "xy", "cm", xquantity="ref. point xy (cm)") +
+                         _makeFakeDupPileupPlots("zpos"   , "z" , "cm", xquantity="ref. point z (cm)") +
+                         _makeFakeDupPileupPlots("dr"     , "#DeltaR" , xquantity="min #DeltaR", common=dict(xlog=True)) +
+                         _makeFakeDupPileupPlots("pu"     , "PU"      , xquantity="Pileup", common=dict(xmin=_minPU, xmax=_maxPU)),
                          ncols=3, legendDy=_legendDy_4rows
 )
+_seedingLayerSet_common = dict(removeEmptyBins=True, xbinlabelsize=8, xinlabeloption="d", adjustMarginRight=0.1)
+_dupandfake5 = PlotGroup("dupandfake5",
+                         _makeFakeDupPileupPlots("chi2", "#chi^{2}") +
+                         _makeFakeDupPileupPlots("seedingLayerSet", "seeding layers", xtitle="", common=_seedingLayerSet_common),
+                         ncols=3, legendDy=_legendDy_2rows_3cols
+)
+
+
 _common = {
     "ytitle": "Fake+pileup rate",
     "ymax": _maxFake,
@@ -252,7 +259,7 @@ _tuning = PlotGroup("tuning", [
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
     Plot("chi2mean", stat=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5,
          fallback={"name": "chi2_vs_eta", "profileX": True}),
-    Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="#eta", ytitle="< #delta p_{T} / p_{T} > [%]", ymin=-1.5, ymax=1.5)
+    Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="TP #eta (PCA to beamline)", ytitle="< #delta p_{T} / p_{T} > [%]", ymin=-1.5, ymax=1.5)
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
 _pulls = PlotGroup("pulls", [
@@ -265,22 +272,53 @@ _pulls = PlotGroup("pulls", [
 ],
                    legendDx=0.1, legendDw=-0.1, legendDh=-0.015
 )
-_common = {"title": "", "ylog": True, "xtitle": "#eta", "ymin": _minMaxResol, "ymax": _minMaxResol}
+_common = {"title": "", "ylog": True, "xtitle": "TP #eta (PCA to beamline)", "ymin": _minMaxResol, "ymax": _minMaxResol}
 _resolutionsEta = PlotGroup("resolutionsEta", [
-    Plot("phires_vs_eta_Sigma", ytitle="#sigma(#delta #phi) [rad]", **_common),
+    Plot("phires_vs_eta_Sigma", ytitle="#sigma(#delta #phi) (rad)", **_common),
     Plot("cotThetares_vs_eta_Sigma", ytitle="#sigma(#delta cot(#theta))", **_common),
-    Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", **_common),
-    Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", **_common),
+    Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{xy}) (cm)", **_common),
+    Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
     Plot("ptres_vs_eta_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
-_common = {"title": "", "ylog": True, "xlog": True, "xtitle": "p_{T}", "xmin": 0.1, "xmax": 1000, "ymin": _minMaxResol, "ymax": _minMaxResol}
+_common = {"title": "", "ylog": True, "xlog": True, "xtitle": "TP p_{T} (PCA to beamline)", "xmin": 0.1, "xmax": 1000, "ymin": _minMaxResol, "ymax": _minMaxResol}
 _resolutionsPt = PlotGroup("resolutionsPt", [
-    Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) [rad]", **_common),
+    Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) (rad)", **_common),
     Plot("cotThetares_vs_pt_Sigma", ytitle="#sigma(#delta cot(#theta))", **_common),
-    Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", **_common),
-    Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", **_common),
+    Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{xy}) (cm)", **_common),
+    Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta d_{z}) (cm)", **_common),
     Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
+
+## Extended set of plots
+_extDist1 = PlotGroup("dist1",
+                      _makeDistPlots("pT", "p_{T} (GeV)", common=dict(xlog=True)) +
+                      _makeDistPlots("eta", "#eta") +
+                      _makeDistPlots("phi", "#phi"),
+                      ncols=4)
+_extDist2 = PlotGroup("dist2",
+                      _makeDistPlots("dxy"  , "dxy (cm)") +
+                      _makeDistPlots("dxypv", "dxy(PV) (cm)") +
+                      _makeDistPlots("dz"   , "dz (cm)") +
+                      _makeDistPlots("dzpv" , "dz(PV) (cm)"),
+                      ncols=4, legendDy=_legendDy_4rows)
+_extDist3 = PlotGroup("dist3",
+                      _makeDistPlots("hit"       , "hits"        , common=dict(xmin=_minHits    , xmax=_maxHits)) +
+                      _makeDistPlots("layer"     , "layers"      , common=dict(xmin=_minLayers  , xmax=_maxLayers)) +
+                      _makeDistPlots("pixellayer", "pixel layers", common=dict(                   xmax=_maxPixelLayers)) +
+                      _makeDistPlots("3Dlayer"   , "3D layers"   , common=dict(xmin=_min3DLayers, xmax=_max3DLayers)),
+                      ncols=4, legendDy=_legendDy_4rows,
+)
+_extDist4 = PlotGroup("dist4",
+                      _makeDistPlots("vertpos", "ref. point xy (cm)") +
+                      _makeDistPlots("apos"   , "ref. point z (cm)") +
+                      _makeDistPlots("dr"     , "min #DeltaR", common=dict(xlog=True)),
+                      ncols=4
+)
+_extDist5 = PlotGroup("dist5",
+                      _makeDistPlots("chi2", "#chi^{2}") +
+                      _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
+                      ncols=4, legendDy=_legendDy_2rows_3cols
+)
 
 ########################################
 #
@@ -296,11 +334,11 @@ _possibleTrackingColls = [
     'initialStepPreSplitting',
     'initialStep',
     'highPtTripletStep', # phase1
+    'detachedQuadStep', # phase1
+    'detachedTripletStep',
     'lowPtQuadStep', # phase1
     'lowPtTripletStep',
     'pixelPairStep',
-    'detachedQuadStep', # phase1
-    'detachedTripletStep',
     'mixedTripletStepA', # seeds
     'mixedTripletStepB', # seeds
     'mixedTripletStep',
@@ -347,6 +385,10 @@ def _trackingRefFileFallbackSLHC(path):
                        ("muonSeededStepOutIn", "iter10")]:
         path = path.replace(old, new)
     return path
+def _trackingSubFoldersFallbackFromPV(subfolder):
+    return subfolder.replace("trackingParticleRecoAsssociation", "trackingParticleRecoAsssociationSignal")
+def _trackingSubFoldersFallbackConversion(subfolder):
+    return subfolder.replace("quickAssociatorByHits", "quickAssociatorByHitsConversion")
 
 def _mapCollectionToAlgoQuality(collName):
     if "Hp" in collName:
@@ -713,6 +755,9 @@ class TrackingSummaryTable:
                 return None
             return func(num)
 
+        n_tps = _formatOrNone(_getN("num_simul_coll"), int)
+        n_m_tps = _formatOrNone(_getN("num_assoc(simToReco)_coll"), int)
+
         n_tracks = _formatOrNone(_getN("num_reco_coll"), int)
         n_true = _formatOrNone(_getN("num_assoc(recoToSim)_coll"), int)
         if n_tracks is not None and n_true is not None:
@@ -724,7 +769,7 @@ class TrackingSummaryTable:
 
         eff = _formatOrNone(_getN("effic_vs_coll"), lambda n: "%.4f" % n)
 
-        ret = [eff, n_tracks, n_true, n_fake, n_pileup, n_duplicate]
+        ret = [eff, n_tps, n_m_tps, n_tracks, n_true, n_fake, n_pileup, n_duplicate]
         if ret.count(None) == len(ret):
             return None
         return ret
@@ -732,6 +777,8 @@ class TrackingSummaryTable:
     def headers(self):
         return [
             "Efficiency",
+            "Number of TrackingParticles (after cuts)",
+            "Number of matched TrackingParticles",
             "Number of tracks",
             "Number of true tracks",
             "Number of fake tracks",
@@ -758,6 +805,7 @@ _recoBasedPlots = [
     _dupandfake2,
     _dupandfake3,
     _dupandfake4,
+    _dupandfake5,
     _pvassociation1,
     _pvassociation2,
     _pvassociation3,
@@ -774,7 +822,15 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfake2,
     _dupandfake3,
     _dupandfake4,
+    _dupandfake5,
     _hitsAndPt,
+]
+_extendedPlots = [
+    _extDist1,
+    _extDist2,
+    _extDist3,
+    _extDist4,
+    _extDist5,
 ]
 _summaryPlots = [
     _summary,
@@ -808,9 +864,16 @@ _packedCandidatePlots = [
     _packedCandidateHitsHitPattern,
 ]
 plotter = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seeding=False, rawSummary=False):
+plotterExt = Plotter()
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, onlyForElectron=False, onlyForConversion=False, seeding=False, rawSummary=False):
+    folders = _trackingFolders(lastDirName)
     # to keep backward compatibility, this set of plots has empty name
-    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC]), fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC])
+    limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion)
+    commonForTPF = dict(purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC], **limiters)
+    common = dict(fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC, _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
+    plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)
+    plotterExt.append(name, folders, TrackingPlotFolder(*_extendedPlots, **commonForTPF), **common)
+
     summaryName = ""
     if name != "":
         summaryName += name+"_"
@@ -819,22 +882,19 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, seed
     if rawSummary:
         summaryPlots.extend([_summaryRaw, _summaryRawN])
     summaryPlots.extend(_summaryPlots)
-    plotter.append(summaryName, _trackingFolders(lastDirName),
-                   PlotFolder(*summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
-                              purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
-    plotter.append(summaryName+"_highPurity", _trackingFolders(lastDirName),
-                   PlotFolder(*_summaryPlotsHp, loopSubFolders=False, onlyForPileup=onlyForPileup,
-                              purpose=PlotPurpose.TrackingSummary, page="summary",
-                              section=name+"_highPurity" if name != "" else "highPurity"),
+
+    common = dict(loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", **limiters)
+    plotter.append(summaryName, folders,
+                   PlotFolder(*summaryPlots, section=name, **common))
+    plotter.append(summaryName+"_highPurity", folders,
+                   PlotFolder(*_summaryPlotsHp, section=name+"_highPurity" if name != "" else "highPurity", **common),
                    fallbackNames=[summaryName]) # backward compatibility for release validation, the HP plots used to be in the same directory with all-track plots
     if seeding:
-        plotter.append(summaryName+"_seeds", _trackingFolders(lastDirName),
-                       PlotFolder(*_summaryPlotsSeeds, loopSubFolders=False, onlyForPileup=onlyForPileup,
-                                  purpose=PlotPurpose.TrackingSummary, page="summary",
-                                  section=name+"_seeds"))
+        plotter.append(summaryName+"_seeds", folders,
+                       PlotFolder(*_summaryPlotsSeeds, section=name+"_seeds", **common))
 
-    plotter.appendTable(summaryName, _trackingFolders(lastDirName), TrackingSummaryTable(section=name))
-    plotter.appendTable(summaryName+"_highPurity", _trackingFolders(lastDirName), TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", highPurity=True))
+    plotter.appendTable(summaryName, folders, TrackingSummaryTable(section=name))
+    plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", highPurity=True))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
@@ -842,7 +902,8 @@ _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _simBasedPlots+_recoBase
 _appendTrackingPlots("TrackFromPVAllTP2", "fromPVAllTP2", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackSeeding", "seeding", _seedingBuildingPlots, seeding=True)
 _appendTrackingPlots("TrackBuilding", "building", _seedingBuildingPlots)
-_appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, rawSummary=True)
+_appendTrackingPlots("TrackConversion", "conversion", _simBasedPlots+_recoBasedPlots, onlyForConversion=True, rawSummary=True)
+_appendTrackingPlots("TrackGsf", "gsf", _simBasedPlots+_recoBasedPlots, onlyForElectron=True, rawSummary=True)
 
 # MiniAOD
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
@@ -1069,14 +1130,78 @@ class TrackingTimingTable:
             "Average tracking (w/o convStep) time / event (ms)",
             "Average convStep time / event (ms)",
         ]
+class TimePerTrackPlot:
+    def __init__(self, name, timeHisto, selectedTracks=False):
+        self._name = name
+        self._timeHisto = timeHisto
+        self._selectedTracks = selectedTracks
+
+    def __str__(self):
+        return self._name
+
+    def _getDirectory(self, tfile):
+        for dirName in _trackingFolders():
+            tdir = tfile.Get(dirName)
+            if tdir != None:
+                return tdir
+        return None
+
+    def create(self, tdirectory):
+        timeTh1 = plotting._getOrCreateObject(tdirectory, self._timeHisto)
+        if timeTh1 is None:
+            return None
+
+        # this is bit of a hack, but as long as it is needed only
+        # here, I won't invest in better solution
+        tfile = tdirectory.GetFile()
+        trkDir = self._getDirectory(tfile)
+        if trkDir is None:
+            return None
+
+        iterMap = copy.copy(_collLabelMapHp)
+        del iterMap["generalTracks"] 
+        del iterMap["jetCoreRegionalStep"] # this is expensive per track on purpose
+        if self._selectedTracks:
+            renameBin = lambda bl: _summaryBinRename(bl, highPurity=True, byOriginalAlgo=False, byAlgoMask=True, seeds=False)
+        else:
+            renameBin = lambda bl: _summaryBinRename(bl, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False)
+        recoAB = AggregateBins("tmp", "num_reco_coll", mapping=iterMap,ignoreMissingBins=True, renameBin=renameBin)
+        h_reco_per_iter = recoAB.create(trkDir)
+        if h_reco_per_iter is None:
+            return None
+        values = {}
+        for i in xrange(1, h_reco_per_iter.GetNbinsX()+1):
+            values[h_reco_per_iter.GetXaxis().GetBinLabel(i)] = h_reco_per_iter.GetBinContent(i)
+
+
+        result = []
+        for i in xrange(1, timeTh1.GetNbinsX()+1):
+            iterName = timeTh1.GetXaxis().GetBinLabel(i)
+            if iterName in values:
+                ntrk = values[iterName]
+                result.append( (iterName,
+                                timeTh1.GetBinContent(i)/ntrk if ntrk > 0 else 0,
+                                timeTh1.GetBinError(i)/ntrk if ntrk > 0 else 0) )
+
+        if len(result) == 0:
+            return None
+
+        res = ROOT.TH1F(self._name, self._name, len(result), 0, len(result))
+        for i, (label, value, error) in enumerate(result):
+            res.GetXaxis().SetBinLabel(i+1, label)
+            res.SetBinContent(i+1, value)
+            res.SetBinError(i+1, error)
+
+        return res
 
 _common = {
     "drawStyle": "P",
     "xbinlabelsize": 10,
     "xbinlabeloption": "d"
 }
+_time_per_iter = AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True)
 _timing_summary = PlotGroup("summary", [
-    Plot(AggregateBins("iteration", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True),
+    Plot(_time_per_iter,
          ytitle="Average processing time (ms)", title="Average processing time / event", legendDx=-0.4, **_common),
     Plot(AggregateBins("iteration_fraction", "reconstruction_step_module_average", _iterModuleMap(), ignoreMissingBins=True),
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
@@ -1085,18 +1210,22 @@ _timing_summary = PlotGroup("summary", [
          ytitle="Average processing time (ms)", title="Average processing time / event", **_common),
     Plot(AggregateBins("step_fraction", "reconstruction_step_module_average", _stepModuleMap(), ignoreMissingBins=True),
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+    #
+    Plot(TimePerTrackPlot("iteration_track", _time_per_iter, selectedTracks=False),
+         ytitle="Average time / built track (ms)", title="Average time / built track", **_common),
+    Plot(TimePerTrackPlot("iteration_trackhp", _time_per_iter, selectedTracks=True),
+         ytitle="Average time / selected track (ms)", title="Average time / selected HP track by algoMask", **_common),
 #    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap), ytitle="Average processing time", title="Average processing time / event (normalized)", drawStyle="HIST", xbinlabelsize=0.03, normalizeToUnitArea=True)
 #    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap, normalizeTo="ak7CaloJets"), ytitle="Average processing time / ak7CaloJets", title="Average processing time / event (normalized to ak7CaloJets)", drawStyle="HIST", xbinlabelsize=0.03)
 
     ],
-                    legendDy=_legendDy_2rows
 )
 _timing_iterations = PlotGroup("iterations", [
     Plot(AggregateBins(i.name(), "reconstruction_step_module_average", collections.OrderedDict(i.modules()), ignoreMissingBins=True),
          ytitle="Average processing time (ms)", title=i.name(), **_common)
     for i in _iterations
 ],
-                               legend=False
+                               ncols=4, legend=False
 )
 _pixelTiming = PlotGroup("pixelTiming", [
     Plot(AggregateBins("pixel", "reconstruction_step_module_average", {"pixelTracks": ["pixelTracks"]}), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST")

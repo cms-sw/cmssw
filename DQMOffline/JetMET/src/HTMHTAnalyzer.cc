@@ -82,44 +82,35 @@ void HTMHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================  
   // Trigger information 
   //
-  if(&triggerResults) {   
 
-    /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
+  /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
 
-    //
-    //
-    // Check how many HLT triggers are in triggerResults 
-    int ntrigs = triggerResults.size();
-    if (_verbose) std::cout << "ntrigs=" << ntrigs << std::endl;
-    
-    //
-    //
-    // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
-    
-    //
-    //
-    // count number of requested Jet or MB HLT paths which have fired
-    for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
-      unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
-      if (triggerIndex<triggerResults.size()) {
-	if (triggerResults.accept(triggerIndex)) {
-	  _trig_JetMB++;
-	}
+  //
+  //
+  // Check how many HLT triggers are in triggerResults 
+  int ntrigs = triggerResults.size();
+  if (_verbose) std::cout << "ntrigs=" << ntrigs << std::endl;
+  
+  //
+  //
+  // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
+  
+  //
+  //
+  // count number of requested Jet or MB HLT paths which have fired
+  for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
+    unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
+    if (triggerIndex<triggerResults.size()) {
+      if (triggerResults.accept(triggerIndex)) {
+        _trig_JetMB++;
       }
     }
-    // for empty input vectors (n==0), take all HLT triggers!
-    if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
-
-    if (_trig_JetMB==0) return;
-
-  } else {
-
-    edm::LogInfo("CaloMetAnalyzer") << "TriggerResults::HLT not found, "
-      "automatically select events"; 
-    //return;
-    
   }
+  // for empty input vectors (n==0), take all HLT triggers!
+  if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
+
+  if (_trig_JetMB==0) return;
    
   // ==========================================================
 

@@ -7,6 +7,8 @@
 
 namespace popcon {
 
+  constexpr const char* const PopCon::s_version;
+
   PopCon::PopCon(const edm::ParameterSet& pset):
     m_targetSession(),
     m_targetConnectionString(pset.getUntrackedParameter< std::string >("targetDBConnectionString","")),

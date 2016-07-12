@@ -1,5 +1,10 @@
 #include "DetectorDescription/Core/src/Reflection.h"
 
+#include <utility>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
+
 DDI::Reflection::Reflection(const DDSolid & s)
  : Solid(ddreflected), s_(s)
 { }

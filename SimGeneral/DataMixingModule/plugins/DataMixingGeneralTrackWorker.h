@@ -1,4 +1,4 @@
-#ifndef DataMixingGeneralTrackWorker_h
+#ifndef SimDataMixingGeneralTrackWorker_h
 #define SimDataMixingGeneralTrackWorker_h
 
 /** \class DataMixingGeneralTrackWorker
@@ -66,10 +66,10 @@ namespace edm
 
       // 
 
-      std::auto_ptr<reco::TrackCollection> NewTrackList_;
+      std::unique_ptr<reco::TrackCollection> NewTrackList_;
 
 
     };
 }//edm
 
-#endif
+#endif // SimDataMixingGeneralTrackWorker_h

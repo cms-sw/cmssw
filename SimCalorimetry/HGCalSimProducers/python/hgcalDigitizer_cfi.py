@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # Base configurations for HGCal digitizers
+eV_per_eh_pair = 3.62
+fC_per_ele     = 1.6020506e-4
+nonAgedNoises = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
 
 # ECAL
 hgceeDigitizer = cms.PSet( 
@@ -9,19 +12,21 @@ hgceeDigitizer = cms.PSet(
     digiCollection    = cms.string("HGCDigisEE"),
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
+    eVPerEleHolePair = cms.double(eV_per_eh_pair),
     tofDelay          = cms.double(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet( 
-        keV2fC           = cms.double(0.042),
-        noise_fC         = cms.double(0.336),
+        keV2fC           = cms.double(0.044259), #1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
+        noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion         = cms.uint32(2),
             # leakage to bunches -2, -1, in-time, +1, +2, +3 (from J. Kaplon)
+            #NOTE: this is a fixed-size array inside the simulation (for speed) change accordingly!
             adcPulse          = cms.vdouble(0.00, 0.017,   0.817,   0.163,  0.003,  0.000), 
             pulseAvgT         = cms.vdouble(0.00, 23.42298,13.16733,6.41062,5.03946,4.5320), 
             # n bits for the ADC 
@@ -34,8 +39,9 @@ hgceeDigitizer = cms.PSet(
             tdcNbits          = cms.uint32(12),
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
-            # raise threshold flag (~MIP/2)
-            adcThreshold_fC   = cms.double(1.175),
+            # raise threshold flag (~MIP/2) this is scaled 
+            # for different thickness
+            adcThreshold_fC   = cms.double(0.672),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns
@@ -64,9 +70,9 @@ hgchefrontDigitizer = cms.PSet(
     makeDigiSimLinks  = cms.bool(False),
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
-    digiCfg = cms.PSet( 
-        keV2fC           = cms.double(0.042),
-        noise_fC         = cms.double(0.336),                                                    
+    digiCfg = cms.PSet(        
+        keV2fC           = cms.double(0.044259), #1000 eV / 3.62 (eV per e) / 6.24150934e3 (e per fC)
+        noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
         doTimeSamples    = cms.bool(False),                                         
         feCfg   = cms.PSet( 
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
@@ -84,8 +90,9 @@ hgchefrontDigitizer = cms.PSet(
             tdcNbits          = cms.uint32(12),
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
-            # raise threshold flag (~MIP/2)
-            adcThreshold_fC   = cms.double(1.76),
+            # raise threshold flag (~MIP/2) this is scaled 
+            # for different thickness
+            adcThreshold_fC   = cms.double(0.672),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns
@@ -136,3 +143,7 @@ hgchebackDigitizer = cms.PSet(
         )                              
     )
 
+#function to set noise to aged HGCal
+endOfLifeNoises = [2400.0,2250.0,1750.0]
+def HGCal_setEndOfLifeNoise(digitizer):
+    digitizer.digiCfg.noise_fC = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] )

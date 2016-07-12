@@ -17,12 +17,11 @@ RPCPerformanceESSource::RPCPerformanceESSource( const edm::ParameterSet& pset ) 
 
 // -----------------------------------------------------------------------------
 //
-auto_ptr<RPCStripNoises> RPCPerformanceESSource::produce( const RPCStripNoisesRcd&) { 
+unique_ptr<RPCStripNoises> RPCPerformanceESSource::produce( const RPCStripNoisesRcd&) { 
     
   RPCStripNoises* noise = makeNoise();
   
-  auto_ptr<RPCStripNoises> ptr(noise);
-  return ptr;
+  return unique_ptr<RPCStripNoises>(noise);
 
 }
 

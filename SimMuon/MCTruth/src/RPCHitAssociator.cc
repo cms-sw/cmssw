@@ -43,7 +43,7 @@ void RPCHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
     LogTrace("RPCHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<RPCsimhitsXFTag;
     e.getByLabel(RPCsimhitsXFTag, cf);
     
-    std::auto_ptr<MixCollection<PSimHit> > 
+    std::unique_ptr<MixCollection<PSimHit> > 
       RPCsimhits( new MixCollection<PSimHit>(cf.product()) );
     LogTrace("RPCHitAssociator") <<"... size = "<<RPCsimhits->size();
 

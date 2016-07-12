@@ -1,4 +1,4 @@
-#ifndef Validaiton_RPCRecHits_RPCPointVsRecHit_h
+#ifndef Validation_RPCRecHits_RPCPointVsRecHit_h
 #define Validation_RPCRecHits_RPCPointVsRecHit_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,4 +32,4 @@ private:
   RPCValidHistograms h_;
 };
 
-#endif
+#endif // Validation_RPCRecHits_RPCPointVsRecHit_h

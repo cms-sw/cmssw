@@ -74,12 +74,12 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
     matchVec.push_back( dummyMatch );
   }
 
-  // declare auto_ptr for products
-  std::auto_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >
+  // declare unique_ptr for products
+  std::unique_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >
     pOut( new std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > );
-  std::auto_ptr<int> pKey(new int);
-  std::auto_ptr<int> pNeutrinoSolutions(new int);
-  std::auto_ptr<int> pJetsConsidered(new int);
+  std::unique_ptr<int> pKey(new int);
+  std::unique_ptr<int> pNeutrinoSolutions(new int);
+  std::unique_ptr<int> pJetsConsidered(new int);
 
   // go through given vector of jet combinations
   unsigned int idMatch = 0;
@@ -92,20 +92,20 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
     pOut->push_back( std::make_pair(hypo(), *match) );
   }
   // feed out hyps and matches
-  evt.put(pOut);
+  evt.put(std::move(pOut));
 
   // build and feed out key
   buildKey();
   *pKey=key();
-  evt.put(pKey, "Key");
+  evt.put(std::move(pKey), "Key");
 
   // feed out number of real neutrino solutions
   *pNeutrinoSolutions=numberOfRealNeutrinoSolutions_;
-  evt.put(pNeutrinoSolutions, "NumberOfRealNeutrinoSolutions");
+  evt.put(std::move(pNeutrinoSolutions), "NumberOfRealNeutrinoSolutions");
 
   // feed out number of considered jets
   *pJetsConsidered=*nJetsConsidered;
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
+  evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 }
 
 /// reset candidate pointers before hypo build process

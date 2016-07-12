@@ -2,7 +2,7 @@
 //#include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <cstdio>
 
-boost::shared_ptr< L1MuCSCTFConfiguration >
+std::shared_ptr< L1MuCSCTFConfiguration >
 CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
 {
   
@@ -43,7 +43,7 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
       {
 	edm::LogError( "L1-O2O" ) << "Problem with L1CSCTFParameters key." ;
 	// return empty configuration
-	return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration() ) ;
+	return std::make_shared<L1MuCSCTFConfiguration>() ;
       }
   
 
@@ -141,7 +141,7 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
   }  
   
   // return the final object with the configuration for all CSCTF
-  return boost::shared_ptr< L1MuCSCTFConfiguration >( new L1MuCSCTFConfiguration(csctfreg) ) ;    
+  return std::make_shared<L1MuCSCTFConfiguration>(csctfreg) ;    
 
 }
 

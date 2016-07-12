@@ -111,15 +111,15 @@ namespace edm {
     void print(std::ostream& os,
                bool optional,
                bool writeToCfi,
-               DocFormatHelper& dfh);
+               DocFormatHelper& dfh) const;
 
-    bool hasNestedContent() {
+    bool hasNestedContent() const {
       return hasNestedContent_();
     }
 
     void printNestedContent(std::ostream& os,
                             bool optional,
-                            DocFormatHelper& dfh);
+                            DocFormatHelper& dfh) const;
 
     // The next three functions are only called by the logical nodes
     // on their subnodes.  When executing these functions, the
@@ -233,15 +233,15 @@ namespace edm {
     virtual void print_(std::ostream&,
                         bool /*optional*/,
                         bool /*writeToCfi*/,
-                        DocFormatHelper&) { }
+                        DocFormatHelper&) const { }
 
-    virtual bool hasNestedContent_() {
+    virtual bool hasNestedContent_() const {
       return false;
     }
 
     virtual void printNestedContent_(std::ostream&,
                                      bool /*optional*/,
-                                     DocFormatHelper&) { }
+                                     DocFormatHelper&) const { }
 
     virtual bool exists_(ParameterSet const& pset) const = 0;
 
@@ -259,90 +259,90 @@ namespace edm {
 
   // operator>> ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionCases<bool> >
+  std::unique_ptr<ParameterDescriptionCases<bool> >
   operator>>(bool caseValue,
              ParameterDescriptionNode const& node);
 
-  std::auto_ptr<ParameterDescriptionCases<int> >
+  std::unique_ptr<ParameterDescriptionCases<int> >
   operator>>(int caseValue,
              ParameterDescriptionNode const& node);
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string> >
   operator>>(std::string const& caseValue,
              ParameterDescriptionNode const& node);
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string> >
   operator>>(char const* caseValue,
              ParameterDescriptionNode const& node);
 
-  std::auto_ptr<ParameterDescriptionCases<bool> >
+  std::unique_ptr<ParameterDescriptionCases<bool> >
   operator>>(bool caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node);
+             std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::auto_ptr<ParameterDescriptionCases<int> >
+  std::unique_ptr<ParameterDescriptionCases<int> >
   operator>>(int caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node);
+             std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string> >
   operator>>(std::string const& caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node);
+             std::unique_ptr<ParameterDescriptionNode> node);
 
-  std::auto_ptr<ParameterDescriptionCases<std::string> >
+  std::unique_ptr<ParameterDescriptionCases<std::string> >
   operator>>(char const* caseValue,
-             std::auto_ptr<ParameterDescriptionNode> node);
+             std::unique_ptr<ParameterDescriptionNode> node);
 
   // operator&& ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator&&(ParameterDescriptionNode const& node_left,
              ParameterDescriptionNode const& node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator&&(std::auto_ptr<ParameterDescriptionNode> node_left,
+  std::unique_ptr<ParameterDescriptionNode>
+  operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
              ParameterDescriptionNode const& node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator&&(ParameterDescriptionNode const& node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right);
+             std::unique_ptr<ParameterDescriptionNode> node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator&&(std::auto_ptr<ParameterDescriptionNode> node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode>
+  operator&&(std::unique_ptr<ParameterDescriptionNode> node_left,
+             std::unique_ptr<ParameterDescriptionNode> node_right);
 
   // operator|| ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator||(ParameterDescriptionNode const& node_left,
              ParameterDescriptionNode const& node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator||(std::auto_ptr<ParameterDescriptionNode> node_left,
+  std::unique_ptr<ParameterDescriptionNode>
+  operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
              ParameterDescriptionNode const& node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator||(ParameterDescriptionNode const& node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right);
+             std::unique_ptr<ParameterDescriptionNode> node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator||(std::auto_ptr<ParameterDescriptionNode> node_left,
-             std::auto_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode>
+  operator||(std::unique_ptr<ParameterDescriptionNode> node_left,
+             std::unique_ptr<ParameterDescriptionNode> node_right);
 
   // operator^  ---------------------------------------------
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator^(ParameterDescriptionNode const& node_left,
             ParameterDescriptionNode const& node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator^(std::auto_ptr<ParameterDescriptionNode> node_left,
+  std::unique_ptr<ParameterDescriptionNode>
+  operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
             ParameterDescriptionNode const& node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
+  std::unique_ptr<ParameterDescriptionNode>
   operator^(ParameterDescriptionNode const& node_left,
-            std::auto_ptr<ParameterDescriptionNode> node_right);
+            std::unique_ptr<ParameterDescriptionNode> node_right);
 
-  std::auto_ptr<ParameterDescriptionNode>
-  operator^(std::auto_ptr<ParameterDescriptionNode> node_left,
-            std::auto_ptr<ParameterDescriptionNode> node_right);
+  std::unique_ptr<ParameterDescriptionNode>
+  operator^(std::unique_ptr<ParameterDescriptionNode> node_left,
+            std::unique_ptr<ParameterDescriptionNode> node_right);
 }
 #endif

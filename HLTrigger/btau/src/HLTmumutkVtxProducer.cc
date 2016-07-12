@@ -99,7 +99,7 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByToken(trkCandToken_,trkcands);
 
-  auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
   // Ref to Candidate object to be recorded in filter object
   RecoChargedCandidateRef refMu1;
@@ -203,7 +203,7 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
-  iEvent.put(vertexCollection);
+  iEvent.put(std::move(vertexCollection));
 }
 
 FreeTrajectoryState HLTmumutkVtxProducer::initialFreeState( const reco::Track& tk, const MagneticField* field)

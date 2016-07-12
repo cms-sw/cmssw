@@ -51,7 +51,7 @@ EcalTBGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
 {
    edm::ESHandle<CaloSubdetectorGeometry> pG;
 
-   std::auto_ptr<CaloGeometry> pCaloGeom(new CaloGeometry());
+   auto pCaloGeom = std::make_unique<CaloGeometry>();
 
    // TODO: Look for ECAL parts
    try {

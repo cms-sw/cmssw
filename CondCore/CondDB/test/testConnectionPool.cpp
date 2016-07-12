@@ -21,7 +21,6 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 //BOOST includes
-#include <boost/shared_ptr.hpp>
 //
 #include <array>
 #include <cstdlib>
@@ -29,7 +28,7 @@
 #include <memory>
 
 void testCreateCoralSession( cond::persistency::ConnectionPool & connPool, std::string const & connectionString, bool const writeCapable ) {
-  boost::shared_ptr<coral::ISessionProxy> session = connPool.createCoralSession( connectionString, writeCapable );
+  std::shared_ptr<coral::ISessionProxy> session = connPool.createCoralSession( connectionString, writeCapable );
   session->transaction().start( true );
   coral::ISchema& schema = session->nominalSchema();
   std::string tagTable( "TAG" );

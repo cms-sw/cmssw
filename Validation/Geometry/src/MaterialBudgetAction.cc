@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -123,11 +124,6 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
 //-------------------------------------------------------------------------
 MaterialBudgetAction::~MaterialBudgetAction()
 {
-  if (saveToTxt) delete theTxt;
-  if (saveToTree) delete theTree;
-  if (saveToHistos) delete theHistos;
-  if (theHistoMgr) delete theHistoMgr;
-  delete theData;
 }
 
 //-------------------------------------------------------------------------
@@ -309,6 +305,17 @@ void MaterialBudgetAction::update(const EndOfTrack* trk)
   if (saveToTree) theTree->fillEndTrack();
   if (saveToHistos) theHistos->fillEndTrack();
   if (saveToTxt) theTxt->fillEndTrack();  
+}
+
+//-------------------------------------------------------------------------
+void MaterialBudgetAction::update(const EndOfRun* )
+{
+  if (saveToTxt) delete theTxt;
+  if (saveToTree) delete theTree;
+  if (saveToHistos) delete theHistos;
+  if (theHistoMgr) delete theHistoMgr;
+  delete theData;
+  return;
 }
 
 //-------------------------------------------------------------------------

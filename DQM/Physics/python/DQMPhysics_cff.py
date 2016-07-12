@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 from DQM.Physics.bphysicsOniaDQM_cfi import *
 from DQM.Physics.ewkMuDQM_cfi import *
@@ -34,6 +35,11 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *ExoticaDQM
                            *B2GDQM
                            )
+eras.phase1Pixel.toReplaceWith(dqmPhysics, dqmPhysics.copyAndExclude([ # FIXME
+    ewkMuDQM,            # Excessive printouts because 2017 doesn't have HLT yet
+    ewkElecDQM,          # Excessive printouts because 2017 doesn't have HLT yet
+    ewkMuLumiMonitorDQM, # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)

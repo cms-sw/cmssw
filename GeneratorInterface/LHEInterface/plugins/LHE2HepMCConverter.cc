@@ -140,8 +140,8 @@ LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       v->add_particle_out(gp);
    } 
 
-   std::auto_ptr<HepMCProduct> pOut(new HepMCProduct(evt));
-   iEvent.put(pOut, "unsmeared");
+   std::unique_ptr<HepMCProduct> pOut(new HepMCProduct(evt));
+   iEvent.put(std::move(pOut), "unsmeared");
 
 }
 

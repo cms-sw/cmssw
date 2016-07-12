@@ -32,7 +32,7 @@ RPCStripsRing::RPCStripsRing() :
 }
 
 RPCStripsRing::RPCStripsRing(const RPCRoll * roll,
-                             boost::shared_ptr<L1RPCConeBuilder::TConMap > cmap) :
+                             std::shared_ptr<L1RPCConeBuilder::TConMap > cmap) :
     m_didVirtuals(false),
     m_didFiltering(false),
     m_connectionsMap(cmap)
@@ -516,12 +516,9 @@ void RPCStripsRing::compressConnections(){
   
   L1RPCConeBuilder::TConMap::iterator itChamber = m_connectionsMap->begin();
   
-  boost::shared_ptr<L1RPCConeBuilder::TConMap > uncompressedConsLeft
-  = boost::shared_ptr<L1RPCConeBuilder::TConMap >(new L1RPCConeBuilder::TConMap());
+  auto uncompressedConsLeft = std::make_shared<L1RPCConeBuilder::TConMap>();
   
-  m_compressedConnectionMap =        
-               boost::shared_ptr<L1RPCConeBuilder::TCompressedConMap >
-               (new L1RPCConeBuilder::TCompressedConMap());
+  m_compressedConnectionMap = std::make_shared<L1RPCConeBuilder::TCompressedConMap>();
   
   
   int compressedCons = 0, uncompressedConsBefore = 0, uncompressedConsAfter = 0;

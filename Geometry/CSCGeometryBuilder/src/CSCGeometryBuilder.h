@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class CSCGeometry;
 
@@ -28,7 +28,7 @@ public:
   virtual ~CSCGeometryBuilder();
 
   /// Build the geometry
-  void build( boost::shared_ptr<CSCGeometry> theGeometry
+  void build( std::shared_ptr<CSCGeometry> theGeometry
 		      , const RecoIdealGeometry& rig
 		      , const CSCRecoDigiParameters& cscpars ) ;
 
@@ -37,7 +37,7 @@ protected:
 private:
   /// Build one CSC chamber, and its component layers, and add them to the geometry
   void buildChamber (  
-		     boost::shared_ptr<CSCGeometry> theGeometry        // the geometry container
+		     std::shared_ptr<CSCGeometry> theGeometry        // the geometry container
 		     , CSCDetId chamberId              // the DetId of this chamber
 		     , const std::vector<float>& fpar  // volume parameters
 		     , const std::vector<float>& fupar // user parameters

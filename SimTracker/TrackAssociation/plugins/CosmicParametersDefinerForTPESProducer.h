@@ -9,15 +9,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  CosmicParametersDefinerForTPESProducer: public edm::ESProducer{
-  typedef boost::shared_ptr<CosmicParametersDefinerForTP> ReturnType;
+  typedef std::shared_ptr<CosmicParametersDefinerForTP> ReturnType;
 
  public:
   CosmicParametersDefinerForTPESProducer(const edm::ParameterSet & p);
   virtual ~CosmicParametersDefinerForTPESProducer(); 
-  boost::shared_ptr<CosmicParametersDefinerForTP> produce(const TrackAssociatorRecord &);
+  std::shared_ptr<CosmicParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
 };
 

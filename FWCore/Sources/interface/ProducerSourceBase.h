@@ -20,7 +20,7 @@ namespace edm {
   class ProducerSourceBase : public InputSource {
   public:
     explicit ProducerSourceBase(ParameterSet const& pset, InputSourceDescription const& desc, bool realData);
-    virtual ~ProducerSourceBase();
+    virtual ~ProducerSourceBase() noexcept(false);
 
     unsigned int numberEventsInRun() const {return numberEventsInRun_;} 
     unsigned int numberEventsInLumi() const {return numberEventsInLumi_;} 

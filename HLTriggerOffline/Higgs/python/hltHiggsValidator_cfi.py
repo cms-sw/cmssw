@@ -330,6 +330,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_PFMET120_PFMHT120_IDTight_v",
             "HLT_PFMET110_PFMHT110_IDTight_v",
             "HLT_PFMET100_PFMHT100_IDTight_v",
+            "HLT_PFMET100_PFMHT100_IDTight_BeamHaloCleaned_v",
             "HLT_PFMET90_PFMHT90_IDTight_v",
 	    # old csv version
 	    "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_BTagCSV0p72_v"

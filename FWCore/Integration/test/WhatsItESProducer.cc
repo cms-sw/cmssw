@@ -43,7 +43,7 @@ class WhatsItESProducer : public edm::ESProducer {
       WhatsItESProducer(edm::ParameterSet const& pset);
       ~WhatsItESProducer();
 
-      typedef std::auto_ptr<WhatsIt> ReturnType;
+      typedef std::unique_ptr<WhatsIt> ReturnType;
 
       ReturnType produce(const GadgetRcd &);
 
@@ -103,7 +103,7 @@ WhatsItESProducer::produce(const GadgetRcd& iRecord)
    edm::ESHandle<Doodad> doodad;
    iRecord.get(dataLabel_,doodad);
    
-   std::auto_ptr<WhatsIt> pWhatsIt(new WhatsIt) ;
+   auto pWhatsIt = std::make_unique<WhatsIt>() ;
 
    pWhatsIt->a = doodad->a;
 

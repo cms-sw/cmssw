@@ -22,7 +22,7 @@
 
 
 namespace cond {
-  template <> boost::shared_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
+  template <> std::shared_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
                                                                                      const Binary& payloadData,
                                                                                      const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( condex::Efficiency ); abstract 
@@ -36,7 +36,7 @@ namespace cond {
 
 
 namespace cond {
-  template <> boost::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
+  template <> std::shared_ptr<BaseKeyed> deserialize<BaseKeyed>( const std::string& payloadType,
 								   const Binary& payloadData,
 								   const Binary& streamerInfoData ){
     DESERIALIZE_BASE_CASE( BaseKeyed );

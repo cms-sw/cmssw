@@ -30,8 +30,17 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
+#include<sstream>
+
 // #define VI_DEBUG
 // #define STAT_TSB
+
+#ifdef VI_DEBUG
+#define DPRINT(x) std::cout << x << ": "
+#else
+#define DPRINT(x) LogTrace(x)
+#endif
+  
 
 namespace {
 #ifdef STAT_TSB
@@ -96,9 +105,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
   Trajectory && trajTmp = theFitter->fitOne(seed, hits, theTSOS,(nLoops>0) ? TrajectoryFitter::looper : TrajectoryFitter::standard);
   if unlikely(!trajTmp.isValid()) {
-#ifdef VI_DEBUG
-    std::cout << "fit failed " << algo_ << ": " <<  hits.size() <<'|' << int(nLoops) << ' ' << std::endl; 
-#endif     
+     DPRINT("TrackFitters") << "fit failed " << algo_ << ": " <<  hits.size() <<'|' << int(nLoops) << ' ' << std::endl; 
      return false;
   }
   
@@ -126,7 +133,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
  
 
-#ifdef VI_DEBUG
+#if defined(VI_DEBUG) || defined(EDM_ML_DEBUG)
 int chit[7]={};
 int kk=0;
 for (auto const & tm : theTraj->measurements()) {
@@ -152,7 +159,9 @@ for (auto const & tm : theTraj->measurements()) {
   }
  }
 
-std::cout << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size()<<'|' << int(nLoops) << ' ';   for (auto c:chit) std::cout << c <<'/'; std::cout<< std::endl;
+   std::ostringstream ss;
+   ss << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size()<<'|' << int(nLoops) << ' ';   for (auto c:chit) ss << c <<'/'; ss << std::endl;
+   DPRINT("TrackProducer") << ss.str();
 
 #endif
  
@@ -250,33 +259,36 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   
   auto theTraj = new Trajectory( std::move(trajTmp) );
   theTraj->setSeedRef(seedRef);
-  
-  //  TrajectoryStateOnSurface innertsos;
-  // TrajectoryStateOnSurface outertsos;
 
-  // if (theTraj->direction() == alongMomentum) {
-  //  innertsos = theTraj->firstMeasurement().updatedState();
-  //  outertsos = theTraj->lastMeasurement().updatedState();
-  // } else { 
-  //  innertsos = theTraj->lastMeasurement().updatedState();
-  //  outertsos = theTraj->firstMeasurement().updatedState();
-  // }
-  //     std::cout
-  //       << "Nr. of first / last states = "
-  //       << innertsos.components().size() << " "
-  //       << outertsos.components().size() << std::endl;
-  //     std::vector<TrajectoryStateOnSurface> components = 
-  //       innertsos.components();
-  //     double sinTheta = 
-  //       sin(innertsos.globalMomentum().theta());
-  //     for ( std::vector<TrajectoryStateOnSurface>::const_iterator ic=components.begin();
-  // 	  ic!=components.end(); ic++ ) {
-  //       std::cout << " comp " << ic-components.begin() << " "
-  // 		<< (*ic).weight() << " "
-  // 		<< (*ic).localParameters().vector()[0]/sinTheta << " "
-  // 		<< sqrt((*ic).localError().matrix()[0][0])/sinTheta << std::endl;
-  //     }
-  
+#ifdef EDM_ML_DEBUG  
+  TrajectoryStateOnSurface innertsos;
+  TrajectoryStateOnSurface outertsos;
+
+  if (theTraj->direction() == alongMomentum) {
+    innertsos = theTraj->firstMeasurement().updatedState();
+    outertsos = theTraj->lastMeasurement().updatedState();
+  } else { 
+    innertsos = theTraj->lastMeasurement().updatedState();
+     outertsos = theTraj->firstMeasurement().updatedState();
+  }
+  std::ostringstream ss;
+  auto dc = [&](TrajectoryStateOnSurface const & tsos){ 
+     std::vector<TrajectoryStateOnSurface> const & components = tsos.components();
+     auto sinTheta =  std::sin(tsos.globalMomentum().theta());
+     for (auto const & ic : components) ss << ic.weight() << "/"; ss << "\n";
+     for (auto const & ic : components) ss << ic.localParameters().vector()[0]/sinTheta << "/"; ss << "\n";
+     for (auto const & ic : components) ss << std::sqrt(ic.localError().matrix()(0,0))/sinTheta << "/"; 
+  };
+  ss  << "\ninner comps\n";
+  dc(innertsos);
+  ss  << "\nouter comps\n";
+  dc(outertsos);
+  LogDebug("TrackProducer")
+ 	   << "Nr. of first / last states = "
+  	   << innertsos.components().size() << " "
+           << outertsos.components().size() << ss.str();
+#endif  
+
   ndof = 0;
   for (auto const & tm : theTraj->measurements()) {
     auto const & h = tm.recHitR();

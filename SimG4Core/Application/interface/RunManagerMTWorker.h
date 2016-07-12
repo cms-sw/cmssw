@@ -28,6 +28,7 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
+class CMSSteppingVerbose;
 
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
@@ -37,22 +38,22 @@ class SimProducer;
 
 class RunManagerMTWorker {
 public:
-  RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& i);
+  explicit RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& i);
   ~RunManagerMTWorker();
 
-  void beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
   void endRun();
 
-  void produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster);
+  void produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
 
   void abortEvent();
   void abortRun(bool softAbort=false);
 
-  G4SimEvent * simEvent() { return m_simEvent.get(); }
-  void             Connect(RunAction*);
-  void             Connect(EventAction*);
-  void             Connect(TrackingAction*);
-  void             Connect(SteppingAction*);
+  inline G4SimEvent * simEvent() { return m_simEvent.get(); }
+
+  void Connect(RunAction*);
+  void Connect(EventAction*);
+  void Connect(TrackingAction*);
+  void Connect(SteppingAction*);
 
   SimTrackManager* GetSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
@@ -60,8 +61,9 @@ public:
   std::vector<std::shared_ptr<SimProducer> > producers();
 
 private:
+
   void initializeTLS();
-  void initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
+  void initializeThread(RunManagerMT& runManagerMaster, const edm::EventSetup& es);
   void initializeUserActions();
 
   void initializeRun();
@@ -89,6 +91,7 @@ private:
   static thread_local TLSData *m_tls;
 
   std::unique_ptr<G4SimEvent> m_simEvent;
+  std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
 };
 
 #endif

@@ -1,32 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
-import RecoTracker.IterativeTracking.MixedTripletStep_cff
+import RecoTracker.IterativeTracking.MixedTripletStep_cff as _standard
 
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
-mixedTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters)
+mixedTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(_standard.mixedTripletStepClusters)
 mixedTripletStepMasks.oldHitRemovalInfo = cms.InputTag("pixelPairStepMasks")
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    minLayersCrossed = 3,
-    layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value(),
-    RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet,
-    hitMasks = cms.InputTag("mixedTripletStepMasks"),
+    layerList = _standard.mixedTripletStepSeedLayersA.layerList.value(),
+    RegionFactoryPSet = _standard.mixedTripletStepSeedsA.RegionFactoryPSet,
+    hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
+mixedTripletStepSeedsA.seedFinderSelector.pixelTripletGeneratorFactory = _standard.mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet
+
 
 ###
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    minLayersCrossed = 3,
-    layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value(),
-    RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet,
-    hitMasks = cms.InputTag("mixedTripletStepMasks"),
+    layerList = _standard.mixedTripletStepSeedLayersB.layerList.value(),
+    RegionFactoryPSet = _standard.mixedTripletStepSeedsB.RegionFactoryPSet,
+    hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
+mixedTripletStepSeedsB.seedFinderSelector.pixelTripletGeneratorFactory = _standard.mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet
 
-mixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone()
+mixedTripletStepSeeds = _standard.mixedTripletStepSeeds.clone()
 
 #track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -37,15 +38,15 @@ mixedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer
 )
 
 # tracks
-mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(TTRHBuilder = 'WithoutRefit')
+mixedTripletStepTracks = _standard.mixedTripletStepTracks.clone(TTRHBuilder = 'WithoutRefit')
 
 # final selection
-mixedTripletStepClassifier1 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier1.clone()
+mixedTripletStepClassifier1 = _standard.mixedTripletStepClassifier1.clone()
 mixedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
-mixedTripletStepClassifier2 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier2.clone()
+mixedTripletStepClassifier2 = _standard.mixedTripletStepClassifier2.clone()
 mixedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
-mixedTripletStep = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStep.clone()
+mixedTripletStep = _standard.mixedTripletStep.clone()
 
 # Final sequence 
 MixedTripletStep =  cms.Sequence(mixedTripletStepMasks

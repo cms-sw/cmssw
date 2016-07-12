@@ -91,7 +91,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
   
   const JetCollection & theJetCollection = *theJetCollectionHandle;
   
-  auto_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
+  unique_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
   
  if(!clusCands.empty()){ // try trigger clusters
     for(size_t candNr=0;candNr<clusCands.size();candNr++){  
@@ -136,7 +136,7 @@ HLTJetCollectionsForLeptonPlusJets<jetType>::produce(edm::Event& iEvent, const e
 
 
 
- iEvent.put(allSelections);
+ iEvent.put(std::move(allSelections));
   
   return;
   

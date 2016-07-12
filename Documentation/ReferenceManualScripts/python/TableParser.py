@@ -28,11 +28,11 @@ def extractPages(configFileFlag = False):
         # parents. This is why we need to check whether row has a style
         # attribute or not.
         styleFlag = False
-        if row.has_key('style'): styleFlag = True
+        if 'style' in row: styleFlag = True
         # change the first letter if row is not hidden (child) one
         if not styleFlag: firstLetter = row.findAll('td')[0].text[0].upper()
         # if pages dict doesn't have the page yet..
-        if not pages.has_key(firstLetter):
+        if firstLetter not in pages:
             pages[firstLetter] = []
         # insert the row into the related page
         if configFileFlag:
@@ -55,7 +55,7 @@ def extractPagesForPackage():
         # parse package names --please have a look at the pages.html file
         name = name[name.find(' '):name.find('/')].strip()
         # if the package is not added yet
-        if not pages.has_key(name): pages[name] = []
+        if name not in pages: pages[name] = []
         pages[name].append(row)
     return pages
 

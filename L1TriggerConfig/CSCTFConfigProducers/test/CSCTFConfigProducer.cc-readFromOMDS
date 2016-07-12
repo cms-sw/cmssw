@@ -17,7 +17,7 @@ CSCTFConfigProducer::CSCTFConfigProducer(const edm::ParameterSet& pset) {
 
 }
 
-std::auto_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord){
+std::unique_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord){
 
   std::string objectKey("170210");
   l1t::OMDSReader m_omdsReader("oracle://CMS_OMDS_LB/CMS_TRG_R",".");
@@ -54,7 +54,7 @@ std::auto_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFConfi
     if( results.queryFailed() ) // check if query was successful
       {
 	edm::LogError( "L1-O2O" ) << "Problem with L1CSCTFParameters key." ;
-	return std::auto_ptr<L1MuCSCTFConfiguration>( new L1MuCSCTFConfiguration() );
+	return std::unique_ptr<L1MuCSCTFConfiguration>( new L1MuCSCTFConfiguration() );
       }
   
     //    double datum ;
@@ -86,17 +86,17 @@ std::auto_ptr<L1MuCSCTFConfiguration> CSCTFConfigProducer::produceL1MuCSCTFConfi
     
   }  
   
-  std::auto_ptr<L1MuCSCTFConfiguration> config = std::auto_ptr<L1MuCSCTFConfiguration>( new L1MuCSCTFConfiguration(registers) );
+  std::unique_ptr<L1MuCSCTFConfiguration> config = std::unique_ptr<L1MuCSCTFConfiguration>( new L1MuCSCTFConfiguration(registers) );
   return config;
 
 }
 
-std::auto_ptr<L1MuCSCTFAlignment> CSCTFConfigProducer::produceL1MuCSCTFAlignmentRcd(const L1MuCSCTFAlignmentRcd& iRecord){
-	std::auto_ptr<L1MuCSCTFAlignment> al = std::auto_ptr<L1MuCSCTFAlignment>( new L1MuCSCTFAlignment(alignment) );
+std::unique_ptr<L1MuCSCTFAlignment> CSCTFConfigProducer::produceL1MuCSCTFAlignmentRcd(const L1MuCSCTFAlignmentRcd& iRecord){
+	std::unique_ptr<L1MuCSCTFAlignment> al = std::unique_ptr<L1MuCSCTFAlignment>( new L1MuCSCTFAlignment(alignment) );
 	return al;
 }
 
-std::auto_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord){
+std::unique_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord){
   
   std::string objectKey("1");
   l1t::OMDSReader m_omdsReader("oracle://CMS_OMDS_LB/CMS_TRG_R",".");
@@ -118,7 +118,7 @@ std::auto_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1
   if( results.queryFailed() ) // check if query was successful
     {
       edm::LogError( "L1-O2O" ) << "Problem with L1MuCSCPtLutParameters key." ;
-      return std::auto_ptr<L1MuCSCPtLut>( new L1MuCSCPtLut() );
+      return std::unique_ptr<L1MuCSCPtLut>( new L1MuCSCPtLut() );
     }
   
   std::string ptlut;
@@ -133,7 +133,7 @@ std::auto_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1
   L1MuCSCPtLut* CSCTFPtLut = new L1MuCSCPtLut();
   CSCTFPtLut->readFromDBS(ptlut);
 
-  std::auto_ptr<L1MuCSCPtLut> pt_lut = std::auto_ptr<L1MuCSCPtLut>( CSCTFPtLut );
+  std::unique_ptr<L1MuCSCPtLut> pt_lut = std::unique_ptr<L1MuCSCPtLut>( CSCTFPtLut );
  
   return pt_lut;
 }

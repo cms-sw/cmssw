@@ -65,7 +65,8 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface& refTsos
   materialEffects_(config.materialEffects),
   propDir_(config.propDir),
   useBeamSpot_(config.useBeamSpot),
-  includeAPEs_(config.includeAPEs)
+  includeAPEs_(config.includeAPEs),
+  allowZeroMaterial_(config.allowZeroMaterial)
 {
   // no check against magField == 0  
   theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
@@ -97,7 +98,8 @@ ReferenceTrajectory::ReferenceTrajectory(unsigned int nPar, unsigned int nHits,
    materialEffects_(config.materialEffects),
    propDir_(config.propDir),
    useBeamSpot_(config.useBeamSpot),
-   includeAPEs_(config.includeAPEs)
+   includeAPEs_(config.includeAPEs),
+   allowZeroMaterial_(config.allowZeroMaterial)
 {}
 
 
@@ -993,10 +995,20 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
 
     // GBL multiple scattering (full matrix in local system)
     clhep2root(allDeltaParameterCovs[k].similarityT(SlopeToLocal), scatPrecision);
-    scatPrecision.InvertFast();
+    try {
+      scatPrecision.InvertFast();
 
-    // GBL add scatterer to point
-    aGblPoint.addScatterer(scatterer, scatPrecision);
+      // GBL add scatterer to point
+      aGblPoint.addScatterer(scatterer, scatPrecision);
+    } catch (const edm::Exception& e) {
+      if (e.categoryCode() == edm::errors::FatalRootError &&
+	  e.explainSelf().find("matrix is singular") != std::string::npos &&
+	  allowZeroMaterial_) {
+	// allow for modules without material and do nothing
+      } else {
+	throw;
+      }
+    }
 
     // add point to list
     GblPointList.push_back( aGblPoint );
@@ -1079,6 +1091,21 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
     tempMSCov = allDeltaParameterCovs[k].similarity(allLocalToCurv[k]);
     for (unsigned int row = 0; row < 2; ++row) {
       scatPrecDiag(row) = 1.0/tempMSCov[row+1][row+1];
+    }
+
+    // check for singularity
+    bool singularCovariance{false};
+    for (int row = 0; row < scatPrecDiag.GetNrows(); ++row) {
+      if (!(scatPrecDiag[row] < std::numeric_limits<double>::infinity())) {
+	singularCovariance = true;
+	break;
+      }
+    }
+    if (singularCovariance && !allowZeroMaterial_) {
+      throw cms::Exception("Alignment")
+	<< "@SUB=ReferenceTrajectory::addMaterialEffectsCurvlinGbl"
+	<< "\nEncountered singular scatter covariance-matrix without allowing "
+	<< "for zero material.";
     }
 
     // GBL add scatterer to point

@@ -63,8 +63,7 @@ hcalSimParameters = cms.PSet(
             143.52),            
         syncPhase = cms.bool(True),
         timePhase = cms.double(6.0),
-        timeSmearing = cms.bool(True),
-        siPMCells = cms.vint32()
+        timeSmearing = cms.bool(True)
     ),
     he = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -101,18 +100,21 @@ hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
 hcalSimParameters.hoHamamatsu.pixels = cms.int32(960)
 hcalSimParameters.hoHamamatsu.photoelectronsToAnalog = [3.0]*16
 
-#
-# Need to change the HO parameters for post LS1 running
-#
-def _modifyHcalSimParametersForPostLS1( object ) :
-    """
-    Customises the HCal digitiser for post LS1 running
-    """
-    object.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
-    object.ho.siPMCode = cms.int32(1)
-    object.ho.pixels = cms.int32(2500)
-    object.ho.doSiPMSmearing = cms.bool(False)
-    object.hf1.samplingFactor = cms.double(0.67)
-    object.hf2.samplingFactor = cms.double(0.67)
+# Customises the HCal digitiser for post LS1 running
+eras.run2_common.toModify( hcalSimParameters, 
+    ho = dict(
+        photoelectronsToAnalog = cms.vdouble([4.0]*16),
+        siPMCode = cms.int32(1),
+        pixels = cms.int32(2500),
+        doSiPMSmearing = cms.bool(False)
+    ),
+    hf1 = dict( samplingFactor = cms.double(0.67) ),
+    hf2 = dict( samplingFactor = cms.double(0.67) )
+)
 
-eras.run2_common.toModify( hcalSimParameters, func=_modifyHcalSimParametersForPostLS1 )
+eras.run2_HE_2017.toModify( hcalSimParameters,
+    he = dict(
+        photoelectronsToAnalog = cms.vdouble([10.]*14),
+        pixels = cms.int32(4500*4*2)
+    )
+)

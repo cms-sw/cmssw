@@ -39,7 +39,7 @@ MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::Parame
 MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
 
 
-boost::shared_ptr<MuonDetLayerGeometry>
+std::shared_ptr<MuonDetLayerGeometry>
 MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
@@ -95,5 +95,5 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   // Sort layers properly
   muonDetLayerGeometry->sortLayers();
 
-  return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
+  return std::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
 }

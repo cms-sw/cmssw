@@ -48,8 +48,11 @@ process.maxEvents = cms.untracked.PSet(
 process.prodEE = cms.EDAnalyzer("HGCalNumberingTester",
                                 NameSense     = cms.string("HGCalEESensitive"),
                                 NameDevice    = cms.string("HGCal EE"),
-                                LocalPosition = cms.double(500.0),
-                                Increment     = cms.int32(19)
+                                LocalPositionX= cms.vdouble(500.0,350.0,800.0,1400.0),
+                                LocalPositionY= cms.vdouble(500.0,0.0,0.0,0.0),
+                                Increment     = cms.int32(19),
+                                HexType       = cms.bool(True),
+                                Reco          = cms.bool(False)
 )
 
 process.prodHEF = process.prodEE.clone(

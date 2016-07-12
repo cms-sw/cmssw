@@ -9,7 +9,7 @@
 
 
 // system include files
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 
@@ -88,7 +88,7 @@ using namespace l1t;
     CaloConfigHelper m_config;
 
 
-    boost::shared_ptr<Stage1Layer2MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
+    std::shared_ptr<Stage1Layer2MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
     Stage1Layer2FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
 
@@ -160,14 +160,14 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast = caloRegions->getLastBX();
 
   //outputs
-  std::auto_ptr<EGammaBxCollection> egammas (new EGammaBxCollection);
-  std::auto_ptr<TauBxCollection> taus (new TauBxCollection);
-  std::auto_ptr<TauBxCollection> isoTaus (new TauBxCollection);
-  std::auto_ptr<JetBxCollection> jets (new JetBxCollection);
-  std::auto_ptr<JetBxCollection> preGtJets (new JetBxCollection);
-  std::auto_ptr<EtSumBxCollection> etsums (new EtSumBxCollection);
-  std::auto_ptr<CaloSpareBxCollection> hfSums (new CaloSpareBxCollection);
-  std::auto_ptr<CaloSpareBxCollection> hfCounts (new CaloSpareBxCollection);
+  std::unique_ptr<EGammaBxCollection> egammas (new EGammaBxCollection);
+  std::unique_ptr<TauBxCollection> taus (new TauBxCollection);
+  std::unique_ptr<TauBxCollection> isoTaus (new TauBxCollection);
+  std::unique_ptr<JetBxCollection> jets (new JetBxCollection);
+  std::unique_ptr<JetBxCollection> preGtJets (new JetBxCollection);
+  std::unique_ptr<EtSumBxCollection> etsums (new EtSumBxCollection);
+  std::unique_ptr<CaloSpareBxCollection> hfSums (new CaloSpareBxCollection);
+  std::unique_ptr<CaloSpareBxCollection> hfCounts (new CaloSpareBxCollection);
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);
@@ -240,14 +240,14 @@ L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
-  iEvent.put(egammas);
-  iEvent.put(taus,"rlxTaus");
-  iEvent.put(isoTaus,"isoTaus");
-  iEvent.put(jets);
-  iEvent.put(preGtJets,"preGtJets");
-  iEvent.put(etsums);
-  iEvent.put(hfSums,"HFRingSums");
-  iEvent.put(hfCounts,"HFBitCounts");
+  iEvent.put(std::move(egammas));
+  iEvent.put(std::move(taus),"rlxTaus");
+  iEvent.put(std::move(isoTaus),"isoTaus");
+  iEvent.put(std::move(jets));
+  iEvent.put(std::move(preGtJets),"preGtJets");
+  iEvent.put(std::move(etsums));
+  iEvent.put(std::move(hfSums),"HFRingSums");
+  iEvent.put(std::move(hfCounts),"HFBitCounts");
 }
 
 // ------------ method called once each job just before starting event loop ------------
@@ -342,10 +342,10 @@ void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     // LenA move the setting of the firmware version to the L1TStage1Layer2Producer constructor
 
-    //m_params = boost::shared_ptr<const CaloParams>(parameters.product());
-    //m_fwv = boost::shared_ptr<const FirmwareVersion>(new FirmwareVersion());
+    //m_params = std::shared_ptr<const CaloParams>(parameters.product());
+    //m_fwv = std::shared_ptr<const FirmwareVersion>(new FirmwareVersion());
     //printf("Begin.\n");
-    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+    //m_fwv = std::make_shared<FirmwareVersion>(); //not const during testing
     //printf("Success m_fwv.\n");
     //m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
     //printf("Success m_fwv version set.\n");
@@ -368,7 +368,7 @@ void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     int ifwv=m_config.fwv();
     //cout << "DEBUG:  ifwv is " << ifwv << "\n";
-    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+    //m_fwv = std::make_shared<FirmwareVersion>(); //not const during testing
     if (ifwv == 1){
       LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running HI implementation\n";
       //std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";

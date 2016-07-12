@@ -6,10 +6,10 @@ namespace l1t {
    namespace stage2 {
       GMTCollections::~GMTCollections()
       {
-         event_.put(regionalMuonCandsBMTF_, "BMTF");
-         event_.put(regionalMuonCandsOMTF_, "OMTF");
-         event_.put(regionalMuonCandsEMTF_, "EMTF");
-         event_.put(muons_, "Muon");
+         event_.put(std::move(regionalMuonCandsBMTF_), "BMTF");
+         event_.put(std::move(regionalMuonCandsOMTF_), "OMTF");
+         event_.put(std::move(regionalMuonCandsEMTF_), "EMTF");
+         event_.put(std::move(muons_), "Muon");
       }
    }
 }

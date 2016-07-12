@@ -16,7 +16,6 @@
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <boost/shared_ptr.hpp>
 
 class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
@@ -25,7 +24,7 @@ class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIn
       
        inline static CSCDBPedestals * prefillDBPedestals();
 
-      typedef  boost::shared_ptr<CSCDBPedestals> Pointer;
+      typedef  std::shared_ptr<CSCDBPedestals> Pointer;
 
       Pointer produceDBPedestals(const CSCDBPedestalsRcd&);
 

@@ -23,7 +23,7 @@ class SiStripNoiseESSource : public edm::ESProducer, public edm::EventSetupRecor
   SiStripNoiseESSource( const edm::ParameterSet& );
   virtual ~SiStripNoiseESSource() {;}
   
-  virtual std::auto_ptr<SiStripNoises> produce( const SiStripNoisesRcd& );
+  virtual std::unique_ptr<SiStripNoises> produce( const SiStripNoisesRcd& );
   
  protected:
 

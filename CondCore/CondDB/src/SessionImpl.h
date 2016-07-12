@@ -10,7 +10,6 @@
 //
 #include <memory>
 // temporarely
-#include <boost/shared_ptr.hpp>
 
 namespace coral {
   class ISessionProxy;
@@ -40,7 +39,7 @@ namespace cond {
       typedef enum { THROW, DO_NOT_THROW, CREATE } FailureOnOpeningPolicy;
     public:
       SessionImpl();
-      SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session, 
+      SessionImpl( std::shared_ptr<coral::ISessionProxy>& session, 
 		   const std::string& connectionString );
 
       ~SessionImpl();
@@ -62,7 +61,7 @@ namespace cond {
       
     public:
       // allows for session shared among more services. To be changed to unique_ptr when we stop needing this feature.
-      boost::shared_ptr<coral::ISessionProxy> coralSession;
+      std::shared_ptr<coral::ISessionProxy> coralSession;
       // not really useful outside the ORA bridging...
       std::string connectionString;
       std::unique_ptr<ITransaction> transaction;

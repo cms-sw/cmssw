@@ -3,7 +3,10 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include <string>
 
@@ -266,6 +269,7 @@ class  SiPixelDigiValid: public DQMEDAnalyzer {
  
   DQMStore* dbe_;
   edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > edmDetSetVector_PixelDigi_Token_;
+  edm::ESHandle<GeometricSearchTracker> tracker;
 
  
 };

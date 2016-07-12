@@ -18,9 +18,9 @@
 //
 #include <sstream>
 #include <iostream>
+#include <memory>
 //
 // temporarely
-#include <boost/shared_ptr.hpp>
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
@@ -70,10 +70,10 @@ namespace cond {
   }
 
   // generates an instance of T from the binary serialized data. 
-  template <typename T> boost::shared_ptr<T> default_deserialize( const std::string& payloadType, 
+  template <typename T> std::shared_ptr<T> default_deserialize( const std::string& payloadType, 
 								  const Binary& payloadData, 
 								  const Binary& streamerInfoData ){
-    boost::shared_ptr<T> payload;
+    std::shared_ptr<T> payload;
     std::stringbuf sstreamerInfoBuf;
     sstreamerInfoBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size() );
     std::string streamerInfo = sstreamerInfoBuf.str();
@@ -102,7 +102,7 @@ namespace cond {
   }
 
   // default specialization
-  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, 
+  template <typename T> std::shared_ptr<T> deserialize( const std::string& payloadType, 
 							  const Binary& payloadData, 
 							  const Binary& streamerInfoData ){
     return default_deserialize<T>( payloadType, payloadData, streamerInfoData );
@@ -117,7 +117,7 @@ namespace cond {
 
 #define DESERIALIZE_POLIMORPHIC_CASE( BASETYPENAME, DERIVEDTYPENAME )	\
   if( payloadType == #DERIVEDTYPENAME ){ \
-    return boost::dynamic_pointer_cast<BASETYPENAME>( default_deserialize<DERIVEDTYPENAME>( payloadType, payloadData, streamerInfoData ) ); \
+    return std::dynamic_pointer_cast<BASETYPENAME>( default_deserialize<DERIVEDTYPENAME>( payloadType, payloadData, streamerInfoData ) ); \
   }
  
 #endif

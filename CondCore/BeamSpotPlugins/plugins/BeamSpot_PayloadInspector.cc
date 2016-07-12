@@ -5,6 +5,7 @@
 
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
+#include <memory>
 #include <sstream>
 
 namespace {
@@ -34,7 +35,7 @@ namespace {
       cond::utilities::JsonPrinter jprint("Run","x");
       for( int i=0; i< len( iovs ); i++ ) {
 	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	boost::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
+	std::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
 	jprint.append(boost::lexical_cast<std::string>( iov.since ),
 		      boost::lexical_cast<std::string>( obj->GetX() ),
 		      boost::lexical_cast<std::string>( obj->GetXError() ) );
@@ -68,7 +69,7 @@ namespace {
       cond::utilities::JsonPrinter jprint("Run","y");
       for( int i=0; i< len( iovs ); i++ ) {
 	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	boost::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
+	std::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
 	jprint.append(boost::lexical_cast<std::string>( iov.since ),
 		      boost::lexical_cast<std::string>( obj->GetY() ),
 		      boost::lexical_cast<std::string>( obj->GetYError() ) );
@@ -102,7 +103,7 @@ namespace {
       cond::utilities::JsonPrinter jprint("x","y");
       for( int i=0; i< len( iovs ); i++ ) {
 	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	boost::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
+	std::shared_ptr<BeamSpotObjects> obj = reader.fetch<BeamSpotObjects>( iov.payloadId );
 	jprint.append(boost::lexical_cast<std::string>( obj->GetX() ), 
 		      boost::lexical_cast<std::string>( obj->GetY() ) );
       }

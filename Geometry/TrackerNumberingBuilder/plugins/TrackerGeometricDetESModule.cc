@@ -36,7 +36,7 @@ TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & 
   descriptions.add( "trackerNumberingGeometry", desc );
 }
 
-std::auto_ptr<GeometricDet> 
+std::unique_ptr<GeometricDet> 
 TrackerGeometricDetESModule::produce( const IdealGeometryRecord & iRecord )
 { 
   if( fromDDD_ )
@@ -45,7 +45,7 @@ TrackerGeometricDetESModule::produce( const IdealGeometryRecord & iRecord )
     iRecord.get( cpv );
 
     DDDCmsTrackerContruction theDDDCmsTrackerContruction;
-    return std::auto_ptr<GeometricDet> (const_cast<GeometricDet*>( theDDDCmsTrackerContruction.construct(&(*cpv), dbl_to_int( DDVectorGetter::get( "detIdShifts" )))));
+    return std::unique_ptr<GeometricDet> (const_cast<GeometricDet*>( theDDDCmsTrackerContruction.construct(&(*cpv), dbl_to_int( DDVectorGetter::get( "detIdShifts" )))));
   }
   else
   {
@@ -53,7 +53,7 @@ TrackerGeometricDetESModule::produce( const IdealGeometryRecord & iRecord )
     iRecord.get( pgd );
     
     CondDBCmsTrackerConstruction cdbtc;
-    return std::auto_ptr<GeometricDet> ( const_cast<GeometricDet*>( cdbtc.construct( *pgd )));
+    return std::unique_ptr<GeometricDet> ( const_cast<GeometricDet*>( cdbtc.construct( *pgd )));
   }
 }
 

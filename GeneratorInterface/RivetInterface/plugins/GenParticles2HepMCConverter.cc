@@ -198,9 +198,9 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   // Finalize HepMC event record
   hepmc_event->set_signal_process_vertex(*(vertex1->vertices_begin()));
 
-  std::auto_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
+  std::unique_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
   hepmc_product->addHepMCData(hepmc_event);
-  event.put(hepmc_product, "unsmeared");
+  event.put(std::move(hepmc_product), "unsmeared");
 
 }
 

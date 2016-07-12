@@ -18,7 +18,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-
 namespace HepMC {
 	class ThreeVector;
 }

@@ -24,7 +24,6 @@
 #include <memory>
 #include <fstream>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodSwitches.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -43,7 +42,7 @@ class ElectronLikelihoodESSource : public edm::ESProducer, public  edm::EventSet
   /// destructor
   ~ElectronLikelihoodESSource();
   /// define the return type
-  typedef std::auto_ptr<ElectronLikelihood> ReturnType;
+  typedef std::unique_ptr<ElectronLikelihood> ReturnType;
   /// return the particle table
   ReturnType produce( const ElectronLikelihoodRcd &);
   /// set validity interval

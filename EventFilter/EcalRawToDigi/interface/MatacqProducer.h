@@ -54,7 +54,7 @@ public:
 private:
 #ifdef USE_STORAGE_MANAGER
   typedef IOOffset filepos_t;
-  typedef std::auto_ptr<Storage> FILE_t;
+  typedef std::unique_ptr<Storage> FILE_t;
 #else
   typedef off_t filepos_t;
   typedef FILE* FILE_t;

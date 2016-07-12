@@ -27,22 +27,12 @@ class HGCDigitizerBase {
   /**
      @short CTOR
   */
-  HGCDigitizerBase(const edm::ParameterSet &ps)  {
-    bxTime_        = ps.getParameter<double>("bxTime");
-    myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
-    doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
-    if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");    
-    else                          keV2fC_   = 1.0;
-    if(myCfg_.exists("noise_fC")) noise_fC_ = myCfg_.getParameter<double>("noise_fC");
-    else                          noise_fC_ = 1.0;
-    edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
-    myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
-  }
+  HGCDigitizerBase(const edm::ParameterSet &ps); 
       
  /**
     @short steer digitization mode
  */
-  void run(std::auto_ptr<DColl> &digiColl, hgc::HGCSimHitDataAccumulator &simData, uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
+  void run(std::unique_ptr<DColl> &digiColl, hgc::HGCSimHitDataAccumulator &simData, uint32_t digitizationType,CLHEP::HepRandomEngine* engine);
   
   /**
      @short getters
@@ -54,17 +44,17 @@ class HGCDigitizerBase {
   /**
      @short a trivial digitization: sum energies and digitize without noise
    */
-  void runSimple(std::auto_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
+  void runSimple(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine);
   
   /**
      @short prepares the output according to the number of time samples to produce
   */
-  void updateOutput(std::auto_ptr<DColl> &coll, const DFr& rawDataFrame);
+  void updateOutput(std::unique_ptr<DColl> &coll, const DFr& rawDataFrame);
   
   /**
      @short to be specialized by top class
   */
-  virtual void runDigitizer(std::auto_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
+  virtual void runDigitizer(std::unique_ptr<DColl> &coll, hgc::HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
   {
     throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
   }
@@ -86,7 +76,7 @@ class HGCDigitizerBase {
   float keV2fC_;
   
   //noise level
-  float noise_fC_;
+  std::vector<float> noise_fC_;
   
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;

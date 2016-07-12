@@ -2,7 +2,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -64,7 +64,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
     gdsubdetmap[subdetgd[i]->geographicalId().subdetId()-1]= subdetgd[i]->type();
     LogTrace("SubDetectorGeometricDetType") << "subdet " << i 
 					    << " type " << subdetgd[i]->type()
-					    << " detid " <<  subdetgd[i]->geographicalId()
+					    << " detid " <<  subdetgd[i]->geographicalId().rawId()
 					    << " subdetid " <<  subdetgd[i]->geographicalId().subdetId();
   }
   

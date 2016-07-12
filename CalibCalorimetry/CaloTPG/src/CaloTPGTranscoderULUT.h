@@ -64,7 +64,7 @@ public:
   std::vector<int> ZS;
   std::vector<int> LUTfactor;
 
-  unsigned int size;
+  unsigned int size; 
   std::vector<std::vector<LUT> > outputLUT_;
   std::vector<RCTdecompression> hcaluncomp_;
 };

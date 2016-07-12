@@ -106,12 +106,8 @@ L1TriggerKeyDummyProd::ReturnType
 L1TriggerKeyDummyProd::produce(const L1TriggerKeyRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TriggerKey> pL1TriggerKey ;
 
-   pL1TriggerKey = boost::shared_ptr< L1TriggerKey >(
-      new L1TriggerKey( m_key ) ) ;
-
-   return pL1TriggerKey ;
+   return std::make_shared< L1TriggerKey >(m_key) ;
 }
 
 //define this as a plug-in

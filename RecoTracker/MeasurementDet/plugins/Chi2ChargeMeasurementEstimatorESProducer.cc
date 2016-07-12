@@ -96,7 +96,7 @@ bool Chi2ChargeMeasurementEstimator::preFilter(const TrajectoryStateOnSurface& t
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -110,10 +110,10 @@ class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   Chi2ChargeMeasurementEstimatorESProducer(const edm::ParameterSet & p);
   virtual ~Chi2ChargeMeasurementEstimatorESProducer(); 
-  boost::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
+  std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
  private:
-  boost::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
+  std::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
   const edm::ParameterSet m_pset;
 };
 
@@ -145,7 +145,7 @@ Chi2ChargeMeasurementEstimatorESProducer::Chi2ChargeMeasurementEstimatorESProduc
 
 Chi2ChargeMeasurementEstimatorESProducer::~Chi2ChargeMeasurementEstimatorESProducer() {}
 
-boost::shared_ptr<Chi2MeasurementEstimatorBase> 
+std::shared_ptr<Chi2MeasurementEstimatorBase> 
 Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 
   auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
@@ -157,9 +157,9 @@ Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord
   auto minGoodStripCharge  =  clusterChargeCut(m_pset);
   auto pTChargeCutThreshold=   m_pset.getParameter<double>("pTChargeCutThreshold");
 
-  m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(
-	new Chi2ChargeMeasurementEstimator(minGoodPixelCharge, minGoodStripCharge, pTChargeCutThreshold,
-                                            maxChi2,nSigma, maxDis, maxSag, minTol) ); 
+  m_estimator = std::make_shared<Chi2ChargeMeasurementEstimator>(
+                                            minGoodPixelCharge, minGoodStripCharge, pTChargeCutThreshold,
+                                            maxChi2,nSigma, maxDis, maxSag, minTol);
 
   return m_estimator;
 }

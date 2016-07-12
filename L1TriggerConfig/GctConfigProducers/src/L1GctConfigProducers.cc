@@ -129,8 +129,7 @@ L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd& aRcd)
   geomRcd.get( geom ) ;
   
   // construct jet finder params object
-  boost::shared_ptr<L1GctJetFinderParams> pL1GctJetFinderParams =
-    boost::shared_ptr<L1GctJetFinderParams> (new L1GctJetFinderParams(m_rgnEtLsb,
+  auto pL1GctJetFinderParams = std::make_shared<L1GctJetFinderParams>(m_rgnEtLsb,
 								      m_htLsb,
 								      m_CenJetSeed,
 								      m_FwdJetSeed,
@@ -143,7 +142,7 @@ L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd& aRcd)
 								      m_jetCalibFunc,
 								      m_tauCalibFunc,
 								      m_convertToEnergy,
-								      etToEnergyConversion(geom.product())) );
+								      etToEnergyConversion(geom.product()));
   
   return pL1GctJetFinderParams ;
 
@@ -161,7 +160,7 @@ L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {
     if (((m_thtEtaMask>>ieta)&0x1)==1) mask->maskTotalHt(ieta);
   }
 
-  return boost::shared_ptr<L1GctChannelMask>(mask);
+  return std::shared_ptr<L1GctChannelMask>(mask);
 
 }
 

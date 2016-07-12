@@ -27,16 +27,16 @@ namespace HepPDT {
 
 class OscarMTMasterThread {
 public:
-  OscarMTMasterThread(const edm::ParameterSet& iConfig);
+  explicit OscarMTMasterThread(const edm::ParameterSet& iConfig);
   ~OscarMTMasterThread();
 
   void beginRun(const edm::EventSetup& iSetup) const;
   void endRun() const;
   void stopThread();
 
-  const RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
-  const RunManagerMT *runManagerMasterPtr() const { return m_runManagerMaster.get(); }
-  
+  inline RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
+  inline RunManagerMT *runManagerMasterPtr() const { return m_runManagerMaster.get(); }
+
 private:
   void readES(const edm::EventSetup& iSetup) const;
 

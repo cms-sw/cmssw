@@ -32,7 +32,7 @@ SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer
 }
 
 
-boost::shared_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProducer::produce(const SiStripBackPlaneCorrectionDepRcd& iRecord)
+std::shared_ptr<SiStripBackPlaneCorrection> SiStripBackPlaneCorrectionDepESProducer::produce(const SiStripBackPlaneCorrectionDepRcd& iRecord)
 {
 
   edm::LogInfo("SiStripBackPlaneCorrectionDepESProducer") << "Producer called" << std::endl;

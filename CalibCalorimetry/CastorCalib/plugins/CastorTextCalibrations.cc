@@ -106,8 +106,8 @@ CastorTextCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordK
 }
 
 template <class T>
-std::auto_ptr<T> produce_impl (const std::string& fFile) {
-  std::auto_ptr<T> result (new T ());
+std::unique_ptr<T> produce_impl (const std::string& fFile) {
+  std::unique_ptr<T> result (new T ());
   std::ifstream inStream (fFile.c_str ());
   if (!inStream.good ()) {
     std::cerr << "CastorTextCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
@@ -121,38 +121,38 @@ std::auto_ptr<T> produce_impl (const std::string& fFile) {
 }
 
 
-std::auto_ptr<CastorPedestals> CastorTextCalibrations::producePedestals (const CastorPedestalsRcd&) {
+std::unique_ptr<CastorPedestals> CastorTextCalibrations::producePedestals (const CastorPedestalsRcd&) {
   return produce_impl<CastorPedestals> (mInputs ["Pedestals"]);
 }
 
-std::auto_ptr<CastorPedestalWidths> CastorTextCalibrations::producePedestalWidths (const CastorPedestalWidthsRcd&) {
+std::unique_ptr<CastorPedestalWidths> CastorTextCalibrations::producePedestalWidths (const CastorPedestalWidthsRcd&) {
   return produce_impl<CastorPedestalWidths> (mInputs ["PedestalWidths"]);
 }
 
-std::auto_ptr<CastorGains> CastorTextCalibrations::produceGains (const CastorGainsRcd&) {
+std::unique_ptr<CastorGains> CastorTextCalibrations::produceGains (const CastorGainsRcd&) {
   return produce_impl<CastorGains> (mInputs ["Gains"]);
 }
 
-std::auto_ptr<CastorGainWidths> CastorTextCalibrations::produceGainWidths (const CastorGainWidthsRcd&) {
+std::unique_ptr<CastorGainWidths> CastorTextCalibrations::produceGainWidths (const CastorGainWidthsRcd&) {
   return produce_impl<CastorGainWidths> (mInputs ["GainWidths"]);
 }
 
-std::auto_ptr<CastorQIEData> CastorTextCalibrations::produceQIEData (const CastorQIEDataRcd& rcd) {
+std::unique_ptr<CastorQIEData> CastorTextCalibrations::produceQIEData (const CastorQIEDataRcd& rcd) {
   return produce_impl<CastorQIEData> (mInputs ["QIEData"]);
 }
 
-std::auto_ptr<CastorChannelQuality> CastorTextCalibrations::produceChannelQuality (const CastorChannelQualityRcd& rcd) {
+std::unique_ptr<CastorChannelQuality> CastorTextCalibrations::produceChannelQuality (const CastorChannelQualityRcd& rcd) {
   return produce_impl<CastorChannelQuality> (mInputs ["ChannelQuality"]);
 }
 
-std::auto_ptr<CastorElectronicsMap> CastorTextCalibrations::produceElectronicsMap (const CastorElectronicsMapRcd& rcd) {
+std::unique_ptr<CastorElectronicsMap> CastorTextCalibrations::produceElectronicsMap (const CastorElectronicsMapRcd& rcd) {
   return produce_impl<CastorElectronicsMap> (mInputs ["ElectronicsMap"]);
 }
 
-std::auto_ptr<CastorRecoParams> CastorTextCalibrations::produceRecoParams (const CastorRecoParamsRcd& rcd) {
+std::unique_ptr<CastorRecoParams> CastorTextCalibrations::produceRecoParams (const CastorRecoParamsRcd& rcd) {
   return produce_impl<CastorRecoParams> (mInputs ["RecoParams"]);
 }
 
-std::auto_ptr<CastorSaturationCorrs> CastorTextCalibrations::produceSaturationCorrs (const CastorSaturationCorrsRcd& rcd) {
+std::unique_ptr<CastorSaturationCorrs> CastorTextCalibrations::produceSaturationCorrs (const CastorSaturationCorrsRcd& rcd) {
   return produce_impl<CastorSaturationCorrs> (mInputs ["SaturationCorrs"]);
 }

@@ -2,6 +2,7 @@
 #include "Math/SMatrix.h"
 #include <cmath>
 #include <cstddef>
+#include <random>
 
 typedef unsigned int IndexType;
 //typedef unsigned long long IndexType;

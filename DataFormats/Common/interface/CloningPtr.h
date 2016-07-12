@@ -32,7 +32,7 @@ namespace edm {
 public:
     CloningPtr(): ptr_(nullptr) {}
     CloningPtr(const T& iPtr) : ptr_(P::clone(iPtr)) {}
-    CloningPtr(std::auto_ptr<T> iPtr) : ptr_(iPtr.release()) {}
+    CloningPtr(std::unique_ptr<T> iPtr) : ptr_(iPtr.release()) {}
     CloningPtr(const CloningPtr<T,P>& iPtr) : ptr_(P::clone(*(iPtr.ptr_))) {}
     
     CloningPtr<T,P>& operator=(const CloningPtr<T,P>& iRHS) {

@@ -11,6 +11,7 @@
 ///  last update: $Date: 2012/06/13 16:23:30 $
 ///  by         : $Author: yana $
 
+#include <memory>
 #include <vector>
 
 // Framework
@@ -71,11 +72,11 @@ class AlignmentProducer : public edm::ESProducerLooper
   ~AlignmentProducer();
 
   /// Produce the tracker geometry
-  virtual boost::shared_ptr<TrackerGeometry> produceTracker( const TrackerDigiGeometryRecord& iRecord );
+  virtual std::shared_ptr<TrackerGeometry> produceTracker( const TrackerDigiGeometryRecord& iRecord );
   /// Produce the muon DT geometry
-  virtual boost::shared_ptr<DTGeometry>      produceDT( const MuonGeometryRecord& iRecord );
+  virtual std::shared_ptr<DTGeometry>      produceDT( const MuonGeometryRecord& iRecord );
   /// Produce the muon CSC geometry
-  virtual boost::shared_ptr<CSCGeometry>     produceCSC( const MuonGeometryRecord& iRecord );
+  virtual std::shared_ptr<CSCGeometry>     produceCSC( const MuonGeometryRecord& iRecord );
 
   /// Called at beginning of job
   virtual void beginOfJob(const edm::EventSetup&);
@@ -163,9 +164,9 @@ class AlignmentProducer : public edm::ESProducerLooper
   AlignableTracker* theAlignableTracker;
   AlignableMuon* theAlignableMuon;
 
-  boost::shared_ptr<TrackerGeometry> theTracker;
-  boost::shared_ptr<DTGeometry> theMuonDT;
-  boost::shared_ptr<CSCGeometry> theMuonCSC;
+  std::shared_ptr<TrackerGeometry> theTracker;
+  std::shared_ptr<DTGeometry> theMuonDT;
+  std::shared_ptr<CSCGeometry> theMuonCSC;
   /// GlobalPositions that might be read from DB, NULL otherwise
   const Alignments *globalPositions_;
 

@@ -47,9 +47,7 @@ int main() try {
 
   edm::ActivityRegistry ar;
   edm::ParameterSet pset;
-  std::auto_ptr<Service0> s0(new Service0(pset, ar));  
-  auto wrapper = std::make_shared<ServiceWrapper<Service0> >(s0);
-  legacy->put(wrapper);
+  legacy->put(std::make_shared<ServiceWrapper<Service0>>(std::make_unique<Service0>(pset, ar)));
   legacy->copySlotsFrom(ar);
   edm::ServiceToken legacyToken = TestServicesManagerOrder::makeToken(legacy);
 
@@ -83,9 +81,7 @@ int main() try {
 
   edm::ActivityRegistry ar4;
   edm::ParameterSet pset4;
-  std::auto_ptr<Service4> s4(new Service4(pset4, ar4));  
-  auto wrapper4 = std::make_shared<ServiceWrapper<Service4> >(s4);
-  sm.put(wrapper4);
+  sm.put(std::make_shared<ServiceWrapper<Service4>>(std::make_unique<Service4>(pset4, ar4)));
   sm.copySlotsFrom(ar4);
 
 

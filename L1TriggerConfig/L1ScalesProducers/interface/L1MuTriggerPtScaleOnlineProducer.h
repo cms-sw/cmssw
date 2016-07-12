@@ -35,7 +35,7 @@ public:
   L1MuTriggerPtScaleOnlineProducer(const edm::ParameterSet&);
   ~L1MuTriggerPtScaleOnlineProducer();
   
-  boost::shared_ptr<L1MuTriggerPtScale> newObject(const std::string& objectKey);
+  std::shared_ptr<L1MuTriggerPtScale> newObject(const std::string& objectKey);
 
 private:
   // ----------member data ---------------------------

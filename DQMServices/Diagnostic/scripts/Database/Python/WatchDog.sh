@@ -12,7 +12,7 @@ Dir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/Cron/Scripts/RunSelection/Test
 PID=`ps ax | grep -v grep | grep "${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_StreamExpress.cfg" | awk '{print $1}'`
 if [ ! "${PID}" ]; then
     echo "HDQMDatabaseProducer.py for StreamExpress not running, restarting it at" `date`
-    /usr/bin/python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_StreamExpress.cfg
+    /usr/bin/env python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_StreamExpress.cfg
 else
     echo "HDQMDatabaseProducer.py for StreamExpress still running at" `date`
 fi
@@ -21,7 +21,7 @@ fi
 PID=`ps ax | grep -v grep | grep "${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_MinimumBias.cfg" | awk '{print $1}'`
 if [ ! "${PID}" ]; then
     echo "HDQMDatabaseProducer.py for MinimumBias not running, restarting it at" `date`
-    /usr/bin/python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_MinimumBias.cfg
+    /usr/bin/env python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_MinimumBias.cfg
 else
     echo "HDQMDatabaseProducer.py for MinimumBias still running at" `date`
 fi
@@ -30,7 +30,7 @@ fi
 PID=`ps ax | grep -v grep | grep "${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_Cosmics.cfg" | awk '{print $1}'`
 if [ ! "${PID}" ]; then
     echo "HDQMDatabaseProducer.py for Cosmics not running, restarting it at" `date`
-    /usr/bin/python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_Cosmics.cfg
+    /usr/bin/env python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_Cosmics.cfg
 else
     echo "HDQMDatabaseProducer.py for Cosmics still running at" `date`
 fi
@@ -53,9 +53,9 @@ if [ ! "${PID1}" ]; then
 		    if [ ! "${PIDRPC3}" ]; then
 
 			echo "HDQMDatabaseProducer.py for StreamExpress not running, restarting it at" `date`
-			/usr/bin/python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_StreamExpressRPC.cfg
-			/usr/bin/python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_MinimumBiasRPC.cfg
-			/usr/bin/python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_CosmicsRPC.cfg
+			/usr/bin/env python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_StreamExpressRPC.cfg
+			/usr/bin/env python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_MinimumBiasRPC.cfg
+			/usr/bin/env python ${Dir}/HDQMDatabaseProducer.py ${Dir}/HDQMDatabaseProducerConfiguration_CosmicsRPC.cfg
 		    fi
 		fi
 	    fi

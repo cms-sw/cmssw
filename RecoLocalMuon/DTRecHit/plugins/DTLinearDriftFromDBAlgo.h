@@ -1,4 +1,4 @@
-#ifndef RecoLocalMuon_DTLinearDrifFromDBtAlgo_H
+#ifndef RecoLocalMuon_DTLinearDriftFromDBAlgo_H
 #define RecoLocalMuon_DTLinearDriftFromDBAlgo_H
 
 /** \class DTLinearDriftFromDBAlgo
@@ -111,6 +111,4 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
   // Switch on/off the verbosity
   const bool debug;
 };
-#endif
-
-
+#endif // RecoLocalMuon_DTLinearDriftFromDBAlgo_H

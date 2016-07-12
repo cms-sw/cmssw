@@ -24,7 +24,6 @@
 #include <memory>
 
 // system include files
-#include <boost/shared_ptr.hpp>
 
 // user include files
 

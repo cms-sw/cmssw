@@ -78,7 +78,7 @@ private:
 
   int closeDescriptors(int preserve);
   void executeScript();
-  std::auto_ptr<std::string> readOutput();
+  std::unique_ptr<std::string> readOutput();
 
   virtual void nextEvent();
   
@@ -158,7 +158,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     << "in case of phase space integration or uneweighting efficiency problems.";
   }
 
-  std::auto_ptr<LHEEventProduct> product(
+  std::unique_ptr<LHEEventProduct> product(
 	       new LHEEventProduct(*partonLevel->getHEPEUP(),
 				   partonLevel->originalXWGTUP())
 	       );
@@ -177,7 +177,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 boost::bind(&LHEEventProduct::addComment,
                             product.get(), _1));
 
-  iEvent.put(product);
+  iEvent.put(std::move(product));
 
   if (runInfo) {
     std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
@@ -238,7 +238,7 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   executeScript();
   
   //fill LHEXMLProduct (streaming read directly into compressed buffer to save memory)
-  std::auto_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct);  
+  std::unique_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct);
   std::ifstream instream(outputFile_);
   if (!instream) {
     throw cms::Exception("OutputOpenError") << "Unable to open script output file " << outputFile_ << ".";
@@ -248,21 +248,21 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   instream.seekg (0, instream.beg);  
   p->fillCompressedContent(instream, 0.25*insize);
   instream.close();
-  run.put(p, "LHEScriptOutput");
+  run.put(std::move(p), "LHEScriptOutput");
 
   // LHE C++ classes translation
   // (read back uncompressed file from disk in streaming mode again to save memory)
 
   std::vector<std::string> infiles(1, outputFile_);
   unsigned int skip = 0;
-  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(infiles, skip ) );
+  std::auto_ptr<lhef::LHEReader> thisRead(new lhef::LHEReader(infiles, skip));
   reader_ = thisRead;
 
   nextEvent();
   if (runInfoLast) {
     runInfo = runInfoLast;
   
-    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
     std::for_each(runInfo->getHeaders().begin(),
                   runInfo->getHeaders().end(),
                   boost::bind(&LHERunInfoProduct::addHeader,
@@ -276,7 +276,7 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
     runInfoProducts.push_back(new LHERunInfoProduct(*product));
     wasMerged = false;
   
-    run.put(product);
+    run.put(std::move(product));
   
     runInfo.reset();
   }
@@ -289,8 +289,8 @@ ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
 {
 
   if (!runInfoProducts.empty()) {
-    std::auto_ptr<LHERunInfoProduct> product(runInfoProducts.pop_front().release());
-    run.put(product);
+    std::unique_ptr<LHERunInfoProduct> product(runInfoProducts.pop_front().release());
+    run.put(std::move(product));
   }
   
   nextEvent();
@@ -434,7 +434,7 @@ ExternalLHEProducer::executeScript()
 
 // ------------ Read the output script ------------
 #define BUFSIZE 4096
-std::auto_ptr<std::string> ExternalLHEProducer::readOutput()
+std::unique_ptr<std::string> ExternalLHEProducer::readOutput()
 {
   int fd;
   ssize_t n;
@@ -457,7 +457,7 @@ std::auto_ptr<std::string> ExternalLHEProducer::readOutput()
     throw cms::Exception("OutputDeleteError") << "Unable to delete original script output file " << outputFile_ << " (errno=" << errno << ", " << strerror(errno) << ").";
   }
 
-  return std::auto_ptr<std::string>(new std::string(ss.str()));
+  return std::unique_ptr<std::string>(new std::string(ss.str()));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

@@ -15,13 +15,14 @@ class HGCSample {
 public:
 
   enum HGCSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kToAMask = 0x3ff, kDataMask = 0xfff};
-  enum HGCSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 16,   kDataShift = 0};
+  enum HGCSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 13,   kDataShift = 0};
 
   /**
      @short CTOR
    */
  HGCSample() : value_(0) { }
  HGCSample(uint32_t value) : value_(value) { }
+ HGCSample( const HGCSample& o ) : value_(o.value_) { }
 
   /**
      @short setters
@@ -32,10 +33,10 @@ public:
   void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
   void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
   { 
-    setThreshold(thr);
-    setMode(mode);
-    setToA(toa);
-    setData(data);
+    value_ = ( ( (uint32_t)thr  & kThreshMask ) << kThreshShift | 
+               ( (uint32_t)mode & kModeMask   ) << kModeShift   |
+               ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
+               ( (uint32_t)data & kDataMask   ) << kDataShift     );    
   }  
   void print(std::ostream &out=std::cout)
   {
@@ -50,10 +51,10 @@ public:
      @short getters
   */
   uint32_t raw()  const      { return value_;                   }
-  bool threshold() const     { return ((value_ >> 31) & 0x1 );  }
-  bool mode() const          { return ((value_ >> 30) & 0x1 );  }
-  uint32_t toa()  const      { return ((value_ >> 16) & 0x3ff); }
-  uint32_t data()  const     { return ((value_ >> 0)  & 0xfff); }
+  bool threshold() const     { return ( (value_ >> kThreshShift) & kThreshMask );  }
+  bool mode() const          { return ( (value_ >> kModeShift)   & kModeMask   );  }
+  uint32_t toa()  const      { return ( (value_ >> kToAShift)    & kToAMask    ); }
+  uint32_t data()  const     { return ( (value_ >> kDataShift)   & kDataMask   ); }
   uint32_t operator()()      { return value_;                   }
   
 private:
@@ -64,9 +65,10 @@ private:
   void setWord(uint32_t word, uint32_t mask, uint32_t pos)
   {
     //clear required bits
-    value_ &= ~((word & mask) << pos); 
+    const uint32_t masked_word = (word & mask) << pos;
+    value_ &= ~(masked_word); 
     //now set the new value
-    value_ |= ((word & mask) << pos);
+    value_ |= (masked_word);
   }
 
   // a 32-bit word

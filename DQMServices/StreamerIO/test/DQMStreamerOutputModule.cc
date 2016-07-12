@@ -1,6 +1,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -39,11 +39,9 @@ class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
   virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
   virtual void doOutputEvent(EventMsgBuilder const& msg) override;
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&,
-                                    edm::ModuleCallingContext const*) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
-  virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&,
-                                  edm::ModuleCallingContext const*) override;
+  virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
  private:
   std::string streamLabel_;
@@ -95,7 +93,7 @@ void DQMStreamerOutputModule::doOutputEvent(EventMsgBuilder const& msg) {
 }
 
 void DQMStreamerOutputModule::beginLuminosityBlock(
-    edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*) {
+    edm::LuminosityBlockForOutput const& ls) {
 
   std::cout << "DQMStreamerOutputModule : begin lumi." << std::endl;
 
@@ -130,7 +128,7 @@ void DQMStreamerOutputModule::beginLuminosityBlock(
 }
 
 void DQMStreamerOutputModule::endLuminosityBlock(
-    edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*) {
+    edm::LuminosityBlockForOutput const& ls) {
 
   std::cout << "DQMStreamerOutputModule : end lumi " << std::endl;
   stream_writer_events_.reset();

@@ -1,12 +1,15 @@
 #ifndef DDL_Parallelepiped_H
 #define DDL_Parallelepiped_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLParallelepiped processes all Parallelepiped elements.
 /** @class DDLParallelepiped

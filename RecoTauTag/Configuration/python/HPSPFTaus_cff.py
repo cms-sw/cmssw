@@ -28,7 +28,7 @@ ak4dBetaCorrection = 0.20
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 
 ## Selection of taus that pass the HPS selections: pt > 15, mass cuts, tauCone cut
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator, decayMode_1Prong0Pi0, decayMode_1Prong1Pi0, decayMode_1Prong2Pi0, decayMode_2Prong0Pi0, decayMode_2Prong1Pi0, decayMode_3Prong0Pi0
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator, decayMode_1Prong0Pi0, decayMode_1Prong1Pi0, decayMode_1Prong2Pi0, decayMode_2Prong0Pi0, decayMode_2Prong1Pi0, decayMode_3Prong0Pi0, decayMode_3Prong1Pi0
 
 hpsPFTauDiscriminationByDecayModeFindingNewDMs = hpsSelectionDiscriminator.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
@@ -40,7 +40,8 @@ hpsPFTauDiscriminationByDecayModeFindingNewDMs = hpsSelectionDiscriminator.clone
         decayMode_1Prong2Pi0,
         decayMode_2Prong0Pi0,
         decayMode_2Prong1Pi0,
-        decayMode_3Prong0Pi0
+        decayMode_3Prong0Pi0,
+        decayMode_3Prong1Pi0,
     )
     #----------------------------------------------------------------------------
 )
@@ -395,7 +396,8 @@ hpsSelectionDiscriminator.decayModes = cms.VPSet(
     decayMode_1Prong2Pi0,
     decayMode_2Prong0Pi0,
     decayMode_2Prong1Pi0,
-    decayMode_3Prong0Pi0
+    decayMode_3Prong0Pi0,
+    decayMode_3Prong1Pi0,
 )
 #----------------------------------------------------------------------------
 

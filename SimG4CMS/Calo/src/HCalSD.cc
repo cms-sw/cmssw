@@ -49,12 +49,11 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   hfshower(0), showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
   m_HFDarkening(0) {
 
-  //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
   //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
   //static SimpleConfigurable<double> bk3(1.75,  "HCalSD:BirkC3");
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
-  //static SimpleConfigurable<bool> on2(true,"HCalSD:UseShowerLibrary");
+
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
   useBirk          = m_HC.getParameter<bool>("UseBirkLaw");
   birk1            = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
@@ -316,7 +315,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   hzvem = hzvhad = 0;
 
   if (ageingFlagHE) m_HEDarkening = new HEDarkening();
-  if (ageingFlagHF) m_HFDarkening = new HFDarkening();
+    if (ageingFlagHF) m_HFDarkening = new HFDarkening(m_HC.getParameter<edm::ParameterSet>("HFDarkeningParameterBlock"));
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
 
@@ -386,12 +385,12 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 	G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
 	double r = hitPoint.perp()/CLHEP::cm;
 	double z = std::abs(hitPoint.z())/CLHEP::cm;
-	float dose_acquired = 0.;
-	if (z>=1100 && z <= 1300) {
-	  int hfZLayer = (int)((z - 1100)/20);
-	  if (hfZLayer > 9) hfZLayer = 9;
+	double dose_acquired = 0.;
+  if (z>=HFDarkening::lowZLimit && z <= HFDarkening::upperZLimit) {
+    unsigned int hfZLayer = (int)((z - HFDarkening::lowZLimit)/5);
+    if (hfZLayer >= HFDarkening::upperZLimit) hfZLayer = (HFDarkening::upperZLimit-1);
 	  float normalized_lumi = m_HFDarkening->int_lumi(deliveredLumi);
-	  for (int i = hfZLayer; i <= 9; ++i) {
+    for (int i = hfZLayer; i != HFDarkening::numberOfZLayers; ++i) {
 	    dose_acquired = m_HFDarkening->dose(i,r);
 	    weight *= m_HFDarkening->degradation(normalized_lumi*dose_acquired);
 	  }
@@ -539,26 +538,6 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   }
   double wt1 = getResponseWt(theTrack);
   double wt2 = theTrack->GetWeight();
-  /*
-  if (wt2 != 1.0) { 
-    edm::LogInfo("HcalSim") << "HCalSD: Detector " << det+3 << " Depth " 
-			    << depth << " weight= " << weight << " wt1= " 
-			    << wt1 << " wt2= " << wt2;
-    const G4VProcess* pr = theTrack->GetCreatorProcess();
-    if (pr) {
-      edm::LogInfo("HcalSim") << theTrack->GetDefinition()->GetParticleName()
-			      << " " << theTrack->GetKineticEnergy()
-			      << " Id=" << theTrack->GetTrackID()
-			      << " IdP=" << theTrack->GetParentID()
-			      << " from  " << pr->GetProcessName();
-    } else {
-      edm::LogInfo("HcalSim") << theTrack->GetDefinition()->GetParticleName()
-			      << " " << theTrack->GetKineticEnergy()
-			      << " Id=" << theTrack->GetTrackID()
-			      << " IdP=" << theTrack->GetParentID();
-    }
-  }
-  */
 #ifdef DebugLog
   edm::LogInfo("HcalSim") << "HCalSD: Detector " << det+3 << " Depth " << depth
                           << " weight " << weight0 << " " << weight << " " << wt1 
@@ -654,7 +633,6 @@ bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
   }
   return ((time <= tmaxHit) && (aHit->getEnergyDeposit() > threshold));
 }
-
 
 uint32_t HCalSD::setDetUnitId (int det, const G4ThreeVector& pos, int depth, int lay=1) { 
   uint32_t id = 0;
@@ -1142,8 +1120,8 @@ void HCalSD::plotProfile(G4Step* aStep,const G4ThreeVector& global, double edep,
                          double time, int id) { 
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  static G4String modName[8] = {"HEModule", "HVQF" , "HBModule", "MBAT",
-                                "MBBT"    , "MBBTC", "MBBT_R1P", "MBBT_R1M"};
+  static const G4String modName[8] = {"HEModule", "HVQF" , "HBModule", "MBAT",
+				      "MBBT"    , "MBBTC", "MBBT_R1P", "MBBT_R1M"};
   G4ThreeVector local;
   bool found=false;
   double depth=-2000;

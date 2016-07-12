@@ -6,7 +6,7 @@
 // user include files
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Calibration/HcalCalibAlgos/plugins/Analyzer_minbias.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -342,14 +342,13 @@ namespace cms{
 
     float rnnum = (float)iEvent.run(); 
 
-    std::vector<Provenance const*> theProvenance;
-    iEvent.getAllProvenance(theProvenance);
+    std::vector<StableProvenance const*> theProvenance;
+    iEvent.getAllStableProvenance(theProvenance);
 
-    for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
-	 ip != theProvenance.end(); ip++) {
+    for(auto const& provenance : theProvenance) {
       edm::LogInfo("AnalyzerMB")<<" Print all process/modulelabel/product names "
-	       <<(**ip).processName()<<" , "<<(**ip).moduleLabel()<<" , "
-	       <<(**ip).productInstanceName();
+	       <<provenance->processName()<<" , "<<provenance->moduleLabel()<<" , "
+	       <<provenance->productInstanceName();
     }
     /*
       edm::Handle<FEDRawDataCollection> rawdata;  

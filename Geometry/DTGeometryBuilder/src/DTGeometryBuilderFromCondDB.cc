@@ -38,7 +38,7 @@ DTGeometryBuilderFromCondDB::~DTGeometryBuilderFromCondDB() {
 
 /* Operations */ 
 void
-DTGeometryBuilderFromCondDB::build(boost::shared_ptr<DTGeometry> theGeometry,
+DTGeometryBuilderFromCondDB::build(std::shared_ptr<DTGeometry> theGeometry,
                                    const RecoIdealGeometry& rig) {
   //  cout << "DTGeometryBuilderFromCondDB " << endl;
   const std::vector<DetId>& detids(rig.detIds());

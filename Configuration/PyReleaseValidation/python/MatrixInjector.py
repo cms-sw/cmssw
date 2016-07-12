@@ -183,8 +183,8 @@ class MatrixInjector(object):
             wmsplit['TTbar_13_ID']=1
             wmsplit['SingleMuPt10FS_ID']=1
             wmsplit['TTbarFS_ID']=1
-            wmsplit['RECODR2_50nsreHLT']=1
-            wmsplit['RECODR2_25nsreHLT']=1
+            wmsplit['RECODR2_50nsreHLT']=5
+            wmsplit['RECODR2_25nsreHLT']=5
             wmsplit['RECODR2_2016reHLT']=5
             wmsplit['RECODR2_2016reHLT_skimSingleMu']=5
             wmsplit['RECODR2_2016reHLT_skimDoubleEG']=5
@@ -195,10 +195,14 @@ class MatrixInjector(object):
             wmsplit['HLTDR2_25ns']=1
             wmsplit['HLTDR2_2016']=1
             wmsplit['Hadronizer']=1
-            wmsplit['DIGIUP15']=5
-            wmsplit['RECOUP15']=5
+            wmsplit['DIGIUP15']=1 
+            wmsplit['RECOUP15']=1 
             wmsplit['RECOAODUP15']=5
             wmsplit['DBLMINIAODMCUP15NODQM']=5
+            wmsplit['DigiFull']=5
+            wmsplit['RecoFull']=5
+            wmsplit['DigiFullPU']=1
+            wmsplit['RecoFullPU']=1
 
                                     
             #import pprint

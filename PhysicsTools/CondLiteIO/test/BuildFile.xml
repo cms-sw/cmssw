@@ -8,7 +8,7 @@
    </library>
    
    <bin name="testPhysicsToolsCondLiteIO"
-      file="recordwriter.cppunit.cpp">
+      file="recordwriter.cppunit.cpp,record.cppunit.cpp">
       <use name="rootcore"/>
       <use name="DataFormats/StdDictionaries"/>
       <use name="DataFormats/TestObjects"/>

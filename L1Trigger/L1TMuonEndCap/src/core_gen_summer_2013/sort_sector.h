@@ -123,7 +123,7 @@ class sort_sector
 
 			void init();
 		};
-		map <ull, ph_zone__class> ph_zone;
+		std::map <ull, ph_zone__class> ph_zone;
 
 		void init();
 	};

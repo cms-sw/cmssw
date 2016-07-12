@@ -1,5 +1,7 @@
 #include "DetectorDescription/Core/interface/DDPartSelectionExpander.h"
 
+class DDPartSelection;
+
 DDPartSelectionExpander::DDPartSelectionExpander(const DDCompactView & cpv)
  : graph_(cpv.graph())
  { }

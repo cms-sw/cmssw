@@ -1,12 +1,15 @@
 #ifndef DDL_ShapelessSolid_H
 #define DDL_ShapelessSolid_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLShapelessSolid processes ShapelessSolid elements.
 /** @class DDLShapelessSolid

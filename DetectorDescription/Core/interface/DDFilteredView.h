@@ -1,11 +1,18 @@
 #ifndef DDCore_DDFilteredView_h
 #define DDCore_DDFilteredView_h
 
-#include <vector>
 #include <utility>
+#include <vector>
+
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 
+class DDCompactView;
+class DDLogicalPart;
 class DDScope;
 
 class DDFilteredView

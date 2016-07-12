@@ -1,4 +1,4 @@
-from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable
+from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
@@ -120,7 +120,7 @@ import __builtin__
 class bool(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        return (isinstance(value,type(False)) or isinstance(value(type(True))))
+        return (isinstance(value,type(False)) or isinstance(value,type(True)))
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
@@ -643,19 +643,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
     def clone(self, *args, **params):
         myparams = self.parameters_()
-        if len(params):
-            #need to treat items both in params and myparams specially
-            for key,value in params.iteritems():
-                if key in myparams:
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key] =value
-                    else:
-                        myparams[key].setValue(value)
-                else:
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key]=value
-                    else:
-                        self._Parameterizable__raiseBadSetAttr(key)
+        _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
         returnValue = PSet(**myparams)
         returnValue.setIsTracked(self.isTracked())
         returnValue._isModified = False
@@ -1258,6 +1246,7 @@ if __name__ == "__main__":
             b = bool._valueFromString("2")
             self.assertEqual(b.value(),True)
             self.assertEqual(repr(b), "cms.bool(True)")
+            self.assertRaises(ValueError, lambda: bool("False"))
         def testString(self):
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
@@ -1370,6 +1359,13 @@ if __name__ == "__main__":
             self.assertFalse(p4.b.isTracked())
             self.assertFalse(p4.a.b.isTracked())
             self.assert_(p4.b.b.isTracked())
+            p4 = p3.clone( i = None, b = dict(b = 5))
+            self.assertEqual(p3.i.value(), 1)
+            self.assertEqual(hasattr(p4,"i"), False)
+            self.assertEqual(p3.b.b.value(), 1)
+            self.assertEqual(p4.b.b.value(), 5)
+            self.assertEqual(p4.a.b.value(), 1)
+            self.assertEqual(p4.ui.value(), 2)
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)

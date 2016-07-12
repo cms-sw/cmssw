@@ -91,8 +91,7 @@ namespace edmtest {
   void
   IntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::unique_ptr<IntProduct> p(new IntProduct(value_));
-    e.put(std::move(p));
+    e.put(std::make_unique<IntProduct>(value_));
   }
 
   //--------------------------------------------------------------------
@@ -117,8 +116,7 @@ namespace edmtest {
   void
   IntLegacyProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::unique_ptr<IntProduct> p(new IntProduct(value_));
-    e.put(std::move(p));
+    e.put(std::make_unique<IntProduct>(value_));
   }
   
   //--------------------------------------------------------------------
@@ -147,8 +145,7 @@ namespace edmtest {
 
   void
   ConsumingIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
-    std::unique_ptr<IntProduct> p(new IntProduct(value_));
-    e.put(std::move(p));
+    e.put(std::make_unique<IntProduct>(value_));
   }
 
   //--------------------------------------------------------------------
@@ -172,8 +169,7 @@ namespace edmtest {
   void
   EventNumberIntProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
-    std::unique_ptr<UInt64Product> p(new UInt64Product(e.id().event()));
-    e.put(std::move(p));
+    e.put(std::make_unique<UInt64Product>(e.id().event()));
   }
 
 
@@ -199,8 +195,7 @@ namespace edmtest {
   void
   TransientIntProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
-    std::unique_ptr<TransientIntProduct> p(new TransientIntProduct(value_));
-    e.put(std::move(p));
+    e.put(std::make_unique<TransientIntProduct>(value_));
   }
 
   //--------------------------------------------------------------------
@@ -228,8 +223,7 @@ namespace edmtest {
     edm::Handle<TransientIntProduct> result;
     bool ok = e.getByLabel("TransientThing", result);
     assert(ok);
-    std::unique_ptr<IntProduct> p(new IntProduct(result.product()->value));
-    e.put(std::move(p));
+    e.put(std::make_unique<IntProduct>(result.product()->value));
   }
 
   //--------------------------------------------------------------------
@@ -254,8 +248,7 @@ namespace edmtest {
   void
   Int16_tProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // EventSetup is not used.
-    std::unique_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
-    e.put(std::move(p));
+    e.put(std::make_unique<Int16_tProduct>(value_));
   }
 
   //
@@ -285,8 +278,7 @@ namespace edmtest {
       e.getByLabel(label, anInt);
       value += anInt->value;
     }
-    std::unique_ptr<IntProduct> p(new IntProduct(value));
-    e.put(std::move(p));
+    e.put(std::make_unique<IntProduct>(value));
   }
 
 }

@@ -62,12 +62,12 @@ public:
   /** limitation of change in transverse direction
    *  (to avoid loops).
    */
-  virtual bool setMaxDirectionChange( float phiMax) { 
+  virtual bool setMaxDirectionChange( float phiMax) override { 
     theMaxDPhi2 = phiMax*phiMax;
     return true;
   }
   
-  virtual AnalyticalPropagator * clone() const 
+  virtual AnalyticalPropagator * clone() const override
   {
     return new AnalyticalPropagator(*this);
   }
@@ -113,7 +113,7 @@ private:
   bool propagateWithHelixCrossing(HelixPlaneCrossing&, const Plane&, const float,
 				  GlobalPoint&, GlobalVector&, double& s) const dso_internal;
 
-  virtual const MagneticField* magneticField() const {return theField;}
+  virtual const MagneticField* magneticField() const override {return theField;}
 
 private:
   typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;

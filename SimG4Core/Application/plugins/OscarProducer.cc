@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarProducer.h"
@@ -10,6 +11,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 
@@ -67,8 +69,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   usesResource(edm::SharedResourceNames::kCLHEPRandomEngine);
 
   consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
-  m_runManager.reset(new RunManager(p));
-  //m_runManager.reset(new RunManager(p, consumesCollector()));
+  m_runManager.reset(new RunManager(p, consumesCollector()));
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
@@ -164,16 +165,16 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 
     m_runManager->produce(e, es);
 
-    std::auto_ptr<edm::SimTrackContainer> 
+    std::unique_ptr<edm::SimTrackContainer>
       p1(new edm::SimTrackContainer);
-    std::auto_ptr<edm::SimVertexContainer> 
+    std::unique_ptr<edm::SimVertexContainer>
       p2(new edm::SimVertexContainer);
     G4SimEvent * evt = m_runManager->simEvent();
     evt->load(*p1);
     evt->load(*p2);   
 
-    e.put(p1);
-    e.put(p2);
+    e.put(std::move(p1));
+    e.put(std::move(p2));
 
     for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin(); 
 	 it != sTk.end(); ++it) {
@@ -182,10 +183,10 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
       for (std::vector<std::string>::iterator in = v.begin(); 
 	   in!= v.end(); ++in) {
 
-	std::auto_ptr<edm::PSimHitContainer> 
+	std::unique_ptr<edm::PSimHitContainer>
 	  product(new edm::PSimHitContainer);
 	(*it)->fillHits(*product,*in);
-	e.put(product,*in);
+	e.put(std::move(product),*in);
       }
     }
     for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin(); 
@@ -196,10 +197,10 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
       for (std::vector<std::string>::iterator in = v.begin(); 
 	   in!= v.end(); in++) {
 
-	std::auto_ptr<edm::PCaloHitContainer> 
+	std::unique_ptr<edm::PCaloHitContainer>
 	  product(new edm::PCaloHitContainer);
 	(*it)->fillHits(*product,*in);
-	e.put(product,*in);
+	e.put(std::move(product),*in);
       }
     }
 
@@ -211,11 +212,14 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 
   } catch ( const SimG4Exception& simg4ex ) {
        
-    edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" 
+    edm::LogInfo("SimG4CoreApplication") << "SimG4Exception caght! " 
 					 << simg4ex.what();
+    m_runManager->stopG4();
        
-    m_runManager->abortEvent();
-    throw edm::Exception( edm::errors::EventCorruption );
+    throw edm::Exception( edm::errors::EventCorruption ) 
+      << "SimG4CoreApplication exception in generation of event "
+      << e.id() << " in stream " << e.streamID() << " \n"
+      << simg4ex.what();
   }
 }
 

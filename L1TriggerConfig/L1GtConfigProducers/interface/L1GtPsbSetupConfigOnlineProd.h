@@ -16,7 +16,7 @@
  */
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -45,7 +45,7 @@ public:
     ~L1GtPsbSetupConfigOnlineProd();
 
     /// public methods
-    virtual boost::shared_ptr<L1GtPsbSetup> newObject(const std::string& objectKey);
+    virtual std::shared_ptr<L1GtPsbSetup> newObject(const std::string& objectKey);
 
 private:
 

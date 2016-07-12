@@ -277,7 +277,7 @@ RequestManager::updateCurrentServer()
 void
 RequestManager::queueUpdateCurrentServer(const std::string &id)
 {
-    std::unique_ptr<std::string> hostname(new std::string(id));
+    auto hostname = std::make_unique<std::string>(id);
     if (Source::getHostname(id, *hostname))
     {
         std::string *null_hostname = nullptr;
@@ -1071,7 +1071,8 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
 {
   // NOTE: as in XrdCl::File (synchronous), we ignore the response object.
   // Make sure that we set m_outstanding_open to false on exit from this function.
-  std::unique_ptr<char, std::function<void(char*)>> outstanding_guard(nullptr, [&](char*){m_outstanding_open=false;});
+  // NOTE: we need to pass non-nullptr to unique_ptr in order for the guard to run
+  std::unique_ptr<OpenHandler, std::function<void(OpenHandler*)>> outstanding_guard(this, [&](OpenHandler*){m_outstanding_open=false;});
 
   std::shared_ptr<Source> source;
   std::unique_ptr<XrdCl::XRootDStatus> status(status_ptr);
@@ -1189,7 +1190,7 @@ XrdAdaptor::RequestManager::OpenHandler::open()
     m_outstanding_open = true;
 
     // Always make sure we release m_file and set m_outstanding_open to false on error.
-    std::unique_ptr<char, std::function<void(char*)>> exit_guard(nullptr, [&](char*){m_outstanding_open = false; m_file.reset();});
+    std::unique_ptr<OpenHandler, std::function<void(OpenHandler*)>> exit_guard(this, [&](OpenHandler*){m_outstanding_open = false; m_file.reset();});
 
     XrdCl::XRootDStatus status;
     if (!(status = m_file->Open(new_name, manager.m_flags, manager.m_perms, this)).IsOK())

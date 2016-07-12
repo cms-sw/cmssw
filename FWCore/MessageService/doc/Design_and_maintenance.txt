@@ -44,8 +44,8 @@ Server side:
 ------------------------------------------------
 						     
 LogInfo is a functor -- a class that has an operator() so that
-it can look like a function.   It has one  data member - an 
-auto_ptr to a MessageSender, which is named ap.  When you say
+it can look like a function.   It has one  data member - a
+unique_ptr to a MessageSender, which is named ap.  When you say
 
 LogInfo("myCategory") << x; 
 
@@ -56,8 +56,8 @@ When the << x is encountered, that merely sends << x to the MessageSender.
 In the line        LogInfo("myCategory") << x; 
 one has created a **temporary** instance of LogInfo -- this gets 
 destructed upon completion of the statement.  The whole working of LogInfo 
-is in that destruction:  Since LogInfo has an auto_ptr to the Message
-Sender, when LogInfo goes away, the auto_ptr goes away, and this causes
+is in that destruction:  Since LogInfo has a unique_ptr to the Message
+Sender, when LogInfo goes away, the unique_ptr goes away, and this causes
 a delete of the MessageSender.  The destructor of MessageSender is where
 all the action -- at the client side -- happens.  
 

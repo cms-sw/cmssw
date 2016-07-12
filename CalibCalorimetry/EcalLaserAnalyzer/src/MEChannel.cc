@@ -224,7 +224,7 @@ MEChannel::oneLine( int ig )
   if( ig<ME::iLMRegion )
     {
       out += ME::region[reg_];
-      if( ig==ME::iSector ) out+="/S="; out+=_id[ME::iSector];
+      if( ig==ME::iSector ) {out+="/S="; out+=_id[ME::iSector];}
       return out;
     }
   int lmr_ = _id[ME::iLMRegion];
@@ -301,7 +301,7 @@ MEChannel::oneWord( int ig )
     {
       out = "ECAL_"; 
       out += ME::region[reg_];
-      if( ig==ME::iSector ) out+="_S"; out+=_id[ME::iSector];
+      if( ig==ME::iSector ) {out+="_S"; out+=_id[ME::iSector];}
       return out;
     }
   int lmr_ = _id[ME::iLMRegion];

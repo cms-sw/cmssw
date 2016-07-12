@@ -130,10 +130,10 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       DTGeometryBuilderFromDDD DTGeometryBuilder;
       CSCGeometryBuilderFromDDD CSCGeometryBuilder;
  
-      boost::shared_ptr<DTGeometry> dtGeometry(new DTGeometry );
+      auto dtGeometry = std::shared_ptr<DTGeometry>();
       DTGeometryBuilder.build(dtGeometry, &(*cpv), *mdc);
 
-      boost::shared_ptr<CSCGeometry> boost_cscGeometry(new CSCGeometry);
+      auto boost_cscGeometry = std::make_shared<CSCGeometry>();
       CSCGeometryBuilder.build(boost_cscGeometry, &(*cpv), *mdc);
 
       AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*boost_cscGeometry));

@@ -24,19 +24,19 @@ public:
   ~ME0PreRecoGaussianModel();
 
   void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*) override;
-
   void simulateNoise(const ME0EtaPartition*, CLHEP::HepRandomEngine*) override;
-
+  double correctSigmaU(const ME0EtaPartition*, double);
   void setup() {}
 
 private:
   double sigma_t;
   double sigma_u;
   double sigma_v;
+  bool gaussianSmearing_;
+  double constPhiSmearing_;
   bool corr;
   bool etaproj;
   bool digitizeOnlyMuons_;
-  bool gaussianSmearing_;
   double averageEfficiency_;
   // bool simulateIntrinsicNoise_; // not implemented
   // double averageNoiseRate_;     // not implemented

@@ -1,6 +1,11 @@
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
-#include "DetectorDescription/Core/interface/DDPosData.h"
+
+#include <assert.h>
 #include <ostream>
+
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
 
 DDExpandedNode::DDExpandedNode(const DDLogicalPart & lp, 
                                const DDPosData * pd, 

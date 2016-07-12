@@ -1,7 +1,9 @@
 #ifndef DDCore_DDScope_h
 #define DDCore_DDScope_h
 
+#include <iosfwd>
 #include <vector>
+
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 
 enum dd_scope_class { different_branch, subtree, supertree, delete_action };

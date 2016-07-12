@@ -33,10 +33,10 @@ namespace edm {
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
 					  std::string& msg) const override;
 
-      virtual std::auto_ptr<RefHolderBase> holder() const override {
-	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
+      virtual std::unique_ptr<RefHolderBase> holder() const override {
+	return std::unique_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
-      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
+      virtual std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
       virtual EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
@@ -172,7 +172,7 @@ namespace edm {
   namespace reftobase {
 
     template <typename T, typename REF>
-    std::auto_ptr<BaseVectorHolder<T> > Holder<T,REF>::makeVectorHolder() const {
+    std::unique_ptr<BaseVectorHolder<T> > Holder<T,REF>::makeVectorHolder() const {
       typedef typename HolderToVectorTrait<T, REF>::type helper;
       return helper::makeVectorHolder();
     }

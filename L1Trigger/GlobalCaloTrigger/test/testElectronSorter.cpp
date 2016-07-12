@@ -29,7 +29,7 @@ typedef vector<L1CaloEmCand> EmInputCandVec;
 typedef vector<L1GctEmCand> EmOutputCandVec;
 ifstream file;
 ofstream ofile;
-EmInputCandVec data;
+EmInputCandVec indata;
 EmOutputCandVec gctData;
 
 //  Function for reading in the dummy data
@@ -44,7 +44,7 @@ void convertToGct(EmInputCandVec cands);
 
 int main()
 {
-  data.clear();
+  indata.clear();
   gctData.clear();
 
   cout << "**************************************" << endl;
@@ -100,25 +100,25 @@ int main()
       LoadFileData(testFile, noElectrons,1);
       cout<<" Data loaded in from input file"<<endl;
       print(gctData);
-      for(unsigned int i=0;i<data.size();i++){
-	testSort->setInputEmCand(data[i]);
+      for(unsigned int i=0;i<indata.size();i++){
+	testSort->setInputEmCand(indata[i]);
       }
       inputs = testSort->getInputCands();
      
       //This part checks that the data read in is what is stored in the private vector of the sort algorithm
       //is the same as what was read in from the data file     
-      for(unsigned int i=0;i!=data.size();i++){
-	if(data[i].rank() != inputs[i].rank()){
+      for(unsigned int i=0;i!=indata.size();i++){
+	if(indata[i].rank() != inputs[i].rank()){
 	  throw cms::Exception("ErrorInPrivateVectorRank")
 	    << "Error in data: Discrepancy between Rank in file and input buffer!"<<endl;
 	  checkIn = true;
 	}
-	if(data[i].rctRegion() != inputs[i].rctRegion()){
+	if(indata[i].rctRegion() != inputs[i].rctRegion()){
 	  throw cms::Exception("ErrorInRegion")
 	    << "Error in data:Discrepancy between region in file and input buffer!"<<endl;
 	  checkIn = true;
 	}
-	if(data[i].rctCard() != inputs[i].rctCard()){
+	if(indata[i].rctCard() != inputs[i].rctCard()){
 	  throw cms::Exception("ErrorInCard")
 	  << "Error in data:Discrepancy between card in file and input buffer!"<<endl;
 	  checkIn = true;
@@ -134,8 +134,8 @@ int main()
       print(outputs);
       for(unsigned int n=0;n!=outputs.size();n++){
 	int count = 0;
-	for(unsigned int i=0;i!=data.size();i++){
-	  if(data[i].rank() > outputs[n].rank()){
+	for(unsigned int i=0;i!=indata.size();i++){
+	  if(indata[i].rank() > outputs[n].rank()){
 	    count = count + 1;
 	    if(n==0 && count > 1){
 	      cout <<"Error in getOutput method, highest ranking electron candidate isn't returned"<<endl;
@@ -227,7 +227,7 @@ void LoadFileData(const string &inputFile, int elecs, bool iso)
 	  candCard = (dummy>>7) & 0x7;
 	  candIso = 1;
 	  L1CaloEmCand electrons(candRank, candRegion, candCard, candCrate, candIso);
-	  data.push_back(electrons);
+	  indata.push_back(electrons);
 	}else{
 	  if(i<4 && !iso){
 	    file >>std::hex>> dummy;
@@ -236,7 +236,7 @@ void LoadFileData(const string &inputFile, int elecs, bool iso)
 	    candCard = (dummy>>7) & 0x7;
 	    candIso = 0;
 	    L1CaloEmCand electrons(candRank, candRegion, candCard, candCrate, candIso);
-	    data.push_back(electrons);
+	    indata.push_back(electrons);
 	  }else{
 	    file>>dummy;
 	  }
@@ -247,7 +247,7 @@ void LoadFileData(const string &inputFile, int elecs, bool iso)
     }
   }
   file.close();
-  convertToGct(data);
+  convertToGct(indata);
   
   return;
 }

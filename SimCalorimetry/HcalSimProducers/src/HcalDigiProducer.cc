@@ -15,6 +15,7 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::E
   mixMod.produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
   mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
   mixMod.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+  mixMod.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 
 }
 
@@ -75,7 +76,15 @@ HcalDigiProducer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGene
   theDigitizer_.setZDCNoiseSignalGenerator(noiseGenerator);
 }
 
+void
+HcalDigiProducer::setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setQIE10NoiseSignalGenerator(noiseGenerator);
+}
 
+void
+HcalDigiProducer::setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setQIE11NoiseSignalGenerator(noiseGenerator);
+}
 
 CLHEP::HepRandomEngine* HcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
   unsigned int index = streamID.value();

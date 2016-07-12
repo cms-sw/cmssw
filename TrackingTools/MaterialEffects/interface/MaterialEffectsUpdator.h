@@ -15,8 +15,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 namespace materialEffect {
   enum CovIndex { elos=0, msxx=1, msxy=2, msyy=3};
   class Covariance {
@@ -61,7 +59,7 @@ public:
 
   /** Constructor with explicit mass hypothesis
    */
-  MaterialEffectsUpdator ( double mass );
+  MaterialEffectsUpdator ( float mass );
   virtual ~MaterialEffectsUpdator ();
 
   /** Updates TrajectoryStateOnSurface with material effects
@@ -83,7 +81,7 @@ public:
 
   /** Particle mass assigned at construction.
    */
-  inline double mass () const {
+  inline float mass () const {
     return theMass;
   }
 
@@ -93,7 +91,7 @@ public:
   virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const = 0;
  
  private:
-  double theMass;
+  float theMass;
 
 };
 

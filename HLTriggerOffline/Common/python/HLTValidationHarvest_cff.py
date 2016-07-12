@@ -1,3 +1,5 @@
+from Configuration.StandardSequences.Eras import eras
+
 from HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi import *
 from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
 from HLTriggerOffline.Egamma.EgammaPostProcessor_cfi import *
@@ -35,6 +37,7 @@ hltpostvalidation = cms.Sequence(
     +HLTSMPPostVal
     +HltBTagPostVal
     )
+eras.phase1Pixel.toReplaceWith(hltpostvalidation, cms.Sequence()) # FIXME: No HLT yet for 2017, so no need to run the DQM (avoiding excessive printouts)
 
 # fastsim customs
 from Configuration.StandardSequences.Eras import eras

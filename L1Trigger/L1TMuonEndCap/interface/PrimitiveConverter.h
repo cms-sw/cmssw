@@ -9,7 +9,7 @@
 class PrimitiveConverter {
  public:
   PrimitiveConverter();
-  std::vector<ConvertedHit> convert(std::vector<TriggerPrimitive> TriggPrim, int SectIndex);
+  std::vector<ConvertedHit> convert(std::vector<L1TMuon::TriggerPrimitive> TriggPrim, int SectIndex);
 
  private:
   // don't mind the magid numbers here, this is throw-away code pending CondFormat update in works:

@@ -1,6 +1,7 @@
 
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4ParticleTable.hh"
@@ -13,8 +14,10 @@
 
 //#define DebugLog
 
-SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p) 
-  : eventAction_(e), tracker(0), calo(0), initialized(false), killBeamPipe(false) 
+SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p,
+			       const CMSSteppingVerbose* sv) 
+  : eventAction_(e), tracker(nullptr), calo(nullptr), steppingVerbose(sv),
+    initialized(false), killBeamPipe(false) 
 {
   theCriticalEnergyForVacuum = 
     (p.getParameter<double>("CriticalEnergyForVacuum")*CLHEP::MeV);
@@ -93,6 +96,7 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
 
   G4Track * theTrack = aStep->GetTrack();
   bool ok = (theTrack->GetTrackStatus() == fAlive);
+  bool ok0= ok;
   G4StepPoint* postStep = aStep->GetPostStepPoint();
   if(ok && postStep->GetPhysicalVolume() != 0) {
 
@@ -143,6 +147,9 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
 	eventAction_->addTkCaloStateInfo(id,p);
       }
     }
+  }
+  if(nullptr != steppingVerbose) { 
+    steppingVerbose->NextStep(aStep, fpSteppingManager, (ok0 && !ok)); 
   }
 }
 

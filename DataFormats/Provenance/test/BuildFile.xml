@@ -4,9 +4,9 @@
 </bin>
 <bin   file="EntryDescription_t.cpp">
 </bin>
-<bin   name="testProductHolderIndexHelper" file="testRunner.cpp productHolderIndexHelper_t.cppunit.cc">
+<bin   name="testProductResolverIndexHelper" file="testRunner.cpp productResolverIndexHelper_t.cppunit.cc">
   <use name="DataFormats/TestObjects"/>
 </bin>
-<bin   name="productHolderIndexHelperTest" file="productHolderIndexHelperTest.cc">
+<bin   name="productResolverIndexHelperTest" file="productResolverIndexHelperTest.cc">
   <flags NO_TESTRUN="1"/>
 </bin>

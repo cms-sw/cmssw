@@ -45,9 +45,9 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
 }
 
 
-boost::shared_ptr<SiStripLorentzAngle> MeasureLA::
+std::shared_ptr<SiStripLorentzAngle> MeasureLA::
 produce(const SiStripLorentzAngleRcd& ) {
-  boost::shared_ptr<SiStripLorentzAngle> lorentzAngle(new SiStripLorentzAngle());
+  auto lorentzAngle = std::make_shared<SiStripLorentzAngle>();
   /*
   std::map<uint32_t,LA_Filler_Fitter::Result> 
     module_results = LA_Filler_Fitter::module_results(book, LA_Filler_Fitter::SQRTVAR);

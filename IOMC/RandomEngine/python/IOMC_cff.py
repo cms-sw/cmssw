@@ -106,7 +106,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         engineName = cms.untracked.string('TRandom3')
     ),
 
-    siTrackerGaussianSmearingRecHits = cms.PSet(
+    fastTrackerRecHits = cms.PSet(
         initialSeed = cms.untracked.uint32(24680),
         engineName = cms.untracked.string('TRandom3')
     ),
@@ -169,4 +169,11 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
 randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
+from Configuration.StandardSequences.Eras import eras
+eras.run3_GEM.toModify(RandomNumberGeneratorService, simMuonGEMDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')) )
 
+eras.phase2_muon.toModify(RandomNumberGeneratorService, simMuonME0Digis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')) )

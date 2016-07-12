@@ -98,7 +98,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
   }
 
 
-#ifdef EDM_LM_DEBUG
+#ifdef EDM_ML_DEBUG
   if (theVolume != 0) {
     LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
 	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) ;
@@ -107,9 +107,9 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 	      << theVolume->toLocal(ts.position()) << " (local) " ;
   
     FrameChanger changer;
-    FrameChanger::PlanePtr localPlane = changer.transformPlane( plane, *theVolume);
+    auto localPlane = changer.transformPlane( plane, *theVolume);
     LogDebug("RKPropagatorInS")  << "The plane position is " << plane.position() << " (global) "
-	      << localPlane->position() << " (local) " ;
+	      << localPlane.position() << " (local) " ;
 
     LogDebug("RKPropagatorInS")  << "The initial distance to plane is " << plane.localZ( ts.position()) ;
 

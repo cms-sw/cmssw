@@ -20,6 +20,8 @@ supportedBtagInfos = [
   , 'pfInclusiveSecondaryVertexFinderAK8TagInfos'
   , 'pfInclusiveSecondaryVertexFinderCA15TagInfos'
   , 'pfInclusiveSecondaryVertexFinderNegativeTagInfos'
+  , 'pfGhostTrackVertexTagInfos'
+  , 'pfGhostTrackVertexTagInfosAK8'
   , 'softPFMuonsTagInfos'
   , 'softPFElectronsTagInfos'
     # C-Tagging tag infos
@@ -88,6 +90,7 @@ supportedBtagDiscr = {
   , 'pfCombinedInclusiveSecondaryVertexV2BJetTags'          : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos']
   , 'pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags'  : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos']
   , 'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags'  : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos']
+  , 'pfGhostTrackBJetTags'							                   	: ['pfImpactParameterTagInfos', 'pfGhostTrackVertexTagInfos']
   , 'softPFMuonBJetTags'                                    : ['softPFMuonsTagInfos']
   , 'softPFMuonByPtBJetTags'                                : ['softPFMuonsTagInfos']
   , 'softPFMuonByIP3dBJetTags'                              : ['softPFMuonsTagInfos']

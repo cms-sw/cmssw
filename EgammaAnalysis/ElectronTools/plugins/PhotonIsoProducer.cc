@@ -89,13 +89,13 @@ PhotonIsoProducer::~PhotonIsoProducer()
 // ------------ method called on each new Event  ------------
 bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-        std::auto_ptr<edm::ValueMap<double> > chIsoMap(new edm::ValueMap<double>() );
+        std::unique_ptr<edm::ValueMap<double> > chIsoMap(new edm::ValueMap<double>() );
 	edm::ValueMap<double>::Filler chFiller(*chIsoMap);
 
-        std::auto_ptr<edm::ValueMap<double> > phIsoMap(new edm::ValueMap<double>() );
+        std::unique_ptr<edm::ValueMap<double> > phIsoMap(new edm::ValueMap<double>() );
 	edm::ValueMap<double>::Filler phFiller(*phIsoMap);
 
-        std::auto_ptr<edm::ValueMap<double> > nhIsoMap(new edm::ValueMap<double>() );
+        std::unique_ptr<edm::ValueMap<double> > nhIsoMap(new edm::ValueMap<double>() );
 	edm::ValueMap<double>::Filler nhFiller(*nhIsoMap);
 
 	edm::Handle<reco::VertexCollection>  vertexCollection;
@@ -154,9 +154,9 @@ bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	nhFiller.fill();
 
 
-	iEvent.put(chIsoMap,nameIsoCh_);
-	iEvent.put(phIsoMap,nameIsoPh_);
-	iEvent.put(nhIsoMap,nameIsoNh_);
+	iEvent.put(std::move(chIsoMap),nameIsoCh_);
+	iEvent.put(std::move(phIsoMap),nameIsoPh_);
+	iEvent.put(std::move(nhIsoMap),nameIsoNh_);
 
 
 	return true;

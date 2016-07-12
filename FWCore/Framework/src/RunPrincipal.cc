@@ -2,9 +2,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 
 namespace edm {
   RunPrincipal::RunPrincipal(
@@ -12,8 +10,9 @@ namespace edm {
     std::shared_ptr<ProductRegistry const> reg,
     ProcessConfiguration const& pc,
     HistoryAppender* historyAppender,
-    unsigned int iRunIndex) :
-    Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender),
+    unsigned int iRunIndex,
+    bool isForPrimaryProcess) :
+    Base(reg, reg->productLookup(InRun), pc, InRun, historyAppender, isForPrimaryProcess),
       aux_(aux), index_(iRunIndex), complete_(false) {
   }
 

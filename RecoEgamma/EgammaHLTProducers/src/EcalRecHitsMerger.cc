@@ -86,8 +86,8 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
  std::vector< edm::Handle<EcalRecHitCollection> > EcalRecHits_done;
  e.getManyByType(EcalRecHits_done);
 
- std::auto_ptr<EcalRecHitCollection> EBMergedRecHits(new EcalRecHitCollection);
- std::auto_ptr<EcalRecHitCollection> EEMergedRecHits(new EcalRecHitCollection);
+ std::unique_ptr<EcalRecHitCollection> EBMergedRecHits(new EcalRecHitCollection);
+ std::unique_ptr<EcalRecHitCollection> EEMergedRecHits(new EcalRecHitCollection);
 
  unsigned int nColl = EcalRecHits_done.size();
 
@@ -147,8 +147,8 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
 
  // std::cout << " avant le put " << std::endl;
- e.put(EBMergedRecHits,OutputLabelEB_);
- e.put(EEMergedRecHits,OutputLabelEE_);
+ e.put(std::move(EBMergedRecHits),OutputLabelEB_);
+ e.put(std::move(EEMergedRecHits),OutputLabelEE_);
  // std::cout << " apres le put " << std::endl;
 
 }

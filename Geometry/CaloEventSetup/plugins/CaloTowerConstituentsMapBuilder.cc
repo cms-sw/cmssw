@@ -33,7 +33,9 @@
 // constructors and destructor
 //
 CaloTowerConstituentsMapBuilder::CaloTowerConstituentsMapBuilder(const edm::ParameterSet& iConfig) :
-  mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile","")) {
+  mapFile_(iConfig.getUntrackedParameter<std::string>("MapFile","")),
+  mapAuto_(iConfig.getUntrackedParameter<bool>("MapAuto",false)),
+  skipHE_(iConfig.getUntrackedParameter<bool>("SkipHE",false)) {
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
@@ -54,6 +56,8 @@ CaloTowerConstituentsMapBuilder::fillDescriptions(edm::ConfigurationDescriptions
 {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "MapFile", "" );
+  desc.addUntracked<bool>( "MapAuto", false );
+  desc.addUntracked<bool>( "SkipHE", false );
   descriptions.add( "caloTowerConstituents", desc );
 }
 
@@ -67,9 +71,9 @@ CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
   edm::ESHandle<CaloTowerTopology> cttopo;
   iRecord.getRecord<HcalRecNumberingRecord>().get(cttopo);
 
-  std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( &*hcaltopo, &*cttopo ));
+  auto prod = std::make_unique<CaloTowerConstituentsMap>( &*hcaltopo, &*cttopo );
 
-//std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( &*hcaltopo ));
+//auto prod = std::make_unique<CaloTowerConstituentsMap>( &*hcaltopo );
 
   //keep geometry pointer as member for alternate EE->HE mapping
   edm::ESHandle<CaloGeometry> pG;
@@ -77,14 +81,14 @@ CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
   const CaloGeometry* geometry = pG.product();
    
   prod->useStandardHB(true);
-  prod->useStandardHE(true);
+  if(!skipHE_) prod->useStandardHE(true);
   prod->useStandardHF(true);
   prod->useStandardHO(true);
   prod->useStandardEB(true);
    
   if (!mapFile_.empty()) {
     parseTextMap(mapFile_,*prod);
-  } else {
+  } else if (mapAuto_ && !skipHE_) {
     assignEEtoHE(geometry, *prod, &*cttopo);
   }
   prod->sort();

@@ -7,7 +7,7 @@
 
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
@@ -43,9 +43,9 @@ namespace edm {
     
     bool operator==(InputTag const& tag) const;
 
-    ProductHolderIndex indexFor(TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
+    ProductResolverIndex indexFor(TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
 
-    void tryToCacheIndex(ProductHolderIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
+    void tryToCacheIndex(ProductResolverIndex index, TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
 
     static const std::string kSkipCurrentProcess;
 

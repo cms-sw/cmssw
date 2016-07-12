@@ -15,9 +15,9 @@ public:
   theExtraNumberOfHitsBeforeTheFirstLoop(extraNumberOfHitsBeforeTheFirstLoop){}
   
   explicit LooperTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC){
-    theMinNumberOfHitsForLoopers           = pset.getParameter<int>("minNumberOfHitsForLoopers"); 
-    theMinNumberOfHitsPerLoop              = pset.getParameter<int>("minNumberOfHitsPerLoop"); 
-    theExtraNumberOfHitsBeforeTheFirstLoop = pset.getParameter<int>("extraNumberOfHitsBeforeTheFirstLoop"); 
+    theMinNumberOfHitsForLoopers           = pset.getParameter<int>("minNumberOfHitsForLoopers");
+    theMinNumberOfHitsPerLoop              = pset.getParameter<int>("minNumberOfHitsPerLoop");
+    theExtraNumberOfHitsBeforeTheFirstLoop = pset.getParameter<int>("extraNumberOfHitsBeforeTheFirstLoop");
 
   }
 
@@ -36,7 +36,6 @@ public:
     desc.add<int>("extraNumberOfHitsBeforeTheFirstLoop", 4);
     return desc;
   }
-
 
 protected:
 

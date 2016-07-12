@@ -29,11 +29,11 @@ process.testbeam.MinE = process.common_beam_parameters.MinE
 process.testbeam.MaxE = process.common_beam_parameters.MaxE
 process.testbeam.PartID = process.common_beam_parameters.PartID
 
-process.testbeam.TestBeamAnalysis.EcalWidth = cms.double(0.1)
+process.testbeam.TestBeamAnalysis.EcalFactor = cms.double(1.)
 process.testbeam.TestBeamAnalysis.HcalFactor = cms.double(100.)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(5000)
 )
 
 #process.Timing = cms.Service("Timing")

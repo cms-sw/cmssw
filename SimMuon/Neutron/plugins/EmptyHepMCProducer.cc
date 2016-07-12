@@ -53,9 +53,9 @@ void
 EmptyHepMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // create an empty output collection
-  std::auto_ptr<edm::HepMCProduct> theOutput(new edm::HepMCProduct());
+  std::unique_ptr<edm::HepMCProduct> theOutput(new edm::HepMCProduct());
   //theOutput->addHepMCData(theEvent);
-  iEvent.put(theOutput);
+  iEvent.put(std::move(theOutput));
 }
 
 void EmptyHepMCProducer::beginJob() {}

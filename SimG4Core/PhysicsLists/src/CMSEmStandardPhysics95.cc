@@ -138,7 +138,7 @@ void CMSEmStandardPhysics95::ConstructProcess()
   G4hBremsstrahlung* pb = nullptr;
   G4hPairProduction* pp = nullptr;
 
-  G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
+  G4hMultipleScattering* hmsc = nullptr;
 
   // Add standard EM Processes
   aParticleIterator->reset();
@@ -203,7 +203,10 @@ void CMSEmStandardPhysics95::ConstructProcess()
 
     } else if (particleName == "GenericIon") {
 
-      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
+      ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4ionIonisation(), particle);
 
     } else if (particleName == "pi+" || 
@@ -273,6 +276,9 @@ void CMSEmStandardPhysics95::ConstructProcess()
                particleName == "xi_c+" ||
                particleName == "xi-" ) {
 
+      if(nullptr == hmsc) {
+	hmsc = new G4hMultipleScattering("ionmsc");
+      }
       ph->RegisterProcess(hmsc, particle);
       ph->RegisterProcess(new G4hIonisation(), particle);
     }

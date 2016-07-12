@@ -59,7 +59,7 @@ private:
 
   virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
 
-    std::auto_ptr< TagInfosCollection > mappedTagInfos ( new TagInfosCollection() );
+    std::unique_ptr< TagInfosCollection > mappedTagInfos ( new TagInfosCollection() );
 
 
     edm::Handle< typename edm::View<T> > h_jets1;
@@ -123,7 +123,7 @@ private:
     
 
     // put  in Event
-    iEvent.put(mappedTagInfos);
+    iEvent.put(std::move(mappedTagInfos));
   }
 
   const edm::EDGetTokenT< typename edm::View<T> >  srcToken_;

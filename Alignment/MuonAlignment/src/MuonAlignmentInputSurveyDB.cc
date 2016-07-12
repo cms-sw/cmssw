@@ -63,8 +63,8 @@ MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 //
 
 AlignableMuon *MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-   boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+   std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
+   std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
    edm::ESHandle<Alignments> dtSurvey;
    edm::ESHandle<SurveyErrors> dtSurveyError;

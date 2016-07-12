@@ -88,6 +88,9 @@ namespace CondFormats_HcalObjects {
 
     HcalTimingParams myTimingParams;
     std::vector<HcalTimingParam> myTimingParamVec;
+ 
+    HcalFrontEndMap myfmap1;
+    std::vector<HcalFrontEndMap::PrecisionItem> myfmap2;
 
     // OOT pileup correction objects
     std::map<std::string, AbsOOTPileupCorrection*> myInnerMap;

@@ -118,9 +118,9 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
-  if (hf)     hf->Close();
-  if (fibre)  delete   fibre;  fibre  = 0;
-  if (photo)  delete photo;
+  if (hf) { hf->Close(); }
+  delete fibre;
+  delete photo;
 }
 
 void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable,
@@ -372,14 +372,11 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(G4ThreeVector & hitP
   if (nHit > npe && !onlyLong)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
- return hit;
-
+  return hit;
 }
 
 bool HFShowerLibrary::rInside(double r) {
-
-  if (r >= rMin && r <= rMax) return true;
-  else                        return false;
+  return (r >= rMin && r <= rMax);
 }
 
 void HFShowerLibrary::getRecord(int type, int record) {
@@ -439,8 +436,9 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     listVersion = 3.6;
     pmom        = {2,3,5,7,10,15,20,30,50,75,100,150,250,350,500,1000};
   }
-  for (int i=0; i<nMomBin; i++) 
+  for (int i=0; i<nMomBin; i++) {
     pmom[i] *= GeV;
+  }
 }
 
 void HFShowerLibrary::interpolate(int type, double pin) {
@@ -450,7 +448,7 @@ void HFShowerLibrary::interpolate(int type, double pin) {
 		       << " GeV with " << nMomBin << " momentum bins and " 
 		       << evtPerBin << " entries/bin -- total " << totEvents;
 #endif
-  int irc[2];
+  int irc[2] = {0, 0};
   double w = 0.;
   double r = G4UniformRand();
 

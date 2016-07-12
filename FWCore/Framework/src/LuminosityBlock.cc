@@ -55,8 +55,8 @@ namespace edm {
   }
 
   void
-  LuminosityBlock::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    luminosityBlockPrincipal().getAllProvenance(provenances);
+  LuminosityBlock::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    luminosityBlockPrincipal().getAllStableProvenance(provenances);
   }
 
   void
@@ -84,17 +84,9 @@ namespace edm {
     return provRecorder_.processHistory();
   }
 
-  void
-  LuminosityBlock::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
-  }
-
   BasicHandle
   LuminosityBlock::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
-    if (h.isValid()) {
-      addToGotBranchIDs(*(h.provenance()));
-    }
     return h;
   }
 }

@@ -97,7 +97,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
    // this HLT filter, and place it in the Event.
 
    //the decision map
-   std::auto_ptr<edm::ValueMap<bool> >
+   std::unique_ptr<edm::ValueMap<bool> >
      isoMap( new edm::ValueMap<bool> ());
 
    // get hold of trks
@@ -174,7 +174,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
        isoFiller.insert(mucands, isos.begin(), isos.end());
        isoFiller.fill();
      }
-     iEvent.put(isoMap);
+     iEvent.put(std::move(isoMap));
    }
 
    LogDebug("HLTMuonIsoFilter") << " >>>>> Result of HLTMuonIsoFilter is " << accept << ", number of muons passing isolation cuts= " << nIsolatedMu;

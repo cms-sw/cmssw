@@ -9,6 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -167,6 +168,8 @@ template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hi
 reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, const TrackingParticleRefKeySet *trackingParticleKeys, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::RecoToSimCollection returnValue(productGetter_);
+        if(::collectionSize(trackingParticleCollection) == 0)
+          return returnValue;
 
         checkClusterMapProductID(hitOrClusterAssociator, trackingParticleCollection);
 
@@ -216,6 +219,8 @@ template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hi
 reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, const TrackingParticleRefKeySet *trackingParticleKeys, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::SimToRecoCollection returnValue(productGetter_);
+        if(::collectionSize(trackingParticleCollection) == 0)
+          return returnValue;
 
         checkClusterMapProductID(hitOrClusterAssociator, trackingParticleCollection);
 
@@ -413,6 +418,12 @@ template<typename iter> std::vector<OmniClusterRef> QuickTrackAssociatorByHitsIm
 	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
 	  returnValue.push_back(sRHit->omniClusterRef());
 	}
+	else if (tid == typeid(Phase2TrackerRecHit1D)) {
+	  const Phase2TrackerRecHit1D* ph2Hit = dynamic_cast<const Phase2TrackerRecHit1D*>(rhit);
+          if (!ph2Hit->cluster().isNonnull() )
+	    edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+	  returnValue.push_back(ph2Hit->omniClusterRef());
+        }
 	else {
 	  auto const & thit = static_cast<BaseTrackerRecHit const&>(*rhit);
 	  if ( thit.isProjected() ) {
@@ -615,6 +626,8 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
 			<< " #TPs=" << trackingParticleCollectionHandle->size();
 
 	reco::SimToRecoCollectionSeed returnValue(productGetter_);
+        if(trackingParticleCollectionHandle->empty())
+          return returnValue;
 
         if(clusterToTPMap_) {
           checkClusterMapProductID(*clusterToTPMap_, trackingParticleCollectionHandle);

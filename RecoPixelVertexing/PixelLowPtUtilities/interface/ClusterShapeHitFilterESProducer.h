@@ -24,7 +24,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -44,7 +43,7 @@ class ClusterShapeHitFilterESProducer : public edm::ESProducer
   ClusterShapeHitFilterESProducer(const edm::ParameterSet&);
   ~ClusterShapeHitFilterESProducer();
 
-  typedef std::auto_ptr<ClusterShapeHitFilter> ReturnType;
+  typedef std::unique_ptr<ClusterShapeHitFilter> ReturnType;
   ReturnType produce(const ClusterShapeHitFilter::Record &);
 
  private:

@@ -1,5 +1,5 @@
 #ifndef RecoLocalCalo_EcalDeadChannelRecoveryAlgos_EcalDeadChannelRecoveryAlgos_HH
-#define RecoLocalCalo_EcalDeadChannelRecoveryAlgos_ECalDeadChannelRecoveryAlgos_HH
+#define RecoLocalCalo_EcalDeadChannelRecoveryAlgos_EcalDeadChannelRecoveryAlgos_HH
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -19,4 +19,4 @@ template <typename DetIdT> class EcalDeadChannelRecoveryAlgos {
  private:
   EcalDeadChannelRecoveryNN<DetIdT> nn;
 };
-#endif
+#endif // RecoLocalCalo_EcalDeadChannelRecoveryAlgos_EcalDeadChannelRecoveryAlgos_HH

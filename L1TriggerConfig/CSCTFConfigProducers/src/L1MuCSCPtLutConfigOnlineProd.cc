@@ -1,6 +1,6 @@
 #include "L1TriggerConfig/CSCTFConfigProducers/interface/L1MuCSCPtLutConfigOnlineProd.h"
 
-boost::shared_ptr< L1MuCSCPtLut >
+std::shared_ptr< L1MuCSCPtLut >
 L1MuCSCPtLutConfigOnlineProd::newObject( const std::string& objectKey )
 {
 
@@ -24,7 +24,7 @@ L1MuCSCPtLutConfigOnlineProd::newObject( const std::string& objectKey )
     {
       edm::LogError( "L1-O2O" ) << "Problem with L1MuCSCPtLutParameters key" ;
       // return empty object
-      return boost::shared_ptr< L1MuCSCPtLut >() ;
+      return std::shared_ptr< L1MuCSCPtLut >() ;
     }
   
   
@@ -40,7 +40,7 @@ L1MuCSCPtLutConfigOnlineProd::newObject( const std::string& objectKey )
   L1MuCSCPtLut* CSCTFPtLut = new L1MuCSCPtLut();
   CSCTFPtLut->readFromDBS(ptlut);
 
-  return boost::shared_ptr< L1MuCSCPtLut >( CSCTFPtLut ) ;
+  return std::shared_ptr< L1MuCSCPtLut >( CSCTFPtLut ) ;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(L1MuCSCPtLutConfigOnlineProd);

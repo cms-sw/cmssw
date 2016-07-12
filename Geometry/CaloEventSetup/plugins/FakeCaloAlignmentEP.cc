@@ -61,8 +61,8 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 {
    public:
 
-      typedef boost::shared_ptr<Alignments>      ReturnAli    ;
-      typedef boost::shared_ptr<AlignmentErrors> ReturnAliErr ;
+      typedef std::shared_ptr<Alignments>      ReturnAli    ;
+      typedef std::shared_ptr<AlignmentErrors> ReturnAliErr ;
 
       typedef AlignTransform::Translation Trl ;
       typedef AlignTransform::Rotation    Rot ;

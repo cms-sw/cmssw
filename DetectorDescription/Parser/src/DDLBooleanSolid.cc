@@ -12,13 +12,23 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDName.h"
+#include <stddef.h>
+#include <map>
+#include <utility>
+
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+class DDCompactView;
 
 DDLBooleanSolid::DDLBooleanSolid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )

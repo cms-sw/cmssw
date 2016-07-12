@@ -43,9 +43,9 @@ class L1CaloHcalScaleConfigOnlineProd :
       L1CaloHcalScaleConfigOnlineProd(const edm::ParameterSet& iConfig);
       ~L1CaloHcalScaleConfigOnlineProd();
 
-  boost::shared_ptr< L1CaloHcalScale > produce(const L1CaloHcalScaleRcd& iRecord) override ;
+  std::shared_ptr< L1CaloHcalScale > produce(const L1CaloHcalScaleRcd& iRecord) override ;
 
-  virtual boost::shared_ptr< L1CaloHcalScale > newObject(
+  virtual std::shared_ptr< L1CaloHcalScale > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -94,7 +94,7 @@ L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
     delete caloTPG;
 }
 
-boost::shared_ptr< L1CaloHcalScale >
+std::shared_ptr< L1CaloHcalScale >
 L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
   assert( theTrigTowerGeometry != nullptr );
@@ -104,14 +104,14 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << "object Key " << objectKey;
 
      if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
-       return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
+       return std::shared_ptr< L1CaloHcalScale >( hcalScale );
      if(objectKey == "IDENTITY"){  // return identity ecal scale  
        
        delete hcalScale;
        
        hcalScale = new L1CaloHcalScale(1);
        
-       return boost::shared_ptr< L1CaloHcalScale >( hcalScale);
+       return std::shared_ptr< L1CaloHcalScale >( hcalScale);
      }
   
      std::vector<unsigned int> analyticalLUT(1024, 0);
@@ -162,7 +162,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (paramResults.numberRows()!=1) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table" ;
-	 return boost::shared_ptr< L1CaloHcalScale >() ;
+	 return std::shared_ptr< L1CaloHcalScale >() ;
        }
         
     double hcalLSB, nominal_gain;
@@ -238,7 +238,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (chanResults.numberRows()==0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table nrows" << chanResults.numberRows() ;
-	 return boost::shared_ptr< L1CaloHcalScale >() ;
+	 return std::shared_ptr< L1CaloHcalScale >() ;
        }
 
 
@@ -335,11 +335,11 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      hcalScale->print(s);
      edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << s.str();
 // ------------ method called to produce the data  ------------
-     return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
+     return std::shared_ptr< L1CaloHcalScale >( hcalScale );
 
 }
 
-boost::shared_ptr< L1CaloHcalScale >
+std::shared_ptr< L1CaloHcalScale >
 L1CaloHcalScaleConfigOnlineProd::produce( const L1CaloHcalScaleRcd& iRecord )
 {
   edm::ESHandle<HcalTrigTowerGeometry> pG;

@@ -89,7 +89,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val = *iovIt;
       std::cout <<"#[0] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay0 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay0 = session.fetchPayload<MyTestData>( val.payloadId );
       pay0->print();
       iovIt++;
     }
@@ -98,7 +98,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iovIt;
       std::cout <<"#[1] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay1 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay1 = session.fetchPayload<MyTestData>( val.payloadId );
       pay1->print();
     }
     iovIt = proxy.find( 176 );
@@ -107,7 +107,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val = *iovIt;
       std::cout <<"#[2] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay2 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay2 = session.fetchPayload<MyTestData>( val.payloadId );
       pay2->print();
       iovIt++;
     }
@@ -116,7 +116,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iovIt;
       std::cout <<"#[3] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay3 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay3 = session.fetchPayload<MyTestData>( val.payloadId );
       pay3->print();
     }
 
@@ -127,7 +127,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iov2It;
       std::cout <<"#[4] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
+      std::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
       std::cout <<"#pay4="<<*pay4<<std::endl;
     }
     session.transaction().commit();

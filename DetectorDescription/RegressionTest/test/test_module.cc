@@ -1,5 +1,12 @@
+#include <iostream>
+#include <string>
+
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Base/interface/DDTypes.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+
+class DDCompactView;
 
 class DDTestAlgorithm : public DDAlgorithm
 {

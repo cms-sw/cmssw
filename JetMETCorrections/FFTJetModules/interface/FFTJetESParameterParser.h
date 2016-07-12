@@ -14,10 +14,10 @@
 
 // Parser for the adjuster of the adjustable :-)
 template<class Jet, class Adjustable>
-boost::shared_ptr<AbsFFTJetAdjuster<Jet, Adjustable> >
+std::shared_ptr<AbsFFTJetAdjuster<Jet, Adjustable> >
 parseFFTJetAdjuster(const edm::ParameterSet& ps, const bool /* verbose */)
 {
-    typedef boost::shared_ptr<AbsFFTJetAdjuster<Jet,Adjustable> > Result;
+    typedef std::shared_ptr<AbsFFTJetAdjuster<Jet,Adjustable> > Result;
 
     const std::string& adjuster_type = ps.getParameter<std::string>("Class");
 
@@ -39,12 +39,12 @@ parseFFTJetAdjuster(const edm::ParameterSet& ps, const bool /* verbose */)
 
 // Parser for the mapper/scaler
 template<class Jet, class Adjustable>
-boost::shared_ptr<AbsFFTJetScaleCalculator<Jet, Adjustable> >
+std::shared_ptr<AbsFFTJetScaleCalculator<Jet, Adjustable> >
 parseFFTJetScaleCalculator(const edm::ParameterSet& ps,
                            gs::StringArchive& ar,
                            const bool verbose)
 {
-    typedef boost::shared_ptr<AbsFFTJetScaleCalculator<Jet,Adjustable> > Result;
+    typedef std::shared_ptr<AbsFFTJetScaleCalculator<Jet,Adjustable> > Result;
 
     std::string mapper_type(ps.getParameter<std::string>("Class"));
 
@@ -102,18 +102,18 @@ Corrector parseFFTJetCorrector(const edm::ParameterSet& ps,
 
     // "adjuster" is a PSet
     const edm::ParameterSet& adjuster = ps.getParameter<edm::ParameterSet>("adjuster");
-    boost::shared_ptr<const AbsFFTJetAdjuster<MyJet,Adjustable> > adj = 
+    std::shared_ptr<const AbsFFTJetAdjuster<MyJet,Adjustable> > adj = 
         parseFFTJetAdjuster<MyJet,Adjustable>(adjuster, verbose);
 
     // "scalers" is a VPSet
     const std::vector<edm::ParameterSet>& scalers = 
         ps.getParameter<std::vector<edm::ParameterSet> >("scalers");
     const unsigned nScalers = scalers.size();
-    std::vector<boost::shared_ptr<const AbsFFTJetScaleCalculator<MyJet,Adjustable> > > sVec;
+    std::vector<std::shared_ptr<const AbsFFTJetScaleCalculator<MyJet,Adjustable> > > sVec;
     sVec.reserve(nScalers);
     for (unsigned i=0; i<nScalers; ++i)
     {
-        boost::shared_ptr<AbsFFTJetScaleCalculator<MyJet,Adjustable> > s = 
+        std::shared_ptr<AbsFFTJetScaleCalculator<MyJet,Adjustable> > s = 
             parseFFTJetScaleCalculator<MyJet,Adjustable>(scalers[i], ar, verbose);
         sVec.push_back(s);
     }

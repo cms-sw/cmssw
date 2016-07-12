@@ -34,6 +34,8 @@
 
 #include <algorithm> // for std::swap()
 #include <memory>
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 
@@ -69,14 +71,14 @@ namespace edm {
 
     value_ptr() : myP(nullptr) { }
     explicit value_ptr(T* p) : myP(p) { }
-    ~value_ptr() { delete myP; }
+    ~value_ptr() { delete myP.get(); }
 
     // --------------------------------------------------
     // Copy constructor/copy assignment:
     // --------------------------------------------------
 
     value_ptr(value_ptr const& orig) :
-      myP(createFrom(orig.myP)) {
+      myP(createFrom(get_underlying_safe(orig.myP))) {
     }
 
     value_ptr& operator=(value_ptr const& orig) {
@@ -94,7 +96,7 @@ namespace edm {
 
     value_ptr& operator=(value_ptr&& orig) {
       if (myP!=orig.myP) {
-        delete myP;
+        delete myP.get();
         myP=orig.myP;
         orig.myP=nullptr;
       } 
@@ -105,8 +107,10 @@ namespace edm {
     // Access mechanisms:
     // --------------------------------------------------
 
-    T& operator*() const { return *myP; }
-    T* operator->() const { return myP; }
+    T const& operator*() const { return *myP; }
+    T& operator*() { return *myP; }
+    T const* operator->() const { return get_underlying_safe(myP); }
+    T* operator->() { return get_underlying_safe(myP); }
 
     // --------------------------------------------------
     // Manipulation:
@@ -131,20 +135,6 @@ namespace edm {
     }
 
     // --------------------------------------------------
-    // Copy-like construct/assign from auto_ptr<>:
-    // --------------------------------------------------
-
-    value_ptr(std::auto_ptr<T> orig) :
-      myP(orig.release()) {
-    }
-
-    value_ptr& operator=(std::auto_ptr<T> orig) {
-      value_ptr<T> temp(orig);
-      swap(temp);
-      return *this;
-    }
-
-    // --------------------------------------------------
     // Move-like construct/assign from unique_ptr<>:
     // --------------------------------------------------
 
@@ -152,7 +142,7 @@ namespace edm {
       myP(orig.release()) { orig=nullptr; }
 
     value_ptr& operator=(std::unique_ptr<T> orig) {
-      value_ptr<T> temp(orig);
+      value_ptr<T> temp(std::move(orig));
       swap(temp);
       return *this;
     }
@@ -191,7 +181,7 @@ namespace edm {
     // Member data:
     // --------------------------------------------------
 
-    T* myP;
+    edm::propagate_const<T*> myP;
 
   }; // value_ptr
 

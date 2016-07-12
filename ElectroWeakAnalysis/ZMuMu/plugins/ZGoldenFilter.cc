@@ -113,7 +113,7 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
     else {
       name = fullname;
     }
-    if ( &toc !=0 ) {
+    if ( toc.size() != 0 ) {
       const trigger::Keys & k = handleTriggerEvent_->filterKeys(ia);
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	if (name == L3FilterName_  ) {

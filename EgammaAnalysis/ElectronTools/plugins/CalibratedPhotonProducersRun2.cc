@@ -45,7 +45,7 @@ CalibratedPhotonProducerRun2T<T>::produce( edm::Event & iEvent, const edm::Event
   edm::Handle<edm::View<T> > in;
   iEvent.getByToken(thePhotonToken, in);
 
-  std::auto_ptr<std::vector<T> > out(new std::vector<T>());
+  std::unique_ptr<std::vector<T> > out(new std::vector<T>());
   out->reserve(in->size());   
   
   for (const T &ele : *in) {
@@ -53,7 +53,7 @@ CalibratedPhotonProducerRun2T<T>::produce( edm::Event & iEvent, const edm::Event
     theEnCorrectorRun2.calibrate(out->back(), iEvent.id().run(), iEvent.streamID());
   }
     
-  iEvent.put(out);
+  iEvent.put(std::move(out));
 }
 
 typedef CalibratedPhotonProducerRun2T<reco::Photon> CalibratedPhotonProducerRun2;

@@ -49,18 +49,18 @@ public:
     nullPHID = ProcessHistoryID();
 
     ProcessConfiguration pc;
-    std::unique_ptr<ProcessHistory> processHistory1(new ProcessHistory);
+    auto processHistory1 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph1 = *processHistory1;
     processHistory1->push_back(pc);
     fakePHID1 = ph1.id();
 
-    std::unique_ptr<ProcessHistory> processHistory2(new ProcessHistory);
+    auto processHistory2 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph2 = *processHistory2;
     processHistory2->push_back(pc);
     processHistory2->push_back(pc);
     fakePHID2 = ph2.id();
 
-    std::unique_ptr<ProcessHistory> processHistory3(new ProcessHistory);
+    auto processHistory3 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph3 = *processHistory3;
     processHistory3->push_back(pc);
     processHistory3->push_back(pc);

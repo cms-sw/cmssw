@@ -28,7 +28,6 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
-#include <set>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -111,7 +110,7 @@ namespace edm {
 
     template <typename PROD>
     void
-    put(std::unique_ptr<PROD> product) {put<PROD>(product, std::string());}
+    put(std::unique_ptr<PROD> product) {put<PROD>(std::move(product), std::string());}
 
     ///Put a new product with a 'product instance name'
     template <typename PROD>
@@ -126,7 +125,7 @@ namespace edm {
     getProvenance(BranchID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
     ProcessHistoryID const& processHistoryID() const;
 
@@ -159,14 +158,11 @@ namespace edm {
 
 
     void commit_();
-    void addToGotBranchIDs(Provenance const& prov) const;
 
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     LuminosityBlockAuxiliary const& aux_;
     std::shared_ptr<Run const> const run_;
-    typedef std::set<BranchID> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
     ModuleCallingContext const* moduleCallingContext_;
 
     static const std::string emptyString_;
@@ -181,7 +177,7 @@ namespace edm {
   template <typename PROD>
   void
   LuminosityBlock::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(product.get() == 0) {                // null pointer is illegal
+    if(product.get() == nullptr) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("LuminosityBlock", typeID, productInstanceName);
     }

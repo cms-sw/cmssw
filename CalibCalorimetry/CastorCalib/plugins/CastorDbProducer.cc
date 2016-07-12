@@ -75,7 +75,7 @@ CastorDbProducer::~CastorDbProducer()
 //
 
 // ------------ method called to produce the data  ------------
-boost::shared_ptr<CastorDbService> CastorDbProducer::produce( const CastorDbRecord&)
+std::shared_ptr<CastorDbService> CastorDbProducer::produce( const CastorDbRecord&)
 {
   return mService;
 }

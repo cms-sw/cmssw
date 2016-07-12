@@ -5,7 +5,6 @@
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
 #include "HtrXmlPattern.h"
 #include "HtrXmlPatternTool.h"

@@ -188,8 +188,8 @@ void DTNewROS8FileReader::produce(Event&e, EventSetup const&es){
    edm::Handle<FEDRawDataCollection> rawdata;
    FEDRawDataCollection *fedcoll = 0;
    fillRawData(e,fedcoll);
-   std::auto_ptr<FEDRawDataCollection> bare_product(fedcoll);
-   e.put(bare_product);
+   std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
+   e.put(std::move(bare_product));
 }
 
 

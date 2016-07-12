@@ -290,9 +290,9 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
 {
    
   //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
+  std::unique_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
   //Create empty output collections
-  std::auto_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
+  std::unique_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
   
   
   ////all selected..
@@ -438,7 +438,7 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
   }
   // The set of used DetID's for a given event:
   m_used_strips.clear();
-  std::auto_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
+  std::unique_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
 
   Handle<EERecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(endcapHitsToken_,endcapRecHitsHandle);
@@ -555,12 +555,12 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event& iEvent, const edm::Event
   
   ////Now put into events selected rechits.
   if(doSelBarrel_){
-    iEvent.put( selEBRecHitCollection, BarrelHits_);
+    iEvent.put(std::move(selEBRecHitCollection), BarrelHits_);
   }  
   if(doSelEndcap_){
-    iEvent.put( selEERecHitCollection, EndcapHits_);
+    iEvent.put(std::move(selEERecHitCollection), EndcapHits_);
     if(storeRecHitES_){
-      iEvent.put( selESRecHitCollection, ESHits_);
+      iEvent.put(std::move(selESRecHitCollection), ESHits_);
     }
   }
   
@@ -643,10 +643,10 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
     }
     
     float en1 = it_bc->energy();
-    math::XYZVector v1(it_bc->position());  // set vector as cluster position 
-    v1 *= (en1 / v1.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless particles)
-    float pt1 = v1.Rho();   // Rho is equivalent to Pt when using XYZVector
-
+    math::XYZVector v1(it_bc->position());  // set vector as cluster position                                                                                          
+    v1 *= (en1 / v1.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless particles)                                   
+    float pt1 = v1.Rho();   // Rho is equivalent to Pt when using XYZVector  
+ 
     int ind1 = int( it_bc - clusterCollection->begin() );
     std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind1);
     if( itmap != passShowerShape_clus.end()){
@@ -662,9 +662,9 @@ void HLTRegionalEcalResonanceFilter::doSelection(int detector, const reco::Basic
       }
 
       float en2 = it_bc2 ->energy();
-      math::XYZVector v2(it_bc2->position());  // set vector as cluster position 
-      v2 *= (en2 / v2.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless particles)
-      float pt2 = v2.Rho();   // Rho is equivalent to Pt when using XYZVector
+      math::XYZVector v2(it_bc2->position());  // set vector as cluster position                    
+      v2 *= (en2 / v2.R());   // rescale vector's magnitude to the energy in order to get momentum vector (assuming massless particles)    
+      float pt2 = v2.Rho();   // Rho is equivalent to Pt when using XYZVector         
       
       int ind2 = int( it_bc2 - clusterCollection->begin() );
       std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind2);
@@ -1054,8 +1054,8 @@ void HLTRegionalEcalResonanceFilter::calcPaircluster(const reco::BasicCluster &b
   pt_pair = vsum.Rho(); // Rho method is the equivalent of Pt: returns sqrt( fx*fx + fy*fy )
   eta_pair = vsum.Eta();  
   phi_pair = vsum.Phi();
-
-
+  
+  
 }
 
 

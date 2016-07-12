@@ -240,7 +240,7 @@ void CSCCondSegFit::correctTheCovX(void){
     double chi2uCorrection = chiUZ/chi2Norm_;
     for(unsigned i=0; i<uu.size(); ++i)
       lex_[i]=lex_[i]*chi2uCorrection;
-      setScaleXError(chi2uCorrection);
+    setScaleXError(chi2uCorrection);
   }
     
   // Find most deviant hit 

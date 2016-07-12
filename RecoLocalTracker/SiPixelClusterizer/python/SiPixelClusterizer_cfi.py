@@ -24,3 +24,9 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
 )
 
 
+# This customization will be removed once we have phase1 pixel digis
+from Configuration.StandardSequences.Eras import eras
+eras.phase1Pixel.toModify(siPixelClusters, # FIXME
+    src = 'simSiPixelDigis',
+    MissCalibrate = False
+)

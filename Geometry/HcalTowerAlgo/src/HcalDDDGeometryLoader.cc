@@ -14,7 +14,9 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 //#define DebugLog
 
 HcalDDDGeometryLoader::HcalDDDGeometryLoader(const HcalDDDRecConstants* hcons)
-  : hcalConstants(hcons) { }
+  : hcalConstants(hcons) { 
+  isBH_ = hcalConstants->isBH();
+}
 
 HcalDDDGeometryLoader::~HcalDDDGeometryLoader() {
 }
@@ -31,7 +33,7 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
   if ( geom->cornersMgr() == 0 ) {
      const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
 			       hcalConstants->numberOfCells(HcalEndcap ) +
-			       hcalConstants->numberOfCells(HcalForward) +
+			       2*hcalConstants->numberOfCells(HcalForward) +
 			       hcalConstants->numberOfCells(HcalOuter  ) );
      geom->allocateCorners( count ) ;
   }
@@ -53,7 +55,7 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo) {
   if( geom->cornersMgr() == 0 ) {
     const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
 			      hcalConstants->numberOfCells(HcalEndcap ) +
-			      hcalConstants->numberOfCells(HcalForward) +
+			      2*hcalConstants->numberOfCells(HcalForward) +
 			      hcalConstants->numberOfCells(HcalOuter  ) );
     geom->allocateCorners( count ) ;
   }
@@ -192,6 +194,7 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
   } else {
     z          = hcalCell.depthMin();
     thickness  = hcalCell.depthMax() - z;
+    if (isBH_) z += (0.5*thickness);
     z         *= detId.zside(); // get the sign right.
     r          = z * tan(theta);
     thickness /= std::abs(cos(theta));

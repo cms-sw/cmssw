@@ -30,7 +30,7 @@ MultiRecHitCollectorESProducer::MultiRecHitCollectorESProducer(const edm::Parame
 
 MultiRecHitCollectorESProducer::~MultiRecHitCollectorESProducer() {}
 
-boost::shared_ptr<MultiRecHitCollector> 
+std::shared_ptr<MultiRecHitCollector> 
 MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
   std::string mode = "Grouped";
   if (conf_.getParameter<std::string>("Mode")=="Simple") mode = "Simple"; 
@@ -55,17 +55,17 @@ MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
 	std::string propagatorOppositeName = conf_.getParameter<std::string>("propagatorOpposite");  
 	ESHandle<Propagator>  propagatorOppositehandle;
   	iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(propagatorOppositeName, propagatorOppositehandle); 
-  	collector_ = boost::shared_ptr<MultiRecHitCollector>(new GroupedDAFHitCollector(measurementhandle.product(),
-									         mrhuhandle.product(),
-										 estimatorhandle.product(),
-										 propagatorhandle.product(),
-										 propagatorOppositehandle.product(), debug));
+  	collector_ = std::make_shared<GroupedDAFHitCollector>(measurementhandle.product(),
+						         mrhuhandle.product(),
+							 estimatorhandle.product(),
+							 propagatorhandle.product(),
+							 propagatorOppositehandle.product(), debug);
   } 
   else {
-	collector_ = boost::shared_ptr<MultiRecHitCollector>(new SimpleDAFHitCollector(measurementhandle.product(),
-                                                                                 mrhuhandle.product(),
-                                                                                 estimatorhandle.product(),
-                                                                                 propagatorhandle.product(), debug));
+	collector_ = std::make_shared<SimpleDAFHitCollector>(measurementhandle.product(),
+                                                             mrhuhandle.product(),
+                                                             estimatorhandle.product(),
+                                                             propagatorhandle.product(), debug);
   }
   	
   return collector_;

@@ -4,18 +4,25 @@
 // ********************************************************************
 
 #include "DetectorDescription/Parser/src/DDDividedTubs.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDAxes.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include <string>
+#include <utility>
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDCompactView;
 
 DDDividedTubsRho::DDDividedTubsRho( const DDDivision& div, DDCompactView* cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )

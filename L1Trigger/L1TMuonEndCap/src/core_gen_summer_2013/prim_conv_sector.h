@@ -172,11 +172,11 @@ signal_storage s__storage;  signal_ s;
 
 				void init();
 			};
-			map <ull, csc11__class> csc11;
+			std::map <ull, csc11__class> csc11;
 
 			void init();
 		};
-		map <ull, station11__class> station11;
+		std::map <ull, station11__class> station11;
 		class station12__class
 		{
 		 public:
@@ -187,11 +187,11 @@ signal_storage s__storage;  signal_ s;
 
 				void init();
 			};
-			map <ull, csc12__class> csc12;
+			std::map <ull, csc12__class> csc12;
 
 			void init();
 		};
-		map <ull, station12__class> station12;
+		std::map <ull, station12__class> station12;
 		class station__class
 		{
 		 public:
@@ -202,11 +202,11 @@ signal_storage s__storage;  signal_ s;
 
 				void init();
 			};
-			map <ull, csc__class> csc;
+			std::map <ull, csc__class> csc;
 
 			void init();
 		};
-		map <ull, station__class> station;
+		std::map <ull, station__class> station;
 
 		void init();
 	};

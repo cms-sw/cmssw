@@ -39,7 +39,7 @@ class DTPtaLutOnlineProd :
       DTPtaLutOnlineProd(const edm::ParameterSet&);
       ~DTPtaLutOnlineProd();
 
-  virtual boost::shared_ptr< L1MuDTPtaLut > newObject(
+  virtual std::shared_ptr< L1MuDTPtaLut > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -77,13 +77,13 @@ DTPtaLutOnlineProd::~DTPtaLutOnlineProd()
 
 }
 
-boost::shared_ptr< L1MuDTPtaLut >
+std::shared_ptr< L1MuDTPtaLut >
 DTPtaLutOnlineProd::newObject( const std::string& objectKey )
 {
   edm::LogError( "L1-O2O" ) << "L1MuDTPtaLut object with key "
 			    << objectKey << " not in ORCON!" ;
 
-  return boost::shared_ptr< L1MuDTPtaLut >() ;
+  return std::shared_ptr< L1MuDTPtaLut >() ;
 }
 
 //

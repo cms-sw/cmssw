@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HGCalGeometryWriter")
-process.load('CondCore.DBCommon.CondDBCommon_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023Dev_cff')
+process.load('CondCore.CondDB.CondDB_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023sim_cff')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -26,11 +26,10 @@ process.HGCalHEScParametersWriter = cms.EDAnalyzer("PHGCalParametersDBBuilder",
                                                    NameW = cms.untracked.string("HGCalWafer"),
                                                    NameC = cms.untracked.string("HGCalCell"))
 
-process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-process.CondDBCommon.timetype = cms.untracked.string('runnumber')
-process.CondDBCommon.connect = cms.string('sqlite_file:myfile.db')
+process.CondDB.timetype = cms.untracked.string('runnumber')
+process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDBCommon,
+                                          process.CondDB,
                                           toPut = cms.VPSet(
                                                             cms.PSet(record = cms.string('PHGCalParametersRcd'),tag = cms.string('HGCALParameters_Geometry_Test01'))
                                                             )

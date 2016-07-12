@@ -42,7 +42,7 @@ RPCEventDump::produce(edm::Event & e, const edm::EventSetup& c)
       std::cout<<"Opening file "<<filesed[e.id().event()-1]<<std::endl;
     }
   }
-  std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
+  std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
 
   {
     RPCDetId r(0,1,1,10,1,1,1);
@@ -98,7 +98,7 @@ RPCEventDump::produce(edm::Event & e, const edm::EventSetup& c)
     RPCDigi rpcDigi6(6,0);
     pDigis->insertDigi(r,rpcDigi6);  
   }
-  e.put(pDigis);
+  e.put(std::move(pDigis));
 }
 
 DEFINE_FWK_MODULE(RPCEventDump);

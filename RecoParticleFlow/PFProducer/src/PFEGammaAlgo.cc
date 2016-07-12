@@ -30,6 +30,7 @@
 #include <TVector2.h>
 #include <iomanip>
 #include <algorithm>
+#include <numeric>
 #include <TMath.h>
 #include "TMVA/MethodBDT.h"
 

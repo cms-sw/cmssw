@@ -57,7 +57,7 @@ void EgammaHLTCaloTowerProducer::produce(edm::StreamID, edm::Event & evt, edm::E
   evt.getByToken(l1isoseeds_, emIsolColl);
   edm::Handle<edm::View<reco::Candidate> > emNonIsolColl;
   evt.getByToken(l1nonisoseeds_, emNonIsolColl);
-  std::auto_ptr<CaloTowerCollection> cands(new CaloTowerCollection);
+  std::unique_ptr<CaloTowerCollection> cands(new CaloTowerCollection);
   cands->reserve(caloTowers->size());
 
   for (unsigned idx = 0; idx < caloTowers->size(); idx++) {
@@ -86,5 +86,5 @@ void EgammaHLTCaloTowerProducer::produce(edm::StreamID, edm::Event & evt, edm::E
     }
   }
 
-  evt.put( cands );  
+  evt.put(std::move(cands));  
 }

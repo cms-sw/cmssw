@@ -419,15 +419,13 @@ namespace HLTOfflineDQMTopSingleLepton {
           if( (*btagEff)[jetRef]>btagEffWP_ ) ++multBEff; 
           // for the btagPur collection
 //          double btagPurDisc = (*btagPur)[jetRef];
-//          fill("jetBDiscPur_", btagPurDisc);
+//          fill("jetBDiscPur_", btagPurDisc); 
 //          if( (*btagPur)[jetRef]>btagPurWP_ ) {if(multBPur == 0) bJetCand = *jet; ++multBPur;} 
-
           // for the btagVtx collection
           double btagVtxDisc = (*btagVtx)[jetRef];
           fill("jetBDiscVtx_", btagVtxDisc);
-          if( (*btagVtx)[jetRef]>btagVtxWP_ ) {if(multBVtx == 0) bJetCand = *jet; ++multBVtx;}
-
-        }	
+          if( (*btagVtx)[jetRef]>btagVtxWP_ ) { if(multBVtx == 0) bJetCand= *jet; ++multBVtx;} 
+        }
       }
 
       fill("jetMult_"    , mult    );
@@ -515,11 +513,11 @@ namespace HLTOfflineDQMTopSingleLepton {
 		hasRawTriggerSummary=true;
 		if(!rawTriggerEvent.isValid()){ 
 			hasRawTriggerSummary=false;
-			edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+			edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
 			<< "No RAW trigger summary found! Returning... \n";
 
 			if(!aodTriggerEvent.isValid()){
-				edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+				edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
 				<< "No AOD trigger summary found! Returning... \n";
 				return;
 			}	  

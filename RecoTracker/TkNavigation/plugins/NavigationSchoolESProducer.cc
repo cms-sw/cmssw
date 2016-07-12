@@ -1,7 +1,6 @@
 #include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -21,14 +20,14 @@ public:
   NavigationSchoolESProducer(const edm::ParameterSet&);
   ~NavigationSchoolESProducer();
   
-  typedef boost::shared_ptr<NavigationSchool> ReturnType;
+  typedef std::shared_ptr<NavigationSchool> ReturnType;
 
   virtual ReturnType produce(const NavigationSchoolRecord&);
  protected:
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;
-  boost::shared_ptr<NavigationSchool> theNavigationSchool ;
+  std::shared_ptr<NavigationSchool> theNavigationSchool ;
 };
 
 //

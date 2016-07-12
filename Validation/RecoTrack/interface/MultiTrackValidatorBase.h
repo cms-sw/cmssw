@@ -45,7 +45,7 @@ class MultiTrackValidatorBase {
   MultiTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector && iC, bool isSeed = false);
     
   /// Destructor
-  virtual ~MultiTrackValidatorBase(){ }
+  virtual ~MultiTrackValidatorBase() noexcept(false) { }
   
   //virtual void initialize()=0;
 
@@ -57,6 +57,8 @@ class MultiTrackValidatorBase {
   std::vector<edm::InputTag> associators;
   edm::EDGetTokenT<TrackingParticleCollection> label_tp_effic;
   edm::EDGetTokenT<TrackingParticleCollection> label_tp_fake;
+  edm::EDGetTokenT<TrackingParticleRefVector> label_tp_effic_refvector;
+  edm::EDGetTokenT<TrackingParticleRefVector> label_tp_fake_refvector;
   edm::EDGetTokenT<TrackingVertexCollection> label_tv;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > label_pileupinfo;
 

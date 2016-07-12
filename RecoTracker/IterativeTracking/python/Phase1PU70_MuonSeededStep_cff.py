@@ -191,13 +191,18 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
     ) #end of clone
 
 
-
+muonSeededStepCoreInOut = cms.Sequence(
+    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
+)
 muonSeededStepCore = cms.Sequence(
-    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
+    muonSeededStepCoreInOut +
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
 )
+muonSeededStepExtraInOut = cms.Sequence(
+    muonSeededTracksInOutSelector
+)
 muonSeededStepExtra = cms.Sequence(
-    muonSeededTracksInOutSelector +
+    muonSeededStepExtraInOut +
     muonSeededTracksOutInSelector
 )
 
@@ -213,7 +218,10 @@ muonSeededSeedsInOutAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src =
 muonSeededSeedsOutInAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src = cms.InputTag("muonSeededSeedsOutIn"))
 muonSeededTrackCandidatesInOutAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesInOut"))
 muonSeededTrackCandidatesOutInAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesOutIn"))
+muonSeededStepDebugInOut = cms.Sequence(
+    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+)
 muonSeededStepDebug = cms.Sequence(
     muonSeededSeedsOutInAsTracks + muonSeededTrackCandidatesOutInAsTracks +
-    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+    muonSeededStepDebugInOut
 )

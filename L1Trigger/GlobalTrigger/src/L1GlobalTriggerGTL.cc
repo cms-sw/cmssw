@@ -178,7 +178,7 @@ void L1GlobalTriggerGTL::run(
         const L1GlobalTriggerPSB* ptrGtPSB,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
-        std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        L1GlobalTriggerObjectMapRecord* gtObjectMapRecord,
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1NoIsoEG, const int nrL1IsoEG,

@@ -37,8 +37,7 @@ namespace edm{
   {
 
     std::string myname = pset_.getParameter<std::string>("module_name");
-    std::unique_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname));
-    e.put(std::move(product));
+    e.put(std::make_unique<edmtest::StringProduct>(myname));
     
   }
 }//namespace  

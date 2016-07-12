@@ -119,7 +119,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        edm::Handle<View<pat::Muon> > muons;
        iEvent.getByToken(muonsToken_,muons);
 
-       std::auto_ptr<std::vector<pat::Muon> > output(new std::vector<pat::Muon>());
+       auto output = std::make_unique<std::vector<pat::Muon> >();
 
        for (View<pat::Muon>::const_iterator muon = muons->begin(), end = muons->end(); muon != end; ++muon) {
            if (mode_ == TestWrite) {
@@ -136,7 +136,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                // myMuon.addUserData("tmp self", *muon, true);
                // myMuon.addUserData("tmp crazy", CrazyDataType(), true);
 
-               output->push_back(myMuon);
+               output->push_back(std::move(myMuon));
            } else {
                std::cout << "Muon #" << (muon - muons->begin()) << ":" << std::endl;
                std::cout << "\tanswer   = " << muon->userInt("answer") << std::endl;
@@ -163,7 +163,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                }
            }
        }
-       iEvent.put(output);
+       iEvent.put(std::move(output));
    } else {
        using namespace std;
        Handle<View<reco::Muon> > recoMuons;

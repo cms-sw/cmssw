@@ -30,7 +30,10 @@ hltHITPixelTracksHB = cms.EDProducer("PixelTrackProducer",
             beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
             )
         ),
-                                     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+                                     CleanerPSet = cms.PSet(
+                                         ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+                                         useQuadrupletAlgo = cms.bool(False)
+                                     ),
                                      OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitTripletGenerator" ),
         SeedingLayers = cms.string( "hltESPPixelLayerTripletsHITHB" ),
@@ -74,7 +77,10 @@ hltHITPixelTracksHE = cms.EDProducer("PixelTrackProducer",
             ptMin = cms.double( 0.35 )
             )
         ),
-                                     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+                                     CleanerPSet = cms.PSet(
+                                         ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+                                         useQuadrupletAlgo = cms.bool(False)
+                                     ),
                                      OrderedHitsFactoryPSet = cms.PSet( 
         ComponentName = cms.string( "StandardHitTripletGenerator" ),
         GeneratorPSet = cms.PSet( 
@@ -111,7 +117,7 @@ hltIsolPixelTrackProdHE = cms.EDProducer("IsolatedPixelTrackCandidateProducer",
                                          MaxVtxDXYSeed = cms.double( 101.0 ),
                                          tauUnbiasCone = cms.double( 1.2 ),
                                          VertexLabel = cms.InputTag( "hltHITPixelVerticesHE" ),
-                                         L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                         L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                          EBEtaBoundary = cms.double( 1.479 ),
                                          maxPTrackForIsolation = cms.double( 3.0 ),
                                          MagFieldRecordName = cms.string( "VolumeBasedMagneticField" ),
@@ -129,7 +135,7 @@ hltIsolPixelTrackL2FilterHE = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( -40000.0 ),
                                            MinPtTrack = cms.double( 3.5 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 12.0 ),
                                            NMaxTrackCandidates = cms.int32( 5 ),
                                            MaxEtaTrack = cms.double( 2.2 ),
@@ -237,7 +243,7 @@ hltIsolPixelTrackL3FilterHE = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( 4.0 ),
                                            MinPtTrack = cms.double( 20.0 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 38.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                            MaxEtaTrack = cms.double( 2.2 ),
@@ -270,7 +276,7 @@ hltIsolPixelTrackProdHB = cms.EDProducer("IsolatedPixelTrackCandidateProducer",
                                          MaxVtxDXYSeed = cms.double( 101.0 ),
                                          tauUnbiasCone = cms.double( 1.2 ),
                                          VertexLabel = cms.InputTag( "hltHITPixelVerticesHB" ),
-                                         L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                         L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                          EBEtaBoundary = cms.double( 1.479 ),
                                          maxPTrackForIsolation = cms.double( 3.0 ),
                                          MagFieldRecordName = cms.string( "VolumeBasedMagneticField" ),
@@ -288,7 +294,7 @@ hltIsolPixelTrackL2FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( -40000.0 ),
                                            MinPtTrack = cms.double( 3.5 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 8.0 ),
                                            NMaxTrackCandidates = cms.int32( 10 ),
                                            MaxEtaTrack = cms.double( 1.15 ),
@@ -397,7 +403,7 @@ hltIsolPixelTrackL3FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( 4.0 ),
                                            MinPtTrack = cms.double( 20.0 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 38.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                             MaxEtaTrack = cms.double( 1.15 ),
@@ -423,7 +429,7 @@ hltEcalIsolPixelTrackL2FilterHE = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
                                                saveTags = cms.bool( False )
                                                )
 
-HLT_IsoTrackHE_v15 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
+HLT_IsoTrackHE_v15 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
 
-HLT_IsoTrackHB_v14 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
+HLT_IsoTrackHB_v14 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
 

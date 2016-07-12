@@ -7,7 +7,7 @@ CSCFakeDBCrosstalk::CSCFakeDBCrosstalk(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbCrosstalk = boost::shared_ptr<CSCDBCrosstalk> ( prefillDBCrosstalk() );
+  cndbCrosstalk = std::shared_ptr<CSCDBCrosstalk> ( prefillDBCrosstalk() );
   setWhatProduced(this,&CSCFakeDBCrosstalk::produceDBCrosstalk);
   findingRecord<CSCDBCrosstalkRcd>();
 }

@@ -7,20 +7,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include <vector>
 
-//namespace edm {class ParameterSet;}
-class TransientTrackingRecHitBuilder;
-class TrackerGeometry;
-class MagneticField;
-class TrackerDigiGeometryRecord;
-class IdealMagneticFieldRecord;
-class TransientRecHitRecord;
 
 
-class PixelFitterByHelixProjections : public PixelFitter {
+class PixelFitterByHelixProjections final : public PixelFitter {
 public:
   PixelFitterByHelixProjections(  const edm::ParameterSet& cfg);
   virtual ~PixelFitterByHelixProjections() {}
@@ -42,13 +34,7 @@ private:
   */
 private:
   edm::ParameterSet theConfig;
-
-  mutable const TrackerGeometry * theTracker;
   mutable const MagneticField * theField;
-  mutable const TransientTrackingRecHitBuilder * theTTRecHitBuilder;
-
-  mutable edm::ESWatcher<TrackerDigiGeometryRecord> theTrackerWatcher;
-  mutable edm::ESWatcher<IdealMagneticFieldRecord> theFieldWatcher;
-  mutable edm::ESWatcher<TransientRecHitRecord> theTTRecHitBuilderWatcher;
+ 
 };
 #endif

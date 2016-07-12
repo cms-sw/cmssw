@@ -87,7 +87,7 @@ void IsolatedPixelTrackCandidateL1TProducer::beginRun(const edm::Run &run, const
 
 void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
-  reco::IsolatedPixelTrackCandidateCollection* trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
+  auto trackCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
@@ -226,8 +226,7 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
     }    
   }
   // put the product in the event
-  std::auto_ptr< reco::IsolatedPixelTrackCandidateCollection > outCollection(trackCollection);
-  theEvent.put(outCollection);
+  theEvent.put(std::move(trackCollection));
 }
 
 

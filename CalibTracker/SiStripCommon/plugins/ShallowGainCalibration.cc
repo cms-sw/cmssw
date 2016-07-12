@@ -32,22 +32,22 @@ ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
 
 void ShallowGainCalibration::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<std::vector<int> >            trackindex    ( new std::vector<int>            );
-  std::auto_ptr<std::vector<unsigned int> >   rawid         ( new std::vector<unsigned int>   );
-  std::auto_ptr<std::vector<double> >         localdirx     ( new std::vector<double>         );
-  std::auto_ptr<std::vector<double> >         localdiry     ( new std::vector<double>         );
-  std::auto_ptr<std::vector<double> >         localdirz     ( new std::vector<double>         );
-  std::auto_ptr<std::vector<unsigned short> > firststrip    ( new std::vector<unsigned short> );
-  std::auto_ptr<std::vector<unsigned short> > nstrips       ( new std::vector<unsigned short> );
-  std::auto_ptr<std::vector<bool> >           saturation    ( new std::vector<bool>           );
-  std::auto_ptr<std::vector<bool> >           overlapping   ( new std::vector<bool>           );
-  std::auto_ptr<std::vector<bool> >           farfromedge   ( new std::vector<bool>           );
-  std::auto_ptr<std::vector<unsigned int> >   charge        ( new std::vector<unsigned int>   );
-  std::auto_ptr<std::vector<double> >         path          ( new std::vector<double>         );
-  std::auto_ptr<std::vector<double> >         chargeoverpath( new std::vector<double>         );
-  std::auto_ptr<std::vector<unsigned char> >  amplitude     ( new std::vector<unsigned char>  );
-  std::auto_ptr<std::vector<double>  >        gainused      ( new std::vector<double>          );
-  std::auto_ptr<std::vector<double>  >        gainusedTick  ( new std::vector<double>          );
+  auto         trackindex    = std::make_unique<std::vector<int>>            ();
+  auto         rawid         = std::make_unique<std::vector<unsigned int>>   ();
+  auto         localdirx     = std::make_unique<std::vector<double>>         ();
+  auto         localdiry     = std::make_unique<std::vector<double>>         ();
+  auto         localdirz     = std::make_unique<std::vector<double>>         ();
+  auto         firststrip    = std::make_unique<std::vector<unsigned short>> ();
+  auto         nstrips       = std::make_unique<std::vector<unsigned short>> ();
+  auto         saturation    = std::make_unique<std::vector<bool>>           ();
+  auto         overlapping   = std::make_unique<std::vector<bool>>           ();
+  auto         farfromedge   = std::make_unique<std::vector<bool>>           ();
+  auto         charge        = std::make_unique<std::vector<unsigned int>>   ();
+  auto         path          = std::make_unique<std::vector<double>>         ();
+  auto         chargeoverpath= std::make_unique<std::vector<double>>         ();
+  auto         amplitude     = std::make_unique<std::vector<unsigned char>>  ();
+  auto         gainused      = std::make_unique<std::vector<double>>         ();
+  auto         gainusedTick  = std::make_unique<std::vector<double>>         ();
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   m_tracker=&(* theTrackerGeometry );
@@ -179,22 +179,22 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        }
   }
 
-  iEvent.put(trackindex,    Prefix + "trackindex"    + Suffix );
-  iEvent.put(rawid     ,    Prefix + "rawid"         + Suffix );
-  iEvent.put(localdirx ,    Prefix + "localdirx"     + Suffix );
-  iEvent.put(localdiry ,    Prefix + "localdiry"     + Suffix );
-  iEvent.put(localdirz ,    Prefix + "localdirz"     + Suffix );
-  iEvent.put(firststrip,    Prefix + "firststrip"    + Suffix );
-  iEvent.put(nstrips,       Prefix + "nstrips"       + Suffix );
-  iEvent.put(saturation,    Prefix + "saturation"    + Suffix );
-  iEvent.put(overlapping,   Prefix + "overlapping"   + Suffix );
-  iEvent.put(farfromedge,   Prefix + "farfromedge"   + Suffix );
-  iEvent.put(charge,        Prefix + "charge"        + Suffix );
-  iEvent.put(path,          Prefix + "path"          + Suffix );
-  iEvent.put(chargeoverpath,Prefix + "chargeoverpath"+ Suffix );
-  iEvent.put(amplitude,     Prefix + "amplitude"     + Suffix );
-  iEvent.put(gainused,      Prefix + "gainused"      + Suffix );
-  iEvent.put(gainusedTick,  Prefix + "gainusedTick"  + Suffix );
+  iEvent.put(std::move(trackindex),    Prefix + "trackindex"    + Suffix );
+  iEvent.put(std::move(rawid     ),    Prefix + "rawid"         + Suffix );
+  iEvent.put(std::move(localdirx ),    Prefix + "localdirx"     + Suffix );
+  iEvent.put(std::move(localdiry ),    Prefix + "localdiry"     + Suffix );
+  iEvent.put(std::move(localdirz ),    Prefix + "localdirz"     + Suffix );
+  iEvent.put(std::move(firststrip),    Prefix + "firststrip"    + Suffix );
+  iEvent.put(std::move(nstrips),       Prefix + "nstrips"       + Suffix );
+  iEvent.put(std::move(saturation),    Prefix + "saturation"    + Suffix );
+  iEvent.put(std::move(overlapping),   Prefix + "overlapping"   + Suffix );
+  iEvent.put(std::move(farfromedge),   Prefix + "farfromedge"   + Suffix );
+  iEvent.put(std::move(charge),        Prefix + "charge"        + Suffix );
+  iEvent.put(std::move(path),          Prefix + "path"          + Suffix );
+  iEvent.put(std::move(chargeoverpath),Prefix + "chargeoverpath"+ Suffix );
+  iEvent.put(std::move(amplitude),     Prefix + "amplitude"     + Suffix );
+  iEvent.put(std::move(gainused),      Prefix + "gainused"      + Suffix );
+  iEvent.put(std::move(gainusedTick),  Prefix + "gainusedTick"  + Suffix );
 }
 
 /*

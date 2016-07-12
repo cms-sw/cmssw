@@ -1,15 +1,26 @@
-#include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
-
-#include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDMaterial.h>
-
-#include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/Core/interface/DDPartSelection.h>
+#include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDSolidShapes.h>
+#include <DetectorDescription/Core/interface/DDSpecifics.h>
+#include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
+#include <stddef.h>
+#include <iomanip>
+#include <vector>
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include <sstream>
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
 
 void 
 DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos ) 

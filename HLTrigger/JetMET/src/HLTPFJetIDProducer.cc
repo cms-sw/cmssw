@@ -55,7 +55,7 @@ void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & descr
 void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::PFJetCollection> result (new reco::PFJetCollection());
+    std::unique_ptr<reco::PFJetCollection> result (new reco::PFJetCollection());
 
     edm::Handle<reco::PFJetCollection> pfjets;
     iEvent.getByToken(m_thePFJetToken, pfjets);
@@ -98,5 +98,5 @@ void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }
