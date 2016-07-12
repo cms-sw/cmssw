@@ -132,7 +132,9 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   if (fileListMode_) {
     try {
       fms_ = static_cast<evf::FastMonitoringService *> (edm::Service<evf::MicroStateService>().operator->());
-    } catch(...) {}
+    } catch(cms::Exception e) {
+        edm::LogInfo("FedRawDataInputSource") << "No FastMonitoringService found in the configuration";
+    }
   }
   else {
     fms_ = static_cast<evf::FastMonitoringService *> (edm::Service<evf::MicroStateService>().operator->());
@@ -1011,7 +1013,6 @@ void FedRawDataInputSource::readSupervisor()
       if (stat_res==-1) {
         edm::LogError("FedRawDataInputSource") << "Can not stat file (" << errno << "):-"<< rawFile << std::endl;
         setExceptionState_=true;
-	stop=true;
         break;
       }
       fileSize=st.st_size;
