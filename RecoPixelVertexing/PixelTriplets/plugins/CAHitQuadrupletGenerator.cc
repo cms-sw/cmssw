@@ -126,22 +126,18 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
     {
       return id == PixelSubdetector::PixelBarrel;
     };
+    for(unsigned int i = 0; i< 2; ++i)
+    {
+        auto const& ahit = foundQuadruplets[quadId][i]->getInnerHit();
+        gps[i] = ahit->globalPosition();
+        ges[i] = ahit->globalPositionError();
+        barrels[i] = isBarrel(ahit->geographicalId().subdetId());
+    }
 
-    gps[0] = foundQuadruplets[quadId][0]->getInnerHit()->globalPosition();
-    ges[0] = foundQuadruplets[quadId][0]->getInnerHit()->globalPositionError();
-    barrels[0] = isBarrel(foundQuadruplets[quadId][0]->getInnerHit()->geographicalId().subdetId());
-
-    gps[1] = foundQuadruplets[quadId][1]->getInnerHit()->globalPosition();
-    ges[1] = foundQuadruplets[quadId][1]->getInnerHit()->globalPositionError();
-    barrels[1] = isBarrel(foundQuadruplets[quadId][1]->getInnerHit()->geographicalId().subdetId());
-
-    gps[2] = foundQuadruplets[quadId][2]->getInnerHit()->globalPosition();
-    ges[2] = foundQuadruplets[quadId][2]->getInnerHit()->globalPositionError();
-    barrels[2] = isBarrel(foundQuadruplets[quadId][2]->getInnerHit()->geographicalId().subdetId());
-
-    gps[3] = foundQuadruplets[quadId][2]->getOuterHit()->globalPosition();
-    ges[3] = foundQuadruplets[quadId][2]->getOuterHit()->globalPositionError();
-    barrels[3] = isBarrel(foundQuadruplets[quadId][2]->getOuterHit()->geographicalId().subdetId());
+    auto const& ahit = foundQuadruplets[quadId][2]->getOuterHit();
+    gps[3] = ahit->globalPosition();
+    ges[3] = ahit->globalPositionError();
+    barrels[3] = isBarrel(ahit->geographicalId().subdetId());
 
     PixelRecoLineRZ line(gps[0], gps[2]);
     ThirdHitPredictionFromCircle predictionRPhi(gps[0], gps[2], extraHitRPhitolerance);
@@ -205,7 +201,7 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
     }
 
     result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
-
+    std::cout << " result size: " << result.size() << std::endl;
   }
 
 }
