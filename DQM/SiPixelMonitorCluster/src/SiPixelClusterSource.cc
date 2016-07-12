@@ -141,10 +141,6 @@ void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run 
   meClusBarrelProf->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   iBooker.setCurrentFolder(topFolderName_+"/Endcap");                                     
-  ss1.str(std::string()); ss1 << "totalNumberOfClustersProfile_siPixelClusters_Endcap";
-  ss2.str(std::string()); ss2 << "Total number of endcap clusters profile;Lumisection;";
-  meClusEndcapProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
-  meClusEndcapProf->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   ss1.str(std::string()); ss1 << "totalNumberOfClustersProfile_siPixelClusters_FPIX+";
   ss2.str(std::string()); ss2 << "Total number of FPIX+ clusters profile;Lumisection;";
@@ -217,7 +213,6 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   float trendVar = iEvent.orbitNumber()/262144.0; //lumisection : seconds - matches strip trend plot
 
   meClusBarrelProf->Fill(trendVar,nEventsBarrel);
-  meClusEndcapProf->Fill(trendVar,nEventsFPIXm + nEventsFPIXp);
   meClusFpixPProf->Fill(trendVar,nEventsFPIXp);
   meClusFpixMProf->Fill(trendVar,nEventsFPIXm);
   
