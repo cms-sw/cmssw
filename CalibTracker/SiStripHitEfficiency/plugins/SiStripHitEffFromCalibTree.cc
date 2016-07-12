@@ -125,6 +125,8 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     float _clusterTrajDist;
     float _stripsApvEdge;
     unsigned int _bunchx;
+    unsigned int _spaceBetweenTrains;
+    bool _showEndcapSides;
     bool  _showRings;
     bool  _showTOB6TEC9;
     float _tkMapMin;
@@ -165,6 +167,8 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   _clusterTrajDist = conf.getUntrackedParameter<double>("ClusterTrajDist",64.0);
   _stripsApvEdge = conf.getUntrackedParameter<double>("StripsApvEdge",10.0);
   _bunchx = conf.getUntrackedParameter<int>("BunchCrossing",0);
+  _spaceBetweenTrains = conf.getUntrackedParameter<int>("SpaceBetweenTrains",25);
+  _showEndcapSides = conf.getUntrackedParameter<bool>("ShowEndcapSides",true);
   _showRings = conf.getUntrackedParameter<bool>("ShowRings",false);
   _showTOB6TEC9 = conf.getUntrackedParameter<bool>("ShowTOB6TEC9",false);
   _tkMapMin = conf.getUntrackedParameter<double>("TkMapMin",0.9);
@@ -869,6 +873,10 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   
   int nLayers = 34;
   if(_showRings) nLayers = 30;
+  if(!_showEndcapSides) {
+    if(!_showRings) nLayers=22;
+    else nLayers=20;
+  }
   
   TH1F *found = fs->make<TH1F>("found","found",nLayers+1,0,nLayers+1);
   TH1F *all = fs->make<TH1F>("all","all",nLayers+1,0,nLayers+1);
@@ -890,7 +898,9 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   c7->SetFillColor(0);
   c7->SetGrid();
 
-  for (Long_t i=1; i< nLayers+1; ++i) {
+  int nLayers_max=nLayers+1; // barrel+endcap
+  if(!_showEndcapSides) nLayers_max=11; // barrel 
+  for (Long_t i=1; i< nLayers_max; ++i) {
     cout << "Fill only good modules layer " << i << ":  S = " << goodlayerfound[i] << "    B = " << goodlayertotal[i] << endl;
     if (goodlayertotal[i] > 5) {
       found->SetBinContent(i,goodlayerfound[i]);
@@ -903,6 +913,34 @@ void SiStripHitEffFromCalibTree::makeSummary() {
       all2->SetBinContent(i,alllayertotal[i]);
     }
 
+  }
+
+  // endcap - merging sides
+  if(!_showEndcapSides) {
+    for (Long_t i=11; i< 14; ++i) { // TID disks
+      cout << "Fill only good modules layer " << i << ":  S = " << goodlayerfound[i]+goodlayerfound[i+3] << "    B = " << goodlayertotal[i]+goodlayertotal[i+3] << endl;
+      if (goodlayertotal[i]+goodlayertotal[i+3] > 5) {
+        found->SetBinContent(i,goodlayerfound[i]+goodlayerfound[i+3]);
+        all->SetBinContent(i,goodlayertotal[i]+goodlayertotal[i+3]);
+      }
+      cout << "Filling all modules layer " << i << ":  S = " << alllayerfound[i]+alllayerfound[i+3] << "    B = " << alllayertotal[i]+alllayertotal[i+3] << endl;
+      if (alllayertotal[i]+alllayertotal[i+3] > 5) {
+        found2->SetBinContent(i,alllayerfound[i]+alllayerfound[i+3]);
+        all2->SetBinContent(i,alllayertotal[i]+alllayertotal[i+3]);
+      }
+	}
+    for (Long_t i=17; i< 17+nTEClayers; ++i) { // TEC disks
+      cout << "Fill only good modules layer " << i-3 << ":  S = " << goodlayerfound[i]+goodlayerfound[i+nTEClayers] << "    B = " << goodlayertotal[i]+goodlayertotal[i+nTEClayers] << endl;
+      if (goodlayertotal[i]+goodlayertotal[i+nTEClayers] > 5) {
+        found->SetBinContent(i-3,goodlayerfound[i]+goodlayerfound[i+nTEClayers]);
+        all->SetBinContent(i-3,goodlayertotal[i]+goodlayertotal[i+nTEClayers]);
+      }
+      cout << "Filling all modules layer " << i-3 << ":  S = " << alllayerfound[i]+alllayerfound[i+nTEClayers] << "    B = " << alllayertotal[i]+alllayertotal[i+nTEClayers] << endl;
+      if (alllayertotal[i]+alllayertotal[i+nTEClayers] > 5) {
+        found2->SetBinContent(i-3,alllayerfound[i]+alllayerfound[i+nTEClayers]);
+        all2->SetBinContent(i-3,alllayertotal[i]+alllayertotal[i+nTEClayers]);
+      }
+	}
   }
 
   found->Sumw2();
@@ -945,27 +983,36 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   gr2->SetMaximum(1.001);
   gr2->GetYaxis()->SetTitle("Efficiency");
   gr2->SetTitle(_title);
-  //cout << "starting labels" << endl;
-  //for ( int k=1; k<nLayers+1; k++) {
+
   for ( Long_t k=1; k<nLayers+1; k++) {
-    TString label;
-	TString ringlabel="";
-	if(_showRings) ringlabel="R";
-    if (k<5) {
-      label = TString("TIB  ") + k;
-    } else if (k>4&&k<11) {
-      label = TString("TOB  ")+(k-4);
-    } else if (k>10&&k<14) {
-      label = TString("TID- ")+ringlabel+(k-10);
-    } else if (k>13&&k<17) {
-      label = TString("TID+ ")+ringlabel+(k-13);
-    } else if (k>16&&k<17+nTEClayers) {
-      label = TString("TEC- ")+ringlabel+(k-16);
-    } else if (k>16+nTEClayers) {
-      label = TString("TEC+ ")+ringlabel+(k-16-nTEClayers);
-    }
-    gr->GetXaxis()->SetBinLabel(((k+1)*100+5)/(nLayers)-4,label);
-    gr2->GetXaxis()->SetBinLabel(((k+1)*100+5)/(nLayers)-4,label);
+        TString label;
+	if(_showEndcapSides) label = GetLayerSideName(k);
+	else label = GetLayerName(k);
+	if(!_showTOB6TEC9) {
+	  if(k==10) label="";
+	  if(!_showRings && k==nLayers) label="";
+	  if(!_showRings && _showEndcapSides && k==25) label="";
+        }
+	if(!_showRings) {
+	  if(_showEndcapSides) {
+            gr->GetXaxis()->SetBinLabel(((k+1)*100+2)/(nLayers)-4,label);
+            gr2->GetXaxis()->SetBinLabel(((k+1)*100+2)/(nLayers)-4,label);
+	  }
+	  else {
+            gr->GetXaxis()->SetBinLabel((k+1)*100/(nLayers)-6,label);
+            gr2->GetXaxis()->SetBinLabel((k+1)*100/(nLayers)-6,label);
+	  }
+	}
+	else {
+	  if(_showEndcapSides) {
+	    gr->GetXaxis()->SetBinLabel((k+1)*100/(nLayers)-4,label);
+            gr2->GetXaxis()->SetBinLabel((k+1)*100/(nLayers)-4,label);
+	  }
+	  else {
+	    gr->GetXaxis()->SetBinLabel((k+1)*100/(nLayers)-7,label);
+            gr2->GetXaxis()->SetBinLabel((k+1)*100/(nLayers)-7,label);
+	  }
+	}
   }
   
   gr->Draw("AP");
@@ -1037,7 +1084,7 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
 	  ibx=iterMapvsBx->first;
 	  delta_bx=ibx-previous_bx;
 	  // consider a new train
-	  if(delta_bx>25 && nbx>0 && total>0){
+	  if(delta_bx>(int)_spaceBetweenTrains && nbx>0 && total>0){
 	    eff=found/(float)total;
 	    //cout<<"new train "<<ipt<<" "<<sum_bx/nbx<<" "<<eff<<endl;
 	    geff_avg->SetPoint(ipt, sum_bx/nbx, eff);
