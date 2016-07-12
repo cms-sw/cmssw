@@ -28,7 +28,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
 
  private:  
 
-  enum variables {BXRANGE=1, NMUON, PT, ETA, PHI, CHARGE, CHARGEVAL, QUAL, ISO, IDX};
+  enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, PHIBAD, CHARGEBAD, CHARGEVALBAD, QUALBAD, ISOBAD, IDXBAD};
 
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::MuonBxCollection> muonToken2;
@@ -37,7 +37,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   std::string muonColl2Title;
   bool verbose;
 
-  MonitorElement* mismatchSummary;
+  MonitorElement* summary;
 
   MonitorElement* muColl1BxRange;
   MonitorElement* muColl1nMu;
