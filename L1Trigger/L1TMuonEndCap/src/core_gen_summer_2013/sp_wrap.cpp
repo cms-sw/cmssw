@@ -220,59 +220,59 @@ void sp_wrap::run
 			for (k = 0; k < 5; k = k+1)
 				csi[k] = 0;
 
-				// write ph_init and th_init parameters into ME1/1 only
-				if (i < 36)
-				{
-					csi[i/18][(i/6)%3] = 1;//[station][chamber]
-					seli = 0;
-					wei = 1;
-					addri = i%6;
-					if (( (addri) == 0)) { r_ini = ph_init[i/18][(i/6)%3]; } else 
-					if (( (addri) == // ph_init_b
-						1)) { r_ini = ph_disp[(i/18)*12 + (i/6)%3]; } else 
-					if (( (addri) == // ph_disp_b
-						2)) { r_ini = ph_init[i/18][(i/6)%3 + 9]; } else 
-					if (( (addri) == // ph_init_a
-						3)) { r_ini = ph_disp[(i/18)*12 + (i/6)%3 + 9]; } else 
-					if (( (addri) == // ph_disp_a
-						4)) { r_ini = th_init[(i/18)*12 + (i/6)%3]; } else 
-					if (( (addri) == // th_init
-						5)) { r_ini = th_disp[(i/18)*12 + (i/6)%3]; } 
-				}
+			// write ph_init and th_init parameters into ME1/1 only
+			if (i < 36)
+			{
+				csi[i/18][(i/6)%3] = 1;//[station][chamber]
+				seli = 0;
+				wei = 1;
+				addri = i%6;
+				if (( (addri) == 0)) { r_ini = ph_init[i/18][(i/6)%3]; } else 
+				if (( (addri) == // ph_init_b
+					1)) { r_ini = ph_disp[(i/18)*12 + (i/6)%3]; } else 
+				if (( (addri) == // ph_disp_b
+					2)) { r_ini = ph_init[i/18][(i/6)%3 + 9]; } else 
+				if (( (addri) == // ph_init_a
+					3)) { r_ini = ph_disp[(i/18)*12 + (i/6)%3 + 9]; } else 
+				if (( (addri) == // ph_disp_a
+					4)) { r_ini = th_init[(i/18)*12 + (i/6)%3]; } else 
+				if (( (addri) == // th_init
+					5)) { r_ini = th_disp[(i/18)*12 + (i/6)%3]; } 
+			}
 
-				// all other ME1 chambers
-				if (i >= 36 && i < 36+48)
-				{
-					ii = i - 36;
-					csi[ii/24][(ii/4)%6+3] = 1;//[station][chamber]
-					seli = 0;
-					wei = 1;
-					addri = ii % 4;
-					if (( (addri) == 0)) { r_ini = ph_init[ii/24][(ii/4)%6+3]; } else 
-					if (( (addri) == // ph_init
-						1)) { r_ini = th_init[(ii/24)*12 + (ii/4)%6+3]; } else 
-					if (( (addri) == // th_init
-						2)) { r_ini = ph_disp[(ii/24)*12 + (ii/4)%6+3]; } else 
-					if (( (addri) == // ph_disp
-						3)) { r_ini = th_disp[(ii/24)*12 + (ii/4)%6+3]; } 
-				}
+			// all other ME1 chambers
+			if (i >= 36 && i < 36+48)
+			{
+				ii = i - 36;
+				csi[ii/24][(ii/4)%6+3] = 1;//[station][chamber]
+				seli = 0;
+				wei = 1;
+				addri = ii % 4;
+				if (( (addri) == 0)) { r_ini = ph_init[ii/24][(ii/4)%6+3]; } else 
+				if (( (addri) == // ph_init
+					1)) { r_ini = th_init[(ii/24)*12 + (ii/4)%6+3]; } else 
+				if (( (addri) == // th_init
+					2)) { r_ini = ph_disp[(ii/24)*12 + (ii/4)%6+3]; } else 
+				if (( (addri) == // ph_disp
+					3)) { r_ini = th_disp[(ii/24)*12 + (ii/4)%6+3]; } 
+			}
 
-				// ME2,3,4 chambers
-				if (i >= 36+48 && i < 36+48+108)
-				{
-					ii = i - (36+48);
-					csi[ii/36+2][(ii/4)%9] = 1; //[station][chamber]
-					seli = 0;
-					wei = 1;
-					addri = ii % 4;
-					if (( (addri) == 0)) { r_ini = ph_init[ii/36+2][(ii/4)%9]; } else 
-					if (( (addri) == // ph_init
-						1)) { r_ini = th_init[(ii/36)*9 + (ii/4)%9 + 24]; } else 
-					if (( (addri) == // th_init
-						2)) { r_ini = ph_disp[(ii/36)*9 + (ii/4)%9 + 24]; } else 
-					if (( (addri) == // ph_disp
-						3)) { r_ini = th_disp[(ii/36)*9 + (ii/4)%9 + 24]; } 
-				}
+			// ME2,3,4 chambers
+			if (i >= 36+48 && i < 36+48+108)
+			{
+				ii = i - (36+48);
+				csi[ii/36+2][(ii/4)%9] = 1; //[station][chamber]
+				seli = 0;
+				wei = 1;
+				addri = ii % 4;
+				if (( (addri) == 0)) { r_ini = ph_init[ii/36+2][(ii/4)%9]; } else 
+				if (( (addri) == // ph_init
+					1)) { r_ini = th_init[(ii/36)*9 + (ii/4)%9 + 24]; } else 
+				if (( (addri) == // th_init
+					2)) { r_ini = ph_disp[(ii/36)*9 + (ii/4)%9 + 24]; } else 
+				if (( (addri) == // ph_disp
+					3)) { r_ini = th_disp[(ii/36)*9 + (ii/4)%9 + 24]; } 
+			}
 
 
 			for (j = 0; j < 2; j = j+1)
