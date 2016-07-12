@@ -47,6 +47,7 @@ namespace L1Analysis
                  const edm::EventSetup& setup,
                  const edm::Handle<reco::MuonCollection> muons,
                  const edm::Handle<reco::VertexCollection> vertices,
+		 double METx, double METy,
                  unsigned maxMuon);
 
     /* bool isMediumMuon(const reco::Muon & recoMu) ; */
