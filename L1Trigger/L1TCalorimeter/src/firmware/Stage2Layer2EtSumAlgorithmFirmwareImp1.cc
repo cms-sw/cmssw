@@ -23,7 +23,7 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
   ettTowThresholdHwHF_ = ettTowThresholdHw_; 
 
   metEtaMax_ = params_->etSumEtaMax(0);
-  metEtaMaxHF_ = CaloTools::mpEta(CaloTools::kHFEnd);
+  metEtaMaxHF_ = CaloTools::kHFEnd;
   ettEtaMax_ = params_->etSumEtaMax(2);
   ettEtaMaxHF_ = CaloTools::kHFEnd;
 }
@@ -59,7 +59,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	
 	// MET without HF
 
-	if (tower.hwPt()>metTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMax_) {
+	if (tower.hwPt()>metTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMax_)) {
 	    
 	  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
 	  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
@@ -71,22 +71,22 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
 
 	// MET *with* HF
-	if (tower.hwPt()>metTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=metEtaMaxHF_) {
+	if (tower.hwPt()>metTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMaxHF_)) {
 	  ringExHF += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
 	  ringEyHF += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
 	  
 	// scalar sum
-	if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_) 
+	if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_)) 
 	  ringEt += tower.hwPt();
   
 	// scalar sum including HF
-	if (tower.hwPt()>ettTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMaxHF_) 
+	if (tower.hwPt()>ettTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_)) 
 	  ringEtHF += tower.hwPt();
 		
 	// count HF tower HCAL flags
-	if (CaloTools::mpEta(abs(tower.hwEta()))>CaloTools::kHFBegin &&
-	    CaloTools::mpEta(abs(tower.hwEta()))<CaloTools::kHFEnd &&
+	if (CaloTools::mpEta(abs(tower.hwEta()))>=CaloTools::mpEta(CaloTools::kHFBegin) &&
+	    CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(CaloTools::kHFEnd) &&
 	    (tower.hwQual() & 0x4) > 0) 
 	  ringMB0 += 1;
 	  
