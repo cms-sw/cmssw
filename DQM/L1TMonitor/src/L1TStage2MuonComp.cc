@@ -41,7 +41,7 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   muColl1BxRange = ibooker.book1D("muColl1BxRange", (muonColl1Title+" BX range mismatch").c_str(), 5, -2.5, 2.5);
   muColl1BxRange->setAxisTitle("BX range", 1);
   muColl1nMu = ibooker.book1D("muColl1nMu", (muonColl1Title+" muon multiplicity mismatch").c_str(), 9, -0.5, 8.5);
-  muColl1nMu->setAxisTitle("Muon multiplicity (BX == 0)", 1);
+  muColl1nMu->setAxisTitle("Muon multiplicity", 1);
   muColl1hwPt = ibooker.book1D("muColl1hwPt", (muonColl1Title+" muon p_{T} mismatch").c_str(), 512, -0.5, 511.5);
   muColl1hwPt->setAxisTitle("Hardware p_{T}", 1);
   muColl1hwEta = ibooker.book1D("muColl1hwEta", (muonColl1Title+" muon #eta mismatch").c_str(), 461, -230.5, 230.5);
@@ -62,7 +62,7 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   muColl2BxRange = ibooker.book1D("muColl2BxRange", (muonColl2Title+" BX range mismatch").c_str(), 5, -2.5, 2.5);
   muColl2BxRange->setAxisTitle("BX range", 1);
   muColl2nMu = ibooker.book1D("muColl2nMu", (muonColl2Title+" muon multiplicity mismatch").c_str(), 9, -0.5, 8.5);
-  muColl2nMu->setAxisTitle("Muon multiplicity (BX == 0)", 1);
+  muColl2nMu->setAxisTitle("Muon multiplicity", 1);
   muColl2hwPt = ibooker.book1D("muColl2hwPt", (muonColl2Title+" muon p_{T} mismatch").c_str(), 512, -0.5, 511.5);
   muColl2hwPt->setAxisTitle("Hardware p_{T}", 1);
   muColl2hwEta = ibooker.book1D("muColl2hwEta", (muonColl2Title+" muon #eta mismatch").c_str(), 461, -230.5, 230.5);
