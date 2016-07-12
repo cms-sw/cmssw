@@ -170,7 +170,7 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
   if (flags & IOFlags::OpenRead)
     openflags |= O_RDONLY;
 
-  DavixError *davixErr;
+  DavixError *davixErr = NULL;
   davixReqParams = std::make_unique<RequestParams>();
   // Set up X509 authentication
   davixReqParams->setClientCertCallbackX509(&X509Authentication, NULL);
@@ -208,7 +208,7 @@ IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
   if (buffers == 0)
     return 0;
 
-  DavixError *davixErr;
+  DavixError *davixErr = NULL;
 
   DavIOVecInput input_vector[buffers];
   DavIOVecOuput output_vector[buffers];
@@ -229,6 +229,12 @@ IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
     ex.addContext("Calling DavixFile::readv()");
     throw ex;
   }
+  // Davix limits number of requests sent to the server
+  // to improve performance and it does range coalescing.
+  // So we can`t check what preadVec returns with what was requested.
+  // Example: If two ranges are overlapping, [10, 20] and [20, 30] which is
+  // coalesced into [10, 30] and it will contain one less byte than was requested.
+  // Only check if returned val <= 0 and make proper actions.
   if (s < 0) {
     edm::Exception ex(edm::errors::FileReadError);
     ex << "Davix::readv(name='" << m_name->c_str() << "') failed and call returned " << s;
@@ -237,13 +243,6 @@ IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
   } else if (s == 0) {
     // end of file
     return 0;
-  }
-  if (IOSize(s) != total) {
-    edm::Exception ex(edm::errors::FileReadError);
-    ex << "Davix::readv(name='" << m_name->c_str() << "') failed and call returned " << s
-       << " bytes while requested " << total << " bytes";
-    ex.addContext("Calling DavixFile::readv()");
-    throw ex;
   }
   return total;
 }
@@ -255,7 +254,7 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
   if (buffers == 0)
     return 0;
 
-  DavixError *davixErr;
+  DavixError *davixErr = NULL;
 
   DavIOVecInput input_vector[buffers];
   DavIOVecOuput output_vector[buffers];
@@ -276,6 +275,12 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
     ex.addContext("Calling DavixFile::readv()");
     throw ex;
   }
+  // Davix limits number of requests sent to the server
+  // to improve performance and it does range coalescing.
+  // So we can`t check what preadVec returns with what was requested.
+  // Example: If two ranges are overlapping, [10, 20] and [20, 30] which is
+  // coalesced into [10, 30] and it will contain one less byte than was requested.
+  // Only check if returned val <= 0 and make proper actions.
   if (s < 0) {
     edm::Exception ex(edm::errors::FileReadError);
     ex << "Davix::readv(name='" << m_name->c_str() << "', n=" << buffers
@@ -286,18 +291,11 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
     // end of file
     return 0;
   }
-  if (IOSize(s) != total) {
-    edm::Exception ex(edm::errors::FileReadError);
-    ex << "Davix::readv(name='" << m_name->c_str() << "') failed and call returned " << s
-       << " bytes while requested " << total << " bytes";
-    ex.addContext("Calling DavixFile::readv()");
-    throw ex;
-  }
   return total;
 }
 
 IOSize DavixFile::read(void *into, IOSize n) {
-  DavixError *davixErr;
+  DavixError *davixErr = NULL;
   davixPosix->fadvise(m_fd, 0, n, AdviseRandom);
   IOSize done = 0;
   while (done < n) {
@@ -334,7 +332,7 @@ IOSize DavixFile::write(const void *from, IOSize n) {
 }
 
 IOOffset DavixFile::position(IOOffset offset, Relative whence /* = SET */) {
-  DavixError *davixErr;
+  DavixError *davixErr = NULL;
   if (whence != CURRENT && whence != SET && whence != END) {
     cms::Exception ex("FilePositionError");
     ex << "DavixFile::position() called with incorrect 'whence' parameter";
