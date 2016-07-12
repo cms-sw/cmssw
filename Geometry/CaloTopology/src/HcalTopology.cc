@@ -882,13 +882,17 @@ double HcalTopology::etaMax(HcalSubdetector subdet) const {
   double eta(0);
   switch (subdet) {
   case(HcalBarrel):  
-    if (lastHBRing_ < (int)(etaTable.size())) eta=etaTable[lastHBRing_]; break;
+    if (lastHBRing_ < (int)(etaTable.size())) eta=etaTable[lastHBRing_];
+    break;
   case(HcalEndcap):  
-    if (lastHERing_ < (int)(etaTable.size()) && nEtaHE_ > 0) eta=etaTable[lastHERing_]; break;
+    if (lastHERing_ < (int)(etaTable.size()) && nEtaHE_ > 0) eta=etaTable[lastHERing_];
+    break;
   case(HcalOuter): 
-    if (lastHORing_ < (int)(etaTable.size())) eta=etaTable[lastHORing_]; break;
+    if (lastHORing_ < (int)(etaTable.size())) eta=etaTable[lastHORing_];
+    break;
   case(HcalForward): 
-    if (etaTableHF.size() > 0) eta=etaTableHF[etaTableHF.size()-1]; break;
+    if (etaTableHF.size() > 0) eta=etaTableHF[etaTableHF.size()-1];
+    break;
   default: eta=0;
   }
   return eta;

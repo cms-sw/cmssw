@@ -87,14 +87,16 @@ CalculateHLT::CalculateHLT(int maxNJets, double wMass):
 double
 CalculateHLT::massWBoson(const std::vector<reco::Jet>& jets)
 {
-  if(!failed_&& massWBoson_<0) operator()(jets); return massWBoson_;
+  if(!failed_&& massWBoson_<0) operator()(jets);
+  return massWBoson_;
 }
 
 
 double 
 CalculateHLT::massTopQuark(const std::vector<reco::Jet>& jets) 
 { 
-  if(!failed_&& massTopQuark_<0) operator()(jets); return massTopQuark_; 
+  if(!failed_&& massTopQuark_<0) operator()(jets);
+  return massTopQuark_; 
 }
 
 /*
@@ -132,21 +134,24 @@ void Calculate::operator()( const reco::Jet& bJet, const T& lepton, const reco::
 double 
 CalculateHLT::tmassWBoson(reco::RecoCandidate* mu, const reco::MET& met, const reco::Jet& b)
 {
-  if(!failed_&& tmassWBoson_<0) operator()(b,mu,met); return tmassWBoson_;
+  if(!failed_&& tmassWBoson_<0) operator()(b,mu,met);
+  return tmassWBoson_;
 }
 
 
 double
 CalculateHLT::masslb(reco::RecoCandidate* mu, const reco::MET& met, const reco::Jet& b)
 {
-  if(!failed_&& mlb_<0) operator()(b,mu,met); return mlb_;
+  if(!failed_&& mlb_<0) operator()(b,mu,met);
+  return mlb_;
 }
 
 
 double
 CalculateHLT::tmassTopQuark(reco::RecoCandidate* lepton, const reco::MET& met, const reco::Jet& b)
 {
-  if(!failed_&& tmassTopQuark_<0) operator()(b,lepton,met); return tmassTopQuark_;
+  if(!failed_&& tmassTopQuark_<0) operator()(b,lepton,met);
+  return tmassTopQuark_;
 }
 
 
