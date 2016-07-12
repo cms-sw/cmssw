@@ -108,7 +108,6 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
 
   const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
-
   // re-used thoughout, need to be vectors because of RZLine interface
   std::vector<float> bc_r(4), bc_z(4), bc_errZ(4);
 
@@ -126,7 +125,7 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
     {
       return id == PixelSubdetector::PixelBarrel;
     };
-    for(unsigned int i = 0; i< 2; ++i)
+    for(unsigned int i = 0; i< 3; ++i)
     {
         auto const& ahit = foundQuadruplets[quadId][i]->getInnerHit();
         gps[i] = ahit->globalPosition();
@@ -201,7 +200,8 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
     }
 
     result.emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(), foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
-    std::cout << " result size: " << result.size() << std::endl;
   }
 
 }
+
+
