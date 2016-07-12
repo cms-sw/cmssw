@@ -28,7 +28,7 @@ public:
   uint16_t spillCounter() const;
   bool isSpill() const;
 
-  bool invalid() const { return (payload_.size()<16) || (payload_[6]&0xF000)!=0x3000; }
+  bool invalid() const { return (payload_.size()<16) || (payload_[6]&0xF000)!=0x2000; }
   
   int numberUserWords() const;
   uint16_t idUserWord(int iword) const;
