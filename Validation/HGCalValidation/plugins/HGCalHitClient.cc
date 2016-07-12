@@ -15,11 +15,13 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-class HGCalGeometryClient : public DQMEDHarvester {
+//#define EDM_ML_DEBUG
+
+class HGCalHitClient : public DQMEDHarvester {
  
 public:
-  explicit HGCalGeometryClient(const edm::ParameterSet& );
-  virtual ~HGCalGeometryClient();
+  explicit HGCalHitClient(const edm::ParameterSet& );
+  virtual ~HGCalHitClient();
   
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) {}
   void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
@@ -30,24 +32,24 @@ private:
   int geometryEndjob(const std::vector<MonitorElement*> &hcalMEs);
 };
 
-HGCalGeometryClient::HGCalGeometryClient(const edm::ParameterSet& iConfig) {
+HGCalHitClient::HGCalHitClient(const edm::ParameterSet& iConfig) {
   
   subDirectory_  = iConfig.getParameter<std::string>("DirectoryName");
 }
 
-HGCalGeometryClient::~HGCalGeometryClient() { }
+HGCalHitClient::~HGCalHitClient() { }
 
-void HGCalGeometryClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
+void HGCalHitClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
   ig.setCurrentFolder("/"); 
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCalValid") << "HGCalGeometry :: runClient" << std::endl;
+  edm::LogInfo("HGCalValid") << "HGCalHitValidation :: runClient" << std::endl;
 #endif
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HGCalValid") << "HGCalGeometry::fullPath: " 
+    edm::LogInfo("HGCalValid") << "HGCalHitValidation::fullPath: " 
 			       << fullDirPath.at(i) << std::endl;
 #endif
     ig.setCurrentFolder(fullDirPath.at(i));
@@ -55,34 +57,35 @@ void HGCalGeometryClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
 #ifdef EDM_ML_DEBUG
-      edm::LogInfo("HGCalValid") << "HGCalGeometry:: fullSubPath: " 
+      edm::LogInfo("HGCalValid") << "HGCalHitValidation:: fullSubPath: " 
 				 << fullSubDirPath.at(j) << std::endl;
 #endif
       if (strcmp(fullSubDirPath.at(j).c_str(), subDirectory_.c_str()) == 0) {
         hgcalMEs = ig.getContents(fullSubDirPath.at(j));
 #ifdef EDM_ML_DEBUG
-	edm::LogInfo("HGCalValid") << "HGCalGeometry:: hgcalMES size : " 
+	edm::LogInfo("HGCalValid") << "HGCalHitValidation:: hgcalMES size : " 
 				   << hgcalMEs.size() << std::endl;
 #endif
         if (!geometryEndjob(hgcalMEs)) 
-          edm::LogWarning("HGCalValid") << "\nError in GeometryEndjob!";
+          edm::LogWarning("HGCalValid") << "\nError in HGcalHitEndjob!";
       }
     }
   }
 }
 
-int HGCalGeometryClient::geometryEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
+int HGCalHitClient::geometryEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
   std::string dets[3]  = {"hee", "hef", "heb"};
-  std::string hist1[4] = {"TotEdepStep","dX","dY","dZ"};
-  std::string hist2[10]= {"LayerVsEnStep","XG4VsId","YG4VsId","ZG4VsId","dxVsX",
-			  "dyVsY","dzVsZ","dxVsLayer","dyVsLayer","dzVsLayer"};
+  std::string hist1[2] = {"EnRec","EnSim"};
+  std::string hist2[7] = {"dzVsZ","dyVsY","dxVsX","RecVsSimZ","RecVsSimY",
+			  "RecVsSimX","EnSimRec"};
+
   std::vector<MonitorElement*> hist1_;
   std::vector<MonitorElement*> hist2_;
 
   //Normalize the histograms
   for (unsigned int idet=0; idet<3; ++idet) {
     char name[100];
-    for (unsigned int kh=0; kh<4; ++kh) {
+    for (unsigned int kh=0; kh<2; ++kh) {
       sprintf(name, "%s%s", dets[idet].c_str(), hist1[kh].c_str());
       for (unsigned int ih=0; ih<hgcalMEs.size(); ih++) {
 	if (strcmp(hgcalMEs[ih]->getName().c_str(), name) == 0) {
@@ -96,7 +99,7 @@ int HGCalGeometryClient::geometryEndjob(const std::vector<MonitorElement*>& hgca
 	}
       }
     }
-    for (unsigned int kh=0; kh<10; ++kh) {
+    for (unsigned int kh=0; kh<7; ++kh) {
       sprintf(name, "%s%s", dets[idet].c_str(), hist2[kh].c_str());
       for (unsigned int ih=0; ih<hgcalMEs.size(); ih++) {
 	if (strcmp(hgcalMEs[ih]->getName().c_str(), name) == 0) {
@@ -120,4 +123,4 @@ int HGCalGeometryClient::geometryEndjob(const std::vector<MonitorElement*>& hgca
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(HGCalGeometryClient);
+DEFINE_FWK_MODULE(HGCalHitClient);
