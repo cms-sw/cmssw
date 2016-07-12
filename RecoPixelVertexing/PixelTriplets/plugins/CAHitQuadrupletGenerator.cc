@@ -162,7 +162,7 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
     {
       // Following PixelFitterByConformalMappingAndLine
       const float simpleCot = ( gps.back().z() - gps.front().z() ) / (gps.back().perp() - gps.front().perp() );
-      const float pt = 1 / PixelRecoUtilities::inversePt(abscurv, es);
+      const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, es);
       for (int i=0; i < 4; ++i)
       {
         const GlobalPoint & point = gps[i];
