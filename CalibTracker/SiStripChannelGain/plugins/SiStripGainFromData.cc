@@ -620,10 +620,10 @@ SiStripGainFromData::algoEndJob() {
 
          if(SRun==0)SRun = tmp_SRun;
 
-              if(tmp_SRun< SRun){SRun=tmp_SRun; SEvent=tmp_SEvent;}
+         if     (tmp_SRun< SRun){SRun=tmp_SRun; SEvent=tmp_SEvent;}
          else if(tmp_SRun==SRun && tmp_SEvent<SEvent){SEvent=tmp_SEvent;}
 
-              if(tmp_ERun> ERun){ERun=tmp_ERun; EEvent=tmp_EEvent;}
+         if     (tmp_ERun> ERun){ERun=tmp_ERun; EEvent=tmp_EEvent;}
          else if(tmp_ERun==ERun && tmp_EEvent>EEvent){EEvent=tmp_EEvent;}
 
 	 printf("Deleting Current Input File\n");
@@ -644,7 +644,8 @@ SiStripGainFromData::algoEndJob() {
       double* FitResults = new double[5];
       I=0;
       for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
-      if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
+         if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());
+         I++;
          stAPVGain* APV = it->second;
 
          int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
@@ -1038,7 +1039,7 @@ SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup
   
       for(Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin(); rechit != transRecHits.end(); ++rechit)
          if ((*rechit)->isValid()) ndof += (*rechit)->dimension();  
-         ndof -= 5;
+      ndof -= 5;
       //END TO COMPUTE NDOF FOR TRACKS NO IMPLEMENTED BEFORE 200pre3
 
       HTrackChi2OverNDF->Fill(traj.chiSquared()/ndof);
