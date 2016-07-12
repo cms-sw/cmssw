@@ -640,7 +640,6 @@ namespace l1t {
       }
     }
 
-    std::cout << text.str() << std::endl;
     if (doText_) edm::LogVerbatim("L1TCaloEvents") << text.str();
 
   }
@@ -661,7 +660,7 @@ namespace l1t {
       dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
 
       if (*itr==MPSumMETx || *itr == MPSumMETxHF || *itr==MPSumMETy || *itr==MPSumMETyHF  || *itr==MPSumMHTx  || *itr==MPSumMHTxHF  || *itr==MPSumMHTy || *itr==MPSumMHTyHF ) {
-        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100000, -199999.5, 200000.5) ));
+        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 40000, -199999.5, 200000.5) ));
       }
       else if (*itr==SumET || *itr==SumETEm || *itr==MPSumET || *itr==MPSumETHF || *itr==SumHT || *itr==MPSumHT || *itr==MPSumHTHF ) {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 7000, -0.5, 6999.5) )); 
