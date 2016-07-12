@@ -376,6 +376,7 @@ HLT_HT750_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT650_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*		# JIRA: CMSHLT-168
 HLT_HT350_DisplacedDijet80_DisplacedTrack_v*			# JIRA: CMSHLT-168
+HLT_HT550_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-927
 
 HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v*			  	# JIRA: CMSHLT-601, CMSHLT-711
 HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v*			# JIRA: CMSHLT-742
@@ -560,6 +561,8 @@ HLT_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v*	# JIRA: CMSHLT-761
 HLT_Ele35_WPLoose_Gsf_v*					# JIRA: CMSHLT-761
 HLT_Ele45_WPLoose_Gsf_v*					# JIRA: CMSHLT-761
 
+HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_v*			# JIRA: CMSHLT-921
+
 HLT_DoubleMediumIsoPFTau32_Trk1_eta2p1_Reg_v*			# JIRA: CMSHLT-776
 HLT_DoubleIsoMu17_eta2p1_noDzCut_v*				# JIRA: CMSHLT-776
 HLT_IsoMu19_eta2p1_LooseIsoPFTau20_v*				# JIRA: CMSHLT-776
@@ -569,6 +572,8 @@ HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v*			# JIRA: CMSHLT-776
 HLT_IsoMu21_eta2p1_MediumIsoPFTau32_Trk1_eta2p1_Reg_v*		# JIRA: CMSHLT-776
 HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v*			# JIRA: CMSHLT-776
 HLT_LooseIsoPFTau50_Trk30_eta2p1_MET110_v*			# JIRA: CMSHLT-776
+
+HLT_IsoMu21_eta2p1_LooseIsoPFTau50_Trk30_eta2p1_SingleL1_v*	# JIRA: CMSHLT-893
 
 HLT_DiCentralPFJet170_v*					# JIRA: CMSHLT-837
 HLT_SingleCentralPFJet170_CFMax0p1_v*				# JIRA: CMSHLT-837
