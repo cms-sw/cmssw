@@ -107,7 +107,7 @@ class OfflineValidation(GenericValidationData):
         repMap = self.getRepMap()
         if validationsSoFar == "":
             validationsSoFar = ('PlotAlignmentValidation p("root://eoscms//eos/cms%(finalResultFile)s",'
-                                '"%(title)s", %(color)s, %(style)s);\n')%repMap
+                                '"%(title)s", %(color)s, %(style)s, .oO[bigtext]Oo.);\n')%repMap
         else:
             validationsSoFar += ('  p.loadFileList("root://eoscms//eos/cms%(finalResultFile)s", "%(title)s",'
                                  '%(color)s, %(style)s);\n')%repMap

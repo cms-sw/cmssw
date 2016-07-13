@@ -73,7 +73,7 @@ class PlotAlignmentValidation {
 public:
   //PlotAlignmentValidation(TString *tmp);
   PlotAlignmentValidation() {}
-  PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1);
+  PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1, bool bigtext=false);
   ~PlotAlignmentValidation();
   void loadFileList(const char *inputFile, std::string fileName="", int lineColor=2, int lineStyle=1);
   void useFitForDMRplots(bool usefit = false);
@@ -119,6 +119,7 @@ private :
   bool showMeanError_;
   bool showRMSError_;
   bool showModules_;
+  bool bigtext_;
 
   TF1 *fitGauss(TH1 *hist,int color);
   //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);

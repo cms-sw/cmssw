@@ -101,6 +101,7 @@ public:
 
   static TString legendheader;
   static TString legendoptions;
+  static double textSize;
   // Returns a TLegend object that fits into the top-right corner
   // of the current pad. Its width, relative to the pad size (without
   // margins), can be specified. Its height is optimized for nEntries
@@ -199,7 +200,6 @@ private:
   static TString customRightTitle_;
   static double lineHeight_;
   static double margin_;
-  static double textSize_;
 
   // creates a title
   static TString applyCMS(const TString& txt);
@@ -229,7 +229,7 @@ TString TkAlStyle::customTitle_ = "";
 TString TkAlStyle::customRightTitle_ = "";
 double TkAlStyle::lineHeight_ = 0.042;
 double TkAlStyle::margin_ = 0.04;
-double TkAlStyle::textSize_ = 0.035;
+double TkAlStyle::textSize = 0.035;
 
 
 // --------------------------------------------------------------
@@ -277,7 +277,7 @@ TLegend* TkAlStyle::legend(const int nEntries, const double relWidth, const bool
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetTextFont(42);
-  leg->SetTextSize(textSize_);
+  leg->SetTextSize(textSize);
   if (hasheader) leg->SetHeader(TkAlStyle::legendheader);
 
   return leg;
@@ -301,7 +301,7 @@ TPaveText* TkAlStyle::label(const int nEntries, const double relWidth, const boo
   label->SetFillStyle(0);
   label->SetTextFont(42);
   label->SetTextAlign(12);	// left adjusted and vertically centered
-  label->SetTextSize(textSize_);
+  label->SetTextSize(textSize);
   label->SetMargin(0.);
 
   return label;

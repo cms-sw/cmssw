@@ -118,6 +118,7 @@ class PlottingOptionsOffline(BasePlottingOptions):
                     "DMROptions":"",
                     "OfflineTreeBaseDir":"TrackHitFilter",
                     "SurfaceShapes":"coarse",
+                    "bigtext":"false",
                    }
         defaults.update(addDefaults)
         mandatories = []

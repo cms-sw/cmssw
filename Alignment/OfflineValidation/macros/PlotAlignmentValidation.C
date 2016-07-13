@@ -38,7 +38,7 @@
 #include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 //------------------------------------------------------------------------------
-PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle)
+PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle, bool bigtext) : bigtext_(bigtext)
 {
   setOutputDir(".");
   setTreeBaseDir();
@@ -702,6 +702,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
     double legendY = 0.80;
     if (nPlots > 3) { legendY -= 0.01 * (nPlots - 3); }
+    if (bigtext_) { legendY -= 0.05; }
     if (legendY < 0.6) {
       std::cerr << "Warning: Huge legend!" << std::endl;
       legendY = 0.6;
@@ -714,6 +715,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotinfo.legend = new TLegend(0.17, legendY, 0.85, 0.88);
     plotinfo.legend->SetNColumns(2);
     if (hasheader) plotinfo.legend->SetHeader(TkAlStyle::legendheader);
+    if (bigtext_) plotinfo.legend->SetTextSize(TkAlStyle::textSize);
     plotinfo.hstack = &hstack;
     plotinfo.h = plotinfo.h1 = plotinfo.h2 = 0;
     plotinfo.firsthisto = true;
@@ -1547,11 +1549,13 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
 
   if (legendsize > 3)
     legendY -= 0.01 * (legendsize - 3);
+  if (bigtext_) { legendY -= 0.05; }
   if (legendY < 0.6) {
     std::cerr << "Warning: Huge legend!" << std::endl;
     legendY = 0.6;
   }
   legend->SetY1(legendY);
+  if (bigtext_) legend->SetTextSize(TkAlStyle::textSize);
 
   // Loop over all profiles
   TProfile* prof = 0;
