@@ -26,6 +26,7 @@ process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
     IOVMode           = cms.string('Run'),
     Record            = cms.string('SiStripBadStrip'),
     doStoreOnDB       = cms.bool(True),
+    BadModulesFile    = cms.untracked.string("BadModules_input.txt"),   # default "" no input
     ClusterMatchingMethod  = cms.untracked.int32(4),     # default 0  case0,1,2,3,4
     ClusterTrajDist   = cms.untracked.double(64),   # default 64
     StripsApvEdge     = cms.untracked.double(10),   # default 10  

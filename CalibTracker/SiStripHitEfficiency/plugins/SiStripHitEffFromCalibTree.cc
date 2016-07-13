@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -120,6 +122,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     float threshold;
     unsigned int nModsMin;
     unsigned int doSummary;
+    string _badModulesFile;
     unsigned int _clusterMatchingMethod;
     float _ResXSig;
     float _clusterTrajDist;
@@ -162,6 +165,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   threshold = conf.getParameter<double>("Threshold");
   nModsMin = conf.getParameter<int>("nModsMin");
   doSummary = conf.getParameter<int>("doSummary");
+  _badModulesFile = conf.getUntrackedParameter<std::string>("BadModulesFile", ""); 
   _clusterMatchingMethod = conf.getUntrackedParameter<int>("ClusterMatchingMethod",0);
   _ResXSig = conf.getUntrackedParameter<double>("ResXSig",-1);
   _clusterTrajDist = conf.getUntrackedParameter<double>("ClusterTrajDist",64.0);
@@ -204,6 +208,30 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   edm::ESHandle<TrackerTopology> tTopoHandle;
   c.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  // read bad modules to mask
+  ifstream badModules_file;
+  set<uint32_t> badModules_list;
+  if(_badModulesFile!="") {
+	badModules_file.open(_badModulesFile.c_str());
+	uint32_t badmodule_detid;
+	int mods, fiber1, fiber2, fiber3;
+	if(badModules_file.is_open()) {
+      string line;
+	  while ( getline (badModules_file,line) ) {
+		if(badModules_file.eof()) continue;
+		stringstream ss(line);
+		ss >> badmodule_detid >> mods >> fiber1 >> fiber2 >> fiber3;
+		if(badmodule_detid!=0 && mods==1 && (fiber1==1 || fiber2==1 || fiber3==1) )
+	      badModules_list.insert(badmodule_detid);
+	  }
+      badModules_file.close();
+	}
+  }
+  if(badModules_list.size()) cout<<"Remove additionnal bad modules from the analysis: "<<endl;
+  set<uint32_t>::iterator itBadMod;
+  for (itBadMod=badModules_list.begin(); itBadMod!=badModules_list.end(); ++itBadMod) 
+    cout<<" "<<*itBadMod<<endl;
 
   //Open the ROOT Calib Tree
   CalibTree = new TChain("hitefftree");
@@ -277,8 +305,12 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     
     // don't compute efficiencies in modules from TOB6 and TEC9
     if(!_showTOB6TEC9 && (layer_wheel==10 || layer_wheel==22)) continue; 
-	
-		
+			
+	// don't use bad modules given in the bad module list
+	itBadMod = badModules_list.find(id);
+	if(itBadMod!=badModules_list.end()) continue;
+
+
     //Now that we have a good event, we need to look at if we expected it or not, and the location
     //if we didn't
     //Fill the missing hit information first
@@ -619,6 +651,27 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   for (int i=10;i<19;++i)
     cout << "\nTEC- Disk " << i-9 << " :" << ssV[3][i].str();
 
+  // store also bad modules in log file
+  ofstream badModules;
+  badModules.open("BadModules.log");
+  badModules << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers Apvs\n----------------------------------------------------------------";
+  for (int i=1;i<5;++i)
+    badModules << "\nTIB Layer " << i << " :" << ssV[0][i].str();
+  badModules << "\n";
+  for (int i=1;i<4;++i)
+    badModules << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
+  for (int i=4;i<7;++i)
+    badModules << "\nTID- Disk " << i-3 << " :" << ssV[1][i].str();
+  badModules << "\n";
+  for (int i=1;i<7;++i)
+    badModules << "\nTOB Layer " << i << " :" << ssV[2][i].str();
+  badModules << "\n";
+  for (int i=1;i<10;++i)
+    badModules << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
+  for (int i=10;i<19;++i)
+    badModules << "\nTEC- Disk " << i-9 << " :" << ssV[3][i].str();
+  badModules.close();
+  
 }
 
 void SiStripHitEffFromCalibTree::makeHotColdMaps() {
