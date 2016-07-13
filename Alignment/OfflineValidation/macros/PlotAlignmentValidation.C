@@ -767,8 +767,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	        legend << ", layer ";
 	      legend << layer;
 	    }
-	    legend << ": #Delta#mu = " << deltamu << unit;
-	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), ""); 
+	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
+	    legend.str("");
+	    legend << "#Delta#mu = " << deltamu << unit;
+	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
 	  }
 	  if (plotinfo.h1) { setDMRHistStyleAndLegend(plotinfo.h1, plotinfo, -1, layer); }
 	  if (plotinfo.h2) { setDMRHistStyleAndLegend(plotinfo.h2, plotinfo, 1, layer); }
