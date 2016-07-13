@@ -10,8 +10,6 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 detachedQuadStepClusters = _cfg.clusterRemoverForIter("DetachedQuadStep")
 for era in _cfg.nonDefaultEras():
     getattr(eras, era).toReplaceWith(detachedQuadStepClusters, _cfg.clusterRemoverForIter("DetachedQuadStep", era))
-##FIXME::ERICA Phase2 in 62X define 
-#process.detachedQuadStep = cms.EDProducer("TrackListMerger", ... )
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi

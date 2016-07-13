@@ -226,6 +226,8 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
         ) #end of vpset
     ) #end of clone
 
+
+
 muonSeededStepCoreInOut = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
 )

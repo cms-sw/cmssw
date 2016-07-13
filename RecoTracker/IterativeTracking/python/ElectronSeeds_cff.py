@@ -48,7 +48,6 @@ mixedTripletStepSeedClusterMask = seedClusterRemover.clone(
 eras.trackingPhase1.toModify(mixedTripletStepSeedClusterMask,
     oldClusterRemovalInfo = "detachedTripletStepSeedClusterMask"
 )
-
 pixelLessStepSeedClusterMask = seedClusterRemover.clone(
     trajectories = cms.InputTag("pixelLessStepSeeds"),
     oldClusterRemovalInfo = cms.InputTag("mixedTripletStepSeedClusterMask")
