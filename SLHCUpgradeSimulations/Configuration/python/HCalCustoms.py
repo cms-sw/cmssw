@@ -42,7 +42,6 @@ def load_HcalHardcode(process):
                 'L1TriggerObjects',
                 'PFCorrs',
                 'ElectronicsMap',
-                'CholeskyMatrices',
                 'CovarianceMatrices',
                 'FlagHFDigiTimeParams',
                 )
