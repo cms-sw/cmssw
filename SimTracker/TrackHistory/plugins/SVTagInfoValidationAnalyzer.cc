@@ -11,7 +11,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -34,7 +34,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-class SVTagInfoValidationAnalyzer : public edm::EDAnalyzer
+class SVTagInfoValidationAnalyzer : public edm::one::EDAnalyzer<>
 {
 
 public:

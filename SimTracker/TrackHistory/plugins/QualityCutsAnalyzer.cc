@@ -16,7 +16,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@
 // class decleration
 //
 
-class QualityCutsAnalyzer : public edm::EDAnalyzer
+class QualityCutsAnalyzer : public edm::one::EDAnalyzer<>
 {
 
 public:
