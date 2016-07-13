@@ -37,7 +37,7 @@ caloStage2Params.egIsolationType            = cms.string("compressed")
 caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_0.25_adapt_extrap_v16.04.05.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
-caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(3)
+caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
 #caloStage2Params.egIsoPUEstTowerGranularity = cms.uint32(1)
 #caloStage2Params.egIsoMaxEtaAbsForTowerSum  = cms.uint32(4)
 #caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
@@ -69,7 +69,7 @@ caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 # function6PtParams22EtaBins or None
 #caloStage2Params.jetCalibrationType    = cms.string("None")
 #caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
-caloStage2Params.jetCalibrationType = cms.string("LUT")
+caloStage2Params.jetCalibrationType = cms.string("None")
 
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction

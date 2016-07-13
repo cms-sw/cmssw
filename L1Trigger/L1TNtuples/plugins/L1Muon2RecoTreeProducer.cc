@@ -69,6 +69,12 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMet.h"
 
+
+//vertices
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
+
 using namespace std;
 
 //
@@ -108,6 +114,7 @@ private:
   edm::EDGetTokenT<reco::MuonCollection>       MuonToken_;
   edm::EDGetTokenT<edm::TriggerResults>        TriggerResultsToken_;
   edm::EDGetTokenT<trigger::TriggerEvent>      triggerSummaryLabelToken_;
+  edm::EDGetTokenT<reco::VertexCollection>      VtxToken_;
 
   // bool triggerMatching_;
   // edm::InputTag triggerSummaryLabel_;
@@ -141,7 +148,8 @@ L1Muon2RecoTreeProducer::L1Muon2RecoTreeProducer(const edm::ParameterSet& iConfi
   // isoTriggerToken_         = iConfig.getParameter<std::vector<std::string>>("isoTriggerNames");
   // TriggerToken_         = iConfig.getParameter<std::vector<std::string>>("triggerNames");
   MuonToken_ = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter("MuonToken",edm::InputTag("muons")));
-
+  VtxToken_  = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter("VertexToken",edm::InputTag("offlinePrimaryVertices"))); 
+    
   TriggerResultsToken_      = consumes<edm::TriggerResults>(iConfig.getUntrackedParameter("TriggerResultsToken",edm::InputTag("TriggerResults")));
   triggerSummaryLabelToken_ = consumes<trigger::TriggerEvent>(iConfig.getUntrackedParameter("triggerSummaryLabelToken",edm::InputTag("hltTriggerSummaryAOD","","HLT")));
   // TriggerResultsToken_      = consumes<edm::TriggerResults>(iConfig.getUntrackedParameter("TriggerResultsToken",edm::InputTag("triggerSummaryLabel")));
@@ -191,6 +199,9 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<reco::MuonCollection> recoMuons;
   iEvent.getByToken(MuonToken_, recoMuons);
 
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(VtxToken_, vertices);
+
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(TriggerResultsToken_, triggerResults);
 
@@ -198,14 +209,14 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   iEvent.getByToken(triggerSummaryLabelToken_, triggerSummaryLabel_);
 
   if (recoMuons.isValid()) {
-    muon->SetMuon(iEvent, iSetup, recoMuons, maxMuon_);
+    muon->SetMuon(iEvent, iSetup, recoMuons, vertices, maxMuon_);
   }
   else {
 
   }
 
+
   int counter_mu = 0;
-  
   for(reco::MuonCollection::const_iterator imu = recoMuons->begin(); 
       imu != recoMuons->end() && (unsigned) counter_mu < maxMuon_; imu++) {
 
