@@ -98,8 +98,7 @@ bool Chi2ChargeMeasurementEstimator::preFilter(const TrajectoryStateOnSurface& t
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include <memory>
 
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorParams.h"
 
 
 namespace {
@@ -120,14 +119,7 @@ class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
 void
 Chi2ChargeMeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-  //  edm::ParameterSetDescription desc = Chi2MeasurementEstimatorESProducer::getFilledConfigurationDescription();
-  edm::ParameterSetDescription desc;
-  desc.add<double>("MaxChi2",30);
-  desc.add<double>("nSigma",3);
-  desc.add<double>("MaxDisplacement",0.5); 
-  desc.add<double>("MaxSagitta",2.);
-  desc.add<double>("MinimalTolerance",0.5);
-  desc.add<double>("MinPtForHitRecoveryInGluedDet",0.9);
+  auto desc = chi2MeasurementEstimatorParams::getFilledConfigurationDescription();
   desc.add<std::string>("ComponentName","Chi2Charge");
   desc.add<double>("pTChargeCutThreshold",-1.);
   edm::ParameterSetDescription descCCC = getFilledConfigurationDescription4CCC();
