@@ -33,6 +33,8 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
+#include <iterator>
+
 CaloTruthAccumulator::CaloTruthAccumulator( const edm::ParameterSet & config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
 		messageCategory_("CaloTruthAccumulator"),
 		maximumPreviousBunchCrossing_( config.getParameter<unsigned int>("maximumPreviousBunchCrossing") ),
@@ -73,6 +75,9 @@ void CaloTruthAccumulator::initializeEvent( edm::Event const& event, edm::EventS
 {
   output_.pSimClusters.reset( new SimClusterCollection() );
   output_.pCaloParticles.reset( new CaloParticleCollection() );
+
+  m_detIdToCluster.clear();
+  m_detIdToTotalSimEnergy.clear();
 }
 
 /// create handle to edm::HepMCProduct here because event.getByLabel with edm::HepMCProduct only works for edm::Event
@@ -108,8 +113,51 @@ void CaloTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup con
   edm::LogInfo("CaloTruthAccumulator") << "Adding " << output_.pSimClusters->size() 
 				       << " SimParticles and " << output_.pCaloParticles->size()
 				       << " CaloParticles to the event.";
-  event.put( std::move(output_.pSimClusters) );
+
+  // now we need to normalize the hits and energies into hits and fractions
+  // (since we have looped over all pileup events)
+
+  for( auto& sc : *(output_.pSimClusters) ) {
+    auto hitsAndEnergies = sc.hits_and_fractions();
+    sc.clearHitsAndFractions();
+    for( auto& hAndE : hitsAndEnergies ) {
+      const float fraction = hAndE.second/m_detIdToTotalSimEnergy[hAndE.first];
+      sc.addRecHitAndFraction(hAndE.first,fraction);
+    }
+  }
+  
+  // save the SimCluster orphan handle so we can fill the calo particles
+  auto scHandle = event.put( std::move(output_.pSimClusters) );
+  
+  // now fill the calo particles
+  for( unsigned i = 0; i < output_.pCaloParticles->size(); ++i ) {
+    auto& cp = (*output_.pCaloParticles)[i];
+    for( unsigned j = m_caloParticles.sc_start_[i]; j < m_caloParticles.sc_stop_[i]; ++j ) {
+      edm::Ref<SimClusterCollection> ref(scHandle,j);
+      cp.addSimCluster(ref);
+    }
+
+    std::cout << cp;
+  }  
+
   event.put( std::move(output_.pCaloParticles) );
+
+  calo_particles().swap(m_caloParticles);
+
+  std::unordered_map<Index_t,float>().swap(m_detIdToTotalSimEnergy);
+
+  std::unordered_map<Barcode_t,Index_t>().swap(m_genParticleBarcodeToIndex);
+  std::unordered_map<Barcode_t,Index_t>().swap(m_simTrackBarcodeToIndex);
+  std::unordered_map<Barcode_t,Index_t>().swap(m_genBarcodeToSimTrackIndex);
+  std::unordered_map<Barcode_t,Index_t>().swap(m_simVertexBarcodeToIndex);
+
+  std::unordered_multimap<Index_t,Index_t>().swap(m_detIdToCluster);
+  std::unordered_multimap<Barcode_t,Index_t>().swap(m_simHitBarcodeToIndex);
+  std::unordered_multimap<Barcode_t,Barcode_t>().swap(m_simVertexBarcodeToSimTrackBarcode);
+  std::unordered_multimap<Barcode_t,Index_t>().swap(m_simTrackToSimVertex);
+  std::unordered_multimap<Barcode_t,Index_t>().swap(m_simVertexToSimTrackParent); 
+  std::vector<Barcode_t>().swap(m_simVertexBarcodes);
+  std::unordered_map<Index_t,float>().swap(m_detIdToTotalSimEnergy);
 }
 
 //void CaloTruthAccumulator::beginLuminosityBlock( LuminosityBlock const& iLumiBlock, const EventSetup& iSetup ) {
@@ -157,6 +205,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
 
   // Clear maps from previous event fill them for this one
   m_simHitBarcodeToIndex.clear();
+  m_simTracksConsideredForSimClusters.clear();
   for (unsigned int i = 0 ; i < simHitPointers.size(); i++) {
     m_simHitBarcodeToIndex.emplace(simHitPointers[i]->geantTrackId(),i);
   }
@@ -210,7 +259,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   
   std::vector<Index_t> tracksToBecomeClustersInitial;
   std::vector<Barcode_t> descendantTracks;
-  std::vector<SimClusterCollection> simClustersForGenParts;
+  SimClusterCollection simClustersForGenParts;
   std::vector<std::unique_ptr<SimHitInfoPerSimTrack_t> > hitInfoList;
   std::vector<std::vector<uint32_t> > simClusterPrimitives;
   std::unordered_multimap<Index_t,Index_t> genPartsToSimClusters;
@@ -220,9 +269,17 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
     if ( simTracks[i].momentum().E() < minEnergy_ || std::abs(simTracks[i].momentum().Eta()) >= maxPseudoRapidity_ ) continue;
     if ( simTracks[i].noGenpart() ) continue;
     std::cout << "TOP-LEVEL SCZ DEBUG BEORE " << i << std::endl;
-    auto dummy = CaloTruthAccumulator::descendantSimClusters( simTracks[i].trackId(),simHitPointers );
-    std::cout << "TOP-LEVEL SCZ DEBUG AFTER " << i << " descendantSimClusters size: " << dummy.size() << std::endl;
-    simClustersForGenParts.push_back( std::move(dummy) );
+    
+    auto temp = CaloTruthAccumulator::descendantSimClusters( simTracks[i].trackId(),simHitPointers );
+    std::cout << "TOP-LEVEL SCZ DEBUG AFTER " << i << " descendantSimClusters size: " << temp.size() << std::endl;
+    if( temp.size() ) {
+      output_.pCaloParticles->emplace_back(simTracks[i]);
+      m_caloParticles.sc_start_.push_back(output_.pSimClusters->size());
+      auto mbegin = std::make_move_iterator(temp.begin());
+      auto mend = std::make_move_iterator(temp.end());
+      output_.pSimClusters->insert(output_.pSimClusters->end(), mbegin, mend);
+      m_caloParticles.sc_stop_.push_back(output_.pSimClusters->size());
+    }
     /*
     if (useGenParticles_) {
       if (!hSimTracks->at(i).noGenpart() ) {
@@ -379,21 +436,34 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
   if ( CaloTruthAccumulator::consideredBarcode( barcode ) ) {
     std::cout << "SCZ DEBUG Ignoring descendantSimClusters call because this particle is already marked used: " << barcode << std::endl;
   }
-  std::unique_ptr<SimHitInfoPerSimTrack_t> hit_info = std::move(CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, false));
+  std::unique_ptr<SimHitInfoPerSimTrack_t> hit_info = std::move(CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, true, false, false));
+  std::cout << " Special LAG DEBUG of hit_info: " << barcode << ' ' << hit_info->size() << std::endl;
   std::cout << " Special SCZ DEBUG call of inclusive_hit_info on barcode " << barcode << "..." << std::endl;
   std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, false) );
   std::cout << " After Special SCZ DEBUG call of inclusive_hit_info on barcode " << barcode 
 	    << "... inclusive_hit_info->size()=" << inclusive_hit_info->size() << std::endl;
   if (hit_info->size() > 0) {
-    std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, true) );
+    std::unique_ptr<SimHitInfoPerSimTrack_t> marked_hit_info = std::move(CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, true, false, true) );
     const auto& simTrack = simTracks[m_simTrackBarcodeToIndex[barcode]];
     
-    result.push_back(simTrack);
+    result.emplace_back(simTrack);
     auto& simcluster = result.back();
 
-    for( const auto& hit_and_fraction : *inclusive_hit_info ) {
+    std::unordered_map<uint32_t,float> acc_frac;
+    
+    for( const auto& hit_and_fraction : *marked_hit_info ) {
+      const uint32_t id = hit_and_fraction.first.rawId();
+      if( acc_frac.count(id) ) acc_frac[id] += hit_and_fraction.second;
+      else acc_frac[id] = hit_and_fraction.second;
+    }
+
+    for( const auto& hit_and_fraction : acc_frac ) {
       simcluster.addRecHitAndFraction(hit_and_fraction.first,hit_and_fraction.second);
     }
+
+    std::cout << "LAG DEBUG "<< result.size() << "sim clusters made, tossing it up the chain!" << std::endl;
+    std::cout << "LAG DEBUG SimCluster info: " << simcluster.energy() << ' ' 
+	      << simcluster.eta() << ' ' << simcluster.phi() << ' ' << simcluster.numberOfRecHits() << std::endl;
 
     std::cout << " SCZ DEBUG we should make a SimCluster out of particle: " << barcode << std::endl;
   } else {
@@ -439,7 +509,7 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
 std::unique_ptr<SimHitInfoPerSimTrack_t> CaloTruthAccumulator::attachedSimHitInfo( Barcode_t barcode , const std::vector<const PCaloHit*>& hits, 
 										   bool includeOwn , bool includeOther, bool markUsed ) {
   std::unique_ptr<SimHitInfoPerSimTrack_t> result(new SimHitInfoPerSimTrack_t);
-  std::cout << " SCZ DEBUG CaloTruthAccumulator::attachedSimHitInfo " << barcode << " " << includeOwn << " " << includeOther << " " << markUsed << std::endl;
+  std::cout << " SCZ DEBUG BEG CaloTruthAccumulator::attachedSimHitInfo " << barcode << " " << includeOwn << " " << includeOther << " " << markUsed << std::endl;
   /*
   if (barcode == 417 || barcode == 418) {
     std::cout << "CaloTruthAccumulator::attachedSimHitInfo DEBUG " << std::endl;
@@ -498,7 +568,7 @@ std::unique_ptr<SimHitInfoPerSimTrack_t> CaloTruthAccumulator::attachedSimHitInf
       }
     }
   }
-  std::cout << " SCZ DEBUG CaloTruthAccumulator::attachedSimHitInfo " << barcode << " " << includeOwn << " " << includeOther << " " << markUsed 
+  std::cout << " SCZ DEBUG END CaloTruthAccumulator::attachedSimHitInfo " << barcode << " " << includeOwn << " " << includeOther << " " << markUsed 
 	    << " " << result->size() << std::endl;
   return result;
 }
@@ -523,7 +593,14 @@ template<class T> void CaloTruthAccumulator::fillSimHits( std::vector<const PCal
     edm::Handle< std::vector<PCaloHit> > hSimHits;
     event.getByLabel( collectionTag, hSimHits );
     for( const auto& simHit : *hSimHits ) {
+      const uint32_t simId = simHit.id();
+      int subdet, layer, cell, sec, subsec, zp;
+      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+      DetId id = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
+      uint32_t detId = id.rawId();
       returnValue.push_back( &simHit );
+      if( m_detIdToTotalSimEnergy.count(detId) ) m_detIdToTotalSimEnergy[detId] += simHit.energy();
+      else m_detIdToTotalSimEnergy[detId] = simHit.energy();
     }
   } // end of loop over InputTags
 }

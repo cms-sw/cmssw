@@ -4,6 +4,8 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+
 const unsigned int CaloParticle::longLivedTag = 65536;
 
 CaloParticle::CaloParticle()
@@ -16,6 +18,10 @@ CaloParticle::CaloParticle( const SimTrack& simtrk )
   addG4Track( simtrk );
   event_ = simtrk.eventId();
   particleId_ = simtrk.trackId();
+  theMomentum_.SetPxPyPzE(simtrk.momentum().px(),
+			  simtrk.momentum().py(),
+			  simtrk.momentum().pz(),
+			  simtrk.momentum().E());
 }
 
 CaloParticle::CaloParticle( EncodedEventId eventID, uint32_t particleID )
@@ -30,6 +36,7 @@ CaloParticle::~CaloParticle()
 
 std::ostream& operator<< (std::ostream& s, CaloParticle const & tp)
 {
+    s << "Calo Particle:" << std::endl;
     s << "CP momentum, q, ID, & Event #: "
     << tp.p4()                      << " " << tp.charge() << " "   << tp.pdgId() << " "
     << tp.eventId().bunchCrossing() << "." << tp.eventId().event() << std::endl;
@@ -48,5 +55,10 @@ std::ostream& operator<< (std::ostream& s, CaloParticle const & tp)
             s << " Mismatch b/t CaloParticle and Geant types" << std::endl;
         }
     }
+    s << "SimClusters in this CaloParticle: " << std::endl;
+    for( auto itr = tp.simClusters_.begin(); itr != tp.simClusters_.end(); ++itr ) {
+      s << **itr;
+    }
+    s << std::endl;
     return s;
 }

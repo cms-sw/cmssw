@@ -51,13 +51,15 @@ eras.phase2_hgcal.toModify( theDigitizers,
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
+
     
 theDigitizersValid = cms.PSet(
     theDigitizers,
     mergedtruth = cms.PSet(
         trackingParticles
-        ),
-    calotruth = cms.PSet(
-        caloParticles
         )
     )
+
+
+eras.phase2_hgcal.toModify( theDigitizersValid,
+                            calotruth = cms.PSet( caloParticles ) )

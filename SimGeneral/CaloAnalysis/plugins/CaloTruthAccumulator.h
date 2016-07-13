@@ -70,10 +70,29 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   
   const std::string messageCategory_; ///< The message category used to send messages to MessageLogger
   
+  struct calo_particles {
+    std::vector<uint32_t> sc_start_;
+    std::vector<uint32_t> sc_stop_;
+
+    void swap(calo_particles& oth) {
+      sc_start_.swap(oth.sc_start_);
+      sc_stop_.swap(oth.sc_stop_);
+    }
+
+    void clear() {
+      sc_start_.clear();
+      sc_stop_.clear();
+    }
+  };
+
+  calo_particles m_caloParticles;
+
+  std::unordered_map<Index_t,float> m_detIdToTotalSimEnergy; // keep track of cell normalizations
   std::unordered_map<Barcode_t,Index_t> m_genParticleBarcodeToIndex;
   std::unordered_map<Barcode_t,Index_t> m_simTrackBarcodeToIndex;
   std::unordered_map<Barcode_t,Index_t> m_genBarcodeToSimTrackIndex;
   std::unordered_map<Barcode_t,Index_t> m_simVertexBarcodeToIndex;
+  std::unordered_multimap<Index_t,Index_t> m_detIdToCluster;
   std::unordered_multimap<Barcode_t,Index_t> m_simHitBarcodeToIndex;
   std::unordered_multimap<Barcode_t,Barcode_t> m_simVertexBarcodeToSimTrackBarcode;
   std::unordered_multimap<Barcode_t,Index_t> m_simTrackToSimVertex; 

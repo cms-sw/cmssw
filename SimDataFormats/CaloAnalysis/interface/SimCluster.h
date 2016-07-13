@@ -214,6 +214,12 @@ public:
       }
       return result;
     }
+
+    /** @brief clear the hits and fractions list */
+    void clearHitsAndFractions() {
+      hits_.resize(0);
+      fractions_.resize(0);
+    }
    
     /** @brief returns the accumulated sim energy in the cluster */
     float simEnergy() const { return simhit_energy_; }

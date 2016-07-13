@@ -16,6 +16,12 @@ SimCluster::SimCluster( const SimTrack& simtrk )
   addG4Track( simtrk );
   event_ = simtrk.eventId();
   particleId_ = simtrk.trackId();
+  
+  theMomentum_.SetPxPyPzE(simtrk.momentum().px(),
+			  simtrk.momentum().py(),
+			  simtrk.momentum().pz(),
+			  simtrk.momentum().E());
+  std::cout << " Made a simcluster: " << *this << std::endl;
 }
 
 SimCluster::SimCluster( EncodedEventId eventID, uint32_t particleID )
@@ -48,5 +54,7 @@ std::ostream& operator<< (std::ostream& s, SimCluster const & tp)
             s << " Mismatch b/t SimCluster and Geant types" << std::endl;
         }
     }
+    s << " # of cells = " << tp.hits_.size() 
+      << ", effective cells = " << std::accumulate(tp.fractions_.begin(),tp.fractions_.end(),0.f) << std::endl;
     return s;
 }
