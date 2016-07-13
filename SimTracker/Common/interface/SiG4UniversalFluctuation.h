@@ -4,7 +4,7 @@
 //
 // File name:   SiG4UniversalFluctuation 
 //
-// Author: Vladimir Ivanchenko make a class for Laslo Urban model
+// Author: Vladimir Ivanchenko make a class for Laszlo Urban model
 //
 // Modified for standalone use in CMSSW. Danek K. 02/2006
 //
