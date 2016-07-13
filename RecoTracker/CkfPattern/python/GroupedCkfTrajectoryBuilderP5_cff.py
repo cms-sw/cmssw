@@ -14,7 +14,7 @@ Chi2MeasurementEstimatorForP5.MaxChi2 = 100.
 Chi2MeasurementEstimatorForP5.nSigma = 4.
 Chi2MeasurementEstimatorForP5.MaxDisplacement = 100
 Chi2MeasurementEstimatorForP5.MaxSagitta=-1
-
+Chi2MeasurementEstimatorForP5.MinPtForHitRecoveryInGluedDet=100000
 # PropagatorWithMaterialESProducer
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
