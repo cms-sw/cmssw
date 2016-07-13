@@ -1,6 +1,5 @@
-#include "FWCore/Utilities/interface/Exception.h"
+#include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -8,28 +7,16 @@
 
 #include "TClass.h"
 
-#include <string>
 #include <set>
 #include <algorithm>
 #include <iostream>
 
 namespace edm {
-  void loadType(TypeID const& type) {
-    TypeSet missingTypes;
-    checkClassDictionaries(type,missingTypes,true);
-    if (!missingTypes.empty()) {
-      for_all(missingTypes, loadType);
-    }
-  }
 
-  void loadCap(std::string const& name) {
+  bool loadCap(std::string const& name, std::vector<std::string>& missingDictionaries) {
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
-    TypeWithDict typedict = TypeWithDict::byName(name);
-    if (!typedict) {
-      throw cms::Exception("DictionaryMissingClass") << "The dictionary of class '" << name << "' is missing!";
-    }
-    TClass* cl = TClass::GetClass(name.c_str());
-    loadType(TypeID(*cl->GetTypeInfo()));
+    TypeWithDict typeWithDict = TypeWithDict::byName(name);
+    return checkClassDictionaries(missingDictionaries, name, typeWithDict);
   }
 
   void doBuildRealData(std::string const& name) {
@@ -47,11 +34,16 @@ namespace edm {
   void loadExtraClasses() {
     static bool done = false;
     if (done == false) {
-	loadCap(std::string("edm::StreamedProduct"));
-	loadCap(std::string("std::vector<edm::StreamedProduct>"));
-	loadCap(std::string("edm::SendEvent"));
-	loadCap(std::string("std::vector<edm::BranchDescription>"));
-	loadCap(std::string("edm::SendJobHeader"));
+      std::vector<std::string> missingDictionaries;
+      loadCap(std::string("edm::StreamedProduct"), missingDictionaries);
+      loadCap(std::string("std::vector<edm::StreamedProduct>"), missingDictionaries);
+      loadCap(std::string("edm::SendEvent"), missingDictionaries);
+      loadCap(std::string("std::vector<edm::BranchDescription>"), missingDictionaries);
+      loadCap(std::string("edm::SendJobHeader"), missingDictionaries);
+      if (!missingDictionaries.empty()) {
+        std::string context("Calling loadExtraClasses, checking dictionaries");
+        throwMissingDictionariesException(missingDictionaries, context);
+      }
     }
     done=true;
   }

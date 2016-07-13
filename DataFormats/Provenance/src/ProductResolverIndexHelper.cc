@@ -24,14 +24,29 @@ namespace edm {
       static std::string const refToBaseVector("edm::RefToBaseVector<");
       static std::string const ptrVector("edm::PtrVector<");
       static std::string const vectorPtr("std::vector<edm::Ptr<");
+      static std::string const associationMap("edm::AssociationMap<");
+      static std::string const newDetSetVector("edmNew::DetSetVector<");
       static size_t const rvsize = refVector.size();
       static size_t const rtbvsize = refToBaseVector.size();
       static size_t const pvsize = ptrVector.size();
       static size_t const vpsize = vectorPtr.size();
+      static size_t const amsize = associationMap.size();
+      static size_t const ndsize = newDetSetVector.size();
       bool mayBeRefVector = (className.substr(0, rvsize) == refVector)
                          || (className.substr(0, rtbvsize) == refToBaseVector)
                          || (className.substr(0, pvsize) == ptrVector)
                          || (className.substr(0, vpsize) == vectorPtr);
+      // AssociationMap and edmNew::DetSetVector do not support View and
+      // this function is used to get a contained type that can be accessed
+      // using a View. So return the void type in these cases.
+      // In practice, they were the only types causing a problem, but any
+      // type with a typedef named value_type that does not support
+      // View might also cause problems and might need to be added here in
+      // the future.
+      if (className.substr(0, amsize) == associationMap ||
+          className.substr(0, ndsize) == newDetSetVector) {
+        return TypeID(typeid(void));
+      }
       TClass* cl = TClass::GetClass(wrappedTypeID.className().c_str());
       if(cl == nullptr) {
         return TypeID(typeid(void));
@@ -184,7 +199,8 @@ namespace edm {
                                    char const* moduleLabel,
                                    char const* instance,
                                    char const* process,
-                                   TypeID const& containedTypeID) {
+                                   TypeID const& containedTypeID,
+                                   std::vector<TypeWithDict>* baseTypesOfContainedType) {
     if (!items_) {
       throw Exception(errors::LogicError)
         << "ProductResolverIndexHelper::insert - Attempt to insert more elements after frozen.\n";
@@ -241,30 +257,46 @@ namespace edm {
       }
 
       // Repeat this for all public base classes of the contained type
-      std::vector<TypeWithDict> baseTypes;
-      public_base_classes(containedType, baseTypes);
+      if (baseTypesOfContainedType) {
 
-      for(TypeWithDict const& baseType : baseTypes) {
-
-        TypeID baseTypeID(baseType.typeInfo());
-        Item baseItem(ELEMENT_TYPE, baseTypeID, moduleLabel, instance, process, savedProductIndex);
-        iter = items_->find(baseItem);
-        if (iter != items_->end()) {
-          baseItem.setIndex(ProductResolverIndexAmbiguous);
-          items_->erase(iter);
-        }
-        items_->insert(baseItem);
-
-        baseItem.clearProcess();
-        iter = items_->find(baseItem);
-        if (iter == items_->end()) {
-          baseItem.setIndex(nextIndexValue_);
-          ++nextIndexValue_;
+        for(TypeWithDict const& baseType : *baseTypesOfContainedType) {
+          TypeID baseTypeID(baseType.typeInfo());
+          Item baseItem(ELEMENT_TYPE, baseTypeID, moduleLabel, instance, process, savedProductIndex);
+          iter = items_->find(baseItem);
+          if (iter != items_->end()) {
+            baseItem.setIndex(ProductResolverIndexAmbiguous);
+            items_->erase(iter);
+          }
           items_->insert(baseItem);
+
+          baseItem.clearProcess();
+          iter = items_->find(baseItem);
+          if (iter == items_->end()) {
+            baseItem.setIndex(nextIndexValue_);
+            ++nextIndexValue_;
+            items_->insert(baseItem);
+          }
         }
       }
     }
     return savedProductIndex;
+  }
+
+  ProductResolverIndex
+  ProductResolverIndexHelper::insert(TypeID const& typeID,
+         char const* moduleLabel,
+         char const* instance,
+         char const* process) {
+
+    TypeID containedTypeID = productholderindexhelper::getContainedType(typeID);
+    bool hasContainedType = (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID());
+    std::vector<TypeWithDict> baseTypes;
+    std::vector<TypeWithDict>* baseTypesOfContainedType = &baseTypes;
+    if (hasContainedType) {
+      std::vector<std::string> missingDictionaries;
+      public_base_classes(missingDictionaries, containedTypeID, baseTypes);
+    }
+    return insert(typeID, moduleLabel, instance, process, containedTypeID, baseTypesOfContainedType);
   }
 
   void ProductResolverIndexHelper::setFrozen() {

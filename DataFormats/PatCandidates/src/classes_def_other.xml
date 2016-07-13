@@ -65,6 +65,7 @@
   <class name="vid::CutFlowResult" ClassVersion="2">
     <version ClassVersion="2" checksum="3732644629"/>
   </class>
+  <class name="std::vector<vid::CutFlowResult>"/>
   <class name="edm::ValueMap<vid::CutFlowResult>"/>
   <class name="edm::Wrapper<vid::CutFlowResult>"/>
   <class name="edm::Wrapper<edm::ValueMap<vid::CutFlowResult> >"/>

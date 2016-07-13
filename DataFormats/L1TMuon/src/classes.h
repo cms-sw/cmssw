@@ -11,6 +11,8 @@
 #include "DataFormats/L1TMuon/interface/EMTFTrackExtra.h"
 #include "DataFormats/L1TMuon/interface/EMTFHitExtra.h"
 
+#include <vector>
+
 namespace {
   struct dictionary {
     l1t::MuonCaloSumBxCollection caloSum;

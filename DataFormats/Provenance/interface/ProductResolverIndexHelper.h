@@ -64,6 +64,8 @@ ProductRegistry is frozen.
 
 namespace edm {
 
+  class TypeWithDict;
+
   namespace productholderindexhelper {
     // The next function supports views. For the given wrapped type,
     // which must be Wrapper<T>,
@@ -176,15 +178,14 @@ namespace edm {
            char const* moduleLabel,
            char const* instance,
            char const* process,
-           TypeID const& containedTypeID);
+           TypeID const& containedTypeID,
+           std::vector<TypeWithDict>* baseTypesOfContainedType);
 
     ProductResolverIndex
     insert(TypeID const& typeID,
            char const* moduleLabel,
            char const* instance,
-           char const* process) {
-      return insert(typeID, moduleLabel, instance, process, productholderindexhelper::getContainedType(typeID));
-    }
+           char const* process);
 
     // Before the object is frozen the accessors above will
     // fail to find a match. Once frozen, no more new entries

@@ -51,7 +51,9 @@
  </class>
  <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
  <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>
+ <class name="std::vector<edmtest::Simple*>"/>
  <class name="edm::OwnVector<edmtest::SimpleDerived, edm::ClonePolicy<edmtest::SimpleDerived> >"/>
+ <class name="std::vector<edmtest::SimpleDerived*>"/>
  <class name="std::vector<edmtest::Simple>"/>
  <class name="edm::Wrapper<std::vector<edmtest::Simple> >"/>
  <class name="std::vector<edmtest::SimpleDerived>"/>
@@ -69,6 +71,7 @@
    <field name="transientVector_" transient="true"/>
  </class>
  <class name="std::pair<edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,edmtest::Simple>"/>
+ <class name="edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >"/>
  <ioread sourceClass = "edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" version="[1-]" targetClass = "edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" source = "" target="transientVector_">
    <![CDATA[delete transientVector_; transientVector_=nullptr;
    ]]>
@@ -184,4 +187,48 @@
  <class name="edm::Wrapper<edm::EventID>"/>
  <class name="edm::Wrapper<edm::ProductID>"/>
 
+ <class name="edmtest::MissingDictionaryTestA" ClassVersion="10">
+  <version ClassVersion="10" checksum="924871709"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestB" ClassVersion="10">
+  <version ClassVersion="10" checksum="3237077045"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestC" ClassVersion="10">
+  <version ClassVersion="10" checksum="276188887"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestD" ClassVersion="10">
+  <version ClassVersion="10" checksum="525992233"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestE" ClassVersion="10">
+  <version ClassVersion="10" checksum="525992341"/>
+ </class>
+<!--
+Commenting this out to intentionally cause the missing dictionary
+exception when running testMissingDictionaryChecking_cfg.py.
+ <class name="edmtest::MissingDictionaryTestF" ClassVersion="10">
+  <version ClassVersion="10" checksum="3318785451"/>
+ </class>
+-->
+ <class name="edmtest::MissingDictionaryTestG" ClassVersion="10">
+  <version ClassVersion="10" checksum="525992557"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestH" ClassVersion="10">
+  <version ClassVersion="10" checksum="525992665"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestI" ClassVersion="10">
+  <version ClassVersion="10" checksum="325955792"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestJ" ClassVersion="10">
+  <version ClassVersion="10" checksum="525992881"/>
+ </class>
+ <class name="edmtest::MissingDictionaryTestK" ClassVersion="10">
+  <version ClassVersion="10" checksum="525992989"/>
+ </class>
+
+ <class name="std::vector<edmtest::MissingDictionaryTestA>"/>
+ <class name="std::list<edmtest::MissingDictionaryTestA>"/>
+ <class name="std::vector<edmtest::MissingDictionaryTestI>"/>
+ <class name="edm::Wrapper<edmtest::MissingDictionaryTestA>"/>
+ <class name="edm::Wrapper<std::vector<edmtest::MissingDictionaryTestA> >"/>
+ <class name="edm::Wrapper<std::list<edmtest::MissingDictionaryTestA> >"/>
 </lcgdict>

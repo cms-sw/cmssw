@@ -20,6 +20,7 @@
  <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,float> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,int> >"/>
+ <class name="std::vector<std::pair<std::basic_string<char>,std::basic_string<char> > >"/>
  <class name="std::vector<std::pair<std::vector<std::pair<double,std::vector<double> > >,bool> >"/>
  <class name="std::vector<std::pair<unsigned int,bool> >"/>
  <class name="std::vector<std::pair<unsigned int,double> >"/>
