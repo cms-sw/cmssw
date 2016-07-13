@@ -18,6 +18,7 @@
   <class name="heppy::JetUtils"  transient="true"/>
   <class name="heppy::IsolationComputer"  transient="true"/>
 
+  <class name="heppy::GenParticleRefHelper"  transient="true"/>
   <!--<class name="heppy::SimpleElectron" transient="true" />-->
   <!--<class name="ElectronEnergyCalibrator" transient="true" />-->
   <!--<class name="heppy::ElectronEPcombinator" transient="true" />-->
