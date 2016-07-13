@@ -39,6 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("EmptySource")
 
+process.mix.minBunch = cms.int32(-12)
 process.mix.bunchspace=cms.int32(25)
 process.mix.input.nbPileupEvents.averageNumber = cms.double(20.0)  # The average number of pileup events you want  
 process.mix.input.fileNames     = cms.untracked.vstring('file:MBias_100_TkOnly_FLAT.root') # The file where to pick them up
@@ -111,7 +112,7 @@ process.RAWSIMoutput.outputCommands.append('keep  *_mix_Tracker_*')
 
 # Path and EndPath definitions
 process.generation_step         = cms.Path(process.pgen)
-process.simulationTkOnly_step   = cms.Path(process.psim)
+process.simulation_step         = cms.Path(process.psim)
 process.genfiltersummary_step   = cms.EndPath(process.genFilterSummary)
 process.digitisationTkOnly_step = cms.Path(process.pdigi_valid)
 process.L1TrackTrigger_step     = cms.Path(process.TrackTriggerClustersStubs)
@@ -120,7 +121,7 @@ process.endjob_step             = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step       = cms.EndPath(process.RAWSIMoutput)
 
 
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulationTkOnly_step,process.digitisationTkOnly_step,process.L1TrackTrigger_step,process.L1TTAssociator_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisationTkOnly_step,process.L1TrackTrigger_step,process.L1TTAssociator_step,process.endjob_step,process.RAWSIMoutput_step)
 
 # filter all path with the production filter sequence
 for path in process.paths:

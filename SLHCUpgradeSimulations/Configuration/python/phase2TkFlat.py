@@ -19,8 +19,6 @@ def customise(process):
             sys.exit(1)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process,float(n))
-    if hasattr(process,'simulationTkOnly_step'):
-        process=customise_SimTkOnly(process)
     if hasattr(process,'digitisationTkOnly_step'):
         process=customise_DigiTkOnly(process)
     if hasattr(process,'digitisation_step'):
@@ -32,103 +30,22 @@ def customise(process):
     return process
 
 
-def customise_SimTkOnly(process):
-    process.load('SimG4Core.Application.g4SimHits_cfi')
-    process.simulationTkOnly_step.remove(process.g4SimHits.MuonSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.CaloSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.CaloResponse)
-    process.simulationTkOnly_step.remove(process.g4SimHits.ECalSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HCalSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.CaloTrkProcessing)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HFShower)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HFShowerLibrary)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HFShowerPMT)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HFShowerStraightBundle)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HFShowerConicalBundle)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HFGflash)
-    process.simulationTkOnly_step.remove(process.g4SimHits.CastorSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.CastorShowerLibrary)
-    process.simulationTkOnly_step.remove(process.g4SimHits.BHMSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.FastTimerSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HGCSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.TotemSD) 
-    process.simulationTkOnly_step.remove(process.g4SimHits.ZdcSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.ZdcShowerLibrary)
-    process.simulationTkOnly_step.remove(process.g4SimHits.FP420SD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.BscSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.PltSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.Bcm1fSD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.HcalTB02SD)
-    process.simulationTkOnly_step.remove(process.g4SimHits.EcalTBH4BeamSD) 
-    process.simulationTkOnly_step.remove(process.g4SimHits.HcalTB06BeamSD)
-    del process.g4SimHits.MuonSD
-    del process.g4SimHits.CaloSD
-    del process.g4SimHits.CaloResponse
-    del process.g4SimHits.ECalSD
-    del process.g4SimHits.HCalSD
-    del process.g4SimHits.CaloTrkProcessing
-    del process.g4SimHits.HFShower
-    del process.g4SimHits.HFShowerLibrary
-    del process.g4SimHits.HFShowerPMT
-    del process.g4SimHits.HFShowerStraightBundle
-    del process.g4SimHits.HFShowerConicalBundle
-    del process.g4SimHits.HFGflash
-    del process.g4SimHits.CastorSD
-    del process.g4SimHits.CastorShowerLibrary
-    del process.g4SimHits.BHMSD
-    del process.g4SimHits.FastTimerSD
-    del process.g4SimHits.HGCSD
-    del process.g4SimHits.TotemSD 
-    del process.g4SimHits.ZdcSD
-    del process.g4SimHits.ZdcShowerLibrary
-    del process.g4SimHits.FP420SD
-    del process.g4SimHits.BscSD
-    del process.g4SimHits.PltSD
-    del process.g4SimHits.Bcm1fSD
-    del process.g4SimHits.HcalTB02SD
-    del process.g4SimHits.EcalTBH4BeamSD 
-    del process.g4SimHits.HcalTB06BeamSD
-    return process
-
 def customise_DigiTkOnly(process):
     process.load('Configuration.StandardSequences.Digi_cff')
     process.doAllDigi = cms.Sequence()
     process.load('SimGeneral.MixingModule.mixObjects_cfi')
     process.digitisationTkOnly_step.remove(process.mix.mixObjects.mixCH)
-    process.digitisationTkOnly_step.remove(process.mix.mixObjects.mixSH)
-    process.mix.mixObjects.mixSimHits=cms.PSet(
-    input = cms.VInputTag(  # note that this list needs to be in the same order as the subdets
-        cms.InputTag("g4SimHits","TrackerHitsPixelBarrelHighTof"), cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"), 
-        cms.InputTag("g4SimHits","TrackerHitsPixelEndcapHighTof"), cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"), cms.InputTag("g4SimHits","TrackerHitsTECHighTof"), cms.InputTag("g4SimHits","TrackerHitsTECLowTof"), cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"), 
-        cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"), cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"), cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"), cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"), cms.InputTag("g4SimHits","TrackerHitsTOBLowTof")),
-    type = cms.string('PSimHit'),
-    subdets = cms.vstring(
-        'TrackerHitsPixelBarrelHighTof', 
-        'TrackerHitsPixelBarrelLowTof', 
-        'TrackerHitsPixelEndcapHighTof', 
-        'TrackerHitsPixelEndcapLowTof', 
-        'TrackerHitsTECHighTof', 
-        'TrackerHitsTECLowTof', 
-        'TrackerHitsTIBHighTof', 
-        'TrackerHitsTIBLowTof', 
-        'TrackerHitsTIDHighTof', 
-        'TrackerHitsTIDLowTof', 
-        'TrackerHitsTOBHighTof', 
-        'TrackerHitsTOBLowTof'),
-    crossingFrames = cms.untracked.vstring()
-)
-    process.mix.mixObjects.mixSH=cms.PSet(process.mix.mixObjects.mixSimHits)
     del process.simCastorDigis
     del process.simEcalUnsuppressedDigis
     del process.simHcalUnsuppressedDigis
     process.mix.digitizers = cms.PSet(process.theDigitizersValid)
-    process.digitisationTkOnly_step.remove(process.mix.digitizers.pixel)
     process.digitisationTkOnly_step.remove(process.mix.digitizers.ecal)
     process.digitisationTkOnly_step.remove(process.mix.digitizers.hcal)
     process.digitisationTkOnly_step.remove(process.mix.digitizers.castor)
     del process.mix.digitizers.ecal
     del process.mix.digitizers.hcal
     del process.mix.digitizers.castor
+    process.digitisationTkOnly_step.remove(process.mix.digitizers.pixel)
     process.load('SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi')
     process.mix.digitizers.pixel=process.phase2TrackerDigitizer
     process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
