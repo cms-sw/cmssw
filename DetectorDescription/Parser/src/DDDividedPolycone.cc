@@ -20,7 +20,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -138,7 +137,7 @@ DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
     newrMinVec.push_back(localrMinVec[ii]+div_.offset()+width*copyNo);
     newrMaxVec.push_back(localrMinVec[ii]+div_.offset()+width*(copyNo+1));
   }
-  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr(copyNo),
+  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
 		    div_.parent().ddname().ns());
       
   ddpolycone = DDSolidFactory::polycone( solname,
@@ -206,7 +205,7 @@ DDDividedPolyconePhi::makeDDRotation( const int copyNo ) const
   DDRotationMatrix* rotMat = changeRotMatrix( posi );
   // how to name the rotation??
   // i do not like this
-  DDName ddrotname( div_.parent().ddname().name() + "_DIVCHILD_ROT" + DDXMLElement::itostr( copyNo ),
+  DDName ddrotname( div_.parent().ddname().name() + "_DIVCHILD_ROT" + std::to_string( copyNo ),
 		    div_.parent().ddname().ns());
   myddrot = DDrot( ddrotname, rotMat );
 
@@ -302,8 +301,8 @@ DDDividedPolyconeZ::checkParametersValidity( void )
     std::string s = "ERROR - DDDividedPolyconeZ::checkParametersValidity()";
     s += "\n\tDivision along Z will be done splitting in the defined";
     s += "\n\tz_planes, i.e, the number of division would be :";
-    s += "\n\t" + DDXMLElement::itostr( msol.zVec().size() - 1 );
-    s += "\n\tinstead of " + DDXMLElement::itostr(tempNDiv) + " !\n";
+    s += "\n\t" + std::to_string( msol.zVec().size() - 1 );
+    s += "\n\tinstead of " + std::to_string(tempNDiv) + " !\n";
 
     throw cms::Exception("DDException") << s;
   }
@@ -349,7 +348,7 @@ DDDividedPolyconeZ::makeDDLogicalPart( const int copyNo ) const
   std::vector<double> localrMinVec = msol.rMinVec();
   std::vector<double> localzVec = msol.zVec();
 
-  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr(copyNo),
+  solname = DDName( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo),
 		    div_.parent().ddname().ns());
   ddpolycone = DDSolidFactory::cons( solname,
 				     compWidth_ / 2,

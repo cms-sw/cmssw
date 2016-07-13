@@ -20,7 +20,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -403,8 +402,8 @@ DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
   //                           pDy1+DDy*(div_.offset()+(copyNo+1)*compWidth_)/zLength, pDz );
 
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD" 
-		 + DDXMLElement::itostr(copyNo)
-		 , div_.parent().ddname().ns());
+		 + std::to_string(copyNo),
+		 div_.parent().ddname().ns());
   DDSolid  dsol = 
     DDSolidFactory::trap(solname
 			 , pDz

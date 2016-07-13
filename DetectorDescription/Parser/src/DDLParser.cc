@@ -208,7 +208,6 @@ DDLParser::parse( const DDLDocumentProvider& dp )
       parseFile(i);
     }
   }
-  expHandler_->dumpElementTypeCounter();
 
   // PASS 2:
 

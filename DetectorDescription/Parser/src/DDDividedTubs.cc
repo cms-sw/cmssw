@@ -19,7 +19,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class DDCompactView;
@@ -81,8 +80,8 @@ DDDividedTubsRho::makeDDLogicalPart( const int copyNo ) const
 {
   // must always make new name and new solid
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD"
-		 + DDXMLElement::itostr(copyNo) 
-		 , div_.parent().ddname().ns());
+		 + std::to_string(copyNo), 
+		 div_.parent().ddname().ns());
   DDSolid ddtubs(solname);
   DDMaterial usemat(div_.parent().material());
   DDTubs msol = (DDTubs) (div_.parent().solid());
@@ -146,8 +145,8 @@ DDDividedTubsPhi::makeDDRotation( const int copyNo ) const
   // how to name the rotation??
   // i hate this crap :-)
   DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT"
-		   + DDXMLElement::itostr(copyNo)
-		   , div_.parent().ddname().ns());
+		   + std::to_string(copyNo),
+		   div_.parent().ddname().ns());
   myddrot = DDrot(ddrotname, rotMat);
 
   return myddrot;

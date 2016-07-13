@@ -182,10 +182,6 @@ public:
    /// format std::string for throw an error.
    void throwError( const std::string& keyMessage ) const;
    
-   // protected:
-   /// WARNING: abused by other classes in this system: yet another conversion from int to std::string...
-   static std::string itostr( int i );
-   
 protected:
    DDLElementRegistry* myRegistry_;
    

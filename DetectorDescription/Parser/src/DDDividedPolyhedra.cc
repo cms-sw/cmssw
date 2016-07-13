@@ -20,7 +20,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -141,8 +140,8 @@ DDDividedPolyhedraRho::makeDDLogicalPart( const int copyNo ) const
   //   phedra.SetOriginalParameters(&origparam); // copy values & transfer pointers
   //   phedra.Reset();                           // reset to new solid parameters
   
-  DDName solname(div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr(copyNo) 
-		 , div_.parent().ddname().ns());
+  DDName solname(div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo), 
+		 div_.parent().ddname().ns());
   
   DDSolid dsol = DDSolidFactory::polyhedra(solname
 					   , msol.sides()
@@ -259,8 +258,8 @@ DDDividedPolyhedraPhi::makeDDRotation( const int copyNo ) const
   DDRotationMatrix* rotMat = changeRotMatrix( posi);
   // how to name the rotation??
   // i do not like this...
-  DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT" + DDXMLElement::itostr(copyNo)
-		   , div_.parent().ddname().ns());
+  DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT" + std::to_string(copyNo),
+		   div_.parent().ddname().ns());
   DDRotation myddrot = DDrot(ddrotname, rotMat);
   DCOUT_V ('P', "DDDividedPolyhedra::makeDDRotation: copyNo = " << copyNo << " rotation = " << myddrot);
   return myddrot;
@@ -416,7 +415,7 @@ DDDividedPolyhedraZ::makeDDLogicalPart( const int copyNo ) const
 
   double posi = ( zvec[ copyNo ] + zvec[ copyNo + 1 ] ) / 2.0;
   
-  DDName solname( div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr( copyNo ),
+  DDName solname( div_.parent().ddname().name() + "_DIVCHILD" + std::to_string( copyNo ),
 		  div_.parent().ddname().ns());
   std::vector<double> newRmin, newRmax, newZ;
   newZ.push_back( zvec[ copyNo ] - posi );

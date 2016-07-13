@@ -1,16 +1,10 @@
-/***************************************************************************
-                          DDXMLElement.cc  -  description
-                             -------------------
-    begin                : Fri Mar 15 2002
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 #include <ext/alloc_traits.h>
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <string>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -115,8 +109,8 @@ DDXMLElement::getDDName( const std::string& defaultNS, const std::string& attnam
   }
   std::string msg = "DDXMLElement:getDDName failed.  It was asked to make ";
   msg += "a DDName using attribute: " + attname;
-  msg += " in position: " + itostr(int(aIndex)) + ".  There are ";
-  msg += itostr(int(attributes_.size())) + " entries in the element.";
+  msg += " in position: " + std::to_string(aIndex) + ".  There are ";
+  msg += std::to_string(attributes_.size()) + " entries in the element.";
   throwError(msg);
   return DDName("justToCompile", "justToCompile"); // used to make sure it compiles
 } 
@@ -138,8 +132,8 @@ DDXMLElement::get( const std::string& name, const size_t aIndex ) const
       return (it->second);
   }
   std::string msg = "DDXMLElement:get failed.  It was asked for attribute " + name;
-  msg += " in position " + itostr(int(aIndex)) + " when there are only ";
-  msg += itostr(int(attributes_.size())) + " in the element storage.\n";
+  msg += " in position " + std::to_string(aIndex) + " when there are only ";
+  msg += std::to_string(attributes_.size()) + " in the element storage.\n";
   throwError(msg);
   // meaningless...
   return sts;
@@ -305,15 +299,6 @@ void
 DDXMLElement::setSelf( const std::string& sename )
 {
   myElement_ = sename;
-}
-
-// yet another :-)
-std::string
-DDXMLElement::itostr( int in )
-{
-  std::ostringstream ostr;
-  ostr << in;
-  return ostr.str();
 }
 
 bool

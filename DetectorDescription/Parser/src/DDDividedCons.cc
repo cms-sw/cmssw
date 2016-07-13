@@ -20,7 +20,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class DDCompactView;
@@ -91,8 +90,8 @@ DDLogicalPart
 DDDividedConsRho::makeDDLogicalPart( const int copyNo ) const
 { 
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD" 
-		 + DDXMLElement::itostr(copyNo) 
-		 , div_.parent().ddname().ns());
+		 + std::to_string(copyNo), 
+		 div_.parent().ddname().ns());
   DDSolid ddcons(solname);
   DDMaterial usemat(div_.parent().material());
   DDCons msol = (DDCons)(div_.parent().solid());
@@ -182,8 +181,8 @@ DDDividedConsPhi::makeDDRotation( const int copyNo ) const
   DDRotationMatrix* rotMat = changeRotMatrix( posi );
   // how to name the rotation??
   // i hate this crap :-)
-  DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT" + DDXMLElement::itostr(copyNo)
-		   , div_.parent().ddname().ns());
+  DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT" + std::to_string(copyNo),
+		   div_.parent().ddname().ns());
   myddrot = DDrot(ddrotname, rotMat);
 
   DCOUT_V ('P', "DDDividedConsPhi::makeDDRotation : " << myddrot);
@@ -293,8 +292,8 @@ DDDividedConsZ::makeDDTranslation( const int copyNo ) const
 DDLogicalPart
 DDDividedConsZ::makeDDLogicalPart( const int copyNo ) const
 { 
-  DDName solname(div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr(copyNo) 
-		 , div_.parent().ddname().ns());
+  DDName solname(div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo), 
+		 div_.parent().ddname().ns());
   DDSolid ddcons(solname);
   DDMaterial usemat(div_.parent().material());
   DDCons msol = (DDCons)(div_.parent().solid());
