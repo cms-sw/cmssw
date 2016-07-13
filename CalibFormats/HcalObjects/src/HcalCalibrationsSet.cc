@@ -3,40 +3,28 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
 #include <iostream>
-
+#include <utility>
 
 HcalCalibrationsSet::HcalCalibrationsSet() 
-  : sorted_ (false) {}
+{}
 
 const HcalCalibrations& HcalCalibrationsSet::getCalibrations(const DetId fId) const {
-  Item target(fId);
-  std::vector<Item>::const_iterator cell;
-  if (sorted_) {
-    cell = std::lower_bound (mItems.begin(), mItems.end(), target);
-  } else {
-    cell = std::find(mItems.begin(),mItems.end(), target);
-  }
-  if ((cell == mItems.end()) || (!hcalEqualDetId(cell->id.rawId(),fId)))
+  DetId fId2(hcalTransformedId(fId));
+  auto cell = mItems.find(fId2);
+  if ((cell == mItems.end()) || (!hcalEqualDetId(cell->first,fId2)))
     throw cms::Exception ("Conditions not found") << "Unavailable HcalCalibrations for cell " << HcalGenericDetId(fId);
-  return cell->calib;
+  return cell->second.calib;
 }
 
 void HcalCalibrationsSet::setCalibrations(DetId fId, const HcalCalibrations& ca) {
-  sorted_=false;
-  std::vector<Item>::iterator cell=std::find(mItems.begin(),mItems.end(),Item(fId)); //slow, but guaranteed
+  DetId fId2(hcalTransformedId(fId));
+  auto cell = mItems.find(fId2);
   if (cell==mItems.end()) {
-    mItems.push_back(Item(fId));
-    mItems.at(mItems.size()-1).calib=ca;
+    auto result = mItems.emplace(fId2,fId2);
+    result.first->second.calib=ca;
     return;
   }
-  cell->calib=ca;
-}
-
-void HcalCalibrationsSet::sort () {
-  if (!sorted_) {
-    std::sort (mItems.begin(), mItems.end());
-    sorted_ = true;
-  }
+  cell->second.calib=ca;
 }
 
 void HcalCalibrationsSet::clear() {
