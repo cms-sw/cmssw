@@ -79,8 +79,10 @@ void HistogramManager::executeStep1Spec(
           break;
         }
         case SummationStep::EXTEND_X:
-          assert((x == 0.0 && dimensions != 1) ||
+          assert((x == 0.0 && dimensions != 1) || 
+                 (y == 0.0 && dimensions == 1) ||
                  !"Can only EXTEND on COUNTs in step1");
+          if (dimensions == 1) y = x;
           x = significantvalues[step.columns.at(0)];
           significantvalues.erase(step.columns.at(0));
           dimensions = dimensions == 0 ? 1 : 2;
@@ -277,10 +279,15 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               GeometryInterface::Column col0 =
                   significantvalues.get(step.columns.at(0)).first;
               std::string colname = geometryInterface.pretty(col0);
-              assert(dimensions != 1 || !"1D to 1D reduce NYI in step1");
-              dimensions = dimensions == 0 ? 1 : 2;
               title = title + " per " + colname;
               name = name + "_per_" + colname;
+              if (dimensions == 1) {
+                ylabel = xlabel;
+                range_y_min = range_x_min;
+                range_y_max = range_x_max;
+                range_y_nbins = range_x_nbins;
+              }
+              dimensions = dimensions == 0 ? 1 : 2;
               xlabel = colname;
               range_x_min = geometryInterface.minValue(col0[0]) - 0.5;
               range_x_max = geometryInterface.maxValue(col0[0]) + 0.5;
