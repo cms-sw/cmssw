@@ -11,14 +11,9 @@ SiPixelPhase1DigisADC = DefaultHisto.clone(
   range_max = 300,
   range_nbins = 300,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
+    StandardSpecificationTrend,
+    StandardSpecification2DProfile,
+    *StandardSpecifications1D
   )
 )
 
@@ -31,20 +26,9 @@ SiPixelPhase1DigisNdigis = DefaultHisto.clone(
   range_nbins = 30,
   dimensions = 0, # this is a count
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event") 
-                   .reduce("COUNT") # per-event counting
-                   .groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event")
-                   .reduce("COUNT")
-                   .groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/Event")
-                            .reduce("COUNT")
-                            .groupBy(DefaultHisto.defaultPerModule).save()
+    StandardSpecificationTrend_Num,
+    StandardSpecification2DProfile_Num,
+    *StandardSpecifications1D_Num
   )
 )
 
@@ -57,14 +41,10 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
   range_nbins = 200,
   dimensions = 0, 
   specs = cms.VPSet(
-    Specification().groupBy("PXBarrel|PXForward/FED/Event")
+    Specification().groupBy("FED/Event")
                    .reduce("COUNT")
-                   .groupBy("PXBarrel|PXForward/FED")
-                   .groupBy("PXBarrel|PXForward", "EXTEND_Y")
-                   .save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/FED/Event")
-                   .reduce("COUNT")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
+                   .groupBy("FED")
+                   .groupBy("", "EXTEND_Y")
                    .save()
   )
 )
@@ -84,6 +64,7 @@ SiPixelPhase1DigisEvents = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisHitmap = DefaultHisto.clone(
+  enabled = False,
   name = "hitmap",
   title = "Position of digis on module",
   ylabel = "#digis",
@@ -105,24 +86,11 @@ SiPixelPhase1DigisHitmap = DefaultHisto.clone(
                    .save()
                    .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
 
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade/LumiDecade")
-                   .groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade", "EXTEND_X")
-                   .groupBy(DefaultHisto.defaultGrouping, "EXTEND_Y")
-                   .save(),
-
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROC")
-                   .groupBy(DefaultHisto.defaultGrouping,"EXTEND_X")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
-
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
-                   .groupBy(DefaultHisto.defaultGrouping,"EXTEND_X")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll()
   )
 )
 
 SiPixelPhase1DigisDebug = DefaultHisto.clone(
+  enabled = False,
   name = "debug",
   xlabel = "ladder #",
   range_min = 1,
@@ -134,9 +102,6 @@ SiPixelPhase1DigisDebug = DefaultHisto.clone(
                    .reduce("MEAN")
                    .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                    .saveAll(),
-    Specification().groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save(),
   )
 )
 
