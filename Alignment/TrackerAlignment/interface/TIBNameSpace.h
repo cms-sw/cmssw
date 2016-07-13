@@ -10,6 +10,9 @@
  *  $Date: 2007/10/18 09:57:10 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
+ *
+ *  Last Update: Max Stark
+ *         Date: Fri, 05 Feb 2016 17:21:33 CET
  */
 
 #include "CondFormats/Alignment/interface/Definitions.h"
@@ -21,7 +24,7 @@ namespace align
   namespace tib
   {
     /// Number of strings for each surface of a half shell.
-    const unsigned int sphs[] = {13, 15, 17, 19, 22, 23, 26, 28};
+    std::vector<unsigned int> sphs;
 
     /// Module number increases with |z| from 1 to 3.
     inline unsigned int moduleNumber(align::ID, const TrackerTopology*);
@@ -41,6 +44,9 @@ namespace align
 
     /// Half barrel number is 1 at -z side and 2 at +z side.
     inline unsigned int halfBarrelNumber(align::ID, const TrackerTopology*);
+
+    /// Barrel number is 1 for all align::ID's which belong to this barrel
+    inline unsigned int barrelNumber(align::ID, const TrackerTopology*);
   }
 }
 
@@ -91,6 +97,11 @@ unsigned int align::tib::layerNumber(align::ID id, const TrackerTopology* tTopo)
 unsigned int align::tib::halfBarrelNumber(align::ID id, const TrackerTopology* tTopo)
 {
   return tTopo->tibStringInfo(id)[0];
+}
+
+unsigned int align::tib::barrelNumber(align::ID, const TrackerTopology*)
+{
+  return 1;
 }
 
 #endif

@@ -26,7 +26,6 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 
 #include <memory>
-#include <set>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -128,7 +127,7 @@ namespace edm {
     getProvenance(BranchID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*>& provenances) const;
+    getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
 
     // Return true if this Run has been subjected to a process with
     // the given processName, and false otherwise.
@@ -170,13 +169,10 @@ namespace edm {
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
 
     void commit_();
-    void addToGotBranchIDs(Provenance const& prov) const;
 
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     RunAuxiliary const& aux_;
-    typedef std::set<BranchID> BranchIDSet;
-    mutable BranchIDSet gotBranchIDs_;
     ModuleCallingContext const* moduleCallingContext_;
     SharedResourcesAcquirer* sharedResourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
 

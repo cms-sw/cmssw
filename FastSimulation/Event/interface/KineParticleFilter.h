@@ -1,39 +1,29 @@
 #ifndef FastSimulation_Event_KineParticleFilter_H
 #define FastSimulation_Event_KineParticleFilter_H
 
-//FAMOS Headers
-#include "FastSimulation/Particle/interface/BaseRawParticleFilter.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
-/**
- * A filter for particles in the user-defined kinematic acceptabce.
- * \author Patrick Janot
- */
-
-
-#include <set>
-
+class RawParticle;
 namespace edm { 
-  class ParameterSet;
+    class ParameterSet;
 }
 
-class KineParticleFilter : public BaseRawParticleFilter {
+class KineParticleFilter
+{
 public:
-  KineParticleFilter(const edm::ParameterSet& kine); 
-  virtual ~KineParticleFilter(){;};
-
-  void setMainVertex(const XYZTLorentzVector& mv) { mainVertex=mv; }
-
-  const XYZTLorentzVector& vertex() const { return mainVertex; }
+    KineParticleFilter(const edm::ParameterSet& kine); 
+    
+    ~KineParticleFilter(){;}
+    
+    bool acceptParticle(const RawParticle & p) const;
+    
+    bool acceptVertex(const math::XYZTLorentzVector & p) const;
 
 private:
-  /// the real selection is done here
-  virtual bool isOKForMe(const RawParticle* p) const;
-
-  double etaMin, etaMax, phiMin, phiMax, pTMin, pTMax, EMin, EMax;
-  double cos2Max, cos2PreshMin, cos2PreshMax;
-  XYZTLorentzVector mainVertex;
-
-  std::set<int>   forbiddenPdgCodes;
+    // see constructor for comments
+    double chargedPtMin2, EMin, protonEMin;
+    double cos2ThetaMax;
+    double vertexRMax2,vertexZMax;
 };
 
 #endif

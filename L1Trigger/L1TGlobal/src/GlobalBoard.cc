@@ -413,7 +413,7 @@ void l1t::GlobalBoard::runGTL(
         edm::Event& iEvent, const edm::EventSetup& evSetup, const TriggerMenu* m_l1GtMenu,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
-        std::auto_ptr<GlobalObjectMapRecord>& gtObjectMapRecord,  
+        std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord,  
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
@@ -926,7 +926,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 
 // Fill DAQ Record
 void l1t::GlobalBoard::fillAlgRecord(int iBxInEvent, 
-				    std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
+				    std::unique_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
                                     int prescaleSet,
 				    int menuUUID,
 				    int firmwareUUID

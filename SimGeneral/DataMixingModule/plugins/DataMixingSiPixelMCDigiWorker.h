@@ -1,5 +1,5 @@
-#ifndef DataMixingSiPixelMCDigiWorker_h
-#define DataMixingSiPixelMCDigiWorker_h
+#ifndef SimDataMixingSiPixelMCDigiWorker_h
+#define SimDataMixingSiPixelMCDigiWorker_h
 
 /** \class DataMixingSiPixelMCDigiWorker
  *
@@ -165,4 +165,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingSiPixelMCDigiWorker_h

@@ -8,6 +8,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/MessageService"/>
+<use   name="Geometry/HGCalGeometry"/>
 <library   file="*.cc" name="RecoLocalCaloHGCalRecProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

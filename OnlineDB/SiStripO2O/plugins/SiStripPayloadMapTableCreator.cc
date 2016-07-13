@@ -41,7 +41,7 @@ SiStripPayloadMapTableCreator::~SiStripPayloadMapTableCreator() {
 }
 
 void SiStripPayloadMapTableCreator::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup ) {
-  boost::shared_ptr<coral::ISessionProxy> cmDbSession = m_connectionPool.createCoralSession( m_configMapDb, true );
+  std::shared_ptr<coral::ISessionProxy> cmDbSession = m_connectionPool.createCoralSession( m_configMapDb, true );
   coral::TableDescription mapTable;
   mapTable.setName("STRIP_CONFIG_TO_PAYLOAD_MAP");
   mapTable.insertColumn("CONFIG_HASH", coral::AttributeSpecification::typeNameForType<std::string>());

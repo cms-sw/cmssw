@@ -47,7 +47,7 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    std::unique_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
+    auto result = std::make_unique<OtherThingCollection>();  //Empty
 
     // Step C: Get data for algorithm
     edm::Handle<ThingCollection> parentHandle;

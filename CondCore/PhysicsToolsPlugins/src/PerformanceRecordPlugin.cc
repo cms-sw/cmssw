@@ -14,7 +14,7 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 
 namespace cond {
-  template <> boost::shared_ptr<PerformancePayload> deserialize<PerformancePayload>( const std::string& payloadType, 
+  template <> std::shared_ptr<PerformancePayload> deserialize<PerformancePayload>( const std::string& payloadType, 
 										     const Binary& payloadData, 
 										     const Binary& streamerInfoData ){
     // DESERIALIZE_BASE_CASE( PerformancePayload );  abstract 

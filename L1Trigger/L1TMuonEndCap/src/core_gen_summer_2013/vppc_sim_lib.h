@@ -11,7 +11,6 @@
 #include <stdexcept> // out_of_range exception
 #include <time.h>
 
-using namespace std;
 
 #define ull unsigned int 
 #define dull unsigned long long
@@ -28,8 +27,8 @@ using namespace std;
 #define Stime clock()
 #define repeat(a) for (int __rep_counter__ = 0; __rep_counter__ < a; __rep_counter__++)
 #define Swrite(cl, ...) Sfwrite(stdout_sig, cl, ##__VA_ARGS__)
-#define Sdisplay(cl, ...) Sfwrite(stdout_sig, (string)cl + "\n", ##__VA_ARGS__)
-#define Sfdisplay(fd,cl, ...) Sfwrite(fd, (string)cl + "\n", ##__VA_ARGS__)
+#define Sdisplay(cl, ...) Sfwrite(stdout_sig, (std::string)cl + "\n", ##__VA_ARGS__)
+#define Sfdisplay(fd,cl, ...) Sfwrite(fd, (std::string)cl + "\n", ##__VA_ARGS__)
 
 void sim_lib_init();
 
@@ -146,10 +145,10 @@ signal_& const_l(size_t sz, size_t count, ... ); // for longer constants
 signal_& const_s_p(size_t sz, dull val); // for permanent constants fitting into one ull
 signal_& const_l_p(size_t sz, size_t count, ... ); // for longer permanent constants
 signal_& const_l(size_t sz, size_t count, ... ); // for longer constants
-void Sfwrite(signal_& fd, string format, ... );
-int Ssscanf (signal_& line, string format, ... );
-void Sreadmemh(string fname, signal_& dest, size_t adr = 0);
-signal_ Sfopen(string fname, string mode = "w");
+void Sfwrite(signal_& fd, std::string format, ... );
+int Ssscanf (signal_& line, std::string format, ... );
+void Sreadmemh(std::string fname, signal_& dest, size_t adr = 0);
+signal_ Sfopen(std::string fname, std::string mode = "w");
 void Sfclose (signal_& fd);
 int Sfgets (signal_& line, signal_& fd);
 int Sfeof(signal_& fd);

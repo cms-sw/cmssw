@@ -262,9 +262,9 @@ public:
     void printHitPattern(HitCategory category, int position, std::ostream &stream) const;
     void print(HitCategory category, std::ostream &stream = std::cout) const;
 
-    bool hasValidHitInFirstPixelBarrel() const; // has valid hit in PXB layer 1
-    bool hasValidHitInFirstPixelEndcap() const; // has valid hit in PXF layer 1
-
+    // has valid hit in PXB/PXF layer x 
+    bool hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector, uint16_t layer) const;
+    
     int numberOfHits(HitCategory category) const;                 // not-null
     int numberOfValidHits() const;                                // not-null, valid
 

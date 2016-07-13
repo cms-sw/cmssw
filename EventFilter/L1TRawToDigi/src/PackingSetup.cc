@@ -8,10 +8,10 @@ EDM_REGISTER_PLUGINFACTORY(l1t::PackingSetupFactoryT,"PackingSetupFactory");
 namespace l1t {
    const PackingSetupFactory PackingSetupFactory::instance_;
 
-   std::auto_ptr<PackingSetup>
+   std::unique_ptr<PackingSetup>
    PackingSetupFactory::make(const std::string& type) const
    {
-      auto helper = std::auto_ptr<PackingSetup>(PackingSetupFactoryT::get()->create("l1t::" + type));
+      auto helper = std::unique_ptr<PackingSetup>(PackingSetupFactoryT::get()->create("l1t::" + type));
 
       if (helper.get() == 0)
          throw edm::Exception(edm::errors::Configuration, "NoSourceModule") << "cannot find packing setup " << type;

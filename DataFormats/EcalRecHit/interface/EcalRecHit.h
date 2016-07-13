@@ -5,7 +5,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 /** \class EcalRecHit
  *  
@@ -104,6 +104,13 @@ public:
     return value;
   }
 
+  static inline int getPower10(float e) {
+    static constexpr float p10[] = {1.e-2f,1.e-1f,1.f,1.e1f,1.e2f,1.e3f,1.e4f,1.e5f,1.e6f};
+    int b = e<p10[4] ? 0 : 5;
+    for (;b<9;++b) if (e<p10[b]) break;
+    return b; 
+  }
+
 
   /* the new bit structure
    * 0..6   - chi2 in time events (chi2()), offset=0, width=7
@@ -136,10 +143,19 @@ public:
   void setEnergyError(float energy) {
     uint32_t rawEnergy = 0;
     if (energy > 0.001) {
-      uint16_t exponent = lround(floor(log10(energy))) + 3;
-      uint16_t significand = lround(energy/pow(10, exponent - 5));
+      uint16_t exponent = getPower10(energy);
+      static constexpr float ip10[] = {1.e5f,1.e4f,1.e3f,1.e2f,1.e1f,1.e0f,1.e-1f,1.e-2f,1.e-3f,1.e-4};
+      uint16_t significand = lround(energy*ip10[exponent]);
       // use 13 bits (3 exponent, 10 significand)
       rawEnergy = exponent << 10 | significand;
+      /* here for doc and regression test
+      uint16_t exponent_old = lround(floor(log10(energy))) + 3;  
+      uint16_t significand_old = lround(energy/pow(10, exponent - 5));
+      std::cout << energy << ' ' << exponent << ' ' << significand 
+                          << ' ' << exponent_old <<	' ' << significand_old << std::endl;
+      assert(exponent==exponent_old);
+      assert(significand==significand_old);
+      */
     }
 
     extra_ = setMasked(extra_, rawEnergy, 8, 13);

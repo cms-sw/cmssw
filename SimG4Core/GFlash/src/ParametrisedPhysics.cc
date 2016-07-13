@@ -1,7 +1,6 @@
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 
 #include "G4Electron.hh"
-#include "G4FastSimulationManagerProcess.hh"
 #include "G4ProcessManager.hh"
 
 #include "G4LeptonConstructor.hh"
@@ -24,7 +23,7 @@ ParametrisedPhysics::~ParametrisedPhysics() {
     delete tpdata->theEMShowerModel;
     delete tpdata->theHadShowerModel;
     delete tpdata->theHadronShowerModel;
-    delete tpdata;
+    delete tpdata->theFastSimulationManagerProcess;
     tpdata = nullptr;
   }
 }
@@ -53,13 +52,14 @@ void ParametrisedPhysics::ConstructProcess() {
   tpdata->theEMShowerModel = nullptr;
   tpdata->theHadShowerModel = nullptr;
   tpdata->theHadronShowerModel = nullptr;
+  tpdata->theFastSimulationManagerProcess = nullptr;
 
   bool gem  = theParSet.getParameter<bool>("GflashEcal");
   bool ghad = theParSet.getParameter<bool>("GflashHcal");
   G4cout << "GFlash Construct: " << gem << "  " << ghad << G4endl;
 
   if(gem || ghad) {
-    G4FastSimulationManagerProcess * theFastSimulationManagerProcess = 
+    tpdata->theFastSimulationManagerProcess =
       new G4FastSimulationManagerProcess();
     aParticleIterator->reset();
     while ((*aParticleIterator)()) {
@@ -67,7 +67,7 @@ void ParametrisedPhysics::ConstructProcess() {
       G4ProcessManager * pmanager = particle->GetProcessManager();
       G4String pname = particle->GetParticleName();
       if(pname == "e-" || pname == "e+") {
-	pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
+	pmanager->AddDiscreteProcess(tpdata->theFastSimulationManagerProcess);
       }
     }
 

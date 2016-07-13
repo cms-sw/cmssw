@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,12 +24,12 @@
 #include <vector>
 #include <memory>
 
-class Phase2TrackerClusterizer : public edm::global::EDProducer<> {
+class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
 
     public:
         explicit Phase2TrackerClusterizer(const edm::ParameterSet& conf);
         virtual ~Phase2TrackerClusterizer();
-        void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const override final;
+        virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
     private:
         std::unique_ptr< Phase2TrackerClusterizerAlgorithm > clusterizer_;
@@ -54,7 +54,7 @@ class Phase2TrackerClusterizer : public edm::global::EDProducer<> {
      * Clusterize the events
      */
 
-    void Phase2TrackerClusterizer::produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup& eventSetup) const {
+    void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
 
         // Get the Digis
         edm::Handle< edm::DetSetVector< Phase2TrackerDigi > > digis;

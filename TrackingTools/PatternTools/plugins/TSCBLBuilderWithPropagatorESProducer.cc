@@ -7,7 +7,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -28,7 +27,7 @@ class TSCBLBuilderWithPropagatorESProducer : public edm::ESProducer {
       TSCBLBuilderWithPropagatorESProducer(const edm::ParameterSet&);
       ~TSCBLBuilderWithPropagatorESProducer();
 
-      typedef boost::shared_ptr<TrajectoryStateClosestToBeamLineBuilder> ReturnType;
+      typedef std::shared_ptr<TrajectoryStateClosestToBeamLineBuilder> ReturnType;
 
       ReturnType produce(const TrackingComponentsRecord&);
    private:

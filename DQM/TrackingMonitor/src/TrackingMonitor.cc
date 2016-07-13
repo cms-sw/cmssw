@@ -537,6 +537,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
       theTrackAnalyzer->setBX(iEvent);
+      theTrackAnalyzer->setLumi(iEvent,iSetup);
       for (reco::TrackCollection::const_iterator track = trackCollection.begin();
 	   track!=trackCollection.end(); ++track) {
 	

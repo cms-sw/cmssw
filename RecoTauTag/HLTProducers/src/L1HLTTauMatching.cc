@@ -32,7 +32,7 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
   using namespace trigger;
   using namespace l1extra;
 	
-  auto_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
+  unique_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
 	
   double deltaR = 1.0;
   double matchingR = 0.5;
@@ -100,8 +100,8 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
 
   //std::cout <<"Size of L1HLT matched jets "<<tauL2jets->size()<<std::endl;
 
-  iEvent.put(tauL2jets);
-  // iEvent.put(tauL2LC);
+  iEvent.put(std::move(tauL2jets));
+  // iEvent.put(std::move(tauL2LC));
 }
 
 void L1HLTTauMatching::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 

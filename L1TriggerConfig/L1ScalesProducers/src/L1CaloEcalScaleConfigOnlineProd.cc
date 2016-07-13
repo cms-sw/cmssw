@@ -41,7 +41,7 @@ class L1CaloEcalScaleConfigOnlineProd :
       L1CaloEcalScaleConfigOnlineProd(const edm::ParameterSet&);
       ~L1CaloEcalScaleConfigOnlineProd();
 
-  virtual boost::shared_ptr< L1CaloEcalScale > newObject(
+  virtual std::shared_ptr< L1CaloEcalScale > newObject(
     const std::string& objectKey ) override ;
 
 
@@ -89,7 +89,7 @@ L1CaloEcalScaleConfigOnlineProd::~L1CaloEcalScaleConfigOnlineProd()
 
 }
 
-boost::shared_ptr< L1CaloEcalScale >
+std::shared_ptr< L1CaloEcalScale >
 L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
@@ -97,11 +97,11 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      std:: cout << "object Key " << objectKey <<std::endl;
 
      if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
-        return boost::shared_ptr< L1CaloEcalScale >( ecalScale );
+        return std::shared_ptr< L1CaloEcalScale >( ecalScale );
      if(objectKey == "IDENTITY"){  // return identity ecal scale  
        ecalScale = 0;
        ecalScale = new L1CaloEcalScale(1);
-       return boost::shared_ptr< L1CaloEcalScale >( ecalScale);
+       return std::shared_ptr< L1CaloEcalScale >( ecalScale);
      }
      
 
@@ -136,7 +136,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (paramResults.numberRows()==0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key.  Unable to find lutparam dat table" ;
-	 return boost::shared_ptr< L1CaloEcalScale >() ;
+	 return std::shared_ptr< L1CaloEcalScale >() ;
        }
 
     
@@ -168,7 +168,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 ee_lsb = etSat/1024;
        else {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale  LOGIC_ID.  unable to find channel view with appropiate logic id" ;
-	 return boost::shared_ptr< L1CaloEcalScale >() ;
+	 return std::shared_ptr< L1CaloEcalScale >() ;
        }
 
      }
@@ -191,7 +191,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (lutGrpResults.numberRows()%1024 !=0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key.  No group info" ;
-	 return boost::shared_ptr< L1CaloEcalScale >() ;
+	 return std::shared_ptr< L1CaloEcalScale >() ;
        }
 
 
@@ -253,7 +253,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (grpMapResults.numberRows()==0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key. No fe_config_lut_dat info" ;
-	 return boost::shared_ptr< L1CaloEcalScale >() ;
+	 return std::shared_ptr< L1CaloEcalScale >() ;
        }
 
      nEntries = grpMapResults.numberRows();
@@ -276,7 +276,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   || (paramResults.numberRows()==0) ) // check query successful
 	 {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloEcalScale key.  Unable to find logic_id channel view" ;
-	 return boost::shared_ptr< L1CaloEcalScale >() ;
+	 return std::shared_ptr< L1CaloEcalScale >() ;
        }
        for(int j = 0; j < IDResults.numberRows(); j++){
 
@@ -361,7 +361,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 
  
 // ------------ method called to produce the data  ------------
-     return boost::shared_ptr< L1CaloEcalScale >( ecalScale );
+     return std::shared_ptr< L1CaloEcalScale >( ecalScale );
 }
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1CaloEcalScaleConfigOnlineProd);

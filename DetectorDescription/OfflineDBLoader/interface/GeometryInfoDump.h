@@ -1,5 +1,13 @@
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+
+class DDCompactView;
+class DDPartSelection;
 
 class GeometryInfoDump {
 

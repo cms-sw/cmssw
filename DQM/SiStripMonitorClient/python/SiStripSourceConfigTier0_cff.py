@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 # FED integrity Check
 from DQM.SiStripMonitorHardware.siStripFEDCheck_cfi import *
@@ -19,18 +20,18 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
 # APV shots monitoring
 SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
-SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
+SiStripMonitorDigi.TkHistoMapNStripApvShots_On= False
 SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = False
+SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = False
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
 from DQM.SiStripMonitorClient.pset4GenericTriggerEventFlag_cfi import *
@@ -66,13 +67,14 @@ SiStripMonitorClusterBPTX.StripDCSfilter = cms.PSet(
 )
 
 from Configuration.StandardSequences.Eras import eras
-eras.stage2L1Trigger.toModify(SiStripMonitorClusterBPTX,
+eras.stage2L1Trigger.toModify(SiStripMonitorClusterBPTX, 
     BPTXfilter = dict(
         stage2 = cms.bool(True),
         l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
         l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
     )
 )
+
 
 # Clone for SiStripMonitorTrack for all PDs but Minimum Bias and Jet ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi 
@@ -136,6 +138,9 @@ SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
     *dqmInfoSiStrip)
+eras.phase1Pixel.toReplaceWith(SiStripDQMTier0, SiStripDQMTier0.copyAndExclude([ # FIXME
+    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
@@ -146,6 +151,9 @@ SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
     *SiStripMonitorTrackMB*MonitorTrackResiduals
     *dqmInfoSiStrip)
+eras.phase1Pixel.toReplaceWith(SiStripDQMTier0MinBias, SiStripDQMTier0MinBias.copyAndExclude([ # FIXME
+    MonitorTrackResiduals # Excessive printouts because 2017 doesn't have HLT yet
+]))
 
 
 

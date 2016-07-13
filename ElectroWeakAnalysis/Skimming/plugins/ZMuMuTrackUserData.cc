@@ -106,7 +106,7 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
   Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
   evt.getByToken(primaryVerticesToken_, primaryVertices);
 
-  auto_ptr<vector<pat::GenericParticle> > tkColl( new vector<pat::GenericParticle> (*tracks) );
+  unique_ptr<vector<pat::GenericParticle> > tkColl( new vector<pat::GenericParticle> (*tracks) );
   for (unsigned int i = 0; i< tkColl->size();++i){
     pat::GenericParticle & tk = (*tkColl)[i];
     vector<double> iso = isolation(tk,ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_, alpha_, beta_);
@@ -167,7 +167,7 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
 
   }
 
-  evt.put( tkColl);
+  evt.put(std::move(tkColl));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

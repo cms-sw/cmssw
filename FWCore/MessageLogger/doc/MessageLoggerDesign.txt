@@ -106,7 +106,7 @@ struct MessageLoggerScribe {
     case LOG:
     {
      MessageLoggerSlot m = static_cast<MessageLoggerSlot> m;
-     auto_ptr<ErrorObj> ep (m->ep);
+     unique_ptr<ErrorObj> ep (m->ep);
      (*errlogp) << *ep;
     } break;
     case SETUP_USING_PARAMETERS:
@@ -209,7 +209,7 @@ MessageSender LogWarning (const char* id)
      constructs.  The MessageSender class contains an ErrorObj*, which
      the ctor initializes to point to an ErrorObj on the heap, constructed
      from ELwarning and myid.  This ErrorObj, though allocated via new,
-     will not be deleted explicitly by MessageSender - instead, an auto_ptr
+     will not be deleted explicitly by MessageSender - instead, a unique_ptr
      will be formed to pass that duty onward.
 
   g) The messageSender now has a couple of invocations of operator<<().  It
@@ -220,8 +220,8 @@ MessageSender LogWarning (const char* id)
 
   i) The dtor of MessageSender obtains a slot in the queue obtained by
      messageLoggerQ().  It casts this unstructured slot into form for taking
-     a command and an auto_ptr to an ErrorObj.  It then fills that structure
-     with the command LOG and an auto_ptr to the on-the-heap ErrorObj
+     a command and a unique_ptr to an ErrorObj.  It then fills that structure
+     with the command LOG and a unique_ptr to the on-the-heap ErrorObj
      (at this point, it is relieved of responsibility for deleting the
      ErrorObj).
 
@@ -233,9 +233,9 @@ MessageSender LogWarning (const char* id)
      command member of that struct is examined and found (in this case) to
      be LOG.
 
-  l) An auto_ptr<ErrorObj> is formed from the pointer sitting in the
+  l) An unique_ptr<ErrorObj> is formed from the pointer sitting in the
      raw slot.  This is done by casting the raw memory into its Message
-     SenderSlot form.  This is crucial because we had "lost" the auto_ptr
+     SenderSlot form.  This is crucial because we had "lost" the unique_ptr
      nature of that pointer.
 
   m) The activate() is a member function of MessageLoggerScribe; it has
@@ -243,7 +243,7 @@ MessageSender LogWarning (const char* id)
      error logger.  Thus the message is formated and comes out in all
      the destinations -- in this case just cerr -- attached to the logger.
 
-  n) At the end of the LOG case, the auto_ptr goes out of scope, thus deleting
+  n) At the end of the LOG case, the unique_ptr goes out of scope, thus deleting
      the ErrorObj so that the memory on the heap is properly freed.
 
   o) At the end of the switch on command, the buffer is replaced into the pool.

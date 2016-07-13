@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -20,7 +19,7 @@ public:
   HcalHardcodeGeometryEP(const edm::ParameterSet&);
   virtual ~HcalHardcodeGeometryEP();
 
-  typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
+  typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 
   ReturnType produceIdeal(const HcalRecNumberingRecord&);
   ReturnType produceAligned(const HcalGeometryRecord& );

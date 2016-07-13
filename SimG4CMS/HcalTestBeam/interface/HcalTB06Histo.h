@@ -43,9 +43,11 @@ private:
 
   // ---------- Private Data members -----------------------
   bool                  verbose;
+  double                ebeam;
 
   TH1D                  *iniE,  *iEta,  *iPhi;
   TH1D                  *edepS, *edecS, *edhcS;
+  TH1D                  *edepN, *edecN, *edhcN;
   TH2D                  *edehS;
 };
  

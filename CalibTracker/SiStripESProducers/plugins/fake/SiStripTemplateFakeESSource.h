@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -27,7 +26,7 @@ class SiStripTemplateFakeESSource : public edm::ESProducer, public edm::EventSet
   ~SiStripTemplateFakeESSource(){};
   
   
-  std::auto_ptr<TObject> produce(const TRecord&);
+  std::unique_ptr<TObject> produce(const TRecord&);
   
 private:
   
@@ -47,12 +46,12 @@ SiStripTemplateFakeESSource<TObject,TRecord,TService>::SiStripTemplateFakeESSour
 }
 
 template< typename TObject , typename TRecord, typename TService>
-std::auto_ptr<TObject> SiStripTemplateFakeESSource<TObject,TRecord,TService>::produce(const TRecord& iRecord)
+std::unique_ptr<TObject> SiStripTemplateFakeESSource<TObject,TRecord,TService>::produce(const TRecord& iRecord)
 {
   edm::Service<TService> condObjBuilder;
   TObject *obj=0; 
   condObjBuilder->getObj(obj);
-  std::auto_ptr<TObject> ptr(obj);
+  std::unique_ptr<TObject> ptr(obj);
   return ptr;
 }
 

@@ -15,6 +15,7 @@
 #include "TVector2.h"
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 template<class T>
 class HT {
@@ -35,7 +36,7 @@ private:
   {
     typedef typename T::const_iterator Iter;
     for (Iter jet = jetcoll->begin(); jet!=jetcoll->end(); ++jet){
-      if ((jet->pt()>ptThreshold) && (abs(jet->eta())<maxAbsEta)){
+      if ((jet->pt()>ptThreshold) && (std::fabs(jet->eta())<maxAbsEta)){
 	njet++;
 	Hx += jet->px();
 	Hy += jet->py();
@@ -45,11 +46,5 @@ private:
     v=TVector2(Hx,Hy);
   }
 };
-
-
-
-
-
-
 
 #endif

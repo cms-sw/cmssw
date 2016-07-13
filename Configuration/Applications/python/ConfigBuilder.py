@@ -135,7 +135,7 @@ def filesFromDASQuery(query,option="",s=None):
 		if count!=0:
 			print 'Sleeping, then retrying DAS'
 			time.sleep(100)
-		p = Popen('das_client.py %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+		p = Popen('das_client %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
                 pipe=p.stdout.read()
 		tupleP = os.waitpid(p.pid, 0)
 		eC=tupleP[1]
@@ -1093,7 +1093,6 @@ class ConfigBuilder(object):
 		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
 		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
 		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
-		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
                 self.DQMOFFLINEDefaultCFF="FastSimulation.Configuration.DQMOfflineMC_cff"
 
         # Mixing

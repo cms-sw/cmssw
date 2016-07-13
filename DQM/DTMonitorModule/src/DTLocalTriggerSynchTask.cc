@@ -44,7 +44,7 @@ DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : 
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: Constructor" << endl;
   parameters = ps;
-  dcc_Token_  = consumes<L1MuDTChambPhContainer>(
+  tm_Token_  = consumes<L1MuDTChambPhContainer>(
       parameters.getParameter<edm::InputTag>("TMInputTag"));
   ddu_Token_  = consumes<DTLocalTriggerCollection>(
       parameters.getParameter<edm::InputTag>("DDUInputTag"));
@@ -117,7 +117,7 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
   // Get best TM triggers
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-  event.getByToken(dcc_Token_, l1DTTPGPh);
+  event.getByToken(tm_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
 
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();

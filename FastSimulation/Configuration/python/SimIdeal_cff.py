@@ -8,7 +8,7 @@ from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 from FastSimulation.EventProducer.FamosSimHits_cff import *
 
 # Gaussian Smearing RecHit producer
-from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
+from FastSimulation.TrackingRecHitProducer.TrackingRecHitProducer_cfi import *
 
 # Muon simHit sequence
 from FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi import *

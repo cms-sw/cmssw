@@ -5,7 +5,6 @@
 <use   name="FWCore/PythonParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/Records"/>
-<use   name="boost"/>
 <library   file="CaloTowerGeometryAnalyzer.cc" name="testCaloTowerGeometryESProducer">
  <flags   EDM_PLUGIN="1"/>
 </library>

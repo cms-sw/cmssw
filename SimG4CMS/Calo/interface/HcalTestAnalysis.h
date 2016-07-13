@@ -69,7 +69,7 @@ private:
   int                       addTower;
 
   // Private Tuples
-  std::auto_ptr<HcalTestHistoManager>    tuplesManager;
+  std::unique_ptr<HcalTestHistoManager>    tuplesManager;
   HcalTestHistoClass        *tuples;
 
   // Numbering scheme

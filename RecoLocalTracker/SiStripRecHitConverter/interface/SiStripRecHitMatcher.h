@@ -141,7 +141,7 @@ public:
   using  mathSSE::Rot3F;
 #endif 
  
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 
 namespace matcherDetails {  

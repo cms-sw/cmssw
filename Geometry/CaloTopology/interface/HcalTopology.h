@@ -145,7 +145,10 @@ public:
   unsigned int detId2denseIdCALIB(const DetId& id) const;
 
   unsigned int getNumberOfShapes() const { return numberOfShapes_; }
-      
+  bool isBH() const { return ((hcons_ == 0) ? false : hcons_->isBH()); }
+
+  const HcalDDDRecConstants* dddConstants () const {return hcons_;}
+
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
@@ -178,7 +181,7 @@ private:
   int singlePhiBins_, doublePhiBins_;
   int maxDepthHB_, maxDepthHE_, maxDepthHF_;
   int etaHE2HF_, etaHF2HE_;
-  int maxEta_;
+  int maxEta_, maxPhiHE_;
 
   unsigned int HBSize_;
   unsigned int HESize_;
@@ -202,10 +205,11 @@ private:
 	 kHEhalf = 1296 ,
 	 kHOhalf = 1080 ,
 	 kHFhalf = 864  ,
-	 kHThalf = 2088,
+	 kHThalf = 2088 ,
 	 kZDChalf = 11,
 	 kCASTORhalf = 224,
 	 kCALIBhalf = 693,
+	 kHThalfPhase1 = 2520 ,
 	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
   enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
   enum { kHBSizePreLS1 = 2*kHBhalf } ;
@@ -213,7 +217,7 @@ private:
   enum { kHOSizePreLS1 = 2*kHOhalf } ;
   enum { kHFSizePreLS1 = 2*kHFhalf } ;
   enum { kHTSizePreLS1 = 2*kHThalf } ;
-  enum { kHTSizePhase1 = (kHTSizePreLS1+(2*12*36)) } ;
+  enum { kHTSizePhase1 = 2*kHThalfPhase1 } ;
   enum { kCALIBSizePreLS1 = 2*kCALIBhalf };
 };
 

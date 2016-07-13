@@ -79,9 +79,9 @@ PixelTracksProducer::~PixelTracksProducer() {
 void 
 PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
   
-  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);    
-  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
+  std::unique_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);    
+  std::unique_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
+  std::unique_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
   typedef std::vector<const TrackingRecHit *> RecHits;
   
   TracksWithRecHits pixeltracks;
@@ -96,9 +96,9 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // No seed -> output an empty track collection
   if(theSeeds->size() == 0) {
-    e.put(tracks);
-    e.put(recHits);
-    e.put(trackExtras);
+    e.put(std::move(tracks));
+    e.put(std::move(recHits));
+    e.put(std::move(trackExtras));
     return;
   }
   
@@ -159,7 +159,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
   }
   
-  edm::OrphanHandle <TrackingRecHitCollection> ohRH = e.put( recHits );
+  edm::OrphanHandle <TrackingRecHitCollection> ohRH = e.put(std::move(recHits ));
   edm::RefProd<TrackingRecHitCollection> ohRHProd(ohRH);
 
   for (int k = 0; k < nTracks; ++k) {
@@ -178,7 +178,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //delete theTrackExtra;
   }
   
-  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(trackExtras);
+  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(std::move(trackExtras));
   
   for (int k = 0; k < nTracks; k++) {
 
@@ -187,7 +187,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   }
   
-  e.put(tracks);
+  e.put(std::move(tracks));
 
 }
 

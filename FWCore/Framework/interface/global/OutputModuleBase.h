@@ -229,11 +229,11 @@ namespace edm {
       /// Ask the OutputModule if we should end the current file.
       virtual bool shouldWeCloseFile() const {return false;}
       
-      virtual void write(EventPrincipal const& e, ModuleCallingContext const*) = 0;
+      virtual void write(EventForOutput const&) = 0;
       virtual void beginJob(){}
       virtual void endJob(){}
-      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
-      virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;
+      virtual void writeRun(RunForOutput const&) = 0;
       virtual void openFile(FileBlock const&) {}
       virtual bool isFileOpen() const { return true; }
       virtual void reallyOpenFile() {}
@@ -244,21 +244,21 @@ namespace edm {
       virtual void preallocStreams(unsigned int){}
       virtual void doBeginStream_(StreamID){}
       virtual void doEndStream_(StreamID){}
-      virtual void doStreamBeginRun_(StreamID, Run const&, EventSetup const&){}
-      virtual void doStreamEndRun_(StreamID, Run const&, EventSetup const&){}
-      virtual void doStreamEndRunSummary_(StreamID, Run const&, EventSetup const&){}
-      virtual void doStreamBeginLuminosityBlock_(StreamID, LuminosityBlock const&, EventSetup const&){}
-      virtual void doStreamEndLuminosityBlock_(StreamID, LuminosityBlock const&, EventSetup const&){}
-      virtual void doStreamEndLuminosityBlockSummary_(StreamID, LuminosityBlock const&, EventSetup const&){}
+      virtual void doStreamBeginRun_(StreamID, RunForOutput const&, EventSetup const&){}
+      virtual void doStreamEndRun_(StreamID, RunForOutput const&, EventSetup const&){}
+      virtual void doStreamEndRunSummary_(StreamID, RunForOutput const&, EventSetup const&){}
+      virtual void doStreamBeginLuminosityBlock_(StreamID, LuminosityBlockForOutput const&, EventSetup const&){}
+      virtual void doStreamEndLuminosityBlock_(StreamID, LuminosityBlockForOutput const&, EventSetup const&){}
+      virtual void doStreamEndLuminosityBlockSummary_(StreamID, LuminosityBlockForOutput const&, EventSetup const&){}
 
-      virtual void doBeginRun_(RunPrincipal const&, ModuleCallingContext const*){}
-      virtual void doBeginRunSummary_(Run const&, EventSetup const&){}
-      virtual void doEndRun_(RunPrincipal const&, ModuleCallingContext const*){}
-      virtual void doEndRunSummary_(Run const&, EventSetup const&){}
-      virtual void doBeginLuminosityBlock_(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
-      virtual void doBeginLuminosityBlockSummary_(LuminosityBlock const&, EventSetup const&){}
-      virtual void doEndLuminosityBlock_(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
-      virtual void doEndLuminosityBlockSummary_(LuminosityBlock const&, EventSetup const&){}
+      virtual void doBeginRun_(RunForOutput const&){}
+      virtual void doBeginRunSummary_(RunForOutput const&, EventSetup const&){}
+      virtual void doEndRun_(RunForOutput const& ){}
+      virtual void doEndRunSummary_(RunForOutput const&, EventSetup const&){}
+      virtual void doBeginLuminosityBlock_(LuminosityBlockForOutput const&){}
+      virtual void doBeginLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&){}
+      virtual void doEndLuminosityBlock_(LuminosityBlockForOutput const&){}
+      virtual void doEndLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&){}
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
       

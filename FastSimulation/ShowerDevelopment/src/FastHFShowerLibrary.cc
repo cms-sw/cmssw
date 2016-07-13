@@ -95,7 +95,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
   double tSlice = 0.1*vertex.mag()/29.98;
 
   std::vector<HFShowerLibrary::Hit> hits =
-    hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,false,tSlice);
+    hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,tSlice,false);
 
   for (unsigned int i=0; i<hits.size(); ++i) {
     G4ThreeVector pos = hits[i].position;

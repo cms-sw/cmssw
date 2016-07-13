@@ -23,7 +23,7 @@ class EcalBasicClusterLocalContCorrectionsESProducer : public edm::ESProducer {
       EcalBasicClusterLocalContCorrectionsESProducer(const edm::ParameterSet&);
      ~EcalBasicClusterLocalContCorrectionsESProducer();
 
-  typedef std::auto_ptr<EcalClusterLocalContCorrParameters> ReturnType;
+  typedef std::unique_ptr<EcalClusterLocalContCorrParameters> ReturnType;
   
   ReturnType produce(const EcalClusterLocalContCorrParametersRcd&);
 

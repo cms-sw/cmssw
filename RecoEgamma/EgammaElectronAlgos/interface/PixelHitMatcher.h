@@ -231,7 +231,6 @@ class PixelHitMatcher
 
     bool searchInTIDTEC_ ;
     bool useRecoVertex_ ;
-    std::unordered_map<const GeomDet*, TrajectoryStateOnSurface> mapTsos_fast_;
     std::unordered_map<std::pair<const GeomDet*,GlobalPoint>, TrajectoryStateOnSurface> mapTsos2_fast_;    
     std::vector<GlobalPoint> hit_gp_map_;    
 } ;

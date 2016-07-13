@@ -20,6 +20,8 @@
 
 #include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
 
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
+
 #include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -208,10 +210,8 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
     //build the GsfTrackExtra
     std::vector<reco::GsfComponent5D> outerStates;
-    outerStates.reserve(outertsos.components().size());
     fillStates(outertsos,outerStates);
     std::vector<reco::GsfComponent5D> innerStates;
-    innerStates.reserve(innertsos.components().size());
     fillStates(innertsos,innerStates);
     
 
@@ -271,11 +271,11 @@ GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
 {
   reco::GsfComponent5D::ParameterVector pLocS;
   reco::GsfComponent5D::CovarianceMatrix cLocS;
-  std::vector<TrajectoryStateOnSurface> components(tsos.components());
-  for ( std::vector<TrajectoryStateOnSurface>::const_iterator i=components.begin();
-	i!=components.end(); ++i ) {
-    states.push_back(reco::GsfComponent5D(i->weight(),i->localParameters().vector(),i->localError().matrix()));
-  }
+  GetComponents comps(tsos);
+  auto const &  components = comps();
+  states.reserve(components.size());
+  for (auto const & st : components)
+    states.emplace_back(st.weight(),st.localParameters().vector(),st.localError().matrix());
 }
 
 void

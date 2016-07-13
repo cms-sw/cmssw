@@ -13,7 +13,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class ME0GeometryESModule : public edm::ESProducer 
 {
@@ -25,7 +25,7 @@ class ME0GeometryESModule : public edm::ESProducer
   virtual ~ME0GeometryESModule();
   
   /// Produce ME0Geometry.
-  boost::shared_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
+  std::shared_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
   
  private:  
   // use the DDD as Geometry source

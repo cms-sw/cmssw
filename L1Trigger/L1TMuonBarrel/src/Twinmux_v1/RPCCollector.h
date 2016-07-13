@@ -14,7 +14,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-using namespace L1TMuon;
+
 
 namespace edm {
   class ParameterSet;
@@ -30,7 +30,7 @@ namespace L1TwinMux {
     ~RPCCollector() {}
 
     virtual void extractPrimitives(edm::Handle<RPCDigiCollection> rpcDigis,
-				   std::vector<TriggerPrimitive>&) const;
+				   std::vector<L1TMuon::TriggerPrimitive>&) const;
   private:
   };
 }

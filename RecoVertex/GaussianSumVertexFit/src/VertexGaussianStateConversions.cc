@@ -8,7 +8,7 @@ namespace GaussianStateConversions {
 
   MultiGaussianState<3> multiGaussianStateFromVertex (const VertexState aState)
   {
-    typedef boost::shared_ptr< SingleGaussianState<3> > SingleStatePtr;
+    typedef std::shared_ptr< SingleGaussianState<3> > SingleStatePtr;
     const std::vector<VertexState> components = aState.components();
     MultiGaussianState<3>::SingleStateContainer singleStates;
     singleStates.reserve(components.size());

@@ -7,7 +7,6 @@ theDigitizersNoNoise = SimGeneral.MixingModule.digitizers_cfi.theDigitizers.clon
 
 theDigitizersNoNoise.hcal.doNoise = cms.bool(False)
 theDigitizersNoNoise.hcal.doEmpty = cms.bool(False)
-theDigitizersNoNoise.hcal.doHPDNoise = cms.bool(False)
 theDigitizersNoNoise.hcal.doIonFeedback = cms.bool(False)
 theDigitizersNoNoise.hcal.doThermalNoise = cms.bool(False)
 theDigitizersNoNoise.hcal.doTimeSlew = cms.bool(False)

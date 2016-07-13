@@ -90,8 +90,8 @@ void HcalNoiseMonitor::setup(DQMStore::IBooker &ib)
    setupDone_ = true;
    HcalBaseDQMonitor::setup(ib);
 
-   if(debug_ > 1)
-      std::cout << "<HcalNoiseMonitor::setup> Creating histograms" << std::endl;
+      if(debug_ > 1)
+         std::cout << "<HcalNoiseMonitor::setup> Creating histograms" << std::endl;
 
       ib.setCurrentFolder(subdir_);
 

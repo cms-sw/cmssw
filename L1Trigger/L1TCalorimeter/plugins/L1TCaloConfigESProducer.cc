@@ -10,7 +10,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -40,7 +39,7 @@ public:
   L1TCaloConfigESProducer(const edm::ParameterSet&);
   ~L1TCaloConfigESProducer();
 
-  typedef boost::shared_ptr<CaloConfig> ReturnType;
+  typedef std::shared_ptr<CaloConfig> ReturnType;
 
   ReturnType produce(const L1TCaloConfigRcd&);
 
@@ -91,9 +90,7 @@ L1TCaloConfigESProducer::ReturnType
 L1TCaloConfigESProducer::produce(const L1TCaloConfigRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<CaloConfig> pCaloConfig ;
-   pCaloConfig = boost::shared_ptr< CaloConfig >(new CaloConfig(m_params));
-   return pCaloConfig;
+   return std::make_shared<CaloConfig>(m_params);
 }
 
 

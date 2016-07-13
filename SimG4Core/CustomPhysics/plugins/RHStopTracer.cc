@@ -1,4 +1,4 @@
-#include "RHStopTracer.h"
+#include "SimG4Core/CustomPhysics/interface/RHStopTracer.h"
 
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
@@ -14,12 +14,14 @@
 #include "G4Run.hh"
 #include "G4Event.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleDefinition.hh"
 
 RHStopTracer::RHStopTracer(edm::ParameterSet const & p) {
   edm::ParameterSet parameters = p.getParameter<edm::ParameterSet>("RHStopTracer");
   mStopRegular = parameters.getUntrackedParameter<bool>("stopRegularParticles", false);
-  mTraceEnergy = 1000 * parameters.getUntrackedParameter<double>("traceEnergy", 1.e20); // GeV->KeV
-  mTraceParticleNameRegex = parameters.getParameter<std::string>("traceParticle");
+  mTraceEnergy = parameters.getUntrackedParameter<double>("traceEnergy", 1.e20); 
+  mTraceParticleName = parameters.getParameter<std::string>("traceParticle");
   produces< std::vector<std::string> >("StoppedParticlesName");
   produces< std::vector<float> >("StoppedParticlesX");
   produces< std::vector<float> >("StoppedParticlesY");
@@ -29,53 +31,58 @@ RHStopTracer::RHStopTracer(edm::ParameterSet const & p) {
   produces< std::vector<float> >("StoppedParticlesMass");
   produces< std::vector<float> >("StoppedParticlesCharge");
 
-  LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::RHStopTracer->" 
-				     << mTraceParticleNameRegex << '/' << mTraceEnergy;
+  mParticle = G4ParticleTable::GetParticleTable()->FindParticle(mTraceParticleName);
+
+  edm::LogInfo("SimG4CoreCustomPhysics") 
+    << "RHStopTracer::RHStopTracer " << mTraceParticleName 
+    << " Eth(GeV)= " << mTraceEnergy;
+  mTraceEnergy *= CLHEP::GeV;
 }
 
 RHStopTracer::~RHStopTracer() {
 }
 
 void RHStopTracer::update (const BeginOfRun * fRun) {
-  LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::update-> begin of the run " << (*fRun)()->GetRunID(); 
+  LogDebug("SimG4CoreCustomPhysics") 
+    << "RHStopTracer::update-> begin of the run " << (*fRun)()->GetRunID(); 
 }
 
 void RHStopTracer::update (const BeginOfEvent * fEvent) {
-  LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::update-> begin of the event " << (*fEvent)()->GetEventID(); 
+  LogDebug("SimG4CoreCustomPhysics") 
+    << "RHStopTracer::update-> begin of the event " << (*fEvent)()->GetEventID(); 
 }
 
 void RHStopTracer::update (const BeginOfTrack * fTrack) {
   const G4Track* track = (*fTrack)();
-  if ((track->GetMomentum().mag()> mTraceEnergy) || matched (track->GetDefinition()->GetParticleName())) {
-    LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::update-> new track: ID/Name/pdgId/mass/charge/Parent: " 
-				       << track->GetTrackID() << '/' << track->GetDefinition()->GetParticleName() << '/' 
-				       << track->GetDefinition()->GetPDGEncoding() << '/'
-				       << track->GetDefinition()->GetPDGMass()/GeV <<" GeV/" << track->GetDefinition()->GetPDGCharge() << '/'
-				       << track->GetParentID()
-				       << " position X/Y/Z: " << track->GetPosition().x() << '/' 
-				       << track->GetPosition().y() << '/' <<  track->GetPosition().z()
-				       << " R/phi: " << track->GetPosition().perp() << '/' << track->GetPosition().phi()
-				       << "    px/py/pz/p=" << track->GetMomentum().x() << '/' 
-				       << track->GetMomentum().y() << '/' << track->GetMomentum().z() << '/'<< track->GetMomentum().mag(); 
-  }
-  if (mStopRegular && !matched (track->GetDefinition()->GetParticleName())) { // kill regular particles
+  const G4ParticleDefinition* part = track->GetDefinition();
+  if(part && part == mParticle &&  track->GetKineticEnergy() > mTraceEnergy) {
+    LogDebug("SimG4CoreCustomPhysics") 
+      << "RHStopTracer::update-> new track: ID/Name/pdgId/mass/charge/Parent: " 
+      << track->GetTrackID() << '/' << part->GetParticleName() << '/' 
+      << part->GetPDGEncoding() << '/'
+      << part->GetPDGMass()/GeV <<" GeV/" << part->GetPDGCharge() << '/'
+      << track->GetParentID()
+      << " Position: " << track->GetPosition() << ' ' 
+      << " R/phi: " << track->GetPosition().perp() << '/' << track->GetPosition().phi()
+      << "   4vec " << track->GetMomentum();
+  } else if (mStopRegular) { // kill regular particles
     const_cast<G4Track*>(track)->SetTrackStatus(fStopAndKill);
   }
 }
 
 void RHStopTracer::update (const EndOfTrack * fTrack) {
   const G4Track* track = (*fTrack)();
-  if ((track->GetMomentum().mag()> mTraceEnergy) || matched (track->GetDefinition()->GetParticleName())) {
-    LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::update-> stop track: ID/Name/pdgId/mass/charge/Parent: " 
-				       << track->GetTrackID() << '/' << track->GetDefinition()->GetParticleName() << '/' 
-				       << track->GetDefinition()->GetPDGEncoding() << '/'
-				       << track->GetDefinition()->GetPDGMass()/GeV <<" GeV/" << track->GetDefinition()->GetPDGCharge() << '/'
-				       << track->GetParentID()
-				       << " position X/Y/Z: " << track->GetPosition().x() << '/' 
-				       << track->GetPosition().y() << '/' <<  track->GetPosition().z()
-				       << " R/phi: " << track->GetPosition().perp() << '/' << track->GetPosition().phi()
-				       << "    px/py/pz/p=" << track->GetMomentum().x() << '/' 
-				       << track->GetMomentum().y() << '/' << track->GetMomentum().z() << '/'<< track->GetMomentum().mag(); 
+  const G4ParticleDefinition* part = track->GetDefinition();
+  if(part && part == mParticle &&  track->GetKineticEnergy() > mTraceEnergy) {
+    LogDebug("SimG4CoreCustomPhysics") << 
+      "RHStopTracer::update-> stop track: ID/Name/pdgId/mass/charge/Parent: " 
+      << track->GetTrackID() << '/' << part->GetParticleName() << '/' 
+      << part->GetPDGEncoding() << '/'
+      << part->GetPDGMass()/GeV <<" GeV/" << part->GetPDGCharge() << '/'
+      << track->GetParentID()
+      << " Position: " << track->GetPosition() << ' ' 
+      << " R/phi: " << track->GetPosition().perp() << '/' << track->GetPosition().phi()
+      << "   4vec " << track->GetMomentum();
     if (track->GetMomentum().mag () < 0.001) {
       mStopPoints.push_back (StopPoint (track->GetDefinition()->GetParticleName(),
 					track->GetPosition().x(),
@@ -89,21 +96,17 @@ void RHStopTracer::update (const EndOfTrack * fTrack) {
   }
 }
 
-bool RHStopTracer::matched (const std::string& fName) const {
-  return boost::regex_match (fName, mTraceParticleNameRegex);
-}
-
- void RHStopTracer::produce(edm::Event& fEvent, const edm::EventSetup&) {
+void RHStopTracer::produce(edm::Event& fEvent, const edm::EventSetup&) {
    LogDebug("SimG4CoreCustomPhysics") << "RHStopTracer::produce->";
 
-   std::auto_ptr<std::vector<std::string> > names (new std::vector<std::string>); 
-   std::auto_ptr<std::vector<float> > xs (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > ys (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > zs (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > ts (new std::vector<float>);
-   std::auto_ptr<std::vector<int> > ids (new std::vector<int>);
-   std::auto_ptr<std::vector<float> > masses (new std::vector<float>);
-   std::auto_ptr<std::vector<float> > charges (new std::vector<float>);
+   std::unique_ptr<std::vector<std::string> > names(new std::vector<std::string>); 
+   std::unique_ptr<std::vector<float> > xs(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > ys(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > zs(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > ts(new std::vector<float>);
+   std::unique_ptr<std::vector<int> > ids(new std::vector<int>);
+   std::unique_ptr<std::vector<float> > masses(new std::vector<float>);
+   std::unique_ptr<std::vector<float> > charges(new std::vector<float>);
 
    std::vector <StopPoint>::const_iterator stopPoint = mStopPoints.begin ();
    for (;  stopPoint != mStopPoints.end(); ++stopPoint) {
@@ -116,13 +119,13 @@ bool RHStopTracer::matched (const std::string& fName) const {
      masses->push_back (stopPoint->mass);
      charges->push_back (stopPoint->charge);
    }
-   fEvent.put (names, "StoppedParticlesName");
-   fEvent.put (xs, "StoppedParticlesX");
-   fEvent.put (ys, "StoppedParticlesY");
-   fEvent.put (zs, "StoppedParticlesZ");
-   fEvent.put (ts, "StoppedParticlesTime");
-   fEvent.put (ids, "StoppedParticlesPdgId");
-   fEvent.put (masses, "StoppedParticlesMass");
-   fEvent.put (charges, "StoppedParticlesCharge");
+   fEvent.put(std::move(names), "StoppedParticlesName");
+   fEvent.put(std::move(xs), "StoppedParticlesX");
+   fEvent.put(std::move(ys), "StoppedParticlesY");
+   fEvent.put(std::move(zs), "StoppedParticlesZ");
+   fEvent.put(std::move(ts), "StoppedParticlesTime");
+   fEvent.put(std::move(ids), "StoppedParticlesPdgId");
+   fEvent.put(std::move(masses), "StoppedParticlesMass");
+   fEvent.put(std::move(charges), "StoppedParticlesCharge");
    mStopPoints.clear ();
- }
+}

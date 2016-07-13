@@ -9,7 +9,6 @@
   <use   name="CommonTools/Utils"/>
   <use   name="cppunit"/>
   <use   name="rootmath"/>
-  <flags NO_TESTRUN="1"/>
 </bin>
 
 <bin name="testCommonToolsUtilThreaded" file="testCutParserThreaded.cc">
@@ -40,4 +39,9 @@
   <flags CXXFLAGS="-fopenmp"/>
   <use name="CommonTools/Utils"/>
 </bin>
+
+
+<bin file="testDynArray.cpp">
+</bin>
+
 

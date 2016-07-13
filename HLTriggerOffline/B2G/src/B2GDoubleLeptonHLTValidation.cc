@@ -84,7 +84,6 @@ B2GDoubleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerTable);
   bool isInteresting = false;
   for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
-
     for (unsigned int j=0; j<vsPaths_.size(); j++) {
       if (triggerNames.triggerNames()[i].find(vsPaths_[j]) != std::string::npos) {
         isInteresting = true; 

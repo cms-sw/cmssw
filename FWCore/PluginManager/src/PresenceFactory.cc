@@ -20,10 +20,10 @@ namespace edm {
     return &singleInstance_;
   }
 
-  std::auto_ptr<Presence>
+  std::unique_ptr<Presence>
   PresenceFactory::
   makePresence(std::string const & presence_type) const {
-    std::auto_ptr<Presence> sp(PresencePluginFactory::get()->create(presence_type));
+    std::unique_ptr<Presence> sp(PresencePluginFactory::get()->create(presence_type));
 
     if(sp.get()==0) {
 	throw edm::Exception(errors::Configuration, "NoPresenceModule")

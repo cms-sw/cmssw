@@ -9,7 +9,6 @@
  <use name="Geometry/Records"/>
  <use name="Geometry/TrackingGeometryAligner"/>
  <use name="Geometry/DTGeometryBuilder"/>
- <use name="boost"/>
 
 <library file="DTGeometryESModule.cc">
  <flags EDM_PLUGIN="1"/>

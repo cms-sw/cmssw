@@ -755,7 +755,6 @@ void MonitorEnsemble::fill(const edm::Event& event,
   }
 
   fill("jetMult_", mult);
-  fill("jetmultBCombVtx_", multBCombVtx);
   fill("jetMultBCombVtx_", multBCombVtx);
 
   /*

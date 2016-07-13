@@ -18,7 +18,6 @@
  \brief Creates electronics signals from hits 
 
 */
-#define ChangeHcalEnergyScale
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -43,10 +42,6 @@ public:
 
   /// doesn't delete the pointers passed in
   virtual ~CaloHitResponse();
-
-  // change HBHE scale
-  void initHBHEScale();
-  void setHBHEScale(std::string &); //GMA
 
   /// tells it which pileup bunches to do
   void setBunchRange(int minBunch, int maxBunch);
@@ -140,11 +135,6 @@ protected:
 
   double thePhaseShift_;
 
-  // private : 
-  bool  changeScale;
-#ifdef ChangeHcalEnergyScale
-  float hcal_en_scale[100][72][4];
-#endif
 };
 
 #endif

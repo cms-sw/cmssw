@@ -1,12 +1,13 @@
 #ifndef DDCore_DDFilter_h
 #define DDCore_DDFilter_h
 
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include <vector>
 #include <iosfwd>
+#include <vector>
 
-class DDQuery;
+#include "DetectorDescription/Core/interface/DDValue.h"
+
 class DDExpandedView;
+class DDQuery;
 
 //! comparison operators to be used with this filter
 enum class DDCompOp { equals, matches, not_equals, not_matches, smaller, bigger, smaller_equals, bigger_equals };

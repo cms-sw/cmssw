@@ -163,6 +163,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEdigiCollectionSig  = cms.InputTag("simHcalUnsuppressedDigis"),
     HOdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     HFdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
+    QIE10digiCollectionSig = cms.InputTag("simHcalUnsuppressedDigis"),
+    QIE11digiCollectionSig = cms.InputTag("simHcalUnsuppressedDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
 
                          
@@ -183,6 +185,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEPileInputTag = cms.InputTag("hcalDigis","","@MIXING"),
     HOPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
     HFPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
+    QIE10PileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
+    QIE11PileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
     ZDCPileInputTag  = cms.InputTag(""),
 
     #  Signal
@@ -238,6 +242,8 @@ mixData = cms.EDProducer("DataMixingModule",
     HBHEDigiCollectionDM = cms.string(''),
     HODigiCollectionDM   = cms.string(''),
     HFDigiCollectionDM   = cms.string(''),
+    QIE10DigiCollectionDM   = cms.string(''),
+    QIE11DigiCollectionDM   = cms.string(''),
     ZDCDigiCollectionDM  = cms.string('')
 )
 

@@ -22,7 +22,6 @@
 #include "CondCore/CondDB/interface/Utils.h"
 // 
 // temporarely
-#include <boost/shared_ptr.hpp>
 
 // TO BE REMOVED AFTER THE TRANSITION
 namespace coral {
@@ -129,10 +128,13 @@ namespace cond {
       // functions to store a payload in the database. return the identifier of the item in the db. 
       template <typename T> cond::Hash storePayload( const T& payload, 
 						     const boost::posix_time::ptime& creationTime = boost::posix_time::microsec_clock::universal_time() );
-      template <typename T> boost::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
+
+      template <typename T> std::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
       
-      // low-level function to access the payload data as a blob. mainly used for the data migration and testing.
-      // the version for ROOT 
+      cond::Hash storePayloadData( const std::string& payloadObjectType,
+                                   const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
+                                   const boost::posix_time::ptime& creationTime );
+
       bool fetchPayloadData( const cond::Hash& payloadHash, 
 			     std::string& payloadType, 
 			     cond::Binary& payloadData,
@@ -160,11 +162,6 @@ namespace cond {
       coral::ISchema& nominalSchema();
       
     private:
-      cond::Hash storePayloadData( const std::string& payloadObjectType, 
-				   const std::pair<Binary,Binary>& payloadAndStreamerInfoData, 
-				   const boost::posix_time::ptime& creationTime );
-      
-    private:
       
       std::shared_ptr<SessionImpl> m_session;
       Transaction m_transaction;
@@ -187,14 +184,14 @@ namespace cond {
       return ret;
     }
     
-    template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
+    template <typename T> inline std::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
       cond::Binary payloadData;
       cond::Binary streamerInfoData;
       std::string payloadType;
       if(! fetchPayloadData( payloadHash, payloadType, payloadData, streamerInfoData ) ) 
 	throwException( "Payload with id "+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      boost::shared_ptr<T> ret;
+      std::shared_ptr<T> ret;
       try{ 
 	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData );
       } catch ( const cond::persistency::Exception& e ){

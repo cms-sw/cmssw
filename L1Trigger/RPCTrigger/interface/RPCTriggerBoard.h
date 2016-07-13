@@ -15,7 +15,7 @@
 #include "L1Trigger/RPCTrigger/interface/RPCTBGhostBuster.h"
 #include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
 #include "L1Trigger/RPCTrigger/interface/RPCPac.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 //---------------------------------------------------------------------------
 class RPCTriggerBoard {
 public:

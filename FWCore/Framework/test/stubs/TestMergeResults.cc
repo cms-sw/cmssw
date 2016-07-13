@@ -13,10 +13,10 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
-#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -164,17 +164,17 @@ namespace edmtest {
     processHistoryIndex_(0),
     testAlias_(ps.getUntrackedParameter<bool>("testAlias", false)) {
 
-    std::unique_ptr<edmtest::Thing> ap_thing(new edmtest::Thing);
+    auto ap_thing = std::make_unique<edmtest::Thing>();
     edm::Wrapper<edmtest::Thing> w_thing(std::move(ap_thing));
     assert(!w_thing.isMergeable());
     assert(!w_thing.hasIsProductEqual());
 
-    std::unique_ptr<edmtest::ThingWithMerge> ap_thingwithmerge(new edmtest::ThingWithMerge);
+    auto ap_thingwithmerge = std::make_unique<edmtest::ThingWithMerge>();
     edm::Wrapper<edmtest::ThingWithMerge> w_thingWithMerge(std::move(ap_thingwithmerge));
     assert(w_thingWithMerge.isMergeable());
     assert(!w_thingWithMerge.hasIsProductEqual());
 
-    std::unique_ptr<edmtest::ThingWithIsEqual> ap_thingwithisequal(new edmtest::ThingWithIsEqual);
+    auto ap_thingwithisequal = std::make_unique<edmtest::ThingWithIsEqual>();
     edm::Wrapper<edmtest::ThingWithIsEqual> w_thingWithIsEqual(std::move(ap_thingwithisequal));
     assert(!w_thingWithIsEqual.isMergeable());
     assert(w_thingWithIsEqual.hasIsProductEqual());
@@ -324,7 +324,7 @@ namespace edmtest {
       e.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 11);
 
-      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.
@@ -403,7 +403,7 @@ namespace edmtest {
       run.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 100001);
 
-      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.
@@ -472,7 +472,7 @@ namespace edmtest {
       lumi.getByLabel(inputTag, h_thing);
       assert(h_thing->a == 1001);
 
-      edm::BranchID const& originalBranchID = h_thing.provenance()->constBranchDescription().originalBranchID();
+      edm::BranchID const& originalBranchID = h_thing.provenance()->branchDescription().originalBranchID();
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.

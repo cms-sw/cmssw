@@ -25,7 +25,7 @@ class EnergyLossUpdator final : public MaterialEffectsUpdator
   }
 
 public:
-  EnergyLossUpdator( double mass ) :
+  EnergyLossUpdator( float mass ) :
     MaterialEffectsUpdator(mass) {}
 
   // here comes the actual computation of the values

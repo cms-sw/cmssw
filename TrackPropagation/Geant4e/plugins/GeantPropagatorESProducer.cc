@@ -22,7 +22,7 @@ GeantPropagatorESProducer::GeantPropagatorESProducer(const edm::ParameterSet & p
 
 GeantPropagatorESProducer::~GeantPropagatorESProducer() {}
 
-boost::shared_ptr<Propagator> 
+std::shared_ptr<Propagator> 
 GeantPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -37,7 +37,7 @@ GeantPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){
   if (pdir == "alongMomentum") dir = alongMomentum;
   if (pdir == "anyDirection") dir = anyDirection;
   
-  _propagator  = boost::shared_ptr<Propagator>(new Geant4ePropagator(&(*magfield),particleName,dir));
+  _propagator  = std::make_shared<Geant4ePropagator>(&(*magfield),particleName,dir);
   return _propagator;
 }
 

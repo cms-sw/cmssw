@@ -13,13 +13,17 @@
 
 #include "DetectorDescription/Parser/src/DDLElementaryMaterial.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
+#include <map>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLMaterial.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include <iostream>
+class DDCompactView;
 
 DDLElementaryMaterial::DDLElementaryMaterial( DDLElementRegistry* myreg )
   : DDLMaterial( myreg )

@@ -109,7 +109,7 @@ ElectronIdMVAProducer::~ElectronIdMVAProducer()
 // ------------ method called on each new Event  ------------
 bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  std::auto_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>() );
+  std::unique_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>() );
   
   edm::Handle<reco::VertexCollection>  vertexCollection;
   iEvent.getByToken(vertexToken_, vertexCollection);
@@ -162,7 +162,7 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
   filler.insert(egCollection, values.begin(), values.end() );
   filler.fill();
   
-  iEvent.put(out);
+  iEvent.put(std::move(out));
   
   return true;
 }

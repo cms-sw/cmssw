@@ -20,7 +20,6 @@
 // system include files
 #include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 
@@ -43,7 +42,7 @@ public:
   HcalTPGCoderULUT(const edm::ParameterSet&);
   ~HcalTPGCoderULUT();
      
-  typedef boost::shared_ptr<HcalTPGCoder> ReturnType;
+  typedef std::shared_ptr<HcalTPGCoder> ReturnType;
   void dbRecordCallback(const HcalDbRecord&);
 
   ReturnType produce(const HcalTPGRecord&);
@@ -140,7 +139,9 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
   edm::ESHandle<HcalDbService> conditions;
   theRec.get(conditions);
-  const HcalTopology* topo=conditions->getTopologyUsed();
+  edm::ESHandle<HcalTopology> htopo;
+  theRec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
 
   if (theCoder_==0) {
     buildCoder(topo);

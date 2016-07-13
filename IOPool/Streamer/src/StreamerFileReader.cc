@@ -29,9 +29,9 @@ namespace edm {
   void
   StreamerFileReader::reset_() {
     if (streamerNames_.size() > 1) {
-      streamReader_ = std::unique_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_, eventSkipperByID()));
+      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_, eventSkipperByID());
     } else if (streamerNames_.size() == 1) {
-      streamReader_ = std::unique_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_.at(0), eventSkipperByID()));
+      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_.at(0), eventSkipperByID());
     } else {
       throw Exception(errors::FileReadError, "StreamerFileReader::StreamerFileReader")
          << "No fileNames were specified\n";

@@ -48,7 +48,7 @@ struct Cache {
    
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const& p) {
       ++m_count;
-      return std::unique_ptr<Cache>{ new Cache };
+      return std::make_unique<Cache>();
     }
 
     GlobalIntAnalyzer(edm::ParameterSet const& p, Cache const * iGlobal)  {

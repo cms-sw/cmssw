@@ -21,7 +21,7 @@
 //
 
 #include <sstream>
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -34,7 +34,7 @@ template<class DataType, class MyRecord>
 class BufferedBoostIOESProducer : public edm::ESProducer
 {
 public:
-    typedef boost::shared_ptr<DataType> ReturnType;
+    typedef std::shared_ptr<DataType> ReturnType;
 
     inline BufferedBoostIOESProducer(const edm::ParameterSet&)
         {setWhatProduced(this);}

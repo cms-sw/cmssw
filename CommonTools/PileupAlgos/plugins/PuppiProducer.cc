@@ -157,7 +157,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     else if(lPack->vertexRef().isNonnull() )  {
       pDZ        = lPack->dz();
       pD0        = lPack->dxy();
-      closestVtx = &(*(lPack->vertexRef()));
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
   
@@ -214,7 +213,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   //Fill it into the event
-  std::auto_ptr<edm::ValueMap<float> > lPupOut(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > lPupOut(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler  lPupFiller(*lPupOut);
   lPupFiller.insert(hPFProduct,lWeights.begin(),lWeights.end());
   lPupFiller.fill();
@@ -230,7 +229,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // the input is set to have a four-vector of 0,0,0,0
   fPuppiCandidates.reset( new PFOutputCollection );
   fPackedPuppiCandidates.reset( new PackedOutputCollection );
-  std::auto_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
+  std::unique_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
 
@@ -277,26 +276,26 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   p4PupFiller.insert(hPFProduct,puppiP4s.begin(), puppiP4s.end() );
   p4PupFiller.fill();
   
-  iEvent.put(lPupOut);
-  iEvent.put(p4PupOut);
+  iEvent.put(std::move(lPupOut));
+  iEvent.put(std::move(p4PupOut));
   if (fUseExistingWeights || fClonePackedCands) {
-    edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put( fPackedPuppiCandidates );
+    edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put(std::move(fPackedPuppiCandidates));
     for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
         reco::CandidatePtr pkref( oh, ic );
         values[ic] = pkref;
     }
   } else {
-    edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( fPuppiCandidates );
+    edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(fPuppiCandidates));
     for(unsigned int ic=0, nc = oh->size(); ic < nc; ++ic) {
         reco::CandidatePtr pkref( oh, ic );
         values[ic] = pkref;
     }
   }
-  std::auto_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
+  std::unique_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
-  iEvent.put(pfMap_p);
+  iEvent.put(std::move(pfMap_p));
 
 
   //////////////////////////////////////////////
@@ -304,17 +303,17 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // all the different alphas per particle
     // THE alpha per particle
-    std::auto_ptr<std::vector<double> > theAlphas(new std::vector<double>(fPuppiContainer->puppiAlphas()));
-    std::auto_ptr<std::vector<double> > theAlphasMed(new std::vector<double>(fPuppiContainer->puppiAlphasMed()));
-    std::auto_ptr<std::vector<double> > theAlphasRms(new std::vector<double>(fPuppiContainer->puppiAlphasRMS()));
-    std::auto_ptr<std::vector<double> > alphas(new std::vector<double>(fPuppiContainer->puppiRawAlphas()));
-    std::auto_ptr<double> nalgos(new double(fPuppiContainer->puppiNAlgos()));
+    std::unique_ptr<std::vector<double> > theAlphas(new std::vector<double>(fPuppiContainer->puppiAlphas()));
+    std::unique_ptr<std::vector<double> > theAlphasMed(new std::vector<double>(fPuppiContainer->puppiAlphasMed()));
+    std::unique_ptr<std::vector<double> > theAlphasRms(new std::vector<double>(fPuppiContainer->puppiAlphasRMS()));
+    std::unique_ptr<std::vector<double> > alphas(new std::vector<double>(fPuppiContainer->puppiRawAlphas()));
+    std::unique_ptr<double> nalgos(new double(fPuppiContainer->puppiNAlgos()));
     
-    iEvent.put(alphas,"PuppiRawAlphas");
-    iEvent.put(nalgos,"PuppiNAlgos");
-    iEvent.put(theAlphas,"PuppiAlphas");
-    iEvent.put(theAlphasMed,"PuppiAlphasMed");
-    iEvent.put(theAlphasRms,"PuppiAlphasRms");
+    iEvent.put(std::move(alphas),"PuppiRawAlphas");
+    iEvent.put(std::move(nalgos),"PuppiNAlgos");
+    iEvent.put(std::move(theAlphas),"PuppiAlphas");
+    iEvent.put(std::move(theAlphasMed),"PuppiAlphasMed");
+    iEvent.put(std::move(theAlphasRms),"PuppiAlphasRms");
   }
   
 }

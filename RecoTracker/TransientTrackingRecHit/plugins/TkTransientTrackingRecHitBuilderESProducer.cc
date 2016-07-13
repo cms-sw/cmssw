@@ -25,7 +25,7 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
 
 TkTransientTrackingRecHitBuilderESProducer::~TkTransientTrackingRecHitBuilderESProducer() {}
 
-boost::shared_ptr<TransientTrackingRecHitBuilder> 
+std::shared_ptr<TransientTrackingRecHitBuilder> 
 TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -76,7 +76,7 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );     
   
-  _builder  = boost::shared_ptr<TransientTrackingRecHitBuilder>(new TkTransientTrackingRecHitBuilder(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk));
+  _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
   return _builder;
 }
 

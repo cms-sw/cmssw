@@ -1,5 +1,5 @@
 #ifndef Validation_RPCRecHits_RPCRecHitValid_h
-#define Validaiton_RPCRecHits_RPCRecHitValid_h
+#define Validation_RPCRecHits_RPCRecHitValid_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -75,4 +75,4 @@ private:
   std::map<int, int> detIdToIndexMapBarrel_, detIdToIndexMapEndcap_;
 };
 
-#endif
+#endif // Validation_RPCRecHits_RPCRecHitValid_h

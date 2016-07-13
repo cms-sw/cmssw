@@ -170,7 +170,7 @@ namespace edm {
       return pset.existsAs<T>(label(), isTracked());
     }
 
-    virtual bool hasNestedContent_() {
+    virtual bool hasNestedContent_() const {
       if (!hasDefault()) return false;
       return writeParameterValue::hasNestedContent(value_);
     }
@@ -229,13 +229,13 @@ namespace edm {
 
     virtual void printDefault_(std::ostream& os,
                                  bool writeToCfi,
-                                 DocFormatHelper& dfh);
+                                 DocFormatHelper& dfh) const;
 
-    virtual bool hasNestedContent_();
+    virtual bool hasNestedContent_() const;
 
     virtual void printNestedContent_(std::ostream& os,
                                      bool optional,
-                                     DocFormatHelper& dfh);
+                                     DocFormatHelper& dfh) const;
 
     virtual bool exists_(ParameterSet const& pset) const;
 
@@ -292,13 +292,13 @@ namespace edm {
 
     virtual void printDefault_(std::ostream& os,
                                bool writeToCfi,
-                               DocFormatHelper& dfh);
+                               DocFormatHelper& dfh) const;
 
-    virtual bool hasNestedContent_();
+    virtual bool hasNestedContent_() const;
 
     virtual void printNestedContent_(std::ostream& os,
                                      bool optional,
-                                     DocFormatHelper& dfh);
+                                     DocFormatHelper& dfh) const;
 
     virtual bool exists_(ParameterSet const& pset) const;
 

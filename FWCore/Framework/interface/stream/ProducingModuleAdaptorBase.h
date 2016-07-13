@@ -25,7 +25,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -42,10 +42,10 @@
 namespace edm {
   class Event;
   class ModuleCallingContext;
-  class ProductHolderIndexHelper;
+  class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
-  class ProductHolderIndexAndSkipBit;
+  class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
 
@@ -75,12 +75,12 @@ namespace edm {
       void
       registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
       
-      void itemsToGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
-      void itemsMayGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
-      std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const;
+      void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+      void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const;
 
       void updateLookup(BranchType iBranchType,
-                        ProductHolderIndexHelper const&);
+                        ProductResolverIndexHelper const&);
 
       void modulesDependentUpon(std::string const& iProcessName,
                                 std::string const& iModuleLabel,

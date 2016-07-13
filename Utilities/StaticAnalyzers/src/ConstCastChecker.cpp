@@ -27,7 +27,7 @@ void ConstCastChecker::checkPreStmt(const clang::CXXConstCastExpr *CE,
 		std::string cname = CRD->getQualifiedNameAsString();
 		if (! support::isDataClass(cname) ) return; 
 	}
-	if (clang::ento::ExplodedNode *errorNode = C.generateSink()) {
+	if (clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
 		if (!BT) BT.reset(new clang::ento::BugType(this,"const_cast used on a pointer to a data class ", "ThreadSafety"));
 		std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT,
 					"const_cast was used on a pointer to a data class ", errorNode);

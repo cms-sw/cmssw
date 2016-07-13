@@ -79,7 +79,7 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
               if(gdmlFlag) {
 		G4GDMLParser gdml;
 		gdml.Write(((*pvs)[i])->GetName()+".gdml", (*pvs)[i], true);
-                gdmlFlag = false;
+                //gdmlFlag = false;
 	      }
 
 	      G4GeomTestVolume test(((*pvs)[i]), tolerance, nPoints, verbose);

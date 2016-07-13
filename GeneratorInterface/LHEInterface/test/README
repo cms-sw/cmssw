@@ -1,0 +1,6 @@
+1. testReader_cfg.py                                                                      OK
+2. testWriter_cfg.py                   uses output of (1)                                 Incorrect comments in the output
+3. dumpLHE_cfg.py                      uses output of (1); type "scram b"                 OK (run info is printed after the events)
+4. convertLHE2HepMC_cfg.py             uses output of (1); type "cp lhe.root gen.root"    fails, to be corrected
+5. testExternalLHEProducer_cfg.py      tries to run gridpack                              fails, gridpack not found
+6. testExternalLHEAsciiDumper_cfg.py   uses output of (5)                                 depends on (5)

@@ -14,11 +14,10 @@ class MinHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
 
   explicit MinHitsTrajectoryFilter( int minHits=5, int seedPairPenalty=0):theMinHits( minHits), theSeedPairPenalty(seedPairPenalty) {}
-  //  explicit MinHitsTrajectoryFilter( int minHits=-1, int seedPairPenalty=0):theMinHits( minHits), theSeedPairPenalty(seedPairPenalty) {}
 
-  MinHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC): 
-   theMinHits(         pset.getParameter<int>("minimumNumberOfHits") ),
-   theSeedPairPenalty( pset.getParameter<int>("seedPairPenalty")     )
+  MinHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC)
+    : theMinHits        ( pset.getParameter<int>("minimumNumberOfHits") )
+    , theSeedPairPenalty( pset.getParameter<int>("seedPairPenalty")     )
  {}
     
   virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}

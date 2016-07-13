@@ -35,6 +35,7 @@ namespace CLHEP {
 namespace edm {
   class ActivityRegistry;
   class ConfigurationDescriptions;
+  class ConsumesCollector;
   class Event;
   class LuminosityBlock;
   class LuminosityBlockIndex;
@@ -109,6 +110,8 @@ namespace edm {
       /// These two are used by the RandomEngineStateProducer
       virtual std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const override;
       virtual std::vector<RandomEngineState> const& getEventCache(StreamID const&) const override;
+
+      virtual void consumes(ConsumesCollector&& iC) const override;
 
       /// For debugging
       virtual void print(std::ostream& os) const override;

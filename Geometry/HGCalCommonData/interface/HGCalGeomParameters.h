@@ -40,13 +40,6 @@ public:
 			   const std::string&);
 
 private:
-  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
-				  int&);
-  std::pair<double,double> cellPosition(const std::vector<GlobalPoint>& wafers,
-					std::vector<GlobalPoint>::const_iterator& itrf,
-					unsigned int num, double rmax,
-					double ymax, double xx, double yy, 
-					unsigned int ncells);
 
   struct layerParameters {
     double rmin, rmax, zpos;
@@ -55,10 +48,18 @@ private:
   };
   struct cellParameters {
     bool        half;
+    int         wafer;
     GlobalPoint xyz;
-    cellParameters(bool h=false, 
-		   GlobalPoint p=GlobalPoint(0,0,0)) : half(h), xyz(p) {}
+    cellParameters(bool h=false, int w=0, 
+		   GlobalPoint p=GlobalPoint(0,0,0)) : half(h), wafer(w), 
+      xyz(p) {}
   };
+
+  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
+				  int&);
+  std::pair<double,double> cellPosition(const std::vector<cellParameters>& wafers,
+					std::vector<cellParameters>::const_iterator& itrf,
+					int wafer, double xx, double yy);
 
   double                waferSize_;
 };

@@ -2,6 +2,7 @@
 
 namespace hcaldqm
 {
+  using namespace constants;
 	DQClient::DQClient(std::string const& name, std::string const& taskname,
 		edm::ParameterSet const& ps) :
 		DQModule(ps),_taskname(taskname), _maxProcessedLS(0)
@@ -15,7 +16,7 @@ namespace hcaldqm
 	/* virtual */ void DQClient::beginRun(edm::Run const& r,
 		edm::EventSetup const& es)
 	{
-		//	TEMPORARY
+		//  TEMPORARY
 		_vhashFEDs.clear(); _vcdaqEids.clear();
 
 		//	get various FED lists

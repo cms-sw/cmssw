@@ -147,7 +147,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   using namespace reco;
 
   //output collection
-  std::auto_ptr<CaloMETCollection> CleanedMET(new CaloMETCollection);
+  std::unique_ptr<CaloMETCollection> CleanedMET(new CaloMETCollection);
 
   //get the calo MET / MHT
   edm::Handle<CaloMETCollection> met_h;
@@ -163,7 +163,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   // in this case, do not filter anything
   if(severity_==0){
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);
+    iEvent.put(std::move(CleanedMET));
     return true;
   }
 
@@ -174,7 +174,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
     edm::LogError("DataNotFound") << "HLTHcalMETNoiseCleaner: Could not find HcalNoiseRBXCollection product named "
 				  << HcalNoiseRBXCollectionTag_ << "." << std::endl;
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);    
+    iEvent.put(std::move(CleanedMET));    
     return true; // no valid RBXs
   }
 
@@ -189,7 +189,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   //if 0 RBXs are in the list, just accept
   if(data.size()<1){
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);
+    iEvent.put(std::move(CleanedMET));
     return true;
   }
   // data is now sorted by RBX energy
@@ -257,13 +257,13 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
     //-----------FOUND a SECOND NOISY RBX-------------------
     if(isNoise && cntr > 0){ 
 	CleanedMET->push_back(inCaloMet);
-	iEvent.put(CleanedMET);   	
+	iEvent.put(std::move(CleanedMET));   	
 	return accept2NoiseRBXEvents_; // don't try to clean these for the moment, just keep or throw away      
     }
     //----------LEADING RBX is NOT NOISY--------------------
     if(!isNoise && cntr == 0){ 
       CleanedMET->push_back(inCaloMet);
-      iEvent.put(CleanedMET);   	
+      iEvent.put(std::move(CleanedMET));   	
       return true; // don't reject the event if the leading RBX isn't noise
     }
     //-----------SUBLEADING RBX is NOT NOISY: STORE INFO----
@@ -283,7 +283,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   if(noiseHPDVector.Mag()==0){
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);   	
+    iEvent.put(std::move(CleanedMET));   	
     return true; // don't reject the event if the leading RBX isn't noise
   }
 
@@ -325,7 +325,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   reco::CaloMET corMet = BuildCaloMet(CorMetSumEt,CorMetPt,CorMetPhi);
   CleanedMET->push_back(corMet);
-  iEvent.put(CleanedMET);
+  iEvent.put(std::move(CleanedMET));
 
   return (corMet.pt() > CaloMetCut_);
 }

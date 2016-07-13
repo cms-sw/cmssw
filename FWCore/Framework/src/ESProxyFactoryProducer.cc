@@ -82,7 +82,7 @@ ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
 
 void
 ESProxyFactoryProducer::registerFactoryWithKey(const EventSetupRecordKey& iRecord ,
-                                             std::auto_ptr<ProxyFactoryBase>& iFactory,
+                                             std::unique_ptr<ProxyFactoryBase> iFactory,
                                              const std::string& iLabel )
 {
    if(nullptr == iFactory.get()) {

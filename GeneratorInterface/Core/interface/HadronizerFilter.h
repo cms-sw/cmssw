@@ -189,8 +189,8 @@ namespace edm
     edm::Handle<LHEEventProduct> product;
     ev.getByToken(eventProductToken_, product);
     
-    std::auto_ptr<HepMC::GenEvent> finalEvent;
-    std::auto_ptr<GenEventInfoProduct> finalGenEventInfo;
+    std::unique_ptr<HepMC::GenEvent> finalEvent;
+    std::unique_ptr<GenEventInfoProduct> finalGenEventInfo;
     
     //sum of weights for events passing hadronization
     double waccept = 0;
@@ -214,7 +214,7 @@ namespace edm
       //
       if ( !hadronizer_.decay() ) continue;
       
-      std::auto_ptr<HepMC::GenEvent> event (hadronizer_.getGenEvent());
+      std::unique_ptr<HepMC::GenEvent> event (hadronizer_.getGenEvent());
       if( !event.get() ) continue; 
 
       // The external decay driver is being added to the system,
@@ -222,7 +222,10 @@ namespace edm
       //
       if ( decayer_ ) 
       {
-        event.reset( decayer_->decay( event.get(),lheEvent ) );
+        auto t = decayer_->decay( event.get(),lheEvent );
+        if(t != event.get()) {
+          event.reset(t);
+        }
       }
 
       if ( !event.get() ) continue;
@@ -240,7 +243,7 @@ namespace edm
       
       event->set_event_number( ev.id().event() );
       
-      std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());      
+      std::unique_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
       if (!genEventInfo.get())
       { 
         // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
@@ -274,11 +277,11 @@ namespace edm
       finalEvent->weights()[0] *= multihadweight;
     }
     
-    ev.put(finalGenEventInfo);
+    ev.put(std::move(finalGenEventInfo));
 
-    std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( finalEvent.release() );
-    ev.put(bare_product, "unsmeared");
+    ev.put(std::move(bare_product), "unsmeared");
 
     return true;
   }
@@ -338,8 +341,8 @@ namespace edm
     if ( filter_ ) filter_->statistics();
     lheRunInfo->statistics();
 
-    std::auto_ptr<GenRunInfoProduct> griproduct( new GenRunInfoProduct(genRunInfo) );
-    r.put(griproduct);
+    std::unique_ptr<GenRunInfoProduct> griproduct( new GenRunInfoProduct(genRunInfo) );
+    r.put(std::move(griproduct));
   }
 
   template <class HAD, class DEC>
@@ -389,8 +392,8 @@ namespace edm
 	<< hadronizer_.classname()
 	<< " for external parton generation\n";
         
-    std::auto_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
-    lumi.put(genLumiInfoHeader);
+    std::unique_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
+    lumi.put(std::move(genLumiInfoHeader));
         
   }
 
@@ -425,17 +428,17 @@ namespace edm
       temp.setAcceptedBr(thisProcess.acceptedBr().n(), thisProcess.acceptedBr().sum(), thisProcess.acceptedBr().sum2());
       GenLumiProcess.push_back(temp);
     }
-    std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
+    std::unique_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
     genLumiInfo->setProcessInfo( GenLumiProcess );
 
-    lumi.put(genLumiInfo);
+    lumi.put(std::move(genLumiInfo));
 
 
     // produce GenFilterInfo if HepMCFilter is called
     if (filter_) {
 
-      std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
+      std::unique_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
 								 filter_->numEventsPassPos(),
 								 filter_->numEventsPassNeg(),
 								 filter_->numEventsTotalPos(),
@@ -445,7 +448,7 @@ namespace edm
 								 filter_->sumtotal_w(),
 								 filter_->sumtotal_w2()
 								 ));
-      lumi.put(thisProduct);
+      lumi.put(std::move(thisProduct));
     }
       
 

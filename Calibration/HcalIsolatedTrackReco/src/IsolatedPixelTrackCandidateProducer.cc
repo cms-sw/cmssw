@@ -88,7 +88,7 @@ void IsolatedPixelTrackCandidateProducer::beginRun(const edm::Run &run, const ed
 
 void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
-  reco::IsolatedPixelTrackCandidateCollection* trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
+  auto trackCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
@@ -108,6 +108,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 
   edm::Handle<reco::VertexCollection> pVert;
   theEvent.getByToken(tok_vert_,pVert);
+
   double drMaxL1Track_ = tauAssocCone_;
   
   int ntr = 0;
@@ -197,8 +198,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     }    
   }
   // put the product in the event
-  std::auto_ptr< reco::IsolatedPixelTrackCandidateCollection > outCollection(trackCollection);
-  theEvent.put(outCollection);
+  theEvent.put(std::move(trackCollection));
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrackCandidate: Final # of candiates " << ntr << "\n";
 #endif

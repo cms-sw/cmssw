@@ -77,7 +77,7 @@ namespace edm {
   print_(std::ostream& os,
          bool optional,
          bool /*writeToCfi*/,
-         DocFormatHelper& dfh) {
+         DocFormatHelper& dfh) const {
     if(dfh.pass() == 0) {
       dfh.setAtLeast1(11U);
       if(isTracked()) {

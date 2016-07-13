@@ -40,11 +40,6 @@ muonsFromCosmics.fillIsolation = False
 muonsFromCosmics.fillGlobalTrackQuality = False
 muonsFromCosmics.fillGlobalTrackRefits = False
 
-from RecoMuon.MuonIdentification.calomuons_cfi import *
-calomuons.inputTracks = 'ctfWithMaterialTracksP5LHCNavigation'
-calomuons.inputCollection = 'muons'
-calomuons.inputMuons = 'muons'
-
 ## Sequences
 
 # Stand Alone Tracking
@@ -75,7 +70,7 @@ from RecoMuon.GlobalTrackingTools.GlobalTrackQuality_cfi import *
 glbTrackQual.InputCollection = "globalCosmicMuons"
 
 # all muons id
-allmuons = cms.Sequence(glbTrackQual*tevMuons*muons*muIsolation*calomuons)
+allmuons = cms.Sequence(glbTrackQual*tevMuons*muons*muIsolation)
 
 # Final sequence
 muonrecoforcosmics = cms.Sequence(muontrackingforcosmics*allmuons*muonsFromCosmics)

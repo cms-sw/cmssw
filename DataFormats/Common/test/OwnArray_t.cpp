@@ -161,7 +161,7 @@ void take_an_lvalue()
 void take_an_auto_ptr()
 {
   edm::OwnArray<Base,3> v1;
-  std::auto_ptr<Base> p(new Derived(100));
+  std::unique_ptr<Base> p = std::make_unique<Derived>(100);
   v1.push_back(p);
   assert(p.get() == 0);
 }

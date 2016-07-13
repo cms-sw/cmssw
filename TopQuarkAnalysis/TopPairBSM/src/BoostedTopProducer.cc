@@ -364,8 +364,8 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( debug ) cout << "Writing out" << endl;
      ttbarList.push_back( ttbar );
    }
-   std::auto_ptr<std::vector<reco::CompositeCandidate> > pTtbar ( new std::vector<reco::CompositeCandidate>(ttbarList) );
-   iEvent.put( pTtbar );
+   std::unique_ptr<std::vector<reco::CompositeCandidate> > pTtbar ( new std::vector<reco::CompositeCandidate>(ttbarList) );
+   iEvent.put(std::move(pTtbar));
 
 
 }

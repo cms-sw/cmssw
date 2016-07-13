@@ -5,6 +5,7 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 
+#include <memory>
 #include <sstream>
 
 namespace {
@@ -35,7 +36,7 @@ namespace {
       cond::utilities::JsonPrinter jprint("Time","nLVOff");
       for( int i=0; i< len( iovs ); i++ ) {
 	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	boost::shared_ptr<SiStripDetVOff> obj = reader.fetch<SiStripDetVOff>( iov.payloadId );
+	std::shared_ptr<SiStripDetVOff> obj = reader.fetch<SiStripDetVOff>( iov.payloadId );
 	jprint.append(boost::lexical_cast<std::string>( iov.since ),
 		      boost::lexical_cast<std::string>( obj->getLVoffCounts() ),
 		      boost::lexical_cast<std::string>( 0. ) );
@@ -70,7 +71,7 @@ namespace {
       cond::utilities::JsonPrinter jprint("Time","nHVOff");
       for( int i=0; i< len( iovs ); i++ ) {
 	cond::Iov_t iov = boost::python::extract<cond::Iov_t>( iovs[i] );
-	boost::shared_ptr<SiStripDetVOff> obj = reader.fetch<SiStripDetVOff>( iov.payloadId );
+	std::shared_ptr<SiStripDetVOff> obj = reader.fetch<SiStripDetVOff>( iov.payloadId );
 	jprint.append(boost::lexical_cast<std::string>( iov.since ),
 		      boost::lexical_cast<std::string>( obj->getHVoffCounts() ),
 		      boost::lexical_cast<std::string>( 0. ) );

@@ -2,8 +2,8 @@
 #include "FWCore/Framework/interface/Event.h"
 
 EDMNeutronWriter::EDMNeutronWriter()
-: theEvent(0),
-  theHits(0)
+: theEvent(nullptr),
+  theHits(nullptr)
 {
 }
 
@@ -20,12 +20,12 @@ void EDMNeutronWriter::writeCluster(int detType, const edm::PSimHitContainer & s
 void EDMNeutronWriter::beginEvent(edm::Event & e, const edm::EventSetup & es)
 {
   theEvent = &e;
-  theHits = std::auto_ptr<edm::PSimHitContainer>(new edm::PSimHitContainer());
+  theHits = std::unique_ptr<edm::PSimHitContainer>(new edm::PSimHitContainer());
 }
 
 void EDMNeutronWriter::endEvent()
 {
-  theEvent->put(theHits);
+  theEvent->put(std::move(theHits));
 }
 
 

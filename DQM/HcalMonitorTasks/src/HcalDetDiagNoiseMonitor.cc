@@ -633,7 +633,8 @@ void HcalDetDiagNoiseMonitor::done(){}
  
 HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor()
 {
-  if(LocalRun) UpdateHistos(); SaveRates(); 
+  if(LocalRun) UpdateHistos();
+  SaveRates(); 
 
   if ( RMSummary ) delete RMSummary;
 }

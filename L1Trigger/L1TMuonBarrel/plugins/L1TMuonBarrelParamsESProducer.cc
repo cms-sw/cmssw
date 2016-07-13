@@ -10,7 +10,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -39,7 +38,7 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
       int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int );
       //void print(std::vector<LUT>& , std::vector<int>& ) const;
       int getPtLutThreshold(int ,std::vector<int>& ) const;
-      typedef boost::shared_ptr<L1TMuonBarrelParams> ReturnType;
+      typedef std::shared_ptr<L1TMuonBarrelParams> ReturnType;
 
       ReturnType produce(const L1TMuonBarrelParamsRcd&);
    private:
@@ -504,10 +503,8 @@ L1TMuonBarrelParamsESProducer::ReturnType
 L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TMuonBarrelParams> pBMTFParams;
 
-   pBMTFParams = boost::shared_ptr<L1TMuonBarrelParams>(new L1TMuonBarrelParams(m_params));
-   return pBMTFParams;
+   return std::make_shared<L1TMuonBarrelParams>(m_params);
 }
 
 //define this as a plug-in

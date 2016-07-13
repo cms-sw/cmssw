@@ -653,10 +653,10 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
 
     // Produce the Output Records for the GT
-    std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
+    std::unique_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
     // * produce the GlobalObjectMapRecord  
-    std::auto_ptr<GlobalObjectMapRecord> gtObjectMapRecord(
+    std::unique_ptr<GlobalObjectMapRecord> gtObjectMapRecord(
         new GlobalObjectMapRecord() );
 
 
@@ -825,12 +825,12 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     
     // register products
     if( m_produceL1GtDaqRecord ){
-      iEvent.put( uGtAlgRecord );
+      iEvent.put(std::move(uGtAlgRecord));
     }
 
 
     if( m_produceL1GtObjectMapRecord ){
-      iEvent.put( gtObjectMapRecord );
+      iEvent.put(std::move(gtObjectMapRecord));
     }
 
 

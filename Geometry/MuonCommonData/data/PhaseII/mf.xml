@@ -3,16 +3,16 @@
 
 <!-- <ConstantsSection label="hcalalgo.xml" eval="true"> -->
 <ConstantsSection label="mf.xml" eval="true">
-  <Constant name="z1ME0" value="5.241*m"/>
-  <Constant name="z2ME0" value="5.541*m"/>
+  <Constant name="z1ME0"   value="[cms:CalorBeamZ3]"/>
+  <Constant name="z2ME0"   value="[cms:CalorBeamZ2]"/>
   <Constant name="rMinME0" value="[z1ME0]*[etaMax:slope]"/>
-  <Constant name="rMaxME0" value="2.73*m"/>
+  <Constant name="rMaxME0" value="[cms:CalorMuonR2]"/>
 </ConstantsSection>
 
  <SolidSection label="mf.xml">
   <Polycone name="ME" startPhi="0*deg" deltaPhi="360*deg">
-   <ZSection z="524.1*cm" rMin="[cms:CalorBeamR2]" rMax="273.76*cm"/>
-   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="273.76*cm"/>
+   <ZSection z="[z1ME0]"           rMin="[cms:CalorBeamR2]" rMax="[rMaxME0]"/>
+   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[rMaxME0]"/>
    <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
    <ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MuonBeamR0]" rMax="[cms:CalorMuonR]"/>
    <ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MERmin0]" rMax="[cms:MBarRmin]"/>

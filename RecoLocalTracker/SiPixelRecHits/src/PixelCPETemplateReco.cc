@@ -137,10 +137,6 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
   
   SiPixelTemplate templ(thePixelTemp_);
 
-  // Make from cluster (a SiPixelCluster) a boost multi_array_2d called 
-  // clust_array_2d.
-  boost::multi_array<float, 2> clust_array_2d(boost::extents[cluster_matrix_size_x][cluster_matrix_size_y]);
-  
   // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
   // we have the following:
   //   int minPixelRow(); // Minimum pixel index in the x direction (low edge).
@@ -176,37 +172,48 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       lp = theDetParam.theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y) );
     }
     
-  // Copy clust's pixels (calibrated in electrons) into clust_array_2d;
-  for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i ) 
+  // first compute matrix size
+  int mrow=0, mcol=0;
+  for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i )
     {
       auto pix = theClusterParam.theCluster->pixel(i);
-      // *pixIter dereferences to Pixel struct, with public vars x, y, adc (all float)
-      // 02/13/2008 ggiurgiu@fnal.gov: type of x, y and adc has been changed to unsigned char, unsigned short, unsigned short
-      // in DataFormats/SiPixelCluster/interface/SiPixeltheClusterParam.theCluster->h so the type cast to int is redundant. Leave it there, it 
-      // won't hurt. 
-      int irow = int(pix.x) - row_offset;   // &&& do we need +0.5 ???
-      int icol = int(pix.y) - col_offset;   // &&& do we need +0.5 ???
+      int irow = int(pix.x); 
+      int icol = int(pix.y);
+      mrow = std::max(mrow,irow);
+      mcol = std::max(mcol,icol);
+    }
+    mrow -= row_offset; mrow+=1; mrow = std::min(mrow,cluster_matrix_size_x);
+    mcol -= col_offset; mcol+=1; mcol = std::min(mcol,cluster_matrix_size_y);
+    assert(mrow>0); assert(mcol>0);
+
+    float clustMatrix[mrow][mcol];
+    memset(clustMatrix,0,sizeof(float)*mrow*mcol);
+
+  // Copy clust's pixels (calibrated in electrons) into clusMatrix;
+   for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i ) 
+    {
+      auto pix = theClusterParam.theCluster->pixel(i);
+      int irow = int(pix.x) - row_offset;
+      int icol = int(pix.y) - col_offset;
       
-      // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y = 7/21 ?
+      // Gavril : what do we do here if the row/column is larger than cluster_matrix_size_x/cluster_matrix_size_y  ?
       // Ignore them for the moment...
-      if ( irow<cluster_matrix_size_x && icol<cluster_matrix_size_y )
-	// 02/13/2008 ggiurgiu@fnal.gov typecast pixIter->adc to float
-	clust_array_2d[irow][icol] = (float)pix.adc;
+      if ( (irow<mrow) & (icol<mcol) ) clustMatrix[irow][icol] =  float(pix.adc);
+     
     }
   
+
   // Make and fill the bool arrays flagging double pixels
-  std::vector<bool> ydouble(cluster_matrix_size_y), xdouble(cluster_matrix_size_x);
+  bool xdouble[mrow], ydouble[mcol];
   // x directions (shorter), rows
-  for (int irow = 0; irow < cluster_matrix_size_x; ++irow)
-    {
+  for (int irow = 0; irow < mrow; ++irow)
       xdouble[irow] = theDetParam.theRecTopol->isItBigPixelInX( irow+row_offset );
-    }
-      
-  // y directions (longer), columns
-  for (int icol = 0; icol < cluster_matrix_size_y; ++icol) 
-    {
+
+   // y directions (longer), columns
+  for (int icol = 0; icol < mcol; ++icol) 
       ydouble[icol] = theDetParam.theRecTopol->isItBigPixelInY( icol+col_offset );
-    }
+
+  SiPixelTemplateReco::ClusMatrix clusterPayload{&clustMatrix[0][0], xdouble, ydouble, mrow,mcol};
 
   // Output:
   float nonsense = -99999.9f; // nonsense init value
@@ -231,7 +238,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
   theClusterParam.ierr =
     PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
 		     locBz, 
-		     clust_array_2d, ydouble, xdouble,
+		     clusterPayload,
 		     templ,
 		     theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.templProbY_,
 		     theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.templProbX_, 
@@ -286,14 +293,15 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       //		templQbin_ );
 
 
-      float dchisq;
-      float templProbQ_;
       std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
       SiPixelTemplate2D::pushfile(ID, thePixelTemp2D_);
       SiPixelTemplate2D templ2D_(thePixelTemp2D_);
       	
-      theClusterParam.ierr =
-	SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
+      theClusterParam.ierr = -123;
+      /*
+      float dchisq;
+      float templProbQ_;
+      SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
 					      clust_array_2d, 
 					      ydouble, xdouble,
 					      templ,
@@ -305,7 +313,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 					      dchisq, 
 					      templ2D_ );
       
-
+      */
       if ( theClusterParam.ierr != 0 )
 	{
 	  LogDebug("PixelCPETemplateReco::localPosition") <<

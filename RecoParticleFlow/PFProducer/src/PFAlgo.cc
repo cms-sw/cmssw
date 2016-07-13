@@ -3592,7 +3592,7 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
     // Loop on the candidates
     for(unsigned i=0; i<cleanedHits.size(); ++i) {
       const PFRecHit& hit = cleanedHits[i];
-      double length = std::sqrt(hit.position().Mag2()); 
+      double length = std::sqrt(hit.position().mag2()); 
       double px = hit.energy() * hit.position().x()/length;
       double py = hit.energy() * hit.position().y()/length;
       double pt = std::sqrt(px*px + py*py);

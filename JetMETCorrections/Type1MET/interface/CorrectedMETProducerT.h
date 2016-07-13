@@ -96,7 +96,7 @@ class CorrectedMETProducerT : public edm::stream::EDProducer<>
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
-    std::auto_ptr<METCollection> correctedMEtCollection(new METCollection);
+    std::unique_ptr<METCollection> correctedMEtCollection(new METCollection);
 
     edm::Handle<METCollection> rawMEtCollection;
     evt.getByToken(token_, rawMEtCollection);
@@ -112,7 +112,7 @@ class CorrectedMETProducerT : public edm::stream::EDProducer<>
     }
 	  
 //--- add collection of MET objects with Type 1 / Type 1 + 2 corrections applied to the event
-    evt.put(correctedMEtCollection);
+    evt.put(std::move(correctedMEtCollection));
   }
 
   std::string moduleLabel_;

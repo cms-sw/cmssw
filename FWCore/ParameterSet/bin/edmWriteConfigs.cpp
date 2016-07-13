@@ -79,7 +79,7 @@ namespace {
 
   void writeCfisForPlugin(std::string const& pluginName,
                           edm::ParameterSetDescriptionFillerPluginFactory* factory) {
-    std::auto_ptr<edm::ParameterSetDescriptionFillerBase> filler(factory->create(pluginName));
+    std::unique_ptr<edm::ParameterSetDescriptionFillerBase> filler(factory->create(pluginName));
 
     std::string baseType = filler->baseType();
 

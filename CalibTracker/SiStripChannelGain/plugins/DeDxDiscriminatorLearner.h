@@ -12,7 +12,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 

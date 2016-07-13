@@ -193,7 +193,7 @@ namespace edm {
     template<typename ModType>
     static std::unique_ptr<Base> makeModule(ParameterSet const& pset) {
       typedef typename stream::BaseToAdaptor<Base,ModType>::Type Adaptor;
-      std::unique_ptr<Adaptor> module = std::unique_ptr<Adaptor>(new Adaptor(pset));
+      auto module = std::make_unique<Adaptor>(pset);
       return std::unique_ptr<Base>(module.release());
     }
   };

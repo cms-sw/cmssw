@@ -11,18 +11,18 @@
  <Constant name="CFHoles"           value="16"/>
  <Constant name="CFHoleStep"        value="33.00*mm"/>
 -->
- <Constant name="CFStripThick"      value="0.2*mm"/>
- <Constant name="CFStripWidth"      value="22.00*mm"/>
- <Constant name="CFHoleWidth"       value="8.00*mm"/>
- <Constant name="CFHoleDz"          value="12.75*mm"/>
+ <Constant name="CFStripThick"      value="0.5*mm"/>
+ <Constant name="CFStripWidth"      value="24.50*mm"/>
+ <Constant name="CFHoleWidth"       value="10.8*mm"/>
+ <Constant name="CFHoleDz"          value="11.8*mm"/>
  <Constant name="CFHoles"           value="32"/>
- <Constant name="CFHoleStep"        value="16.75*mm"/>
- <Constant name="VirtualBaseWidth"  value="21.76*mm"/>
- <Constant name="BaseWidth"         value="4.48*mm"/>
+ <Constant name="CFHoleStep"        value="16.8*mm"/>
+ <Constant name="VirtualBaseWidth"  value="21.8*mm"/>
+ <Constant name="BaseWidth"         value="5*mm"/>
  <Constant name="BaseX"             value="[VirtualBaseWidth]/2-[BaseWidth]/2"/>
- <Constant name="ROChipWidth"       value="19.955*mm"/>
+ <Constant name="ROChipWidth"       value="21.16*mm"/>
  <Constant name="SensorWidth"       value="18.60*mm"/>
- <Constant name="CableWidth"        value="6.70*mm"/>
+ <Constant name="CableWidth"        value="1.5*mm"/>
  <Constant name="HybridWidth"       value="18.80*mm"/>
  <Constant name="CapacitorStripX"   value="8.25*mm"/>
  <Constant name="ActiveWidth"       value="[SensorWidth]-
@@ -50,6 +50,8 @@
            ([pixbarladder:HybridThick]+[pixbarladder:CapacitorStripThick])/2"/>
  <Constant name="TBMchipY"   value="[HybridY]+
            ([pixbarladder:HybridThick]+[pixbarladder:TBMchipThick])/2"/>
+ <Constant name="ModuleCapY"   value="[CapacitorStripY]+
+           ([pixbarladder:CapacitorStripThick]+[pixbarladder:ModuleCapThick])/2"/> 
  <Constant name="CFHoleZ"           value="-([CFHoles]-1)*[CFHoleStep]/2"/>
 </ConstantsSection>
 
@@ -93,6 +95,8 @@
       dy="[pixbarladder:CapacitorStripThick]/2" dz="[pixbarladder:CapacitorStripDz]/2"/>
  <Box name="PixelBarrelTBMFull" dx="[pixbarladder:TBMchipDx]/2"
       dy="[pixbarladder:TBMchipThick]/2" dz="[pixbarladder:TBMchipDz]/2"/>
+ <Box name="PixelBarrelModuleCapFull"       dx="[pixbarladderfull3:HybridWidth]/2"
+      dy="[pixbarladder:ModuleCapThick]/2"     dz="[pixbarladder:HybridDz]/2"/>
 </SolidSection>
 
 <LogicalPartSection label="pixbarladderfull3.xml">
@@ -148,19 +152,19 @@
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle1" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle1"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle2" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle2"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle3" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle3"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoundle4" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoundle4"/>
-  <rMaterial name="materials:micro_twisted_boundle"/>
+  <rMaterial name="materials:micro_twisted_boundle_2"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCFStripHoleFull" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCFStripHoleFull"/>
@@ -179,6 +183,10 @@
  <LogicalPart name="PixelBarrelTBMFull" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelTBMFull"/>
   <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelBarrelModuleCapFull" category="unspecified">
+  <rSolid name="pixbarladderfull3:PixelBarrelModuleCapFull"/>
+  <rMaterial name="materials:T_Kapton"/>
  </LogicalPart>
 </LogicalPartSection>
 
@@ -349,11 +357,23 @@
                z="[zero]" />
  </PosPart>
  <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull3:PixelBarrelModuleFullMinus"/>
+   <rChild name="pixbarladderfull3:PixelBarrelModuleCapFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull3:ModuleCapY]" 
+               z="[zero]" />
+ </PosPart> 
+ <PosPart copyNumber="1">
    <rParent name="pixbarladderfull3:PixelBarrelModuleFullPlus"/>
    <rChild name="pixbarladderfull3:PixelBarrelTBMFull"/>
   <Translation x="[zero]" y="[pixbarladderfull3:TBMchipY]" 
                z="[zero]" />
  </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixbarladderfull3:PixelBarrelModuleFullPlus"/>
+   <rChild name="pixbarladderfull3:PixelBarrelModuleCapFull"/>
+  <Translation x="[zero]" y="[pixbarladderfull3:ModuleCapY]" 
+               z="[zero]" />
+ </PosPart> 
 </PosPartSection>
 
 <Algorithm name="track:DDTrackerLinear">

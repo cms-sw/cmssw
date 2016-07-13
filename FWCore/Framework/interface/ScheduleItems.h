@@ -45,7 +45,7 @@ namespace edm {
     std::shared_ptr<CommonParams>
     initMisc(ParameterSet& parameterSet);
 
-    std::auto_ptr<Schedule>
+    std::unique_ptr<Schedule>
     initSchedule(ParameterSet& parameterSet,
                  bool hasSubprocesses,
                  PreallocationConfiguration const& iAllocConfig,

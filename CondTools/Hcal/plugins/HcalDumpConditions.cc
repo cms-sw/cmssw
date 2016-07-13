@@ -66,7 +66,8 @@ namespace edmtest
   void HcalDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo)
   {
     edm::ESHandle<S> p;
-    context.get<SRcd>().get(p);
+    if( name == "ChannelQuality") context.get<SRcd>().get("withTopo", p);
+    else context.get<SRcd>().get(p);
     S* myobject = new S(*p.product());
     if( topo ) myobject->setTopo(topo);
     
@@ -114,6 +115,8 @@ namespace edmtest
     if (mDumpRequest.empty()) return;
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end())
       dumpIt(new HcalElectronicsMap, new HcalElectronicsMapRcd, e,context,"ElectronicsMap");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FrontEndMap")) != mDumpRequest.end())
+      dumpIt(new HcalFrontEndMap, new HcalFrontEndMapRcd, e,context,"FrontEndMap");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
       dumpIt(new HcalQIEData(&(*topology)), new HcalQIEDataRcd, e,context,"QIEData", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIETypes")) != mDumpRequest.end())

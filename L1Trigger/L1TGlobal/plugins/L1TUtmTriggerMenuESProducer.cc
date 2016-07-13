@@ -10,7 +10,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
@@ -48,7 +47,7 @@ public:
   L1TUtmTriggerMenuESProducer(const edm::ParameterSet&);
   ~L1TUtmTriggerMenuESProducer();
 
-  typedef boost::shared_ptr<L1TUtmTriggerMenu> ReturnType;
+  typedef std::shared_ptr<L1TUtmTriggerMenu> ReturnType;
 
   ReturnType produce(const L1TUtmTriggerMenuRcd&);
 
@@ -112,8 +111,8 @@ L1TUtmTriggerMenuESProducer::produce(const L1TUtmTriggerMenuRcd& iRecord)
   L1TUtmTriggerMenu * menu = const_cast<L1TUtmTriggerMenu *>(cmenu);
 
   using namespace edm::es;
-  boost::shared_ptr<L1TUtmTriggerMenu> pMenu ;
-  pMenu = boost::shared_ptr< L1TUtmTriggerMenu >(menu);
+  std::shared_ptr<L1TUtmTriggerMenu> pMenu ;
+  pMenu = std::shared_ptr< L1TUtmTriggerMenu >(menu);
   return pMenu;
 }
 

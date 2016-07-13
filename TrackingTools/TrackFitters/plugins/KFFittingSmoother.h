@@ -143,7 +143,7 @@ namespace {
   };
 
 
-  // #define VI_DEBUG
+// #define VI_DEBUG
   
 #ifdef VI_DEBUG
 #define DPRINT(x) std::cout << x << ": "
@@ -152,9 +152,6 @@ namespace {
 #define DPRINT(x) LogTrace(x)
 #define PRINT LogTrace("")
 #endif
-
-
-using namespace std;
 
 Trajectory KFFittingSmoother::fitOne(const Trajectory& t, fitType type) const {
   if (!t.isValid() ) return Trajectory();
@@ -176,12 +173,25 @@ bool KFFittingSmoother::checkForNans(const Trajectory & theTraj)
   return true;
 }
 
+
+namespace {
+  inline
+  void print(const std::string& header,  const TrajectoryStateOnSurface & tsos) {
+    DPRINT("TrackFitters") << header << tsos.globalPosition().perp() << ' ' << tsos.globalPosition().z() 
+              << ' ' << 1./tsos.signedInverseMomentum() << ' ' << 1./tsos.transverseCurvature()
+              << ' ' << tsos.globalMomentum().eta() << std::endl; 
+  }
+}
+
+
 Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 				  const RecHitContainer& hits,
 				  const TrajectoryStateOnSurface& firstPredTsos,
 				  fitType type) const
 {
   LogDebug("TrackFitters") << "In KFFittingSmoother::fit";
+ 
+  print("firstPred ", firstPredTsos);
 
   if ( hits.empty() ) return Trajectory();
 
@@ -205,6 +215,12 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     }
 #endif
   
+#if defined(VI_DEBUG) || defined(EDM_ML_DEBUG)
+if (smoothed.isValid()) {
+   print("first state ",smoothed.firstMeasurement().updatedState());
+   print("last  state ",smoothed.lastMeasurement().updatedState());
+}
+#endif
 
     bool hasNaN = false;
     if ( !smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || ( smoothed.foundHits() < theMinNumberOfHits ) )  {
@@ -222,7 +238,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 #ifdef EDM_ML_DEBUG
     else {
       LogTrace("TrackFitters") << "dump hits after smoothing";
-      Trajectory::DataContainer meas = smoothed[0].measurements();
+      Trajectory::DataContainer meas = smoothed.measurements();
       for (Trajectory::DataContainer::iterator it=meas.begin();it!=meas.end();++it) {
         LogTrace("TrackFitters") << "hit #" << meas.end()-it-1 << " validity=" << it->recHit()->isValid()
         << " det=" << it->recHit()->geographicalId().rawId();
@@ -255,7 +271,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
     DPRINT("TrackFitters") << "size/found/outliers list " << smoothed.measurements().size() <<'/' << smoothed.foundHits() << ' ' << nbad << ": ";
     for (auto i=0U; i<nbad; ++i) PRINT << bad[i] <<',';
-    PRINT << endl;
+    PRINT << std::endl;
 
 
     
@@ -399,7 +415,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
 	std::swap(smoothed,tmpTraj);
 
-      } //  if ( !smoothed[0].firstMeasurement().recHit()->isValid() )
+      } //  if ( !smoothed.firstMeasurement().recHit()->isValid() )
 
     } // if ( noInvalidHitsBeginEnd )
 
@@ -407,7 +423,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 			     << smoothed.chiSquared() ;
 
     //LogTrace("TrackFitters") << "dump hits before return";
-    //Trajectory::DataContainer meas = smoothed[0].measurements();
+    //Trajectory::DataContainer meas = smoothed.measurements();
     //for (Trajectory::DataContainer::iterator it=meas.begin();it!=meas.end();++it) {
     //LogTrace("TrackFitters") << "hit #" << meas.end()-it-1 << " validity=" << it->recHit()->isValid()
     //<< " det=" << it->recHit()->geographicalId().rawId();

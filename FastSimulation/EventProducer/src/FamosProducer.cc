@@ -83,15 +83,15 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();
    
-   std::auto_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
-   std::auto_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
-   std::auto_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
-   std::auto_ptr<FSimVertexTypeCollection> v1(new FSimVertexTypeCollection);
-   std::auto_ptr<edm::PSimHitContainer> p3(new edm::PSimHitContainer);
-   std::auto_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
-   std::auto_ptr<edm::PCaloHitContainer> p5(new edm::PCaloHitContainer);
-   std::auto_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
-   std::auto_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
+   std::unique_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);
+   std::unique_ptr<edm::SimTrackContainer> m1(new edm::SimTrackContainer);
+   std::unique_ptr<edm::SimVertexContainer> p2(new edm::SimVertexContainer);
+   std::unique_ptr<FSimVertexTypeCollection> v1(new FSimVertexTypeCollection);
+   std::unique_ptr<edm::PSimHitContainer> p3(new edm::PSimHitContainer);
+   std::unique_ptr<edm::PCaloHitContainer> p4(new edm::PCaloHitContainer);
+   std::unique_ptr<edm::PCaloHitContainer> p5(new edm::PCaloHitContainer);
+   std::unique_ptr<edm::PCaloHitContainer> p6(new edm::PCaloHitContainer); 
+   std::unique_ptr<edm::PCaloHitContainer> p7(new edm::PCaloHitContainer);
    
    FSimEvent* fevt = famosManager_->simEvent();
    fevt->load(*p1,*m1);
@@ -108,15 +108,15 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      calo->loadMuonSimTracks(*m1);
    }
 
-   if ( simulateMuons ) iEvent.put(m1,"MuonSimTracks");
-   iEvent.put(p1);
-   iEvent.put(p2);
-   iEvent.put(p3,"TrackerHits");
-   iEvent.put(v1,"VertexTypes");
-   iEvent.put(p4,"EcalHitsEB");
-   iEvent.put(p5,"EcalHitsEE");
-   iEvent.put(p6,"EcalHitsES");
-   iEvent.put(p7,"HcalHits");
+   if ( simulateMuons ) iEvent.put(std::move(m1),"MuonSimTracks");
+   iEvent.put(std::move(p1));
+   iEvent.put(std::move(p2));
+   iEvent.put(std::move(p3),"TrackerHits");
+   iEvent.put(std::move(v1),"VertexTypes");
+   iEvent.put(std::move(p4),"EcalHitsEB");
+   iEvent.put(std::move(p5),"EcalHitsEE");
+   iEvent.put(std::move(p6),"EcalHitsES");
+   iEvent.put(std::move(p7),"HcalHits");
 
 }
 

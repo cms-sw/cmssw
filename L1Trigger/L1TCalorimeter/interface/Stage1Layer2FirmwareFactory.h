@@ -11,7 +11,7 @@
 #ifndef CALOSTAGE1JETALGORITHMFACTORY_H
 #define CALOSTAGE1JETALGORITHMFACTORY_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
@@ -23,7 +23,7 @@ namespace l1t {
 
   class Stage1Layer2FirmwareFactory {
   public:
-    typedef boost::shared_ptr<Stage1Layer2MainProcessor> ReturnType;
+    typedef std::shared_ptr<Stage1Layer2MainProcessor> ReturnType;
 
     // ReturnType create(const FirmwareVersion & fwv /*,const CaloParamsHelper & dbPars*/);
     ReturnType create(const int fwv ,CaloParamsHelper* dbPars);

@@ -139,9 +139,9 @@ MCVerticesWeight::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
      
    }
    
-   std::auto_ptr<double> weight(new double(computed_weight));
+   std::unique_ptr<double> weight(new double(computed_weight));
    
-   iEvent.put(weight);
+   iEvent.put(std::move(weight));
    
    //
    

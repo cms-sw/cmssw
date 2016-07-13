@@ -9,6 +9,5 @@
   <use   name="Geometry/Records"/>
   <use   name="RecoMuon/DetLayers"/>
   <use   name="RecoMuon/Records"/>
-  <use   name="boost"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

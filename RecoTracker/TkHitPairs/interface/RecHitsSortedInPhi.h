@@ -20,7 +20,7 @@ public:
   // A RecHit extension that caches the phi angle for fast access
   class HitWithPhi {
   public:
-    HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().phi()) {}
+    HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().barePhi()) {}
     HitWithPhi( const Hit & hit,float phi) : theHit(hit), thePhi(phi) {}
     HitWithPhi( float phi) : theHit(0), thePhi(phi) {}
     float phi() const {return thePhi;}

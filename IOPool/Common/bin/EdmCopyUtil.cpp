@@ -22,8 +22,8 @@
 
 static int copy_files(const boost::program_options::variables_map &vm) {
 
-  std::auto_ptr<edm::SiteLocalConfig> slcptr(new edm::service::SiteLocalConfigService(edm::ParameterSet()));
-  auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(slcptr);
+  std::unique_ptr<edm::SiteLocalConfig> slcptr = std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
+  auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
   edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
   edm::ServiceRegistry::Operate operate(slcToken);
 

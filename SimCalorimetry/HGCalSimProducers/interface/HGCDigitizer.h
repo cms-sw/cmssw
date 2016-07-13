@@ -30,6 +30,7 @@ public:
   HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
   ~HGCDigitizer() { }
 
+  // index , det id, time
   typedef std::tuple<int,uint32_t,float> HGCCaloHitTuple_t;
   static bool orderByDetIdThenTime(const HGCCaloHitTuple_t &a, const HGCCaloHitTuple_t &b)
   {
@@ -84,7 +85,7 @@ private :
 
   //handle sim hits
   int maxSimHitsAccTime_;
-  double bxTime_;
+  double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 

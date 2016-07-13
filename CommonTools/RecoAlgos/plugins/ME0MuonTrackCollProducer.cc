@@ -69,7 +69,7 @@ void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(OurMuonsToken_,OurMuons);
 
   
-  std::auto_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
  
   reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
   
@@ -90,6 +90,6 @@ void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup
       selectedTracks->push_back( *trk );
       //selectedTrackExtras->push_back( *newExtra );
   }
-  iEvent.put(selectedTracks);
+  iEvent.put(std::move(selectedTracks));
 
 }

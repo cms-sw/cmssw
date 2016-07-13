@@ -97,7 +97,8 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
     fedIds = cablingMap->fedIds();
     cablingTree_= cablingMap->cablingTree();
-    if (frameReverter_) delete frameReverter_; frameReverter_ = new SiPixelFrameReverter( es, cablingMap.product() );
+    if (frameReverter_) delete frameReverter_; 
+    frameReverter_ = new SiPixelFrameReverter( es, cablingMap.product() );
   }
 
   debug = edm::MessageDrop::instance()->debugEnabled;

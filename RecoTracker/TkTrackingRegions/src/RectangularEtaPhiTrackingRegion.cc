@@ -67,15 +67,12 @@ void RectangularEtaPhiTrackingRegion:: initEtaRange( const GlobalVector & dir, c
 }
 
 HitRZCompatibility* RectangularEtaPhiTrackingRegion::
-checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::EventSetup& iSetup) const
+checkRZOld(const DetLayer* layer, const Hit & outerHit, const edm::EventSetup&iSetup, const DetLayer* outerlayer) const
 {
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
   bool isBarrel = (layer->location() == GeomDetEnumerators::barrel);
-  GlobalPoint ohit =  tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
-  float outerred_r = sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
-  //PixelRecoPointRZ outer(ohit.perp(), ohit.z());
+  GlobalPoint ohit =  outerHit->globalPosition();
+  float outerred_r = std::sqrt( sqr(ohit.x()-origin().x())+sqr(ohit.y()-origin().y()) );
   PixelRecoPointRZ outer(outerred_r, ohit.z());
   
   float zMinOrigin = origin().z() - originZBound();
@@ -92,61 +89,63 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
     float cotLeft = std::min(vcotMax,  theLambdaRange.max());
     return new HitEtaCheck( isBarrel, outer, cotLeft, cotRight);
   }
-  float hitZErr = 0.;
-  float hitRErr = 0.;
 
-  PixelRecoPointRZ  outerL, outerR;
-  if (layer->location() == GeomDetEnumerators::barrel) {
-    outerL = PixelRecoPointRZ(outer.r(), outer.z()-hitZErr);
-    outerR = PixelRecoPointRZ(outer.r(), outer.z()+hitZErr);
-  } else if (outer.z() > 0) {
-    outerL = PixelRecoPointRZ(outer.r()+hitRErr, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()-hitRErr, outer.z());
-  } else {
-    outerL = PixelRecoPointRZ(outer.r()-hitRErr, outer.z());
-    outerR = PixelRecoPointRZ(outer.r()+hitRErr, outer.z());
-  }
+
+
+  float outerZscatt=0;
+  float innerScatt =0;
   //CHECK
-  MultipleScatteringParametrisation oSigma(layer,iSetup);
-  float cotThetaOuter = theMeanLambda;
-  float sinThetaOuter = 1/std::sqrt(1+sqr(cotThetaOuter)); 
-  float outerZscatt = 3.f*oSigma(ptMin(),cotThetaOuter) / sinThetaOuter;
+  if (theUseMS)	{
+    MultipleScatteringParametrisation oSigma(layer,iSetup);
+    float cotThetaOuter = theMeanLambda;
+    float sinThetaOuterInv = std::sqrt(1.f+sqr(cotThetaOuter)); 
+    outerZscatt = 3.f*oSigma(ptMin(),cotThetaOuter)*sinThetaOuterInv;
+  }
 
-  PixelRecoLineRZ boundL(outerL, theLambdaRange.max());
-  PixelRecoLineRZ boundR(outerR, theLambdaRange.min());
+  PixelRecoLineRZ boundL(outer, theLambdaRange.max());
+  PixelRecoLineRZ boundR(outer, theLambdaRange.min());
   float zMinLine = boundL.zAtR(0.)-outerZscatt;
   float zMaxLine = boundR.zAtR(0.)+outerZscatt;
   PixelRecoPointRZ vtxL(0.,max(zMinLine, zMinOrigin));
   PixelRecoPointRZ vtxR(0.,min(zMaxLine, zMaxOrigin)); 
   PixelRecoPointRZ vtxMean(0.,(vtxL.z()+vtxR.z())*0.5f);
   //CHECK
-  MultipleScatteringParametrisation iSigma(layer,iSetup);
-  float innerScatt = 3.f * iSigma(ptMin(),vtxMean, outer);
-  
-  SimpleLineRZ leftLine( vtxL, outerL);
-  SimpleLineRZ rightLine( vtxR, outerR);
+
+  if (theUseMS) {
+    MultipleScatteringParametrisation iSigma(layer,iSetup);
+    
+    innerScatt = 3.f * ( outerlayer ?
+       iSigma( ptMin(), vtxMean, outer, outerlayer->seqNum())
+    :  iSigma( ptMin(), vtxMean, outer) ) ;
+    
+    // innerScatt = 3.f *iSigma( ptMin(), vtxMean, outer);
+  }
+
+  SimpleLineRZ leftLine( vtxL, outer);
+  SimpleLineRZ rightLine(vtxR, outer);
 
   HitRZConstraint rzConstraint(leftLine, rightLine);
-  float cotTheta = std::abs(leftLine.cotLine()+rightLine.cotLine())*0.5f;
+  auto cotTheta = std::abs(leftLine.cotLine()+rightLine.cotLine())*0.5f;
 
-//  float bendR = longitudinalBendingCorrection(outer.r(),ptMin());
 
   // std::cout << "RectangularEtaPhiTrackingRegion " << outer.r()<<','<< outer.z() << " " << innerScatt << " " << cotTheta << " " <<  hitZErr <<  std::endl; 
 
   if (isBarrel) {
-    float sinTheta = 1/std::sqrt(1+sqr(cotTheta));
-    float corrZ = innerScatt/sinTheta + hitZErr;
-    return new HitZCheck(rzConstraint, HitZCheck::Margin(corrZ,corrZ));
+    auto sinThetaInv = std::sqrt(1.f+sqr(cotTheta));
+    auto corr = innerScatt*sinThetaInv;
+    return new HitZCheck(rzConstraint, HitZCheck::Margin(corr,corr));
   } else {
-    float cosTheta = 1/std::sqrt(1+sqr(1/cotTheta));
-    float corrR = innerScatt/cosTheta + hitRErr;
-    return new HitRCheck( rzConstraint, HitRCheck::Margin(corrR,corrR));
+    auto cosThetaInv = std::sqrt(1.f+sqr(1.f/cotTheta));
+    auto corr = innerScatt*cosThetaInv;
+    return new HitRCheck( rzConstraint, HitRCheck::Margin(corr,corr));
   }
 }
 
-std::unique_ptr<OuterEstimator>
+std::unique_ptr<MeasurementEstimator>
   RectangularEtaPhiTrackingRegion::estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const
 {
+  
+  using Algo = HitZCheck;
 
   // det dimensions 
   float halfLength = 0.5f*layer->surface().bounds().length();
@@ -162,7 +161,7 @@ std::unique_ptr<OuterEstimator>
   HitZCheck zPrediction(rzConstraint());
   Range hitZWindow = zPrediction.range(detRWindow.min()).
                                                intersection(detZWindow);
-  if (hitZWindow.empty()) return 0;
+  if (hitZWindow.empty()) return nullptr;
 
   // phi prediction
   OuterHitPhiPrediction phiPrediction = phiWindow(iSetup);
@@ -172,18 +171,19 @@ std::unique_ptr<OuterEstimator>
   //
   OuterHitPhiPrediction::Range phiRange;
   if (thePrecise) {
-    float cotTheta = (hitZWindow.mean()-origin().z()) / radius;
-    float sinTheta = 1/std::sqrt(1+sqr(cotTheta));
+    auto invR = 1.f/ radius;
+    auto cotTheta = (hitZWindow.mean()-origin().z()) * invR;
+    auto sinThetaInv = std::sqrt(1.f+sqr(cotTheta));
     MultipleScatteringParametrisation msSigma(layer,iSetup);
-    float scatt = 3.f * msSigma(ptMin(), cotTheta);
-    float bendR = longitudinalBendingCorrection(radius,ptMin(),iSetup);
+    auto scatt = 3.f * msSigma(ptMin(), cotTheta);
+    auto bendR = longitudinalBendingCorrection(radius,ptMin(),iSetup);
     
     float hitErrRPhi = 0.;
     float hitErrZ = 0.;
-    float corrPhi = (scatt+ hitErrRPhi)/radius;
-    float corrZ = scatt/sinTheta + bendR*std::abs(cotTheta) + hitErrZ;
+    float corrPhi = (scatt+ hitErrRPhi)*invR;
+    float corrZ = scatt*sinThetaInv + bendR*std::abs(cotTheta) + hitErrZ;
     
-    phiPrediction.setTolerance(OuterHitPhiPrediction::Margin(corrPhi,corrPhi));
+    phiPrediction.setTolerance(corrPhi);
     zPrediction.setTolerance(HitZCheck::Margin(corrZ,corrZ));
 
     //
@@ -200,16 +200,16 @@ std::unique_ptr<OuterEstimator>
     phiRange = phiPrediction(detRWindow.mean()); 
   }
 
-  return std::make_unique<OuterEstimator>(
+  return std::make_unique<OuterEstimator<Algo>>(
 			    OuterDetCompatibility( layer, phiRange, detRWindow, hitZWindow),
-			    OuterHitCompatibility( phiPrediction, zPrediction ),
+			    OuterHitCompatibility<Algo>( phiPrediction, zPrediction ),
 			    iSetup);
 }
 
-std::unique_ptr<OuterEstimator>
+std::unique_ptr<MeasurementEstimator>
 RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const
 {
-
+  using Algo=HitRCheck;
   // det dimensions, ranges
   float halfThickness  = 0.5f*layer->surface().bounds().thickness();
   float zLayer = layer->position().z() ;
@@ -231,16 +231,16 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
   //
   if (thePrecise) {
     float cotTheta = (detZWindow.mean()-origin().z())/hitRWindow.mean();
-    float cosTheta = cotTheta/std::sqrt(1+sqr(cotTheta)); 
+    float cosThetaInv = std::sqrt(1+sqr(cotTheta))/cotTheta; 
     MultipleScatteringParametrisation msSigma(layer,iSetup);
     float scatt = 3.f * msSigma(ptMin(),cotTheta);
     float bendR = longitudinalBendingCorrection(hitRWindow.max(),ptMin(),iSetup);
     float hitErrRPhi = 0.;
     float hitErrR = 0.;
     float corrPhi = (scatt+hitErrRPhi)/detRWindow.min();
-    float corrR   = scatt/std::abs(cosTheta) + bendR + hitErrR;
+    float corrR   = scatt*std::abs(cosThetaInv) + bendR + hitErrR;
 
-    phiPrediction.setTolerance(OuterHitPhiPrediction::Margin(corrPhi,corrPhi));
+    phiPrediction.setTolerance(corrPhi);
     rPrediction.setTolerance(HitRCheck::Margin(corrR,corrR));
 
     //
@@ -257,9 +257,9 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
     hitRWindow = Range(w1.min(),w2.max()).intersection(detRWindow);
   }
 
-  return std::make_unique<OuterEstimator>(
+  return std::make_unique<OuterEstimator<Algo>>(
     OuterDetCompatibility( layer, phiRange, hitRWindow, detZWindow),
-    OuterHitCompatibility( phiPrediction, rPrediction),iSetup );
+    OuterHitCompatibility<Algo>( phiPrediction, rPrediction),iSetup );
 }
 
 
@@ -267,7 +267,7 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
 OuterHitPhiPrediction 
     RectangularEtaPhiTrackingRegion::phiWindow(const edm::EventSetup& iSetup) const
 {
-  float phi0 = phiDirection();
+  auto phi0 = phiDirection();
   return OuterHitPhiPrediction( 
       OuterHitPhiPrediction::Range( phi0-thePhiMargin.left(),
                                     phi0+thePhiMargin.right()),
@@ -308,7 +308,6 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   //ESTIMATOR
 
   const DetLayer * detLayer = layer.detLayer();
-  std::unique_ptr<OuterEstimator> est;
 
   bool measurementMethod = false;
   if(theMeasurementTrackerUsage == UseMeasurementTracker::kAlways) measurementMethod = true;
@@ -323,6 +322,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     const GlobalPoint vtx = origin();
     GlobalVector dir = direction();
     
+    std::unique_ptr<MeasurementEstimator> est;
     if ((GeomDetEnumerators::isTrackerPixel(detLayer->subDetector()) && GeomDetEnumerators::isBarrel(detLayer->subDetector())) ||
         (!theUseEtaPhi  && detLayer->location() == GeomDetEnumerators::barrel)) {
       const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
@@ -386,24 +386,36 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   
   } else {
     //
-    // temporary solution 
+    // temporary solution (actually heavily used for Pixels....)
     //
     if (detLayer->location() == GeomDetEnumerators::barrel) {
       const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
-      est = estimator(&bl,es);
+      auto est = estimator(&bl,es);
+      if (!est)	return result;
+      using Algo = HitZCheck;
+      auto const & hitComp =  (reinterpret_cast<OuterEstimator<Algo> const&>(*est)).hitCompatibility();
+      auto layerHits = layer.hits();
+      result.reserve(layerHits.size());
+      for (auto && ih : layerHits) {
+        if ( hitComp(*ih) )
+          result.emplace_back( std::move(ih) );        
+      }
+
     } else {
       const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
-      est = estimator(&fl,es);
-    }
-    if (!est) return result;
-    
-    auto layerHits = layer.hits();
-    result.reserve(layerHits.size());
-    for (auto && ih : layerHits) {
-      if ( est->hitCompatibility()(*ih) ) {
-	result.emplace_back( std::move(ih) );
+      auto est = estimator(&fl,es);
+      if (!est) return result;
+      using Algo = HitRCheck;
+      auto const & hitComp =  (reinterpret_cast<OuterEstimator<Algo> const&>(*est)).hitCompatibility();
+      auto layerHits = layer.hits();
+      result.reserve(layerHits.size());
+      for (auto && ih : layerHits) {
+        if ( hitComp(*ih) )  
+          result.emplace_back( std::move(ih) );
       }
+
     }
+    
   }
   
   // std::cout << "RectangularEtaPhiTrackingRegion hits "  << result.size() << std::endl;

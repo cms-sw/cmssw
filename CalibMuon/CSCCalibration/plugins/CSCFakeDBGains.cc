@@ -5,7 +5,7 @@
 
 CSCFakeDBGains::CSCFakeDBGains(const edm::ParameterSet& iConfig)
 {
-  cndbGains = boost::shared_ptr<CSCDBGains>( prefillDBGains() );
+  cndbGains = std::shared_ptr<CSCDBGains>( prefillDBGains() );
 
   // the following line is needed to tell the framework what
   // data is being produced

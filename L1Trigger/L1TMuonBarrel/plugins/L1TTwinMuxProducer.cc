@@ -67,9 +67,9 @@ void L1TTwinMuxProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(m_rpcsource, rpcDigis);
 
 
-  std::auto_ptr<L1MuDTChambPhContainer> l1ttmp = m_l1tma->produce(phiDigis, thetaDigis, rpcDigis,c);
+  std::unique_ptr<L1MuDTChambPhContainer> l1ttmp = m_l1tma->produce(phiDigis, thetaDigis, rpcDigis,c);
   //cout << "DEBUG:  L1T Twin Mux Producer, output size:  " << l1ttmp->getContainer()->size() << "\n";
-  e.put(l1ttmp);
+  e.put(std::move(l1ttmp));
 }
 
 

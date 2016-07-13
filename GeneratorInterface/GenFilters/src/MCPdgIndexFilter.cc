@@ -26,7 +26,7 @@ bool MCPdgIndexFilter::filter(edm::Event& evt, const edm::EventSetup&) {
   bool result = pass(evt);
   LogDebug("FilterResult") << (result?"Pass":"Fail");
   if (!taggingMode) return result;
-  evt.put( std::auto_ptr<bool>(new bool(result)), tag);
+  evt.put(std::move(std::unique_ptr<bool>(new bool(result))), tag);
   return true;
 }
 

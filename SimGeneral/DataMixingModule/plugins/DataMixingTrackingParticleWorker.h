@@ -1,4 +1,4 @@
-#ifndef DataMixingTrackingParticleWorker_h
+#ifndef SimDataMixingTrackingParticleWorker_h
 #define SimDataMixingTrackingParticleWorker_h
 
 /** \class DataMixingTrackingParticleWorker
@@ -102,8 +102,8 @@ namespace edm
 
       // 
 
-      std::auto_ptr<std::vector<TrackingParticle>> NewTrackList_;
-      std::auto_ptr<std::vector<TrackingVertex>> NewVertexList_;
+      std::unique_ptr<std::vector<TrackingParticle>> NewTrackList_;
+      std::unique_ptr<std::vector<TrackingVertex>> NewVertexList_;
       std::vector<TrackingVertex> TempVertexList_;
 
       std::unique_ptr<edm::DetSetVector<StripDigiSimLink> >          NewStripLinkList_;
@@ -120,4 +120,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingTrackingParticleWorker_h

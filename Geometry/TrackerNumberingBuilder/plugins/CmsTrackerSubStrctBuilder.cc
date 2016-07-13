@@ -4,6 +4,7 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLayerBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTLayerBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerWheelBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDiskBuilder.h"  
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,8 +19,9 @@ void
 CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
 {
   CmsTrackerLayerBuilder theCmsTrackerLayerBuilder;
+  CmsTrackerOTLayerBuilder theCmsTrackerOTLayerBuilder;
   CmsTrackerWheelBuilder theCmsTrackerWheelBuilder;
-  CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder;   
+  CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder;  
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
@@ -28,7 +30,7 @@ CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, 
     theCmsTrackerLayerBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::OTPhase2Layer:
-    theCmsTrackerLayerBuilder.build(fv,subdet,s);      
+    theCmsTrackerOTLayerBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::wheel:
     theCmsTrackerWheelBuilder.build(fv,subdet,s);      

@@ -35,7 +35,8 @@ private:
   MonitorElement* h2TSratio;
   MonitorElement* h2status;
   MonitorElement* h2digierr;
-  MonitorElement* h2reportMap;
+  MonitorElement* h2repsum;
+  MonitorElement* h2qualityMap;
   MonitorElement* hReport;
   MonitorElement* h2QtsvsCh;
   MonitorElement *h2QmeantsvsCh;

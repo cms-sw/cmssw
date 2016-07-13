@@ -5,7 +5,7 @@
  * StreamSerializer.h
  *
  * Utility class for translating framework objects (e.g. ProductRegistry and
- * EventPrincipal) into streamer message objects.
+ * EventForOutput) into streamer message objects.
  */
 
 #include "TBufferFile.h"
@@ -61,7 +61,7 @@ class InitMsgBuilder;
 namespace edm
 {
   
-  class EventPrincipal;
+  class EventForOutput;
   class ModuleCallingContext;
   class ThinnedAssociationsHelper;
 
@@ -76,11 +76,9 @@ namespace edm
                           const BranchIDLists &branchIDLists,
                           ThinnedAssociationsHelper const& thinnedAssociationsHelper);
 
-    int serializeEvent(EventPrincipal const& eventPrincipal,
-                       ParameterSetID const& selectorConfig,
+    int serializeEvent(EventForOutput const& event, ParameterSetID const& selectorConfig,
                        bool use_compression, int compression_level,
-                       SerializeDataBuffer &data_buffer,
-                       ModuleCallingContext const* mcc);
+                       SerializeDataBuffer &data_buffer);
 
     /**
      * Compresses the data in the specified input buffer into the

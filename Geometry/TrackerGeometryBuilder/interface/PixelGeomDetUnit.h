@@ -1,8 +1,6 @@
 #ifndef Geometry_TrackerGeometryBuilder_PixelGeomDetUnit_H
 #define Geometry_TrackerGeometryBuilder_PixelGeomDetUnit_H
 
-#include <boost/shared_ptr.hpp>
-
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
@@ -44,7 +42,7 @@ public:
   virtual const PixelTopology& specificTopology() const;
 
   /// Return pointer to surface deformation.
-  virtual const SurfaceDeformation * surfaceDeformation() const { 
+  virtual const SurfaceDeformation * surfaceDeformation() const override { 
     return theTopology->surfaceDeformation();
   }
 
@@ -53,7 +51,7 @@ public:
 private:
 
   /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
-  virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
+  virtual void setSurfaceDeformation(const SurfaceDeformation * deformation) override;
 
   std::unique_ptr<ProxyPixelTopology> theTopology;
 };

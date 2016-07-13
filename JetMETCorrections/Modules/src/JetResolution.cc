@@ -12,11 +12,11 @@
 namespace JME {
 
     JetResolution::JetResolution(const std::string& filename) {
-        m_object = std::shared_ptr<JetResolutionObject>(new JetResolutionObject(filename));
+        m_object = std::make_shared<JetResolutionObject>(filename);
     }
 
     JetResolution::JetResolution(const JetResolutionObject& object) {
-        m_object = std::shared_ptr<JetResolutionObject>(new JetResolutionObject(object));
+        m_object = std::make_shared<JetResolutionObject>(object);
     }
 
 #ifndef STANDALONE
@@ -37,11 +37,11 @@ namespace JME {
     }
 
     JetResolutionScaleFactor::JetResolutionScaleFactor(const std::string& filename) {
-        m_object = std::shared_ptr<JetResolutionObject>(new JetResolutionObject(filename));
+        m_object = std::make_shared<JetResolutionObject>(filename);
     }
 
     JetResolutionScaleFactor::JetResolutionScaleFactor(const JetResolutionObject& object) {
-        m_object = std::shared_ptr<JetResolutionObject>(new JetResolutionObject(object));
+        m_object = std::make_shared<JetResolutionObject>(object);
     }
 
 #ifndef STANDALONE

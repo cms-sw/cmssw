@@ -86,7 +86,7 @@ namespace edm {
       }
     }
     if(!rootFile()) {
-      return std::unique_ptr<FileBlock>(new FileBlock);
+      return std::make_unique<FileBlock>();
     }
     return rootFile()->createFileBlock();
   }
@@ -95,8 +95,7 @@ namespace edm {
   RootPrimaryFileSequence::closeFile_() {
     // close the currently open file, if any, and delete the RootFile object.
     if(rootFile()) {
-      std::unique_ptr<InputSource::FileCloseSentry>
-      sentry(new InputSource::FileCloseSentry(input_, lfn(), usedFallback()));
+      auto sentry = std::make_unique<InputSource::FileCloseSentry>(input_, lfn(), usedFallback());
       rootFile()->close();
       if(duplicateChecker_) duplicateChecker_->inputFileClosed();
       rootFile().reset();
@@ -171,7 +170,7 @@ namespace edm {
     if(atFirstFile()) {
       return false;
     }
-    setAtPreviousFile();;
+    setAtPreviousFile();
 
     initFile(false);
 

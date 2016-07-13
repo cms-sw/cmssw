@@ -58,7 +58,7 @@ namespace edm {
   // ---------------------------------------
   std::unique_ptr<FileBlock>
   StreamerInputSource::readFile_() {
-    return std::unique_ptr<FileBlock>(new FileBlock);
+    return std::make_unique<FileBlock>();
   }
 
   void

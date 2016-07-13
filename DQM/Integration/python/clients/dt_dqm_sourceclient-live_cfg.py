@@ -32,9 +32,9 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-#---- for offline DB
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
-
+#---- for offline DB: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",

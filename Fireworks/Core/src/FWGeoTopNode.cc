@@ -186,11 +186,9 @@ bool FWGeoTopNode::selectPhysicalFromTable( int tableIndex)
       // printf("selectPhysicalFromTable found physical \n");
       return true;
    }
-   else if ( tableManager()->refEntries().at(tableIndex).testBit(FWGeometryTableManagerBase::kVisNodeSelf));
-   {
+   else if ( tableManager()->refEntries().at(tableIndex).testBit(FWGeometryTableManagerBase::kVisNodeSelf))
       fwLog(fwlog::kInfo) << "Selected entry not drawn in GL viewer. \n" ;
-      return false;
-   }
+   return false;
 }
 
 //______________________________________________________________________________

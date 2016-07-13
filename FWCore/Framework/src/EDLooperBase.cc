@@ -32,7 +32,7 @@ namespace edm {
                                  moduleDescription_("Looper", "looper"),
                                  moduleCallingContext_(&moduleDescription_)
  { }
-  EDLooperBase::~EDLooperBase() { }
+  EDLooperBase::~EDLooperBase() noexcept(false) { }
 
   void
   EDLooperBase::doStartingNewLoop() {
@@ -155,7 +155,7 @@ namespace edm {
    
   void 
   EDLooperBase::copyInfo(const ScheduleInfo& iInfo){
-    scheduleInfo_ = std::auto_ptr<ScheduleInfo>(new ScheduleInfo(iInfo));
+    scheduleInfo_ = std::make_unique<ScheduleInfo>(iInfo);
   }
   void 
   EDLooperBase::setModuleChanger(ModuleChanger* iChanger) {

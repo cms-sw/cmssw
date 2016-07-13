@@ -21,6 +21,10 @@ import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 hcalDigiAlCaPedestal = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 hcalDigiAlCaPedestal.InputLabel = cms.InputTag('hltHcalCalibrationRaw')
 
+qie10Digis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
+qie10Digis.InputLabel = cms.InputTag('hltHcalCalibrationRaw')
+qie10Digis.FEDs = cms.untracked.vint32(1132)
+
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
 hbherecoPedestal = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
 hbherecoPedestal.digiLabel = cms.InputTag('hcalDigiAlCaPedestal')
@@ -48,5 +52,6 @@ hcalLocalRecoSequencePedestal = cms.Sequence(hbherecoPedestal*hfrecoPedestal*hor
 
 seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestal*
                                           hcalDigiAlCaPedestal*
+                                          qie10Digis*
                                           gtDigisAlCaPedestal*
                                           hcalLocalRecoSequencePedestal)

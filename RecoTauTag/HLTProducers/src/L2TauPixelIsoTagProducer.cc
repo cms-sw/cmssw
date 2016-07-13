@@ -52,7 +52,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
 
 
   // define the product to store
-  auto_ptr<JetTagCollection> jetTagCollection;
+  unique_ptr<JetTagCollection> jetTagCollection;
   if (jets.empty())
   {
     jetTagCollection.reset( new JetTagCollection() );
@@ -106,7 +106,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
     }
   }
 
-  ev.put(jetTagCollection);
+  ev.put(std::move(jetTagCollection));
 }
 
 void L2TauPixelIsoTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 

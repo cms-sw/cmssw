@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H
 # define GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H
 
-# include "boost/shared_ptr.hpp"
+# include <memory>
 
 # include "FWCore/Framework/interface/ESProducer.h"
 # include "FWCore/Framework/interface/ESHandle.h"
@@ -36,7 +36,7 @@ public:
    FWTGeoRecoGeometryESProducer( const edm::ParameterSet& );
    virtual ~FWTGeoRecoGeometryESProducer( void );
   
-   boost::shared_ptr<FWTGeoRecoGeometry> produce( const FWTGeoRecoGeometryRecord& );
+   std::shared_ptr<FWTGeoRecoGeometry> produce( const FWTGeoRecoGeometryRecord& );
 
 private:
    FWTGeoRecoGeometryESProducer( const FWTGeoRecoGeometryESProducer& );
@@ -76,9 +76,13 @@ private:
    edm::ESHandle<CaloGeometry>           m_caloGeom;
    const TrackerGeometry* m_trackerGeom;
   
-   boost::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
+   std::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
 
    TGeoMedium* m_dummyMedium;
+
+   bool m_tracker;
+   bool m_muon;
+   bool m_calo;
 };
 
 #endif // GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H

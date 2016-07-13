@@ -4,7 +4,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -29,7 +28,7 @@ public:
   HcalTopologyIdealEP(const edm::ParameterSet&);
   ~HcalTopologyIdealEP();
 
-  typedef boost::shared_ptr<HcalTopology> ReturnType;
+  typedef std::shared_ptr<HcalTopology> ReturnType;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     

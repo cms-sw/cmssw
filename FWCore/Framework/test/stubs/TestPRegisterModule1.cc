@@ -25,6 +25,5 @@ void TestPRegisterModule1::produce(Event& e, EventSetup const&)
 {
   
   std::string myname = pset_.getParameter<std::string>("@module_label");
-  std::unique_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname));
-  e.put(std::move(product));
+  e.put(std::make_unique<edmtest::StringProduct>(myname));
 }

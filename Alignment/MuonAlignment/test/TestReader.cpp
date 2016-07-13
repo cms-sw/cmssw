@@ -7,6 +7,7 @@
 
 
 // system include files
+#include <memory>
 #include <string>
 #include <TTree.h>
 #include <TRotMatrix.h>
@@ -121,9 +122,9 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   DTGeometryBuilderFromDDD DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
 
-  boost::shared_ptr<DTGeometry> dtGeometry(new DTGeometry );
+  auto dtGeometry = std::make_shared<DTGeometry>();
   DTGeometryBuilder.build(dtGeometry, &(*cpv), *mdc);
-  boost::shared_ptr<CSCGeometry> cscGeometry(new CSCGeometry);
+  auto cscGeometry = std::make_shared<CSCGeometry>();
   CSCGeometryBuilder.build(cscGeometry, &(*cpv), *mdc);
 
   AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));

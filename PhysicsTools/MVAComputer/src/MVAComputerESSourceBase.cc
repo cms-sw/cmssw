@@ -4,8 +4,6 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

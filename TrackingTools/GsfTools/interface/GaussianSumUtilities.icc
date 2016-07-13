@@ -107,11 +107,11 @@ GaussianSumUtilities<N>::computeMode () const
   //
   SingleStateContainer newStates;
   newStates.reserve(size());
-  for ( typename SingleStateContainer::const_iterator i=components().begin();
+  for ( auto i=components().begin();
  	i!=components().end(); i++ ) {
     Vector newMean = rotT*((**i).mean()-trans);
     Matrix newCov = ROOT::Math::Similarity(rotT,(**i).covariance());
-    SingleStatePtr sgs(new SingleState(newMean,newCov,(**i).weight()));
+    auto sgs = make_shared<SingleState>(newMean,newCov,(**i).weight());
     newStates.push_back(sgs);
   }
   MultiState newState(newStates);

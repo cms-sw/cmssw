@@ -36,6 +36,8 @@ public:
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
 

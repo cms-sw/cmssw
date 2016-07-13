@@ -28,9 +28,7 @@ CastorHardcodeGeometryEP::ReturnType
 CastorHardcodeGeometryEP::produce(const CastorGeometryRecord& iRecord)
 {
    loader_=new CastorHardcodeGeometryLoader();
-   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
-
-   return pCaloSubdetectorGeometry ;
+   return std::unique_ptr<CaloSubdetectorGeometry>(loader_->load());
 }
 
 

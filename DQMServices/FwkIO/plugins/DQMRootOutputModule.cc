@@ -28,8 +28,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/one/OutputModule.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -186,9 +186,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*) override;
-  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
-  virtual void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override;
+  virtual void write(edm::EventForOutput const& e) override;
+  virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  virtual void writeRun(edm::RunForOutput const&) override;
   virtual bool isFileOpen() const override;
   virtual void openFile(edm::FileBlock const&) override;
   virtual void reallyCloseFile() override;
@@ -401,14 +401,12 @@ DQMRootOutputModule::postForkReacquireResources(unsigned int childIndex, unsigne
 
 
 void
-DQMRootOutputModule::write(edm::EventPrincipal const&, edm::ModuleCallingContext const*){
-
+DQMRootOutputModule::write(edm::EventForOutput const&){
 }
 
 
 void
-DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& iLumi,
-                                          edm::ModuleCallingContext const*) {
+DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {
   //std::cout << "DQMRootOutputModule::writeLuminosityBlock"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run = iLumi.id().run();
@@ -469,8 +467,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
   jr->reportLumiSection(m_jrToken, m_run, m_lumi);
 }
 
-void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun,
-                                   edm::ModuleCallingContext const*){
+void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun){
   //std::cout << "DQMRootOutputModule::writeRun"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run = iRun.id().run();

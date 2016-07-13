@@ -36,6 +36,7 @@
 //---------------
 
 #include <iostream>
+#include <memory>
 
 //-------------------
 // Initializations --
@@ -547,7 +548,7 @@ void DTKeyedConfigHandler::chkConfigList() {
     bool brickFound = false;
     try {
       keyList->load( checkedKeys );
-      boost::shared_ptr<DTKeyedConfig> brickCheck = keyList->get<DTKeyedConfig>( 0 );
+      std::shared_ptr<DTKeyedConfig> brickCheck = keyList->get<DTKeyedConfig>( 0 );
       if ( brickCheck.get() ) brickFound =
                              ( brickCheck->getId() == brickConfigId );
     }

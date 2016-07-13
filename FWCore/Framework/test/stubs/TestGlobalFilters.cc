@@ -66,7 +66,7 @@ struct Dummy {
    
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
       ++m_count;
-      std::unique_ptr<UnsafeCache> sCache(new UnsafeCache);
+      auto sCache = std::make_unique<UnsafeCache>();
       ++(sCache->strm);
       sCache->value = iID.value();
       return sCache;
@@ -189,7 +189,7 @@ struct Dummy {
     }
  
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
-      return std::unique_ptr<UnsafeCache>{new UnsafeCache};
+      return std::make_unique<UnsafeCache>();
     }
 
     void streamBeginRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const  override {
@@ -258,7 +258,7 @@ struct Dummy {
     }
 
    std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
-      return std::unique_ptr<UnsafeCache>{new UnsafeCache};
+      return std::make_unique<UnsafeCache>();
     }
 
    void streamBeginLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
@@ -324,7 +324,7 @@ struct Dummy {
 
     std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache);
+      return std::make_unique<Cache>();
     }
     
     std::shared_ptr<UnsafeCache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
@@ -386,7 +386,7 @@ struct Dummy {
 
     std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache);
+      return std::make_unique<Cache>();
     }
   
     std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override {

@@ -157,7 +157,7 @@ void TestDetSet::infrastructure() {
     {
       sync(lock,nt);
       a++;
-      b.fetch_add(1,std::memory_order_acq_rel);;
+      b.fetch_add(1,std::memory_order_acq_rel);
     });
     
     if (i==5) std::cout << "threads "<< lock << " " << a << ' ' << b << std::endl;
@@ -209,7 +209,7 @@ void TestDetSet::fillSeq() {
           // read(detsets);  // cannot read in parallel while filling in this case
           done=true;
         } catch (edm::Exception const&) {
-          trial++;;
+          trial++;
           //read(detsets);
         }
       }

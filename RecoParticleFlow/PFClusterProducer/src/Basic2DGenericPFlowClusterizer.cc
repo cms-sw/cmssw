@@ -168,7 +168,7 @@ growPFClusters(const reco::PFCluster& topo,
     }  
     const double recHitEnergyNorm = 
       _recHitEnergyNorms.find(cell_layer)->second; 
-    const math::XYZPoint& topocellpos_xyz = refhit->position();
+    math::XYZPoint topocellpos_xyz(refhit->position());
     dist2.clear(); frac.clear(); fractot = 0;
     // add rechits to clusters, calculating fraction based on distance
     for( auto& cluster : clusters ) {      

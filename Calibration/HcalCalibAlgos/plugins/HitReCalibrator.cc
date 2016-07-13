@@ -46,9 +46,9 @@ void
 HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr<HBHERecHitCollection> miniDiJetsHBHERecHitCollection(new HBHERecHitCollection);
-  std::auto_ptr<HORecHitCollection> miniDiJetsHORecHitCollection(new HORecHitCollection);
-  std::auto_ptr<HFRecHitCollection> miniDiJetsHFRecHitCollection(new HFRecHitCollection);
+  auto miniDiJetsHBHERecHitCollection = std::make_unique<HBHERecHitCollection>();
+  auto miniDiJetsHORecHitCollection = std::make_unique<HORecHitCollection>();
+  auto miniDiJetsHFRecHitCollection = std::make_unique<HFRecHitCollection>();
 
  
   edm::ESHandle <HcalRespCorrs> recalibCorrs;
@@ -118,11 +118,11 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Put selected information in the event
 
-  iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHEReRecHitCollection");
+  iEvent.put(std::move(miniDiJetsHBHERecHitCollection), "DiJetsHBHEReRecHitCollection");
 
-  iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHOReRecHitCollection");
+  iEvent.put(std::move(miniDiJetsHORecHitCollection), "DiJetsHOReRecHitCollection");
 
-  iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFReRecHitCollection");
+  iEvent.put(std::move(miniDiJetsHFRecHitCollection), "DiJetsHFReRecHitCollection");
 
 }
 }

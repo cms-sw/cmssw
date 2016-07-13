@@ -44,7 +44,7 @@ namespace edm {
     history_.push_back(aux);
 
     //Serialize into std::vector 
-    std::unique_ptr<std::vector<EventAuxiliary > > result(new std::vector<EventAuxiliary>);
+    auto result = std::make_unique<std::vector<EventAuxiliary>>();
     for(size_t j = 0; j < history_.size(); ++j) { 
       result->push_back(history_[j]);
     }

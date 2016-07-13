@@ -1,12 +1,15 @@
 #ifndef DDL_Sphere_H
 #define DDL_Sphere_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSphere processes all Sphere elements.
 /** @class DDLSphere

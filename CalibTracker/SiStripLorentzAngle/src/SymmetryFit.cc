@@ -172,7 +172,7 @@ std::vector<double> SymmetryFit::pol2_from_pol2(TH1* hist) {
 std::vector<double> SymmetryFit::pol2_from_pol3(TH1* hist) {
   std::vector<double> v;
 
-  std::unique_ptr<TF1> func( new TF1("mypol3","pol3")); 
+  auto func = std::make_unique<TF1>("mypol3","pol3"); 
   int status = hist->Fit(func.get(),"WQ");
   if(!status) {
     std::vector<double> p;

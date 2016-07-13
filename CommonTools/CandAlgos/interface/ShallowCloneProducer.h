@@ -46,14 +46,14 @@ ShallowCloneProducer<C>::~ShallowCloneProducer() {
 
 template<typename C>
 void ShallowCloneProducer<C>::produce( edm::Event& evt, const edm::EventSetup& ) {
-  std::auto_ptr<reco::CandidateCollection> coll( new reco::CandidateCollection );
+  std::unique_ptr<reco::CandidateCollection> coll( new reco::CandidateCollection );
   edm::Handle<C> masterCollection;
   evt.getByToken( srcToken_, masterCollection );
   for( size_t i = 0; i < masterCollection->size(); ++i ) {
     reco::CandidateBaseRef masterClone( edm::Ref<C>( masterCollection, i ) );
     coll->push_back( new reco::ShallowCloneCandidate( masterClone ) );
   }
-  evt.put( coll );
+  evt.put(std::move(coll));
 }
 
 #endif

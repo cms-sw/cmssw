@@ -4,9 +4,8 @@ def customise_HcalPhase0(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
 
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):
-        process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+        process.mix.digitizers.hcal.TestNumbering=True
 
-    process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(20.) #for aging
 
     process.es_hardcode.toGet = cms.untracked.vstring(
@@ -22,8 +21,8 @@ def customise_HcalPhase0(process):
 
     return process
 
-def customise_HcalPhase1(process):
-    #common stuff
+#common stuff
+def load_HcalHardcode(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
     process.es_hardcode.toGet = cms.untracked.vstring(
                 'GainWidths',
@@ -44,14 +43,73 @@ def customise_HcalPhase1(process):
                 'PFCorrs',
                 'ElectronicsMap',
                 'CholeskyMatrices',
-                'CovarianceMatrices'
+                'CovarianceMatrices',
+                'FlagHFDigiTimeParams',
                 )
 
-    process.es_hardcode.HcalReLabel.RelabelHits=cms.untracked.bool(True)
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
-    process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
+                
+    return process
 
+#intermediate customization (HF 2016 upgrades)
+def customise_Hcal2016(process):
+    process=load_HcalHardcode(process)
+    
+    #for now, use HE run1 conditions - SiPM/QIE11 not ready
+    process.es_hardcode.testHFQIE10 = cms.bool(True)
+    
+    # to get reco to run
+    if hasattr(process,'reconstruction_step'):
+        process.hbheprereco.setNoiseFlags = cms.bool(False)
+    
+    return process
+    
+#intermediate customization (HCAL 2017, HE and HF upgrades - no SiPMs or QIE11)
+def customise_Hcal2017(process):
+    process=load_HcalHardcode(process)
+    
+    #for now, use HE run1 conditions - SiPM/QIE11 not ready
+    process.es_hardcode.useHFUpgrade = cms.bool(True)
+    
+    # to get reco to run
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction_step'):
+        process.hbheprereco.digiLabel = cms.InputTag("simHcalDigis")
+        process.hbheprereco.setNoiseFlags = cms.bool(False)
+        process.horeco.digiLabel = cms.InputTag("simHcalDigis")
+        process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+        process.zdcreco.digiLabelhcal = cms.InputTag("simHcalUnsuppressedDigis")
+        process.hcalnoise.digiCollName = cms.string('simHcalDigis')
+        process.load("RecoLocalCalo.HcalRecProducers.hfprereco_cfi")
+        process.hfprereco.digiLabel = cms.InputTag("simHcalDigis", "HFQIE10DigiCollection")
+        process.localreco += process.hfprereco
+        from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco
+        process.globalReplace("hfreco", hfreco)
+    if hasattr(process,'datamixing_step'):
+        process=customise_mixing(process)
+    
+    return process
+    
+#intermediate customization (HCAL 2017, HE and HF upgrades - w/ SiPMs & QIE11)
+def customise_Hcal2017Full(process):
+    process=customise_Hcal2017(process)
+    
+    #use HE phase1 conditions - test SiPM/QIE11
+    process.es_hardcode.useHEUpgrade = cms.bool(True)
+    
+    return process
+    
+def customise_HcalPhase1(process):
+    process=load_HcalHardcode(process)
+
+    process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
+    process.es_hardcode.useHBUpgrade = cms.bool(True)
+    process.es_hardcode.useHEUpgrade = cms.bool(True)
+    process.es_hardcode.useHFUpgrade = cms.bool(True)
 
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
@@ -91,13 +149,12 @@ def customise_RawToDigi(process):
 def customise_Digi(process):
     if hasattr(process,'mix'):
         process.mix.digitizers.hcal.HBHEUpgradeQIE = True
-        process.mix.digitizers.hcal.hb.siPMCells = cms.vint32([1])
         process.mix.digitizers.hcal.hb.photoelectronsToAnalog = cms.vdouble([10.]*16)
         process.mix.digitizers.hcal.hb.pixels = cms.int32(4500*4*2)
         process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*16)
         process.mix.digitizers.hcal.he.pixels = cms.int32(4500*4*2)
         process.mix.digitizers.hcal.HFUpgradeQIE = True
-        process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+        process.mix.digitizers.hcal.TestNumbering = True
 
     if hasattr(process,'simHcalDigis'):
         process.simHcalDigis.useConfigZSvalues=cms.int32(1)
@@ -179,7 +236,7 @@ def customise_Reco(process):
 
     process.horeco.digiLabel = "simHcalDigis"
     process.hbhereco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
-    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
+    process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HFUpgradeDigiCollection")
 
     process.zdcreco.digiLabel = "simHcalUnsuppressedDigis"
     process.hcalnoise.digiCollName=cms.string('simHcalDigis')
@@ -217,4 +274,12 @@ def customise_Validation(process):
     return process
 
 def customise_condOverRides(process):
+    return process
+    
+def customise_mixing(process):
+    process.mixData.HBHEPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
+    process.mixData.HOPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
+    process.mixData.HFPileInputTag = cms.InputTag("simHcalUnsuppressedDigis")
+    process.mixData.QIE10PileInputTag = cms.InputTag("simHcalUnsuppressedDigis","HFQIE10DigiCollection")
+    process.mixData.QIE11PileInputTag = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
     return process

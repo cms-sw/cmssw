@@ -22,7 +22,7 @@ class EcalTrigPrimSpikeESProducer : public edm::ESProducer {
   EcalTrigPrimSpikeESProducer(const edm::ParameterSet&);
   ~EcalTrigPrimSpikeESProducer();
 
-  std::auto_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &) ;
+  std::unique_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &) ;
 
  private:
   std::vector<uint32_t> towerIDs_;

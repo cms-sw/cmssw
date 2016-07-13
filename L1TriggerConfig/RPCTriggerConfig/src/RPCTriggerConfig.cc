@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -45,7 +44,7 @@ class RPCTriggerConfig : public edm::ESProducer {
       RPCTriggerConfig(const edm::ParameterSet&);
       ~RPCTriggerConfig();
 
-      typedef std::auto_ptr<L1RPCConfig> ReturnType;
+      typedef std::unique_ptr<L1RPCConfig> ReturnType;
 
       ReturnType produce(const L1RPCConfigRcd&);
    private:
@@ -106,7 +105,7 @@ RPCTriggerConfig::ReturnType
 RPCTriggerConfig::produce(const L1RPCConfigRcd& iRecord)
 {
    using namespace edm::es;
-   std::auto_ptr<L1RPCConfig> pL1RPCConfig = std::auto_ptr<L1RPCConfig>( new L1RPCConfig() );
+   auto pL1RPCConfig = std::make_unique<L1RPCConfig>();
 
    pL1RPCConfig->setPPT(m_ppt);
    

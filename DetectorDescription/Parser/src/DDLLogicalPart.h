@@ -1,11 +1,15 @@
 #ifndef DDL_LogicalPart_H
 #define DDL_LogicalPart_H
 
+#include <map>
+#include <string>
+
 #include "DDXMLElement.h"
+#include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
-#include <string>
-#include <map>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLLogicalPart processes LogicalPart elements.
 /** @class DDLLogicalPart

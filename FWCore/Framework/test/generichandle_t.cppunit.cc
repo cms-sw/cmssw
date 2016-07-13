@@ -130,8 +130,8 @@ void testGenericHandle::getbyLabelTest() {
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
 
-  std::unique_ptr<DP> pr(new DP);
-  std::unique_ptr<edm::WrapperBase> pprod(new WDP(std::move(pr)));
+  auto pr = std::make_unique<DP>();
+  std::unique_ptr<edm::WrapperBase> pprod = std::make_unique<WDP>(std::move(pr));
   std::string label("fred");
   std::string productInstanceName("Rick");
 
@@ -159,7 +159,7 @@ void testGenericHandle::getbyLabelTest() {
 
   product.init();
 
-  std::unique_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
+  auto preg = std::make_unique<edm::ProductRegistry>();
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();

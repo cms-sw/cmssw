@@ -4,6 +4,7 @@
  * Humboldt Foundations
  */
 #include <functional>
+#include <cmath>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTauTag/ImpactParameter/interface/TauA1NuConstrainedFitter.h"
 #include "RecoTauTag/ImpactParameter/interface/PDGInfo.h"
@@ -143,7 +144,7 @@ TVectorT<double> TauA1NuConstrainedFitter::ComputeMotherLorentzVectorPar(const T
   double outpar_py = outpar(LorentzVectorParticle::py);
   double outpar_pz = outpar(LorentzVectorParticle::pz);
   double P2=outpar_px*outpar_px + outpar_py*outpar_py + outpar_pz*outpar_pz;
-   outpar(LorentzVectorParticle::m)=sqrt(fabs(Enu2 + Ea12 + 2*sqrt(Enu2*Ea12)-P2));
+   outpar(LorentzVectorParticle::m)=sqrt(std::fabs(Enu2 + Ea12 + 2*sqrt(Enu2*Ea12)-P2));
   return outpar;
 }
 
@@ -176,7 +177,7 @@ LorentzVectorParticle TauA1NuConstrainedFitter::getMother(){
   for(unsigned int i=0;i<particles_.size();i++){c+=particles_[i].charge();b=particles_[i].bField();}
   TVectorT<double> m=ComputeMotherLorentzVectorPar(exppar);
   TMatrixTSym<double> mcov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeMotherLorentzVectorPar,exppar,expcov);
-  LorentzVectorParticle mymother= LorentzVectorParticle(m,mcov,(int)(-1.0*fabs(PDGInfo::tau_minus)*c),c,b);
+  LorentzVectorParticle mymother= LorentzVectorParticle(m,mcov,(int)(-1.0*std::abs(PDGInfo::tau_minus)*c),c,b);
   return mymother;
 }
 

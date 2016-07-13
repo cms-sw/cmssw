@@ -132,7 +132,7 @@ using namespace l1t;
     GlobalExtBlk extCond_bx;
 
     //outputs
-    std::auto_ptr<GlobalExtBlkBxCollection> extCond( new GlobalExtBlkBxCollection(0,bxFirst_,bxLast_));
+    std::unique_ptr<GlobalExtBlkBxCollection> extCond( new GlobalExtBlkBxCollection(0,bxFirst_,bxLast_));
 
     bool foundBptxAND = ( m_extBitMap.find("BPTX_plus_AND_minus.v0")!=m_extBitMap.end() );
     bool foundBptxPlus = ( m_extBitMap.find("BPTX_plus.v0")!=m_extBitMap.end() );
@@ -151,7 +151,7 @@ using namespace l1t;
     }
    
 
-    iEvent.put(extCond);
+    iEvent.put(std::move(extCond));
 
   }
 

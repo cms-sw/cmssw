@@ -29,9 +29,9 @@ TrackerGeometricDetExtraESModule::TrackerGeometricDetExtraESModule(const edm::Pa
 
 TrackerGeometricDetExtraESModule::~TrackerGeometricDetExtraESModule() {}
 
-boost::shared_ptr<std::vector<GeometricDetExtra> >
+std::shared_ptr<std::vector<GeometricDetExtra> >
 TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
-  boost::shared_ptr<std::vector<GeometricDetExtra> > gde (new std::vector<GeometricDetExtra>);
+  auto gde = std::make_shared<std::vector<GeometricDetExtra> >();
   // get the GeometricDet which has a nav_type
   edm::ESHandle<GeometricDet> gd;
   iRecord.get ( gd );
@@ -175,7 +175,7 @@ TrackerGeometricDetExtraESModule::produce(const IdealGeometryRecord & iRecord) {
 				       , pgdes[i]._material, nm));
     }
   }
-  return boost::shared_ptr<std::vector<GeometricDetExtra> >(gde);
+  return std::shared_ptr<std::vector<GeometricDetExtra> >(gde);
 }
 
 void TrackerGeometricDetExtraESModule::putOne(std::vector<GeometricDetExtra> & gde, const GeometricDet* gd, const DDExpandedView& ev, int lev ) {

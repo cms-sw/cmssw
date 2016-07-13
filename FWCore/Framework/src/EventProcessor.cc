@@ -132,7 +132,7 @@ namespace edm {
 
     std::string modtype(main_input->getParameter<std::string>("@module_type"));
 
-    std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+    std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
       ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
     ConfigurationDescriptions descriptions(filler->baseType());
     filler->fill(descriptions);
@@ -546,9 +546,11 @@ namespace edm {
            thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
       ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
       ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
+      ep->preReadFromSourceSignal_.connect(std::cref(actReg_->preEventReadFromSourceSignal_));
+      ep->postReadFromSourceSignal_.connect(std::cref(actReg_->postEventReadFromSourceSignal_));
       principalCache_.insert(ep);
     }
-    // initialize the subprocess, if there is one
+    // initialize the subprocesses, if there are any
     if(hasSubProcesses) {
       if(subProcesses_ == nullptr) {
         subProcesses_ = std::make_unique<std::vector<SubProcess> >();
@@ -1255,7 +1257,7 @@ namespace edm {
   }
 
 
-  std::auto_ptr<statemachine::Machine>
+  std::unique_ptr<statemachine::Machine>
   EventProcessor::createStateMachine() {
     statemachine::FileMode fileMode;
     if(fileMode_.empty()) fileMode = statemachine::FULLMERGE;
@@ -1278,9 +1280,10 @@ namespace edm {
       << "Legal values are 'handleEmptyRunsAndLumis', 'handleEmptyRuns', and 'doNotHandleEmptyRunsAndLumis'.\n";
     }
     
-    std::auto_ptr<statemachine::Machine> machine(new statemachine::Machine(this,
+    auto machine = std::make_unique<statemachine::Machine>(
+                                             this,
                                              fileMode,
-                                             emptyRunLumiMode));
+                                             emptyRunLumiMode);
     
     machine->initiate();
     return machine;
@@ -1304,7 +1307,7 @@ namespace edm {
 
     StatusCode returnCode=epSuccess;
     asyncStopStatusCodeFromProcessingEvents_=epSuccess;
-    std::auto_ptr<statemachine::Machine> machine;
+    std::unique_ptr<statemachine::Machine> machine;
     {
       beginJob(); //make sure this was called
       
@@ -1443,7 +1446,7 @@ namespace edm {
       
       catch (cms::Exception & e) {
         alreadyHandlingException_ = true;
-        terminateMachine(machine);
+        terminateMachine(std::move(machine));
         alreadyHandlingException_ = false;
         if (!exceptionMessageLumis_.empty()) {
           e.addAdditionalInfo(exceptionMessageLumis_);
@@ -1478,8 +1481,8 @@ namespace edm {
       }
       
     }
-    if(machine.get() != 0) {
-      terminateMachine(machine);
+    if(machine.get() != nullptr) {
+      terminateMachine(std::move(machine));
       throw Exception(errors::LogicError)
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
         << "Please report this error to the Framework group\n";
@@ -1687,6 +1690,8 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
+      runPrincipal.setEndTime(input_->timestamp());
+      runPrincipal.setComplete();
       input_->doEndRun(runPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }
@@ -1788,6 +1793,8 @@ namespace edm {
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
 
+      lumiPrincipal.setEndTime(input_->timestamp());
+      lumiPrincipal.setComplete();
       input_->doEndLumi(lumiPrincipal, cleaningUpAfterException, &processContext_);
       sentry.completedSuccessfully();
     }
@@ -2165,8 +2172,8 @@ namespace edm {
     return alreadyHandlingException_;
   }
 
-  void EventProcessor::terminateMachine(std::auto_ptr<statemachine::Machine>& iMachine) {
-    if(iMachine.get() != 0) {
+  void EventProcessor::terminateMachine(std::unique_ptr<statemachine::Machine> iMachine) {
+    if(iMachine.get() != nullptr) {
       if(!iMachine->terminated()) {
         forceLooperToEnd_ = true;
         iMachine->process_event(statemachine::Stop());
@@ -2178,7 +2185,6 @@ namespace edm {
       if(iMachine->terminated()) {
         FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
       }
-      iMachine.reset();
     }
   }
 }

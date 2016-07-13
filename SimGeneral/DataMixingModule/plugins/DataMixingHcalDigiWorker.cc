@@ -31,8 +31,7 @@ namespace {
   typedef std::multimap<DetId, CaloSamples> HcalDigiMap;
 
   template <class DIGI>
-  void convertFc2adc (const  CaloSamples& fC, const HcalDbService& conditions,
-		      DIGI& digi, int capIdOffset = 0) {
+  void convertFc2adc (const  CaloSamples& fC, const HcalDbService& conditions, DIGI& digi, int capIdOffset = 0) {
     HcalDetId id = fC.id();
     const HcalQIECoder* channelCoder = conditions.getHcalCoder (id);
     const HcalQIEShape* shape = conditions.getHcalShape (channelCoder);
@@ -41,6 +40,33 @@ namespace {
   }
 
   template <class DIGI>
+  void convertAdc2fChelper (const DIGI& digi, const HcalDbService& conditions, CaloSamples& fC, const HcalDetId& id) {
+    const HcalCalibrations& calib = conditions.getHcalCalibrations(id);
+    for (int i = 0; i < digi.size(); ++i) {
+      int capId (digi.sample(i).capid());
+      fC[i] -= calib.pedestal (capId);
+    }
+  }
+  
+  template <>
+  void convertAdc2fChelper<QIE10DataFrame> (const QIE10DataFrame& digi, const HcalDbService& conditions, CaloSamples& fC, const HcalDetId& id) {
+    const HcalCalibrations& calib = conditions.getHcalCalibrations(id);
+    for (int i = 0; i < digi.samples(); ++i) {
+      int capId (digi[i].capid());
+      fC[i] -= calib.pedestal (capId);
+    }
+  }
+  
+  template <>
+  void convertAdc2fChelper<QIE11DataFrame> (const QIE11DataFrame& digi, const HcalDbService& conditions, CaloSamples& fC, const HcalDetId& id) {
+    const HcalCalibrations& calib = conditions.getHcalCalibrations(id);
+    for (int i = 0; i < digi.samples(); ++i) {
+      int capId (digi[i].capid());
+      fC[i] -= calib.pedestal (capId);
+    }
+  }
+  
+  template <class DIGI>
   void convertAdc2fC (const DIGI& digi, const HcalDbService& conditions, bool keepPedestals, CaloSamples& fC) {
     HcalDetId id (digi.id());
     const HcalQIECoder* channelCoder = conditions.getHcalCoder (id);
@@ -48,11 +74,7 @@ namespace {
     HcalCoderDb coder (*channelCoder, *shape);
     coder.adc2fC(digi, fC);
     if (!keepPedestals) { // subtract pedestals
-      const HcalCalibrations& calib = conditions.getHcalCalibrations(id);
-      for (int i = 0; i < digi.size(); ++i) {
-	int capId (digi.sample(i).capid());
-	fC[i] -= calib.pedestal (capId);
-      }
+      convertAdc2fChelper(digi,conditions,fC,id);
     }
   }
 
@@ -62,15 +84,41 @@ namespace {
       CaloSamples fC;
       convertAdc2fC (*digi, conditions, keepPedestals, fC);
       if (!keepPedestals && map.find(digi->id()) == map.end()) {
-	edm::LogWarning("DataMixingHcalDigiWorker")<<"No signal hits found for HCAL cell "<<digi->id()<<" Pedestals may be lost for mixed hit";
+        edm::LogWarning("DataMixingHcalDigiWorker")<<"No signal hits found for HCAL cell "<<digi->id()<<" Pedestals may be lost for mixed hit";
       }
       map.insert(HcalDigiMap::value_type (digi->id(), fC));
     }
   }
 
+  template <>
+   void convertHcalDigis<QIE10DigiCollection> (const QIE10DigiCollection& digis, const HcalDbService& conditions, bool keepPedestals, HcalDigiMap& map) {
+    for (auto digiItr = digis.begin(); digiItr != digis.end(); ++digiItr) {
+      QIE10DataFrame digi(*digiItr);
+	  CaloSamples fC;
+      convertAdc2fC (digi, conditions, keepPedestals, fC);
+      if (!keepPedestals && map.find(digi.id()) == map.end()) {
+        edm::LogWarning("DataMixingHcalDigiWorker")<<"No signal hits found for HCAL cell "<<digi.id()<<" Pedestals may be lost for mixed hit";
+      }
+      map.insert(HcalDigiMap::value_type (digi.id(), fC));
+    }
+  }
+  
+  template <>
+   void convertHcalDigis<QIE11DigiCollection> (const QIE11DigiCollection& digis, const HcalDbService& conditions, bool keepPedestals, HcalDigiMap& map) {
+    for (auto digiItr = digis.begin(); digiItr != digis.end(); ++digiItr) {
+      QIE11DataFrame digi(*digiItr);
+	  CaloSamples fC;
+      convertAdc2fC (digi, conditions, keepPedestals, fC);
+      if (!keepPedestals && map.find(digi.id()) == map.end()) {
+        edm::LogWarning("DataMixingHcalDigiWorker")<<"No signal hits found for HCAL cell "<<digi.id()<<" Pedestals may be lost for mixed hit";
+      }
+      map.insert(HcalDigiMap::value_type (digi.id(), fC));
+    }
+  }
+  
   template <class DIGIS>
   bool convertSignalHcalDigis (const edm::Event &e, const edm::EDGetTokenT<DIGIS>& token,
-			       const HcalDbService& conditions, HcalDigiMap& map) {
+                               const HcalDbService& conditions, HcalDigiMap& map) {
     edm::Handle<DIGIS> digis;
     if (!e.getByToken (token, digis)) return false;
     convertHcalDigis (*digis, conditions, true, map); // keep pedestals
@@ -79,17 +127,40 @@ namespace {
 
   template <class DIGIS>
   bool convertPileupHcalDigis (const edm::EventPrincipal& ep, 
-			       const edm::InputTag& tag, const edm::ModuleCallingContext* mcc,
-			       const HcalDbService& conditions, HcalDigiMap& map) {
+                               const edm::InputTag& tag, const edm::ModuleCallingContext* mcc,
+                               const HcalDbService& conditions, HcalDigiMap& map) {
     auto digis = edm::getProductByTag<DIGIS>(ep, tag, mcc);
     if (!digis) return false;
     convertHcalDigis (*(digis->product()), conditions, false, map); // subtract pedestals
     return true;
-  }		 
+  }
 
   template <class DIGIS>
-  std::auto_ptr<DIGIS> buildHcalDigis (const HcalDigiMap& map, const HcalDbService& conditions) {
-    std::auto_ptr<DIGIS> digis( new DIGIS );
+  void buildHcalDigisHelper (DIGIS& digis, const DetId& formerID, CaloSamples& resultSample, const HcalDbService& conditions){
+    // make new digi
+    digis.push_back(typename DIGIS::value_type(formerID));
+    convertFc2adc (resultSample, conditions, digis.back(), 0); // FR guess: simulation starts with 0
+  }
+  
+  template <>
+  void buildHcalDigisHelper<QIE10DigiCollection> (QIE10DigiCollection& digis, const DetId& formerID, CaloSamples& resultSample, const HcalDbService& conditions){
+    // make new digi
+    digis.push_back(formerID.rawId());
+	QIE10DataFrame digi( digis.back() );
+    convertFc2adc (resultSample, conditions, digi, 0); // FR guess: simulation starts with 0
+  }
+  
+  template <>
+  void buildHcalDigisHelper<QIE11DigiCollection> (QIE11DigiCollection& digis, const DetId& formerID, CaloSamples& resultSample, const HcalDbService& conditions){
+    // make new digi
+    digis.push_back(formerID.rawId());
+	QIE11DataFrame digi( digis.back() );
+    convertFc2adc (resultSample, conditions, digi, 0); // FR guess: simulation starts with 0
+  }
+  
+  template <class DIGIS>
+  std::unique_ptr<DIGIS> buildHcalDigis (const HcalDigiMap& map, const HcalDbService& conditions) {
+    std::unique_ptr<DIGIS> digis( new DIGIS );
     // loop over the maps we have, re-making individual hits or digis if necessary.
     DetId formerID = 0;
     CaloSamples resultSample;
@@ -102,29 +173,30 @@ namespace {
         //loop over digi samples in each CaloSample                                                  
         unsigned int sizenew = (hitSample).size();
         unsigned int sizeold = resultSample.size();
-	if (sizenew > sizeold) { // extend sample
-	  for (unsigned int isamp = sizeold; isamp < sizenew; ++isamp) resultSample[isamp] = 0;
-	  resultSample.setSize (sizenew);
-	}
+        if (sizenew > sizeold) { // extend sample
+          for (unsigned int isamp = sizeold; isamp < sizenew; ++isamp) resultSample[isamp] = 0;
+          resultSample.setSize (sizenew);
+        }
         for(unsigned int isamp = 0; isamp<sizenew; isamp++) { // add new values
-	  resultSample[isamp] += hitSample[isamp]; // for debugging below
+          resultSample[isamp] += hitSample[isamp]; // for debugging below
         }
       }
       auto hit1 = hit;
       bool lastEntry = (++hit1 ==  map.end());
       if (currentID != formerID || lastEntry) { // store current digi
-	if (formerID>0 || lastEntry) {
-	  // make new digi
-	  digis->push_back(typename DIGIS::value_type(formerID));
-	  convertFc2adc (resultSample, conditions, digis->back(), 0); // FR guess: simulation starts with 0
-	}
-	//reset pointers for next iteration                                                                 
-	formerID = currentID;
-	resultSample = hitSample;
+        if (formerID>0 || lastEntry) {
+          // make new digi
+          buildHcalDigisHelper(*digis,formerID,resultSample,conditions);
+        }
+        //reset pointers for next iteration                                                                 
+        formerID = currentID;
+        resultSample = hitSample;
       }
     }
     return digis;
   }
+  
+  
 
 } // namespace {}
 
@@ -137,8 +209,7 @@ namespace edm
 
   // Constructor 
   DataMixingHcalDigiWorker::DataMixingHcalDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
-							    label_(ps.getParameter<std::string>("Label"))
-
+                                                            label_(ps.getParameter<std::string>("Label"))
   {                                                         
 
     // get the subdetector names
@@ -152,19 +223,27 @@ namespace edm
     HOdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HOdigiCollectionSig");
     HFdigiCollectionSig_    = ps.getParameter<edm::InputTag>("HFdigiCollectionSig");
     ZDCdigiCollectionSig_   = ps.getParameter<edm::InputTag>("ZDCdigiCollectionSig");
+    QIE10digiCollectionSig_   = ps.getParameter<edm::InputTag>("QIE10digiCollectionSig");
+    QIE11digiCollectionSig_   = ps.getParameter<edm::InputTag>("QIE11digiCollectionSig");
 
     HBHEPileInputTag_ = ps.getParameter<edm::InputTag>("HBHEPileInputTag");
     HOPileInputTag_ = ps.getParameter<edm::InputTag>("HOPileInputTag");
     HFPileInputTag_ = ps.getParameter<edm::InputTag>("HFPileInputTag");
     ZDCPileInputTag_ = ps.getParameter<edm::InputTag>("ZDCPileInputTag");
+    QIE10PileInputTag_ = ps.getParameter<edm::InputTag>("QIE10PileInputTag");
+    QIE11PileInputTag_ = ps.getParameter<edm::InputTag>("QIE11PileInputTag");
 
     HBHEDigiToken_ = iC.consumes<HBHEDigiCollection>(HBHEdigiCollectionSig_);
     HODigiToken_ = iC.consumes<HODigiCollection>(HOdigiCollectionSig_);
     HFDigiToken_ = iC.consumes<HFDigiCollection>(HFdigiCollectionSig_);
+    QIE10DigiToken_ = iC.consumes<QIE10DigiCollection>(QIE10digiCollectionSig_);
+    QIE11DigiToken_ = iC.consumes<QIE11DigiCollection>(QIE11digiCollectionSig_);
 
     HBHEDigiPToken_ = iC.consumes<HBHEDigiCollection>(HBHEPileInputTag_);
     HODigiPToken_ = iC.consumes<HODigiCollection>(HOPileInputTag_);
     HFDigiPToken_ = iC.consumes<HFDigiCollection>(HFPileInputTag_);
+    QIE10DigiPToken_ = iC.consumes<QIE10DigiCollection>(QIE10PileInputTag_);
+    QIE11DigiPToken_ = iC.consumes<QIE11DigiCollection>(QIE11PileInputTag_);
 
     DoZDC_ = false;
     if(ZDCPileInputTag_.label() != "") DoZDC_ = true;
@@ -179,10 +258,12 @@ namespace edm
     HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
     HFDigiCollectionDM_   = ps.getParameter<std::string>("HFDigiCollectionDM");
     ZDCDigiCollectionDM_  = ps.getParameter<std::string>("ZDCDigiCollectionDM");
+    QIE10DigiCollectionDM_  = ps.getParameter<std::string>("QIE10DigiCollectionDM");
+    QIE11DigiCollectionDM_  = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
 
   }
-	       
+
   // Virtual destructor needed.
   DataMixingHcalDigiWorker::~DataMixingHcalDigiWorker() { 
   }  
@@ -200,6 +281,8 @@ namespace edm
     convertSignalHcalDigis<HBHEDigiCollection> (e, HBHEDigiToken_, *conditions, HBHEDigiStorage_);
     convertSignalHcalDigis<HODigiCollection> (e, HODigiToken_, *conditions, HODigiStorage_);
     convertSignalHcalDigis<HFDigiCollection> (e, HFDigiToken_, *conditions, HFDigiStorage_);
+    convertSignalHcalDigis<QIE10DigiCollection> (e, QIE10DigiToken_, *conditions, QIE10DigiStorage_);
+    convertSignalHcalDigis<QIE11DigiCollection> (e, QIE11DigiToken_, *conditions, QIE11DigiStorage_);
 
 
 
@@ -221,12 +304,11 @@ namespace edm
  
      if (ZDCDigis)
        {
-	 // loop over digis, storing them in a map so we can add pileup later
-	 for(ZDCDigiCollection::const_iterator it  = ZDCDigis->begin();	
-	     it != ZDCDigis->end(); ++it) {
+         // loop over digis, storing them in a map so we can add pileup later
+         for(ZDCDigiCollection::const_iterator it  = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
 
-	   // calibration, for future reference:  (same block for all Hcal types) ZDC is different                               
-	   HcalZDCDetId cell = it->id();
+           // calibration, for future reference:  (same block for all Hcal types) ZDC is different                               
+           HcalZDCDetId cell = it->id();
            //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
            const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
            const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
@@ -236,15 +318,15 @@ namespace edm
            coder.adc2fC((*it),tool);
 
            ZDCDigiStorage_.insert(ZDCDigiMap::value_type( ( it->id() ), tool ));
-	 
-#ifdef DEBUG	 
+
+#ifdef DEBUG
            // Commented out because this does not compile anymore	 
            // LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
            //                                      << it->id() << "\n"
            //                                      << " digi energy: " << it->energy();
 #endif
 
-	 }
+         }
        }
    }
     
@@ -262,6 +344,8 @@ namespace edm
     convertPileupHcalDigis<HBHEDigiCollection> (*ep, HBHEPileInputTag_, mcc, *conditions, HBHEDigiStorage_);
     convertPileupHcalDigis<HODigiCollection> (*ep, HOPileInputTag_, mcc, *conditions, HODigiStorage_);
     convertPileupHcalDigis<HFDigiCollection> (*ep, HFPileInputTag_, mcc, *conditions, HFDigiStorage_);
+    convertPileupHcalDigis<QIE10DigiCollection> (*ep, QIE10PileInputTag_, mcc, *conditions, QIE10DigiStorage_);
+    convertPileupHcalDigis<QIE11DigiCollection> (*ep, QIE11PileInputTag_, mcc, *conditions, QIE11DigiStorage_);
 
 
     // ZDC Next
@@ -269,38 +353,35 @@ namespace edm
     if(DoZDC_) {
 
 
-      std::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = 
-	getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_, mcc);
+      std::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_, mcc);
  
       if(ZDCDigisPTR ) {
 
-	const ZDCDigiCollection*  ZDCDigis = const_cast< ZDCDigiCollection * >(ZDCDigisPTR->product());
+        const ZDCDigiCollection*  ZDCDigis = const_cast< ZDCDigiCollection * >(ZDCDigisPTR->product());
 
-	LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
+        LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
 
-	// loop over digis, adding these to the existing maps
-	for(ZDCDigiCollection::const_iterator it  = ZDCDigis->begin();
-	    it != ZDCDigis->end(); ++it) {
+        // loop over digis, adding these to the existing maps
+        for(ZDCDigiCollection::const_iterator it  = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
 
-	  // calibration, for future reference:  (same block for all Hcal types) ZDC is different                               
-	  HcalZDCDetId cell = it->id();
-	  //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
-	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
-	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
-	  HcalCoderDb coder (*channelCoder, *shape);
+          // calibration, for future reference:  (same block for all Hcal types) ZDC is different
+          HcalZDCDetId cell = it->id();
+          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+          const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic
+          HcalCoderDb coder (*channelCoder, *shape);
 
-	  CaloSamples tool;
-	  coder.adc2fC((*it),tool);
+          CaloSamples tool;
+          coder.adc2fC((*it),tool);
 
-	  ZDCDigiStorage_.insert(ZDCDigiMap::value_type( (it->id()), tool ));
-	 
+          ZDCDigiStorage_.insert(ZDCDigiMap::value_type( (it->id()), tool ));
+
 #ifdef DEBUG
-          // Commented out because this does not compile anymore	 
-	  // LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
+          // Commented out because this does not compile anymore
+          // LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
           //                                      << it->id() << "\n"
           //                                      << " digi energy: " << it->energy();
 #endif
-	}
+        }
       }
     }
 
@@ -312,10 +393,12 @@ namespace edm
     ES.get<HcalDbRecord>().get(conditions);
 
     // collection of digis to put in the event
-    std::auto_ptr< HBHEDigiCollection > HBHEdigis = buildHcalDigis<HBHEDigiCollection> (HBHEDigiStorage_, *conditions);
-    std::auto_ptr< HODigiCollection > HOdigis = buildHcalDigis<HODigiCollection> (HODigiStorage_, *conditions);
-    std::auto_ptr< HFDigiCollection > HFdigis = buildHcalDigis<HFDigiCollection> (HFDigiStorage_, *conditions);
-    std::auto_ptr< ZDCDigiCollection > ZDCdigis( new ZDCDigiCollection );
+    std::unique_ptr< HBHEDigiCollection > HBHEdigis = buildHcalDigis<HBHEDigiCollection> (HBHEDigiStorage_, *conditions);
+    std::unique_ptr< HODigiCollection > HOdigis = buildHcalDigis<HODigiCollection> (HODigiStorage_, *conditions);
+    std::unique_ptr< HFDigiCollection > HFdigis = buildHcalDigis<HFDigiCollection> (HFDigiStorage_, *conditions);
+    std::unique_ptr< QIE10DigiCollection > QIE10digis = buildHcalDigis<QIE10DigiCollection> (QIE10DigiStorage_, *conditions);
+    std::unique_ptr< QIE11DigiCollection > QIE11digis = buildHcalDigis<QIE11DigiCollection> (QIE11DigiStorage_, *conditions);
+    std::unique_ptr< ZDCDigiCollection > ZDCdigis( new ZDCDigiCollection );
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
     DetId formerID = 0;
@@ -334,8 +417,7 @@ namespace edm
 
     ZDCDigiMap::const_iterator iZDCchk;
 
-    for(ZDCDigiMap::const_iterator iZDC  = ZDCDigiStorage_.begin();
-	iZDC != ZDCDigiStorage_.end(); ++iZDC) {
+    for(ZDCDigiMap::const_iterator iZDC  = ZDCDigiStorage_.begin(); iZDC != ZDCDigiStorage_.end(); ++iZDC) {
 
       currentID = iZDC->first; 
 
@@ -363,59 +445,58 @@ namespace edm
           else { fC_new = 0;}
 
           if(isamp < sizeold) {
-	    fC_old = ZDC_old[isamp];
+            fC_old = ZDC_old[isamp];
           }
           else { fC_old = 0;}
 
           // add values                                                                                      
           fC_sum = fC_new + fC_old;
 
-	  if(usenew) {ZDC_bigger[isamp] = fC_sum; }
-	  else { ZDC_old[isamp] = fC_sum; }  // overwrite old sample, adding new info     
+          if(usenew) {ZDC_bigger[isamp] = fC_sum; }
+          else { ZDC_old[isamp] = fC_sum; }  // overwrite old sample, adding new info     
 
         }
-	if(usenew) ZDC_old = ZDC_bigger; // save new, larger sized sample in "old" slot
+        if(usenew) ZDC_old = ZDC_bigger; // save new, larger sized sample in "old" slot
       
       }
       else {
-	if(formerID>0) {
-	  // make new digi
-	  ZDCdigis->push_back(ZDCDataFrame(formerID));	  
+        if(formerID>0) {
+          // make new digi
+          ZDCdigis->push_back(ZDCDataFrame(formerID));	  
 
-	  // set up information to convert back
+          // set up information to convert back
 
-	  HcalZDCDetId cell = ZDC_old.id();
-	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
-	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
-	  HcalCoderDb coder (*channelCoder, *shape);
+          HcalZDCDetId cell = ZDC_old.id();
+          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+          const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
+          HcalCoderDb coder (*channelCoder, *shape);
 
-	  unsigned int sizeold = ZDC_old.size();
-	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 1 );   // as per simulation, capid=1
-	  }
-	}
-	//save pointers for next iteration                                                                 
-	formerID = currentID;
-	ZDC_old = iZDC->second;
+          unsigned int sizeold = ZDC_old.size();
+          for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
+            coder.fC2adc(ZDC_old,(ZDCdigis->back()), 1 );   // as per simulation, capid=1
+          }
+        }
+        //save pointers for next iteration                                                                 
+        formerID = currentID;
+        ZDC_old = iZDC->second;
       }
 
       iZDCchk = iZDC;
       if((++iZDCchk) == ZDCDigiStorage_.end()) {  //make sure not to lose the last one                         
-	  // make new digi
-	  ZDCdigis->push_back(ZDCDataFrame(currentID));	  
+          // make new digi
+          ZDCdigis->push_back(ZDCDataFrame(currentID));	  
 
-	  // set up information to convert back
+          // set up information to convert back
 
-	  HcalZDCDetId cell = (iZDC->second).id();
-	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
-	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
-	  HcalCoderDb coder (*channelCoder, *shape);
+          HcalZDCDetId cell = (iZDC->second).id();
+          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+          const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
+          HcalCoderDb coder (*channelCoder, *shape);
 
-	  unsigned int sizeold = (iZDC->second).size();
-	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 1 );   // as per simulation, capid=1
-	  }
-
+          unsigned int sizeold = (iZDC->second).size();
+          for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
+            coder.fC2adc(ZDC_old,(ZDCdigis->back()), 1 );   // as per simulation, capid=1
+          }
       }
     }
 
@@ -427,25 +508,31 @@ namespace edm
     LogInfo("DataMixingHcalDigiWorker") << "total # HBHE Merged digis: " << HBHEdigis->size() ;
     LogInfo("DataMixingHcalDigiWorker") << "total # HO Merged digis: " << HOdigis->size() ;
     LogInfo("DataMixingHcalDigiWorker") << "total # HF Merged digis: " << HFdigis->size() ;
+    LogInfo("DataMixingHcalDigiWorker") << "total # QIE10 Merged digis: " << QIE10digis->size() ;
+    LogInfo("DataMixingHcalDigiWorker") << "total # QIE11 Merged digis: " << QIE11digis->size() ;
     LogInfo("DataMixingHcalDigiWorker") << "total # ZDC Merged digis: " << ZDCdigis->size() ;
 
 
     // make empty collections for now:
-    std::auto_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
-    std::auto_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
+    std::unique_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
+    std::unique_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
 
 
-    e.put( HBHEdigis, HBHEDigiCollectionDM_ );
-    e.put( HOdigis, HODigiCollectionDM_ );
-    e.put( HFdigis, HFDigiCollectionDM_ );
-    e.put( ZDCdigis, ZDCDigiCollectionDM_ );
-    e.put( hbheupgradeResult, "HBHEUpgradeDigiCollection" );
-    e.put( hfupgradeResult, "HFUpgradeDigiCollection" );
+    e.put(std::move(HBHEdigis), HBHEDigiCollectionDM_);
+    e.put(std::move(HOdigis), HODigiCollectionDM_);
+    e.put(std::move(HFdigis), HFDigiCollectionDM_);
+    e.put(std::move(QIE10digis), QIE10DigiCollectionDM_);
+    e.put(std::move(QIE11digis), QIE11DigiCollectionDM_);
+    e.put(std::move(ZDCdigis), ZDCDigiCollectionDM_);
+    e.put(std::move(hbheupgradeResult), "HBHEUpgradeDigiCollection");
+    e.put(std::move(hfupgradeResult), "HFUpgradeDigiCollection");
 
     // clear local storage after this event
     HBHEDigiStorage_.clear();
     HODigiStorage_.clear();
     HFDigiStorage_.clear();
+    QIE10DigiStorage_.clear();
+    QIE11DigiStorage_.clear();
     ZDCDigiStorage_.clear();
 
   }

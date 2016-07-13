@@ -4,6 +4,9 @@
 #include <DataFormats/GEMDigi/interface/GEMPadDigi.h>
 #include <DataFormats/GEMDigi/interface/GEMPadDigiCollection.h>
 
+#include <DataFormats/GEMDigi/interface/GEMPadDigiCluster.h>
+#include <DataFormats/GEMDigi/interface/GEMPadDigiClusterCollection.h>
+
 #include <DataFormats/GEMDigi/interface/GEMCoPadDigi.h>
 #include <DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h>
 
@@ -27,6 +30,12 @@ namespace DataFormats_GEMDigi {
     std::vector<std::vector<GEMPadDigi> >  vvgc;
     GEMPadDigiCollection gccol;
     edm::Wrapper<GEMPadDigiCollection> wgc;
+
+    GEMPadDigiCluster gcc;
+    std::vector<GEMPadDigiCluster>  vgcc;
+    std::vector<std::vector<GEMPadDigiCluster> >  vvgcc;
+    GEMPadDigiClusterCollection gcccol;
+    edm::Wrapper<GEMPadDigiClusterCollection> wgcc;
 
     GEMCoPadDigi gcp;
     std::vector<GEMCoPadDigi>  vgcp;

@@ -20,8 +20,10 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
@@ -72,7 +74,8 @@ namespace edm {
       wantAllEvents_ = detail::configureEventSelector(selectEvents_,
                                                       process_name_,
                                                       getAllTriggerNames(),
-                                                      selectors_[0]);
+                                                      selectors_[0],
+                                                      consumesCollector());
 
     }
     
@@ -137,6 +140,7 @@ namespace edm {
       ProductSelector::checkForDuplicateKeptBranch(desc,
                                                    trueBranchIDToKeptBranchDesc);
 
+      EDGetToken token;
       switch (desc.branchType()) {
       case InEvent:
         {
@@ -145,24 +149,24 @@ namespace edm {
           } else {
             keptProductsInEvent.insert(desc.branchID());
           }
-          consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                   InputTag{desc.moduleLabel(),
+          token = consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                       InputTag{desc.moduleLabel(),
                        desc.productInstanceName(),
                        desc.processName()});
           break;
         }
       case InLumi:
         {
-          consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                           InputTag(desc.moduleLabel(),
+          token = consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                    InputTag(desc.moduleLabel(),
                                     desc.productInstanceName(),
                                     desc.processName()));
           break;
         }
       case InRun:
         {
-          consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                          InputTag(desc.moduleLabel(),
+          token = consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                   InputTag(desc.moduleLabel(),
                                    desc.productInstanceName(),
                                    desc.processName()));
           break;
@@ -172,7 +176,7 @@ namespace edm {
         break;
       }
       // Now put it in the list of selected branches.
-      keptProducts_[desc.branchType()].push_back(&desc);
+      keptProducts_[desc.branchType()].push_back(std::make_pair(&desc, token));
     }
 
     OutputModuleBase::~OutputModuleBase() { }
@@ -187,7 +191,8 @@ namespace edm {
           detail::configureEventSelector(selectEvents_,
                                          process_name_,
                                          getAllTriggerNames(),
-                                         s);
+                                         s,
+                                         consumesCollector());
         } else {
           seenFirst = true;
         }
@@ -203,9 +208,11 @@ namespace edm {
     }
     
     bool OutputModuleBase::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
-      
+      if(wantAllEvents_) return true;
       auto& s = selectors_[id.value()];
-      return wantAllEvents_ or s.wantEvent(ep,mcc);
+      EventForOutput e(ep, moduleDescription_, mcc);
+      e.setConsumer(this);
+      return s.wantEvent(e);
     }
     
     bool
@@ -215,8 +222,10 @@ namespace edm {
                               ModuleCallingContext const* mcc) {
       
       {
+          EventForOutput e(ep, moduleDescription_, mcc);
+          e.setConsumer(this);
           EventSignalsSentry sentry(act,mcc);
-          write(ep, mcc);
+          write(e);
       }
 
       auto remainingEvents = remainingEvents_.load();
@@ -237,7 +246,9 @@ namespace edm {
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
                                  EventSetup const&,
                                  ModuleCallingContext const* mcc) {
-      doBeginRun_(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc);
+      r.setConsumer(this);
+      doBeginRun_(r);
       return true;
     }
     
@@ -245,21 +256,27 @@ namespace edm {
     OutputModuleBase::doEndRun(RunPrincipal const& rp,
                                EventSetup const&,
                                ModuleCallingContext const* mcc) {
-      doEndRun_(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc);
+      r.setConsumer(this);
+      doEndRun_(r);
       return true;
     }
     
     void
     OutputModuleBase::doWriteRun(RunPrincipal const& rp,
                                  ModuleCallingContext const* mcc) {
-      writeRun(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc);
+      r.setConsumer(this);
+      writeRun(r);
     }
     
     bool
     OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                              EventSetup const&,
                                              ModuleCallingContext const* mcc) {
-      doBeginLuminosityBlock_(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      lb.setConsumer(this);
+      doBeginLuminosityBlock_(lb);
       return true;
     }
     
@@ -267,13 +284,17 @@ namespace edm {
     OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                            EventSetup const&,
                                            ModuleCallingContext const* mcc) {
-      doEndLuminosityBlock_(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      lb.setConsumer(this);
+      doEndLuminosityBlock_(lb);
       return true;
     }
     
     void OutputModuleBase::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                                   ModuleCallingContext const* mcc) {
-      writeLuminosityBlock(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      lb.setConsumer(this);
+      writeLuminosityBlock(lb);
     }
     
     void OutputModuleBase::doOpenFile(FileBlock const& fb) {

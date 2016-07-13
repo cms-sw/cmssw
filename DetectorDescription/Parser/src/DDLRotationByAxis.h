@@ -1,15 +1,17 @@
 #ifndef DDL_RotationByAxis_H
 #define DDL_RotationByAxis_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
-
 // Base dependency
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLRotationByAxis handles RotationByAxis elements
 /** @class DDLRotationByAxis

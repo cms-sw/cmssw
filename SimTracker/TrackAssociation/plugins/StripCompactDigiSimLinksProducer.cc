@@ -115,8 +115,8 @@ StripCompactDigiSimLinksProducer::produce(edm::Event & iEvent, const edm::EventS
         }
     }
    
-    std::auto_ptr< StripCompactDigiSimLinks > ptr(new StripCompactDigiSimLinks(output));
-    iEvent.put(ptr);
+    std::unique_ptr< StripCompactDigiSimLinks > ptr(new StripCompactDigiSimLinks(output));
+    iEvent.put(std::move(ptr));
 }
 
 DEFINE_FWK_MODULE(StripCompactDigiSimLinksProducer);

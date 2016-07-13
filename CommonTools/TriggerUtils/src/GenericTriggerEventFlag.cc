@@ -90,7 +90,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     }
     if ( config.exists( "andOrL1" ) ) {
       andOrL1_                   = config.getParameter< bool >( "andOrL1" );
-      if ( config.exists( "stage2" ) )
+      if ( config.exists( "stage2" ) ) 
 	stage2_ = config.getParameter< bool> ( "stage2" );
       else
 	stage2_ = false;

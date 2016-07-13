@@ -79,7 +79,7 @@ void TestRef::nondefault_ctor() {
   edm::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
-  std::unique_ptr<product1_t> prod(new product1_t);
+  auto prod = std::make_unique<product1_t>();
   prod->push_back(1);
   prod->push_back(2);
   getter.addProduct(id, std::move(prod));
@@ -110,7 +110,7 @@ void TestRef::nondefault_ctor() {
 //   edm::ProductID id(1, 201U);
 //   CPPUNIT_ASSERT(id.isValid());
 
-//   std::auto_ptr<product2_t> prod(new product2_t);
+//   auto prod = std::make_unique<product2_t>();
 //   prod->insert(std::make_pair(std::string("a"), 1));
 //   prod->insert(std::make_pair(std::string("b"), 2));
 //   prod->insert(std::make_pair(std::string("c"), 3));
@@ -135,7 +135,7 @@ void TestRef::using_wrong_productid() {
   edm::ProductID id(1, 1U);
   CPPUNIT_ASSERT(id.isValid());
 
-  std::unique_ptr<product1_t> prod(new product1_t);
+  auto prod = std::make_unique<product1_t>();
   prod->push_back(1);
   prod->push_back(2);
   getter.addProduct(id, std::move(prod));
@@ -160,7 +160,7 @@ void TestRef::threading()
   edm::ProductID id(1, 1U);
   CPPUNIT_ASSERT(id.isValid());
   
-  std::unique_ptr<product1_t> prod(new product1_t);
+  auto prod = std::make_unique<product1_t>();
   prod->push_back(1);
   prod->push_back(2);
   getter.addProduct(id, std::move(prod));

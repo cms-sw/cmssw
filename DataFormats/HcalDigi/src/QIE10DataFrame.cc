@@ -1,3 +1,5 @@
+#include <type_traits>
+
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
@@ -25,8 +27,28 @@ int QIE10DataFrame::presamples() const {
   return -1;
 }
 
-void QIE10DataFrame::setZSInfo(bool markAndPass){
+void QIE10DataFrame::setZSInfo(bool markAndPass) {
 	if(markAndPass) m_data[0] |= MASK_MARKPASS;
+}
+
+QIE10DataFrame::Sample::Sample(const wide_type wide) {
+  static_assert(sizeof(wide) == 2*sizeof(word1_),
+                "The wide input type must be able to contain two words");
+  const edm::DataFrame::data_type* ptr =
+      reinterpret_cast<const edm::DataFrame::data_type*>(&wide);
+  word1_ = ptr[0];
+  word2_ = ptr[1];
+}
+
+QIE10DataFrame::Sample::wide_type QIE10DataFrame::Sample::wideRaw() const {
+  static_assert(sizeof(QIE10DataFrame::Sample::wide_type) == 2*sizeof(word1_),
+                "The wide result type must be able to contain two words");
+  wide_type result;
+  edm::DataFrame::data_type* ptr =
+      reinterpret_cast<edm::DataFrame::data_type*>(&result);
+  ptr[0] = word1_;
+  ptr[1] = word2_;
+  return result;
 }
 
 std::ostream& operator<<(std::ostream& s, const QIE10DataFrame& digi) {

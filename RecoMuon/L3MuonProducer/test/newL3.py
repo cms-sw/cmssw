@@ -73,7 +73,10 @@ def addL3ToHLT(process):
 	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
 	      )
 	    ),
-	    CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+	    CleanerPSet = cms.PSet(
+              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+              useQuadrupletAlgo = cms.bool(False)
+            ),
 	    OrderedHitsFactoryPSet = cms.PSet(
 	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
 	      GeneratorPSet = cms.PSet(
@@ -457,7 +460,10 @@ def addL3ToHLT(process):
 	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
 	      )
 	    ),
-	    CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+	    CleanerPSet = cms.PSet(
+              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+              useQuadrupletAlgo = cms.bool(False)
+            ),
 	    OrderedHitsFactoryPSet = cms.PSet(
 	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
 	      GeneratorPSet = cms.PSet(
@@ -512,7 +518,10 @@ def addL3ToHLT(process):
 	      fixImpactParameter = cms.double( 0.0 )
 	    ),
 	    RegionFactoryPSet = IterMasterMuonTrackingRegionBuilder,
-	    CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+	    CleanerPSet = cms.PSet(
+              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+              useQuadrupletAlgo = cms.bool(False)
+            ),
 	    OrderedHitsFactoryPSet = cms.PSet(
 	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
 	      GeneratorPSet = cms.PSet(

@@ -19,6 +19,7 @@ hlt4vector = cms.Path(
     hltObjectMonitor
 #    * sistripOnlineMonitorHLTsequence # strip cluster monitoring
     * trackingMonitoringHLTsequence # tracking monitoring
+    * egmTrackingMonitorHLTsequence # EGM tracking monitoring
 )
 
 

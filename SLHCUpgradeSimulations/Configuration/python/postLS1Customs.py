@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTracker.Configuration.customiseForRunI import customiseForRunI
-
 def customisePostLS1_Common(process):
 
     # deal with L1 Emulation separately
@@ -151,23 +149,6 @@ def customisePostLS1_HI(process,displayDeprecationWarning=True):
     #process = L1Menu_CollisionsHeavyIons2015_v0(process)
 
     return process
-
-def customisePostLS1_B0T(process):
-    # 50ns only
-
-    process=customisePostLS1_50ns(process)
-    process=customiseForRunI(process)
-
-    return process
-
-def customisePostLS1_B0T_lowPU(process):
-    # 50ns only
-
-    process=customisePostLS1_lowPU(process)
-    process=customiseForRunI(process)
-
-    return process
-
 
 def digiEventContent(process):
     #extend the event content

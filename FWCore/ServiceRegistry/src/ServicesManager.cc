@@ -293,7 +293,7 @@ namespace edm {
            if(itMaker != type2Maker_->end()) {
 
              std::string serviceType = itMaker->second.pset_->getParameter<std::string>("@service_type");
-             std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+             std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
                ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
              ConfigurationDescriptions descriptions(filler->baseType());
              filler->fill(descriptions);

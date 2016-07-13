@@ -78,16 +78,11 @@ namespace edm {
     void resetAll();
 
     void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
-
-    std::shared_ptr<UnscheduledCallProducer const> unscheduled() const {return get_underlying_safe(unscheduled_);}
-    std::shared_ptr<UnscheduledCallProducer>& unscheduled() {return get_underlying_safe(unscheduled_);}
-
     WorkerRegistry      workerReg_;
     ExceptionToActionTable const*  actionTable_;
-
     AllWorkers          allWorkers_;
-
-    edm::propagate_const<std::shared_ptr<UnscheduledCallProducer>> unscheduled_;
+    UnscheduledCallProducer unscheduled_;
+    void const* lastSetupEventPrincipal_;
   };
 
   template <typename T, typename U>
@@ -107,7 +102,7 @@ namespace edm {
             setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
           } else {
             //make sure the unscheduled items see this run or lumi rtansition
-            unscheduled_->runNow<T,U>(ep, es,streamID, topContext, context);
+            unscheduled_.runNow<T,U>(ep, es,streamID, topContext, context);
           }
         }
         catch(cms::Exception& e) {

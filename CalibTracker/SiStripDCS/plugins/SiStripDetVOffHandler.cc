@@ -48,7 +48,7 @@ SiStripDetVOffHandler::~SiStripDetVOffHandler() {
 void SiStripDetVOffHandler::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   // get last payload from condDb
   cond::Time_t lastIov = 0;
-  boost::shared_ptr<SiStripDetVOff> lastPayload;
+  std::shared_ptr<SiStripDetVOff> lastPayload;
 
   edm::LogInfo("SiStripDetVOffHandler") << "[SiStripDetVOffHandler::" << __func__ << "] "
       << "Retrieve last IOV from " << m_condDb;

@@ -10,7 +10,7 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
  
 
 class  HcalParametersESModule : public edm::ESProducer {
@@ -18,7 +18,7 @@ public:
   HcalParametersESModule( const edm::ParameterSet & );
   ~HcalParametersESModule( void );
   
-  typedef boost::shared_ptr<HcalParameters> ReturnType;
+  typedef std::shared_ptr<HcalParameters> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   

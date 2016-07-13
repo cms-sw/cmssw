@@ -39,15 +39,15 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   shallow::CLUSTERMAP clustermap = shallow::make_cluster_map(iEvent, clusters_token_); 
 
   int size = clustermap.size();
-  std::auto_ptr<std::vector<float> >  strip       ( new std::vector<float>(size,  -10000  ));   
-  std::auto_ptr<std::vector<float> >  merr        ( new std::vector<float>(size,  -10000  ));   
-  std::auto_ptr<std::vector<float> >  localx      ( new std::vector<float>(size,  -10000  ));   
-  std::auto_ptr<std::vector<float> >  localy      ( new std::vector<float>(size,  -10000  ));   
-  std::auto_ptr<std::vector<float> >  localxerr   ( new std::vector<float>(size,  -1  ));   
-  std::auto_ptr<std::vector<float> >  localyerr   ( new std::vector<float>(size,  -1  ));     
-  std::auto_ptr<std::vector<float> >  globalx     ( new std::vector<float>(size,  -10000  ));   
-  std::auto_ptr<std::vector<float> >  globaly     ( new std::vector<float>(size,  -10000  ));   
-  std::auto_ptr<std::vector<float> >  globalz     ( new std::vector<float>(size,  -10000  ));   
+  auto  strip       = std::make_unique <std::vector<float>>(size,  -10000  );   
+  auto  merr        = std::make_unique <std::vector<float>>(size,  -10000  );   
+  auto  localx      = std::make_unique <std::vector<float>>(size,  -10000  );   
+  auto  localy      = std::make_unique <std::vector<float>>(size,  -10000  );   
+  auto  localxerr   = std::make_unique <std::vector<float>>(size,  -1  );   
+  auto  localyerr   = std::make_unique <std::vector<float>>(size,  -1  );     
+  auto  globalx     = std::make_unique <std::vector<float>>(size,  -10000  );   
+  auto  globaly     = std::make_unique <std::vector<float>>(size,  -10000  );   
+  auto  globalz     = std::make_unique <std::vector<float>>(size,  -10000  );   
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry; iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );
 
@@ -76,13 +76,13 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
   
-  iEvent.put( strip,       Prefix + "strip"      + Suffix );   
-  iEvent.put( merr,        Prefix + "merr"       + Suffix );   
-  iEvent.put( localx ,     Prefix + "localx"     + Suffix );   
-  iEvent.put( localy ,     Prefix + "localy"     + Suffix );   
-  iEvent.put( localxerr ,  Prefix + "localxerr"  + Suffix );   
-  iEvent.put( localyerr ,  Prefix + "localyerr"  + Suffix );   
-  iEvent.put( globalx ,    Prefix + "globalx"    + Suffix );   
-  iEvent.put( globaly ,    Prefix + "globaly"    + Suffix );   
-  iEvent.put( globalz ,    Prefix + "globalz"    + Suffix );   
+  iEvent.put(std::move(strip),      Prefix + "strip"      + Suffix );   
+  iEvent.put(std::move(merr),       Prefix + "merr"       + Suffix );   
+  iEvent.put(std::move(localx),     Prefix + "localx"     + Suffix );   
+  iEvent.put(std::move(localy),     Prefix + "localy"     + Suffix );   
+  iEvent.put(std::move(localxerr),  Prefix + "localxerr"  + Suffix );   
+  iEvent.put(std::move(localyerr),  Prefix + "localyerr"  + Suffix );   
+  iEvent.put(std::move(globalx),    Prefix + "globalx"    + Suffix );   
+  iEvent.put(std::move(globaly),    Prefix + "globaly"    + Suffix );   
+  iEvent.put(std::move(globalz),    Prefix + "globalz"    + Suffix );   
 }

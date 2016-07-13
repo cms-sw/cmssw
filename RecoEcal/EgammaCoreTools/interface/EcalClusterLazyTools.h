@@ -63,7 +63,7 @@ class EcalClusterLazyToolsBase {
   // const EcalSeverityLevelAlgo *sevLv;
   
  protected:
-  void getGeometry( const edm::EventSetup &es );
+  void getGeometry( const edm::EventSetup &es, bool doES=true );
   void getTopology( const edm::EventSetup &es );
   void getEBRecHits( const edm::Event &ev );
   void getEERecHits( const edm::Event &ev );

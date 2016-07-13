@@ -1,10 +1,16 @@
 #include "DetectorDescription/Core/src/Polycone.h" 
 
 #include <assert.h>
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <cmath>
+
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using DDI::Polycone;
 
@@ -119,4 +125,13 @@ double Polycone::volume() const
       result = volume;
    }
    return result;
+}
+
+void DDI::Polycone::stream(std::ostream & os) const
+{
+  os << " startPhi[deg]=" << p_[0]/deg
+     << " dPhi[deg]=" << p_[1]/deg 
+     << " Sizes[cm]=";
+  for (unsigned k=2; k<p_.size(); ++k)
+    os << p_[k]/cm << " ";
 }

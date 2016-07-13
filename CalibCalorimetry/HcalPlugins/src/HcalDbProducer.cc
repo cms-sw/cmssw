@@ -60,6 +60,7 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
+//			  &HcalDbProducer::frontEndMapCallback &
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );
@@ -89,7 +90,7 @@ HcalDbProducer::~HcalDbProducer()
 //
 
 // ------------ method called to produce the data  ------------
-boost::shared_ptr<HcalDbService> HcalDbProducer::produce( const HcalDbRecord&)
+std::shared_ptr<HcalDbService> HcalDbProducer::produce( const HcalDbRecord&)
 {
   return mService;
 }
@@ -113,12 +114,12 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   }
 }
 
-boost::shared_ptr<HcalChannelQuality> HcalDbProducer::produceChannelQualityWithTopo(const HcalChannelQualityRcd& fRecord)
+std::shared_ptr<HcalChannelQuality> HcalDbProducer::produceChannelQualityWithTopo(const HcalChannelQualityRcd& fRecord)
 {
   edm::ESHandle <HcalChannelQuality> item;
   fRecord.get (item);
 
-  boost::shared_ptr<HcalChannelQuality> channelQuality( new HcalChannelQuality(*item) );
+  auto channelQuality = std::make_shared<HcalChannelQuality>(*item);
 
   edm::ESHandle<HcalTopology> htopo;
   fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
@@ -346,6 +347,16 @@ void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecor
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL Electronics Map set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::frontEndMapCallback (const HcalFrontEndMapRcd& fRecord) {
+  edm::ESHandle <HcalFrontEndMap> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FrontEndMap")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL FrontEnd Map set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }

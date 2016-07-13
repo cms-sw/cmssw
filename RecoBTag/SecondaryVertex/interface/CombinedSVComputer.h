@@ -116,7 +116,6 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
         vars.insert(btau::jetPt, jet->pt(), true);
         vars.insert(btau::jetEta, jet->eta(), true);
-
         if (ipInfo.selectedTracks().size() < trackMultiplicityMin)
                 return;
 
@@ -125,7 +124,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
         TrackKinematics allKinematics;
 	TrackKinematics trackJetKinematics;
 	
-	double jet_track_ESum= 0.;
+	double jet_track_ESum= 0.; 
 	
 	int vtx = -1;
 	
@@ -136,11 +135,12 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
 	if (vtx >= 0) {
 		vtxType = btag::Vertices::RecoVertex;
-		
-		vars.insert(btau::flightDistance2dVal,flipValue(svInfo.flightDistance(vtx, true).value(),true),true);
-		vars.insert(btau::flightDistance2dSig,flipValue(svInfo.flightDistance(vtx, true).significance(),true),true);
-		vars.insert(btau::flightDistance3dVal,flipValue(svInfo.flightDistance(vtx, false).value(),true),true);
-		vars.insert(btau::flightDistance3dSig,flipValue(svInfo.flightDistance(vtx, false).significance(),true),true);
+		vars.insert(btau::flightDistance1dVal,flipValue(svInfo.flightDistance(vtx, 1).value(),true),true);
+                vars.insert(btau::flightDistance1dSig,flipValue(svInfo.flightDistance(vtx, 1).significance(),true),true);
+		vars.insert(btau::flightDistance2dVal,flipValue(svInfo.flightDistance(vtx, 2).value(),true),true);
+		vars.insert(btau::flightDistance2dSig,flipValue(svInfo.flightDistance(vtx, 2).significance(),true),true);
+		vars.insert(btau::flightDistance3dVal,flipValue(svInfo.flightDistance(vtx, 3).value(),true),true);
+		vars.insert(btau::flightDistance3dSig,flipValue(svInfo.flightDistance(vtx, 3).significance(),true),true);
 		vars.insert(btau::vertexJetDeltaR,Geom::deltaR(svInfo.flightDirection(vtx), jetDir),true);
 		vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
 	}
@@ -238,7 +238,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
         }
 
 	vars.insert(btau::vertexCategory, vtxType, true);
-	
+        	
 	vars.insert(btau::trackJetPt, trackJetKinematics.vectorSum().Pt(), true);
 	vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
 	vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);

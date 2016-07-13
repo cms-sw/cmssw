@@ -138,5 +138,6 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     tpTag = cms.InputTag("mix","MergedTrackTruth"),
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
- 
-  
+
+from Configuration.StandardSequences.Eras import eras
+eras.run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )

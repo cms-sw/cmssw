@@ -109,7 +109,7 @@ namespace fwlite {
 
       virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
       void fillParameterSetRegistry() const;
-      virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
+      virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);

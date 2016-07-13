@@ -23,8 +23,7 @@
 #include "CondCore/CondDB/interface/KeyList.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 //-------------------
 // Initializations --
 //-------------------
@@ -100,7 +99,7 @@ int DTKeyedConfigCache::get( const DTKeyedConfigListRcd& keyRecord,
   if ( keyList == 0 ) return 999;
 
   std::vector<unsigned long long> checkedKeys;
-  boost::shared_ptr<DTKeyedConfig> kBrick;
+  std::shared_ptr<DTKeyedConfig> kBrick;
   checkedKeys.push_back( cfgId );
   bool brickFound = false;
   try {

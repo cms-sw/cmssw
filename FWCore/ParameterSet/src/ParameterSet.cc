@@ -145,7 +145,7 @@ namespace edm {
     assert(!isRegistered());
     psettable::iterator it = psetTable_.find(name);
     assert(it != psetTable_.end());
-    std::unique_ptr<ParameterSet> pset = std::make_unique<ParameterSet>();
+    auto pset = std::make_unique<ParameterSet>();
     std::swap(*pset, it->second.psetForUpdate());
     psetTable_.erase(it);
     return pset;
@@ -174,7 +174,7 @@ namespace edm {
     assert(!isRegistered());
     vpsettable::iterator it = vpsetTable_.find(name);
     assert(it != vpsetTable_.end());
-    std::unique_ptr<std::vector<ParameterSet> > vpset = std::make_unique<std::vector<ParameterSet> >();
+    auto vpset = std::make_unique<std::vector<ParameterSet>>();
     std::swap(*vpset, it->second.vpsetForUpdate());
     vpsetTable_.erase(it);
     return vpset;

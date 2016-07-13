@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include <memory>
 #include <vector>
@@ -22,7 +23,7 @@
   
 class HcalTB06Histo;
 
-class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources>
+class HcalTB06Analysis : public edm::one::EDAnalyzer<>
 {
 public:
 
@@ -38,15 +39,22 @@ private:
   HcalTB06Analysis(const HcalTB06Analysis&) = delete; 
   const HcalTB06Analysis& operator=(const HcalTB06Analysis&) = delete;
 
-  int         count;
-  edm::InputTag m_EcalTag;
-  edm::InputTag m_HcalTag;
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
   bool        m_ECAL;
+
+  int         count;
+  int         m_idxetaEcal;
+  int         m_idxphiEcal;
+  int         m_idxetaHcal;
+  int         m_idxphiHcal;
 
   double      m_eta;
   double      m_phi;
   double      m_ener;
+  double      m_timeLimit;
   double      m_widthEcal;
+  double      m_widthHcal;
   double      m_factEcal;
   double      m_factHcal;
   std::vector<int> m_PDG;

@@ -2,6 +2,7 @@
 
 namespace hcaldqm
 {
+  using namespace constants;
 	DigiRunSummary::DigiRunSummary(std::string const& name, 
 		std::string const& taskname, edm::ParameterSet const& ps) :
 		DQClient(name, taskname, ps), _booked(false)
@@ -162,7 +163,7 @@ namespace hcaldqm
 				for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
 					ft!=vtmpflags.end(); ++ft)
 					ft->_state = flag::fNCDAQ;
-			
+
 				// push all the flags for this FED
 				// IMPORTANT!!!
 				lssum._vflags.push_back(vtmpflags);

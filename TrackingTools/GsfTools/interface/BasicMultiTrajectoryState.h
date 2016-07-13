@@ -37,9 +37,11 @@ public:
     return build<BasicMultiTrajectoryState>(*this);
   }
 
-  virtual std::vector<TrajectoryStateOnSurface> components() const {
+  using	Components = BasicTrajectoryState::Components;
+  Components const & components() const {
     return theStates;
   }
+  bool singleState() const override { return false;}
 
 
   virtual bool canUpdateLocalParameters() const { return false; }
@@ -56,7 +58,7 @@ public:
                        const SurfaceSide side) override;
 private:
 
-  std::vector<TSOS> theStates;
+  Components theStates;
 
   void combine() dso_internal;
 

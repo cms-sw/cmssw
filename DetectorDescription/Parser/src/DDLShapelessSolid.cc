@@ -13,9 +13,13 @@
 
 #include "DetectorDescription/Parser/src/DDLShapelessSolid.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLShapelessSolid::DDLShapelessSolid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )

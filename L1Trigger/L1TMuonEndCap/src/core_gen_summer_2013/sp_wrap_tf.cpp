@@ -2,7 +2,7 @@
 #include <string.h>
 #include "sp_wrap.h"
 
-
+using namespace std;
 sp_wrap spw;
 extern signal_ stdout_sig;
 unsigned quality[5][9][2];

@@ -91,7 +91,7 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   int nMinHitsPhi;
 
   edm::EDGetTokenT<reco::MuonCollection> muons_Token_;
-  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
   edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
   edm::InputTag inputTagSEG;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> gmt_Token_;

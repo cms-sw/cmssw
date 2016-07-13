@@ -1,16 +1,19 @@
 #ifndef DDL_String_H
 #define DDL_String_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
-#include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDString.h"
 
-#include <string>
-#include <vector>
-#include <map>
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLString handles String Elements.
 /** @class DDLString

@@ -42,14 +42,14 @@ int main()
   assert(simple::count == 0);
 
   {
-    std::auto_ptr<simple> c(new simple(11));
-    std::auto_ptr<simple> d(new simple(11));
+    auto c = std::make_unique<simple>(11);
+    auto d = std::make_unique<simple>(11);
     assert(c.get() != nullptr);
     assert(d.get() != nullptr);
     simple* pc = c.get();
     simple* pd = d.get();
 
-    edm::atomic_value_ptr<simple> e(c);
+    edm::atomic_value_ptr<simple> e(std::move(c));
     assert(c.get() == nullptr);
     assert(*d == *e);
     assert(e.operator->() == pc);
@@ -60,7 +60,7 @@ int main()
     }
     else {
     }
-    f = d;
+    f = std::move(d);
     assert(d.get() == nullptr);
     assert(*e == *f);
     assert(f.operator->() == pd);

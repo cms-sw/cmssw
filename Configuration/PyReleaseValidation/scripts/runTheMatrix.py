@@ -56,7 +56,11 @@ if __name__ == '__main__':
                      136.731, #2016B Photon data
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
-                     135.4 #Run 2 Zee ttbar
+                     135.4, #Run 2 Zee ttbar
+                     10021.0, #2017 tenmu
+                     10024.0, #2017 ttbar
+                     11024.0, #2023LReco ttbar (w/ HGCal)
+                     10624.0  #2023tilted ttbar (tilted tracker, Run2 calo, full reco)
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC

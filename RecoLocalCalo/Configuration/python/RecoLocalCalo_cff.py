@@ -31,3 +31,10 @@ reducedHcalRecHitsSequence = cms.Sequence( reducedHcalRecHits )
 #
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
 calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
+
+from RecoLocalCalo.Configuration.hgcalLocalReco_cff import *
+_phase2_calolocalreco = calolocalreco.copy()
+_phase2_calolocalreco += hgcalLocalRecoSequence
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toReplaceWith( calolocalreco , _phase2_calolocalreco )

@@ -9,8 +9,7 @@ process.source = cms.Source("EmptyIOVSource",
                             firstValue = cms.uint64(1),
                             interval = cms.uint64(1)
                             )
-
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi')
 process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.GlobalTag.toGet = cms.VPSet(

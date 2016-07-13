@@ -22,7 +22,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 // user include files
@@ -49,7 +48,7 @@ public:
   ~DTConfigTrivialProducer();
 
   //! ES produce method
-  std::auto_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
+  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
 
 private:
 

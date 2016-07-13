@@ -35,7 +35,7 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 }
 
 
-boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
+std::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
 {
   
   edm::LogInfo("SiStripQualityESProducer") << "produce called" << std::endl;

@@ -70,7 +70,7 @@ void MuonTruth::initEvent(const edm::Event& event, const edm::EventSetup& setup)
     LogTrace("MuonTruth") <<"getting CrossingFrame<PSimHit> collection - "<<CSCsimHitsXFTag;
     event.getByLabel(CSCsimHitsXFTag, cf);
     
-    std::auto_ptr<MixCollection<PSimHit> > 
+    std::unique_ptr<MixCollection<PSimHit> > 
       CSCsimhits( new MixCollection<PSimHit>(cf.product()) );
     LogTrace("MuonTruth") <<"... size = "<<CSCsimhits->size();
 

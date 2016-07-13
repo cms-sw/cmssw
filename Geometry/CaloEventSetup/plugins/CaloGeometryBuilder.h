@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -38,7 +37,7 @@ class CaloGeometryBuilder : public edm::ESProducer
 {
    public:
 
-      typedef boost::shared_ptr<CaloGeometry> ReturnType;
+      typedef std::shared_ptr<CaloGeometry> ReturnType;
 
       typedef edm::ESHandle<CaloSubdetectorGeometry> SubdType ;
 

@@ -88,15 +88,24 @@ HcalCholeskyMatrices::addValues(const HcalCholeskyMatrix& myItem)
   if (index<0xFFFFFFFu) {
     if (fId.det()==DetId::Hcal) {
       switch (HcalSubdetector(fId.subdetId())) {
-      case(HcalBarrel) : if (!HBcontainer.size() ) initContainer(fId); 
-	if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
-      case(HcalEndcap) : if (!HEcontainer.size() ) initContainer(fId); 
-	if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
-      case(HcalForward) : if (!HFcontainer.size() ) initContainer(fId); 
-	if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  break; 
-      case(HcalOuter) : if (!HOcontainer.size() ) initContainer(fId); 
-	if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  break;  
-      default: break;
+        case HcalBarrel:
+          if (!HBcontainer.size()) initContainer(fId); 
+          if (index < HBcontainer.size()) cell = &(HBcontainer.at(index));
+          break;
+        case HcalEndcap:
+          if (!HEcontainer.size()) initContainer(fId); 
+          if (index < HEcontainer.size()) cell = &(HEcontainer.at(index));
+          break;
+        case HcalForward:
+          if (!HFcontainer.size()) initContainer(fId); 
+          if (index < HFcontainer.size()) cell = &(HFcontainer.at(index));
+          break; 
+        case HcalOuter:
+          if (!HOcontainer.size()) initContainer(fId); 
+          if (index < HOcontainer.size()) cell = &(HOcontainer.at(index));
+          break;  
+        default:
+          break;
       }
     }
   }

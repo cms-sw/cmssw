@@ -686,8 +686,8 @@ namespace edm {
         /// Returns the TTree entry of the first event which would be processed in the
         /// current run/lumi if all the events in the run/lumi were processed in the
         /// current processing order. If there are none it returns -1 (invalid).
-        EntryNumber_t firstEventEntryThisRun() const { return impl_->firstEventEntryThisRun(); }
-        EntryNumber_t firstEventEntryThisLumi() const { return impl_->firstEventEntryThisLumi(); }
+        EntryNumber_t firstEventEntryThisRun() { return impl_->firstEventEntryThisRun(); }
+        EntryNumber_t firstEventEntryThisLumi() { return impl_->firstEventEntryThisLumi(); }
 
         // This is intentionally not implemented.
         // It would be difficult to implement for the no sort mode,

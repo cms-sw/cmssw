@@ -133,7 +133,7 @@ namespace edm {
     //   edm::Handle<edm::View<Y> > inputView2;
     //   event.getByToken(inputToken2V_, inputView2);
     //   // If you are certain the Views are not empty!
-    //   std::auto_ptr<AssocOneToOneView> assoc8(new AssocOneToOneView(
+    //   std::unique_ptr<AssocOneToOneView> assoc8(new AssocOneToOneView(
     //     edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
     //     edm::makeRefToBaseProdFrom(inputView2->refAt(0), event)
     //   ));

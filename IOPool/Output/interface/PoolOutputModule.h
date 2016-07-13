@@ -24,6 +24,7 @@
 class TTree;
 namespace edm {
 
+  class EDGetToken;
   class ModuleCallingContext;
   class ParameterSet;
   class RootOutputFile;
@@ -79,7 +80,7 @@ namespace edm {
 
       OutputItem();
 
-      explicit OutputItem(BranchDescription const* bd, int splitLevel, int basketSize);
+      explicit OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
 
       ~OutputItem() {}
 
@@ -91,6 +92,7 @@ namespace edm {
       }
 
       BranchDescription const* branchDescription_;
+      EDGetToken token_;
       mutable void const* product_;
       int splitLevel_;
       int basketSize_;
@@ -107,7 +109,7 @@ namespace edm {
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
     virtual bool shouldWeCloseFile() const override;
-    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void write(EventForOutput const& e) override;
 
     virtual std::pair<std::string, std::string> physicalAndLogicalNameForNewFile();
     virtual void doExtrasAfterCloseFile();
@@ -115,8 +117,8 @@ namespace edm {
     virtual void openFile(FileBlock const& fb) override;
     virtual void respondToOpenInputFile(FileBlock const& fb) override;
     virtual void respondToCloseInputFile(FileBlock const& fb) override;
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const*) override;
-    virtual void writeRun(RunPrincipal const& r, ModuleCallingContext const*) override;
+    virtual void writeLuminosityBlock(LuminosityBlockForOutput const& lb) override;
+    virtual void writeRun(RunForOutput const& r) override;
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
     virtual bool isFileOpen() const override;
     virtual void reallyOpenFile() override;
@@ -124,7 +126,7 @@ namespace edm {
     virtual void beginJob() override;
 
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
-    void updateBranchParents(EventPrincipal const& ep);
+    void updateBranchParents(EventForOutput const& e);
     void fillDependencyGraph();
 
     void startEndFile();

@@ -134,7 +134,7 @@ namespace cond {
       configure( connServ.configuration() );
     }
 
-    boost::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
+    std::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
                                                                                 const std::string& transactionId,
                                                                                 bool writeCapable ){
       coral::ConnectionService connServ;
@@ -147,7 +147,7 @@ namespace cond {
         connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
       }
 
-      return boost::shared_ptr<coral::ISessionProxy>( connServ.connect( fullConnectionPars.first, 
+      return std::shared_ptr<coral::ISessionProxy>( connServ.connect( fullConnectionPars.first, 
 									writeCapable ? auth::COND_WRITER_ROLE : auth::COND_READER_ROLE,
 									writeCapable ? coral::Update : coral::ReadOnly ) ); 
     }
@@ -155,9 +155,8 @@ namespace cond {
     Session ConnectionPool::createSession( const std::string& connectionString, 
                                            const std::string& transactionId, 
                                            bool writeCapable ){
-      boost::shared_ptr<coral::ISessionProxy> coralSession = createCoralSession( connectionString, transactionId, writeCapable );
-      std::shared_ptr<SessionImpl> impl( new SessionImpl( coralSession, connectionString ) );  
-      return Session( impl );
+      std::shared_ptr<coral::ISessionProxy> coralSession = createCoralSession( connectionString, transactionId, writeCapable );
+      return Session( std::make_shared<SessionImpl>( coralSession, connectionString ));
     }
 
     Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable ){
@@ -168,7 +167,7 @@ namespace cond {
       return createSession( connectionString, transactionId );
     }
 
-    boost::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
+    std::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
                                                                                 bool writeCapable ){
       return createCoralSession( connectionString, "", writeCapable );
     }

@@ -1,8 +1,9 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cassert>
-#include "tbb/tbb_allocator.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 static std::atomic<unsigned int> lastIndex{0};
 
@@ -108,9 +109,6 @@ DDValue::DDValue( unsigned int i )
   if( lastIndex >= i )
     id_ = i;
 }
-
-DDValue::~DDValue( void )
-{}
 
 DDValue::NamesToIndicies&
 DDValue::indexer( void )

@@ -1,12 +1,15 @@
 #ifndef DDLBox_H
 #define DDLBox_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLBox processes Box elements.
 /** @class DDLBox

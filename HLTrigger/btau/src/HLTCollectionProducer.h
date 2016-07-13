@@ -83,7 +83,7 @@ void
 HLTCollectionProducer<T>::produce(edm::StreamID iStreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
-  std::auto_ptr<std::vector<T> > collection ( new std::vector<T>() );
+  std::unique_ptr<std::vector<T> > collection ( new std::vector<T>() );
 
   // get hold of collection of TriggerFilterObjectsWithRefs
   edm::Handle<trigger::TriggerFilterObjectWithRefs> hltObject;
@@ -98,7 +98,7 @@ HLTCollectionProducer<T>::produce(edm::StreamID iStreamID, edm::Event& iEvent, c
     }
   }
   
-  iEvent.put(collection);
+  iEvent.put(std::move(collection));
 
 }
 

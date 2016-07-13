@@ -37,7 +37,6 @@ process.expressLumiProducer=cms.EDProducer("ExpressLumiProducer",
 #----------------------------
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-process.GlobalTag.DBParameters.authenticationPath  = process.DBService.authPath
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")

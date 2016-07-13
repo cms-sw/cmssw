@@ -173,7 +173,7 @@ int electronCompare()
     file_ref = TFile::Open(CMP_BLUE_FILE) ;
     if (file_ref!=0)
      {
-      std::cout<<"open "<<CMP_BLUE_FILE<<std::endl ;
+      std::cout<<"open ref : "<<CMP_BLUE_FILE<<std::endl ;
       if (file_ref->cd(internal_path)==kTRUE)
        {
         std::cerr<<"cd "<<internal_path<<std::endl ;
@@ -203,7 +203,7 @@ int electronCompare()
     file_new = TFile::Open(CMP_RED_FILE) ;
     if (file_new!=0)
      {
-      std::cout<<"open "<<CMP_RED_FILE<<std::endl ;
+      std::cout<<"open new : "<<CMP_RED_FILE<<std::endl ;
       if (file_new->cd(internal_path)==kTRUE)
        {
         std::cerr<<"cd "<<internal_path<<std::endl ;
@@ -426,10 +426,23 @@ int electronCompare()
     // search histo_ref
     if ( file_ref != 0 )
      {
+      TString histo_reduced_path = histo_path.c_str();
+//      std::cout << "histo path : " << histo_reduced_path << std::endl;
       if (file_ref_dir.IsNull())
        { histo_full_path = histo_name ; /*std::cout << "file_ref_dir.IsNull()" << std::endl ;*/ }
       else
-       { histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
+       { 
+        if (histo_reduced_path.BeginsWith("ElectronMcSignalValidatorMiniAOD"))
+        { 
+            histo_reduced_path.Remove(25,7); /*std::cout << "OK !!" << histo_reduced_path << std::endl;*/ 
+            histo_full_path = file_ref_dir ; histo_full_path += histo_reduced_path ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ }
+        else 
+        {
+            histo_full_path = file_ref_dir ; histo_full_path += histo_path.c_str() ; /*std::cout << "file_ref_dir.NotNull()" << std::endl ;*/ 
+        }
+       }
+      std::cout << "histo ref : " << histo_full_path << std::endl;
+ 
    // WARNING
    // the line below have to be unmasked if the reference release is prior to 740pre8 and for Pt1000
    // before 740pre8 : DQMData/Run 1/EgammaV/Run summary/ ElectronMcSignalValidator/ histo name (same as Pt35, Pt10, ....)
@@ -462,6 +475,7 @@ int electronCompare()
 
     // search histo_new
     histo_full_path = file_new_dir ; histo_full_path += histo_path.c_str() ;
+    std::cout <<  "histo new : " << histo_full_path << std::endl;
     histo_new = (TH1 *)file_new->Get(histo_full_path) ;
 
     // special treatments
@@ -594,7 +608,7 @@ int electronCompare()
        } while (cat.empty()) ;
      }
    }
-  std::cout << "on ferme le fichier : " << histo_file2 << std::endl;
+//  std::cout << "on ferme le fichier : " << histo_file2 << std::endl;
   histo_file2.close() ;
   web_page<<"</td></tr></table>\n" ;
 

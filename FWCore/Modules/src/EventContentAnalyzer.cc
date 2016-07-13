@@ -333,10 +333,10 @@ namespace edm {
   // ------------ method called to produce the data  ------------
   void
   EventContentAnalyzer::analyze(Event const& iEvent, EventSetup const&) {
-     typedef std::vector<Provenance const*> Provenances;
+     typedef std::vector<StableProvenance const*> Provenances;
      Provenances provenances;
 
-     iEvent.getAllProvenance(provenances);
+     iEvent.getAllStableProvenance(provenances);
 
      if(listContent_) {
        LogAbsolute("EventContent") << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
@@ -346,21 +346,19 @@ namespace edm {
      }
 
      std::string startIndent = indentation_+verboseIndentation_;
-     for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
-                               itProv != itProvEnd;
-                             ++itProv) {
-         std::string const& className = (*itProv)->className();
+     for(auto const& provenance : provenances) {
+         std::string const& className = provenance->className();
 
-         std::string const& friendlyName = (*itProv)->friendlyClassName();
+         std::string const& friendlyName = provenance->friendlyClassName();
          //if(friendlyName.empty())  friendlyName = std::string("||");
 
-         std::string const& modLabel = (*itProv)->moduleLabel();
+         std::string const& modLabel = provenance->moduleLabel();
          //if(modLabel.empty()) modLabel = std::string("||");
 
-         std::string const& instanceName = (*itProv)->productInstanceName();
+         std::string const& instanceName = provenance->productInstanceName();
          //if(instanceName.empty()) instanceName = std::string("||");
 
-         std::string const& processName = (*itProv)->processName();
+         std::string const& processName = provenance->processName();
 
          bool doVerbose = verbose_ && (moduleLabels_.empty() ||
                                        binary_search_all(moduleLabels_, modLabel));
@@ -370,7 +368,7 @@ namespace edm {
                                        << " \"" << modLabel
                                        << "\" \"" << instanceName << "\" \""
                                        << processName << "\""
-                                       << " (productId = " << (*itProv)->productID() << ")"
+                                       << " (productId = " << provenance->productID() << ")"
                                        << std::endl;
          }
 

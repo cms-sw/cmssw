@@ -45,6 +45,8 @@ namespace edm
     HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
+    QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
+    QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
 							    label_(ps.getParameter<std::string>("Label"))
   {  
 
@@ -58,6 +60,8 @@ namespace edm
     tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
     tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
     tok_zdc_ = consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
+    tok_qie10_ = consumes<HcalQIE10DigitizerTraits::DigiCollection>(QIE10PileInputTag_);
+    tok_qie11_ = consumes<HcalQIE11DigitizerTraits::DigiCollection>(QIE11PileInputTag_);
 
     // get the subdetector names
     this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
@@ -117,12 +121,12 @@ namespace edm
     // Hcal next
 
     if(MergeHcalDigis_){
-      //       cout<<"Hcal Digis TRUE!!!"<<endl;
-
       HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
       HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
       HFDigiCollectionDM_   = ps.getParameter<std::string>("HFDigiCollectionDM");
       ZDCDigiCollectionDM_  = ps.getParameter<std::string>("ZDCDigiCollectionDM");
+      QIE10DigiCollectionDM_  = ps.getParameter<std::string>("QIE10DigiCollectionDM");
+      QIE11DigiCollectionDM_  = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
       produces< HBHEDigiCollection >();
       produces< HODigiCollection >();
@@ -132,14 +136,10 @@ namespace edm
       produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
       produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
       produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+      produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 
-      if(MergeHcalDigisProd_) {
-	//        edm::ConsumesCollector iC(consumesCollector());
-	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector());
-      }
-      else {HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps, consumesCollector());
-      }
-
+      if(MergeHcalDigisProd_) HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector());
+      else HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps, consumesCollector());
 
     }
     else{

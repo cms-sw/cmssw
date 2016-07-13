@@ -44,7 +44,7 @@ SiPixelFakeGainOfflineESSource::~SiPixelFakeGainOfflineESSource()
 
 }
 
-std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::produce(const SiPixelGainCalibrationOfflineRcd & )
+std::unique_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::produce(const SiPixelGainCalibrationOfflineRcd & )
 {
 
    using namespace edm::es;
@@ -92,7 +92,7 @@ std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::pro
    
 
    // 
-   return std::auto_ptr<SiPixelGainCalibrationOffline>(obj);
+   return std::unique_ptr<SiPixelGainCalibrationOffline>(obj);
 
 
 }

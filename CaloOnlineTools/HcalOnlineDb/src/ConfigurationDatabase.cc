@@ -169,41 +169,64 @@ namespace hcal {
 
 
   bool ConfigurationDatabase::FPGAId::operator<(const FPGAId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
+    if (crate<a.crate) return true; 
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true; 
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true; 
+    if (fpga>a.fpga) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::LUTId::operator<(const LUTId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
-    if (fiber_slb<a.fiber_slb) return true; if (fiber_slb>a.fiber_slb) return false;
-    if (channel<a.channel) return true; if (channel>a.channel) return false;
-    if (lut_type<a.lut_type) return true; if (lut_type>a.lut_type) return false;
+    if (crate<a.crate) return true; 
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true; 
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true; 
+    if (fpga>a.fpga) return false;
+    if (fiber_slb<a.fiber_slb) return true; 
+    if (fiber_slb>a.fiber_slb) return false;
+    if (channel<a.channel) return true; 
+    if (channel>a.channel) return false;
+    if (lut_type<a.lut_type) return true; 
+    if (lut_type>a.lut_type) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::PatternId::operator<(const PatternId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
-    if (fiber<a.fiber) return true; if (fiber>a.fiber) return false;
+    if (crate<a.crate) return true; 
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true;
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true;
+    if (fpga>a.fpga) return false;
+    if (fiber<a.fiber) return true;
+    if (fiber>a.fiber) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::ZSChannelId::operator<(const ZSChannelId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
-    if (fiber<a.fiber) return true; if (fiber>a.fiber) return false;
-    if (channel<a.channel) return true; if (channel>a.channel) return false;
+    if (crate<a.crate) return true;
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true;
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true;
+    if (fpga>a.fpga) return false;
+    if (fiber<a.fiber) return true; 
+    if (fiber>a.fiber) return false;
+    if (channel<a.channel) return true; 
+    if (channel>a.channel) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::RBXdatumId::operator<(const RBXdatumId& a) const {
-    if (rm<a.rm) return true; if (rm>a.rm) return false;
-    if (card<a.card) return true; if (card>a.card) return false;
-    if (qie_or_gol<a.qie_or_gol) return true; if (qie_or_gol>a.qie_or_gol) return false;
-    if (dtype<a.dtype) return true; if (dtype>a.dtype) return false;
-    if (ltype<a.ltype) return true; if (ltype>a.ltype) return false;
+    if (rm<a.rm) return true; 
+    if (rm>a.rm) return false;
+    if (card<a.card) return true; 
+    if (card>a.card) return false;
+    if (qie_or_gol<a.qie_or_gol) return true; 
+    if (qie_or_gol>a.qie_or_gol) return false;
+    if (dtype<a.dtype) return true; 
+    if (dtype>a.dtype) return false;
+    if (ltype<a.ltype) return true; 
+    if (ltype>a.ltype) return false;
     return false; // equal is not less
   }
 

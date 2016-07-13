@@ -13,14 +13,26 @@ uses input sources to retrieve EDProducts from external storage.
 #include <memory>
 
 namespace edm {
+
   class BranchKey;
   class EDProductGetter;
+  class ModuleCallingContext;
   class SharedResourcesAcquirer;
+  class StreamContext;
+
+  namespace signalslot {
+    template <typename T> class Signal;
+  }
+
   class DelayedReader {
   public:
     virtual ~DelayedReader();
-    virtual std::unique_ptr<WrapperBase> getProduct(BranchKey const& k, EDProductGetter const* ep);
-    
+    std::unique_ptr<WrapperBase> getProduct(BranchKey const& k,
+                                            EDProductGetter const* ep,
+                                            signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preReadFromSourceSignal = nullptr,
+                                            signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postReadFromSourceSignal = nullptr,
+                                            ModuleCallingContext const* mcc = nullptr);
+
     void mergeReaders(DelayedReader* other) {mergeReaders_(other);}
     void reset() {reset_();}
     

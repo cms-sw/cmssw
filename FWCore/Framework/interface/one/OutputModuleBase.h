@@ -218,11 +218,11 @@ namespace edm {
       /// Ask the OutputModule if we should end the current file.
       virtual bool shouldWeCloseFile() const {return false;}
       
-      virtual void write(EventPrincipal const& e, ModuleCallingContext const*) = 0;
+      virtual void write(EventForOutput const&) = 0;
       virtual void beginJob(){}
       virtual void endJob(){}
-      virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
-      virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) = 0;
+      virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) = 0;
+      virtual void writeRun(RunForOutput const&) = 0;
       virtual void openFile(FileBlock const&) {}
       virtual bool isFileOpen() const { return true; }
       virtual void reallyOpenFile() {}
@@ -230,10 +230,10 @@ namespace edm {
       virtual void preForkReleaseResources();
       virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/);
 
-      virtual void doBeginRun_(RunPrincipal const&, ModuleCallingContext const*){}
-      virtual void doEndRun_(RunPrincipal const&, ModuleCallingContext const*){}
-      virtual void doBeginLuminosityBlock_(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
-      virtual void doEndLuminosityBlock_(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
+      virtual void doBeginRun_(RunForOutput const&){}
+      virtual void doEndRun_(RunForOutput const& ){}
+      virtual void doBeginLuminosityBlock_(LuminosityBlockForOutput const&){}
+      virtual void doEndLuminosityBlock_(LuminosityBlockForOutput const&){}
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
       

@@ -34,18 +34,14 @@ private:
 class Test1Producer : public ESProxyFactoryProducer {
 public:
    Test1Producer() {
-      std::auto_ptr<ProxyFactoryTemplate<DummyProxy> > pFactory(new 
-                                                                 ProxyFactoryTemplate<DummyProxy>());
-      registerFactory(pFactory);
+      registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>());
    }
 };
 
 class TestLabelProducer : public ESProxyFactoryProducer {
 public:
    TestLabelProducer() {
-      std::auto_ptr<ProxyFactoryTemplate<DummyProxy> > pFactory(new 
-                                                                ProxyFactoryTemplate<DummyProxy>());
-      registerFactory(pFactory,"fred");
+      registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>(), "fred");
    }
 };
 

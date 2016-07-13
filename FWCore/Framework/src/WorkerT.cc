@@ -95,11 +95,6 @@ namespace edm{
     };
   }
   
-  UnscheduledHandler const* getUnscheduledHandler(EventPrincipal const& ep) {
-    return ep.unscheduledHandler().get();
-  }
-
-
   template<typename T>
   inline
   WorkerT<T>::WorkerT(std::shared_ptr<T> ed, ModuleDescription const& md, ExceptionToActionTable const* actions) :
@@ -371,7 +366,7 @@ namespace edm{
 
   template<typename T>
   void WorkerT<T>::updateLookup(BranchType iBranchType,
-                                ProductHolderIndexHelper const& iHelper) {
+                                ProductResolverIndexHelper const& iHelper) {
     module_->updateLookup(iBranchType,iHelper);
   }
 

@@ -41,8 +41,8 @@ void testmaker::makerTest()
     //std::cout << (*ib)->name() << std::endl;
     // }
 
-    std::shared_ptr<ParameterSet> p1 = makePSet(*edm::pset::parse(param1.c_str()));;
-    std::shared_ptr<ParameterSet> p2 = makePSet(*edm::pset::parse(param2.c_str()));;
+    std::shared_ptr<ParameterSet> p1 = makePSet(*edm::pset::parse(param1.c_str()));
+    std::shared_ptr<ParameterSet> p2 = makePSet(*edm::pset::parse(param2.c_str()));
 
     std::cerr << p1->getParameter<std::string>("@module_type");
 
@@ -50,8 +50,8 @@ void testmaker::makerTest()
 
     edm::ProductRegistry preg;
 
-    std::auto_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
-    std::auto_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
+    std::unique_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
+    std::unique_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
   }
   catch(cms::Exception& e) {
       std::cerr << "cms::Exception: " << e.explainSelf() << std::endl;

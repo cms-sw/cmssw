@@ -189,7 +189,7 @@ HLTRFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger
 void HLTRFilter::addObjects(edm::Event& iEvent, trigger::TriggerFilterObjectWithRefs & filterproduct, double MR, double Rsq) const{
     
     //create METCollection for storing MR and Rsq results
-    std::auto_ptr<reco::METCollection> razorObject(new reco::METCollection());
+    std::unique_ptr<reco::METCollection> razorObject(new reco::METCollection());
     
     reco::MET::LorentzVector mrRsqP4(MR,Rsq,0,0);
     reco::MET::Point vtx(0,0,0);
@@ -200,7 +200,7 @@ void HLTRFilter::addObjects(edm::Event& iEvent, trigger::TriggerFilterObjectWith
     edm::RefProd<reco::METCollection > ref_before_put = iEvent.getRefBeforePut<reco::METCollection >();
 
     //put the METCollection into the event (necessary because of how addCollectionTag works...)
-    iEvent.put(razorObject);
+    iEvent.put(std::move(razorObject));
     edm::Ref<reco::METCollection> mrRsqRef(ref_before_put, 0);
 
     //add it to the trigger object collection

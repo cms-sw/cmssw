@@ -3,9 +3,9 @@
 
 <ConstantsSection label="pixbarlayer0.xml" eval="true">
  <Constant name="Ladders"           value="12"/>
- <Constant name="CoolDist"          value="3.0*cm"/>
+ <Constant name="CoolDist"          value="3.03*cm"/>
  <Constant name="CoolRadius"        value="0.0900*cm"/>
- <Constant name="LadderOffset"        value="0.225*cm"/>
+ <Constant name="LadderOffset"        value="0.225*cm"/> 
  <Constant name="Cool1Offset"        value="0.83*cm"/>
  <Constant name="Cool2Offset"        value="-0.16*cm"/>
  <Constant name="OuterFirst"        value="1"/>

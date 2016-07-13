@@ -1,5 +1,5 @@
 #ifndef _DQMOFFLINE_HCAL_HCALRECHITSDQMCLIENT_H_
-#define _DQMOFFLINE_HCAL_HCALRECHITDQMSCLIENT_H_
+#define _DQMOFFLINE_HCAL_HCALRECHITSDQMCLIENT_H_
 
 // -*- C++ -*-
 //
@@ -58,4 +58,4 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
 
 };
  
-#endif
+#endif // _DQMOFFLINE_HCAL_HCALRECHITSDQMCLIENT_H_

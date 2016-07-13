@@ -9,7 +9,6 @@
 
 #include "DQM/HcalCommon/interface/HcalCommonHeaders.h"
 #include "DQM/HcalCommon/interface/Logger.h"
-
 #include <string>
 #include <vector>
 #include <iostream>
@@ -46,7 +45,7 @@ namespace hcaldqm
 	{
 		public:
 			DQModule(edm::ParameterSet const&);
-			virtual ~DQModule() {}
+			virtual ~DQModule() noexcept(false) {}
 
 		protected:
 			//	Member variables	

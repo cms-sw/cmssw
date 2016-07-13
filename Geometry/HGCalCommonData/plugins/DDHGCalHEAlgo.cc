@@ -115,7 +115,7 @@ void DDHGCalHEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
     
     double routB   = rMax(zo);
     std::string name = "HGCal"+names[ii]+dbl_to_string(copy);
-    edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: Layer " << i << ":" 
+    edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo test: Layer " << i << ":" 
 			      << ii << ":" << ityp << " Front " << zi << ", " 
 			      << rinF << ", " << routF << " Back " << zo 
 			      << ", " << rinB << ", " << routB;

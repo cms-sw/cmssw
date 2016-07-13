@@ -24,36 +24,35 @@ private:
   // (overridden by useLegacyError; negative value disables the cut)
   const float maxChgOneMIP;
 
+  enum class Algo { legacy, mergeCK, chargeCK };
+
+  Algo m_algo;
+
 public:  
+  using AlgoParam = StripCPE::AlgoParam;
+  using AClusters = StripClusterParameterEstimator::AClusters;
+  using ALocalValues  = StripClusterParameterEstimator::ALocalValues;
+  
+  void localParameters(AClusters const & clusters, ALocalValues & retValues, const GeomDetUnit& gd, const LocalTrajectoryParameters &ltp) const override;
+
   StripClusterParameterEstimator::LocalValues
-  localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
+  localParameters( const SiStripCluster& cl, AlgoParam const & ap) const override;
+
+  
+  StripClusterParameterEstimator::LocalValues
+  localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const override;
   
   float stripErrorSquared(const unsigned N, const float uProj, const SiStripDetId::SubDetector loc ) const ;
   float legacyStripErrorSquared(const unsigned N, const float uProj) const;
 
-  StripCPEfromTrackAngle( edm::ParameterSet & conf, 
-			  const MagneticField& mag, 
-			  const TrackerGeometry& geom, 
-			  const SiStripLorentzAngle& lorentz,
-                          const SiStripBackPlaneCorrection& backPlaneCorrection,
-			  const SiStripConfObject& confObj,
-			  const SiStripLatency& latency) 
-  : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency )
-  , useLegacyError(conf.existsAs<bool>("useLegacyError") ? conf.getParameter<bool>("useLegacyError") : true)
-  , maxChgOneMIP(conf.existsAs<float>("maxChgOneMIP") ? conf.getParameter<double>("maxChgOneMIP") : -6000.)
-  {
-    mLC_P[0] = conf.existsAs<double>("mLC_P0") ? conf.getParameter<double>("mLC_P0") : -.326;
-    mLC_P[1] = conf.existsAs<double>("mLC_P1") ? conf.getParameter<double>("mLC_P1") :  .618;
-    mLC_P[2] = conf.existsAs<double>("mLC_P2") ? conf.getParameter<double>("mLC_P2") :  .300;
 
-    mHC_P[SiStripDetId::TIB - 3][0] = conf.existsAs<double>("mTIB_P0") ? conf.getParameter<double>("mTIB_P0") : -.742  ;
-    mHC_P[SiStripDetId::TIB - 3][1] = conf.existsAs<double>("mTIB_P1") ? conf.getParameter<double>("mTIB_P1") :  .202  ;
-    mHC_P[SiStripDetId::TID - 3][0] = conf.existsAs<double>("mTID_P0") ? conf.getParameter<double>("mTID_P0") : -1.026 ;
-    mHC_P[SiStripDetId::TID - 3][1] = conf.existsAs<double>("mTID_P1") ? conf.getParameter<double>("mTID_P1") :  .253  ;
-    mHC_P[SiStripDetId::TOB - 3][0] = conf.existsAs<double>("mTOB_P0") ? conf.getParameter<double>("mTOB_P0") : -1.427 ;
-    mHC_P[SiStripDetId::TOB - 3][1] = conf.existsAs<double>("mTOB_P1") ? conf.getParameter<double>("mTOB_P1") :  .433  ;
-    mHC_P[SiStripDetId::TEC - 3][0] = conf.existsAs<double>("mTEC_P0") ? conf.getParameter<double>("mTEC_P0") : -1.885 ;
-    mHC_P[SiStripDetId::TEC - 3][1] = conf.existsAs<double>("mTEC_P1") ? conf.getParameter<double>("mTEC_P1") :  .471  ;  
-  }
+  StripCPEfromTrackAngle( edm::ParameterSet & conf,
+                          const MagneticField& mag,
+                          const TrackerGeometry& geom,
+                          const SiStripLorentzAngle& lorentz,
+                          const SiStripBackPlaneCorrection& backPlaneCorrection,
+                          const SiStripConfObject& confObj,
+                          const SiStripLatency& latency);
+
 };
 #endif

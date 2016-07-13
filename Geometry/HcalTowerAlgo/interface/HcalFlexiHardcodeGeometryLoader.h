@@ -88,6 +88,7 @@ private:
 
   int    MAX_HCAL_PHI;
   double DEGREE2RAD;
+  bool   isBH_;
 };
 
 #endif

@@ -1,22 +1,24 @@
 #ifndef DDSolid_h
 #define DDSolid_h
 
+#include <stddef.h>
 #include <iosfwd>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-
-namespace DDI { class Solid; }
-namespace DDI { class Reflection; }
-namespace DDI { class BooleanSolid; }
 
 class DDSolid;
-struct DDSolidFactory;
 class DDStreamer;
+namespace DDI {
+class BooleanSolid;
+class Reflection;
+class Solid;
+}  // namespace DDI
+struct DDSolidFactory;
 
 std::ostream & operator<<( std::ostream &, const DDSolid & );
 

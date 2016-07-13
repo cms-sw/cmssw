@@ -481,7 +481,7 @@ void EcalSimRawData::getSrfs(const edm::Event& event,
   //EE
   edm::Handle<EESrFlagCollection> hEeSrFlags;
   event.getByLabel(srDigiProducer_, eeSrFlagCollection_, hEeSrFlags);
-  for(size_t i=0; i < sizeof(eeSrf)/sizeof(int); ((int*)eeSrf)[i++] = -1){};
+  for(size_t i=0; i < (nEndcaps*nScX*nScY); ((int*)eeSrf)[i++] = -1){};
   if(hEeSrFlags.isValid()){
     for(EESrFlagCollection::const_iterator it = hEeSrFlags->begin();
 	it != hEeSrFlags->end(); ++it){
@@ -504,7 +504,7 @@ void EcalSimRawData::getSrfs(const edm::Event& event,
   //EB
   edm::Handle<EBSrFlagCollection> hEbSrFlags;
   event.getByLabel(srDigiProducer_, ebSrFlagCollection_, hEbSrFlags);
-  for(size_t i=0; i<sizeof(ebSrf)/sizeof(int); ((int*)ebSrf)[i++] = -1){};
+  for(size_t i=0; i<(nTtEta*nTtPhi); ((int*)ebSrf)[i++] = -1){};
   if(hEbSrFlags.isValid()){
     for(EBSrFlagCollection::const_iterator it = hEbSrFlags->begin();
 	it != hEbSrFlags->end(); ++it){

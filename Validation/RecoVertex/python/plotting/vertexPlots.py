@@ -3,8 +3,8 @@ import Validation.RecoTrack.plotting.validation as validation
 from Validation.RecoTrack.plotting.html import PlotPurpose
 
 
-_minPU = [0, 80, 120]
-_maxPU = [80, 100, 150, 200, 250]
+_minPU = [0, 10, 20, 40, 80, 120]
+_maxPU = [60, 80, 100, 150, 200, 250]
 _minVtx = [0, 80, 120]
 _maxVtx = [60, 100, 150, 200, 250]
 _maxEff = 1.025
@@ -28,7 +28,7 @@ _pvtagging = PlotGroup("pvtagging", [
                        legendDy=-0.025
 )
 _effandfake = PlotGroup("effandfake", [
-    Plot("effic_vs_NumVertices", xtitle="Simulated interactions", ytitle="Efficiency vs. N sim vertices", xmin=_minVtx, xmax=_maxVtx, ymax=_maxEff),
+    Plot("effic_vs_NumVertices", xtitle="Simulated interactions", ytitle="Efficiency vs. N sim vertices", xmin=_minPU, xmax=_maxPU, ymax=_maxEff),
     Plot("fakerate_vs_PU", xtitle="Simulated interactions", ytitle="Fake rate vs. N sim vertices", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
     Plot("effic_vs_NumTracks", xtitle="Tracks", ytitle="Efficiency vs. N tracks", title="", ymax=_maxEff),
     Plot("fakerate_vs_NumTracks", xtitle="Tracks", ytitle="Fake rate vs. N tracks", title="", ymax=_maxFake),

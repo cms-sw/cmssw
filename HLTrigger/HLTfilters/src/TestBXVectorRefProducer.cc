@@ -111,8 +111,8 @@ TestBXVectorRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 {
    using namespace edm;
 
-   auto_ptr<vector<int>> jetMom ( new vector<int> );
-   auto_ptr<l1t::JetRefVector> jetRef ( new l1t::JetRefVector );
+   unique_ptr<vector<int>> jetMom ( new vector<int> );
+   unique_ptr<l1t::JetRefVector> jetRef ( new l1t::JetRefVector );
 
    // retrieve the tracks
    Handle<l1t::JetBxCollection> jets;
@@ -134,9 +134,9 @@ TestBXVectorRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    } // end for 
 
-   iEvent.put(jetMom,"jetPt");
+   iEvent.put(std::move(jetMom),"jetPt");
    
-   if (doRefs_) iEvent.put(jetRef,"l1tJetRef");
+   if (doRefs_) iEvent.put(std::move(jetRef),"l1tJetRef");
 
    return;
  

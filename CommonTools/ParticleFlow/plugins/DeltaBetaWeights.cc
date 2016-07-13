@@ -49,7 +49,7 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double sumNPU = .0;
   double sumPU =  .0;
 
-  std::auto_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection); 
+  std::unique_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection);
 
 
   for (const reco::Candidate & cand : *src) {
@@ -85,6 +85,6 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   }
 
-  iEvent.put(out);
+  iEvent.put(std::move(out));
  
 }

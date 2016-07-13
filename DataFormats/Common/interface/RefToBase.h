@@ -69,6 +69,9 @@ namespace edm {
 
     RefToBase();
     RefToBase(RefToBase const& other);
+    RefToBase(RefToBase && other) noexcept;
+    RefToBase & operator=(RefToBase && other) noexcept;
+
     template <typename C1, typename T1, typename F1>
     explicit RefToBase(Ref<C1, T1, F1> const& r);
     template <typename C>
@@ -80,7 +83,7 @@ namespace edm {
     RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>>);
     RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
 
-    ~RefToBase();
+    ~RefToBase() noexcept;
 
     RefToBase& operator= (RefToBase const& rhs);
 
@@ -102,7 +105,7 @@ namespace edm {
 
     void swap(RefToBase& other);
 
-    std::auto_ptr<reftobase::RefHolderBase> holder() const;
+    std::unique_ptr<reftobase::RefHolderBase> holder() const;
 
     EDProductGetter const* productGetter() const;
 
@@ -137,6 +140,18 @@ namespace edm {
   RefToBase<T>::RefToBase(RefToBase const& other) :
     holder_(other.holder_  ? other.holder_->clone() : nullptr)
   { }
+
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(RefToBase && other) noexcept :
+    holder_(other.holder_) { other.holder_=nullptr;}
+
+  template <class T>
+  inline
+  RefToBase<T>& RefToBase<T>::operator=(RefToBase && other) noexcept {
+    delete holder_; holder_=other.holder_; other.holder_=nullptr; return *this;
+  }
+
 
   template <class T>
   template <typename C1, typename T1, typename F1>
@@ -182,7 +197,7 @@ namespace edm {
 
   template <class T>
   inline
-  RefToBase<T>::~RefToBase()
+  RefToBase<T>::~RefToBase() noexcept
   {
     delete holder_;
   }
@@ -374,8 +389,8 @@ namespace edm {
   }
 
   template <class T>
-  std::auto_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
-    return holder_? holder_->holder() : std::auto_ptr<reftobase::RefHolderBase>();
+  std::unique_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
+    return holder_? holder_->holder() : std::unique_ptr<reftobase::RefHolderBase>();
   }
 
   // Free swap function

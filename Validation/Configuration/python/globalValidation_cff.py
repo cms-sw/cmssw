@@ -116,6 +116,19 @@ globalPrevalidationLiteTracking.replace(tracksValidation, tracksValidationLite)
 globalPrevalidationTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
     + tracksValidationTrackingOnly
-    + vertexValidation
+    + vertexValidationTrackingOnly
 )
 globalValidationTrackingOnly = cms.Sequence()
+
+from Validation.Configuration.gemSimValid_cff import *
+from Validation.Configuration.me0SimValid_cff import *
+
+_run3_globalValidation = globalValidation.copy()
+_run3_globalValidation += gemSimValid
+
+_phase2_globalValidation = _run3_globalValidation.copy()
+_phase2_globalValidation += me0SimValid
+
+from Configuration.StandardSequences.Eras import eras
+eras.run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
+eras.phase2_muon.toReplaceWith( globalValidation, _phase2_globalValidation )

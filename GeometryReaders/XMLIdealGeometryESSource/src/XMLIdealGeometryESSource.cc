@@ -41,26 +41,26 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
 
 XMLIdealGeometryESSource::~XMLIdealGeometryESSource() { }
 
-std::auto_ptr<DDCompactView>
+std::unique_ptr<DDCompactView>
 XMLIdealGeometryESSource::produceGeom(const IdealGeometryRecord &)
 {
   return produce();
 }
 
-std::auto_ptr<DDCompactView>
+std::unique_ptr<DDCompactView>
 XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &)
 { 
   return produce();
 }
 
 
-std::auto_ptr<DDCompactView>
+std::unique_ptr<DDCompactView>
 XMLIdealGeometryESSource::produce() {
   
   DDName ddName(rootNodeName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
-  std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
+  std::unique_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
   DDLParser parser(*returnValue); //* parser = DDLParser::instance();
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);

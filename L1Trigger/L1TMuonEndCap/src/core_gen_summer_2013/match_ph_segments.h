@@ -249,7 +249,7 @@ signal_storage ph_seg___z0_s0__storage;  signal_ ph_seg___z0_s0;
 
 			void init();
 		};
-		map <ull, fs_loop__class> fs_loop;
+		std::map <ull, fs_loop__class> fs_loop;
 
 		void init();
 	};

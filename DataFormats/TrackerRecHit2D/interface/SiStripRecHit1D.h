@@ -5,8 +5,6 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-
 #include "TkCloner.h"
 
 

@@ -372,7 +372,7 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
 std::unique_ptr<TestRandomNumberServiceStreamCache>
 TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
 
-  std::unique_ptr<TestRandomNumberServiceStreamCache> streamCache(new TestRandomNumberServiceStreamCache);
+  auto streamCache = std::make_unique<TestRandomNumberServiceStreamCache>();
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(streamID);

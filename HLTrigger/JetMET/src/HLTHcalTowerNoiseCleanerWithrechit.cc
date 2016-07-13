@@ -247,7 +247,7 @@ void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::
   }//if(severity_>0)
   
   //output collection
-  std::auto_ptr<CaloTowerCollection> OutputTowers(new CaloTowerCollection() );
+  std::unique_ptr<CaloTowerCollection> OutputTowers(new CaloTowerCollection() );
 
   CaloTowerCollection::const_iterator inTowersIt;
   
@@ -259,7 +259,7 @@ void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::
       OutputTowers->push_back(*inTowersIt);
     }
   }
-  iEvent.put(OutputTowers);
+  iEvent.put(std::move(OutputTowers));
 
 }
 

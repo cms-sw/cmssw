@@ -56,14 +56,14 @@ void
 L1TPhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // store new collections which include physical quantities
-  std::auto_ptr<EGammaBxCollection> new_egammas (new EGammaBxCollection);
-  std::auto_ptr<TauBxCollection> new_rlxtaus (new TauBxCollection);
-  std::auto_ptr<TauBxCollection> new_isotaus (new TauBxCollection);
-  std::auto_ptr<JetBxCollection> new_jets (new JetBxCollection);
-  std::auto_ptr<JetBxCollection> new_preGtJets (new JetBxCollection);
-  std::auto_ptr<EtSumBxCollection> new_etsums (new EtSumBxCollection);
-  std::auto_ptr<CaloSpareBxCollection> new_hfsums (new CaloSpareBxCollection);
-  std::auto_ptr<CaloSpareBxCollection> new_hfcounts (new CaloSpareBxCollection);
+  std::unique_ptr<EGammaBxCollection> new_egammas (new EGammaBxCollection);
+  std::unique_ptr<TauBxCollection> new_rlxtaus (new TauBxCollection);
+  std::unique_ptr<TauBxCollection> new_isotaus (new TauBxCollection);
+  std::unique_ptr<JetBxCollection> new_jets (new JetBxCollection);
+  std::unique_ptr<JetBxCollection> new_preGtJets (new JetBxCollection);
+  std::unique_ptr<EtSumBxCollection> new_etsums (new EtSumBxCollection);
+  std::unique_ptr<CaloSpareBxCollection> new_hfsums (new CaloSpareBxCollection);
+  std::unique_ptr<CaloSpareBxCollection> new_hfcounts (new CaloSpareBxCollection);
 
   edm::Handle<EGammaBxCollection> old_egammas;
   edm::Handle<TauBxCollection> old_rlxtaus;
@@ -268,14 +268,14 @@ L1TPhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   }
 
-  iEvent.put(new_egammas);
-  iEvent.put(new_rlxtaus,"rlxTaus");
-  iEvent.put(new_isotaus,"isoTaus");
-  iEvent.put(new_jets);
-  iEvent.put(new_preGtJets,"preGtJets");
-  iEvent.put(new_etsums);
-  iEvent.put(new_hfsums,"HFRingSums");
-  iEvent.put(new_hfcounts,"HFBitCounts");
+  iEvent.put(std::move(new_egammas));
+  iEvent.put(std::move(new_rlxtaus),"rlxTaus");
+  iEvent.put(std::move(new_isotaus),"isoTaus");
+  iEvent.put(std::move(new_jets));
+  iEvent.put(std::move(new_preGtJets),"preGtJets");
+  iEvent.put(std::move(new_etsums));
+  iEvent.put(std::move(new_hfsums),"HFRingSums");
+  iEvent.put(std::move(new_hfcounts),"HFBitCounts");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

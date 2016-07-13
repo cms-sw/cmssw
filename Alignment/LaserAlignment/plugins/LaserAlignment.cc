@@ -786,7 +786,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
     
     
   // the collection container
-  std::auto_ptr<TkLasBeamCollection> laserBeams( new TkLasBeamCollection );
+  auto laserBeams = std::make_unique<TkLasBeamCollection>();
 
   
   // first for the endcap internal beams
@@ -913,7 +913,7 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   
   
   // now attach the collection to the run
-  theRun.put( laserBeams, "tkLaserBeams" );
+  theRun.put(std::move(laserBeams), "tkLaserBeams" );
   
 
 

@@ -101,8 +101,8 @@ HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event & event, const edm::EventS
   event.getByToken(endcapHitsToken_,endcapRecHitsHandle);
  
   //Create empty output collections
-  std::auto_ptr< EBDigiCollection > phiSymEBDigiCollection( new EBDigiCollection );
-  std::auto_ptr< EEDigiCollection > phiSymEEDigiCollection( new EEDigiCollection );
+  std::unique_ptr< EBDigiCollection > phiSymEBDigiCollection( new EBDigiCollection );
+  std::unique_ptr< EEDigiCollection > phiSymEEDigiCollection( new EEDigiCollection );
   
   const EBDigiCollection* EBDigis = barrelDigisHandle.product();
   const EEDigiCollection* EEDigis = endcapDigisHandle.product();
@@ -149,8 +149,8 @@ HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event & event, const edm::EventS
     return false;
 
   //Put selected information in the event
-  event.put( phiSymEBDigiCollection, phiSymBarrelDigis_);
-  event.put( phiSymEEDigiCollection, phiSymEndcapDigis_);
+  event.put(std::move(phiSymEBDigiCollection), phiSymBarrelDigis_);
+  event.put(std::move(phiSymEEDigiCollection), phiSymEndcapDigis_);
   
   return true;
 }

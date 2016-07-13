@@ -30,7 +30,7 @@
 #include <iomanip>
 
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p): 
-  myqie(0), addTower(3), tuplesManager(0), tuples(0), numberingFromDDD(0), org(0) {
+  addTower(3),tuples(nullptr),numberingFromDDD(nullptr),hcons(nullptr),org(nullptr) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
   eta0         = m_Anal.getParameter<double>("Eta0");
@@ -40,6 +40,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
   names        = m_Anal.getParameter<std::vector<std::string> >("Names");
   fileName     = m_Anal.getParameter<std::string>("FileName");
 
+  tuplesManager.reset(nullptr); 
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialised as observer of "
 			  << "begin/end events and of G4step";
 
@@ -148,12 +149,14 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 }
 
 //==================================================================== per JOB
+
 void HcalTestAnalysis::update(const BeginOfJob * job) {
 
   // Numbering From DDD
   edm::ESHandle<HcalDDDSimConstants>    hdc;
   (*job)()->get<HcalSimNumberingRecord>().get(hdc);
-  hcons = (HcalDDDSimConstants*)(&(*hdc));
+  if(!hcons) { hcons = (HcalDDDSimConstants*)(&(*hdc)); }
+  //if(!hcons) { hcons = &(*hdc); }
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialise "
 			  << "HcalNumberingFromDDD for " << names[0];
   numberingFromDDD = new HcalNumberingFromDDD(hcons);
@@ -331,8 +334,8 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after LayerAnalysis";
 
   // Writing the data to the Tree
-  tuplesManager->fillTree(tuples); // (no need to delete it...)
-  tuples = 0; // but avoid to reuse it...
+  tuplesManager.get()->fillTree(tuples); // (no need to delete it...)
+  tuples = nullptr; // but avoid to reuse it...
   LogDebug("HcalSim") << "HcalTestAnalysis:: --- after fillTree";
 
 }

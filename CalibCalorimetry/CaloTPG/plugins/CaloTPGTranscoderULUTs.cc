@@ -46,7 +46,7 @@ public:
   CaloTPGTranscoderULUTs(const edm::ParameterSet&);
   ~CaloTPGTranscoderULUTs();
   
-  typedef std::auto_ptr<CaloTPGTranscoder> ReturnType;
+  typedef std::unique_ptr<CaloTPGTranscoder> ReturnType;
   
   ReturnType produce(const CaloTPGRecord&);
 

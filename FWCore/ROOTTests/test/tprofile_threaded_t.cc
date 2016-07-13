@@ -55,7 +55,7 @@ int main(int argc, char** argv)
   
   for(int i=0; i<kNThreads; ++i) {
     std::ostringstream s;
-    profiles.push_back(std::unique_ptr<TProfile>(new TProfile(s.str().c_str(),s.str().c_str(), 100,10,11,0,10)));
+    profiles.push_back(std::make_unique<TProfile>(s.str().c_str(),s.str().c_str(), 100,10,11,0,10));
     profiles.back()->SetCanExtend(TH1::kAllAxes);
     auto profile = profiles.back().get();
     threads.emplace_back([i,profile,&canStart]() {

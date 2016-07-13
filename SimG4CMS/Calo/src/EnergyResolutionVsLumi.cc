@@ -6,18 +6,15 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-
 EnergyResolutionVsLumi::EnergyResolutionVsLumi()
 {
   m_lumi=0;
-  m_instlumi=0;
-  
+  m_instlumi=0;  
 }
 
 EnergyResolutionVsLumi::~EnergyResolutionVsLumi()
 {
 }
-
 
 EnergyResolutionVsLumi::DegradationAtEta EnergyResolutionVsLumi::CalculateDegradation(double eta)
 {
@@ -52,7 +49,6 @@ EnergyResolutionVsLumi::DegradationAtEta EnergyResolutionVsLumi::CalculateDegrad
   return result;
 }
 
-
 double EnergyResolutionVsLumi::calcmuEM(double eta)
 {
   double instLumi = m_instlumi;
@@ -68,7 +64,6 @@ double EnergyResolutionVsLumi::calcmuHD(double eta)
   double result = model.InducedAbsorptionHadronic(totLumi, eta);
   return result;
 }
-
 
 void  EnergyResolutionVsLumi::calcmuTot(){
 
@@ -100,9 +95,7 @@ void  EnergyResolutionVsLumi::calcmuTot(){
 	}
     }
   }
-
 }
-
 
 double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, double z)
 {
@@ -126,18 +119,13 @@ double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted(DetId id, d
   }
   double zcor=z;
   EvolutionECAL model;
-  if(z<0.02 ) zcor=0.02;
-  if(z>0.98) zcor=0.98;
+  if(z<0.02 )     { zcor=0.02; }
+  else if(z>0.98) { zcor=0.98; }
 
   double result=model.LightCollectionEfficiencyWeighted( zcor , muTot)*v;
   
-  
-  
   return result; 
-
 }
-
-
 
 double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted2(double eta, double z, double mu_ind)
 {
@@ -147,7 +135,6 @@ double EnergyResolutionVsLumi::calcLightCollectionEfficiencyWeighted2(double eta
   double result=model.LightCollectionEfficiencyWeighted( z , mu_ind)*v;
   return result; 
 }
-
 
 double EnergyResolutionVsLumi::calcmuTot(double eta)
 {
@@ -222,11 +209,8 @@ double EnergyResolutionVsLumi::calcresolutitonConstantTerm(double eta)
   return result;
 }
 
-
 double  EnergyResolutionVsLumi::Resolution(double eta, double ene)
 {  
-
-
   // Initial parameters for ECAL resolution
   double S;
   double Nadc;
@@ -244,7 +228,6 @@ double  EnergyResolutionVsLumi::Resolution(double eta, double ene)
     C = 0.004;
   }
 
-
   DegradationAtEta d = CalculateDegradation(eta);
 
   // adjust resolution parameters
@@ -257,22 +240,14 @@ double  EnergyResolutionVsLumi::Resolution(double eta, double ene)
   return sqrt(S*S/ene + N*N/ene/ene + C*C);
 
 }
-
-
-
-
-
-
-
- void EnergyResolutionVsLumi::Decomposition()
+/*
+void EnergyResolutionVsLumi::Decomposition()
 {
-
   double eta = 2.2;
   m_instlumi = 5.0e+34;
   m_lumi = 3000.0;
 
   DegradationAtEta d = this->CalculateDegradation(eta);
-
 
   // Initial parameters for ECAL resolution
   double S;
@@ -291,7 +266,6 @@ double  EnergyResolutionVsLumi::Resolution(double eta, double ene)
     C = 0.0038;
   }
 
-
   // adjust resolution parameters
   S /= sqrt(d.ampDropTotal);
   Nadc *= d.noiseIncreaseADC;
@@ -299,27 +273,14 @@ double  EnergyResolutionVsLumi::Resolution(double eta, double ene)
   //  double N = Nadc*adc2GeV*3.0;   // 3x3 noise in GeV 
   C = sqrt(C*C + d.resolutitonConstantTerm*d.resolutitonConstantTerm);
 
-
-
-  /*  for(double ene=1.0; ene<1e+3; ene*=1.1){
-
-
+  for(double ene=1.0; ene<1e+3; ene*=1.1){
     // this is the resolution
-
     double res =  sqrt(S*S/ene + N*N/ene/ene + C*C);
-
     double factor = 1.0;
     factor = sin(2.0*atan(exp(-1.0*eta)));
-  
-
   }
-
-  */
-
-
 }
-
-
+*/
 
 
 

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include "FWCore/Framework/interface/global/OutputModule.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,9 +27,9 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&, ModuleCallingContext const*) override {}
-    virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override {}
+    virtual void write(EventForOutput const& e) override;
+    virtual void writeLuminosityBlock(LuminosityBlockForOutput const&) override {}
+    virtual void writeRun(RunForOutput const&) override {}
     int prescale_;
     int verbosity_;
     int counter_;
@@ -49,11 +49,11 @@ namespace edm {
   }
 
   void
-  AsciiOutputModule::write(EventPrincipal const& e, ModuleCallingContext const*) {
+  AsciiOutputModule::write(EventForOutput const& e) {
 
     if ((++counter_ % prescale_) != 0 || verbosity_ <= 0) return;
 
-    // Run const& run = evt.getRun(); // this is still unused
+    // RunForOutput const& run = evt.getRun(); // this is still unused
     LogAbsolute("AsciiOut")<< ">>> processing event # " << e.id() << " time " << e.time().value() << std::endl;
 
     if (verbosity_ <= 1) return;
@@ -61,9 +61,8 @@ namespace edm {
     // Write out non-EDProduct contents...
 
     // ... list of process-names
-    for (ProcessHistory::const_iterator it = e.processHistory().begin(), itEnd = e.processHistory().end();
-        it != itEnd; ++it) {
-      LogAbsolute("AsciiOut") << it->processName() << " ";
+    for (auto const& process : e.processHistory()) {
+      LogAbsolute("AsciiOut") << process.processName() << " ";
     }
 
     // ... collision id
@@ -73,13 +72,10 @@ namespace edm {
 
     std::vector<Provenance const*> provs;
     e.getAllProvenance(provs);
-    for(std::vector<Provenance const*>::const_iterator i = provs.begin(),
-         iEnd = provs.end();
-         i != iEnd;
-         ++i) {
-      BranchDescription const& desc = (*i)->product();
+    for(auto const& prov : provs) {
+      BranchDescription const& desc = prov->branchDescription();
       if (selected(desc)) {
-        LogAbsolute("AsciiOut") << **i << '\n';
+        LogAbsolute("AsciiOut") << *prov << '\n';
       }
     }
   }

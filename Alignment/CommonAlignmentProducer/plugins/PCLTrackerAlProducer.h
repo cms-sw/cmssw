@@ -228,10 +228,9 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /// GlobalPositions that might be read from DB, NULL otherwise
     const Alignments* globalPositions_;
 
-    // TODO: Change pointers to std::shared_ptr
-    boost::shared_ptr<TrackerGeometry> theTrackerGeometry;
-    boost::shared_ptr<DTGeometry>      theMuonDTGeometry;
-    boost::shared_ptr<CSCGeometry>     theMuonCSCGeometry;
+    std::shared_ptr<TrackerGeometry> theTrackerGeometry;
+    std::shared_ptr<DTGeometry>      theMuonDTGeometry;
+    std::shared_ptr<CSCGeometry>     theMuonCSCGeometry;
 
     int nevent_;
 

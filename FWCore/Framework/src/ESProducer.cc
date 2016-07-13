@@ -36,7 +36,7 @@ ESProducer::ESProducer()
 //    // do actual copying here;
 // }
 
-ESProducer::~ESProducer()
+ESProducer::~ESProducer() noexcept(false)
 {
 }
 
