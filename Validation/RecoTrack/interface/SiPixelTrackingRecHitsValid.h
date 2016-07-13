@@ -28,7 +28,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 

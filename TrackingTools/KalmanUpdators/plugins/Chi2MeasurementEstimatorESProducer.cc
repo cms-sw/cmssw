@@ -44,8 +44,9 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
   auto maxDis  = m_pset.getParameter<double>("MaxDisplacement");
   auto maxSag  = m_pset.getParameter<double>("MaxSagitta");
   auto minTol = m_pset.getParameter<double>("MinimalTolerance");
+  auto minpt = m_pset.getParameter<double>("MinPtForHitRecoveryInGluedDet");
    
-  m_estimator = std::make_shared<Chi2MeasurementEstimator>(maxChi2,nSigma, maxDis, maxSag, minTol);
+  m_estimator = std::make_shared<Chi2MeasurementEstimator>(maxChi2,nSigma, maxDis, maxSag, minTol,minpt);
   return m_estimator;
 }
 
@@ -60,6 +61,7 @@ Chi2MeasurementEstimatorESProducer::getFilledConfigurationDescription() {
   desc.add<double>("MaxDisplacement",0.5); 
   desc.add<double>("MaxSagitta",2.);
   desc.add<double>("MinimalTolerance",0.5);
+  desc.add<double>("MinPtForHitRecoveryInGluedDet",9);
   return desc;
 }
   */
@@ -74,6 +76,7 @@ Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<double>("MaxDisplacement",0.5); 
   desc.add<double>("MaxSagitta",2.);
   desc.add<double>("MinimalTolerance",0.5);
+  desc.add<double>("MinPtForHitRecoveryInGluedDet",0.9);
   desc.add<std::string>("ComponentName","Chi2");
   descriptions.add("Chi2MeasurementEstimator", desc);
 }
