@@ -151,8 +151,6 @@ namespace edmtest
       dumpIt(new HcalDcsValues, new HcalDcsRcd, e,context,"DcsValues");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsMap")) != mDumpRequest.end())
       dumpIt(new HcalDcsMap, new HcalDcsMapRcd, e,context,"DcsMap");
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CholeskyMatrices")) != mDumpRequest.end())
-      dumpIt(new HcalCholeskyMatrices(&(*topology)), new HcalCholeskyMatricesRcd, e,context,"CholeskyMatrices", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
       dumpIt(new HcalRecoParams(&(*topology)), new HcalRecoParamsRcd, e,context,"RecoParams", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimingParams")) != mDumpRequest.end())

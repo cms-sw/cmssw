@@ -112,7 +112,6 @@ eras.phase2_hcal.toModify( es_hardcode,
                                          'L1TriggerObjects',
                                          'PFCorrs',
                                          'ElectronicsMap',
-                                         'CholeskyMatrices',
                                          'CovarianceMatrices',
                                          'FlagHFDigiTimeParams'
                                          ),
