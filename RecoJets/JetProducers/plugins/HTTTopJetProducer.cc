@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/JetReco/interface/HTTTopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/HTTTopJetTagInfo.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "HTTTopJetProducer.h"
 

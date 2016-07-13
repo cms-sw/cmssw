@@ -1,5 +1,5 @@
-#ifndef DataFormats_JetReco_interface_HTTTopJetTagInfo_h
-#define DataFormats_JetReco_interface_HTTTopJetTagInfo_h
+#ifndef DataFormats_BTauReco_interface_HTTTopJetTagInfo_h
+#define DataFormats_BTauReco_interface_HTTTopJetTagInfo_h
 
 
 // \class HTTTopJetTagInfo
