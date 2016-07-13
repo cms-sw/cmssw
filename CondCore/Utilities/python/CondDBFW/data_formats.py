@@ -21,7 +21,7 @@ def to_array_of_dicts(script):
 			array_of_dicts = _to_array_of_dicts(data)
 			return json_data_node.make(array_of_dicts)
 		except (KeyError, TypeError) as e:
-			exit("The data you gave wasn't in the correct format: %s" % str(e))
+			raise Exception("The data you gave wasn't in the correct format: %s" % str(e))
 	return new_script
 
 # convert {{header:value}, ..., {header:value}} to {headers:[], data:[[]]}
@@ -33,7 +33,7 @@ def to_datatables(script):
 				data = _json_data_node.make(data)
 			return to_datatables(data)
 		except (KeyError, TypeError) as e:
-			exit("The data you gave wasn't in the correct format: %s" % str(e))
+			raise Exception("The data you gave wasn't in the correct format: %s" % str(e))
 	return new_script
 
 def query(script):
@@ -42,7 +42,7 @@ def query(script):
 			data = script(self, connection)
 			return _to_sql_query(data)
 		except (KeyError, TypeError) as e:
-			exit("The data you gave wasn't in the correct format: %s" % str(e))
+			raise Exception("The data you gave wasn't in the correct format: %s" % str(e))
 	return new_script
 
 def objects_to_dicts(script):
@@ -51,7 +51,7 @@ def objects_to_dicts(script):
 			data = script(self, connection)
 			return _objects_to_dicts(data)
 		except (KeyError, TypeError) as e:
-			exit("The data you gave wasn't in the correct format: %s" % str(e))
+			raise Exception("The data you gave wasn't in the correct format: %s" % str(e))
 	return new_script
 
 # functions used in decorators

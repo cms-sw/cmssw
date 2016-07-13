@@ -6,8 +6,8 @@ This file contains the base DataSource class, and all sub classes that implement
 
 import json
 
-# data_source will extend this, and formula trees will use this
-class node():
+# data_source will extend this
+class node(object):
 
 	_data = None
 	_child_nodes = None
@@ -40,48 +40,6 @@ class node():
 	def __str__(self):
 		return "<node data='%s' children=%s>" % (self.data(), str(self.children()))
 
-# tree is used to hold query structures
-# and propositional formula structures for where clauses in queries
-class tree():
-
-	_root = None
-
-	def __init__(self, root_data):
-		self._root = node(root_data)
-
-	def set_root(self, node):
-		self.root = node
-
-	def root(self):
-		return self._root
-
-# will need methods to add comparison terms to specific nodes
-# comparison terms - a=b, a>=b, a<=b, etc.
-class formula_tree(tree):
-
-	# model is the class that we can prepend each column name with
-	def to_sql(self, model_name=None, root=None):
-		if root == None:
-			root = self.root()
-		# do in-order traversal to get SQL
-		if root.is_leaf():
-			if model != None:
-				return model + "." + root.data().strip()
-			else:
-				return root.data().strip()
-		else:
-			child_nodes = [self.to_sql(model, child_node) for child_node in root.children()]
-			return "(%s)" % ((" " + root.data().upper() + " ").join(child_nodes))
-
-# will have a query data_source object as its root
-# will have methods for turning query held at root into sql query string
-class query_tree(tree):
-
-	def to_sql(self):
-		# take elements from root node to construct sql query
-		#sql_query = "%s %s FROM %s %s" % (self._)
-		pass
-
 class data_source(node):
 
 	def __init__(self):
@@ -103,14 +61,11 @@ class json_file(data_source):
 	def __init__(self, json_file_name):
 		# read the file, then parse into JSON object
 		self._file_name = json_file_name
-		try:
-			with open(self._file_name, "r") as handle:
-				contents = "".join(handle.readlines())
-				data = json.loads(contents)
-				self._data = data
-				self._sub_data = data
-		except IOError as io:
-			exit("Couldn't open the file '%s'" % self._file_name)
+		with open(self._file_name, "r") as handle:
+			contents = "".join(handle.readlines())
+			data = json.loads(contents)
+			self._data = data
+			self._sub_data = data
 
 	def data(self):
 		return json_data_node.make(self._data)
@@ -125,40 +80,36 @@ class sqlite_schema(data_source):
 	_data, _sub_data, _file_name = None, None, None
 	def __init__(self, sqlite_file_name):
 		self._file_name = sqlite_file_name
-		try:
-			# import sqlite3 and connect to the database file
-			import sqlite3
-			connection = sqlite3.connect(self._file_name)
-			cursor = connection.cursor()
-			if query_object == None:
-				# try to query the file to get table and column data
-				tables = cursor.execute("select name from sqlite_master where type = 'table'")
+		# import sqlite3 and connect to the database file
+		import sqlite3
+		connection = sqlite3.connect(self._file_name)
+		cursor = connection.cursor()
+		if query_object == None:
+			# try to query the file to get table and column data
+			tables = cursor.execute("select name from sqlite_master where type = 'table'")
 
-				# now build a mapping of tables to columns - with a dictionary
-				table_to_columns = {}
-				for table in tables.fetchall():
-					table_to_columns[table[0]] = []
-					# now query columns for this table
-					columns = cursor.execute("pragma table_info(%s)" % table[0])
-					for column in columns.fetchall():
-						table_to_columns[table[0]].append(str(column[1]))
+			# now build a mapping of tables to columns - with a dictionary
+			table_to_columns = {}
+			for table in tables.fetchall():
+				table_to_columns[table[0]] = []
+				# now query columns for this table
+				columns = cursor.execute("pragma table_info(%s)" % table[0])
+				for column in columns.fetchall():
+					table_to_columns[table[0]].append(str(column[1]))
 
-				# now query with the mapping
-				table_to_data = {}
-				for table in table_to_columns:
-					# query with all columns
-					column_string = ",".join(table_to_columns[table])
-					sql_query = "select %s from %s" % (column_string, table)
-					results = cursor.execute(sql_query).fetchall()
-					for n in range(0, len(results)):
-						results[n] = dict(zip(table_to_columns[table], map(str, results[n])))
-					table_to_data[str(table)] = results
-				self._data = json_data_node.make(table_to_data)
-			else:
-				sql_query = query_object.to_sql()
-
-		except IOError as io:
-			exit("Couldn't open the file '%s'" % self._file_name)
+			# now query with the mapping
+			table_to_data = {}
+			for table in table_to_columns:
+				# query with all columns
+				column_string = ",".join(table_to_columns[table])
+				sql_query = "select %s from %s" % (column_string, table)
+				results = cursor.execute(sql_query).fetchall()
+				for n in range(0, len(results)):
+					results[n] = dict(zip(table_to_columns[table], map(str, results[n])))
+				table_to_data[str(table)] = results
+			self._data = json_data_node.make(table_to_data)
+		else:
+			sql_query = query_object.to_sql()
 
 	def data(self):
 		return self._data
@@ -166,7 +117,7 @@ class sqlite_schema(data_source):
 # used for chaining json-navigation methods
 # when a method is called initially on the data, an object of this class is returned,
 # then the methods on that object return an object of this class again.
-class json_data_node():
+class json_data_node(object):
 
 	_data = None
 	def __init__(self, data=None):
@@ -247,6 +198,7 @@ class json_list(json_data_node):
 
 	def next(self):
 		if self.iterator_index > len(self._data)-1:
+			self.reset()
 			raise StopIteration
 		else:
 			self.iterator_index += 1
@@ -262,22 +214,36 @@ class json_list(json_data_node):
 		for index in indices:
 			try:
 				index = int(index)
-				final_list.append(self.get(index).data())
+				try:
+					final_list.append(self.get(index).data())
+				except Exception:
+					# index didn't exist
+					pass
 			except Exception:
 				return
 		return json_data_node.make(final_list)
 
+	def get_members(self, member_name):
+		# assume self.data() is a list
+		if not(type(member_name) in [str, unicode]):
+			raise TypeError("Value given for member name must be a string.")
+		type_of_first_item = self.data()[0].__class__
+		for item in self.data():
+			if item.__class__ != type_of_first_item:
+				return None
+		return json_data_node.make(map(lambda item : getattr(item, member_name), self.data()))
+
 	# format methods
 
-	def as_dicts(self):
+	def as_dicts(self, convert_timestamps=False):
 
 		if len(self.data()) == 0:
 			print("\nNo data to convert to dictionaries.\n")
 			return
 
-		if self.get(0).data().__class__.__name__ in ["GlobalTag", "GlobalTagMap", "GlobalTagMapRequest", "Tag", "IOV", "Payload"]:
+		if self.get(0).data().__class__.__name__ in ["GlobalTag", "GlobalTagMap", "Tag", "IOV", "Payload"]:
 			# copy data
-			new_data = map(lambda item : item.as_dicts(), [item for item in self.data()])
+			new_data = map(lambda item : item.as_dicts(convert_timestamps=convert_timestamps), [item for item in self.data()])
 			return new_data
 		else:
 			print("Data in json_list was not the correct type.")
@@ -285,9 +251,9 @@ class json_list(json_data_node):
 
 	# return ascii version of data
 	# expects array of dicts
-	# columns_to_fit is a list of columns that should be kept at their full size
+	# fit is a list of columns that should be kept at their full size
 	# col_width is the column width to be used as a guide
-	def as_table(self, fit=[], columns=None, hide=None, col_width=None, row_nums=False):
+	def as_table(self, fit=["all"], columns=None, hide=None, col_width=None, row_nums=False):
 
 		if len(self.data()) == 0:
 			print("\nNo data to draw table with.\n")
@@ -304,7 +270,7 @@ class json_list(json_data_node):
 			data = _objects_to_dicts(self.data()).data()
 
 			from querying import connection
-			table_name = connection.class_name_to_column(self.get(0).data().__class__).upper()
+			table_name = models.class_name_to_column(self.get(0).data().__class__).upper()
 			# set headers to those found in ORM models
 			# do it like this so we copy the headers
 			# for example, if headers are hidden by the user, then this will change the orm class if we don't do it like this
@@ -387,7 +353,7 @@ class json_list(json_data_node):
 
 		ascii_string = "\n%s\n\n" % table_name if table_name != None else "\n"
 		for header in headers:
-			ascii_string += cell(header.upper(), header, column_to_width[header], header in fit)
+			ascii_string += cell(header, header, column_to_width[header], header in fit)
 		ascii_string += "\n"
 		horizontal_border = "\n"
 		ascii_string += horizontal_border
@@ -398,6 +364,7 @@ class json_list(json_data_node):
 			ascii_string += "\n"
 		#ascii_string += "\n"
 		ascii_string += horizontal_border
+		ascii_string += "Showing %d rows\n\n" % len(data)
 		print ascii_string
 
 class json_dict(json_data_node):
