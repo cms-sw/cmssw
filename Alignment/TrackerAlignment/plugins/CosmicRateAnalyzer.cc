@@ -5,12 +5,13 @@
 // 
 /**\class CosmicRateAnalyzer CosmicRateAnalyzer.cc CosmicTrackTool/CosmicRateAnalyzer/plugins/CosmicRateAnalyzer.cc
 
- Description: [one line class summary]
-
  Description :
   This Analyzer creates tuple, having necessary infromation for cosmic track and event rate calculations.
 Tuple created by this analyzer also have some kinematical information. This tuple is input of some offline
 macros that make rate plots and kinematical plots.
+
+Implementation : Documentation for running this tool is described in twiki :
+https://twiki.cern.ch/twiki/bin/view/CMS/TkAlCosmicsRateMonitoring
 
 */
 // Originally created:  Justyna Magdalena Tomaszewska,,,
@@ -228,9 +229,6 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    edm::ESHandle<MagneticField> magfield;
    iSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
-
-   //float B_=magfield.product()->inTesla(GlobalPoint(0,0,0)).mag();
-//   std::cout<< " magfield " << B_ << std::endl;
    edm::Timestamp ts_begin = iEvent.getRun().beginTime();
    double t_begin = stampToReal(ts_begin);
    edm::Timestamp ts_end = iEvent.getRun().endTime();
@@ -241,10 +239,6 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    edm::ESHandle<SiStripLatency> apvlat;
    iSetup.get<SiStripLatencyRcd>().get(apvlat);
-//   int mode = -1;
-//   if(apvlat->singleReadOutMode()==1) mode = 47; // peak mode
-//   if(apvlat->singleReadOutMode()==0) mode = 37; // deco mode
-
 
    if (tracks->size()>0) v_ntrk.push_back(tracks->size());
 
@@ -290,16 +284,7 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          { 
             ++nhitinBPIX; ++nhitinPIXEL;
             PixelBarrelName pxbId1(detId1);
-            /*if(pxbId1.isHalfModule())
-              {
-                 ++nhitinPXBminus;
-              }
-              else
-              {
-                 ++nhitinPXBplus;
-              }
-            */
-          }
+         }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //			Hit information in PixelEndcap                                  	//
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -381,13 +366,9 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    for(edmNew::DetSetVector<SiStripCluster>::const_iterator det = cluster->begin();det!=cluster->end();++det) 
    {
-      //DetectorID.push_back(det->detId());
       DetectorID = (det->detId());
       treeCluster->Fill();
    }
-
-//   treeCluster->Fill();
-//   DetectorID.clear();
 
    edm::Handle<reco::MuonCollection> muH;
    iEvent.getByToken(muonTags_, muH);
@@ -399,7 +380,6 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       reco::MuonTime mt0 = muonsT0[i].time();
       time = mt0.timeAtIpInOut;
       DTtime.push_back(time);
-//   std::cout<<time<<std::endl;
    }
    treeEvent ->Fill();
    ClearInEventLoop();
@@ -446,8 +426,6 @@ CosmicRateAnalyzer::beginJob()
 void 
 CosmicRateAnalyzer::endJob() 
 {
-//   file_->Write();
-//   file_->Close();
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -477,9 +455,6 @@ CosmicRateAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
 void 
 CosmicRateAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
-//   if (lastrunnum !=0 && lastruntime !=0){
-//   std::cout<<"lastruntime : "<<lastruntime<<"       lastrunnum : "<<lastrunnum<<std::endl;
-//   std::cout<<" ################   : "<<ntrk_runnum<<std::endl;
    number_of_tracks	=ntrk_runnum;
    run_time		= lastruntime;
    runnum		= lastrunnum;
@@ -498,23 +473,6 @@ CosmicRateAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
    treeRun  ->Fill();
 }
 
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-CosmicRateAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-CosmicRateAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 CosmicRateAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -522,7 +480,7 @@ CosmicRateAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.setComment("Create tuple with all variables required to calculate cosmic event and track rates.");
   desc.add<edm::InputTag> ("tracksInputTag",edm::InputTag("ALCARECOTkAlCosmicsCTF0T"));
   desc.add<edm::InputTag> ("muonsInputTag",edm::InputTag("muons1Leg"));
-  descriptions.addDefault(desc);
+  descriptions.add("cosmicRateAnalyzer", desc);
 }
 
 //define this as a plug-in
