@@ -6,7 +6,7 @@ from helperFunctions import getCommandOutput2
 from TkAlExceptions import AllInOneError
 
 
-class BasePlottingOptions:
+class BasePlottingOptions(object):
     def __init__(self, config, valType, addDefaults = {}, addMandatories=[]):
         import random
         self.type = valType
@@ -102,7 +102,9 @@ class BasePlottingOptions:
 
 class PlottingOptionsTrackSplitting(BasePlottingOptions):
     def __init__(self, config, addDefaults = {}, addMandatories=[]):
-        defaults = {}
+        defaults = {
+                    outliercut: "-1.0",
+                   }
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories

@@ -300,12 +300,18 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 varunits = units(var, axis);
             if (legendOptions.Contains("mean"))
             {
-                average = findAverage(files[i], var, axis, relative, pull);
+                if (outliercut < 0)
+                    average = p[i]->GetMean();
+                else
+                    average = findAverage(files[i], var, axis, relative, pull);
                 cout << "Average = " << average;
                 meanrms << "#mu = " << average;
                 if (legendOptions.Contains("meanerror"))
                 {
-                    rms = findRMS(files[i], var, axis, relative, pull);
+                    if (outliercut < 0)
+                        rms = p[i]->GetRMS();
+                    else
+                        rms = findRMS(files[i], var, axis, relative, pull);
                     meanrms << " #pm " << rms/TMath::Sqrt(lengths[i]*outliercut);
                     cout << " +/- " << rms/TMath::Sqrt(lengths[i]*outliercut);
                 }
@@ -321,7 +327,11 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             if (legendOptions.Contains("rms"))
             {
                 if (rms<-1e98)
-                    rms = findRMS(files[i], var, axis, relative, pull);
+                {
+                    if (outliercut < 0)
+                        rms = p[i]->GetRMS();
+                    else
+                        rms = findRMS(files[i], var, axis, relative, pull);
                 cout << "RMS     = " << rms;
                 meanrms << "rms = " << rms;
                 if (legendOptions.Contains("rmserror"))
@@ -2012,7 +2022,7 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
 
     sort(xvect.begin(), xvect.end());
 
-    for (unsigned int i = (unsigned int)(xvect.size()*.005); i <= (unsigned int)(xvect.size() * .995); i++, totallength++)
+    for (unsigned int i = (unsigned int)(xvect.size()*(1-outliercut)/2); i <= (unsigned int)(xvect.size()*(1+outliercut)/2 + .999); i++, totallength++)
         result += xvect[i];
 
     result /= totallength;
@@ -2021,7 +2031,7 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
     {
         double average = result;
         result = 0;
-        for (unsigned int i = (unsigned int)(xvect.size()*(1-outliercut)/2); i <= (unsigned int)(xvect.size()*(1+outliercut)/2+.999); i++)
+        for (unsigned int i = (unsigned int)(xvect.size()*(1-outliercut)/2); i <= (unsigned int)(xvect.size()*(1+outliercut)/2 + .999); i++)
             result += (x - average) * (x - average);
         result = sqrt(result / (totallength - 1));
     }
