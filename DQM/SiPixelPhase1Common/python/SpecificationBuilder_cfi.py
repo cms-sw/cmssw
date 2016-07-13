@@ -124,9 +124,12 @@ class Specification(cms.PSet):
     if sort != "MEAN" and sort != "COUNT":
       raise Exception("reduction type %s not known" % sort)
     if self._state == STAGE1:
-      if sort != "COUNT":
+      if sort == "COUNT":
+        t = COUNT
+      elif sort == "MEAN":
+        t = REDUCE
+      else:
         raise Exception("reduction type %s not allowed in step1" % sort)
-      t = COUNT
     else:
       t = REDUCE
 

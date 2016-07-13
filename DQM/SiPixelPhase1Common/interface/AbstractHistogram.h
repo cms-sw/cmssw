@@ -19,6 +19,17 @@
 
 struct AbstractHistogram {
 
+  void fill(double x, double y, double z) {
+    if (me) {
+      me->Fill(x, y, z);
+      return;
+    } else if (th1) {
+      assert(!"Invalid operation on TH1");
+    } else {
+      assert(!"Invalid histogram. This is a problem in the HistogramManager.");
+    } 
+  }; 
+
   void fill(double x, double y) {
     if (me) {
       me->Fill(x, y);
