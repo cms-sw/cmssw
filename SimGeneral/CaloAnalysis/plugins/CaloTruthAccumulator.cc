@@ -1,4 +1,4 @@
-// S Zenz, May 2016
+// S Zenz/L Gray, May 2016
 // Loosely based on TrackingTruthAccumulator (M Grimes)
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
@@ -126,8 +126,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   //
   // Get the collections
   //
-  edm::Handle<std::vector<SimTrack> > hSimTracks;
-  edm::Handle<std::vector<SimVertex> > hSimVertices;
+  
   edm::Handle< std::vector<reco::GenParticle> > hGenParticles;
   edm::Handle< std::vector<int> > hGenParticleIndices;
   
@@ -211,6 +210,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   
   std::vector<Index_t> tracksToBecomeClustersInitial;
   std::vector<Barcode_t> descendantTracks;
+  std::vector<SimClusterCollection> simClustersForGenParts;
   std::vector<std::unique_ptr<SimHitInfoPerSimTrack_t> > hitInfoList;
   std::vector<std::vector<uint32_t> > simClusterPrimitives;
   std::unordered_multimap<Index_t,Index_t> genPartsToSimClusters;
@@ -375,6 +375,7 @@ std::vector<Barcode_t> CaloTruthAccumulator::descendantTrackBarcodes( Barcode_t 
 
 SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barcode, const std::vector<const PCaloHit*>& hits ) {
   SimClusterCollection result;
+  const auto& simTracks = *hSimTracks;
   if ( CaloTruthAccumulator::consideredBarcode( barcode ) ) {
     std::cout << "SCZ DEBUG Ignoring descendantSimClusters call because this particle is already marked used: " << barcode << std::endl;
   }
@@ -384,8 +385,16 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
   std::cout << " After Special SCZ DEBUG call of inclusive_hit_info on barcode " << barcode 
 	    << "... inclusive_hit_info->size()=" << inclusive_hit_info->size() << std::endl;
   if (hit_info->size() > 0) {
-    //    std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, true) );
-    const auto& simTrack = 
+    std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, true) );
+    const auto& simTrack = simTracks[m_simTrackBarcodeToIndex[barcode]];
+    
+    result.push_back(simTrack);
+    auto& simcluster = result.back();
+
+    for( const auto& hit_and_fraction : *inclusive_hit_info ) {
+      simcluster.addRecHitAndFraction(hit_and_fraction.first,hit_and_fraction.second);
+    }
+
     std::cout << " SCZ DEBUG we should make a SimCluster out of particle: " << barcode << std::endl;
   } else {
     if (m_simTrackToSimVertex.count(barcode)) {

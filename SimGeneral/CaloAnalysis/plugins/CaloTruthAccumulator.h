@@ -35,6 +35,8 @@ namespace edm {
 }
 class PileUpEventPrincipal;
 class PCaloHit;
+class SimTrack;
+class SimVertex;
 
 class CaloTruthAccumulator : public DigiAccumulatorMixMod {
  public:
@@ -102,6 +104,9 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   
   const edm::InputTag simTrackLabel_;
   const edm::InputTag simVertexLabel_;
+  edm::Handle<std::vector<SimTrack> > hSimTracks;
+  edm::Handle<std::vector<SimVertex> > hSimVertices;
+
   std::vector<edm::InputTag> collectionTags_;
   edm::InputTag genParticleLabel_;
   /// Needed to add HepMC::GenVertex to SimVertex
