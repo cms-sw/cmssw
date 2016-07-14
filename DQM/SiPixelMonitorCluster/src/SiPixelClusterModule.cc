@@ -481,7 +481,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, const edm::Eve
 //
 // Fill histograms
 //
-int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker, int *barrelClusterTotal, int *endcapClusterTotal, std::vector<MonitorElement*>& layers,std::vector<MonitorElement*>& diskspz,std::vector<MonitorElement*>& disksmz,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon, bool isUpgrade) {
+int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker, int *barrelClusterTotal, int *fpixPClusterTotal, int *fpixMClusterTotal, std::vector<MonitorElement*>& layers,std::vector<MonitorElement*>& diskspz,std::vector<MonitorElement*>& disksmz,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon, bool isUpgrade) {
   
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -499,7 +499,6 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
     for(di = isearch->begin(); di != isearch->end(); di++) {
       numberOfClusters++;
       if(endcap) numberOfFpixClusters++;
-      if(endcap) (*endcapClusterTotal)++;
       if(barrel) (*barrelClusterTotal)++;
       float charge = 0.001*(di->charge()); // total charge of cluster
       float x = di->x();                   // barycenter x position
@@ -526,8 +525,10 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       }else if(endcap){
 	uint32_t DBdisk = PixelEndcapName(DetId(id_), pTT, isUpgrade).diskName();
 	if(clustgp.z()>0){
+	  (*fpixPClusterTotal)++;
 	  if (!(DBdisk > diskspz.size()) && (diskspz[DBdisk-1])) diskspz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
 	}else{
+	  (*fpixMClusterTotal)++;
 	  if (!(DBdisk > disksmz.size()) && (disksmz[DBdisk-1])) disksmz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
 	} 
       }
