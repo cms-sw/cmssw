@@ -905,7 +905,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       vector<double> vals;
 
       hitCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)totalHits);
-      hitCounter->getTH1()->SetBinError(lastLumiOfFit, 1.); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
+      hitCounter->getTH1()->SetBinError(lastLumiOfFit, (totalHits != 0 ? 1. : 0.)); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
 
       if (dataFromFit == true)
 	{
@@ -1134,7 +1134,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       hitCounter->getTH1()->Fit(myLinFit,"QR");
 
       goodVxCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
-      goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, 1.); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
+      goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, (counterVx != 0 ? 1. : 0.)); // It's not sqrt(n) because we want to weight all entries in the same way for the fit
       myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit(myLinFit,"QR");
