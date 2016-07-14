@@ -1,11 +1,9 @@
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 
-L1TMuonBarrelParamsHelper::L1TMuonBarrelParamsHelper(const L1TMuonBarrelParams& barrelParams) : m_params_helper(barrelParams) //: L1TMuonBarrelParams_PUBLIC(cast_to_L1TMuonBarrelParams_PUBLIC(barrelParams)) //: m_params_helper(barrelParams)
+L1TMuonBarrelParamsHelper::L1TMuonBarrelParamsHelper(const L1TMuonBarrelParams& barrelParams) : m_params_helper(cast_to_L1TMuonBarrelParamsAllPublic(barrelParams))
 {
-//	if (pnodes_.size() != 2) 
-//	    pnodes_.resize(2);
-  
+	
 }
 
 void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts, std::map<std::string, bool>& allBools, std::map<std::string, std::vector<std::string> > allMasks, unsigned int fwVersion, const std::string& AssLUTpath)
