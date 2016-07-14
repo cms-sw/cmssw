@@ -233,15 +233,14 @@ class GeneratorAnalyzer( Analyzer ):
         event.genallcquarks = [ p for p in event.genParticles if abs(p.pdgId()) == 4 and ( p.numberOfDaughters() == 0 or abs(p.daughter(0).pdgId()) != 4) ]
         event.gengluonfromt = sorted(
             [p for p in event.genParticles if abs(p.pdgId()) == 21 and (abs(p.mother(0).pdgId()) == 6)],
-            key=lambda x: x.p4().Pt()
+            key=lambda x: x.p4().Pt(), reverse=True
         )
         event.gengluonfromb = sorted(
             [p for p in event.genParticles if abs(p.pdgId()) == 21 and (abs(p.mother(0).pdgId()) == 5)],
-            key=lambda x: x.p4().Pt()
+            key=lambda x: x.p4().Pt(), reverse=True
         )
-        print "gluon_t", [p.p4().Pt() for p in event.gengluonfromt]
-        print "gluon_b", [p.p4().Pt() for p in event.gengluonfromb]
-		# aggiunti da me
+        event.gengluonfromt = filter(lambda x: x.p4().Pt>20, event.gengluonfromt)
+        event.gengluonfromb = filter(lambda x: x.p4().Pt>20, event.gengluonfromb)
 
         #event.genHiggsToBB = [ p for p in event.genParticles if abs(p.pdgId())==25 and p.numberOfDaughters()==2 and abs(p.daughter(0).pdgId()) == 5 ] 
 
