@@ -1,6 +1,5 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"

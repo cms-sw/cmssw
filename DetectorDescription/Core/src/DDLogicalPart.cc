@@ -2,7 +2,6 @@
 
 #include <ostream>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -126,7 +125,6 @@ DDLogicalPart::DDLogicalPart(const DDName & ddname,
 		             DDEnums::Category cat) 
  : DDBase<DDName,DDI::LogicalPart*>() 
 { 
-   DCOUT('C', "create LogicalPart ddname=" << ddname << " mat=" << material.name() << " sol=" << solid.name());
    prep_ = StoreT::instance().create(ddname, new DDI::LogicalPart(material,solid,cat));
    DD_NC(ddname);
 }
@@ -245,7 +243,6 @@ DDsvalues_type DDLogicalPart::mergedSpecifics() const
 // for internal use only
 void DDLogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
-   DCOUT('S', "lp=" << name());
    rep().addSpecifics(s);
 }
 void DDLogicalPart::removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
