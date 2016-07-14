@@ -21,7 +21,6 @@ SimCluster::SimCluster( const SimTrack& simtrk )
 			  simtrk.momentum().py(),
 			  simtrk.momentum().pz(),
 			  simtrk.momentum().E());
-  std::cout << " Made a simcluster: " << *this << std::endl;
 }
 
 SimCluster::SimCluster( EncodedEventId eventID, uint32_t particleID )
