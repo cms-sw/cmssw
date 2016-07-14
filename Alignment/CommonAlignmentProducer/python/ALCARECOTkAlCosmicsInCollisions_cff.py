@@ -28,7 +28,7 @@ ALCARECOTkAlCosmicsInCollisionsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.
 # AlCaReco for track based alignment using Cosmic muons reconstructed by Combinatorial Track Finder
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlCosmicsInCollisions = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
-    src = 'regionalCosmicTracks',
+    src = 'cosmicDCTracks',
     filter = True,
     applyBasicCuts = True,
 
