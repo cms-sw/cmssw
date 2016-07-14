@@ -1090,12 +1090,14 @@ class AdditionalBoost( Analyzer ):
             for i in xrange(len(newtags)) :
                 if jet.physObj == newtags.key(i).get():
                     jet.bbtag = newtags.value(i)
-		corr = self.jetReCalibratorAK8L2L3.getCorrection(Jet(jet),rho)
+
+                tmp_jet = Jet(jet)
+		corr = self.jetReCalibratorAK8L2L3.getCorrection(tmp_jet,rho)
                 jet.mprunedcorr= jet.userFloat("ak8PFJetsCHSPrunedMass")*corr	
-		jet.JEC_L2L3 = corr
-                #jet.JEC_L2L3Unc = jet.jetEnergyCorrUncertainty
-		jet.JEC_L1L2L3 = self.jetReCalibratorAK8L1L2L3.getCorrection(Jet(jet),rho)
-                #jet.JEC_L1L2L3Unc = jet.jetEnergyCorrUncertainty
+		jet.JEC_L2L3 = corr                
+                jet.JEC_L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
+		jet.JEC_L1L2L3 = self.jetReCalibratorAK8L1L2L3.getCorrection(tmp_jet,rho)
+                jet.JEC_L1L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
 
             # bb-tag Inputs
             muonTagInfos = self.handles['ak08muonTagInfos'].product()[ij]
