@@ -1,5 +1,4 @@
 #include "SimMuon/MCTruth/interface/CSCTruthTest.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
