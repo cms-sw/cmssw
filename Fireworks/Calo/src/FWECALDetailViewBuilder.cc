@@ -4,6 +4,7 @@
 
 #include "TEveCaloData.h"
 #include "TEveViewer.h"
+#include "TEvePointSet.h"
 #include "TEveCalo.h"
 #include "TAxis.h"
 #include "TMath.h"
@@ -15,6 +16,8 @@
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/Context.h"
+
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -102,9 +105,17 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
       data->RefSliceInfo(i + 1).Setup( "hits (clustered)", 0.0, m_colors[i] );
    }
 
+   bool coordinatesEtaPhi = true;
+   // AMT should use size here ... but it is not clear in which units it is, hardcode 1
+   if (xyEE  && ((fabs(m_eta) - 0.2) > fireworks::Context::getInstance()->caloTransEta())) {
+       coordinatesEtaPhi = false;
+   }
+
+   printf("coordinates XY = %d \n", !coordinatesEtaPhi);
+
    if( handle_hits.isValid() ) 
    {
-      fillData( hits, data, xyEE );
+      fillData( hits, data, coordinatesEtaPhi );
    }
 
    // axis
@@ -115,7 +126,7 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
 
       // add dummy background
       float x = m_size*TMath::DegToRad();
-      if (fabs(m_eta) < 1.5 || xyEE == false) {
+      if (coordinatesEtaPhi == false ) {
          etaMin = m_eta -x;
          etaMax = m_eta +x;
          phiMin = m_phi -x;
@@ -144,7 +155,7 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
    data->GetPhiLimits(phiMin, phiMax);
    //  printf("data rng %f %f %f %f\n",etaMin, etaMax, phiMin, phiMax );
 
-   if (fabs(m_eta) > 1.5 && xyEE ) {
+   if (coordinatesEtaPhi == false) {
       eta_axis = new TAxis(10, etaMin, etaMax);
       phi_axis = new TAxis(10, phiMin, phiMax);
       eta_axis->SetTitle("X[cm]");
@@ -205,6 +216,16 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    lego->SetAutoRebin(kFALSE);
    lego->Set2DMode(TEveCaloLego::kValSizeOutline);
    lego->SetName("ECALDetail Lego");
+
+   TEvePointSet* ps = new TEvePointSet("vv");
+   ps->SetNextPoint(m_eta, m_phi, 0.1);
+   ps->SetMarkerSize(0.1);
+   ps->SetMarkerStyle(2);
+   ps->SetMainColor(kGreen);
+   ps->SetMarkerColor(kGreen);
+   lego->AddElement(ps);
+
+
    return lego;
 
 }
@@ -279,129 +300,164 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
    }
 }
 
+
+//------------------------------------------------------------------
+namespace {
+    struct DetIdTower {
+        DetIdTower(const EcalRecHit& hit, const FWGeometry* geom, std::map<DetId, int>& detIdsToColor) :
+            m_points(0), m_slice(0), m_height(0) {
+            m_points = geom->getCorners( hit.id().rawId());
+            if( m_points != 0 )
+            {
+                int j = 0;
+                for( int i = 0; i < 8; ++i )
+                {	 
+                    m_center += TEveVector( m_points[j], m_points[j + 1], m_points[j + 2] );
+                    j +=3;
+                }
+
+                m_center *= 1.f/8.0f;
+            }
+            else
+                fwLog( fwlog::kInfo ) << "cannot get geometry for DetId: "<< hit.id().rawId() << ". Ignored.\n";
+
+            std::map<DetId, int>::const_iterator itr = detIdsToColor.find(hit.id().rawId());
+            if (itr != detIdsToColor.end()) m_slice = itr->second;
+      
+            m_height = hit.energy() / cosh( m_center.Eta() );
+      
+        }
+
+        const float* m_points;
+        TEveVector m_center;
+        int m_slice;
+        double m_height;
+
+    };
+}
+
+//------------------------------------------------------------------
 void
-FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
-                                  TEveCaloDataVec *data, bool xyEE )
+FWECALDetailViewBuilder::fillDataEtaPhi( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
 {
-   const float barrelCR = m_size*0.0172; // barrel cell range
-   
-   // loop on all the detids
-   for( EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end();
-       k != kEnd; ++k )
-   {
-      // get reco geometry
-      double centerEta = 0;
-      double centerPhi = 0;
-      const float* points = m_geom->getCorners( k->id().rawId());
-      if( points != 0 )
-      {
-         TEveVector v;
-         int j = 0;
-         for( int i = 0; i < 8; ++i )
-         {	 
-            v += TEveVector( points[j], points[j + 1], points[j + 2] );
-            j +=3;
-         }
-         centerEta = v.Eta();
-         centerPhi = v.Phi();
-      }
-      else
-         fwLog( fwlog::kInfo ) << "cannot get geometry for DetId: "<< k->id().rawId() << ". Ignored.\n";
-      
-      double size = k->energy() / cosh( centerEta );
-      
-      // check what slice to put in
-      int slice = 0;
-      std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
-      if (itr != m_detIdsToColor.end()) slice = itr->second;
-      
-      // if in the EB
-      if( k->id().subdetId() == EcalBarrel || xyEE == false )
-      {
-         // do phi wrapping
-         if( centerPhi > m_phi + M_PI) centerPhi -= 2 * M_PI;
-         if( centerPhi < m_phi - M_PI) centerPhi += 2 * M_PI;
-         
-         // check if the hit is in the window to be drawn
-         if( !( fabs( centerEta - m_eta ) < barrelCR
-               && fabs( centerPhi - m_phi ) < barrelCR )) continue;
-         
-         double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-         if( points != 0 )
-         {
+    const float area = m_size*0.0172; // barrel cell range, AMT this is available in context
+    printf("area size %f \n", area );
+
+            int cntt = 0;
+    for( EcalRecHitCollection::const_iterator k = hits->begin(); k != hits->end(); ++k)
+    {
+        if( k->id().subdetId() != EcalBarrel)
+            continue; // AMT is this necessary ?
+
+        DetIdTower tower(*k, m_geom, m_detIdsToColor);
+        if (tower.m_points)
+        {
+            float centerEta = tower.m_center.Eta();
+            float centerPhi = tower.m_center.Phi();
+            /*
+
+            // do phi wrapping
+            if( centerPhi > m_phi + M_PI) centerPhi -= 2 * M_PI;
+            if( centerPhi < m_phi - M_PI) centerPhi += 2 * M_PI;
+           
+
             // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
             // so if we simply get the largest eta and phi, cells will overlap
             // therefore we get a smaller eta-phi range representing the inner square
             // we also should use only points from the inner face of the crystal, since
             // non-projecting direction of crystals leads to large shift in eta on outter
             // face.
-            int j = 0;
+            */
             float eps = 0.005;
+            double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
+            /*
+            int j = 0;
             for( unsigned int i = 0; i < 8; ++i )
             {
-               TEveVector crystal( points[j], points[j + 1], points[j + 2] );
-               j += 3;
-               double eta = crystal.Eta();
-               double phi = crystal.Phi();
-               if ( ((k->id().subdetId() == EcalBarrel)  && (crystal.Perp() > 135) )||  ((k->id().subdetId() == EcalEndcap) && (crystal.Perp() > 155))) continue;
-               if ( minEta - eta > eps) minEta = eta;
-               if ( eta - minEta > 0 && eta - minEta < eps ) minEta = eta;
-               if ( eta - maxEta > eps) maxEta = eta;
-               if ( maxEta - eta > 0 && maxEta - eta < eps ) maxEta = eta;
-               if ( minPhi - phi > eps) minPhi = phi;
-               if ( phi - minPhi > 0 && phi - minPhi < eps ) minPhi = phi;
-               if ( phi - maxPhi > eps) maxPhi = phi;
-               if ( maxPhi - phi > 0 && maxPhi - phi < eps ) maxPhi = phi;
+                TEveVector crystal( tower.m_points[j], tower.m_points[j + 1], tower.m_points[j + 2] );
+                j += 3;
+                double eta = crystal.Eta();
+                double phi = crystal.Phi();
+                if ( ((k->id().subdetId() == EcalBarrel)  && (crystal.Perp() > 135) )||  ((k->id().subdetId() == EcalEndcap) && (crystal.Perp() > 155))) continue;
+                if ( minEta - eta > eps) minEta = eta;
+                if ( eta - minEta > 0 && eta - minEta < eps ) minEta = eta;
+                if ( eta - maxEta > eps) maxEta = eta;
+                if ( maxEta - eta > 0 && maxEta - eta < eps ) maxEta = eta;
+                if ( minPhi - phi > eps) minPhi = phi;
+                if ( phi - minPhi > 0 && phi - minPhi < eps ) minPhi = phi;
+                if ( phi - maxPhi > eps) maxPhi = phi;
+                if ( maxPhi - phi > 0 && maxPhi - phi < eps ) maxPhi = phi;
             }
-         }
-         else 
-         {
-            double delta = 0.0172 * 0.5;
-            minEta = centerEta - delta;
-            maxEta = centerEta + delta;
-            minPhi = centerPhi - delta;
-            maxPhi = centerPhi + delta;
-         }
-         if( minPhi >= ( m_phi - barrelCR ) && maxPhi <= ( m_phi + barrelCR ) &&
-            minEta >= ( m_eta - barrelCR ) && maxEta <= ( m_eta + barrelCR ))
-         {
-            // printf("add %f %f %f %f \n",minEta, maxEta, minPhi, maxPhi );
-            data->AddTower( minEta, maxEta, minPhi, maxPhi );
-            data->FillSlice( slice, size );
-         }
-         // otherwise in the EE
-      }
-      else if( k->id().subdetId() == EcalEndcap )
-      {
-         // check if the hit is in the window to be drawn
-         double crystalSize = m_size * 0.0172;
-         if( !( fabs( centerEta - m_eta ) < ( crystalSize )
-               && fabs( centerPhi - m_phi ) < ( crystalSize )))
+            */
+
+               minEta = centerEta - eps;
+               maxEta = centerEta + eps;
+               minPhi = centerPhi - eps;
+               maxPhi = centerPhi + eps;
+
+            if( minPhi >= ( m_phi - area ) && maxPhi <= ( m_phi + area ) &&
+                minEta >= ( m_eta - area ) && maxEta <= ( m_eta + area ))
+            {
+                tower.m_center.Dump();
+                // printf("add (%f %f %f %f ) , value = %f\n",minEta, maxEta, minPhi, maxPhi, tower.m_height );
+                data->AddTower( tower.m_center.Eta() -eps, tower.m_center.Eta() + eps,  tower.m_center.Phi() -eps,tower.m_center.Phi() +eps );
+                data->FillSlice( tower.m_slice, tower.m_height );
+                cntt++;
+            }
+        }
+    }
+            printf("added %d towers \n", cntt);
+}
+
+
+void
+FWECALDetailViewBuilder::fillDataXY( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
+{
+   double crystalSize = m_size /** TMath::DegToRad()*/; // AMT this should be legoXYSize
+
+    for( EcalRecHitCollection::const_iterator k = hits->begin(); k != hits->end(); ++k)
+    {
+        DetIdTower tower(*k, m_geom, m_detIdsToColor);
+    
+        // check if the hit is in the window to be drawn
+        if( !( fabs( tower.m_center.Eta() - m_eta ) < ( crystalSize )
+               && fabs( tower.m_center.Phi() - m_phi ) < ( crystalSize )))
             continue;
          
-         if( points != 0 )
-         {
+        if( tower.m_points != 0 )
+        {
             double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
             int j = 0;
             for( unsigned int i = 0; i < 8; ++i )
             {
-               TEveVector crystal( points[j], points[j + 1], points[j + 2] );
-               j += 3;
-               double x = crystal.fX;
-               double y = crystal.fY;
-               if( fabs( crystal.fZ ) > 330 ) continue;
-               if( minX - x > 0.01 ) minX = x;
-               if( x - maxX > 0.01 ) maxX = x;
-               if( minY - y > 0.01 ) minY = y;
-               if( y - maxY > 0.01 ) maxY = y;
+                TEveVector crystal( tower.m_points[j], tower.m_points[j + 1], tower.m_points[j + 2] );
+                j += 3;
+                double x = crystal.fX;
+                double y = crystal.fY;
+                if( fabs( crystal.fZ ) > 330 ) continue;
+                if( minX - x > 0.01 ) minX = x;
+                if( x - maxX > 0.01 ) maxX = x;
+                if( minY - y > 0.01 ) minY = y;
+                if( y - maxY > 0.01 ) maxY = y;
             }
             data->AddTower( minX, maxX, minY, maxY );
-            // printf("EE add %f %f %f %f \n",minX, maxX, minY, maxY );
-         }
-         data->FillSlice( slice, size );
-      }
-   } // end loop on hits
-   
+            data->FillSlice( tower.m_slice, tower.m_height );
+        }
+    }
+}
+
+//---------------------------------------------------------------------------------------
+
+
+void
+FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
+                                  TEveCaloDataVec *data, bool coordinatesEtaPhi )
+{
+    if (coordinatesEtaPhi)
+        fillDataEtaPhi(hits, data);
+    else 
+        fillDataXY(hits, data);
+
    data->DataChanged();
 }
 

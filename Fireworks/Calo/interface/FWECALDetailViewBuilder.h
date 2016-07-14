@@ -68,6 +68,11 @@ private:
    // fill data
    void fillData(const EcalRecHitCollection *hits,
                  TEveCaloDataVec *data, bool xyEE);
+
+   
+   void fillDataEtaPhi(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
+   void fillDataXY(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
+
    const edm::EventBase *m_event;                               // the event
    const FWGeometry     *m_geom;                                // the geometry
    float m_eta;                                                 // eta position view centred on
