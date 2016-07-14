@@ -24,10 +24,12 @@
 #include "L1Trigger/L1TCommon/interface/setting.h"
 #include "L1Trigger/L1TCommon/interface/mask.h"
 
+#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsAllPublic.h"
+
 
 typedef std::map<short, short, std::less<short> > LUT;
 
-class L1TMuonBarrelParamsHelper 
+class L1TMuonBarrelParamsHelper
 {
 public:
 	L1TMuonBarrelParamsHelper() {};
@@ -37,11 +39,13 @@ public:
 
 	void configFromPy(std::map<std::string, int>& allInts, std::map<std::string, bool>& allBools, std::map<std::string, std::vector<std::string> > allMasks, unsigned int fwVersion, const std::string& AssLUTpath);
 	void configFromDB(l1t::trigSystem& trgSys);
-	operator L1TMuonBarrelParams(void) const {return m_params_helper;} ;
+	operator L1TMuonBarrelParams(void) const {return cast_to_L1TMuonBarrelParams(m_params_helper);} ;
 
+
+	
 
 private:
-	L1TMuonBarrelParams m_params_helper;
+	L1TMuonBarrelParamsAllPublic m_params_helper;
 	l1t::trigSystem m_trgSys;
 
 	int load_pt(std::vector<LUT>& , std::vector<int>&, unsigned short int, std::string);
