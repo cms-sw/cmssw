@@ -6,6 +6,7 @@ from RecoMuon.MuonIdentification.caloCompatibility_cff import *
 from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
 from RecoMuon.MuonIdentification.TrackerKinkFinder_cfi import *
 from TrackingTools.TrackAssociator.default_cfi import *
+from Configuration.StandardSequences.Eras import eras
 muons1stStep = cms.EDProducer("MuonIdProducer",
     # MuonCaloCompatibility
     MuonCaloCompatibilityBlock,
@@ -79,7 +80,10 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
                                           ClusterDTheta = cms.double(0.02) # 1.14
     )
 )
-                       
+
+eras.run3_GEM.toModify( muons1stStep, TrackAssociatorParameters = dict(useGEM = cms.bool(True) ) )
+eras.phase2_muon.toModify( muons1stStep, TrackAssociatorParameters = dict(useME0 = cms.bool(True) ) )
+
 muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
                                 inputCollection = cms.InputTag("muons1stStep")
 )
