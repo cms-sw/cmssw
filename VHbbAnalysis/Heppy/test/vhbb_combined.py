@@ -18,7 +18,7 @@ boostana=cfg.Analyzer(
 )
 
 #boostana.GT = "Fall15_25nsV2_DATA" 
-boostana.GT = "Spring16_25nsV3_DATA" # we do L2L3 for MC and L2L3Res for data. Can therefor use data GT for both
+boostana.GT = "Spring16_25nsV6_DATA" # we do L2L3 for MC and L2L3Res for data. Can therefor use data GT for both
 boostana.jecPath = os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/jec"
 boostana.isMC = sample.isMC
 boostana.skip_ca15 = False
