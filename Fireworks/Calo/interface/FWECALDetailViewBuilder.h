@@ -39,7 +39,7 @@ public:
                            Color_t defaultColor = kMagenta+1)
       : m_event(event), m_geom(geom),
         m_eta(eta), m_phi(phi), m_size(size),
-        m_defaultColor(defaultColor){
+        m_defaultColor(defaultColor), m_coordinatesEtaPhi(true){
    }
 
    // draw the ecal information with the preset colors
@@ -77,9 +77,9 @@ private:
    const FWGeometry     *m_geom;                                // the geometry
    float m_eta;                                                 // eta position view centred on
    float m_phi;                                                 // phi position view centred on
-   int m_size;                                                  // view half width in number of crystals
+   int   m_size;                                                  // view half width in number of crystals
    Color_t m_defaultColor;                                      // default color for crystals
-
+   bool m_coordinatesEtaPhi;
    // for keeping track of what det id goes in what slice
    std::map<DetId, int> m_detIdsToColor;
 
@@ -91,5 +91,8 @@ private:
    {
       return ( lhs.eta() < rhs.eta());
    }
+
+   float sizeRad() const;
+   float sizeXY() const;
 
 };
