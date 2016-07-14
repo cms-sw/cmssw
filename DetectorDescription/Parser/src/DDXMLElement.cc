@@ -6,7 +6,6 @@
 #include <utility>
 #include <string>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -27,15 +26,10 @@ DDXMLElement::DDXMLElement( DDLElementRegistry* myreg, const bool& clearme )
     autoClear_( clearme )
 {}
 
-DDXMLElement::~DDXMLElement( void )
-{}
-
 // For pre-processing, after attributes are loaded.  Default, do nothing!
 void
 DDXMLElement::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
-{
-  DCOUT_V('P', "DDXMLElement::preProcessElementBase default, do nothing) started-completed.");
-}
+{}
 
 // This loads the attributes into the attributes_ std::vector.
 void
@@ -54,7 +48,6 @@ DDXMLElement::loadAttributes( const std::string& elemName,
   }
 
   preProcessElement( elemName, nmspace, cpv );
-  DCOUT_V('P', "DDXMLElement::loadAttributes completed. " << *this);
 }
 
 // clear data.
@@ -125,7 +118,6 @@ DDXMLElement::get( const std::string& name, const size_t aIndex ) const
     DDXMLAttribute::const_iterator it = attributes_[aIndex].find(name);
     if (attributes_[aIndex].end() == it)
     {
-      DCOUT_V('P', "WARNING: DDXMLElement::get did not find the requested attribute: "  << name << std::endl << *this);
       return sts;
     }
     else
@@ -156,7 +148,6 @@ DDXMLElement::getVectorAttribute( const std::string& name )
     {
       appendAttributes(tv, name);
     }
-    DCOUT_V('P', "DDXMLElement::getAttribute found attribute named " << name << " in a map of size " << size());
   }
   else
   {
@@ -166,7 +157,6 @@ DDXMLElement::getVectorAttribute( const std::string& name )
     }
     else
     {
-      DCOUT_V('P', "DDXMLAttributeAccumulator::getAttribute was asked to provide a std::vector of values for an attribute named " << name << " but there was no such attribute.");
       //      throw cms::Exception("DDException") << msg;
     }
   } 
@@ -177,10 +167,8 @@ DDXMLElement::getVectorAttribute( const std::string& name )
 void
 DDXMLElement::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDXMLElement::processElementBase (default, do nothing) started-completed");
   loadText(std::string());
   if ( autoClear_ ) clear(); 
-  
 }
 
 void

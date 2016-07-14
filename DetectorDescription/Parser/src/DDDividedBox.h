@@ -14,54 +14,39 @@ class DDCompactView;
 class DDLogicalPart;
 class DDRotation;
 
-class DDDividedBoxX : public DDDividedGeometryObject
+class DDDividedBoxX final : public DDDividedGeometryObject
 { 
  public:
   
   DDDividedBoxX( const DDDivision& div, DDCompactView* cpv);
   
-  virtual ~DDDividedBoxX();
-
-  virtual double getMaxParameter() const;
-
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const;
-
-  virtual DDRotation makeDDRotation( const int copyNo ) const;
-
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const;
+  virtual double getMaxParameter() const override;
+  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
+  virtual DDRotation makeDDRotation( const int copyNo ) const override;
+  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const override;
 };
 
-class DDDividedBoxY : public DDDividedGeometryObject
+class DDDividedBoxY final : public DDDividedGeometryObject
 { 
  public:
   
   DDDividedBoxY( const DDDivision& div, DDCompactView* cpv);
   
-  virtual ~DDDividedBoxY();
-
-  virtual double getMaxParameter() const;
-
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const;
-
-  virtual DDRotation makeDDRotation( const int copyNo ) const;
-
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const;
+  virtual double getMaxParameter() const override;
+  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
+  virtual DDRotation makeDDRotation( const int copyNo ) const override;
+  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const override;
 };
 
-class DDDividedBoxZ : public DDDividedGeometryObject
+class DDDividedBoxZ final : public DDDividedGeometryObject
 { 
  public:
   
   DDDividedBoxZ( const DDDivision& div, DDCompactView* cpv);
   
-  virtual ~DDDividedBoxZ();
-
-  virtual double getMaxParameter() const;
-
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const;
-
-  virtual DDRotation makeDDRotation( const int copyNo ) const;
-
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const;
+  virtual double getMaxParameter() const override;
+  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
+  virtual DDRotation makeDDRotation( const int copyNo ) const override;
+  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const override;
 };
 #endif

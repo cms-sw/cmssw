@@ -1,23 +1,9 @@
-/***************************************************************************
-                          DDLSolid.cc  -  description
-                             -------------------
-    begin                : Wed Oct 3 2002
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 
 #include <map>
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 
@@ -25,9 +11,6 @@ class DDCompactView;
 
 DDLSolid::DDLSolid( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
-{}
-
-DDLSolid::~DDLSolid( void )
 {}
 
 void
@@ -50,6 +33,4 @@ DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
 
   // clear THIS solid's values.
   clear();
-
-  DCOUT_V('P', "DDLSolid::setReference completed");
 }

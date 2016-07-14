@@ -26,16 +26,13 @@ class DDLElementRegistry;
  *
  *
  */
-class DDLNumeric : public DDXMLElement
+class DDLNumeric final : public DDXMLElement
 {
 public:
 
   DDLNumeric( DDLElementRegistry* myreg );
 
-  ~DDLNumeric( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
 #endif

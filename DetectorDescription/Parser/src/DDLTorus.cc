@@ -1,23 +1,8 @@
-
-/***************************************************************************
-                          DDLTorus.cc  -  description
-                             -------------------
-    begin                : Fri May 25 2007
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLTorus.h"
 
 #include <map>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -30,15 +15,10 @@ DDLTorus::DDLTorus( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
 {}
 
-DDLTorus::~DDLTorus( void )
-{}
-
 // Upon encountering an end of the tag, call DDCore's Torus.
 void
 DDLTorus::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLTorus::processElement started");
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
@@ -50,6 +30,4 @@ DDLTorus::processElement( const std::string& name, const std::string& nmspace, D
 			   ev.eval(nmspace, atts.find("startPhi")->second),
 			   ev.eval(nmspace, atts.find("deltaPhi")->second));
   DDLSolid::setReference( nmspace, cpv );
-
-  DCOUT_V('P', "DDLTorus::processElement completed");
 }

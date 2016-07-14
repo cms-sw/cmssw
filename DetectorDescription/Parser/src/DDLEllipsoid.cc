@@ -1,22 +1,4 @@
-/***************************************************************************
-                          DDLEllipsoid.cc  -  description
-                             -------------------
-    begin                : Thu Aug 19 2010
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLEllipsoid.h"
-
-#include <map>
-#include <utility>
-
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -29,14 +11,9 @@ DDLEllipsoid::DDLEllipsoid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
 {}
 
-DDLEllipsoid::~DDLEllipsoid( void )
-{}
-
-// Upon encountering the end of the Ellipsoid element, call DDCore.
 void
 DDLEllipsoid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 { 
-  DCOUT_V( 'P', "DDLEllipsoid::processElement started" );
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   double zbot(0.), ztop(0.);
@@ -55,6 +32,4 @@ DDLEllipsoid::processElement( const std::string& name, const std::string& nmspac
 					    zbot,
 					    ztop );
   DDLSolid::setReference( nmspace, cpv );
-
-  DCOUT_V( 'P', "DDLEllipsoid::processElement completed" );
 }

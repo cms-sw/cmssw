@@ -32,7 +32,6 @@ XercesString::XercesString( const XercesString &right )
 
 XercesString::~XercesString()
 {
-  std::cout << "~XercesString()" <<  _wstr << ".\n";
   if( _wstr ) XMLString::release( &_wstr );
 }
 

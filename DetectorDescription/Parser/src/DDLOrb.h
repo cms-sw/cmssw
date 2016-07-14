@@ -2,10 +2,6 @@
 #define DDL_Orb_H
 
 #include <string>
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
 class DDCompactView;
@@ -24,16 +20,13 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLOrb : public DDLSolid
+class DDLOrb final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLOrb( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLOrb( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

@@ -34,9 +34,6 @@ public:
   /// Constructor
   DDLSolid( DDLElementRegistry* myreg );
 
-  /// Destructor
-  virtual ~DDLSolid( void );
-
   void setReference( const std::string& nmspace, DDCompactView& cpv );
 };
 #endif

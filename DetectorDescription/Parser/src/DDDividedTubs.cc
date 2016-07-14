@@ -1,8 +1,3 @@
-//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationTubs*
-// ********************************************************************
-
 #include "DetectorDescription/Parser/src/DDDividedTubs.h"
 
 #include <string>
@@ -11,7 +6,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -40,13 +34,7 @@ DDDividedTubsRho::DDDividedTubsRho( const DDDivision& div, DDCompactView* cpv )
     compWidth_ = calculateWidth( msol.rIn() - msol.rOut(),
 				 div_.nReplicas(), div_.offset() );
   }
-
-  DCOUT_V ('P', " DDDividedTubsRho - no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width() << "\n DivType " << divisionType_);
- 
 }
-
-DDDividedTubsRho::~DDDividedTubsRho( void )
-{}
 
 double
 DDDividedTubsRho::getMaxParameter( void ) const
@@ -60,18 +48,13 @@ DDRotation
 DDDividedTubsRho::makeDDRotation( const int copyNo ) const
 {
   DDRotation myddrot; // sets to identity.
-  DCOUT_V ('P', "DDDividedTubsRho::makeDDRotation made a rotation: " << myddrot);
   return myddrot;
 }
-
 
 DDTranslation
 DDDividedTubsRho::makeDDTranslation( const int copyNo ) const
 {
-  //----- translation 
   DDTranslation translation;
-
-  DCOUT_V ('P', " DDDividedTubsRho " << "\n\t Position: " << translation << " - Width: " << compWidth_ << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;
 }
 
@@ -94,8 +77,6 @@ DDDividedTubsRho::makeDDLogicalPart( const int copyNo ) const
   double pDPhi = msol.deltaPhi();
   ddtubs = DDSolidFactory::tubs(DDName(solname), pDz, pRMin, pRMax, pSPhi, pDPhi);      
   ddlp = DDLogicalPart(solname, usemat, ddtubs);
-
-  DCOUT_V ('P', " DDDividedTubsRho::computeDimensions() lp:" << ddlp);
   return ddlp;
 }
 
@@ -126,9 +107,6 @@ DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView* cpv )
   }
 }
 
-DDDividedTubsPhi::~DDDividedTubsPhi( void )
-{}
-
 double
 DDDividedTubsPhi::getMaxParameter( void ) const
 {
@@ -155,10 +133,7 @@ DDDividedTubsPhi::makeDDRotation( const int copyNo ) const
 DDTranslation
 DDDividedTubsPhi::makeDDTranslation( const int copyNo ) const
 {
-  //----- translation 
   DDTranslation translation;
-
-  DCOUT_V ('P', " DDDividedTubsPhi " << "\n\t Position: " << translation << " - Width: " << compWidth_ << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;
 }
 
@@ -182,8 +157,6 @@ DDDividedTubsPhi::makeDDLogicalPart( const int copyNo ) const
     ddtubs = DDSolidFactory::tubs(DDName(solname), pDz, pRMin, pRMax, pSPhi, pDPhi);
     ddlp = DDLogicalPart(solname, usemat, ddtubs);
   }
-
-  DCOUT_V ('P', " DDDividedTubsPhi::computeDimensions() lp:" << ddlp);
   return ddlp;
 }
 
@@ -203,13 +176,7 @@ DDDividedTubsZ::DDDividedTubsZ( const DDDivision& div, DDCompactView* cpv )
   {
     compWidth_ = calculateWidth( 2*msol.zhalf(), div_.nReplicas(), div_.offset() );
   }
-
-  DCOUT_V ('P', " DDDividedTubsZ - no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width() << "\n DivType " << divisionType_);
- 
 }
-
-DDDividedTubsZ::~DDDividedTubsZ( void )
-{}
 
 double
 DDDividedTubsZ::getMaxParameter( void ) const
@@ -223,21 +190,18 @@ DDRotation
 DDDividedTubsZ::makeDDRotation( const int copyNo ) const
 {
   DDRotation myddrot; // sets to identity.
-  DCOUT_V ('P', "DDDividedTubsZ::makeDDRotation made a rotation: " << myddrot);
   return myddrot;
 }
 
 DDTranslation
 DDDividedTubsZ::makeDDTranslation( const int copyNo ) const
 {
-  //----- translation 
   DDTranslation translation;
 
   DDTubs msol = (DDTubs)(div_.parent().solid());
   double posi = - msol.zhalf() + div_.offset() + compWidth_/2 + copyNo*compWidth_;
   translation.SetZ(posi);
   
-  DCOUT_V ('P', " DDDividedTubsZ " << "\n\t Position: " << translation << " - Width: " << compWidth_ << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;
 }
 
@@ -264,7 +228,5 @@ DDDividedTubsZ::makeDDLogicalPart( const int copyNo ) const
   else {
     ddlp = DDLogicalPart(solname);
   }
-
-  DCOUT_V ('P', " DDDividedTubsZ::computeDimensions() lp:" << ddlp);
   return ddlp;
 }

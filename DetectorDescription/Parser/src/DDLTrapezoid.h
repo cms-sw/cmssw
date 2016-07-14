@@ -4,9 +4,6 @@
 #include <string>
 #include <vector>
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
 class DDCompactView;
@@ -23,16 +20,12 @@ class DDLElementRegistry;
  * Trapezoid processor processes Trapezoid and Trd1 DDL elements.
  *
  */
-class DDLTrapezoid : public DDLSolid
+class DDLTrapezoid final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLTrapezoid( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLTrapezoid( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
 #endif
