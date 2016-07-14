@@ -375,7 +375,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
           histo.me = iBooker.book1D(name.c_str(), (title + ";" + xlabel).c_str(),
                                     range_x_nbins, range_x_min, range_x_max);
         } else {
-          histo.me = iBooker.bookProfile(name.c_str(), (title + ";" + xlabel).c_str(),
+          histo.me = iBooker.bookProfile(name.c_str(), 
+                                    (title + ";" + xlabel + ";" + ylabel).c_str(),
                                     range_x_nbins, range_x_min, range_x_max,
                                     range_y_min, range_y_max);
         }

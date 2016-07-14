@@ -16,7 +16,7 @@ SiPixelPhase1Geometry = cms.PSet(
   n_rocs = cms.int32(16), # two-row geometry is assumed
 
   # "time geometry" parameters
-  max_lumisection = cms.int32(100),
+  max_lumisection = cms.int32(1000),
   max_bunchcrossing = cms.int32(3600)
 
   # other geometry parameters (n_layers, n_ladders per layer, etc.) are inferred.
@@ -26,7 +26,7 @@ SiPixelPhase1Geometry = cms.PSet(
 # the wrapping here is necessary to switch 'enabled' later.
 PerModule = cms.PSet(enabled = cms.bool(True)) # normal histos per module
 PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
-PerLayer2D = cms.PSet(enabled = cms.bool(False)) # 2D maps/profiles of layers
+PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
 PerLumisection = cms.PSet(enabled = cms.bool(True)) # trend profiles
 
@@ -95,7 +95,7 @@ StandardSpecifications1D = [
 
 StandardSpecificationTrend = ( # the () are only for syntax reasons
     Specification().groupBy("PXBarrel|PXForward/Lumisection")
-                   #.reduce("MEAN") # NIY, so we do 2D instead of profile
+                   .reduce("MEAN") 
                    .groupBy("PXBarrel|PXForward", "EXTEND_X")
                    .save()
 )
@@ -104,7 +104,7 @@ StandardSpecificationTrend = ( # the () are only for syntax reasons
 StandardSpecification2DProfile = (
     Specification(PerLayer2D)
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade/signedModule|PXPanel")
-       .reduce("COUNT") # should be MEAN, not supported yet.
+       .reduce("MEAN") # should be MEAN, not supported yet.
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
        .save()
@@ -118,7 +118,7 @@ StandardSpecifications1D_Num = [
                             .reduce("MEAN")
                             .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                             .saveAll(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/DetId/Event")
+    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/Event")
                             .reduce("COUNT")
                             .groupBy(DefaultHisto.defaultPerModule)
                             .save()
@@ -128,7 +128,7 @@ StandardSpecificationTrend_Num = (
     Specification().groupBy("PXBarrel|PXForward/Lumisection" + "/DetId/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel|PXForward/Lumisection")
-                   #.reduce("MEAN") # NIY, so we do 2D instead of profile
+                   .reduce("MEAN")
                    .groupBy("PXBarrel|PXForward", "EXTEND_X")
                    .save()
 )
@@ -139,7 +139,7 @@ StandardSpecification2DProfile_Num = (
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade/signedModule|PXPanel" + "/DetId/Event")
        .reduce("COUNT")
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade/signedModule|PXPanel")
-       .reduce("COUNT") # should be MEAN, not supported yet.
+       .reduce("MEAN") 
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
        .save()

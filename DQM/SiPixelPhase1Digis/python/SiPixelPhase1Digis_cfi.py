@@ -37,7 +37,7 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
   title = "Digis", # should allow setting the range per spec, but OTOH a 
   xlabel = "digis",# HistogramManager is almost free.
   range_min = 0,
-  range_max = 200,
+  range_max = 1000,
   range_nbins = 200,
   dimensions = 0, 
   specs = cms.VPSet(
@@ -64,7 +64,6 @@ SiPixelPhase1DigisEvents = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisHitmap = DefaultHisto.clone(
-  enabled = False,
   name = "hitmap",
   title = "Position of digis on module",
   ylabel = "#digis",
@@ -73,18 +72,13 @@ SiPixelPhase1DigisHitmap = DefaultHisto.clone(
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/row/col")
                    .groupBy(DefaultHisto.defaultPerModule.value() + "/row", "EXTEND_X")
                    .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_Y")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
-
+                   .save(),
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/col")
                    .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_X")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
-
+                   .save(),
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/row")
                    .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_X")
                    .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
 
   )
 )

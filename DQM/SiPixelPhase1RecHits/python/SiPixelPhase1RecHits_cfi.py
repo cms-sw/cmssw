@@ -57,7 +57,6 @@ SiPixelPhase1RecHitsPosition = DefaultHisto.clone(
   ylabel = "y offset",
   dimensions = 2,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping).save(),
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save(),
   )
 )
