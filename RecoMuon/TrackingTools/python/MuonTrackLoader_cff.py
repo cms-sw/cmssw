@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from TrackingTools.GeomPropagators.SmartPropagator_cff import *
 from RecoMuon.TrackingTools.MuonUpdatorAtVertex_cff import *
-Chi2EstimatorForMuonTrackLoader = cms.ESProducer("Chi2MeasurementEstimatorESProducer",
-    ComponentName = cms.string('Chi2EstimatorForMuonTrackLoader'),
-    nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(100000.0)
-)
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+Chi2EstimatorForMuonTrackLoader = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
+Chi2EstimatorForMuonTrackLoader.ComponentName = cms.string('Chi2EstimatorForMuonTrackLoader')
+Chi2EstimatorForMuonTrackLoader.nSigma = 3.0
+Chi2EstimatorForMuonTrackLoader.MaxChi2 = 100000.0
 
 import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
 KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
