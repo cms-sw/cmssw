@@ -124,7 +124,7 @@ void MuonMETValueMapProducer::determine_deltax_deltay(double& deltax, double& de
 {
   reco::TrackRef mu_track;
   if(muon.isGlobalMuon()) mu_track = muon.globalTrack();
-  else if(muon.isTrackerMuon()||muon.isRPCMuon()) mu_track = muon.innerTrack();
+  else if(muon.isTrackerMuon()||muon.isRPCMuon()||muon.isGEMMuon()||muon.isME0Muon()) mu_track = muon.innerTrack();
   else mu_track = muon.outerTrack();
 
   TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,

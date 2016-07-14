@@ -4,6 +4,8 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
   
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -126,6 +128,27 @@ std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
 		 break;
 	      }
 	   }
+	 break;
+       case MuonSubdetId::GEM:
+	 {
+	   GEMDetId detId(id.rawId());
+	   oss << "GEM chamber (endcap, station, ring, chamber, layer): "
+	       << detId.region() << ", "
+	       << detId.station() << ", "
+	       << detId.ring() << ", "
+	       << detId.chamber() << ", "
+	       << detId.layer();
+	 }
+	 break;
+       case MuonSubdetId::ME0:
+	 {
+	   ME0DetId detId(id.rawId());
+	   oss << "ME0 chamber (endcap, station, ring, chamber, layer): "
+	       << detId.region() << ", "
+	       << detId.station() << ", "
+	       << detId.chamber() << ", "
+	       << detId.layer();
+	 }
 	 break;
       }
       break;
