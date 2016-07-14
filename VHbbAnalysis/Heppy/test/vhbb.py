@@ -100,6 +100,11 @@ treeProducer= cfg.Analyzer(
           "V"    : NTupleObject("V", fourVectorType, help="z or w"),
           "softActivityJets"    : NTupleObject("softActivity", softActivityType, help="VBF soft activity variables"),
           "softActivityVHJets"    : NTupleObject("softActivityVH", softActivityType, help="VH soft activity variables"),
+          "l1MET"       : NTupleObject("l1MET",   twoVectorType , help="Stage-2 L1 trigger MET", mcOnly=False),        
+#          "l1MET2"       : NTupleObject("l1MET2",   twoVectorType , help="Stage-2 L1 trigger MET", mcOnly=False),   #l1MET2 is defined in "l1t::EtSum" but it is empty
+          "l1MHT"       : NTupleObject("l1MHT",   twoVectorType , help="Stage-2 L1 trigger MHT", mcOnly=False),        
+          "l1ET"       : NTupleObject("l1ET",   twoVectorType , help="Stage-2 L1 trigger ET", mcOnly=False),        
+          "l1HT"       : NTupleObject("l1HT",   twoVectorType , help="Stage-2 L1 trigger HT", mcOnly=False),      
         },
 	collections = {
 		#standard dumping of objects
@@ -153,7 +158,10 @@ treeProducer= cfg.Analyzer(
 		"pileUpVertex_ptHat"   : NTupleCollection("pileUpVertex_ptHat",    objectFloat, 5,help="z position of hardest pile-up collisions",mcOnly=True),        
 		"LHE_weights_scale"       : NTupleCollection("LHE_weights_scale",   weightsInfoType , 6 ,help="LHE weights for scale variation", mcOnly=True),        
 		"LHE_weights_pdf"       : NTupleCollection("LHE_weights_pdf",   weightsInfoType , 103 ,help="LHE weights for pdf variation (NNPDF)", mcOnly=True),        
-
+		"l1Jets"       : NTupleCollection("l1Jets",   fourVectorType , 20 ,help="Stage-2 L1 trigger jets", mcOnly=False),        
+		"l1Taus"       : NTupleCollection("l1Taus",   fourVectorType , 20 ,help="Stage-2 L1 trigger taus", mcOnly=False),        
+		"l1Muons"       : NTupleCollection("l1Muons",   fourVectorType , 20 ,help="Stage-2 L1 trigger muons", mcOnly=False),        
+		"l1EGammas"       : NTupleCollection("l1EGammas",   fourVectorType , 20 ,help="Stage-2 L1 trigger EGammas", mcOnly=False),        
 	}
 	)
 
@@ -381,7 +389,15 @@ for collectionName in triggerObjectCollectionsOnlySize.keys():
     treeProducer.collections["trgObjects_"+collectionName] = NTupleCollection("trgObjects_"+collectionName, triggerObjectsNothingType , 5, help="")
 #    treeProducer.globalVariables.append(NTupleVariable("trgObjects_"+collectionName+"_size", lambda ev : len(getattr(ev,"trgObjects_"+collectionName,[])), int, help="trigger objects size"))
 
+### add L1 trigger objects ####
+from PhysicsTools.Heppy.analyzers.core.L1TriggerAnalyzer import L1TriggerAnalyzer
+L1TriggerAna = cfg.Analyzer(
+    class_object = L1TriggerAnalyzer,
+    processName = 'HLT',
+)
 ###
+
+
 
 
 from PhysicsTools.Heppy.analyzers.gen.PDFWeightsAnalyzer import PDFWeightsAnalyzer
@@ -411,13 +427,14 @@ silverJsonAna = cfg.Analyzer(JSONAnalyzer,
       suffix="_silver"
       )
 
-sequence = [jsonAna,LHEAna,LHEWeightAna,FlagsAna, hbheAna, GenAna,VHGenAna,PUAna,TrigAna,VertexAna,LepAna,PhoAna,TauAna,JetAna,ttHLeptonMVA,METAna, METPuppiAna,  PdfAna, VHbb,TTHtoTauTau,TTHtoTauTauGen,TriggerObjectsAna,treeProducer]#,sh]
+sequence = [jsonAna,LHEAna,LHEWeightAna,FlagsAna, hbheAna, GenAna,VHGenAna,PUAna,TrigAna,VertexAna,LepAna,PhoAna,TauAna,JetAna,ttHLeptonMVA,METAna, METPuppiAna,  PdfAna, VHbb,TTHtoTauTau,TTHtoTauTauGen,TriggerObjectsAna,L1TriggerAna,treeProducer]#,sh]
 
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 sample = cfg.MCComponent(
 	files = [
 		#"root://xrootd.ba.infn.it//store/mc/RunIIFall15MiniAODv1/TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/30000/045996FE-A19D-E511-B76D-D4AE526A0B47.root" ##ttbar
-		"root://xrootd.ba.infn.it//store/mc/RunIISpring16MiniAODv1/TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/0899BDA9-AE01-E611-A239-008CFA05EA2C.root"
+#		"root://cms-xrd-global.cern.ch//store/mc/RunIISpring16MiniAODv2/ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14_ext3-v1/10000/02114C97-863B-E611-9F54-0025905B8606.root",
+		"root://cms-xrd-global.cern.ch//store/mc/RunIISpring16MiniAODv2/ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext3-v2/70000/001C3ACD-2C31-E611-A7EE-003048F5ADF6.root"
 		],
     #files = ["226BB247-A565-E411-91CF-00266CFF0AF4.root"],
     name="ZHLL125", isEmbed=False,
@@ -429,6 +446,8 @@ sample = cfg.MCComponent(
     )
 sample.isMC=True
 
+
+    
 
 # the following is declared in case this cfg is used in input to the heppy.py script
 selectedComponents = [sample]
