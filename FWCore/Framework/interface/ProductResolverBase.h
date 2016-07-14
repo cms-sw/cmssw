@@ -27,6 +27,7 @@ namespace edm {
   class SharedResourcesAcquirer;
   class Principal;
   class UnscheduledConfigurator;
+  class WaitingTask;
 
   class ProductResolverBase {
   public:
@@ -59,6 +60,16 @@ namespace edm {
                               ModuleCallingContext const* mcc) const {
       return resolveProduct_( principal, skipCurrentProcess, sra, mcc);
     }
+    
+    /** oDataFetchedIsValid is allowed to be nullptr in which case no value will be assigned
+     */
+    void prefetchAsync(WaitingTask* waitTask,
+                       Principal const& principal,
+                       bool skipCurrentProcess,
+                       SharedResourcesAcquirer* sra,
+                       ModuleCallingContext const* mcc) const {
+      return prefetchAsync_(waitTask, principal, skipCurrentProcess, sra, mcc);
+    }
 
     void resetProductData() { resetProductData_(false); }
 
@@ -81,6 +92,8 @@ namespace edm {
     
     // Product was deleted early in order to save memory
     bool productWasDeleted() const {return productWasDeleted_();}
+    
+    bool productWasFetchedAndIsValid(bool iSkipCurrentProcess) const { return productWasFetchedAndIsValid_(iSkipCurrentProcess); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance const* productProvenancePtr() const { return productProvenancePtr_(); }
@@ -149,10 +162,18 @@ namespace edm {
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const = 0;
+    virtual void prefetchAsync_(WaitingTask* waitTask,
+                                Principal const& principal,
+                                bool skipCurrentProcess,
+                                SharedResourcesAcquirer* sra,
+                                ModuleCallingContext const* mcc) const = 0;
+
     virtual bool unscheduledWasNotRun_() const = 0;
     virtual bool productUnavailable_() const = 0;
     virtual bool productResolved_() const = 0;
     virtual bool productWasDeleted_() const = 0;
+    virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const = 0;
+
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> edp) const = 0;
     virtual BranchDescription const& branchDescription_() const = 0;

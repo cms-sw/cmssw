@@ -83,6 +83,13 @@ namespace edm {
                 StreamID stream,
                 ParentContext const& parentContext,
                 typename T::Context const* context);
+    template <typename T>
+    void doWorkAsync(WaitingTask* task,
+                     typename T::MyPrincipal const&, EventSetup const& c,
+                     StreamID stream,
+                     ParentContext const& parentContext,
+                     typename T::Context const* context);
+
     void beginJob() ;
     void endJob();
     void beginStream(StreamID id, StreamContext& streamContext);
@@ -94,7 +101,11 @@ namespace edm {
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
     void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) { implRegisterThinnedAssociations(registry, helper); }
 
-    void reset() { state_ = Ready; }
+    void reset() { state_ = Ready;
+      waitingTasks_.reset();
+      asyncWorkRequested_ = false;
+      workStarted_ = false;
+    }
 
     void pathFinished(EventPrincipal const&);
     void postDoEvent(EventPrincipal const&);
@@ -196,11 +207,11 @@ namespace edm {
 
 
     int timesRun_;
-    int timesVisited_;
+    std::atomic<int> timesVisited_;
     int timesPassed_;
     int timesFailed_;
     int timesExcept_;
-    State state_;
+    std::atomic<State> state_;
 
     ModuleCallingContext moduleCallingContext_;
 
@@ -211,7 +222,9 @@ namespace edm {
 
     edm::propagate_const<EarlyDeleteHelper*> earlyDeleteHelper_;
     
-    edm::WaitingTaskList m_waitingTasks;
+    edm::WaitingTaskList waitingTasks_;
+    std::atomic<bool> asyncWorkRequested_;
+    std::atomic<bool> workStarted_;
   };
 
   namespace {
@@ -410,6 +423,24 @@ namespace edm {
     };
   }
 
+
+  template <typename T>
+  void Worker::doWorkAsync(WaitingTask* task,
+                           typename T::MyPrincipal const& ep,
+                           EventSetup const& es,
+                           StreamID streamID,
+                           ParentContext const& parentContext,
+                           typename T::Context const* context) {
+    waitingTasks_.add(task);
+    bool expected = false;
+    if(asyncWorkRequested_.compare_exchange_strong(expected,true)) {
+      try {
+        doWork(ep, es,streamID,parentContext,context);
+      } catch(...) {}
+    } else {
+      ++timesVisited_;
+    }
+  }
   template <typename T>
   bool Worker::doWork(typename T::MyPrincipal const& ep,
                       EventSetup const& es,
@@ -430,6 +461,27 @@ namespace edm {
 	  cached_exception_->raise();
       }
     }
+    
+    bool expected = false;
+    if(not workStarted_.compare_exchange_strong(expected, true) ) {
+      //another thread beat us here
+      std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
+        [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+      waitTask->increment_ref_count();
+      
+      waitingTasks_.add(waitTask.get());
+      
+      waitTask->wait_for_all();
+      
+      switch(state_) {
+        case Ready: assert(false);
+        case Pass: return true;
+        case Fail: return false;
+        case Exception: {
+          cached_exception_->raise();
+        }
+      }
+    }
 
     //Need the context to be set until after any exception is resolved
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
@@ -448,6 +500,7 @@ namespace edm {
             state_ = Pass;
             ++timesPassed_;
             rc = true;
+            waitingTasks_.doneWaiting(nullptr);
             return;
           }
           std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
@@ -509,9 +562,11 @@ namespace edm {
           if(not cached_exception_) {
             cached_exception_ =std::shared_ptr<cms::Exception>(ex.clone());
           }
+          waitingTasks_.doneWaiting(std::current_exception());
           cached_exception_->raise();
       }
     }
+    waitingTasks_.doneWaiting(nullptr);
     return rc;
   }
   
@@ -548,8 +603,8 @@ namespace edm {
     }
     catch(cms::Exception& ex) {
       if (T::isEvent_) ++timesExcept_;
-      state_ = Exception;
       cached_exception_ = std::shared_ptr<cms::Exception>(ex.clone()); // propagate_const<T> has no reset() function
+      state_ = Exception;
       cached_exception_->raise();
     }
     return rc;

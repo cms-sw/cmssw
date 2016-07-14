@@ -81,7 +81,9 @@ private:
     actions_(iActions),
     cached_exception_(),
     actReg_(),
-    earlyDeleteHelper_(nullptr)
+    earlyDeleteHelper_(nullptr),
+    asyncWorkRequested_(false),
+    workStarted_(false)
   {
   }
 

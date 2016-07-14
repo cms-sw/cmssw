@@ -51,7 +51,7 @@ namespace edm {
     void resetStatus() {theStatus_ = defaultStatus_;}
     
     //Give AliasProductResolver access
-    virtual void resetProductData_(bool deleteEarly) override final;
+    virtual void resetProductData_(bool deleteEarly) override;
 
   protected:
     void setProduct(std::unique_ptr<WrapperBase> edp) const;
@@ -67,6 +67,7 @@ namespace edm {
     void throwProductDeletedException() const;
     void checkType(WrapperBase const& prod) const;
     ProductData const& getProductData() const {return productData_;}
+    virtual bool isFromCurrentProcess() const = 0;
     // merges the product with the pre-existing product
     void mergeProduct(std::unique_ptr<WrapperBase> edp) const;
 
@@ -74,6 +75,8 @@ namespace edm {
     virtual bool productUnavailable_() const override final;
     virtual bool productResolved_() const override final;
     virtual bool productWasDeleted_() const override final;
+    virtual bool productWasFetchedAndIsValid_( bool iSkipCurrentProcess) const override final;
+
     virtual BranchDescription const& branchDescription_() const override final {return *getProductData().branchDescription();}
     virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) override final {productData_.resetBranchDescription(bd);}
     virtual Provenance const* provenance_() const override final {return &productData_.provenance();}
@@ -92,18 +95,29 @@ namespace edm {
   class InputProductResolver : public DataManagingProductResolver {
     public:
     explicit InputProductResolver(std::shared_ptr<BranchDescription const> bd) :
-      DataManagingProductResolver(bd, ProductStatus::ResolveNotRun) {}
+      DataManagingProductResolver(bd, ProductStatus::ResolveNotRun),
+      m_prefetchRequested{ false } {}
 
     private:
+      virtual bool isFromCurrentProcess() const override final;
+
     
       virtual Resolution resolveProduct_(Principal const& principal,
                                          bool skipCurrentProcess,
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override;
+    virtual  void prefetchAsync_(WaitingTask* waitTask,
+                                 Principal const& principal,
+                                 bool skipCurrentProcess,
+                                 SharedResourcesAcquirer* sra,
+                                 ModuleCallingContext const* mcc) const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool unscheduledWasNotRun_() const override final {return false;}
     
-      WaitingTaskList m_waitingTasks;
+      virtual void resetProductData_(bool deleteEarly) override;
+
+      mutable std::atomic<bool> m_prefetchRequested;
+      mutable WaitingTaskList m_waitingTasks;
 
   };
 
@@ -113,6 +127,8 @@ namespace edm {
 
     private:
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+      virtual bool isFromCurrentProcess() const override final;
+    
   };
 
   class PuttableProductResolver : public ProducedProductResolver {
@@ -124,6 +140,11 @@ namespace edm {
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const override;
+    virtual  void prefetchAsync_(WaitingTask* waitTask,
+                                 Principal const& principal,
+                                 bool skipCurrentProcess,
+                                 SharedResourcesAcquirer* sra,
+                                 ModuleCallingContext const* mcc) const override;
     virtual bool unscheduledWasNotRun_() const override {return false;}
   };
   
@@ -131,7 +152,8 @@ namespace edm {
     public:
       explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd) :
        ProducedProductResolver(bd,ProductStatus::ResolveNotRun),
-       aux_(nullptr){}
+       aux_(nullptr),
+       prefetchRequested_(false){}
     
       virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
 
@@ -140,10 +162,19 @@ namespace edm {
                                          bool skipCurrentProcess,
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override;
+      virtual  void prefetchAsync_(WaitingTask* waitTask,
+                                   Principal const& principal,
+                                   bool skipCurrentProcess,
+                                   SharedResourcesAcquirer* sra,
+                                   ModuleCallingContext const* mcc) const override;
       virtual bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
+
+      virtual void resetProductData_(bool deleteEarly) override;
     
+      mutable WaitingTaskList waitingTasks_;
       UnscheduledAuxiliary const* aux_;
       Worker* worker_;
+      mutable std::atomic<bool> prefetchRequested_;
   };
 
   class AliasProductResolver : public ProductResolverBase {
@@ -161,11 +192,22 @@ namespace edm {
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override {
         return realProduct_.resolveProduct(principal, skipCurrentProcess, sra, mcc);}
+      virtual  void prefetchAsync_(WaitingTask* waitTask,
+                                   Principal const& principal,
+                                   bool skipCurrentProcess,
+                                   SharedResourcesAcquirer* sra,
+                                   ModuleCallingContext const* mcc) const override {
+        realProduct_.prefetchAsync(waitTask, principal, skipCurrentProcess, sra, mcc);
+      }
       virtual bool unscheduledWasNotRun_() const override {return realProduct_.unscheduledWasNotRun();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
       virtual bool productResolved_() const override final {
           return realProduct_.productResolved(); }
       virtual bool productWasDeleted_() const override {return realProduct_.productWasDeleted();}
+      virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override final {
+        return realProduct_.productWasFetchedAndIsValid(iSkipCurrentProcess);
+      }
+
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
       virtual BranchDescription const& branchDescription_() const override {return *bd_;}
@@ -198,10 +240,20 @@ namespace edm {
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const override {return realProduct_->resolveProduct(*parentPrincipal_, skipCurrentProcess, sra, mcc);}
+    virtual  void prefetchAsync_(WaitingTask* waitTask,
+                                 Principal const& principal,
+                                 bool skipCurrentProcess,
+                                 SharedResourcesAcquirer* sra,
+                                 ModuleCallingContext const* mcc) const {
+      realProduct_->prefetchAsync( waitTask, principal, skipCurrentProcess, sra, mcc);
+    }
     virtual bool unscheduledWasNotRun_() const override {return realProduct_->unscheduledWasNotRun();}
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
     virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
     virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
+    virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override {
+      return realProduct_->productWasFetchedAndIsValid(iSkipCurrentProcess); }
+
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
     virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
     virtual BranchDescription const& branchDescription_() const override {return *bd_;}
@@ -229,15 +281,37 @@ namespace edm {
     
     virtual void connectTo(ProductResolverBase const& iOther, Principal const*) override final ;
 
+    void tryPrefetchResolverAsync(unsigned int iProcessingIndex,
+                                  Principal const& principal,
+                                  bool skipCurrentProcess,
+                                  SharedResourcesAcquirer* sra,
+                                  ModuleCallingContext const* mcc) const;
+    
+    bool dataValidFromResolver(unsigned int iProcessingIndex,
+                               Principal const& principal,
+                               bool iSkipCurrentProcess) const;
+    
+    void prefetchFailed(unsigned int iProcessingIndex,
+                        Principal const& principal,
+                        bool iSkipCurrentProcess,
+                        std::exception_ptr iExceptPtr) const;
     private:
+      unsigned int unsetIndexValue() const;
       virtual Resolution resolveProduct_(Principal const& principal,
                                          bool skipCurrentProcess,
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override;
+      virtual  void prefetchAsync_(WaitingTask* waitTask,
+                                   Principal const& principal,
+                                   bool skipCurrentProcess,
+                                   SharedResourcesAcquirer* sra,
+                                   ModuleCallingContext const* mcc) const override;
       virtual bool unscheduledWasNotRun_() const override;
       virtual bool productUnavailable_() const override;
       virtual bool productWasDeleted_() const override;
       virtual bool productResolved_() const override final;
+      virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
+
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
       virtual BranchDescription const& branchDescription_() const override;
@@ -259,8 +333,10 @@ namespace edm {
 
       std::vector<ProductResolverIndex> matchingHolders_;
       std::vector<bool> ambiguous_;
+      mutable WaitingTaskList waitingTasks_;
       mutable std::atomic<unsigned int> lastCheckIndex_;
       mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
+      mutable std::atomic<bool> prefetchRequested_;
   };
 
   class SingleChoiceNoProcessProductResolver : public ProductResolverBase {
@@ -276,10 +352,17 @@ namespace edm {
                                        bool skipCurrentProcess,
                                        SharedResourcesAcquirer* sra,
                                        ModuleCallingContext const* mcc) const override;
+    virtual  void prefetchAsync_(WaitingTask* waitTask,
+                                 Principal const& principal,
+                                 bool skipCurrentProcess,
+                                 SharedResourcesAcquirer* sra,
+                                 ModuleCallingContext const* mcc) const override;
     virtual bool unscheduledWasNotRun_() const override;
     virtual bool productUnavailable_() const override;
     virtual bool productWasDeleted_() const override;
     virtual bool productResolved_() const override final;
+    virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const override;
+
     virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
     virtual void putOrMergeProduct_(std::unique_ptr<WrapperBase> prod) const override final;
     virtual BranchDescription const& branchDescription_() const override;

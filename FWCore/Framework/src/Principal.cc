@@ -511,7 +511,7 @@ namespace edm {
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
     assert(0!=productResolver.get());
-    productResolver->resolveProduct(*this,skipCurrentProcess, nullptr, mcc);
+    productResolver->prefetchAsync(task,*this, skipCurrentProcess,nullptr,mcc);
   }
 
   void
