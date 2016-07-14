@@ -77,22 +77,21 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   else LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: OFF";
   if(CommonModeNoise) LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: ON";
   else LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: OFF";
-  
-  std::string line; 
-  APVProbaFile.open((APVProbabilityFile.fullPath()).c_str());
-  if (APVProbaFile.is_open())
-  {
-    while ( getline (APVProbaFile,line) )
-    {
-	std::vector<std::string> strs;
-	boost::split(strs,line,boost::is_any_of(" "));
-        if(strs.size()==2){
-		mapOfAPVprobabilities[std::stoi(strs.at(0))]=std::stof(strs.at(1));
-         }
-    }
-    APVProbaFile.close();
-  }else throw cms::Exception("MissingInput")
+  if(APVSaturationFromHIP){  
+    std::string line; 
+    APVProbaFile.open((APVProbabilityFile.fullPath()).c_str());
+    if (APVProbaFile.is_open()){
+      while ( getline (APVProbaFile,line) ){
+        std::vector<std::string> strs;
+          boost::split(strs,line,boost::is_any_of(" "));
+          if(strs.size()==2){
+            mapOfAPVprobabilities[std::stoi(strs.at(0))]=std::stof(strs.at(1));
+          }
+      }
+      APVProbaFile.close();
+    }else throw cms::Exception("MissingInput")
          << "It seems that the APV probability list is missing\n";
+  }
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -154,7 +153,6 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
   unsigned int detID = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();  
 
-  std::vector<bool>& badChannels = allBadChannels[detID];
   std::vector<bool>& hipChannels = allHIPChannels[detID];
   size_t thisFirstChannelWithSignal = numStrips;
   size_t thisLastChannelWithSignal = 0;
@@ -166,7 +164,6 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
   // Loop over hits
 
   uint32_t detId = det->geographicalId().rawId();
-  uint32_t subdetId = det->geographicalId().subdetId(); 
   // First: loop on the SimHits
   if(CLHEP::RandFlat::shoot(engine) > inefficiency) {
     AssociationInfoForChannel* pDetIDAssociationInfo; // I only need this if makeDigiSimLinks_ is true...
@@ -203,19 +200,11 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 	// If yes --> the APV is flagged as bad
 	// If no  --> nothing particular happens
           if(mapOfAPVprobabilities.count(detId)>0){
-/*	    float regionalSF=1.0;
-            if(subdetId==StripSubdetector::TIB)regionalSF=2;
-            if(subdetId==StripSubdetector::TOB)regionalSF=1;
-            if(subdetId==StripSubdetector::TID)regionalSF=2.0;
-            if(subdetId==StripSubdetector::TEC)regionalSF=1.0;
-*/
             if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]*APVSaturationProbScaling){
               int FirstAPV = localFirstChannel/128;
               int LastAPV = (localLastChannel-1)/128;
-//		std::cout<<"Setting to bad an APV in detId="<<detId<<std::endl;
               for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
                 hipChannels[strip] = true;
-	//	badChannels[strip] = true;
               }
             }
           }
