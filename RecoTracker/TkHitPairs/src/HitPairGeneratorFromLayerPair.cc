@@ -109,6 +109,29 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 
 }
 
+
+HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region,
+						    const edm::Event & iEvent, const edm::EventSetup& iSetup, const Layer& innerLayer, const Layer& outerLayer) {
+
+  typedef OrderedHitPair::InnerRecHit InnerHit;
+  typedef OrderedHitPair::OuterRecHit OuterHit;
+  typedef RecHitsSortedInPhi::Hit Hit;
+
+
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayer, region, iEvent, iSetup);
+  if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
+
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayer, region, iEvent, iSetup);
+  if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
+  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
+  doublets(region,
+	   *innerLayer.detLayer(),*outerLayer.detLayer(),
+	   innerHitsMap,outerHitsMap,iSetup,theMaxElement,result);
+  
+  return result;
+
+}
+
 void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
 						    const DetLayer & innerHitDetLayer,
 						    const DetLayer & outerHitDetLayer,
