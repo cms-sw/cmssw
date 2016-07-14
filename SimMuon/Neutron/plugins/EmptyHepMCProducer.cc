@@ -18,7 +18,7 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -29,20 +29,18 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 
-class EmptyHepMCProducer : public edm::EDProducer
+class EmptyHepMCProducer : public edm::stream::EDProducer<>
 {
 public:
   explicit EmptyHepMCProducer(const edm::ParameterSet&);
   ~EmptyHepMCProducer() {};
 
 private:
-  virtual void beginJob() override;
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  virtual void endJob();
 
 };
-
-
 
 EmptyHepMCProducer::EmptyHepMCProducer(const edm::ParameterSet& iConfig)
 {

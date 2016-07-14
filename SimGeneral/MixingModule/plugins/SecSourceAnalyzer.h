@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,7 +30,6 @@
 
 #include "Mixing/Base/interface/PileUp.h"
 
-
 //
 // class declaration
 //
@@ -38,11 +37,11 @@ namespace edm {
 
   class ModuleCallingContext;
 
-  class SecSourceAnalyzer : public edm::EDAnalyzer {
+  class SecSourceAnalyzer : public edm::one::EDAnalyzer<> {
   public:
    
     explicit SecSourceAnalyzer(const edm::ParameterSet&);
-    ~SecSourceAnalyzer();
+    virtual ~SecSourceAnalyzer();
 
     virtual void getBranches(EventPrincipal const& ep,
                              ModuleCallingContext const*);

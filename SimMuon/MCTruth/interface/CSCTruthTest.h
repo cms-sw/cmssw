@@ -1,14 +1,12 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 
-
-class CSCTruthTest : public edm::EDAnalyzer {
+class CSCTruthTest : public edm::stream::EDAnalyzer<> {
 public:
   explicit CSCTruthTest(const edm::ParameterSet&);
-  ~CSCTruthTest();
-
+  virtual ~CSCTruthTest();
 
 private:
 
