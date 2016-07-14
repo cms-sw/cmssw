@@ -1305,31 +1305,33 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       // Load digis
       digis.emplace_back(ip.first, ip.second, adc);
 
-      if (makeDigiSimLinks_ && (*i).second.hitInfo()!=0) {
+      if (makeDigiSimLinks_ && !(*i).second.hitInfos().empty()) {
         //digilink
-        if((*i).second.trackIds().size()>0){
           simlink_map simi;
 	  unsigned int il=0;
-	  for( std::vector<unsigned int>::const_iterator itid = (*i).second.trackIds().begin();
-	       itid != (*i).second.trackIds().end(); ++itid) {
-	    simi[*itid].push_back((*i).second.individualampl()[il]);
-	    il++;
-	  }
+          for(const auto& info: (*i).second.hitInfos()) {
+            simi[info.trackIds_[0]].push_back((*i).second.individualampl()[il]);
+            il++;
+          }
 
 	  //sum the contribution of the same trackid
-	  for( simlink_map::iterator simiiter=simi.begin();
-	       simiiter!=simi.end();
-	       simiiter++){
+          for(const auto& info: (*i).second.hitInfos()) {
+            const auto trackId = info.trackIds_[0];
 
-	    float sum_samechannel=0;
-	    for (unsigned int iii=0;iii<(*simiiter).second.size();iii++){
-	      sum_samechannel+=(*simiiter).second[iii];
-	    }
+            // track already processed, so skip
+            auto found = simi.find(trackId);
+            if(found == simi.end())
+              continue;
+
+            const auto& amps = found->second;
+	    float sum_samechannel = std::accumulate(amps.begin(), amps.end(), 0.f);
 	    float fraction=sum_samechannel/(*i).second;
 	    if(fraction>1.) fraction=1.;
-	    simlinks.emplace_back((*i).first, (*simiiter).first, (*i).second.hitIndex(), (*i).second.tofBin(), (*i).second.eventId(), fraction);
+
+            // Approximation: pick hitIndex and tofBin only from the first SimHit
+	    simlinks.emplace_back((*i).first, trackId, info.hitIndex_, info.tofBin_, info.eventId_, fraction);
+            simi.erase(found);
 	  }
-        }
       }
     }
   }
