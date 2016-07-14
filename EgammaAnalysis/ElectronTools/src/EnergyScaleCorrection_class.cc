@@ -7,6 +7,7 @@
 
 // for exit(0)
 #include <stdlib.h>
+#include <float.h> 
 // for setw
 #include <iomanip>
 //for istreamstring
@@ -498,7 +499,7 @@ correctionCategory_class::correctionCategory_class(TString category_)
      category.find("Gold")   != std::string::npos || 
      category.find("highR9") != std::string::npos) {
     r9min = 0.94;
-    r9max = 10;
+    r9max = FLT_MAX;
   } else if(category.find("bad") != std::string::npos || 
 	    category.find("Bad") != std::string::npos ||
 	    category.find("lowR9") != std::string::npos
