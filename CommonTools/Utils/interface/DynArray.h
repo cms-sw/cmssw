@@ -44,6 +44,7 @@ public :
    unsigned int size() const { return s;}
    bool empty() const { return 0==s;}
 
+   T const * data() const { return a; }
    T const &front() const { return a[0];}
    T const & back() const { return a[s-1];}
 
