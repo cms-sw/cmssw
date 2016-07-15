@@ -40,41 +40,28 @@ class L1TriggerAnalyzer( Analyzer ):
 
     def process(self, event):
         self.readCollections( event.input )
-        
         event.l1Jets = []
+        event.l1Taus = []
+        event.l1Muons = []
+        event.l1EGammas = []
+        event.l1MET2,event.l1MET,event.l1ET,event.l1MHT,event.l1HT = tuple([TwoObjectsClass()]*5)
         try:
             for i in range(self.handles['l1tJets'].product().size(0)):
-                    l1Jet = self.handles['l1tJets'].product().at(0,i)
-                    event.l1Jets.append(l1Jet)
-        except:
-            pass
-        
-        event.l1Taus = []
-        try:
+                l1Jet = self.handles['l1tJets'].product().at(0,i)
+                event.l1Jets.append(l1Jet)
+            
             for i in range(self.handles['l1tTaus'].product().size(0)):
                 l1Tau = self.handles['l1tTaus'].product().at(0,i)
                 event.l1Taus.append(l1Tau)
-        except:
-            pass
-        
-        event.l1Muons = []
-        try:
+            
             for i in range(self.handles['l1tMuons'].product().size(0)):
                 l1Muon = self.handles['l1tMuons'].product().at(0,i)
                 event.l1Muons.append(l1Muon)
-        except:
-            pass
-        
-        event.l1EGammas = []
-        try:
+            
             for i in range(self.handles['l1tEGammas'].product().size(0)):
                 l1EGamma = self.handles['l1tEGammas'].product().at(0,i)
                 event.l1EGammas.append(l1EGamma)
-        except:
-            pass
-        
-        event.l1MET2,event.l1MET,event.l1ET,event.l1MHT,event.l1HT = tuple([TwoObjectsClass()]*5)
-        try:
+            
             for i in range(self.handles['l1tEtSums'].product().size(0)):
                 l1Obj = self.handles['l1tEtSums'].product().at(0,i)
                 l1ObjType = l1Obj.getType()
@@ -90,7 +77,7 @@ class L1TriggerAnalyzer( Analyzer ):
                     event.l1HT = TwoObjectsClass(l1Obj.et(),l1Obj.phi())
         except:
             pass
-            
+
 setattr(L1TriggerAnalyzer,"defaultConfig",cfg.Analyzer(
     L1TriggerAnalyzer, name="L1TriggerAnalyzerDefault",
     processName = "HLT"
