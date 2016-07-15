@@ -108,7 +108,7 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
 
 
    // AMT should use size here ...
-   if (xyEE  && ((fabs(m_eta)) > fireworks::Context::getInstance()->caloTransEta())) {
+   if (xyEE == false || ((fabs(m_eta)) > fireworks::Context::getInstance()->caloTransEta())) {
        m_coordinatesEtaPhi = false;
    }
 
@@ -135,8 +135,13 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
       }
       else
       {
-         float theta = TEveCaloData::EtaToTheta(m_eta);
-         float r = TMath::Tan(theta) * 290;
+         float r = 1; 
+         // add if for AOD METs in barrel at eta == 0
+         if (fabs(m_eta) > 0.01) {
+            float theta = TEveCaloData::EtaToTheta(m_eta);
+            r = TMath::Tan(theta) * 290;
+         }
+         else 
          phiMin = r * TMath::Cos(m_phi - x) -300;
          phiMax = r * TMath::Cos(m_phi + x) + 300;
          etaMin = r * TMath::Sin(m_phi - x) - 300;
@@ -316,13 +321,13 @@ namespace {
             if( m_points != 0 )
             {
                 int j = 0;
-                for( int i = 0; i < 8; ++i )
+                for( int i = 0; i < 4; ++i )
                 {	 
                     m_center += TEveVector( m_points[j], m_points[j + 1], m_points[j + 2] );
                     j +=3;
                 }
 
-                m_center *= 1.f/8.0f;
+                m_center *= 1.f/4.0f;
             }
             else
                 fwLog( fwlog::kInfo ) << "cannot get geometry for DetId: "<< hit.id().rawId() << ". Ignored.\n";
@@ -348,46 +353,61 @@ FWECALDetailViewBuilder::fillDataEtaPhi( const EcalRecHitCollection *hits,TEveCa
 {
    const float area = sizeRad(); // barrel cell range, AMT this is available in context
 
+         float eps = 0.005;
+
+   double eta1 = m_eta - area;
+   double eta2 = m_eta + area;
+
+   double phi1 = m_phi - area;
+   double phi2 = m_phi + area;
+
+
+
+   // check if we are in -Pi|Pi area
+   int wrapPhi = 0;
+   if (TMath::Abs(phi1) > TMath::Pi() || TMath::Abs(phi2) > TMath::Pi()) {
+      wrapPhi = m_phi > 0 ? 1 : -1;
+      //printf("wrap phi %d \n", wrapPhi);
+      //printf("phi range [%f, %f]\n", phi1, phi2);
+   }
+
    for( EcalRecHitCollection::const_iterator k = hits->begin(); k != hits->end(); ++k)
    {
-      if( k->id().subdetId() != EcalBarrel)
-         continue; // AMT is this necessary ?
-
       DetIdTower tower(*k, m_geom, m_detIdsToColor);
       if (tower.m_points)
       {
-         /*
-
-           float centerEta = tower.m_center.Eta();
-           float centerPhi = tower.m_center.Phi();
-           // do phi wrapping
-           if( centerPhi > m_phi + M_PI) centerPhi -= 2 * M_PI;
-           if( centerPhi < m_phi - M_PI) centerPhi += 2 * M_PI;
-         */
+         // float centerEta = tower.m_center.Eta();
+         float centerPhi = tower.m_center.Phi();
 
          // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
          // so if we simply get the largest eta and phi, cells will overlap
          // therefore we get a smaller eta-phi range representing the inner square
          // we also should use only points from the inner face of the crystal, since
          // non-projecting direction of crystals leads to large shift in eta on outter
-         // face.
-         
 
-
-         float eps = 0.005;
-         double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-         int j = 0;
-         for( unsigned int i = 0; i < 8; ++i )
+         double minEta(10), maxEta(-10), minPhi(6), maxPhi(-6);
+         for( unsigned int i = 0; i < 4; ++i )
          {
-            TEveVector crystal( tower.m_points[j], tower.m_points[j + 1], tower.m_points[j + 2] );
-            j += 3;
+             
+            TEveVector crystal( tower.m_points[i*3], tower.m_points[i*3 + 1], tower.m_points[i*3 + 2] );
             double eta = crystal.Eta();
-            double phi = crystal.Phi();
-            if ( ((k->id().subdetId() == EcalBarrel)  && (crystal.Perp() > 135) )||  ((k->id().subdetId() == EcalEndcap) && (crystal.Perp() > 155))) continue;
             if ( minEta - eta > eps) minEta = eta;
             if ( eta - minEta > 0 && eta - minEta < eps ) minEta = eta;
             if ( eta - maxEta > eps) maxEta = eta;
             if ( maxEta - eta > 0 && maxEta - eta < eps ) maxEta = eta;
+
+
+
+            // there are bins running exactly in the middle of Pi
+            double phi = crystal.Phi();
+
+
+            if (fabs(fabs(centerPhi) -TMath::Pi()) < 0.06 ){
+               // if (dump) printf("fixing phi %f, ceneter %f\n", phi, centerPhi);
+               if (centerPhi < 0 && phi > 0 ) phi -= TMath::TwoPi();
+               if (centerPhi > 0 && phi < 0 ) phi += TMath::TwoPi();
+            }
+
             if ( minPhi - phi > eps) minPhi = phi;
             if ( phi - minPhi > 0 && phi - minPhi < eps ) minPhi = phi;
             if ( phi - maxPhi > eps) maxPhi = phi;
@@ -395,17 +415,26 @@ FWECALDetailViewBuilder::fillDataEtaPhi( const EcalRecHitCollection *hits,TEveCa
          }
 
 
-        
-         if( minPhi >= ( m_phi - area ) && maxPhi <= ( m_phi + area ) &&
-             minEta >= ( m_eta - area ) && maxEta <= ( m_eta + area ))
-         {
+
+         if ((minEta > eta1 && maxEta < eta2) == false )
+            continue;
+
+
+         bool passPhi = (centerPhi > phi1 && centerPhi < phi2 );
+         if (!passPhi  && wrapPhi) {
+            centerPhi += wrapPhi * TMath::TwoPi();;
+            minPhi +=  wrapPhi * TMath::TwoPi();
+            maxPhi +=  wrapPhi * TMath::TwoPi();
+            passPhi = (centerPhi > phi1 && centerPhi < phi2 );
+         }
+
+         if (passPhi) {
             // printf("add (%f %f %f %f ) , value = %f\n",minEta, maxEta, minPhi, maxPhi, tower.m_height );
-            // data->AddTower( tower.m_center.Eta() -eps, tower.m_center.Eta() + eps,  tower.m_center.Phi() -eps,tower.m_center.Phi() +eps );             
-         
             data->AddTower( minEta, maxEta, minPhi, maxPhi );
             data->FillSlice( tower.m_slice, tower.m_height );
-         } // in rng
-      } // pnts
+         }
+
+      } // if have geom
    } // loop hits
 }
 
