@@ -26,6 +26,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
       RecHitTopologicalCleanerFactory::get()->create(cleanerName,conf);
     _cleaners.push_back(std::unique_ptr<RHCB>(cleaner));
   }
+  edm::ConsumesCollector sumes = consumesCollector();
+
   // setup seed finding
   const edm::ParameterSet& sfConf = 
     conf.getParameterSet("seedFinder");
@@ -36,7 +38,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   const edm::ParameterSet& initConf = 
     conf.getParameterSet("initialClusteringStep");
   const std::string& initName = initConf.getParameter<std::string>("algoName");
-  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf);
+  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf,sumes);
   _initialClustering.reset(initb);
   //setup pf cluster builder if requested
   _pfClusterBuilder.reset(NULL);
