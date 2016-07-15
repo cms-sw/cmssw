@@ -1,3 +1,8 @@
+"""
+L1TriggerAnalyzer is an Analyzer that load in-time (BX=0) L1 objects (jets, tau, muons, EGamma).
+SumEt objects (MET,MHT,ET,HT) are defined with the PtPhiPairClass defined above.
+"""
+
 import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -14,9 +19,7 @@ class PtPhiPairClass():
         return self.pt_
     def phi(self):
         return self.phi_
-"""
-L1TriggerAnalyzer is an Analyzer that .....
-"""
+
 class L1TriggerAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(L1TriggerAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
