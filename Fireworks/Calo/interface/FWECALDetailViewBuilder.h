@@ -66,12 +66,10 @@ public:
 private:
 
    // fill data
-   void fillData(const EcalRecHitCollection *hits,
-                 TEveCaloDataVec *data, bool xyEE);
-
+   void fillData(TEveCaloDataVec *data);
    
-   void fillDataEtaPhi(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
-   void fillDataXY(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
+   void fillEtaPhi(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
+   void fillXY(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
 
    const edm::EventBase *m_event;                               // the event
    const FWGeometry     *m_geom;                                // the geometry
