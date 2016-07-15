@@ -11,7 +11,6 @@ sample.json="json.txt"
 
 TriggerObjectsAna.triggerObjectInputTag = ('selectedPatTrigger','','RECO')
 FlagsAna.processName='RECO'
-TrigAna.processName = 'RECO'
 TrigAna.triggerBits = triggerTableData
 L1TriggerAna.processName = 'RECO'
 
