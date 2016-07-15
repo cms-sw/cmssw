@@ -72,7 +72,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 			   edm::ValueMap<reco::PhotonRef>  pfEGCandToPhotonMap,
 			   edm::Handle< reco::VertexCollection >&  pvVertices,
 			   reco::PhotonCollection & outputCollection,
-			   int& iSC);
+			   int& iSC, edm::Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > >& particleBasedIsolationMap_);
 
 
  // std::string PhotonCoreCollection_;
@@ -88,6 +88,8 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
+ //for isolation with map-based veto
+ edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken;
  
   std::string conversionProducer_;
   std::string conversionCollection_;
