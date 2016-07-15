@@ -172,15 +172,11 @@ CAHitQuadrupletGenerator::findQuadruplets (const TrackingRegion& region, Ordered
         bc_errZ[i] =  (barrels[i]) ? sqrt(error.czz()) : sqrt( error.rerr(point) ) * simpleCot;
       }
       RZLine rzLine(bc_r, bc_z, bc_errZ);
-      float      cottheta, intercept, covss, covii, covsi;
-      rzLine.fit(cottheta, intercept, covss, covii, covsi);
-      chi2 = rzLine.chi2(cottheta, intercept);
+      chi2 = rzLine.chi2();
     } else
     {
       RZLine rzLine(gps, ges, barrels);
-      float  cottheta, intercept, covss, covii, covsi;
-      rzLine.fit(cottheta, intercept, covss, covii, covsi);
-      chi2 = rzLine.chi2(cottheta, intercept);
+      chi2 = rzLine.chi2();
     }
     if (edm::isNotFinite(chi2) || chi2 > thisMaxChi2)
     {

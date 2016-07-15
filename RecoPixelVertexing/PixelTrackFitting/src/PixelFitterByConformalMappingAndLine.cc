@@ -123,15 +123,13 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   // line fit (R-Z plane)
   //
   RZLine rzLine(r,z,errZ);
-  float      cottheta, intercept, covss, covii, covsi;
-  rzLine.fit(cottheta, intercept, covss, covii, covsi);
   
 //
 // parameters for track builder 
 //
-  Measurement1D zip(intercept, sqrt(covii));
-  Measurement1D cotTheta(cottheta, sqrt(covss));  
-  float chi2 = parabola.chi2() +  rzLine.chi2(cottheta, intercept);
+  Measurement1D zip(rzLine.intercept(), sqrt(rzLine.covii()));
+  Measurement1D cotTheta(rzLine.cotTheta(), sqrt(rzLine.covss()));
+  float chi2 = parabola.chi2() +  rzLine.chi2();
   int charge = parabola.charge();
 
 

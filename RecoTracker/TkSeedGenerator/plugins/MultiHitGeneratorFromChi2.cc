@@ -539,9 +539,7 @@ void MultiHitGeneratorFromChi2::hitTriplets(
 	int subid2 = hit2->geographicalId().subdetId();
 	bl[2] = (subid2 == StripSubdetector::TIB || subid2 == StripSubdetector::TOB || subid2 == (int) PixelSubdetector::PixelBarrel);
 	RZLine rzLine(gp,ge,bl);
-	float  cottheta, intercept, covss, covii, covsi;
-	rzLine.fit(cottheta, intercept, covss, covii, covsi);
-	float chi2 = rzLine.chi2(cottheta, intercept);
+	float chi2 = rzLine.chi2();
 
 #ifdef EDM_ML_DEBUG
 	bool debugTriplet = debugPair && hit2->rawId()==debug_Id2;
