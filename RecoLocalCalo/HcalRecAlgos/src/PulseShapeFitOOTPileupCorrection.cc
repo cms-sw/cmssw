@@ -198,7 +198,7 @@ namespace FitterFuncs{
 
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0), chargeThreshold_(6.),
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
-								       TSMin_(0), TSMax_(0), ts4Chi2_(0), ts3Chi2_(0), ts345Chi2_(0), pedestalConstraint_(0),
+								       TSMin_(0), TSMax_(0), ts4Chi2_(0), pedestalConstraint_(0),
 								       timeConstraint_(0), addPulseJitter_(0), unConstrainedFit_(0), applyTimeSlew_(0),
 								       ts4Min_(0), ts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
 								       noise_(0) {
@@ -217,14 +217,12 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min, double iTS4Max,
 						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 						   double iNoise,double iTMin,double iTMax,
-						   double its3Chi2,double its4Chi2,double its345Chi2,
+						   double its4Chi2,
 						   double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) { 
 
   TSMin_ = iTMin;
   TSMax_ = iTMax;
-  ts3Chi2_   = its3Chi2;
   ts4Chi2_   = its4Chi2;
-  ts345Chi2_ = its345Chi2;
   pedestalConstraint_ = iPedestalConstraint;
   timeConstraint_     = iTimeConstraint;
   addPulseJitter_     = iAddPulseJitter;

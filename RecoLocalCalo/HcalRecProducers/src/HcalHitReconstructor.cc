@@ -271,9 +271,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  conf.getParameter<double>("noise"),
 			  conf.getParameter<double>("timeMin"),
 			  conf.getParameter<double>("timeMax"),
-			  conf.getParameter<double>("ts3chi2"),
 			  conf.getParameter<double>("ts4chi2"),
-			  conf.getParameter<double>("ts345chi2"),
 			  conf.getParameter<double>("chargeMax"), //For the unconstrained Fit
                           conf.getParameter<int>   ("fitTimes")
 			  );

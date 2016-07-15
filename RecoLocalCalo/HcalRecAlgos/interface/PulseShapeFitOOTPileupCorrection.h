@@ -96,8 +96,8 @@ public:
     void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
 		     double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-		     double iNoise,double iTMin,double iTMax,
-		     double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
+		     double iNoise, double iTMin,double iTMax,
+		     double its4Chi2, double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
     
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
@@ -121,8 +121,6 @@ private:
     int TSMin_;
     int TSMax_;
     double ts4Chi2_;
-    double ts3Chi2_;
-    double ts345Chi2_;
     bool pedestalConstraint_;
     bool timeConstraint_;
     bool addPulseJitter_;

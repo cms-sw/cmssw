@@ -71,9 +71,7 @@ hbheprereco = cms.EDProducer(
         noise                 = cms.double(1),    #fC
         timeMin               = cms.double(-12.5),#ns
         timeMax               = cms.double(12.5), #ns
-        ts3chi2               = cms.double(5.),   #chi2 (not used)
         ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
-        ts345chi2             = cms.double(100.), #chi2 (not used)
         chargeMax             = cms.double(6.),   #Charge cut (fC) for uncstrianed Fit 
         fitTimes              = cms.int32(1),     # -1 means no constraint on number of fits per channel
 

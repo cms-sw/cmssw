@@ -28,9 +28,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double iNoise =            conf.getParameter<double>("noise");
     const double iTMin =             conf.getParameter<double>("timeMin");
     const double iTMax =             conf.getParameter<double>("timeMax");
-    const double its3Chi2 =          conf.getParameter<double>("ts3chi2");
     const double its4Chi2 =          conf.getParameter<double>("ts4chi2");
-    const double its345Chi2 =        conf.getParameter<double>("ts345chi2");
     const double iChargeThreshold =  conf.getParameter<double>("chargeMax"); //For the unconstrained Fit
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
 
@@ -42,7 +40,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
                       iUnConstrainedFit, iApplyTimeSlew, iTS4Min, iTS4Max,
                       iPulseJitter, iTimeMean, iTimeSig, iPedMean, iPedSig,
-                      iNoise, iTMin, iTMax, its3Chi2, its4Chi2, its345Chi2,
+                      iNoise, iTMin, iTMax, its4Chi2,
                       iChargeThreshold, HcalTimeSlew::Medium, iFitTimes);
     return corr;
 }
