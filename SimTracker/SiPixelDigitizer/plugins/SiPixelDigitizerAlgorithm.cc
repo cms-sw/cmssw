@@ -1316,16 +1316,16 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
           for(const auto& info: (*i).second.hitInfos()) {
             // note: according to C++ standard operator[] does
             // value-initializiation, which for float means initial value of 0
-            simi[std::make_pair(info.trackIds_[0], info.eventId_.rawId())] += (*i).second.individualampl()[il];
+            simi[std::make_pair(info.trackId(), info.eventId().rawId())] += (*i).second.individualampl()[il];
             il++;
           }
 
 	  //sum the contribution of the same trackid
           for(const auto& info: (*i).second.hitInfos()) {
-            const auto trackId = info.trackIds_[0];
+            const auto trackId = info.trackId();
 
             // track already processed, so skip
-            auto found = simi.find(std::make_pair(trackId, info.eventId_.rawId()));
+            auto found = simi.find(std::make_pair(trackId, info.eventId().rawId()));
             if(found == simi.end())
               continue;
 
@@ -1334,7 +1334,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 	    if(fraction>1.f) fraction=1.f;
 
             // Approximation: pick hitIndex and tofBin only from the first SimHit
-	    simlinks.emplace_back((*i).first, trackId, info.hitIndex_, info.tofBin_, info.eventId_, fraction);
+	    simlinks.emplace_back((*i).first, trackId, info.hitIndex(), info.tofBin(), info.eventId(), fraction);
             simi.erase(found);
 	  }
           simi.clear(); // although should be empty already
