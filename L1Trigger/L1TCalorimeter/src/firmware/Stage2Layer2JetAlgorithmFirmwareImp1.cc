@@ -419,7 +419,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
     if( params_->jetCalibrationParams().size() != 6*22){
       edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
-	params_->jetCalibrationParams().size() << "  Require size: 132  Not calibrating Stage 2 Jets" << std::endl;
+      params_->jetCalibrationParams().size() << "  Require size: 132  Not calibrating Stage 2 Jets" << std::endl;
       return;
     }
 
@@ -456,7 +456,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
     if( params_->jetCalibrationParams().size() != 8*22){
       edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
-           params_->jetCalibrationParams().size() << "  Require size: 176  Not calibrating Stage 2 Jets" << std::endl;
+      params_->jetCalibrationParams().size() << "  Require size: 176  Not calibrating Stage 2 Jets" << std::endl;
       return;
     }
 
@@ -474,6 +474,39 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       double ptPhys = jet->hwPt() * params_->jetLsb();
       double correction = params[6];
       if (ptPhys>params[7]) correction = calibFit(ptPhys, params);
+
+      math::XYZTLorentzVector p4;
+      *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
+
+    }
+
+  }
+  else if( params_->jetCalibrationType() == "functionErf11PtParams16EtaBins" ){
+    // as above but with cap on max correction at low pT
+
+    if( params_->jetCalibrationParams().size() != 11*16){
+      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
+      params_->jetCalibrationParams().size() << "  Require size: 176  Not calibrating Stage 2 Jets" << std::endl;
+      return;
+    }
+
+    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+
+      if(jet->hwPt() < calibThreshold) continue;
+
+      int etaBin = CaloTools::bin16Eta( jet->hwEta() );
+
+      double params[11];
+      for(int i=0; i<11; i++){
+        params[i] = params_->jetCalibrationParams()[etaBin*11 + i];
+      }
+
+      double ptPhys = jet->hwPt() * params_->jetLsb();
+      double correction = params[7];
+
+      if (ptPhys<params[8]) correction = params[7];
+      else if (ptPhys>params[10]) correction = params[9];
+      else correction = calibFitErr(ptPhys, params); 
 
       math::XYZTLorentzVector p4;
       *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
@@ -538,6 +571,18 @@ double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFit( double pt, double *p
 
   // Final fitting function, with sanity check
   double f = par[0] + term1 + term2;
+  if (f < 0)
+    f = 0;
+  if (f != f) // stop NaN
+    f = 1;
+  return f;
+}
+
+//NEW Function for the calibration, correct as a function of pT in bins of eta
+double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFitErr( double pt, double *par ){
+
+  double f = [0]+[1]*TMath::Erf([2]*(log10(pt)-[3])+[4]*exp([5]*(log10(pt)-[6])*(log10(pt)-[6])));
+  // sanity check
   if (f < 0)
     f = 0;
   if (f != f) // stop NaN
