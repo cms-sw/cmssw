@@ -1,7 +1,6 @@
-#ifndef DDutils_hh
-#define DDutils_hh 1
+#ifndef DETECTOR_DESCRIPTION_BASE_DD_UTILS_H
+#define DETECTOR_DESCRIPTION_BASE_DD_UTILS_H
 
-#include <string>
 #include <vector>
 
 /// Converts a std::vector of doubles to a std::vector of int
