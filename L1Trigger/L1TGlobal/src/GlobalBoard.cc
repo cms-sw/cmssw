@@ -787,8 +787,8 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
         const unsigned int numberPhysTriggers,
 	const std::vector<int>& prescaleFactorsAlgoTrig,
 	const std::vector<unsigned int>& triggerMaskAlgoTrig,
-	const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
-        const bool algorithmTriggersUnprescaled,
+        const std::vector<int>& triggerMaskVetoAlgoTrig,
+	const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked ){
 
 
@@ -827,43 +827,6 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     m_uGtAlgBlk.copyInitialToInterm();
     
 
-   // ----------------------------------------------------
-    //      Apply absBXmasking or skip if turned off  TO DO
-    // ----------------------------------------------------
-    if( !algorithmTriggersUnmasked ){
-
-/*  TO DO get absBX masking
-      bool temp_algBxMaskOr = false;
-      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
-
-	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm( iBit );
-
-	if( bitValue ){
-	  bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
-
-	  bool passMask = ( bitValue && !isMasked );
-
-	  if( passMask ) temp_algBxMaskOr = true;
-	  else           m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
-
-	}
-      }
-
-      m_algIntermOr = temp_algBxMaskOr; */
-      m_algIntermOr = m_algInitialOr;
-	
-    } 
-    else {
-
-      m_algIntermOr = m_algInitialOr;
-     
-    } ///if we are masking.        
-    
-
-    // Copy Algorithm bits fron Prescaled word to Final Word 
-    // Masking done below if requested.
-    m_uGtAlgBlk.copyIntermToFinal();
-
     // -------------------------------------------
     //      Apply Prescales or skip if turned off
     // -------------------------------------------
@@ -877,32 +840,33 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 
 	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial( iBit );
 	if( bitValue ){
-	  if( prescaleFactorsAlgoTrig.at(iBit) != 1 ){
-
-	    (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
-	    if( m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0 ){
-
-	      // bit already true in algoDecisionWord, just reset counter
-	      m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
-	      temp_algPrescaledOr = true;
+	  // Make sure algo bit in range, warn otherwise
+	  if( iBit < prescaleFactorsAlgoTrig.size() ){
+	    if( prescaleFactorsAlgoTrig.at(iBit) != 1 ){
 	      
-	      // Check if veto mask is true, if it is, set the event veto flag.
-	      if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;	      
-	    } 
+	      (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
+	      if( m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0 ){
+
+		// bit already true in algoDecisionWord, just reset counter
+		m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
+		temp_algPrescaledOr = true;
+	      } 
+	      else {
+		
+		// change bit to false in prescaled word and final decision word
+		m_uGtAlgBlk.setAlgoDecisionInterm(iBit,false);
+		
+	      } //if Prescale counter reached zero
+	    } //if prescale factor is not 1 (ie. no prescale)
 	    else {
-
-	      // change bit to false in prescaled word and final decision word
-	      m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
-
-	    } //if Prescale counter reached zero
-	  } //if prescale factor is not 1 (ie. no prescale)
-	  else {
 	    
-	    temp_algPrescaledOr = true;
-
-	    // Check if veto mask is true, if it is, set the event veto flag.
-	    if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;	    
-	    
+	      temp_algPrescaledOr = true;
+	    }
+	  } // require bit in range
+	  else{
+	    edm::LogWarning("L1TGlobal")
+	      << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() "
+	      << std::endl;
 	  }
 	} //if algo bit is set true
       } //loop over alg bits
@@ -912,14 +876,55 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     } 
     else {
       // Since not Prescaling just take OR of Initial Work
-      m_algPrescaledOr = m_algIntermOr;
+      m_algPrescaledOr = m_algInitialOr;
 	
     }//if we are going to apply prescales.
 
+      
+    // Copy Algorithm bits fron Prescaled word to Final Word 
+    // Masking done below if requested.
+    m_uGtAlgBlk.copyIntermToFinal();
+    
+    if( !algorithmTriggersUnmasked ){
 
-// Set local and FinalOR for this board
-// FIX ME: Currently in one board operation we are setting the global FINOR as well.
-   m_algFinalOr = (m_algPrescaledOr & !m_algFinalOrVeto);
+      bool temp_algFinalOr = false;
+      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
+
+	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm( iBit );
+
+	if( bitValue ){
+	  //bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+	  bool isMasked = false;
+	  if( iBit < triggerMaskAlgoTrig.size() ) isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+	  else{
+	    edm::LogWarning("L1TGlobal")
+	      << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() "
+	      << std::endl;
+	  }
+
+	  bool passMask = ( bitValue && !isMasked );
+
+	  if( passMask ) temp_algFinalOr = true;
+	  else           m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
+
+	  // Check if veto mask is true, if it is, set the event veto flag.
+	  if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;
+
+	}
+      }
+
+      m_algIntermOr = temp_algFinalOr;
+	
+    } 
+    else {
+
+      m_algIntermOr = m_algPrescaledOr;
+     
+    } ///if we are masking.
+
+// Set FinalOR for this board
+   m_algFinalOr = (m_algIntermOr & !m_algFinalOrVeto);
+
 
 
 }
@@ -947,7 +952,7 @@ void l1t::GlobalBoard::fillAlgRecord(int iBxInEvent,
     m_uGtAlgBlk.setL1FirmwareUUID(firmwareUUID);
         
     m_uGtAlgBlk.setFinalORVeto(m_algFinalOrVeto);
-    m_uGtAlgBlk.setFinalORPreVeto(m_algPrescaledOr); 
+    m_uGtAlgBlk.setFinalORPreVeto(m_algIntermOr); 
     m_uGtAlgBlk.setFinalOR(m_algFinalOr);
     
 
