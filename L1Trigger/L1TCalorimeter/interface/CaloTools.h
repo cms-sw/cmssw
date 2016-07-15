@@ -86,6 +86,7 @@ namespace l1t {
     static int mpEta(int ieta);      // convert to internal MP numbering
     static int caloEta(int ietaMP);  // convert from internal MP to Calo ieta
     static int regionEta(int ieta);  // RCT region
+    static int bin16Eta(int ieta);     // gives the eta bin label 
     static int gtEta(int ieta);      // GT eta scale
     static int gtPhi(int ieta, int iphi);      // GT phi scale
 

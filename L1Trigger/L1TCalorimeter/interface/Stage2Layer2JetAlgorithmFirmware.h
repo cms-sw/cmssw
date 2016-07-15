@@ -34,6 +34,7 @@ namespace l1t {
     void calibrate(std::vector<Jet> & jets, int calibThreshold);
 
     double calibFit(double, double*);
+    double calibFitErr(double,double*);
 
     int donutPUEstimate(int jetEta, int jetPhi, int size,
                         const std::vector<l1t::CaloTower> & towers);
