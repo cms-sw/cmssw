@@ -98,6 +98,24 @@ public:
   MonitorElement* mMETDeltaPhi_GenMETTrue;
   MonitorElement* mMETDifference_GenMETCalo;
   MonitorElement* mMETDeltaPhi_GenMETCalo;
+  
+  // MET Uncertainity Variables
+  MonitorElement* mMETUnc_JetResUp;
+  MonitorElement* mMETUnc_JetResDown;
+  MonitorElement* mMETUnc_JetEnUp;
+  MonitorElement* mMETUnc_JetEnDown;
+  MonitorElement* mMETUnc_MuonEnUp;
+  MonitorElement* mMETUnc_MuonEnDown;
+  MonitorElement* mMETUnc_ElectronEnUp;
+  MonitorElement* mMETUnc_ElectronEnDown;
+  MonitorElement* mMETUnc_TauEnUp;
+  MonitorElement* mMETUnc_TauEnDown;
+  MonitorElement* mMETUnc_UnclusteredEnUp;
+  MonitorElement* mMETUnc_UnclusteredEnDown;
+  MonitorElement* mMETUnc_PhotonEnUp;
+  MonitorElement* mMETUnc_PhotonEnDown;
+  
+    
   //CaloMET variables
 
   MonitorElement* mCaloMaxEtInEmTowers;
