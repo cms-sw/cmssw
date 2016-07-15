@@ -273,15 +273,21 @@ namespace edm {
     waitingTasks_.add(waitTask);
     bool expected = false;
     if(prefetchRequested_.compare_exchange_strong(expected, true)) {
-      try {
-        resolveProduct(principal, skipCurrentProcess,sra,mcc);
-      } catch(...) {
-        waitingTasks_.doneWaiting(std::current_exception());
-        return;
-      }
-      waitingTasks_.doneWaiting(nullptr);
+      
+      //Have to create a new task
+      auto t = make_functor_task(tbb::task::allocate_root(),
+                                 [this,&principal, skipCurrentProcess,sra,mcc]()
+      {
+        try {
+          resolveProduct(principal, skipCurrentProcess,sra,mcc);
+        } catch(...) {
+          waitingTasks_.doneWaiting(std::current_exception());
+          return;
+        }
+        waitingTasks_.doneWaiting(nullptr);
+      } );
+      tbb::task::spawn(*t);
     }
-  
   }
   
   void
