@@ -1,31 +1,43 @@
-#include "DQMOffline/CalibTracker/plugins/SiStripPedestalsDQMService.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include <string>
-#include <sstream>
-#include <cctype>
-#include <time.h>
-#include <boost/cstdint.hpp>
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConSourceHandler.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripDQMStoreReader.h"
 
-using namespace std;
+/**
+  @class SiStripPopConPedestalsHandlerFromDQM
+  @author M. De Mattia, S. Dutta, D. Giordano
 
-SiStripPedestalsDQMService::SiStripPedestalsDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
-  // SiStripCondObjBuilderBase<SiStripPedestals>::SiStripCondObjBuilderBase(iConfig),
-  SiStripBaseServiceFromDQM<SiStripPedestals>::SiStripBaseServiceFromDQM(iConfig),
-  iConfig_(iConfig),
-  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")))
+  @popcon::PopConSourceHandler to read modules flagged by the DQM as bad and write in the database.
+*/
+class SiStripPopConPedestalsHandlerFromDQM : public SiStripPopConSourceHandler<SiStripPedestals>, private SiStripDQMStoreReader
 {
-  obj_ = 0;
+public:
+  explicit SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig);
+  virtual ~SiStripPopConPedestalsHandlerFromDQM();
+  // interface methods: implemented in template
+  void initialize() {}
+  SiStripPedestals* getObj();
+private:
+  edm::FileInPath fp_;
+  std::string MEDir_;
+};
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+
+SiStripPopConPedestalsHandlerFromDQM::SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig)
+  : SiStripPopConSourceHandler<SiStripPedestals>(iConfig)
+  , SiStripDQMStoreReader(iConfig)
+  , fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))}
+  , MEDir_{iConfig.getUntrackedParameter<std::string>("ME_DIR", "DQMData")}
+{
   edm::LogInfo("SiStripPedestalsDQMService") <<  "[SiStripPedestalsDQMService::SiStripPedestalsDQMService]";
 }
 
-SiStripPedestalsDQMService::~SiStripPedestalsDQMService()
+SiStripPopConPedestalsHandlerFromDQM::~SiStripPopConPedestalsHandlerFromDQM()
 {
   edm::LogInfo("SiStripPedestalsDQMService") <<  "[SiStripPedestalsDQMService::~SiStripPedestalsDQMService]";
 }
 
-void SiStripPedestalsDQMService::readPedestals()
+SiStripPedestals* SiStripPopConPedestalsHandlerFromDQM::getObj()
 {
   std::cout << "SiStripPedestalsDQMService::readPedestals" << std::endl;
 
@@ -33,7 +45,7 @@ void SiStripPedestalsDQMService::readPedestals()
 
   std::cout << "[readBadComponents]: opened requested file" << std::endl;
 
-  obj_= new SiStripPedestals;
+  std::unique_ptr<SiStripPedestals> obj{new SiStripPedestals{}};
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
@@ -46,7 +58,7 @@ void SiStripPedestalsDQMService::readPedestals()
   // const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
 
   // Take a copy of the vector
-  std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
+  std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(MEDir_);
   // Remove all but the MEs we are using
   std::vector<MonitorElement*>::iterator newEnd = remove_if(MEs.begin(), MEs.end(), StringNotMatch("PedsPerStrip__det__"));
   MEs.erase(newEnd, MEs.end());
@@ -75,8 +87,8 @@ void SiStripPedestalsDQMService::readPedestals()
       }
     }
 
-    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<string>(it->first), findMEbyName() );
-    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<string>(it->first)) ));
+    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<std::string>(it->first), findMEbyName() );
+    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<std::string>(it->first)) ));
 
     if( mE != 0 ) {
       TH1F* histo = mE->getTH1F();
@@ -95,7 +107,7 @@ void SiStripPedestalsDQMService::readPedestals()
         // TH1 bins start from 1, 0 is the underflow, nBinsX+1 the overflow.
         for( uint32_t iBin = 1; iBin <= nBinsX; ++iBin ) {
           // encode the pedestal value and put it in the vector (push_back)
-          obj_->setData( histo->GetBinContent(iBin), theSiStripVector );
+          obj->setData( histo->GetBinContent(iBin), theSiStripVector );
         }
       }
       else {
@@ -108,12 +120,19 @@ void SiStripPedestalsDQMService::readPedestals()
     // If the ME was absent fill the vector with 0
     if( theSiStripVector.empty() ) {
       for(unsigned short j=0; j<128*it->second.nApvs; ++j){
-        obj_->setData(0, theSiStripVector);
+        obj->setData(0, theSiStripVector);
       }
     }
 
-    if ( ! obj_->put(it->first, theSiStripVector) )
+    if ( ! obj->put(it->first, theSiStripVector) )
       edm::LogError("SiStripPedestalsFakeESSource::produce ")<<" detid already exists"<<std::endl;
   }
   dqmStore_->cd();
+
+  return obj.release();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "CondCore/PopCon/interface/PopConAnalyzer.h"
+using SiStripPopConPedestalsDQM = popcon::PopConAnalyzer<SiStripPopConPedestalsHandlerFromDQM>;
+DEFINE_FWK_MODULE(SiStripPopConPedestalsDQM);

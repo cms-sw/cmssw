@@ -1,31 +1,43 @@
-#include "DQMOffline/CalibTracker/plugins/SiStripNoisesDQMService.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include <string>
-#include <sstream>
-#include <cctype>
-#include <time.h>
-#include <boost/cstdint.hpp>
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConSourceHandler.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripDQMStoreReader.h"
 
-using namespace std;
+/**
+  @class SiStripNoisesDQMService
+  @author M. De Mattia, S. Dutta, D. Giordano
 
-SiStripNoisesDQMService::SiStripNoisesDQMService(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
-  // SiStripCondObjBuilderBase<SiStripNoises>::SiStripCondObjBuilderBase(iConfig),
-  SiStripBaseServiceFromDQM<SiStripNoises>::SiStripBaseServiceFromDQM(iConfig),
-  iConfig_(iConfig),
-  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")))
+  @popcon::PopConSourceHandler to read modules flagged by the DQM as bad and write in the database.
+*/
+class SiStripPopConNoisesHandlerFromDQM : public SiStripPopConSourceHandler<SiStripNoises>, private SiStripDQMStoreReader
 {
-  obj_ = 0;
+public:
+  explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
+  virtual ~SiStripPopConNoisesHandlerFromDQM();
+  // interface methods: implemented in template
+  void initialize() {}
+  SiStripNoises* getObj();
+private:
+  edm::FileInPath fp_;
+  std::string MEDir_;
+};
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+
+SiStripPopConNoisesHandlerFromDQM::SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig)
+  : SiStripPopConSourceHandler<SiStripNoises>(iConfig)
+  , SiStripDQMStoreReader(iConfig)
+  , fp_{iConfig.getUntrackedParameter<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))}
+  , MEDir_{iConfig.getUntrackedParameter<std::string>("ME_DIR", "DQMData")}
+{
   edm::LogInfo("SiStripNoisesDQMService") <<  "[SiStripNoisesDQMService::SiStripNoisesDQMService]";
 }
 
-SiStripNoisesDQMService::~SiStripNoisesDQMService()
+SiStripPopConNoisesHandlerFromDQM::~SiStripPopConNoisesHandlerFromDQM()
 {
   edm::LogInfo("SiStripNoisesDQMService") <<  "[SiStripNoisesDQMService::~SiStripNoisesDQMService]";
 }
 
-void SiStripNoisesDQMService::readNoises()
+SiStripNoises* SiStripPopConNoisesHandlerFromDQM::getObj()
 {
   std::cout << "SiStripNoisesDQMService::readNoises" << std::endl;
 
@@ -33,7 +45,7 @@ void SiStripNoisesDQMService::readNoises()
 
   std::cout << "[readBadComponents]: opened requested file" << std::endl;
 
-  obj_= new SiStripNoises;
+  std::unique_ptr<SiStripNoises> obj{new SiStripNoises{}};
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
@@ -46,7 +58,7 @@ void SiStripNoisesDQMService::readNoises()
   // const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
 
   // Take a copy of the vector
-  std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
+  std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(MEDir_);
   // Remove all but the MEs we are using
   std::vector<MonitorElement*>::iterator newEnd = remove_if(MEs.begin(), MEs.end(), StringNotMatch("CMSubNoisePerStrip__det__"));
   MEs.erase(newEnd, MEs.end());
@@ -74,8 +86,8 @@ void SiStripNoisesDQMService::readNoises()
       }
     }
 
-    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<string>(it->first), findMEbyName() );
-    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<string>(it->first)) ));
+    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<std::string>(it->first), findMEbyName() );
+    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<std::string>(it->first)) ));
 
     if( mE != 0 ) {
       TH1F* histo = mE->getTH1F();
@@ -94,7 +106,7 @@ void SiStripNoisesDQMService::readNoises()
         // TH1 bins start from 1, 0 is the underflow, nBinsX+1 the overflow.
         for( uint32_t iBin = 1; iBin <= nBinsX; ++iBin ) {
           // encode the pedestal value and put it in the vector (push_back)
-          obj_->setData( histo->GetBinContent(iBin), theSiStripVector );
+          obj->setData( histo->GetBinContent(iBin), theSiStripVector );
         }
       }
       else {
@@ -107,12 +119,19 @@ void SiStripNoisesDQMService::readNoises()
     // If the ME was absent fill the vector with 50 (we want a high noise to avoid these modules being considered good by mistake)
     if( theSiStripVector.empty() ) {
       for(unsigned short j=0; j<128*it->second.nApvs; ++j){
-        obj_->setData(50, theSiStripVector);
+        obj->setData(50, theSiStripVector);
       }
     }
 
-    if ( ! obj_->put(it->first, theSiStripVector) )
+    if ( ! obj->put(it->first, theSiStripVector) )
       edm::LogError("SiStripNoisesFakeESSource::produce ")<<" detid already exists"<<std::endl;
   }
   dqmStore_->cd();
+
+  return obj.release();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "CondCore/PopCon/interface/PopConAnalyzer.h"
+using SiStripPopConNoisesDQM = popcon::PopConAnalyzer<SiStripPopConNoisesHandlerFromDQM>;
+DEFINE_FWK_MODULE(SiStripPopConNoisesDQM);
