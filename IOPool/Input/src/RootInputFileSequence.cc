@@ -235,14 +235,17 @@ namespace edm {
     std::list<std::string> originalInfo;
     try {
       std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
-      filePtr = std::make_shared<InputFile>(gSystem->ExpandPathName(fileName().c_str()), "  Initiating request to open file ", inputType);
+      std::unique_ptr<char[]> name(gSystem->ExpandPathName(fileName().c_str()));;
+      filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
     }
     catch (cms::Exception const& e) {
       if(!skipBadFiles) {
         if(hasFallbackUrl) {
           std::ostringstream out;
           out << e.explainSelf();
-          std::string pfn(gSystem->ExpandPathName(fallbackFileName().c_str()));
+          
+          std::unique_ptr<char[]> name(gSystem->ExpandPathName(fallbackFileName().c_str()));
+          std::string pfn(name.get());
           InputFile::reportFallbackAttempt(pfn, logicalFileName(), out.str());
           originalInfo = e.additionalInfo();
         } else {
@@ -260,8 +263,8 @@ namespace edm {
       try {
         usedFallback_ = true;
         std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
-        std::string fallbackFullName = gSystem->ExpandPathName(fallbackFileName().c_str());
-        filePtr.reset(new InputFile(fallbackFullName.c_str(), "  Fallback request to file ", inputType));
+        std::unique_ptr<char[]> fallbackFullName(gSystem->ExpandPathName(fallbackFileName().c_str()));
+        filePtr.reset(new InputFile(fallbackFullName.get(), "  Fallback request to file ", inputType));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
