@@ -140,10 +140,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   iLumi=iConfig.getParameter<double>("iLumi");
 
   if( iLumi > 0.0 ) {
-    dbHardcode.setLumi(iLumi);
-    dbHardcode.setLumiOffset(iConfig.getParameter<double>("iLumiOffset"));
-    dbHardcode.setHBSiPMLumiDep(iConfig.getParameter<double>("HBSiPMLumiDep"));
-    dbHardcode.setHESiPMLumiDep(iConfig.getParameter<double>("HESiPMLumiDep"));
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if(he_recalib) {
@@ -761,9 +757,6 @@ std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (c
 void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
 	edm::ParameterSetDescription desc;
 	desc.add<double>("iLumi",-1.);
-	desc.add<double>("iLumiOffset",-1.);
-	desc.add<double>("HBSiPMLumiDep",1.7);
-	desc.add<double>("HESiPMLumiDep",0.7);
 	desc.add<bool>("HERecalibration",false);
 	desc.add<double>("HEreCalibCutoff",20.);
 	desc.add<bool>("HFRecalibration",false);
