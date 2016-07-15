@@ -332,12 +332,13 @@ int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
 
 bool PFDisplacedVertexHelper::isKaonMass(const PFDisplacedVertex& v) const {
 
-  math::XYZVector  trkInit = v.refittedTracks()[1].momentum(), 
-    trkFinal = v.refittedTracks()[0].momentum();
+  math::XYZVector  trkInit = v.refittedTracks()[1].momentum(); 
+  math::XYZVector trkFinal = v.refittedTracks()[0].momentum();
 
-  if (v.trackTypes()[0] == PFDisplacedVertex::T_TO_VERTEX)
-    trkInit = v.refittedTracks()[0].momentum(),
-      trkFinal =  v.refittedTracks()[1].momentum();
+  if (v.trackTypes()[0] == PFDisplacedVertex::T_TO_VERTEX) {
+    trkInit = v.refittedTracks()[0].momentum();
+    trkFinal =  v.refittedTracks()[1].momentum();
+  }
 
 
     math::XYZVector trkNeutre(trkInit.x()-trkFinal.x(),  trkInit.y()-trkFinal.y(),
