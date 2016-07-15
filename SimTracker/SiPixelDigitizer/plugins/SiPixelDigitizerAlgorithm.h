@@ -117,7 +117,7 @@ class SiPixelDigitizerAlgorithm  {
     // can be used as a float by convers.
     operator float() const { return _amp;}
     float ampl() const {return _amp;}
-    std::vector<float> individualampl() const {return _frac;}
+    const std::vector<float>& individualampl() const {return _frac;}
     const std::vector<SimHitInfoForLinks>& hitInfos() const { return _hitInfos; }
 
     void operator+=( const Amplitude& other) {

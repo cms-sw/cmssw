@@ -37,7 +37,7 @@ namespace DigitizerUtility {
     // can be used as a float by convers.
     operator float() const {return _amp;}
     float ampl() const {return _amp;}
-    std::vector<float> individualampl() const {return _frac;}
+    const std::vector<float>& individualampl() const {return _frac;}
     const std::vector<unsigned int>& trackIds() const {return _hitInfo->trackIds();}
     const std::shared_ptr<SimHitInfoForLinks>& hitInfo() const {return _hitInfo;}
 
