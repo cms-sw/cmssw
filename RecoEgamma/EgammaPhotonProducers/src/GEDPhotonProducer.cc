@@ -67,6 +67,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
       consumes<reco::PhotonCollection>(photonProducer_);
     pfCandidates_      = 
       consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
+    particleBasedIsolationToken   = 
+       consumes<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolationTmp"));
 
   } else {
 
@@ -244,6 +246,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   Handle<reco::PhotonCoreCollection> photonCoreHandle;
   bool validPhotonHandle= false;
   Handle<reco::PhotonCollection> photonHandle;
+  //this are changes done to test photon isolation with map-based footprint
+  Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationMap;  
 
   if ( reconstructionStep_ == "final" ) { 
     theEvent.getByToken(photonProducerT_,photonHandle);
@@ -252,6 +256,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     } else {
       throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
     }
+    //theEvent.getByToken(particleBasedIsolationToken, particleBasedIsolationMap); 
   } else {
     
     theEvent.getByToken(photonCoreProducerT_,photonCoreHandle);
@@ -391,7 +396,8 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 pfEGCandToPhotonMap,
 			 vertexHandle,
 			 outputPhotonCollection,
-			 iSC);
+			 iSC,
+       particleBasedIsolationMap);
 
 
 
@@ -702,7 +708,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle,
 					     edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap,
 					     edm::Handle< reco::VertexCollection >  & vertexHandle,
-					     reco::PhotonCollection & outputPhotonCollection, int& iSC) {
+					     reco::PhotonCollection & outputPhotonCollection, int& iSC, edm::Handle< edm::ValueMap<std::vector<reco::PFCandidateRef > > >& particleBasedIsolationMap_) {
 
   
  
@@ -743,6 +749,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
 
+
     // do the regression
     thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, *vertexHandle, es);
     if ( candidateP4type_ == "fromEcalEnergy") {
@@ -766,6 +773,13 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
     //std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
 
+    edm::Ptr<reco::Photon> photonPtr(photonHandle, lSC);
+    std::cout << " Start the test by Ivan .... " << std::endl;
+    /*for ( auto itr = (*particleBasedIsolationMap_)[photonPtr].begin(); itr != (*particleBasedIsolationMap_)[photonPtr].end(); ++itr ) 
+    {
+         std::cout << itr->key();
+    }
+    std::cout << " end the test by Ivan .... " << std::endl;*/
     outputPhotonCollection.push_back(newCandidate);        
     
   }
