@@ -271,7 +271,7 @@ createEtaPhiRegionData(const std::string& type,const edm::ParameterSet& para,
     return new EtaPhiRegionData<l1t::TauBxCollection>(para,consumesColl);
   }else if(type=="RecoEcalCandidate"){
     return new EtaPhiRegionData<reco::RecoEcalCandidateCollection>(para,consumesColl);
-  }else if(type=="RecoChargedCandiate"){
+  }else if(type=="RecoChargedCandidate"){
     return new EtaPhiRegionData<reco::RecoChargedCandidateCollection>(para,consumesColl);
   }else if(type=="Electron"){
     return new EtaPhiRegionData<reco::Electron>(para,consumesColl);
