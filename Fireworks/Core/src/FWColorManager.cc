@@ -251,7 +251,6 @@ void
 FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
 {
    m_gammaOff = -b*0.1f;
-   printf("set brightnes %f\n", m_gammaOff);
    setBackgroundColorIndex(iIndex);
 }
 
