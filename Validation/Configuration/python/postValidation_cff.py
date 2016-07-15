@@ -73,11 +73,6 @@ postValidation_muons = cms.Sequence(
     + MuonGEMRecHitsPostProcessors
     + rpcRecHitPostValidation_step
 )
-
-postValidation_trackingMuons = cms.Sequence(
-    postValidation_trackingOnly
-    + postValidation_muons
-)
  
 postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor

@@ -1,6 +1,6 @@
 autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLiteTracking','validationHarvesting'],
                    'trackingOnlyValidation' : ['globalPrevalidationTrackingOnly','globalValidationTrackingOnly','postValidation_trackingOnly'],
-                   'trackingMuonsValidation' : ['globalPrevalidationTrackingMuons','globalValidationTrackingOnly', 'postValidation_trackingMuons'],
+                   'muonOnlyValidation' : ['globalPrevalidationMuons','globalValidationMuons', 'postValidation_muons'],
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
                    'standardValidation' : ['prevalidation','validation','validationHarvesting']
                  }

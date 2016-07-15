@@ -135,10 +135,7 @@ globalPrevalidationMuons = cms.Sequence(
     + dtLocalRecoValidation_no2D
 )
 
-globalPrevalidationTrackingMuons = cms.Sequence(
-      globalPrevalidationTrackingOnly
-    + globalPrevalidationMuons
-)
+globalValidationMuons = cms.Sequence()
 
 _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid
