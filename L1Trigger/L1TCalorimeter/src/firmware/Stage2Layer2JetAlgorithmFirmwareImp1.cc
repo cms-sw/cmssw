@@ -12,6 +12,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "TMath.h"
 
 #include <vector>
 #include <algorithm>
@@ -581,7 +582,7 @@ double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFit( double pt, double *p
 //NEW Function for the calibration, correct as a function of pT in bins of eta
 double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFitErr( double pt, double *par ){
 
-  double f = [0]+[1]*TMath::Erf([2]*(log10(pt)-[3])+[4]*exp([5]*(log10(pt)-[6])*(log10(pt)-[6])));
+  double f = par[0]+par[1]*TMath::Erf(par[2]*(log10(pt)-par[3])+par[4]*exp(par[5]*(log10(pt)-par[6])*(log10(pt)-par[6])));
   // sanity check
   if (f < 0)
     f = 0;
