@@ -68,6 +68,23 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mMETDeltaPhi_GenMETTrue      = 0;
   mMETDifference_GenMETCalo    = 0;
   mMETDeltaPhi_GenMETCalo      = 0;
+  
+  // MET Uncertainities: Only for MiniAOD
+  mMETUnc_JetResUp  =  0;
+  mMETUnc_JetResDown  =  0;
+  mMETUnc_JetEnUp  =  0;
+  mMETUnc_JetEnDown  =  0;
+  mMETUnc_MuonEnUp  =  0;
+  mMETUnc_MuonEnDown  =  0;
+  mMETUnc_ElectronEnUp  =  0;
+  mMETUnc_ElectronEnDown  =  0;
+  mMETUnc_TauEnUp  =  0;
+  mMETUnc_TauEnDown  =  0;
+  mMETUnc_UnclusteredEnUp  =  0;
+  mMETUnc_UnclusteredEnDown  =  0;
+  mMETUnc_PhotonEnUp  =  0;
+  mMETUnc_PhotonEnDown  =  0;
+  
 
   //CaloMET variables
   mCaloMaxEtInEmTowers             = 0;
@@ -127,6 +144,24 @@ void METTester::bookHistograms(DQMStore::IBooker & ibooker,
     mSumET                       = ibooker.book1D("SumET"            , "SumET"            , 200,0,4000);   //10GeV
     mMETDifference_GenMETTrue    = ibooker.book1D("METDifference_GenMETTrue","METDifference_GenMETTrue", 500,-500,500); 
     mMETDeltaPhi_GenMETTrue      = ibooker.book1D("METDeltaPhi_GenMETTrue","METDeltaPhi_GenMETTrue", 80,0,4); 
+
+    if(isMiniAODMET){
+      mMETUnc_JetResUp               = ibooker.book1D("METUnc_JetResUp",               "METUnc_JetResUp",                200,    -10, 10);
+      mMETUnc_JetResDown             = ibooker.book1D("METUnc_JetResDown",             "METUnc_JetResDown",              200,    -10, 10);
+      mMETUnc_JetEnUp                = ibooker.book1D("METUnc_JetEnUp",                "METUnc_JetEnUp",                 200,    -10, 10);
+      mMETUnc_JetEnDown              = ibooker.book1D("METUnc_JetEnDown",              "METUnc_JetEnDown",               200,    -10, 10);
+      mMETUnc_MuonEnUp               = ibooker.book1D("METUnc_MuonEnUp",               "METUnc_MuonEnUp",                200,    -10, 10);
+      mMETUnc_MuonEnDown             = ibooker.book1D("METUnc_MuonEnDown",             "METUnc_MuonEnDown",              200,    -10, 10);
+      mMETUnc_ElectronEnUp           = ibooker.book1D("METUnc_ElectronEnUp",           "METUnc_ElectronEnUp",            200,    -10, 10);
+      mMETUnc_ElectronEnDown         = ibooker.book1D("METUnc_ElectronEnDown",         "METUnc_ElectronEnDown",          200,    -10, 10);
+      mMETUnc_TauEnUp                = ibooker.book1D("METUnc_TauEnUp",                "METUnc_TauEnUp",                 200,    -10, 10);
+      mMETUnc_TauEnDown              = ibooker.book1D("METUnc_TauEnDown",              "METUnc_TauEnDown",               200,    -10, 10);
+      mMETUnc_UnclusteredEnUp        = ibooker.book1D("METUnc_UnclusteredEnUp",        "METUnc_UnclusteredEnUp",         200,    -10, 10);
+      mMETUnc_UnclusteredEnDown      = ibooker.book1D("METUnc_UnclusteredEnDown",      "METUnc_UnclusteredEnDown",       200,    -10, 10);
+      mMETUnc_PhotonEnUp             = ibooker.book1D("METUnc_UnclusteredEnDown",      "METUnc_UnclusteredEnDown",       200,    -10, 10);
+      mMETUnc_PhotonEnDown           = ibooker.book1D("METUnc_PhotonEnDown",           "METUnc_PhotonEnDown",            200,    -10, 10);
+      
+    }
     if(!isMiniAODMET){
       mMETDifference_GenMETCalo    = ibooker.book1D("METDifference_GenMETCalo","METDifference_GenMETCalo", 500,-500,500); 
       mMETDeltaPhi_GenMETCalo      = ibooker.book1D("METDeltaPhi_GenMETCalo","METDeltaPhi_GenMETCalo", 80,0,4); 
@@ -240,7 +275,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   mMETPhi->Fill(METPhi);
   mSumET->Fill(SumET);
   mMETSig->Fill(METSig);
-
+  
+    
   // Get Generated MET for Resolution plots
   const reco::GenMET *genMetTrue=NULL;
   bool isvalidgenmet=false;
@@ -372,6 +408,22 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   } 
    if(isMiniAODMET){
     const pat::MET *patmet = &(patMET->front());
+    mMETUnc_JetResUp               ->Fill(MET- patmet->shiftedPt(pat::MET::JetResUp)) ;
+    mMETUnc_JetResDown             ->Fill(MET- patmet->shiftedPt(pat::MET::JetResDown));
+    mMETUnc_JetEnUp                ->Fill(MET- patmet->shiftedPt(pat::MET::JetEnUp));
+    mMETUnc_JetEnDown              ->Fill(MET- patmet->shiftedPt(pat::MET::JetEnDown));
+    mMETUnc_MuonEnUp               ->Fill(MET- patmet->shiftedPt(pat::MET::MuonEnUp));
+    mMETUnc_MuonEnDown             ->Fill(MET- patmet->shiftedPt(pat::MET::MuonEnDown));
+    mMETUnc_ElectronEnUp           ->Fill(MET- patmet->shiftedPt(pat::MET::ElectronEnUp));
+    mMETUnc_ElectronEnDown         ->Fill(MET- patmet->shiftedPt(pat::MET::ElectronEnDown));
+    mMETUnc_TauEnUp                ->Fill(MET- patmet->shiftedPt(pat::MET::TauEnUp));
+    mMETUnc_TauEnDown              ->Fill(MET- patmet->shiftedPt(pat::MET::TauEnDown));
+    mMETUnc_UnclusteredEnUp        ->Fill(MET- patmet->shiftedPt(pat::MET::UnclusteredEnUp));
+    mMETUnc_UnclusteredEnDown      ->Fill(MET- patmet->shiftedPt(pat::MET::UnclusteredEnDown));
+    mMETUnc_PhotonEnUp             ->Fill(MET- patmet->shiftedPt(pat::MET::PhotonEnUp));
+    mMETUnc_PhotonEnDown           ->Fill(MET- patmet->shiftedPt(pat::MET::PhotonEnDown));
+    
+    
     if(patmet->isPFMET()){
       mPFphotonEtFraction->Fill(patmet->NeutralEMFraction());
       mPFneutralHadronEtFraction->Fill(patmet->NeutralHadEtFraction());

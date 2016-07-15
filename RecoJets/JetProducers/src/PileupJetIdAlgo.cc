@@ -338,7 +338,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	    float candPt = icand->pt();
 	    float candPtFrac = candPt/jetPt;
 	    float candDr   = reco::deltaR(*icand,*jet);
-	    float candDeta = std::abs( icand->eta() - jet->eta() );
+	    float candDeta = icand->eta() - jet->eta();
 	    float candDphi = reco::deltaPhi(*icand,*jet);
 	    float candPtDr = candPt * candDr;
 	    size_t icone = std::lower_bound(&cones[0],&cones[ncones],candDr) - &cones[0];
@@ -428,7 +428,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				sumTkPt += tkpt;
 				// 'classic' beta definition based on track-vertex association
 				bool inVtx0 = vtx->trackWeight ( lPF->trackRef()) > 0 ;
-					
+
 				bool inAnyOther = false;
 				// alternative beta definition based on track-vertex distance of closest approach
 				double dZ0 = std::abs(lPF->trackRef()->dz(vtx->position()));
@@ -459,21 +459,41 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				    internalId_.betaStar_ += tkpt;
 				}
 			   } 
-			}
+		        }
 			else{
-				// setting classic and alternative to be the same for now
 			        float tkpt = candPt;
 			        sumTkPt += tkpt;
 				bool inVtx0 = false; 
 				bool inVtxOther = false; 
-				if (lPack->fromPV() == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
-				if (lPack->fromPV() == 0) inVtxOther = true;
+				double dZ0=9999.;
+				double dZ_tmp = 9999.;
+				for (unsigned vtx_i = 0 ; vtx_i < allvtx.size() ; vtx_i++ ) {
+         			        auto iv = allvtx[vtx_i];
+
+					if (iv.isFake())
+						continue;
+
+					// Match to vertex in case of copy as above
+                                        bool isVtx0  = (iv.position() - vtx->position()).r() < 0.02;
+
+					if (isVtx0) {
+					    if (lPack->fromPV(vtx_i) == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
+					    if (lPack->fromPV(vtx_i) == 0) inVtxOther = true;
+					    dZ0 = lPack->dz(vtx_i);
+					}
+
+					if (fabs(lPack->dz(iv.position())) < fabs(dZ_tmp)) {
+						dZ_tmp = lPack->dz(iv.position());
+					}
+				}
 				if (inVtx0){
 					internalId_.betaClassic_ += tkpt;
-					internalId_.beta_ += tkpt;
-				}
-				if (inVtxOther){
+				} else if (inVtxOther){
 					internalId_.betaStarClassic_ += tkpt;
+				}
+				if (fabs(dZ0) < 0.2){
+					internalId_.beta_ += tkpt;
+				} else if (fabs(dZ_tmp) < 0.2){
 					internalId_.betaStar_ += tkpt;
 				}
 			}
@@ -617,7 +637,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.sumNePt_ = sumPtNe;
 
 	internalId_.jetR_    = lLead->pt()/sumPt;
-	internalId_.jetRchg_ = lLeadEm->pt()/sumPt;
+	internalId_.jetRchg_ = lLeadCh->pt()/sumPt;
 	internalId_.dRMatch_ = dRmin;
 
 	if( sumTkPt != 0. ) {
