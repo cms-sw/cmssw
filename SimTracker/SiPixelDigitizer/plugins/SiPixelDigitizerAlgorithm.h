@@ -272,7 +272,6 @@ class SiPixelDigitizerAlgorithm  {
     typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
     typedef signal_map_type::iterator          signal_map_iterator; // from Digi.Skel.  
     typedef signal_map_type::const_iterator    signal_map_const_iterator; // from Digi.Skel.  
-    typedef std::map<unsigned int, std::vector<float>,std::less<unsigned int> > simlink_map;
     typedef std::map<uint32_t, signal_map_type> signalMaps;
     typedef GloballyPositioned<double>      Frame;
     typedef std::vector<edm::ParameterSet> Parameters;

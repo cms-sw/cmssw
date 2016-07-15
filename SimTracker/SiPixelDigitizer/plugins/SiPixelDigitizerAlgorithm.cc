@@ -90,6 +90,7 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -1263,6 +1264,10 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
   const signal_map_type& theSignal = (*it).second;
 
+  // unsigned long is enough to store SimTrack id and EncodedEventId
+  using TrackEventId = std::pair<decltype(SimTrack().trackId()), decltype(EncodedEventId().rawId())>;
+  std::map<TrackEventId, float> simi; // re-used
+
   for (signal_map_const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
 
     float signalInElectrons = (*i).second ;   // signal in electrons
@@ -1307,10 +1312,11 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
       if (makeDigiSimLinks_ && !(*i).second.hitInfos().empty()) {
         //digilink
-          simlink_map simi;
 	  unsigned int il=0;
           for(const auto& info: (*i).second.hitInfos()) {
-            simi[info.trackIds_[0]].push_back((*i).second.individualampl()[il]);
+            // note: according to C++ standard operator[] does
+            // value-initializiation, which for float means initial value of 0
+            simi[std::make_pair(info.trackIds_[0], info.eventId_.rawId())] += (*i).second.individualampl()[il];
             il++;
           }
 
@@ -1319,19 +1325,19 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
             const auto trackId = info.trackIds_[0];
 
             // track already processed, so skip
-            auto found = simi.find(trackId);
+            auto found = simi.find(std::make_pair(trackId, info.eventId_.rawId()));
             if(found == simi.end())
               continue;
 
-            const auto& amps = found->second;
-	    float sum_samechannel = std::accumulate(amps.begin(), amps.end(), 0.f);
+	    float sum_samechannel = found->second;
 	    float fraction=sum_samechannel/(*i).second;
-	    if(fraction>1.) fraction=1.;
+	    if(fraction>1.f) fraction=1.f;
 
             // Approximation: pick hitIndex and tofBin only from the first SimHit
 	    simlinks.emplace_back((*i).first, trackId, info.hitIndex_, info.tofBin_, info.eventId_, fraction);
             simi.erase(found);
 	  }
+          simi.clear(); // although should be empty already
       }
     }
   }
