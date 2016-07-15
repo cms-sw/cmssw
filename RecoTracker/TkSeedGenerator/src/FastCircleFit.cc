@@ -1,9 +1,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
-#include "TVectorD.h"
-#include "TMatrixDSym.h"
-#include "TMatrixDSymEigen.h"
+#include <Eigen/Dense>
 
 #ifdef MK_DEBUG
 #include <iostream>
@@ -29,8 +27,6 @@ FastCircleFit::FastCircleFit(const GlobalPoint *points, const GlobalError *error
   declareDynArray(float, N, y);
   declareDynArray(float, N, z);
   declareDynArray(float, N, weight); // 1/sigma^2
-
-  AlgebraicVector3 mean;
 
   // transform
   for(size_t i=0; i<N; ++i) {
@@ -58,29 +54,28 @@ FastCircleFit::FastCircleFit(const GlobalPoint *points, const GlobalError *error
   const float invTotWeight = 1.f/std::accumulate(weight.begin(), weight.end(), 0.f);
   PRINT << " invTotWeight " << invTotWeight;
 
+  Eigen::Vector3f mean = Eigen::Vector3f::Zero();
   for(size_t i=0; i<N; ++i) {
-    const float w = weight[i]*invTotWeight;
+    const float w = weight[i];
     mean[0] += w*x[i];
     mean[1] += w*y[i];
     mean[2] += w*z[i];
   }
+  mean *= invTotWeight;
   PRINT << " mean " << mean[0] << " " << mean[1] << " " << mean[2] << std::endl;
 
-  // TODO: Using TMatrix for eigenvalues and eigenvectors of 3x3
-  // symmetrix matrix is an overkill. To be replaced with something
-  // lightweight.
-  TMatrixDSym A(3);
+  Eigen::Matrix3f A = Eigen::Matrix3f::Zero();
   for(size_t i=0; i<N; ++i) {
     const auto diff_x = x[i] - mean[0];
     const auto diff_y = y[i] - mean[1];
     const auto diff_z = z[i] - mean[2];
     const auto w = weight[i];
+
+    // exploit the fact that only lower triangular part of the matrix
+    // is used in the eigenvalue calculation
     A(0,0) += w * diff_x * diff_x;
-    A(0,1) += w * diff_x * diff_y;
-    A(0,2) += w * diff_x * diff_z;
     A(1,0) += w * diff_y * diff_x;
     A(1,1) += w * diff_y * diff_y;
-    A(1,2) += w * diff_y * diff_z;
     A(2,0) += w * diff_z * diff_x;
     A(2,1) += w * diff_z * diff_y;
     A(2,2) += w * diff_z * diff_z;
@@ -88,37 +83,29 @@ FastCircleFit::FastCircleFit(const GlobalPoint *points, const GlobalError *error
           << "     " << A(1,0) << " " << A(1,1) << " " << A(1,2) << std::endl
           << "     " << A(2,0) << " " << A(2,1) << " " << A(2,2) << std::endl;
   }
-  A *= 1./static_cast<double>(N);
+  A *= 1./static_cast<float>(N);
 
   PRINT << " A " << A(0,0) << " " << A(0,1) << " " << A(0,2) << std::endl
         << "   " << A(1,0) << " " << A(1,1) << " " << A(1,2) << std::endl
         << "   " << A(2,0) << " " << A(2,1) << " " << A(2,2) << std::endl;
 
   // find eigenvalues and vectors
-  TMatrixDSymEigen eigen(A);
-  TVectorD eigenValues = eigen.GetEigenValues();
-  TMatrixD eigenVectors = eigen.GetEigenVectors();
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen(A);
+  const auto& eigenValues = eigen.eigenvalues();
+  const auto& eigenVectors = eigen.eigenvectors();
 
-  int smallest = 0;
-  if(eigenValues[1] < eigenValues[0]) smallest = 1;
-  if(eigenValues[2] < eigenValues[smallest]) smallest = 2;
-
+  // in Eigen the first eigenvalue is the smallest
   PRINT << " eigenvalues " << eigenValues[0]
         << " " << eigenValues[1]
         << " " << eigenValues[2]
-        << " smallest " << smallest
         << std::endl;
 
   PRINT << " eigen " << eigenVectors(0,0) << " " << eigenVectors(0,1) << " " << eigenVectors(0,2) << std::endl
         << "       " << eigenVectors(1,0) << " " << eigenVectors(1,1) << " " << eigenVectors(1,2) << std::endl
         << "       " << eigenVectors(2,0) << " " << eigenVectors(2,1) << " " << eigenVectors(2,2) << std::endl;
 
-  AlgebraicVector3 n;
-  n[0] = eigenVectors(0, smallest);
-  n[1] = eigenVectors(1, smallest);
-  n[2] = eigenVectors(2, smallest);
-  PRINT << " n (copy) " << n[0] << " " << n[1] << " " << n[2] << std::endl;
-  n.Unit();
+  // eivenvector corresponding smallest eigenvalue
+  auto n = eigenVectors.col(0);
   PRINT << " n (unit) " << n[0] << " " << n[1] << " " << n[2] << std::endl;
 
   const float c = -1.f * (n[0]*mean[0] + n[1]*mean[1] + n[2]*mean[2]);
