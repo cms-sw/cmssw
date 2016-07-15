@@ -88,8 +88,16 @@ bool L1MuBMEUX::operator==(const L1MuBMEUX& eux) const {
 //
 void L1MuBMEUX::run(const edm::EventSetup& c) {
 
-  c.get< L1MuDTExtLutRcd >().get( theExtLUTs );
-  c.get< L1MuDTTFParametersRcd >().get( pars );
+  //c.get< L1MuDTExtLutRcd >().get( theExtLUTs );
+//  c.get< L1MuDTTFParametersRcd >().get( pars );
+
+  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
+  bmtfParamsRcd.get(bmtfParamsHandle);
+  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+
+  pars =  bmtfParams.l1mudttfparams;
+  theExtLUTs =  new L1MuBMLUTHandler(bmtfParams);   ///< ext look-up tables
+
 
   if ( L1MuBMTFConfig::Debug(4) ) cout << "Run EUX "  << m_id << endl;
   if ( L1MuBMTFConfig::Debug(4) ) cout << "start :  " << *m_start  << endl;
@@ -124,13 +132,13 @@ void L1MuBMEUX::run(const edm::EventSetup& c) {
 
   // Extrapolation TS quality filter
   int qcut = 0;
-  if ( m_seu.ext() == EX12 ) qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
-  if ( m_seu.ext() == EX13 ) qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
-  if ( m_seu.ext() == EX14 ) qcut = pars->get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
-  if ( m_seu.ext() == EX21 ) qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
-  if ( m_seu.ext() == EX23 ) qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
-  if ( m_seu.ext() == EX24 ) qcut = pars->get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
-  if ( m_seu.ext() == EX34 ) qcut = pars->get_soc_qcut_st4(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX12 ) qcut = pars.get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX13 ) qcut = pars.get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX14 ) qcut = pars.get_soc_qcut_st1(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX21 ) qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX23 ) qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX24 ) qcut = pars.get_soc_qcut_st2(m_sp.id().wheel(), m_sp.id().sector());
+  if ( m_seu.ext() == EX34 ) qcut = pars.get_soc_qcut_st4(m_sp.id().wheel(), m_sp.id().sector());
 
   if ( m_start->quality() < qcut ) return;
 
@@ -164,7 +172,7 @@ void L1MuBMEUX::run(const edm::EventSetup& c) {
   if ( phi_offset < -(1 << (nbit_phi-1)) +1 ) return;
 
   // is phi-difference within the extrapolation window?
-  bool openlut = pars->get_soc_openlut_extr(m_sp.id().wheel(), m_sp.id().sector());
+  bool openlut = pars.get_soc_openlut_extr(m_sp.id().wheel(), m_sp.id().sector());
   if (( diff >= low && diff <= high ) || L1MuBMTFConfig::getopenLUTs() || openlut ) {
     m_result = true;
     int qual_st = m_start->quality();
@@ -177,7 +185,7 @@ void L1MuBMEUX::run(const edm::EventSetup& c) {
     }
     m_address = m_id;
   }
-
+  delete theExtLUTs;
   if ( L1MuBMTFConfig::Debug(5) ) cout << "diff : "   << low  << " "
                                        << diff << " " << high << " : "
                                        << m_result << " " << endl;

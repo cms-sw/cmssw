@@ -1,0 +1,63 @@
+<algo id="bmtf">
+	<context id="procMP7">
+		<param id="regTable" type="table" delimiter="|">
+		  <columns>register_path| register_value</columns>
+		  <types>string| uint</types>
+		  <rows>
+		    <row>payload.run.run_param.open_lut | 0</row>
+			<row>payload.run.run_param.sel_21 | 0</row>
+			<row>payload.run.run_param.dis_newalgo | 0</row>
+			<row>payload.internal_check.patgen_ctrl.intern_bc0_gen | 0</row>
+			<row>payload.internal_check.patgen_ctrl.patgen_wheel_ena | 0x000000000</row>
+			<row>payload.internal_check.patgen_ctrl | 0x000000000</row>
+			<row>payload.algo.algo_ctrl.deser_cntr_start | 0</row>
+			<row>payload.algo.algo_ctrl.bcnt_del | 0x0A</row>
+			<row>payload.algo.algo_ctrl.valid_pol | 0</row>
+			<row>payload.internal_check.patgen_ctrl.check_run | 0</row>
+			<row>payload.algo.algo_ctrl.ettf_delay | 0x005</row>
+			<row>payload.algo.algo_ctrl.ettf_out_delay | 0x2</row>
+			<row>payload.monitor_control.sampling_advisor | 100</row>
+			<row>payload.monitor_control.out_hipt_thresh | 0</row>
+			<row>payload.mask_ctrl_N2 | 0x111111</row>
+			<row>payload.mask_ctrl_P2 | 0x111111</row>
+		  </rows>
+		</param>
+
+		<param id="linkMapTable" type="table" delimiter="|">
+			<columns>wheel_name | track_segment | track_segment_value</columns>
+			<types>string | string | int</types>
+			<rows>
+				<row>N2 | left_ts1 | 0</row>
+				<row>N2 | left_ts2 | 1</row>
+				<row>N2 | right_ts1 | 2</row>
+				<row>N2 | right_ts2 | 3</row>
+				<row>N2 | own_ts1 | 4</row>
+				<row>N2 | own_ts2 | 5</row>
+				<row>N1 | left_ts1 | 8</row>
+				<row>N1 | left_ts2 | 9</row>
+				<row>N1 | right_ts1 | 10</row>
+				<row>N1 | right_ts2 | 11</row>
+				<row>N1 | own_ts1 | 12</row>
+				<row>N1 | own_ts2 | 13</row>
+				<row>00 | left_ts1 | 16</row>
+				<row>00 | left_ts2 | 17</row>
+				<row>00 | right_ts1 | 18</row>
+				<row>00 | right_ts2 | 19</row>
+				<row>00 | own_ts1 | 20</row>
+				<row>00 | own_ts2 | 21</row>
+				<row>P1 | own_ts1 | 22</row>
+				<row>P1 | own_ts2 | 23</row>
+				<row>P1 | left_ts1 | 24</row>
+				<row>P1 | left_ts2 | 25</row>
+				<row>P1 | right_ts1 | 26</row>
+				<row>P1 | right_ts2 | 27</row>
+				<row>P2 | own_ts1 | 28</row>
+				<row>P2 | own_ts2 | 29</row>
+				<row>P2 | left_ts1 | 32</row>
+				<row>P2 | left_ts2 | 33</row>
+				<row>P2 | right_ts1 | 34</row>
+				<row>P2 | right_ts2 | 35</row>
+			</rows>
+		</param>
+	</context>
+</algo>

@@ -6,7 +6,7 @@
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 using namespace XERCES_CPP_NAMESPACE;
@@ -220,12 +220,9 @@ for(auto &conf : payloads[kRS]){
                 output.close();
             }
 
-//        L1TMuonBarrelParamsHelper m_params_helper( *(baseSettings.product()) );
-//        m_params_helper.loadFromOnline(parsedXMLs);
-
-//        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams(m_params_helper) ) ;
-
-        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams( *(baseSettings.product()) ) );
+        L1TMuonBarrelParamsHelper m_params_helper(*(baseSettings.product()) );
+        m_params_helper.configFromDB(parsedXMLs);
+        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams(m_params_helper) ) ;
  
         return retval;
 

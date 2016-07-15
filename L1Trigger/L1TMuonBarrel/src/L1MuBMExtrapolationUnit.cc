@@ -100,7 +100,11 @@ L1MuBMExtrapolationUnit::~L1MuBMExtrapolationUnit() {
 //
 void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
 
-  c.get< L1MuDTTFParametersRcd >().get( pars );
+  //c.get< L1MuDTTFParametersRcd >().get( pars );
+  const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
+  bmtfParamsRcd.get(bmtfParamsHandle);
+  const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
+  pars =  bmtfParams.l1mudttfparams;
 
   SEUmap::const_iterator iter;
   for ( iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++ ) {
@@ -123,7 +127,7 @@ void L1MuBMExtrapolationUnit::run(const edm::EventSetup& c) {
   //
   // use EX21 to cross-check EX12
   //
-  bool run_21 = pars->get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
+  bool run_21 = pars.get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
   if ( L1MuBMTFConfig::getUseEX21() || run_21 ) {
 
     // search for EX12 + EX21 single extrapolation units
