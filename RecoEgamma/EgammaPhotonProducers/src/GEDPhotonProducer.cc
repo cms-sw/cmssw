@@ -68,7 +68,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     pfCandidates_      = 
       consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
     particleBasedIsolationToken   = 
-       consumes<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolationTmp"));
+       consumes<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolationTmp", "gedPhotons"));
 
   } else {
 
@@ -775,11 +775,12 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     edm::Ptr<reco::Photon> photonPtr(photonHandle, lSC);
     std::cout << " Start the test by Ivan .... " << std::endl;
-    /*for ( auto itr = (*particleBasedIsolationMap_)[photonPtr].begin(); itr != (*particleBasedIsolationMap_)[photonPtr].end(); ++itr ) 
+    std::cout << reconstructionStep_ << std::endl;
+    for ( auto itr = (*particleBasedIsolationMap_)[photonPtr].begin(); itr != (*particleBasedIsolationMap_)[photonPtr].end(); ++itr ) 
     {
          std::cout << itr->key();
     }
-    std::cout << " end the test by Ivan .... " << std::endl;*/
+    std::cout << " end the test by Ivan .... " << std::endl;
     outputPhotonCollection.push_back(newCandidate);        
     
   }
