@@ -60,7 +60,7 @@ namespace FitterFuncs{
      std::vector<float> acc25nsVec, diff25nsItvlVec;
      std::vector<float> accVarLenIdxZEROVec, diffVarItvlIdxZEROVec;
      std::vector<float> accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec;
-     void funcHPDShape(std::array<float,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew);
+     void funcHPDShape(std::array<double,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew);
      double psFit_x[HcalConst::maxSamples], psFit_y[HcalConst::maxSamples], psFit_erry[HcalConst::maxSamples], psFit_erry2[HcalConst::maxSamples], psFit_slew[HcalConst::maxSamples];
      
      bool pedestalConstraint_;
@@ -77,8 +77,8 @@ namespace FitterFuncs{
 
      double inverttimeSig_, inverttimeSig2_;
      double invertpedSig_, invertpedSig2_;
-     std::array<float,HcalConst::maxSamples> pulse_shape_;
-     std::array<float,HcalConst::maxSamples> pulse_shape_sum_;
+     std::array<double,HcalConst::maxSamples> pulse_shape_;
+     std::array<double,HcalConst::maxSamples> pulse_shape_sum_;
 
    };
    

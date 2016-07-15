@@ -62,14 +62,14 @@ namespace FitterFuncs{
     invertpedSig2_ = invertpedSig_*invertpedSig_;
   }
 
-  void PulseShapeFunctor::funcHPDShape(std::array<float,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew) { 
+  void PulseShapeFunctor::funcHPDShape(std::array<double,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew) { 
     // pulse shape components over a range of time 0 ns to 255 ns in 1 ns steps
     constexpr int ns_per_bx = HcalConst::nsPerBX;
     constexpr int num_ns = HcalConst::nsPerBX*HcalConst::maxSamples;
     constexpr int num_bx = num_ns/ns_per_bx;
     //Get the starting time
     int i_start         = ( -HcalConst::iniTimeShift - pulseTime - slew >0 ? 0 : (int)std::abs(-HcalConst::iniTimeShift-pulseTime-slew) + 1);
-    float offset_start = i_start - HcalConst::iniTimeShift - pulseTime - slew; //-199-2*pars[0]-2.*slew (for pars[0] > 98.5) or just -98.5-pars[0]-slew;
+    double offset_start = i_start - HcalConst::iniTimeShift - pulseTime - slew; //-199-2*pars[0]-2.*slew (for pars[0] > 98.5) or just -98.5-pars[0]-slew;
     // zeroing output binned pulse shape
     ntmpbin = { {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f} };
 
@@ -82,7 +82,7 @@ namespace FitterFuncs{
       const int bin_0_start      = ( offset_start < bin_start + 0.5 ? bin_start -1 : bin_start ); //Round it
       const int iTS_start        = i_start/ns_per_bx;         //Time Slice for time shift
       const int distTo25ns_start = HcalConst::nsPerBX - 1 - i_start%ns_per_bx;    //Delta ns 
-      const float factor = offset_start - bin_0_start - 0.5; //Small correction?
+      const double factor = offset_start - bin_0_start - 0.5; //Small correction?
     
       //Build the new pulse
       ntmpbin[iTS_start] = (bin_0_start == -1 ? // Initial bin (I'm assuming this is ok)
