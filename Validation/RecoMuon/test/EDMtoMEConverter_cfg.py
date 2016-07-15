@@ -7,7 +7,8 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_V11::All"
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load("Validation.Configuration.postValidation_cff")
 process.load("Validation.RecoMuon.PostProcessorHLT_cff")
 
@@ -16,7 +17,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:validationEDM.root")
+                            fileNames = cms.untracked.vstring("file:/cmshome/calabria/ValidazioneOfficial2/Handicap/CMSSW_8_1_0_pre8/src/step4.root")
 )
 
 process.DQMStore.referenceFileName = ""
@@ -31,6 +32,6 @@ process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.dqmSaver.workflow = "/GlobalValidation/Test/RECO"
 
 process.p1 = cms.Path(process.EDMtoMEConverter*
-                      process.postValidation*
+                      process.postValidation_trackingOnly*
 #                      process.recoMuonPostProcessorsHLT*
                       process.dqmSaver)
