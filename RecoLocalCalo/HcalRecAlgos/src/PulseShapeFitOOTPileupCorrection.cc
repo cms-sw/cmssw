@@ -291,16 +291,16 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
 
       chargeArr[ip] = charge; pedArr[ip] = ped; gainArr[ip] = gain;
       energyArr[ip] = energy; pedenArr[ip] = peden;
-      
+
       tsTOT += charge - ped;
       tsTOTen += energy - peden;
       if( ip ==4 || ip==5 ){
          tstrig += charge - ped;
       }
    }
-   
+
    std::vector<double> fitParsVec;
-   if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0 
+   if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec);
    }
    else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
@@ -476,10 +476,52 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
 
 void PulseShapeFitOOTPileupCorrection::phase1Apply(
     const HBHEChannelInfo& channelData,
-    const HcalCalibrations& calibs,
-    float* reconstructedEnergy,
-    float* reconstructedTime,
-    bool* usedTripleTemplate) const
+    std::vector<double> & correctedOutput) const
 {
-    // IMPLEMENT THIS!!!
+
+  psfPtr_->setDefaultcntNANinfit();
+
+  const unsigned cssize = channelData.nSamples();
+  // initialize arrays to be zero
+  double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
+  double energyArr[HcalConst::maxSamples]={}, pedenArr[HcalConst::maxSamples]={};
+  double tsTOT = 0, tstrig = 0; // in fC
+  double tsTOTen = 0; // in GeV
+
+  // go over the time slices
+  for(unsigned int ip=0; ip<cssize; ++ip){
+    if( ip >= (unsigned) HcalConst::maxSamples ) continue; // Too many samples than what we wanna fit (10 is enough...) -> skip them
+
+    //      const int capid = channelData.capid(); // not needed
+    double charge = channelData.tsRawCharge(ip);
+    double ped = channelData.tsPedestal(ip); // ped and gain are not function of the timeslices but of the det ?
+    double gain = channelData.tsGain(ip);
+
+    double energy = charge*gain;
+    double peden = ped*gain;
+
+    chargeArr[ip] = charge; pedArr[ip] = ped; gainArr[ip] = gain;
+    energyArr[ip] = energy; pedenArr[ip] = peden;
+
+    tsTOT += charge - ped;
+    tsTOTen += energy - peden;
+    if( ip ==4 || ip==5 ){
+      tstrig += charge - ped;
+    }
+  }
+
+  std::vector<double> fitParsVec;
+  if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
+    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec);
+  }
+  else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
+    fitParsVec.clear();
+    fitParsVec.push_back(0.);
+    fitParsVec.push_back(0.);
+    fitParsVec.push_back(0.);
+    fitParsVec.push_back(999.);
+    fitParsVec.push_back(false);
+  }
+  correctedOutput.swap(fitParsVec); correctedOutput.push_back(psfPtr_->getcntNANinfit());
+
 }

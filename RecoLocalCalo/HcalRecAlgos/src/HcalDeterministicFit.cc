@@ -44,10 +44,119 @@ void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) c
 }
 
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
-                                       const HcalCalibrations& calibs,
-                                       float* reconstructedEnergy,
-                                       float* reconstructedTime) const
+				       std::vector<double> & Output) const
 {
-    // IMPLEMENT THIS!!!
-}
 
+  std::vector<double> corrCharge;
+  std::vector<double> inputCharge;
+  std::vector<double> inputPedestal;
+  double gainCorr = 0;
+  double respCorr = 0;
+
+  for(unsigned int ip=0; ip<channelData.nSamples(); ip++){
+
+    double charge = channelData.tsRawCharge(ip);
+    double ped = channelData.tsPedestal(ip); // ped and gain are not function of the timeslices but of the det ?
+    double gain = channelData.tsGain(ip);
+
+    gainCorr = gain;
+    inputCharge.push_back(charge);
+    inputPedestal.push_back(ped);
+
+  }
+
+  fPedestalSubFxn_.calculate(inputCharge, inputPedestal, corrCharge);
+
+  const HcalDetId& cell = channelData.id();
+
+  double fpar0, fpar1, fpar2;
+  if(std::abs(cell.ieta())<HcalRegion[0]){
+    fpar0 = fpars[0];
+    fpar1 = fpars[1];
+    fpar2 = fpars[2];
+  }else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
+    fpar0 = fpars[3];
+    fpar1 = fpars[4];
+    fpar2 = fpars[5];
+  }else{
+    fpar0 = fpars[6];
+    fpar1 = fpars[7];
+    fpar2 = fpars[8];
+  }
+
+  if (fTimeSlew==0)respCorr=1.0;
+  else if (fTimeSlew==1)respCorr=rCorr[0];
+  else if (fTimeSlew==2)respCorr=rCorr[1];
+  else if (fTimeSlew==3)respCorr=frespCorr;
+
+
+  float tsShift3=HcalTimeSlew::delay(inputCharge[3],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift4=HcalTimeSlew::delay(inputCharge[4],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift5=HcalTimeSlew::delay(inputCharge[5],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
+
+  float i3=0;
+  getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
+  float n3=0;
+  getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
+  float nn3=0;
+  getLandauFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+
+  float i4=0;
+  getLandauFrac(-tsShift4,-tsShift4+tsWidth,i4);
+  float n4=0;
+  getLandauFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
+
+  float i5=0;
+  getLandauFrac(-tsShift5,-tsShift5+tsWidth,i5);
+  float n5=0;
+  getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
+
+  float ch3=corrCharge[3]/i3;
+  float ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
+  float ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
+
+  if (ch3<negThresh[0] && fNegStrat==HcalDeterministicFit::MoveCharge) {
+    ch3=negThresh[0];
+    ch4=corrCharge[4]/i4;
+    ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
+  }
+
+  if (ch5<negThresh[0] && fNegStrat==HcalDeterministicFit::MoveCharge) {
+    ch4=ch4+(ch5-negThresh[0]);
+    ch5=negThresh[0];
+  }
+
+  if (fNegStrat==HcalDeterministicFit::MoveTiming) {
+    if (ch3<negThresh[0]) {
+      ch3=negThresh[0];
+      ch4=corrCharge[4]/i4;
+      ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
+    }
+    if (ch5<negThresh[0] && ch4>negThresh[1]) {
+      double ratio = (corrCharge[4]-ch3*i3)/(corrCharge[5]-negThresh[0]*i5);
+      if (ratio < 5 && ratio > 0.5) {
+        double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
+        float iG=0;
+        getLandauFrac(-invG,-invG+tsWidth,iG);
+        ch4=(corrCharge[4]-ch3*n3)/(iG);
+        ch5=negThresh[0];
+        tsShift4=invG;
+      }
+    }
+  }
+
+  if (ch3<1) {
+    ch3=0;
+  }
+  if (ch4<1) {
+    ch4=0;
+  }
+  if (ch5<1) {
+    ch5=0;
+  }
+  Output.clear();
+  Output.push_back(ch4*gainCorr*respCorr);// amplitude
+  Output.push_back(tsShift4); // time shift of in-time pulse
+  Output.push_back(ch5); // whatever
+
+}

@@ -91,10 +91,7 @@ public:
     ~PulseShapeFitOOTPileupCorrection();
 
     void phase1Apply(const HBHEChannelInfo& channelData,
-                     const HcalCalibrations& calibs,
-                     float* reconstructedEnergy,
-                     float* reconstructedTime,
-                     bool* usedTripleTemplate) const;
+		     std::vector<double> & correctedOutput) const;
 
     void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
