@@ -1322,10 +1322,8 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
 	  //sum the contribution of the same trackid
           for(const auto& info: (*i).second.hitInfos()) {
-            const auto trackId = info.trackId();
-
-            // track already processed, so skip
-            auto found = simi.find(std::make_pair(trackId, info.eventId().rawId()));
+            // skip if track already processed
+            auto found = simi.find(std::make_pair(info.trackId(), info.eventId().rawId()));
             if(found == simi.end())
               continue;
 
@@ -1334,7 +1332,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 	    if(fraction>1.f) fraction=1.f;
 
             // Approximation: pick hitIndex and tofBin only from the first SimHit
-	    simlinks.emplace_back((*i).first, trackId, info.hitIndex(), info.tofBin(), info.eventId(), fraction);
+	    simlinks.emplace_back((*i).first, info.trackId(), info.hitIndex(), info.tofBin(), info.eventId(), fraction);
             simi.erase(found);
 	  }
           simi.clear(); // although should be empty already
