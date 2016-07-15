@@ -72,7 +72,7 @@ void FWECALDetailViewBase<T>::build( const FWModelId &id, const T* element )
    FWDetailViewGL<T>::viewerGL()->AddOverlayElement( overlay );
    }
    // set event handler and flip camera to top view at beginning
-   FWDetailViewGL<T>::viewerGL()->SetCurrentCamera( TGLViewer::kCameraPerspXOY );
+   FWDetailViewGL<T>::viewerGL()->SetCurrentCamera( TGLViewer::kCameraOrthoXOY );
    FWGLEventHandler* eh =
       new FWGLEventHandler( (TGWindow*) FWDetailViewGL<T>::viewerGL()->GetGLWidget(), (TObject*) FWDetailViewGL<T>::viewerGL(), lego );
    FWDetailViewGL<T>::viewerGL()->SetEventHandler( eh );
