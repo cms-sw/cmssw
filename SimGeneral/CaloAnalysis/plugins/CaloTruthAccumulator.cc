@@ -71,6 +71,15 @@ CaloTruthAccumulator::CaloTruthAccumulator( const edm::ParameterSet & config, ed
   }
 }
 
+void CaloTruthAccumulator::beginLuminosityBlock( edm::LuminosityBlock const& iLumiBlock, const edm::EventSetup& iSetup ) {
+  iSetup.get<IdealGeometryRecord>().get("HGCalEESensitive",hgcGeoHandles_[0]) ; 
+  iSetup.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgcGeoHandles_[1]) ; 
+  ddd_[0] = &(hgcGeoHandles_[0]->topology().dddConstants());
+  ddd_[1] = &(hgcGeoHandles_[1]->topology().dddConstants());
+  
+  caloStartZ = ddd_[0]->waferZ(1,false)*10.0; // get the location of the first plane of silicon, put in mm
+}
+
 void CaloTruthAccumulator::initializeEvent( edm::Event const& event, edm::EventSetup const& setup )
 {
   output_.pSimClusters.reset( new SimClusterCollection() );
@@ -152,6 +161,7 @@ void CaloTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup con
   std::unordered_multimap<Index_t,Index_t>().swap(m_detIdToCluster);
   std::unordered_multimap<Barcode_t,Index_t>().swap(m_simHitBarcodeToIndex);
   std::unordered_multimap<Barcode_t,Barcode_t>().swap(m_simVertexBarcodeToSimTrackBarcode);
+  std::unordered_map<Barcode_t,Barcode_t>().swap(m_simTrackBarcodeToSimVertexParentBarcode);
   std::unordered_multimap<Barcode_t,Index_t>().swap(m_simTrackToSimVertex);
   std::unordered_multimap<Barcode_t,Index_t>().swap(m_simVertexToSimTrackParent); 
   std::vector<Barcode_t>().swap(m_simVertexBarcodes);
@@ -191,15 +201,16 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   // Clear maps from previous event fill them for this one
   m_simHitBarcodeToIndex.clear();
   m_simTracksConsideredForSimClusters.clear();
-  for (unsigned int i = 0 ; i < simHitPointers.size(); i++) {
+  for (unsigned int i = 0 ; i < simHitPointers.size(); ++i) {
     m_simHitBarcodeToIndex.emplace(simHitPointers[i]->geantTrackId(),i);
   }
   m_genParticleBarcodeToIndex.clear();
-  for (unsigned int i = 0 ; i < hGenParticles->size() ; i++) {
+  for (unsigned int i = 0 ; i < hGenParticles->size() ; ++i) {
     m_genParticleBarcodeToIndex.emplace(hGenParticleIndices->at(i),i);
   }
   m_genBarcodeToSimTrackIndex.clear();
   m_simVertexBarcodeToSimTrackBarcode.clear();
+  m_simTrackBarcodeToSimVertexParentBarcode.clear();
   m_simTrackBarcodeToIndex.clear();
   for (unsigned int i = 0 ; i < hSimTracks->size() ; i++) {
     if( !hSimTracks->at(i).noGenpart() ) {
@@ -207,6 +218,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
     }
     if( !hSimTracks->at(i).noVertex() ) {
       m_simVertexBarcodeToSimTrackBarcode.emplace(hSimTracks->at(i).vertIndex(), hSimTracks->at(i).trackId());
+      m_simTrackBarcodeToSimVertexParentBarcode.emplace(hSimTracks->at(i).trackId(), hSimTracks->at(i).vertIndex());
     }
     m_simTrackBarcodeToIndex.emplace(hSimTracks->at(i).trackId(), i);
   }
@@ -278,42 +290,52 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
   }
   std::unique_ptr<SimHitInfoPerSimTrack_t> hit_info = std::move(CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, true, false, false));
   std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, false) );
+
+  const auto& simTrack = simTracks[m_simTrackBarcodeToIndex[barcode]];
+  Barcode_t vtxBarcode = m_simTrackBarcodeToSimVertexParentBarcode[barcode];
+  const auto& vtx = hSimVertices->at(m_simVertexBarcodeToIndex[vtxBarcode]);
+  const bool isInCalo = (std::abs(vtx.position().z()) > caloStartZ - 30.0); // add a buffer region in front of the calo face
+
   if (hit_info->size() > 0) {
     // define the sim cluster starting from the earliest particle that has hits in the calorimeter
     // grab everything that descends from it
-    std::unique_ptr<SimHitInfoPerSimTrack_t> marked_hit_info = 
-      std::move( CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits,true) );
+    std::unique_ptr<SimHitInfoPerSimTrack_t> marked_hit_info;
     
-    const auto& simTrack = simTracks[m_simTrackBarcodeToIndex[barcode]];
+    if( isInCalo  ) {
+      marked_hit_info = std::move( CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits,true) );
+    } else {
+      marked_hit_info = std::move( CaloTruthAccumulator::attachedSimHitInfo(barcode,hits,true,false,true) );
+    }   
     
     result.emplace_back(simTrack);
     auto& simcluster = result.back();
 
-    std::unordered_map<uint32_t,float> acc_frac;
+    std::unordered_map<uint32_t,float> acc_energy;
     
-    for( const auto& hit_and_fraction : *marked_hit_info ) {
-      const uint32_t id = hit_and_fraction.first.rawId();
-      if( acc_frac.count(id) ) acc_frac[id] += hit_and_fraction.second;
-      else acc_frac[id] = hit_and_fraction.second;
-    }
+    for( const auto& hit_and_energy : *marked_hit_info ) {
+      const uint32_t id = hit_and_energy.first.rawId();      
+      if( acc_energy.count(id) ) acc_energy[id] += hit_and_energy.second;
+      else acc_energy[id] = hit_and_energy.second;
+    }    
 
-    for( const auto& hit_and_fraction : acc_frac ) {
-      simcluster.addRecHitAndFraction(hit_and_fraction.first,hit_and_fraction.second);
+    for( const auto& hit_and_energy : acc_energy ) {
+      simcluster.addRecHitAndFraction(hit_and_energy.first,hit_and_energy.second);
     }
-  } else {
-    if (m_simTrackToSimVertex.count(barcode)) {
-      auto vertex_range = m_simTrackToSimVertex.equal_range(barcode);
-      for ( auto vertex_iter = vertex_range.first ; vertex_iter != vertex_range.second ; vertex_iter++ ) {
-	Index_t decayVertexIndex = vertex_iter->second;
-	Barcode_t decayVertexBarcode = m_simVertexBarcodes[decayVertexIndex];
-	auto track_range = m_simVertexBarcodeToSimTrackBarcode.equal_range( decayVertexBarcode );
-	for ( auto track_iter = track_range.first ; track_iter != track_range.second ; track_iter++ ) {
-	  auto daughter_result = CaloTruthAccumulator::descendantSimClusters(track_iter->second,hits);
-	  result.insert(result.end(),daughter_result.begin(),daughter_result.end());
-	}
+  } 
+  
+  if (!(isInCalo && hit_info->size() > 0) && m_simTrackToSimVertex.count(barcode)) {
+    auto vertex_range = m_simTrackToSimVertex.equal_range(barcode);
+    for ( auto vertex_iter = vertex_range.first ; vertex_iter != vertex_range.second ; vertex_iter++ ) {
+      Index_t decayVertexIndex = vertex_iter->second;
+      Barcode_t decayVertexBarcode = m_simVertexBarcodes[decayVertexIndex];
+      auto track_range = m_simVertexBarcodeToSimTrackBarcode.equal_range( decayVertexBarcode );
+      for ( auto track_iter = track_range.first ; track_iter != track_range.second ; track_iter++ ) {
+	auto daughter_result = CaloTruthAccumulator::descendantSimClusters(track_iter->second,hits);
+	result.insert(result.end(),daughter_result.begin(),daughter_result.end());
       }
     }
   }
+  
   return result;
 }  
 
@@ -331,12 +353,22 @@ std::unique_ptr<SimHitInfoPerSimTrack_t> CaloTruthAccumulator::attachedSimHitInf
     auto range = m_simHitBarcodeToIndex.equal_range( barcode );
     unsigned n = 0;
     for ( auto iter = range.first ; iter != range.second ; iter++ ) {
-      int subdet, layer, cell, sec, subsec, zp;
+      int subdet, layer, layersim, cell, sec, subsec, zp;
       uint32_t simId = hits[iter->second]->id();
-      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
+      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layersim, sec, subsec, cell);
+      const HGCalDDDConstants* ddd = ddd_[subdet-3];
+      std::pair<int,int> recoLayerCell = ddd->simToReco(cell,layersim,sec,
+							hgcGeoHandles_[subdet-3]->topology().detectorType());
+      cell  = recoLayerCell.first;
+      layer = recoLayerCell.second;
       DetId id = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
-      result->emplace_back(id,hits[iter->second]->energy());
+
+      HGCalDetId temp(id);
+      if( layer == -1 ) continue;
+
+      result->emplace_back(id.rawId(),hits[iter->second]->energy());      
       ++n;
+
     }    
   }
   if (includeOther) {
@@ -383,9 +415,16 @@ template<class T> void CaloTruthAccumulator::fillSimHits( std::vector<const PCal
       const uint32_t simId = simHit.id();
       int subdet, layer, cell, sec, subsec, zp;
       HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+      const HGCalDDDConstants* ddd = ddd_[subdet-3];
+      std::pair<int,int> recoLayerCell = ddd->simToReco(cell,layer,sec,
+							hgcGeoHandles_[subdet-3]->topology().detectorType());
+      cell  = recoLayerCell.first;
+      layer = recoLayerCell.second;
+      if( layer == -1 ) continue;
       DetId id = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
       uint32_t detId = id.rawId();
       returnValue.push_back( &simHit );
+      
       if( m_detIdToTotalSimEnergy.count(detId) ) m_detIdToTotalSimEnergy[detId] += simHit.energy();
       else m_detIdToTotalSimEnergy[detId] = simHit.energy();
     }

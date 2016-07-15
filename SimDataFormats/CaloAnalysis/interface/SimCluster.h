@@ -217,8 +217,8 @@ public:
 
     /** @brief clear the hits and fractions list */
     void clearHitsAndFractions() {
-      hits_.resize(0);
-      fractions_.resize(0);
+      std::vector<uint32_t>().swap(hits_);
+      std::vector<float>().swap(fractions_);
     }
    
     /** @brief returns the accumulated sim energy in the cluster */

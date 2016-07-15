@@ -70,7 +70,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     const double rh_energy = refhit->energy();
-    cl_energy += rh_energy;
+    cl_energy += rh_energy * rhf.fraction();
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
@@ -91,7 +91,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     pcavars[0] = refhit->position().x();
     pcavars[1] = refhit->position().y();
     pcavars[2] = refhit->position().z();     
-    int nhit = int( rh_energy );
+    int nhit = int( rh_energy*100 ); // put rec_hit energy in units of 10 MeV
 
     for( int i = 0; i < nhit; ++i ) {
       _pca->AddRow(pcavars);

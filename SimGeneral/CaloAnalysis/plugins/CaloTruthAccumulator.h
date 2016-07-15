@@ -9,6 +9,8 @@
 
 #include <unordered_map>
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 typedef unsigned Index_t;
 typedef int Barcode_t;
@@ -46,7 +48,7 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   virtual void accumulate( const edm::Event& event, const edm::EventSetup& setup ) override;
   virtual void accumulate( const PileUpEventPrincipal& event, const edm::EventSetup& setup, edm::StreamID const& ) override;
   virtual void finalizeEvent( edm::Event& event, const edm::EventSetup& setup ) override;
-  //	virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
   
   /** @brief Both forms of accumulate() delegate to this templated method. */
   template<class T> void accumulateEvent( const T& event, const edm::EventSetup& setup, const edm::Handle< edm::HepMCProduct >& hepMCproduct );
@@ -86,6 +88,7 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   };
 
   calo_particles m_caloParticles;
+  double caloStartZ;
 
   std::unordered_map<Index_t,float> m_detIdToTotalSimEnergy; // keep track of cell normalizations
   std::unordered_map<Barcode_t,Index_t> m_genParticleBarcodeToIndex;
@@ -95,6 +98,7 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   std::unordered_multimap<Index_t,Index_t> m_detIdToCluster;
   std::unordered_multimap<Barcode_t,Index_t> m_simHitBarcodeToIndex;
   std::unordered_multimap<Barcode_t,Barcode_t> m_simVertexBarcodeToSimTrackBarcode;
+  std::unordered_map<Barcode_t,Barcode_t> m_simTrackBarcodeToSimVertexParentBarcode;
   std::unordered_multimap<Barcode_t,Index_t> m_simTrackToSimVertex; 
   std::unordered_multimap<Barcode_t,Index_t> m_simVertexToSimTrackParent; 
   //	std::unordered_multimap<RecoDetId_t,SimHitInfo_t> m_recoDetIdToSimHits;
@@ -159,14 +163,10 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
     //		TrackingVertexRefProd refTrackingVertexes;
   };
  private:
-  //	edm::ESHandle<CaloGeometry> geoHandle_;
-  //	edm::ESHandle<HGCalGeometry> hgceeGeoHandle_; 
-  //	edm::ESHandle<HGCalGeometry> hgchefGeoHandle_; 
-  //	edm::ESHandle<HGCalGeometry> hgchebGeoHandle_; 
+  edm::ESHandle<HGCalGeometry> hgcGeoHandles_[2]; 
+  const HGCalDDDConstants* ddd_[2];
   
-  OutputCollections output_;
-  //	OutputCollections mergedOutput_;
-  //	std::auto_ptr<TrackingVertexCollection> pInitialVertices_;
+  OutputCollections output_;  
 };
 
 #endif // end of "#ifndef CaloAnalysis_CaloTruthAccumulator_h"

@@ -21,6 +21,8 @@
 <use   name="SimGeneral/MixingModule"/>
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="DataFormats/ForwardDetId"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/HGCalGeometry"/>
 <library   file="*.cc" name="SimGeneralCaloAnalysisPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

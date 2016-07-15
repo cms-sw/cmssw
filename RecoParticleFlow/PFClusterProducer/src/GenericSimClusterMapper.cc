@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
@@ -31,11 +32,11 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   auto const& hits = *input;  
   
   // for quick indexing back to hit energy
-  std::unordered_map<uint32_t, size_t> detIdToIndex;
+  std::unordered_map<uint32_t, size_t> detIdToIndex;  
   for( uint32_t i = 0; i < hits.size(); ++i ) {
-    detIdToIndex.emplace(hits[i].detId(),i);
+    detIdToIndex.emplace(hits[i].detId(),i);    
   }
-
+  
   for( const auto& sc : simClusters ) {
     output.emplace_back();
     reco::PFCluster& back = output.back();
@@ -53,7 +54,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       }
     }
     back.setSeed(seed->detId());
-    back.setEnergy(energy);
+    back.setEnergy(energy);    
   }
 }
 
