@@ -257,3 +257,16 @@ genParticleWithAncestryType = NTupleObjectType("genParticleWithAncestry", baseOb
 genParticleWithLinksType = NTupleObjectType("genParticleWithLinks", baseObjectTypes = [ genParticleWithAncestryType ], mcOnly=True, variables = [
     NTupleVariable("motherIndex", lambda x : x.motherIndex, int, help="index of the mother in the generatorSummary")
 ])
+
+##------------------------------------------  
+## l1 Candidate  from /DataFormats/L1Trigger/interface/L1Candidate.h
+##------------------------------------------  
+
+l1CandidateType = NTupleObjectType("fourVector", variables = [
+    NTupleVariable("pt",    lambda x : x.hwPt()),
+    NTupleVariable("eta",   lambda x : x.hwEta()),
+    NTupleVariable("phi",   lambda x : x.hwPhi()),
+    NTupleVariable("qual",  lambda x : x.hwQual()),
+    NTupleVariable("iso",   lambda x : x.hwIso()),
+    #               ^^^^------- Note: p4 normally is not saved unless 'saveTLorentzVectors' is enabled in the tree producer
+])

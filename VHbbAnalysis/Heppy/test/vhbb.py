@@ -158,10 +158,10 @@ treeProducer= cfg.Analyzer(
 		"pileUpVertex_ptHat"   : NTupleCollection("pileUpVertex_ptHat",    objectFloat, 5,help="z position of hardest pile-up collisions",mcOnly=True),        
 		"LHE_weights_scale"       : NTupleCollection("LHE_weights_scale",   weightsInfoType , 6 ,help="LHE weights for scale variation", mcOnly=True),        
 		"LHE_weights_pdf"       : NTupleCollection("LHE_weights_pdf",   weightsInfoType , 103 ,help="LHE weights for pdf variation (NNPDF)", mcOnly=True),        
-		"l1Jets"       : NTupleCollection("l1Jets",   fourVectorType , 20 ,help="Stage-2 L1 trigger jets", mcOnly=False),        
-		"l1Taus"       : NTupleCollection("l1Taus",   fourVectorType , 20 ,help="Stage-2 L1 trigger taus", mcOnly=False),        
-		"l1Muons"       : NTupleCollection("l1Muons",   fourVectorType , 20 ,help="Stage-2 L1 trigger muons", mcOnly=False),        
-		"l1EGammas"       : NTupleCollection("l1EGammas",   fourVectorType , 20 ,help="Stage-2 L1 trigger EGammas", mcOnly=False),        
+		"l1Jets"       : NTupleCollection("l1Jets",   l1CandidateType , 20 ,help="Stage-2 L1 trigger jets", mcOnly=False),        
+		"l1Taus"       : NTupleCollection("l1Taus",   l1CandidateType , 20 ,help="Stage-2 L1 trigger taus", mcOnly=False),        
+		"l1Muons"       : NTupleCollection("l1Muons",   l1CandidateType , 20 ,help="Stage-2 L1 trigger muons", mcOnly=False),        
+		"l1EGammas"       : NTupleCollection("l1EGammas",   l1CandidateType , 20 ,help="Stage-2 L1 trigger EGammas", mcOnly=False),        
 	}
 	)
 
