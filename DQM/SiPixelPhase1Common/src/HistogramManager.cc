@@ -313,6 +313,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               dimensions = 2;
               title = title + " per " + colname;
               name = name + "_per_" + colname;
+              if (do_profile) { // we loose the Z- (former Y-) label here 
+                title = title + " (Z: " + ylabel + ")";
+              }
               ylabel = colname;
               range_y_min = geometryInterface.minValue(col0[0]) - 0.5;
               range_y_max = geometryInterface.maxValue(col0[0]) + 0.5;
