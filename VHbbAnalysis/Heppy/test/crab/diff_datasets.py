@@ -12,8 +12,16 @@ import sys,os
 # miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
 # filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
 
-miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
-filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X.txt'
+# - FullSim, Without trigger information at all
+# miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
+# filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_noHLT.txt'
+
+# - FullSim, With trigger information
+miniaod_version = "RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v*"
+filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_reHLT.txt'
+# These above datasets replace
+# /*/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v*/MINIAODSIM 
+
 
 # REMOVE DATASET NAMES CONTAINING:
 
@@ -48,6 +56,10 @@ remove = [
           'ContinToZZ','SingleNeutron','BuToJpsiPi','Chib0ToUps','DYToLL_M_1_T','EEG_PTG','GluGluWWTo2E2Nu','HToZATo2L2Tau',
           'MinBias_chMulti85','MuMuG_PTG130To400','SingleK0','WLLJJ','WZJJ','ChMulti85','Chib0ToUps','DYToEE_NNPDF30','ZToEE_NNPDF',
           'GluGluToHiggs0PMToZZ','/TTTT_','WWJJToLNuLNu_EWK_QCD_noTop','SeesawTypeIII','RPVStopStop','gluinoGMSB_M',
+          'EWKZ2Jets','GluGluSpin0ToZG','DYJetsToEE_M-50_LTbinned','WGstarToL','WmWmJJ_','NMSSM_HToAATo4Mu_M',
+          'RSGravTohhTohVVhbbToVVfullLep_narrow_M','SMS-T2bH_mSbottom','GluGluSpin0ToGG_W','GluGluToPhiToTTBar','rToZZ','ToZZ_',
+          'Graviton2PBTo','X53ToTW_M','WZJToLLLNu','ToZZTo','ContinZZTo','barToWW','HTo4L','HPlusPlus','ATo2L2B','ATo2Nu2B',
+          'ToTauTau',
           # '/ttHJetToNonbb_M120_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9_ext1-v3/MINIAODSIM',
