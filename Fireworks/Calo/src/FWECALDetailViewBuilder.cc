@@ -32,71 +32,6 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
 {
    // get the hits from the event
 
-   edm::Handle<EcalRecHitCollection> handle_hits;
-   const EcalRecHitCollection *hits = 0;
-
-   if (fabs(m_eta) < 1.5)
-   {
-      try
-      {
-         edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
-         m_event->getByLabel(tag, handle_hits);
-	 if (handle_hits.isValid())
-         {
-	    hits = &*handle_hits;
-         }
-      }
-      catch (...)
-      {
-         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access EcalRecHitsEB collection." << std::endl;
-      }
-      if ( ! handle_hits.isValid()) {
-         try{
-            edm::InputTag tag("reducedEcalRecHitsEB");
-            m_event->getByLabel(tag, handle_hits);
-            if (handle_hits.isValid())
-            {
-               hits = &*handle_hits;
-            }
-
-         }
-         catch (...)
-         {
-            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEB collection." << std::endl;
-         }
-      }   
-   }
-   else
-   {
-      try
-      {
-         edm::InputTag tag("ecalRecHit", "EcalRecHitsEE");
-         m_event->getByLabel(tag, handle_hits);
-	 if (handle_hits.isValid())
-	    hits = &*handle_hits;
-      }
-      catch (...)
-      {
-         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access ecalRecHitsEE collection." << std::endl;
-      }
-
-      if ( ! handle_hits.isValid()) {
-         try {
-            edm::InputTag tag("reducedEcalRecHitsEE");
-            m_event->getByLabel(tag, handle_hits);
-            if (handle_hits.isValid())
-            {
-               hits = &*handle_hits;
-            }
-
-         }
-         catch (...)
-         {     
-            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
-         }
-      }
-   }
-     
    // data
    TEveCaloDataVec* data = new TEveCaloDataVec( 1 + m_colors.size() );
    data->SetWrapTwoPi(false);
@@ -107,16 +42,13 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
    }
 
 
-   // AMT should use size here ...
    if (xyEE == false || ((fabs(m_eta)) > fireworks::Context::getInstance()->caloTransEta())) {
        m_coordinatesEtaPhi = false;
    }
 
-   // printf("coordinates XY = %d \n", !m_coordinatesEtaPhi);
-   if( handle_hits.isValid() ) 
-   {
-      fillData( hits, data, m_coordinatesEtaPhi );
-   }
+   //printf("coordinates (m_eta = %f) coordinatesXY = %d \n",m_eta,  !m_coordinatesEtaPhi);
+
+   fillData(data);
 
    // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
@@ -223,19 +155,23 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    lego->Set2DMode(TEveCaloLego::kValSizeOutline);
    lego->SetName("ECALDetail Lego");
 
-
-   TEvePointSet* ps = new TEvePointSet("vv");
-   ps->SetNextPoint(m_eta, m_phi, 0.01);
-   if (m_coordinatesEtaPhi)
+   /*
+   TEvePointSet* ps = new TEvePointSet("origin");
+   if (m_coordinatesEtaPhi) {
+      ps->SetNextPoint(m_eta, m_phi, 0.01);
       ps->SetMarkerSize(0.05);
-   else
-     ps->SetMarkerSize(3);
-
+   }
+   else {
+      float theta = TEveCaloData::EtaToTheta(m_eta);
+      double r = TMath::Tan(theta) * 315;
+      ps->SetNextPoint(r*TMath::Cos(m_phi), r*TMath::Sin(m_phi), 0.01);
+      ps->SetMarkerSize(3);
+   }
    ps->SetMarkerStyle(2);
    ps->SetMainColor(kGreen);
    ps->SetMarkerColor(kGreen);
    lego->AddElement(ps);
-
+   */
 
    return lego;
 
@@ -349,7 +285,7 @@ namespace {
 
 //------------------------------------------------------------------
 void
-FWECALDetailViewBuilder::fillDataEtaPhi( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
+FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
 {
    const float area = sizeRad(); // barrel cell range, AMT this is available in context
 
@@ -439,30 +375,34 @@ FWECALDetailViewBuilder::fillDataEtaPhi( const EcalRecHitCollection *hits,TEveCa
 }
 
 void
-FWECALDetailViewBuilder::fillDataXY( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
+FWECALDetailViewBuilder::fillXY( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
 {
-   double crystalSize = sizeXY();
+   double crystalSize2 = sizeXY()*sizeXY();
+   float theta = TEveCaloData::EtaToTheta(m_eta);
+   double r = TMath::Tan(theta) * 315;
+   TEveVector p(r*TMath::Cos(m_phi), r*TMath::Sin(m_phi), 0.f);
+
+
 
    for( EcalRecHitCollection::const_iterator k = hits->begin(); k != hits->end(); ++k)
    {
       DetIdTower tower(*k, m_geom, m_detIdsToColor);
-    
-      // check if the hit is in the window to be drawn
-      if( !( fabs( tower.m_center.Eta() - m_eta ) < ( crystalSize )
-             && fabs( tower.m_center.Phi() - m_phi ) < ( crystalSize )))
-         continue;   
-         
+
+      if( (k->id().subdetId() == EcalBarrel) && fabs( tower.m_center.Eta() - m_eta ) > sizeRad() ) continue;
+      if( (k->id().subdetId() == EcalBarrel) && fabs( tower.m_center.Phi() - m_phi ) > sizeRad() ) continue;
+
+      TEveVector t2( tower.m_points[0], tower.m_points[1], 0);
+      TEveVector d = p; d -= t2;
+      if (d.Mag2() > crystalSize2) continue;
+
       if( tower.m_points != 0 )
       {
          double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
-         int j = 0;
-         for( unsigned int i = 0; i < 8; ++i )
+         for( unsigned int i = 0; i < 4; ++i )
          {
-            TEveVector crystal( tower.m_points[j], tower.m_points[j + 1], tower.m_points[j + 2] );
-            j += 3;
+            TEveVector crystal( tower.m_points[3*i], tower.m_points[3*i + 1], tower.m_points[3*i + 2] );
             double x = crystal.fX;
             double y = crystal.fY;
-            if( fabs( crystal.fZ ) > 330 ) continue;
             if( minX - x > 0.01 ) minX = x;
             if( x - maxX > 0.01 ) maxX = x;
             if( minY - y > 0.01 ) minY = y;
@@ -478,13 +418,85 @@ FWECALDetailViewBuilder::fillDataXY( const EcalRecHitCollection *hits,TEveCaloDa
 
 
 void
-FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
-                                  TEveCaloDataVec *data, bool coordinatesEtaPhi )
+FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
 {
-    if (m_coordinatesEtaPhi)
-        fillDataEtaPhi(hits, data);
-    else 
-        fillDataXY(hits, data);
+
+   { // barrel
+      const EcalRecHitCollection *hitsEB = 0;
+      edm::Handle<EcalRecHitCollection> handle_hitsEB;
+      try
+      {
+         edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
+         m_event->getByLabel(tag, handle_hitsEB);
+	 if (handle_hitsEB.isValid())
+         {
+	    hitsEB = &*handle_hitsEB;
+         }
+      }
+      catch (...)
+      {
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access EcalRecHitsEB collection." << std::endl;
+      }
+      if ( ! handle_hitsEB.isValid()) {
+         try{
+            edm::InputTag tag("reducedEcalRecHitsEB");
+            m_event->getByLabel(tag, handle_hitsEB);
+            if (handle_hitsEB.isValid())
+            {
+               hitsEB = &*handle_hitsEB;
+            }
+
+         }
+         catch (...)
+         {
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEB collection." << std::endl;
+         }
+      }
+
+      if( handle_hitsEB.isValid() ) 
+      {
+         m_coordinatesEtaPhi ? fillEtaPhi( hitsEB, data) : fillXY( hitsEB, data );
+      }
+   }
+
+   {// endcap
+
+      const EcalRecHitCollection *hitsEE = 0;
+      edm::Handle<EcalRecHitCollection> handle_hitsEE;
+      try
+      {
+         edm::InputTag tag("ecalRecHit", "EcalRecHitsEE");
+         m_event->getByLabel(tag, handle_hitsEE);
+	 if (handle_hitsEE.isValid())
+	    hitsEE = &*handle_hitsEE;
+      }
+      catch (...)
+      {
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access ecalRecHitsEE collection." << std::endl;
+      }
+
+      if ( ! handle_hitsEE.isValid()) {
+         try {
+            edm::InputTag tag("reducedEcalRecHitsEE");
+            m_event->getByLabel(tag, handle_hitsEE);
+            if (handle_hitsEE.isValid())
+            {
+               hitsEE = &*handle_hitsEE;
+            }
+
+         }
+         catch (...)
+         {     
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
+         }
+   
+      }
+
+      if( handle_hitsEE.isValid() ) 
+      {
+         m_coordinatesEtaPhi ? fillEtaPhi( hitsEE, data) : fillXY( hitsEE, data);
+      }
+   }
 
    data->DataChanged();
 }
@@ -538,7 +550,7 @@ FWECALDetailViewBuilder::makeLegend( double x0, double y0,
 //______________________________________________________________________________
 float FWECALDetailViewBuilder::sizeXY() const
 {
-   return m_size*0.5;
+   return m_size *1.5;
 }
 
 float FWECALDetailViewBuilder::sizeRad() const
