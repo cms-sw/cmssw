@@ -520,7 +520,7 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDCompactView& cpv) {
     if (phideg != 0) {
       rotstr = "R"; 
       if (phideg < 100)	rotstr = "R0"; 
-      rotstr = rotstr + dbl_to_string(phideg);
+      rotstr = rotstr + std::to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 

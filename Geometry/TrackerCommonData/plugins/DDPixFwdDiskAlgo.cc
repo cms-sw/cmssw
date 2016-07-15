@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDPixFwdDiskAlgo.h"
@@ -66,7 +65,7 @@ void DDPixFwdDiskAlgo::execute(DDCompactView& cpv) {
   for (int iBlade=0; iBlade<nBlades; ++iBlade) {
 	
     if (flagString[iBlade] == flagSelector[0]) {
-      std::string rotstr = DDSplit(rotName).first +dbl_to_string(double(copy));
+      std::string rotstr = DDSplit(rotName).first + std::to_string(double(copy));
 
       double phi  = (iBlade+0.5)*deltaPhi;
 //      double phi  = (iBlade+0.5)*deltaPhi - 90.*CLHEP::deg;
