@@ -6,7 +6,7 @@ from PhysicsTools.HeppyCore.utils.deltar import matchObjectCollection, matchObje
 import PhysicsTools.HeppyCore.framework.config as cfg
 
 
-class TwoObjectsClass():
+class PtPhiPairClass():
     def __init__(self,pt=-1,phi=-10):
         self.pt_ = pt
         self.phi_ = phi
@@ -45,7 +45,7 @@ class L1TriggerAnalyzer( Analyzer ):
         event.l1Taus = []
         event.l1Muons = []
         event.l1EGammas = []
-        event.l1MET2,event.l1MET,event.l1ET,event.l1MHT,event.l1HT = tuple([TwoObjectsClass()]*5)
+        event.l1MET2,event.l1MET,event.l1ET,event.l1MHT,event.l1HT = tuple([PtPhiPairClass()]*5)
         
         if self.validL1handles:
             try:
@@ -69,15 +69,15 @@ class L1TriggerAnalyzer( Analyzer ):
                     l1Obj = self.handles['l1tEtSums'].product().at(0,i)
                     l1ObjType = l1Obj.getType()
                     if l1ObjType == l1Obj.kMissingEt2:
-                        event.l1MET2 = TwoObjectsClass(l1Obj.et(),l1Obj.phi())
+                        event.l1MET2 = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kMissingEt:
-                        event.l1MET = TwoObjectsClass(l1Obj.et(),l1Obj.phi())
+                        event.l1MET = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kMissingHt:
-                        event.l1MHT = TwoObjectsClass(l1Obj.et(),l1Obj.phi())
+                        event.l1MHT = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kTotalEt:
-                        event.l1ET = TwoObjectsClass(l1Obj.et(),l1Obj.phi())
+                        event.l1ET = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
                     elif l1ObjType == l1Obj.kTotalHt:
-                        event.l1HT = TwoObjectsClass(l1Obj.et(),l1Obj.phi())
+                        event.l1HT = PtPhiPairClass(l1Obj.et(),l1Obj.phi())
             except:
                 self.validL1handles = False
                 pass
