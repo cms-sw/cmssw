@@ -523,9 +523,9 @@ void MultiHitGeneratorFromChi2::hitTriplets(
 	}
 
 	//gc: add the chi2 cut
-	declareDynArray(GlobalPoint,3, gp);
-	declareDynArray(GlobalError,3, ge);
-	declareDynArray(bool,3, bl);
+	std::array<GlobalPoint, 3> gp;
+	std::array<GlobalError, 3> ge;
+	std::array<bool, 3> bl;
 	gp[0] = hit0->globalPosition();
 	ge[0] = hit0->globalPositionError();
 	int subid0 = hit0->geographicalId().subdetId();
