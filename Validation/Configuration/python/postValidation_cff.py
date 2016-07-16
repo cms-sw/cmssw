@@ -61,6 +61,8 @@ from Validation.MuonGEMDigis.PostProcessor_cff import *
 from Validation.MuonGEMRecHits.PostProcessor_cff import *
 from Validation.HGCalValidation.HGCalPostProcessor_cff import *
 
+postValidation_common = cms.Sequence()
+
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
     + postProcessorVertex
