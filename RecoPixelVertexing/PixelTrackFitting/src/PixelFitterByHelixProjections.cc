@@ -26,7 +26,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "CircleFromThreePoints.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackErrorParam.h"

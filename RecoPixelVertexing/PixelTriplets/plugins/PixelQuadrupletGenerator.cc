@@ -7,7 +7,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"

@@ -13,7 +13,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" 
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

@@ -27,7 +27,7 @@
 
 #include "ConformalMappingFit.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
-#include "RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
