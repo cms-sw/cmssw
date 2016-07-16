@@ -13,14 +13,14 @@ import sys,os
 # filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
 
 # - FullSim, Without trigger information at all
-# miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
-# filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_noHLT.txt'
+miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
+filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_noHLT.txt'
 
-# - FullSim, With trigger information
-miniaod_version = "RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v*"
-filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_reHLT.txt'
-# These above datasets replace
-# /*/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v*/MINIAODSIM 
+# # - FullSim, With trigger information
+# miniaod_version = "RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v*"
+# filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_reHLT.txt'
+# # These above datasets replace
+# # /*/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v*/MINIAODSIM 
 
 
 # REMOVE DATASET NAMES CONTAINING:
