@@ -2,8 +2,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'VHBB_HEPPY_V22_003'
-config.General.workArea = 'crab_projects_V22_003'
+config.General.requestName = 'VHBB_HEPPY_V23_001'
+config.General.workArea = 'crab_projects_V23_001'
 config.General.transferLogs=True
 
 config.section_("JobType")
@@ -33,8 +33,9 @@ config.JobType.inputFiles = ['heppy_config.py',
                               #"../VBF-spring15.weights.xml",
                               #"../ttbar-spring15.weights.xml",
                               #"../ttbar-fall15.weights.xml",
-                              "../ttbar-fall15_TargetGenOverPt_GenPtCut0.weights.xml",
-                              "../TMVA_blikelihood_vbf_cmssw76_h21trained.weights.xml",
+                              #"../ttbar-fall15_TargetGenOverPt_GenPtCut0.weights.xml",
+			      '../ttbar-spring16-80X.weights.xml',
+                              '../TMVA_blikelihood_vbf_cmssw76_h21trained.weights.xml',
 ]
 #config.JobType.outputFiles = ['tree.root']
 
@@ -43,11 +44,11 @@ config.Data.inputDataset = '/ZH_HToBB_ZToLL_M125_13TeV_amcatnloFXFX_madspin_pyth
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'LumiBased'
 #config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 7
+config.Data.unitsPerJob = 20
 #config.Data.totalUnits = 7
-config.Data.outLFNDirBase = '/store/user/cvernier/VHBBHeppyV22/'
+config.Data.outLFNDirBase = '/store/user/cvernier/VHBBHeppyV23/'
 config.Data.publication = True
-config.Data.outputDatasetTag = 'VHBB_HEPPY_V22'
+config.Data.outputDatasetTag = 'VHBB_HEPPY_V23'
 #only for data
 config.Data.lumiMask = 'json.txt'
 
