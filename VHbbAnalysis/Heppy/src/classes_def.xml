@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="heppy::FastSoftActivity"/>
+  <class name="heppy::ColorFlow"/>
+  <class name="SignedImpactParameter" transient="true" />
+</lcgdict>
