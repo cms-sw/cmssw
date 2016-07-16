@@ -1468,7 +1468,7 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
                         '--era':'Run2_2016',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
-steps['HARVESTUP15FS_trackingOnly']=merge([{'-s': 'HARVESTING:@baseValidation+@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15FS']])
+steps['HARVESTUP15FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15FS']])
 
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
@@ -1699,7 +1699,7 @@ for k in upgradeKeys:
         upgradeStepDict['RecoFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull_trackingOnly'][k]])
 
 
-    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION:@trackingOnlyValidation+@muonOnlyValidation,DQM:@trackingOnlyDQM+@muon',
+    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION:@baseValidation+@trackingOnlyValidation+@muonOnlyValidation,DQM:@trackingOnlyDQM+@muon',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
