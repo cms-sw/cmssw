@@ -97,7 +97,7 @@ class JetRegression :
             self.Jet_vtx3dL[0] = max(0., j.userFloat("vtx3DVal"))
             self.Jet_vtxNtrk[0] = j.userFloat("vtxNtracks")
             self.Jet_vtx3deL[0] = self.Jet_vtx3dL[0]/j.userFloat("vtx3DSig") if j.userFloat("vtx3DSig") > 0 else 0
-            setattr(j,attrName+analysis,self.reader.EvaluateRegression(self.name)[0] * self.Jet_pt[0])
+            setattr(j,attrName+analysis,self.reader.EvaluateRegression(self.name)[0])# * self.Jet_pt[0])
 
                 #j.pt_reg = self.reader.EvaluateRegression(self.name)[0]
 		
