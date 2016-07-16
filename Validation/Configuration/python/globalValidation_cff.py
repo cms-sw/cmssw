@@ -116,7 +116,7 @@ from Validation.Configuration.gemSimValid_cff import *
 from Validation.Configuration.me0SimValid_cff import *
 
 baseCommonPreValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
-baseCommonValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
+baseCommonValidation = cms.Sequence()
 
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(
