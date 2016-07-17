@@ -61,22 +61,23 @@ logconnect = cms.untracked.string("sqlite_file:log.db")
 ########################
 # POPCON Application
 ########################
-process.siStripPopConBadComponentsDQM = cms.OutputModule("SiStripPopConBadComponentsDQM",
-record = cms.string("SiStripBadStripRcd"),
-loggingOn = cms.untracked.bool(True),
-SinceAppendMode = cms.bool(True),
-Source = cms.PSet(
-    since = cms.untracked.uint32(105765),
-    debug = cms.untracked.bool(False)),
-    ######################
-    ## BadComponentsDQM ##
-    ######################
-    RunNb = cms.uint32(105765),
-    accessDQMFile = cms.bool(True),
-    FILE_NAME = cms.untracked.string("DQM_full_V0001_SiStrip_R000105765_T00000341.root"),
-    ME_DIR = cms.untracked.string("Run 105765"),
-    histoList = cms.VPSet()
-) 
+process.siStripPopConBadComponentsDQM = cms.EDAnalyzer("SiStripPopConBadComponentsDQM",
+    record = cms.string("SiStripBadStripRcd"),
+    loggingOn = cms.untracked.bool(True),
+    SinceAppendMode = cms.bool(True),
+    Source = cms.PSet(
+        since = cms.untracked.uint32(105765),
+        debug = cms.untracked.bool(False),
+        ######################
+        ## BadComponentsDQM ##
+        ######################
+        RunNb = cms.uint32(105765),
+        accessDQMFile = cms.bool(True),
+        FILE_NAME = cms.untracked.string("DQM_full_V0001_SiStrip_R000105765_T00000341.root"),
+        ME_DIR = cms.untracked.string("Run 105765"),
+        histoList = cms.VPSet()
+    )
+)
 
 # Schedule
 

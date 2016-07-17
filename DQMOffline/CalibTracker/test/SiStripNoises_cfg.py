@@ -61,22 +61,23 @@ logconnect = cms.untracked.string("sqlite_file:log.db")
 ########################
 # POPCON Application
 ########################
-process.siStripPopConNoisesDQM = cms.OutputModule("SiStripPopConNoisesDQM",
-record = cms.string("SiStripNoisesRcd"),
-loggingOn = cms.untracked.bool(True),
-SinceAppendMode = cms.bool(True),
-Source = cms.PSet(
-    since = cms.untracked.uint32(111753),
-    debug = cms.untracked.bool(False)),
-    ######################
-    ## NoisesDQMService ##
-    ######################
-    RunNb = cms.uint32(111753),
-    accessDQMFile = cms.bool(True),
-    FILE_NAME = cms.untracked.string("Playback_V0001_SiStrip_R000111753_T00000030.root"),
-    ME_DIR = cms.untracked.string("Run 111753"),
-    histoList = cms.VPSet()
-) 
+process.siStripPopConNoisesDQM = cms.EDAnalyzer("SiStripPopConNoisesDQM",
+    record = cms.string("SiStripNoisesRcd"),
+    loggingOn = cms.untracked.bool(True),
+    SinceAppendMode = cms.bool(True),
+    Source = cms.PSet(
+        since = cms.untracked.uint32(111753),
+        debug = cms.untracked.bool(False),
+        ######################
+        ## NoisesDQMService ##
+        ######################
+        RunNb = cms.uint32(111753),
+        accessDQMFile = cms.bool(True),
+        FILE_NAME = cms.untracked.string("Playback_V0001_SiStrip_R000111753_T00000030.root"),
+        ME_DIR = cms.untracked.string("Run 111753"),
+        histoList = cms.VPSet()
+    )
+)
 
 # Schedule
 
