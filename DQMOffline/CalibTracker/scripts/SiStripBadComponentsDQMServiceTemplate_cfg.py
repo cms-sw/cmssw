@@ -66,22 +66,17 @@ record = cms.string("SiStripBadStripRcd"),
 loggingOn = cms.untracked.bool(True),
 SinceAppendMode = cms.bool(True),
 Source = cms.PSet(
-   since = cms.untracked.uint32(RUNNUMBER),
-   debug = cms.untracked.bool(False))
+    since = cms.untracked.uint32(RUNNUMBER),
+    debug = cms.untracked.bool(False)),
+    ######################
+    ## BadComponentsDQM ##
+    ######################
+    RunNb = cms.uint32(RUNNUMBER),
+    accessDQMFile = cms.bool(True),
+    FILE_NAME = cms.untracked.string("FILENAME"),
+    ME_DIR = cms.untracked.string("Run RUNNUMBER"),
+    histoList = cms.VPSet()
 ) 
-
-
-##########################
-# BadComponentsDQMService
-##########################
-
-process.SiStripBadComponentsDQMService = cms.Service("SiStripBadComponentsDQMService",
-                                                     RunNb = cms.uint32(RUNNUMBER),
-                                                     accessDQMFile = cms.bool(True),
-                                                     FILE_NAME = cms.untracked.string("FILENAME"),
-                                                     ME_DIR = cms.untracked.string("Run RUNNUMBER"),
-                                                     histoList = cms.VPSet()
-                                                     )
 
 # Schedule
 
