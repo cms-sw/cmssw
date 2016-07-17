@@ -21,5 +21,5 @@ muonAssociatorByHitsNoSimHitsHelper.AbsoluteNumberOfHits_track = True
 muonAssociatorByHitsNoSimHitsHelper.UseTracker = False
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel") )
-eras.phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker") )
+eras.phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
+eras.phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, stripSimLinkSrc = "simSiPixelDigis:Tracker" )
