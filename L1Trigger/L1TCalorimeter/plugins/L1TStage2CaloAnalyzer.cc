@@ -106,6 +106,7 @@ namespace l1t {
       MinBiasHFM1=34,
       MinBiasHFP0=35,
       MinBiasHFM0=36,
+      MPSumETEm = 37
     };
   
     std::vector< ObjectType > types_;
@@ -206,6 +207,7 @@ namespace l1t {
     types_.push_back( MPJet );
     types_.push_back( MPSumET );
     types_.push_back( MPSumETHF );
+    types_.push_back( MPSumETEm );
     types_.push_back( MPSumMETx );
     types_.push_back( MPSumMETxHF );
     types_.push_back( MPSumMETy );
@@ -242,6 +244,7 @@ namespace l1t {
     typeStr_.push_back( "mpjet" );
     typeStr_.push_back( "mpsumet" );
     typeStr_.push_back( "mpsumethf" );
+    typeStr_.push_back( "mpsumetem" );
     typeStr_.push_back( "mpsummetx" );
     typeStr_.push_back( "mpsummetxhf" );
     typeStr_.push_back( "mpsummety" );
@@ -494,6 +497,7 @@ namespace l1t {
           switch(itr->getType()){
           case l1t::EtSum::EtSumType::kTotalEt:     het_.at(MPSumET)       ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEtHF:    het_.at(MPSumETHF)      ->Fill( itr->hwPt() ); break;
+          case l1t::EtSum::EtSumType::kTotalEtEm:     het_.at(MPSumETEm)       ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEtx:    het_.at(MPSumMETx)     ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEtxHF:   het_.at(MPSumMETxHF)    ->Fill( itr->hwPt() ); break;
           case l1t::EtSum::EtSumType::kTotalEty:    het_.at(MPSumMETy)     ->Fill( itr->hwPt() ); break;
@@ -641,6 +645,7 @@ namespace l1t {
     }
 
     if (doText_) edm::LogVerbatim("L1TCaloEvents") << text.str();
+    std::cout << text.str() << std::endl;
 
   }
 
@@ -662,7 +667,7 @@ namespace l1t {
       if (*itr==MPSumMETx || *itr == MPSumMETxHF || *itr==MPSumMETy || *itr==MPSumMETyHF  || *itr==MPSumMHTx  || *itr==MPSumMHTxHF  || *itr==MPSumMHTy || *itr==MPSumMHTyHF ) {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 40000, -199999.5, 200000.5) ));
       }
-      else if (*itr==SumET || *itr==SumETEm || *itr==MPSumET || *itr==MPSumETHF || *itr==SumHT || *itr==MPSumHT || *itr==MPSumHTHF ) {
+      else if (*itr==SumET || *itr==SumETEm || *itr==MPSumETEm || *itr==MPSumET || *itr==MPSumETHF || *itr==SumHT || *itr==MPSumHT || *itr==MPSumHTHF ) {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 7000, -0.5, 6999.5) )); 
       }
       else if (*itr==MPMinBiasHFP0 ||

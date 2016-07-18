@@ -29,7 +29,7 @@ l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::~Stage2Layer2DemuxSumsAlgoFirmwareIm
 void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<l1t::EtSum> & inputSums,
                                                               std::vector<l1t::EtSum> & outputSums) {
 
-  int32_t et(0), metx(0), mety(0), metxHF(0), metyHF(0), ht(0), mhtx(0), mhty(0), mhtxHF(0), mhtyHF(0), metPhi(0), metPhiHF(0), mhtPhi(0), mhtPhiHF(0);
+  int32_t et(0), etem(0), metx(0), mety(0), metxHF(0), metyHF(0), ht(0), mhtx(0), mhty(0), mhtxHF(0), mhtyHF(0), metPhi(0), metPhiHF(0), mhtPhi(0), mhtPhiHF(0);
   uint32_t met(0), metHF(0), mht(0), mhtHF(0);
   uint32_t mbp0(0), mbm0(0), mbp1(0), mbm1(0);
 
@@ -40,6 +40,10 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
 
       case l1t::EtSum::EtSumType::kTotalEt:
         et += eSum->hwPt();
+        break;
+
+      case l1t::EtSum::EtSumType::kTotalEtEm:
+        etem += eSum->hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalEtx:
@@ -107,6 +111,9 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   //if (mhty>0xFFF) mhty = 0xFFF;
   //if (metxHF>0xFFF) metxHF = 0xFFF;
   //if (metyHF>0xFFF) metyHF = 0xFFF;
+
+  mhtPhi = (111 << 4);
+  mhtPhiHF = (111 << 4); // to match hw value if undefined
   
   // Final MET calculation
   if (metx != 0 || mety != 0 ) cordic_( metx , mety , metPhi , met );
@@ -132,6 +139,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   math::XYZTLorentzVector p4;
 
   l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
+  l1t::EtSum etSumTotalEtEm(p4,l1t::EtSum::EtSumType::kTotalEtEm,etem,0,0,0);
   l1t::EtSum etSumMissingEt(p4,l1t::EtSum::EtSumType::kMissingEt,met,0,metPhi>>4,0);
   l1t::EtSum etSumMissingEtHF(p4,l1t::EtSum::EtSumType::kMissingEtHF,metHF,0,metPhiHF>>4,0);
   l1t::EtSum htSumht(p4,l1t::EtSum::EtSumType::kTotalHt,ht,0,0,0);
@@ -142,16 +150,8 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   l1t::EtSum etSumMinBiasHFP1(p4,l1t::EtSum::EtSumType::kMinBiasHFP1,mbp1,0,0,0);
   l1t::EtSum etSumMinBiasHFM1(p4,l1t::EtSum::EtSumType::kMinBiasHFM1,mbm1,0,0,0);
 
-  // dummy place holder for TotalEtEm till the emulator is available
-  l1t::EtSum dummy_etSumTotalEtEm(p4,l1t::EtSum::EtSumType::kTotalEtEm,0,0,0,0);
-
-
-
   outputSums.push_back(etSumTotalEt);
-  // -- store dummy TotalEtEm into vector <EtSum>   ---
-  // -- in the same order as EtSum packer/unpker    ---
-  outputSums.push_back(dummy_etSumTotalEtEm);
-  // -------------------------------------------------
+  outputSums.push_back(etSumTotalEtEm);
   outputSums.push_back(etSumMinBiasHFP0);
   outputSums.push_back(htSumht);
   outputSums.push_back(etSumMinBiasHFM0);
