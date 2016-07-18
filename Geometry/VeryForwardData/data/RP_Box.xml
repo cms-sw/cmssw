@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="RP_Box.xml">
+        <Constant name="RP_Box_primary_vacuum_x" value="128*mm"/>
+        <Constant name="RP_Box_primary_vacuum_y" value="135.65*mm"/>
+        <Constant name="RP_Box_primary_vacuum_z" value="54*mm"/>
+        <!-- fig. 25, 46a -->
+        <Constant name="RP_Box_Height" value="[RP_Box_primary_vacuum_y]-24.5*mm"/> <!-- includes Foil -->
+        <Constant name="RP_Box_Foil_Thickness" value="0.15*mm"/>
+        <Constant name="RP_Box_Bottom_Wall_Thickness" value="2*mm"/>
+        <Constant name="RP_Box_Front_Wall_Thickness" value="2*mm"/>
+        <Constant name="RP_Box_Front_Thin_Wall_Thickness" value="0.5*mm"/>
+        <Constant name="RP_Box_Right_Left_Wall_Thickness" value="1.5*mm"/>
+        <Constant name="RP_Box_Window_Size" value="37.71*mm"/>
+        <Constant name="RP_Box_Window_Radius" value="2*mm"/>
+        <Constant name="RP_Box_Window_Center_From_Bottom" value="14.16*mm"/>
+        <Constant name="RP_Box_Window_Bottom_Width" value="25.01*mm"/>
+        <Constant name="RP_Box_Secondary_Vacuum_Height" value="[RP_Box_primary_vacuum_y]-[RP_Box_Foil_Thickness]"/>
+        <Constant name="RP_Box_Bottom_Hole_x" value="29*mm"/>
+        <Constant name="RP_Box_Bottom_Hole_radius" value="2*mm"/>
+    </ConstantsSection>
+</DDDefinition>

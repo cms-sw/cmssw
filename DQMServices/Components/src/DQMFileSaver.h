@@ -22,7 +22,7 @@ public:
   // fms will be nullptr in such case
   static boost::property_tree::ptree fillJson(
       int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
-      evf::FastMonitoringService *fms);
+      const std::string mergeTypeStr, evf::FastMonitoringService *fms);
 
   
 protected:
@@ -95,6 +95,7 @@ private:
   static const std::string streamPrefix_;
   static const std::string streamSuffix_;
   std::string transferDestination_;
+  std::string mergeType_;
 };
 
 #endif // DQMSERVICES_COMPONEntS_DQMFILESAVER_H

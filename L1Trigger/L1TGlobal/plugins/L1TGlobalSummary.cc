@@ -39,6 +39,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 private:    
+  InputTag   algInputTag_;
+  InputTag   extInputTag_;
   EDGetToken algToken_;
   EDGetToken extToken_;
   bool dumpRecord_;
@@ -49,20 +51,22 @@ private:
   L1TGlobalUtil* gtUtil_;
 
   std::vector<int> decisionCount_;
-  std::vector<int> prescaledCount_;
+  std::vector<int> intermCount_;
   std::vector<int> finalCount_;
   int finalOrCount;
 };
 
 L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig){
-  algToken_ = consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<InputTag>("AlgInputTag"));
-  extToken_ = consumes<BXVector<GlobalExtBlk>>(iConfig.getParameter<InputTag>("ExtInputTag"));
+  algInputTag_ = iConfig.getParameter<InputTag>("AlgInputTag");
+  extInputTag_ = iConfig.getParameter<InputTag>("ExtInputTag");
+  algToken_ = consumes<BXVector<GlobalAlgBlk>>(algInputTag_);
+  extToken_ = consumes<BXVector<GlobalExtBlk>>(extInputTag_);
   dumpRecord_       = iConfig.getParameter<bool>("DumpRecord");
   dumpTriggerResults_ = iConfig.getParameter<bool>("DumpTrigResults");
   dumpTriggerSummary_ = iConfig.getParameter<bool>("DumpTrigSummary");
   minBx_              = iConfig.getParameter<int>("MinBx");
   maxBx_              = iConfig.getParameter<int>("MaxBx");     
-  gtUtil_             = new L1TGlobalUtil();
+  gtUtil_             = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, extInputTag_);
   finalOrCount = 0;
 }
 
@@ -83,19 +87,18 @@ void L1TGlobalSummary::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup){
   decisionCount_.clear();
-  prescaledCount_.clear();
+  intermCount_.clear();
   finalCount_.clear();  
 
   finalOrCount = 0;
-  gtUtil_->retrieveL1Run(evSetup);
-  gtUtil_->retrieveL1LumiBlock(evSetup);
+  gtUtil_->retrieveL1Setup(evSetup);
 
   int size = gtUtil_->decisionsInitial().size();
   decisionCount_  .resize(size);
-  prescaledCount_ .resize(size);
+  intermCount_ .resize(size);
   finalCount_     .resize(size);
   std::fill(decisionCount_.begin(),  decisionCount_.end(),  0);
-  std::fill(prescaledCount_.begin(), prescaledCount_.end(), 0);
+  std::fill(intermCount_.begin(), intermCount_.end(), 0);
   std::fill(finalCount_.begin(),     finalCount_.end(),     0);
 
 }
@@ -121,7 +124,7 @@ void L1TGlobalSummary::endRun(Run const&, EventSetup const&){
 
       // get the prescale and mask (needs some error checking here)
       int resultInit = decisionCount_[i];
-      int resultPre = prescaledCount_[i];
+      int resultPre = intermCount_[i];
       int resultFin = finalCount_[i];
 
       std::string name = (prescales.at(i)).first;
@@ -157,21 +160,21 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      
     // grab the map for the final decisions
     const std::vector<std::pair<std::string, bool> > initialDecisions = gtUtil_->decisionsInitial();
-    const std::vector<std::pair<std::string, bool> > prescaledDecisions = gtUtil_->decisionsPrescaled();
+    const std::vector<std::pair<std::string, bool> > intermDecisions = gtUtil_->decisionsInterm();
     const std::vector<std::pair<std::string, bool> > finalDecisions = gtUtil_->decisionsFinal();
     const std::vector<std::pair<std::string, int> >  prescales = gtUtil_->prescales();
     const std::vector<std::pair<std::string, bool> > masks = gtUtil_->masks();
     const std::vector<std::pair<std::string, bool> > vetoMasks = gtUtil_->vetoMasks();
 
     if ((decisionCount_.size() != gtUtil_->decisionsInitial().size())
-	||(prescaledCount_.size() != gtUtil_->decisionsPrescaled().size())
+	||(intermCount_.size() != gtUtil_->decisionsInterm().size())
 	||(finalCount_.size() != gtUtil_->decisionsFinal().size())){
       LogError("l1t|Global") << "gtUtil sizes inconsistent across run." << endl;
       return;
     }
 
     if(dumpTriggerResults_){
-      cout << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Masked    Veto " << endl;
+      cout << "    Bit                  Algorithm Name                  Init    aBXM  Final   PS Factor     Masked    Veto " << endl;
       cout << "============================================================================================================" << endl;
     }
     for(unsigned int i=0; i<initialDecisions.size(); i++) {
@@ -183,7 +186,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       bool resultInit = (initialDecisions.at(i)).second;
       
       // get prescaled and final results (need some error checking here)
-      bool resultPre = (prescaledDecisions.at(i)).second;
+      bool resultInterm = (intermDecisions.at(i)).second;
       bool resultFin = (finalDecisions.at(i)).second;
       
       // get the prescale and mask (needs some error checking here)
@@ -192,13 +195,13 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       bool veto    = (vetoMasks.at(i)).second;
 
       if (resultInit) decisionCount_[i]++;
-      if (resultPre) prescaledCount_[i]++;
+      if (resultInterm) intermCount_[i]++;
       if (resultFin) finalCount_[i]++;
 
       //cout << i << " " << decisionCount_[i] << "\n";
 
       if(dumpTriggerResults_){
-	 cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
+	 cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultInterm << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
       }
     }
     bool finOR = gtUtil_->getFinalOR();

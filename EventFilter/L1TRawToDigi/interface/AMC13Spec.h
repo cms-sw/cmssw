@@ -74,7 +74,7 @@ namespace amc13 {
          unsigned int size() const;
 
          void add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load);
-         bool parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx, bool legacy_mc=false);
+         bool parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx, bool legacy_mc=false, bool mtf7_mode=false);
          bool write(const edm::Event& ev, unsigned char * ptr, unsigned int skip, unsigned int size) const;
 
          inline std::vector<amc::Packet> payload() const { return payload_; };

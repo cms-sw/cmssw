@@ -25,7 +25,7 @@ int QIE10DataFrame::presamples() const {
   return -1;
 }
 
-void QIE10DataFrame::setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask){
+void QIE10DataFrame::setZSInfo(bool markAndPass){
 	if(markAndPass) m_data[0] |= MASK_MARKPASS;
 }
 

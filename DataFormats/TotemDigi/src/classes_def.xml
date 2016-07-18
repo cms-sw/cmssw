@@ -1,0 +1,33 @@
+<lcgdict>
+  <class name="TotemRPDigi" ClassVersion="2">
+    <version ClassVersion="2" checksum="3444194306"/>
+  </class>
+  <class name="edm::DetSet<TotemRPDigi>"/>
+  <class name="std::vector<edm::DetSet<TotemRPDigi> >"/>
+  <class name="std::vector<TotemRPDigi>"/>
+  <class name="edm::DetSetVector<TotemRPDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
+
+  <class name="TotemTriggerCounters" ClassVersion="2">
+    <version ClassVersion="2" checksum="719923071"/>
+  </class>
+  <class name="edm::Wrapper<TotemTriggerCounters>"/>
+
+  <class name="TotemVFATStatus" ClassVersion="3">
+    <version ClassVersion="2" checksum="3003040825"/>
+    <version ClassVersion="3" checksum="1439138260"/>
+  </class>
+  <class name="edm::Wrapper<TotemVFATStatus>"/>
+  <class name="edm::DetSetVector<TotemVFATStatus>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<TotemVFATStatus> >"/>
+
+  <class name="std::bitset<8>"/>
+  <class name="edm::Wrapper<std::bitset<8> >"/>
+    
+  <class name="TotemFEDInfo" ClassVersion="2">
+    <version ClassVersion="2" checksum="2844972317"/>
+  </class>
+  <class name="std::vector<TotemFEDInfo>"/>
+  <class name="edm::Wrapper<std::vector<TotemFEDInfo>>"/>
+</lcgdict>

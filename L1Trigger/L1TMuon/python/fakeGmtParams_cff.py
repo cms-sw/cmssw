@@ -13,16 +13,27 @@ gmtParamsSource = cms.ESSource(
 )
 
 gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
-    fwVersion = cms.uint32(1),
+    #fwVersion = cms.uint32(1),
+    fwVersion = cms.uint32(0x2020000),
 
-    bxMin = cms.int32(-2),
-    bxMax = cms.int32(2),
+    # uGMT inputs to disable
+    # disabled inputs are not used in the algo but are still in the readout
+    caloInputsDisable = cms.bool(False),
+    bmtfInputsToDisable = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # BMTF 0-11
+    omtfInputsToDisable = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # OMTF+0-5, OMTF-0-5
+    emtfInputsToDisable = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # EMTF+0-5, EMTF-0-5
+
+    # masked inputs
+    # masked inputs are not used in the algo and are not in the readout
+    caloInputsMasked = cms.bool(False),
+    maskedBmtfInputs = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # BMTF 0-11
+    maskedOmtfInputs = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # OMTF+0-5, OMTF-0-5
+    maskedEmtfInputs = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # EMTF+0-5, EMTF-0-5
 
     AbsIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'AbsIsoCheckMem.txt')),
     RelIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'RelIsoCheckMem.txt')),
     IdxSelMemPhiLUTPath          = cms.string(os.path.join(lut_dir, 'IdxSelMemPhi.txt')),
     IdxSelMemEtaLUTPath          = cms.string(os.path.join(lut_dir, 'IdxSelMemEta.txt')),
-    #BrlSingleMatchQualLUTPath    = cms.string(''),
     FwdPosSingleMatchQualLUTPath = cms.string(''),
     FwdNegSingleMatchQualLUTPath = cms.string(''),
     OvlPosSingleMatchQualLUTPath = cms.string(''),
@@ -39,17 +50,43 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EEtaExtrapolation.txt')),
     SortRankLUTPath              = cms.string(os.path.join(lut_dir, 'SortRank.txt')),
 
-    #BrlSingleMatchQualLUTMaxDR    = cms.double(0.1),
     FwdPosSingleMatchQualLUTMaxDR = cms.double(0.1),
+    FwdPosSingleMatchQualLUTfEta  = cms.double(1),
+    FwdPosSingleMatchQualLUTfPhi  = cms.double(1),
+
     FwdNegSingleMatchQualLUTMaxDR = cms.double(0.1),
-    OvlPosSingleMatchQualLUTMaxDR = cms.double(0.1),
-    OvlNegSingleMatchQualLUTMaxDR = cms.double(0.1),
+    FwdNegSingleMatchQualLUTfEta  = cms.double(1),
+    FwdNegSingleMatchQualLUTfPhi  = cms.double(1),
+
+    OvlPosSingleMatchQualLUTMaxDR       = cms.double(0.1),
+    OvlPosSingleMatchQualLUTfEta        = cms.double(1),
+    OvlPosSingleMatchQualLUTfEtaCoarse  = cms.double(1),
+    OvlPosSingleMatchQualLUTfPhi        = cms.double(1),
+
+    OvlNegSingleMatchQualLUTMaxDR       = cms.double(0.1),
+    OvlNegSingleMatchQualLUTfEta        = cms.double(1),
+    OvlNegSingleMatchQualLUTfEtaCoarse  = cms.double(1),
+    OvlNegSingleMatchQualLUTfPhi        = cms.double(1),
+
     BOPosMatchQualLUTMaxDR        = cms.double(0.1),
+    BOPosMatchQualLUTfEta         = cms.double(1),
+    BOPosMatchQualLUTfEtaCoarse   = cms.double(1),
+    BOPosMatchQualLUTfPhi         = cms.double(1),
+
     BONegMatchQualLUTMaxDR        = cms.double(0.1),
-    BOPosMatchQualLUTMaxDREtaFine = cms.double(0.1),
-    BONegMatchQualLUTMaxDREtaFine = cms.double(0.1),
+    BONegMatchQualLUTfEta         = cms.double(1),
+    BONegMatchQualLUTfEtaCoarse   = cms.double(1),
+    BONegMatchQualLUTfPhi         = cms.double(1),
+
     FOPosMatchQualLUTMaxDR        = cms.double(0.1),
+    FOPosMatchQualLUTfEta         = cms.double(1),
+    FOPosMatchQualLUTfEtaCoarse   = cms.double(1),
+    FOPosMatchQualLUTfPhi         = cms.double(1),
+
     FONegMatchQualLUTMaxDR        = cms.double(0.1),
+    FONegMatchQualLUTfEta         = cms.double(1),
+    FONegMatchQualLUTfEtaCoarse   = cms.double(1),
+    FONegMatchQualLUTfPhi         = cms.double(1),
 
     SortRankLUTPtFactor   = cms.uint32(1), # can be 0 or 1
     SortRankLUTQualFactor = cms.uint32(4), # can be 0 to 34

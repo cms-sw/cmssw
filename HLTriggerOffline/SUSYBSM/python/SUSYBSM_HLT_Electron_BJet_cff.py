@@ -10,7 +10,7 @@ SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
   TriggerPath = cms.string('HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV_p13_v'),
   TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter', '', 'HLT'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
   TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'HLT'), #the last filter in the path
-  PtThrJet = cms.untracked.double(40.0),
+  PtThrJet = cms.untracked.double(30.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 

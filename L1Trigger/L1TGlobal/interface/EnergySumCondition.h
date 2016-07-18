@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_EnergySumCondition_h
-#define GlobalTrigger_EnergySumCondition_h
+#ifndef L1Trigger_L1TGlobal_EnergySumCondition_h
+#define L1Trigger_L1TGlobal_EnergySumCondition_h
 
 /**
  * \class EnergySumCondition
@@ -24,14 +24,14 @@
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
 // forward declarations
-class GtCondition;
+class GlobalCondition;
 class EnergySumTemplate;
 
 namespace l1t {
 
 class L1Candidate;
 
-class GtBoard;
+class GlobalBoard;
 
 // class declaration
 class EnergySumCondition : public ConditionEvaluation
@@ -44,7 +44,7 @@ public:
     EnergySumCondition();
 
     ///     from base template condition (from event setup usually)
-    EnergySumCondition(const GtCondition*, const GtBoard*);
+    EnergySumCondition(const GlobalCondition*, const GlobalBoard*);
 
     // copy constructor
     EnergySumCondition(const EnergySumCondition&);
@@ -72,12 +72,12 @@ public:
 
     void setGtEnergySumTemplate(const EnergySumTemplate*);
 
-    ///   get / set the pointer to uGt GtBoard
-    inline const GtBoard* getuGtB() const {
+    ///   get / set the pointer to uGt GlobalBoard
+    inline const GlobalBoard* getuGtB() const {
         return m_uGtB;
     }
 
-    void setuGtB(const GtBoard*);
+    void setuGtB(const GlobalBoard*);
 
 private:
 
@@ -89,8 +89,8 @@ private:
     /// pointer to a EnergySumTemplate
     const EnergySumTemplate* m_gtEnergySumTemplate;
 
-    /// pointer to uGt GtBoard, to be able to get the trigger objects
-    const GtBoard* m_uGtB;
+    /// pointer to uGt GlobalBoard, to be able to get the trigger objects
+    const GlobalBoard* m_uGtB;
 
 };
 

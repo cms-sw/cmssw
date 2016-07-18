@@ -49,31 +49,31 @@ void SiPixelCertification::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQ
 
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::endLuminosityBlock ";
   // Compute and fill overall certification bits, for now use smallest single value:
-  float dcsFrac = (iGetter.get("Pixel/EventInfo/DCSSummary"))->getFloatValue();
-  float daqFrac = (iGetter.get("Pixel/EventInfo/DAQSummary"))->getFloatValue();
-  float dqmFrac = (iGetter.get("Pixel/EventInfo/reportSummary"))->getFloatValue();
+  float dcsFrac = (iGetter.getElement("Pixel/EventInfo/DCSSummary"))->getFloatValue();
+  float daqFrac = (iGetter.getElement("Pixel/EventInfo/DAQSummary"))->getFloatValue();
+  float dqmFrac = (iGetter.getElement("Pixel/EventInfo/reportSummary"))->getFloatValue();
   float pixel_all = std::min(dcsFrac,daqFrac);
   pixel_all = std::min(pixel_all,dqmFrac);
 //std::cout<<"Pixel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_all<<std::endl;
-  CertificationPixel = iGetter.get("Pixel/EventInfo/CertificationSummary");
+  CertificationPixel = iGetter.getElement("Pixel/EventInfo/CertificationSummary");
   if(CertificationPixel) CertificationPixel->Fill(pixel_all);
 
-  dcsFrac = (iGetter.get("Pixel/EventInfo/DCSContents/PixelBarrelFraction"))->getFloatValue();
-  daqFrac = (iGetter.get("Pixel/EventInfo/DAQContents/PixelBarrelFraction"))->getFloatValue();
-  dqmFrac = (iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction"))->getFloatValue();
+  dcsFrac = (iGetter.getElement("Pixel/EventInfo/DCSContents/PixelBarrelFraction"))->getFloatValue();
+  daqFrac = (iGetter.getElement("Pixel/EventInfo/DAQContents/PixelBarrelFraction"))->getFloatValue();
+  dqmFrac = (iGetter.getElement("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction"))->getFloatValue();
   float pixel_barrel = std::min(dcsFrac,daqFrac);
   pixel_barrel = std::min(pixel_barrel,dqmFrac);
 //std::cout<<"Barrel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_barrel<<std::endl;
-  CertificationBarrel = iGetter.get("Pixel/EventInfo/CertificationContents/PixelBarrelFraction");
+  CertificationBarrel = iGetter.getElement("Pixel/EventInfo/CertificationContents/PixelBarrelFraction");
   if(CertificationBarrel) CertificationBarrel->Fill(pixel_barrel);
 
-  dcsFrac = (iGetter.get("Pixel/EventInfo/DCSContents/PixelEndcapFraction"))->getFloatValue();
-  daqFrac = (iGetter.get("Pixel/EventInfo/DAQContents/PixelEndcapFraction"))->getFloatValue();
-  dqmFrac = (iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction"))->getFloatValue();
+  dcsFrac = (iGetter.getElement("Pixel/EventInfo/DCSContents/PixelEndcapFraction"))->getFloatValue();
+  daqFrac = (iGetter.getElement("Pixel/EventInfo/DAQContents/PixelEndcapFraction"))->getFloatValue();
+  dqmFrac = (iGetter.getElement("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction"))->getFloatValue();
   float pixel_endcap = std::min(dcsFrac,daqFrac);
   pixel_endcap = std::min(pixel_endcap,dqmFrac);
 //std::cout<<"Endcap numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_endcap<<std::endl;
-  CertificationEndcap = iGetter.get("Pixel/EventInfo/CertificationContents/PixelEndcapFraction");
+  CertificationEndcap = iGetter.getElement("Pixel/EventInfo/CertificationContents/PixelEndcapFraction");
   if(CertificationEndcap) CertificationEndcap->Fill(pixel_endcap);
 
 }
@@ -83,25 +83,25 @@ void SiPixelCertification::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
 //cout<<"Entering SiPixelCertification::endRun: "<<endl;
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::endRun ";
   // Compute and fill overall certification bits, for now use smallest single value:
-  float dcsFrac = (iGetter.get("Pixel/EventInfo/DCSSummary"))->getFloatValue();
-  float daqFrac = (iGetter.get("Pixel/EventInfo/DAQSummary"))->getFloatValue();
-  float dqmFrac = (iGetter.get("Pixel/EventInfo/reportSummary"))->getFloatValue();
+  float dcsFrac = (iGetter.getElement("Pixel/EventInfo/DCSSummary"))->getFloatValue();
+  float daqFrac = (iGetter.getElement("Pixel/EventInfo/DAQSummary"))->getFloatValue();
+  float dqmFrac = (iGetter.getElement("Pixel/EventInfo/reportSummary"))->getFloatValue();
   float pixel_all = std::min(dcsFrac,daqFrac);
   pixel_all = std::min(pixel_all,dqmFrac);
 //std::cout<<"Pixel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_all<<std::endl;
   if(CertificationPixel) CertificationPixel->Fill(pixel_all);
 
-  dcsFrac = (iGetter.get("Pixel/EventInfo/DCSContents/PixelBarrelFraction"))->getFloatValue();
-  daqFrac = (iGetter.get("Pixel/EventInfo/DAQContents/PixelBarrelFraction"))->getFloatValue();
-  dqmFrac = (iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction"))->getFloatValue();
+  dcsFrac = (iGetter.getElement("Pixel/EventInfo/DCSContents/PixelBarrelFraction"))->getFloatValue();
+  daqFrac = (iGetter.getElement("Pixel/EventInfo/DAQContents/PixelBarrelFraction"))->getFloatValue();
+  dqmFrac = (iGetter.getElement("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction"))->getFloatValue();
   float pixel_barrel = std::min(dcsFrac,daqFrac);
   pixel_barrel = std::min(pixel_barrel,dqmFrac);
 //std::cout<<"Barrel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_barrel<<std::endl;
   if(CertificationBarrel) CertificationBarrel->Fill(pixel_barrel);
 
-  dcsFrac = (iGetter.get("Pixel/EventInfo/DCSContents/PixelEndcapFraction"))->getFloatValue();
-  daqFrac = (iGetter.get("Pixel/EventInfo/DAQContents/PixelEndcapFraction"))->getFloatValue();
-  dqmFrac = (iGetter.get("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction"))->getFloatValue();
+  dcsFrac = (iGetter.getElement("Pixel/EventInfo/DCSContents/PixelEndcapFraction"))->getFloatValue();
+  daqFrac = (iGetter.getElement("Pixel/EventInfo/DAQContents/PixelEndcapFraction"))->getFloatValue();
+  dqmFrac = (iGetter.getElement("Pixel/EventInfo/reportSummaryContents/PixelEndcapFraction"))->getFloatValue();
   float pixel_endcap = std::min(dcsFrac,daqFrac);
   pixel_endcap = std::min(pixel_endcap,dqmFrac);
 //std::cout<<"Endcap numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_endcap<<std::endl;

@@ -23,7 +23,7 @@ SortingOutput  SortSect(PatternOutput Pout){
 		for(int zone=0;zone<4;zone++){
 			
 			temp[zone].SetValues(0,0);
-			for(int strip=0;strip<128;strip++){
+			for(int strip=0;strip<192;strip++){//was 128
 		
 				if(Detected.rank[zone][strip] > temp[zone].Rank()){temp[zone].SetValues(Detected.rank[zone][strip], strip);}
 		

@@ -1001,17 +1001,22 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length)
         {
           if (fTMB_Format2007)
             {
-              if (TMB_Firmware_Revision >= 0x50c3)   // TMB2007 rev.0x50c3
+	      /* Checks for TMB2007 firmware revisions ranges to detect data format
+               * rev.0x50c3 - first revision with changed format 
+               * rev.0x42D5 - oldest known from 06/21/2007
+               * There is 4-bits year value rollover in revision number (0 in 2016)
+               */
+              if ((TMB_Firmware_Revision >= 0x50c3) || (TMB_Firmware_Revision < 0x42D5))  
                 {
                   // On/off * nRPCs * nTimebins * 2 words/RPC/bin
                   TMB_WordsRPC = ((buf_1[0]&0x0010)>>4) * ((buf_1[0]&0x000c)>>2) * ((buf_1[0]>>5) & 0x1F) * 2;
                 }
-              else   // TMB2007 (may not work since TMB_Tbins != RPC_Tbins)
+              else   // original TMB2007 data format (may not work since TMB_Tbins != RPC_Tbins)
                 {
                   TMB_WordsRPC = ((buf_1[0]&0x0040)>>6) * ((buf_1[0]&0x0030)>>4) * TMB_Tbins * 2;
                 }
             }
-          else   // Old format
+          else   // Old format 2006
             {
               TMB_WordsRPC   = ((buf_1[2]&0x0040)>>6) * ((buf_1[2]&0x0030)>>4) * TMB_Tbins * 2;
             }
@@ -1350,7 +1355,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length)
 
               if( fDMB_Trailer )   // F-Trailer exists
                 {
-                  bCHAMB_STATUS[currentChamber] |= (buf_1[2]&0x0E00)>>9;      /// CFEB 1-3 FIFO Full
+                  bCHAMB_STATUS[currentChamber] |= (buf_1[2]&0x0E00)>>7;      /// CFEB 1-3 FIFO Full
                   bCHAMB_STATUS[currentChamber] |= (buf_1[3]&0x0003)<<3;      /// CFEB 4-5 FIFO Full
                   bCHAMB_STATUS[currentChamber] |= (buf_1[3]&0x000C)<<21;     /// CFEB 6-7 FIFO Full
                   bCHAMB_STATUS[currentChamber] |= (buf_1[3]&0x0800)>>4;      /// ALCT Start Timeout

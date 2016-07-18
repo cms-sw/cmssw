@@ -100,6 +100,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
   // get entries
   Long64_t nentries = treeL1Up->GetEntriesFast();
   if (nevents>nentries) nevents=nentries;
+  unsigned nZB = 0;
 
   std::cout << "Running over " << nevents << ", nentries = " << nentries << std::endl;
 
@@ -108,6 +109,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
     if((jentry%1000)==0) std::cout << "Done " << jentry  << " events..." << std::endl;
 
     treeL1Up->GetEntry(jentry);
+    nZB++;
     
     //cout << upgrade_->nJets << "\n";
 
@@ -130,28 +132,28 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
     int egEt(0);
     for(uint it=0; it<upgrade_->nEGs; ++it){
       hEgEt->Fill(0.5*upgrade_->egIEt[it]);
-      egEt = upgrade_->egIEt[it] > egEt ?  upgrade_->egIEt[it]  : egEt;
+      egEt = upgrade_->egEt[it] > egEt ?  upgrade_->egEt[it]  : egEt;
     }
     for(int bin=0; bin<nEgBins; bin++)
-      if(egEt*0.5 >= egLo + (bin*egBinWidth) ) egRates->Fill(egLo+(bin*egBinWidth)); //GeV
+      if(egEt >= egLo + (bin*egBinWidth) ) egRates->Fill(egLo+(bin*egBinWidth)); //GeV
     
     // get Tau rates
     int tauEt(0);
     for(uint it=0; it<upgrade_->nTaus; ++it){
       hTauEt->Fill(0.5*upgrade_->tauIEt[it]);
-      tauEt = upgrade_->tauIEt[it] > tauEt ? upgrade_->tauIEt[it] : tauEt;
+      tauEt = upgrade_->tauEt[it] > tauEt ? upgrade_->tauEt[it] : tauEt;
     }
     for(int bin=0; bin<nTauBins; bin++)
-      if( (tauEt*0.5) >= tauLo + (bin*tauBinWidth) ) tauRates->Fill(tauLo+(bin*tauBinWidth)); //GeV
+      if( tauEt >= tauLo + (bin*tauBinWidth) ) tauRates->Fill(tauLo+(bin*tauBinWidth)); //GeV
         
     // get Jet rates
     int jetEt(0);
     for(uint it=0; it<upgrade_->nJets; ++it){
       hJetEt->Fill(0.5*upgrade_->jetIEt[it]);
-      jetEt =  upgrade_->jetIEt[it] > jetEt ? upgrade_->jetIEt[it] : jetEt;
+      jetEt =  upgrade_->jetEt[it] > jetEt ? upgrade_->jetEt[it] : jetEt;
     }
     for(int bin=0; bin<nJetBins; bin++)
-      if( (jetEt*0.5) >= jetLo + (bin*jetBinWidth) ) jetRates->Fill(jetLo+(bin*jetBinWidth));  //GeV
+      if( jetEt >= jetLo + (bin*jetBinWidth) ) jetRates->Fill(jetLo+(bin*jetBinWidth));  //GeV
 
     double etSum  = -1.0;
     double htSum  = -1.0;
@@ -167,28 +169,28 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
     //std::cout << "mht:  " << mhtSum << "\n";
     //std::cout << "ht sum:  " << htSum << "\n";
 
-    hEtSum->Fill(0.5*etSum);
+    hEtSum->Fill(etSum);
     //std::cout << "et sum = " << etSum << std::endl;
     for(int bin=0; bin<nEtSumBins; bin++)
-      if( (etSum*0.5) >= etSumLo+(bin*etSumBinWidth) ) etSumRates->Fill(etSumLo+(bin*etSumBinWidth)); //GeV
+      if( etSum >= etSumLo+(bin*etSumBinWidth) ) etSumRates->Fill(etSumLo+(bin*etSumBinWidth)); //GeV
     
-    hHtSum->Fill(0.5*htSum);
+    hHtSum->Fill(htSum);
     //std::cout << "ht sum = " << htSum << std::endl;
     for(int bin=0; bin<nHtSumBins; bin++){
       //std::cout << "Ht? " << upgrade_->sumEt[1]->getType() << std::endl;
-      if( (htSum*0.5) >= htSumLo+(bin*htSumBinWidth) ) htSumRates->Fill(htSumLo+(bin*htSumBinWidth)); //GeV
+      if( htSum >= htSumLo+(bin*htSumBinWidth) ) htSumRates->Fill(htSumLo+(bin*htSumBinWidth)); //GeV
     }
 
     //hMetSum->Fill(0.5*metSum);
     //std::cout << "met sum = " << metSum << std::endl;
     for(int bin=0; bin<nMetSumBins; bin++)
-      if( (metSum*0.5) >= metSumLo+(bin*metSumBinWidth) ) metSumRates->Fill(metSumLo+(bin*metSumBinWidth)); //GeV
+      if( metSum >= metSumLo+(bin*metSumBinWidth) ) metSumRates->Fill(metSumLo+(bin*metSumBinWidth)); //GeV
         
     //hMhtSum->Fill(0.5*mhtSum]);
     //std::cout << "mht sum = " << mhtSum << std::endl;
     for(int bin=0; bin<nMhtSumBins; bin++){
       //std::cout << "Mht? " << upgrade_->sumEt[1]->getType() << std::endl;
-      if( (mhtSum*0.5) >= mhtSumLo+(bin*mhtSumBinWidth) ) mhtSumRates->Fill(mhtSumLo+(bin*mhtSumBinWidth)); //GeV
+      if( mhtSum >= mhtSumLo+(bin*mhtSumBinWidth) ) mhtSumRates->Fill(mhtSumLo+(bin*mhtSumBinWidth)); //GeV
     }
 
   }
@@ -198,7 +200,8 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
   double avrgInstLumi = 4.5e33; 
   double sigmaPP = 6.9e-26;
   //double norm = (avrgInstLumi*sigmaPP)/(nevents*1000); //kHz
-  double norm = (11.*2244.)/nevents; // zb rate = n_colliding * 11 kHz 
+
+  double norm = (11.246*2736.)/nZB; // zb rate = n_colliding * 11 kHz 
   std::cout << "norm = " << norm << std::endl;
 
   //make TGraphs
@@ -279,7 +282,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
   mg->Add(gTauRate);
   mg->Add(gJetRate);
   mg->SetMinimum(0.1);
-  mg->SetMaximum(3E3);
+  mg->SetMaximum(3E5);
   mg->Draw("APL");
   mg->GetXaxis()->SetTitle("Threshold [GeV]");
   mg->GetYaxis()->SetTitle("Rate [kHz]");
@@ -311,7 +314,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
   gMuRate->GetYaxis()->SetTitle("Rate");
   gMuRate->SetMarkerStyle(23);
   gMuRate->SetMarkerColor(kOrange);
-  gMuRate->GetYaxis()->SetRangeUser(1, 1e2);
+  gMuRate->GetYaxis()->SetRangeUser(1, 1e3);
 
   gMuRate->Draw("APL");
   gMuRate->GetXaxis()->SetTitle("Threshold [GeV]");

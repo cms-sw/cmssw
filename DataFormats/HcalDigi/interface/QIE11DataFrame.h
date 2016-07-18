@@ -64,9 +64,6 @@ public:
   bool capidError() const { return m_data[0]&MASK_CAPIDERROR; } 
   /// was this a mark-and-pass ZS event?
   bool zsMarkAndPass() const {return (flavor()==1); }
-  /// other ZS functions (TODO: real implementation)
-  bool zsUnsuppressed() const { return false; }
-  uint32_t zsCrossingMask() const { return 0; }
   /// get the sample
   inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(m_data,i+HEADER_WORDS); }
   void setCapid0(int cap0);

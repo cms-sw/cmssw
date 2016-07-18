@@ -14,10 +14,10 @@ HLT_HIL3Mu3BPTX_v*						# JIRA: CMSHLT-715
 HLT_FullTrack12ForEndOfFill_v*					# JIRA: CMSHLT-733
 HLT_FullTrack50_v*						# JIRA: CMSHLT-733
 
-#HLT_FullTracks_Multiplicity80_v*				# JIRA: CMSHLT-716
-#HLT_FullTracks_Multiplicity100_v*				# JIRA: CMSHLT-716
-#HLT_FullTracks_Multiplicity130_v*				# JIRA: CMSHLT-716
-#HLT_FullTracks_Multiplicity150_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity80_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity100_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity130_v*				# JIRA: CMSHLT-716
+HLT_FullTracks_Multiplicity150_v*				# JIRA: CMSHLT-716
 
 HLT_Physics_v*
 

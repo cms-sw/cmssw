@@ -19,7 +19,7 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
     #
     pathPairs = cms.VPSet(
         cms.PSet(
-            pathname = cms.string("HLT_QuadPFJet_BTagCSV_p037_VBF"),
+            pathname = cms.string("HLT_QuadPFJet_BTagCSV"),
             pathtype = cms.string("PF"),
         ),
         cms.PSet(

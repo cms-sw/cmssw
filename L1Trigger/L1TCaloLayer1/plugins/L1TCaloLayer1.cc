@@ -42,12 +42,15 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "L1Trigger/L1TCaloLayer1/src/L1TCaloLayer1FetchLUTs.hh"
 
 using namespace l1t;
+using namespace l1tcalo;
 
 //
 // class declaration
@@ -71,8 +74,6 @@ private:
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  bool makeHFLUTs();
-
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPSource;
@@ -84,14 +85,16 @@ private:
   std::vector< std::vector< std::vector < uint32_t > > > hcalLUT;
   std::vector< std::vector< uint32_t > > hfLUT;
 
-  std::vector< uint32_t > hfSFETBins;
-  std::vector< std::vector< double > > hfSF;
+  std::vector< UCTTower* > twrList;
 
   bool useLSB;
+  bool useCalib;
   bool useECALLUT;
   bool useHCALLUT;
   bool useHFLUT;
   bool verbose;
+  bool unpackHcalMask;
+  bool unpackEcalMask;
 
   UCTLayer1 *layer1;
 
@@ -117,28 +120,37 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   ecalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
   hcalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
   hfLUT(12, std::vector < uint32_t >(256)),
-  hfSFETBins(iConfig.getParameter<std::vector< uint32_t > >("hfSFETBins")),
-  hfSF(12, std::vector < double >(hfSFETBins.size())),
   useLSB(iConfig.getParameter<bool>("useLSB")),
+  useCalib(iConfig.getParameter<bool>("useCalib")),
   useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
   useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
-  verbose(iConfig.getParameter<bool>("verbose")) 
+  verbose(iConfig.getParameter<bool>("verbose")), 
+  unpackHcalMask(iConfig.getParameter<bool>("unpackHcalMask")),
+  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask"))
 {
-  hfSF[ 0] = iConfig.getParameter<std::vector < double > >("hfSF30");
-  hfSF[ 1] = iConfig.getParameter<std::vector < double > >("hfSF31");
-  hfSF[ 2] = iConfig.getParameter<std::vector < double > >("hfSF32");
-  hfSF[ 3] = iConfig.getParameter<std::vector < double > >("hfSF33");
-  hfSF[ 4] = iConfig.getParameter<std::vector < double > >("hfSF34");
-  hfSF[ 5] = iConfig.getParameter<std::vector < double > >("hfSF35");
-  hfSF[ 6] = iConfig.getParameter<std::vector < double > >("hfSF36");
-  hfSF[ 7] = iConfig.getParameter<std::vector < double > >("hfSF37");
-  hfSF[ 8] = iConfig.getParameter<std::vector < double > >("hfSF38");
-  hfSF[ 9] = iConfig.getParameter<std::vector < double > >("hfSF39");
-  hfSF[10] = iConfig.getParameter<std::vector < double > >("hfSF40");
-  hfSF[11] = iConfig.getParameter<std::vector < double > >("hfSF41");
   produces<CaloTowerBxCollection>();
+  produces<L1CaloRegionCollection>();
   layer1 = new UCTLayer1;
+  vector<UCTCrate*> crates = layer1->getCrates();
+  for(uint32_t crt = 0; crt < crates.size(); crt++) {
+    vector<UCTCard*> cards = crates[crt]->getCards();
+    for(uint32_t crd = 0; crd < cards.size(); crd++) {
+      vector<UCTRegion*> regions = cards[crd]->getRegions();
+      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
+	vector<UCTTower*> towers = regions[rgn]->getTowers();
+	for(uint32_t twr = 0; twr < towers.size(); twr++) {
+	  twrList.push_back(towers[twr]);
+	}
+      }
+    }
+  }
+
+  // This sort corresponds to the sort condition on
+  // the output CaloTowerBxCollection
+  std::sort(twrList.begin(), twrList.end(), [](UCTTower* a, UCTTower* b) {
+      return CaloTools::caloTowerHash(a->caloEta(), a->caloPhi()) < CaloTools::caloTowerHash(b->caloEta(), b->caloPhi());
+      });
 }
 
 L1TCaloLayer1::~L1TCaloLayer1() {
@@ -161,6 +173,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(hcalTPSource, hcalTPs);
 
   std::auto_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgnCollection (new L1CaloRegionCollection);
 
   uint32_t expectedTotalET = 0;
   if(!layer1->clearEvent()) {
@@ -169,21 +182,21 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   for ( const auto& ecalTp : *ecalTPs ) {
+    if ( unpackEcalMask && ((ecalTp.sample(0).raw()>>13) & 0x1) ) continue;
     int caloEta = ecalTp.id().ieta();
     int caloPhi = ecalTp.id().iphi();
     int et = ecalTp.compressedEt();
     bool fgVeto = ecalTp.fineGrain();
-    if(et != 0) {
-      UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
-      if(!layer1->setECALData(t,fgVeto,et)) {
-	LOG_ERROR << "UCT: Failed loading an ECAL tower" << std::endl;
-	return;
-      }
-      expectedTotalET += et;
+    UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
+    if(!layer1->setECALData(t,fgVeto,et)) {
+      LOG_ERROR << "UCT: Failed loading an ECAL tower" << std::endl;
+      return;
     }
+    expectedTotalET += et;
   }
 
   for ( const auto& hcalTp : *hcalTPs ) {
+    if ( unpackHcalMask && ((hcalTp.sample(0).raw()>>13) & 0x1) ) continue;
     int caloEta = hcalTp.id().ieta();
     uint32_t absCaloEta = abs(caloEta);
     // Tower 29 is not used by Layer-1
@@ -196,24 +209,24 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     else if(absCaloEta <= 41) {
       int caloPhi = hcalTp.id().iphi();
+      int et = hcalTp.SOI_compressedEt();
+      bool fg  = hcalTp.t0().fineGrain(0);
+      bool fg2 = hcalTp.t0().fineGrain(1);
       if(caloPhi <= 72) {
-	int et = hcalTp.SOI_compressedEt();
-	bool fg = hcalTp.SOI_fineGrain();
-	if(et != 0) {
-	  UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
-	  uint32_t featureBits = 0;
-	  if(fg) featureBits = 0x1F; // Set all five feature bits for the moment - they are not defined in HW / FW yet!
-	  if(!layer1->setHCALData(t, featureBits, et)) {
-	    LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
-	    LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
-	    return;
-	    
-	  }
-	  expectedTotalET += et;
-	}
+        UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
+        uint32_t featureBits = 0;
+        if(fg)  featureBits |= 0b01;
+        // fg2 should only be set for HF
+        if(absCaloEta > 29 && fg2) featureBits |= 0b10;
+        if(!layer1->setHCALData(t, featureBits, et)) {
+          LOG_ERROR << "caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;
+          LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
+          return;
+        }
+        expectedTotalET += et;
       }
       else {
-	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;	
+	LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << "; et = " << et << std::endl;	
       }
     }
     else {
@@ -221,43 +234,50 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
   
-  
    //Process
   if(!layer1->process()) {
     LOG_ERROR << "UCT: Failed to process layer 1" << std::endl;
   }
 
-
   int theBX = 0; // Currently we only read and process the "hit" BX only
 
-  towersColl->resize(theBX, CaloTools::caloTowerHashMax()+1);
-  
+  for(uint32_t twr = 0; twr < twrList.size(); twr++) {
+    CaloTower caloTower;
+    caloTower.setHwPt(twrList[twr]->et());               // Bits 0-8 of the 16-bit word per the interface protocol document
+    caloTower.setHwEtRatio(twrList[twr]->er());          // Bits 9-11 of the 16-bit word per the interface protocol document
+    caloTower.setHwQual(twrList[twr]->miscBits());       // Bits 12-15 of the 16-bit word per the interface protocol document
+    caloTower.setHwEta(twrList[twr]->caloEta());         // caloEta = 1-28 and 30-41
+    caloTower.setHwPhi(twrList[twr]->caloPhi());         // caloPhi = 1-72
+    caloTower.setHwEtEm(twrList[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
+    caloTower.setHwEtHad(twrList[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
+    towersColl->push_back(theBX, caloTower);
+  }
+
+  iEvent.put(towersColl);
+
+  UCTGeometry g;
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
     vector<UCTCard*> cards = crates[crt]->getCards();
     for(uint32_t crd = 0; crd < cards.size(); crd++) {
       vector<UCTRegion*> regions = cards[crd]->getRegions();
       for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-	vector<UCTTower*> towers = regions[rgn]->getTowers();
-	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  CaloTower caloTower;
-	  caloTower.setHwPt(towers[twr]->et());               // Bits 0-8 of the 16-bit word per the interface protocol document
-	  caloTower.setHwEtRatio(towers[twr]->er());          // Bits 9-11 of the 16-bit word per the interface protocol document
-	  caloTower.setHwQual(towers[twr]->miscBits());       // Bits 12-15 of the 16-bit word per the interface protocol document
-	  caloTower.setHwEta(towers[twr]->caloEta());         // caloEta = 1-28 and 30-41
-	  caloTower.setHwPhi(towers[twr]->caloPhi());         // caloPhi = 1-72
-	  caloTower.setHwEtEm(towers[twr]->getEcalET());      // This is provided as a courtesy - not available to hardware
-	  caloTower.setHwEtHad(towers[twr]->getHcalET());     // This is provided as a courtesy - not available to hardware
-
-	  unsigned hash = CaloTools::caloTowerHash(towers[twr]->caloEta(), towers[twr]->caloPhi());
-	  //	  towersColl->push_back(theBX, caloTower);
-	  towersColl->set(theBX, hash, caloTower);
+	uint32_t rawData = regions[rgn]->rawData();
+	uint32_t regionData = rawData & 0x0000FFFF;
+	uint32_t crate = regions[rgn]->getCrate();
+	uint32_t card = regions[rgn]->getCard();
+	uint32_t region = regions[rgn]->getRegion();
+	bool negativeEta = regions[rgn]->isNegativeEta();
+	uint32_t rPhi = g.getUCTRegionPhiIndex(crate, card);
+	if(region < NRegionsInCard) { // We only store the Barrel and Endcap - HF has changed in the upgrade
+	  uint32_t rEta = 10 - region; // UCT region is 0-6 for B/E but GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
+	  if(!negativeEta) rEta = 11 + region; // Positive eta portion is offset by 11
+	  rgnCollection->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) rEta, (unsigned) rPhi, (int16_t) 0));
 	}
       }
     }
   }  
-
-  iEvent.put(towersColl);
+  iEvent.put(rgnCollection);
 
 }
 
@@ -278,55 +298,16 @@ L1TCaloLayer1::endJob() {
 void
 L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, useLSB, useECALLUT, useHCALLUT)) {
+  if(!L1TCaloLayer1FetchLUTs(iSetup, ecalLUT, hcalLUT, hfLUT, useLSB, useCalib, useECALLUT, useHCALLUT, useHFLUT)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
-  if(!makeHFLUTs()) {
-    LOG_ERROR << "L1TCaloLayer1::beginRun: failed to make HF LUTs - using unity" << std::endl;
-  }
-  vector<UCTCrate*> crates = layer1->getCrates();
-  for(uint32_t crt = 0; crt < crates.size(); crt++) {
-    vector<UCTCard*> cards = crates[crt]->getCards();
-    for(uint32_t crd = 0; crd < cards.size(); crd++) {
-      vector<UCTRegion*> regions = cards[crd]->getRegions();
-      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-	vector<UCTTower*> towers = regions[rgn]->getTowers();
-	for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	  if(rgn < l1tcalo::NRegionsInCard) {
-	    towers[twr]->setECALLUT(&ecalLUT);
-	    towers[twr]->setHCALLUT(&hcalLUT);
-	  }
-	  else {
-	    towers[twr]->setHFLUT(&hfLUT);
-	  }
-	}
-      }
-    }
+  for(uint32_t twr = 0; twr < twrList.size(); twr++) {
+    twrList[twr]->setECALLUT(&ecalLUT);
+    twrList[twr]->setHCALLUT(&hcalLUT);
+    twrList[twr]->setHFLUT(&hfLUT);
   }
 }
 
-bool 
-L1TCaloLayer1::makeHFLUTs() {
-  uint32_t nETBins = hfSFETBins.size();
-  for(uint32_t etaBin = 0; etaBin < 12; etaBin++) {
-    for(uint32_t etCode = 0; etCode < 256; etCode++) {
-      if(useHFLUT && nETBins != 0) {
-	uint32_t etBin = 0;
-	for(; etBin < nETBins; etBin++) {
-	  if(etCode < hfSFETBins[etBin]) break;
-	}
-	hfLUT[etaBin][etCode] = etCode * hfSF[etaBin][etBin];
-      }
-      else {
-	hfLUT[etaBin][etCode] = etCode;
-      }
-    }
-  }
-  if(nETBins == 0) {
-    return false;
-  }
-  return true;
-}
 
 // ------------ method called when ending the processing of a run  ------------
 /*
@@ -364,3 +345,4 @@ L1TCaloLayer1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TCaloLayer1);
+/* vim: set ts=8 sw=2 tw=0 et :*/

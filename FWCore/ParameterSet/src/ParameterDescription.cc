@@ -645,6 +645,7 @@ namespace edm {
         writeValueInVector<T>(os, value_[0], format);
       } else if(value_.size() >= 1U) {
         if(format == DOC) os << "(vector size = " << value_.size() << ")";
+        if(format == CFI and value_.size() > 255U) os << " *(";
         os.fill(' ');
         bool startWithComma = false;
         int i = 0;
@@ -656,6 +657,7 @@ namespace edm {
                                     format,
                                     std::ref(i)));
         if(format == CFI) os << "\n" << std::setw(indentation) << "";
+        if(format == CFI and value_.size() > 255U) os << ") ";
       }
       os.flags(ff);
       os.fill(oldFill);

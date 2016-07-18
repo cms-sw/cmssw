@@ -7,8 +7,11 @@ namespace l1t {
       BMTFCollections::~BMTFCollections()
       {
 				event_.put(outputMuons_,"BMTF");
+				//event_.put(inputMuonsPh_,"PhiDigis");
+				//event_.put(inputMuonsTh_,"TheDigis");
 				event_.put(inputMuonsPh_);
-				event_.put(inputMuonsTh_);
+                                event_.put(inputMuonsTh_);
+
       }
    }
 }

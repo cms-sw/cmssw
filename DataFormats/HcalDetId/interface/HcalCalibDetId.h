@@ -5,11 +5,10 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 
-
 /** \class HcalCalibDetId
   *  
   *  Contents of the HcalCalibDetId :
-  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HX)
+  *     [19:17] Calibration Category (1 = CalibUnit, 2 = HX, 3=uMNio/qie, 4=CastorRad)
   *
   *  For CalibUnit:
   *     [16:14] Subdetector
@@ -20,14 +19,23 @@
   *  For HX (HOCrosstalk) channels:
   *     [11] side (true = positive)
   *     [10:7] ieta
-  *     [6:0] Iphi
+  *     [6:0] iphi
+  *
+  *  For uMNqie channels:
+  *     [7:0] channel (typically just 0 or 1, but space for more if needed)
+  *
+  *  For Castor Radiation Facility:
+  *     [16:10] RM
+  *     [9:5] fiber-in-rm
+  *     [4:0] channel-on-fiber
+  *     
   *
   * \author J. Mans - Minnesota
   */
 class HcalCalibDetId : public HcalOtherDetId {
 public:
   /** Type identifier within calibration det ids */
-  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2 };
+  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4 };
 
   /** Create a null det id */
   HcalCalibDetId();
@@ -40,6 +48,10 @@ public:
   HcalCalibDetId(HcalSubdetector subdet, int ieta, int iphi, int ctype);
   /** Construct an HO Crosstalk id  */
   HcalCalibDetId(int ieta, int iphi);
+  /** Construct a uMNqie id or other id which uses a single value plus a DetType */
+  HcalCalibDetId(CalibDetType dt, int value);
+    /** Construct a Castor radiation test facility id or other id which uses three values plus a DetType */
+  HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3);
 
   /// get the flavor of this calibration detid
   CalibDetType calibFlavor() const { return (CalibDetType)((id_>>17)&0x7); }
@@ -57,6 +69,13 @@ public:
   int cboxChannel() const;
   /// get the calibration box channel as a string (if relevant)
   std::string cboxChannelString() const;
+
+  /// get the rm (where relevant)
+  int rm() const;
+  /// get the fiber (where relevant)
+  int fiber() const;
+  /// get the channel (for uMNio/qie or similar)
+  int channel() const;
 
   /// get the sign of ieta (+/-1)
   int zside() const;

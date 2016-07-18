@@ -97,7 +97,7 @@ void GlobalAlgBlk::setAlgoDecisionInitial(unsigned int bit, bool val)
    }
    
 }
-void GlobalAlgBlk::setAlgoDecisionPreScaled(unsigned int bit, bool val) 
+void GlobalAlgBlk::setAlgoDecisionInterm(unsigned int bit, bool val) 
 { 
 
    if(bit < m_algoDecisionPreScaled.size()) {
@@ -127,7 +127,7 @@ bool GlobalAlgBlk::getAlgoDecisionInitial(unsigned int bit) const
    if(bit>=m_algoDecisionInitial.size()) return false;
    return m_algoDecisionInitial.at(bit); 
 }
-bool GlobalAlgBlk::getAlgoDecisionPreScaled(unsigned int bit) const
+bool GlobalAlgBlk::getAlgoDecisionInterm(unsigned int bit) const
 { 
    if(bit>=m_algoDecisionPreScaled.size()) return false;
    return m_algoDecisionPreScaled.at(bit); 
@@ -164,13 +164,12 @@ void GlobalAlgBlk::reset()
 // pretty print the content of a GlobalAlgBlk
 void GlobalAlgBlk::print(std::ostream& myCout) const
 {
-
     
     myCout << " uGtGlobalAlgBlk: " << std::endl;
-    
-    myCout << "    Orbit Number (hex):  0x" << std::hex << std::setw(8) << std::setfill('0') << m_orbitNr << std::endl;
 
-    myCout << "    Bx Number (hex):     0x" << std::hex << std::setw(4) << std::setfill('0') << m_bxNr << std::endl;
+    myCout << "    L1 Menu Name (hash):  0x" << std::hex << m_orbitNr << std::endl;
+
+    myCout << "    L1 firmware (hash):   0x" << std::hex << m_bxNr << std::endl;
 
     myCout << "    Local Bx (hex):      0x" << std::hex << std::setw(1) << std::setfill('0') << m_bxInEvent << std::endl;
     

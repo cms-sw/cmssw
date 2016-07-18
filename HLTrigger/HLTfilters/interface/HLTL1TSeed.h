@@ -26,7 +26,7 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -35,7 +35,7 @@ class L1GtTriggerMenu;
 class L1GtTriggerMask;
 class L1GlobalTriggerReadoutRecord;
 
-class L1GlobalTriggerObjectMapRecord;
+class GlobalObjectMapRecord;
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -79,16 +79,16 @@ private:
 private:
 
     /// logic parser for m_l1SeedsLogicalExpression
-    L1GtLogicParser m_l1AlgoLogicParser;
+    GlobalLogicParser m_l1AlgoLogicParser;
 
     /// list of required algorithms for seeding
-    std::vector<L1GtLogicParser::OperandToken> m_l1AlgoSeeds;
+    std::vector<GlobalLogicParser::OperandToken> m_l1AlgoSeeds;
 
     /// vector of Rpn vectors for the required algorithms for seeding
-    std::vector< const std::vector<L1GtLogicParser::TokenRPN>* > m_l1AlgoSeedsRpn;
+    std::vector< const std::vector<GlobalLogicParser::TokenRPN>* > m_l1AlgoSeedsRpn;
 
     /// vector of object-type vectors for each condition in the required algorithms for seeding
-    std::vector< std::vector< const std::vector<L1GtObject>* > > m_l1AlgoSeedsObjType;
+    std::vector< std::vector< const std::vector<l1t::GlobalObject>* > > m_l1AlgoSeedsObjType;
 
 
 private:
@@ -103,7 +103,7 @@ private:
 
     /// InputTag for L1 Global Trigger object maps. This is done per menu. Should be part of Run.
     edm::InputTag                                    m_l1GtObjectMapTag;
-    edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;
+    edm::EDGetTokenT<GlobalObjectMapRecord>           m_l1GtObjectMapToken;
 
     /// InputTag for L1 Global Trigger 
     edm::InputTag                                    m_l1GlobalTag;

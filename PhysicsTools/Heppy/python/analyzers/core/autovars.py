@@ -132,11 +132,12 @@ class NTupleSubObject:
 
 class NTupleObject:
     """Type defining a set of branches associated to a single object (i.e. an instance of NTupleObjectType)"""
-    def __init__(self, name, objectType, help="", mcOnly=False):
+    def __init__(self, name, objectType, help="", mcOnly=False, nillable=False):
         self.name = name
         self.objectType = objectType
         self.mcOnly = mcOnly
         self.help = ""
+        self.nillable = nillable
     def makeBranches(self,treeNumpy,isMC):
         if not isMC and self.mcOnly: return
         allvars = self.objectType.allVars(isMC)
@@ -146,6 +147,9 @@ class NTupleObject:
             treeNumpy.var("%s_%s" % (self.name, v.name), type=v.type, default=v.default, title=h, filler=v.filler)
     def fillBranches(self,treeNumpy,object,isMC):
         if self.mcOnly and not isMC: return
+        if object is None:
+            if self.nillable: return
+            raise RuntimeError, "Error, object not found or None when filling branch %s" % self.name
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
             treeNumpy.fill("%s_%s" % (self.name, v.name), v(object))
@@ -178,6 +182,7 @@ class NTupleObject:
         s += "    def __init__(self, {0}):\n".format(",".join(vs))
         for v, h in zip(vs, helps):
             s += "        self.{0} = {0} #{1}\n".format(v, h)
+        s += "        pass\n"
         return s
 
 class NTupleCollection:
@@ -256,16 +261,17 @@ class NTupleCollection:
 
     def get_py_wrapper_class(self, isMC):
          s = "class %s:\n" % self.name
+         s += "    def __init__(self, tree, n):\n"
          if len(self.objectType.allVars(isMC)):
-             s += "    def __init__(self, tree, n):\n"
              for v in self.objectType.allVars(isMC):
                  if len(v.name)>0:
                      s += "        self.{0} = tree.{1}_{2}[n];\n".format(v.name, self.name, v.name)
                  else:
                      s += "        self.{0} = tree.{0}[n];\n".format(self.name)
+         s += "        pass\n"
   
          s += "    @staticmethod\n"
-         s += "    def make_array(event):\n"
-         s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
+         s += "    def make_array(input):\n"
+         s += "        return [{0}(input, i) for i in range(input.n{0})]\n".format(self.name)
  
          return s

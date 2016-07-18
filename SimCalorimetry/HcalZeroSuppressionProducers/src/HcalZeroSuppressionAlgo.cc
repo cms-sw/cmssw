@@ -93,12 +93,12 @@ void HcalZeroSuppressionAlgo::suppress(const QIE10DigiCollection& input, QIE10Di
 	output.push_back(*i);
       } else {
 	QIE10DataFrame df(*i);
-	//df.setZSInfo(true,false);
+	df.setZSInfo(false);
 	output.push_back(df);
       }
     } else if (m_markAndPass) {
       QIE10DataFrame df(*i);
-      //df.setZSInfo(true,true);
+      df.setZSInfo(true);
       output.push_back(df);
     }
   }
