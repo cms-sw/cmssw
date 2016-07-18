@@ -3,6 +3,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+
 #include <cassert>
 
 #include "getBestVertex.h"
@@ -36,13 +38,36 @@ namespace {
     
   inline float chi2n(reco::Track const & tk) { return tk.normalizedChi2();}
 
+  inline float relPtErr(reco::Track const & tk) {
+    return  (tk.pt() != 0. ? float(tk.ptError())/float(tk.pt()) : 9999999.);
+  }
+
   inline int lostLayers(reco::Track const & tk) {
     return tk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
   }
   
-  inline int n3DLayers(reco::Track const & tk) {
-    return tk.hitPattern().pixelLayersWithMeasurement() +
-      tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+  inline int n3DLayers(reco::Track const & tk, bool isHLT) {
+    uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement();    
+    if (!isHLT)
+      nlayers3D += tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
+    else {
+      size_t count3D = 0;
+      for ( auto it = tk.recHitsBegin(), et = tk.recHitsEnd(); it!=et; ++it) {
+	const TrackingRecHit* hit = (*it);
+	if ( trackerHitRTTI::isUndef(*hit) ) continue;
+	
+	if ( hit->dimension()==2 ) {
+	  auto const & thit = static_cast<BaseTrackerRecHit const&>(*hit);
+	  if (thit.isMatched()) count3D++;
+	}
+      }
+      nlayers3D += count3D;
+    }
+    return nlayers3D;
+  }
+  
+  inline int nHits(reco::Track const & tk) {
+    return tk.numberOfValidHits();
   }
   
   inline int nPixelHits(reco::Track const & tk) {
@@ -121,13 +146,17 @@ namespace {
   struct Cuts {
     
     Cuts(const edm::ParameterSet & cfg) {
+      isHLT = cfg.getParameter<bool>("isHLT");
       fillArrayF(minNdof,      cfg,"minNdof");
       fillArrayF(maxChi2,      cfg,"maxChi2");
       fillArrayF(maxChi2n,     cfg,"maxChi2n");
+      fillArrayI(minHits4pass, cfg,"minHits4pass");
+      fillArrayI(minHits,      cfg,"minHits");
       fillArrayI(minPixelHits, cfg,"minPixelHits");
       fillArrayI(min3DLayers,  cfg,"min3DLayers");
       fillArrayI(minLayers,    cfg,"minLayers");
       fillArrayI(maxLostLayers,cfg,"maxLostLayers");
+      fillArrayF(maxRelPtErr,  cfg,"maxRelPtErr");
       minNVtxTrk = cfg.getParameter<int>("minNVtxTrk");
       fillArrayF(maxDz,        cfg,"maxDz");
       fillArrayF(maxDzWrtBS,   cfg,"maxDzWrtBS");
@@ -154,6 +183,17 @@ namespace {
 		     GBRForest const *) const {
       
       float ret = 1.f;
+      // minimum number of hits for by-passing the other checks
+      if ( minHits4pass[0] < std::numeric_limits<int>::max() ) {
+	ret = std::min(ret,cut(nHits(trk),minHits4pass,std::greater_equal<int>()));
+	if (ret==1.f) return ret;
+      }
+
+      if ( maxRelPtErr[2] < std::numeric_limits<float>::max() ) {
+	ret = std::min(ret,cut(relPtErr(trk),maxRelPtErr,std::less_equal<float>()) );
+	if (ret==-1.f) return ret;
+      }
+
       ret = std::min(ret,cut(float(trk.ndof()),minNdof,std::greater_equal<float>()) );
       if (ret==-1.f) return ret;
 
@@ -167,7 +207,10 @@ namespace {
       ret = std::min(ret,cut(chi2n(trk),maxChi2,std::less_equal<float>()));
       if (ret==-1.f) return ret;
      
-      ret = std::min(ret,cut(n3DLayers(trk),min3DLayers,std::greater_equal<int>()));
+      ret = std::min(ret,cut(n3DLayers(trk,isHLT),min3DLayers,std::greater_equal<int>()));
+      if (ret==-1.f) return ret;
+
+      ret = std::min(ret,cut(nHits(trk),minHits,std::greater_equal<int>()));
       if (ret==-1.f) return ret;
 
       ret = std::min(ret,cut(nPixelHits(trk),minPixelHits,std::greater_equal<int>()));
@@ -266,10 +309,14 @@ namespace {
     static const char * name() { return "TrackCutClassifier";}
 
     static void fillDescriptions(edm::ParameterSetDescription & desc) {
+      desc.add<bool>("isHLT",false);
+      desc.add<std::vector<int>>("minHits4pass", { std::numeric_limits<int>::max(),  std::numeric_limits<int>::max(),  std::numeric_limits<int>::max() } );
+      desc.add<std::vector<int>>("minHits",      { 0, 0, 1});
       desc.add<std::vector<int>>("minPixelHits", { 0, 0, 1});
       desc.add<std::vector<int>>("minLayers",    { 3, 4, 5});
       desc.add<std::vector<int>>("min3DLayers",  { 1, 2, 3});
       desc.add<std::vector<int>>("maxLostLayers",{99, 3, 3});
+      desc.add<std::vector<double>>("maxRelPtErr",  { std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max() } );
       desc.add<std::vector<double>>("minNdof",      {-1.,  -1., -1.});
       desc.add<std::vector<double>>("maxChi2",      {9999.,25., 16. });
       desc.add<std::vector<double>>("maxChi2n",     {9999., 1.0, 0.4});
@@ -298,11 +345,15 @@ namespace {
 
     }
 
+    bool isHLT;
+    float maxRelPtErr[3];
     float minNdof[3];
     float maxChi2[3];
     float maxChi2n[3];
     int minLayers[3];
     int min3DLayers[3];
+    int minHits4pass[3];
+    int minHits[3];
     int minPixelHits[3];
     int maxLostLayers[3];
     int minNVtxTrk;
