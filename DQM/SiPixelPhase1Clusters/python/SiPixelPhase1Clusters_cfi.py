@@ -21,6 +21,8 @@ SiPixelPhase1ClustersSize = DefaultHisto.clone(
   xlabel = "size[pixels]",
   specs = cms.VPSet(
     StandardSpecification2DProfile,
+    StandardSpecificationTrend,
+    *StandardSpecifications1D
   )
 )
 
@@ -31,7 +33,8 @@ SiPixelPhase1ClustersNClusters = DefaultHisto.clone(
   xlabel = "clusters",
   dimensions = 0,
   specs = cms.VPSet(
-    StandardSpecification2DProfile_Num
+    StandardSpecification2DProfile_Num,
+    StandardSpecificationTrend_Num
   )
 )
 

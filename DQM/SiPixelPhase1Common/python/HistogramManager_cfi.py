@@ -104,7 +104,7 @@ StandardSpecificationTrend = ( # the () are only for syntax reasons
 StandardSpecification2DProfile = (
     Specification(PerLayer2D)
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade/signedModule|PXPanel")
-       .reduce("MEAN") # should be MEAN, not supported yet.
+       .reduce("MEAN")
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
        .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
        .save()
@@ -125,7 +125,7 @@ StandardSpecifications1D_Num = [
 ]
 
 StandardSpecificationTrend_Num = (
-    Specification().groupBy("PXBarrel|PXForward/Lumisection" + "/DetId/Event")
+    Specification().groupBy("PXBarrel|PXForward/Lumisection" + "/PXLayer|PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel|PXForward/Lumisection")
                    .reduce("MEAN")
