@@ -239,11 +239,11 @@ def getSchema(tp):
         return tp.__table_args__['schema']
     return None
 
-# notice: the table names are _LOWERCASE_. When turned to uppercase, the sqlalchemy ORM queries on GLOBAL_TAG and GLOBAL_TAG_MAP
+# notice: the GT table names are _LOWERCASE_. When turned to uppercase, the sqlalchemy ORM queries on GLOBAL_TAG and GLOBAL_TAG_MAP
 # dont work ( probably clashes with a GLOBAL keyword in their code?  
 
 class Tag:
-    __tablename__       = 'tag'
+    __tablename__       = 'TAG'
     columns             = { 'name': (sqlalchemy.String(name_length),_Col.pk), 
                             'time_type': (sqlalchemy.Enum(*tuple(TimeType)),_Col.notNull),
                             'object_type': (sqlalchemy.String(name_length),_Col.notNull),
@@ -256,7 +256,7 @@ class Tag:
 
 
 class Payload:
-    __tablename__       = 'payload'
+    __tablename__       = 'PAYLOAD'
     columns             = { 'hash': (sqlalchemy.CHAR(hash_length),_Col.pk),
                             'object_type': (sqlalchemy.String(name_length),_Col.notNull),
                             'data': (sqlalchemy.BLOB,_Col.notNull),
@@ -266,7 +266,7 @@ class Payload:
 
 
 class IOV:
-    __tablename__       = 'iov'
+    __tablename__       = 'IOV'
     columns             = { 'tag_name':(DbRef(Tag,'name'),_Col.pk),    
                             'since':(sqlalchemy.BIGINT,_Col.pk),
                             'insertion_time':(sqlalchemy.TIMESTAMP,_Col.pk),
@@ -293,7 +293,7 @@ class GlobalTagMap:
 
 
 class TagLog:
-    __tablename__       = 'tag_log'
+    __tablename__       = 'TAG_LOG'
     columns             = { 'tag_name':(DbRef(Tag,'name'),_Col.pk),
                             'event_time':(sqlalchemy.TIMESTAMP,_Col.pk), 
                             'action':(sqlalchemy.String(100),_Col.pk),
