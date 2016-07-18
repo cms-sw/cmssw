@@ -6,7 +6,7 @@
   @class SiStripNoisesDQMService
   @author M. De Mattia, S. Dutta, D. Giordano
 
-  @popcon::PopConSourceHandler to read modules flagged by the DQM as bad and write in the database.
+  @popcon::PopConSourceHandler to extract noise values the DQM as bad and write in the database.
 */
 class SiStripPopConNoisesHandlerFromDQM : public SiStripPopConSourceHandler<SiStripNoises>, private SiStripDQMStoreReader
 {

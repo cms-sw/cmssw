@@ -6,7 +6,7 @@
   @class SiStripPopConPedestalsHandlerFromDQM
   @author M. De Mattia, S. Dutta, D. Giordano
 
-  @popcon::PopConSourceHandler to read modules flagged by the DQM as bad and write in the database.
+  @popcon::PopConSourceHandler to extract pedestal values the DQM as bad and write in the database.
 */
 class SiStripPopConPedestalsHandlerFromDQM : public SiStripPopConSourceHandler<SiStripPedestals>, private SiStripDQMStoreReader
 {
