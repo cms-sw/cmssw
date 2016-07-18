@@ -108,8 +108,8 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     geometry->add(r);
 
     auto rls = chids.find(chid);
-    if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::set<RPCRoll*>())).first;
-    rls->second.insert(r);
+    if ( rls == chids.end() ) rls = chids.insert(std::make_pair(chid, std::list<RPCRoll*>())).first;
+    rls->second.push_back(r);
   }
 
   // Create the RPCChambers and store them on the Geometry
@@ -143,8 +143,8 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
         bp = new BoundPlane(gpOfCentre, refSurf.rotation(), bounds);
       }
       else {
-        float cornersLo[3] = {0,}, cornersHi[3] = {0,};
-        float cornersZ[2] = {0,};
+        float cornersLo[3] = {0,0,0}, cornersHi[3] = {0,0,0};
+        float cornersZ[2] = {0,0};
         for ( auto rl : rls ) {
           const double h2 = rl->surface().bounds().length()/2;
           const double w2 = rl->surface().bounds().width()/2;

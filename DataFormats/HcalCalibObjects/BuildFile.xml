@@ -1,6 +1,5 @@
 <use   name="DataFormats/Common"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Framework"/>
 <export>
   <lib   name="1"/>
 </export>
