@@ -40,6 +40,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
     int32_t ex(0), ey(0), et(0);
     int32_t exHF(0), eyHF(0), etHF(0);
+    int32_t etem(0);
     uint32_t mb0(0), mb1(0);
 
     for (unsigned absieta=1; absieta<=(uint)CaloTools::mpEta(CaloTools::kHFEnd); absieta++) {
@@ -50,17 +51,18 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
       int32_t ringEx(0), ringEy(0), ringEt(0);
       int32_t ringExHF(0), ringEyHF(0), ringEtHF(0);
+      int32_t ringEtEm(0);
       uint32_t ringMB0(0), ringMB1(0);
 
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
-      
+
         l1t::CaloTower tower = l1t::CaloTools::getTower(towers, CaloTools::caloEta(ieta), iphi);
-	
-	
+
+
 	// MET without HF
 
 	if (tower.hwPt()>metTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMax_)) {
-	    
+
 	  // x- and -y coefficients are truncated by after multiplication of Et by trig coefficient.
 	  // The trig coefficients themselves take values [-1023,1023] and so were scaled by
 	  // 2^10 = 1024, which requires bitwise shift to the right of the final value by 10 bits.
@@ -69,13 +71,12 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	  ringEy += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
 
-
 	// MET *with* HF
 	if (tower.hwPt()>metTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(metEtaMaxHF_)) {
 	  ringExHF += (int32_t) (tower.hwPt() * CaloTools::cos_coeff[iphi - 1] );
 	  ringEyHF += (int32_t) (tower.hwPt() * CaloTools::sin_coeff[iphi - 1] );	    
 	}
-	  
+
 	// scalar sum
 	if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMax_)) 
 	  ringEt += tower.hwPt();
@@ -84,6 +85,10 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	if (tower.hwPt()>ettTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_)) 
 	  ringEtHF += tower.hwPt();
 		
+  // scalar sum (EM)
+  if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_)
+    ringEtEm += tower.hwEtEm();
+
 	// count HF tower HCAL flags
 	if (CaloTools::mpEta(abs(tower.hwEta()))>=CaloTools::mpEta(CaloTools::kHFBegin) &&
 	    CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(CaloTools::kHFEnd) &&
@@ -98,6 +103,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       etHF += ringEtHF;
       exHF += ringExHF;
       eyHF += ringEyHF;
+
+      etem  += ringEtEm;
+
       mb0 += ringMB0;
       mb1 += ringMB1;
 
@@ -116,6 +124,8 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     l1t::EtSum etSumExHF(p4,l1t::EtSum::EtSumType::kTotalEtxHF,exHF,0,0,0);
     l1t::EtSum etSumEyHF(p4,l1t::EtSum::EtSumType::kTotalEtyHF,eyHF,0,0,0);
 
+    l1t::EtSum etSumTotalEtEm(p4,l1t::EtSum::EtSumType::kTotalEtEm,etem,0,0,0);
+
     l1t::EtSum::EtSumType type0 = l1t::EtSum::EtSumType::kMinBiasHFP0;
     l1t::EtSum::EtSumType type1 = l1t::EtSum::EtSumType::kMinBiasHFP1;
     if (etaSide<0) {
@@ -128,10 +138,12 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     etsums.push_back(etSumTotalEt);
     etsums.push_back(etSumEx);
     etsums.push_back(etSumEy);
-    
+
     etsums.push_back(etSumTotalEtHF);
     etsums.push_back(etSumExHF);
     etsums.push_back(etSumEyHF);
+
+    etsums.push_back(etSumTotalEtEm);
 
     etsums.push_back(etSumMinBias0);
     etsums.push_back(etSumMinBias1);
