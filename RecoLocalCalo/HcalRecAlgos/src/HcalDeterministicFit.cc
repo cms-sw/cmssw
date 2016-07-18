@@ -16,14 +16,13 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, NegStrategy nStrat, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
   for(int fi=0; fi<9; fi++){
 	fpars[fi] = pars.at(fi);
   }
 
   fTimeSlew=tsParam;
   fTimeSlewBias=bias;
-  fNegStrat=nStrat;
   fPedestalSubFxn_=pedSubFxn_;
   frespCorr=respCorr;
 }
@@ -89,10 +88,9 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   else if (fTimeSlew==2)respCorr=rCorr[1];
   else if (fTimeSlew==3)respCorr=frespCorr;
 
-
-  float tsShift3=HcalTimeSlew::delay(inputCharge[3],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift4=HcalTimeSlew::delay(inputCharge[4],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift5=HcalTimeSlew::delay(inputCharge[5],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
 
   float i3=0;
   getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
@@ -115,18 +113,6 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   float ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
   float ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
 
-  if (ch3<negThresh[0] && fNegStrat==HcalDeterministicFit::MoveCharge) {
-    ch3=negThresh[0];
-    ch4=corrCharge[4]/i4;
-    ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
-  }
-
-  if (ch5<negThresh[0] && fNegStrat==HcalDeterministicFit::MoveCharge) {
-    ch4=ch4+(ch5-negThresh[0]);
-    ch5=negThresh[0];
-  }
-
-  if (fNegStrat==HcalDeterministicFit::MoveTiming) {
     if (ch3<negThresh[0]) {
       ch3=negThresh[0];
       ch4=corrCharge[4]/i4;
@@ -143,7 +129,6 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
         tsShift4=invG;
       }
     }
-  }
 
   if (ch3<1) {
     ch3=0;

@@ -67,7 +67,7 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 void HcalSimpleRecAlgo::setMeth3Params(int iPedSubMethod, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3) {
 
   pedSubFxn_->init(((PedestalSub::Method)iPedSubMethod), 0, iPedSubThreshold, 0.0);
-  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, (HcalDeterministicFit::NegStrategy)2, *pedSubFxn_, iTimeSlewPars,irespCorrM3);
+  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, *pedSubFxn_, iTimeSlewPars,irespCorrM3);
 }
 
 void HcalSimpleRecAlgo::setForData (int runnum) { 
