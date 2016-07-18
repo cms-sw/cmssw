@@ -42,6 +42,8 @@ muonSeededMeasurementEstimatorForInOut = _muonSeededMeasurementEstimatorForInOut
 eras.trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForInOut, _muonSeededMeasurementEstimatorForInOutBase.clone(
     MaxChi2 = 400
 ))
+eras.trackingPhase2PU140.toModify(muonSeededMeasurementEstimatorForInOut, MaxChi2 = 400.0, MaxSagitta = 2)
+
 _muonSeededMeasurementEstimatorForOutInBase = _Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForOutIn'),
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
@@ -233,10 +235,15 @@ muonSeededStepCore = cms.Sequence(
     muonSeededStepCoreInOut +
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
 )
+#Phase2 : just muon Seed InOut is used in this moment
+eras.trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
 muonSeededStepExtraInOut = cms.Sequence(
     muonSeededTracksInOutClassifier
 )
 eras.trackingPhase1PU70.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
+    muonSeededTracksInOutSelector
+))
+eras.trackingPhase2PU140.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
     muonSeededTracksInOutSelector
 ))
 muonSeededStepExtra = cms.Sequence(
@@ -246,6 +253,9 @@ muonSeededStepExtra = cms.Sequence(
 eras.trackingPhase1PU70.toReplaceWith(muonSeededStepExtra, cms.Sequence(
     muonSeededStepExtraInOut +
     muonSeededTracksOutInSelector
+))
+eras.trackingPhase2PU140.toReplaceWith(muonSeededStepExtra, cms.Sequence(
+    muonSeededStepExtraInOut
 ))
 
 muonSeededStep = cms.Sequence(
