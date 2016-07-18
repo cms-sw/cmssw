@@ -14,6 +14,12 @@ L1TriggerKeyDummyProdExt::L1TriggerKeyDummyProdExt(const edm::ParameterSet& iCon
    m_key.setTSCKey( iConfig.getParameter< std::string >( "tscKey" ) ) ;
    m_key.setSubsystemKey( L1TriggerKeyExt::kuGT,
 			  iConfig.getParameter< std::string >( "uGTKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKeyExt::kuGMT,
+			  iConfig.getParameter< std::string >( "uGMTKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKeyExt::kBMTF,
+			  iConfig.getParameter< std::string >( "BMTFKey" ) ) ;
+   m_key.setSubsystemKey( L1TriggerKeyExt::kCALO,
+			  iConfig.getParameter< std::string >( "CALOKey" ) ) ;
 
    if( label != "SubsystemKeysOnly" )
      {
@@ -54,12 +60,7 @@ L1TriggerKeyDummyProdExt::ReturnType
 L1TriggerKeyDummyProdExt::produce(const L1TriggerKeyExtRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TriggerKeyExt> pL1TriggerKey ;
-
-   pL1TriggerKey = boost::shared_ptr< L1TriggerKeyExt >(
-      new L1TriggerKeyExt( m_key ) ) ;
-
-   return pL1TriggerKey ;
+   return std::make_shared< L1TriggerKeyExt >(m_key) ;
 }
 
 //define this as a plug-in

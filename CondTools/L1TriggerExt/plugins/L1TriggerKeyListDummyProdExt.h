@@ -2,7 +2,6 @@
 #define CondTools_L1Trigger_L1TriggerKeyListDummyProdExt_h
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -17,7 +16,7 @@ class L1TriggerKeyListDummyProdExt : public edm::ESProducer {
       L1TriggerKeyListDummyProdExt(const edm::ParameterSet&);
       ~L1TriggerKeyListDummyProdExt();
 
-      typedef boost::shared_ptr<L1TriggerKeyListExt> ReturnType;
+      typedef std::shared_ptr<L1TriggerKeyListExt> ReturnType;
 
       ReturnType produce(const L1TriggerKeyListExtRcd&);
    private:
