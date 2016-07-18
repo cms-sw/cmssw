@@ -28,12 +28,7 @@ L1TriggerKeyListDummyProdExt::ReturnType
 L1TriggerKeyListDummyProdExt::produce(const L1TriggerKeyListExtRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TriggerKeyListExt> pL1TriggerKeyList ;
-
-   pL1TriggerKeyList = boost::shared_ptr< L1TriggerKeyListExt >(
-      new L1TriggerKeyListExt() ) ;
-
-   return pL1TriggerKeyList ;
+   return std::make_shared< L1TriggerKeyListExt >() ;
 }
 
 //define this as a plug-in

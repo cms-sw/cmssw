@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -22,7 +21,7 @@ class L1ObjectKeysOnlineProdBaseExt : public edm::ESProducer {
       L1ObjectKeysOnlineProdBaseExt(const edm::ParameterSet&);
       ~L1ObjectKeysOnlineProdBaseExt();
 
-      typedef boost::shared_ptr<L1TriggerKeyExt> ReturnType;
+      typedef std::shared_ptr<L1TriggerKeyExt> ReturnType;
 
       ReturnType produce(const L1TriggerKeyExtRcd&);
 

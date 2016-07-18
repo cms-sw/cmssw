@@ -75,7 +75,7 @@ DataWriterExt::writeKeyList( L1TriggerKeyListExt* keyList,
 ///tr.start( false );
 
   // Write L1TriggerKeyListExt payload and save payload token before committing
-  boost::shared_ptr<L1TriggerKeyListExt> pointer(keyList);
+  std::shared_ptr<L1TriggerKeyListExt> pointer(keyList);
   std::string payloadToken = session.storePayload(*pointer );
 			
   // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
