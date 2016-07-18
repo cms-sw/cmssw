@@ -24,7 +24,8 @@ class GetLumi
 
   enum SQRT_S{
     SQRT_S_7TeV,
-    SQRT_S_8TeV
+    SQRT_S_8TeV,
+    SQRT_S_13TeV
   };
 
   static const unsigned int NUM_BX = 3564;
