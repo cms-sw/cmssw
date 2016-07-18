@@ -256,7 +256,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     } else {
       throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
     }
-    //theEvent.getByToken(particleBasedIsolationToken, particleBasedIsolationMap); 
+    theEvent.getByToken(particleBasedIsolationToken, particleBasedIsolationMap); 
   } else {
     
     theEvent.getByToken(photonCoreProducerT_,photonCoreHandle);
