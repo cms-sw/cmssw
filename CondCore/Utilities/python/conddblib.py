@@ -16,7 +16,12 @@ import logging
 import sqlalchemy
 import sqlalchemy.ext.declarative
 
-
+authPathEnvVar = 'COND_AUTH_PATH'
+schema_name = 'CMS_CONDITIONS'
+dbuser_name = 'cms_conditions'
+dbreader_user_name = 'cms_cond_general_r'
+dbwriter_user_name = 'cms_cond_general_w'
+devdbwriter_user_name = 'cms_test_conditions'
 logger = logging.getLogger(__name__)
 
 # Set initial level to WARN.  This so that log statements don't occur in
@@ -104,8 +109,6 @@ database_help = '''
       oraarc        Archive      Oracle         read-only   Password required.
       oraint        Integration  Oracle         read-write  Password required.
       oradev        Development  Oracle         read-write  Password required.
-      oraboost      Production   Oracle (ADG)   read-write  Password required.
-      oraboostprep  Development  Oracle         read-write  Password required.
 
       onlineorapro  Production   Oracle         read-write  Password required. Online only.
       onlineoraint  Online Int   Oracle         read-write  Password required. Online only.
@@ -171,67 +174,133 @@ class TimeType(Enum):
 # Schema definition
 _Base = sqlalchemy.ext.declarative.declarative_base()
 
+def fq_name( schema_name, table_name ):
+    name = table_name
+    if schema_name is not None:
+        name = '%s.%s' %(schema_name, table_name)
+    return name
 
-class Tag(_Base):
+db_models = {}
+ora_types = {}
+sqlite_types = {} 
+
+class _Col(Enum):
+    nullable = 0
+    notNull = 1
+    pk = 2
+
+class DbRef:
+    def __init__(self,refType, refColumn):
+        self.rtype = refType
+        self.rcol = refColumn   
+
+def fq_col( schema, table, column ):
+    fqn = '%s.%s' %(table, column)
+    if schema is not None:
+        fqn = '%s.%s' %(schema,fqn)
+    return fqn
+
+def make_dbtype( backendName, schemaName, baseType ):
+    members = {}
+    deps_reg = set()
+    dbtype_name = '%s_%s' %(baseType.__name__,backendName)
+    members['__tablename__'] = baseType.__tablename__
+    members['__table_args__'] = None
+    if schemaName is not None:
+        members['__table_args__'] = {'schema': schemaName }
+    for k,v in baseType.columns.items():
+        if isinstance(v[0],DbRef):
+            refColDbt = v[0].rtype.columns[v[0].rcol][0]
+            pk = (True if v[1]==_Col.pk else False)
+            if v[1]==_Col.pk:
+                members[k] = sqlalchemy.Column(refColDbt,sqlalchemy.ForeignKey(fq_col(schemaName,v[0].rtype.__tablename__,v[0].rcol)),primary_key=True)
+            else:
+                nullable = (False if v[1] == _Col.notNull else True)
+                members[k] = sqlalchemy.Column(refColDbt,sqlalchemy.ForeignKey(fq_col(schemaName,v[0].rtype.__tablename__,v[0].rcol)),nullable=nullable)
+            if v[0].rtype.__name__ not in deps_reg:
+                deps_reg.add(v[0].rtype.__name__)
+                reftype_name = '%s_%s' %(v[0].rtype.__name__,backendName)
+                members[(v[0].rtype.__name__).lower()] = sqlalchemy.orm.relationship(reftype_name)
+        else:
+            if v[1]==_Col.pk:
+                members[k] = sqlalchemy.Column(v[0],primary_key=True)
+            else:
+                nullable = (True if v[1]==_Col.nullable else False)
+                members[k] = sqlalchemy.Column(v[0],nullable=nullable)
+    dbType = type(dbtype_name,(_Base,),members)
+    
+    if backendName not in db_models.keys():
+        db_models[backendName] = {}
+    db_models[backendName][baseType.__name__] = dbType
+    return dbType
+
+def getSchema(tp):
+    if tp.__table_args__ is not None:
+        return tp.__table_args__['schema']
+    return None
+
+# notice: the GT table names are _LOWERCASE_. When turned to uppercase, the sqlalchemy ORM queries on GLOBAL_TAG and GLOBAL_TAG_MAP
+# dont work ( probably clashes with a GLOBAL keyword in their code?  
+
+class Tag:
     __tablename__       = 'TAG'
-
-    name                = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
-    time_type           = sqlalchemy.Column(sqlalchemy.Enum(*tuple(TimeType)),        nullable=False)
-    object_type         = sqlalchemy.Column(sqlalchemy.String(name_length),           nullable=False)
-    synchronization     = sqlalchemy.Column(sqlalchemy.Enum(*tuple(Synchronization)), nullable=False)
-    description         = sqlalchemy.Column(sqlalchemy.String(description_length),    nullable=False)
-    last_validated_time = sqlalchemy.Column(sqlalchemy.BIGINT,                       nullable=False)
-    end_of_validity     = sqlalchemy.Column(sqlalchemy.BIGINT,                       nullable=False)
-    insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
-    modification_time   = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
-
-    iovs                = sqlalchemy.orm.relationship('IOV')
+    columns             = { 'name': (sqlalchemy.String(name_length),_Col.pk), 
+                            'time_type': (sqlalchemy.Enum(*tuple(TimeType)),_Col.notNull),
+                            'object_type': (sqlalchemy.String(name_length),_Col.notNull),
+                            'synchronization': (sqlalchemy.Enum(*tuple(Synchronization)),_Col.notNull),
+                            'description': (sqlalchemy.String(description_length),_Col.notNull),
+                            'last_validated_time':(sqlalchemy.BIGINT,_Col.notNull),
+                            'end_of_validity':(sqlalchemy.BIGINT,_Col.notNull),
+                            'insertion_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
+                            'modification_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
 
-class IOV(_Base):
-    __tablename__       = 'IOV'
-
-    tag_name            = sqlalchemy.Column(sqlalchemy.ForeignKey('TAG.name'),        primary_key=True)
-    since               = sqlalchemy.Column(sqlalchemy.BIGINT,                       primary_key=True)
-    insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     primary_key=True)
-    payload_hash        = sqlalchemy.Column(sqlalchemy.ForeignKey('PAYLOAD.hash'),    nullable=False)
-
-    tag                 = sqlalchemy.orm.relationship('Tag')
-    payload             = sqlalchemy.orm.relationship('Payload')
-
-
-class Payload(_Base):
+class Payload:
     __tablename__       = 'PAYLOAD'
-
-    hash                = sqlalchemy.Column(sqlalchemy.CHAR(hash_length),             primary_key=True)
-    object_type         = sqlalchemy.Column(sqlalchemy.String(name_length),           nullable=False)
-    data                = sqlalchemy.Column(sqlalchemy.BLOB,                          nullable=False)
-    streamer_info       = sqlalchemy.Column(sqlalchemy.BLOB,                          nullable=False)
-    version             = sqlalchemy.Column(sqlalchemy.String(20),                    nullable=False)
-    insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
-
-
-class GlobalTag(_Base):
-    __tablename__       = 'GLOBAL_TAG'
-
-    name                = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
-    validity            = sqlalchemy.Column(sqlalchemy.BIGINT,                       nullable=False)
-    description         = sqlalchemy.Column(sqlalchemy.String(description_length),    nullable=False)
-    release             = sqlalchemy.Column(sqlalchemy.String(name_length),           nullable=False)
-    insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
-    snapshot_time       = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     nullable=False)
+    columns             = { 'hash': (sqlalchemy.CHAR(hash_length),_Col.pk),
+                            'object_type': (sqlalchemy.String(name_length),_Col.notNull),
+                            'data': (sqlalchemy.BLOB,_Col.notNull),
+                            'streamer_info':(sqlalchemy.BLOB,_Col.notNull),
+                            'version':(sqlalchemy.String(20),_Col.notNull),
+                            'insertion_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
 
-class GlobalTagMap(_Base):
-    __tablename__       = 'GLOBAL_TAG_MAP'
+class IOV:
+    __tablename__       = 'IOV'
+    columns             = { 'tag_name':(DbRef(Tag,'name'),_Col.pk),    
+                            'since':(sqlalchemy.BIGINT,_Col.pk),
+                            'insertion_time':(sqlalchemy.TIMESTAMP,_Col.pk),
+                            'payload_hash':(DbRef(Payload,'hash'),_Col.pk) }
 
-    global_tag_name     = sqlalchemy.Column(sqlalchemy.ForeignKey('GLOBAL_TAG.name'), primary_key=True)
-    record              = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
-    label               = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
-    tag_name            = sqlalchemy.Column(sqlalchemy.ForeignKey('TAG.name'),        nullable=False)
 
-    global_tag          = sqlalchemy.orm.relationship('GlobalTag')
-    tag                 = sqlalchemy.orm.relationship('Tag')
+class GlobalTag:
+    __tablename__       = 'global_tag'
+    columns             = { 'name':(sqlalchemy.String(name_length),_Col.pk),
+                            'validity': (sqlalchemy.BIGINT,_Col.notNull),
+                            'description':(sqlalchemy.String(description_length),_Col.notNull),
+                            'release':(sqlalchemy.String(name_length),_Col.notNull),
+                            'insertion_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
+                            'snapshot_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
+
+
+class GlobalTagMap:
+    __tablename__       = 'global_tag_map'
+    columns             = { 'global_tag_name':(DbRef(GlobalTag,'name'),_Col.pk),
+                            'record':(sqlalchemy.String(name_length),_Col.pk),
+                            'label':(sqlalchemy.String(name_length),_Col.pk),
+                            'tag_name':(DbRef(Tag,'name'),_Col.notNull) }
+
+
+
+class TagLog:
+    __tablename__       = 'TAG_LOG'
+    columns             = { 'tag_name':(DbRef(Tag,'name'),_Col.pk),
+                            'event_time':(sqlalchemy.TIMESTAMP,_Col.pk), 
+                            'action':(sqlalchemy.String(100),_Col.pk),
+                            'user_name':(sqlalchemy.String(100),_Col.notNull),
+                            'host_name':(sqlalchemy.String(100),_Col.notNull),
+                            'command':(sqlalchemy.String(500),_Col.notNull),
+                            'user_text':(sqlalchemy.String(4000),_Col.notNull) }
 
 
 # CondDB object
@@ -244,9 +313,9 @@ class Connection(object):
         # Only in the case of creating a new database we skip the check.
         if url.drivername == 'sqlite':
 
-            if not init and url.database is not None and not os.path.isfile(url.database):
-                # url.database is None if opening a in-memory DB, e.g. 'sqlite://'
-                raise Exception('SQLite database %s not found.' % url.database)
+            #if not init and url.database is not None and not os.path.isfile(url.database):
+            #    # url.database is None if opening a in-memory DB, e.g. 'sqlite://'
+            #    raise Exception('SQLite database %s not found.' % url.database)
 
             self.engine = sqlalchemy.create_engine(url)
 
@@ -279,9 +348,28 @@ class Connection(object):
             'cms_orcon_prod',
             'cmsintr_lb',
         }
+        self._backendName = ('sqlite' if self._is_sqlite else 'oracle' ) 
+        self._schemaName = ( None if self._is_sqlite else schema_name )
+        logging.debug(' ... using db "%s", schema "%s"' % (url, self._schemaName) )
+        logging.debug('Loading db types...')
+        self.get_dbtype(Tag).__name__
+        self.get_dbtype(Payload)
+        self.get_dbtype(IOV)
+        self.get_dbtype(TagLog)
+        self.get_dbtype(GlobalTag)
+        self.get_dbtype(GlobalTagMap)
+
+    def get_dbtype(self,theType):
+        basename = theType.__name__
+        if self._backendName not in db_models.keys() or basename not in db_models[self._backendName].keys():
+            return make_dbtype( self._backendName, self._schemaName, theType )
+        else:
+            return db_models[self._backendName][basename]
 
     def session(self):
-        return self._session()
+        s = self._session()
+        s.get_dbtype = self.get_dbtype
+        return s
 
     @property
     def metadata(self):
@@ -313,23 +401,33 @@ class Connection(object):
         engine_connection = self.engine.connect()
         #ret = all([self.engine.dialect.has_table(engine_connection, table.__tablename__) for table in [Tag, IOV, Payload, GlobalTag, GlobalTagMap]])
         # temporarely avoid the check on the GT tables - there are releases in use where C++ does not create these tables.
-        ret = all([self.engine.dialect.has_table(engine_connection, table.__tablename__) for table in [Tag, IOV, Payload]])
+        #ret = all([self.engine.dialect.has_table(engine_connection, table.__tablename__,table.__table_args__['schema']) for table in [Tag, IOV, Payload]])
+        _Tag = self.get_dbtype(Tag)
+        _IOV = self.get_dbtype(IOV)
+        _Payload = self.get_dbtype(Payload) 
+        ret = all([self.engine.dialect.has_table(engine_connection, table.__tablename__,getSchema(table)) for table in [_Tag, _IOV, _Payload]])
         engine_connection.close()
         return ret
 
     def init(self, drop=False):
         '''Initializes a database.
         '''
-
+        logging.info('Initializing database...')
         if drop:
-            logger.debug('Dropping tables...')
+            logging.debug('Dropping tables...')
             self.metadata.drop_all(self.engine)
         else:
             if self.is_valid():
-                raise Exception('Looks like the database is already a valid CMS Conditions one. Please use drop=True if you really want to scratch it.')
+                raise Exception('Looks like the database is already a valid CMS Conditions one.')
 
-        logger.debug('Creating tables...')
-        self.metadata.create_all(self.engine)
+        logging.debug('Creating tables...')
+        self.get_dbtype(Tag).__table__.create(bind = self.engine)
+        self.get_dbtype(Payload).__table__.create(bind = self.engine)
+        self.get_dbtype(IOV).__table__.create(bind = self.engine)
+        self.get_dbtype(TagLog).__table__.create(bind = self.engine)
+        self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
+        self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
+        #self.metadata.create_all(self.engine)
 
         # TODO: Create indexes
         #logger.debug('Creating indexes...')
@@ -352,31 +450,35 @@ def _getCMSOracleSQLAlchemyConnectionString(database, schema = 'cms_conditions')
 
 # Entry point
 
-def make_url(database='pro'):
+def make_url(database='pro',read_only = True):
 
-    schema = 'cms_conditions'  # set the default
+    #schema = 'cms_conditions'  # set the default
     if ':' in database and '://' not in database: # check if we really got a shortcut like "pro:<schema>" (and not a url like proto://...), if so, disentangle
        database, schema = database.split(':')
-    logging.debug(' ... using db "%s", schema "%s"' % (database, schema) )
 
     # Lazy in order to avoid calls to cmsGetFnConnect
     mapping = {
-        'pro':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd', schema),
-        'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc', schema),
-        'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt', schema),
-        'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', schema),
+        'pro_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd', schema_name),
+        'arc_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc', schema_name),
+        'int_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt', schema_name),
+        'dev_R':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', schema_name),
 
-        'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg', schema),
-        'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb', schema),
-        'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int', schema),
-        'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', schema),
+        'orapro_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg', dbreader_user_name),
+        'oraarc_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb', dbreader_user_name),
+        'oraint_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int', dbreader_user_name),
+        'oraint_W':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int', dbwriter_user_name),
+        'oradev_R':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', dbreader_user_name),
+        'oradev_W':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', devdbwriter_user_name),
 
-        'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod', schema),
-        'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb', schema),
+        'onlineorapro_R':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod', dbreader_user_name),
+        'onlineorapro_W':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod', dbwriter_user_name),
+        'onlineoraint_R':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb', dbreader_user_name),
+        'onlineoraint_W':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb', dbwriter_user_name),
     }
 
-    if database in mapping:
-        database = mapping[database]()
+    key = database + ('_R' if read_only else '_W')
+    if key in mapping:
+        database = mapping[key]()
 
     logging.debug('connection string set to "%s"' % database)
 
@@ -386,7 +488,7 @@ def make_url(database='pro'):
         url = sqlalchemy.engine.url.make_url('sqlite:///%s' % database)
     return url
 
-def connect(url, init=False, verbose=0):
+def connect(url, init=False, authPath=None, verbose=0):
     '''Returns a Connection instance to the CMS Condition DB.
 
     See database_help for the description of the database parameter.
@@ -399,8 +501,30 @@ def connect(url, init=False, verbose=0):
     '''
 
     if url.drivername == 'oracle' and url.password is None:
-        import getpass
-        url.password = getpass.getpass('Password for %s: ' % str(url))
+        if authPath is None:
+            if authPathEnvVar in os.environ:
+                authPath = os.environ[authPathEnvVar]
+        authFile = None
+        if authPath is not None:
+            authFile = os.path.join(authPath,'.netrc')
+        if authFile is not None:
+            entryKey = url.host+"/"+url.username
+            logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
+            import netrc
+            try:
+                # Try to find the netrc entry
+                (username, account, password) = netrc.netrc( authFile ).authenticators(entryKey)
+                url.password = password
+            except IOError as e:
+                logging.error('.netrc file expected in %s has not been found or cannot be open.' %authPath)
+                raise e
+            except TypeError as e:
+                logging.error('The .netrc file in %s is invalid, or the targeted entry has not been found.' %authPath)
+            except Exception as e:
+                logging.error('Problem with .netrc file in %s: %s' %(authPath,str(e)))     
+        else:
+            import getpass
+            url.password = getpass.getpass('Password for %s: ' % str(url))
 
     if verbose >= 1:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
