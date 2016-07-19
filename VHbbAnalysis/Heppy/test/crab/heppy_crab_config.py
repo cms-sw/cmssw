@@ -2,8 +2,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'VHBB_V22s_002'
-config.General.workArea = 'crab_projects_V22s_002'
+config.General.requestName = 'VHBB_V23_001'
+config.General.workArea = 'crab_projects_V23_001'
 config.General.transferLogs=True
 
 config.section_("JobType")
@@ -25,12 +25,13 @@ config.JobType.inputFiles = ['heppy_config.py',
                              '../puDataPlus.root',
                              'puMC.root',
                               'json.txt',
-                              "../Zll-spring15.weights.xml",
-                              "../Wln-spring15.weights.xml",
-                              "../Znn-spring15.weights.xml",
-                              "../VBF-spring15.weights.xml",
-                              "../ttbar-fall15_TargetGenOverPt_GenPtCut0.weights.xml",
-										'../TMVA_blikelihood_vbf_cmssw76_h21trained.weights.xml'
+                              #"../Zll-spring15.weights.xml",
+                              #"../Wln-spring15.weights.xml",
+                              #"../Znn-spring15.weights.xml",
+                              #"../VBF-spring15.weights.xml",
+                              #"../ttbar-fall15_TargetGenOverPt_GenPtCut0.weights.xml",
+			      '../ttbar-spring16-80X.weights.xml',
+			      '../TMVA_blikelihood_vbf_cmssw76_h21trained.weights.xml'
 ]
 #config.JobType.outputFiles = ['tree.root']
 
@@ -41,9 +42,9 @@ config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 #config.Data.totalUnits = -1
 config.Data.allowNonValidInputDataset = True # to run on datasets in PRODUCTION
-config.Data.outLFNDirBase = '/store/user/perrozzi/VHBBHeppyV22s/'
+config.Data.outLFNDirBase = '/store/user/perrozzi/VHBBHeppyV23/'
 config.Data.publication = True
-config.Data.outputDatasetTag = 'VHBB_HEPPY_V22s'
+config.Data.outputDatasetTag = 'VHBB_HEPPY_V23'
 
 config.section_("Site")
 # config.Site.storageSite = "T2_IT_Pisa"
