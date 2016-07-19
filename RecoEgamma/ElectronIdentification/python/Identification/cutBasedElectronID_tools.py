@@ -220,7 +220,8 @@ def psetEcalPFClusterIsoCut(wpEB, wpEE, ecalIsoInputs):
         isRelativeIso = cms.bool(True),
         ptCutOff = cms.double(20.0),          # high pT above this value, low pT below
         barrelCutOff = cms.double(ebCutOff),
-        rho = cms.InputTag("fixedGridRhoFastjetAllCalo"), # This is the rho used by HLT
+        rho = cms.InputTag("fixedGridRhoFastjetCentralCalo"), # This rho is best for emulation 
+        # while HLT uses ...AllCalo
         effAreasConfigFile = cms.FileInPath( ecalIsoInputs.isoEffAreas ),
         needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False) 
@@ -239,7 +240,8 @@ def psetHcalPFClusterIsoCut(wpEB, wpEE, hcalIsoInputs):
         isRelativeIso = cms.bool(True),
         ptCutOff = cms.double(20.0),          # high pT above this value, low pT below
         barrelCutOff = cms.double(ebCutOff),
-        rho = cms.InputTag("fixedGridRhoFastjetAllCalo"), # This is the rho used by HLT
+        rho = cms.InputTag("fixedGridRhoFastjetCentralCalo"), # This rho is best for emulation
+        # while HLT uses ...AllCalo
         effAreasConfigFile = cms.FileInPath( hcalIsoInputs.isoEffAreas ),
         needsAdditionalProducts = cms.bool(True),
         isIgnored = cms.bool(False) 

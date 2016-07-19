@@ -38,7 +38,7 @@ WP_HLTSafe_EB = EleHLTSelection_V1(
     0.000,    # trkIsoSlopeStart
     0.000,    # trkIsoConstTerm
     #
-    3.000     # normalizedGsfChi2Cut
+    1e30      # normalizedGsfChi2Cut - no cut
     )
 
 WP_HLTSafe_EE = EleHLTSelection_V1(
