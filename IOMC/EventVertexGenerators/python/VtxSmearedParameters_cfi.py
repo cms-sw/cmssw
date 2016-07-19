@@ -537,7 +537,7 @@ NominalHICollision2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.)
 )
 
-# updated #s based on beamspot fits to 2015 PbPb data
+# updated numbers based on beamspot fits to 2015 PbPb data
 RealisticHICollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(60.0),
