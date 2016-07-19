@@ -1,8 +1,9 @@
-#include "DQMOffline/CalibTracker/plugins/SiStripDQMHistoryReader.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripDQMHistoryHelper.h"
+#include <boost/regex.hpp>
 
 SiStripDQMHistoryHelper::~SiStripDQMHistoryHelper() {}
 
-void SiStripDQMHistoryHelper::scanTreeAndFillSummary(const std::vector<MonitorElement*>& MEs, HDQMSummary* summary, const std::string& keyName, const std::vector<std::string>& Quantities)
+void SiStripDQMHistoryHelper::scanTreeAndFillSummary(const std::vector<MonitorElement*>& MEs, HDQMSummary* summary, const std::string& keyName, const std::vector<std::string>& Quantities) const
 {
   //
   // -- Scan full root file and fill module numbers and histograms
@@ -70,34 +71,34 @@ void SiStripDQMHistoryHelper::scanTreeAndFillSummary(const std::vector<MonitorEl
   edm::LogInfo("DQMHistoryServiceBase") <<  "[DQMHistoryServiceBase::scanTreeAndFillSummary] " << ss.str();
 }
 
-bool SiStripDQMHistoryHelper::setDBLabelsForLandau(const std::string& keyName, std::vector<std::string>& userDBContent)
+bool SiStripDQMHistoryHelper::setDBLabelsForLandau(const std::string& keyName, std::vector<std::string>& userDBContent) const
 {
-  userDBContent.push_back(keyName+fSep+std::string("landauPeak"));
-  userDBContent.push_back(keyName+fSep+std::string("landauPeakErr"));
-  userDBContent.push_back(keyName+fSep+std::string("landauSFWHM"));
-  userDBContent.push_back(keyName+fSep+std::string("landauChi2NDF"));
+  userDBContent.push_back(keyName+sep()+std::string("landauPeak"));
+  userDBContent.push_back(keyName+sep()+std::string("landauPeakErr"));
+  userDBContent.push_back(keyName+sep()+std::string("landauSFWHM"));
+  userDBContent.push_back(keyName+sep()+std::string("landauChi2NDF"));
   return true;
 }
 
-bool SiStripDQMHistoryHelper::setDBLabelsForGauss(const std::string& keyName, std::vector<std::string>& userDBContent)
+bool SiStripDQMHistoryHelper::setDBLabelsForGauss(const std::string& keyName, std::vector<std::string>& userDBContent) const
 {
-  userDBContent.push_back(keyName+fSep+std::string("gaussMean"));
-  userDBContent.push_back(keyName+fSep+std::string("gaussSigma"));
-  userDBContent.push_back(keyName+fSep+std::string("gaussChi2NDF"));
+  userDBContent.push_back(keyName+sep()+std::string("gaussMean"));
+  userDBContent.push_back(keyName+sep()+std::string("gaussSigma"));
+  userDBContent.push_back(keyName+sep()+std::string("gaussChi2NDF"));
   return true;
 }
 
-bool SiStripDQMHistoryHelper::setDBLabelsForStat(const std::string& keyName, std::vector<std::string>& userDBContent)
+bool SiStripDQMHistoryHelper::setDBLabelsForStat(const std::string& keyName, std::vector<std::string>& userDBContent) const
 {
-  userDBContent.push_back(keyName+fSep+std::string("entries"));
-  userDBContent.push_back(keyName+fSep+std::string("mean"));
-  userDBContent.push_back(keyName+fSep+std::string("rms"));
+  userDBContent.push_back(keyName+sep()+std::string("entries"));
+  userDBContent.push_back(keyName+sep()+std::string("mean"));
+  userDBContent.push_back(keyName+sep()+std::string("rms"));
   return true;
 }
 
-bool SiStripDQMHistoryHelper::setDBValuesForLandau(const MonitorElement* me, HDQMSummary::InputVector& values)
+bool SiStripDQMHistoryHelper::setDBValuesForLandau(const MonitorElement* me, HDQMSummary::InputVector& values) const
 {
-  m_fitME.doLanGaussFit(me);
+  m_fitME.doLanGaussFit(const_cast<MonitorElement*>(me));
   values.push_back( m_fitME.getLanGaussPar("mpv")    );
   values.push_back( m_fitME.getLanGaussParErr("mpv") );
   values.push_back( m_fitME.getLanGaussConv("fwhm")  );
@@ -106,9 +107,9 @@ bool SiStripDQMHistoryHelper::setDBValuesForLandau(const MonitorElement* me, HDQ
   return true;
 }
 
-bool SiStripDQMHistoryHelper::setDBValuesForGauss(const MonitorElement* me, HDQMSummary::InputVector& values)
+bool SiStripDQMHistoryHelper::setDBValuesForGauss(const MonitorElement* me, HDQMSummary::InputVector& values) const
 {
-  m_fitME.doGaussFit(me);
+  m_fitME.doGaussFit(const_cast<MonitorElement*>(me));
   values.push_back( m_fitME.getGaussPar("mean")  );
   values.push_back( m_fitME.getGaussPar("sigma") );
   if (m_fitME.getFitnDof()!=0 ) values.push_back( m_fitME.getFitChi()/m_fitME.getFitnDof() );
@@ -116,7 +117,7 @@ bool SiStripDQMHistoryHelper::setDBValuesForGauss(const MonitorElement* me, HDQM
   return true;
 }
 
-bool SiStripDQMHistoryHelper::setDBValuesForStat(const MonitorElement* me, HDQMSummary::InputVector& values)
+bool SiStripDQMHistoryHelper::setDBValuesForStat(const MonitorElement* me, HDQMSummary::InputVector& values) const
 {
   values.push_back( me->getEntries());
   values.push_back( me->getMean());

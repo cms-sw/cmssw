@@ -14,9 +14,9 @@ public:
   explicit SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig);
   virtual ~SiStripPopConBadComponentsHandlerFromDQM();
   // interface methods: implemented in template
-  SiStripBadStrip* getObj();
+  SiStripBadStrip* getObj() const;
 protected:
-  std::string getMetaDataString();
+  std::string getMetaDataString() const;
 private:
   edm::FileInPath fp_;
 };
@@ -36,7 +36,7 @@ SiStripPopConBadComponentsHandlerFromDQM::~SiStripPopConBadComponentsHandlerFrom
   edm::LogInfo("SiStripBadComponentsDQMService") <<  "[SiStripBadComponentsDQMService::~SiStripBadComponentsDQMService]";
 }
 
-std::string SiStripPopConBadComponentsHandlerFromDQM::getMetaDataString()
+std::string SiStripPopConBadComponentsHandlerFromDQM::getMetaDataString() const
 {
   std::stringstream ss;
   ss << SiStripPopConSourceHandler<SiStripBadStrip>::getMetaDataString();
@@ -44,7 +44,7 @@ std::string SiStripPopConBadComponentsHandlerFromDQM::getMetaDataString()
   return ss.str();
 }
 
-SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj()
+SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj() const
 {
   //*LOOP OVER THE LIST OF SUMMARY OBJECTS TO INSERT IN DB*//
 

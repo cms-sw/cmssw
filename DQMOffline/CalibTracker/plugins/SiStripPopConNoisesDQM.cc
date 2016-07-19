@@ -14,7 +14,7 @@ public:
   explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
   virtual ~SiStripPopConNoisesHandlerFromDQM();
   // interface methods: implemented in template
-  SiStripNoises* getObj();
+  SiStripNoises* getObj() const;
 private:
   edm::FileInPath fp_;
   std::string MEDir_;
@@ -36,7 +36,7 @@ SiStripPopConNoisesHandlerFromDQM::~SiStripPopConNoisesHandlerFromDQM()
   edm::LogInfo("SiStripNoisesDQMService") <<  "[SiStripNoisesDQMService::~SiStripNoisesDQMService]";
 }
 
-SiStripNoises* SiStripPopConNoisesHandlerFromDQM::getObj()
+SiStripNoises* SiStripPopConNoisesHandlerFromDQM::getObj() const
 {
   std::cout << "SiStripNoisesDQMService::readNoises" << std::endl;
 
@@ -71,7 +71,7 @@ SiStripNoises* SiStripPopConNoisesHandlerFromDQM::getObj()
 
 
     // MonitorElement * mE = getModuleHistogram(detInfo.first, "PedsPerStrip");
-    MonitorElement * mE{nullptr};
+    const MonitorElement * mE{nullptr};
     std::string MEname("CMSubNoisePerStrip__det__"+std::to_string(detInfo.first));
     for ( const MonitorElement* ime : MEs ) {
       if( ime->getName() == MEname ) {

@@ -14,7 +14,7 @@ public:
   explicit SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig);
   virtual ~SiStripPopConPedestalsHandlerFromDQM();
   // interface methods: implemented in template
-  SiStripPedestals* getObj();
+  SiStripPedestals* getObj() const;
 private:
   edm::FileInPath fp_;
   std::string MEDir_;
@@ -36,7 +36,7 @@ SiStripPopConPedestalsHandlerFromDQM::~SiStripPopConPedestalsHandlerFromDQM()
   edm::LogInfo("SiStripPedestalsDQMService") <<  "[SiStripPedestalsDQMService::~SiStripPedestalsDQMService]";
 }
 
-SiStripPedestals* SiStripPopConPedestalsHandlerFromDQM::getObj()
+SiStripPedestals* SiStripPopConPedestalsHandlerFromDQM::getObj() const
 {
   std::cout << "SiStripPedestalsDQMService::readPedestals" << std::endl;
 
@@ -68,9 +68,9 @@ SiStripPedestals* SiStripPopConPedestalsHandlerFromDQM::getObj()
 
     // Take the path for each DetId and build the complete path + histogram name
 
-    // MonitorElement * mE = getModuleHistogram(it.first, "PedsPerStrip");
-    MonitorElement* mE{nullptr};
-    std::string MEname("PedsPerStrip__det__"+std::to_string(it.first));
+    // MonitorElement * mE = getModuleHistogram(detInfo.first, "PedsPerStrip");
+    const MonitorElement* mE{nullptr};
+    std::string MEname("PedsPerStrip__det__"+std::to_string(detInfo.first));
     for ( const MonitorElement* ime : MEs ) {
       if( ime->getName() == MEname ) {
         mE = ime;
@@ -78,8 +78,8 @@ SiStripPedestals* SiStripPopConPedestalsHandlerFromDQM::getObj()
       }
     }
 
-    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<std::string>(it.first), findMEbyName() );
-    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<std::string>(it.first)) ));
+    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<std::string>(detInfo.first), findMEbyName() );
+    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<std::string>(detInfo.first)) ));
 
     if ( mE ) {
       TH1F* histo = mE->getTH1F();
@@ -87,8 +87,8 @@ SiStripPedestals* SiStripPopConPedestalsHandlerFromDQM::getObj()
         // Read the pedestals from the histograms
         uint32_t nBinsX = histo->GetXaxis()->GetNbins();
 
-        if ( nBinsX != stripsPerApv*(it.second.nApvs) ) {
-          std::cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(it.second.nApvs) << std::endl;
+        if ( nBinsX != stripsPerApv*(detInfo.second.nApvs) ) {
+          std::cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(detInfo.second.nApvs) << std::endl;
         }
 
         // std::cout << "Bin 0 = " << histo->GetBinContent(0) << std::endl;
@@ -105,12 +105,12 @@ SiStripPedestals* SiStripPopConPedestalsHandlerFromDQM::getObj()
     }
     // If the ME was absent fill the vector with 0
     if ( theSiStripVector.empty() ) {
-      for(unsigned short j=0; j<128*it.second.nApvs; ++j){
+      for(unsigned short j=0; j<128*detInfo.second.nApvs; ++j){
         obj->setData(0, theSiStripVector);
       }
     }
 
-    if ( ! obj->put(it.first, theSiStripVector) )
+    if ( ! obj->put(detInfo.first, theSiStripVector) )
       edm::LogError("SiStripPedestalsFakeESSource::produce ")<<" detid already exists"<<std::endl;
   }
   dqmStore_->cd();

@@ -31,9 +31,9 @@ public:
   void getNewObjects();
   std::string id() const { return m_name; }
 
-  virtual T* getObj() = 0;
+  virtual T* getObj() const = 0;
 
-  virtual std::string getMetaDataString();
+  virtual std::string getMetaDataString() const;
   virtual bool checkForCompatibility( const std::string otherMetaData ) const { return otherMetaData != getMetaDataString(); }
 
 protected:
@@ -162,7 +162,7 @@ void SiStripPopConSourceHandler<T>::setForTransfer()
 }
 
 template <class T>
-std::string SiStripPopConSourceHandler<T>::getMetaDataString()
+std::string SiStripPopConSourceHandler<T>::getMetaDataString() const
 {
   std::cout << "SiStripPedestalsDQMService::getMetaDataString" << std::endl;
   std::stringstream ss;

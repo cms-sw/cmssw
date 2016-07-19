@@ -23,15 +23,15 @@ private:
   std::string m_fileName;
 
 protected:
-  DQMStore* dqmStore_;
+  mutable DQMStore* dqmStore_;
 
   /// Uses DQMStore to access the DQM file
-  void openRequestedFile();
+  void openRequestedFile() const;
 
   /// Uses DQM utilities to access the requested dir
-  bool goToDir(const std::string& name);
+  bool goToDir(const std::string& name) const;
   /// Fill the mfolders vector with the full list of directories for all the modules
-  void getModuleFolderList(std::vector<std::string>& mfolders);
+  void getModuleFolderList(std::vector<std::string>& mfolders) const;
 
   /**
    * Returns a pointer to the monitoring element corresponding to the given detId and name. <br>
@@ -39,7 +39,7 @@ protected:
    * must be NAME, removing all the __det__DETID part. This latter part will be built
    * and attached internally using the provided detId.
    */
-  MonitorElement* getModuleHistogram(const uint32_t detId, const std::string & name);
+  MonitorElement* getModuleHistogram(const uint32_t detId, const std::string & name) const;
 
   // Simple functor to remove unneeded ME
   struct StringNotMatch
