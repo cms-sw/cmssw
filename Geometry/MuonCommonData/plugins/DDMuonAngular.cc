@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "Geometry/MuonCommonData/plugins/DDMuonAngular.h"
@@ -66,7 +65,7 @@ void DDMuonAngular::execute(DDCompactView& cpv) {
       rotstr = "R"; 
       if (phideg >=0 && phideg < 10) rotstr = "R00"; 
       else if (phideg < 100)         rotstr = "R0";
-      rotstr = rotstr + dbl_to_string(phideg);
+      rotstr = rotstr + std::to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
         edm::LogInfo("MuonGeom") << "DDMuonAngular test: Creating a new rotation "

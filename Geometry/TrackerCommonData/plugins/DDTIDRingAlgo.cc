@@ -9,7 +9,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDTIDRingAlgo.h"
@@ -94,7 +93,7 @@ void DDTIDRingAlgo::execute(DDCompactView& cpv) {
     DDTranslation trmod(xpos, ypos, zpos);
     double phideg = phiz/CLHEP::deg;
     DDRotation rotation;
-    std::string rotstr = mother.name() + dbl_to_string(phideg*10.);
+    std::string rotstr = mother.name() + std::to_string(phideg*10.);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
       LogDebug("TIDGeom") << "DDTIDRingAlgo test: Creating a new rotation "

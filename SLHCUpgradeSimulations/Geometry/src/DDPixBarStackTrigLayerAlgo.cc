@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -84,7 +83,7 @@ void DDPixBarStackTrigLayerAlgo::execute(DDCompactView& cpv) {
       iup  =-iup;
       rrr  = rtmi+ 0.5* ladderThick[0];
       tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
-      rots = idName + dbl_to_string(copy);
+      rots = idName + std::to_string(copy);
       if (iup > 0) phix = phi-90*CLHEP::deg;
       else         phix = phi+90*CLHEP::deg;
       phiy = phix+90.*CLHEP::deg;

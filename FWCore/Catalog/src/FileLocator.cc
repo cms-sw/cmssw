@@ -4,6 +4,7 @@
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -15,18 +16,9 @@
 #include <sstream>
 
 using namespace xercesc;
+using namespace cms::xerces;
 
 namespace {
-
-  inline std::string _toString(XMLCh const* toTranscode) {
-    std::string tmp(XMLString::transcode(toTranscode));
-    return tmp;
-  }
-
-  inline XMLCh*  _toDOMS(std::string temp) {
-    XMLCh* buff = XMLString::transcode(temp.c_str());
-    return  buff;
-  }
 
   std::string
   replaceWithRegexp(std::smatch const& matches,
@@ -64,9 +56,9 @@ namespace edm {
     catch (XMLException const& e) {
       // << "Xerces-c error in initialization \n"
       //      << "Exception message is:  \n"
-      //      << _toString(e.getMessage()) <<
+      //      << toString(e.getMessage()) <<
       throw
-        cms::Exception("TrivialFileCatalog", std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
+        cms::Exception("TrivialFileCatalog", std::string("Fatal Error on edm::FileLocator:")+ toString(e.getMessage()));
     }
     ++s_numberOfInstances;
 
@@ -78,7 +70,6 @@ namespace edm {
 
   FileLocator::~FileLocator()
   {}
-
 
   std::string
   FileLocator::pfn(std::string const& ilfn) const {
@@ -112,19 +103,19 @@ namespace edm {
     // a `getElementsByTagName()` in the calling method.
     DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);
 
-    std::string const protocol = _toString(ruleElement->getAttribute(_toDOMS("protocol")));
-    std::string destinationMatchRegexp = _toString(ruleElement->getAttribute(_toDOMS("destination-match")));
+    std::string const protocol = toString(ruleElement->getAttribute(uStr("protocol").ptr()));
+    std::string destinationMatchRegexp = toString(ruleElement->getAttribute(uStr("destination-match").ptr()));
 
     if (destinationMatchRegexp.empty()) {
       destinationMatchRegexp = ".*";
     }
 
     std::string const pathMatchRegexp
-      = _toString(ruleElement->getAttribute(_toDOMS("path-match")));
+      = toString(ruleElement->getAttribute(uStr("path-match").ptr()));
     std::string const result
-      = _toString(ruleElement->getAttribute(_toDOMS("result")));
+      = toString(ruleElement->getAttribute(uStr("result").ptr()));
     std::string const chain
-      = _toString(ruleElement->getAttribute(_toDOMS("chain")));
+      = toString(ruleElement->getAttribute(uStr("chain").ptr()));
 
     Rule rule;
     rule.pathMatch.assign(pathMatchRegexp);
@@ -137,7 +128,7 @@ namespace edm {
   void
   FileLocator::init(std::string const& catUrl, bool fallback) {
     std::string m_url = catUrl;
-
+      
     if (m_url.empty()) {
       Service<SiteLocalConfig> localconfservice;
       if (!localconfservice.isAvailable())
@@ -199,46 +190,51 @@ namespace edm {
 
     configFile.close();
 
-    XercesDOMParser* parser = new XercesDOMParser;
-    parser->setValidationScheme(XercesDOMParser::Val_Auto);
-    parser->setDoNamespaces(false);
-    parser->parse(m_filename.c_str());
-    DOMDocument* doc = parser->getDocument();
-    assert(doc);
+    auto parser = std::make_unique<XercesDOMParser>();
+    try {
+      parser->setValidationScheme(XercesDOMParser::Val_Auto);
+      parser->setDoNamespaces(false);
+      parser->parse(m_filename.c_str());
+      DOMDocument* doc = parser->getDocument();
+      assert(doc);
 
-    /* trivialFileCatalog matches the following xml schema
-       FIXME: write a proper DTD
-       <storage-mapping>
-       <lfn-to-pfn protocol="direct" destination-match=".*"
-       path-match="lfn/guid match regular expression"
-       result="/castor/cern.ch/cms/$1"/>
-       <pfn-to-lfn protocol="srm"
-       path-match="lfn/guid match regular expression"
-       result="$1"/>
-       </storage-mapping>
-    */
+      /* trivialFileCatalog matches the following xml schema
+	 FIXME: write a proper DTD
+	 <storage-mapping>
+	 <lfn-to-pfn protocol="direct" destination-match=".*"
+	 path-match="lfn/guid match regular expression"
+	 result="/castor/cern.ch/cms/$1"/>
+	 <pfn-to-lfn protocol="srm"
+	 path-match="lfn/guid match regular expression"
+	 result="$1"/>
+	 </storage-mapping>
+      */
 
-    /*first of all do the lfn-to-pfn bit*/
-    {
-      DOMNodeList* rules = doc->getElementsByTagName(_toDOMS("lfn-to-pfn"));
-      XMLSize_t const ruleTagsNum = rules->getLength();
+      /*first of all do the lfn-to-pfn bit*/
+      {
+	DOMNodeList* rules = doc->getElementsByTagName(uStr("lfn-to-pfn").ptr());
+	XMLSize_t const ruleTagsNum = rules->getLength();
 
-      // FIXME: we should probably use a DTD for checking validity
+	// FIXME: we should probably use a DTD for checking validity
 
-      for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-        DOMNode* ruleNode = rules->item(i);
-        parseRule(ruleNode, m_directRules);
+	for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
+	  DOMNode* ruleNode = rules->item(i);
+	  parseRule(ruleNode, m_directRules);
+	}
+      }
+      /*Then we handle the pfn-to-lfn bit*/
+      {
+	DOMNodeList* rules = doc->getElementsByTagName(uStr("pfn-to-lfn").ptr());
+	XMLSize_t ruleTagsNum = rules->getLength();
+	
+	for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
+	  DOMNode* ruleNode = rules->item(i);
+	  parseRule(ruleNode, m_inverseRules);
+	}
       }
     }
-    /*Then we handle the pfn-to-lfn bit*/
-    {
-      DOMNodeList* rules = doc->getElementsByTagName(_toDOMS("pfn-to-lfn"));
-      XMLSize_t ruleTagsNum = rules->getLength();
-
-      for (XMLSize_t i = 0; i < ruleTagsNum; ++i) {
-        DOMNode* ruleNode = rules->item(i);
-        parseRule(ruleNode, m_inverseRules);
-      }
+    catch (xercesc::DOMException const& e) {
+      throw cms::Exception("TrivialFileCatalog") << "Xerces XML parser threw this exception: " << cStr(e.getMessage()).ptr() << std::endl;
     }
   }
 
