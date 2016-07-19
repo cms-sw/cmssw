@@ -121,7 +121,7 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<TriggerPrimiti
     if(ring == 4){Id += 9;}
     
     //if(endcap == 1 && sector == 1)//
-    if( (SectIndex ==  (endcap - 1)*6 + sector - 1 )  || IsNeighbor )
+    if( (SectIndex ==  (endcap - 1)*6 + sector - 1 ) || IsNeighbor )
       {
 	
 	//if(verbose){
@@ -491,6 +491,7 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<TriggerPrimiti
 	  in = 1;
 	
 	Hit.SetValues(fph,th,ph_hit,phzvl,station,sub,Id,quality,pattern,wire,strip,BX);
+	Hit.AddTheta(th);
 	Hit.SetTP(C3);
 	Hit.SetZhit(zhit);
 	Hit.SetZoneContribution(zonecontribution);
