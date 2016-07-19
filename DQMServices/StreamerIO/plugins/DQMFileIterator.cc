@@ -255,7 +255,7 @@ void DQMFileIterator::collect(bool ignoreTimers) {
         unsigned int lumi = std::stoi(result[2]);
         std::string label = result[3];
 
-        filesSeen_.insert(fn);
+        filesSeen_.insert(filename);
 
         if (run != runNumber_) continue;
 
