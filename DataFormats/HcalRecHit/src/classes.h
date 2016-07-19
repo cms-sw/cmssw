@@ -4,6 +4,7 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h" 
@@ -27,6 +28,7 @@ namespace DataFormats_HcalRecHit {
     std::vector<ZDCRecHit> vZDC_;
     std::vector<CastorRecHit> vCastor_;
     std::vector<HcalCalibRecHit> vcal_;
+    std::vector<HBHEChannelInfo> vChanInfo_;
 
     HBHERecHitCollection theHBHE_;
     HORecHitCollection theHO_;
@@ -36,6 +38,7 @@ namespace DataFormats_HcalRecHit {
     CastorRecHitCollection theCastor_;
     HcalCalibRecHitCollection thecalib_;
     HcalSourcePositionData theSPD_;
+    HBHEChannelInfoCollection theChanInfo_;
 
     edm::Wrapper<HBHERecHitCollection> theHBHEw_;
     edm::Wrapper<HORecHitCollection> theHOw_;
@@ -45,6 +48,7 @@ namespace DataFormats_HcalRecHit {
     edm::Wrapper<CastorRecHitCollection> theCastorw_;
     edm::Wrapper<HcalCalibRecHitCollection> theCalibw_;
     edm::Wrapper<HcalSourcePositionData> theSPDw_;
+    edm::Wrapper<HBHEChannelInfoCollection> theChanInfow_;
 
     edm::Ref<HBHERecHitCollection> theHBHEr_;
     edm::Ref<HORecHitCollection> theHOr_;
@@ -53,6 +57,7 @@ namespace DataFormats_HcalRecHit {
     edm::Ref<ZDCRecHitCollection> theZDCr_;
     edm::Ref<CastorRecHitCollection> theCastorr_;
     edm::Ref<HcalCalibRecHitCollection> theCalibr_;
+    edm::Ref<HBHEChannelInfoCollection> theChanInfor_;
 
     edm::RefProd<HBHERecHitCollection> theHBHErp_;
     edm::RefProd<HORecHitCollection> theHOrp_;
@@ -61,6 +66,7 @@ namespace DataFormats_HcalRecHit {
     edm::RefProd<ZDCRecHitCollection> theZDCrp_;
     edm::RefProd<CastorRecHitCollection> theCastorrp_;
     edm::RefProd<HcalCalibRecHitCollection> theCalibrp_;
+    edm::RefProd<HBHEChannelInfoCollection> theChanInfop_;
 
     edm::RefVector<HBHERecHitCollection> theHBHErv_;
     edm::RefVector<HORecHitCollection> theHOrv_;
@@ -69,6 +75,7 @@ namespace DataFormats_HcalRecHit {
     edm::RefVector<ZDCRecHitCollection> theZDCrv_;
     edm::RefVector<CastorRecHitCollection> theCastorrv_;
     edm::RefVector<HcalCalibRecHitCollection> theCalibrv_;
+    edm::RefVector<HBHEChannelInfoCollection> theChanInfov_;
 
     edm::reftobase::Holder<CaloRecHit, HBHERecHitRef> rb4;
     edm::reftobase::Holder<CaloRecHit, HORecHitRef > rb5;
