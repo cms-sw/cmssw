@@ -79,13 +79,12 @@ operator()(const reco::GsfElectronPtr& cand) const{
   // Establish the cut value
   double absEta = std::abs(cand->superCluster()->eta());
 
-  printf("Debug operator: create pat pointer\n");
-  const auto elPat = edm::Ptr<pat::Electron>(cand);
-  if( elPat.isNull() ){
+  const pat::Electron* elPat = dynamic_cast<const pat::Electron*>(cand.get());
+  if( !elPat ) {
     throw cms::Exception("ERROR: this VID selection is meant to be run on miniAOD/PAT only")
-      << std::endl << "Change input format or contact Egamma experts" << std::endl;
+      << std::endl << "Change input format to PAT/miniAOD or contact Egamma experts" 
+      << std::endl << std::endl;
   }
-  printf("Debug operator: checked pat pointer\n");
 
   const float isoCut =
     ( cand->pt() < _ptCutOff ?
@@ -97,7 +96,6 @@ operator()(const reco::GsfElectronPtr& cand) const{
   const float rho = _rhoHandle.isValid() ? (float)(*_rhoHandle) : 0; // std::max likes float arguments
 
   float isoValue = -999;
-  printf("Debug operator: compute iso value\n");
   if( _isoType == ISO_ECAL ){
     isoValue = elPat->ecalPFClusterIso();
   }else if( _isoType == ISO_HCAL ){
@@ -106,7 +104,6 @@ operator()(const reco::GsfElectronPtr& cand) const{
     throw cms::Exception("ERROR: unknown type requested for PF cluster isolation.")
       << std::endl << "Check VID configuration." << std::endl;
   }
-  printf("DEBUG: in operator() iso type %d and iso value %f\n", _isoType, isoValue);
   float isoValueCorr = std::max(0.0f, isoValue - rho*eA);
   
   // Apply the cut and return the result
@@ -120,10 +117,11 @@ double GsfEleCalPFClusterIsoCut::value(const reco::CandidatePtr& cand) const {
   // Establish the cut value
   double absEta = std::abs(ele->superCluster()->eta());
 
-  const auto elPat = edm::Ptr<pat::Electron>(ele);
-  if(  elPat.isNull() ){
+  const pat::Electron *elPat = dynamic_cast<const pat::Electron*>(ele.get());
+  if( !elPat ){
     throw cms::Exception("ERROR: this VID selection is meant to be run on miniAOD/PAT only")
-      << std::endl << "Change input format or contact Egamma experts" << std::endl;
+      << std::endl << "Change input format to PAT/miniAOD or contact Egamma experts" 
+      << std::endl << std::endl;
   }
 
   const float  eA = _effectiveAreas.getEffectiveArea( absEta );
@@ -138,7 +136,6 @@ double GsfEleCalPFClusterIsoCut::value(const reco::CandidatePtr& cand) const {
     throw cms::Exception("ERROR: unknown type requested for PF cluster isolation.")
       << std::endl << "Check VID configuration." << std::endl;
   } 
-  printf("DEBUG: in value() iso type %d and iso value %f\n", _isoType, isoValue);
   float isoValueCorr = std::max(0.0f, isoValue - rho*eA);
   
   // Divide by pT if the relative isolation is requested
