@@ -1,17 +1,19 @@
 #ifndef Phase2TrackerMonitorDigi_h
 #define Phase2TrackerMonitorDigi_h
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 class MonitorElement;
 class PixelDigi;
 class Phase2TrackerDigi;
-class TrackerTopology;
+class TrackerGeometry;
 
 class Phase2TrackerMonitorDigi : public DQMEDAnalyzer{
 
@@ -30,21 +32,28 @@ public:
   struct DigiMEs{
     MonitorElement* NumberOfDigis;
     MonitorElement* PositionOfDigis;
-    MonitorElement* DigiCharge;
     MonitorElement* NumberOfClusters;
-    MonitorElement* ClusterCharge;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPosition;
   };
 
+  MonitorElement* XYPositionMap;
+  MonitorElement* RZPositionMap;
+
 private:
-  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo); 
+  void bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool iflag); 
+  template <class T>
+  void fillDigiHistos(const edm::Handle<edm::DetSetVector<T>>  handle, const edm::ESHandle<TrackerGeometry> gHandle);
   
   edm::ParameterSet config_;
   std::map<unsigned int, DigiMEs> layerMEs;
-  edm::InputTag pixDigiSrc_;
-  edm::InputTag otDigiSrc_;
-  const edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > pixDigiToken_;
+  bool pixelFlag_;
+  std::string geomType_; 
+  edm::InputTag otDigiSrc_; 
+  edm::InputTag itPixelDigiSrc_; 
   const edm::EDGetTokenT< edm::DetSetVector<Phase2TrackerDigi> > otDigiToken_;
+  const edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > itPixelDigiToken_;
+  edm::ESHandle<TrackerTopology> tTopoHandle_;
+
 };
 #endif
