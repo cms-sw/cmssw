@@ -1569,7 +1569,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 ####From this line till the end of the file :
 ####UPGRADE WORKFLOWS IN PREPARATION - Gaelle's sandbox - 
 #####Accessible only through the option --what upgrade
-#####therefore not run in IBs (at some they might be...) 
+#####(unless specifically added to relval_2023.py)
 #####Transparent for any of the standard workflows
 #### list of worflows defined (not necessarly running though): runTheMatrix.py --what upgrade -n 
 #### 
@@ -1799,7 +1799,7 @@ for step in upgradeSteps:
                 #however, there can be a conflict of beam spots but this is lost in the dataset name
                 #so please be careful   
                 s=frag[:-4]+'_'+key
-                if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter:
+                if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and '2023' not in k: # temporarily exclude 2023 WFs
                     steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in upgradeKeys:
