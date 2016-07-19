@@ -136,6 +136,7 @@ globalPrevalidationMuons = cms.Sequence(
     + recoMuonValidation
     + rpcRecHitValidation_step
     + dtLocalRecoValidation_no2D
+    + muonIdValDQMSeq
 )
 
 globalValidationMuons = cms.Sequence()
