@@ -46,6 +46,41 @@ def deltaR2(a, b):
     
     return pow(abs(abs(phi1 - phi2) - math.pi) - math.pi, 2) + pow(eta1 - eta2, 2)
 
+
+# Test if the jet passes the loose JetID criteria defined at
+# https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
+# Furthermore we require:
+#   - pT > 20 GeV
+#   - |eta| < 2.4
+def passesJetId(jet):
+    
+    if jet.pt() <= 20:
+        return False
+    
+    if abs(jet.eta()) >= 2.4:
+        return False
+
+    if jet.neutralHadronEnergyFraction() >= 0.99:
+        return False
+    
+    if jet.neutralEmEnergyFraction() >= 0.99:
+        return False
+
+    if jet.chargedMultiplicity()+jet.neutralMultiplicity() <= 1:
+        return False
+    
+    if jet.chargedHadronEnergyFraction() <= 0:
+        return False
+        
+    if jet.chargedMultiplicity() <= 0:
+        return False
+    
+    if  jet.chargedEmEnergyFraction() >= 0.99:
+        return False
+
+    return True
+
+
 def etaRelToTauAxis( vertex, tauAxis, tau_trackEtaRel) :
   direction = ROOT.Math.XYZVector(tauAxis.px(), tauAxis.py(), tauAxis.pz())
   tracks = vertex.daughterPtrVector()
@@ -853,8 +888,7 @@ class AdditionalBoost( Analyzer ):
                         # Map dummy value to -0.1
                         if j.btag == -10.:
                             j.btag = -0.1
-                        
-
+                                                    
             # Add information from which FJ the subjet comes
             # Loop over subjets
             for j in getattr(event, fj_name+"subjets"):
@@ -883,6 +917,24 @@ class AdditionalBoost( Analyzer ):
 
                     if j.fromFJ > -1:
                         break
+
+            # Calibrate subjets
+            for j in getattr(event, fj_name+"subjets"):
+
+                # Calibrate the subjet
+                sj_uncal = Jet(j)        
+                # isHttSubjet is set to true
+                # it can be used for all jets that are uncalibrated and have no RAW factor
+                cal = self.jetReCalibratorAK4.getCorrection(sj_uncal, rho, isHttSubjet=True)            
+                
+                j.scaleEnergy(cal)
+ 
+
+            # Add jetID information 
+            for j in getattr(event, fj_name+"subjets"):
+                j.jetID = passesJetId(j)
+
+
             
             # Sort subjets by pT
             setattr(event, fj_name + "subjets", sorted(getattr(event, fj_name + "subjets"), key = lambda x:-x.pt()))
@@ -916,7 +968,6 @@ class AdditionalBoost( Analyzer ):
                 sj_w1_cal = PhysicsObject(sj_w1).__copy__() 
                 sj_w1_cal.scaleEnergy(c)
 
-
                 # Calibrate the subjets: W2
                 sj_w2_uncal = Jet(sj_w2)        
                 c = self.jetReCalibratorAK4.getCorrection(sj_w2_uncal, rho, isHttSubjet=True)            
@@ -929,7 +980,8 @@ class AdditionalBoost( Analyzer ):
                 sj_nonw_cal = PhysicsObject(sj_nonw).__copy__() 
                 sj_nonw_cal.scaleEnergy(c)
 
-
+                # Do all subjets pass the JetID requirements
+                event.httCandidates[i].subjetIDPassed = all([passesJetId(x) for x in [sj_w1_cal, sj_w2_cal, sj_nonw_cal]])
 
                 # Make TLVs so we can add them and get the top quark
                 # candidate                
@@ -1038,12 +1090,14 @@ class AdditionalBoost( Analyzer ):
             for i in xrange(len(newtags)) :
                 if jet.physObj == newtags.key(i).get():
                     jet.bbtag = newtags.value(i)
-		corr = self.jetReCalibratorAK8L2L3.getCorrection(Jet(jet),rho)
+
+                tmp_jet = Jet(jet)
+		corr = self.jetReCalibratorAK8L2L3.getCorrection(tmp_jet,rho)
                 jet.mprunedcorr= jet.userFloat("ak8PFJetsCHSPrunedMass")*corr	
-		jet.JEC_L2L3 = corr
-                #jet.JEC_L2L3Unc = jet.jetEnergyCorrUncertainty
-		jet.JEC_L1L2L3 = self.jetReCalibratorAK8L1L2L3.getCorrection(Jet(jet),rho)
-                #jet.JEC_L1L2L3Unc = jet.jetEnergyCorrUncertainty
+		jet.JEC_L2L3 = corr                
+                jet.JEC_L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
+		jet.JEC_L1L2L3 = self.jetReCalibratorAK8L1L2L3.getCorrection(tmp_jet,rho)
+                jet.JEC_L1L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
 
             # bb-tag Inputs
             muonTagInfos = self.handles['ak08muonTagInfos'].product()[ij]

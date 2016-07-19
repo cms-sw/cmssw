@@ -161,6 +161,7 @@ for analysis in ["","corrJECUp", "corrJECDown", "corrJERUp", "corrJERDown"]:
 
 
 #add per-jet b-tag systematic weight
+'''
 from PhysicsTools.Heppy.physicsutils.BTagWeightCalculator import BTagWeightCalculator
 csvpath = os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/csv"
 bweightcalc = BTagWeightCalculator(
@@ -180,32 +181,25 @@ jetTypeVHbb.variables += [NTupleVariable("bTagWeight",
         jet, kind="final", systematic="nominal",
     ), float, mcOnly=True, help="b-tag CSV weight, nominal"
 )]
+'''
 
 # add the POG SF
 from btagSF import *
 
-for wp in [ "CSVL", "CSVM", "CSVT", "CMVAV2L", "CMVAV2M", "CMVAV2T" ]:
-    for syst in ["central", "up", "down"]:
-        syst_name = "" if syst=="central" else ("_"+syst.title()) 
-        jetTypeVHbb.variables += [ NTupleVariable("btag"+wp+"SF"+syst_name,  lambda jet, get_csv_SF=get_csv_SF, syst=syst, wp=wp : 
-                                                  get_csv_SF(jet.pt(), jet.eta(), jet.hadronFlavour(), syst, wp)
-                                                  , float, mcOnly=True, help="b-tag "+wp+" POG scale factor, "+syst  )]
+for algo in ["CSV", "CMVAV2"]:
+    for wp in [ "L", "M", "T" ]:
+        for syst in ["central", "up", "down"]:
+            syst_name = "" if syst=="central" else ("_"+syst) 
+            jetTypeVHbb.variables += [ NTupleVariable("btag"+algo+wp+"_SF"+syst_name,  lambda x, get_SF=get_SF, syst=syst, algo=algo, wp=wp, btag_calibrators=btag_calibrators : 
+                                                      get_SF(x.pt(), x.eta(), x.hadronFlavour(), 0.0, syst, algo, wp, False, btag_calibrators)
+                                                      , float, mcOnly=True, help="b-tag "+algo+wp+" POG scale factor, "+syst  )]
+
+    for syst in ["central", "up_jes", "down_jes", "up_lf", "down_lf", "up_hf", "down_hf", "up_hfstats1", "down_hfstats1", "up_hfstats2", "down_hfstats2", "up_lfstats1", "down_lfstats1", "up_lfstats2", "down_lfstats2", "up_cferr1", "down_cferr1", "up_cferr2", "down_cferr2"]:
+        syst_name = "" if syst=="central" else ("_"+syst) 
+        jetTypeVHbb.variables += [ NTupleVariable("btagWeight"+algo+syst_name,  lambda x, get_SF=get_SF, syst=syst, algo=algo, wp=wp, btag_calibrators=btag_calibrators : 
+                                                      get_SF(x.pt(), x.eta(), x.hadronFlavour(), (x.btag("pfCombinedInclusiveSecondaryVertexV2BJetTags") if algo=="CSV" else x.btag('pfCombinedMVAV2BJetTags')), syst, algo, wp, True, btag_calibrators)
+                                                      , float, mcOnly=True, help="b-tag "+algo+" continuous POG scale factor, "+syst  )]
         
-
-#ROOT.gSystem.Load(csvpath+'/BTagCalibrationStandalone.so')
-#calib = ROOT.BTagCalibration("csvv2", csvpath+"/CSVv2.csv")
-#for wp in [ [0, "L"],[1, "M"], [2,"T"] ]:
-#    for syst in ["central", "up", "down"]:
-#        csv_calib_bc = ROOT.BTagCalibrationReader(calib, wp[0], "mujets", syst)
-#        csv_calib_l = ROOT.BTagCalibrationReader(calib, wp[0], "incl", syst)
-#        syst_name = "" if syst=="central" else ("_"+syst.title())
-#        jetTypeVHbb.variables += [ NTupleVariable("btagCSV"+wp[1]+"SF"+syst_name,  lambda jet, csv_calib_bc=csv_calib_bc, csv_calib_l=csv_calib_l : 
-#                                                  (csv_calib_bc.eval( -jet.hadronFlavour()+5 ,jet.eta(), jet.pt()) if (abs(jet.eta())<2.4 and jet.pt()<670. and jet.pt()>30.) else 1.0) 
-#                                                  if jet.hadronFlavour()>=4 
-#                                                  else (csv_calib_l.eval(2,jet.eta(), jet.pt()) if (abs(jet.eta())<2.4 and jet.pt()<1000. and jet.pt()>20.) else 1.0)
-#                                                  , float, mcOnly=True, help="b-tag CSV"+wp[1]+" POG scale factor, "+syst  )]
-            
-
 #add per-lepton SF
 from leptonSF import LeptonSF
 
@@ -305,10 +299,10 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
     NTupleVariable("msoftdrop",  lambda x : x.userFloat("ak8PFJetsCHSSoftDropMass"),  help="Softdrop Mass"),
     NTupleVariable("mpruned",    lambda x : x.userFloat("ak8PFJetsCHSPrunedMass"),    help="Pruned Mass"),
     NTupleVariable("mprunedcorr",    lambda x : x.mprunedcorr,    help="Pruned Mass L2+L3 corrected"),
-    NTupleVariable("JEC_L2L3",    lambda x : x.mprunedcorr,    help="L2+L3 correction factor for pruned mass"),	
-    NTupleVariable("JEC_L1L2L3",    lambda x : x.mprunedcorr,    help="L1+L2+L3 correction factor for ungroomed pt"),	
-    #NTupleVariable("JEC_L2L3Unc",    lambda x : x.JEC_L2L3Unc,    help="Unc L2+L3 correction factor for pruned mass"),
-    #NTupleVariable("JEC_L1L2L3Unc",    lambda x : x.JEC_L1L2L3Unc,    help="Unc L1+L2+L3 correction factor for ungroomed pt"),
+    NTupleVariable("JEC_L2L3",    lambda x : x.JEC_L2L3,    help="L2+L3 correction factor for pruned mass"),	
+    NTupleVariable("JEC_L1L2L3",    lambda x : x.JEC_L1L2L3,    help="L1+L2+L3 correction factor for ungroomed pt"),	
+    NTupleVariable("JEC_L2L3Unc",    lambda x : x.JEC_L2L3Unc,    help="Unc L2+L3 correction factor for pruned mass"),
+    NTupleVariable("JEC_L1L2L3Unc",    lambda x : x.JEC_L1L2L3Unc,    help="Unc L1+L2+L3 correction factor for ungroomed pt"),
 
     NTupleVariable("bbtag",  lambda x : x.bbtag, help="Hbb b-tag score"),
     NTupleVariable("id_Tight",  lambda x : (x.numberOfDaughters()>1 and x.neutralEmEnergyFraction() <0.90 and x.neutralHadronEnergyFraction()<0.90 and x.muonEnergyFraction()  < 0.8) and (x.eta>2.4 or (x.chargedEmEnergyFraction()<0.90 and x.chargedHadronEnergyFraction()>0 and x.chargedMultiplicity()>0)) , help="POG Tight jet ID lep veto"),
@@ -370,10 +364,11 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
 ## Subjet
 ##------------------------------------------  
 
-# Four Vector + b-Tag
+# Four Vector + b-Tag + JetID 
 
 subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], variables = [
     NTupleVariable("btag",    lambda x : x.btag, help="CVS IVF V2 btag-score"),
+    NTupleVariable("jetID",    lambda x : x.jetID, help="Jet ID (loose) + pT/eta cuts"),
     NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
 ],)
 
@@ -406,7 +401,8 @@ httType = NTupleObjectType("htt",  baseObjectTypes = [ fourVectorType ], variabl
     NTupleVariable("Ropt",  lambda x : x.Ropt, help="optimal value of R"),
     NTupleVariable("RoptCalc",  lambda x : x.RoptCalc, help="expected value of optimal R"),
     NTupleVariable("ptForRoptCalc",  lambda x : x.ptForRoptCalc, help="pT used for calculation of RoptCalc"),
-
+    NTupleVariable("subjetIDPassed",  lambda x : x.subjetIDPassed, help="Do all the subjets pass jet id criteria?"),
+    
     # Leading W Subjet (pt)
     NTupleVariable("sjW1ptcal",lambda x : x.sjW1ptcal,help = "Leading W Subjet pT (calibrated)"),
     NTupleVariable("sjW1pt",   lambda x : x.sjW1pt,   help = "Leading W Subjet pT"),

@@ -98,10 +98,18 @@ class JetReCalibrator:
         corrector.setRho(rho)
         corr = corrector.getCorrection()
 
-        if delta != 0:
+        # if delta != 0:
+        # Short circuit the condition so we always attach the uncertainty to the jet
+        # (Why was this only done for delta != 0?)
+        if True:
             if not self.JetUncertainty: raise RuntimeError("Jet energy scale uncertainty shifts requested, but not available")
             self.JetUncertainty.setJetEta(jet.eta())
-            self.JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
+
+            if isHttSubjet:
+                self.JetUncertainty.setJetPt(corr * jet.pt())
+            else:
+                self.JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
+
             try:
                 jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True) 
             except RuntimeError as r:

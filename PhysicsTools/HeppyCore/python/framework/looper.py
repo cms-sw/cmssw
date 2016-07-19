@@ -111,6 +111,9 @@ class Looper(object):
             raise ValueError( errmsg )
         if hasattr(config,"preprocessor") and config.preprocessor is not None :
               self.cfg_comp = config.preprocessor.run(self.cfg_comp,self.outDir,firstEvent,nEvents)
+              #in case the preprocessor was run, need to process all events afterwards 
+              self.firstEvent = 0
+              self.nEvents = None
         if hasattr(self.cfg_comp,"options"):
               print self.cfg_comp.files,self.cfg_comp.options
               self.events = config.events_class(self.cfg_comp.files, tree_name,options=self.cfg_comp.options)

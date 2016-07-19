@@ -1,3 +1,9 @@
+'''
+Based on the "reHLT" menu:
+/frozen/2016/25ns10e33/v2.1/HLT/V3 (CMSSW_8_0_11, HLTrigger/Configuration/python/HLT_25ns10e33_v2_cff.py)
+link: https://cmsweb-testbed.cern.ch/confdb/#config=/frozen/2016/25ns10e33/v2.1/HLT/V3
+'''
+
 triggerTable = {
     "ZnnHbb" : [
         "HLT_PFMET90_PFMHT90_IDTight_v*",
@@ -22,13 +28,10 @@ triggerTable = {
         "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*",
         "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v*",
         "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v*",
-        "HLT_Ele32_eta2p1_WPLoose_Gsf_v*",
-        "HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*",
+        "HLT_Ele32_eta2p1_WPTight_Gsf_v*",
         "HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v*",
         "HLT_Ele27_eta2p1_WPLoose_Gsf_v*",
         "HLT_Ele27_eta2p1_WPTight_Gsf_v*",
-        "HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*",
-        "HLT_Ele22_eta2p1_WPTight_Gsf_v*",
         "HLT_Ele22_eta2p1_WPLoose_Gsf_v*",
         "HLT_Ele23_WPLoose_Gsf_v*",
         "HLT_Ele27_WPLoose_Gsf_v*",
@@ -47,16 +50,13 @@ triggerTable = {
 
 
     "WenHbbAll" : [
-        "HLT_Ele32_eta2p1_WPLoose_Gsf_v*",
-        "HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*",
+        "HLT_Ele32_eta2p1_WPTight_Gsf_v*",
         "HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v*",
         "HLT_Ele27_eta2p1_WPLoose_Gsf_v*",
         "HLT_Ele27_eta2p1_WPTight_Gsf_v*",
-        "HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*",
         "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
         "HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v*",
         "HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*",
-        "HLT_Ele22_eta2p1_WPTight_Gsf_v*",
         "HLT_Ele22_eta2p1_WPLoose_Gsf_v*",
         "HLT_Ele23_WPLoose_Gsf_v*",
         "HLT_Ele27_WPLoose_Gsf_v*",
@@ -65,7 +65,7 @@ triggerTable = {
         "HLT_Ele25_eta2p1_WPLoose_Gsf_v*"
     ],
     "WenHbbHighLumi" : [
-        "HLT_Ele32_eta2p1_WPLoose_Gsf_v*",
+        "HLT_Ele32_eta2p1_WPTight_Gsf_v*",
         "HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v*",
         "HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*",
     ],
@@ -81,17 +81,14 @@ triggerTable = {
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*",
         "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*",
         "HLT_DoubleIsoMu17_eta2p1_v*",
-        "HLT_IsoMu24_eta2p1_v*",
-        "HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v*",
+        "HLT_IsoMu24_v*",
         "HLT_Mu24_eta2p1_v*",
         "HLT_TkMu24_eta2p1_v*",
-        "HLT_Mu24_v*",
         "HLT_IsoMu27_v*",
         "HLT_IsoTkMu27_v*",
         "HLT_TkMu27_v*",
         "HLT_Mu27_v*",
-        "HLT_IsoMu20_eta2p1_v*",
-        "HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v*",
+        "HLT_IsoMu20_v*",
         "HLT_Mu20_v*",
         "HLT_TkMu20_v*",
         "HLT_IsoMu20_v*",
@@ -100,12 +97,10 @@ triggerTable = {
         "HLT_TkMu20_v*",
         "HLT_Mu40_eta2p1_PFJet200_PFJet50_v*",
         "HLT_IsoMu18_v*",
-        "HLT_OldIsoMu18_v*",
         "HLT_IsoTkMu18_v*",
-        "HLT_OldIsoTkMu18_v*",
     ],
     "ZmmHbbHighLumi" : [
-        "HLT_IsoMu24_eta2p1_v*",
+        "HLT_IsoMu24_v*",
         "HLT_IsoMu27_v*",
         "HLT_IsoTkMu27_v*",
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*",
@@ -119,17 +114,13 @@ triggerTable = {
     ],
 
     "WmnHbbAll" : [
-        "HLT_IsoMu24_eta2p1_v*",
-        "HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v*",
         "HLT_Mu24_eta2p1_v*",
         "HLT_TkMu24_eta2p1_v*",
-        "HLT_Mu24_v*",
         "HLT_IsoMu27_v*",
         "HLT_IsoTkMu27_v*",
         "HLT_TkMu27_v*",
         "HLT_Mu27_v*",
-        "HLT_IsoMu20_eta2p1_v*",
-        "HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v*",
+        "HLT_IsoMu20_v*",
         "HLT_Mu20_v*",
         "HLT_TkMu20_v*",
         "HLT_IsoMu20_v*",
@@ -137,28 +128,28 @@ triggerTable = {
         "HLT_Mu20_v*",
         "HLT_TkMu20_v*",
         "HLT_IsoMu18_v*",
-        "HLT_OldIsoMu18_v*",
         "HLT_IsoTkMu18_v*",
-        "HLT_OldIsoTkMu18_v*",
         "HLT_Mu40_eta2p1_PFJet200_PFJet50_v*",
-        "HLT_IsoMu16_eta2p1_CaloMET30_v*",
-        "HLT_Mu16_eta2p1_CaloMET30_v*",
-        "HLT_PFMET120_NoiseCleaned_Mu5_v*",
-        "HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v*",
-        "HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v*",
-        "HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v*",
-        "HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v*",
+        "HLT_IsoMu16_eta2p1_MET30_v*",
+        "HLT_Mu16_eta2p1_MET30_v*",
+        "HLT_PFMET120_Mu5_v*",
+        "HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*",
+        "HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v*",
+        "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v*",
+        "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v*",
+        "HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v*",
+        "HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v*",
     ],
     "WmnHbbHighLumi" : [
-        "HLT_IsoMu24_eta2p1_v*",
+        "HLT_IsoMu24_v*",
         "HLT_IsoMu27_v*",
         "HLT_IsoTkMu27_v*",
-        "HLT_IsoMu16_eta2p1_CaloMET30_v*"
+        "HLT_IsoMu16_eta2p1_MET30_v*"
     ],
     "WmnHbbLowLumi" : [
         "HLT_IsoMu20_v*",
         "HLT_IsoTkMu20_v*",
-        "HLT_IsoMu16_eta2p1_CaloMET30_v*",
+        "HLT_IsoMu16_eta2p1_MET30_v*",
     ],
 
     "WtaunHbbAll" : [
@@ -199,7 +190,7 @@ triggerTable = {
         "HLT_DoubleJet90_Double30_DoubleBTagCSV_p087_v*",
 
         "HLT_AK8DiPFJet250_200_TrimMass30_BTagCSV_p20_v*",
-        "HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p45_v*",
+        "HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_v*",
         "HLT_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV_p20_v*",
         "HLT_AK8PFHT650_TrimR0p1PT0p03Mass50_v*",
         "HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v*",
