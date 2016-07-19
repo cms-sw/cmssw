@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023simReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023sim_cff')
 process.load('Geometry.HcalCommonData.testPhase2GeometryFineReco_cff')
 process.load('Geometry.HcalCommonData.testPhase2GeometryFine_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
@@ -113,7 +113,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         PartID = cms.vint32(13), #--->muon
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(1.3),
+        MinEta = cms.double(1.2),
         MaxEta = cms.double(3.0)
     ),
     Verbosity = cms.untracked.int32(0),

@@ -13,116 +13,86 @@
 </ConstantsSection>
 
 <SolidSection label="hgcalwafer.xml">
-
-  <Polyhedra name="HGCalEEWafer" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+  <Polyhedra name="HGCalWafer" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[WaferW]/2"/>
     <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[WaferW]/2"/>
   </Polyhedra>
-  <Polyhedra name="HGCalEECellCoarse" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+  <Polyhedra name="HGCalCellCoarse" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[CellWC]/2"/>
     <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[CellWC]/2"/>
   </Polyhedra>
-  <Polyhedra name="HGCalEECellFine" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+  <Polyhedra name="HGCalCellFine" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
     <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[CellWF]/2"/>
     <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[CellWF]/2"/>
   </Polyhedra>  
-  <Polyhedra name="HGCalHEWafer" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
-    <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[WaferW]/2"/>
-    <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[WaferW]/2"/>
-  </Polyhedra>
-  <Polyhedra name="HGCalHECellCoarse" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
-    <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[CellWC]/2"/>
-    <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[CellWC]/2"/>
-  </Polyhedra>
-  <Polyhedra name="HGCalHECellFine" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
-    <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[CellWF]/2"/>
-    <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[CellWF]/2"/>
-  </Polyhedra>  
-
   <Box name="HGCalCellCoarseMask" dx="[CellWC]/2" dy="[CellWC]" dz="[WaferT]/2"/>
   <Box name="HGCalCellFineMask" dx="[CellWF]/2" dy="[CellWF]" dz="[WaferT]/2"/>
-
-  <SubtractionSolid name="HGCalEECellCoarseHalf">
-   <rSolid name="HGCalEECellCoarse"/>
+  <SubtractionSolid name="HGCalCellCoarseHalf">
+   <rSolid name="HGCalCellCoarse"/>
    <rSolid name="HGCalCellCoarseMask"/>
    <rRotation name="rotations:000D"/>
    <Translation x="[CellWC]/2" y="0.0*fm" z="0.0*fm"/>
   </SubtractionSolid>
-  <SubtractionSolid name="HGCalHECellCoarseHalf">
-   <rSolid name="HGCalHECellCoarse"/>
-   <rSolid name="HGCalCellCoarseMask"/>
-   <rRotation name="rotations:000D"/>
-   <Translation x="[CellWC]/2" y="0.0*fm" z="0.0*fm"/>
-  </SubtractionSolid>
-
-  <SubtractionSolid name="HGCalEECellFineHalf">
-   <rSolid name="HGCalEECellFine"/>
+  <SubtractionSolid name="HGCalCellFineHalf">
+   <rSolid name="HGCalCellFine"/>
    <rSolid name="HGCalCellFineMask"/>
    <rRotation name="rotations:000D"/>
    <Translation x="[CellWF]/2" y="0.0*fm" z="0.0*fm"/>
   </SubtractionSolid>
-  <SubtractionSolid name="HGCalHECellFineHalf">
-   <rSolid name="HGCalHECellFine"/>
-   <rSolid name="HGCalCellFineMask"/>
-   <rRotation name="rotations:000D"/>
-   <Translation x="[CellWF]/2" y="0.0*fm" z="0.0*fm"/>
-  </SubtractionSolid>
-  
-
 </SolidSection> 
 
 <LogicalPartSection label="hgcalwafer.xml">
   <LogicalPart name="HGCalEEWaferCoarse" category="unspecified">
-    <rSolid name="HGCalEEWafer"/>
+    <rSolid name="HGCalWafer"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
   <LogicalPart name="HGCalHEWaferCoarse" category="unspecified">
-    <rSolid name="HGCalHEWafer"/>
+    <rSolid name="HGCalWafer"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
 
   <LogicalPart name="HGCalEEWaferFine" category="unspecified">
-    <rSolid name="HGCalEEWafer"/>
+    <rSolid name="HGCalWafer"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
   <LogicalPart name="HGCalHEWaferFine" category="unspecified">
-    <rSolid name="HGCalHEWafer"/>
+    <rSolid name="HGCalWafer"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
 
   <LogicalPart name="HGCalEECellCoarse" category="unspecified">
-    <rSolid name="HGCalEECellCoarse"/>
+    <rSolid name="HGCalCellCoarse"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
   <LogicalPart name="HGCalHECellCoarse" category="unspecified">
-    <rSolid name="HGCalHECellCoarse"/>
+    <rSolid name="HGCalCellCoarse"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
 
   <LogicalPart name="HGCalEECellCoarseHalf" category="unspecified">
-    <rSolid name="HGCalEECellCoarseHalf"/>
+    <rSolid name="HGCalCellCoarseHalf"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
   <LogicalPart name="HGCalHECellCoarseHalf" category="unspecified">
-    <rSolid name="HGCalHECellCoarseHalf"/>
+    <rSolid name="HGCalCellCoarseHalf"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
 
   <LogicalPart name="HGCalEECellFine" category="unspecified">
-    <rSolid name="HGCalEECellFine"/>
+    <rSolid name="HGCalCellFine"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
   <LogicalPart name="HGCalHECellFine" category="unspecified">
-    <rSolid name="HGCalHECellFine"/>
+    <rSolid name="HGCalCellFine"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
   
   <LogicalPart name="HGCalEECellFineHalf" category="unspecified">
-    <rSolid name="HGCalEECellFineHalf"/>
+    <rSolid name="HGCalCellFineHalf"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
   <LogicalPart name="HGCalHECellFineHalf" category="unspecified">
-    <rSolid name="HGCalHECellFineHalf"/>
+    <rSolid name="HGCalCellFineHalf"/>
     <rMaterial name="materials:Silicon"/>
   </LogicalPart>
 </LogicalPartSection>
