@@ -14,7 +14,6 @@ public:
   explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
   virtual ~SiStripPopConNoisesHandlerFromDQM();
   // interface methods: implemented in template
-  void initialize() {}
   SiStripNoises* getObj();
 private:
   edm::FileInPath fp_;
@@ -64,66 +63,55 @@ SiStripNoises* SiStripPopConNoisesHandlerFromDQM::getObj()
   MEs.erase(newEnd, MEs.end());
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos  = reader.getAllData();
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin(); it != DetInfos.end(); ++it) {
-
+  for ( const auto& detInfo : reader.getAllData() ) {
 
     SiStripNoises::InputVector theSiStripVector;
 
     // Take the path for each DetId and build the complete path + histogram name
 
 
-    // MonitorElement * mE = getModuleHistogram(it->first, "PedsPerStrip");
-
-
-    MonitorElement * mE = 0;
-    std::string MEname("CMSubNoisePerStrip__det__"+std::to_string(it->first));
-    for( std::vector<MonitorElement*>::const_iterator MEit = MEs.begin();
-         MEit != MEs.end(); ++MEit ) {
-      if( (*MEit)->getName() == MEname ) {
-        mE = *MEit;
+    // MonitorElement * mE = getModuleHistogram(detInfo.first, "PedsPerStrip");
+    MonitorElement * mE{nullptr};
+    std::string MEname("CMSubNoisePerStrip__det__"+std::to_string(detInfo.first));
+    for ( const MonitorElement* ime : MEs ) {
+      if( ime->getName() == MEname ) {
+        mE = ime;
         break;
       }
     }
 
-    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<std::string>(it->first), findMEbyName() );
-    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<std::string>(it->first)) ));
-
-    if( mE != 0 ) {
+    // find( MEs.begin(), MEs.end(), "PedsPerStrip__det__"+boost::lexical_cast<std::string>(detInfo.first), findMEbyName() );
+    // MonitorElement * mE = *(find( MEs.begin(), MEs.end(), findMEbyName("PedsPerStrip__det__"+boost::lexical_cast<std::string>(detInfo.first)) ));
+    if ( mE ) {
       TH1F* histo = mE->getTH1F();
-
       if( histo != 0 ) {
-
         // Read the noise from the histograms
         uint32_t nBinsX = histo->GetXaxis()->GetNbins();
 
-        if( nBinsX != stripsPerApv*(it->second.nApvs) ) {
-          std::cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(it->second.nApvs) << std::endl;
+        if( nBinsX != stripsPerApv*(detInfo.second.nApvs) ) {
+          std::cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(detInfo.second.nApvs) << std::endl;
         }
 
         // std::cout << "Bin 0 = " << histo->GetBinContent(0) << std::endl;
-
         // TH1 bins start from 1, 0 is the underflow, nBinsX+1 the overflow.
         for( uint32_t iBin = 1; iBin <= nBinsX; ++iBin ) {
           // encode the pedestal value and put it in the vector (push_back)
           obj->setData( histo->GetBinContent(iBin), theSiStripVector );
         }
-      }
-      else {
+      } else {
         std::cout << "ERROR: histo = " << histo << std::endl;
       }
-    }
-    else {
+    } else {
       std::cout << "ERROR: ME = " << mE << std::endl;
     }
     // If the ME was absent fill the vector with 50 (we want a high noise to avoid these modules being considered good by mistake)
     if( theSiStripVector.empty() ) {
-      for(unsigned short j=0; j<128*it->second.nApvs; ++j){
+      for(unsigned short j=0; j<128*detInfo.second.nApvs; ++j){
         obj->setData(50, theSiStripVector);
       }
     }
 
-    if ( ! obj->put(it->first, theSiStripVector) )
+    if ( ! obj->put(detInfo.first, theSiStripVector) )
       edm::LogError("SiStripNoisesFakeESSource::produce ")<<" detid already exists"<<std::endl;
   }
   dqmStore_->cd();
