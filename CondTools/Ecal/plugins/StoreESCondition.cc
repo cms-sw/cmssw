@@ -270,13 +270,15 @@ ESPedestals* StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
 
   ESPedestals* esPedestals = new ESPedestals();
 
-  int ped[2][2][40][40][32];
-  for (int i=0; i<2; ++i) 
-    for (int j=0; j<2; ++j)
-      for (int k=0; k<40; ++k)
-	for (int m=0; m<40; ++m)
-	  for (int n=0; n<32; ++n) 
-	    ped[i][j][k][m][n] = 0;
+  // int ped[2][2][40][40][32];
+  // for (int i=0; i<2; ++i) 
+  //  for (int j=0; j<2; ++j)
+  //    for (int k=0; k<40; ++k)
+  //	for (int m=0; m<40; ++m)
+  //	  for (int n=0; n<32; ++n) 
+  //	    ped[i][j][k][m][n] = 0;
+
+  int ped[ESDetId::IZ_NUM][ESDetId::PLANE_MAX][ESDetId::IX_MAX][ESDetId::IY_MAX][ESDetId::ISTRIP_MAX]={};
 
   int iz, ip, ix, iy, is, ped_, zside;
   std::ifstream pedestalFile(edm::FileInPath(inputFile).fullPath().c_str());
@@ -293,7 +295,7 @@ ESPedestals* StoreESCondition::readESPedestalsFromFile(const char* inputFile) {
     if (iz==0) continue;
     zside = (iz==-1) ? 1 : 0; 
     
-    for (int iplane=1; iplane<=2; ++iplane) 
+    for (int iplane=ESDetId::PLANE_MIN; iplane<=ESDetId::PLANE_MAX; ++iplane) 
       for (int ix=ESDetId::IX_MIN; ix<=ESDetId::IX_MAX; ++ix) 
 	for (int iy=ESDetId::IY_MIN; iy<=ESDetId::IY_MAX; ++iy)   
 	  for (int istrip=ESDetId::ISTRIP_MIN; istrip<=ESDetId::ISTRIP_MAX; ++istrip) {
