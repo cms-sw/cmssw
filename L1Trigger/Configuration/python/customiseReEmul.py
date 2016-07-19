@@ -70,7 +70,7 @@ def L1TReEmulFromRAW2015(process):
         process.simBmtfDigis.DTDigi_Source         = cms.InputTag("simTwinMuxDigis")
         process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag("dttfDigis")
         process.simEmtfDigis.CSCInput              = cms.InputTag("csctfDigis")
-        process.simOmtfDigis.RPCInput              = cms.InputTag('muonRPCDigis')
+        process.simEmtfDigis.RPCInput              = cms.InputTag('muonRPCDigis')
         process.simOmtfDigis.srcCSC                = cms.InputTag("csctfDigis")
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
