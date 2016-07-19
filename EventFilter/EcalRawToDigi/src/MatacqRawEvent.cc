@@ -80,10 +80,9 @@ const MatacqRawEvent::field32spec_t MatacqRawEvent::side32              = {13,0x
 
 void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   error = 0;
-  unsigned char* begin = (unsigned char*) pData;
-  int16le_t* begin16 = (int16le_t*) pData;
+  const int16le_t *begin16 = (const int16le_t *) pData;
   uint32le_t* begin32 = (uint32le_t*) pData;
-  int16le_t* pData16 = begin16;
+  const int16le_t* pData16 = (const int16le_t *) begin16;
   const int daqHeaderLen = 16; //in bytes
   if(maxSize < 6*4){
     error = errorLength;
@@ -137,7 +136,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   const int nCh = getChannelCount();
   channelData.resize(nCh);
 
-  pData16 = (int16le_t*) (begin+headerLen); 
+  pData16 = (int16le_t*) (pData+headerLen); 
 
   for(int iCh=0; iCh<nCh; ++iCh){
     if((size_t)(pData16-begin16)>maxSize){
