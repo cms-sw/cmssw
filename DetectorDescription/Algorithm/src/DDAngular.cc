@@ -5,7 +5,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Base/interface/DDAlgoPar.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -121,7 +120,7 @@ DDAngular::execute( DDCompactView& cpv )
     double phiy = phix + 90. * CLHEP::deg;
     double phideg = phix / CLHEP::deg;
 
-    std::string rotstr = m_childNmNs.first + "_" + dbl_to_string( phideg * 10.);
+    std::string rotstr = m_childNmNs.first + "_" + std::to_string( phideg * 10.);
     DDRotation rotation = DDRotation( DDName( rotstr, m_idNameSpace ));
     if( !rotation )
     {

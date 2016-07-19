@@ -137,7 +137,7 @@ void DDHGCalModuleAlgo::constructLayers(DDLogicalPart module,
       double  rinB   = (layerSense[ly] == 0) ? (zo*slopeB[0]) : (zo*slopeB[1]);
       zz            += (0.5*thick[ii]);
 
-      std::string name = "HGCal"+names[ii]+dbl_to_string(copy);
+      std::string name = "HGCal"+names[ii]+std::to_string(copy);
 #ifdef DebugLog
       std::cout << "DDHGCalModuleAlgo test: Layer " << ly << ":" << ii 
 		<< " Front " << zi << ", " << routF << " Back " << zo << ", " 

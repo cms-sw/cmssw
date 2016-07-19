@@ -9,7 +9,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerRingAlgo.h"
@@ -90,7 +89,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
   }
   // tiltMatrix calculus
   if (isZPlus) {
-    std::string tiltRotstr = rotstr + "Tilt" + dbl_to_string(tiltAngle/CLHEP::deg) + "ZPlus";
+    std::string tiltRotstr = rotstr + "Tilt" + std::to_string(tiltAngle/CLHEP::deg) + "ZPlus";
     tiltRot = DDRotation(DDName(tiltRotstr, idNameSpace));
     if (!tiltRot) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << tiltRotstr
@@ -104,7 +103,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     if (isFlipped) { tiltMatrix *= flipMatrix; }
   }
   else {
-    std::string tiltRotstr = rotstr + "Tilt" + dbl_to_string(tiltAngle/CLHEP::deg) + "ZMinus";
+    std::string tiltRotstr = rotstr + "Tilt" + std::to_string(tiltAngle/CLHEP::deg) + "ZMinus";
     tiltRot = DDRotation(DDName(tiltRotstr, idNameSpace));
     if (!tiltRot) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << tiltRotstr
@@ -132,7 +131,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     double phiy = phix + 90.*CLHEP::deg;
     double phideg = phix/CLHEP::deg;  
     if (phideg != 0) {
-      std::string phiRotstr = rotstr + "Phi" + dbl_to_string(phideg*10.);
+      std::string phiRotstr = rotstr + "Phi" + std::to_string(phideg*10.);
       phiRot = DDRotation(DDName(phiRotstr, idNameSpace));
       if (!phiRot) {
 	LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << phiRotstr
@@ -145,7 +144,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     }
 
     // globalRot def
-    std::string globalRotstr = rotstr + "Phi" + dbl_to_string(phideg*10.) + "Tilt" + dbl_to_string(tiltAngle/CLHEP::deg);
+    std::string globalRotstr = rotstr + "Phi" + std::to_string(phideg*10.) + "Tilt" + std::to_string(tiltAngle/CLHEP::deg);
     if (isZPlus) {
       globalRotstr += "ZPlus";
       if (isFlipped) { globalRotstr += "Flip"; }

@@ -71,7 +71,7 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
     if (angles[k] != 0) {
       if (angles[k] >=0 && angles[k] < 100) rotstr = "R0"; 
       else                                  rotstr = "R"; 
-      rotstr = rotstr + dbl_to_string(angles[k]);
+      rotstr = rotstr + std::to_string(angles[k]);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 #ifdef DebugLog

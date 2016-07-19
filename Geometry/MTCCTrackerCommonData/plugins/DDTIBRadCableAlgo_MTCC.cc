@@ -7,8 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -103,7 +101,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
     
     if(!empty) {
       //Support disks
-      name  = "TIBSupportSideDisk" + dbl_to_string(i);
+      name  = "TIBSupportSideDisk" + std::to_string(i);
       rin   = layRin[i]+0.5*(deltaR-cylinderT)-supportDR;
       rout  = layRin[i]+0.5*(deltaR+cylinderT)+supportDR;
       solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
@@ -123,7 +121,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
 			  << " with no rotation";
       
       //Open Structure
-      name  = "TIBOpenZone" + dbl_to_string(i);
+      name  = "TIBOpenZone" + std::to_string(i);
       rout  = rin;
       if (i == 0) rin = rMin;
       else        rin = layRin[i-1]+0.5*(deltaR+cylinderT)+supportDR;
@@ -146,7 +144,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
 			  << " at " << r2 << " with no rotation";
       
       //Now the radial cable
-      name  = "TIBRadCable" + dbl_to_string(i);
+      name  = "TIBRadCable" + std::to_string(i);
       double rv = layRin[i]+0.5*deltaR;
       std::vector<double> pgonZ;
       pgonZ.push_back(-0.5*cableT); 
@@ -198,7 +196,7 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
       unsigned int i = layRin.size();
       rin  = layRin[i-1]+0.5*(deltaR+cylinderT)+supportDR;
       rout = rMax;
-      name  = "TIBOpenZone" + dbl_to_string(i);
+      name  = "TIBOpenZone" + std::to_string(i);
       solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, 
 				   rout, 0, CLHEP::twopi);
       LogDebug("TIBGeom") << "DDTIBRadCableAlgo_MTCC test: "
