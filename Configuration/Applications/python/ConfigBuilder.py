@@ -703,6 +703,8 @@ class ConfigBuilder(object):
 			if self._options.pileup_input:
 				if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
 					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],),self._options.pileup_dasoption)[0]
+				elif self._options.pileup_input.startswith("filelist:"):
+					mixingDict['F']=(filesFromList(self._options.pileup_input[9:]))[0]
 				else:
 					mixingDict['F']=self._options.pileup_input.split(',')
 			specialization=defineMixing(mixingDict)
