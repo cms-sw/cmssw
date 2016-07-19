@@ -481,7 +481,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, const edm::Eve
 //
 // Fill histograms
 //
-int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,std::vector<MonitorElement*>& layers,std::vector<MonitorElement*>& diskspz,std::vector<MonitorElement*>& disksmz,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon, bool isUpgrade) {
+int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker, int *barrelClusterTotal, int *fpixPClusterTotal, int *fpixMClusterTotal, std::vector<MonitorElement*>& layers,std::vector<MonitorElement*>& diskspz,std::vector<MonitorElement*>& disksmz,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon, bool isUpgrade) {
   
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -489,6 +489,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
   edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
   unsigned int numberOfClusters = 0;
   unsigned int numberOfFpixClusters = 0;
+
   
   if( isearch != input.end() ) {  // Not an empty iterator
 
@@ -498,6 +499,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
     for(di = isearch->begin(); di != isearch->end(); di++) {
       numberOfClusters++;
       if(endcap) numberOfFpixClusters++;
+      if(barrel) (*barrelClusterTotal)++;
       float charge = 0.001*(di->charge()); // total charge of cluster
       float x = di->x();                   // barycenter x position
       float y = di->y();                   // barycenter y position
@@ -521,11 +523,13 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
         uint32_t DBlayer = PixelBarrelName(DetId(id_), pTT, isUpgrade).layerName();
         if (!(DBlayer > layers.size()) && (layers[DBlayer-1])) layers[DBlayer-1]->Fill(clustgp.z(),clustgp.phi());
       }else if(endcap){
-   uint32_t DBdisk = PixelEndcapName(DetId(id_), pTT, isUpgrade).diskName();
+	uint32_t DBdisk = PixelEndcapName(DetId(id_), pTT, isUpgrade).diskName();
 	if(clustgp.z()>0){
-     if (!(DBdisk > diskspz.size()) && (diskspz[DBdisk-1])) diskspz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
+	  (*fpixPClusterTotal)++;
+	  if (!(DBdisk > diskspz.size()) && (diskspz[DBdisk-1])) diskspz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
 	}else{
-     if (!(DBdisk > disksmz.size()) && (disksmz[DBdisk-1])) disksmz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
+	  (*fpixMClusterTotal)++;
+	  if (!(DBdisk > disksmz.size()) && (disksmz[DBdisk-1])) disksmz[DBdisk-1]->Fill(clustgp.x(),clustgp.y());
 	} 
       }
       if(!reducedSet)
@@ -667,8 +671,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
     if(phion && barrel) (meNClustersPhi_)->Fill((float)numberOfClusters);
     if(bladeon && endcap) (meNClustersBlade_)->Fill((float)numberOfClusters);
     if(diskon && endcap) (meNClustersDisk_)->Fill((float)numberOfClusters);
-    if(ringon && endcap) (meNClustersRing_)->Fill((float)numberOfClusters);
-
+    if(ringon && endcap) (meNClustersRing_)->Fill((float)numberOfClusters);   
       
 
   }
