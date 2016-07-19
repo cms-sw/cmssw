@@ -106,7 +106,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
-        type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML'),
+        type = cms.string('SimG4Core/Physics/FTFP_BERT_EMM'),
         DummyEMPhysics = cms.bool(False),
         CutsPerRegion = cms.bool(True),
         CutsOnProton  = cms.untracked.bool(True),
