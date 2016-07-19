@@ -353,12 +353,4 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   }
   G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
   G4LossTableManager::Instance()->SetAtomDeexcitation(de);
-
-  // this should be changed when migration to 10.2 is done
-  /*
-  G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
-  opt.SetPolarAngleLimit(CLHEP::pi);
-  opt.SetApplyCuts(true);
-  */
 }
