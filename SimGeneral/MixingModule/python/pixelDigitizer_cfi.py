@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock, modifySimGeneralMixingModuleSiPixelSimParametersForPhase1WithPileup_
+from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
 
 pixelDigitizer = cms.PSet(
     SiPixelSimBlock,
