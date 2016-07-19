@@ -142,7 +142,16 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   l1t::EtSum etSumMinBiasHFP1(p4,l1t::EtSum::EtSumType::kMinBiasHFP1,mbp1,0,0,0);
   l1t::EtSum etSumMinBiasHFM1(p4,l1t::EtSum::EtSumType::kMinBiasHFM1,mbm1,0,0,0);
 
+  // dummy place holder for TotalEtEm till the emulator is available
+  l1t::EtSum dummy_etSumTotalEtEm(p4,l1t::EtSum::EtSumType::kTotalEtEm,0,0,0,0);
+
+
+
   outputSums.push_back(etSumTotalEt);
+  // -- store dummy TotalEtEm into vector <EtSum>   ---
+  // -- in the same order as EtSum packer/unpker    ---
+  outputSums.push_back(dummy_etSumTotalEtEm);
+  // -------------------------------------------------
   outputSums.push_back(etSumMinBiasHFP0);
   outputSums.push_back(htSumht);
   outputSums.push_back(etSumMinBiasHFM0);
