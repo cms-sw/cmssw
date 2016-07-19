@@ -85,6 +85,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
       << std::endl << "Change input format to PAT/miniAOD or contact Egamma experts" 
       << std::endl << std::endl;
   }
+  printf("Debug operator: checked pat pointer\n");
 
   const float isoCut =
     ( cand->pt() < ptCutOff_ ?
@@ -104,6 +105,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
     throw cms::Exception("ERROR: unknown type requested for PF cluster isolation.")
       << std::endl << "Check VID configuration." << std::endl;
   }
+  printf("DEBUG: in operator() iso type %d and iso value %f\n", _isoType, isoValue);
   float isoValueCorr = std::max(0.0f, isoValue - rho*eA);
   
   // Apply the cut and return the result
