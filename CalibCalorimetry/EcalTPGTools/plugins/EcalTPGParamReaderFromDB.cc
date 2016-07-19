@@ -56,21 +56,13 @@ EcalTPGParamReaderFromDB::~EcalTPGParamReaderFromDB()
 
 void EcalTPGParamReaderFromDB::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
-        try {
-                EcalTPGDBApp app( sid, user, pass);
+        EcalTPGDBApp app( sid, user, pass);
 
                 //int i ; 
                 //app.readTPGPedestals(i);
                 //app.writeTPGLUT();
                 //app.writeTPGWeights();
 
-        } catch (exception &e) {
-                cout << "ERROR:  " << e.what() << endl;
-        } catch (...) {
-                cout << "Unknown error caught" << endl;
-        }
-
-        cout << "All Done." << endl;
 }
 
 

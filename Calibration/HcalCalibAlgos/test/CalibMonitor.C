@@ -2,7 +2,7 @@
 // Usage:
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
-//                  flag, dataMC);
+//                  flag, numb, dataMC);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,mode);
 //
@@ -23,6 +23,7 @@
 //                               the output text file; d = 0/1 produces 
 //                               standard/extended set of histograms; o = 0/1
 //                               for loose/tight selection)
+//   numb   (int)              = number of eta bins (42 for -21:21)
 //   dataMC (bool)             = true/false for data/MC         
 //
 //   histFileName (std::string)= name of the file containing saved histograms
@@ -126,7 +127,8 @@ public :
 
   CalibMonitor(std::string fname, std::string dirname, 
 	       std::string dupFileName, std::string outTxtFileName, 
-	       std::string prefix="", int flag=0, bool datMC=true);
+	       std::string prefix="", int flag=0, int numb=42,
+	       bool datMC=true);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -143,7 +145,7 @@ private:
 
   static const unsigned int npbin=5, kp50=2;
   std::string               fname_, dirnm_, prefix_, outTxtFileName_;
-  int                       flag_;
+  int                       flag_, numb_;
   bool                      dataMC_, plotStandard_, flexibleSelect_;
   double                    log16by24_;
   std::vector<Long64_t>     entries_;
@@ -158,11 +160,12 @@ private:
 
 CalibMonitor::CalibMonitor(std::string fname, std::string dirnm, 
 			   std::string dupFileName, std::string outTxtFileName,
-			   std::string prefix, int flag, 
+			   std::string prefix, int flag, int numb,
 			   bool datMC) : fname_(fname), dirnm_(dirnm),
 					 prefix_(prefix), 
 					 outTxtFileName_(outTxtFileName), 
-					 flag_(flag), dataMC_(datMC) {
+					 flag_(flag), numb_(numb),
+					 dataMC_(datMC) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
@@ -267,13 +270,16 @@ void CalibMonitor::Init(TTree *tree, std::string& dupFileName) {
   }
 
   double xbins[9] = {-21.0, -16.0, -12.0, -6.0, 0.0, 6.0, 12.0, 16.0, 21.0};
-  double xbina[43]= {-21.5,-20.5,-19.5,-18.5,-17.5,-16.5,-15.5,-14.5,-13.5,
-		     -12.5,-11.5,-10.5,-9.5,-8.5,-7.5,-6.5,-5.5,-4.5,-3.5,
-		     -2.5,-1.5,0.0,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,
-		     11.5,12.5,13.5,14.5,15.5,16.5,17.5,18.5,19.5,20.5,21.5};
   if (plotStandard_) {
     for (int i=0; i<9; ++i) etas_.push_back(xbins[i]);
   } else {
+    double      xbina[99];
+    int         neta = numb_/2;
+    for (int k=0; k<neta; ++k) {
+      xbina[k]         = (k-neta)-0.5;
+      xbina[numb_-k+1] = (neta-k) + 0.5;
+    }
+    xbina[neta] = 0;
     for (int i=0; i<43; ++i) etas_.push_back(xbina[i]);
   }
   int ipbin[npbin] = {20, 30, 40, 60, 100};
