@@ -31,6 +31,9 @@ public:
 
     SeedingLayerSetsHits::LayerIndex layerIndex() const { return thirdLayer_; }
 
+    unsigned int tripletsBegin() const { return hitsBegin_; }
+    unsigned int tripletsEnd() const { return hitsEnd_; }
+
   private:
     SeedingLayerSetsHits::LayerIndex thirdLayer_;
     unsigned int hitsBegin_;
@@ -72,18 +75,27 @@ public:
 
   class LayerTripletHits {
   public:
-    LayerTripletHits(const LayerPairAndLayers *layerPairAndLayers,
+    LayerTripletHits(const IntermediateHitTriplets *hitSets,
+                     const LayerPairAndLayers *layerPairAndLayers,
                      const ThirdLayer *thirdLayer):
+      hitSets_(hitSets),
       layerPairAndLayers_(layerPairAndLayers),
       thirdLayer_(thirdLayer)
     {}
+
+    using TripletRange = std::pair<std::vector<OrderedHitTriplet>::const_iterator,
+                                   std::vector<OrderedHitTriplet>::const_iterator>;
 
     SeedingLayerSetsHits::LayerIndex innerLayerIndex() const { return std::get<0>(layerPairAndLayers_->layerPair()); }
     SeedingLayerSetsHits::LayerIndex middleLayerIndex() const { return std::get<1>(layerPairAndLayers_->layerPair()); }
     SeedingLayerSetsHits::LayerIndex outerLayerIndex() const { return thirdLayer_->layerIndex(); }
 
+    std::vector<OrderedHitTriplet>::const_iterator tripletsBegin() const { return hitSets_->tripletsBegin() + thirdLayer_->tripletsBegin(); }
+    std::vector<OrderedHitTriplet>::const_iterator tripletsEnd() const { return hitSets_->tripletsBegin() + thirdLayer_->tripletsEnd(); }
+
     const LayerHitMapCache& cache() const { return layerPairAndLayers_->cache(); }
   private:
+    const IntermediateHitTriplets *hitSets_;
     const LayerPairAndLayers *layerPairAndLayers_;
     const ThirdLayer *thirdLayer_;
   };
@@ -94,7 +106,7 @@ public:
   public:
     using LayerPairAndLayersConstIterator = std::vector<LayerPairAndLayers>::const_iterator;
     using ThirdLayerConstIterator = std::vector<ThirdLayer>::const_iterator;
-    using HitConstIterator = std::vector<OrderedHitTriplet>::const_iterator;
+    using TripletConstIterator = std::vector<OrderedHitTriplet>::const_iterator;
 
     class const_iterator {
     public:
@@ -102,7 +114,10 @@ public:
       using value_type = LayerTripletHits;
       using difference_type = internal_iterator_type::difference_type;
 
-      const_iterator(const RegionLayerHits *regionLayerHits):
+      struct end_tag {};
+
+      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerHits *regionLayerHits):
+        hitSets_(hitSets),
         regionLayerHits_(regionLayerHits),
         iterPair_(regionLayerHits->layerSetsBegin()),
         indThird_(iterPair_->thirdLayersBegin())
@@ -110,15 +125,26 @@ public:
         assert(regionLayerHits->layerSetsBegin() != regionLayerHits->layerSetsEnd());
       }
 
+      const_iterator(const IntermediateHitTriplets *hitSets, const RegionLayerHits *regionLayerHits, end_tag):
+        iterPair_(regionLayerHits->layerSetsEnd()),
+        indThird_(std::numeric_limits<unsigned int>::max())
+      {}
+
       value_type operator*() const {
-        return value_type(&(*iterPair_), &(*(regionLayerHits_->thirdLayerBegin() + indThird_)));
+        assert(static_cast<unsigned>(indThird_) < std::distance(hitSets_->thirdLayersBegin(), hitSets_->thirdLayersEnd()));
+        return value_type(hitSets_, &(*iterPair_), &(*(hitSets_->thirdLayersBegin() + indThird_)));
       }
 
       const_iterator& operator++() {
         auto nextThird = indThird_+1;
         if(nextThird == iterPair_->thirdLayersEnd()) {
           ++iterPair_;
-          indThird_ = iterPair_->thirdLayersBegin();
+          if(iterPair_ != regionLayerHits_->layerSetsEnd()) {
+            indThird_ = iterPair_->thirdLayersBegin();
+          }
+          else {
+            indThird_ = std::numeric_limits<unsigned int>::max();
+          }
         }
         else {
           indThird_ = nextThird;
@@ -136,41 +162,43 @@ public:
       bool operator!=(const const_iterator& other) const { return !operator==(other); }
 
     private:
+      const IntermediateHitTriplets *hitSets_;
       const RegionLayerHits *regionLayerHits_;
       internal_iterator_type iterPair_;
       unsigned int indThird_;
     };
 
     RegionLayerHits(const TrackingRegion* region,
-                    LayerPairAndLayersConstIterator pairBegin, LayerPairAndLayersConstIterator pairEnd,
-                    ThirdLayerConstIterator thirdBegin, ThirdLayerConstIterator thirdEnd):
+                    const IntermediateHitTriplets *hitSets,
+                    LayerPairAndLayersConstIterator pairBegin,
+                    LayerPairAndLayersConstIterator pairEnd):
       region_(region),
-      layerSetsBegin_(pairBegin), layerSetsEnd_(pairEnd),
-      thirdBegin_(thirdBegin), thirdEnd_(thirdEnd)
+      hitSets_(hitSets),
+      layerSetsBegin_(pairBegin), layerSetsEnd_(pairEnd)
     {}
 
     const TrackingRegion& region() const { return *region_; }
     size_t layerPairAndLayersSize() const { return std::distance(layerSetsBegin_, layerSetsEnd_); }
 
-    /*
-    const_iterator begin() const { return layerSetsBegin_; }
+    const_iterator begin() const {
+      if(layerSetsBegin_ != layerSetsEnd_)
+        return const_iterator(hitSets_, this);
+      else
+        return end();
+    }
     const_iterator cbegin() const { return begin(); }
-    const_iterator end() const { return layerSetsEnd_; }
+    const_iterator end() const { return const_iterator(hitSets_, this, const_iterator::end_tag()); }
     const_iterator cend() const { return end(); }
-    */
 
     // used internally
     LayerPairAndLayersConstIterator layerSetsBegin() const { return layerSetsBegin_; }
     LayerPairAndLayersConstIterator layerSetsEnd() const { return layerSetsEnd_; }
-    ThirdLayerConstIterator thirdLayerBegin() const { return thirdBegin_; }
-    ThirdLayerConstIterator thirdLayerEnd() const { return thirdEnd_; }
 
   private:
-    const TrackingRegion *region_;
+    const TrackingRegion *region_ = nullptr;
+    const IntermediateHitTriplets *hitSets_ = nullptr;
     const LayerPairAndLayersConstIterator layerSetsBegin_;
     const LayerPairAndLayersConstIterator layerSetsEnd_;
-    const ThirdLayerConstIterator thirdBegin_;
-    const ThirdLayerConstIterator thirdEnd_;
   };
 
   ////////////////////
@@ -264,6 +292,10 @@ public:
   std::vector<RegionIndex>::const_iterator regionsEnd() const { return regions_.end(); }
   std::vector<LayerPairAndLayers>::const_iterator layerSetsBegin() const { return layerPairAndLayers_.begin(); }
   std::vector<LayerPairAndLayers>::const_iterator layerSetsEnd() const { return layerPairAndLayers_.end(); }
+  std::vector<ThirdLayer>::const_iterator thirdLayersBegin() const { return thirdLayers_.begin(); }
+  std::vector<ThirdLayer>::const_iterator thirdLayersEnd() const { return thirdLayers_.end(); }
+  std::vector<OrderedHitTriplet>::const_iterator tripletsBegin() const { return hitTriplets_.begin(); }
+  std::vector<OrderedHitTriplet>::const_iterator tripletsEnd() const { return hitTriplets_.end(); }
 
 private:
   // to be called if no triplets are added
