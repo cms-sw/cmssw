@@ -12,6 +12,18 @@ class RPCCluster{
   int clusterSize() const;
   int bx() const;
 
+  bool hasTime() const;
+  float time() const;
+  float timeRMS() const;
+  float timeRMS2() const;
+
+  bool hasY() const;
+  float y() const;
+  float yRMS() const;
+  float yRMS2() const;
+
+  void addTime(const float time);
+  void addY(const float y);
   void merge(const RPCCluster& cl);
 
   bool operator<(const RPCCluster& cl) const;
@@ -22,5 +34,11 @@ class RPCCluster{
   uint16_t fstrip;
   uint16_t lstrip;
   int16_t bunchx;
+
+  float sumTime, sumTime2;
+  uint16_t nTime;
+
+  float sumY, sumY2;
+  uint16_t nY;
 };
 #endif

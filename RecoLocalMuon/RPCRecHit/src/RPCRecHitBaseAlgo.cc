@@ -30,15 +30,17 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
   for ( auto cl : cls ) {
     LocalError tmpErr;
     LocalPoint point;
+    float time = 0, timeErr = -1;
 
     // Call the compute method
-    const bool OK = this->compute(roll, cl, point, tmpErr);
+    const bool OK = this->compute(roll, cl, point, tmpErr, time, timeErr);
     if (!OK) continue;
 
     // Build a new pair of 1D rechit
     const int firstClustStrip = cl.firstStrip();
     const int clusterSize = cl.clusterSize();
     RPCRecHit* recHit = new RPCRecHit(rpcId,cl.bx(),firstClustStrip,clusterSize,point,tmpErr);
+    if ( timeErr > 0 ) recHit->setTimeAndError(time, timeErr);
 
     result.push_back(recHit);
   }
