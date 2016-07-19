@@ -1,4 +1,4 @@
-#include "DQM/SiStripHistoricInfoClient/plugins/SiStripPopConHistoryDQMBase.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConHistoryDQMBase.h"
 
 /**
   @author D. Giordano
@@ -6,7 +6,7 @@
 */
 class GenericHistoryDQM : public SiStripPopConHistoryDQMBase {
 public:
-  explicit GenericHistoryDQM(const edm::ParameterSet&)
+  explicit GenericHistoryDQM(const edm::ParameterSet& iConfig)
     : SiStripPopConHistoryDQMBase(iConfig)
     , m_detectorID{iConfig.getParameter<uint32_t>("DetectorId")}
   {}
@@ -14,21 +14,23 @@ public:
   virtual ~GenericHistoryDQM();
 private:
   //Methods to be specified by each subdet
-  uint32_t returnDetComponent(const MonitorElement* ME);
-  bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity );
-  bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity );
+  uint32_t returnDetComponent(const MonitorElement* ME) const;
+  bool setDBLabelsForUser  (const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity ) const;
+  bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity ) const;
 
   uint32_t m_detectorID;
 };
 
-uint32_t GenericHistoryDQM::returnDetComponent(const MonitorElement* ME)
+GenericHistoryDQM::~GenericHistoryDQM() {}
+
+uint32_t GenericHistoryDQM::returnDetComponent(const MonitorElement* ME) const
 {
   LogTrace("GenericHistoryDQM") <<  "[GenericHistoryDQM::returnDetComponent] returning value defined in the configuration Pset \"DetectorId\"";
   return m_detectorID;
 }
 
 /// Example on how to define an user function for the statistic extraction
-bool GenericHistoryDQM::setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity )
+bool GenericHistoryDQM::setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity ) const
 {
   if(quantity=="userExample_XMax"){
     userDBContent.push_back(keyName+std::string("@")+std::string("userExample_XMax"));
@@ -50,7 +52,7 @@ bool GenericHistoryDQM::setDBLabelsForUser(const std::string& keyName, std::vect
   return true;
 }
 
-bool GenericHistoryDQM::setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity )
+bool GenericHistoryDQM::setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity ) const
 {
   if(quantity=="userExample_XMax"){
     values.push_back( me->getTH1F()->GetXaxis()->GetBinCenter(me->getTH1F()->GetMaximumBin()));

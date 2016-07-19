@@ -3,7 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-void SiStripDQMStoreReader::openRequestedFile()
+void SiStripDQMStoreReader::openRequestedFile() const
 {
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -19,7 +19,7 @@ void SiStripDQMStoreReader::openRequestedFile()
   }
 }
 
-bool SiStripDQMStoreReader::goToDir(const std::string & name)
+bool SiStripDQMStoreReader::goToDir(const std::string & name) const
 {
   std::string currDir = dqmStore_->pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
@@ -41,7 +41,7 @@ bool SiStripDQMStoreReader::goToDir(const std::string & name)
   return false;
 }
 
-void SiStripDQMStoreReader::getModuleFolderList(std::vector<std::string>& mfolders)
+void SiStripDQMStoreReader::getModuleFolderList(std::vector<std::string>& mfolders) const
 {
   std::string currDir = dqmStore_->pwd();
   if ( currDir.find("module_") != std::string::npos )  {

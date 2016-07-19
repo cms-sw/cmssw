@@ -1,4 +1,4 @@
-#include "DQM/SiStripHistoricInfoClient/plugins/SiStripPopConHistoryDQMBase.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConHistoryDQMBase.h"
 
 /**
  * @class SiStripPopConHistoryDQM
@@ -15,9 +15,9 @@ public:
 
   virtual ~SiStripPopConHistoryDQM();
 private:
-  uint32_t returnDetComponent(const MonitorElement* ME);
-  bool setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity);
-  bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity);
+  uint32_t returnDetComponent(const MonitorElement* ME) const;
+  bool setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity) const;
+  bool setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity) const;
 };
 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
@@ -27,7 +27,7 @@ private:
 
 SiStripPopConHistoryDQM::~SiStripPopConHistoryDQM() {}
 
-uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME)
+uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME) const
 {
   LogTrace("SiStripHistoryDQMService") <<  "[SiStripHistoryDQMService::returnDetComponent]";
   const std::string str{ME->getName()};
@@ -76,7 +76,7 @@ uint32_t SiStripPopConHistoryDQM::returnDetComponent(const MonitorElement* ME)
 }
 
 //Example on how to define an user function for the statistic extraction
-bool SiStripPopConHistoryDQM SiStripHistoryDQMService::setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity)
+bool SiStripPopConHistoryDQM::setDBLabelsForUser(const std::string& keyName, std::vector<std::string>& userDBContent, const std::string& quantity) const
 {
   if (quantity == "user_2DYmean") {
     userDBContent.push_back(keyName+sep()+std::string("yMean"));
@@ -88,7 +88,7 @@ bool SiStripPopConHistoryDQM SiStripHistoryDQMService::setDBLabelsForUser(const 
   return true;
 }
 
-bool SiStripPopConHistoryDQM::setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity)
+bool SiStripPopConHistoryDQM::setDBValuesForUser(const MonitorElement* me, HDQMSummary::InputVector& values, const std::string& quantity) const
 {
   if (quantity == "user_2DYmean") {
     TH2F* Hist = (TH2F*) me->getTH2F();

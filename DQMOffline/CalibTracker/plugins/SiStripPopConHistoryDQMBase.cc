@@ -1,4 +1,4 @@
-#include "DQM/SiStripHistoricInfoClient/plugins/SiStripPopConHistoryDQMBase.h"
+#include "DQMOffline/CalibTracker/plugins/SiStripPopConHistoryDQMBase.h"
 
 SiStripPopConHistoryDQMBase::SiStripPopConHistoryDQMBase(const edm::ParameterSet& iConfig)
   : SiStripPopConSourceHandler<HDQMSummary>(iConfig)
@@ -17,19 +17,19 @@ SiStripPopConHistoryDQMBase::~SiStripPopConHistoryDQMBase()
 
 bool SiStripPopConHistoryDQMBase::checkForCompatibility(const std::string& otherMetaData)
 {
-  if ( ss.empty() )
+  if ( otherMetaData.empty() )
     return true;
 
-  uint32_t previousRun=atoi(ss.substr(ss.find("Run ")+4).c_str());
+  uint32_t previousRun=atoi(otherMetaData.substr(otherMetaData.find("Run ")+4).c_str());
 
   edm::LogInfo("DQMHistoryServiceBase") <<  "[DQMHistoryServiceBase::checkForCompatibility] extracted string " << previousRun ;
   return previousRun < getRunNumber();
 }
 
-HDQMSummary* SiStripPopConHistoryDQMBase::getObj()
+HDQMSummary* SiStripPopConHistoryDQMBase::getObj() const
 {
   std::unique_ptr<HDQMSummary> obj{new HDQMSummary()};
-  obj->setRunNr(getRunNumber())
+  obj->setRunNr(getRunNumber());
 
   // DISCOVER SET OF HISTOGRAMS & QUANTITIES TO BE UPLOADED
   std::vector<std::string> userDBContent;
@@ -50,8 +50,8 @@ HDQMSummary* SiStripPopConHistoryDQMBase::getObj()
 
   std::stringstream ss;
   ss << "[DQMHistoryServiceBase::scanTreeAndFillSummary] QUANTITIES TO BE INSERTED IN DB :" << std::endl;
-  for ( const std::string& iCont : obj->getUserDbContent() ) {
-    ss << userDBContentA[i]<< std::endl;
+  for ( const std::string& iCont : obj->getUserDBContent() ) {
+    ss << iCont<< std::endl;
   }
   edm::LogInfo("HDQMSummary") << ss.str();
 
