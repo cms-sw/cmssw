@@ -450,7 +450,6 @@ ALCARECOStreamHcalCalIsoTrk = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-
 ALCARECOStreamHcalCalIsoTrkFilter = cms.FilteredStream(
 	responsible = 'Sunanda Banerjee',
 	name = 'HcalCalIsoTrkFilter',
