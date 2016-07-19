@@ -565,6 +565,18 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     meNClustersOnTrack_diskms.at(i-1)->setAxisTitle("Number of Clusters",1);
   }
 
+  meRocBladevsDiskEndcap = iBooker.book2D("ROC_endcap_occupancy","Pixel Endcap Occupancy, ROC level (On Track)",72, -4.5, 4.5,288,-12.5,12.5);
+  meRocBladevsDiskEndcap->setBinLabel(1, "Disk-2 Pnl2",1);
+  meRocBladevsDiskEndcap->setBinLabel(9, "Disk-2 Pnl1",1);
+  meRocBladevsDiskEndcap->setBinLabel(19, "Disk-1 Pnl2",1);
+  meRocBladevsDiskEndcap->setBinLabel(27, "Disk-1 Pnl1",1);
+  meRocBladevsDiskEndcap->setBinLabel(41, "Disk+1 Pnl1",1);
+  meRocBladevsDiskEndcap->setBinLabel(49, "Disk+1 Pnl2",1);
+  meRocBladevsDiskEndcap->setBinLabel(59, "Disk+2 Pnl1",1);
+  meRocBladevsDiskEndcap->setBinLabel(67, "Disk+2 Pnl2",1);
+  meRocBladevsDiskEndcap->setAxisTitle("Blades in Inner (>0) / Outer(<) Halves",2);
+  meRocBladevsDiskEndcap->setAxisTitle("ROC occupancy",3);
+
   //not on track
   iBooker.setCurrentFolder(topFolderName_+"/Clusters/OffTrack");
   //bpix
@@ -1124,6 +1136,40 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		float x = clustgp.x(); 
 		float y = clustgp.y(); 
 		float z = clustgp.z();
+
+		float xclust = clust->x();
+                float yclust = clust->y();
+
+                int pxfpanel     = tTopo->pxfPanel((*hit).geographicalId());
+                int pxfmodule    = tTopo->pxfModule((*hit).geographicalId());
+                int pxfdisk      = tTopo->pxfDisk((*hit).geographicalId());
+                int pxfblade_off = tTopo->pxfBlade((*hit).geographicalId());
+
+                // translate to online conventions
+
+		if (z<0.) { pxfdisk  = -1.*pxfdisk; }
+                int pxfblade = -99;
+                if (pxfblade_off<=6 && pxfblade_off>=1)        { pxfblade = 7-pxfblade_off;  }
+                else if (pxfblade_off<=18 && pxfblade_off>=7)  { pxfblade = 6-pxfblade_off;  }
+                else if (pxfblade_off<=24 && pxfblade_off>=19) { pxfblade = 31-pxfblade_off; }
+
+                int clu_sdpx = ((pxfdisk>0) ? 1 : -1) * (2 * (abs(pxfdisk) - 1) + pxfpanel);
+                int binselx = (pxfpanel==1&&(pxfmodule==1||pxfmodule==4)) ? (pxfmodule==1) : ((pxfpanel==1&& xclust<80.0)||(pxfpanel==2&&xclust>=80.0));
+                int nperpan = 2 * pxfmodule + pxfpanel - 1 + binselx;
+                int clu_roc_binx = ((pxfdisk>0) ? nperpan : 9 - nperpan) + (clu_sdpx + 4) * 8 - 2 * ((abs(pxfdisk)==1) ? pxfdisk : 0);
+
+                int clu_roc_biny = -99.;
+                int nrocly = pxfmodule + pxfpanel;
+                for (int i=0; i<nrocly; i++) {
+                  int j = (pxfdisk<0) ? i : nrocly - 1 - i;
+                  if (yclust>=(j*52.0)&& yclust<((j+1)*52.0))
+                    clu_roc_biny = 6 - nrocly + 2 * i + ((pxfblade>0) ? pxfblade-1 : pxfblade + 12)*12 + 1;
+                }
+                if (pxfblade>0) { clu_roc_biny = clu_roc_biny+144; }
+
+                meRocBladevsDiskEndcap->setBinContent(clu_roc_binx,clu_roc_biny, meRocBladevsDiskEndcap->getBinContent(clu_roc_binx,clu_roc_biny)+1);
+                meRocBladevsDiskEndcap->setBinContent(clu_roc_binx,clu_roc_biny+1, meRocBladevsDiskEndcap->getBinContent(clu_roc_binx,clu_roc_biny+1)+1);
+
 		if(z>0){
         for (int i = 0; i < noOfDisks; i++)
         {
