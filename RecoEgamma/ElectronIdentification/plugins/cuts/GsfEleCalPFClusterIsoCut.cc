@@ -80,7 +80,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
   double absEta = std::abs(cand->superCluster()->eta());
 
   printf("Debug operator: create pat pointer\n");
-  const auto elPat = (const edm::Ptr<pat::Electron>)cand;
+  const auto elPat = edm::Ptr<pat::Electron>(cand);
   if( elPat.isNull() ){
     throw cms::Exception("ERROR: this VID selection is meant to be run on miniAOD/PAT only")
       << std::endl << "Change input format or contact Egamma experts" << std::endl;
@@ -120,7 +120,7 @@ double GsfEleCalPFClusterIsoCut::value(const reco::CandidatePtr& cand) const {
   // Establish the cut value
   double absEta = std::abs(ele->superCluster()->eta());
 
-  const auto elPat = (const edm::Ptr<pat::Electron>)ele;
+  const auto elPat = edm::Ptr<pat::Electron>(ele);
   if(  elPat.isNull() ){
     throw cms::Exception("ERROR: this VID selection is meant to be run on miniAOD/PAT only")
       << std::endl << "Change input format or contact Egamma experts" << std::endl;
