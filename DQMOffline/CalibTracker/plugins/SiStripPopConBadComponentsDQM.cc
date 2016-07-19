@@ -14,7 +14,6 @@ public:
   explicit SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig);
   virtual ~SiStripPopConBadComponentsHandlerFromDQM();
   // interface methods: implemented in template
-  void initialize() {}
   SiStripBadStrip* getObj();
 protected:
   std::string getMetaDataString();
@@ -73,8 +72,8 @@ SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj()
 
   int nDetsTotal = 0;
   int nDetsWithErrorTotal = 0;
-  for( std::vector<std::string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); ++im ) {
-    std::string dname = mechanicalview_dir + "/" + (*im);
+  for ( const auto& im : subdet_folder ) {
+    std::string dname = mechanicalview_dir + "/" + im;
     if (!dqmStore_->dirExists(dname)) continue;
 
     dqmStore_->cd(dname);
@@ -84,13 +83,12 @@ SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj()
 
     int nDetsWithError = 0;
     std::string bad_module_folder = dname + "/" + "BadModuleList";
-    if (dqmStore_->dirExists(bad_module_folder)) {
-      std::vector<MonitorElement *> meVec = dqmStore_->getContents(bad_module_folder);
-      for( std::vector<MonitorElement *>::const_iterator it = meVec.begin(); it != meVec.end(); ++it ) {
+    if ( dqmStore_->dirExists(bad_module_folder) ) {
+      for ( const MonitorElement* me : dqmStore_->getContents(bad_module_folder) ) {
         nDetsWithError++;
-        std::cout << (*it)->getName() <<  " " << (*it)->getIntValue() << std::endl;
-        uint32_t detId = boost::lexical_cast<uint32_t>((*it)->getName());
-        short flag = (*it)->getIntValue();
+        std::cout << me->getName() <<  " " << me->getIntValue() << std::endl;
+        uint32_t detId = boost::lexical_cast<uint32_t>(me->getName());
+        short flag = me->getIntValue();
 
         std::vector<unsigned int> theSiStripVector;
 
@@ -112,13 +110,13 @@ SiStripBadStrip* SiStripPopConBadComponentsHandlerFromDQM::getObj()
         // }
 
         SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
-        if ( !obj->put(detId,range) ) {
+        if ( ! obj->put(detId,range) ) {
           edm::LogError("SiStripBadFiberBuilder")<<"[SiStripBadFiberBuilder::analyze] detid already exists"<<std::endl;
         }
       }
     }
     nDetsTotal += nDets;
-    nDetsWithErrorTotal += nDetsWithError;        
+    nDetsWithErrorTotal += nDetsWithError;
   }
   dqmStore_->cd();
 

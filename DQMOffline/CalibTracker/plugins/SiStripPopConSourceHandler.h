@@ -20,6 +20,8 @@ public:
     : m_name{pset.getUntrackedParameter<std::string>("name", "SiStripPopConDbObjHandler")}
     , m_since{pset.getUntrackedParameter<uint32_t>("since", 5)}
     , m_runNumber{pset.getParameter<uint32_t>("RunNb")}
+    , m_iovSequence{pset.getUntrackedParameter<bool>("iovSequence", true)} // flag: check compatibility
+    // TODO should set to default-FALSE for the DQMHistory one
     , m_debugMode{pset.getUntrackedParameter<bool>("debug", false)}
   {}
 
@@ -29,15 +31,19 @@ public:
   void getNewObjects();
   std::string id() const { return m_name; }
 
-  virtual void initialize() = 0;
   virtual T* getObj() = 0;
 
-protected:
   virtual std::string getMetaDataString();
+  virtual bool checkForCompatibility( const std::string otherMetaData ) const { return otherMetaData != getMetaDataString(); }
+
+protected:
+  uint32_t getRunNumber() const { return m_runNumber; }
+
 private:
   std::string m_name;
   unsigned long long m_since;
   uint32_t m_runNumber;
+  bool m_iovSequence;
   bool m_debugMode;
 
   // helper methods
@@ -86,8 +92,6 @@ void SiStripPopConSourceHandler<T>::getNewObjects()
     edm::LogInfo("SiStripPopConDbObjHandler") << ss.str();
   }
 
-  this->initialize();
-
   if (isTransferNeeded())
     setForTransfer();
 
@@ -99,7 +103,7 @@ bool SiStripPopConSourceHandler<T>::isTransferNeeded()
 {
   edm::LogInfo("SiStripPopConDbObjHandler") << "[SiStripPopConDbObjHandler::isTransferNeeded] checking for transfer ";
 
-  if ( m_since<=this->tagInfo().lastInterval.first ) {
+  if ( m_iovSequence && ( m_since <= this->tagInfo().lastInterval.first ) ) {
     edm::LogInfo   ("SiStripPopConDbObjHandler")
       << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe current starting iov " << m_since
       << "\nis not compatible with the last iov ("
@@ -109,29 +113,31 @@ bool SiStripPopConSourceHandler<T>::isTransferNeeded()
     return false;
   }
 
-  std::stringstream ss_logdb;
+  std::string ss_logdb{};
 
   //get log information from previous upload
   if ( this->logDBEntry().usertext != "" )
-    ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")+2);
+    ss_logdb = this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")+2);
 
   std::string ss = getMetaDataString();
-  if ( ss != ss_logdb.str() ) {
+  if ( ( ! m_iovSequence ) || checkForCompatibility(ss_logdb) ) {
     this->m_userTextLog = "@ " + ss;
 
     edm::LogInfo   ("SiStripPopConDbObjHandler")
       << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe selected conditions will be uploaded: " << ss
-      << "\n Current MetaData - "<< ss  << "\n Last Uploaded MetaData- " << ss_logdb.str() << "\n Fine";
+      << "\n Current MetaData - " << ss << "\n Last Uploaded MetaData- " << ss_logdb << "\n Fine";
 
     return true;
-  } else {
+  } else if ( m_iovSequence ) {
     edm::LogInfo   ("SiStripPopConDbObjHandler")
       << "[SiStripPopConDbObjHandler::isTransferNeeded] \nthe current MetaData conditions " << ss
       << "\nare not compatible with the MetaData Conditions of the last iov ("
       << this->tagInfo().lastInterval.first << ") open for the object "
       << this->logDBEntry().payloadClass << " \nin the db "
-      << this->logDBEntry().destinationDB << " \nConditions: "  << ss_logdb.str() << "\n NO TRANSFER NEEDED";
+      << this->logDBEntry().destinationDB << " \nConditions: "  << ss_logdb << "\n NO TRANSFER NEEDED";
     return false;
+  } else {
+    return true;
   }
 }
 
@@ -144,7 +150,7 @@ void SiStripPopConSourceHandler<T>::setForTransfer()
     m_since=1;
   else
     if (m_debugMode)
-      m_since = this->tagInfo().lastInterval.first+1; 
+      m_since = this->tagInfo().lastInterval.first+1;
 
   T* obj = this->getObj();
   if ( obj ) {
