@@ -25,7 +25,7 @@ namespace l1tcalo {
 class UCTRegion {
 public:
 
-  UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn);
+  UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, int fwv);
 
   virtual ~UCTRegion();
 
@@ -120,6 +120,7 @@ protected:
 
   uint32_t regionSummary;
 
+  const int fwVersion;
 };
 
 #endif

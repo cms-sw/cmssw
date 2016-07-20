@@ -31,7 +31,7 @@ class UCTLayer1;
 class UCTTower {
 public:
 
-  UCTTower(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, uint32_t eta, uint32_t phi) :
+  UCTTower(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, uint32_t eta, uint32_t phi, int fwv) :
     crate(crt),
     card(crd),
     region(rgn),
@@ -45,10 +45,11 @@ public:
     ecalLUT(0),
     hcalLUT(0),
     hfLUT(0),
-    towerData(0)
+    towerData(0),
+    fwVersion(fwv)
   {}
 
-  UCTTower(uint16_t location);
+  UCTTower(uint16_t location, int fwv);
   
   virtual ~UCTTower() {;}
 
@@ -171,6 +172,8 @@ private:
 
   uint32_t towerData;
 
+  // Keep track of possible algorithm changes
+  const int fwVersion;
 };
 
 #endif
