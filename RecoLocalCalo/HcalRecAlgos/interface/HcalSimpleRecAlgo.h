@@ -88,7 +88,7 @@ public:
 		       double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		       double iNoise,double iTMin,double iTMax,
 		       double its4Chi2, double iChargeThreshold, int iFitTimes);
-  void setMeth3Params(int iPedSubMethod, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
+  void setMeth3Params(float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
                
 private:
   bool correctForTimeslew_;

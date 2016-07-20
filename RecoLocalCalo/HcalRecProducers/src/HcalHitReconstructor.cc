@@ -277,7 +277,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  );
   }
   reco_.setMeth3Params(
-            conf.getParameter<int>     ("pedestalSubtractionType"),
             conf.getParameter<double>  ("pedestalUpperLimit"),
             conf.getParameter<int>     ("timeSlewParsType"),
             conf.getParameter<std::vector<double> >("timeSlewPars"),
@@ -290,7 +289,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
-  desc.add<int>("pedestalSubtractionType", 1); 
   desc.add<double>("pedestalUpperLimit", 2.7); 
   desc.add<int>("timeSlewParsType",3);
   desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });
