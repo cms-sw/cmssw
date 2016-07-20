@@ -456,7 +456,7 @@ void DTEfficiencyTask::fillHistos(DTLayerId lId,
  vector<MonitorElement *> histos =  histosPerL[lId];
  if(unassHit)
    histos[1]->Fill(missingWire);
-   histos[2]->Fill(missingWire);
+ histos[2]->Fill(missingWire);
 }
 
 // Local Variables:
