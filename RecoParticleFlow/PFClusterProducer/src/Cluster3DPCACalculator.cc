@@ -128,4 +128,5 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   cluster.setPosition(barycenter);
   //cluster.setAxis(axis);
   cluster.calculatePositionREP();
+
 }

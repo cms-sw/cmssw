@@ -288,8 +288,9 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
     LogDebug("CaloParticles") << "SCZ DEBUG Ignoring descendantSimClusters call because this particle is already marked used: " << barcode << std::endl;
     
   }
+
   std::unique_ptr<SimHitInfoPerSimTrack_t> hit_info = std::move(CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, true, false, false));
-  std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, false) );
+  //std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, false) );
 
   const auto& simTrack = simTracks[m_simTrackBarcodeToIndex[barcode]];
   Barcode_t vtxBarcode = m_simTrackBarcodeToSimVertexParentBarcode[barcode];
@@ -353,22 +354,22 @@ std::unique_ptr<SimHitInfoPerSimTrack_t> CaloTruthAccumulator::attachedSimHitInf
     auto range = m_simHitBarcodeToIndex.equal_range( barcode );
     unsigned n = 0;
     for ( auto iter = range.first ; iter != range.second ; iter++ ) {
-      int subdet, layer, layersim, cell, sec, subsec, zp;
+      int subdet, layer, layersim, cell, cellsim, sec, subsec, zp;
       uint32_t simId = hits[iter->second]->id();
-      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layersim, sec, subsec, cell);
+      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layersim, sec, subsec, cellsim);
       const HGCalDDDConstants* ddd = ddd_[subdet-3];
-      std::pair<int,int> recoLayerCell = ddd->simToReco(cell,layersim,sec,
+      std::pair<int,int> recoLayerCell = ddd->simToReco(cellsim,layersim,sec,
 							hgcGeoHandles_[subdet-3]->topology().detectorType());
       cell  = recoLayerCell.first;
       layer = recoLayerCell.second;
+      
       DetId id = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
 
       HGCalDetId temp(id);
       if( layer == -1 ) continue;
-
+      
       result->emplace_back(id.rawId(),hits[iter->second]->energy());      
       ++n;
-
     }    
   }
   if (includeOther) {
@@ -420,7 +421,8 @@ template<class T> void CaloTruthAccumulator::fillSimHits( std::vector<const PCal
 							hgcGeoHandles_[subdet-3]->topology().detectorType());
       cell  = recoLayerCell.first;
       layer = recoLayerCell.second;
-      if( layer == -1 ) continue;
+      // skip simhits with bad barcodes or non-existant layers
+      if( layer == -1  || simHit.geantTrackId() == 0 ) continue;
       DetId id = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
       uint32_t detId = id.rawId();
       returnValue.push_back( &simHit );

@@ -2,6 +2,12 @@
    <class name="HGCSample"/>
    <class name="std::vector<HGCSample>"/>
 
+   <!-- HEX specific -->
+   <class name="HGCDataFrame<HGCalDetId,HGCSample>"/>
+   <class name="std::vector<HGCDataFrame<HGCalDetId,HGCSample> >"/>
+   <class name="edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCalDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCalDetId,HGCSample> > > >" />
+
    <!-- EE specific -->
    <class name="HGCDataFrame<HGCEEDetId,HGCSample>"/>
    <class name="std::vector<HGCDataFrame<HGCEEDetId,HGCSample> >"/>

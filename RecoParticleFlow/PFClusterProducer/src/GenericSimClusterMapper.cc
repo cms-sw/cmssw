@@ -32,9 +32,10 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   auto const& hits = *input;  
   
   // for quick indexing back to hit energy
-  std::unordered_map<uint32_t, size_t> detIdToIndex;  
-  for( uint32_t i = 0; i < hits.size(); ++i ) {
-    detIdToIndex.emplace(hits[i].detId(),i);    
+  std::unordered_map<uint32_t, size_t> detIdToIndex(hits.size());  
+  for( uint32_t i = 0; i < hits.size(); ++i ) {    
+    detIdToIndex[hits[i].detId()] = i;
+    auto ref = makeRefhit(input,detIdToIndex.at(hits[i].detId()));    
   }
   
   for( const auto& sc : simClusters ) {
@@ -44,17 +45,25 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     double energy = 0.0, highest_energy = 0.0;
     auto hitsAndFractions = std::move( sc.hits_and_fractions() );
     for( const auto& hAndF : hitsAndFractions ) {
-      auto ref = makeRefhit(input,detIdToIndex[hAndF.first]);
+      auto itr = detIdToIndex.find(hAndF.first);
+      if( itr == detIdToIndex.end() ) continue; // hit wasn't saved in reco
+      auto ref = makeRefhit(input,itr->second);            
       const double hit_energy = hAndF.second * ref->energy();
       energy += hit_energy;  
       back.addRecHitFraction(reco::PFRecHitFraction(ref, hAndF.second));
-      if( hit_energy > highest_energy ) {
+      if( hit_energy > highest_energy || highest_energy == 0.0) {
 	highest_energy = hit_energy;
 	seed = ref;
       }
     }
-    back.setSeed(seed->detId());
-    back.setEnergy(energy);    
+    
+    if( back.hitsAndFractions().size() != 0 ) {
+      back.setSeed(seed->detId());
+      back.setEnergy(energy);    
+    } else {
+      back.setSeed(-1);
+      back.setEnergy(0.f);
+    }
   }
 }
 
