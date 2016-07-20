@@ -90,6 +90,7 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -1263,6 +1264,10 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
   const signal_map_type& theSignal = (*it).second;
 
+  // unsigned long is enough to store SimTrack id and EncodedEventId
+  using TrackEventId = std::pair<decltype(SimTrack().trackId()), decltype(EncodedEventId().rawId())>;
+  std::map<TrackEventId, float> simi; // re-used
+
   for (signal_map_const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
 
     float signalInElectrons = (*i).second ;   // signal in electrons
@@ -1305,31 +1310,32 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
       // Load digis
       digis.emplace_back(ip.first, ip.second, adc);
 
-      if (makeDigiSimLinks_ && (*i).second.hitInfo()!=0) {
+      if (makeDigiSimLinks_ && !(*i).second.hitInfos().empty()) {
         //digilink
-        if((*i).second.trackIds().size()>0){
-          simlink_map simi;
 	  unsigned int il=0;
-	  for( std::vector<unsigned int>::const_iterator itid = (*i).second.trackIds().begin();
-	       itid != (*i).second.trackIds().end(); ++itid) {
-	    simi[*itid].push_back((*i).second.individualampl()[il]);
-	    il++;
-	  }
+          for(const auto& info: (*i).second.hitInfos()) {
+            // note: according to C++ standard operator[] does
+            // value-initializiation, which for float means initial value of 0
+            simi[std::make_pair(info.trackId(), info.eventId().rawId())] += (*i).second.individualampl()[il];
+            il++;
+          }
 
 	  //sum the contribution of the same trackid
-	  for( simlink_map::iterator simiiter=simi.begin();
-	       simiiter!=simi.end();
-	       simiiter++){
+          for(const auto& info: (*i).second.hitInfos()) {
+            // skip if track already processed
+            auto found = simi.find(std::make_pair(info.trackId(), info.eventId().rawId()));
+            if(found == simi.end())
+              continue;
 
-	    float sum_samechannel=0;
-	    for (unsigned int iii=0;iii<(*simiiter).second.size();iii++){
-	      sum_samechannel+=(*simiiter).second[iii];
-	    }
+	    float sum_samechannel = found->second;
 	    float fraction=sum_samechannel/(*i).second;
-	    if(fraction>1.) fraction=1.;
-	    simlinks.emplace_back((*i).first, (*simiiter).first, (*i).second.hitIndex(), (*i).second.tofBin(), (*i).second.eventId(), fraction);
+	    if(fraction>1.f) fraction=1.f;
+
+            // Approximation: pick hitIndex and tofBin only from the first SimHit
+	    simlinks.emplace_back((*i).first, info.trackId(), info.hitIndex(), info.tofBin(), info.eventId(), fraction);
+            simi.erase(found);
 	  }
-        }
+          simi.clear(); // although should be empty already
       }
     }
   }
