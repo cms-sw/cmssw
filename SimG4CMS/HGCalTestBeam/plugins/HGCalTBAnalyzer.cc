@@ -437,11 +437,13 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     } else {
       map_hitLayer[layer]  = energy;
     }
-    if (map_hitCell.count(cell) != 0) {
-      double ee         = energy + map_hitCell[cell].second;
-      map_hitCell[cell] = std::pair<uint32_t,double>(id,ee);
-    } else {
-      map_hitCell[cell] = std::pair<uint32_t,double>(id,energy);
+    if ((layer-1)%6 != 2 && (layer-1)%6 != 3) {
+      if (map_hitCell.count(cell) != 0) {
+	double ee         = energy + map_hitCell[cell].second;
+	map_hitCell[cell] = std::pair<uint32_t,double>(id,ee);
+      } else {
+	map_hitCell[cell] = std::pair<uint32_t,double>(id,energy);
+      }
     }
     hSimHitT_[type]->Fill(time,energy);
   }
@@ -470,7 +472,7 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
       if (layer-1 < (int)(hSimHitLayEn1H_.size()))
 	hSimHitLayEn1H_[layer-1]->Fill(energy);
     }
-    if ((layer-1)%3 == 0) {
+    if ((layer-1)%6 == 0 || (layer-1)%6 == 4) {
       for (std::map<int,double>::iterator itr1 = map_hitLayer.begin(); 
 	   itr1 != map_hitLayer.end(); ++itr1) {
 	if (itr1->first == (layer+1)) {
