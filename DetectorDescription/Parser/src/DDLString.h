@@ -5,9 +5,6 @@
 #include <string>
 #include <vector>
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
 #include "DDXMLElement.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDString.h"
@@ -26,16 +23,14 @@ class DDLElementRegistry;
  *
  *
  */
-class DDLString : public DDXMLElement
+class DDLString final : public DDXMLElement
 {
 public:
 
   DDLString( DDLElementRegistry* myreg );
 
-  ~DDLString( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
+
 #endif

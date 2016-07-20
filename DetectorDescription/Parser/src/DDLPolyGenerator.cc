@@ -1,16 +1,3 @@
-/***************************************************************************
-                          DDLPolyGenerator.cpp  -  description
-                             -------------------
-    begin                : Thu Oct 25 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLPolyGenerator.h"
 
 #include <stddef.h>
@@ -18,7 +5,6 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -29,9 +15,6 @@ class DDCompactView;
 
 DDLPolyGenerator::DDLPolyGenerator( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
-{}
-
-DDLPolyGenerator::~DDLPolyGenerator( void )
 {}
 
 void
@@ -47,8 +30,6 @@ DDLPolyGenerator::preProcessElement( const std::string& name, const std::string&
 void
 DDLPolyGenerator::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLPolyGenerator::processElement started");
-
   DDXMLElement* myRZPoints = myRegistry_->getElement("RZPoint");
   DDXMLElement* myZSection = myRegistry_->getElement("ZSection");
 
@@ -136,6 +117,4 @@ DDLPolyGenerator::processElement( const std::string& name, const std::string& nm
   myRZPoints->clear();
   myZSection->clear();
   clear();
-
-  DCOUT_V('P', "DDLPolyGenerator::processElement completed");
 }

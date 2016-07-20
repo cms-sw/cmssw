@@ -3,7 +3,6 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -34,8 +33,6 @@ DDLParser::DDLParser( DDCompactView& cpv )
   errHandler_  = new DDLSAX2Handler();
   SAX2Parser_->setErrorHandler(errHandler_); 
   SAX2Parser_->setContentHandler(fileHandler_); 
-  
-  DCOUT_V('P', "DDLParser::DDLParser(): new (and only) DDLParser"); 
 }
 
 /// Destructor terminates the XMLPlatformUtils (as required by Xerces)
@@ -46,7 +43,6 @@ DDLParser::~DDLParser( void )
   delete fileHandler_;
   delete errHandler_;
   cms::concurrency::xercesTerminate();
-  DCOUT_V('P', "DDLParser::~DDLParser(): destruct DDLParser"); 
 }
 
 /**  This method allows external "users" to use the current DDLParser on their own.
@@ -123,8 +119,6 @@ DDLParser::parseOneFile( const std::string& fullname )
 
     // PASS 2:
 
-    DCOUT_V('P', "DDLParser::ParseOneFile(): PASS2: Just before setting Xerces content and error handlers... ");
-
     SAX2Parser_->setContentHandler(fileHandler_);
     fileHandler_->setNameSpace( getNameSpace( extractFileName( currFileName_ )));
     parseFile ( fIndex );
@@ -132,8 +126,6 @@ DDLParser::parseOneFile( const std::string& fullname )
   }
   else // was found and is parsed...
   {
-    DCOUT('P', " WARNING: DDLParser::ParseOneFile() file " + filename
-	  + " was already parsed as " + fileNames_[foundFile].second);
     return true;
   }
   return false;
@@ -196,7 +188,6 @@ DDLParser::parse( const DDLDocumentProvider& dp )
 
   // PASS 1:  This was added later (historically) to implement the DDD
   // requirement for Expressions.
-  DCOUT('P', "DDLParser::parse(): PASS1: Just before setting Xerces content and error handlers... ");
   
   SAX2Parser_->setContentHandler(expHandler_);
   for( size_t i = 0; i < nFiles_; ++i )
@@ -208,11 +199,8 @@ DDLParser::parse( const DDLDocumentProvider& dp )
       parseFile(i);
     }
   }
-  expHandler_->dumpElementTypeCounter();
 
   // PASS 2:
-
-  DCOUT('P', "DDLParser::parse(): PASS2: Just before setting Xerces content and error handlers... ");
 
   SAX2Parser_->setContentHandler(fileHandler_);
 
@@ -244,11 +232,6 @@ DDLParser::parseFile( const int& numtoproc )
 
     currFileName_ = fname;
     SAX2Parser_->parse(currFileName_.c_str());
-  }
-  else
-  {
-    DCOUT('P', "\nWARNING: File " + fileNames_[numtoproc].first 
-	  + " has already been processed as " + fileNames_[numtoproc].second);
   }
 }
 

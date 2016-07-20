@@ -2,7 +2,6 @@
 
 #include <ostream>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -32,7 +31,6 @@ DDSpecifics::DDSpecifics(const DDName & name,
   for( auto& it : v ) {
     if( it.first.isDefined().second ) {
       it.first.addSpecifics( it.second );
-      DCOUT('C', "add specifics to LP: partsel=" << *( it.second.first ));
     }
     else {
       throw cms::Exception("DDException") << "Definition of LogicalPart missing! name="

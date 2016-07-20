@@ -1,22 +1,8 @@
-/***************************************************************************
-                          DDLTrapezoid.cc  -  description
-                             -------------------
-    begin                : Mon Oct 29 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLTrapezoid.h"
 
 #include <map>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -29,15 +15,10 @@ DDLTrapezoid::DDLTrapezoid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
 {}
 
-DDLTrapezoid::~DDLTrapezoid( void )
-{}
-
 // Upon encountering an end of the tag, call DDCore's Trap.
 void
 DDLTrapezoid::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLTrapezoid::processElement started");
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
 
   DDXMLAttribute atts = getAttributeSet();
@@ -98,6 +79,4 @@ DDLTrapezoid::processElement( const std::string& name, const std::string& nmspac
   }
 
   DDLSolid::setReference( nmspace, cpv );
-
-  DCOUT_V('P', "DDLTrapezoid::processElement completed");
 }

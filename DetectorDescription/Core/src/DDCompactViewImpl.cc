@@ -7,7 +7,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
@@ -75,8 +74,6 @@ double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
          edm::LogError("DDCompactViewImpl")  << "DD-WARNING: volume of solid=" << aPart.solid() 
 	       << "is zero or negative, vol=" << a_vol/m3 << "m3" << std::endl;
        }
-       DCOUT_V('C', "DC: weightcalc, currently=" << child.ddname().name()
-            << " vol=" << a_vol/cm3 << "cm3");
        childrenVols += a_vol;
        childrenWeights += weight(child); // recursive
        doIt=walker.nextSibling();

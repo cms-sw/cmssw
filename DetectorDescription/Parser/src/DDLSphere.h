@@ -3,9 +3,6 @@
 
 #include <string>
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
 class DDCompactView;
@@ -24,16 +21,13 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLSphere : public DDLSolid
+class DDLSphere final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLSphere( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLSphere( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

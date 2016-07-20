@@ -24,22 +24,17 @@ class DDLElementRegistry;
  *
  */
 
-class DDLDivision : public DDXMLElement
+class DDLDivision final : public DDXMLElement
 {
-public:
+ public:
 
-  /// Constructor
   DDLDivision( DDLElementRegistry* myreg );
-
-  /// Destructor
-  ~DDLDivision( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-private:
-
+  
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  
+ private:
+  
   DDDividedGeometryObject* makeDivider( const DDDivision& div, DDCompactView* cpv );
 };
 
