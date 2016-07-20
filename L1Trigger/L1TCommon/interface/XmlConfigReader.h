@@ -68,7 +68,7 @@ class XmlConfigReader {
 
   void appendNodesFromSubDoc(xercesc::DOMNode* parentNode, xercesc::DOMDocument* subDoc);
   void pruneString(std::string& str);
-
+  char* pruneString(char* &str);
 };
 
 }
