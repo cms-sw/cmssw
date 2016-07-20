@@ -90,8 +90,6 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(muonToken1, muonBxColl1);
   e.getByToken(muonToken2, muonBxColl2);
 
-  bool muonMismatch = false;
-
   int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX();
   int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX();
   if (bxRange1 != bxRange2) {
@@ -153,6 +151,8 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     muonIt2 = muonBxColl2->begin(iBx);
     while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl1->end(iBx)) {
       summary->Fill(MUONALL);
+
+      bool muonMismatch = false;
       if (muonIt1->hwPt() != muonIt2->hwPt()) {
         muonMismatch = true;
         summary->Fill(PTBAD);
