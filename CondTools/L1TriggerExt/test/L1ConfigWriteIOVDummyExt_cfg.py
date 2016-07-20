@@ -41,7 +41,6 @@ options.register('outputDBAuth',
 options.parseArguments()
 
 # Get L1TriggerKeyListExt from DB
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 # Define CondDB tags
 if options.useO2OTags == 0:
@@ -73,14 +72,17 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = cms.string(options.outputDBConnect)
+
 process.outputDB = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListExtRcd'),
         tag = cms.string('L1TriggerKeyListExt_' + tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ])
     ))
 )
 
-process.p = cms.Path(process.L1CondDBIOVWriterExt)
-process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
+
+process.p = cms.Path(process.L1CondDBIOVWriterExt)

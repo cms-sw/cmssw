@@ -14,13 +14,18 @@
 
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 
-void rates(){
-  nevents=1000;
+void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1UpgradeEmuTree/L1UpgradeTree"){
+  nevents=10000;
 
   // make trees
-  TFile * file = new TFile("l1t_stage2.root");
-  //TFile * file = new TFile("all/combined.root");
-  TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeTree/L1UpgradeTree");
+  TFile * file = new TFile(rootfile);
+  TTree * treeL1Up  = (TTree*) file->Get(treepath);
+  if (! treeL1Up){
+    cout << "ERROR: could not open tree\n";
+    return;
+  }
+
+
   treeL1Up->Print();
 
   // set branch addresses
@@ -95,6 +100,7 @@ void rates(){
   // get entries
   Long64_t nentries = treeL1Up->GetEntriesFast();
   if (nevents>nentries) nevents=nentries;
+  unsigned nZB = 0;
 
   std::cout << "Running over " << nevents << ", nentries = " << nentries << std::endl;
 
@@ -103,6 +109,7 @@ void rates(){
     if((jentry%1000)==0) std::cout << "Done " << jentry  << " events..." << std::endl;
 
     treeL1Up->GetEntry(jentry);
+    nZB++;
     
     //cout << upgrade_->nJets << "\n";
 
@@ -114,7 +121,7 @@ void rates(){
       //cout << "INFO:  " << upgrade_->nMuons << "\n";
       //cout << "INFO:  " << upgrade_->muonEt.size() << "\n";
       //cout << "INFO:  " << upgrade_->muonQual.size() << "\n";
-      if (upgrade_->muonQual[it+offset]==0) continue;
+      if (upgrade_->muonQual[it+offset]<8) continue;
       hMuEt->Fill(upgrade_->muonEt[it]);
       muEt = upgrade_->muonEt[it] > muEt ?  upgrade_->muonEt[it]  : muEt;
     }
@@ -125,28 +132,28 @@ void rates(){
     int egEt(0);
     for(uint it=0; it<upgrade_->nEGs; ++it){
       hEgEt->Fill(0.5*upgrade_->egIEt[it]);
-      egEt = upgrade_->egIEt[it] > egEt ?  upgrade_->egIEt[it]  : egEt;
+      egEt = upgrade_->egEt[it] > egEt ?  upgrade_->egEt[it]  : egEt;
     }
     for(int bin=0; bin<nEgBins; bin++)
-      if(egEt*0.5 >= egLo + (bin*egBinWidth) ) egRates->Fill(egLo+(bin*egBinWidth)); //GeV
+      if(egEt >= egLo + (bin*egBinWidth) ) egRates->Fill(egLo+(bin*egBinWidth)); //GeV
     
     // get Tau rates
     int tauEt(0);
     for(uint it=0; it<upgrade_->nTaus; ++it){
       hTauEt->Fill(0.5*upgrade_->tauIEt[it]);
-      tauEt = upgrade_->tauIEt[it] > tauEt ? upgrade_->tauIEt[it] : tauEt;
+      tauEt = upgrade_->tauEt[it] > tauEt ? upgrade_->tauEt[it] : tauEt;
     }
     for(int bin=0; bin<nTauBins; bin++)
-      if( (tauEt*0.5) >= tauLo + (bin*tauBinWidth) ) tauRates->Fill(tauLo+(bin*tauBinWidth)); //GeV
+      if( tauEt >= tauLo + (bin*tauBinWidth) ) tauRates->Fill(tauLo+(bin*tauBinWidth)); //GeV
         
     // get Jet rates
     int jetEt(0);
     for(uint it=0; it<upgrade_->nJets; ++it){
       hJetEt->Fill(0.5*upgrade_->jetIEt[it]);
-      jetEt =  upgrade_->jetIEt[it] > jetEt ? upgrade_->jetIEt[it] : jetEt;
+      jetEt =  upgrade_->jetEt[it] > jetEt ? upgrade_->jetEt[it] : jetEt;
     }
     for(int bin=0; bin<nJetBins; bin++)
-      if( (jetEt*0.5) >= jetLo + (bin*jetBinWidth) ) jetRates->Fill(jetLo+(bin*jetBinWidth));  //GeV
+      if( jetEt >= jetLo + (bin*jetBinWidth) ) jetRates->Fill(jetLo+(bin*jetBinWidth));  //GeV
 
     double etSum  = -1.0;
     double htSum  = -1.0;
@@ -159,31 +166,31 @@ void rates(){
       if (upgrade_->sumType[it] == L1Analysis::kMissingEt) metSum = et;
       if (upgrade_->sumType[it] == L1Analysis::kMissingHt) mhtSum = et;
     }
-    std::cout << "mht:  " << mhtSum << "\n";
-    std::cout << "ht sum:  " << htSum << "\n";
+    //std::cout << "mht:  " << mhtSum << "\n";
+    //std::cout << "ht sum:  " << htSum << "\n";
 
-    hEtSum->Fill(0.5*etSum);
+    hEtSum->Fill(etSum);
     //std::cout << "et sum = " << etSum << std::endl;
     for(int bin=0; bin<nEtSumBins; bin++)
-      if( (etSum*0.5) >= etSumLo+(bin*etSumBinWidth) ) etSumRates->Fill(etSumLo+(bin*etSumBinWidth)); //GeV
+      if( etSum >= etSumLo+(bin*etSumBinWidth) ) etSumRates->Fill(etSumLo+(bin*etSumBinWidth)); //GeV
     
-    hHtSum->Fill(0.5*htSum);
+    hHtSum->Fill(htSum);
     //std::cout << "ht sum = " << htSum << std::endl;
     for(int bin=0; bin<nHtSumBins; bin++){
       //std::cout << "Ht? " << upgrade_->sumEt[1]->getType() << std::endl;
-      if( (htSum*0.5) >= htSumLo+(bin*htSumBinWidth) ) htSumRates->Fill(htSumLo+(bin*htSumBinWidth)); //GeV
+      if( htSum >= htSumLo+(bin*htSumBinWidth) ) htSumRates->Fill(htSumLo+(bin*htSumBinWidth)); //GeV
     }
 
     //hMetSum->Fill(0.5*metSum);
     //std::cout << "met sum = " << metSum << std::endl;
     for(int bin=0; bin<nMetSumBins; bin++)
-      if( (metSum*0.5) >= metSumLo+(bin*metSumBinWidth) ) metSumRates->Fill(metSumLo+(bin*metSumBinWidth)); //GeV
+      if( metSum >= metSumLo+(bin*metSumBinWidth) ) metSumRates->Fill(metSumLo+(bin*metSumBinWidth)); //GeV
         
     //hMhtSum->Fill(0.5*mhtSum]);
     //std::cout << "mht sum = " << mhtSum << std::endl;
     for(int bin=0; bin<nMhtSumBins; bin++){
       //std::cout << "Mht? " << upgrade_->sumEt[1]->getType() << std::endl;
-      if( (mhtSum*0.5) >= mhtSumLo+(bin*mhtSumBinWidth) ) mhtSumRates->Fill(mhtSumLo+(bin*mhtSumBinWidth)); //GeV
+      if( mhtSum >= mhtSumLo+(bin*mhtSumBinWidth) ) mhtSumRates->Fill(mhtSumLo+(bin*mhtSumBinWidth)); //GeV
     }
 
   }
@@ -193,7 +200,8 @@ void rates(){
   double avrgInstLumi = 4.5e33; 
   double sigmaPP = 6.9e-26;
   //double norm = (avrgInstLumi*sigmaPP)/(nevents*1000); //kHz
-  double norm = (11.*2244.)/nevents; // zb rate = n_colliding * 11 kHz 
+
+  double norm = (11.246*2736.)/nZB; // zb rate = n_colliding * 11 kHz 
   std::cout << "norm = " << norm << std::endl;
 
   //make TGraphs
@@ -274,7 +282,7 @@ void rates(){
   mg->Add(gTauRate);
   mg->Add(gJetRate);
   mg->SetMinimum(0.1);
-  mg->SetMaximum(3E3);
+  mg->SetMaximum(3E5);
   mg->Draw("APL");
   mg->GetXaxis()->SetTitle("Threshold [GeV]");
   mg->GetYaxis()->SetTitle("Rate [kHz]");
@@ -306,14 +314,21 @@ void rates(){
   gMuRate->GetYaxis()->SetTitle("Rate");
   gMuRate->SetMarkerStyle(23);
   gMuRate->SetMarkerColor(kOrange);
-  gMuRate->GetYaxis()->SetRangeUser(1, 1e2);
+  gMuRate->GetYaxis()->SetRangeUser(1, 1e3);
 
   gMuRate->Draw("APL");
   gMuRate->GetXaxis()->SetTitle("Threshold [GeV]");
   gMuRate->GetYaxis()->SetTitle("Rate [kHz]");
   gPad->Modified();
 
-  leg1->Draw();
+
+  TLegend* leg2 = new TLegend(0.5,0.73,0.7,0.88);
+  leg2->SetFillColor(0);
+  leg2->AddEntry(gMuRate,"Muon","lp");
+  leg2->SetBorderSize(0);
+  leg2->SetFillStyle(0);
+  leg2->Draw();
+  leg2->Draw();
   n3.DrawLatex(0.5, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.5, 0.55, "Zero Bias");
 
@@ -349,13 +364,13 @@ void rates(){
   mgSums->GetYaxis()->SetTitle("Rate [kHz]");
   gPad->Modified();
   
-  TLegend* leg2 = new TLegend(0.7,0.78,0.9,0.88);
-  leg2->SetFillColor(0);
-  leg2->AddEntry(gEtSumRate,"E_{T}^{total}","lp");
-  leg2->AddEntry(gHtSumRate,"H_{T}","lp");
-  leg2->SetBorderSize(0);
-  leg2->SetFillStyle(0);
-  leg2->Draw("same");
+  TLegend* leg3 = new TLegend(0.7,0.78,0.9,0.88);
+  leg3->SetFillColor(0);
+  leg3->AddEntry(gEtSumRate,"E_{T}^{total}","lp");
+  leg3->AddEntry(gHtSumRate,"H_{T}","lp");
+  leg3->SetBorderSize(0);
+  leg3->SetFillStyle(0);
+  leg3->Draw("same");
 
   n3.DrawLatex(0.6, 0.4, "Run 260627 #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.6, 0.25, "Zero Bias");
@@ -396,13 +411,13 @@ void rates(){
   mgMsums->GetYaxis()->SetTitle("Rate [kHz]");
   gPad->Modified();
   
-  TLegend* leg3 = new TLegend(0.7,0.78,0.9,0.88);
-  leg3->SetFillColor(0);
-  leg3->AddEntry(gMetSumRate,"E_{T}^{miss}","lp");
-  leg3->AddEntry(gMhtSumRate,"H_{T}^{miss}","lp");
-  leg3->SetBorderSize(0);
-  leg3->SetFillStyle(0);
-  leg3->Draw("same");
+  TLegend* leg4 = new TLegend(0.7,0.78,0.9,0.88);
+  leg4->SetFillColor(0);
+  leg4->AddEntry(gMetSumRate,"E_{T}^{miss}","lp");
+  leg4->AddEntry(gMhtSumRate,"H_{T}^{miss}","lp");
+  leg4->SetBorderSize(0);
+  leg4->SetFillStyle(0);
+  leg4->Draw("same");
 
   n3.DrawLatex(0.3, 0.4, "Run 260627 #sqrt{s} = 13 TeV");
   n4.DrawLatex(0.3, 0.25, "Zero Bias");

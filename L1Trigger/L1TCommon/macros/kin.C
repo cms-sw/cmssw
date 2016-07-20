@@ -32,13 +32,16 @@ TH1F * norm(TH1F * h){
   return h;
 }
 
-void kin(){
+void kin(const char * rootfile="L1Ntuple.root",const char * treepath="l1UpgradeEmuTree/L1UpgradeTree"){
   gStyle->SetOptStat(0);
 
   // make trees
-  //TFile * file = new TFile("all/combined.root");
-  TFile * file = new TFile("l1t_stage2.root");
-  TTree * treeL1Up  = (TTree*) file->Get("l1UpgradeTree/L1UpgradeTree");
+  TFile * file = new TFile(rootfile);
+  TTree * treeL1Up  = (TTree*) file->Get(treepath);
+  if (! treeL1Up){
+    cout << "ERROR: could not open tree\n";
+    return;
+  }
   treeL1Up->Print();
 
   // set branch addresses
@@ -62,9 +65,9 @@ void kin(){
   TH1F* tauEta = hset(new TH1F("tauEta", "", 50, -3.0, 3.0), kOrange);
 
   TCanvas * c0 = new TCanvas();
-  treeL1Up->Draw("muonEt>>muEt", "muonQual==1");
-  treeL1Up->Draw("muonPhi>>muPhi", "muonQual==1");
-  treeL1Up->Draw("muonEta>>muEta", "muonQual==1");
+  treeL1Up->Draw("muonEt>>muEt", "muonQual>=8");
+  treeL1Up->Draw("muonPhi>>muPhi", "muonQual>=8");
+  treeL1Up->Draw("muonEta>>muEta", "muonQual>=8");
   treeL1Up->Draw("jetEt>>jetEt");
   treeL1Up->Draw("jetPhi>>jetPhi");
   treeL1Up->Draw("jetEta>>jetEta");
