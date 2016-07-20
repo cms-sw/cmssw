@@ -190,10 +190,21 @@ void HistogramManager::fill(DetId sourceModule, const edm::Event* sourceEvent,
 // This is only used for ndigis-like counting. It could be more optimized, but
 // is probably fine for a per-event thing.
 void HistogramManager::executePerEventHarvesting() {
+  // We have a masive problem here regarding semantics: for geometrical structure,
+  // we always want to see all the counters, even if they are 0. The counters are
+  // all created during booking ad then ket, all fine.
+  // For time-based things however, we do not know the range before we see the
+  // data, so we cannot book the counters beforhand. Also, it does not make sense
+  // to record 0 counts: a event can only be in one Lumisection, it does not make
+  // sense to record it as a 0 count for all others.
+  // The hacky solution is to check that the quantity was UNDEFINED in booking,
+  // which indicates sth. event-dependent, and in this case ignore the UNDEFINED
+  // counters and delete the defined ones, that they don't pollute later events.
   if (!enabled) return;
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = tables[i];
+    bool range_undefined = false;
     for (auto e : t) {
       // There are two types of entries: counters and histograms. We only want
       // ctrs here.
@@ -202,9 +213,30 @@ void HistogramManager::executePerEventHarvesting() {
         // this is actually useless, since we will use the fast path. But better
         // for consistence.
         significantvalues[i].values = e.first.values;
+
+        bool defined = true;
+        for (auto v : e.first.values) 
+          defined &= (v.second != GeometryInterface::UNDEFINED);
+        if (!defined) {
+          range_undefined = true;
+          continue;
+        }
+
         auto fastpath = &e.second;
         executeStep1Spec(0.0, 0.0, significantvalues[i], s, t,
                          SummationStep::STAGE1_2, fastpath);
+      }
+    }
+    if (range_undefined) {
+      for (auto it = t.begin(); it != t.end(); ++it) {
+        if (it->first.values.size() == s.steps[0].columns.size()) {
+          bool defined = true;
+          for (auto v : it->first.values) 
+            defined &= (v.second != GeometryInterface::UNDEFINED);
+          if (defined) {
+            it = t.erase(it);
+          }
+        }
       }
     }
   }
@@ -381,7 +413,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
           histo.me = iBooker.bookProfile(name.c_str(), 
                                     (title + ";" + xlabel + ";" + ylabel).c_str(),
                                     range_x_nbins, range_x_min, range_x_max,
-                                    range_y_min, range_y_max);
+                                    // force infinite range to make TProfile sane.
+                                    /* range_y_min */ -(1./0.), /*range_y_max*/ (1./0.));
+          histo.me->getTH1()->GetYaxis()->SetCanExtend(1);
         }
       } else if (dimensions == 2) {
         if (!do_profile) {
@@ -394,7 +428,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                                     (title + ";" + xlabel + ";" + ylabel).c_str(),
                                     range_x_nbins, range_x_min, range_x_max,
                                     range_y_nbins, range_y_min, range_y_max,
-                                    range_z_min, range_z_max);
+                                    /* range_z_min */ -(1./0.), /*range_z_max*/ (1./0.));
         }
       }
     }
