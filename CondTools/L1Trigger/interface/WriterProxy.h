@@ -76,6 +76,7 @@ class WriterProxyT : public WriterProxy
 	    cond::persistency::TransactionScope tr(session.transaction());
 	    // if throw transaction will unroll
 ///	    tr.start(false);
+
             std::shared_ptr<Type> pointer = std::make_shared<Type>(*(handle.product ()));
 	    std::string payloadToken =  session.storePayload( *pointer );
 ///	    tr.commit();
