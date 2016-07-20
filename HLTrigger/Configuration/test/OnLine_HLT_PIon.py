@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PIon/V143 (CMSSW_8_0_12)
+# /dev/CMSSW_8_0_0/PIon/V146 (CMSSW_8_0_12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V143')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PIon/V146')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -7191,9 +7191,9 @@ process.hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
       cms.PSet(  importerName = cms.string( "GeneralTracksImporter" ),
         useIterativeTracking = cms.bool( False ),
         source = cms.InputTag( "hltLightPFTracks" ),
-        NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3 ),
+        NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3, 3 ),
         muonSrc = cms.InputTag( "hltMuons" ),
-        DPtOverPtCuts_byTrackAlgo = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5 )
+        DPtOverPtCuts_byTrackAlgo = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 )
       ),
       cms.PSet(  importerName = cms.string( "ECALClusterImporter" ),
         source = cms.InputTag( "hltParticleFlowClusterECALUnseeded" ),
@@ -13788,22 +13788,22 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_CaloJet260_v3 / 5',
-      'HLT_Mu50_v4 / 5',
-      'HLT_PFJet40_v6 / 5',
-      'HLT_Photon20_CaloIdVL_IsoL_v5 / 5',
-      'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v5 / 5',
-      'HLT_FullTracks_Multiplicity80_v2 / 5',
-      'HLT_FullTracks_Multiplicity100_v2 / 5',
-      'HLT_FullTracks_Multiplicity130_v2 / 5',
-      'HLT_FullTracks_Multiplicity150_v2 / 5',
+    triggerConditions = cms.vstring( 'HLT_CaloJet260_v3 / 3',
+      'HLT_Mu50_v4 / 3',
+      'HLT_PFJet40_v6 / 3',
+      'HLT_Photon20_CaloIdVL_IsoL_v5 / 3',
+      'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v5 / 3',
+      'HLT_FullTracks_Multiplicity80_v2 / 3',
+      'HLT_FullTracks_Multiplicity100_v2 / 3',
+      'HLT_FullTracks_Multiplicity130_v2 / 3',
+      'HLT_FullTracks_Multiplicity150_v2 / 3',
       'HLT_Physics_v4',
-      'HLT_HIL1DoubleMu0BPTX_v2 / 5',
-      'HLT_HIL2Mu3BPTX_v2 / 5',
-      'HLT_HIL2DoubleMu0BPTX_v2 / 5',
-      'HLT_HIL3Mu3BPTX_v2 / 5',
-      'HLT_FullTrack12ForEndOfFill_v3 / 5',
-      'HLT_FullTrack50_v3 / 5' ),
+      'HLT_HIL1DoubleMu0BPTX_v2 / 3',
+      'HLT_HIL2Mu3BPTX_v2 / 3',
+      'HLT_HIL2DoubleMu0BPTX_v2 / 3',
+      'HLT_HIL3Mu3BPTX_v2 / 3',
+      'HLT_FullTrack12ForEndOfFill_v3 / 3',
+      'HLT_FullTrack50_v3 / 3' ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
