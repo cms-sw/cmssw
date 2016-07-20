@@ -50,6 +50,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHFQIE10Response(new CaloHitResponse(theParameterMap, theShapes)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theShapes)),
   theHBHEAmplifier(0),
+  theUpgradeHBHEAmplifier(0),
   theHFAmplifier(0),
   theHOAmplifier(0),
   theZDCAmplifier(0),
@@ -119,6 +120,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
   // need to make copies, because they might get different noise generators
   theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theUpgradeHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
   theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
@@ -131,7 +133,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory, PreMix1);
   theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory, PreMix1);
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory, PreMix1);
-  theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory, PreMix1);
+  theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theUpgradeHBHEAmplifier, theCoderFactory, PreMix1);
   theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory, PreMix1);
   theHFQIE10ElectronicsSim = new HcalElectronicsSim(theHFQIE10Amplifier, theCoderFactory, PreMix1); //should this use a different coder factory?
   theHBHEQIE11ElectronicsSim = new HcalElectronicsSim(theHBHEQIE11Amplifier, theCoderFactory, PreMix1); //should this use a different coder factory?
@@ -167,6 +169,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     // no time slewing for HF
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
     theHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
+    theUpgradeHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
     theHBHEQIE11Amplifier->setTimeSlewSim(theTimeSlewSim);
     theHOAmplifier->setTimeSlewSim(theTimeSlewSim);
     theZDCAmplifier->setTimeSlewSim(theTimeSlewSim);
@@ -229,6 +232,7 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHFQIE10ElectronicsSim;
   delete theHBHEQIE11ElectronicsSim;
   delete theHBHEAmplifier;
+  delete theUpgradeHBHEAmplifier;
   delete theHFAmplifier;
   delete theHOAmplifier;
   delete theZDCAmplifier;
@@ -290,6 +294,7 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   eventSetup.get<HcalDbRecord>().get(conditions);
   
   theHBHEAmplifier->setDbService(conditions.product());
+  theUpgradeHBHEAmplifier->setDbService(conditions.product());
   theHFAmplifier->setDbService(conditions.product());
   theHOAmplifier->setDbService(conditions.product());
   theZDCAmplifier->setDbService(conditions.product());
