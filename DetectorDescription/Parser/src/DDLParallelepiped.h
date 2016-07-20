@@ -2,10 +2,6 @@
 #define DDL_Parallelepiped_H
 
 #include <string>
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
 class DDCompactView;
@@ -24,16 +20,13 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLParallelepiped : public DDLSolid
+class DDLParallelepiped final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLParallelepiped( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLParallelepiped( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

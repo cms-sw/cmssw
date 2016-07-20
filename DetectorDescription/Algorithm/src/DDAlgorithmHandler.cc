@@ -4,7 +4,6 @@
 
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -33,8 +32,6 @@ DDAlgorithmHandler::initialize( const std::string & algoName,
 {
   std::pair<std::string,std::string> algoNmNs = DDSplit(algoName);
   algoname_ = algoName;
-  DCOUT ('T',"ALGO: name=" + algoNmNs.first + " algo=" + algoName);
-
   algo_ = DDAlgorithmFactory::get()->create(algoname_);
   algo_->setParent(parent);
   algo_->initialize(nArgs,vArgs,mArgs,sArgs, svArgs);

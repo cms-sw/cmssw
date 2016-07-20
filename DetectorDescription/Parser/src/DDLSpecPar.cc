@@ -1,16 +1,3 @@
-/***************************************************************************
-                          DDLSpecPar.cc  -  description
-                             -------------------
-    begin                : Tue Nov 21 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLSpecPar.h"
 
 #include <stddef.h>
@@ -19,7 +6,6 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
@@ -36,16 +22,11 @@ DDLSpecPar::DDLSpecPar( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
 {}
 
-DDLSpecPar::~DDLSpecPar( void )
-{}
-
 // Process a SpecPar element.  We have to assume that 
 // certain things have happened.
 void
 DDLSpecPar::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P',"DDLSpecPar::processElement started");
-
   // sends the call to the DDD Core OR does nothing if it is a sub-element
 
   // What I want to do here is the following:
@@ -163,23 +144,11 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
       
     // bool notThis =  doNotEval  myParameter->get(std::string("eval"), i) != "true";
 
-    // since eval is an optional attribute, we need to check if it exists for
-    // the debug statement.  Unfortunately, I see no way to do this internal
-    // to the DCOUT_V statement... ts is a "wasted" variable.
-    std::string ts = "** no eval attribute **";
-    if (atts.find("eval") != atts.end()) 
-      ts = atts.find("eval")->second;
-    DCOUT_V('P', std::string("about to process ") << atts.find("value")->second << std::string(" eval = ") << ts);
     if ((atts.find("eval") != atts.end() && atts.find("eval")->second !="false")
 	|| (atts.find("eval") == atts.end() && !doNotEval))
     { 
       tval = myRegistry_->evaluator().eval(ns, atts.find("value")->second);
       isEvaluated=true;
-      DCOUT_V('P', std::string("EVALUATED"));
-    }
-    else
-    {
-      DCOUT_V('P', std::string("NOT Evaluated"));
     }
       
     DDValuePair vp(atts.find("value")->second, tval);
@@ -195,7 +164,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
     if (itv != vvvp.end())
       vvp = itv->second.second;
-    DCOUT_V('P', std::string("about to process String ") << (atts.find("name")->second) << " = " << (atts.find("value")->second));
+
     DDValuePair vp(atts.find("value")->second, 0.0);
     vvp.push_back(vp);
     vvvp[atts.find("name")->second] = make_pair(false,vvp);
@@ -209,9 +178,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
     if (itv != vvvp.end())
       vvp = itv->second.second;
-    DCOUT_V('P', std::string("about to process String ") << (atts.find("name")->second) << " = " << (atts.find("value")->second));
     double tval = myRegistry_->evaluator().eval(ns, atts.find("value")->second);
-    DCOUT_V('P', std::string("EVALUATED"));
     DDValuePair vp(atts.find("value")->second, tval);
     vvp.push_back(vp);
     vvvp[atts.find("name")->second] = make_pair(true,vvp);
@@ -227,9 +194,6 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
   }
   std::sort(svt.begin(),svt.end());
 
-
-  DCOUT_V('p', "DDLSpecPar::processElement\n\tname " << getDDName(nmspace) << "\n\tpartsels.size() = " << myPartSelector->size() << "\n\tsvt " << svt);
-
   DDSpecifics ds(getDDName(nmspace), 
 		 partsels,
 		 svt,
@@ -240,7 +204,5 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
   
   // after a SpecPar is done, we can clear
   clear();
-  
-  DCOUT_V('P',"DDLSpecPar::processElement(...)");
 }
 

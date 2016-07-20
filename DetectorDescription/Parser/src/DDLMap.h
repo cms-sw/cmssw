@@ -60,7 +60,7 @@ public:
  *  has a name associated with the Map for the DDD name-reference system.
  *
  */
-class DDLMap : public DDXMLElement
+class DDLMap final : public DDXMLElement
 {
   friend class MapPair;
   friend class MapMakeName;
@@ -70,11 +70,8 @@ public:
 
   DDLMap( DDLElementRegistry* myreg );
 
-  virtual ~DDLMap( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 
   ReadMapType<std::map<std::string,double> > & getMapOfMaps( void );
 

@@ -31,19 +31,14 @@ class DDLElementRegistry;
  *
  */
 
-class DDLLogicalPart : public DDXMLElement
+class DDLLogicalPart final : public DDXMLElement
 {
 public:
 
-  /// Constructor
   DDLLogicalPart( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLLogicalPart( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 
 private:
   std::map <std::string, DDEnums::Category> catMap_; 

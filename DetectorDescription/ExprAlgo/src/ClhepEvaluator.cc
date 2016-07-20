@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "CLHEP/Evaluator/Evaluator.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -53,10 +52,6 @@ void ClhepEvaluator::set(const std::string & ns, const std::string & name, const
    std::string newVar;
    std::string newVal;
    prepare(ns,name,exprValue,newVar,newVal);
-   DCOUT_V('C', "ClhepEvaluator: " 
-           << "  in: " << ns << " " << name << " " << exprValue 
-           << "  pr: " << newVar << " " << newVal);
-   //set(newVar,newVal);
    evaluator_.setVariable(newVar.c_str(), newVal.c_str());
    switch(evaluator_.status()) {
       case HepTool::Evaluator::WARNING_EXISTING_VARIABLE:

@@ -1,16 +1,3 @@
-/***************************************************************************
-                          DDLRotationAndReflection.cc  -  description
-                             -------------------
-    begin                : Tue Aug 6 2002
-    email                : case@ucdhep.ucdavis.edu
-***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
 
 #include <cmath>
@@ -21,7 +8,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
@@ -37,15 +23,9 @@ DDLRotationAndReflection::DDLRotationAndReflection( DDLElementRegistry* myreg )
   : DDXMLElement( myreg ) 
 {}
 
-DDLRotationAndReflection::~DDLRotationAndReflection( void )
-{}
-
 void
 DDLRotationAndReflection::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-
-  DCOUT_V('P', "DDLRotationAndReflection::processElement started " << name);
-
   DD3Vector x = makeX(nmspace);
   DD3Vector y = makeY(nmspace);
   DD3Vector z = makeZ(nmspace);
@@ -57,7 +37,6 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
   {
     DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
     DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
-    DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
   }
   else if ((name == "Rotation")  && isLeftHanded(x, y, z, nmspace) == 1)
   {
@@ -79,7 +58,6 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
 		   , ev.eval(nmspace, atts.find("phiY")->second)
 		   , ev.eval(nmspace, atts.find("thetaZ")->second)
 		   , ev.eval(nmspace, atts.find("phiZ")->second));
-    DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
   }
   else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 0)
   {
@@ -98,8 +76,6 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
   }
   // after a rotation or reflection rotation has been processed, clear it
   clear();
-
-  DCOUT_V('P', "DDLRotationAndReflection::processElement completed");
 }
 
 
@@ -118,8 +94,6 @@ DDLRotationAndReflection::processElement( const std::string& name, const std::st
 int
 DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace)
 {
-  DCOUT_V('P', "DDLRotation::isLeftHanded started");
-
   int ret = 0;
 
   /**************** copied and cannibalized code:
@@ -196,7 +170,6 @@ DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, c
   else if (1.0+check<=tol) {
     ret = 1;    
   }
-  DCOUT_V('P', "DDLRotation::isLeftHanded completed");
   return ret;
 }
 
