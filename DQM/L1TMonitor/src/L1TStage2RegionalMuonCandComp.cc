@@ -22,7 +22,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-  summary = ibooker.book1D("summary", "Summary", 17, 0, 17);
+  summary = ibooker.book1D("summary", "Summary", 17, 1, 18); // range to match bin numbering
   summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
   summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
   summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
