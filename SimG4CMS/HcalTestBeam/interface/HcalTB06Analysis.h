@@ -23,7 +23,7 @@
   
 class HcalTB06Histo;
 
-class HcalTB06Analysis : public edm::one::EDAnalyzer<>
+class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
 public:
 
@@ -41,7 +41,8 @@ private:
 
   edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
-  bool        m_ECAL;
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_BeamToken;
+  bool        m_ECAL, verbose_;
 
   int         count;
   int         m_idxetaEcal;

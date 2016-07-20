@@ -26,6 +26,7 @@
 
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TTree.h>
 
 class HcalTB06Histo {
    
@@ -38,17 +39,22 @@ public:
   // ---------- member functions ---------------------------
   void fillPrimary(double energy, double eta, double phi);
   void fillEdep(double etots, double eecals, double ehcals);
+  void fillTree(std::vector<double>& ecalo, std::vector<double>& etrig);
                                                                                
 private:
 
   // ---------- Private Data members -----------------------
-  bool                  verbose;
-  double                ebeam;
+  bool                  verbose_, mkTree_;
 
   TH1D                  *iniE,  *iEta,  *iPhi;
   TH1D                  *edepS, *edecS, *edhcS;
   TH1D                  *edepN, *edecN, *edhcN;
   TH2D                  *edehS;
+  TTree                 *tree_;
+  double                 eBeam_, etaBeam_, phiBeam_;
+  double                 edepEC_, edepHB_, edepHO_;
+  double                 noiseEC_, noiseHB_, noiseHO_;
+  double                 edepS1_, edepS2_, edepS3_, edepS4_, edepVC_;
 };
  
 #endif

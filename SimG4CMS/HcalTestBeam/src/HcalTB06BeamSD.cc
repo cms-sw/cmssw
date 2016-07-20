@@ -94,7 +94,6 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   edm::LogInfo("HcalTB06BeamSD") 
     << "HcalTB06BeamSD: Material name for " 
     << attribute << " = " << name << ":" << matName;
-  matScin = G4Material::GetMaterial(matName);
 }
 
 HcalTB06BeamSD::~HcalTB06BeamSD() {}
@@ -103,7 +102,7 @@ double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
 
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
-  if (useBirk && matScin == aStep->GetPreStepPoint()->GetMaterial()) {
+  if (useBirk && matName == aStep->GetPreStepPoint()->GetMaterial()->GetName()) {
     weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
   LogDebug("HcalTB06BeamSD") 

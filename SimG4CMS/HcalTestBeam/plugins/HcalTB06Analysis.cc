@@ -13,6 +13,7 @@
 // user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Analysis.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -41,14 +42,16 @@
 // constructors and destructor
 //
 
-HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p)
-  : count(0)
-{
+HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p) : count(0) {
+
+  usesResource("TFileService");
+
   m_ECAL = p.getParameter<bool>("ECAL");
   if(m_ECAL) {
     m_EcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"));
   }
   m_HcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
+  m_BeamToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalTB06BeamHits"));
   m_eta = p.getParameter<double>("MinEta");
   m_phi = p.getParameter<double>("MinPhi");
   m_ener= p.getParameter<double>("MinE");
@@ -75,36 +78,35 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p)
   m_widthHcal = ptb.getParameter<double>("HcalWidth");
   m_factEcal  = ptb.getParameter<double>("EcalFactor");
   m_factHcal  = ptb.getParameter<double>("HcalFactor");
+  verbose_    = ptb.getUntrackedParameter<bool>("Verbose", false);
 
-  edm::LogInfo("HcalTB06Analysis") 
-    << "Beam parameters: E(GeV)= " << m_ener
-    << " pdgID= " << m_PDG[0]
-    << "\n eta= " << m_eta 
-    << "  idx_etaEcal= " << m_idxetaEcal 
-    << "  idx_etaHcal= " << m_idxetaHcal 
-    << "  phi= " << m_phi 
-    << "  idx_phiEcal= " << m_idxphiEcal
-    << "  idx_phiHcal= " << m_idxphiHcal
-    << "\n        EcalFactor= " << m_factEcal
-    << "  EcalWidth= " << m_widthEcal << " GeV" 
-    << "\n        HcalFactor= " << m_factHcal
-    << "  HcalWidth= " << m_widthHcal << " GeV"
-    << "\n        TimeLimit=  " << m_timeLimit << " ns";
+  if (verbose_)
+    edm::LogInfo("HcalTB06Analysis") 
+      << "Beam parameters: E(GeV)= " << m_ener
+      << " pdgID= " << m_PDG[0]
+      << "\n eta= " << m_eta 
+      << "  idx_etaEcal= " << m_idxetaEcal 
+      << "  idx_etaHcal= " << m_idxetaHcal 
+      << "  phi= " << m_phi 
+      << "  idx_phiEcal= " << m_idxphiEcal
+      << "  idx_phiHcal= " << m_idxphiHcal
+      << "\n        EcalFactor= " << m_factEcal
+      << "  EcalWidth= " << m_widthEcal << " GeV" 
+      << "\n        HcalFactor= " << m_factHcal
+      << "  HcalWidth= " << m_widthHcal << " GeV"
+      << "\n        TimeLimit=  " << m_timeLimit << " ns";
   m_histo = new HcalTB06Histo(ptb);
 } 
    
-HcalTB06Analysis::~HcalTB06Analysis() 
-{
+HcalTB06Analysis::~HcalTB06Analysis() {
   delete m_histo;
 }
 
-void HcalTB06Analysis::beginJob() 
-{
+void HcalTB06Analysis::beginJob() {
   edm::LogInfo("HcalTB06Analysis") <<" =====> Begin of Run";
 }
 
-void HcalTB06Analysis::endJob()
-{
+void HcalTB06Analysis::endJob() {
   edm::LogInfo("HcalTB06Analysis") 
     << " =====> End of Run; Total number of events: " << count;
 }
@@ -118,6 +120,8 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
 
   edm::Handle<edm::PCaloHitContainer> Ecal;
   edm::Handle<edm::PCaloHitContainer> Hcal;
+  edm::Handle<edm::PCaloHitContainer> Beam;
+  std::vector<double> eCalo(6,0), eTrig(5,0);
 
   const std::vector<PCaloHit>* EcalHits = nullptr;
   if(m_ECAL) { 
@@ -126,6 +130,8 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
   }
   evt.getByToken(m_HcalToken, Hcal);
   const std::vector<PCaloHit>* HcalHits = Hcal.product();
+  evt.getByToken(m_BeamToken, Beam);
+  const std::vector<PCaloHit>* BeamHits = Beam.product();
 
   // Total Energy
   double eecals = 0.;
@@ -141,13 +147,13 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
       if(std::abs(m_idxetaEcal - ecalid.ieta()) <= 3 &&
       	 std::abs(m_idxphiEcal - ecalid.iphi()) <= 3 &&
 	 (*EcalHits)[i].time() < m_timeLimit) {
-	eecals += (*EcalHits)[i].energy();
+	eCalo[0] += (*EcalHits)[i].energy();
       }
     }
     if(m_widthEcal > 0.0) {
-      eecals += G4RandGauss::shoot(0.0,m_widthEcal);
+      eCalo[1] = G4RandGauss::shoot(0.0,m_widthEcal);
     }
-    eecals *= m_factEcal;
+    eecals = m_factEcal*(eCalo[0]+eCalo[1]);
   }
   if(HcalHits) {
     nh = HcalHits->size();
@@ -156,21 +162,46 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
       // 3x3 towers selection
       if(std::abs(m_idxetaHcal - hcalid.ieta()) <= 1 &&
       	 std::abs(m_idxphiHcal - hcalid.iphi()) <= 1 &&
-	 (*HcalHits)[i].time() < m_timeLimit &&
-	 hcalid.subdet() != HcalOuter) {
-	ehcals += (*HcalHits)[i].energy();
+	 (*HcalHits)[i].time() < m_timeLimit) {
+	if (hcalid.subdet() != HcalOuter) {
+	  eCalo[2] += (*HcalHits)[i].energy();
+	} else {
+	  eCalo[4] += (*HcalHits)[i].energy();
+	}
       }
     }
-    ehcals *= m_factHcal;
     if(m_widthHcal > 0.0) {
-      ehcals += G4RandGauss::shoot(0.0,m_widthHcal);
+      eCalo[3] = G4RandGauss::shoot(0.0,m_widthHcal);
+      eCalo[5] = G4RandGauss::shoot(0.0,m_widthHcal);
     }
+    ehcals = m_factHcal*eCalo[2] + eCalo[3];
   }
   double etots = eecals + ehcals;
-  LogDebug("HcalTBSim") << "HcalTB06Analysis:: Etot(MeV)= " << etots 
-			<< "   E(Ecal)= " << eecals 
-			<< "   E(Hcal)= " << ehcals
-			<< "  Nhits(ECAL)= " << ne 
-			<< "  Nhits(HCAL)= " << nh;
+  if (verbose_)
+    edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Etot(MeV)= " << etots 
+			      << "   E(Ecal)= " << eecals 
+			      << "   E(Hcal)= " << ehcals
+			      << "  Nhits(ECAL)= " << ne 
+			      << "  Nhits(HCAL)= " << nh;
   m_histo->fillEdep(etots, eecals, ehcals); 
+
+  if(BeamHits) {
+    for (unsigned int i=0; i<BeamHits->size(); ++i) {
+      unsigned int id = ((*BeamHits)[i].id());
+      int det, lay, ix, iy;
+      HcalTB06BeamSD::unpackIndex(id,det,lay,ix,iy);
+      if ((det == 1) && ((*BeamHits)[i].time() < m_timeLimit)) {
+	if (lay > 0 && lay <= 4) {
+	  eTrig[lay-1] += (*BeamHits)[i].energy();
+	} else if (lay >= 11 && lay <= 14) {
+	  eTrig[4]     += (*BeamHits)[i].energy();
+	}
+      }
+    }
+  }
+  if (verbose_)
+    edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Trigger Info: " 
+			      << eTrig[0] << ":" << eTrig[1] << ":" << eTrig[2]
+			      << ":" << eTrig[3] << ":" << eTrig[4];
+  m_histo->fillTree(eCalo,eTrig);
 }
