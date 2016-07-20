@@ -96,8 +96,13 @@ void L1TStage2MuonComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
   int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX();
   if (bxRange1 != bxRange2) {
     summary->Fill(BXRANGEBAD);
-    muColl1BxRange->Fill(bxRange1);
-    muColl2BxRange->Fill(bxRange2);
+    int bx;
+    for (bx = muonBxColl1->getFirstBX(); bx <= muonBxColl1->getLastBX(); ++bx) {
+        muColl1BxRange->Fill(bx);
+    }
+    for (bx = muonBxColl2->getFirstBX(); bx <= muonBxColl2->getLastBX(); ++bx) {
+        muColl2BxRange->Fill(bx);
+    }
   } else {
     summary->Fill(BXRANGEGOOD);
   }
