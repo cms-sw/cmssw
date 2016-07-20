@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V143 (CMSSW_8_0_12)
+# /dev/CMSSW_8_0_0/PRef/V146 (CMSSW_8_0_12)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V143')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V146')
 )
 
 fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -7408,9 +7408,9 @@ fragment.hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
       cms.PSet(  importerName = cms.string( "GeneralTracksImporter" ),
         useIterativeTracking = cms.bool( False ),
         source = cms.InputTag( "hltLightPFTracks" ),
-        NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3 ),
+        NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3, 3 ),
         muonSrc = cms.InputTag( "hltMuons" ),
-        DPtOverPtCuts_byTrackAlgo = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5 )
+        DPtOverPtCuts_byTrackAlgo = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 )
       ),
       cms.PSet(  importerName = cms.string( "ECALClusterImporter" ),
         source = cms.InputTag( "hltParticleFlowClusterECALUnseeded" ),
