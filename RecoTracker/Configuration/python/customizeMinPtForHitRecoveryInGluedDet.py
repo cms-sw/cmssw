@@ -7,5 +7,7 @@ def customizeMinPtForHitRecoveryInGluedDet(process,value):
    return process
 def customizeHitRecoveryInGluedDetOff(process):
    return customizeMinPtForHitRecoveryInGluedDet(process,1000000)
+def customizeHitRecoveryInGluedDetOn(process):
+   return customizeMinPtForHitRecoveryInGluedDet(process,0.9)
 
 
