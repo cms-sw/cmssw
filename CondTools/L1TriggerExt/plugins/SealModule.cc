@@ -35,7 +35,7 @@ REGISTER_L1_WRITER(L1TriggerKeyListExtRcd, L1TriggerKeyListExt);
 // Ext Records:
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuO2ORcd.h"
 
-using namespace l1t;
-REGISTER_L1_WRITER(L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu);
+REGISTER_L1_WRITER(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);
+

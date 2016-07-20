@@ -8,10 +8,20 @@
 
 REGISTER_PLUGIN(L1TriggerKeyRcd, L1TriggerKey);
 
+#include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyExtRcd, L1TriggerKeyExt);
+
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 
 REGISTER_PLUGIN(L1TriggerKeyListRcd, L1TriggerKeyList);
+
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyListExtRcd, L1TriggerKeyListExt);
 
 // L1 scales
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -251,12 +261,6 @@ REGISTER_PLUGIN(L1TUtmScaleRcd, L1TUtmScale);
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuO2ORcd.h"
 REGISTER_PLUGIN(L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu);
-
-#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
-REGISTER_PLUGIN(L1TGlobalParametersRcd, L1TGlobalParameters);
-
-#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
-REGISTER_PLUGIN(L1TGlobalPrescalesVetosRcd, L1TGlobalPrescalesVetos);
+REGISTER_PLUGIN(L1TUtmTriggerMenuO2ORcd, L1TUtmTriggerMenu);

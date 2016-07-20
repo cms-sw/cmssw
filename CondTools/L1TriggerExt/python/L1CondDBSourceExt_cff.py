@@ -15,7 +15,6 @@ def initCondDBSourceExt( process,
                       includeRSTags = False,
                       applyESPrefer = True ):
     import FWCore.ParameterSet.Config as cms
-    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
     from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
 
     if len( tagBaseVec ) == 0:
@@ -27,10 +26,12 @@ def initCondDBSourceExt( process,
             from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
             initL1O2OTagsExt()
             tagBaseVec = initL1O2OTagsExt.tagBaseVec
-                                
+
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string(inputDBConnect)
+
     process.l1conddb = cms.ESSource("PoolDBESSource",
-                            CondDBSetup,
-                            connect = cms.string(inputDBConnect),
+                            CondDB,
                             toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListExtRcd'),
         tag = cms.string('L1TriggerKeyListExt_' + tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ])
