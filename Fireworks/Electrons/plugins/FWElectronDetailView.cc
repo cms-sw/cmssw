@@ -70,14 +70,16 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
       eta = iElectron->eta();
       phi = iElectron->phi();
    }
+   printf("eta %f phi %f \n", eta, phi);
 
    // build ECAL objects
    m_builder = new FWECALDetailViewBuilder( id.item()->getEvent(), id.item()->getGeom(),
 					    eta, phi, 25);
- 
+   /*
    m_builder->showSuperClusters();
    if( iElectron->superCluster().isAvailable() )
       m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow);
+   */
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
    m_eveScene->AddElement( lego );
@@ -89,7 +91,7 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    m_legend->SetEntrySeparation(0.05);
 
    // add Electron specific details
-   if( iElectron->superCluster().isAvailable() ) {
+   if( 0 &&  iElectron->superCluster().isAvailable() ) {
       addTrackPointsInCaloData( iElectron, lego );
       drawCrossHair( iElectron, lego, m_eveScene );
       addSceneInfo( iElectron, m_eveScene );
