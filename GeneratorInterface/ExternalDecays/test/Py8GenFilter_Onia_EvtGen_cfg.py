@@ -15,22 +15,19 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(7000.),
     
     ExternalDecays = cms.PSet(
-        EvtGen = cms.untracked.PSet(
-             operates_on_particles = cms.vint32( 0 ), # 0 (zero) means default list (hardcoded)
-                                                      # you can put here the list of particles (PDG IDs)
-                                                      # that you want decayed by EvtGen
-	     use_default_decay = cms.untracked.bool(False),
-             decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
-             # decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY.DEC'),
-             particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/evt.pdl'),
-             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Onia_mumu.dec'),
-             # user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/incl_BtoJpsi_mumu.dec'),
+        EvtGen1 = cms.untracked.PSet(
+             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
+             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
+             #user_decay_files = cms.vstring('DECAY_2010.DEC'),
+             user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Onia_mumu.dec'),
              list_forced_decays = cms.vstring('MyUpsilon(2S)'),
+             operates_on_particles = cms.vint32(0) # 0 (zero) means default list (hardcoded), the list of PDG IDs can be put here
              ),
-        parameterSets = cms.vstring('EvtGen')
+        parameterSets = cms.vstring('EvtGen1')
     ),
     
-    PythiaParameters = cms.PSet(
+    PythiaParameters = cms.PSet(      # MultipleInteractions commands below don't work (obsolete?). Should official settings be used?
+
         py8UESettings = cms.vstring( 'StringZ:usePetersonB = on',      # these 2 together ==
 	                             'StringZ:usePetersonC = on',      # mstj(11)=3
 				     'ParticleDecays:limitTau0 = on',  # mstj(22)=2 - decay unstable particles
@@ -41,17 +38,17 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 				     'SigmaProcess:Kfactor=1.',        # D; mstp(33)=0 - no K-factor, i.e. K=1
 				     # This is the important master switch - I can turn it ON/OFF, 
 				     # and it'll greatly affect the event multiplicity, 
-				     # whithout messing up too much the principle physics
-				     'PartonLevel:MI = off',            # D; mstp(81)=1
+				     # without messing up too much the principle physics
+				     'PartonLevel:MPI = off',            # D; mstp(81)=1
 				     ### Py6 mstp(82)=4 (MI model) does NOT have anything similar in Py8, 
 				     ### because it actually means a new model, and in Py8 old models went away 
 				     ### - only new remain
-				     'MultipleInteractions:pT0Ref=1.8387',    # parp(82)=1.8387 - pt cutoff for MI
-				     'MultipleInteractions:ecmRef=1960.',     # parp(89)=1960.
-				     'MultipleInteractions:coreFraction=0.5', # D; parp(83)=0.5
-				     'MultipleInteractions:coreRadius=0.4',   # D; parp(84)=0.4
+				     #'MultipleInteractions:pT0Ref=1.8387',    # parp(82)=1.8387 - pt cutoff for MI
+				     #'MultipleInteractions:ecmRef=1960.',     # parp(89)=1960.
+				     #'MultipleInteractions:coreFraction=0.5', # D; parp(83)=0.5
+				     #'MultipleInteractions:coreRadius=0.4',   # D; parp(84)=0.4
 				     ### parp(85) & parp(86) are N/A in Py8
-				     'MultipleInteractions:ecmPow=0.16',      # parp(90)=0.16
+				     #'MultipleInteractions:ecmPow=0.16',      # parp(90)=0.16
 				     'BeamRemnants:primordialKT=on',          # D; mstp(91)=1
 				     'BeamRemnants:primordialKThard=2.1',     # parp(91)=2.1
 				     'BeamRemnants:primordialKTremnant=15.',  # parp(93)=15.
