@@ -8,10 +8,10 @@ csvpath = os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/csv/"
 ROOT.gSystem.Load(csvpath+'/BTagCalibrationStandalone.so')
 
 # CSVv2
-calib_csv = ROOT.BTagCalibration("csvv2", csvpath+"/CSVv2_4invfb.csv")
+calib_csv = ROOT.BTagCalibration("csvv2", csvpath+"/CSVv2_ichep.csv")
 
 # cMVAv2
-calib_cmva = ROOT.BTagCalibration("cmvav2", csvpath+"/cMVAv2_4invfb.csv")
+calib_cmva = ROOT.BTagCalibration("cmvav2", csvpath+"/cMVAv2_ichep.csv")
 
 # map between algo/flavour and measurement type
 sf_type_map = {
