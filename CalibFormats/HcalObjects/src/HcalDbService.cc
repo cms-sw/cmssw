@@ -72,7 +72,6 @@ void HcalDbService::buildCalibrations() const {
         if (ok) ptr->setCalibrations(*id,tool);
         //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
       }
-      ptr->sort();
       HcalCalibrationsSet const * cptr = ptr;
       HcalCalibrationsSet const * expect = nullptr;
       bool exchanged = mCalibSet.compare_exchange_strong(expect, cptr, std::memory_order_acq_rel);
@@ -103,8 +102,6 @@ void HcalDbService::buildCalibWidths() const {
         if (ok) ptr->setCalibrationWidths(*id,tool);
         //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
       }
-      ptr->sort();
-
       HcalCalibrationWidthsSet const *  cptr =	ptr;
       HcalCalibrationWidthsSet const * expect = nullptr;
       bool exchanged = mCalibWidthSet.compare_exchange_strong(expect, cptr, std::memory_order_acq_rel);
