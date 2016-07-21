@@ -3,6 +3,8 @@
 
 // Includes for AbsHcalAlgoData descendants
 // and their corresponding records
+#include "CondFormats/HcalObjects/interface/HFPhase1PMTParams.h"
+#include "CondFormats/DataRecord/interface/HFPhase1PMTParamsRcd.h"
 
 namespace {
     // Class Data must inherit from AbsHcalAlgoData
@@ -21,12 +23,11 @@ std::unique_ptr<AbsHcalAlgoData>
 fetchHcalAlgoData(const std::string& className, const edm::EventSetup& es)
 {
     AbsHcalAlgoData* data = 0;
-    //
+
     // Compare with possibe class names
-    // if (className == "MyHcalAlgoData")
-    //     data = fetchHcalAlgoDataHelper<MyHcalAlgoData, MyHcalAlgoDataRcd>(es);
-    // else if (className == "OtherHcalAlgoData")
-    //     ...;
     //
+    if (className == "HFPhase1PMTParams")
+        data = fetchHcalAlgoDataHelper<HFPhase1PMTParams, HFPhase1PMTParamsRcd>(es);
+    
     return std::unique_ptr<AbsHcalAlgoData>(data);
 }
