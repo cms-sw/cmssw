@@ -321,7 +321,14 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
 
        energy = hitIt->energy();
        et = calculateEt( center, energy );
+       Color_t bcolor = m_defaultColor;
+       std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(hitIt->id());
+       if (itr != m_detIdsToColor.end()) bcolor = itr->second;
+
        m_boxes.push_back(new FWBoxRecHit( etaphiCorners, m_towerList, energy, et ));
+       m_boxes.back()->getTower()->SetMainColor(bcolor);
+       m_boxes.back()->getTower()->SetTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
+
    } // loop hits
 
 
