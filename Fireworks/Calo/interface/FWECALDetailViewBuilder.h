@@ -93,6 +93,5 @@ private:
    }
 
    float sizeRad() const;
-   float sizeXY() const;
 
 };
