@@ -5,6 +5,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "Fireworks/Calo/interface/FWBoxRecHit.h"
 
 namespace edm {
    class EventBase;
@@ -35,12 +36,8 @@ public:
    // the half width of the region (in indices, e.g. iEta) and
    // the default color for the hits.
    FWECALDetailViewBuilder(const edm::EventBase *event, const FWGeometry* geom,
-                           float eta, float phi, int size = 50,
-                           Color_t defaultColor = kMagenta+1)
-      : m_event(event), m_geom(geom),
-        m_eta(eta), m_phi(phi), m_size(size),
-        m_defaultColor(defaultColor), m_coordinatesEtaPhi(true){
-   }
+                           float eta, float phi, int size = 50 , Color_t defaultColor = kMagenta+1);
+
 
    // draw the ecal information with the preset colors
    // (if any colors have been preset)
@@ -69,7 +66,6 @@ private:
    void fillData(TEveCaloDataVec *data);
    
    void fillEtaPhi(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
-   void fillXY(const EcalRecHitCollection *hits, TEveCaloDataVec *data);
 
    const edm::EventBase *m_event;                               // the event
    const FWGeometry     *m_geom;                                // the geometry
@@ -77,12 +73,18 @@ private:
    float m_phi;                                                 // phi position view centred on
    int   m_size;                                                  // view half width in number of crystals
    Color_t m_defaultColor;                                      // default color for crystals
-   bool m_coordinatesEtaPhi;
+
+
+   std::vector<FWBoxRecHit*> m_boxes;
+
    // for keeping track of what det id goes in what slice
    std::map<DetId, int> m_detIdsToColor;
 
    // for keeping track of the colors to use for each slice
    std::vector<Color_t> m_colors;
+
+
+   TEveElement* m_towerList;
 
    // sorting function to sort super clusters by eta.
    static bool superClusterEtaLess(const reco::CaloCluster &lhs, const reco::CaloCluster &rhs)
