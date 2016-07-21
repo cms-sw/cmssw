@@ -38,6 +38,7 @@
 #include <iostream>
 #include <iomanip>
 
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 //
@@ -70,7 +71,7 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p) : count(0) {
 
   m_idxetaHcal   = (int)(beamEta/0.087) + 1;
   m_idxphiHcal   = (int)(beamPhi/0.087) + 6;
-  if(m_idxphiHcal > 72) { m_idxphiHcal -= 73; }
+  if(m_idxphiHcal > 72) { m_idxphiHcal -= 72; }
 
   edm::ParameterSet ptb = p.getParameter<edm::ParameterSet>("TestBeamAnalysis");
   m_timeLimit = ptb.getParameter<double>("TimeLimit");
@@ -94,7 +95,7 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p) : count(0) {
       << "  EcalWidth= " << m_widthEcal << " GeV" 
       << "\n        HcalFactor= " << m_factHcal
       << "  HcalWidth= " << m_widthHcal << " GeV"
-      << "\n        TimeLimit=  " << m_timeLimit << " ns";
+      << "\n        TimeLimit=  " << m_timeLimit << " ns" << "\n";
   m_histo = new HcalTB06Histo(ptb);
 } 
    
@@ -143,6 +144,12 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     ne = EcalHits->size();
     for (unsigned int i=0; i<ne; ++i) {
       EBDetId ecalid((*EcalHits)[i].id());
+#ifdef EDM_ML_DEBUG
+      std::cout << "EB " << i << " " << ecalid.ieta() << ":" << m_idxetaEcal 
+		<< "   " << ecalid.iphi() << ":" << m_idxphiEcal << "   " 
+		<< (*EcalHits)[i].time() << ":" << m_timeLimit << "   " 
+		<< (*EcalHits)[i].energy() << std::endl;
+#endif
       // 7x7 crystal selection
       if(std::abs(m_idxetaEcal - ecalid.ieta()) <= 3 &&
       	 std::abs(m_idxphiEcal - ecalid.iphi()) <= 3 &&
@@ -159,6 +166,13 @@ void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
     nh = HcalHits->size();
     for (unsigned int i=0; i<nh; ++i) {
       HcalDetId hcalid((*HcalHits)[i].id());
+#ifdef EDM_ML_DEBUG
+      std::cout << "HC " << i << " " << hcalid.subdet() << "  " 
+		<< hcalid.ieta() << ":" << m_idxetaHcal << "   " 
+		<< hcalid.iphi() << ":" << m_idxphiHcal << "   " 
+		<< (*HcalHits)[i].time() << ":" << m_timeLimit << "   " 
+		<< (*HcalHits)[i].energy() << std::endl;
+#endif
       // 3x3 towers selection
       if(std::abs(m_idxetaHcal - hcalid.ieta()) <= 1 &&
       	 std::abs(m_idxphiHcal - hcalid.iphi()) <= 1 &&
