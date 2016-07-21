@@ -16,9 +16,7 @@
 //
 //
 
-
 // system include files
-#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,40 +41,11 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_PETalgorithm.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
 
-// Base class for Phase 1 HF reco algorithms configuration objects
-#include "CondFormats/HcalObjects/interface/AbsHFPhase1AlgoData.h"
-
 // Parser for Phase 1 HF reco algorithms
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHFPhase1AlgoDescription.h"
 
-namespace {
-    // Class Data must inherit from AbsHFPhase1AlgoData
-    // and must have a copy constructor. This function
-    // returns an object allocated on the heap.
-    template <class Data, class Record>
-    Data* fetchHFPhase1AlgoDataHelper(const edm::EventSetup& es)
-    {
-        edm::ESHandle<Data> p;
-        es.get<Record>().get(p);
-        return new Data(*p.product());
-    }
-
-    // Factory function for fetching (from EventSetup) objects
-    // of the types inheriting from AbsHFPhase1AlgoData. These
-    // objects are used to configure HF reco algorithms.
-    std::unique_ptr<AbsHFPhase1AlgoData>
-    fetchHFPhase1AlgoData(const std::string& className, const edm::EventSetup& es)
-    {
-        AbsHFPhase1AlgoData* data = 0;
-        // Compare with possibe class names
-        // if (className == "MyHFPhase1AlgoData")
-        //     data = fetchHFPhase1AlgoDataHelper<MyHFPhase1AlgoData, MyHFPhase1AlgoDataRcd>(es);
-        // else if (className == "OtherHFPhase1AlgoData")
-        //     ...;
-        return std::unique_ptr<AbsHFPhase1AlgoData>(data);
-    }
-}
-
+// Fetcher for reco algorithm data
+#include "RecoLocalCalo/HcalRecAlgos/interface/fetchHcalAlgoData.h"
 
 //
 // class declaration
@@ -102,7 +71,7 @@ private:
     // Other members
     edm::EDGetTokenT<HFPreRecHitCollection> tok_PreRecHit_;
     std::unique_ptr<AbsHFPhase1Algo> reco_;
-    std::unique_ptr<AbsHFPhase1AlgoData> recoConfig_;
+    std::unique_ptr<AbsHcalAlgoData> recoConfig_;
 
     // Noise cleanup algos
     std::unique_ptr<HcalHF_S9S1algorithm> hfS9S1_;
@@ -187,7 +156,7 @@ HFPhase1Reconstructor::beginRun(const edm::Run& r, const edm::EventSetup& es)
 {
     if (reco_->isConfigurable())
     {
-        recoConfig_ = fetchHFPhase1AlgoData(algoConfigClass_, es);
+        recoConfig_ = fetchHcalAlgoData(algoConfigClass_, es);
         if (!recoConfig_.get())
             throw cms::Exception("HFPhase1BadConfig")
                 << "Invalid HFPhase1Reconstructor \"algoConfigClass\" parameter value \""

@@ -5,12 +5,12 @@
 #include "DataFormats/HcalRecHit/interface/HFPreRecHit.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
-class AbsHFPhase1AlgoData;
+class AbsHcalAlgoData;
 
 //
 // It is assumed that the HF Phase 1 algorithms will be developed
 // utilizing pairs of classes: a DB class with relevant calibration
-// constants and configuration parameters, derived from AbsHFPhase1AlgoData,
+// constants and configuration parameters, derived from AbsHcalAlgoData,
 // and the algo class, derived from AbsHFPhase1Algo, utilizing that DB class.
 //
 // We can expect that the same calibration constants might be utilized
@@ -34,7 +34,7 @@ public:
     // once per run. We will not manage the pointer here. "true"
     // should be returned on success (typically, automatic cast
     // from the pointer checked by the appropriate dynamic cast).
-    inline virtual bool configure(const AbsHFPhase1AlgoData*) {return false;}
+    inline virtual bool configure(const AbsHcalAlgoData*) {return false;}
 
     // Convention: if we do not want to use the given HFPreRecHit
     // at all (i.e., it is to be discarded), the returned HFRecHit
