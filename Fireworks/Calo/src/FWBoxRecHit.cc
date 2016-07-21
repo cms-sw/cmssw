@@ -91,7 +91,6 @@ FWBoxRecHit::buildLineSet( const std::vector<TEveVector> &corners )
 
    m_ls->ResetBBox();
    m_ls->ComputeBBox();
-   float* bb = m_ls->GetBBox();
 }
 
 //______________________________________________________________________________
