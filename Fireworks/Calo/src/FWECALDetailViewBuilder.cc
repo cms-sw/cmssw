@@ -40,7 +40,7 @@ FWECALDetailViewBuilder::FWECALDetailViewBuilder(const edm::EventBase *event, co
 }
 
 
-TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
+TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool)
 {
    // get the hits from the event
 
@@ -249,7 +249,7 @@ calculateEt( const TEveVector &centre, float e )
 void
 FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
 {
-   
+    // printf("filletaphi \n");  
    const float area = sizeRad(); // barrel cell range, AMT this is available in context
 
    double eta1 = m_eta - area;
@@ -258,15 +258,6 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
    double phi2 = m_phi + area;
 
 
-   //  float  maxEnergyLog = 0,  maxEnergy = 0, maxEt = 0, maxEtLog = 0;
-   /*
-   // check if we are in -Pi|Pi area
-   int wrapPhi = 0;
-   if (TMath::Abs(phi1) > TMath::Pi() || TMath::Abs(phi2) > TMath::Pi()) {
-      wrapPhi = m_phi > 0 ? 1 : -1;
-      //printf("wrap phi %d \n", wrapPhi);
-      //printf("phi range [%f, %f]\n", phi1, phi2);
-      }*/
    std::vector<FWBoxRecHit*>  boxes;
    for( EcalRecHitCollection::const_iterator hitIt = hits->begin(); hitIt != hits->end(); ++hitIt)
    {    
@@ -491,10 +482,6 @@ FWECALDetailViewBuilder::makeLegend( double x0, double y0,
    return y;
 }
 //______________________________________________________________________________
-float FWECALDetailViewBuilder::sizeXY() const
-{
-   return m_size *1.5;
-}
 
 float FWECALDetailViewBuilder::sizeRad() const
 {
