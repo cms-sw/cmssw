@@ -27,10 +27,11 @@
       0.5*mm, 2.1*mm,  2.8*mm,  4.2*mm,  0.6*mm,  1.2*mm, 2.2*mm, 
       0.5*mm, 6.0*mm, 0.10*mm,  1.2*mm,  0.5*mm, 0.01*mm, 7.0*mm,
       0.2*mm</Vector>
-    <Vector name="Layers" type="numeric" nEntries="4"> 
-      13, 13, 13, 13</Vector>
-    <Vector name="LayerThick" type="numeric" nEntries="4"> 
-      30.70*mm, 30.70*mm, 30.70*mm, 29.70*mm</Vector>
+    <Vector name="Layers" type="numeric" nEntries="8"> 
+      14, 14, 14, 14, 14, 14, 14, 15</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="8"> 
+     24.30*mm, 24.30*mm, 24.90*mm, 26.20*mm, 26.20*mm,
+     28.20*mm, 29.60*mm, 33.80*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="113"> 
       1, 13,  9,  9,  9, 14,  4,  8,  4, 14,  9,  9,  9, 13,
       1, 13,  9,  9,  9, 14,  4,  8,  4, 14,  9,  9,  9, 13,
