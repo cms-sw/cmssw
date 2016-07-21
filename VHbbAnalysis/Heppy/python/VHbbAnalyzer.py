@@ -1,3 +1,4 @@
+
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.utils.deltar import deltaR,deltaPhi
@@ -233,6 +234,16 @@ class VHbbAnalyzer( Analyzer ):
            event.aJetsCSV+=event.cleanJetsFwd
            event.HCSV = event.hJetsCSV[0].p4()+event.hJetsCSV[1].p4()
 
+    def doHiggsHighCMVAV2(self,event) :
+        #leading csv interpretation
+        if ( len(event.jetsForHiggs) >= 2):  
+           event.hJetsCMVAV2=sorted(event.jetsForHiggs,key = lambda jet : jet.btag('pfCombinedMVAV2BJetTags'), reverse=True)[0:2]
+           event.aJetsCMVAV2 = [x for x in event.cleanJets if x not in event.hJetsCMVAV2]
+           event.hjidxCMVAV2=[event.cleanJetsAll.index(x) for x in event.hJetsCMVAV2 ]
+           event.ajidxCMVAV2=[event.cleanJetsAll.index(x) for x in event.aJetsCMVAV2 ]
+           event.aJetsCMVAV2+=event.cleanJetsFwd
+           event.HCMVAV2 = event.hJetsCMVAV2[0].p4()+event.hJetsCMVAV2[1].p4()
+
     def doHiggsHighPt(self,event) :
         #highest pair interpretations
         if ( len(event.jetsForHiggs) >= 2):
@@ -272,12 +283,18 @@ class VHbbAnalyzer( Analyzer ):
           # ""=nominal, the other correspond to jet energies up/down for JEC and JER
           for analysis in ["","corrJECUp", "corrJECDown", "corrJERUp", "corrJERDown"]:
              self.regressions[event.Vtype].evaluateRegression(event, "pt_reg", analysis)
+
              hJetCSV_reg0 =ROOT.reco.Particle.LorentzVector( event.hJetsCSV[0].p4())
              hJetCSV_reg1 =ROOT.reco.Particle.LorentzVector( event.hJetsCSV[1].p4())
-
              hJetCSV_reg0*=getattr(event.hJetsCSV[0],"pt_reg"+analysis)/event.hJetsCSV[0].pt()
              hJetCSV_reg1*=getattr(event.hJetsCSV[1],"pt_reg"+analysis)/event.hJetsCSV[1].pt()
              setattr(event,"HCSV_reg"+("_"+analysis if analysis!="" else ""), hJetCSV_reg0+hJetCSV_reg1)
+
+             hJetCMVAV2_reg0 =ROOT.reco.Particle.LorentzVector( event.hJetsCMVAV2[0].p4())
+             hJetCMVAV2_reg1 =ROOT.reco.Particle.LorentzVector( event.hJetsCMVAV2[1].p4())
+             hJetCMVAV2_reg0*=getattr(event.hJetsCMVAV2[0],"pt_reg"+analysis)/event.hJetsCMVAV2[0].pt()
+             hJetCMVAV2_reg1*=getattr(event.hJetsCMVAV2[1],"pt_reg"+analysis)/event.hJetsCMVAV2[1].pt()
+             setattr(event,"HCMVAV2_reg"+("_"+analysis if analysis!="" else ""), hJetCMVAV2_reg0+hJetCMVAV2_reg1)
 
              hJet_reg0=ROOT.reco.Particle.LorentzVector(event.hJets[0].p4())
              hJet_reg1=ROOT.reco.Particle.LorentzVector(event.hJets[1].p4())
@@ -288,6 +305,7 @@ class VHbbAnalyzer( Analyzer ):
        else:
           for analysis in ["","corrJECUp", "corrJECDown", "corrJERUp", "corrJERDown"]:
              setattr(event,"HCSV_reg"+("_"+analysis if analysis!="" else ""), ROOT.reco.Particle.LorentzVector() ) 
+             setattr(event,"HCMVAV2_reg"+("_"+analysis if analysis!="" else ""), ROOT.reco.Particle.LorentzVector() ) 
              setattr(event,"H_reg"+("_"+analysis if analysis!="" else ""), ROOT.reco.Particle.LorentzVector() )
 
 
@@ -421,6 +439,10 @@ class VHbbAnalyzer( Analyzer ):
         event.aJetsCSV = []
         event.hjidxCSV = []
         event.ajidxCSV = []
+        event.hJetsCMVAV2 = []
+        event.aJetsCMVAV2 = []
+        event.hjidxCMVAV2 = []
+        event.ajidxCMVAV2 = []
         event.hJetsaddJetsdR08 = []
         event.dRaddJetsdR08 = []
         event.aJetsaddJetsdR08 = []
@@ -431,11 +453,14 @@ class VHbbAnalyzer( Analyzer ):
         event.isrJetVH=-1
         event.H = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
         event.HCSV = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
+        event.HCMVAV2 = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
         event.HaddJetsdR08 = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
         event.H_reg = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
         event.HCSV_reg = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
+        event.HCMVAV2_reg = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
         for analysis in ["","corrJECUp", "corrJECDown", "corrJERUp", "corrJERDown"]:
              setattr(event,"HCSV_reg"+("_"+analysis if analysis!="" else ""), ROOT.reco.Particle.LorentzVector() )
+             setattr(event,"HCMVAV2_reg"+("_"+analysis if analysis!="" else ""), ROOT.reco.Particle.LorentzVector() )
              setattr(event,"H_reg"+("_"+analysis if analysis!="" else ""), ROOT.reco.Particle.LorentzVector() )
 
         event.V = ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.)
@@ -482,19 +507,19 @@ class VHbbAnalyzer( Analyzer ):
         for j in event.discardedJets:
               j.btagIdx=-1
       
-	#substructure threshold, make configurable
-	ssThreshold = 200.
 	# filter events with less than 2 jets with pt 20
         event.jetsForHiggs = [x for x in event.cleanJets if self.cfg_ana.higgsJetsPreSelection(x) ]
-	if not  ( len(event.jetsForHiggs) >= 2  or (len(event.cleanJets) == 1 and event.cleanJets[0].pt() > ssThreshold ) ) :
+        event.jetsForHiggsAll = [x for x in event.cleanJetsAll if self.cfg_ana.higgsJetsPreSelection(x) ]
+	if not  ( len(event.jetsForHiggsAll) >= 2  or (len(event.cleanJets) == 1 and event.cleanJets[0].pt() > self.cfg_ana.singleJetThreshold ) ) :
 		return self.cfg_ana.passall
-        if event.Vtype < 0 and not ( sum(x.pt() > 30 for x in event.jetsForHiggs) >= 4 or sum(x.pt() for x in event.jetsForHiggs[:4]) > 160 ):
+        if event.Vtype < 0 and not ( sum(x.pt() > 30 for x in event.jetsForHiggsAll) >= 4 or sum(x.pt() for x in event.jetsForHiggsAll[:4]) > self.cfg_ana.sumPtThreshold ):
                 return self.cfg_ana.passall
 
         map(lambda x :x.qgl(),event.jetsForHiggs[:6])
         map(lambda x :x.qgl(),(x for x in event.jetsForHiggs if x.pt() > 30) )
 
 	self.doHiggsHighCSV(event)
+	self.doHiggsHighCMVAV2(event)
 	self.doHiggsHighPt(event)
         self.doHiggsAddJetsdR08(event)
         self.searchISRforVH(event)

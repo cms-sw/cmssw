@@ -225,8 +225,8 @@ jsons = {
     'eleSF_HLT_RunD4p3' : [jsonpath+'ScaleFactor_HLT_Ele23_WPLoose_Gsf_v.json','ScaleFactor_HLT_Ele23_WPLoose_Gsf_v', 'eta_pt_ratio'],
     'eleSF_IdCutLoose' : [jsonpath+'CutBasedID_LooseWP.json', 'CutBasedID_LooseWP', 'abseta_pt_ratio'],
     'eleSF_IdCutTight' : [jsonpath+'CutBasedID_TightWP.json', 'CutBasedID_TightWP', 'abseta_pt_ratio'],
-    'eleSF_IdMVALoose' : [jsonpath+'ScaleFactor_GsfElectronToRECO_passingTrigWP80.json', 'ScaleFactor_GsfElectronToRECO_passingTrigWP80', 'eta_pt_ratio'],
-    'eleSF_IdMVATight' : [jsonpath+'ScaleFactor_GsfElectronToRECO_passingTrigWP90.json', 'ScaleFactor_GsfElectronToRECO_passingTrigWP90', 'eta_pt_ratio'],
+    'eleSF_IdMVALoose' : [jsonpath+'ScaleFactor_egammaEff_WP80.json', 'ScaleFactor_egammaEff_WP80', 'eta_pt_ratio'],
+    'eleSF_IdMVATight' : [jsonpath+'ScaleFactor_egammaEff_WP90.json', 'ScaleFactor_egammaEff_WP90', 'eta_pt_ratio'],
     'eleSF_IsoLoose' : ['','',''],
     'eleSF_IsoTight' : ['','',''],
     }
