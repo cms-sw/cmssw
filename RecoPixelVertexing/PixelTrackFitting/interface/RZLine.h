@@ -13,6 +13,18 @@ class RZLine {
 public:
   struct ErrZ2_tag {};
 
+  /**
+   * Constructor for containers of GlobalPoint, GlobalError, and bool
+   *
+   * @tparam P  Container of GlobalPoint
+   * @tparam E  Container of GlobalError
+   * @tparam B  Container of bool
+   *
+   * Container can be e.g. std::vector, std::array, or DynArray.
+   *
+   * Although for std::array use this constructor could be specialized
+   * to use std::array instead of DynArray for temporary storage.
+   */
   template <typename P, typename E, typename B>
   RZLine(const P& points, const E& errors, const B& isBarrel) {
     const size_t n = points.size();
@@ -34,6 +46,9 @@ public:
     calculate(r, z, errZ2);
   }
 
+  /**
+   * Constructor for std::vector of r, z, and z standard deviation
+   */
   RZLine(const std::vector<float> & r,
          const std::vector<float> & z,
          const std::vector<float> & errZ) {
@@ -43,6 +58,9 @@ public:
     calculate(r, z, errZ2);
   }
 
+  /**
+   * Constructor for std::array of r, z, and z standard deviation
+   */
   template <size_t N>
   RZLine(const std::array<float, N>& r,
          const std::array<float, N>& z,
@@ -52,6 +70,19 @@ public:
     calculate(r, z, errZ2);
   }
 
+  /**
+   * Constructor for container of r, z, and z variance
+   *
+   * @tparam T  Container of float
+   *
+   * Container can be e.g. std::vector, std::array, or DynArray.
+   *
+   * The ErrZ2_tag parameter is used to distinguish this constructor
+   * from other 3-parameter constructors.
+   *
+   * Passing variance is useful in cases where it is already available
+   * to avoid making a square of a square root.
+   */
   template <typename T>
   RZLine (const T& r, const T& z, const T& errZ2, ErrZ2_tag) {
     calculate(r, z, errZ2);

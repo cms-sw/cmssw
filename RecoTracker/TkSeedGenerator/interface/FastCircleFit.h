@@ -26,6 +26,14 @@
  */
 class FastCircleFit {
 public:
+  /**
+   * Constructor for containers of GlobalPoint and GlobalError
+   *
+   * @tparam P  Container of GlobalPoint
+   * @tparam E  Container of GlobalError
+   *
+   * Container can be e.g. std::vector or DynArray.
+   */
   template <typename P, typename E>
   FastCircleFit(const P& points, const E& errors) {
     const auto N = points.size();
@@ -36,6 +44,9 @@ public:
     calculate(points, errors, x, y, z, weight);
   }
 
+  /**
+   * Constructor for std::array of GlobalPoint and GlobalError
+   */
   template <size_t N>
   FastCircleFit(const std::array<GlobalPoint, N>& points, const std::array<GlobalError, N>& errors) {
     std::array<float, N> x;
