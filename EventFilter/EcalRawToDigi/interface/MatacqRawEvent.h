@@ -364,7 +364,7 @@ private:
    * it is set, then -1 is returned.
    * @return content of data field specified by 'spec'
    */
-  static int read32(uint32le_t* pData, field32spec_t spec, bool ovfTrans = false);
+  static int read32(const uint32le_t *pData, field32spec_t spec, bool ovfTrans = false);
   
 //   /** Help function to get the maximum value of a data field
 //    * @param spec32 data field specification
@@ -401,7 +401,7 @@ private:
 
   /** Pointer to the standard CMS DAQ header
    */
-  uint32le_t* daqHeader;
+  const uint32le_t *daqHeader;
 
   /** DCC error field content.
    */
