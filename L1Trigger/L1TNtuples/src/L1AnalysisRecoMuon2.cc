@@ -53,11 +53,10 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
       flagTight = isTightMuonCustom(*it, (*vertices)[0]);
     recoMuon_.isTightMuon.push_back(flagTight);
 
-
-    double iso = (it->pfIsolationR03().sumChargedHadronPt + max(
-           it->pfIsolationR03().sumNeutralHadronEt +
-           it->pfIsolationR03().sumPhotonEt - 
-           0.5 * it->pfIsolationR03().sumPUPt, 0.0)) / it->pt();
+    double iso = (it->pfIsolationR04().sumChargedHadronPt + max(0.,
+           it->pfIsolationR04().sumNeutralHadronEt +
+           it->pfIsolationR04().sumPhotonEt -
+           0.5*it->pfIsolationR04().sumPUPt)) / it->pt();
     recoMuon_.iso.push_back(iso);
 
    double MET_local = TMath::Sqrt (METx*METx + METy*METy);
