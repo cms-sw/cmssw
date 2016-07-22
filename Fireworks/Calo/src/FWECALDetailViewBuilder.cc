@@ -123,7 +123,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    Double_t legoScale = sizeRad() *2;
    lego->InitMainTrans();
    lego->RefMainTrans().SetScale(legoScale, legoScale, legoScale*0.5);
-   lego->RefMainTrans().SetPos(m_eta, m_phi, 0);
+   lego->RefMainTrans().SetPos(m_eta, m_phi, -0.01);
    lego->SetAutoRebin(kFALSE);
    lego->SetName("ECALDetail Lego");
 
@@ -406,9 +406,10 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
 
    // AMT ... max size can be an external parameter
    float scale = 0.3/maxEnergy;
-    for (auto & i : m_boxes) 
+   for (auto & i : m_boxes) {
         i->updateScale(scale, log(maxEnergy), plotEt);
-
+        i->getTower()->SetDrawFrame(true);
+   }
    data->DataChanged();
 }
 
