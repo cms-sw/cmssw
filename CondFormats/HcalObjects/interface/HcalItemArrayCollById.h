@@ -1,11 +1,14 @@
 #ifndef CondFormats_HcalObjects_HcalItemArrayCollById_h
 #define CondFormats_HcalObjects_HcalItemArrayCollById_h
 
+#include <cstdint>
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/HcalObjects/interface/HcalItemArrayColl.h"
 #include "CondFormats/HcalObjects/interface/HcalIndexLookup.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdTransform.h"
 #include "CondFormats/HcalObjects/interface/AbsHcalAlgoData.h"
 
 //
@@ -29,14 +32,17 @@ public:
     static constexpr unsigned arraySize() {return N;}
 
     // Dummy constructor. To be used for deserialization only.
-    inline HcalItemArrayCollById() {}
+    inline HcalItemArrayCollById()
+        : transformCode_(HcalDetIdTransform::N_TRANSFORMS) {}
 
     // Normal constructor
     HcalItemArrayCollById(const HcalItemArrayColl<Item,N>& coll,
                           const HcalIndexLookup& indexLookupTable,
+                          const unsigned detIdTransformCode,
                           InputArray& defaultFunctors)
         : coll_(coll),
-          lookup_(indexLookupTable)
+          lookup_(indexLookupTable),
+          transformCode_(detIdTransformCode)
     {
         // Check that the lookup table is valid for this application
         if (lookup_.hasDuplicateIds())
@@ -51,6 +57,8 @@ public:
             throw cms::Exception("In HcalItemArrayCollById constructor:"
                          " collection and lookup table are inconsistent");
 
+        HcalDetIdTransform::validateCode(transformCode_);
+        
         // Take care of the default array
         setDefault(defaultFunctors);
     }
@@ -69,7 +77,7 @@ public:
 
     // Look up the index into the collection by detector id
     inline unsigned getIndex(const HcalDetId& id) const
-        {return lookup_.find(id.rawId());}
+        {return lookup_.find(HcalDetIdTransform::transform(id, transformCode_));}
 
     // Item lookup by its index and array index. If item lookup
     // by index fails and the array index is not out of bounds,
@@ -118,6 +126,8 @@ protected:
             return false;
         if (lookup_ != r.lookup_)
             return false;
+        if (transformCode_ != r.transformCode_)
+            return false;
         for (unsigned j=0; j<N; ++j)
         {
             // The default may or may not be there
@@ -138,13 +148,14 @@ private:
     HcalItemArrayColl<Item,N> coll_;
     HcalIndexLookup lookup_;
     StoredArray default_;
+    uint32_t transformCode_;
 
     friend class boost::serialization::access;
 
     template<class Archive>
     inline void serialize(Archive & ar, unsigned /* version */)
     {
-        ar & coll_ & lookup_ & default_;
+        ar & coll_ & lookup_ & default_ & transformCode_;
     }
 };
 

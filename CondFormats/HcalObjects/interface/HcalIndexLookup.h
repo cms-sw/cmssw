@@ -12,7 +12,8 @@
 #include "boost/serialization/utility.hpp"
 
 //
-// Storable lookup of unsigned index values by raw detId
+// Storable lookup of unsigned index values by unsigned key
+// (raw detId, ieta, etc)
 //
 class HcalIndexLookup
 {

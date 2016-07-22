@@ -1,11 +1,14 @@
 #ifndef CondFormats_HcalObjects_HcalItemCollById_h
 #define CondFormats_HcalObjects_HcalItemCollById_h
 
+#include <cstdint>
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/HcalObjects/interface/HcalItemColl.h"
 #include "CondFormats/HcalObjects/interface/HcalIndexLookup.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdTransform.h"
 #include "CondFormats/HcalObjects/interface/AbsHcalAlgoData.h"
 
 //
@@ -27,15 +30,18 @@ public:
     typedef Item value_type;
 
     // Dummy default constructor. To be used only for deserialization.
-    inline HcalItemCollById() {}
+    inline HcalItemCollById()
+        : transformCode_(HcalDetIdTransform::N_TRANSFORMS) {}
 
     // Normal constructor
     HcalItemCollById(const HcalItemColl<Item>& coll,
                      const HcalIndexLookup& indexLookupTable,
+                     const unsigned detIdTransformCode,
                      std::unique_ptr<Item> defaultItem)
         : coll_(coll),
           lookup_(indexLookupTable),
-          default_(defaultItem.release())
+          default_(defaultItem.release()),
+          transformCode_(detIdTransformCode)
     {
         // Check that the lookup table is valid for this application
         if (lookup_.hasDuplicateIds())
@@ -49,6 +55,8 @@ public:
             maxIndex >= coll_.size())
             throw cms::Exception("In HcalItemCollById constructor:"
                     " collection and lookup table are inconsistent");
+
+        HcalDetIdTransform::validateCode(transformCode_);
     }
 
     inline virtual ~HcalItemCollById() {}
@@ -65,7 +73,7 @@ public:
 
     // Look up the index into the collection by detector id
     inline unsigned getIndex(const HcalDetId& id) const
-        {return lookup_.find(id.rawId());}
+        {return lookup_.find(HcalDetIdTransform::transform(id, transformCode_));}
 
     // Get an item by its index in the collection. If the index
     // is out of range, the default item is returned. If the
@@ -101,6 +109,8 @@ protected:
             return false;
         if (lookup_ != r.lookup_)
             return false;
+        if (transformCode_ != r.transformCode_)
+            return false;
         // The default may or may not be there
         const bool ld = default_.get();
         const bool rd = r.default_.get();
@@ -116,13 +126,14 @@ private:
     HcalItemColl<Item> coll_;
     HcalIndexLookup lookup_;
     boost::shared_ptr<Item> default_;
+    uint32_t transformCode_;
 
     friend class boost::serialization::access;
 
     template<class Archive>
     inline void serialize(Archive & ar, unsigned /* version */)
     {
-        ar & coll_ & lookup_ & default_;
+        ar & coll_ & lookup_ & default_ & transformCode_;
     }
 };
 
