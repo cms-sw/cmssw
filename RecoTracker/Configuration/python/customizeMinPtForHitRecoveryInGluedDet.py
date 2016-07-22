@@ -8,6 +8,9 @@ def customizeMinPtForHitRecoveryInGluedDet(process,value):
 def customizeHitRecoveryInGluedDetOff(process):
    return customizeMinPtForHitRecoveryInGluedDet(process,1000000)
 def customizeHitRecoveryInGluedDetOn(process):
-   return customizeMinPtForHitRecoveryInGluedDet(process,0.9)
+   process = customizeMinPtForHitRecoveryInGluedDet(process,0.9)
+   if hasattr(process, "Chi2MeasurementEstimatorForP5"): # keep disabled for cosmics
+       process.Chi2MeasurementEstimatorForP5.MinPtForHitRecoveryInGluedDet = 100000
+   return process
 
 
