@@ -473,11 +473,13 @@ LHEReader::LHEReader(const std::vector<std::string> &fileNames,
 
 LHEReader::~LHEReader()
 {
-  {
-    handler.release();
-    curDoc.release();
-    curSource.release();
-  }
+  // Explicitly release "orphaned" resources
+  // that were created through DOM implementation
+  // createXXXX factory method *before* last
+  // XMLPlatformUtils::Terminate is called.
+  handler.release();
+  curDoc.release();
+  curSource.release();
 }
 
   boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
