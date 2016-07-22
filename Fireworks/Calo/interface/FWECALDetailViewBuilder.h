@@ -80,10 +80,6 @@ private:
    // for keeping track of what det id goes in what slice
    std::map<DetId, int> m_detIdsToColor;
 
-   // for keeping track of the colors to use for each slice
-   std::vector<Color_t> m_colors;
-
-
    TEveElement* m_towerList;
 
    // sorting function to sort super clusters by eta.

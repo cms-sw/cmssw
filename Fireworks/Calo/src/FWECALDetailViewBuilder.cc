@@ -45,15 +45,9 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool)
    // get the hits from the event
 
    // data
-   TEveCaloDataVec* data = new TEveCaloDataVec( 1 + m_colors.size() );
+   TEveCaloDataVec* data = new TEveCaloDataVec( 1);
    data->SetWrapTwoPi(false);
    data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor );
-   for( size_t i = 0; i < m_colors.size(); ++i )
-   {
-      data->RefSliceInfo(i + 1).Setup( "hits (clustered)", 0.0, m_colors[i] );
-   }
-
-
    
    fillData(data);
 
@@ -153,15 +147,8 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
 void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &detIds)
 {
-
-   m_colors.push_back(color);
-
-   // get the slice for this group of detIds
-   // note that the zeroth slice is the default one (all else)
-   int slice = m_colors.size();
-   // take a note of which slice these detids are going to go into
    for (size_t i = 0; i < detIds.size(); ++i)
-      m_detIdsToColor[detIds[i]] = slice;
+      m_detIdsToColor[detIds[i]] = color;
 }
 
 void
@@ -221,14 +208,6 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
    }
 }
 
-/*
-
-            if (fabs(fabs(centerPhi) -TMath::Pi()) < 0.06 ){
-               // if (dump) printf("fixing phi %f, ceneter %f\n", phi, centerPhi);
-               if (centerPhi < 0 && phi > 0 ) phi -= TMath::TwoPi();
-               if (centerPhi > 0 && phi < 0 ) phi += TMath::TwoPi();
-            }
-*/
 
 namespace {
 float
@@ -321,8 +300,6 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
        m_boxes.back()->getTower()->SetTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
 
    } // loop hits
-
-
 
 }
 
