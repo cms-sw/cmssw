@@ -2,7 +2,7 @@
 
 #include "G4ParticleDefinition.hh"
 #include "G4LossTableManager.hh"
-#include "G4EmProcessOptions.hh"
+#include "G4EmParameters.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
@@ -15,6 +15,7 @@
 #include "G4eCoulombScatteringModel.hh"
 #include "G4WentzelVIModel.hh"
 #include "G4UrbanMscModel.hh"
+#include "G4EmParameters.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
@@ -74,7 +75,12 @@
 
 CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver) :
   G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
-  G4LossTableManager::Instance();
+  G4EmParameters* param = G4EmParameters::Instance();
+  param->SetDefaults();
+  param->SetVerbose(verbose);
+  param->SetApplyCuts(true);
+  param->SetMscRangeFactor(0.2);
+  param->SetMscStepLimitType(fMinimal);
   SetPhysicsType(bElectromagnetic);
 }
 
@@ -182,7 +188,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
       G4UrbanMscModel* msc3 = new G4UrbanMscModel();
-      //msc3->SetLocked(true);
+      msc3->SetLocked(true);
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc3->SetHighEnergyLimit(highEnergyLimit);
@@ -215,7 +221,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       msc1->SetHighEnergyLimit(highEnergyLimit);
       msc2->SetLowEnergyLimit(highEnergyLimit);
       msc3->SetHighEnergyLimit(highEnergyLimit);
-      //msc3->SetLocked(true);
+      msc3->SetLocked(true);
       msc->AddEmModel(0, msc1);
       msc->AddEmModel(0, msc2);
       msc->AddEmModel(-1, msc3, aRegion);
@@ -347,10 +353,4 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   }
   G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
   G4LossTableManager::Instance()->SetAtomDeexcitation(de);
-
-  // this should be changed when migration to 10.2 is done
-  G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
-  opt.SetPolarAngleLimit(CLHEP::pi);
-  opt.SetApplyCuts(true);
 }
