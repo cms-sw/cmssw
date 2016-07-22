@@ -68,7 +68,6 @@ FWBoxRecHit::buildLineSet( const std::vector<TEveVector> &corners )
 {
    m_ls = new TEveStraightLineSet( "EcalRecHitLineSet" );
 
- 
 
    const float *data;
    TEveVector c;
@@ -130,14 +129,10 @@ float val = plotEt ? m_et : m_energy;
 
    if(  m_isTallest )
    {
-       if (m_ls->GetMarkerPlex().N() < 5) {
-           m_ls->AddLine( c.fX, c.fY, c.fZ , c.fX, c.fY, c.fZ);
-           m_ls->AddLine( c.fX, c.fY, c.fZ , c.fX, c.fY, c.fZ);
-       }
 
-      // This is the tallest tower and hence two additional lines needs scaling
-      setLine( 4, c.fX - d, c.fY - d, z, c.fX + d, c.fY + d, z );
-      setLine( 5, c.fX - d, c.fY + d, z, c.fX + d, c.fY - d, z );
+       m_ls->AddLine( c.fX - d, c.fY - d, z, c.fX + d, c.fY + d, z );
+       m_ls->AddLine( c.fX - d, c.fY + d, z, c.fX + d, c.fY - d, z );
+       m_ls->GetMarkerPlex().Refit();
    }
 
    TEveStraightLineSet::Marker_t* m = ((TEveStraightLineSet::Marker_t*)(m_ls->GetMarkerPlex().Atom(0)));
