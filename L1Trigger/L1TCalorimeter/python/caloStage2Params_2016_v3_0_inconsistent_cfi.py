@@ -136,9 +136,6 @@ jetCalibParamsVector16.extend([
         0.568061, -7606.13, -5.39389e-07, -150.07, 4.85322e-05, -2.42215, 2.07552, 1.11686, 27.012, 0.967464, 1024, 
         -0.819561, -12223.5, -7.93953e-07, -149.116, -3.22883e-05, -5.31212, 1.26463, 1.23498, 24.8899, 0.840316, 186  
 ])
-
-
-
 # this vector corresponds to "functionErf11PtParams16EtaBins"
 caloStage2Params.jetCalibrationParams  = jetCalibParamsVector16
 
