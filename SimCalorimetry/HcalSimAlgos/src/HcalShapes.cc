@@ -36,14 +36,6 @@ HcalShapes::HcalShapes()
         401 - regular ZDC shape
   */
 
-/*  
-  theShapes[HPD] = new CaloCachedShapeIntegrator(&theHcalShape);
-  theShapes[LONG] = theShapes[HPD];
-  theShapes[ZECOTEK] = new CaloCachedShapeIntegrator(&theSiPMShape);
-  theShapes[HAMAMATSU] = theShapes[ZECOTEK];
-  theShapes[HF] = new CaloCachedShapeIntegrator(&theHFShape);
-*/
-
   theHcalShape101.setShape(101); 
   theShapes[101] = new CaloCachedShapeIntegrator(&theHcalShape101);
   theHcalShape102.setShape(102);                  
@@ -70,17 +62,6 @@ HcalShapes::HcalShapes()
   // theHcalShape401(401);
   // theShapes[401] = new CaloCachedShapeIntegrator(&theHcalShape401);
   theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
-
-
-
-  // backward-compatibility with old scheme
-
-  theShapes[0] = theShapes[HPD];
-  //FIXME "special" HB
-  theShapes[1] = theShapes[LONG];
-  theShapes[2] = theShapes[ZECOTEK];
-  theShapes[3] = theShapes[HF];
-  theShapes[4] = theShapes[ZDC];
 
   theMCParams=0;
   theTopology=0;
@@ -130,19 +111,6 @@ const CaloVShape * HcalShapes::shape(const DetId & detId) const
     return defaultShape(detId);
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
-  /*
-	  HcalDetId cell(detId);
-	  int sub     = cell.subdet();
-	  int depth   = cell.depth();
-	  int inteta  = cell.ieta();
-	  int intphi  = cell.iphi();
-	  
-	  std::cout << "(SIM)HcalShapes::shape  cell:" 
-		    << " sub, ieta, iphi, depth = " 
-		    << sub << "  " << inteta << "  " << intphi 
-		    << "  " << depth  << " => ShapeId "<<  shapeType 
-		    << std::endl;
-  */
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
        edm::LogWarning("HcalShapes") << "HcalShapes::shape - shapeType ?  = "

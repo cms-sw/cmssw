@@ -152,38 +152,6 @@ HcalQIEShape HcalDbHardcode::makeQIEShape () {
 
 HcalMCParam HcalDbHardcode::makeMCParam (HcalGenericDetId fId) {
 
-
-  /*
-  std::cout << std::endl << " HcalDbHardcode::makeMCParam   fId " 
-	    << fId 
-	    << "  fId.genericSubdet() = " << fId.genericSubdet() << std::endl;
-  if(fId.isHcalZDCDetId()) {
-    std::cout << "... ZDC " << std::endl;
- 
-
-    HcalZDCDetId cell(fId);
-    int side   = cell.zside();
-    int depth  = cell.depth();
-    int ch     = cell.channel();
-    std::cout << "ZDC  side/depth/chanel = " 
-	      << side << "  " << depth << "  " << ch 
-	      << std::endl;
-  }
-  else if (fId.isHcalDetId()) {
-    HcalDetId cell = HcalDetId(fId);
-    int sub    = cell.subdet();
-    int dep    = cell.depth();
-    int ieta   = cell.ieta();
-    int iphi   = cell.iphi();
-    
-    std::cout << "  HCAL " 
-	      << "  subdet " << sub << "  ieta " << ieta << "  iphi " << iphi
-	      << "  depth " << dep << std::endl; 
-  }
-  else {  std::cout << "...Something else ! " << std::endl; }
-
-  */
-
   int r1bit[5];
   int pulseShapeID = 125;  r1bit[0] = 9;     //  [0,9]
   int syncPhase    = 0;    r1bit[1] = 1;

@@ -89,15 +89,6 @@ Reco  MC
   theShapes[301] = &hfShape_;
   //theShapes[401] = new CaloCachedShapeIntegrator(&theZDCShape);
 
-  /*
-  // backward-compatibility with old scheme
-  theShapes[0] = theShapes[101];
-  //FIXME "special" HB
-  theShapes[1] = theShapes[101];
-  theShapes[2] = theShapes[201];
-  theShapes[3] = theShapes[301];
-  //theShapes[4] = theShapes[401];
-  */
 }
 
 
@@ -123,10 +114,6 @@ void HcalPulseShapes::beginRun(edm::EventSetup const & es)
   es.get<HcalRecoParamsRcd>().get(q);
   theRecoParams = new HcalRecoParams(*q.product());
   theRecoParams->setTopo(theTopology);
-
-//      std::cout<<" skdump in HcalPulseShapes::beginRun   dupm MCParams "<<std::endl;
-//      std::ofstream skfile("skdumpMCParamsNewFormat.txt");
-//      HcalDbASCIIIO::dumpObject(skfile, (*theMCParams) );
 }
 
 
@@ -148,14 +135,6 @@ void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thp
                                 float wd1, float wd2, float wd3, Shape &tmphpdShape_)
 {
 
-  /*
-  std::cout << "o HcalPulseShapes::computeHPDShape  " 
-            << " ts1, ts2, ts3, thpd, tpre, w1, w2, w3 =" 
-	    <<  ts1 << ", " << ts2 << ", " << ts3 << ", " 
-	    << thpd << ", " << tpre << ", " << wd1 << ", " <<  wd2 
-            << ", "  << wd3 << std::endl;
-  */
-
 // pulse shape time constants in ns
 /*
   const float ts1  = 8.;          // scintillation time constants : 1,2,3
@@ -168,7 +147,7 @@ void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thp
   const float wd2 = 0.7;
   const float wd3 = 1.;
 */  
-  // pulse shape componnts over a range of time 0 ns to 255 ns in 1 ns steps
+  // pulse shape components over a range of time 0 ns to 255 ns in 1 ns steps
   unsigned int nbin = 256;
   tmphpdShape_.setNBin(nbin);
   std::vector<float> ntmp(nbin,0.0);  // zeroing output pulse shape
@@ -243,10 +222,8 @@ void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thp
     norm += ntmp[i];
   }
 
-  //cout << " Convoluted SHAPE ==============  " << endl;
   for(i=0; i<nbin; i++){
     ntmp[i] /= norm;
-    //  cout << " shape " << i << " = " << ntmp[i] << endl;   
   }
 
   for(i=0; i<nbin; i++){
@@ -289,7 +266,7 @@ void HcalPulseShapes::computeSiPMShape()
 
   unsigned int nbin = 128; 
 
-//From Jake Anderson: numberical convolution of SiPMs  WLC shapes
+//From Jake Anderson: numerical convolution of SiPMs  WLC shapes
   std::vector<float> nt = {
     2.782980485851731e-6,
     4.518134885954626e-5,
@@ -434,19 +411,9 @@ void HcalPulseShapes::computeSiPMShape()
   }
 }
 
-// double HcalPulseShapes::gexp(double t, double A, double c, double t0, double s) {
-//   static double const root2(sqrt(2));
-//   return -A*0.5*exp(c*t+0.5*c*c*s*s-c*s)*(erf(-0.5*root2/s*(t-t0+c*s*s))-1);
-// }
-
-
 const HcalPulseShapes::Shape &
 HcalPulseShapes::getShape(int shapeType) const
 {
-
-  //  std::cout << "- HcalPulseShapes::Shape for type "<< shapeType 
-  //            << std::endl;
-
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
    throw cms::Exception("HcalPulseShapes") << "unknown shapeType";
@@ -465,19 +432,6 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
   }
   int shapeType = theMCParams->getValues(detId)->signalShape();
 
-  /*
-	  int sub     = detId.subdet();
-	  int depth   = detId.depth();
-	  int inteta  = detId.ieta();
-	  int intphi  = detId.iphi();
-	  
-	  std::cout << " HcalPulseShapes::shape cell:" 
-		    << " sub, ieta, iphi, depth = " 
-		    << sub << "  " << inteta << "  " << intphi 
-		    << "  " << depth  << " => ShapeId "<<  shapeType 
-		    << std::endl;
-  */
-
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
     return defaultShape(detId);
@@ -493,19 +447,6 @@ HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
     return defaultShape(detId);
   }
   int shapeType = theRecoParams->getValues(detId.rawId())->pulseShapeID();
-
-  /*
-	  int sub     = detId.subdet();
-	  int depth   = detId.depth();
-	  int inteta  = detId.ieta();
-	  int intphi  = detId.iphi();
-	  
-	  std::cout << ">> HcalPulseShapes::shapeForReco cell:" 
-		    << " sub, ieta, iphi, depth = " 
-		    << sub << "  " << inteta << "  " << intphi 
-		    << "  " << depth  << " => ShapeId "<<  shapeType 
-		    << std::endl;
-  */
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {

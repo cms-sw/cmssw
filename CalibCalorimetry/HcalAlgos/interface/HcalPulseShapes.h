@@ -20,7 +20,7 @@ public:
   typedef HcalPulseShape Shape;
   HcalPulseShapes();
   ~HcalPulseShapes();
-  // only needed if you'll be geting shapes by DetId
+  // only needed if you'll be getting shapes by DetId
   void beginRun(edm::EventSetup const & es);
   void endRun();
 
@@ -28,7 +28,7 @@ public:
   const Shape& heShape() const { return hpdShape_; }
   const Shape& hfShape() const { return hfShape_; }
   const Shape& hoShape(bool sipm=false) const { return sipm ? siPMShape_ : hpdShape_; }
-  //  return Shpape for given shapeType.
+  //  return Shape for given shapeType.
   const Shape& getShape(int shapeType) const;
   /// automatically figures out which shape to return
   const Shape& shape(const HcalDetId & detId) const;
@@ -38,7 +38,6 @@ public:
 private:
   void computeHPDShape(float, float, float, float, float ,
                        float, float, float, Shape&);
-  // void computeHPDShape();
   void computeHFShape();
   void computeSiPMShape();
   Shape hpdShape_, hfShape_, siPMShape_;
