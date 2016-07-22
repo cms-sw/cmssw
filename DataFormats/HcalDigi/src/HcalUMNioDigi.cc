@@ -3,15 +3,10 @@
 
 HcalUMNioDigi::HcalUMNioDigi() { }
 HcalUMNioDigi::HcalUMNioDigi(const uint16_t* ptr, int words) {
-  std::cout << "uMNio data received with: " <<words<<" words"<< std::endl;
-  std::cout << "Reserving words" <<std::endl;
   payload_.reserve(words);
-  std::cout << "Entering pointer loop" <<std::endl;
   for (int i=0; i<words; i++) {
-    std::cout << "Adding word: "<< i<<" : "<<std::hex<<ptr[i]<<std::endl;
     payload_.push_back(ptr[i]);
   }
-  std::cout << "Done constructing" <<std::endl;
 }
 HcalUMNioDigi::HcalUMNioDigi(const std::vector<uint16_t>& words) : payload_(words) {
 }

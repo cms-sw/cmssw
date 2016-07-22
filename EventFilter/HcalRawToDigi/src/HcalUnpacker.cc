@@ -868,18 +868,14 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& col
     if (amc13->AMCSlot(iamc) == slot) namc = iamc;
   }
   if (namc==amc13->NAMC()) {
-    std::cout << "uMNio in slot: " <<slot<<" not found in raw data"<< std::endl;
     return;
   }
   const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
   size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
-  std::cout<<"uMNio data found with: "<<nwords<<" words"<<std::endl;
   HcalUMNioDigi* umnioDigi = new HcalUMNioDigi(data, nwords);
-  std::cout<<"Setting given empty class"<<std::endl;
   if(umnioDigi->invalid()) return;
   
   colls.umnio = umnioDigi; //this line segfaults
   
-  std::cout<<"Done here"<<std::endl;
   return;
 }
