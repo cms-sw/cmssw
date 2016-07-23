@@ -5,16 +5,22 @@
 //
 /**\class ttHFGenFilter ttHFGenFilter.cc ttHFGenFilter/ttHFGenFilter/plugins/ttHFGenFilter.cc
 
- Description: [one line class summary]
+ Description: Filters ttbar events, where additional b-hadrons come from ISR or hard process
 
  Implementation:
-     [Notes on implementation]
+     The ttHFGenFilter is a edm::Filter, that returns true, if a tt+jets event contains a b-hadron, that does not come from top decay or when the b-hadron comes from ISR.
+	The filter uses the GenHFHadronMatcher to classify, whether the b-hadron is an "additional b-hadron". This is done in the ttHFGenFilter::HasAdditionalBHadron() function.
+	To classify, whether the b-hadron comes from ISR:
+		first all mothers of the top-topbar pair are found
+		then the mother-chain of all b-hadrons is checked if it contains at least one mother, that is also in the mother-chain of the top-topbar pair
+		
 */
 //
 // Original Author:  Andrej Saibel
 //         Created:  Tue, 05 Jul 2016 09:36:09 GMT
 //
-// TODO Description
+// VERY IMPORTANT: when running this code, you should make sure, that the GenHFHadronMatcher runs in onlyJetClusteredHadrons = cms.bool(False) mode
+// 
 
 
 // system include files
@@ -111,7 +117,7 @@ bool
 ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
-   //bool IsAdditonalBHadron=false;
+
    //get GenParticleCollection
    edm::Handle<reco::GenParticleCollection> genParticles;
    iEvent.getByToken(genParticlesToken_, genParticles);
@@ -136,18 +142,16 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    //check whether the event has additional b-hadrons not coming from top/topbar decay
-   //cout << "Filter wird ausgefuehrt" << endl;
-   //cout << "has additional b hadron " << HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers) << endl;
+   
    std::vector<const reco::Candidate*> AllTopMothers;
    std::vector<const reco::Candidate*> Tops = GetTops(*genParticles,AllTopMothers);
-   std::cout << "Size of AllTopMothers = " << AllTopMothers.size() << std::endl;
+   // std::cout << "Size of AllTopMothers = " << AllTopMothers.size() << std::endl;
    return HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers,AllTopMothers);
 
-   //TODO check whether the b-hadron is coming from the hard interaction or from underlying event
 }
 
 bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, const std::vector<int>& genBHadFlavour,const std::vector<reco::GenParticle>& genBHadPlusMothers,std::vector<const reco::Candidate*>& AllTopMothers){
-  int bhadfromhp=0;
+
   for(uint i=0; i<genBHadIndex.size();i++){
 
     const reco::GenParticle* bhadron = genBHadIndex[i]>=0&&genBHadIndex[i]<int(genBHadPlusMothers.size()) ? &(genBHadPlusMothers[genBHadIndex[i]]) : 0;
@@ -155,39 +159,31 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
     bool from_tth=(abs(motherflav)==6||abs(motherflav)==25); //b-hadron comes from top or higgs decay
     bool fromhp=false;
 
-
-    if(bhadron!=0&&i==genBHadIndex.size()-1&&genBHadIndex.size()>2){
-      if(!from_tth&&analyzeMothersRecursive(bhadron,AllTopMothers)){
-        bhadfromhp++;
-      }
-      std::cout << "bhadindex size = " << genBHadIndex.size() << " , mothers from hard process = " << bhadfromhp << std::endl;
-    }
-
     if(bhadron!=0&&!from_tth){
-      std::cout << "PT: " << bhadron->pt() << " , eta: " << bhadron->eta() << std::endl;
+      //std::cout << "PT: " << bhadron->pt() << " , eta: " << bhadron->eta() << std::endl;
 
       fromhp=analyzeMothersRecursive(bhadron,AllTopMothers);
       if(fromhp){
-        bhadfromhp++;
-
-      return true;
+	return true;
       }
     }
     if(i==genBHadIndex.size()-1){
-      return false;
+	return false;
     }
   }
 
   return false;
 }
+
+//recursive function, that loops over all chain particles  until it finds the protons
 bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle,std::vector<const reco::Candidate*>& AllTopMothers){
   //std::cout << "Particle: " << particle->pdgId() << " , Status: " << particle->status() << " , numberOfMothers: " << particle->numberOfMothers() << std::endl;
-  if(particle->status()>20&&particle->status()<30){
+  if(particle->status()>20&&particle->status()<30){ //particle comes from hardest process in event
     return true;
   }
-  for(uint k=0; k<AllTopMothers.size();k++){
-    if(particle==AllTopMothers[k]){
-      std::cout << "!!!! Found ISR !!!! " << particle << std::endl;
+  for(uint k=0; k<AllTopMothers.size();k++){ 
+    if(particle==AllTopMothers[k]){ //partcile comes from  ISR
+
       return true;
     }
   }
@@ -214,7 +210,11 @@ std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<re
   bool FoundTop = false;
   bool FoundTopBar =false;
   std::vector<const reco::GenParticle*> Tops;
-  //std::vector<reco::GenParticle> TopMothers=new std::vector<reco::GenParticle>;
+  
+  //loop over all genParticles and find  a Top and AntiTop quark
+  //then find all mothers of the Tops
+  //this is then used to  if the b-hadron is an inital state radiation particle
+  
    for(reco::GenParticleCollection::const_iterator i_particle = genParticles.begin(); i_particle != genParticles.end(); ++i_particle){
        const reco::GenParticle* thisParticle = &*i_particle;
      if(thisParticle->pdgId()==6){
@@ -241,13 +241,15 @@ std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<re
    return AllTopMothers;
 }
 
+// finds all mothers of "particle", that are not tops or protons
+
 void ttHFGenFilter::FindAllTopMothers(const reco::Candidate* particle, std::vector<const reco::Candidate*>& AllTopMothers){
  // std::cout << "particle mother: " << particle->mother(0) << std::endl;
   for(uint i=0;i<particle->numberOfMothers();i++){
     if(abs(particle->mother(i)->pdgId())!=6&&particle->mother(i)->pdgId()!=2212){
       AllTopMothers.push_back(particle->mother(i));
       if(particle->mother(i)->pdgId()!=2212 || particle->mother(i)->numberOfMothers()>1){
-        std::cout << "Size of vector in loop = " << AllTopMothers.size() << std::endl;
+        //std::cout << "Size of vector in loop = " << AllTopMothers.size() << std::endl;
         FindAllTopMothers(particle->mother(i),AllTopMothers);
       }
     }
