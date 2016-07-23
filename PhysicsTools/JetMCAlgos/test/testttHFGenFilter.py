@@ -111,8 +111,11 @@ process.genJetFlavourInfos = ak4JetFlavourInfos.clone(
 from PhysicsTools.JetMCAlgos.GenHFHadronMatcher_cff import matchGenBHadron
 process.matchGenBHadron = matchGenBHadron.clone(
     genParticles = genParticleCollection,
-    jetFlavourInfos = "genJetFlavourInfos"
+    jetFlavourInfos = "genJetFlavourInfos",
+    onlyJetClusteredHadrons = cms.bool(False)
 )
+
+
 
 # Plugin for analysing C hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
