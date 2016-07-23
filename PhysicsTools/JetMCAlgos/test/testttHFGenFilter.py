@@ -1,6 +1,8 @@
+import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 import os
+
 
 ## Define the process
 process = cms.Process("Filter")
@@ -29,7 +31,8 @@ if not options.inputFiles:
 #               '/store/mc/Spring14dr/TT_Tune4C_13TeV-pythia8-tauola/AODSIM/Flat20to50_POSTLS170_V5-v1/00000/023E1847-ADDC-E311-91A2-003048FFD754.root',
 #               '/store/mc/Spring14dr/TTbarH_HToBB_M-125_13TeV_pythia6/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/1CAB7E58-0BD0-E311-B688-00266CFFBC3C.root',
 #               '/store/mc/Spring14dr/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/0E3D08A9-C610-E411-A862-0025B3E0657E.root',
-    '/store/mc/RunIISummer15GS/TT_TuneCUETP8M1_alphaS01273_13TeV-madgraphMLM-pythia8/GEN-SIM/MCRUN2_71_V1-v4/00000/00C8D9A2-1B30-E611-9C26-A0369F7FE9FC.root'
+    #'/store/mc/RunIISummer15GS/TT_TuneCUETP8M1_alphaS01273_13TeV-madgraphMLM-pythia8/GEN-SIM/MCRUN2_71_V1-v4/00000/00C8D9A2-1B30-E611-9C26-A0369F7FE9FC.root'
+    '/store/mc/RunIISummer15GS/TTToSemiLeptonic_TuneCUETP8M1_alphaS01273_13TeV-powheg-scaledown-pythia8/GEN-SIM/MCRUN2_71_V1-v2/40000/DE7952A2-6E2F-E611-A803-001E673D1B21.root'
     #'/store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-powheg-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/20000/0015C8F2-1CA4-E511-8318-0CC47A78A41C.root',
 
         ),
@@ -51,7 +54,7 @@ if not options.inputFiles:
 
 ## Define maximum number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(1000)
 )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(int(options.maxEvents)))
 #process.source = cms.Source(  "PoolSource",
@@ -113,65 +116,69 @@ process.matchGenBHadron = matchGenBHadron.clone(
 
 # Plugin for analysing C hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
-from PhysicsTools.JetMCAlgos.GenHFHadronMatcher_cff import matchGenCHadron
-process.matchGenCHadron = matchGenCHadron.clone(
-    genParticles = genParticleCollection,
-    jetFlavourInfos = "genJetFlavourInfos"
-)
+#from PhysicsTools.JetMCAlgos.GenHFHadronMatcher_cff import matchGenCHadron
+#process.matchGenCHadron = matchGenCHadron.clone(
+#    genParticles = genParticleCollection,
+#    jetFlavourInfos = "genJetFlavourInfos"
+#)
+
+process.load("PhysicsTools/JetMCAlgos/ttHFGenFilter_cfi")
 
 
 ## configuring the testing analyzer that produces output tree
-process.matchGenHFHadrons = cms.EDAnalyzer("matchGenHFHadrons",
-    # phase space of jets to be stored
-    genJetPtMin = cms.double(15),
-    genJetAbsEtaMax = cms.double(2.4),
-    # input tags holding information about matching
-    genJets = cms.InputTag(genJetCollection),
-    genBHadJetIndex = cms.InputTag("matchGenBHadron", "genBHadJetIndex"),
-    genBHadFlavour = cms.InputTag("matchGenBHadron", "genBHadFlavour"),
-    genBHadFromTopWeakDecay = cms.InputTag("matchGenBHadron", "genBHadFromTopWeakDecay"),
-    genBHadPlusMothers = cms.InputTag("matchGenBHadron", "genBHadPlusMothers"),
-    genBHadPlusMothersIndices = cms.InputTag("matchGenBHadron", "genBHadPlusMothersIndices"),
-    genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
-    genBHadLeptonHadronIndex = cms.InputTag("matchGenBHadron", "genBHadLeptonHadronIndex"),
-    genBHadLeptonViaTau = cms.InputTag("matchGenBHadron", "genBHadLeptonViaTau"),
-    genCHadJetIndex = cms.InputTag("matchGenCHadron", "genCHadJetIndex"),
-    genCHadFlavour = cms.InputTag("matchGenCHadron", "genCHadFlavour"),
-    genCHadFromTopWeakDecay = cms.InputTag("matchGenCHadron", "genCHadFromTopWeakDecay"),
-    genCHadBHadronId = cms.InputTag("matchGenCHadron", "genCHadBHadronId"),
-    genCHadPlusMothers = cms.InputTag("matchGenCHadron", "genCHadPlusMothers"),
-    genCHadPlusMothersIndices = cms.InputTag("matchGenCHadron", "genCHadPlusMothersIndices"),
-    genCHadIndex = cms.InputTag("matchGenCHadron", "genCHadIndex"),
-    genCHadLeptonHadronIndex = cms.InputTag("matchGenCHadron", "genCHadLeptonHadronIndex"),
-    genCHadLeptonViaTau = cms.InputTag("matchGenCHadron", "genCHadLeptonViaTau"),
-)
+#process.matchGenHFHadrons = cms.EDAnalyzer("matchGenHFHadrons",
+#    # phase space of jets to be stored
+#    genJetPtMin = cms.double(15),
+#    genJetAbsEtaMax = cms.double(2.4),
+#    # input tags holding information about matching
+#    genJets = cms.InputTag(genJetCollection),
+#    genBHadJetIndex = cms.InputTag("matchGenBHadron", "genBHadJetIndex"),
+#    genBHadFlavour = cms.InputTag("matchGenBHadron", "genBHadFlavour"),
+#    genBHadFromTopWeakDecay = cms.InputTag("matchGenBHadron", "genBHadFromTopWeakDecay"),
+#    genBHadPlusMothers = cms.InputTag("matchGenBHadron", "genBHadPlusMothers"),
+#    genBHadPlusMothersIndices = cms.InputTag("matchGenBHadron", "genBHadPlusMothersIndices"),
+#    genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
+#    genBHadLeptonHadronIndex = cms.InputTag("matchGenBHadron", "genBHadLeptonHadronIndex"),
+#    genBHadLeptonViaTau = cms.InputTag("matchGenBHadron", "genBHadLeptonViaTau"),
+#    genCHadJetIndex = cms.InputTag("matchGenCHadron", "genCHadJetIndex"),
+#    genCHadFlavour = cms.InputTag("matchGenCHadron", "genCHadFlavour"),
+#    genCHadFromTopWeakDecay = cms.InputTag("matchGenCHadron", "genCHadFromTopWeakDecay"),
+#    genCHadBHadronId = cms.InputTag("matchGenCHadron", "genCHadBHadronId"),
+#    genCHadPlusMothers = cms.InputTag("matchGenCHadron", "genCHadPlusMothers"),
+#    genCHadPlusMothersIndices = cms.InputTag("matchGenCHadron", "genCHadPlusMothersIndices"),
+#    genCHadIndex = cms.InputTag("matchGenCHadron", "genCHadIndex"),
+#    genCHadLeptonHadronIndex = cms.InputTag("matchGenCHadron", "genCHadLeptonHadronIndex"),
+#    genCHadLeptonViaTau = cms.InputTag("matchGenCHadron", "genCHadLeptonViaTau"),
+#)
 
-## Configure test analyzer
-process.ttHFGenFilter = cms.EDFilter("ttHFGenFilter",
-    genBHadFlavour = cms.InputTag("matchGenBHadron", "genBHadFlavour"),
-    genBHadFromTopWeakDecay = cms.InputTag("matchGenBHadron", "genBHadFromTopWeakDecay"),
-    genBHadPlusMothers = cms.InputTag("matchGenBHadron", "genBHadPlusMothers"),
-    genBHadPlusMothersIndices = cms.InputTag("matchGenBHadron", "genBHadPlusMothersIndices"),
-    genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
-    filter = cms.bool(True)
-)
+## Configure test filter
+#process.ttHFGenFilter = cms.EDFilter("ttHFGenFilter",
+#    genBHadFlavour = cms.InputTag("matchGenBHadron", "genBHadFlavour"),
+#    genBHadFromTopWeakDecay = cms.InputTag("matchGenBHadron", "genBHadFromTopWeakDecay"),
+#    genBHadPlusMothers = cms.InputTag("matchGenBHadron", "genBHadPlusMothers"),
+#    genBHadPlusMothersIndices = cms.InputTag("matchGenBHadron", "genBHadPlusMothersIndices"),
+#    genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
+#    filter = cms.bool(True)
+#)
 ## Output root file
 #process.TFileService = cms.Service("TFileService",
 #    fileName = cms.string("genTtbarIdFilter.root")
 #)
 process.USER = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('p')
+        SelectEvents = cms.vstring('p1')
     ),
-    fileName = cms.untracked.string('test_filtering.root')
+    fileName = cms.untracked.string('TTJets_PowPyt_ttHFGenFilter.root')
 )
 ## Output root file
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("FilteredTTBBEvents.root")
+    fileName = cms.string("genHFHadronMatcherOutput.root")
 )
 
 ## Path
 process.p1 = cms.Path(
-    process.matchGenHFHadrons*
+    process.matchGenBHadron*
     process.ttHFGenFilter
 )
+
+process.endpath = cms.EndPath(process.USER)

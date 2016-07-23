@@ -49,14 +49,17 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endStream() override;
 
-      virtual bool HasAdditionalBHadron(const std::vector<int>&, const std::vector<int>&,const std::vector<reco::GenParticle>&);
-      virtual bool analyzeMothersRecursive(const reco::Candidate*);
+      virtual bool HasAdditionalBHadron(const std::vector<int>&, const std::vector<int>&,const std::vector<reco::GenParticle>&,std::vector<const reco::Candidate*>&);
+      virtual bool analyzeMothersRecursive(const reco::Candidate*,std::vector<const reco::Candidate*>& AllTopMothers);
+      virtual std::vector<const reco::Candidate*> GetTops(const std::vector<reco::GenParticle> &,std::vector<const reco::Candidate*>& AllTopMothers);
+      virtual void FindAllTopMothers(const reco::Candidate* particle,std::vector<const reco::Candidate*>&);
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
+      const edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
       const edm::EDGetTokenT<std::vector<int> > genBHadFlavourToken_;
       const edm::EDGetTokenT<std::vector<int> > genBHadFromTopWeakDecayToken_;
       const edm::EDGetTokenT<std::vector<reco::GenParticle> > genBHadPlusMothersToken_;
@@ -79,6 +82,7 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
 // constructors and destructor
 //
 ttHFGenFilter::ttHFGenFilter(const edm::ParameterSet& iConfig):
+genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
 genBHadFlavourToken_(consumes<std::vector<int> >(iConfig.getParameter<edm::InputTag>("genBHadFlavour"))),
 genBHadFromTopWeakDecayToken_(consumes<std::vector<int> >(iConfig.getParameter<edm::InputTag>("genBHadFromTopWeakDecay"))),
 genBHadPlusMothersToken_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genBHadPlusMothers"))),
@@ -110,6 +114,7 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //bool IsAdditonalBHadron=false;
    //get GenParticleCollection
    edm::Handle<reco::GenParticleCollection> genParticles;
+   iEvent.getByToken(genParticlesToken_, genParticles);
 
    //get Information on B-Hadrons
    // the information is calculated in GenHFHadronMatcher
@@ -133,12 +138,15 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //check whether the event has additional b-hadrons not coming from top/topbar decay
    //cout << "Filter wird ausgefuehrt" << endl;
    //cout << "has additional b hadron " << HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers) << endl;
-   return HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers);
+   std::vector<const reco::Candidate*> AllTopMothers;
+   std::vector<const reco::Candidate*> Tops = GetTops(*genParticles,AllTopMothers);
+   std::cout << "Size of AllTopMothers = " << AllTopMothers.size() << std::endl;
+   return HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers,AllTopMothers);
 
    //TODO check whether the b-hadron is coming from the hard interaction or from underlying event
 }
 
-bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, const std::vector<int>& genBHadFlavour,const std::vector<reco::GenParticle>& genBHadPlusMothers){
+bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, const std::vector<int>& genBHadFlavour,const std::vector<reco::GenParticle>& genBHadPlusMothers,std::vector<const reco::Candidate*>& AllTopMothers){
   int bhadfromhp=0;
   for(uint i=0; i<genBHadIndex.size();i++){
 
@@ -149,7 +157,7 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
 
 
     if(bhadron!=0&&i==genBHadIndex.size()-1&&genBHadIndex.size()>2){
-      if(!from_tth&&analyzeMothersRecursive(bhadron)){
+      if(!from_tth&&analyzeMothersRecursive(bhadron,AllTopMothers)){
         bhadfromhp++;
       }
       std::cout << "bhadindex size = " << genBHadIndex.size() << " , mothers from hard process = " << bhadfromhp << std::endl;
@@ -158,7 +166,7 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
     if(bhadron!=0&&!from_tth){
       std::cout << "PT: " << bhadron->pt() << " , eta: " << bhadron->eta() << std::endl;
 
-      fromhp=analyzeMothersRecursive(bhadron);
+      fromhp=analyzeMothersRecursive(bhadron,AllTopMothers);
       if(fromhp){
         bhadfromhp++;
 
@@ -172,10 +180,16 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
 
   return false;
 }
-bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle){
+bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle,std::vector<const reco::Candidate*>& AllTopMothers){
   //std::cout << "Particle: " << particle->pdgId() << " , Status: " << particle->status() << " , numberOfMothers: " << particle->numberOfMothers() << std::endl;
   if(particle->status()>20&&particle->status()<30){
     return true;
+  }
+  for(uint k=0; k<AllTopMothers.size();k++){
+    if(particle==AllTopMothers[k]){
+      std::cout << "!!!! Found ISR !!!! " << particle << std::endl;
+      return true;
+    }
   }
     bool IsFromHardProcess=false;
   /*if(analyzeMothersRecursive(particle)){
@@ -184,7 +198,7 @@ bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle){
     for(uint i=0;i<particle->numberOfMothers();i++){
       //std::cout << "i " <<  i << std::endl;
       const reco::Candidate* mother = particle->mother(i);
-      IsFromHardProcess=analyzeMothersRecursive(mother);
+      IsFromHardProcess=analyzeMothersRecursive(mother,AllTopMothers);
       if(IsFromHardProcess){
         return true;
       }
@@ -193,6 +207,54 @@ bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle){
 
   return IsFromHardProcess;
 }
+
+std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<reco::GenParticle>& genParticles, std::vector<const reco::Candidate*>& AllTopMothers){
+  const reco::GenParticle* FirstTop = 0;
+  const reco::GenParticle* FirstTopBar = 0;
+  bool FoundTop = false;
+  bool FoundTopBar =false;
+  std::vector<const reco::GenParticle*> Tops;
+  //std::vector<reco::GenParticle> TopMothers=new std::vector<reco::GenParticle>;
+   for(reco::GenParticleCollection::const_iterator i_particle = genParticles.begin(); i_particle != genParticles.end(); ++i_particle){
+       const reco::GenParticle* thisParticle = &*i_particle;
+     if(thisParticle->pdgId()==6){
+       FirstTop = thisParticle;
+       FoundTop = true;
+     }
+     if(thisParticle->pdgId()==-6){
+        FirstTopBar = thisParticle;
+        FoundTopBar = true;
+     }
+     if(FoundTopBar&&FoundTop){
+       //Tops.push_back(FirstTop);
+       //Tops.push_back(FirstTopBar);
+       //return Tops;
+       break;
+     }
+   }
+   for(uint i=0; i<FirstTop->numberOfMothers();i++){
+     FindAllTopMothers(FirstTop->mother(i),AllTopMothers);
+   }
+   for(uint i=0; i<FirstTopBar->numberOfMothers();i++){
+     FindAllTopMothers(FirstTopBar->mother(i),AllTopMothers);
+   }
+   return AllTopMothers;
+}
+
+void ttHFGenFilter::FindAllTopMothers(const reco::Candidate* particle, std::vector<const reco::Candidate*>& AllTopMothers){
+ // std::cout << "particle mother: " << particle->mother(0) << std::endl;
+  for(uint i=0;i<particle->numberOfMothers();i++){
+    if(abs(particle->mother(i)->pdgId())!=6&&particle->mother(i)->pdgId()!=2212){
+      AllTopMothers.push_back(particle->mother(i));
+      if(particle->mother(i)->pdgId()!=2212 || particle->mother(i)->numberOfMothers()>1){
+        std::cout << "Size of vector in loop = " << AllTopMothers.size() << std::endl;
+        FindAllTopMothers(particle->mother(i),AllTopMothers);
+      }
+    }
+  }
+
+}
+
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void
