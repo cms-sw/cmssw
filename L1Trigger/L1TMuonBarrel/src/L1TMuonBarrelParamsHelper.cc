@@ -1,7 +1,7 @@
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 
-L1TMuonBarrelParamsHelper::L1TMuonBarrelParamsHelper(const L1TMuonBarrelParams& barrelParams) : m_params_helper(cast_to_L1TMuonBarrelParamsAllPublic(barrelParams))
+L1TMuonBarrelParamsHelper::L1TMuonBarrelParamsHelper(const L1TMuonBarrelParams& barrelParams) : m_params_helper(barrelParams)
 {
 	
 }

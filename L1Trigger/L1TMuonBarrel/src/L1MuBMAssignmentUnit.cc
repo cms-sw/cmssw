@@ -209,7 +209,8 @@ void L1MuBMAssignmentUnit::PtAU(const edm::EventSetup& c) {
 
   const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
   bmtfParamsRcd.get(bmtfParamsHandle);
-  const L1TMuonBarrelParamsAllPublic& bmtfParams = cast_to_L1TMuonBarrelParamsAllPublic(*bmtfParamsHandle.product());
+  const L1TMuonBarrelParams& bmtfParams1 = *bmtfParamsHandle.product();
+  const L1TMuonBarrelParamsAllPublic& bmtfParams = L1TMuonBarrelParamsAllPublic(bmtfParams1);
   thePtaLUTs =  new L1MuBMLUTHandler(bmtfParams);   ///< pt-assignment look-up tables
   //thePtaLUTs->print();
   // get pt-assignment method as function of track class and TS phib values
