@@ -10,6 +10,15 @@ class L1TMuonBarrelParamsAllPublic : public L1TMuonBarrelParams
 		L1TMuonBarrelParamsAllPublic() {};
 		~L1TMuonBarrelParamsAllPublic() {};
 
+                L1TMuonBarrelParamsAllPublic(const L1TMuonBarrelParams& a){
+        		assert(sizeof(L1TMuonBarrelParamsAllPublic) == sizeof(L1TMuonBarrelParams));
+		        //const void * pa = &a;
+		        //const L1TMuonBarrelParamsAllPublic * py 
+			*this= *static_cast<const L1TMuonBarrelParamsAllPublic *>(&a);
+		        //this = py;
+		        //delete (L1TMuonBarrelParams*)pa;
+		};
+
 		std::string AssLUTPath() const  { return pnodes_[CONFIG].sparams_.size() > 0 ? pnodes_[CONFIG].sparams_[0] : ""; };
 		void setAssLUTPath        (std::string path) { pnodes_[CONFIG].sparams_.push_back(path); };
 
@@ -70,7 +79,7 @@ class L1TMuonBarrelParamsAllPublic : public L1TMuonBarrelParams
 		void setFwVersion(unsigned fwVersion) { fwVersion_ = fwVersion; };
 };
 
-const L1TMuonBarrelParamsAllPublic& cast_to_L1TMuonBarrelParamsAllPublic(const L1TMuonBarrelParams& a);
+//const L1TMuonBarrelParamsAllPublic& cast_to_L1TMuonBarrelParamsAllPublic(const L1TMuonBarrelParams& a);
 const L1TMuonBarrelParams& cast_to_L1TMuonBarrelParams(const L1TMuonBarrelParamsAllPublic& a);
 
 
