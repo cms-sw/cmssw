@@ -18,6 +18,7 @@
 #include <iostream>
 #include <math.h>
 #include "TROOT.h"
+#include "DPGAnalysis/SiStripTools/interface/CommonAnalyzer.h"
 #include "OccupancyPlotMacros.h"
 //#include <vector>
 
@@ -676,4 +677,40 @@ void PlotTrackerXsect(TFile* ff, const char* module) {
 
   }
 
+}
+
+TH1D* TrendPlotSingleBin(TFile* ff, const char* module, const char* hname, const int bin) {
+
+  CommonAnalyzer caoccu(ff,"",module);
+
+  TH1D* occutrend = new TH1D("occutrend","Average number of clusters vs run",10,0.,10.);
+  occutrend->SetCanExtend(TH1::kXaxis);
+  occutrend->Sumw2();
+
+  std::vector<unsigned int> runs = caoccu.getRunList();
+  std::sort(runs.begin(),runs.end());
+  
+  {
+    for(unsigned int i=0;i<runs.size();++i) {
+      
+      char runlabel[100];
+      sprintf(runlabel,"%d",runs[i]);
+      char runpath[100];
+      sprintf(runpath,"run_%d",runs[i]);
+      caoccu.setPath(runpath);
+      
+      
+      TProfile* occu=0;
+      if(occu==0) occu = (TProfile*)caoccu.getObject(hname);
+      if(occu) {
+
+	const int ibin=occu->FindBin(bin);
+	std::cout << runlabel << " " << " " << ibin << " " << occu->GetBinContent(ibin) << " " << occu->GetBinError(ibin) << std::endl;
+	const int jbin=occutrend->Fill(runlabel,occu->GetBinContent(ibin));
+	occutrend->SetBinError(jbin,occu->GetBinError(ibin));
+
+      }
+    }
+  } 
+  return occutrend;
 }

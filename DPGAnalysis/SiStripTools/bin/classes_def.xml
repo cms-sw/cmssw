@@ -6,6 +6,7 @@
   <function name="printFrame"/>
   <function name="combinedOccupancy"/>
   <function name="drawMap"/>
+  <function name="TrendPlotSingleBin"/>
   <function name="AverageRunMultiplicity"/>
   <function name="PlotPixelMultVtxPos"/>
   <function name="DeadTimeAPVCycle"/>
