@@ -406,12 +406,18 @@ def _getYminIgnoreOutlier(th1):
 
     return min_val
 
-def _getYminMaxAroundMedian(obj, coverage):
+def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
+    inRange = lambda x: True
+    inRange2 = lambda xmin,xmax: True
+    if coverageRange:
+        inRange = lambda x: coverageRange[0] <= x <= coverageRange[1]
+        inRange2 = lambda xmin,xmax: coverageRange[0] <= xmin and xmax <= coverageRange[1]
+
     if isinstance(obj, ROOT.TH1):
-        yvals = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1)]
+        yvals = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if inRange2(obj.GetXaxis().GetBinLowEdge(i), obj.GetXaxis().GetBinUpEdge(i))]
         yvals = filter(lambda x: x != 0, yvals)
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
-        yvals = [obj.GetY()[i] for i in xrange(0, obj.GetN())]
+        yvals = [obj.GetY()[i] for i in xrange(0, obj.GetN()) if inRange(obj.GetX()[i])]
     else:
         raise Exception("Unsupported type %s" % str(obj))
     if len(yvals) == 0:
@@ -504,7 +510,7 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
 
     return (xmin, ymin, xmax, ymax)
 
-def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None):
+def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=None):
     """Find y axis boundaries encompassing a list of TH1s if the bounds are not given in arguments.
 
     Arguments:
@@ -515,6 +521,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None):
     ymin -- Minimum y value; if None, take the minimum of TH1s
     ymax -- Maximum y value; if None, take the maximum of TH1s
     coverage -- If set, use only values within the 'coverage' part around the median are used for min/max (useful for ratio)
+    coverageRange -- If coverage and this are set, use only the x axis specified by an (xmin,xmax) pair for the coverage 
     """
     if coverage is not None:
         # the only use case for coverage for now is ratio, for which
@@ -534,7 +541,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None):
         ymaxs = []
         for th1 in th1s:
             if coverage is not None:
-                (_ymin, _ymax) = _getYminMaxAroundMedian(th1, coverage)
+                (_ymin, _ymax) = _getYminMaxAroundMedian(th1, coverage, coverageRange)
             else:
                 if ylog and isinstance(ymin, list):
                     _ymin = _getYminIgnoreOutlier(th1)
@@ -1309,6 +1316,7 @@ class Plot:
         ratioYmin    -- Float for y axis minimum in ratio pad (default: list of values)
         ratioYmax    -- Float for y axis maximum in ratio pad (default: list of values)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
+        ratioCoverageXrange -- Range of x axis values (xmin,xmax) to limit the automatic ratio y axis range calculation to (default None for disabled)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
         """
         self._name = name
@@ -1375,6 +1383,7 @@ class Plot:
         _set("ratioYmin", [0, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95])
         _set("ratioYmax", [1.05, 1.1, 1.2, 1.3, 1.5, 1.8, 2, 2.5, 3, 4, 5])
         _set("ratioUncertainty", True)
+        _set("ratioCoverageXrange", None)
 
         _set("histogramModifier", None)
 
@@ -1710,7 +1719,7 @@ class Plot:
             ratioHistos = filter(lambda h: h is not None, [r.getRatio() for r in self._ratios[1:]])
 
             if len(ratioHistos) > 0:
-                ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68)
+                ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68, coverageRange=self._ratioCoverageXrange)
             else:
                 ratioBoundsY = (0.9, 1,1) # hardcoded default in absence of valid ratio calculations
 
