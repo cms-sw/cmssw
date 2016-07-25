@@ -1971,8 +1971,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
               }
               if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
                    (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
-                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
-                h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 )); {
+                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) ) {
+                h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 )); 
               }
             }
           }
@@ -2039,8 +2039,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
               }
               if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
                    (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
-                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
-                h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 )); {
+                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) ) {
+                h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 ));
               }
             }
           }
@@ -2108,8 +2108,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
               }
               if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
                    (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
-                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
-                h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 )); {
+                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) ) {
+                h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 )); 
               }
             }
           }
