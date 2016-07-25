@@ -491,6 +491,7 @@ class Validation:
             print "Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl)
             sys.exit(1)
         
+        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkye.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
             cmd.extend(["-O", u])
@@ -897,11 +898,12 @@ def _findDuplicates(lst):
     return list(found2)
 
 class SimpleSample:
-    def __init__(self, label, name, fileLegends, pileup=True):
+    def __init__(self, label, name, fileLegends, pileup=True, customPileupLabel=""):
         self._label = label
         self._name = name
         self._fileLegends = fileLegends
         self._pileup = pileup
+        self._customPileupLabel = customPileupLabel
 
     def digest(self):
         # Label should be unique among the plotting run, so it serves also as the digest
@@ -925,6 +927,9 @@ class SimpleSample:
 
     def pileupEnabled(self):
         return self._pileup
+
+    def customPileupLabel(self):
+        return self._customPileupLabel
 
     def doElectron(self):
         return True

@@ -588,6 +588,8 @@ class IndexSection:
             pileup = "with no pileup"
             if sample.hasPileup():
                 pileup = "with %s pileup" % sample.pileupType()
+        if hasattr(sample, "customPileupLabel"):
+            pileup = sample.customPileupLabel()
         self._sampleName += "%s sample %s" % (_sampleName.get(sample.name(), sample.name()), pileup)
 
         params = [title, self._sampleName, sample, fastVsFull]
