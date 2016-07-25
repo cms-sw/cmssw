@@ -77,11 +77,11 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
     // Container for the clusters that will be produced for this modules
     Phase2TrackerRecHit1DCollectionNew::FastFiller rechits(*outputRecHits, DSViter.detId());
 
-    for (auto clustIt : DSViter) { 
-      ClusterParameterEstimator< Phase2TrackerCluster1D >::LocalValues lv = cpe->localParameters(clustIt, *geomDetUnit);
+    for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator clustIt = DSViter.begin(); clustIt != DSViter.end(); ++clustIt) { 
+      ClusterParameterEstimator< Phase2TrackerCluster1D >::LocalValues lv = cpe->localParameters(*clustIt, *geomDetUnit);
 
       // Create a persistent edm::Ref to the cluster
-      edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D > cluster = edmNew::makeRefTo(clusters, &clustIt);
+      edm::Ref< Phase2TrackerCluster1DCollectionNew, Phase2TrackerCluster1D > cluster = edmNew::makeRefTo(clusters, clustIt);
 
       // Make a RecHit and add it to the DetSet
       Phase2TrackerRecHit1D hit(lv.first, lv.second, *geomDetUnit, cluster);
