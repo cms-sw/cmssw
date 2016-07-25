@@ -2425,6 +2425,9 @@ class PlotterItem:
             subFolders = []
         possibleDirFound = False
         for fname in files:
+            if fname is None:
+                continue
+
             isOpenFile = isinstance(fname, ROOT.TFile)
             if isOpenFile:
                 tfile = fname

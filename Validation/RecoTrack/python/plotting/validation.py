@@ -962,16 +962,18 @@ class SimpleValidation:
 
             self._openFiles = []
             for f in sample.files():
-                if not os.path.exists(f):
-                    print "File %s not found (from sample %s)" % (f, sample.name)
-                    sys.exit(1)
-                self._openFiles.append(ROOT.TFile.Open(f))
+                if os.path.exists(f):
+                    self._openFiles.append(ROOT.TFile.Open(f))
+                else:
+                    print "File %s not found (from sample %s), ignoring it" % (f, sample.name())
+                    self._openFiles.append(None)
 
             for plotter in plotters:
                 self._doPlotsForPlotter(plotter, sample, **kwargs)
 
             for tf in self._openFiles:
-                tf.Close()
+                if tf is not None:
+                    tf.Close()
             self._openFiles = []
 
     def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
