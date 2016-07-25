@@ -1,6 +1,6 @@
 AlCaRecoMatrix = {"AlCaLumiPixels" : "LumiPixels",
                   "Charmonium"     : "TkAlJpsiMuMu",
-                  "Commissioning"  : "HcalCalIsoTrk",
+                  "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector",
                   "Cosmics"        : "TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics",
                   "DoubleEG"       : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkFilter",
                   "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",

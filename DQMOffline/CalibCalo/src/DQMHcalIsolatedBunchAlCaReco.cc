@@ -47,6 +47,7 @@ DQMHcalIsolatedBunchAlCaReco::DQMHcalIsolatedBunchAlCaReco(const edm::ParameterS
   //
   folderName_   = ps.getUntrackedParameter<std::string>("FolderName","ALCAStreamHcalIsolatedBunch");
   trigName_     = ps.getParameter<std::string>("TriggerName");
+  plotAll_      = ps.getUntrackedParameter<bool>("PlotAll",true);
   
   hbhereco_     = consumes<HBHERecHitCollection>(ps.getParameter<edm::InputTag>("hbheInput"));
   horeco_       = consumes<HORecHitCollection>(ps.getParameter<edm::InputTag>("hoInput"));
@@ -95,28 +96,30 @@ void DQMHcalIsolatedBunchAlCaReco::analyze(const edm::Event& iEvent,
   h_Event_->Fill(0.);
   if (accept) h_Event_->Fill(1.);
 
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(hbhereco_, hbhe);
-  if (!hbhe.isValid()) {
-    edm::LogInfo("HcalCalib") << "Cannot get hbhe product!" << std::endl;
-  } else {
-    h_hbhehit_->Fill(hbhe->size());
-  }
+  if (accept || plotAll_) {
+    edm::Handle<HBHERecHitCollection> hbhe;
+    iEvent.getByToken(hbhereco_, hbhe);
+    if (!hbhe.isValid()) {
+      edm::LogInfo("HcalCalib") << "Cannot get hbhe product!" << std::endl;
+    } else {
+      h_hbhehit_->Fill(hbhe->size());
+    }
   
-  edm::Handle<HFRecHitCollection> hf;
-  iEvent.getByToken(hfreco_, hf);
-  if (!hf.isValid()) {
-    edm::LogInfo("HcalCalib") << "Cannot get hf product!" << std::endl;
-  } else {
-    h_hfhit_->Fill(hf->size());
-  }
+    edm::Handle<HFRecHitCollection> hf;
+    iEvent.getByToken(hfreco_, hf);
+    if (!hf.isValid()) {
+      edm::LogInfo("HcalCalib") << "Cannot get hf product!" << std::endl;
+    } else {
+      h_hfhit_->Fill(hf->size());
+    }
   
-  edm::Handle<HORecHitCollection> ho;
-  iEvent.getByToken(horeco_, ho);
-  if (!ho.isValid()) {
-    edm::LogInfo("HcalCalib") << "Cannot get ho product!" << std::endl;
-  } else {
-    h_hohit_->Fill(ho->size());
+    edm::Handle<HORecHitCollection> ho;
+    iEvent.getByToken(horeco_, ho);
+    if (!ho.isValid()) {
+      edm::LogInfo("HcalCalib") << "Cannot get ho product!" << std::endl;
+    } else {
+      h_hohit_->Fill(ho->size());
+    }
   }
 	
 } //analyze

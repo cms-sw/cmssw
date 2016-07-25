@@ -9,6 +9,7 @@ HcalIsolatedBunchMon = cms.EDAnalyzer("DQMHcalIsolatedBunchAlCaReco",
     hfInput       = cms.InputTag("hfreco"),
     TriggerResult = cms.InputTag("TriggerResults","","HLT"),
     TriggerName   = cms.string("HLT_HcalIsolatedBunch"),
+    PlotAll       = cms.untracked.bool(False),
     FolderName    = cms.untracked.string('AlCaReco/HcalIsolatedBunch')
 )
 

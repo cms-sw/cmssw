@@ -52,6 +52,7 @@ private:
   
   /// DQM folder name
   std::string folderName_, trigName_; 
+  bool        plotAll_;
 
   /// object to monitor
   edm::EDGetTokenT<HBHERecHitCollection>    hbhereco_;
