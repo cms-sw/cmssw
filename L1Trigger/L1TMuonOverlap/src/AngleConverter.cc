@@ -138,8 +138,9 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
 
   int offsetLoc = lround( ((ichamber-1)*M_PI/6+M_PI/12.)/hsPhiPitch );
   double scale = 1./4096/hsPhiPitch;
-
-  int phi = static_cast<int>(phiDT*scale) + offsetLoc;
+  int scale_coeff = lround(scale* pow(2,11));
+//  int phi = static_cast<int>(phiDT*scale) + offsetLoc;
+  int phi = floor(phiDT*scale_coeff/pow(2,11)) + offsetLoc;
 
   return phi;
 }
@@ -191,11 +192,42 @@ int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, c
   //FIXME: to be checked (only important for ME1/3) keep more bits for offset, truncate at the end
   int phi = offsetLoc + order*scale*halfStrip;
 
+//  std::cout <<" hs: "<< halfStrip <<" offset: " << offsetLoc <<" oder*scale: "<< order*scale 
+//            <<" phi: " <<phi<<" ("<<offsetLoc + order*scale*halfStrip<<")"<< std::endl;
+
   return phi;
 }
 
 ///////////////////////////////////////
 ///////////////////////////////////////
+int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi1, const unsigned int &digi2) const
+{
+
+  const double hsPhiPitch = 2*M_PI/nPhiBins;
+  const int dummy = nPhiBins;
+  int processor = iProcessor+1;
+  const RPCRoll* roll = _georpc->roll(rollId);
+  if (!roll) return dummy;
+
+  double phi15deg =  M_PI/3.*(processor-1)+M_PI/12.;                    // "0" is 15degree moved cyclicaly to each processor, note [0,2pi]
+  double stripPhi1 = (roll->toGlobal(roll->centreOfStrip((int)digi1))).phi(); // note [-pi,pi]
+  double stripPhi2 = (roll->toGlobal(roll->centreOfStrip((int)digi2))).phi(); // note [-pi,pi]
+
+  // stripPhi from geometry is given in [-pi,pi] range.  
+  // Keep like that for OMTFp1 [15-10deg,75deg] and OMTFp6 [-45-10deg,15deg]. 
+  // For OMTFp2..OMTFp5  move to [0,2pi] range
+  switch (processor) {
+    case 1: break;
+    case 6: {phi15deg -= 2*M_PI; break; }
+    default : { if (stripPhi1 < 0) stripPhi1 += 2*M_PI; if(stripPhi2 < 0 ) stripPhi2 += 2*M_PI; break; }
+  }
+
+  // local angle in CSC halfStrip usnits
+  int halfStrip = lround ( ( (stripPhi1+stripPhi2)/2.-phi15deg)/hsPhiPitch );
+    
+  return halfStrip;
+}
+
 int AngleConverter::getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const
 {
 
@@ -240,23 +272,46 @@ int AngleConverter::getGlobalEta(unsigned int rawid,
   // so, we choose the BTI that's in the middle of the group
   // as the BTI that we get theta from
   // TODO:::::>>> need to make sure this ordering doesn't flip under wheel sign
-  const int NBTI_theta = ( (baseid.station() != 4) ? 
-			   trig_geom->nCell(2) : trig_geom->nCell(3) );
-  const int bti_group = findBTIgroup(aDigi,dtThDigis);
-  const unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;  
-  DTBtiId thetaBTI;  
-  if ( baseid.station() != 4 && bti_group != -1) {
-    thetaBTI = DTBtiId(baseid,2,bti_actual);
-  } else {
-    // since this is phi oriented it'll give us theta in the middle
-    // of the chamber
-    thetaBTI = DTBtiId(baseid,3,1); 
-  }
-  const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
-  return etaVal2Code(theta_gp.eta());
+  const int NBTI_theta = ( (baseid.station() != 4) ?  trig_geom->nCell(2) : trig_geom->nCell(3) );
+
+//  const int bti_group = findBTIgroup(aDigi,dtThDigis);
+//  const unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;
+//  DTBtiId thetaBTI;
+//  if ( baseid.station() != 4 && bti_group != -1) {
+//    thetaBTI = DTBtiId(baseid,2,bti_actual);
+//  } else {
+//    // since this is phi oriented it'll give us theta in the middle
+//    // of the chamber
+//    thetaBTI = DTBtiId(baseid,3,1);
+//  }
+//  const GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
 //  int iEta = theta_gp.eta()/2.61*240;
 //  return iEta;
+
+  const L1MuDTChambThDigi *theta_segm = dtThDigis->chThetaSegm(aDigi.whNum(), aDigi.stNum(), aDigi.scNum(), aDigi.bxNum());
+  int bti_group = -1;
+  if (theta_segm) {
+    for(unsigned int i = 0; i < 7; ++i ) if(theta_segm->position(i) && bti_group<0) bti_group = i;
+    else if(theta_segm->position(i) && bti_group>-1) bti_group = 511;
+  }
+
+  int iEta = 0;
+  if (bti_group == 511) iEta = 95;
+  else if (  bti_group == -1 && aDigi.stNum() == 1)  iEta = 92; 
+  else if (  bti_group == -1 && aDigi.stNum() == 2)  iEta = 79; 
+  else if (  bti_group == -1 && aDigi.stNum() == 3)  iEta = 75; 
+  else if (baseid.station() != 4 && bti_group >= 0) {
+//    bti_group = 6-bti_group;
+    unsigned bti_actual = bti_group*NBTI_theta/7 + NBTI_theta/14 + 1;  
+    DTBtiId thetaBTI = DTBtiId(baseid,2,bti_actual);
+    GlobalPoint theta_gp = trig_geom->CMSPosition(thetaBTI);
+    iEta = etaVal2Code( fabs(theta_gp.eta()) );
+  }
+  int signEta = sgn(aDigi.whNum());
+  iEta  *= signEta;
+  return iEta; 
 }
+
 ///////////////////////////////////////
 ///////////////////////////////////////
 int AngleConverter::getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi &aDigi){

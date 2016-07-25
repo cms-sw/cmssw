@@ -37,12 +37,19 @@
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverterRPC.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
+// For RPCs
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 
 typedef edm::ParameterSet PSet;
-
 
 //class L1TMuonEndCapTrackProducer : public edm::EDAnalyzer {
 
@@ -72,24 +79,23 @@ public:
   ///////////////////////////////////////
   ///////////////////////////////////////
   
-  
-  
   const float ptscale[33] = { 
-  	-1.,   0.0,   1.5,   2.0,   2.5,   3.0,   3.5,   4.0,
+    -1.,   0.0,   1.5,   2.0,   2.5,   3.0,   3.5,   4.0,
     4.5,   5.0,   6.0,   7.0,   8.0,  10.0,  12.0,  14.0,  
     16.0,  18.0,  20.0,  25.0,  30.0,  35.0,  40.0,  45.0, 
     50.0,  60.0,  70.0,  80.0,  90.0, 100.0, 120.0, 140.0, 1.E6 };
   
 
-private:
-  PrimitiveConverter primConv_;
-
+ private:
+  
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
+  int bxShiftCSC = 0;
+  edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
+  PrimitiveConverter primConv_;
+  PrimitiveConverterRPC primConvRPC_;
   l1t::EmtfPtAssignment ptAssignment_;
-
+  
 };
-
-
 
 
 #endif

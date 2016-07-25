@@ -43,6 +43,8 @@ class XMLConfigReader{
 
   void readConfig(L1TMuonOverlapParams *aConfig) const;
 
+  unsigned int getPatternsVersion() const;
+
   std::vector<std::vector<int> > readEvent(unsigned int iEvent=0,
 					   unsigned int iProcessor=0,
 					   bool readEta = false);
@@ -55,7 +57,8 @@ class XMLConfigReader{
 
   GoldenPattern * buildGP(xercesc::DOMElement* aGPElement,
 			  const L1TMuonOverlapParams & aConfig,
-			  unsigned int index=0);
+			  unsigned int index=0,
+			  unsigned int aGPNumber=999);
   
   xercesc::XercesDOMParser *parser;
   xercesc::DOMDocument* doc;
