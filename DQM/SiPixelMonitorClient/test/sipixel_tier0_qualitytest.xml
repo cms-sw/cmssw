@@ -208,7 +208,7 @@
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.15</PARAM> 
-     <PARAM name="ymax">1.65</PARAM> 
+     <PARAM name="ymax">1.85</PARAM> 
 </QTEST>
 <!-- nRecHits in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:nRecHits" activate="false"> 
