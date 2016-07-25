@@ -436,12 +436,12 @@ PathContext: pathName = e pathID = 0 (EndPath)
     ProcessContext: PROD1 4fe4a2816617359f330df85fe06ebaf1
 
 ++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
-++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 8
-++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 8
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
 ++++++++++ starting: processing event for module: stream = 0 label = 'intVectorProducer' id = 9
 ++++++++++ finished: processing event for module: stream = 0 label = 'intVectorProducer' id = 9
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
+++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 8
+++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 8
 ++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 6
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 6
@@ -562,12 +562,12 @@ PathContext: pathName = e pathID = 0 (EndPath)
     ProcessContext: PROD1 4fe4a2816617359f330df85fe06ebaf1
 
 ++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
-++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 8
-++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 8
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
 ++++++++++ starting: processing event for module: stream = 0 label = 'intVectorProducer' id = 9
 ++++++++++ finished: processing event for module: stream = 0 label = 'intVectorProducer' id = 9
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
+++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 8
+++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 8
 ++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 6
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 6
@@ -688,12 +688,12 @@ PathContext: pathName = e pathID = 0 (EndPath)
     ProcessContext: PROD1 4fe4a2816617359f330df85fe06ebaf1
 
 ++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
-++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 8
-++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 8
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
 ++++++++++ starting: processing event for module: stream = 0 label = 'intVectorProducer' id = 9
 ++++++++++ finished: processing event for module: stream = 0 label = 'intVectorProducer' id = 9
+++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
+++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 6
+++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 8
+++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 8
 ++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 6
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 6
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 6
