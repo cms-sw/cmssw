@@ -42,7 +42,7 @@ private:
   edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> m_BeamToken;
-  bool        m_ECAL, verbose_;
+  bool        m_ECAL;
 
   int         count;
   int         m_idxetaEcal;
