@@ -27,6 +27,8 @@ def customiseTrackingNtuple(process):
         process.crossingFramePSimHitToPSimHits.src = ["mix:"+l for l in instanceLabels]
         process.simHitTPAssocProducer.simHitSrc = ["crossingFramePSimHitToPSimHits:"+l for l in instanceLabels]
         process.trackingNtupleSequence.insert(0, process.crossingFramePSimHitToPSimHits)
+        if process.trackingNtuple.includeAllHits.value():
+            process.trackingNtuple.throwIfMissingSimHits = True
 
     # Bit of a hack but works
     modifier = cms.Modifier()

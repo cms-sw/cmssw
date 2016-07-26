@@ -327,6 +327,7 @@ private:
   std::string parametersDefinerName_;
   const bool includeSeeds_;
   const bool includeAllHits_;
+  const bool throwIfMissingSimHits_;
 
   TTree* t;
   // event
@@ -576,7 +577,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   builderName_(iConfig.getUntrackedParameter<std::string>("TTRHBuilder")),
   parametersDefinerName_(iConfig.getUntrackedParameter<std::string>("parametersDefiner")),
   includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
-  includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits"))
+  includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits")),
+  throwIfMissingSimHits_(iConfig.getUntrackedParameter<bool>("throwIfMissingSimHits"))
 {
   const bool tpRef = iConfig.getUntrackedParameter<bool>("trackingParticlesRef");
   const auto tpTag = iConfig.getUntrackedParameter<edm::InputTag>("trackingParticles");
@@ -1227,6 +1229,17 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
           ret.event        .push_back(TPhit->eventId().event());
           break;
         }
+      }
+      if(throwIfMissingSimHits_ && std::isnan(tof)) {
+        auto ex = cms::Exception("LogicError") << "Did not find SimHit for reco hit DetId " << hitId.rawId()
+                                               << " for TP " << trackingParticle.key() << " bx:event " << trackingParticle->eventId().bunchCrossing() << ":" << trackingParticle->eventId().event()
+                                               << ".\nFound SimHits from detectors ";
+        for(auto ip = range.first; ip != range.second; ++ip) {
+          TrackPSimHitRef TPhit = ip->second;
+          DetId dId = DetId(TPhit->detUnitId());
+          ex << dId.rawId() << " ";
+        }
+        throw ex;
       }
       tpHitList.emplace_back(trackingParticle.key(), clusterKey, tof, hitType);
     }
@@ -1996,6 +2009,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<std::string>("parametersDefiner", "LhcParametersDefinerForTP");
   desc.addUntracked<bool>("includeSeeds", false);
   desc.addUntracked<bool>("includeAllHits", false);
+  desc.addUntracked<bool>("throwIfMissingSimHits", false)->setComment("Sensible only for pileup replay mode, as otherwise pileup SimHits are always missing");
   descriptions.add("trackingNtuple",desc);
 }
 
