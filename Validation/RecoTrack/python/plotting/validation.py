@@ -379,7 +379,6 @@ class Sample:
         pileup = ""
         fastsim = ""
         midfix = ""
-        scenario = ""
         sample = self._sample
         if self._append is not None:
             midfix += self._append
@@ -397,14 +396,12 @@ class Sample:
                 pileup = "PU"+self.pileupType(newRelease)+"_"
         if self._fastsim:
             fastsim = "_FastSim"
-        if self._scenario is not None:
-            scenario = "_"+self._scenario
             
         globalTag = _getGlobalTag(self, newRelease)
 
-        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{scenario}{fastsim}-{version}__DQMIO.root'.format(
+        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{fastsim}-{version}__DQMIO.root'.format(
             sample=sample, midfix=midfix, newrelease=_stripRelease(newRelease),
-            pileup=pileup, globaltag=globalTag, appendGlobalTag=self._appendGlobalTag, scenario=scenario, fastsim=fastsim,
+            pileup=pileup, globaltag=globalTag, appendGlobalTag=self._appendGlobalTag, fastsim=fastsim,
             version=self.version(newRelease), dqmVersion=self._dqmVersion
         )
 
@@ -640,10 +637,7 @@ class Validation:
         newGlobalTag = _getGlobalTag(sample, self._newRelease)
 
         # Construct selection string
-        selectionNameBase = ""
-        if sample.hasScenario():
-            selectionNameBase += "_"+sample.scenario()
-        selectionNameBase += "_"+sample.pileup()
+        selectionNameBase = "_"+sample.pileup()
         newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
         if sample.pileupEnabled():
             newPu = sample.pileupType(self._newRelease)
