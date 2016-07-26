@@ -174,6 +174,12 @@ def L1TReEmulFromRAWsimEcalTP(process):
             process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
     return process
 
+def L1TReEmulFromRAWsimHcalTP(process):
+    L1TReEmulFromRAW(process)
+    if eras.stage2L1Trigger.isChosen():
+            process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')
+    return process
+
 def L1TReEmulFromRAWsimTP(process):
     L1TReEmulFromRAW(process)
     if eras.stage2L1Trigger.isChosen():
