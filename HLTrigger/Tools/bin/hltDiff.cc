@@ -776,6 +776,7 @@ public:
   }
 
   void write() {
+    if (!writeJson) return;
     std::set<std::string> filesCreated;
     for (const auto& runEvents : m_run_events) {
       const int run = runEvents.first;
@@ -1184,6 +1185,7 @@ public:
   std::string               new_process;
   unsigned int              max_events;
   bool                      ignore_prescales;
+  bool                      csv_out;
   bool                      json_out;
   bool                      root_out;
   std::string               output_file;
@@ -1198,6 +1200,7 @@ public:
     new_process(""),
     max_events(1e9),
     ignore_prescales(true),
+    csv_out(false),
     json_out(false),
     root_out(false),
     output_file(""),
@@ -1450,12 +1453,12 @@ public:
       std::cout << "Found " << counter << " matching events, out of which " << affected << " have different HLT results";
       if (skipped)
         std::cout << ", " << skipped << " events were skipped";
-      std::cout << "\nSee more in the files listed below...\n" << std::endl;
+      std::cout << "\n" << std::endl;
     }
 
     // writing all the required output
     json.write();   // to JSON file for interactive visualisation
-    SummaryOutputProducer summary(json, this->root_out, true);
+    SummaryOutputProducer summary(json, this->root_out, this->csv_out);
     summary.write();   // to ROOT file for fast validation with static plots
   }
 
@@ -1488,6 +1491,9 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
 \n\
   -p|--prescales\n\
       do not ignore differences caused by HLTPrescaler modules\n\
+\n\
+  -c|--csv-output\n\
+      produce comparison results in a CSV format\n\
 \n\
   -j|--json-output\n\
       produce comparison results in a JSON format\n\
@@ -1522,7 +1528,7 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "dfo:O:n:N:m:pjrF:v::h";
+  const char optstring[] = "dfo:O:n:N:m:pcjrF:v::h";
   const option longopts[] = {
     option{ "debug",        no_argument,        nullptr, 'd' },
     option{ "file-check",   no_argument,        nullptr, 'f' },
@@ -1532,6 +1538,7 @@ int main(int argc, char ** argv) {
     option{ "new-process",  required_argument,  nullptr, 'N' },
     option{ "max-events",   required_argument,  nullptr, 'm' },
     option{ "prescales",    no_argument,        nullptr, 'p' },
+    option{ "csv-output",   optional_argument,  nullptr, 'c' },
     option{ "json-output",  optional_argument,  nullptr, 'j' },
     option{ "root-output",  optional_argument,  nullptr, 'r' },
     option{ "output-file",  optional_argument,  nullptr, 'F' },
@@ -1588,6 +1595,10 @@ int main(int argc, char ** argv) {
 
       case 'p':
         hlt->ignore_prescales = false;
+        break;
+
+      case 'c':
+        hlt->csv_out = true;
         break;
 
       case 'j':
