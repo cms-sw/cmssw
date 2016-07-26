@@ -45,12 +45,13 @@ namespace edm {
       }
   
   RefCore::RefCore( RefCore const& iOther) :
-      cachePtr_(iOther.cachePtr_.load()),
       processIndex_(iOther.processIndex_),
-      productIndex_(iOther.productIndex_) {}
+      productIndex_(iOther.productIndex_) {
+       cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+     }
   
   RefCore& RefCore::operator=( RefCore const& iOther) {
-    cachePtr_ = iOther.cachePtr_.load();
+    cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
     processIndex_ = iOther.processIndex_;
     productIndex_ = iOther.productIndex_;
     return *this;

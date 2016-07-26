@@ -23,7 +23,7 @@ namespace edm {
     // Since we need to freely convert one to the other the friendship is used
     friend class RefCoreWithIndex;
   public:
-    RefCore() :  cachePtr_(0),processIndex_(0),productIndex_(0){}
+    RefCore() :  cachePtr_(nullptr),processIndex_(0),productIndex_(0){}
 
     RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient);
 
@@ -31,9 +31,20 @@ namespace edm {
     
     RefCore& operator=(RefCore const&);
 
-    RefCore( RefCore&& iOther) : cachePtr_(iOther.cachePtr_.load()), processIndex_(iOther.processIndex_),
-    productIndex_(iOther.productIndex_) {}
-    RefCore& operator=(RefCore&&) = default;
+    RefCore( RefCore && iOther) noexcept :
+      processIndex_(iOther.processIndex_),
+      productIndex_(iOther.productIndex_) {
+         cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+     }
+
+    RefCore& operator=( RefCore && iOther) noexcept{
+      cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+      processIndex_ = iOther.processIndex_;
+      productIndex_ = iOther.productIndex_;
+      return *this;
+    }
+
+    ~RefCore() noexcept {}
     
     ProductID id() const {ID_IMPL;}
 
@@ -90,7 +101,7 @@ namespace edm {
 
     void nullPointerForTransientException(std::type_info const& type) const;
 
-    void swap(RefCore &);
+    void swap(RefCore &) noexcept;
     
     bool isTransient() const {ISTRANSIENT_IMPL;}
 
@@ -143,7 +154,7 @@ namespace edm {
 
   inline 
   void
-  RefCore::swap(RefCore & other) {
+  RefCore::swap(RefCore & other) noexcept {
     std::swap(processIndex_, other.processIndex_);
     std::swap(productIndex_, other.productIndex_);
     other.cachePtr_.store(cachePtr_.exchange(other.cachePtr_.load()));

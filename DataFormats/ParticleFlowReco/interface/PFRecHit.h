@@ -39,6 +39,7 @@ namespace reco {
     // Next typedef uses double in ROOT 6 rather than Double32_t due to a bug in ROOT 5,
     // which otherwise would make ROOT5 files unreadable in ROOT6.  This does not increase
     // the size on disk, because due to the bug, double was actually stored on disk in ROOT 5.
+
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<double> > REPPoint;
 
     typedef std::vector<REPPoint> REPPointVector;
@@ -64,10 +65,14 @@ namespace reco {
              double axisx, double axisy, double axisz);    
 
     /// copy
-    PFRecHit(const PFRecHit& other);
+    PFRecHit(const PFRecHit& other) = default;
+    PFRecHit(PFRecHit&& other) = default;
+    PFRecHit & operator=(const PFRecHit& other) = default;
+    PFRecHit & operator=(PFRecHit&& other) = default;
+
 
     /// destructor
-    virtual ~PFRecHit();
+    ~PFRecHit()=default;
 
     void setEnergy( double energy) { energy_ = energy; }
 

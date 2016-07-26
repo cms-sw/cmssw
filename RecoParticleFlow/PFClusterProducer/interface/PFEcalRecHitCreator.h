@@ -95,12 +95,12 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	}
 	else continue;
 
-	reco::PFRecHit rh( detid.rawId(),Layer,
+	out->emplace_back( detid.rawId(),Layer,
 			   energy, 
 			   position.x(), position.y(), position.z(), 
 			   axis.x(), axis.y(), axis.z() ); 
 
-
+        auto & rh = out->back();
 	//ECAL has no segmentation so put 1
 	
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
@@ -125,10 +125,12 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	if(keep) {
 	  rh.setTime(time);
 	  rh.setDepth(1);
-	  out->push_back(rh);
-	}
-	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	} 
+        else {
+	  if (rcleaned) 
+	    cleaned->push_back(std::move(out->back()));
+          out->pop_back();
+        }
       }
     }
 
