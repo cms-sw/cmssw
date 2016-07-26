@@ -21,6 +21,26 @@ HiFJGridEmptyAreaCalculator::HiFJGridEmptyAreaCalculator(const edm::ParameterSet
   doCentrality_(iConfig.getParameter<bool>("doCentrality")),
   keepGridInfo_(iConfig.getParameter<bool>("keepGridInfo"))
 {
+  ymin_ = -99;
+  ymax_ = -99;
+  dy_ = -99;
+  dphi_ = -99;
+  tileArea_ = - 99;
+  
+  dyJet_ = 99;
+  yminJet_ = - 99;
+  ymaxJet_ = -99;
+  totalInboundArea_ = -99;
+  etaminJet_= -99;
+  etamaxJet_ = -99;
+  
+  ny_ = 0;
+  nphi_ = 0;
+  ntotal_ = 0;
+ 
+  ntotalJet_ = 0;
+  nyJet_ = 0;
+    
   pfCandsToken_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>( "pfCandSource" ));
   mapEtaToken_ = consumes<std::vector<double> >(iConfig.getParameter<edm::InputTag>( "mapEtaEdges" ));
   mapRhoToken_ = consumes<std::vector<double> >(iConfig.getParameter<edm::InputTag>( "mapToRho" ));
@@ -52,7 +72,6 @@ HiFJGridEmptyAreaCalculator::~HiFJGridEmptyAreaCalculator()
 
 }
 
-// ------------ method called to produce the data  ------------
 void
 HiFJGridEmptyAreaCalculator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -437,21 +456,16 @@ HiFJGridEmptyAreaCalculator::numJetGridCells( std::vector<std::pair<int, int> >&
   return ngrid;
 }
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
 void
 HiFJGridEmptyAreaCalculator::beginStream(edm::StreamID)
 {
 }
 
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
 void
 HiFJGridEmptyAreaCalculator::endStream() {
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HiFJGridEmptyAreaCalculator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jetSource",edm::InputTag("kt4PFJets"));
   desc.add<edm::InputTag>("CentralityBinSrc",edm::InputTag("centralityBin"));
