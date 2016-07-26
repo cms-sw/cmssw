@@ -43,6 +43,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -51,6 +52,7 @@ the worker is reset().
 #include <sstream>
 #include <string>
 #include <vector>
+#include <exception>
 
 namespace edm {
   class EventPrincipal;
@@ -101,7 +103,9 @@ namespace edm {
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {implPostForkReacquireResources(iChildIndex, iNumberOfChildren);}
     void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) { implRegisterThinnedAssociations(registry, helper); }
 
-    void reset() { state_ = Ready;
+    void reset() {
+      cached_exception_ = std::exception_ptr();
+      state_ = Ready;
       waitingTasks_.reset();
       asyncWorkRequested_ = false;
       workStarted_ = false;
@@ -136,11 +140,12 @@ namespace edm {
       timesRun_ = timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
 
-    int timesRun() const { return timesRun_; }
+    //NOTE: calling state() is done to force synchronization across threads
+    int timesRun() const { state(); return timesRun_; }
     int timesVisited() const { return timesVisited_; }
-    int timesPassed() const { return timesPassed_; }
-    int timesFailed() const { return timesFailed_; }
-    int timesExcept() const { return timesExcept_; }
+    int timesPassed() const { state(); return timesPassed_; }
+    int timesFailed() const { state(); return timesFailed_; }
+    int timesExcept() const { state(); return timesExcept_; }
     State state() const { return state_; }
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
@@ -205,18 +210,48 @@ namespace edm {
                           cms::Exception& ex,
                           ModuleCallingContext const* mcc);
 
+    template<bool IS_EVENT>
+    bool
+    setPassed() {
+      if(IS_EVENT) {
+        ++timesPassed_;
+      }
+      state_ = Pass;
+      return true;
+    }
 
+    template<bool IS_EVENT>
+    bool
+    setFailed() {
+      if(IS_EVENT) {
+        ++timesFailed_;
+      }
+      state_ = Fail;
+      return false;
+    }
+
+    template<bool IS_EVENT>
+    std::exception_ptr
+    setException(std::exception_ptr iException) {
+      if (IS_EVENT) ++timesExcept_;
+      cached_exception_ = iException; // propagate_const<T> has no reset() function
+      state_ = Exception;
+      return cached_exception_;
+    }
+    
     int timesRun_;
     std::atomic<int> timesVisited_;
     int timesPassed_;
     int timesFailed_;
     int timesExcept_;
-    std::atomic<State> state_;
+    CMS_THREAD_GUARD(cached_exception_) CMS_THREAD_GUARD(timesRun_)
+    CMS_THREAD_GUARD(timesPassed_) CMS_THREAD_GUARD(timesFailed_)
+    CMS_THREAD_GUARD(timesExcept_) std::atomic<State> state_;
 
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
-    edm::propagate_const<std::shared_ptr<cms::Exception>> cached_exception_; // if state is 'exception'
+    std::exception_ptr cached_exception_; // if state is 'exception'
 
     std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
 
@@ -458,7 +493,7 @@ namespace edm {
       case Pass: return true;
       case Fail: return false;
       case Exception: {
-	  cached_exception_->raise();
+        std::rethrow_exception(cached_exception_);
       }
     }
     
@@ -478,7 +513,7 @@ namespace edm {
         case Pass: return true;
         case Fail: return false;
         case Exception: {
-          cached_exception_->raise();
+          std::rethrow_exception(cached_exception_);
         }
       }
     }
@@ -497,9 +532,7 @@ namespace edm {
           
           //if have TriggerResults based selection we want to reject the event before doing prefetching
           if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
-            state_ = Pass;
-            ++timesPassed_;
-            rc = true;
+            rc = setPassed<T::isEvent_>();
             waitingTasks_.doneWaiting(nullptr);
             return;
           }
@@ -544,26 +577,18 @@ namespace edm {
       switch(action) {
         case exception_actions::IgnoreCompletely:
         {
-          rc = true;
-          ++timesPassed_;
-          state_ = Pass;
+          rc = setPassed<T::isEvent_>();
           std::ostringstream iost;
           iost<<ep.id();
           exceptionContext(iost.str(), T::isEvent_, ex, &tempContext);
           edm::printCmsExceptionWarning("IgnoreCompletely", ex);
-          //now ignore the fact we had thrown an exception
-          if(cached_exception_) {
-            --timesExcept_;
-            cached_exception_ = nullptr;
-          }
           break;
         }
         default:
-          if(not cached_exception_) {
-            cached_exception_ =std::shared_ptr<cms::Exception>(ex.clone());
-          }
-          waitingTasks_.doneWaiting(std::current_exception());
-          cached_exception_->raise();
+          assert(not cached_exception_);
+          setException<T::isEvent_>(std::current_exception());
+          waitingTasks_.doneWaiting(cached_exception_);
+          std::rethrow_exception(cached_exception_);
       }
     }
     waitingTasks_.doneWaiting(nullptr);
@@ -581,31 +606,17 @@ namespace edm {
     //if (T::isEvent_) {
     //  ++timesVisited_;
     //}
-    bool rc = false;
-    
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
     if (T::isEvent_) {
       ++timesRun_;
     }
     
-    try {
-      convertException::wrap([&]() {
-        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
-        
-        if (rc) {
-          state_ = Pass;
-          if (T::isEvent_) ++timesPassed_;
-        } else {
-          state_ = Fail;
-          if (T::isEvent_) ++timesFailed_;
-        }
-      });
-    }
-    catch(cms::Exception& ex) {
-      if (T::isEvent_) ++timesExcept_;
-      cached_exception_ = std::shared_ptr<cms::Exception>(ex.clone()); // propagate_const<T> has no reset() function
-      state_ = Exception;
-      cached_exception_->raise();
+    bool rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
+    
+    if (rc) {
+      setPassed<T::isEvent_>();
+    } else {
+      setFailed<T::isEvent_>();
     }
     return rc;
   }
