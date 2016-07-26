@@ -28,7 +28,8 @@ namespace cms {
 
   private:
     edm::GetterOfProducts<HcalSourcePositionData> getHcalSourcePositionData_;
-
+    edm::GetterOfProducts<HBHERecHitCollection> getHBHERecHitCollection_;
+    edm::GetterOfProducts<HFRecHitCollection> getHFRecHitCollection_;
     string hbhePrefix_;
     string hoPrefix_;
     string hfPrefix_;
@@ -36,37 +37,50 @@ namespace cms {
 
   HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf) :
     getHcalSourcePositionData_(edm::ProcessMatch("*"), this),
+    getHBHERecHitCollection_(edm::ProcessMatch("*"), this),
+    getHFRecHitCollection_(edm::ProcessMatch("*"), this),
     hbhePrefix_(conf.getUntrackedParameter<string>("hbhePrefix", "")),
     hoPrefix_(conf.getUntrackedParameter<string>("hoPrefix", "")),
     hfPrefix_(conf.getUntrackedParameter<string>("hfPrefix", ""))
   {
-    callWhenNewProductsRegistered(getHcalSourcePositionData_);
+    callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+       getHcalSourcePositionData_(bd);
+       getHBHERecHitCollection_(bd);
+       getHFRecHitCollection_(bd);
+    });
   }
 
   template<typename COLL>
-  static void analyzeT(edm::Event const& e, const char* name=0, const char* prefix=0)
+  static void analyzeT(typename std::vector<edm::Handle<COLL> > const& handles , const char* name=0, const char* prefix=0)
   {
     const string marker(prefix ? prefix : "");
-    try {
-      vector<edm::Handle<COLL> > colls;
-      e.getManyByType(colls);
-      typename std::vector<edm::Handle<COLL> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
+//    try {
+      //vector<edm::Handle<COLL> > handles;
+      //e.getManyByType(colls);
+      typename std::vector<edm::Handle<COLL> >::const_iterator i;
+      cout << "Handles: " << handles.size() << endl;
+      for (i=handles.begin(); i!=handles.end(); i++) {
         for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++)
           cout << marker << *j << endl;
       }
-    } catch (...) {
-      if(name) cout << "No " << name << " RecHits." << endl;
-    }
+//    } catch (...) {
+//      if(name) cout << "No " << name << " RecHits." << endl;
+//    }
   }
 
   void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
-    analyzeT<HBHERecHitCollection>(e, "HB/HE", hbhePrefix_.c_str()); 
-    analyzeT<HFRecHitCollection>(e, "HF", hfPrefix_.c_str());
-    analyzeT<HORecHitCollection>(e, "HO", hoPrefix_.c_str());
-    analyzeT<HcalCalibRecHitCollection>(e);
-    analyzeT<ZDCRecHitCollection>(e);
-    analyzeT<CastorRecHitCollection>(e);
+    
+    std::vector<edm::Handle<HBHERecHitCollection> > handles0;
+    getHBHERecHitCollection_.fillHandles(e, handles0);    
+    analyzeT<HBHERecHitCollection>(handles0, "HB/HE", hbhePrefix_.c_str()); 
+
+    std::vector<edm::Handle<HFRecHitCollection> > handles1;
+    getHFRecHitCollection_.fillHandles(e, handles1);    
+    analyzeT<HFRecHitCollection>(handles1, "HF", hfPrefix_.c_str());
+    //analyzeT<HORecHitCollection>(e, "HO", hoPrefix_.c_str());
+    //analyzeT<HcalCalibRecHitCollection>(e);
+    //analyzeT<ZDCRecHitCollection>(e);
+    //analyzeT<CastorRecHitCollection>(e);
 
     std::vector<edm::Handle<HcalSourcePositionData> > handles;
     getHcalSourcePositionData_.fillHandles(e, handles);
