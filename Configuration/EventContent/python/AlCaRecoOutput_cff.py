@@ -82,6 +82,9 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_Output_cff import
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHOCosmics_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_Output_cff import *
+# HCAL calibration with isolated bunch
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchFilter_Output_cff import *
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchSelector_Output_cff import *
 ###############################################################
 # Muon Alignment (incl. stream for calibration)
 ###############################################################
