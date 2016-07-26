@@ -212,7 +212,6 @@ double HiFJRhoProducer::calcMd(const reco::Jet *jet) {
   return sum;
 }
 
-/// Function to tell us if we are using packedCandidates, only test for first candidate
 bool HiFJRhoProducer::isPackedCandidate(const reco::Candidate* candidate){
   if(checkJetCand) {
     if(typeid(pat::PackedCandidate)==typeid(*candidate)) usingPackedCand = true;
@@ -223,17 +222,7 @@ bool HiFJRhoProducer::isPackedCandidate(const reco::Candidate* candidate){
   return usingPackedCand;
 }
 
-
-// HiFJRhoProducer::beginJob() { //Stream(edm::StreamID) {
-// }
-
-// void HiFJRhoProducer::endJob() {
-// }
- 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HiFJRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jetSource",edm::InputTag("kt4PFJets"));
   desc.add<int>("nExcl", 2);
