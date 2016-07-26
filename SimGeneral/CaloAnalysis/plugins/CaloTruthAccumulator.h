@@ -134,6 +134,8 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   edm::InputTag genParticleLabel_;
   /// Needed to add HepMC::GenVertex to SimVertex
   edm::InputTag hepMCproductLabel_;
+
+  const double minEnergy_, maxPseudoRapidity_;
   
   bool selectorFlag_;
   /// Uses the same config as selector_, but can be used to drop out early since selector_ requires the TrackingParticle to be created first.

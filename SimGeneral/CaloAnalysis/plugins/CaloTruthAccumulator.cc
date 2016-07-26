@@ -43,7 +43,9 @@ CaloTruthAccumulator::CaloTruthAccumulator( const edm::ParameterSet & config, ed
 		simVertexLabel_( config.getParameter<edm::InputTag>("simVertexCollection") ),
 		collectionTags_( ),
 		genParticleLabel_( config.getParameter<edm::InputTag>("genParticleCollection") ),
-		hepMCproductLabel_( config.getParameter<edm::InputTag>("HepMCProductLabel") )
+		hepMCproductLabel_( config.getParameter<edm::InputTag>("HepMCProductLabel") ),
+		minEnergy_( config.getParameter<double>("MinEnergy") ),
+		maxPseudoRapidity_( config.getParameter<double>("MaxPseudoRapidity") )
 {
   barcodeLogicWarningAlready_ = false;
 
@@ -133,6 +135,7 @@ void CaloTruthAccumulator::finalizeEvent( edm::Event& event, edm::EventSetup con
       const float fraction = hAndE.second/m_detIdToTotalSimEnergy[hAndE.first];
       sc.addRecHitAndFraction(hAndE.first,fraction);
     }
+    std::cout << "finalize: " << sc.energy() << ' ' << sc.eta() << ' ' << sc.numberOfRecHits() << std::endl;
   }
   
   // save the SimCluster orphan handle so we can fill the calo particles
@@ -227,6 +230,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   m_simTrackToSimVertex.clear();
   m_simVertexToSimTrackParent.clear();
   for (unsigned int i = 0 ; i < hSimVertices->size() ; i++) {
+    std::cout << "sim vertex at : " << i << " : " << (*hSimVertices)[i] << std::endl;
     m_simVertexBarcodes.push_back(i);
     m_simVertexBarcodeToIndex.emplace(hSimVertices->at(i).vertexId(), i);
     if (!hSimVertices->at(i).noParent()) {
@@ -234,11 +238,6 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
       m_simVertexToSimTrackParent.emplace( hSimVertices->at(i).vertexId(), hSimVertices->at(i).parentIndex() );
     }
   }
-  
-  // now we build the lists of gen particles and descendent sim clusters.
-  //	bool useGenParticles_ = false;
-  double minEnergy_ = 0.25;
-  double maxPseudoRapidity_ = 5.;
   
   std::vector<Index_t> tracksToBecomeClustersInitial;
   std::vector<Barcode_t> descendantTracks;
@@ -286,7 +285,7 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
   const auto& simTracks = *hSimTracks;
   if ( CaloTruthAccumulator::consideredBarcode( barcode ) ) {
     LogDebug("CaloParticles") << "SCZ DEBUG Ignoring descendantSimClusters call because this particle is already marked used: " << barcode << std::endl;
-    
+    //return result;
   }
 
   std::unique_ptr<SimHitInfoPerSimTrack_t> hit_info = std::move(CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, true, false, false));
@@ -302,35 +301,41 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
     // grab everything that descends from it
     std::unique_ptr<SimHitInfoPerSimTrack_t> marked_hit_info;
     
+    
     if( isInCalo  ) {
       marked_hit_info = std::move( CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits,true) );
-    } else {
+    } else {    
       marked_hit_info = std::move( CaloTruthAccumulator::attachedSimHitInfo(barcode,hits,true,false,true) );
     }   
     
-    result.emplace_back(simTrack);
-    auto& simcluster = result.back();
+    if( marked_hit_info->size() != 0 ) {
+      result.emplace_back(simTrack);
+      auto& simcluster = result.back();
+      
+      std::unordered_map<uint32_t,float> acc_energy;
+      
+      for( const auto& hit_and_energy : *marked_hit_info ) {
+	const uint32_t id = hit_and_energy.first.rawId();      
+	if( acc_energy.count(id) ) acc_energy[id] += hit_and_energy.second;
+	else acc_energy[id] = hit_and_energy.second;
+      }    
+      
+      for( const auto& hit_and_energy : acc_energy ) {
+	simcluster.addRecHitAndFraction(hit_and_energy.first,hit_and_energy.second);
+      }
 
-    std::unordered_map<uint32_t,float> acc_energy;
-    
-    for( const auto& hit_and_energy : *marked_hit_info ) {
-      const uint32_t id = hit_and_energy.first.rawId();      
-      if( acc_energy.count(id) ) acc_energy[id] += hit_and_energy.second;
-      else acc_energy[id] = hit_and_energy.second;
-    }    
-
-    for( const auto& hit_and_energy : acc_energy ) {
-      simcluster.addRecHitAndFraction(hit_and_energy.first,hit_and_energy.second);
+      std::cout << " -----> NEW SIM CLUSTER: " << simTrack << ' ' << marked_hit_info->size() << ' ' << simcluster.numberOfRecHits() << " <-----" << std::endl;
     }
   } 
   
-  if (!(isInCalo && hit_info->size() > 0) && m_simTrackToSimVertex.count(barcode)) {
+  if ( m_simTrackToSimVertex.count(barcode) ) {
     auto vertex_range = m_simTrackToSimVertex.equal_range(barcode);
     for ( auto vertex_iter = vertex_range.first ; vertex_iter != vertex_range.second ; vertex_iter++ ) {
       Index_t decayVertexIndex = vertex_iter->second;
       Barcode_t decayVertexBarcode = m_simVertexBarcodes[decayVertexIndex];
       auto track_range = m_simVertexBarcodeToSimTrackBarcode.equal_range( decayVertexBarcode );
       for ( auto track_iter = track_range.first ; track_iter != track_range.second ; track_iter++ ) {
+	
 	auto daughter_result = CaloTruthAccumulator::descendantSimClusters(track_iter->second,hits);
 	result.insert(result.end(),daughter_result.begin(),daughter_result.end());
       }
@@ -342,8 +347,11 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
 
 std::unique_ptr<SimHitInfoPerSimTrack_t> CaloTruthAccumulator::attachedSimHitInfo( Barcode_t barcode , const std::vector<const PCaloHit*>& hits, 
 										   bool includeOwn , bool includeOther, bool markUsed ) {
+  const auto& simTracks = *hSimTracks;
   std::unique_ptr<SimHitInfoPerSimTrack_t> result(new SimHitInfoPerSimTrack_t);
   
+  const auto& simTrack = simTracks[m_simTrackBarcodeToIndex[barcode]];
+
   if ( markUsed ) {
     if ( CaloTruthAccumulator::consideredBarcode( barcode ) ) {
       return result;
@@ -372,24 +380,40 @@ std::unique_ptr<SimHitInfoPerSimTrack_t> CaloTruthAccumulator::attachedSimHitInf
       ++n;
     }    
   }
-  if (includeOther) {
-    if (m_simTrackToSimVertex.count(barcode)) {
-      auto vertex_range = m_simTrackToSimVertex.equal_range(barcode);
-      for ( auto vertex_iter = vertex_range.first ; vertex_iter != vertex_range.second ; vertex_iter++ ) {
-	Index_t decayVertexIndex = vertex_iter->second;
-	Barcode_t decayVertexBarcode = m_simVertexBarcodes[decayVertexIndex];
+  
+  // need to sim to the next sim track if we explicitly ask or 
+  // if we are in the calorimeter next (no interaction)
+  // or if this is a continuation of the same particle
+  if (m_simTrackToSimVertex.count(barcode)) {
+    auto vertex_range = m_simTrackToSimVertex.equal_range(barcode);
+    for ( auto vertex_iter = vertex_range.first ; vertex_iter != vertex_range.second ; vertex_iter++ ) {
+      Index_t decayVertexIndex = vertex_iter->second;
+      const auto& nextVtx = (*hSimVertices)[decayVertexIndex];
+      const bool nextInCalo = (std::abs(nextVtx.position().z()) > caloStartZ*0.1 - 20.0);  // add a buffer region in front of the calo face
+      std::cout << " nextVtx = " << nextVtx << ' ' << std::abs(nextVtx.position().z()) << ' '<< caloStartZ*0.1 << ' ' << nextInCalo << std::endl; 
+      Barcode_t decayVertexBarcode = m_simVertexBarcodes[decayVertexIndex];      
 	auto track_range = m_simVertexBarcodeToSimTrackBarcode.equal_range( decayVertexBarcode );
 	for ( auto track_iter = track_range.first ; track_iter != track_range.second ; track_iter++ ) {
 	  if( !barcodeLogicWarningAlready_ && track_iter->second < barcode ) {
 	    barcodeLogicWarningAlready_ = true;
 	    edm::LogWarning(messageCategory_) << " Daughter particle has a lower barcode than parent. This may screw up the logic!" << std::endl;
 	  }
-	  std::unique_ptr<SimHitInfoPerSimTrack_t> daughter_result = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(track_iter->second,hits,markUsed));
-	  result->insert(result->end(),daughter_result->begin(),daughter_result->end());
+	  const auto& daughter = simTracks[m_simTrackBarcodeToIndex[track_iter->second]];
+
+	  if( markUsed ) {
+	    std::cout << "  " << barcode << ' ' << result->size() << " simTrack: " << simTrack << " decays to: " << daughter << std::endl;
+	  }
+
+	  if( includeOther || nextInCalo ) {
+	    std::unique_ptr<SimHitInfoPerSimTrack_t> daughter_result = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(track_iter->second,hits,markUsed));
+	    result->insert(result->end(),daughter_result->begin(),daughter_result->end());
+	  } else if ( daughter.type() == simTrack.type() ) {
+	    std::unique_ptr<SimHitInfoPerSimTrack_t> daughter_result = std::move(CaloTruthAccumulator::attachedSimHitInfo(track_iter->second,hits,includeOwn, includeOther, markUsed));
+	     result->insert(result->end(),daughter_result->begin(),daughter_result->end());
+	  }
 	}
       }
     }
-  }  
   return result;
 }
 

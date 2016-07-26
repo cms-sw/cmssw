@@ -55,8 +55,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	highest_energy = hit_energy;
 	seed = ref;
       }
-    }
-    
+    }    
     if( back.hitsAndFractions().size() != 0 ) {
       back.setSeed(seed->detId());
       back.setEnergy(energy);    
