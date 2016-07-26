@@ -174,7 +174,7 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
    auto ids = theTrigTowerGeometry->towerIds(frame.id());
    for (const auto& id: ids) {
       if (id.version() == 0) {
-         edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0!";
+         edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0:" << id;
          continue;
       }
 
@@ -467,15 +467,38 @@ void HcalTriggerPrimitiveAlgo::analyzeHFPhase1(
         auto& details = item.second;
         for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
             const int idx = ibin + shift;
+
             int long_fiber_val = 0;
+            int long_fiber_count = 0;
             int short_fiber_val = 0;
-            for (auto i: {0, 2})
-               if (idx < details[i].samples.size())
-                  long_fiber_val += details[i].samples[idx];
-            for (auto i: {1, 3})
-               if (idx < details[i].samples.size())
-                  short_fiber_val += details[i].samples[idx];
-            output[ibin] += (long_fiber_val / 2 + short_fiber_val / 2);
+            int short_fiber_count = 0;
+
+            for (auto i: {0, 2}) {
+               if (idx < details[i].samples.size()) {
+                  if (details[i].digi[idx].adc() < params_.hf_adc_thresh
+                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & params_.hf_tdc_mask) {
+                     long_fiber_val += details[i].samples[idx];
+                     ++long_fiber_count;
+                  }
+               }
+            }
+            for (auto i: {1, 3}) {
+               if (idx < details[i].samples.size()) {
+                  if (details[i].digi[idx].adc() < params_.hf_adc_thresh
+                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & params_.hf_tdc_mask) {
+                     short_fiber_val += details[i].samples[idx];
+                     ++short_fiber_count;
+                  }
+               }
+            }
+
+            if (long_fiber_count > 0 )
+               output[ibin] += long_fiber_val / long_fiber_count;
+            if (short_fiber_count > 0)
+               output[ibin] += short_fiber_val / short_fiber_count;
+
+            if (long_fiber_count > 0 and short_fiber_count > 0)
+               output[ibin] /= (long_fiber_count > 0) + (short_fiber_count > 0);
 
             // int ADCLong = details.LongDigi[ibin].adc();
             // int ADCShort = details.ShortDigi[ibin].adc();
