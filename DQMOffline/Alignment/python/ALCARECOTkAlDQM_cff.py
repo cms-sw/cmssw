@@ -472,7 +472,7 @@ ALCARECOTkAlCosmicsInCollisionsTkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
 #names and desigantions
     FolderName = 'AlCaReco/TkAlCosmicsInCollisions',
     TrackProducer = 'ALCARECO'+__selectionName,
-    ReferenceTrackProducer = 'regionalCosmicTracks',
+    ReferenceTrackProducer = 'cosmicDCTracks',
     AlgoName = 'ALCARECO'+__selectionName
 )
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsInCollisions_cff import ALCARECOTkAlCosmicsInCollisionsHLT
