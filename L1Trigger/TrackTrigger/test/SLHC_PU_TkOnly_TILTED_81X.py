@@ -68,8 +68,6 @@ process.RandomNumberGeneratorService.mix.initialSeed            = 210
 
 
 process.TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(True)
-process.TTStubAlgorithm_official_Phase2TrackerDigi_.isTilted    = cms.bool(True)
-
 
 # Generate particle gun events
 process.generator = cms.EDFilter("Pythia8PtGun",

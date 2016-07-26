@@ -69,7 +69,7 @@ void TTClusterAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent,
   {
     
     /// Prepare output
-    std::auto_ptr< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > AssociationMapForOutput( new TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > );
+    auto associationMapForOutput      = std::make_unique<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>();
 
     /// Get the Clusters already stored away
     edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterHandle;
@@ -212,12 +212,12 @@ void TTClusterAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent,
     }
 
     /// Put the maps in the association object
-    AssociationMapForOutput->setTTClusterToTrackingParticlesMap( clusterToTrackingParticleVectorMap );
-    AssociationMapForOutput->setTrackingParticleToTTClustersMap( trackingParticleToClusterVectorMap );
+    associationMapForOutput->setTTClusterToTrackingParticlesMap( clusterToTrackingParticleVectorMap );
+    associationMapForOutput->setTrackingParticleToTTClustersMap( trackingParticleToClusterVectorMap );
 
     /// Put output in the event
-    //   iEvent.put( AssociationMapForOutput, (*iTag).instance() );
-    iEvent.put( AssociationMapForOutput, TTClustersInputTags.at(ncont1).instance() );
+    //   iEvent.put( associationMapForOutput, (*iTag).instance() );
+    iEvent.put( std::move(associationMapForOutput), TTClustersInputTags.at(ncont1).instance() );
 
     ++ncont1;
 

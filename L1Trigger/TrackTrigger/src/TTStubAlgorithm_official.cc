@@ -99,32 +99,19 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
   {
     int layer  = theTrackerTopo_->layer(stDetId);
     int ladder = theTrackerTopo_->tobRod(stDetId);
+    int type   = 2*theTrackerTopo_->tobSide(stDetId)-3; // -1 for tilted-, 1 for tilted+, 3 for flat
+    double corr=0;
 
-    window = 2*barrelCut.at( layer );
-
-    // This calculation is OK for the non-tilted part, if we are in the tilted detector this is different
-
-    if (m_tilted)
+    if (type<3) // Only for tilted modules
     {
-      if (layer==1 && fabs(det0->position().z())>15)
-      {
-	ladder = 6-(6-ladder)*fabs(det0->position().z())/det0->position().z();
-	window = 2*(tiltedCut.at(layer)).at(ladder);
-      }
-
-      if (layer==2 && fabs(det0->position().z())>25)
-      {
-	ladder = 6.5-(6.5-ladder)*fabs(det0->position().z())/det0->position().z();
-	window = 2*(tiltedCut.at(layer)).at(ladder);
-      }
-
-      if (layer==3 && fabs(det0->position().z())>34)
-      {
-	ladder = 7-(7-ladder)*fabs(det0->position().z())/det0->position().z();
-	window = 2*(tiltedCut.at(layer)).at(ladder);
-      }
+      corr   = (barrelNTilt.at(layer)+1)/2.;
+      ladder = corr-(corr-ladder)*type; // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
+      window = 2*(tiltedCut.at(layer)).at(ladder);
     }
-
+    else // Classis barrel window otherwise
+    {
+      window = 2*barrelCut.at( layer );
+    }
  
   }
   else if (stDetId.subdetId()==StripSubdetector::TID)

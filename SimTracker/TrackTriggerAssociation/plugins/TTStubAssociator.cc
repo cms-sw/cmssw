@@ -34,7 +34,7 @@ void TTStubAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
   for ( auto iTag =  TTStubsTokens.begin(); iTag!=  TTStubsTokens.end(); iTag++ )
   {
     /// Prepare output
-    std::auto_ptr< TTStubAssociationMap< Ref_Phase2TrackerDigi_ > > AssociationMapForOutput( new TTStubAssociationMap< Ref_Phase2TrackerDigi_ > );
+    auto associationMapForOutput      = std::make_unique<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>();
 
     /// Get the Stubs already stored away
     edm::Handle< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubHandle;
@@ -237,12 +237,12 @@ void TTStubAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
     edm::RefProd< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > theCluAssoMap( TTClusterAssociationMapHandle ); 
 
     /// Put the maps in the association object
-    AssociationMapForOutput->setTTStubToTrackingParticleMap( stubToTrackingParticleMap );
-    AssociationMapForOutput->setTrackingParticleToTTStubsMap( trackingParticleToStubVectorMap );
-    AssociationMapForOutput->setTTClusterAssociationMap( theCluAssoMap );
+    associationMapForOutput->setTTStubToTrackingParticleMap( stubToTrackingParticleMap );
+    associationMapForOutput->setTrackingParticleToTTStubsMap( trackingParticleToStubVectorMap );
+    associationMapForOutput->setTTClusterAssociationMap( theCluAssoMap );
 
     /// Put output in the event
-    iEvent.put( AssociationMapForOutput, TTStubsInputTags.at(ncont1).instance() );
+    iEvent.put( std::move(associationMapForOutput), TTStubsInputTags.at(ncont1).instance() );
 
     ++ncont1;
   } /// End of loop over InputTags

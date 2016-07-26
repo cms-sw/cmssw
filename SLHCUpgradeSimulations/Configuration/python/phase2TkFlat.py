@@ -39,9 +39,6 @@ def customise_DigiTkOnly(process):
     del process.simEcalUnsuppressedDigis
     del process.simHcalUnsuppressedDigis
     process.mix.digitizers = cms.PSet(process.theDigitizersValid)
-    process.digitisationTkOnly_step.remove(process.mix.digitizers.ecal)
-    process.digitisationTkOnly_step.remove(process.mix.digitizers.hcal)
-    process.digitisationTkOnly_step.remove(process.mix.digitizers.castor)
     del process.mix.digitizers.ecal
     del process.mix.digitizers.hcal
     del process.mix.digitizers.castor

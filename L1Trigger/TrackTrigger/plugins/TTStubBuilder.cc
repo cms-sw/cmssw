@@ -24,10 +24,10 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 	
   /// Prepare output
-  std::auto_ptr< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubDSVForOutputTemp( new edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubDSVForOutputAccepted( new edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > TTStubDSVForOutputRejected( new edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > );
+  auto ttClusterDSVForOutput      = std::make_unique<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>();
+  auto ttStubDSVForOutputTemp     = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
+  auto ttStubDSVForOutputAccepted = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
+  auto ttStubDSVForOutputRejected = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
 
   /// Get the Clusters already stored away
   edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > clusterHandle;
@@ -210,7 +210,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
     /// Create the FastFillers
     if ( tempInner.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *TTClusterDSVForOutput, lowerDetid );
+      typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *ttClusterDSVForOutput, lowerDetid );
       for ( unsigned int m = 0; m < tempInner.size(); m++ )
       {
         lowerOutputFiller.push_back( tempInner.at(m) );
@@ -221,7 +221,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
     if ( tempOuter.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *TTClusterDSVForOutput, upperDetid );
+      typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *ttClusterDSVForOutput, upperDetid );
       for ( unsigned int m = 0; m < tempOuter.size(); m++ )
       {
         upperOutputFiller.push_back( tempOuter.at(m) );
@@ -232,7 +232,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
     if ( tempAccepted.size() > 0 )
     {
-      typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller tempAcceptedFiller( *TTStubDSVForOutputTemp, stackDetid);
+      typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller tempAcceptedFiller( *ttStubDSVForOutputTemp, stackDetid);
       for ( unsigned int m = 0; m < tempAccepted.size(); m++ )
       {
         tempAcceptedFiller.push_back( tempAccepted.at(m) );
@@ -245,17 +245,17 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
 
   /// Put output in the event (1)
   /// Get also the OrphanHandle of the accepted clusters
-  edm::OrphanHandle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterAcceptedHandle = iEvent.put( TTClusterDSVForOutput, "ClusterAccepted" );
+  edm::OrphanHandle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > ttClusterAcceptedHandle = iEvent.put( std::move(ttClusterDSVForOutput), "ClusterAccepted" );
 
   /// Now, correctly reset the output
   typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator stubDetIter;
 
-  for ( stubDetIter = TTStubDSVForOutputTemp->begin();
-        stubDetIter != TTStubDSVForOutputTemp->end();
+  for ( stubDetIter = ttStubDSVForOutputTemp->begin();
+        stubDetIter != ttStubDSVForOutputTemp->end();
         ++stubDetIter ) {
     /// Get the DetId and prepare the FastFiller
     DetId thisStackedDetId = stubDetIter->id();
-    typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller acceptedOutputFiller( *TTStubDSVForOutputAccepted, thisStackedDetId );
+    typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller acceptedOutputFiller( *ttStubDSVForOutputAccepted, thisStackedDetId );
 
     /// detid of the two components. 
     ///This should be done via a TrackerTopology method that is not yet available.
@@ -263,11 +263,11 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
     DetId upperDetid = thisStackedDetId+2;
 
     /// Get the DetSets of the clusters
-    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > lowerClusters = (*TTClusterAcceptedHandle)[ lowerDetid ];
-    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > upperClusters = (*TTClusterAcceptedHandle)[ upperDetid ];
+    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > lowerClusters = (*ttClusterAcceptedHandle)[ lowerDetid ];
+    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > upperClusters = (*ttClusterAcceptedHandle)[ upperDetid ];
 
     /// Get the DetSet of the stubs
-    edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > > theseStubs = (*TTStubDSVForOutputTemp)[ thisStackedDetId ];
+    edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > > theseStubs = (*ttStubDSVForOutputTemp)[ thisStackedDetId ];
 
     /// Prepare the new DetSet to replace the current one
     /// Loop over the stubs
@@ -290,7 +290,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
             clusterIter != lowerClusters.end() && !lowerOK;
             ++clusterIter ) {
         if ( clusterIter->getHits() == lowerClusterToBeReplaced->getHits() ) {
-          tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterAcceptedHandle, clusterIter ) );
+          tempTTStub.addClusterRef( edmNew::makeRefTo( ttClusterAcceptedHandle, clusterIter ) );
           lowerOK = true;
         }
       }
@@ -299,7 +299,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
             clusterIter != upperClusters.end() && !upperOK;
             ++clusterIter ) {
         if ( clusterIter->getHits() == upperClusterToBeReplaced->getHits() ) {
-          tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterAcceptedHandle, clusterIter ) );
+          tempTTStub.addClusterRef( edmNew::makeRefTo( ttClusterAcceptedHandle, clusterIter ) );
           upperOK = true;
         }
       }
@@ -320,8 +320,8 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
   } /// End of loop over stub DetSetVector
     
   /// Put output in the event (2)
-  iEvent.put( TTStubDSVForOutputAccepted, "StubAccepted" );
-  iEvent.put( TTStubDSVForOutputRejected, "StubRejected" );
+  iEvent.put( std::move(ttStubDSVForOutputAccepted), "StubAccepted" );
+  iEvent.put( std::move(ttStubDSVForOutputRejected), "StubRejected" );
 }
 
 

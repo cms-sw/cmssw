@@ -1,0 +1,9 @@
+README SimTracker/TrackTriggerAssociation
+
+S.Viret: 26/07/16
+
+Documentation on TrackTriggerAssociation package is available on the following Twiki page:
+
+For the TTClusters: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SLHCTrackerTriggerSWTools#MC_truth_for_TTCluster
+
+For the TTStubs: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SLHCTrackerTriggerSWTools#MC_truth_for_TTStub

@@ -15,8 +15,8 @@ import FWCore.ParameterSet.Config as cms
 TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_official_Phase2TrackerDigi_",
    zMatchingPS = cms.bool(False),
    zMatching2S = cms.bool(True),
-   isTilted = cms.bool(False),  # Set to true if you use tilted geom (don't forget to put zMatchingPS to True in this case)
    BarrelCut = cms.vdouble( 0, 1.5, 1.5, 2.5, 4.0, 5.0, 6.5), #Use 0 as dummy to have direct access using DetId to the correct element 
+   NTiltedRings = cms.vdouble( 0., 11., 12., 13., 0., 0., 0.), #Number of tilted rings per side in barrel layers (for tilted geom only)
    TiltedBarrelCutSet = cms.VPSet(
 	cms.PSet( TiltedCut = cms.vdouble( 0 ) ),
 	cms.PSet( TiltedCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1, 1, 1, 1, 1) ), #TBPS L1 rings

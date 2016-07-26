@@ -47,6 +47,7 @@ class TTStubAlgorithm_official : public TTStubAlgorithm< T >
     std::vector< double >                barrelCut;
     std::vector< std::vector< double > > ringCut;
     std::vector< std::vector< double > > tiltedCut;
+    std::vector< double >                barrelNTilt;
 
   public:
     /// Constructor
@@ -54,15 +55,16 @@ class TTStubAlgorithm_official : public TTStubAlgorithm< T >
                              std::vector< double > setBarrelCut,
                              std::vector< std::vector< double > > setRingCut,
                              std::vector< std::vector< double > > setTiltedCut,
-			      bool aPerformZMatchingPS, bool aPerformZMatching2S, bool aTilt )
+                             std::vector< double > setBarrelNTilt,
+			      bool aPerformZMatchingPS, bool aPerformZMatching2S )
       : TTStubAlgorithm< T >( theTrackerGeom, theTrackerTopo, __func__ )
     {
       barrelCut = setBarrelCut;
       ringCut = setRingCut;
       tiltedCut = setTiltedCut;
+      barrelNTilt = setBarrelNTilt;
       mPerformZMatchingPS = aPerformZMatchingPS;
       mPerformZMatching2S = aPerformZMatching2S;
-      m_tilted = aTilt;
     }
 
     /// Destructor
@@ -110,11 +112,11 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
     std::vector< std::vector< double > > setRingCut;
     std::vector< std::vector< double > > setTiltedCut;
 
+    std::vector< double >                   setBarrelNTilt;
+
     /// Z-matching
     bool  mPerformZMatchingPS;
     bool  mPerformZMatching2S;
-
-    bool  m_tilted;
 
   public:
     /// Constructor
@@ -122,9 +124,8 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
     {
       mPerformZMatchingPS =  p.getParameter< bool >("zMatchingPS");
       mPerformZMatching2S =  p.getParameter< bool >("zMatching2S");
-      m_tilted            =  p.getParameter< bool >("isTilted");
-
       setBarrelCut = p.getParameter< std::vector< double > >("BarrelCut");
+      setBarrelNTilt = p.getParameter< std::vector< double > >("NTiltedRings");
 
       std::vector< edm::ParameterSet > vPSet  = p.getParameter< std::vector< edm::ParameterSet > >("EndcapCutSet");
       std::vector< edm::ParameterSet > vPSet2 = p.getParameter< std::vector< edm::ParameterSet > >("TiltedBarrelCutSet");
@@ -158,8 +159,8 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
       const TrackerTopology* const theTrackerTopo = tTopoHandle.product();
 
       TTStubAlgorithm< T >* TTStubAlgo = new TTStubAlgorithm_official< T >( theTrackerGeom, theTrackerTopo, 
-									    setBarrelCut, setRingCut, setTiltedCut,
-									    mPerformZMatchingPS, mPerformZMatching2S, m_tilted );
+									    setBarrelCut, setRingCut, setTiltedCut, setBarrelNTilt,
+									    mPerformZMatchingPS, mPerformZMatching2S);
 
       _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
       return _theAlgo;
