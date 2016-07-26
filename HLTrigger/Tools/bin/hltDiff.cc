@@ -1466,8 +1466,9 @@ public:
     out << "\
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
-               [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
-               [-r|--root-output] OUTPUT_FILE.ROOT [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
+               [-m|--max-events MAXEVENTS] [-p|--prescales] [-c|--csv-output] [-j|--json-output]\n\
+               [-r|--root-output] [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
+               [-F|--output-file] FILE_NAME\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results\n\
