@@ -1247,6 +1247,137 @@ class FrameTGraph2D:
         if hasattr(self, "_ytitleoffset"):
             axis.GetYaxis().SetTitleOffset(self._ytitleoffset)
 
+class PlotText:
+    """Abstraction on top of TLatex"""
+    def __init__(self, x, y, text, size=None, bold=True, align="left", color=ROOT.kBlack, font=None):
+        """Constructor.
+
+        Arguments:
+        x     -- X coordinate of the text (in NDC)
+        y     -- Y coordinate of the text (in NDC)
+        text  -- String to draw
+        size  -- Size of text (None for the default value, taken from gStyle)
+        bold  -- Should the text be bold?
+        align -- Alignment of text (left, center, right)
+        color -- Color of the text
+        font  -- Specify font explicitly
+        """
+        self._x = x
+        self._y = y
+        self._text = text
+
+        self._l = ROOT.TLatex()
+        self._l.SetNDC()
+        if not bold:
+            self._l.SetTextFont(self._l.GetTextFont()-20) # bold -> normal
+        if font is not None:
+            self._l.SetTextFont(font)
+        if size is not None:
+            self._l.SetTextSize(size)
+        if isinstance(align, basestring):
+            if align.lower() == "left":
+                self._l.SetTextAlign(11)
+            elif align.lower() == "center":
+                self._l.SetTextAlign(21)
+            elif align.lower() == "right":
+                self._l.SetTextAlign(31)
+            else:
+                raise Exception("Error: Invalid option '%s' for text alignment! Options are: 'left', 'center', 'right'."%align)
+        else:
+            self._l.SetTextAlign(align)
+        self._l.SetTextColor(color)
+
+    def Draw(self, options=None):
+        """Draw the text to the current TPad.
+
+        Arguments:
+        options -- For interface compatibility, ignored
+
+        Provides interface compatible with ROOT's drawable objects.
+        """
+        self._l.DrawLatex(self._x, self._y, self._text)
+
+
+class PlotTextBox:
+    """Class for drawing text and a background box."""
+    def __init__(self, xmin, ymin, xmax, ymax, lineheight=0.04, fillColor=ROOT.kWhite, transparent=True, **kwargs):
+        """Constructor
+
+        Arguments:
+        xmin        -- X min coordinate of the box (NDC)
+        ymin        -- Y min coordinate of the box (NDC) (if None, deduced automatically)
+        xmax        -- X max coordinate of the box (NDC)
+        ymax        -- Y max coordinate of the box (NDC)
+        lineheight  -- Line height
+        fillColor   -- Fill color of the box
+        transparent -- Should the box be transparent? (in practive the TPave is not created)
+
+        Keyword arguments are forwarded to constructor of PlotText
+        """
+        # ROOT.TPave Set/GetX1NDC() etc don't seem to work as expected.
+        self._xmin = xmin
+        self._xmax = xmax
+        self._ymin = ymin
+        self._ymax = ymax
+        self._lineheight = lineheight
+        self._fillColor = fillColor
+        self._transparent = transparent
+        self._texts = []
+        self._textArgs = {}
+        self._textArgs.update(kwargs)
+
+        self._currenty = ymax
+
+    def addText(self, text):
+        """Add text to current position"""
+        self._currenty -= self._lineheight
+        self._texts.append(PlotText(self._xmin+0.01, self._currenty, text, **self._textArgs))
+
+    def width(self):
+        return self._xmax-self._xmin
+
+    def move(self, dx=0, dy=0, dw=0, dh=0):
+        """Move the box and the contained text objects
+
+        Arguments:
+        dx -- Movement in x (positive is to right)
+        dy -- Movement in y (positive is to up)
+        dw -- Increment of width (negative to decrease width)
+        dh -- Increment of height (negative to decrease height)
+
+        dx and dy affect to both box and text objects, dw and dh
+        affect the box only.
+        """
+        self._xmin += dx
+        self._xmax += dx
+        if self._ymin is not None:
+            self._ymin += dy
+        self._ymax += dy
+
+        self._xmax += dw
+        if self._ymin is not None:
+            self._ymin -= dh
+
+        for t in self._texts:
+            t._x += dx
+            t._y += dy
+
+    def Draw(self, options=""):
+        """Draw the box and the text to the current TPad.
+
+        Arguments:
+        options -- Forwarded to ROOT.TPave.Draw(), and the Draw() of the contained objects
+        """
+        if not self._transparent:
+            ymin = self.ymin
+            if ymin is None:
+                ymin = self.currenty - 0.01
+            self._pave = ROOT.TPave(self.xmin, self.ymin, self.xmax, self.ymax, 0, "NDC")
+            self._pave.SetFillColor(self.fillColor)
+            self._pave.Draw(options)
+        for t in self._texts:
+            t.Draw(options)
+
 def _copyStyle(src, dst):
     properties = []
     if hasattr(src, "GetLineColor") and hasattr(dst, "SetLineColor"):
@@ -1315,6 +1446,7 @@ class Plot:
         ratio        -- Possibility to disable ratio for this particular plot (default None)
         ratioYmin    -- Float for y axis minimum in ratio pad (default: list of values)
         ratioYmax    -- Float for y axis maximum in ratio pad (default: list of values)
+        ratioFit     -- Fit straight line in ratio? (default None)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
         ratioCoverageXrange -- Range of x axis values (xmin,xmax) to limit the automatic ratio y axis range calculation to (default None for disabled)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
@@ -1382,6 +1514,7 @@ class Plot:
         _set("ratio", None)
         _set("ratioYmin", [0, 0.2, 0.5, 0.7, 0.8, 0.9, 0.95])
         _set("ratioYmax", [1.05, 1.1, 1.2, 1.3, 1.5, 1.8, 2, 2.5, 3, 4, 5])
+        _set("ratioFit", None)
         _set("ratioUncertainty", True)
         _set("ratioCoverageXrange", None)
 
@@ -1714,6 +1847,10 @@ class Plot:
                              xmin=self._xmin, xmax=self._xmax,
                              ymin=self._ymin, ymax=self._ymax)
 
+        # need to keep these in memory
+        self._mainAdditional = []
+        self._ratioAdditional = []
+
         if ratio:
             self._ratios = _calculateRatios(histos, self._ratioUncertainty) # need to keep these in memory too ...
             ratioHistos = filter(lambda h: h is not None, [r.getRatio() for r in self._ratios[1:]])
@@ -1722,6 +1859,25 @@ class Plot:
                 ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68, coverageRange=self._ratioCoverageXrange)
             else:
                 ratioBoundsY = (0.9, 1,1) # hardcoded default in absence of valid ratio calculations
+
+            if self._ratioFit is not None:
+                for i, rh in enumerate(ratioHistos):
+                    tf_line = ROOT.TF1("line%d"%i, "[0]+x*[1]")
+                    tf_line.SetRange(self._ratioFit["rangemin"], self._ratioFit["rangemax"])
+                    fitres = rh.Fit(tf_line, "RINSQ")
+                    tf_line.SetLineColor(rh.GetMarkerColor())
+                    tf_line.SetLineWidth(2)
+                    self._ratioAdditional.append(tf_line)
+                    box = PlotTextBox(xmin=self._ratioFit.get("boxXmin", 0.14), ymin=None, # None for automatix
+                                      xmax=self._ratioFit.get("boxXmax", 0.35), ymax=self._ratioFit.get("boxYmax", 0.09),
+                                      color=rh.GetMarkerColor(), font=43, size=11, lineheight=0.02)
+                    box.move(dx=(box.width()+0.01)*i)
+                    #box.addText("Const: %.4f" % fitres.Parameter(0))
+                    #box.addText("Slope: %.4f" % fitres.Parameter(1))
+                    box.addText("Const: %.4f#pm%.4f" % (fitres.Parameter(0), fitres.ParError(0)))
+                    box.addText("Slope: %.4f#pm%.4f" % (fitres.Parameter(1), fitres.ParError(1)))
+                    self._mainAdditional.append(box)
+
 
         # Create bounds before stats in order to have the
         # SetRangeUser() calls made before the fit
@@ -1791,6 +1947,9 @@ class Plot:
         for h in histos:
             h.Draw(opt)
 
+        for addl in self._mainAdditional:
+            addl.Draw("same")
+
         # Draw ratios
         if ratio and len(histos) > 0:
             frame._padRatio.cd()
@@ -1805,6 +1964,9 @@ class Plot:
                 frame._padRatio.RedrawAxis("G") # redraw grid on top of the uncertainty of denominator
             for r in self._ratios[1:]:
                 r.draw()
+
+            for addl in self._ratioAdditional:
+                addl.Draw("same")
 
         frame.redrawAxis()
         self._frame = frame # keep the frame in memory for sure
