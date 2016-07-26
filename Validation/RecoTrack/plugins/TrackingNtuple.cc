@@ -359,6 +359,9 @@ private:
   std::vector<float> trk_phiErr   ;
   std::vector<float> trk_dxyErr   ;
   std::vector<float> trk_dzErr    ;
+  std::vector<float> trk_refpoint_x;
+  std::vector<float> trk_refpoint_y;
+  std::vector<float> trk_refpoint_z;
   std::vector<float> trk_nChi2    ;
   std::vector<int> trk_q       ;
   std::vector<unsigned int> trk_nValid  ;
@@ -618,6 +621,9 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("trk_phiErr"   , &trk_phiErr   );
   t->Branch("trk_dxyErr"   , &trk_dxyErr   );
   t->Branch("trk_dzErr"    , &trk_dzErr    );
+  t->Branch("trk_refpoint_x", &trk_refpoint_x);
+  t->Branch("trk_refpoint_y", &trk_refpoint_y);
+  t->Branch("trk_refpoint_z", &trk_refpoint_z);
   t->Branch("trk_nChi2"    , &trk_nChi2);
   t->Branch("trk_q"        , &trk_q);
   t->Branch("trk_nValid"   , &trk_nValid  );
@@ -855,6 +861,9 @@ void TrackingNtuple::clearVariables() {
   trk_phiErr   .clear();
   trk_dxyErr   .clear();
   trk_dzErr    .clear();
+  trk_refpoint_x.clear();
+  trk_refpoint_y.clear();
+  trk_refpoint_z.clear();
   trk_nChi2    .clear();
   trk_q        .clear();
   trk_nValid   .clear();
@@ -1738,6 +1747,9 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     trk_phiErr   .push_back(itTrack->phiError());
     trk_dxyErr   .push_back(itTrack->dxyError());
     trk_dzErr    .push_back(itTrack->dzError());
+    trk_refpoint_x.push_back(itTrack->vx());
+    trk_refpoint_y.push_back(itTrack->vy());
+    trk_refpoint_z.push_back(itTrack->vz());
     trk_nChi2    .push_back( itTrack->normalizedChi2());
     trk_shareFrac.push_back(sharedFraction);
     trk_q        .push_back(charge);
