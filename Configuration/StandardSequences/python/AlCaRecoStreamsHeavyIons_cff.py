@@ -314,7 +314,7 @@ ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 	)
 
 ALCARECOStreamHcalCalIsolatedBunchFilter = cms.FilteredStream(
-	responsible = 'Sunanda  Banerjee',
+	responsible = 'Sunanda Banerjee',
 	name = 'HcalCalIsolatedBunchFilter',
 	paths  = (pathALCARECOHcalCalIsolatedBunchFilter),
 	content = OutALCARECOHcalCalIsolatedBunchFilter.outputCommands,
