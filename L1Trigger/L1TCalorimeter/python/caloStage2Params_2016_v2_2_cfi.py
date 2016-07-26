@@ -37,7 +37,7 @@ caloStage2Params.egIsolationType            = cms.string("compressed")
 caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/IsoIdentification_0.25_adapt_extrap_v16.04.05.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
-caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(3)
+caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
 #caloStage2Params.egIsoPUEstTowerGranularity = cms.uint32(1)
 #caloStage2Params.egIsoMaxEtaAbsForTowerSum  = cms.uint32(4)
 #caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
@@ -107,7 +107,7 @@ jetCalibParamsVector.extend([
 caloStage2Params.jetCalibrationParams  = jetCalibParamsVector 
 
 caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt")
-caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt")
+caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress_noeta29.txt")
 caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt")
 
 

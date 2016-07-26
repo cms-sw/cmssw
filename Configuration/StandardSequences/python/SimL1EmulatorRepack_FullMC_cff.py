@@ -73,6 +73,7 @@ else:
 
     # EMTF
     simEmtfDigis.CSCInput            = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
+    simEmtfDigis.RPCInput            = cms.InputTag('unpackRPC')
 
     # CALO Layer1
     simCaloStage2Layer1Digis.ecalToken = cms.InputTag('unpackEcal:EcalTriggerPrimitives')
