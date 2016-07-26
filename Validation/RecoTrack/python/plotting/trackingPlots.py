@@ -721,8 +721,13 @@ class TrackingPlotFolder(PlotFolder):
         return algo not in _possibleTrackingNonIterationColls
 
 class TrackingSummaryTable:
-    def __init__(self, section, highPurity=False):
-        self._highPurity = highPurity
+    class GeneralTracks: pass
+    class HighPurity: pass
+    class BTVLike: pass
+    class AK4PFJets: pass
+
+    def __init__(self, section, collection=GeneralTracks):
+        self._collection = collection
         self._purpose = PlotPurpose.TrackingSummary
         self._page = "summary"
         self._section = section
@@ -737,20 +742,27 @@ class TrackingSummaryTable:
         return self._section
 
     def create(self, tdirectory):
+        def _getAlgoQuality(data, algo, quality):
+            for label, value in data.iteritems():
+                (a, q) = _mapCollectionToAlgoQuality(label)
+                if a == algo and q == quality:
+                    return value[0] # value is (value, uncertainty) tuple
+            return None
         def _getN(hname):
             h = tdirectory.Get(hname)
             if not h:
                 return None
-            if self._highPurity:
-                (algo, quality) = _mapCollectionToAlgoQuality(h.GetXaxis().GetBinLabel(2))
-                if algo != "ootb" and quality != "highPurity":
-                    return None
-                return h.GetBinContent(2)
+            data = plotting._th1ToOrderedDict(h)
+            if self._collection == TrackingSummaryTable.GeneralTracks:
+                return _getAlgoQuality(data, "ootb", "")
+            elif self._collection == TrackingSummaryTable.HighPurity:
+                return _getAlgoQuality(data, "ootb", "highPurity")
+            elif self._collection == TrackingSummaryTable.BTVLike:
+                return _getAlgoQuality(data, "btvLike", "")
+            elif self._collection == TrackingSummaryTable.AK4PFJets:
+                return _getAlgoQuality(data, "ak4PFJets", "")
             else:
-                (algo, quality) = _mapCollectionToAlgoQuality(h.GetXaxis().GetBinLabel(1))
-                if algo != "ootb" and quality != "":
-                    return None
-                return h.GetBinContent(1)
+                raise Exception("Collection not recognized, %s" % str(self._collection))
         def _formatOrNone(num, func):
             if num is None:
                 return None
@@ -771,9 +783,10 @@ class TrackingSummaryTable:
         eff = _formatOrNone(_getN("effic_vs_coll"), lambda n: "%.4f" % n)
         eff_nopt = _formatOrNone(_getN("effic_vs_coll_allPt"), lambda n: "%.4f" % n)
         fake = _formatOrNone(_getN("fakerate_vs_coll"), lambda n: "%.4f" % n)
+        duplicate = _formatOrNone(_getN("duplicatesRate_coll"), lambda n: "%.4f" % n)
 
         ret = [eff, n_tps, n_m_tps,
-               eff_nopt, fake,
+               eff_nopt, fake, duplicate,
                n_tracks, n_true, n_fake, n_pileup, n_duplicate]
         if ret.count(None) == len(ret):
             return None
@@ -786,6 +799,7 @@ class TrackingSummaryTable:
             "Number of matched TrackingParticles",
             "Efficiency (w/o pT cut)",
             "Fake rate",
+            "Duplicate rate",
             "Number of tracks",
             "Number of true tracks",
             "Number of fake tracks",
@@ -901,7 +915,10 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
                        PlotFolder(*_summaryPlotsSeeds, section=name+"_seeds", **common))
 
     plotter.appendTable(summaryName, folders, TrackingSummaryTable(section=name))
-    plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", highPurity=True))
+    plotter.appendTable(summaryName+"_highPurity", folders, TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", collection=TrackingSummaryTable.HighPurity))
+    if name == "":
+        plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="btvLike", collection=TrackingSummaryTable.BTVLike))
+        plotter.appendTable(summaryName, folders, TrackingSummaryTable(section="ak4PFJets", collection=TrackingSummaryTable.AK4PFJets))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)

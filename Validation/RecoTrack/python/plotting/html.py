@@ -134,6 +134,8 @@ _sectionNameMapOrder = collections.OrderedDict([
     ("building", "Built tracks"),
     ("", "All tracks"),
     ("highPurity", "High purity tracks"),
+    ("btvLike", "BTV-like"),
+    ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic", _allTPEfficName),
     ("allTPEffic_highPurity", _allTPEfficName.replace("All", "High purity")),
     ("fromPV", _fromPVName),
