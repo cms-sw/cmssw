@@ -1,7 +1,6 @@
 #ifndef DataFormats_HcalRecHit_HBHEChannelInfo_h_
 #define DataFormats_HcalRecHit_HBHEChannelInfo_h_
 
-#include <array>
 #include <cfloat>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -20,11 +19,11 @@ public:
     static const unsigned MAXSAMPLES = 10;
 
     inline HBHEChannelInfo()
-        : rawCharge_{}, pedestal_{}, gain_{}, adc_{},
+        : rawCharge_{0.}, pedestal_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(false) {clear();}
 
     inline explicit HBHEChannelInfo(const bool hasTimeFromTDC)
-        : rawCharge_{}, pedestal_{}, gain_{}, adc_{},
+        : rawCharge_{0.}, pedestal_{0.}, gain_{0.}, riseTime_{0.f}, adc_{0},
           hasTimeInfo_(hasTimeFromTDC) {clear();}
 
     inline void clear()
@@ -36,8 +35,6 @@ public:
         dropped_ = true;
         hasLinkError_ = false;
         hasCapidError_ = false;
-        for (unsigned i=0; i<MAXSAMPLES; ++i)
-            riseTime_[i] = HcalSpecialTimes::UNKNOWN_T_NOTDC;
     }
 
     inline void setChannelInfo(const HcalDetId& detId, const unsigned nSamp,
@@ -65,8 +62,8 @@ public:
         rawCharge_[ts] = q;
         pedestal_[ts] = ped;
         gain_[ts] = g;
+        riseTime_[ts] = t;
         adc_[ts] = rawADC;
-        riseTime_[ts] = hasTimeInfo_ ? t : HcalSpecialTimes::UNKNOWN_T_NOTDC;
     }
 
     // Inspectors
@@ -80,14 +77,13 @@ public:
     inline bool hasLinkError() const {return hasLinkError_;}
     inline bool hasCapidError() const {return hasCapidError_;}
 
-    // Direct read-only access to time slice arrays.
-    // Note that only first "nSamples()" elements of
-    // these arrays will have meaningful values.
-    inline const std::array<double,MAXSAMPLES>& rawCharge() const {return rawCharge_;}
-    inline const std::array<double,MAXSAMPLES>& pedestal() const {return pedestal_;}
-    inline const std::array<double,MAXSAMPLES>& gain() const {return gain_;}
-    inline const std::array<uint8_t,MAXSAMPLES>& adc() const {return adc_;}
-    inline const std::array<float,MAXSAMPLES>& riseTime() const {return riseTime_;}
+    // Direct read-only access to time slice arrays
+    inline const double* rawCharge() const {return rawCharge_;}
+    inline const double* pedestal() const {return pedestal_;}
+    inline const double* gain() const {return gain_;}
+    inline const uint8_t* adc() const {return adc_;}
+    inline const float* riseTime() const
+        {if (hasTimeInfo_) return riseTime_; else return nullptr;}
 
     // Indexed access to time slice quantities. No bounds checking.
     inline double tsRawCharge(const unsigned ts) const {return rawCharge_[ts];}
@@ -98,7 +94,8 @@ public:
         {return (rawCharge_[ts] - pedestal_[ts])*gain_[ts];}
     inline double tsGain(const unsigned ts) const {return gain_[ts];}
     inline uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
-    inline float tsRiseTime(const unsigned ts) const {return riseTime_[ts];}
+    inline float tsRiseTime(const unsigned ts) const
+        {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
 
     // Signal rise time measurement for the SOI, if available
     inline float soiRiseTime() const
@@ -178,19 +175,19 @@ private:
     HcalDetId id_;
 
     // Charge in fC for all time slices
-    std::array<double,MAXSAMPLES> rawCharge_;
+    double rawCharge_[MAXSAMPLES];
 
     // Pedestal in fC
-    std::array<double,MAXSAMPLES> pedestal_;
+    double pedestal_[MAXSAMPLES];
 
     // fC to GeV conversion factor (can depend on CAPID)
-    std::array<double,MAXSAMPLES> gain_;
+    double gain_[MAXSAMPLES];
 
     // Signal rise time from TDC in ns (if provided)
-    std::array<float,MAXSAMPLES> riseTime_;
+    float riseTime_[MAXSAMPLES];
 
     // Raw QIE ADC values
-    std::array<uint8_t,MAXSAMPLES> adc_;
+    uint8_t adc_[MAXSAMPLES];
 
     // Number of time slices actually filled
     uint32_t nSamples_;
