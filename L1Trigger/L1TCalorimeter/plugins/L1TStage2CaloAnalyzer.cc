@@ -645,7 +645,6 @@ namespace l1t {
     }
 
     if (doText_) edm::LogVerbatim("L1TCaloEvents") << text.str();
-    std::cout << text.str() << std::endl;
 
   }
 
