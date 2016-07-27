@@ -22,13 +22,13 @@
  
 //
 // constructors and destructor
-HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) 
-{
+HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) {
 
-  verbose    = ps.getUntrackedParameter<bool>("Verbose", false);
+  verbose_   = ps.getUntrackedParameter<bool>("Verbose", false);
   double em1 = ps.getUntrackedParameter<double>("ETtotMax", 400.);
   double em2 = ps.getUntrackedParameter<double>("EHCalMax", 4.0);
-  ebeam = 50.;
+  mkTree_    = ps.getUntrackedParameter<bool>("MakeTree", false);
+  eBeam_     = 50.;
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -46,6 +46,24 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps)
   edecN= tfile->make<TH1D>("edecN", "Eecal/Ebeam  ", 200, -2.5, 2.5);
   edhcN= tfile->make<TH1D>("edhcN", "Ehcal/Ebeam  ", 200, -2.5, 2.5);
   edehS= tfile->make<TH2D>("edehS", "Hcal vs Ecal", 100,0.,em1, 100, 0.,em2);
+
+  if (mkTree_) {
+    tree_ = tfile->make<TTree>("TB06Sim", "TB06Sim");
+    tree_->Branch("eBeam_",     &eBeam_,       "eBeam_/D");
+    tree_->Branch("etaBeam_",   &etaBeam_,     "etaBeam_/D");
+    tree_->Branch("phiBeam_",   &phiBeam_,     "phiBeam_/D");
+    tree_->Branch("edepEC_",    &edepEC_,      "edepEC_/D");
+    tree_->Branch("edepHB_",    &edepHB_,      "edepHB_/D");
+    tree_->Branch("edepHO_",    &edepHO_,      "edepHO_/D");
+    tree_->Branch("noiseEC_",   &noiseEC_,     "noiseEC_/D");
+    tree_->Branch("noiseHB_",   &noiseHB_,     "noiseHB_/D");
+    tree_->Branch("noiseHO_",   &noiseHO_,     "noiseHO_/D");
+    tree_->Branch("edepS1_",    &edepS1_,      "edepS1_/D");
+    tree_->Branch("edepS2_",    &edepS2_,      "edepS2_/D");
+    tree_->Branch("edepS3_",    &edepS3_,      "edepS3_/D");
+    tree_->Branch("edepS4_",    &edepS4_,      "edepS4_/D");
+    tree_->Branch("edepVC_",    &edepVC_,      "edepVC_/D");
+  }
 }
  
 HcalTB06Histo::~HcalTB06Histo() {}
@@ -56,9 +74,12 @@ HcalTB06Histo::~HcalTB06Histo() {}
 
 void HcalTB06Histo::fillPrimary(double energy, double eta, double phi) {
 
-  LogDebug("HcalTBSim") << "HcalTB06Histo::fillPrimary: Energy " 
-			<< energy << " Eta " << eta << " Phi " << phi;
-  ebeam = energy;
+  if (verbose_)
+    edm::LogInfo("HcalTBSim") << "HcalTB06Histo::fillPrimary: Energy " 
+			      << energy << " Eta " << eta << " Phi " << phi;
+  eBeam_   = energy;
+  etaBeam_ = eta;
+  phiBeam_ = phi;
   iniE->Fill(energy);
   iEta->Fill(eta);
   iPhi->Fill(phi);
@@ -66,13 +87,41 @@ void HcalTB06Histo::fillPrimary(double energy, double eta, double phi) {
 
 void HcalTB06Histo::fillEdep(double etots, double eecals, double ehcals) { 
 
-  LogDebug("HcalTBSim") << "HcalTB06Histo:::fillEdep: Simulated Total "
-			<< etots << " ECal " << eecals << " HCal " << ehcals;
+  if (verbose_)
+    edm::LogInfo("HcalTBSim") << "HcalTB06Histo:::fillEdep: Simulated Total "
+			      << etots << " ECal " << eecals << " HCal "
+			      << ehcals;
   edepS->Fill(etots);
   edecS->Fill(eecals);
   edhcS->Fill(ehcals);
-  edepN->Fill(etots/ebeam);
-  edecN->Fill(eecals/ebeam);
-  edhcN->Fill(ehcals/ebeam);
+  edepN->Fill(etots/eBeam_);
+  edecN->Fill(eecals/eBeam_);
+  edhcN->Fill(ehcals/eBeam_);
   edehS->Fill(eecals, ehcals);
+}
+
+void HcalTB06Histo::fillTree(std::vector<double>& ecalo, 
+			     std::vector<double>& etrig) {
+
+  if (mkTree_) {
+    edepEC_ = ecalo[0];
+    noiseEC_= ecalo[1];
+    edepHB_ = ecalo[2];
+    noiseHB_= ecalo[3];
+    edepHO_ = ecalo[4];
+    noiseHO_= ecalo[5];
+    edepS1_ = etrig[0];
+    edepS2_ = etrig[1];
+    edepS3_ = etrig[2];
+    edepS4_ = etrig[3];
+    edepVC_ = etrig[4];
+    tree_->Fill();
+    if (verbose_)
+      edm::LogInfo("HcalTBSim") << "HcalTB06Histo:::fillTree: Energies "
+				<< edepEC_ << ":" << noiseEC_ << ":" << edepHB_
+				<< ":" << noiseHB_ << ":" << edepHO_ << ":"
+				<< noiseHO_ << " Trigger counters " << edepS1_
+				<< ":" << edepS2_ << ":" << edepS3_ << ":" 
+				<< edepS4_ << ":" << edepVC_;
+  }
 }
