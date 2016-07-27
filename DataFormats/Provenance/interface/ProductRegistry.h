@@ -55,7 +55,9 @@ namespace edm {
 
     void setFrozen(bool initializeLookupInfo = true);
 
-    void setFrozen(std::set<TypeID> const& productTypesConsumed, std::set<TypeID> const& elementTypesConsumed);
+    void setFrozen(std::set<TypeID> const& productTypesConsumed,
+                   std::set<TypeID> const& elementTypesConsumed,
+                   std::string const& processName);
 
     std::string merge(ProductRegistry const& other,
         std::string const& fileName,
@@ -161,12 +163,16 @@ namespace edm {
     void freezeIt(bool frozen = true) {transient_.frozen_ = frozen;}
 
     void initializeLookupTables(std::set<TypeID> const* productTypesConsumed,
-                                std::set<TypeID> const* elementTypesConsumed);
+                                std::set<TypeID> const* elementTypesConsumed,
+                                std::string const* processName);
 
     void checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
                                           std::set<TypeID> const* elementTypesConsumed,
                                           std::map<TypeID, TypeID> const& containedTypeMap,
                                           std::map<TypeID, std::vector<TypeWithDict> >& containedTypeToBaseTypesMap);
+
+    void checkForDuplicateProcessName(BranchDescription const& desc,
+                                      std::string const* processName) const;
 
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
