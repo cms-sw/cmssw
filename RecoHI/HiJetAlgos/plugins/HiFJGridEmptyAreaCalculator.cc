@@ -101,10 +101,10 @@ HiFJGridEmptyAreaCalculator::produce(edm::Event& iEvent, const edm::EventSetup& 
   //Define output vectors
   int neta = (int)mapEtaRanges->size();
    
-  std::auto_ptr<std::vector<double>> mapToRhoCorrOut ( new std::vector<double>(neta-1,1e-6));
-  std::auto_ptr<std::vector<double>> mapToRhoMCorrOut ( new std::vector<double>(neta-1,1e-6));
-  std::auto_ptr<std::vector<double>> mapToRhoCorr1BinOut ( new std::vector<double>(neta-1,1e-6));
-  std::auto_ptr<std::vector<double>> mapToRhoMCorr1BinOut ( new std::vector<double>(neta-1,1e-6));
+  std::unique_ptr<std::vector<double>> mapToRhoCorrOut ( new std::vector<double>(neta-1,1e-6));
+  std::unique_ptr<std::vector<double>> mapToRhoMCorrOut ( new std::vector<double>(neta-1,1e-6));
+  std::unique_ptr<std::vector<double>> mapToRhoCorr1BinOut ( new std::vector<double>(neta-1,1e-6));
+  std::unique_ptr<std::vector<double>> mapToRhoMCorr1BinOut ( new std::vector<double>(neta-1,1e-6));
 
   setupGrid(mapEtaRanges->at(0), mapEtaRanges->at(neta-1));
   
@@ -151,10 +151,10 @@ HiFJGridEmptyAreaCalculator::produce(edm::Event& iEvent, const edm::EventSetup& 
   
   //calculate rho from grid as a function of eta over full range using PF candidates
   
-  std::auto_ptr<std::vector<double>> mapRhoVsEtaGridOut ( new std::vector<double>(ny_,0.));
-  std::auto_ptr<std::vector<double>> mapMeanRhoVsEtaGridOut ( new std::vector<double>(ny_,0.));
-  std::auto_ptr<std::vector<double>> mapEtaMaxGridOut ( new std::vector<double>(ny_,0.));
-  std::auto_ptr<std::vector<double>> mapEtaMinGridOut ( new std::vector<double>(ny_,0.));
+  std::unique_ptr<std::vector<double>> mapRhoVsEtaGridOut ( new std::vector<double>(ny_,0.));
+  std::unique_ptr<std::vector<double>> mapMeanRhoVsEtaGridOut ( new std::vector<double>(ny_,0.));
+  std::unique_ptr<std::vector<double>> mapEtaMaxGridOut ( new std::vector<double>(ny_,0.));
+  std::unique_ptr<std::vector<double>> mapEtaMinGridOut ( new std::vector<double>(ny_,0.));
   calculateGridRho(iEvent, iSetup);
   if(keepGridInfo_){
     for(int ieta = 0; ieta < ny_; ieta++) {
