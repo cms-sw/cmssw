@@ -102,7 +102,6 @@ bool AlCaIsolatedBunchSelector::filter(edm::Event& iEvent,
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(tok_trigRes_, triggerResults);
   if (triggerResults.isValid()) {
-    std::vector<std::string> modules;
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
     const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
     for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
