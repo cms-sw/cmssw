@@ -14,7 +14,6 @@
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 

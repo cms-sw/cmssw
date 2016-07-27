@@ -12,16 +12,12 @@
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "ProductResolvers.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "TClass.h"
 
 #include <algorithm>
 #include <cstring>
@@ -34,26 +30,6 @@
 namespace edm {
 
   static ProcessHistory const s_emptyProcessHistory;
-
-  static
-  void
-  maybeThrowMissingDictionaryException(TypeID const& productType, bool isElement, std::vector<TypeID> const& missingDictionaries) {
-    if(isElement) {
-      TypeSet missingTypes;
-      if(binary_search_all(missingDictionaries, productType)) {
-        checkTypeDictionary(productType,missingTypes);
-        throwMissingDictionariesException(missingTypes);
-      }
-    } else {
-      TClass* cl = TClass::GetClass(wrappedClassName(productType.className()).c_str());
-      TypeID wrappedProductType = TypeID(cl->GetTypeInfo());
-      TypeSet missingTypes;
-      if(binary_search_all(missingDictionaries, wrappedProductType)) {
-        checkClassDictionary(wrappedProductType,missingTypes);
-        throwMissingDictionariesException(missingTypes);
-      }
-    }
-  }
 
   static
   void
@@ -556,7 +532,6 @@ namespace edm {
       productLookup().relatedIndexes(PRODUCT_TYPE, typeID);
 
     if (matches.numberOfMatches() == 0) {
-      maybeThrowMissingDictionaryException(typeID, false, preg_->missingDictionaries());
       return;
     }
 
@@ -669,12 +644,6 @@ namespace edm {
       if(index == ProductResolverIndexAmbiguous) {
         throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
       } else if (index == ProductResolverIndexInvalid) {
-        ProductResolverIndexHelper::Matches matches =
-          productLookup().relatedIndexes(kindOfType, typeID);
-
-        if (matches.numberOfMatches() == 0) {
-          maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
-        }
         return 0;
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
@@ -713,12 +682,6 @@ namespace edm {
     if(index == ProductResolverIndexAmbiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     } else if (index == ProductResolverIndexInvalid) {
-      ProductResolverIndexHelper::Matches matches =
-        productLookup().relatedIndexes(kindOfType, typeID);
-
-      if (matches.numberOfMatches() == 0) {
-        maybeThrowMissingDictionaryException(typeID, kindOfType == ELEMENT_TYPE, preg_->missingDictionaries());
-      }
       return 0;
     }
     
