@@ -553,6 +553,11 @@ class Seed(_Object, _HitAdaptor, _TrackingParticleMatchAdaptor):
             return -1
         return self._index - offset
 
+    def track(self):
+        """Returns Track that was made from this seed."""
+        self._checkIsValid()
+        return Track(self._tree, self._tree.see_trkIdx[self._index])
+
 class Seeds(_Collection):
     """Class presenting a collection of seeds."""
     def __init__(self, tree):

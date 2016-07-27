@@ -33,7 +33,7 @@ mandatory, i.e. you can use the ntuple also "directly". The main
 benefit of the library is to provide OO-like interface for all the
 links between the objects:
 * track <-> TrackingParticle
-* track -> seed
+* track <-> seed
 * track <-> hit
 * seed <-> hit
 * glued strip hits -> mono and stereo strip hits

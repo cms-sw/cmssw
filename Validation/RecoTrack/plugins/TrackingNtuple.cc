@@ -528,6 +528,7 @@ private:
   std::vector<unsigned int> see_nGlued  ;
   std::vector<unsigned int> see_nStrip  ;
   std::vector<unsigned int> see_algo    ;
+  std::vector<int> see_trkIdx;
   std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_simTrkIdx;   // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_hitIdx;      // second index runs through hits
@@ -803,6 +804,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_nGlued"   , &see_nGlued  );
     t->Branch("see_nStrip"   , &see_nStrip  );
     t->Branch("see_algo"     , &see_algo    );
+    t->Branch("see_trkIdx"   , &see_trkIdx  );
     t->Branch("see_shareFrac", &see_shareFrac);
     t->Branch("see_simTrkIdx", &see_simTrkIdx  );
     if(includeAllHits_) {
@@ -1037,6 +1039,7 @@ void TrackingNtuple::clearVariables() {
   see_nGlued  .clear();
   see_nStrip  .clear();
   see_algo    .clear();
+  see_trkIdx  .clear();
   see_shareFrac.clear();
   see_simTrkIdx.clear();
   see_hitIdx  .clear();
@@ -1587,6 +1590,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_dzErr   .push_back( seedFitOk ? seedTrack.dzError() : 0);
       see_algo    .push_back( algo );
 
+      see_trkIdx  .push_back(-1); // to be set correctly in fillTracks
       see_shareFrac.push_back( sharedFraction );
       see_simTrkIdx.push_back( tpIdx );
 
@@ -1807,7 +1811,12 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
                                               << ", but that seed collection is not given as an input. The following collections were given as an input " << make_ProductIDMapPrinter(seedCollToOffset);
       }
 
-      trk_seedIdx  .push_back( offset->second + itTrack->seedRef().key() );
+      const auto seedIndex = offset->second + itTrack->seedRef().key();
+      trk_seedIdx  .push_back(seedIndex);
+      if(see_trkIdx[seedIndex] != -1) {
+        throw cms::Exception("LogicError") << "Track index has already been set for seed " << seedIndex << " to " << see_trkIdx[seedIndex] << "; was trying to set it to " << iTrack;
+      }
+      see_trkIdx[seedIndex] = iTrack;
     }
     trk_vtxIdx   .push_back(-1); // to be set correctly in fillVertices
     trk_simTrkIdx.push_back(tpIdx);

@@ -45,6 +45,7 @@ def main():
     tot_seeds_pixelhits = 0
     tot_seeds_striphits = 0
     tot_seeds_gluedhits = 0
+    tot_seeds_notrack = 0
     tot_track_seeds_true = 0
 
     for event in ntuple:
@@ -183,11 +184,14 @@ def main():
             # finding seeds of a particular iteration
             tot_seeds_lowPtTriplet += seeds.nSeedsForAlgo(5) # = lowPtTripletStep
 
-            # links from seeds to TrackingParticles
+            # links from seeds to TrackingParticles and tracks
             ntrue = 0
             for seed in seeds:
                 if seed.nMatchedTrackingParticles() >= 1:
                     ntrue += 1
+
+                if not seed.track().isValid():
+                    tot_seeds_notrack += 1
             tot_seeds_true = ntrue
 
             # links from seeds to hits
@@ -230,6 +234,7 @@ def main():
         print "On average %f seeds" % (float(tot_seeds)/tot_nevents)
         print " of which %f were from lowPtTripletStep" % (float(tot_seeds_lowPtTriplet)/tot_nevents)
         print " of which %f %% were true" % (float(tot_seeds_true)/tot_seeds * 100)
+        print " of which %f %% did not produce a track" % (float(tot_seeds_notrack)/tot_seeds * 100)
         print " on average %f pixel hits / seed" % (float(tot_seeds_pixelhits)/tot_seeds)
         print " on average %f strip hits / seed" % (float(tot_seeds_striphits)/tot_seeds)
         print " on average %f glued hits / seed" % (float(tot_seeds_gluedhits)/tot_seeds)
