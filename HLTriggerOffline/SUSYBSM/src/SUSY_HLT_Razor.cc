@@ -15,8 +15,6 @@ SUSY_HLT_Razor::SUSY_HLT_Razor(const edm::ParameterSet& ps)
   theHemispheres_ = consumes<std::vector<math::XYZTLorentzVector> >(ps.getParameter<edm::InputTag>("hemispheres"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
-  denomPath_ = ps.getParameter<std::string>("DenomPath");
-  denomPathLoose_ = ps.getParameter<std::string>("DenomPathLoose");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   caloFilter_ = ps.getParameter<edm::InputTag>("CaloFilter");
   theJetCollection_ = consumes<edm::View<reco::Jet> >(ps.getParameter<edm::InputTag>("jetCollection"));
@@ -52,8 +50,6 @@ void SUSY_HLT_Razor::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("METCollection",edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("hemispheres",edm::InputTag("hemispheres"))->setComment("hemisphere jets used to compute razor variables");
   desc.add<std::string>("TriggerPath","HLT_RsqMR300_Rsq0p09_MR200_v")->setComment("trigger path name");
-  desc.add<std::string>("DenomPath","HLT_Ele40_eta2p1_WP85_Gsf_v")->setComment("tight denominator trigger path name (for 1.4e34 lumi)");
-  desc.add<std::string>("DenomPathLoose","HLT_Ele35_eta2p1_WP85_Gsf_v")->setComment("loose denominator trigger path name (for 7e33 lumi)");
   desc.add<edm::InputTag>("TriggerFilter",edm::InputTag("hltRsqMR300Rsq0p09MR200","","HLT"))->setComment("PF HLT filter module used to save razor variable objects");
   desc.add<edm::InputTag>("TriggerResults",edm::InputTag("TriggerResults","","HLT"));
   desc.add<edm::InputTag>("trigSummary",edm::InputTag("hltTriggerSummaryAOD"));
@@ -135,7 +131,6 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   }
 
   bool hasFired = false;
-  bool denomFired = false;
   const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
@@ -143,13 +138,6 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 	{
 	  hasFired = true;
 	}      
-      if (trigNames.triggerName(hltIndex).find(denomPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) {
-	denomFired = true;
-      }
-      if (trigNames.triggerName(hltIndex).find(denomPathLoose_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) 
-	{
-	denomFired = true;
-	}
   }
 
   float HT = 0.0;
@@ -175,7 +163,7 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
       return;
   }
 
-  if(hasFired && denomFired){
+  if(hasFired){
 
       if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres if the number of jets in the
           edm::LogError("SUSY_HLT_Razor") << "Cannot calculate M_R and R^2 because there are too many jets! (trigger passed automatically without forming the hemispheres)" << endl;
@@ -203,79 +191,28 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
       if(Rsq > 0.15) h_mr->Fill(MR);
       if(MR > 300) h_rsq->Fill(Rsq);
       h_mrRsq->Fill(MR, Rsq);
-      if(Rsq > 0.15) h_mr_denom->Fill(MR);
-      if(MR > 300) h_rsq_denom->Fill(Rsq);
-      h_mrRsq_denom->Fill(MR, Rsq);
 
       h_rsq_loose->Fill(Rsq);
-      h_rsq_loose_denom->Fill(Rsq);
 
       if(Rsq > 0.25){
           h_mr_tight->Fill(MR);
-          h_mr_tight_denom->Fill(MR);
       }
       if(MR > 400){
           h_rsq_tight->Fill(Rsq);
-          h_rsq_tight_denom->Fill(Rsq);
       }
 
       h_ht->Fill(HT);
       h_met->Fill(MET);
       h_htMet->Fill(HT, MET);
-      h_ht_denom->Fill(HT);
-      h_met_denom->Fill(MET);
-      h_htMet_denom->Fill(HT, MET);
 
       h_online_mr_vs_mr->Fill(MR, onlineMR);
       h_online_rsq_vs_rsq->Fill(Rsq, onlineRsq);
-      h_online_mr_vs_mr_all->Fill(MR, onlineMR);
-      h_online_rsq_vs_rsq_all->Fill(Rsq, onlineRsq);
 
       h_calo_mr_vs_mr->Fill(MR, caloMR);
       h_calo_rsq_vs_rsq->Fill(Rsq, caloRsq);
-      h_calo_mr_vs_mr_all->Fill(MR, caloMR);
-      h_calo_rsq_vs_rsq_all->Fill(Rsq, caloRsq);
 
   } 
-  else if(denomFired){ //calculate M_R and R^2 for the denominator histograms
 
-      if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres if the number of jets in the event is larger than the threshold.  In this case we cannot compute razor variables
-          return;
-      }
-
-
-      if(hemispheres->size() != 0 && hemispheres->size() != 2 && hemispheres->size() != 5 && hemispheres->size() != 10){
-          return;
-      }
-
-      TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
-      TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
-      //dummy vector (this trigger does not care about muons)
-      std::vector<math::XYZTLorentzVector> muonVec;
-
-      double MR = CalcMR(ja,jb);
-      double R  = CalcR(MR,ja,jb,inputMet,muonVec);
-      double Rsq = R*R;    
-
-      if(Rsq > 0.15) h_mr_denom->Fill(MR);
-      if(MR > 300) h_rsq_denom->Fill(Rsq);
-      h_mrRsq_denom->Fill(MR, Rsq);
-
-      h_rsq_loose_denom->Fill(Rsq);
-
-      if(Rsq > 0.25) h_mr_tight_denom->Fill(MR);
-      if(MR > 400) h_rsq_tight_denom->Fill(Rsq);
-
-      h_ht_denom->Fill(HT);
-      h_met_denom->Fill(MET);
-      h_htMet_denom->Fill(HT, MET);
-
-      h_online_mr_vs_mr_all->Fill(MR, onlineMR);
-      h_online_rsq_vs_rsq_all->Fill(Rsq, onlineRsq);
-
-      h_calo_mr_vs_mr_all->Fill(MR, caloMR);
-      h_calo_rsq_vs_rsq_all->Fill(Rsq, caloRsq);
-  }
 }
 
 void SUSY_HLT_Razor::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
@@ -297,34 +234,20 @@ void SUSY_HLT_Razor::bookHistos(DQMStore::IBooker & ibooker_)
   h_mr = ibooker_.book1D("mr", "M_{R} (R^{2} > 0.15) ; GeV", 100, 0.0, 4000);
   h_rsq = ibooker_.book1D("rsq", "R^{2} (M_{R} > 300)", 100, 0.0, 1.5);
   h_mrRsq = ibooker_.book2D("mrRsq", "R^{2} vs M_{R}; GeV; ", 100, 0.0, 4000.0, 100, 0.0, 1.5);
-  h_mr_denom = ibooker_.book1D("mr_denom", "M_{R} (R^{2} > 0.15); GeV", 100, 0.0, 4000);
-  h_rsq_denom = ibooker_.book1D("rsq_denom", "R^{2} (MR > 300)", 100, 0.0, 1.5);
-  h_mrRsq_denom = ibooker_.book2D("mrRsq_denom", "R^{2} vs M_{R}; GeV; ", 100, 0.0, 4000.0, 100, 0.0, 1.5);
 
   h_mr_tight = ibooker_.book1D("mr_tight", "M_{R} (R^{2} > 0.25) ; GeV", 100, 0.0, 4000);
   h_rsq_tight = ibooker_.book1D("rsq_tight", "R^{2} (M_{R} > 400) ; ", 100, 0.0, 1.5);
-  h_mr_tight_denom = ibooker_.book1D("mr_tight_denom", "M_{R} (R^{2} > 0.25) ; GeV", 100, 0.0, 4000);
-  h_rsq_tight_denom = ibooker_.book1D("rsq_tight_denom", "R^{2} (M_{R} > 400) ; ", 100, 0.0, 1.5);
 
   h_rsq_loose = ibooker_.book1D("rsq_loose", "R^{2} (M_{R} > 0) ; ", 100, 0.0, 1.5);
-  h_rsq_loose_denom = ibooker_.book1D("rsq_loose_denom", "R^{2} (M_{R} > 0) ; ", 100, 0.0, 1.5);
 
   h_ht = ibooker_.book1D("ht", "HT; GeV; ", 100, 0.0, 4000.0);
   h_met = ibooker_.book1D("met", "MET; GeV; ", 100, 0.0, 1000);
   h_htMet = ibooker_.book2D("htMet", "MET vs HT; GeV; ", 100, 0.0, 4000.0, 100, 0.0, 1000);
-  h_ht_denom = ibooker_.book1D("ht_denom", "HT; GeV; ", 100, 0.0, 4000.0);
-  h_met_denom = ibooker_.book1D("met_denom", "MET; GeV; ", 100, 0.0, 1000);
-  h_htMet_denom = ibooker_.book2D("htMet_denom", "MET vs HT; GeV; ", 100, 0.0, 4000.0, 100, 0.0, 1000);
 
   h_online_mr_vs_mr = ibooker_.book2D("online_mr_vs_mr", "Online M_{R} vs  Offline M_{R} (events passing trigger); Offline M_{R} (GeV); Online M_{R} (GeV); ", 100, 0.0, 4000.0, 100, 0.0, 4000.0);
   h_calo_mr_vs_mr = ibooker_.book2D("calo_mr_vs_mr", "Calo M_{R} vs  Offline M_{R} (events passing trigger); Offline M_{R} (GeV); Calo M_{R} (GeV); ", 100, 0.0, 4000.0, 100, 0.0, 4000.0);
   h_online_rsq_vs_rsq = ibooker_.book2D("online_rsq_vs_rsq", "Online R^{2} vs Offline R^{2} (events passing trigger); Offline R^{2}; Online R^{2}; ", 100, 0.0, 1.5, 100, 0.0, 1.5);
   h_calo_rsq_vs_rsq = ibooker_.book2D("calo_rsq_vs_rsq", "Calo R^{2} vs Offline R^{2} (events passing trigger); Offline R^{2}; Calo R^{2}; ", 100, 0.0, 1.5, 100, 0.0, 1.5);
-
-  h_online_mr_vs_mr_all = ibooker_.book2D("online_mr_vs_mr_all", "Online M_{R} vs  Offline M_{R} (events passing reference trigger); Offline M_{R} (GeV); Online M_{R} (GeV); ", 100, 0.0, 4000.0, 100, 0.0, 4000.0);
-  h_calo_mr_vs_mr_all = ibooker_.book2D("calo_mr_vs_mr_all", "Calo M_{R} vs  Offline M_{R} (events passing reference trigger); Offline M_{R} (GeV); Calo M_{R} (GeV); ", 100, 0.0, 4000.0, 100, 0.0, 4000.0);
-  h_online_rsq_vs_rsq_all = ibooker_.book2D("online_rsq_vs_rsq_all", "Online R^{2} vs Offline R^{2} (events passing reference trigger); Offline R^{2}; Online R^{2}; ", 100, 0.0, 1.5, 100, 0.0, 1.5);
-  h_calo_rsq_vs_rsq_all = ibooker_.book2D("calo_rsq_vs_rsq_all", "Calo R^{2} vs Offline R^{2} (events passing reference trigger); Offline R^{2}; Calo R^{2}; ", 100, 0.0, 1.5, 100, 0.0, 1.5);
 
   ibooker_.cd();
 }
