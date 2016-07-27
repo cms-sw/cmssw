@@ -8,7 +8,7 @@
 *
 ****************************************************************************/
 
-#include "EventFilter/TotemRawToDigi/interface/VFATFrame.h"
+#include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 
 #include <stdio.h>
 #include <cstring>

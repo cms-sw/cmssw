@@ -7,12 +7,12 @@
 ****************************************************************************/
 
 
-#ifndef EventFilter_TotemRawToDigi_VFATFrameCollection
-#define EventFilter_TotemRawToDigi_VFATFrameCollection
+#ifndef EventFilter_CTPPSRawToDigi_VFATFrameCollection
+#define EventFilter_CTPPSRawToDigi_VFATFrameCollection
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
 
-#include "EventFilter/TotemRawToDigi/interface/VFATFrame.h"
+#include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 
 #include <string>
 

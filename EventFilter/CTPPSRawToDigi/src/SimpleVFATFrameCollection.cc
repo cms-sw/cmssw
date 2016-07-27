@@ -7,7 +7,7 @@
 ****************************************************************************/
 
 
-#include "EventFilter/TotemRawToDigi/interface/SimpleVFATFrameCollection.h"
+#include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 
 //----------------------------------------------------------------------------------------------------
 

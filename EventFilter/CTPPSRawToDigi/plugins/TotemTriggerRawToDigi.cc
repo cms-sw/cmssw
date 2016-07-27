@@ -17,7 +17,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "DataFormats/TotemDigi/interface/TotemTriggerCounters.h"
+#include "DataFormats/CTPPSDigi/interface/TotemTriggerCounters.h"
 
 #include <string>
 #include <iostream>

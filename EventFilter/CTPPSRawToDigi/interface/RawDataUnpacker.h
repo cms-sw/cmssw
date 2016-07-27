@@ -6,16 +6,16 @@
 *
 ****************************************************************************/
 
-#ifndef EventFilter_TotemRawToDigi_RawDataUnpacker
-#define EventFilter_TotemRawToDigi_RawDataUnpacker
+#ifndef EventFilter_CTPPSRawToDigi_RawDataUnpacker
+#define EventFilter_CTPPSRawToDigi_RawDataUnpacker
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
+#include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 
-#include "EventFilter/TotemRawToDigi/interface/VFATFrameCollection.h"
-#include "EventFilter/TotemRawToDigi/interface/SimpleVFATFrameCollection.h"
+#include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
+#include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 
 //----------------------------------------------------------------------------------------------------
 

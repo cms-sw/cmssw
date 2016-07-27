@@ -16,10 +16,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
+#include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 
-#include "EventFilter/TotemRawToDigi/interface/SimpleVFATFrameCollection.h"
-#include "EventFilter/TotemRawToDigi/interface/RawDataUnpacker.h"
+#include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
+#include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 
 #include <string>
 

@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "EventFilter/TotemRawToDigi/interface/RawDataUnpacker.h"
+#include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
