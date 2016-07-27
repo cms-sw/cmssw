@@ -23,6 +23,7 @@ HcalShapes::HcalShapes()
   theHcalShape125(),
   theHcalShape201(),
   theHcalShape202(),
+  theHcalShape203(),
   theHcalShape301(),
   theHcalShape401()
  {
@@ -32,6 +33,7 @@ HcalShapes::HcalShapes()
         102 - "special" HB HPD#14 long shape
         201 - SiPMs Zecotec shape   (HO)
         202 - SiPMs Hamamatsu shape (HO)
+        203 - SiPMs Hamamatsu shape (HE 2017)
         301 - regular HF PMT shape
         401 - regular ZDC shape
   */
@@ -56,6 +58,8 @@ HcalShapes::HcalShapes()
   theShapes[201] = new CaloCachedShapeIntegrator(&theHcalShape201);
   theHcalShape202.setShape(202);                  
   theShapes[202] = new CaloCachedShapeIntegrator(&theHcalShape202);
+  theHcalShape203.setShape(203);
+  theShapes[203] = new CaloCachedShapeIntegrator(&theHcalShape203);
   theHcalShape301.setShape(301);
   theShapes[301] = new CaloCachedShapeIntegrator(&theHcalShape301);
   //    ZDC not yet defined in CalibCalorimetry/HcalAlgos/src/HcalPulseShapes.cc
@@ -128,13 +132,13 @@ const CaloVShape * HcalShapes::defaultShape(const DetId & detId) const
   HcalGenericDetId::HcalGenericSubdetector subdet 
     = HcalGenericDetId(detId).genericSubdet();
   if(subdet == HcalGenericDetId::HcalGenBarrel 
-  || subdet == HcalGenericDetId::HcalGenEndcap) result = theShapes.find(0)->second;
-  else if(subdet == HcalGenericDetId::HcalGenOuter) result = theShapes.find(2)->second;
-  else if(subdet == HcalGenericDetId::HcalGenForward) result = theShapes.find(3)->second;
-  else if(subdet == HcalGenericDetId::HcalGenZDC) result = theShapes.find(3)->second;
+  || subdet == HcalGenericDetId::HcalGenEndcap) result = theShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenOuter) result = theShapes.find(HPD)->second;
+  else if(subdet == HcalGenericDetId::HcalGenForward) result = theShapes.find(HF)->second;
+  else if(subdet == HcalGenericDetId::HcalGenZDC) result = theShapes.find(ZDC)->second;
   else result = 0;
 
-  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the defalut one is taken for  subdet " << subdet;  
+  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the default one is taken for subdet " << subdet;  
 
   return result;
 }

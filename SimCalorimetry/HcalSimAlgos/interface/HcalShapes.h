@@ -18,7 +18,7 @@ class HcalTopology;
 class HcalShapes : public CaloShapes
 {
 public:
-  enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HF=301, ZDC=401};
+  enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HE2017=203, HF=301, ZDC=401};
   HcalShapes();
   ~HcalShapes();
 
@@ -46,6 +46,7 @@ private:
   HcalShape theHcalShape125;
   HcalShape theHcalShape201;
   HcalShape theHcalShape202;
+  HcalShape theHcalShape203;
   HcalShape theHcalShape301;
   HcalShape theHcalShape401;
 
