@@ -1166,7 +1166,7 @@ steps['RECODR2_50nsreHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR2_50ns']
 steps['RECODR2_2016reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval'},steps['RECODR2_2016']])
 steps['RECODR2newL1repack_2016reHLT']=merge([{'-s':'L1REPACK:FullSimTP,RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@miniAODDQM','--hltProcess':'reHLT'},steps['RECODR2_2016']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval'},steps['RECODR2AlCaEle']])
-steps['RECODR2reHLTAlCaTkCosmics']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval','--s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQM+@miniAODDQM'},steps['RECODR2_2016']])
+steps['RECODR2reHLTAlCaTkCosmics']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data_relval','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQM+@miniAODDQM'},steps['RECODR2_2016']])
 
 
 steps['RECODR2_2016reHLT_skimSingleMu']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@miniAODDQM'},steps['RECODR2_2016reHLT']])
