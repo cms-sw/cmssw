@@ -128,10 +128,11 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
               #dileptons for Hww and Hzz
               "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
               "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
               "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
 	      "HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v",
               "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
-              "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+              "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",             
               #dilepton path for the 7e33 menu at 25ns
               "HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
               "HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v",
