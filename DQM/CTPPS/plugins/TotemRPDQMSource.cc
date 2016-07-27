@@ -19,9 +19,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
-#include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
-#include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPCluster.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"

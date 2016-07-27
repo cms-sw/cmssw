@@ -14,7 +14,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 //----------------------------------------------------------------------------------------------------
  
