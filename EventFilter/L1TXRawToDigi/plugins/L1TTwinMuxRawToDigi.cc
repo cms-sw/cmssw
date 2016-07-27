@@ -33,8 +33,10 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
 
 {
     
-  produces<L1MuDTChambPhContainer>();
-  produces<L1MuDTChambThContainer>();
+  produces<L1MuDTChambPhContainer>("PhIn").setBranchAlias("PhIn");
+  produces<L1MuDTChambThContainer>("ThIn").setBranchAlias("ThIn");
+  produces<L1MuDTChambPhContainer>("PhOut").setBranchAlias("PhOut");
+
   Raw_token = consumes<FEDRawDataCollection> (DTTM7InputTag_);
  
   nfeds_ = feds_.size();
@@ -63,30 +65,35 @@ void L1TTwinMuxRawToDigi::produce(edm::Event& e,
 
   std::auto_ptr<L1MuDTChambPhContainer> TM7phi_product(new L1MuDTChambPhContainer);
   std::auto_ptr<L1MuDTChambThContainer> TM7the_product(new L1MuDTChambThContainer);
+  std::auto_ptr<L1MuDTChambPhContainer> TM7phi_out_product(new L1MuDTChambPhContainer);
 
   L1MuDTChambPhContainer::Phi_Container phi_data;
   L1MuDTChambThContainer::The_Container the_data;
+  L1MuDTChambPhContainer::Phi_Container phi_out_data;
 
-  if ( !fillRawData(e, phi_data, the_data) ) return;
+  if ( !fillRawData(e, phi_data, the_data, phi_out_data) ) return;
 
   TM7phi_product->setContainer(phi_data);
   TM7the_product->setContainer(the_data);
+  TM7phi_out_product->setContainer(phi_out_data);
 
-  e.put(TM7phi_product);
-  e.put(TM7the_product);
+  e.put(TM7phi_product, "PhIn");
+  e.put(TM7the_product, "ThIn");
+  e.put(TM7phi_out_product, "PhOut");
 
 }
 
 
 bool L1TTwinMuxRawToDigi::fillRawData( edm::Event& e,
                                   L1MuDTChambPhContainer::Phi_Container& phi_data,
-                                  L1MuDTChambThContainer::The_Container& the_data ) {
+                                  L1MuDTChambThContainer::The_Container& the_data,
+                                  L1MuDTChambPhContainer::Phi_Container& phi_out_data ) {
 
   edm::Handle<FEDRawDataCollection> data;
   e.getByToken( Raw_token, data );
 
   for ( size_t w_i = 0; w_i < nfeds_; ++w_i ) {
-    processFed( feds_[w_i], wheels_[w_i], amcsec_[w_i], data, phi_data, the_data );
+    processFed( feds_[w_i], wheels_[w_i], amcsec_[w_i], data, phi_data, the_data, phi_out_data );
   }
   
   return true;
@@ -128,7 +135,8 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                                  std::array<short, 12> twinMuxAmcSec,
                                  edm::Handle<FEDRawDataCollection> data,
                                  L1MuDTChambPhContainer::Phi_Container& phiSegments,
-                                 L1MuDTChambThContainer::The_Container& theSegments ) {
+                                 L1MuDTChambThContainer::The_Container& theSegments,
+                                 L1MuDTChambPhContainer::Phi_Container& phioutSegments ) {
 
   /// Container
   std::vector<long> DTTM7WordContainer;
@@ -464,82 +472,95 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   
       else if ( selector == 0x3 ) { //etha word
        
-        int posALL, posBTI[7];
+        int posBTI[7], qualBTI[7];
     
         int mb3_eta    = ( dataWordSub & 0xFF );        // positions  0 -> 7
-        int mb3_eta_HQ = ( dataWordSub >> 8  ) & 0xFF;  // positions  8 -> 15
         int mb2_eta    = ( dataWordSub >> 16 ) & 0xFF;  // positions 16 -> 23
-
-        int mb2_eta_HQ = ( dataWordSub >> 32 ) & 0xFF;  // positions 32 -> 39
         int mb1_eta    = ( dataWordSub >> 40 ) & 0xFF;  // positions 40 -> 47
+
+        int mb3_eta_HQ = ( dataWordSub >> 8  ) & 0xFF;  // positions  8 -> 15
+        int mb2_eta_HQ = ( dataWordSub >> 32 ) & 0xFF;  // positions 32 -> 39
         int mb1_eta_HQ = ( dataWordSub >> 48 ) & 0xFF;  // positions 48 -> 55
 
         if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex
                               << dataWordSub << std::dec << "\t|\t"
-                              << "mb1_eta_HQ " <<  mb1_eta_HQ   << '\t'
                               << "mb1_eta " << mb1_eta  << '\t'
-                              << "mb2_eta_HQ " <<  mb2_eta_HQ   << '\t'
                               << "mb2_eta " << mb2_eta  << '\t'
-                              << "mb3_eta_HQ " <<  mb3_eta_HQ   << '\t'
-                              << "mb3_eta " << mb3_eta  << '\n';
+                              << "mb3_eta " << mb3_eta  << '\t'
+                              << "mb1_eta_HQ " <<  mb1_eta_HQ   << '\t'
+                              << "mb2_eta_HQ " <<  mb2_eta_HQ   << '\t'
+                              << "mb3_eta_HQ " <<  mb3_eta_HQ   << '\n';
         
-        posALL    = mb1_eta_HQ & 0x7F;
-        posBTI[0] = mb1_eta_HQ & 0x01;
-        posBTI[1] = (mb1_eta_HQ & 0x02)>>1;
-        posBTI[2] = (mb1_eta_HQ & 0x04)>>2;
-        posBTI[3] = (mb1_eta_HQ & 0x08)>>3;
-        posBTI[4] = (mb1_eta_HQ & 0x10)>>4;
-        posBTI[5] = (mb1_eta_HQ & 0x20)>>5;
-        posBTI[6] = (mb1_eta_HQ & 0x40)>>6;
+        //MB1
+        posBTI[0] = (mb1_eta & 0x01);
+        posBTI[1] = ((mb1_eta & 0x02)>>1);
+        posBTI[2] = ((mb1_eta & 0x04)>>2);
+        posBTI[3] = ((mb1_eta & 0x08)>>3);
+        posBTI[4] = ((mb1_eta & 0x10)>>4);
+        posBTI[5] = ((mb1_eta & 0x20)>>5);
+        posBTI[6] = (((mb1_eta & 0x40)>>6) || ((mb1_eta & 0x80)>>7));
 
-        if ( posALL ) {
-            
-          theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 1, posBTI) );
-            
-        }
+        qualBTI[0] = (mb1_eta_HQ & 0x01);
+        qualBTI[1] = ((mb1_eta_HQ & 0x02)>>1);
+        qualBTI[2] = ((mb1_eta_HQ & 0x04)>>2);
+        qualBTI[3] = ((mb1_eta_HQ & 0x08)>>3);
+        qualBTI[4] = ((mb1_eta_HQ & 0x10)>>4);
+        qualBTI[5] = ((mb1_eta_HQ & 0x20)>>5);
+        qualBTI[6] = (((mb1_eta_HQ & 0x40)>>6) || ((mb1_eta_HQ & 0x80)>>7));
+
+        theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 1, posBTI, qualBTI) );
         
-        posALL    = mb2_eta_HQ & 0x7F;
-        posBTI[0] = mb2_eta_HQ & 0x01;
-        posBTI[1] = (mb2_eta_HQ & 0x02)>>1;
-        posBTI[2] = (mb2_eta_HQ & 0x04)>>2;
-        posBTI[3] = (mb2_eta_HQ & 0x08)>>3;
-        posBTI[4] = (mb2_eta_HQ & 0x10)>>4;
-        posBTI[5] = (mb2_eta_HQ & 0x20)>>5;
-        posBTI[6] = (mb2_eta_HQ & 0x40)>>6;
+        //MB2
+        posBTI[0] = (mb2_eta & 0x01);
+        posBTI[1] = ((mb2_eta & 0x02)>>1);
+        posBTI[2] = ((mb2_eta & 0x04)>>2);
+        posBTI[3] = ((mb2_eta & 0x08)>>3);
+        posBTI[4] = ((mb2_eta & 0x10)>>4);
+        posBTI[5] = ((mb2_eta & 0x20)>>5);
+        posBTI[6] = (((mb2_eta & 0x40)>>6) || ((mb2_eta & 0x80)>>7));
 
-        if ( posALL ) {
-            
-          theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 2, posBTI) );
-            
-        }
+        qualBTI[0] = (mb2_eta_HQ & 0x01);
+        qualBTI[1] = ((mb2_eta_HQ & 0x02)>>1);
+        qualBTI[2] = ((mb2_eta_HQ & 0x04)>>2);
+        qualBTI[3] = ((mb2_eta_HQ & 0x08)>>3);
+        qualBTI[4] = ((mb2_eta_HQ & 0x10)>>4);
+        qualBTI[5] = ((mb2_eta_HQ & 0x20)>>5);
+        qualBTI[6] = (((mb2_eta_HQ & 0x40)>>6) || ((mb2_eta_HQ & 0x80)>>7));
 
-        posALL    = mb3_eta_HQ & 0x7F;
-        posBTI[0] = mb3_eta_HQ & 0x01;
-        posBTI[1] = (mb3_eta_HQ & 0x02)>>1;
-        posBTI[2] = (mb3_eta_HQ & 0x04)>>2;
-        posBTI[3] = (mb3_eta_HQ & 0x08)>>3;
-        posBTI[4] = (mb3_eta_HQ & 0x10)>>4;
-        posBTI[5] = (mb3_eta_HQ & 0x20)>>5;
-        posBTI[6] = (mb3_eta_HQ & 0x40)>>6;
+        theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 2, posBTI, qualBTI) );
+        
+        //MB3
+        posBTI[0] = (mb3_eta & 0x01);
+        posBTI[1] = ((mb3_eta & 0x02)>>1);
+        posBTI[2] = ((mb3_eta & 0x04)>>2);
+        posBTI[3] = ((mb3_eta & 0x08)>>3);
+        posBTI[4] = ((mb3_eta & 0x10)>>4);
+        posBTI[5] = ((mb3_eta & 0x20)>>5);
+        posBTI[6] = (((mb3_eta & 0x40)>>6) || ((mb3_eta & 0x80)>>7));
 
-        if ( posALL ) {
-            
-          theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 3, posBTI) );
-            
-        }
-    
+        qualBTI[0] = (mb3_eta_HQ & 0x01);
+        qualBTI[1] = ((mb3_eta_HQ & 0x02)>>1);
+        qualBTI[2] = ((mb3_eta_HQ & 0x04)>>2);
+        qualBTI[3] = ((mb3_eta_HQ & 0x08)>>3);
+        qualBTI[4] = ((mb3_eta_HQ & 0x10)>>4);
+        qualBTI[5] = ((mb3_eta_HQ & 0x20)>>5);
+        qualBTI[6] = (((mb3_eta_HQ & 0x40)>>6) || ((mb3_eta_HQ & 0x80)>>7));
+
+        theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 3, posBTI, qualBTI) );
+        
       }//etha word
      
       else if ( selector == 0xB ) { //MB1/2 output word
  
-        /*** NOT UNPACKED  
         int mb2_phi =    ( dataWordSub & 0xFFF);        // positions  0 -> 11
         int mb2_phib =   ( dataWordSub >> 12 ) & 0x3FF; // positions 12 -> 21
         int mb2_qual =   ( dataWordSub >> 22 ) & 0x7;   // positions 22 -> 24
         int mb2_q3 =     ( dataWordSub >> 25 ) & 0x1;   // positions 25
         int mb2_q4 =     ( dataWordSub >> 26 ) & 0x1;   // positions 26
         int mb2_ts2tag = ( dataWordSub >> 28 ) & 0x1;   // positions 28
+        /*** NOT UNPACKED  
         int mb2_parity = ( dataWordSub >> 29) & 0x1;    // positions 29
+        ***/
 
         int mb1_phi  =   ( dataWordSub >> 30 ) & 0xFFF; // positions 30 -> 41
         int mb1_phib =   ( dataWordSub >> 42 ) & 0x3FF; // positions 42 -> 51
@@ -547,7 +568,22 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb1_q3 =     ( dataWordSub >> 55 ) & 0x1;   // positions 55
         int mb1_q4 =     ( dataWordSub >> 56 ) & 0x1;   // positions 56
         int mb1_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
+        /*** NOT UNPACKED  
         int mb1_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
+        ***/
+
+        int mb1_phi_conv  = radAngConversion(mb1_phi);
+        int mb1_phib_conv = benAngConversion(mb1_phib);
+
+        int mb2_phi_conv  = radAngConversion(mb2_phi);
+        int mb2_phib_conv = benAngConversion(mb2_phib);
+
+        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                1, mb1_phi_conv, mb1_phib_conv, 
+                                                mb1_qual, mb1_ts2tag, bxCounter, mb1_q3 + 2*mb1_q4 ) );
+        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                2, mb2_phi_conv, mb2_phib_conv, 
+                                                mb2_qual, mb2_ts2tag, bxCounter, mb2_q3 + 2*mb2_q4 ) );
 
         if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"
@@ -563,25 +599,21 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                               << "mb2_q4_out "     << mb2_q4        << '\t'
                               << "mb2_phib_out "   << mb2_phib_conv << '\t'
                               << "mb2_phi_out "    << mb2_phi_conv  << '\n';
-        ***/
-
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
-                              << dataWordSub << std::dec
-                              << "\t MB1/2 OUTPUT WORD\n";
 
       }//MB1/2 output word
  
  
       else if ( selector == 0xC ) { //MB3/4 output word
  
-        /*** NOT UNPACKED  
         int mb4_phi =    ( dataWordSub & 0xFFF);        // positions  0 -> 11
         int mb4_phib =   ( dataWordSub >> 12 ) & 0x3FF; // positions 12 -> 21
         int mb4_qual =   ( dataWordSub >> 22 ) & 0x7;   // positions 22 -> 24
         int mb4_q3 =     ( dataWordSub >> 25 ) & 0x1;   // positions 25
         int mb4_q4 =     ( dataWordSub >> 26 ) & 0x1;   // positions 26
         int mb4_ts2tag = ( dataWordSub >> 28 ) & 0x1;   // positions 28
+        /*** NOT UNPACKED  
         int mb4_parity = ( dataWordSub >> 29) & 0x1;    // positions 29
+        ***/
 
         int mb3_phi  =   ( dataWordSub >> 30 ) & 0xFFF; // positions 30 -> 41
         int mb3_phib =   ( dataWordSub >> 42 ) & 0x3FF; // positions 42 -> 51
@@ -589,7 +621,22 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb3_q3 =     ( dataWordSub >> 55 ) & 0x1;   // positions 55
         int mb3_q4 =     ( dataWordSub >> 56 ) & 0x1;   // positions 56
         int mb3_ts2tag = ( dataWordSub >> 58 ) & 0x1;   // positions 58
+        /*** NOT UNPACKED  
         int mb3_parity = ( dataWordSub >> 59 ) &0x1;    // positions 59
+        ***/
+
+        int mb3_phi_conv  = radAngConversion(mb3_phi);
+        int mb3_phib_conv = benAngConversion(mb3_phib);
+
+        int mb4_phi_conv  = radAngConversion(mb4_phi);
+        int mb4_phib_conv = benAngConversion(mb4_phib);
+
+        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                3, mb3_phi_conv, mb3_phib_conv, 
+                                                mb3_qual, mb3_ts2tag, bxCounter, mb3_q3 + 2*mb3_q4 ) );
+        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                4, mb4_phi_conv, mb4_phib_conv, 
+                                                mb4_qual, mb4_ts2tag, bxCounter, mb4_q3 + 2*mb4_q4 ) );
 
         if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"
@@ -605,11 +652,6 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
                               << "mb4_q4_out "     << mb4_q4        << '\t'
                               << "mb4_phib_out "   << mb4_phib_conv << '\t'
                               << "mb4_phi_out "    << mb4_phi_conv  << '\n';
-        ***/
-
-        if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
-                              << dataWordSub << std::dec
-                              << "\t MB3/4 OUTPUT WORD\n";
 
       }//MB3/4 output word
  
