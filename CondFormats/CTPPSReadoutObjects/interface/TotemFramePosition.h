@@ -6,8 +6,8 @@
 *
 ****************************************************************************/
 
-#ifndef CondFormats_TotemReadoutObjects_TotemFramePosition
-#define CondFormats_TotemReadoutObjects_TotemFramePosition
+#ifndef CondFormats_CTPPSReadoutObjects_TotemFramePosition
+#define CondFormats_CTPPSReadoutObjects_TotemFramePosition
 
 #include <iostream>
 #include <string>

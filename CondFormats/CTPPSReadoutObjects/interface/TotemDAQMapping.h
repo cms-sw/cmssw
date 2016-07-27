@@ -7,12 +7,12 @@
 *
 ****************************************************************************/
 
-#ifndef CondFormats_TotemReadoutObjects_TotemDAQMapping
-#define CondFormats_TotemReadoutObjects_TotemDAQMapping
+#ifndef CondFormats_CTPPSReadoutObjects_TotemDAQMapping
+#define CondFormats_CTPPSReadoutObjects_TotemDAQMapping
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemSymbId.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemSymbId.h"
 
 #include <map>
 

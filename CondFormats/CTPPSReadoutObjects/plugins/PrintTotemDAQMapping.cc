@@ -14,8 +14,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
-#include "CondFormats/TotemReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/TotemReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
 
 //----------------------------------------------------------------------------------------------------
 

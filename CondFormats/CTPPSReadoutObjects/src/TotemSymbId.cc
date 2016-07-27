@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemSymbId.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemSymbId.h"
 
 std::ostream& operator << (std::ostream& s, const TotemSymbID &sid)
 {

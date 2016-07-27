@@ -20,9 +20,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
-#include "CondFormats/TotemReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/TotemReadoutObjects/interface/TotemAnalysisMask.h"
-#include "CondFormats/TotemReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>

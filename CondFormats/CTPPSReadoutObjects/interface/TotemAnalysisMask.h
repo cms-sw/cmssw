@@ -7,10 +7,10 @@
 *
 ****************************************************************************/
 
-#ifndef CondFormats_TotemReadoutObjects_TotemAnalysisMask
-#define CondFormats_TotemReadoutObjects_TotemAnalysisMask
+#ifndef CondFormats_CTPPSReadoutObjects_TotemAnalysisMask
+#define CondFormats_CTPPSReadoutObjects_TotemAnalysisMask
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemSymbId.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemSymbId.h"
 
 #include <set>
 #include <map>
