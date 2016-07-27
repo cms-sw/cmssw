@@ -57,33 +57,11 @@ HFSimpleTimeCheck::HFSimpleTimeCheck(const std::pair<float,float> tlimits[2],
 }
 
 unsigned HFSimpleTimeCheck::determineAnodeStatus(
-    const unsigned ianode, const HFQIE10Info& anode) const
+    const unsigned ianode, const HFQIE10Info& anode, bool*) const
 {
-    // Check if there is a hardware error on any of the anodes
-    const unsigned nRaw = anode.nRaw();
-    if (nRaw)
-    {
-        bool hardwareOK = true;
-        unsigned sampleToCheck = anode.soi();
-        if (sampleToCheck < nRaw)
-        {
-            const QIE10DataFrame::Sample s(anode.getRaw(sampleToCheck));
-            hardwareOK = s.ok();
-        }
-        else
-        {
-            // This should not normally happen, but we still
-            // need to do something reasonable here
-            for (sampleToCheck = 0; sampleToCheck < nRaw; ++sampleToCheck)
-            {
-                const QIE10DataFrame::Sample s(anode.getRaw(sampleToCheck));
-                if (!s.ok())
-                    hardwareOK = false;
-            }
-        }
-        if (!hardwareOK)
-            return HFAnodeStatus::HARDWARE_ERROR;
-    }
+    // Check if this anode has a dataframe error
+    if (!anode.isDataframeOK())
+        return HFAnodeStatus::HARDWARE_ERROR;
 
     // Check the time limits
     float trise = anode.timeRising();
@@ -126,6 +104,7 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
     if (expectSingleAnodePMT)
         states[1] = HFAnodeStatus::NOT_DUAL;
 
+    bool isTimingReliable[2] = {true, true};
     for (unsigned ianode=0; ianode<2; ++ianode)
     {
         const HFQIE10Info* anodeInfo = prehit.getHFQIE10Info(ianode);
@@ -134,7 +113,8 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
             if (flaggedBadInDB[ianode])
                 states[ianode] = HFAnodeStatus::FLAGGED_BAD;
             else
-                states[ianode] = determineAnodeStatus(ianode, *anodeInfo);
+                states[ianode] = determineAnodeStatus(ianode, *anodeInfo,
+                                                      &isTimingReliable[ianode]);
         }
     }
 
@@ -159,29 +139,33 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
                 const float weightedEnergy = weights[ianode]*anodeInfo->energy();
                 energy += weightedEnergy;
 
-                float trise = anodeInfo->timeRising();
-                if (!HcalSpecialTimes::isSpecial(trise))
+                if (isTimingReliable[ianode] &&
+                    states[ianode] != HFAnodeStatus::FAILED_TIMING)
                 {
-                    trise += timeShift_;
-                    triseSum += trise;
-                    ++triseCount;
-                    if (weightedEnergy > 0.f)
+                    float trise = anodeInfo->timeRising();
+                    if (!HcalSpecialTimes::isSpecial(trise))
                     {
-                        triseWeightedSum += trise*weightedEnergy;
-                        triseWeightedEnergySum += weightedEnergy;
+                        trise += timeShift_;
+                        triseSum += trise;
+                        ++triseCount;
+                        if (weightedEnergy > 0.f)
+                        {
+                            triseWeightedSum += trise*weightedEnergy;
+                            triseWeightedEnergySum += weightedEnergy;
+                        }
                     }
-                }
 
-                float tfall = anodeInfo->timeFalling();
-                if (!HcalSpecialTimes::isSpecial(tfall))
-                {
-                    tfall += timeShift_;
-                    tfallSum += tfall;
-                    ++tfallCount;
-                    if (weightedEnergy > 0.f)
+                    float tfall = anodeInfo->timeFalling();
+                    if (!HcalSpecialTimes::isSpecial(tfall))
                     {
-                        tfallWeightedSum += tfall*weightedEnergy;
-                        tfallWeightedEnergySum += weightedEnergy;
+                        tfall += timeShift_;
+                        tfallSum += tfall;
+                        ++tfallCount;
+                        if (weightedEnergy > 0.f)
+                        {
+                            tfallWeightedSum += tfall*weightedEnergy;
+                            tfallWeightedEnergySum += weightedEnergy;
+                        }
                     }
                 }
             }

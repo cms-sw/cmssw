@@ -26,12 +26,14 @@ public:
     typedef boost::array<boost::shared_ptr<AbsHcalFunctor>,N_PMT_CUTS> Cuts;
 
     // Dummy constructor, to be used for deserialization only
-    inline HFPhase1PMTData() : minCharge0_(0.0), minCharge1_(0.0) {}
+    inline HFPhase1PMTData()
+        : minCharge0_(0.0), minCharge1_(0.0), minChargeAsymm_(0.0) {}
 
     // Normal constructor
-    inline HFPhase1PMTData(const Cuts& cutShapes,
-                             const float charge0, const float charge1)
-        : cuts_(cutShapes), minCharge0_(charge0), minCharge1_(charge1) {}
+    inline HFPhase1PMTData(const Cuts& cutShapes, const float charge0,
+                           const float charge1, const float minQAsymm)
+        : cuts_(cutShapes), minCharge0_(charge0),
+          minCharge1_(charge1), minChargeAsymm_(minQAsymm) {}
 
     // Get the cut shape
     inline const AbsHcalFunctor& cut(const unsigned which) const
@@ -44,12 +46,17 @@ public:
     inline float minCharge0() const {return minCharge0_;}
     inline float minCharge1() const {return minCharge1_;}
 
+    // Minimum total charge for applying the charge asymmetry cut
+    inline float minChargeAsymm() const {return minChargeAsymm_;}
+    
     // Deep comparison operators (useful for serialization tests)
     inline bool operator==(const HFPhase1PMTData& r) const
     {
         if (minCharge0_ != r.minCharge0_)
             return false;
         if (minCharge1_ != r.minCharge1_)
+            return false;
+        if (minChargeAsymm_ != r.minChargeAsymm_)
             return false;
         for (unsigned i=0; i<N_PMT_CUTS; ++i)
             if (!(*cuts_[i] == *r.cuts_[i]))
@@ -64,13 +71,14 @@ private:
     Cuts cuts_;
     float minCharge0_;
     float minCharge1_;
+    float minChargeAsymm_;
 
     friend class boost::serialization::access;
 
     template<class Archive>
     inline void serialize(Archive & ar, unsigned /* version */)
     {
-        ar & cuts_ & minCharge0_ & minCharge1_;
+        ar & cuts_ & minCharge0_ & minCharge1_ & minChargeAsymm_;
     }
 };
 

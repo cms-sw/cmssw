@@ -75,7 +75,8 @@ public:
 
 protected:
     virtual unsigned determineAnodeStatus(unsigned anodeNumber,
-                                          const HFQIE10Info& anode) const;
+                                          const HFQIE10Info& anode,
+                                          bool* isTimingReliable) const;
 private:
     // Map possible status values into the first index of "energyWeights_"
     unsigned mapStatusIntoIndex(const unsigned states[2]) const;
