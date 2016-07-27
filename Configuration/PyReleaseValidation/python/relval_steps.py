@@ -1703,7 +1703,7 @@ for k in upgradeKeys:
         upgradeStepDict['RecoFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull_trackingOnly'][k]])
 
 
-    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
+    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION:@baseValidation+@trackingOnlyValidation+@muonOnlyValidation,DQM:@trackingOnlyDQM+@muon',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
@@ -1759,7 +1759,7 @@ for k in upgradeKeys:
         upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
 
     upgradeStepDict['HARVESTFull_trackingOnly'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
-    upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
+    upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@muonOnlyValidation+@trackingOnlyDQM+@muon'}, upgradeStepDict['HARVESTFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull_trackingOnly'][k]])

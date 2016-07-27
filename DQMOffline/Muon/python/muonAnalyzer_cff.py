@@ -26,6 +26,9 @@ muonAnalyzer = cms.Sequence(muonEnergyDepositAnalyzer*
 eras.phase1Pixel.toReplaceWith(muonAnalyzer, muonAnalyzer.copyAndExclude([ # FIXME
     muonRecoOneHLT # Doesn't work because TriggerResults::HLT is missing (because HLT not yet being part of 2017 workflow)
 ]))
+eras.phase2_muon.toReplaceWith(muonAnalyzer, muonAnalyzer.copyAndExclude([ # FIXME
+    muonEnergyDepositAnalyzer
+]))
 
 muonAnalyzer_noHLT = cms.Sequence(muonEnergyDepositAnalyzer*
                                   muonSeedsAnalyzer*

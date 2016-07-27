@@ -1,14 +1,15 @@
-// user include files
+#ifndef MCTruth_CSCTruthTest_h
+#define MCTruth_CSCTruthTest_h
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 
+class CSCTruthTest : public edm::stream::EDAnalyzer<> {
 
-class CSCTruthTest : public edm::EDAnalyzer {
 public:
   explicit CSCTruthTest(const edm::ParameterSet&);
-  ~CSCTruthTest();
-
+  virtual ~CSCTruthTest();
 
 private:
 
@@ -17,3 +18,4 @@ private:
 
 };
 
+#endif

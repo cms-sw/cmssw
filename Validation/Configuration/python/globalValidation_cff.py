@@ -84,7 +84,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfJetResValidationSequence
                                  + pfMuonValidationSequence
                                  + rpcRecHitValidation_step
-				 + dtLocalRecoValidation_no2D
+                                 + dtLocalRecoValidation_no2D
                                  + pfTauRunDQMValidation
                                  + bTagPlotsMCbcl
                                  + L1Validator
@@ -112,6 +112,12 @@ globalValidationLiteTracking = cms.Sequence(globalValidation)
 globalPrevalidationLiteTracking = cms.Sequence(globalPrevalidation)
 globalPrevalidationLiteTracking.replace(tracksValidation, tracksValidationLite)
 
+from Validation.Configuration.gemSimValid_cff import *
+from Validation.Configuration.me0SimValid_cff import *
+
+baseCommonPreValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
+baseCommonValidation = cms.Sequence()
+
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
@@ -120,8 +126,20 @@ globalPrevalidationTrackingOnly = cms.Sequence(
 )
 globalValidationTrackingOnly = cms.Sequence()
 
-from Validation.Configuration.gemSimValid_cff import *
-from Validation.Configuration.me0SimValid_cff import *
+globalPrevalidationMuons = cms.Sequence(
+      gemSimValid
+    + me0SimValid
+    + validSimHit
+    + muondtdigianalyzer
+    + cscDigiValidation
+    + validationMuonRPCDigis
+    + recoMuonValidation
+    + rpcRecHitValidation_step
+    + dtLocalRecoValidation_no2D
+    + muonIdValDQMSeq
+)
+
+globalValidationMuons = cms.Sequence()
 
 _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid
