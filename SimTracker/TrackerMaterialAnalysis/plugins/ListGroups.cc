@@ -6,7 +6,7 @@
 
 #include "boost/format.hpp"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -80,7 +80,7 @@ std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
   return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
 }
 
-class ListGroups : public edm::EDAnalyzer
+class ListGroups : public edm::one::EDAnalyzer<>
 {
 public:
   ListGroups(const edm::ParameterSet &);

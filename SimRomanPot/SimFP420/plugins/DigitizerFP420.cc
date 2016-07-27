@@ -9,9 +9,6 @@
 #include <memory>
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-//#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-//#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-//#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,14 +25,8 @@
 ///////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/DigitizerFP420.h"
 
-//#include "SimRomanPot/SimFP420/interface/SimRPUtil.h"
-//#include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
-
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 #include "DataFormats/FP420Digi/interface/HDigiFP420.h"
-//#include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
-//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,26 +35,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-//#include "Geometry/CommonTopologies/interface/StripTopology.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-//needed for the magnetic field:
-//#include "MagneticField/Engine/interface/MagneticField.h"
-//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
-//Data Base infromations
-//#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
-//#include "CalibTracker/Records/interface/SiStripGainRcd.h"
-//#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-//#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
-//#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-//#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-//#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-//#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-//#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-//#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -86,15 +58,9 @@
 
 using namespace std;
 
-//#include <iostream>
-
-
-
-
 namespace cms
 {
   DigitizerFP420::DigitizerFP420(const edm::ParameterSet& conf):conf_(conf),stripDigitizer_(new FP420DigiMain(conf)) {
-    
     
     std::string alias ( conf.getParameter<std::string>("@module_label") );
     
@@ -128,8 +94,7 @@ namespace cms
     if(verbosity>0) {
       std::cout << "Creating a DigitizerFP420" << std::endl;
       std::cout << "DigitizerFP420: dn0=" << dn0 << " sn0=" << sn0 << " pn0=" << pn0 <<  " rn0=" << rn0 << std::endl;
-      std::cout << "DigitizerFP420:trackerContainers.size()=" << trackerContainers.size() << std::endl;
-      
+      std::cout << "DigitizerFP420:trackerContainers.size()=" << trackerContainers.size() << std::endl;      
     }
   }
   
@@ -139,11 +104,7 @@ namespace cms
       std::cout << "Destroying a DigitizerFP420" << std::endl;
     }
     delete stripDigitizer_;
-    
   }  
-  
-  
-  
   //  void DigitizerFP420::produce(PSimHitCollection *   theCAFI, DigiCollectionFP420 & output) {
   void DigitizerFP420::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)  {
     // be lazy and include the appropriate namespaces
@@ -162,7 +123,6 @@ namespace cms
     
     // Step A: Get Inputs for allTrackerHits
     
-    
     edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
     std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
     for(uint32_t i = 0; i< trackerContainers.size();i++){
@@ -180,27 +140,7 @@ namespace cms
 	  std::unique_ptr<MixCollection<PSimHit> > allTrackerHits( new MixCollection<PSimHit>(xFrame.product()) );
 	  std::cout <<" ============== DigitizerFP420: start loop           4   " << std::endl;
     */
-    
-    // use instead of the previous
-    /*           
-		 edm::Handle<CrossingFrame<PSimHit> > crossingFrame;
-		 const std::string FP420HitsName("FP420SI");
-		 bool isHit = true;
-		 iEvent.getByLabel("mix",FP420HitsName,crossingFrame);
-		 MixCollection<PSimHit> * FP420Hits = 0 ;
-		 std::cout <<" ============== DigitizerFP420: start loop           1   " << std::endl;
-		 //    std::unique_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(crossingFrame.product()));
-		 FP420Hits = new MixCollection<PSimHit>(crossingFrame.product());
-		 std::cout <<" ============== DigitizerFP420: start loop           2   " << std::endl;
-		 //  if ( ! FP420Hits->inRegistry()  ) isHit = false;
-		 //  if ( isHit ) {
-		 std::unique_ptr<MixCollection<PSimHit> >  allTrackerHits( FP420Hits );
-		 std::cout <<" ============== DigitizerFP420: start loop           3   " << std::endl;
-		 //  }  
-		 */
-    
-    //    std::cout << "DigitizerFP420 Step A done" << std::endl;
-    
+        
     //Loop on PSimHit
     
     
@@ -314,17 +254,6 @@ namespace cms
 	  if(verbosity>0 || verbosity==-50) std::cout <<" ====== DigitizerFP420: unitID= " << unitID << "Hit number i=  " << i << std::endl;
 	  int det, zside, sector, zmodule; 
 	  FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
-	  // <------
-	  // old: <------
-	  //     for (int det=1; det<dn0; det++) {
-	  //	for (int sector=1; sector<sn0; sector++) {
-	  // for (int zmodule=1; zmodule<pn0; zmodule++) {
-	  //  for (int zside=1; zside<rn0; zside++) {
-	  // <------
-	  
-	  
-	  
-	  
 	  
 	  unsigned int iu = FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	  if(verbosity>0 || verbosity==-50) std::cout <<"for Hits iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
@@ -481,35 +410,14 @@ namespace cms
 	//     end of check of access to the strip collection
 	
       }// if(verbosity	
-      //     
-      
       
       // Step D: write output to file
-      //    iEvent.put(std::move(output));
-      
       if(verbosity>0) {
 	std::cout << "DigitizerFP420 recoutput" << std::endl;
       }
       // Step D: write output to file
       iEvent.put(std::move(output));
-      // iEvent.put(std::move(outputlink));
-      //	  iEvent.put(std::move(pDigis));
-      
-      // Step D: write output to file 
-      //  iEvent.put(std::move(output));
-      //  iEvent.put(std::move(outputlink));
-      //-------------------------------------------------------------------
-      //    std::cout << "DigitizerFP420 recoutput" << std::endl;
-      //	  iEvent.put(std::move(pDigis));
-      
-      
-      
-      
   }//produce
   
 } // namespace cms
 
-//}
-//define this as a plug-in
-
-//DEFINE_FWK_MODULE(DigitizerFP420);
