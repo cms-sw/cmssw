@@ -2076,7 +2076,7 @@ class PlotGroup:
         for plot in self._plots:
             plot.create(tdirectories, requireAllHistograms)
 
-    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
+    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
         """Draw the histograms using values for a given algorithm.
 
         Arguments:
@@ -2084,7 +2084,7 @@ class PlotGroup:
         prefix        -- Optional string for file name prefix (default None)
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
-        ratio        -- Add ratio to the plot (default False)
+        ratio        -- Add ratio to the plot (default True)
         """
 
         if self._overrideLegendLabels is not None:
@@ -2344,14 +2344,14 @@ class PlotFolder:
                 continue
             pg.create(dirs, requireAllHistograms)
 
-    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
+    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
         prefix   -- Optional string for file name prefix (default None)
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
-        ratio    -- Add ratio to the plot (default False)
+        ratio    -- Add ratio to the plot (default True)
         """
         ret = []
 

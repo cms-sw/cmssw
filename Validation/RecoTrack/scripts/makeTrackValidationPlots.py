@@ -21,8 +21,8 @@ def main(opts):
     sample = SimpleSample(opts.subdirprefix, opts.html_sample, [(f, f.replace(".root", "")) for f in opts.files])
 
     drawArgs={}
-    if opts.ratio:
-        drawArgs["ratio"] = True
+    if opts.no_ratio:
+        drawArgs["ratio"] = False
     if opts.separate:
         drawArgs["separate"] = True
     if opts.png:
@@ -83,7 +83,9 @@ if __name__ == "__main__":
     parser.add_argument("--ignoreMissing", action="store_true",
                         help="Ignore missing histograms and directories")
     parser.add_argument("--ratio", action="store_true",
-                        help="Create ratio pads")
+                        help="Create ratio pads (deprecated, as it is already the default")
+    parser.add_argument("--no-ratio", action="store_true",
+                        help="Disable ratio pads")
     parser.add_argument("--separate", action="store_true",
                         help="Save all plots separately instead of grouping them")
     parser.add_argument("--png", action="store_true",
@@ -110,6 +112,9 @@ if __name__ == "__main__":
 
     if opts.ignoreMissing:
         print "--ignoreMissing is now the only operation mode, so you can stop using this parameter"
+
+    if opts.ratio:
+        print "--ratio is now the default, so you can stop using this parameter"
 
     if opts.limit_tracking_algo is not None:
         if opts.limit_relval:

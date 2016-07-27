@@ -132,13 +132,13 @@ val = Validation(
 )
 htmlReport = val.createHtmlReport()
 val.download()
-val.doPlots(plotter=trackingPlots.plotter, plotterDrawArgs={"ratio": True},
+val.doPlots(plotter=trackingPlots.plotter,
 #            limitSubFoldersOnlyTo={"": limitProcessing, "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 
 val.download()
-val.doPlots(plotter=vertexPlots.plotter, plotterDrawArgs={"ratio": True},
+val.doPlots(plotter=vertexPlots.plotter,
             limitSubFoldersOnlyTo={"": VertexCollections},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )

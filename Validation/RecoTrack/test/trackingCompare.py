@@ -12,7 +12,7 @@ description = "Short description of your comparison"
 
 plotterDrawArgs = dict(
     separate=False, # Set to true if you want each plot in it's own canvas
-    ratio=True,     # Enables ratio pad
+#    ratio=False,   # Uncomment to disable ratio pad
 )
 
 # Pairs of file names and legend labels
