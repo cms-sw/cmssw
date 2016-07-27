@@ -7,7 +7,7 @@
  *
  ****************************************************************************/
 
-#include "EventFilter/TotemRawToDigi/interface/CounterChecker.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CounterChecker.h"
 
 //-------------------------------------------------------------------------------------------------
 

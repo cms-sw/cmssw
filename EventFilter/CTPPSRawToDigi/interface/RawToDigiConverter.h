@@ -6,19 +6,19 @@
 *
 ****************************************************************************/
 
-#ifndef EventFilter_TotemRawToDigi_RawToDigiConverter
-#define EventFilter_TotemRawToDigi_RawToDigiConverter
+#ifndef EventFilter_CTPPSRawToDigi_RawToDigiConverter
+#define EventFilter_CTPPSRawToDigi_RawToDigiConverter
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "EventFilter/TotemRawToDigi/interface/VFATFrameCollection.h"
+#include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/TotemReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
 
-#include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
-#include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 
 //----------------------------------------------------------------------------------------------------
 

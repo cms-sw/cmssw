@@ -6,8 +6,8 @@
 *
 **********************************************************/
 
-#ifndef EventFilter_TotemRawToDigi_VFATFrame
-#define EventFilter_TotemRawToDigi_VFATFrame
+#ifndef EventFilter_CTPPSRawToDigi_VFATFrame
+#define EventFilter_CTPPSRawToDigi_VFATFrame
 
 #include <vector>
 #include <cstddef>

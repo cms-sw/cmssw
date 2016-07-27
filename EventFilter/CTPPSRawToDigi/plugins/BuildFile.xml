@@ -1,4 +1,4 @@
-<library file="*.cc" name="EventFilterTotemRawToDigiPlugins">
+<library file="*.cc" name="EventFilterCTPPSRawToDigiPlugins">
 	<flags EDM_PLUGIN="1"/>
 
 	<use name="FWCore/Framework"/>
@@ -6,10 +6,10 @@
 	<use name="DataFormats/FEDRawData"/>
 	<use name="DataFormats/Common"/>
 	
-	<use name="DataFormats/TotemDigi"/>
+	<use name="DataFormats/CTPPSDigi"/>
 	
 	<use name="CondFormats/DataRecord"/>
-	<use name="CondFormats/TotemReadoutObjects"/>
+	<use name="CondFormats/CTPPSReadoutObjects"/>
 	
-	<use name="EventFilter/TotemRawToDigi"/>
+	<use name="EventFilter/CTPPSRawToDigi"/>
 </library>

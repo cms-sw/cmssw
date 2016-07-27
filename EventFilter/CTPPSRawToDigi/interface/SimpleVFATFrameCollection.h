@@ -8,10 +8,10 @@
 ****************************************************************************/
 
 
-#ifndef EventFilter_TotemRawToDigi_SimpleVFATFrameCollection
-#define EventFilter_TotemRawToDigi_SimpleVFATFrameCollection
+#ifndef EventFilter_CTPPSRawToDigi_SimpleVFATFrameCollection
+#define EventFilter_CTPPSRawToDigi_SimpleVFATFrameCollection
 
-#include "EventFilter/TotemRawToDigi/interface/VFATFrameCollection.h"
+#include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 
 #include <map>
 

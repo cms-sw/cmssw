@@ -7,17 +7,17 @@
  *
  ****************************************************************************/
 
-#ifndef EventFilter_TotemRawToDigi_CounterChecker
-#define EventFilter_TotemRawToDigi_CounterChecker
+#ifndef EventFilter_CTPPSRawToDigi_CounterChecker
+#define EventFilter_CTPPSRawToDigi_CounterChecker
 
 #include <map>
 #include <string>
 #include <vector>
 #include <iostream>
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
 
-#include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 
 //----------------------------------------------------------------------------------------------------
 
