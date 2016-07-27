@@ -18,8 +18,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
-#include "DataFormats/TotemDigi/interface/TotemTriggerCounters.h"
+#include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
+#include "DataFormats/CTPPSDigi/interface/TotemTriggerCounters.h"
 
 #include <string>
 
