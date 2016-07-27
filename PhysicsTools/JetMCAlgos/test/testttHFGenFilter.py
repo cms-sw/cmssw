@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
+from FWCore.ParameterSet.VarParsing import VarParsing
 import sys
 import os
 
@@ -11,8 +11,10 @@ process.options = cms.untracked.PSet(
     allowUnscheduled = cms.untracked.bool(True),
 )
 ## Set up command line options
-options = VarParsing.VarParsing ('analysis')
-options.register('runOnGenSim', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "GEN SIM")
+options = VarParsing ('analysis')
+options.register('runOnGenOrAODsim', True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "GEN SIM")
+options.register( "skipEvents", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Number of events to skip" )
+options.parseArguments()
 
 
 ## Configure message logger
@@ -22,52 +24,27 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 ## Define input
 if not options.inputFiles:
-    if options.runOnGenSim:
-        process.source = cms.Source("PoolSource",
-            fileNames = cms.untracked.vstring(
-                # add your favourite AOD files here
-#               '/store/relval/CMSSW_7_2_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V12-v1/00000/1267B7ED-2F4E-E411-A0B9-0025905964A6.root',
-                #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00120F7A-84F5-E311-9FBE-002618943910.root',
-#               '/store/mc/Spring14dr/TT_Tune4C_13TeV-pythia8-tauola/AODSIM/Flat20to50_POSTLS170_V5-v1/00000/023E1847-ADDC-E311-91A2-003048FFD754.root',
-#               '/store/mc/Spring14dr/TTbarH_HToBB_M-125_13TeV_pythia6/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/1CAB7E58-0BD0-E311-B688-00266CFFBC3C.root',
-#               '/store/mc/Spring14dr/TTbarH_M-125_13TeV_amcatnlo-pythia8-tauola/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/0E3D08A9-C610-E411-A862-0025B3E0657E.root',
-    #'/store/mc/RunIISummer15GS/TT_TuneCUETP8M1_alphaS01273_13TeV-madgraphMLM-pythia8/GEN-SIM/MCRUN2_71_V1-v4/00000/00C8D9A2-1B30-E611-9C26-A0369F7FE9FC.root'
-    '/store/mc/RunIISummer15GS/TTToSemiLeptonic_TuneCUETP8M1_alphaS01273_13TeV-powheg-scaledown-pythia8/GEN-SIM/MCRUN2_71_V1-v2/40000/DE7952A2-6E2F-E611-A803-001E673D1B21.root'
-    #'/store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-powheg-pythia8/AODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/20000/0015C8F2-1CA4-E511-8318-0CC47A78A41C.root',
-
-        ),
-            skipEvents = cms.untracked.uint32(0)
-        )
+    if options.runOnGenOrAODsim:
+        options.inputFiles=['/store/mc/RunIISummer15GS/TTToSemiLeptonic_TuneCUETP8M1_alphaS01273_13TeV-powheg-scaledown-pythia8/GEN-SIM/MCRUN2_71_V1-v2/40000/DE7952A2-6E2F-E611-A803-001E673D1B21.root']
     else:
-        process.source = cms.Source("PoolSource",
-            fileNames = cms.untracked.vstring(
-                # add your favourite miniAOD files here
-#               '/store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/FE26BEB8-D575-E411-A13E-00266CF2AE10.root',
-#               '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/FE3EF0E9-9F02-E511-BA6F-549F35AE4FA2.root',
-            #'/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-scaledown-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/50000/FEA9ADAC-FB0B-E511-9B8C-00266CF9AB9C.root',
-#            '/store/mc/RunIISpring15DR74/TT_TuneZ2star_13TeV-powheg-pythia6-tauola/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/50000/C6F89D57-640A-E511-8D41-549F35AD8BC9.root',
-#            '/store/mc/RunIISpring15DR74/TT_TuneZ2star_13TeV-powheg-pythia6-tauola/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v3/00000/D4BE2E58-CE08-E511-9247-0025907DC9CC.root',
-            '/store/mc/RunIISpring15MiniAODv2/ttbb_4FS_ckm_amcatnlo_madspin_pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/06D46D97-C66D-E511-9ABF-00266CFAE20C.root',
-        ),
-            skipEvents = cms.untracked.uint32(0)
-    )
+        options.inputFiles=['/store/mc/RunIISpring15MiniAODv2/ttbb_4FS_ckm_amcatnlo_madspin_pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/06D46D97-C66D-E511-9ABF-00266CFAE20C.root']
 
 ## Define maximum number of events to loop over
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+if options.maxEvents is -1: # maxEvents is set in VarParsing class by default to -1
+    options.maxEvents = 1000 # reset for testing
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(int(options.maxEvents)))
+process.source = cms.Source(  "PoolSource",
+                              fileNames = cms.untracked.vstring(options.inputFiles),
+                              skipEvents=cms.untracked.uint32(int(options.skipEvents)),
 )
-#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(int(options.maxEvents)))
-#process.source = cms.Source(  "PoolSource",
-#                              fileNames = cms.untracked.vstring(options.inputFiles),
-#                              skipEvents=cms.untracked.uint32(int(options.skipEvents)),
-#)
 
 ## Set input particle collections to be used by the tools
 genParticleCollection = ''
 genJetInputParticleCollection = ''
 genJetCollection = 'ak4GenJetsCustom'
 
-if options.runOnGenSim:
+if options.runOnGenOrAODsim:
     genParticleCollection = 'genParticles'
     genJetInputParticleCollection = genParticleCollection
 else:
@@ -115,8 +92,6 @@ process.matchGenBHadron = matchGenBHadron.clone(
     onlyJetClusteredHadrons = cms.bool(False)
 )
 
-
-
 # Plugin for analysing C hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
 #from PhysicsTools.JetMCAlgos.GenHFHadronMatcher_cff import matchGenCHadron
@@ -126,6 +101,10 @@ process.matchGenBHadron = matchGenBHadron.clone(
 #)
 
 process.load("PhysicsTools/JetMCAlgos/ttHFGenFilter_cfi")
+from PhysicsTools.JetMCAlgos.ttHFGenFilter_cfi import ttHFGenFilter
+process.ttHFGenFilter = ttHFGenFilter.clone(
+    genParticles = genParticleCollection
+)
 
 
 ## configuring the testing analyzer that produces output tree
@@ -163,20 +142,16 @@ process.load("PhysicsTools/JetMCAlgos/ttHFGenFilter_cfi")
 #    genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
 #    filter = cms.bool(True)
 #)
-## Output root file
-#process.TFileService = cms.Service("TFileService",
-#    fileName = cms.string("genTtbarIdFilter.root")
-#)
 process.USER = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p1')
     ),
-    fileName = cms.untracked.string('TTJets_PowPyt_ttHFGenFilter.root')
+    fileName = cms.untracked.string('Filtered_Events.root')
 )
 ## Output root file
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("genHFHadronMatcherOutput.root")
-)
+#process.TFileService = cms.Service("TFileService",
+#    fileName = cms.string("genHFHadronMatcherOutput.root")
+#)
 
 ## Path
 process.p1 = cms.Path(
