@@ -33,6 +33,7 @@ def main():
     tot_pix = 0
     tot_pix_ntracks = 0
     tot_pix_nseeds = 0
+    tot_pix_eloss = 0.0
     tot_str = 0
     tot_str_ntracks = 0
     tot_str_nseeds = 0
@@ -115,6 +116,7 @@ def main():
                             nfakes_pixhits_true += 1
                             for tpInfo in hit.matchedTrackingParticleInfos():
                                 pix_simTrkIds.add(tpInfo.trackingParticle().index())
+                                #tot_pix_eloss += tpInfo.eloss() # this works only with MixingModule playback mode, see README.md
                     nfakes_pixhits_tps += len(pix_simTrkIds)
 
                     for hit in track.stripHits():
@@ -242,6 +244,7 @@ def main():
         print "On average %f pixel hits" % (float(tot_pix)/tot_nevents)
         print " on average %f tracks per hit" % (float(tot_pix_ntracks)/tot_pix)
         print " on average %f seeds per hit" % (float(tot_pix_nseeds)/tot_pix)
+        print " on average %f energy loss per hit" % (tot_pix_eloss/tot_pix)
         print "On average %f strip hits" % (float(tot_str)/tot_nevents)
         print " on average %f tracks per hit" % (float(tot_str_ntracks)/tot_str)
         print " on average %f seeds per hit" % (float(tot_str_nseeds)/tot_str)

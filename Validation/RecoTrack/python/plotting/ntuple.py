@@ -354,6 +354,10 @@ class TrackingParticleMatchInfo(_Object):
         super(TrackingParticleMatchInfo, self).__init__(tree, index, prefix)
         self._tpindex = tpindex
 
+    def __getattr__(self, attr):
+        """Custom __getattr__ because of the second index needed to access the branch."""
+        return lambda: super(TrackingParticleMatchInfo, self).__getattr__(attr)()[self._tpindex]
+
     def trackingParticle(self):
         """Returns matched TrackingParticle."""
         self._checkIsValid()
