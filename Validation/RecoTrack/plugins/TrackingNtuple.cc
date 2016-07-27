@@ -382,6 +382,7 @@ private:
   std::vector<unsigned int> trk_stopReason;
   std::vector<short> trk_isHP    ;
   std::vector<int> trk_seedIdx ;
+  std::vector<int> trk_vtxIdx;
   std::vector<std::vector<float> > trk_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_simTrkIdx;   // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_hitIdx;      // second index runs through hits
@@ -654,6 +655,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   if(includeSeeds_) {
     t->Branch("trk_seedIdx"  , &trk_seedIdx );
   }
+  t->Branch("trk_vtxIdx"   , &trk_vtxIdx);
   t->Branch("trk_shareFrac", &trk_shareFrac);
   t->Branch("trk_simTrkIdx", &trk_simTrkIdx  );
   if(includeAllHits_) {
@@ -900,6 +902,7 @@ void TrackingNtuple::clearVariables() {
   trk_stopReason.clear();
   trk_isHP     .clear();
   trk_seedIdx  .clear();
+  trk_vtxIdx   .clear();
   trk_shareFrac.clear();
   trk_simTrkIdx.clear();
   trk_hitIdx   .clear();
@@ -1806,6 +1809,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
 
       trk_seedIdx  .push_back( offset->second + itTrack->seedRef().key() );
     }
+    trk_vtxIdx   .push_back(-1); // to be set correctly in fillVertices
     trk_simTrkIdx.push_back(tpIdx);
     LogTrace("TrackingNtuple") << "Track #" << itTrack.key() << " with q=" << charge
                                << ", pT=" << pt << " GeV, eta: " << eta << ", phi: " << phi
@@ -1956,7 +1960,8 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
 }
 
 void TrackingNtuple::fillVertices(const reco::VertexCollection& vertices) {
-  for(const reco::Vertex& vertex: vertices) {
+  for(size_t iVertex=0, size=vertices.size(); iVertex<size; ++iVertex) {
+    const reco::Vertex& vertex = vertices[iVertex];
     vtx_x.push_back(vertex.x());
     vtx_y.push_back(vertex.y());
     vtx_z.push_back(vertex.z());
@@ -1971,6 +1976,11 @@ void TrackingNtuple::fillVertices(const reco::VertexCollection& vertices) {
     std::vector<int> trkIdx;
     for(auto iTrack = vertex.tracks_begin(); iTrack != vertex.tracks_end(); ++iTrack) {
       trkIdx.push_back(iTrack->key());
+
+      if(trk_vtxIdx[iTrack->key()] != -1) {
+        throw cms::Exception("LogicError") << "Vertex index has already been set for track " << iTrack->key() << " to " << trk_vtxIdx[iTrack->key()] << "; was trying to set it to " << iVertex;
+      }
+      trk_vtxIdx[iTrack->key()] = iVertex;
     }
     vtx_trkIdx.push_back(trkIdx);
   }

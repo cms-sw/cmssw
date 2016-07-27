@@ -37,7 +37,7 @@ links between the objects:
 * track <-> hit
 * seed <-> hit
 * glued strip hits -> mono and stereo strip hits
-* vertex -> track
+* vertex <-> track
 * TrackingParticle <-> hit
 * TrackingParticle <-> TrackingVertex
 

@@ -24,6 +24,7 @@ def main():
     tot_fakes_npixhits_tps = 0
     tot_duplicates = 0
     tot_secondaries = 0
+    tot_novertex = 0
 
     tot_tps = 0
     tot_recoed = 0
@@ -87,6 +88,10 @@ def main():
         for track in tracks:
             if track.isHP():
                 tot_hptracks += 1
+
+            # link from track to vertex
+            if not track.vertex().isValid():
+                tot_novertex += 1
 
             if track.nMatchedTrackingParticles() == 0:
                 #print "Track", track.index(), " is fake"
@@ -211,6 +216,7 @@ def main():
     print "  of which %f %% were reconstructed at least twice" % (float(tot_tp_dups)/tot_recoed * 100)
     print "On average %f tracks" % (float(tot_ntracks)/tot_nevents)
     print " with %f %% being high purity" % (float(tot_hptracks)/tot_ntracks * 100)
+    print " with %f %% were not used in any vertex fit" % (float(tot_novertex)/tot_ntracks * 100)
     print " with %f %% of true tracks being secondaries" % (float(tot_secondaries)/(tot_ntracks-tot_fakes) * 100)
     print " with fake rate %f %%" % (float(tot_fakes)/tot_ntracks * 100)
     if tot_fakes_npixhits > 0:

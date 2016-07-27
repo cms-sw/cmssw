@@ -399,6 +399,11 @@ class Track(_Object, _HitAdaptor, _TrackingParticleMatchAdaptor):
         self._checkIsValid()
         return Seed(self._tree, self._tree.trk_seedIdx[self._index])
 
+    def vertex(self):
+        """Returns Vertex that used this track in its fit."""
+        self._checkIsValid()
+        return Vertex(self._tree, self._tree.trk_vtxIdx[self._index])
+
 class Tracks(_Collection):
     """Class presenting a collection of tracks."""
     def __init__(self, tree):
