@@ -6,23 +6,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
-//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
-//#include "SimRomanPot/SimFP420/interface/SimRPUtil.h"
 #include "SimRomanPot/SimFP420/interface/FP420DigiMain.h"
 
 #include "SimRomanPot/SimFP420/interface/ChargeDrifterFP420.h"
 #include "SimRomanPot/SimFP420/interface/ChargeDividerFP420.h"
 
-//#include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
 #include "DataFormats/FP420Digi/interface/HDigiFP420.h"
-//#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-//#include "DataFormats/Common/interface/DetSetVector.h"
-//#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-
-
-
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <gsl/gsl_sf_erf.h>
@@ -37,10 +26,8 @@ using namespace std;
 //#define CBOLTZ (1.38E-23)
 //#define e_SI (1.6E-19)
 
-
-
 FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
-  std::cout << "Creating a FP420DigiMain" << std::endl;
+  edm::LogInfo("SimRomanPotSimFP420") << "Creating a FP420DigiMain";
   ndigis=0;
   verbosity        = conf_.getUntrackedParameter<int>("VerbosityLevel");
   theElectronPerADC= conf_.getParameter<double>("ElectronFP420PerAdc");
@@ -56,10 +43,11 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   // pn0              = 6;// number of superplanes
   // rn0              = 3; // number of sensors in superlayer
   xytype           = 2;
-  if(verbosity>0) {
-    std::cout << "theApplyTofCut=" << theApplyTofCut << " tofCut=" << tofCut << std::endl;
-    std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
-  }
+
+  edm::LogInfo("SimRomanPotSimFP420") 
+    << "theApplyTofCut=" << theApplyTofCut << " tofCut=" << tofCut << "\n"
+    << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise;
+
   // X (or Y)define type of sensor (xytype=1 or 2 used to derive it: 1-Y, 2-X)
   // for every type there is normal pixel size=0.05 and Wide 0.400 mm
   Thick300 = 0.300;       // = 0.300 mm  normalized to 300micron Silicon
@@ -87,11 +75,9 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   //  tofCut = 1350.;           // Cut on the particle TOF range  = 1380 - 1500
   elossCut = 0.00003;           // Cut on the particle TOF   = 100 or 50
   
-  if(verbosity>0) std::cout << "FP420DigiMain moduleThickness=" << moduleThickness << std::endl;
+  edm::LogInfo("SimRomanPotSimFP420") << "FP420DigiMain moduleThickness=" << moduleThickness;
   
   float noiseRMS = ENC*moduleThickness/Thick300;
-  
-
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
   // Y:
@@ -111,45 +97,23 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
     pitchW= pitchXW;
   }
   
-  //  float noiseRMS = ENC*moduleThickness/Thick300;
-  
-  
   theHitDigitizerFP420 = new HitDigitizerFP420(moduleThickness,ldrift,ldriftY,ldriftX,thez420,thezD2,thezD3,verbosity);
   int numPixels = numStrips*numStripsW;
   theGNoiseFP420 = new GaussNoiseFP420(numPixels,noiseRMS,theThreshold,addNoisyPixels,verbosity);
-  //  theGNoiseFP420 = new GaussNoiseFP420(numStrips,noiseRMS,theThreshold,addNoisyPixels);
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-
-
-
-
   theZSuppressFP420 = new ZeroSuppressFP420(conf_,noiseRMS/theElectronPerADC); 
   thePileUpFP420 = new PileUpFP420();
   theDConverterFP420 = new DigiConverterFP420(theElectronPerADC,verbosity);
   
-  if(verbosity>0) std::cout << "FP420DigiMain end of constructor" << std::endl;
-
+  edm::LogInfo("SimRomanPotSimFP420") << "FP420DigiMain end of constructor";
 }
 
-
-
-
-
-
-
 FP420DigiMain::~FP420DigiMain(){
-  if(verbosity>0) {
-    std::cout << "Destroying a FP420DigiMain" << std::endl;
-  }
   delete theGNoiseFP420;
   delete theZSuppressFP420;
   delete theHitDigitizerFP420;
   delete thePileUpFP420;
-  delete theDConverterFP420;
-  
+  delete theDConverterFP420;  
 }
-
-
 
 //  Run the algorithm
 //  ------------------
@@ -158,8 +122,6 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
 				       const G4ThreeVector& bfield, unsigned int iu )  {
 
   thePileUpFP420->reset();
-  //  unsigned int detID = det->globalId().rawId();
-  //  unsigned int detID = 1;
   bool first = true;
   
   // main loop 
@@ -198,26 +160,13 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
       std::cout << " particleType= " << ihit.particleType() << std::endl;
   }
 
-  //
-
-  //  if ( ( !(theApplyTofCut)  ||  (theApplyTofCut &&   tofCut < abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
     if ( ( !(theApplyTofCut)  ||  ( theApplyTofCut &&   abs(tof) > tofCut && abs(tof) < (tofCut+200.)) ) && losenergy > elossCut) {
-      //    if ( abs(tof) < tofCut && losenergy > elossCut) {
-      // if ( losenergy>0) {
       if(verbosity>0) std::cout << " inside tof: OK " << std::endl;
       
-      //   xytype = 1 - Y strips;   =2 - X strips;
-      //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch);
       HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness,verbosity); 
-      
-      
       
       thePileUpFP420->add(_temp,ihit,verbosity);
       
-    }// if
-
-    else {
-      //    std::cout << " *******FP420DigiMain: ERROR???  losenergy =  " <<  losenergy  << std::endl;
     }
     // main part end (AZ) 
   } //for
@@ -235,28 +184,13 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
     afterNoise = theGNoiseFP420->addNoise(theSignal);
     //    add_noise();
   }
-  
-  //  if((pixelInefficiency>0) && (_signal.size()>0)) 
-  //  pixel_inefficiency(); // Kill some pixels
-  
-  
-  
   digis.clear();
   
-  
-  
-  //                                                                                                                !!!!!
   push_digis(theZSuppressFP420->zeroSuppress(theDConverterFP420->convert(afterNoise),verbosity),
 	     theLink,afterNoise);
   
-  
-  
   return digis; // to HDigiFP420
 }
-
-
-
-
 
 void FP420DigiMain::push_digis(const DigitalMapType& dm,
 			       const HitToDigisMapType& htd,
@@ -266,7 +200,6 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
   if(verbosity>0) {
     std::cout << " ****FP420DigiMain: push_digis start: do for loop dm.size()=" <<  dm.size() << std::endl;
   }
-  
   
   digis.reserve(50); 
   digis.clear();
@@ -284,41 +217,14 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
     }    
     
   }
-  
-  ////////////////////////////det.specificReadout().addDigis( digis); // 
-  /*       
-  //
-  // reworked to access the fraction of amplitude per simhit PSimHit
-  //
-  for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
-  #ifdef mydigidebug1
-  std::cout << " ****push_digis:first for:  (*mi).first = " << (*mi).first << std::endl;
-  std::cout << " if condition   = " << (*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] << std::endl;
-  #endif
-  //    if ((*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] != 0){
-  if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
-  //
-  // For each channel, sum up the signals from a simtrack
-  //
-  std::map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
-  for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul = 
-  (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
-  #ifdef mydigidebug1
-  std::cout << " ****push_digis:inside last for: (*simul).second= " << (*simul).second << std::endl;
-  #endif
-  totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
-  } // for
-  }  // if
-  } // for
-  */
-  
+    
   /////////////////////////////////////////////////////////////////////////////////////////////
     
     // reworked to access the fraction of amplitude per simhit
     
     for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
       //      
-      if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
+      if (dm.find((*mi).first) != dm.end() ){
 	// --- For each channel, sum up the signals from a simtrack
 	//
 	map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
@@ -352,10 +258,4 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
 	//
       }//if
     }//for
-    //
-    //
-    /////////////////////////////////////////////////////////////////////////////////////////////
-      //      
-      //      
-      //      
-      }
+}

@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,10 +23,10 @@
   #define DEBUG(X)
 #endif
 
-class StripCompactDigiSimLinksProducer : public edm::EDProducer {
+class StripCompactDigiSimLinksProducer : public edm::one::EDProducer<> {
     public:
         StripCompactDigiSimLinksProducer(const edm::ParameterSet &iConfig) ;
-        ~StripCompactDigiSimLinksProducer();
+        virtual ~StripCompactDigiSimLinksProducer();
 
         virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
