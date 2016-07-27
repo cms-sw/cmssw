@@ -8,7 +8,7 @@
  ****************************************************************************/
 
 
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;

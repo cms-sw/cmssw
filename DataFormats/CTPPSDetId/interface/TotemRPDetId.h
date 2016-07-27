@@ -7,8 +7,8 @@
  *
  ****************************************************************************/
 
-#ifndef DataFormats_TotemRPDetId_TotemRPDetId
-#define DataFormats_TotemRPDetId_TotemRPDetId
+#ifndef DataFormats_CTPPSDetId_CTPPSDetId
+#define DataFormats_CTPPSDetId_CTPPSDetId
 
 #include "DataFormats/DetId/interface/DetId.h"
 

@@ -1,4 +1,4 @@
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 namespace DataFormats_TotemRPDetId {
   struct dictionary {
