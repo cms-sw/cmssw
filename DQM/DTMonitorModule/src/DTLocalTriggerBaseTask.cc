@@ -308,11 +308,24 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
 	         + sector.str() + "/Station" + station.str() + "/LocalTriggerTheta");
 
     string histoTag = "";
-    if((*typeIt)=="TM") {
+    if((*typeIt)=="TM" && dtCh.station()!=4) {
       histoTag = (*typeIt) + "_PositionvsBX";
       chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,"Theta trigger position vs BX",
 			      (int)(maxBX[(*typeIt)]-minBX[*typeIt]+1),minBX[*typeIt]-.5,maxBX[*typeIt]+.5,7,-0.5,6.5);
+      histoTag = (*typeIt) + "_PositionvsQual";
+      chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,"Theta trigger position vs quality",
+                              2,0.5,2.5,7,-0.5,6.5);
+      setQLabelsTheta(chamberHistos[rawId][histoTag],1);
+      histoTag = (*typeIt) + "_ThetaBXvsQual";
+      chamberHistos[rawId][histoTag] = ibooker.book2D(histoTag+chTag,"BX vs trigger quality",
+                              2,0.5,2.5,(int)(maxBX[(*typeIt)]-minBX[*typeIt]+1),minBX[*typeIt]-.5,maxBX[*typeIt]+.5);
+      setQLabelsTheta(chamberHistos[rawId][histoTag],1);
+//      histoTag = (*typeIt) + "_ThetaBestQual";
+//      chamberHistos[rawId][histoTag] = ibooker.book1D(histoTag+chTag,
+//                              "Trigger quality of best primitives (theta)",2,0.5,2.5); // 0 = not fired, 1 = L, 2 = H
+//      setQLabelsTheta(chamberHistos[rawId][histoTag],1);
     } else {
+        if(dtCh.station()!=4){    
       histoTag = (*typeIt) + "_ThetaBXvsQual";
       chamberHistos[rawId][histoTag] =  ibooker.book2D(histoTag+chTag,"BX vs trigger quality",7,-0.5,6.5,
 					   (int)(maxBX[(*typeIt)]-minBX[*typeIt]+1),minBX[*typeIt]-.5,maxBX[*typeIt]+.5);
@@ -322,6 +335,7 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
       chamberHistos[rawId][histoTag] = ibooker.book1D(histoTag+chTag,
       "Trigger quality of best primitives (theta)",7,-0.5,6.5);
       setQLabels((chamberHistos[dtCh.rawId()])[histoTag],1);
+	}
     }
 
   }
@@ -474,11 +488,12 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
     map<string, MonitorElement*> &innerME = chamberHistos[rawId];
 
     for (int pos=0; pos<7; pos++)
-      if (thcode[pos])
+      if (thcode[pos]>0) {//Fired
 	innerME["TM_PositionvsBX"]->Fill(bx,pos); // SM BX vs Position Theta view
-
-  }
-
+        innerME["TM_PositionvsQual"]->Fill(thcode[pos],pos); //code = pos + qual; so 0, 1, 2 for 0, L, H resp.
+        innerME["TM_ThetaBXvsQual"]->Fill(thcode[pos],bx); //code = pos + qual; so 0, 1, 2 for 0, L, H resp.
+      }
+   }
   // Fill Quality plots with best TM triggers (phi view In)
   if (!tpMode) {
     map<uint32_t,DTTPGCompareUnit>::const_iterator compIt  = theCompMapIn.begin();
@@ -500,7 +515,6 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
         chamberHistos[compIt->first]["TM_BestQual_Out"]->Fill(bestQual);  // SM Best Qual Trigger Phi view
     }
   }
-
 
 }
 
@@ -611,6 +625,27 @@ void DTLocalTriggerBaseTask::setQLabels(MonitorElement* me, short int iaxis){
 
 }
 
+void DTLocalTriggerBaseTask::setQLabelsTheta(MonitorElement* me, short int iaxis){
+
+  TH1* histo = me->getTH1();
+  if (!histo) return;
+
+  TAxis* axis=0;
+  if (iaxis==1) {
+    axis=histo->GetXaxis();
+  }
+  else if(iaxis==2) {
+    axis=histo->GetYaxis();
+  }
+  if (!axis) return;
+
+  string labels[2] = {"L","H"};
+  int istart = axis->GetXmin()<-1 ? 2 : 1;
+  for (int i=0;i<2;i++) {
+    axis->SetBinLabel(i+istart,labels[i].c_str());
+  }
+
+}
 // Local Variables:
 // show-trailing-whitespace: t
 // truncate-lines: t

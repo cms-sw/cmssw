@@ -92,6 +92,7 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
+  void setQLabelsTheta(MonitorElement* me, short int iaxis);
 
   int nEvents;
   int nEventsInLS;
