@@ -115,6 +115,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<ZDCDataFrame> zdc;
   std::vector<HcalTTPDigi> ttp;
   std::vector<HOTriggerPrimitiveDigi> hotp;
+  HcalUMNioDigi umnio;
   std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
 
   // Heuristics: use ave+(max-ave)/8
@@ -136,6 +137,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   colls.tphoCont=&hotp;
   colls.calibCont=&hc;
   colls.zdcCont=&zdc;
+  colls.umnio=&umnio;
   if (unpackTTP_) colls.ttp=&ttp;
  
   // Step C: unpack all requested FEDs
@@ -278,8 +280,8 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(report);
   /// umnio
   if (unpackUMNio_) {
-    std::auto_ptr<HcalUMNioDigi> prod(colls.umnio);
-    if(colls.umnio != 0) e.put(prod);
+    std::auto_ptr<HcalUMNioDigi> prod(umnio);
+    if(umnio != 0) e.put(prod);
 
 
   }
