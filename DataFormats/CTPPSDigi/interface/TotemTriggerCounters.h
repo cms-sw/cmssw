@@ -6,8 +6,8 @@
 *    
 ****************************************************************************/
 
-#ifndef DataFormats_TotemDigi_TotemTriggerCounters
-#define DataFormats_TotemDigi_TotemTriggerCounters
+#ifndef DataFormats_CTPPSDigi_TotemTriggerCounters
+#define DataFormats_CTPPSDigi_TotemTriggerCounters
 
 /**
  * Trigger counters from LoneG.

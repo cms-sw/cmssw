@@ -6,8 +6,8 @@
 *
 ****************************************************************************/
 
-#ifndef DataFormats_TotemDigi_TotemFEDInfo
-#define DataFormats_TotemDigi_TotemFEDInfo
+#ifndef DataFormats_CTPPSDigi_TotemFEDInfo
+#define DataFormats_CTPPSDigi_TotemFEDInfo
 
 /**
  * \brief OptoRx headers and footers.

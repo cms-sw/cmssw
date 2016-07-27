@@ -7,7 +7,7 @@
 *    
 ****************************************************************************/
 
-#include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 
 #include <ostream>
 

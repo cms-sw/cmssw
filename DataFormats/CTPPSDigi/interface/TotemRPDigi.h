@@ -7,8 +7,8 @@
 *
 ****************************************************************************/
 
-#ifndef DataFormats_TotemDigi_TotemRPDigi
-#define DataFormats_TotemDigi_TotemRPDigi
+#ifndef DataFormats_CTPPSDigi_TotemRPDigi
+#define DataFormats_CTPPSDigi_TotemRPDigi
 
 /**
  * Digi structure for TOTEM RP silicon strip sensors.

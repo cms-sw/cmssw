@@ -10,10 +10,10 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "DataFormats/TotemDigi/interface/TotemRPDigi.h"
-#include "DataFormats/TotemDigi/interface/TotemTriggerCounters.h"
-#include "DataFormats/TotemDigi/interface/TotemVFATStatus.h"
-#include "DataFormats/TotemDigi/interface/TotemFEDInfo.h"
+#include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemTriggerCounters.h"
+#include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
+#include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 
 #include <vector>
 

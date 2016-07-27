@@ -7,8 +7,8 @@
 *    
 ****************************************************************************/
 
-#ifndef DataFormats_TotemDigi_TotemVFATStatus
-#define DataFormats_TotemDigi_TotemVFATStatus
+#ifndef DataFormats_CTPPSDigi_TotemVFATStatus
+#define DataFormats_CTPPSDigi_TotemVFATStatus
 
 #include <bitset>
 #include <map>
