@@ -11,6 +11,7 @@
 
 #include <string>
 #include <iostream>
+#include <bitset>
 
 using namespace std;
 
@@ -60,8 +61,13 @@ namespace cms {
       typename std::vector<edm::Handle<COLL> >::const_iterator i;
       cout << "Handles: " << handles.size() << endl;
       for (i=handles.begin(); i!=handles.end(); i++) {
-        for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++)
-          cout << marker << *j << endl;
+        for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++){
+          
+          cout << marker << *j
+               << ", stb: " << std::bitset<32>(j->flags())
+               << ", auxb: " << std::bitset<32>(j->aux())
+               << endl;
+        }
       }
 //    } catch (...) {
 //      if(name) cout << "No " << name << " RecHits." << endl;
