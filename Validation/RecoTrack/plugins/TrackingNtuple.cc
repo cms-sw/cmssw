@@ -395,8 +395,13 @@ private:
   std::vector<float> sim_pt       ;
   std::vector<float> sim_eta      ;
   std::vector<float> sim_phi      ;
-  std::vector<float> sim_dxy      ;
-  std::vector<float> sim_dz       ;
+  std::vector<float> sim_pca_pt   ;
+  std::vector<float> sim_pca_eta  ;
+  std::vector<float> sim_pca_lambda;
+  std::vector<float> sim_pca_cotTheta;
+  std::vector<float> sim_pca_phi  ;
+  std::vector<float> sim_pca_dxy  ;
+  std::vector<float> sim_pca_dz   ;
   std::vector<int> sim_q       ;
   std::vector<unsigned int> sim_nValid  ;
   std::vector<unsigned int> sim_nPixel  ;
@@ -659,8 +664,13 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   t->Branch("sim_pt"       , &sim_pt       );
   t->Branch("sim_eta"      , &sim_eta      );
   t->Branch("sim_phi"      , &sim_phi      );
-  t->Branch("sim_dxy"      , &sim_dxy      );
-  t->Branch("sim_dz"       , &sim_dz       );
+  t->Branch("sim_pca_pt"   , &sim_pca_pt  );
+  t->Branch("sim_pca_eta"  , &sim_pca_eta  );
+  t->Branch("sim_pca_lambda", &sim_pca_lambda);
+  t->Branch("sim_pca_cotTheta", &sim_pca_cotTheta);
+  t->Branch("sim_pca_phi"  , &sim_pca_phi  );
+  t->Branch("sim_pca_dxy"  , &sim_pca_dxy  );
+  t->Branch("sim_pca_dz"   , &sim_pca_dz   );
   t->Branch("sim_q"        , &sim_q        );
   t->Branch("sim_nValid"   , &sim_nValid   );
   t->Branch("sim_nPixel"   , &sim_nPixel   );
@@ -895,8 +905,13 @@ void TrackingNtuple::clearVariables() {
   sim_pt       .clear();
   sim_eta      .clear();
   sim_phi      .clear();
-  sim_dxy      .clear();
-  sim_dz       .clear();
+  sim_pca_pt   .clear();
+  sim_pca_eta  .clear();
+  sim_pca_lambda.clear();
+  sim_pca_cotTheta.clear();
+  sim_pca_phi  .clear();
+  sim_pca_dxy  .clear();
+  sim_pca_dz   .clear();
   sim_q        .clear();
   sim_nValid   .clear();
   sim_nPixel   .clear();
@@ -1887,14 +1902,22 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
     for(const auto& v: tp->decayVertices())
       decayIdx.push_back( tvKeyToIndex.at(v.key()) );
     sim_decayVtxIdx.push_back(decayIdx);
+
     //Calcualte the impact parameters w.r.t. PCA
     TrackingParticle::Vector momentum = parametersDefiner->momentum(iEvent,iSetup,tp);
     TrackingParticle::Point vertex = parametersDefiner->vertex(iEvent,iSetup,tp);
     float dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
     float dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2())
       * momentum.z()/sqrt(momentum.perp2());
-    sim_dxy      .push_back(dxySim);
-    sim_dz       .push_back(dzSim);
+    const double lambdaSim = M_PI/2 - momentum.theta();
+    sim_pca_pt       .push_back(std::sqrt(momentum.perp2()));
+    sim_pca_eta      .push_back(momentum.Eta());
+    sim_pca_lambda   .push_back(lambdaSim);
+    sim_pca_cotTheta .push_back(1/tan(M_PI*0.5-lambdaSim));
+    sim_pca_phi      .push_back(momentum.phi());
+    sim_pca_dxy      .push_back(dxySim);
+    sim_pca_dz       .push_back(dzSim);
+
     std::vector<int> hitIdx;
     std::vector<int> hitType;
     auto rangeHit = std::equal_range(tpHitList.begin(), tpHitList.end(), TPHitIndex(tp.key()), tpHitIndexListLess);
