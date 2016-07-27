@@ -30,10 +30,10 @@ bool ResonanceDecayFilterHook::initAfterBeams() {
     if ( (did == 14 || did == 16) && allNuAsEquivalent_) {
       did = 12;
     }
-    if ( (did == 2 || did==3 || did==4 || did==5 ) && udscAsEquivalent_) {
+    if ( (did == 2 || did==3 || did==4 ) && udscAsEquivalent_) {
       did = 1;
     }
-    if ( (did == 2 || did==3 || did==4 || did==5 || did==6) && udscbAsEquivalent_) {
+    if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
     }
 
@@ -66,10 +66,10 @@ bool ResonanceDecayFilterHook::checkVetoResonanceDecays(const Event& process) {
     if ( (did == 14 || did == 16) && allNuAsEquivalent_) {
       did = 12;
     }   
-    if ( (did == 2 || did==3 || did==4 || did==5 ) && udscAsEquivalent_) {
+    if ( (did == 2 || did==3 || did==4 ) && udscAsEquivalent_) {
       did = 1;
     }
-    if ( (did == 2 || did==3 || did==4 || did==5 || did==6) && udscbAsEquivalent_) {
+    if ( (did == 2 || did==3 || did==4 || did==5 ) && udscbAsEquivalent_) {
       did = 1;
     } 
     
