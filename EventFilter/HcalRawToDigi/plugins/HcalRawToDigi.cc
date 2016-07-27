@@ -281,7 +281,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   /// umnio
   if (unpackUMNio_) {
     if(colls.umnio != 0) {
-      std::auto_ptr<HcalUMNioDigi> prod(colls.umnio);
+      std::auto_ptr<HcalUMNioDigi> prod = std::auto_ptr<HcalUMNioDigi>(new HcalUMNioDigi(umnio));
       e.put(prod);
     }
 
