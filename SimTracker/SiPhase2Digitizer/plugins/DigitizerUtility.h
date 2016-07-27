@@ -1,3 +1,4 @@
+
 #ifndef __SimTracker_SiPhase2Digitizer_DigitizerUtility_h
 #define __SimTracker_SiPhase2Digitizer_DigitizerUtility_h
 
@@ -46,7 +47,7 @@ namespace DigitizerUtility {
 
       // in case of contribution of noise to the digi
       // the MC information are removed
-      if (other._frac.size() > 0 && other._frac[0] >- 0.5) {
+      if (other._frac.size() > 0 && other._frac[0] > -0.5) {
         if (other._hitInfo) {
           std::vector<unsigned int>& otherTrackIds = other._hitInfo->trackIds_;
           if (_hitInfo) {
@@ -140,6 +141,7 @@ namespace DigitizerUtility {
   };
   struct DigiSimInfo {
     int sig_tot;
+    bool ot_bit;
     std::map<unsigned int, float> track_map;
     unsigned int hit_counter;
     unsigned int tof_bin; 

@@ -90,23 +90,20 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
     edm::ESHandle<TrackerGeometry> geomHandle;
     iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
 
-    if (pixelFlag_) fillDigiHistos(pixDigiHandle, geomHandle);
-    else  fillDigiHistos(otDigiHandle, geomHandle);
+    if (pixelFlag_) fillITPixelDigiHistos(pixDigiHandle, geomHandle);
+    else  fillOTDigiHistos(otDigiHandle, geomHandle);
   }
 }
-template <class T>
-void Phase2TrackerMonitorDigi::fillDigiHistos(const edm::Handle<edm::DetSetVector<T>>  handle, const edm::ESHandle<TrackerGeometry> gHandle) {
-  const edm::DetSetVector<T>* digis = handle.product();
+void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle) {
+  const edm::DetSetVector<PixelDigi>* digis = handle.product();
 
   const TrackerTopology* tTopo = tTopoHandle_.product();
 
-  for (typename edm::DetSetVector<T>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
+  for (typename edm::DetSetVector<PixelDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
     edm::LogInfo("Phase2TrackerMonitorDigi")<< " Det Id = " << rawid;    
-    int layer;
-    if (pixelFlag_)  layer = tTopo->getITPixelLayerNumber(rawid);
-    else layer = tTopo->getOTLayerNumber(rawid);
+    int layer = tTopo->getITPixelLayerNumber(rawid);
     if (layer < 0) continue;
     std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
     if (pos == layerMEs.end()) continue;
@@ -117,7 +114,7 @@ void Phase2TrackerMonitorDigi::fillDigiHistos(const edm::Handle<edm::DetSetVecto
     int nclus = 0;
     int width = 0;
     int position = 0; 
-    for (typename edm::DetSet< T >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
+    for (typename edm::DetSet< PixelDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
       int col = di->column(); // column
       int row = di->row();    // row
       const DetId detId(rawid);
@@ -130,6 +127,70 @@ void Phase2TrackerMonitorDigi::fillDigiHistos(const edm::Handle<edm::DetSetVecto
 	RZPositionMap->Fill(pdPos.z()*10.0, std::sqrt(pdPos.x()*pdPos.x() + pdPos.y()*pdPos.y())*10.0);  
       }
       nDigi++;
+      edm::LogInfo("Phase2TrackerMonitorDigi")<< "  column " << col << " row " << row  <<
+        std::dec  << std::endl;
+      local_mes.PositionOfDigis->Fill(row+1, col+1);
+
+      if (row_last == -1 ) {
+        width  = 1;
+        position = row+1;
+        nclus++; 
+      } else {
+	if (abs(row - row_last) == 1 && col == col_last) {
+	  position += row+1;
+	  width++;
+	} else {
+          position /= width;  
+          local_mes.ClusterWidth->Fill(width);
+          local_mes.ClusterPosition->Fill(position);
+	  width  = 1;
+	  position = row+1;
+          nclus++;
+	}
+      }
+      edm::LogInfo("Phase2TrackerMonitorDigi")<< " row " << row << " col " << col <<  " row_last " << row_last << " col_last " << col_last << " width " << width;
+      row_last = row;
+      col_last = col;
+    }
+    local_mes.NumberOfClusters->Fill(nclus);  
+    local_mes.NumberOfDigis->Fill(nDigi);
+  }
+}
+void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>>  handle, const edm::ESHandle<TrackerGeometry> gHandle) {
+  const edm::DetSetVector<Phase2TrackerDigi>* digis = handle.product();
+
+  const TrackerTopology* tTopo = tTopoHandle_.product();
+
+  for (typename edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
+    unsigned int rawid = DSViter->id; 
+    DetId detId(rawid);
+    edm::LogInfo("Phase2TrackerMonitorDigi")<< " Det Id = " << rawid;    
+    int layer = tTopo->getOTLayerNumber(rawid);
+    if (layer < 0) continue;
+    std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
+    if (pos == layerMEs.end()) continue;
+    DigiMEs local_mes = pos->second;
+    int nDigi = 0; 
+    int row_last = -1;
+    int col_last = -1;
+    int nclus = 0;
+    int width = 0;
+    int position = 0; 
+    float frac_ot = 0.;
+    for (typename edm::DetSet< Phase2TrackerDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
+      int col = di->column(); // column
+      int row = di->row();    // row
+      const DetId detId(rawid);
+
+      const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
+      if (gDetUnit) {  
+	MeasurementPoint mp( row + 0.5, col + 0.5 );
+	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	XYPositionMap->Fill(pdPos.x()*10.0, pdPos.y()*10.0);
+	RZPositionMap->Fill(pdPos.z()*10.0, std::sqrt(pdPos.x()*pdPos.x() + pdPos.y()*pdPos.y())*10.0);  
+      }
+      nDigi++;
+      if (di->overThreshold()) frac_ot++;
       edm::LogInfo("Phase2TrackerMonitorDigi")<< "  column " << col << " row " << row  <<
         std::dec  << std::endl;
       local_mes.PositionOfDigis->Fill(row+1, col+1);
@@ -158,6 +219,9 @@ void Phase2TrackerMonitorDigi::fillDigiHistos(const edm::Handle<edm::DetSetVecto
     }
     local_mes.NumberOfClusters->Fill(nclus);  
     local_mes.NumberOfDigis->Fill(nDigi);
+     
+    if (nDigi) frac_ot /= nDigi;
+    if (local_mes.FractionOfOTBits) local_mes.FractionOfOTBits->Fill(frac_ot);
   }
 }
 //
@@ -280,6 +344,13 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					     Parameters.getParameter<int32_t>("Nbins"),
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
+   
+    if (!pixelFlag_) {
+      HistoName.str("");
+      HistoName << "FractionOfOverThresholdDigis_" << fname2.str();
+      local_mes.FractionOfOTBits= ibooker.book1D(HistoName.str(), HistoName.str(),11, -0.05, 1.05);
+    }
+
     layerMEs.insert(std::make_pair(layer, local_mes)); 
   }  
 }
