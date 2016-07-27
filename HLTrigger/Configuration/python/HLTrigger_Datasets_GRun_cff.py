@@ -468,19 +468,19 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetCharmonium_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCharmonium_selector.l1tResults = cms.InputTag('')
 streamA_datasetCharmonium_selector.throw      = cms.bool(False)
-streamA_datasetCharmonium_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v3', 
+streamA_datasetCharmonium_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v4', 
     'HLT_Dimuon0er16_Jpsi_NoOS_NoVertexing_v3', 
     'HLT_Dimuon0er16_Jpsi_NoVertexing_v3', 
-    'HLT_Dimuon10_Jpsi_Barrel_v4', 
-    'HLT_Dimuon13_PsiPrime_v3', 
-    'HLT_Dimuon16_Jpsi_v3', 
-    'HLT_Dimuon20_Jpsi_v3', 
+    'HLT_Dimuon10_Jpsi_Barrel_v5', 
+    'HLT_Dimuon13_PsiPrime_v4', 
+    'HLT_Dimuon16_Jpsi_v4', 
+    'HLT_Dimuon20_Jpsi_v4', 
     'HLT_Dimuon6_Jpsi_NoVertexing_v3', 
-    'HLT_Dimuon8_PsiPrime_Barrel_v4', 
-    'HLT_DoubleMu4_3_Bs_v4', 
-    'HLT_DoubleMu4_3_Jpsi_Displaced_v4', 
-    'HLT_DoubleMu4_JpsiTrk_Displaced_v4', 
-    'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v4', 
+    'HLT_Dimuon8_PsiPrime_Barrel_v5', 
+    'HLT_DoubleMu4_3_Bs_v5', 
+    'HLT_DoubleMu4_3_Jpsi_Displaced_v5', 
+    'HLT_DoubleMu4_JpsiTrk_Displaced_v5', 
+    'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v5', 
     'HLT_Mu7p5_L2Mu2_Jpsi_v3', 
     'HLT_Mu7p5_Track2_Jpsi_v3', 
     'HLT_Mu7p5_Track3p5_Jpsi_v3', 
@@ -532,17 +532,17 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleMuonLowMass_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleMuonLowMass_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMuonLowMass_selector.throw      = cms.bool(False)
-streamA_datasetDoubleMuonLowMass_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_Trk_Tau3mu_v2', 
-    'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v4')
+streamA_datasetDoubleMuonLowMass_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_Trk_Tau3mu_v3', 
+    'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Phi_Barrel_v4', 
-    'HLT_Dimuon0_Upsilon_Muon_v3', 
-    'HLT_Dimuon13_Upsilon_v3', 
-    'HLT_Dimuon8_Upsilon_Barrel_v4', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Phi_Barrel_v5', 
+    'HLT_Dimuon0_Upsilon_Muon_v4', 
+    'HLT_Dimuon13_Upsilon_v4', 
+    'HLT_Dimuon8_Upsilon_Barrel_v5', 
     'HLT_Mu16_TkMu0_dEta18_Onia_v3', 
     'HLT_Mu16_TkMu0_dEta18_Phi_v3', 
     'HLT_Mu25_TkMu0_dEta18_Onia_v4', 
