@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -27,7 +27,7 @@
 using namespace edm;
 using namespace std;
 
-class DTDigiReader: public EDAnalyzer{
+class DTDigiReader: public edm::one::EDAnalyzer<> {
   
 public:
   explicit DTDigiReader(const ParameterSet& pset){

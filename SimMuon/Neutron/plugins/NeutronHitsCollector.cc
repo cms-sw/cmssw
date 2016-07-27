@@ -19,7 +19,7 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -35,16 +35,16 @@
 
 
 
-class NeutronHitsCollector : public edm::EDProducer
+class NeutronHitsCollector : public edm::stream::EDProducer<>
 {
 public:
   explicit NeutronHitsCollector(const edm::ParameterSet&);
   ~NeutronHitsCollector() {};
 
 private:
-  virtual void beginJob() override;
+  virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  virtual void endJob();
 
   std::string neutron_label_csc;
   std::string neutron_label_dt;

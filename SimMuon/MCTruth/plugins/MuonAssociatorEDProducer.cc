@@ -61,8 +61,6 @@ MuonAssociatorEDProducer::MuonAssociatorEDProducer(const edm::ParameterSet& pars
 
   LogTrace("MuonAssociatorEDProducer") << "MuonAssociatorEDProducer::beginJob : constructing MuonAssociatorByHits";
   associatorByHits = new MuonAssociatorByHits(parset_,consumesCollector());
-
-
 }
 
 MuonAssociatorEDProducer::~MuonAssociatorEDProducer() {}
