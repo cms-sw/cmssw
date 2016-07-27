@@ -3,14 +3,13 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
-#include "TClass.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+
+#include <vector>
 
 namespace edm {
   ProductRegistryHelper::~ProductRegistryHelper() { }
@@ -25,27 +24,16 @@ namespace edm {
                                        ModuleDescription const& iDesc,
                                        ProductRegistry& iReg,
                                        bool iIsListener) {
-    TypeSet missingTypes;
+
+    std::vector<std::string> missingDictionaries;
+    std::vector<std::string> producedTypes;
+
     for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-      // This should load the dictionary if not already loaded.
-      TClass::GetClass(p->typeID_.typeInfo());
-      if(!hasDictionary(p->typeID_.typeInfo())) {
-        // a second attempt to load
-        TypeWithDict::byName(p->typeID_.userClassName());
-      }
-      if(!hasDictionary(p->typeID_.typeInfo())) {
-        throw Exception(errors::DictionaryNotFound)
-           << "No data dictionary found for class:\n\n"
-           <<  p->typeID_.className()
-           << "\nMost likely the dictionary was never generated,\n"
-           << "but it may be that it was generated in the wrong package.\n"
-           << "Please add (or move) the specification\n"
-           << "<class name=\"whatever\"/>\n"
-           << "to the appropriate classes_def.xml file.\n"
-           << "If the class is a template instance, you may need\n"
-           << "to define a dummy variable of this type in classes.h.\n"
-           << "Also, if this class has any transient members,\n"
-           << "you need to specify them in classes_def.xml.";
+
+      if (!checkDictionary(missingDictionaries, p->typeID_)) {
+        checkDictionaryOfWrappedType(missingDictionaries, p->typeID_);
+        producedTypes.emplace_back(p->typeID_.className());
+        continue;
       }
 
       TypeWithDict type(p->typeID_.typeInfo());
@@ -58,15 +46,29 @@ namespace edm {
                               iDesc.moduleName(),
                               iDesc.parameterSetID(),
                               type);
-      if(pdesc.transient()) {
-        checkClassDictionaries(TypeID(pdesc.wrappedType().typeInfo()), missingTypes, false);
-      } else {
-        checkClassDictionaries(TypeID(pdesc.wrappedType().typeInfo()), missingTypes,true);
-      }
 
+      if (pdesc.transient()) {
+        if (!checkDictionary(missingDictionaries, pdesc.wrappedName(), pdesc.wrappedType())) {
+          // It is should be impossible to get here, because the only way to
+          // make it transient is in the line that causes the wrapped dictionary
+          // to be created. Just to be safe I leave this check here ...
+          producedTypes.emplace_back(pdesc.className());
+          continue;
+        }
+      } else {
+        // also check constituents of wrapped types if it is not transient
+        if (!checkClassDictionaries(missingDictionaries, pdesc.wrappedName(), pdesc.wrappedType())) {
+          producedTypes.emplace_back(pdesc.className());
+          continue;
+        }
+      }
       if (!p->branchAlias_.empty()) pdesc.insertBranchAlias(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
-    }//for
-    loadMissingDictionaries(missingTypes);
+    }
+
+    if (!missingDictionaries.empty()) {
+      std::string context("Calling ProductRegistryHelper::addToRegistry, checking dictionaries for produced types");
+      throwMissingDictionariesException(missingDictionaries, context, producedTypes);
+    }
   }
 }

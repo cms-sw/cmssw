@@ -1,7 +1,5 @@
 // Test of the DictionaryTools functions.
 
-
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"

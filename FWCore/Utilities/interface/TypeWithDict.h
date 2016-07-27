@@ -69,6 +69,7 @@ public:
   TypeWithDict& operator=(TypeWithDict const&);
   TypeWithDict& stripConstRef();
   explicit operator bool() const;
+  bool invalidTypeInfo() const;
   std::type_info const& typeInfo() const;
   TClass* getClass() const;
   TEnum* getEnum() const;

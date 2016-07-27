@@ -2,7 +2,6 @@
 
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
