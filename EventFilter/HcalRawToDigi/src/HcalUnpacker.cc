@@ -872,10 +872,6 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& col
   }
   const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
   size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
-  std::unique_ptr<HcalUMNioDigi> umnioDigi(new HcalUMNioDigi(data, nwords));
-  if(umnioDigi->invalid()) return;
+  *(colls.umnio) = HcalUMNioDigi(data, nwords);
   
-  colls.umnio = umnioDigi.get();
-  
-  return;
 }
