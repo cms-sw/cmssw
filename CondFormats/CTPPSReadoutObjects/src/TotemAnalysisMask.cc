@@ -9,7 +9,7 @@
 
 #include "FWCore/Utilities/interface/typelookup.h"
 
-#include "CondFormats/TotemReadoutObjects/interface/TotemAnalysisMask.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
 
 //----------------------------------------------------------------------------------------------------
 

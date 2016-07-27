@@ -6,8 +6,8 @@
 *
 ****************************************************************************/
 
-#ifndef CondFormats_TotemReadoutObjects_TotemSymbId
-#define CondFormats_TotemReadoutObjects_TotemSymbId
+#ifndef CondFormats_CTPPSReadoutObjects_TotemSymbId
+#define CondFormats_CTPPSReadoutObjects_TotemSymbId
 
 #include <iostream>
 
