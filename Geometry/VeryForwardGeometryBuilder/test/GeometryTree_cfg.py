@@ -2,8 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTree")
 
-# logs
-process.load("FWCore.MessageService.MessageLogger_cfi")
+# minimum of logs
+process.MessageLogger = cms.Service("MessageLogger",
+    statistics = cms.untracked.vstring(),
+    destinations = cms.untracked.vstring('cerr'),
+    cerr = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING')
+    )
+)
 
 # geometry
 process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
@@ -15,6 +21,6 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 # teh analyzer
-process.tree = cms.EDAnalyzer('GeometryTree')
+process.tree = cms.EDAnalyzer("GeometryTree")
 
 process.p = cms.Path(process.tree)
