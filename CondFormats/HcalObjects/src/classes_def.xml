@@ -439,4 +439,5 @@
  <class name="HcalInterpolatedPulseColl" class_version="1"/>
  <class name="std::vector<PiecewiseScalingPolynomial>"/>
  <class name="HBHENegativeEFilter" class_version="1"/>
+ <class name="HFPhase1PMTParams" class_version="1"/>
 </lcgdict>   

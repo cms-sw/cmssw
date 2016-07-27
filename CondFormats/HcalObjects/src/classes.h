@@ -112,6 +112,9 @@ namespace CondFormats_HcalObjects {
     // HBHE negative energy filter
     std::vector<PiecewiseScalingPolynomial> myPiecewiseScalingPolynomialVec;
     HBHENegativeEFilter myHBHENegativeEFilter;
+
+    // Phase 1 HF algorithm configuration data
+    HFPhase1PMTParams myHFPhase1PMTParams;
   };
 }
 
