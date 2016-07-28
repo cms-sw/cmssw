@@ -11,10 +11,10 @@
    <![CDATA[theMinPixelRow = onfile.thePixelRow&1023;]]>
    </ioread>
   <ioread sourceClass="SiPixelCluster" version="[11-12]" targetClass="SiPixelCluster" source="uint16_t thePixelCol" target="thePixelColSpan">
-   <![CDATA[thePixelColSpan = onfile.thePixelCol>>6;]]>
+   <![CDATA[thePixelColSpan = onfile.thePixelCol>>10;]]>
    </ioread>
    <ioread sourceClass="SiPixelCluster" version="[11-12]" targetClass="SiPixelCluster" source="uint16_t thePixelRow" target="thePixelRowSpan">
-   <![CDATA[thePixelRowSpan = onfile.thePixelRow>>6;]]>
+   <![CDATA[thePixelRowSpan = onfile.thePixelRow>>10;]]>
    </ioread>
   </class>
   <class name="SiPixelCluster::Pixel" ClassVersion="11">
