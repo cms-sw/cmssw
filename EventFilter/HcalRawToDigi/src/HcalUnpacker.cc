@@ -592,15 +592,17 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     for (int iw=0; iw<nwords; iw++) 
         printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
 #endif
+
     HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
     while (i!=iend) {
 #ifdef DebugLog
       std::cout << "This data is flavored:" << i.flavor() << std::endl;
 #endif
+
       if (!i.isHeader()) {
 	    ++i;
 #ifdef DebugLog
-           std::cout << "its not a header" << std::endl;
+	    std::cout << "its not a header" << std::endl;
 #endif
 	    continue;
       }
@@ -644,7 +646,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 #endif
           }
       } else if (i.flavor() == 2){
-    //////////////////////////////////////////////////HF UNPACKER/////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////HF UNPACKER/////////////////////////////////////////////////////////////////////
+
 	int ifiber=((i.channelid()>>3)&0x1F);
 	int ichan=(i.channelid()&0x7);
 	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
@@ -843,7 +846,8 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	
 	// unpack the four capids
 	for (int capid=0; capid<4; capid++) 
-	  htr.unpackHistogram(f[nf],fc,capid,digi.getArray(capid));	
+	  htr.unpackHistogram(f[nf],fc,capid,digi.getArray(capid));
+	
       }
     }
   }
