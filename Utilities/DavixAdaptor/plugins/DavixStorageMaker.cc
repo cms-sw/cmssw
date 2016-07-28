@@ -22,22 +22,19 @@ public:
   virtual bool check(const std::string &proto, const std::string &path, const AuxSettings &aux,
                      IOOffset *size = 0) const override {
     std::string newurl((proto == "web" ? "http" : proto) + ":" + path);
-    Davix::DavixError *err = NULL;
-    std::unique_ptr<Davix::DavPosix> davixPosix =
-        std::make_unique<Davix::DavPosix>(new Davix::Context());
+    Davix::DavixError *err = nullptr;
+    Davix::Context c;
+    Davix::DavPosix davixPosix(&c);
     Davix::StatInfo info;
-    davixPosix->stat64(NULL, newurl, &info, &err);
+    davixPosix.stat64(NULL, newurl, &info, &err);
     if (err) {
       std::unique_ptr<Davix::DavixError> davixErrManaged(err);
-      std::cout << "Check failed with error " << err->getErrMsg().c_str() << " and error code"
-                << err->getStatus() << std::endl;
       cms::Exception ex("FileCheckError");
       ex << "Check failed with error " << err->getErrMsg().c_str() << " and error code"
          << err->getStatus();
       ex.addContext("Calling DavixFile::check()");
       throw ex;
     }
-    std::cout << "File is " << info.size << " bytes large" << std::endl;
     if (size) {
       *size = info.size;
     }

@@ -30,25 +30,41 @@ DavixFile::~DavixFile(void) {
 }
 
 void DavixFile::close(void) {
-  if (davixPosix && m_fd) {
-    DavixError *err;
-    davixPosix->close(m_fd, &err);
+  if (m_davixPosix && m_fd) {
+    DavixError *err = nullptr;
+    m_davixPosix->close(m_fd, &err);
+    if (err) {
+      std::unique_ptr<DavixError> davixErrManaged(err);
+      cms::Exception ex("FileCloseError");
+      ex << "Davix::close(name='" << m_name << ") failed with error "
+         << err->getErrMsg().c_str() << " and error code " << err->getStatus();
+      ex.addContext("Calling DavixFile::close()");
+      throw ex;
+    }
   }
   return;
 }
 
 void DavixFile::abort(void) {
-  if (davixPosix && m_fd) {
-    DavixError *err;
-    davixPosix->close(m_fd, &err);
+  if (m_davixPosix && m_fd) {
+    DavixError *err = nullptr;
+    m_davixPosix->close(m_fd, &err);
+    if (err) {
+      std::unique_ptr<DavixError> davixErrManaged(err);
+      cms::Exception ex("FileAbortError");
+      ex << "Davix::abort(name='" << m_name << ") failed with error "
+         << err->getErrMsg().c_str() << " and error code " << err->getStatus();
+      ex.addContext("Calling DavixFile::abort()");
+      throw ex;
+    }
   }
   return;
 }
 
 void DavixFile::configureDavixLogLevel() {
   long logLevel = 0;
-  char *logptr;
-  char *davixDebug = getenv("Davix_Debug");
+  char *logptr = nullptr;
+  char const * const davixDebug = getenv("Davix_Debug");
   if (davixDebug != NULL) {
     logLevel = strtol(davixDebug, &logptr, 0);
     if (errno) {
@@ -149,6 +165,7 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
     ex.addContext("Calling DavixFile::open()");
     throw ex;
   }
+  m_name = name;
 
   if ((flags & IOFlags::OpenRead) == 0) {
     edm::Exception ex(edm::errors::FileOpenError);
@@ -157,9 +174,9 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
     throw ex;
   }
 
-  if (davixPosix && m_fd) {
+  if (m_davixPosix && m_fd) {
     edm::Exception ex(edm::errors::FileOpenError);
-    ex << "Davix::open(name='" << m_name->c_str() << "') failed on already open file";
+    ex << "Davix::open(name='" << m_name << "') failed on already open file";
     ex.addContext("Calling DavixFile::open()");
     throw ex;
   }
@@ -170,32 +187,31 @@ void DavixFile::open(const char *name, int flags /* = IOFlags::OpenRead */, int 
   if (flags & IOFlags::OpenRead)
     openflags |= O_RDONLY;
 
-  DavixError *davixErr = NULL;
-  davixReqParams = std::make_unique<RequestParams>();
+  DavixError *davixErr = nullptr;
+  RequestParams davixReqParams;
   // Set up X509 authentication
-  davixReqParams->setClientCertCallbackX509(&X509Authentication, NULL);
+  davixReqParams.setClientCertCallbackX509(&X509Authentication, NULL);
   // Set also CERT_DIR if it is set in envinroment, otherwise use default
   const char *cert_dir = NULL;
   if ((cert_dir = getenv("X509_CERT_DIR")) == NULL)
     cert_dir = "/etc/grid-security/certificates";
-  davixReqParams->addCertificateAuthorityPath(cert_dir);
+  davixReqParams.addCertificateAuthorityPath(cert_dir);
 
-  davixPosix = std::make_unique<DavPosix>(new Context());
-  m_fd = davixPosix->open(davixReqParams.get(), name, openflags, &davixErr);
+  m_davixPosix = std::make_unique<DavPosix>(new Context());
+  m_fd = m_davixPosix->open(&davixReqParams, name, openflags, &davixErr);
 
-  m_name = std::make_unique<std::string>(name);
   // Check Davix Error
   if (davixErr) {
     std::unique_ptr<DavixError> davixErrManaged(davixErr);
     edm::Exception ex(edm::errors::FileOpenError);
-    ex << "Davix::open(name='" << m_name->c_str() << "') failed with "
+    ex << "Davix::open(name='" << m_name << "') failed with "
        << "error '" << davixErr->getErrMsg().c_str() << " and error code " << davixErr->getStatus();
     ex.addContext("Calling DavixFile::open()");
     throw ex;
   }
   if (!m_fd) {
     edm::Exception ex(edm::errors::FileOpenError);
-    ex << "Davix::open(name='" << m_name->c_str() << "') failed as fd is NULL";
+    ex << "Davix::open(name='" << m_name << "') failed as fd is NULL";
     ex.addContext("Calling DavixFile::open()");
     throw ex;
   }
@@ -208,22 +224,22 @@ IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
   if (buffers == 0)
     return 0;
 
-  DavixError *davixErr = NULL;
+  DavixError *davixErr = nullptr;
 
-  DavIOVecInput input_vector[buffers];
-  DavIOVecOuput output_vector[buffers];
+  std::vector<DavIOVecInput> input_vector(buffers);
+  std::vector<DavIOVecOuput> output_vector(buffers);
   IOSize total = 0; // Total requested bytes
   for (IOSize i = 0; i < buffers; ++i) {
     input_vector[i].diov_size = into[i].size();
-    input_vector[i].diov_buffer = (char *)into[i].data();
+    input_vector[i].diov_buffer = static_cast<char *>(into[i].data());
     total += into[i].size();
   }
 
-  ssize_t s = davixPosix->preadVec(m_fd, input_vector, output_vector, buffers, &davixErr);
+  ssize_t s = m_davixPosix->preadVec(m_fd, input_vector.data(), output_vector.data(), buffers, &davixErr);
   if (davixErr) {
     std::unique_ptr<DavixError> davixErrManaged(davixErr);
     edm::Exception ex(edm::errors::FileReadError);
-    ex << "Davix::readv(name='" << m_name->c_str() << "', buffers=" << (buffers)
+    ex << "Davix::readv(name='" << m_name << "', buffers=" << (buffers)
        << ") failed with error " << davixErr->getErrMsg().c_str() << " and error code "
        << davixErr->getStatus() << " and call returned " << s << " bytes";
     ex.addContext("Calling DavixFile::readv()");
@@ -237,7 +253,7 @@ IOSize DavixFile::readv(IOBuffer *into, IOSize buffers) {
   // Only check if returned val <= 0 and make proper actions.
   if (s < 0) {
     edm::Exception ex(edm::errors::FileReadError);
-    ex << "Davix::readv(name='" << m_name->c_str() << "') failed and call returned " << s;
+    ex << "Davix::readv(name='" << m_name << "') failed and call returned " << s;
     ex.addContext("Calling DavixFile::readv()");
     throw ex;
   } else if (s == 0) {
@@ -254,22 +270,22 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
   if (buffers == 0)
     return 0;
 
-  DavixError *davixErr = NULL;
+  DavixError *davixErr = nullptr;
 
-  DavIOVecInput input_vector[buffers];
-  DavIOVecOuput output_vector[buffers];
+  std::vector<DavIOVecInput> input_vector(buffers);
+  std::vector<DavIOVecOuput> output_vector(buffers);
   IOSize total = 0;
   for (IOSize i = 0; i < buffers; ++i) {
     input_vector[i].diov_offset = into[i].offset();
     input_vector[i].diov_size = into[i].size();
-    input_vector[i].diov_buffer = (char *)into[i].data();
+    input_vector[i].diov_buffer = static_cast<char *>(into[i].data());
     total += into[i].size();
   }
-  ssize_t s = davixPosix->preadVec(m_fd, input_vector, output_vector, buffers, &davixErr);
+  ssize_t s = m_davixPosix->preadVec(m_fd, input_vector.data(), output_vector.data(), buffers, &davixErr);
   if (davixErr) {
     std::unique_ptr<DavixError> davixErrManaged(davixErr);
     edm::Exception ex(edm::errors::FileReadError);
-    ex << "Davix::readv(name='" << m_name->c_str() << "', n=" << buffers << ") failed with error "
+    ex << "Davix::readv(name='" << m_name << "', n=" << buffers << ") failed with error "
        << davixErr->getErrMsg().c_str() << " and error code " << davixErr->getStatus()
        << " and call returned " << s << " bytes";
     ex.addContext("Calling DavixFile::readv()");
@@ -283,7 +299,7 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
   // Only check if returned val <= 0 and make proper actions.
   if (s < 0) {
     edm::Exception ex(edm::errors::FileReadError);
-    ex << "Davix::readv(name='" << m_name->c_str() << "', n=" << buffers
+    ex << "Davix::readv(name='" << m_name << "', n=" << buffers
        << ") failed and call returned " << s;
     ex.addContext("Calling DavixFile::readv()");
     throw ex;
@@ -295,15 +311,15 @@ IOSize DavixFile::readv(IOPosBuffer *into, IOSize buffers) {
 }
 
 IOSize DavixFile::read(void *into, IOSize n) {
-  DavixError *davixErr = NULL;
-  davixPosix->fadvise(m_fd, 0, n, AdviseRandom);
+  DavixError *davixErr = nullptr;
+  m_davixPosix->fadvise(m_fd, 0, n, AdviseRandom);
   IOSize done = 0;
   while (done < n) {
-    ssize_t s = davixPosix->read(m_fd, (char *)into + done, n - done, &davixErr);
+    ssize_t s = m_davixPosix->read(m_fd, (char *)into + done, n - done, &davixErr);
     if (davixErr) {
       std::unique_ptr<DavixError> davixErrManaged(davixErr);
       edm::Exception ex(edm::errors::FileReadError);
-      ex << "Davix::read(name='" << m_name->c_str() << "', n=" << (n - done)
+      ex << "Davix::read(name='" << m_name << "', n=" << (n - done)
          << ") failed with error " << davixErr->getErrMsg().c_str() << " and error code "
          << davixErr->getStatus() << " and call returned " << s << " bytes";
       ex.addContext("Calling DavixFile::read()");
@@ -311,7 +327,7 @@ IOSize DavixFile::read(void *into, IOSize n) {
     }
     if (s < 0) {
       edm::Exception ex(edm::errors::FileReadError);
-      ex << "Davix::read(name='" << m_name->c_str() << "', n=" << (n - done)
+      ex << "Davix::read(name='" << m_name << "', n=" << (n - done)
          << ") failed and call returned " << s;
       ex.addContext("Calling DavixFile::read()");
       throw ex;
@@ -326,13 +342,13 @@ IOSize DavixFile::read(void *into, IOSize n) {
 
 IOSize DavixFile::write(const void *from, IOSize n) {
   cms::Exception ex("FileWriteError");
-  ex << "DavixFile::write(name='" << m_name->c_str() << "') not implemented";
+  ex << "DavixFile::write(name='" << m_name << "') not implemented";
   ex.addContext("Calling DavixFile::write()");
   throw ex;
 }
 
 IOOffset DavixFile::position(IOOffset offset, Relative whence /* = SET */) {
-  DavixError *davixErr = NULL;
+  DavixError *davixErr = nullptr;
   if (whence != CURRENT && whence != SET && whence != END) {
     cms::Exception ex("FilePositionError");
     ex << "DavixFile::position() called with incorrect 'whence' parameter";
@@ -342,9 +358,9 @@ IOOffset DavixFile::position(IOOffset offset, Relative whence /* = SET */) {
   IOOffset result;
   size_t mywhence = (whence == SET ? SEEK_SET : whence == CURRENT ? SEEK_CUR : SEEK_END);
 
-  if ((result = davixPosix->lseek(m_fd, offset, mywhence, &davixErr)) == -1) {
+  if ((result = m_davixPosix->lseek(m_fd, offset, mywhence, &davixErr)) == -1) {
     cms::Exception ex("FilePositionError");
-    ex << "Davix::lseek(name='" << m_name->c_str() << "', offset=" << offset
+    ex << "Davix::lseek(name='" << m_name << "', offset=" << offset
        << ", whence=" << mywhence << ") failed with error " << davixErr->getErrMsg().c_str()
        << " and error code " << davixErr->getStatus() << " and "
        << "call returned " << result;
@@ -357,7 +373,7 @@ IOOffset DavixFile::position(IOOffset offset, Relative whence /* = SET */) {
 
 void DavixFile::resize(IOOffset /* size */) {
   cms::Exception ex("FileResizeError");
-  ex << "DavixFile::resize(name='" << m_name->c_str() << "') not implemented";
+  ex << "DavixFile::resize(name='" << m_name << "') not implemented";
   ex.addContext("Calling DavixFile::resize()");
   throw ex;
 }

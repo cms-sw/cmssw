@@ -27,14 +27,14 @@ public:
   using Storage::write;
   using Storage::position;
 
-  virtual IOSize read(void *into, IOSize n);
-  virtual IOSize readv(IOBuffer *into, IOSize buffers);
-  virtual IOSize readv(IOPosBuffer *into, IOSize buffers);
-  virtual IOSize write(const void *from, IOSize n);
-  virtual IOOffset position(IOOffset offset, Relative whence = SET);
-  virtual void resize(IOOffset size);
+  virtual IOSize read(void *into, IOSize n) override;
+  virtual IOSize readv(IOBuffer *into, IOSize buffers) override;
+  virtual IOSize readv(IOPosBuffer *into, IOSize buffers) override;
+  virtual IOSize write(const void *from, IOSize n) override;
+  virtual IOOffset position(IOOffset offset, Relative whence = SET) override;
+  virtual void resize(IOOffset size) override;
 
-  virtual void close(void);
+  virtual void close(void) override;
   virtual void abort(void);
 
 private:
@@ -42,9 +42,8 @@ private:
   // Because Davix_fd is not available in C++ header files and
   // sizeof cannot with incomplete types
   Davix_fd *m_fd;
-  std::unique_ptr<Davix::DavPosix> davixPosix;
-  std::unique_ptr<Davix::RequestParams> davixReqParams;
-  std::unique_ptr<std::string> m_name;
+  std::unique_ptr<Davix::DavPosix> m_davixPosix;
+  std::string m_name;
 };
 
 #endif // DAVIX_ADAPTOR_DAVIX_FILE_H
