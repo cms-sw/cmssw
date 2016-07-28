@@ -512,7 +512,7 @@ namespace edm {
       {
          RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed);
       }
-      preg.setFrozen(productTypesConsumed, elementTypesConsumed);
+      preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
     }
 
     for (auto& c : all_output_communicators_) {

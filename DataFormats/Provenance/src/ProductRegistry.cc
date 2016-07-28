@@ -90,9 +90,12 @@ namespace edm {
           << "Please remove the redundant 'produces' call(s).\n";
       } else {
         // Duplicate registration in previous process
-        throw Exception(errors::Configuration, "Duplicate Process")
-          << "The process name " << productDesc.processName() << " was previously used on these products.\n"
-          << "Please modify the configuration file to use a distinct process name.\n";
+        throw Exception(errors::Configuration, "Duplicate Process Name.\n")
+          << "The process name " << productDesc.processName() << " was previously used for products in the input.\n"
+          << "This has caused branch name conflicts between input products and new products.\n"
+          << "Please modify the configuration file to use a distinct process name.\n"
+          << "Alternately, drop all input products using that process name and the\n"
+          << "descendants of those products.\n";
       }
     }
     addCalled(productDesc, fromListener);
@@ -159,17 +162,18 @@ namespace edm {
     if(frozen()) return;
     freezeIt();
     if(initializeLookupInfo) {
-      initializeLookupTables(nullptr, nullptr);
+      initializeLookupTables(nullptr, nullptr, nullptr);
     }
     sort_all(transient_.aliasToOriginal_);
   }
 
   void
   ProductRegistry::setFrozen(std::set<TypeID> const& productTypesConsumed,
-                             std::set<TypeID> const& elementTypesConsumed) {
+                             std::set<TypeID> const& elementTypesConsumed,
+                             std::string const& processName) {
     if(frozen()) return;
     freezeIt();
-    initializeLookupTables(&productTypesConsumed, &elementTypesConsumed);
+    initializeLookupTables(&productTypesConsumed, &elementTypesConsumed, &processName);
     sort_all(transient_.aliasToOriginal_);
   }
 
@@ -276,7 +280,8 @@ namespace edm {
   }
 
   void ProductRegistry::initializeLookupTables(std::set<TypeID> const* productTypesConsumed,
-                                               std::set<TypeID> const* elementTypesConsumed) {
+                                               std::set<TypeID> const* elementTypesConsumed,
+                                               std::string const* processName) {
 
     std::map<TypeID, TypeID> containedTypeMap;
     std::map<TypeID, std::vector<TypeWithDict> > containedTypeToBaseTypesMap;
@@ -289,6 +294,8 @@ namespace edm {
 
     for(auto const& product : productList_) {
       auto const& desc = product.second;
+
+      checkForDuplicateProcessName(desc, processName);
 
       if(desc.produced()) {
         setProductProduced(desc.branchType());
@@ -516,6 +523,20 @@ namespace edm {
         std::string context("Calling ProductRegistry::initializeLookupTables, checking dictionaries for elements of products consumed using View");
         throwMissingDictionariesException(missingDictionaries, context, consumedTypesWithMissingDictionaries, true);
       }
+    }
+  }
+
+  void ProductRegistry::checkForDuplicateProcessName(BranchDescription const& desc,
+                                                     std::string const* processName) const {
+    if (processName &&
+        !desc.produced() &&
+        (*processName == desc.processName())) {
+
+      throw Exception(errors::Configuration, "Duplicate Process Name.\n")
+        << "The process name " << *processName << " was previously used for products in the input.\n"
+        << "Please modify the configuration file to use a distinct process name.\n"
+        << "Alternately, drop all input products using that process name and the\n"
+        << "descendants of those products.\n";
     }
   }
 

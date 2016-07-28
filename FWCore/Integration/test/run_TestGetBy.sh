@@ -25,6 +25,11 @@ pushd ${LOCAL_TMP_DIR}
   rm testConsumesInfo.root
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testConsumesInfo_1.log testConsumesInfo_1.log || die "comparing testConsumesInfo_1.log" $?
 
+  #It is intentional that this cmsRun process throws an exception
+  echo "testDuplicateProcess"
+  cmsRun ${LOCAL_TEST_DIR}/testDuplicateProcess_cfg.py &> testDuplicateProcess.log && die 'Failed to get exception running testDuplicateProcess_cfg.py' 1
+  grep -q "Duplicate Process" testDuplicateProcess.log || die 'Failed to print out exception message for duplicate process name' $?
+
 popd
 
 exit 0
