@@ -15,7 +15,7 @@
 
 
 l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::Stage2Layer2DemuxSumsAlgoFirmwareImp1(CaloParamsHelper* params) :
-  params_(params), cordic_(Cordic(144*16,12,8))  // These are the settings in the hardware - should probably make this configurable
+  params_(params), cordic_(Cordic(144*16,17,8))  // These are the settings in the hardware - should probably make this configurable
 {
 }
 
