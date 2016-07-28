@@ -18,12 +18,16 @@ trigbits = []
 sourceobjects = "selLeptons"
 
 class Lepton:
-    def __init__(self, **kwargs):
-        self.pt = kwargs.get("pt")
-        self.eta = kwargs.get("eta")
-        self.phi = kwargs.get("phi")
-        self.mass = kwargs.get("mass")
-        self.pdgId = kwargs.get("pdgId")
+    branches = [
+        "pt", "eta", "phi", "mass",
+        "pdgId",
+        "tightId", "looseIdPOG", "pfRelIso04",
+        "etaSc", "eleSieie", "eleHoE", "eleEcalClusterIso", "eleHcalClusterIso", "dr03TkSumPt", "eleDEta",
+        "eleMVAIdSpring15Trig"
+    ]
+    def __init__(self, row, prefix, idx):
+        for br in self.branches:
+            setattr(self, br, getattr(row, prefix+br)[idx])
 
 def lepton_selection(lepton):
     return True
@@ -65,20 +69,42 @@ def check_triggers_OR(row, triggers):
     vals = np.array([check_triggerbit(row, t) for t in triggers])
     return np.any(vals==1)
 
+# unfortunately we have to copy this function manually
+# https://github.com/vhbb/cmssw/blob/vhbbHeppy80X/VHbbAnalysis/Heppy/test/vhbb.py#L305
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recommended_MVA_recipes_for_2015
+def ele_mvaEleID_Trig_preselection(ele) : 
+    return (ele.pt>15 and 
+        ( ( abs(ele.etaSc) < 1.4442 and ele.eleSieie < 0.012 and ele.eleHoE < 0.09 and (ele.eleEcalClusterIso / ele.pt) < 0.37 and (ele.eleHcalClusterIso / ele.pt) < 0.25 and (ele.dr03TkSumPt / ele.pt) < 0.18 and abs(ele.eleDEta) < 0.0095 and abs(ele.eleDEta) < 0.065 ) or 
+          ( abs(ele.etaSc) > 1.5660 and ele.eleSieie < 0.033 and ele.eleHoE <0.09 and (ele.eleEcalClusterIso / ele.pt) < 0.45 and (ele.eleHcalClusterIso / ele.pt) < 0.28 and (ele.dr03TkSumPt / ele.pt) < 0.18 ) ) )
+
+
 class Event:
     def __init__(self, event):
         self.leptons = []
         for nlep in range(event.nselLeptons):
             lep = Lepton(
-                pt=event.selLeptons_pt[nlep],
-                eta=event.selLeptons_eta[nlep],
-                phi=event.selLeptons_phi[nlep],
-                mass=event.selLeptons_mass[nlep],
-                pdgId=event.selLeptons_pdgId[nlep],
+                event,
+                "selLeptons_",
+                nlep
             )
             self.leptons += [lep]
         
         self.leptons = filter(lepton_selection, self.leptons)
+        mu = filter(lambda x: abs(x.pdgId) == 13, self.leptons)
+        el = filter(lambda x: abs(x.pdgId) == 11, self.leptons)
+
+        #lepton defs from https://github.com/vhbb/cmssw/blob/vhbbHeppy80X/VHbbAnalysis/Heppy/test/vhbb.py#L316
+        self.mu_tight = filter(lambda x: x.tightId and x.pfRelIso04 < 0.15, mu)
+        self.mu_loose = filter(lambda x: x.looseIdPOG and x.pfRelIso04 < 0.25, mu)
+        self.el_tight = filter(
+            lambda x: x.eleMVAIdSpring15Trig==2 and ele_mvaEleID_Trig_preselection(x),
+            el 
+        )
+        self.el_loose = filter(
+            lambda x: x.eleMVAIdSpring15Trig>=1 and ele_mvaEleID_Trig_preselection(x),
+            el 
+        )
+        
         self.is_sl = len(self.leptons) == 1
         self.is_dl = len(self.leptons) == 2
         self.pass_trig_SL_mu = check_triggers_OR(event, triggers_SL_m)
@@ -190,10 +216,10 @@ if __name__ == "__main__":
     histos = {}
     histos["IsoMu22_OR_IsoTkMu22"] = FillPair(
         Fillable1,
-        {"name": "mu_all", "selection": lambda ev: ev.is_sl and abs(ev.leptons[0].pdgId)==13},
+        {"name": "mu_all", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1},
         {"name": "mu_IsoMu27_OR_IsoTkMu27", "selection": lambda ev: ev.pass_trig_SL_mu},
         {
-            "coords": lambda ev: (ev.leptons[0].pt, ev.leptons[0].eta),
+            "coords": lambda ev: (ev.mu_tight[0].pt, ev.mu_tight[0].eta),
             "binsx": [0, 10, 15, 18, 22, 24, 26, 30, 40, 50, 60, 80, 120, 200, 500],
             "binsy": [-2.4, -2.1, -1.6, -1.2, -0.9, -0.3, -0.2, 0.2, 0.3, 0.9, 1.2, 1.6, 2.1, 2.4]
         },
