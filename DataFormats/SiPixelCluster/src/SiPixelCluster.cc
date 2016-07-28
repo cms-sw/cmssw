@@ -16,15 +16,8 @@
 
 
 SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
-  thePixelRow(pix.row()),
-  thePixelCol(pix.col()),
-    // ggiurgiu@fnal.gov, 01/05/12
-  // Initialize the split cluster errors to un-physical values.
-  // The CPE will check these errors and if they are not un-physical, 
-  // it will recognize the clusters as split and assign these (increased) 
-  // errors to the corresponding rechit. 
-  err_x(-99999.9),
-  err_y(-99999.9)
+  theMinPixelRow(pix.row()),
+  theMinPixelCol(pix.col())
 {
   // First pixel in this cluster.
   thePixelADC.push_back( adc );
