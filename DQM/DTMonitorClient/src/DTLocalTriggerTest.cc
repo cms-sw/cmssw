@@ -193,9 +193,9 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	    }
 	    else {
 	      // Perform TM/DDU common plot analysis (Phi ones)
-	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhiIn", chId)));
-	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual","LocalTriggerPhiIn", chId)));
-	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual","LocalTriggerPhiIn", chId))); 
+	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In","LocalTriggerPhiIn", chId)));
+	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual_In","LocalTriggerPhiIn", chId)));
+	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual_In","LocalTriggerPhiIn", chId))); 
 	      if (BXvsQual && Flag1stvsQual && BestQual) {
 
 		int corrSummary   = 1;
