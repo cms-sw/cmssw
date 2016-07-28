@@ -12,6 +12,7 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 import html
 
 verbose=False
+ratioYTitle = "Ratio"
 
 def _setStyle():
     _absoluteSize = True
@@ -1058,7 +1059,7 @@ class FrameRatio:
 
         self._frameRatio.GetYaxis().SetNdivisions(4, 5, 0)
 
-        self._frameRatio.GetYaxis().SetTitle("Ratio")
+        self._frameRatio.GetYaxis().SetTitle(ratioYTitle)
 
     def setLogx(self, log):
         self._pad.SetLogx(log)
