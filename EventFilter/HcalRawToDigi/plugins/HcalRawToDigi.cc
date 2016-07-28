@@ -82,6 +82,7 @@ void HcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<std::vector<int>>("FEDs", std::vector<int>());
   desc.addUntracked<bool>("UnpackZDC",true);
   desc.addUntracked<bool>("UnpackCalib",true);
+  desc.addUntracked<bool>("UnpackUMNio",true);
   desc.addUntracked<bool>("UnpackTTP",true);
   desc.addUntracked<bool>("silent",true);
   desc.addUntracked<bool>("ComplainEmptyData",false);
