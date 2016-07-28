@@ -22,7 +22,6 @@
 #include "CondFormats/DataRecord/interface/HcalDcsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalDcsMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalCovarianceMatricesRcd.h"
-#include "CondFormats/DataRecord/interface/HcalCholeskyMatricesRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalLongRecoParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalZDCLowGainFractionsRcd.h"
