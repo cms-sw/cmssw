@@ -92,6 +92,21 @@ namespace AMCHeaderSpec{
   static const int MASK_L = 0x1;    
 }
 
+namespace QIE8HeaderSpec{
+  static const int OFFSET_FIBERCHAN = 0;
+  static const int MASK_FIBERCHAN = 0x3;
+  static const int OFFSET_FIBER = 2;
+  static const int MASK_FIBER = 0x1F;
+  static const int OFFSET_CAPID = 8;
+  static const int MASK_CAPID = 0x3;
+  static const int OFFSET_FIBERERR = 10;
+  static const int MASK_FIBERERR = 0x2;
+  static const int OFFSET_FLAVOER = 12;
+  static const int MASK_FLAVOR = 0x7;
+  static const int OFFSET_HEADER_BIT = 15;
+  static const int MASK_HEADER_BIT = 0x1;
+}
+
 class HCalFED{
 
 public:
@@ -301,6 +316,24 @@ public:
     return uhtrs.count(uhtrIndex) != 0  ; 
   };
 
+  uint16_t packQIE8header(const HcalQIESample &qieSample, const HcalElectronicsId &eid){
+     uint16_t header =0;
+
+     int fiber = eid.fiberIndex()+1;
+     int fiberchan = eid.fiberChanId();
+     int fiberErr = qieSample.er();
+     int capid0 = qieSample.capid();
+
+     header |= (fiberchan & QIE8HeaderSpec::MASK_FIBERCHAN)<<QIE8HeaderSpec::OFFSET_FIBERCHAN;
+     header |= ((fiber-1) & QIE8HeaderSpec::MASK_FIBER)<<QIE8HeaderSpec::OFFSET_FIBER;
+     header |= (capid0 & QIE8HeaderSpec::MASK_CAPID)<<QIE8HeaderSpec::OFFSET_CAPID;
+     header |= (fiberErr & QIE8HeaderSpec::MASK_FIBERERR)<<QIE8HeaderSpec::OFFSET_FIBERERR;
+     header |= (0x5 & QIE8HeaderSpec::MASK_FLAVOR)<<QIE8HeaderSpec::OFFSET_FLAVOER; //flavor
+     header |= (0x1 & QIE8HeaderSpec::MASK_HEADER_BIT)<<QIE8HeaderSpec::OFFSET_HEADER_BIT;
+
+     return header;
+  }
+
   uhtrData* newUHTR( int uhtrIndex , int orn = 0 , int bcn = 0 , uint64_t evt = 0 ){
     
     // initialize vector of 16-bit words
@@ -365,18 +398,32 @@ public:
   };
 
   void addChannel( int uhtrIndex , edm::SortedCollection<HFDataFrame>::const_iterator& qiedf , int verbosity = 0 ){
+    if( qiedf->size() == 0 ) return;
+    uint16_t header = packQIE8header(qiedf->sample(0), qiedf->elecId());
+    uhtrs[uhtrIndex].push_back(header);
     // loop over words in dataframe
-    for( int iTS = 0 ; iTS < qiedf->size() ; iTS++ ){
-      // push data into uhtr data container
-      uhtrs[uhtrIndex].push_back(qiedf->sample(iTS).raw());
+    for(int iTS = 0; iTS < qiedf->size(); iTS +=2 ){
+       uint16_t cont =0;
+       int adc0 = qiedf->sample(iTS).adc();
+       int adc1 = qiedf->sample(iTS+1).adc();
+       cont |= adc0&0xFF;
+       cont |= (adc1&0xFF)<<8;
+       uhtrs[uhtrIndex].push_back(cont);
     }// end loop over dataframe words
   };
 
   void addChannel( int uhtrIndex , edm::SortedCollection<HBHEDataFrame>::const_iterator qiedf , int verbosity = 0 ){
+    if( qiedf->size() == 0 ) return;
+    uint16_t header = packQIE8header(qiedf->sample(0), qiedf->elecId());
+    uhtrs[uhtrIndex].push_back(header);
     // loop over words in dataframe
-    for( int iTS = 0 ; iTS < qiedf->size() ; iTS++ ){
-      // push data into uhtr data container
-      uhtrs[uhtrIndex].push_back(qiedf->sample(iTS).raw());
+    for(int iTS = 0; iTS < qiedf->size(); iTS +=2 ){
+       uint16_t cont =0;
+       int adc0 = qiedf->sample(iTS).adc();
+       int adc1 = qiedf->sample(iTS+1).adc();
+       cont |= adc0&0xFF;
+       cont |= (adc1&0xFF)<<8;
+       uhtrs[uhtrIndex].push_back(cont);
     }// end loop over dataframe words
   };
 
