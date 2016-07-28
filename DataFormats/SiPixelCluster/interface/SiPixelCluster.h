@@ -185,7 +185,7 @@ public:
     thePixelColSpan = std::min(yspan, uint16_t(MAXSPAN));
   }
   void packRow(uint16_t xmin, uint16_t xspan) {
-    theMinPixelRow = xspan;
+    theMinPixelRow = xmin;
     thePixelRowSpan = std::min(xspan, uint16_t(MAXSPAN));
   }
   
