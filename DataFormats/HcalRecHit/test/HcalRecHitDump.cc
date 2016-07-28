@@ -12,6 +12,8 @@
 #include <string>
 #include <iostream>
 #include <bitset>
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 using namespace std;
 
@@ -54,6 +56,7 @@ namespace cms {
   template<typename COLL>
   static void analyzeT(typename std::vector<edm::Handle<COLL> > const& handles , const char* name=0, const char* prefix=0)
   {
+    bool printAllBits = true;
     const string marker(prefix ? prefix : "");
 //    try {
       //vector<edm::Handle<COLL> > handles;
@@ -62,11 +65,38 @@ namespace cms {
       cout << "Handles: " << handles.size() << endl;
       for (i=handles.begin(); i!=handles.end(); i++) {
         for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++){
-          
           cout << marker << *j
-               << ", stb: " << std::bitset<32>(j->flags())
-               << ", auxb: " << std::bitset<32>(j->aux())
-               << endl;
+               << "; stb: ";
+          if (printAllBits) cout << std::bitset<32>(j->flags());
+
+          if(j->id().subdet() == HcalBarrel || j->id().subdet() == HcalEndcap){
+            if(j->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity) == 1) cout << " HBHEHpdHitMultiplicity";
+            if(j->flagField(HcalCaloFlagLabels::HBHEPulseShape) == 1) cout << " HBHEPulseShape";
+            if(j->flagField(HcalCaloFlagLabels::HSCP_R1R2) == 1) cout << " HSCP_R1R2";
+            if(j->flagField(HcalCaloFlagLabels::HSCP_FracLeader) == 1) cout << " HSCP_FracLeader";
+            if(j->flagField(HcalCaloFlagLabels::HSCP_OuterEnergy) == 1) cout << " HSCP_OuterEnergy";
+            if(j->flagField(HcalCaloFlagLabels::HSCP_ExpFit) == 1) cout << " HSCP_ExpFit";
+            //if(j->flagField(HcalCaloFlagLabels::HBHETimingTrustBits=6, // 2-bit counter; not yet in use
+            int status = j->flagField(HcalCaloFlagLabels::HBHETimingShapedCutsBits, 3);
+            cout << " HBHETimingShapedCutsBits " << status;
+            if(j->flagField(HcalCaloFlagLabels::HBHEIsolatedNoise) == 1) cout << " HBHEIsolatedNoise";
+            if(j->flagField(HcalCaloFlagLabels::HBHEFlatNoise) == 1) cout << " HBHEFlatNoise";
+            if(j->flagField(HcalCaloFlagLabels::HBHESpikeNoise) == 1) cout << " HBHESpikeNoise";
+            if(j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) cout << " HBHETriangleNoise";
+            if(j->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise) == 1) cout << " HBHETS4TS5Noise";
+            if(j->flagField(HcalCaloFlagLabels::HBHENegativeNoise) == 1) cout << " HBHENegativeNoise";
+            if(j->flagField(HcalCaloFlagLabels::HBHEPulseFitBit) == 1) cout << " HBHEPulseFitBit";
+            if(j->flagField(HcalCaloFlagLabels::HBHEOOTPU) == 1) cout << " HBHEOOTPU";
+          }else if(j->id().subdet() == HcalForward){
+            if(j->flagField(HcalCaloFlagLabels::HFDigiTime) == 1) cout << " HFDigiTime";
+            if(j->flagField(HcalCaloFlagLabels::HFInTimeWindow) == 1) cout << " HFInTimeWindow";
+            if(j->flagField(HcalCaloFlagLabels::HFS8S1Ratio) == 1) cout << " HFS8S1Ratio";
+            if(j->flagField(HcalCaloFlagLabels::HFPET) == 1) cout << " HFPET";
+          }
+
+          cout << "; auxb: ";
+          if (printAllBits) cout << std::bitset<32>(j->aux()); 
+          cout << endl;
         }
       }
 //    } catch (...) {
