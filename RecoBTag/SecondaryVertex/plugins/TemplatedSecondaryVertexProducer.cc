@@ -281,7 +281,7 @@ TemplatedSecondaryVertexProducer<IPTI,VTX>::TemplatedSecondaryVertexProducer(
         }
         useSVClustering = ( params.existsAs<bool>("useSVClustering") ? params.getParameter<bool>("useSVClustering") : false );
 	useSVMomentum = ( params.existsAs<bool>("useSVMomentum") ? params.getParameter<bool>("useSVMomentum") : false );
-        useFatJets = ( useExternalSV && useSVClustering && params.exists("fatJets") && params.exists("groomedFatJets") );
+        useFatJets = ( useExternalSV && params.exists("fatJets") && params.exists("groomedFatJets") );
 	if( useSVClustering )
 	{
 	  jetAlgorithm = params.getParameter<std::string>("jetAlgorithm");
@@ -305,6 +305,9 @@ TemplatedSecondaryVertexProducer<IPTI,VTX>::TemplatedSecondaryVertexProducer(
 	  token_fatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("fatJets"));
 	  token_groomedFatJets = consumes<edm::View<reco::Jet> >(params.getParameter<edm::InputTag>("groomedFatJets"));
 	}
+	
+	if( useFatJets && !useSVClustering )
+	  rParam = params.getParameter<double>("rParam"); // will be used later as a dR cut
 	
 	produces<Product>();
 }
@@ -564,6 +567,61 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	    }
 	  }
 	}
+	// case where fat jets are used to associate SVs to subjets but no SV clustering is performed
+	else if( useExternalSV && !useSVClustering && trackIPTagInfos->size()>0 && useFatJets )
+	{
+	  // match groomed and original fat jets
+	  std::vector<int> groomedIndices;
+	  matchGroomedJets(fatJetsHandle,groomedFatJetsHandle,groomedIndices);
+
+	  // match subjets and original fat jets
+	  std::vector<std::vector<int> > subjetIndices;
+	  matchSubjets(groomedIndices,groomedFatJetsHandle,trackIPTagInfos,subjetIndices);
+
+	  // loop over fat jets
+	  for(size_t i=0; i<fatJetsHandle->size(); ++i)
+	  {
+	    if( fatJetsHandle->at(i).pt() == 0 ) // continue if the original jet has Pt=0
+	    {
+	      edm::LogWarning("NullTransverseMomentum") << "The original fat jet " << i << " has Pt=0. This is not expected so the jet will be skipped.";
+	      continue;
+	    }
+
+	    if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
+
+	    // loop over SVs, associate them to fat jets based on dR cone and
+	    // then assign them to the closets subjet in dR
+	    for(typename edm::View<VTX>::const_iterator it = extSecVertex->begin(); it != extSecVertex->end(); ++it)
+	    {
+	      size_t sv = ( it - extSecVertex->begin() );
+	
+	      const reco::Vertex &pv = *(trackIPTagInfos->front().primaryVertex());
+	      const VTX &extSV = (*extSecVertex)[sv];
+	      GlobalVector dir = flightDirection(pv, extSV);
+	      GlobalVector jetDir(fatJetsHandle->at(i).px(),
+				  fatJetsHandle->at(i).py(),
+				  fatJetsHandle->at(i).pz());
+	      // skip SVs outside the dR cone
+              if( Geom::deltaR2( dir, jetDir ) > rParam*rParam ) // here using the jet clustering rParam as a dR cut
+	        continue;
+
+	      dir = dir.unit();
+	      fastjet::PseudoJet p(dir.x(),dir.y(),dir.z(),dir.mag()); // using SV flight direction so treating SV as massless
+	      if( useSVMomentum )
+		p = fastjet::PseudoJet(extSV.p4().px(),extSV.p4().py(),extSV.p4().pz(),extSV.p4().energy());
+	
+	      std::vector<double> dR2toSubjets;
+	
+	      for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
+		dR2toSubjets.push_back( Geom::deltaR2( p.rapidity(), p.phi_std(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->phi() ) );
+
+	      // find the closest subjet
+	      int closestSubjetIdx = std::distance( dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()) );
+
+	      clusteredSVs.at(subjetIndices.at(i).at(closestSubjetIdx)).push_back(sv);
+	    }
+	  }
+	}
 	// ------------------------------------ SV clustering END ----------------------------------------------
 
 	std::auto_ptr<ConfigurableVertexReconstructor> vertexReco;
@@ -773,21 +831,20 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 				      SVFilter(vertexFilter, pv, jetDir));
 
 		}else{
-		  if( !useSVClustering ) {
-		      for(size_t iExtSv = 0; iExtSv < extSecVertex->size(); iExtSv++){
-			 const VTX & extVertex = (*extSecVertex)[iExtSv];
-			 if( Geom::deltaR2( ( position(extVertex) - pv.position() ), jetDir ) > extSVDeltaRToJet*extSVDeltaRToJet || extVertex.p4().M() < 0.3 )
-			   continue;
-			 extAssoCollection.push_back( extVertex );
-		      }
-
-		  }
-		  else {
+		  if( useSVClustering || useFatJets ) {
 		      size_t jetIdx = ( iterJets - trackIPTagInfos->begin() );
 		
 		      for(size_t iExtSv = 0; iExtSv < clusteredSVs.at(jetIdx).size(); iExtSv++){
 			 const VTX & extVertex = (*extSecVertex)[ clusteredSVs.at(jetIdx).at(iExtSv) ];
 			 if( extVertex.p4().M() < 0.3 )
+			   continue;
+			 extAssoCollection.push_back( extVertex );
+		      }
+		  }
+		  else {
+		      for(size_t iExtSv = 0; iExtSv < extSecVertex->size(); iExtSv++){
+			 const VTX & extVertex = (*extSecVertex)[iExtSv];
+			 if( Geom::deltaR2( ( position(extVertex) - pv.position() ), jetDir ) > extSVDeltaRToJet*extSVDeltaRToJet || extVertex.p4().M() < 0.3 )
 			   continue;
 			 extAssoCollection.push_back( extVertex );
 		      }
