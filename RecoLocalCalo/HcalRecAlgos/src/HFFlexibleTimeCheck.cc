@@ -4,6 +4,9 @@
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFFlexibleTimeCheck.h"
 
+// Phase 1 rechit status bit assignments
+#include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
+
 unsigned HFFlexibleTimeCheck::determineAnodeStatus(
     const unsigned ianode, const HFQIE10Info& anode,
     bool* isTimingReliable) const
@@ -22,19 +25,19 @@ unsigned HFFlexibleTimeCheck::determineAnodeStatus(
         return HFAnodeStatus::OK;
     }
 
-    // Check the rise time information
+    // Check if the rise time information is meaningful
     float trise = anode.timeRising();
     if (HcalSpecialTimes::isSpecial(trise))
         return HFAnodeStatus::FAILED_TIMING;
-    trise += timeShift();
 
-    // Figure out the timing cuts
+    // Figure out the timing cuts for this PMT
     const AbsHcalFunctor& minTimeShape = pmtInfo_->cut(
         ianode ? HFPhase1PMTData::T_1_MIN : HFPhase1PMTData::T_0_MIN);
     const AbsHcalFunctor& maxTimeShape = pmtInfo_->cut(
         ianode ? HFPhase1PMTData::T_1_MAX : HFPhase1PMTData::T_0_MAX);
 
     // Apply the timing cuts
+    trise += timeShift();
     if (minTimeShape(charge) <= trise && trise <= maxTimeShape(charge))
         return HFAnodeStatus::OK;
     else
@@ -51,34 +54,34 @@ HFRecHit HFFlexibleTimeCheck::reconstruct(const HFPreRecHit& prehit,
         throw cms::Exception("HFPhase1BadConfig")
             << "In HFFlexibleTimeCheck::reconstruct: algorithm is not configured";
 
-    // Fetch the configuration for this PMT
+    // Fetch the algorithm configuration data for this PMT
     pmtInfo_ = &algoConf_->at(prehit.id());
-    
-    // Run the algorithm from the base class
+
+    // Run the reconstruction algorithm from the base class
     HFRecHit rh = HFSimpleTimeCheck::reconstruct(
         prehit, calibs, flaggedBadInDB, expectSingleAnodePMT);
 
-    // Check the charge asymmetry
-    bool passesAsymmetryCut = true;
-    const HFQIE10Info* first = prehit.getHFQIE10Info(0U);
-    const HFQIE10Info* second = prehit.getHFQIE10Info(1U);
-    if (first && second)
+    if (rh.id().rawId())
     {
-        const float q1 = first->charge();
-        const float q2 = second->charge();
-        const float qsum = q1 + q2;
-        if (qsum > 0.f && qsum >= pmtInfo_->minChargeAsymm())
+        // Check the charge asymmetry between the two anodes
+        bool passesAsymmetryCut = true;
+        const HFQIE10Info* first = prehit.getHFQIE10Info(0U);
+        const HFQIE10Info* second = prehit.getHFQIE10Info(1U);
+        if (first && second)
         {
-            const float asymm = (q2 - q1)/qsum;
-            const float minAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MIN))(qsum);
-            const float maxAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MAX))(qsum);
-            passesAsymmetryCut = minAsymm <= asymm && asymm <= maxAsymm;
+            const float q1 = first->charge();
+            const float q2 = second->charge();
+            const float qsum = q1 + q2;
+            if (qsum > 0.f && qsum >= pmtInfo_->minChargeAsymm())
+            {
+                const float asymm = (q2 - q1)/qsum;
+                const float minAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MIN))(qsum);
+                const float maxAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MAX))(qsum);
+                passesAsymmetryCut = minAsymm <= asymm && asymm <= maxAsymm;
+            }
         }
-    }
-
-    if (!passesAsymmetryCut)
-    {
-        // Set the relevant rechit flag
+        if (!passesAsymmetryCut)
+            rh.setFlagField(1U, HcalPhase1FlagLabels::SignalAsymmetry);
     }
 
     return rh;

@@ -6,8 +6,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFSimpleTimeCheck.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFRecHitAuxSetter.h"
 
-// Rechit status bit assignments
-// #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+// Phase 1 rechit status bit assignments
+#include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
 namespace {  
     inline float build_rechit_time(const float weightedEnergySum,
@@ -184,11 +184,9 @@ HFRecHit HFSimpleTimeCheck::reconstruct(const HFPreRecHit& prehit,
         rh = HFRecHit(prehit.id(), energy, trise, tfall);
         HFRecHitAuxSetter::setAux(prehit, states, soiPhase_, &rh);
 
-        // When Phase 1 rechit status bit assignments are understood,
-        // set the "timing from TDC" flag as follows:
-        //
-        // const uint32_t flag = triseFromTDC ? 1U : 0U;
-        // rh.setFlagField(flag, HcalCaloFlagLabels::?properFlagName?);
+        // Set the "timing from TDC" flag
+        const uint32_t flag = triseFromTDC ? 1U : 0U;
+        rh.setFlagField(flag, HcalPhase1FlagLabels::TimingFromTDC);
     }
 
     return rh;
