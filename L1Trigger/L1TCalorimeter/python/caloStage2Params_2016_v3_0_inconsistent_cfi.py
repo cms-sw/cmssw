@@ -54,7 +54,8 @@ caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
 caloStage2Params.tauIsoAreaNrTowersPhi         = cms.uint32(4)
 caloStage2Params.tauIsoVetoNrTowersPhi         = cms.uint32(2)
 caloStage2Params.tauPUSType                    = cms.string("None")
-caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_5_Layer1Calibration_noCompressionBlock_v4.0.0.txt")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_21_Layer1Calibration_noCompressionBlock_v4.0.0.txt")
+caloStage2Params.tauIsoLUTFile2                = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Iso_LUT_Option_21_Layer1Calibration_noCompressionBlock_v4.0.0.txt")
 caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Calibration_LUT_Layer1Calibration_v9.0.0.txt")
 caloStage2Params.tauCompressLUTFile            = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCompressAllLUT_12bit_v3.txt")
 caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,32)
@@ -69,7 +70,7 @@ caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 # function6PtParams22EtaBins or None
 #caloStage2Params.jetCalibrationType    = cms.string("None")
 #caloStage2Params.jetCalibrationType = cms.string("function8PtParams22EtaBins")
-caloStage2Params.jetCalibrationType = cms.string("None")
+caloStage2Params.jetCalibrationType = cms.string("LUT")
 
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction
@@ -106,8 +107,8 @@ jetCalibParamsVector.extend([
 caloStage2Params.jetCalibrationParams  = jetCalibParamsVector 
 
 caloStage2Params.jetCompressPtLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_pt_compress.txt")
-caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_eta_compress.txt")
-caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_add_mult.txt")
+caloStage2Params.jetCompressEtaLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_30to40_hfHighPt_experiment2_changeLimits_eta.txt")
+caloStage2Params.jetCalibrationLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/lut_30to40_hfHighPt_experiment2_changeLimits_add_mult.txt")
 
 
 # sums: 0=ET, 1=HT, 2=MET, 3=MHT
