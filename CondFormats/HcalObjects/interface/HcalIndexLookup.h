@@ -22,9 +22,9 @@ public:
 
     inline HcalIndexLookup() : sorted_(true) {}
 
-    // Add an index for lookup. All "detId" numbers should be unique
-    // and "index" argument must not be equal InvalidIndex.
-    void add(unsigned detId, unsigned index);
+    // Add an index for lookup. All "transformedId" numbers should be
+    // unique and "index" argument must not be equal InvalidIndex.
+    void add(unsigned transformedId, unsigned index);
 
     void sort();
     void clear();

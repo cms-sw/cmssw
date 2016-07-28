@@ -65,20 +65,14 @@ HFRecHit HFFlexibleTimeCheck::reconstruct(const HFPreRecHit& prehit,
     {
         // Check the charge asymmetry between the two anodes
         bool passesAsymmetryCut = true;
-        const HFQIE10Info* first = prehit.getHFQIE10Info(0U);
-        const HFQIE10Info* second = prehit.getHFQIE10Info(1U);
-        if (first && second)
+        const std::pair<float,bool> qAsymm =
+            prehit.chargeAsymmetry(pmtInfo_->minChargeAsymm());
+        if (qAsymm.second)
         {
-            const float q1 = first->charge();
-            const float q2 = second->charge();
-            const float qsum = q1 + q2;
-            if (qsum > 0.f && qsum >= pmtInfo_->minChargeAsymm())
-            {
-                const float asymm = (q2 - q1)/qsum;
-                const float minAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MIN))(qsum);
-                const float maxAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MAX))(qsum);
-                passesAsymmetryCut = minAsymm <= asymm && asymm <= maxAsymm;
-            }
+            const float q = prehit.charge();
+            const float minAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MIN))(q);
+            const float maxAsymm = (pmtInfo_->cut(HFPhase1PMTData::ASYMM_MAX))(q);
+            passesAsymmetryCut = minAsymm <= qAsymm.first && qAsymm.first <= maxAsymm;
         }
         if (!passesAsymmetryCut)
             rh.setFlagField(1U, HcalPhase1FlagLabels::SignalAsymmetry);
