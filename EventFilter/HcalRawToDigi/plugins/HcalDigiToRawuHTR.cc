@@ -25,7 +25,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-#include "PackerHelp.cc"
+#include "PackerHelp.h"
 
 #include <iostream>
 #include <fstream>
