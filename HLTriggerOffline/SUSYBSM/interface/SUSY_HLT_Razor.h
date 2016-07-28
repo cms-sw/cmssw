@@ -63,8 +63,6 @@ class SUSY_HLT_Razor: public DQMEDAnalyzer{
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVector> > theHemispheres_;
 
   std::string triggerPath_;
-  std::string denomPath_; // denominator path for 1.4e34 lumi
-  std::string denomPathLoose_; // denominator path for 7e33 lumi
   edm::InputTag triggerFilter_;
   edm::InputTag caloFilter_;
   
@@ -72,29 +70,16 @@ class SUSY_HLT_Razor: public DQMEDAnalyzer{
   MonitorElement* h_mr;
   MonitorElement* h_rsq;
   MonitorElement* h_mrRsq;
-  MonitorElement* h_mr_denom;
-  MonitorElement* h_rsq_denom;
-  MonitorElement* h_mrRsq_denom;
   MonitorElement* h_mr_tight;
   MonitorElement* h_rsq_tight;
-  MonitorElement* h_mr_tight_denom;
-  MonitorElement* h_rsq_tight_denom;
   MonitorElement* h_rsq_loose;  
-  MonitorElement* h_rsq_loose_denom;  
   MonitorElement* h_ht;
   MonitorElement* h_met;
   MonitorElement* h_htMet;
-  MonitorElement* h_ht_denom;
-  MonitorElement* h_met_denom;
-  MonitorElement* h_htMet_denom;
   MonitorElement* h_online_mr_vs_mr;
   MonitorElement* h_online_rsq_vs_rsq;
-  MonitorElement* h_online_mr_vs_mr_all;
-  MonitorElement* h_online_rsq_vs_rsq_all;
   MonitorElement* h_calo_mr_vs_mr;
   MonitorElement* h_calo_rsq_vs_rsq;
-  MonitorElement* h_calo_mr_vs_mr_all;
-  MonitorElement* h_calo_rsq_vs_rsq_all;
 
 };
 
