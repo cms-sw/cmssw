@@ -139,7 +139,6 @@ namespace cond {
       FETCH_PAYLOAD_CASE( GBRForestD )
       FETCH_PAYLOAD_CASE( HBHENegativeEFilter )
       FETCH_PAYLOAD_CASE( HcalChannelQuality )
-      FETCH_PAYLOAD_CASE( HcalCholeskyMatrices )
       FETCH_PAYLOAD_CASE( HcalDcsValues )
       FETCH_PAYLOAD_CASE( HcalElectronicsMap )
       FETCH_PAYLOAD_CASE( HcalFlagHFDigiTimeParams )
