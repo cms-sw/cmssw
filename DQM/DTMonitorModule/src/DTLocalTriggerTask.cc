@@ -116,12 +116,12 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	    DTChamberId dtChId(wh,stat,sect);
 
 	    if (parameters.getUntrackedParameter<bool>("process_tm", true)){ // TM data
-	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BXvsQual"+(*trigSrcIt));
-	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_QualvsPhirad"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BXvsQual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhirad"+(*trigSrcIt));
 	    }
 
 	    if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
-	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BXvsQual"+(*trigSrcIt));
 	    }
 
 	  }
@@ -140,13 +140,13 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	      DTChamberId dtChId(wh,stat,sect);
 	      if (parameters.getUntrackedParameter<bool>("process_tm", true)){ // TM data
 
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BXvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BXvsQual"+(*trigSrcIt));
 		if (detailedAnalysis) {
-		  bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_QualvsPhirad"+(*trigSrcIt));
-		  bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_QualvsPhibend"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhirad"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhibend"+(*trigSrcIt));
 		}
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_Flag1stvsQual"+(*trigSrcIt));
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BestQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_Flag1stvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BestQual"+(*trigSrcIt));
 		if (stat!=4 && doTMTheta){
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_PositionvsBX"+(*trigSrcIt));
                   bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_QualityvsBX"+(*trigSrcIt));
@@ -174,9 +174,9 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
 	      if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
 
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_Flag1stvsQual"+(*trigSrcIt));
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BestQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BXvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_Flag1stvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BestQual"+(*trigSrcIt));
 		if(stat!=4){                                                    // theta view
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","DDU_ThetaBXvsQual"+(*trigSrcIt));
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","DDU_ThetaBestQual"+(*trigSrcIt));
@@ -198,7 +198,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
 	      if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
 		  parameters.getUntrackedParameter<bool>("process_ros", true)){ // TM+DDU data
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","COM_QualDDUvsQualTM"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","COM_QualDDUvsQualTM"+(*trigSrcIt));
 	      }
 
 	    }
@@ -349,7 +349,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
     rangeBX = (int)(maxBX-minBX);
   }
 
-  if ( folder == "LocalTriggerPhi") {
+  if ( folder == "LocalTriggerPhiIn") {
 
     if( histoType == "BXvsQual" ){
       (digiHistos[dtCh.rawId()])[histoTag] =

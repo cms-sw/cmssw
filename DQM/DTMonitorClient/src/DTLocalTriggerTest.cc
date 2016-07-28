@@ -155,7 +155,7 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	    
 	    if (hwSource=="COM") {
 	      // Perform TM-DDU matching test and generates summaries (Phi view)
-	      TH2F * DDUvsTM = getHisto<TH2F>(igetter.get(getMEName("QualDDUvsQualTM","LocalTriggerPhi", chId)));
+	      TH2F * DDUvsTM = getHisto<TH2F>(igetter.get(getMEName("QualDDUvsQualTM","LocalTriggerPhiIn", chId)));
 	      if (DDUvsTM) {
 		
 		int matchSummary   = 1;
@@ -193,9 +193,9 @@ void DTLocalTriggerTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMSto
 	    }
 	    else {
 	      // Perform TM/DDU common plot analysis (Phi ones)
-	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
-	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual","LocalTriggerPhi", chId)));
-	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId))); 
+	      TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhiIn", chId)));
+	      TH1F * BestQual      = getHisto<TH1F>(igetter.get(getMEName("BestQual","LocalTriggerPhiIn", chId)));
+	      TH2F * Flag1stvsQual = getHisto<TH2F>(igetter.get(getMEName("Flag1stvsQual","LocalTriggerPhiIn", chId))); 
 	      if (BXvsQual && Flag1stvsQual && BestQual) {
 
 		int corrSummary   = 1;
