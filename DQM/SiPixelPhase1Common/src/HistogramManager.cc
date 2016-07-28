@@ -534,8 +534,9 @@ void HistogramManager::executeSave(SummationStep& step, Table& t,
     }
 
     e.second.me->getTH1()->Add(e.second.th1);
-    // delete e.second.th1;
     e.second.th1 = e.second.me->getTH1();
+    e.second.th1->SetStats(true);
+//    delete e.second.th1;
   }
 }
 
@@ -564,11 +565,13 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
     TH1* th1 = e.second.th1;
     AbstractHistogram& new_histo = out[vals];
     double reduced_quantity = 0;
+    double reduced_quantity_error = 0;
     std::string label = "";
     std::string name = th1->GetName();
     // TODO: meaningful semantics in 2D case, errors
     if (step.arg == "MEAN") {
       reduced_quantity = th1->GetMean();
+      reduced_quantity_error = th1->GetMeanError();
       label = label + "mean of " + th1->GetXaxis()->GetTitle();
       name = "mean_" + name;
     } else if (step.arg == "COUNT") {
@@ -582,6 +585,7 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
     new_histo.th1 = new TH1F(name.c_str(), (std::string("") + th1->GetTitle() 
                                             + ";;" + label).c_str(), 1, 0, 1);
     new_histo.th1->SetBinContent(1, reduced_quantity);
+    new_histo.th1->SetBinError(1, reduced_quantity_error);
   }
   t.swap(out);
 }
@@ -615,7 +619,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
     AbstractHistogram& new_histo = out[new_vals];
     GeometryInterface::Values copy(new_vals);
     if (!new_histo.th1) {
-      // std::cout << "+++ new TH1D for extend ";
+      //std::cout << "+++ new TH1D for extend ";
       // We need to book. Two cases here: 1D or 2D.
 
       const char* title;
@@ -632,8 +636,8 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
 
       if (th1->GetDimension() == 1 && isX) {
         // Output is 1D. Never the case for EXTEND_Y
-        new_histo.th1 = (TH1*)new TH1F(th1->GetName(), title, nbins[new_vals],
-                                       0.5, nbins[new_vals] + 0.5);
+        new_histo.th1 = (TH1*)new TH1F(th1->GetName(), title, nbins[new_vals], 0.5, nbins[new_vals] + 0.5);
+//        new_histo.th1 = (TH1*)new TProfile(th1->GetName(), title, nbins[new_vals], 0.5, nbins[new_vals] + 0.5);
       } else {
         // output is 2D, input is 2D histograms.
         if (isX)
@@ -653,10 +657,10 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
     }
 
     // now add data.
-    if (new_histo.th1->GetDimension() == 1) {
-      for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
-        // TODO Error etc.?
+    if (new_histo.th1->GetDimension() == 1) {	
+        for (int i = 1; i <= th1->GetXaxis()->GetNbins(); i++) {
         new_histo.th1->SetBinContent(new_histo.count, th1->GetBinContent(i));
+	new_histo.th1->SetBinError(new_histo.count, th1->GetBinError(i));
         new_histo.count += 1;
       }
     } else {
@@ -667,6 +671,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
             // TODO Error etc.?
             new_histo.th1->SetBinContent(new_histo.count, j,
                                          th1->GetBinContent(i, j));
+	    new_histo.th1->SetBinError   (new_histo.count, j, th1->GetBinError(i, j));
           }
           new_histo.count += 1;
         }
@@ -676,6 +681,7 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
             // TODO Error etc.?
             new_histo.th1->SetBinContent(i, new_histo.count,
                                          th1->GetBinContent(i, j));
+	    new_histo.th1->SetBinError   (i, new_histo.count, th1->GetBinError(i, j));
           }
           new_histo.count += 1;
         }
