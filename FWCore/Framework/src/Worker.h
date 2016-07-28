@@ -209,10 +209,38 @@ namespace edm {
                           bool iIsEvent,
                           cms::Exception& ex,
                           ModuleCallingContext const* mcc);
+    
+    /*This base class is used to hide the differences between the ID used
+     for Event, LuminosityBlock and Run. Using the base class allows us
+     to only convert the ID to string form if it is actually needed in
+     the call to shouldRethrowException.
+     */
+    class TransitionIDValueBase {
+    public:
+      virtual std::string value() const = 0;
+    };
+    
+    template< typename T>
+    class TransitionIDValue : public TransitionIDValueBase {
+    public:
+      TransitionIDValue(T const& iP): p_(iP) {}
+      virtual std::string value() const override {
+        std::ostringstream iost;
+        iost<<p_.id();
+        return iost.str();
+      }
+      private:
+        T const& p_;
+        
+    };
+    
+    bool shouldRethrowException(cms::Exception& ex,
+                                ParentContext const& parentContext,
+                                bool isEvent,
+                                TransitionIDValueBase const& iID) const;
 
     template<bool IS_EVENT>
-    bool
-    setPassed() {
+    bool setPassed() {
       if(IS_EVENT) {
         ++timesPassed_;
       }
@@ -221,8 +249,7 @@ namespace edm {
     }
 
     template<bool IS_EVENT>
-    bool
-    setFailed() {
+    bool setFailed() {
       if(IS_EVENT) {
         ++timesFailed_;
       }
@@ -231,13 +258,13 @@ namespace edm {
     }
 
     template<bool IS_EVENT>
-    std::exception_ptr
-    setException(std::exception_ptr iException) {
+    std::exception_ptr setException(std::exception_ptr iException) {
       if (IS_EVENT) ++timesExcept_;
       cached_exception_ = iException; // propagate_const<T> has no reset() function
       state_ = Exception;
       return cached_exception_;
     }
+    
     
     int timesRun_;
     std::atomic<int> timesVisited_;
@@ -552,43 +579,14 @@ namespace edm {
       });
     }
     catch(cms::Exception& ex) {
-
-      // NOTE: the warning printed as a result of ignoring or failing
-      // a module will only be printed during the full true processing
-      // pass of this module
-
-      // Get the action corresponding to this exception.  However, if processing
-      // something other than an event (e.g. run, lumi) always rethrow.
-      exception_actions::ActionCodes action = (T::isEvent_ ? actions_->find(ex.category()) : exception_actions::Rethrow);
-
-      ModuleCallingContext tempContext(&description(),ModuleCallingContext::State::kInvalid, parentContext, nullptr);
-
-      // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
-      // as IgnoreCompletely, so any subsequent OutputModules are still run.
-      // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
-      ModuleCallingContext const* top_mcc = tempContext.getTopModuleCallingContext();
-      if(top_mcc->type() == ParentContext::Type::kPlaceInPath &&
-         top_mcc->placeInPathContext()->pathContext()->isEndPath()) {
-
-          if ((action == exception_actions::SkipEvent && tempContext.type() == ParentContext::Type::kPlaceInPath) ||
-               action == exception_actions::FailPath) action = exception_actions::IgnoreCompletely;
-      }
-      //NOTE: runModule had set cached_exception_ and advanced timesExcept_. These may need to be modified.
-      switch(action) {
-        case exception_actions::IgnoreCompletely:
-        {
-          rc = setPassed<T::isEvent_>();
-          std::ostringstream iost;
-          iost<<ep.id();
-          exceptionContext(iost.str(), T::isEvent_, ex, &tempContext);
-          edm::printCmsExceptionWarning("IgnoreCompletely", ex);
-          break;
-        }
-        default:
-          assert(not cached_exception_);
-          setException<T::isEvent_>(std::current_exception());
-          waitingTasks_.doneWaiting(cached_exception_);
-          std::rethrow_exception(cached_exception_);
+      TransitionIDValue<typename T::MyPrincipal> idValue(ep);
+      if(shouldRethrowException(ex, parentContext, T::isEvent_, idValue)) {
+        assert(not cached_exception_);
+        setException<T::isEvent_>(std::current_exception());
+        waitingTasks_.doneWaiting(cached_exception_);
+        std::rethrow_exception(cached_exception_);
+      } else {
+        rc = setPassed<T::isEvent_>();
       }
     }
     waitingTasks_.doneWaiting(nullptr);

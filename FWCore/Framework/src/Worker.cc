@@ -151,6 +151,48 @@ private:
     ex.addContext(ost.str());
   }
 
+  bool Worker::shouldRethrowException(cms::Exception& ex,
+                                      ParentContext const& parentContext,
+                                      bool isEvent,
+                                      TransitionIDValueBase const& iID) const {
+    
+    // NOTE: the warning printed as a result of ignoring or failing
+    // a module will only be printed during the full true processing
+    // pass of this module
+    
+    // Get the action corresponding to this exception.  However, if processing
+    // something other than an event (e.g. run, lumi) always rethrow.
+    exception_actions::ActionCodes action = (isEvent ? actions_->find(ex.category()) : exception_actions::Rethrow);
+    
+    if(action == exception_actions::Rethrow) {
+      return true;
+    }
+    
+    ModuleCallingContext tempContext(&description(),ModuleCallingContext::State::kInvalid, parentContext, nullptr);
+    
+    // If we are processing an endpath and the module was scheduled, treat SkipEvent or FailPath
+    // as IgnoreCompletely, so any subsequent OutputModules are still run.
+    // For unscheduled modules only treat FailPath as IgnoreCompletely but still allow SkipEvent to throw
+    ModuleCallingContext const* top_mcc = tempContext.getTopModuleCallingContext();
+    if(top_mcc->type() == ParentContext::Type::kPlaceInPath &&
+       top_mcc->placeInPathContext()->pathContext()->isEndPath()) {
+      
+      if ((action == exception_actions::SkipEvent && tempContext.type() == ParentContext::Type::kPlaceInPath) ||
+          action == exception_actions::FailPath) action = exception_actions::IgnoreCompletely;
+    }
+    switch(action) {
+      case exception_actions::IgnoreCompletely:
+      {
+        exceptionContext(iID.value(), isEvent, ex, &tempContext);
+        edm::printCmsExceptionWarning("IgnoreCompletely", ex);
+        return false;
+        break;
+      }
+      default:
+        return true;
+    }
+  }
+
   
   void Worker::prefetchAsync(WaitingTask* iTask, Principal const& iPrincipal) {
     // Prefetch products the module declares it consumes (not including the products it maybe consumes)
