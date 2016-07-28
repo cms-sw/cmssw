@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import * 
-
+GlobalTag.connect = cms.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
 # Default Express GT: it is the GT that will be used in case we are not able
 # to retrieve the one used at Tier0.
 # It should be kept in synch with Express processing at Tier0.
-GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v10" )
+GlobalTag.globaltag = cms.string( "80X_dataRun2_Express_v11" )
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.
