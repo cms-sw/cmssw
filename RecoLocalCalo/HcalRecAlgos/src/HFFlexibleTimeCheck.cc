@@ -75,7 +75,7 @@ HFRecHit HFFlexibleTimeCheck::reconstruct(const HFPreRecHit& prehit,
             passesAsymmetryCut = minAsymm <= qAsymm.first && qAsymm.first <= maxAsymm;
         }
         if (!passesAsymmetryCut)
-            rh.setFlagField(1U, HcalPhase1FlagLabels::SignalAsymmetry);
+            rh.setFlagField(1U, HcalPhase1FlagLabels::HFSignalAsymmetry);
     }
 
     return rh;
