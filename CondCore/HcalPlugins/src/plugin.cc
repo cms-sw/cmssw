@@ -59,7 +59,6 @@ REGISTER_PLUGIN(HcalValidationCorrsRcd,HcalValidationCorrs);
 REGISTER_PLUGIN(HcalLutMetadataRcd,HcalLutMetadata);
 REGISTER_PLUGIN(HcalDcsRcd, HcalDcsValues);
 REGISTER_PLUGIN(HcalDcsMapRcd,HcalDcsMap);
-REGISTER_PLUGIN(HcalCovarianceMatricesRcd,HcalCovarianceMatrices);
 REGISTER_PLUGIN(HcalRecoParamsRcd,HcalRecoParams);
 REGISTER_PLUGIN(HcalLongRecoParamsRcd,HcalLongRecoParams);
 REGISTER_PLUGIN(HcalZDCLowGainFractionsRcd,HcalZDCLowGainFractions);

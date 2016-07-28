@@ -266,15 +266,6 @@
  </class>
  <class name="HcalValidationCorrs"/>
 
- <class name="HcalCovarianceMatrix"/>
- <class name="std::vector<HcalCovarianceMatrix>"/>
- <class name="HcalCovarianceMatrices">
-   <field name="HBcontainer" mapping="blob" />
-   <field name="HEcontainer" mapping="blob" />
-   <field name="HFcontainer" mapping="blob" />
-   <field name="HOcontainer" mapping="blob" />
- </class> 
-
  <class name="HcalLutMetadatum"/>
  <class name="std::vector<HcalLutMetadatum>"/>
  <class name="std::pair<std::string, std::vector<HcalLutMetadatum> >"/>

@@ -112,10 +112,6 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceDcsMap);
       findingRecord <HcalDcsMapRcd> ();
     }
-    else if (objectName == "CovarianceMatrices") {
-      setWhatProduced (this, &HcalTextCalibrations::produceCovarianceMatrices);
-      findingRecord <HcalCovarianceMatricesRcd> ();
-    }
     else if (objectName == "RecoParams") {
       setWhatProduced (this, &HcalTextCalibrations::produceRecoParams);
       findingRecord <HcalRecoParamsRcd> ();
@@ -145,7 +141,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData QIETypes ChannelQuality ElectronicsMap "
 		<< "FrontEndMap ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
-		<< "ValidationCorrs LutMetadata DcsValues DcsMap CovarianceMatrices "
+		<< "ValidationCorrs LutMetadata DcsValues DcsMap "
 		<< "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
 		<< std::endl;
     }
@@ -322,13 +318,6 @@ std::unique_ptr<HcalDcsValues>
 
 std::unique_ptr<HcalDcsMap> HcalTextCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
   return produce_impl<HcalDcsMap> (mInputs ["DcsMap"]);
-}
-
-std::unique_ptr<HcalCovarianceMatrices> HcalTextCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd) {
-  edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  return produce_impl<HcalCovarianceMatrices> (topo,mInputs ["CovarianceMatrices"]);
 }
 
 std::unique_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const HcalRecoParamsRcd& rcd) {

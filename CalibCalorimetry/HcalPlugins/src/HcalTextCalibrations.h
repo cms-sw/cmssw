@@ -31,7 +31,6 @@ class HcalValidationCorrsRcd;
 class HcalLutMetadataRcd;
 class HcalDcsRcd;
 class HcalDcsMapRcd;
-class HcalCovarianceMatricesRcd;
 class HcalRecoParamsRcd;
 class HcalLongRecoParamsRcd;
 class HcalZDCLowGainFractionsRcd;
@@ -80,7 +79,6 @@ protected:
   std::unique_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
   std::unique_ptr<HcalDcsValues> produceDcsValues (HcalDcsRcd const & rcd);
   std::unique_ptr<HcalDcsMap> produceDcsMap (const HcalDcsMapRcd& rcd);
-  std::unique_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
   
   std::unique_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
  private:

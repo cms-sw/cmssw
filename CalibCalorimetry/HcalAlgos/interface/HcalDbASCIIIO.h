@@ -94,8 +94,6 @@ namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalMCParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalMCParams& fObject);
 
-  bool getObject (std::istream& fInput, HcalCovarianceMatrices* fObject);
-  bool dumpObject (std::ostream& fOutput, const HcalCovarianceMatrices& fObject);
   // Getting/Dumping Hcal Flag information
   bool getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject);
