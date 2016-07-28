@@ -29,9 +29,12 @@ namespace l1t {
     void create(const std::vector<CaloTower> & towers,
 	                      std::vector<Jet> & jets, std::vector<Jet> & alljets, std::string PUSubMethod);
 
+    void accuSort(std::vector<Jet> & jets);
+
     void calibrate(std::vector<Jet> & jets, int calibThreshold);
 
     double calibFit(double, double*);
+    double calibFitErr(double,double*);
 
     int donutPUEstimate(int jetEta, int jetPhi, int size,
                         const std::vector<l1t::CaloTower> & towers);

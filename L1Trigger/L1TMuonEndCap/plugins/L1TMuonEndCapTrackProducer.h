@@ -38,7 +38,16 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverterRPC.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
+
+// For RPCs
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
 
 typedef edm::ParameterSet PSet;
 
@@ -81,7 +90,9 @@ public:
   
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
   int bxShiftCSC = 0;
+  edm::EDGetTokenT<RPCDigiCollection> inputTokenRPC;
   PrimitiveConverter primConv_;
+  PrimitiveConverterRPC primConvRPC_;
   l1t::EmtfPtAssignment ptAssignment_;
   
 };
