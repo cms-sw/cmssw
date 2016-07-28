@@ -1,6 +1,8 @@
 #ifndef CondFormats_HcalObjects_HcalLinearCompositionFunctor_h
 #define CondFormats_HcalObjects_HcalLinearCompositionFunctor_h
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "CondFormats/HcalObjects/interface/AbsHcalFunctor.h"
 
 #include "boost/serialization/access.hpp"
@@ -25,6 +27,9 @@ public:
     inline virtual ~HcalLinearCompositionFunctor() {}
 
     virtual double operator()(double x) const override;
+
+    inline virtual double xmin() const override {return other_->xmin();}
+    inline virtual double xmax() const override {return other_->xmax();}
 
     inline double a() const {return a_;}
     inline double b() const {return b_;}
@@ -53,6 +58,9 @@ private:
         // https://svn.boost.org/trac/boost/ticket/10727
 #if BOOST_VERSION < 105600 || BOOST_VERSION > 105800
         ar & other_ & a_ & b_;
+#else
+        throw cms::Exception("HcalLinearCompositionFunctor can not be"
+                                 " serialized with this version of boost");
 #endif
     }
 };
