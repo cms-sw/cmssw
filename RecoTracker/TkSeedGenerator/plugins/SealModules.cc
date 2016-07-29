@@ -28,3 +28,7 @@ DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedMultiHitGenerator, "Stand
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
 DEFINE_EDM_PLUGIN(MultiHitGeneratorFromPairAndLayersFactory, MultiHitGeneratorFromChi2, "MultiHitGeneratorFromChi2");
+
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFromRegionHitsEDProducerT.h"
+using SeedCreatorFromRegionConsecutiveHitsEDProducer = SeedCreatorFromRegionHitsEDProducerT<SeedFromConsecutiveHitsCreator>;
+DEFINE_FWK_MODULE(SeedCreatorFromRegionConsecutiveHitsEDProducer);
