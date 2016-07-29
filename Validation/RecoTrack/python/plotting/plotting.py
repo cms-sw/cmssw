@@ -1426,6 +1426,7 @@ class Plot:
         staty        -- Stat box y coordinate (default 0.8)
         statyadjust  -- List of floats for stat box y coordinate adjustments (default None)
         normalizeToUnitArea -- Normalize histograms to unit area? (default False)
+        normalizeToNumberOfEvents -- Normalize histograms to number of events? If yes, the PlotFolder needs 'numberOfEventsHistogram' set to a histogram filled once per event (default False)
         profileX     -- Take histograms via ProfileX()? (default False)
         fitSlicesY   -- Take histograms via FitSlicesY() (default False)
         rebinX       -- rebin x axis (default None)
@@ -1489,6 +1490,7 @@ class Plot:
         _set("statyadjust", None)
 
         _set("normalizeToUnitArea", False)
+        _set("normalizeToNumberOfEvents", False)
         _set("profileX", False)
         _set("fitSlicesY", False)
         _set("rebinX", None)
@@ -1567,7 +1569,7 @@ class Plot:
         """Return true if the ratio uncertainty should be drawn"""
         return self._ratioUncertainty
 
-    def _createOne(self, name, index, tdir):
+    def _createOne(self, name, index, tdir, nevents):
         """Create one histogram from a TDirectory."""
         if tdir == None:
             return None
@@ -1576,17 +1578,20 @@ class Plot:
         if isinstance(name, list):
             name = name[index]
 
-        return _getOrCreateObject(tdir, name)
+        h = _getOrCreateObject(tdir, name)
+        if h is not None and self._normalizeToNumberOfEvents and nevents is not None and nevents != 0:
+            h.Scale(1.0/nevents)
+        return h
 
-    def create(self, tdirs, requireAllHistograms=False):
+    def create(self, tdirNEvents, requireAllHistograms=False):
         """Create histograms from list of TDirectories"""
-        self._histograms = [self._createOne(self._name, i, tdir) for i, tdir in enumerate(tdirs)]
+        self._histograms = [self._createOne(self._name, i, tdirNEvent[0], tdirNEvent[1]) for i, tdirNEvent in enumerate(tdirNEvents)]
 
         if self._fallback is not None:
             profileX = [self._profileX]*len(self._histograms)
             for i in xrange(0, len(self._histograms)):
                 if self._histograms[i] is None:
-                    self._histograms[i] = self._createOne(self._fallback["name"], i, tdirs[i])
+                    self._histograms[i] = self._createOne(self._fallback["name"], i, tdirNEvents[i][0], tdirNEvents[i][1])
                     profileX[i] = self._fallback.get("profileX", self._profileX)
 
         if self._histogramModifier is not None:
@@ -2067,15 +2072,15 @@ class PlotGroup:
         """Return True if the PlotGroup is intended only for pileup samples"""
         return self._onlyForPileup
 
-    def create(self, tdirectories, requireAllHistograms=False):
+    def create(self, tdirectoryNEvents, requireAllHistograms=False):
         """Create histograms from a list of TDirectories.
 
         Arguments:
-        tdirectories         -- List of TDirectory objects
+        tdirectoryNEvents    -- List of (TDirectory, nevents) pairs
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
         for plot in self._plots:
-            plot.create(tdirectories, requireAllHistograms)
+            plot.create(tdirectoryNEvents, requireAllHistograms)
 
     def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
         """Draw the histograms using values for a given algorithm.
@@ -2275,6 +2280,7 @@ class PlotFolder:
         purpose        -- html.PlotPurpose member class for the purpose of the folder, used for grouping of the plots to the HTML pages
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
+        numberOfEventsHistogram -- Optional path to histogram filled once per event. Needed if there are any plots normalized by number of events. Path is relative to "possibleDqmFolders".
         """
         self._plotGroups = list(plotGroups)
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
@@ -2284,6 +2290,7 @@ class PlotFolder:
         self._purpose = kwargs.pop("purpose", None)
         self._page = kwargs.pop("page", None)
         self._section = kwargs.pop("section", None)
+        self._numberOfEventsHistogram = kwargs.pop("numberOfEventsHistogram", None)
         if len(kwargs) > 0:
             raise Exception("Got unexpected keyword arguments: "+ ",".join(kwargs.keys()))
 
@@ -2310,6 +2317,9 @@ class PlotFolder:
     def getSection(self):
         return self._section
 
+    def getNumberOfEventsHistogram(self):
+        return self._numberOfEventsHistogram
+
     def append(self, plotGroup):
         self._plotGroups.append(plotGroup)
 
@@ -2325,25 +2335,25 @@ class PlotFolder:
                 return pg
         raise Exception("No PlotGroup named '%s'" % name)
 
-    def create(self, dirs, labels, isPileupSample=True, requireAllHistograms=False):
+    def create(self, dirsNEvents, labels, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
 
         Arguments:
-        dirs   -- List of TDirectories
+        dirsNEvents   -- List of (TDirectory, nevents) pairs
         labels -- List of strings for legend labels corresponding the files
         isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
-        if len(dirs) != len(labels):
-            raise Exception("len(files) should be len(labels), now they are %d and %d" % (len(files), len(labels)))
+        if len(dirsNEvents) != len(labels):
+            raise Exception("len(dirsNEvents) should be len(labels), now they are %d and %d" % (len(dirsNEvents), len(labels)))
 
         self._labels = labels
 
         for pg in self._plotGroups:
             if pg.onlyForPileup() and not isPileupSample:
                 continue
-            pg.create(dirs, requireAllHistograms)
+            pg.create(dirsNEvents, requireAllHistograms)
 
     def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=True):
         """Draw and save all plots using settings of a given algorithm.
@@ -2505,7 +2515,8 @@ class PlotterFolder:
         """
 
         subfolder = dqmSubFolder.subfolder if dqmSubFolder is not None else None
-        dirs = []
+        neventsHisto = self._plotFolder.getNumberOfEventsHistogram()
+        dirsNEvents = []
 
         for tfile in files:
             ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, subfolder)
@@ -2517,9 +2528,15 @@ class PlotterFolder:
                         ret = _getDirectoryDetailed(tfile, self._possibleDqmFolders, fallback)
                         if ret is not GetDirectoryCode.SubDirNotExist:
                             break
-            dirs.append(GetDirectoryCode.codesToNone(ret))
+            d = GetDirectoryCode.codesToNone(ret)
+            nev = None
+            if neventsHisto is not None and tfile is not None:
+                hnev = _getObject(tfile, neventsHisto)
+                if hnev is not None:
+                    nev = hnev.GetEntries()
+            dirsNEvents.append( (d, nev) )
 
-        self._plotFolder.create(dirs, labels, isPileupSample, requireAllHistograms)
+        self._plotFolder.create(dirsNEvents, labels, isPileupSample, requireAllHistograms)
 
     def draw(self, *args, **kwargs):
         """Draw and save all plots using settings of a given algorithm."""
