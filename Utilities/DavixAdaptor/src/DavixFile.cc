@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
+#include <mutex>
+
+static std::once_flag davixDebugInit;
 
 using namespace Davix;
 
@@ -24,7 +27,6 @@ DavixFile::DavixFile(const std::string &name, int flags /* = IOFlags::OpenRead *
 }
 
 DavixFile::~DavixFile(void) {
-  configureDavixLogLevel();
   close();
   return;
 }
@@ -85,19 +87,19 @@ void DavixFile::configureDavixLogLevel() {
   }
   switch (logLevel) {
   case 0:
-    davix_set_log_level(0);
+    std::call_once(davixDebugInit, davix_set_log_level, 0);
     break;
   case 1:
-    davix_set_log_level(DAVIX_LOG_WARNING);
+    std::call_once(davixDebugInit, davix_set_log_level, DAVIX_LOG_WARNING);
     break;
   case 2:
-    davix_set_log_level(DAVIX_LOG_VERBOSE);
+    std::call_once(davixDebugInit, davix_set_log_level, DAVIX_LOG_VERBOSE);
     break;
   case 3:
-    davix_set_log_level(DAVIX_LOG_DEBUG);
+    std::call_once(davixDebugInit, davix_set_log_level, DAVIX_LOG_DEBUG);
     break;
   default:
-    davix_set_log_level(DAVIX_LOG_ALL);
+    std::call_once(davixDebugInit, davix_set_log_level, DAVIX_LOG_ALL);
     break;
   }
 }
