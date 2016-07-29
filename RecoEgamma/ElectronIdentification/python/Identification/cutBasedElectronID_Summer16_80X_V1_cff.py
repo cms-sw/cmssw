@@ -4,9 +4,7 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools import *
 
 #
-# This is the first round of Spring15 25ns cuts, optimized on  Spring15 25ns samples. 
-#
-# The ID cuts below are optimized IDs for Spring15 Scenario with 25ns bunch spacing
+# The ID cuts below are optimized IDs on Spring16 simulation with 80X-based production
 # The cut values are taken from the twiki:
 #       https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
 #       (where they may not stay, if a newer version of cuts becomes available for these
