@@ -40,8 +40,8 @@ triggers_SL_e = [
 # but not available, so use Mu27
 # https://github.com/jpata/tthbb-sync/blob/master/Sync16.md#trigger-selection
 triggers_SL_m = [
-    "HLT_IsoMu27_v",
-    "HLT_IsoTkMu27_v",
+    "HLT_IsoMu22_v",
+    "HLT_IsoTkMu22_v",
 ]
 
 triggers_DL_mumu = [
@@ -57,6 +57,9 @@ triggers_DL_elmu = [
 triggers_DL_elel = [
     "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
 ]
+            
+bins_pt_coarse = [0, 10, 15, 18, 22, 24, 26, 30, 40, 50, 60, 80, 120, 200, 500]
+bins_pt_fine = [0,10] + [k for k in np.arange(15, 30, 0.1)] + [30, 40, 50, 60, 80, 120, 200, 500]
 
 def check_triggerbit(row, name):
     prefs = ["HLT_BIT_", "HLT2_BIT_"]
@@ -123,8 +126,8 @@ class Fillable(object):
 
 def make_binarray(bins):
     vec = getattr(ROOT, "std::vector<double>")()
-    for b in bins:
-        vec.push_back(b)
+    for b in list(bins):
+        vec.push_back(float(b))
     return vec
 
 class Fillable1(Fillable):
@@ -196,9 +199,6 @@ class FillPair(object):
         self.h1.fill(event)
         self.h2.fill(event)
 
-nbins_pt = 100
-nbins_eta = 100
-
 if __name__ == "__main__":
     if os.environ.has_key("FILE_NAMES"):
         file_names = map(getSitePrefix, os.environ["FILE_NAMES"].split())
@@ -214,13 +214,25 @@ if __name__ == "__main__":
     outfile = ROOT.TFile("out.root", "RECREATE")
 
     histos = {}
-    histos["IsoMu22_OR_IsoTkMu22"] = FillPair(
+    histos["IsoMu22_OR_IsoTkMu22_coarse"] = FillPair(
         Fillable1,
-        {"name": "mu_all", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1},
-        {"name": "mu_IsoMu27_OR_IsoTkMu27", "selection": lambda ev: ev.pass_trig_SL_mu},
+        {"name": "mu_coarse_all", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1},
+        {"name": "mu_coarse_hlt", "selection": lambda ev: ev.pass_trig_SL_mu},
         {
             "coords": lambda ev: (ev.mu_tight[0].pt, ev.mu_tight[0].eta),
-            "binsx": [0, 10, 15, 18, 22, 24, 26, 30, 40, 50, 60, 80, 120, 200, 500],
+            "binsx": bins_pt_coarse,
+            "binsy": [-2.4, -2.1, -1.6, -1.2, -0.9, -0.3, -0.2, 0.2, 0.3, 0.9, 1.2, 1.6, 2.1, 2.4]
+        },
+        outfile
+    )
+    
+    histos["IsoMu22_OR_IsoTkMu22_fine"] = FillPair(
+        Fillable1,
+        {"name": "mu_fine_all", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1},
+        {"name": "mu_fine_hlt", "selection": lambda ev: ev.pass_trig_SL_mu},
+        {
+            "coords": lambda ev: (ev.mu_tight[0].pt, ev.mu_tight[0].eta),
+            "binsx": bins_pt_fine,
             "binsy": [-2.4, -2.1, -1.6, -1.2, -0.9, -0.3, -0.2, 0.2, 0.3, 0.9, 1.2, 1.6, 2.1, 2.4]
         },
         outfile
