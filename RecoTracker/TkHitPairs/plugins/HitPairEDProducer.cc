@@ -13,7 +13,7 @@
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 
 class HitPairEDProducer: public edm::stream::EDProducer<> {
@@ -52,7 +52,7 @@ HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig):
     throw cms::Exception("Configuration") << "HitPairEDProducer requires either produceIntermediateHitDoublets or produceSeedingHitSets to be True. If neither are needed, just remove this module from your sequence/path as it doesn't do anything useful";
 
   if(produceSeedingHitSets_)
-    produces<std::vector<SeedingHitSet> >();
+    produces<RegionsSeedingHitSets>();
   if(produceIntermediateHitDoublets_)
     produces<IntermediateHitDoublets>();
 }
@@ -80,10 +80,10 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(regionToken_, hregions);
   const auto& regions = *hregions;
 
-  std::unique_ptr<std::vector<SeedingHitSet> > seedingHitSets;
+  std::unique_ptr<RegionsSeedingHitSets> seedingHitSets;
   if(produceSeedingHitSets_) {
-    seedingHitSets = std::make_unique<std::vector<SeedingHitSet> >();
-    seedingHitSets->reserve(localRA_.upper());
+    seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
+    seedingHitSets->reserve(regions.size(), localRA_.upper());
   }
   std::unique_ptr<IntermediateHitDoublets> intermediateHitDoublets;
   if(produceIntermediateHitDoublets_) {
@@ -112,6 +112,10 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   for(const TrackingRegion& region: regions) {
+    auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
+    if(produceSeedingHitSets_) {
+      seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
+    }
     if(produceIntermediateHitDoublets_) {
       intermediateHitDoublets->beginRegion(&region);
     }
@@ -123,8 +127,8 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if(doublets.empty()) continue; // don't bother if no pairs from these layers
       if(produceSeedingHitSets_) {
         for(size_t i=0, size=doublets.size(); i<size; ++i) {
-          seedingHitSets->emplace_back(doublets.hit(i, HitDoublets::inner),
-                                       doublets.hit(i, HitDoublets::outer));
+          seedingHitSetsFiller.emplace_back(doublets.hit(i, HitDoublets::inner),
+                                            doublets.hit(i, HitDoublets::outer));
         }
       }
       if(produceIntermediateHitDoublets_) {
