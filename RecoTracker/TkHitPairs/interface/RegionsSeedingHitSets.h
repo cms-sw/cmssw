@@ -10,6 +10,9 @@ class RegionsSeedingHitSets {
 public:
   using RegionIndex = ihd::RegionIndex;
 
+  using RegionSeedingHitSets = ihd::RegionLayerHits<SeedingHitSet>;
+  using const_iterator = ihd::const_iterator<RegionSeedingHitSets, RegionsSeedingHitSets>;
+
   // helper class to enforce correct usage
   class RegionFiller {
   public:
@@ -59,6 +62,15 @@ public:
   bool empty() const { return regions_.empty(); }
   size_t regionSize() const { return regions_.size(); }
   size_t size() const { return hitSets_.size(); }
+
+  const_iterator begin() const { return const_iterator(this, regions_.begin()); }
+  const_iterator cbegin() const { return begin(); }
+  const_iterator end() const { return const_iterator(this, regions_.end()); }
+  const_iterator cend() const { return end(); }
+
+  // Used internally
+  std::vector<SeedingHitSet>::const_iterator layerSetsBegin() const { return hitSets_.begin(); }
+  std::vector<SeedingHitSet>::const_iterator layerSetsEnd() const { return hitSets_.end(); }
 
 private:
   std::vector<RegionIndex> regions_;
