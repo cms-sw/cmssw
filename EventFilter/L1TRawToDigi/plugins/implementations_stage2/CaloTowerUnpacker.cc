@@ -4,7 +4,18 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
-#include "CaloTowerUnpacker.h"
+#include "L1TStage2Layer2Constants.h"
+
+namespace l1t {
+   namespace stage2 {
+      class CaloTowerUnpacker : public Unpacker {
+         public:
+            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+      };
+   }
+}
+
+// Implementation
 
 namespace l1t {
 namespace stage2 {
@@ -13,7 +24,7 @@ namespace stage2 {
    {
 
      // check this is the correct MP
-     unsigned int tmt  = block.amc().getBoardID();
+     unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
      unsigned int bxid = block.amc().getBX();
 
      // handle offset between BC0 marker and actual BC0...
