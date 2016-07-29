@@ -38,6 +38,8 @@ _legendDy_2rows = -0.025
 _legendDy_2rows_3cols = -0.17
 _legendDy_4rows = 0.09
 
+_trackingNumberOfEventsHistogram = "DQMData/Run 1/Tracking/Run summary/Track/general_trackingParticleRecoAsssociation/tracks"
+
 def _makeEffFakeDupPlots(postfix, quantity, unit="", common={}, effopts={}, fakeopts={}):
     p = postfix
     q = quantity
@@ -501,7 +503,9 @@ def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, seeds):
 
 def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAlgoMask=False, seeds=False, midfix=""):
     _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
-    _commonN = {"ylog": True, "ymin": _minMaxN, "ymax": _minMaxN}
+    _commonN = dict(ylog=True, ymin=_minMaxN, ymax=_minMaxN,
+                    normalizeToNumberOfEvents=True,
+    )
     _commonN.update(_common)
     _commonAB = dict(mapping=mapping,
                      renameBin=lambda bl: _summaryBinRename(bl, highPurity, byOriginalAlgo, byAlgoMask, seeds),
@@ -545,11 +549,11 @@ def _constructSummary(mapping=None, highPurity=False, byOriginalAlgo=False, byAl
         Plot(h_pileuprate, title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
     ])
     summaryN = PlotGroup(prefix+"_ntracks", [
-        Plot(h_reco, ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
-        Plot(h_true, ytitle="True tracks", title="Number of true tracks vs collection", **_commonN),
-        Plot(h_fake, ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
-        Plot(h_duplicate, ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
-        Plot(h_pileup, ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
+        Plot(h_reco, ytitle="Tracks/event", title="Number of tracks/event vs collection", **_commonN),
+        Plot(h_true, ytitle="True tracks/event", title="Number of true tracks/event vs collection", **_commonN),
+        Plot(h_fake, ytitle="Fake tracks/event", title="Number of fake tracks/event vs collection", **_commonN),
+        Plot(h_duplicate, ytitle="Duplicate tracks/event", title="Number of duplicate tracks/event vs collection", **_commonN),
+        Plot(h_pileup, ytitle="Pileup tracks/event", title="Number of pileup tracks/event vs collection", **_commonN),
     ])
 
     return (summary, summaryN)
@@ -904,7 +908,7 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
         summaryPlots.extend([_summaryRaw, _summaryRawN])
     summaryPlots.extend(_summaryPlots)
 
-    common = dict(loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", **limiters)
+    common = dict(loopSubFolders=False, purpose=PlotPurpose.TrackingSummary, page="summary", numberOfEventsHistogram=_trackingNumberOfEventsHistogram, **limiters)
     plotter.append(summaryName, folders,
                    PlotFolder(*summaryPlots, section=name, **common))
     plotter.append(summaryName+"_highPurity", folders,

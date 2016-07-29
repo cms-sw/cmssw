@@ -12,6 +12,8 @@ _maxFake = [0.05, 0.1, 0.2, 0.5, 0.7, 1.025]
 _minMaxRes = [5, 10, 50, 100, 200, 500, 1000, 2000, 5000]
 _minMaxPt = [5e-1, 1, 5, 1e1, 5e1, 1e2, 5e2, 1e3, 5e3, 1e4]
 
+_vertexNumberOfEventsHistogram = "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV/GenPV_Z"
+
 _common = {"xtitle": "Simulated interactions", "xmin": _minPU, "xmax": _maxPU, "ymin": _minVtx, "ymax": _maxVtx}
 _recovsgen = PlotGroup("recovsgen", [
     Plot("RecoVtx_vs_GenVtx", ytitle="Reco vertices", **_common),
@@ -162,7 +164,7 @@ _extDist = PlotGroup("dist", [
     Plot("RecoAllAssoc2Gen_Y", xtitle="Reco vertex pos y (cm)", ytitle="N", **_commonXY),
     Plot("RecoAllAssoc2Gen_R", xtitle="Reco vertex pos r (cm)", ytitle="N", **_commonXY),
     Plot("RecoAllAssoc2Gen_Z", xtitle="Reco vertex pos z (cm)", ytitle="N", **_commonZ),
-    Plot("RecoAllAssoc2Gen_NumVertices", xtitle="Number of reco vertices", ytitle="Events", stat=True, drawStyle="hist", min=_minVtx, xmax=_maxVtx),
+    Plot("RecoAllAssoc2Gen_NumVertices", xtitle="Number of reco vertices", ytitle="A.u.", normalizeToUnitArea=True, stat=True, drawStyle="hist", min=_minVtx, xmax=_maxVtx),
     Plot("RecoAllAssoc2Gen_NumTracks", xtitle="Number of tracks in vertex fit", ytitle="N", stat=True, drawStyle="hist"),
 ])
 _common = dict(title="", xtitle="Vertex z (cm)", scale=1e4, ylog=True, ymin=_minMaxRes , ymax=_minMaxRes, xmin=range(-60,-10,10), xmax=range(20,70,10))
@@ -292,7 +294,8 @@ plotterExt.append("", _vertexFolders, PlotFolder(
     _extResolutionZ,
     purpose=PlotPurpose.Vertexing,
     page="vertex",
-    onlyForPileup=True
+    onlyForPileup=True,
+    numberOfEventsHistogram=_vertexNumberOfEventsHistogram
 ))
 plotterExt.append("dqm", _vertexDqmFolders, PlotFolder(
     _extDqm,
