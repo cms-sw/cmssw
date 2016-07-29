@@ -70,7 +70,7 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
       value[i] = 0.0f;
       while (value [i] <= 0.0f)
 	// ignore correlations, assume 10K pedestal run 
-	value [i] = value0 + (float)CLHEP::RandGauss::shoot (value0, width.getWidth (i) / 100.);
+	value [i] = value0 + (float)CLHEP::RandGauss::shoot (0.0, width.getWidth (i) / 100.);
     }
   }
   HcalPedestal result (fId.rawId (), 
