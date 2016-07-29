@@ -18,7 +18,7 @@ defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
 defaultOptions.isMC=False
 defaultOptions.isData=True
-defaultOptions.step=['','Sequential']
+defaultOptions.step=''
 defaultOptions.pileup='NoPileUp'
 defaultOptions.pileup_input = None
 defaultOptions.pileup_dasoption = ''
@@ -911,7 +911,7 @@ class ConfigBuilder(object):
 
         self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"
         self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
-	self.SIMDefaultCFF="Configuration/StandardSequences/Sim_cff"
+        self.SIMDefaultCFF="Configuration/StandardSequences/Sim_cff"
         self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
         self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
         self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
