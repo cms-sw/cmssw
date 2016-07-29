@@ -149,14 +149,16 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	  // add the jet to the list
 	  if (!vetoCandidate) {
 	
-	    if (PUSubMethod == "Donut")       iEt -= donutPUEstimate(ieta, iphi, 5, towers);	    
-	    if (PUSubMethod == "ChunkyDonut") iEt -= chunkyDonutPUEstimate(ieta, iphi, 5, towers);
-	    	   
-            if (iEt<=0) continue;
- 
 	    math::XYZTLorentzVector p4;
 	    int caloEta = CaloTools::caloEta(ieta);
-	    l1t::Jet jet( p4, iEt, caloEta, iphi, 0);
+	    l1t::Jet jet( p4, -999, caloEta, iphi, 0);
+
+	    if (PUSubMethod == "Donut")       iEt -= donutPUEstimate(ieta, iphi, 5, towers);	    
+	    if (PUSubMethod == "ChunkyDonut") iEt -= chunkyDonutPUEstimate(jet, 5, towers);
+	    	   
+            if (iEt<=0) continue;
+
+	    jet.setHwPt(iEt);
 	    
 	    jetsRing.push_back(jet);
 	    alljets.push_back(jet);
@@ -314,11 +316,12 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   return 4*( ring[1]+ring[2] ); // This should really be multiplied by 4.5 not 4.
 }
 
-int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta, 
-								     int jetPhi, 
-								     int size, 
+int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet jet, int size, 
 								     const std::vector<l1t::CaloTower> & towers){
  
+  int jetPhi = jet.hwPhi();
+  int jetEta = CaloTools::mpEta(jet.hwEta());
+
    // ring is a vector with 4 ring strips, one for each side of the ring
   // order is PhiUp, PhiDown, EtaUp, EtaDown
   std::vector<int> ring(4,0);
@@ -403,6 +406,9 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
 
   // use lowest 3 strips as PU estimate
   std::sort( ring.begin(), ring.end() );
+
+  for(uint i=0; i<4; ++i) jet.setPUDonutEt(i,ring[i]);
+
   return ( ring[0] + ring[1] + ring[2] );
   
 }
