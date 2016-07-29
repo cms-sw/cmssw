@@ -62,8 +62,8 @@ class LeptonSF:
 
             if (eta>etaL and eta<etaH):
                 closestEtaBin = etaKey
-                print 'etaL is', etaL
-                print 'etaH is', etaH
+                #print 'etaL is', etaL
+                #print 'etaH is', etaH
                 etaFound = True                
 
             #print etaL, etaH
@@ -77,15 +77,15 @@ class LeptonSF:
 
                 if (pt>ptL and pt<ptH):
                     closestPtBin = ptKey
-                    print 'ptL is', ptL
-                    print 'ptH is', ptH
-                    print 'results value is', result['value']
+                    #print 'ptL is', ptL
+                    #print 'ptH is', ptH
+                    #print 'results value is', result['value']
                     ptFound = True
 
                 #print ptL, ptH
                 #print "|eta| bin: %s  pT bin: %s\tdata/MC SF: %f +/- %f" % (etaKey, ptKey, result["value"], result["error"])
                 if etaFound and ptFound:
-                    print 'both are true'
+                    #print 'both are true'
                     return [result["value"], result["error"]]
 
         if self.extrapolateFromClosestBin and not (closestPtBin=="" or closestEtaBin==""):
@@ -105,7 +105,8 @@ if __name__ == "__main__":
 
     jsonpath = os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/leptonSF/"
     jsons = {    
-        jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' :['IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093', 'abseta_pt_DATA' ],
+        #jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' :['IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093', 'abseta_pt_DATA' ],
+        #jsonpath+'MuonIso_Z_RunBCD_prompt80X_7p65.json' : ['MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
         #jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' :['IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097', 'abseta_pt_DATA' ],
         #jsonpath+'MuonTrkHIP_80X_Jul28.json' :[ 'ratio_eta', 'ratio_eta' ],
         #jsonpath+'MuonTrkHIP_80X_Jul28.json' :['ratio_vtx', 'ratio_vtx' ],
