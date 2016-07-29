@@ -24,6 +24,4 @@ public:
   }
 };
 
-DEFINE_EDM_PLUGIN (StorageMakerFactory, HttpStorageMaker, "http");
 DEFINE_EDM_PLUGIN (StorageMakerFactory, HttpStorageMaker, "ftp");
-DEFINE_EDM_PLUGIN (StorageMakerFactory, HttpStorageMaker, "web");
