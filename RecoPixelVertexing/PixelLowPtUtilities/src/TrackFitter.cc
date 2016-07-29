@@ -28,7 +28,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoPixelVertexing/PixelTrackFitting/src/CircleFromThreePoints.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 
@@ -134,10 +134,7 @@ reco::Track* TrackFitter::run
   if(nhits > 2)
   {
     RZLine rzLine(points,errors,isBarrel);
-    float      cotTheta, intercept, covss, covii, covsi; 
-    rzLine.fit(cotTheta, intercept, covss, covii, covsi);
-    chi2 = rzLine.chi2(cotTheta, intercept);
-    //FIXME: check which intercept to use!
+    chi2 = rzLine.chi2();
   }
 
   // build pixel track

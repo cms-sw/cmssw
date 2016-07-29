@@ -1,5 +1,5 @@
 //#define MK_DEBUG
-#include "RecoTracker/TkSeedGenerator/src/FastCircleFit.cc"
+#include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
 
 #include <iostream>
 
