@@ -688,7 +688,8 @@ HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
 HLT_GlobalRunHPDNoise_v*					# JIRA: CMSHLT-306
 HLT_HcalNZS_v*							# JIRA: CMSHLT-306
 HLT_HcalPhiSym_v*						# JIRA: CMSHLT-306
-HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
+
+HLT_HcalIsolatedbunch_v*					# JIRA: CMSHLT-962
 
 AlCa_RPCMuonNoTriggers_v*					# JIRA: CMSHLT-231
 AlCa_RPCMuonNoHits_v*						# JIRA: CMSHLT-231

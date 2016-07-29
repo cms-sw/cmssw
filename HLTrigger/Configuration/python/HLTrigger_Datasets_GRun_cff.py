@@ -10,6 +10,7 @@ streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults'
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamA_datasetCommissioning_selector.throw      = cms.bool(False)
 streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_DiSC30_18_EIso_AND_HE_Mass70_v5', 
+    'HLT_HcalIsolatedbunch_v1', 
     'HLT_IsoTrackHB_v2', 
     'HLT_IsoTrackHE_v2', 
     'HLT_L1BeamGasMinus_v2', 
