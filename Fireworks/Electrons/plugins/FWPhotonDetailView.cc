@@ -50,7 +50,7 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    m_builder->showSuperClusters();
 
    if ( iPhoton->superCluster().isAvailable() )
-      m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow);
+      m_builder->showSuperCluster(*(iPhoton->superCluster()), kYellow + 1);
 
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();

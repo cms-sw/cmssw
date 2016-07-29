@@ -77,7 +77,7 @@ FWElectronDetailView::build( const FWModelId &id, const reco::GsfElectron* iElec
    
    m_builder->showSuperClusters();
    if( iElectron->superCluster().isAvailable() )
-      m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow);
+      m_builder->showSuperCluster( *(iElectron->superCluster() ), kYellow + 1);
    
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
@@ -377,7 +377,7 @@ FWElectronDetailView::addSceneInfo(const reco::GsfElectron *i, TEveElementList* 
       y = i->phi();
       eldirection->AddLine(x-delta,y-delta,z,x+delta,y+delta,z);
       eldirection->AddLine(x-delta,y+delta,z,x+delta,y-delta,z);
-      eldirection->SetLineColor(kGreen);
+      eldirection->SetLineColor(kGreen + 1);
       eldirection->SetDepthTest(kFALSE);
       tList->AddElement(eldirection);
 
