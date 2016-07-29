@@ -12,7 +12,7 @@
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/IntermediateHitTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
@@ -48,7 +48,7 @@ HitTripletEDProducerT<T_HitTripletGenerator>::HitTripletEDProducerT(const edm::P
   if(!produceIntermediateHitTriplets_ && !produceSeedingHitSets_)
     throw cms::Exception("Configuration") << "HitTripletEDProducerT requires either produceIntermediateHitTriplets or produceSeedingHitSets to be True. If neither are needed, just remove this module from your sequence/path as it doesn't do anything useful";
   if(produceSeedingHitSets_)
-    produces<std::vector<SeedingHitSet> >();
+    produces<RegionsSeedingHitSets>();
   if(produceIntermediateHitTriplets_)
     produces<IntermediateHitTriplets>();
 }
@@ -78,10 +78,10 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
     throw cms::Exception("Configuration") << "HitTripletEDProducerT expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= 3, got " << seedingLayerHits.numberOfLayersInSet();
   }
 
-  std::unique_ptr<std::vector<SeedingHitSet> > seedingHitSets;
+  std::unique_ptr<RegionsSeedingHitSets> seedingHitSets;
   if(produceSeedingHitSets_) {
-    seedingHitSets = std::make_unique<std::vector<SeedingHitSet> >();
-    seedingHitSets->reserve(localRA_.upper());
+    seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
+    seedingHitSets->reserve(regionDoublets.regionSize(), localRA_.upper());
   }
   std::unique_ptr<IntermediateHitTriplets> intermediateHitTriplets;
   if(produceIntermediateHitTriplets_) {
@@ -103,7 +103,14 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
 
   for(const auto& regionLayerPairs: regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();
-    intermediateHitTriplets->beginRegion(&region);
+
+    auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
+    if(produceSeedingHitSets_) {
+      seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
+    }
+    if(produceIntermediateHitTriplets_) {
+      intermediateHitTriplets->beginRegion(&region);
+    }
 
     LogTrace("HitTripletEDProducer") << " starting region";
 
@@ -147,7 +154,7 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
       triplets_total += triplets.size();
       if(produceSeedingHitSets_) {
         for(const auto& trpl: triplets) {
-          seedingHitSets->emplace_back(trpl.inner(), trpl.middle(), trpl.outer());
+          seedingHitSetsFiller.emplace_back(trpl.inner(), trpl.middle(), trpl.outer());
         }
       }
       if(produceIntermediateHitTriplets_) {
