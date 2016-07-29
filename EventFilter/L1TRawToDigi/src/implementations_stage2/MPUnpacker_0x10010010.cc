@@ -8,6 +8,8 @@
 
 #include "CaloCollections.h"
 
+#include "L1TStage2Layer2Constants.h"
+
 namespace l1t {
    namespace stage2 {
       class MPUnpacker_0x10010010 : public Unpacker {
@@ -28,7 +30,7 @@ namespace stage2 {
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize() << " AMC = " << block.amc().getAMCNumber();
 
      // check this is the correct MP
-     unsigned int tmt  = block.amc().getBoardID();
+     unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
      unsigned int bxid = block.amc().getBX();
 
      // handle offset between BC0 marker and actual BC0...
