@@ -18,7 +18,7 @@ defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
 defaultOptions.isMC=False
 defaultOptions.isData=True
-defaultOptions.step=''
+defaultOptions.step=['','Sequential']
 defaultOptions.pileup='NoPileUp'
 defaultOptions.pileup_input = None
 defaultOptions.pileup_dasoption = ''
@@ -737,6 +737,8 @@ class ConfigBuilder(object):
 			if stepName[2:] not in self._options.donotDropOnInput:
 				self._options.inputEventContent='%s,%s'%(stepName.upper(),self._options.inputEventContent)
 			stepName=stepName[2:]
+                if stepName=="SIM":
+                        stepSpec=""
 		if stepSpec=="":
 			getattr(self,"prepare_"+stepName)(sequence = getattr(self,stepName+"DefaultSeq"))
 		elif type(stepSpec)==list:
@@ -909,7 +911,7 @@ class ConfigBuilder(object):
 
         self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"
         self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
-        self.SIMDefaultCFF="Configuration/StandardSequences/Sim_cff"
+	self.SIMDefaultCFF="Configuration/StandardSequences/Sim_cff"
         self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_cff"
         self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRaw_cff"
         self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1Emulator_cff'
@@ -1083,11 +1085,11 @@ class ConfigBuilder(object):
 
 	# synchronize the geometry configuration and the FullSimulation sequence to be used
         if simGeometry not in defaultOptions.geometryExtendedOptions:
-		self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
+                self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
 
 	if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
-            self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
-            self._options.beamspot='NoSmear'
+                self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
+                self._options.beamspot='NoSmear'
 
         # fastsim requires some changes to the default cff files and sequences
 	if self._options.fast:
@@ -1391,6 +1393,11 @@ class ConfigBuilder(object):
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
 	self.loadDefaultOrSpecifiedCFF(sequence,self.SIMDefaultCFF)
+	stepSpec = self.stepMap["SIM"]
+	if stepSpec and stepSpec[0]=="Sequential":
+	        self.loadAndRemember("Configuration/StandardSequences/SimSequential_cff")
+ 	        print "Step: SIM Geant4 sequential is chosen"
+
 	if not self._options.fast:
 		if self._options.gflash==True:
 			self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
