@@ -1,3 +1,5 @@
+#include "TEveCompound.h"
+
 #include "Fireworks/Calo/interface/FWBoxRecHit.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
@@ -11,8 +13,12 @@ FWBoxRecHit::FWBoxRecHit( const std::vector<TEveVector> &corners, TEveElement *c
    buildTower( corners);
    buildLineSet( corners);
 
-   comp->AddElement( m_tower);
-   comp->AddElement( m_ls );
+   TEveCompound* h = new TEveCompound();
+   h->CSCApplyMainColorToAllChildren();
+
+   h->AddElement( m_tower);
+   h->AddElement( m_ls );
+   comp->AddElement(h);
 }
 
 //______________________________________________________________________________
