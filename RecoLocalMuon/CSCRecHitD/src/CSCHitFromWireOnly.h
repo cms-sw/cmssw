@@ -68,6 +68,8 @@ class CSCHitFromWireOnly
   std::vector<int> wire_in_clusterAndBX; /// To fill BX + wiregroup in CSCWireHit
   
   int deltaT;
+  int wireTimeWindow_low;
+  int wireTimeWindow_high;
   //int clusterSize;
 
   /// Hold pointer to current conditions data

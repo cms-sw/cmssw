@@ -21,6 +21,9 @@
 CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) : recoConditions_(0){
   
   deltaT                 = ps.getParameter<int>("CSCWireClusterDeltaT");
+  wireTimeWindow_low     = ps.getParameter<int>("CSCWireTimeWindowLow");
+  wireTimeWindow_high     = ps.getParameter<int>("CSCWireTimeWindowHigh");
+
   //clusterSize            = ps.getParameter<int>("CSCWireClusterMaxSize");
 }
 
@@ -76,7 +79,11 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       std::vector <int> timeBinsOn=wire_cluster[n_wgroup/2].getTimeBinsOn();
       //CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround, timeBinsOn );
       CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, aDeadWG, timeBinsOn );
-      hitsInLayer.push_back( whit );	
+
+      if (theTime >= wireTimeWindow_low && theTime <= wireTimeWindow_high) {
+         hitsInLayer.push_back( whit );	
+         }
+
       makeWireCluster( wdigi );
       n_wgroup = 1;
       } else {
@@ -107,7 +114,11 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       /// BX
       //CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, isDeadWGAround, timeBinsOn );
       CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, aDeadWG, timeBinsOn );
-      hitsInLayer.push_back( whit );
+
+      if (theTime >= wireTimeWindow_low && theTime <= wireTimeWindow_high) {
+         hitsInLayer.push_back( whit );
+         }
+
       n_wgroup++;
     }
   }
