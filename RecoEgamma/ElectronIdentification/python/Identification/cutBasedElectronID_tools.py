@@ -83,6 +83,35 @@ class EleWorkingPoint_V2:
         # conversion veto cut needs no parameters, so not mentioned
         self.missingHitsCut               = missingHitsCut
 
+class EleWorkingPoint_V3:
+    """
+    This is a container class to hold numerical cut values for either
+    the barrel or endcap set of cuts for electron cut-based ID
+    With resepect to V2, the impact parameter cuts on dxy and dz are removed.
+    """
+    def __init__(self, 
+                 idName,
+                 dEtaInSeedCut,
+                 dPhiInCut,
+                 full5x5_sigmaIEtaIEtaCut,
+                 hOverECut,
+                 absEInverseMinusPInverseCut,
+                 relCombIsolationWithEALowPtCut,
+                 relCombIsolationWithEAHighPtCut,
+                 # conversion veto cut needs no parameters, so not mentioned
+                 missingHitsCut
+                 ):
+        self.idName                       = idName                       
+        self.dEtaInSeedCut                = dEtaInSeedCut                   
+        self.dPhiInCut                    = dPhiInCut                   
+        self.full5x5_sigmaIEtaIEtaCut     = full5x5_sigmaIEtaIEtaCut    
+        self.hOverECut                    = hOverECut                   
+        self.absEInverseMinusPInverseCut  = absEInverseMinusPInverseCut 
+        self.relCombIsolationWithEALowPtCut  = relCombIsolationWithEALowPtCut
+        self.relCombIsolationWithEAHighPtCut = relCombIsolationWithEAHighPtCut
+        # conversion veto cut needs no parameters, so not mentioned
+        self.missingHitsCut               = missingHitsCut
+
 class EleHLTSelection_V1:
     """
     This is a container class to hold numerical cut values for either
@@ -274,6 +303,43 @@ def psetNormalizedGsfChi2Cut(wpEB, wpEE):
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
+
+def psetEffAreaPFIsoCut(wpEB, wpEE, isoInputs):
+    return cms.PSet(
+        cutName = cms.string('GsfEleEffAreaPFIsoCut'),
+        isoCutEBLowPt  = cms.double( wpEB.relCombIsolationWithEALowPtCut  ),
+        isoCutEBHighPt = cms.double( wpEB.relCombIsolationWithEAHighPtCut ),
+        isoCutEELowPt  = cms.double( wpEE.relCombIsolationWithEALowPtCut  ),
+        isoCutEEHighPt = cms.double( wpEE.relCombIsolationWithEAHighPtCut ),
+        isRelativeIso = cms.bool(True),
+        ptCutOff = cms.double(20.0),          # high pT above this value, low pT below
+        barrelCutOff = cms.double(ebCutOff),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        effAreasConfigFile = cms.FileInPath( isoInputs.isoEffAreas ),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False)
+        )
+
+def psetConversionVetoCut():
+    return cms.PSet(
+        cutName = cms.string('GsfEleConversionVetoCut'),
+        conversionSrc        = cms.InputTag('allConversions'),
+        conversionSrcMiniAOD = cms.InputTag('reducedEgamma:reducedConversions'),
+        beamspotSrc = cms.InputTag('offlineBeamSpot'),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False)
+        )
+
+def psetMissingHitsCut(wpEB, wpEE):
+    return cms.PSet(
+        cutName = cms.string('GsfEleMissingHitsCut'),
+        maxMissingHitsEB = cms.uint32( wpEB.missingHitsCut ),
+        maxMissingHitsEE = cms.uint32( wpEE.missingHitsCut ),
+        barrelCutOff = cms.double(ebCutOff),
+        needsAdditionalProducts = cms.bool(False),
+        isIgnored = cms.bool(False) 
+        )
+
 
 # -----------------------------
 # Version V1 common definitions
@@ -494,6 +560,36 @@ def configureVIDCutBasedEleID_V2( wpEB, wpEE, isoInputs ):
 # ==============================================================
 # Define the complete cut sets
 # ==============================================================
+
+def configureVIDCutBasedEleID_V3( wpEB, wpEE, isoInputs ):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: two objects of the type WorkingPoint_V3, one
+    containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
+    The third argument is an object that contains information necessary
+    for isolation calculations.
+        In this version, the impact parameter cuts dxy and dz are not present
+    """
+    # print "VID: Configuring cut set %s" % wpEB.idName
+    parameterSet =  cms.PSet(
+        #
+        idName = cms.string( wpEB.idName ), # same name stored in the _EB and _EE objects
+        cutFlow = cms.VPSet(
+            psetMinPtCut(),
+            psetPhoSCEtaMultiRangeCut(),                        # eta cut
+            psetDEtaInSeedCut(wpEB, wpEE),                      # dEtaIn seed cut
+            psetDPhiInCut(wpEB, wpEE),                          # dPhiIn cut
+            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
+            psetHadronicOverEMCut(wpEB, wpEE),                  # H/E cut
+            psetEInerseMinusPInverseCut(wpEB, wpEE),            # |1/e-1/p| cut
+            psetEffAreaPFIsoCut(wpEB, wpEE, isoInputs),         # rel. comb. PF isolation cut
+            psetConversionVetoCut(),
+            psetMissingHitsCut(wpEB, wpEE)
+            )
+        )
+    #
+    return parameterSet
+
 
 # -----------------------------
 # HLT-safe common definitions
