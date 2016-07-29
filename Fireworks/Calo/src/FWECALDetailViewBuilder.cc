@@ -6,6 +6,7 @@
 #include "TEveViewer.h"
 #include "TEvePointSet.h"
 #include "TEveCalo.h"
+#include "TEveCompound.h"
 #include "TAxis.h"
 #include "TMath.h"
 #include "THLimitsFinder.h"
@@ -296,9 +297,10 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
        if (itr != m_detIdsToColor.end()) bcolor = itr->second;
 
        m_boxes.push_back(new FWBoxRecHit( etaphiCorners, m_towerList, energy, et ));
-       m_boxes.back()->getTower()->SetMainColor(bcolor);
-       m_boxes.back()->getTower()->SetTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
-
+       TEveElement::List_i pIt = m_boxes.back()->getTower()->BeginParents();
+       TEveCompound* comp = dynamic_cast<TEveCompound*>(*pIt);
+       comp->SetMainColor(bcolor);
+       comp->SetElementTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
    } // loop hits
 
 }
