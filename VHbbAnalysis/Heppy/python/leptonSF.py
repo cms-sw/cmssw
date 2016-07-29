@@ -31,6 +31,45 @@ class LeptonSF:
         self.extrapolateFromClosestBin = extrapolateFromClosestBin
         f.close()
 
+    def get_1D(self, pt):
+        if not self.valid:
+            return [1.0, 0.0]
+
+        stripForEta = 5
+        if self.lep_binning not in self.res.keys():
+            return [1.0, 0.0]
+
+        # if no bin is found, search for closest one, and double the uncertainty
+        closestPtBin = ""
+        closestPt = 9999.
+
+        ptFound = False
+
+        for ptKey, result in sorted(self.res[self.lep_binning].iteritems()) :
+            #print 'ptKey is', ptKey
+            ptL = float(((ptKey[7:]).rstrip(']').split(',')[0]))
+            ptH = float(((ptKey[7:]).rstrip(']').split(',')[1]))
+
+            #print 'ptL is', ptL
+            #print 'ptH is', ptH
+
+            if abs(ptL-pt)<closestPt or abs(ptH-pt)<closestPt and not ptFound:
+                closestPt = min(abs(ptL-pt), abs(ptH-pt))
+                closestPtBin = ptKey
+
+                if (pt>ptL and pt<ptH):
+                    closestPtBin = ptKey
+                    ptFound = True
+
+                if ptFound:
+                    return [result["value"], result["error"]]
+
+        if self.extrapolateFromClosestBin and not (closestPtBin==""):
+            return [self.res[self.lep_binning][closestPtBin]["value"],2*self.res[self.lep_binning][closestPtBin]["error"]]
+        else:
+            return [1.0, 0.0]
+                    
+
     def get_2D(self, pt, eta):
         if not self.valid:
             return [1.0, 0.0]        
@@ -62,11 +101,8 @@ class LeptonSF:
 
             if (eta>etaL and eta<etaH):
                 closestEtaBin = etaKey
-                #print 'etaL is', etaL
-                #print 'etaH is', etaH
                 etaFound = True                
 
-            #print etaL, etaH
             for ptKey, result in sorted(values.iteritems()) :
                 ptL = float(((ptKey[4:]).rstrip(']').split(',')[0]))
                 ptH = float(((ptKey[4:]).rstrip(']').split(',')[1]))                
@@ -77,20 +113,12 @@ class LeptonSF:
 
                 if (pt>ptL and pt<ptH):
                     closestPtBin = ptKey
-                    #print 'ptL is', ptL
-                    #print 'ptH is', ptH
-                    #print 'results value is', result['value']
                     ptFound = True
 
-                #print ptL, ptH
-                #print "|eta| bin: %s  pT bin: %s\tdata/MC SF: %f +/- %f" % (etaKey, ptKey, result["value"], result["error"])
                 if etaFound and ptFound:
-                    #print 'both are true'
                     return [result["value"], result["error"]]
 
         if self.extrapolateFromClosestBin and not (closestPtBin=="" or closestEtaBin==""):
-            #print 'closest bin for (%s,%s) is %s,%s' % (pt, eta , closestEtaBin, closestPtBin)
-            #print '\t return ', [self.res[self.lep_binning][closestEtaBin][closestPtBin]["value"], self.res[self.lep_binning][closestEtaBin][closestPtBin]["error"]]
             return [self.res[self.lep_binning][closestEtaBin][closestPtBin]["value"], 
                     2*self.res[self.lep_binning][closestEtaBin][closestPtBin]["error"]] 
         else:
