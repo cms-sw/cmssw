@@ -144,10 +144,10 @@ HiFJGridEmptyAreaCalculator::produce(edm::Event& iEvent, const edm::EventSetup& 
     mapToRhoMCorr1BinOut->at(ieta) = allAcceptanceCorr*rhoM;
   }
 
-  iEvent.put(mapToRhoCorrOut,"mapToRhoCorr");
-  iEvent.put(mapToRhoMCorrOut,"mapToRhoMCorr");
-  iEvent.put(mapToRhoCorr1BinOut,"mapToRhoCorr1Bin");
-  iEvent.put(mapToRhoMCorr1BinOut,"mapToRhoMCorr1Bin");
+  iEvent.put(std::move(mapToRhoCorrOut),"mapToRhoCorr");
+  iEvent.put(std::move(mapToRhoMCorrOut),"mapToRhoMCorr");
+  iEvent.put(std::move(mapToRhoCorr1BinOut),"mapToRhoCorr1Bin");
+  iEvent.put(std::move(mapToRhoMCorr1BinOut),"mapToRhoMCorr1Bin");
   
   //calculate rho from grid as a function of eta over full range using PF candidates
   
@@ -164,10 +164,10 @@ HiFJGridEmptyAreaCalculator::produce(edm::Event& iEvent, const edm::EventSetup& 
       mapEtaMinGridOut->at(ieta) = etaMinGrid_[ieta];
     }
 
-    iEvent.put(mapRhoVsEtaGridOut,"mapRhoVsEtaGrid");
-    iEvent.put(mapMeanRhoVsEtaGridOut,"mapMeanRhoVsEtaGrid");
-    iEvent.put(mapEtaMaxGridOut,"mapEtaMaxGrid");
-    iEvent.put(mapEtaMinGridOut,"mapEtaMinGrid");
+    iEvent.put(std::move(mapRhoVsEtaGridOut),"mapRhoVsEtaGrid");
+    iEvent.put(std::move(mapMeanRhoVsEtaGridOut),"mapMeanRhoVsEtaGrid");
+    iEvent.put(std::move(mapEtaMaxGridOut),"mapEtaMaxGrid");
+    iEvent.put(std::move(mapEtaMinGridOut),"mapEtaMinGrid");
   }
 }
 

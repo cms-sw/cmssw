@@ -170,13 +170,13 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }//eta ranges
   
-  iEvent.put(mapEtaRangesOut,"mapEtaEdges");
-  iEvent.put(mapToRhoOut,"mapToRho");
-  iEvent.put(mapToRhoMOut,"mapToRhoM");
+  iEvent.put(std::move(mapEtaRangesOut),"mapEtaEdges");
+  iEvent.put(std::move(mapToRhoOut),"mapToRho");
+  iEvent.put(std::move(mapToRhoMOut),"mapToRhoM");
   
-  iEvent.put(ptJetsOut,"ptJets");
-  iEvent.put(areaJetsOut,"areaJets");
-  iEvent.put(etaJetsOut,"etaJets");
+  iEvent.put(std::move(ptJetsOut),"ptJets");
+  iEvent.put(std::move(areaJetsOut),"areaJets");
+  iEvent.put(std::move(etaJetsOut),"etaJets");
 
   return;
 }
