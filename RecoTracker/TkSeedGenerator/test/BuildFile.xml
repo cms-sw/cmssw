@@ -1,5 +1,5 @@
 <use name="DataFormats/Math"/>
 <bin file="FastCircle_t.cpp"/>
 <bin file="FastCircleFit_t.cpp">
-  <use name="root"/>
+  <use name="eigen"/>
 </bin>

@@ -46,7 +46,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 
@@ -1612,9 +1612,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 	int subid2 = recHit2->geographicalId().subdetId();
 	bl[2] = (subid2 == StripSubdetector::TIB || subid2 == StripSubdetector::TOB || subid2 == (int) PixelSubdetector::PixelBarrel);
 	RZLine rzLine(gp,ge,bl);
-	float  cottheta, intercept, covss, covii, covsi;
-	rzLine.fit(cottheta, intercept, covss, covii, covsi);
-	float seed_chi2 = rzLine.chi2(cottheta, intercept);
+	float seed_chi2 = rzLine.chi2();
 	//float seed_pt = state.globalParameters().momentum().perp();
         float seed_pt = pt;
 	LogTrace("TrackingNtuple") << "seed " << seedTrackRef.key()

@@ -13,7 +13,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" 
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -523,9 +523,9 @@ void MultiHitGeneratorFromChi2::hitTriplets(
 	}
 
 	//gc: add the chi2 cut
-	declareDynArray(GlobalPoint,3, gp);
-	declareDynArray(GlobalError,3, ge);
-	declareDynArray(bool,3, bl);
+	std::array<GlobalPoint, 3> gp;
+	std::array<GlobalError, 3> ge;
+	std::array<bool, 3> bl;
 	gp[0] = hit0->globalPosition();
 	ge[0] = hit0->globalPositionError();
 	int subid0 = hit0->geographicalId().subdetId();
@@ -539,9 +539,7 @@ void MultiHitGeneratorFromChi2::hitTriplets(
 	int subid2 = hit2->geographicalId().subdetId();
 	bl[2] = (subid2 == StripSubdetector::TIB || subid2 == StripSubdetector::TOB || subid2 == (int) PixelSubdetector::PixelBarrel);
 	RZLine rzLine(gp,ge,bl);
-	float  cottheta, intercept, covss, covii, covsi;
-	rzLine.fit(cottheta, intercept, covss, covii, covsi);
-	float chi2 = rzLine.chi2(cottheta, intercept);
+	float chi2 = rzLine.chi2();
 
 #ifdef EDM_ML_DEBUG
 	bool debugTriplet = debugPair && hit2->rawId()==debug_Id2;
