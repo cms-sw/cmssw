@@ -28,6 +28,7 @@ public:
 private:
   edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
   edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+  edm::EDGetTokenT<bool> clusterCheckToken_;
 
   edm::RunningAverage localRA_;
   LayerHitMapCache layerCache_;
@@ -43,6 +44,7 @@ private:
 HitPairEDProducer::HitPairEDProducer(const edm::ParameterSet& iConfig):
   seedingLayerToken_(consumes<SeedingLayerSetsHits>(iConfig.getParameter<edm::InputTag>("seedingLayers"))),
   regionToken_(consumes<edm::OwnVector<TrackingRegion> >(iConfig.getParameter<edm::InputTag>("trackingRegions"))),
+  clusterCheckToken_(consumes<bool>(iConfig.getParameter<edm::InputTag>("clusterCheck"))),
   maxElement_(iConfig.getParameter<unsigned int>("maxElement")),
   generator_(0, 1, nullptr, maxElement_), // TODO: make layer indices configurable?
   produceSeedingHitSets_(iConfig.getParameter<bool>("produceSeedingHitSets")),
@@ -62,6 +64,7 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
   desc.add<edm::InputTag>("seedingLayers", edm::InputTag("seedingLayersEDProducer"));
   desc.add<edm::InputTag>("trackingRegions", edm::InputTag("globalTrackingRegionFromBeamSpot"));
+  desc.add<edm::InputTag>("clusterCheck", edm::InputTag("clusterCheckerEDProducer"));
   desc.add<bool>("produceSeedingHitSets", false);
   desc.add<bool>("produceIntermediateHitDoublets", false);
   desc.add<unsigned int>("maxElement", 0); // default is really 0? Also when used from CombinedHitTripletGenerator?
@@ -70,6 +73,10 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::Handle<bool> hclusterCheck;
+  iEvent.getByToken(clusterCheckToken_, hclusterCheck);
+  const bool clusterCheckOk = *hclusterCheck;
+
   edm::Handle<SeedingLayerSetsHits> hlayers;
   iEvent.getByToken(seedingLayerToken_, hlayers);
   const auto& layers = *hlayers;
@@ -81,15 +88,25 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   const auto& regions = *hregions;
 
   std::unique_ptr<RegionsSeedingHitSets> seedingHitSets;
-  if(produceSeedingHitSets_) {
-    seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
-    seedingHitSets->reserve(regions.size(), localRA_.upper());
-  }
   std::unique_ptr<IntermediateHitDoublets> intermediateHitDoublets;
-  if(produceIntermediateHitDoublets_) {
+  if(produceSeedingHitSets_)
+    seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
+  if(produceIntermediateHitDoublets_)
     intermediateHitDoublets = std::make_unique<IntermediateHitDoublets>(&layers);
-    intermediateHitDoublets->reserve(regions.size(), layers.size());
+
+  if(!clusterCheckOk) {
+    if(produceSeedingHitSets_)
+      iEvent.put(std::move(seedingHitSets));
+    if(produceIntermediateHitDoublets_)
+      iEvent.put(std::move(intermediateHitDoublets));
+    return;
   }
+
+  if(produceSeedingHitSets_)
+    seedingHitSets->reserve(regions.size(), localRA_.upper());
+  if(produceIntermediateHitDoublets_)
+    intermediateHitDoublets->reserve(regions.size(), layers.size());
+
 
   LogDebug("HitPairEDProducer") << "Creating doublets for " << regions.size() << " and " << layers.size() << " layer sets";
 

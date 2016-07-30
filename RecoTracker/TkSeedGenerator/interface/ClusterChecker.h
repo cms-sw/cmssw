@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-namespace edm { class Event; class ParameterSet; }
+namespace edm { class Event; class ParameterSet; class ParameterSetDescription; }
 
 namespace reco { namespace utils {
     struct ClusterTotals {
@@ -25,6 +25,8 @@ class ClusterChecker {
  public: 
   ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector & iC) ;
   ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector && iC) ;
+
+  static void fillDescriptions(edm::ParameterSetDescription& description);
 
   ~ClusterChecker() ;
   size_t tooManyClusters(const edm::Event & e) const ;

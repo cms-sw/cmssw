@@ -151,6 +151,7 @@ public:
   }
 
   const SeedingLayerSetsHits& seedingLayerHits() const { return *seedingLayers_; }
+  bool empty() const { return regions_.empty(); }
   size_t regionSize() const { return regions_.size(); }
   size_t layerPairsSize() const { return layerPairs_.size(); }
 
