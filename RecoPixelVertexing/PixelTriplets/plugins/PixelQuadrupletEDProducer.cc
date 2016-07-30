@@ -59,6 +59,10 @@ void PixelQuadrupletEDProducer::produce(edm::Event& iEvent, const edm::EventSetu
   }
 
   auto seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
+  if(regionTriplets.empty()) {
+    iEvent.put(std::move(seedingHitSets));
+    return;
+  }
   seedingHitSets->reserve(regionTriplets.regionSize(), localRA_.upper());
 
   // match-making of triplet and quadruplet layers
