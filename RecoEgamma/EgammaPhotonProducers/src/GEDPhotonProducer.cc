@@ -68,7 +68,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     pfCandidates_      = 
       consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
     particleBasedIsolationToken   = 
-       consumes<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolationTmp", "gedPhotons"));
+       consumes<edm::ValueMap<std::vector<reco::PFCandidateRef > > >(edm::InputTag("particleBasedIsolationTmp", "gedPhotonsTmp"));
 
   } else {
 
