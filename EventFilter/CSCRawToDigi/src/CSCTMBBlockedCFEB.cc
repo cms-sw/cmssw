@@ -51,7 +51,7 @@ std::vector< std::vector<int> > CSCTMBBlockedCFEB::getSingleCFEBList(int CFEBn) 
         {
           CFEBnData.push_back(getData()[i] & 0xFFF);
         }
-      idCFEB = -1;
+      // idCFEB = -1; /* =VB= Commented out to please static analyzer */
     }
 
   std::vector<int> Layer0, Layer1, Layer2, Layer3, Layer4, Layer5;
