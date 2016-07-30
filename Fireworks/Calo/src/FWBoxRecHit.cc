@@ -7,18 +7,17 @@
 
 
 //______________________________________________________________________________
-FWBoxRecHit::FWBoxRecHit( const std::vector<TEveVector> &corners, TEveElement *comp,float e , float et):
+FWBoxRecHit::FWBoxRecHit( const std::vector<TEveVector> &corners, TEveElement *list,float e , float et):
     m_tower(0), m_ls(0), m_energy(e), m_et(et), m_isTallest(false)
 {
    buildTower( corners);
    buildLineSet( corners);
 
-   TEveCompound* h = new TEveCompound();
+   TEveCompound* h = new TEveCompound("rechit box", "tower");
+   list->AddElement(h);
    h->CSCApplyMainColorToAllChildren();
-
    h->AddElement( m_tower);
    h->AddElement( m_ls );
-   comp->AddElement(h);
 }
 
 //______________________________________________________________________________
@@ -45,8 +44,6 @@ FWBoxRecHit::setupEveBox( std::vector<TEveVector> &corners, float scale )
       //  printf("%ld -> %f, %f , height=%f \n",i, corners[i].fX, corners[i].fY, scale);
    }
 
-   m_tower->SetPickable( true );
-   m_tower->SetDrawFrame(false);
    m_tower->SetLineWidth( 1.0 );
    m_tower->SetLineColor( kBlack );
 }

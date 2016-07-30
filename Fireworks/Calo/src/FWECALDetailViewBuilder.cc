@@ -135,8 +135,8 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
    
    TEvePointSet* ps = new TEvePointSet("origin");
-      ps->SetNextPoint(m_eta, m_phi, 0.01);
-      ps->SetMarkerSize(0.05);
+   ps->SetNextPoint(m_eta, m_phi, 0.01);
+   ps->SetMarkerSize(0.05);
    ps->SetMarkerStyle(2);
    ps->SetMainColor(kGreen);
    ps->SetMarkerColor(kGreen);
@@ -300,7 +300,8 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
        TEveElement::List_i pIt = m_boxes.back()->getTower()->BeginParents();
        TEveCompound* comp = dynamic_cast<TEveCompound*>(*pIt);
        comp->SetMainColor(bcolor);
-       comp->SetElementTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
+       m_boxes.back()->getTower()->SetPickable(true);
+       m_boxes.back()->getTower()->SetElementTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
    } // loop hits
 
 }
