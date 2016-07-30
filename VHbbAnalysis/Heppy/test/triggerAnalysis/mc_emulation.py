@@ -60,7 +60,7 @@ triggers_DL_elel = [
             
 bins_pt_coarse = [0, 10, 15, 18, 22, 24, 26, 30, 40, 50, 60, 80, 120, 200, 500]
 bins_pt_fine = [0,10] + [k for k in np.arange(15, 30, 0.1)] + [30, 40, 50, 60, 80, 120, 200, 500]
-
+bins_eta = [-2.4, -2.1, -1.6, -1.2, -0.9, -0.3, -0.2, 0.2, 0.3, 0.9, 1.2, 1.6, 2.1, 2.4]
 def check_triggerbit(row, name):
     prefs = ["HLT_BIT_", "HLT2_BIT_"]
     for pref in prefs:
@@ -107,9 +107,12 @@ class Event:
             lambda x: x.eleMVAIdSpring15Trig>=1 and ele_mvaEleID_Trig_preselection(x),
             el 
         )
+        self.leptons_loose = sorted(self.mu_loose + self.el_loose, key=lambda x: x.pt, reverse=True)
+        self.leptons_tight = sorted(self.mu_tight + self.el_tight, key=lambda x: x.pt, reverse=True)
         
-        self.is_sl = len(self.leptons) == 1
-        self.is_dl = len(self.leptons) == 2
+        self.is_sl = len(self.leptons_tight) == 1 and len(self.leptons_loose) == 1
+        self.is_dl = not self.is_sl and len(self.leptons_loose) == 2
+
         self.pass_trig_SL_mu = check_triggers_OR(event, triggers_SL_m)
         self.pass_trig_SL_el = check_triggers_OR(event, triggers_SL_e)
         
@@ -214,26 +217,62 @@ if __name__ == "__main__":
     outfile = ROOT.TFile("out.root", "RECREATE")
 
     histos = {}
-    histos["IsoMu22_OR_IsoTkMu22_coarse"] = FillPair(
-        Fillable1,
-        {"name": "mu_coarse_all", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1},
-        {"name": "mu_coarse_hlt", "selection": lambda ev: ev.pass_trig_SL_mu},
-        {
-            "coords": lambda ev: (ev.mu_tight[0].pt, ev.mu_tight[0].eta),
-            "binsx": bins_pt_coarse,
-            "binsy": [-2.4, -2.1, -1.6, -1.2, -0.9, -0.3, -0.2, 0.2, 0.3, 0.9, 1.2, 1.6, 2.1, 2.4]
-        },
-        outfile
-    )
-    
-    histos["IsoMu22_OR_IsoTkMu22_fine"] = FillPair(
+    histos["mu_fine"] = FillPair(
         Fillable1,
         {"name": "mu_fine_all", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1},
         {"name": "mu_fine_hlt", "selection": lambda ev: ev.pass_trig_SL_mu},
         {
             "coords": lambda ev: (ev.mu_tight[0].pt, ev.mu_tight[0].eta),
             "binsx": bins_pt_fine,
-            "binsy": [-2.4, -2.1, -1.6, -1.2, -0.9, -0.3, -0.2, 0.2, 0.3, 0.9, 1.2, 1.6, 2.1, 2.4]
+            "binsy": bins_eta,
+        },
+        outfile
+    )
+    
+    histos["el_fine"] = FillPair(
+        Fillable1,
+        {"name": "el_fine_all", "selection": lambda ev: ev.is_sl and len(ev.el_tight)==1},
+        {"name": "el_fine_hlt", "selection": lambda ev: ev.pass_trig_SL_el},
+        {
+            "coords": lambda ev: (ev.el_tight[0].pt, ev.el_tight[0].eta),
+            "binsx": bins_pt_fine,
+            "binsy": bins_eta, 
+        },
+        outfile
+    )
+    
+    histos["mumu_fine"] = FillPair(
+        Fillable2,
+        {"name": "mumu_fine_all", "selection": lambda ev: ev.is_dl and len(ev.mu_loose)==2},
+        {"name": "mumu_fine_hlt", "selection": lambda ev: ev.pass_trig_DL_mumu},
+        {
+            "coords": lambda ev: ((ev.leptons_loose[0].pt, ev.leptons_loose[0].eta), (ev.leptons_loose[1].pt, ev.leptons_loose[1].eta)),
+            "binsx": bins_pt_fine,
+            "binsy": bins_eta, 
+        },
+        outfile
+    )
+
+    histos["elel_fine"] = FillPair(
+        Fillable2,
+        {"name": "elel_fine_all", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==2},
+        {"name": "elel_fine_hlt", "selection": lambda ev: ev.pass_trig_DL_elel},
+        {
+            "coords": lambda ev: ((ev.leptons_loose[0].pt, ev.leptons_loose[0].eta), (ev.leptons_loose[1].pt, ev.leptons_loose[1].eta)),
+            "binsx": bins_pt_fine,
+            "binsy": bins_eta, 
+        },
+        outfile
+    )
+    
+    histos["elmu_fine"] = FillPair(
+        Fillable2,
+        {"name": "elmu_fine_all", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==1 and len(ev.mu_loose)==1},
+        {"name": "elmu_fine_hlt", "selection": lambda ev: ev.pass_trig_DL_elmu},
+        {
+            "coords": lambda ev: ((ev.leptons_loose[0].pt, ev.leptons_loose[0].eta), (ev.leptons_loose[1].pt, ev.leptons_loose[1].eta)),
+            "binsx": bins_pt_fine,
+            "binsy": bins_eta, 
         },
         outfile
     )
