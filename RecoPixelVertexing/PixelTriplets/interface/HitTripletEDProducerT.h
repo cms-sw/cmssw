@@ -79,15 +79,24 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
   }
 
   std::unique_ptr<RegionsSeedingHitSets> seedingHitSets;
-  if(produceSeedingHitSets_) {
-    seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
-    seedingHitSets->reserve(regionDoublets.regionSize(), localRA_.upper());
-  }
   std::unique_ptr<IntermediateHitTriplets> intermediateHitTriplets;
-  if(produceIntermediateHitTriplets_) {
+  if(produceSeedingHitSets_)
+    seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
+  if(produceIntermediateHitTriplets_)
     intermediateHitTriplets = std::make_unique<IntermediateHitTriplets>(&seedingLayerHits);
-    intermediateHitTriplets->reserve(regionDoublets.regionSize(), seedingLayerHits.size(), localRA_.upper());
+
+  if(regionDoublets.empty()) {
+    if(produceSeedingHitSets_)
+      iEvent.put(std::move(seedingHitSets));
+    if(produceIntermediateHitTriplets_)
+      iEvent.put(std::move(intermediateHitTriplets));
+    return;
   }
+
+  if(produceSeedingHitSets_)
+    seedingHitSets->reserve(regionDoublets.regionSize(), localRA_.upper());
+  if(produceIntermediateHitTriplets_)
+    intermediateHitTriplets->reserve(regionDoublets.regionSize(), seedingLayerHits.size(), localRA_.upper());
 
   // match-making of pair and triplet layers
   std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(seedingLayerHits);
