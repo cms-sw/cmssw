@@ -41,8 +41,7 @@ It produces histograms to correlate the multiplicities obtained from `Multiplici
 
 ## ROOT Macros
 This package contains a library of ROOT macros that can be loaded by executing `gSystem->Load("libDPGAnalysisSiStripToolsMacros.so")`
-in the root interactive section, followed by 
-`#include "DPGAnalysis/SiStripTools/bin/DPGAnalysisSiStripToolsMacrosLinkDef.h"` in case Root 6 is used.
+in the root interactive section. In case Root 6 is used the autocompletion of the macro names using the TAB is available only after a macro is executed.
 
 ### BSvsBPIXPlot
 `BSvsBPIXPlot(TFile* ff, const char* bsmodule, const char* occumodule, const int run)`
