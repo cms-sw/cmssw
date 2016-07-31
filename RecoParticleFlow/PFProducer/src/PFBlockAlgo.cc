@@ -394,7 +394,7 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
   
   //   const PFBlockCollection& blocks = a.blocks();
 
-  const std::unique_ptr< reco::PFBlockCollection >& blocks
+  const std::auto_ptr< reco::PFBlockCollection >& blocks
     = a.blocks(); 
     
   if(!blocks.get() ) {
