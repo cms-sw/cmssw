@@ -18,27 +18,27 @@ using namespace reco;
 
 namespace {
   class QuickUnion{
-  std::vector<unsigned> _id;
-  std::vector<unsigned> _size;
-  int _count;
+  std::vector<unsigned> id_;
+  std::vector<unsigned> size_;
+  int count_;
 
   public:
     QuickUnion(const unsigned NBranches) {
-      _count = NBranches;
-      _id.resize(NBranches);
-      _size.resize(NBranches);
+      count_ = NBranches;
+      id_.resize(NBranches);
+      size_.resize(NBranches);
       for( unsigned i = 0; i < NBranches; ++i ) {
-	_id[i] = i;
-	_size[i] = 1;
+	id_[i] = i;
+	size_[i] = 1;
       }
     }
     
-    int count() const { return _count; }
+    int count() const { return count_; }
     
     unsigned find(unsigned p) {
-      while( p != _id[p] ) {
-	_id[p] = _id[_id[p]];
-	p = _id[p];
+      while( p != id_[p] ) {
+	id_[p] = id_[id_[p]];
+	p = id_[p];
       }
       return p;
     }
@@ -48,14 +48,14 @@ namespace {
     void unite(unsigned p, unsigned q) {
       unsigned rootP = find(p);
       unsigned rootQ = find(q);
-      _id[p] = q;
+      id_[p] = q;
       
-      if(_size[rootP] < _size[rootQ] ) { 
-	_id[rootP] = rootQ; _size[rootQ] += _size[rootP]; 
+      if(size_[rootP] < size_[rootQ] ) { 
+	id_[rootP] = rootQ; size_[rootQ] += size_[rootP]; 
       } else { 
-	_id[rootQ] = rootP; _size[rootP] += _size[rootQ]; 
+	id_[rootQ] = rootP; size_[rootP] += size_[rootQ]; 
       }
-      --_count;
+      --count_;
     }
   };
 }
@@ -67,7 +67,7 @@ namespace {
 PFBlockAlgo::PFBlockAlgo() : 
   blocks_( new reco::PFBlockCollection ),  
   debug_(false),
-  _elementTypes( {
+  elementTypes_( {
         INIT_ENTRY(PFBlockElement::TRACK),
 	INIT_ENTRY(PFBlockElement::PS1),
 	INIT_ENTRY(PFBlockElement::PS2),
@@ -86,10 +86,10 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
    for( unsigned i = 0; i < rowsize; ++i ) {
      for( unsigned j = 0; j < rowsize; ++j ) {
 
-       _linkTestSquare[i][j] = 0;
+       linkTestSquare_[i][j] = 0;
      }
    }
-  _linkTests.resize(rowsize*rowsize);
+  linkTests_.resize(rowsize*rowsize);
   const std::string prefix("PFBlockElement::");
   const std::string pfx_kdtree("KDTree");
   for( const auto& conf : confs ) {
@@ -105,39 +105,39 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     }
     std::string link1(prefix+linkTypeStr.substr(0,split));
     std::string link2(prefix+linkTypeStr.substr(split+1,std::string::npos));
-    if( !(_elementTypes.count(link1) && _elementTypes.count(link2) ) ) {
+    if( !(elementTypes_.count(link1) && elementTypes_.count(link2) ) ) {
       throw cms::Exception("InvalidBlockElementType")
 	<< "One of \"" << link1 << "\" or \"" << link2 
 	<< "\" are invalid block element types!";
     }
-    const PFBlockElement::Type type1 = _elementTypes.at(link1);
-    const PFBlockElement::Type type2 = _elementTypes.at(link2);    
+    const PFBlockElement::Type type1 = elementTypes_.at(link1);
+    const PFBlockElement::Type type2 = elementTypes_.at(link2);    
     const unsigned index  = rowsize*std::max(type1,type2)+std::min(type1,type2);
     BlockElementLinkerBase * linker =
       BlockElementLinkerFactory::get()->create(linkerName,conf);
-    _linkTests[index].reset(linker);
-    _linkTestSquare[type1][type2] = index;
-    _linkTestSquare[type2][type1] = index;
+    linkTests_[index].reset(linker);
+    linkTestSquare_[type1][type2] = index;
+    linkTestSquare_[type2][type1] = index;
     // setup KDtree if requested
     const bool useKDTree = conf.getParameter<bool>("useKDTree");
     if( useKDTree ) {
-      _kdtrees.emplace_back( KDTreeLinkerFactory::get()->create(pfx_kdtree+
+      kdtrees_.emplace_back( KDTreeLinkerFactory::get()->create(pfx_kdtree+
 								linkerName) );
-      _kdtrees.back()->setTargetType(std::min(type1,type2));
-      _kdtrees.back()->setFieldType(std::max(type1,type2));
+      kdtrees_.back()->setTargetType(std::min(type1,type2));
+      kdtrees_.back()->setFieldType(std::max(type1,type2));
     }
   }
 }
 
 void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs,
 				  edm::ConsumesCollector& sumes) {
-   _importers.reserve(confs.size());  
+   importers_.reserve(confs.size());  
   for( const auto& conf : confs ) {
     const std::string& importerName = 
       conf.getParameter<std::string>("importerName");    
     BlockElementImporterBase * importer =
       BlockElementImporterFactory::get()->create(importerName,conf,sumes);
-    _importers.emplace_back(importer);
+    importers_.emplace_back(importer);
   }
 }
 
@@ -152,7 +152,7 @@ PFBlockAlgo::~PFBlockAlgo() {
 
 void PFBlockAlgo::findBlocks() {
   // Glowinski & Gouzevitch
-  for( const auto& kdtree : _kdtrees ) {
+  for( const auto& kdtree : kdtrees_ ) {
     kdtree->process();
   }  
   // !Glowinski & Gouzevitch
@@ -166,16 +166,16 @@ void PFBlockAlgo::findBlocks() {
   for( unsigned i = 0; i < elem_size; ++i ) {
     for( unsigned j = 0; j < elem_size; ++j ) {
       if( qu.connected(i,j) || j == i ) continue;
-      if( !_linkTests[_linkTestSquare[bare_elements_[i]->type()][bare_elements_[j]->type()]] ) {
+      if( !linkTests_[linkTestSquare_[bare_elements_[i]->type()][bare_elements_[j]->type()]] ) {
         j = ranges_[bare_elements_[j]->type()].second;
         continue;
       }
       auto p1(bare_elements_[i]), p2(bare_elements_[j]);
       const PFBlockElement::Type type1 = p1->type();
       const PFBlockElement::Type type2 = p2->type();
-      const unsigned index = _linkTestSquare[type1][type2];
-      if( _linkTests[index]->linkPrefilter(p1,p2) ) {
-        const double dist = _linkTests[index]->testLink(p1,p2);
+      const unsigned index = linkTestSquare_[type1][type2];
+      if( linkTests_[index]->linkPrefilter(p1,p2) ) {
+        const double dist = linkTests_[index]->testLink(p1,p2);
         // compute linking info if it is possible
         if( dist > -0.5 ) {
           qu.unite(i,j);
@@ -216,9 +216,9 @@ void PFBlockAlgo::findBlocks() {
       the_block.addElement(p2);
       linktest = PFBlock::LINKTEST_RECHIT; //rechit by default 
       linktype = static_cast<PFBlockLink::Type>(1<<(type1-1)|1<<(type2-1));
-      const unsigned index = _linkTestSquare[type1][type2];
-      if( nullptr != _linkTests[index] ) {
-        const double dist = _linkTests[index]->testLink(p1,p2);
+      const unsigned index = linkTestSquare_[type1][type2];
+      if( nullptr != linkTests_[index] ) {
+        const double dist = linkTests_[index]->testLink(p1,p2);
         links.emplace( std::make_pair(p1->index(), p2->index()) ,
                        PFBlockLink( linktype, linktest, dist,
                                     p1->index(), p2->index() ) );
@@ -268,7 +268,7 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
         const auto minmax = std::minmax(type1,type2);
         const unsigned index = rowsize*minmax.second + minmax.first;
 	PFBlockLink::Type linktype = PFBlockLink::NONE;
-	bool bTestLink = ( nullptr == _linkTests[index] ? false : _linkTests[index]->linkPrefilter(&(els[i1]),&(els[i2])) );
+	bool bTestLink = ( nullptr == linkTests_[index] ? false : linkTests_[index]->linkPrefilter(&(els[i1]),&(els[i2])) );
 	if (bTestLink) link( & els[i1], & els[i2], linktype, linktest, dist);
       }
 
@@ -295,7 +295,7 @@ PFBlockAlgo::linkPrefilter(const reco::PFBlockElement* last,
   const PFBlockElement::Type type1 = (last)->type();
   const PFBlockElement::Type type2 = (next)->type();
   const unsigned index = rowsize*std::max(type1,type2) + std::min(type1,type2);
-  bool result =  _linkTests[index]->linkPrefilter(last,next);
+  bool result =  linkTests_[index]->linkPrefilter(last,next);
   return result;  
 }
 
@@ -318,11 +318,11 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   }
   
   // index is always checked in the preFilter above, no need to check here
-  dist = _linkTests[index]->testLink(el1,el2);
+  dist = linkTests_[index]->testLink(el1,el2);
 }
 
 void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
-  for( auto& importer : _importers ) {
+  for( auto& importer : importers_ ) {
     importer->updateEventSetup(es);
   }
 }
@@ -334,7 +334,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   // import block elements as defined in python configuration
   ranges_.fill(std::make_pair(0,0));
   elements_.clear();
-  for( const auto& importer : _importers ) {
+  for( const auto& importer : importers_ ) {
     importer->importToBlock(evt,elements_);
   }
 
@@ -366,7 +366,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   
   for (ElementList::iterator it = elements_.begin();
        it != elements_.end(); ++it) {
-    for( const auto& kdtree : _kdtrees ) {
+    for( const auto& kdtree : kdtrees_ ) {
       if( (*it)->type() == kdtree->targetType() ) {
 	kdtree->insertTargetElt(it->get());
       }
@@ -394,7 +394,7 @@ std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {
   
   //   const PFBlockCollection& blocks = a.blocks();
 
-  const std::auto_ptr< reco::PFBlockCollection >& blocks
+  const std::unique_ptr< reco::PFBlockCollection >& blocks
     = a.blocks(); 
     
   if(!blocks.get() ) {
