@@ -97,6 +97,11 @@ As the macro `PlotOnTrackOccupancy` but for results obtained with the phase 1 ge
 ### PlotOnTrackOccupancyPhase2
 As the macro `PlotOnTrackOccupancy` but for results obtained with the phase 2 geometry
 
+### TrendPlotSingleBin
+`TrendPlotSingleBin(TFile* ff, const char* module, const char* hname, const int bin)`
+
+It has to be used with the output root file of `OccupancyPlots` and it produces a trend plot of the average occupancy or cluster multiplicity as a function of the run number for a specific part of the detector defined by the bin `bin` in the configuration of the `OccupancyPlots` job.
+
 ## Scripts
 ### merge_and_move_generic_fromCrab.sh
 Script which helps to merge root files produced by a crab2 job and saved in the `res` sudirectory of output crab directory. 
