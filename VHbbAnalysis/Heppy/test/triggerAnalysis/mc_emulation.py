@@ -4,6 +4,7 @@ import numpy as np
 
 import ROOT
 ROOT.TH1.AddDirectory(False)
+ROOT.TH1.SetDefaultSumw2(True)
 
 #Try loading rootpy (installed via anaconda)
 try:
@@ -119,11 +120,14 @@ class Event:
         self.pass_trig_DL_mumu = check_triggers_OR(event, triggers_DL_mumu)
         self.pass_trig_DL_elmu = check_triggers_OR(event, triggers_DL_elmu)
         self.pass_trig_DL_elel = check_triggers_OR(event, triggers_DL_elel)
+        
+        self.triggerEmulationWeight = getattr(event, "triggerEmulationWeight", -1.0)
 
 class Fillable(object):
     def __init__(self, **kwargs):
         self.name = kwargs.get("name")
         self.selection = kwargs.get("selection")
+        self.weight = kwargs.get("weight", lambda ev: 1.0)
         self.coords = kwargs.get("coords")
         self.outdir = kwargs.get("outdir", ROOT.gROOT)
 
@@ -151,7 +155,8 @@ class Fillable1(Fillable):
     def fill(self, event):
         if self.selection(event):
             coord1, coord2 = self.coords(event)
-            self.hist.Fill(coord1, coord2)
+            w = self.weight(event)
+            self.hist.Fill(coord1, coord2, w)
 
 class Fillable2(Fillable):
     def __init__(self, **kwargs):
@@ -179,28 +184,33 @@ class Fillable2(Fillable):
 
     def fill(self, event):
         if self.selection(event):
+            w = self.weight(event)
             c1, c2 = self.coords(event)
-            self.hist1.Fill(*c1)
-            self.hist2.Fill(*c2)
+            self.hist1.Fill(c1[0], c1[1], w)
+            self.hist2.Fill(c2[0], c2[1], w)
 
 class FillPair(object):
 
-    def __init__(self, class_fillable, kwargs1, kwargs2, kwargs, outdir):
+    def __init__(self, class_fillable, kwargs1, kwargs2, kwargs3, kwargs, outdir):
         self.kwargs1 = kwargs1
         self.kwargs2 = kwargs2
+        self.kwargs3 = kwargs3
 
         self.kwargs1.update(kwargs)
         self.kwargs2.update(kwargs)
-        self.kwargs2["selection"] = lambda ev, sel1=self.kwargs1["selection"], sel2=self.kwargs2["selection"]: sel1(ev) and sel2(ev)
+        self.kwargs3.update(kwargs)
         self.kwargs1["outdir"] = outdir
         self.kwargs2["outdir"] = outdir
+        self.kwargs3["outdir"] = outdir
 
         self.h1 = class_fillable(**kwargs1)
         self.h2 = class_fillable(**kwargs2)
+        self.h3 = class_fillable(**kwargs3)
 
     def fill(self, event):
         self.h1.fill(event)
         self.h2.fill(event)
+        self.h3.fill(event)
 
 if __name__ == "__main__":
     if os.environ.has_key("FILE_NAMES"):
@@ -220,7 +230,8 @@ if __name__ == "__main__":
     histos["mu_fine"] = FillPair(
         Fillable1,
         {"name": "mu_fine_all", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1},
-        {"name": "mu_fine_hlt", "selection": lambda ev: ev.pass_trig_SL_mu},
+        {"name": "mu_fine_hlt", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1 and ev.pass_trig_SL_mu},
+        {"name": "mu_fine_emu", "selection": lambda ev: ev.is_sl and len(ev.mu_tight)==1, "weight": lambda ev: ev.triggerEmulationWeight},
         {
             "coords": lambda ev: (ev.mu_tight[0].pt, ev.mu_tight[0].eta),
             "binsx": bins_pt_fine,
@@ -232,7 +243,8 @@ if __name__ == "__main__":
     histos["el_fine"] = FillPair(
         Fillable1,
         {"name": "el_fine_all", "selection": lambda ev: ev.is_sl and len(ev.el_tight)==1},
-        {"name": "el_fine_hlt", "selection": lambda ev: ev.pass_trig_SL_el},
+        {"name": "el_fine_hlt", "selection": lambda ev: ev.is_sl and len(ev.el_tight)==1 and ev.pass_trig_SL_el},
+        {"name": "el_fine_emu", "selection": lambda ev: ev.is_sl and len(ev.el_tight)==1, "weight": lambda ev: ev.triggerEmulationWeight},
         {
             "coords": lambda ev: (ev.el_tight[0].pt, ev.el_tight[0].eta),
             "binsx": bins_pt_fine,
@@ -244,7 +256,8 @@ if __name__ == "__main__":
     histos["mumu_fine"] = FillPair(
         Fillable2,
         {"name": "mumu_fine_all", "selection": lambda ev: ev.is_dl and len(ev.mu_loose)==2},
-        {"name": "mumu_fine_hlt", "selection": lambda ev: ev.pass_trig_DL_mumu},
+        {"name": "mumu_fine_hlt", "selection": lambda ev: ev.is_dl and len(ev.mu_loose)==2 and ev.pass_trig_DL_mumu},
+        {"name": "mumu_fine_emu", "selection": lambda ev: ev.is_dl and len(ev.mu_loose)==2, "weight":  lambda ev: ev.triggerEmulationWeight},
         {
             "coords": lambda ev: ((ev.leptons_loose[0].pt, ev.leptons_loose[0].eta), (ev.leptons_loose[1].pt, ev.leptons_loose[1].eta)),
             "binsx": bins_pt_fine,
@@ -256,7 +269,8 @@ if __name__ == "__main__":
     histos["elel_fine"] = FillPair(
         Fillable2,
         {"name": "elel_fine_all", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==2},
-        {"name": "elel_fine_hlt", "selection": lambda ev: ev.pass_trig_DL_elel},
+        {"name": "elel_fine_hlt", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==2 and ev.pass_trig_DL_elel},
+        {"name": "elel_fine_emu", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==2, "weight":  lambda ev: ev.triggerEmulationWeight},
         {
             "coords": lambda ev: ((ev.leptons_loose[0].pt, ev.leptons_loose[0].eta), (ev.leptons_loose[1].pt, ev.leptons_loose[1].eta)),
             "binsx": bins_pt_fine,
@@ -268,7 +282,8 @@ if __name__ == "__main__":
     histos["elmu_fine"] = FillPair(
         Fillable2,
         {"name": "elmu_fine_all", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==1 and len(ev.mu_loose)==1},
-        {"name": "elmu_fine_hlt", "selection": lambda ev: ev.pass_trig_DL_elmu},
+        {"name": "elmu_fine_hlt", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==1 and len(ev.mu_loose)==1 and ev.pass_trig_DL_elmu},
+        {"name": "elel_fine_emu", "selection": lambda ev: ev.is_dl and len(ev.el_loose)==2, "weight":  lambda ev: ev.triggerEmulationWeight},
         {
             "coords": lambda ev: ((ev.leptons_loose[0].pt, ev.leptons_loose[0].eta), (ev.leptons_loose[1].pt, ev.leptons_loose[1].eta)),
             "binsx": bins_pt_fine,
@@ -279,7 +294,7 @@ if __name__ == "__main__":
 
     for file_name in file_names:
         tf = ROOT.TFile.Open(file_name)
-        branches = ["selLeptons", "nselLeptons", "HLT", "HLT2", "Vtype"]
+        branches = ["selLeptons", "nselLeptons", "HLT", "HLT2", "Vtype", "triggerEmulationWeight"]
         if ROOTPY:
             events = rootpy.asrootpy(tf.Get("vhbb/tree"))
             events.deactivate("*")
