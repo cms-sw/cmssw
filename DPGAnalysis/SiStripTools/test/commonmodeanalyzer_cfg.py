@@ -98,4 +98,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('CommonModeAnalyzer.root')
                                    )
 
-print process.dumpPython()
+#print process.dumpPython()
