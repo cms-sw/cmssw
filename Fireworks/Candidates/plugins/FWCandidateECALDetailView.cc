@@ -14,7 +14,14 @@ private:
 
 };
 
-REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL,ecalRecHit );
-REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL,reducedEcalRecHitsEB);
+REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL);
 
+/*
+// reco
+REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL,ecalRecHit );
+// aod
+REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL,reducedEcalRecHitsEB);
+// miniaod
+REGISTER_FWDETAILVIEW(FWCandidateECALDetailView, ECAL,reducedEgamma);
+*/
 

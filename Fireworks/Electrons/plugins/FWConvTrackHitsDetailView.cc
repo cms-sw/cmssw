@@ -660,6 +660,9 @@ void FWConvTrackHitsDetailView::camera3Callback()
 
 }
 
-
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion);
+/*
 REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, ecalRecHit);
 REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, reducedEcalRecHitsEB);
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, reducedEGamma);
+*/
