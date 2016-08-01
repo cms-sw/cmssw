@@ -126,11 +126,11 @@ class PFBlockAlgo {
   
   /// \return collection of blocks
   /*   const  reco::PFBlockCollection& blocks() const {return *blocks_;} */
-  const std::auto_ptr< reco::PFBlockCollection >& blocks() const 
+  const std::unique_ptr< reco::PFBlockCollection >& blocks() const 
     {return blocks_;}
   
-  /// \return auto_ptr to collection of blocks
-  std::auto_ptr< reco::PFBlockCollection > transferBlocks() {return blocks_;}
+  //uniquen unique_ptr to collection of blocks
+  std::unique_ptr< reco::PFBlockCollection > transferBlocks() {return std::move(blocks_);}
 
   
   
@@ -152,8 +152,7 @@ class PFBlockAlgo {
 		    reco::PFBlock::LinkTest& linktest,
 		    double& dist) const;
   
-  std::auto_ptr< reco::PFBlockCollection >    blocksNew_;
-  std::auto_ptr< reco::PFBlockCollection >    blocks_;
+  std::unique_ptr< reco::PFBlockCollection >    blocks_;
   
   // the test elements will be transferred to the blocks
   ElementList       elements_; 
