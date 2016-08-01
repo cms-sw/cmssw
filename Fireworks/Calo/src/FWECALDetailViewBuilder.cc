@@ -313,10 +313,11 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
 void
 FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
 {
-
    { // barrel
       const EcalRecHitCollection *hitsEB = 0;
       edm::Handle<EcalRecHitCollection> handle_hitsEB;
+
+      // RECO
       try
       {
          edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
@@ -330,6 +331,9 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
       {
          fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access EcalRecHitsEB collection." << std::endl;
       }
+
+
+      // AOD
       if ( ! handle_hitsEB.isValid()) {
          try{
             edm::InputTag tag("reducedEcalRecHitsEB");
@@ -346,6 +350,26 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
          }
       }
 
+      // MINIAOD
+      if ( ! handle_hitsEB.isValid()) {
+         try{
+            edm::InputTag tag("reducedEgamma", "reducedEBRecHits");
+            m_event->getByLabel(tag, handle_hitsEB);
+            if (handle_hitsEB.isValid())
+            {
+               hitsEB = &*handle_hitsEB;
+            }
+
+
+
+
+         }
+         catch (...)
+         {
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::filData():: Failed to access reducedEgamma collection." << std::endl;
+         }
+      }
+
       if( handle_hitsEB.isValid() ) 
       {
          fillEtaPhi( hitsEB, data);
@@ -356,6 +380,8 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
 
       const EcalRecHitCollection *hitsEE = 0;
       edm::Handle<EcalRecHitCollection> handle_hitsEE;
+
+      // RECO
       try
       {
          edm::InputTag tag("ecalRecHit", "EcalRecHitsEE");
@@ -368,6 +394,7 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
          fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access ecalRecHitsEE collection." << std::endl;
       }
 
+      // AOD
       if ( ! handle_hitsEE.isValid()) {
          try {
             edm::InputTag tag("reducedEcalRecHitsEE");
@@ -382,6 +409,23 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
          {     
             fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
          }
+
+      // MINIAOD
+      if ( ! handle_hitsEE.isValid()) {
+         try {
+            edm::InputTag tag("reducedEgamma", "reducedEERecHits");
+            m_event->getByLabel(tag, handle_hitsEE);
+            if (handle_hitsEE.isValid())
+            {
+               hitsEE = &*handle_hitsEE;
+            }
+
+         }
+         catch (...)
+         {     
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
+         }
+      }
    
       }
 
@@ -390,6 +434,8 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
           fillEtaPhi( hitsEE, data);
       }
    }
+
+   if ( m_boxes.empty()) return;
 
    bool plotEt = true;
    float maxEnergy = 0;
@@ -410,7 +456,7 @@ FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
    // AMT ... max size can be an external parameter
    float scale = 0.3/maxEnergy;
    for (auto & i : m_boxes) {
-        i->updateScale(scale, log(maxEnergy), plotEt);
+        i->updateScale(scale, log(maxEnergy + 1), plotEt);
         i->getTower()->SetDrawFrame(true);
    }
    data->DataChanged();
