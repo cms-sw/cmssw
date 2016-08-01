@@ -5,7 +5,19 @@ genericTriggerEventFlag4HLTdb = cms.PSet(
    dbLabel       = cms.string("SiStripDQMTrigger"), # ("TrackerDQMTrigger"),
    andOrHlt      = cms.bool(True), # True:=OR; False:=AND
    hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
-   hltPaths      = cms.vstring(""), #cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*")
+   hltPaths      = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*"),
+   hltDBKey      = cms.string("SiStrip_HLT"),
+   errorReplyHlt = cms.bool( False ),
+   verbosityLevel = cms.uint32(1)
+)
+
+#to be changed once we have a new DBKey SiStrip_HLT_IsolatedBunches
+genericTriggerEventFlag4HLTdbIB = cms.PSet(
+   andOr         = cms.bool( False ),
+   dbLabel       = cms.string("SiStripDQMTrigger"), # ("TrackerDQMTrigger"),
+   andOrHlt      = cms.bool(True), # True:=OR; False:=AND
+   hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
+   hltPaths      = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_*,HLT_ZeroBias_IsolatedBunches_v*"),
    hltDBKey      = cms.string("SiStrip_HLT"),
    errorReplyHlt = cms.bool( False ),
    verbosityLevel = cms.uint32(1)
