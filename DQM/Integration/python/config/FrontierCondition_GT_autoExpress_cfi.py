@@ -87,7 +87,7 @@ class Tier0Handler( object ):
         userAgent = "User-Agent: DQMIntegration/2.0 python/%d.%d.%d PycURL/%s" % ( sys.version_info[ :3 ] + ( pycurl.version_info()[ 1 ], ) )
 
         proxy = ""
-        if self._proxy: proxy = ' --proxy=%s ' % self._proxy
+        if self._proxy: proxy = ' --proxy %s ' % self._proxy
         
         debug = " -s -S "
         if self._debug: debug = " -v "
