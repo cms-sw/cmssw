@@ -14,7 +14,9 @@ private:
 
 };
 
+REGISTER_FWDETAILVIEW(FWTrackECALDetailView, ECAL );
+/*
 REGISTER_FWDETAILVIEW(FWTrackECALDetailView, ECAL,ecalRecHit );
 REGISTER_FWDETAILVIEW(FWTrackECALDetailView, ECAL,reducedEcalRecHitsEB);
-
-
+REGISTER_FWDETAILVIEW(FWPhotonDetailView,Photon,reducedEGamma);
+*/
