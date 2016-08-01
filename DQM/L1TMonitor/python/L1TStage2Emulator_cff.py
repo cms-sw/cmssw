@@ -62,13 +62,13 @@ from L1Trigger.L1TMuonOverlap.simOmtfDigis_cfi import *
 valOmtfDigis = simOmtfDigis.clone()
 valOmtfDigis.srcDTPh = cms.InputTag('bmtfDigis')
 valOmtfDigis.srcDTTh = cms.InputTag('bmtfDigis')
-valOmtfDigis.srcCSC = cms.InputTag('csctfDigis')
+valOmtfDigis.srcCSC = cms.InputTag('emtfStage2Digis')
 valOmtfDigis.srcRPC = cms.InputTag('muonRPCDigis')
 
 # EMTF
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 valEmtfStage2Digis = simEmtfDigis.clone()
-valEmtfStage2Digis.CSCInput = "csctfDigis"
+valEmtfStage2Digis.CSCInput = "emtfStage2Digis"
 
 # uGMT
 from L1Trigger.L1TMuon.simGmtStage2Digis_cfi import *
