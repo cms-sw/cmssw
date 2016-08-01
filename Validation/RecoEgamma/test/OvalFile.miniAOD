@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="8_0_0_pre4_miniAOD_std">
-<var name="TEST_REF" value="8_0_0_pre4_std">
+<var name="TEST_NEW" value="8_1_0_pre5_miniAOD_std">
+<var name="TEST_REF" value="8_1_0_pre5_std">
 
-<var name="TAG_STARTUP" value="76X_mcRun2_asymptotic_v13">
+<var name="TAG_STARTUP" value="80X_mcRun2_asymptotic_v13">
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="76X_mcRun2_asymptotic_v12-v1">
+<var name="DD_COND_REF" value="80X_mcRun2_asymptotic_v13-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 <!--var name="DD_RELEASE" value="CMSSW_8_0_0_pre2"-->
@@ -14,7 +14,7 @@ TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
 
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
+<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Dev">
 
 <!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
 <!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
