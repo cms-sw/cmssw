@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/DynArray.h"
@@ -208,7 +209,7 @@ private:
   static bool tpHitIndexListLess(const TPHitIndex& i, const TPHitIndex& j) { return (i.tpKey < j.tpKey); }
   static bool tpHitIndexListLessSort(const TPHitIndex& i, const TPHitIndex& j) {
     if(i.tpKey == j.tpKey) {
-      if(std::isnan(i.tof) && std::isnan(j.tof)) {
+      if(edm::isNotFinite(i.tof) && edm::isNotFinite(j.tof)) {
         return i.type < j.type;
       }
       return i.tof < j.tof; // works as intended if either one is NaN
