@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -172,7 +172,7 @@ namespace {
 // class declaration
 //
 
-class TrackingNtuple : public edm::EDAnalyzer {
+class TrackingNtuple : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TrackingNtuple(const edm::ParameterSet&);
   ~TrackingNtuple();
@@ -602,6 +602,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     trackingParticleToken_ = consumes<TrackingParticleCollection>(tpTag);
   }
 
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   t = fs->make<TTree>("tree","tree");
 
