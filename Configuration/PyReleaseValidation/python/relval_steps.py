@@ -203,6 +203,20 @@ steps['RunMuOnia2016B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2016B-v2/RAW',lab
 steps['RunNoBPTX2016B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2016B-v2/RAW',label='noBptx2016B',events=100000,location='STD', ls=Run2016B)}
 steps['RunZeroBias2016BnewL1repack']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016B-v2/RAW',label='zb2016BnewL1rep',events=100000,location='STD', ls=Run2016B)}
 
+#### run2 2016C ####
+Run2016C=selectedLS([275657],l_json=data_json2016)
+steps['RunHLTPhy2016C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2016C-v2/RAW',label='hltPhy2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunDoubleEG2016C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2016C-v2/RAW',label='doubEG2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunDoubleMuon2016C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016C-v2/RAW',label='doubMu2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunJetHT2016C']={'INPUT':InputInfo(dataSet='/JetHT/Run2016C-v2/RAW',label='jetHT2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunMET2016C']={'INPUT':InputInfo(dataSet='/MET/Run2016C-v2/RAW',label='met2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunMuonEG2016C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2016C-v2/RAW',label='muEG2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunSingleEl2016C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2016C-v2/RAW',label='sigEl2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunSingleMu2016C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2016C-v2/RAW',label='sigMu2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunSinglePh2016C']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2016C-v2/RAW',label='sigPh2016C',events=100000,location='STD', ls=Run2016C)}
+steps['RunZeroBias2016C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2016C-v2/RAW',label='zb2016C',events=100000,location='STD', ls=Run2016C)}
+
+
 # Highstat HLTPhysics 
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='hltPhy2015DHS',events=100000,location='STD', ls=Run2015DHS)}

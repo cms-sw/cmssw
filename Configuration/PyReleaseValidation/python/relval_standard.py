@@ -165,6 +165,19 @@ workflows[136.734] = ['',['RunMuOnia2016B','HLTDR2_2016','RECODR2_2016reHLT_skim
 workflows[136.735] = ['',['RunNoBPTX2016B','HLTDR2_2016','RECODR2reHLTAlCaTkCosmics','HARVESTDR2']]
 workflows[136.7321] = ['',['RunZeroBias2016BnewL1repack','HLTDR2newL1repack_2016','RECODR2newL1repack_2016reHLT','HARVESTDR2']]
 
+### run 2016C ###
+workflows[137.721] = ['',['RunHLTPhy2016C','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+workflows[137.722] = ['',['RunDoubleEG2016C','HLTDR2_2016','RECODR2_2016reHLT_skimDoubleEG','HARVESTDR2']]
+workflows[137.723] = ['',['RunDoubleMuon2016C','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+workflows[137.724] = ['',['RunJetHT2016C','HLTDR2_2016','RECODR2_2016reHLT_skimJetHT','HARVESTDR2']]
+workflows[137.725] = ['',['RunMET2016C','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+workflows[137.726] = ['',['RunMuonEG2016C','HLTDR2_2016','RECODR2_2016reHLT_skimMuonEG','HARVESTDR2']]
+workflows[137.727] = ['',['RunSingleEl2016C','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+workflows[137.728] = ['',['RunSingleMu2016C','HLTDR2_2016','RECODR2_2016reHLT_skimSingleMu','HARVESTDR2']]
+workflows[137.729] = ['',['RunSinglePh2016C','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+workflows[137.730] = ['',['RunZeroBias2016C','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+
+
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
 workflows[5.2] = ['SingleMuPt10', ['SingleMuPt10FS','HARVESTFS']]
