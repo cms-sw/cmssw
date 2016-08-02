@@ -99,11 +99,17 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
   triplets.reserve(localRA_.upper());
   size_t triplets_total = 0;
 
+  LogDebug("HitTripletEDProducer") << "Creating triplets for " << regionDoublets.regionSize() << " regions, and " << trilayers.size() << " pair+3rd layers from " << regionDoublets.layerPairsSize() << " layer pairs";
+
   for(const auto& regionLayerPairs: regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();
     intermediateHitTriplets->beginRegion(&region);
 
+    LogTrace("HitTripletEDProducer") << " starting region";
+
     for(const auto& layerPair: regionLayerPairs) {
+      LogTrace("HitTripletEDProducer") << "  starting layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex();
+
       auto found = std::find_if(trilayers.begin(), trilayers.end(), [&](const LayerTriplets::LayerSetAndLayers& a) {
           return a.first[0].index() == layerPair.innerLayerIndex() && a.first[1].index() == layerPair.outerLayerIndex();
         });
@@ -123,11 +129,20 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
 
       LayerHitMapCache hitCache;
       hitCache.extend(layerPair.cache());
+      LayerHitMapCache *hitCachePtr = &hitCache;
+      if(produceIntermediateHitTriplets_) {
+        hitCachePtr = intermediateHitTriplets->beginPair(layerPair.layerPair(), std::move(hitCache));
+      }
 
       tripletLastLayerIndex.clear();
-      generator_.hitTriplets(region, triplets, iEvent, iSetup, layerPair.doublets(), thirdLayers, &tripletLastLayerIndex, hitCache);
-      if(triplets.empty())
-        continue;
+      generator_.hitTriplets(region, triplets, iEvent, iSetup, layerPair.doublets(), thirdLayers, &tripletLastLayerIndex, *hitCachePtr);
+
+#ifdef EDM_ML_DEBUG
+      LogTrace("HitTripletEDProducer") << "  created " << triplets.size() << " triplets for layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex() << " and 3rd layers";
+      for(const auto& l: thirdLayers) {
+        LogTrace("HitTripletEDProducer") << "   " << l.index();
+      }
+#endif
 
       triplets_total += triplets.size();
       if(produceSeedingHitSets_) {
@@ -146,6 +161,7 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
             return tripletLastLayerIndex[i] < tripletLastLayerIndex[j];
           });
 
+        // empty triplets need to propagate here
         intermediateHitTriplets->addTriplets(thirdLayers, triplets, tripletLastLayerIndex, tripletPermutation);
       }
 
