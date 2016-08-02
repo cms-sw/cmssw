@@ -776,6 +776,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<std::vector<double>>("qieOffset", std::vector<double>({-0.49, 1.8, 7.2, 37.9}));
 	desc_hb.add<std::vector<double>>("qieSlope", std::vector<double>({0.912, 0.917, 0.922, 0.923}));
 	desc_hb.add<int>("qieType", 0);
+	desc_hb.add<int>("mcShape",125);
+	desc_hb.add<int>("recoShape",105);
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
 	edm::ParameterSetDescription desc_hbUpgrade;
@@ -786,6 +788,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
 	desc_hbUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
 	desc_hbUpgrade.add<int>("qieType", 2);
+	desc_hbUpgrade.add<int>("mcShape",203);
+	desc_hbUpgrade.add<int>("recoShape",203);
 	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
 	edm::ParameterSetDescription desc_he;
@@ -796,6 +800,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<std::vector<double>>("qieOffset", std::vector<double>({-0.38, 2.0, 7.6, 39.6}));
 	desc_he.add<std::vector<double>>("qieSlope", std::vector<double>({0.912, 0.916, 0.92, 0.922}));
 	desc_he.add<int>("qieType", 0);
+	desc_he.add<int>("mcShape",125);
+	desc_he.add<int>("recoShape",105);
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
 
 	edm::ParameterSetDescription desc_heUpgrade;
@@ -806,6 +812,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0, 0.0, 0.0, 0.0}));
 	desc_heUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.333, 0.333, 0.333, 0.333}));
 	desc_heUpgrade.add<int>("qieType", 2);
+	desc_heUpgrade.add<int>("mcShape",203);
+	desc_heUpgrade.add<int>("recoShape",203);
 	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
 	edm::ParameterSetDescription desc_hf;
@@ -816,6 +824,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<std::vector<double>>("qieOffset", std::vector<double>({-0.87, 1.4, 7.8, -29.6}));
 	desc_hf.add<std::vector<double>>("qieSlope", std::vector<double>({0.359, 0.358, 0.36, 0.367}));
 	desc_hf.add<int>("qieType", 0);
+	desc_hf.add<int>("mcShape",301);
+	desc_hf.add<int>("recoShape",301);
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
 	edm::ParameterSetDescription desc_hfUpgrade;
@@ -826,14 +836,16 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<std::vector<double>>("qieOffset", std::vector<double>({0.0697, -0.7405, 12.38, -671.9}));
 	desc_hfUpgrade.add<std::vector<double>>("qieSlope", std::vector<double>({0.297, 0.298, 0.298, 0.313}));
 	desc_hfUpgrade.add<int>("qieType", 1);
+	desc_hfUpgrade.add<int>("mcShape",301);
+	desc_hfUpgrade.add<int>("recoShape",301);
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
-  edm::ParameterSetDescription desc_hfrecal;
-  desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterA", std::vector<double>());
-  desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterB", std::vector<double>());
-  desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterA", std::vector<double>());
-  desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterB", std::vector<double>());
-  desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
+	edm::ParameterSetDescription desc_hfrecal;
+	desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterA", std::vector<double>());
+	desc_hfrecal.add<std::vector<double>>("HFdepthOneParameterB", std::vector<double>());
+	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterA", std::vector<double>());
+	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterB", std::vector<double>());
+	desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
 
 	edm::ParameterSetDescription desc_ho;
 	desc_ho.add<std::vector<double>>("gain", std::vector<double>({0.006, 0.0087}));
@@ -843,6 +855,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<std::vector<double>>("qieOffset", std::vector<double>({-0.44, 1.4, 7.1, 38.5}));
 	desc_ho.add<std::vector<double>>("qieSlope", std::vector<double>({0.907, 0.915, 0.92, 0.921}));
 	desc_ho.add<int>("qieType", 0);
+	desc_ho.add<int>("mcShape",201);
+	desc_ho.add<int>("recoShape",201);
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
 	
