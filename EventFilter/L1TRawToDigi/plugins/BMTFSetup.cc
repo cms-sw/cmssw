@@ -5,8 +5,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
-#include "BMTFCollections.h"
-#include "BMTFTokens.h"
+#include "EventFilter/L1TRawToDigi/src/implementations_stage2/BMTFCollections.h"
+#include "EventFilter/L1TRawToDigi/src/implementations_stage2/BMTFTokens.h"
 
 namespace l1t {
    namespace stage2 {
