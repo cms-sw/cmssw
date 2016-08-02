@@ -11,7 +11,7 @@ class HcalHardcodeParameters {
 		HcalHardcodeParameters() {}
 		//construct from values
 		HcalHardcodeParameters(double pedestal, double pedestalWidth, std::vector<double> gain, std::vector<double> gainWidth, 
-							   int qieType, std::vector<double> qieOffset, std::vector<double> qieSlope);
+							   int qieType, std::vector<double> qieOffset, std::vector<double> qieSlope, int mcShape, int recoShape);
 		//construct from pset
 		HcalHardcodeParameters(const edm::ParameterSet & p);
 		
@@ -27,6 +27,8 @@ class HcalHardcodeParameters {
 		const int qieType() const { return qieType_; }
 		const double qieOffset(unsigned range) const { return qieOffset_.at(range); }
 		const double qieSlope(unsigned range) const { return qieSlope_.at(range); }
+		const int mcShape() const { return mcShape_; }
+		const int recoShape() const { return recoShape_; }
 		
 	private:
 		//member variables
@@ -34,6 +36,7 @@ class HcalHardcodeParameters {
 		std::vector<double> gain_, gainWidth_;
 		int qieType_;
 		std::vector<double> qieOffset_, qieSlope_;
+		int mcShape_, recoShape_;
 };
 
 #endif
