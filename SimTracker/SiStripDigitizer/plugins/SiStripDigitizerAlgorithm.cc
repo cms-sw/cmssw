@@ -42,7 +42,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   cmnRMStob(conf.getParameter<double>("cmnRMStob")),
   cmnRMStid(conf.getParameter<double>("cmnRMStid")),
   cmnRMStec(conf.getParameter<double>("cmnRMStec")),
-  APVSaturationProbScaling(conf.getParameter<double>("APVSaturationProbScaling")),
+  APVSaturationProbScaling_(conf.getParameter<double>("APVSaturationProbScaling")),
   makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false)),
   peakMode(conf.getParameter<bool>("APVpeakmode")),
   noise(conf.getParameter<bool>("Noise")),
@@ -289,6 +289,42 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
   if(firstChannelsWithSignal[detID] > thisFirstChannelWithSignal) firstChannelsWithSignal[detID] = thisFirstChannelWithSignal;
   if(lastChannelsWithSignal[detID] < thisLastChannelWithSignal) lastChannelsWithSignal[detID] = thisLastChannelWithSignal;
 }
+
+//============================================================================                
+void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puInfo){
+  //Instlumi scalefactor calculating for dynamic inefficiency                                 
+
+  if (puInfo) {
+    const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
+    const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();
+    const int bunchSpacing = puInfo->getMix_bunchSpacing();                                 
+
+    double RevFreq = 11245.;
+    double minBXsec = 70.0E-27;  // use 70mb as an approximation
+    double Bunch = 2100.;        // 2016 value
+    if (bunchSpacing == 50) Bunch = Bunch/2.;
+
+    int pui = 0, p = 0;
+    std::vector<int>::const_iterator pu;
+    std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+
+    for (pu=bunchCrossing.begin(); pu!=bunchCrossing.end(); ++pu) {
+      if (*pu==0) {
+        pu0 = pu;
+        p = pui;
+      }
+      pui++;
+    }
+    if (pu0!=bunchCrossing.end()) {  // found the in-time interaction
+      double Tintr = TrueInteractionList.at(p);
+      double instLumi = Bunch*Tintr*RevFreq/minBXsec;
+      APVSaturationProbScaling_ = instLumi/6.0E33;      
+    }
+  }
+}
+
+//============================================================================                
+
 
 void
 SiStripDigitizerAlgorithm::digitize(
