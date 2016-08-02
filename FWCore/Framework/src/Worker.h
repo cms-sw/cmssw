@@ -107,7 +107,6 @@ namespace edm {
       cached_exception_ = std::exception_ptr();
       state_ = Ready;
       waitingTasks_.reset();
-      asyncWorkRequested_ = false;
       workStarted_ = false;
     }
 
@@ -196,7 +195,6 @@ namespace edm {
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const = 0;
 
-    void prefetchAsync(WaitingTask*, Principal const& );
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
@@ -264,7 +262,54 @@ namespace edm {
       state_ = Exception;
       return cached_exception_;
     }
+        
+    void prefetchAsync(WaitingTask*,
+                       ParentContext const& parentContext,
+                       Principal const& );
+        
     
+    template<typename T>
+    void runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
+                                     typename T::MyPrincipal const& ep,
+                                     EventSetup const& es,
+                                     StreamID streamID,
+                                     ParentContext const& parentContext,
+                                     typename T::Context const* context);
+        
+    template< typename T>
+    class RunModuleTask : public WaitingTask {
+    public:
+      RunModuleTask(Worker* worker,
+                    typename T::MyPrincipal const& ep,
+                    EventSetup const& es,
+                    StreamID streamID,
+                    ParentContext const& parentContext,
+                    typename T::Context const* context):
+      m_worker(worker),
+      m_principal(ep),
+      m_es(es),
+      m_streamID(streamID),
+      m_parentContext(parentContext),
+      m_context(context){}
+      
+      tbb::task* execute() override {
+        m_worker->runModuleAfterAsyncPrefetch<T>(exceptionPtr(),
+                                              m_principal,
+                                              m_es,
+                                              m_streamID,
+                                              m_parentContext,
+                                              m_context);
+        return nullptr;
+      }
+      
+    private:
+      Worker* m_worker;
+      typename T::MyPrincipal const& m_principal;
+      EventSetup const& m_es;
+      StreamID m_streamID;
+      ParentContext const m_parentContext;
+      typename T::Context const* m_context;
+    };
     
     int timesRun_;
     std::atomic<int> timesVisited_;
@@ -285,7 +330,6 @@ namespace edm {
     edm::propagate_const<EarlyDeleteHelper*> earlyDeleteHelper_;
     
     edm::WaitingTaskList waitingTasks_;
-    std::atomic<bool> asyncWorkRequested_;
     std::atomic<bool> workStarted_;
   };
 
@@ -494,15 +538,55 @@ namespace edm {
                            ParentContext const& parentContext,
                            typename T::Context const* context) {
     waitingTasks_.add(task);
-    bool expected = false;
-    if(asyncWorkRequested_.compare_exchange_strong(expected,true)) {
-      try {
-        doWork(ep, es,streamID,parentContext,context);
-      } catch(...) {}
-    } else {
+    if(T::isEvent_) {
       ++timesVisited_;
     }
+    bool expected = false;
+    if(workStarted_.compare_exchange_strong(expected,true)) {
+      auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
+        this, ep,es,streamID,parentContext,context);
+      prefetchAsync(runTask, parentContext, ep);
+    }
   }
+     
+  template<typename T>
+  void Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+                                   typename T::MyPrincipal const& ep,
+                                   EventSetup const& es,
+                                   StreamID streamID,
+                                   ParentContext const& parentContext,
+                                   typename T::Context const* context) {
+    try {
+      if(iEPtr) {
+        assert(*iEPtr);
+        moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
+        std::rethrow_exception(*iEPtr);
+      }
+      convertException::wrap([&]() {
+        runModule<T>(ep,es,streamID,parentContext,context);
+      });
+    } catch( cms::Exception& iException) {
+      TransitionIDValue<typename T::MyPrincipal> idValue(ep);
+      if(shouldRethrowException(iException, parentContext, T::isEvent_, idValue)) {
+        assert(not cached_exception_);
+        std::ostringstream iost;
+        if(iEPtr) {
+          iost<<"Prefetching for unscheduled module ";
+        } else {
+          iost<<"Calling method for unscheduled module ";
+        }
+        iost<<description().moduleName() << "/'"
+        << description().moduleLabel() << "'";
+        iException.addContext(iost.str());
+        setException<T::isEvent_>(std::current_exception());
+        waitingTasks_.doneWaiting(cached_exception_);
+      } else {
+        setPassed<T::isEvent_>();
+      }
+    }
+    waitingTasks_.doneWaiting(nullptr);
+  }
+
   template <typename T>
   bool Worker::doWork(typename T::MyPrincipal const& ep,
                       EventSetup const& es,
@@ -547,6 +631,7 @@ namespace edm {
 
     //Need the context to be set until after any exception is resolved
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
+
     auto resetContext = [](ModuleCallingContext* iContext) {iContext->setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr); };
     std::unique_ptr<ModuleCallingContext, decltype(resetContext)> prefetchSentry(&moduleCallingContext_,resetContext);
     
@@ -565,9 +650,10 @@ namespace edm {
           }
           std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
             [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
-          waitTask->increment_ref_count();
+          waitTask->set_ref_count(2);
           
-          prefetchAsync(waitTask.get(),ep);
+          prefetchAsync(waitTask.get(),parentContext, ep);
+          waitTask->decrement_ref_count();
           waitTask->wait_for_all();
           if(waitTask->exceptionPtr() != nullptr) {
             std::rethrow_exception(*(waitTask->exceptionPtr()));

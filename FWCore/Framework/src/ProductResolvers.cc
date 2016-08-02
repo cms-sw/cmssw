@@ -14,6 +14,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include <cassert>
+#include <utility>
 
 static constexpr unsigned int kUnsetOffset = 0;
 static constexpr unsigned int kAmbiguousOffset = 1;
@@ -120,9 +121,9 @@ namespace edm {
   template<typename F>
   class FunctorTask : public tbb::task {
   public:
-    FunctorTask( F f): func_(f) {}
+    explicit FunctorTask( F f): func_(f) {}
     
-    task* execute() {
+    task* execute() override {
       func_();
       return nullptr;
     };
@@ -135,6 +136,26 @@ namespace edm {
   FunctorTask<F>* make_functor_task( ALLOC&& iAlloc, F f) {
     return new (iAlloc) FunctorTask<F>(f);
   }
+
+  template<typename F>
+  class FunctorWaitingTask : public WaitingTask {
+  public:
+    explicit FunctorWaitingTask( F f): func_(f) {}
+    
+    task* execute() override {
+      func_(exceptionPtr());
+      return nullptr;
+    };
+    
+  private:
+    F func_;
+  };
+  
+  template< typename ALLOC, typename F>
+  FunctorWaitingTask<F>* make_waiting_task( ALLOC&& iAlloc, F f) {
+    return new (iAlloc) FunctorWaitingTask<F>(f);
+  }
+
   
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
@@ -264,29 +285,42 @@ namespace edm {
   
   void
   UnscheduledProductResolver::prefetchAsync_(WaitingTask* waitTask,
-                                                  Principal const& principal,
-                                                  bool skipCurrentProcess,
-                                                  SharedResourcesAcquirer* sra,
-                                                  ModuleCallingContext const* mcc) const
+                                             Principal const& principal,
+                                             bool skipCurrentProcess,
+                                             SharedResourcesAcquirer* sra,
+                                             ModuleCallingContext const* mcc) const
   {
     if(skipCurrentProcess) { return; }
     waitingTasks_.add(waitTask);
     bool expected = false;
     if(prefetchRequested_.compare_exchange_strong(expected, true)) {
       
-      //Have to create a new task
-      auto t = make_functor_task(tbb::task::allocate_root(),
-                                 [this,&principal, skipCurrentProcess,sra,mcc]()
+      //Have to create a new task which will make sure the state for UnscheduledProductResolver
+      // is properly set after the module has run
+      auto t = make_waiting_task(tbb::task::allocate_root(),
+                                 [this,&principal, skipCurrentProcess,sra,mcc](std::exception_ptr const* iPtr)
       {
         try {
-          resolveProduct(principal, skipCurrentProcess,sra,mcc);
+          resolveProductImpl<true>([iPtr]() {
+            if ( iPtr) {
+              std::rethrow_exception(*iPtr);
+            }
+          });
         } catch(...) {
           waitingTasks_.doneWaiting(std::current_exception());
           return;
         }
         waitingTasks_.doneWaiting(nullptr);
       } );
-      tbb::task::spawn(*t);
+      auto const& event = static_cast<EventPrincipal const&>(principal);
+      ParentContext parentContext(mcc);
+
+      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(t,
+                                                                                       event,
+                                                                                       *(aux_->eventSetup()),
+                                                                                       event.streamID(),
+                                                                                       parentContext,
+                                                                                       mcc->getStreamContext());
     }
   }
   
