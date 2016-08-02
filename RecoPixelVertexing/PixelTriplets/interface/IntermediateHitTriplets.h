@@ -23,31 +23,159 @@ public:
 
   class ThirdLayer {
   public:
-    ThirdLayer(const SeedingLayerSetsHits::SeedingLayer& thirdLayer, size_t hitsBegin):
-      thirdLayer_(thirdLayer.index()), hitsBegin_(hitsBegin)
+    ThirdLayer(const SeedingLayerSetsHits::SeedingLayer& thirdLayer, unsigned int hitsBegin):
+      thirdLayer_(thirdLayer.index()), hitsBegin_(hitsBegin), hitsEnd_(hitsBegin)
     {}
+
+    void setHitsEnd(unsigned int end) { hitsEnd_ = end; }
+
+    SeedingLayerSetsHits::LayerIndex layerIndex() const { return thirdLayer_; }
 
   private:
     SeedingLayerSetsHits::LayerIndex thirdLayer_;
-    size_t hitsBegin_;
+    unsigned int hitsBegin_;
+    unsigned int hitsEnd_;
   };
 
   ////////////////////
 
   class LayerPairAndLayers {
   public:
-    LayerPairAndLayers(const SeedingLayerSetsHits::SeedingLayerSet& layerPair,
-                       size_t thirdLayersBegin, LayerHitMapCache&& cache):
-      layerPair_(layerPair[0].index(), layerPair[1].index()),
+    LayerPairAndLayers(const LayerPair& layerPair,
+                       unsigned int thirdLayersBegin, LayerHitMapCache&& cache):
+      layerPair_(layerPair),
       thirdLayersBegin_(thirdLayersBegin),
+      thirdLayersEnd_(thirdLayersBegin),
       cache_(std::move(cache))
     {}
 
+    void setThirdLayersEnd(unsigned int end) { thirdLayersEnd_ = end; }
+
+    const LayerPair& layerPair() const { return layerPair_; }
+    unsigned int thirdLayersBegin() const { return thirdLayersBegin_; }
+    unsigned int thirdLayersEnd() const { return thirdLayersEnd_; }
+
+    LayerHitMapCache& cache() { return cache_; }
+    const LayerHitMapCache& cache() const { return cache_; }
+
   private:
     LayerPair layerPair_;
-    size_t thirdLayersBegin_;
+    unsigned int thirdLayersBegin_;
+    unsigned int thirdLayersEnd_;
+    // The reason for not storing layer triplets + hit triplets
+    // directly is in this cache, and in my desire to try to keep
+    // results unchanged during this refactoring
     LayerHitMapCache cache_;
   };
+
+  ////////////////////
+
+  class LayerTripletHits {
+  public:
+    LayerTripletHits(const LayerPairAndLayers *layerPairAndLayers,
+                     const ThirdLayer *thirdLayer):
+      layerPairAndLayers_(layerPairAndLayers),
+      thirdLayer_(thirdLayer)
+    {}
+
+    SeedingLayerSetsHits::LayerIndex innerLayerIndex() const { return std::get<0>(layerPairAndLayers_->layerPair()); }
+    SeedingLayerSetsHits::LayerIndex middleLayerIndex() const { return std::get<1>(layerPairAndLayers_->layerPair()); }
+    SeedingLayerSetsHits::LayerIndex outerLayerIndex() const { return thirdLayer_->layerIndex(); }
+
+    const LayerHitMapCache& cache() const { return layerPairAndLayers_->cache(); }
+  private:
+    const LayerPairAndLayers *layerPairAndLayers_;
+    const ThirdLayer *thirdLayer_;
+  };
+
+  ////////////////////
+
+  class RegionLayerHits {
+  public:
+    using LayerPairAndLayersConstIterator = std::vector<LayerPairAndLayers>::const_iterator;
+    using ThirdLayerConstIterator = std::vector<ThirdLayer>::const_iterator;
+    using HitConstIterator = std::vector<OrderedHitTriplet>::const_iterator;
+
+    class const_iterator {
+    public:
+      using internal_iterator_type = LayerPairAndLayersConstIterator;
+      using value_type = LayerTripletHits;
+      using difference_type = internal_iterator_type::difference_type;
+
+      const_iterator(const RegionLayerHits *regionLayerHits):
+        regionLayerHits_(regionLayerHits),
+        iterPair_(regionLayerHits->layerSetsBegin()),
+        indThird_(iterPair_->thirdLayersBegin())
+      {
+        assert(regionLayerHits->layerSetsBegin() != regionLayerHits->layerSetsEnd());
+      }
+
+      value_type operator*() const {
+        return value_type(&(*iterPair_), &(*(regionLayerHits_->thirdLayerBegin() + indThird_)));
+      }
+
+      const_iterator& operator++() {
+        auto nextThird = indThird_+1;
+        if(nextThird == iterPair_->thirdLayersEnd()) {
+          ++iterPair_;
+          indThird_ = iterPair_->thirdLayersBegin();
+        }
+        else {
+          indThird_ = nextThird;
+        }
+        return *this;
+      }
+
+      const_iterator operator++(int) {
+        const_iterator clone(*this);
+        operator++();
+        return clone;
+      }
+
+      bool operator==(const const_iterator& other) const { return iterPair_ == other.iterPair_ && indThird_ == other.indThird_; }
+      bool operator!=(const const_iterator& other) const { return !operator==(other); }
+
+    private:
+      const RegionLayerHits *regionLayerHits_;
+      internal_iterator_type iterPair_;
+      unsigned int indThird_;
+    };
+
+    RegionLayerHits(const TrackingRegion* region,
+                    LayerPairAndLayersConstIterator pairBegin, LayerPairAndLayersConstIterator pairEnd,
+                    ThirdLayerConstIterator thirdBegin, ThirdLayerConstIterator thirdEnd):
+      region_(region),
+      layerSetsBegin_(pairBegin), layerSetsEnd_(pairEnd),
+      thirdBegin_(thirdBegin), thirdEnd_(thirdEnd)
+    {}
+
+    const TrackingRegion& region() const { return *region_; }
+    size_t layerPairAndLayersSize() const { return std::distance(layerSetsBegin_, layerSetsEnd_); }
+
+    /*
+    const_iterator begin() const { return layerSetsBegin_; }
+    const_iterator cbegin() const { return begin(); }
+    const_iterator end() const { return layerSetsEnd_; }
+    const_iterator cend() const { return end(); }
+    */
+
+    // used internally
+    LayerPairAndLayersConstIterator layerSetsBegin() const { return layerSetsBegin_; }
+    LayerPairAndLayersConstIterator layerSetsEnd() const { return layerSetsEnd_; }
+    ThirdLayerConstIterator thirdLayerBegin() const { return thirdBegin_; }
+    ThirdLayerConstIterator thirdLayerEnd() const { return thirdEnd_; }
+
+  private:
+    const TrackingRegion *region_;
+    const LayerPairAndLayersConstIterator layerSetsBegin_;
+    const LayerPairAndLayersConstIterator layerSetsEnd_;
+    const ThirdLayerConstIterator thirdBegin_;
+    const ThirdLayerConstIterator thirdEnd_;
+  };
+
+  ////////////////////
+
+  using const_iterator = ihd::const_iterator<RegionLayerHits, IntermediateHitTriplets>;
 
   ////////////////////
 
@@ -82,8 +210,9 @@ public:
     regions_.emplace_back(region, layerPairAndLayers_.size());
   }
 
-  void beginPair(const SeedingLayerSetsHits::SeedingLayerSet& layerPair, LayerHitMapCache&& cache) {
+  LayerHitMapCache *beginPair(const LayerPair& layerPair, LayerHitMapCache&& cache) {
     layerPairAndLayers_.emplace_back(layerPair, thirdLayers_.size(), std::move(cache));
+    return &(layerPairAndLayers_.back().cache());
   };
 
   void addTriplets(const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
@@ -92,6 +221,13 @@ public:
                    const std::vector<size_t>& permutations) {
     assert(triplets.size() == thirdLayerIndex.size());
     assert(triplets.size() == permutations.size());
+
+    if(triplets.empty()) {
+      // In absence of triplets for a layer pair simplest is just
+      // remove the pair
+      popPair();
+      return;
+    }
 
     int prevLayer = -1;
     for(size_t i=0, size=permutations.size(); i<size; ++i) {
@@ -104,13 +240,37 @@ public:
       if(layer != prevLayer) {
         prevLayer = layer;
         thirdLayers_.emplace_back(thirdLayers[layer], hitTriplets_.size());
+        layerPairAndLayers_.back().setThirdLayersEnd(thirdLayers_.size());
       }
 
       hitTriplets_.emplace_back(triplets[realIndex]);
+      thirdLayers_.back().setHitsEnd(hitTriplets_.size());
     }
+
+    regions_.back().setLayerSetsEnd(layerPairAndLayers_.size());
   }
 
+  const SeedingLayerSetsHits& seedingLayerHits() const { return *seedingLayers_; }
+  size_t regionSize() const { return regions_.size(); }
+  size_t tripletsSize() const { return hitTriplets_.size(); }
+
+  const_iterator begin() const { return const_iterator(this, regions_.begin()); }
+  const_iterator cbegin() const { return begin(); }
+  const_iterator end() const { return const_iterator(this, regions_.end()); }
+  const_iterator cend() const { return end(); }
+
+  // used internally
+  std::vector<RegionIndex>::const_iterator regionsBegin() const { return regions_.begin(); }
+  std::vector<RegionIndex>::const_iterator regionsEnd() const { return regions_.end(); }
+  std::vector<LayerPairAndLayers>::const_iterator layerSetsBegin() const { return layerPairAndLayers_.begin(); }
+  std::vector<LayerPairAndLayers>::const_iterator layerSetsEnd() const { return layerPairAndLayers_.end(); }
+
 private:
+  // to be called if no triplets are added
+  void popPair() {
+    layerPairAndLayers_.pop_back();
+  }
+
   const SeedingLayerSetsHits *seedingLayers_;
 
   std::vector<RegionIndex> regions_;
