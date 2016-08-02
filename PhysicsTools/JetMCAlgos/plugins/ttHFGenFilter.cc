@@ -13,14 +13,14 @@
 	To classify, whether the b-hadron comes from ISR:
 		first all mothers of the top-topbar pair are found
 		then the mother-chain of all b-hadrons is checked if it contains at least one mother, that is also in the mother-chain of the top-topbar pair
-		
+
 */
 //
 // Original Author:  Andrej Saibel
 //         Created:  Tue, 05 Jul 2016 09:36:09 GMT
 //
 // VERY IMPORTANT: when running this code, you should make sure, that the GenHFHadronMatcher runs in onlyJetClusteredHadrons = cms.bool(False) mode
-// 
+//
 
 
 // system include files
@@ -71,6 +71,7 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
       const edm::EDGetTokenT<std::vector<reco::GenParticle> > genBHadPlusMothersToken_;
       const edm::EDGetTokenT<std::vector<std::vector<int> > > genBHadPlusMothersIndicesToken_;
       const edm::EDGetTokenT<std::vector<int> > genBHadIndexToken_;
+      bool OnlyHardProcessBHadrons_;
 
 
       // ----------member data ---------------------------
@@ -96,6 +97,7 @@ genBHadPlusMothersIndicesToken_(consumes<std::vector<std::vector<int> > >(iConfi
 genBHadIndexToken_(consumes<std::vector<int> >(iConfig.getParameter<edm::InputTag>("genBHadIndex")))
 {
   //now do what ever initialization is needed
+  OnlyHardProcessBHadrons_ = iConfig.getParameter<bool> ( "OnlyHardProcessBHadrons" );
 }
 
 
@@ -142,7 +144,7 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    //check whether the event has additional b-hadrons not coming from top/topbar decay
-   
+
    std::vector<const reco::Candidate*> AllTopMothers;
    std::vector<const reco::Candidate*> Tops = GetTops(*genParticles,AllTopMothers);
    // std::cout << "Size of AllTopMothers = " << AllTopMothers.size() << std::endl;
@@ -159,6 +161,13 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
     bool from_tth=(abs(motherflav)==6||abs(motherflav)==25); //b-hadron comes from top or higgs decay
     bool fromhp=false;
 
+  if(!OnlyHardProcessBHadrons_){
+    if(bhadron!=0&&!from_tth){
+      return true;
+    }
+  }
+
+  if(OnlyHardProcessBHadrons_){
     if(bhadron!=0&&!from_tth){
       //std::cout << "PT: " << bhadron->pt() << " , eta: " << bhadron->eta() << std::endl;
 
@@ -171,6 +180,7 @@ bool ttHFGenFilter::HasAdditionalBHadron(const std::vector<int>& genBHadIndex, c
 	return false;
     }
   }
+}
 
   return false;
 }
@@ -181,7 +191,7 @@ bool ttHFGenFilter::analyzeMothersRecursive(const reco::Candidate* particle,std:
   if(particle->status()>20&&particle->status()<30){ //particle comes from hardest process in event
     return true;
   }
-  for(uint k=0; k<AllTopMothers.size();k++){ 
+  for(uint k=0; k<AllTopMothers.size();k++){
     if(particle==AllTopMothers[k]){ //partcile comes from  ISR
 
       return true;
@@ -210,11 +220,11 @@ std::vector< const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<re
   bool FoundTop = false;
   bool FoundTopBar =false;
   std::vector<const reco::GenParticle*> Tops;
-  
+
   //loop over all genParticles and find  a Top and AntiTop quark
   //then find all mothers of the Tops
   //this is then used to  if the b-hadron is an inital state radiation particle
-  
+
    for(reco::GenParticleCollection::const_iterator i_particle = genParticles.begin(); i_particle != genParticles.end(); ++i_particle){
        const reco::GenParticle* thisParticle = &*i_particle;
      if(thisParticle->pdgId()==6){
