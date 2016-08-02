@@ -835,7 +835,7 @@ DDSolid DDSolidFactory::cuttubs(const DDName & name,
 				double lx, double ly, double lz,
 				double tx, double ty, double tz)
 {		     
-  return DDSolid(name, new DDI::CutTubs(zhalf,rIn,rOut,phiFrom,deltaPhi,lx,ly,lx,tx,ty,tz));
+  return DDSolid(name, new DDI::CutTubs(zhalf,rIn,rOut,phiFrom,deltaPhi,lx,ly,lz,tx,ty,tz));
 }
 
 DDSolid DDSolidFactory::sphere(const DDName & name,

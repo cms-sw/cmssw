@@ -264,7 +264,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
                                     params[3]/deg + params[4]/deg);
 	    break;
 	 case ddcuttubs:
-	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi
+	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi,lx,ly,lz,tx,ty,tz
 	    rSolid= new TGeoCtub(
 				 iName.c_str(),
 				 params[1]/cm,
