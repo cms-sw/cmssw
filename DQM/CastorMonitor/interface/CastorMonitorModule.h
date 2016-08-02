@@ -48,25 +48,19 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h" //-- no CastorUnpackerReport at the moment !
-#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h" //-- HcalCastorDetId
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h" //no CastorUnpackerReport at the moment
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 
 //#include "DQM/CastorMonitor/interface/CastorMonitorSelector.h"
 #include "DQM/CastorMonitor/interface/CastorDigiMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
 //#include "DQM/CastorMonitor/interface/CastorChannelQualityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
-//#include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
-//#include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
-//#include "DQM/CastorMonitor/interface/CastorDataIntegrityMonitor.h"
 //#include "DQM/CastorMonitor/interface/CastorTowerJetMonitor.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
-
-
-//// #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h" //-- 
 
 #include <memory>
 #include <iostream>
@@ -74,8 +68,6 @@
 #include <vector>
 #include <string>
 #include <sys/time.h>
-
-
 
 class CastorMonitorModule : public DQMEDAnalyzer{
 
@@ -102,17 +94,12 @@ protected:
 private:
 
   int fVerbosity;  
-  float fedsUnpacked;
-  bool rawOK_    ;
-  bool reportOK_ ;
-  bool digiOK_   ;
-  bool rechitOK_ ;
-  
-  int irun_,ilumisec_,ievent_,itime_,ibunch_;
-  std::string rootFolder_;
-
-  int ievt_;
+  bool rawOK_,reportOK_,digiOK_,rechitOK_ ;
+  int irun_,ilumisec_,ievent_,ibunch_;
+  std::string subsystemname_;
   int NBunchesOrbit;
+  int ievt_;
+
   edm::EDGetTokenT<FEDRawDataCollection> inputTokenRaw_;
   edm::EDGetTokenT<HcalUnpackerReport> inputTokenReport_;
   edm::EDGetTokenT<CastorDigiCollection> inputTokenDigi_;
@@ -122,22 +109,18 @@ private:
    typedef std::vector<reco::BasicJet> BasicJetCollection;
   edm::EDGetTokenT<BasicJetCollection> JetAlgorithm;
 
-//  edm::InputTag inputLabelCastorTowers_;
-//  edm::InputTag JetAlgorithm;
-//  edm::InputTag trigResultsSource;
-
   CastorRecHitMonitor*      RecHitMon_;
   CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
 
   MonitorElement* CastorEventProduct;
+  MonitorElement* hunpkrep;
 
   edm::ESHandle<CastorDbService> conditions_;
 
   bool showTiming_; 
   edm::CPUTimer cpu_timer; 
   edm::ESHandle<CastorPedestals> dbPedestals;
-
 };
 
 #endif
