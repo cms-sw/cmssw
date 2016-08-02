@@ -7,6 +7,7 @@ L1TStage2RegionalMuonCandComp::L1TStage2RegionalMuonCandComp(const edm::Paramete
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       muonColl1Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection1Title", "Regional muon collection 1")),
       muonColl2Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection2Title", "Regional muon collection 2")),
+      ignoreBadTrkAddr(ps.getUntrackedParameter<bool>("ignoreBadTrackAddress", false)),
       verbose(ps.getUntrackedParameter<bool>("verbose", false))
 {
 }
@@ -19,10 +20,15 @@ void L1TStage2RegionalMuonCandComp::beginLuminosityBlock(const edm::LuminosityBl
 
 void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
 
+  std::string trkAddrIgnoreText = "";
+  if (ignoreBadTrkAddr) {
+    trkAddrIgnoreText = " (Bad track addresses ignored)";
+  }
+
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-  summary = ibooker.book1D("summary", "Summary", 17, 1, 18); // range to match bin numbering
+  summary = ibooker.book1D("summary", ("Summary"+trkAddrIgnoreText).c_str(), 17, 1, 18); // range to match bin numbering
   summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
   summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
   summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
@@ -41,62 +47,75 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   summary->setBinLabel(TFBAD, "track finder type mismatch", 1);
   summary->setBinLabel(TRACKADDRBAD, "track address mismatch", 1);
 
-  muColl1BxRange = ibooker.book1D("muColl1BxRange", (muonColl1Title+" mismatching BX range").c_str(), 5, -2.5, 2.5);
+  muColl1BxRange = ibooker.book1D("muColl1BxRange", (muonColl1Title+" mismatching BX range").c_str(), 11, -5.5, 5.5);
   muColl1BxRange->setAxisTitle("BX range", 1);
   muColl1nMu = ibooker.book1D("muColl1nMu", (muonColl1Title+" mismatching muon multiplicity").c_str(), 37, -0.5, 36.5);
   muColl1nMu->setAxisTitle("Muon multiplicity", 1);
-  muColl1hwPt = ibooker.book1D("muColl1hwPt", (muonColl1Title+" mismatching muon p_{T}").c_str(), 512, -0.5, 511.5);
+  muColl1hwPt = ibooker.book1D("muColl1hwPt", (muonColl1Title+" mismatching muon p_{T}"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
   muColl1hwPt->setAxisTitle("Hardware p_{T}", 1);
-  muColl1hwEta = ibooker.book1D("muColl1hwEta", (muonColl1Title+" mismatching muon #eta").c_str(), 512, -256.5, 255.5);
+  muColl1hwEta = ibooker.book1D("muColl1hwEta", (muonColl1Title+" mismatching muon #eta"+trkAddrIgnoreText).c_str(), 512, -256.5, 255.5);
   muColl1hwEta->setAxisTitle("Hardware #eta", 1);
-  muColl1hwPhi = ibooker.book1D("muColl1hwPhi", (muonColl1Title+" mismatching muon #phi").c_str(), 256, -128.5, 127.5);
+  muColl1hwPhi = ibooker.book1D("muColl1hwPhi", (muonColl1Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
   muColl1hwPhi->setAxisTitle("Hardware #phi", 1);
-  muColl1hwSign = ibooker.book1D("muColl1hwSign", (muonColl1Title+" mismatching muon sign").c_str(), 2, -0.5, 1.5);
+  muColl1hwSign = ibooker.book1D("muColl1hwSign", (muonColl1Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl1hwSign->setAxisTitle("Hardware sign", 1);
-  muColl1hwSignValid = ibooker.book1D("muColl1hwSignValid", (muonColl1Title+" mismatching muon sign valid").c_str(), 2, -0.5, 1.5);
+  muColl1hwSignValid = ibooker.book1D("muColl1hwSignValid", (muonColl1Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl1hwSignValid->setAxisTitle("Hardware sign valid", 1);
-  muColl1hwQual = ibooker.book1D("muColl1hwQual", (muonColl1Title+" mismatching muon quality").c_str(), 16, -0.5, 15.5);
+  muColl1hwQual = ibooker.book1D("muColl1hwQual", (muonColl1Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
   muColl1hwQual->setAxisTitle("Hardware quality", 1);
-  muColl1link = ibooker.book1D("muColl1link", (muonColl1Title+" mismatching link").c_str(), 36, 35.5, 71.5);
+  muColl1link = ibooker.book1D("muColl1link", (muonColl1Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
   muColl1link->setAxisTitle("Link", 1);
-  muColl1processor = ibooker.book1D("muColl1processor", (muonColl1Title+" mismatching processor").c_str(), 12, -0.5, 15.5);
+  muColl1processor = ibooker.book1D("muColl1processor", (muonColl1Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
   muColl1processor->setAxisTitle("Processor", 1);
-  muColl1trackFinderType = ibooker.book1D("muColl1trackFinderType", (muonColl1Title+" mismatching track finder type").c_str(), 3, -0.5, 2.5);
+  muColl1trackFinderType = ibooker.book1D("muColl1trackFinderType", (muonColl1Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
   muColl1trackFinderType->setAxisTitle("Track finder type", 1);
   muColl1trackFinderType->setBinLabel(BMTFBIN, "BMTF", 1);
-  muColl1trackFinderType->setBinLabel(OMTFBIN, "OMTF", 1);
-  muColl1trackFinderType->setBinLabel(EMTFBIN, "EMTF", 1);
-  muColl1hwHF = ibooker.book1D("muColl1hwHF", (muonColl1Title+" mismatching muon halo/fine-eta bit").c_str(), 2, -0.5, 1.5);
+  muColl1trackFinderType->setBinLabel(OMTFNEGBIN, "OMTF-", 1);
+  muColl1trackFinderType->setBinLabel(OMTFPOSBIN, "OMTF+", 1);
+  muColl1trackFinderType->setBinLabel(EMTFNEGBIN, "EMTF-", 1);
+  muColl1trackFinderType->setBinLabel(EMTFPOSBIN, "EMTF+", 1);
+  muColl1hwHF = ibooker.book1D("muColl1hwHF", (muonColl1Title+" mismatching muon halo/fine-eta bit"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl1hwHF->setAxisTitle("Hardware H/F bit", 1);
+  muColl1TrkAddrSize = ibooker.book1D("muColl1TrkAddrSize", (muonColl1Title+" mismatching muon number of track address keys"+trkAddrIgnoreText).c_str(), 11, -0.5, 10.5);
+  muColl1TrkAddrSize->setAxisTitle("number of keys", 1);
+  muColl1TrkAddr = ibooker.book2D("muColl1TrkAddr", (muonColl1Title+" mismatching muon track address"+trkAddrIgnoreText).c_str(), 10, -0.5, 9.5, 16, -0.5, 15.5);
+  muColl1TrkAddr->setAxisTitle("key", 1);
+  muColl1TrkAddr->setAxisTitle("value", 2);
 
-  muColl2BxRange = ibooker.book1D("muColl2BxRange", (muonColl2Title+" mismatching BX range").c_str(), 5, -2.5, 2.5);
+  muColl2BxRange = ibooker.book1D("muColl2BxRange", (muonColl2Title+" mismatching BX range").c_str(), 11, -5.5, 5.5);
   muColl2BxRange->setAxisTitle("BX range", 1);
   muColl2nMu = ibooker.book1D("muColl2nMu", (muonColl2Title+" mismatching muon multiplicity").c_str(), 37, -0.5, 36.5);
   muColl2nMu->setAxisTitle("Muon multiplicity", 1);
-  muColl2hwPt = ibooker.book1D("muColl2hwPt", (muonColl2Title+" mismatching muon p_{T}").c_str(), 512, -0.5, 511.5);
+  muColl2hwPt = ibooker.book1D("muColl2hwPt", (muonColl2Title+" mismatching muon p_{T}"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
   muColl2hwPt->setAxisTitle("Hardware p_{T}", 1);
-  muColl2hwEta = ibooker.book1D("muColl2hwEta", (muonColl2Title+" mismatching muon #eta").c_str(), 512, -256.5, 255.5);
+  muColl2hwEta = ibooker.book1D("muColl2hwEta", (muonColl2Title+" mismatching muon #eta"+trkAddrIgnoreText).c_str(), 512, -256.5, 255.5);
   muColl2hwEta->setAxisTitle("Hardware #eta", 1);
-  muColl2hwPhi = ibooker.book1D("muColl2hwPhi", (muonColl2Title+" mismatching muon #phi").c_str(), 256, -128.5, 127.5);
+  muColl2hwPhi = ibooker.book1D("muColl2hwPhi", (muonColl2Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
   muColl2hwPhi->setAxisTitle("Hardware #phi", 1);
-  muColl2hwSign = ibooker.book1D("muColl2hwSign", (muonColl2Title+" mismatching muon sign").c_str(), 2, -0.5, 1.5);
+  muColl2hwSign = ibooker.book1D("muColl2hwSign", (muonColl2Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl2hwSign->setAxisTitle("Hardware sign", 1);
-  muColl2hwSignValid = ibooker.book1D("muColl2hwSignValid", (muonColl2Title+" mismatching muon sign valid").c_str(), 2, -0.5, 1.5);
+  muColl2hwSignValid = ibooker.book1D("muColl2hwSignValid", (muonColl2Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl2hwSignValid->setAxisTitle("Hardware sign valid", 1);
-  muColl2hwQual = ibooker.book1D("muColl2hwQual", (muonColl2Title+" mismatching muon quality").c_str(), 16, -0.5, 15.5);
+  muColl2hwQual = ibooker.book1D("muColl2hwQual", (muonColl2Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
   muColl2hwQual->setAxisTitle("Hardware quality", 1);
-  muColl2link = ibooker.book1D("muColl2link", (muonColl2Title+" mismatching link").c_str(), 36, 35.5, 71.5);
+  muColl2link = ibooker.book1D("muColl2link", (muonColl2Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
   muColl2link->setAxisTitle("Link", 1);
-  muColl2processor = ibooker.book1D("muColl2processor", (muonColl2Title+" mismatching processor").c_str(), 12, -0.5, 15.5);
+  muColl2processor = ibooker.book1D("muColl2processor", (muonColl2Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
   muColl2processor->setAxisTitle("Processor", 1);
-  muColl2trackFinderType = ibooker.book1D("muColl2trackFinderType", (muonColl2Title+" mismatching track finder type").c_str(), 3, -0.5, 2.5);
+  muColl2trackFinderType = ibooker.book1D("muColl2trackFinderType", (muonColl2Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
   muColl2trackFinderType->setAxisTitle("Track finder type", 1);
   muColl2trackFinderType->setBinLabel(BMTFBIN, "BMTF", 1);
-  muColl2trackFinderType->setBinLabel(OMTFBIN, "OMTF", 1);
-  muColl2trackFinderType->setBinLabel(EMTFBIN, "EMTF", 1);
-  muColl2hwHF = ibooker.book1D("muColl2hwHF", (muonColl2Title+" mismatching muon halo/fine-eta bit").c_str(), 2, -0.5, 1.5);
+  muColl2trackFinderType->setBinLabel(OMTFNEGBIN, "OMTF-", 1);
+  muColl2trackFinderType->setBinLabel(OMTFPOSBIN, "OMTF+", 1);
+  muColl2trackFinderType->setBinLabel(EMTFNEGBIN, "EMTF-", 1);
+  muColl2trackFinderType->setBinLabel(EMTFPOSBIN, "EMTF+", 1);
+  muColl2hwHF = ibooker.book1D("muColl2hwHF", (muonColl2Title+" mismatching muon halo/fine-eta bit"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl2hwHF->setAxisTitle("Hardware H/F bit", 1);
-
+  muColl2TrkAddrSize = ibooker.book1D("muColl2TrkAddrSize", (muonColl2Title+" mismatching muon number of track address keys"+trkAddrIgnoreText).c_str(), 11, -0.5, 10.5);
+  muColl2TrkAddrSize->setAxisTitle("number of keys", 1);
+  muColl2TrkAddr = ibooker.book2D("muColl2TrkAddr", (muonColl2Title+" mismatching muon track address"+trkAddrIgnoreText).c_str(), 10, -0.5, 9.5, 16, -0.5, 15.5);
+  muColl2TrkAddr->setAxisTitle("key", 1);
+  muColl2TrkAddr->setAxisTitle("value", 2);
 }
 
 void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -108,8 +127,8 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
   e.getByToken(muonToken1, muonBxColl1);
   e.getByToken(muonToken2, muonBxColl2);
 
-  int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX();
-  int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX();
+  int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX() + 1;
+  int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX() + 1;
   if (bxRange1 != bxRange2) {
     summary->Fill(BXRANGEBAD);
     int bx;
@@ -138,6 +157,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
 
       if (muonBxColl1->size(iBx) > muonBxColl2->size(iBx)) {
         muonIt1 = muonBxColl1->begin(iBx) + muonBxColl2->size(iBx);
+        const std::map<int, int> muon1TrackAddr = muonIt1->trackAddress();
         for (; muonIt1 != muonBxColl1->end(iBx); ++muonIt1) {
           muColl1hwPt->Fill(muonIt1->hwPt());
           muColl1hwEta->Fill(muonIt1->hwEta());
@@ -149,9 +169,14 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           muColl1processor->Fill(muonIt1->processor());
           muColl1trackFinderType->Fill(muonIt1->trackFinderType());
           muColl1hwHF->Fill(muonIt1->hwHF());
+          muColl1TrkAddrSize->Fill(muon1TrackAddr.size());
+          for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end(); ++trIt1) {
+            muColl1TrkAddr->Fill(trIt1->first, trIt1->second);
+          }
         }
       } else {
         muonIt2 = muonBxColl2->begin(iBx) + muonBxColl1->size(iBx);
+        const std::map<int, int> muon2TrackAddr = muonIt2->trackAddress();
         for (; muonIt2 != muonBxColl2->end(iBx); ++muonIt2) {
           muColl2hwPt->Fill(muonIt2->hwPt());
           muColl2hwEta->Fill(muonIt2->hwEta());
@@ -159,10 +184,14 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           muColl2hwSign->Fill(muonIt2->hwSign());
           muColl2hwSignValid->Fill(muonIt2->hwSignValid());
           muColl2hwQual->Fill(muonIt2->hwQual());
-          muColl2link->Fill(muonIt1->link());
-          muColl2processor->Fill(muonIt1->processor());
-          muColl2trackFinderType->Fill(muonIt1->trackFinderType());
-          muColl2hwHF->Fill(muonIt1->hwHF());
+          muColl2link->Fill(muonIt2->link());
+          muColl2processor->Fill(muonIt2->processor());
+          muColl2trackFinderType->Fill(muonIt2->trackFinderType());
+          muColl2hwHF->Fill(muonIt2->hwHF());
+          muColl2TrkAddrSize->Fill(muon2TrackAddr.size());
+          for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end(); ++trIt2) {
+            muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
+          }
         }
       }
     } else {
@@ -171,7 +200,16 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
 
     muonIt1 = muonBxColl1->begin(iBx);
     muonIt2 = muonBxColl2->begin(iBx);
-    while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl1->end(iBx)) {
+    //std::cout << "Analysing muons from BX " << iBx << std::endl;
+    while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl2->end(iBx)) {
+      //std::cout << "Coll 1 muon: hwPt=" << muonIt1->hwPt() << ", hwEta=" << muonIt1->hwEta() << ", hwPhi=" << muonIt1->hwPhi()
+      //          << ", hwSign=" << muonIt1->hwSign() << ", hwSignValid=" << muonIt1->hwSignValid()
+      //          << ", hwQual=" << muonIt1->hwQual() << ", link=" << muonIt1->link() << ", processor=" << muonIt1->processor()
+      //          << ", trackFinderType=" << muonIt1->trackFinderType() << std::endl;
+      //std::cout << "Coll 2 muon: hwPt=" << muonIt2->hwPt() << ", hwEta=" << muonIt2->hwEta() << ", hwPhi=" << muonIt2->hwPhi()
+      //          << ", hwSign=" << muonIt2->hwSign() << ", hwSignValid=" << muonIt2->hwSignValid()
+      //          << ", hwQual=" << muonIt2->hwQual() << ", link=" << muonIt2->link() << ", processor=" << muonIt2->processor()
+      //          << ", trackFinderType=" << muonIt2->trackFinderType() << std::endl;
       summary->Fill(MUONALL);
 
       bool muonMismatch = false;
@@ -217,10 +255,10 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
       bool badTrackAddr = false;
       if (muon1TrackAddr.size() == muon2TrackAddr.size()) {
         for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end(); ++trIt1) {
-          if (muon2TrackAddr.find(trIt1->first) == muon2TrackAddr.end()) {
+          if (muon2TrackAddr.find(trIt1->first) == muon2TrackAddr.end()) { // key does not exist
             badTrackAddr = true;
             break;
-          } else if (muon2TrackAddr[trIt1->first] != trIt1->second) {
+          } else if (muon2TrackAddr[trIt1->first] != trIt1->second) { // wrong value for key
             badTrackAddr = true;
             break;
           }
@@ -229,7 +267,9 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         badTrackAddr = true;
       }
       if (badTrackAddr) {
-        muonMismatch = true;
+        if (!ignoreBadTrkAddr) {
+          muonMismatch = true;
+        }
         summary->Fill(TRACKADDRBAD);
       }
 
@@ -244,6 +284,10 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         muColl1processor->Fill(muonIt1->processor());
         muColl1trackFinderType->Fill(muonIt1->trackFinderType());
         muColl1hwHF->Fill(muonIt1->hwHF());
+        muColl1TrkAddrSize->Fill(muon1TrackAddr.size());
+        for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end(); ++trIt1) {
+          muColl1TrkAddr->Fill(trIt1->first, trIt1->second);
+        }
 
         muColl2hwPt->Fill(muonIt2->hwPt());
         muColl2hwEta->Fill(muonIt2->hwEta());
@@ -255,6 +299,10 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         muColl2processor->Fill(muonIt1->processor());
         muColl2trackFinderType->Fill(muonIt1->trackFinderType());
         muColl2hwHF->Fill(muonIt1->hwHF());
+        muColl2TrkAddrSize->Fill(muon2TrackAddr.size());
+        for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end(); ++trIt2) {
+          muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
+        }
       } else {
         summary->Fill(MUONGOOD);
       }
