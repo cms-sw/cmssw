@@ -62,12 +62,12 @@ topDiLeptonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## [optional] : when omitted all monitoring plots for triggering
     ## will be empty
     triggerExtras = cms.PSet(
-		src = cms.InputTag("TriggerResults","","HLT"),
+        src = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016
-		pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
-		pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v']),
-		pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
-	)																	  
+        pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
+        pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v']),
+        pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
+    )
   ),
                                   
   ## ------------------------------------------------------
@@ -82,7 +82,7 @@ topDiLeptonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     trigger = cms.PSet(
         src    = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                                 
-		select = cms.vstring(['HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v', 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v', 'HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v', 'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v', 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v', 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v', 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
+       select = cms.vstring(['HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v', 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v', 'HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v', 'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v', 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v', 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v', 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -190,9 +190,9 @@ DiMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     triggerExtras = cms.PSet(
         src = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                                 
-		pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
-		pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_Dz_v']),
-		pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
+        pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
+        pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_Dz_v']),
+        pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
     )    
   ),                                
   ## ------------------------------------------------------
@@ -321,10 +321,10 @@ DiElectronHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
         src = cms.InputTag("TriggerResults","","HLT"),
 
 ### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                
-		pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
-		pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v']),
-		pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
-	)	
+        pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
+        pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v']),
+        pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
+    )
   ),
                                   
   ## ------------------------------------------------------
@@ -453,10 +453,10 @@ ElecMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     triggerExtras = cms.PSet(
         src = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                                 
-		pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
-		pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v']),
-		pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])
-	)    
+        pathsELECMU = cms.vstring([ 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v']),
+        pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v','HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v']),
+        pathsDIELEC = cms.vstring([ 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v'])    
+    )
   ),
                                   
   ## ------------------------------------------------------
@@ -471,8 +471,8 @@ ElecMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     trigger = cms.PSet(
         src    = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016 
-		select = cms.vstring(['HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v'])
-	),
+        select = cms.vstring(['HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v','HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v'])
+    ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -527,4 +527,4 @@ ElecMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
       min = cms.int32(2),
     ),
   ),
-)
+) 
