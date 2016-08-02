@@ -11,24 +11,26 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
+    lastValue = cms.uint64(100000000),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
+    firstValue = cms.uint64(100000000),
     interval = cms.uint64(1)
 )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDBCommon.connect = 'sqlite_file:DB.db'
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
+process.CondDB.connect = 'sqlite_file:EcalTPGLutGroup_v2_hlt.db'
+#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
+process.CondDB.DBParameters.authenticationPath = ''
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon, 
-    logconnect = cms.untracked.string('sqlite_file:log.db'),   
+    process.CondDB, 
+#    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
+   logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGLutGroupRcd'),
-#        tag = cms.string('EcalTPGLutGroup_craft')
-        tag = cms.string('EcalTPGLutGroup_TPGTrivial_config')
+        tag = cms.string('EcalTPGLutGroup_v2_hlt')
     ))
 )
 
@@ -38,15 +40,16 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGLutGroupAnalyzer",
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-     firstRun = cms.string('98273'),
+     firstRun = cms.string('200000'),
      lastRun = cms.string('10000000'),
      OnlineDBSID = cms.string('cms_omds_lb'),
+#     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
      OnlineDBUser = cms.string('cms_ecal_conf'),
-     OnlineDBPassword = cms.string('*************'),
+     OnlineDBPassword = cms.string('0r4cms_3c4lc0nf'),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
-     RunType = cms.string('COSMICS')
+     RunType = cms.string('PHYSICS')
     )                            
 )
 
