@@ -221,7 +221,7 @@ void StudyHLT::Loop() {
   int    pvBin[nPVBin+1] = {1, 2, 3, 5, 100};
   std::string energyNames[6]={"E_{7x7}", "H_{3x3}", "(E_{7x7}+H_{3x3})",
 			      "E_{11x11}", "H_{5x5}", "{E_{11x11}+H_{5x5})"};
-  for (int i=0; i<=nPVBin; ++i) {
+  for (int i=0; i<nPVBin; ++i) {
     for (int ip=0; ip<nPBin; ++ip) {
       for (int ie=0; ie<nEtaBin; ++ie) {
 	for (int j=0; j<6; ++j) {
@@ -229,7 +229,7 @@ void StudyHLT::Loop() {
 	  if (i < nPVBin) {
 	    sprintf(htit,"%s/p (p=%4.1f:%4.1f; i#eta=%d:%d, PV=%d:%d)",
 		    energyNames[j].c_str(),pBin[ip],pBin[ip+1],etaBin[ie],
-		    (etaBin[ie+1]-1), pvBin[i-4], pvBin[i-3]);
+		    (etaBin[ie+1]-1), pvBin[i], pvBin[i+1]);
 	  } else {
 	    sprintf(htit,"%s/p (p=%4.1f:%4.1f; i#eta=%d:%d, All PV)",
 		    energyNames[j].c_str(),pBin[ip],pBin[ip+1],etaBin[ie],

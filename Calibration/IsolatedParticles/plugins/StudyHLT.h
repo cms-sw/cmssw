@@ -10,7 +10,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,21 +31,22 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class StudyHLT : public edm::EDAnalyzer {
+class StudyHLT : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
   explicit StudyHLT(const edm::ParameterSet&);
   ~StudyHLT();
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
   virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
   void clear();
   void fillTrack(int, double, double, double, double);
   void fillIsolation(int, double, double, double);
@@ -55,15 +56,16 @@ private:
   // ----------member data ---------------------------
   static const int           nPBin=10, nEtaBin=4, nPVBin=4;
   HLTConfigProvider          hltConfig_;
-  edm::Service<TFileService> fs;
-  int                        verbosity;
-  spr::trackSelectionParameters selectionParameters;
-  std::vector<std::string>   trigNames, HLTNames;
-  std::string                theTrackQuality;
-  double                     minTrackP, maxTrackEta, tMinE_, tMaxE_, tMinH_, tMaxH_;
-  bool                       isItAOD, changed, firstEvent;
+  edm::Service<TFileService> fs_;
+  int                        verbosity_;
+  spr::trackSelectionParameters selectionParameters_;
+  std::vector<std::string>   trigNames_, HLTNames_;
+  std::string                theTrackQuality_;
+  double                     minTrackP_, maxTrackEta_;
+  double                     tMinE_, tMaxE_, tMinH_, tMaxH_;
+  bool                       isItAOD_, changed_, firstEvent_, doTree_;
 
-  edm::InputTag              triggerEvent_, theTriggerResultsLabel;
+  edm::InputTag              triggerEvent_, theTriggerResultsLabel_;
   edm::EDGetTokenT<LumiDetails>                       tok_lumi;
   edm::EDGetTokenT<trigger::TriggerEvent>             tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>               tok_trigRes;
