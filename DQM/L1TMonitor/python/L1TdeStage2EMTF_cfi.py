@@ -17,6 +17,7 @@ l1tdeStage2EmtfComp = cms.EDAnalyzer(
     monitorDir = cms.untracked.string("L1T2016EMU/L1TdeStage2EMTF"),
     regionalMuonCollection1Title = cms.untracked.string("EMTF data"),
     regionalMuonCollection2Title = cms.untracked.string("EMTF emulator"),
+    ignoreBadTrackAddress = cms.untracked.bool(True),
     verbose = cms.untracked.bool(False),
 )
 
