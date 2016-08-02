@@ -108,8 +108,8 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
   e.getByToken(muonToken1, muonBxColl1);
   e.getByToken(muonToken2, muonBxColl2);
 
-  int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX();
-  int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX();
+  int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX() + 1;
+  int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX() + 1;
   if (bxRange1 != bxRange2) {
     summary->Fill(BXRANGEBAD);
     int bx;
@@ -159,10 +159,10 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           muColl2hwSign->Fill(muonIt2->hwSign());
           muColl2hwSignValid->Fill(muonIt2->hwSignValid());
           muColl2hwQual->Fill(muonIt2->hwQual());
-          muColl2link->Fill(muonIt1->link());
-          muColl2processor->Fill(muonIt1->processor());
-          muColl2trackFinderType->Fill(muonIt1->trackFinderType());
-          muColl2hwHF->Fill(muonIt1->hwHF());
+          muColl2link->Fill(muonIt2->link());
+          muColl2processor->Fill(muonIt2->processor());
+          muColl2trackFinderType->Fill(muonIt2->trackFinderType());
+          muColl2hwHF->Fill(muonIt2->hwHF());
         }
       }
     } else {
@@ -171,7 +171,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
 
     muonIt1 = muonBxColl1->begin(iBx);
     muonIt2 = muonBxColl2->begin(iBx);
-    while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl1->end(iBx)) {
+    while(muonIt1 != muonBxColl1->end(iBx) && muonIt2 != muonBxColl2->end(iBx)) {
       summary->Fill(MUONALL);
 
       bool muonMismatch = false;
