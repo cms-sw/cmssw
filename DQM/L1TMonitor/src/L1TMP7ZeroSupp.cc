@@ -38,12 +38,12 @@ void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&,
 
   zeroSuppVal_ = ibooker.book1D("zeroSuppVal", "Zero suppression validation summary", 6, 0, 6);
   zeroSuppVal_->setAxisTitle("Block status", 1);
-  zeroSuppVal_->setBinLabel(EVTS, "evts", 1);
-  zeroSuppVal_->setBinLabel(BLOCKS, "blocks", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSGOOD, "good", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSBAD, "bad", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSBADFALSEPOS, "false pos.", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSBADFALSENEG, "false neg.", 1);
+  zeroSuppVal_->setBinLabel(EVTS+1, "evts", 1);
+  zeroSuppVal_->setBinLabel(BLOCKS+1, "blocks", 1);
+  zeroSuppVal_->setBinLabel(ZSBLKSGOOD+1, "good", 1);
+  zeroSuppVal_->setBinLabel(ZSBLKSBAD+1, "bad", 1);
+  zeroSuppVal_->setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
+  zeroSuppVal_->setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
 }
 
 void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
