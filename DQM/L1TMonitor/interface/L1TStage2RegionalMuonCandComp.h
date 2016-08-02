@@ -29,13 +29,14 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
  private:  
 
   enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, LOCALPHIBAD, SIGNBAD, SIGNVALBAD, QUALBAD, HFBAD, LINKBAD, PROCBAD, TFBAD, TRACKADDRBAD};
-  enum tfs {BMTFBIN=1, OMTFBIN, EMTFBIN};
+  enum tfs {BMTFBIN=1, OMTFNEGBIN, OMTFPOSBIN, EMTFNEGBIN, EMTFPOSBIN};
 
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken2;
   std::string monitorDir;
   std::string muonColl1Title;
   std::string muonColl2Title;
+  bool ignoreBadTrkAddr;
   bool verbose;
 
   MonitorElement* summary;
@@ -52,6 +53,8 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   MonitorElement* muColl1processor;
   MonitorElement* muColl1trackFinderType;
   MonitorElement* muColl1hwHF;
+  MonitorElement* muColl1TrkAddrSize;
+  MonitorElement* muColl1TrkAddr;
 
   MonitorElement* muColl2BxRange;
   MonitorElement* muColl2nMu;
@@ -65,6 +68,8 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   MonitorElement* muColl2processor;
   MonitorElement* muColl2trackFinderType;
   MonitorElement* muColl2hwHF;
+  MonitorElement* muColl2TrkAddrSize;
+  MonitorElement* muColl2TrkAddr;
 
 };
 
