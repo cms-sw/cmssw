@@ -82,7 +82,6 @@ private:
     cached_exception_(),
     actReg_(),
     earlyDeleteHelper_(nullptr),
-    asyncWorkRequested_(false),
     workStarted_(false)
   {
   }
@@ -194,10 +193,12 @@ private:
   }
 
   
-  void Worker::prefetchAsync(WaitingTask* iTask, Principal const& iPrincipal) {
+  void Worker::prefetchAsync(WaitingTask* iTask, ParentContext const& parentContext, Principal const& iPrincipal) {
     // Prefetch products the module declares it consumes (not including the products it maybe consumes)
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFromEvent();
-    
+
+    moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
+
     //Need to be sure the ref count isn't set to 0 immediately
     iTask->increment_ref_count();
     for(auto const& item : items) {
