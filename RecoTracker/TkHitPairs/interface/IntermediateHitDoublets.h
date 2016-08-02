@@ -94,6 +94,7 @@ public:
       cache_(std::move(cache))
     {}
 
+    const LayerPair& layerPair() const { return layerPair_; }
     SeedingLayerSetsHits::LayerIndex innerLayerIndex() const { return std::get<0>(layerPair_); }
     SeedingLayerSetsHits::LayerIndex outerLayerIndex() const { return std::get<1>(layerPair_); }
 
