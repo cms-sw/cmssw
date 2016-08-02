@@ -33,10 +33,11 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
 
  private:  
 
-  enum binlabels {EVTS=1, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG};
+  enum binlabels {EVTS=0, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG};
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken_;
   std::vector<int> fedIds_;
+  std::vector<std::vector<int>> masks_;
 
   // header and trailer sizes in chars
   int slinkHeaderSize_;
