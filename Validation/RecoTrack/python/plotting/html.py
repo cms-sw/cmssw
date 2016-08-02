@@ -14,8 +14,10 @@ _sampleName = {
     "RelValWjet_Pt_3000_3500": "Wjet Pt 3000 to 3500",
     "RelValH125GGgluonfusion": "Higgs to gamma gamma",
     "RelValSingleElectronPt35": "Single Electron Pt 35",
+    "RelValSingleElectronPt35Extended": "Single Electron Pt 35 (extended eta)",
     "RelValSingleElectronPt10": "Single Electron Pt 10",
     "RelValSingleMuPt10": "Single Muon Pt 10",
+    "RelValSingleMuPt10Extended": "Single Muon Pt 10 (extended eta)",
     "RelValSingleMuPt100": "Single Muon Pt 100",
     "RelValTenMuE_0_200": "Ten muon Pt 0-200",
 }
@@ -30,8 +32,10 @@ _sampleFileName = {
     "RelValWjet_Pt_3000_3500": "wjet3000",
     "RelValH125GGgluonfusion": "hgg",
     "RelValSingleElectronPt35": "ele35",
+    "RelValSingleElectronPt35Extended": "ele35ext",
     "RelValSingleElectronPt10": "ele10",
     "RelValSingleMuPt10": "mu10",
+    "RelValSingleMuPt10Extended": "mu10ext",
     "RelValSingleMuPt100": "mu100",
     "RelValTenMuE_0_200": "tenmu200",
 }
@@ -594,7 +598,11 @@ class IndexSection:
                 pileup = "with %s pileup" % sample.pileupType()
         if hasattr(sample, "customPileupLabel"):
             pileup = sample.customPileupLabel()
-        self._sampleName += "%s sample %s" % (_sampleName.get(sample.name(), sample.name()), pileup)
+
+        scenario = ""
+        if hasattr(sample, "hasScenario") and sample.hasScenario():
+            scenario = " (\"%s\")" % sample.scenario()
+        self._sampleName += "%s sample%s %s" % (_sampleName.get(sample.name(), sample.name()), scenario, pileup)
 
         params = [title, self._sampleName, sample, fastVsFull]
         self._summaryPage = PageSet(*params)

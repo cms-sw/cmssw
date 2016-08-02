@@ -16,7 +16,15 @@ _globalTags = {
     "CMSSW_6_2_0": {"default": "PRE_ST62_V8"},
     "CMSSW_6_2_0_SLHC15": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC17": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
-    "CMSSW_6_2_0_SLHC20": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
+    "CMSSW_6_2_0_SLHC20": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1_UPG2023SHNoTaper"},
+    "CMSSW_6_2_0_SLHC22": {"UPG2023SHNoTaper": "PH2_1K_FB_V6_UPG23SHNoTaper",
+                           # map 81X GReco and tilted to SHNoTaper
+                           "2023GReco": "PH2_1K_FB_V6_UPG23SHNoTaper", "2023GRecoPU35": "", "2023GRecoPU140": "", "2023GRecoPU200": "",
+                           "2023tilted": "PH2_1K_FB_V6_UPG23SHNoTaper", "2023tiltedPU35": "", "2023tiltedPU140": "", "2023tiltedPU200": ""},
+    "CMSSW_6_2_0_SLHC26": {"LHCCRefPU140": "DES23_62_V1_LHCCRefPU140", "LHCCRefPU200": "DES23_62_V1_LHCCRefPU200",
+                           # map 81X GReco and tilted to LHCCRef
+                           "2023GReco": "", "2023GRecoPU35": "", "2023GRecoPU140": "DES23_62_V1_LHCCRefPU140", "2023GRecoPU200": "DES23_62_V1_LHCCRefPU200",
+                           "2023tilted": "", "2023tiltedPU35": "", "2023tiltedPU140": "DES23_62_V1_LHCCRefPU140", "2023tiltedPU200": "DES23_62_V1_LHCCRefPU200"},
     "CMSSW_6_2_0_SLHC27_phase1": {"default": "DES17_62_V8_UPG17"},
     "CMSSW_7_0_0": {"default": "POSTLS170_V3", "fullsim_50ns": "POSTLS170_V4"},
     "CMSSW_7_0_0_AlcaCSA14": {"default": "POSTLS170_V5_AlcaCSA14", "fullsim_50ns": "POSTLS170_V6_AlcaCSA14"},
@@ -163,10 +171,14 @@ _globalTags = {
     "CMSSW_8_1_0_pre7": {"default": "81X_mcRun2_asymptotic_v0"},
     "CMSSW_8_1_0_pre7_phase1": {"default": "81X_upgrade2017_realistic_v2_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v2_UPG17PU35"},
     "CMSSW_8_1_0_pre7_phase1_newGT": {"default": "81X_upgrade2017_realistic_v3_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v3_UPG17PU35newGTresub"},
+    "CMSSW_8_1_0_pre7_phase2": {"2023GReco": "81X_mcRun2_asymptotic_v0_2023GReco", "2023GRecoPU35": "", "2023GRecoPU140": "81X_mcRun2_asymptotic_v0_2023GRecoPU140resubmit2", "2023GRecoPU200": "81X_mcRun2_asymptotic_v0_2023GRecoPU200resubmit2",
+                                "2023tilted": "81X_mcRun2_asymptotic_v0_2023tilted", "2023tiltedPU35": "", "2023tiltedPU140": "81X_mcRun2_asymptotic_v0_2023tiltedPU140resubmit2", "2023tiltedPU200": "81X_mcRun2_asymptotic_v0_2023tiltedPU200resubmit2"},
     "CMSSW_8_1_0_pre8": {"default": "81X_mcRun2_asymptotic_v1"},
     "CMSSW_8_1_0_pre8_phase1": {"default": "81X_upgrade2017_realistic_v3_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v3_UPG17PU35"},
     "CMSSW_8_1_0_pre8_phase1_newGT": {"default": "81X_upgrade2017_realistic_v4_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v4_UPG17PU35newGT"},
     "CMSSW_8_1_0_pre8_phase1_newGT2": {"default": "81X_upgrade2017_realistic_v5_UPG17newGTset2", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35newGTset2"},
+    "CMSSW_8_1_0_pre8_phase2": {"2023GReco": "81X_mcRun2_asymptotic_v1_resub2023GReco", "2023GRecoPU35": "81X_mcRun2_asymptotic_v1_resub2023GRecoPU35", "2023GRecoPU140": "81X_mcRun2_asymptotic_v1_resub2023GRecoPU140", "2023GRecoPU200": "81X_mcRun2_asymptotic_v1_resub2023GRecoPU200",
+                                "2023tilted": "81X_mcRun2_asymptotic_v1_2023tilted", "2023tiltedPU35": "81X_mcRun2_asymptotic_v1_2023tiltedPU", "2023tiltedPU140": "81X_mcRun2_asymptotic_v1_2023tiltedPU140", "2023tiltedPU200": "81X_mcRun2_asymptotic_v1_2023tiltedPU200"},
     "CMSSW_8_1_0_pre9": {"default": "81X_mcRun2_asymptotic_v2"},
     "CMSSW_8_1_0_pre9_Geant4102": {"default": "81X_mcRun2_asymptotic_v2"},
     "CMSSW_8_1_0_pre9_phase1": {"default": "81X_upgrade2017_realistic_v5_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35"},
@@ -174,7 +186,7 @@ _globalTags = {
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1_newGT2", "_phase1_newGT", "_phase1", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT"]
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1_newGT2", "_phase1_newGT", "_phase1", "_phase2", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:

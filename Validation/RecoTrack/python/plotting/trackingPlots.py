@@ -366,7 +366,7 @@ _possibleTrackingCollsOld = {
     "Tenth" : "iter10",
 }
 
-def _trackingSubFoldersFallbackSLHC(subfolder):
+def _trackingSubFoldersFallbackSLHC_Phase1PU70_OldMapping(subfolder):
     ret = subfolder.replace("trackingParticleRecoAsssociation", "AssociatorByHitsRecoDenom")
     for (old, new) in [("InitialStep",         "Zero"),
                        ("LowPtTripletStep",    "First"),
@@ -374,11 +374,12 @@ def _trackingSubFoldersFallbackSLHC(subfolder):
                        ("MixedTripletStep",    "Fourth"),
                        ("MuonSeededStepInOut", "Ninth"),
                        ("MuonSeededStepOutIn", "Tenth")]:
+
         ret = ret.replace(old, new)
     if ret == subfolder:
         return None
     return ret
-def _trackingRefFileFallbackSLHC(path):
+def _trackingRefFileFallbackSLHC_Phase1PU70_OldMapping(path):
     for (old, new) in [("initialStep",         "iter0"),
                        ("lowPtTripletStep",    "iter1"),
                        ("pixelPairStep",       "iter2"),
@@ -387,6 +388,33 @@ def _trackingRefFileFallbackSLHC(path):
                        ("muonSeededStepOutIn", "iter10")]:
         path = path.replace(old, new)
     return path
+
+def _trackingSubFoldersFallbackSLHC_Phase1PU140(subfolder):
+    ret = subfolder.replace("trackingParticleRecoAsssociation", "AssociatorByHitsRecoDenom")
+    for (old, new) in [("InitialStep",         "Zero"),
+                       ("HighPtTripletStep",   "First"),
+                       ("LowPtQuadStep",       "Second"),
+                       ("LowPtTripletStep",    "Third"),
+                       ("DetachedQuadStep",    "Fourth"),
+                       ("PixelPairStep",       "Fifth"),
+                       ("MuonSeededStepInOut", "Ninth"),
+                       ("MuonSeededStepOutIn", "Tenth")]:
+        ret = ret.replace(old, new)
+    if ret == subfolder:
+        return None
+    return ret
+def _trackingRefFileFallbackSLHC_Phase1PU140(path):
+    for (old, new) in [("initialStep",         "iter0"),
+                       ("highPtTripletStep",   "iter1"),
+                       ("lowPtQuadStep",       "iter2"),
+                       ("lowPtTripletStep",    "iter3"),
+                       ("detachedQuadStep",    "iter4"),
+                       ("pixelPairStep",       "iter5"),
+                       ("muonSeededStepInOut", "iter9"),
+                       ("muonSeededStepOutIn", "iter10")]:
+        path = path.replace(old, new)
+    return path
+
 def _trackingSubFoldersFallbackFromPV(subfolder):
     return subfolder.replace("trackingParticleRecoAsssociation", "trackingParticleRecoAsssociationSignal")
 def _trackingSubFoldersFallbackConversion(subfolder):
@@ -894,8 +922,14 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False, only
     folders = _trackingFolders(lastDirName)
     # to keep backward compatibility, this set of plots has empty name
     limiters = dict(onlyForPileup=onlyForPileup, onlyForElectron=onlyForElectron, onlyForConversion=onlyForConversion)
-    commonForTPF = dict(purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[_trackingRefFileFallbackSLHC], **limiters)
-    common = dict(fallbackDqmSubFolders=[_trackingSubFoldersFallbackSLHC, _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
+    commonForTPF = dict(purpose=PlotPurpose.TrackingIteration, fallbackRefFiles=[
+        #_trackingRefFileFallbackSLHC_Phase1PU70_OldMapping
+        _trackingRefFileFallbackSLHC_Phase1PU140
+    ], **limiters)
+    common = dict(fallbackDqmSubFolders=[
+        #_trackingSubFoldersFallbackSLHC_Phase1PU70_OldMapping,
+        _trackingSubFoldersFallbackSLHC_Phase1PU140,
+        _trackingSubFoldersFallbackFromPV, _trackingSubFoldersFallbackConversion])
     plotter.append(name, folders, TrackingPlotFolder(*algoPlots, **commonForTPF), **common)
     plotterExt.append(name, folders, TrackingPlotFolder(*_extendedPlots, **commonForTPF), **common)
 

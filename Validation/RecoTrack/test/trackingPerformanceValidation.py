@@ -52,21 +52,29 @@ phase1samples = [
     Sample("RelValZMM", midfix="13", putype=putype("25ns")),
 ]
 
-upgradesamples = [
-#    Sample("RelValTTbar", midfix="14TeV", scenario="UPG2019withGEM"  ),
-#    Sample("RelValTTbar", midfix="14TeV", scenario="UPG2023SHNoTaper"),
-#    Sample('RelValQCD_Pt_3000_3500', midfix="14TeV", scenario="UPG2019withGEM"  ),
-#    Sample('RelValQCD_Pt_3000_3500', midfix="14TeV", scenario="UPG2023SHNoTaper"),
-#    Sample('RelValSingleElectronPt35', scenario="UPG2019withGEM"  ),
-#    Sample('RelValSingleElectronPt35', scenario="UPG2023SHNoTaper"),
-#    Sample('RelValSingleElectronPt10', scenario="UPG2019withGEM"  ),
-#    Sample('RelValSingleElectronPt10', scenario="UPG2023SHNoTaper"),
-#    Sample('RelValSingleMuPt10', scenario="UPG2019withGEM"  ),
-#    Sample('RelValSingleMuPt10', scenario="UPG2023SHNoTaper"),
-#    Sample('RelValSingleMuPt100', scenario="UPG2019withGEM"  ),
-#    Sample('RelValSingleMuPt100', scenario="UPG2023SHNoTaper"),
-#    Sample('RelValTenMuExtendedE_0_200', scenario="UPG2019withGEM"  ),
-#    Sample('RelValTenMuExtendedE_0_200', scenario="UPG2023SHNoTaper"),
+phase2samples = [
+    Sample("RelValMinBias", midfix="TuneZ2star_14TeV", scenario="2023GReco"),
+    Sample("RelValMinBias", midfix="TuneZ2star_14TeV", scenario="2023tilted"),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023GReco"),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU35", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU140", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU200", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023tilted"),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU35", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU140", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU200", putype=putype("25ns")),
+    Sample("RelValZMM", midfix="13", scenario="2023GReco"),
+    Sample("RelValZMM", midfix="13", scenario="2023GRecoPU140", putype=putype("25ns")),
+    Sample("RelValZMM", midfix="13", scenario="2023GRecoPU200", putype=putype("25ns")),
+    Sample("RelValZMM", midfix="13", scenario="2023tilted"),
+    Sample("RelValZMM", midfix="13", scenario="2023tiltedPU140", putype=putype("25ns")),
+    Sample("RelValZMM", midfix="13", scenario="2023tiltedPU200", putype=putype("25ns")),
+    Sample("RelValSingleElectronPt35Extended", scenario="2023GReco"),
+    Sample("RelValSingleElectronPt35Extended", scenario="2023tilted"),
+    Sample("RelValSingleMuPt10Extended", scenario="2023GReco"),
+    Sample("RelValSingleMuPt10Extended", scenario="2023tilted"),
+    Sample("RelValSingleMuPt100", scenario="2023GReco"),
+    Sample("RelValSingleMuPt100", scenario="2023tilted"),
 ]
 
 fastsimstartupsamples = [
@@ -107,6 +115,12 @@ if "_phase1" in NewRelease:
     fastsimstartupsamples = []
     pileupfastsimstartupsamples = []
     doFastVsFull = False
+if "_phase2" in NewRelease:
+    startupsamples = phase2samples
+    pileupstartupsamples = []
+    fastsimstartupsamples = []
+    pileupfastsimstartupsamples = []
+    doFastVsFull = False
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
@@ -120,13 +134,30 @@ VertexCollections=["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]
 def limitProcessing(algo, quality):
     return algo in Algos and quality in Qualities
 
+def limitRelVal(algo, quality): # for phase2 ATM
+    return quality in ["", "highPurity"]
+
+def ignore(a, q):
+    return False
+
+# Temporary until we have limited the set of histograms for phase2
+kwargs_tracking = {}
+if "_phase2" in NewRelease:
+    kwargs_tracking["limitSubFoldersOnlyTo"] = {
+        "": limitRelVal,
+        "allTPEffic": ignore, "fromPV": ignore, "fromPVAllTP": ignore, # ignore for now to save disk space
+        "seeding": ignore, "building": ignore # temporary until we have limited the set of histograms for phase2
+    }
+
+
+
 ### Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/tracking/validation/MC'
 NewRepository = 'new' # copy output into a local folder
 
 # Tracking validation plots
 val = Validation(
-    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
+    fullsimSamples = startupsamples + pileupstartupsamples,
     fastsimSamples = fastsimstartupsamples + pileupfastsimstartupsamples,
     refRelease=RefRelease, refRepository=RefRepository,
     newRelease=NewRelease, newRepository=NewRepository
@@ -136,6 +167,7 @@ val.download()
 val.doPlots(plotter=trackingPlots.plotter,
 #            limitSubFoldersOnlyTo={"": limitProcessing, "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull
+            **kwargs_tracking
 )
 
 val.download()
