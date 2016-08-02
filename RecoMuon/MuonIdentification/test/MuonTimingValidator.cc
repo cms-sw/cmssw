@@ -67,6 +67,8 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TFile.h>
@@ -152,16 +154,10 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   reco::MuonCollection::const_iterator imuon;
   
-  bool debug=false;
-
   int imucount=0;
   for(imuon = muonC.begin(); imuon != muonC.end(); ++imuon){
-    
-    debug=false;
-    // if (imuon->pt()>100 && imuon->isGlobalMuon()) debug=true;
-    
-    if (debug)
-      std::cout << " Event: " << iEvent.id() << " Found muon. Pt: " << imuon->p() << std::endl;
+        
+    LogDebug("RecoMuonIdentification") << " Event: " << iEvent.id() << " Found muon. Pt: " << imuon->p();
     
     if ((fabs(imuon->eta())<theMinEta) || (fabs(imuon->eta())>theMaxEta)) continue;
     
@@ -185,8 +181,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       hi_glb_phi->Fill((*glbTrack).phi());
       hi_glb_eta->Fill((*glbTrack).eta()); 
       
-      if (debug)
-        std::cout << " Global Pt: " << (*glbTrack).pt() << std::endl;
+       LogDebug("RecoMuonIdentification") << " Global Pt: " << (*glbTrack).pt();
     }
 
     // Analyze the short info stored directly in reco::Muon
@@ -216,8 +211,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         if (emErr>0.) {
           hi_ecal_time_err->Fill(emErr);
           hi_ecal_time_pull->Fill((muonE.ecal_time-1.)/emErr);
-          if (debug)
-            std::cout << "     ECAL time: " << muonE.ecal_time << " +/- " << emErr << std::endl;
+	  LogDebug("RecoMuonIdentification") << "     ECAL time: " << muonE.ecal_time << " +/- " << emErr;
         }
       }
 
@@ -230,8 +224,7 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         
         hi_hcal_time_err->Fill(hadErr);
         hi_hcal_time_pull->Fill((muonE.hcal_time-1.)/hadErr);
-        if (debug)
-          std::cout << "     HCAL time: " << muonE.hcal_time << " +/- " << hadErr << std::endl;
+        LogDebug("RecoMuonIdentification") << "     HCAL time: " << muonE.hcal_time << " +/- " << hadErr;
       }
     }
     
@@ -246,11 +239,10 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     hi_csctime_ndof->Fill(timecsc.nDof());
 
     if (timedt.nDof()>theDtCut) {
-      if (debug) {
-        std::cout << "          DT nDof: " << timedt.nDof() << std::endl;
-        std::cout << "          DT Time: " << timedt.timeAtIpInOut() << " +/- " << timedt.inverseBetaErr() << std::endl;
-        std::cout << "         DT FreeB: " << timedt.freeInverseBeta() << " +/- " << timedt.freeInverseBetaErr() << std::endl;
-      }
+      LogDebug("RecoMuonIdentification") << "          DT nDof: " << timedt.nDof();
+      LogDebug("RecoMuonIdentification") << "          DT Time: " << timedt.timeAtIpInOut() << " +/- " << timedt.inverseBetaErr();
+      LogDebug("RecoMuonIdentification") << "         DT FreeB: " << timedt.freeInverseBeta() << " +/- " << timedt.freeInverseBetaErr();
+      
       hi_dttime_ibt->Fill(timedt.inverseBeta());
       hi_dttime_ibt_pt->Fill(imuon->pt(),timedt.inverseBeta());
       hi_dttime_ibt_err->Fill(timedt.inverseBetaErr());
@@ -281,11 +273,10 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     if (timecsc.nDof()>theCscCut) {
-      if (debug) {
-        std::cout << "         CSC nDof: " << timecsc.nDof() << std::endl;
-        std::cout << "         CSC Time: " << timecsc.timeAtIpInOut() << " +/- " << timecsc.inverseBetaErr() << std::endl;
-        std::cout << "        CSC FreeB: " << timecsc.freeInverseBeta() << " +/- " << timecsc.freeInverseBetaErr() << std::endl;
-      }
+      LogDebug("RecoMuonIdentification") << "         CSC nDof: " << timecsc.nDof();
+      LogDebug("RecoMuonIdentification") << "         CSC Time: " << timecsc.timeAtIpInOut() << " +/- " << timecsc.inverseBetaErr();
+      LogDebug("RecoMuonIdentification") << "        CSC FreeB: " << timecsc.freeInverseBeta() << " +/- " << timecsc.freeInverseBetaErr();
+      
       hi_csctime_ibt->Fill(timecsc.inverseBeta());
       hi_csctime_ibt_pt->Fill(imuon->pt(),timecsc.inverseBeta());
       hi_csctime_ibt_err->Fill(timecsc.inverseBetaErr());
@@ -312,11 +303,10 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     if (timec.nDof()>0) {
-      if (debug) {
-        std::cout << "    Combined nDof: " << timec.nDof() << std::endl;
-        std::cout << "    Combined Time: " << timec.timeAtIpInOut() << " +/- " << timec.inverseBetaErr() << std::endl;
-        std::cout << "   Combined FreeB: " << timec.freeInverseBeta() << " +/- " << timec.freeInverseBetaErr() << std::endl;
-      }
+      LogDebug("RecoMuonIdentification") << "    Combined nDof: " << timec.nDof();
+      LogDebug("RecoMuonIdentification") << "    Combined Time: " << timec.timeAtIpInOut() << " +/- " << timec.inverseBetaErr();
+      LogDebug("RecoMuonIdentification") << "   Combined FreeB: " << timec.freeInverseBeta() << " +/- " << timec.freeInverseBetaErr();
+
       hi_cmbtime_ibt->Fill(timec.inverseBeta());
       hi_cmbtime_ibt_pt->Fill(imuon->pt(),timec.inverseBeta());
       hi_cmbtime_ibt_err->Fill(timec.inverseBetaErr());
