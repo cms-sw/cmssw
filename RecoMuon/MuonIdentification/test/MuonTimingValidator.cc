@@ -83,8 +83,15 @@
 MuonTimingValidator::MuonTimingValidator(const edm::ParameterSet& iConfig) 
   :
   TKtrackTags_(iConfig.getUntrackedParameter<edm::InputTag>("TKtracks")),
+  TKtrackTokens_(consumes<reco::TrackCollection>(TKtrackTags_)),
   MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
-  TimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("Timing")),
+  MuonTokens_(consumes<reco::MuonCollection>(MuonTags_)),
+  CombinedTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("CombinedTiming")),
+  CombinedTimeTokens_(consumes<reco::MuonTimeExtraMap>(CombinedTimeTags_)),
+  DtTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("DtTiming")),
+  DtTimeTokens_(consumes<reco::MuonTimeExtraMap>(DtTimeTags_)),
+  CscTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("CscTiming")),
+  CscTimeTokens_(consumes<reco::MuonTimeExtraMap>(CscTimeTags_)),
   out(iConfig.getParameter<std::string>("out")),
   open(iConfig.getParameter<std::string>("open")),
   theMinEta(iConfig.getParameter<double>("etaMin")),
@@ -125,19 +132,19 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 //  std::cout << "*** Begin Muon Timing Validatior " << std::endl;
 //  std::cout << " Event: " << iEvent.id() << "  Orbit: " << iEvent.orbitNumber() << "  BX: " << iEvent.bunchCrossing() << std::endl;
 
-  iEvent.getByLabel( TKtrackTags_, TKTrackCollection);
+  iEvent.getByToken( TKtrackTokens_, TKTrackCollection);
   reco::TrackCollection tkTC;
   const reco::TrackCollection tkTC1 = *(TKTrackCollection.product());
 
-  iEvent.getByLabel(MuonTags_,MuCollection);
+  iEvent.getByToken(MuonTokens_,MuCollection);
   const reco::MuonCollection muonC = *(MuCollection.product());
   if (!muonC.size()) return;
 
-  iEvent.getByLabel(TimeTags_.label(),"combined",timeMap1);
+  iEvent.getByToken(CombinedTimeTokens_,timeMap1);
   const reco::MuonTimeExtraMap & timeMapCmb = *timeMap1;
-  iEvent.getByLabel(TimeTags_.label(),"dt",timeMap2);
+  iEvent.getByToken(DtTimeTokens_,timeMap2);
   const reco::MuonTimeExtraMap & timeMapDT = *timeMap2;
-  iEvent.getByLabel(TimeTags_.label(),"csc",timeMap3);
+  iEvent.getByToken(CscTimeTokens_,timeMap3);
   const reco::MuonTimeExtraMap & timeMapCSC = *timeMap3;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
