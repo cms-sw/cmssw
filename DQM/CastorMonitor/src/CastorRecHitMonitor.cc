@@ -14,6 +14,8 @@
 //======================= Constructor ==============================//
 CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet& ps)
 {
+ std::cout<<"CastorRecHitMonitor Constructor: "<<this<<std::endl;
+ fVerbosity = ps.getUntrackedParameter<int>("debug",0);
  subsystemname =
 	ps.getUntrackedParameter<std::string>("subSystemFolder","Castor");
  ievt_=0; 
@@ -21,7 +23,7 @@ CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet& ps)
 
 //======================= Destructor ==============================//
 CastorRecHitMonitor::~CastorRecHitMonitor() { }
-
+/*
 //=================== setup ===============//
 
 void CastorRecHitMonitor::setup(const edm::ParameterSet& ps)
@@ -29,7 +31,7 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps)
 //  CastorBaseMonitor::setup(ps);
   return;
 }
-
+*/
 
 //============== boolHistograms  ==============//
 void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
@@ -170,7 +172,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
 	energyInEachChannel[z][phi] = 0.;
 
  CastorRecHitCollection::const_iterator CASTORiter;
- if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); } 
+// if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); } 
 
  if(castorHits.size() <= 0) return;
 
@@ -211,11 +213,10 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
     etot += es;
   } // end for(int phi=0;
 
-  if(ievt_ %100 == 0){ 
-   for(int mod=1; mod<=14; mod++) for(int sec=1; sec<=16;sec++) {
-     double a= h2RHmap->getTH2F()->GetBinContent(mod,sec);
-     h2RHoccmap->getTH2F()->SetBinContent(mod,sec,a/double(ievt_));
-   }
+ if(ievt_ %100 == 0) 
+  for(int mod=1; mod<=14; mod++) for(int sec=1; sec<=16;sec++) {
+    double a= h2RHmap->getTH2F()->GetBinContent(mod,sec);
+    h2RHoccmap->getTH2F()->SetBinContent(mod,sec,a/double(ievt_));
   }
 
   if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (end)"<< std::endl;
