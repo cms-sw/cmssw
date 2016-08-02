@@ -59,6 +59,21 @@ DDLTubs::processElement( const std::string& name, const std::string& nmspace, DD
 					      ev.eval(nmspace, atts.find("cutAtDelta")->second),
 					      cutInside ); // cutInside
   }
+  else if (name == "CutTubs")
+  {
+    DDSolid myTubs = DDSolidFactory::cuttubs( getDDName(nmspace),
+					      ev.eval(nmspace, atts.find("dz")->second),
+					      ev.eval(nmspace, atts.find("rMin")->second),
+					      ev.eval(nmspace, atts.find("rMax")->second),
+					      ev.eval(nmspace, atts.find("startPhi")->second),
+					      ev.eval(nmspace, atts.find("deltaPhi")->second),
+					      ev.eval(nmspace, atts.find("lx")->second),
+					      ev.eval(nmspace, atts.find("ly")->second),
+					      ev.eval(nmspace, atts.find("lz")->second),
+					      ev.eval(nmspace, atts.find("tx")->second),
+					      ev.eval(nmspace, atts.find("ty")->second),
+					      ev.eval(nmspace, atts.find("tz")->second));
+  }
   else
   {
     std::string msg = "\nDDLTubs::processElement could not process element.";

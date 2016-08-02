@@ -15,6 +15,7 @@ DDG4SolidConverter::DDG4SolidConverter() {
   // would then need to have a 'register' method ...
   convDispatch_[ddbox]            = DDG4SolidConverter::box; 
   convDispatch_[ddtubs]           = DDG4SolidConverter::tubs;
+  convDispatch_[ddcuttubs]        = DDG4SolidConverter::cuttubs;
   convDispatch_[ddtrap]           = DDG4SolidConverter::trap;
   convDispatch_[ddcons]           = DDG4SolidConverter::cons;
   convDispatch_[ddpolycone_rrz]   = DDG4SolidConverter::polycone_rrz;
@@ -72,6 +73,18 @@ G4VSolid * DDG4SolidConverter::tubs(const DDSolid & solid) {
 		    (*par_)[0], // dzHalf
 		    (*par_)[3], // phiStart
 		    (*par_)[4]);// deltaPhi
+}
+
+#include "G4CutTubs.hh"
+G4VSolid * DDG4SolidConverter::cuttubs(const DDSolid & solid) {
+  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: tubs = " << solid;  
+  return new G4CutTubs(solid.name().name(), (*par_)[1], // rmin
+		       (*par_)[2], // rmax
+		       (*par_)[0], // dzHalf
+		       (*par_)[3], // phiStart
+		       (*par_)[4], // deltaPhi
+		       G4ThreeVector((*par_)[5],(*par_)[6],(*par_)[7]),
+		       G4ThreeVector((*par_)[8],(*par_)[9],(*par_)[10]));
 }
 
 

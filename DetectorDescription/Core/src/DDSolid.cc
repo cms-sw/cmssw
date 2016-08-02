@@ -127,7 +127,7 @@ DDSolid::DDSolid(const DDName & n, DDSolidShape s, const std::vector<double> & p
 	 solid = new DDI::Parallelepiped(0,0,0,0,0,0);
 	 break;
        case ddcuttubs:
-	 solid = new DDI::CutTubs(0.,0.,0.,0.,0.,{{0.,0.,1.}},{{0.,0.,-1.}});
+	 solid = new DDI::CutTubs(0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,-1.);
 	 break;
        default:
         throw cms::Exception("DDException") << "DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape";   
@@ -660,7 +660,7 @@ double DDParallelepiped::phi() const { return rep().parameters()[5]; }
 
 DDCutTubs::DDCutTubs(const DDSolid& s) 
   : DDSolid(s) {
-  if (s.shape() != ddtubs) {
+  if (s.shape() != ddcuttubs) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDCutTubs.\n";
     ex = ex + "Use a different solid interface!";
     throw cms::Exception("DDException") << ex;
@@ -832,10 +832,10 @@ DDSolid DDSolidFactory::cuttubs(const DDName & name,
 				double zhalf,
 				double rIn, double rOut,	      	      
 				double phiFrom, double deltaPhi,
-				std::array<double, 3> pLowNorm,
-				std::array<double, 3> pHighNorm)
+				double lx, double ly, double lz,
+				double tx, double ty, double tz)
 {		     
-  return DDSolid(name, new DDI::CutTubs(zhalf,rIn,rOut,phiFrom,deltaPhi,pLowNorm,pHighNorm));
+  return DDSolid(name, new DDI::CutTubs(zhalf,rIn,rOut,phiFrom,deltaPhi,lx,ly,lx,tx,ty,tz));
 }
 
 DDSolid DDSolidFactory::sphere(const DDName & name,

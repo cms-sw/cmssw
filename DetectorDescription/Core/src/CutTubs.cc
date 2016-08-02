@@ -13,8 +13,8 @@ DDI::CutTubs::CutTubs(double zhalf,
 		      double rIn, double rOut,	      	      
 		      double startPhi, 
 		      double deltaPhi,
-		      std::array<double, 3> pLowNorm,
-		      std::array<double, 3> pHighNorm)
+		      double lx, double ly, double lz,
+		      double tx, double ty, double tz)
   : Solid(ddcuttubs)
 {
   p_.push_back(zhalf);
@@ -22,10 +22,12 @@ DDI::CutTubs::CutTubs(double zhalf,
   p_.push_back(rOut);
   p_.push_back(startPhi);
   p_.push_back(deltaPhi);
-  for( auto i : pLowNorm )
-    p_.push_back(i);
-  for( auto i : pHighNorm)
-    p_.push_back(i);
+  p_.push_back(lx);
+  p_.push_back(ly);
+  p_.push_back(lz);
+  p_.push_back(tx);
+  p_.push_back(ty);
+  p_.push_back(tz);
 }
 
 void DDI::CutTubs::stream(std::ostream & os) const

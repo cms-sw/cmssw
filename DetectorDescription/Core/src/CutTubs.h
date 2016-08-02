@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "Solid.h"
-#include <array>
 
 namespace DDI {
 
@@ -14,8 +13,8 @@ namespace DDI {
 	    double rIn, double rOut,
 	    double startPhi,
 	    double deltaPhi,
-	    std::array<double, 3> pLowNorm,
-	    std::array<double, 3> pHighNorm);
+	    double lx, double ly, double lz,
+	    double tx, double ty, double tz);
     
     double volume() const { return -1; }
     
