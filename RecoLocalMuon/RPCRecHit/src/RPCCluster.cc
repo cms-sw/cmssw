@@ -21,18 +21,16 @@ RPCCluster::~RPCCluster() {}
 
 int RPCCluster::firstStrip() const { return fstrip; }
 int RPCCluster::lastStrip() const { return lstrip; }
-int RPCCluster::clusterSize() const { return -(fstrip-lstrip)+1; }
+int RPCCluster::clusterSize() const { return lstrip-fstrip+1; }
 int RPCCluster::bx() const { return bunchx; }
 
 bool RPCCluster::hasTime() const { return nTime > 0; }
 float RPCCluster::time() const { return hasTime() ? sumTime/nTime : 0; }
-float RPCCluster::timeRMS2() const { return hasTime() ? (sumTime2*nTime - sumTime*sumTime)/nTime : 0; }
-float RPCCluster::timeRMS() const { return sqrt(timeRMS2()); }
+float RPCCluster::timeRMS() const { return hasTime() ? sqrt((sumTime2*nTime - sumTime*sumTime)/nTime) : -1; }
 
 bool RPCCluster::hasY() const { return nY > 0; }
 float RPCCluster::y() const { return hasY() ? sumY/nY : 0; }
-float RPCCluster::yRMS2() const { return hasY() ? (sumY2*nY - sumY*sumY)/nY : 0; }
-float RPCCluster::yRMS() const { return sqrt(yRMS2()); }
+float RPCCluster::yRMS() const { return hasY() ? sqrt((sumY2*nY - sumY*sumY)/nY) : -1; }
 
 bool RPCCluster::isAdjacent(const RPCCluster& cl) const
 {

@@ -15,12 +15,10 @@ class RPCCluster{
   bool hasTime() const;
   float time() const;
   float timeRMS() const;
-  float timeRMS2() const;
 
   bool hasY() const;
   float y() const;
   float yRMS() const;
-  float yRMS2() const;
 
   void addTime(const float time);
   void addY(const float y);

@@ -43,6 +43,10 @@ bool RPCRecHitStandardAlgo::compute(const RPCRoll& roll,
     time = cluster.time();
     timeErr = cluster.timeRMS();
   }
+  else {
+    time = 0;
+    timeErr = -1;
+  }
 
   return true;
 }
