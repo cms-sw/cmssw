@@ -8,14 +8,16 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
       fedIds_(ps.getParameter<std::vector<int>>("fedIds")),
       slinkHeaderSize_(ps.getUntrackedParameter<int>("lenSlinkHeader", 8)),
       slinkTrailerSize_(ps.getUntrackedParameter<int>("lenSlinkTrailer", 8)),
-      amcHeaderSize_(ps.getUntrackedParameter<int>("lenAMCHeader", 8)),
-      amcTrailerSize_(ps.getUntrackedParameter<int>("lenAMCTrailer", 0)),
       amc13HeaderSize_(ps.getUntrackedParameter<int>("lenAMC13Header", 8)),
       amc13TrailerSize_(ps.getUntrackedParameter<int>("lenAMC13Trailer", 8)),
+      amcHeaderSize_(ps.getUntrackedParameter<int>("lenAMCHeader", 8)),
+      amcTrailerSize_(ps.getUntrackedParameter<int>("lenAMCTrailer", 0)),
+      zsFlagMask_(ps.getUntrackedParameter<int>("zsFlagMask", 0x1)),
+      maxFedReadoutSize_(ps.getUntrackedParameter<int>("maxFEDReadoutSize", 10000)),
       monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose_(ps.getUntrackedParameter<bool>("verbose", false))
 {
-  std::vector<int> zeroMask(6, 0); 
+  std::vector<int> zeroMask(6, 0);
   masks_.reserve(12);
   std::stringstream ss;
   for (size_t i = 0; i < 12; ++i) {
@@ -44,11 +46,16 @@ void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&,
   zeroSuppVal_->setBinLabel(ZSBLKSBAD+1, "bad", 1);
   zeroSuppVal_->setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
   zeroSuppVal_->setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
+
+  readoutSizeNoZS_ = ibooker.book1D("readoutSizeNoZS", "FED readout size without zero suppression", 100, 0, maxFedReadoutSize_);
+  readoutSizeNoZS_->setAxisTitle("payload size (byte)", 1);
+  readoutSizeZS_ = ibooker.book1D("readoutSizeZS", "FED readout size with zero suppression", 100, 0, maxFedReadoutSize_);
+  readoutSizeZS_->setAxisTitle("payload size (byte)", 1);
 }
 
 void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
-  if (verbose_) edm::LogInfo("L1TMP7ZeroSupp") << "L1TMP7ZeroSupp: analyze..." << std::endl;
+  if (verbose_) edm::LogInfo("L1TDQM") << "L1TMP7ZeroSupp: analyze..." << std::endl;
 
   edm::Handle<FEDRawDataCollection> feds;
   e.getByToken(fedDataToken_, feds);
@@ -58,12 +65,15 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     return;
   }
 
+  zeroSuppVal_->Fill(EVTS);
+
   unsigned valid_count = 0;
   for (const auto& fedId: fedIds_) {
-    unsigned int payloadSize = 0;
-    unsigned int payloadSizeZS = 0;
-
     const FEDRawData& l1tRcd = feds->FEDData(fedId);
+
+    unsigned int fedDataSize = l1tRcd.size();
+    unsigned int readoutSizeNoZS = 0;
+    unsigned int readoutSizeZS = 0;
 
     edm::LogInfo("L1TDQM") << "Found FEDRawDataCollection with ID " << fedId << " and size " << l1tRcd.size();
 
@@ -93,74 +103,86 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
       edm::LogWarning("L1TDQM") << "Did not find a SLink trailer!";
     }
 
-    //amc13::Packet packet;
-    //if (!packet.parse(
-    //         (const uint64_t*) data,
-    //         (const uint64_t*) (data + slinkHeaderSize_),
-    //         (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8,
-    //         header.lvl1ID(),
-    //         header.bxID(),
-    //         false,
-    //         false)) {
-    //   edm::LogError("L1TDQM") << "Could not extract AMC13 Packet.";
-    //   return;
-    //}
+    amc13::Packet packet;
+    if (!packet.parse(
+             (const uint64_t*) data,
+             (const uint64_t*) (data + slinkHeaderSize_),
+             (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8,
+             header.lvl1ID(),
+             header.bxID())) {
+       edm::LogError("L1TDQM") << "Could not extract AMC13 Packet.";
+       return;
+    }
 
-    //for (auto& amc: packet.payload()) {
-    //  if (amc.size() == 0)
-    //    continue;
+    for (auto& amc: packet.payload()) {
+      if (amc.size() == 0)
+        continue;
 
-    //  auto payload64 = amc.data();
-    //  const uint32_t * start = (const uint32_t*) payload64.get();
-    //  // Want to have payload size in 32 bit words, but AMC measures
-    //  // it in 64 bit words -> factor 2.
-    //  const uint32_t * end = start + (amc.size() * 2);
+      auto payload64 = amc.data();
+      const uint32_t * start = (const uint32_t*) payload64.get();
+      // Want to have payload size in 32 bit words, but AMC measures
+      // it in 64 bit words -> factor 2.
+      const uint32_t * end = start + (amc.size() * 2);
 
-    //  std::auto_ptr<l1t::Payload> payload;
-    //  payload.reset(new l1t::MP7Payload(start, end, false));
+      std::auto_ptr<l1t::Payload> payload;
+      payload.reset(new l1t::MP7Payload(start, end, false));
 
-    //  unsigned board = amc.blockHeader().getBoardID();
-    //  unsigned amc_no = amc.blockHeader().getAMCNumber();
+      // getBlock() returns a non-null auto_ptr on success
+      std::auto_ptr<l1t::Block> block;
+      while ((block = payload->getBlock()).get()) {
+        if (verbose_) {
+          std::cout << ">>> check zero suppression for block <<<" << std::endl
+                    << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
+                    << " (ID " << block->header().getID() << ", size " << block->header().getSize()
+                    << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
+                    << ")" << std::dec << std::endl;
+          for (const auto& word: block->payload()) {
+            if (verbose_) std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
+          }
+        }
 
-    //  bool zsFlagSet = false;
-    //  bool toSuppress = false;
-    //  // getBlock() returns a non-null auto_ptr on success
-    //  std::auto_ptr<l1t::Block> block;
-    //  while ((block = payload->getBlock()).get()) {
-    //    if (verbose_) {
-    //      std::cout << ">>> block to unpack <<<" << std::endl
-    //                << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block->header().raw() << std::dec
-    //                << " (ID " << block->header().getID() << ", size " << block->header().getSize()
-    //                << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block->header().getCapID()
-    //  	            << ")" << std::dec << std::endl;
-    //      for (const auto& word: block->payload()) {
-    //        if (verbose_) std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec << std::endl;
-    //      }
-    //    }
+        zeroSuppVal_->Fill(BLOCKS);
 
-    //    unsigned int blockId = block->header().getID();
-    //    unsigned int blockCapId = block->header().getCapID();
-    //    unsigned int blocksize = block->header().getSize();
+        unsigned int blockCapId = block->header().getCapID();
+        unsigned int blockSize = block->header().getSize();
+        unsigned int blockHeaderSize = sizeof(block->header().raw());
+        bool zsFlagSet = ((block->header().raw() & zsFlagMask_) != 0);
+        bool toSuppress = false;
 
-    //    // check the data
+        readoutSizeNoZS += blockSize + blockHeaderSize;
 
-//  //      auto unpacker = unpackers.find(block->header().getID());
-//
-//  //      block->amc(amc.header());
-//
-//  //      if (unpacker == unpackers.end()) {
-//  //        edm::LogInfo("L1TDQM") << "Cannot find an unpacker for"
-//  //                        << "\n\tblock: ID " << block->header().getID() << ", size " << block->header().getSize()
-//  //                        << "\n\tAMC: # " << amc_no << ", board ID 0x" << std::hex << board << std::dec
-//  //                        << "\n\tFED ID " << fedId FW ID " << fw;
-//  //      } else if (!unpacker->second->unpack(*block, coll.get())) {
-//  //        edm::LogInfo("L1TDQM") << "Error unpacking data for block ID "
-//  //                        << block->header().getID() << ", AMC # " << amc_no
-//  //                        << ", board ID " << board << ", FED ID " << fedId
-//  //                        << ", and FW ID " << fw << "!";
-//  //      }
-    //  }
-    //}
+        // check if this block should be suppressed
+        unsigned int wordcounter = 0;
+        unsigned int wordsum = 0;
+        for (const auto& word: block->payload()) {
+          wordsum += masks_[blockCapId].at(wordcounter%6) & word;
+          std::cout << "word: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec
+                    << ", maskword" << wordcounter%6 << ": " << std::hex << std::setw(8) << std::setfill('0')
+                    << masks_[blockCapId].at(wordcounter%6) << std::dec << ", wordsum: " << wordsum << std::endl;
+        }
+        if (wordsum == 0) {
+          toSuppress = true;
+          std::cout << "wordsum == 0: this block should be zero suppressed" << std::endl;
+        }
+
+        // check if zero suppression flag agrees
+        if (toSuppress && zsFlagSet) {
+          zeroSuppVal_->Fill(ZSBLKSGOOD);
+        } else if (!toSuppress && !zsFlagSet) {
+          zeroSuppVal_->Fill(ZSBLKSGOOD);
+          readoutSizeZS += blockSize + blockHeaderSize;
+        } else if (!toSuppress && zsFlagSet) {
+          zeroSuppVal_->Fill(ZSBLKSBAD);
+          zeroSuppVal_->Fill(ZSBLKSBADFALSEPOS);
+          readoutSizeZS += blockSize + blockHeaderSize;
+        } else {
+          zeroSuppVal_->Fill(ZSBLKSBAD);
+          zeroSuppVal_->Fill(ZSBLKSBADFALSENEG);
+        }
+      }
+    }
+    readoutSizeNoZS_->Fill(fedDataSize);
+    readoutSizeZS_->Fill(readoutSizeZS + fedDataSize - readoutSizeNoZS);
   }
 }
 
