@@ -8,8 +8,6 @@ int main()
     //testSerialization<HcalCalibrationQIEData>(); no default constructor
     testSerialization<HcalChannelQuality>();
     testSerialization<HcalChannelStatus>();
-    testSerialization<HcalCholeskyMatrices>();
-    testSerialization<HcalCholeskyMatrix>();
     /* no default constructor
     testSerialization<HcalCondObjectContainer<HcalCalibrationQIECoder>>();
     testSerialization<HcalCondObjectContainer<HcalChannelStatus>>();
@@ -107,8 +105,6 @@ int main()
     testSerialization<std::pair<std::string, std::vector<HcalZSThreshold>>>();
     testSerialization<std::vector<HcalCalibrationQIECoder>>();
     testSerialization<std::vector<HcalChannelStatus>>();
-    testSerialization<std::vector<HcalCholeskyMatrix>>();
-    testSerialization<std::vector<HcalCovarianceMatrix>>();
     testSerialization<std::vector<HcalDcsMap::Item>>();
     testSerialization<std::vector<HcalDcsValue>>();
     testSerialization<std::vector<HcalElectronicsMap::PrecisionItem>>();

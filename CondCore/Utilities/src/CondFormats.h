@@ -179,7 +179,6 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 //#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsValues.h"
 #include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParams.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"

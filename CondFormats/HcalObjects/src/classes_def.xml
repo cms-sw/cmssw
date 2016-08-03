@@ -266,15 +266,6 @@
  </class>
  <class name="HcalValidationCorrs"/>
 
- <class name="HcalCholeskyMatrix"/>
- <class name="std::vector<HcalCholeskyMatrix>"/>
- <class name="HcalCholeskyMatrices">
-   <field name="HBcontainer" mapping="blob" />
-   <field name="HEcontainer" mapping="blob" />
-   <field name="HFcontainer" mapping="blob" />
-   <field name="HOcontainer" mapping="blob" />
- </class> 
-
  <class name="HcalCovarianceMatrix"/>
  <class name="std::vector<HcalCovarianceMatrix>"/>
  <class name="HcalCovarianceMatrices">
