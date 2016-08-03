@@ -1,5 +1,5 @@
-#ifndef __mask_h__
-#define __mask_h__
+#ifndef __Mask_h__
+#define __Mask_h__
 
 #include <string>
 
@@ -8,11 +8,11 @@
 
 namespace l1t{
 	
-class mask
+class Mask
 {
 	public:
-		mask() {};
-		mask(std::string id, std::string procRole);
+		Mask() {};
+		Mask(std::string id, std::string procRole);
 		void setProcRole(std::string procRole) { procRole_ = procRole; };
 		void setPort(std::string id);
 		std::string getProcRole() { return procRole_; };

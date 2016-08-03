@@ -1,10 +1,10 @@
 #include <strstream>
 
-#include "L1Trigger/L1TCommon/interface/setting.h"
+#include "L1Trigger/L1TCommon/interface/Setting.h"
 
 namespace l1t{
 	
-setting::setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, std::string *lt, const std::string& delim) :
+Setting::Setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, std::string *lt, const std::string& delim) :
 type_(type),
 id_(id),
 value_(value),
@@ -19,7 +19,7 @@ delim_(delim)
 	setValue(value);
 }
 
-setting::setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, std::string *lt, const std::string& delim) :
+Setting::Setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, std::string *lt, const std::string& delim) :
 type_("table"),
 id_(id),
 procRole_(procRole),
@@ -38,26 +38,26 @@ delim_(delim)
 		// std::vector<std::string> aRow;
 		// str2VecStr_(*it, delim_, aRow);
 
-		//tableRow temp(aRow);
+		//TableRow temp(aRow);
 		//temp.setTableId(id);
 		//temp.setRowTypes(tableTypes_);
 		//temp.setRowColumns(tableColumns_);
-		tableRows_.push_back(tableRow(str2VecStr_(*it, delim_),logText_));
-		tableRows_.back().setTableId(id);
-		// tableRows_.back().setRowTypes(tableTypes_);
-		// tableRows_.back().setRowColumns(tableColumns_);
-		tableRows_.back().setRowTypes(str2VecStr_(types, delim_));
-		tableRows_.back().setRowColumns(str2VecStr_(columns, delim_));
+		TableRows_.push_back(TableRow(str2VecStr_(*it, delim_),logText_));
+		TableRows_.back().setTableId(id);
+		// TableRows_.back().setRowTypes(tableTypes_);
+		// TableRows_.back().setRowColumns(tableColumns_);
+		TableRows_.back().setRowTypes(str2VecStr_(types, delim_));
+		TableRows_.back().setRowColumns(str2VecStr_(columns, delim_));
 
 	}
 }
 
-setting::~setting()
+Setting::~Setting()
 {
 	;
 }
 
-void setting::setValue(const std::string& value)
+void Setting::setValue(const std::string& value)
 {
 	if ( type_.find("bool") != std::string::npos )
 	{
@@ -92,7 +92,7 @@ void setting::setValue(const std::string& value)
 }
 
 
-l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::string delim)
+l1t::LUT Setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::string delim)
 {
 	if ( type_.find("vector:uint") == std::string::npos )
 		throw std::runtime_error("Cannot build LUT from type: " + type_ + ". Only vector:uint is allowed.");
@@ -130,7 +130,7 @@ l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::s
 	return lut;
 }
 
-setting& setting::operator=(const setting& aSet)
+Setting& Setting::operator=(const Setting& aSet)
 {
 	value_ = aSet.value_;
 	id_ = aSet.id_;
@@ -139,7 +139,7 @@ setting& setting::operator=(const setting& aSet)
 	return *this;
 }
 
-void setting::addTableRow(const std::string& row, const std::vector<std::string>& types, const std::vector<std::string>& columns)
+void Setting::addTableRow(const std::string& row, const std::vector<std::string>& types, const std::vector<std::string>& columns)
 {
 	if (type_.find("table") == std::string::npos)
 		throw std::runtime_error("You cannot add a table row in type: " + type_ + ". Type is not table.");
@@ -147,16 +147,16 @@ void setting::addTableRow(const std::string& row, const std::vector<std::string>
 	std::vector<std::string> vals;
 	str2VecStr_(row, delim_, vals);
 
-	// tableRow tempRow(vals);
+	// TableRow tempRow(vals);
 	// tempRow.setRowTypes(tableTypes_);
 	// tempRow.setRowColumns(tableColumns_);
-	tableRows_.push_back(tableRow(vals, logText_));
-	tableRows_.back().setRowTypes(types);
-	tableRows_.back().setRowColumns(columns);
+	TableRows_.push_back(TableRow(vals, logText_));
+	TableRows_.back().setRowTypes(types);
+	TableRows_.back().setRowColumns(columns);
 
 }
 
-// void setting::setTableTypes(const std::string& types)
+// void Setting::setTableTypes(const std::string& types)
 // {	
 // 	if (type_.find("table") == std::string::npos)
 // 		throw std::runtime_error("You cannot set table types in type: " + type_ + ". Type is not table.");
@@ -165,7 +165,7 @@ void setting::addTableRow(const std::string& row, const std::vector<std::string>
 // 	str2VecStr_(types, delim_, tableTypes_);
 // }
 
-// void setting::setTableColumns(const std::string& cols)
+// void Setting::setTableColumns(const std::string& cols)
 // {
 // 	if (type_.find("table") == std::string::npos)
 // 		throw std::runtime_error("You cannot set table columns in type: " + type_ + ". Type is not table.");
@@ -175,13 +175,13 @@ void setting::addTableRow(const std::string& row, const std::vector<std::string>
 	
 // }
 
-tableRow::tableRow(const std::vector<std::string>& row, std::string *lt) 
+TableRow::TableRow(const std::vector<std::string>& row, std::string *lt) 
 { 
 	row_ = std::shared_ptr< std::vector<std::string> >(new std::vector<std::string>(row));
 	logText_ = lt;
 }
 
-void tableRow::setRowColumns(const std::vector<std::string>& columns)
+void TableRow::setRowColumns(const std::vector<std::string>& columns)
 {
     if( columns_.get() == 0 )
     	columns_ = std::shared_ptr< std::vector<std::string> >(new std::vector<std::string>(columns));
@@ -197,7 +197,7 @@ void tableRow::setRowColumns(const std::vector<std::string>& columns)
 		(*colDict_)[ columns[i] ] = i;
 }
 
-void tableRow::setRowTypes(const std::vector<std::string>& types)
+void TableRow::setRowTypes(const std::vector<std::string>& types)
 {
 	if( types_.get() == 0 )
 	  types_ = std::shared_ptr< std::vector<std::string> >(new std::vector<std::string>(types));
@@ -205,7 +205,7 @@ void tableRow::setRowTypes(const std::vector<std::string>& types)
 	  *types_ = types;
 }
 
-std::string tableRow::getRowAsStr()
+std::string TableRow::getRowAsStr()
 {
 	std::ostringstream str;
 	for (auto it=row_->begin(); it!=row_->end(); ++it)

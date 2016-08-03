@@ -1,13 +1,13 @@
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
 
 namespace l1t{
 
-trigSystem::trigSystem() : isConfigured_(false)
+TrigSystem::TrigSystem() : isConfigured_(false)
 {
 	logText_ = NULL;
 }
 
-trigSystem::~trigSystem()
+TrigSystem::~TrigSystem()
 {
 	if (logText_)
 	{
@@ -16,7 +16,7 @@ trigSystem::~trigSystem()
 	}
 }
 
-void trigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const std::string& topCfgFile, const std::string& key)
+void TrigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const std::string& topCfgFile, const std::string& key)
 {
         // read hw description xml
         // this will set the sysId
@@ -32,7 +32,7 @@ void trigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const st
 }
 
 
-void trigSystem::addProcRole(const std::string& processor, const std::string& role)
+void TrigSystem::addProcRole(const std::string& processor, const std::string& role)
 {
 	for(auto it=procRole_.begin(); it!=procRole_.end(); ++it)
 	{
@@ -48,12 +48,12 @@ void trigSystem::addProcRole(const std::string& processor, const std::string& ro
 
 }
 
-void trigSystem::addProcCrate(const std::string& processor, const std::string& crate)
+void TrigSystem::addProcCrate(const std::string& processor, const std::string& crate)
 {
 	daqttcProcs_[crate].push_back(processor);
 }
 
-void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim)
+void TrigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim)
 {
 	bool applyOnRole, foundRoleProc(false);
 
@@ -74,7 +74,7 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 	if (!applyOnRole)
 	{
 		if (!checkIdExistsAndSetSetting_(procSettings_[procRole], id, value, procRole))
-			procSettings_[procRole].push_back(setting(type, id, value, procRole, logText_, delim));
+			procSettings_[procRole].push_back(Setting(type, id, value, procRole, logText_, delim));
 
 	}
 	else
@@ -83,26 +83,26 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 		{			
 			if ( procSettings_.find(*it) != procSettings_.end() )
 			{
-				bool settingAlreadyExist(false);
+				bool SettingAlreadyExist(false);
 				for(auto is = procSettings_.at(*it).begin(); is != procSettings_.at(*it).end(); ++is)
 				{
 					if (is->getId().compare(id) == 0)
 					{
-						settingAlreadyExist = true;
+						SettingAlreadyExist = true;
 						break;
 					}					
 				}
-				if (!settingAlreadyExist)
-					procSettings_.at(*it).push_back(setting(type, id, value, procRole, logText_, delim));
+				if (!SettingAlreadyExist)
+					procSettings_.at(*it).push_back(Setting(type, id, value, procRole, logText_, delim));
 			}
 			else
-				procSettings_[*it].push_back(setting(type, id, value, procRole, logText_, delim));
+				procSettings_[*it].push_back(Setting(type, id, value, procRole, logText_, delim));
 		}
 
 	}
 }
 
-void trigSystem::addSettingTable(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim)
+void TrigSystem::addSettingTable(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim)
 {
 	bool applyOnRole, foundRoleProc(false);
 
@@ -122,7 +122,7 @@ void trigSystem::addSettingTable(const std::string& id, const std::string& colum
 	if (!applyOnRole)
 	{
 		if (!checkIdExistsAndSetSetting_(procSettings_[procRole], id, columns, types, rows, procRole, delim))
-			procSettings_[procRole].push_back(setting(id, columns, types, rows, procRole, logText_, delim));
+			procSettings_[procRole].push_back(Setting(id, columns, types, rows, procRole, logText_, delim));
 
 	}
 	else
@@ -131,41 +131,41 @@ void trigSystem::addSettingTable(const std::string& id, const std::string& colum
 		{			
 			if ( procSettings_.find(*it) != procSettings_.end() )
 			{
-				bool settingAlreadyExist(false);
+				bool SettingAlreadyExist(false);
 				for(auto is = procSettings_.at(*it).begin(); is != procSettings_.at(*it).end(); ++is)
 				{
 					if (is->getId().compare(id) == 0)
 					{
-						settingAlreadyExist = true;
+						SettingAlreadyExist = true;
 						break;
 					}					
 				}
-				if (!settingAlreadyExist)
-					procSettings_.at(*it).push_back(setting(id, columns, types, rows, procRole, logText_, delim));
+				if (!SettingAlreadyExist)
+					procSettings_.at(*it).push_back(Setting(id, columns, types, rows, procRole, logText_, delim));
 			}
 			else
-				procSettings_[*it].push_back(setting(id, columns, types, rows, procRole, logText_, delim));
+				procSettings_[*it].push_back(Setting(id, columns, types, rows, procRole, logText_, delim));
 		}
 
 	}
 }
 
-std::map<std::string, setting> trigSystem::getSettings(const std::string& processor)
+std::map<std::string, Setting> TrigSystem::getSettings(const std::string& processor)
 {
 	if (!isConfigured_)
-		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+		throw std::runtime_error("TrigSystem is not configured yet. First call the configureSystem method");
 	if ( procRole_.find(processor) == procRole_.end() )
-		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object list");
+		throw std::runtime_error ("Processor " + processor + " was not found in the TrigSystem object list");
 
-	std::map<std::string, setting> settings;
-	std::vector<setting> vecSettings = procSettings_.at(processor);
+	std::map<std::string, Setting> Settings;
+	std::vector<Setting> vecSettings = procSettings_.at(processor);
 	for(auto it=vecSettings.begin(); it!=vecSettings.end(); ++it)
-		settings.insert(std::pair<std::string, setting>(it->getId(), *it));
+		Settings.insert(std::pair<std::string, Setting>(it->getId(), *it));
 
-	return settings;
+	return Settings;
 }
 
-bool trigSystem::checkIdExistsAndSetSetting_(std::vector<setting>& vec, const std::string& id, const std::string& value, const std::string& procRole)
+bool TrigSystem::checkIdExistsAndSetSetting_(std::vector<Setting>& vec, const std::string& id, const std::string& value, const std::string& procRole)
 {
 	bool found(false);
 	for(auto it = vec.begin(); it != vec.end(); ++it)
@@ -181,7 +181,7 @@ bool trigSystem::checkIdExistsAndSetSetting_(std::vector<setting>& vec, const st
 	return found;
 }
 
-bool trigSystem::checkIdExistsAndSetSetting_(std::vector<setting>& vec, const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim)
+bool TrigSystem::checkIdExistsAndSetSetting_(std::vector<Setting>& vec, const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim)
 {
 	bool found(false);
 	for(auto it = vec.begin(); it != vec.end(); ++it)
@@ -202,7 +202,7 @@ bool trigSystem::checkIdExistsAndSetSetting_(std::vector<setting>& vec, const st
 	return found;
 }
 
-void trigSystem::addMask(const std::string& id, const std::string& procRole)
+void TrigSystem::addMask(const std::string& id, const std::string& procRole)
 {
 	bool applyOnRole, foundRoleProc(false);
 
@@ -221,7 +221,7 @@ void trigSystem::addMask(const std::string& id, const std::string& procRole)
 		throw std::runtime_error ("Processor or Role " + procRole + " was not found in the map");
 
 	if (!applyOnRole)
-		procMasks_[procRole].push_back(mask(id, procRole));
+		procMasks_[procRole].push_back(Mask(id, procRole));
 
 	else
 	{
@@ -229,48 +229,48 @@ void trigSystem::addMask(const std::string& id, const std::string& procRole)
 		{			
 			if ( procMasks_.find(*it) != procMasks_.end() )
 			{
-				bool maskAlreadyExist(false);
+				bool MaskAlreadyExist(false);
 				for(auto is = procMasks_.at(*it).begin(); is != procMasks_.at(*it).end(); ++is)
 				{
 					if (is->getId().compare(id) == 0)
 					{
-						maskAlreadyExist = true;
+						MaskAlreadyExist = true;
 						break;
 					}					
 				}
-				if (!maskAlreadyExist)
-					procMasks_.at(*it).push_back(mask(id, procRole));
+				if (!MaskAlreadyExist)
+					procMasks_.at(*it).push_back(Mask(id, procRole));
 			}
 			else
-				procMasks_[*it].push_back(mask(id, procRole));
+				procMasks_[*it].push_back(Mask(id, procRole));
 		}
 
 	}
 }
 
-std::map<std::string, mask> trigSystem::getMasks(const std::string& processor)
+std::map<std::string, Mask> TrigSystem::getMasks(const std::string& processor)
 {
 	if (!isConfigured_)
-		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+		throw std::runtime_error("TrigSystem is not configured yet. First call the configureSystem method");
 	if ( procRole_.find(processor) == procRole_.end() )
-		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object list");
+		throw std::runtime_error ("Processor " + processor + " was not found in the TrigSystem object list");
 	
-	std::map<std::string, mask> masks;
-	std::vector<mask> vecMasks= procMasks_.at(processor);
+	std::map<std::string, Mask> Masks;
+	std::vector<Mask> vecMasks= procMasks_.at(processor);
 	for(auto it=vecMasks.begin(); it!=vecMasks.end(); ++it)
-		masks.insert(std::pair<std::string, mask>(it->getId(), *it));
+		Masks.insert(std::pair<std::string, Mask>(it->getId(), *it));
 
-	return masks;
+	return Masks;
 }
 
-bool trigSystem::isMasked(const std::string& processor, const std::string& id)
+bool TrigSystem::isMasked(const std::string& processor, const std::string& id)
 {
 
 	if (!isConfigured_)
-		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+		throw std::runtime_error("TrigSystem is not configured yet. First call the configureSystem method");
 
 	bool isMasked = false;
-	std::vector<mask> vecMasks= procMasks_.at(processor);
+	std::vector<Mask> vecMasks= procMasks_.at(processor);
 	for(auto it=vecMasks.begin(); it!=vecMasks.end(); ++it) 
 	{
 		if (it->getId() == id) 
@@ -280,14 +280,14 @@ bool trigSystem::isMasked(const std::string& processor, const std::string& id)
 		}
     }
 
-	edm::LogInfo ("l1t::trigSystem::isMasked") << "Returning " << isMasked << " for processor " << processor << " and port " << id;
+	edm::LogInfo ("l1t::TrigSystem::isMasked") << "Returning " << isMasked << " for processor " << processor << " and port " << id;
 	return isMasked;
 }
 
-void trigSystem::disableDaqProc(const std::string& daqProc)
+void TrigSystem::disableDaqProc(const std::string& daqProc)
 {
 	if ( procRole_.find(daqProc) == procRole_.end() && daqttcProcs_.find(daqProc) == daqttcProcs_.end())
-		throw std::runtime_error("Cannot mask daq/processor " + daqProc + "! Not found in the system.");
+		throw std::runtime_error("Cannot Mask daq/processor " + daqProc + "! Not found in the system.");
 
 	if ( procRole_.find(daqProc) != procRole_.end() )
 		procEnabled_[daqProc] = false;
@@ -298,12 +298,12 @@ void trigSystem::disableDaqProc(const std::string& daqProc)
 	}
 }
 
-bool trigSystem::isProcEnabled(const std::string& processor)
+bool TrigSystem::isProcEnabled(const std::string& processor)
 {
 	if (!isConfigured_)
-		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+		throw std::runtime_error("TrigSystem is not configured yet. First call the configureSystem method");
 
-	edm::LogInfo ("l1t::trigSystem::isProcEnabled") << "Returning " << procEnabled_[processor] << " for processor " << processor;
+	edm::LogInfo ("l1t::TrigSystem::isProcEnabled") << "Returning " << procEnabled_[processor] << " for processor " << processor;
 	return procEnabled_[processor];
 }
 

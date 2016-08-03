@@ -3,7 +3,7 @@
 //#include <utility>
 
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 
@@ -26,13 +26,13 @@ inline XMLCh* _toDOMS(std::string temp) {
 XmlConfigReader::XmlConfigReader() :
   kTagHw(         XMLString::transcode("system")),
   kTagAlgo(       XMLString::transcode("algo")),
-  kTagRunSettings(XMLString::transcode("run-settings")),
+  kTagRunSettings(XMLString::transcode("run-Settings")),
   kTagDb(         XMLString::transcode("db")),
   kTagKey(        XMLString::transcode("key")),
   kTagLoad(       XMLString::transcode("load")),
   kTagContext(    XMLString::transcode("context")),
   kTagParam(      XMLString::transcode("param")),
-  kTagMask(       XMLString::transcode("mask")),
+  kTagMask(       XMLString::transcode("Mask")),
   kTagDisable(    XMLString::transcode("disable")),
   kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
@@ -60,13 +60,13 @@ XmlConfigReader::XmlConfigReader() :
 XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagHw(         XMLString::transcode("system")),
   kTagAlgo(       XMLString::transcode("algo")),
-  kTagRunSettings(XMLString::transcode("run-settings")),
+  kTagRunSettings(XMLString::transcode("run-Settings")),
   kTagDb(         XMLString::transcode("db")),
   kTagKey(        XMLString::transcode("key")),
   kTagLoad(       XMLString::transcode("load")),
   kTagContext(    XMLString::transcode("context")),
   kTagParam(      XMLString::transcode("param")),
-  kTagMask(       XMLString::transcode("mask")),
+  kTagMask(       XMLString::transcode("Mask")),
   kTagDisable(    XMLString::transcode("disable")),
   kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
@@ -138,7 +138,7 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 }
 
 
-void XmlConfigReader::readRootElement(trigSystem& aTrigSystem, const std::string& sysId)
+void XmlConfigReader::readRootElement(TrigSystem& aTrigSystem, const std::string& sysId)
 {
   DOMElement* rootElement = doc_->getDocumentElement();
   if (rootElement) {
@@ -151,7 +151,7 @@ void XmlConfigReader::readRootElement(trigSystem& aTrigSystem, const std::string
 }
 
 
-void XmlConfigReader::readElement(const DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId)
+void XmlConfigReader::readElement(const DOMElement* element, TrigSystem& aTrigSystem, const std::string& sysId)
 {
   if (XMLString::equals(element->getTagName(), kTagHw)) {
     // in case this is a HW description
@@ -163,7 +163,7 @@ void XmlConfigReader::readElement(const DOMElement* element, trigSystem& aTrigSy
 }
 
 
-void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId)
+void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& aTrigSystem, const std::string& sysId)
 {
   // if sysId == "" set the systemId of the trigsystem from the xml sytem id
   if (sysId != "" && sysId != _toString(element->getAttribute(kAttrId))) {
@@ -205,7 +205,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& a
 }
 
 
-void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
+void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, TrigSystem& aTrigSystem)
 {
   std::string systemId = sysId;
   if (systemId == "") {
@@ -301,9 +301,9 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             xercesc::XMLString::release(&delim);
 
           } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
-            // found a mask
+            // found a Mask
             std::string id = _toString(elem->getAttribute(kAttrId));
-            //std::cout << "mask element node with id attribute " << id << std::endl;
+            //std::cout << "Mask element node with id attribute " << id << std::endl;
             aTrigSystem.addMask(id, contextId);
 
           } else if (XMLString::equals(elem->getTagName(), kTagDisable)) {
@@ -318,7 +318,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
 }
 
 
-void XmlConfigReader::readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem)
+void XmlConfigReader::readContexts(const std::string& key, const std::string& sysId, TrigSystem& aTrigSystem)
 {
   DOMElement* keyElement = getKeyElement(key);
   if (keyElement) {

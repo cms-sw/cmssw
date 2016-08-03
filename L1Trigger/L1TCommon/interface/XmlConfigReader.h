@@ -18,7 +18,7 @@ class XercesDOMParser;
 
 namespace l1t {
 
-class trigSystem;
+class TrigSystem;
 
 class XmlConfigReader {
 
@@ -53,11 +53,11 @@ class XmlConfigReader {
   void readDOMFromString(const std::string& str);
   void readDOMFromFile(const std::string& fName, xercesc::DOMDocument*& doc);
   void readDOMFromFile(const std::string& fName);
-  void readRootElement(trigSystem& aTrigSystem, const std::string& sysId = "");
-  void readElement(const xercesc::DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId = "");
-  void readHwDescription(const xercesc::DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId = "");
-  void readContext(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
-  void readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem);
+  void readRootElement(TrigSystem& aTrigSystem, const std::string& sysId = "");
+  void readElement(const xercesc::DOMElement* element, TrigSystem& aTrigSystem, const std::string& sysId = "");
+  void readHwDescription(const xercesc::DOMElement* element, TrigSystem& aTrigSystem, const std::string& sysId = "");
+  void readContext(const xercesc::DOMElement* element, const std::string& sysId, TrigSystem& aTrigSystem);
+  void readContexts(const std::string& key, const std::string& sysId, TrigSystem& aTrigSystem);
   xercesc::DOMElement* getKeyElement(const std::string& key);
   void buildGlobalDoc(const std::string& key, const std::string& topPath = "");
 
