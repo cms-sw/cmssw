@@ -28,6 +28,8 @@
 #include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 
+#include <vector>
+
 /**
 
    \class HcalDbHardcode
@@ -73,7 +75,7 @@ class HcalDbHardcode {
     HcalRecoParam makeRecoParam (HcalGenericDetId fId);
     HcalMCParam makeMCParam (HcalGenericDetId fId);
     HcalTimingParam makeTimingParam (HcalGenericDetId fId);
-    void makeHardcodeMap(HcalElectronicsMap& emap);
+    void makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells);
     void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
     void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, 
 				 const std::vector<HcalGenericDetId>& cells);

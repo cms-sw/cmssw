@@ -435,6 +435,30 @@ void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
 			  HcalDcsDetId(HcalDcsForward, 1, 4, HcalDcsDetId::DYN8, 3));
 }
 
+void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells) {
+  static const int kNewSubdetOffset = 24;
+  static const int kNewSubdetMask = 0x3;
+  static const int kExtraMask = 0xFC000000; // sum 2^26..2^31
+  for(const auto& fId : cells){
+    if(fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel ||
+       fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap ||
+       fId.genericSubdet() == HcalGenericDetId::HcalGenForward ||
+       fId.genericSubdet() == HcalGenericDetId::HcalGenOuter)
+    {
+      HcalDetId hid(fId);
+      uint32_t raw = hid.rawId();
+      //HcalBarrel=1, HcalEndcap=2, HcalOuter=3, HcalForward=4 -> shift to 0-3
+      int newSubdet = hid.subdetId()-1;
+      //put subdet into 25:24, mask 31:26 (HcalElectronicsId only uses first 26 bits)
+      raw |= kExtraMask | ((newSubdet&kNewSubdetMask)<<kNewSubdetOffset);
+      HcalElectronicsId elId(raw);
+      emap.mapEId2chId(elId,hid);
+    }
+  }
+  emap.sort();
+}
+
+#if 0
 void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 
   /* HBHE crate numbering */
@@ -713,6 +737,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
   emap.sort();
 
 }
+#endif
 
 void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells) {
 
