@@ -6,6 +6,9 @@
  */
 
 #include "DQMOffline/L1Trigger/interface/L1TEfficiencyMuons_Offline.h"
+
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"				
+#include "DataFormats/L1Trigger/interface/Muon.h"							
  
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -22,14 +25,16 @@ using namespace reco;
 using namespace trigger;
 using namespace edm;
 using namespace std;
-
+using namespace l1t;
 
 //__________RECO-GMT Muon Pair Helper Class____________________________
 
 MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
 
   m_muon    = muonGmtPair.m_muon;
-  m_gmt     = muonGmtPair.m_gmt;
+
+  	m_regMu     = muonGmtPair.m_regMu;	
+
   m_eta     = muonGmtPair.m_eta;
   m_phi_bar = muonGmtPair.m_phi_bar;
   m_phi_end = muonGmtPair.m_phi_end;
@@ -39,9 +44,9 @@ MuonGmtPair::MuonGmtPair(const MuonGmtPair& muonGmtPair) {
 
 double MuonGmtPair::dR() {
   
-  float dEta = m_gmt ? (m_gmt->etaValue() - eta()) : 999.;
-  float dPhi = m_gmt ? (m_gmt->phiValue() - phi()) : 999.;
-    
+	float dEta = m_regMu ? (m_regMu->hwEta() - eta()) : 999.;					
+	float dPhi = m_regMu ? (m_regMu->hwPhi() - phi()) : 999.;					 
+  
   float dr = sqrt(dEta*dEta + dPhi*dPhi);
 
   return dr;
@@ -142,8 +147,10 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
   m_GmtPtCuts = ps.getUntrackedParameter< vector<int> >("gmtPtCuts");
   
   m_MuonInputTag =  consumes<reco::MuonCollection>(ps.getUntrackedParameter<InputTag>("muonInputTag"));
-  m_GmtInputTag  =  consumes<L1MuGMTReadoutCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"));
-  
+
+	m_GmtInputTag  =  consumes<l1t::MuonBxCollection>(ps.getUntrackedParameter<InputTag>("gmtInputTag"));  				
+
+
   m_VtxInputTag =  consumes<VertexCollection>(ps.getUntrackedParameter<InputTag>("vtxInputTag"));
   m_BsInputTag  =  consumes<BeamSpot>(ps.getUntrackedParameter<InputTag>("bsInputTag"));
 
@@ -248,8 +255,10 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
   Handle<VertexCollection> vertex;
   iEvent.getByToken(m_VtxInputTag, vertex);
   
-  Handle<L1MuGMTReadoutCollection> gmtCands;
+	Handle<l1t::MuonBxCollection> gmtCands;				
+
   iEvent.getByToken(m_GmtInputTag,gmtCands);
+
   
   Handle<edm::TriggerResults> trigResults;
   iEvent.getByToken(m_trigProcess_token,trigResults);
@@ -259,8 +268,8 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
 
  eventSetup.get<IdealMagneticFieldRecord>().get(m_BField);												
 
- eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny",m_propagatorAlong);					
- eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite",m_propagatorOpposite);		
+eventSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",m_propagatorAlong);					
+eventSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",m_propagatorOpposite);		
 
   const Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
@@ -443,13 +452,15 @@ void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & tri
 
   m_ProbeMuons.clear();
   
-  vector<const Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();
-  vector<const Muon*>::const_iterator tightMuonsEnd = m_TightMuons.end();
+	vector<const reco::Muon*>::const_iterator probeCandIt   = m_TightMuons.begin();		
+
+	vector<const reco::Muon*>::const_iterator tightMuonsEnd = m_TightMuons.end();		
 
   for (; probeCandIt!=tightMuonsEnd; ++probeCandIt) {
     
     bool tagHasTrig = false;
-    vector<const Muon*>::const_iterator tagCandIt  = m_TightMuons.begin();
+
+	vector<const reco::Muon*>::const_iterator tagCandIt  = m_TightMuons.begin();		
     
     for (; tagCandIt!=tightMuonsEnd; ++tagCandIt) {
       if ((*tagCandIt) == (*probeCandIt)) continue; // CB has a little bias for closed-by muons
@@ -465,19 +476,27 @@ void L1TEfficiencyMuons_Offline::getProbeMuons(Handle<edm::TriggerResults> & tri
 }
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<L1MuGMTReadoutCollection> & gmtCands) {
+
+void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands) {					
 
   m_MuonGmtPairs.clear();
   
   cout << "[L1TEfficiencyMuons_Offline:] Getting muon GMT pairs" << endl;  
 
-  vector<const Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();
-  vector<const Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
+	vector<const reco::Muon*>::const_iterator probeMuIt  = m_ProbeMuons.begin();	
 
-  vector<L1MuGMTExtendedCand> gmtContainer = gmtCands->getRecord(0).getGMTCands();
+	vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();		
+
+ 	vector<l1t::Muon> gmtContainer;
+
   
-  vector<L1MuGMTExtendedCand>::const_iterator gmtIt;
-  vector<L1MuGMTExtendedCand>::const_iterator gmtEnd = gmtContainer.end();
+for (auto mu = gmtCands->begin(0); mu != gmtCands->end(0); ++mu) {
+gmtContainer.push_back(*mu);
+ }
+
+  	vector<l1t::Muon>::const_iterator gmtIt;					
+
+ 	vector<l1t::Muon>::const_iterator gmtEnd = gmtContainer.end();				
   
   for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
     
@@ -505,7 +524,7 @@ void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<L1MuGMTReadoutColle
 }
 
 //_____________________________________________________________________
-bool L1TEfficiencyMuons_Offline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const Muon * mu) {
+bool L1TEfficiencyMuons_Offline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const reco::Muon * mu) {
 
 
   double matchDeltaR = 9999;
