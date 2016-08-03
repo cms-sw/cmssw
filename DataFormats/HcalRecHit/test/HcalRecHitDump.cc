@@ -62,7 +62,7 @@ namespace cms {
       //vector<edm::Handle<COLL> > handles;
       //e.getManyByType(colls);
       typename std::vector<edm::Handle<COLL> >::const_iterator i;
-      cout << "Handles: " << handles.size() << endl;
+      cout << "New event (" << handles.size() << " handles)" << endl;
       for (i=handles.begin(); i!=handles.end(); i++) {
         for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++){
           cout << marker << *j

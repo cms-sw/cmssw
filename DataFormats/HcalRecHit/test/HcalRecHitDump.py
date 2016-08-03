@@ -2,6 +2,11 @@
 
 import FWCore.ParameterSet.Config as cms
 
+
+#ifname="file:/afs/cern.ch/user/h/halil/public/HCALUpgradeSW/test_hcalrhdumper.root"
+#ifname="file:/afs/cern.ch/user/h/halil/public/HCALUpgradeSW/step3_old.root"
+ifname="file:/afs/cern.ch/user/h/halil/public/HCALUpgradeSW/step3_new.root"
+
 process = cms.Process("HCALDump")
 
 process.maxEvents = cms.untracked.PSet(
@@ -11,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
  fileNames = cms.untracked.vstring(
-     "file:/afs/cern.ch/user/h/halil/public/HCALUpgradeSW/test_hcalrhdumper.root"
+   ifname
  )
 )
 
