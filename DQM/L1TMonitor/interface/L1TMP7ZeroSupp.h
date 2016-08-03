@@ -31,7 +31,7 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:  
+ private:
 
   enum binlabels {EVTS=0, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG};
 
@@ -42,17 +42,20 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   // header and trailer sizes in chars
   int slinkHeaderSize_;
   int slinkTrailerSize_;
-  int amcHeaderSize_;
-  int amcTrailerSize_;
   int amc13HeaderSize_;
   int amc13TrailerSize_;
+  int amcHeaderSize_;
+  int amcTrailerSize_;
+  int zsFlagMask_;
+
+  int maxFedReadoutSize_;
 
   std::string monitorDir_;
   bool verbose_;
 
   MonitorElement* zeroSuppVal_;
-  MonitorElement* payloadSizeNoZS_;
-  MonitorElement* payloadSizeZS_;
+  MonitorElement* readoutSizeNoZS_;
+  MonitorElement* readoutSizeZS_;
 };
 
 #endif
