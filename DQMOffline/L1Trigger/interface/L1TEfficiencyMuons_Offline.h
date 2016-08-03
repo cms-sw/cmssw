@@ -13,6 +13,14 @@
 #include <unistd.h>
 
 // user include files
+
+#include "DataFormats/L1Trigger/interface/Muon.h"		 		
+#include "DataFormats/L1Trigger/interface/BXVector.h"	
+
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"			
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"		
+#include "DataFormats/L1Trigger/interface/Muon.h"					
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -74,8 +82,8 @@ class MuonGmtPair {
 
  public :
 
-  MuonGmtPair(const reco::Muon *muon, const L1MuGMTExtendedCand *gmt) : 
-    m_muon(muon), m_gmt(gmt), m_eta(999.), m_phi_bar(999.), m_phi_end(999.) { };
+	MuonGmtPair(const reco::Muon *muon, const l1t::Muon *regMu) : 				
+    m_muon(muon), m_regMu(regMu), m_eta(999.), m_phi_bar(999.), m_phi_end(999.) { };	
     
   MuonGmtPair(const MuonGmtPair& muonGmtPair);
 
@@ -87,7 +95,7 @@ class MuonGmtPair {
   double phi() const { return fabs(m_eta)< 1.04 ? m_phi_bar : m_phi_end; };
   double pt()  const { return m_muon->isGlobalMuon() ? m_muon->globalTrack()->pt() : -1; };
   
-  double gmtPt() const { return m_gmt ? m_gmt->ptValue() : -1.; };
+	double gmtPt() const { return m_regMu ? m_regMu->hwPt() : -1.; };				
 
   void propagate(edm::ESHandle<MagneticField> bField,
 		 edm::ESHandle<Propagator> propagatorAlong,
@@ -103,7 +111,9 @@ private :
 private :
 
   const reco::Muon *m_muon;
-  const L1MuGMTExtendedCand *m_gmt;
+
+	const l1t::Muon *m_regMu;					
+
 
   edm::ESHandle<MagneticField> m_BField;
   edm::ESHandle<Propagator> m_propagatorAlong;
@@ -123,8 +133,8 @@ class L1TEfficiencyMuons_Offline : public DQMEDAnalyzer {
   
 public:
   
-  L1TEfficiencyMuons_Offline(const edm::ParameterSet& ps);   // Constructor
-  virtual ~L1TEfficiencyMuons_Offline();                     // Destructor
+  L1TEfficiencyMuons_Offline(const edm::ParameterSet& ps);   
+  virtual ~L1TEfficiencyMuons_Offline();                     
   
 protected:
   
@@ -147,7 +157,9 @@ private:
 		const reco::Muon * mu);
 
   // Cut and Matching
-  void getMuonGmtPairs(edm::Handle<L1MuGMTReadoutCollection> & gmtCands);
+
+void getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands);				
+
   void getTightMuons(edm::Handle<reco::MuonCollection> & muons, const reco::Vertex & vertex);
   void getProbeMuons(edm::Handle<edm::TriggerResults> & trigResults,edm::Handle<trigger::TriggerEvent> & trigEvent);  
   
@@ -174,7 +186,9 @@ private:
   std::vector<int> m_GmtPtCuts;
 
   edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
-  edm::EDGetTokenT<L1MuGMTReadoutCollection> m_GmtInputTag;
+
+	edm::EDGetTokenT<l1t::MuonBxCollection> m_GmtInputTag;				
+
 
   edm::EDGetTokenT<reco::VertexCollection> m_VtxInputTag;
   edm::EDGetTokenT<reco::BeamSpot> m_BsInputTag;

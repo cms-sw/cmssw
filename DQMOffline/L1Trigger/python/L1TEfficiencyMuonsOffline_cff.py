@@ -6,7 +6,9 @@ l1tEfficiencyMuons_offline = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
   gmtPtCuts = cms.untracked.vint32(16,20,25),
   
   muonInputTag = cms.untracked.InputTag("muons"),
-  gmtInputTag  = cms.untracked.InputTag("gtDigis"),
+  
+	gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis"),	
+
 
   vtxInputTag = cms.untracked.InputTag("offlinePrimaryVertices"),
   bsInputTag  = cms.untracked.InputTag("offlineBeamSpot"),
