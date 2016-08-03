@@ -156,13 +156,17 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         unsigned int wordsum = 0;
         for (const auto& word: block->payload()) {
           wordsum += masks_[blockCapId].at(wordcounter%6) & word;
-          std::cout << "word: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec
-                    << ", maskword" << wordcounter%6 << ": " << std::hex << std::setw(8) << std::setfill('0')
-                    << masks_[blockCapId].at(wordcounter%6) << std::dec << ", wordsum: " << wordsum << std::endl;
+          if (verbose_) {
+            std::cout << "word: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec
+                      << ", maskword" << wordcounter%6 << ": " << std::hex << std::setw(8) << std::setfill('0')
+                      << masks_[blockCapId].at(wordcounter%6) << std::dec << ", wordsum: " << wordsum << std::endl;
+          }
         }
         if (wordsum == 0) {
           toSuppress = true;
-          std::cout << "wordsum == 0: this block should be zero suppressed" << std::endl;
+          if (verbose_) {
+            std::cout << "wordsum == 0: this block should be zero suppressed" << std::endl;
+          }
         }
 
         // check if zero suppression flag agrees
