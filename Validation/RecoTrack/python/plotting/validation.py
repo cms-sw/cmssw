@@ -274,7 +274,7 @@ def _processPlotsForSample(plotterFolder, sample):
 
 class Sample:
     """Represents a RelVal sample."""
-    def __init__(self, sample, append=None, midfix=None, putype=None,
+    def __init__(self, sample, append=None, midfix=None, putype=None, punum=0,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
                  doElectron=None, doConversion=None,
                  version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
@@ -287,6 +287,7 @@ class Sample:
         append  -- String for a variable name within the DWM file names, to be directly appended to sample name (e.g. "HS"; default None)
         midfix  -- String for a variable name within the DQM file names, to be appended after underscore to "sample name+append" (e.g. "13", "UP15"; default None)
         putype  -- String for pileup type (e.g. "25ns"/"50ns" for FullSim, "AVE20" for FastSim; default None)
+        punum   -- String for amount of pileup (default None)
         fastsim -- Bool indicating the FastSim status (default False)
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
         doElectron -- Bool specifying if electron-specific plots should be produced (default depends on sample)
@@ -300,6 +301,7 @@ class Sample:
         self._append = append
         self._midfix = midfix
         self._putype = putype
+        self._punum = punum
         self._fastsim = fastsim
         self._fastsimCorrespondingFullsimPileup = fastsimCorrespondingFullsimPileup
         self._version = version
@@ -322,7 +324,7 @@ class Sample:
 
     def digest(self):
         """Return a tuple uniquely identifying the sample, to be used e.g. as a key to dict"""
-        return (self.name(), self.pileupType(), self.scenario(), self.fastsim())
+        return (self.name(), self.pileupNumber(), self.pileupType(), self.scenario(), self.fastsim())
 
     def sample(self):
         """Get the sample name"""
@@ -356,6 +358,9 @@ class Sample:
             return self._putype.get(release, self._putype["default"])
         else:
             return self._putype
+
+    def pileupNumber(self):
+        return self._punum
 
     def doElectron(self):
         return self._doElectron
@@ -556,7 +561,7 @@ class Validation:
     def createHtmlReport(self):
         return html.HtmlReport(self._newRelease, self._newBaseDir)
 
-    def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
+    def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True, doPhase2PU=False):
         """Create validation plots.
 
         Arguments:
@@ -567,6 +572,7 @@ class Validation:
         limitSubFoldersOnlyTo   -- If not None, should be a dictionary from string to an object. The string is the name of a PlotFolder, and the object is PlotFolder-type specific to limit the subfolders to be processed. In general case the object is a list of strings, but e.g. for track iteration plots it is a function taking the algo and quality as parameters.
         htmlReport      -- Object returned by createHtmlReport(), in case HTML report generation is desired
         doFastVsFull    -- Do FastSim vs. FullSim comparison? (default: True)
+        doPhase2PU      -- Do Phase2 PU 200 vs. 140 comparison (default: False)
         """
         self._plotter = plotter
         self._plotterDrawArgs = plotterDrawArgs
@@ -586,14 +592,16 @@ class Validation:
                     continue
                 plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
-                # TODO: the pileup case is still to be migrated
-#               if s.fullsim() and s.pileupEnabled():
-#                   self._doPlotsPileup(a, q, s)
-
 
         # Fast vs. Full
-        if not doFastVsFull:
-            return
+        if doFastVsFull:
+            self._doFastsimFastVsFullPlots(limitSubFoldersOnlyTo, htmlReport)
+
+        # Phase2 PU200 vs. PU 140
+        if doPhase2PU:
+            self._doPhase2PileupPlots(limitSubFoldersOnlyTo, htmlReport)
+
+    def _doFastsimFastVsFullPlots(self, limitSubFoldersOnlyTo, htmlReport):
         for fast in self._fastsimSamples:
             correspondingFull = None
             for full in self._fullsimSamples:
@@ -618,13 +626,48 @@ class Validation:
 
             # If we reach here, the harvestedFile must exist
             harvestedFile = fast.filename(self._newRelease)
-            plotterInstance = plotter.readDirs(harvestedFile)
+            plotterInstance = self._plotter.readDirs(harvestedFile)
             htmlReport.beginSample(fast, fastVsFull=True)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if not _processPlotsForSample(plotterFolder, fast):
                     continue
                 plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+
+    def _doPhase2PileupPlots(self, limitSubFoldersOnlyTo, htmlReport):
+        def _stripScenario(name):
+            puindex = name.find("PU")
+            if puindex < 0:
+                return name
+            return name[:puindex]
+
+        pu140samples = {}
+        for sample in self._fullsimSamples:
+            if sample.pileupNumber() == 140:
+                key = (sample.name(), _stripScenario(sample.scenario()))
+                if key in pu140samples:
+                    raise Exception("Duplicate entry for sample %s in scenario %s" % (sample.name(), sample.scenar()))
+                pu140samples[key] = sample
+
+        for sample in self._fullsimSamples:
+            if sample.pileupNumber() != 200:
+                continue
+            key = (sample.name(), _stripScenario(sample.scenario()))
+            if not key in pu140samples:
+                continue
+
+            sample_pu140 = pu140samples[key]
+
+            # If we reach here, the harvestedFile must exist
+            harvestedFile = sample.filename(self._newRelease)
+            plotterInstance = self._plotter.readDirs(harvestedFile)
+            htmlReport.beginSample(sample, pileupComparison="vs. PU140")
+            for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+                if not _processPlotsForSample(plotterFolder, sample):
+                    continue
+                plotFiles = self._doPlotsPileup(sample_pu140, sample, plotterFolder, dqmSubFolder, htmlReport)
+                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+
 
     def _getRefFileAndSelection(self, sample, plotterFolder, dqmSubFolder, selectionNameBase, valname):
         if self._refRelease is None:
@@ -799,7 +842,7 @@ class Validation:
             print "Plotter produced multiple files with names", ", ".join(dups)
             print "Typically this is a naming problem in the plotter configuration"
             sys.exit(1)
-        
+
         # Move plots to new directory
         print "Moving plots to %s" % (newdir)
         if not os.path.exists(newdir):
@@ -808,48 +851,57 @@ class Validation:
             shutil.move(f, os.path.join(newdir, f))
         return map(lambda n: os.path.join(newsubdir, n), fileList)
 
-    # TODO: this method is still to be migrated
-    def _doPlotsPileup(self, algo, quality, sample):
-        """Do the real plotting work for Old vs. New pileup scenarios for a given algorithm, quality flag, and sample."""
+    def _doPlotsPileup(self, pu140Sample, pu200Sample, plotterFolder, dqmSubFolder, htmlReport):
+        """Do the real plotting work for two pileup scenarios for a given algorithm, quality flag, and sample."""
         # Get GlobalTags
-        newGlobalTag = _getGlobalTag(sample, self._newRelease)
-        refGlobalTag = newGlobalTag + "_OldPU" 
+        pu140GlobalTag = _getGlobalTag(pu140Sample, self._newRelease)
+        pu200GlobalTag = _getGlobalTag(pu200Sample, self._newRelease)
 
         # Construct selection string
-        tmp = self._getSelectionName(quality, algo)
-        refSelection = refGlobalTag+"_"+sample.pileup()+tmp+"_"+sample.pileupType(self._newRelease)
-        newSelection = newGlobalTag+"_"+sample.pileup()+tmp+"_"+sample.pileupType(self._newRelease)
+        tmp = plotterFolder.getSelectionName(dqmSubFolder)
+        pu140Selection = pu140GlobalTag+"_"+pu140Sample.pileup()+tmp+"_"+pu140Sample.pileupType(self._newRelease)
+        pu200Selection = pu200GlobalTag+"_"+pu200Sample.pileup()+tmp+"_"+pu200Sample.pileupType(self._newRelease)
 
-        # Construct directories for FastSim, FullSim, and for the results
-        refdir = os.path.join(self._newBaseDir, refSelection, sample.name())
-        newdir = os.path.join(self._newBaseDir, newSelection, sample.name())
-        resdir = os.path.join(self._newBaseDir, "pileup", self._newRelease, newSelection, sample.name())
+        # Construct directories for
+        pu140dir = os.path.join(self._newBaseDir, pu140Selection, pu140Sample.name())
+        pu200dir = os.path.join(self._newBaseDir, pu200Selection, pu200Sample.name())
+        newsubdir = os.path.join("pileup", self._newRelease, pu200Selection, pu200Sample.name())
+        newdir = os.path.join(self._newBaseDir, newsubdir)
 
         # Open input root files
-        valname = "val.{sample}.root".format(sample=sample.name())
-        refValFilePath = os.path.join(refdir, valname)
-        if not os.path.exists(refValFilePath) and plotting.verbose:
-            print "Ref pileup file %s not found" % refValFilePath
-        newValFilePath = os.path.join(newdir, valname)
-        if not os.path.exists(newValFilePath) and plotting.verbose:
-            print "New pileup file %s not found" % newValFilePath
+        valname = "val.{sample}.root".format(sample=pu140Sample.name())
+        pu140ValFilePath = os.path.join(pu140dir, valname)
+        if not os.path.exists(pu140ValFilePath):
+            if plotting.verbose:
+                print "PU140 file %s not found" % pu140ValFilePath
+            return []
+        pu200ValFilePath = os.path.join(pu200dir, valname)
+        if not os.path.exists(pu200ValFilePath):
+            if plotting.verbose:
+                print "PU200 file %s not found" % pu200ValFilePath
+            return []
 
-        refValFile = ROOT.TFile.Open(refValFilePath)
-        newValFile = ROOT.TFile.Open(newValFilePath)
+        pu140ValFile = ROOT.TFile.Open(pu140ValFilePath)
+        pu200ValFile = ROOT.TFile.Open(pu200ValFilePath)
 
         # Do plots
         if plotting.verbose:
-            print "Comparing Old and New pileup {sample} {algo} {quality}".format(
-            sample=sample.name(), algo=algo, quality=quality)
-        self._plotter.create([refValFile, newValFile], [
-            "%d BX %s, %s %s" % ({"25ns": 10, "50ns": 20}[sample.pileupType(self._newRelease)], sample.name(), _stripRelease(self._newRelease), refSelection),
-            "35 BX %s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection),
-        ],
-                             subdir = self._getDirectoryName(quality, algo))
-        fileList = self._plotter.draw(**self._plotterDrawArgs)
+            print "Comparing PU140 and PU200 {sample} {translatedFolder}".format(
+            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+        rootFiles = [pu140ValFile, pu200ValFile]
+        legendLabels = [
+            "%s, %s %s" % (pu140Sample.name(), _stripRelease(self._newRelease), pu140Selection),
+            "%s, %s %s" % (pu200Sample.name(), _stripRelease(self._newRelease), pu200Selection),
+        ]
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=pu140Sample.pileupEnabled(), requireAllHistograms=True)
+        fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
-        newValFile.Close()
-        refValFile.Close()
+        # For tables we just try them all, and see which ones succeed
+        for tableCreator in plotterFolder.getTableCreators():
+            htmlReport.addTable(tableCreator.create(rootFiles, legendLabels, dqmSubFolder))
+
+        pu200ValFile.Close()
+        pu140ValFile.Close()
 
         if len(fileList) == 0:
             return []
@@ -861,13 +913,13 @@ class Validation:
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots to %s" % (resdir)
-        if not os.path.exists(resdir):
-            os.makedirs(resdir)
+        print "Moving plots to %s" % (newdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
         for f in fileList:
-            shutil.move(f, os.path.join(resdir, f))
-        subdir = newdir.replace(self._newBaseDir+"/", "")
-        return map(lambda n: os.path.join(subdir, n), fileList)
+            shutil.move(f, os.path.join(newdir, f))
+        return map(lambda n: os.path.join(newsubdir, n), fileList)
+
 
 def _copySubDir(oldfile, newfile, basenames, dirname):
     """Copy a subdirectory from oldfile to newfile.

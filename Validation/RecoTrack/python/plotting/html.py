@@ -451,24 +451,29 @@ class Page(object):
         return ret
 
 class PageSet(object):
-    def __init__(self, title, sampleName, sample, fastVsFull):
+    def __init__(self, title, sampleName, sample, fastVsFull, pileupComparison):
         self._title = title
         self._sampleName = sampleName
         self._pages = collections.OrderedDict()
 
-        self._prefix=""
-        if hasattr(sample, "hasPileup"):
-            self._prefix = "nopu"
-            if sample.hasPileup():
-                self._prefix = "pu"+sample.pileupType()
-            self._prefix += "_"
-
+        self._prefix = ""
         if sample.fastsim():
             self._prefix += "fast_"
             if fastVsFull:
                 self._prefix += "full_"
 
         self._prefix += _sampleFileName.get(sample.label(), sample.label())+"_"
+        if hasattr(sample, "hasScenario") and sample.hasScenario():
+            self._prefix += sample.scenario()+"_"
+
+        if hasattr(sample, "hasPileup"):
+            if sample.hasPileup():
+                self._prefix += "pu"+str(sample.pileupNumber())+"_"+sample.pileupType()+"_"
+            else:
+                self._prefix += "nopu_"
+            if pileupComparison:
+                self._prefix += "vspu_"
+
 
     def _getPage(self, key, pageClass):
         if key not in self._pages:
@@ -582,7 +587,7 @@ class TrackingPageSet(PageSet):
 
 
 class IndexSection:
-    def __init__(self, sample, fastVsFull, title):
+    def __init__(self, sample, title, fastVsFull, pileupComparison):
         self._sample = sample
 
         self._sampleName = ""
@@ -595,7 +600,9 @@ class IndexSection:
         if hasattr(sample, "hasPileup"):
             pileup = "with no pileup"
             if sample.hasPileup():
-                pileup = "with %s pileup" % sample.pileupType()
+                pileup = "with %d pileup (%s)" % (sample.pileupNumber(), sample.pileupType())
+            if pileupComparison is not None:
+                pileup += " "+pileupComparison
         if hasattr(sample, "customPileupLabel"):
             pileup = sample.customPileupLabel()
 
@@ -604,7 +611,7 @@ class IndexSection:
             scenario = " (\"%s\")" % sample.scenario()
         self._sampleName += "%s sample%s %s" % (_sampleName.get(sample.name(), sample.name()), scenario, pileup)
 
-        params = [title, self._sampleName, sample, fastVsFull]
+        params = [title, self._sampleName, sample, fastVsFull, pileupComparison is not None]
         self._summaryPage = PageSet(*params)
         self._iterationPages = TrackingPageSet(*params)
         self._vertexPage = PageSet(*params)
@@ -669,12 +676,16 @@ class HtmlReport:
     def addNote(self, note):
         self._index.append('  <p>%s</p>'%note)
 
-    def beginSample(self, sample, fastVsFull=False):
-        key = (sample.digest(), fastVsFull)
+    def beginSample(self, sample, fastVsFull=False, pileupComparison=None):
+        # Fast vs. Full becomes just after the corresponding Fast
+        # Same for PU
+        rightAfterRefSample = fastVsFull or (pileupComparison is not None)
+
+        key = (sample.digest(), rightAfterRefSample)
         if key in self._sections:
             self._currentSection = self._sections[key]
         else:
-            self._currentSection = IndexSection(sample, fastVsFull, self._title)
+            self._currentSection = IndexSection(sample, self._title, fastVsFull, pileupComparison)
             self._sections[key] = self._currentSection
 
     def addPlots(self, *args, **kwargs):

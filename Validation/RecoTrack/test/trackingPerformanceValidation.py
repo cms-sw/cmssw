@@ -36,10 +36,10 @@ def putype(t):
     return t
 
 pileupstartupsamples = [
-    Sample('RelValTTbar', putype=putype("25ns"), midfix="13"),
-#    Sample('RelValTTbar', putype=putype("50ns"), midfix="13"),
-    Sample('RelValZMM', putype=putype("25ns"), midfix="13"),
-#    Sample('RelValZMM', putype=putype("50ns"), midfix="13")
+    Sample('RelValTTbar', putype=putype("25ns"), punum=35, midfix="13"),
+#    Sample('RelValTTbar', putype=putype("50ns"), punum=35, midfix="13"),
+    Sample('RelValZMM', putype=putype("25ns"), punum=35, midfix="13"),
+#    Sample('RelValZMM', putype=putype("50ns"), punum=35, midfix="13")
 ]
 
 phase1samples = [
@@ -48,27 +48,27 @@ phase1samples = [
     Sample('RelValZMM', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
     Sample('RelValTenMuE_0_200'),
-    Sample("RelValTTbar", midfix="13", putype=putype("25ns")),
-    Sample("RelValZMM", midfix="13", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="13", putype=putype("25ns"), punum=35),
+    Sample("RelValZMM", midfix="13", putype=putype("25ns"), punum=35),
 ]
 
 phase2samples = [
     Sample("RelValMinBias", midfix="TuneZ2star_14TeV", scenario="2023GReco"),
     Sample("RelValMinBias", midfix="TuneZ2star_14TeV", scenario="2023tilted"),
     Sample("RelValTTbar", midfix="14TeV", scenario="2023GReco"),
-    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU35", putype=putype("25ns")),
-    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU140", putype=putype("25ns")),
-    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU200", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU35", putype=putype("25ns"), punum=35),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU140", putype=putype("25ns"), punum=140),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023GRecoPU200", putype=putype("25ns"), punum=200),
     Sample("RelValTTbar", midfix="14TeV", scenario="2023tilted"),
-    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU35", putype=putype("25ns")),
-    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU140", putype=putype("25ns")),
-    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU200", putype=putype("25ns")),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU35", putype=putype("25ns"), punum=35),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU140", putype=putype("25ns"), punum=140),
+    Sample("RelValTTbar", midfix="14TeV", scenario="2023tiltedPU200", putype=putype("25ns"), punum=200),
     Sample("RelValZMM", midfix="13", scenario="2023GReco"),
-    Sample("RelValZMM", midfix="13", scenario="2023GRecoPU140", putype=putype("25ns")),
-    Sample("RelValZMM", midfix="13", scenario="2023GRecoPU200", putype=putype("25ns")),
+    Sample("RelValZMM", midfix="13", scenario="2023GRecoPU140", putype=putype("25ns"), punum=140),
+    Sample("RelValZMM", midfix="13", scenario="2023GRecoPU200", putype=putype("25ns"), punum=200),
     Sample("RelValZMM", midfix="13", scenario="2023tilted"),
-    Sample("RelValZMM", midfix="13", scenario="2023tiltedPU140", putype=putype("25ns")),
-    Sample("RelValZMM", midfix="13", scenario="2023tiltedPU200", putype=putype("25ns")),
+    Sample("RelValZMM", midfix="13", scenario="2023tiltedPU140", putype=putype("25ns"), punum=140),
+    Sample("RelValZMM", midfix="13", scenario="2023tiltedPU200", putype=putype("25ns"), punum=200),
     Sample("RelValSingleElectronPt35Extended", scenario="2023GReco"),
     Sample("RelValSingleElectronPt35Extended", scenario="2023tilted"),
     Sample("RelValSingleMuPt10Extended", scenario="2023GReco"),
@@ -85,10 +85,11 @@ fastsimstartupsamples = [
 ]
 
 pileupfastsimstartupsamples = [
-    Sample('RelValTTbar', putype=putype("25ns"), midfix="13", fastsim=True)
+    Sample('RelValTTbar', putype=putype("25ns"), punum=35, midfix="13", fastsim=True)
 ]
 
 doFastVsFull = True
+doPhase2PU = False
 if "_pmx" in NewRelease:
     startupsamples = []
     fastsimstartupsamples = []
@@ -121,6 +122,7 @@ if "_phase2" in NewRelease:
     fastsimstartupsamples = []
     pileupfastsimstartupsamples = []
     doFastVsFull = False
+    doPhase2PU = True
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
@@ -166,14 +168,14 @@ htmlReport = val.createHtmlReport()
 val.download()
 val.doPlots(plotter=trackingPlots.plotter,
 #            limitSubFoldersOnlyTo={"": limitProcessing, "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing},
-            htmlReport=htmlReport, doFastVsFull=doFastVsFull
+            htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
             **kwargs_tracking
 )
 
 val.download()
 val.doPlots(plotter=vertexPlots.plotter,
             limitSubFoldersOnlyTo={"": VertexCollections},
-            htmlReport=htmlReport, doFastVsFull=doFastVsFull
+            htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
 )
 htmlReport.write()
 
