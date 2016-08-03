@@ -145,6 +145,8 @@ class _HitAdaptor(object):
                 yield StripHit(self._tree, ihit)
             elif hitType == 2:
                 yield GluedHit(self._tree, ihit)
+            elif hitType == 3:
+                yield InvalidHit(self._tree, ihit)
             else:
                 raise Exception("Unknown hit type %d" % hitType)
 
@@ -171,6 +173,14 @@ class _HitAdaptor(object):
             if hitType != 2:
                 continue
             yield GluedHit(self._tree, ihit)
+
+    def invalidHits(self):
+        """Returns generator for invalid hits."""
+        self._checkIsValid()
+        for ihit, hitType in self._hits():
+            if hitType != 3:
+                continue
+            yield InvalidHit(self._tree, ihit)
 
 class _TrackingParticleMatchAdaptor(object):
     """Adaptor class for objects matched to TrackingParticles."""
@@ -430,6 +440,9 @@ class PixelHit(_HitObject, _TrackingParticleMatchAdaptor):
         """
         super(PixelHit, self).__init__(tree, index, "pix")
 
+    def isValidHit(self):
+        return True
+
     def layerStr(self):
         """Returns a string describing the layer of the hit."""
         if not self.isValid():
@@ -462,6 +475,9 @@ class StripHit(_HitObject, _TrackingParticleMatchAdaptor):
         """
         super(StripHit, self).__init__(tree, index, "str")
 
+    def isValidHit(self):
+        return True
+
     def layerStr(self):
         """Returns a string describing the layer of the hit."""
         if not self.isValid():
@@ -490,6 +506,9 @@ class GluedHit(_Object):
         index -- Index of the hit
         """
         super(GluedHit, self).__init__(tree, index, "glu")
+
+    def isValidHit(self):
+        return True
 
     def monoHit(self):
         """Returns a StripHit for the mono hit."""
@@ -524,6 +543,29 @@ class GluedHits(_Collection):
         tree -- TTree object
         """
         super(GluedHits, self).__init__(tree, "glu_isBarrel", GluedHit)
+
+##########
+class InvalidHit(_Object):
+    # repeating TrackingRecHit::Type
+    class Type:
+        missing = 1
+        inactive = 2
+        bad = 3
+        missing_inner = 4
+        missing_outer = 5
+
+    """Class representing an invalid hit."""
+    def __init__(self, tree, index):
+        """Constructor.
+
+        Arguments:
+        tree  -- TTree object
+        index -- Index of the hit
+        """
+        super(InvalidHit, self).__init__(tree, index, "inv")
+
+    def isValidHit(self):
+        return False
 
 ##########
 def _seedOffsetForAlgo(tree, algo):

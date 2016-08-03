@@ -196,6 +196,7 @@ private:
     HitPixel = 0,
     HitStrip = 1,
     HitGlued = 2,
+    HitInvalid = 3,
     Unknown = 99
   };
 
@@ -498,6 +499,14 @@ private:
   std::vector<float> glu_radL ;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> glu_bbxi ;
   ////////////////////
+  // invalid (missing/inactive/etc) hits
+  // (first) index runs through hits
+  std::vector<short> inv_isBarrel;
+  std::vector<unsigned short> inv_det;
+  std::vector<unsigned short> inv_lay;
+  std::vector<unsigned int> inv_detId;
+  std::vector<unsigned short> inv_type;
+  ////////////////////
   // beam spot
   float bsp_x;
   float bsp_y;
@@ -775,6 +784,12 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("glu_zx"        , &glu_zx       );
     t->Branch("glu_radL"      , &glu_radL     );
     t->Branch("glu_bbxi"      , &glu_bbxi     );
+    //invalid hits
+    t->Branch("inv_isBarrel"  , &inv_isBarrel );
+    t->Branch("inv_det"       , &inv_det      );
+    t->Branch("inv_lay"       , &inv_lay      );
+    t->Branch("inv_detId"     , &inv_detId    );
+    t->Branch("inv_type"      , &inv_type    );
   }
   //beam spot
   t->Branch("bsp_x" , &bsp_x , "bsp_x/F");
@@ -1012,6 +1027,12 @@ void TrackingNtuple::clearVariables() {
   glu_zx       .clear();
   glu_radL     .clear();
   glu_bbxi     .clear();
+  //invalid hits
+  inv_isBarrel .clear();
+  inv_det      .clear();
+  inv_lay      .clear();
+  inv_detId    .clear();
+  inv_type     .clear();
   //beamspot
   bsp_x = -9999.;
   bsp_y = -9999.;
@@ -1862,11 +1883,20 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         }
 
         hitIdx.push_back(clusterKey);
+        hitType.push_back( isPixel ? HitPixel : HitStrip );
       } else  {
         LogTrace("TrackingNtuple") << " - invalid hit";
-        hitIdx.push_back( -1 );
+
+        hitIdx.push_back( inv_isBarrel.size() );
+        hitType.push_back( HitInvalid );
+
+        inv_isBarrel.push_back( hitId.subdetId()==1 );
+        inv_det     .push_back( hitId.subdetId() );
+        inv_lay     .push_back( tTopo.layer(hitId) );
+        inv_detId   .push_back( hitId.rawId() );
+        inv_type    .push_back( hit->getType() );
+
       }
-      hitType.push_back( isPixel ? HitPixel : HitStrip );
     }
 
     trk_hitIdx.push_back(hitIdx);

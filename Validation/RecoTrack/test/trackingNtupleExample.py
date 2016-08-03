@@ -17,6 +17,8 @@ def main():
     tot_hptracks = 0
     tot_fakes = 0
     tot_fakes_ninvalidhits = 0
+    tot_fakes_ninvalidhits_missing = 0
+    tot_fakes_ninvalidhits_inactive = 0
     tot_fakes_npixhits = 0
     tot_fakes_nstrhits = 0
     tot_fakes_npixhits_true = 0
@@ -107,9 +109,6 @@ def main():
 
                     for hit in track.pixelHits():
                         #print hit.layerStr()
-                        if not hit.isValid():
-                            nfakes_invalidhits += 1
-                            continue
                         nfakes_pixhits += 1
                         if hit.nMatchedTrackingParticles() >= 1:
                             # links from hits to TrackingParticles
@@ -121,12 +120,16 @@ def main():
 
                     for hit in track.stripHits():
                         #print hit.layerStr()
-                        if not hit.isValid():
-                            nfakes_invalidhits += 1
-                            continue
                         nfakes_strhits += 1
                         if hit.nMatchedTrackingParticles() >= 1:
                             nfakes_strhits_true += 1
+
+                    for hit in track.invalidHits():
+                        tot_fakes_ninvalidhits += 1
+                        if hit.type() == InvalidHit.Type.missing:
+                            tot_fakes_ninvalidhits_missing += 1
+                        elif hit.type() == InvalidHit.Type.inactive:
+                            tot_fakes_ninvalidhits_inactive += 1
             else:
                 for tpInfo in track.matchedTrackingParticleInfos():
                     tp = tpInfo.trackingParticle()
@@ -139,7 +142,6 @@ def main():
                         nsecondaries += 1
 
         tot_fakes += nfakes
-        tot_fakes_ninvalidhits += nfakes_invalidhits
         tot_fakes_npixhits += nfakes_pixhits
         tot_fakes_nstrhits += nfakes_strhits
         tot_fakes_npixhits_true += nfakes_pixhits_true
@@ -230,6 +232,8 @@ def main():
         print "   pixel hits from %f TrackingParticles/track" % (float(tot_fakes_npixhits_tps)/tot_fakes)
         print "  on average %f %% of strip hits are true" % (float(tot_fakes_nstrhits_true)/tot_fakes_nstrhits * 100)
         print "  on average %f %% of hits are invalid" % (float(tot_fakes_ninvalidhits)/(tot_fakes_npixhits+tot_fakes_nstrhits) * 100)
+        print "   of those, %f %% were missing" % (float(tot_fakes_ninvalidhits_missing)/tot_fakes_ninvalidhits * 100)
+        print "   of those, %f %% were invalid" % (float(tot_fakes_ninvalidhits_inactive)/tot_fakes_ninvalidhits * 100)
     print " with duplicate rate %f %%" % (float(tot_duplicates)/tot_ntracks * 100)
     if tot_seeds > 0:
         print " of which %f %% had a true seed" % (float(tot_track_seeds_true)/tot_ntracks * 100)
