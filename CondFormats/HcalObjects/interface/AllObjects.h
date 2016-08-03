@@ -22,8 +22,6 @@
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsValues.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include "CondFormats/HcalObjects/interface/HcalCovarianceMatrix.h"
 #include "CondFormats/HcalObjects/interface/HcalCovarianceMatrices.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"

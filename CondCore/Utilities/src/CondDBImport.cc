@@ -153,7 +153,6 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( GBRForestD )
       IMPORT_PAYLOAD_CASE( HBHENegativeEFilter )	
       IMPORT_PAYLOAD_CASE( HcalChannelQuality )
-      IMPORT_PAYLOAD_CASE( HcalCholeskyMatrices )
       IMPORT_PAYLOAD_CASE( HcalDcsValues )
       IMPORT_PAYLOAD_CASE( HcalElectronicsMap )
       IMPORT_PAYLOAD_CASE( HcalFlagHFDigiTimeParams )
