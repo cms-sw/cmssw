@@ -38,7 +38,7 @@ tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 from L1Trigger.Configuration.L1TRawToDigi_cff import *
 
-from EventFilter.TotemRawToDigi.totemRawToDigi_cff import *
+from EventFilter.CTPPSRawToDigi.totemRawToDigi_cff import *
 
 RawToDigi = cms.Sequence(L1TRawToDigi
                          +siPixelDigis

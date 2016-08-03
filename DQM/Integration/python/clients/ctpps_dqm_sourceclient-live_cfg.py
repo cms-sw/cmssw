@@ -36,7 +36,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # raw-to-digi conversion
-process.load("EventFilter.TotemRawToDigi.totemRawToDigi_cff")
+process.load("EventFilter.CTPPSRawToDigi.totemRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
