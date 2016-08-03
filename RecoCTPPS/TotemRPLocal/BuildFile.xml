@@ -1,7 +1,7 @@
 <use name="FWCore/ParameterSet"/>
 
 <use name="DataFormats/Common"/>
-<use name="DataFormats/TotemDigi"/>
+<use name="DataFormats/CTPPSDigi"/>
 <use name="DataFormats/CTPPSReco"/>
 
 <use name="Geometry/VeryForwardGeometryBuilder"/>
