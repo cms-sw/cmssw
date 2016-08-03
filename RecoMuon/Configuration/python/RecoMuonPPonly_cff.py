@@ -71,7 +71,7 @@ muonrecoComplete = cms.Sequence(muonreco_plus_isolation*muonSelectionTypeSequenc
 
 #from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyMuons
 
-muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation*muonreco_with_standAloneSET)
+muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation)
 
 # ... instead, the sequences will be run in the following order:
 # 1st - standalonemuontracking
