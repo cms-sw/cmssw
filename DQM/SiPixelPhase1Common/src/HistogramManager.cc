@@ -85,6 +85,7 @@ void HistogramManager::executeStep1Spec(
                  !"Illegal EXTEND in step1");
           if (dimensions == 1) y = x;
           x = significantvalues[step.columns.at(0)];
+
           significantvalues.erase(step.columns.at(0));
           dimensions = dimensions < 2 ? dimensions+1 : dimensions;
           break;
@@ -150,6 +151,8 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
                             const edm::Event* sourceEvent, int col, int row) {
   if (!enabled) return;
   bool cached = true;
+  // We could be smarter on row/col and only check if they appear in the spec
+  // but that just asks for bugs.
   if (col != this->iq.col || row != this->iq.row ||
       sourceModule != this->iq.sourceModule ||
       sourceEvent != this->iq.sourceEvent ||
@@ -164,15 +167,15 @@ void HistogramManager::fill(double x, double y, DetId sourceModule,
     auto& s = specs[i];
     auto& t = tables[i];
     // Try cached colums from last fill().
-    // We could be smarter on row/col and only check if they appear in the spec
-    // but that just asks for bugs.
     if (!cached) {
       significantvalues[i].clear();
       geometryInterface.extractColumns(s.steps[0].columns, iq,
                                        significantvalues[i]);
       fastpath[i] = nullptr;
     }
-    executeStep1Spec(x, y, significantvalues[i], s, t, SummationStep::STAGE1,
+    // copy the signifcant values here, since they might be modified.
+    significantvalues_scratch = significantvalues[i];
+    executeStep1Spec(x, y, significantvalues_scratch, s, t, SummationStep::STAGE1,
                      fastpath[i]);
   }
 }
@@ -223,7 +226,10 @@ void HistogramManager::executePerEventHarvesting() {
         }
 
         auto fastpath = &e.second;
-        executeStep1Spec(0.0, 0.0, significantvalues[i], s, t,
+        // copy the signifcant values here, since they might be modified.
+        // (unlikely, again for consistence)
+        significantvalues_scratch = significantvalues[i];
+        executeStep1Spec(0.0, 0.0, significantvalues_scratch, s, t,
                          SummationStep::STAGE1_2, fastpath);
       }
     }
