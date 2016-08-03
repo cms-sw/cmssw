@@ -45,6 +45,8 @@ class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
 class HcalCovarianceMatricesRcd;
 class HcalFrontEndMapRcd;
+class HcalSiPMParametersRcd;
+class HcalSiPMCharacteristicsRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 
@@ -93,6 +95,8 @@ protected:
 
   std::unique_ptr<HcalFrontEndMap> produceFrontEndMap (const HcalFrontEndMapRcd& rcd);
 
+  std::unique_ptr<HcalSiPMParameters> produceSiPMParameters (const HcalSiPMParametersRcd& rcd);
+  std::unique_ptr<HcalSiPMCharacteristics> produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd);
 private:
   HcalDbHardcode dbHardcode;
   double iLumi;

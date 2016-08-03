@@ -123,6 +123,22 @@
  </class>
  <class name="HcalQIETypes"/>
 
+ <class name="HcalSiPMParameter"/>
+ <class name="std::vector<HcalSiPMParameter>"/>
+ <class name="std::pair<std::string, std::vector<HcalSiPMParameter> >"/>
+ <class name="std::vector<std::pair<std::string, std::vector<HcalSiPMParameter> > >"/>
+ <class name="HcalCondObjectContainer<HcalSiPMParameter>">
+  <field name="HBcontainer" mapping="blob" />
+  <field name="HEcontainer" mapping="blob" />
+  <field name="HFcontainer" mapping="blob" />
+  <field name="HOcontainer" mapping="blob" />
+  <field name="HTcontainer" mapping="blob" />
+  <field name="ZDCcontainer" mapping="blob" />
+  <field name="CALIBcontainer" mapping="blob" />
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="HcalSiPMParameters"/>
+
  <class name="HcalElectronicsMap">
   <field name="mPItemsById" transient="true"/>
   <field name="mTItemsByTrigId" transient="true"/>
@@ -137,6 +153,12 @@
  </class>
  <class name="HcalFrontEndMap::PrecisionItem"/>
  <class name="std::vector<HcalFrontEndMap::PrecisionItem>"/>
+
+ <class name="HcalSiPMCharacteristics">
+  <field name="mPItemsByType" transient="true"/>
+ </class>
+ <class name="HcalSiPMCharacteristics::PrecisionItem"/>
+ <class name="std::vector<HcalSiPMCharacteristics::PrecisionItem>"/>
 
  <class name="HcalChannelStatus"/>
  <class name="std::vector<HcalChannelStatus>"/>

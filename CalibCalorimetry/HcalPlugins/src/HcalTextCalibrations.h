@@ -38,6 +38,8 @@ class HcalZDCLowGainFractionsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
+class HcalSiPMParametersRcd;
+class HcalSiPMCharacteristicsRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
   public edm::EventSetupRecordIntervalFinder
@@ -83,6 +85,8 @@ protected:
   std::unique_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
   
   std::unique_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
+  std::unique_ptr<HcalSiPMParameters> produceSiPMParameters (const HcalSiPMParametersRcd& rcd);
+  std::unique_ptr<HcalSiPMCharacteristics> produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd);
  private:
   std::map <std::string, std::string> mInputs;
 };

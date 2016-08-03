@@ -1045,3 +1045,10 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap) {
 
 }
 
+
+HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId) {
+  return HcalSiPMParameter(fId.rawId(), 0, 0, 0, 0, 0);
+}
+
+void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
+}

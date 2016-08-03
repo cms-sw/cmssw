@@ -1876,6 +1876,111 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fO
     fOutput << buffer;
   }
   return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMParameters* fObject) {
+  if (!fObject) return false; 
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 9) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, 5x values" << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId (items);
+    
+    HcalSiPMParameter* obj = new HcalSiPMParameter(id, atoi(items[4].c_str()), 
+						   atof(items[5].c_str()), 
+						   atof(items[6].c_str()),
+						   atoi(items[7].c_str()),
+						   atof(items[8].c_str()));
+    fObject->addValues(*obj);
+    delete obj;
+  }
   return true;
 }
 
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %15s %15s %8s %15s\n", 
+	   "eta", "phi", "dep", "det", "type", "fcByPE", "darkCurrent", 
+	   "auxi1", "auxi2");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       ++channel) {
+    const int   type   = fObject.getValues(*channel)->getType();
+    const float fcByPE = fObject.getValues(*channel)->getFCByPE();
+    const float darkC  = fObject.getValues(*channel)->getDrakCurrent();
+    const int   auxi1  = fObject.getValues(*channel)->getauxi1();
+    const float auxi2  = fObject.getValues(*channel)->getauxi2();
+    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    sprintf (buffer, " %8d %15.6f %15.6f %8d %15.6f\n", type, fcByPE, 
+	     darkC, auxi1, auxi2);
+    fOutput << buffer;
+  }
+  return true;
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject) {
+  char buffer [1024];
+  unsigned int all(0), good(0);
+  while (fInput.getline(buffer, 1024)) {
+    ++all;
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () != 8) {
+      edm::LogError("MapFormat") << "HcalSiPMCharacteristics-> line ignored: " << buffer;
+      continue;
+    }
+    ++good;
+    //    std::cout << "HcalSiPMCharacteristics-> processing line: " << buffer << std::endl;
+    int   type   = atoi (items [0].c_str());
+    int   pixels = atoi (items [1].c_str());
+    float parL0  = atof (items [2].c_str());
+    float parL1  = atof (items [3].c_str());
+    float parL2  = atof (items [4].c_str());
+    float cTalk  = atof (items [5].c_str());
+    int   auxi1  = atoi (items [6].c_str());
+    float auxi2  = atof (items [7].c_str());
+    fObject->loadObject (type, pixels, parL0, parL1, parL2, cTalk, auxi1, auxi2);
+  }
+  fObject->sort ();
+  edm::LogInfo("MapFormat") << "HcalSiPMCharacteristics:: processed " << good << " records in " << all << " record" << std::endl;
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject) {
+
+  char buffer [1024];
+  sprintf (buffer, "# %8s %8s %15s %15s %15s %15s %8s %15s\n", "type", 
+	   "pixels", "parLin1", "parLin2", "parLin3", "crossTalk", "auxi1", 
+	   "auxi2");
+  fOutput << buffer;
+
+  unsigned int size = fObject.getTypes();
+  for (unsigned int k=0; k<size; ++k) {
+    const int                type   = fObject.getType(k);
+    const int                pixels = fObject.getPixels(type);
+    const std::vector<float> pars   = fObject.getNonLinearities(type);
+    const float              cTalk  = fObject.getCrossTalk(type);
+    const int                auxi1  = fObject.getAuxi1(type);
+    const float              auxi2  = fObject.getAuxi2(type);
+    const float              par0   = (pars.size() > 0) ? pars[0] : 0;
+    const float              par1   = (pars.size() > 1) ? pars[1] : 0;
+    const float              par2   = (pars.size() > 2) ? pars[2] : 0;
+    sprintf (buffer, " %8d %8d %15.6f %15.6f %15.6f %15.6f %8d %15.6f\n", 
+	     type, pixels, par0, par1, par2, cTalk, auxi1, auxi2);
+    fOutput << buffer;
+  }
+  return true;
+}

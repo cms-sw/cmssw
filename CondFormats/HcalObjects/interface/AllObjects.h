@@ -37,4 +37,6 @@
 #include "CondFormats/HcalObjects/interface/HBHEChannelGroups.h"
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
 #include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
 #endif

@@ -22,6 +22,8 @@
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
 #include "CondFormats/HcalObjects/interface/HcalTimingParam.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParameter.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 
 /**
@@ -72,6 +74,8 @@ class HcalDbHardcode {
     void makeHardcodeMap(HcalElectronicsMap& emap);
     void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
     void makeHardcodeFrontEndMap(HcalFrontEndMap& emap);
+    HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId);
+    void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
     
   private:
     //member variables

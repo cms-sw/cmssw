@@ -140,6 +140,14 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceFlagHFDigiTimeParams);
       findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
+    else if (objectName == "SiPMParameters") {
+      setWhatProduced (this, &HcalTextCalibrations::produceSiPMParameters);
+      findingRecord <HcalSiPMParametersRcd> ();
+    }
+    else if (objectName == "SiPMCharacteristics") {
+      setWhatProduced (this, &HcalTextCalibrations::produceSiPMCharacteristics);
+      findingRecord <HcalSiPMCharacteristicsRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
@@ -147,7 +155,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
 		<< "FrontEndMap ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
 		<< "ValidationCorrs LutMetadata DcsValues DcsMap CovarianceMatrices "
 		<< "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
-		<< std::endl;
+		<< "SiPMParameters SiPMCharacteristics" << std::endl;
     }
   }
   //  setWhatProduced(this);
@@ -370,4 +378,15 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalTextCalibrations::produceFlagHFDig
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalFlagHFDigiTimeParams> (topo,mInputs ["FlagHFDigiTimeParams"]);
+}
+
+std::unique_ptr<HcalSiPMParameters> HcalTextCalibrations::produceSiPMParameters (const HcalSiPMParametersRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalSiPMParameters> (topo,mInputs ["SiPMParameters"]);
+}
+
+std::unique_ptr<HcalSiPMCharacteristics> HcalTextCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
+  return produce_impl<HcalSiPMCharacteristics> (mInputs ["SiPMCharacteristics"]);
 }
