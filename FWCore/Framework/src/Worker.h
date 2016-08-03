@@ -557,6 +557,9 @@ namespace edm {
                                    ParentContext const& parentContext,
                                    typename T::Context const* context) {
     try {
+      //pre was called in prefetchAsync
+      actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+
       if(iEPtr) {
         assert(*iEPtr);
         moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
@@ -655,6 +658,10 @@ namespace edm {
           prefetchAsync(waitTask.get(),parentContext, ep);
           waitTask->decrement_ref_count();
           waitTask->wait_for_all();
+
+          //pre was called in prefetchAsync
+          actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+
           if(waitTask->exceptionPtr() != nullptr) {
             std::rethrow_exception(*(waitTask->exceptionPtr()));
           }
