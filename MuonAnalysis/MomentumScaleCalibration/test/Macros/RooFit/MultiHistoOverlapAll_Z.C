@@ -331,7 +331,7 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
       }
     }
     leg->Draw("same");
-    cmsPlotTitle->Draw("same");
+    //cmsPlotTitle->Draw("same");
     c[pIndex]->RedrawAxis();
     c[pIndex]->Modified();
     c[pIndex]->Update();

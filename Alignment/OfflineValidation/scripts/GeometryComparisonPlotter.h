@@ -18,7 +18,6 @@
 #include <TLatex.h>
 #include <TList.h>
 
-using namespace std;
 
 class GeometryComparisonPlotter
 {

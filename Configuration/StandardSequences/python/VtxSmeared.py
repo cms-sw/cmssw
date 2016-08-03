@@ -38,12 +38,12 @@ VtxSmeared = {
     'Shifted15mmCollision2015'  :    'IOMC.EventVertexGenerators.VtxSmearedShifted15mmCollision2015_cfi',
     'NominalCollision2015'  :        'IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi',
     'NominalHICollision2015':      'IOMC.EventVertexGenerators.VtxSmearedNominalHICollision2015_cfi',
-    'UpdatedHICollision2015':      'IOMC.EventVertexGenerators.VtxSmearedUpdatedHICollision2015_cfi',
+    'RealisticHICollision2015':      'IOMC.EventVertexGenerators.VtxSmearedRealisticHICollision2015_cfi',
     'ZeroTeslaRun247324Collision'  : 'IOMC.EventVertexGenerators.VtxSmearedZeroTeslaRun247324Collision_cfi',
     'Realistic50ns13TeVCollisionZeroTesla': 'IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollisionZeroTesla_cfi',
     'Realistic50ns13TeVCollision': 'IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi',
     'Nominal5TeVpp2015Collision':    'IOMC.EventVertexGenerators.VtxSmearedNominal5TeVpp2015Collision_cfi',
-
+    'Realistic25ns13TeV2016Collision':    'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeV2016Collision_cfi',
 }
 VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
 VtxSmearedHIDefaultKey='NominalHICollision2015'

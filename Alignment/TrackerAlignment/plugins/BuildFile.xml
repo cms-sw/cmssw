@@ -35,3 +35,38 @@
   <use   name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library name="AlignmentTrackerAlignmentRecordGeneratorPlugins"
+	 file="CreateTrackerAlignmentRcds.cc">
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="Alignment/CommonAlignment"/>
+  <use name="CondFormats/AlignmentRecord"/>
+  <use name="CondCore/DBOutputService"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="CondFormats/Alignment"/>
+  <use name="DataFormats/TrackerCommon" />
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="CLHEP"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="CosmicRateAnalyzer.cc" name="AlignmentCosmicRateAnalyzerPlugins">
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/SiPixelDetId"/>
+  <use   name="DataFormats/SiStripDetId"/>
+  <use   name="DataFormats/SiStripCluster"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/RecoCandidate"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

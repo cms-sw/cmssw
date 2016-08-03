@@ -80,7 +80,6 @@ TrackFromSeedProducer::TrackFromSeedProducer(const edm::ParameterSet& iConfig)
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
-  produces<std::vector<int> >();
 
   // read parametes
   edm::InputTag seedsTag(iConfig.getParameter<edm::InputTag>("src"));
@@ -104,10 +103,9 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
    using namespace std;
    
    // output collection
-   auto_ptr<TrackCollection> tracks(new TrackCollection);
-   auto_ptr<TrackingRecHitCollection> rechits(new TrackingRecHitCollection);
-   auto_ptr<TrackExtraCollection> trackextras(new TrackExtraCollection);
-   auto_ptr<vector<int> > seedToTrack(new vector<int>());
+   unique_ptr<TrackCollection> tracks(new TrackCollection);
+   unique_ptr<TrackingRecHitCollection> rechits(new TrackingRecHitCollection);
+   unique_ptr<TrackExtraCollection> trackextras(new TrackExtraCollection);
    
    // product references 
    TrackExtraRefProd ref_trackextras = iEvent.getRefBeforePut<TrackExtraCollection>();
@@ -143,28 +141,32 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
      TransientTrackingRecHit::RecHitPointer lastRecHit = tTRHBuilder->build(&*(seed.recHits().second-1));
      TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( seed.startingState(), lastRecHit->surface(), theMF.product());
      TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),*beamSpot);//as in TrackProducerAlgorithm
-     if(!(tsAtClosestApproachSeed.isValid())){
-       edm::LogVerbatim("SeedValidator")<<"TrajectoryStateClosestToBeamLine not valid";
-       seedToTrack->push_back(-1);
-       nfailed++;
-       continue;
+     if(tsAtClosestApproachSeed.isValid()) {
+       const reco::TrackBase::Point vSeed1(tsAtClosestApproachSeed.trackStateAtPCA().position().x(),
+                                           tsAtClosestApproachSeed.trackStateAtPCA().position().y(),
+                                           tsAtClosestApproachSeed.trackStateAtPCA().position().z());
+       const reco::TrackBase::Vector pSeed(tsAtClosestApproachSeed.trackStateAtPCA().momentum().x(),
+                                           tsAtClosestApproachSeed.trackStateAtPCA().momentum().y(),
+                                           tsAtClosestApproachSeed.trackStateAtPCA().momentum().z());
+       //GlobalPoint vSeed(vSeed1.x()-beamSpot->x0(),vSeed1.y()-beamSpot->y0(),vSeed1.z()-beamSpot->z0());
+       PerigeeTrajectoryError seedPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
+       tracks->emplace_back(0.,0., vSeed1, pSeed, state.charge(), seedPerigeeErrors.covarianceMatrix());
      }
-     const reco::TrackBase::Point vSeed1(tsAtClosestApproachSeed.trackStateAtPCA().position().x(),
-					 tsAtClosestApproachSeed.trackStateAtPCA().position().y(),
-					 tsAtClosestApproachSeed.trackStateAtPCA().position().z());
-     const reco::TrackBase::Vector pSeed(tsAtClosestApproachSeed.trackStateAtPCA().momentum().x(),
-					 tsAtClosestApproachSeed.trackStateAtPCA().momentum().y(),
-					 tsAtClosestApproachSeed.trackStateAtPCA().momentum().z());
-     //GlobalPoint vSeed(vSeed1.x()-beamSpot->x0(),vSeed1.y()-beamSpot->y0(),vSeed1.z()-beamSpot->z0());
-     PerigeeTrajectoryError seedPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
-     tracks->push_back(Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix()));
-     seedToTrack->push_back(tracks->size()-1);
+     else {
+       edm::LogVerbatim("SeedValidator")<<"TrajectoryStateClosestToBeamLine not valid";
+       // use magic values chi2<0, ndof<0, charge=0 to denote a case where the fit has failed
+       // If this definition is changed, change also interface/trackFromSeedFitFailed.h
+       tracks->emplace_back(-1, -1, reco::TrackBase::Point(), reco::TrackBase::Vector(), 0, reco::TrackBase::CovarianceMatrix());
+       nfailed++;
+     }
+
      tracks->back().appendHits(seed.recHits().first,seed.recHits().second,ttopo);
      // store the hits
      size_t firsthitindex = rechits->size();
      for(auto hitit = seed.recHits().first;hitit != seed.recHits().second;++hitit){
        rechits->push_back(*hitit);
      }
+
      // create a trackextra, just to store the hit range
      trackextras->push_back(TrackExtra());
      trackextras->back().setHits(ref_rechits,firsthitindex,rechits->size() - firsthitindex);
@@ -176,10 +178,9 @@ TrackFromSeedProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
    if (nfailed > 0) {
      edm::LogInfo("SeedValidator") << "failed to create tracks from " << nfailed <<  " out of " << seeds.size() << " seeds ";
    }
-   iEvent.put(tracks);
-   iEvent.put(seedToTrack);
-   iEvent.put(rechits);
-   iEvent.put(trackextras);
+   iEvent.put(std::move(tracks));
+   iEvent.put(std::move(rechits));
+   iEvent.put(std::move(trackextras));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

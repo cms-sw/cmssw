@@ -20,7 +20,6 @@
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -38,7 +37,6 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
 
 class EGammaMvaEleEstimatorCSA14{
   public:

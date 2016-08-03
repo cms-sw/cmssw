@@ -1,5 +1,6 @@
 #include "DQM/HcalTasks/interface/HcalOnlineHarvesting.h"
-
+using namespace hcaldqm;
+using namespace constants;
 HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 	DQHarvester(ps), _reportSummaryMap(NULL)
 {

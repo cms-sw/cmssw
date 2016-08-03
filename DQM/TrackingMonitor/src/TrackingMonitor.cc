@@ -70,7 +70,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , doGeneralPropertiesPlots_( conf_.getParameter<bool>("doGeneralPropertiesPlots"))
     , doHitPropertiesPlots_    ( conf_.getParameter<bool>("doHitPropertiesPlots"))
     , doPUmonitoring_          ( conf_.getParameter<bool>("doPUmonitoring") )
-    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig,consumesCollector(), *this))
+    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this))
     , numSelection_       (conf_.getParameter<std::string>("numCut"))
     , denSelection_       (conf_.getParameter<std::string>("denCut"))
     , pvNDOF_             ( conf_.getParameter<int> ("pvNDOF") )
@@ -537,6 +537,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
       theTrackAnalyzer->setBX(iEvent);
+      theTrackAnalyzer->setLumi(iEvent,iSetup);
       for (reco::TrackCollection::const_iterator track = trackCollection.begin();
 	   track!=trackCollection.end(); ++track) {
 	

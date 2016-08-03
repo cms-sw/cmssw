@@ -34,17 +34,17 @@ namespace L1TwinMux {
     ~DTCollector() {}
 
     //virtual void extractPrimitives(const edm::Event&, const edm::EventSetup&,
-	//			   std::vector<TriggerPrimitive>&) const;
+	//			   std::vector<L1TMuon::TriggerPrimitive>&) const;
 	virtual void extractPrimitives(edm::Handle<L1MuDTChambPhContainer> phiDigis,
                                     edm::Handle<L1MuDTChambThContainer> thetaDigis,
-                                    TriggerPrimitiveCollection& out) const;
+                                    L1TMuon::TriggerPrimitiveCollection& out) const;
 
   private:
-    TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
+    L1TMuon::TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
 				  const int &segment_number) const;
-    TriggerPrimitive processDigis(const L1MuDTChambThDigi&,
+    L1TMuon::TriggerPrimitive processDigis(const L1MuDTChambThDigi&,
 				  const int bti_group) const;
-    TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
+    L1TMuon::TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
 				  const L1MuDTChambThDigi&,
 				  const int bti_group) const;
     int findBTIGroupForThetaDigi(const L1MuDTChambThDigi&,

@@ -17,11 +17,6 @@ public:
 
   virtual double timeToRise() const {return 3.5;}
 
-  static double gexp(double t, double A, double c, double t0, double s);
-  static double gexpIndefIntegral(double t, double A, double c, double t0, 
-				  double s);
-  static double gexpIntegral0Inf(double A, double c, double t0, double s);
-
 protected:
   virtual double analyticPulseShape(double t) const;
   void computeShape();

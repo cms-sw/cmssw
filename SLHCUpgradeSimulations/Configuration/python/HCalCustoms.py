@@ -42,7 +42,6 @@ def load_HcalHardcode(process):
                 'L1TriggerObjects',
                 'PFCorrs',
                 'ElectronicsMap',
-                'CholeskyMatrices',
                 'CovarianceMatrices',
                 'FlagHFDigiTimeParams',
                 )
@@ -80,11 +79,16 @@ def customise_Hcal2017(process):
     if hasattr(process,'reconstruction_step'):
         process.hbheprereco.digiLabel = cms.InputTag("simHcalDigis")
         process.hbheprereco.setNoiseFlags = cms.bool(False)
+        # process.hbheprereco.puCorrMethod = cms.int32(0)
         process.horeco.digiLabel = cms.InputTag("simHcalDigis")
-        process.hfreco.digiLabel = cms.InputTag("simHcalDigis")
         process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
         process.zdcreco.digiLabelhcal = cms.InputTag("simHcalUnsuppressedDigis")
         process.hcalnoise.digiCollName = cms.string('simHcalDigis')
+        process.load("RecoLocalCalo.HcalRecProducers.hfprereco_cfi")
+        process.hfprereco.digiLabel = cms.InputTag("simHcalDigis", "HFQIE10DigiCollection")
+        process.localreco += process.hfprereco
+        from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco
+        process.globalReplace("hfreco", hfreco)
     if hasattr(process,'datamixing_step'):
         process=customise_mixing(process)
     
@@ -96,7 +100,15 @@ def customise_Hcal2017Full(process):
     
     #use HE phase1 conditions - test SiPM/QIE11
     process.es_hardcode.useHEUpgrade = cms.bool(True)
-    
+
+    if hasattr(process,'reconstruction_step'):
+        # Customise HB/HE reco
+        from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco
+        process.globalReplace("hbheprereco", hbheprereco)
+        process.hbheprereco.saveInfos = cms.bool(True)
+        process.hbheprereco.digiLabelQIE8 = cms.InputTag("simHcalDigis")
+        process.hbheprereco.digiLabelQIE11 = cms.InputTag("simHcalDigis", "HBHEQIE11DigiCollection")
+
     return process
     
 def customise_HcalPhase1(process):

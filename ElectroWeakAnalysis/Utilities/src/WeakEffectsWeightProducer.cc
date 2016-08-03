@@ -55,7 +55,7 @@ void WeakEffectsWeightProducer::produce(edm::Event & iEvent, const edm::EventSet
       iEvent.getByToken(genParticlesToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set default weight
       (*weight) = 1.;
@@ -80,7 +80,7 @@ void WeakEffectsWeightProducer::produce(edm::Event & iEvent, const edm::EventSet
       }
 
       //printf(" \t >>>>> WeakEffectsWeightProducer: Final weight = %f\n", (*weight));
-      iEvent.put(weight);
+      iEvent.put(std::move(weight));
 }
 
 double WeakEffectsWeightProducer::alphaQED(double q2) {

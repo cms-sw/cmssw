@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/Fake1/V13 (CMSSW_8_0_8_HLT1)
+# /dev/CMSSW_8_0_0/Fake1/V17 (CMSSW_8_0_12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake1" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V13')
+  tableName = cms.string('/dev/CMSSW_8_0_0/Fake1/V17')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -214,6 +214,7 @@ process.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     CTP7 = cms.untracked.bool( False ),
     lenAMC13Trailer = cms.untracked.int32( 8 ),
     Setup = cms.string( "stage1::CaloSetup" ),
+    MinFeds = cms.uint32( 0 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     lenSlinkHeader = cms.untracked.int32( 8 ),
     MTF7 = cms.untracked.bool( False ),
@@ -439,9 +440,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
 
-# enable the TrigReport and TimeReport
+# enable TrigReport, TimeReport and MultiThreading
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True )
+    wantSummary = cms.untracked.bool( True ),
+    numberOfThreads = cms.untracked.uint32( 4 ),
+    numberOfStreams = cms.untracked.uint32( 0 ),
+    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 
 # override the GlobalTag, connection string and pfnPrefix
@@ -449,12 +453,6 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
     process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_Fake1')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
-    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-    for pset in process.GlobalTag.toGet.value():
-        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
-    # fix for multi-run processing
-    process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-    process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

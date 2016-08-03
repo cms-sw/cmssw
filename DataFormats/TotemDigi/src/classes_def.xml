@@ -14,8 +14,9 @@
   </class>
   <class name="edm::Wrapper<TotemTriggerCounters>"/>
 
-  <class name="TotemVFATStatus" ClassVersion="2">
+  <class name="TotemVFATStatus" ClassVersion="3">
     <version ClassVersion="2" checksum="3003040825"/>
+    <version ClassVersion="3" checksum="1439138260"/>
   </class>
   <class name="edm::Wrapper<TotemVFATStatus>"/>
   <class name="edm::DetSetVector<TotemVFATStatus>"/>

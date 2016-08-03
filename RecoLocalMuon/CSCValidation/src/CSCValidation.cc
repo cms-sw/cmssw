@@ -2583,57 +2583,57 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
               float adcmax=0.0;
  
               for(unsigned int i=0;i<recIt->nStrips();i++) 
-		for(unsigned int j=0;j<recIt->nTimeBins();j++)
-		  if(recIt->adcs(i,j)>adcmax) {
-		    adcmax=recIt->adcs(i,j); 
-		    binmx=j;
-		  }
+                for(unsigned int j=0;j<recIt->nTimeBins();j++)
+                  if(recIt->adcs(i,j)>adcmax) {
+                    adcmax=recIt->adcs(i,j); 
+                    binmx=j;
+                  }
 
-	      adc_3_3_sum=0.0;
-	      //well, this really only works for 3 strips in readout - not sure the right fix for general case
-              for(unsigned int i=0;i<recIt->nStrips();i++) 
-		for(unsigned int j=binmx-1;j<=binmx+1;j++) 
-		  adc_3_3_sum+=recIt->adcs(i,j);
-
-
-                // ADC weighted time bin
-                if(adc_3_3_sum > 100.0) {
-                  
-
-		  int centerStrip=recIt->channels(1); //take central from 3 strips;
-                // temporary fix
-                  int flag=0;
-                  if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
-                // end of temporary fix
-                  if(flag==0) {
-                  adc_3_3_wtbin=(*recIt).tpeak()/50;   //getTiming(strpcltn, id, centerStrip);
-                  idchamber=indexer.dbIndex(id, centerStrip)/10; //strips 1-16 ME1/1a
-                                              // become strips 65-80 ME1/1 !!!
-                  /*
-                  if(id.station()==1 && (id.ring()==1 || id.ring()==4))
-                  std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
-                      "      "<<centerStrip<<
-                         " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
-                  */      
-                 ss<<"adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
-                 name=ss.str(); ss.str("");
-
-                 std::string endcapstr;
-                 if(id.endcap() == 1) endcapstr = "+";
-                 if(id.endcap() == 2) endcapstr = "-";
-                 ring=id.ring(); if(id.ring()==4) ring=1;
-                 ss<<"ADC 3X3 Weighted Time Bin vs CFEB Occupancy ME"
-                   <<endcapstr<<id.station()<<"/"<<ring<<"/"<<id.chamber();
-                 title=ss.str(); ss.str("");
-
-                 cfeb=(centerStrip-1)/16+1;
-                 x=cfeb; y=adc_3_3_wtbin;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,80,-8.,8.,"ADCTiming");                                     
-                 } // end of if flag==0
-                } // end of if (adc_3_3_sum > 100.0)
+               adc_3_3_sum=0.0;
+               //well, this really only works for 3 strips in readout - not sure the right fix for general case
+               for(unsigned int i=0;i<recIt->nStrips();i++) 
+                  for(unsigned int j=binmx-1;j<=binmx+1;j++) 
+                       adc_3_3_sum+=recIt->adcs(i,j);
+      
+      
+                  // ADC weighted time bin
+               if(adc_3_3_sum > 100.0) {
+                           
+      
+                 int centerStrip=recIt->channels(1); //take central from 3 strips;
+                 // temporary fix
+                 int flag=0;
+                 if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
+                 // end of temporary fix
+                 if(flag==0) {
+                      adc_3_3_wtbin=(*recIt).tpeak()/50;   //getTiming(strpcltn, id, centerStrip);
+                      idchamber=indexer.dbIndex(id, centerStrip)/10; //strips 1-16 ME1/1a
+                                                  // become strips 65-80 ME1/1 !!!
+                      /*
+                      if(id.station()==1 && (id.ring()==1 || id.ring()==4))
+                      std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
+                          "      "<<centerStrip<<
+                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
+                      */      
+                     ss<<"adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
+                     name=ss.str(); ss.str("");
+      
+                     std::string endcapstr;
+                     if(id.endcap() == 1) endcapstr = "+";
+                     if(id.endcap() == 2) endcapstr = "-";
+                     ring=id.ring(); if(id.ring()==4) ring=1;
+                     ss<<"ADC 3X3 Weighted Time Bin vs CFEB Occupancy ME"
+                       <<endcapstr<<id.station()<<"/"<<ring<<"/"<<id.chamber();
+                     title=ss.str(); ss.str("");
+      
+                     cfeb=(centerStrip-1)/16+1;
+                     x=cfeb; y=adc_3_3_wtbin;
+                     histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,80,-8.,8.,"ADCTiming");                                     
+                     } // end of if flag==0
+                 } // end of if (adc_3_3_sum > 100.0)
             } // end of if if(m_strip.size()==3
-       } // end of the  pass thru CSCRecHit2DCollection
-     }  // end of if (rechitcltn.begin() != rechitcltn.end())
+        } // end of the  pass thru CSCRecHit2DCollection
+    }  // end of if (rechitcltn.begin() != rechitcltn.end())
 }
 
 //---------------------------------------------------------------------------------------

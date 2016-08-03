@@ -4,6 +4,7 @@
 #include <typeinfo>
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
@@ -88,6 +89,12 @@ class PulseShapeFitOOTPileupCorrection
 public:
     PulseShapeFitOOTPileupCorrection();
     ~PulseShapeFitOOTPileupCorrection();
+
+    void phase1Apply(const HBHEChannelInfo& channelData,
+                     const HcalCalibrations& calibs,
+                     float* reconstructedEnergy,
+                     float* reconstructedTime,
+                     bool* usedTripleTemplate) const;
 
     void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,

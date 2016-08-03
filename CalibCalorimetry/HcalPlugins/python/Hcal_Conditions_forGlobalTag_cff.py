@@ -13,9 +13,6 @@ hcal_db_producer = cms.ESProducer("HcalDbProducer",
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     toGet = cms.untracked.vstring('GainWidths'),
     iLumi = cms.double(-1.),                      # for Upgrade: fb-1
-    iLumiOffset = cms.double(-1.),                # for Upgrade: fb-1
-    HBSiPMLumiDep = cms.double(1.7),              # for Upgrade
-    HESiPMLumiDep = cms.double(0.7),              # for Upgrade
     HERecalibration = cms.bool(False),            # True for Upgrade
     HEreCalibCutoff = cms.double(20.),            # if above is True
     HFRecalibration = cms.bool(False),            # True for Upgrade
@@ -62,18 +59,18 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         qieSlope      = cms.vdouble(0.907,0.915,0.920,0.921)
     ),
     hbUpgrade = cms.PSet(
-        pedestal      = cms.double(18.),
-        pedestalWidth = cms.double(5.),
-        gain          = cms.vdouble(1/900.), #90 is pe/GeV 10 is fC/pe.
+        pedestal      = cms.double(17.3),
+        pedestalWidth = cms.double(1.5),
+        gain          = cms.vdouble(1/3568.), #62.06 is pe/GeV 57.5 is fC/pe.
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
         qieSlope      = cms.vdouble(0.333,0.333,0.333,0.333)
     ),
     heUpgrade = cms.PSet(
-        pedestal      = cms.double(18.),
-        pedestalWidth = cms.double(5.),
-        gain          = cms.vdouble(1/900.), #90 is pe/GeV 10 is fC/pe.
+        pedestal      = cms.double(17.3),
+        pedestalWidth = cms.double(1.5),
+        gain          = cms.vdouble(1/3568.), #62.06 is pe/GeV 57.5 is fC/pe.
         gainWidth     = cms.vdouble(0),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
@@ -93,7 +90,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_common.toModify( es_hardcode,
+eras.phase2_hcal.toModify( es_hardcode,
                              toGet = cms.untracked.vstring(
                                          'GainWidths',
                                          'MCParams',
@@ -112,7 +109,6 @@ eras.phase2_common.toModify( es_hardcode,
                                          'L1TriggerObjects',
                                          'PFCorrs',
                                          'ElectronicsMap',
-                                         'CholeskyMatrices',
                                          'CovarianceMatrices',
                                          'FlagHFDigiTimeParams'
                                          ),

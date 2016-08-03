@@ -297,7 +297,7 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   }
 #endif
 
-  MuonRecHitContainer muonRecHits;
+  MuonSegFit::MuonRecHitContainer muonRecHits;
   proto_segment.clear();
   
   uint32_t refid = ensemble.second.begin()->first;
@@ -312,8 +312,10 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
     const LocalPoint lp = refPart->toLocal(gp);    
     ME0RecHit *newRH = (*rh)->clone();
     newRH->setPosition(lp);
-    
-    muonRecHits.push_back(newRH);    
+
+    MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
+    muonRecHits.push_back(trkRecHit);
+    //muonRecHits.push_back(newRH);
   }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
@@ -322,7 +324,6 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   sfit_->fit();
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment fit done";
 
-  for (auto rh:muonRecHits) delete rh;
   // quit function if fit was not OK  
   //if(!goodfit) return;
   
@@ -352,6 +353,7 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment made";
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] "<<tmp;
   
+  for (auto rh:muonRecHits) rh.reset();
   me0segs.push_back(tmp);
   return;
 }

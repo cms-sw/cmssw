@@ -317,31 +317,31 @@ class MT2Analyzer( Analyzer ):
             
                 self.zll_mt2_Xj = self.getMT2Hemi(event,objectsXjc,event.zll_met,self.cfg_ana.collectionPostFix,"_Xj_zll")
 
-## ===> zllmt_MT2
-        
-        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_zllmt", -999)
-        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
-        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
-                
-        if hasattr(event, 'zllmt_met'):
-
-            csLeptons = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta()) < 2.5 ]
-            
-            if len(csLeptons)==2 and len(objects40jc)>=2:
-            
-                self.zllmt_mt2 = self.getMT2Hemi(event,objects40jc,event.zllmt_met,self.cfg_ana.collectionPostFix,"_zllmt")
-
-        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_Xj_zllmt", -999)
-        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_Xj_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
-        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_Xj_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
-
-        if hasattr(event, 'zllmt_met'):
-
-            csLeptons = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta()) < 2.5 ]
-            
-            if len(csLeptons)==2 and len(objectsXjc)>=2:
-            
-                self.zllmt_mt2_Xj = self.getMT2Hemi(event,objectsXjc,event.zllmt_met,self.cfg_ana.collectionPostFix,"_Xj_zllmt")
+### ===> zllmt_MT2
+#        
+#        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_zllmt", -999)
+#        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+#        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+#                
+#        if hasattr(event, 'zllmt_met'):
+#
+#            csLeptons = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta()) < 2.5 ]
+#            
+#            if len(csLeptons)==2 and len(objects40jc)>=2:
+#            
+#                self.zllmt_mt2 = self.getMT2Hemi(event,objects40jc,event.zllmt_met,self.cfg_ana.collectionPostFix,"_zllmt")
+#
+#        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_Xj_zllmt", -999)
+#        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_Xj_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+#        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_Xj_zllmt", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+#
+#        if hasattr(event, 'zllmt_met'):
+#
+#            csLeptons = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta()) < 2.5 ]
+#            
+#            if len(csLeptons)==2 and len(objectsXjc)>=2:
+#            
+#                self.zllmt_mt2_Xj = self.getMT2Hemi(event,objectsXjc,event.zllmt_met,self.cfg_ana.collectionPostFix,"_Xj_zllmt")
 
 
 ## ===> rl_MT2
@@ -393,9 +393,15 @@ class MT2Analyzer( Analyzer ):
 
             csLeptons = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta()) < 2.5 ]
             
-            if len(csLeptons)==2 and len(objectsXjc)>=2:
+            if len(csLeptons)==2 and len(objectsXjc)>=1:
+                
+                csLeptons_mt = []
+                if (event.eventId%2):
+                    csLeptons_mt.append(csLeptons[1])
+                else:
+                    csLeptons_mt.append(csLeptons[0])
             
-                self.zllmt_mt2_Xj = self.getMT2Hemi(event,objectsXjc,event.zllmt_met,self.cfg_ana.collectionPostFix,"_Xj_zllmt")
+                self.zllmt_mt2_Xj = self.getMT2Hemi(event,objectsXjc+[l for l in csLeptons if l not in csLeptons_mt],event.zllmt_met,self.cfg_ana.collectionPostFix,"_Xj_zllmt")
 
 
 #### do the mt2 with one or two b jets (medium CSV)                                                                                                                                                                                                         

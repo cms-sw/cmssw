@@ -4,13 +4,9 @@
 #include <string>
 
 // Root objects
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TFile.h"
-#include "TProfile.h"
-#include "TDirectory.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TTree.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -50,6 +46,7 @@ private:
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void clear();
   void fillTrack(int, double, double, double, double);
   void fillIsolation(int, double, double, double);
   void fillEnergy(int, int, double, double, double, double, double);
@@ -81,10 +78,20 @@ private:
   TH1I                      *h_goodPV, *h_goodRun;
   TH2I                      *h_nHLTvsRN;
   std::vector<TH1I*>         h_HLTAccepts;
-  TH1D                      *h_p[nPVBin+8], *h_pt[nPVBin+8], *h_eta[nPVBin+8], *h_phi[nPVBin+8];
+  TH1D                      *h_p[nPVBin+8], *h_pt[nPVBin+8], *h_eta[nPVBin+8];
+  TH1D                      *h_phi[nPVBin+8];
   TH1I                      *h_ntrk[2];
   TH1D                      *h_maxNearP[2], *h_ene1[2], *h_ene2[2], *h_ediff[2];
   TH1D                      *h_energy[nPVBin+4][nPBin][nEtaBin][6];
+  TTree                     *tree_;
   int                        nRun, etaBin[nEtaBin+1], pvBin[nPVBin+1];
   double                     pBin[nPBin+1];
+  int                        tr_goodPV, tr_goodRun;
+  std::vector<std::string>   tr_TrigName;
+  std::vector<double>        tr_TrkPt, tr_TrkP, tr_TrkEta, tr_TrkPhi;
+  std::vector<double>        tr_MaxNearP31X31, tr_MaxNearHcalP7x7;
+  std::vector<double>        tr_H3x3, tr_H5x5, tr_H7x7;
+  std::vector<double>        tr_FE7x7P, tr_FE11x11P, tr_FE15x15P;
+  std::vector<bool>          tr_SE7x7P, tr_SE11x11P, tr_SE15x15P;
+  std::vector<int>           tr_iEta;
 };

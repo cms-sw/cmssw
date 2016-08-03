@@ -138,4 +138,5 @@
    <class name="edm::PtrVector<reco::FFTCaloJet>" />
    <class name="edm::Association<reco::FFTCaloJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> >" />
+
 </lcgdict>

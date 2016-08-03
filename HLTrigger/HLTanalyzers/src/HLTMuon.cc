@@ -347,10 +347,11 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
   else {nmuon = 0;}
 
   l1extra::L1MuonParticleCollection myMucands1; 
-  myMucands1 = * MuCands1; 
-  //  reco::RecoChargedCandidateCollection myMucands1;
-  std::sort(myMucands1.begin(),myMucands1.end(),PtGreater()); 
-
+  if (MuCands1.isValid()) {
+    myMucands1 = * MuCands1;
+    //  reco::RecoChargedCandidateCollection myMucands1;
+    std::sort(myMucands1.begin(),myMucands1.end(),PtGreater());
+  }
   /////////////////////////////// Open-HLT muons ///////////////////////////////
 
   // Dealing with L2 muons

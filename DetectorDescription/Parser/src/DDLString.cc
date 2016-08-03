@@ -1,16 +1,8 @@
-/***************************************************************************
-                          DDLString.cc  -  description
-                             -------------------
-    begin                : Friday Nov. 21, 2003
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLString.h"
 
 #include <map>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
@@ -21,9 +13,6 @@ class DDLElementRegistry;
 DDLString::DDLString( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
 {}
-
-DDLString::~DDLString( void )
-{}
  
 void
 DDLString::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
@@ -32,7 +21,6 @@ DDLString::preProcessElement( const std::string& name, const std::string& nmspac
 void
 DDLString::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLString::processElement started");
   if (parent() == "ConstantsSection" || parent() == "DDDefinition")
   {
     // I do not like "newing" things without my control.  But this is
@@ -40,13 +28,8 @@ DDLString::processElement( const std::string& name, const std::string& nmspace, 
 
     std::string * ts = new std::string((getAttributeSet().find("value"))->second);
     DDName ddn = getDDName(nmspace);
-    DDString (ddn 
-	      , ts
-      );
-
+    DDString( ddn, ts );
     clear();
   }
-
-  DCOUT_V('P', "DDLString::processElement completed");
 }
 

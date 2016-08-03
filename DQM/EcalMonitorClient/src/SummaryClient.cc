@@ -95,6 +95,15 @@ namespace ecaldqm
 
     std::map<uint32_t, int> badChannelsCount;
 
+    // Override IntegrityByLumi check if Desync errors present
+    MESet const& sBXSRP(sources_.at("BXSRP"));
+    MESet const& sBXTCC(sources_.at("BXTCC"));
+    std::vector<bool> hasMismatchDCC(nDCC,false);
+    for ( unsigned iDCC(0); iDCC < nDCC; ++iDCC ) {
+      if ( sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50. ) // "any" => 50
+        hasMismatchDCC[iDCC] = true;
+    }
+
     MESet::iterator qEnd(meQualitySummary.end());
     for(MESet::iterator qItr(meQualitySummary.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
@@ -115,7 +124,8 @@ namespace ecaldqm
 
       int rawdata(sRawData.getBinContent(id));
 
-      if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
+      //if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
+      if(integrity == kBad && integrityByLumi[iDCC] == 0. && !hasMismatchDCC[iDCC]) integrity = kGood;
       if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
 
       int status(kGood);

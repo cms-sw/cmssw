@@ -21,7 +21,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
-#include "DataFormats/CSCDigi/interface/GEMCSCLCTDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
@@ -69,8 +68,7 @@ class CSCTriggerPrimitivesBuilder
              CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
 	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
-	     GEMCoPadDigiCollection& oc_gemcopad,
-	     GEMCSCLCTDigiCollection& oc_gemcsclct);
+	     GEMCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
    *  processors. */

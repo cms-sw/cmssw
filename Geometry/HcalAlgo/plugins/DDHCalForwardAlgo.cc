@@ -70,7 +70,7 @@ void DDHCalForwardAlgo::execute(DDCompactView& cpv) {
     int    indx = type[i];
     for (int j=0; j<number[i]; j++) {
       box++;
-      string name = parentName.name() + dbl_to_string(box);
+      string name = parentName.name() + std::to_string(box);
       DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace),
 					  dx, cellDy, cellDz);
       LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " 

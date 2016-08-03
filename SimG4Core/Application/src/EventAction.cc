@@ -4,20 +4,20 @@
 #include "SimG4Core/Application/interface/G4SimTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 #include "Randomize.hh"
 
-//using std::cout;
-//using std::endl;
-
 EventAction::EventAction(const edm::ParameterSet & p,
                          SimRunInterface* rm,
-			 SimTrackManager* iManager) 
+			 SimTrackManager* iManager,
+			 CMSSteppingVerbose* sv) 
     : m_runInterface(rm),
       m_trackManager(iManager),
+      m_SteppingVerbose(sv),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_printRandom(p.getParameter<bool>("PrintRandomSeed")),
       m_debug(p.getUntrackedParameter<bool>("debug",false))
@@ -35,14 +35,15 @@ void EventAction::BeginOfEventAction(const G4Event * anEvent)
         << "BeginOfEventAction: termination signal received at event "
 	<< anEvent->GetEventID();
       /*
-        cout << "BeginOfEventAction: termination signal received at event "
-             << anEvent->GetEventID() << endl;
+        G4cout << "BeginOfEventAction: termination signal received at event "
+	       << anEvent->GetEventID() << G4endl;
       */
       m_runInterface->abortRun(true);
     }
   m_trackManager->reset();
   BeginOfEvent e(anEvent);
   m_beginOfEventSignal(&e);
+  if(nullptr != m_SteppingVerbose) { m_SteppingVerbose->BeginOfEvent(anEvent); }
 }
 
 void EventAction::EndOfEventAction(const G4Event * anEvent)

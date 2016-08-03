@@ -32,6 +32,7 @@ process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemRea
 process.load('EventFilter.TotemRawToDigi.totemRPRawToDigi_cfi')
 process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 process.totemRPRawToDigi.fedIds = cms.vuint32(578, 579, 580) # in the emulated data one OptoRx was not functional
+process.totemRPRawToDigi.RawToDigi.testID = 0
 process.totemRPRawToDigi.RawToDigi.printErrorSummary = 1
 process.totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
 

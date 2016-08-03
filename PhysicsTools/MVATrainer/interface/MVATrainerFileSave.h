@@ -33,7 +33,7 @@ class MVATrainerFileSave : public edm::EDAnalyzer {
 	typedef std::map<std::string, std::string> LabelFileMap;
 
 	LabelFileMap						toPut;
-	std::auto_ptr<Calibration::MVAComputerContainer>	calib;
+	std::unique_ptr<Calibration::MVAComputerContainer>	calib;
 	bool							saved;
 };
 

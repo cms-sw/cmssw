@@ -167,8 +167,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         CSCCLCTPreTriggerCollection & oc_pretrig,
 					CSCCorrelatedLCTDigiCollection& oc_lct,
 					CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
-					GEMCoPadDigiCollection& oc_gemcopad,
-					GEMCSCLCTDigiCollection& oc_gemcsclct)
+					GEMCoPadDigiCollection& oc_gemcopad)
 {
   // CSC geometry.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();

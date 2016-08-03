@@ -3,6 +3,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/rawEnergy.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCorrectionFunctions.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include <algorithm>
@@ -107,18 +108,8 @@ void HcalSimpleRecAlgo::setBXInfo(const BunchXParameter* info,
     lenBunchCrossingInfo_ = lenInfo;
 }
 
-///Timeshift correction for HPDs based on the position of the peak ADC measurement.
-///  Allows for an accurate determination of the relative phase of the pulse shape from
-///  the HPD.  Calculated based on a weighted sum of the -1,0,+1 samples relative to the peak
-///  as follows:  wpksamp = (0*sample[0] + 1*sample[1] + 2*sample[2]) / (sample[0] + sample[1] + sample[2])
-///  where sample[1] is the maximum ADC sample value.
-static float timeshift_ns_hbheho(float wpksamp);
-
-///Same as above, but for the HF PMTs.
+///Timeshift correction for the HF PMTs.
 static float timeshift_ns_hf(float wpksamp);
-
-/// Ugly hack to apply energy corrections to some HB- cells
-static float eCorr(int ieta, int iphi, double ampl, int runnum);
 
 /// Leak correction 
 static float leakCorr(double energy);
@@ -396,9 +387,9 @@ namespace HcalSimpleRecAlgoImpl {
       if (cell.subdet() == HcalBarrel) {
         const int ieta = cell.ieta();
         const int iphi = cell.iphi();
-        uncorr_ampl *= eCorr(ieta, iphi, uncorr_ampl, runnum);
-        ampl *= eCorr(ieta, iphi, ampl, runnum);
-        m3_ampl *= eCorr(ieta, iphi, m3_ampl, runnum);
+        uncorr_ampl *= hbminus_special_ecorr(ieta, iphi, uncorr_ampl, runnum);
+        ampl *= hbminus_special_ecorr(ieta, iphi, ampl, runnum);
+        m3_ampl *= hbminus_special_ecorr(ieta, iphi, m3_ampl, runnum);
       }
     }
 
@@ -504,9 +495,9 @@ namespace HcalSimpleRecAlgoImpl {
       if (cell.subdet() == HcalBarrel) {
 	const int ieta = cell.ieta();
 	const int iphi = cell.iphi();
-	uncorr_ampl *= eCorr(ieta, iphi, uncorr_ampl, runnum);
-        ampl *= eCorr(ieta, iphi, ampl, runnum);
-        m3_ampl *= eCorr(ieta, iphi, m3_ampl, runnum);
+	uncorr_ampl *= hbminus_special_ecorr(ieta, iphi, uncorr_ampl, runnum);
+        ampl *= hbminus_special_ecorr(ieta, iphi, ampl, runnum);
+        m3_ampl *= hbminus_special_ecorr(ieta, iphi, m3_ampl, runnum);
       }
     }
 
@@ -665,7 +656,7 @@ HFRecHit HcalSimpleRecAlgo::reconstructHFUpgrade(const HcalUpgradeDataFrame& dig
 
 
 /// Ugly hack to apply energy corrections to some HB- cells
-float eCorr(int ieta, int iphi, double energy, int runnum) {
+float hbminus_special_ecorr(int ieta, int iphi, double energy, int runnum) {
 // return energy correction factor for HBM channels 
 // iphi=6 ieta=(-1,-15) and iphi=32 ieta=(-1,-7)
 // I.Vodopianov 28 Feb. 2011

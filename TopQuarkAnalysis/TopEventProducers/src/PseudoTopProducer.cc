@@ -52,14 +52,14 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   edm::Handle<edm::View<reco::Candidate> > genParticleHandle;
   event.getByToken(genParticleToken_, genParticleHandle);
 
-  std::auto_ptr<reco::GenParticleCollection> neutrinos(new reco::GenParticleCollection);
-  std::auto_ptr<reco::GenJetCollection> leptons(new reco::GenJetCollection);
-  std::auto_ptr<reco::GenJetCollection> jets(new reco::GenJetCollection);
+  std::unique_ptr<reco::GenParticleCollection> neutrinos(new reco::GenParticleCollection);
+  std::unique_ptr<reco::GenJetCollection> leptons(new reco::GenJetCollection);
+  std::unique_ptr<reco::GenJetCollection> jets(new reco::GenJetCollection);
   auto neutrinosRefHandle = event.getRefBeforePut<reco::GenParticleCollection>("neutrinos");
   auto leptonsRefHandle = event.getRefBeforePut<reco::GenJetCollection>("leptons");
   auto jetsRefHandle = event.getRefBeforePut<reco::GenJetCollection>("jets");
 
-  std::auto_ptr<reco::GenParticleCollection> pseudoTop(new reco::GenParticleCollection);
+  std::unique_ptr<reco::GenParticleCollection> pseudoTop(new reco::GenParticleCollection);
   auto pseudoTopRefHandle = event.getRefBeforePut<reco::GenParticleCollection>();
 
   // Collect unstable B-hadrons
@@ -434,11 +434,11 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     pseudoTop->at(9).addMother(reco::GenParticleRef(pseudoTopRefHandle, 6));
   }
 
-  event.put(neutrinos, "neutrinos");
-  event.put(leptons, "leptons");
-  event.put(jets, "jets");
+  event.put(std::move(neutrinos), "neutrinos");
+  event.put(std::move(leptons), "leptons");
+  event.put(std::move(jets), "jets");
 
-  event.put(pseudoTop);
+  event.put(std::move(pseudoTop));
 }
 
 const reco::Candidate* PseudoTopProducer::getLast(const reco::Candidate* p)

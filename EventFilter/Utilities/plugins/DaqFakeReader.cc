@@ -43,7 +43,6 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
 {
   // mean = pset.getParameter<float>("mean");
   produces<FEDRawDataCollection>();
-  frb.setEPProcessId(getpid());
 }
 
 //______________________________________________________________________________
@@ -97,7 +96,7 @@ int DaqFakeReader::fillRawData(Event& e,
       timeval now;
       gettimeofday(&now,0);
       fillGTPFED(eID, *data,&now);
-      fillFED1023(eID,*data,&now);
+      //TODO: write fake TCDS FED filler
     }
   return 1;
 }
@@ -187,19 +186,6 @@ void DaqFakeReader::fillGTPFED(EventID& eID,
 
 }
 
-
-void DaqFakeReader::fillFED1023(EventID& eID,
-				FEDRawDataCollection& data,timeval *now)
-{
-  FEDRawData& feddata = data.FEDData(frb.fedId());
-  // Allocate space for header+trailer+payload
-  feddata.resize(frb.size()); 
-  frb.putHeader(eID.event(),0);
-  if(eID.event()%modulo_error_events==0) frb.setDAQDiaWord1(1ll); else frb.setDAQDiaWord1(0ll);
-  frb.setRBTimeStamp(((uint64_t) (now->tv_sec) << 32) + (uint64_t) (now->tv_usec));
-  frb.putTrailer();
-  memcpy(feddata.data(),frb.getPayload(),frb.size());
-}
 
 void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE)
 {

@@ -89,6 +89,9 @@ bool HistoryBase::traceSimHistory(TrackingVertexRef const & trackingVertex, int 
                     break;
             }
 
+	    if(!flag)
+	      return false;
+
             // verify if the new particle is not in the trail (looping partiles)
             if (
                 std::find(

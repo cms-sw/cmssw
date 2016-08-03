@@ -131,7 +131,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
     cout << " PiZeroDiscriminatorProducer: Photon Collection size : " << corrPhoCollection.size() << endl;
   }
 
-  auto_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap(correctedPhotonHandle));
+  unique_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap(correctedPhotonHandle));
 
   for( PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
 
@@ -379,7 +379,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
       } else { Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), -1.);}
   } // end of cycle over Photons
 
-  evt.put(Pi0Assocs_p,PhotonPi0DiscriminatorAssociationMap_);
+  evt.put(std::move(Pi0Assocs_p),PhotonPi0DiscriminatorAssociationMap_);
   if ( debugL_pi0 <= pDEBUG ) cout << "PiZeroDiscriminatorProducer: PhotonPi0DiscriminatorAssociationMap added to the event" << endl;
 
   nEvt_++;

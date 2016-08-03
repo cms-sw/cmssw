@@ -16,7 +16,7 @@
 
 class DTGeometry;
 
-using namespace L1TMuon;
+
 
 namespace L1TwinMux {
 
@@ -41,11 +41,11 @@ namespace L1TwinMux {
     explicit PrimitiveCombiner( const resolutions & res, edm::ESHandle<DTGeometry> & muonGeom );
 
     /// feed the combiner with the available primitives
-    void addDt( const TriggerPrimitive & prim );
-    void addDtHI( const TriggerPrimitive & prim );
-    void addDtHO( const TriggerPrimitive & prim );
-    void addRpcIn( const TriggerPrimitive & prim );
-    void addRpcOut( const TriggerPrimitive & prim );
+    void addDt( const L1TMuon::TriggerPrimitive & prim );
+    void addDtHI( const L1TMuon::TriggerPrimitive & prim );
+    void addDtHO( const L1TMuon::TriggerPrimitive & prim );
+    void addRpcIn( const L1TMuon::TriggerPrimitive & prim );
+    void addRpcOut( const L1TMuon::TriggerPrimitive & prim );
 
     /// do combine the primitives
     void combine();
@@ -144,21 +144,21 @@ namespace L1TwinMux {
 
 
     /// Calculates new phiBending, check how to use weights
-    results combineDt( const TriggerPrimitive * dt,
-		       const TriggerPrimitive * rpc );
+    results combineDt( const L1TMuon::TriggerPrimitive * dt,
+		       const L1TMuon::TriggerPrimitive * rpc );
 
-    results dummyCombineDt( const TriggerPrimitive * dt);
-
-    /// Calculates new phiBending, check how to use weights
-    results combineDtRpc( const TriggerPrimitive * dt,
-			  const TriggerPrimitive * rpc );
+    results dummyCombineDt( const L1TMuon::TriggerPrimitive * dt);
 
     /// Calculates new phiBending, check how to use weights
-    results combineRpcRpc( const TriggerPrimitive * rpc1,
-			   const TriggerPrimitive * rpc2 );
+    results combineDtRpc( const L1TMuon::TriggerPrimitive * dt,
+			  const L1TMuon::TriggerPrimitive * rpc );
+
+    /// Calculates new phiBending, check how to use weights
+    results combineRpcRpc( const L1TMuon::TriggerPrimitive * rpc1,
+			   const L1TMuon::TriggerPrimitive * rpc2 );
 
 
-    int radialAngleFromGlobalPhi( const TriggerPrimitive * rpc );
+    int radialAngleFromGlobalPhi( const L1TMuon::TriggerPrimitive * rpc );
 
   private :
     resolutions _resol;
@@ -169,10 +169,10 @@ namespace L1TwinMux {
     int _bendingAngle;
     int _bendingResol;
 
-    const TriggerPrimitive * _dtHI;
-    const TriggerPrimitive * _dtHO;
-    const TriggerPrimitive * _rpcIn;
-    const TriggerPrimitive * _rpcOut;
+    const L1TMuon::TriggerPrimitive * _dtHI;
+    const L1TMuon::TriggerPrimitive * _dtHO;
+    const L1TMuon::TriggerPrimitive * _rpcIn;
+    const L1TMuon::TriggerPrimitive * _rpcOut;
 
   };
 }

@@ -46,7 +46,7 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
   edm::Handle<PFCandToVertexAssMap> pfCandidateToVertexAssociations;
   evt.getByToken(pfCandidateToVertexAssociationsToken_, pfCandidateToVertexAssociations);
 
-  std::auto_ptr<CorrMETData> pfMEtCorrection(new CorrMETData());
+  std::unique_ptr<CorrMETData> pfMEtCorrection(new CorrMETData());
   
   for ( PFCandToVertexAssMap::const_iterator pfCandidateToVertexAssociation = pfCandidateToVertexAssociations->begin();
 	pfCandidateToVertexAssociation != pfCandidateToVertexAssociations->end(); ++pfCandidateToVertexAssociation ) {
@@ -85,7 +85,7 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
     }
   }
 
-  evt.put(pfMEtCorrection);
+  evt.put(std::move(pfMEtCorrection));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

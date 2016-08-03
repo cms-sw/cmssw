@@ -112,10 +112,6 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceDcsMap);
       findingRecord <HcalDcsMapRcd> ();
     }
-    else if (objectName == "CholeskyMatrices") {
-      setWhatProduced (this, &HcalTextCalibrations::produceCholeskyMatrices);
-      findingRecord <HcalCholeskyMatricesRcd> ();
-    }
     else if (objectName == "CovarianceMatrices") {
       setWhatProduced (this, &HcalTextCalibrations::produceCovarianceMatrices);
       findingRecord <HcalCovarianceMatricesRcd> ();
@@ -149,7 +145,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData QIETypes ChannelQuality ElectronicsMap "
 		<< "FrontEndMap ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
-		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
+		<< "ValidationCorrs LutMetadata DcsValues DcsMap CovarianceMatrices "
 		<< "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
 		<< std::endl;
     }
@@ -333,13 +329,6 @@ std::unique_ptr<HcalCovarianceMatrices> HcalTextCalibrations::produceCovarianceM
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalCovarianceMatrices> (topo,mInputs ["CovarianceMatrices"]);
-}
-
-std::unique_ptr<HcalCholeskyMatrices> HcalTextCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd) {
-  edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  return produce_impl<HcalCholeskyMatrices> (topo,mInputs ["CholeskyMatrices"]);
 }
 
 std::unique_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const HcalRecoParamsRcd& rcd) {

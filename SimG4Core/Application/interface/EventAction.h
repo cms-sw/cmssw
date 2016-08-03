@@ -20,6 +20,7 @@
 class SimRunInterface;
 class BeginOfEvent;
 class EndOfEvent;
+class CMSSteppingVerbose;
  
 class EventAction: public G4UserEventAction
 {
@@ -27,7 +28,8 @@ public:
 
     EventAction(const edm::ParameterSet& ps,
                 SimRunInterface*,
-		SimTrackManager*);
+		SimTrackManager*,
+		CMSSteppingVerbose*);
     ~EventAction();
 
     void BeginOfEventAction(const G4Event * evt);
@@ -49,6 +51,7 @@ private:
     //does not own the manager
     SimRunInterface* m_runInterface;
     SimTrackManager* m_trackManager;
+    CMSSteppingVerbose* m_SteppingVerbose;
     std::string m_stopFile;
     bool m_printRandom;
     bool m_debug;

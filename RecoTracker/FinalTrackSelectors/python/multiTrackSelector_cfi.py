@@ -96,3 +96,6 @@ eras.trackingLowPU.toModify(multiTrackSelector,
 eras.trackingPhase1PU70.toModify(multiTrackSelector,
     vertices = "pixelVertices"
 )
+eras.trackingPhase2PU140.toModify(multiTrackSelector,
+    vertices = "pixelVertices"
+)

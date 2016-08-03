@@ -2,8 +2,6 @@
   <use name="SimCalorimetry/HcalSimAlgos"/>
   <use name="SimDataFormats/CrossingFrame"/>
   <bin file="HPDIonFeedbackTest.cpp"/>
-  <bin file="writeHPDLibrary.cc"/>
-  <bin file="readHPDLibrary.cc"/>
   <bin file="HcalShapeIntegratorTest.cpp"/>
   <bin file="HcalTimeSlewTest.cpp"/>
   <flags EDM_PLUGIN="1"/>

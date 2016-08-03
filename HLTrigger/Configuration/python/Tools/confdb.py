@@ -289,12 +289,14 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     if not self.config.profiling:
       self.data += """
-# enable the TrigReport and TimeReport
+# enable TrigReport, TimeReport and MultiThreading
 %(process)s.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True )
+    wantSummary = cms.untracked.bool( True ),
+    numberOfThreads = cms.untracked.uint32( 4 ),
+    numberOfStreams = cms.untracked.uint32( 0 ),
+    sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 )
 """
-
 
   def _fix_parameter(self, **args):
     """arguments:
@@ -407,13 +409,13 @@ if 'GlobalTag' in %(dict)s:
       text += ")\n"
 
     text += """    %(process)s.GlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
-    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
-    for pset in %(process)s.GlobalTag.toGet.value():
-        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
-    # fix for multi-run processing
-    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 """
+#    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
+#    for pset in %(process)s.GlobalTag.toGet.value():
+#        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
+#    # fix for multi-run processing
+#    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
+#    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
     self.data += text
 
   def overrideL1MenuXml(self):

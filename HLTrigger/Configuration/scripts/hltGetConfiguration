@@ -71,7 +71,7 @@ parser.add_argument('--l1-emulator',
                     action  = 'store',
                     metavar = 'EMULATOR',
                     nargs   = '?',
-                    choices = [ 'Full', 'Full2015Data' ],
+                    choices = [ 'Full', 'FullMC', 'Full2015Data', 'uGT' ],
                     default = defaults.emulator,
                     const   = 'Full',
                     help    = 'Run the Full stage-2 L1T emulator.' )

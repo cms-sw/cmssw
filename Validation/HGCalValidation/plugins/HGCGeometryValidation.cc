@@ -238,6 +238,7 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
 	if (subdet==(int)(HGCEE)) {
 	  xy = hgcGeometry_[0]->locateCell(cell,layer,wafer,false); //mm
 	  zp = hgcGeometry_[0]->waferZ(layer,false); //cm 
+	  if (zside < 0) zp = -zp;
 	  xx = (zp<0) ? -xy.first/10 : xy.first/10; //mm
 	  yx = xy.second/10; //mm
 	  hitVtxX.at(i) = hitVtxX.at(i)/10;
@@ -264,6 +265,7 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
 
 	  xy = hgcGeometry_[1]->locateCell(cell,layer,wafer,false); //mm
 	  zp = hgcGeometry_[1]->waferZ(layer,false); //cm 
+	  if (zside < 0) zp = -zp;
 	  xx = (zp<0) ? -xy.first/10 : xy.first/10; //mm
 	  yx = xy.second/10; //mm
 	  hitVtxX.at(i) = hitVtxX.at(i)/10;
@@ -295,9 +297,10 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent,
 	HcalCellType::HcalCell cell = hcons_->cell(subdet, zside, lay, eta, phi);
 	
 	double zp = cell.rz/10; //mm --> cm
-	double rho = zp*TMath::Tan(2.0*TMath::ATan(TMath::Exp(-cell.eta)));
-	double xp = rho * TMath::Cos(cell.phi); //cm
-	double yp = rho * TMath::Sin(cell.phi); //cm
+	if (zside == 0) zp = -zp;
+	double rho = zp*tan(2.0*atan(exp(-cell.eta)));
+	double xp  = rho * cos(cell.phi); //cm
+	double yp  = rho * sin(cell.phi); //cm
 
 	hitVtxX.at(i) = hitVtxX.at(i)/10;
 	hitVtxY.at(i) = hitVtxY.at(i)/10;

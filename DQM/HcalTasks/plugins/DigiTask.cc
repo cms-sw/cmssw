@@ -1,5 +1,6 @@
 #include "DQM/HcalTasks/interface/DigiTask.h"
-
+using namespace hcaldqm;
+using namespace constants;
 DigiTask::DigiTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

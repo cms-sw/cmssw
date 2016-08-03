@@ -20,8 +20,8 @@ _phase2_hcalLocalRecoSequence.replace(hfreco,hfUpgradeReco)
 _phase2_hcalLocalRecoSequence.replace(hbheprereco,hbheUpgradeReco)
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_common.toModify( hbheUpgradeReco, digiLabel = cms.InputTag('simHcalDigis','HBHEUpgradeDigiCollection') )
-eras.phase2_common.toModify( horeco, digiLabel = cms.InputTag('simHcalDigis') )
-eras.phase2_common.toModify( hfUpgradeReco, digiLabel = cms.InputTag('simHcalDigis','HFUpgradeDigiCollection') )
-eras.phase2_common.toModify( zdcreco, digiLabel = cms.InputTag('simHcalUnsuppressedDigis'), digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis') )
-eras.phase2_common.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )
+eras.phase2_hcal.toModify( hbheUpgradeReco, digiLabel = cms.InputTag('simHcalDigis','HBHEUpgradeDigiCollection') )
+eras.phase2_hcal.toModify( horeco, digiLabel = cms.InputTag('simHcalDigis') )
+eras.phase2_hcal.toModify( hfUpgradeReco, digiLabel = cms.InputTag('simHcalDigis','HFUpgradeDigiCollection') )
+eras.phase2_hcal.toModify( zdcreco, digiLabel = cms.InputTag('simHcalUnsuppressedDigis'), digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis') )
+eras.phase2_hcal.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )

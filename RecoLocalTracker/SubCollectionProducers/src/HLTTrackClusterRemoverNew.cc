@@ -146,7 +146,7 @@ HLTTrackClusterRemoverNew::HLTTrackClusterRemoverNew(const ParameterSet& iConfig
   if (doPixelChargeCheck_)
     throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Pixel cluster charge check not yet implemented";
 
-    fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
+  fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
     if (doPixel_) {
         readPSet(iConfig, "Pixel" , 0,1);

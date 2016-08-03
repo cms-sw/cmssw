@@ -257,13 +257,13 @@ void AlignableObjectId
 
 //_____________________________________________________________________________
 StructureType
-AlignableObjectId::nameToType( const std::string &name) const
+AlignableObjectId::nameToType( const std::string &name)
 {
   return stringToId(name.c_str());
 }
 
 //_____________________________________________________________________________
-std::string AlignableObjectId::typeToName( StructureType type ) const
+std::string AlignableObjectId::typeToName( StructureType type )
 {
   return idToString(type);
 }

@@ -14,7 +14,8 @@
 #include "Riostream.h"
 #include "TFile.h"
 #include "TTree.h"
-
+using namespace std;
+using namespace L1TMuon;
 extern size_t __glob_alwaysn__;
 
 extern bool __glob_change__;

@@ -60,7 +60,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	      (not HcalGenericDetId(*i).isHcalZDCDetId()) and
 	      (not HcalGenericDetId(*i).isHcalCastorDetId()))
 	    edm::LogWarning("CaloTPGTranscoderULUT") << "Encountered invalid HcalDetId " << HcalGenericDetId(*i);
-	    continue;
+	  continue; 
 	}
 	
 	HcalTrigTowerDetId id(*i); 

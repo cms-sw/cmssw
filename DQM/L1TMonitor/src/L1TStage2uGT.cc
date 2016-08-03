@@ -14,9 +14,10 @@
 // Constructor
 L1TStage2uGT::L1TStage2uGT(const edm::ParameterSet& params):
    l1tStage2uGtSource_(consumes<GlobalAlgBlkBxCollection>(params.getParameter<edm::InputTag>("l1tStage2uGtSource"))),
+   monitorDir_(params.getUntrackedParameter<std::string> ("monitorDir", "")),
    verbose_(params.getUntrackedParameter<bool>("verbose", false))
 {
-   histFolder_ = params.getUntrackedParameter<std::string> ("HistFolder", "L1T2016/L1TStage2uGT");
+   // empty
 }
 
 // Destructor
@@ -42,7 +43,7 @@ void L1TStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, e
    const int numBx = 3564; 
    const double numBx_d = static_cast<double>(numBx);
 
-   ibooker.setCurrentFolder(histFolder_);
+   ibooker.setCurrentFolder(monitorDir_);
    
    // Algorithm bits 
    algoBits_after_bxomask_ = ibooker.book1D("algoBits_after_bxomask", "uGT: Algorithm Trigger Bits (after BX mask, before prescale)", numAlgs, -0.5, numAlgs_d-0.5);
@@ -136,8 +137,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
    // Get uGT algo bit statistics
    else {
       //algoBits_->Fill(-1.); // fill underflow to normalize // FIXME: needed? 
-      for (int ibx=uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-         for (auto itr = uGtAlgs->begin(ibx); itr != uGtAlgs->end(ibx); ++itr) { // FIXME: redundant loop over 1-dim vector?
+      for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
+         for (auto itr = uGtAlgs->begin(ibx); itr != uGtAlgs->end(ibx); ++itr) { // FIXME: redundant loop?
             
             // Fills prescale factor set histogram
             prescaleFactorSet_->Fill(lumi, itr->getPreScColumn());
@@ -149,8 +150,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                if(itr->getAlgoDecisionInitial(algoBit)) {
                   algoBits_after_bxomask_->Fill(algoBit);
                   algoBits_after_bxomask_lumi_->Fill(lumi, algoBit);
-                  algoBits_after_bxomask_bx_global_->Fill(bx, algoBit);
                   algoBits_after_bxomask_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
+                  algoBits_after_bxomask_bx_global_->Fill(bx + ibx, algoBit);
                   
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionInitial(algoBit2)) {
@@ -163,8 +164,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                if(itr->getAlgoDecisionInterm(algoBit)) {
                   algoBits_after_prescaler_->Fill(algoBit);
                   algoBits_after_prescaler_lumi_->Fill(lumi, algoBit);
-                  algoBits_after_prescaler_bx_global_->Fill(bx, algoBit);
-                  algoBits_after_prescaler_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
+                  algoBits_after_prescaler_bx_inEvt_->Fill(ibx, algoBit);
+                  algoBits_after_prescaler_bx_global_->Fill(bx + ibx, algoBit);
                   
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionInterm(algoBit2)) {
@@ -177,8 +178,8 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
                if(itr->getAlgoDecisionFinal(algoBit)) {
                   algoBits_after_mask_->Fill(algoBit);
                   algoBits_after_mask_lumi_->Fill(lumi, algoBit);
-                  algoBits_after_mask_bx_global_->Fill(bx, algoBit);
-                  algoBits_after_mask_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
+                  algoBits_after_mask_bx_inEvt_->Fill(ibx, algoBit);
+                  algoBits_after_mask_bx_global_->Fill(bx + ibx, algoBit);
                   
                   for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
                      if(itr->getAlgoDecisionFinal(algoBit2)) {

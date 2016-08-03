@@ -1,0 +1,20 @@
+<library file="*.cc" name="DQMCTPPSPlugins">
+	<flags EDM_PLUGIN="1"/>
+
+	<use name="FWCore/Framework"/>
+	<use name="FWCore/ParameterSet"/>
+	<use name="FWCore/Utilities"/>
+
+	<use name="DQMServices/Core"/>
+
+	<use name="DataFormats/Common"/>
+	<use name="DataFormats/TotemRPDetId"/>
+	<use name="DataFormats/TotemDigi"/>
+	<use name="DataFormats/CTPPSReco"/>
+	
+	<use name="Geometry/Records"/>
+	<use name="Geometry/VeryForwardGeometryBuilder"/>
+	<use name="Geometry/VeryForwardRPTopology"/>
+
+	<use name="DQM/CTPPS"/>
+</library>

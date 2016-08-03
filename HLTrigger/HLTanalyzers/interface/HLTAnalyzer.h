@@ -319,6 +319,8 @@ private:
   edm::InputTag ActivityR9_;
   edm::InputTag ActivityR9ID_;
   edm::InputTag ActivityHoverEH_;
+  edm::InputTag EcalRecHitEB_;
+  edm::InputTag EcalRecHitEE_;
 
   // AlCa OpenHLT input collections  
   /*

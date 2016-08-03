@@ -31,7 +31,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
-#include "DataFormats/CSCDigi/interface/GEMCSCLCTDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
 
 // Configuration via EventSetup
@@ -64,7 +63,6 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
   produces<GEMCoPadDigiCollection>();
-  produces<GEMCSCLCTDigiCollection>();
   usesResource("CSCTriggerGeometry");
   consumes<CSCComparatorDigiCollection>(compDigiProducer_);
   consumes<CSCWireDigiCollection>(wireDigiProducer_);
@@ -165,7 +163,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
   std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
-  std::unique_ptr<GEMCSCLCTDigiCollection> oc_gemcsclct(new GEMCSCLCTDigiCollection);
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
@@ -186,7 +183,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
     lctBuilder_->build(temp,
 		       wireDigis.product(), compDigis.product(), gemPads, rpcDigis,
-		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct, *oc_gemcopad, *oc_gemcsclct);
+		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct, *oc_gemcopad);
     if (!checkBadChambers_)
       delete temp;
   }
@@ -198,5 +195,4 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct),"MPCSORTED");
   ev.put(std::move(oc_gemcopad));
-  ev.put(std::move(oc_gemcsclct));
 }

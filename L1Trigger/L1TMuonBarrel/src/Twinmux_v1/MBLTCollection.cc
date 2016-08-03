@@ -6,7 +6,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-
+using namespace L1TMuon;
 L1TwinMux::MBLTCollection::MBLTCollection( const DTChamberId & dtId )
 {
   _wheel = dtId.wheel();

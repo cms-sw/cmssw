@@ -203,7 +203,7 @@ namespace sistrip{
 
   void FEDEmulator::zeroSuppress(const std::vector<SiStripRawDigi> & cmSubtrDetSetData,
 				 edm::DetSet<SiStripDigi>    & zsDetSetData,
-				 const std::auto_ptr<SiStripRawProcessingAlgorithms> & algorithms)
+				 const std::unique_ptr<SiStripRawProcessingAlgorithms> & algorithms)
   {
     //transform the input digis to a vector of integers
     std::vector<int16_t> cmSubtrRawDigis;

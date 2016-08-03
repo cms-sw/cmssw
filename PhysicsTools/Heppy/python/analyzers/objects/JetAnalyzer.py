@@ -73,14 +73,17 @@ class JetAnalyzer( Analyzer ):
         self.addJECShifts = self.cfg_ana.addJECShifts if hasattr(self.cfg_ana, 'addJECShifts') else 0
         if   self.recalibrateJets == "MC"  : self.recalibrateJets =     self.cfg_comp.isMC
         elif self.recalibrateJets == "Data": self.recalibrateJets = not self.cfg_comp.isMC
-        elif self.recalibrateJets not in [True,False]: raise RuntimeError("recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets)
-        self.doJEC = self.recalibrateJets or (self.shiftJEC != 0)
+        elif self.recalibrateJets not in [True,False]: raise RuntimeError, "recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets
+       
+        calculateSeparateCorrections = getattr(cfg_ana,"calculateSeparateCorrections", False);
+        calculateType1METCorrection  = getattr(cfg_ana,"calculateType1METCorrection",  False);
+        self.doJEC = self.recalibrateJets or (self.shiftJEC != 0) or self.addJECShifts or calculateSeparateCorrections or calculateType1METCorrection
         if self.doJEC:
           doResidual = getattr(cfg_ana, 'applyL2L3Residual', 'Data')
           if   doResidual == "MC":   doResidual = self.cfg_comp.isMC
           elif doResidual == "Data": doResidual = not self.cfg_comp.isMC
-          elif doResidual not in [True,False]: raise RuntimeError("If specified, applyL2L3Residual must be any of { True, False, 'MC', 'Data'(default)}")
-          GT = mcGT if self.cfg_comp.isMC else dataGT
+          elif doResidual not in [True,False]: raise RuntimeError, "If specified, applyL2L3Residual must be any of { True, False, 'MC', 'Data'(default)}"
+          GT = getattr(cfg_comp, 'jecGT', mcGT if self.cfg_comp.isMC else dataGT)
           # Now take care of the optional arguments
           kwargs = { 'calculateSeparateCorrections':calculateSeparateCorrections,
                      'calculateType1METCorrection' :calculateType1METCorrection, }
@@ -93,6 +96,15 @@ class JetAnalyzer( Analyzer ):
         self.lepPtMin = getattr(self.cfg_ana, 'minLepPt', -1)
         self.lepSelCut = getattr(self.cfg_ana, 'lepSelCut', lambda lep : True)
         self.jetGammaDR =  getattr(self.cfg_ana, 'jetGammaDR', 0.4)
+        self.jetGammaLepDR =  getattr(self.cfg_ana, 'jetGammaLepDR', 0.4)
+        self.cleanFromLepAndGammaSimultaneously = getattr(self.cfg_ana, 'cleanFromLepAndGammaSimultaneously', False)
+        if self.cleanFromLepAndGammaSimultaneously:
+            if hasattr(self.cfg_ana, 'jetGammaLepDR'):
+                self.jetGammaLepDR =  self.jetGammaLepDR 
+            elif (self.jetGammaDR == self.jetLepDR):
+                self.jetGammaLepDR = self.jetGammaDR
+            else:
+                raise RuntimeError, "DR for simultaneous cleaning of jets from leptons and photons is not defined, and dR(gamma, jet)!=dR(lep, jet)"
         if(self.cfg_ana.doQG):
             qgdefname="{CMSSW_BASE}/src/PhysicsTools/Heppy/data/pdfQG_AK4chs_13TeV_v2b.root"
             self.qglcalc = QGLikelihoodCalculator(getattr(self.cfg_ana,"QGpath",qgdefname).format(CMSSW_BASE= os.environ['CMSSW_BASE']))
@@ -117,10 +129,11 @@ class JetAnalyzer( Analyzer ):
         ## Read jets, if necessary recalibrate and shift MET
         if self.cfg_ana.copyJetsByValue: 
           import ROOT
-          allJets = map(lambda j:Jet(ROOT.pat.Jet(ROOT.edm.Ptr(ROOT.pat.Jet)(ROOT.edm.ProductID(),j,0))), self.handles['jets'].product()) #copy-by-value is safe if JetAnalyzer is ran more than once
+          #from ROOT.heppy import JetUtils
+          allJets = map(lambda j:Jet(ROOT.heppy.JetUtils.copyJet(j)), self.handles['jets'].product())  #copy-by-value is safe if JetAnalyzer is ran more than once
         else: 
           allJets = map(Jet, self.handles['jets'].product()) 
-       
+    
         #set dummy MC flavour for all jets in case we want to ntuplize discarded jets later
         for jet in allJets:
             jet.mcFlavour = 0
@@ -152,7 +165,8 @@ class JetAnalyzer( Analyzer ):
             if self.cfg_ana.do_mc_match:
                 for igj, gj in enumerate(self.genJets):
                     gj.index = igj
-                self.matchJets(event, allJets)
+#                self.matchJets(event, allJets)
+                self.matchJets(event, [ j for j in allJets if j.pt()>self.cfg_ana.jetPt ]) # To match only jets above chosen threshold
             if getattr(self.cfg_ana, 'smearJets', False):
                 self.smearJets(event, allJets)
 
@@ -235,10 +249,19 @@ class JetAnalyzer( Analyzer ):
             else:
                 photons = [ g for g in event.selectedPhotons ] 
 
-        self.gamma_cleanJetsAll = cleanNearestJetOnly(self.cleanJetsAll, photons, self.jetGammaDR)
+        self.gamma_cleanJetaAll = []
+        self.gamma_noIdCleanJetsAll = []
+
+        if self.cleanFromLepAndGammaSimultaneously:
+            self.gamma_cleanJetsAll = cleanNearestJetOnly(jetsEtaCut, photons+leptons, self.jetGammaLepDR)
+            self.gamma_noIdCleanJetsAll = cleanNearestJetOnly(self.jetsAllNoID, photons+leptons, self.jetGammaLepDR)
+        else:
+            self.gamma_cleanJetsAll = cleanNearestJetOnly(self.cleanJetsAll, photons, self.jetGammaDR)
+            self.gamma_noIdCleanJetsAll = cleanNearestJetOnly(self.noIdCleanJetsAll, photons, self.jetGammaDR)
+
         self.gamma_cleanJets    = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.gamma_cleanJetsFwd = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
-        self.gamma_noIdCleanJetsAll = cleanNearestJetOnly(self.noIdCleanJetsAll, photons, self.jetGammaDR)
+
         self.gamma_noIdCleanJets    = [j for j in self.gamma_noIdCleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.gamma_noIdCleanJetsFwd = [j for j in self.gamma_noIdCleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
         ###
@@ -486,6 +509,9 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     alwaysCleanPhotons = False,
     do_mc_match=True,
     cleanGenJetsFromPhoton = False,
+    jetGammaDR=0.4,
+    cleanFromLepAndGammaSimultaneously = False,
+    jetGammaLepDR=0.4,
     attachNeutrinos = True,
     genNuSelection = lambda nu : True, #FIXME: add here check for ispromptfinalstate
     collectionPostFix = ""

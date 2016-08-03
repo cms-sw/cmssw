@@ -438,7 +438,31 @@
       <rMaterial name="materials:Silicon"/>
     </MaterialFraction>
   </CompositeMaterial>
-
+    <CompositeMaterial name="Pix_Fwd_Port_Cards_Phase1" density="1.23490*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+      <MaterialFraction fraction="0.53523">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_G10" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.1606">
+        <rMaterial name="trackermaterial:T_Copper" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.05774">
+        <rMaterial name="pixfwdMaterials:FPix_Kapton" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.06738">
+        <rMaterial name="pixfwdMaterials:FPix_Cylind_Polyester" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.01150">
+        <rMaterial name="pixfwdMaterials:FPix_TinLeadSolder" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.15735">
+        <rMaterial name="trackermaterial:T_Aluminium" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00736">
+        <rMaterial name="trackermaterial:T_Barium_Titanate" />
+      </MaterialFraction>
+      <MaterialFraction fraction="0.00285">
+        <rMaterial name="materials:Silicon" />
+      </MaterialFraction>
+    </CompositeMaterial>
 </MaterialSection>
-
 </DDDefinition>

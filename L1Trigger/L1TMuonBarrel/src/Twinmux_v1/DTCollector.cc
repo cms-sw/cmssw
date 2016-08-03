@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+using namespace L1TMuon;
 using namespace L1TwinMux;
 using namespace std;
 DTCollector::DTCollector(){
@@ -15,7 +15,7 @@ DTCollector::DTCollector(){
 }
 void DTCollector::extractPrimitives(edm::Handle<L1MuDTChambPhContainer> phiDigis,
                                     edm::Handle<L1MuDTChambThContainer> thetaDigis,
-                                    TriggerPrimitiveCollection& out) const {
+                                    L1TMuon::TriggerPrimitiveCollection& out) const {
 
   TriggerPrimitiveCollection cleaned, temp, chamb_list;
 

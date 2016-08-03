@@ -857,7 +857,7 @@ double NoisyChannel::getAverage(int bin, const TH1 *h) const
       bin_low = ncx + bin_low;
     while (bin_hi > ncx) // shift bin by -ncx
       bin_hi = bin_hi - ncx;
-      sum += h->GetBinContent(bin_low) + h->GetBinContent(bin_hi);
+    sum += h->GetBinContent(bin_low) + h->GetBinContent(bin_hi);
   }
   /// average is sum over the # of bins used
   return sum/(numNeighbors_ * 2);
@@ -1216,11 +1216,11 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
       return 0;
     }
   }
-  else 
+  else {
     if (verbose_>0) 
       std::cout << "QTest:MeanWithinExpected"
                 << " Error, neither Range, nor Sigma, nor RMS, exiting\n";
-    return -1; 
+    return -1; }
 }
 
 void MeanWithinExpected::useRange(double xmin, double xmax)

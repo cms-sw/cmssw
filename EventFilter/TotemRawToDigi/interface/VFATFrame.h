@@ -29,6 +29,7 @@ class VFATFrame
       setData(copy.data);
       presenceFlags = copy.presenceFlags;
       daqErrorFlags = copy.daqErrorFlags;
+      numberOfClusters = copy.numberOfClusters;
     }
 
     virtual ~VFATFrame() {}
@@ -71,6 +72,12 @@ class VFATFrame
       return data[0];
     }
 
+    /// Sets presence flags.
+    void setPresenceFlags(uint8_t v)
+    {
+      presenceFlags = v;
+    }
+
     /// Returns true if the BC word is present in the frame.
     bool isBCPresent() const
     {
@@ -93,6 +100,30 @@ class VFATFrame
     bool isCRCPresent() const
     {
       return presenceFlags & 0x8;
+    }
+
+    /// Returns true if the CRC word is present in the frame.
+    bool isNumberOfClustersPresent() const
+    {
+      return presenceFlags & 0x10;
+    }
+
+    /// Sets DAQ error flags.
+    void setDAQErrorFlags(uint8_t v)
+    {
+      daqErrorFlags = v;
+    }
+
+    void setNumberOfClusters(uint8_t v)
+    {
+      numberOfClusters = v;
+    }
+
+    /// Returns the number of clusters as given by the "0xD0 frame".
+    /// Returns 0, if not available.
+    uint8_t getNumberOfClusters() const
+    {
+      return numberOfClusters;
     }
 
     /// Checks the fixed bits in the frame.
@@ -119,7 +150,7 @@ class VFATFrame
     /// If binary is true, binary format is used.
     void Print(bool binary = false) const;
 
-  public:
+  private:
     /** Raw data frame as sent by electronics.
     * The container is organized as follows (reversed Figure 8 at page 23 of VFAT2 manual):
     * \verbatim
@@ -139,10 +170,15 @@ class VFATFrame
     ///   bit 2: "EC word" (buffer index 10)
     ///   bit 3: "ID word" (buffer index 9)
     ///   bit 4: "CRC word" (buffer index 0)
-    word presenceFlags;
+    ///   bit 5: "number of clusters word" (prefix 0xD0)
+    uint8_t presenceFlags;
 
     /// Error flag as given by certain versions of DAQ.
-    word daqErrorFlags;
+    uint8_t daqErrorFlags;
+
+    /// Number of clusters.
+    /// Only available in cluster mode and if the number of clusters exceeds a limit (10).
+    uint8_t numberOfClusters;
 
     /// internaly used to check CRC
     static word calculateCRC(word crc_in, word dato);

@@ -46,8 +46,8 @@ void ScaleCorrMETData::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(token_, input);
   product += scaleFactor_*(*input);
 
-  std::auto_ptr<CorrMETData> pprod(new CorrMETData(product));
-  evt.put(pprod, "");
+  std::unique_ptr<CorrMETData> pprod(new CorrMETData(product));
+  evt.put(std::move(pprod), "");
 }
 
 //____________________________________________________________________________||

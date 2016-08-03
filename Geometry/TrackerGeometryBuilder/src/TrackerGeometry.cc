@@ -1,6 +1,7 @@
 #include <typeinfo>
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,9 +14,6 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
-
-
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 namespace {
 GeomDetEnumerators::SubDetector
@@ -87,7 +85,9 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd)
   }
   LogDebug("DetTypeList") << " Content of DetTypetList : size " << theDetTypetList.size();
   for (auto iVal : theDetTypetList) {
-    LogDebug("DetTypeList") << " DetId " <<  std::get<0>(iVal) << " Type " << std::get<1>(iVal)<< " Thickness " << std::get<2>(iVal);
+    LogDebug("DetTypeList") << " DetId " << std::get<0>(iVal)
+			    << " Type " << static_cast<std::underlying_type<TrackerGeometry::ModuleType>::type>(std::get<1>(iVal))
+			    << " Thickness " << std::get<2>(iVal);
   }  
 }
 

@@ -60,7 +60,7 @@ TriggerObjectFilterByCollection::produce(edm::Event & iEvent, const edm::EventSe
     Handle<std::vector<pat::TriggerObjectStandAlone> > src;
     iEvent.getByToken(src_, src);
 
-    std::auto_ptr<std::vector<pat::TriggerObjectStandAlone> > out(new std::vector<pat::TriggerObjectStandAlone>());
+    std::unique_ptr<std::vector<pat::TriggerObjectStandAlone> > out(new std::vector<pat::TriggerObjectStandAlone>());
     out->reserve(src->size());
     for (std::vector<pat::TriggerObjectStandAlone>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         const std::string &coll = it->collection();
@@ -71,7 +71,7 @@ TriggerObjectFilterByCollection::produce(edm::Event & iEvent, const edm::EventSe
         if (found) out->push_back(*it);
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

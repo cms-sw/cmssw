@@ -73,11 +73,14 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
   TH1D                                    *hSimHitE_[2], *hSimHitT_[2];
   TH1D                                    *hDigiADC_[2], *hDigiLng_[2];
-  TH1D                                    *hRecHitE_[2], *hBeam_;
+  TH1D                                    *hRecHitE_[2], *hSimHitEn_[2], *hBeam_;
   TH2D                                    *hDigiOcc_[2], *hRecHitOcc_[2];
-  TProfile                                *hSimHitLng_[2], *hSimHitLng2_[2];
-  TProfile                                *hRecHitLng_[2], *hRecHitLng2_[2];
+  TProfile                                *hSimHitLng_[2], *hSimHitLng1_[2];
+  TProfile                                *hSimHitLng2_[2];
+  TProfile                                *hRecHitLng_[2], *hRecHitLng1_[2];
   TProfile2D                              *hSimHitLat_[2], *hRecHitLat_[2];
+  std::vector<TH1D*>                       hSimHitLayEn1E_, hSimHitLayEn1H_;
+  std::vector<TH1D*>                       hSimHitLayEn2E_, hSimHitLayEn2H_;
 };
 
 HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
@@ -151,7 +154,10 @@ void HGCalTBAnalyzer::beginJob() {
     if (doSimHits_ && book) {
       sprintf (name, "SimHitEn%s", det.c_str());
       sprintf (title,"Sim Hit Energy for %s", det.c_str());
-      hSimHitE_[i] = fs_->make<TH1D>(name,title,5000,0.,1.0);
+      hSimHitE_[i] = fs_->make<TH1D>(name,title,100000,0.,0.2);
+      sprintf (name, "SimHitEnX%s", det.c_str());
+      sprintf (title,"Sim Hit Energy for %s", det.c_str());
+      hSimHitEn_[i] = fs_->make<TH1D>(name,title,100000,0.,0.2);
       sprintf (name, "SimHitTm%s", det.c_str());
       sprintf (title,"Sim Hit Timing for %s", det.c_str());
       hSimHitT_[i] = fs_->make<TH1D>(name,title,5000,0.,500.0);
@@ -161,6 +167,9 @@ void HGCalTBAnalyzer::beginJob() {
       sprintf (name, "SimHitLng%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile (Sim Hit) for %s",det.c_str());
       hSimHitLng_[i] = fs_->make<TProfile>(name,title,50,0.,100.);
+      sprintf (name, "SimHitLng1%s", det.c_str());
+      sprintf (title,"Longitudinal Shower profile (Layer) for %s",det.c_str());
+      hSimHitLng1_[i] = fs_->make<TProfile>(name,title,200,0.,100.);
       sprintf (name, "SimHitLng2%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile (Layer) for %s",det.c_str());
       hSimHitLng2_[i] = fs_->make<TProfile>(name,title,200,0.,100.);
@@ -191,15 +200,16 @@ void HGCalTBAnalyzer::beginJob() {
       sprintf (name, "RecHitLng%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile (Rec Hit) for %s",det.c_str());
       hRecHitLng_[i] = fs_->make<TProfile>(name,title,100,0.,10.);
-      sprintf (name, "RecHitLng2%s", det.c_str());
+      sprintf (name, "RecHitLng1%s", det.c_str());
       sprintf (title,"Longitudinal Shower profile vs Layer for %s",det.c_str());
-      hRecHitLng2_[i] = fs_->make<TProfile>(name,title,120,0.,60.);
+      hRecHitLng1_[i] = fs_->make<TProfile>(name,title,120,0.,60.);
     }
   }
 }
 
 void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 
+  char name[40], title[100];
   if (ifEE_) {
     edm::ESHandle<HGCalDDDConstants>  pHGDC;
     iSetup.get<IdealGeometryRecord>().get(detectorEE_, pHGDC);
@@ -210,6 +220,18 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       hgeom_[0] = geom.product();
     } else {
       hgeom_[0] = 0;
+    }
+    for (unsigned int l=0; l<hgcons_[0]->layers(false); ++l) {
+      sprintf (name, "SimHitEnA%d%s", l, detectorEE_.c_str());
+      sprintf (title,"Sim Hit Energy in SIM layer %d for %s",l+1,
+	       detectorEE_.c_str());
+      hSimHitLayEn1E_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
+      if (l%3 == 0) {
+	sprintf (name, "SimHitEnB%d%s", (l/3+1), detectorEE_.c_str());
+	sprintf (title,"Sim Hit Energy in layer %d for %s",(l/3+1),
+		 detectorEE_.c_str());
+	hSimHitLayEn2E_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
+      }
     }
 #ifdef DebugLog
     std::cout << "HGCalTBAnalyzer::" << detectorEE_ << " defined with "
@@ -230,6 +252,18 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
       hgeom_[1] = geom.product();
     } else {
       hgeom_[1] = 0;
+    }
+    for (unsigned int l=0; l<hgcons_[1]->layers(false); ++l) {
+      sprintf (name, "SimHitEnA%d%s", l, detectorHE_.c_str());
+      sprintf (title,"Sim Hit Energy in layer %d for %s",l+1,
+	       detectorHE_.c_str());
+      hSimHitLayEn1H_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
+      if (l%3 == 0) {
+	sprintf (name, "SimHitEnB%d%s", (l/3+1), detectorHE_.c_str());
+	sprintf (title,"Sim Hit Energy in layer %d for %s",(l/3+1),
+		 detectorHE_.c_str());
+	hSimHitLayEn2E_.push_back(fs_->make<TH1D>(name,title,100000,0.,0.2));
+      }
     }
 #ifdef DebugLog
     std::cout << "HGCalTBAnalyzer::" << detectorHE_ << " defined with "
@@ -381,39 +415,90 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 
 void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
 
-  std::map<uint32_t,double> map_hits;
-  map_hits.clear();
+  std::map<uint32_t,double>                 map_hits;
+  std::map<int,double>                      map_hitLayer;
+  std::map<int,std::pair<uint32_t,double> > map_hitCell;
+  double                                    entot(0);
   for (unsigned int i=0; i<hits.size(); i++) {
     double energy      = hits[i].energy();
     double time        = hits[i].time();
     uint32_t id        = hits[i].id();
+    entot             += energy;
+    int      subdet, zside, layer, sector, subsector, cell;
+    HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector,
+					   subsector, cell);
     if (map_hits.count(id) != 0) {
       map_hits[id] += energy;
     } else {
       map_hits[id]  = energy;
     }
+    if (map_hitLayer.count(layer) != 0) {
+      map_hitLayer[layer] += energy;
+    } else {
+      map_hitLayer[layer]  = energy;
+    }
+    if (map_hitCell.count(cell) != 0) {
+      double ee         = energy + map_hitCell[cell].second;
+      map_hitCell[cell] = std::pair<uint32_t,double>(id,ee);
+    } else {
+      map_hitCell[cell] = std::pair<uint32_t,double>(id,energy);
+    }
     hSimHitT_[type]->Fill(time,energy);
   }
 
+  hSimHitEn_[type]->Fill(entot);
   for (std::map<uint32_t,double>::iterator itr = map_hits.begin() ; 
        itr != map_hits.end(); ++itr)   {
-    uint32_t id       = itr->first;
-    double   energy   = itr->second;
+    hSimHitE_[type]->Fill(itr->second);
+  }
+
+  for (std::map<int,double>::iterator itr = map_hitLayer.begin(); 
+       itr != map_hitLayer.end(); ++itr)   {
+    int    layer      = itr->first;
+    double energy     = itr->second;
+    double zp         = hgcons_[type]->waferZ(layer,false);
+#ifdef DebugLog
+    std::cout << "SimHit:Layer " << layer << " " << zp << " " << energy 
+	      << std::endl;
+#endif
+    hSimHitLng_[type]->Fill(zp,energy);
+    hSimHitLng2_[type]->Fill(layer,energy);
+    if (type == 0) {
+      if (layer-1 < (int)(hSimHitLayEn1E_.size()))
+	hSimHitLayEn1E_[layer-1]->Fill(energy);
+    } else {
+      if (layer-1 < (int)(hSimHitLayEn1H_.size()))
+	hSimHitLayEn1H_[layer-1]->Fill(energy);
+    }
+    if ((layer-1)%3 == 0) {
+      for (std::map<int,double>::iterator itr1 = map_hitLayer.begin(); 
+	   itr1 != map_hitLayer.end(); ++itr1) {
+	if (itr1->first == (layer+1)) {
+	  energy += (itr1->second);
+	  break;
+	}
+      }
+      hSimHitLng1_[type]->Fill(layer,energy);
+      int    ll = (layer-1)/3;
+      if (type == 0) {
+	if (ll<(int)(hSimHitLayEn2E_.size())) hSimHitLayEn2E_[ll]->Fill(energy);
+      } else {
+	if (ll<(int)(hSimHitLayEn2H_.size())) hSimHitLayEn2H_[ll]->Fill(energy);
+      }
+    }
+  }
+
+  for (std::map<int,std::pair<uint32_t,double> >::iterator itr = map_hitCell.begin(); 
+       itr != map_hitCell.end(); ++itr) {
+    uint32_t id       = ((itr->second).first);
+    double   energy   = ((itr->second).second);
     int      subdet, zside, layer, sector, subsector, cell;
     HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector,
 					   subsector, cell);
     std::pair<float,float> xy = hgcons_[type]->locateCell(cell,layer,sector,false);
-    double zp = hgcons_[type]->waferZ(layer,false);
-    double xx = (zp < 0) ? -xy.first : xy.first;
-    HepGeom::Point3D<float> gcoord  = HepGeom::Point3D<float>(xx,xy.second,zp);
-    hSimHitE_[type]->Fill(energy);
+    double zp         = hgcons_[type]->waferZ(layer,false);
+    double xx         = (zp < 0) ? -xy.first : xy.first;
     hSimHitLat_[type]->Fill(xx,xy.second,energy);
-    hSimHitLng_[type]->Fill(zp,energy);
-    hSimHitLng2_[type]->Fill(layer,energy);
-#ifdef DebugLog
-    std::cout << "SimHit : " << layer << " " << xx << " " << xy.second << " " 
-	      << zp << " " << energy << std::endl;
-#endif
   }
 }
 
@@ -430,21 +515,53 @@ void HGCalTBAnalyzer::analyzeDigi (int type, const T1& detId, uint16_t adc) {
 void HGCalTBAnalyzer::analyzeRecHits (int type, 
 				      edm::Handle<HGCRecHitCollection>& hits) {
  
+  std::map<int,double>                   map_hitLayer;
+  std::map<int,std::pair<DetId,double> > map_hitCell;
   for (HGCRecHitCollection::const_iterator it = hits->begin(); 
        it != hits->end(); ++it) {
     DetId       detId  = it->id();
     GlobalPoint global = hgeom_[type]->getPosition(detId);
     double      energy = it->energy();
     int         layer  = HGCalDetId(detId).layer();
+    int         cell   = HGCalDetId(detId).cell();
     hRecHitOcc_[type]->Fill(global.x(),global.y(),energy);
-    hRecHitLng_[type]->Fill(global.z(),energy);
-    hRecHitLng2_[type]->Fill(layer,energy);
-    hRecHitLat_[type]->Fill(global.x(),global.y(),energy);
     hRecHitE_[type]->Fill(energy);
+    if (map_hitLayer.count(layer) != 0) {
+      map_hitLayer[layer] += energy;
+    } else {
+      map_hitLayer[layer]  = energy;
+    }
+    if (map_hitCell.count(cell) != 0) {
+      double ee         = energy + map_hitCell[cell].second;
+      map_hitCell[cell] = std::pair<uint32_t,double>(detId,ee);
+    } else {
+      map_hitCell[cell] = std::pair<uint32_t,double>(detId,energy);
+    }
 #ifdef DebugLog
     std::cout << "RecHit: " << layer  << " " << global.x() << " " << global.y()
 	      << " " << global.z() << " " << energy << std::endl;
 #endif
+  }
+
+  for (std::map<int,double>::iterator itr = map_hitLayer.begin(); 
+       itr != map_hitLayer.end(); ++itr)   {
+    int    layer      = itr->first;
+    double energy     = itr->second;
+    double zp         = hgcons_[type]->waferZ(layer,true);
+#ifdef DebugLog
+    std::cout << "SimHit:Layer " << layer << " " << zp << " " << energy 
+	      << std::endl;
+#endif
+    hRecHitLng_[type]->Fill(zp,energy);
+    hRecHitLng1_[type]->Fill(layer,energy);
+  }
+
+  for (std::map<int,std::pair<DetId,double> >::iterator itr = map_hitCell.begin(); 
+       itr != map_hitCell.end(); ++itr) {
+    DetId       detId  = ((itr->second).first);
+    double      energy = ((itr->second).second);
+    GlobalPoint global = hgeom_[type]->getPosition(detId);
+    hRecHitLat_[type]->Fill(global.x(),global.y(),energy);
   }
 }
   

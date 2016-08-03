@@ -55,7 +55,6 @@ namespace cms
     virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
     virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
     virtual void beginJob() {}
-    void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override;
     virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override; 
 

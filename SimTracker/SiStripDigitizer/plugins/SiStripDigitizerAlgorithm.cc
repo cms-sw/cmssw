@@ -30,6 +30,11 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CLHEP/Random/RandFlat.h"
 
+#include <string.h>
+#include <sstream>
+
+#include <boost/algorithm/string.hpp>
+
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf):
   lorentzAngleName(conf.getParameter<std::string>("LorentzAngle")),
   theThreshold(conf.getParameter<double>("NoiseSigmaThreshold")),
@@ -37,7 +42,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   cmnRMStob(conf.getParameter<double>("cmnRMStob")),
   cmnRMStid(conf.getParameter<double>("cmnRMStid")),
   cmnRMStec(conf.getParameter<double>("cmnRMStec")),
-  APVSaturationProb(conf.getParameter<double>("APVSaturationProb")),
+  APVSaturationProbScaling(conf.getParameter<double>("APVSaturationProbScaling")),
   makeDigiSimLinks_(conf.getUntrackedParameter<bool>("makeDigiSimLinks", false)),
   peakMode(conf.getParameter<bool>("APVpeakmode")),
   noise(conf.getParameter<bool>("Noise")),
@@ -60,7 +65,8 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiPileUpSignals(new SiPileUpSignals()),
   theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold)),
   theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, PreMixing_)),
-  theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)) {
+  theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
+  APVProbabilityFile(conf.getParameter<edm::FileInPath>("APVProbabilityFile")) {
 
   if (peakMode) {
     LogDebug("StripDigiInfo")<<"APVs running in peak mode (poor time resolution)";
@@ -71,6 +77,21 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   else LogDebug("SiStripDigitizerAlgorithm")<<" SingleStripNoise: OFF";
   if(CommonModeNoise) LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: ON";
   else LogDebug("SiStripDigitizerAlgorithm")<<" CommonModeNoise: OFF";
+  if(APVSaturationFromHIP){  
+    std::string line; 
+    APVProbaFile.open((APVProbabilityFile.fullPath()).c_str());
+    if (APVProbaFile.is_open()){
+      while ( getline (APVProbaFile,line) ){
+        std::vector<std::string> strs;
+          boost::split(strs,line,boost::is_any_of(" "));
+          if(strs.size()==2){
+            mapOfAPVprobabilities[std::stoi(strs.at(0))]=std::stof(strs.at(1));
+          }
+      }
+      APVProbaFile.close();
+    }else throw cms::Exception("MissingInput")
+         << "It seems that the APV probability list is missing\n";
+  }
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -87,11 +108,17 @@ SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const
   SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detId);
   //storing the bad strip of the the module. the module is not removed but just signal put to 0
   std::vector<bool>& badChannels = allBadChannels[detId];
+  std::vector<bool>& hipChannels = allHIPChannels[detId];
   badChannels.clear();
   badChannels.insert(badChannels.begin(), numStrips, false);
+  hipChannels.clear();
+  hipChannels.insert(hipChannels.begin(), numStrips, false);
   for(SiStripBadStrip::ContainerIterator it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
     SiStripBadStrip::data fs = deadChannelHandle->decode(*it);
-    for(int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip) badChannels[strip] = true;
+    for(int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip) {
+		badChannels[strip] = true;
+		hipChannels[strip] = true;
+	}
   }
   firstChannelsWithSignal[detId] = numStrips;
   lastChannelsWithSignal[detId]= 0;
@@ -126,7 +153,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
   unsigned int detID = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();  
 
-  std::vector<bool>& badChannels = allBadChannels[detID];
+  std::vector<bool>& hipChannels = allHIPChannels[detID];
   size_t thisFirstChannelWithSignal = numStrips;
   size_t thisLastChannelWithSignal = 0;
 
@@ -158,30 +185,30 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
         theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel, tTopo, engine);
           
 		  //APV Killer to simulate HIP effect
-		  //------------------------------------------------------
-		  
-		  if(APVSaturationFromHIP&&!zeroSuppression){
-		    int pdg_id = simHitIter->particleType();
-			particle = pdt->particle(pdg_id);
-			if(particle != NULL){
-				float charge = particle->charge();
-				bool isHadron = particle->isHadron();
-			    if(charge!=0 && isHadron){
-					if(CLHEP::RandFlat::shoot(engine) < APVSaturationProb){
-                                                int FirstAPV = localFirstChannel/128;
-				 		int LastAPV = (localLastChannel-1)/128;
-						//std::cout << "-------------------HIP--------------" << std::endl;
-						//std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
-				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
-							badChannels[strip] = true;
-						}
-						//doing like that I remove the signal information only after the 
-						//stip that got the HIP but it remains the signal of the previous
-						//one. I'll make a further loop to remove all signal
-			  		}
-				}
-			}
-	      }             
+		  //------------------------------------------------------		  
+        if(APVSaturationFromHIP){
+	// This is a relatively preliminary version of the new APV killing method. Most of the work is actually done separately by computing the probabilities in mapOfAPVprobabilities map.
+	// Here is a short explanation:
+	// 	These probabilities are computed with different ingredients
+	// 	a) The probability for a given module to be crossed by a hadron: this is highly PU dependent
+	// 	b) Module thickness: the probability is rescaled according to the module thickness (1-> ~3/5 if the module is thick)
+	// 	c) Angular dependancy of path length: the elongation of the hadron path length in matter depends on the angle between the module normal vector and particle propagation vector.
+	// 	d) the probability for a hadron to generate a HIP,per path length unit.
+	// 	The product of these terms gives the probabilty for one module to have a HIP per event. The multiplication of this probability by the ratio of the APV recovery time and BX delta T 
+	// 	allows to take into account the presence of 'dead' APV across several bunch crossings.
+	// What is done here is very simple: for this detId, the code draws a random number fo check if it is smaller than than the corresponding mapOfAPVprobabilities[detId] entry.
+	// If yes --> the APV is flagged as bad
+	// If no  --> nothing particular happens
+          if(mapOfAPVprobabilities.count(detId)>0){
+            if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]*APVSaturationProbScaling){
+              int FirstAPV = localFirstChannel/128;
+              int LastAPV = (localLastChannel-1)/128;
+              for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) {
+                hipChannels[strip] = true;
+              }
+            }
+          }
+        }             
 		
     
         if(thisFirstChannelWithSignal > localFirstChannel) thisFirstChannelWithSignal = localFirstChannel;
@@ -243,7 +270,12 @@ SiStripDigitizerAlgorithm::digitize(
 
   //removing signal from the dead (and HIP effected) strips
   std::vector<bool>& badChannels = allBadChannels[detID];
-  for(int strip =0; strip < numStrips; ++strip) if(badChannels[strip]) detAmpl[strip] = 0.;
+  std::vector<bool>& hipChannels = allHIPChannels[detID];
+  for(int strip =0; strip < numStrips; ++strip) {
+	if(badChannels[strip]) detAmpl[strip] = 0.;
+	float scalingValue=CLHEP::RandFlat::shoot(engine)*10.0/7.0-3.0/7.0;
+	if(hipChannels[strip]) detAmpl[strip] *=scalingValue>0?scalingValue:0.0;
+  }
 
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
   SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
@@ -262,6 +294,7 @@ SiStripDigitizerAlgorithm::digitize(
     if(noise){ 
                          
       if(SingleStripNoise){
+//      std::cout<<"In SSN, detId="<<detID<<std::endl;
 	std::vector<float> noiseRMSv; 
 	noiseRMSv.clear(); 
 	noiseRMSv.insert(noiseRMSv.begin(),numStrips,0.); 

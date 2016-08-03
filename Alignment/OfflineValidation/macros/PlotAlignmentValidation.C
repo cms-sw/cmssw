@@ -977,17 +977,26 @@ THStack* PlotAlignmentValidation::addHists(const TString& selection, const TStri
     }
 
     bool histnamesfilled = false;
+    bool phase1 = (bool)(f->Get("TrackerOfflineValidationStandalone/Pixel/P1PXBBarrel_1"));
     if (residType.Contains("Res") && residType.Contains("Profile"))
     {
       TString basename = TString(residType).ReplaceAll("Res","p_res")
                                            .ReplaceAll("vs","")
                                            .ReplaceAll("Profile","_");   //gives e.g.: p_resXX_
       if (selection == "subDetId==1") {
-        histnames.push_back(TString(basename) += "TPBBarrel_1");
+        if (phase1)
+          histnames.push_back(TString(basename) += "P1PXBBarrel_1");
+        else
+          histnames.push_back(TString(basename) += "TPBBarrel_1");
         histnamesfilled = true;
       } else if (selection == "subDetId==2") {
-        histnames.push_back(TString(basename) += "TPEEndcap_2");
-        histnames.push_back(TString(basename) += "TPEEndcap_3");
+        if (phase1) {
+          histnames.push_back(TString(basename) += "P1PXECEndcap_2");
+          histnames.push_back(TString(basename) += "P1PXECEndcap_3");
+        } else {
+          histnames.push_back(TString(basename) += "TPEEndcap_2");
+          histnames.push_back(TString(basename) += "TPEEndcap_3");
+        }
         histnamesfilled = true;
       } else if (selection == "subDetId==3") {
         histnames.push_back(TString(basename) += "TIBBarrel_1");

@@ -42,7 +42,7 @@
 #include <cstdlib>
 
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::ostream;
 using std::sqrt;
 using std::stable_sort;
@@ -134,7 +134,7 @@ void Constraint_Intermed_Constant::print (std::ostream& s) const
 }
 
 
-auto_ptr<Constraint_Intermed> Constraint_Intermed_Constant::clone () const
+unique_ptr<Constraint_Intermed> Constraint_Intermed_Constant::clone () const
 //
 // Purpose: Copy this object.
 //
@@ -142,7 +142,7 @@ auto_ptr<Constraint_Intermed> Constraint_Intermed_Constant::clone () const
 //   A new copy of this object.
 //
 {
-  return auto_ptr<Constraint_Intermed>
+  return unique_ptr<Constraint_Intermed>
     (new Constraint_Intermed_Constant (*this));
 }
 
@@ -273,7 +273,7 @@ bool Constraint_Intermed_Labels::has_label (int label) const
 }
 
 
-auto_ptr<Constraint_Intermed> Constraint_Intermed_Labels::clone () const
+unique_ptr<Constraint_Intermed> Constraint_Intermed_Labels::clone () const
 //
 // Purpose: Copy this object.
 //
@@ -281,7 +281,7 @@ auto_ptr<Constraint_Intermed> Constraint_Intermed_Labels::clone () const
 //   A new copy of this object.
 //
 {
-  return auto_ptr<Constraint_Intermed> 
+  return unique_ptr<Constraint_Intermed> 
     (new Constraint_Intermed_Labels (*this));
 }
 
@@ -317,7 +317,7 @@ std::ostream& operator<< (std::ostream& s, const hitfit::Constraint_Intermed& ci
 }
 
 
-auto_ptr<Constraint_Intermed> make_constraint_intermed (string s)
+unique_ptr<Constraint_Intermed> make_constraint_intermed (string s)
 //
 // Purpose: Parse the string S and return an appropriate
 //          Constraint_Intermed instance.
@@ -353,7 +353,7 @@ auto_ptr<Constraint_Intermed> make_constraint_intermed (string s)
   if (i < s.size() && s[i] == '<') {
     i = s.find ('>', i);
     if (i == string::npos)
-      return auto_ptr<Constraint_Intermed> ();
+      return unique_ptr<Constraint_Intermed> ();
     ++i;
   }
   while (i < s.size() && s[i] == ' ')
@@ -361,7 +361,7 @@ auto_ptr<Constraint_Intermed> make_constraint_intermed (string s)
 
   // Fail if there's nothing left.
   if (i == s.size())
-    return auto_ptr<Constraint_Intermed> ();
+    return unique_ptr<Constraint_Intermed> ();
 
   if (s[i] == '(') {
     // List of labels.
@@ -378,12 +378,12 @@ auto_ptr<Constraint_Intermed> make_constraint_intermed (string s)
       while (i < s.size() && s[i] != ' ' && s[i] != ')')
         ++i;
     }
-    return auto_ptr<Constraint_Intermed>
+    return unique_ptr<Constraint_Intermed>
       (new Constraint_Intermed_Labels (labels));
   }
   else {
     // Make a Constraint_Intermed_Constant instance.
-    return auto_ptr<Constraint_Intermed>
+    return unique_ptr<Constraint_Intermed>
       (new Constraint_Intermed_Constant (atof (s.c_str() + i)));
   }
 }

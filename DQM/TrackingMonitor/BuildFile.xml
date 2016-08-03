@@ -14,6 +14,7 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/SiPixelDetId"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="RecoMuon/GlobalTrackingTools"/>
 <flags EDM_PLUGIN="1"/>

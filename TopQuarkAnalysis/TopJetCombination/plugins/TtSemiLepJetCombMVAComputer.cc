@@ -22,10 +22,10 @@ TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer()
 void
 TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr<std::vector<std::vector<int> > > pOut    (new std::vector<std::vector<int> >);
-  std::auto_ptr<std::vector<double>            > pOutDisc(new std::vector<double>);
-  std::auto_ptr<std::string                    > pOutMeth(new std::string);
-  std::auto_ptr<int                            > pJetsConsidered(new int);
+  std::unique_ptr<std::vector<std::vector<int> > > pOut    (new std::vector<std::vector<int> >);
+  std::unique_ptr<std::vector<double>            > pOutDisc(new std::vector<double>);
+  std::unique_ptr<std::string                    > pOutMeth(new std::string);
+  std::unique_ptr<int                            > pJetsConsidered(new int);
 
   mvaComputer.update<TtSemiLepJetCombMVARcd>(setup, "ttSemiLepJetCombMVA");
 
@@ -36,7 +36,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   std::vector<PhysicsTools::Calibration::VarProcessor*> processors
     = (calibContainer->find("ttSemiLepJetCombMVA")).getProcessors();
   *pOutMeth = ( processors[ processors.size()-3 ] )->getInstanceName();
-  evt.put(pOutMeth, "Method");
+  evt.put(std::move(pOutMeth), "Method");
 
   // get lepton, jets and mets
   edm::Handle< edm::View<reco::RecoCandidate> > leptons;
@@ -57,11 +57,11 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
     for(unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back( -1 );
     pOut->push_back( invalidCombi );
-    evt.put(pOut);
+    evt.put(std::move(pOut));
     pOutDisc->push_back( 0. );
-    evt.put(pOutDisc, "Discriminators");
+    evt.put(std::move(pOutDisc), "Discriminators");
     *pJetsConsidered = jets->size();
-    evt.put(pJetsConsidered, "NumberOfConsideredJets");
+    evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
     return;
   }
 
@@ -122,9 +122,9 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
     pOutDisc->push_back( discCombPair->first  );
     iDiscComb++;
   }
-  evt.put(pOut);
-  evt.put(pOutDisc, "Discriminators");
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
+  evt.put(std::move(pOut));
+  evt.put(std::move(pOutDisc), "Discriminators");
+  evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 }
 
 void

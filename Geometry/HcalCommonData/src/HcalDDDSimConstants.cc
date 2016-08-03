@@ -501,6 +501,7 @@ void HcalDDDSimConstants::initialize( void ) {
   nEta      = hpar->etaTable.size();
   nR        = hpar->rTable.size();
   nPhiF     = nR - 1;
+  isBH_     = false;
 
 #ifdef DebugLog
   for (int i=0; i<nEta-1; ++i) {
@@ -592,11 +593,16 @@ void HcalDDDSimConstants::initialize( void ) {
 #endif
 
   int noffsize = 7 + hpar->noff[5] + hpar->noff[6];
+  int noffl(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+3)) {
     depthEta16[0] = hpar->noff[noffsize];
     depthEta16[1] = hpar->noff[noffsize+1];
     depthEta29[0] = hpar->noff[noffsize+2];
     depthEta29[1] = hpar->noff[noffsize+3];
+    if ((int)(hpar->noff.size()) > (noffsize+4)) {
+      noffl += (2*hpar->noff[noffsize+4]);
+      if ((int)(hpar->noff.size()) > noffl) isBH_ = (hpar->noff[noffl] > 0);
+    }
   } else {
     depthEta16[0] = 2;
     depthEta16[1] = 3;
@@ -604,6 +610,8 @@ void HcalDDDSimConstants::initialize( void ) {
     depthEta29[1] = 1;
   }
 #ifdef DebugLog
+  std::cout << "isBH_ " << hpar->noff.size() << ":" << noffsize << ":" 
+	    << noffl << ":" << isBH_ << std::endl;
   std::cout << "Depth index at ieta = 16 for HB (max) " << depthEta16[0] 
 	    << " HE (min) " << depthEta16[1] << "; max depth for itea = 29 : ("
 	    << depthEta29[0] << ":" << depthEta29[1] << ")" << std::endl;

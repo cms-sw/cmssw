@@ -33,19 +33,19 @@ class RawDataUnpacker
     RawDataUnpacker(const edm::ParameterSet &conf);
 
     /// Unpack data from FED with fedId into `coll' collection.
-    int Run(int fedId, const FEDRawData &data, std::vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll);
+    int Run(int fedId, const FEDRawData &data, std::vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll) const;
 
     /// Process one Opto-Rx (or LoneG) frame.
-    int ProcessOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc);
+    int ProcessOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
 
     /// Process one Opto-Rx frame in serial (old) format
-    int ProcessOptoRxFrameSerial(const word *buffer, unsigned int frameSize, SimpleVFATFrameCollection *fc);
+    int ProcessOptoRxFrameSerial(const word *buffer, unsigned int frameSize, SimpleVFATFrameCollection *fc) const;
 
     /// Process one Opto-Rx frame in parallel (new) format
-    int ProcessOptoRxFrameParallel(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc);
+    int ProcessOptoRxFrameParallel(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
 
     /// Process data from one VFAT in parallel (new) format
-    int ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc);
+    int ProcessVFATDataParallel(const uint16_t *buf, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const;
 };
 
 #endif

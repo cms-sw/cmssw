@@ -105,10 +105,10 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // creates the output collection
   susybsm::HSCParticleCollection* hscp = new susybsm::HSCParticleCollection;
-  std::auto_ptr<susybsm::HSCParticleCollection> result(hscp);
+  std::unique_ptr<susybsm::HSCParticleCollection> result(hscp);
 
   susybsm::HSCPCaloInfoCollection* caloInfoColl = new susybsm::HSCPCaloInfoCollection;
-  std::auto_ptr<susybsm::HSCPCaloInfoCollection> caloInfoCollaptr(caloInfoColl);
+  std::unique_ptr<susybsm::HSCPCaloInfoCollection> caloInfoCollaptr(caloInfoColl);
 
 
   // Fill the output collection with HSCP Candidate (the candiate only contains ref to muon AND/OR track object)
@@ -173,7 +173,7 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // output result
   if(useBetaFromEcal){
-    edm::OrphanHandle<susybsm::HSCPCaloInfoCollection> caloInfoHandle= iEvent.put(caloInfoCollaptr);
+    edm::OrphanHandle<susybsm::HSCPCaloInfoCollection> caloInfoHandle= iEvent.put(std::move(caloInfoCollaptr));
     // adding the reftoCaloInfoObject to the HSCP Object
     for(int i=0;i<(int)hscp->size();i++) {
        susybsm::HSCParticleCollection::iterator hscpcandidate = hscp->begin() + i;
@@ -185,12 +185,12 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // output result
 
 
-  edm::OrphanHandle<susybsm::HSCParticleCollection> putHandle = iEvent.put(result);
+  edm::OrphanHandle<susybsm::HSCParticleCollection> putHandle = iEvent.put(std::move(result));
 //  if(useBetaFromEcal){
 //      edm::RefProd<susybsm::HSCParticleCollection> hscpCollectionHandle = iEvent.getRefBeforePut<susybsm::HSCParticleCollection>();
 //    filler.insert(putHandle, CaloInfoColl.begin(), CaloInfoColl.end());
 //    filler.fill();
-//    iEvent.put(CaloInfoMap);
+//    iEvent.put(std::move(CaloInfoMap));
 //  }
 
   return filterResult;

@@ -431,11 +431,9 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 
 template <class Container, class Base, class Helper> void IPProducer<Container,Base,Helper>::checkEventSetup(const edm::EventSetup & iSetup)
  {
-  using namespace edm;
-  using namespace edm::eventsetup;
-
-   const EventSetupRecord & re2D= iSetup.get<BTagTrackProbability2DRcd>();
-   const EventSetupRecord & re3D= iSetup.get<BTagTrackProbability3DRcd>();
+  
+   const edm::eventsetup::EventSetupRecord & re2D= iSetup.get<BTagTrackProbability2DRcd>();
+   const edm::eventsetup::EventSetupRecord & re3D= iSetup.get<BTagTrackProbability3DRcd>();
    unsigned long long cacheId2D= re2D.cacheIdentifier();
    unsigned long long cacheId3D= re3D.cacheIdentifier();
 

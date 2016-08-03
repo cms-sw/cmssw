@@ -256,7 +256,7 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PGlobalDigi> pOut(new PGlobalDigi);
+  std::unique_ptr<PGlobalDigi> pOut(new PGlobalDigi);
 
   if (verbosity > 2)
     edm::LogInfo (MsgLoggerCat)
@@ -273,7 +273,7 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
   storeMuon(*pOut);
 
   // store information in event
-  iEvent.put(pOut,label);
+  iEvent.put(std::move(pOut),label);
 
   return;
 }
@@ -319,10 +319,10 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 	<< "Unable to find cal barrel crossingFrame in event!";
       return;
     }
-    //std::auto_ptr<MixCollection<PCaloHit> >
+    //std::unique_ptr<MixCollection<PCaloHit> >
     //barrelHits(new MixCollection<PCaloHit>
     //		 (crossingFrame.product(), barrelHitsName));
-    std::auto_ptr<MixCollection<PCaloHit> >
+    std::unique_ptr<MixCollection<PCaloHit> >
       barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
@@ -439,10 +439,10 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 	<< "Unable to find cal endcap crossingFrame in event!";
       return;
     }
-    //std::auto_ptr<MixCollection<PCaloHit> >
+    //std::unique_ptr<MixCollection<PCaloHit> >
     //  endcapHits(new MixCollection<PCaloHit>
     //	 (crossingFrame.product(), endcapHitsName));
-    std::auto_ptr<MixCollection<PCaloHit> >
+    std::unique_ptr<MixCollection<PCaloHit> >
       endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal
@@ -559,10 +559,10 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
 	<< "Unable to find cal preshower crossingFrame in event!";
       return;
     }
-    //std::auto_ptr<MixCollection<PCaloHit> >
+    //std::unique_ptr<MixCollection<PCaloHit> >
     //  preshowerHits(new MixCollection<PCaloHit>
     //		 (crossingFrame.product(), preshowerHitsName));
-   std::auto_ptr<MixCollection<PCaloHit> >
+   std::unique_ptr<MixCollection<PCaloHit> >
       preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));
 
     // keep track of sum of simhit energy in each crystal

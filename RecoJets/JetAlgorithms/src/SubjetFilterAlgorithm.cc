@@ -181,7 +181,8 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
 	  cout<<"Rbb="<<Rbb<<", Rfilt="<<Rfilt<<endl;
 	  cout<<"FILTER JETS: "<<flush;
 	  for (size_t i=0;i<fjFilterJets.size();i++) {
-	    if (i>0) cout<<"             "<<flush; cout<<fjFilterJets[i]<<endl;
+	    if (i>0) cout<<"             "<<flush; 
+	    cout<<fjFilterJets[i]<<endl;
 	  }
 	}
 	

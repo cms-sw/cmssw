@@ -107,8 +107,8 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
 
    if(iEvent.run() < 110878 ) {
 
-     std::auto_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent));
-     iEvent.put(pOut);
+     std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent));
+     iEvent.put(std::move(pOut));
 
    }
    else {
@@ -130,8 +130,8 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
      }
 
 
-     std::auto_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent,*pIn,orbitoffset,bxoffset));
-     iEvent.put(pOut);
+     std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent,*pIn,orbitoffset,bxoffset));
+     iEvent.put(std::move(pOut));
 
      // monitor offset
 

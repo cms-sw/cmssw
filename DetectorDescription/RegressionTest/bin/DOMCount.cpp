@@ -1,90 +1,50 @@
 /*
- * The Apache Software License, Version 1.1
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Copyright (c) 1999-2002 The Apache Software Foundation.  All rights
- * reserved.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. The end-user documentation included with the redistribution,
- *    if any, must include the following acknowledgment:
- *       "This product includes software developed by the
- *        Apache Software Foundation (http://www.apache.org/)."
- *    Alternately, this acknowledgment may appear in the software itself,
- *    if and wherever such third-party acknowledgments normally appear.
- *
- * 4. The names "Xerces" and "Apache Software Foundation" must
- *    not be used to endorse or promote products derived from this
- *    software without prior written permission. For written
- *    permission, please contact apache\@apache.org.
- *
- * 5. Products derived from this software may not be called "Apache",
- *    nor may "Apache" appear in their name, without prior written
- *    permission of the Apache Software Foundation.
- *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- * ====================================================================
- *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation, and was
- * originally based on software copyright (c) 1999, International
- * Business Machines, Inc., http://www.ibm.com .  For more information
- * on the Apache Software Foundation, please see
- * <http://www.apache.org/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /*
+ * $Id$
  */
 
-#include <string.h>
-#include <xercesc/dom/DOMAttr.hpp>
-#include <xercesc/dom/DOMBuilder.hpp>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMError.hpp>
-#include <xercesc/dom/DOMException.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMImplementationRegistry.hpp>
-#include <xercesc/dom/DOMLocator.hpp>
-#include <xercesc/dom/DOMNamedNodeMap.hpp>
-#include <xercesc/dom/DOMNodeList.hpp>
-#include <xercesc/parsers/AbstractDOMParser.hpp>
-#include <fstream>
-
-#include "DOMCount.hpp"
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-#include "FWCore/Concurrency/interface/Xerces.h"
-#include "xercesc/dom/DOMNode.hpp"
-#include "xercesc/util/PlatformUtils.hpp"
-#include "xercesc/util/XMLException.hpp"
-#include "xercesc/util/XMLString.hpp"
-#include "xercesc/util/XMLUni.hpp"
-#include "xercesc/util/XMLUniDefs.hpp"
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/parsers/AbstractDOMParser.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMImplementationLS.hpp>
+#include <xercesc/dom/DOMImplementationRegistry.hpp>
+#include <xercesc/dom/DOMLSParser.hpp>
+#include <xercesc/dom/DOMException.hpp>
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMNodeList.hpp>
+#include <xercesc/dom/DOMError.hpp>
+#include <xercesc/dom/DOMLocator.hpp>
+#include <xercesc/dom/DOMNamedNodeMap.hpp>
+#include <xercesc/dom/DOMAttr.hpp>
+#include "DOMCount.hpp"
+#include <string.h>
+#include <stdlib.h>
 
-namespace std { } using namespace std;
+#if defined(XERCES_NEW_IOSTREAMS)
+#include <fstream>
+#else
+#include <fstream.h>
+#endif
+
 
 // ---------------------------------------------------------------------------
 //  This is a simple program which invokes the DOMParser to build a DOM
@@ -93,9 +53,9 @@ namespace std { } using namespace std;
 // ---------------------------------------------------------------------------
 static void usage()
 {
-    cout << "\nUsage:\n"
+    XERCES_STD_QUALIFIER cout << "\nUsage:\n"
             "    DOMCount [options] <XML file | List file>\n\n"
-            "This program invokes the DOMBuilder, builds the DOM tree,\n"
+            "This program invokes the DOMLSParser, builds the DOM tree,\n"
             "and then prints the number of elements found in each XML file.\n\n"
             "Options:\n"
             "    -l          Indicate the input file is a List File that has a list of xml files.\n"
@@ -104,10 +64,11 @@ static void usage()
             "    -n          Enable namespace processing. Defaults to off.\n"
             "    -s          Enable schema processing. Defaults to off.\n"
             "    -f          Enable full schema constraint checking. Defaults to off.\n"
+            "    -locale=ll_CC specify the locale, default: en_US.\n"
             "    -p          Print out names of elements and attributes encountered.\n"
 		    "    -?          Show this help.\n\n"
             "  * = Default if not provided explicitly.\n"
-         << endl;
+         << XERCES_STD_QUALIFIER endl;
 }
 
 
@@ -127,28 +88,28 @@ static int countChildElements(DOMNode *n, bool printOutEncounteredEles)
 		{
             if(printOutEncounteredEles) {
                 char *name = XMLString::transcode(n->getNodeName());
-                cout <<"----------------------------------------------------------"<<endl;
-                cout <<"Encountered Element : "<< name << endl;
-                
+                XERCES_STD_QUALIFIER cout <<"----------------------------------------------------------"<<XERCES_STD_QUALIFIER endl;
+                XERCES_STD_QUALIFIER cout <<"Encountered Element : "<< name << XERCES_STD_QUALIFIER endl;
+
                 XMLString::release(&name);
-			
+
                 if(n->hasAttributes()) {
                     // get all the attributes of the node
                     DOMNamedNodeMap *pAttributes = n->getAttributes();
-                    int nSize = pAttributes->getLength();
-                    cout <<"\tAttributes" << endl;
-                    cout <<"\t----------" << endl;
-                    for(int i=0;i<nSize;++i) {
+                    const XMLSize_t nSize = pAttributes->getLength();
+                    XERCES_STD_QUALIFIER cout <<"\tAttributes" << XERCES_STD_QUALIFIER endl;
+                    XERCES_STD_QUALIFIER cout <<"\t----------" << XERCES_STD_QUALIFIER endl;
+                    for(XMLSize_t i=0;i<nSize;++i) {
                         DOMAttr *pAttributeNode = (DOMAttr*) pAttributes->item(i);
                         // get attribute name
                         char *name = XMLString::transcode(pAttributeNode->getName());
-                        
-                        cout << "\t" << name << "=";
+
+                        XERCES_STD_QUALIFIER cout << "\t" << name << "=";
                         XMLString::release(&name);
-                        
+
                         // get attribute type
                         name = XMLString::transcode(pAttributeNode->getValue());
-                        cout << name << endl;
+                        XERCES_STD_QUALIFIER cout << name << XERCES_STD_QUALIFIER endl;
                         XMLString::release(&name);
                     }
                 }
@@ -185,9 +146,11 @@ int main(int argC, char* argV[])
     bool                       errorOccurred = false;
     bool                       recognizeNEL = false;
     bool                       printOutEncounteredEles = false;
+    char                       localeStr[64];
+    memset(localeStr, 0, sizeof localeStr);
 
     int argInd;
-    for (argInd = 1; argInd < argC; ++argInd)
+    for (argInd = 1; argInd < argC; argInd++)
     {
         // Break out on first parm not starting with a dash
         if (argV[argInd][0] != '-')
@@ -212,7 +175,7 @@ int main(int argC, char* argV[])
                 valScheme = AbstractDOMParser::Val_Always;
             else
             {
-                cerr << "Unknown -v= value: " << parm << endl;
+                XERCES_STD_QUALIFIER cerr << "Unknown -v= value: " << parm << XERCES_STD_QUALIFIER endl;
                 return 2;
             }
         }
@@ -250,10 +213,15 @@ int main(int argC, char* argV[])
         {
             printOutEncounteredEles = true;
         }
-        else
+         else if (!strncmp(argV[argInd], "-locale=", 8))
         {
-            cerr << "Unknown option '" << argV[argInd]
-                 << "', ignoring it\n" << endl;
+             // Get out the end of line
+             strcpy(localeStr, &(argV[argInd][8]));
+        }
+         else
+        {
+            XERCES_STD_QUALIFIER cerr << "Unknown option '" << argV[argInd]
+                 << "', ignoring it\n" << XERCES_STD_QUALIFIER endl;
         }
     }
 
@@ -270,7 +238,14 @@ int main(int argC, char* argV[])
     // Initialize the XML4C system
     try
     {
-        cms::concurrency::xercesInitialize();
+        if (strlen(localeStr))
+        {
+            XMLPlatformUtils::Initialize(localeStr);
+        }
+        else
+        {
+            XMLPlatformUtils::Initialize();
+        }
 
         if (recognizeNEL)
         {
@@ -280,55 +255,57 @@ int main(int argC, char* argV[])
 
     catch (const XMLException& toCatch)
     {
-         cerr << "Error during initialization! :\n"
-              << StrX(toCatch.getMessage()) << endl;
+         XERCES_STD_QUALIFIER cerr << "Error during initialization! :\n"
+              << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
          return 1;
     }
 
     // Instantiate the DOM parser.
     static const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
     DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
-    DOMBuilder        *parser = ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    DOMLSParser       *parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    DOMConfiguration  *config = parser->getDomConfig();
 
-    parser->setFeature(XMLUni::fgDOMNamespaces, doNamespaces);
-    parser->setFeature(XMLUni::fgXercesSchema, doSchema);
-    parser->setFeature(XMLUni::fgXercesSchemaFullChecking, schemaFullChecking);
+    config->setParameter(XMLUni::fgDOMNamespaces, doNamespaces);
+    config->setParameter(XMLUni::fgXercesSchema, doSchema);
+    config->setParameter(XMLUni::fgXercesHandleMultipleImports, true);
+    config->setParameter(XMLUni::fgXercesSchemaFullChecking, schemaFullChecking);
 
     if (valScheme == AbstractDOMParser::Val_Auto)
     {
-        parser->setFeature(XMLUni::fgDOMValidateIfSchema, true);
+        config->setParameter(XMLUni::fgDOMValidateIfSchema, true);
     }
     else if (valScheme == AbstractDOMParser::Val_Never)
     {
-        parser->setFeature(XMLUni::fgDOMValidation, false);
+        config->setParameter(XMLUni::fgDOMValidate, false);
     }
     else if (valScheme == AbstractDOMParser::Val_Always)
     {
-        parser->setFeature(XMLUni::fgDOMValidation, true);
+        config->setParameter(XMLUni::fgDOMValidate, true);
     }
 
     // enable datatype normalization - default is off
-    parser->setFeature(XMLUni::fgDOMDatatypeNormalization, true);
+    config->setParameter(XMLUni::fgDOMDatatypeNormalization, true);
 
     // And create our error handler and install it
     DOMCountErrorHandler errorHandler;
-    parser->setErrorHandler(&errorHandler);
+    config->setParameter(XMLUni::fgDOMErrorHandler, &errorHandler);
 
     //
     //  Get the starting time and kick off the parse of the indicated
     //  file. Catch any exceptions that might propogate out of it.
     //
-    //unsigned long duration;
+    unsigned long duration;
 
     bool more = true;
-    ifstream fin;
+    XERCES_STD_QUALIFIER ifstream fin;
 
     // the input is a list file
     if (doList)
         fin.open(argV[argInd]);
 
     if (fin.fail()) {
-        cerr <<"Cannot open the list file: " << argV[argInd] << endl;
+        XERCES_STD_QUALIFIER cerr <<"Cannot open the list file: " << argV[argInd] << XERCES_STD_QUALIFIER endl;
         return 2;
     }
 
@@ -345,7 +322,7 @@ int main(int argC, char* argV[])
                     continue;
                 else {
                     xmlFile = fURI;
-                    cerr << "==Parsing== " << xmlFile << endl;
+                    XERCES_STD_QUALIFIER cerr << "==Parsing== " << xmlFile << XERCES_STD_QUALIFIER endl;
                 }
             }
             else
@@ -366,17 +343,17 @@ int main(int argC, char* argV[])
             // reset document pool
             parser->resetDocumentPool();
 
-            //const unsigned long startMillis = XMLPlatformUtils::getCurrentMillis();
+            const unsigned long startMillis = XMLPlatformUtils::getCurrentMillis();
             doc = parser->parseURI(xmlFile);
-            //const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
-            //duration = endMillis - startMillis;
+            const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
+            duration = endMillis - startMillis;
         }
 
         catch (const XMLException& toCatch)
         {
-            cerr << "\nError during parsing: '" << xmlFile << "'\n"
+            XERCES_STD_QUALIFIER cerr << "\nError during parsing: '" << xmlFile << "'\n"
                  << "Exception message is:  \n"
-                 << StrX(toCatch.getMessage()) << "\n" << endl;
+                 << StrX(toCatch.getMessage()) << "\n" << XERCES_STD_QUALIFIER endl;
             errorOccurred = true;
             continue;
         }
@@ -385,18 +362,18 @@ int main(int argC, char* argV[])
             const unsigned int maxChars = 2047;
             XMLCh errText[maxChars + 1];
 
-            cerr << "\nDOM Error during parsing: '" << xmlFile << "'\n"
-                 << "DOMException code is:  " << toCatch.code << endl;
+            XERCES_STD_QUALIFIER cerr << "\nDOM Error during parsing: '" << xmlFile << "'\n"
+                 << "DOMException code is:  " << toCatch.code << XERCES_STD_QUALIFIER endl;
 
             if (DOMImplementation::loadDOMExceptionMsg(toCatch.code, errText, maxChars))
-                 cerr << "Message is: " << StrX(errText) << endl;
+                 XERCES_STD_QUALIFIER cerr << "Message is: " << StrX(errText) << XERCES_STD_QUALIFIER endl;
 
             errorOccurred = true;
             continue;
         }
         catch (...)
         {
-            cerr << "\nUnexpected exception during parsing: '" << xmlFile << "'\n";
+            XERCES_STD_QUALIFIER cerr << "\nUnexpected exception during parsing: '" << xmlFile << "'\n";
             errorOccurred = true;
             continue;
         }
@@ -407,7 +384,7 @@ int main(int argC, char* argV[])
         //
         if (errorHandler.getSawErrors())
         {
-            cout << "\nErrors occurred, no output available\n" << endl;
+            XERCES_STD_QUALIFIER cout << "\nErrors occurred, no output available\n" << XERCES_STD_QUALIFIER endl;
             errorOccurred = true;
         }
          else
@@ -418,13 +395,14 @@ int main(int argC, char* argV[])
                 // test getElementsByTagName and getLength
                 XMLCh xa[] = {chAsterisk, chNull};
                 if (elementCount != doc->getElementsByTagName(xa)->getLength()) {
-                    cout << "\nErrors occurred, element count is wrong\n" << endl;
+                    XERCES_STD_QUALIFIER cout << "\nErrors occurred, element count is wrong\n" << XERCES_STD_QUALIFIER endl;
                     errorOccurred = true;
                 }
             }
 
             // Print out the stats that we collected and time taken.
-            cout << xmlFile << ": " << elementCount << " elems." << endl;
+            XERCES_STD_QUALIFIER cout << xmlFile << ": " << duration << " ms ("
+                 << elementCount << " elems)." << XERCES_STD_QUALIFIER endl;
         }
     }
 
@@ -434,7 +412,7 @@ int main(int argC, char* argV[])
     parser->release();
 
     // And call the termination method
-    cms::concurrency::xercesTerminate();
+    XMLPlatformUtils::Terminate();
 
     if (doList)
         fin.close();
@@ -467,16 +445,16 @@ bool DOMCountErrorHandler::handleError(const DOMError& domError)
 {
     fSawErrors = true;
     if (domError.getSeverity() == DOMError::DOM_SEVERITY_WARNING)
-        cerr << "\nWarning at file ";
+        XERCES_STD_QUALIFIER cerr << "\nWarning at file ";
     else if (domError.getSeverity() == DOMError::DOM_SEVERITY_ERROR)
-        cerr << "\nError at file ";
+        XERCES_STD_QUALIFIER cerr << "\nError at file ";
     else
-        cerr << "\nFatal Error at file ";
+        XERCES_STD_QUALIFIER cerr << "\nFatal Error at file ";
 
-    cerr << StrX(domError.getLocation()->getURI())
+    XERCES_STD_QUALIFIER cerr << StrX(domError.getLocation()->getURI())
          << ", line " << domError.getLocation()->getLineNumber()
          << ", char " << domError.getLocation()->getColumnNumber()
-         << "\n  Message: " << StrX(domError.getMessage()) << endl;
+         << "\n  Message: " << StrX(domError.getMessage()) << XERCES_STD_QUALIFIER endl;
 
     return true;
 }

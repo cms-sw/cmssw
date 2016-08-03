@@ -1,6 +1,8 @@
 #include "DQM/HcalTasks/interface/RecHitTask.h"
 #include <math.h>
-
+using namespace hcaldqm;
+using namespace hcaldqm::filter;
+using namespace constants;
 RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

@@ -32,7 +32,7 @@ MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
 
-    for(int layer = ME0DetId::minLayerId; layer <= ME0DetId::maxLayerId; ++layer) { 
+    for(int layer = ME0DetId::minLayerId+1; layer <= ME0DetId::maxLayerId; ++layer) { 
       vector<int> rolls;      
       //std::vector<int> rings;
       std::vector<int> chambers;

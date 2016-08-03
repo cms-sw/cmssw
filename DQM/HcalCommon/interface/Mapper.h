@@ -11,7 +11,6 @@
 #include "DQM/HcalCommon/interface/HcalCommonHeaders.h"
 #include "DQM/HcalCommon/interface/Constants.h"
 #include "DQM/HcalCommon/interface/Logger.h"
-
 #include <string>
 #include <vector>
 #include <sstream>

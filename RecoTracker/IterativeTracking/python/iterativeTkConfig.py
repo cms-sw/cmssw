@@ -4,7 +4,7 @@
 import FWCore.ParameterSet.Config as cms
 
 _defaultEra = ""
-_nonDefaultEras = ["trackingLowPU", "trackingPhase1", "trackingPhase1PU70"]
+_nonDefaultEras = ["trackingLowPU", "trackingPhase1", "trackingPhase1PU70", "trackingPhase2PU140"]
 _allEras = [_defaultEra] + _nonDefaultEras
 
 _iterations = [
@@ -28,11 +28,11 @@ _iterations_trackingLowPU = [
 ]
 _iterations_trackingPhase1 = [
     "InitialStep",
-    "HighPtTripletStep",
-    "DetachedQuadStep",
-    #"DetachedTripletStep", # FIXME: dropped for time being, but it may be enabled on the course of further tuning
     "LowPtQuadStep",
+    "HighPtTripletStep",
     "LowPtTripletStep",
+    "DetachedQuadStep",
+    "DetachedTripletStep",
     "MixedTripletStep",
     "PixelLessStep",
     "TobTecStep",
@@ -48,9 +48,21 @@ _iterations_trackingPhase1PU70 = [
     "PixelPairStep",
     "TobTecStep",
 ]
+_iterations_trackingPhase2PU140 = [
+    "InitialStep",
+    "HighPtTripletStep",
+    "LowPtQuadStep",
+    "LowPtTripletStep",
+    "DetachedQuadStep",
+    "PixelPairStep",
+]
 _iterations_muonSeeded = [
     "MuonSeededStepInOut",
     "MuonSeededStepOutIn",
+]
+#Phase2 : just muon Seed InOut is used in this moment
+_iterations_muonSeeded_trackingPhase2PU140 = [
+    "MuonSeededStepInOut",
 ]
 _multipleSeedProducers = {
     "MixedTripletStep": ["A", "B"],
@@ -61,6 +73,7 @@ _multipleSeedProducers_trackingLowPU = {
 }
 _multipleSeedProducers_trackingPhase1 = _multipleSeedProducers
 _multipleSeedProducers_trackingPhase1PU70 = _multipleSeedProducers_trackingLowPU
+_multipleSeedProducers_trackingPhase2PU140 = {}
 _oldStyleHasSelector = set([
     "InitialStep",
     "HighPtTripletStep",
@@ -76,6 +89,16 @@ _trackClusterRemoverBase = _trackClusterRemover.clone(
     maxChi2                                  = 9.0,
     pixelClusters                            = "siPixelClusters",
     stripClusters                            = "siStripClusters",
+    TrackQuality                             = 'highPurity',
+    minNumberOfLayersWithMeasBeforeFiltering = 0,
+)
+
+#Phase2 : configuring the phase2 track Cluster Remover
+from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
+_trackClusterRemoverBase_trackingPhase2PU140 = _phase2trackClusterRemover.clone(
+    maxChi2                                  = 9.0,
+    phase2pixelClusters                      = "siPixelClusters",
+    phase2OTClusters                         = "siPhase2Clusters",
     TrackQuality                             = 'highPurity',
     minNumberOfLayersWithMeasBeforeFiltering = 0,
 )
@@ -116,7 +139,8 @@ def createEarlySequence(era, modDict):
     return seq
 
 def iterationAlgos(era):
-    return [_modulePrefix(i) for i in globals()["_iterations"+postfix(era)] + _iterations_muonSeeded]
+    muonVariable = "_iterations_muonSeeded"+postfix(era)
+    return [_modulePrefix(i) for i in globals()["_iterations"+postfix(era)] + globals().get(muonVariable, _iterations_muonSeeded)]
 
 def _seedOrTrackProducers(era, typ):
     ret = []
@@ -133,7 +157,7 @@ def _seedOrTrackProducers(era, typ):
         else:
             ret.append(seeder)
 
-    for i in _iterations_muonSeeded:
+    for i in globals().get("_iterations_muonSeeded"+postfix(era), _iterations_muonSeeded):
         ret.append(_modulePrefix(i).replace("Step", typ))
 
     return ret
@@ -147,6 +171,8 @@ def trackProducers(era):
 def clusterRemoverForIter(iteration, era="", module=None):
     if module is None:
         module = _trackClusterRemoverBase.clone()
+    if era == "trackingPhase2PU140":
+        module = globals().get("_trackClusterRemoverBase"+postfix(era), _trackClusterRemoverBase)
 
     pf = postfix(era)
     iters = globals()["_iterations"+pf]
@@ -164,7 +190,7 @@ def clusterRemoverForIter(iteration, era="", module=None):
         trajectories          = _tracks(prevIter),
         oldClusterRemovalInfo = _clusterRemover(prevIter) if ind >= 2 else "", # 1st iteration does not have cluster remover
     )
-    if era == "trackingPhase1PU70":
+    if era in ["trackingPhase1PU70", "trackingPhase2PU140"]:
         customize["overrideTrkQuals"] = _classifier(prevIter, oldStyle=True) # old-style selector
     elif era == "trackingLowPU":
         customize["overrideTrkQuals"] = _classifier(prevIter, oldStyle=True, oldStyleQualityMasks=True) # old-style selector with 'QualityMasks' instance label

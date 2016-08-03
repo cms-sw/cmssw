@@ -88,6 +88,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ActivityR9                      = cms.InputTag("hltUnseededR9shape"), # spike cleaning
     ActivityR9ID                    = cms.InputTag("hltActivityR9ID"),
     ActivityHcalForHoverE           = cms.InputTag("hltActivityPhotonHcalForHE"),
+    EcalRecHitEB                    = cms.InputTag("hltEcalRegionalEgammaRecHit","EcalRecHitsEB"),
+    EcalRecHitEE                    = cms.InputTag("hltEcalRegionalEgammaRecHit","EcalRecHitsEE"),
 
     ### egamma - standard or startup windows
     IsoElectrons                    = cms.InputTag("hltPixelMatchElectronsL1Seeded"),
@@ -181,6 +183,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     # HLT vertices
     PrimaryVertices             = cms.InputTag("hltPixelVertices"),
     PrimaryVerticesHLT          = cms.InputTag('pixelVertices'),
+
+    BSProducer                  = cms.InputTag("hltOnlineBeamSpot"),
 
     ### Run parameters
     RunParameters = cms.PSet(

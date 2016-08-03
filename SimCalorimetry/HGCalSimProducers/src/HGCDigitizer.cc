@@ -144,6 +144,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   HGCCellInfo baseData;
   baseData.hit_info[0].fill(0.); //accumulated energy
   baseData.hit_info[1].fill(0.); //time-of-flight
+  baseData.size = 0.0;
   baseData.thickness = std::numeric_limits<int>::max();
   
   //configuration to apply for the computation of time-of-flight
@@ -292,12 +293,17 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
       uint32_t id(it->rawId());
       auto itr = simHitAccumulator_->emplace(id, baseData);
       int waferTypeL = 0;
+      bool isHalf = false;
       if(dddConst.geomMode() == HGCalGeometryMode::Square) {
         waferTypeL = producesEEDigis() ? 2 : 3;
+        isHalf = false;
       } else {
+        HGCalDetId hid(id);
         int wafer = HGCalDetId(id).wafer();
         waferTypeL = dddConst.waferTypeL(wafer);        
+        isHalf = dddConst.isHalfCell(wafer,hid.cell());
       }
+      itr.first->second.size = (isHalf ? 0.5 : 1.0);
       itr.first->second.thickness = waferTypeL;
       nadded++;
     }

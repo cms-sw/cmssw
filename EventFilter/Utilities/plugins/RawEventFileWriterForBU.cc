@@ -11,20 +11,16 @@
 
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <signal.h>
 #include <boost/filesystem/fstream.hpp>
 
 using namespace jsoncollector;
 
 
 //TODO:get run directory information from DaqDirector
-
-RawEventFileWriterForBU* RawEventFileWriterForBU::instance = 0;
 
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
       // default to .5ms sleep per event
@@ -84,15 +80,6 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
   runMon_->registerGlobalMonitorable(&perRunLumiCount_,false,nullptr);
   runMon_->registerGlobalMonitorable(&perRunLastLumi_,false,nullptr);
   runMon_->commit(nullptr);
-
-  instance = this;
-
-  // SIGINT Handler
-  struct sigaction sigIntHandler;
-  sigIntHandler.sa_handler = RawEventFileWriterForBU::staticHandler;
-  sigemptyset(&sigIntHandler.sa_mask);
-  sigIntHandler.sa_flags = 0;
-  sigaction(SIGINT, &sigIntHandler, NULL);
 
 }
 
@@ -245,7 +232,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls)
     std::string path = source.replace_extension(".jsn").string();
 
     fileMon_->snap(ls);
-    fileMon_->outputFullJSON(path, ls, false);
+    fileMon_->outputFullJSON(path, ls);
     fileMon_->discardCollected(ls);
 
     //move the json file from open
@@ -296,17 +283,8 @@ void RawEventFileWriterForBU::endOfLS(int ls)
 
 void RawEventFileWriterForBU::stop()
 {
-  // create EoR file
-  std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
-  runMon_->snap(0);
-  runMon_->outputFullJSON(path, 0);
-}
-
-// runs on SIGINT and terminates the process
-void RawEventFileWriterForBU::handler(int s)
-{
   if (lumiOpen_>lumiClosed_)  endOfLS(lumiOpen_);
-  printf("Caught signal %d. Writing EOR file!\n",s);
+  edm::LogInfo("RawEventFileWriterForBU") << "Writing EOR file!";
   if (destinationDir_.size() > 0)
     {
       // create EoR file
@@ -315,7 +293,6 @@ void RawEventFileWriterForBU::handler(int s)
       runMon_->snap(0);
       runMon_->outputFullJSON(path, 0);
     }
-  _exit(0);
 }
 
 //TODO:get from DaqDirector !

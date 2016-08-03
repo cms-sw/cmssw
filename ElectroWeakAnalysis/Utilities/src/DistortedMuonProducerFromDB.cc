@@ -29,9 +29,9 @@ class DistortedMuonProducerFromDB : public edm::EDProducer {
       std::string dbDataResolutionLabel_;
       std::string dbMCResolutionLabel_;
 
-      std::auto_ptr<MomentumScaleCorrector> momCorrector_;
-      std::auto_ptr<ResolutionFunction> momResolutionData_;
-      std::auto_ptr<ResolutionFunction> momResolutionMC_;
+      std::unique_ptr<MomentumScaleCorrector> momCorrector_;
+      std::unique_ptr<ResolutionFunction> momResolutionData_;
+      std::unique_ptr<ResolutionFunction> momResolutionMC_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,7 +101,7 @@ void DistortedMuonProducerFromDB::produce(edm::Event& ev, const edm::EventSetup&
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
-      std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
+      std::unique_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             edm::RefToBase<reco::Muon> mu = muonCollection->refAt(i);
@@ -132,7 +132,7 @@ void DistortedMuonProducerFromDB::produce(edm::Event& ev, const edm::EventSetup&
 
       }
 
-      ev.put(newmuons);
+      ev.put(std::move(newmuons));
 }
 
 DEFINE_FWK_MODULE(DistortedMuonProducerFromDB);

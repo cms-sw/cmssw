@@ -62,6 +62,11 @@ DEFINE_FWK_EVENTSETUP_SOURCE(SiStripNoisesFakeESSource);
 typedef SiStripTemplateDepFakeESSource< SiStripBadStrip, SiStripBadModuleDepRcd, SiStripBadModuleGenerator,IdealGeometryRecord,TrackerTopology > SiStripBadModuleConfigurableFakeESSource;
 DEFINE_FWK_EVENTSETUP_SOURCE(SiStripBadModuleConfigurableFakeESSource);
 
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripBadModuleFedErrService.h"
+typedef SiStripTemplateDepFakeESSource< SiStripBadStrip, SiStripBadModuleFedErrRcd, SiStripBadModuleFedErrService, SiStripFedCablingRcd, SiStripFedCabling > SiStripBadModuleFedErrFakeESSource;
+DEFINE_FWK_EVENTSETUP_SOURCE(SiStripBadModuleFedErrFakeESSource);
+
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripLorentzAngleGenerator.h"
 typedef SiStripTemplateDepFakeESSource< SiStripLorentzAngle, SiStripLorentzAngleDepRcd, SiStripLorentzAngleGenerator,IdealGeometryRecord,TrackerTopology > SiStripLorentzAngleFakeESSource;

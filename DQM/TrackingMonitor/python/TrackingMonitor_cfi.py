@@ -17,6 +17,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     stripCluster     = cms.InputTag('siStripClusters'),
     pixelCluster     = cms.InputTag('siPixelClusters'),                          
     BXlumiSetup      = BXlumiSetup.clone(),                              
+    genericTriggerEventPSet = cms.PSet(),
 #    lumi             = cms.InputTag('lumiProducer'),
 #  # taken from 
 #  # DPGAnalysis/SiStripTools/src/DigiLumiCorrHistogramMaker.cc
@@ -61,7 +62,13 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doSIPPlots                          = cms.bool(False),
     doEffFromHitPatternVsPU             = cms.bool(False),
     doEffFromHitPatternVsBX             = cms.bool(False),
+    doEffFromHitPatternVsLUMI           = cms.bool(False),
     pvNDOF                              = cms.int32(4),
+    pixelCluster4lumi                   = cms.InputTag('siPixelClustersPreSplitting'),
+    scal                                = cms.InputTag('scalersRawToDigi'),
+    useBPixLayer1                       = cms.bool(False),
+    minNumberOfPixelsPerCluster         = cms.int32(2), # from DQM/PixelLumi/python/PixelLumiDQM_cfi.py
+    minPixelClusterCharge               = cms.double(15000.),
     doGeneralPropertiesPlots            = cms.bool(False),
     doHitPropertiesPlots                = cms.bool(False),              
 #    doGoodTrackPlots                    = cms.bool(False),
@@ -326,6 +333,10 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     DxyBin = cms.int32(100),
     DxyMax = cms.double(0.5),
     DxyMin = cms.double(-0.5),                        
+
+    AbsDxyBin = cms.int32(120),
+    AbsDxyMin = cms.double(0.),
+    AbsDxyMax = cms.double(60.),                        
 
     # Seed dxy (transverse impact parameter)
     SeedDxyBin = cms.int32(100),

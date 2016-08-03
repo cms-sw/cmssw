@@ -4,6 +4,7 @@
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/DTRecHit"/>
 <use   name="DataFormats/CSCRecHit"/>
+<use   name="DataFormats/GEMRecHit"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
@@ -24,6 +25,7 @@
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
+<use   name="Geometry/GEMGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>

@@ -53,7 +53,7 @@ class MuScleFitMuonProducer : public edm::EDProducer {
       virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
-      template<class T> std::auto_ptr<T> applyCorrection(const edm::Handle<T> & allMuons);
+      template<class T> std::unique_ptr<T> applyCorrection(const edm::Handle<T> & allMuons);
 
   edm::InputTag theMuonLabel_;
   edm::EDGetTokenT<pat::MuonCollection> thePatMuonToken_;
@@ -87,9 +87,9 @@ MuScleFitMuonProducer::~MuScleFitMuonProducer()
 
 
 template<class T>
-std::auto_ptr<T> MuScleFitMuonProducer::applyCorrection(const edm::Handle<T> & allMuons)
+std::unique_ptr<T> MuScleFitMuonProducer::applyCorrection(const edm::Handle<T> & allMuons)
 {
-  std::auto_ptr<T> pOut(new T);
+  std::unique_ptr<T> pOut(new T);
 
   // Apply the correction and produce the new muons
   for( typename T::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
@@ -138,10 +138,10 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   // put into the Event
-  // iEvent.put(pOut);
-  // iEvent.put(applyCorrection(allMuons));
+  // iEvent.put(std::move(pOut));
+  // iEvent.put(applyCorrection(allMuons);
 
-/*  std::auto_ptr<reco::MuonCollection> pOut(new reco::MuonCollection);
+/*  std::unique_ptr<reco::MuonCollection> pOut(new reco::MuonCollection);
 
   // Apply the correction and produce the new muons
   for( std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {

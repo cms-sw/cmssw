@@ -4,7 +4,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -74,18 +73,14 @@ double Polyhedra::volume() const
       int loop = (p_.size()-3)/3 -1;
       double sec=0;
       double a = 0.5*fabs(p_[2]/rad / p_[0]);
-      DCOUT('V',"Polyhedra::volume(), loop=" << loop << " alph[deg]=" << a/deg);
       int i=3;
       for (int j=3; j<(loop+3); ++j) 
       {
          double dz= fabs(p_[i]-p_[i+3]);
-         DCOUT('v', "  dz[m] =" << dz/m);
          /*
           double ai,  aii;
           ai  = (p_[i+2]*p_[i+2] - p_[i+1]*p_[i+1]);
           aii = (p_[i+5]*p_[i+5] - p_[i+4]*p_[i+4]);
-          DCOUT('v', "  rx_i[m] =" << p_[i+2]/m << " rm_i[m] =" << p_[i+1]/m);
-          DCOUT('v', "  rx_ii[m]=" << p_[i+5]/m << " rm_ii[m]=" << p_[i+4]/m);
           //double s = dz/3.*(ai*bi + 0.5*(ai*bii + bi*aii) + aii*bii);
           double s = dz/3.*sin(a)*cos(a)*(ai + aii + 0.5*(ai+aii));
           */
@@ -155,4 +150,14 @@ double Polyhedra::volume() const
    volume=fabs(sides*cos(beta)*sin(beta)*volume);
    
    return volume;
+}
+
+void DDI::Polyhedra::stream(std::ostream & os) const
+{
+  os << " sides=" << p_[0]
+     << " startPhi[deg]=" << p_[1]/deg
+     << " dPhi[deg]=" << p_[2]/deg 
+     << " Sizes[cm]=";
+  for (unsigned k=3; k<p_.size(); ++k)
+    os << p_[k]/cm << " ";
 }

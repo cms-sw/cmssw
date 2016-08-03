@@ -46,6 +46,7 @@ class HighMultiplicityGenFilter : public edm::EDFilter {
       
       // ----------member data ---------------------------
       edm::ESHandle <ParticleDataTable> pdt; 
+      edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc;
       double etaMax;
       double ptMin;
       int nMin; 
@@ -64,9 +65,10 @@ class HighMultiplicityGenFilter : public edm::EDFilter {
 // constructors and destructor
 //
 HighMultiplicityGenFilter::HighMultiplicityGenFilter(const edm::ParameterSet& iConfig) :
-etaMax(iConfig.getUntrackedParameter<double>("etaMax")),
-ptMin(iConfig.getUntrackedParameter<double>("ptMin")),
-nMin(iConfig.getUntrackedParameter<int>("nMin"))
+  hepmcSrc(consumes<edm::HepMCProduct>(iConfig.getParameter< edm::InputTag > ("generatorSmeared"))),
+  etaMax(iConfig.getUntrackedParameter<double>("etaMax")),
+  ptMin(iConfig.getUntrackedParameter<double>("ptMin")),
+  nMin(iConfig.getUntrackedParameter<int>("nMin"))
 {
   //now do what ever initialization is needed
   nAccepted = 0; 
@@ -93,7 +95,7 @@ HighMultiplicityGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel("generatorSmeared", evt);
+  iEvent.getByToken(hepmcSrc,evt);
 
   iSetup.getData(pdt);
 

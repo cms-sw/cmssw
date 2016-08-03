@@ -858,7 +858,7 @@ void SiStripHitEffFromCalibTree::SetBadComponents(int i, int component,SiStripQu
   if (napv==6)
     ssV[i][component] << ( (BC.BadFibers>>1)&0x1 ) << " "
 		      << ( (BC.BadFibers>>2)&0x1 );
-    ssV[i][component] << " \t " 
+  ssV[i][component] << " \t " 
 		      << ( (BC.BadApvs)&0x1 ) << " " 
 		      << ( (BC.BadApvs>>1)&0x1 ) << " ";
   if (napv==4) 

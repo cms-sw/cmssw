@@ -47,22 +47,22 @@ public:
   /// Get number of stored correlations.
   virtual unsigned int size( void ) const;
 
-protected:
+private:
 
-  virtual void fillCorrelationsTable( Alignable* ap1, Alignable* ap2, CorrelationsTable* table,
-				      const AlgebraicSymMatrix& cov, int row, int col, bool transpose );
+  void fillCorrelationsTable( Alignable* ap1, Alignable* ap2, CorrelationsTable* table,
+                              const AlgebraicSymMatrix& cov, int row, int col, bool transpose );
 
-  virtual void fillCovariance( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
-			       AlgebraicSymMatrix& cov, int row, int col ) const;
+  void fillCovariance( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
+                       AlgebraicSymMatrix& cov, int row, int col ) const;
 
-  virtual void fillCovarianceT( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
-				AlgebraicSymMatrix& cov, int row, int col ) const;
+  void fillCovarianceT( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
+                        AlgebraicSymMatrix& cov, int row, int col ) const;
 
-  virtual void readFromCovariance( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
-				   const AlgebraicSymMatrix& cov, int row, int col );
+  void readFromCovariance( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
+                           const AlgebraicSymMatrix& cov, int row, int col );
 
-  virtual void readFromCovarianceT( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
-				    const AlgebraicSymMatrix& cov, int row, int col );
+  void readFromCovarianceT( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
+                            const AlgebraicSymMatrix& cov, int row, int col );
 
   Correlations theCorrelations;
 

@@ -1,22 +1,20 @@
-from math import *
+import ROOT
+import os.path
+ROOT.gSystem.Load("libEgammaAnalysisElectronTools")
 
-class EmbeddedElectronCalibrator:
-    def __init__(self,label="calib"):
-        self._label = label
-    def correct(self,cmgelectron,dummy):
-        ele = cmgelectron.sourcePtr().get()
-        if not ele.hasUserFloat("p_"+self._label): 
-            raise RuntimeError("Electron does not have an embedded energy scale correction with label '%s'" % self._label)
-        kind_in = ele.candidateP4Kind()
-        p4_in = ele.p4(kind_in)
-        pCalib    = ele.userFloat("p_"+self._label)
-        pErrCalib = ele.userFloat("pError_"+self._label)
-        pKindCalib = ele.userInt("pKind_"+self._label)
-        ecalCalib  = ele.userFloat("ecalEnergy_"+self._label)
-        eErrCalib  = ele.userFloat("ecalEnergyError_"+self._label)
-        ele.setCorrectedEcalEnergy( ecalCalib )
-        ele.setCorrectedEcalEnergyError( eErrCalib )
-        p4_out = p4_in * (pCalib/p4_in.P())
-        ele.setP4(pKindCalib, p4_out, pErrCalib, True)
-        cmgelectron.setP4(p4_out)
+class Run2ElectronCalibrator:
+    def __init__(self, data, gbrForest, isMC, isSync=False):
+        self.epCombinationTool = ROOT.EpCombinationTool()
+        self.epCombinationTool.init(os.path.expandvars(gbrForest[0]), gbrForest[1]) 
+        self.random = ROOT.TRandom3()
+        self.random.SetSeed(0) # make it really random across different jobs
+        self.electronEnergyCalibratorRun2 = ROOT.ElectronEnergyCalibratorRun2(self.epCombinationTool, isMC, isSync, data)
+        self.electronEnergyCalibratorRun2.initPrivateRng(self.random)
+ 
+    def correct(self,electron,run):
+        if not electron.validCandidateP4Kind(): return False # these can't be calibrated
+        electron.uncalibratedP4 = electron.p4()
+        electron.uncalibratedP4Error = electron.p4Error(electron.candidateP4Kind())
+        self.electronEnergyCalibratorRun2.calibrate(electron.physObj, int(run))
+        return True
 

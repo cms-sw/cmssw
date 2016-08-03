@@ -15,9 +15,6 @@ hiMuons1stStep.writeIsoDeposits = False
 #hiMuons1stStep.fillGlobalTrackRefits = False
 muonEcalDetIds.inputCollection = "hiMuons1stStep"
 
-calomuons.inputTracks = hiTracks
-calomuons.inputCollection = 'hiMuons1stStep'
-calomuons.inputMuons = 'hiMuons1stStep'
 muIsoDepositTk.inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:tracker"))
 muIsoDepositJets. inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:jets"))
 muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:ecal"), cms.InputTag("hiMuons1stStep:hcal"), cms.InputTag("hiMuons1stStep:ho"))

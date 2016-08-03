@@ -179,15 +179,16 @@ namespace reco {
 
 
     /// define arbitration schemes
-    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned, RPCHitAndTrackArbitration };
+    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned,
+			   RPCHitAndTrackArbitration, GEMSegmentAndTrackArbitration, ME0SegmentAndTrackArbitration };
     
     ///
     /// ====================== USEFUL METHODs ===========================
     ///
-    /// number of chambers (MuonChamberMatches include RPC rolls)
+    /// number of chambers (MuonChamberMatches include RPC rolls, GEM and ME0 segments)
     int numberOfChambers() const { return muMatches_.size(); }
-    /// number of chambers not including RPC matches (MuonChamberMatches include RPC rolls)
-    int numberOfChambersNoRPC() const;
+    /// number of chambers CSC or DT matches only (MuonChamberMatches include RPC rolls)
+    int numberOfChambersCSCorDT() const;
     /// get number of chambers with matched segments
     int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get number of stations with matched segments
@@ -214,6 +215,8 @@ namespace reco {
     static const unsigned int CaloMuon =  1<<4;
     static const unsigned int PFMuon =  1<<5;
     static const unsigned int RPCMuon =  1<<6;
+    static const unsigned int GEMMuon =  1<<7;
+    static const unsigned int ME0Muon =  1<<8;
 
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
@@ -225,6 +228,8 @@ namespace reco {
     bool isCaloMuon() const { return type_ & CaloMuon; }
     bool isPFMuon() const {return type_ & PFMuon;} //fix me ! Has to go to type
     bool isRPCMuon() const {return type_ & RPCMuon;}
+    bool isGEMMuon() const {return type_ & GEMMuon;}
+    bool isME0Muon() const {return type_ & ME0Muon;}
     
   private:
     /// check overlap with another candidate

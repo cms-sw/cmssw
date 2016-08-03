@@ -1283,11 +1283,11 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     zeeCandidate.addDaughter(thePfMET, "pfmet");
     zeeCandidate.addDaughter(theTcMET, "tcmet");
 
-    auto_ptr<pat::CompositeCandidateCollection>selectedZeeCandidates(new pat::CompositeCandidateCollection);
+    unique_ptr<pat::CompositeCandidateCollection>selectedZeeCandidates(new pat::CompositeCandidateCollection);
 
     selectedZeeCandidates->push_back(zeeCandidate);
 
-    iEvent.put(selectedZeeCandidates, "selectedZeeCandidates");
+    iEvent.put(std::move(selectedZeeCandidates), "selectedZeeCandidates");
 
     // release your memory
     delete [] sorted;

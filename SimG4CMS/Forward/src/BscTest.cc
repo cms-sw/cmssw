@@ -20,9 +20,6 @@
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
 #include "SimG4CMS/Forward/interface/BscTest.h"
 
-//#include "Utilities/GenUtil/interface/CMSexception.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
-
 // G4 stuff
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -32,13 +29,9 @@
 #include "G4UserEventAction.hh"
 #include "G4TransportationManager.hh"
 #include "G4ProcessManager.hh"
-//#include "G4EventManager.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <stdio.h>
-//#include <gsl/gsl_fit.h>
-
 
 //================================================================
 // Root stuff
@@ -81,8 +74,6 @@ BscTest::BscTest(const edm::ParameterSet &p){
   }
 }
 
-
-
 BscTest::~BscTest() {
   //  delete UserNtuples;
   delete theBscNumberingScheme;
@@ -105,9 +96,6 @@ BscTest::~BscTest() {
   }
 
   std::cout<<"BscTest: End of process"<<std::endl;
-
-
-
 }
 
 //================================================================
@@ -126,9 +114,6 @@ BscAnalysisHistManager::BscAnalysisHistManager(const TString& managername)
 
   fHistArray->Compress();            // Removes empty space
   fHistNamesArray->Compress();
-
-  //      StoreWeights();                    // Store the weights
-
 }
 //-----------------------------------------------------------------------------
 
@@ -278,7 +263,6 @@ void BscTest::update(const BeginOfJob * job) {
   std::cout<<"BscTest:beggining of job"<<std::endl;;
 }
 
-
 //==================================================================== per RUN
 void BscTest::update(const BeginOfRun * run) {
   //run
@@ -286,10 +270,7 @@ void BscTest::update(const BeginOfRun * run) {
   std::cout << std::endl << "BscTest:: Begining of Run"<< std::endl; 
 }
 
-
 void BscTest::update(const EndOfRun * run) {;}
-
-
 
 //=================================================================== per EVENT
 void BscTest::update(const BeginOfEvent * evt) {
@@ -315,8 +296,6 @@ void BscTest::update(const BeginOfTrack * trk) {
   }
 }
 
-
-
 //=================================================================== per EndOfTrack
 void BscTest::update(const EndOfTrack * trk) {
   itrk = (*trk)()->GetTrackID();
@@ -333,23 +312,11 @@ void BscTest::update(const EndOfTrack * trk) {
     G4ThreeVector   vert_mom  = (*trk)()->GetVertexMomentumDirection();
     G4ThreeVector   vert_pos  = (*trk)()->GetVertexPosition(); // vertex ,where this track was created
   
-    //    float eta = 0.5 * log( (1.+vert_mom.z()) / (1.-vert_mom.z()) );
-    /*
-    float phi = atan2(vert_mom.y(),vert_mom.x());
-    if (phi < 0.) phi += twopi;
-    if(tracklength < z4) {
-
-    }
-    */
     // last step information
     const G4Step* aStep = (*trk)()->GetStep();
     G4StepPoint*      preStepPoint = aStep->GetPreStepPoint(); 
     lastpo   = preStepPoint->GetPosition();	
-
-    // Analysis:
-
   }
-
 }
 
 // ====================================================
@@ -367,7 +334,6 @@ void BscTest::update(const G4Step * aStep) {
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*> (theTrack->GetUserInformation());
   if (trkInfo == 0) {
     std::cout << "BscTest on aStep: No trk info !!!! abort " << std::endl;
-    //     throw Genexception("BscTest:BscTest on aStep: cannot get trkInfo");
   } 
   G4int         id             = theTrack->GetTrackID();
   G4String       particleType   = theTrack->GetDefinition()->GetParticleName();   //   !!!
@@ -391,6 +357,10 @@ void BscTest::update(const G4Step * aStep) {
   const G4VTouchable*  pre_touch    = preStepPoint->GetTouchable();
   int          pre_levels   = detLevels(pre_touch);
   G4String name1[20]; int copyno1[20];
+  for(int i=0; i<20; ++i) {
+    name1[i]   = "";
+    copyno1[i] = 0;
+  }
   if (pre_levels > 0) {
     detectorLevel(pre_touch, pre_levels, copyno1, name1);
   }
@@ -647,18 +617,6 @@ void BscTest::update(const EndOfEvent * evt) {
 
   //=========================== thePrim != 0 ================================================================================
   if (thePrim != 0) {
-    //      inline G4ParticleDefinition * GetG4code() const
-    //      inline G4PrimaryParticle * GetNext() const
-    //      inline G4PrimaryParticle * GetDaughter() const
-    /*
-    // prim.vertex
-    int ivert = 0 ;
-    G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(ivert);
-    G4double vx=0.,vy=0.,vz=0.;
-    vx = avertex->GetX0();
-    vy = avertex->GetY0();
-    vz = avertex->GetZ0();
-    */
     //
     // number of secondary particles deposited their energy along primary track
     //UserNtuples->fillg518(numofpart,1.);
@@ -729,11 +687,8 @@ void BscTest::update(const EndOfEvent * evt) {
       TheHistManager->GetHisto("zHits")->Fill(zz);
       if(tracklength0>8300.) TheHistManager->GetHisto("zHitsTrLoLe")->Fill(zz);
     }
-    // varia = 0;
-    //     if( varia == 0) {
+
     if( varia == 2) {
-
-
       int nhit11 = 0, nhit12 = 0, nhit13 = 0 ;
       double  totallosenergy= 0.;
       for (int j=0; j<theCAFI->entries(); j++) {
@@ -745,8 +700,6 @@ void BscTest::update(const EndOfEvent * evt) {
 	int trackIDhit  = aHit->getTrackID();
 	unsigned int unitID = aHit->getUnitID();
 	double  losenergy = aHit->getEnergyLoss();
-	//double phi_hit   = hitPoint.phi();
-	//if (phi_hit < 0.) phi_hit += twopi;
 
 	double   zz    = hitPoint.z();
 

@@ -1,8 +1,6 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
 
 #include "DQM/HcalMonitorClient/interface/HcalDQMChannelQuality.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"

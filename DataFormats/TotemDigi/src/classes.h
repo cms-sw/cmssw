@@ -17,8 +17,8 @@
 
 #include <vector>
 
-namespace {
-  namespace {
+namespace DataFormats_DataFormats {
+  struct dictionary {
     TotemRPDigi rp_str_dig;
     edm::DetSet<TotemRPDigi> ds_rp_str_dig;
     std::vector<TotemRPDigi> vec_rp_str_dig;
@@ -43,5 +43,5 @@ namespace {
     TotemFEDInfo fi;
     std::vector<TotemFEDInfo> v_fi;
     edm::Wrapper<std::vector<TotemFEDInfo>> w_v_fi;
-  }
+  };
 }

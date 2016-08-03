@@ -8,6 +8,7 @@ from RecoLocalCalo.Configuration.ecalLocalReco_EventContent_cff import *
 RecoLocalCaloFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 
                                            'keep *_hbheprereco_*_*',
+                                           'keep *_hfprereco_*_*', 
                                            'keep *_hfreco_*_*', 
                                            'keep *_horeco_*_*',
                                            'keep HBHERecHitsSorted_hbherecoMB_*_*',
@@ -24,7 +25,8 @@ RecoLocalCaloFEVT = cms.PSet(
 #RECO content
 RecoLocalCaloRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*',
-					   'keep *_hbheprereco_*_*', 
+                                           'keep *_hbheprereco_*_*', 
+                                           'keep *_hfprereco_*_*', 
                                            'keep *_hfreco_*_*', 
                                            'keep *_horeco_*_*',
                                            'keep HBHERecHitsSorted_hbherecoMB_*_*',
@@ -65,7 +67,7 @@ def _updateOutput( era, outputPSets, commands):
 from Configuration.StandardSequences.Eras import eras
 
 _outputs = [RecoLocalCaloFEVT, RecoLocalCaloRECO]
-_updateOutput( eras.phase2_common, _outputs, [ 'keep *_hbheUpgradeReco_*_*', 'keep *_hfUpgradeReco_*_*' ] )
+_updateOutput( eras.phase2_hcal, _outputs, [ 'keep *_hbheUpgradeReco_*_*', 'keep *_hfUpgradeReco_*_*' ] )
 
 # mods for HGCAL
 eras.phase2_hgcal.toModify( RecoLocalCaloFEVT, outputCommands = RecoLocalCaloFEVT.outputCommands + [

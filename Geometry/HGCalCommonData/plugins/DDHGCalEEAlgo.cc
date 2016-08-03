@@ -109,7 +109,7 @@ void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
     double  routF  = (heightType[i] == 0) ? rMax(zi) : rMax(zz);
     double  routB  = rMax(zo);
 
-    std::string name = "HGCal"+names[ii]+dbl_to_string(copy);
+    std::string name = "HGCal"+names[ii]+std::to_string(copy);
     edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: Layer " << i << ":" 
 			      << ii << " Front " << zi << ", " << rinF << ", " 
 			      << routF << " Back " << zo << ", " << rinB 

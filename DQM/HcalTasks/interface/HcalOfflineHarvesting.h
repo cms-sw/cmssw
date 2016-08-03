@@ -30,15 +30,12 @@
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 #include "DQM/HcalCommon/interface/DQClient.h"
-
 #include "DQM/HcalTasks/interface/RawRunSummary.h"
 #include "DQM/HcalTasks/interface/DigiRunSummary.h"
 #include "DQM/HcalTasks/interface/RecoRunSummary.h"
 #include "DQM/HcalTasks/interface/TPRunSummary.h"
 
-using namespace hcaldqm;
-
-class HcalOfflineHarvesting : public DQHarvester
+class HcalOfflineHarvesting : public hcaldqm::DQHarvester
 {
 	public:
 		HcalOfflineHarvesting(edm::ParameterSet const&);
@@ -65,7 +62,7 @@ class HcalOfflineHarvesting : public DQHarvester
 
 		//	vector of Summary Generators and marks of being present
 		//	by default all false
-		std::vector<DQClient*> _vsumgen;
+		std::vector<hcaldqm::DQClient*> _vsumgen;
 		std::vector<bool> _vmarks;
 		std::vector<std::string> _vnames;
 		

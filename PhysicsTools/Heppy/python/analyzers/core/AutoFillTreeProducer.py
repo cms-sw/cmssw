@@ -67,7 +67,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             ## PU weights
             tr.var("puWeight")
             ## number of true interactions
-            tr.var("nTrueInt",int)
+            tr.var("nTrueInt")
             ## generator weight
             tr.var("genWeight")
             ## PDF weights

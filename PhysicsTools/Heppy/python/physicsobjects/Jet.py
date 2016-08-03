@@ -28,12 +28,17 @@ _btagWPs = {
     "CSVM": ("combinedSecondaryVertexBJetTags", 0.679),
     "CSVT": ("combinedSecondaryVertexBJetTags", 0.898),
 ###https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X50ns
-    "CSVv2IVFL": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.605),
-    "CSVv2IVFM": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.890),
-    "CSVv2IVFT": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.990),
     "CMVAL": ("pfCombinedMVABJetTags", 0.630), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
     "CMVAM": ("pfCombinedMVABJetTags", 0.732), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
     "CMVAT": ("pfCombinedMVABJetTags", 0.813), # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
+    "CMVAv2M": ("pfCombinedMVAV2BJetTags", 0.185), # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
+###https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation80X
+    "CSVv2IVFL": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.460),
+    "CSVv2IVFM": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.800),
+    "CSVv2IVFT": ("pfCombinedInclusiveSecondaryVertexV2BJetTags", 0.935),
+    "CMVAv2L": ("pfCombinedMVAV2BJetTags", -0.715), # for same b-jet efficiency of CSVv2IVFL on ttbar MC, jet pt > 30
+    "CMVAv2M": ("pfCombinedMVAV2BJetTags", 0.185),  # for same b-jet efficiency of CSVv2IVFM on ttbar MC, jet pt > 30
+    "CMVAv2T": ("pfCombinedMVAV2BJetTags", 0.875),  # for same b-jet efficiency of CSVv2IVFT on ttbar MC, jet pt > 30
 
 }
 
@@ -48,11 +53,53 @@ class Jet(PhysicsObject):
         self._leadingTrack = None
         self._leadingTrackSearched = False
 
+    def rawEnergy(self):
+        return self.energy() * self.rawFactor()
+
+    # these energy fraction methods need to be redefined here 
+    # because the pat::Jet's currentJECLevel data member cannot be update easily by the calibrator 
+    # and then the C++ methods would be broken when new jet corrections are applied in Heppy
+    def chargedEmEnergyFraction(self):
+        return self.chargedEmEnergy()/self.rawEnergy()
+
+    def chargedHadronEnergyFraction(self):
+        return self.chargedHadronEnergy()/self.rawEnergy()
+
+    def chargedMuEnergyFraction(self):
+        return self.chargedMuEnergy()/self.rawEnergy()
+
+    def electronEnergyFraction(self):
+        return self.electronEnergy()/self.rawEnergy()
+
+    def muonEnergyFraction(self):
+        return self.muonEnergy()/self.rawEnergy()
+
+    def neutralEmEnergyFraction(self):
+        return self.neutralEmEnergy()/self.rawEnergy()
+
+    def neutralHadronEnergyFraction(self):
+        return self.neutralHadronEnergy()/self.rawEnergy()
+
+    def photonEnergyFraction(self):
+        return self.photonEnergy()/self.rawEnergy()
+
+
+    def HFHadronEnergyFraction(self):
+        return self.HFHadronEnergy()/self.rawEnergy()
+
+    def HFEMEnergyFraction(self):
+        return self.HFEMEnergy()/self.rawEnergy()
+
+    def hoEnergyFraction(self):
+        return self.hoEnergy()/self.rawEnergy()
+
+
+
     def jetID(self,name=""):
         if not self.isPFJet():
             raise RuntimeError("jetID implemented only for PF Jets")
         eta = abs(self.eta());
-        energy = (self.p4()*self.rawFactor()).energy();
+        energy = self.rawEnergy();
         chf = self.chargedHadronEnergy()/energy;
         nhf = self.neutralHadronEnergy()/energy;
         phf = self.neutralEmEnergy()/energy;
@@ -79,14 +126,19 @@ class Jet(PhysicsObject):
         if name == "VBFHBB_PFID_Loose":  return (npr>1 and phf<0.99 and nhf<0.99);
         if name == "VBFHBB_PFID_Medium": return (npr>1 and phf<0.99 and nhf<0.99) and ((eta<=2.4 and nhf<0.9 and phf<0.9 and elf<0.99 and muf<0.99 and chf>0 and chm>0) or eta>2.4);
         if name == "VBFHBB_PFID_Tight":  return (npr>1 and phf<0.99 and nhf<0.99) and ((eta<=2.4 and nhf<0.9 and phf<0.9 and elf<0.70 and muf<0.70 and chf>0 and chm>0) or eta>2.4);
-        raise RuntimeError("jetID '%s' not supported" % name)
+        if name == "PAG_monoID_Loose":    return (eta<3.0 and chf>0.05 and nhf<0.7 and phf<0.8);
+        if name == "PAG_monoID_Tight":    return (eta<3.0 and chf>0.2 and nhf<0.7 and phf<0.7);
+
+        raise RuntimeError, "jetID '%s' not supported" % name
 
     def looseJetId(self):
         '''PF Jet ID (loose operation point) [method provided for convenience only]'''
         return self.jetID("POG_PFID_Loose")
 
     def puMva(self, label="pileupJetId:fullDiscriminant"):
-        return self.userFloat(label)
+        if self.hasUserFloat(label):
+            return self.userFloat(label)
+        return -99
 
     def puJetId(self, label="pileupJetId:fullDiscriminant"):
         '''Full mva PU jet id'''

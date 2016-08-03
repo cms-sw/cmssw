@@ -1,23 +1,9 @@
-/***************************************************************************
-                          DDLRotationByAxis.cc  -  description
-                             -------------------
-    begin                : Wed Nov 19, 2003
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
 
 #include <map>
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
@@ -34,9 +20,6 @@ DDLRotationByAxis::DDLRotationByAxis( DDLElementRegistry* myreg )
   : DDXMLElement( myreg ) 
 {}
 
-DDLRotationByAxis::~DDLRotationByAxis( void )
-{}
-
 void
 DDLRotationByAxis::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
@@ -47,9 +30,6 @@ DDLRotationByAxis::preProcessElement( const std::string& name, const std::string
 void
 DDLRotationByAxis::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLRotationByAxis::processElement started " << name);
-
-  //  std::cout << "my parent is : " << parent() << std::endl;
   DDXMLAttribute atts = getAttributeSet();
   if (parent() != "RotationSequence")
   {
@@ -84,8 +64,6 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
     clear();
   }
   else { } //let the parent handle the clearing, etc.
-
-  DCOUT_V('P', "DDLRotationByAxis::processElement completed");
 }
 
 DDRotationMatrix
@@ -96,7 +74,6 @@ DDLRotationByAxis::processOne( DDRotationMatrix R, std::string& axis, std::strin
   
   ClhepEvaluator & ev = myRegistry_->evaluator();
   double dAngle = ev.eval(pNameSpace, angle);
-  //  CLHEP::HepRotation R;
 
   if ( axis == "x") {
     R = ROOT::Math::RotationX(dAngle);

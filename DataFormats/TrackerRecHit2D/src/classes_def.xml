@@ -117,7 +117,8 @@
  <class name="edmNew::DetSetVector<SiPixelRecHit>"/>
  <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 
-  <class name="reco::ClusterRemovalInfo"  ClassVersion="10">
+  <class name="reco::ClusterRemovalInfo"  ClassVersion="11">
+   <version ClassVersion="11" checksum="988071764"/>
    <version ClassVersion="10" checksum="529080197"/>
   </class>
   <class name="reco::ClusterRemovalInfo::SiPixelClusterRefProd" />
@@ -164,11 +165,9 @@
   <class name="std::vector< edmNew::DetSet< Phase2TrackerRecHit1D > >"/>
   <class name="edmNew::DetSet< Phase2TrackerRecHit1D >"/>
   <class name="edmNew::DetSetVector< Phase2TrackerRecHit1D >"/>
-  <class name="edm::Ref< edmNew::DetSetVector< Phase2TrackerCluster1D >, Phase2TrackerCluster1D >"/>
   <class name="edm::Wrapper< Phase2TrackerRecHit1D >" splitLevel="0"/>
   <class name="edm::Wrapper< edmNew::DetSet< Phase2TrackerRecHit1D > >" splitLevel="0"/>
   <class name="edm::Wrapper< std::vector< edmNew::DetSet< Phase2TrackerRecHit1D > > >" splitLevel="0"/>
   <class name="edm::Wrapper< Phase2TrackerRecHit1DCollectionNew >"/>
-  <class name="edm::Wrapper< edm::Ref< edmNew::DetSetVector< Phase2TrackerCluster1D >, Phase2TrackerCluster1D > >"/>
 
 </lcgdict>

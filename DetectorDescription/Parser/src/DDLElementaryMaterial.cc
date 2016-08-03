@@ -1,22 +1,8 @@
-/***************************************************************************
-                          DDLElementaryMaterial.cc  -  description
-                             -------------------
-    begin                : Wed Oct 31 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLElementaryMaterial.h"
 
 #include <map>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -29,15 +15,9 @@ DDLElementaryMaterial::DDLElementaryMaterial( DDLElementRegistry* myreg )
   : DDLMaterial( myreg )
 {}
 
-DDLElementaryMaterial::~DDLElementaryMaterial( void )
-{}
-
-// Upon encountering an end of an ElementaryMaterial element, we call DDCore
 void
 DDLElementaryMaterial::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V( 'P', "DDLElementaryMaterial::processElement started" );
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
@@ -48,6 +28,4 @@ DDLElementaryMaterial::processElement( const std::string& name, const std::strin
 
   DDLMaterial::setReference( nmspace, cpv );
   clear();
-
-  DCOUT_V( 'P', "DDLElementaryMaterial::processElement completed." );
 }

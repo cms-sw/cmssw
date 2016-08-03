@@ -1,22 +1,8 @@
-/***************************************************************************
-                          DDLSphere.cc  -  description
-                             -------------------
-    begin                : Sun July 12 2009
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLSphere.h"
 
 #include <map>
 #include <utility>
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -29,14 +15,10 @@ DDLSphere::DDLSphere( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
 {}
 
-DDLSphere::~DDLSphere( void )
-{}
-
 // Upon encountering the end of the Sphere element, call DDCore.
 void
 DDLSphere::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
-  DCOUT_V('P', "DDLSphere::processElement started");
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   DDSolid ddsphere = DDSolidFactory::sphere( getDDName(nmspace),
@@ -48,6 +30,4 @@ DDLSphere::processElement( const std::string& name, const std::string& nmspace, 
 					     ev.eval(nmspace, atts.find("deltaTheta")->second ));
   
   DDLSolid::setReference(nmspace, cpv);
-
-  DCOUT_V('P', "DDLSphere::processElement completed");
 }

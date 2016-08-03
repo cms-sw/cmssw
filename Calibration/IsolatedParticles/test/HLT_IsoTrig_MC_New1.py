@@ -78,7 +78,7 @@ process.IsoTrigHE = process.IsoTrigHB.clone(
 process.load('Calibration.IsolatedParticles.isoTrackCalibration_cfi')
 process.IsoTrackCalibration.Triggers = ["HLT_IsoTrackHE_v16", "HLT_IsoTrackHB_v15"]
 process.IsoTrackCalibration.ProcessName = "HLTNew1"
-process.IsoTrackCalibration.L1Filter  = "hltL1sL1SingleJet"
+process.IsoTrackCalibration.L1Filter  = "hltL1sV0SingleJet"
 process.IsoTrackCalibration.L2Filter  = "hltIsolPixelTrackL2Filter"
 process.IsoTrackCalibration.L3Filter  = "L3Filter"
 process.IsoTrackCalibration.Verbosity = 0
@@ -91,7 +91,7 @@ process.GlobalTag.globaltag=autoCond['run2_mc']
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
 
 process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence + 
-                                      process.hltL1sL1SingleJet68 + 
+                                      process.hltL1sV0SingleJet60 + 
                                       process.hltPreIsoTrackHE +
                                       process.HLTDoLocalPixelSequence + 
                                       process.hltPixelLayerTriplets + 
@@ -113,7 +113,7 @@ process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence +
                                       )
 
 process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence + 
-                                      process.hltL1sL1SingleJet68 + 
+                                      process.hltL1sV0SingleJet60 + 
                                       process.hltPreIsoTrackHB +
                                       process.HLTDoLocalPixelSequence + 
                                       process.hltPixelLayerTriplets + 

@@ -15,10 +15,10 @@
 // system include files
 #include <memory>
 #include "SimTracker/SiPhase2Digitizer/test/Phase2TrackerValidateDigi.h"
-#include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigiCommon.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -43,12 +43,10 @@
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 // // constructors 
 //
 Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iConfig) :
-  dqmStore_(edm::Service<DQMStore>().operator->()),
   config_(iConfig),
   pixDigiSrc_(config_.getParameter<edm::InputTag>("PixelDigiSource")),
   otDigiSrc_(config_.getParameter<edm::InputTag>("OuterTrackerDigiSource")),
@@ -77,16 +75,10 @@ Phase2TrackerValidateDigi::~Phase2TrackerValidateDigi() {
   edm::LogInfo("Phase2TrackerValidateDigi")<< ">>> Destroy Phase2TrackerValidateDigi ";
 }
 //
-// -- Begin Job
+// -- DQM Begin Run 
 //
-void Phase2TrackerValidateDigi::beginJob() {
+void Phase2TrackerValidateDigi::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
    edm::LogInfo("Phase2TrackerValidateDigi")<< "Initialize Phase2TrackerValidateDigi ";
-}
-//
-// -- Begin Run
-//
-void Phase2TrackerValidateDigi::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  bookHistos();
 }
 //
 // -- Analyze
@@ -121,9 +113,8 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 
   // Tracker Topology 
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* tTopo = tTopoHandle.product();
-
 
   std::vector<int> processTypes; 
   // Loop over Sim Tracks and Fill relevant histograms
@@ -156,7 +147,8 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 
   for(std::vector<PSimHit>::const_iterator isim = simHits->begin(); isim != simHits->end(); ++isim){
     unsigned int rawid = (*isim).detUnitId();
-    unsigned int layer = phase2trackerdigi::getLayerNumber(rawid, tTopo);
+    int layer = tTopo->getOTLayerNumber(rawid);
+    if (layer < 0) continue;
     const DetId detId(rawid);
     unsigned int trackid = (*isim).trackId();
     int iSimTrk = matchedSimTrack(simTracks, trackid);
@@ -171,10 +163,9 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
     int simTk_type = processTypes[iSimTrk];
 
     std::map<unsigned int, DigiMEs>::iterator pos = layerMEs.find(layer);
-    if (pos == layerMEs.end()) {
-      bookLayerHistos(layer);
-      pos = layerMEs.find(layer);
-    }
+    if (pos == layerMEs.end()) continue;
+    DigiMEs local_mes = pos->second;
+
     bool matched = false;
     edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSVIter = digis->find(rawid);
     if (DSVIter != digis->end()) { 
@@ -182,7 +173,7 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 	int col = di->column(); // column 
 	int row = di->row();    // row
 	
-	unsigned int channel = PixelChannelIdentifier::pixelToChannel(row,col);
+	unsigned int channel = Phase2TrackerDigi::pixelToChannel(row,col);
 	unsigned int simTkId = getSimTrackId(simLinks, detId, channel);
 	if (simTkId == trackid) {
 	  matched = true;
@@ -190,7 +181,6 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 	} 
       }
     }
-    DigiMEs local_mes = pos->second;
     if (fabs(simTk_eta) <= etaCut_) {
       fillHistogram(local_mes.SimTrackPt, local_mes.SimTrackPtP, local_mes.SimTrackPtS, simTk_pt, simTk_type);
       if (matched) fillHistogram(local_mes.MatchedTrackPt, local_mes.MatchedTrackPtP, local_mes.MatchedTrackPtS, simTk_pt, simTk_type);
@@ -208,32 +198,35 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 //
 // -- Book Histograms
 //
-  void Phase2TrackerValidateDigi::bookHistos() {
+void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
+		 edm::Run const &  iRun ,
+		 edm::EventSetup const &  iSetup ) {
+
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   std::stringstream folder_name;
 
-  dqmStore_->cd();
+  ibooker.cd();
   folder_name << top_folder << "/" << "SimTrackInfo" ;
-  dqmStore_->setCurrentFolder(folder_name.str());
-
+  ibooker.setCurrentFolder(folder_name.str());
+ 
   edm::LogInfo("Phase2TrackerValidateDigi")<< " Booking Histograms in : " << folder_name.str();
   std::stringstream HistoName;
 
   edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("TrackPtH");
   HistoName << "SimulatedTrackPt";   
-  SimulatedTrackPt = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackPt = ibooker.book1D(HistoName.str(),HistoName.str(),
 				  Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
   HistoName.str("");
   HistoName << "SimulatedTrackPtP";   
-  SimulatedTrackPtP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackPtP = ibooker.book1D(HistoName.str(),HistoName.str(),
 				   Parameters.getParameter<int32_t>("Nbins"),
 				   Parameters.getParameter<double>("xmin"),
 				   Parameters.getParameter<double>("xmax"));
   HistoName.str("");
   HistoName << "SimulatedTrackPtS";   
-  SimulatedTrackPtS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackPtS = ibooker.book1D(HistoName.str(),HistoName.str(),
 				   Parameters.getParameter<int32_t>("Nbins"),
 				   Parameters.getParameter<double>("xmin"),
 				   Parameters.getParameter<double>("xmax"));
@@ -242,20 +235,20 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 
   HistoName.str("");
   HistoName << "SimulatedTrackEta"; 
-  SimulatedTrackEta = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackEta = ibooker.book1D(HistoName.str(),HistoName.str(),
 				   Parameters.getParameter<int32_t>("Nbins"),
 				   Parameters.getParameter<double>("xmin"),
 				   Parameters.getParameter<double>("xmax"));
   HistoName.str("");
   HistoName << "SimulatedTrackEtaP";
-  SimulatedTrackEtaP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackEtaP = ibooker.book1D(HistoName.str(),HistoName.str(),
 				    Parameters.getParameter<int32_t>("Nbins"),
 				    Parameters.getParameter<double>("xmin"),
 				    Parameters.getParameter<double>("xmax"));
   
   HistoName.str("");
   HistoName << "SimulatedTrackEtaS";
-  SimulatedTrackEtaS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackEtaS = ibooker.book1D(HistoName.str(),HistoName.str(),
 				    Parameters.getParameter<int32_t>("Nbins"),
 				    Parameters.getParameter<double>("xmin"),
 				    Parameters.getParameter<double>("xmax"));
@@ -263,51 +256,71 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
   Parameters =  config_.getParameter<edm::ParameterSet>("TrackPhiH");
   HistoName.str("");
   HistoName << "SimulatedTrackPhi";
-  SimulatedTrackPhi = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackPhi = ibooker.book1D(HistoName.str(),HistoName.str(),
 				   Parameters.getParameter<int32_t>("Nbins"),
 				   Parameters.getParameter<double>("xmin"),
 				   Parameters.getParameter<double>("xmax"));
   HistoName.str("");
   HistoName << "SiulatedmTrackPhiP";
-  SimulatedTrackPhiP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackPhiP = ibooker.book1D(HistoName.str(),HistoName.str(),
 				    Parameters.getParameter<int32_t>("Nbins"),
 				    Parameters.getParameter<double>("xmin"),
 				    Parameters.getParameter<double>("xmax"));
   
   HistoName.str("");
   HistoName << "SimulatedTrackPhiS";
-  SimulatedTrackPhiS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+  SimulatedTrackPhiS = ibooker.book1D(HistoName.str(),HistoName.str(),
 				    Parameters.getParameter<int32_t>("Nbins"),
 				    Parameters.getParameter<double>("xmin"),
 				    Parameters.getParameter<double>("xmax"));
+
+  std::string geometry_type = config_.getParameter<std::string>("GeometryType");
+  edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  if (theTkDigiGeomWatcher.check(iSetup)) {
+    edm::ESHandle<TrackerGeometry> geom_handle;
+    iSetup.get<TrackerDigiGeometryRecord>().get(geometry_type, geom_handle);
+    for (auto const & det_u : geom_handle->detUnits()) {
+      unsigned int detId_raw = det_u->geographicalId().rawId();
+      bookLayerHistos(ibooker,detId_raw, tTopo); 
+    }
+  }
+  ibooker.cd();
+  ibooker.setCurrentFolder(folder_name.str());
 }
 //
-// -- Book Histograms
+// -- Book Layer Histograms
 //
-void Phase2TrackerValidateDigi::bookLayerHistos(unsigned int ilayer){ 
-  std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(ilayer);
+void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo){ 
+
+  int layer = tTopo->getOTLayerNumber(det_id);
+  if (layer < 0) return;
+  std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
   if (pos == layerMEs.end()) {
 
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
     std::stringstream folder_name;
 
     std::ostringstream fname1, fname2, tag;
-    if (ilayer < 100) { 
+    if (layer < 100) { 
       fname1 << "Barrel";
-      fname2 << "Layer_" << ilayer;    
+      fname2 << "Layer_" << layer;    
     } else {
-      int side = ilayer/100;
-      int idisc = ilayer - side*100; 
+      int side = layer/100;
+      int idisc = layer - side*100; 
       fname1 << "EndCap_Side_" << side; 
       fname2 << "Disc_" << idisc;       
-      std::cout << " Creating histograms for Disc " << idisc << " with " << fname2.str() << std::endl; 
     }
    
-    dqmStore_->cd();
+    ibooker.cd();
     folder_name << top_folder << "/" << "DigiMonitor" << "/"<< fname1.str() << "/" << fname2.str() ;
     edm::LogInfo("Phase2TrackerValidateDigi")<< " Booking Histograms in : " << folder_name.str();
 
-    dqmStore_->setCurrentFolder(folder_name.str());
+    ibooker.setCurrentFolder(folder_name.str());
 
     std::ostringstream HistoName;    
 
@@ -317,37 +330,37 @@ void Phase2TrackerValidateDigi::bookLayerHistos(unsigned int ilayer){
     edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("TrackPtH");
     HistoName.str("");
     HistoName << "SimTrackPt_" << fname2.str();   
-    local_mes.SimTrackPt = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackPt = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "SimTrackPtP_" << fname2.str();   
-    local_mes.SimTrackPtP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackPtP = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "SimTrackPtS_" << fname2.str();   
-    local_mes.SimTrackPtS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackPtS = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackPt_" << fname2.str();   
-    local_mes.MatchedTrackPt = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackPt = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackPtP_" << fname2.str();   
-    local_mes.MatchedTrackPtP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackPtP = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackPtS_" << fname2.str();   
-    local_mes.MatchedTrackPtS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackPtS = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
@@ -356,37 +369,37 @@ void Phase2TrackerValidateDigi::bookLayerHistos(unsigned int ilayer){
 
     HistoName.str("");
     HistoName << "SimTrackEta_" << fname2.str();   
-    local_mes.SimTrackEta = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackEta = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "SimTrackEtaP_" << fname2.str();   
-    local_mes.SimTrackEtaP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackEtaP = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "SimTrackEtaS_" << fname2.str();   
-    local_mes.SimTrackEtaS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackEtaS = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackEta_" << fname2.str();   
-    local_mes.MatchedTrackEta = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackEta = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackEtaP_" << fname2.str();   
-    local_mes.MatchedTrackEtaP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackEtaP = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackEtaS_" << fname2.str();   
-    local_mes.MatchedTrackEtaS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackEtaS = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
@@ -395,41 +408,41 @@ void Phase2TrackerValidateDigi::bookLayerHistos(unsigned int ilayer){
 
     HistoName.str("");
     HistoName << "SimTrackPhi_" << fname2.str();   
-    local_mes.SimTrackPhi = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackPhi = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "SimTrackPhiP_" << fname2.str();   
-    local_mes.SimTrackPhiP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackPhiP = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "SimTrackPhiS_" << fname2.str();   
-    local_mes.SimTrackPhiS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.SimTrackPhiS = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackPhi_" << fname2.str();   
-    local_mes.MatchedTrackPhi = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackPhi = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackPhiP_" << fname2.str();   
-    local_mes.MatchedTrackPhiP = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackPhiP = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
     HistoName.str("");
     HistoName << "MatchedTrackPhiS_" << fname2.str();   
-    local_mes.MatchedTrackPhiS = dqmStore_->book1D(HistoName.str(),HistoName.str(),
+    local_mes.MatchedTrackPhiS = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));
-    layerMEs.insert(std::make_pair(ilayer, local_mes)); 
+    layerMEs.insert(std::make_pair(layer, local_mes)); 
   }  
 }
 //
@@ -488,7 +501,7 @@ int Phase2TrackerValidateDigi::isPrimary(const SimTrack& simTrk, edm::Handle<edm
   return result;
 }
 //
-// -- Fill Histogram
+// -- Fill HistogramSiStripTemplateDepFakeESSource
 //
 void Phase2TrackerValidateDigi::fillHistogram(MonitorElement* th1, MonitorElement* th2, MonitorElement* th3, float val, int primary){
   if (th1 && th2 && th3) {
@@ -496,13 +509,6 @@ void Phase2TrackerValidateDigi::fillHistogram(MonitorElement* th1, MonitorElemen
     if (primary == 1) th2->Fill(val);
     else th3->Fill(val);
   }
-}
-//
-// -- End Job
-//
-void Phase2TrackerValidateDigi::endJob(){
-  dqmStore_->cd();
-  dqmStore_->showDirStructure();  
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerValidateDigi);

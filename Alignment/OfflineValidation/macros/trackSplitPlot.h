@@ -28,7 +28,6 @@
 #include "TText.h"
 #include "TTree.h"
 
-using namespace std;
 
 enum PlotType {ScatterPlot,Profile,Histogram,OrgHistogram,Resolution};
 enum Statistic {Minimum, Maximum, Average, RMS};

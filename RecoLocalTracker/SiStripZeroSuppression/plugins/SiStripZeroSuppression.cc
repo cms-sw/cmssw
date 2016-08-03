@@ -68,8 +68,8 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
     e.getByToken(*inputToken,input);
 
-    if (input->size())
-      processRaw(*inputTag, *input);
+      if (input->size())
+        processRaw(*inputTag, *input);
     
       std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
       e.put( output, inputTag->instance() );

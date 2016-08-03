@@ -15,7 +15,7 @@ RPCCollector::RPCCollector( )
 
 void RPCCollector::
 extractPrimitives(edm::Handle<RPCDigiCollection> rpcDigis,
-		  std::vector<TriggerPrimitive>& out) const {
+		  std::vector<L1TMuon::TriggerPrimitive>& out) const {
 
   auto chamber = rpcDigis->begin();
   auto chend  = rpcDigis->end();
@@ -23,7 +23,7 @@ extractPrimitives(edm::Handle<RPCDigiCollection> rpcDigis,
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
-      out.push_back(TriggerPrimitive((*chamber).first,
+      out.push_back(L1TMuon::TriggerPrimitive((*chamber).first,
 				     digi->strip(),
 				     (*chamber).first.layer(),
 				     digi->bx()));

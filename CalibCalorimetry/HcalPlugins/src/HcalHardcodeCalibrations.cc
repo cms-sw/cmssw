@@ -140,10 +140,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   iLumi=iConfig.getParameter<double>("iLumi");
 
   if( iLumi > 0.0 ) {
-    dbHardcode.setLumi(iLumi);
-    dbHardcode.setLumiOffset(iConfig.getParameter<double>("iLumiOffset"));
-    dbHardcode.setHBSiPMLumiDep(iConfig.getParameter<double>("HBSiPMLumiDep"));
-    dbHardcode.setHESiPMLumiDep(iConfig.getParameter<double>("HESiPMLumiDep"));
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if(he_recalib) {
@@ -255,13 +251,13 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams);
       findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
-    if ((*objectName == "CholeskyMatrices") || all) {
-      setWhatProduced (this, &HcalHardcodeCalibrations::produceCholeskyMatrices);
-      findingRecord <HcalCholeskyMatricesRcd> ();
-    }
     if ((*objectName == "CovarianceMatrices") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceCovarianceMatrices);
       findingRecord <HcalCovarianceMatricesRcd> ();
+    }
+    if ((*objectName == "FrontEndMap") || (*objectName == "frontEndMap") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceFrontEndMap);
+      findingRecord <HcalFrontEndMapRcd> ();
     }
   }
 }
@@ -735,29 +731,6 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
 } 
 
 
-std::unique_ptr<HcalCholeskyMatrices> HcalHardcodeCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rec) {
-
-  edm::ESHandle<HcalTopology> htopo;
-  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  auto result = std::make_unique<HcalCholeskyMatrices>(topo);
-
-  std::vector <HcalGenericDetId> cells = allCells(*topo);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-
-    int sub = cell->genericSubdet();
-
-    if (sub == HcalGenericDetId::HcalGenBarrel  || 
-        sub == HcalGenericDetId::HcalGenEndcap  ||
-	sub == HcalGenericDetId::HcalGenOuter   ||
-	sub == HcalGenericDetId::HcalGenForward  ) {
-      HcalCholeskyMatrix item(cell->rawId());
-      result->addValues(item);
-    }
-  }
-  return result;
-
-}
 std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rec) {
 
   edm::ESHandle<HcalTopology> htopo;
@@ -773,12 +746,17 @@ std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovaria
   return result;
 }
 
+std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
+
+  auto result = std::make_unique<HcalFrontEndMap>();
+  dbHardcode.makeHardcodeFrontEndMap(*result);
+  return result;
+}
+
 void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
 	edm::ParameterSetDescription desc;
 	desc.add<double>("iLumi",-1.);
-	desc.add<double>("iLumiOffset",-1.);
-	desc.add<double>("HBSiPMLumiDep",1.7);
-	desc.add<double>("HESiPMLumiDep",0.7);
 	desc.add<bool>("HERecalibration",false);
 	desc.add<double>("HEreCalibCutoff",20.);
 	desc.add<bool>("HFRecalibration",false);

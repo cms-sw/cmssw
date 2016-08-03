@@ -872,9 +872,9 @@ void TotemDAQMappingESSourceXML::ParseTreeT1(ParseType pType, xercesc::DOMNode *
             }
         }
 
-        if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id"))
+        if (!strcmp(XMLString::transcode(a->getNodeName()), "hw_id")) {
           sscanf(XMLString::transcode(a->getNodeValue()), "%x", &hw_id);
-          hw_id_set = true;
+          hw_id_set = true; }
       }
     }
 

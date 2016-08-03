@@ -30,15 +30,15 @@ namespace DigitizerUtility {
       // the MC information are removed
       if (_frac[0] < -0.5) {
 	_frac.pop_back();
-	_hitInfo->trackIds_.pop_back();
+	_hitInfo->trackIds().pop_back();
       }
     }
 
     // can be used as a float by convers.
     operator float() const {return _amp;}
     float ampl() const {return _amp;}
-    std::vector<float> individualampl() const {return _frac;}
-    const std::vector<unsigned int>& trackIds() const {return _hitInfo->trackIds_;}
+    const std::vector<float>& individualampl() const {return _frac;}
+    const std::vector<unsigned int>& trackIds() const {return _hitInfo->trackIds();}
     const std::shared_ptr<SimHitInfoForLinks>& hitInfo() const {return _hitInfo;}
 
     void operator+= (const Amplitude& other) {
@@ -48,9 +48,9 @@ namespace DigitizerUtility {
       // the MC information are removed
       if (other._frac.size() > 0 && other._frac[0] >- 0.5) {
         if (other._hitInfo) {
-          std::vector<unsigned int>& otherTrackIds = other._hitInfo->trackIds_;
+          const std::vector<unsigned int>& otherTrackIds = other._hitInfo->trackIds();
           if (_hitInfo) {
-            std::vector<unsigned int>& trackIds = _hitInfo->trackIds_;
+            std::vector<unsigned int>& trackIds = _hitInfo->trackIds();
 	    trackIds.insert(trackIds.end(), otherTrackIds.begin(), otherTrackIds.end());
           } 
 	  else 
@@ -60,13 +60,13 @@ namespace DigitizerUtility {
       }
     }
     const EncodedEventId& eventId() const {
-      return _hitInfo->eventId_;
+      return _hitInfo->eventId();
     }
     const unsigned int hitIndex() const {
-      return _hitInfo->hitIndex_;
+      return _hitInfo->hitIndex();
     }
     const unsigned int tofBin() const {
-      return _hitInfo->tofBin_;
+      return _hitInfo->tofBin();
     }
     void operator+= (const float& amp) {
       _amp += amp;

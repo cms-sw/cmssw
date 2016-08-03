@@ -71,6 +71,7 @@ protected:
 
   const bool useBeamSpot_;
   const bool includeAPEs_;
+  const bool allowZeroMaterial_;
 };
 
 

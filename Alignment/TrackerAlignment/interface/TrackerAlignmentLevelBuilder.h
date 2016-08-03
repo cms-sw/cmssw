@@ -29,7 +29,7 @@ class TrackerAlignmentLevelBuilder {
     virtual ~TrackerAlignmentLevelBuilder();
 
     void addDetUnitInfo(const DetId& detId);
-    std::vector<align::AlignmentLevels*> build();
+    std::vector<align::AlignmentLevels> build();
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
@@ -41,69 +41,58 @@ class TrackerAlignmentLevelBuilder {
     void addTOBDetUnitInfo(const DetId& detId);
     void addTECDetUnitInfo(const DetId& detId);
 
-    void buildPXBAlignmentLevels();
-    void buildPXEAlignmentLevels();
-    void buildTIBAlignmentLevels();
-    void buildTIDAlignmentLevels();
-    void buildTOBAlignmentLevels();
-    void buildTECAlignmentLevels();
+    align::AlignmentLevels buildPXBAlignmentLevels();
+    align::AlignmentLevels buildPXEAlignmentLevels();
+    align::AlignmentLevels buildTIBAlignmentLevels();
+    align::AlignmentLevels buildTIDAlignmentLevels();
+    align::AlignmentLevels buildTOBAlignmentLevels();
+    align::AlignmentLevels buildTECAlignmentLevels();
 
   //========================== PRIVATE DATA ===================================
   //===========================================================================
 
-    const TrackerTopology* trackerTopology;
-
-    // sub-detector alignment levels
-    align::AlignmentLevels pxb;
-    align::AlignmentLevels pxe;
-    align::AlignmentLevels tib;
-    align::AlignmentLevels tid;
-    align::AlignmentLevels tob;
-    align::AlignmentLevels tec;
-
-    // all alignment levels of tracker
-    std::vector<align::AlignmentLevels*> levels;
+    const TrackerTopology* trackerTopology_;
 
     // PixelBarrel
-    std::set<unsigned int> pxbLayerIDs;
-    std::set<unsigned int> pxbLadderIDs;
-    std::set<unsigned int> pxbModuleIDs;
-    std::map<unsigned int, unsigned int> pxbLaddersPerLayer;
+    std::set<unsigned int> pxbLayerIDs_;
+    std::set<unsigned int> pxbLadderIDs_;
+    std::set<unsigned int> pxbModuleIDs_;
+    std::map<unsigned int, unsigned int> pxbLaddersPerLayer_;
 
     // PixelEndcap
-    std::set<unsigned int> pxeSideIDs;
-    std::set<unsigned int> pxeDiskIDs;
-    std::set<unsigned int> pxeBladeIDs;
-    std::set<unsigned int> pxePanelIDs;
-    std::set<unsigned int> pxeModuleIDs;
+    std::set<unsigned int> pxeSideIDs_;
+    std::set<unsigned int> pxeDiskIDs_;
+    std::set<unsigned int> pxeBladeIDs_;
+    std::set<unsigned int> pxePanelIDs_;
+    std::set<unsigned int> pxeModuleIDs_;
 
     // TIB
-    std::set<unsigned int> tibSideIDs;
-    std::set<unsigned int> tibLayerIDs;
-    std::set<unsigned int> tibStringIDs;
-    std::set<unsigned int> tibModuleIDs;
-    std::map<unsigned int, unsigned int> pxbStringsPerHalfShell;
+    std::set<unsigned int> tibSideIDs_;
+    std::set<unsigned int> tibLayerIDs_;
+    std::set<unsigned int> tibStringIDs_;
+    std::set<unsigned int> tibModuleIDs_;
+    std::map<unsigned int, unsigned int> pxbStringsPerHalfShell_;
 
     // TID
-    std::set<unsigned int> tidSideIDs;
-    std::set<unsigned int> tidWheelIDs;
-    std::set<unsigned int> tidRingIDs;
-    std::set<unsigned int> tidModuleIDs;
-    std::map<unsigned int, unsigned int> tidStringsInnerLayer;
-    std::map<unsigned int, unsigned int> tidStringsOuterLayer;
+    std::set<unsigned int> tidSideIDs_;
+    std::set<unsigned int> tidWheelIDs_;
+    std::set<unsigned int> tidRingIDs_;
+    std::set<unsigned int> tidModuleIDs_;
+    std::map<unsigned int, unsigned int> tidStringsInnerLayer_;
+    std::map<unsigned int, unsigned int> tidStringsOuterLayer_;
 
     // TOB
-    std::set<unsigned int> tobLayerIDs;
-    std::set<unsigned int> tobSideIDs;
-    std::set<unsigned int> tobRodIDs;
-    std::set<unsigned int> tobModuleIDs;
+    std::set<unsigned int> tobLayerIDs_;
+    std::set<unsigned int> tobSideIDs_;
+    std::set<unsigned int> tobRodIDs_;
+    std::set<unsigned int> tobModuleIDs_;
 
     // TEC
-    std::set<unsigned int> tecSideIDs;
-    std::set<unsigned int> tecWheelIDs;
-    std::set<unsigned int> tecPetalIDs;
-    std::set<unsigned int> tecRingIDs;
-    std::set<unsigned int> tecModuleIDs;
+    std::set<unsigned int> tecSideIDs_;
+    std::set<unsigned int> tecWheelIDs_;
+    std::set<unsigned int> tecPetalIDs_;
+    std::set<unsigned int> tecRingIDs_;
+    std::set<unsigned int> tecModuleIDs_;
 
 };
 

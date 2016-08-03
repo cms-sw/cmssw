@@ -1,0 +1,15 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TotemRPDetId"/>
+<use name="DataFormats/TotemDigi"/>
+<use name="DataFormats/CTPPSReco"/>
+
+<use name="Geometry/Records"/>
+<use name="Geometry/VeryForwardGeometryBuilder"/>
+
+<use name="RecoCTPPS/TotemRPLocal"/>
+<library name="RecoCTPPSTotemRPLocalPlugins" file="*.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>

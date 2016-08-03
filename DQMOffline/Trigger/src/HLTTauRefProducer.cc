@@ -127,7 +127,7 @@ void HLTTauRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 void 
 HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
 {
-      auto_ptr<LorentzVectorCollection> product_PFTaus(new LorentzVectorCollection);
+      unique_ptr<LorentzVectorCollection> product_PFTaus(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<PFTauCollection> pftaus;
       if(iEvent.getByToken(PFTaus_,pftaus)) {
@@ -155,14 +155,14 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
               }
         }
       }
-      iEvent.put(product_PFTaus,"PFTaus");
+      iEvent.put(std::move(product_PFTaus),"PFTaus");
 }
 
 
 void 
 HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
 {
-  auto_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
   //Retrieve the collections
   
   edm::Handle<reco::ElectronIDAssociationCollection> pEleID;
@@ -179,7 +179,7 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
   iEvent.getByToken(e_ctfTrackCollection_, pCtfTracks);
   if (!pCtfTracks.isValid()) {
   edm::LogInfo("")<< "Error! Can't get " << e_ctfTrackCollectionSrc_.label() << " by label. ";
-  iEvent.put(product_Electrons,"Electrons"); 
+  iEvent.put(std::move(product_Electrons),"Electrons"); 
   return;
   }
   const reco::TrackCollection * ctfTracks = pCtfTracks.product();
@@ -228,13 +228,13 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
 	  }
       }
   
-  iEvent.put(product_Electrons,"Electrons"); 
+  iEvent.put(std::move(product_Electrons),"Electrons"); 
 }
 
 void 
 HLTTauRefProducer::doMuons(edm::Event& iEvent,const edm::EventSetup& iES)
 {
-  auto_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
   //Retrieve the collection
   edm::Handle<MuonCollection> muons;
       if(iEvent.getByToken(Muons_,muons))
@@ -250,7 +250,7 @@ HLTTauRefProducer::doMuons(edm::Event& iEvent,const edm::EventSetup& iES)
 	}
 
 
-      iEvent.put(product_Muons,"Muons");
+      iEvent.put(std::move(product_Muons),"Muons");
  
 }
 
@@ -258,7 +258,7 @@ HLTTauRefProducer::doMuons(edm::Event& iEvent,const edm::EventSetup& iES)
 void 
 HLTTauRefProducer::doJets(edm::Event& iEvent,const edm::EventSetup& iES)
 {
-      auto_ptr<LorentzVectorCollection> product_Jets(new LorentzVectorCollection);
+      unique_ptr<LorentzVectorCollection> product_Jets(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<CaloJetCollection> jets;
       if(iEvent.getByToken(Jets_,jets))
@@ -270,13 +270,13 @@ HLTTauRefProducer::doJets(edm::Event& iEvent,const edm::EventSetup& iES)
 		product_Jets->push_back(vec);
 	      }
 	}
-      iEvent.put(product_Jets,"Jets");
+      iEvent.put(std::move(product_Jets),"Jets");
 }
 
 void 
 HLTTauRefProducer::doTowers(edm::Event& iEvent,const edm::EventSetup& iES)
 {
-      auto_ptr<LorentzVectorCollection> product_Towers(new LorentzVectorCollection);
+      unique_ptr<LorentzVectorCollection> product_Towers(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<CaloTowerCollection> towers;
       if(iEvent.getByToken(Towers_,towers))
@@ -299,14 +299,14 @@ HLTTauRefProducer::doTowers(edm::Event& iEvent,const edm::EventSetup& iES)
 		  }
 	      }
 	}
-      iEvent.put(product_Towers,"Towers");
+      iEvent.put(std::move(product_Towers),"Towers");
 }
 
 
 void 
 HLTTauRefProducer::doPhotons(edm::Event& iEvent,const edm::EventSetup& iES)
 {
-      auto_ptr<LorentzVectorCollection> product_Gammas(new LorentzVectorCollection);
+      unique_ptr<LorentzVectorCollection> product_Gammas(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<PhotonCollection> photons;
       if(iEvent.getByToken(Photons_,photons))
@@ -319,13 +319,13 @@ HLTTauRefProducer::doPhotons(edm::Event& iEvent,const edm::EventSetup& iES)
 		product_Gammas->push_back(vec);
 	      }
 	}
-      iEvent.put(product_Gammas,"Photons");
+      iEvent.put(std::move(product_Gammas),"Photons");
 }
 
 void
 HLTTauRefProducer::doMET(edm::Event& iEvent,const edm::EventSetup& iES)
 {
-  auto_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
   //Retrieve the collection
   edm::Handle<reco::CaloMETCollection> met;
   if(iEvent.getByToken(MET_,met)){
@@ -335,6 +335,6 @@ HLTTauRefProducer::doMET(edm::Event& iEvent,const edm::EventSetup& iES)
     LorentzVector vec(px,py,0,pt);
     product_MET->push_back(vec);
   }
-  iEvent.put(product_MET,"MET");  
+  iEvent.put(std::move(product_MET),"MET");  
 }
 

@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -112,7 +111,7 @@ void DDTECAxialCableAlgo::execute(DDCompactView& cpv) {
     pconRmin.push_back(rMax-thickR);
     pconRmax.push_back(rMax);
 
-    std::string name = childName + dbl_to_string(k);
+    std::string name = childName + std::to_string(k);
     DDSolid solid = DDSolidFactory::polycone(DDName(name, idNameSpace),
 					     -0.5*width, width, pconZ, 
 					     pconRmin, pconRmax);
@@ -138,7 +137,7 @@ void DDTECAxialCableAlgo::execute(DDCompactView& cpv) {
 
       DDRotation rotation;
       if (phideg != 0) {
-	std::string rotstr = childName + dbl_to_string(phideg*10.);
+	std::string rotstr = childName + std::to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TECGeom") << "DDTECAxialCableAlgo test: Creating a new"

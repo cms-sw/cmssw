@@ -15,7 +15,8 @@ TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
   useInvalidHits_(config.getParameter<bool>("UseInvalidHits")),
   useProjectedHits_(config.getParameter<bool>("UseProjectedHits")),
   useBeamSpot_(config.getParameter<bool>("UseBeamSpot")),
-  includeAPEs_(config.getParameter<bool>("IncludeAPEs"))
+  includeAPEs_(config.getParameter<bool>("IncludeAPEs")),
+  allowZeroMaterial_(config.getParameter<bool>("AllowZeroMaterial"))
 {
   edm::LogInfo("Alignment")
     << "@SUB=TrajectoryFactoryBase"
@@ -27,7 +28,8 @@ TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
     << "\nuse invalid hits: " << (useInvalidHits_ ? "yes" : "no")
     << "\nuse projected hits: " << (useProjectedHits_ ? "yes" : "no")
     << "\nuse beamspot: " << (useBeamSpot_ ? "yes" : "no")
-    << "\ninclude APEs: " << (includeAPEs_ ? "yes" : "no");
+    << "\ninclude APEs: " << (includeAPEs_ ? "yes" : "no")
+    << "\nallow zero material: " << (allowZeroMaterial_ ? "yes" : "no");
 }
 
 

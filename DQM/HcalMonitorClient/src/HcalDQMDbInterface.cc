@@ -1,6 +1,8 @@
 #include "DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h"
+#include <memory>
 
 XERCES_CPP_NAMESPACE_USE
+using namespace std;
 
 namespace {
   template <class T> XMLCh* transcode (const T& fInput) {
@@ -28,15 +30,18 @@ DOMDocument* HcalDQMDbInterface::createDocument(){
 }
 
 void HcalDQMDbInterface::writeDocument(DOMDocument* doc, const char* xmlFile){
-  DOMImplementation* impl =  DOMImplementationRegistry::getDOMImplementation(XML("Core"));
-  DOMWriter *theSerializer = ((DOMImplementationLS*)impl)->createDOMWriter();
-  if (theSerializer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-    theSerializer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-  if (theSerializer->canSetFeature(XMLUni::fgDOMWRTBOM, true))
-    theSerializer->setFeature(XMLUni::fgDOMWRTBOM, true);
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(XML("Core")));
+  DOMLSSerializer *serializer = impl->createLSSerializer();
+  if (serializer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    serializer->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  if (serializer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTBOM, true))
+    serializer->getDomConfig()->setParameter(XMLUni::fgDOMWRTBOM, true);
   XMLFormatTarget *myFormTarget = new LocalFileFormatTarget(xmlFile);
-  theSerializer->writeNode(myFormTarget, *doc);
-  delete theSerializer;
+  DOMLSOutput* output= impl->createLSOutput();
+  output->setByteStream(myFormTarget);
+  serializer->write(doc, output);
+  output->release();
+  serializer->release();
   delete myFormTarget;
 }
 

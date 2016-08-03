@@ -126,9 +126,9 @@ SimG4HGCalValidation::~SimG4HGCalValidation() {
 
 void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
+  std::unique_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
   layerAnalysis(*productLayer);
-  e.put(productLayer,labelLayer_);
+  e.put(std::move(productLayer),labelLayer_);
 }
 
 void SimG4HGCalValidation::update(const BeginOfJob * job) {
@@ -256,6 +256,13 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(det, hitPoint, depth, lay);
 	  index = HcalTestNumbering::packHcalIndex(tmp.subdet,tmp.zside,tmp.depth,tmp.etaR,tmp.phis,tmp.lay);
 	  layer = tmp.lay;
+	  edm::LogInfo("ValidHGCal") << "HCAL: " << det << ":" << depth << ":"
+				     << lay << " o/p " << tmp.subdet << ":" 
+				     << tmp.zside << ":" << tmp.depth << ":" 
+				     << tmp.etaR << ":" << tmp.phis << ":" 
+				     << tmp.lay << " point " << hitPoint << " "
+				     << hitPoint.rho() << ":" << hitPoint.eta()
+				     << ":" << hitPoint.phi();
 	}
 
 	double edeposit = aStep->GetTotalEnergyDeposit();

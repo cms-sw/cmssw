@@ -2,6 +2,7 @@
 #include "DQM/HcalTasks/interface/LEDTask.h"
 
 using namespace hcaldqm;
+using namespace constants;
 LEDTask::LEDTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

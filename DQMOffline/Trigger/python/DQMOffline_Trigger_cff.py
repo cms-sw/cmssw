@@ -73,9 +73,10 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
 
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
-    sistripMonitorHLTsequence * 
+    sistripMonitorHLTsequence * # strip
     BTVHLTOfflineSource *
-    trackingMonitorHLT
+    trackingMonitorHLT * # tracking
+    egmTrackingMonitorHLT # egm tracking
     )
 
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)

@@ -38,6 +38,15 @@ def customiseFor14356(process):
             pset.pixelSeedExtension = cms.bool(False)
     return process
 
+def customiseFor14833(process):
+    for producer in esproducers_by_type(process, "DetIdAssociatorESProducer"):
+        if (producer.ComponentName.value() == 'MuonDetIdAssociator'):
+            if not hasattr(producer,'includeGEM'):
+                producer.includeGEM = cms.bool(False)
+            if not hasattr(producer,'includeME0'):
+                producer.includeME0 = cms.bool(False)
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -48,12 +57,15 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     if cmsswVersion >= "CMSSW_8_1":
         process = customiseFor14356(process)
         process = customiseFor13753(process)
+        process = customiseFor14833(process)
 #       process = customiseFor12718(process)
         pass
 
 #   stage-2 changes only if needed
     if ("Fake" in menuType):
         return process
+
+    
 
 #    if ( menuType in ("FULL","GRun","PIon")):
 #        from HLTrigger.Configuration.CustomConfigs import L1XML

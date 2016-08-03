@@ -16,7 +16,7 @@
 
 using namespace l1t;
 using namespace std;
-
+using namespace L1TMuon;
 
 EmtfPtAssignment::EmtfPtAssignment(const char * tree_dir):
   allowedModes_({3,5,9,6,10,12,7,11,13,14,15}){
@@ -832,7 +832,7 @@ float EmtfPtAssignment::calculatePt(unsigned long Address)
 
 
 
-unsigned long EmtfPtAssignment::calculateAddress( L1TMuon::InternalTrack track, const edm::EventSetup& es, int mode) {
+unsigned long EmtfPtAssignment::calculateAddress( InternalTrack track, const edm::EventSetup& es, int mode) {
     edm::ESHandle<CSCGeometry> cscGeometry;
     es.get<MuonGeometryRecord>().get(cscGeometry);
   

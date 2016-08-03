@@ -23,9 +23,6 @@ GeometryConf={
     'Extended2016'   : 'Extended2016,Extended2016Reco',
     'Extended2017'   : 'Extended2017,Extended2017Reco',
     'Extended2019'   : 'Extended2019,Extended2019Reco',
-    'Extended2023'   : 'Extended2023,Extended2023Reco',
-    'Extended2023Dev'   : 'Extended2023Dev,Extended2023DevReco',
-    'Extended2023Muon'   : 'Extended2023Muon,Extended2023MuonReco',    
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
     'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
     'ECALHCAL'    : 'Configuration.Geometry.GeometrySimECALHCAL_cff,Configuration.Geometry.GeometryRecoECALHCAL_cff',
@@ -34,5 +31,5 @@ GeometryConf={
     'Extended2023sim'   : 'Extended2023sim,Extended2023simReco',
     'Extended2023tilted'   : 'Extended2023tilted,Extended2023tiltedReco',
     'Extended2023LReco'   : 'Extended2023sim,Extended2023simReco',
-    'Extended2023GReco'   : 'Extended2023sim,Extended2023simReco'
+    'Extended2023GReco'   : 'Extended2023GReco,Extended2023GRecoReco'
     }

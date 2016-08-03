@@ -73,7 +73,7 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
   for (int i=0; i<numberPhi; ++i) {
     double phi    = -0.5*deltaPhi+(i+0.5)*dPhi;
     double phideg = phi/CLHEP::deg;
-    std::string rotstr = "R0"+ dbl_to_string(phideg);
+    std::string rotstr = "R0"+ std::to_string(phideg);
     DDRotation  rot = DDRotation(DDName(rotstr, idNameSpace));
     if (!rot) {
       LogDebug("HCalGeom") << "DDHCalFibreBundle test: Creating a new "
@@ -92,7 +92,7 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
     double r0     = rEnd[i]/std::cos(tilt);
     double dStart = areaSection[i]/(2*dPhi*rStart[i]);
     double dEnd   = areaSection[i]/(2*dPhi*r0);
-    std::string name = childPrefix + dbl_to_string(i);
+    std::string name = childPrefix + std::to_string(i);
     DDSolid solid = DDSolidFactory::cons(DDName(name, idNameSpace), 0.5*deltaZ,
 					 rStart[i]-dStart, rStart[i]+dStart,
 					 r0-dEnd, r0+dEnd, -0.5*dPhi, dPhi);

@@ -670,7 +670,7 @@ void MVATrainer::makeProcessor(DOMElement *elem, AtomicId id, const char *name)
 			<< "Unexpected end of processor configuration, "
 			<< "expected tag " << cur->tag << "." << std::endl;
 
-	std::auto_ptr<TrainProcessor> proc(
+	std::unique_ptr<TrainProcessor> proc(
 				TrainProcessor::create(name, &id, this));
 	if (!proc.get())
 		throw cms::Exception("MVATrainer")
@@ -1090,7 +1090,7 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 		processors.push_back(CalibratedProcessor(proc, iter->second));
 	}
 
-	std::auto_ptr<Calibration::MVAComputer> calib(
+	std::unique_ptr<Calibration::MVAComputer> calib(
 		new MVATrainerComputer(baseInterceptors, doAutoSave,
 		                       randomSeed, crossValidation));
 
@@ -1147,7 +1147,7 @@ Calibration::MVAComputer *MVATrainer::getCalibration() const
 {
 	std::vector<CalibratedProcessor> processors;
 
-	std::auto_ptr<Calibration::MVAComputer> calib(
+	std::unique_ptr<Calibration::MVAComputer> calib(
 						new Calibration::MVAComputer);
 
 	std::vector<AtomicId> used = findFinalProcessors();

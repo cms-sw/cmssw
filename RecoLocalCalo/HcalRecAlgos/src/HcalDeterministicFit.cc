@@ -42,3 +42,12 @@ void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) c
   sum= landauFrac[int(ceil(tStart+tsWidth))];
   return;
 }
+
+void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
+                                       const HcalCalibrations& calibs,
+                                       float* reconstructedEnergy,
+                                       float* reconstructedTime) const
+{
+    // IMPLEMENT THIS!!!
+}
+

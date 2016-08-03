@@ -2,12 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 trackingMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-trackingMonHLT.beamSpot         = cms.InputTag("hltOnlineBeamSpot")
-trackingMonHLT.primaryVertex    = cms.InputTag("hltPixelVertices")
-trackingMonHLT.doAllPlots       = cms.bool(False)
-trackingMonHLT.doLumiAnalysis   = cms.bool(False)     
-trackingMonHLT.doProfilesVsLS   = cms.bool(False)
-trackingMonHLT.pvNDOF           = cms.int32(1)
+trackingMonHLT.beamSpot                = cms.InputTag("hltOnlineBeamSpot")
+trackingMonHLT.primaryVertex           = cms.InputTag("hltPixelVertices")
+trackingMonHLT.doAllPlots              = cms.bool(False)
+trackingMonHLT.doLumiAnalysis          = cms.bool(False)     
+trackingMonHLT.doProfilesVsLS          = cms.bool(True)
+trackingMonHLT.doDCAPlots              = cms.bool(True)
+trackingMonHLT.pvNDOF                  = cms.int32(1)
+trackingMonHLT.doProfilesVsLS          = cms.bool(True)
+trackingMonHLT.doPlotsVsGoodPVtx       = cms.bool(True)
+trackingMonHLT.doEffFromHitPatternVsPU = cms.bool(True)
+
 
 pixelTracksMonitoringHLT = trackingMonHLT.clone()
 pixelTracksMonitoringHLT.FolderName       = 'HLT/Tracking/pixelTracks'
@@ -80,3 +85,71 @@ trackingMonitorHLTall = cms.Sequence(
 #    + iter4TracksMonitoringHLT
 )    
 
+############
+#### EGM tracks
+# GSF: hltEgammaGsfTracks
+# Iter0: process.hltIter0ElectronsTrackSelectionHighPurity
+# Iter1HP: hltIter1MergedForElectrons
+# Iter2HP: hltIter2MergedForElectrons
+egmTrackingMonHLT = trackingMonHLT.clone()
+egmTrackingMonHLT.primaryVertex = cms.InputTag("hltElectronsVertex")
+
+gsfTracksMonitoringHLT = egmTrackingMonHLT.clone()
+gsfTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/GSF'
+gsfTracksMonitoringHLT.TrackProducer    = 'hltEgammaGsfTracks'
+gsfTracksMonitoringHLT.allTrackProducer = 'hltEgammaGsfTracks'
+
+pixelTracksForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+pixelTracksForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/pixelTracks'
+pixelTracksForElectronsTracksMonitoringHLT.TrackProducer    = 'hltPixelTracksElectrons'
+pixelTracksForElectronsTracksMonitoringHLT.allTrackProducer = 'hltPixelTracksElectrons'
+
+iter0ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+iter0ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter0'
+iter0ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter0ElectronsCtfWithMaterialTracks'
+iter0ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter0ElectronsCtfWithMaterialTracks'
+
+iter0HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+iter0HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter0HP'
+iter0HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter0ElectronsTrackSelectionHighPurity'
+iter0HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter0ElectronsTrackSelectionHighPurity'
+
+iter1ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+iter1ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter1'
+iter1ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1ElectronsCtfWithMaterialTracks'
+iter1ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1ElectronsCtfWithMaterialTracks'
+
+iter1HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+iter1HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter1HP'
+iter1HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1ElectronsTrackSelectionHighPurity'
+iter1HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1ElectronsTrackSelectionHighPurity'
+
+iter1MergedForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+iter1MergedForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter1Merged'
+iter1MergedForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1MergedForElectrons'
+iter1MergedForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1MergedForElectrons'
+
+iter2ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+iter2ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter2'
+iter2ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter2ElectronsCtfWithMaterialTracks'
+iter2ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter2ElectronsCtfWithMaterialTracks'
+
+iter2HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
+iter2HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter2HP'
+iter2HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter2ElectronsTrackSelectionHighPurity'
+iter2HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter2ElectronsTrackSelectionHighPurity'
+
+iterHLTTracksForElectronsMonitoringHLT = egmTrackingMonHLT.clone()
+iterHLTTracksForElectronsMonitoringHLT.FolderName       = 'HLT/EG/Tracking/iter2Merged'
+iterHLTTracksForElectronsMonitoringHLT.TrackProducer    = 'hltIter2MergedForElectrons'
+iterHLTTracksForElectronsMonitoringHLT.allTrackProducer = 'hltIter2MergedForElectrons'
+ 
+
+egmTrackingMonitorHLT = cms.Sequence(
+    gsfTracksMonitoringHLT
+    + pixelTracksForElectronsTracksMonitoringHLT
+    + iter0HPForElectronsTracksMonitoringHLT
+#    + iter1HPForElectronsTracksMonitoringHLT
+#    + iter2HPForElectronsTracksMonitoringHLT
+    + iterHLTTracksForElectronsMonitoringHLT
+)

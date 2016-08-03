@@ -43,16 +43,17 @@ public:
 
   virtual void add(const CaloSamples& signal);
 
-  virtual void run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*) override;
+  virtual void addPEnoise(CLHEP::HepRandomEngine* engine);
 
   virtual CaloSamples makeBlankSignal(const DetId & detId) const;
+
+  virtual void setDetIds(const std::vector<DetId> & detIds);
 
   static double Y11TimePDF( double t );
 
 protected:
   typedef std::multiset <PCaloHit, PCaloHitCompareTimes> SortedHitSet;
 
-  virtual CaloSamples makeSiPMSignal(const DetId& id, const PCaloHit& hit, int & integral, CLHEP::HepRandomEngine*) const;
   virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*) const;
 
   virtual void differentiatePreciseSamples(CaloSamples& samples, 
@@ -71,6 +72,8 @@ private:
 
   photonTimeMap precisionTimedPhotons;
   HcalTDCParameters theTDCParams;
+
+  const std::vector<DetId>* theDetIds;
 };
 
 #endif //HcalSimAlgos_HcalSiPMHitResponse_h

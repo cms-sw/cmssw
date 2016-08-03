@@ -269,7 +269,9 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
      m_geomRecord->slaveGeometry( detId );
      m_fwGeometry->extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
   }
-  catch (...) {}
+    catch (std::runtime_error &e) {
+       std::cerr << e.what() << std::endl; 
+    }
 }
 
 void
@@ -333,12 +335,14 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       m_geomRecord->slaveGeometry( detId );
       m_fwGeometry->extraDet.Add(new TNamed("GE2", "GEM endcap station 2"));
     }
-    catch (...) {}
+    catch (std::runtime_error &e) {
+       std::cerr << e.what() << std::endl; 
+    }
 
   }
   catch( cms::Exception &exception )
   {
-    edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
+    edm::LogError("FWRecoGeometry") << " GEM geometry not found " << exception.what() << std::endl;
   }
 }
 
@@ -378,7 +382,7 @@ FWRecoGeometryESProducer::addME0Geometry( void )
   }
   catch( cms::Exception &exception )
   {
-    edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
+    edm::LogError("FWRecoGeometry") << " ME0 geometry not found " << exception.what() << std::endl;
   }
 }  
 

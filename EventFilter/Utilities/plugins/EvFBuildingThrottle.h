@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sys/statvfs.h>
 
@@ -79,7 +80,12 @@ namespace evf{
 	  std::cout << " building throttle on " << baseDir_ << " is " << fraction*100 << " %full " << std::endl;
 	  //edm::Service<EvFDaqDirector>()->writeDiskAndThrottleStat(fraction,highwater_,lowwater_);
 	  ::usleep(sleep_*1000);
+          if (edm::shutdown_flag) {
+	    std::cout << " Shutdown flag set: stop throttling" << std::endl;
+            break;
+          }
 	}
+        if (throttled_) lock_.unlock();
       }
       void start(){
 	assert(!m_thread);

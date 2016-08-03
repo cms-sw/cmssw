@@ -1,6 +1,7 @@
 #ifndef DDI_Polyhedra_h
 #define DDI_Polyhedra_h
 
+#include <iosfwd>
 #include <vector>
 
 #include "Solid.h"
@@ -20,6 +21,7 @@ namespace DDI {
 	       const std::vector<double> & r);
     
     double volume() const;
+    void stream(std::ostream &) const;
   	       
   };		  
 }

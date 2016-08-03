@@ -990,7 +990,7 @@ namespace evf {
            throw cms::Exception("EvFDaqDirector") << msg.str();
          else
            edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)"; 
-           return std::string("Failsafe");
+         return std::string("Failsafe");
     }
     Json::Value destsVec = transferSystemJson_->get(streamRequestName, "").get(selectedTransferMode_,"");
 

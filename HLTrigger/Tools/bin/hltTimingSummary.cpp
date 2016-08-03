@@ -64,7 +64,7 @@ bool usePathByName(HLTPerformanceInfo::Path path,
                      std::vector<std::string> skip) {
   for (unsigned int i=0; i<skip.size(); i++)
     if (path.name() == skip.at(i)) return false; 
-    return true; 
+  return true; 
 }
 
 //initialize the following parameters

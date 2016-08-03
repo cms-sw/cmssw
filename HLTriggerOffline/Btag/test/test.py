@@ -50,10 +50,8 @@ process.hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
       triggerString),
     hltResults = cms.InputTag( "TriggerResults", "", fileini.processname ),
-#    l1tResults = cms.InputTag( "gtDigis" ),
-#    l1tIgnoreMask = cms.bool( False ),
-#    l1techIgnorePrescales = cms.bool( False ),
-#    daqPartitions = cms.uint32( 1 ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True )
 )
 

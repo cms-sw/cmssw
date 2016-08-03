@@ -1,8 +1,3 @@
-//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationCons*
-// ********************************************************************
-
 #include "DetectorDescription/Parser/src/DDDividedCons.h"
 
 #include <iostream>
@@ -12,7 +7,6 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -20,7 +14,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class DDCompactView;
@@ -52,38 +45,26 @@ DDDividedConsRho::DDDividedConsRho( const DDDivision& div, DDCompactView* cpv )
 				 , div_.nReplicas()
 				 , div_.offset() );
   }
-
-  DCOUT_V( 'P', " DDDividedConsRho - no divisions " << compNDiv_ << " = " << div_.nReplicas()
-	   << "\n Offset " << div_.offset()
-	   << "\n Width " << compWidth_ << " = " << div_.width()
-	   << "\n DivType " << divisionType_);  
 }
-
-DDDividedConsRho::~DDDividedConsRho( void )
-{}
 
 double
 DDDividedConsRho::getMaxParameter( void ) const
 {
   DDCons msol = (DDCons)(div_.parent().solid());
   return msol.rOutMinusZ() - msol.rInMinusZ();
-
 }
 
 DDRotation
 DDDividedConsRho::makeDDRotation( const int copyNo ) const
 {
   DDRotation myddrot; // sets to identity.
-  DCOUT_V ('P', "DDDividedConsRho::makeDDRotation : " << myddrot);
   return myddrot;
 }
 
 DDTranslation
 DDDividedConsRho::makeDDTranslation( const int copyNo ) const
 {
-  //----- translation 
   DDTranslation translation;
-  DCOUT_V ('P', " DDDividedConsRho " << "\n\t Position: " << translation << " - Width: " << compWidth_ << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;
 }
 
@@ -91,8 +72,8 @@ DDLogicalPart
 DDDividedConsRho::makeDDLogicalPart( const int copyNo ) const
 { 
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD" 
-		 + DDXMLElement::itostr(copyNo) 
-		 , div_.parent().ddname().ns());
+		 + std::to_string(copyNo), 
+		 div_.parent().ddname().ns());
   DDSolid ddcons(solname);
   DDMaterial usemat(div_.parent().material());
   DDCons msol = (DDCons)(div_.parent().solid());
@@ -119,12 +100,9 @@ DDDividedConsRho::makeDDLogicalPart( const int copyNo ) const
 				, pRMin2, pRMax2, pSPhi, pDPhi);      
   
   DDLogicalPart ddlp = DDLogicalPart(solname, usemat, ddcons);
-  DCOUT_V( 'P', " DDDividedConsRho::makeDDLogicalPart() lp:" << ddlp );
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
 DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv )
   : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
 {
@@ -157,15 +135,7 @@ DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv )
       compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), div_.offset() );
     }
   }
-
-  DCOUT_V( 'P', " DDDividedConsPhi - no divisions " << compNDiv_ << " = " << div_.nReplicas()
-	   << "\n Offset " << div_.offset()
-	   << "\n Width " << compWidth_ << " = " << div_.width()
-	   << "\n DivType " << divisionType_); 
 }
-
-DDDividedConsPhi::~DDDividedConsPhi( void )
-{}
 
 double
 DDDividedConsPhi::getMaxParameter( void ) const
@@ -182,22 +152,17 @@ DDDividedConsPhi::makeDDRotation( const int copyNo ) const
   DDRotationMatrix* rotMat = changeRotMatrix( posi );
   // how to name the rotation??
   // i hate this crap :-)
-  DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT" + DDXMLElement::itostr(copyNo)
-		   , div_.parent().ddname().ns());
+  DDName ddrotname(div_.parent().ddname().name() + "_DIVCHILD_ROT" + std::to_string(copyNo),
+		   div_.parent().ddname().ns());
   myddrot = DDrot(ddrotname, rotMat);
 
-  DCOUT_V ('P', "DDDividedConsPhi::makeDDRotation : " << myddrot);
   return myddrot;
 }
 
 DDTranslation
 DDDividedConsPhi::makeDDTranslation( const int copyNo ) const
 {
-  //----- translation 
   DDTranslation translation;  
-  DCOUT_V( 'P', " DDDividedConsPhi " << "\n\t Position: " << translation
-	   << " - Width: " << compWidth_
-	   << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;
 }
 
@@ -226,7 +191,7 @@ DDDividedConsPhi::makeDDLogicalPart( const int copyNo ) const
   }
   
   DDLogicalPart ddlp = DDLogicalPart(solname, usemat, ddcons);
-  DCOUT_V ('P', " DDDividedConsPhi::makeDDLogicalPart() lp:" << ddlp);
+
   return ddlp;
 }
 
@@ -250,15 +215,7 @@ DDDividedConsZ::DDDividedConsZ( const DDDivision& div, DDCompactView* cpv )
     compWidth_ = calculateWidth( 2*msol.zhalf()
 				 , div_.nReplicas(), div_.offset() );
   }
-
-  DCOUT_V( 'P', " DDDividedConsZ - no divisions " << compNDiv_ << " = " << div_.nReplicas()
-	   << "\n Offset " << div_.offset()
-	   << "\n Width " << compWidth_ << " = " << div_.width()
-	   << "\n DivType " << divisionType_ );
 }
-
-DDDividedConsZ::~DDDividedConsZ( void )
-{}
 
 double
 DDDividedConsZ::getMaxParameter( void ) const
@@ -271,14 +228,12 @@ DDRotation
 DDDividedConsZ::makeDDRotation( const int copyNo ) const
 {
   DDRotation myddrot; // sets to identity.
-  DCOUT_V ('P', "DDDividedConsZ::makeDDRotation : " << myddrot);
   return myddrot;
 }
 
 DDTranslation
 DDDividedConsZ::makeDDTranslation( const int copyNo ) const
 {
-  //----- translation 
   DDTranslation translation;
 
   DDCons motherCons = (DDCons)(div_.parent().solid());
@@ -286,15 +241,14 @@ DDDividedConsZ::makeDDTranslation( const int copyNo ) const
 		+ compWidth_/2 + copyNo*compWidth_;
   translation.SetZ(posi); 
   
-  DCOUT_V ('P', " DDDividedConsZ " << "\n\t Position: " << translation << " - Width: " << compWidth_ << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;
 }
 
 DDLogicalPart
 DDDividedConsZ::makeDDLogicalPart( const int copyNo ) const
 { 
-  DDName solname(div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr(copyNo) 
-		 , div_.parent().ddname().ns());
+  DDName solname(div_.parent().ddname().name() + "_DIVCHILD" + std::to_string(copyNo), 
+		 div_.parent().ddname().ns());
   DDSolid ddcons(solname);
   DDMaterial usemat(div_.parent().material());
   DDCons msol = (DDCons)(div_.parent().solid());
@@ -326,6 +280,6 @@ DDDividedConsZ::makeDDLogicalPart( const int copyNo ) const
     );
   
   DDLogicalPart ddlp = DDLogicalPart(solname, usemat, ddcons);
-  DCOUT_V( 'P', " DDDividedConsZ::makeDDLogicalPart() lp:" << ddlp );
+
   return ddlp;
 }

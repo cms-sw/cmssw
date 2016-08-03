@@ -16,6 +16,14 @@
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/> 
 
+<class name="GEMPadDigiCluster" ClassVersion="10">
+ <version ClassVersion="10" checksum="2569340006"/>
+</class>
+<class name="std::vector<GEMPadDigiCluster>"/>
+<class name="std::map<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
+<class name="MuonDigiCollection<GEMDetId,GEMPadDigiCluster>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigiCluster> >" splitLevel="0"/> 
+
 <class name="GEMCoPadDigi" ClassVersion="12">
  <version ClassVersion="12" checksum="2678638706"/>
 </class>

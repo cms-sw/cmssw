@@ -22,17 +22,13 @@ class DDLElementRegistry;
  *
  */
 
-class DDLTubs : public DDLSolid
+class DDLTubs final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLTubs( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLTubs( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
 
 #endif

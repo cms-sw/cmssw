@@ -58,7 +58,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
       iEvent.getByToken(genToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set a default weight to start with
       (*weight) = 1.;
@@ -128,7 +128,7 @@ void ISRGammaWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
             //printf(">>>>>>>>> s %f t %f u %f, MV %f, weight = %f\n", s, t, u, MV, (*weight));
       }
 
-      iEvent.put(weight);
+      iEvent.put(std::move(weight));
 }
 
 DEFINE_FWK_MODULE(ISRGammaWeightProducer);

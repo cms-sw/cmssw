@@ -102,8 +102,8 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
 StudyHLT::~StudyHLT() {}
 
 void StudyHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-if (verbosity > 0) 
-  edm::LogInfo("IsoTrack") << "Event starts===================================="; 
+  if (verbosity > 0) 
+    edm::LogInfo("IsoTrack") << "Event starts===================================="; 
   int RunNo = iEvent.id().run();
   int EvtNo = iEvent.id().event();
   int Lumi  = iEvent.luminosityBlock();
@@ -179,7 +179,10 @@ if (verbosity > 0)
 	  if (newtriggerName.find(trigNames[i].c_str())!=std::string::npos) {
 	    if (verbosity%10 > 0)  
 	      edm::LogInfo("IsoTrack") << newtriggerName;
-	    if (hlt > 0) ok = true;
+	    if (hlt > 0) {
+	      ok = true;
+	      tr_TrigName.push_back(newtriggerName);
+	    }
 	  }
 	}
 	for (int i=0; i<5; ++i) {
@@ -202,6 +205,7 @@ if (verbosity > 0)
   //Look at the tracks  
   if (ok) {
     h_goodRun->Fill(RunNo);
+    tr_goodRun = RunNo;
     // get handles to calogeometry and calotopology
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
@@ -239,7 +243,7 @@ if (verbosity > 0)
 			       << " Good " << ngoodPV << " Bin " << nPV;
     h_numberPV->Fill((int)(recVtxs->size()));
     h_goodPV->Fill(ngoodPV);
-    
+    tr_goodPV   = ngoodPV;
     
     edm::Handle<reco::TrackCollection> trkCollection;
     iEvent.getByToken(tok_genTrack_, trkCollection);
@@ -311,6 +315,22 @@ if (verbosity > 0)
 	  if ((verbosity/10)%10 > 0)
 	    edm::LogInfo("IsoTrack") << "Tracks Reaching Hcal maxNearHcalP7x7/h5x5/h7x7 " 
 				     << maxNearHcalP7x7 << "/" << h5x5 << "/" << h7x7; 
+	  tr_TrkPt.push_back(pt1);
+	  tr_TrkP.push_back(p1);
+	  tr_TrkEta.push_back(eta1);
+	  tr_TrkPhi.push_back(phi1);
+	  tr_MaxNearP31X31.push_back(maxNearP31x31);
+	  tr_MaxNearHcalP7x7.push_back(maxNearHcalP7x7);
+	  tr_FE7x7P.push_back(e7x7P.first);
+	  tr_FE11x11P.push_back(e11x11P.first);
+	  tr_FE15x15P.push_back(e15x15P.first);
+	  tr_SE7x7P.push_back(e7x7P.second);
+	  tr_SE11x11P.push_back(e11x11P.second);
+	  tr_SE15x15P.push_back(e15x15P.second);
+	  tr_iEta.push_back(ieta);
+	  tr_H3x3.push_back(h3x3);
+	  tr_H5x5.push_back(h5x5);
+	  tr_H7x7.push_back(h7x7);
 	}
 	if (maxNearP31x31 < 0) {
 	  fillTrack(4, pt1,p1,eta1,phi1);
@@ -335,11 +355,13 @@ if (verbosity > 0)
       }
     }
     h_ntrk[1]->Fill(ntrk);
+    if (tr_TrkPt.size() > 0) tree_->Fill();
   }
   firstEvent = false;
 }
 
 void StudyHLT::beginJob() {
+  // Book histograms
   h_nHLT        = fs->make<TH1I>("h_nHLT" , "size of trigger Names", 1000, 0, 1000);
   h_HLTAccept   = fs->make<TH1I>("h_HLTAccept", "HLT Accepts for all runs", 500, 0, 500);
   for (int i=1; i<=500; ++i) h_HLTAccept->GetXaxis()->SetBinLabel(i," ");
@@ -442,6 +464,28 @@ void StudyHLT::beginJob() {
       }
     }
   }
+
+  // Now the tree
+  tree_ = fs->make<TTree>("testTree", "new HLT Tree");
+  tree_->Branch("tr_goodRun",         &tr_goodRun,           "tr_goodRun/I");
+  tree_->Branch("tr_goodPV",          &tr_goodPV,            "tr_goodPV/I");
+  tree_->Branch("tr_tr_TrigName",     &tr_TrigName);
+  tree_->Branch("tr_TrkPt",           &tr_TrkPt);
+  tree_->Branch("tr_TrkP",            &tr_TrkP);
+  tree_->Branch("tr_TrkEta",          &tr_TrkEta);
+  tree_->Branch("tr_TrkPhi",          &tr_TrkPhi);
+  tree_->Branch("tr_MaxNearP31X31",   &tr_MaxNearP31X31);   
+  tree_->Branch("tr_MaxNearHcalP7x7", &tr_MaxNearHcalP7x7);
+  tree_->Branch("tr_FE7x7P",          &tr_FE7x7P);
+  tree_->Branch("tr_FE11x11P",        &tr_FE11x11P);
+  tree_->Branch("tr_FE15x15P",        &tr_FE15x15P);
+  tree_->Branch("tr_SE7x7P",          &tr_SE7x7P);
+  tree_->Branch("tr_SE11x11P",        &tr_SE11x11P);
+  tree_->Branch("tr_SE15x15P",        &tr_SE15x15P);
+  tree_->Branch("tr_H3x3",            &tr_H3x3);
+  tree_->Branch("tr_H5x5",            &tr_H5x5);
+  tree_->Branch("tr_H7x7",            &tr_H7x7);
+  tree_->Branch("tr_iEta",            &tr_iEta);
 }
 
 void StudyHLT::endJob() {}
@@ -470,6 +514,16 @@ void StudyHLT::endRun(edm::Run const& iRun, edm::EventSetup const&) {
 void StudyHLT::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 // ------------ method called when ending the processing of a luminosity block  ------------
 void StudyHLT::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
+
+void StudyHLT::clear() {
+  tr_TrigName.clear();
+  tr_TrkPt.clear();  tr_TrkP.clear();  tr_TrkEta.clear();  tr_TrkPhi.clear();
+  tr_MaxNearP31X31.clear();  tr_MaxNearHcalP7x7.clear(); 
+  tr_FE7x7P.clear();  tr_FE11x11P.clear();  tr_FE15x15P.clear();
+  tr_SE7x7P.clear();  tr_SE11x11P.clear();  tr_SE15x15P.clear();
+  tr_H3x3.clear();    tr_H5x5.clear();      tr_H7x7.clear();
+  tr_iEta.clear();
+}
 
 void StudyHLT::fillTrack(int i, double pt, double p, double eta, double phi){
   h_pt[i]->Fill(pt);

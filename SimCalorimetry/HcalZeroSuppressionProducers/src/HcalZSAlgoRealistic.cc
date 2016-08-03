@@ -33,59 +33,44 @@ HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp, std::pair<int,int> HBsearchTS,
   
 template <class Digi>
 bool HcalZSAlgoRealistic::keepMe(const Digi& inp, int start, int finish, int threshold, uint32_t zsmask) const{
-  bool keepIt=false;
   if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
 
   //determine the sum of 2 timeslices
-  for (int i = start; i < finish && !keepIt; i++) {
-    int sum=0;
-    for (int j = i; j < (i+2); j++){
-      sum+=inp[j].adc();
-    }
-    if ((zsmask&(1<<i)) !=0) continue; 
-    else if (sum>=threshold) keepIt=true;
+  for (int i = start; i < finish; i++) {
+    if ((zsmask&(1<<i)) !=0) continue;
+    if ((inp[i].adc()+inp[i+1].adc())>=threshold) return true;
   }
-  return keepIt;
+  return false;
 }
 
 //zs mask not used for QIE10,11
 
 template<>
 bool HcalZSAlgoRealistic::keepMe<QIE10DataFrame>(const QIE10DataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const{
-  bool keepIt=false;
   if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
   
   //determine the sum of 2 timeslices
-  for (int i = start; i < finish && !keepIt; i++) {
-    int sum=0;
-    for (int j = i; j < (i+2); j++){
-      sum+=inp[j].adc();
-    }
-    if (sum>=threshold) keepIt=true;
+  for (int i = start; i < finish; i++) {
+    if ((inp[i].adc()+inp[i+1].adc())>=threshold) return true;
   }
-  return keepIt;
+  return false;
 }
 
 template<>
 bool HcalZSAlgoRealistic::keepMe<QIE11DataFrame>(const QIE11DataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const{
-  bool keepIt=false;
   if ((usingDBvalues) && (threshold < 0) && (m_dbService != 0)){
     threshold = (m_dbService->getHcalZSThreshold(inp.id()))->getValue();
   }
   
   //determine the sum of 2 timeslices
-  for (int i = start; i < finish && !keepIt; i++) {
-    int sum=0;
-    for (int j = i; j < (i+2); j++){
-      sum+=inp[j].adc();
-    }
-    if (sum>=threshold) keepIt=true;
+  for (int i = start; i < finish; i++) {
+    if ((inp[i].adc()+inp[i+1].adc())>=threshold) return true;
   }
-  return keepIt;
+  return false;
 }
 
 bool HcalZSAlgoRealistic::shouldKeep(const HBHEDataFrame& digi) const{

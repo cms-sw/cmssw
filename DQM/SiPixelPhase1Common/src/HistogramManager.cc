@@ -224,10 +224,10 @@ std::string HistogramManager::makePath(
 
 void HistogramManager::book(DQMStore::IBooker& iBooker,
                             edm::EventSetup const& iSetup) {
-  if (!enabled) return;
   if (!geometryInterface.loaded()) {
     geometryInterface.load(iSetup);
   }
+  if (!enabled) return;
 
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
@@ -494,7 +494,8 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
       edm::LogError("HistogramManager") << "+++ Reduction '" << step.arg
                                         << " not yet implemented\n";
     }
-    new_histo.th1 = new TH1D(name.c_str(), (";;" + label).c_str(), 1, 0, 1);
+    new_histo.th1 = new TH1F(name.c_str(), (std::string("") + th1->GetTitle() 
+                                            + ";;" + label).c_str(), 1, 0, 1);
     new_histo.th1->SetBinContent(1, reduced_quantity);
   }
   t.swap(out);

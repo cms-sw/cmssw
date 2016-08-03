@@ -27,6 +27,23 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   HGCHEB_keV2DIGI_   =  ps.getParameter<double>("HGCHEB_keV2DIGI");
   HGCHEB_isSiFE_     =  ps.getParameter<bool>("HGCHEB_isSiFE");
   hgchebUncalib2GeV_ = keV2GeV/HGCHEB_keV2DIGI_;
+
+  // layer weights (from Valeri/Arabella)
+  std::vector<float> weights;
+  const auto& dweights = ps.getParameter<std::vector<double> >("layerWeights");
+  for( auto weight : dweights ) {
+    weights.push_back(weight);
+  }
+  rechitMaker_->setLayerWeights(weights);
+
+  // residual correction for cell thickness
+  const auto& rcorr = ps.getParameter<std::vector<double> >("thicknessCorrection");
+  rcorr_.clear();
+  rcorr_.push_back(1.f);
+  for( auto corr : rcorr ) {
+    rcorr_.push_back(1.0/corr);
+  }
+  
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
@@ -54,16 +71,16 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
                               HGCRecHitCollection & result ) {
   DetId detid=uncalibRH.id();  
   uint32_t recoFlag = 0;
-  const std::vector<double>* fCPerMIP = nullptr;
+  //const std::vector<double>* fCPerMIP = nullptr;
     
   switch( detid.subdetId() ) {
   case HGCEE:
     rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_) );
-    fCPerMIP = &HGCEE_fCPerMIP_;
+    //fCPerMIP = &HGCEE_fCPerMIP_;
     break;
   case HGCHEF:
     rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
-    fCPerMIP = &HGCHEF_fCPerMIP_;
+    //fCPerMIP = &HGCHEF_fCPerMIP_;
     break;
   case HGCHEB:
     rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_) );
@@ -77,13 +94,11 @@ HGCalRecHitWorkerSimple::run( const edm::Event & evt,
   if (recoFlag == 0) {    
     HGCRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 0) );    
     HGCalDetId hid(detid);
-    if( fCPerMIP != nullptr ) {
-      const int thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
-      // units out of rechit maker are MIP * (GeV/fC)
-      // so multiple
-      const double new_E = myrechit.energy()*(*fCPerMIP)[thk-1];
-      myrechit.setEnergy(new_E);
-    }    
+    const int thk = ddds_[hid.subdetId()-3]->waferTypeL(hid.wafer());
+    // units out of rechit maker are MIP * (GeV/fC)
+    // so multiple
+    const double new_E = myrechit.energy()*rcorr_[thk];
+    myrechit.setEnergy(new_E);
     result.push_back(myrechit);
   }
 

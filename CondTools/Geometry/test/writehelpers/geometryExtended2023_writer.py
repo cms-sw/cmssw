@@ -7,7 +7,7 @@ process.load('CondCore.CondDB.CondDB_cfi')
 # This will read all the little XML files and from
 # that fill the DDCompactView. The modules that fill
 # the reco part of the database need the DDCompactView.
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.load('Configuration.Geometry.GeometryExtended2023sim_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load('Geometry.CaloEventSetup.CaloGeometryDBWriter_cfi')
 

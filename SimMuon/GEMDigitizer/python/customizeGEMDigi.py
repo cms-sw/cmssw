@@ -238,7 +238,8 @@ def customize_digi_addGEM_muon_only(process):
         process.simMuonDTDigis + 
         process.simMuonRPCDigis + 
         process.simMuonGEMDigis + 
-        process.simMuonGEMPadDigis
+        process.simMuonGEMPadDigis +
+        process.simMuonGEMPadDigiClusters
     )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*

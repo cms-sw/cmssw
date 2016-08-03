@@ -62,3 +62,13 @@ eras.trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg,
     OrderedHitsFactoryPSet = dict(maxElement = 100000),
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.3)),
 )
+eras.trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg,
+    ClusterCheckPSet = dict(
+        MaxNumberOfCosmicClusters = 1000000,
+        MaxNumberOfPixelClusters = 100000,
+        cut = None
+    ),
+    OrderedHitsFactoryPSet = dict(maxElement = 100000),
+    RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.3)),
+)
+

@@ -13,3 +13,9 @@ trackingMonitoringHLTsequence = cms.Sequence(
     pixelTracksMonitoringHLT # hltPixel tracks monitoring
     * iterHLTTracksMonitoringHLT # hltIter2Merged tracks monitoring
 )
+
+egmTrackingMonitorHLTsequence = cms.Sequence(
+    gsfTracksMonitoringHLT
+    * pixelTracksForElectronsTracksMonitoringHLT
+    * iterHLTTracksForElectronsMonitoringHLT
+)

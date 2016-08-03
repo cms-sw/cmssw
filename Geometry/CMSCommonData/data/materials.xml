@@ -1181,7 +1181,8 @@
     <rMaterial name="materials:Oxygen"/>
    </MaterialFraction>
   </CompositeMaterial>
-  <!-- Phase1 BPIX micro-twisted pairs boundle material as defined by W. Bertl, effective density defined to matcht the measured weigth (0.0071+0.0208 g/cm) in a single 1.5mm diam. boundle-->
+
+  <!--OUTDATED Phase1 BPIX micro-twisted pairs boundle material as defined by W. Bertl, effective density defined to matcht the measured weigth (0.0071+0.0208 g/cm) in a single 1.5mm diam. boundle-->
   <CompositeMaterial name="micro_twisted_boundle" density="1.585*g/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.7455">
     <rMaterial name="materials:micro_twisted_power_cable"/>
@@ -1190,6 +1191,33 @@
     <rMaterial name="materials:micro_twisted_signal_cable"/>
    </MaterialFraction>
   </CompositeMaterial>
+
+  <!--Phase1 BPIX micro-twisted pairs boundle material as defined by L. Caminada-->
+  <CompositeMaterial name="micro_twisted_power_cable" density="3.639*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.36933">
+      <rMaterial name="trackermaterial:T_Copper"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.63067">
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="micro_twisted_boundle_1" density="2.93382*g/cm3" symbol=" " method="mixture by weight"> <!--for L1-->
+   <MaterialFraction fraction="0.04631">
+    <rMaterial name="trackermaterial:T_Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.95369">
+    <rMaterial name="materials:micro_twisted_power_cable"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="micro_twisted_boundle_2" density="2.91735*g/cm3" symbol=" " method="mixture by weight"> <!--for L2,3,4-->
+   <MaterialFraction fraction="0.04964">
+    <rMaterial name="trackermaterial:T_Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.95036">
+    <rMaterial name="materials:micro_twisted_power_cable"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+
   <CompositeMaterial name="Carbon_fibre_str_Upgrade" density="0.293*g/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="1.00000000">
     <rMaterial name="materials:Carbon fibre str."/>

@@ -244,6 +244,7 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection());
   config.useBeamSpot = useBeamSpot_;
   config.includeAPEs = includeAPEs_;
+  config.allowZeroMaterial = allowZeroMaterial_;
   config.useRefittedState = theUseRefittedStateFlag;
   config.constructTsosWithErrors = theConstructTsosWithErrorsFlag;
   // set the flag for reversing the RecHits to false, since they are already in the correct order.

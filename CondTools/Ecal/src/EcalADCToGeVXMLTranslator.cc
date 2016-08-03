@@ -83,20 +83,15 @@ std::string EcalADCToGeVXMLTranslator::dumpXML(const EcalCondHeader& header,
 
   cms::concurrency::xercesInitialize();
   
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str()));
   
-  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
   DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
   DOMDocument *    doc = 
     impl->createDocument( 0, fromNative(ADCToGeVConstant_tag).c_str(), doctype );
-
-
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
     
   DOMElement* root = doc->getDocumentElement();
  
@@ -105,9 +100,10 @@ std::string EcalADCToGeVXMLTranslator::dumpXML(const EcalCondHeader& header,
   xuti::WriteNodeWithValue(root,Barrel_tag,record.getEBValue());
   xuti::WriteNodeWithValue(root,Endcap_tag,record.getEEValue());
 
-  std::string dump= toNative(writer->writeToString(*root)); 
+  std::string dump = toNative(writer->writeToString( root )); 
   doc->release();
-
+  doctype->release();
+  writer->release();
   //   cms::concurrency::xercesTerminate();
 
   return dump;

@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+'''Script that directs the popcon output to the condition uploader
+'''
+import os
+import sys
+from CondCore.Utilities import popcon2dropbox
+
+import optparse
+import argparse
+    
+def main( argv ):
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("job_file", type=str, help="wrapper for popcon jobs")
+    parser.add_argument("-a","--auth", type=str,  help="authentication path (for conddb key and .netrc files)")
+    args = parser.parse_args()  
+
+    if args.job_file is None:
+        print 'ERROR: the cfg file name has not been provided.'
+        return -1
+    if not os.path.exists( args.job_file ):
+        print 'ERROR: the specified cfg file %s has not been found in the execution directory' %args.job_file
+        return -2
+    fns = os.path.splitext( args.job_file )
+    confFile = '%s.json' %fns[0]
+    if not os.path.exists( confFile ):
+        print 'ERROR: the metadata file %s has not been found in the execution directory' %confFile
+        return -3
+    
+    return popcon2dropbox.run( args.job_file, args.auth )
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
+
+

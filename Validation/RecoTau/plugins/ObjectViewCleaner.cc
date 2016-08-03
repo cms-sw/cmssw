@@ -122,7 +122,7 @@ ObjectViewCleaner<T>::~ObjectViewCleaner()
 template<typename T>
 void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
-  auto_ptr<edm::RefToBaseVector<T> >
+  unique_ptr<edm::RefToBaseVector<T> >
     cleanObjects(new edm::RefToBaseVector<T >());
 
   edm::Handle<edm::View<T> > candidates;
@@ -156,7 +156,7 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
   nObjectsClean_+=cleanObjects->size();
 
   delete [] isClean;  
-  iEvent.put(cleanObjects);
+  iEvent.put(std::move(cleanObjects));
 }
 
 

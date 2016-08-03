@@ -231,9 +231,9 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::find (
 GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     const std::vector<reco::TransientTrack> & tracks ) const
 {
-    if ( tracks.size() < 2 )
-        throw LinPtException
-        ("CrossingPtBasedLinPtFinder: too few tracks given.");
+        if ( tracks.size() < 2 )
+          throw LinPtException
+          ("CrossingPtBasedLinPtFinder: too few tracks given.");
         std::vector < PointAndDistance > vgp;
         if ( theNPairs == -1 )
         {

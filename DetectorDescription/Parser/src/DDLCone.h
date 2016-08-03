@@ -24,16 +24,13 @@ class DDLElementRegistry;
  *                                                                         
  */
 
-class DDLCone : public DDLSolid
+class DDLCone final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLCone( DDLElementRegistry* myreg );
 
-  /// Destructor
-  virtual ~DDLCone( void );
-
-  virtual void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  virtual void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

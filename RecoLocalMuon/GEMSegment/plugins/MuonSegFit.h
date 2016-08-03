@@ -37,8 +37,10 @@ class MuonSegFit {
  public:
 
   // TYPES
-  typedef std::vector<const TrackingRecHit*> MuonRecHitContainer;
-   
+  //typedef std::vector<const TrackingRecHit*> MuonRecHitContainer;
+  typedef std::shared_ptr<TrackingRecHit> MuonRecHitPtr;
+  typedef std::vector<MuonRecHitPtr> MuonRecHitContainer;
+  
   // 12 x12 Symmetric
   typedef ROOT::Math::SMatrix<double,12,12,ROOT::Math::MatRepSym<double,12> > SMatrixSym12;
 

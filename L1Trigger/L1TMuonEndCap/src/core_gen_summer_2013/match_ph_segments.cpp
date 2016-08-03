@@ -6,7 +6,7 @@
 // Timestamp : Thu Mar 12 14:54:00 2015
 
 #include "match_ph_segments.h"
-
+using namespace std;
 extern size_t __glob_alwaysn__;
 
 void match_ph_segments::operator()

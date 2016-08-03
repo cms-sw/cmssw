@@ -5,7 +5,8 @@
 #include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
-#include <vector>
+#include <unordered_map>
+#include <stdint.h>
 
 /** \class HcalCalibrationsSet
   *  
@@ -16,7 +17,6 @@ public:
   HcalCalibrationsSet();
   const HcalCalibrations& getCalibrations(const DetId id) const;
   void setCalibrations(const DetId id, const HcalCalibrations& ca);
-  void sort();
   void clear();
 private:
   struct CalibSetObject {
@@ -30,8 +30,7 @@ private:
   };
   typedef CalibSetObject Item;
   HcalCalibrations dummy;
-  std::vector<CalibSetObject> mItems;
-  bool sorted_;
+  std::unordered_map<uint32_t,CalibSetObject> mItems;
 };
 
 #endif

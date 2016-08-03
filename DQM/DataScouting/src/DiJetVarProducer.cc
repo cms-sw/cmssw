@@ -49,8 +49,8 @@ DiJetVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace reco;
 
    // ## The output collections        
-   //std::auto_ptr<std::vector<double> > dijetvariables(new std::vector<double>); 
-   std::auto_ptr<std::vector<math::PtEtaPhiMLorentzVector> > widejets(new std::vector<math::PtEtaPhiMLorentzVector>); 
+   //std::unique_ptr<std::vector<double> > dijetvariables(new std::vector<double>); 
+   std::unique_ptr<std::vector<math::PtEtaPhiMLorentzVector> > widejets(new std::vector<math::PtEtaPhiMLorentzVector>); 
 
    // ## Get jet collection
    edm::Handle<reco::CaloJetCollection> calojets_handle;
@@ -142,8 +142,8 @@ DiJetVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //      }
 
    // ## Put objects in the Event
-   //iEvent.put(dijetvariables, "dijetvariables");
-   iEvent.put(widejets, "widejets");
+   //iEvent.put(std::move(dijetvariables), "dijetvariables");
+   iEvent.put(std::move(widejets), "widejets");
 
 }
 

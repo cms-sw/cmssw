@@ -21,11 +21,11 @@
 #include "DataFormats/Common/interface/Ptr.h"
 
 
-using namespace L1TMuon;
+
 
 namespace L1TwinMux {
 
-   typedef edm::Ref<TriggerPrimitiveCollection> TriggerPrimitiveRef;
+   typedef edm::Ref<L1TMuon::TriggerPrimitiveCollection> TriggerPrimitiveRef;
    typedef std::vector<TriggerPrimitiveRef> TriggerPrimitiveList;
 
   class MBLTCollection {

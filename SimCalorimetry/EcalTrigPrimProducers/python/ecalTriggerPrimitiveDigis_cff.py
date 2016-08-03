@@ -11,4 +11,4 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
 
 #Common
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_common.toModify( simEcalTriggerPrimitiveDigis, BarrelOnly = cms.bool(True) )
+eras.phase2_hgcal.toModify( simEcalTriggerPrimitiveDigis, BarrelOnly = cms.bool(True) )

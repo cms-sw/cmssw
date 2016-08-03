@@ -8,7 +8,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -30,7 +29,6 @@ std::ostream & operator<<(std::ostream & os, const DDRotation & r)
       os << "t=" << ra.Axis().Theta()/deg << "deg "
          << "p=" << ra.Axis().Phi()/deg << "deg "
 	 << "a=" << ra.Angle()/deg << "deg"; 
-      DCOUT_V('R', rm);
     }
     else {
       os << "* rotation not defined * ";  
@@ -92,8 +90,6 @@ DDRotation::DDRotation(DDRotationMatrix * rot)
 DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
-   //DCOUT('c', "DDrot: new rotation " << ddname);
-   //if (rot) rot->invert();
    return DDRotation(ddname, rot);
 }
  
@@ -127,8 +123,6 @@ DDRotation DDrot(const DDName & ddname,
 DDRotation DDrotReflect(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
-   //DCOUT('c', "DDrot: new rotation " << ddname);
-//    if (rot) rot->invert();
    return DDRotation(ddname, rot);
 }
 
@@ -156,10 +150,7 @@ DDRotation DDrotReflect(const DDName & ddname,
 						x.y(),y.y(),z.y(),
 						x.z(),y.z(),z.z());
 
-   //DCOUT('c', "DDrotReflect: new reflection " << ddname);
-   //rot->invert();
    return DDRotation(ddname, rot);  
-   				  		   		  			 
 }		
 
 

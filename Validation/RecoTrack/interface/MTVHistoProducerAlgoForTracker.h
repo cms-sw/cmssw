@@ -28,9 +28,9 @@
 
 class MTVHistoProducerAlgoForTracker {
  public:
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
-    MTVHistoProducerAlgoForTracker(pset, iC) {}
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) ;
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots, edm::ConsumesCollector && iC) :
+    MTVHistoProducerAlgoForTracker(pset, doSeedPlots, iC) {}
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots, edm::ConsumesCollector & iC) ;
   ~MTVHistoProducerAlgoForTracker();
 
   void bookSimHistos(DQMStore::IBooker& ibook);
@@ -147,6 +147,8 @@ class MTVHistoProducerAlgoForTracker {
   double minDeDx, maxDeDx;  int nintDeDx;
   double minVertcount, maxVertcount;  int nintVertcount;
   double minTracks, maxTracks; int nintTracks;
+
+  const bool doSeedPlots_;
 
   //
   double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;

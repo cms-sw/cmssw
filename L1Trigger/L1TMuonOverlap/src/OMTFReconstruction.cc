@@ -100,7 +100,7 @@ std::unique_ptr<l1t::RegionalMuonCandBxCollection> OMTFReconstruction::reconstru
   for(unsigned int iProcessor=0; iProcessor<m_OMTFConfig->nProcessors(); ++iProcessor)
     getProcessorCandidates(iProcessor, l1t::tftype::omtf_neg, bx, *candidates);
     
-    return candidates;
+  return candidates;
 }
 
 /////////////////////////////////////////////////////

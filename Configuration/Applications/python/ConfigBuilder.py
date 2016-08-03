@@ -703,6 +703,8 @@ class ConfigBuilder(object):
 			if self._options.pileup_input:
 				if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
 					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],),self._options.pileup_dasoption)[0]
+				elif self._options.pileup_input.startswith("filelist:"):
+					mixingDict['F']=(filesFromList(self._options.pileup_input[9:]))[0]
 				else:
 					mixingDict['F']=self._options.pileup_input.split(',')
 			specialization=defineMixing(mixingDict)
@@ -1498,7 +1500,7 @@ class ConfigBuilder(object):
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-	    supported = ['GT','GT1','GT2','GCTGT','Full','FullMC','Full2015Data','uGT']
+	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT']
             if sequence in supported:
                 self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
 		if self._options.scenario == 'HeavyIons':

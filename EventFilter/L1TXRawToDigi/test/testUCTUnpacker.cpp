@@ -1,12 +1,10 @@
 #include <iostream>
 #include <iomanip>
-
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 
 using namespace std;
-
 #include "../plugins/UCTDAQRawData.h"
 #include "../plugins/UCTAMCRawData.h"
 #include "../plugins/UCTCTP7RawData.h"

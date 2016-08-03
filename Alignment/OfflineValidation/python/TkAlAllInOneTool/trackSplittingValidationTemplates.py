@@ -19,13 +19,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.Geometry.GeometryDB_cff")
 
-# including global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# setting global tag
-#process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-# process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
-
+.oO[LoadGlobalTagTemplate]Oo.
 
 # track selectors and refitting
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
@@ -46,8 +40,6 @@ process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 # adding geometries
 from CondCore.CondDB.CondDB_cfi import *
 
-# for craft
-## tracker alignment for craft...............................................................
 .oO[condLoad]Oo.
 
 ## track hit filter.............................................................

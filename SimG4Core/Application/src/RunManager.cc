@@ -31,6 +31,7 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
 
@@ -94,7 +95,7 @@ void createWatchers(const edm::ParameterSet& iP,
   for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
       itWatcher != watchers.end();
       ++itWatcher) {
-    std::auto_ptr<SimWatcherMakerBase> maker( 
+    std::shared_ptr<SimWatcherMakerBase> maker( 
       SimWatcherFactory::get()->create
       (itWatcher->getParameter<std::string> ("type")) );
     if(maker.get()==0) {
@@ -146,8 +147,8 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
   m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions","");
 
-  m_userRunAction = 0;
-  m_runInterface = 0;
+  m_userRunAction = nullptr;
+  m_runInterface = nullptr;
 
   //Look for an outside SimActivityRegistry
   // this is used by the visualization code
@@ -155,6 +156,7 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
   if(otherRegistry){
     m_registry.connect(*otherRegistry);
   }
+  m_sVerbose.reset(nullptr);
 
   createWatchers(m_p, m_registry, m_watchers, m_producers);
 }
@@ -219,7 +221,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     }
 
   // we need the track manager now
-  m_trackManager = std::auto_ptr<SimTrackManager>(new SimTrackManager);
+  m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
 
   // attach sensitive detector
   m_attach = new AttachSD;
@@ -246,7 +248,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 
   m_primaryTransformer = new PrimaryTransformer();
 
-  std::auto_ptr<PhysicsListMakerBase> 
+  std::unique_ptr<PhysicsListMakerBase> 
     physicsMaker(PhysicsListFactory::get()->create(
       m_pPhysics.getParameter<std::string> ("type")));
   if (physicsMaker.get()==nullptr) {
@@ -303,6 +305,13 @@ void RunManager::initG4(const edm::EventSetup & es)
   BeginOfJob aBeginOfJob(&es);
   m_registry.beginOfJobSignal_(&aBeginOfJob);
   
+  G4int sv = m_p.getParameter<int>("SteppingVerbosity");
+  if(sv > 0) {
+    G4double elim = m_p.getParameter<double>("StepVerboseThreshold")*CLHEP::GeV;
+    std::vector<int> ve = m_p.getParameter<std::vector<int> >("VerboseEvents");
+    std::vector<int> vt = m_p.getParameter<std::vector<int> >("VerboseTracks");
+    m_sVerbose.reset(new CMSSteppingVerbose(sv, elim, ve, vt));
+  }
   initializeUserActions();
   
   if(0 < m_G4Commands.size()) {
@@ -439,22 +448,22 @@ void RunManager::initializeUserActions()
 
   if (m_generator!=0) {
     EventAction * userEventAction = 
-      new EventAction(m_pEventAction, m_runInterface, m_trackManager.get());
+      new EventAction(m_pEventAction, m_runInterface, m_trackManager.get(),m_sVerbose.get());
     Connect(userEventAction);
     eventManager->SetUserAction(userEventAction);
 
     TrackingAction* userTrackingAction = 
-      new TrackingAction(userEventAction,m_pTrackingAction);
+      new TrackingAction(userEventAction,m_pTrackingAction,m_sVerbose.get());
     Connect(userTrackingAction);
     eventManager->SetUserAction(userTrackingAction);
 	
     SteppingAction* userSteppingAction = 
-      new SteppingAction(userEventAction,m_pSteppingAction); 
+      new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get()); 
     Connect(userSteppingAction);
     eventManager->SetUserAction(userSteppingAction);
 
     eventManager->SetUserAction(new StackingAction(userTrackingAction, 
-						   m_pStackingAction));
+						   m_pStackingAction,m_sVerbose.get()));
 
   } else {
     edm::LogWarning("SimG4CoreApplication") << " RunManager: WARNING : "

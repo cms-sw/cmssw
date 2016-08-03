@@ -42,15 +42,15 @@ void EventVtxInfoNtupleDumper::produce( Event & evt, const EventSetup & ) {
 
   Handle<reco::VertexCollection> primaryVertices;  // Collection of primary Vertices
   evt.getByToken(primaryVerticesToken_, primaryVertices);
-  auto_ptr<int> nVtxs( new int );
-  auto_ptr<int> nTrkVtx( new int );
-  auto_ptr<float> chi2Vtx( new float );
-  auto_ptr<float> ndofVtx( new float );
-  auto_ptr<float> zVtx( new float );
-  auto_ptr<float> rhoVtx( new float );
-  //  auto_ptr< vector< unsigned int > > nTrkVtx( new vector< unsigned int > );
-  //  auto_ptr< vector< float > > chi2Vtx( new vector< float > );
-  //  auto_ptr< vector< float > > ndofVtx( new vector< float > );
+  unique_ptr<int> nVtxs( new int );
+  unique_ptr<int> nTrkVtx( new int );
+  unique_ptr<float> chi2Vtx( new float );
+  unique_ptr<float> ndofVtx( new float );
+  unique_ptr<float> zVtx( new float );
+  unique_ptr<float> rhoVtx( new float );
+  //  unique_ptr< vector< unsigned int > > nTrkVtx( new vector< unsigned int > );
+  //  unique_ptr< vector< float > > chi2Vtx( new vector< float > );
+  //  unique_ptr< vector< float > > ndofVtx( new vector< float > );
 
   const reco::Vertex &pv = (*primaryVertices)[0];
 
@@ -71,12 +71,12 @@ void EventVtxInfoNtupleDumper::produce( Event & evt, const EventSetup & ) {
   //  nTrkVtx->push_back(pv.tracksSize());
   //  chi2Vtx->push_back(pv.chi2());
   //  ndofVtx->push_back(pv.ndof());
-  evt.put( nVtxs, "numPV" );
-  evt.put( nTrkVtx, "nTrkPV" );
-  evt.put( chi2Vtx, "chi2PV" );
-  evt.put( ndofVtx, "ndofPV" );
-  evt.put( zVtx, "zPV" );
-  evt.put( rhoVtx, "rhoPV" );
+  evt.put(std::move(nVtxs), "numPV" );
+  evt.put(std::move(nTrkVtx), "nTrkPV" );
+  evt.put(std::move(chi2Vtx), "chi2PV" );
+  evt.put(std::move(ndofVtx), "ndofPV" );
+  evt.put(std::move(zVtx), "zPV" );
+  evt.put(std::move(rhoVtx), "rhoPV" );
 
 }
 

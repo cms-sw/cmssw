@@ -49,10 +49,10 @@ PFCandidateStripMerger::mergeCandidates(const vector<PFCandidatePtr>& candidates
     if(candidateMatches(candidates.at(i)))
       cands.push_back(candidates.at(i));
  
-    if(cands.size()>1)
-    TauTagTools::sortRefVectorByPt(cands);
+  if(cands.size()>1)
+  TauTagTools::sortRefVectorByPt(cands);
 
-    std::vector<vector<PFCandidatePtr>> strips;
+  std::vector<vector<PFCandidatePtr>> strips;
 
 
   //Repeat while there are still unclusterized gammas

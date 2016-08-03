@@ -23,8 +23,7 @@
 
 // The part of tinyxml used in JobReport was reviewed and
 // determined to be threadsafe.
-#include "FWCore/Utilities/interface/tinyxml.h"
-
+#include "tinyxml.h"
 #include <fstream>
 #include <iomanip>
 #include <ostream>

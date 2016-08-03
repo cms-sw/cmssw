@@ -45,8 +45,8 @@ class JSONAnalyzer( Analyzer ):
         super(JSONAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('JSON')
         self.count = self.counters.counter('JSON')
-        self.count.register('All Lumis')
-        self.count.register('Passed Lumis')
+        self.count.register('All Events')
+        self.count.register('Passed Events')
 
         if self.useLumiBlocks and not self.cfg_comp.isMC and not self.lumiList is None:
             lumis = Lumis(self.cfg_comp.files)
@@ -74,9 +74,9 @@ class JSONAnalyzer( Analyzer ):
         if self.lumiList is None:
             return True
 
-        self.count.inc('All Lumis')
+        self.count.inc('All Events')
         if self.lumiList.contains(run,lumi):
-            self.count.inc('Passed Lumis')
+            self.count.inc('Passed Events')
             if not self.useLumiBlocks:
                 self.rltInfo.add('dummy', run, lumi)
             return True

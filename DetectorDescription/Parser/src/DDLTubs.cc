@@ -1,16 +1,3 @@
-/***************************************************************************
-                          DDLTubs.cpp  -  description
-                             -------------------
-    begin                : Mon Oct 29 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLTubs.h"
 
 #include <map>
@@ -18,7 +5,6 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
@@ -31,15 +17,10 @@ DDLTubs::DDLTubs( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
 {}
 
-DDLTubs::~DDLTubs( void )
-{}
-
 // Upon encountering the end of a Tubs element, call DDCore.
 void
 DDLTubs::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLTubs::processElement started");
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
   bool cutInside(false);
@@ -84,7 +65,4 @@ DDLTubs::processElement( const std::string& name, const std::string& nmspace, DD
     throwError(msg);
   }
   DDLSolid::setReference(nmspace, cpv);
-
-  DCOUT_V('P', "DDLTubs::processElement completed");
-
 }

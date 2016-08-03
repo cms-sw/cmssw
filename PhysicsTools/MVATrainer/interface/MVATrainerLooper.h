@@ -45,7 +45,7 @@ class MVATrainerLooper : public edm::ESProducerLooper {
 	    private:
 		friend class MVATrainerLooper;
 
-		std::auto_ptr<MVATrainer>	trainer;
+		std::unique_ptr<MVATrainer>	trainer;
 		TrainObject			trainCalib;
 	};
 

@@ -413,7 +413,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
             
         if postfix != "" and metType == "PF" and not hasattr(process, 'pat'+metType+'Met'+postfix):
-            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix)
+            noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
+            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp)
             setattr(process, 'pat'+metType+'Met'+postfix, getattr(process,'patPFMet' ).clone() )
             getattr(process, "patPFMet"+postfix).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, "patPFMet"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
@@ -471,8 +472,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             }
 
         if postfix != "":
+            noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             if not hasattr(process, "patPFMetT0CorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrSequence"), postfix)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrSequence"), postfix, noClones = noClonesTmp)
             if not hasattr(process, "patPFMetT1T2CorrSequence"+postfix):
                 configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT1T2CorrSequence"), postfix)
             if not hasattr(process, "patPFMetT2CorrSequence"+postfix):

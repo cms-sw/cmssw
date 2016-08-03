@@ -81,6 +81,9 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
     Record &record = records_it->second;
     record.frame = fr.Data();
     record.status.setMissing(false);
+    
+    record.status.setNumberOfClustersSpecified(record.frame->isNumberOfClustersPresent());
+    record.status.setNumberOfClusters(record.frame->getNumberOfClusters());
 
     // check footprint
     if (testFootprint != tfNoTest && !record.frame->checkFootprint())

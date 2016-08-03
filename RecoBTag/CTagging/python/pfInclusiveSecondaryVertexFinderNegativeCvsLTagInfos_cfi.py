@@ -7,5 +7,5 @@ pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.extSVDeltaRToJet = cms.doub
 pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distVal2dMin = -2.5
 pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distVal2dMax = -0.01
 pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distSig2dMin = -99999.9
-pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distSig2dMax = -2.0
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distSig2dMax = -1.5
 pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.5

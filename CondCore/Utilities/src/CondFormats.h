@@ -68,6 +68,7 @@
 #include "CondFormats/HcalObjects/interface/StorableDoubleMap.h"
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
 #include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
 #include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"

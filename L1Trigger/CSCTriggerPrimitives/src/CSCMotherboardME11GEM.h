@@ -22,7 +22,7 @@ class GEMSuperChamber;
 
 class CSCMotherboardME11GEM : public CSCMotherboard
 {
-  typedef std::pair<unsigned int, const GEMPadDigi*> GEMPadBX;
+  typedef std::pair<unsigned int, const GEMPadDigi> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
   typedef std::map<int, GEMPadsBX> GEMPads;
 
@@ -125,8 +125,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT, GEMPadDigi gemPad, int roll,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
-  void matchGEMPads(enum ME11Part = ME1B);
-
   void buildCoincidencePads(const GEMPadDigiCollection* out_pads, 
 			    GEMCoPadDigiCollection& out_co_pads,
 			    CSCDetId csc_id);
@@ -190,24 +188,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
 
   /// GEM-CSC integrated local algorithm
   bool runME11ILT_;
-
-  /// Do GEM matching?
-  bool do_gem_matching;
-
-  /// GEM matching dphi and deta
-  double gem_match_delta_phi_odd;
-  double gem_match_delta_phi_even;
-  double gem_match_delta_eta;
-
-  /// delta BX for GEM pads matching
-  int gem_match_delta_bx;
-
-  /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta) 
-  double gem_match_min_eta;
-  double gem_match_max_eta;
-
-  /// whether to throw out GEM-fiducial LCTs that have no gem match
-  bool gem_clear_nomatch_lcts;
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;

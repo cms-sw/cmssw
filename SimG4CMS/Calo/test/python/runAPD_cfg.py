@@ -5,7 +5,10 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.EcalTestBeam.APDXML_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
-process.load("SimG4Core.Application.g4SimHits_cfi")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.EventContent.EventContent_cff")
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -81,7 +84,7 @@ process.generator = cms.EDProducer("FileRandomKEThetaGunProducer",
     AddAntiParticle = cms.bool(False)
 )
 
-process.o1 = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_APD_Epoxy.root')
 )
@@ -90,17 +93,20 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('runWithAPD_Epoxy.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy)
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(process.psim)
+process.analysis_step   = cms.Path(process.caloSimHitStudy)
+process.out_step = cms.EndPath(process.output)
+
 process.VtxSmeared.MeanZ = -1.0
 process.VtxSmeared.SigmaX = 0.0
 process.VtxSmeared.SigmaY = 0.0
 process.VtxSmeared.SigmaZ = 0.0
-process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Generator.ApplyPCuts = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_HP'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_HP_EML'
 process.g4SimHits.Physics.Verbosity = 1
 process.g4SimHits.CaloSD.EminHits[0] = 0
 process.g4SimHits.ECalSD.NullNumbering  = True
@@ -171,3 +177,13 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type      = cms.string('TrackingVerboseAction')
 ))
 
+# Schedule definition                                                          
+process.schedule = cms.Schedule(process.generation_step,
+                                process.simulation_step,
+                                process.analysis_step,
+                                process.out_step
+                                )
+
+# filter all path with the production filter sequence                          
+for path in process.paths:
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq

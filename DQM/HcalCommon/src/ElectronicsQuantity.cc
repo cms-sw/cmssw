@@ -2,6 +2,7 @@
 
 namespace hcaldqm
 {
+  using namespace constants;
 	namespace quantity
 	{
 		int getValue_FED(HcalElectronicsId const& eid)

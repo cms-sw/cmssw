@@ -30,7 +30,7 @@ SiStripProcessedRawDigiProducer::SiStripProcessedRawDigiProducer(edm::ParameterS
 void SiStripProcessedRawDigiProducer::
 produce(edm::Event& e, const edm::EventSetup& es) {
 
-  std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > output(new edm::DetSetVector<SiStripProcessedRawDigi>());
+  std::unique_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > output(new edm::DetSetVector<SiStripProcessedRawDigi>());
   edm::Handle< edm::DetSetVector<SiStripDigi> > inputDigis;
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > inputRawdigis;
 
@@ -45,7 +45,7 @@ produce(edm::Event& e, const edm::EventSetup& es) {
   else
     edm::LogError("Input Not Found");
 
-  e.put(output);
+  e.put(std::move(output));
 }
 
 template<class T>

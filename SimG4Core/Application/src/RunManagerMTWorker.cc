@@ -22,6 +22,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -54,6 +55,7 @@
 #include <atomic>
 #include <thread>
 #include <sstream>
+#include <vector>
 
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
@@ -145,6 +147,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_p(iConfig)
 {
   initializeTLS();
+  m_sVerbose.reset(nullptr);
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {
@@ -206,7 +209,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   // Create worker run manager
   m_tls->kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
-  if(!m_tls->kernel) m_tls->kernel = new G4WorkerRunManagerKernel();
+  if(!m_tls->kernel) { m_tls->kernel = new G4WorkerRunManagerKernel(); }
 
   // Set the geometry for the worker, share from master
   DDDWorld::WorkerSetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
@@ -276,18 +279,23 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   BeginOfJob aBeginOfJob(&es);
   m_tls->registry.beginOfJobSignal_(&aBeginOfJob);
 
+  G4int sv = m_p.getParameter<int>("SteppingVerbosity");
+  if(sv > 0) {
+    G4double elim = m_p.getParameter<double>("StepVerboseThreshold")*CLHEP::GeV;
+    std::vector<int> ve = m_p.getParameter<std::vector<int> >("VerboseEvents");
+    std::vector<int> vt = m_p.getParameter<std::vector<int> >("VerboseTracks");
+    m_sVerbose.reset(new CMSSteppingVerbose(sv, elim, ve, vt));
+  }
   initializeUserActions();
 
   edm::LogInfo("SimG4CoreApplication")
     << "RunManagerMTWorker::initializeThread done for the thread " << thisID;
 
-  /*
   for(const std::string& command: runManagerMaster.G4Commands()) {
     edm::LogInfo("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
                                          << command;
     G4UImanager::GetUIpointer()->ApplyCommand(command);
   }
-  */
 }
 
 void RunManagerMTWorker::initializeUserActions() {
@@ -300,22 +308,23 @@ void RunManagerMTWorker::initializeUserActions() {
   eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
 
   EventAction * userEventAction =
-    new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get());
+    new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), 
+		    m_sVerbose.get());
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
 
   TrackingAction* userTrackingAction =
-    new TrackingAction(userEventAction,m_pTrackingAction);
+    new TrackingAction(userEventAction,m_pTrackingAction,m_sVerbose.get());
   Connect(userTrackingAction);
   eventManager->SetUserAction(userTrackingAction);
 
   SteppingAction* userSteppingAction =
-    new SteppingAction(userEventAction,m_pSteppingAction); 
+    new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get()); 
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
 
   eventManager->SetUserAction(new StackingAction(userTrackingAction,
-						 m_pStackingAction));
+						 m_pStackingAction,m_sVerbose.get()));
 
 }
 

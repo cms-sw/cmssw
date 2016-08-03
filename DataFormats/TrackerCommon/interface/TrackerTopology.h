@@ -583,6 +583,9 @@ class TrackerTopology {
   std::string print(DetId detid) const;
 
   SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
+  
+  int getOTLayerNumber(const DetId &id)const;
+  int getITPixelLayerNumber(const DetId &id)const;
 
   // Those is only implemented for Pixel right now, but can be extended to all 
   // subdetectors.

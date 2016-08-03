@@ -36,6 +36,8 @@
 #include "FWCore/Utilities/interface/Presence.h"
 #include "boost/smart_ptr/shared_ptr.hpp"
 
+using namespace xercesc;
+
 int main(int argc, char *argv[])
 {
   // Copied from example stand-alone program in Message Logger July 18, 2007
@@ -83,17 +85,12 @@ int main(int argc, char *argv[])
 
     // END Copy from example stand-alone program in Message Logger July 18, 2007
 
-    std::cout << "main::initialize DDL parser" << std::endl;
+    std::cout << "main::initialize DDL parser\n";
 
     DDCompactView cpv;
     DDLParser myP(cpv);// = DDLParser::instance();
 
-    //   std::cout << "main:: about to start parsing field configuration..." << std::endl;
-    //   FIPConfiguration dp2;
-    //   dp2.readConfig("Geometry/CMSCommonData/data/FieldConfiguration.xml");
-    //   myP->parse(dp2);
-
-    std::cout << "main::about to start parsing main configuration... " << std::endl;
+    std::cout << "main::about to start parsing main configuration... \n";
     FIPConfiguration dp(cpv);
     dp.readConfig("DetectorDescription/Parser/test/cmsIdealGeometryXML.xml");
     myP.parse(dp);
@@ -102,8 +99,6 @@ int main(int argc, char *argv[])
 
     std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
     DDCheckMaterials(std::cout);
-
-    //  cpv.setRoot(DDLogicalPart(DDName("cms:World")));
 
     std::cout << "edge size of produce graph:" << cpv.writeableGraph().edge_size() << std::endl;
 

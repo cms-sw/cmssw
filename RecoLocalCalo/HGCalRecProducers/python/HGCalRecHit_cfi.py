@@ -3,6 +3,60 @@ import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
+dEdX_weights = cms.vdouble(0.0,   # there is no layer zero
+                           8.603, # Mev
+                           8.0675, 
+                           8.0675, 
+                           8.0675, 
+                           8.0675, 
+                           8.0675, 
+                           8.0675, 
+                           8.0675, 
+                           8.0675, 
+                           8.9515, 
+                           10.135, 
+                           10.135, 
+                           10.135, 
+                           10.135, 
+                           10.135, 
+                           10.135, 
+                           10.135, 
+                           10.135, 
+                           10.135, 
+                           11.682, 
+                           13.654, 
+                           13.654, 
+                           13.654, 
+                           13.654, 
+                           13.654, 
+                           13.654, 
+                           13.654, 
+                           38.2005, 
+                           55.0265, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           49.871, 
+                           62.005, 
+                           83.1675, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           92.196, 
+                           46.098)
+
 # HGCAL rechit producer
 HGCalRecHit = cms.EDProducer(
     "HGCalRecHitProducer",
@@ -22,6 +76,10 @@ HGCalRecHit = cms.EDProducer(
     HGCHEF_fCPerMIP = HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP,
     HGCHEB_keV2DIGI = hgchebackDigitizer.digiCfg.keV2MIP,
     HGCHEB_isSiFE   = HGCalUncalibRecHit.HGCHEBConfig.isSiFE,
+
+    # EM Scale calibrations
+    layerWeights = dEdX_weights,
+    thicknessCorrection = cms.vdouble(0.964,0.920,0.909), # 100, 200, 300 um
     
     # algo
     algo = cms.string("HGCalRecHitWorkerSimple")

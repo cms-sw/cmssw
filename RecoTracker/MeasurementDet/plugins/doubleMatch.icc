@@ -149,12 +149,13 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
 			    gluedDet, trdir, chelper);
   }
 
-  // if no match found try add mon than try to add stereo...
-//  if (0==collector.size()) 
-//    projectOnGluedDet( collector, monoHits, glbDir);
-//  if (0==collector.size())
-//    projectOnGluedDet( collector, stereoHits, glbDir);
-  
+  if (ts.globalMomentum().perp2()> collector.estimator().minPt2ForHitRecoveryInGluedDet()) {
+    // if no match found try add mon than try to add stereo...
+    if (0==collector.size()) 
+      projectOnGluedDet( collector, monoHits, glbDir);
+    if (0==collector.size())
+      projectOnGluedDet( collector, stereoHits, glbDir);
+  }
   /*
   // recover hits outside 
   if ( collector.filter() && 0==collector.size())  {

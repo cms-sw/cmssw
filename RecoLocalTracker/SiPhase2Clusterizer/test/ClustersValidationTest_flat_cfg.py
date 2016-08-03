@@ -10,7 +10,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.Geometry.GeometryExtended2023LRecoReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023simReco_cff')
 
 # Number of events (-1 = all)
 process.maxEvents = cms.untracked.PSet(

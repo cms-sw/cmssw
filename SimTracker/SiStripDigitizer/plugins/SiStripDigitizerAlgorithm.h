@@ -33,6 +33,9 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 
+#include <iostream>
+#include <fstream>
+
 class TrackerTopology;
 
 namespace edm {
@@ -98,7 +101,7 @@ class SiStripDigitizerAlgorithm {
   const double cmnRMStob;
   const double cmnRMStid;
   const double cmnRMStec;
-  const double APVSaturationProb;          
+  const double APVSaturationProbScaling;          
   const bool makeDigiSimLinks_; //< Whether or not to create the association to sim truth collection. Set in configuration.
   const bool peakMode;
   const bool noise;
@@ -130,6 +133,7 @@ class SiStripDigitizerAlgorithm {
 
   // bad channels for each detector ID
   std::map<unsigned int, std::vector<bool> > allBadChannels;
+  std::map<unsigned int, std::vector<bool> > allHIPChannels;
   // first and last channel wit signal for each detector ID
   std::map<unsigned int, size_t> firstChannelsWithSignal;
   std::map<unsigned int, size_t> lastChannelsWithSignal;
@@ -152,7 +156,11 @@ class SiStripDigitizerAlgorithm {
   typedef std::map<uint32_t, AssociationInfoForChannel>  AssociationInfoForDetId;
   /// Structure that holds the information on the SimTrack contributions. Only filled if makeDigiSimLinks_ is true.
   AssociationInfoForDetId associationInfoForDetId_;
+  
+  edm::FileInPath APVProbabilityFile;
 
+  std::ifstream APVProbaFile;
+  std::map < int , float> mapOfAPVprobabilities;
 };
 
 #endif

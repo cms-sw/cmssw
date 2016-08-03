@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1DigisADC = DefaultHisto.clone(
-  enabled = True, # ADC
   name = "adc",
   title = "Digi ADC values",
   xlabel = "adc readout",
@@ -24,7 +23,6 @@ SiPixelPhase1DigisADC = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisNdigis = DefaultHisto.clone(
-  enabled = True, # Ndigis
   name = "digis", # 'Count of' added automatically
   title = "Digis",
   xlabel = "digis",
@@ -51,7 +49,6 @@ SiPixelPhase1DigisNdigis = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
-  enabled = True,  # Ndigis per FED
   name = "digis",  # This is the same as above up to the ranges. maybe we 
   title = "Digis", # should allow setting the range per spec, but OTOH a 
   xlabel = "digis",# HistogramManager is almost free.
@@ -73,7 +70,6 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisEvents = DefaultHisto.clone(
-  enabled = True, # Event Rate
   name = "eventrate",
   title = "Rate of Pixel Events",
   xlabel = "Lumisection",
@@ -88,7 +84,6 @@ SiPixelPhase1DigisEvents = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisHitmap = DefaultHisto.clone(
-  enabled = True, # hitmaps
   name = "hitmap",
   title = "Position of digis on module",
   ylabel = "#digis",
@@ -128,7 +123,6 @@ SiPixelPhase1DigisHitmap = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisDebug = DefaultHisto.clone(
-  enabled = True, # Geometry Debug
   name = "debug",
   xlabel = "ladder #",
   range_min = 1,
@@ -141,7 +135,8 @@ SiPixelPhase1DigisDebug = DefaultHisto.clone(
                    .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                    .saveAll(),
     Specification().groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                   .save()
+                   .save(),
+    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save(),
   )
 )
 

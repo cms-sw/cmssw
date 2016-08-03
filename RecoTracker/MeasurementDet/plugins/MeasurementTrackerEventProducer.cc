@@ -50,13 +50,12 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     iSetup.get<CkfComponentsRecord>().get(measurementTrackerLabel_, measurementTracker);
 
     // create new data structures from templates
-    std::auto_ptr<StMeasurementDetSet> stripData(new StMeasurementDetSet(measurementTracker->stripDetConditions()));
-    std::auto_ptr<PxMeasurementDetSet> pixelData(new PxMeasurementDetSet(measurementTracker->pixelDetConditions()));
-    std::auto_ptr<Phase2OTMeasurementDetSet> phase2OTData(new Phase2OTMeasurementDetSet(measurementTracker->phase2DetConditions()));
-    //std::cout << "Created new strip data @" << &* stripData << std::endl;
+    auto stripData = std::make_unique<StMeasurementDetSet>(measurementTracker->stripDetConditions());
+    auto pixelData=  std::make_unique<PxMeasurementDetSet>(measurementTracker->pixelDetConditions());
+    auto phase2OTData = std::make_unique<Phase2OTMeasurementDetSet>(measurementTracker->phase2DetConditions());
     std::vector<bool> stripClustersToSkip;
     std::vector<bool> pixelClustersToSkip;
-
+    std::vector<bool> phase2ClustersToSkip;
     // fill them
     updateStrips(iEvent, *stripData, stripClustersToSkip);
     updatePixels(iEvent, *pixelData, pixelClustersToSkip);
@@ -64,10 +63,12 @@ MeasurementTrackerEventProducer::produce(edm::Event &iEvent, const edm::EventSet
     updateStacks(iEvent, *phase2OTData);
 
     // put into MTE
-    std::auto_ptr<MeasurementTrackerEvent> out(new MeasurementTrackerEvent(*measurementTracker, stripData.release(), pixelData.release(), phase2OTData.release(), stripClustersToSkip, pixelClustersToSkip));
-
     // put into event
-    iEvent.put(out);
+    iEvent.put(std::move(
+      std::make_unique<MeasurementTrackerEvent>(*measurementTracker, 
+                                                stripData.release(), pixelData.release(), phase2OTData.release(),
+	                                        stripClustersToSkip, pixelClustersToSkip, phase2ClustersToSkip)
+    ));
 }
 
 void 

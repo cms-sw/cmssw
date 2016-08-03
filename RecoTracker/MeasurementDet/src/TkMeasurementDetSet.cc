@@ -20,14 +20,14 @@ void StMeasurementConditionSet::set128StripStatus(int i, bool good, int idx) {
     } else {
       bad128Strip_[offset+idx] = !good;
       if (good == false) {
-	hasAny128StripBad_[i] = false;
+         hasAny128StripBad_[i] = false;
       } else { // this should not happen, as usually you turn on all fibers
-	// and then turn off the bad ones, and not vice-versa,
-	// so I don't care if it's not optimized
-	hasAny128StripBad_[i] = true;
-	for (int j = 0; i < (totalStrips_[j] >> 7); j++) {
-	  if (bad128Strip_[j+offset] == false) hasAny128StripBad_[i] = false; break;
-	}
+       // and then turn off the bad ones, and not vice-versa,
+       // so I don't care if it's not optimized
+         hasAny128StripBad_[i] = true;
+         for (int j = 0; i < (totalStrips_[j] >> 7); j++) {
+           if (bad128Strip_[j+offset] == false) {hasAny128StripBad_[i] = false; break;}
+         }
       }    
     } 
   }

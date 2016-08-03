@@ -19,35 +19,35 @@
 AlignableCompositeBuilder
 ::AlignableCompositeBuilder(const TrackerTopology* trackerTopology,
                             AlignableIndexer& alignableIndexer) :
-  trackerTopology(trackerTopology),
-  alignableIndexer(alignableIndexer)
+  trackerTopology_(trackerTopology),
+  alignableIndexer_(alignableIndexer)
 {
 }
 
 //_____________________________________________________________________________
 void AlignableCompositeBuilder
-::addAlignmentLevel(AlignmentLevel* level) {
-  alignmentLevels.push_back(level);
+::addAlignmentLevel(std::unique_ptr<AlignmentLevel> level) {
+  alignmentLevels_.push_back(std::move(level));
 }
 
 //_____________________________________________________________________________
 void AlignableCompositeBuilder
 ::clearAlignmentLevels() {
-  alignmentLevels.clear();
+  alignmentLevels_.clear();
 }
 
 //_____________________________________________________________________________
 unsigned int AlignableCompositeBuilder
 ::buildAll(AlignableMap& alignableMap)
 {
-  auto highestLevel = alignmentLevels.back()->levelType;
+  auto highestLevel = alignmentLevels_.back()->levelType;
 
   std::ostringstream ss;
   ss << "building CompositeAlignables for "
      << AlignableObjectId::idToString(highestLevel) << "\n";
 
   unsigned int numCompositeAlignables = 0;
-  for (unsigned int level = 1; level < alignmentLevels.size(); ++level) {
+  for (unsigned int level = 1; level < alignmentLevels_.size(); ++level) {
     numCompositeAlignables += buildLevel(level, alignableMap, ss);
   }
 
@@ -74,29 +74,29 @@ unsigned int AlignableCompositeBuilder
   unsigned int childLevel    = parentLevel - 1;
   unsigned int maxNumParents = maxNumComponents(parentLevel);
 
-  auto childType  = alignmentLevels[childLevel] ->levelType;
-  auto parentType = alignmentLevels[parentLevel]->levelType;
+  auto childType  = alignmentLevels_[childLevel] ->levelType;
+  auto parentType = alignmentLevels_[parentLevel]->levelType;
 
   auto& children = alignableMap.find(AlignableObjectId::idToString(childType));
   auto& parents  = alignableMap.get (AlignableObjectId::idToString(parentType));
   parents.reserve(maxNumParents);
 
   // This vector is used indicate if a parent already exists. It is initialized
-  // with 'naked' Alignables-pointers; if the pointer is not naked (!= 0) for
-  // one of the child-IDs, its parent was already built before.
-  Alignables tmpParents(maxNumParents, 0);
+  // with 'naked' Alignables-pointers; if the pointer is not naked (!= nullptr)
+  // for one of the child-IDs, its parent was already built before.
+  Alignables tmpParents(maxNumParents, nullptr);
 
-  for (auto* child : children) {
+  for (auto* child: children) {
     // get the number of the child-Alignable ...
-    unsigned int index = getIndexOfStructure(child->id(), parentLevel);
+    const auto index = getIndexOfStructure(child->id(), parentLevel);
     // ... and use it as index to get the parent of this child
-    Alignable*& parent = tmpParents[index];
+    auto& parent = tmpParents[index];
 
     // if parent was not built yet ...
-    if (parent == 0) {
-      // ... built new composite Alignable with ID of child (obviously its the
+    if (!parent) {
+      // ... build new composite Alignable with ID of child (obviously its the
       // first child of the Alignable)
-      if (alignmentLevels[parentLevel]->isFlat) {
+      if (alignmentLevels_[parentLevel]->isFlat) {
         parent = new AlignableComposite(child->id(), parentType,
                                         child->globalRotation());
       } else {
@@ -111,10 +111,10 @@ unsigned int AlignableCompositeBuilder
   }
 
   ss << "   built " << parents.size() << " "
-     << AlignableObjectId::idToString(alignmentLevels[parentLevel]->levelType)
+     << AlignableObjectId::idToString(alignmentLevels_[parentLevel]->levelType)
      << "(s) (theoretical maximum: " << maxNumParents
      << ") consisting of " << children.size() << " "
-     << AlignableObjectId::idToString(alignmentLevels[childLevel]->levelType)
+     << AlignableObjectId::idToString(alignmentLevels_[childLevel]->levelType)
      << "(s)\n";
 
   return parents.size();
@@ -127,9 +127,9 @@ unsigned int AlignableCompositeBuilder
   unsigned int components = 1;
 
   for (unsigned int level = startLevel;
-       level < alignmentLevels.size();
+       level < alignmentLevels_.size();
        ++level) {
-    components *= alignmentLevels[level]->maxNumComponents;
+    components *= alignmentLevels_[level]->maxNumComponents;
   }
 
   return components;
@@ -140,13 +140,13 @@ unsigned int AlignableCompositeBuilder
 ::getIndexOfStructure(align::ID id, unsigned int level) const
 {
   // indexer returns a function pointer for the structure-type
-  auto indexOf = alignableIndexer.get(alignmentLevels[level]->levelType);
+  auto indexOf = alignableIndexer_.get(alignmentLevels_[level]->levelType);
 
-  if (alignmentLevels.size() - 1 > level) {
+  if (alignmentLevels_.size() - 1 > level) {
     return getIndexOfStructure(id, level + 1)
-             * alignmentLevels[level]->maxNumComponents
-             + indexOf(id, trackerTopology) - 1;
+             * alignmentLevels_[level]->maxNumComponents
+             + indexOf(id, trackerTopology_) - 1;
   }
 
-  return indexOf(id, trackerTopology) - 1;
+  return indexOf(id, trackerTopology_) - 1;
 }

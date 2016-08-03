@@ -113,7 +113,7 @@ public:
   void doPFTaus(edm::Event&,const edm::EventSetup&);
   void doMuons(edm::Event&,const edm::EventSetup&);
   void doElectrons(edm::Event&,const edm::EventSetup&);
-  void doElectronsFromZ(edm::Event&,const edm::EventSetup&,std::auto_ptr<LorentzVectorCollection>&);
+  void doElectronsFromZ(edm::Event&,const edm::EventSetup&,std::unique_ptr<LorentzVectorCollection>&);
   double ElectronTrkIsolation(const reco::TrackCollection*, const reco::GsfElectron&);
   void doJets(edm::Event&,const edm::EventSetup&);
   void doPhotons(edm::Event&,const edm::EventSetup&);

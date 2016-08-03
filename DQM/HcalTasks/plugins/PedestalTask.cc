@@ -1,7 +1,6 @@
-
 #include "DQM/HcalTasks/interface/PedestalTask.h"
-
 using namespace hcaldqm;
+using namespace constants;
 PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

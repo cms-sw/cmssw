@@ -9,6 +9,19 @@ skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
 
 #####################
 
+from Configuration.Skimming.PDWG_BPHSkim_cff import *
+BPHSkimPath = cms.Path(BPHSkimSequence)
+SKIMStreamBPHSkim = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'BPHSkim',
+    paths = (BPHSkimPath),
+    content = BPHSkim_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+#####################
+
 from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
 diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
 SKIMStreamDiJet = cms.FilteredStream(

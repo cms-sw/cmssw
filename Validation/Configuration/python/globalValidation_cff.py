@@ -116,7 +116,7 @@ globalPrevalidationLiteTracking.replace(tracksValidation, tracksValidationLite)
 globalPrevalidationTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
     + tracksValidationTrackingOnly
-    + vertexValidation
+    + vertexValidationTrackingOnly
 )
 globalValidationTrackingOnly = cms.Sequence()
 

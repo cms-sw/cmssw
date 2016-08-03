@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
@@ -70,7 +69,7 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
     if (iphi != 0) {
       rotstr = "R"; 
       if (phideg >=0 && phideg < 100) rotstr = "R0"; 
-      rotstr = rotstr + dbl_to_string(phideg);
+      rotstr = rotstr + std::to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
         LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "
