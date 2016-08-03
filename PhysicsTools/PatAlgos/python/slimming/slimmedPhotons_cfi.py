@@ -14,5 +14,8 @@ slimmedPhotons = cms.EDProducer("PATPhotonSlimmer",
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     modifyPhotons = cms.bool(True),
-    modifierConfig = cms.PSet( modifications = cms.VPSet() )
+    modifierConfig = cms.PSet( modifications = cms.VPSet() ),
+    PUPPIIsolationChargedHadrons = cms.InputTag("egmPhotonIsolationMiniAODPUPPI", "h+-DR030-","PAT"),
+    PUPPIIsolationNeutralHadrons = cms.InputTag("egmPhotonIsolationMiniAODPUPPI", "h0-DR030-","PAT"),
+    PUPPIIsolationPhotons = cms.InputTag("egmPhotonIsolationMiniAODPUPPI", "gamma-DR030-","PAT"),
 )
