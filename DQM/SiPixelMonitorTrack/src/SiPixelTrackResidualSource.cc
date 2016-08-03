@@ -1166,7 +1166,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
                 }
                 if (pxfblade>0) { clu_roc_biny = clu_roc_biny+144; }
 
-		TH2F *h_2d = meRocBladevsDiskEndcap->getTH2F(); h_2d->AddBinContent(clu_roc_binx,clu_roc_biny); h_2d->AddBinContent(clu_roc_binx,clu_roc_biny+1);
+		meRocBladevsDiskEndcap->setBinContent(clu_roc_binx,clu_roc_biny, meRocBladevsDiskEndcap->getBinContent(clu_roc_binx,clu_roc_biny)+1);
+		meRocBladevsDiskEndcap->setBinContent(clu_roc_binx,clu_roc_biny+1, meRocBladevsDiskEndcap->getBinContent(clu_roc_binx,clu_roc_biny+1)+1);
 
 		if(z>0){
         for (int i = 0; i < noOfDisks; i++)
