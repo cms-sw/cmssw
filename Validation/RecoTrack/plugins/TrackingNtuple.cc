@@ -425,7 +425,8 @@ private:
   // pixel hits
   // (first) index runs through hits
   std::vector<short> pix_isBarrel ;
-  std::vector<unsigned int> pix_lay      ;
+  std::vector<unsigned short> pix_det    ;
+  std::vector<unsigned short> pix_lay    ;
   std::vector<unsigned int> pix_detId    ;
   std::vector<std::vector<int> > pix_trkIdx;    // second index runs through tracks containing this hit
   std::vector<std::vector<int> > pix_seeIdx;    // second index runs through seeds containing this hit
@@ -453,8 +454,8 @@ private:
   // (first) index runs through hits
   std::vector<short> str_isBarrel ;
   std::vector<short> str_isStereo ;
-  std::vector<unsigned int> str_det      ;
-  std::vector<unsigned int> str_lay      ;
+  std::vector<unsigned short> str_det    ;
+  std::vector<unsigned short> str_lay    ;
   std::vector<unsigned int> str_detId    ;
   std::vector<std::vector<int> > str_trkIdx;    // second index runs through tracks containing this hit
   std::vector<std::vector<int> > str_seeIdx;    // second index runs through seeds containing this hitw
@@ -709,6 +710,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   if(includeAllHits_) {
     //pixels
     t->Branch("pix_isBarrel"  , &pix_isBarrel );
+    t->Branch("pix_det"       , &pix_det      );
     t->Branch("pix_lay"       , &pix_lay      );
     t->Branch("pix_detId"     , &pix_detId    );
     t->Branch("pix_trkIdx"    , &pix_trkIdx   );
@@ -958,6 +960,7 @@ void TrackingNtuple::clearVariables() {
   sim_hitType  .clear();
   //pixels
   pix_isBarrel .clear();
+  pix_det      .clear();
   pix_lay      .clear();
   pix_detId    .clear();
   pix_trkIdx   .clear();
@@ -1334,6 +1337,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
                                            clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, tpHitList, HitPixel);
 
       pix_isBarrel .push_back( hitId.subdetId()==1 );
+      pix_det      .push_back( hitId.subdetId() );
       pix_lay      .push_back( lay );
       pix_detId    .push_back( hitId.rawId() );
       pix_trkIdx   .emplace_back(); // filled in fillTracks

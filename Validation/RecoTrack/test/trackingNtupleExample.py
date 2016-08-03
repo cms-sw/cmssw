@@ -107,8 +107,10 @@ def main():
                 if ntuple.hasHits():
                     pix_simTrkIds = set()
 
+                    #for hit in track.hits():
+                    #    print hit.layerStr()
+
                     for hit in track.pixelHits():
-                        #print hit.layerStr()
                         nfakes_pixhits += 1
                         if hit.nMatchedTrackingParticles() >= 1:
                             # links from hits to TrackingParticles
@@ -119,7 +121,6 @@ def main():
                     nfakes_pixhits_tps += len(pix_simTrkIds)
 
                     for hit in track.stripHits():
-                        #print hit.layerStr()
                         nfakes_strhits += 1
                         if hit.nMatchedTrackingParticles() >= 1:
                             nfakes_strhits_true += 1

@@ -1,5 +1,26 @@
 import ROOT
 
+class SubDet:
+    BPix = 1
+    FPix = 2
+    TIB = 3
+    TID = 4
+    TOB = 5
+    TEC = 6
+
+    _toString = {
+        BPix: "BPix",
+        FPix: "FPix",
+        TIB:  "TIB",
+        TID:  "TID",
+        TOB:  "TOB",
+        TEC:  "TEC",
+    }
+
+    @staticmethod
+    def toString(det):
+        return SubDet._toString[det]
+
 class _Collection(object):
     """Adaptor class representing a collection of objects.
 
@@ -445,13 +466,7 @@ class PixelHit(_HitObject, _TrackingParticleMatchAdaptor):
 
     def layerStr(self):
         """Returns a string describing the layer of the hit."""
-        if not self.isValid():
-            return "Invalid"
-        if self._tree.pix_isBarrel[self._index]:
-            subdet = "BPix"
-        else:
-            subdet = "FPix"
-        return "%s%d" % (subdet, self._tree.pix_lay[self._index])
+        return "%s%d" % (SubDet.toString(self._tree.pix_det[self._index]), self._tree.pix_lay[self._index])
 
 class PixelHits(_Collection):
     """Class presenting a collection of pixel hits."""
@@ -480,10 +495,7 @@ class StripHit(_HitObject, _TrackingParticleMatchAdaptor):
 
     def layerStr(self):
         """Returns a string describing the layer of the hit."""
-        if not self.isValid():
-            return "Invalid"
-        return "%s%d" % ({3: "TIB", 4: "TID", 5: "TOB", 6: "TEC"}[self._tree.str_det[self._index]],
-                         self._tree.str_lay[self._index])
+        return "%s%d" % (SubDet.toString(self._tree.str_det[self._index]), self._tree.str_lay[self._index])
 
 class StripHits(_Collection):
     """Class presenting a collection of strip hits."""
@@ -554,6 +566,14 @@ class InvalidHit(_Object):
         missing_inner = 4
         missing_outer = 5
 
+        _toString = {
+            missing: "missing",
+            inactive: "inactive",
+            bad: "bad",
+            missing_inner: "missing_inner",
+            missing_outer: "missing_outer",
+        }
+
     """Class representing an invalid hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -566,6 +586,12 @@ class InvalidHit(_Object):
 
     def isValidHit(self):
         return False
+
+    def layerStr(self):
+        """Returns a string describing the layer of the hit."""
+        det = self._tree.inv_det[self._index]
+        invalid_type = self._tree.inv_type[self._index]
+        return "%s%d (%s)" % (SubDet.toString(det), self._tree.inv_lay[self._index], InvalidHit.Type._toString[invalid_type])
 
 ##########
 def _seedOffsetForAlgo(tree, algo):
