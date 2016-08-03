@@ -71,7 +71,7 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
  private:
 
   /// Run analysis on TM data
-  void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
+  void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phInTrigs, std::vector<L1MuDTChambPhDigi> const* phOutTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
 
   /// Run analysis on ROS data
   void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
@@ -112,13 +112,15 @@ class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
   DTTrigGeomUtils* theTrigGeomUtils;
   std::vector<std::string> theTypes;
 
-  std::map<uint32_t,DTTPGCompareUnit> theCompMap;
+  std::map<uint32_t,DTTPGCompareUnit> theCompMapIn;
+  std::map<uint32_t,DTTPGCompareUnit> theCompMapOut;
   std::map<int,std::map<std::string,MonitorElement*> > wheelHistos;
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chamberHistos;
   std::map<uint32_t,DTTimeEvolutionHisto* > trendHistos;
   MonitorElement* nEventMonitor;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_phi_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_phiIn_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_phiOut_Token_;
   edm::EDGetTokenT<L1MuDTChambThContainer> tm_theta_Token_;
   edm::EDGetTokenT<DTLocalTriggerCollection> trig_Token_;
 };

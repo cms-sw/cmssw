@@ -7,6 +7,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+using namespace edm;
 
 class UCTDAQRawData {
 public:
@@ -14,7 +15,7 @@ public:
   UCTDAQRawData(const uint64_t *d) : myDataPtr(d) {
     if(d != 0) {
       if((d[0] & 0x5000000000000000) != 0x5000000000000000) {
-	edm::LogError("UCTDAQRawData") << "CDF Header does not seem to be correct" 
+	LogError("UCTDAQRawData") << "CDF Header does not seem to be correct" 
 		  << std::showbase << std::internal 
 		  << std::setfill('0') << std::setw(10)
 		  << std::hex
@@ -48,7 +49,7 @@ public:
     if(amc < nAMCs()) {
       return myDataPtr[2+amc] & 0x000000000000FFFF;
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch board ID for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch board ID for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -56,7 +57,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x00000000000F0000) >> 16);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -64,7 +65,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x000000000FF00000) >> 20);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc block no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc block no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -72,7 +73,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x00FFFFFF00000000) >> 32);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc size for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc size for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -80,7 +81,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0100000000000000) != 0);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch crcError-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch crcError-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -88,7 +89,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0200000000000000) != 0);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isValid-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isValid-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -96,7 +97,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0400000000000000) != 0);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isPresent-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isPresent-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -104,7 +105,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0800000000000000) != 0);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isEnabled-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isEnabled-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -112,7 +113,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x1000000000000000) != 0);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isSegmented-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isSegmented-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -120,7 +121,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x2000000000000000) != 0);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch more-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch more-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -128,7 +129,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x4000000000000000) != 0);
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch length error bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch length error bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -141,7 +142,7 @@ public:
       }
       return (uint32_t *) &myDataPtr[skip];
     }
-    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch payload location for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch payload location for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0x0;
   }
 
@@ -181,7 +182,7 @@ public:
     skip++;
     const uint64_t *data = &myDataPtr[skip];
     if((data[0] & 0xF000000000000000) != 0xA000000000000000) {
-      edm::LogError("UCTDAQRawData") << "CDF Trailer seems to be wrong : " 
+      LogError("UCTDAQRawData") << "CDF Trailer seems to be wrong : " 
 		<< std::showbase << std::internal 
 		<< std::setfill('0') << std::setw(10)
 		<< std::hex

@@ -78,13 +78,13 @@ private:
   virtual void produce(Event&, const EventSetup&) override;
   virtual void endStream() override;
 
-  void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<EcalTrigPrimDigiCollection>& ecalTPGs);
+  void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<EcalTrigPrimDigiCollection>& ecalTPGs);
 
-  void makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
+  void makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
 
-  void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
+  void makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs);
 
-  void makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<L1CaloRegionCollection>& regions);
+  void makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<L1CaloRegionCollection>& regions);
 
   //virtual void beginRun(Run const&, EventSetup const&) override;
   //virtual void endRun(Run const&, EventSetup const&) override;
@@ -149,9 +149,9 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
   Handle<FEDRawDataCollection> fedRawDataCollection;
   iEvent.getByLabel(fedRawDataLabel, fedRawDataCollection);
 
-  std::unique_ptr<EcalTrigPrimDigiCollection> ecalTPGs(new EcalTrigPrimDigiCollection);
-  std::unique_ptr<HcalTrigPrimDigiCollection> hcalTPGs(new HcalTrigPrimDigiCollection);
-  std::unique_ptr<L1CaloRegionCollection> regions (new L1CaloRegionCollection);
+  std::auto_ptr<EcalTrigPrimDigiCollection> ecalTPGs(new EcalTrigPrimDigiCollection);
+  std::auto_ptr<HcalTrigPrimDigiCollection> hcalTPGs(new HcalTrigPrimDigiCollection);
+  std::auto_ptr<L1CaloRegionCollection> regions (new L1CaloRegionCollection);
 
   // if raw data collection is present, check the headers and do the unpacking
   if (fedRawDataCollection.isValid()) {
@@ -202,16 +202,16 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
     return; 
   }
 
-  iEvent.put(std::move(ecalTPGs));
-  iEvent.put(std::move(hcalTPGs));
-  iEvent.put(std::move(regions));
+  iEvent.put(ecalTPGs);
+  iEvent.put(hcalTPGs);
+  iEvent.put(regions);
 
   event++;
   if(verbose && event == 5) LogDebug("L1TCaloLayer1") << "L1TCaloLayer1RawToDigi: Goodbye! Tired of printing junk" << endl;
 
 }
 
-void L1TCaloLayer1RawToDigi::makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<EcalTrigPrimDigiCollection>& ecalTPGs) {
+void L1TCaloLayer1RawToDigi::makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<EcalTrigPrimDigiCollection>& ecalTPGs) {
   UCTCTP7RawData::CaloType cType = UCTCTP7RawData::EBEE;
   for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // Loop over all four phi divisions on card
     int cPhi = - 1 + lPhi * 4 + iPhi; // Calorimeter phi index
@@ -255,7 +255,7 @@ void L1TCaloLayer1RawToDigi::makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
 
 }
 
-void L1TCaloLayer1RawToDigi::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<HcalTrigPrimDigiCollection>& hcalTPGs) {
+void L1TCaloLayer1RawToDigi::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs) {
   UCTCTP7RawData::CaloType cType = UCTCTP7RawData::HBHE;
   for(uint32_t iPhi = 0; iPhi < 4; iPhi++) { // Loop over all four phi divisions on card
     int cPhi = - 1 + lPhi * 4 + iPhi; // Calorimeter phi index
@@ -299,7 +299,7 @@ void L1TCaloLayer1RawToDigi::makeHCalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Dat
 
 }
 
-void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<HcalTrigPrimDigiCollection>& hcalTPGs) {
+void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<HcalTrigPrimDigiCollection>& hcalTPGs) {
   UCTCTP7RawData::CaloType cType = UCTCTP7RawData::HF;
   for(uint32_t side = 0; side <= 1; side++) {
     bool negativeEta = false;
@@ -343,7 +343,7 @@ void L1TCaloLayer1RawToDigi::makeHFTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data,
 }
 
 void 
-L1TCaloLayer1RawToDigi::makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<L1CaloRegionCollection>& regions) {
+L1TCaloLayer1RawToDigi::makeRegions(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::auto_ptr<L1CaloRegionCollection>& regions) {
   for(uint32_t side = 0; side <= 1; side++) {
     bool negativeEta = false;
     if(side == 0) negativeEta = true;
