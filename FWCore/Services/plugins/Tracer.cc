@@ -130,6 +130,8 @@ namespace edm {
       void preModuleEndJob(ModuleDescription const& md);
       void postModuleEndJob(ModuleDescription const& md);
       
+      void preModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
+      void postModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
       void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void preModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
@@ -269,6 +271,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   iRegistry.watchPreModuleEndJob(this, &Tracer::preModuleEndJob);
   iRegistry.watchPostModuleEndJob(this, &Tracer::postModuleEndJob);
 
+  iRegistry.watchPreModuleEventPrefetching(this, &Tracer::preModuleEventPrefetching);
+  iRegistry.watchPostModuleEventPrefetching(this, &Tracer::postModuleEventPrefetching);
   iRegistry.watchPreModuleEvent(this, &Tracer::preModuleEvent);
   iRegistry.watchPostModuleEvent(this, &Tracer::postModuleEvent);
   iRegistry.watchPreModuleEventDelayedGet(this, &Tracer::preModuleEventDelayedGet);
@@ -848,6 +852,37 @@ Tracer::postModuleEndJob(ModuleDescription const& desc) {
     out << "\n" << desc;
   }
 }
+
+void
+Tracer::preModuleEventPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: prefetching before processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
+void
+Tracer::postModuleEventPrefetching(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: prefetching before processing event for module: stream = " << sc.streamID() << " label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << sc;
+    out << mcc;
+  }
+}
+
 
 void 
 Tracer::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc) {

@@ -198,6 +198,8 @@ private:
     std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFromEvent();
 
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching,parentContext,nullptr);
+    
+    actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
 
     //Need to be sure the ref count isn't set to 0 immediately
     iTask->increment_ref_count();

@@ -668,6 +668,22 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_1(watchPostModuleEndJob)
 
+      /// signal is emitted before the module starts processing the Event and before prefetching has started
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEventPrefetching;
+      PreModuleEventPrefetching preModuleEventPrefetchingSignal_;
+      void watchPreModuleEventPrefetching(PreModuleEventPrefetching::slot_type const& iSlot) {
+         preModuleEventPrefetchingSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreModuleEventPrefetching)
+      
+      /// signal is emitted before the module starts processing the Event and after prefetching has finished
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleEventPrefetching;
+      PostModuleEventPrefetching postModuleEventPrefetchingSignal_;
+      void watchPostModuleEventPrefetching(PostModuleEventPrefetching::slot_type const& iSlot) {
+         postModuleEventPrefetchingSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostModuleEventPrefetching)
+
       /// signal is emitted before the module starts processing the Event
       typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEvent;
       PreModuleEvent preModuleEventSignal_;
