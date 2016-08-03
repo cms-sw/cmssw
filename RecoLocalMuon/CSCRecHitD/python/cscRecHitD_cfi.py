@@ -26,7 +26,7 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     UseFivePoleFit = cms.bool(True),                       
     #
     #    Parameters for wire hits
-    CSCWireClusterDeltaT = cms.int32(2),
+    CSCWireClusterDeltaT = cms.int32(1),
     #
     #    wire time window used for reconstruction
     CSCWireTimeWindowLow = cms.int32(0),
