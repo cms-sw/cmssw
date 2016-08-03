@@ -68,7 +68,7 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
       edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_ChargedHadrons_;
       edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_NeutralHadrons_;
       edm::EDGetTokenT<edm::ValueMap<float> > ValueMaps_Photons_;
-      Float_t pt_, pt2_;
+      float pt_, pt2_;
  
       double maxPt_;
       double maxAbsEta_;
@@ -77,12 +77,12 @@ class ElectronMcSignalValidatorMiniAOD : public ElectronDqmAnalyzerBase {
       std::vector<int> matchingMotherIDs_;
       std::string outputInternalPath_ ;
 
-      Float_t sumChargedHadronPt_recomp;
-      Float_t sumNeutralHadronPt_recomp;
-      Float_t sumPhotonPt_recomp;
-      Float_t relisoChargedHadronPt_recomp;
-      Float_t relisoNeutralHadronPt_recomp;
-      Float_t relisoPhotonPt_recomp;
+      float sumChargedHadronPt_recomp;
+      float sumNeutralHadronPt_recomp;
+      float sumPhotonPt_recomp;
+      float relisoChargedHadronPt_recomp;
+      float relisoNeutralHadronPt_recomp;
+      float relisoPhotonPt_recomp;
 
       // histos limits and binning
 
