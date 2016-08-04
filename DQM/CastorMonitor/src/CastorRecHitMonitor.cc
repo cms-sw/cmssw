@@ -11,29 +11,19 @@
 //***************************************************//
 //---- critical revision 26.06.2014 (Vladimir Popov)
 //==================================================================//
-//======================= Constructor ==============================//
+
 CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet& ps)
 {
- std::cout<<"CastorRecHitMonitor Constructor: "<<this<<std::endl;
  fVerbosity = ps.getUntrackedParameter<int>("debug",0);
+ if(fVerbosity>0)
+   std::cout<<"CastorRecHitMonitor Constructor: "<<this<<std::endl;
  subsystemname =
 	ps.getUntrackedParameter<std::string>("subSystemFolder","Castor");
  ievt_=0; 
 }
 
-//======================= Destructor ==============================//
 CastorRecHitMonitor::~CastorRecHitMonitor() { }
-/*
-//=================== setup ===============//
 
-void CastorRecHitMonitor::setup(const edm::ParameterSet& ps)
-{
-//  CastorBaseMonitor::setup(ps);
-  return;
-}
-*/
-
-//============== boolHistograms  ==============//
 void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 	const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
@@ -163,7 +153,7 @@ void CastorRecHitMonitor::processEventTowers(
  }
  hTowerMultipl->Fill(nTowers);
 }
-//================== processEvent ==========================//
+
 void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
 {
  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (begin)"<< std::endl;
