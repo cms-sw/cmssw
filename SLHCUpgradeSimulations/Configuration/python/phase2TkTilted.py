@@ -132,15 +132,18 @@ def customise_Reco(process,pileup):
     process.templates.LoadTemplatesFromDB = cms.bool(False)
     # CPE for other steps
     process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-    # Turn of template use in tracking (iterative steps handled inside their configs)
-    process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
-    process.mergedDuplicateTracks.TTRHBuilder = 'WithTrackAngle'
-    process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
-    process.muonSeededSeedsInOut.TrackerRecHitBuilder=cms.string('WithTrackAngle')
-    process.muonSeededTracksInOut.TTRHBuilder=cms.string('WithTrackAngle')
-    process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder=cms.string('WithTrackAngle')
-    process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
-    process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
+
+    if not eras.trackingPhase2PU140.isChosen():
+      # Turn of template use in tracking (iterative steps handled inside their configs)
+      process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
+      process.mergedDuplicateTracks.TTRHBuilder = 'WithTrackAngle'
+      process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
+      process.muonSeededSeedsInOut.TrackerRecHitBuilder=cms.string('WithTrackAngle')
+      process.muonSeededTracksInOut.TTRHBuilder=cms.string('WithTrackAngle')
+      process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder=cms.string('WithTrackAngle')
+      process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
+      process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
+
     # End of pixel template needed section
     
     process.regionalCosmicTrackerSeedingLayers.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
