@@ -1,6 +1,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include<cassert>
 #include<cstdio>
+#include<iostream>
 
 typedef SiPixelCluster::PixelPos PiPos;
 typedef SiPixelCluster::Pixel Pixel;
@@ -56,6 +57,7 @@ bool verify(PiPos const (&pos)[N], bool ox, bool oy) {
 
 int main() {
 
+  std::cout << "size " << sizeof(SiPixelCluster) << std::endl;
 
   bool ok=true;
 

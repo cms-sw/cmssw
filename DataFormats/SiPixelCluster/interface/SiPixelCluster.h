@@ -190,12 +190,11 @@ public:
   }
   
   // ggiurgiu@fnal.gov, 01/05/12 
-  // VI  dummy until found useful
-  // Getters and setters for the newly added data members (err_x and err_y). See below. 
-  void setSplitClusterErrorX( float) { }
-  void setSplitClusterErrorY( float ) {  }
-  float getSplitClusterErrorX() const { return 0; }
-  float getSplitClusterErrorY() const { return 0; }
+  // Getters and setters for the newly added data members (err_x and err_y). See below.
+   void setSplitClusterErrorX( float errx ) { err_x = errx; }
+   void setSplitClusterErrorY( float erry ) { err_y = erry; }
+   float getSplitClusterErrorX() const { return err_x; }
+   float getSplitClusterErrorY() const { return err_y; }
   
   
 private:
@@ -209,6 +208,8 @@ private:
   uint8_t thePixelRowSpan=0; // Span pixel index in the x direction (low edge).
   uint8_t thePixelColSpan=0; // Span pixel index in the y direction (left edge).
   
+   float err_x=-99999.9f;
+   float err_y=-99999.9f;
   
 };
 
