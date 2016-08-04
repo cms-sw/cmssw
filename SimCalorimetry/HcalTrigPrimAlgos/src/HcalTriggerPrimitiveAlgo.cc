@@ -14,14 +14,14 @@
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
-                                                    bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
+                                                    uint32_t FG_threshold, uint32_t ZS_threshold,
                                                     int numberOfSamples, int numberOfPresamples,
                                                     int numberOfSamplesHF, int numberOfPresamplesHF,
-                                                    uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold,
-                                                    bool upgrade_hb, bool upgrade_he, bool upgrade_hf)
+                                                    uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold
+                                                    )
                                                    : incoder_(0), outcoder_(0),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
-                                                   FG_MinimumBias_(FG_MinimumBias), FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
+                                                   FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
                                                    numberOfSamples_(numberOfSamples),
                                                    numberOfPresamples_(numberOfPresamples),
                                                    numberOfSamplesHF_(numberOfSamplesHF),
@@ -29,8 +29,7 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
                                                    NCTScaleShift(0), RCTScaleShift(0),
-                                                   peak_finder_algorithm_(2),
-                                                   upgrade_hb_(upgrade_hb), upgrade_he_(upgrade_he), upgrade_hf_(upgrade_hf)
+                                                   peak_finder_algorithm_(2)
 {
    //No peak finding setting (for Fastsim)
    if (!peakfind_){
@@ -45,6 +44,29 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
 
 
 HcalTriggerPrimitiveAlgo::~HcalTriggerPrimitiveAlgo() {
+}
+
+
+void
+HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf)
+{
+   upgrade_hb_ = hb;
+   upgrade_he_ = he;
+   upgrade_hf_ = hf;
+}
+
+
+void
+HcalTriggerPrimitiveAlgo::overrideParameters(unsigned int hf_tdc_mask,
+                                             unsigned int hf_adc_threshold,
+                                             unsigned int hf_fg_threshold)
+{
+   auto parameters = new TPParameters();
+   parameters->hf_tdc_mask = hf_tdc_mask;
+   parameters->hf_adc_threshold = hf_adc_threshold;
+   parameters->hf_fg_threshold = hf_fg_threshold;
+
+   override_parameters_ = std::unique_ptr<const TPParameters>(parameters);
 }
 
 
@@ -423,12 +445,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
             uint32_t ADCLong = details.LongDigi[ibin].adc();
             uint32_t ADCShort = details.ShortDigi[ibin].adc();
 
-            if(FG_MinimumBias_) {
-               finegrain[ibin] = (finegrain[ibin] || ADCLong > FG_threshold_ || ADCShort > FG_threshold_);
-            }
-            else if(HCALFEM != 0) {
-               finegrain[ibin] = (finegrain[ibin] || HCALFEM->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
-            }
+            finegrain[ibin] = (finegrain[ibin] || ADCLong > FG_threshold_ || ADCShort > FG_threshold_);
         }
     }
 
@@ -475,8 +492,8 @@ void HcalTriggerPrimitiveAlgo::analyzeHFPhase1(
 
             for (auto i: {0, 2}) {
                if (idx < details[i].samples.size()) {
-                  if (details[i].digi[idx].adc() < params_.hf_adc_thresh
-                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & params_.hf_tdc_mask) {
+                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
+                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
                      long_fiber_val += details[i].samples[idx];
                      ++long_fiber_count;
                   }
@@ -484,8 +501,8 @@ void HcalTriggerPrimitiveAlgo::analyzeHFPhase1(
             }
             for (auto i: {1, 3}) {
                if (idx < details[i].samples.size()) {
-                  if (details[i].digi[idx].adc() < params_.hf_adc_thresh
-                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & params_.hf_tdc_mask) {
+                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
+                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
                      short_fiber_val += details[i].samples[idx];
                      ++short_fiber_count;
                   }

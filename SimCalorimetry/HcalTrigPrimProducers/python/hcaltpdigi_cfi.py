@@ -28,6 +28,12 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     upgradeHF = cms.bool(False),
     upgradeHB = cms.bool(False),
     upgradeHE = cms.bool(False),
+
+    parameters = cms.untracked.PSet(
+        TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
+        ADCThreshold=cms.uint32(0),
+        FGThreshold=cms.uint32(12)
+    ),
     
     
 #

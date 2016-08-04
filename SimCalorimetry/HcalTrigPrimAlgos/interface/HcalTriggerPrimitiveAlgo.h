@@ -20,23 +20,17 @@ class IntegerCaloSamples;
 
 class HcalTriggerPrimitiveAlgo {
 public:
-   struct DatabaseParameters {
-      // TEMPORARY
-      // This parameters should be in the conditions, this struct is
-      // temporary container to hardcode them.
-
-      uint64_t hf_tdc_mask = 0x200000FFFFFFFFFF;
-      // uint64_t hf_tdc_mask = 0x2FFFFFFFFFFFFFFF;
-      uint16_t hf_adc_thresh = 0;
+   struct TPParameters {
+      uint64_t hf_tdc_mask;
+      uint32_t hf_adc_threshold;
+      uint32_t hf_fg_threshold;
    };
 
-  HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, 
-                           int latency,
-                           bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
+  HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, int latency,
+                           uint32_t FG_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
                            int numberOfSamplesHF, int numberOfPresamplesHF,
-                           uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0,
-                           bool upgrade_hb=false, bool upgrade_he=false, bool upgrade_hf=false);
+                           uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
   ~HcalTriggerPrimitiveAlgo();
 
   template<typename... Digis>
@@ -76,6 +70,11 @@ public:
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 
+  void setUpgradeFlags(bool hb, bool he, bool hf);
+  void overrideParameters(unsigned int hf_tdc_mask,
+                          unsigned int hf_adc_threshold,
+                          unsigned int hf_fg_threshold);
+
  private:
 
   /// adds the signal to the map
@@ -114,7 +113,6 @@ public:
   bool peakfind_;
   std::vector<double> weights_;
   int latency_;
-  bool FG_MinimumBias_;
   uint32_t FG_threshold_;
   uint32_t ZS_threshold_;
   int ZS_threshold_I_;
@@ -126,8 +124,6 @@ public:
   uint32_t PMT_NoiseThreshold_; 
   int NCTScaleShift;
   int RCTScaleShift;  
-
-  DatabaseParameters params_;
 
   // Algo1: isPeak = TS[i-1] < TS[i] && TS[i] >= TS[i+1]
   // Algo2: isPeak = TSS[i-1] < TSS[i] && TSS[i] >= TSS[i+1],
@@ -179,9 +175,11 @@ public:
   typedef std::map<HcalTrigTowerDetId, std::vector<bool> > FGbitMap;
   FGbitMap fgMap_;
 
-  bool upgrade_hb_;
-  bool upgrade_he_;
-  bool upgrade_hf_;
+  bool upgrade_hb_ = false;
+  bool upgrade_he_ = false;
+  bool upgrade_hf_ = false;
+
+  std::unique_ptr<const TPParameters> override_parameters_;
 
   static const int first_he_tower = 16;
 };

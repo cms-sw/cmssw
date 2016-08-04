@@ -30,7 +30,6 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   theAlgo_(ps.getParameter<bool>("peakFilter"),
         ps.getParameter<std::vector<double> >("weights"),
         ps.getParameter<int>("latency"),
-        ps.getParameter<bool>("FG_MinimumBias"),
         ps.getParameter<uint32_t>("FG_threshold"),
         ps.getParameter<uint32_t>("ZS_threshold"),
         ps.getParameter<int>("numberOfSamples"),
@@ -38,10 +37,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
         ps.getParameter<int>("numberOfSamplesHF"),
         ps.getParameter<int>("numberOfPresamplesHF"),
         ps.getParameter<uint32_t>("MinSignalThreshold"),
-        ps.getParameter<uint32_t>("PMTNoiseThreshold"),
-        ps.getParameter<bool>("upgradeHB"),
-        ps.getParameter<bool>("upgradeHE"),
-        ps.getParameter<bool>("upgradeHF")
+        ps.getParameter<uint32_t>("PMTNoiseThreshold")
   ),
   inputLabel_(ps.getParameter<std::vector<edm::InputTag> >("inputLabel")),
   inputUpgradeLabel_(ps.getParameter<std::vector<edm::InputTag> >("inputUpgradeLabel")),
@@ -49,9 +45,17 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   runZS_(ps.getParameter<bool>("RunZS")),
   runFrontEndFormatError_(ps.getParameter<bool>("FrontEndFormatError"))
 {
-   auto upgrades = {ps.getParameter<bool>("upgradeHB"), ps.getParameter<bool>("upgradeHE"), ps.getParameter<bool>("upgradeHF")};
+   std::vector<bool> upgrades = {ps.getParameter<bool>("upgradeHB"), ps.getParameter<bool>("upgradeHE"), ps.getParameter<bool>("upgradeHF")};
    upgrade_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return a; });
    legacy_ = std::any_of(std::begin(upgrades), std::end(upgrades), [](bool a) { return !a; });
+
+   if (ps.exists("parameters")) {
+      auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
+      theAlgo_.overrideParameters(pset.getParameter<unsigned long long>("TDCMask"),
+                                  pset.getParameter<unsigned int>("ADCThreshold"),
+                                  pset.getParameter<unsigned int>("FGThreshold"));
+   }
+   theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
 
     HFEMB_ = false;
     if(ps.exists("LSConfig"))
