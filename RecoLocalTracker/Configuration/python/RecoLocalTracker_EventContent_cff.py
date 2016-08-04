@@ -23,3 +23,11 @@ RecoLocalTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep ClusterSummary_clusterSummaryProducer_*_*')
 )
 
+#from Configuration.StandardSequences.Eras import eras
+#eras.phase2_tracker.toModify(RecoLocalTrackerFEVT,
+#  outputCommands = dict(
+#  'keep *_siPhase2Clusters_*_*',
+#  #'keep *_phase2ITPixelClusters_*_*' 
+#  )
+#)
+

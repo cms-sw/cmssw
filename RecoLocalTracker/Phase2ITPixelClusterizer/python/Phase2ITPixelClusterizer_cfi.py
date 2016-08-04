@@ -23,3 +23,9 @@ phase2ITPixelClusters = cms.EDProducer("Phase2ITPixelClusterProducer",
     maxNumberOfClusters = cms.int32(-1), # -1 means no limit.
 )
 
+# This customization will be removed once we have phase1 pixel digis
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_tracker.toModify(phase2ITPixelClusters, #FIXME
+    src = cms.InputTag('simSiPixelDigis', "Pixel"),
+    MissCalibrate = False
+)

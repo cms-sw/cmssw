@@ -24,3 +24,12 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     mergeCollections = cms.bool(False)
     
 )
+
+from Configuration.StandardSequences.Eras import eras
+# Need these until phase2 pixel templates are used
+eras.phase2_tracker.toModify(siStripZeroSuppression, # FIXME
+  RawDigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','VirginRaw'),
+                                        cms.InputTag('simSiStripDigis','ProcessedRaw'),
+                                        cms.InputTag('simSiStripDigis','ScopeMode'))
+)
+

@@ -69,8 +69,9 @@ def customise_Reco(process,pileup):
 
     # insert new InnerTracker pixel clusterizer
     process.load("RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi")
-    process.phase2ITPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
-    process.phase2ITPixelClusters.MissCalibrate = cms.untracked.bool(False)
+    if not eras.trackingPhase2PU140.isChosen():
+      process.phase2ITPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
+      process.phase2ITPixelClusters.MissCalibrate = cms.untracked.bool(False)
 
     # keep new clusters
     alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','RECOSIM']
@@ -81,10 +82,11 @@ def customise_Reco(process,pileup):
             getattr(process,b).outputCommands.append('keep *_phase2ITPixelClusters_*_*')
 
 
-    #use with latest pixel geometry
-    process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
-    # Need this line to stop error about missing siPixelDigis.
-    process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+    if not eras.trackingPhase2PU140.isChosen():
+      #use with latest pixel geometry
+      process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
+      # Need this line to stop error about missing siPixelDigis.
+      process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 
     process.InitialStepPreSplitting.remove(process.siPixelClusters)
 
@@ -120,18 +122,19 @@ def customise_Reco(process,pileup):
     process.globalreco_tracking.replace(process.standalonemuontracking,
                                         process.standalonemuontracking+process.recopixelvertexing)
 
-    # PixelCPEGeneric #
-    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+    # FIXME::Erica : not clear to me how to port this to era
     process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
-    process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
-    process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
-    process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
-    process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
-    process.PixelCPEGenericESProducer.DoCosmics = False
-    process.templates.DoLorentz = cms.bool(False)
-    process.templates.LoadTemplatesFromDB = cms.bool(False)
-
     if not eras.trackingPhase2PU140.isChosen():
+      # PixelCPEGeneric #
+      process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+      process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
+      process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
+      process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
+      process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
+      process.PixelCPEGenericESProducer.DoCosmics = False
+      process.templates.DoLorentz = cms.bool(False)
+      process.templates.LoadTemplatesFromDB = cms.bool(False)
+
       # CPE for other steps
       process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
       # Turn of template use in tracking (iterative steps handled inside their configs)
@@ -143,18 +146,18 @@ def customise_Reco(process,pileup):
       process.muons1stStep.TrackerKinkFinderParameters.TrackerRecHitBuilder=cms.string('WithTrackAngle')
       process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
       process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
-
-    # End of pixel template needed section
+      # End of pixel template needed section
     
-    process.regionalCosmicTrackerSeedingLayers.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
-    process.regionalCosmicTrackerSeedingLayers.BPix = cms.PSet(
-        HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.006),
-        useErrorsFromParam = cms.bool(True),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
-        skipClusters = cms.InputTag("pixelPairStepClusters"),
-        hitErrorRPhi = cms.double(0.0027)
-    )
+      process.regionalCosmicTrackerSeedingLayers.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
+      process.regionalCosmicTrackerSeedingLayers.BPix = cms.PSet(
+          HitProducer = cms.string('siPixelRecHits'),
+          hitErrorRZ = cms.double(0.006),
+          useErrorsFromParam = cms.bool(True),
+          TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+          skipClusters = cms.InputTag("pixelPairStepClusters"),
+          hitErrorRPhi = cms.double(0.0027)
+      )
+
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
         layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
@@ -167,16 +170,17 @@ def customise_Reco(process,pileup):
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
 
-    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
-    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
+    if not eras.trackingPhase2PU140.isChosen():
+      process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+      process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
 
-    # STILL TO DO (when the ph2 PF will be included):
-    # Particle flow needs to know that the eta range has increased, for
-    # when linking tracks to HF clusters
-#    process=customise_PFlow.customise_extendedTrackerBarrel( process )
+      # STILL TO DO (when the ph2 PF will be included):
+      # Particle flow needs to know that the eta range has increased, for
+      # when linking tracks to HF clusters
+      #    process=customise_PFlow.customise_extendedTrackerBarrel( process )
 
-    process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters')
-    process.MeasurementTrackerEvent.stripClusterProducer = cms.string('')
+      process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = cms.string('siPhase2Clusters')
+      process.MeasurementTrackerEvent.stripClusterProducer = cms.string('')
  
     return process
 
