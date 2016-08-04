@@ -12,7 +12,7 @@ public:
   /// get fcByPE
   float    getFCByPE()      const {return fcByPE_;}
   /// get dark current
-  float    getDrakCurrent() const {return darkCurrent_;}
+  float    getDarkCurrent() const {return darkCurrent_;}
 
   // functions below are not supposed to be used by consumer applications
 

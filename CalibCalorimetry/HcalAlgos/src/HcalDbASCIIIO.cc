@@ -1918,7 +1918,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMParameters&
        ++channel) {
     const int   type   = fObject.getValues(*channel)->getType();
     const float fcByPE = fObject.getValues(*channel)->getFCByPE();
-    const float darkC  = fObject.getValues(*channel)->getDrakCurrent();
+    const float darkC  = fObject.getValues(*channel)->getDarkCurrent();
     const int   auxi1  = fObject.getValues(*channel)->getauxi1();
     const float auxi2  = fObject.getValues(*channel)->getauxi2();
     HcalDbASCIIIO::dumpId (fOutput, *channel);
