@@ -6,10 +6,14 @@ namespace hcaldqm
 		std::string const& taskname, edm::ParameterSet const& ps) :
 		DQClient(name, taskname, ps)
 	{
-		_thresh_fgmsm = ps.getUntrackedParameter<double>("thresh_fgmsm",
-			0.1);
-		_thresh_etmsm = ps.getUntrackedParameter<double>("thresh_etmsm",
-			0.1);
+		_thresh_EtMsmRate_high = ps.getUntrackedParameter<double>(
+			"thresh_EtMsmRate_high", 0.2);
+		_thresh_EtMsmRate_low = ps.getUntrackedParameter<double>(
+			"thresh_EtMsmRate_low", 0.05);
+		_thresh_FGMsmRate_high = ps.getUntrackedParameter<double>(
+			"thresh_FGMsmRate_high", 0.2);
+		_thresh_FGMsmRate_low = ps.getUntrackedParameter<double>(
+			"thresh_FGMsmRate_low", 0.05);
 	}
 
 	/* virtual */ void TPRunSummary::beginRun(edm::Run const& r,
@@ -41,10 +45,12 @@ namespace hcaldqm
 			cEtCorrRatio_depthlike;
 		ContainerSingle2D cSummary;
 		ContainerXXX<double> xDeadD, xDeadE, xEtMsm, xFGMsm;
+		ContainerXXX<double> xNumCorr;
 		xDeadD.initialize(hashfunctions::fFED);
 		xDeadE.initialize(hashfunctions::fFED);
 		xEtMsm.initialize(hashfunctions::fFED);
 		xFGMsm.initialize(hashfunctions::fFED);
+		xNumCorr.initialize(hashfunctions::fFED);
 		cOccupancyData_depthlike.initialize(_taskname, "OccupancyData",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
@@ -80,7 +86,7 @@ namespace hcaldqm
 
 		//	BOOK
 		xDeadD.book(_emap); xDeadE.book(_emap); xEtMsm.book(_emap); 
-		xFGMsm.book(_emap);
+		xFGMsm.book(_emap); xNumCorr.book(_emap);
 
 		//	LOAD
 		cOccupancyData_depthlike.load(ig, _subsystem);
@@ -101,16 +107,26 @@ namespace hcaldqm
 			HcalTrigTowerDetId tid = HcalTrigTowerDetId(*it);
 			if (tid.version()==0 && tid.ietaAbs()>=29)
 				continue;
-			HcalElectronicsId eid=HcalElectronicsId(ehashmap.lookup(*it));
-			double etmsmfr = double(cEtMsm_depthlike.getBinContent(tid))/
-				double(cEtCorrRatio_depthlike.getBinEntries(tid));	
-			etmsmfr>=0.1?xEtMsm.get(eid)++:xEtMsm.get(eid)+=0;
-			double fgmsmfr = double(cFGMsm_depthlike.getBinContent(tid))/
-				double(cEtCorrRatio_depthlike.getBinEntries(tid));
-			fgmsmfr>=0.1?xFGMsm.get(eid)++:xFGMsm.get(eid)+=0;
 
-			_cEtMsmFraction_depthlike.setBinContent(tid, etmsmfr);
-			_cFGMsmFraction_depthlike.setBinContent(tid, fgmsmfr);
+			//	do the comparison if there are channels that were correlated
+			//	both had emul and data tps
+			if (cEtCorrRatio_depthlike.getBinEntries(tid)>0)
+			{
+				HcalElectronicsId eid=HcalElectronicsId(ehashmap.lookup(*it));
+
+				double numetmsm = cEtMsm_depthlike.getBinContent(tid);
+				double numfgmsm = cFGMsm_depthlike.getBinContent(tid);
+				double numcorr = cEtCorrRatio_depthlike.getBinEntries(tid);
+
+				xEtMsm.get(eid) += numetmsm;
+				xFGMsm.get(eid) += numfgmsm;
+				xNumCorr.get(eid) += numcorr;
+
+				_cEtMsmFraction_depthlike.setBinContent(tid, 
+					numetmsm/numcorr);
+				_cFGMsmFraction_depthlike.setBinContent(tid, 
+					numfgmsm/numcorr);
+			}
 		}
 
 		std::vector<flag::Flag> sumflags;
@@ -132,12 +148,21 @@ namespace hcaldqm
 			//	@cDAQ
 			if (utilities::isFEDHBHE(eid) || utilities::isFEDHF(eid))
 			{
-				if (xEtMsm.get(eid)>0)
+				double etmsmfr = xNumCorr.get(eid)>0?
+					double(xEtMsm.get(eid))/double(xNumCorr.get(eid)):0;
+				double fgmsmfr = xNumCorr.get(eid)>0?
+					double(xFGMsm.get(eid))/double(xNumCorr.get(eid)):0;
+
+				if (etmsmfr>=_thresh_EtMsmRate_high)
 					vflags[fEtMsm]._state = flag::fBAD;
+				else if (etmsmfr>=_thresh_EtMsmRate_low)
+					vflags[fEtMsm]._state = flag::fPROBLEMATIC;
 				else
 					vflags[fEtMsm]._state = flag::fGOOD;
-				if (xFGMsm.get(eid)>0)
+				if (fgmsmfr>=_thresh_FGMsmRate_high)
 					vflags[fFGMsm]._state = flag::fBAD;
+				else if (fgmsmfr>=_thresh_FGMsmRate_low)
+					vflags[fFGMsm]._state = flag::fPROBLEMATIC;
 				else
 					vflags[fFGMsm]._state = flag::fGOOD;
 			}

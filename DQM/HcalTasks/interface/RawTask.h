@@ -51,8 +51,9 @@ class RawTask : public DQTask
 		{
 			fEvnMsm = 0,
 			fBcnMsm = 1,
-			fBadQ = 2,
-			nRawFlag = 3
+			fOrnMsm = 2,
+			fBadQ = 3,
+			nRawFlag = 4
 		};
 
 		//	emap
@@ -83,7 +84,7 @@ class RawTask : public DQTask
 		Container2D _cEvnMsm_ElectronicsuTCA;
 		Container2D _cBcnMsm_ElectronicsuTCA;
 		Container2D _cOrnMsm_ElectronicsuTCA;
-		ContainerXXX<uint32_t> _xEvnMsmLS, _xBcnMsmLS, _xBadQLS;
+		ContainerXXX<uint32_t> _xEvnMsmLS, _xBcnMsmLS, _xOrnMsmLS, _xBadQLS;
 	
 		Container2D	_cSummaryvsLS_FED; // online only
 		ContainerSingle2D	_cSummaryvsLS; // online only

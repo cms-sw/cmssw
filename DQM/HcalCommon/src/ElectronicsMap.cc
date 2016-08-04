@@ -22,8 +22,8 @@ namespace hcaldqm
 					{
 						HcalGenericDetId did = HcalGenericDetId(
 							_emap->lookup(*it));
-						if (!did.isHcalDetId())
-							continue;
+//						if (!did.isHcalDetId())
+//							continue;
 
 						_ids.insert(std::make_pair(did.rawId(), it->rawId()));
 					}
@@ -110,8 +110,8 @@ namespace hcaldqm
 						if (filter.filter(*it))
 							continue;
 						//	skip those that are not detid or calib ids
-						if (!did.isHcalDetId())
-							continue;
+//						if (!did.isHcalDetId())
+//							continue;
 
 						_ids.insert(std::make_pair(did.rawId(), it->rawId()));
 					}
@@ -143,8 +143,8 @@ namespace hcaldqm
 						if (filter.filter(*it))
 							continue;
 						//	skip those that are not detid or calib ids
-						if (!did.isHcalDetId())
-							continue;
+//						if (!did.isHcalDetId())
+//							continue;
 
 						//	note: use EChannel hashing here!
 						_ids.insert(std::make_pair(hash,did.rawId()));
