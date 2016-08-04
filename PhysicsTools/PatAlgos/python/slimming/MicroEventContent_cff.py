@@ -25,7 +25,7 @@ MicroEventContent = cms.PSet(
         'keep recoCaloClusters_reducedEgamma_*_*',
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
 
-        'keep *_egmPhotonIsolationMiniAODPUPPI_*_*', 
+        'keep *_egmPhotonPUPPIIsolationForPhotons_*_*', 
 
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
