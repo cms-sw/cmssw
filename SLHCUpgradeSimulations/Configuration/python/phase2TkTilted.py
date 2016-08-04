@@ -130,10 +130,10 @@ def customise_Reco(process,pileup):
     process.PixelCPEGenericESProducer.DoCosmics = False
     process.templates.DoLorentz = cms.bool(False)
     process.templates.LoadTemplatesFromDB = cms.bool(False)
-    # CPE for other steps
-    process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
 
     if not eras.trackingPhase2PU140.isChosen():
+      # CPE for other steps
+      process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
       # Turn of template use in tracking (iterative steps handled inside their configs)
       process.duplicateTrackCandidates.ttrhBuilderName = 'WithTrackAngle'
       process.mergedDuplicateTracks.TTRHBuilder = 'WithTrackAngle'
