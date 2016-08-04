@@ -8,13 +8,9 @@ SiPixelPhase1ClustersCharge = DefaultHisto.clone(
   xlabel = "Charge (electrons)",
   
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping)
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(parent(DefaultHisto.defaultGrouping)).saveAll(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
+    StandardSpecification2DProfile,
+    StandardSpecificationTrend,
+    *StandardSpecifications1D
   )
 )
 
@@ -24,13 +20,9 @@ SiPixelPhase1ClustersSize = DefaultHisto.clone(
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping)
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(parent(DefaultHisto.defaultGrouping)).saveAll(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
+    StandardSpecification2DProfile,
+    StandardSpecificationTrend,
+    *StandardSpecifications1D
   )
 )
 
@@ -41,21 +33,8 @@ SiPixelPhase1ClustersNClusters = DefaultHisto.clone(
   xlabel = "clusters",
   dimensions = 0,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event") 
-                   .reduce("COUNT") 
-                   .groupBy(DefaultHisto.defaultGrouping)
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event")
-                   .reduce("COUNT")
-                   .groupBy(parent(DefaultHisto.defaultGrouping))
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/Event")
-                            .reduce("COUNT")
-                            .groupBy(DefaultHisto.defaultPerModule)
-                            .save()
+    StandardSpecification2DProfile_Num,
+    StandardSpecificationTrend_Num
   )
 )
 
@@ -94,8 +73,9 @@ SiPixelPhase1ClustersPositionF = DefaultHisto.clone(
   range_y_min = -20, range_y_max = 20, range_y_nbins = 200,
   dimensions = 2,
   specs = cms.VPSet(
-    Specification().groupBy("PXForward/HalfCylinder/PXDisk").save(),
-    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward/PXDisk").save(),
+    Specification().groupBy("PXForward").save(),
+    #Specification().groupBy("PXBarrel").save(),
   )
 )
 

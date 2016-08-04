@@ -11,14 +11,9 @@ SiPixelPhase1DigisADC = DefaultHisto.clone(
   range_max = 300,
   range_nbins = 300,
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save()
+    StandardSpecificationTrend,
+    StandardSpecification2DProfile,
+    *StandardSpecifications1D
   )
 )
 
@@ -31,20 +26,9 @@ SiPixelPhase1DigisNdigis = DefaultHisto.clone(
   range_nbins = 30,
   dimensions = 0, # this is a count
   specs = cms.VPSet(
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event") 
-                   .reduce("COUNT") # per-event counting
-                   .groupBy(DefaultHisto.defaultGrouping) # per-ladder and profiles
-                   .save()
-                   .reduce("MEAN")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
-                   .saveAll(),
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/DetId/Event")
-                   .reduce("COUNT")
-                   .groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/Event")
-                            .reduce("COUNT")
-                            .groupBy(DefaultHisto.defaultPerModule).save()
+    StandardSpecificationTrend_Num,
+    StandardSpecification2DProfile_Num,
+    *StandardSpecifications1D_Num
   )
 )
 
@@ -53,18 +37,14 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
   title = "Digis", # should allow setting the range per spec, but OTOH a 
   xlabel = "digis",# HistogramManager is almost free.
   range_min = 0,
-  range_max = 200,
+  range_max = 1000,
   range_nbins = 200,
   dimensions = 0, 
   specs = cms.VPSet(
-    Specification().groupBy("PXBarrel|PXForward/FED/Event")
+    Specification().groupBy("FED/Event")
                    .reduce("COUNT")
-                   .groupBy("PXBarrel|PXForward/FED")
-                   .groupBy("PXBarrel|PXForward", "EXTEND_Y")
-                   .save(),
-    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/FED/Event")
-                   .reduce("COUNT")
-                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk")
+                   .groupBy("FED")
+                   .groupBy("", "EXTEND_Y")
                    .save()
   )
 )
@@ -92,37 +72,19 @@ SiPixelPhase1DigisHitmap = DefaultHisto.clone(
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/row/col")
                    .groupBy(DefaultHisto.defaultPerModule.value() + "/row", "EXTEND_X")
                    .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_Y")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
-
+                   .save(),
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/col")
                    .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_X")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
-
+                   .save(),
     Specification(PerModule).groupBy(DefaultHisto.defaultPerModule.value() + "/row")
                    .groupBy(DefaultHisto.defaultPerModule.value(), "EXTEND_X")
                    .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
 
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade/LumiDecade")
-                   .groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade", "EXTEND_X")
-                   .groupBy(DefaultHisto.defaultGrouping, "EXTEND_Y")
-                   .save(),
-
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROC")
-                   .groupBy(DefaultHisto.defaultGrouping,"EXTEND_X")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll(),
-
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
-                   .groupBy(DefaultHisto.defaultGrouping,"EXTEND_X")
-                   .save()
-                   .groupBy(DefaultHisto.defaultGrouping, "SUM").saveAll()
   )
 )
 
 SiPixelPhase1DigisDebug = DefaultHisto.clone(
+  enabled = False,
   name = "debug",
   xlabel = "ladder #",
   range_min = 1,
@@ -134,9 +96,6 @@ SiPixelPhase1DigisDebug = DefaultHisto.clone(
                    .reduce("MEAN")
                    .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_X")
                    .saveAll(),
-    Specification().groupBy(parent(DefaultHisto.defaultGrouping)) # per-layer
-                   .save(),
-    Specification(PerModule).groupBy(DefaultHisto.defaultPerModule).save(),
   )
 )
 
