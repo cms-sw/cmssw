@@ -200,7 +200,7 @@ PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPul
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
 								       TSMin_(0), TSMax_(0), ts4Chi2_(0), pedestalConstraint_(0),
 								       timeConstraint_(0), addPulseJitter_(0), unConstrainedFit_(0), applyTimeSlew_(0),
-								       ts4Min_(0), ts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
+								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0)
 								       noise_(0) {
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
@@ -214,8 +214,8 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
 }
 
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min, double iTS4Max,
-						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
+						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min, std::vector<double> iTS4Max,
+						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean, double iPedSig,
 						   double iNoise,double iTMin,double iTMax,
 						   double its4Chi2,
 						   double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) { 
@@ -229,7 +229,8 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   unConstrainedFit_   = iUnConstrainedFit;
   applyTimeSlew_      = iApplyTimeSlew;
   ts4Min_             = iTS4Min;
-  ts4Max_             = iTS4Max;
+  //  ts4Max_            = iTS4Max;
+  vts4Max_            = iTS4Max;
   pulseJitter_        = iPulseJitter*iPulseJitter;
   timeMean_           = iTimeMean;
   timeSig_            = iTimeSig;
@@ -248,7 +249,6 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 }
 
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
-
    if( cntsetPulseShape ) return;
    ++ cntsetPulseShape;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
@@ -297,9 +297,11 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
       }
    }
 
+   ts4Max_=vts4Max_[0]; //  HB and HE are identical for Run2
+
    std::vector<double> fitParsVec;
    if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
-     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec);
+     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,true);
    }
    else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
      fitParsVec.clear();
@@ -314,7 +316,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
 
 constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","energy2", "ped"};
 
-int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<double> &fitParsVec)  const {
+int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<double> &fitParsVec, bool useADCgranularity)  const {
    double tsMAX=0;
    int    nAboveThreshold = 0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
@@ -326,8 +328,12 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmpslew[i] = 0;
       if(applyTimeSlew_) tmpslew[i] = HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       //Add Greg's channel discretization
-      double sigmaBin =  psfPtr_->sigma(chargeArr[i]);
-      tmperry2[i]=noise_*noise_+ sigmaBin*sigmaBin; //Greg's Granularity
+      double sigmaBin =  psfPtr_->sigma(chargeArr[i]); // ADC granularity
+      if(useADCgranularity) {
+	tmperry2[i]=noise_*noise_+ sigmaBin*sigmaBin;
+      } else {
+	tmperry2[i]=noise_*noise_;
+      }
       //Propagate it through
       tmperry2[i]*=(gainArr[i]*gainArr[i]); //Convert from fC to GeV
       tmperry [i]=sqrt(tmperry2[i]);
@@ -508,9 +514,15 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(
     }
   }
 
+  bool useADC=true;
+  if(channelData.id().subdet() == HcalSubdetector::HcalEndcap) useADC=false;
+
+  if(channelData.id().subdet() == HcalSubdetector::HcalBarrel) ts4Max_=vts4Max_[0];
+  if(channelData.id().subdet() == HcalSubdetector::HcalEndcap) ts4Max_=vts4Max_[1];
+
   std::vector<double> fitParsVec;
-  if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
-    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec);
+  if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
+    pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,useADC);
   }
   else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
     fitParsVec.clear();

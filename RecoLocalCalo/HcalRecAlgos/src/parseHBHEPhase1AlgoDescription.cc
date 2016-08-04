@@ -19,7 +19,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const bool iUnConstrainedFit =   conf.getParameter<bool>  ("applyUnconstrainedFit");
     const bool iApplyTimeSlew =      conf.getParameter<bool>  ("applyTimeSlew");
     const double iTS4Min =           conf.getParameter<double>("ts4Min");
-    const double iTS4Max =           conf.getParameter<double>("ts4Max");
+    const std::vector<double> iTS4Max =           conf.getParameter<std::vector<double>>("ts4Max");
     const double iPulseJitter =      conf.getParameter<double>("pulseJitter");
     const double iTimeMean =         conf.getParameter<double>("meanTime");
     const double iTimeSig =          conf.getParameter<double>("timeSigma");

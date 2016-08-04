@@ -95,7 +95,7 @@ public:
 
     void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
-		     double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
+		     double iTS4Min, std::vector<double> iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		     double iNoise, double iTMin,double iTMax,
 		     double its4Chi2, double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
     
@@ -104,7 +104,7 @@ public:
 
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
-		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<double> &fitParsVec) const;
+		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<double> &fitParsVec, bool) const;
     void fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,
 	     const double  &iTSTOTen,double *iEnArr,int (&iBX)[3]) const;
 
@@ -127,7 +127,8 @@ private:
     bool unConstrainedFit_;
     bool applyTimeSlew_;
     double ts4Min_;
-    double ts4Max_;
+    mutable double ts4Max_;
+    std::vector<double> vts4Max_;
     double pulseJitter_;
     double timeMean_;
     double timeSig_;

@@ -262,7 +262,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  conf.getParameter<bool>  ("applyUnconstrainedFit"),
 			  conf.getParameter<bool>  ("applyTimeSlew"),
 			  conf.getParameter<double>("ts4Min"),
-			  conf.getParameter<double>("ts4Max"),
+			  conf.getParameter<std::vector<double>>("ts4Max"),
 			  conf.getParameter<double>("pulseJitter"),
 			  conf.getParameter<double>("meanTime"),
 			  conf.getParameter<double>("timeSigma"),
