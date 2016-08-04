@@ -55,6 +55,8 @@ class RunOnData(ConfigToolBase):
                             idx = getattr(process,prefix+'CombinedCorrector'+postfix).correctors.index(prefix+'L3Absolute')+1
                             getattr(process,prefix+'CombinedCorrector'+postfix).correctors.insert(idx, prefix+'L2L3Residual')
                             print 'adding L2L3Residual for TypeI MET correction:', getattr(process,prefix+'CombinedCorrector'+postfix).label_()
+            if 'patJetGenJet' in mod or 'GenParticle' in mod or 'slimmedGenJets' in mod or 'tauGenJet' in mod:
+                delattr(process,mod)
 
 runOnData=RunOnData()
 
