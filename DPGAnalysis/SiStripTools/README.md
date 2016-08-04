@@ -5,6 +5,10 @@ It is an `EDAnalyzer` which can be used to monitor the content of the `Level1Tri
 ### APVCyclePhaseProducerFromL1TS
 It is an `EDProducer` which produces an `APVCyclePhaseCollection` which contains, for each Tracker partition, an offset, between 0 and 69, to be used to compute the position of each event in the Tracker APV readout cycle from the orbit number and the bunch crossing number using `orbit*3564+bx-offset`. More details can be found [in this page](https://twiki.cern.ch/twiki/bin/view/CMS/APVReadoutCycle). The standard way of using it is to let the EventSetup provide the parameters using the record `SiStripConfObject` with the label `apvphaseoffsets` (configurable). If the configuration parameter `ignoreDB` is set to true, then the parameters are read from the configuration file and are: `defaultPartitionNames` usually equal to `TI,TO,TP,TM`, `defaultPhases` which contains a vector (one value per partition) of offsets which are used as offset when no resync has been issued, `magicOffset` which is used to correct the orbit number of the last resync to compute the phase when a resync has been issued using the expression: `(defaultPhase + (lastresyncorbit+magicOffset)*3564%70)%70`, and `useEC0` if we want to use `lastEC0orbit` instead of `lastresyncorbit` to compute the phase. Examples of configurations can be found in the `python` directory.
 
+### CommonModeAnalyzer
+It is an `EDAnalyzer` that produces histograms of the common mode values provided by the FEDs and by the Strip unpacker. The user can define one or more subset of modules whose common mode values have to be analyzed. The definition of these subsets is done with the configuration parameter `selections` and the syntax used for the `DetIdSelector` class has to be used for the parameter `selection` while the parameter `label` is used to define the labels used in the histogram names and titles associated to that selection. The boolean parameters `ignoreFEDBadMod` and `ignoreNotConnected` can be used to configure the analyzer to ignore the modules which are declared as bad by the unpacker and the channels which are not connected, respectively: setting both parameters as `True` removes all the common mode values at zero and it help to identify genunely low common mode values. The parameter `digiCollection` is used to define the name of the common mode collection and the parameter `badModuleDigiCollection` is used to define the name of the collection of bad modules produced by the unpacker. The parameter `historyProduct` defines the name of the collection of `EventWithHistory` objects, the parameter `apvPhaseCollection` defines the collection of APV phases offsets and the parameter `phasePartition` defines the partition whose APV phase has to be considered: using `All` means that the phases of the four partitions have to agree. These parameters are needed because one of the histogram which is produced is the average common mode value as a function of the distance of the events from the start of the APV cycle after the previous L1A and, therefore, the distance from the previous L1A is needed, using `EventWithHistory` and the APV cycle phase is needed. The other histograms which are produced are: the distribution of the common mode values in all the events and in all the channels belonging to one of the selections, the average common mode value as a function of the orbit number (time evolution), the average common mode values as a function of the BX number, the distribution of the number of modules and APVs whose common mode values have been monitored per event.
+An example of configuration can be found in `python/commonmodeanalyzer_cfi.py`. The file `test/commonmodeanalyzer_cfg.py` is an example of a full configuration.
+
 ### ...MultiplicityProducer
 There are three specializations of the `EDProducer` `plugins/MultiplicityProducer.cc` template: `SiStripMultiplicityProducer`, `SiPixelMultiplicityProducer`, `SiStripDigiMultiplicityProducer`. This plugin produce simple objects which contain the numbers of strip/pixel clusters or strip digis in subsets of the detector in a given event. 
 Examples of configurations can be found in:
@@ -33,11 +37,11 @@ It produces histograms to correlate the multiplicities obtained from `Multiplici
 * `test/apvphaseproducertest_cfg.py` to study the correlation of the strip multiplicities with the APV cycle and determine if the knowledge of the APV cycle phase offsets is still under control
 * `test/bsvsbpix_cfg.py`to correlate the beamspot position with the average position of the BPIX ladders. It requires the macros described below to show its results.
 * `test/OccupancyPlotsTest_cfg.py` to measure the hit occupancy and multiplicity in the different detector region (rZ view). It requires the macros described below to show its results.
+* `test/commonmodeanalyzer_cfg.py` to monitor the common mode values in different detector parts. It requires the parameter `globalTag` in the command line.
 
 ## ROOT Macros
 This package contains a library of ROOT macros that can be loaded by executing `gSystem->Load("libDPGAnalysisSiStripToolsMacros.so")`
-in the root interactive section, followed by 
-`#include "DPGAnalysis/SiStripTools/bin/DPGAnalysisSiStripToolsMacrosLinkDef.h"` in case Root 6 is used.
+in the root interactive section. In case Root 6 is used the autocompletion of the macro names using the TAB is available only after a macro is executed.
 
 ### BSvsBPIXPlot
 `BSvsBPIXPlot(TFile* ff, const char* bsmodule, const char* occumodule, const int run)`
@@ -91,6 +95,11 @@ As the macro `PlotOnTrackOccupancy` but for results obtained with the phase 1 ge
 
 ### PlotOnTrackOccupancyPhase2
 As the macro `PlotOnTrackOccupancy` but for results obtained with the phase 2 geometry
+
+### TrendPlotSingleBin
+`TrendPlotSingleBin(TFile* ff, const char* module, const char* hname, const int bin)`
+
+It has to be used with the output root file of `OccupancyPlots` and it produces a trend plot of the average occupancy or cluster multiplicity as a function of the run number for a specific part of the detector defined by the bin `bin` in the configuration of the `OccupancyPlots` job.
 
 ## Scripts
 ### merge_and_move_generic_fromCrab.sh
