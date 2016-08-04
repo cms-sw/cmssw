@@ -17,30 +17,19 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
   bookUndefined = False, # Barrel-only stuff below
   name = "valid",
   title = "Valid Hits",
-  xlabel = "Valid Hits",
   dimensions = 0,
   specs = cms.VPSet(
     # custom() is called here after every save to export the histos for the
     # efficiency harvesting. The parameter is just a tag that we don't confuse 
     # the histos of different specs.
-    Specification().groupBy(DefaultHisto.defaultPerModule)
-                   .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
-                   .save()
-                   .custom("permodule")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
-                   .save()
-                   .custom("permodule"),
     Specification().groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
                    .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
                    .save()
-                   .custom("signedmodule")
-                   .groupBy("PXBarrel", "SUM")
-                   .save()
                    .custom("signedmodule"),
-    Specification().groupBy(DefaultHisto.defaultGrouping.value() + "/ROCinLadder|ROCinBlade")
-                   .groupBy(DefaultHisto.defaultGrouping, "EXTEND_X")
-                   .groupBy(parent(DefaultHisto.defaultGrouping), "EXTEND_Y")
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade" + "/ROCinLadder|ROCinBlade")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/signedLadder|PXBlade", "EXTEND_X")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_Y")
                    .save()
                    .custom("perroc")
   )
@@ -49,7 +38,6 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHisto.clone(
 SiPixelPhase1TrackEfficiencyMissing = SiPixelPhase1TrackEfficiencyValid.clone(
   name = "missing",
   title = "Missing Hits",
-  xlabel = "Missing Hits",
 )
 
 SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone(
