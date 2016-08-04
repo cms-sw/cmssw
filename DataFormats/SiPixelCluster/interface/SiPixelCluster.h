@@ -206,13 +206,14 @@ private:
   
   uint16_t theMinPixelRow=MAXPOS; // Minimum pixel index in the x direction (low edge).
   uint16_t theMinPixelCol=MAXPOS; // Minimum pixel index in the y direction (left edge).
-  uint8_t thePixelRowSpan=MAXSPAN; // Span pixel index in the x direction (low edge).
-  uint8_t thePixelColSpan=MAXSPAN; // Span pixel index in the y direction (left edge).
+  uint8_t thePixelRowSpan=0; // Span pixel index in the x direction (low edge).
+  uint8_t thePixelColSpan=0; // Span pixel index in the y direction (left edge).
   
   
 };
 
-// Comparison operators  (no clue...)
+
+// Comparison operators  (needed by DetSetVector)
 inline bool operator<( const SiPixelCluster& one, const SiPixelCluster& other) {
   if ( one.minPixelRow() < other.minPixelRow() ) {
     return true;
@@ -224,6 +225,7 @@ inline bool operator<( const SiPixelCluster& one, const SiPixelCluster& other) {
     return false;
   }
 }
+
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
