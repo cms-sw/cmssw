@@ -42,6 +42,14 @@ class RunOnData(ConfigToolBase):
 
         print '******************* RunOnData *******************'
         removeMCMatching(process, names=names, postfix=postfix, outputModules=outputModules)
+        modStringsToRemove = [
+            'patJetGenJet', 
+            'GenParticle', 
+            'slimmedGenJets', 
+            'tauGenJet', 
+            'patJetFlavourAssociation', 
+            'patJetParton',
+        ]
         for mod in process.producerNames().split():
             if mod.startswith('patJetCorrFactors'):
                 prefix = getattr(process, mod).payload.pythonValue().replace("'","")
@@ -55,7 +63,7 @@ class RunOnData(ConfigToolBase):
                             idx = getattr(process,prefix+'CombinedCorrector'+postfix).correctors.index(prefix+'L3Absolute')+1
                             getattr(process,prefix+'CombinedCorrector'+postfix).correctors.insert(idx, prefix+'L2L3Residual')
                             print 'adding L2L3Residual for TypeI MET correction:', getattr(process,prefix+'CombinedCorrector'+postfix).label_()
-            if 'patJetGenJet' in mod or 'GenParticle' in mod or 'slimmedGenJets' in mod or 'tauGenJet' in mod:
+            if any(x in mod for x in modStringsToRemove):
                 delattr(process,mod)
 
 runOnData=RunOnData()
