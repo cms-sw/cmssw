@@ -40,6 +40,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TTree.h"
 
 //#define DebugLog
 
@@ -63,7 +64,7 @@ private:
   edm::Service<TFileService>               fs_;
   const HGCalDDDConstants                 *hgcons_[2];
   const HGCalGeometry                     *hgeom_[2];
-  bool                                     ifEE_, ifHE_;
+  bool                                     ifEE_, ifHE_, makeTree_;
   bool                                     doSimHits_, doDigis_, doRecHits_;
   std::string                              detectorEE_, detectorHE_;
   int                                      sampleIndex_;
@@ -71,6 +72,7 @@ private:
   edm::EDGetToken                          tok_digiEE_, tok_digiHE_;
   edm::EDGetToken                          tok_hitrEE_, tok_hitrHE_;
   edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
+  TTree                                   *tree_;
   TH1D                                    *hSimHitE_[2], *hSimHitT_[2];
   TH1D                                    *hDigiADC_[2], *hDigiLng_[2];
   TH1D                                    *hRecHitE_[2], *hSimHitEn_[2], *hBeam_;
@@ -81,6 +83,8 @@ private:
   TProfile2D                              *hSimHitLat_[2], *hRecHitLat_[2];
   std::vector<TH1D*>                       hSimHitLayEn1E_, hSimHitLayEn1H_;
   std::vector<TH1D*>                       hSimHitLayEn2E_, hSimHitLayEn2H_;
+  std::vector<float>                       simHitLayEn1E, simHitLayEn2E;
+  std::vector<float>                       simHitLayEn1H, simHitLayEn2H;
 };
 
 HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
@@ -96,6 +100,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   doDigis_     = iConfig.getParameter<bool>("DoDigis");
   sampleIndex_ = iConfig.getParameter<int>("SampleIndex");
   doRecHits_   = iConfig.getParameter<bool>("DoRecHits");
+  makeTree_    = iConfig.getUntrackedParameter<bool>("MakeTree",false);
 #ifdef DebugLog
   std::cout << "HGCalTBAnalyzer:: SimHits = " << doSimHits_ << " Digis = "
 	    << doDigis_ << ":" << sampleIndex_ << " RecHits = " << doRecHits_
@@ -205,6 +210,13 @@ void HGCalTBAnalyzer::beginJob() {
       hRecHitLng1_[i] = fs_->make<TProfile>(name,title,120,0.,60.);
     }
   }
+  if (doSimHits_ && makeTree_) {
+    tree_ = fs_->make<TTree>("HGCTB","SimHitEnergy");
+    tree_->Branch("simHitLayEn1E", &simHitLayEn1E);
+    tree_->Branch("simHitLayEn2E", &simHitLayEn2E);
+    tree_->Branch("simHitLayEn1H", &simHitLayEn1H);
+    tree_->Branch("simHitLayEn2H", &simHitLayEn2H);
+  }
 }
 
 void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
@@ -299,9 +311,15 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 
   //Now the Simhits
   if (doSimHits_) {
+    simHitLayEn1E.clear(); simHitLayEn2E.clear();
+    simHitLayEn1H.clear(); simHitLayEn2H.clear();
     edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
     std::vector<PCaloHit>               caloHits;
     if (ifEE_) {
+      for (unsigned int k=0; k<hgcons_[0]->layers(false); ++k) 
+	simHitLayEn1E.push_back(0);
+      for (unsigned int k=0; k<hgcons_[0]->layers(true);  ++k) 
+	simHitLayEn2E.push_back(0);
       iEvent.getByToken(tok_hitsEE_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef DebugLog
@@ -320,6 +338,10 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       }
     }
     if (ifHE_) {
+      for (unsigned int k=0; k<hgcons_[1]->layers(false); ++k) 
+	simHitLayEn1H.push_back(0);
+      for (unsigned int k=0; k<hgcons_[1]->layers(true);  ++k) 
+	simHitLayEn2H.push_back(0);
       iEvent.getByToken(tok_hitsHE_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef DebugLog
@@ -337,6 +359,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 #endif
       }
     }
+    if (makeTree_) tree_->Fill();
   }
 
   //Now the Digis
@@ -466,11 +489,15 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     hSimHitLng_[type]->Fill(zp,energy);
     hSimHitLng2_[type]->Fill(layer,energy);
     if (type == 0) {
-      if (layer-1 < (int)(hSimHitLayEn1E_.size()))
+      if (layer-1 < (int)(hSimHitLayEn1E_.size())) {
+	simHitLayEn1E[layer-1] = energy;
 	hSimHitLayEn1E_[layer-1]->Fill(energy);
+      }
     } else {
-      if (layer-1 < (int)(hSimHitLayEn1H_.size()))
+      if (layer-1 < (int)(hSimHitLayEn1H_.size())) {
+	simHitLayEn1H[layer-1] = energy;
 	hSimHitLayEn1H_[layer-1]->Fill(energy);
+      }
     }
     if ((layer-1)%6 == 0 || (layer-1)%6 == 4) {
       for (std::map<int,double>::iterator itr1 = map_hitLayer.begin(); 
@@ -483,9 +510,15 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
       hSimHitLng1_[type]->Fill(layer,energy);
       int    ll = (layer-1)/3;
       if (type == 0) {
-	if (ll<(int)(hSimHitLayEn2E_.size())) hSimHitLayEn2E_[ll]->Fill(energy);
+	if (ll<(int)(hSimHitLayEn2E_.size())) {
+	  simHitLayEn2E[ll] = energy;
+	  hSimHitLayEn2E_[ll]->Fill(energy);
+	}
       } else {
-	if (ll<(int)(hSimHitLayEn2H_.size())) hSimHitLayEn2H_[ll]->Fill(energy);
+	if (ll<(int)(hSimHitLayEn2H_.size())) {
+	  simHitLayEn2H[ll] = energy;
+	  hSimHitLayEn2H_[ll]->Fill(energy);
+	}
       }
     }
   }
