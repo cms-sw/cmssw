@@ -2,6 +2,7 @@
 
 #include <ostream>
 #include <string>
+#include <array>
 
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Core/src/Boolean.h"
@@ -22,6 +23,7 @@
 #include "DetectorDescription/Core/src/Trap.h"
 #include "DetectorDescription/Core/src/TruncTubs.h"
 #include "DetectorDescription/Core/src/Tubs.h"
+#include "DetectorDescription/Core/src/CutTubs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -123,6 +125,9 @@ DDSolid::DDSolid(const DDName & n, DDSolidShape s, const std::vector<double> & p
 	 break;
        case ddparallelepiped:
 	 solid = new DDI::Parallelepiped(0,0,0,0,0,0);
+	 break;
+       case ddcuttubs:
+	 solid = new DDI::CutTubs(0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,-1.);
 	 break;
        default:
         throw cms::Exception("DDException") << "DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape";   
@@ -651,7 +656,35 @@ double DDParallelepiped::theta() const { return rep().parameters()[4]; }
 
 double DDParallelepiped::phi() const { return rep().parameters()[5]; }
 
+// =================================================================================
 
+DDCutTubs::DDCutTubs(const DDSolid& s) 
+  : DDSolid(s) {
+  if (s.shape() != ddcuttubs) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDCutTubs.\n";
+    ex = ex + "Use a different solid interface!";
+    throw cms::Exception("DDException") << ex;
+  }
+}
+
+double DDCutTubs::zhalf() const { return rep().parameters()[0]; }
+
+double DDCutTubs::rIn() const { return rep().parameters()[1]; }
+
+double DDCutTubs::rOut() const { return rep().parameters()[2]; }
+
+double DDCutTubs::startPhi() const { return rep().parameters()[3]; }
+
+double DDCutTubs::deltaPhi() const { return rep().parameters()[4]; }
+
+std::array<double, 3> DDCutTubs::lowNorm( void ) const {
+  return std::array<double, 3>{{rep().parameters()[5],rep().parameters()[6],rep().parameters()[7]}};
+}
+
+std::array<double, 3> DDCutTubs::highNorm( void ) const {
+  return std::array<double, 3>{{rep().parameters()[8],rep().parameters()[9],rep().parameters()[10]}};
+}
+    
 // =================================================================================
 // =========================SolidFactory============================================
 
@@ -795,6 +828,15 @@ DDSolid DDSolidFactory::tubs(const DDName & name,
   return DDSolid(name, new DDI::Tubs(zhalf,rIn,rOut,phiFrom,deltaPhi));
 }
 
+DDSolid DDSolidFactory::cuttubs(const DDName & name,
+				double zhalf,
+				double rIn, double rOut,	      	      
+				double phiFrom, double deltaPhi,
+				double lx, double ly, double lz,
+				double tx, double ty, double tz)
+{		     
+  return DDSolid(name, new DDI::CutTubs(zhalf,rIn,rOut,phiFrom,deltaPhi,lx,ly,lz,tx,ty,tz));
+}
 
 DDSolid DDSolidFactory::sphere(const DDName & name,
                      double innerRadius,

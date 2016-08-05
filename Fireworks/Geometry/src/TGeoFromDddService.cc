@@ -316,7 +316,19 @@ TGeoFromDddService::createShape(const std::string& iName,
                                     params[2]/cm,
                                     params[0]/cm,
                                     params[3]/deg,
-                                    params[4]/deg);
+                                    params[3]/deg + params[4]/deg);
+	    break;
+	 case ddcuttubs:
+	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi
+	    rSolid= new TGeoCtub(
+				 iName.c_str(),
+				 params[1]/cm,
+				 params[2]/cm,
+				 params[0]/cm,
+				 params[3]/deg,
+				 params[3]/deg + params[4]/deg,
+				 params[5],params[6],params[7],
+				 params[8],params[9],params[10]);
 	    break;
 	 case ddtrap:
 	    rSolid =new TGeoTrap(

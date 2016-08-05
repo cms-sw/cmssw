@@ -91,7 +91,7 @@ DDLElementRegistry::getElement( const std::string& name )
     {
       myret = new DDLPseudoTrap(this);
     }
-    else if (name == "Tubs" || name == "Tube" || name == "TruncTubs")
+    else if (name == "Tubs" || name == "CutTubs" || name == "Tube" || name == "TruncTubs")
     {
       myret = new DDLTubs(this);
     }

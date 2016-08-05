@@ -13,6 +13,7 @@
 #include <DetectorDescription/Core/src/Torus.h>
 #include <DetectorDescription/Core/src/Trap.h>
 #include <DetectorDescription/Core/src/Tubs.h>
+#include <DetectorDescription/Core/src/CutTubs.h>
 
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -29,6 +30,7 @@
 #include <G4Trap.hh>
 #include <G4Trd.hh>
 #include <G4Tubs.hh>
+#include <G4CutTubs.hh>
 #include <string>
 
 //
@@ -529,6 +531,38 @@ doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis,
 // 	      G4double  halfzlen,
 // 	      G4double  dphi)
 
+//
+// 24. Cylindrical Cut Section or Cut Tube:
+//
+// G4CutTubs(const G4String& pName,                        
+//           G4double  pRMin,
+//           G4double  pRMax,
+//           G4double  pDz,
+//           G4double  pSPhi,
+//           G4double  pDPhi,
+//           G4ThreeVector pLowNorm,
+//           G4ThreeVector pHighNorm)
+void
+doCutTubs( const std::string& name, double rIn, double rOut, 
+	   double zhalf, double startPhi, double deltaPhi,
+	   std::array<double, 3> lowNorm, std::array<double, 3> highNorm )
+{
+  G4CutTubs g4( name, rIn, rOut, zhalf, startPhi, deltaPhi,
+		G4ThreeVector( lowNorm[0], lowNorm[1], lowNorm[2]),
+		G4ThreeVector( highNorm[0], highNorm[1], highNorm[2]));
+  DDI::CutTubs dd( zhalf, rIn, rOut, startPhi, deltaPhi,
+		   lowNorm[0], lowNorm[1], lowNorm[2],
+		   highNorm[0], highNorm[1], highNorm[2] );
+  DDCutTubs dds = DDSolidFactory::cuttubs( name, zhalf, rIn, rOut, startPhi, deltaPhi,
+					   lowNorm[0], lowNorm[1], lowNorm[2],
+					   highNorm[0], highNorm[1], highNorm[2] );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
 int
 main( int argc, char *argv[] )
 {
@@ -745,6 +779,16 @@ main( int argc, char *argv[] )
 //
 // 23. Tube Section Twisted along Its Axis: 
 //   
+
+//
+// 24. Cylindrical Cut Section or Cut Tube:
+//
+  std::cout << "\n\nCutTub tests\n" << std::endl;
+  std::array<double, 3> lowNorm = {{0, -0.7, -0.71}};
+  std::array<double, 3> highNorm = {{ 0.7, 0, 0.71 }};
+  
+  doCutTubs( name, rIn, rOut, zhalf, startPhi, deltaPhi, lowNorm, highNorm );
+  std::cout << std::endl;
   
   return EXIT_SUCCESS;
 }
