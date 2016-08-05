@@ -98,7 +98,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 }
 
 void
-SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup) {
+SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup,std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,CLHEP::HepRandomEngine* engine){
   edm::ESHandle<SiStripBadStrip> deadChannelHandle;
   iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
 
@@ -122,6 +122,8 @@ SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const
   }
   firstChannelsWithSignal[detId] = numStrips;
   lastChannelsWithSignal[detId]= 0;
+  std::bitset<6> &bs=SiStripTrackerAffectedAPVMap[detId];
+  if(bs.any())theAffectedAPVvector.push_back(std::make_pair(detId,bs));
 }
 
 void
@@ -129,6 +131,18 @@ SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup) {
   theSiPileUpSignals->reset();
   // This should be clear by after all calls to digitize(), but I might as well make sure
   associationInfoForDetId_.clear();
+  SiStripTrackerAffectedAPVMap.clear();
+  
+  for(std::map<int,float>::iterator iter = mapOfAPVprobabilities.begin(); iter != mapOfAPVprobabilities.end(); ++iter)
+  {
+    std::bitset<6> bs;
+    float cursor=CLHEP::RandFlat::shoot(engine);
+    for(int Napv=0;Napv<6;Napv++){
+      bs[Napv]=cursor < iter->second*APVSaturationProbScaling ? 1:0;
+    }
+    SiStripTrackerAffectedAPVMap[iter->first]=bs;
+  }
+
 
   //get gain noise pedestal lorentzAngle from ES handle
   edm::ESHandle<ParticleDataTable> pdt;
