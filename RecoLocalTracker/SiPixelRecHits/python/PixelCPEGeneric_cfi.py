@@ -61,6 +61,7 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
 
 # This customization will be removed once we get the templates for
 # FIXME::phase2 pixel
+# FIXME::Is the Upgrade variable actually used?
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_tracker.toModify(PixelCPEGenericESProducer, 
   useLAWidthFromDB = False,
@@ -69,6 +70,6 @@ eras.phase2_tracker.toModify(PixelCPEGenericESProducer,
   TruncatePixelCharge = False,
   IrradiationBiasCorrection = False,
   DoCosmics = False,
-#  Upgrade = True,
+  Upgrade = cms.bool(True)
 )
 
