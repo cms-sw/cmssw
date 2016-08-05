@@ -1,5 +1,5 @@
-#ifndef PACKER
-#define PACKER
+#ifndef EventFilter_HcalRawToDigi_PackerHelp_h
+#define EventFilter_HcalRawToDigi_PackerHelp_h
 
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -10,22 +10,9 @@
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 
 #include <iostream>
-#include "stdio.h"
+#include <cstdio>
 #include <vector>
 #include <map>
-
-using namespace std;
-
-typedef vector<uint16_t> uhtrData;
-typedef int AMCslot;
-typedef int CrateId;
-typedef pair<CrateId,AMCslot>    UHTRLoc;
-typedef map<int,uhtrData> UHTRMap; // the int here is intended to be the raw electronics ID 
-typedef vector<unsigned char> FEDData;
-typedef map<int,FEDData> FEDMap;
-
-//int FEDIDmin = FEDNumbering::MINHCALuTCAFEDID;
-//int FEDIDmax = FEDNumbering::MAXHCALuTCAFEDID;
 
 namespace CDFHeaderSpec{
   static const int OFFSET_H = 0; 
@@ -111,10 +98,11 @@ class HCalFED{
 
 public:
   
-  //FEDMap feds;
-  vector<unsigned char> fedData;
-  vector<uint64_t> AMCHeaders;
-  vector<uhtrData> uhtrs;
+  typedef std::vector<uint16_t> uhtrData;
+
+  std::vector<unsigned char> fedData;
+  std::vector<uint64_t> AMCHeaders;
+  std::vector<uhtrData> uhtrs;
   int fedId;
   uint64_t AMC13Header,cdfHeader;
   uint64_t OrbitNum;
@@ -197,7 +185,7 @@ public:
   // does not include HEADER and TRAILER
   FEDRawData* formatFEDdata(){
 
-    //vector<unsigned char> output;
+    //std::vector<unsigned char> output;
     if( uhtrs.size() != AMCHeaders.size() ){
       return NULL ;
     }
@@ -263,23 +251,18 @@ public:
       words++;
     }
 
-    // format CDFHeader
-    //rawFEDHeader = new FEDHeader(rawData->data());
-    //rawFEDHeader->set(rawData->data(),1,EventNum,BxNum,fedId);// bx is fixed to 1... how else should it be done?
-
-    //for( unsigned int i = 0 ; i < rawData->size() ; i+=2){
-    //  printf("Full FED data: %02X%02X \n",int(*(rawData->data()+i+1)),int(*(rawData->data()+i)));
-    //}
-
     return rawData; //output;
 
   };
 
 };
 
-class uHTRpacker{
+class UHTRpacker{
 
 public: 
+
+  typedef std::vector<uint16_t> uhtrData;
+  typedef std::map<int,uhtrData> UHTRMap; // the int here is intended to be the raw electronics ID 
 
   UHTRMap uhtrs;
 
@@ -310,7 +293,7 @@ public:
   static const int OFFSET_FW_VERSION = 48;
   static const int MASK_FW_VERSION = 0xFFFF;
 
-  uHTRpacker(){};
+  UHTRpacker(){}
 
   bool exist( int uhtrIndex ){
     return uhtrs.count(uhtrIndex) != 0  ; 
@@ -446,13 +429,7 @@ public:
 
   void addChannel( int uhtrIndex , QIE10DataFrame qiedf , int verbosity = 0 ){ 
     // loop over words in dataframe 
-//    int dfcnt =-1;
-
     for(edm::DataFrame::iterator dfi=qiedf.begin() ; dfi!=qiedf.end(); ++dfi){      
-//      if(dfi == qiedf.begin()) ++dfi; // hack to prevent double channel header
-//      dfcnt ++;
-//      if( dfi != qiedf.begin() && (((*dfi)&0x8000) !=0) ){
-//      if( dfi == qiedf.end()-1 ){
       if( dfi >= qiedf.end()-QIE10DataFrame::FLAG_WORDS ){
          continue;
       }

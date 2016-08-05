@@ -20,7 +20,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -40,7 +39,7 @@
 
 using namespace std;
 
-class HcalDigiToRawuHTR : public edm::EDProducer {
+class HcalDigiToRawuHTR : public edm::stream::EDProducer<> {
 public:
   explicit HcalDigiToRawuHTR(const edm::ParameterSet&);
   ~HcalDigiToRawuHTR();
@@ -48,18 +47,11 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   void getData(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
 
   int _verbosity;
   std::string electronicsMapLabel_;
-
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
   edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame> > tok_QIE10DigiCollection_;
   edm::Handle<QIE10DigiCollection> qie10DigiCollection;
@@ -72,18 +64,24 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_TPDigiCollection_;
   edm::Handle<HcalTrigPrimDigiCollection> tpDigiCollection;
 
+  edm::InputTag qie10Tag_, qie11Tag_, hbheqie8Tag_, hfqie8Tag_, trigTag_;
 };
 
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig) :
-  _verbosity(iConfig.getUntrackedParameter<int>("Verbosity")),
-  electronicsMapLabel_(iConfig.getUntrackedParameter<std::string>("ElectronicsMap",""))
+  _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+  electronicsMapLabel_(iConfig.getParameter<std::string>("ElectronicsMap")),
+  qie10Tag_(iConfig.getUntrackedParameter<edm::InputTag>("QIE10", edm::InputTag("hcalDigis"))),
+  qie11Tag_(iConfig.getUntrackedParameter<edm::InputTag>("QIE11", edm::InputTag("hcalDigis"))),
+  hbheqie8Tag_(iConfig.getUntrackedParameter<edm::InputTag>("HBHEqie8", edm::InputTag("hcalDigis"))),
+  hfqie8Tag_(iConfig.getUntrackedParameter<edm::InputTag>("HFqie8", edm::InputTag("hcalDigis"))),
+  trigTag_(iConfig.getUntrackedParameter<edm::InputTag>("TP", edm::InputTag("hcalDigis")))
 {
   produces<FEDRawDataCollection>("");
-  tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(edm::InputTag("hcalDigis"));
-  tok_QIE11DigiCollection_ = consumes<HcalDataFrameContainer<QIE11DataFrame> >(edm::InputTag("hcalDigis"));
-  tok_HBHEDigiCollection_ = consumes<HBHEDigiCollection >(edm::InputTag("hcalDigis"));
-  tok_HFDigiCollection_ = consumes<HFDigiCollection>(edm::InputTag("hcalDigis"));
-  tok_TPDigiCollection_ = consumes<HcalTrigPrimDigiCollection>(edm::InputTag("hcalDigis"));
+  tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(qie10Tag_);
+  tok_QIE11DigiCollection_ = consumes<HcalDataFrameContainer<QIE11DataFrame> >(qie11Tag_);
+  tok_HBHEDigiCollection_ = consumes<HBHEDigiCollection >(hbheqie8Tag_);
+  tok_HFDigiCollection_ = consumes<HFDigiCollection>(hfqie8Tag_);
+  tok_TPDigiCollection_ = consumes<HcalTrigPrimDigiCollection>(trigTag_);
 }
 
 HcalDigiToRawuHTR::~HcalDigiToRawuHTR(){}
@@ -99,7 +97,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   const HcalElectronicsMap* readoutMap = item.product();
 
   //collection to be inserted into event
-  std::auto_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection());
+  std::unique_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection());
   
   //
   //  Extracting All the Collections containing useful Info
@@ -115,12 +113,12 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   const HcalTrigPrimDigiCollection& qietpdc=*(tpDigiCollection);
 
   // first argument is the fedid (minFEDID+crateId)
-  map<int,HCalFED*> fedMap;
+  map<int,unique_ptr<HCalFED> > fedMap;
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // QIE10 precision data
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-  uHTRpacker uhtrs;
+  UHTRpacker uhtrs;
   // loop over each digi and allocate memory for each
 
   for (unsigned int j=0; j < qie10dc.size(); j++){
@@ -145,7 +143,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // QIE11 precision data
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-  //uHTRpacker uhtrs;
+  //UHTRpacker uhtrs;
   // loop over each digi and allocate memory for each
   for (unsigned int j=0; j < qie11dc.size(); j++){
     QIE11DataFrame qiedf = static_cast<QIE11DataFrame>(qie11dc[j]);
@@ -166,7 +164,6 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // loop over each digi and allocate memory for each
   for(HFDigiCollection::const_iterator qiedf=qie8hfdc.begin();qiedf!=qie8hfdc.end();qiedf++){
-    //HFDataFrame qiedf = static_cast<HFDataFrame>(qie8hfdc[j]);
     HcalElectronicsId eid = qiedf->elecId();
     int crateId = eid.crateId();
     int slotId = eid.slot();
@@ -183,7 +180,6 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // loop over each digi and allocate memory for each
   for(HBHEDigiCollection::const_iterator qiedf=qie8hbhedc.begin();qiedf!=qie8hbhedc.end();qiedf++){
-    //HFDataFrame qiedf = static_cast<HFDataFrame>(qie8hbhedc[j]);
     HcalElectronicsId eid = qiedf->elecId();
     int crateId = eid.crateId();
     int slotId = eid.slot();
@@ -203,7 +199,6 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // --- I left off here ... need to specify and include the correct digi collection ---
 
   for(HcalTrigPrimDigiCollection::const_iterator qiedf=qietpdc.begin();qiedf!=qietpdc.end();qiedf++){
-    //HFDataFrame qiedf = static_cast<HFDataFrame>(qie8hbhedc[j]);
     HcalElectronicsId eid(qiedf->id().rawId());
     
     int crateId = eid.crateId();
@@ -223,7 +218,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // -----------------------------------------------------
   // loop over each uHTR and format data
   int idxuhtr =-1;
-  for( UHTRMap::iterator uhtr = uhtrs.uhtrs.begin() ; uhtr != uhtrs.uhtrs.end() ; ++uhtr){
+  for( UHTRpacker::UHTRMap::iterator uhtr = uhtrs.uhtrs.begin() ; uhtr != uhtrs.uhtrs.end() ; ++uhtr){
 
     idxuhtr ++;
    
@@ -234,7 +229,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     int fedId = FEDNumbering::MINHCALuTCAFEDID + crateId;
     if( fedMap.find(fedId) == fedMap.end() ){
       /* QUESTION: where should the orbit number come from? */
-      fedMap[fedId] = new HCalFED(fedId,iEvent.id().event(),iEvent.orbitNumber(),iEvent.bunchCrossing());
+      fedMap[fedId] = std::unique_ptr<HCalFED>(new HCalFED(fedId,iEvent.id().event(),iEvent.orbitNumber(),iEvent.bunchCrossing()));
     }
     fedMap[fedId]->addUHTR(uhtr->second,crateId,slotId);
   }// end loop over uhtr containers
@@ -244,52 +239,38 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
            putting together the FEDRawDataCollection
      ------------------------------------------------------
      ------------------------------------------------------ */
-  for( map<int,HCalFED*>::iterator fed = fedMap.begin() ; fed != fedMap.end() ; ++fed ){
+  for( map<int,unique_ptr<HCalFED> >::iterator fed = fedMap.begin() ; fed != fedMap.end() ; ++fed ){
 
     int fedId = fed->first;
 
-    FEDRawData* rawData =  fed->second->formatFEDdata(); // fed->second.fedData;
+    FEDRawData* rawData =  fed->second->formatFEDdata();
     FEDRawData& fedRawData = fed_buffers->FEDData(fedId);
     fedRawData = *rawData;
     delete rawData;
 
     FEDHeader hcalFEDHeader(fedRawData.data());
-//    hcalFEDHeader.set(fedRawData.data(), 1, iEvent.id().event(), 1, fedId);
     hcalFEDHeader.set(fedRawData.data(), 1, iEvent.id().event(), iEvent.bunchCrossing(), fedId);
     FEDTrailer hcalFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
     hcalFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), fedRawData.size()/8, evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
 
   }// end loop over FEDs with data
 
-  iEvent.put(fed_buffers);
+  iEvent.put(std::move(fed_buffers));
   
 }
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void HcalDigiToRawuHTR::beginJob(){}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HcalDigiToRawuHTR::endJob(){}
-
-// ------------ method called when starting to processes a run  ------------
-void HcalDigiToRawuHTR::beginRun(edm::Run const&, edm::EventSetup const&){}
-
-// ------------ method called when ending the processing of a run  ------------
-void HcalDigiToRawuHTR::endRun(edm::Run const&, edm::EventSetup const&){}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void HcalDigiToRawuHTR::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void HcalDigiToRawuHTR::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.addUntracked<int>("Verbosity", 0);
+  desc.add<std::string>("ElectronicsMap", "");
+  desc.addUntracked<edm::InputTag>("QIE10", edm::InputTag("hcalDigis"));
+  desc.addUntracked<edm::InputTag>("QIE11", edm::InputTag("hcalDigis"));
+  desc.addUntracked<edm::InputTag>("HBHEqie8", edm::InputTag("hcalDigis"));
+  desc.addUntracked<edm::InputTag>("HFqie8", edm::InputTag("hcalDigis"));
+  desc.addUntracked<edm::InputTag>("TP", edm::InputTag("hcalDigis"));
   descriptions.addDefault(desc);
 }
 
