@@ -1,0 +1,19 @@
+# $Id$
+#
+# This is the decay file for Phi  -> mu+ mu-
+#
+# Author: Alberto Sanchez-Hernandez
+# Date: May/16
+#
+
+Particle phi 1.019461 0.004266
+
+Alias      MyPhi  phi
+ChargeConj MyPhi MyPhi
+
+Decay MyPhi
+0.0002870 mu+     mu-                                     PHOTOS      VLL;
+0.0000143 mu+     mu-     gamma                           PHSP;
+Enddecay
+
+End
