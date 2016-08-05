@@ -3,7 +3,7 @@
 //#include <utility>
 
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 
@@ -138,7 +138,7 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 }
 
 
-void XmlConfigReader::readRootElement(trigSystem& aTrigSystem, const std::string& sysId)
+void XmlConfigReader::readRootElement(TrigSystem& aTrigSystem, const std::string& sysId)
 {
   DOMElement* rootElement = doc_->getDocumentElement();
   if (rootElement) {
@@ -151,7 +151,7 @@ void XmlConfigReader::readRootElement(trigSystem& aTrigSystem, const std::string
 }
 
 
-void XmlConfigReader::readElement(const DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId)
+void XmlConfigReader::readElement(const DOMElement* element, TrigSystem& aTrigSystem, const std::string& sysId)
 {
   if (XMLString::equals(element->getTagName(), kTagHw)) {
     // in case this is a HW description
@@ -163,7 +163,7 @@ void XmlConfigReader::readElement(const DOMElement* element, trigSystem& aTrigSy
 }
 
 
-void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& aTrigSystem, const std::string& sysId)
+void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& aTrigSystem, const std::string& sysId)
 {
   // if sysId == "" set the systemId of the trigsystem from the xml sytem id
   if (sysId != "" && sysId != _toString(element->getAttribute(kAttrId))) {
@@ -205,7 +205,7 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& a
 }
 
 
-void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem)
+void XmlConfigReader::readContext(const DOMElement* element, const std::string& sysId, TrigSystem& aTrigSystem)
 {
   std::string systemId = sysId;
   if (systemId == "") {
@@ -222,9 +222,9 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
         if (elem->getNodeType() == DOMNode::ELEMENT_NODE) {
           if (XMLString::equals(elem->getTagName(), kTagParam)) {
             // found a parameter
-            std::string id = _toString(elem->getAttribute(kAttrId));
-            std::string type = _toString(elem->getAttribute(kAttrType));
-            std::string delim = _toString(elem->getAttribute(kAttrDelim));
+            char *id    = xercesc::XMLString::transcode( elem->getAttribute(kAttrId) );
+            char *type  = xercesc::XMLString::transcode( elem->getAttribute(kAttrType) );
+            char *delim = xercesc::XMLString::transcode( elem->getAttribute(kAttrDelim) );
 
             // the type table needs special treatment since it consists of child nodes
             if (type == kTypeTable) {
@@ -236,8 +236,11 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                 DOMNodeList* colChilds = colElements->item(j)->getChildNodes();
                 for (XMLSize_t k = 0; k < colChilds->getLength(); ++k) {
                   if (colChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-                    columnsStr = _toString(colChilds->item(k)->getNodeValue());
-                    pruneString(columnsStr);
+///                    columnsStr = _toString(colChilds->item(k)->getNodeValue());
+///                    pruneString(columnsStr);
+                    char *cStr = xercesc::XMLString::transcode( colChilds->item(k)->getNodeValue() );
+                    columnsStr = pruneString( cStr );
+                    xercesc::XMLString::release( &cStr );
                   }
                 }
               }
@@ -249,8 +252,11 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                 DOMNodeList* colTypesChilds = colTypesElements->item(j)->getChildNodes();
                 for (XMLSize_t k = 0; k < colTypesChilds->getLength(); ++k) {
                   if (colTypesChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-                    typesStr = _toString(colTypesChilds->item(k)->getNodeValue());
-                    pruneString(typesStr);
+///                    typesStr = _toString(colTypesChilds->item(k)->getNodeValue());
+///                    pruneString(typesStr);
+                    char *tStr = xercesc::XMLString::transcode( colTypesChilds->item(k)->getNodeValue() );
+                    typesStr = pruneString( tStr );
+                    xercesc::XMLString::release( &tStr );
                   }
                 }
               }
@@ -262,14 +268,17 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
                 DOMNodeList* rowChilds = rowElements->item(j)->getChildNodes();
                 for (XMLSize_t k = 0; k < rowChilds->getLength(); ++k) {
                   if (rowChilds->item(k)->getNodeType() == DOMNode::TEXT_NODE) {
-                    std::string rowStr = _toString(rowChilds->item(k)->getNodeValue());
-                    pruneString(rowStr);
-                    rowStrs.push_back(rowStr);
+///                    std::string rowStr = _toString(rowChilds->item(k)->getNodeValue());
+///                    pruneString(rowStr);
+///                    rowStrs.push_back(rowStr);
+                    char *rStr = xercesc::XMLString::transcode( rowChilds->item(k)->getNodeValue() );
+                    rowStrs.push_back( pruneString(rStr) );
+                    xercesc::XMLString::release( &rStr );
                   }
                 }
               }
 
-              aTrigSystem.addSettingTable(id, columnsStr, typesStr, rowStrs, contextId, delim);
+              aTrigSystem.addSettingTable(std::string(id), columnsStr, typesStr, rowStrs, contextId, std::string(delim));
 
             } else { // all types other than table
               std::string value = "";
@@ -284,13 +293,17 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
               pruneString(value);
 
               //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
-              aTrigSystem.addSetting(type, id, value, contextId, delim);
+              aTrigSystem.addSetting(std::string(type), std::string(id), value, contextId, std::string(delim));
             }
 
+            xercesc::XMLString::release(&id);
+            xercesc::XMLString::release(&type);
+            xercesc::XMLString::release(&delim);
+
           } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
-            // found a mask
+            // found a Mask
             std::string id = _toString(elem->getAttribute(kAttrId));
-            //std::cout << "mask element node with id attribute " << id << std::endl;
+            //std::cout << "Mask element node with id attribute " << id << std::endl;
             aTrigSystem.addMask(id, contextId);
 
           } else if (XMLString::equals(elem->getTagName(), kTagDisable)) {
@@ -305,7 +318,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
 }
 
 
-void XmlConfigReader::readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem)
+void XmlConfigReader::readContexts(const std::string& key, const std::string& sysId, TrigSystem& aTrigSystem)
 {
   DOMElement* keyElement = getKeyElement(key);
   if (keyElement) {
@@ -378,6 +391,45 @@ void XmlConfigReader::appendNodesFromSubDoc(DOMNode* parentNode, DOMDocument* su
   }
 }
 
+// the small static look up table below indicates in O(1) time if the symbol is '\n', (ascii code 10) '\t' (code 9), or ' ' (code 32)
+const char XmlConfigReader_reject_symbols[256] = {
+0, 0, 0, 0, 0, 0, 0, 0, 0, 1, // '\n'
+1, 0, 0, 0, 0, 0, 0, 0, 0, 0, // '\t'
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 1, 0, 0, 0, 0, 0, 0, 0, // ' '
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0};
+
+char* XmlConfigReader::pruneString(char* &str)
+{
+  size_t alphanumBegin = 0, alphanumEnd = strlen(str)-1; 
+
+  while( str[alphanumBegin]           && XmlConfigReader_reject_symbols[ unsigned(str[alphanumBegin]) ] ) alphanumBegin++;
+  while( alphanumEnd >= alphanumBegin && XmlConfigReader_reject_symbols[ unsigned(str[alphanumEnd]  ) ] ) alphanumEnd--;
+
+  str[alphanumEnd+1] = '\0';
+  return str + alphanumBegin;
+}
 
 void XmlConfigReader::pruneString(std::string& str)
 {
