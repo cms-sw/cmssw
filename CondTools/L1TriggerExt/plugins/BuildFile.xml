@@ -1,0 +1,4 @@
+<use   name="CondTools/L1TriggerExt"/>
+<library   file="*.cc" name="CondToolsL1TriggerExtPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

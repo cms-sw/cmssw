@@ -26,6 +26,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
