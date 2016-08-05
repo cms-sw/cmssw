@@ -30,6 +30,7 @@ namespace edm {
   class Principal;
   class UnscheduledAuxiliary;
   class Worker;
+  class ServiceToken;
   
   class DataManagingProductResolver : public ProductResolverBase {
   public:
@@ -285,7 +286,8 @@ namespace edm {
                                   Principal const& principal,
                                   bool skipCurrentProcess,
                                   SharedResourcesAcquirer* sra,
-                                  ModuleCallingContext const* mcc) const;
+                                  ModuleCallingContext const* mcc,
+                                  ServiceToken token) const;
     
     bool dataValidFromResolver(unsigned int iProcessingIndex,
                                Principal const& principal,
