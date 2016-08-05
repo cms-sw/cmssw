@@ -32,12 +32,4 @@ caloParticles = cms.PSet(
 
 from Configuration.StandardSequences.Eras import eras
 if eras.fastSim.isChosen():
-    raise Exception,"Not translated for fast sim"
-    # for unknown reasons, fastsim needs this flag on
-    caloParticles.allowDifferentSimHitProcesses = True
-    # fastsim labels for simhits, simtracks, simvertices
-    caloParticles.simHitCollections = cms.PSet(
-        # I dunno what would go here
-        )
-    caloParticles.simTrackCollection = cms.InputTag('famosSimHits')
-    caloParticles.simVertexCollection = cms.InputTag('famosSimHits')
+    caloParticles = cms.PSet() # don't allow this to run in fastsim

@@ -18,7 +18,7 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
  public:
   Cluster3DPCACalculator(const edm::ParameterSet& conf) :
     PFCPositionCalculatorBase(conf),    
-    _pca(new TPrincipal(3,"D")){ 
+    pca_(new TPrincipal(3,"D")){ 
   }
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
   Cluster3DPCACalculator& operator=(const Cluster3DPCACalculator&) = delete;
@@ -27,7 +27,7 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
   void calculateAndSetPositions(reco::PFClusterCollection&);
 
  private:
-  std::unique_ptr<TPrincipal> _pca;
+  std::unique_ptr<TPrincipal> pca_;
 
   void showerParameters(const reco::PFCluster&, math::XYZPoint&, 
 			math::XYZVector& );
@@ -41,14 +41,14 @@ DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory,
 
 void Cluster3DPCACalculator::
 calculateAndSetPosition(reco::PFCluster& cluster) {
-  _pca.reset(new TPrincipal(3,"D"));
+  pca_.reset(new TPrincipal(3,"D"));
   calculateAndSetPositionActual(cluster);
 }
 
 void Cluster3DPCACalculator::
 calculateAndSetPositions(reco::PFClusterCollection& clusters) {
   for( reco::PFCluster& cluster : clusters ) {
-    _pca.reset(new TPrincipal(3,"D"));
+    pca_.reset(new TPrincipal(3,"D"));
     calculateAndSetPositionActual(cluster);
   }
 }
@@ -60,8 +60,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
       << " Found a cluster with no seed: " << cluster;
   }  				
   double cl_energy = 0;  
-  //double cl_time = 0;  
-  //double cl_timeweight=0.0;
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
   reco::PFRecHitRef refseed;  
@@ -69,20 +67,15 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
 
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    const double rh_energy = refhit->energy();
+    double rh_energy = refhit->energy();
     cl_energy += rh_energy * rhf.fraction();
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
     }  
-  }
-  
-  for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
-    const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_fraction = rhf.fraction();
-    //const double rh_rawenergy = refhit->energy();
-    const double rh_energy = refhit->energy()*rh_fraction;
+    rh_energy = refhit->energy()*rh_fraction;
     if( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
@@ -94,29 +87,17 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     int nhit = int( rh_energy*100 ); // put rec_hit energy in units of 10 MeV
 
     for( int i = 0; i < nhit; ++i ) {
-      _pca->AddRow(pcavars);
+      pca_->AddRow(pcavars);
     }
       
   }
   cluster.setEnergy(cl_energy);
-  //cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
   // calculate the position
 
-  _pca->MakePrincipals();
-  const TVectorD& means = *(_pca->GetMeanValues());
-  const TMatrixD& eigens = *(_pca->GetEigenVectors());
-  /*
-  std::cout << "*** Principal component analysis (PFlow) ****" << std::endl;
-  std::cout << "shower average (x,y,z) = " << "(" 
-	    << means[0] << ", " 
-	    << means[1] << ", " 
-	    << means[2] << ")" << std::endl;
-  std::cout << "shower main axis (x,y,z) = " << "(" 
-	    << eigens(0,0) << ", " 
-	    << eigens(1,0) << ", " 
-	    << eigens(2,0) << ")" << std::endl;
-  */
+  pca_->MakePrincipals();
+  const TVectorD& means = *(pca_->GetMeanValues());
+  const TMatrixD& eigens = *(pca_->GetEigenVectors());
   
   math::XYZPoint  barycenter(means[0],means[1],means[2]);
   math::XYZVector axis(eigens(0,0),eigens(1,0),eigens(2,0));
@@ -126,7 +107,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   }
   
   cluster.setPosition(barycenter);
-  //cluster.setAxis(axis);
   cluster.calculatePositionREP();
 
 }

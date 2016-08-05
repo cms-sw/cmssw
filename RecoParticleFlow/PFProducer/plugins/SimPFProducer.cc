@@ -114,12 +114,6 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   edm::Handle<edm::View<reco::Track> > TrackCollectionH;
   evt.getByToken(tracks_, TrackCollectionH);
   const edm::View<reco::Track>& TrackCollection = *TrackCollectionH;
-
-  /*
-  edm::Handle<edm::View<reco::Track> > GsfTrackCollectionH;
-  evt.getByToken(gsfTracks_, GsfTrackCollectionH);
-  const edm::View<reco::Track>& GsfTrackCollection = *GsfTrackCollectionH;
-  */
   
   //get tracking particle collections
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
@@ -163,7 +157,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   std::vector<int> caloParticle2SuperCluster;
   for( unsigned icp = 0; icp < CaloParticles.size(); ++icp ) {
     blocks->emplace_back();
-    auto block = blocks->back();
+    auto& block = blocks->back();
     const auto& simclusters = CaloParticles[icp].simClusters();
     double pttot = 0.0;
     double etot  = 0.0;
@@ -182,10 +176,13 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	caloParticle2SimCluster.emplace(icp,simc.key());
       }
     }
-    auto pdgId = std::abs(CaloParticles[icp].particleId());
+    
+    auto pdgId = std::abs(CaloParticles[icp].pdgId());
+
     caloParticle2SuperCluster.push_back(-1);
     if( (pdgId == 22 || pdgId == 11) && pttot > superClusterThreshold_ ) {
       caloParticle2SuperCluster[icp] = superclusters->size();
+
       math::XYZPoint seedpos; // take seed pos as supercluster point
       reco::CaloClusterPtr seed;
       reco::CaloClusterPtrVector clusters;
@@ -212,7 +209,6 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   // in good particle flow fashion, start from the tracks and go out
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     auto tkRef  = TrackCollection.refAt(itk);
-    std::cout << "Track: " << itk << ' ' << tkRef->pt() << ' ' << tkRef->eta() << ' ' << tkRef->phi() << std::endl;
     reco::RecoToSimCollection::const_iterator assoc_tps = associatedTracks.back().end();
     for( const auto& association : associatedTracks ) {
       assoc_tps = association.find(tkRef);
@@ -248,38 +244,26 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     
     // bind to cluster if there is one and try to gather conversions, etc
     for( const auto& match : matches ) {      
-      std::cout << "\tMatches: " << *(match.first) << std::endl;
       uint64_t hash = hashSimInfo(*(match.first));
       if( hashToSimCluster.count(hash) ) {	
 	auto simcHash = hashToSimCluster[hash];
-	auto& simc = SimClusters[simcHash];
-	std::cout << "Matches SimCluster: " << simc.pt() << ' ' << simc.eta() << ' ' << simc.phi() << std::endl;
 	if( !usedSimCluster[simcHash] ) {
-	  std::cout << "\tSimCluster not used!" << std::endl;
 	  size_t block    = simCluster2Block.find(simcHash)->second;
 	  size_t blockIdx = simCluster2BlockIndex.find(simcHash)->second;
 	  edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
-	  std::cout << "block size = " << blockRef->elements().size() << std::endl;
 	  candidate.addElementInBlock(blockRef,blockIdx);
 	  usedSimCluster[simcHash] = true;
 	}
 	if( absPdgId == 11 ) { // collect brems/conv. brems
-	  std::cout << "caught an electron" << std::endl;
-	  const auto& g4tracks = match.first->g4Tracks();
-	  std::cout << g4tracks.size() << " associated tracks" << std::endl;
-	  for( unsigned ig4 = 1; ig4 < g4tracks.size(); ++ig4 ) {
-	    uint64_t subhash = hashSimInfo(*(match.first),ig4);
-	    if( hashToSimCluster.count(subhash) ) {	
-	      auto sub_simcHash = hashToSimCluster[subhash];
-	      auto& sub_simc = SimClusters[sub_simcHash];
-	      std::cout << "Matches SimCluster: " << sub_simc.pt() << ' ' << sub_simc.eta() << ' ' << sub_simc.phi() << std::endl;
-	      if( !usedSimCluster[sub_simcHash] ) {
-		std::cout << "\tsub-SumCluster not used!" << std::endl;
-		size_t block    = simCluster2Block.find(sub_simcHash)->second;
-		size_t blockIdx = simCluster2BlockIndex.find(sub_simcHash)->second;
-		edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
-		candidate.addElementInBlock(blockRef,blockIdx);
-		usedSimCluster[sub_simcHash] = true;
+	  auto block_index = simCluster2Block.find(hashToSimCluster[hash])->second;
+	  auto supercluster_index = caloParticle2SuperCluster[ block_index ];
+	  if( supercluster_index != -1 ) {
+	    edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block_index);
+	    for( const auto& elem : blockRef->elements() ) {
+	      auto ref = elem.clusterRef();
+	      if( !usedSimCluster[ref.key()] ) {
+		candidate.addElementInBlock(blockRef,elem.index());
+		usedSimCluster[ref.key()] = true;
 	      }
 	    }
 	  }
@@ -288,8 +272,36 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     }
     usedTrack[tkRef.key()] = true;    
 
-    std::cout << candidate << std::endl;   
-  }  
+  }
+
+  // now loop over the non-collected clusters in blocks 
+  // and turn them into neutral hadrons or photons
+  const auto& theblocks = *blocksHandle;
+  for( unsigned ibl = 0; ibl < theblocks.size(); ++ibl ) {
+    reco::PFBlockRef blref(blocksHandle,ibl);
+    const auto& elements = theblocks[ibl].elements();
+    for( const auto& elem : elements ) {
+      auto ref = elem.clusterRef();
+      const auto& simtruth = SimClustersTruth[ref.key()];
+      reco::PFCandidate::ParticleType part_type;
+      if( !usedSimCluster[ref.key()] ) {
+	auto absPdgId = std::abs(simtruth.pdgId());
+	switch( absPdgId ) {
+	case 11:
+	case 22:
+	  part_type = reco::PFCandidate::gamma;
+	  break;
+	default:
+	  part_type = reco::PFCandidate::h0;
+	}
+	const auto three_mom = (ref->position() - math::XYZPoint(0,0,0)).unit()*ref->energy();
+	math::XYZTLorentzVector clu_p4(three_mom.x(),three_mom.y(),three_mom.z(),ref->energy());
+	candidates->emplace_back(0, clu_p4, part_type);
+	auto& candidate = candidates->back();
+	candidate.addElementInBlock(blref,elem.index());
+      }
+    }
+  }
   
   evt.put(std::move(candidates));
 }

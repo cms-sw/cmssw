@@ -1,5 +1,5 @@
-#ifndef __GenericSimClusterMapper_H__
-#define __GenericSimClusterMapper_H__
+#ifndef __RecoParticleFlow_PFClusterProducer_GenericSimClusterMapper_H__
+#define __RecoParticleFlow_PFClusterProducer_GenericSimClusterMapper_H__
 
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"

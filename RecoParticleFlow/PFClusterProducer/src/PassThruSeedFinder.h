@@ -1,5 +1,5 @@
-#ifndef __PassThruSeedFinder_H__
-#define __PassThruSeedFinder_H__
+#ifndef __RecoParticleFlow_PFClusterProducer_PassThruSeedFinder_H__
+#define __RecoParticleFlow_PFClusterProducer_PassThruSeedFinder_H__
 
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 

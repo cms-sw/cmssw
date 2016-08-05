@@ -35,7 +35,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   std::unordered_map<uint32_t, size_t> detIdToIndex(hits.size());  
   for( uint32_t i = 0; i < hits.size(); ++i ) {    
     detIdToIndex[hits[i].detId()] = i;
-    auto ref = makeRefhit(input,detIdToIndex.at(hits[i].detId()));    
+    auto ref = makeRefhit(input,i);    
   }
   
   for( const auto& sc : simClusters ) {
