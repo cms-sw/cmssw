@@ -24,3 +24,4 @@ l1tdeStage2uGMT = cms.EDAnalyzer(
     muonCollection2Title = cms.untracked.string("uGMT emulator"),
     verbose = cms.untracked.bool(False),
 )
+
