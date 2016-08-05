@@ -10,15 +10,15 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   '80X_mcRun1_pA_v5',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '80X_mcRun2_design_v16',
+    'run2_design'       :   '80X_mcRun2_design_v17',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '80X_mcRun2_startup_v15',
+    'run2_mc_50ns'      :   '80X_mcRun2_startup_v16',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '80X_mcRun2_asymptotic_v16',
+    'run2_mc'           :   '80X_mcRun2_asymptotic_v17',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '80X_mcRun2cosmics_startup_peak_v14',
+    'run2_mc_cosmics'   :   '80X_mcRun2cosmics_startup_peak_v15',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '80X_mcRun2_HeavyIon_v9',
+    'run2_mc_hi'        :   '80X_mcRun2_HeavyIon_v10',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '80X_dataRun2_v17',
     # GlobalTag for Run2 data reprocessing
