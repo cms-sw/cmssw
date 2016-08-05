@@ -1,53 +1,11 @@
 // system include files
-#include <memory>
+//#include <memory>
 
 // user include files
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalValidator.h" 
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "TMath.h"
-#include "TFile.h"
-#include "TH1F.h"
-#include "TH1I.h"
-#include "TH2F.h"
-#include "TProfile.h"
-#include "TTree.h"
-#include <vector>
-#include <iostream>
-#include <typeinfo>
 
 // user include files
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "Math/VectorUtil.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
 
 using namespace reco;
 using namespace pat;
