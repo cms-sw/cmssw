@@ -64,11 +64,12 @@ def customise_RawToDigi(process):
     return process
 
 def customise_Reco(process,pileup):
-    # insert the new clusterizer
-    process.load('SimTracker.SiPhase2Digitizer.phase2TrackerClusterizer_cfi')
+    if not eras.trackingPhase2PU140.isChosen():
+      # insert the new clusterizer
+      process.load('SimTracker.SiPhase2Digitizer.phase2TrackerClusterizer_cfi')
+      # insert new InnerTracker pixel clusterizer
+      process.load("RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi")
 
-    # insert new InnerTracker pixel clusterizer
-    process.load("RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi")
     if not eras.trackingPhase2PU140.isChosen():
       process.phase2ITPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
       process.phase2ITPixelClusters.MissCalibrate = cms.untracked.bool(False)
@@ -88,7 +89,7 @@ def customise_Reco(process,pileup):
       # Need this line to stop error about missing siPixelDigis.
       process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 
-    process.InitialStepPreSplitting.remove(process.siPixelClusters)
+      process.InitialStepPreSplitting.remove(process.siPixelClusters)
 
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
@@ -99,28 +100,31 @@ def customise_Reco(process,pileup):
     process.reconstruction.remove(process.ak7CastorJetID)
 
     # Need these until pixel templates are used
-    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
-    process.siPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
+# FIXME::Erica : this part have been migrated for each files. If this is ok, remove recoFromSimDigis_cff.py !!
+#    process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
+#    process.siPixelClusters.src = cms.InputTag('simSiPixelDigis', "Pixel")
 
-    # As in the phase1 tracking reconstruction,
-    # Remove the pre-cluster-splitting clustering step
-    # To be enabled later together with or after the jet core step is enabled
-    # This snippet must be after the loading of recoFromSimDigis_cff    
-    process.pixeltrackerlocalreco = cms.Sequence(
-        process.siPhase2Clusters +
-        process.phase2ITPixelClusters +
-        process.siPixelClusters +
-        process.siPixelRecHits
-    )
+    if not eras.trackingPhase2PU140.isChosen():
+      # As in the phase1 tracking reconstruction,
+      # Remove the pre-cluster-splitting clustering step
+      # To be enabled later together with or after the jet core step is enabled
+      # This snippet must be after the loading of recoFromSimDigis_cff    
+      process.pixeltrackerlocalreco = cms.Sequence(
+          process.siPhase2Clusters +
+          process.phase2ITPixelClusters +
+          process.siPixelClusters +
+          process.siPixelRecHits
+      )
+      process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+      process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
     process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
-    process.globalreco_tracking.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
-    process.globalreco_tracking.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
-    # As in the phase1 tracking reconstruction,
-    # Enable, for now, pixel tracks and vertices
-    # To be removed later together with the cluster splitting
-    process.globalreco_tracking.replace(process.standalonemuontracking,
-                                        process.standalonemuontracking+process.recopixelvertexing)
+    if not eras.trackingPhase2PU140.isChosen():
+      # As in the phase1 tracking reconstruction,
+      # Enable, for now, pixel tracks and vertices
+      # To be removed later together with the cluster splitting
+      process.globalreco_tracking.replace(process.standalonemuontracking,
+                                          process.standalonemuontracking+process.recopixelvertexing)
 
     # FIXME::Erica : not clear to me how to port this to era
     process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)

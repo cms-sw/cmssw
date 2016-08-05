@@ -38,5 +38,3 @@ iterTracking = cms.Sequence(InitialStepPreSplitting*
                             ConvStep*
                             conversionStepTracks
                             )
-_iterTracking_Phase2PU140 = iterTracking.copyAndExclude([InitialStepPreSplitting])
-eras.trackingPhase2PU140.toReplaceWith(iterTracking, _iterTracking_Phase2PU140)

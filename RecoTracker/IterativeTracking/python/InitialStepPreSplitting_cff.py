@@ -198,3 +198,4 @@ _InitialStepPreSplitting_LowPU_Phase1PU70 = cms.Sequence(
 )
 eras.trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
 eras.trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+eras.trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
