@@ -24,6 +24,7 @@ private:
        register this method in the convDispatch_-map */    
     static G4VSolid * box(const DDSolid &);
     static G4VSolid * tubs(const DDSolid &);
+    static G4VSolid * cuttubs(const DDSolid &);
     static G4VSolid * trap(const DDSolid &);
     static G4VSolid * cons(const DDSolid &);
     static G4VSolid * reflected(const DDSolid &);
