@@ -254,7 +254,6 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
       }
     }
   }
-  std::cout<<"APV List size:"<<theAffectedAPVvector.size()<<std::endl;
   if(zeroSuppression){
     // Step C: create output collection
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>());
