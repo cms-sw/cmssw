@@ -166,7 +166,11 @@ namespace edm {
     
     bool expected = false;
     if( m_prefetchRequested.compare_exchange_strong(expected, true) ) {
-      auto workToDo = [this, mcc, &principal] () {
+      
+      //need to make sure Service system is activated on the reading thread
+      auto token = ServiceRegistry::instance().presentToken();
+      auto workToDo = [this, mcc, &principal, token] () {
+        ServiceRegistry::Operate guard(token);
         try {
           resolveProductImpl<true>([this,&principal,mcc]() {
             principal.readFromSource_(*this,mcc);
@@ -604,7 +608,7 @@ namespace edm {
     bool expected = false;
     if( prefetchRequested_.compare_exchange_strong(expected,true)) {
       //we are the first thread to request
-      tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc);
+      tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc, ServiceRegistry::instance().presentToken());
     }
   }
   
@@ -617,11 +621,13 @@ namespace edm {
                                  Principal const* iPrincipal,
                                  SharedResourcesAcquirer* iSRA,
                                  ModuleCallingContext const* iMCC,
-                                 bool iSkipCurrentProcess) :
+                                 bool iSkipCurrentProcess,
+                                 ServiceToken iToken) :
       resolver_(iResolver),
       principal_(iPrincipal),
       sra_(iSRA),
       mcc_(iMCC),
+      serviceToken_(iToken),
       index_(iResolverIndex),
       skipCurrentProcess_(iSkipCurrentProcess){}
       
@@ -635,7 +641,8 @@ namespace edm {
                                                 *principal_,
                                                 skipCurrentProcess_,
                                                 sra_,
-                                                mcc_);
+                                                mcc_,
+                                                serviceToken_);
           }
         }
         return nullptr;
@@ -646,6 +653,7 @@ namespace edm {
       Principal const* principal_;
       SharedResourcesAcquirer* sra_;
       ModuleCallingContext const* mcc_;
+      ServiceToken serviceToken_;
       unsigned int index_;
       bool skipCurrentProcess_;
     };
@@ -687,7 +695,8 @@ namespace edm {
                                                      Principal const& principal,
                                                      bool skipCurrentProcess,
                                                      SharedResourcesAcquirer* sra,
-                                                     ModuleCallingContext const* mcc) const {
+                                                     ModuleCallingContext const* mcc,
+                                                     ServiceToken token) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
     std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
@@ -713,10 +722,15 @@ namespace edm {
                                                                                 &principal,
                                                                                 sra,
                                                                                 mcc,
-                                                                                skipCurrentProcess
+                                                                                skipCurrentProcess,
+                                                                                token
                                                                                 );
         task->increment_ref_count();
         ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
+
+        //Make sure the Services are available on this thread
+        ServiceRegistry::Operate guard(token);
+
         productResolver->prefetchAsync(task,
                                        principal,
                                        skipCurrentProcess,

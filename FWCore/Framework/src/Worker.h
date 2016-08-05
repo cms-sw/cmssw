@@ -37,6 +37,7 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -290,9 +291,13 @@ namespace edm {
       m_es(es),
       m_streamID(streamID),
       m_parentContext(parentContext),
-      m_context(context){}
+      m_context(context),
+      m_serviceToken(ServiceRegistry::instance().presentToken()) {}
       
       tbb::task* execute() override {
+        //Need to make the services available
+        ServiceRegistry::Operate guard(m_serviceToken);
+
         m_worker->runModuleAfterAsyncPrefetch<T>(exceptionPtr(),
                                               m_principal,
                                               m_es,
@@ -309,6 +314,7 @@ namespace edm {
       StreamID m_streamID;
       ParentContext const m_parentContext;
       typename T::Context const* m_context;
+      ServiceToken m_serviceToken;
     };
     
     int timesRun_;
