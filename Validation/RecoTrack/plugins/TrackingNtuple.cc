@@ -54,6 +54,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
@@ -69,6 +70,8 @@
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
@@ -167,6 +170,71 @@ namespace {
                                             << ProductIDSetPrinter(set)
                                             << ". Usually this is caused by a wrong hit collection in the configuration.";
   }
+
+  template <typename SimLink, typename Func>
+  void forEachMatchedSimLink(const edm::DetSet<SimLink>& digiSimLinks, uint32_t channel, Func func) {
+    for(const auto& link: digiSimLinks) {
+      if(link.channel() == channel) {
+        func(link);
+      }
+    }
+  }
+
+  std::map<unsigned int, double>  chargeFraction(const SiPixelCluster& cluster, const DetId& detId,
+                                                 const edm::DetSetVector<PixelDigiSimLink>& digiSimLink) {
+    std::map<unsigned int, double> simTrackIdToAdc;
+
+    auto idetset = digiSimLink.find(detId);
+    if(idetset == digiSimLink.end())
+      return simTrackIdToAdc;
+
+    double adcSum = 0;
+    PixelDigiSimLink found;
+    for(int iPix=0; iPix != cluster.size(); ++iPix) {
+      const SiPixelCluster::Pixel& pixel = cluster.pixel(iPix);
+      adcSum += pixel.adc;
+      uint32_t channel = PixelChannelIdentifier::pixelToChannel(pixel.x, pixel.y);
+      forEachMatchedSimLink(*idetset, channel, [&](const PixelDigiSimLink& simLink){
+          double& adc = simTrackIdToAdc[simLink.SimTrackId()];
+          adc += pixel.adc*simLink.fraction();
+        });
+    }
+
+    for(auto& pair: simTrackIdToAdc) {
+      if(adcSum == 0.)
+        pair.second = 0.;
+      else
+        pair.second /= adcSum;
+    }
+
+    return simTrackIdToAdc;
+  }
+
+  std::map<unsigned int, double> chargeFraction(const SiStripCluster& cluster, const DetId& detId,
+                                                const edm::DetSetVector<StripDigiSimLink>& digiSimLink) {
+    std::map<unsigned int, double> simTrackIdToAdc;
+
+    auto idetset = digiSimLink.find(detId);
+    if(idetset == digiSimLink.end())
+      return simTrackIdToAdc;
+
+    double adcSum = 0;
+    StripDigiSimLink found;
+    int first  = cluster.firstStrip();
+    for(size_t i=0; i<cluster.amplitudes().size(); ++i) {
+      adcSum += cluster.amplitudes()[i];
+      forEachMatchedSimLink(*idetset, first+i, [&](const StripDigiSimLink& simLink){
+          double& adc = simTrackIdToAdc[simLink.SimTrackId()];
+          adc += cluster.amplitudes()[i]*simLink.fraction();
+        });
+
+      for(const auto& pair: simTrackIdToAdc) {
+        simTrackIdToAdc[pair.first] = (adcSum != 0. ? pair.second/adcSum : 0.);
+      }
+
+    }
+    return simTrackIdToAdc;
+  }
 }
 
 //
@@ -223,6 +291,7 @@ private:
                      const ClusterTPAssociation& clusterToTPMap,
                      const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                      const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                     const edm::DetSetVector<PixelDigiSimLink>& digiSimLink,
                      const TransientTrackingRecHitBuilder& theTTRHBuilder,
                      const TrackerTopology& tTopo,
                      std::vector<TPHitIndex>& tpHitList,
@@ -233,6 +302,7 @@ private:
                                const ClusterTPAssociation& clusterToTPMap,
                                const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                               const edm::DetSetVector<StripDigiSimLink>& digiSimLink,
                                const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                const TrackerTopology& tTopo,
                                std::vector<TPHitIndex>& tpHitList,
@@ -291,18 +361,21 @@ private:
     std::vector<float> pos_z;
     std::vector<float> energyLoss;
     std::vector<float> timeOfFlight;
+    std::vector<float> chargeFraction;
     std::vector<int> particleType;
     std::vector<int> processType;
     std::vector<int> bunchCrossing;
     std::vector<int> event;
   };
 
+  template <typename SimLink>
   SimHitData matchCluster(const OmniClusterRef& cluster,
                           DetId hitId, int clusterKey,
                           const TransientTrackingRecHit::RecHitPointer& ttrh,
                           const ClusterTPAssociation& clusterToTPMap,
                           const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                           const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                          const edm::DetSetVector<SimLink>& digiSimLinks,
                           std::vector<TPHitIndex>& tpHitList,
                           HitType hitType
                           ) const;
@@ -315,6 +388,8 @@ private:
   edm::EDGetTokenT<ClusterTPAssociation> clusterTPMapToken_;
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitTPMapToken_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorToken_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > pixelSimLinkToken_;
+  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > stripSimLinkToken_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHitToken_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> stripRphiRecHitToken_;
@@ -438,6 +513,7 @@ private:
   std::vector<std::vector<float> > pix_zsim;    // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > pix_eloss;   // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > pix_tof;     // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > pix_chargeFraction; // second index runs through TrackingParticles inducing this hit
   std::vector<float> pix_x    ;
   std::vector<float> pix_y    ;
   std::vector<float> pix_z    ;
@@ -467,6 +543,7 @@ private:
   std::vector<std::vector<float> > str_zsim;    // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > str_eloss;   // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > str_tof;     // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<float> > str_chargeFraction; // second index runs through TrackingParticles inducing this hit
   std::vector<float> str_x    ;
   std::vector<float> str_y    ;
   std::vector<float> str_z    ;
@@ -588,6 +665,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   clusterTPMapToken_(consumes<ClusterTPAssociation>(iConfig.getUntrackedParameter<edm::InputTag>("clusterTPMap"))),
   simHitTPMapToken_(consumes<SimHitTPAssociationProducer::SimHitTPAssociationList>(iConfig.getUntrackedParameter<edm::InputTag>("simHitTPMap"))),
   trackAssociatorToken_(consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<edm::InputTag>("trackAssociator"))),
+  pixelSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(iConfig.getUntrackedParameter<edm::InputTag>("pixelDigiSimLink"))),
+  stripSimLinkToken_(consumes<edm::DetSetVector<StripDigiSimLink> >(iConfig.getUntrackedParameter<edm::InputTag>("stripDigiSimLink"))),
   beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamSpot"))),
   pixelRecHitToken_(consumes<SiPixelRecHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("pixelRecHits"))),
   stripRphiRecHitToken_(consumes<SiStripRecHit2DCollection>(iConfig.getUntrackedParameter<edm::InputTag>("stripRphiRecHits"))),
@@ -725,6 +804,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("pix_zsim"  , &pix_zsim );
     t->Branch("pix_eloss" , &pix_eloss);
     t->Branch("pix_tof"   , &pix_tof);
+    t->Branch("pix_chargeFraction", &pix_chargeFraction);
     t->Branch("pix_x"     , &pix_x    );
     t->Branch("pix_y"     , &pix_y    );
     t->Branch("pix_z"     , &pix_z    );
@@ -754,6 +834,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("str_zsim"  , &str_zsim );
     t->Branch("str_eloss" , &str_eloss);
     t->Branch("str_tof"   , &str_tof  );
+    t->Branch("str_chargeFraction", &str_chargeFraction);
     t->Branch("str_x"     , &str_x    );
     t->Branch("str_y"     , &str_y    );
     t->Branch("str_z"     , &str_z    );
@@ -973,6 +1054,7 @@ void TrackingNtuple::clearVariables() {
   pix_zsim .clear();
   pix_eloss.clear();
   pix_tof  .clear();
+  pix_chargeFraction.clear();
   pix_x    .clear();
   pix_y    .clear();
   pix_z    .clear();
@@ -1000,6 +1082,7 @@ void TrackingNtuple::clearVariables() {
   str_zsim .clear();
   str_eloss.clear();
   str_tof  .clear();
+  str_chargeFraction.clear();
   str_x    .clear();
   str_y    .clear();
   str_z    .clear();
@@ -1188,6 +1271,14 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   ev_lumi = iEvent.id().luminosityBlock();
   ev_event = iEvent.id().event();
 
+  // Digi->Sim links for pixels and strips
+  edm::Handle<edm::DetSetVector<PixelDigiSimLink> > pixelDigiSimLinksHandle;
+  iEvent.getByToken(pixelSimLinkToken_, pixelDigiSimLinksHandle);
+  const auto& pixelDigiSimLinks = *pixelDigiSimLinksHandle;
+
+  edm::Handle<edm::DetSetVector<StripDigiSimLink> > stripDigiSimLinksHandle;
+  iEvent.getByToken(stripSimLinkToken_, stripDigiSimLinksHandle);
+  const auto& stripDigiSimLinks = *stripDigiSimLinksHandle;
 
   //beamspot
   Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -1199,10 +1290,10 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   vector<pair<int,int> > monoStereoClusterList;
   if(includeAllHits_) {
     //pixel hits
-    fillPixelHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
+    fillPixelHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, pixelDigiSimLinks, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
 
     //strip hits
-    fillStripRphiStereoHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
+    fillStripRphiStereoHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, stripDigiSimLinks, *theTTRHBuilder, tTopo, tpHitList, hitProductIds);
 
     //matched hits
     fillStripMatchedHits(iEvent, *theTTRHBuilder, tTopo, monoStereoClusterList);
@@ -1250,16 +1341,32 @@ void TrackingNtuple::fillBeamSpot(const reco::BeamSpot& bs) {
   bsp_sigmaz = bs.sigmaZ();
 }
 
+namespace {
+  template <typename SimLink> struct GetCluster;
+  template <>
+  struct GetCluster<PixelDigiSimLink> {
+    static const SiPixelCluster& call(const OmniClusterRef& cluster) { return cluster.pixelCluster(); }
+  };
+  template <>
+  struct GetCluster<StripDigiSimLink> {
+    static const SiStripCluster& call(const OmniClusterRef& cluster) { return cluster.stripCluster(); }
+  };
+}
+
+template <typename SimLink>
 TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cluster,
                                                         DetId hitId, int clusterKey,
                                                         const TransientTrackingRecHit::RecHitPointer& ttrh,
                                                         const ClusterTPAssociation& clusterToTPMap,
                                                         const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                                         const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                                                        const edm::DetSetVector<SimLink>& digiSimLinks,
                                                         std::vector<TPHitIndex>& tpHitList,
                                                         HitType hitType
                                                         ) const {
   SimHitData ret;
+
+  auto simTrackIdToChargeFraction = chargeFraction(GetCluster<SimLink>::call(cluster), hitId, digiSimLinks);
 
   auto range = clusterToTPMap.equal_range( cluster );
   if( range.first != range.second ) {
@@ -1306,6 +1413,16 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
         }
         throw ex;
       }
+
+      double chargeFraction = 0.;
+      for(const SimTrack& simtrk: trackingParticle->g4Tracks()) {
+        auto found = simTrackIdToChargeFraction.find(simtrk.trackId());
+        if(found != simTrackIdToChargeFraction.end()) {
+          chargeFraction += found->second;
+        }
+      }
+      ret.chargeFraction.push_back(chargeFraction);
+
       tpHitList.emplace_back(trackingParticle.key(), clusterKey, tof, hitType);
     }
   }
@@ -1317,6 +1434,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
                                    const ClusterTPAssociation& clusterToTPMap,
                                    const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                    const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                                   const edm::DetSetVector<PixelDigiSimLink>& digiSimLink,
                                    const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                    const TrackerTopology& tTopo,
                                    std::vector<TPHitIndex>& tpHitList,
@@ -1334,7 +1452,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       const int key = hit->cluster().key();
       const int lay = tTopo.layer(hitId);
       SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
-                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, tpHitList, HitPixel);
+                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, tpHitList, HitPixel);
 
       pix_isBarrel .push_back( hitId.subdetId()==1 );
       pix_det      .push_back( hitId.subdetId() );
@@ -1359,6 +1477,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       pix_zsim .push_back( simHitData.pos_z );
       pix_eloss.push_back( simHitData.energyLoss );
       pix_tof  .push_back( simHitData.timeOfFlight );
+      pix_chargeFraction.push_back( simHitData.chargeFraction );
       pix_radL .push_back( ttrh->surface()->mediumProperties().radLen() );
       pix_bbxi .push_back( ttrh->surface()->mediumProperties().xi() );
       LogTrace("TrackingNtuple") << "pixHit cluster=" << key
@@ -1385,6 +1504,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
                                              const ClusterTPAssociation& clusterToTPMap,
                                              const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                              const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                                             const edm::DetSetVector<StripDigiSimLink>& digiSimLink,
                                              const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                              const TrackerTopology& tTopo,
                                              std::vector<TPHitIndex>& tpHitList,
@@ -1420,6 +1540,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_zsim .resize(totalStripHits);
   str_eloss.resize(totalStripHits);
   str_tof  .resize(totalStripHits);
+  str_chargeFraction.resize(totalStripHits);
   str_radL .resize(totalStripHits);
   str_bbxi .resize(totalStripHits);
 
@@ -1434,7 +1555,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         const int key = hit.cluster().key();
         const int lay = tTopo.layer(hitId);
         SimHitData simHitData = matchCluster(hit.firstClusterRef(), hitId, key, ttrh,
-                                             clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, tpHitList, HitStrip);
+                                             clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, tpHitList, HitStrip);
         str_isBarrel [key] = (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB);
         str_isStereo [key] = isStereo;
         str_det      [key] = hitId.subdetId();
@@ -1457,6 +1578,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         str_zsim [key] = simHitData.pos_z;
         str_eloss[key] = simHitData.energyLoss;
         str_tof  [key] = simHitData.timeOfFlight;
+        str_chargeFraction[key] = simHitData.chargeFraction;
         str_radL [key] = ttrh->surface()->mediumProperties().radLen();
         str_bbxi [key] = ttrh->surface()->mediumProperties().xi();
         LogTrace("TrackingNtuple") << name << " cluster=" << key
@@ -2098,6 +2220,8 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<edm::InputTag>("clusterTPMap", edm::InputTag("tpClusterProducer"));
   desc.addUntracked<edm::InputTag>("simHitTPMap", edm::InputTag("simHitTPAssocProducer"));
   desc.addUntracked<edm::InputTag>("trackAssociator", edm::InputTag("quickTrackAssociatorByHits"));
+  desc.addUntracked<edm::InputTag>("pixelDigiSimLink", edm::InputTag("simSiPixelDigis"));
+  desc.addUntracked<edm::InputTag>("stripDigiSimLink", edm::InputTag("simSiStripDigis"));
   desc.addUntracked<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.addUntracked<edm::InputTag>("pixelRecHits", edm::InputTag("siPixelRecHits"));
   desc.addUntracked<edm::InputTag>("stripRphiRecHits", edm::InputTag("siStripMatchedRecHits", "rphiRecHit"));
