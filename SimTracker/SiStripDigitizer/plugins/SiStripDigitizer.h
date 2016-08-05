@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <bitset>
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -88,6 +88,7 @@ private:
   edm::ESHandle<MagneticField> pSetup;
   std::map<unsigned int, StripGeomDetUnit const *> detectorUnits;
   std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  std::vector<std::pair<int,std::bitset<6>>> theAffectedAPVvector;
 };
 
 #endif

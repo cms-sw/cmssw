@@ -60,7 +60,7 @@ class SiStripDigitizerAlgorithm {
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup);
+  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup,std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,CLHEP::HepRandomEngine*);
 
   void initializeEvent(const edm::EventSetup& iSetup);
 
@@ -152,6 +152,10 @@ class SiStripDigitizerAlgorithm {
   typedef std::map<uint32_t, AssociationInfoForChannel>  AssociationInfoForDetId;
   /// Structure that holds the information on the SimTrack contributions. Only filled if makeDigiSimLinks_ is true.
   AssociationInfoForDetId associationInfoForDetId_;
+
+  std::ifstream APVProbaFile;
+  std::map < int , float> mapOfAPVprobabilities;
+  std::map < int , std::bitset<6> > SiStripTrackerAffectedAPVMap;
 
 };
 

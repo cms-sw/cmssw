@@ -43,4 +43,6 @@
  <class name="std::vector<unsigned long long>"/>
  <class name="std::vector<unsigned short>"/>
  <class name="std::vector<const void*>" />
+ <class name="std::vector<std::pair<int,std::bitset<6> > >" />
+ <class name="std::pair<int,std::bitset<6>>"/>
 </lcgdict>
