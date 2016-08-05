@@ -127,7 +127,7 @@ SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const
 }
 
 void
-SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup) {
+SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup,CLHEP::HepRandomEngine* engine) {
   theSiPileUpSignals->reset();
   // This should be clear by after all calls to digitize(), but I might as well make sure
   associationInfoForDetId_.clear();

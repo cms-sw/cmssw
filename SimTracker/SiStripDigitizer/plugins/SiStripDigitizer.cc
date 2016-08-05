@@ -186,7 +186,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
     detCabling->addConnected(theDetIdList);
   }
 
-  theDigiAlgo->initializeEvent(iSetup);
+  theDigiAlgo->initializeEvent(iSetup,randomEngine(iEvent.streamID()));
 
   iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
   iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
@@ -254,7 +254,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
       }
     }
   }
-
+  std::cout<<"APV List size:"<<theAffectedAPVvector.size()<<std::endl;
   if(zeroSuppression){
     // Step C: create output collection
     std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > output_virginraw(new edm::DetSetVector<SiStripRawDigi>());
@@ -267,6 +267,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     iEvent.put(std::move(output_scopemode), SCDigi);
     iEvent.put(std::move(output_virginraw), VRDigi);
     iEvent.put(std::move(output_processedraw), PRDigi);
+    iEvent.put(std::move(AffectedAPVList),"AffectedAPVList");
     if( makeDigiSimLinks_ ) iEvent.put(std::move(pOutputDigiSimLink)); // The previous EDProducer didn't name this collection so I won't either
   }else{
     // Step C: create output collection
