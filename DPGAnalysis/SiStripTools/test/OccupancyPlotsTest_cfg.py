@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("OccupancyPlotsTest")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("OccupancyPlotsTest",eras.Run2_2016)
 
 #prepare options
 
@@ -12,16 +14,37 @@ options.register ('globalTag',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
+
 options.register ('HLTprocess',
                   "HLT",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "HLTProcess")
+
 options.register ('triggerPath',
-                  "HLT_*",
+                  "HLT_L1SingleMu*",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "list of HLT paths")
+
+options.register ('trackCollection',
+                  "cosmictrackfinderP5",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "Track collection to use")
+
+options.register ('fromRAW',
+                  "0",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "=1 if from RAW")
+
+options.register ('onCosmics',
+                  "0",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "=1 to run cosmics reco sequences")
+
 
 options.parseArguments()
 
@@ -39,9 +62,9 @@ process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","Dupl
                                                     "SubDetectorGeometricDetType","BuildingGeomDetUnits","LookingForFirstStrip",
                                                     "BuildingSubDetTypeMap","SubDetTypeMapContent","NumberOfLayers","IsThereTest"))
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
-#process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
-process.MessageLogger.debugModules = cms.untracked.vstring("*")
+#process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
+process.MessageLogger.cout.threshold = cms.untracked.string("ERROR")
+process.MessageLogger.debugModules = cms.untracked.vstring("")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
@@ -103,20 +126,42 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
+#"/store/express/Run2016D/ExpressCosmics/FEVT/Express-v2/000/276/641/00000/BAC45D4C-9D47-E611-A175-02163E01424B.root"),
 #                    skipBadFiles = cms.untracked.bool(True),
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                     )
 
 # HLT Selection ------------------------------------------------------------
 process.load("HLTrigger.HLTfilters.triggerResultsFilter_cfi")
-process.triggerResultsFilter.triggerConditions = cms.vstring(options.triggerPath)
-process.triggerResultsFilter.hltResults = cms.InputTag( "TriggerResults", "", options.HLTprocess )
+process.triggerResultsFilter.triggerConditions = cms.vstring("*")
+process.triggerResultsFilter.hltResults = cms.InputTag( "TriggerResults","", "HLT" )
 process.triggerResultsFilter.l1tResults = cms.InputTag( "" )
 process.triggerResultsFilter.throw = cms.bool(False)
 
 process.seqHLTSelection = cms.Sequence(process.triggerResultsFilter)
-if options.triggerPath=="*":
-    process.seqHLTSelection = cms.Sequence()
+#if options.triggerPath=="*":
+#    process.seqHLTSelection = cms.Sequence()
+
+
+process.seqRECO = cms.Sequence()
+
+if options.fromRAW == 1:
+    process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+    process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+    process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+    process.load("Configuration.StandardSequences.L1Reco_cff")  
+    if options.onCosmics == 1:
+        process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+        process.load('Configuration.EventContent.EventContentCosmics_cff')
+        process.seqRECO = cms.Sequence(process.RawToDigi + process.L1Reco + process.reconstructionCosmics)
+    else:
+        process.load("Configuration.StandardSequences.Reconstruction_Data_cff")
+        process.seqRECO = cms.Sequence(process.RawToDigi + process.L1Reco + process.reconstruction)
+
+   
+   # process.seqRECO = cms.Sequence(process.RawToDigi + process.L1Reco
+   #                                + process.siStripDigis + process.siStripZeroSuppression + process.siStripClusters
+   #                                + process.siPixelDigis + process.siPixelClusters )
 
 
 #--------------------------------------
@@ -231,26 +276,21 @@ process.seqAnalyzers = cms.Sequence(
 
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
 
+process.AlignmentTrackSelector.src=cms.InputTag(options.trackCollection)
+
 process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seqMultProd)
 
 process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
-process.trackcount.trackCollection = cms.InputTag("generalTracks")
+process.trackcount.trackCollection = cms.InputTag(options.trackCollection)
 
 process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
+process.duplicaterechits.trackCollection = cms.InputTag(options.trackCollection)
 
-#----GlobalTag ------------------------
+#----GlobaTag ------------------------
 
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-#process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = options.globalTag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
-
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 #    cms.PSet( record = cms.string("SiStripDetVOffRcd"),    tag    = cms.string("") ),
@@ -264,19 +304,12 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.TFileService = cms.Service('TFileService',
-#                                   fileName = cms.string('OccupancyPlotsTest_newschema.root')
-#                                   fileName = cms.string('OccupancyPlotsTest_simplified_newschema_corrected_layers.root')
                                    fileName = cms.string('OccupancyPlotsTest_'+options.tag+'.root')
                                    )
 
-process.myrereco = cms.Sequence(
-    process.siPixelRecHits + process.siStripMatchedRecHits +
-    process.MeasurementTrackerEvent +
-    process.siPixelClusterShapeCache +
-    process.trackingGlobalReco)
-
-process.p0 = cms.Path(
-#    process.myrereco +
+if options.fromRAW == 1:
+    process.p0 = cms.Path(
+    process.seqRECO +    
     process.seqHLTSelection +
     process.seqProducers +
     process.seqAnalyzers +
@@ -284,5 +317,11 @@ process.p0 = cms.Path(
     process.duplicaterechits 
     )
 
-
-#print process.dumpPython()
+else:
+    process.p0 = cms.Path(    
+    process.seqHLTSelection +
+    process.seqProducers +
+    process.seqAnalyzers +
+    process.trackcount +
+    process.duplicaterechits 
+    )
