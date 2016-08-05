@@ -157,31 +157,33 @@ void MillePedeFileReader
           tZobsErr[det] = ObsErr;
         }
 
-        if (std::abs(ObsMove) > maxMoveCut_) {
+	if (std::abs(ObsMove) > maxMoveCut_) {
           Movements   = false;
           Error       = false;
           Significant = false;
-          updateDB   = false;
+          updateDB    = false;
           HitMax      = false;
           continue;
 
         } else if (std::abs(ObsMove) > Cutoffs[alignableIndex]) {
-          Movements = true;
 
-          if (std::abs(ObsErr) > maxErrorCut_) {
+          Movements = true;
+	  if (std::abs(ObsErr) > maxErrorCut_) {
             Error       = false;
             Significant = false;
-            updateDB   = false;
+            updateDB    = false;
             HitErrorMax = true;
             continue;
           } else {
             Error = true;
-            if (std::abs(ObsMove/ObsErr) > sigCut_) {
+	    if (std::abs(ObsMove/ObsErr) > sigCut_) {
               Significant = true;
-            }
+            } else {
+	      continue;
+	    } 
           }
+	  updateDB = true;
         }
-        updateDB = true;
       }
     }
   } else {
