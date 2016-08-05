@@ -4,8 +4,8 @@
 #include <iostream>
 
 // user include files
+#include "HcalConstantsASCIIWriter.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Calibration/HcalCalibAlgos/plugins/HcalConstantsASCIIWriter.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"

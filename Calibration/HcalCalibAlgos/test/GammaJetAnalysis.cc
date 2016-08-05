@@ -1,5 +1,5 @@
 //
-#include "Calibration/HcalCalibAlgos/plugins/GammaJetAnalysis.h"
+#include "GammaJetAnalysis.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
