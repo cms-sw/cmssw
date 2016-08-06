@@ -7,8 +7,6 @@ process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 process.MessageLogger.suppressInfo = cms.untracked.vstring('L1TMuonBarrelParamsOnlineProd') # suppressDebug, suppressWarning
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('tscKey',
@@ -56,6 +54,12 @@ options.register('copyDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for copy DB")
+options.register('subsystemLabels',
+                 'uGT,uGTrs,uGMT,CALO,BMTF,OMTF,EMTF', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Coma separated list of specific payloads to be processed")
+
 options.parseArguments()
 
 # Generate L1TriggerKeyExt from OMDS
@@ -64,13 +68,16 @@ process.L1SubsystemKeysOnlineExt.tscKey = cms.string( options.tscKey )
 process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.rsKey )
 process.load("CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff")
 process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
-process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
-                                                          'uGT',
-                                                          'uGTrs',
-                                                          'uGMT',
-                                                          'CALO',
-                                                          'BMTF'
-                                                        )
+#process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
+#                                                          'uGT',
+#                                                          'uGTrs',
+#                                                          'uGMT',
+#                                                          'CALO',
+#                                                          'BMTF',
+#                                                          'OMTF',
+#                                                          'EMTF'
+#                                                        )
+process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring( options.subsystemLabels.split(',') )
 
 # Generate configuration data from OMDS
 process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")

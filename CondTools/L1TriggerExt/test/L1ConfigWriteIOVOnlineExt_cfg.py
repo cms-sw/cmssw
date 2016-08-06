@@ -6,8 +6,6 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-# Get L1TriggerKeyListExtExt from DB
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
@@ -80,15 +78,19 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
+# Get L1TriggerKeyListExtExt from DB
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = cms.string(options.outputDBConnect)
+
 process.outputDB = cms.ESSource("PoolDBESSource",
-                                process.CondDBCommon,
+                                process.CondDB,
                                 toGet = cms.VPSet(cms.PSet(
     record = cms.string('L1TriggerKeyListExtRcd'),
     tag = cms.string('L1TriggerKeyListExt_' + initL1O2OTagsExt.tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ])
     )),
                                 RefreshEachRun=cms.untracked.bool(True)
                                 )
-process.outputDB.connect = cms.string(options.outputDBConnect)
+
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
 # CORAL debugging
