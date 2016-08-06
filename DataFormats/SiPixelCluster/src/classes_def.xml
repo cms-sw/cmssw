@@ -1,16 +1,23 @@
 <lcgdict>
-  <class name="SiPixelCluster" ClassVersion="12">
-   <field name="err_x" transient="true"/>
-   <field name="err_y" transient="true"/>
+  <class name="SiPixelCluster" ClassVersion="13">
    <version ClassVersion="10" checksum="2468063768"/>
    <version ClassVersion="11" checksum="1473312403"/>
    <version ClassVersion="12" checksum="2042538185"/>
-   <ioread sourceClass="SiPixelCluster" version="[1-10]" targetClass="SiPixelCluster" source="uint16_t theMinPixelCol" target="thePixelCol">
-   <![CDATA[thePixelCol = onfile.theMinPixelCol;]]>
-   </ioread>  
-   <ioread sourceClass="SiPixelCluster" version="[1-10]" targetClass="SiPixelCluster" source="uint16_t theMinPixelRow" target="thePixelRow">
-   <![CDATA[thePixelRow = onfile.theMinPixelRow;]]>
-   </ioread>  
+   <version ClassVersion="13" checksum="2314992115"/>
+   <field name="err_x" transient="true"/>
+   <field name="err_y" transient="true"/>
+  <ioread sourceClass="SiPixelCluster" version="[11-12]" targetClass="SiPixelCluster" source="uint16_t thePixelCol" target="theMinPixelCol">
+   <![CDATA[theMinPixelCol = onfile.thePixelCol&1023;]]>
+   </ioread>
+   <ioread sourceClass="SiPixelCluster" version="[11-12]" targetClass="SiPixelCluster" source="uint16_t thePixelRow" target="theMinPixelRow">
+   <![CDATA[theMinPixelRow = onfile.thePixelRow&1023;]]>
+   </ioread>
+  <ioread sourceClass="SiPixelCluster" version="[11-12]" targetClass="SiPixelCluster" source="uint16_t thePixelCol" target="thePixelColSpan">
+   <![CDATA[thePixelColSpan = onfile.thePixelCol>>10;]]>
+   </ioread>
+   <ioread sourceClass="SiPixelCluster" version="[11-12]" targetClass="SiPixelCluster" source="uint16_t thePixelRow" target="thePixelRowSpan">
+   <![CDATA[thePixelRowSpan = onfile.thePixelRow>>10;]]>
+   </ioread>
   </class>
   <class name="SiPixelCluster::Pixel" ClassVersion="11">
    <version ClassVersion="10" checksum="387573196"/>
