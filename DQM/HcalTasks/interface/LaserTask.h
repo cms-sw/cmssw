@@ -32,10 +32,15 @@ class LaserTask : public DQTask
 		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
 		{
 			if (_ptype==fLocal)
+			{
 				if (r.runAuxiliary().run()==1)
 					return;
-			this->_dump();
+				else 
+					this->_dump();
+			}
 		}
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
 		//	funcs
@@ -48,11 +53,11 @@ class LaserTask : public DQTask
 		edm::InputTag	_tagHBHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
-		edm::InputTag	_tagTrigger;
+		edm::InputTag	_taguMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<HFDigiCollection> _tokHF;
-		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
 		//	emap
 		HcalElectronicsMap const* _emap;
@@ -65,6 +70,7 @@ class LaserTask : public DQTask
 		double _lowHBHE;
 		double _lowHO;
 		double _lowHF;
+		uint32_t _laserType;
 
 		//	Compact
 		ContainerXXX<double> _xSignalSum;
@@ -79,12 +85,16 @@ class LaserTask : public DQTask
 		Container1D		_cTimingMean_Subdet;
 		Container1D		_cTimingRMS_Subdet;
 
+		Container1D _cADC_SubdetPM;
+
 		//	Prof1D
 		ContainerProf1D	_cShapeCut_FEDSlot;
 		ContainerProf1D _cTimingvsEvent_SubdetPM;
 		ContainerProf1D _cSignalvsEvent_SubdetPM;
 		ContainerProf1D _cTimingvsLS_SubdetPM;
 		ContainerProf1D _cSignalvsLS_SubdetPM;
+		ContainerProf1D _cTimingvsBX_SubdetPM;
+		ContainerProf1D _cSignalvsBX_SubdetPM;
 
 		//	2D timing/signals
 		ContainerProf2D		_cSignalMean_depth;
@@ -108,10 +118,3 @@ class LaserTask : public DQTask
 };
 
 #endif
-
-
-
-
-
-
-

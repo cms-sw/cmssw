@@ -1,8 +1,8 @@
 	
-#include "DQM/HcalTasks/interface/RadDamTask.h"
+#include "DQM/HcalTasks/interface/HFRaddamTask.h"
 
 using namespace hcaldqm;
-RadDamTask::RadDamTask(edm::ParameterSet const& ps):
+HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
 	//	List all the DetIds
@@ -67,10 +67,13 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", 
 		edm::InputTag("hcalDigis"));
+	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
+		edm::InputTag("hcalDigis"));
 	_tokHF = consumes<HFDigiCollection>(_tagHF);
+	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 }
 
-/* virtual */ void RadDamTask::bookHistograms(DQMStore::IBooker& ib,
+/* virtual */ void HFRaddamTask::bookHistograms(DQMStore::IBooker& ib,
 	edm::Run const& r, edm::EventSetup const& es)
 {
 	//	Initialize all the Single Containers
@@ -93,7 +96,7 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 	}
 }
 
-/* virtual */ void RadDamTask::_process(edm::Event const &e,
+/* virtual */ void HFRaddamTask::_process(edm::Event const &e,
 	edm::EventSetup const& es)
 {
 	edm::Handle<HFDigiCollection> chf;
@@ -115,13 +118,22 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 	}
 }
 
-/* virtual */ bool RadDamTask::_isApplicable(edm::Event const &e)
+/* virtual */ bool HFRaddamTask::_isApplicable(edm::Event const &e)
 {
 	if (_ptype==fOnline)
 	{
-		// globla-online
-		int calibType = this->_getCalibType(e);
-		return (calibType==hc_RADDAM);
+		edm::Handle<HcalUMNioDigi> cumn;
+		if (!e.getByToken(_tokuMN, cumn))
+			return false;
+
+		//  event type check first
+		uint8_t eventType = cumn->eventType();
+		if (eventType!=constants::EVENTTYPE_LASER)
+			return false;
+
+		//  check if this analysis task is of the right laser type
+		uint32_t laserType = cumn->valueUserWord(0);
+		if (laserType==constants::tHFRaddam) return true;
 	}
 	else
 	{
@@ -132,7 +144,4 @@ RadDamTask::RadDamTask(edm::ParameterSet const& ps):
 	return false;
 }
 
-DEFINE_FWK_MODULE(RadDamTask);
-
-
-
+DEFINE_FWK_MODULE(HFRaddamTask);

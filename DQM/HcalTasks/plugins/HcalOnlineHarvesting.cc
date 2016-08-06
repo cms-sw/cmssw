@@ -1,7 +1,7 @@
 #include "DQM/HcalTasks/interface/HcalOnlineHarvesting.h"
 
 HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
-	DQHarvester(ps), _reportSummaryMap(NULL)
+	DQHarvester(ps), _nBad(0), _nTotal(0), _reportSummaryMap(NULL)
 {
 
 	//	NOTE: I will leave Run Summary Generators in place 
@@ -27,6 +27,8 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 		_vnames[fTP], ps);
 	_vsumgen[fPedestal] = new PedestalRunSummary("PedestalRunHarvesting",
 		_vnames[fPedestal], ps);
+
+	_thresh_bad_bad = ps.getUntrackedParameter("thresh_bad_bad", 0.05);
 }
 
 /* virtual */ void HcalOnlineHarvesting::beginRun(
@@ -85,9 +87,25 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 			if (_vmarks[i])
 				_vcSummaryvsLS[i].load(ig, _subsystem);
 		}
+
+		//	Create a map of bad channels and fill
+		_cKnownBadChannels_depth.initialize("RunInfo", "KnownBadChannels",
+			hashfunctions::fdepth,
+			new quantity::DetectorQuantity(quantity::fieta),
+			new quantity::DetectorQuantity(quantity::fiphi),
+			new quantity::ValueQuantity(quantity::fN));
+		_cKnownBadChannels_depth.book(ib, _emap, _subsystem);
+		for (uintCompactMap::const_iterator it=_xQuality.begin();
+			it!=_xQuality.end(); ++it)
+			_cKnownBadChannels_depth.fill(HcalDetId(it->first));
+
+		ig.setCurrentFolder(_subsystem+"/EventInfo");
+		_runSummary = ib.book2D("runSummary", "runSummary",
+			1, 0, 1, 1, 0, 1);
 	}
 
 	int ifed=0;
+	flag::Flag fTotal("Status", flag::fNCDAQ);
 	for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
 		it!=_vhashFEDs.end(); ++it)
 	{
@@ -102,7 +120,19 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 			}
 		_reportSummaryMap->setBinContent(_currentLS, ifed+1, int(fSum._state));
 		ifed++;
+		fTotal+=fSum;
 	}
+
+	// update the Run Summary
+	// ^^^TEMPORARY AT THIS POINT!
+	if (fTotal._state==flag::fBAD) _nBad++;
+	_nTotal++;
+	if (double(_nBad)/double(_nTotal)>=_thresh_bad_bad)
+		_runSummary->setBinContent(1, 1, int(flag::fBAD));
+	else if (fTotal._state==flag::fNCDAQ)
+		_runSummary->setBinContent(1,1, int(flag::fNCDAQ));
+	else
+		_runSummary->setBinContent(1,1, int(flag::fGOOD));
 }
 
 /*

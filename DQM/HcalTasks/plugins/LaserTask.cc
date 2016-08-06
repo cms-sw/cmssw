@@ -14,12 +14,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF",
 		edm::InputTag("hcalDigis"));
-	_tagTrigger = ps.getUntrackedParameter<edm::InputTag>("tagTrigger",
-		edm::InputTag("tbunpacker"));
+	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
+		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<HFDigiCollection>(_tagHF);
-	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
+	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
@@ -28,6 +28,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		20);
 	_lowHF = ps.getUntrackedParameter<double>("lowHF",
 		20);
+	_laserType = (uint32_t)ps.getUntrackedParameter<uint32_t>("laserType");
 }
 	
 /* virtual */ void LaserTask::bookHistograms(DQMStore::IBooker &ib,
@@ -71,6 +72,11 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_cTimingRMS_Subdet.initialize(_name, "TimingRMS",
 		hashfunctions::fSubdet, 
 		new quantity::ValueQuantity(quantity::fTiming_TS200), 
+		new quantity::ValueQuantity(quantity::fN, true));
+
+	_cADC_SubdetPM.initialize(_name, "ADC",
+		hashfunctions::fSubdetPM,
+		new quantity::ValueQuantity(quantity::fADC_128),
 		new quantity::ValueQuantity(quantity::fN, true));
 
 	_cSignalMean_FEDVME.initialize(_name, "SignalMean",
@@ -133,6 +139,14 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_cSignalvsLS_SubdetPM.initialize(_name, "SignalvsLS",
 		hashfunctions::fSubdetPM,
 		new quantity::LumiSection(_maxLS),
+		new quantity::ValueQuantity(quantity::ffC_3000));
+	_cTimingvsBX_SubdetPM.initialize(_name, "TimingvsBX",
+		hashfunctions::fSubdetPM,
+		new quantity::ValueQuantity(quantity::fBX),
+		new quantity::ValueQuantity(quantity::fTiming_TS200));
+	_cSignalvsBX_SubdetPM.initialize(_name, "SignalvsBX",
+		hashfunctions::fSubdetPM,
+		new quantity::ValueQuantity(quantity::fBX),
 		new quantity::ValueQuantity(quantity::ffC_3000));
 
 	_cSignalMean_depth.initialize(_name, "SignalMean",
@@ -200,6 +214,8 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	{	
 		_cTimingvsLS_SubdetPM.book(ib, _emap, _subsystem);
 		_cSignalvsLS_SubdetPM.book(ib, _emap, _subsystem);
+		_cTimingvsBX_SubdetPM.book(ib, _emap, _subsystem);
+		_cSignalvsBX_SubdetPM.book(ib, _emap, _subsystem);
 	}
 
 	_cSignalMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
@@ -210,6 +226,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_cTimingMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	_cTimingRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 	_cTimingRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cADC_SubdetPM.book(ib, _emap, _subsystem);
 
 	_cShapeCut_FEDSlot.book(ib, _emap, _subsystem);
 	_cMissing_depth.book(ib, _emap,_subsystem);
@@ -317,7 +334,8 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			+ _tagHF.label() + " " + _tagHF.instance());
 
 //	int currentEvent = e.eventAuxiliary().id().event();
-
+	int bx = e.bunchCrossing();
+	
 	for (HBHEDigiCollection::const_iterator it=chbhe->begin();
 		it!=chbhe->end(); ++it)
 	{
@@ -338,8 +356,11 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_xEntries.get(did)++;
 
 		for (int i=0; i<digi.size(); i++)
+		{
 			_cShapeCut_FEDSlot.fill(eid, i, 
 				digi.sample(i).nominal_fC()-2.5);
+			_cADC_SubdetPM.fill(did, digi.sample(i).adc());
+		}
 
 		//	select based on local global
 		if (_ptype==fLocal)
@@ -352,6 +373,8 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		{
 			_cTimingvsLS_SubdetPM.fill(did, _currentLS, aveTS);
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
+			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
+			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
 		}
 	}
 	for (HODigiCollection::const_iterator it=cho->begin();
@@ -374,8 +397,11 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_xEntries.get(did)++;
 
 		for (int i=0; i<digi.size(); i++)
+		{
 			_cShapeCut_FEDSlot.fill(eid, i, 
 				digi.sample(i).nominal_fC()-8.5);
+			_cADC_SubdetPM.fill(did, digi.sample(i).adc());
+		}
 
 		//	select based on local global
 		if (_ptype==fLocal)
@@ -388,6 +414,8 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		{
 			_cTimingvsLS_SubdetPM.fill(did, _currentLS, aveTS);
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
+			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
+			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
 		}
 	}
 	for (HFDigiCollection::const_iterator it=chf->begin();
@@ -410,8 +438,11 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_xEntries.get(did)++;
 
 		for (int i=0; i<digi.size(); i++)
+		{
 			_cShapeCut_FEDSlot.fill(eid, i, 
 				digi.sample(i).nominal_fC()-2.5);
+			_cADC_SubdetPM.fill(did, digi.sample(i).adc());
+		}
 
 		//	select based on local global
 		if (_ptype==fLocal)
@@ -424,29 +455,44 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		{
 			_cTimingvsLS_SubdetPM.fill(did, _currentLS, aveTS);
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
+			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
+			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
 		}
 	}
+}
 
-	if (_ptype==fOnline && _evsTotal>0 &&
-		_evsTotal%constants::CALIBEVENTS_MIN==0)
-		this->_dump();
+/* virtual */ void LaserTask::endLuminosityBlock(edm::LuminosityBlock const& lb,
+	edm::EventSetup const& es)
+{
+	if (_ptype==fLocal)
+		return;
+	this->_dump();
+
+	DQTask::endLuminosityBlock(lb, es);
 }
 
 /* virtual */ bool LaserTask::_isApplicable(edm::Event const& e)
 {
 	if (_ptype!=fOnline)
+		return true;
+	else 
 	{
-		//	local
-		edm::Handle<HcalTBTriggerData> ctrigger;
-		if (!e.getByToken(_tokTrigger, ctrigger))
-			_logger.dqmthrow("Collection HcalTBTriggerData isn't available "
-				+ _tagTrigger.label() + " " + _tagTrigger.instance());
-		return ctrigger->wasLaserTrigger();
+		//	fOnline mode
+		edm::Handle<HcalUMNioDigi> cumn;
+		if (!e.getByToken(_tokuMN, cumn))
+			return false;
+		
+		//	event type check first
+		uint8_t eventType = cumn->eventType();
+		if (eventType!=constants::EVENTTYPE_LASER)
+			return false;
+
+		//	check if this analysis task is of the right laser type
+		uint32_t laserType = cumn->valueUserWord(0);
+		if (laserType==_laserType) return true;
 	}
 
 	return false;
 }
 
 DEFINE_FWK_MODULE(LaserTask);
-
-

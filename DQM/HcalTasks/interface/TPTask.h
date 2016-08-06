@@ -51,14 +51,17 @@ class TPTask : public DQTask
 			fFGMsm=1,
 			fDataMsn=2,
 			fEmulMsn=3,
-			nTPFlag=4
+			fUnknownIds=4,
+			nTPFlag=5
 		};
 
 		//	switches/cuts/etc...
 		bool _skip1x1;
 		int _cutEt;
-		double _thresh_EtMsmRate,_thresh_FGMsmRate,_thresh_DataMsn,
-			_thresh_EmulMsn;
+		double _thresh_EtMsmRate_high, _thresh_EtMsmRate_low,
+			_thresh_FGMsmRate_high, _thresh_FGMsmRate_low,
+			_thresh_DataMsn, _thresh_EmulMsn;
+		std::vector<bool> _vFGBitsReady;
 
 		//	hashes/FEDs vectors
 		std::vector<uint32_t> _vhashFEDs;
@@ -77,7 +80,7 @@ class TPTask : public DQTask
 		Container1D _cEtEmul_TTSubdet;
 		Container2D	_cEtCorr_TTSubdet;
 		Container2D _cEtCorr2x3_TTSubdet;	//	online only
-		Container2D _cFGCorr_TTSubdet;
+		Container2D _cFGCorr_TTSubdet[constants::NUM_FGBITS];
 		ContainerProf1D _cEtCutDatavsLS_TTSubdet;	// online only!
 		ContainerProf1D _cEtCutEmulvsLS_TTSubdet;	// online only!
 		ContainerProf1D _cEtCutDatavsBX_TTSubdet;	// online only!
@@ -162,6 +165,9 @@ class TPTask : public DQTask
 		ContainerProf1D _cOccupancyCutDatavsLS_TTSubdet;	// online only
 		ContainerProf1D _cOccupancyCutEmulvsLS_TTSubdet; // online only
 
+		//	track unknown ids
+		MonitorElement *meUnknownIds1LS;
+		bool _unknownIdsPresent;
 
 		Container2D _cSummaryvsLS_FED; // online only
 		ContainerSingle2D _cSummaryvsLS; // online only

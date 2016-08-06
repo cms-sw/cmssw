@@ -24,13 +24,14 @@ namespace hcaldqm
 			ContainerSingle2D _cEtMsmFraction_depthlike;
 			ContainerSingle2D _cFGMsmFraction_depthlike;
 
-			double _thresh_fgmsm, _thresh_etmsm;
+			double _thresh_FGMsmRate_high, _thresh_FGMsmRate_low;
+			double _thresh_EtMsmRate_high, _thresh_EtMsmRate_low;
 
 			enum TPFlag
 			{
 				fEtMsm=0,
 				fFGMsm=1,
-				nTPFlag=2
+				nTPFlag=3
 			};
 	};
 }

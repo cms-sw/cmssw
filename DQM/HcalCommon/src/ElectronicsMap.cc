@@ -22,8 +22,11 @@ namespace hcaldqm
 					{
 						HcalGenericDetId did = HcalGenericDetId(
 							_emap->lookup(*it));
-						if (!did.isHcalDetId())
+						EMapType::iterator dit = _ids.find(did.rawId());
+						if (dit!=_ids.end())
 							continue;
+//						if (!did.isHcalDetId())
+//							continue;
 
 						_ids.insert(std::make_pair(did.rawId(), it->rawId()));
 					}
@@ -53,9 +56,8 @@ namespace hcaldqm
 					for (std::vector<HcalElectronicsId>::const_iterator
 						it=eids.begin(); it!=eids.end(); ++it)
 					{
-						HcalDetId did = HcalDetId(_emap->lookup(*it));
-						uint32_t hash = hashfunctions::hash_EChannel(
-							*it);
+						HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
+						uint32_t hash = it->rawId();
 						EMapType::iterator eit = _ids.find(hash);
 						if (eit!=_ids.end())
 							continue;
@@ -110,8 +112,8 @@ namespace hcaldqm
 						if (filter.filter(*it))
 							continue;
 						//	skip those that are not detid or calib ids
-						if (!did.isHcalDetId())
-							continue;
+//						if (!did.isHcalDetId())
+//							continue;
 
 						_ids.insert(std::make_pair(did.rawId(), it->rawId()));
 					}
@@ -143,8 +145,8 @@ namespace hcaldqm
 						if (filter.filter(*it))
 							continue;
 						//	skip those that are not detid or calib ids
-						if (!did.isHcalDetId())
-							continue;
+//						if (!did.isHcalDetId())
+//							continue;
 
 						//	note: use EChannel hashing here!
 						_ids.insert(std::make_pair(hash,did.rawId()));
@@ -170,15 +172,27 @@ namespace hcaldqm
 		uint32_t ElectronicsMap::lookup(DetId const &id)
 		{
 			uint32_t hash = id.rawId();
-			return _etype==fHcalElectronicsMap? _emap->lookup(id).rawId(): 
-				_ids[hash];
+			if (_etype==fHcalElectronicsMap)
+				return _emap->lookup(id).rawId();
+			else 
+			{
+				EMapType::iterator it = _ids.find(hash);
+				return it==_ids.end() ? 0 : it->second;
+			}
+			return 0;
 		}
 
 		uint32_t ElectronicsMap::lookup(HcalElectronicsId const &id)
 		{
 			uint32_t hash = id.rawId();
-			return _etype==fHcalElectronicsMap? _emap->lookup(id).rawId():
-				_ids[hash];
+			if (_etype==fHcalElectronicsMap)
+				return _emap->lookup(id).rawId();
+			else 
+			{
+				EMapType::iterator it=_ids.find(hash);
+				return it==_ids.end() ? 0 : it->second;
+			}
+			return 0;
 		}
 
 		void ElectronicsMap::print()

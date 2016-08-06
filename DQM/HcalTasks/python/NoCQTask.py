@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-# prep a FED skip list
-
-rawTask = cms.EDAnalyzer(
-	"RawTask",
+nocqTask = cms.EDAnalyzer(
+	"NoCQTask",
 	
 	#	standard parameters
-	name = cms.untracked.string("RawTask"),
+	name = cms.untracked.string("NoCQTask"),
 	debug = cms.untracked.int32(0),
 	runkeyVal = cms.untracked.int32(0),
 	runkeyName = cms.untracked.string("pp_run"),
@@ -15,10 +13,16 @@ rawTask = cms.EDAnalyzer(
 	subsystem = cms.untracked.string("Hcal"),
 
 	#	tags
-	tagFEDs = cms.untracked.InputTag("rawDataCollector"),
+	tagHBHE = cms.untracked.InputTag("hcalDigis"),
+	tagHO = cms.untracked.InputTag("hcalDigis"),
+	tagHF = cms.untracked.InputTag("hcalDigis"),
 	tagReport = cms.untracked.InputTag("hcalDigis"),
-    calibProcessing = cms.untracked.bool(False),
-	thresh_calib_nobadq = cms.untracked.int32(1000)
+
+	#	Cuts
+	cutSumQ_HBHE = cms.untracked.double(20),
+	cutSumQ_HO = cms.untracked.double(20),
+	cutSumQ_HF = cms.untracked.double(20),
+
 )
 
 

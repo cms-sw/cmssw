@@ -1,8 +1,8 @@
-#ifndef DigiTask_h
-#define DigiTask_h
+#ifndef DigiPhase1Task_h
+#define DigiPhase1Task_h
 
 /**
- *	file:			DigiTask.h
+ *	file:			DigiPhase1Task.h
  *	Author:			VK
  *	Description:
  *		HCAL DIGI Data Tier Processing.
@@ -28,11 +28,11 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::filter;
-class DigiTask : public DQTask
+class DigiPhase1Task : public DQTask
 {
 	public:
-		DigiTask(edm::ParameterSet const&);
-		virtual ~DigiTask() {}
+		DigiPhase1Task(edm::ParameterSet const&);
+		virtual ~DigiPhase1Task() {}
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
@@ -48,23 +48,12 @@ class DigiTask : public DQTask
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
-		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
-		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
-
-		//	flag vector
-		std::vector<flag::Flag> _vflags;
-		enum DigiFlag
-		{
-			fDigiSize=0,
-			fUni = 1,
-			fNChsHF = 2,
-			fUnknownIds = 3,
-			nDigiFlag = 4
-		};
 
 		//	hashes/FED vectors
 		std::vector<uint32_t> _vhashFEDs;
@@ -72,7 +61,6 @@ class DigiTask : public DQTask
 		//	emap
 		HcalElectronicsMap const* _emap;
 		electronicsmap::ElectronicsMap _ehashmap; // online only
-		electronicsmap::ElectronicsMap _dhashmap;
 
 		//	Filters
 		HashFilter _filter_VME;
@@ -107,8 +95,8 @@ class DigiTask : public DQTask
 		//	Only for Online mode! just filling - no summary!
 		ContainerProf1D _cQ2Q12CutvsLS_FEDHF;	//	online only!
 
-		//	Occupancy w/o a Cut - whatever is sitting in the Digi Collection
-		//	used to determine Missing Digis => used for Summary!
+		//	Occupancy w/o a Cut - whatever is sitting in the DigiPhase1 Collection
+		//	used to determine Missing DigiPhase1s => used for Summary!
 		Container2D _cOccupancy_FEDVME;
 		Container2D _cOccupancy_FEDuTCA;
 		Container2D _cOccupancy_ElectronicsVME;
@@ -145,8 +133,6 @@ class DigiTask : public DQTask
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
-		MonitorElement *meUnknownIds1LS;
-		bool _unknownIdsPresent;
 
 		Container2D _cSummaryvsLS_FED; // online only
 		ContainerSingle2D _cSummaryvsLS; // online only

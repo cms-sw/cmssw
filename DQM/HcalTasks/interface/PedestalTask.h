@@ -29,6 +29,8 @@ class PedestalTask : public DQTask
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
 			edm::EventSetup const&);
 		virtual void endRun(edm::Run const&, edm::EventSetup const&);
@@ -45,6 +47,8 @@ class PedestalTask : public DQTask
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
+		edm::InputTag   _taguMN;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<HFDigiCollection> _tokHF;
@@ -68,6 +72,7 @@ class PedestalTask : public DQTask
 
 		//	thresholds
 		double _thresh_mean, _thresh_rms, _thresh_badm, _thresh_badr;
+		double _thresh_missing_high, _thresh_missing_low;
 
 		//	hashed ids of FEDs
 		std::vector<uint32_t> _vhashFEDs;
@@ -133,6 +138,9 @@ class PedestalTask : public DQTask
 		Container1D _cNBadMeanvsLS_Subdet;
 		Container1D _cNBadRMSvsLS_Subdet;
 
+		//	averaging per event
+		ContainerProf1D _cOccupancyEAvsLS_Subdet;
+
 		//	map of missing channels
 		Container2D	_cMissing1LS_depth;
 		Container2D	_cMissing1LS_FEDVME;
@@ -155,6 +163,8 @@ class PedestalTask : public DQTask
 		Container2D	_cRMSBadTotal_FEDuTCA;
 		Container2D	_cRMSBadTotal_FEDVME;
 		Container2D	_cMeanBadTotal_FEDuTCA;
+
+		Container1D _cADC_SubdetPM;
 		
 		//	Summaries
 		Container2D _cSummaryvsLS_FED;
