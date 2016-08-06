@@ -2,7 +2,6 @@
 #include "DQM/HcalTasks/interface/TPComparisonTask.h"
 
 using namespace hcaldqm;
-using namespace constants;
 TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {

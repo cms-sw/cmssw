@@ -1,6 +1,5 @@
 #include "DQM/HcalTasks/interface/RawTask.h"
-using namespace hcaldqm;
-using namespace constants;
+
 RawTask::RawTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -8,6 +7,10 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 		edm::InputTag("rawDataCollector"));
 	_tagReport = ps.getUntrackedParameter<edm::InputTag>("tagReport",
 		edm::InputTag("hcalDigis"));
+	_calibProcessing = ps.getUntrackedParameter<bool>("calibProcessing",
+		false);
+	_thresh_calib_nbadq = ps.getUntrackedParameter<int>("thresh_calib_nbadq",
+		1000);
 
 	_tokFEDs = consumes<FEDRawDataCollection>(_tagFEDs);
 	_tokReport = consumes<HcalUnpackerReport>(_tagReport);
@@ -16,6 +19,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	_vflags[fEvnMsm]=flag::Flag("EvnMsm");
 	_vflags[fBcnMsm]=flag::Flag("BcnMsm");
 	_vflags[fBadQ]=flag::Flag("BadQ");
+	_vflags[fOrnMsm]=flag::Flag("OrnMsm");
 }
 
 /* virtual */ void RawTask::bookHistograms(DQMStore::IBooker& ib,
@@ -128,6 +132,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	{
 		_xEvnMsmLS.initialize(hashfunctions::fFED);
 		_xBcnMsmLS.initialize(hashfunctions::fFED);
+		_xOrnMsmLS.initialize(hashfunctions::fFED);
 		_xBadQLS.initialize(hashfunctions::fFED);
 		_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
 			hashfunctions::fFED,
@@ -138,6 +143,11 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 			new quantity::LumiSection(_maxLS),
 			new quantity::FEDQuantity(vFEDs),
 			new quantity::ValueQuantity(quantity::fState));
+		//	FED Size vs LS
+		_cDataSizevsLS_FED.initialize(_name, "DataSizevsLS",
+			hashfunctions::fFED,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fDataSize));
 	}
 
 	//	BOOK HISTOGRAMS
@@ -160,9 +170,11 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	{
 		_xEvnMsmLS.book(_emap);
 		_xBcnMsmLS.book(_emap);
+		_xOrnMsmLS.book(_emap);
 		_xBadQLS.book(_emap);
 		_cSummaryvsLS_FED.book(ib, _emap, _subsystem);
 		_cSummaryvsLS.book(ib, _subsystem);
+		_cDataSizevsLS_FED.book(ib, _emap, _subsystem);
 	}
 
 	//	FOR OFFLINE PROCESSING MARK THESE HISTOGRAMS AS LUMI BASED
@@ -200,6 +212,17 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	//	extract some info
 	int bx = e.bunchCrossing();
 
+	/*
+	 *	For Calibration/Abort Gap Processing
+	 *	check if the #channels taht are bad from the unpacker 
+	 *	is > 5000. If it is skip...
+	 */
+	if (_calibProcessing)
+	{
+		int nbadq = creport->badQualityDigis();
+		if (nbadq>=_thresh_calib_nbadq)
+			return;
+	}
 	
 	int nn = 0;
 	//	loop thru and fill the detIds with bad quality
@@ -210,8 +233,19 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	for (std::vector<DetId>::const_iterator it=creport->bad_quality_begin();
 		it!=creport->bad_quality_end(); ++it)
 	{
+		//	skip non HCAL det ids
 		if (!HcalGenericDetId(*it).isHcalDetId())
 			continue;
+
+		//	skip those that are of bad quality from conditions
+		//	Masked or Dead
+		if (_xQuality.exists(HcalDetId(*it)))
+		{
+			HcalChannelStatus cs(it->rawId(), _xQuality.get(HcalDetId(*it)));
+			if (cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+			continue;
+		}
 
 		nn++;
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(*it));
@@ -254,9 +288,19 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 				continue;
 
 			uint32_t bcn = hdcc->getBunchId();
-			uint32_t orn = hdcc->getOrbitNumber();
+			uint32_t orn = hdcc->getOrbitNumber() & 0x1F; // LS 5 bits only
 			uint32_t evn = hdcc->getDCCEventNumber();
 			int dccId = hdcc->getSourceId()-constants::FED_VME_MIN;
+
+			/* online only */
+			if (_ptype==fOnline)
+			{
+				HcalElectronicsId eid = HcalElectronicsId(constants::FIBERCH_MIN,
+					constants::FIBER_VME_MIN, constants::SPIGOT_MIN, dccId);
+				if (_filter_FEDsVME.filter(eid))
+					continue;
+				_cDataSizevsLS_FED.fill(eid, _currentLS, double(raw.size())/1024.);
+			}
 
 			//	iterate over spigots
 			HcalHTRData htr;
@@ -285,7 +329,12 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 						_xEvnMsmLS.get(eid)++;
 				}
 				if (qorn)
+				{
 					_cOrnMsm_ElectronicsVME.fill(eid);
+
+					if (_ptype==fOnline && is<=constants::SPIGOT_MAX)
+						_xOrnMsmLS.get(eid)++;
+				}
 				if (qbcn)
 				{
 					_cBcnMsm_ElectronicsVME.fill(eid);
@@ -302,8 +351,18 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 			if (!hamc13)
 				continue;
 
+			/* online only */
+			if (_ptype==fOnline)
+			{
+				HcalElectronicsId eid = HcalElectronicsId(utilities::fed2crate(fed),
+					SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false);
+				if (_filter_FEDsuTCA.filter(eid))
+					continue;
+				_cDataSizevsLS_FED.fill(eid, _currentLS, double(raw.size())/1024.);
+			}
+
 			uint32_t bcn = hamc13->bunchId();
-			uint32_t orn = hamc13->orbitNumber();
+			uint32_t orn = hamc13->orbitNumber() & 0xFFFF; // LS 16bits only
 			uint32_t evn = hamc13->l1aNumber();
 			int namc = hamc13->NAMC();
 
@@ -332,7 +391,12 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 						_xEvnMsmLS.get(eid)++;
 				}
 				if (qorn)
+				{
 					_cOrnMsm_ElectronicsuTCA.fill(eid);
+
+					if (_ptype==fOnline)
+						_xOrnMsmLS.get(eid)++;
+				}
 				if (qbcn)
 				{
 					_cBcnMsm_ElectronicsuTCA.fill(eid);
@@ -399,8 +463,14 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 				_vflags[fBcnMsm]._state = flag::fBAD;
 			else
 				_vflags[fBcnMsm]._state = flag::fGOOD;
-			if (_xBadQLS.get(eid)>0)
+			if (_xOrnMsmLS.get(eid)>0)
+				_vflags[fOrnMsm]._state = flag::fBAD;
+			else
+				_vflags[fOrnMsm]._state = flag::fGOOD;
+			if (double(_xBadQLS.get(eid))>double(12*_evsPerLS))
 				_vflags[fBadQ]._state = flag::fBAD;
+			else if (_xBadQLS.get(eid)>0)
+				_vflags[fBadQ]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fBadQ]._state = flag::fGOOD;
 		}
@@ -425,7 +495,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	}
 
 	//	reset...
-	_xEvnMsmLS.reset(); _xBcnMsmLS.reset(); _xBadQLS.reset();
+	_xOrnMsmLS.reset(); _xEvnMsmLS.reset(); _xBcnMsmLS.reset(); _xBadQLS.reset();
 
 	//	in the end always do the DQTask::endLumi
 	DQTask::endLuminosityBlock(lb, es);

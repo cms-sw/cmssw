@@ -11,32 +11,35 @@
 
 #include "DQM/HcalCommon/interface/Container.h"
 #include "DQM/HcalCommon/interface/ValueQuantity.h"
+
 #include <string>
+
 namespace hcaldqm
 {
+	using namespace quantity;
 	class ContainerSingle1D : public Container
 	{
 		public:
 			ContainerSingle1D();
 			ContainerSingle1D(std::string const& folder, 
-				quantity::Quantity*,
-				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN));
+				Quantity*,
+				Quantity *qy = new ValueQuantity(quantity::fN));
 			ContainerSingle1D(std::string const& folder, 
 				std::string const&,
-				quantity::Quantity*,
-				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN));
+				Quantity*,
+				Quantity *qy = new ValueQuantity(quantity::fN));
 			ContainerSingle1D(ContainerSingle1D const&);
 			virtual ~ContainerSingle1D();
 			
 			virtual void initialize(std::string const& folder, 
-				quantity::Quantity*,
-				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN),
+				Quantity*,
+				Quantity *qy = new ValueQuantity(quantity::fN),
 				int debug=0);
 
 			virtual void initialize(std::string const& folder, 
 				std::string const&, 
-				quantity::Quantity*,
-				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN),
+				Quantity*,
+				Quantity *qy = new ValueQuantity(quantity::fN),
 				int debug=0);
 
 			//	booking
@@ -100,8 +103,8 @@ namespace hcaldqm
 
 		protected:
 			MonitorElement				*_me;
-			quantity::Quantity					*_qx;
-			quantity::Quantity					*_qy;
+			Quantity					*_qx;
+			Quantity					*_qy;
 
 			virtual void customize();
 	};

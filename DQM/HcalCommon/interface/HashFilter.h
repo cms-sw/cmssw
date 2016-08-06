@@ -10,12 +10,14 @@
  */
 
 #include "DQM/HcalCommon/interface/HashMapper.h"
+
 #include <vector>
 #include <boost/unordered_set.hpp>
 #include <boost/foreach.hpp>
 
 namespace hcaldqm
 {
+	using namespace mapper;
 	namespace filter
 	{
 		enum FilterType
@@ -25,21 +27,21 @@ namespace hcaldqm
 			nFilterType = 2
 		};
 
-		class HashFilter : public mapper::HashMapper
+		class HashFilter : public HashMapper
 		{
 			public:
 				HashFilter() : _ftype(fFilter)
 				{}
 				//	empty hash
-				HashFilter(FilterType ftype, hashfunctions::HashType htype);
+				HashFilter(FilterType ftype, HashType htype);
 				//	initialize with a vector of hashes
-				HashFilter(FilterType, hashfunctions::HashType, 
+				HashFilter(FilterType, HashType, 
 					std::vector<uint32_t> const&);
 				//	copy constructor
 				HashFilter(HashFilter const& hf);
 				virtual ~HashFilter() {}
 
-				virtual void initialize(FilterType ftype, hashfunctions::HashType htype,
+				virtual void initialize(FilterType ftype, HashType htype,
 					std::vector<uint32_t> const&);
 
 				//	true if should filter out and false if not

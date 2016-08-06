@@ -17,7 +17,9 @@
 #include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
-class TPComparisonTask : public hcaldqm::DQTask
+using namespace hcaldqm;
+using namespace hcaldqm::filter;
+class TPComparisonTask : public DQTask
 {
 	public: 
 		TPComparisonTask(edm::ParameterSet const&);
@@ -32,7 +34,7 @@ class TPComparisonTask : public hcaldqm::DQTask
 	protected:
 		//	funcs
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		virtual void _resetMonitors(UpdateFreq);
 
 		//	Tags and corresponding Tokens
 		edm::InputTag	_tag1;
@@ -45,42 +47,42 @@ class TPComparisonTask : public hcaldqm::DQTask
 
 		//	emap
 		HcalElectronicsMap const* _emap;
-		hcaldqm::electronicsmap::ElectronicsMap _ehashmapuTCA;
-		hcaldqm::electronicsmap::ElectronicsMap _ehashmapVME;
+		electronicsmap::ElectronicsMap _ehashmapuTCA;
+		electronicsmap::ElectronicsMap _ehashmapVME;
 
 		//	hahses/FED vectors
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	Filters
-		hcaldqm::filter::HashFilter _filter_VME;
-		hcaldqm::filter::HashFilter _filter_uTCA;
+		HashFilter _filter_VME;
+		HashFilter _filter_uTCA;
 
 		/**
 		 *	Containers
 		 */
 
 		//	Et
-		hcaldqm::Container2D			_cEt_TTSubdet[4];
-		hcaldqm::Container2D			_cEtall_TTSubdet;
+		Container2D			_cEt_TTSubdet[4];
+		Container2D			_cEtall_TTSubdet;
 
 		//	FG
-		hcaldqm::Container2D			_cFG_TTSubdet[4];
+		Container2D			_cFG_TTSubdet[4];
 
 		//	Missing
-		hcaldqm::Container2D			_cMsn_FEDVME;
-		hcaldqm::Container2D			_cMsn_FEDuTCA;
-		hcaldqm::ContainerSingle2D	_cMsnVME;
-		hcaldqm::ContainerSingle2D	_cMsnuTCA;
+		Container2D			_cMsn_FEDVME;
+		Container2D			_cMsn_FEDuTCA;
+		ContainerSingle2D	_cMsnVME;
+		ContainerSingle2D	_cMsnuTCA;
 
 		//	mismatches
-		hcaldqm::Container2D			_cEtMsm_FEDVME;
-		hcaldqm::Container2D			_cEtMsm_FEDuTCA;
-		hcaldqm::Container2D			_cFGMsm_FEDVME;
-		hcaldqm::Container2D			_cFGMsm_FEDuTCA;
+		Container2D			_cEtMsm_FEDVME;
+		Container2D			_cEtMsm_FEDuTCA;
+		Container2D			_cFGMsm_FEDVME;
+		Container2D			_cFGMsm_FEDuTCA;
 
 		//	depth like
-		hcaldqm::ContainerSingle2D	_cEtMsm;
-		hcaldqm::ContainerSingle2D	_cFGMsm;
+		ContainerSingle2D	_cEtMsm;
+		ContainerSingle2D	_cFGMsm;
 };
 
 #endif

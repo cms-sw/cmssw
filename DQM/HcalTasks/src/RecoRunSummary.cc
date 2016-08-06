@@ -2,7 +2,6 @@
 
 namespace hcaldqm
 {
-  using namespace constants;
 	RecoRunSummary::RecoRunSummary(std::string const& name, 
 		std::string const& taskname, edm::ParameterSet const& ps) :
 		DQClient(name, taskname, ps)

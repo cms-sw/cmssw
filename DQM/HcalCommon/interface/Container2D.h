@@ -22,23 +22,23 @@ namespace hcaldqm
 		public:
 			Container2D();
 			Container2D(std::string const& folder,
-				hashfunctions::HashType, quantity::Quantity*, quantity::Quantity*,
-				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN));
+				hashfunctions::HashType, Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fN));
 			virtual ~Container2D();
 
 			//	Initialize Container
 			//	@folder
 			//	@nametitle, 
 			virtual void initialize(std::string const& folder, 
-					hashfunctions::HashType, quantity::Quantity*, quantity::Quantity*,
-					quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
+					hashfunctions::HashType, Quantity*, Quantity*,
+					Quantity *qz = new ValueQuantity(quantity::fN),
 					int debug=0);
 			
 			//	@qname - quantity name replacer
 			virtual void initialize(std::string const& folder, 
 				std::string const& qname,
-				hashfunctions::HashType, quantity::Quantity*, quantity::Quantity*,
-				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
+				hashfunctions::HashType, Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fN),
 				int debug=0);
 
 			//	redeclare what to override
@@ -173,7 +173,7 @@ namespace hcaldqm
 				std::string subsystem="Hcal", std::string aux="");
 
 		protected:
-			quantity::Quantity	*_qz;
+			Quantity	*_qz;
 
 			virtual void customize(MonitorElement*);
 	};

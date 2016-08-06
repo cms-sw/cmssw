@@ -2,8 +2,6 @@
 
 namespace hcaldqm
 {
-  using namespace constants;
-  using namespace quantity;
 	DQHarvester::DQHarvester(edm::ParameterSet const& ps) :
 		DQModule(ps)
 	{}
@@ -15,7 +13,7 @@ namespace hcaldqm
 			if (r.runAuxiliary().run()==1)
 				return;
 
-		//  TEMPORARY FIX
+		//      TEMPORARY FIX
 		_vhashFEDs.clear(); _vcdaqEids.clear();
 
 		//	- get the Hcal Electronics Map

@@ -16,7 +16,8 @@
 #include "DQM/HcalCommon/interface/ContainerSingle2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingleProf1D.h"
 
-class TestTask : public hcaldqm::DQTask
+using namespace hcaldqm;
+class TestTask : public DQTask
 {
 	public:
 		TestTask(edm::ParameterSet const&);
@@ -29,35 +30,38 @@ class TestTask : public hcaldqm::DQTask
 
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		virtual void _resetMonitors(UpdateFreq);
 
 		//	tags
 		edm::InputTag	_tagHF;
 
 		//	Hcal Filters
-		hcaldqm::filter::HashFilter filter_Electronics;
+		filter::HashFilter filter_Electronics;
 
 		//	Electronics Map
 		HcalElectronicsMap const *_emap;
 
 		//	Containers
-		hcaldqm::Container1D		_cEnergy_Subdet;
-		hcaldqm::Container1D		_cTiming_SubdetPMiphi;
-		hcaldqm::ContainerProf1D	_cEnergyvsiphi_Subdetieta;
-		hcaldqm::Container2D		_cEnergy_depth;
-		hcaldqm::ContainerProf2D	_cTiming_depth;
-		hcaldqm::Container1D		_cTiming_FEDSlot;
-		hcaldqm::Container1D		_cEnergy_CrateSpigot;
-		hcaldqm::Container1D		_cEnergy_FED;
-		hcaldqm::Container1D		_cEt_TTSubdetPM;
-		hcaldqm::Container1D		_cEt_TTSubdetPMiphi;
-		hcaldqm::Container1D		_cEt_TTSubdetieta;
-		hcaldqm::Container2D		_cTiming_FEDuTCA;
-		hcaldqm::ContainerSingle2D _cSummary;
-		hcaldqm::ContainerSingleProf1D _cPerformance;
+		Container1D		_cEnergy_Subdet;
+		Container1D		_cTiming_SubdetPMiphi;
+		ContainerProf1D	_cEnergyvsiphi_Subdetieta;
+		Container2D		_cEnergy_depth;
+		ContainerProf2D	_cTiming_depth;
+		Container1D		_cTiming_FEDSlot;
+		Container1D		_cEnergy_CrateSpigot;
+		Container1D		_cEnergy_FED;
+		Container1D		_cEt_TTSubdetPM;
+		Container1D		_cEt_TTSubdetPMiphi;
+		Container1D		_cEt_TTSubdetieta;
+		Container2D		_cTiming_FEDuTCA;
+		ContainerSingle2D _cSummary;
+		ContainerSingleProf1D _cPerformance;
 
 //		ContainerProf1D	_cTiming_fCrateSlot;
 //		ContainerProf1D	_cEt_TTSubdetPMiphi;
 };
 
 #endif
+
+
+

@@ -1,5 +1,5 @@
 #include "DQM/HcalTasks/interface/HcalOfflineHarvesting.h"
-using namespace hcaldqm;
+
 HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 	DQHarvester(ps), _reportSummaryMap(NULL)
 {

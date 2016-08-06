@@ -1,8 +1,6 @@
 #include "DQM/HcalTasks/interface/RecHitTask.h"
 #include <math.h>
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-using namespace constants;
+
 RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -26,6 +24,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	_vflags.resize(nRecoFlag);
 	_vflags[fUni]=flag::Flag("UniSlotHF");
 	_vflags[fTCDS]=flag::Flag("TCDS");
+	_vflags[fUnknownIds] = flag::Flag("UnknownIds");
 }
 
 /* virtual */ void RecHitTask::bookHistograms(DQMStore::IBooker& ib,
@@ -219,8 +218,8 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			hashfunctions::fSubdet,
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::ValueQuantity(quantity::fN));
-		_cOccupancyCutvsBX_SubdetPM.initialize(_name, "OccupancyCutvsBX",
-			hashfunctions::fSubdetPM,
+		_cOccupancyCutvsBX_Subdet.initialize(_name, "OccupancyCutvsBX",
+			hashfunctions::fSubdet,
 			new quantity::ValueQuantity(quantity::fBX),
 			new quantity::ValueQuantity(quantity::fN));
 		_cOccupancyCutvsiphivsLS_SubdetPM.initialize(_name,
@@ -296,7 +295,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		_cOccupancyvsieta_Subdet.book(ib, _emap, _subsystem);
 		_cOccupancyCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
 		_cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
-		_cOccupancyCutvsBX_SubdetPM.book(ib, _emap, _subsystem);
+		_cOccupancyCutvsBX_Subdet.book(ib, _emap, _subsystem);
 		_cOccupancyCutvsiphivsLS_SubdetPM.book(ib, _emap, _subsystem);
 		_cOccupancyCutvsLS_Subdet.book(ib, _emap, _subsystem);
 		_cSummaryvsLS_FED.book(ib, _emap, _subsystem);
@@ -320,29 +319,25 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 	//	initialize hash map
 	_ehashmap.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap);
+
+	//	book some mes...
+	ib.setCurrentFolder(_subsystem+"/"+_name);
+	meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds",
+		1, 0, 1);
+	_unknownIdsPresent = false;
+	meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void RecHitTask::_resetMonitors(UpdateFreq uf)
 {
-	/*
 	switch(uf)
 	{
 		case hcaldqm::f1LS:
-			_cOccupancy_FEDVME.reset();
-			_cOccupancy_FEDuTCA.reset();
-			break;
-		case hcaldqm::f10LS:
-			_cOccupancyCut_ElectronicsVME.reset();
-			_cOccupancyCut_ElectronicsuTCA.reset();
-			_cOccupancy_ElectronicsVME.reset();
-			_cOccupancy_ElectronicsuTCA.reset();
-			_cTimingCut_ElectronicsVME.reset();
-			_cTimingCut_ElectronicsuTCA.reset();
+			_unknownIdsPresent = false;
 			break;
 		default:
 			break;
 	}
-	*/
 
 	DQTask::_resetMonitors(uf);
 }
@@ -367,6 +362,12 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	//	extract some info per event
 	int bx = e.bunchCrossing();
 
+	//  To fill histograms outside of the loop, you need to determine if there were
+	//  any valid det ids first
+	uint32_t rawidValid = 0;
+	uint32_t rawidHBValid = 0;
+	uint32_t rawidHEValid = 0;
+
 	double ehbm = 0; double ehbp = 0;
 	double ehem = 0; double ehep = 0;
 	int nChsHB = 0; int nChsHE = 0;
@@ -376,8 +377,19 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	{
 		double energy = it->energy();
 		double timing = it->time();
+
+		//	Explicit check on the DetIds present in the Collection
 		HcalDetId did = it->id();
-		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0)
+		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		HcalElectronicsId const& eid(rawid);
+		rawidValid = did.rawId();
+		if (did.subdet()==HcalBarrel)
+			rawidHBValid = did.rawId();
+		else if (did.subdet()==HcalEndcap)
+			rawidHEValid = did.rawId();
+
 		_cEnergy_Subdet.fill(did, energy);
 		_cTimingvsEnergy_SubdetPM.fill(did, energy, timing);
 		_cOccupancy_depth.fill(did);
@@ -423,29 +435,48 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 			_cEnergy_depth.fill(did, energy);
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_HBHEPartition.fill(did, timing);
-			if (timing>=-12.5 && timing<=12.5)
+
+			//	ONLINE 
+			if (_ptype==fOnline)
 			{
-				//	time constrains here are explicit!
+				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+				_cTimingCut_depth.fill(did, timing);
+			}//	^^^ONLINE
+			else
+			{
 				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 				_cTimingCut_depth.fill(did, timing);
 			}
 			_cOccupancyCut_depth.fill(did);
 			if (eid.isVMEid())
 			{
-				if (timing>=-12.5 && timing<=12.5)
+
+				//	ONLINE 
+				if (_ptype==fOnline)
 				{
-					//	time constraints are explicit!
+					_cTimingCut_FEDVME.fill(eid, timing);
+					_cTimingCut_ElectronicsVME.fill(eid, timing);
+				} // ^^^ ONLINE
+				else
+				{
 					_cTimingCut_FEDVME.fill(eid, timing);
 					_cTimingCut_ElectronicsVME.fill(eid, timing);
 				}
+				//	^^^ONLINE
+
 				_cOccupancyCut_FEDVME.fill(eid);
 				_cOccupancyCut_ElectronicsVME.fill(eid);
 			}
 			else
 			{
-				if (timing>=-12.5 && timing<=12.5)
+				if (_ptype==fOnline)
 				{
 					//	time constraints are explicit!
+					_cTimingCut_FEDuTCA.fill(eid, timing);
+					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
+				}
+				else
+				{
 					_cTimingCut_FEDuTCA.fill(eid, timing);
 					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
 				}
@@ -456,24 +487,31 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		}
 		did.subdet()==HcalBarrel?nChsHB++:nChsHE++;
 	}
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS, 
-		nChsHB);
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), _currentLS,
-		nChsHE);
 
-	//	ONLINE ONLY!
-	if (_ptype==fOnline)
+	if (rawidHBValid!=0 && rawidHEValid!=0)
 	{
-		_cOccupancyCutvsBX_SubdetPM.fill(HcalDetId(HcalBarrel, 1,1,1),
-			bx, nChsHBCut);
-		_cOccupancyCutvsBX_SubdetPM.fill(HcalDetId(HcalEndcap, 1,1,1),
-			bx, nChsHECut);
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), 
-			_currentLS, nChsHBCut);
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), 
-			_currentLS, nChsHECut);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidHBValid), _currentLS, 
+			nChsHB);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidHEValid), _currentLS,
+			nChsHE);
+	
+		//	ONLINE ONLY!
+		if (_ptype==fOnline)
+		{
+			_cOccupancyCutvsBX_Subdet.fill(HcalDetId(rawidHBValid),
+				bx, nChsHBCut);
+			_cOccupancyCutvsBX_Subdet.fill(HcalDetId(rawidHEValid),
+				bx, nChsHECut);
+			_cOccupancyCutvsLS_Subdet.fill(HcalDetId(rawidHBValid), 
+				_currentLS, nChsHBCut);
+			_cOccupancyCutvsLS_Subdet.fill(HcalDetId(rawidHEValid), 
+				_currentLS, nChsHECut);
+		}
+		//	^^^ONLINE ONLY!
 	}
-	//	^^^ONLINE ONLY!
+
+	//	reset
+	rawidValid = 0;
 
 	int nChsHO = 0; int nChsHOCut = 0;
 	double ehop = 0; double ehom = 0;
@@ -482,8 +520,16 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	{
 		double energy = it->energy();
 		double timing = it->time();
+		
+		//	Explicit check on the DetIds present in the Collection
 		HcalDetId did = it->id();
-		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0)
+		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		HcalElectronicsId const& eid(rawid);
+		if (did.subdet()==HcalOuter)
+			rawidValid = did.rawId();
+
 		_cEnergy_Subdet.fill(did, energy);
 		_cTimingvsEnergy_SubdetPM.fill(did, energy, timing);
 		_cOccupancy_depth.fill(did);
@@ -549,17 +595,24 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		}
 		nChsHO++;
 	}
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS,
-		nChsHO);
-	//	ONLINE ONLY!
-	if (_ptype==fOnline)
+
+	if (rawidValid!=0)
 	{
-		_cOccupancyCutvsBX_SubdetPM.fill(HcalDetId(HcalOuter, 1,1,1),
-			bx, nChsHOCut);
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), 
-			_currentLS, nChsHOCut);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidValid), _currentLS,
+			nChsHO);
+		//	ONLINE ONLY!
+		if (_ptype==fOnline)
+		{
+			_cOccupancyCutvsBX_Subdet.fill(HcalDetId(rawidValid),
+				bx, nChsHOCut);
+			_cOccupancyCutvsLS_Subdet.fill(HcalDetId(rawidValid), 
+				_currentLS, nChsHOCut);
+		}
+		//	^^^ONLINE ONLY!
 	}
-	//	^^^ONLINE ONLY!
+
+	//reset 
+	rawidValid = 0;
 
 	int nChsHF = 0; int nChsHFCut = 0;
 	double ehfp = 0; double ehfm = 0;
@@ -568,8 +621,16 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	{
 		double energy = it->energy();
 		double timing = it->time();
+
+		//	Explicit check on the DetIds present in the Collection
 		HcalDetId did = it->id();
-		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0)
+		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		HcalElectronicsId const& eid(rawid);
+		if (did.subdet()==HcalForward)
+			rawidValid = did.rawId();
+
 		_cEnergy_Subdet.fill(did, energy);
 		_cTimingvsEnergy_SubdetPM.fill(did, energy, timing);
 		_cOccupancy_depth.fill(did);
@@ -637,37 +698,27 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		}
 		nChsHF++;
 	}
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalForward, 1, 1, 1), _currentLS,
-		nChsHF);
-	//	ONLINE ONLY!
-	if (_ptype==fOnline)
+
+	if (rawidValid!=0)
 	{
-		_cOccupancyCutvsBX_SubdetPM.fill(HcalDetId(HcalForward, 1,1,1),
-			bx, nChsHFCut);
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalForward, 1, 1, 1), 
-			_currentLS, nChsHFCut);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidValid), _currentLS,
+			nChsHF);
+		//	ONLINE ONLY!
+		if (_ptype==fOnline)
+		{
+			_cOccupancyCutvsBX_Subdet.fill(HcalDetId(rawidValid),
+				bx, nChsHFCut);
+			_cOccupancyCutvsLS_Subdet.fill(HcalDetId(rawidValid), 
+				_currentLS, nChsHFCut);
+		}
+		//	^^^ONLINE ONLY!
 	}
-	//	^^^ONLINE ONLY!
 }
 
 /* virtual */ void RecHitTask::beginLuminosityBlock(edm::LuminosityBlock const&
 	lb, edm::EventSetup const& es)
 {
 	DQTask::beginLuminosityBlock(lb, es);
-
-	/*
-	_cTimingCutvsLS_FED.extendAxisRange(_currentLS);
-	_cOccupancyvsLS_Subdet.extendAxisRange(_currentLS);
-
-	//	ONLINE ONLY
-	if (_ptype!=fOnline)
-		return;
-	_cEnergyvsLS_SubdetPM.extendAxisRange(_currentLS);
-	_cOccupancyCutvsLS_Subdet.extendAxisRange(_currentLS);
-	_cOccupancyCutvsiphivsLS_SubdetPM.extendAxisRange(_currentLS);
-//	_cSummaryvsLS_FED.extendAxisRange(_currentLS);
-//	_cSummaryvsLS.extendAxisRange(_currentLS);
-//	*/
 }
 
 /* virtual */ void RecHitTask::endLuminosityBlock(edm::LuminosityBlock const& 
@@ -725,10 +776,15 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		if (utilities::isFEDHF(eid) && (_runkeyVal==0 || _runkeyVal==4))
 		{
 			if (_xUni.get(eid)>0)
-				_vflags[fUni]._state = flag::fBAD;
+				_vflags[fUni]._state = flag::fPROBLEMATIC;
 			else
 				_vflags[fUni]._state = flag::fGOOD;
 		}
+
+		if (_unknownIdsPresent)
+			_vflags[fUnknownIds]._state = flag::fBAD;
+		else 
+			_vflags[fUnknownIds]._state = flag::fGOOD;
 
 		int iflag=0;
 		for (std::vector<flag::Flag>::iterator ft=_vflags.begin();

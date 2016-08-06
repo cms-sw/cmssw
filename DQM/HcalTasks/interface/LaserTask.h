@@ -18,7 +18,9 @@
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
 
-class LaserTask : public hcaldqm::DQTask
+using namespace hcaldqm;
+using namespace hcaldqm::filter;
+class LaserTask : public DQTask
 {
 	public:
 		LaserTask(edm::ParameterSet const&);
@@ -29,16 +31,21 @@ class LaserTask : public hcaldqm::DQTask
 			edm::Run const&, edm::EventSetup const&);
 		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
 		{
-			if (_ptype==hcaldqm::fLocal)
+			if (_ptype==fLocal)
+			{
 				if (r.runAuxiliary().run()==1)
 					return;
-			this->_dump();
+				else 
+					this->_dump();
+			}
 		}
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
 		//	funcs
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		virtual void _resetMonitors(UpdateFreq);
 		virtual bool _isApplicable(edm::Event const&);
 		virtual void _dump();
 
@@ -46,66 +53,68 @@ class LaserTask : public hcaldqm::DQTask
 		edm::InputTag	_tagHBHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
-		edm::InputTag	_tagTrigger;
+		edm::InputTag	_taguMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<HFDigiCollection> _tokHF;
-		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
 		//	emap
 		HcalElectronicsMap const* _emap;
-		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
-		hcaldqm::filter::HashFilter _filter_uTCA;
-		hcaldqm::filter::HashFilter _filter_VME;
+		electronicsmap::ElectronicsMap _ehashmap;
+		HashFilter _filter_uTCA;
+		HashFilter _filter_VME;
 
 		//	Cuts and variables
 		int _nevents;
 		double _lowHBHE;
 		double _lowHO;
 		double _lowHF;
+		uint32_t _laserType;
 
 		//	Compact
-		hcaldqm::ContainerXXX<double> _xSignalSum;
-		hcaldqm::ContainerXXX<double> _xSignalSum2;
-		hcaldqm::ContainerXXX<int> _xEntries;
-		hcaldqm::ContainerXXX<double> _xTimingSum;
-		hcaldqm::ContainerXXX<double> _xTimingSum2;
+		ContainerXXX<double> _xSignalSum;
+		ContainerXXX<double> _xSignalSum2;
+		ContainerXXX<int> _xEntries;
+		ContainerXXX<double> _xTimingSum;
+		ContainerXXX<double> _xTimingSum2;
 
 		//	1D
-		hcaldqm::Container1D		_cSignalMean_Subdet;
-		hcaldqm::Container1D		_cSignalRMS_Subdet;
-		hcaldqm::Container1D		_cTimingMean_Subdet;
-		hcaldqm::Container1D		_cTimingRMS_Subdet;
+		Container1D		_cSignalMean_Subdet;
+		Container1D		_cSignalRMS_Subdet;
+		Container1D		_cTimingMean_Subdet;
+		Container1D		_cTimingRMS_Subdet;
+
+		Container1D _cADC_SubdetPM;
 
 		//	Prof1D
-		hcaldqm::ContainerProf1D	_cShapeCut_FEDSlot;
-		hcaldqm::ContainerProf1D _cTimingvsEvent_SubdetPM;
-		hcaldqm::ContainerProf1D _cSignalvsEvent_SubdetPM;
-		hcaldqm::ContainerProf1D _cTimingvsLS_SubdetPM;
-		hcaldqm::ContainerProf1D _cSignalvsLS_SubdetPM;
+		ContainerProf1D	_cShapeCut_FEDSlot;
+		ContainerProf1D _cTimingvsEvent_SubdetPM;
+		ContainerProf1D _cSignalvsEvent_SubdetPM;
+		ContainerProf1D _cTimingvsLS_SubdetPM;
+		ContainerProf1D _cSignalvsLS_SubdetPM;
+		ContainerProf1D _cTimingvsBX_SubdetPM;
+		ContainerProf1D _cSignalvsBX_SubdetPM;
 
 		//	2D timing/signals
-		hcaldqm::ContainerProf2D		_cSignalMean_depth;
-		hcaldqm::ContainerProf2D		_cSignalRMS_depth;
-		hcaldqm::ContainerProf2D		_cTimingMean_depth;
-		hcaldqm::ContainerProf2D		_cTimingRMS_depth;
-		hcaldqm::ContainerProf2D		_cSignalMean_FEDVME;
-		hcaldqm::ContainerProf2D		_cSignalMean_FEDuTCA;
-		hcaldqm::ContainerProf2D		_cTimingMean_FEDVME;
-		hcaldqm::ContainerProf2D		_cTimingMean_FEDuTCA;
-		hcaldqm::ContainerProf2D		_cSignalRMS_FEDVME;
-		hcaldqm::ContainerProf2D		_cSignalRMS_FEDuTCA;
-		hcaldqm::ContainerProf2D		_cTimingRMS_FEDVME;
-		hcaldqm::ContainerProf2D		_cTimingRMS_FEDuTCA;
+		ContainerProf2D		_cSignalMean_depth;
+		ContainerProf2D		_cSignalRMS_depth;
+		ContainerProf2D		_cTimingMean_depth;
+		ContainerProf2D		_cTimingRMS_depth;
+
+		ContainerProf2D		_cSignalMean_FEDVME;
+		ContainerProf2D		_cSignalMean_FEDuTCA;
+		ContainerProf2D		_cTimingMean_FEDVME;
+		ContainerProf2D		_cTimingMean_FEDuTCA;
+		ContainerProf2D		_cSignalRMS_FEDVME;
+		ContainerProf2D		_cSignalRMS_FEDuTCA;
+		ContainerProf2D		_cTimingRMS_FEDVME;
+		ContainerProf2D		_cTimingRMS_FEDuTCA;
 
 		//	Bad Quality and Missing Channels
-		hcaldqm::Container2D		_cMissing_depth;
-		hcaldqm::Container2D		_cMissing_FEDVME;
-		hcaldqm::Container2D		_cMissing_FEDuTCA;
+		Container2D		_cMissing_depth;
+		Container2D		_cMissing_FEDVME;
+		Container2D		_cMissing_FEDuTCA;
 };
 
 #endif
-
-
-
-
