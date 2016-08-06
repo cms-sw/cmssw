@@ -12,13 +12,15 @@ def initPayloadWriterExt( process,
                                     
     process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
     
-    from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string(outputDBConnect)
+
     initPayloadWriterExt.outputDB = cms.Service("PoolDBOutputService",
-                                             CondDBSetup,
-                                             connect = cms.string(outputDBConnect),
+                                             CondDB,
                                              toPut = cms.VPSet(cms.PSet(
         record = cms.string("L1TriggerKeyListExtRcd"),
         tag = cms.string("L1TriggerKeyListExt_" + tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ]))
                                                                ))
     initPayloadWriterExt.outputDB.DBParameters.authenticationPath = outputDBAuth
+
     process.add_(initPayloadWriterExt.outputDB)

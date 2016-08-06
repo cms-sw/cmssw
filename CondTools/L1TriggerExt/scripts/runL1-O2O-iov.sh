@@ -2,13 +2,16 @@
 
 xflag=0
 CMS_OPTIONS=""
+KEY_CONTENT=""
 
-while getopts 'xfh' OPTION
+while getopts 'xfk:h' OPTION
   do
   case $OPTION in
       x) xflag=1
           ;;
       f) CMS_OPTIONS=$CMS_OPTIONS" forceUpdate=1"
+          ;;
+      k) KEY_CONTENT=$KEY_CONTENT" subsystemLabels=$OPTARG"
           ;;
       h) echo "Usage: [-xf] runnum tsckey"
           echo "  -x: write to ORCON instead of sqlite file"
@@ -47,8 +50,8 @@ fi
 
 if cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
 else
-    echo "TSC payloads absent; writing now"
-    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${OUTDB_OPTIONS} ${COPY_OPTIONS} logTransactions=0 print
+    echo "TSC payloads absent; writing $KEY_CONTENT now"
+    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} logTransactions=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
     then

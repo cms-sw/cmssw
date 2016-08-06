@@ -84,21 +84,24 @@ process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(cms.PSet(
 ))
 
 # Get L1TriggerKeyListExt from DB
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = cms.string(options.outputDBConnect)
+
 process.outputDB = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
+    process.CondDB,
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListExtRcd'),
         tag = cms.string('L1TriggerKeyListExt_' + tagBaseVec[ L1CondEnumExt.L1TriggerKeyListExt ])
     ))
 )
+
 process.es_prefer_outputDB = cms.ESPrefer("PoolDBESSource","outputDB")
-process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = cms.untracked.string(options.outputDBAuth)
 
 if options.genFromOMDS == 0:
     # Generate dummy configuration data
     process.load('L1TriggerConfig.L1TMuonOverlapParamsProducers.L1TMuonOverlapParamsOnlineProxy_cfi')
+    process.load('L1TriggerConfig.L1TMuonEndcapParamsProducers.L1TMuonEndcapParamsOnlineProxy_cfi')
 #    if options.startup == 0:
 #        process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 #        process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu_MC2009_v2_L1T_Scales_20090624_Imp0_Unprescaled_cff")
