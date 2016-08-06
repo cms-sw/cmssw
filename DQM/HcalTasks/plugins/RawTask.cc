@@ -263,7 +263,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 			for (int is=0; is<HcalDCCHeader::SPIGOT_COUNT; is++)
 			{
 				int r = hdcc->getSpigotData(is, htr, raw.size());
-				if (r!=0)
+				if (r!=0 || !htr.check())
 					continue;
 				HcalElectronicsId eid = HcalElectronicsId(
 					constants::FIBERCH_MIN, constants::FIBER_VME_MIN,
