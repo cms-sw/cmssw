@@ -187,7 +187,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   try {
     event.getByLabel( genParticleLabel_, hGenParticles );
     event.getByLabel( genParticleLabel_, hGenParticleIndices );
-  } catch( cms::Exception& exception ) {
+  } catch( edm::Exception& exception ) {
     //
     // The Monte Carlo is not always available, e.g. for pileup events. The information
     // is only used if it's available, but for some reason the PileUpEventPrincipal
@@ -207,8 +207,10 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
     m_simHitBarcodeToIndex.emplace(simHitPointers[i]->geantTrackId(),i);
   }
   m_genParticleBarcodeToIndex.clear();
-  for (unsigned int i = 0 ; i < hGenParticles->size() ; ++i) {
-    m_genParticleBarcodeToIndex.emplace(hGenParticleIndices->at(i),i);
+  if( hGenParticles.isValid() ) {
+    for (unsigned int i = 0 ; i < hGenParticles->size() ; ++i) {
+      m_genParticleBarcodeToIndex.emplace(hGenParticleIndices->at(i),i);
+    }
   }
   m_genBarcodeToSimTrackIndex.clear();
   m_simVertexBarcodeToSimTrackBarcode.clear();
