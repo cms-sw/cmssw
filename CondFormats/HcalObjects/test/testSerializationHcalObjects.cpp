@@ -32,8 +32,6 @@ int main()
     testSerialization<HcalCondObjectContainer<HcalZSThreshold>>();
     */
     //testSerialization<HcalCondObjectContainerBase>(); protected constructor
-    testSerialization<HcalCovarianceMatrices>();
-    testSerialization<HcalCovarianceMatrix>();
     testSerialization<HcalDcsMap>();
     testSerialization<HcalDcsMap::Item>();
     testSerialization<HcalDcsValue>();
