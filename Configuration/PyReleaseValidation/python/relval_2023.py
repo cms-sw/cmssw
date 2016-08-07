@@ -24,7 +24,7 @@ for i,key in enumerate(upgradeKeys):
     for frag in upgradeFragments:
         k=frag[:-4]+'_'+key
         stepList=[]
-        for step in upgradeScenToRun[key]:
+        for step in upgradeProperties[key]['ScenToRun']:
             if 'Sim' in step:
                 stepList.append(k+'_'+step)
             else:

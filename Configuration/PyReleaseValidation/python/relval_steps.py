@@ -1631,10 +1631,10 @@ for k in upgradeKeys:
     k2=k
     if 'PU' in k[-2:]:
         k2=k[:-2]
-    geom=upgradeGeoms[k2]
-    gt=upgradeGTs[k2]
-    cust=upgradeCustoms.get(k2, None)
-    era=upgradeEras.get(k2, None)
+    geom=upgradeProperties[k]['Geom']
+    gt=upgradeProperties[k]['GT']
+    cust=upgradeProperties[k].get('Cust', None)
+    era=upgradeProperties[k].get('Era', None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
