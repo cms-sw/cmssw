@@ -251,10 +251,6 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams);
       findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
-    if ((*objectName == "CovarianceMatrices") || all) {
-      setWhatProduced (this, &HcalHardcodeCalibrations::produceCovarianceMatrices);
-      findingRecord <HcalCovarianceMatricesRcd> ();
-    }
     if ((*objectName == "FrontEndMap") || (*objectName == "frontEndMap") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFrontEndMap);
       findingRecord <HcalFrontEndMapRcd> ();
@@ -730,21 +726,6 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
   return result;
 } 
 
-
-std::unique_ptr<HcalCovarianceMatrices> HcalHardcodeCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rec) {
-
-  edm::ESHandle<HcalTopology> htopo;
-  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-  auto result = std::make_unique<HcalCovarianceMatrices>(topo);
-  std::vector <HcalGenericDetId> cells = allCells(*topo);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-
-    HcalCovarianceMatrix item(cell->rawId());
-    result->addValues(item);
-  }
-  return result;
-}
 
 std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";

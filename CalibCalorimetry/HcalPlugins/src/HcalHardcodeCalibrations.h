@@ -43,7 +43,6 @@ class HcalZDCLowGainFractionsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
-class HcalCovarianceMatricesRcd;
 class HcalFrontEndMapRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
@@ -88,8 +87,6 @@ protected:
 
   std::unique_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
   std::unique_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
-
-  std::unique_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
 
   std::unique_ptr<HcalFrontEndMap> produceFrontEndMap (const HcalFrontEndMapRcd& rcd);
 
