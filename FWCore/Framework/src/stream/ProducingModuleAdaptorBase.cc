@@ -134,9 +134,10 @@ namespace edm {
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::updateLookup(BranchType iType,
-                                        ProductResolverIndexHelper const& iHelper) {
+                                                ProductResolverIndexHelper const& iHelper,
+                                                bool iPrefetchMayGet) {
       for(auto mod: m_streamModules) {
-        mod->updateLookup(iType,iHelper);
+        mod->updateLookup(iType,iHelper,iPrefetchMayGet);
       }
     }
 

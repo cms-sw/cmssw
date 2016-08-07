@@ -80,7 +80,8 @@ namespace edm {
       std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const;
 
       void updateLookup(BranchType iBranchType,
-                        ProductResolverIndexHelper const&);
+                        ProductResolverIndexHelper const&,
+                        bool iPrefetchMayGet);
 
       void modulesDependentUpon(std::string const& iProcessName,
                                 std::string const& iModuleLabel,

@@ -492,26 +492,26 @@ namespace edm {
     assert(index !=ProductResolverIndexInvalid);
     auto& productResolver = productResolvers_[index];
     assert(0!=productResolver.get());
-    ProductResolverBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this, skipCurrentProcess, sra, mcc);
-    if(resolveStatus == ProductResolverBase::Ambiguous) {
+    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    if(resolution.isAmbiguous()) {
       ambiguous = true;
       return BasicHandle();
     }
-    if(productData == 0) {
+    auto productData = resolution.data();
+    if(productData == nullptr) {
       return BasicHandle();
     }
     return BasicHandle(productData->wrapper(), &(productData->provenance()));
   }
 
   void
-  Principal::prefetch(ProductResolverIndex index,
+  Principal::prefetchAsync(WaitingTask * task,
+                      ProductResolverIndex index,
                       bool skipCurrentProcess,
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
     assert(0!=productResolver.get());
-    ProductResolverBase::ResolveStatus resolveStatus;
-    productResolver->resolveProduct(resolveStatus, *this,skipCurrentProcess, nullptr, mcc);
+    productResolver->prefetchAsync(task,*this, skipCurrentProcess,nullptr,mcc);
   }
 
   void
@@ -605,8 +605,7 @@ namespace edm {
             continue;
           }
 
-          ProductResolverBase::ResolveStatus resolveStatus;
-          ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this,false, sra, mcc);
+          ProductData const* productData = productResolver->resolveProduct(*this,false, sra, mcc).data();
           if(productData) {
             // Skip product if not available.
             results.emplace_back(productData->wrapper(), &(productData->provenance()));
@@ -655,12 +654,11 @@ namespace edm {
     
     auto const& productResolver = productResolvers_[index];
 
-    ProductResolverBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this, skipCurrentProcess, sra, mcc);
-    if(resolveStatus == ProductResolverBase::Ambiguous) {
+    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    if(resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
     }
-    return productData;
+    return resolution.data();
   }
 
   ProductData const*
@@ -691,12 +689,11 @@ namespace edm {
     
     auto const& productResolver = productResolvers_[index];
 
-    ProductResolverBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productResolver->resolveProduct(resolveStatus, *this, false, sra, mcc);
-    if(resolveStatus == ProductResolverBase::Ambiguous) {
+    auto resolution = productResolver->resolveProduct(*this, false, sra, mcc);
+    if(resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }
-    return productData;
+    return resolution.data();
   }
 
   ProductData const*
@@ -720,8 +717,7 @@ namespace edm {
     }
 
     if(phb->unscheduledWasNotRun()) {
-      ProductResolverBase::ResolveStatus status;
-      if(not phb->resolveProduct(status,*this,false, nullptr, mcc) ) {
+      if(not phb->resolveProduct(*this,false, nullptr, mcc).data() ) {
         throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
       }
     }
