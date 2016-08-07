@@ -156,6 +156,7 @@ class SiStripDigitizerAlgorithm {
   std::ifstream APVProbaFile;
   std::map < int , float> mapOfAPVprobabilities;
   std::map < int , std::bitset<6> > SiStripTrackerAffectedAPVMap;
+  int NumberOfBxBetweenHIPandEvent;
 
 };
 
