@@ -322,8 +322,8 @@ void MixBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   //
   HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
  
-  //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
-  //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
   
   evt.put(std::move(HepMCEvt));
   return ;
