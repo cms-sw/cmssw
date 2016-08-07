@@ -49,3 +49,4 @@ autoDQM = { 'common' : ['DQMOfflineCommon',
                           'dqmHarvesting']
             }
 
+autoDQM['phase2'] = autoDQM['trackingOnlyDQM']+autoDQM['muon']

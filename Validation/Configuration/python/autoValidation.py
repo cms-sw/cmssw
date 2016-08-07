@@ -6,3 +6,4 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'standardValidation' : ['prevalidation','validation','validationHarvesting']
                  }
 
+autoValidation['phase2Validation'] = autoValidation['baseValidation']+autoValidation['trackingOnlyValidation']+autoValidation['muonOnlyValidation']
