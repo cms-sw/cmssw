@@ -21,12 +21,11 @@ void L1TMuonGlobalObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
 
     std::string uGMTKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kuGMT ) ;
 
-//    if( !uGMTKey.empty() ) {
-        // simply assign the top level key to the record
-        pL1TriggerKey->add( "L1TMuonGlobalParamsO2ORcd",
-                            "L1TMuonGlobalParams",
-			    uGMTKey) ;
-//    }
+    // simply assign the top level key to the record
+    pL1TriggerKey->add( "L1TMuonGlobalParamsO2ORcd",
+                        "L1TMuonGlobalParams",
+                        uGMTKey) ;
+
 }
 
 

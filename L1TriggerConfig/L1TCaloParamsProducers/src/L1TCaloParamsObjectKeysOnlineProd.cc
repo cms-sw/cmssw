@@ -21,13 +21,10 @@ void L1TCaloParamsObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
 
     std::string CALOKey = pL1TriggerKey->subsystemKey( L1TriggerKeyExt::kCALO ) ;
 
-///    if( !CALOKey.empty() ) {
-        // simply assign the top level key to the record
-        pL1TriggerKey->add( "L1TCaloParamsO2ORcd",
-                            "CaloParams",
-                            CALOKey ) ;
-
-///    }
+    // simply assign the top level key to the record
+    pL1TriggerKey->add( "L1TCaloParamsO2ORcd",
+                        "CaloParams",
+                        CALOKey ) ;
 
 }
 

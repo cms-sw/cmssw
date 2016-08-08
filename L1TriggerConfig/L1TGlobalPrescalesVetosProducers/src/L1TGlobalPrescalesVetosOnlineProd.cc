@@ -26,9 +26,10 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
 
     edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TGlobalPrescalesVetos with RS key =" << objectKey ;
 
-    if (objectKey.empty()) {
-        edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Key is empty, returning empty L1TGlobalPrescalesVetos";
-        return boost::shared_ptr< L1TGlobalPrescalesVetos > ( new L1TGlobalPrescalesVetos() );
+    if( objectKey.empty() ){
+        edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Key is empty";
+        throw std::runtime_error("Empty objecKey");
+///        return boost::shared_ptr< L1TGlobalPrescalesVetos > ( new L1TGlobalPrescalesVetos() );
     }
 
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
@@ -44,7 +45,7 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
 
     std::string prescale_key, bxmask_key, mask_key, vetomask_key;
 
-    // select MP7_PP_CONF_KEY from CMS_S1CALOL2.S1CALOL2_CONF where S1CALOL2_CONF_KEY = objectKey ;
+    // select MP7, AMC502_EXTCOND, AMC502_FINOR, ALGOBX_MASK, ALGO_FINOR_MASK, ALGO_FINOR_VETO, ALGO_PRESCALE from CMS_TRG_L1_CONF.UGT_RS_KEYS where ID = objectKey ;
     l1t::OMDSReader::QueryResults queryResult =
             m_omdsReader.basicQuery( queryStrings,
                                      stage2Schema,
@@ -54,8 +55,9 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
                                    ) ;
 
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O" ) <<"Cannot get UGT_RS_KEYS.{MP7,AMC502_EXTCOND,AMC502_FINOR,ALGOBX_MASK,ALGO_FINOR_MASK,ALGO_FINOR_VETO,ALGO_PRESCALE}";
-        return boost::shared_ptr< L1TGlobalPrescalesVetos > ( new L1TGlobalPrescalesVetos() );
+        edm::LogError( "L1-O2O" ) << "Cannot get UGT_RS_KEYS.{MP7,AMC502_EXTCOND,AMC502_FINOR,ALGOBX_MASK,ALGO_FINOR_MASK,ALGO_FINOR_VETO,ALGO_PRESCALE} for ID = " << objectKey;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< L1TGlobalPrescalesVetos > ( new L1TGlobalPrescalesVetos() );
     }
 
     if( !queryResult.fillVariable( "ALGO_PRESCALE",   prescale_key) ) prescale_key = "";
@@ -79,7 +81,8 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
 
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for prescale_key = "<<prescale_key ;
-        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload_prescale ) ) xmlPayload_prescale = "";
@@ -95,7 +98,8 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
 
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for mask_key = "<<mask_key ;
-        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload_mask_finor ) ) xmlPayload_mask_finor = "";
@@ -111,7 +115,8 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
 
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for bxmask_key = "<<bxmask_key ;
-        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload_mask_algobx ) ) xmlPayload_mask_algobx = "";
@@ -127,19 +132,13 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
 
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
         edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for vetomask_key = "<<vetomask_key ;
-        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< L1TGlobalPrescalesVetos >() ;
     }
 
     if( !queryResult.fillVariable( "CONF", xmlPayload_mask_veto ) ) xmlPayload_mask_veto = "";
 
-
-// a hack around the shortcomming of the parsing library:
-//    size_t beginPos = xmlPayload_mask_finor.find("algo,mask"); 
-//    size_t endPos   = xmlPayload_mask_finor.substr(0,beginPos).rfind("\n");
-//    xmlPayload_mask_finor.erase(beginPos,endPos-beginPos);
-// hack ends
-
-
+    // for debugging purposes dump the payloads to /tmp
     std::ofstream output1(std::string("/tmp/").append(prescale_key.substr(0,prescale_key.find("/"))).append(".xml"));
     output1<<xmlPayload_prescale;
     output1.close();
