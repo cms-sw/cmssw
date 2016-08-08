@@ -32,6 +32,8 @@ startupsamples= [
 
 def putype(t):
     if "_pmx" in NewRelease:
+        if "_pmx" in RefRelease:
+            return {"default": "pmx"+t}
         return {"default": t, NewRelease: "pmx"+t}
     return t
 
@@ -96,6 +98,9 @@ if "_pmx" in NewRelease:
     doFastVsFull = False
     if not NewRelease in validation._globalTags:
         validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_pmx", "")]
+if RefRelease is not None and "_pmx" in RefRelease:
+    if not RefRelease in validation._globalTags:
+        validation._globalTags[RefRelease] = validation._globalTags[RefRelease.replace("_pmx", "")]
 if "_extended" in NewRelease:
     startupsamples = [
         Sample('RelValTTbar', midfix="13_HS"),
