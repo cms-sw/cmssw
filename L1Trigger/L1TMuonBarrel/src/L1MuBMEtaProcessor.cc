@@ -218,8 +218,8 @@ void L1MuBMEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::Eve
   bmtfParamsRcd.get(bmtfParamsHandle);
   const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
   msks =  bmtfParams.l1mudttfmasks;
-  theEtaPatternLUT = bmtfParams.l1mudttfetaplut;  // ETF look-up table
-  theQualPatternLUT = bmtfParams.l1mudttfqualplut; // EMU look-up tables
+  theEtaPatternLUT.m_lut  = bmtfParams.lutparams_.eta_lut_; //l1mudttfetaplut;  // ETF look-up table
+  theQualPatternLUT.m_lut = bmtfParams.lutparams_.qp_lut_; //l1mudttfqualplut; // EMU look-up tables
 
   edm::Handle<L1MuDTChambThContainer> dttrig;
 //  e.getByLabel(L1MuBMTFConfig::getBMThetaDigiInputTag(),dttrig);
@@ -313,7 +313,7 @@ void L1MuBMEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
   const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
   bmtfParamsRcd.get(bmtfParamsHandle);
   const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
-  theEtaPatternLUT = bmtfParams.l1mudttfetaplut;  // ETF look-up table
+  theEtaPatternLUT.m_lut  = bmtfParams.lutparams_.eta_lut_; //l1mudttfetaplut;  // ETF look-up table
 
   // check if there are any data
   bool empty = true;
@@ -364,8 +364,7 @@ void L1MuBMEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
   const L1TMuonBarrelParamsRcd& bmtfParamsRcd = c.get<L1TMuonBarrelParamsRcd>();
   bmtfParamsRcd.get(bmtfParamsHandle);
   const L1TMuonBarrelParams& bmtfParams = *bmtfParamsHandle.product();
-  theQualPatternLUT = bmtfParams.l1mudttfqualplut; // EMU look-up tables
-
+  theQualPatternLUT.m_lut = bmtfParams.lutparams_.qp_lut_; //l1mudttfqualplut; // EMU look-up tables
 
   // loop over all addresses
   for ( int i = 0; i < 12; i++ ) {
