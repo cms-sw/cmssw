@@ -26,9 +26,9 @@
 #include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
-#include "L1Trigger/L1TCommon/interface/setting.h"
-#include "L1Trigger/L1TCommon/interface/mask.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
+#include "L1Trigger/L1TCommon/interface/Setting.h"
+#include "L1Trigger/L1TCommon/interface/Mask.h"
 
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
@@ -238,7 +238,7 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
       edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
       std::string xmlCfgKey = iConfig.getParameter<std::string>("xmlCfgKey");
 
-      l1t::trigSystem trgSys;
+      l1t::TrigSystem trgSys;
       trgSys.configureSystemFromFiles(hwXmlFile.fullPath(),topCfgXmlFile.fullPath(),xmlCfgKey);
 
      /* std::map<std::string, std::string> procRole = trgSys.getProcRole();
@@ -247,8 +247,8 @@ L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::Paramete
 
           std::string procId = it_proc->first;
 
-          std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
-          std::vector<l1t::tableRow>  tRow = settings["regTable"].getTableRows();
+          std::map<std::string, l1t::Setting> settings = trgSys.getSettings(procId);
+          std::vector<l1t::TableRow>  tRow = settings["regTable"].getTableRows();
           for(auto it=tRow.begin(); it!=tRow.end(); it++)
           {
             if (it->getRowValue<std::string>("register_path").find("open_lut") != std::string::npos){

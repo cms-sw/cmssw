@@ -116,7 +116,7 @@ void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts
 	//l1mudttfextlut.load();
 }
 
-void L1TMuonBarrelParamsHelper::configFromDB(l1t::trigSystem& trgSys)
+void L1TMuonBarrelParamsHelper::configFromDB(l1t::TrigSystem& trgSys)
 {
 	std::map<std::string, std::string> procRole = trgSys.getProcRole();
 
@@ -125,8 +125,8 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::trigSystem& trgSys)
 
 	  std::string procId = it_proc->first;
 
-	  std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
-	  std::vector<l1t::tableRow>  tRow = settings["regTable"].getTableRows();
+	  std::map<std::string, l1t::Setting> settings = trgSys.getSettings(procId);
+	  std::vector<l1t::TableRow>  tRow = settings["regTable"].getTableRows();
 	  for(auto it=tRow.begin(); it!=tRow.end(); it++)
 	  {
 	    if (it->getRowValue<std::string>("register_path").find("open_lut") != std::string::npos){
