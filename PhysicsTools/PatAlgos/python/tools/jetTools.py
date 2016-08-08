@@ -326,10 +326,26 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     if len(acceptedBtagDiscriminators) > 0 :
         patJets.addBTagInfo = True
     if runIVF:
-        rerunningIVF()
-        if 'pfInclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
+        if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
+            rerunningIVFMiniAOD()
+        else:
+            rerunningIVF()
+        if (i for i in ['pfInclusiveSecondaryVertexFinderTagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos'] if i in acceptedTagInfos):
             if not hasattr( process, 'inclusiveCandidateVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            ## MiniAOD case
+            if pfCandidates.getModuleLabel() == 'packedPFCandidates':
+                if hasattr( process, 'inclusiveCandidateVertexFinder' ):
+                    _temp = getattr(process, 'inclusiveCandidateVertexFinder')
+                    _temp.primaryVertices = pvSource
+                    _temp.tracks = pfCandidates
+                if hasattr( process, 'candidateVertexArbitrator' ):
+                    _temp = getattr(process, 'candidateVertexArbitrator')
+                    _temp.primaryVertices = pvSource
+                    _temp.tracks = pfCandidates
+                    _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
+                if hasattr( process, 'inclusiveCandidateSecondaryVertices' ) and not hasattr( process, svSource.getModuleLabel() ):
+                    setattr(process, svSource.getModuleLabel(), getattr(process, 'inclusiveCandidateSecondaryVertices').clone() )
         if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
@@ -1308,8 +1324,16 @@ def unsupportedJetAlgorithm(obj):
 
 def rerunningIVF():
     print "-------------------------------------------------------------------"
-    print " Warning: You are attempting to remake the IVF secondary vertices"
-    print "          already produced by the standard reconstruction. If that"
-    print "          was your intention, note that they should be remade only"
-    print "          from RECO and AOD, i.e., MiniAOD should not be used."
+    print " Info: You are attempting to remake the IVF secondary vertices"
+    print "       already produced by the standard reconstruction. This option"
+    print "       is not enabled by default so please use it only if you know"
+    print "       what you are doing."
+    print "-------------------------------------------------------------------"
+
+def rerunningIVFMiniAOD():
+    print "-------------------------------------------------------------------"
+    print " Warning: You are attempting to remake IVF secondary vertices from"
+    print "          MiniAOD. If that was your intention, note that secondary"
+    print "          vertices remade from MiniAOD will have somewhat degraded"
+    print "          performance compared to those remade from RECO/AOD."
     print "-------------------------------------------------------------------"
