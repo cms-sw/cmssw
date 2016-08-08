@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_8_1_0_pre1'
+RefRelease='CMSSW_8_1_0_pre8'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_8_1_0_pre2'
+NewRelease='CMSSW_8_1_0_pre9'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
@@ -43,6 +43,7 @@ pileupstartupsamples = [
 ]
 
 phase1samples = [
+    Sample('RelValMinBias', midfix="13"),
     Sample("RelValTTbar", midfix="13"),
     Sample('RelValZMM', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),

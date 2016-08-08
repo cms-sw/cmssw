@@ -17,6 +17,7 @@ _sampleName = {
     "RelValSingleElectronPt10": "Single Electron Pt 10",
     "RelValSingleMuPt10": "Single Muon Pt 10",
     "RelValSingleMuPt100": "Single Muon Pt 100",
+    "RelValTenMuE_0_200": "Ten muon Pt 0-200",
 }
 
 _sampleFileName = {
@@ -32,6 +33,7 @@ _sampleFileName = {
     "RelValSingleElectronPt10": "ele10",
     "RelValSingleMuPt10": "mu10",
     "RelValSingleMuPt100": "mu100",
+    "RelValTenMuE_0_200": "tenmu200",
 }
 
 _allTPEfficName = "All tracks (all TPs)"

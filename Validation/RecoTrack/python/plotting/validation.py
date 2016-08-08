@@ -141,15 +141,40 @@ _globalTags = {
     "CMSSW_8_0_3_71XGENSIM_tec": {"default": "80X_mcRun2_asymptotic_SiStripBad_TEC_CL62_for2016_v1_mc_gs7120p2TrkCoolLoop"},
     "CMSSW_8_0_5": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v12"},
     "CMSSW_8_0_5_pmx": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2_resub", "fastsim": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_0_10": {"default": "80X_mcRun2_asymptotic_v14"},
+    "CMSSW_8_0_10_patch1_BS": {"default": "80X_mcRun2_asymptotic_RealisticBS_25ns_13TeV2016_v1_mc_realisticBS2016"},
+    "CMSSW_8_0_11": {"default": "80X_mcRun2_asymptotic_v14"},
+    "CMSSW_8_0_15": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
+    "CMSSW_8_0_16": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
+    "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
     "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
     "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
     "CMSSW_8_1_0_pre2": {"default": "80X_mcRun2_asymptotic_v10_gs810pre2", "fastsim": "80X_mcRun2_asymptotic_v10"},
     "CMSSW_8_1_0_pre2_phase1": {"default": "80X_upgrade2017_design_v9_UPG17designGT", "fullsim_25ns": "80X_upgrade2017_design_v9_UPG17PU35designGT"},
     "CMSSW_8_1_0_pre2_phase1_realGT": {"default": "80X_upgrade2017_realistic_v1_UPG17realGT", "fullsim_25ns": "80X_upgrade2017_realistic_v1_UPG17PU35realGT"},
+    "CMSSW_8_1_0_pre3": {"default": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_1_0_pre3_phase1": {"default": "80X_upgrade2017_realistic_v3_UPG17", "fullsim_25ns": "80X_upgrade2017_realistic_v3_UPG17PU35"},
+    "CMSSW_8_1_0_pre4": {"default": "80X_mcRun2_asymptotic_v13"},
+    "CMSSW_8_1_0_pre4_phase1": {"default": "80X_upgrade2017_realistic_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_realistic_v4_UPG17PU35"},
+    "CMSSW_8_1_0_pre5": {"default": "80X_mcRun2_asymptotic_v13"},
+    "CMSSW_8_1_0_pre5_phase1": {"default": "80X_upgrade2017_realistic_v4_resubUPG17", "fullsim_25ns": "80X_upgrade2017_realistic_v4_resubUPG17PU35"},
+    "CMSSW_8_1_0_pre6": {"default": "80X_mcRun2_asymptotic_v14"},
+    "CMSSW_8_1_0_pre6_phase1": {"default": "81X_upgrade2017_realistic_v0_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v0_UPG17PU35"},
+    "CMSSW_8_1_0_pre7": {"default": "81X_mcRun2_asymptotic_v0"},
+    "CMSSW_8_1_0_pre7_phase1": {"default": "81X_upgrade2017_realistic_v2_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v2_UPG17PU35"},
+    "CMSSW_8_1_0_pre7_phase1_newGT": {"default": "81X_upgrade2017_realistic_v3_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v3_UPG17PU35newGTresub"},
+    "CMSSW_8_1_0_pre8": {"default": "81X_mcRun2_asymptotic_v1"},
+    "CMSSW_8_1_0_pre8_phase1": {"default": "81X_upgrade2017_realistic_v3_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v3_UPG17PU35"},
+    "CMSSW_8_1_0_pre8_phase1_newGT": {"default": "81X_upgrade2017_realistic_v4_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v4_UPG17PU35newGT"},
+    "CMSSW_8_1_0_pre8_phase1_newGT2": {"default": "81X_upgrade2017_realistic_v5_UPG17newGTset2", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35newGTset2"},
+    "CMSSW_8_1_0_pre9": {"default": "81X_mcRun2_asymptotic_v2"},
+    "CMSSW_8_1_0_pre9_Geant4102": {"default": "81X_mcRun2_asymptotic_v2"},
+    "CMSSW_8_1_0_pre9_phase1": {"default": "81X_upgrade2017_realistic_v5_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35"},
+    "CMSSW_8_1_0_pre9_phase1_newGT": {"default": "81X_upgrade2017_realistic_v6_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v6_UPG17PU35newGT"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530"]
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1_newGT2", "_phase1_newGT", "_phase1", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
