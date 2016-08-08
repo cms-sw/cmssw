@@ -61,6 +61,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCChamberMap.h"
+#include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
 #include <EventFilter/CSCRawToDigi/interface/CSCMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -178,6 +180,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   c.get<CSCCrateMapRcd>().get(hcrate);
   const CSCCrateMap* pcrate = hcrate.product();
 
+  // Need access to CSCChamberMap for chamber<->FED/DDU mapping consistency checks 
+  edm::ESHandle<CSCChamberMap> cscmap;
+  c.get<CSCChamberMapRcd>().get(cscmap);
+  const CSCChamberMap* cscmapping = cscmap.product();
 
   if (printEventNumber) ++numOfEvents;
 
@@ -207,6 +213,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
   // then examinerMask for CSC level errors will be used during unpacking of each CSC block
   unsigned long dccBinCheckMask = 0x06080016;
+
+  // Post-LS1 FED/DDU ID mapping fix 
+  const unsigned postLS1_map [] =  { 841, 842, 843, 844, 845, 846, 847, 848, 849,
+                                     831, 832, 833, 834, 835, 836, 837, 838, 839,
+                                     861, 862, 863, 864, 865, 866, 867, 868, 869,
+                                     851, 852, 853, 854, 855, 856, 857, 858, 859 };
 
 
   // For new CSC readout layout, which wont include DCCs need to loop over DDU FED IDs. DCC IDs are included for backward compatibility with old data
@@ -397,7 +409,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
 		  // if (cscData.size() != 0) std::cout << "FED" << id << " DDU Source ID: " << dduData[iDDU].header().source_id() << " firmware version: " << dduData[iDDU].header().format_version() << std::endl;
 
-
                   for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC)   // loop over CSCs
                     {
 
@@ -425,8 +436,22 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                           continue; // to next iteration of iCSC loop
                         }
 
-			
-			// std::cout << "crate = " << vmecrate << "; dmb = " << dmb << " format version = " << cscData[iCSC].getFormatVersion() << std::endl; 
+                      /// For Post-LS1 readout only. Check Chamber->FED/DDU mapping consistency.
+                      /// Skip chambers (special case of data corruption), which report wrong ID and pose as different chamber 
+                      if (isDDU_FED) 
+                        {
+                          unsigned int dduid = cscmapping->ddu(layer);
+                          if ((dduid>=1) && (dduid <= 36)) dduid = postLS1_map[dduid-1]; // Fix for Post-LS1 FED/DDU IDs mappings
+                          // std::cout << "CSC " << layer << " -> " << id << ":" << dduid << ":" << vmecrate << ":" << dmb ;
+                          if (id != dduid ) 
+                            {
+                              LogTrace ("CSCDDUUnpacker|CSCRawToDigi") << " CSC->FED/DDU mapping inconsistency!!! ";
+                              LogTrace ("CSCDCCUnpacker|CSCRawToDigi")
+                                << "readout FED/DDU ID=" << id << " expected ID=" << dduid  
+                                << ", skipping chamber " << layer << " vme= " << vmecrate << " dmb= " << dmb; 
+                              continue;
+                            }
+                        }
 
                       /// check alct data integrity
                       int nalct = cscData[iCSC].dmbHeader()->nalct();
