@@ -204,7 +204,7 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
   if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
   if (id.depth() != 0)                              return false;
   if (id.version()==0) {
-    if ((triggerMode_==HcalTopologyMode::tm_LHC_1x1 && id.ietaAbs()>29) ||
+    if ((triggerMode_==HcalTopologyMode::tm_LHC_1x1 && id.ietaAbs()>28) ||
 	(id.ietaAbs()>32))                          return false;
     int ietaMax = (triggerMode_==HcalTopologyMode::tm_LHC_1x1) ? 29 : 28;
     if (id.ietaAbs()>ietaMax && ((id.iphi()%4)!=1)) return false;
