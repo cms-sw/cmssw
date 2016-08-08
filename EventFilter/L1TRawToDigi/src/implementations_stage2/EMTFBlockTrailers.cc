@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
 #include "EMTFBlockTrailers.h"
