@@ -6,7 +6,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsO2ORcd.h"
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParams_PUBLIC.h"
 
@@ -258,9 +258,9 @@ boost::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(
         output.close();
     }
 
-    // finally, push all payloads to the XML parser and construct the trigSystem objects with each of those
+    // finally, push all payloads to the XML parser and construct the TrigSystem objects with each of those
     l1t::XmlConfigReader xmlRdr;
-    l1t::trigSystem trgSys;
+    l1t::TrigSystem trgSys;
     // HW settings should always go first
     for(auto &conf : payloads[ kHW ]){
         xmlRdr.readDOMFromString( conf.second );

@@ -52,11 +52,7 @@ REGISTER_L1_WRITER(L1TMuonBarrelParamsO2ORcd, L1TMuonBarrelParams);
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
 
-///#include "CondFormats/L1TObjects/interface/L1TMuonEndcapParams.h"
-///#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
-
-///REGISTER_L1_WRITER(L1TMuonEndcapParamsO2ORcd, L1TMuonEndcapParams);
->>>>>>> bmtf020cleancond_helper_allpublic
+REGISTER_L1_WRITER(L1TMuonEndcapParamsO2ORcd, L1TMuonEndCapParams);
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
@@ -72,3 +68,4 @@ REGISTER_L1_WRITER(L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams);
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 using namespace l1t;
 REGISTER_L1_WRITER(L1TCaloParamsO2ORcd, CaloParams);
+
