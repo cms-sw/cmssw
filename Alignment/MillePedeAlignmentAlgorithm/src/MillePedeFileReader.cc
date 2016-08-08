@@ -164,7 +164,7 @@ void MillePedeFileReader
           Significant = false;
           updateDB    = false;
           HitMax      = false;
-          continue;
+          break;
 
         } else if (std::abs(ObsMove) > Cutoffs[alignableIndex]) {
 
@@ -174,7 +174,7 @@ void MillePedeFileReader
             Significant = false;
             updateDB    = false;
             HitErrorMax = true;
-            continue;
+            break;
           } else {
             Error = true;
 	    if (std::abs(ObsMove/ObsErr) > sigCut_) {
