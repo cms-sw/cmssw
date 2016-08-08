@@ -184,19 +184,9 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   event.getByLabel( simTrackLabel_, hSimTracks );
   event.getByLabel( simVertexLabel_, hSimVertices );
   
-  try {
-    event.getByLabel( genParticleLabel_, hGenParticles );
-    event.getByLabel( genParticleLabel_, hGenParticleIndices );
-  } catch( edm::Exception& exception ) {
-    //
-    // The Monte Carlo is not always available, e.g. for pileup events. The information
-    // is only used if it's available, but for some reason the PileUpEventPrincipal
-    // wrapper throws an exception here rather than waiting to see if the handle is
-    // used (as is the case for edm::Event). So I just want to catch this exception
-    // and use the normal handle checking later on.
-    //
-  }
-  
+  event.getByLabel( genParticleLabel_, hGenParticles );
+  event.getByLabel( genParticleLabel_, hGenParticleIndices );
+    
   std::vector<const PCaloHit*> simHitPointers;
   fillSimHits( simHitPointers, event, setup ); 
   
@@ -207,7 +197,7 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
     m_simHitBarcodeToIndex.emplace(simHitPointers[i]->geantTrackId(),i);
   }
   m_genParticleBarcodeToIndex.clear();
-  if( hGenParticles.isValid() ) {
+  if( hGenParticles.isValid() && hGenParticleIndices.isValid() ) {
     for (unsigned int i = 0 ; i < hGenParticles->size() ; ++i) {
       m_genParticleBarcodeToIndex.emplace(hGenParticleIndices->at(i),i);
     }
