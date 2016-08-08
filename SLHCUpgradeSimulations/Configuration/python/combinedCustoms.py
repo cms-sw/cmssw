@@ -11,27 +11,15 @@ from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise as custo
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
-
-def cust_2023sim(process):
-    # To allow simulatenous use of customisation and era while the era migration is in progress
-    return process
-
 def cust_2023tilted(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
     process=customiseTiltedTK(process)
     return process
 
-def cust_2023LReco(process):
+def cust_2023flat(process):
     # To allow simulatenous use of customisation and era while the era migration is in progress
     process=customiseFlatTK(process)
     return process
-
-def cust_2023GReco(process):
-    # To allow simulatenous use of customisation and era while the era migration is in progress
-    process=customiseFlatTK(process)
-    return process
-
-
 
 
 ######Below are the customized used for SLHC releases 

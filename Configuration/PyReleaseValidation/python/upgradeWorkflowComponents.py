@@ -4,14 +4,12 @@ from copy import deepcopy
 upgradeKeys=[
     '2017',
     '2017PU',
-    '2023',
-    '2023tilted',
-    '2023sim',
-    '2023LReco',
-    '2023GReco',
-    '2023tiltedPU', 
-    '2023GRecoPU',
-    '2023LRecoPU'
+    '2023D1',
+    '2023D1PU',
+    '2023D2',
+    '2023D2PU',
+    '2023D3',
+    '2023D3PU',
 ]
 
 upgradeSteps=[
@@ -44,50 +42,37 @@ upgradeProperties = {
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
-    '2023' : {
-        'Geom' : 'Extended2023',
-        'GT' : 'auto:run2_mc',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull'],
-    },
-    '2023tilted' : {
-        'Geom' : 'Extended2023tilted',
+    '2023D1' : {
+        'Geom' : 'Extended2023D1',
         'GT' : 'auto:run2_mc',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
-        'Era' : 'Phase2GReco',
+        'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },
-    '2023sim' : {
-        'Geom' : 'Extended2023sim',
+    '2023D2' : {
+        'Geom' : 'Extended2023D2',
         'GT' : 'auto:run2_mc',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023sim',
-        'Era' : 'Phase2LReco',
-        'ScenToRun' : ['GenSimFull'],
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023flat',
+        'Era' : 'Phase2C1',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },
-    '2023LReco' : {
-        'Geom' : 'Extended2023LReco',
+    '2023D3' : {
+        'Geom' : 'Extended2023D3',
         'GT' : 'auto:run2_mc',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023LReco',
-        'Era' : 'Phase2LReco',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullLocal'],
-    },
-    '2023GReco' : {
-        'Geom' : 'Extended2023GReco',
-        'GT' : 'auto:run2_mc',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023GReco',
-        'Era' : 'Phase2GReco',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
+        'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },
 }
 
 upgradeProperties['2017PU'] = deepcopy(upgradeProperties['2017'])
 upgradeProperties['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
-upgradeProperties['2023tiltedPU'] = deepcopy(upgradeProperties['2023tilted'])
-upgradeProperties['2023tiltedPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties['2023LRecoPU'] = deepcopy(upgradeProperties['2023LReco'])
-upgradeProperties['2023LRecoPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
-upgradeProperties['2023GRecoPU'] = deepcopy(upgradeProperties['2023GReco'])
-upgradeProperties['2023GRecoPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties['2023D1PU'] = deepcopy(upgradeProperties['2023D1'])
+upgradeProperties['2023D1PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties['2023D2PU'] = deepcopy(upgradeProperties['2023D2'])
+upgradeProperties['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties['2023D3PU'] = deepcopy(upgradeProperties['2023D3'])
+upgradeProperties['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 
