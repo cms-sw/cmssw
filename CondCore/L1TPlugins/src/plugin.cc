@@ -222,21 +222,16 @@ REGISTER_PLUGIN(L1TCaloParamsRcd, CaloParams);
 REGISTER_PLUGIN(L1TCaloStage2ParamsRcd, CaloParams);
 REGISTER_PLUGIN(L1TCaloConfigRcd, CaloConfig);
 
-#include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
-REGISTER_PLUGIN(L1TCaloParamsO2ORcd, CaloParams);
-REGISTER_PLUGIN(L1TCaloStage2ParamsRcd, CaloParams);
+#include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
+#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
-#include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsO2ORcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
-#include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
@@ -293,4 +288,6 @@ REGISTER_PLUGIN(L1TGlobalParametersRcd, L1TGlobalParameters);
 
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
 REGISTER_PLUGIN(L1TGlobalPrescalesVetosRcd, L1TGlobalPrescalesVetos);
+REGISTER_PLUGIN(L1TGlobalPrescalesVetosO2ORcd, L1TGlobalPrescalesVetos);
