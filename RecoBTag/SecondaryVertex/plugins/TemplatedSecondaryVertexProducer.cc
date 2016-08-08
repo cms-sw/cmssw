@@ -1162,42 +1162,56 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchSubjets(const edm::Handle<
      const pat::Jet * fatJet = dynamic_cast<const pat::Jet *>( fatJets->ptrAt(fj).get() );
 
      if( !fatJet )
-       edm::LogError("WrongJetType") << "Wrong jet type for input fat jets. Please check that the input fat jets are of the pat::Jet type.";
+     {
+       if( fj==0 ) edm::LogError("WrongJetType") << "Wrong jet type for input fat jets. Please check that the input fat jets are of the pat::Jet type.";
+
+       matchedIndices.push_back(subjetIndices);
+       continue;
+     }
      else
+     {
        nSubjetCollections = fatJet->subjetCollectionNames().size();
 
-     if( nSubjetCollections>0 )
-     {
-       for(size_t coll=0; coll<nSubjetCollections; ++coll)
+       if( nSubjetCollections>0 )
        {
-         const pat::JetPtrCollection & fatJetSubjets = fatJet->subjets(coll);
-
-         for(size_t fjsj=0; fjsj<fatJetSubjets.size(); ++fjsj)
+         for(size_t coll=0; coll<nSubjetCollections; ++coll)
          {
-           ++nSubjets;
+           const pat::JetPtrCollection & fatJetSubjets = fatJet->subjets(coll);
 
-           for(size_t sj=0; sj<subjets->size(); ++sj)
+           for(size_t fjsj=0; fjsj<fatJetSubjets.size(); ++fjsj)
            {
-             const pat::Jet * subJet = dynamic_cast<const pat::Jet *>( subjets->at(sj).jet().get() );
-             if( !subJet )
-               edm::LogError("WrongJetType") << "Wrong jet type for input subjets. Please check that the input subjets are of the pat::Jet type.";
+             ++nSubjets;
 
-             if( subJet->originalObjectRef() == fatJetSubjets.at(fjsj)->originalObjectRef() )
+             for(size_t sj=0; sj<subjets->size(); ++sj)
              {
-               subjetIndices.push_back(sj);
-               break;
+               const pat::Jet * subJet = dynamic_cast<const pat::Jet *>( subjets->at(sj).jet().get() );
+
+               if( !subJet )
+               {
+                 if( fj==0 && coll==0 && fjsj==0 && sj==0 ) edm::LogError("WrongJetType") << "Wrong jet type for input subjets. Please check that the input subjets are of the pat::Jet type.";
+
+                 break;
+               }
+               else
+               {
+                 if( subJet->originalObjectRef() == fatJetSubjets.at(fjsj)->originalObjectRef() )
+                 {
+                   subjetIndices.push_back(sj);
+                   break;
+                 }
+               }
              }
            }
          }
+
+         if( subjetIndices.size() == 0 && nSubjets > 0)
+           edm::LogError("SubjetMatchingFailed") << "Matching subjets to fat jets failed. Please check that the fat jet and subjet collections belong to each other.";
+
+         matchedIndices.push_back(subjetIndices);
        }
-
-       if( subjetIndices.size() == 0 && nSubjets > 0)
-         edm::LogError("SubjetMatchingFailed") << "Matching subjets to original fat jets failed. Please check that the fat jet and subjet collections belong to each other.";
-
-       matchedIndices.push_back(subjetIndices);
+       else
+         matchedIndices.push_back(subjetIndices);
      }
-     else
-       matchedIndices.push_back(subjetIndices);
    }
 }
 
