@@ -1402,7 +1402,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
           break;
         }
       }
-      if(throwIfMissingSimHits_ && std::isnan(tof)) {
+      if(throwIfMissingSimHits_ && edm::isNotFinite(tof)) {
         auto ex = cms::Exception("LogicError") << "Did not find SimHit for reco hit DetId " << hitId.rawId()
                                                << " for TP " << trackingParticle.key() << " bx:event " << trackingParticle->eventId().bunchCrossing() << ":" << trackingParticle->eventId().event()
                                                << ".\nFound SimHits from detectors ";
