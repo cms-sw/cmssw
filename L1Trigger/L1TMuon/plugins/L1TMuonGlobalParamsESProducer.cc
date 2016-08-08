@@ -32,9 +32,9 @@
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
-#include "L1Trigger/L1TCommon/interface/setting.h"
-#include "L1Trigger/L1TCommon/interface/mask.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
+#include "L1Trigger/L1TCommon/interface/Setting.h"
+#include "L1Trigger/L1TCommon/interface/Mask.h"
 
 //
 // class declaration
@@ -73,7 +73,7 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
 
    // get configuration from DB
    if (iConfig.getParameter<bool>("configFromXml")) {
-      l1t::trigSystem trgSys;
+      l1t::TrigSystem trgSys;
       edm::FileInPath hwXmlFile(iConfig.getParameter<std::string>("hwXmlFile"));
       edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
       // These xml files are for testing the configuration from the online DB 

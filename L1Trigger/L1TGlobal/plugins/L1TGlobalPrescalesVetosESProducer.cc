@@ -39,9 +39,9 @@
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 
 #include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TCommon/interface/mask.h"
-#include "L1Trigger/L1TCommon/interface/setting.h"
-#include "L1Trigger/L1TCommon/interface/trigSystem.h"
+#include "L1Trigger/L1TCommon/interface/Mask.h"
+#include "L1Trigger/L1TCommon/interface/Setting.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
 
 using namespace std;
 using namespace edm;
@@ -156,7 +156,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     }
 
     XmlConfigReader xmlReader_prescale;
-    l1t::trigSystem ts_prescale;
+    l1t::TrigSystem ts_prescale;
     ts_prescale.addProcRole("uGtProcessor", "uGtProcessor");
 
     // run the parser 
@@ -164,8 +164,8 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     xmlReader_prescale.readRootElement( ts_prescale, "uGT" ); // extract all of the relevant context
     ts_prescale.setConfigured();
 
-    std::map<string, l1t::setting> settings_prescale = ts_prescale.getSettings("uGtProcessor");
-    std::vector<l1t::tableRow> tRow_prescale = settings_prescale["prescales"].getTableRows();
+    std::map<string, l1t::Setting> settings_prescale = ts_prescale.getSettings("uGtProcessor");
+    std::vector<l1t::TableRow> tRow_prescale = settings_prescale["prescales"].getTableRows();
 
     unsigned int numColumns_prescale = 0;
     if( tRow_prescale.size()>0 ){
@@ -225,7 +225,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     }
 
     XmlConfigReader xmlReader_mask_finor;
-    l1t::trigSystem ts_mask_finor;
+    l1t::TrigSystem ts_mask_finor;
     ts_mask_finor.addProcRole("uGtProcessor", "uGtProcessor");
 
     // run the parser 
@@ -233,9 +233,9 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     xmlReader_mask_finor.readRootElement( ts_mask_finor, "uGT" ); // extract all of the relevant context
     ts_mask_finor.setConfigured();
 
-    std::map<string, l1t::setting> settings_mask_finor = ts_mask_finor.getSettings("uGtProcessor");
+    std::map<string, l1t::Setting> settings_mask_finor = ts_mask_finor.getSettings("uGtProcessor");
 
-    std::vector<l1t::tableRow> tRow_mask_finor = settings_mask_finor["finorMask"].getTableRows();
+    std::vector<l1t::TableRow> tRow_mask_finor = settings_mask_finor["finorMask"].getTableRows();
 
     for( auto it=tRow_mask_finor.begin(); it!=tRow_mask_finor.end(); it++ ){
       unsigned int algoBit = it->getRowValue<unsigned int>("algo");
@@ -269,7 +269,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     }
 
     XmlConfigReader xmlReader_mask_veto;
-    l1t::trigSystem ts_mask_veto;
+    l1t::TrigSystem ts_mask_veto;
     ts_mask_veto.addProcRole("uGtProcessor", "uGtProcessor");
 
     // run the parser 
@@ -277,8 +277,8 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     xmlReader_mask_veto.readRootElement( ts_mask_veto, "uGT" ); // extract all of the relevant context
     ts_mask_veto.setConfigured();
 
-    std::map<string, l1t::setting> settings_mask_veto = ts_mask_veto.getSettings("uGtProcessor");
-    std::vector<l1t::tableRow> tRow_mask_veto = settings_mask_veto["vetoMask"].getTableRows();
+    std::map<string, l1t::Setting> settings_mask_veto = ts_mask_veto.getSettings("uGtProcessor");
+    std::vector<l1t::TableRow> tRow_mask_veto = settings_mask_veto["vetoMask"].getTableRows();
 
     for( auto it=tRow_mask_veto.begin(); it!=tRow_mask_veto.end(); it++ ){
       unsigned int algoBit = it->getRowValue<unsigned int>("algo");
@@ -307,7 +307,7 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     }
 
     XmlConfigReader xmlReader_mask_algobx;
-    l1t::trigSystem ts_mask_algobx;
+    l1t::TrigSystem ts_mask_algobx;
     ts_mask_algobx.addProcRole("uGtProcessor", "uGtProcessor");
 
     // run the parser 
@@ -315,8 +315,8 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
     xmlReader_mask_algobx.readRootElement( ts_mask_algobx, "uGT" ); // extract all of the relevant context
     ts_mask_algobx.setConfigured();
 
-    std::map<string, l1t::setting> settings_mask_algobx = ts_mask_algobx.getSettings("uGtProcessor");
-    std::vector<l1t::tableRow> tRow_mask_algobx = settings_mask_algobx["algorithmBxMask"].getTableRows();
+    std::map<string, l1t::Setting> settings_mask_algobx = ts_mask_algobx.getSettings("uGtProcessor");
+    std::vector<l1t::TableRow> tRow_mask_algobx = settings_mask_algobx["algorithmBxMask"].getTableRows();
 
     unsigned int numCol_mask_algobx = 0;
     if( tRow_mask_algobx.size()>0 ){
