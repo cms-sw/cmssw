@@ -537,7 +537,8 @@ namespace edm {
   ambiguous_(ambiguous),
   lastCheckIndex_(ambiguous_.size() + kUnsetOffset),
   lastSkipCurrentCheckIndex_(lastCheckIndex_.load()),
-  prefetchRequested_(false) {
+  prefetchRequested_(false),
+  skippingPrefetchRequested_(false) {
     assert(ambiguous_.size() == matchingHolders_.size());
   }
   
@@ -602,16 +603,36 @@ namespace edm {
                                            bool skipCurrentProcess,
                                            SharedResourcesAcquirer* sra,
                                            ModuleCallingContext const* mcc) const {
-    
-    waitingTasks_.add(waitTask);
-    
-    bool expected = false;
-    if( prefetchRequested_.compare_exchange_strong(expected,true)) {
+    if(not skipCurrentProcess) {
+      waitingTasks_.add(waitTask);
+
+      bool expected = false;
+      if( prefetchRequested_.compare_exchange_strong(expected,true)) {
+        //we are the first thread to request
+        tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc, ServiceRegistry::instance().presentToken());
+      }
+    } else {
+      skippingWaitingTasks_.add(waitTask);
+      bool expected = false;
+      if( skippingPrefetchRequested_.compare_exchange_strong(expected,true)) {
       //we are the first thread to request
-      tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc, ServiceRegistry::instance().presentToken());
+        tryPrefetchResolverAsync(0, principal, skipCurrentProcess, sra, mcc, ServiceRegistry::instance().presentToken());
+      }
     }
   }
   
+  void NoProcessProductResolver::setCache(bool iSkipCurrentProcess, 
+                                          ProductResolverIndex iIndex, 
+                                          std::exception_ptr iExceptPtr) const {
+    if( not iSkipCurrentProcess) {
+      lastCheckIndex_ = iIndex;
+      waitingTasks_.doneWaiting(iExceptPtr);
+    } else {
+      lastSkipCurrentCheckIndex_ = iIndex;
+      skippingWaitingTasks_.doneWaiting(iExceptPtr);
+    }
+  }
+
   namespace {
     class TryNextResolverWaitingTask : public edm::WaitingTask {
     public:
@@ -666,9 +687,8 @@ namespace edm {
                                            std::exception_ptr iExceptPtr) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto k = lookupProcessOrder[iProcessingIndex];
-    std::atomic<unsigned int>& updateCacheIndex = iSkipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
-    updateCacheIndex = k;
-    waitingTasks_.doneWaiting(iExceptPtr);
+
+    setCache(iSkipCurrentProcess, k, iExceptPtr);
   }
 
   
@@ -681,9 +701,8 @@ namespace edm {
     ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
 
     if(productResolver->productWasFetchedAndIsValid(iSkipCurrentProcess)) {
-      std::atomic<unsigned int>& updateCacheIndex = iSkipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
-      updateCacheIndex = k;
-      waitingTasks_.doneWaiting(nullptr);
+
+      setCache(iSkipCurrentProcess, k, nullptr);
       return true;
     }
     return false;
@@ -699,7 +718,6 @@ namespace edm {
                                                      ServiceToken token) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
-    std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
 
     const unsigned int choiceSize = ambiguous_.size();
     unsigned int newCacheIndex = choiceSize + kMissingOffset;
@@ -743,8 +761,7 @@ namespace edm {
       ++index;
     }
     //data product unavailable
-    updateCacheIndex = newCacheIndex;
-    waitingTasks_.doneWaiting(nullptr);
+    setCache(skipCurrentProcess, newCacheIndex, nullptr);
   }
   
   void NoProcessProductResolver::setProvenance_(ProductProvenanceRetriever const* , ProcessHistory const& , ProductID const& ) {
@@ -764,7 +781,9 @@ namespace edm {
     lastCheckIndex_ = resetValue;
     lastSkipCurrentCheckIndex_ = resetValue;
     prefetchRequested_ = false;
+    skippingPrefetchRequested_ = false;
     waitingTasks_.reset();
+    skippingWaitingTasks_.reset();
   }
 
   bool NoProcessProductResolver::singleProduct_() const {
