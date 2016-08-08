@@ -91,6 +91,7 @@ void MillePedeFileReader
 void MillePedeFileReader
 ::readMillePedeResultFile()
 {
+  updateDB = false;	
   std::ifstream resFile;
   resFile.open(millePedeResFile_.c_str());
 
