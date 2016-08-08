@@ -8,6 +8,8 @@
 /*** core framework functionality ***/
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+
 //=============================================================================
 //===   PUBLIC METHOD IMPLEMENTATION                                        ===
 //=============================================================================
@@ -65,7 +67,10 @@ void MillePedeFileReader
         iss >> trash >> trash >> Nrec;
 
         if (Nrec < 25000) {
-
+          PedeSuccess = false;
+          Movements   = false;
+          Error       = false;
+          Significant = false;
           updateDB   = false;
         }
       }
@@ -74,6 +79,10 @@ void MillePedeFileReader
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede log-file.";
 
+    PedeSuccess = false;
+    Movements   = false;
+    Error       = false;
+    Significant = false;
     updateDB   = false;
     Nrec = 0;
   }
@@ -103,6 +112,7 @@ void MillePedeFileReader
       }
 
       if (tokens.size() > 4 /*3*/) {
+        PedeSuccess = true;
 
         int alignable      = std::stoi(tokens[0]);
         int alignableIndex = alignable % 10 - 1;
@@ -110,17 +120,66 @@ void MillePedeFileReader
         double ObsMove = std::stof(tokens[3]) * Multiplier[alignableIndex];
         double ObsErr  = std::stof(tokens[4]) * Multiplier[alignableIndex];
 
+        int det = -1;
+
+        if (alignable >= 60 && alignable <= 69) {
+          det = 2; // TPBHalfBarrel (x+)
+        } else if (alignable >= 8780 && alignable <= 8789) {
+          det = 3; // TPBHalfBarrel (x-)
+        } else if (alignable >= 17520 && alignable <= 17529) {
+          det = 4; // TPEHalfCylinder (x+,z+)
+        } else if (alignable >= 22380 && alignable <= 22389) {
+          det = 5; // TPEHalfCylinder (x-,z+)
+        } else if (alignable >= 27260 && alignable <= 27269) {
+          det = 0; // TPEHalfCylinder (x+,z-)
+        } else if (alignable >= 32120 && alignable <= 32129) {
+          det = 1; //TPEHalfCylinder (x-,z-)
+        } else {
+          continue;
+        }
+
+        if (alignableIndex == 0 && det >= 0 && det <= 5) {
+          Xobs[det] = ObsMove;
+          XobsErr[det] = ObsErr;
+        } else if (alignableIndex == 1 && det >= 0 && det <= 5) {
+          Yobs[det] = ObsMove;
+          YobsErr[det] = ObsErr;
+        } else if (alignableIndex == 2 && det >= 0 && det <= 5) {
+          Zobs[det] = ObsMove;
+          ZobsErr[det] = ObsErr;
+        } else if (alignableIndex == 3 && det >= 0 && det <= 5) {
+          tXobs[det] = ObsMove;
+          tXobsErr[det] = ObsErr;
+        } else if (alignableIndex == 4 && det >= 0 && det <= 5) {
+          tYobs[det] = ObsMove;
+          tYobsErr[det] = ObsErr;
+        } else if (alignableIndex == 5 && det >= 0 && det <= 5) {
+          tZobs[det] = ObsMove;
+          tZobsErr[det] = ObsErr;
+        }
+
 	if (std::abs(ObsMove) > maxMoveCut_) {
+          Movements   = false;
+          Error       = false;
+          Significant = false;
           updateDB    = false;
+          HitMax      = false;
           break;
 
         } else if (std::abs(ObsMove) > Cutoffs[alignableIndex]) {
 
+          Movements = true;
 	  if (std::abs(ObsErr) > maxErrorCut_) {
+            Error       = false;
+            Significant = false;
             updateDB    = false;
+            HitErrorMax = true;
             break;
           } else {
-	    if (std::abs(ObsMove/ObsErr) < sigCut_) {
+            Error = true;
+	    if (std::abs(ObsMove/ObsErr) > sigCut_) {
+              Significant = true;
+            } else {
 	      continue;
 	    } 
           }
@@ -131,6 +190,10 @@ void MillePedeFileReader
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede result-file.";
 
+    PedeSuccess = false;
+    Movements   = false;
+    Error       = false;
+    Significant = false;
     updateDB   = false;
     Nrec = 0;
   }
