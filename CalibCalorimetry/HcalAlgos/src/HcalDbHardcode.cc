@@ -436,39 +436,31 @@ void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
 }
 
 void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells) {
-  static const int kNewSubdetOffset = 24;
-  static const int kNewSubdetMask = 0x3;
-  static const int kExtraMask = 0xFC000000; // sum 2^26..2^31
+  static const int kUTCAMask = 0x4000000; //set bit 26 for uTCA version
+  static const int kLinearIndexMax = 0x7FFFF; //19 bits
+  uint32_t counter = 0;
+  uint32_t counterTrig = 0;
   for(const auto& fId : cells){
     if(fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel ||
        fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap ||
        fId.genericSubdet() == HcalGenericDetId::HcalGenForward ||
-       fId.genericSubdet() == HcalGenericDetId::HcalGenOuter)
+       fId.genericSubdet() == HcalGenericDetId::HcalGenOuter ||
+       fId.genericSubdet() == HcalGenericDetId::HcalGenZDC)
     {
-      HcalDetId hid(fId);
-      uint32_t raw = hid.rawId();
-      //HcalBarrel=1, HcalEndcap=2, HcalOuter=3, HcalForward=4 -> shift to 0-3
-      int newSubdet = hid.subdetId()-1;
-      //put subdet into 25:24, mask 31:26 (HcalElectronicsId only uses first 26 bits)
-      raw |= kExtraMask | ((newSubdet&kNewSubdetMask)<<kNewSubdetOffset);
+      ++counter;
+      assert(counter < kLinearIndexMax);
+      uint32_t raw = counter;
+      raw |= kUTCAMask;
       HcalElectronicsId elId(raw);
-      emap.mapEId2chId(elId,hid);
-    }
-    else if(fId.genericSubdet() == HcalGenericDetId::HcalGenZDC){
-      HcalZDCDetId zid(fId);
-      uint32_t raw = zid.rawId();
-      //mask 31:26 (HcalElectronicsId only uses first 26 bits)
-      raw |= kExtraMask;
-      HcalElectronicsId elId(raw);
-      emap.mapEId2chId(elId,zid);
+      emap.mapEId2chId(elId,fId);
     }
     else if(fId.genericSubdet() == HcalGenericDetId::HcalGenTriggerTower){
-      HcalTrigTowerDetId tid(fId);
-      uint32_t raw = tid.rawId();
-      //mask 31:26 (HcalElectronicsId only uses first 26 bits)
-      raw |= kExtraMask;
+      ++counterTrig;
+      assert(counterTrig < kLinearIndexMax);
+      uint32_t raw = counterTrig;
+      raw |= kUTCAMask;
       HcalElectronicsId elId(raw);
-      emap.mapEId2tId(elId,tid);
+      emap.mapEId2tId(elId,fId);
     }
   }
   emap.sort();
