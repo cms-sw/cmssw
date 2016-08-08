@@ -69,6 +69,16 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage)
 
+    parser.add_option('-m','--memoryOffset',
+                      help='memory of the wf for single core',
+                      dest='memoryOffset',
+                      default=3000
+                     )
+    parser.add_option('--addMemPerCore',
+                      help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
+                      dest='memPerCore',
+                      default=1500
+                     )
     parser.add_option('-j','--nproc',
                       help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
                       dest='nProcs',
@@ -251,6 +261,8 @@ if __name__ == '__main__':
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
+    if (opt.memoryOffset): opt.memoryOffset=int(opt.memoryOffset)
+    if (opt.memPerCore): opt.memPerCore=int(opt.memPerCore)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
