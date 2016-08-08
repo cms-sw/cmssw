@@ -22,7 +22,7 @@ class HcalTriggerPrimitiveAlgo {
 public:
   HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, 
                            int latency,
-                           bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
+                           uint32_t FG_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
                            int numberOfSamplesHF, int numberOfPresamplesHF,
                            uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
@@ -71,7 +71,6 @@ public:
   bool peakfind_;
   std::vector<double> weights_;
   int latency_;
-  bool FG_MinimumBias_;
   uint32_t FG_threshold_;
   uint32_t ZS_threshold_;
   int ZS_threshold_I_;
