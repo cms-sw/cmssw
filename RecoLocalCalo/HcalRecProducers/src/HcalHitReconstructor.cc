@@ -350,8 +350,10 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
     edm::ESHandle<HcalFrontEndMap> hfemap;
     es.get<HcalFrontEndMapRcd>().get(hfemap);
     if (hfemap.isValid()) {
-      std::cout << "Gets the FrontEndMap" << std::endl;
+//    std::cout << "Gets the FrontEndMap" << std::endl;
       hbheFlagSetter_->SetFrontEndMap(hfemap.product());
+    } else {
+      edm::LogWarning("Configuration") << "HcalHitReconstructor cannot get HcalFrontEndMap!" << std::endl;
     }
   }
 
