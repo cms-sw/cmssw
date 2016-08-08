@@ -422,7 +422,7 @@ class AddJetCollection(ConfigToolBase):
         self._parameters=copy.deepcopy(self._defaultParameters)
         ## add comments
         self._comment = "This is a tool to add more patJet collectinos to your PAT Tuple or to re-configure the default collection. You can add and embed additional information like jet\
-        energy correction factors, btag infomration and generator match information to the new patJet collection depending on the parameters that you pass on to this function. Consult \
+        energy correction factors, btag information and generator match information to the new patJet collection depending on the parameters that you pass on to this function. Consult \
         the descriptions of each parameter for more information."
 
     def getDefaultParameters(self):
@@ -799,7 +799,7 @@ class SwitchJetCollection(ConfigToolBase):
         self._parameters=copy.deepcopy(self._defaultParameters)
         ## add comments
         self._comment = "This is a tool to add more patJet collectinos to your PAT Tuple. You can add and embed additional information like jet energy correction factors, btag \
-        infomration and generatro match information to the new patJet collection depending on the parameters that you pass on to this function. Consult the descriptions of each \
+        information and generator match information to the new patJet collection depending on the parameters that you pass on to this function. Consult the descriptions of each \
         parameter for more information."
 
     def getDefaultParameters(self):
@@ -998,7 +998,7 @@ class UpdateJetCollection(ConfigToolBase):
         self._parameters=copy.deepcopy(self._defaultParameters)
         ## add comments
         self._comment = "This is a tool to add more patJet collectinos to your PAT Tuple or to re-configure the default collection. You can add and embed additional information like jet\
-        energy correction factors, btag infomration and generator match information to the new patJet collection depending on the parameters that you pass on to this function. Consult \
+        energy correction factors, btag information and generator match information to the new patJet collection depending on the parameters that you pass on to this function. Consult \
         the descriptions of each parameter for more information."
 
     def getDefaultParameters(self):
