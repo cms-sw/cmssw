@@ -216,7 +216,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	
     if(deadpix) {
 	   fypix = BYM3; lypix = -1;
-       	   memset(nyzero, 0, TYSIZE * sizeof(int));
+	for(i=0; i<nclusy; ++i) {	   
+           memset(nyzero, 0, TYSIZE * sizeof(int));
            memset(ysum, 0, BYSIZE * sizeof(float));
 // Do preliminary cluster projection in y
 	      for(j=0; j<nclusx; ++j) {
@@ -227,7 +228,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 		     if(i < fypix) {fypix = i;}
 			 if(i > lypix) {lypix = i;}
 		  }
-	   
+	   }
 	   
 // Now loop over dead pixel list and "fix" everything	
 
