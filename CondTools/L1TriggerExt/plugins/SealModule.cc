@@ -68,3 +68,4 @@ REGISTER_L1_WRITER(L1TMuonGlobalParamsO2ORcd, L1TMuonGlobalParams);
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
 using namespace l1t;
 REGISTER_L1_WRITER(L1TCaloParamsO2ORcd, CaloParams);
+

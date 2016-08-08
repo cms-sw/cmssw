@@ -192,9 +192,9 @@ for(auto &conf : payloads[kRS]){
     output.close();
 }
 
-        // finally, push all payloads to the XML parser and construct the trigSystem objects with each of those
+        // finally, push all payloads to the XML parser and construct the TrigSystem objects with each of those
         l1t::XmlConfigReader xmlRdr;
-        l1t::trigSystem parsedXMLs;
+        l1t::TrigSystem parsedXMLs;
 //        parsedXMLs.addProcRole("processors", "procMP7");
         // HW settings should always go first
         for(auto &conf : payloads[ kHW ]){

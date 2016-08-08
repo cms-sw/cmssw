@@ -122,10 +122,10 @@ void L1TMuonGlobalParamsHelper::setEOmtfInputFlags(const int &nodeIdx, const siz
 }
 
 
-void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::trigSystem& trgSys, const std::string& processorId)
+void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const std::string& processorId)
 {
   std::string procId = processorId;
-  // if the procId is an empty string use the one from the trigSystem (the uGMT only has one processor)
+  // if the procId is an empty string use the one from the TrigSystem (the uGMT only has one processor)
   if (procId == "" ) {
     const std::map<std::string, std::string>& procRoleMap = trgSys.getProcRole();
     if (procRoleMap.size() != 1) {
