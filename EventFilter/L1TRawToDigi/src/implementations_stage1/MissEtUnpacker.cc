@@ -1,19 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
 #include "CaloCollections.h"
-
-namespace l1t {
-  namespace stage1 {
-    class MissEtUnpacker : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-  }
-}
-
-// Implementation
+#include "MissEtUnpacker.h"
 
 namespace l1t {
   namespace stage1 {
@@ -71,4 +59,5 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::MissEtUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::MissEtUnpacker);
