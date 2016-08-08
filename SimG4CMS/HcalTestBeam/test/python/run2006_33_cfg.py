@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("SimG4CMS.HcalTestBeam.TB2006GeometryXML_cfi")
+process.load("SimG4CMS.HcalTestBeam.TB2006Geometry33XML_cfi")
 process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 process.load("Configuration.EventContent.EventContent_cff")
@@ -79,7 +79,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
                                    )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(25000)
     )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -124,7 +124,7 @@ process.testbeam = cms.EDAnalyzer("HcalTB06Analysis",
                                   )
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.testbeam)
-process.outpath = cms.EndPath(process.o1)
+#process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
