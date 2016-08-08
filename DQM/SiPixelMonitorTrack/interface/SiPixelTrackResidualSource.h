@@ -178,6 +178,7 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     std::vector<MonitorElement*> meZeroRocLadvsModOffTrackBarrel;
     
     MonitorElement* meHitProbability;
+    MonitorElement* meRocBladevsDiskEndcap;
     
     int noOfLayers;
     int noOfDisks;
