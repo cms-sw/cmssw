@@ -1,8 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
-
 #include "CaloTokens.h"
+#include "PhysCandPacker.h"
 
 template<typename T, typename F>
 l1t::Blocks
@@ -37,42 +36,6 @@ process(unsigned int id1, unsigned int id2, const BXVector<T>& coll, F filter)
 
    return {l1t::Block(id1, load[0]),l1t::Block(id2, load[1])};
 }
-
-namespace l1t {
-  namespace stage1 {
-    class IsoEGammaPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-
-    class NonIsoEGammaPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-
-    class CentralJetPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-
-    class ForwardJetPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-
-    class TauPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-
-    class IsoTauPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-  }
-}
-
-// Implementation
 
 namespace l1t {
   namespace stage1 {
@@ -132,9 +95,10 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_PACKER(l1t::stage1::IsoEGammaPacker);
-DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
-DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
-DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
-DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
-DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage1::IsoEGammaPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);

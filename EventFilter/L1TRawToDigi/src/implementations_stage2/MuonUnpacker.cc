@@ -1,22 +1,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
 #include "L1TObjectCollections.h"
 //#include "GMTCollections.h"
+#include "MuonUnpacker.h"
 
-namespace l1t {
-   namespace stage2 {
-      class MuonUnpacker : public Unpacker {
-         public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
-}
-
-// Implementation
 namespace l1t {
    namespace stage2 {
       bool
@@ -69,4 +58,5 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::MuonUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::MuonUnpacker);

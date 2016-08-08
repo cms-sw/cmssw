@@ -1,20 +1,9 @@
 #include "FWCore/Framework/interface/Event.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloTokens.h"
-
-namespace l1t {
-   namespace stage2 {
-      class CaloTowerPacker : public Packer {
-         public:
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-      };
-   }
-}
-
-// Implementation
+#include "CaloTowerPacker.h"
 
 namespace l1t {
 namespace stage2 {
@@ -82,4 +71,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::CaloTowerPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage2::CaloTowerPacker);

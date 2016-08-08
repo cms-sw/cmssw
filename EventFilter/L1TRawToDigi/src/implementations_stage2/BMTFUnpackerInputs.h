@@ -1,16 +1,3 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
-#include "BMTFCollections.h"
-
-namespace l1t{
-	namespace stage2{
-		struct qualityHits
-		{
-			int linkNo;
-			int hits[3][7];
-		};
-		class BMTFUnpackerInputsOldQual : public Unpacker
 		{
 			public:
 				virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
@@ -29,5 +16,6 @@ namespace l1t{
 	}
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsOldQual);
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsNewQual);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsOldQual);
+// DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsNewQual);

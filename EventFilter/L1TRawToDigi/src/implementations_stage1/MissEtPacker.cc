@@ -1,19 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
-
 #include "CaloTokens.h"
-
-namespace l1t {
-   namespace stage1 {
-      class MissEtPacker : public Packer {
-         public:
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-      };
-   }
-}
-
-// Implementation
+#include "MissEtPacker.h"
 
 namespace l1t {
 namespace stage1 {
@@ -57,4 +45,5 @@ namespace stage1 {
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage1::MissEtPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage1::MissEtPacker);

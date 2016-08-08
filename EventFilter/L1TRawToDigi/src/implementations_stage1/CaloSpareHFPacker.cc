@@ -1,19 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
-
+#include "CaloSpareHFPacker.h"
 #include "CaloTokens.h"
-
-namespace l1t {
-  namespace stage1 {
-    class CaloSpareHFPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-  }
-}
-
-// Implementation
 
 namespace l1t {
   namespace stage1 {
@@ -64,4 +52,5 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_PACKER(l1t::stage1::CaloSpareHFPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage1::CaloSpareHFPacker);

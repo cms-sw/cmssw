@@ -1,28 +1,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
-
-namespace l1t {
-  namespace stage2 {
-    class MPUnpacker_0x1001000b : public Unpacker {
-    public:
-      enum { BLK_TOT_POS=123, BLK_X_POS=121, BLK_Y_POS=127, BLK_TOT_NEG=125, BLK_X_NEG=131, BLK_Y_NEG=129};
-      virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    private:
-      int etaSign(int blkId);
-    };
-  }
-}
-
-
-
-
-
-// Implementation
+#include "MPUnpacker_0x1001000b.h"
 
 namespace l1t {
 namespace stage2 {
@@ -227,4 +208,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x1001000b);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x1001000b);

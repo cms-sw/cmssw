@@ -1,8 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
 #include "CaloCollections.h"
+#include "LegacyPhysCandUnpacker.h"
 
 template<typename T, typename F>
 bool
@@ -54,44 +53,6 @@ process(const l1t::Block& block, BXVector<T> * coll, F modify) {
 
    return true;
 }
-
-namespace l1t {
-   namespace stage1 {
-      namespace legacy {
-         class IsoEGammaUnpacker : public Unpacker {
-            public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-         };
-
-         class NonIsoEGammaUnpacker : public Unpacker {
-            public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-         };
-
-         class CentralJetUnpacker : public Unpacker {
-            public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-         };
-
-         class ForwardJetUnpacker : public Unpacker {
-            public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-         };
-
-         class TauUnpacker : public Unpacker {
-            public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-         };
-
-         class IsoTauUnpacker : public Unpacker {
-            public:
-               virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-         };
-      }
-   }
-}
-
-// Implementation
 
 namespace l1t {
    namespace stage1 {
@@ -149,9 +110,10 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoEGammaUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::NonIsoEGammaUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::CentralJetUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::ForwardJetUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::TauUnpacker);
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoTauUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoEGammaUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::NonIsoEGammaUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::CentralJetUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::ForwardJetUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::TauUnpacker);
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoTauUnpacker);

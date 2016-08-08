@@ -1,34 +1,9 @@
 #include "FWCore/Framework/interface/Event.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
-
 #include "CaloTokens.h"
 
 #include "L1TStage2Layer2Constants.h"
-
-namespace l1t {
-   namespace stage2 {
-      class JetPacker : public Packer {
-         public:
-	    JetPacker(int b1, int b2) : b1_(b1), b2_(b2) {}
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-	    int b1_, b2_;
-      };
-
-      class GTJetPacker : public JetPacker {
-         public:
-             GTJetPacker() : JetPacker(12,14) {}
-      };
-      class CaloJetPacker : public JetPacker {
-         public:
-	     CaloJetPacker() : JetPacker(13,15) {}
-      };
-
-
-   }
-}
-
-// Implementation
+#include "JetPacker.h"
 
 namespace l1t {
 namespace stage2 {
@@ -80,5 +55,6 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::GTJetPacker);
-DEFINE_L1T_PACKER(l1t::stage2::CaloJetPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage2::GTJetPacker);
+// DEFINE_L1T_PACKER(l1t::stage2::CaloJetPacker);
