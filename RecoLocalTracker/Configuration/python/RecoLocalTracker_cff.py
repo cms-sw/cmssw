@@ -25,7 +25,7 @@ eras.phase2_tracker.toReplaceWith(pixeltrackerlocalreco,
   cms.Sequence(
           siPhase2Clusters +
           phase2ITPixelClusters +
-          siPixelClustersPreSplitting +  #FIXME:PreSplitting
-          siPixelRecHitsPreSplitting     #FIXME:PreSplitting
+          siPixelClustersPreSplitting +
+          siPixelRecHitsPreSplitting
   )
 )

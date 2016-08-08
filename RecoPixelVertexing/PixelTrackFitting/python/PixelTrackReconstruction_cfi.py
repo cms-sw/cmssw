@@ -67,6 +67,10 @@ eras.trackingPhase2PU140.toModify(PixelTrackReconstructionBlock,
         tipMax = 0.05
     ),
     RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
-    OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70,
+    OrderedHitsFactoryPSet = dict(
+      SeedingLayers = "PixelLayerTripletsPreSplitting",
+      GeneratorPSet = dict(SeedComparitorPSet = dict(clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"),
+                           maxElement = 0)
+    )
 )
 

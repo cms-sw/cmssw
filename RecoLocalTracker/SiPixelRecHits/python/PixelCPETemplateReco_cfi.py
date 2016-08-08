@@ -19,8 +19,7 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
 
 )
 
-# This customization will be removed once we get the templates for
-# FIXME::phase2 pixel
+# This customization will be removed once we get the templates for phase2 pixel
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_tracker.toModify(templates,
   LoadTemplatesFromDB = False,

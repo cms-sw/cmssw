@@ -59,8 +59,7 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     MagneticFieldRecord = cms.ESInputTag(""),
 )
 
-# This customization will be removed once we get the templates for
-# FIXME::phase2 pixel
+# This customization will be removed once we get the templates for phase2 pixel
 # FIXME::Is the Upgrade variable actually used?
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_tracker.toModify(PixelCPEGenericESProducer, 

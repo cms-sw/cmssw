@@ -12,7 +12,8 @@ siStripClusters = cms.EDProducer("SiStripClusterizer",
                                )
 
 from Configuration.StandardSequences.Eras import eras
-# Need these until phase2 pixel templates are used
+# The SiStripClusters are not used anymore in phase2 tracking
+# This part has to be clean up when they will be officially removed from the entire flow
 eras.phase2_tracker.toModify(siStripClusters, # FIXME
   DigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','ZeroSuppressed'),
                                      cms.InputTag('siStripZeroSuppression','VirginRaw'),
