@@ -333,12 +333,16 @@ namespace edm {
                              SharedResourcesAcquirer* sra,
                              ModuleCallingContext const* mcc) const;
 
+      void setCache(bool skipCurrentProcess, ProductResolverIndex index, std::exception_ptr exceptionPtr) const;
+
       std::vector<ProductResolverIndex> matchingHolders_;
       std::vector<bool> ambiguous_;
       mutable WaitingTaskList waitingTasks_;
+      mutable WaitingTaskList skippingWaitingTasks_;
       mutable std::atomic<unsigned int> lastCheckIndex_;
       mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
       mutable std::atomic<bool> prefetchRequested_;
+      mutable std::atomic<bool> skippingPrefetchRequested_;
   };
 
   class SingleChoiceNoProcessProductResolver : public ProductResolverBase {
