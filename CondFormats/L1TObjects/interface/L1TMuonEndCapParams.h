@@ -15,11 +15,11 @@
 class L1TMuonEndCapParams {
  public:
   		
-  L1TMuonEndCapParams() { PtAssignVersion_=1; }
+  L1TMuonEndCapParams() { PtAssignVersion_=1; firmwareVersion_=1; }
   ~L1TMuonEndCapParams() {}
 
   // FIXME MULHEARN:  this requires cleanup too, but leaving as is for now:
-  unsigned PtAssignVersion_;
+  unsigned PtAssignVersion_, firmwareVersion_;
   int PhiMatchWindowSt1_, PhiMatchWindowSt2_, PhiMatchWindowSt3_, PhiMatchWindowSt4_;
   
   COND_SERIALIZABLE;
