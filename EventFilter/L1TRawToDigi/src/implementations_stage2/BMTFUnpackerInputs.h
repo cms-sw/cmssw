@@ -29,5 +29,5 @@ namespace l1t{
 	}
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsOldQual);
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputsNewQual);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputs);

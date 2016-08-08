@@ -2,24 +2,11 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
-
 #include "L1TStage2Layer2Constants.h"
-
-namespace l1t {
-   namespace stage2 {
-      class MPUnpacker_0x10010010 : public Unpacker {
-         public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
-}
-
-// Implementation
+#include "MPUnpacker_0x10010010.h"
 
 namespace l1t {
 namespace stage2 {
@@ -373,4 +360,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x10010010);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::MPUnpacker_0x10010010);

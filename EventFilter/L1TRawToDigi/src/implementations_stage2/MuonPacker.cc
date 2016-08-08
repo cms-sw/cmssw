@@ -1,37 +1,9 @@
 #include "FWCore/Framework/interface/Event.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
-
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 #include "GMTTokens.h"
+#include "MuonPacker.h"
 
-namespace l1t {
-   namespace stage2 {
-      class MuonPacker : public Packer {
-         public:
-	    MuonPacker(unsigned b1) : b1_(b1) {}
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-            unsigned b1_;
-         private:
-            typedef std::map<unsigned int, std::vector<uint32_t>> PayloadMap;
-      };
-
-      class GTMuonPacker : public MuonPacker {
-         public:
-             GTMuonPacker() : MuonPacker(0) {}
-      };
-      class GMTMuonPacker : public MuonPacker {
-         public:
-	     GMTMuonPacker() : MuonPacker(1) {}
-      };
-      
-      
-
-
-   }
-}
-
-// Implementation
 namespace l1t {
    namespace stage2 {
       Blocks
@@ -85,5 +57,6 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::GTMuonPacker);
-DEFINE_L1T_PACKER(l1t::stage2::GMTMuonPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage2::GTMuonPacker);
+// DEFINE_L1T_PACKER(l1t::stage2::GMTMuonPacker);
