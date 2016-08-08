@@ -121,7 +121,7 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
   mixLabel(consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"))),
   useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 { 
-
+  beta_  =  pset.getParameter<double>("Beta");
   vtxOffset.resize(3);
   if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset"); 
 
@@ -241,6 +241,8 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
        tmpboost.Invert();
 
 
+       cout<<"Boosting with beta : "<<beta_<<endl;
+
 
        boost_ = new TMatrixD(tmpboostXYZ);
        boost_->Print();
@@ -320,10 +322,11 @@ void MixBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
   // generate new vertex & apply the shift 
   //
-  HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
  
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+
+  HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
   
   evt.put(std::move(HepMCEvt));
   return ;
