@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TUtmTriggerMenuOnline = cms.ESProducer("L1TUtmTriggerMenuOnlineProd",
+L1TGlobalPrescalesVetosObjectKeysOnline = cms.ESProducer("L1TGlobalPrescalesVetosObjectKeysOnlineProd",
     onlineAuthentication = cms.string('.'),
-    forceGeneration = cms.bool(False),
+    subsystemLabel = cms.string('uGTrs'),
     onlineDB = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R')
 )
+
