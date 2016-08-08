@@ -1,30 +1,6 @@
-// Code to unpack the "RPC Data Record"
-
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
-
-// This is the "header" - no EMTFBlockRPC.h file is needed
-namespace l1t {
-  namespace stage2 {
-    namespace emtf {
-      
-      class RPCBlockUnpacker : public Unpacker { // "RPCBlockUnpacker" inherits from "Unpacker"
-      public:
-	virtual int  checkFormat(const Block& block); 
-	// virtual bool checkFormat() override; // Return "false" if block format does not match expected format
-	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
-	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
-      };
-      
-      // class RPCBlockPacker : public Packer { // "RPCBlockPacker" inherits from "Packer"
-      // public:
-      // 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
-      // };
-      
-    }
-  }
-}
+#include "EMTFBlockRPC.h"
 
 namespace l1t {
   namespace stage2 {
@@ -124,5 +100,6 @@ namespace l1t {
   } // End namespace stage2
 } // End namespace l1t
 
-DEFINE_L1T_UNPACKER(l1t::stage2::emtf::RPCBlockUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::emtf::RPCBlockUnpacker);
 // DEFINE_L1T_PACKER(l1t::stage2::RPCBlockPacker);

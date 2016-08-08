@@ -1,29 +1,6 @@
-// Code to unpack the AMC13 trailer, "AMC data trailer", and "Event Record Trailer"
-
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
-
-// This is the "header" - no EMTFBlockTrailers.h file is needed
-namespace l1t {
-  namespace stage2 {
-    namespace emtf {
-      
-      class TrailersBlockUnpacker : public Unpacker { // "TrailersBlockUnpacker" inherits from "Unpacker"
-      public:
-	virtual int  checkFormat(const Block& block);
-	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
-	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
-      };
-      
-      // class TrailersBlockPacker : public Packer { // "TrailersBlockPacker" inherits from "Packer"
-      // public:
-      // 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
-      // };
-      
-    }
-  }
-}
+#include "EMTFBlockTrailers.h"
 
 namespace l1t {
   namespace stage2 {
@@ -200,5 +177,6 @@ namespace l1t {
   } // End namespace stage2
 } // End namespace l1t
 
-DEFINE_L1T_UNPACKER(l1t::stage2::emtf::TrailersBlockUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::emtf::TrailersBlockUnpacker);
 // DEFINE_L1T_PACKER(l1t::stage2::TrailersBlockPacker);

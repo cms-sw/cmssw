@@ -1,23 +1,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "L1TObjectCollections.h"
 
 #include "L1TStage2Layer2Constants.h"
-
-namespace l1t {
-   namespace stage2 {
-      class JetUnpacker : public Unpacker {
-         public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
-}
-
-// Implementation
+#include "JetUnpacker.h"
 
 namespace l1t {
 namespace stage2 {
@@ -84,4 +72,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::JetUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::JetUnpacker);
