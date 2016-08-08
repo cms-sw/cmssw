@@ -158,17 +158,17 @@ def customise_Reco(process,pileup):
           hitErrorRPhi = cms.double(0.0027)
       )
 
-    # Make pixelTracks use quadruplets
-    process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
-        addRemainingTriplets = cms.bool(False),
-        mergeTriplets = cms.bool(True),
-        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
-        )
-    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
-    process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
-    process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+      # Make pixelTracks use quadruplets
+      process.pixelTracks.SeedMergerPSet = cms.PSet(
+          layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
+          addRemainingTriplets = cms.bool(False),
+          mergeTriplets = cms.bool(True),
+          ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+          )
+      process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+      process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
+      process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
+      process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
 
     if not eras.trackingPhase2PU140.isChosen():
       process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")

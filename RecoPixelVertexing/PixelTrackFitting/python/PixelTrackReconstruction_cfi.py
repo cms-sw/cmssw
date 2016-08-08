@@ -55,3 +55,18 @@ eras.trackingPhase1PU70.toModify(PixelTrackReconstructionBlock,
     RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
     OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70,
 )
+eras.trackingPhase2PU140.toModify(PixelTrackReconstructionBlock,
+    SeedMergerPSet = cms.PSet(
+        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
+        addRemainingTriplets = cms.bool(False),
+        mergeTriplets = cms.bool(True),
+        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+    ),
+    FilterPSet = dict(
+        chi2 = 50.0,
+        tipMax = 0.05
+    ),
+    RegionFactoryPSet = dict(RegionPSet = dict(originRadius =  0.02)),
+    OrderedHitsFactoryPSet = _OrderedHitsFactoryPSet_LowPU_Phase1PU70,
+)
+
