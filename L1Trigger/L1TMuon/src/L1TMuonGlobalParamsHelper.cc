@@ -140,7 +140,7 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::TrigSystem& trgSys, const st
   }
 
   // get the settings and masks for the processor id
-  std::map<std::string, l1t::Setting> settings = trgSys.getsettings(procId);
+  std::map<std::string, l1t::Setting> settings = trgSys.getSettings(procId);
   std::map<std::string, l1t::Mask> masks = trgSys.getMasks(procId);
   //for (auto& it: settings) {
   //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", type: " << it.second.getType() << ", id: " << it.second.getId() << ", value as string: [" << it.second.getValueAsStr() << "]" << std::endl;
