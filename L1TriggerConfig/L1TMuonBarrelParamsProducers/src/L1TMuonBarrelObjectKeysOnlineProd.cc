@@ -23,12 +23,11 @@ void L1TMuonBarrelObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey
 
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
 
-    if( !BMTFKey.empty() ) {
-        // simply assign the top level key to the record
-        pL1TriggerKey->add( "L1TMuonBarrelParamsO2ORcd",
-                            "L1TMuonBarrelParams",
-			    BMTFKey) ;
-    }
+    // simply assign the top level key to the record
+    pL1TriggerKey->add( "L1TMuonBarrelParamsO2ORcd",
+                        "L1TMuonBarrelParams",
+                        BMTFKey) ;
+
 }
 
 

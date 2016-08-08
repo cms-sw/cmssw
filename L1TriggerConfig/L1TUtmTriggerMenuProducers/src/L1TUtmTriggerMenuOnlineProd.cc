@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
+
 #include "tmEventSetup/tmEventSetup.hh"
 
 #include "tmEventSetup/esTriggerMenu.hh"
@@ -32,9 +34,10 @@ boost::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(cons
     std::string stage2Schema = "CMS_TRG_L1_CONF" ;
     edm::LogInfo( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Producing L1TUtmTriggerMenu with key =" << objectKey ;
 
-    if (objectKey.empty()) {
-        edm::LogInfo( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Key is empty, returning empty CaloParams";
-        return boost::shared_ptr< L1TUtmTriggerMenu > ( new L1TUtmTriggerMenu() );
+    if( objectKey.empty() ){
+        edm::LogError( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Key is empty, returning empty L1TUtmTriggerMenu object";
+        throw std::runtime_error("Empty objectKey");
+///        return boost::shared_ptr< L1TUtmTriggerMenu > ( new L1TUtmTriggerMenu() );
     }
 
     std::vector< std::string > queryColumns;
@@ -49,8 +52,9 @@ boost::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(cons
                                    ) ;
 
     if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Cannot get UGT_L1_MENU.CONF for ID="<<objectKey ;
-        return boost::shared_ptr< L1TUtmTriggerMenu >() ;
+        edm::LogError( "L1-O2O: L1TUtmTriggerMenuOnlineProd" ) << "Cannot get UGT_L1_MENU.CONF for ID = " << objectKey ;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< L1TUtmTriggerMenu >() ;
     }
 
     std::string l1Menu;
@@ -65,8 +69,6 @@ boost::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(cons
     boost::shared_ptr<L1TUtmTriggerMenu> pMenu ;
     pMenu = boost::shared_ptr< L1TUtmTriggerMenu >(menu);
     return pMenu;
-
-///    return boost::shared_ptr< L1TUtmTriggerMenu > ( new L1TUtmTriggerMenu() );
 }
 
 //define this as a plug-in

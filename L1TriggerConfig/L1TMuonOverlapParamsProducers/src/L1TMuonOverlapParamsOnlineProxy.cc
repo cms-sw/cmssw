@@ -17,7 +17,9 @@ public:
     ~L1TMuonOverlapParamsOnlineProxy(void){}
 };
 
-L1TMuonOverlapParamsOnlineProxy::L1TMuonOverlapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {}
+L1TMuonOverlapParamsOnlineProxy::L1TMuonOverlapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
+    setWhatProduced(this);
+}
 
 boost::shared_ptr<L1TMuonOverlapParams> L1TMuonOverlapParamsOnlineProxy::produce(const L1TMuonOverlapParamsO2ORcd& record) {
 
