@@ -176,13 +176,15 @@ def _setForEra(module, eraName, era, **kwargs):
 def _getSeedingLayers(seedProducers):
     import RecoTracker.IterativeTracking.iterativeTk_cff as _iterativeTk_cff
 
-    def _findDoubletProducer(name):
+    def _findSeedingLayers(name):
         prod = getattr(_iterativeTk_cff, name)
         if hasattr(prod, "triplets"):
-            return _findDoubletProducer(prod.triplets.getModuleLabel())
+            if hasattr(prod, "layerList"): # merger
+                return prod.layerList.refToPSet_.value()
+            return _findSeedingLayers(prod.triplets.getModuleLabel())
         elif hasattr(prod, "doublets"):
-            return _findDoubletProducer(prod.doublets.getModuleLabel())
-        return prod
+            return _findSeedingLayers(prod.doublets.getModuleLabel())
+        return prod.seedingLayers.getModuleLabel()
 
     seedingLayersMerged = []
     for seedName in seedProducers:
@@ -193,8 +195,7 @@ def _getSeedingLayers(seedProducers):
             else:
                 seedingLayersName = seedProd.OrderedHitsFactoryPSet.SeedingLayers.getModuleLabel()
         elif hasattr(seedProd, "seedingHitSets"):
-            doubletProd = _findDoubletProducer(seedProd.seedingHitSets.getModuleLabel())
-            seedingLayersName = doubletProd.seedingLayers.getModuleLabel()
+            seedingLayersName = _findSeedingLayers(seedProd.seedingHitSets.getModuleLabel())
         else:
             continue
 
