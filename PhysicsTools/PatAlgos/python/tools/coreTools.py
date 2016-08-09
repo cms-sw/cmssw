@@ -119,12 +119,13 @@ class RemoveMCMatching(ConfigToolBase):
             #Boosted Taus
             if( names[obj] == 'TausBoosted'      or names[obj] == 'All' ):
                 print "removing MC dependencies for taus boosted %s" %postfix
-                _removeMCMatchingForPATObject(process, 'tauMatchBoosted', 'patTausBoosted', postfix)
-                ## remove mc extra configs for taus
-                tauProducer = getattr(process,'patTausBoosted'+postfix)
-                tauProducer.addGenJetMatch   = False
-                tauProducer.embedGenJetMatch = False
-                tauProducer.genJetMatch      = ''
+                if hasattr(process, 'tauMatchBoosted'+postfix) and hasattr(process, 'patTausBoosted'+postfix) :
+                    _removeMCMatchingForPATObject(process, 'tauMatchBoosted', 'patTausBoosted', postfix)
+                    ## remove mc extra configs for taus
+                    tauProducer = getattr(process,'patTausBoosted'+postfix)
+                    tauProducer.addGenJetMatch   = False
+                    tauProducer.embedGenJetMatch = False
+                    tauProducer.genJetMatch      = ''
             if( names[obj] == 'Jets'      or names[obj] == 'All' ):
                 print "removing MC dependencies for jets"
                 jetPostfixes = []
