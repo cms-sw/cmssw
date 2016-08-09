@@ -127,7 +127,22 @@ def filesFromDASQuery(query,s=None):
 	prim=[]
 	sec=[]
 	print "the query is",query
-	for line in os.popen('das_client.py --query "%s"'%(query)):
+	eC=5
+	count=0
+	while eC!=0 and count<3:
+		if count!=0:
+			print 'Sleeping, then retrying DAS'
+			time.sleep(100)
+		p = Popen('das_client %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+                pipe=p.stdout.read()
+		tupleP = os.waitpid(p.pid, 0)
+		eC=tupleP[1]
+		count=count+1
+	if eC==0:
+		print "DAS succeeded after",count,"attempts",eC
+	else:
+		print "DAS failed 3 times- I give up"
+	for line in pipe.split('\n'):
 		if line.count(".root")>=2:
 			#two files solution...
 			entries=line.replace("\n","").split()
