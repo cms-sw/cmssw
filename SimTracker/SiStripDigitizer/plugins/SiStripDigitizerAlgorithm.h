@@ -63,9 +63,9 @@ class SiStripDigitizerAlgorithm {
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup);
+  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup,std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,CLHEP::HepRandomEngine*);
 
-  void initializeEvent(const edm::EventSetup& iSetup);
+  void initializeEvent(const edm::EventSetup& iSetup,CLHEP::HepRandomEngine* engine);
 
   //run the algorithm to digitize a single det
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
@@ -161,6 +161,8 @@ class SiStripDigitizerAlgorithm {
 
   std::ifstream APVProbaFile;
   std::map < int , float> mapOfAPVprobabilities;
+  std::map < int , std::bitset<6> > SiStripTrackerAffectedAPVMap;
+  int NumberOfBxBetweenHIPandEvent;
 };
 
 #endif
