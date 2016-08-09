@@ -134,8 +134,6 @@ namespace {
     kFatal
   };
 
-// NOTE: if this is changed from SIGRTMAX, then a corresponding adjustment must
-// be made in FWCore/Utilities/src/UnixSignalHandlers.cc disableRTSigs()
 #if defined(SIGRTMAX)
 #define PAUSE_SIGNAL SIGRTMAX
 #elif defined(SIGINFO) // macOS
@@ -405,7 +403,12 @@ namespace {
 
       const auto self = pthread_self();
 #ifdef PAUSE_SIGNAL
-      if (edm::service::InitRootHandlers::stackTracePause() > 0) {
+      if (edm::service::InitRootHandlers::stackTracePause() > 0 && tids.size() > 1) {
+        sigset_t pausesigset;
+        sigemptyset(&pausesigset);
+        sigaddset(&pausesigset,PAUSE_SIGNAL);
+        sigprocmask(SIG_UNBLOCK,&pausesigset,0);
+
         int notified = 0;
         for (auto id : tids) {
           if (self != id) {
