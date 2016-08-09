@@ -13,12 +13,16 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 #include <thread>
 #include <sys/wait.h>
 #include <sstream>
 #include <string.h>
 #include <poll.h>
+#include "tbb/task_scheduler_observer.h"
+#include "tbb/concurrent_unordered_set.h"
 
 // WORKAROUND: At CERN, execv is replaced with a non-async-signal safe
 // version.  This can break our stack trace printer.  Avoid this by
@@ -53,12 +57,30 @@ namespace edm {
       friend int cmssw_stacktrace(void *);
       
     public:
+      class ThreadTracker : public tbb::task_scheduler_observer {
+      public:
+        typedef tbb::concurrent_unordered_set<pthread_t> Container_type;
+
+        ThreadTracker() : tbb::task_scheduler_observer() {
+          observe(true);
+        }
+        void on_scheduler_entry(bool) {
+          threadIDs_.insert(pthread_self());
+        }
+        const Container_type& IDs() { return threadIDs_; }
+      
+      private:
+        Container_type threadIDs_;
+      };
+
       explicit InitRootHandlers(ParameterSet const& pset, ActivityRegistry& iReg);
       virtual ~InitRootHandlers();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void stacktraceFromThread();
-      
+      static const ThreadTracker::Container_type& threadIDs() { return threadTracker_.IDs(); }
+      static int stackTracePause() { return stackTracePause_; }
+
     private:
       static char *const *getPstackArgv();
       virtual void enableWarnings_() override;
@@ -76,6 +98,8 @@ namespace edm {
       static int parentToChild_[2];
       static int childToParent_[2];
       static std::unique_ptr<std::thread> helperThread_;
+      static ThreadTracker threadTracker_;
+      static int stackTracePause_;
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool loadAllDictionaries_;
@@ -84,6 +108,7 @@ namespace edm {
       std::shared_ptr<const void> sigSegvHandler_;
       std::shared_ptr<const void> sigIllHandler_;
       std::shared_ptr<const void> sigTermHandler_;
+      std::shared_ptr<const void> sigPauseHandler_;
     };
     
     inline
@@ -108,7 +133,15 @@ namespace {
     kSysError,
     kFatal
   };
-  
+
+// NOTE: if this is changed from SIGRTMAX, then a corresponding adjustment must
+// be made in FWCore/Utilities/src/UnixSignalHandlers.cc disableRTSigs()
+#if defined(SIGRTMAX)
+#define PAUSE_SIGNAL SIGRTMAX
+#elif defined(SIGINFO) // macOS
+#define PAUSE_SIGNAL SIGINFO
+#endif
+
   static thread_local bool s_ignoreWarnings = false;
 
   static bool s_ignoreEverything = false;
@@ -346,7 +379,50 @@ namespace {
       return full_write(2, text);
     }
 
+    void sig_pause_for_stacktrace(int sig, siginfo_t*, void*) {
+      char buff[128] = "\nModule: ";
+ 
+      if (edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr) {
+        strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), 128);
+        full_cerr_write(buff);
+      }
+
+      struct timespec timeout = { edm::service::InitRootHandlers::stackTracePause(), 0 };
+#if defined(__linux__)
+      sigset_t sigset;
+      sigemptyset(&sigset);
+      sigaddset(&sigset, SIGCONT);
+      sigtimedwait(&sigset, NULL, &timeout);
+#else
+      nanosleep(&timeout); // macOS doesn't have sigtimedwait()
+#endif
+    }
+
     void sig_dostack_then_abort(int sig, siginfo_t*, void*) {
+      char buff[128] = "\nModule: ";
+
+      auto&& tids = edm::service::InitRootHandlers::threadIDs();
+
+      const auto self = pthread_self();
+#ifdef PAUSE_SIGNAL
+      if (edm::service::InitRootHandlers::stackTracePause() > 0) {
+        int notified = 0;
+        for (auto id : tids) {
+          if (self != id) {
+            if (pthread_kill(id, PAUSE_SIGNAL) == 0) ++notified;
+          }
+        }
+      }
+#endif
+
+      // only access current module thread local if this is a CMSSW thread; assumes that any TBB
+      // thread will have access to CMSSW thread locals.
+      if (tids.count(self) > 0 && edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr)
+      {
+        strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), 128);
+        strlcat(buff, " (crashed)", 128);
+        full_cerr_write(buff);
+      }
 
       const char* signalname = "unknown";
       switch (sig) {
@@ -426,6 +502,7 @@ namespace edm {
       int toParent = childToParent_[1];
       int fromParent = parentToChild_[0];
       char buf[2]; buf[1] = '\0';
+
       while(true)
       {
         int result = full_read(fromParent, buf, 1);
@@ -555,6 +632,8 @@ namespace edm {
     int InitRootHandlers::parentToChild_[2] = {-1, -1};
     int InitRootHandlers::childToParent_[2] = {-1, -1};
     std::unique_ptr<std::thread> InitRootHandlers::helperThread_;
+    InitRootHandlers::ThreadTracker InitRootHandlers::threadTracker_;
+    int InitRootHandlers::stackTracePause_ = 300;
 
     InitRootHandlers::InitRootHandlers (ParameterSet const& pset, ActivityRegistry& iReg)
       : RootHandlers(),
@@ -563,6 +642,7 @@ namespace edm {
         loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
         autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool> ("AutoLibraryLoader"))
     {
+      stackTracePause_ = pset.getUntrackedParameter<int> ("StackTracePauseTime");
       
       if(unloadSigHandler_) {
       // Deactivate all the Root signal handlers and restore the system defaults
@@ -600,6 +680,16 @@ namespace edm {
         sigTermHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
           installCustomHandler(SIGTERM,sig_abort);
         });
+#ifdef PAUSE_SIGNAL
+        if (stackTracePause_ > 0) {
+          installCustomHandler(PAUSE_SIGNAL,sig_pause_for_stacktrace);
+          sigPauseHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+            signal(PAUSE_SIGNAL,SIG_IGN); // signal() with SIG_IGN is portable
+          });
+        } else {
+          signal(PAUSE_SIGNAL,SIG_IGN);
+        }
+#endif
         iReg.watchPostForkReacquireResources(this, &InitRootHandlers::cachePidInfoHandler);
       }
 
@@ -674,9 +764,11 @@ namespace edm {
       desc.addUntracked<bool>("LoadAllDictionaries",false)
           ->setComment("If True, loads all ROOT dictionaries.");
       desc.addUntracked<bool>("AbortOnSignal",true)
-      ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
+          ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
       desc.addUntracked<int>("DebugLevel",0)
- 	  ->setComment("Sets ROOT's gDebug value.");
+          ->setComment("Sets ROOT's gDebug value.");
+      desc.addUntracked<int>("StackTracePauseTime", 300)
+          ->setComment("Seconds to pause other threads during stack trace.");
       descriptions.add("InitRootHandlers", desc);
     }
 

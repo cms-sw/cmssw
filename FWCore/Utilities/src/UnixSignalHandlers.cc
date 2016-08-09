@@ -54,6 +54,12 @@ namespace edm {
       memset(&tmpact,0,sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
 
+      // NOTE: the omission of SIGRTMAX ('<', not '<=') is (now) intentional.
+      // SIGRTMAX is used by the stack trace "pause" functionality in
+      // FWCore/Services/plugins/InitRootHandlers.cc
+      // This mask will need to be updated if the signal used there is changed.
+      // If real time signals are adopted for other purposes, this could be
+      // modified to include a more general-purpose allocator for RT signals.
       for(int num = SIGRTMIN; num < SIGRTMAX; ++num) {
 	  MUST_BE_ZERO(sigaddset(&myset,num));
 	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
