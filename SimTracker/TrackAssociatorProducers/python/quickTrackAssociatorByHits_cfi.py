@@ -7,6 +7,7 @@ quickTrackAssociatorByHits = cms.EDProducer("QuickTrackAssociatorByHitsProducer"
 	Quality_SimToReco = cms.double(0.5),
 	Purity_SimToReco = cms.double(0.75),
 	ThreeHitTracksAreSpecial = cms.bool(True),
+        PixelHitWeight = cms.double(1.0),
 	associatePixel = cms.bool(True),
 	associateStrip = cms.bool(True),
         pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
