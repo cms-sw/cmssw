@@ -114,7 +114,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
 	  GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
 	  LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
 				  << pSetup->inTesla(stripdet->surface().position());
-	  theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, stripdet, bfield, tTopo, engine);
+	  theDigiAlgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, stripdet, bfield, tTopo, theAffectedAPVvector, engine);
 	}
       }
     } // end of loop over sim hits
@@ -204,7 +204,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
       if(changes) { // Replace with ESWatcher
         detectorUnits.insert(std::make_pair(detId, stripdet));
       }
-      theDigiAlgo->initializeDetUnit(stripdet, iSetup,theAffectedAPVvector,randomEngine(iEvent.streamID()));
+      theDigiAlgo->initializeDetUnit(stripdet, iSetup,randomEngine(iEvent.streamID()));
     }
   }
 }

@@ -77,7 +77,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 }
 
 void
-SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup,std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,CLHEP::HepRandomEngine* engine){
+SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup,CLHEP::HepRandomEngine* engine){
   edm::ESHandle<SiStripBadStrip> deadChannelHandle;
   iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
 
@@ -95,10 +95,11 @@ SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const
   }
   firstChannelsWithSignal[detId] = numStrips;
   lastChannelsWithSignal[detId]= 0;
-  if(APVSaturationFromHIP){
-    std::bitset<6> &bs=SiStripTrackerAffectedAPVMap[detId];
-    if(bs.any())theAffectedAPVvector.push_back(std::make_pair(detId,bs));
-  }
+
+  //  if(APVSaturationFromHIP){
+  //  std::bitset<6> &bs=SiStripTrackerAffectedAPVMap[detId];
+  //  if(bs.any())theAffectedAPVvector.push_back(std::make_pair(detId,bs));
+  //}
 }
 
 void
@@ -106,18 +107,26 @@ SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup,CLHEP::
   theSiPileUpSignals->reset();
   // This should be clear by after all calls to digitize(), but I might as well make sure
   associationInfoForDetId_.clear();
+
+
   if(APVSaturationFromHIP){
     SiStripTrackerAffectedAPVMap.clear();
     for(std::map<int,float>::iterator iter = mapOfAPVprobabilities.begin(); iter != mapOfAPVprobabilities.end(); ++iter)
     {
       std::bitset<6> bs;
-      float cursor=CLHEP::RandFlat::shoot(engine);
+      // This can't happen here.  APV probability needs to scale with luminosity by event, info only available later
+      //float cursor=CLHEP::RandFlat::shoot(engine);
+      //for(int Napv=0;Napv<6;Napv++){
+      //  bs[Napv]=cursor < iter->second*APVSaturationProbScaling ? 1:0;
+      //}
+      // just create map instead
       for(int Napv=0;Napv<6;Napv++){
-        bs[Napv]=cursor < iter->second*APVSaturationProbScaling ? 1:0;
+        bs[Napv]=0;
       }
       SiStripTrackerAffectedAPVMap[iter->first]=bs;
     }
 
+    // not sure why we only get one BX per event?
     NumberOfBxBetweenHIPandEvent=1e3;
     bool HasAtleastOneAffectedAPV=false;
     while(!HasAtleastOneAffectedAPV){
@@ -130,6 +139,7 @@ SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup,CLHEP::
       }
     }
   }
+
   //get gain noise pedestal lorentzAngle from ES handle
   edm::ESHandle<ParticleDataTable> pdt;
   iSetup.getData(pdt);
@@ -148,6 +158,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
                                              const StripGeomDetUnit* det,
                                              const GlobalVector& bfield,
 					     const TrackerTopology *tTopo,
+					     std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,
                                              CLHEP::HepRandomEngine* engine) {
   // produce SignalPoints for all SimHits in detector
   unsigned int detID = det->geographicalId().rawId();
@@ -182,7 +193,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
         size_t localLastChannel  = 0;
         // process the hit
         theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel, tTopo, engine);
-    
+
         if(thisFirstChannelWithSignal > localFirstChannel) thisFirstChannelWithSignal = localFirstChannel;
         if(thisLastChannelWithSignal < localLastChannel) thisLastChannelWithSignal = localLastChannel;
 
@@ -212,6 +223,15 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
     } // end for
   }
   theSiPileUpSignals->add(detID, locAmpl, thisFirstChannelWithSignal, thisLastChannelWithSignal);
+
+
+  if(APVSaturationFromHIP){
+    std::bitset<6> &bs=SiStripTrackerAffectedAPVMap[detId];
+    if(bs.any())theAffectedAPVvector.push_back(std::make_pair(detId,bs));
+  }
+
+
+
 
   if(firstChannelsWithSignal[detID] > thisFirstChannelWithSignal) firstChannelsWithSignal[detID] = thisFirstChannelWithSignal;
   if(lastChannelsWithSignal[detID] < thisLastChannelWithSignal) lastChannelsWithSignal[detID] = thisLastChannelWithSignal;
@@ -250,17 +270,20 @@ SiStripDigitizerAlgorithm::digitize(
     //The impact on the charge depends on the clostest HIP occurance (in terms of bunch crossing).
     //The function discribing the APV recovery is therefore the weighted average function which takes into account all possibilities of HIP occurances across the last bx's.
 
-    float Shift=1-NumberOfBxBetweenHIPandEvent/floor(300.0/25.0); //Reminder: make these numbers not hardcoded!! 
-    float randomX=CLHEP::RandFlat::shoot(engine);
-    // Here below is the scaling function which describes the evolution of the baseline (i.e. how the charge is suppressed).
-    // This must be replaced as soon as we have a proper modeling of the baseline evolution from VR runs
-    float scalingValue=(randomX-Shift)*10.0/7.0-3.0/7.0;
     std::bitset<6> & bs=SiStripTrackerAffectedAPVMap[detID];
 
-    for(int strip =0; strip < numStrips; ++strip) {
-          if(!badChannels[strip] &&  bs[strip/128]==1){
-            detAmpl[strip] *=scalingValue>0?scalingValue:0.0;
-          }
+    if(bs.any()){
+      // Here below is the scaling function which describes the evolution of the baseline (i.e. how the charge is suppressed).
+      // This must be replaced as soon as we have a proper modeling of the baseline evolution from VR runs
+      float Shift=1-NumberOfBxBetweenHIPandEvent/floor(300.0/25.0); //Reminder: make these numbers not hardcoded!! 
+      float randomX=CLHEP::RandFlat::shoot(engine);
+      float scalingValue=(randomX-Shift)*10.0/7.0-3.0/7.0;
+
+      for(int strip =0; strip < numStrips; ++strip) {
+	if(!badChannels[strip] &&  bs[strip/128]==1){
+	  detAmpl[strip] *=scalingValue>0?scalingValue:0.0;
+	}
+      }
     }
   }
 
