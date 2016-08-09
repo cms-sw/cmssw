@@ -23,7 +23,7 @@ CmsTrackerPixelPhase2EndcapBuilder::buildComponent( DDFilteredView& fv, Geometri
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
   std::string subdet_name = subdet->name();
-  std::cout << "Sono In EndCapBuilder: string " <<  ExtractStringFromDDD::getString( s, &fv ) << " subdet " << subdet_name << std::endl;
+  //  std::cout << "Sono In EndCapBuilder: string " <<  ExtractStringFromDDD::getString( s, &fv ) << " subdet " << subdet_name << std::endl;
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::PixelPhase2FullDisk:    
@@ -56,7 +56,7 @@ CmsTrackerPixelPhase2EndcapBuilder::sortNS( DDFilteredView& fv, GeometricDet* de
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {
-    std::cout << "Phase2DiskBuilder: z " << comp[i]->translation().z() << std::endl;
+    //    std::cout << "Phase2DiskBuilder: z " << comp[i]->translation().z() << std::endl;
     det->component(i)->setGeographicalID(i+1); // Every subdetector: Inner pixel first, OT later, then sort by disk number
   }
 }
