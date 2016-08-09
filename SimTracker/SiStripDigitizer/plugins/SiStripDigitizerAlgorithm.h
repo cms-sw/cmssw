@@ -63,7 +63,7 @@ class SiStripDigitizerAlgorithm {
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup,std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,CLHEP::HepRandomEngine*);
+  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup, CLHEP::HepRandomEngine*);
 
   void initializeEvent(const edm::EventSetup& iSetup,CLHEP::HepRandomEngine* engine);
 
@@ -75,6 +75,7 @@ class SiStripDigitizerAlgorithm {
                          const StripGeomDetUnit *stripdet,
                          const GlobalVector& bfield,
 			 const TrackerTopology *tTopo,
+			 std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,
                          CLHEP::HepRandomEngine*);
 
   void digitize(
