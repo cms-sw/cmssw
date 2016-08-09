@@ -34,7 +34,7 @@ class GetLumi
 
   static constexpr double INELASTIC_XSEC_7TeV  = 68.0; // mb
   static constexpr double INELASTIC_XSEC_8TeV  = 69.3; // mb
-  static constexpr double INELASTIC_XSEC_13TeV = 71.3; // mb from http://inspirehep.net/record/1447965/files/FSQ-15-005-pas.pdf
+  static constexpr double INELASTIC_XSEC_13TeV = 71.0; // mb
 
   // from http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.h
   // Using all pixel clusters:
