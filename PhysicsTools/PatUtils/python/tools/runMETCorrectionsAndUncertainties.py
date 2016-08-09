@@ -57,7 +57,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 # the file is used only for local running
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', '',
                           "Extra JES uncertainty file", Type=str)
-        self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'Uncertainty',
+        self.addParameter(self._defaultParameters, 'jecUncertaintyTag', None,
                           "JES uncertainty Tag", Type=str)
         
         self.addParameter(self._defaultParameters, 'mvaMetLeptons',["Electrons","Muons"],
@@ -271,8 +271,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #prepare jet configuration
         jetUncInfos = { "jCorrPayload":jetFlavor, "jCorLabelUpToL3":jetCorLabelUpToL3,
                         "jCorLabelL3Res":jetCorLabelL3Res, "jecUncFile":jecUncertaintyFile,
-                        "jecUncTag":jecUncertaintyTag }        
+                        "jecUncTag":"Uncertainty" }     
 
+        if (jecUncertaintyFile!="" and jecUncertaintyTag==None):
+            jetUncInfos[ "jecUncTag" ] = ""
+        else:
+            jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
+            
         patMetModuleSequence = cms.Sequence()
 
         # recompute the MET (and thus the jets as well for correction) from scratch
