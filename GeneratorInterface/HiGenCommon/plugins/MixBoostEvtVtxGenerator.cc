@@ -122,6 +122,13 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
   useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 { 
   beta_  =  pset.getParameter<double>("Beta");
+  alpha_ = 0;
+  phi_ = 0;
+  if(pset.exists("Alpha")){
+     alpha_ =  pset.getParameter<double>("Alpha")*radian;
+     phi_   =  pset.getParameter<double>("Phi")*radian;
+  }
+
   vtxOffset.resize(3);
   if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset"); 
 
@@ -237,12 +244,10 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
        tmpboostZ(3,2)=0.;
        tmpboostZ(3,3) = 1.;
 
-       tmpboostXYZ=tmpboost*tmpboostZ;
-       tmpboost.Invert();
-
+       tmpboostXYZ=tmpboostZ*tmpboost;
+       tmpboostXYZ.Invert();
 
        cout<<"Boosting with beta : "<<beta_<<endl;
-
 
        boost_ = new TMatrixD(tmpboostXYZ);
        boost_->Print();
