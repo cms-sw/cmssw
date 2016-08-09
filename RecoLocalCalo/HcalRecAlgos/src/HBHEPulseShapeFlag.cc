@@ -1,6 +1,4 @@
 //---------------------------------------------------------------------------
-#include <string>
-#include <vector>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -8,42 +6,16 @@
 
 //---------------------------------------------------------------------------
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEPulseShapeFlag.h"
-#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
-//---------------------------------------------------------------------------
-HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter()
-{
-   //
-   // Argumentless constructor; should not be used
-   // 
-   // If arguments not properly specified for the constructor, I don't think
-   // we'd trust the flagging algorithm.
-   // Set the minimum charge threshold large enough so that nothing will be flagged.
-   // 
-   // Along the same lines, set upper thresholds to -99999999.
-   //
 
-   mMinimumChargeThreshold     = 99999999;
-   mTS4TS5ChargeThreshold      = 99999999;
-   mTS3TS4UpperChargeThreshold = -99999999;
-   mTS5TS6UpperChargeThreshold = -99999999;
-   mTS3TS4ChargeThreshold      = 99999999;
-   mTS5TS6ChargeThreshold      = 99999999;
-   mR45PlusOneRange            = 0;
-   mR45MinusOneRange           = 0;
-
-}
 //---------------------------------------------------------------------------
-HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold,
+HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(
+   double MinimumChargeThreshold,
    double TS4TS5ChargeThreshold,
    double TS3TS4ChargeThreshold,
    double TS3TS4UpperChargeThreshold,
@@ -67,7 +39,8 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
    const std::vector<double>& TS4TS5UpperThreshold,
    const std::vector<double>& TS4TS5UpperCut,
    bool UseDualFit, 
-   bool TriangleIgnoreSlow)
+   bool TriangleIgnoreSlow,
+   bool setLegacyFlags)
 {
    //
    // The constructor that should be used
@@ -86,6 +59,7 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
    mR45MinusOneRange           = R45MinusOneRange;
    mTrianglePeakTS             = TrianglePeakTS;
    mTriangleIgnoreSlow         = TriangleIgnoreSlow;
+   mSetLegacyFlags             = setLegacyFlags;
 
    for(std::vector<double>::size_type i = 0; i < LinearThreshold.size() && i < LinearCut.size(); i++)
       mLambdaLinearCut.push_back(std::pair<double, double>(LinearThreshold[i], LinearCut[i]));
@@ -128,126 +102,6 @@ HBHEPulseShapeFlagSetter::~HBHEPulseShapeFlagSetter()
 void HBHEPulseShapeFlagSetter::Clear()
 {
    // Dummy function in case something needs to be cleaned....but none right now
-}
-//---------------------------------------------------------------------------
-void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe, 
-   const HBHEDataFrame &digi,
-   const HcalCoder &coder, 
-   const HcalCalibrations &calib)
-{
-   //
-   // Decide if a digi/pulse is good or bad using fit-based discriminants
-   //
-   // SetPulseShapeFlags determines the total charge in the digi.
-   // If the charge is above the minimum threshold, the code then
-   // runs the flag-setting algorithms to determine whether the
-   // flags should be set.
-   //
-
-   // hack to exclude ieta=28/29 for the moment... 
-   int abseta = hbhe.id().ietaAbs();
-   if(abseta == 28 || abseta == 29)  return;
-
-   CaloSamples Tool;
-   coder.adc2fC(digi, Tool);
-
-   //   mCharge.clear();  // mCharge is a vector of (pedestal-subtracted) Charge values vs. time slice
-   mCharge.resize(digi.size());
-
-   double TotalCharge = 0;
-
-   for(int i = 0; i < digi.size(); ++i)
-   {
-      mCharge[i] = Tool[i] - calib.pedestal(digi.sample(i).capid());
-      TotalCharge += mCharge[i];
-   }
-
-   // No flagging if TotalCharge is less than threshold
-   if(TotalCharge < mMinimumChargeThreshold)
-      return;
-
-   double NominalChi2 = 0; 
-   if (mUseDualFit == true)
-     NominalChi2=PerformDualNominalFit(mCharge); 
-   else
-     NominalChi2=PerformNominalFit(mCharge);
-
-   double LinearChi2 = PerformLinearFit(mCharge);
-
-   double RMS8Max = CalculateRMS8Max(mCharge);
-   TriangleFitResult TriangleResult = PerformTriangleFit(mCharge);
-
-   // Set the HBHEFlatNoise and HBHESpikeNoise flags
-   if(CheckPassFilter(TotalCharge, log(LinearChi2) - log(NominalChi2), mLambdaLinearCut, -1) == false)
-      hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEFlatNoise);
-   if(CheckPassFilter(TotalCharge, log(RMS8Max) * 2 - log(NominalChi2), mLambdaRMS8MaxCut, -1) == false)
-      hbhe.setFlagField(1, HcalCaloFlagLabels::HBHESpikeNoise);
-
-   // Set the HBHETriangleNoise flag
-   if ((int)mCharge.size() >= mTrianglePeakTS)  // can't compute flag if peak TS isn't present; revise this at some point?
-   {
-     // initial values
-     double TS4Left = 1000;
-     double TS4Right = 1000;
- 
-     // Use 'if' statements to protect against slopes that are either 0 or very small
-     if (TriangleResult.LeftSlope > 1e-5)
-       TS4Left = mCharge[mTrianglePeakTS] / TriangleResult.LeftSlope;
-     if (TriangleResult.RightSlope < -1e-5)
-       TS4Right = mCharge[mTrianglePeakTS] / -TriangleResult.RightSlope;
-     
-     if(TS4Left > 1000 || TS4Left < -1000)
-       TS4Left = 1000;
-     if(TS4Right > 1000 || TS4Right < -1000)
-       TS4Right = 1000;
-     
-     if(mTriangleIgnoreSlow == false)   // the slow-rising and slow-dropping edges won't be useful in 50ns/75ns
-       {
-         if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Left, mLeftSlopeCut, 1) == false)
-	   hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
-         else if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Right, mRightSlopeCut, 1) == false)
-	   hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
-       }
-     
-     // fast-dropping ones should be checked in any case
-     if(CheckPassFilter(mCharge[mTrianglePeakTS], TS4Right, mRightSlopeSmallCut, -1) == false)
-       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETriangleNoise);
-   }
-
-   if(mCharge[4] + mCharge[5] > mTS4TS5ChargeThreshold && mTS4TS5ChargeThreshold>0) // silly protection against negative charge values
-   {
-      double TS4TS5 = (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]);
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false)
-         hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false)
-         hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
-      
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false            && // TS4TS5 is above envelope
-         mCharge[3] + mCharge[4] > mTS3TS4ChargeThreshold       &&       mTS3TS4ChargeThreshold>0 && // enough charge in 34
-         mCharge[5] + mCharge[6] < mTS5TS6UpperChargeThreshold  &&  mTS5TS6UpperChargeThreshold>0 && // low charge in 56
-      	 fabs( (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]) - 1.0 ) < mR45PlusOneRange    ) // R45 is around +1
-   	{
-           double TS3TS4 = (mCharge[3] - mCharge[4]) / (mCharge[3] + mCharge[4]);
-           if(CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
-	      CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
-	      TS3TS4>(mR45MinusOneRange-1)                                                   ) // horizontal cut on R34 (R34>-0.8)
-	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS3TS4.
-   	}
-
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false            && // TS4TS5 is below envelope
-         mCharge[3] + mCharge[4] < mTS3TS4UpperChargeThreshold  &&  mTS3TS4UpperChargeThreshold>0  && // low charge in 34
-         mCharge[5] + mCharge[6] > mTS5TS6ChargeThreshold       &&       mTS5TS6ChargeThreshold>0  && // enough charge in 56
-         fabs( (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]) + 1.0 ) < mR45MinusOneRange    ) // R45 is around -1
-        {
-           double TS5TS6 = (mCharge[5] - mCharge[6]) / (mCharge[5] + mCharge[6]);
-           if(CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
-	      CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
-	      TS5TS6<(1-mR45PlusOneRange)                                                    ) // horizontal cut on R56 (R56<+0.8)
-	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS5TS6.
-        }
-        
-   }
-
 }
 //---------------------------------------------------------------------------
 void HBHEPulseShapeFlagSetter::Initialize()
