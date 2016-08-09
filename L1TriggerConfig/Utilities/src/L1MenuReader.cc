@@ -9,8 +9,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/CondDB/interface/Session.h"
@@ -28,28 +28,29 @@ public:
 
 void L1MenuReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
-    edm::ESHandle<L1GtTriggerMenu> handle1;
-    evSetup.get<L1GtTriggerMenuRcd>().get( handle1 ) ;
-    boost::shared_ptr<L1GtTriggerMenu> ptr1(new L1GtTriggerMenu(*(handle1.product ())));
+    edm::ESHandle<L1TUtmTriggerMenu> handle1;
+    evSetup.get<L1TUtmTriggerMenuRcd>().get( handle1 ) ;
+    boost::shared_ptr<L1TUtmTriggerMenu> ptr1(new L1TUtmTriggerMenu(*(handle1.product ())));
 
-    cout<<"L1GtTriggerMenu: "<<endl;
-    cout<<" name: "<<ptr1->gtTriggerMenuName()<<endl;
-    cout<<" iface: "<<ptr1->gtTriggerMenuInterface()<<endl;
-    cout<<" implem: "<<ptr1->gtTriggerMenuImplementation()<<endl;
-    cout<<" db_key: "<<ptr1->gtScaleDbKey()<<endl;
+    cout<<"L1TUtmTriggerMenu: "<<endl;
+    cout<<" name: "<<ptr1->getName()<<endl;
+    cout<<" version: "<<ptr1->getVersion()<<endl;
+    cout<<" date/time: "<<ptr1->getDatetime()<<endl;
+    cout<<" UUID: "<<ptr1->getFirmwareUuid()<<endl;
+    cout<<" Scales: "<<ptr1->getScaleSetName()<<endl;
+    cout<<" modules: "<<ptr1->getNmodules()<<endl;
 
-    cout<<" L1GtTriggerMenu: "<<endl;
-    const std::vector<std::vector<L1GtMuonTemplate> >& muons = ptr1->vecMuonTemplate();
-    int i=0, j=0;
-    for(auto vec : muons){
-        cout<<"  ["<<i<<"]"<<endl;
-        i++;
-        for(auto temp : vec){
-            cout<<"   ["<<j<<"]";
-            temp.print(cout);
-            j++;
-        }
-    }
+    cout<<" Algorithms["<<ptr1->getAlgorithmMap().size()<<"]: "<<endl;
+    for(auto a : ptr1->getAlgorithmMap() )
+        cout<<"  "<<a.first<<endl;
+
+    cout<<" Conditions["<<ptr1->getConditionMap().size()<<"]: "<<endl;
+    for(auto a : ptr1->getConditionMap() )
+        cout<<"  "<<a.first<<endl;
+
+    cout<<" Conditions["<<ptr1->getScaleMap().size()<<"]: "<<endl;
+    for(auto a : ptr1->getScaleMap() )
+        cout<<"  "<<a.first<<endl;
 
 }
 
@@ -58,3 +59,4 @@ void L1MenuReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSe
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 DEFINE_FWK_MODULE(L1MenuReader);
+
