@@ -71,14 +71,16 @@ class WriterProxyT : public WriterProxy
 		throw cond::Exception( "DataWriter: PoolDBOutputService not available."
 				       ) ;
 	      }
+            poolDb->forceInit();  
 	    cond::persistency::Session session = poolDb->session();
 	    cond::persistency::TransactionScope tr(session.transaction());
 	    // if throw transaction will unroll
-	    tr.start(false);
+///	    tr.start(false);
 
-	    auto pointer = std::make_shared<Type>(*(handle.product ()));
+            std::shared_ptr<Type> pointer = std::make_shared<Type>(*(handle.product ()));
 	    std::string payloadToken =  session.storePayload( *pointer );
-	    tr.commit();
+///	    tr.commit();
+            tr.close();
 	    return payloadToken ;
         }
 };
