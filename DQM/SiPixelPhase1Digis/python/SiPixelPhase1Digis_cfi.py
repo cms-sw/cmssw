@@ -33,9 +33,9 @@ SiPixelPhase1DigisNdigis = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
-  name = "digis",  # This is the same as above up to the ranges. maybe we 
-  title = "Digis", # should allow setting the range per spec, but OTOH a 
-  xlabel = "digis",# HistogramManager is almost free.
+  name = "feddigis", # This is the same as above up to the ranges. maybe we 
+  title = "Digis",   # should allow setting the range per spec, but OTOH a 
+  xlabel = "digis",  # HistogramManager is almost free.
   range_min = 0,
   range_max = 1000,
   range_nbins = 200,
@@ -45,6 +45,12 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone(
                    .reduce("COUNT")
                    .groupBy("FED")
                    .groupBy("", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection/FED")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk/Lumisection", "EXTEND_Y")
+                   .groupBy("PXBarrel|PXForward/PXLayer|PXDisk", "EXTEND_X")
+                   .custom("ratio_to_average")
                    .save()
   )
 )
@@ -115,7 +121,7 @@ SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
+SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1DigisHarvester",
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )
