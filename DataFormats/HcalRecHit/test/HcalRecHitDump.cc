@@ -80,7 +80,6 @@ namespace cms {
     uint32_t allbits[4];
     const string marker(prefix ? prefix : "");
     typename std::vector<edm::Handle<COLL> >::const_iterator i;
-    cout << "New event (" << handles.size() << " handles)" << endl;
     bool dbit;
     int ibit;
     for (i=handles.begin(); i!=handles.end(); i++) {  // loop over rechit collections
@@ -108,13 +107,15 @@ namespace cms {
   }
 
   void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
-    
-    std::vector<edm::Handle<HBHERecHitCollection> > handles0;
-    getHBHERecHitCollection_.fillHandles(e, handles0);    
+    cout << "New event, ";
+    vector<edm::Handle<HBHERecHitCollection> > handles0;
+    getHBHERecHitCollection_.fillHandles(e, handles0);
+    cout << "dumping " << handles0.size() << " HBHE handles:" << endl;
     analyzeT<HBHERecHitCollection>(handles0, "HB/HE", hbhePrefix_.c_str()); 
 
     std::vector<edm::Handle<HFRecHitCollection> > handles1;
-    getHFRecHitCollection_.fillHandles(e, handles1);    
+    getHFRecHitCollection_.fillHandles(e, handles1);
+    cout << "dumping " << handles0.size() << " HF handles:" << endl;
     analyzeT<HFRecHitCollection>(handles1, "HF", hfPrefix_.c_str());
     //analyzeT<HORecHitCollection>(e, "HO", hoPrefix_.c_str());
     //analyzeT<HcalCalibRecHitCollection>(e);

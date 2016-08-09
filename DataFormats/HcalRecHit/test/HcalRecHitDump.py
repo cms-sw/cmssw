@@ -10,7 +10,7 @@ ifname="file:/afs/cern.ch/user/h/halil/public/HCALUpgradeSW/step3_old.root"
 process = cms.Process("HCALDump")
 
 process.maxEvents = cms.untracked.PSet(
-            input = cms.untracked.int32 (1)
+            input = cms.untracked.int32 (2)
 
 )
 
