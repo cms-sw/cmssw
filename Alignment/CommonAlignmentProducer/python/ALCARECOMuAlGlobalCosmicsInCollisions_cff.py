@@ -44,26 +44,7 @@ ALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks = Alignment.CommonAlignmentPr
     applyNHighestPt = cms.bool(True), ## select only 3 highest pT tracks
     nHighestPt = cms.int32(3),
 )
-# AlCaReco selected Combinatorial Track Finder tracks for track based muon alignment
-# (same cuts)
-ALCARECOMuAlGlobalCosmicsInCollisionsCombinatorialTF = ALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks.clone(
-    src = 'ctfWithMaterialTracksP5',
-)
-# AlCaReco selected Cosmic Track Finder tracks for track based muon alignment
-# (same cuts)
-ALCARECOMuAlGlobalCosmicsInCollisionsCosmicTF = ALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks.clone(
-    src = 'cosmictrackfinderP5'
-)
-# AlCaReco selected Regional Cosmic Tracking tracks for track based muon alignment
-# (same cuts)
-ALCARECOMuAlGlobalCosmicsInCollisionsRegionalTF = ALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks.clone(
-    src = 'regionalCosmicTracks'
-)
 
 #________________________________Sequences____________________________________
 seqALCARECOMuAlGlobalCosmicsInCollisions = cms.Sequence(ALCARECOMuAlGlobalCosmicsInCollisionsHLT + ALCARECOMuAlGlobalCosmicsInCollisionsDCSFilter + ALCARECOMuAlGlobalCosmicsInCollisions)
-
 seqALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks   = cms.Sequence(ALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks)
-seqALCARECOMuAlGlobalCosmicsInCollisionsCombinatorialTF = cms.Sequence(ALCARECOMuAlGlobalCosmicsInCollisionsCombinatorialTF)
-seqALCARECOMuAlGlobalCosmicsInCollisionsCosmicTF        = cms.Sequence(ALCARECOMuAlGlobalCosmicsInCollisionsCosmicTF)
-seqALCARECOMuAlGlobalCosmicsInCollisionsRegionalTF      = cms.Sequence(ALCARECOMuAlGlobalCosmicsInCollisionsRegionalTF)

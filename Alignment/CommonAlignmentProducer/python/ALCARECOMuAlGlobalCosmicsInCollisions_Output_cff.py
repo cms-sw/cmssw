@@ -8,9 +8,6 @@ OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring(
 	'keep *_ALCARECOMuAlGlobalCosmicsInCollisions_*_*',
 	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsGeneralTracks_*_*', # selected general tracks
-	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsCombinatorialTF_*_*',
-	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsCosmicTF_*_*',
-	'keep *_ALCARECOMuAlGlobalCosmicsInCollisionsRegionalTF_*_*',
 	'keep *_muonCSCDigis_*_*',
 	'keep *_muonDTDigis_*_*',
 	'keep *_muonRPCDigis_*_*',
