@@ -34,7 +34,7 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPConstruction.h"
 
 #include <TMatrixD.h>
