@@ -216,8 +216,9 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	
     if(deadpix) {
 	   fypix = BYM3; lypix = -1;
-       for(i=0; i<nclusy; ++i) {
-	      ysum[i] = 0.f; nyzero[i] = 0;
+	memset(nyzero, 0, TYSIZE * sizeof(int));
+        memset(ysum, 0, BYSIZE * sizeof(float));
+	for(i=0; i<nclusy; ++i) {	   
 // Do preliminary cluster projection in y
 	      for(j=0; j<nclusx; ++j) {
 		     ysum[i] += cluster(j,i);
