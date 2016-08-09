@@ -49,6 +49,11 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   gemPadDigiProducer_ = conf.existsAs<edm::InputTag>("GEMPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMPadDigiProducer"):edm::InputTag("");
   rpcDigiProducer_ = conf.existsAs<edm::InputTag>("RPCDigiProducer")?conf.getParameter<edm::InputTag>("RPCDigiProducer"):edm::InputTag("");
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
+
+  const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
+  runME11ILT_ = commonParam.existsAs<bool>("runME11ILT")?commonParam.getParameter<bool>("runME11ILT"):false;
+  runME21ILT_ = commonParam.existsAs<bool>("runME21ILT")?commonParam.getParameter<bool>("runME21ILT"):false;
+
   lctBuilder_.reset( new CSCTriggerPrimitivesBuilder(conf) ); // pass on the conf
   
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
@@ -62,7 +67,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTPreTriggerCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
-  produces<GEMCoPadDigiCollection>();
+  if (runME11ILT_ or runME21ILT_)
+    produces<GEMCoPadDigiCollection>();
   usesResource("CSCTriggerGeometry");
   consumes<CSCComparatorDigiCollection>(compDigiProducer_);
   consumes<CSCWireDigiCollection>(wireDigiProducer_);
@@ -194,5 +200,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.put(std::move(oc_pretrig));
   ev.put(std::move(oc_lct));
   ev.put(std::move(oc_sorted_lct),"MPCSORTED");
-  ev.put(std::move(oc_gemcopad));
+  if (runME11ILT_ or runME21ILT_)
+    ev.put(std::move(oc_gemcopad));
 }
