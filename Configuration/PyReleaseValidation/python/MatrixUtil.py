@@ -119,10 +119,10 @@ class InputInfo(object):
 
             # do  if you have LS queries
             # command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
-            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
+            command = ";".join(["das_client %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
             command = "({0})".format(command)
         else:
-            command = "das_client.py %s --query '%s'" % (das_options, self.queries()[0])
+            command = "das_client %s --query '%s'" % (das_options, self.queries()[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
