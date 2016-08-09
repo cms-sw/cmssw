@@ -14,7 +14,7 @@ template< >
 void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   /// Prepare output
-  std::auto_ptr< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > );
+  std::unique_ptr< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > );
   std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > > rawHits;
   this->RetrieveRawHits( rawHits, iEvent );
 
@@ -76,7 +76,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
     } /// End of loop over detector elements     
   
   /// Put output in the event   
-  iEvent.put( TTClusterDSVForOutput, "ClusterInclusive" );
+  iEvent.put( std::move(TTClusterDSVForOutput), "ClusterInclusive" );
 }
 
 /// Retrieve hits from the event
