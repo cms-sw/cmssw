@@ -20,12 +20,18 @@ process.source = cms.Source("PoolSource",
  )
 )
 
-process.hitDumper = cms.EDAnalyzer("HcalRecHitDump",
-                                   flagsb = cms.untracked.vint32( 21,31,30,29,28,27,26,25,24,23,22,21,20,-1, 0 ), # -1 prints a separator 
-                                   auxb = cms.untracked.vint32( 1, -1, 5 ),
-                                   auxHBHEb = cms.untracked.vint32( 1, -1, 5 ),
-                                   auxPhase1b = cms.untracked.vint32( 1, -1, 5 )
-                                   )
+# Add the indices of the bits you want printed out to the "bits" list below.
+# Bits are printed in the same order as they appear on the list.
+# Bit indices range from 0 to 127. What's printed is:
+# flags - aux - auxHBHE - auxPhase1 (32 bits each)
+# ^127^96   ^64       ^32         ^0
+# A -1 for bit index prints a separator
+# When dumping non-HBHE rechits, HBHE specific bits are printed as 0
 
+process.hitDumper = cms.EDAnalyzer("HcalRecHitDump",
+                                   # hbhePrefix=cms.untracked.string("!hbhe!"),
+                                   # hfPrefix=cms.untracked.string("!hf!"),
+                                   bits = cms.untracked.vint32(127,96,-1,95,64,-1,63,32,-1,31,0 )
+                                   )
 
 process.p = cms.Path(process.hitDumper)

@@ -18,11 +18,27 @@
 
 using namespace std;
 
+template<typename T>
+void getauxb( T & j, uint32_t allbits[4]){
+    allbits[0] = 0;
+    allbits[1] = 0;
+    //std::cout << std::endl << " [not HBHE type] " << std::bitset<32>(allbits[3]) << " " << std::bitset<32>(allbits[2]) << endl;
+}
+
+template<>
+void getauxb( edm::SortedCollection<HBHERecHit>::const_iterator & j, uint32_t allbits[4]){
+    allbits[0] = j->auxPhase1();
+    allbits[1] = j->auxHBHE();
+    //std::cout << std::endl << " [HBHE type] " << std::bitset<32>(allbits[3]) << " " << std::bitset<32>(allbits[2]) << " " << std::bitset<32>(allbits[1]) << " " << std::bitset<32>(allbits[0]) << endl;
+}
+
+
 namespace cms {
 
   /** \class HcalRecHitDump
       
   \author J. Mans - Minnesota
+  Heavily modified by Halil Gamsizkan (Anadolu U.)
   */
   class HcalRecHitDump : public edm::EDAnalyzer
   {
@@ -39,10 +55,7 @@ namespace cms {
     string hbhePrefix_;
     string hoPrefix_;
     string hfPrefix_;
-    std::vector<int> flagsb_;
-    std::vector<int> auxb_;
-    std::vector<int> auxHBHEb_;
-    std::vector<int> auxPhase1b_;
+    std::vector<int> bits_;
   };
 
   HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf) :
@@ -52,10 +65,7 @@ namespace cms {
     hbhePrefix_(conf.getUntrackedParameter<string>("hbhePrefix", "")),
     hoPrefix_(conf.getUntrackedParameter<string>("hoPrefix", "")),
     hfPrefix_(conf.getUntrackedParameter<string>("hfPrefix", "")),
-    flagsb_ ( conf.getUntrackedParameter<std::vector<int>>( "flagsb" )) ,
-    auxb_ ( conf.getUntrackedParameter<std::vector<int>>( "auxb" )) ,
-    auxHBHEb_ ( conf.getUntrackedParameter<std::vector<int>>( "auxHBHEb" )) ,
-    auxPhase1b_ ( conf.getUntrackedParameter<std::vector<int>>( "auxPhase1b" )) 
+    bits_ ( conf.getUntrackedParameter<std::vector<int>>( "bits" )) 
   {
     callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
        getHcalSourcePositionData_(bd);
@@ -63,70 +73,38 @@ namespace cms {
        getHFRecHitCollection_(bd);
     });
   }
-
+  
   template<typename COLL>
   void HcalRecHitDump::analyzeT(typename std::vector<edm::Handle<COLL> > const& handles , const char* name, const char* prefix)
   {
-    //bool printAllBits = true;
+    uint32_t allbits[4];
     const string marker(prefix ? prefix : "");
-//    try {
-      //vector<edm::Handle<COLL> > handles;
-      //e.getManyByType(colls);
-      typename std::vector<edm::Handle<COLL> >::const_iterator i;
-      cout << "New event (" << handles.size() << " handles)" << endl;
-      bool dbit; 
-      for (i=handles.begin(); i!=handles.end(); i++) {
+    typename std::vector<edm::Handle<COLL> >::const_iterator i;
+    cout << "New event (" << handles.size() << " handles)" << endl;
+    bool dbit;
+    int ibit;
+    for (i=handles.begin(); i!=handles.end(); i++) {  // loop over rechit collections
         for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++){ // loop over rechits
-          cout << marker << *j
-               << "; flagsb: ";
-          //cout << std::bitset<32>(j->flags()) << "; ";
-          if (flagsb_.size()>0) cout << "; flag bits: ";
-          for (std::vector<int>::iterator it = flagsb_.begin() ; it != flagsb_.end(); ++it)
-              if (*it == -1){ // print separator
-                cout << '-';
-              } else {
-                dbit=(j->flags() & ( 1 << *it )) >> *it;
-                cout << dbit;
-              }
-          if (auxb_.size()>0) cout << "; aux bits: ";
-          for (std::vector<int>::iterator it = auxb_.begin() ; it != auxb_.end(); ++it)
-              if (*it == -1){ // print separator
-                cout << '-';
-              } else {
-                dbit=(j->aux() & ( 1 << *it )) >> *it;
-                cout << dbit;
-              }
-          //cout << endl;
-          if(j->id().subdet() == HcalBarrel || j->id().subdet() == HcalEndcap){
-              if (auxHBHEb_.size()>0) cout << "; aux bits: ";
-              for (std::vector<int>::iterator it = auxHBHEb_.begin() ; it != auxHBHEb_.end(); ++it)
-                if (*it == -1){ // print separator
-                  cout << '-';
-                } else {
-                  dbit=(j->auxHBHE() & ( 1 << *it )) >> *it;
-                  cout << dbit;
-                }
-          }else if(j->id().subdet() == HcalForward){
-            ;
-          }
-
-          if (auxPhase1b_.size()>0) cout << "; aux_phase1 bits: ";
-              for (std::vector<int>::iterator it = auxPhase1b_.begin() ; it != auxPhase1b_.end(); ++it)
-                if (*it == -1){ // print separator
-                  cout << '-';
-                } else {
-                  dbit=(j->auxPhase1() & ( 1 << *it )) >> *it;
-                  cout << dbit;
-                }
-          
-          cout << endl;
-          throw;
-
+            cout << marker << *j << "; ";
+            allbits[0]=0;  // auxPhase1
+            allbits[1]=0;  //auxhbhe
+            allbits[2]=j->aux();
+            allbits[3]=j->flags();
+         
+            getauxb< typename COLL::const_iterator >(j, allbits);            
+            if (bits_.size()>0) cout << "bits: ";
+            for (std::vector<int>::iterator it = bits_.begin() ; it != bits_.end(); ++it){
+                ibit=*it % 32;
+                if (*it != -1){ // print the bit
+                    dbit=(allbits[*it / 32] & ( 1 << ibit )) >> ibit;
+                    cout << dbit;
+                } else { // print the seperator
+                    cout << '-';
+                };
+            }
+            cout << endl;
         }
-      }
-//    } catch (...) {
-//      if(name) cout << "No " << name << " RecHits." << endl;
-//    }
+    }
   }
 
   void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
