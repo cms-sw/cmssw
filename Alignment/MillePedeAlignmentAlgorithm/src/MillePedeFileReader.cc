@@ -67,10 +67,6 @@ void MillePedeFileReader
         iss >> trash >> trash >> Nrec;
 
         if (Nrec < 25000) {
-          PedeSuccess = false;
-          Movements   = false;
-          Error       = false;
-          Significant = false;
           updateDB   = false;
         }
       }
@@ -79,10 +75,6 @@ void MillePedeFileReader
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede log-file.";
 
-    PedeSuccess = false;
-    Movements   = false;
-    Error       = false;
-    Significant = false;
     updateDB   = false;
     Nrec = 0;
   }
@@ -112,7 +104,6 @@ void MillePedeFileReader
       }
 
       if (tokens.size() > 4 /*3*/) {
-        PedeSuccess = true;
 
         int alignable      = std::stoi(tokens[0]);
         int alignableIndex = alignable % 10 - 1;
@@ -159,29 +150,18 @@ void MillePedeFileReader
         }
 
 	if (std::abs(ObsMove) > maxMoveCut_) {
-          Movements   = false;
-          Error       = false;
-          Significant = false;
           updateDB    = false;
-          HitMax      = false;
           break;
 
         } else if (std::abs(ObsMove) > Cutoffs[alignableIndex]) {
-
-          Movements = true;
+	  
 	  if (std::abs(ObsErr) > maxErrorCut_) {
-            Error       = false;
-            Significant = false;
             updateDB    = false;
-            HitErrorMax = true;
             break;
           } else {
-            Error = true;
-	    if (std::abs(ObsMove/ObsErr) > sigCut_) {
-              Significant = true;
-            } else {
+  	    if (std::abs(ObsMove/ObsErr) < sigCut_) {
 	      continue;
-	    } 
+            } 
           }
 	  updateDB = true;
         }
@@ -190,10 +170,6 @@ void MillePedeFileReader
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede result-file.";
 
-    PedeSuccess = false;
-    Movements   = false;
-    Error       = false;
-    Significant = false;
     updateDB   = false;
     Nrec = 0;
   }

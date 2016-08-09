@@ -60,17 +60,8 @@ class MillePedeFileReader {
     double Cutoffs[6] = {  Xcut_,  Ycut_,  Zcut_,
                           tXcut_, tYcut_, tZcut_};
 
-    bool PedeSuccess = false;
-    bool Movements   = false;
-    bool Error       = false;
-    bool Significant = false;
     bool updateDB    = false;
-    bool HitMax      = false;
-    bool HitErrorMax = false;
-
     int Nrec = 0;
-
-
 
     std::array<double, 6> Xobs     = {{0.,0.,0.,0.,0.,0.}};
     std::array<double, 6> XobsErr  = {{0.,0.,0.,0.,0.,0.}};
