@@ -241,8 +241,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     process, 
                     btagInfo+labelName+postfix, 
                     btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(
-                        trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix), 
-                        extSVCollection=svSource
+                        trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix)
                         )
                     )
                 if svClustering or fatJets != cms.InputTag(''):
@@ -252,8 +251,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     process, 
                     btagInfo+labelName+postfix, 
                     btag.pfInclusiveSecondaryVertexFinderCvsBTagInfos.clone(
-                        trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix), 
-                        extSVCollection=svSource
+                        trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix)
                         )
                     )
                 if svClustering or fatJets != cms.InputTag(''):
@@ -263,8 +261,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     process,
                     btagInfo+labelName+postfix,
                     btag.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.clone(
-                        trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix),
-                        extSVCollection=svSource
+                        trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix)
                         )
                     )
                  if svClustering or fatJets != cms.InputTag(''):
@@ -325,12 +322,24 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     patJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x+labelName+postfix) for x in acceptedBtagDiscriminators ] )
     if len(acceptedBtagDiscriminators) > 0 :
         patJets.addBTagInfo = True
+    ## check if and under what conditions to re-run IVF
+    runIVFforCTagOnly = False
+    ivfcTagInfos = ['pfInclusiveSecondaryVertexFinderCvsLTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos']
+    if pfCandidates.getModuleLabel() == 'packedPFCandidates' and (i for i in ivfcTagInfos if i in acceptedTagInfos) and not runIVF:
+        runIVFforCTagOnly = True
+        runIVF = True
+        print "-------------------------------------------------------------------"
+        print " Info: To run c tagging on MiniAOD, c-tag-specific IVF secondary"
+        print "       vertices need to be remade."
+        print "-------------------------------------------------------------------"
+    ## if re-running IVF
     if runIVF:
         if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
             rerunningIVFMiniAOD()
         else:
             rerunningIVF()
-        if (i for i in ['pfInclusiveSecondaryVertexFinderTagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos'] if i in acceptedTagInfos):
+        ivfbTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos']
+        if (i for i in ivfbTagInfos if i in acceptedTagInfos) and not runIVFforCTagOnly:
             if not hasattr( process, 'inclusiveCandidateVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
             ## MiniAOD case
@@ -346,6 +355,20 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
                 if hasattr( process, 'inclusiveCandidateSecondaryVertices' ) and not hasattr( process, svSource.getModuleLabel() ):
                     setattr(process, svSource.getModuleLabel(), getattr(process, 'inclusiveCandidateSecondaryVertices').clone() )
+        if (i for i in ivfcTagInfos if i in acceptedTagInfos):
+            if not hasattr( process, 'inclusiveCandidateVertexingCvsL' ):
+                process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            ## MiniAOD case
+            if pfCandidates.getModuleLabel() == 'packedPFCandidates':
+                if hasattr( process, 'inclusiveCandidateVertexFinderCvsL' ):
+                    _temp = getattr(process, 'inclusiveCandidateVertexFinderCvsL')
+                    _temp.primaryVertices = pvSource
+                    _temp.tracks = pfCandidates
+                if hasattr( process, 'candidateVertexArbitratorCvsL' ):
+                    _temp = getattr(process, 'candidateVertexArbitratorCvsL')
+                    _temp.primaryVertices = pvSource
+                    _temp.tracks = pfCandidates
+                    _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
         if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
