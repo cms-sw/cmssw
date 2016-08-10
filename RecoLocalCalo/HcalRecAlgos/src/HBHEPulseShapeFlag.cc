@@ -517,7 +517,7 @@ double HBHEPulseShapeFlagSetter::CalculateRMS8Max(const std::vector<double> &Cha
    if(RMS8Max < 1e-5)   // protection against zero
       RMS8Max = 1e-5;
 
-   return RMS / TempCharge[DigiSize-1];
+   return RMS8Max;
 }
 //---------------------------------------------------------------------------
 double HBHEPulseShapeFlagSetter::PerformLinearFit(const std::vector<double> &Charge)
