@@ -148,6 +148,24 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig','vtxPx','vtxPy','vtxPz','vtxPosX','vtxPosY','vtxPosZ')
     process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos"))
     process.patJets.addTagInfos = cms.bool(True)
+
+    ## HIP mitigation for b tagging
+    ## (this will run below-specified taggers with the HIP mitigation enabled
+    ## and will update 'selectedPatJets' by attaching to them extra b-tag discriminators
+    ## which will be stored with the 'hip' prefix added to the usual discriminator names)
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    updateJetCollection(
+        process,
+        jetSource = cms.InputTag('selectedPatJets'),
+        jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
+        btagDiscriminators = ["pfJetBProbabilityBJetTags", "pfJetProbabilityBJetTags",
+                              "pfCombinedSecondaryVertexV2BJetTags", "pfCombinedInclusiveSecondaryVertexV2BJetTags",
+                              "softPFMuonBJetTags", "softPFElectronBJetTags", "pfCombinedMVAV2BJetTags"],
+        runIVF = True,
+        hipMitigation = True,
+        btagPrefix = 'hip',
+        postfix = 'HIP' # added to avoid problem with unrunnable schedule
+    )
     #
     ## PU JetID
     process.load("RecoJets.JetProducers.PileupJetID_cfi")
