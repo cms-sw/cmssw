@@ -18,6 +18,7 @@ def applySubstructure( process ) :
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
     process.selectedPatJetsAK8.cut = cms.string("pt > 170")
 
+
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
@@ -49,22 +50,23 @@ def applySubstructure( process ) :
                      jetSource = cms.InputTag('ak8PFJetsPuppi'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+                     btagDiscriminators = ([x.getModuleLabel() for x in patJetsDefault.discriminatorSources] + ['pfBoostedDoubleSecondaryVertexAK8BJetTags']),
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     process.patJetsAK8Puppi.userData.userFloats.src = [] # start with empty list of user floats
     process.selectedPatJetsAK8Puppi.cut = cms.string("pt > 170")
 
 
-    ## from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
-    ## process.ak8PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
-    ##     j2tParametersVX,
-    ##     jets = cms.InputTag("ak8PFJetsPuppi")
-    ## )
-    ## process.patJetAK8PuppiCharge = cms.EDProducer("JetChargeProducer",
-    ##     src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
-    ##     var = cms.string('Pt'),
-    ##     exp = cms.double(1.0)
-    ## )
+    from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
+    process.ak8PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+        j2tParametersVX,
+        jets = cms.InputTag("ak8PFJetsPuppi")
+    )
+    process.patJetAK8PuppiCharge = cms.EDProducer("JetChargeProducer",
+        src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
+        var = cms.string('Pt'),
+        exp = cms.double(1.0)
+    )
 
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsPuppiSoftDrop
@@ -125,7 +127,7 @@ def applySubstructure( process ) :
     
 
     
-    ## PATify pruned fat jets
+    ## PATify CHS soft drop fat jets
     addJetCollection(
         process,
         labelName = 'AK8PFCHSSoftDrop',
