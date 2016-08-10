@@ -15,6 +15,9 @@ private:
     bool printPUSParams;
     bool printTauCalibLUT;
     bool printJetCalibLUT;
+    bool printJetCalibPar;
+    bool printEgCalibLUT;
+    bool printEgIsoLUT;
 
     std::string hash(void *buf, size_t len) const ;
 
@@ -25,6 +28,9 @@ public:
        printPUSParams   = pset.getUntrackedParameter<bool>("printPUSParams",  false);
        printTauCalibLUT = pset.getUntrackedParameter<bool>("printTauCalibLUT",false);
        printJetCalibLUT = pset.getUntrackedParameter<bool>("printJetCalibLUT",false);
+       printJetCalibPar = pset.getUntrackedParameter<bool>("printJetCalibParams",false);
+       printEgCalibLUT  = pset.getUntrackedParameter<bool>("printEgCalibLUT", false);
+       printEgIsoLUT    = pset.getUntrackedParameter<bool>("printEgIsoLUT",   false);
     }
 
     virtual ~L1TCaloParamsViewer(void){}
@@ -85,7 +91,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<"  regionLsb=       "<<ptr1->regionLsb()<<endl;
     cout<<"  regionPUSType=   "<<ptr1->regionPUSType()<<endl;
     cout<<"  regionPUSParams= ["<<ptr1->regionPUSParams().size()<<"] ";
-    double pusParams[ptr1->regionPUSParams().size()];
+    float pusParams[ptr1->regionPUSParams().size()];
 
     for(unsigned int i=0; i<ptr1->regionPUSParams().size(); i++){
         pusParams[i] = ceil(2*ptr1->regionPUSParams()[i]);
@@ -93,7 +99,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     if( ptr1->regionPUSParams().size() )
-        cout << hash(pusParams, sizeof(double)*ptr1->regionPUSParams().size()) << endl;
+        cout << hash(pusParams, sizeof(float)*ptr1->regionPUSParams().size()) << endl;
     else cout<<endl;
 
 
@@ -156,6 +162,9 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
         int egIsolation[ptr1->egIsolationLUT()->maxSize()];
         for(unsigned int i=0; i<ptr1->egIsolationLUT()->maxSize(); i++) egIsolation[i] = ptr1->egIsolationLUT()->data(i);
         cout << hash( egIsolation, sizeof(int)*ptr1->egIsolationLUT()->maxSize() ) << endl;
+        if( printEgIsoLUT )
+            for(unsigned int i=0; i<ptr1->egIsolationLUT()->maxSize(); i++)
+            cout<<i<<" " << egIsolation[i]<<endl;
     } else {
         cout<<"  egIsoLUT=               [0]"<<endl;
     }
@@ -164,11 +173,11 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<"  egIsoAreaNrTowersPhi=   "<<ptr1->egIsoAreaNrTowersPhi()<<endl;
     cout<<"  egIsoVetoNrTowersPhi=   "<<ptr1->egIsoVetoNrTowersPhi()<<endl;
     cout<<"  egPUSParams=            ["<<ptr1->egPUSParams().size()<<"] "<<flush;
-    double egPUSParams[ptr1->egPUSParams().size()];
+    float egPUSParams[ptr1->egPUSParams().size()];
     for(unsigned int i=0; i<ptr1->egPUSParams().size(); i++) egPUSParams[i] = ptr1->egPUSParams()[i];
 
     if( ptr1->egPUSParams().size() )
-       cout << hash( egPUSParams, sizeof(double)*ptr1->egPUSParams().size() ) << endl;
+       cout << hash( egPUSParams, sizeof(float)*ptr1->egPUSParams().size() ) << endl;
     else cout<<endl;
 
     cout<<"  egCalibrationType=      "<<ptr1->egCalibrationType()<<endl;
@@ -178,6 +187,9 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
         int egCalibration[ptr1->egCalibrationLUT()->maxSize()];
         for(unsigned int i=0; i<ptr1->egCalibrationLUT()->maxSize(); i++) egCalibration[i] = ptr1->egCalibrationLUT()->data(i);
         cout << hash( egCalibration, sizeof(int)*ptr1->egCalibrationLUT()->maxSize() ) << endl;
+        if( printEgCalibLUT )
+            for(unsigned int i=0; i<ptr1->egCalibrationLUT()->maxSize(); i++)
+            cout<<i<<" " << egCalibration[i]<<endl;
     } else {
         cout<<"  egCalibrationLUT=       [0]"<<endl;
     }
@@ -231,11 +243,11 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<"  isoTauEtaMin=           "<<ptr1->isoTauEtaMin()<<endl;
     cout<<"  isoTauEtaMax=           "<<ptr1->isoTauEtaMax()<<endl;
     cout<<"  tauPUSParams=           ["<<ptr1->tauPUSParams().size()<<"] "<<flush;
-    double tauPUSParams[ptr1->tauPUSParams().size()];
+    float tauPUSParams[ptr1->tauPUSParams().size()];
     for(unsigned int i=0; i<ptr1->tauPUSParams().size(); i++) tauPUSParams[i] = ptr1->tauPUSParams()[i];
 
     if( ptr1->tauPUSParams().size() )
-        cout << hash( tauPUSParams, sizeof(double)*ptr1->tauPUSParams().size()  ) << endl;
+        cout << hash( tauPUSParams, sizeof(float)*ptr1->tauPUSParams().size()  ) << endl;
     else cout<<endl;
 
     cout<<endl<<" Jets: "<<endl;
@@ -245,12 +257,16 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<"  jetPUSType=             "<<ptr1->jetPUSType()<<endl;
     cout<<"  jetCalibrationType=     "<<ptr1->jetCalibrationType()<<endl;
     cout<<"  jetCalibrationParams=   ["<<ptr1->jetCalibrationParams().size()<<"] "<<flush;
-    double jetCalibrationParams[ptr1->jetCalibrationParams().size()];
+    float jetCalibrationParams[ptr1->jetCalibrationParams().size()]; // deliberately drop double precision
     for(unsigned int i=0; i<ptr1->jetCalibrationParams().size(); i++) jetCalibrationParams[i] = ptr1->jetCalibrationParams()[i];
 
-    if( ptr1->jetCalibrationParams().size() )
-        cout << hash( jetCalibrationParams, sizeof(double)*ptr1->jetCalibrationParams().size() ) << endl;
-    else cout<<endl;
+    if( ptr1->jetCalibrationParams().size() ){
+        cout << hash( jetCalibrationParams, sizeof(float)*ptr1->jetCalibrationParams().size() ) << endl;
+        if( printJetCalibPar )
+            for(unsigned int i=0; i<ptr1->jetCalibrationParams().size(); i++)
+                cout<<i<<" " << std::setprecision(14) << jetCalibrationParams[i]<<endl;
+
+    } else cout<<endl;
 
     if( !ptr1->jetCalibrationLUT()->empty() ){
         cout<<"  jetCalibrationLUT=      ["<<ptr1->jetCalibrationLUT()->maxSize()<<"] "<<flush;
@@ -290,21 +306,21 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<endl<<" Layer1: "<<endl;
     std::vector<double> ecalSF = ptr1->layer1ECalScaleFactors();
     cout<<"  layer1ECalScaleFactors= ["<< ecalSF.size()<<"] "<<flush;
-    double _ecalSF[ ecalSF.size() ];
+    float _ecalSF[ ecalSF.size() ];
     for(unsigned int i=0; i<ecalSF.size(); i++) _ecalSF[i] =  ecalSF[i];
-    cout << hash( _ecalSF , sizeof(double)*ecalSF.size() ) << endl;
+    cout << hash( _ecalSF , sizeof(float)*ecalSF.size() ) << endl;
     //for(unsigned int i=0; i<ecalSF.size(); i++) cout<<(i==0?"":",")<<ecalSF[i]; cout<<"]"<<endl;
     std::vector<double> hcalSF = ptr1->layer1HCalScaleFactors();
     cout<<"  layer1HCalScaleFactors= ["<< hcalSF.size()<<"] "<<flush;
-    double _hcalSF[ hcalSF.size() ];
+    float _hcalSF[ hcalSF.size() ];
     for(unsigned int i=0; i<hcalSF.size(); i++) _hcalSF[i] =  hcalSF[i];
-    cout << hash( _hcalSF, sizeof(double)*hcalSF.size() ) << endl;
+    cout << hash( _hcalSF, sizeof(float)*hcalSF.size() ) << endl;
     //for(unsigned int i=0; i<hcalSF.size(); i++) cout<<(i==0?"":",")<<hcalSF[i]; cout<<"]"<<endl;
     std::vector<double> hfSF   = ptr1->layer1HFScaleFactors();
     cout<<"  layer1HFScaleFactors=   ["<< hfSF.size()<<"] "<<flush;
-    double _hfSF[ hfSF.size() ];
+    float _hfSF[ hfSF.size() ];
     for(unsigned int i=0; i<hfSF.size(); i++) _hfSF[i] =  hfSF[i];
-    cout << hash(  _hfSF, sizeof(double)*hfSF.size() ) << endl;
+    cout << hash(  _hfSF, sizeof(float)*hfSF.size() ) << endl;
     //for(unsigned int i=0; i<hfSF.size(); i++) cout<<(i==0?"":",")<<hfSF[i]; cout<<"]"<<endl;
 
     std::vector<int>    ecalScaleET = ptr1->layer1ECalScaleETBins();
