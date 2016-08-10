@@ -6,7 +6,7 @@
 // Class:           GlobalPixelSeedGenerator
 // 
 // Description:     Calls RoadSeachSeedFinderAlgorithm
-//                  to find TrackingSeeds.
+//                  to find TrajectorySeeds.
 
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
