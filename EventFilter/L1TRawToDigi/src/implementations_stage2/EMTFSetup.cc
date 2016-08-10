@@ -7,8 +7,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/EMTFCollections.h"
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/EMTFTokens.h"
+#include "EMTFCollections.h"
+#include "EMTFTokens.h"
 
 namespace l1t {
   namespace stage2 {

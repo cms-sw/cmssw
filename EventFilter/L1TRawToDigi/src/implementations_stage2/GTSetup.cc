@@ -5,8 +5,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/GTCollections.h"
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/GTTokens.h"
+#include "GTCollections.h"
+#include "GTTokens.h"
 
 namespace l1t {
    namespace stage2 {

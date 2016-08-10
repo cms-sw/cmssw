@@ -5,8 +5,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/CaloCollections.h"
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/CaloTokens.h"
+#include "CaloCollections.h"
+#include "CaloTokens.h"
 
 namespace l1t {
    namespace stage2 {

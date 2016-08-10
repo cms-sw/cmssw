@@ -6,8 +6,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/GMTCollections.h"
-#include "EventFilter/L1TRawToDigi/src/implementations_stage2/GMTTokens.h"
+#include "GMTCollections.h"
+#include "GMTTokens.h"
 
 namespace l1t {
    namespace stage2 {
