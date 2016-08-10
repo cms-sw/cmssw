@@ -58,7 +58,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', '',
                           "Extra JES uncertainty file", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', None,
-                          "JES uncertainty Tag", Type=str)
+                          "JES uncertainty Tag", acceptNoneValue=True) # Type=str,
         
         self.addParameter(self._defaultParameters, 'mvaMetLeptons',["Electrons","Muons"],
                           "Leptons to be used for recoil computation in the MVA MET, available values are: Electrons, Muons, Taus, Photons", allowedValues=["Electrons","Muons","Taus","Photons",""])
@@ -275,7 +275,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if (jecUncertaintyFile!="" and jecUncertaintyTag==None):
             jetUncInfos[ "jecUncTag" ] = ""
-        else:
+        elif(jecUncertaintyTag!=None):
             jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
             
         patMetModuleSequence = cms.Sequence()
@@ -418,7 +418,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
             
         if postfix != "" and metType == "PF" and not hasattr(process, 'pat'+metType+'Met'+postfix):
-            noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
+            noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ] if "Puppi" not in postfix else []
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp)
             setattr(process, 'pat'+metType+'Met'+postfix, getattr(process,'patPFMet' ).clone() )
             getattr(process, "patPFMet"+postfix).metSource = cms.InputTag("pfMet"+postfix)
@@ -477,7 +477,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             }
 
         if postfix != "":
-            noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
+            noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ] if "Puppi" not in postfix else []
             if not hasattr(process, "patPFMetT0CorrSequence"+postfix):
                 configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrSequence"), postfix, noClones = noClonesTmp)
             if not hasattr(process, "patPFMetT1T2CorrSequence"+postfix):
@@ -546,6 +546,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "corrPfMetType1"+postfix).offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector")
             getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector")
         
+        if "T1" in correctionLevel and 'Puppi' in postfix:  
+            setattr(process, "corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone() )
+            getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
+            getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
+            getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFPuppiL1FastL2L3ResidualCorrector")
+            getattr(process, "corrPfMetType1"+postfix).offsetCorrLabel = cms.InputTag("ak4PFPuppiL1FastjetCorrector")
+            getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFPuppiL1FastjetCorrector")
+
         if "T1" in correctionLevel and self._parameters["CHS"].value and self._parameters["reclusterJets"].value:
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJetsCHS"+postfix)
 
@@ -1208,7 +1216,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def recomputeRawMetFromPfcs(self, process, pfCandCollection, onMiniAOD, patMetModuleSequence,  postfix):
-        
         #RECO MET
         if not hasattr(process, "pfMet"+postfix) and self._parameters["metType"].value == "PF":
             #common to AOD/mAOD processing
@@ -1224,7 +1231,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix)
                   
             #T1 pfMet for AOD to mAOD only
-            if not onMiniAOD:
+            if not onMiniAOD or "Puppi" in postfix:
                 #correction duplication needed
                 getattr(process, "pfMetT1"+postfix).src = cms.InputTag("pfMet"+postfix)
                 patMetModuleSequence += getattr(process, "pfMetT1"+postfix)
@@ -1261,7 +1268,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             levels = ['L1FastJet', 
                       'L2Relative', 
                       'L3Absolute'],
-            payload = 'AK4PFchs' ) # always CHS from miniAODs
+            payload = 'AK4PFchs' if "Puppi" not in postfix else 'AK4PFPuppi' ) # always CHS from miniAODs, except for puppi
         
         if self._parameters["runOnData"].value:
             patJetCorrFactorsReapplyJEC.levels.append("L2L3Residual")
@@ -1335,7 +1342,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if not hasattr(process, "pfCHS"+postfix):
                 setattr(process,"pfCHS"+postfix,pfCHS)
             pfCandColl = cms.InputTag("pfCHS"+postfix)
-            
+                   
 
         jetColName+=postfix
         if not hasattr(process, jetColName):
@@ -1343,10 +1350,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             
             #if chs:
             setattr(process, jetColName, getattr(process,"ak4PFJets").clone() )
-
             getattr(process, jetColName).src = pfCandColl 
             getattr(process, jetColName).doAreaFastjet = True
             
+            #puppi
+            #if "Puppi" in postfix:
+            #    getattr(process, jetColName).doAreaFastjet = cms.bool(True)
+            #    getattr(process, jetColName).src = cms.InputTag("puppiNoLep")
+
             patMetModuleSequence += getattr(process, jetColName)
 
             corLevels=['L1FastJet', 'L2Relative', 'L3Absolute']
@@ -1369,8 +1380,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             
             getattr(process,"patJetCorrFactors"+postfix).src=cms.InputTag(jetColName)
             getattr(process,"patJetCorrFactors"+postfix).primaryVertices= cms.InputTag("offlineSlimmedPrimaryVertices")
+            if "Puppi" in postfix:
+                getattr(process,"patJetCorrFactors"+postfix).payload=cms.string('AK4PFPuppi')
 
-         
         return cms.InputTag("patJets"+postfix)
         
 
