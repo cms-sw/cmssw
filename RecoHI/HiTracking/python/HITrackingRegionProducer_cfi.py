@@ -88,3 +88,15 @@ HiTrackingRegionFactoryFromSTAMuonsBlock = cms.PSet(
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollection = cms.InputTag("hiSelectedVertex")
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex = cms.bool(True)
 HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Rescale_Dz = cms.double(5.0)
+
+# for new-style seeding
+from RecoHI.HiMuonAlgos.HiTrackingRegionEDProducer_cfi import HiTrackingRegionEDProducer as _HiTrackingRegionEDProducer
+HiTrackingRegionFactoryFromSTAMuonsEDProducer = _HiTrackingRegionEDProducer.clone(
+    MuonSrc = "standAloneMuons:UpdatedAtVtx",
+    MuonTrackingRegionBuilder = MuonTrackingRegionCommon.MuonTrackingRegionBuilder.clone(
+        vertexCollection = "hiSelectedVertex",
+        UseVertex = True,
+        Rescale_Dz = 5.0,
+    ),
+    ServiceParameters = MuonServiceProxy.ServiceParameters,
+)
