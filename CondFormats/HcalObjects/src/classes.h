@@ -27,7 +27,10 @@ namespace CondFormats_HcalObjects {
 
     HcalQIETypes myqietype();
     std::vector<HcalQIEType> myqietypevec;
- 
+
+    HcalSiPMParameters mySiPMParameter();
+    std::vector<HcalSiPMParameter> mySiPMParametervec;
+
     HcalElectronicsMap mymap;
     std::vector<HcalElectronicsMap::PrecisionItem> mymap2;
     std::vector<HcalElectronicsMap::TriggerItem> mymap3;
@@ -85,6 +88,9 @@ namespace CondFormats_HcalObjects {
  
     HcalFrontEndMap myfmap1;
     std::vector<HcalFrontEndMap::PrecisionItem> myfmap2;
+ 
+    HcalSiPMCharacteristics mySiPMCharacteristics;
+    std::vector<HcalSiPMCharacteristics::PrecisionItem> mySiPMCharacteristicvec;
 
     // OOT pileup correction objects
     std::map<std::string, AbsOOTPileupCorrection*> myInnerMap;

@@ -196,6 +196,8 @@
 #include "CondFormats/HcalObjects/interface/HcalQIETypes.h" 
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"

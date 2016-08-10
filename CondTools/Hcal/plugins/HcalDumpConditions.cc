@@ -163,7 +163,12 @@ namespace edmtest
       dumpIt(new HcalMCParams(&(*topology)), new HcalMCParamsRcd, e,context,"MCParams", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FlagHFDigiTimeParams")) != mDumpRequest.end())
       dumpIt(new HcalFlagHFDigiTimeParams(&(*topology)), new HcalFlagHFDigiTimeParamsRcd, e,context,"FlagHFDigiTimeParams", topo);
-
+    /*
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMParameters")) != mDumpRequest.end())
+      dumpIt(new HcalSiPMParameters(&(*topology)), new HcalSiPMParametersRcd, e,context,"SiPMParameters", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMCharacteristics")) != mDumpRequest.end())
+      dumpIt(new HcalSiPMCharacteristics, new HcalSiPMCharacteristicsRcd, e,context,"SiPMCharacteristics");
+    */
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

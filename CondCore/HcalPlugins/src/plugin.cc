@@ -70,3 +70,5 @@ REGISTER_PLUGIN(HcalOOTPileupCompatibilityRcd,OOTPileupCorrectionBuffer);
 REGISTER_PLUGIN(HcalOOTPileupCorrectionMapCollRcd,OOTPileupCorrectionMapColl);
 REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd,HcalInterpolatedPulseColl);
 REGISTER_PLUGIN(HBHENegativeEFilterRcd,HBHENegativeEFilter);
+REGISTER_PLUGIN(HcalSiPMParametersRcd,HcalSiPMParameters);
+REGISTER_PLUGIN(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics);

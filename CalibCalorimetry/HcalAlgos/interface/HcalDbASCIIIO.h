@@ -36,6 +36,10 @@ Text file formats for different data types is as following:
   line# Ring Slice Subchannel Type Subdetector Eta Phi Depth
 - HcalFrontEndMap:
   eta(int)  phi(int) depth(int) det(HB,HE,HF) RM# RBX#
+- HcalSiPMParameters:
+ eta phi depth det fcByPE darkCurrent auxi1 auxi2
+- HcalSiPMCharacteristics:
+ type pixels non-linearityParameters(3) auxi1 auxi2 
 */
 namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalPedestals* fObject);
@@ -97,6 +101,10 @@ namespace HcalDbASCIIIO {
   // Getting/Dumping Hcal Flag information
   bool getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject);
+  bool getObject (std::istream& fInput, HcalSiPMParameters* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalSiPMParameters& fObject);
+  bool getObject (std::istream& fInput, HcalSiPMCharacteristics* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalSiPMCharacteristics& fObject);
 
   DetId getId (const std::vector <std::string> & items);
   void dumpId (std::ostream& fOutput, DetId id);
