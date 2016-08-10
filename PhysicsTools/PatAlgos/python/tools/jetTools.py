@@ -207,6 +207,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         print "          also enable the \'runIVF\' switch."
         print "-------------------------------------------------------------------"
 
+    ## define c tagging CvsL SV source (for now tied to the default SV source
+    ## in the first part of the module label, product instance label and process name)
+    svSourceCvsL = copy.deepcopy(svSource)
+    svSourceCvsL.setModuleLabel(svSource.getModuleLabel()+'CvsL')
+
     ## setup all required btagInfos : we give a dedicated treatment for different
     ## types of tagInfos here. A common treatment is possible but might require a more
     ## general approach anyway in coordination with the btagging POG.
@@ -259,11 +264,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsLTagInfos':
-                setattr(process, btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix)))
+                setattr(process, btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSourceCvsL))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos':
-                setattr(process, btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix)))
+                setattr(process, btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSourceCvsL))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfGhostTrackVertexTagInfos':
@@ -377,6 +382,8 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp.primaryVertices = pvSource
                     _temp.tracks = pfCandidates
                     _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
+                if hasattr( process, 'inclusiveCandidateSecondaryVerticesCvsL' ) and not hasattr( process, svSourceCvsL.getModuleLabel() ):
+                    setattr(process, svSourceCvsL.getModuleLabel(), getattr(process, 'inclusiveCandidateSecondaryVerticesCvsL').clone() )
         if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
