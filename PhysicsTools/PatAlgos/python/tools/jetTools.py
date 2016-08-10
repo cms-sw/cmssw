@@ -212,6 +212,25 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     svSourceCvsL = copy.deepcopy(svSource)
     svSourceCvsL.setModuleLabel(svSource.getModuleLabel()+'CvsL')
 
+    ## check if and under what conditions to re-run IVF
+    runIVFforCTagOnly = False
+    ivfcTagInfos = ['pfInclusiveSecondaryVertexFinderCvsLTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos']
+    ## if MiniAOD and running c tagging
+    if pfCandidates.getModuleLabel() == 'packedPFCandidates' and (i for i in ivfcTagInfos if i in requiredTagInfos) and not runIVF:
+        runIVFforCTagOnly = True
+        runIVF = True
+        print "-------------------------------------------------------------------"
+        print " Info: To run c tagging on MiniAOD, c-tag-specific IVF secondary"
+        print "       vertices need to be remade."
+        print "-------------------------------------------------------------------"
+    ## adjust svSources
+    if runIVF and btagPrefix != '':
+        if runIVFforCTagOnly:
+            svSourceCvsL.setModuleLabel(btagPrefix+svSourceCvsL.getModuleLabel())
+        else:
+            svSource.setModuleLabel(btagPrefix+svSource.getModuleLabel())
+            svSourceCvsL.setModuleLabel(btagPrefix+svSourceCvsL.getModuleLabel())
+
     ## setup all required btagInfos : we give a dedicated treatment for different
     ## types of tagInfos here. A common treatment is possible but might require a more
     ## general approach anyway in coordination with the btagging POG.
@@ -323,63 +342,54 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     patJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedBtagDiscriminators ] )
     if len(acceptedBtagDiscriminators) > 0 :
         patJets.addBTagInfo = True
-    ## check if and under what conditions to re-run IVF
-    runIVFforCTagOnly = False
-    ivfcTagInfos = ['pfInclusiveSecondaryVertexFinderCvsLTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos']
-    if pfCandidates.getModuleLabel() == 'packedPFCandidates' and (i for i in ivfcTagInfos if i in acceptedTagInfos) and not runIVF:
-        runIVFforCTagOnly = True
-        runIVF = True
-        print "-------------------------------------------------------------------"
-        print " Info: To run c tagging on MiniAOD, c-tag-specific IVF secondary"
-        print "       vertices need to be remade."
-        print "-------------------------------------------------------------------"
     ## if re-running IVF
     if runIVF:
         if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
             rerunningIVFMiniAOD()
         else:
             rerunningIVF()
+        from PhysicsTools.PatAlgos.tools.helpers import loadWithPrefix
         ivfbTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos']
         if (i for i in ivfbTagInfos if i in acceptedTagInfos) and not runIVFforCTagOnly:
-            if not hasattr( process, 'inclusiveCandidateVertexing' ):
-                process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
+                loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
             if hipMitigation:
-                if hasattr( process, 'inclusiveCandidateVertexFinder' ):
-                    _temp = getattr(process, 'inclusiveCandidateVertexFinder')
+                if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
+                    _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
                     _temp.minHits = cms.uint32(0)
             ## MiniAOD case
             if pfCandidates.getModuleLabel() == 'packedPFCandidates':
-                if hasattr( process, 'inclusiveCandidateVertexFinder' ):
-                    _temp = getattr(process, 'inclusiveCandidateVertexFinder')
+                if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
+                    _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
                     _temp.primaryVertices = pvSource
                     _temp.tracks = pfCandidates
-                if hasattr( process, 'candidateVertexArbitrator' ):
-                    _temp = getattr(process, 'candidateVertexArbitrator')
+                if hasattr( process, btagPrefix+'candidateVertexArbitrator' ):
+                    _temp = getattr(process, btagPrefix+'candidateVertexArbitrator')
                     _temp.primaryVertices = pvSource
                     _temp.tracks = pfCandidates
                     _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
-                if hasattr( process, 'inclusiveCandidateSecondaryVertices' ) and not hasattr( process, svSource.getModuleLabel() ):
-                    setattr(process, svSource.getModuleLabel(), getattr(process, 'inclusiveCandidateSecondaryVertices').clone() )
+                if hasattr( process, btagPrefix+'inclusiveCandidateSecondaryVertices' ) and not hasattr( process, svSource.getModuleLabel() ):
+                    setattr(process, svSource.getModuleLabel(), getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices').clone() )
         if (i for i in ivfcTagInfos if i in acceptedTagInfos):
-            if not hasattr( process, 'inclusiveCandidateVertexingCvsL' ):
-                process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
+                loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
             if hipMitigation:
-                if hasattr( process, 'inclusiveCandidateVertexFinderCvsL' ):
-                    _temp = getattr(process, 'inclusiveCandidateVertexFinderCvsL')
+                if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
+                    _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
                     _temp.minHits = cms.uint32(0)
             ## MiniAOD case
             if pfCandidates.getModuleLabel() == 'packedPFCandidates':
-                if hasattr( process, 'inclusiveCandidateVertexFinderCvsL' ):
-                    _temp = getattr(process, 'inclusiveCandidateVertexFinderCvsL')
+                if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
+                    _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
                     _temp.primaryVertices = pvSource
                     _temp.tracks = pfCandidates
-                if hasattr( process, 'candidateVertexArbitratorCvsL' ):
-                    _temp = getattr(process, 'candidateVertexArbitratorCvsL')
+                if hasattr( process, btagPrefix+'candidateVertexArbitratorCvsL' ):
+                    _temp = getattr(process, btagPrefix+'candidateVertexArbitratorCvsL')
                     _temp.primaryVertices = pvSource
                     _temp.tracks = pfCandidates
                     _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
-                if hasattr( process, 'inclusiveCandidateSecondaryVerticesCvsL' ) and not hasattr( process, svSourceCvsL.getModuleLabel() ):
-                    setattr(process, svSourceCvsL.getModuleLabel(), getattr(process, 'inclusiveCandidateSecondaryVerticesCvsL').clone() )
+                if hasattr( process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL' ) and not hasattr( process, svSourceCvsL.getModuleLabel() ):
+                    setattr(process, svSourceCvsL.getModuleLabel(), getattr(process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL').clone() )
         if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
