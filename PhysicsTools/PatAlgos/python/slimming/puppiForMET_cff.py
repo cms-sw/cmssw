@@ -18,25 +18,26 @@ def makePuppies( process ):
 
 
     process.puppiNoLep = process.puppi.clone()
-    process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
-
-    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
+    process.puppiNoLep.candName = cms.InputTag('packedPFCandidates')
+    process.puppiNoLep.useWeightsNoLep = cms.bool(True)
+    
+#    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
 
 ## puppi met
     process.puppiForMET = cms.EDProducer("PuppiPhoton",
-                                         candName       = cms.InputTag('packedPFCandidates'),
-                                         puppiCandName  = cms.InputTag('puppi'),
-                                         photonName     = cms.InputTag('slimmedPhotons'),
-                                         photonId       = cms.InputTag("egmPhotonIDs:cutBasedPhotonID_PHYS14_PU20bx25_V2p1-standalone-loose"),
-                                         pt             = cms.double(10),
-                                         useRefs        = cms.bool(True),
-                                         dRMatch        = cms.vdouble(10,10,10,10),
-                                         pdgids         = cms.vint32 (22,11,211,130),
-                                         weight         = cms.double(1.),
-                                         useValueMap    = cms.bool(False),
-                                         weightsName    = cms.InputTag('puppi'),
+      candName = cms.InputTag("packedPFCandidates"),
+                                         dRMatch = cms.vdouble(10, 10, 10, 10),
+                                         pdgids = cms.vint32(22, 11, 211, 130),
+                                         photonId = cms.InputTag("egmPhotonIDs","cutBasedPhotonID_PHYS14_PU20bx25_V2p1-standalone-loose"),
+                                         photonName = cms.InputTag("slimmedPhotons"),
+                                         pt = cms.double(10),
+                                         puppiCandName = cms.InputTag("puppi"),
+                                         useRefs = cms.bool(True),
+                                         useValueMap = cms.bool(False),
+                                         weight = cms.double(1.0),
+                                         weightsName = cms.InputTag("puppiNoLep")
                                          )
-    process.puppiForMET.puppiCandName    = 'puppiMerged'
+#    process.puppiForMET.puppiCandName    = 'puppiMerged'
 
 
 
@@ -52,23 +53,24 @@ def makePuppiesFromMiniAOD( process ):
     process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
 
     process.puppiNoLep = process.puppi.clone()
-    process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
+    process.puppiNoLep.candName = cms.InputTag('packedPFCandidates')
+    process.puppiNoLep.useWeightsNoLep = cms.bool(True)
 
-    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
+#    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
 
 ## puppi met
     process.puppiForMET = cms.EDProducer("PuppiPhoton",
-                                         candName       = cms.InputTag('packedPFCandidates'),
-                                         puppiCandName  = cms.InputTag('puppi'),
-                                         photonName     = cms.InputTag('slimmedPhotons'),
-                                         photonId       = cms.InputTag("egmPhotonIDs:cutBasedPhotonID_PHYS14_PU20bx25_V2p1-standalone-loose"),
-                                         pt             = cms.double(10),
-                                         useRefs        = cms.bool(True),
-                                         dRMatch        = cms.vdouble(10,10,10,10),
-                                         pdgids         = cms.vint32 (22,11,211,130),
-                                         weight         = cms.double(1.),
-                                         useValueMap    = cms.bool(False),
-                                         weightsName    = cms.InputTag('puppi'),
+                                         candName = cms.InputTag("packedPFCandidates"),
+                                         dRMatch = cms.vdouble(10, 10, 10, 10),
+                                         pdgids = cms.vint32(22, 11, 211, 130),
+                                         photonId = cms.InputTag("egmPhotonIDs","cutBasedPhotonID_PHYS14_PU20bx25_V2p1-standalone-loose"),
+                                         photonName = cms.InputTag("slimmedPhotons"),
+                                         pt = cms.double(10),
+                                         puppiCandName = cms.InputTag("puppi"),
+                                         useRefs = cms.bool(True),
+                                         useValueMap = cms.bool(False),
+                                         weight = cms.double(1.0),
+                                         weightsName = cms.InputTag("puppiNoLep")
                                          )
-    process.puppiForMET.puppiCandName    = 'puppiMerged'
+#    process.puppiForMET.puppiCandName    = 'puppiMerged'
     

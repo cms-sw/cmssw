@@ -123,6 +123,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if(pupCol->refAt(iPF).key() != *itPho) continue;
         pWeight = weight_;
         if(!useValueMap_ && itPF->pt() != 0) pWeight = pWeight*(phoCands[iPho]->pt()/itPF->pt());
+	//if(!useValueMap_ && itPF->pt() == 0) pVec.SetPxPyPzE(phoCands[iPho]->px()*pWeight,phoCands[iPho]->py()*pWeight,phoCands[iPho]->pz()*pWeight,phoCands[iPho]->energy()*pWeight);
         foundPhoIndex.push_back(iPho);      }
     }
 
