@@ -51,6 +51,8 @@ class HcalDbService {
   const HcalPFCorr* getHcalPFCorr (const HcalGenericDetId& fId) const;
   const HcalLutMetadata* getHcalLutMetadata () const;
   const HcalQIEType* getHcalQIEType (const HcalGenericDetId& fId) const;
+  const HcalSiPMParameter* getHcalSiPMParameter (const HcalGenericDetId& fId) const;
+  const HcalSiPMCharacteristics* getHcalSiPMCharacteristics () const;
 
   void setData (const HcalPedestals* fItem) {mPedestals = fItem; mCalibSet = nullptr;}
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; mCalibWidthSet = nullptr;}
@@ -68,6 +70,8 @@ class HcalDbService {
   void setData (const HcalLUTCorrs* fItem) {mLUTCorrs = fItem; mCalibSet = nullptr; }
   void setData (const HcalPFCorrs* fItem) {mPFCorrs = fItem; }
   void setData (const HcalLutMetadata* fItem) {mLutMetadata = fItem;}
+  void setData (const HcalSiPMParameters* fItem) {mSiPMParameters = fItem; mCalibSet = nullptr;}
+  void setData (const HcalSiPMCharacteristics* fItem) {mSiPMCharacteristics = fItem;}
 
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
@@ -92,6 +96,8 @@ class HcalDbService {
   const HcalLUTCorrs* mLUTCorrs;
   const HcalPFCorrs* mPFCorrs;
   const HcalLutMetadata* mLutMetadata;
+  const HcalSiPMParameters* mSiPMParameters;
+  const HcalSiPMCharacteristics* mSiPMCharacteristics;
   //  bool mPedestalInADC;
   mutable std::atomic<HcalCalibrationsSet const *> mCalibSet;
   mutable std::atomic<HcalCalibrationWidthsSet const *> mCalibWidthSet;

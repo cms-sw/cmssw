@@ -25,6 +25,7 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mLUTCorrs(0),
   mPFCorrs(0),
   mLutMetadata(0),
+  mSiPMParameters(0), mSiPMCharacteristics(0),
   mCalibSet(nullptr), mCalibWidthSet(nullptr)
  {}
 
@@ -290,6 +291,17 @@ const HcalPFCorr* HcalDbService::getHcalPFCorr (const HcalGenericDetId& fId) con
 
 const HcalLutMetadata* HcalDbService::getHcalLutMetadata () const {
   return mLutMetadata;
+}
+
+const HcalSiPMParameter* HcalDbService::getHcalSiPMParameter (const HcalGenericDetId& fId) const {
+  if (mSiPMParameters) {
+    return mSiPMParameters->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalSiPMCharacteristics* HcalDbService::getHcalSiPMCharacteristics () const {
+  return mSiPMCharacteristics;
 }
 
 TYPELOOKUP_DATA_REG(HcalDbService);

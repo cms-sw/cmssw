@@ -255,6 +255,14 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceFrontEndMap);
       findingRecord <HcalFrontEndMapRcd> ();
     }
+    if ((*objectName == "SiPMParameters") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMParameters);
+      findingRecord <HcalSiPMParametersRcd> ();
+    }
+    if ((*objectName == "SiPMCharacteristics") || (*objectName == "frontEndMap") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMCharacteristics);
+      findingRecord <HcalSiPMCharacteristicsRcd> ();
+    }
   }
 }
 
@@ -539,8 +547,6 @@ std::unique_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1Trigger
 }
 
 
-
-
 std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
 
@@ -623,6 +629,7 @@ std::unique_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (con
   }
   return result;
 }
+
 std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams (const HcalTimingParamsRcd& rec) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimingParams-> ...";
   edm::ESHandle<HcalTopology> htopo;
@@ -637,6 +644,7 @@ std::unique_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams 
   }
   return result;
 }
+
 std::unique_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd& rec) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLongRecoParams-> ...";
   edm::ESHandle<HcalTopology> htopo;
@@ -732,6 +740,30 @@ std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (c
 
   auto result = std::make_unique<HcalFrontEndMap>();
   dbHardcode.makeHardcodeFrontEndMap(*result);
+  return result;
+}
+
+
+std::unique_ptr<HcalSiPMParameters> HcalHardcodeCalibrations::produceSiPMParameters (const HcalSiPMParametersRcd& rec) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMParameters-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+
+  auto result = std::make_unique<HcalSiPMParameters>(topo);
+  std::vector <HcalGenericDetId> cells = allCells(*htopo);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
+    HcalSiPMParameter item = dbHardcode.makeHardcodeSiPMParameter (*cell);
+    result->addValues(item);
+  }
+  return result;
+}
+
+std::unique_ptr<HcalSiPMCharacteristics> HcalHardcodeCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceSiPMCharacteristics-> ...";
+
+  auto result = std::make_unique<HcalSiPMCharacteristics>();
+  dbHardcode.makeHardcodeSiPMCharacteristics(*result);
   return result;
 }
 

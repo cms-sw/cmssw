@@ -61,6 +61,8 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
 //			  &HcalDbProducer::frontEndMapCallback &
+//			  &HcalDbProducer::SiPMParametersCallback &
+//			  &HcalDbProducer::SiPMCharacteristicsCallback &
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );
@@ -379,5 +381,30 @@ void HcalDbProducer::lutMetadataCallback (const HcalLutMetadataRcd& fRecord) {
   }
 }
 
+void HcalDbProducer::SiPMParametersCallback (const HcalSiPMParametersRcd& fRecord) {
+  edm::ESTransientHandle <HcalSiPMParameters> item;
+  fRecord.get (item);
 
+  mSiPMParameters.reset( new HcalSiPMParameters(*item) );
 
+  edm::ESHandle<HcalTopology> htopo;
+  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  mSiPMParameters->setTopo(topo);
+
+  mService->setData (mSiPMParameters.get());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMParameters")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL SiPMParameters set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mSiPMParameters));
+  }
+}
+
+void HcalDbProducer::SiPMCharacteristicsCallback (const HcalSiPMCharacteristicsRcd& fRecord) {
+  edm::ESHandle <HcalSiPMCharacteristics> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMCharacteristics")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL FrontEnd Map set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}

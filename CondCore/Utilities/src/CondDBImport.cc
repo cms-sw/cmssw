@@ -171,6 +171,8 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( HcalQIEData )
       IMPORT_PAYLOAD_CASE( HcalRecoParams )
       IMPORT_PAYLOAD_CASE( HcalRespCorrs )
+      IMPORT_PAYLOAD_CASE( HcalSiPMCharacteristics )
+      IMPORT_PAYLOAD_CASE( HcalSiPMParameters )
       IMPORT_PAYLOAD_CASE( HcalTimeCorrs )
       IMPORT_PAYLOAD_CASE( HcalZSThresholds )
       IMPORT_PAYLOAD_CASE( HcalInterpolatedPulseColl )
