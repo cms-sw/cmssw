@@ -18,14 +18,14 @@ def makePuppies( process ):
 
 
     process.puppiNoLep = process.puppi.clone()
-    process.puppiNoLep.candName = cms.InputTag('packedPFCandidates')
+    process.puppiNoLep.candName = cms.InputTag('particleFlow')
     process.puppiNoLep.useWeightsNoLep = cms.bool(True)
     
 #    process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
 
 ## puppi met
     process.puppiForMET = cms.EDProducer("PuppiPhoton",
-      candName = cms.InputTag("packedPFCandidates"),
+      candName = cms.InputTag("particleFlow"),
                                          dRMatch = cms.vdouble(10, 10, 10, 10),
                                          pdgids = cms.vint32(22, 11, 211, 130),
                                          photonId = cms.InputTag("egmPhotonIDs","cutBasedPhotonID_PHYS14_PU20bx25_V2p1-standalone-loose"),
