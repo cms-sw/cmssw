@@ -62,6 +62,18 @@ class MuonTrackingRegionBuilder : public TrackingRegionProducer {
     /// Add Fill Descriptions
     static void fillDescriptions(edm::ParameterSetDescription& descriptions);
 
+    // 2016-08-10 MK: I'm pretty sure the fillDescriptions() above is
+    // not used in practice by any EDModule (it's called by
+    // L3MuonTrajectoryBuilder::fillDescriptions(), which itself is
+    // not called by anybody). I'm mainly confused that the
+    // fillDescriptions() above adds two PSets
+    // ("MuonTrackingRegionBuilder" and
+    // "hltMuonTrackingRegionBuilder") to the argument PSet, while to
+    // me it would make most sense to just fill the PSet (although I
+    // could be missing something). This is the behaviour of this
+    // fillDescriptions2() below.
+    static void fillDescriptions2(edm::ParameterSetDescription& descriptions);
+
   private:
     
     void build(const edm::ParameterSet&, edm::ConsumesCollector&);
