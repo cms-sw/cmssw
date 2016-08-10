@@ -536,6 +536,18 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
+            if self._parameters["runOnData"].value:
+                getattr(process, "pat"+metType+"Met"+postfix).parameters = METSignificanceParams_Data
+            if "Puppi" in postfix:
+                getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = cms.InputTag('puppiForMET')
+                getattr(process, "pat"+metType+"Met"+postfix).srcJets = cms.InputTag('selectedPatJets'+postfix)
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetSF = cms.string('AK4PFPuppi')
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPt = cms.string('AK4PFPuppi_pt')
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
+
+        #MET significance bypass for the patMETs from AOD
+        if not self._parameters["onMiniAOD"].value:
+            getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
 
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
@@ -1238,6 +1250,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
                 setattr(process, 'patMETs'+postfix, getattr(process,'patMETs' ).clone() )
                 getattr(process, "patMETs"+postfix).metSource = cms.InputTag("pfMetT1"+postfix)
+                getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
+                if "Puppi" in postfix:
+                    getattr(process, 'patMETs'+postfix).srcPFCands = cms.InputTag('puppiForMET')
+                    getattr(process, 'patMETs'+postfix).srcJets = cms.InputTag('selectedPatJets'+postfix)
+                    getattr(process, 'patMETs'+postfix).srcJetSF = cms.string('AK4PFPuppi')
+                    getattr(process, 'patMETs'+postfix).srcJetResPt = cms.string('AK4PFPuppi_pt')
+                    getattr(process, 'patMETs'+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
 
 
     def extractMET(self, process, correctionLevel, patMetModuleSequence, postfix):
