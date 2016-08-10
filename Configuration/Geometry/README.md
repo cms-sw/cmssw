@@ -15,7 +15,7 @@ Muon system:
 * M1: Phase2 muon system (TP baseline) w/ GE21, ME0, RE3/1, RE4/1
 * M2<sup>&#8224;</sup>: Phase2 muon system for TDR (incl. granularity in ME0)
 
-The script also handle the common and forward elements of the geometry, which are not expected to change.
+The script also handles the common and forward elements of the geometry, which are not expected to change.
 
 Several detector combinations have been generated:
 * D1 = T1+C1+M1
