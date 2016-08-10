@@ -70,7 +70,7 @@ initialStepHitQuadrupletsPreSplitting = _pixelQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
     SeedComparitorPSet = initialStepHitTripletsPreSplitting.SeedComparitorPSet
 )
-from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cfi import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
+from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 initialStepSeedsPreSplitting = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "initialStepHitTripletsPreSplitting",
 )
