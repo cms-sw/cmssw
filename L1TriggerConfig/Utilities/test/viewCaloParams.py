@@ -9,8 +9,10 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(3))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
+#process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_2_cfi")
+
 from CondCore.CondDB.CondDB_cfi import CondDB
-CondDB.connect = cms.string('sqlite:o2o/l1config.db')
+CondDB.connect = cms.string('sqlite:l1config.db')
 
 process.l1conddb = cms.ESSource("PoolDBESSource",
        CondDB,
@@ -22,7 +24,7 @@ process.l1conddb = cms.ESSource("PoolDBESSource",
        )
 )
 
-process.l1cpv = cms.EDAnalyzer("L1TCaloParamsViewer")
+process.l1cpv = cms.EDAnalyzer("L1TCaloParamsViewer", printEgIsoLUT = cms.untracked.bool(False) )
 
 process.p = cms.Path(process.l1cpv)
 

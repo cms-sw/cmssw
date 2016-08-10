@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #from L1Trigger.L1TCalorimeter.caloStage2Params_cfi import *
-from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_1_cfi import *
+from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v2_2_cfi import *
 
 L1TCaloParamsOnline = cms.ESProducer("L1TCaloParamsOnlineProd",
     onlineAuthentication = cms.string('.'),

@@ -83,11 +83,11 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
     }
   }
   // Layer 2 params specification
-  paramsHelper.setEgSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()));
-  paramsHelper.setTauSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()));
-  paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()));
-  paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()));
-  paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>()));
+  paramsHelper.setEgSeedThreshold((conf["leptonSeedThreshold"].getValue<int>())/2);
+  paramsHelper.setTauSeedThreshold((conf["leptonSeedThreshold"].getValue<int>())/2);
+  paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
+  paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>())/2);
+  paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>())/2);
 
   // Currently not used // paramsHelper.setEgPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
   // Currently not used // paramsHelper.setTauPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
@@ -114,7 +114,7 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   std::stringstream oss;
 
   std::vector<uint32_t> jetEnergyCalibLUT = conf["jetEnergyCalibLUT"].getVector<uint32_t>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(jetEnergyCalibLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(jetEnergyCalibLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<jetEnergyCalibLUT.size(); i++) oss << i << " " << jetEnergyCalibLUT[i] << std::endl;
 
   std::istringstream iss1( oss.str() );
@@ -122,7 +122,7 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   oss.str("");
 
   std::vector<int> etSumEttPUSLUT = conf["ET_energyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEttPUSLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEttPUSLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<etSumEttPUSLUT.size(); i++) oss << i << " " << etSumEttPUSLUT[i] << std::endl;
 
   std::istringstream iss2( oss.str() );
@@ -130,7 +130,7 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   oss.str("");
 
   std::vector<int> etSumEcalSumPUTLUT = conf["ecalET_energyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEcalSumPUTLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEcalSumPUTLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<etSumEcalSumPUTLUT.size(); i++) oss << i << " " << etSumEcalSumPUTLUT[i] << std::endl;
 
   std::istringstream iss3( oss.str() );
@@ -138,7 +138,7 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   oss.str("");
 
   std::vector<int> etSumXPUSLUT = conf["METX_energyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumXPUSLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumXPUSLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<etSumXPUSLUT.size(); i++) oss << i << " " << etSumXPUSLUT[i] << std::endl;
 
   std::istringstream iss4( oss.str() );
@@ -150,26 +150,29 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
 
 
   std::vector<int> egCalibrationLUT = conf["egammaEnergyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egCalibrationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egCalibrationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<egCalibrationLUT.size(); i++) oss << i << " " << egCalibrationLUT[i] << std::endl;
 
   std::istringstream iss5( oss.str() );
   paramsHelper.setEgCalibrationLUT( l1t::LUT( (std::istream&)iss5 ) );
   oss.str("");
 
-
   std::vector<int> egIsolationLUT = conf["egammaIsoLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egIsolationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egIsolationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<egIsolationLUT.size(); i++) oss << i << " " << egIsolationLUT[i] << std::endl;
 
   std::istringstream iss6( oss.str() );
   paramsHelper.setEgIsolationLUT( l1t::LUT( (std::istream&)iss6 ) );
   oss.str("");
 
+  //std::cout<<"egammaIsoLUT: "<<std::endl;
+  //for(unsigned int i=0; i<paramsHelper.egIsolationLUT()->maxSize(); i++) std::cout << std::setprecision(14) << paramsHelper.egIsolationLUT()->data(i) <<", ";
+  //std::cout << std::endl;
+
   paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
 
   std::vector<int> tauCalibrationLUT = conf["tauEnergyCalibLUT"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauCalibrationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauCalibrationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<tauCalibrationLUT.size(); i++) oss << i << " " << tauCalibrationLUT[i] << std::endl;
 
   std::istringstream iss7( oss.str() );
@@ -177,7 +180,7 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   oss.str("");
 
   std::vector<int> tauIsolationLUT = conf["tauIsoLUT1"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<tauIsolationLUT.size(); i++) oss << i << " " << tauIsolationLUT[i] << std::endl;
 
   std::istringstream iss8( oss.str() );
@@ -185,24 +188,13 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   oss.str("");
 
   std::vector<int> tauIsolationLUT2 = conf["tauIsoLUT2"].getVector<int>();
-  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT2.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT2.size()-1) ) ) <<" 63 </header> "<<std::endl; // hardcode max bits for data
   for(unsigned int i=0; i<tauIsolationLUT2.size(); i++) oss << i << " " << tauIsolationLUT2[i] << std::endl;
 
   std::istringstream iss9( oss.str() );
   paramsHelper.setTauIsolationLUT2( l1t::LUT( (std::istream&)iss9 ) );
   oss.str("");
-/*
-  std::cout << "getting layer1HCalScaleFactors" << std::endl;
-  paramsHelper.setLayer1HCalScaleFactors((conf["layer1HCalScaleFactors"].getVector<double>()));
-  std::cout << "getting layer1HFScaleFactors" << std::endl;
-  paramsHelper.setLayer1HFScaleFactors  ((conf["layer1HFScaleFactors"]  .getVector<double>()));
-  std::cout << "getting layer1ECalScaleETBins" << std::endl;
-  paramsHelper.setLayer1ECalScaleETBins(conf["layer1ECalScaleETBins"].getVector<int>());
-  std::cout << "getting layer1HCalScaleETBins" << std::endl;
-  paramsHelper.setLayer1HCalScaleETBins(conf["layer1HCalScaleETBins"].getVector<int>());
-  std::cout << "getting layer1HFScaleETBins" << std::endl;
-  paramsHelper.setLayer1HFScaleETBins  (conf["layer1HFScaleETBins"]  .getVector<int>());
-*/
+
   return true;
 }
 
