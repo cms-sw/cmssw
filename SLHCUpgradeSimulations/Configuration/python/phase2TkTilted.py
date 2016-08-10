@@ -65,14 +65,6 @@ def customise_RawToDigi(process):
 
 def customise_Reco(process,pileup):
 
-    process.reconstruction.remove(process.castorreco)
-    process.reconstruction.remove(process.CastorTowerReco)
-    process.reconstruction.remove(process.ak5CastorJets)
-    process.reconstruction.remove(process.ak5CastorJetID)
-    process.reconstruction.remove(process.ak7CastorJets)
-    #process.reconstruction.remove(process.ak7BasicJets)
-    process.reconstruction.remove(process.ak7CastorJetID)
-
     return process
 
 def customise_condOverRides(process):
