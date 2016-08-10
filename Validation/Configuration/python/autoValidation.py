@@ -6,4 +6,7 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'standardValidation' : ['prevalidation','validation','validationHarvesting']
                  }
 
-autoValidation['phase2Validation'] = autoValidation['baseValidation']+autoValidation['trackingOnlyValidation']+autoValidation['muonOnlyValidation']
+_phase2_allowed = ['baseValidation','trackingOnlyValidation','muonOnlyValidation']
+autoValidation['phase2Validation'] = ['','','']
+for i in range(0,3):
+    autoValidation['phase2Validation'][i] = '+'.join([autoValidation[m][i] for m in _phase2_allowed])
