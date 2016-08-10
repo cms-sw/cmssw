@@ -14,13 +14,13 @@ template< >
 void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   /// Prepare output
-  std::auto_ptr< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > );
+  auto ttClusterDSVForOutput      = std::make_unique<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>();
   std::map< DetId, std::vector< Ref_Phase2TrackerDigi_ > > rawHits;
   this->RetrieveRawHits( rawHits, iEvent );
 
   // Retrieve tracker topology from geometry                                                                                                               
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
  
   edm::ESHandle< TrackerGeometry > tGeomHandle;
@@ -54,7 +54,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       /// Create TTCluster objects and store them                                                                                                          
       /// Use the FastFiller with edmNew::DetSetVector                                                                                                       
       { 
-	edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *TTClusterDSVForOutput, lowerDetid ); 
+	edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *ttClusterDSVForOutput, lowerDetid ); 
       for ( unsigned int i = 0; i < lowerHits.size(); i++ )
 	{
 	  TTCluster< Ref_Phase2TrackerDigi_ > temp( lowerHits.at(i), stackDetid, 0, storeLocalCoord );
@@ -64,7 +64,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
         lowerOutputFiller.abort();
      }
      {  
-       edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *TTClusterDSVForOutput, upperDetid );
+       edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *ttClusterDSVForOutput, upperDetid );
      for ( unsigned int i = 0; i < upperHits.size(); i++ )
        {
 	 TTCluster< Ref_Phase2TrackerDigi_ > temp( upperHits.at(i), stackDetid, 1, storeLocalCoord );
@@ -76,7 +76,7 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
     } /// End of loop over detector elements     
   
   /// Put output in the event   
-  iEvent.put( TTClusterDSVForOutput, "ClusterInclusive" );
+  iEvent.put( std::move(ttClusterDSVForOutput), "ClusterInclusive" );
 }
 
 /// Retrieve hits from the event

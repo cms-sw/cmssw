@@ -32,8 +32,6 @@ def cust_2023GReco(process):
     return process
 
 
-
-
 ######Below are the customized used for SLHC releases 
 def cust_2019(process):
     process=customisePostLS1(process,displayDeprecationWarning=False)
