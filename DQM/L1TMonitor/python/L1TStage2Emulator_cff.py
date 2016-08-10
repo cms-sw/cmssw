@@ -115,7 +115,8 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2CaloLayer1 +
     # We process both layer2 and layer2emu in same sourceclient
     # to be able to divide them in the MonitorClient
-    l1tStage2CaloLayer2 + l1tStage2CaloLayer2Emul +
+    l1tStage2CaloLayer2 + 
+    l1tStage2CaloLayer2Emul +
     l1tdeStage2Emtf +      
     l1tStage2uGMTEmul +
     l1tdeStage2uGMT +

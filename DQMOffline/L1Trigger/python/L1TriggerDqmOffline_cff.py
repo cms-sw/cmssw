@@ -71,21 +71,22 @@ from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
 
 from Configuration.StandardSequences.Eras import eras
 
+from DQM.HcalTasks.TPTask import tpTask
 
 #### Test Add
 # Filter fat events
-from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
-hltFatEventFilter = hltHighLevel.clone()
-hltFatEventFilter.throw = cms.bool(False)
-hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
+#from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
+#hltFatEventFilter = hltHighLevel.clone()
+#hltFatEventFilter.throw = cms.bool(False)
+#hltFatEventFilter.HLTPaths = cms.vstring('HLT_L1FatEvents_v*')
 
 ## This can be used if HLT filter not available in a run
-selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
-        invert = cms.bool(False),
-        period = cms.uint32(107),
-        rawInput = cms.InputTag("rawDataCollector"),
-        fedId = cms.int32(1024)
-        )
+#selfFatEventFilter = cms.EDFilter("HLTL1NumberFilter",
+#        invert = cms.bool(False),
+#        period = cms.uint32(107),
+#        rawInput = cms.InputTag("rawDataCollector"),
+#        fedId = cms.int32(1024)
+#        )
 
 
 
@@ -120,8 +121,7 @@ from DQM.L1TMonitor.L1TStage2Emulator_cff import *
 #
 
 l1TriggerOnline = cms.Sequence( 
-                                hltFatEventFilter
-                                * stage2UnpackPath
+                               stage2UnpackPath
                                 * l1tStage2OnlineDQM
                                 * dqmEnvL1T
                                )
@@ -155,10 +155,8 @@ l1TriggerDqmOffline = cms.Sequence(
 
 # DQM Offline Step 2 sequence                                 
 l1TriggerDqmOfflineClient = cms.Sequence(
-                           #     l1tMonitorStage1Client
-                                l1tStage2EmulatorMonitorClient
-                                * l1tStage2MonitorClient
-                           #      * l1EmulatorMonitorClient
+                                l1tStage2EmulatorMonitorClient *
+                                l1tStage2MonitorClient
                                 )
 
 

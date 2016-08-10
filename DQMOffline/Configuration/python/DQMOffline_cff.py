@@ -19,6 +19,10 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 
+##test 
+hcalOfflineSourceSequence.remove(tpTask)
+##test
+
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                  ecal_dqm_source_offline *
