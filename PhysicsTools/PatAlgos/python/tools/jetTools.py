@@ -201,11 +201,19 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     import RecoBTag.Configuration.RecoBTag_cff as btag
     import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
-    if hipMitigation and not runIVF:
-        print "-------------------------------------------------------------------"
-        print " Warning: To fully exploit the HIP mitigation for b tagging, please"
-        print "          also enable the \'runIVF\' switch."
-        print "-------------------------------------------------------------------"
+    if hipMitigation:
+        if not runIVF:
+            print "-------------------------------------------------------------------"
+            print " Warning: To fully exploit the HIP mitigation for b tagging, please"
+            print "          also enable the \'runIVF\' switch."
+            print "-------------------------------------------------------------------"
+        if  not btagPrefix != '':
+            print "-------------------------------------------------------------------"
+            print " Warning: With the HIP mitigation for b tagging enabled, it is"
+            print "          safer to set \'btagPrefix\' to a non-empty string to"
+            print "          avoid unintentional modifications to the default"
+            print "          b tagging setup that might be loaded in the same job."
+            print "-------------------------------------------------------------------"
 
     ## define c tagging CvsL SV source (for now tied to the default SV source
     ## in the first part of the module label, product instance label and process name)
@@ -221,7 +229,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         runIVF = True
         print "-------------------------------------------------------------------"
         print " Info: To run c tagging on MiniAOD, c-tag-specific IVF secondary"
-        print "       vertices need to be remade."
+        print "       vertices will be remade."
         print "-------------------------------------------------------------------"
     ## adjust svSources
     if runIVF and btagPrefix != '':
@@ -344,10 +352,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         patJets.addBTagInfo = True
     ## if re-running IVF
     if runIVF:
-        if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
-            rerunningIVFMiniAOD()
-        else:
-            rerunningIVF()
+        if not hipMitigation:
+            if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
+                if not runIVFforCTagOnly: rerunningIVFMiniAOD()
+            else:
+                rerunningIVF()
         from PhysicsTools.PatAlgos.tools.helpers import loadWithPrefix
         ivfbTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos']
         if (i for i in ivfbTagInfos if i in acceptedTagInfos) and not runIVFforCTagOnly:
@@ -1402,10 +1411,10 @@ def unsupportedJetAlgorithm(obj):
 
 def rerunningIVF():
     print "-------------------------------------------------------------------"
-    print " Info: You are attempting to remake the IVF secondary vertices"
-    print "       already produced by the standard reconstruction. This option"
-    print "       is not enabled by default so please use it only if you know"
-    print "       what you are doing."
+    print " Warning: You are attempting to remake the IVF secondary vertices"
+    print "          already produced by the standard reconstruction. This"
+    print "          option is not enabled by default so please use it only if"
+    print "          you know what you are doing."
     print "-------------------------------------------------------------------"
 
 def rerunningIVFMiniAOD():
