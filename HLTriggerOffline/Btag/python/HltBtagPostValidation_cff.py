@@ -6,8 +6,8 @@ HltBTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
 	'HLT_PFMET120_',
 	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDTight_',
 	'HLT_QuadPFJet_VBF',
-	'HLT_Ele27_eta2p1_',
-	'HLT_IsoMu22_'
+	'HLT_Ele32_eta2p1_',
+	'HLT_IsoMu21_eta2p1_'
 	),
 	histoName	= cms.vstring(
 	'hltCombinedSecondaryVertexBJetTagsCalo',
