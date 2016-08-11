@@ -108,7 +108,6 @@ namespace edm {
       std::shared_ptr<const void> sigSegvHandler_;
       std::shared_ptr<const void> sigIllHandler_;
       std::shared_ptr<const void> sigTermHandler_;
-      std::shared_ptr<const void> sigPauseHandler_;
     };
     
     inline
@@ -133,12 +132,6 @@ namespace {
     kSysError,
     kFatal
   };
-
-#if defined(SIGRTMAX)
-#define PAUSE_SIGNAL SIGRTMAX
-#elif defined(SIGINFO) // macOS
-#define PAUSE_SIGNAL SIGINFO
-#endif
 
   static thread_local bool s_ignoreWarnings = false;
 
@@ -377,37 +370,54 @@ namespace {
       return full_write(2, text);
     }
 
+#if defined(SIGRTMAX)
+#define PAUSE_SIGNAL SIGRTMAX
+#define RESUME_SIGNAL SIGRTMAX-1
+#elif defined(SIGINFO) // macOS
+#define PAUSE_SIGNAL SIGINFO  // pause signal must be otherwise unused
+#define RESUME_SIGNAL SIGALRM // resume signal is only used briefly
+#endif
+
+    // does nothing, here only to interrupt the sleep() in the pause handler
+    void sig_resume_handler(int sig, siginfo_t*, void*) {}
+
     void sig_pause_for_stacktrace(int sig, siginfo_t*, void*) {
+#ifdef RESUME_SIGNAL
+      sigset_t sigset;
+      sigemptyset(&sigset);
+      sigaddset(&sigset, RESUME_SIGNAL);
+      pthread_sigmask(SIG_UNBLOCK, &sigset, 0);
+#endif
+      // sleep interrrupts on a handled signal delivery
+      sleep(edm::service::InitRootHandlers::stackTracePause());
+
       char buff[128] = "\nModule: ";
  
       if (edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr) {
         strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), 128);
         full_cerr_write(buff);
       }
-
-      struct timespec timeout = { edm::service::InitRootHandlers::stackTracePause(), 0 };
-#if defined(__linux__)
-      sigset_t sigset;
-      sigemptyset(&sigset);
-      sigaddset(&sigset, SIGCONT);
-      sigtimedwait(&sigset, NULL, &timeout);
-#else
-      nanosleep(&timeout); // macOS doesn't have sigtimedwait()
-#endif
     }
 
     void sig_dostack_then_abort(int sig, siginfo_t*, void*) {
       char buff[128] = "\nModule: ";
 
-      auto&& tids = edm::service::InitRootHandlers::threadIDs();
+      const auto& tids = edm::service::InitRootHandlers::threadIDs();
 
       const auto self = pthread_self();
 #ifdef PAUSE_SIGNAL
       if (edm::service::InitRootHandlers::stackTracePause() > 0 && tids.size() > 1) {
+        struct sigaction act;
+        act.sa_sigaction = sig_pause_for_stacktrace;
+        act.sa_flags = 0;
+        sigemptyset (&act.sa_mask);
+        sigaction(PAUSE_SIGNAL, &act, NULL);
+
+        // unblock pause signal globally, resume is unblocked in the pause handler
         sigset_t pausesigset;
         sigemptyset(&pausesigset);
-        sigaddset(&pausesigset,PAUSE_SIGNAL);
-        sigprocmask(SIG_UNBLOCK,&pausesigset,0);
+        sigaddset(&pausesigset, PAUSE_SIGNAL);
+        sigprocmask(SIG_UNBLOCK, &pausesigset, 0);
 
         int notified = 0;
         for (auto id : tids) {
@@ -415,17 +425,13 @@ namespace {
             if (pthread_kill(id, PAUSE_SIGNAL) == 0) ++notified;
           }
         }
+
+#ifdef RESUME_SIGNAL
+        act.sa_sigaction = sig_resume_handler;
+        sigaction(RESUME_SIGNAL, &act, NULL);
+#endif
       }
 #endif
-
-      // only access current module thread local if this is a CMSSW thread; assumes that any TBB
-      // thread will have access to CMSSW thread locals.
-      if (tids.count(self) > 0 && edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr)
-      {
-        strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), 128);
-        strlcat(buff, " (crashed)", 128);
-        full_cerr_write(buff);
-      }
 
       const char* signalname = "unknown";
       switch (sig) {
@@ -457,6 +463,33 @@ namespace {
       full_cerr_write("\nThe following is the call stack containing the origin of the signal.\n\n");
 
       edm::service::InitRootHandlers::stacktraceFromThread();
+ 
+      // resume the signal handlers to print the current module; we are not guaranteed they
+      // will have time to print their modules, so there is a race condition here, but it
+      // is safer to defer accessing the thread-local current module until after the
+      // stack trace has completed.
+#ifdef RESUME_SIGNAL
+      if (edm::service::InitRootHandlers::stackTracePause() > 0 && tids.size() > 1) {
+        int notified = 0;
+        for (auto id : tids) {
+          if (self != id) {
+            if (pthread_kill(id, RESUME_SIGNAL) == 0) ++notified;
+          }
+        }
+      }
+#endif
+
+      // only access current module thread local if this is a CMSSW thread; assumes that any TBB
+      // thread will have access to CMSSW thread locals.  Should be safe on Linux, as the thread
+      // local is allocated in FWCore/ServiceRegistry which is linked into cmsRun, and hence
+      // allocated at exec() time.  May be unsafe on any platform where all thread locals are
+      // lazily initialized
+      if (tids.count(self) > 0 && edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr)
+      {
+        strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), 128);
+        strlcat(buff, " (crashed)\n", 128);
+        full_cerr_write(buff);
+      }
 
       full_cerr_write("\nA fatal system signal has occurred: ");
       full_cerr_write(signalname);
@@ -683,16 +716,6 @@ namespace edm {
         sigTermHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
           installCustomHandler(SIGTERM,sig_abort);
         });
-#ifdef PAUSE_SIGNAL
-        if (stackTracePause_ > 0) {
-          installCustomHandler(PAUSE_SIGNAL,sig_pause_for_stacktrace);
-          sigPauseHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
-            signal(PAUSE_SIGNAL,SIG_IGN); // signal() with SIG_IGN is portable
-          });
-        } else {
-          signal(PAUSE_SIGNAL,SIG_IGN);
-        }
-#endif
         iReg.watchPostForkReacquireResources(this, &InitRootHandlers::cachePidInfoHandler);
       }
 
