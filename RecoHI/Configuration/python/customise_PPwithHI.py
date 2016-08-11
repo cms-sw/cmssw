@@ -142,14 +142,15 @@ def addRhoProducer(process):
     process.load('RecoJets.JetProducers.kt4PFJets_cfi')
     process.load('RecoHI.HiJetAlgos.hiFJRhoProducer')
     process.load('RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff')
-
-    process.kt4PFJets.doAreaFastjet = True
-    process.kt4PFJets.jetPtMin      = cms.double(0.0)
-    process.kt4PFJets.GhostArea     = cms.double(0.005)
+    
+    process.kt4PFJetsForRho = process.kt4PFJets.clone()
+    process.kt4PFJetsForRho.doAreaFastjet = True
+    process.kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
+    process.kt4PFJetsForRho.GhostArea     = cms.double(0.005)
     process.hiFJGridEmptyAreaCalculator.doCentrality = False
     
 	# extend AOD content
-    process.reconstruction *= process.kt4PFJets
+    process.reconstruction *= process.kt4PFJetsForRho
     process.reconstruction *= process.hiFJRhoProducer
     process.reconstruction *= process.hiFJGridEmptyAreaCalculator
 
