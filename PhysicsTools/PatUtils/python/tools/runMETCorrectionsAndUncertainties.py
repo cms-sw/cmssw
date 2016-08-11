@@ -562,6 +562,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #MET significance bypass for the patMETs from AOD
         if not self._parameters["onMiniAOD"].value:
             getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
+            getattr(process, "patMETs"+postfix).srcPFCands=self._parameters["pfCandCollection"].value
 
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
