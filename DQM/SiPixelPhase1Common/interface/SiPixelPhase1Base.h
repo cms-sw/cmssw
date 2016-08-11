@@ -58,20 +58,14 @@ class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
 // This wraps the Histogram Managers into a DQMEDHarvester. It 
 // provides sane default implementations, so most plugins don't care about this.
 // However, you have to instantiate one with the same config as your Analyzer 
-// to get the Harvesting one.
-// For custom harvesting, you have to derive from this one.
+// to get the Harvesting done.
+// For custom harvesting, you have to derive from this.
 class SiPixelPhase1Harvester : public DQMEDHarvester, public HistogramManagerHolder {
   public:
   SiPixelPhase1Harvester(const edm::ParameterSet& iConfig) 
     : DQMEDHarvester(), HistogramManagerHolder(iConfig) {};
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) {
-    for (HistogramManager& histoman : histo)
-      histoman.executeHarvestingOnline(iBooker, iGetter, eSetup);
-  };
-  void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) {
-    for (HistogramManager& histoman : histo)
-      histoman.executeHarvestingOffline(iBooker, iGetter);
-  };
+  void dqmEndLuminosityBlock(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter, edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) ;
+  void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 };
 #endif
