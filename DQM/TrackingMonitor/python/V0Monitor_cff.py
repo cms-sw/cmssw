@@ -45,12 +45,12 @@ voMonitoringCommonSequence = cms.Sequence(
 
 # tracker ON + ZeroBias selection
 KshortMonitoringMB = KshortMonitoring.clone()
-KshortMonitoringZBnoHIPnoOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_INpu/Ks")
+KshortMonitoringMB.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_INpu/Ks")
 KshortMonitoringMB.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTdb
 KshortMonitoringMB.setLabel("KshortMonitoringMB")
 
 LambdaMonitoringMB = LambdaMonitoring.clone()
-KshortMonitoringZBnoHIPnoOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_INpu/Lambda")
+LambdaMonitoringMB.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_INpu/Lambda")
 LambdaMonitoringMB.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTdb
 LambdaMonitoringMB.setLabel("LambdaMonitoringMB")
 
@@ -83,7 +83,7 @@ KshortMonitoringZBHIPOOT.genericTriggerEventPSet = genericTriggerEventFlag4fullT
 KshortMonitoringZBHIPOOT.setLabel("KshortMonitoringZBHIPOOT")
 
 LambdaMonitoringZBHIPOOT = LambdaMonitoring.clone()
-LambdaMonitoringZBHIPOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOT_noINpu/Lambda")
+LambdaMonitoringZBHIPOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_noINpu/Lambda")
 LambdaMonitoringZBHIPOOT.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTHIPOOTdb
 LambdaMonitoringZBHIPOOT.setLabel("LambdaMonitoringZBHIPOOT")
 
