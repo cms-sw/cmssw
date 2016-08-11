@@ -104,6 +104,10 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
   assert(trackerGeometryHandle.isValid());
+
+  // some parameters to record the ROCs here
+  auto module_rows = iConfig.getParameter<int>("module_rows") - 1;
+  auto module_cols = iConfig.getParameter<int>("module_cols") - 1;
   
   // We need to track some extra stuff here for the Shells later.
   auto pxlayer  = extractors[intern("PXLayer")];
@@ -131,7 +135,15 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     auto blade = pxblade(iq);
     if (blade != UNDEFINED && blade > outerring) outerring = blade;
 
-    // for ROCs etc., they need to be added here as well.
+    // we record each module 4 times, one for each corner, so we also get ROCs
+    // in booking (at least for the ranges)
+    iq.row = 0; iq.col = 0;
+    all_modules.push_back(iq);
+    iq.row = module_rows; iq.col = 0;
+    all_modules.push_back(iq);
+    iq.row = 0; iq.col = module_cols;
+    all_modules.push_back(iq);
+    iq.row = module_rows; iq.col = module_cols;
     all_modules.push_back(iq);
   }
 
@@ -259,9 +271,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
   float roc_cols   = iConfig.getParameter<int>("roc_cols");
   float roc_rows   = iConfig.getParameter<int>("roc_rows");
   auto  pxmodule   = extractors[intern("PXBModule")];
-  Value max_module =  max_value[intern("PXBModule")];
   auto  pxpanel    = extractors[intern("PXPanel")];
-  Value max_panel  = max_value[intern("PXPanel")];
   addExtractor(intern("ROC"),
     [n_rocs, roc_cols, roc_rows] (InterestingQuantities const& iq) {
       int fedrow = int(iq.row / roc_rows);
@@ -270,7 +280,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       if (fedrow == 1) return Value(n_rocs - 1 - fedcol);
       return UNDEFINED;
     },
-    0, n_rocs - 1
+    UNDEFINED, UNDEFINED
   );
 
   // arbitrary per-ladder numbering (for inefficiencies)
@@ -281,7 +291,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       if (mod == UNDEFINED) return UNDEFINED;
       return Value(roc(iq) + n_rocs * (mod-1));
     },
-    0, (max_module * n_rocs) - 1
+    UNDEFINED, UNDEFINED
   );
   addExtractor(intern("ROCinBlade"),
     [pxmodule, pxpanel, roc, n_rocs] (InterestingQuantities const& iq) {
@@ -289,7 +299,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       if (mod == UNDEFINED) return UNDEFINED;
       return Value(roc(iq) + n_rocs * (mod-1));
     },
-    0, (max_panel * n_rocs) - 1
+    UNDEFINED, UNDEFINED
   );
 
   addExtractor(intern("DetId"),
