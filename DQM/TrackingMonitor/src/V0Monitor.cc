@@ -69,6 +69,11 @@ V0Monitor::V0Monitor( const edm::ParameterSet& iConfig ) :
 
 }
 
+V0Monitor::~V0Monitor()
+{
+  if (genTriggerEventFlag_) delete genTriggerEventFlag_;
+}
+
 void V0Monitor::getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning)
 {
   mebinning.nbins = pset.getParameter<int32_t>("nbins");
@@ -152,9 +157,15 @@ void V0Monitor::bookHistograms(DQMStore::IBooker     & ibooker,
   v0_deltaMass_vs_PU_ = bookProfile(ibooker,"v0_deltaMass_vs_PU","deltaMass vs PU","# good PV", "m-m_{PDG}/m_{DPG}",pu_binning_, delta_binning);
 
 
+  // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );  
+
 }
 
 void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
+
+  // Filter out events if Trigger Filtering is requested
+  if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   //  int ls = iEvent.id().luminosityBlock();
   
