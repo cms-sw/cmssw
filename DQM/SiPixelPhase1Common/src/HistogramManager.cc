@@ -284,15 +284,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       GeometryInterface::Values significantvalues;
       geometryInterface.extractColumns(s.steps[0].columns, iq,
                                        significantvalues);
-      if (!bookUndefined) {
-        // skip if any column is UNDEFINED
-        // This could be more precise and ignore columns that are dropped in
-        // step1.
-        bool ok = true;
-        for (auto e : significantvalues.values)
-          if (e.second == GeometryInterface::UNDEFINED) ok = false;
-        if (!ok) continue;
-      }
       bool do_profile = false;
       auto dimensions = this->dimensions;
       std::string name = this->name;
@@ -303,7 +294,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       double range_x_min = this->range_min, range_x_max = this->range_max;
       int range_y_nbins = this->range_y_nbins;
       double range_y_min = this->range_y_min, range_y_max = this->range_y_max;
-      double range_z_min = 0, range_z_max = 0; // only for 2D profile
+      GeometryInterface::Value observed_x = GeometryInterface::UNDEFINED;
+      GeometryInterface::Value observed_y = GeometryInterface::UNDEFINED;
       for (SummationStep step : s.steps) {
         if (step.stage == SummationStep::STAGE1 ||
             step.stage == SummationStep::STAGE1_2) {
@@ -320,6 +312,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               range_x_min = range_y_min = 0;
               range_x_max = range_y_max = 1;
               AbstractHistogram& ctr = t[significantvalues];
+              ctr.kind = MonitorElement::DQM_KIND_INT;
               ctr.count = 0;
               break;
             }
@@ -334,12 +327,19 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                 range_y_min = range_x_min;
                 range_y_max = range_x_max;
                 range_y_nbins = range_x_nbins;
+                observed_y = observed_x;
               }
               dimensions = dimensions == 0 ? 1 : 2;
               xlabel = colname;
-              range_x_min = geometryInterface.minValue(col0[0]) - 0.5;
-              range_x_max = geometryInterface.maxValue(col0[0]) + 0.5;
-              range_x_nbins = int(range_x_max - range_x_min);
+              observed_x = significantvalues.get(col0).second;
+              if (geometryInterface.minValue(col0[0]) != GeometryInterface::UNDEFINED) {
+                range_x_min = geometryInterface.minValue(col0[0]) - 0.5;
+                range_x_max = geometryInterface.maxValue(col0[0]) + 0.5;
+                range_x_nbins = int(range_x_max - range_x_min);
+              } else {
+                range_x_min = range_x_max = GeometryInterface::UNDEFINED;
+                range_x_nbins = 0;
+              }
               significantvalues.erase(col0);
               break;
             }
@@ -354,10 +354,16 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               if (do_profile) { // we loose the Z- (former Y-) label here 
                 title = title + " (Z: " + ylabel + ")";
               }
+              observed_y = significantvalues.get(col0).second;
               ylabel = colname;
-              range_y_min = geometryInterface.minValue(col0[0]) - 0.5;
-              range_y_max = geometryInterface.maxValue(col0[0]) + 0.5;
-              range_y_nbins = int(range_y_max - range_y_min);
+              if (geometryInterface.minValue(col0[0]) != GeometryInterface::UNDEFINED) {
+                range_y_min = geometryInterface.minValue(col0[0]) - 0.5;
+                range_y_max = geometryInterface.maxValue(col0[0]) + 0.5;
+                range_y_nbins = int(range_y_max - range_y_min);
+              } else {
+                range_y_min = range_y_max = GeometryInterface::UNDEFINED;
+                range_y_nbins = 0;
+              }
               significantvalues.erase(col0);
               break;
             }
@@ -391,8 +397,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               do_profile = true;
               ylabel = xlabel;
               range_y_nbins = range_x_nbins;
-              range_y_min = range_z_min = range_x_min;
-              range_y_max = range_z_max = range_x_max;
+              range_y_min = range_x_min;
+              range_y_max = range_x_max;
               range_x_nbins = 1;
               range_x_min = 0;
               range_x_max = 1;
@@ -406,37 +412,103 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         }
       }
 
-      AbstractHistogram& histo = t[significantvalues];
-      if (histo.me) continue;
+      if (!bookUndefined) {
+        // skip if any column is UNDEFINED
+        bool ok = true;
+        for (auto e : significantvalues.values)
+          if (e.second == GeometryInterface::UNDEFINED) ok = false;
+        if (!ok) continue;
+      }
 
-      iBooker.setCurrentFolder(makePath(significantvalues));
+      AbstractHistogram& histo = t[significantvalues];
+
+      // track min and max values for all modules to get Geometry-dependent 
+      // things (e.g. #Ladders per Layer) right
+      if (observed_x != GeometryInterface::UNDEFINED) {
+        if (observed_x > histo.range_x_max) histo.range_x_max = observed_x;
+        if (observed_x < histo.range_x_min) histo.range_x_min = observed_x;
+      }
+      if (observed_y != GeometryInterface::UNDEFINED) {
+        if (observed_y > histo.range_y_max) histo.range_y_max = observed_y;
+        if (observed_y < histo.range_y_min) histo.range_y_min = observed_y;
+      }
+
+      if (int(range_x_min) != GeometryInterface::UNDEFINED)
+        histo.range_x_min = range_x_min;
+      if (int(range_x_max) != GeometryInterface::UNDEFINED)
+        histo.range_x_max = range_x_max;
+      if (int(range_y_min) != GeometryInterface::UNDEFINED)
+        histo.range_y_min = range_y_min;
+      if (int(range_y_max) != GeometryInterface::UNDEFINED)
+        histo.range_y_max = range_y_max;
+
+      histo.range_x_nbins = range_x_nbins;
+      histo.range_y_nbins = range_y_nbins;
+
+      histo.name = name;
+      histo.title = title;
+      histo.xlabel = xlabel;
+      histo.ylabel = ylabel;
 
       if (dimensions == 0 || dimensions == 1) {
         if (!do_profile) {
-          histo.me = iBooker.book1D(name.c_str(), (title + ";" + xlabel).c_str(),
-                                    range_x_nbins, range_x_min, range_x_max);
+          histo.kind = MonitorElement::DQM_KIND_TH1F;
         } else {
-          histo.me = iBooker.bookProfile(name.c_str(), 
-                                    (title + ";" + xlabel + ";" + ylabel).c_str(),
-                                    range_x_nbins, range_x_min, range_x_max,
-                                    // force infinite range to make TProfile sane.
-                                    /* range_y_min */ -(1./0.), /*range_y_max*/ (1./0.));
-          histo.me->getTH1()->GetYaxis()->SetCanExtend(1);
+          histo.kind = MonitorElement::DQM_KIND_TPROFILE;
         }
       } else if (dimensions == 2) {
         if (!do_profile) {
-          histo.me = iBooker.book2D(name.c_str(),
-                                    (title + ";" + xlabel + ";" + ylabel).c_str(),
-                                    range_x_nbins, range_x_min, range_x_max,
-                                    range_y_nbins, range_y_min, range_y_max);
+          histo.kind = MonitorElement::DQM_KIND_TH2F;
         } else {
-          histo.me = iBooker.bookProfile2D(name.c_str(),
-                                    (title + ";" + xlabel + ";" + ylabel).c_str(),
-                                    range_x_nbins, range_x_min, range_x_max,
-                                    range_y_nbins, range_y_min, range_y_max,
-                                    /* range_z_min */ -(1./0.), /*range_z_max*/ (1./0.));
+          histo.kind = MonitorElement::DQM_KIND_TPROFILE2D;
         }
       }
+      assert(histo.kind != MonitorElement::DQM_KIND_INVALID);
+    }
+    // above, we only saved all the parameters, but did not book yet. This is 
+    // needed since we determine the ranges iteratively, but we need to know 
+    // them precisely for booking; they cannot be changed later.
+    for (auto& e : t) {
+      iBooker.setCurrentFolder(makePath(e.first));
+      AbstractHistogram& h = e.second;
+
+      if (h.range_x_nbins == 0) {
+        h.range_x_min -= 0.5;
+        h.range_x_max += 0.5;
+        h.range_x_nbins = int(h.range_x_max - h.range_x_min);
+      }
+      if (h.range_y_nbins == 0) {
+        h.range_y_min -= 0.5;
+        h.range_y_max += 0.5;
+        h.range_y_nbins = int(h.range_y_max - h.range_y_min);
+      }
+
+      //std::cout << "+++ " << makePath(e.first) << " " << h.name << "\n";
+      //std::cout << "+++ min_x " << h.range_x_min << " max_x " << h.range_x_max << " bins " << h.range_x_nbins << "\n";
+      //std::cout << "+++ min_y " << h.range_y_min << " max_y " << h.range_y_max << " bins " << h.range_y_nbins << "\n";
+
+      if (h.kind == MonitorElement::DQM_KIND_TH1F) {
+        h.me = iBooker.book1D(h.name, (h.title + ";" + h.xlabel).c_str(),
+                       h.range_x_nbins, h.range_x_min, h.range_x_max);
+      } else if (h.kind == MonitorElement::DQM_KIND_TH2F) {
+        h.me = iBooker.book2D(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
+                       h.range_x_nbins, h.range_x_min, h.range_x_max,
+                       h.range_y_nbins, h.range_y_min, h.range_y_max);
+      } else if (h.kind == MonitorElement::DQM_KIND_TPROFILE) {
+        h.me = iBooker.bookProfile(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
+                       h.range_x_nbins, h.range_x_min, h.range_x_max, -(1./0.), 1./0.);
+      } else if (h.kind == MonitorElement::DQM_KIND_TPROFILE2D) {
+        h.me = iBooker.book2D(h.name, (h.title + ";" + h.xlabel + ";" + h.ylabel).c_str(),
+                       h.range_x_nbins, h.range_x_min, h.range_x_max,
+                       h.range_y_nbins, h.range_y_min, h.range_y_max);
+      } else if (h.kind == MonitorElement::DQM_KIND_INT) {
+        // counter, nothing to do
+        continue; // avoid the getTH1 below
+      } else {
+        assert(!"Illegal Histogram kind.");
+      }
+
+      h.th1 = h.me->getTH1();
     }
   }
 }
