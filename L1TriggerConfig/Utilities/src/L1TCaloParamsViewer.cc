@@ -313,7 +313,14 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     std::vector<double> hcalSF = ptr1->layer1HCalScaleFactors();
     cout<<"  layer1HCalScaleFactors= ["<< hcalSF.size()<<"] "<<flush;
     float _hcalSF[ hcalSF.size() ];
-    for(unsigned int i=0; i<hcalSF.size(); i++) _hcalSF[i] =  hcalSF[i];
+    for(unsigned int i=0; i<hcalSF.size(); i++){
+        // round false precision
+//        double significand;
+//        int    exponent;
+//        significand = frexp( hcalSF[i],  &exponent );
+//         _hcalSF[i] = ldexp( int(significand*10000)/10000., exponent );
+         _hcalSF[i] = int(hcalSF[i]*1000.)/1000.;
+    }
     cout << hash( _hcalSF, sizeof(float)*hcalSF.size() ) << endl;
     //for(unsigned int i=0; i<hcalSF.size(); i++) cout<<(i==0?"":",")<<hcalSF[i]; cout<<"]"<<endl;
     std::vector<double> hfSF   = ptr1->layer1HFScaleFactors();
