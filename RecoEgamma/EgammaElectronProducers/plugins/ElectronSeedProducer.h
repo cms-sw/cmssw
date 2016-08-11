@@ -6,7 +6,7 @@
 // Class:           ElectronSeedProducer
 //
 // Description:     Calls ElectronSeedGenerator
-//                  to find TrackingSeeds.
+//                  to find TrajectorySeeds.
 
 
 class ElectronSeedGenerator ;
