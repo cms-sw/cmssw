@@ -48,7 +48,8 @@ class RPCRecHitBaseAlgo {
   virtual bool compute(const RPCRoll& roll,
                        const RPCCluster& cl,
                        LocalPoint& Point,
-                       LocalError& error) const = 0;
+                       LocalError& error,
+                       float& time, float& timeErr) const = 0;
 
   /// local recHit computation accounting for track direction and 
   /// absolute position
@@ -57,6 +58,7 @@ class RPCRecHitBaseAlgo {
                        const float& angle,
                        const GlobalPoint& globPos, 
                        LocalPoint& Point,
-                       LocalError& error) const = 0;
+                       LocalError& error,
+                       float& time, float& timeErr) const = 0;
 };
 #endif
