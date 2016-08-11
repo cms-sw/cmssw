@@ -12,7 +12,6 @@ def applySubstructure( process ) :
                      jetSource = cms.InputTag('ak8PFJetsCHS'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-                     btagDiscriminators = ([x.getModuleLabel() for x in patJetsDefault.discriminatorSources] + ['pfBoostedDoubleSecondaryVertexAK8BJetTags']),
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
@@ -60,7 +59,8 @@ def applySubstructure( process ) :
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak8PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
         j2tParametersVX,
-        jets = cms.InputTag("ak8PFJetsPuppi")
+        jets = cms.InputTag("ak8PFJetsPuppi"),
+        coneSize = cms.double(0.8)
     )
     process.patJetAK8PuppiCharge = cms.EDProducer("JetChargeProducer",
         src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
@@ -155,7 +155,7 @@ def applySubstructure( process ) :
         jetSource = cms.InputTag('ak8PFJetsPuppiSoftDrop','SubJets'),
         algo = 'ak',  # needed for subjet flavor clustering
         rParam = 0.8, # needed for subjet flavor clustering
-        btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+        btagDiscriminators = ['pfCombinedSecondaryVertexV2BJetTags', 'pfCombinedInclusiveSecondaryVertexV2BJetTags','pfCombinedMVAV2BJetTags'],
         jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], 'None'),
         explicitJTA = True,  # needed for subjet b tagging
         svClustering = True, # needed for subjet b tagging
@@ -191,9 +191,6 @@ def applySubstructure( process ) :
             jetSrc = cms.InputTag("selectedPatJetsAK8Puppi"),
             distMax = cms.double(0.8),
             algoTags = cms.VInputTag(
-                # NOTE: For an optimal storage of the AK8 jet daughters, the first subjet collection listed here should be
-                #       derived from AK8 jets, i.e., subjets should contain either all or a subset of AK8 constituents.
-                #       The PUPPI collection has its own pointers to its own PUPPI constituents. 
                 cms.InputTag("slimmedJetsAK8PFPuppiSoftDropPacked")
             ),
             algoLabels = cms.vstring(
