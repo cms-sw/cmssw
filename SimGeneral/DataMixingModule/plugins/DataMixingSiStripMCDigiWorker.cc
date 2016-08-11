@@ -161,7 +161,8 @@ namespace edm
  
     }
 
-    if(APVSaturationFromHIP_) {
+    // keep here for future reference.  In current implementation, HIP killing is done once in PU file
+    /*  if(APVSaturationFromHIP_) {
       Handle<std::vector<std::pair<int,std::bitset<6>> > >  APVinput;
 
       if( e.getByLabel(SistripAPVLabelSig_,APVinput) ) {
@@ -171,7 +172,7 @@ namespace edm
 	  theAffectedAPVmap_.insert(APVMap::value_type(entry->first, entry->second));
 	}
       }
-    }
+      } */
 
   } // end of addSiStripSignals
 
@@ -357,9 +358,7 @@ namespace edm
 	  }
 	}
 	else {
-	  if(formerID>0) {
-	    DeadAPVList[currentID]=NewAPVBits;          
-	  }
+	  DeadAPVList[currentID]=NewAPVBits;          
 	  //save pointers for next iteration                                 
 	  formerID = currentID;
 	  NewAPVBits = iAPV->second;
@@ -423,8 +422,7 @@ namespace edm
         }
 
         iLocalchk = iLocal;
-        if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one  
-
+	if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one  
           Signals.insert( std::make_pair(formerStrip, ADCSum));
         }
       }
@@ -464,18 +462,20 @@ namespace edm
           if(badChannels[strip]) detAmpl[strip] = 0.;
 	}
          
-	std::bitset<6> & bs=DeadAPVList[detID];
+	if(APVSaturationFromHIP_) {
+	  std::bitset<6> & bs=DeadAPVList[detID];
 
-	if(bs.any()){
-	  // Here below is the scaling function which describes the evolution of the baseline (i.e. how the charge is suppressed).
-	  // This must be replaced as soon as we have a proper modeling of the baseline evolution from VR runs
-	  float Shift=1-NumberOfBxBetweenHIPandEvent/floor(300.0/25.0); //Reminder: make these numbers not hardcoded!! 
-	  float randomX=CLHEP::RandFlat::shoot(engine);
-	  float scalingValue=(randomX-Shift)*10.0/7.0-3.0/7.0;
+	  if(bs.any()){
+	    // Here below is the scaling function which describes the evolution of the baseline (i.e. how the charge is suppressed).
+	    // This must be replaced as soon as we have a proper modeling of the baseline evolution from VR runs
+	    float Shift=1-NumberOfBxBetweenHIPandEvent/floor(300.0/25.0); //Reminder: make these numbers not hardcoded!! 
+	    float randomX=CLHEP::RandFlat::shoot(engine);
+	    float scalingValue=(randomX-Shift)*10.0/7.0-3.0/7.0;
 
-	  for(int strip =0; strip < numStrips; ++strip) {
-	    if(!badChannels[strip] &&  bs[strip/128]==1){
-	      detAmpl[strip] *=scalingValue>0?scalingValue:0.0;
+	    for(int strip =0; strip < numStrips; ++strip) {
+	      if(!badChannels[strip] &&  bs[strip/128]==1){
+		detAmpl[strip] *=scalingValue>0?scalingValue:0.0;
+	      }
 	    }
 	  }
 	}

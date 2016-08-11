@@ -73,7 +73,6 @@ class SiStripDigitizerAlgorithm {
                          const StripGeomDetUnit *stripdet,
                          const GlobalVector& bfield,
 			 const TrackerTopology *tTopo,
-			 std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,
                          CLHEP::HepRandomEngine*);
 
   void digitize(
@@ -85,6 +84,7 @@ class SiStripDigitizerAlgorithm {
                 edm::ESHandle<SiStripThreshold>&, 
                 edm::ESHandle<SiStripNoises>&,
                 edm::ESHandle<SiStripPedestals>&,
+		std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,
                 CLHEP::HepRandomEngine*);
 
   void calculateInstlumiScale(PileupMixingContent* puInfo);
@@ -128,6 +128,7 @@ class SiStripDigitizerAlgorithm {
 
   double APVSaturationProb_;
   bool FirstLumiCalc_;
+  bool FirstDigitize_;
   
   const std::unique_ptr<SiHitDigitizer> theSiHitDigitizer;
   const std::unique_ptr<SiPileUpSignals> theSiPileUpSignals;
