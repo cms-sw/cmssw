@@ -25,6 +25,9 @@
 #include "CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h"
 #include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
 
+#include "CondFormats/DataRecord/interface/HFPhase1PMTParamsRcd.h"
+#include "CondFormats/HcalObjects/interface/HFPhase1PMTParams.h"
+
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
@@ -72,3 +75,4 @@ REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd,HcalInterpolatedPulseColl);
 REGISTER_PLUGIN(HBHENegativeEFilterRcd,HBHENegativeEFilter);
 REGISTER_PLUGIN(HcalSiPMParametersRcd,HcalSiPMParameters);
 REGISTER_PLUGIN(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics);
+REGISTER_PLUGIN(HFPhase1PMTParamsRcd,HFPhase1PMTParams);
