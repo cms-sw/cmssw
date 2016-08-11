@@ -8,7 +8,10 @@ RPCClusterContainer RPCClusterizer::doAction(const RPCDigiCollection::Range& dig
 
   // Start from single digi recHits
   for ( auto digi = digiRange.first; digi != digiRange.second; ++digi ) {
-    initialCluster.insert(RPCCluster(digi->strip(), digi->strip(), digi->bx()));
+    RPCCluster cl(digi->strip(), digi->strip(), digi->bx());
+    if ( digi->hasTime() ) cl.addTime(digi->time());
+    if ( digi->hasY() ) cl.addY(digi->coordinateY());
+    initialCluster.insert(cl);
   }
   if ( initialCluster.empty() ) return finalCluster; // Confirm the collection is valid
 
@@ -33,6 +36,5 @@ RPCClusterContainer RPCClusterizer::doAction(const RPCDigiCollection::Range& dig
   finalCluster.insert(prev);
 
   return finalCluster;
-} 
-
+}
 

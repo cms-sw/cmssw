@@ -75,7 +75,7 @@ def recoGeoLoad(score):
        process.GlobalTag.globaltag = autoCond['mc']
       #from Configuration.AlCa.GlobalTag import GlobalTag
       #process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V6::All', '')
-       process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2023simReco_cff')
       #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2019
       #process = cust_2019(process)
       

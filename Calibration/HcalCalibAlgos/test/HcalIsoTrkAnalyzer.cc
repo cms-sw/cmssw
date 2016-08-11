@@ -23,6 +23,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //Triggers
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -113,6 +114,7 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection>   tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection>   tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection>   tok_hbhe_;
+  edm::EDGetTokenT<GenEventInfoProduct>    tok_ew_; 
 
   TTree                     *tree, *tree2;
   int                        t_Run, t_Event, t_ieta, t_goodPV, t_DataType; 
@@ -179,6 +181,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   tok_trigRes_  = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
   tok_bs_       = consumes<reco::BeamSpot>(labelBS);
   tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
+  tok_ew_       = consumes<GenEventInfoProduct>(edm::InputTag("generator")); 
   if (modnam == "") {
     tok_recVtx_   = consumes<reco::VertexCollection>(labelRecVtx_);
     tok_EB_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit",labelEB_));
@@ -268,6 +271,9 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
  
   //event weight for FLAT sample
   t_EventWeight = 1.0;
+  edm::Handle<GenEventInfoProduct> genEventInfo;
+  iEvent.getByToken(tok_ew_, genEventInfo);
+  if (genEventInfo.isValid()) t_EventWeight = genEventInfo->weight();  
 
   //Define the best vertex and the beamspot
   edm::Handle<reco::VertexCollection> recVtxs;

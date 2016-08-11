@@ -37,9 +37,9 @@ class HGCalUncalibRecHitWorkerWeights : public HGCalUncalibRecHitWorkerBaseClass
 
  protected:
     
-  HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCEEDetId,HGCSample>> uncalibMaker_ee_;
-  HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCHEDetId,HGCSample>> uncalibMaker_hef_;
-  HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCHEDetId,HGCSample>> uncalibMaker_heb_;
+  HGCalUncalibRecHitRecWeightsAlgo<HGCEEDataFrame> uncalibMaker_ee_;
+  HGCalUncalibRecHitRecWeightsAlgo<HGCHEDataFrame> uncalibMaker_hef_;
+  HGCalUncalibRecHitRecWeightsAlgo<HGCHEDataFrame> uncalibMaker_heb_;
 
 };
 

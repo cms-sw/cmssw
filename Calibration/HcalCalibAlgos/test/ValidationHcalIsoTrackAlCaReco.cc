@@ -64,7 +64,7 @@
 
 // Sergey -
 
-#include "Calibration/HcalCalibAlgos/plugins/ValidationHcalIsoTrackAlCaReco.h"
+#include "ValidationHcalIsoTrackAlCaReco.h"
 #include <fstream>
 
 #include "TH1F.h"
