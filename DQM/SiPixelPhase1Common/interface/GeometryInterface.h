@@ -184,15 +184,15 @@ class GeometryInterface {
   // This holds closures that compute the column values in step1.
   // can be a Vector since ids are dense.
   std::vector<std::function<Value(InterestingQuantities const& iq)>> extractors;
-  // An estimate of the max value for a column. Used for step1 EXTEND (but not
-  // step2)
+  // quantity range if it is known. Can be UNDEFINED, in this case booking will
+  // determine the range.
   // map for ease of use.
   std::map<ID, Value> max_value;
   std::map<ID, Value> min_value;
 
   void addExtractor(ID id,
                     std::function<Value(InterestingQuantities const& iq)> func,
-                    Value min, Value max) {
+                    Value min = UNDEFINED, Value max = UNDEFINED) {
     max_value[id] = max;
     min_value[id] = min;
     extractors[id] = func;
