@@ -132,8 +132,7 @@ namespace ecaldqm
 
       // Fill Global Quality Summary
       int status(kGood);
-      //if(integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
-      if(integrity == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
+      if(integrity == kBad || presample == kBad || timing == kBad || rawdata == kBad || trigprim == kBad || hotcell == kBad)
         status = kBad;
       else if(integrity == kUnknown && presample == kUnknown && timing == kUnknown && rawdata == kUnknown && trigprim == kUnknown)
         status = kUnknown;
