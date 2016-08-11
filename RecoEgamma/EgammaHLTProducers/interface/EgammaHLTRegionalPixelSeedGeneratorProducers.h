@@ -6,7 +6,7 @@
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 // 
 // Description:     Calls RoadSeachSeedFinderAlgorithm
-//                  to find TrackingSeeds.
+//                  to find TrajectorySeeds.
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
