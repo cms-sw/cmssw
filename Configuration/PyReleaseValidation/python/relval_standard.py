@@ -73,7 +73,7 @@ workflows[4.54] = ['',['RunEl2012B','HLTD','RECODreHLT','HARVESTDreHLT']]
 workflows[4.55] = ['',['RunJet2012B','HLTD','RECODreHLT','HARVESTDreHLT']]
 workflows[4.56] = ['',['ZMuSkim2012B','RECOSKIM']]
 workflows[4.57] = ['',['ZElSkim2012B','RECOSKIM']]
-workflows[4.58] = ['',['WElJan2013Run2012B','RECOSKIM']]
+workflows[4.58] = ['',['WElSkim2012B','RECOSKIM']]
 
 workflows[4.61] = ['',['RunMinBias2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
 workflows[4.62] = ['',['RunMu2012C','HLTD','RECODreHLT','HARVESTDreHLT']]

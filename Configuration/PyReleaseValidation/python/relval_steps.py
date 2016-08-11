@@ -198,7 +198,6 @@ steps['RunEl2012B']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012B-v1/RAW'
 steps['RunJet2012B']={'INPUT':InputInfo(dataSet='/JetHT/Run2012B-v1/RAW',label='jet2012B',location='STD',run=Run2012B)}
 steps['ZMuSkim2012B']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012B-ZMu-PromptSkim-v1/RAW-RECO',label='zMu2012B',location='CAF',run=Run2012Bsk)}
 steps['WElSkim2012B']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012B-WElectron-PromptSkim-v1/USER',label='wEl2012B',location='STD',run=Run2012Bsk)}
-steps['WElJan2013Run2012B']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012B-WElectron-22Jan2013-v1/USER',label='wEl2012B',location='STD',ib_block='c1b7e0f2-818e-11e2-a80e-00221959e72f')}
 steps['ZElSkim2012B']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012B-ZElectron-13Jul2012-v1/RAW-RECO',ib_block='0c5092cc-d554-11e1-bb62-00221959e69e',label='zEl2012B',location='STD',run=Run2012Bsk)}
 
 Run2012C=[199812]
