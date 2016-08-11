@@ -80,7 +80,7 @@ void HistogramManager::executeStep1Spec(
           break;
         }
         case SummationStep::EXTEND_X:
-          assert((x == 0.0 && dimensions != 1) || 
+          assert((x == 0.0 && dimensions != 1) ||
                  (y == 0.0 && dimensions == 1) ||
                  !"Illegal EXTEND in step1");
           if (dimensions == 1) y = x;
@@ -115,7 +115,7 @@ void HistogramManager::executeStep1Spec(
           break;
         }
         case SummationStep::REDUCE:
-          // assert(step.arg == "MEAN") 
+          // assert(step.arg == "MEAN")
           z = y = x;
           x = 0.0;
           dimensions = 2; // Profile always needs 2D (or 3D) fill
@@ -144,7 +144,7 @@ void HistogramManager::executeStep1Spec(
     fastpath->fill(x, y);
   else /* dimensions == 3 */
     fastpath->fill(x, y, z);
-  
+
 }
 
 void HistogramManager::fill(double x, double y, DetId sourceModule,
@@ -218,7 +218,7 @@ void HistogramManager::executePerEventHarvesting() {
         significantvalues[i].values = e.first.values;
 
         bool defined = true;
-        for (auto v : e.first.values) 
+        for (auto v : e.first.values)
           defined &= (v.second != GeometryInterface::UNDEFINED);
         if (!defined) {
           range_undefined = true;
@@ -237,7 +237,7 @@ void HistogramManager::executePerEventHarvesting() {
       for (auto it = t.begin(); it != t.end(); ++it) {
         if (it->first.values.size() == s.steps[0].columns.size()) {
           bool defined = true;
-          for (auto v : it->first.values) 
+          for (auto v : it->first.values)
             defined &= (v.second != GeometryInterface::UNDEFINED);
           if (defined) {
             it = t.erase(it);
@@ -351,7 +351,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
               dimensions = 2;
               title = title + " per " + colname;
               name = name + "_per_" + colname;
-              if (do_profile) { // we loose the Z- (former Y-) label here 
+              if (do_profile) { // we loose the Z- (former Y-) label here
                 title = title + " (Z: " + ylabel + ")";
               }
               observed_y = significantvalues.get(col0).second;
@@ -422,7 +422,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
 
       AbstractHistogram& histo = t[significantvalues];
 
-      // track min and max values for all modules to get Geometry-dependent 
+      // track min and max values for all modules to get Geometry-dependent
       // things (e.g. #Ladders per Layer) right
       if (observed_x != GeometryInterface::UNDEFINED) {
         if (observed_x > histo.range_x_max) histo.range_x_max = observed_x;
@@ -465,8 +465,8 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
       }
       assert(histo.kind != MonitorElement::DQM_KIND_INVALID);
     }
-    // above, we only saved all the parameters, but did not book yet. This is 
-    // needed since we determine the ranges iteratively, but we need to know 
+    // above, we only saved all the parameters, but did not book yet. This is
+    // needed since we determine the ranges iteratively, but we need to know
     // them precisely for booking; they cannot be changed later.
     for (auto& e : t) {
       iBooker.setCurrentFolder(makePath(e.first));
@@ -482,10 +482,6 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         h.range_y_max += 0.5;
         h.range_y_nbins = int(h.range_y_max - h.range_y_min);
       }
-
-      std::cout << "+++ " << makePath(e.first) << " " << h.name << "\n";
-      std::cout << "+++ min_x " << h.range_x_min << " max_x " << h.range_x_max << " bins " << h.range_x_nbins << "\n";
-      std::cout << "+++ min_y " << h.range_y_min << " max_y " << h.range_y_max << " bins " << h.range_y_nbins << "\n";
 
       if (h.kind == MonitorElement::DQM_KIND_TH1F) {
         h.me = iBooker.book1D(h.name, (h.title + ";" + h.xlabel).c_str(),
@@ -558,7 +554,7 @@ void HistogramManager::loadFromDQMStore(SummationSpecification& s, Table& t,
             break;
           }
           case SummationStep::REDUCE:
-            break; // not visible in name 
+            break; // not visible in name
           case SummationStep::CUSTOM:
           case SummationStep::NO_TYPE:
             assert(!"Illegal step; booking should have caught this.");
@@ -660,7 +656,7 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
       edm::LogError("HistogramManager") << "+++ Reduction '" << step.arg
                                         << " not yet implemented\n";
     }
-    new_histo.th1 = new TH1F(name.c_str(), (std::string("") + th1->GetTitle() 
+    new_histo.th1 = new TH1F(name.c_str(), (std::string("") + th1->GetTitle()
                                             + ";;" + label).c_str(), 1, 0, 1);
     new_histo.th1->SetBinContent(1, reduced_quantity);
     new_histo.th1->SetBinError(1, reduced_quantity_error);

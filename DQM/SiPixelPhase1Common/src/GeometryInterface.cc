@@ -2,8 +2,8 @@
 //
 // Package:    SiPixelPhase1Common
 // Class:      GeometryInterface
-// 
-// Geometry depedence goes here. 
+//
+// Geometry depedence goes here.
 //
 // Original Author:  Marcel Schneider
 
@@ -39,7 +39,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadFEDCabling(iSetup, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
-  for (auto e : ids) log << "+++ column: " << e.first 
+  for (auto e : ids) log << "+++ column: " << e.first
     << " ok " << bool(extractors[e.second]) << " min " << min_value[e.second] << " max " << max_value[e.second] << "\n";
   is_loaded = true;
 }
@@ -56,9 +56,9 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     const TrackerTopology* tt;
     TrackerTopology::DetIdFields field;
     Value operator()(InterestingQuantities const& iq) {
-      if (tt->hasField(iq.sourceModule, field)) 
+      if (tt->hasField(iq.sourceModule, field))
         return tt->getField(iq.sourceModule, field);
-      else 
+      else
         return UNDEFINED;
     };
   };
@@ -99,7 +99,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     auto endcap = pxendcap(iq);
     return endcap == 1 ? -disk : disk;
   };
- 
+
   // Get a Geometry
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
@@ -108,7 +108,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   // some parameters to record the ROCs here
   auto module_rows = iConfig.getParameter<int>("module_rows") - 1;
   auto module_cols = iConfig.getParameter<int>("module_cols") - 1;
-  
+
   // We need to track some extra stuff here for the Shells later.
   auto pxlayer  = extractors[intern("PXLayer")];
   auto pxladder = extractors[intern("PXLadder")];
@@ -159,7 +159,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       if (blade == UNDEFINED) return UNDEFINED;
       if (blade <= innerring) return Value(1);
       else return Value(2);
-    }, UNDEFINED, UNDEFINED
+    }
   );
 
   addExtractor(intern("HalfCylinder"),
@@ -189,13 +189,13 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       auto ladder = pxladder(iq);
       int frac = (int) ((ladder-1) / float(maxladders[layer]) * 4); // floor semantics
       Value quarter = maxladders[layer] / 4;
-      if (frac == 0) return -ladder + quarter + 1; // top right - +1 for gap 
-      if (frac == 1) return -ladder + quarter; // top left - 
+      if (frac == 0) return -ladder + quarter + 1; // top right - +1 for gap
+      if (frac == 1) return -ladder + quarter; // top left -
       if (frac == 2) return -ladder + quarter; // bot left - same
       if (frac == 3) return -ladder  + 4*quarter + quarter + 1; // bot right - like top right but wrap around
       assert(!"Shell logic problem");
       return UNDEFINED;
-    }, UNDEFINED, UNDEFINED
+    }
   );
 
   addExtractor(intern("signedModule"),
@@ -205,7 +205,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       mod -= (maxmodule/2 + 1); // range -(max_module/2)..-1, 0..
       if (mod >= 0) mod += 1;    // range -(max_module/2)..-1, 1..
       return mod;
-    }, UNDEFINED, UNDEFINED
+    }
   );
 
   auto signedladder = extractors[intern("signedLadder")];
@@ -264,7 +264,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     [] (InterestingQuantities const& iq) {
       return Value(iq.col);
     },
-    0, iConfig.getParameter<int>("module_cols") - 1 
+    0, iConfig.getParameter<int>("module_cols") - 1
   );
 
   int   n_rocs     = iConfig.getParameter<int>("n_rocs");
@@ -279,8 +279,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       if (fedrow == 0) return Value(fedcol);
       if (fedrow == 1) return Value(n_rocs - 1 - fedcol);
       return UNDEFINED;
-    },
-    UNDEFINED, UNDEFINED
+    }
   );
 
   // arbitrary per-ladder numbering (for inefficiencies)
@@ -290,16 +289,14 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       auto mod = pxmodule(iq);
       if (mod == UNDEFINED) return UNDEFINED;
       return Value(roc(iq) + n_rocs * (mod-1));
-    },
-    UNDEFINED, UNDEFINED
+    }
   );
   addExtractor(intern("ROCinBlade"),
     [pxmodule, pxpanel, roc, n_rocs] (InterestingQuantities const& iq) {
       auto mod = pxpanel(iq);
       if (mod == UNDEFINED) return UNDEFINED;
       return Value(roc(iq) + n_rocs * (mod-1));
-    },
-    UNDEFINED, UNDEFINED
+    }
   );
 
   addExtractor(intern("DetId"),
