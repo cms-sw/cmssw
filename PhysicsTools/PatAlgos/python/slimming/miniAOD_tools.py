@@ -249,7 +249,7 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
     makePuppies( process );
 
-    runMetCorAndUncForMiniAODProduction(process, metType="PF",
+    runMetCorAndUncForMiniAODProduction(process, metType="Puppi",
                                         pfCandColl=cms.InputTag("puppiForMET"),
                                         jetCollUnskimmed="slimmedJetsPuppi",
                                         recoMetFromPFCs=True,
