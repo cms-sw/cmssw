@@ -2219,7 +2219,7 @@ class ConfigBuilder(object):
 		self.process=cleanUnscheduled(self.process)
 
 
-	self.pythonCfgCode += self.addCustomise(1)
+		self.pythonCfgCode += self.addCustomise(1)
 
 
 	# make the .io file
