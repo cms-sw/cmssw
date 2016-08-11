@@ -483,9 +483,9 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         h.range_y_nbins = int(h.range_y_max - h.range_y_min);
       }
 
-      //std::cout << "+++ " << makePath(e.first) << " " << h.name << "\n";
-      //std::cout << "+++ min_x " << h.range_x_min << " max_x " << h.range_x_max << " bins " << h.range_x_nbins << "\n";
-      //std::cout << "+++ min_y " << h.range_y_min << " max_y " << h.range_y_max << " bins " << h.range_y_nbins << "\n";
+      std::cout << "+++ " << makePath(e.first) << " " << h.name << "\n";
+      std::cout << "+++ min_x " << h.range_x_min << " max_x " << h.range_x_max << " bins " << h.range_x_nbins << "\n";
+      std::cout << "+++ min_y " << h.range_y_min << " max_y " << h.range_y_max << " bins " << h.range_y_nbins << "\n";
 
       if (h.kind == MonitorElement::DQM_KIND_TH1F) {
         h.me = iBooker.book1D(h.name, (h.title + ";" + h.xlabel).c_str(),
