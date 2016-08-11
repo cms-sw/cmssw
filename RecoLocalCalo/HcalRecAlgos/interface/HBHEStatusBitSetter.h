@@ -11,23 +11,25 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
-class HBHEStatusBitSetter {
- public:
-  HBHEStatusBitSetter();
+class HBHEStatusBitSetter
+{
+public:
   HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,const std::vector<edm::ParameterSet>& pulseShapeParameterSets);
   ~HBHEStatusBitSetter();
+
   void Clear();
-  void SetFlagsFromDigi(const HcalTopology* topo,HBHERecHit& hbhe, const HBHEDataFrame& digi, const HcalCoder& coder,
-			const HcalCalibrations& calib,
-			int firstSample=3,
-			int samplesToAdd=4
-			);
-  void SetFlagsFromRecHits(const HcalTopology* topo,HBHERecHitCollection& rec);
- private:
+  void setTopo(const HcalTopology* topo);
+  void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi,
+                        const HcalCoder& coder, const HcalCalibrations& calib);
+  void rememberHit(const HBHERecHit& hbhe);
+  void SetFlagsFromRecHits(HBHERecHitCollection& rec);
+
+private:
+  HBHEStatusBitSetter(const HBHEStatusBitSetter&);
+  HBHEStatusBitSetter& operator=(const HBHEStatusBitSetter&);
+  
   double hitEnergyMinimum_;
   int hitMultiplicityThreshold_;
-  unsigned int firstSample_;
-  unsigned int samplesToAdd_;
   double nominalPedestal_;
   HcalLogicalMap *logicalMap_;
   std::vector<int> hpdMultiplicity_;
