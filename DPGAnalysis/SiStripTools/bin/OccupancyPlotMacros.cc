@@ -17,6 +17,7 @@
 #include <cstring>
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 #include "TROOT.h"
 #include "DPGAnalysis/SiStripTools/interface/CommonAnalyzer.h"
 #include "OccupancyPlotMacros.h"
