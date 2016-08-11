@@ -77,8 +77,7 @@ void WaitingTaskList_test::addThenDone()
   
    edm::WaitingTaskList waitList;
    {
-      std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-                                                 [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+      auto waitTask = edm::make_empty_waiting_task();
       waitTask->set_ref_count(2);
       //NOTE: allocate_child does NOT increment the ref_count of waitTask!
       auto t = new (waitTask->allocate_child()) TestCalledTask{called,excPtr};
@@ -102,8 +101,7 @@ void WaitingTaskList_test::addThenDone()
    {
       std::exception_ptr excPtr;
 
-      std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-                                                 [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+      auto waitTask = edm::make_empty_waiting_task();
       waitTask->set_ref_count(2);
    
       auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
@@ -127,8 +125,7 @@ void WaitingTaskList_test::doneThenAdd()
 
    edm::WaitingTaskList waitList;
    {
-     std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-                                              [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+      auto waitTask = edm::make_empty_waiting_task();
       waitTask->set_ref_count(2);
    
       auto t = new (waitTask->allocate_child()) TestCalledTask{called,excPtr};
@@ -151,8 +148,7 @@ void WaitingTaskList_test::addThenDoneFailed()
   {
     std::exception_ptr excPtr;
     
-    std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-      [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+    auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(2);
     
     auto t = new (waitTask->allocate_child()) TestCalledTask{called, excPtr};
@@ -176,8 +172,7 @@ void WaitingTaskList_test::doneThenAddFailed()
   
   edm::WaitingTaskList waitList;
   {
-    std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-      [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+    auto waitTask = edm::make_empty_waiting_task();
     waitTask->set_ref_count(2);
     
     auto t = new (waitTask->allocate_child()) TestCalledTask{called,excPtr};
@@ -210,8 +205,7 @@ void WaitingTaskList_test::stressTest()
    const unsigned int nTasks = 10000;
    while(0 != --index) {
       called = false;
-     std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-                                                [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+      auto waitTask = edm::make_empty_waiting_task();
       waitTask->set_ref_count(3);
       tbb::task* pWaitTask=waitTask.get();
       

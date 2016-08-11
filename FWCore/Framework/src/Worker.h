@@ -618,8 +618,7 @@ namespace edm {
     bool expected = false;
     if(not workStarted_.compare_exchange_strong(expected, true) ) {
       //another thread beat us here
-      std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-        [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+      auto waitTask = edm::make_empty_waiting_task();
       waitTask->increment_ref_count();
       
       waitingTasks_.add(waitTask.get());
@@ -655,8 +654,8 @@ namespace edm {
             waitingTasks_.doneWaiting(nullptr);
             return;
           }
-          std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-            [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+          auto waitTask = edm::make_empty_waiting_task();
+          //set count to 2 since wait_for_all requires value to not go to 0
           waitTask->set_ref_count(2);
           
           prefetchAsync(waitTask.get(),parentContext, ep);
