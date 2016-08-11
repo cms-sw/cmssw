@@ -82,6 +82,8 @@ for tracks in selectedTracks :
     locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
     locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
@@ -119,6 +121,8 @@ for tracks in selectedTracks :
     locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
     locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
@@ -156,6 +160,8 @@ for tracks in selectedTracks :
     locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
     locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
@@ -194,6 +200,8 @@ for tracks in selectedTracks :
     locals()[label].doPUmonitoring                      = doPUmonitoring                      [tracks]
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
+    locals()[label].doPlotsVsLUMI                       = cms.bool(True)
+    locals()[label].doPlotsVsBX                         = cms.bool(True)
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
     locals()[label].doEffFromHitPatternVsBX             = doEffFromHitPatternVsBX             [tracks]
     locals()[label].doEffFromHitPatternVsLUMI           = cms.bool(True)
