@@ -157,6 +157,13 @@ def miniAOD_customizeCommon(process):
     updateJetCollection(
         process,
         jetSource = cms.InputTag('selectedPatJets'),
+        ## updateJetCollection defaults to MiniAOD inputs. Here, this needs to be changed to RECO/AOD inputs
+        pvSource = cms.InputTag('offlinePrimaryVertices'),
+        pfCandidates = cms.InputTag('particleFlow'),
+        svSource = cms.InputTag('inclusiveCandidateSecondaryVertices'),
+        muSource = cms.InputTag('muons'),
+        elSource = cms.InputTag('gedGsfElectrons'),
+        ##
         jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
         btagDiscriminators = ["pfJetBProbabilityBJetTags", "pfJetProbabilityBJetTags",
                               "pfCombinedSecondaryVertexV2BJetTags", "pfCombinedInclusiveSecondaryVertexV2BJetTags",
