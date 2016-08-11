@@ -1,76 +1,65 @@
+#include <cassert>
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-
-HBHEStatusBitSetter::HBHEStatusBitSetter()
-{
-  logicalMap_=0;
-
-  for (int iRm=0;iRm<HcalFrontEndId::maxRmIndex;iRm++) {
-    hpdMultiplicity_.push_back(0);
-  }
-
-  nominalPedestal_=3.0;
-  hitEnergyMinimum_=2.0;
-  hitMultiplicityThreshold_=17;
-}
 
 HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
 					 double hitEnergyMinimum,
 					 int hitMultiplicityThreshold,
 					 const std::vector<edm::ParameterSet>& pulseShapeParameterSets
 					 )
+    : hitEnergyMinimum_(hitEnergyMinimum),
+      hitMultiplicityThreshold_(hitMultiplicityThreshold),
+      nominalPedestal_(nominalPedestal),
+      logicalMap_(nullptr),
+      hpdMultiplicity_(HcalFrontEndId::maxRmIndex, 0)
 {
-  logicalMap_=0;
-  for (int iRm=0;iRm<HcalFrontEndId::maxRmIndex;iRm++) {
-    hpdMultiplicity_.push_back(0);
-  }
-
-  nominalPedestal_=nominalPedestal;
-  hitEnergyMinimum_=hitEnergyMinimum;
-  hitMultiplicityThreshold_=hitMultiplicityThreshold;
-
-  for (unsigned int iPSet=0;iPSet<pulseShapeParameterSets.size();iPSet++) {
-    edm::ParameterSet pset=pulseShapeParameterSets.at(iPSet);
-    std::vector<double> params=pset.getParameter<std::vector<double> >("pulseShapeParameters");
+  const unsigned sz = pulseShapeParameterSets.size();
+  pulseShapeParameters_.reserve(sz);
+  for (unsigned iPSet=0; iPSet<sz; iPSet++) {
+    const edm::ParameterSet& pset=pulseShapeParameterSets[iPSet];
+    const std::vector<double>& params=pset.getParameter<std::vector<double> >("pulseShapeParameters");
     pulseShapeParameters_.push_back(params);
   }
-
 }
 
 HBHEStatusBitSetter::~HBHEStatusBitSetter() {
-  if (logicalMap_!=0) delete logicalMap_;
+    delete logicalMap_;
 }
 
 void HBHEStatusBitSetter::Clear()
 {
-  for (unsigned int i=0;i<hpdMultiplicity_.size();i++) hpdMultiplicity_[i]=0;
+    const unsigned sz = hpdMultiplicity_.size();
+    for (unsigned i=0; i<sz; i++)
+        hpdMultiplicity_[i] = 0;
 }
 
-void HBHEStatusBitSetter::SetFlagsFromDigi(const HcalTopology* topo, HBHERecHit& hbhe, 
-					   const HBHEDataFrame& digi,
-					   const HcalCoder& coder,
-					   const HcalCalibrations& calib,
-					   int firstSample,
-					   int samplesToAdd
-					   )
+void HBHEStatusBitSetter::setTopo(const HcalTopology* topo)
 {
-  if (logicalMap_==0) {
+    delete logicalMap_;
+    logicalMap_ = nullptr;
     HcalLogicalMapGenerator gen;
     logicalMap_=new HcalLogicalMap(gen.createMap(topo));
-  }
-  
+}
 
-  // get firstSample, samplesToAdd from database for each hit
-  firstSample_ = firstSample;
-  samplesToAdd_ = samplesToAdd;
+void HBHEStatusBitSetter::rememberHit(const HBHERecHit& hbhe)
+{
+    assert(logicalMap_);
 
-  //increment hit multiplicity
-  if (hbhe.energy()>hitEnergyMinimum_) {
-    int index=logicalMap_->getHcalFrontEndId(hbhe.detid()).rmIndex();
-    hpdMultiplicity_.at(index)++;
-  }
+    //increment hit multiplicity
+    if (hbhe.energy()>hitEnergyMinimum_) {
+        int index=logicalMap_->getHcalFrontEndId(hbhe.detid()).rmIndex();
+        hpdMultiplicity_.at(index)++;
+    }
+}
+
+void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe, 
+					   const HBHEDataFrame& digi,
+					   const HcalCoder& coder,
+					   const HcalCalibrations& calib)
+{
+  rememberHit(hbhe);
 
   //set pulse shape bits
   // Shuichi's algorithm uses the "correct" charge & pedestals, while Ted's uses "nominal" values.
@@ -115,13 +104,9 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(const HcalTopology* topo, HBHERecHit&
   
 }
 
-void HBHEStatusBitSetter::SetFlagsFromRecHits(const HcalTopology* topo, HBHERecHitCollection& rec) {
+void HBHEStatusBitSetter::SetFlagsFromRecHits(HBHERecHitCollection& rec) {
 
-  if (logicalMap_==0) {
-    HcalLogicalMapGenerator gen;
-    logicalMap_=new HcalLogicalMap(gen.createMap(topo));
-  }
-
+  assert(logicalMap_);
 
   for (HBHERecHitCollection::iterator iHBHE=rec.begin();iHBHE!=rec.end();++iHBHE) {
     int index=logicalMap_->getHcalFrontEndId(iHBHE->detid()).rmIndex();
