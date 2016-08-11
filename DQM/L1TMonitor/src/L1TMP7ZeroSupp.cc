@@ -141,11 +141,11 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
       // it in 64 bit words -> factor 2.
       const uint32_t * end = start + (amc.size() * 2);
 
-      std::auto_ptr<l1t::Payload> payload;
+      std::unique_ptr<l1t::Payload> payload;
       payload.reset(new l1t::MP7Payload(start, end, false));
 
-      // getBlock() returns a non-null auto_ptr on success
-      std::auto_ptr<l1t::Block> block;
+      // getBlock() returns a non-null unique_ptr on success
+      std::unique_ptr<l1t::Block> block;
       while ((block = payload->getBlock()).get()) {
         if (verbose_) {
           std::cout << ">>> check zero suppression for block <<<" << std::endl
