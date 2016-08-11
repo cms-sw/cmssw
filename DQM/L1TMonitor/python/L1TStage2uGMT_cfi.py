@@ -34,7 +34,7 @@ l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
     # no masks defined for caption IDs 0 and 3-11
     maxFEDReadoutSize = cms.untracked.int32(6000),
     monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/zeroSuppression"),
-    verbose = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
 )
 
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
