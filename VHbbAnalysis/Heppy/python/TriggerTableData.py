@@ -208,7 +208,8 @@ triggerTable = {
         "HLT_Ele27_eta2p1_WPTight_Gsf_v*",
     ],
     "ttH_SL_mu" : [
-        "HLT_Ele25_WPTight_Gsf_v*",
+        "HLT_IsoMu22_v*",
+        "HLT_IsoTkMu22_v*",
     ],
     "ttH_DL_mumu" : [
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*",
