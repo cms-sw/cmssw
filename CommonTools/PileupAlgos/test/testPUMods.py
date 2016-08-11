@@ -42,7 +42,11 @@ process.puppiNoLep.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
 process.load('RecoMET.METProducers.PFMET_cfi')
 process.pfMet.src = cms.InputTag('puppiPhoton')
 setupPuppiPhoton(process)
-process.puppiPhoton.puppiCandName    = 'puppiNoLep'
+process.puppiPhoton.puppiCandName     = 'puppiNoLep'
+process.puppiNoLep.useExistingWeights = True
+process.puppiNoLep.useWeightsNoLep    = True
+process.puppiNoLep.clonePackedCands   = True
+process.puppiPhoton.useRefs           =  True
 
 process.puSequence = cms.Sequence(process.packedPFCandidatesNoLep*process.puppi*process.puppiNoLep*process.egmPhotonIDSequence*process.puppiPhoton*process.pfMet)
 process.p = cms.Path(process.puSequence)
