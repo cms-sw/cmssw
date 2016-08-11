@@ -199,16 +199,20 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // --- I left off here ... need to specify and include the correct digi collection ---
 
   for(HcalTrigPrimDigiCollection::const_iterator qiedf=qietpdc.begin();qiedf!=qietpdc.end();qiedf++){
-    HcalElectronicsId eid(qiedf->id().rawId());
+    DetId detid = qiedf->id();
+    HcalElectronicsId eid(readoutMap->lookupTrigger(detid));
     
     int crateId = eid.crateId();
     int slotId = eid.slot();
     int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
+    int ilink = eid.fiberIndex();
+    int itower = eid.fiberChanId();
+    int channelid = (itower&0xF) | ((ilink&0xF)<<4);
 
     if( ! uhtrs.exist(uhtrIndex) ){
       uhtrs.newUHTR( uhtrIndex );
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
+    uhtrs.addChannel(uhtrIndex,qiedf,channelid,_verbosity);
   }
 
   // -----------------------------------------------------

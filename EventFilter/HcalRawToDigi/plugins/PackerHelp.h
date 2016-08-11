@@ -94,6 +94,23 @@ namespace QIE8HeaderSpec{
   static const int MASK_HEADER_BIT = 0x1;
 }
 
+namespace TPHeaderSpec{
+  static const int OFFSET_TOWER = 0;
+  static const int MASK_TOWER = 0xF;
+  static const int OFFSET_LINK = 4;
+  static const int MASK_LINK = 0xF;
+  static const int OFFSET_CHANID = 0;
+  static const int MASK_CHANID = 0xFF;
+  static const int OFFSET_RESV = 8;
+  static const int MASK_RESV = 0x3;
+  static const int OFFSET_TPERR = 10;
+  static const int MASK_TPERR = 0x2;
+  static const int OFFSET_FLAVOER = 12;
+  static const int MASK_FLAVOR = 0x7;
+  static const int OFFSET_HEADER_BIT = 15;
+  static const int MASK_HEADER_BIT = 0x1;
+}
+
 class HCalFED{
 
 public:
@@ -317,6 +334,18 @@ public:
      return header;
   }
 
+  uint16_t packTPheader(const HcalTriggerPrimitiveSample &tpSample, int channelid){
+     uint16_t header =0;
+
+     header |= (channelid & TPHeaderSpec::MASK_CHANID)<<TPHeaderSpec::OFFSET_CHANID;
+     header |= (0x0 & TPHeaderSpec::MASK_RESV)<<TPHeaderSpec::OFFSET_RESV;
+     header |= (0 & TPHeaderSpec::MASK_TPERR)<<TPHeaderSpec::OFFSET_TPERR;
+     header |= (0x4 & TPHeaderSpec::MASK_FLAVOR)<<TPHeaderSpec::OFFSET_FLAVOER; //flavor
+     header |= (0x1 & TPHeaderSpec::MASK_HEADER_BIT)<<TPHeaderSpec::OFFSET_HEADER_BIT;
+
+     return header;
+  }
+
   uhtrData* newUHTR( int uhtrIndex , int orn = 0 , int bcn = 0 , uint64_t evt = 0 ){
     
     // initialize vector of 16-bit words
@@ -370,6 +399,11 @@ public:
     uhtr->at(0) = uhtr_size&0xFFFF ;
     uhtr->at(1) |= (uhtr_size>>16)&0xF ; 
 
+    unsigned int toAdd = 4-uhtr->size()%4;
+    for(unsigned int ia=0; ia<toAdd; ia++){
+       uhtr->push_back(0xD000);
+    }
+
     // add trailer
     uhtr->push_back( uhtr_size&0xFFFF );
     uhtr->push_back( (uhtr_size>>16)&0xF );
@@ -410,7 +444,10 @@ public:
     }// end loop over dataframe words
   };
 
-  void addChannel( int uhtrIndex , edm::SortedCollection<HcalTriggerPrimitiveDigi>::const_iterator qiedf , int verbosity = 0 ){
+  void addChannel( int uhtrIndex , edm::SortedCollection<HcalTriggerPrimitiveDigi>::const_iterator qiedf, int channelid, int verbosity = 0 ){
+    if( qiedf->size() ==0 ) return;
+    uint16_t header = packTPheader(qiedf->sample(0), channelid);
+    uhtrs[uhtrIndex].push_back(header);
     // loop over words in dataframe
     for( int iTS = 0 ; iTS < qiedf->size() ; iTS++ ){
       // push data into uhtr data container
