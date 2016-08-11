@@ -10,8 +10,13 @@
 
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/IntermediateHitTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
+
+// following are needed only to keep the same results
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 
 class PixelQuadrupletMergerEDProducer: public edm::stream::EDProducer<> {
 public:
@@ -23,20 +28,36 @@ public:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
-  edm::EDGetTokenT<IntermediateHitTriplets> tripletToken_;
+  edm::EDGetTokenT<RegionsSeedingHitSets> tripletToken_;
 
   edm::RunningAverage localRA_;
 
   QuadrupletSeedMerger merger_;
+
+  // to keep old results
+  std::unique_ptr<SeedComparitor> comparitor_;
+  std::unique_ptr<SeedCreator> seedCreator_;
+  TrajectorySeedCollection tmpSeedCollection_; // need to keep these in memory because TrajectorySeed owns its RecHits
 };
 
 PixelQuadrupletMergerEDProducer::PixelQuadrupletMergerEDProducer(const edm::ParameterSet& iConfig):
-  tripletToken_(consumes<IntermediateHitTriplets>(iConfig.getParameter<edm::InputTag>("triplets"))),
+  tripletToken_(consumes<RegionsSeedingHitSets>(iConfig.getParameter<edm::InputTag>("triplets"))),
   merger_(iConfig.getParameter<edm::ParameterSet>("layerList"), consumesCollector())
 {
   merger_.setTTRHBuilderLabel(iConfig.getParameter<std::string>("ttrhBuilderLabel"));
   merger_.setMergeTriplets(iConfig.getParameter<bool>("mergeTriplets"));
   merger_.setAddRemainingTriplets(iConfig.getParameter<bool>("addRemainingTriplets"));
+
+  edm::ParameterSet comparitorPSet = iConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
+  std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
+  if(comparitorName != "none") {
+    auto iC = consumesCollector();
+    comparitor_.reset(SeedComparitorFactory::get()->create(comparitorName, comparitorPSet, iC));
+  }
+
+  edm::ParameterSet creatorPSet = iConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
+  seedCreator_.reset(SeedCreatorFactory::get()->create( creatorName, creatorPSet));
 
   produces<RegionsSeedingHitSets>();
 }
@@ -57,11 +78,23 @@ void PixelQuadrupletMergerEDProducer::fillDescriptions(edm::ConfigurationDescrip
   descLayers.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("layerList", descLayers);
 
+  // to keep old results
+  edm::ParameterSetDescription descComparitor;
+  descComparitor.add<std::string>("ComponentName", "none");
+  descComparitor.setAllowAnything();
+  desc.add<edm::ParameterSetDescription>("SeedComparitorPSet", descComparitor);
+  edm::ParameterSetDescription descCreator;
+  descCreator.setAllowAnything();
+  desc.add<edm::ParameterSetDescription>("SeedCreatorPSet", descCreator);
+
   descriptions.add("pixelQuadrupletMergerEDProducer", desc);
 }
 
 void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<IntermediateHitTriplets> htriplets;
+  // to keep old results
+  tmpSeedCollection_.clear(); // safe to clear now
+
+  edm::Handle<RegionsSeedingHitSets> htriplets;
   iEvent.getByToken(tripletToken_, htriplets);
   const auto& regionTriplets = *htriplets;
 
@@ -78,16 +111,35 @@ void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::Eve
   OrderedHitSeeds tripletsPerRegion;
   tripletsPerRegion.reserve(localRA_.upper());
 
-  LogDebug("PixelQuadrupletMergerEDProducer") << "Creating quadruplets for " << regionTriplets.regionSize() << " regions from " << regionTriplets.tripletsSize() << " triplets";
+  LogDebug("PixelQuadrupletMergerEDProducer") << "Creating quadruplets for " << regionTriplets.regionSize() << " regions from " << regionTriplets.size() << " triplets";
   merger_.update(iSetup);
 
-  for(const auto& regionLayerPairAndLayers: regionTriplets) {
-    const TrackingRegion& region = regionLayerPairAndLayers.region();
+  // to keep old results
+  if(comparitor_) comparitor_->init(iEvent, iSetup);
+
+  for(const auto& regionSeedingHitSets: regionTriplets) {
+    const TrackingRegion& region = regionSeedingHitSets.region();
     auto seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
 
 
-    for(const auto& layerTriplet: regionLayerPairAndLayers) {
-      tripletsPerRegion.insert(tripletsPerRegion.end(), layerTriplet.tripletsBegin(), layerTriplet.tripletsEnd());
+    // Keeping same resuls has been made really difficult...
+    // Following is from SeedGeneratorFromRegionHits
+    seedCreator_->init(region, iSetup, comparitor_.get());
+    for(const auto& hits: regionSeedingHitSets) {
+      if(!comparitor_ || comparitor_->compatible(hits)) {
+        seedCreator_->makeSeed(tmpSeedCollection_, hits);
+      }
+
+    }
+
+    // then convert seeds back to hits
+    // awful, but hopefully only temporary to preserve old results
+    for(const auto& seed: tmpSeedCollection_) {
+      auto hitRange = seed.recHits();
+      assert(std::distance(hitRange.first, hitRange.second) == 3);
+      tripletsPerRegion.emplace_back(static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first)),
+                                     static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first+1)),
+                                     static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first+2)));
     }
 
     LogTrace("PixelQuadrupletEDProducer") << " starting region, number of triplets " << tripletsPerRegion.size();
