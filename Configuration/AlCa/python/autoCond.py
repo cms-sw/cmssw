@@ -10,15 +10,15 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   '81X_mcRun1_pA_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '81X_mcRun2_design_v4',
+    'run2_design'       :   '81X_mcRun2_design_v5',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '81X_mcRun2_startup_v4',
+    'run2_mc_50ns'      :   '81X_mcRun2_startup_v5',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '81X_mcRun2_asymptotic_v4',
+    'run2_mc'           :   '81X_mcRun2_asymptotic_v5',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '81X_mcRun2cosmics_startup_peak_v4',
+    'run2_mc_cosmics'   :   '81X_mcRun2cosmics_startup_peak_v5',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '81X_mcRun2_HeavyIon_v3',
+    'run2_mc_hi'        :   '81X_mcRun2_HeavyIon_v4',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '81X_dataRun2_v3',
     # GlobalTag for Run2 data reprocessing
@@ -36,7 +36,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
     'phase1_2017_design' :  '81X_upgrade2017_design_v8',
     # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
-    'phase1_2017_realistic': '81X_upgrade2017_realistic_v8',
+    'phase1_2017_realistic': '81X_upgrade2017_realistic_v9',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
