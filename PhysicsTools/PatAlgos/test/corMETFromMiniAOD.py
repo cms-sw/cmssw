@@ -22,14 +22,14 @@ process.options = cms.untracked.PSet(
 
 # How many events to process
 process.maxEvents = cms.untracked.PSet( 
-   input = cms.untracked.int32(10)
+   input = cms.untracked.int32(100)
 )
 
 #configurable options =======================================================================
 runOnData=False #data/MC switch
 usePrivateSQlite=False #use external JECs (sqlite file)
 useHFCandidates=True #create an additionnal NoHF slimmed MET collection if the option is set to false
-redoPuppi=False # rebuild puppiMET
+redoPuppi=True # rebuild puppiMET
 #===================================================================
 
 
@@ -75,9 +75,9 @@ if usePrivateSQlite:
 ### =====================================================================================================
 # Define the input source
 if runOnData:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_0_pre4/SinglePhoton/MINIAOD/80X_dataRun2_v0_RelVal_sigPh2015D-v1/00000/600919D1-51AA-E511-8E4C-0025905B855C.root'
+  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre9/DoubleEG/MINIAOD/81X_dataRun2_relval_v2_RelVal_doubEG2015D-v1/10000/029C887F-2D53-E611-92EE-0CC47A74525A.root'
 else:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_3/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_2016_v3_gs7120p2NewGTv3-v1/00000/36E82F31-D6EF-E511-A22B-0025905B8574.root'
+  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_1_0_pre9/RelValTTbar_13/MINIAODSIM/PU25ns_81X_mcRun2_asymptotic_v2-v1/10000/8C46B127-3253-E611-BEBF-0025905A605E.root'
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
@@ -120,6 +120,7 @@ if redoPuppi:
 
   runMetCorAndUncFromMiniAOD(process,
                              isData=runOnData,
+                             metType="Puppi",
                              pfCandColl=cms.InputTag("puppiForMET"),
                              recoMetFromPFCs=True,
                              reclusterJets=True,
@@ -141,8 +142,6 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
                                             "keep *_patPFMetT1Smear_*_*",
                                             "keep *_patPFMetT1SmearJetResDown_*_*",
                                             "keep *_patPFMetT1SmearJetResUp_*_*",
-                                            "keep *_puppiForMET_*_*",
-                                            "keep *_puppi_*_*",
                                             "keep *_patPFMetT1Puppi_*_*",
                                             "keep *_slimmedMETsPuppi_*_*",
                                             ),
