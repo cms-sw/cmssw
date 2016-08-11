@@ -58,9 +58,8 @@ def applySubstructure( process ) :
 
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak8PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
-        j2tParametersVX,
-        jets = cms.InputTag("ak8PFJetsPuppi"),
-        coneSize = cms.double(0.8)
+        j2tParametersVX.clone( coneSize = cms.double(0.8) ),
+        jets = cms.InputTag("ak8PFJetsPuppi")        
     )
     process.patJetAK8PuppiCharge = cms.EDProducer("JetChargeProducer",
         src = cms.InputTag("ak8PFJetsPuppiTracksAssociatorAtVertex"),
