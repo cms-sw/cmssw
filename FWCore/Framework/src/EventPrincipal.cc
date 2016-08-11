@@ -280,9 +280,9 @@ namespace edm {
         return whyFailed;
       }));
     }
-    ProductResolverBase::ResolveStatus status;
-    auto data = phb->resolveProduct(status,*this,false,nullptr,nullptr);
+    auto resolution = phb->resolveProduct(*this,false,nullptr,nullptr);
 
+    auto data = resolution.data();
     if(data) {
       return BasicHandle(data->wrapper(), &(data->provenance()));
     }
@@ -433,8 +433,7 @@ namespace edm {
         << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductResolver cannot be found\n"
         << "This should never happen. Contact a Framework developer";
     }
-    ProductResolverBase::ResolveStatus status;
-    ProductData const* productData = phb->resolveProduct(status,*this,false,nullptr,nullptr);
+    ProductData const* productData = (phb->resolveProduct(*this,false,nullptr,nullptr)).data();
     if (productData == nullptr) {
       return nullptr;
     }

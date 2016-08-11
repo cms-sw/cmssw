@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,11 +15,13 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
+#include "tbb/task.h"
 #include <thread>
 #include <sys/wait.h>
 #include <sstream>
 #include <string.h>
 #include <poll.h>
+#include <atomic>
 
 // WORKAROUND: At CERN, execv is replaced with a non-async-signal safe
 // version.  This can break our stack trace printer.  Avoid this by
@@ -548,6 +551,36 @@ namespace edm {
       ::abort();
       return 1;
     }
+    
+    namespace {
+      
+      void localInitializeThisThreadForUse() {
+        static thread_local TThread guard;
+      }
+      
+      class InitializeThreadTask : public tbb::task {
+      public:
+        InitializeThreadTask(std::atomic<unsigned int>* counter,
+                             tbb::task* waitingTask):
+        threadsLeft_(counter),
+        waitTask_(waitingTask) {}
+        
+        tbb::task* execute() override {
+          //For each tbb thread, setup the initialization
+          // required by ROOT and then wait until all
+          // threads have done so in order to guarantee the all get setup
+          
+          localInitializeThisThreadForUse();
+          (*threadsLeft_)--;
+          while(0 != threadsLeft_->load());
+          waitTask_->decrement_ref_count();
+          return nullptr;
+        }
+      private:
+        std::atomic<unsigned int>* threadsLeft_;
+        tbb::task* waitTask_;
+      };
+    }
 
     static char pstackName[] = "(CMSSW stack trace helper)";
     static char dashC[] = "-c";
@@ -603,6 +636,26 @@ namespace edm {
         });
         iReg.watchPostForkReacquireResources(this, &InitRootHandlers::cachePidInfoHandler);
       }
+
+      //Initialize each TBB thread so ROOT knows about them
+      iReg.watchPreallocate( [](service::SystemBounds const& iBounds) {
+        auto const nThreads =iBounds.maxNumberOfThreads();
+        if(nThreads > 1) {
+          std::atomic<unsigned int> threadsLeft{nThreads};
+          
+          std::shared_ptr<tbb::empty_task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+            [](tbb::empty_task* iTask){tbb::task::destroy(*iTask);} };
+          
+          waitTask->set_ref_count(1+nThreads);
+          for(unsigned int i=0; i<nThreads;++i) {
+            tbb::task::spawn( *( new(tbb::task::allocate_root()) InitializeThreadTask(&threadsLeft, waitTask.get())));
+          }
+          
+          waitTask->wait_for_all();
+          
+        }
+      }
+                            );
 
       if(resetErrHandler_) {
 
@@ -660,7 +713,7 @@ namespace edm {
     }
     
     void InitRootHandlers::initializeThisThreadForUse() {
-      static thread_local TThread guard;
+      localInitializeThisThreadForUse();
     }
 
     void InitRootHandlers::fillDescriptions(ConfigurationDescriptions& descriptions) {

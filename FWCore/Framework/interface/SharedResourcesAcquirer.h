@@ -27,15 +27,19 @@
 
 // forward declarations
 class testSharedResourcesRegistry;
+
 namespace edm {
+  class SerialTaskQueue;
+
   class SharedResourcesAcquirer
   {
   public:
     friend class ::testSharedResourcesRegistry;
     
     SharedResourcesAcquirer() = default;
-    explicit SharedResourcesAcquirer(std::vector<std::recursive_mutex*>&& iResources):
-    m_resources(iResources){}
+    explicit SharedResourcesAcquirer(std::vector<std::recursive_mutex*>&& iResources, std::shared_ptr<SerialTaskQueue> iQueue = std::shared_ptr<SerialTaskQueue>()):
+    m_resources(iResources),
+    m_queue(iQueue){}
     
     SharedResourcesAcquirer(SharedResourcesAcquirer&&) = default;
     SharedResourcesAcquirer(const SharedResourcesAcquirer&) = default;
@@ -59,10 +63,13 @@ namespace edm {
     
     ///The number returned may be less than the number of resources requested if a resource is only used by one module and therefore is not being shared.
     size_t numberOfResources() const { return m_resources.size();}
+    
+    SerialTaskQueue* serialQueue() const { return m_queue.get(); }
   private:
     
     // ---------- member data --------------------------------
     std::vector<std::recursive_mutex*> m_resources;
+    std::shared_ptr<SerialTaskQueue> m_queue;
   };
 }
 

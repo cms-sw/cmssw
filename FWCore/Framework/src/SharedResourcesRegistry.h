@@ -25,6 +25,7 @@
 #include <mutex>
 #include <memory>
 
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
 // user include files
@@ -46,6 +47,7 @@ namespace edm {
     SharedResourcesAcquirer createAcquirer(std::vector<std::string> const&) const;
     
     SharedResourcesAcquirer createAcquirerForSourceDelayedReader();
+    
     // ---------- static member functions --------------------
     static SharedResourcesRegistry* instance();
     
@@ -73,6 +75,8 @@ namespace edm {
     std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> resourceMap_;
     
     edm::propagate_const<std::shared_ptr<std::recursive_mutex>> resourceForDelayedReader_;
+    
+    edm::propagate_const<std::shared_ptr<SerialTaskQueue>> queueForDelayedReader_;
 
     unsigned int nLegacy_;
   };

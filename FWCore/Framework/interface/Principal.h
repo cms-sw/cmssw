@@ -47,6 +47,7 @@ namespace edm {
   class EDConsumerBase;
   class SharedResourcesAcquirer;
   class InputProductResolver;
+  class WaitingTask;
 
   struct FilledProductPtr {
     bool operator()(propagate_const<std::shared_ptr<ProductResolverBase>> const& iObj) { return bool(iObj);}
@@ -120,9 +121,10 @@ namespace edm {
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
-    void prefetch(ProductResolverIndex index,
-                  bool skipCurrentProcess,
-                  ModuleCallingContext const* mcc) const;
+    void prefetchAsync(WaitingTask* waitTask,
+                       ProductResolverIndex index,
+                       bool skipCurrentProcess,
+                       ModuleCallingContext const* mcc) const;
 
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results,

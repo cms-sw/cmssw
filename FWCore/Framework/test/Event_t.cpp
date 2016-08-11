@@ -404,7 +404,7 @@ void testEvent::getByTokenFromEmpty() {
   InputTag inputTag("moduleLabel", "instanceName");
   
   IntConsumer consumer( std::vector<InputTag>{1,inputTag});
-  consumer.updateLookup(InEvent, principal_->productLookup());
+  consumer.updateLookup(InEvent, principal_->productLookup(),false);
   assert(1==consumer.m_tokens.size());
   currentEvent_->setConsumer(&consumer);
   Handle<int> nonesuch;
@@ -630,7 +630,7 @@ void testEvent::getByToken() {
     InputTag("modMulti", "int2", "EARLY"),
     InputTag("modOne")
   });
-  consumer.updateLookup(InEvent, principal_->productLookup());
+  consumer.updateLookup(InEvent, principal_->productLookup(),false);
 
   currentEvent_->setConsumer(&consumer);
   
