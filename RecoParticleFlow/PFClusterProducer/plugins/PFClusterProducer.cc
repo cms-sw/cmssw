@@ -26,6 +26,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
       RecHitTopologicalCleanerFactory::get()->create(cleanerName,conf);
     _cleaners.push_back(std::unique_ptr<RHCB>(cleaner));
   }
+  edm::ConsumesCollector sumes = consumesCollector();
+
   // setup seed finding
   const edm::ParameterSet& sfConf = 
     conf.getParameterSet("seedFinder");
@@ -36,7 +38,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   const edm::ParameterSet& initConf = 
     conf.getParameterSet("initialClusteringStep");
   const std::string& initName = initConf.getParameter<std::string>("algoName");
-  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf);
+  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf,sumes);
   _initialClustering.reset(initb);
   //setup pf cluster builder if requested
   _pfClusterBuilder.reset(NULL);
@@ -73,18 +75,20 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
 void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
 					     const edm::EventSetup& es) {
   _initialClustering->update(es);
-  _pfClusterBuilder->update(es);
+  if( _pfClusterBuilder ) _pfClusterBuilder->update(es);
   if( _positionReCalc ) _positionReCalc->update(es);
   
 }
 
 void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   _initialClustering->reset();
-  _pfClusterBuilder->reset();
+  if( _pfClusterBuilder ) _pfClusterBuilder->reset();
 
   edm::Handle<reco::PFRecHitCollection> rechits;
   e.getByToken(_rechitsLabel,rechits);  
   
+  _initialClustering->updateEvent(e);
+
   std::vector<bool> mask(rechits->size(),true);
   for( const auto& cleaner : _cleaners ) {
     cleaner->clean(rechits, mask);

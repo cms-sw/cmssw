@@ -49,10 +49,10 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	const HGCRecHit& hgrh = rechits[i];
 	const DET detid(hgrh.detid());
 	
-	if( subdet != detid.subdet() ) {
+	if( subdet != detid.subdetId() ) {
 	  throw cms::Exception("IncorrectHGCSubdetector")
 	    << "subdet expected: " << subdet 
-	    << " subdet gotten: " << detid.subdet() << std::endl;
+	    << " subdet gotten: " << detid.subdetId() << std::endl;
 	}
 	
 	double energy = hgrh.energy();
@@ -112,8 +112,8 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 
-typedef PFHGCalRecHitCreator<HGCEEDetId,PFLayer::HGCAL,HGCEE> PFHGCEERecHitCreator;
-typedef PFHGCalRecHitCreator<HGCHEDetId,PFLayer::HGCAL,HGCHEF> PFHGCHEFRecHitCreator;
+typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCEE> PFHGCEERecHitCreator;
+typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCHEF> PFHGCHEFRecHitCreator;
 typedef PFHGCalRecHitCreator<HGCHEDetId,PFLayer::HGCAL,HGCHEB> PFHGCHEBRecHitCreator;
 
 
