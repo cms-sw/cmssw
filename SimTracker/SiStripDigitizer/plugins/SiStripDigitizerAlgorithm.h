@@ -64,9 +64,9 @@ class SiStripDigitizerAlgorithm {
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup, CLHEP::HepRandomEngine*);
+  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup);
 
-  void initializeEvent(const edm::EventSetup& iSetup,CLHEP::HepRandomEngine* engine);
+  void initializeEvent(const edm::EventSetup& iSetup);
 
   //run the algorithm to digitize a single det
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,

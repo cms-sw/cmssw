@@ -190,7 +190,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
     detCabling->addConnected(theDetIdList);
   }
 
-  theDigiAlgo->initializeEvent(iSetup,randomEngine(iEvent.streamID()));
+  theDigiAlgo->initializeEvent(iSetup);
 
   iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
   iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
@@ -208,7 +208,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
       if(changes) { // Replace with ESWatcher
         detectorUnits.insert(std::make_pair(detId, stripdet));
       }
-      theDigiAlgo->initializeDetUnit(stripdet, iSetup,randomEngine(iEvent.streamID()));
+      theDigiAlgo->initializeDetUnit(stripdet, iSetup);
     }
   }
 }

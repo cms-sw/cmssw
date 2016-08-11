@@ -65,7 +65,6 @@ namespace cms {
 					 std::vector<float> &TrueInteractionList, 
 					 std::vector<edm::EventID> &eventInfoList, int bunchSpacing){
       PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
-      std::cout << " Stored PU info in Pixel Digitizer " << std::endl;
     }
 
     virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }

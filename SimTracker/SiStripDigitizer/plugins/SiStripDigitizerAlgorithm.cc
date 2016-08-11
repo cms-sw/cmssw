@@ -98,7 +98,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 }
 
 void
-SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup,CLHEP::HepRandomEngine* engine){
+SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup){
   edm::ESHandle<SiStripBadStrip> deadChannelHandle;
   iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
 
@@ -126,32 +126,15 @@ SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const
 }
 
 void
-SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup,CLHEP::HepRandomEngine* engine) {
+SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup) {
   theSiPileUpSignals->reset();
   // This should be clear by after all calls to digitize(), but I might as well make sure
   associationInfoForDetId_.clear();
 
   APVSaturationProb_ = APVSaturationProbScaling_;  // reset probability
+  SiStripTrackerAffectedAPVMap.clear();
   FirstLumiCalc_ = true;
   FirstDigitize_ = true;
-
-  if(APVSaturationFromHIP){
-
-    SiStripTrackerAffectedAPVMap.clear();
-
-    // not sure why we only get one BX per event?
-    NumberOfBxBetweenHIPandEvent=1e3;
-    bool HasAtleastOneAffectedAPV=false;
-    while(!HasAtleastOneAffectedAPV){
-      for(int bx=floor(300.0/25.0);bx>0;bx--){ //Reminder: make these numbers not hard coded!!
-        float temp=CLHEP::RandFlat::shoot(engine)<0.5?1:0;
-        if(temp==1 && bx<NumberOfBxBetweenHIPandEvent){
-          NumberOfBxBetweenHIPandEvent=bx;
-          HasAtleastOneAffectedAPV=true;
-        }
-      }
-    }
-  }
 
   //get gain noise pedestal lorentzAngle from ES handle
   edm::ESHandle<ParticleDataTable> pdt;
@@ -326,6 +309,19 @@ SiStripDigitizerAlgorithm::digitize(
 	}
 	SiStripTrackerAffectedAPVMap[iter->first]=bs;
       }
+
+      NumberOfBxBetweenHIPandEvent=1e3;
+      bool HasAtleastOneAffectedAPV=false;
+      while(!HasAtleastOneAffectedAPV){
+	for(int bx=floor(300.0/25.0);bx>0;bx--){ //Reminder: make these numbers not hard coded!!
+	  float temp=CLHEP::RandFlat::shoot(engine)<0.5?1:0;
+	  if(temp==1 && bx<NumberOfBxBetweenHIPandEvent){
+	    NumberOfBxBetweenHIPandEvent=bx;
+	    HasAtleastOneAffectedAPV=true;
+	  }
+	}
+      }
+
       FirstDigitize_ = false;
     }
 
