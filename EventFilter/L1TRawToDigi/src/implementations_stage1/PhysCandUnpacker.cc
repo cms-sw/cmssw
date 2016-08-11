@@ -1,8 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-
 #include "CaloCollections.h"
+#include "PhysCandUnpacker.h"
 
 template<typename T, typename F>
 bool
@@ -72,73 +71,6 @@ process(const l1t::Block& block, BXVector<T> * coll, F modify, bool isleft, bool
 
    return true;
 }
-
-namespace l1t {
-  namespace stage1 {
-    class IsoEGammaUnpackerLeft : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class NonIsoEGammaUnpackerLeft : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class CentralJetUnpackerLeft : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class ForwardJetUnpackerLeft : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class TauUnpackerLeft : public Unpacker {
-       public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class IsoTauUnpackerLeft : public Unpacker {
-       public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class IsoEGammaUnpackerRight : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class NonIsoEGammaUnpackerRight : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class CentralJetUnpackerRight : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class ForwardJetUnpackerRight : public Unpacker {
-      public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class TauUnpackerRight : public Unpacker {
-       public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-    class IsoTauUnpackerRight : public Unpacker {
-       public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-    };
-
-  }
-}
-
-// Implementation
 
 namespace l1t {
   namespace stage1 {
@@ -228,15 +160,16 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerLeft);
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerRight);
-DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerRight);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerLeft);
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoEGammaUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpackerRight);
+// DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpackerRight);

@@ -1,8 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
-
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
@@ -15,17 +13,7 @@
 
 
 #include "CaloTokens.h"
-
-namespace l1t {
-  namespace stage1 {
-    class RCTEmRegionPacker : public Packer {
-      public:
-        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-    };
-  }
-}
-
-// Implementation
+#include "RCTEmRegionPacker.h"
 
 namespace l1t {
   namespace stage1 {
@@ -123,4 +111,5 @@ namespace l1t {
       }
   }
 }
-DEFINE_L1T_PACKER(l1t::stage1::RCTEmRegionPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage1::RCTEmRegionPacker);
