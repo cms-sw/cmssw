@@ -1588,9 +1588,9 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_8_1_0_pre8-81X_upgrade2017_realistic_v4_UPG17newGT-v'
-defaultDataSets['2023GReco']=''
-defaultDataSets['2023LReco']=''
-defaultDataSets['2023tilted']=''
+defaultDataSets['2023D1']=''
+defaultDataSets['2023D2']=''
+defaultDataSets['2023D3']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
@@ -1631,10 +1631,10 @@ for k in upgradeKeys:
     k2=k
     if 'PU' in k[-2:]:
         k2=k[:-2]
-    geom=upgradeGeoms[k2]
-    gt=upgradeGTs[k2]
-    cust=upgradeCustoms.get(k2, None)
-    era=upgradeEras.get(k2, None)
+    geom=upgradeProperties[k]['Geom']
+    gt=upgradeProperties[k]['GT']
+    cust=upgradeProperties[k].get('Custom', None)
+    era=upgradeProperties[k].get('Era', None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -1667,28 +1667,9 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
     if era is not None: upgradeStepDict['DigiFull'][k]['--era']=era
     
-    upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : geom
-                                      }
-    if cust!=None : upgradeStepDict['DigiFullTrigger'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['DigiFullTrigger'][k]['--era']=era
-    
-    
     if k2 in PUDataSets:
         upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
-    upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,RECO:pixeltrackerlocalreco',
-                                             '--conditions':gt,
-                                             '--datatier':'GEN-SIM-DIGI-RAW',
-                                             '-n':'10',
-                                             '--eventcontent':'FEVTDEBUGHLT',
-                                             '--geometry' : geom
-                                             }
-    if cust!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['DigiTrkTrigFull'][k]['--era']=era
+
 
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
                                       '--conditions':gt,
@@ -1711,7 +1692,7 @@ for k in upgradeKeys:
         upgradeStepDict['RecoFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull_trackingOnly'][k]])
 
 
-    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION:@baseValidation+@trackingOnlyValidation+@muonOnlyValidation,DQM:@trackingOnlyDQM+@muon',
+    upgradeStepDict['RecoFullGlobal'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION:@phase2Validation,DQM:@phase2',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,DQMIO',
                                       '-n':'10',
@@ -1739,20 +1720,6 @@ for k in upgradeKeys:
         upgradeStepDict['RecoFullLocalPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFullLocal'][k]])
 
 
-    upgradeStepDict['RecoFullHGCAL'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-RECO',
-                                      '-n':'10',
-                                      '--eventcontent':'RECOSIM',
-                                      '--geometry' : geom
-                                      }
-    if cust!=None : upgradeStepDict['RecoFullHGCAL'][k]['--customise']=cust
-    if era is not None: upgradeStepDict['RecoFullHGCAL'][k]['--era']=era
-
-    if k2 in PUDataSets:
-        upgradeStepDict['RecoFullPUHGCAL'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO'},upgradeStepDict['RecoFullHGCAL'][k]])
-
-
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM',
                                     '--conditions':gt,
                                     '--mc':'',
@@ -1767,7 +1734,7 @@ for k in upgradeKeys:
         upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull'][k]])
 
     upgradeStepDict['HARVESTFull_trackingOnly'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, upgradeStepDict['HARVESTFull'][k]])
-    upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@muonOnlyValidation+@trackingOnlyDQM+@muon'}, upgradeStepDict['HARVESTFull'][k]])
+    upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2'}, upgradeStepDict['HARVESTFull'][k]])
 
     if k2 in PUDataSets:
         upgradeStepDict['HARVESTFull_trackingOnlyPU'][k]=merge([PUDataSets[k2],upgradeStepDict['HARVESTFull_trackingOnly'][k]])

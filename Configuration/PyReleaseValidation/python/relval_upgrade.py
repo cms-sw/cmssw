@@ -21,7 +21,7 @@ for i,key in enumerate(upgradeKeys):
     for frag in upgradeFragments:
         k=frag[:-4]+'_'+key
         stepList=[]
-        for step in upgradeScenToRun[key]:
+        for step in upgradeProperties[key]['ScenToRun']:
             if 'Sim' in step:
                 stepList.append(k+'_'+step)
             else:
@@ -32,7 +32,7 @@ for i,key in enumerate(upgradeKeys):
         if upgradeDatasetFromFragment[frag]=="TTbar_13" and not 'PU' in key:
             stepListTk=[]
             hasHarvest = False
-            for step in upgradeScenToRun[key]:
+            for step in upgradeProperties[key]['ScenToRun']:
                 if 'Reco' in step:
                     step = 'RecoFull_trackingOnly'
                 if 'HARVEST' in step:

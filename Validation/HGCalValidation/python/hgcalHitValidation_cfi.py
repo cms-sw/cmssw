@@ -9,6 +9,6 @@ hgcalHitValidation = cms.EDAnalyzer("HGCalHitValidation",
                                     bhSimHitSource = cms.InputTag("g4SimHits","HcalHits"),
                                     eeRecHitSource = cms.InputTag("HGCalRecHit","HGCEERecHits"),
                                     fhRecHitSource = cms.InputTag("HGCalRecHit","HGCHEFRecHits"),
-                                    bhRecHitSource = cms.InputTag("hbheUpgradeReco"),
+                                    bhRecHitSource = cms.InputTag("hbhereco"),
                                     ietaExcludeBH  = cms.vint32([])
                                     )

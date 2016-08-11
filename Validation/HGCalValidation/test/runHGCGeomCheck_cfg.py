@@ -9,8 +9,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 
 ##v7 Geometry, with hex cells
-process.load('Configuration.Geometry.GeometryExtended2023simReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023sim_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
