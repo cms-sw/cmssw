@@ -131,6 +131,8 @@ SiStripDigitizerAlgorithm::initializeEvent(const edm::EventSetup& iSetup,CLHEP::
   // This should be clear by after all calls to digitize(), but I might as well make sure
   associationInfoForDetId_.clear();
 
+  APVSaturationProb_ = APVSaturationProbScaling_;  // reset probability
+  FirstLumiCalc_ = true;
 
   if(APVSaturationFromHIP){
     SiStripTrackerAffectedAPVMap.clear();
@@ -232,7 +234,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 	// If no  --> nothing particular happens
                                                           
 	  if(mapOfAPVprobabilities.count(detId)>0){
-	    if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]*APVSaturationProbScaling){
+	    if(CLHEP::RandFlat::shoot(engine) < mapOfAPVprobabilities[detId]*APVSaturationProb_){
 	      int FirstAPV = localFirstChannel/128;
 	      int LastAPV = (localLastChannel-1)/128;
 
@@ -284,8 +286,6 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
   }
 
 
-
-
   if(firstChannelsWithSignal[detID] > thisFirstChannelWithSignal) firstChannelsWithSignal[detID] = thisFirstChannelWithSignal;
   if(lastChannelsWithSignal[detID] < thisLastChannelWithSignal) lastChannelsWithSignal[detID] = thisLastChannelWithSignal;
 }
@@ -294,7 +294,8 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puInfo){
   //Instlumi scalefactor calculating for dynamic inefficiency                                 
 
-  if (puInfo) {
+  if (puInfo && FirstLumiCalc_) {
+
     const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
     const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();
     const int bunchSpacing = puInfo->getMix_bunchSpacing();                                 
@@ -318,8 +319,9 @@ void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puIn
     if (pu0!=bunchCrossing.end()) {  // found the in-time interaction
       double Tintr = TrueInteractionList.at(p);
       double instLumi = Bunch*Tintr*RevFreq/minBXsec;
-      APVSaturationProbScaling_ = instLumi/6.0E33;      
+      APVSaturationProb_ = instLumi/6.0E33;      
     }
+    FirstLumiCalc_ = false;
   }
 }
 
@@ -354,7 +356,7 @@ SiStripDigitizerAlgorithm::digitize(
   for(int strip =0; strip < numStrips; ++strip) {
     if(badChannels[strip]) {detAmpl[strip] = 0.;}
   } 
-  if(APVSaturationFromHIP){
+  if(APVSaturationFromHIP && !PreMixing_){
     //Implementation of the proper charge scaling function. Need consider resaturation effect:
     //The probability map gives  the probability that at least one HIP happened during the last N bunch crossings (cfr APV recovery time).
     //The impact on the charge depends on the clostest HIP occurance (in terms of bunch crossing).

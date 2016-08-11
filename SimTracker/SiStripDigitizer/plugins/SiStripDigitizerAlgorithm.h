@@ -105,7 +105,7 @@ class SiStripDigitizerAlgorithm {
   const double cmnRMStob;
   const double cmnRMStid;
   const double cmnRMStec;
-  double APVSaturationProbScaling_;          
+  const double APVSaturationProbScaling_;          
   const bool makeDigiSimLinks_; //< Whether or not to create the association to sim truth collection. Set in configuration.
   const bool peakMode;
   const bool noise;
@@ -128,6 +128,9 @@ class SiStripDigitizerAlgorithm {
 
   const ParticleDataTable * pdt;
   const ParticleData * particle;
+
+  double APVSaturationProb_;
+  bool FirstLumiCalc_;
   
   const std::unique_ptr<SiHitDigitizer> theSiHitDigitizer;
   const std::unique_ptr<SiPileUpSignals> theSiPileUpSignals;
