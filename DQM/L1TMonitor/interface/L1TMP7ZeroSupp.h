@@ -33,7 +33,8 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
 
  private:
 
-  enum binlabels {EVTS=0, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG};
+  // Add additional bins only before NBINLABELS
+  enum binlabels {EVTS=0, EVTSGOOD, EVTSBAD, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG, NBINLABELS};
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken_;
   std::vector<int> fedIds_;
@@ -56,6 +57,7 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   MonitorElement* zeroSuppVal_;
   MonitorElement* readoutSizeNoZS_;
   MonitorElement* readoutSizeZS_;
+  MonitorElement* readoutSizeZSExpected_;
 };
 
 #endif
