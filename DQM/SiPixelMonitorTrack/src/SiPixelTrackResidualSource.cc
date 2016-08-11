@@ -520,6 +520,15 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     meZeroRocLadvsModOnTrackBarrel.at(i-1)->setAxisTitle("ROC / Ladder",2);
   }
 
+ for (int i = 1; i <= noOfLayers; i++)
+  {
+    ss1.str(std::string()); ss1 << "nclustersvsPhi_" + clustersrc_.label() + "_Layer_" << i;
+    ss2.str(std::string()); ss2 << "nclusters (on track, layer" << i << ")";
+    meNofClustersvsPhiOnTrack_layers.push_back(iBooker.book1D(ss1.str(),ss2.str(),1400.,-3.5,3.5));
+    meNofClustersvsPhiOnTrack_layers.at(i-1)->setAxisTitle("Global #Phi",1);
+    meNofClustersvsPhiOnTrack_layers.at(i-1)->setAxisTitle("Number of Clusters/Layer on Track",2);
+  }
+
   //fpix
   for (int i = 1; i <= noOfDisks; i++)
   {
@@ -556,6 +565,13 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     ss2.str(std::string()); ss2 << "Number of Clusters (on track, diskp" << i << ")";
     meNClustersOnTrack_diskps.push_back(iBooker.book1D(ss1.str(),ss2.str(),50,0.,50.));
     meNClustersOnTrack_diskps.at(i-1)->setAxisTitle("Number of Clusters",1);
+
+    ss1.str(std::string()); ss1 << "nclustersvsPhi_" + clustersrc_.label() + "_Disk_p" << i;
+    ss2.str(std::string()); ss2 << "nclusters (on track, diskp" << i << ")";
+    meNofClustersvsPhiOnTrack_diskps.push_back(iBooker.book1D(ss1.str(),ss2.str(),1400.,-3.5,3.5));
+    meNofClustersvsPhiOnTrack_diskps.at(i-1)->setAxisTitle("Global #Phi",1);
+    meNofClustersvsPhiOnTrack_diskps.at(i-1)->setAxisTitle("Number of Clusters/Disk on Track",2);
+
   }
   for (int i = 1; i <= noOfDisks; i++)
   {
@@ -563,6 +579,13 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     ss2.str(std::string()); ss2 << "Number of Clusters (on track, diskm" << i << ")";
     meNClustersOnTrack_diskms.push_back(iBooker.book1D(ss1.str(),ss2.str(),500,0.,500.));
     meNClustersOnTrack_diskms.at(i-1)->setAxisTitle("Number of Clusters",1);
+
+    ss1.str(std::string()); ss1 << "nclustersvsPhi_" + clustersrc_.label() + "_Disk_m" << i;
+    ss2.str(std::string()); ss2 << "nclusters (on track, diskm" << i << ")";
+    meNofClustersvsPhiOnTrack_diskms.push_back(iBooker.book1D(ss1.str(),ss2.str(),1400.,-3.5,3.5));
+    meNofClustersvsPhiOnTrack_diskms.at(i-1)->setAxisTitle("Global #Phi",1);
+    meNofClustersvsPhiOnTrack_diskms.at(i-1)->setAxisTitle("Number of Clusters/Disk on Track",2);
+
   }
 
   meRocBladevsDiskEndcap = iBooker.book2D("ROC_endcap_occupancy","Pixel Endcap Occupancy, ROC level (On Track)",72, -4.5, 4.5,288,-12.5,12.5);
@@ -1121,6 +1144,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
              meClSizeOnTrack_layers.at(i)->Fill((*clust).size());
              meClSizeXOnTrack_layers.at(i)->Fill((*clust).sizeX());
              meClSizeYOnTrack_layers.at(i)->Fill((*clust).sizeY());
+	     meNofClustersvsPhiOnTrack_layers.at(i)->Fill(phi);
           }
 		  }
 	      }
@@ -1136,6 +1160,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		float x = clustgp.x(); 
 		float y = clustgp.y(); 
 		float z = clustgp.z();
+		float phi = clustgp.phi();
 
 		float xclust = clust->x();
                 float yclust = clust->y();
@@ -1178,6 +1203,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
                meClSizeOnTrack_diskps.at(i)->Fill((*clust).size());
                meClSizeXOnTrack_diskps.at(i)->Fill((*clust).sizeX());
                meClSizeYOnTrack_diskps.at(i)->Fill((*clust).sizeY());
+	       meNofClustersvsPhiOnTrack_diskps.at(i)->Fill(phi);
             }
         }
 		}
@@ -1190,6 +1216,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
              meClSizeOnTrack_diskms.at(i)->Fill((*clust).size());
              meClSizeXOnTrack_diskms.at(i)->Fill((*clust).sizeX());
              meClSizeYOnTrack_diskms.at(i)->Fill((*clust).sizeY());
+	     meNofClustersvsPhiOnTrack_diskms.at(i)->Fill(phi);
           }
         }
 		} 
