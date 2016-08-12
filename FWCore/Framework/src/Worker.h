@@ -561,15 +561,16 @@ namespace edm {
                                    ParentContext const& parentContext,
                                    typename T::Context const* context) {
     try {
-      //pre was called in prefetchAsync
-      actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
-
-      if(iEPtr) {
-        assert(*iEPtr);
-        moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
-        std::rethrow_exception(*iEPtr);
-      }
       convertException::wrap([&]() {
+        //pre was called in prefetchAsync
+        actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+        
+        if(iEPtr) {
+          assert(*iEPtr);
+          moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
+          std::rethrow_exception(*iEPtr);
+        }
+
         runModule<T>(ep,es,streamID,parentContext,context);
       });
     } catch( cms::Exception& iException) {
