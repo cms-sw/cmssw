@@ -116,7 +116,7 @@ namespace edm
       signalMaps signals_;
 
       // to keep track of dead APVs from HIP interactions
-      typedef std::multimap<unsigned uint32_t,std::bitset<6>> APVMap;
+      typedef std::multimap< uint32_t, std::bitset<6> > APVMap;
 
       APVMap theAffectedAPVmap_;
 

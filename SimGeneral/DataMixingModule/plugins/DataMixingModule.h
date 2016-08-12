@@ -59,7 +59,7 @@ namespace edm {
       virtual ~DataMixingModule();
 
       // copies, with EventSetup
-      virtual void checkSignal(const edm::Event &e) {}
+      virtual void checkSignal(const edm::Event &e) override;
       virtual void createnewEDProduct() {}
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& ES); 
       virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
