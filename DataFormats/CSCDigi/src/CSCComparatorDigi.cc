@@ -67,6 +67,13 @@ int CSCComparatorDigi::getTimeBin() const {
   return tbin;
 }
 
+// This definition is consistent with the one used in
+// the function CSCCLCTData::add() in EventFilter/CSCRawToDigi
+// The halfstrip counts from 0!
+int CSCComparatorDigi::getHalfStrip() const {
+  return (getStrip() - 1) * 2 + getComparator();
+}
+
 std::vector<int> CSCComparatorDigi::getTimeBinsOn() const {
   std::vector<int> tbins;
   uint16_t tbit = timeBinWord_;
