@@ -22,6 +22,7 @@ public:
   bool operator!=(const GEMPadDigi& digi) const;
   bool operator<(const GEMPadDigi& digi) const;
 
+  // return the pad number. counts from 1.
   int pad() const { return pad_; }
   int bx() const { return bx_; }
 
