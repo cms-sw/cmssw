@@ -11,9 +11,11 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCompatibilityRcd.h"
 #include "CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrData.h"
 #include <iostream>
@@ -343,8 +345,19 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
       HFDigiTimeParams->setTopo(htopo.product());
     }
 
+<<<<<<< HEAD
   if (hbheFlagSetter_)
       hbheFlagSetter_->setTopo(htopo.product());
+=======
+  if (hbheFlagSetter_) {
+    edm::ESHandle<HcalFrontEndMap> hfemap;
+    es.get<HcalFrontEndMapRcd>().get(hfemap);
+    if (hfemap.isValid()) {
+      std::cout << "Gets the FrontEndMap" << std::endl;
+      hbheFlagSetter_->SetFrontEndMap(hfemap.product());
+    }
+  }
+>>>>>>> Make use of FrontEndMap
 
   reco_.beginRun(es);
 }

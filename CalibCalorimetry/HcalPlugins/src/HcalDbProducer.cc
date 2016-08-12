@@ -60,9 +60,13 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
+<<<<<<< HEAD
 //			  &HcalDbProducer::frontEndMapCallback &
 //			  &HcalDbProducer::SiPMParametersCallback &
 //			  &HcalDbProducer::SiPMCharacteristicsCallback &
+=======
+			  &HcalDbProducer::frontEndMapCallback &
+>>>>>>> Make use of FrontEndMap
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );

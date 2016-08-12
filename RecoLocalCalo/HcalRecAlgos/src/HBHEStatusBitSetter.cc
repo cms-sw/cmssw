@@ -1,9 +1,17 @@
 #include <cassert>
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
+<<<<<<< HEAD
+=======
+HBHEStatusBitSetter::HBHEStatusBitSetter() : frontEndMap_(0) {
+
+  nominalPedestal_=3.0;
+  hitEnergyMinimum_=2.0;
+  hitMultiplicityThreshold_=17;
+}
+
+>>>>>>> Make use of FrontEndMap
 HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
 					 double hitEnergyMinimum,
 					 int hitMultiplicityThreshold,
@@ -15,15 +23,26 @@ HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
       logicalMap_(nullptr),
       hpdMultiplicity_(HcalFrontEndId::maxRmIndex, 0)
 {
+<<<<<<< HEAD
   const unsigned sz = pulseShapeParameterSets.size();
   pulseShapeParameters_.reserve(sz);
   for (unsigned iPSet=0; iPSet<sz; iPSet++) {
     const edm::ParameterSet& pset=pulseShapeParameterSets[iPSet];
     const std::vector<double>& params=pset.getParameter<std::vector<double> >("pulseShapeParameters");
+=======
+  nominalPedestal_=nominalPedestal;
+  hitEnergyMinimum_=hitEnergyMinimum;
+  hitMultiplicityThreshold_=hitMultiplicityThreshold;
+
+  for (unsigned int iPSet=0;iPSet<pulseShapeParameterSets.size();iPSet++) {
+    edm::ParameterSet pset=pulseShapeParameterSets.at(iPSet);
+    std::vector<double> params=pset.getParameter<std::vector<double> >("pulseShapeParameters");
+>>>>>>> Make use of FrontEndMap
     pulseShapeParameters_.push_back(params);
   }
 }
 
+<<<<<<< HEAD
 HBHEStatusBitSetter::~HBHEStatusBitSetter() {
     delete logicalMap_;
 }
@@ -33,20 +52,44 @@ void HBHEStatusBitSetter::Clear()
     const unsigned sz = hpdMultiplicity_.size();
     for (unsigned i=0; i<sz; i++)
         hpdMultiplicity_[i] = 0;
+=======
+HBHEStatusBitSetter::~HBHEStatusBitSetter() { }
+
+void HBHEStatusBitSetter::SetFrontEndMap(const HcalFrontEndMap* m) {
+  frontEndMap_ = m;
+  if (frontEndMap_) {
+    for (int iRm=0; iRm<frontEndMap_->maxRMIndex(); iRm++) {
+      hpdMultiplicity_.push_back(0);
+    }
+  }
+}
+
+void HBHEStatusBitSetter::Clear() {
+  for (unsigned int i=0;i<hpdMultiplicity_.size();i++) hpdMultiplicity_[i]=0;
+>>>>>>> Make use of FrontEndMap
 }
 
 void HBHEStatusBitSetter::setTopo(const HcalTopology* topo)
 {
+<<<<<<< HEAD
     delete logicalMap_;
     logicalMap_ = nullptr;
     HcalLogicalMapGenerator gen;
     logicalMap_=new HcalLogicalMap(gen.createMap(topo));
 }
+=======
+  if (frontEndMap_==0) {
+    edm::LogError("HcalHitSelection") << "No HcalFrontEndMap in SetFlagsFromDigi";
+    return;
+  }
+  
+>>>>>>> Make use of FrontEndMap
 
 void HBHEStatusBitSetter::rememberHit(const HBHERecHit& hbhe)
 {
     assert(logicalMap_);
 
+<<<<<<< HEAD
     //increment hit multiplicity
     if (hbhe.energy()>hitEnergyMinimum_) {
         int index=logicalMap_->getHcalFrontEndId(hbhe.detid()).rmIndex();
@@ -60,6 +103,13 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe,
 					   const HcalCalibrations& calib)
 {
   rememberHit(hbhe);
+=======
+  //increment hit multiplicity
+  if (hbhe.energy()>hitEnergyMinimum_) {
+    int index=frontEndMap_->lookupRMIndex(hbhe.detid());
+    hpdMultiplicity_.at(index)++;
+  }
+>>>>>>> Make use of FrontEndMap
 
   //set pulse shape bits
   // Shuichi's algorithm uses the "correct" charge & pedestals, while Ted's uses "nominal" values.
@@ -104,12 +154,21 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe,
   
 }
 
+<<<<<<< HEAD
 void HBHEStatusBitSetter::SetFlagsFromRecHits(HBHERecHitCollection& rec) {
+=======
+void HBHEStatusBitSetter::SetFlagsFromRecHits(const HcalTopology* topo, HBHERecHitCollection& rec) {
+
+  if (frontEndMap_==0) {
+    edm::LogError("HcalHitSelection") << "No HcalFrontEndMap in SetFlagsFromRecHits";
+    return;
+  }
+>>>>>>> Make use of FrontEndMap
 
   assert(logicalMap_);
 
   for (HBHERecHitCollection::iterator iHBHE=rec.begin();iHBHE!=rec.end();++iHBHE) {
-    int index=logicalMap_->getHcalFrontEndId(iHBHE->detid()).rmIndex();
+    int index=frontEndMap_->lookupRMIndex(iHBHE->detid());
     if (hpdMultiplicity_.at(index)<hitMultiplicityThreshold_) continue;
     iHBHE->setFlagField(1,HcalCaloFlagLabels::HBHEHpdHitMultiplicity);
   }
