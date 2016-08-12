@@ -23,6 +23,8 @@ if __name__ == '__main__':
     from PhysicsTools.HeppyCore.framework.looper import Looper
     for comp in components:
         print "processing",comp
+        if "reHLT" in comp.files[0]:
+            fix_reHLT(config)
         config.components = [comp] 
         looper = Looper( 'Loop_validation_tth_sl_dl_' + comp.name, config, nPrint = 0, nEvents = 10)
         looper.loop()

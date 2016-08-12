@@ -80,6 +80,7 @@ treeProducer= cfg.Analyzer(
 		 NTupleVariable("Flag_hbheFilterNew",  lambda ev : ev.hbheFilterNew, help="hbheFilterIso, after rerun"),
 		 NTupleVariable("simPrimaryVertex_z", lambda ev: ev.genvertex, float,mcOnly=True, help="z coordinate of the simulated primary vertex"),
 		 NTupleVariable("genHiggsDecayMode", lambda ev: ev.genHiggsDecayMode, float, mcOnly=True, help="decay mode of the Higgs boson"),
+		 NTupleVariable("triggerEmulationWeight", lambda ev: ev.triggerEmulationWeight, float, mcOnly=True, help="Emulates SL/DL triggers"),
 	],
 	globalObjects = {
           "met"    : NTupleObject("met",     metType, help="PF E_{T}^{miss}, after default type 1 corrections"),
@@ -313,6 +314,17 @@ ttHLeptonMVA = cfg.Analyzer(
     class_object = ttHLeptonMVAAnalyzer,
 )
 
+from VHbbAnalysis.Heppy.TriggerEmulation import TriggerEmulationAnalyzer
+trigemu = cfg.Analyzer(
+    verbose = False,
+    class_object = TriggerEmulationAnalyzer,
+    calibrationFile="triggerEmulation.root",
+    slEleSelection = lambda x : x.pt() > 25 and getattr(x,"mvaIdSpring15TrigTight",False) and ele_mvaEleID_Trig_preselection(x),
+    slMuSelection = lambda x : x.pt() > 25 and x.muonID("POG_ID_Tight") and mu_pfRelIso04(x) < 0.15,
+    dlEleSelection = lambda x : x.pt() > 15 and getattr(x,"mvaIdSpring15TrigMedium",False) and ele_mvaEleID_Trig_preselection(x),
+    dlMuSelection = lambda x : x.pt() > 15 and x.muonID("POG_ID_Loose") and mu_pfRelIso04(x) < 0.25,
+)
+
 VHbb = cfg.Analyzer(
     verbose=False,
     class_object=VHbbAnalyzer,
@@ -433,7 +445,14 @@ silverJsonAna = cfg.Analyzer(JSONAnalyzer,
       suffix="_silver"
       )
 
-sequence = [jsonAna,LHEAna,LHEWeightAna,FlagsAna, hbheAna, GenAna,VHGenAna,PUAna,TrigAna,VertexAna,LepAna,PhoAna,TauAna,JetAna,ttHLeptonMVA,METAna, METPuppiAna,  PdfAna, VHbb,TTHtoTauTau,TTHtoTauTauGen,TriggerObjectsAna,treeProducer]#,sh]
+sequence = [
+    jsonAna,LHEAna,LHEWeightAna,FlagsAna,
+    hbheAna, GenAna,VHGenAna,PUAna,TrigAna,
+    VertexAna,LepAna,PhoAna,TauAna,JetAna,
+    ttHLeptonMVA,METAna, METPuppiAna,
+    PdfAna,
+    VHbb,TTHtoTauTau,TTHtoTauTauGen,TriggerObjectsAna,trigemu,treeProducer
+]
 
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 sample = cfg.MCComponent(
