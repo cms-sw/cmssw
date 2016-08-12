@@ -105,6 +105,8 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<TriggerPrimiti
     /// Define Subsector ///
     ////// ME1 only ////////
     ////////////////////////
+
+
     
     if(station == 1)//is this correct? I know it starts from 1 so not quite what I intended I think.
       {
@@ -310,6 +312,26 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<TriggerPrimiti
 	}
 	
 	//std::cout<<"pl = "<<phLow<<", ps = "<<phShift<<", ph disp = "<<Ph_Disp_Neighbor_[SectIndex][LUTi]<<", >>1 = "<<(Ph_Disp_Neighbor_[SectIndex][LUTi]>>1)<<", LUTi = "<<LUTi<<"\n";
+	
+
+	// skip some known problematic cases, requires a proper fix by EMTF expert!!!
+	if (station == 0) continue;
+	if (nId == -1) continue;
+	
+	if (LUTi < 0){
+	  cout << "DEBUG:  LUTi    = " << LUTi << "\n";
+	  cout << "DEBUG:  nId     = " << nId << "\n";
+	  cout << "DEBUG:  station = " << station << "\n";
+	  cout << "DEBUG:  sub     = " << sub << "\n";
+	  cout << "DEBUG:  skipping...\n";
+	  continue;
+	}
+	assert(SectIndex >= 0);
+	assert(SectIndex < 12);
+	assert(LUTi >= 0);
+	assert(LUTi < 61);
+
+	// this line has been crashing:
 	ph_hit = phLow + phShift + (Ph_Disp_Neighbor_[SectIndex][LUTi]>>1);
 	
 	////////////////////////
