@@ -5,14 +5,14 @@ from vhbb_combined import *
 components = [
     cfg.MCComponent(
         files = [
-            "root://xrootd-cms.infn.it///store/mc/RunIISpring15DR74/ttHTobb_M125_13TeV_powheg_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/141B9915-1F08-E511-B9FF-001E675A6AB3.root"
+            "root://xrootd-cms.infn.it///store/mc/RunIISpring16MiniAODv2/ttHTobb_M125_13TeV_powheg_pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/40000/0089CC67-6338-E611-947D-0025904C4E2A.root"
         ],
         name = "tth_hbb",
         isMC = True
     ),
     cfg.MCComponent(
         files = [
-            "root://xrootd-cms.infn.it///store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root"
+            "root://xrootd-cms.infn.it///store/mc/RunIISpring16MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14_ext3-v1/00000/0064B539-803A-E611-BDEA-002590D0B060.root"
         ],
         name = "ttjets",
         isMC = True
@@ -26,6 +26,6 @@ if __name__ == '__main__':
         if "reHLT" in comp.files[0]:
             fix_reHLT(config)
         config.components = [comp] 
-        looper = Looper( 'Loop_validation_tth_sl_dl_' + comp.name, config, nPrint = 0, nEvents = 10)
+        looper = Looper( 'Loop_validation_tth_sl_dl_' + comp.name, config, nPrint = 0, nEvents = 1000)
         looper.loop()
         looper.write()
