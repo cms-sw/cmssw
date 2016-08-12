@@ -35,8 +35,8 @@ process.electronMcSignalPostValidator.InputFolderName = cms.string("EgammaV/Elec
 process.electronMcSignalPostValidator.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator")
 
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-#process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_Queue'
+#process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
+process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_Queue'
 #process.GlobalTag.globaltag = '75X_mcRun2_startup_Queue'
 
 process.dqmSaver.workflow = '/electronHistos/' + t1[1] + '/RECO3'

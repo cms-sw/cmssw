@@ -67,8 +67,8 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
   profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, iGetter, "PoPtrueVsPhi","mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
   profileX(iBooker, iGetter, "sigmaIetaIetaVsPt","SigmaIetaIeta vs pt","p_{T} (GeV/c)","SigmaIetaIeta");
-  profileX(iBooker, iGetter, "EoEtruePfVsEg","mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
-  profileY(iBooker, iGetter, "EoEtruePfVsEg","mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
+  profileX(iBooker, iGetter, "EoEtruePfVsEg","mean mustache SC/true energy vs final SC/true energy","E_{final SC}/E_{gen}","E_{mustache}/E_{gen}") ;
+  profileY(iBooker, iGetter, "EoEtruePfVsEg","mean mustache SC/true energy vs final SC/true energy","E_{final SC}/E_{gen}","E_{mustache}/E_{gen}") ;
   profileX(iBooker, iGetter, "EtaMnEtaTrueVsEta","mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
   profileX(iBooker, iGetter, "EtaMnEtaTrueVsPhi","mean ele eta - gen eta vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
   profileX(iBooker, iGetter, "PhiMnPhiTrueVsEta","mean ele phi - gen phi vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");

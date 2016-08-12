@@ -378,13 +378,15 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   h2_ele_HoEVsEta = 0 ;
   h2_ele_HoEVsPhi = 0 ;
   h2_ele_HoEVsE = 0 ;
+//  h1_scl_ESFrac = 0 ;
+  h1_scl_ESFrac_endcaps = 0 ;
 
   h1_ele_fbrem = 0 ;
   p1_ele_fbremVsEta_mode = 0 ;
   p1_ele_fbremVsEta_mean = 0 ;
-  h1_ele_superclusterfbrem = 0 ; // new 2014.02.12
-  h1_ele_superclusterfbrem_barrel = 0 ; // new 2014.02.12
-  h1_ele_superclusterfbrem_endcaps = 0 ; // new 2014.02.12
+  h1_ele_superclusterfbrem = 0 ;
+  h1_ele_superclusterfbrem_barrel = 0 ;
+  h1_ele_superclusterfbrem_endcaps = 0 ;
   h2_ele_PinVsPoutGolden_mode = 0 ;
   h2_ele_PinVsPoutShowering_mode = 0 ;
   h2_ele_PinVsPoutGolden_mean = 0 ;
@@ -684,8 +686,12 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h2_ele_HoEVsEta = bookH2(iBooker, "HoEVsEta","ele hadronic energy / em energy vs eta",eta_nbin,eta_min,eta_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsPhi = bookH2(iBooker, "HoEVsPhi","ele hadronic energy / em energy vs phi",phi2D_nbin,phi_min,phi_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsE = bookH2(iBooker, "HoEVsE","ele hadronic energy / em energy vs E",p_nbin, 0.,300.,hoe_nbin, hoe_min, hoe_max) ;
+  setBookPrefix("h_scl") ;
+//  h1_scl_ESFrac = bookH1withSumw2(iBooker, "ESFrac","Preshower over SC raw energy",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
+  h1_scl_ESFrac_endcaps = bookH1withSumw2(iBooker, "ESFrac_endcaps","Preshower over SC raw energy , endcaps",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
 
   // seeds
+  setBookPrefix("h_ele") ;
   h1_ele_seed_subdet2_ = bookH1withSumw2(iBooker, "seedSubdet2","ele seed subdet 2nd layer",11,-0.5,10.5,"2nd hit subdet Id") ;
   h1_ele_seed_mask_ = bookH1withSumw2(iBooker, "seedMask","ele seed hits mask",13,-0.5,12.5) ;
   h1_ele_seed_mask_bpix_ = bookH1withSumw2(iBooker, "seedMask_Bpix","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
@@ -1049,26 +1055,27 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
       if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed()) sclRef = bestGsfElectron.parentSuperCluster();
       if( sclRef.isNonnull() ) {
-	h1_scl_En_->Fill(sclRef->energy());      
-	double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
-	double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
-	h1_scl_Et_->Fill(sclRef->energy()*(Rt/R));
-	h2_scl_EtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
-	h2_scl_EtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
-	if (bestGsfElectron.classification() < 100)  h1_scl_EoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
-	if (bestGsfElectron.classification() >= 100)  h1_scl_EoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
-	h1_scl_Eta_->Fill(sclRef->eta());
-	h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
-	h1_scl_Phi_->Fill(sclRef->phi());
+        h1_scl_En_->Fill(sclRef->energy());      
+        double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
+        double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
+        h1_scl_Et_->Fill(sclRef->energy()*(Rt/R));
+        h2_scl_EtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
+        h2_scl_EtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
+        if (bestGsfElectron.classification() < 100)  h1_scl_EoEmatchingObject_barrel->Fill(sclRef->energy()/moIter->energy());
+        if (bestGsfElectron.classification() >= 100)  h1_scl_EoEmatchingObject_endcaps->Fill(sclRef->energy()/moIter->energy());
+        h1_scl_Eta_->Fill(sclRef->eta());
+        h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
+        h1_scl_Phi_->Fill(sclRef->phi());
+        /*New from 06 05 2016*/
+//        h1_scl_ESFrac->Fill( sclRef->preshowerEnergy() / sclRef->rawEnergy() );
+        if (bestGsfElectron.isEE()) h1_scl_ESFrac_endcaps->Fill( sclRef->preshowerEnergy() / sclRef->rawEnergy() );
       }
       h1_scl_SigIEtaIEta_->Fill(bestGsfElectron.scSigmaIEtaIEta());
       if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_barrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
       if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-// new 2014.01.12
       h1_scl_full5x5_sigmaIetaIeta_->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
       if (bestGsfElectron.isEB()) h1_scl_full5x5_sigmaIetaIeta_barrel_->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
       if (bestGsfElectron.isEE()) h1_scl_full5x5_sigmaIetaIeta_endcaps_->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
-// new 2014.01.12
       h1_scl_E1x5_->Fill(bestGsfElectron.scE1x5());
       if (bestGsfElectron.isEB()) h1_scl_E1x5_barrel_->Fill(bestGsfElectron.scE1x5());
       if (bestGsfElectron.isEE()) h1_scl_E1x5_endcaps_->Fill(bestGsfElectron.scE1x5());
@@ -1274,7 +1281,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
         double superclusterfbrem_mode_endcaps = bestGsfElectron.superClusterFbrem();
         h1_ele_superclusterfbrem_endcaps->Fill(superclusterfbrem_mode_endcaps);
        }
-// new 2014/02/12
 
       if (!readAOD_) // track extra does not exist in AOD
        {

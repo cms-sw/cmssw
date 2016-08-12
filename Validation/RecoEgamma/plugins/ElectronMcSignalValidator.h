@@ -31,9 +31,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
 
   private:
 
-    edm::EDGetTokenT<reco::GenParticleCollection> mcTruthCollection_;
-    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
-    edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
+    edm::EDGetTokenT<reco::GenParticleCollection> mcTruthCollection_; // genParticles
+    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_; // gedGsfElectrons
+    edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_; // gedGsfElectronCore
     edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
     edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
     edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;
@@ -97,9 +97,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recTrackNum;
     MonitorElement *h1_recSeedNum;
     MonitorElement *h1_recOfflineVertices;
-    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices; // new 2015.15.05
-    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel; // new 2015.15.05
-    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps; // new 2015.15.05
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices;
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel;
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps;
 
     MonitorElement *h1_mc_Eta;
     MonitorElement *h1_mc_AbsEta;
@@ -219,6 +219,8 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_scl_EtaVsPhi;
     MonitorElement *h1_scl_Eta;
     MonitorElement *h1_scl_Phi;
+//    MonitorElement *h1_scl_ESFrac;
+    MonitorElement *h1_scl_ESFrac_endcaps;
 
     MonitorElement *h2_scl_EoEtruePfVsEg ;
 
@@ -243,9 +245,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_E5x5;
     MonitorElement *h1_scl_E5x5_barrel;
     MonitorElement *h1_scl_E5x5_endcaps;
-    MonitorElement *h1_scl_bcl_EtotoEtrue; // new 2015.18.05
-    MonitorElement *h1_scl_bcl_EtotoEtrue_barrel; // new 2015.18.05
-    MonitorElement *h1_scl_bcl_EtotoEtrue_endcaps; // new 2015.18.05
+    MonitorElement *h1_scl_bcl_EtotoEtrue;
+    MonitorElement *h1_scl_bcl_EtotoEtrue_barrel;
+    MonitorElement *h1_scl_bcl_EtotoEtrue_endcaps;
 
     MonitorElement *h1_ele_ambiguousTracks;
     MonitorElement *h2_ele_ambiguousTracksVsEta;

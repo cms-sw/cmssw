@@ -16,12 +16,12 @@ ElectronMcSignalValidatorMiniAOD/h_ele_PoPtrueVsEta_pfx            0 1 1 1
 
 Track-cluster matching observables
 
-ElectronMcSignalValidatorMiniAOD/h_ele_dEtaSc_propVtx_mAOD                  1 1 0 0
-ElectronMcSignalValidatorMiniAOD/h_ele_dEtaSc_propVtx_mAOD_barrel          1 1 0 0
-ElectronMcSignalValidatorMiniAOD/h_ele_dEtaSc_propVtx_mAOD_endcaps         1 1 1 0
+ElectronMcSignalValidatorMiniAOD/h_ele_dEtaSc_propVtx_mAOD                1 1 0 0
+ElectronMcSignalValidatorMiniAOD/h_ele_dEtaSc_propVtx_mAOD_barrel         1 1 0 0
+ElectronMcSignalValidatorMiniAOD/h_ele_dEtaSc_propVtx_mAOD_endcaps        1 1 1 0
 ElectronMcSignalValidatorMiniAOD/h_ele_dPhiCl_propOut_mAOD                1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_ele_dPhiCl_propOut_mAOD_barrel         1 1 0 0
-ElectronMcSignalValidatorMiniAOD/h_ele_dPhiCl_propOut_mAOD_endcaps   1 1 1 1
+ElectronMcSignalValidatorMiniAOD/h_ele_dPhiCl_propOut_mAOD_endcaps        1 1 1 1
 
 Electron Cluster shapes
 
@@ -36,7 +36,7 @@ ElectronMcSignalValidatorMiniAOD/h_scl_SigIEtaIEta_mAOD_endcaps         1 1 1 1
 Electron track variables
 
 ElectronMcSignalValidatorMiniAOD/h_ele_foundHitsVsEta_pfx          0 1 1 0
-ElectronMcSignalValidatorMiniAOD/h_ele_foundHitsVsEta_mAOD_pfx          0 1 1 1
+ElectronMcSignalValidatorMiniAOD/h_ele_foundHitsVsEta_mAOD_pfx     0 1 1 1
 
 Brem fraction and related distributions
 
@@ -59,4 +59,11 @@ ElectronMcSignalValidatorMiniAOD/h_ele_neutralHadronRelativeIso_mAOD_barrel    1
 ElectronMcSignalValidatorMiniAOD/h_ele_neutralHadronRelativeIso_mAOD_endcaps   1 1 1 0
 ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD           1 1 0 0
 ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD_barrel    1 1 0 0
-ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD_endcaps   1 1 1 0
+ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD_endcaps   1 1 1 1
+
+recomputed pflow over pT
+
+ElectronMcSignalValidatorMiniAOD/h_ele_chargedHadronRelativeIso_mAOD_recomp           1 1 1 0
+ElectronMcSignalValidatorMiniAOD/h_ele_neutralHadronRelativeIso_mAOD_recomp           1 1 1 0
+ElectronMcSignalValidatorMiniAOD/h_ele_photonRelativeIso_mAOD_recomp                  1 1 1 0
+
