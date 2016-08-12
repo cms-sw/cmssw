@@ -312,38 +312,6 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row)
   return electrons;
 }
 
-
-namespace {
-
-  struct AccretionCluster {
-    typedef unsigned short UShort;
-    static constexpr UShort MAXSIZE = 256;
-    UShort adc[256];
-    UShort x[256];
-    UShort y[256];
-    UShort xmin=16000;
-    UShort ymin=16000;
-    unsigned int isize=0;
-    unsigned int curr=0;
-
-    // stack interface (unsafe ok for use below)
-    UShort top() const { return curr;}
-    void pop() { ++curr;}   
-    bool empty() { return curr==isize;}
-
-    bool add(SiPixelCluster::PixelPos const & p, UShort const iadc) {
-      if (isize==MAXSIZE) return false;
-      xmin=std::min(xmin,(unsigned short)(p.row()));
-      ymin=std::min(ymin,(unsigned short)(p.col()));
-      adc[isize]=iadc;
-      x[isize]=p.row();
-      y[isize++]=p.col();
-      return true;
-    }
-  };
-
-}
-
 //----------------------------------------------------------------------------
 //!  \brief The actual clustering algorithm: group the neighboring pixels around the seed.
 //----------------------------------------------------------------------------
