@@ -656,16 +656,22 @@ namespace edm {
             return;
           }
           auto waitTask = edm::make_empty_waiting_task();
-          //set count to 2 since wait_for_all requires value to not go to 0
-          waitTask->set_ref_count(2);
-          
-          prefetchAsync(waitTask.get(),parentContext, ep);
-          waitTask->decrement_ref_count();
-          waitTask->wait_for_all();
+          {
+            //Make sure signal is sent once the prefetching is done
+            // [the 'pre' signal was sent in prefetchAsync]
+            //The purpose of this block is to send the signal after wait_for_all
+            auto sentryFunc = [this](void*) {
+              actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+            };
+            std::unique_ptr<ActivityRegistry, decltype(sentryFunc)> signalSentry(actReg_.get(),sentryFunc);
+            
+            //set count to 2 since wait_for_all requires value to not go to 0
+            waitTask->set_ref_count(2);
 
-          //pre was called in prefetchAsync
-          actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
-
+            prefetchAsync(waitTask.get(),parentContext, ep);
+            waitTask->decrement_ref_count();
+            waitTask->wait_for_all();
+          }
           if(waitTask->exceptionPtr() != nullptr) {
             std::rethrow_exception(*(waitTask->exceptionPtr()));
           }
