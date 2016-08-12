@@ -317,19 +317,17 @@ namespace edm {
       ServiceToken m_serviceToken;
     };
     
-    int timesRun_;
+    CMS_THREAD_GUARD(state_) int timesRun_;
     std::atomic<int> timesVisited_;
-    int timesPassed_;
-    int timesFailed_;
-    int timesExcept_;
-    CMS_THREAD_GUARD(cached_exception_) CMS_THREAD_GUARD(timesRun_)
-    CMS_THREAD_GUARD(timesPassed_) CMS_THREAD_GUARD(timesFailed_)
-    CMS_THREAD_GUARD(timesExcept_) std::atomic<State> state_;
+    CMS_THREAD_GUARD(state_) int timesPassed_;
+    CMS_THREAD_GUARD(state_) int timesFailed_;
+    CMS_THREAD_GUARD(state_) int timesExcept_;
+    std::atomic<State> state_;
 
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
-    std::exception_ptr cached_exception_; // if state is 'exception'
+    CMS_THREAD_GUARD(state_) std::exception_ptr cached_exception_; // if state is 'exception'
 
     std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
 
@@ -620,8 +618,7 @@ namespace edm {
     bool expected = false;
     if(not workStarted_.compare_exchange_strong(expected, true) ) {
       //another thread beat us here
-      std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-        [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+      auto waitTask = edm::make_empty_waiting_task();
       waitTask->increment_ref_count();
       
       waitingTasks_.add(waitTask.get());
@@ -657,8 +654,8 @@ namespace edm {
             waitingTasks_.doneWaiting(nullptr);
             return;
           }
-          std::shared_ptr<edm::WaitingTask> waitTask{new (tbb::task::allocate_root()) edm::EmptyWaitingTask{},
-            [](edm::WaitingTask* iTask){tbb::task::destroy(*iTask);} };
+          auto waitTask = edm::make_empty_waiting_task();
+          //set count to 2 since wait_for_all requires value to not go to 0
           waitTask->set_ref_count(2);
           
           prefetchAsync(waitTask.get(),parentContext, ep);

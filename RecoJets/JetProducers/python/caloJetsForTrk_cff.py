@@ -18,4 +18,5 @@ eras.trackingPhase2PU140.toModify(ak4CaloJetsForTrk,
 caloJetsForTrk = cms.Sequence(caloTowerForTrk*ak4CaloJetsForTrk)
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_hcal.toModify( caloTowerForTrk, hbheInput = cms.InputTag("hbheUpgradeReco"), hfInput = cms.InputTag("hfUpgradeReco") )
+eras.phase2_hcal.toModify( caloTowerForTrk, hbheInput = cms.InputTag("hbhereco") )
+

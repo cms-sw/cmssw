@@ -2,7 +2,9 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <numeric>
 
 const unsigned int SimCluster::longLivedTag = 65536;
 

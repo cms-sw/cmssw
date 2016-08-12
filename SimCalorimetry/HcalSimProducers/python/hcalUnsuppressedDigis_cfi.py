@@ -29,3 +29,9 @@ hcalSimBlock = cms.PSet(
 
 from Configuration.StandardSequences.Eras import eras
 eras.fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
+
+eras.phase2_hcal.toModify( hcalSimBlock,
+    HBHEUpgradeQIE = cms.bool(True),
+    HFUpgradeQIE = cms.bool(True),
+    TestNumbering = cms.bool(True)
+)
