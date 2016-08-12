@@ -60,13 +60,9 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::zsThresholdsCallback &
 			  &HcalDbProducer::L1triggerObjectsCallback &
 			  &HcalDbProducer::electronicsMapCallback &
-<<<<<<< HEAD
-//			  &HcalDbProducer::frontEndMapCallback &
+			  &HcalDbProducer::frontEndMapCallback &
 //			  &HcalDbProducer::SiPMParametersCallback &
 //			  &HcalDbProducer::SiPMCharacteristicsCallback &
-=======
-			  &HcalDbProducer::frontEndMapCallback &
->>>>>>> Make use of FrontEndMap
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );
@@ -82,11 +78,10 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 }
 
 
-HcalDbProducer::~HcalDbProducer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+HcalDbProducer::~HcalDbProducer() {
+
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
   if (mDumpStream != &std::cout) delete mDumpStream;
 }
 

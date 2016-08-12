@@ -12,16 +12,13 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-class HBHEStatusBitSetter
-{
+class HBHEStatusBitSetter {
 public:
+  HBHEStatusBitSetter();
   HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,const std::vector<edm::ParameterSet>& pulseShapeParameterSets);
   ~HBHEStatusBitSetter();
-<<<<<<< HEAD
 
-=======
   void SetFrontEndMap(const HcalFrontEndMap* m); 
->>>>>>> Make use of FrontEndMap
   void Clear();
   void setTopo(const HcalTopology* topo);
   void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi,

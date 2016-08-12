@@ -345,11 +345,8 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
       HFDigiTimeParams->setTopo(htopo.product());
     }
 
-<<<<<<< HEAD
-  if (hbheFlagSetter_)
-      hbheFlagSetter_->setTopo(htopo.product());
-=======
   if (hbheFlagSetter_) {
+    hbheFlagSetter_->setTopo(htopo.product());
     edm::ESHandle<HcalFrontEndMap> hfemap;
     es.get<HcalFrontEndMapRcd>().get(hfemap);
     if (hfemap.isValid()) {
@@ -357,7 +354,6 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
       hbheFlagSetter_->SetFrontEndMap(hfemap.product());
     }
   }
->>>>>>> Make use of FrontEndMap
 
   reco_.beginRun(es);
 }
