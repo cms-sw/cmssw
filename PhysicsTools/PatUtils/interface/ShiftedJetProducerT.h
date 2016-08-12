@@ -105,14 +105,18 @@ template <typename T, typename Textractor>
 
     edm::Handle<JetCollection> originalJets;
     evt.getByToken(srcToken_, originalJets);
+    
     edm::Handle<reco::JetCorrector> jetCorrUpToL3;
-    evt.getByToken(jetCorrTokenUpToL3_, jetCorrUpToL3);
     edm::Handle<reco::JetCorrector> jetCorrUpToL3Res;
+    
     if ( evt.isRealData() && addResidualJES_ ) {
+      evt.getByToken(jetCorrTokenUpToL3_, jetCorrUpToL3);
       evt.getByToken(jetCorrTokenUpToL3Res_, jetCorrUpToL3Res);
     }
-    std::auto_ptr<JetCollection> shiftedJets(new JetCollection);
+    
+    std::unique_ptr<JetCollection> shiftedJets(new JetCollection);
 
+    
     if ( jetCorrPayloadName_ != "" ) {
       edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
       es.get<JetCorrectionsRecord>().get(jetCorrPayloadName_, jetCorrParameterSet);
@@ -174,7 +178,7 @@ template <typename T, typename Textractor>
       shiftedJets->push_back(shiftedJet);
     }
 
-    evt.put(shiftedJets);
+    evt.put(std::move(shiftedJets));
   }
 
   std::string moduleLabel_;
