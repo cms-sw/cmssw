@@ -15,8 +15,7 @@ HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
   : hitEnergyMinimum_(hitEnergyMinimum),
     hitMultiplicityThreshold_(hitMultiplicityThreshold),
     nominalPedestal_(nominalPedestal),
-    frontEndMap_(0),
-    hpdMultiplicity_(HcalFrontEndId::maxRmIndex, 0) {
+    frontEndMap_(0) {
   const unsigned sz = pulseShapeParameterSets.size();
   pulseShapeParameters_.reserve(sz);
   for (unsigned iPSet=0; iPSet<sz; iPSet++) {
