@@ -16,7 +16,7 @@ autoCond = {
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
     'run2_mc'           :   '75X_mcRun2_asymptotic_v11',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '75X_mcRun2_HeavyIon_v13',
+    'run2_mc_hi'        :   '75X_mcRun2_HeavyIon_v14',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '75X_dataRun1_v13',
     # GlobalTag for Run2 data reprocessing
