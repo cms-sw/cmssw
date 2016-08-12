@@ -733,11 +733,18 @@ class AdditionalBoost( Analyzer ):
             self.handles['ca15softdrop']            = AutoHandle( ("ca15PFSoftdropJetsCHS","","EX"), "std::vector<reco::BasicJet>")
             self.handles['ca15softdropz2b1']        = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHS","","EX"), "std::vector<reco::BasicJet>")
 
+            self.handles['ca15softdropfilt']            = AutoHandle( ("ca15PFSoftdropFiltJetsCHS","","EX"), "std::vector<reco::BasicJet>")
+            self.handles['ca15softdropz2b1filt']        = AutoHandle( ("ca15PFSoftdropZ2B1FiltJetsCHS","","EX"), "std::vector<reco::BasicJet>")
+
+
             self.handles['ca15subjetfiltered']        = AutoHandle( ("ca15PFSubjetFilterCHS","filtercomp","EX"), "std::vector<reco::BasicJet>")
 
             self.handles['ca15prunedsubjets']       = AutoHandle( ("ca15PFPrunedJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
             self.handles['ca15softdropsubjets']     = AutoHandle( ("ca15PFSoftdropJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
             self.handles['ca15softdropz2b1subjets'] = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
+
+            self.handles['ca15softdropfiltsubjets']     = AutoHandle( ("ca15PFSoftdropFiltJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
+            self.handles['ca15softdropz2b1filtsubjets'] = AutoHandle( ("ca15PFSoftdropZ2B1FiltJetsCHS","SubJets","EX"), "std::vector<reco::PFJet>")
 
             # we call them subjets, even though they are technically the filterjets in BDRS lingo
             self.handles['ca15subjetfilteredsubjets']  = AutoHandle( ("ca15PFSubjetFilterCHS","filter","EX"), "std::vector<reco::PFJet>")
@@ -768,6 +775,12 @@ class AdditionalBoost( Analyzer ):
                                                                "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
 
             self.handles['ca15softdropz2b1subjetbtag'] = AutoHandle( ("ca15PFSoftdropZ2B1JetsCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
+                                                               "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
+
+            self.handles['ca15softdropfiltsubjetbtag'] = AutoHandle( ("ca15PFSoftdropFiltJetsCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
+                                                               "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
+
+            self.handles['ca15softdropz2b1filtsubjetbtag'] = AutoHandle( ("ca15PFSoftdropZ2B1FiltJetsCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
                                                                "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
 
             self.handles['ca15subjetfilteredsubjetbtag'] = AutoHandle( ("ca15PFSubjetFilterCHSpfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), 
@@ -819,7 +832,9 @@ class AdditionalBoost( Analyzer ):
         # Groomed Uncalibrated Fatjets
         ########
 
-        for fj_name in ['ca15trimmed', 'ca15softdrop', 'ca15pruned', 'ca15subjetfiltered']:            
+        for fj_name in ['ca15trimmed', 'ca15softdrop', 'ca15pruned', 
+                        'ca15subjetfiltered', 
+                        "ca15softdropfilt", "ca15softdropz2b1filt" ]:            
                 setattr(event, fj_name, map(PhysicsObject, self.handles[fj_name].product()))
 
 #
@@ -871,7 +886,10 @@ class AdditionalBoost( Analyzer ):
         # Subjets 
         ########
 
-        for fj_name in ['ca15pruned', 'ca15softdrop', 'ca15softdropz2b1', 'ca15subjetfiltered']:
+        for fj_name in ['ca15pruned', 
+                        'ca15softdrop', 'ca15softdropz2b1', 
+                        'ca15softdropfilt', 'ca15softdropz2b1filt', 
+                        'ca15subjetfiltered']:
 
             if self.skip_ca15 and ("ca15" in fj_name):
                 continue
