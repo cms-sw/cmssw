@@ -14,8 +14,12 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 #include "tbb/task.h"
+#include "tbb/task_scheduler_observer.h"
+#include "tbb/concurrent_unordered_set.h"
 #include <thread>
 #include <sys/wait.h>
 #include <sstream>
@@ -56,12 +60,30 @@ namespace edm {
       friend int cmssw_stacktrace(void *);
       
     public:
+      class ThreadTracker : public tbb::task_scheduler_observer {
+      public:
+        typedef tbb::concurrent_unordered_set<pthread_t> Container_type;
+
+        ThreadTracker() : tbb::task_scheduler_observer() {
+          observe(true);
+        }
+        void on_scheduler_entry(bool) {
+          threadIDs_.insert(pthread_self());
+        }
+        const Container_type& IDs() { return threadIDs_; }
+      
+      private:
+        Container_type threadIDs_;
+      };
+
       explicit InitRootHandlers(ParameterSet const& pset, ActivityRegistry& iReg);
       virtual ~InitRootHandlers();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void stacktraceFromThread();
-      
+      static const ThreadTracker::Container_type& threadIDs() { return threadTracker_.IDs(); }
+      static int stackTracePause() { return stackTracePause_; }
+
     private:
       static char *const *getPstackArgv();
       virtual void enableWarnings_() override;
@@ -79,6 +101,8 @@ namespace edm {
       static int parentToChild_[2];
       static int childToParent_[2];
       static std::unique_ptr<std::thread> helperThread_;
+      static ThreadTracker threadTracker_;
+      static int stackTracePause_;
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool loadAllDictionaries_;
@@ -111,7 +135,7 @@ namespace {
     kSysError,
     kFatal
   };
-  
+
   static thread_local bool s_ignoreWarnings = false;
 
   static bool s_ignoreEverything = false;
@@ -350,7 +374,68 @@ namespace {
       return full_write(2, text);
     }
 
+#if defined(SIGRTMAX)
+#define PAUSE_SIGNAL SIGRTMAX
+#define RESUME_SIGNAL SIGRTMAX-1
+#elif defined(SIGINFO) // macOS
+#define PAUSE_SIGNAL SIGINFO  // pause signal must be otherwise unused
+#define RESUME_SIGNAL SIGALRM // resume signal is only used briefly
+#endif
+
+    // does nothing, here only to interrupt the sleep() in the pause handler
+    void sig_resume_handler(int sig, siginfo_t*, void*) {}
+
+    void sig_pause_for_stacktrace(int sig, siginfo_t*, void*) {
+#ifdef RESUME_SIGNAL
+      sigset_t sigset;
+      sigemptyset(&sigset);
+      sigaddset(&sigset, RESUME_SIGNAL);
+      pthread_sigmask(SIG_UNBLOCK, &sigset, 0);
+#endif
+      // sleep interrrupts on a handled signal delivery
+      sleep(edm::service::InitRootHandlers::stackTracePause());
+
+      char buff[128] = "\nModule: ";
+ 
+      if (edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr) {
+        strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), 128);
+        full_cerr_write(buff);
+      }
+    }
+
     void sig_dostack_then_abort(int sig, siginfo_t*, void*) {
+      char buff[128] = "\nModule: ";
+
+      const auto& tids = edm::service::InitRootHandlers::threadIDs();
+
+      const auto self = pthread_self();
+#ifdef PAUSE_SIGNAL
+      if (edm::service::InitRootHandlers::stackTracePause() > 0 && tids.size() > 1) {
+        struct sigaction act;
+        act.sa_sigaction = sig_pause_for_stacktrace;
+        act.sa_flags = 0;
+        sigemptyset (&act.sa_mask);
+        sigaction(PAUSE_SIGNAL, &act, NULL);
+
+        // unblock pause signal globally, resume is unblocked in the pause handler
+        sigset_t pausesigset;
+        sigemptyset(&pausesigset);
+        sigaddset(&pausesigset, PAUSE_SIGNAL);
+        sigprocmask(SIG_UNBLOCK, &pausesigset, 0);
+
+        int notified = 0;
+        for (auto id : tids) {
+          if (self != id) {
+            if (pthread_kill(id, PAUSE_SIGNAL) == 0) ++notified;
+          }
+        }
+
+#ifdef RESUME_SIGNAL
+        act.sa_sigaction = sig_resume_handler;
+        sigaction(RESUME_SIGNAL, &act, NULL);
+#endif
+      }
+#endif
 
       const char* signalname = "unknown";
       switch (sig) {
@@ -382,6 +467,33 @@ namespace {
       full_cerr_write("\nThe following is the call stack containing the origin of the signal.\n\n");
 
       edm::service::InitRootHandlers::stacktraceFromThread();
+ 
+      // resume the signal handlers to print the current module; we are not guaranteed they
+      // will have time to print their modules, so there is a race condition here, but it
+      // is safer to defer accessing the thread-local current module until after the
+      // stack trace has completed.
+#ifdef RESUME_SIGNAL
+      if (edm::service::InitRootHandlers::stackTracePause() > 0 && tids.size() > 1) {
+        int notified = 0;
+        for (auto id : tids) {
+          if (self != id) {
+            if (pthread_kill(id, RESUME_SIGNAL) == 0) ++notified;
+          }
+        }
+      }
+#endif
+
+      // only access current module thread local if this is a CMSSW thread; assumes that any TBB
+      // thread will have access to CMSSW thread locals.  Should be safe on Linux, as the thread
+      // local is allocated in FWCore/ServiceRegistry which is linked into cmsRun, and hence
+      // allocated at exec() time.  May be unsafe on any platform where all thread locals are
+      // lazily initialized
+      if (tids.count(self) > 0 && edm::CurrentModuleOnThread::getCurrentModuleOnThread() != nullptr)
+      {
+        strlcat(buff, edm::CurrentModuleOnThread::getCurrentModuleOnThread()->moduleDescription()->moduleName().c_str(), 128);
+        strlcat(buff, " (crashed)\n", 128);
+        full_cerr_write(buff);
+      }
 
       full_cerr_write("\nA fatal system signal has occurred: ");
       full_cerr_write(signalname);
@@ -430,6 +542,7 @@ namespace edm {
       int toParent = childToParent_[1];
       int fromParent = parentToChild_[0];
       char buf[2]; buf[1] = '\0';
+
       while(true)
       {
         int result = full_read(fromParent, buf, 1);
@@ -589,6 +702,8 @@ namespace edm {
     int InitRootHandlers::parentToChild_[2] = {-1, -1};
     int InitRootHandlers::childToParent_[2] = {-1, -1};
     std::unique_ptr<std::thread> InitRootHandlers::helperThread_;
+    InitRootHandlers::ThreadTracker InitRootHandlers::threadTracker_;
+    int InitRootHandlers::stackTracePause_ = 300;
 
     InitRootHandlers::InitRootHandlers (ParameterSet const& pset, ActivityRegistry& iReg)
       : RootHandlers(),
@@ -597,6 +712,7 @@ namespace edm {
         loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
         autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool> ("AutoLibraryLoader"))
     {
+      stackTracePause_ = pset.getUntrackedParameter<int> ("StackTracePauseTime");
       
       if(unloadSigHandler_) {
       // Deactivate all the Root signal handlers and restore the system defaults
@@ -728,9 +844,11 @@ namespace edm {
       desc.addUntracked<bool>("LoadAllDictionaries",false)
           ->setComment("If True, loads all ROOT dictionaries.");
       desc.addUntracked<bool>("AbortOnSignal",true)
-      ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
+          ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
       desc.addUntracked<int>("DebugLevel",0)
- 	  ->setComment("Sets ROOT's gDebug value.");
+          ->setComment("Sets ROOT's gDebug value.");
+      desc.addUntracked<int>("StackTracePauseTime", 300)
+          ->setComment("Seconds to pause other threads during stack trace.");
       descriptions.add("InitRootHandlers", desc);
     }
 
