@@ -31,7 +31,7 @@
      std::exception_ptr ptr;
      try {
        *m_output = doCalculation();
-     catch(...) {
+     } catch(...) {
        ptr = std::current_exception();
      }
      m_waitList.doneWaiting(ptr);
@@ -75,6 +75,7 @@
 
 // user include files
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
@@ -86,6 +87,18 @@ namespace edm {
       tbb::task* execute() override { return nullptr;}
    };
 
+   namespace waitingtask {
+      struct TaskDestroyer {
+         void operator()(tbb::task* iTask) const {
+            tbb::task::destroy(*iTask);
+         }
+      };
+   }
+   ///Create an EmptyWaitingTask which will properly be destroyed
+   inline std::unique_ptr<edm::EmptyWaitingTask, waitingtask::TaskDestroyer> make_empty_waiting_task() {
+      return std::unique_ptr<edm::EmptyWaitingTask, waitingtask::TaskDestroyer>( new (tbb::task::allocate_root()) edm::EmptyWaitingTask{});
+   }
+
    class WaitingTaskList
    {
       
@@ -95,8 +108,8 @@ namespace edm {
        * \param[in] iInitialSize specifies the initial size of the cache used to hold waiting tasks.
        * The value is only useful for optimization as the object can resize itself.
        */
-      WaitingTaskList(unsigned int iInitialSize = 2);
-      ~WaitingTaskList();
+      explicit WaitingTaskList(unsigned int iInitialSize = 2);
+      ~WaitingTaskList() = default;
       
       // ---------- member functions ---------------------------
       
@@ -120,7 +133,7 @@ namespace edm {
       ///Resets access to the resource so that added tasks will wait.
       /**The owner of the resouce calls reset() to make tasks wait.
        * Calling reset() is NOT thread safe. The system must guarantee that no tasks are
-       * using the resource when reset() is called and neither add() nor doneWaiting() call
+       * using the resource when reset() is called and neither add() nor doneWaiting() can
        * be called concurrently with reset().
        */
       void reset();
@@ -153,8 +166,8 @@ namespace edm {
       
       // ---------- member data --------------------------------
       std::atomic<WaitNode*> m_head;
-      WaitNode* m_nodeCache;
-      std::exception_ptr m_exceptionPtr; //guarded by m_waiting
+      std::unique_ptr<WaitNode[]> m_nodeCache;
+      CMS_THREAD_GUARD(m_waiting) std::exception_ptr m_exceptionPtr;
       unsigned int m_nodeCacheSize;
       std::atomic<unsigned int> m_lastAssignedCacheIndex;
       std::atomic<bool> m_waiting;    
