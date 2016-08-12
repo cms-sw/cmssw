@@ -34,6 +34,9 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 
+#include <iostream>
+#include <fstream>
+
 class TrackerTopology;
 
 namespace edm {

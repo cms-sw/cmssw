@@ -524,7 +524,7 @@ namespace edm {
 									       eventInfoList,
 									       bunchSpace_));
 
-    e.put(PileupMixing_);
+    e.put(std::move(PileupMixing_));
 
     // we have to do the ToF transformation for PSimHits once all pileup has been added
     for (unsigned int ii=0;ii<workers_.size();++ii) {

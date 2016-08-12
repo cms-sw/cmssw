@@ -283,7 +283,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
     iEvent.put(output_scopemode, SCDigi);
     iEvent.put(output_virginraw, VRDigi);
     iEvent.put(output_processedraw, PRDigi);
-    if( makeDigiSimLinks_ ) iEvent.put( pOutputDigiSimLink ); // The previous EDProducer didn't name this collection so I won't either
+    if( makeDigiSimLinks_ ) iEvent.put( std::move(pOutputDigiSimLink) ); // The previous EDProducer didn't name this collection so I won't either
   }
 }
 
