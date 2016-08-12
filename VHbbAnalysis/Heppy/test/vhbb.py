@@ -145,6 +145,8 @@ treeProducer= cfg.Analyzer(
                 "genbquarksFromH"      : NTupleCollection("GenBQuarkFromH",  genParticleType, 4, help="Generated bottom quarks from Higgs decays",mcOnly=True),
                 "genbquarksFromTop"      : NTupleCollection("GenBQuarkFromTop",  genParticleType, 4, help="Generated bottom quarks from top decays",mcOnly=True),
                 "genbquarksFromHafterISR"      : NTupleCollection("GenBQuarkFromHafterISR",  genParticleType, 4, help="Generated bottom quarks from Higgs decays",mcOnly=True),
+                "gengluonfromb"      : NTupleCollection("GenGluonFromB",  genParticleType, 4, help="Generated gluons from b-quarks",mcOnly=True),
+                "gengluonfromt"      : NTupleCollection("GenGluonFromTop",  genParticleType, 4, help="Generated gluons from top quarks",mcOnly=True),
                 "genwzquarks"     : NTupleCollection("GenWZQuark",   genParticleType, 6, help="Generated quarks from W/Z decays",mcOnly=True),
                 "genleps"         : NTupleCollection("GenLep",     genParticleType, 4, help="Generated leptons from W/Z decays",mcOnly=True),
                 "gentaus"         : NTupleCollection("GenTaus",     genParticleType, 4, help="Generated taus",mcOnly=True),
