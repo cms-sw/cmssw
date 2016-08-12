@@ -136,12 +136,48 @@ def storeCaloTowersAOD(process):
         process.AODSIMoutput.outputCommands.extend(['keep *_towerMaker_*_*'])
 
     return process
+	
+# Add rhoProducer to AOD event content
+def addRhoProducer(process):
+    process.load('RecoJets.JetProducers.kt4PFJets_cfi')
+    process.load('RecoHI.HiJetAlgos.hiFJRhoProducer')
+    process.load('RecoHI.HiJetAlgos.hiFJGridEmptyAreaCalculator_cff')
+    
+    process.kt4PFJetsForRho = process.kt4PFJets.clone()
+    process.kt4PFJetsForRho.doAreaFastjet = True
+    process.kt4PFJetsForRho.jetPtMin      = cms.double(0.0)
+    process.kt4PFJetsForRho.GhostArea     = cms.double(0.005)
+    process.hiFJGridEmptyAreaCalculator.doCentrality = False
+    
+	# extend AOD content
+    process.reconstruction *= process.kt4PFJetsForRho
+    process.reconstruction *= process.hiFJRhoProducer
+    process.reconstruction *= process.hiFJGridEmptyAreaCalculator
 
+    # extend AOD content
+    if hasattr(process,'AODoutput'):
+        process.AODoutput.outputCommands.extend(['keep *_hiFJGridEmptyAreaCalculator_*_*'])
+        process.AODoutput.outputCommands.extend(['keep *_hiFJRhoProducer_*_*'])
+
+    if hasattr(process,'AODSIMoutput'):
+        process.AODSIMoutput.outputCommands.extend(['keep *_hiFJGridEmptyAreaCalculator_*_*'])
+        process.AODSIMoutput.outputCommands.extend(['keep *_hiFJRhoProducer_*_*'])
+		
+    if hasattr(process,'RECOSIMoutput'):
+        process.RECOSIMoutput.outputCommands.extend(['keep *_hiFJGridEmptyAreaCalculator_*_*'])
+        process.RECOSIMoutput.outputCommands.extend(['keep *_hiFJRhoProducer_*_*'])
+
+    if hasattr(process,'RECOoutput'):
+        process.RECOoutput.outputCommands.extend(['keep *_hiFJGridEmptyAreaCalculator_*_*'])
+        process.RECOoutput.outputCommands.extend(['keep *_hiFJRhoProducer_*_*'])
+
+    return process
 def customisePPrecoforPPb(process):
  
      process=addHIIsolationProducer(process)
      process=storeCaloTowersAOD(process)
- 
+     process=addRhoProducer(process)
+
      return process
  
 def customisePPrecoForPeripheralPbPb(process):
