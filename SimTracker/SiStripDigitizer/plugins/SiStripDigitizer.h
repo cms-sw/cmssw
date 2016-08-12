@@ -59,9 +59,9 @@ public:
 				       std::vector<float> &TrueInteractionList,
 				       std::vector<edm::EventID> &eventInfoList, int bunchSpacing){
     PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
-  }
+  } 
 
-  virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }
+  virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; } 
 
   
 private:
