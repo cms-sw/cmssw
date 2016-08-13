@@ -70,11 +70,11 @@ private:
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig) :
   _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
   electronicsMapLabel_(iConfig.getParameter<std::string>("ElectronicsMap")),
-  qie10Tag_(iConfig.getUntrackedParameter<edm::InputTag>("QIE10", edm::InputTag("hcalDigis"))),
-  qie11Tag_(iConfig.getUntrackedParameter<edm::InputTag>("QIE11", edm::InputTag("hcalDigis"))),
-  hbheqie8Tag_(iConfig.getUntrackedParameter<edm::InputTag>("HBHEqie8", edm::InputTag("hcalDigis"))),
-  hfqie8Tag_(iConfig.getUntrackedParameter<edm::InputTag>("HFqie8", edm::InputTag("hcalDigis"))),
-  trigTag_(iConfig.getUntrackedParameter<edm::InputTag>("TP", edm::InputTag("hcalDigis")))
+  qie10Tag_(iConfig.getParameter<edm::InputTag>("QIE10")),
+  qie11Tag_(iConfig.getParameter<edm::InputTag>("QIE11")),
+  hbheqie8Tag_(iConfig.getParameter<edm::InputTag>("HBHEqie8")),
+  hfqie8Tag_(iConfig.getParameter<edm::InputTag>("HFqie8")),
+  trigTag_(iConfig.getParameter<edm::InputTag>("TP"))
 {
   produces<FEDRawDataCollection>("");
   tok_QIE10DigiCollection_ = consumes<HcalDataFrameContainer<QIE10DataFrame> >(qie10Tag_);
@@ -164,7 +164,8 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // loop over each digi and allocate memory for each
   for(HFDigiCollection::const_iterator qiedf=qie8hfdc.begin();qiedf!=qie8hfdc.end();qiedf++){
-    HcalElectronicsId eid = qiedf->elecId();
+    DetId detid = qiedf->id();
+    HcalElectronicsId eid(readoutMap->lookup(detid));
     int crateId = eid.crateId();
     int slotId = eid.slot();
     int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
@@ -172,7 +173,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     if( ! uhtrs.exist(uhtrIndex) ){
       uhtrs.newUHTR( uhtrIndex );
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
+    uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -180,7 +181,8 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // loop over each digi and allocate memory for each
   for(HBHEDigiCollection::const_iterator qiedf=qie8hbhedc.begin();qiedf!=qie8hbhedc.end();qiedf++){
-    HcalElectronicsId eid = qiedf->elecId();
+    DetId detid = qiedf->id();
+    HcalElectronicsId eid(readoutMap->lookup(detid));
     int crateId = eid.crateId();
     int slotId = eid.slot();
     int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
@@ -188,7 +190,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     if( ! uhtrs.exist(uhtrIndex) ){
       uhtrs.newUHTR( uhtrIndex );
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
+    uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -204,7 +206,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     int crateId = eid.crateId();
     int slotId = eid.slot();
-    int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
+    int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8);
     int ilink = eid.fiberIndex();
     int itower = eid.fiberChanId();
     int channelid = (itower&0xF) | ((ilink&0xF)<<4);

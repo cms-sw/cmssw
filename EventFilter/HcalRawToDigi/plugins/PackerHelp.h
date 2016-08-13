@@ -142,6 +142,12 @@ public:
 
   };
 
+  inline void split64bitTo8bit(std::vector<unsigned char> &outVec, const uint64_t &var64bit){
+     for(int is=0; is<8; is++){ // 64/8 = 8
+        outVec.push_back( (var64bit>> (is*8) ) & 0xFF);
+     }
+  }
+
   void setCDFHeader(){
 
     cdfHeader = 0 ; 
@@ -208,41 +214,19 @@ public:
     }
 
     // put common data format header in fed container
-    fedData.push_back((cdfHeader>>0 )&0xFF);
-    fedData.push_back((cdfHeader>>8 )&0xFF);
-    fedData.push_back((cdfHeader>>16)&0xFF);
-    fedData.push_back((cdfHeader>>24)&0xFF);
-    fedData.push_back((cdfHeader>>32)&0xFF);
-    fedData.push_back((cdfHeader>>40)&0xFF);
-    fedData.push_back((cdfHeader>>48)&0xFF);
-    fedData.push_back((cdfHeader>>56)&0xFF);
+    split64bitTo8bit(fedData, cdfHeader);
 
     // set the number of AMCs in the AMC13 header
     setNAMC(uhtrs.size());
     // put the AMC13 header into the fed container
-    fedData.push_back((AMC13Header>>0 )&0xFF);
-    fedData.push_back((AMC13Header>>8 )&0xFF);
-    fedData.push_back((AMC13Header>>16)&0xFF);
-    fedData.push_back((AMC13Header>>24)&0xFF);
-    fedData.push_back((AMC13Header>>32)&0xFF);
-    fedData.push_back((AMC13Header>>40)&0xFF);
-    fedData.push_back((AMC13Header>>48)&0xFF);
-    fedData.push_back((AMC13Header>>56)&0xFF);
+    split64bitTo8bit(fedData, AMC13Header);
 
     // fill fedData with AMC headers
     for( unsigned int iAMC = 0 ; iAMC < AMCHeaders.size() ; ++iAMC ){
       // adjust the AMCsize bits to match uhtr header
       //AMCHeaders[iAMC] |= uint64_t(uhtrs[iAMC][1]&0xF)<<51 ;
       //AMCHeaders[iAMC] |= uint64_t(uhtrs[iAMC][0]&0xFFFF)<<47 ;
-
-      fedData.push_back((AMCHeaders[iAMC]>>0 )&0xFF); // split 64-bit words into 8-bit 
-      fedData.push_back((AMCHeaders[iAMC]>>8 )&0xFF); // split 64-bit words into 8-bit 
-      fedData.push_back((AMCHeaders[iAMC]>>16)&0xFF); // split 64-bit words into 8-bit 
-      fedData.push_back((AMCHeaders[iAMC]>>24)&0xFF); // split 64-bit words into 8-bit 
-      fedData.push_back((AMCHeaders[iAMC]>>32)&0xFF); // split 64-bit words into 8-bit 
-      fedData.push_back((AMCHeaders[iAMC]>>40)&0xFF); // split 64-bit words into 8-bit 
-      fedData.push_back((AMCHeaders[iAMC]>>48)&0xFF); // split 64-bit words into 8-bit 
-      fedData.push_back((AMCHeaders[iAMC]>>56)&0xFF); // split 64-bit words into 8-bit 
+      split64bitTo8bit(fedData, AMCHeaders[iAMC]);
     }
 
     // fill fedData with AMC data 
@@ -414,9 +398,11 @@ public:
     uhtr->push_back( 0 );
   };
 
-  void addChannel( int uhtrIndex , edm::SortedCollection<HFDataFrame>::const_iterator& qiedf , int verbosity = 0 ){
+  void addChannel( int uhtrIndex , edm::SortedCollection<HFDataFrame>::const_iterator& qiedf , const HcalElectronicsMap* readoutMap, int verbosity = 0 ){
     if( qiedf->size() == 0 ) return;
-    uint16_t header = packQIE8header(qiedf->sample(0), qiedf->elecId());
+    DetId detid = qiedf->id();
+    HcalElectronicsId eid(readoutMap->lookup(detid));
+    uint16_t header = packQIE8header(qiedf->sample(0), eid);
     uhtrs[uhtrIndex].push_back(header);
     // loop over words in dataframe
     for(int iTS = 0; iTS < qiedf->size(); iTS +=2 ){
@@ -429,9 +415,11 @@ public:
     }// end loop over dataframe words
   };
 
-  void addChannel( int uhtrIndex , edm::SortedCollection<HBHEDataFrame>::const_iterator qiedf , int verbosity = 0 ){
+  void addChannel( int uhtrIndex , edm::SortedCollection<HBHEDataFrame>::const_iterator qiedf , const HcalElectronicsMap* readoutMap, int verbosity = 0 ){
     if( qiedf->size() == 0 ) return;
-    uint16_t header = packQIE8header(qiedf->sample(0), qiedf->elecId());
+    DetId detid = qiedf->id();
+    HcalElectronicsId eid(readoutMap->lookup(detid));
+    uint16_t header = packQIE8header(qiedf->sample(0), eid);
     uhtrs[uhtrIndex].push_back(header);
     // loop over words in dataframe
     for(int iTS = 0; iTS < qiedf->size(); iTS +=2 ){
