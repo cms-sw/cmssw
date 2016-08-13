@@ -272,11 +272,11 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("Verbosity", 0);
   desc.add<std::string>("ElectronicsMap", "");
-  desc.addUntracked<edm::InputTag>("QIE10", edm::InputTag("hcalDigis"));
-  desc.addUntracked<edm::InputTag>("QIE11", edm::InputTag("hcalDigis"));
-  desc.addUntracked<edm::InputTag>("HBHEqie8", edm::InputTag("hcalDigis"));
-  desc.addUntracked<edm::InputTag>("HFqie8", edm::InputTag("hcalDigis"));
-  desc.addUntracked<edm::InputTag>("TP", edm::InputTag("hcalDigis"));
+  desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));
+  desc.add<edm::InputTag>("QIE11", edm::InputTag("simHcalDigis", "HBHEQIE11DigiCollection"));
+  desc.add<edm::InputTag>("HBHEqie8", edm::InputTag("simHcalDigis"));
+  desc.add<edm::InputTag>("HFqie8", edm::InputTag("simHcalDigis"));
+  desc.add<edm::InputTag>("TP", edm::InputTag("simHcalTriggerPrimitiveDigis"));
   descriptions.addDefault(desc);
 }
 
