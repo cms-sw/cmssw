@@ -1,8 +1,8 @@
-#ifndef Subsystem_Package_SharedResourcesAcquirer_h
-#define Subsystem_Package_SharedResourcesAcquirer_h
+#ifndef FWCore_Framework_SharedResourcesAcquirer_h
+#define FWCore_Framework_SharedResourcesAcquirer_h
 // -*- C++ -*-
 //
-// Package:     Subsystem/Package
+// Package:     FWCore/Framework
 // Class  :     SharedResourcesAcquirer
 // 
 /**\class SharedResourcesAcquirer SharedResourcesAcquirer.h "SharedResourcesAcquirer.h"
@@ -38,7 +38,7 @@ namespace edm {
     
     SharedResourcesAcquirer() = default;
     explicit SharedResourcesAcquirer(std::vector<std::recursive_mutex*>&& iResources, std::shared_ptr<SerialTaskQueue> iQueue = std::shared_ptr<SerialTaskQueue>()):
-    m_resources(iResources),
+    m_resources(std::move(iResources)),
     m_queue(iQueue){}
     
     SharedResourcesAcquirer(SharedResourcesAcquirer&&) = default;
