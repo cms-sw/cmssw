@@ -5,8 +5,9 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <bitset>
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 class TrackerTopology;
@@ -52,6 +53,16 @@ public:
   virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+
+  virtual void StorePileupInformation( std::vector<int> &numInteractionList,
+				       std::vector<int> &bunchCrossingList,
+				       std::vector<float> &TrueInteractionList,
+				       std::vector<edm::EventID> &eventInfoList, int bunchSpacing){
+    PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, eventInfoList, bunchSpacing);
+  } 
+
+  virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; } 
+
   
 private:
   void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin, CLHEP::HepRandomEngine*);
@@ -71,7 +82,9 @@ private:
   const std::string geometryType;
   const bool useConfFromDB;
   const bool zeroSuppression;
-  const bool makeDigiSimLinks_; ///< Whether or not to create the association to sim truth collection. Set in configuration.
+  const bool makeDigiSimLinks_; 
+
+  ///< Whether or not to create the association to sim truth collection. Set in configuration.
   /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
    *
    * I need to know what each sim hit index will be when the hits from all crossing frames are merged into
@@ -88,6 +101,10 @@ private:
   edm::ESHandle<MagneticField> pSetup;
   std::map<unsigned int, StripGeomDetUnit const *> detectorUnits;
   std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  std::vector<std::pair<int,std::bitset<6>>> theAffectedAPVvector;
+
+  PileupMixingContent* PileupInfo_;
+
 };
 
 #endif

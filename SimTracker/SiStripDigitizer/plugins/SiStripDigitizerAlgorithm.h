@@ -13,6 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -86,7 +87,10 @@ class SiStripDigitizerAlgorithm {
                 edm::ESHandle<SiStripThreshold>&, 
                 edm::ESHandle<SiStripNoises>&,
                 edm::ESHandle<SiStripPedestals>&,
+		std::vector<std::pair<int,std::bitset<6>>> & theAffectedAPVvector,
                 CLHEP::HepRandomEngine*);
+
+  void calculateInstlumiScale(PileupMixingContent* puInfo);
 
   // ParticleDataTable
   void setParticleDataTable(const ParticleDataTable * pardt) {
@@ -101,7 +105,7 @@ class SiStripDigitizerAlgorithm {
   const double cmnRMStob;
   const double cmnRMStid;
   const double cmnRMStec;
-  const double APVSaturationProbScaling;          
+  const double APVSaturationProbScaling_;          
   const bool makeDigiSimLinks_; //< Whether or not to create the association to sim truth collection. Set in configuration.
   const bool peakMode;
   const bool noise;
@@ -124,6 +128,10 @@ class SiStripDigitizerAlgorithm {
 
   const ParticleDataTable * pdt;
   const ParticleData * particle;
+
+  double APVSaturationProb_;
+  bool FirstLumiCalc_;
+  bool FirstDigitize_;
   
   const std::unique_ptr<SiHitDigitizer> theSiHitDigitizer;
   const std::unique_ptr<SiPileUpSignals> theSiPileUpSignals;
@@ -161,6 +169,8 @@ class SiStripDigitizerAlgorithm {
 
   std::ifstream APVProbaFile;
   std::map < int , float> mapOfAPVprobabilities;
+  std::map < int , std::bitset<6> > SiStripTrackerAffectedAPVMap;
+  int NumberOfBxBetweenHIPandEvent;
 };
 
 #endif
