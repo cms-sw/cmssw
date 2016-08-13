@@ -385,7 +385,7 @@ public:
 
     unsigned int toAdd = 4-uhtr->size()%4;
     for(unsigned int ia=0; ia<toAdd; ia++){
-       uhtr->push_back(0xD000);
+       uhtr->push_back(0xD07F);
     }
 
     // add trailer
