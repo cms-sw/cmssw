@@ -149,7 +149,7 @@ void PFCandidateMixer::mix(edm::Event& iEvent, const edm::Handle<reco::TrackColl
    colVec.push_back(&pfIn1);
    colVec.push_back(&pfIn2);
 
-   std::auto_ptr<std::vector< reco::PFCandidate > > pOut(new std::vector< reco::PFCandidate  > );
+   std::unique_ptr<std::vector< reco::PFCandidate > > pOut(new std::vector< reco::PFCandidate  > );
    
    std::vector<const reco::PFCandidateCollection*>::iterator itCol= colVec.begin();
    std::vector<const reco::PFCandidateCollection*>::iterator itColE= colVec.end();
@@ -236,7 +236,7 @@ void PFCandidateMixer::mix(edm::Event& iEvent, const edm::Handle<reco::TrackColl
      ++iCol;
    }
 
-   edm::OrphanHandle<reco::PFCandidateCollection> newColl = iEvent.put(pOut);
+   edm::OrphanHandle<reco::PFCandidateCollection> newColl = iEvent.put(std::move(pOut));
 
    // Now fixup the references and write the valuemap
    if(electronCol.isValid())
@@ -253,11 +253,11 @@ void PFCandidateMixer::mix(edm::Event& iEvent, const edm::Handle<reco::TrackColl
          values[i] = candPtr;
       }
 
-      std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > pfMap_p(new edm::ValueMap<reco::PFCandidatePtr>());
+      std::unique_ptr<edm::ValueMap<reco::PFCandidatePtr> > pfMap_p(new edm::ValueMap<reco::PFCandidatePtr>());
       edm::ValueMap<reco::PFCandidatePtr>::Filler filler(*pfMap_p);
       filler.insert(electronCol, values.begin(), values.end());
       filler.fill();
-      iEvent.put(pfMap_p, "electrons");
+      iEvent.put(std::move(pfMap_p), "electrons");
    }
 
    // TODO: Do the same for muons

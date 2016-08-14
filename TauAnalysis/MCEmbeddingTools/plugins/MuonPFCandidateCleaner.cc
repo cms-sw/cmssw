@@ -137,7 +137,7 @@ void MuonPFCandidateCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   evt.getByLabel(srcPFCandidates_, pfCandidates);
 
-  std::auto_ptr<reco::PFCandidateCollection> pfCandidates_woMuons(new reco::PFCandidateCollection());   
+  std::unique_ptr<reco::PFCandidateCollection> pfCandidates_woMuons(new reco::PFCandidateCollection());   
    
 //--- iterate over list of reconstructed PFCandidates, 
 //    add PFCandidate to output collection in case it does not correspond to any selected muon
@@ -195,7 +195,7 @@ void MuonPFCandidateCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
     if ( removedPFCandidates.size() < selMuons.size() ) ++numWarnings_tooFew_;
   }
 
-  evt.put(pfCandidates_woMuons);
+  evt.put(std::move(pfCandidates_woMuons));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

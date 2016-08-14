@@ -83,7 +83,7 @@ void GlobalMuonTrackMixer::produceTrackExtras(edm::Event& evt, const edm::EventS
     edm::Handle<MuonTrackLinksCollection> trackLinksCollection2;
     evt.getByLabel(todoItem->srcTrackCollection2_, trackLinksCollection2);
 
-    std::auto_ptr<MuonTrackLinksCollection> trackLinks_output(new MuonTrackLinksCollection());
+    std::unique_ptr<MuonTrackLinksCollection> trackLinks_output(new MuonTrackLinksCollection());
 
     for ( MuonTrackLinksCollection::const_iterator trackLink = trackLinksCollection1->begin();
 	  trackLink != trackLinksCollection1->end(); ++trackLink ) {
@@ -109,7 +109,7 @@ void GlobalMuonTrackMixer::produceTrackExtras(edm::Event& evt, const edm::EventS
       }
     }
 
-    evt.put(trackLinks_output, todoItem->srcTrackCollection1_.instance());
+    evt.put(std::move(trackLinks_output), todoItem->srcTrackCollection1_.instance());
   }
 }
 

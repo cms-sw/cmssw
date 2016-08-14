@@ -68,10 +68,10 @@ bool UniqueObjectSelector<T>::filter(edm::Event& evt, const edm::EventSetup& es)
   std::sort(selectedObjects.begin(), selectedObjects.end(), higherRank);
 
   // store in output collection the object which passes selection and is of highest rank
-  std::auto_ptr<ObjectCollection> objects_output(new ObjectCollection());
+  std::unique_ptr<ObjectCollection> objects_output(new ObjectCollection());
   if ( selectedObjects.size() > 0 ) objects_output->push_back(*selectedObjects.front().object_);
 
-  evt.put(objects_output);
+  evt.put(std::move(objects_output));
 
   if ( filter_ ) return (objects_output->size() > 0);
   else return true;
