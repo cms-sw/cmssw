@@ -67,7 +67,7 @@ _initialStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryF
     minPt = 0.2,
 )
 initialStepTrajectoryFilterBase = _initialStepTrajectoryFilterBase.clone(
-    maxCCCLostHits = 2,
+    maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
 initialStepTrajectoryFilterInOut = initialStepTrajectoryFilterBase.clone(
@@ -99,7 +99,7 @@ initialStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_c
     ComponentName = cms.string('initialStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0),
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = cms.double(15.)
 )
 eras.trackingPhase1PU70.toModify(initialStepChi2Est,

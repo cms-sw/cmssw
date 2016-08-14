@@ -88,7 +88,7 @@ private:
    */ 
   float m_maxSagitta=-1.; // maximal sagitta for linear approximation
   float m_minTolerance2=100.; // square of minimum tolerance ot be considered inside a detector
-  float m_minPt2ForHitRecoveryInGluedDet=0.81;   // FIXME std::numeric_limits<float>::max();
+  float m_minPt2ForHitRecoveryInGluedDet=std::numeric_limits<float>::max();  // 0.81 to mitigate wrong preAmpl setting
 };
 
 #endif // Tracker_MeasurementEstimator_H

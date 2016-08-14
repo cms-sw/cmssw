@@ -117,7 +117,7 @@ _pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.Trajector
 )
 pixelPairStepTrajectoryFilterBase = _pixelPairStepTrajectoryFilterBase.clone(
     seedPairPenalty =0,
-    maxCCCLostHits = 2,
+    maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
 eras.trackingLowPU.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase)
@@ -146,7 +146,7 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     ComponentName = cms.string('pixelPairStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
-    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTiny')),
+    clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = cms.double(15.)
 )
 eras.trackingLowPU.toModify(pixelPairStepChi2Est,
