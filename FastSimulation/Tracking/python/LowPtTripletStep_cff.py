@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.LowPtTripletStep_cff as _standard
+from FastSimulation.Tracking.SeedingMigration import _regionProducerToFactoryPSet, _hitSetProducerToFactoryPSet
 
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
@@ -11,10 +12,10 @@ lowPtTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cf
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.lowPtTripletStepSeedLayers.layerList.value(),
-    RegionFactoryPSet = _standard.lowPtTripletStepSeeds.RegionFactoryPSet,
+    RegionFactoryPSet = _regionProducerToFactoryPSet(_standard.lowPtTripletStepTrackingRegions),
     hitMasks = cms.InputTag("lowPtTripletStepMasks"),
 )
-lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _standard.lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet
+lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(_standard.lowPtTripletStepHitTriplets)
 #lowPtTripletStepSeeds.pixelTripletGeneratorFactory.SeedComparitorPSet=cms.PSet(  ComponentName = cms.string( "none" ) )
 
 # track candidates
