@@ -21,6 +21,11 @@ namespace l1t {
                desc.addOptional<edm::InputTag>("BMTFInputLabel")->setComment("for stage2");
                desc.addOptional<edm::InputTag>("OMTFInputLabel")->setComment("for stage2");
                desc.addOptional<edm::InputTag>("EMTFInputLabel")->setComment("for stage2");
+               desc.addOptional<edm::InputTag>("ImdInputLabelBMTF")->setComment("uGMT intermediate muon from BMTF after first sorting stage");
+               desc.addOptional<edm::InputTag>("ImdInputLabelEMTFNeg")->setComment("uGMT intermediate muon from neg. EMTF side after first sorting stage");
+               desc.addOptional<edm::InputTag>("ImdInputLabelEMTFPos")->setComment("uGMT intermediate muon from pos. EMTF side after first sorting stage");
+               desc.addOptional<edm::InputTag>("ImdInputLabelOMTFNeg")->setComment("uGMT intermediate muon from neg. OMTF side after first sorting stage");
+               desc.addOptional<edm::InputTag>("ImdInputLabelOMTFPos")->setComment("uGMT intermediate muon from pos. OMTF side after first sorting stage");
             };
 
             virtual PackerMap getPackers(int fed, unsigned int fw) override {
@@ -31,7 +36,7 @@ namespace l1t {
                   res[{1, 1}] = {
                      PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"),
                      PackerFactory::get()->make("stage2::GMTMuonPacker"),
-                     //PackerFactory::get()->make("stage2::IntermediateMuonPacker"),
+                     PackerFactory::get()->make("stage2::IntermediateMuonPacker"),
                   };
                }
 
