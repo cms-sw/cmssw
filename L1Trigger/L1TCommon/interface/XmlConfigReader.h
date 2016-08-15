@@ -34,6 +34,8 @@ class XmlConfigReader {
   const XMLCh* kTagParam;
   const XMLCh* kTagMask;
   const XMLCh* kTagDisable;
+  const XMLCh* kTagExclBoards;
+  const XMLCh* kTagExclude;
   const XMLCh* kTagColumns;
   const XMLCh* kTagTypes;
   const XMLCh* kTagRow;
