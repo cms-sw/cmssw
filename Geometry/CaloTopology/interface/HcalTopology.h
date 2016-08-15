@@ -205,11 +205,10 @@ private:
 	 kHEhalf = 1296 ,
 	 kHOhalf = 1080 ,
 	 kHFhalf = 864  ,
-	 kHThalf = 2088 ,
+	 kHThalf = 2088,
 	 kZDChalf = 11,
 	 kCASTORhalf = 224,
 	 kCALIBhalf = 693,
-	 kHThalfPhase1 = 2520 ,
 	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
   enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
   enum { kHBSizePreLS1 = 2*kHBhalf } ;
@@ -217,7 +216,7 @@ private:
   enum { kHOSizePreLS1 = 2*kHOhalf } ;
   enum { kHFSizePreLS1 = 2*kHFhalf } ;
   enum { kHTSizePreLS1 = 2*kHThalf } ;
-  enum { kHTSizePhase1 = 2*kHThalfPhase1 } ;
+  enum { kHTSizePhase1 = (kHTSizePreLS1+(2*12*36)) } ;
   enum { kCALIBSizePreLS1 = 2*kCALIBhalf };
 };
 
