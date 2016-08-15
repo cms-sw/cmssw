@@ -68,6 +68,7 @@ class CSCHitFromWireOnly
   std::vector<int> wire_in_clusterAndBX; /// To fill BX + wiregroup in CSCWireHit
   
   int deltaT;
+  bool useReducedWireTime;
   int wireTimeWindow_low;
   int wireTimeWindow_high;
   //int clusterSize;
