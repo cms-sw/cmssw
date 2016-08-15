@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <iomanip>
 #include <memory>
+#include <algorithm>
 
 #include <cstring>
 #include <unistd.h>
@@ -1252,10 +1253,11 @@ public:
 
     // loop over the reference events
     const unsigned int nEvents = std::min((int)old_events->size(), (int)max_events);
+    const unsigned int counter_denominator = std::max(1, int(nEvents/10));
     for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
       // printing progress on every 10%
-      if (counter%(nEvents/10) == 0) {
-        printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 10*counter/(nEvents/10));
+      if (counter%(counter_denominator) == 0) {
+        printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 10*counter/(counter_denominator));
       }
 
       // seek the same event in the "new" files
