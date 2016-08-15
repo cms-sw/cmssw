@@ -95,12 +95,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
 	if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(SiPMShapev3MCNum),1);
       }
 
-      std::vector<double> correctedOutput;
-      method2->phase1Apply(info, correctedOutput);
-
-      m2E = correctedOutput[0];
-      m2t = correctedOutput[1];
-      //      useTriple=correctedOutput[4];
+      method2->phase1Apply(info, m2E, m2t, useTriple);
 
       m2E *= hbminusCorrectionFactor(channelId, m2E, isData); // not sure what this does
 
@@ -112,10 +107,7 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method3)
     {
 
-      std::vector<double> hltCorrOutput;
-
-      method3->phase1Apply(info, hltCorrOutput);
-      m3t = hltCorrOutput[1]; m3E = hltCorrOutput[0];
+      method3->phase1Apply(info, m3E, m3t);
 
       m3E *= hbminusCorrectionFactor(channelId, m3E, isData); // not sure what this does
 

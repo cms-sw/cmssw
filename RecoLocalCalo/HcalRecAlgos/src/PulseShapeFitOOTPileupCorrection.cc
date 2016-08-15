@@ -293,7 +293,12 @@ void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseSh
    tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
 }
 
-void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const
+void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
+					     const std::vector<int> & capidvec,
+					     const HcalCalibrations & calibs,
+					     double& reconstructedEnergy,
+					     float& reconstructedTime,
+					     bool& useTriple) const
 {
    psfPtr_->setDefaultcntNANinfit();
 
@@ -325,7 +330,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
 
    ts4Max_=vts4Max_[0]; //  HB and HE are identical for Run2
 
-   std::vector<double> fitParsVec;
+   std::vector<float> fitParsVec;
    if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,true);
    }
@@ -337,12 +342,16 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
      fitParsVec.push_back(999.);
      fitParsVec.push_back(false);
    }
-   correctedOutput.swap(fitParsVec); correctedOutput.push_back(psfPtr_->getcntNANinfit());
+
+   reconstructedEnergy=fitParsVec[0];
+   reconstructedTime=fitParsVec[1];
+   useTriple=fitParsVec[4];
+
 }
 
 constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","energy2", "ped"};
 
-int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<double> &fitParsVec, bool useADCgranularity)  const {
+int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, bool useADCgranularity)  const {
    double tsMAX=0;
    int    nAboveThreshold = 0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
@@ -504,9 +513,10 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    }
 }
 
-void PulseShapeFitOOTPileupCorrection::phase1Apply(
-    const HBHEChannelInfo& channelData,
-    std::vector<double> & correctedOutput) const
+void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channelData,
+						   float& reconstructedEnergy,
+						   float& reconstructedTime,
+						   bool& useTriple) const
 {
 
   psfPtr_->setDefaultcntNANinfit();
@@ -546,7 +556,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(
   if(channelData.id().subdet() == HcalSubdetector::HcalBarrel) ts4Max_=vts4Max_[0];
   if(channelData.id().subdet() == HcalSubdetector::HcalEndcap) ts4Max_=vts4Max_[1];
 
-  std::vector<double> fitParsVec;
+  std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,useADC);
   }
@@ -558,6 +568,9 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(
     fitParsVec.push_back(999.);
     fitParsVec.push_back(false);
   }
-  correctedOutput.swap(fitParsVec); correctedOutput.push_back(psfPtr_->getcntNANinfit());
+
+  reconstructedEnergy = fitParsVec[0];
+  reconstructedTime = fitParsVec[1];
+  useTriple = fitParsVec[4];
 
 }

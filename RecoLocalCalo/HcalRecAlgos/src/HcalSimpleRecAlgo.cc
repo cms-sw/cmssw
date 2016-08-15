@@ -349,7 +349,8 @@ namespace HcalSimpleRecAlgoImpl {
 
     // Note that uncorr_ampl is always set from outside of method 2!
     if( puCorrMethod == 2 ){
-      std::vector<double> correctedOutput;
+
+      bool useTriple=false;
 
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -358,16 +359,12 @@ namespace HcalSimpleRecAlgoImpl {
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
       }
-      psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
-      if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
-	time = correctedOutput[1]; ampl = correctedOutput[0];
-      }
+      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple);
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
     // Run "Method 3" all the time.
     {
-      std::vector<double> hltCorrOutput;
 
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -376,13 +373,8 @@ namespace HcalSimpleRecAlgoImpl {
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
       }
-      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, hltCorrOutput);
-      if( hltCorrOutput.size() > 1 ){
-        m3_ampl = hltCorrOutput[0];
-        if (puCorrMethod == 3) {
-	  time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
-        }
-      }
+      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, m3_ampl,time);
+      if (puCorrMethod == 3) ampl = m3_ampl;
     }
 
     // Temporary hack to apply energy-dependent corrections to some HB- cells
@@ -456,7 +448,6 @@ namespace HcalSimpleRecAlgoImpl {
     
     // Note that uncorr_ampl is always set from outside of method 2!
     if( puCorrMethod == 2 ){
-      std::vector<double> correctedOutput;
 
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -465,17 +456,12 @@ namespace HcalSimpleRecAlgoImpl {
 	const int capid = digi[ip].capid();
 	capidvec.push_back(capid);
       }
-      psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
-      if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
-	time = correctedOutput[1]; ampl = correctedOutput[0]; 
-	useTriple = correctedOutput[4];
-      }
+      psFitOOTpuCorr->apply(cs, capidvec, calibs, ampl, time, useTriple);
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
     // Run "Method 3" all the time.
     {
-      std::vector<double> hltCorrOutput;
 
       CaloSamples cs;
       coder.adc2fC(digi,cs);
@@ -484,13 +470,10 @@ namespace HcalSimpleRecAlgoImpl {
 	const int capid = digi[ip].capid();
 	capidvec.push_back(capid);
       }
-      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, hltCorrOutput);
-      if (hltCorrOutput.size() > 1) {
-        m3_ampl = hltCorrOutput[0];
-        if (puCorrMethod == 3) {
-	  time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
-        }
-      }
+
+      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, m3_ampl, time);
+      if (puCorrMethod == 3) ampl = m3_ampl;
+
     }
 
     // Temporary hack to apply energy-dependent corrections to some HB- cells

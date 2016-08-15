@@ -43,7 +43,8 @@ void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) c
 }
 
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
-				       std::vector<double> & Output) const
+				       float& reconstructedEnergy,
+				       float& reconstructedTime) const
 {
 
   std::vector<double> corrCharge;
@@ -139,9 +140,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   if (ch5<1) {
     ch5=0;
   }
-  Output.clear();
-  Output.push_back(ch4*gainCorr*respCorr);// amplitude
-  Output.push_back(tsShift4); // time shift of in-time pulse
-  Output.push_back(ch5); // whatever
 
+  reconstructedEnergy=ch4*gainCorr*respCorr;
+  reconstructedTime=tsShift4;
 }

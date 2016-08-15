@@ -21,11 +21,12 @@ class HcalDeterministicFit {
   void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
 
   void phase1Apply(const HBHEChannelInfo& channelData,
-		   std::vector<double> & Output) const;
+		   float& reconstructedEnergy,
+		   float& reconstructedTime) const;
 
   // This is the CMSSW Implementation of the apply function
   template<class Digi>
-  void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, std::vector<double> & Output) const;
+  void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, double& ampl, float &time) const;
   void getLandauFrac(float tStart, float tEnd, float &sum) const;
 
  private:
@@ -58,7 +59,7 @@ class HcalDeterministicFit {
 };
 
 template<class Digi>
-void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, std::vector<double> & Output) const {
+void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, double & reconstructedEnergy, float & reconstructedTime) const {
   std::vector<double> corrCharge;
   std::vector<double> inputCharge;
   std::vector<double> inputPedestal;
@@ -149,11 +150,10 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
   if (ch5<1) {
     ch5=0;
   }
-  Output.clear();
-  Output.push_back(ch4*gainCorr*respCorr);// amplitude 
-  Output.push_back(tsShift4); // time shift of in-time pulse
-  Output.push_back(ch5); // whatever
 
+  double ampl=ch4*gainCorr*respCorr;
+  reconstructedEnergy=ampl;
+  reconstructedTime=tsShift4;
 }
 
 

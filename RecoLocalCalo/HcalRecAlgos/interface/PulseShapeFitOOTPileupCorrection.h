@@ -91,9 +91,17 @@ public:
     ~PulseShapeFitOOTPileupCorrection();
 
     void phase1Apply(const HBHEChannelInfo& channelData,
-		     std::vector<double> & correctedOutput) const;
+		     float& reconstructedEnergy,
+		     float& reconstructedTime,
+		     bool & useTriple) const;
 
-    void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
+    void apply(const CaloSamples & cs,
+	       const std::vector<int> & capidvec,
+	       const HcalCalibrations & calibs,
+	       double& reconstructedEnergy,
+	       float& reconstructedTime,
+	       bool & useTriple) const;
+
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
 		     double iTS4Min, std::vector<double> iTS4Max,
 		     double iPulseJitter,
@@ -110,7 +118,7 @@ public:
 
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
-		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<double> &fitParsVec, bool) const;
+		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, bool) const;
     void fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,
 	     const double  &iTSTOTen,double *iEnArr,int (&iBX)[3]) const;
 
