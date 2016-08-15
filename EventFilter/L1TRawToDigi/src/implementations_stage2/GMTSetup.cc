@@ -31,6 +31,7 @@ namespace l1t {
                   res[{1, 1}] = {
                      PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"),
                      PackerFactory::get()->make("stage2::GMTMuonPacker"),
+                     //PackerFactory::get()->make("stage2::IntermediateMuonPacker"),
                   };
                }
 
@@ -42,6 +43,11 @@ namespace l1t {
                prod.produces<RegionalMuonCandBxCollection>("OMTF");
                prod.produces<RegionalMuonCandBxCollection>("EMTF");
                prod.produces<MuonBxCollection>("Muon");
+               prod.produces<MuonBxCollection>("imdMuonsBMTF");
+               prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
+               prod.produces<MuonBxCollection>("imdMuonsEMTFPos");
+               prod.produces<MuonBxCollection>("imdMuonsOMTFNeg");
+               prod.produces<MuonBxCollection>("imdMuonsOMTFPos");
             };
 
             virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override {
@@ -53,6 +59,7 @@ namespace l1t {
 
                auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
                auto gmt_out_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
+               auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
 
                // input muons
                for (int iLink = 72; iLink < 144; iLink += 2)
@@ -61,8 +68,8 @@ namespace l1t {
                for (int oLink = 1; oLink < 9; oLink += 2)
                    res[oLink] = gmt_out_unp;
                // internal muons
-               //for (int oLink = 9; oLink < 24; oLink += 2)
-               //    res[oLink] = gmt_out_unp;
+               for (int oLink = 49; oLink < 63; oLink += 2)
+                   res[oLink] = gmt_imd_unp;
 
                return res;
             };
