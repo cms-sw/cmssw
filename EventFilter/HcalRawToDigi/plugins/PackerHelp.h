@@ -363,14 +363,10 @@ public:
     uhtrHeader2 |= (fwVersion&MASK_FW_VERSION)<<OFFSET_FW_VERSION;
 
     // push header into vector of 16-bit words
-    uhtrs[uhtrIndex][0] = (uhtrHeader1>>0)&0xFFFF ;
-    uhtrs[uhtrIndex][1] = (uhtrHeader1>>16)&0xFFFF ;
-    uhtrs[uhtrIndex][2] = (uhtrHeader1>>32)&0xFFFF ;
-    uhtrs[uhtrIndex][3] = (uhtrHeader1>>48)&0xFFFF ;
-    uhtrs[uhtrIndex][4] = (uhtrHeader2>>0)&0xFFFF ;
-    uhtrs[uhtrIndex][5] = (uhtrHeader2>>16)&0xFFFF ;
-    uhtrs[uhtrIndex][6] = (uhtrHeader2>>32)&0xFFFF ;
-    uhtrs[uhtrIndex][7] = (uhtrHeader2>>48)&0xFFFF ;
+    for (unsigned int i = 0; i< 4; ++i){
+       uhtrs[uhtrIndex][i] = ( uhtrHeader1>>(i*16) )&0xFFFF ;
+       uhtrs[uhtrIndex][i+4] = ( uhtrHeader2>>(i*16) )&0xFFFF ;
+    }
 
     return &(uhtrs[uhtrIndex]);
   };
