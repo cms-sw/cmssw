@@ -8,6 +8,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -50,6 +51,7 @@ public:
   MeasurementTrackerImpl(const edm::ParameterSet&              conf,
 		     const PixelClusterParameterEstimator* pixelCPE,
 		     const StripClusterParameterEstimator* stripCPE,
+		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE,
 		     const SiStripRecHitMatcher*  hitMatcher,
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,

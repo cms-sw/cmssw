@@ -132,6 +132,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   _measurementTracker  = std::make_shared<MeasurementTrackerImpl>(pset_,
 							          pixelCPE.product(),
 							          stripCPE.product(),
+							          phase2TrackerCPE.product(),
 							          hitMatcher.product(),
 							          trackerGeom.product(),
 							          geometricSearchTracker.product(),

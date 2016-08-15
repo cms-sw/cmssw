@@ -8,11 +8,13 @@ class TkPixelMeasurementDet;
 class SiStripRecHitMatcher;
 class StripClusterParameterEstimator;
 class PixelClusterParameterEstimator;
+class Phase2StripCPETrivial;
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
@@ -392,7 +394,7 @@ private:
 //FIXME:just temporary solution for phase2 OT that works!
 class Phase2OTMeasurementConditionSet {
 public:
-  Phase2OTMeasurementConditionSet(const PixelClusterParameterEstimator *cpe) :
+  Phase2OTMeasurementConditionSet(const ClusterParameterEstimator<Phase2TrackerCluster1D> *cpe) :
     theCPE(cpe) {}
 
   void init(int size);
@@ -403,7 +405,7 @@ public:
     return std::lower_bound(id_.begin()+i,id_.end(),jd)-id_.begin();
   }
 
-  const PixelClusterParameterEstimator*  pixelCPE() const { return theCPE;}
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>*  cpe() const { return theCPE;}
   bool isActiveThisPeriod(int i) const { return activeThisPeriod_[i]; }
 
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
@@ -415,7 +417,7 @@ private:
   friend class MeasurementTrackerImpl;
 
   // Globals (not-per-event)
-  const PixelClusterParameterEstimator* theCPE;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* theCPE;
   
   // Locals, per-event
   std::vector<unsigned int> id_;
