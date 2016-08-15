@@ -61,7 +61,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
 
   // jets accumulated sort
   accuSort(jets);
-    
+ 
 }
 
 
@@ -149,16 +149,34 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	  
 	  // add the jet to the list
 	  if (!vetoCandidate) {
+
+	    int rawEt = iEt;
+	    int puEt(0);
 	
-	    if (PUSubMethod == "Donut")       iEt -= donutPUEstimate(ieta, iphi, 5, towers);	    
-	    if (PUSubMethod == "ChunkyDonut") iEt -= chunkyDonutPUEstimate(ieta, iphi, 5, towers);
-	    	   
-            if (iEt<=0) continue;
- 
 	    math::XYZTLorentzVector p4;
 	    int caloEta = CaloTools::caloEta(ieta);
-	    l1t::Jet jet( p4, iEt, caloEta, iphi, 0);
+	    l1t::Jet jet( p4, -999, caloEta, iphi, 0);
+
+	    if (PUSubMethod == "Donut") {
+	      puEt = donutPUEstimate(ieta, iphi, 5, towers);	    
+	      iEt -= puEt;
+	    }
 	    
+	    if (PUSubMethod == "ChunkyDonut"){
+	      puEt = chunkyDonutPUEstimate(jet, 5, towers);
+	      iEt -= puEt;
+	    }
+
+	    if (iEt<=0) continue;
+
+	    jet.setHwPt(iEt);
+	    jet.setRawEt( (short int) rawEt);
+	    jet.setSeedEt((short int) seedEt);
+	    jet.setTowerIEta((short int) caloEta);
+	    jet.setTowerIPhi((short int) iphi);
+	    jet.setPUEt((short int) puEt);
+	    
+
 	    jetsRing.push_back(jet);
 	    alljets.push_back(jet);
 	    
@@ -177,7 +195,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 	
 	// update jets
 	jets.insert(jets.end(),jetsRing.begin(),jetsRing.end());
-
+	  
       }
     }
   } 
@@ -315,11 +333,12 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::donutPUEstimate(int jetEta,
   return 4*( ring[1]+ring[2] ); // This should really be multiplied by 4.5 not 4.
 }
 
-int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta, 
-								     int jetPhi, 
-								     int size, 
+int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & jet, int size, 
 								     const std::vector<l1t::CaloTower> & towers){
  
+  int jetPhi = jet.hwPhi();
+  int jetEta = CaloTools::mpEta(jet.hwEta());
+
    // ring is a vector with 4 ring strips, one for each side of the ring
   // order is PhiUp, PhiDown, EtaUp, EtaDown
   std::vector<int> ring(4,0);
@@ -404,6 +423,9 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
 
   // use lowest 3 strips as PU estimate
   std::sort( ring.begin(), ring.end() );
+  
+  for(uint i=0; i<4; ++i)    jet.setPUDonutEt(i, (short int) ring[i]);
+    
   return ( ring[0] + ring[1] + ring[2] );
   
 }
@@ -547,8 +569,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       int8_t addend = (addPlusMult>>10);
       unsigned int jetPtCorr = ((jet->hwPt()*multiplier)>>9) + addend;
 
-      math::XYZTLorentzVector p4;
-      *jet = l1t::Jet( p4, jetPtCorr, jet->hwEta(), jet->hwPhi(), 0);
+      jet->setHwPt(jetPtCorr);
     }
 
 
