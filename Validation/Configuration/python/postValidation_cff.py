@@ -75,6 +75,10 @@ postValidation_muons = cms.Sequence(
     + MuonGEMRecHitsPostProcessors
     + rpcRecHitPostValidation_step
 )
+
+postValidation_JetMET = cms.Sequence(
+    METPostProcessor
+)
  
 postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor
