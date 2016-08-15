@@ -164,7 +164,9 @@ def miniAOD_customizeCommon(process):
 	 lazyParser = cms.bool(True) )
     process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
 
-    #EGM object modifications
+    #EGM object modifications 
+    from PhysicsTools.PatAlgos.slimming.egmIsolationsPUPPI_cfi import makeInputForPUPPIIsolationEgm
+    makeInputForPUPPIIsolationEgm(process)
     from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications
     process.slimmedElectrons.modifierConfig.modifications = egamma_modifications
     process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications

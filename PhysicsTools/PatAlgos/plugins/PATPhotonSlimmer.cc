@@ -21,6 +21,7 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace pat {
 
@@ -44,6 +45,8 @@ namespace pat {
       const StringCutObjectSelector<pat::Photon> saveNonZSClusterShapes_;
       const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
       const bool modifyPhoton_;
+      // value maps for PUPPI isolation
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_,PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_photons_;
       std::unique_ptr<pat::ObjectModifier<pat::Photon> > photonModifier_;
   };
 
@@ -63,7 +66,10 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
     reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
     reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
-    modifyPhoton_(iConfig.getParameter<bool>("modifyPhotons"))
+    modifyPhoton_(iConfig.getParameter<bool>("modifyPhotons")),
+    PUPPIIsolation_charged_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"))),
+    PUPPIIsolation_neutral_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"))),
+    PUPPIIsolation_photons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons")))
 {
     edm::ConsumesCollector sumes(consumesCollector());
     if( modifyPhoton_ ) {
@@ -108,10 +114,21 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     if( modifyPhoton_ ) { photonModifier_->setEvent(iEvent); }
     if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 
+    Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
+    Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
+    Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
+
+    iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);
+
     std::vector<unsigned int> keys;
     for (View<pat::Photon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Photon & photon = out->back();
+        auto phoPtr = src -> ptrAt(it - src->begin());
+        double PUPPI_Isolation = (*PUPPIIsolation_charged_hadrons)[phoPtr] + (*PUPPIIsolation_neutral_hadrons)[phoPtr] + (*PUPPIIsolation_photons)[phoPtr];
+        photon.addUserFloat("PUPPI_Isolation", PUPPI_Isolation);
 
         if( modifyPhoton_ ) { photonModifier_->modify(photon); }
 
@@ -152,6 +169,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
             photon.addUserFloat("r9_NoZS", r9);
             photon.addUserFloat("e1x5_over_e5x5_NoZS", e15o55);
         }
+
      }
 
     iEvent.put(out);
