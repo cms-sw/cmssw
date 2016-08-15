@@ -139,7 +139,7 @@ void GenParticlesFromZsSelectorForMCEmbedding::produce(edm::Event& evt, const ed
     }
   }
   
-  std::auto_ptr<reco::GenParticleCollection> genParticlesFromZs(new reco::GenParticleCollection());
+  std::unique_ptr<reco::GenParticleCollection> genParticlesFromZs(new reco::GenParticleCollection());
   
   int idx = 0;
   for ( std::vector<const reco::GenParticle*>::const_iterator genParticleFromZ_beforeFSR = genParticlesFromZs_tmp.begin();
@@ -166,7 +166,7 @@ void GenParticlesFromZsSelectorForMCEmbedding::produce(edm::Event& evt, const ed
     ++idx;
   }
   
-  evt.put(genParticlesFromZs);
+  evt.put(std::move(genParticlesFromZs));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

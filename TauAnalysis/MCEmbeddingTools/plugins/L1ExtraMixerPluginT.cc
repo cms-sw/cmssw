@@ -86,14 +86,14 @@ void L1ExtraMixerPluginT<T>::produce(edm::Event& evt, const edm::EventSetup& es)
   higherPtT<const T*> higherPt;
   std::sort(l1ExtraObjects_sorted.begin(), l1ExtraObjects_sorted.end(), higherPt);
 
-  std::auto_ptr<l1ExtraCollection> l1ExtraObjects_output(new l1ExtraCollection());
+  std::unique_ptr<l1ExtraCollection> l1ExtraObjects_output(new l1ExtraCollection());
 
   size_t numL1ExtraObjects = l1ExtraObjects_sorted.size();
   for ( size_t iObject = 0; iObject < TMath::Min(numL1ExtraObjects, maxNumL1ExtraObjects); ++iObject ) {
     l1ExtraObjects_output->push_back(*l1ExtraObjects_sorted.at(iObject));
   }
 
-  evt.put(l1ExtraObjects_output, instanceLabel_);
+  evt.put(std::move(l1ExtraObjects_output), instanceLabel_);
 }
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"

@@ -14,8 +14,7 @@ DummyBoolEventSelFlagProducer::~DummyBoolEventSelFlagProducer()
 
 void DummyBoolEventSelFlagProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<bool> boolPtr(new bool(true));
-  evt.put(boolPtr);
+  evt.put(std::make_unique<bool>(true));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

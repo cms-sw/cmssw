@@ -23,7 +23,7 @@ MuonRadiationCorrWeightProducer::MuonRadiationCorrWeightProducer(const edm::Para
   if ( inputFileName.location() == edm::FileInPath::Unknown)
     throw cms::Exception("MuonRadiationCorrWeightProducer") 
       << " Failed to find File = " << inputFileName << " !!\n";
-  std::auto_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
+  std::unique_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
 
   typedef std::vector<double> vdouble;
   vdouble binningMuonEn = cfg.getParameter<vdouble>("binningMuonEn");
@@ -225,12 +225,9 @@ void MuonRadiationCorrWeightProducer::produce(edm::Event& evt, const edm::EventS
     std::cout << "--> weight = " << weight << " + " << (weightUp - weight) << " - " << (weight - weightDown) << std::endl;
   }
 
-  std::auto_ptr<double> weightPtr(new double(weight));
-  evt.put(weightPtr, "weight");
-  std::auto_ptr<double> weightUpPtr(new double(weightUp));
-  evt.put(weightUpPtr, "weightUp");
-  std::auto_ptr<double> weightDownPtr(new double(weightDown));
-  evt.put(weightDownPtr, "weightDown");
+  evt.put(std::make_unique<double>(weight), "weight");
+  evt.put(std::make_unique<double>(weightUp), "weightUp");
+  evt.put(std::make_unique<double>(weightDown), "weightDown");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

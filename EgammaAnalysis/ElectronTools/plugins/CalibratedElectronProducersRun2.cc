@@ -60,7 +60,7 @@ CalibratedElectronProducerRun2T<T>::produce( edm::Event & iEvent, const edm::Eve
     edm::Handle<edm::View<T> > in;
     iEvent.getByToken(theElectronToken, in);
 
-    std::auto_ptr<std::vector<T> > out(new std::vector<T>());
+    std::unique_ptr<std::vector<T> > out(new std::vector<T>());
     out->reserve(in->size());   
 
     for (const T &ele : *in) {
@@ -68,7 +68,7 @@ CalibratedElectronProducerRun2T<T>::produce( edm::Event & iEvent, const edm::Eve
         theEnCorrectorRun2.calibrate(out->back(), iEvent.id().run(), iEvent.streamID());
     }
     
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 typedef CalibratedElectronProducerRun2T<reco::GsfElectron> CalibratedElectronProducerRun2;

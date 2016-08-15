@@ -82,7 +82,7 @@ void MixedGenMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     }
   }
   
-  std::auto_ptr<reco::GenMETCollection> genMETs(new reco::GenMETCollection());
+  std::unique_ptr<reco::GenMETCollection> genMETs(new reco::GenMETCollection());
   SpecificGenMETData genMEtData; // WARNING: not filled
   genMEtData.NeutralEMEtFraction  = 0.;
   genMEtData.NeutralHadEtFraction = 0.;
@@ -93,7 +93,7 @@ void MixedGenMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::Candidate::Point vtx(0.0, 0.0, 0.0);  
   genMETs->push_back(reco::GenMET(genMEtData, genSumEt, genMEtP4, vtx));
 
-  evt.put(genMETs);
+  evt.put(std::move(genMETs));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

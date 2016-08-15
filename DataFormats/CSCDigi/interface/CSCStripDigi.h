@@ -47,7 +47,7 @@ public:
   // Digis are equal if they are on the same strip and have same ADC readings
   bool operator==(const CSCStripDigi& digi) const;
 
-  // Get the strip number
+  // Get the strip number. counts from 1.
   int getStrip() const { return strip;}
 
   /// Get ADC readings

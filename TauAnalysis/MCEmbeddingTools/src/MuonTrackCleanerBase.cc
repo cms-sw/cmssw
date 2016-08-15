@@ -147,7 +147,7 @@ void MuonTrackCleanerBase::produceTracks(edm::Event& evt, const edm::EventSetup&
     edm::Handle<reco::TrackCollection> tracks;
     evt.getByLabel(todoItem->srcTracks_, tracks);
     
-    std::auto_ptr<reco::TrackCollection> tracks_cleaned(new reco::TrackCollection());
+    std::unique_ptr<reco::TrackCollection> tracks_cleaned(new reco::TrackCollection());
 
     reco::TrackRefProd trackCollectionRefProd_cleaned = evt.getRefBeforePut<reco::TrackCollection>(todoItem->srcTracks_.instance());
     size_t idxTrack_cleaned = 0;
@@ -214,6 +214,6 @@ void MuonTrackCleanerBase::produceTracks(edm::Event& evt, const edm::EventSetup&
       if ( removedTracks.size() < selMuons.size() ) ++numWarnings_tooFew_;
     }
     
-    evt.put(tracks_cleaned, todoItem->srcTracks_.instance());
+    evt.put(std::move(tracks_cleaned), todoItem->srcTracks_.instance());
   }
 }
