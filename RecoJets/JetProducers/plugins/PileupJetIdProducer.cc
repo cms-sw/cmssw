@@ -64,6 +64,10 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 // ------------------------------------------------------------------------------------------
 PileupJetIdProducer::~PileupJetIdProducer()
 {
+  for(std::vector<std::pair<std::string,PileupJetIdAlgo *> >::iterator 
+	ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
+    delete ialgo->second;
+  }
 }
 
 
