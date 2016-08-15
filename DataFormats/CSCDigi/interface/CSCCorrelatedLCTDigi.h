@@ -36,7 +36,7 @@ class CSCCorrelatedLCTDigi
   /// return the 4 bit Correlated LCT Quality
   int getQuality() const { return quality; }
 
-  /// return the key wire group
+  /// return the key wire group. counts from 0.
   int getKeyWG()   const { return keywire; }
 
   /// return the key halfstrip from 0,159
