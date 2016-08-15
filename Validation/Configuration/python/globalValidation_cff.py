@@ -126,6 +126,17 @@ globalPrevalidationTrackingOnly = cms.Sequence(
 )
 globalValidationTrackingOnly = cms.Sequence()
 
+
+globalValidationJetMETonly = cms.Sequence(
+                                   JetValidation 
+                                 + METValidation
+)
+
+globalPrevalidationJetMETOnly = cms.Sequence(
+				   jetPreValidSeq
+				  +metPreValidSeq
+)
+
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid
     + me0SimValid
