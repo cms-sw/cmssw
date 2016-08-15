@@ -1,4 +1,5 @@
 <use   name="RecoTracker/MeasurementDet"/>
+<use   name="RecoLocalTracker/Phase2TrackerRecHits"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CondFormats/DataRecord"/>
