@@ -735,11 +735,15 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
 } 
 
 
-std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
+std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rec) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  std::vector <HcalGenericDetId> cells = allCells(*topo);
 
   auto result = std::make_unique<HcalFrontEndMap>();
-  dbHardcode.makeHardcodeFrontEndMap(*result);
+  dbHardcode.makeHardcodeFrontEndMap(*result, cells);
   return result;
 }
 
