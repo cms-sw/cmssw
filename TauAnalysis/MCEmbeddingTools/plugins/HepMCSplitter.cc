@@ -211,10 +211,10 @@ HepMCSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << " Z vertices identified "  << barcodesZ.size() << std::endl;
 
   // prepare final products
-  //     std::auto_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
+  //     std::unique_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
 
-  std::auto_ptr<HepMC::GenEvent> evtUE(new HepMC::GenEvent());
-  std::auto_ptr<HepMC::GenEvent> evtTauTau(new HepMC::GenEvent());
+  std::unique_ptr<HepMC::GenEvent> evtUE(new HepMC::GenEvent());
+  std::unique_ptr<HepMC::GenEvent> evtTauTau(new HepMC::GenEvent());
   
   // Copy the vertices
   itVtx = prodIn->GetEvent()->vertices_begin();
@@ -370,19 +370,19 @@ HepMCSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   evtUE->print();
   
   if (_doUe){
-    std::auto_ptr<edm::HepMCProduct> prodUE(new edm::HepMCProduct());  
+    std::unique_ptr<edm::HepMCProduct> prodUE(new edm::HepMCProduct());  
     prodUE->addHepMCData( evtUE.release() );
-    if (_doZtautau) iEvent.put( prodUE, "UE");
-    else iEvent.put( prodUE);
+    if (_doZtautau) iEvent.put(std::move(prodUE), "UE");
+    else iEvent.put(std::move(prodUE));
   }
 
   if (_doZtautau) {
-    std::auto_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
+    std::unique_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
 //     std::cout << "===================================== " << iEvent.id() << std::endl;
 //     evtTauTau->print();
     prodTauTau->addHepMCData( evtTauTau.release() );
-    if (_doUe ) iEvent.put( prodTauTau, "Ztautau");
-    else iEvent.put( prodTauTau);
+    if (_doUe ) iEvent.put(std::move(prodTauTau), "Ztautau");
+    else iEvent.put(std::move(prodTauTau));
   }
 
   

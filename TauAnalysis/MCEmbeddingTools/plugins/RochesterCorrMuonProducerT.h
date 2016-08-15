@@ -55,7 +55,7 @@ class RochesterCorrMuonProducerT : public edm::EDProducer
   {
     //std::cout << "<RochesterCorrMuonProducer>:" << std::endl;
 
-    std::auto_ptr<MuonCollection> correctedMuonCollection(new MuonCollection);
+    std::unique_ptr<MuonCollection> correctedMuonCollection(new MuonCollection);
 
     edm::Handle<MuonCollection> uncorrectedMuonCollection;
     evt.getByLabel(src_, uncorrectedMuonCollection);
@@ -83,7 +83,7 @@ class RochesterCorrMuonProducerT : public edm::EDProducer
       ++idx;
     }
 
-    evt.put(correctedMuonCollection);
+    evt.put(std::move(correctedMuonCollection));
   }
 
   std::string moduleLabel_;

@@ -41,8 +41,8 @@ MuonCaloCleanerByDistance::~MuonCaloCleanerByDistance()
 
 void MuonCaloCleanerByDistance::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<detIdToFloatMap> energyDepositsMuPlus(new detIdToFloatMap());
-  std::auto_ptr<detIdToFloatMap> energyDepositsMuMinus(new detIdToFloatMap());
+  std::unique_ptr<detIdToFloatMap> energyDepositsMuPlus(new detIdToFloatMap());
+  std::unique_ptr<detIdToFloatMap> energyDepositsMuMinus(new detIdToFloatMap());
 
   edm::Handle<detIdToFloatMap> distanceMapMuPlus;
   evt.getByLabel(srcDistanceMapMuPlus_, distanceMapMuPlus);
@@ -53,11 +53,11 @@ void MuonCaloCleanerByDistance::produce(edm::Event& evt, const edm::EventSetup& 
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
   const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
 
-  std::auto_ptr<double> totalDistanceMuPlus(new double(0.));
-  std::auto_ptr<double> totalEnergyDepositMuPlus(new double(0.));
+  std::unique_ptr<double> totalDistanceMuPlus(new double(0.));
+  std::unique_ptr<double> totalEnergyDepositMuPlus(new double(0.));
   if ( muPlus.isNonnull() ) fillEnergyDepositMap(*muPlus, *distanceMapMuPlus, *energyDepositsMuPlus, *totalDistanceMuPlus, *totalEnergyDepositMuPlus);
-  std::auto_ptr<double> totalDistanceMuMinus(new double(0.));
-  std::auto_ptr<double> totalEnergyDepositMuMinus(new double(0.));
+  std::unique_ptr<double> totalDistanceMuMinus(new double(0.));
+  std::unique_ptr<double> totalEnergyDepositMuMinus(new double(0.));
   if ( muMinus.isNonnull() ) fillEnergyDepositMap(*muMinus, *distanceMapMuMinus, *energyDepositsMuMinus, *totalDistanceMuMinus, *totalEnergyDepositMuMinus);
 
   if ( verbosity_ ) {
@@ -66,12 +66,12 @@ void MuonCaloCleanerByDistance::produce(edm::Event& evt, const edm::EventSetup& 
     std::cout << " mu-: distance = " << (*totalDistanceMuMinus) << ", expected(EnergyDeposits) = " << (*totalEnergyDepositMuMinus) << std::endl;
   }
 
-  evt.put(energyDepositsMuPlus, "energyDepositsMuPlus");
-  evt.put(totalDistanceMuPlus, "totalDistanceMuPlus");
-  evt.put(totalEnergyDepositMuPlus, "totalEnergyDepositMuPlus");
-  evt.put(energyDepositsMuMinus, "energyDepositsMuMinus");
-  evt.put(totalDistanceMuMinus, "totalDistanceMuMinus");
-  evt.put(totalEnergyDepositMuMinus, "totalEnergyDepositMuMinus");
+  evt.put(std::move(energyDepositsMuPlus), "energyDepositsMuPlus");
+  evt.put(std::move(totalDistanceMuPlus), "totalDistanceMuPlus");
+  evt.put(std::move(totalEnergyDepositMuPlus), "totalEnergyDepositMuPlus");
+  evt.put(std::move(energyDepositsMuMinus), "energyDepositsMuMinus");
+  evt.put(std::move(totalDistanceMuMinus), "totalDistanceMuMinus");
+  evt.put(std::move(totalEnergyDepositMuMinus), "totalEnergyDepositMuMinus");
 }
 
 void MuonCaloCleanerByDistance::fillEnergyDepositMap(const reco::Candidate& muon, const detIdToFloatMap& distanceMap, detIdToFloatMap& energyDepositMap,
