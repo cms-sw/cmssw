@@ -1,4 +1,4 @@
-#!/bin/zsh 
+#!/bin/zsh
 #
 # Run script template for Pede job, copying binary files from mass storage to local disk.
 #
@@ -52,27 +52,27 @@ untilSuccess () {
 # trying "$1 $2 $3 > /dev/null" until success,
 # break after $4 tries (with three arguments do up to 5 tries).
     if  [ $# -lt 3 -o $# -gt 4 ]; then
-	echo $0 needs 3 or 4 arguments
-	return 1
+        echo $0 needs 3 or 4 arguments
+        return 1
     fi
-    
+
     integer TRIES=0
     integer MAX_TRIES=5
     if [ $# = 4 ]; then MAX_TRIES=$4; fi
-    
-    $1 $2 $3 > /dev/null 
+
+    $1 $2 $3 > /dev/null
     while [ $? -ne 0 ] ; do # if not successfull, retry...
-	if [ $TRIES -ge $MAX_TRIES ] ; then # ... but not until infinity!
+        if [ $TRIES -ge $MAX_TRIES ] ; then # ... but not until infinity!
             echo $0: Give up doing \"$1 $2 $3 \> /dev/null\".
             return 1
-	fi
-	TRIES=$TRIES+1
-	echo $0: WARNING, problems with \"$1 $2 $3 \> /dev/null\", try again.
-	sleep $[$TRIES*5] # for before each wait a litte longer...
-	$1 $2 $3 > /dev/null 
+        fi
+        TRIES=$TRIES+1
+        echo $0: WARNING, problems with \"$1 $2 $3 \> /dev/null\", try again.
+        sleep $[$TRIES*5] # for before each wait a litte longer...
+        $1 $2 $3 > /dev/null
     done
 
-    echo successsfully executed \"$1 $2 $3 \> /dev/null\" 
+    echo successsfully executed \"$1 $2 $3 \> /dev/null\"
     return 0
 }
 
@@ -102,7 +102,7 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   copytreefile rfcp $MSSDIR/treeFileISN.root $BATCH_DIR
 else
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  
+
   untilSuccess xrdcp ${EOSPREFIX}${MSSCAFDIR}/milleBinaryISN.dat.gz milleBinaryISN.dat.gz
   copytreefile xrdcp ${EOSPREFIX}${MSSCAFDIR}/treeFileISN.root treeFileISN.root
 fi
@@ -150,7 +150,7 @@ if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/millePedeMonitor*.root
 fi
 
-# Macro creating chi2ndfperbinary.eps with pede chi2/ndf information hists:
+# Macro creating chi2ndfperbinary.pdf with pede chi2/ndf information hists:
 if [ -e $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C ] ; then
     # Checked out version if existing:
     cp $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C .
@@ -158,7 +158,7 @@ else
     # If nothing checked out, take from release:
     cp $CMSSW_RELEASE_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C .
 fi
-mps_parse_pedechi2hist.pl $RUNDIR/../../mps.db millepede.his the.cfg
+mps_parse_pedechi2hist.py -d $RUNDIR/../../mps.db --his millepede.his -c the.cfg
 if [ -f chi2pedehis.txt ]; then
     root -l -x -b -q 'createChi2ndfplot.C+("chi2pedehis.txt")'
 fi
@@ -171,7 +171,7 @@ else
     # If nothing checked out, take from release:
     cp $CMSSW_RELEASE_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C .
 fi
-root -b -q "readPedeHists.C+(\"print nodraw\")" 
+root -b -q "readPedeHists.C+(\"print nodraw\")"
 
 # zip plot files:
 gzip -f *.pdf
@@ -200,18 +200,8 @@ cp -p *.gz $RUNDIR
 cp -p *.db $RUNDIR
 cp -p *.end $RUNDIR
 
-if [ -f chi2ndfperbinary.eps ]; then
-    gzip -f chi2ndfperbinary.eps
-    cp -p chi2ndfperbinary.eps.gz $RUNDIR
-fi
-
-if [ -f chi2ndfperbinary.C ]; then
-    gzip -f chi2ndfperbinary.C
-    cp -p chi2ndfperbinary.C.gz $RUNDIR
-fi
-
 # copy aligment_merge.py for mps_validate.py
-cp -p $RUNDIR/alignment_merge.py alignment_merge.py
+cp -p the.cfg alignment_merge.py
 # run mps_validate.py
 campaign=`basename $MSSDIR`
 mps_validate.py -m $campaign -p ./
