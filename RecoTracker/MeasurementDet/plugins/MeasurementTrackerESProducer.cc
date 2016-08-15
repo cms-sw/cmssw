@@ -49,7 +49,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
   std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
   std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
-  edm::ESInputTag phase2TrackerCPEName = pset_.getParameter<edm::ESInputTag>("Phase2StripCPE");
+  std::string phase2TrackerCPEName = pset_.getParameter<std::string>("Phase2StripCPE");
   std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
 
   // ========= SiPixelQuality related tasks =============

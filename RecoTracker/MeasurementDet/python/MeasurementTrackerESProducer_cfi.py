@@ -5,7 +5,7 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
 
     PixelCPE = cms.string('PixelCPEGeneric'),
     StripCPE = cms.string('StripCPEfromTrackAngle'),
-    Phase2StripCPE = cms.ESInputTag("phase2StripCPEGeometricESProducer", "Phase2StripCPEGeometric"),
+    Phase2StripCPE = cms.string('Phase2StripCPEGeometric'),
     HitMatcher = cms.string('StandardMatcher'),
 
     SiStripQualityLabel         = cms.string(''),  ## unlabelled default SiStripQuality
