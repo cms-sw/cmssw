@@ -107,13 +107,13 @@ config.read(aligmentConfig)
 # construct directories
 
 # set variables that are not too specific (millescript, pedescript, etc.)
-mpsScriptsDir = os.path.join("src", "Alignment", "MillePedeAlignmentAlgorithm", "scripts")
+mpsTemplates = os.path.join("src", "Alignment", "MillePedeAlignmentAlgorithm", "templates")
 if checked_out_MPS()[0]:
-    mpsScriptsDir = os.path.join(os.environ["CMSSW_BASE"], mpsScriptsDir)
+    mpsTemplates = os.path.join(os.environ["CMSSW_BASE"], mpsTemplates)
 else:
-    mpsScriptsDir = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mpsScriptsDir)
-milleScript = os.path.join(mpsScriptsDir, "mps_runMille_template.sh")
-pedeScript  = os.path.join(mpsScriptsDir, "mps_runPede_rfcp_template.sh")
+    mpsTemplates = os.path.join(os.environ["CMSSW_RELEASE_BASE"], mpsTemplates)
+milleScript = os.path.join(mpsTemplates, "mps_runMille_template.sh")
+pedeScript  = os.path.join(mpsTemplates, "mps_runPede_rfcp_template.sh")
 
 # get working directory name
 currentDir = os.getcwd()
