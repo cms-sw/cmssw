@@ -88,11 +88,11 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
 
       // set the pulse shape
       if(isData) {
-	if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(HPDShapev3DataNum));
-	if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(SiPMShapev3DataNum));
+	if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(HPDShapev3DataNum),0);
+	if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(SiPMShapev3DataNum),1);
       } else {
-	if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(HPDShapev3MCNum));
-	if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(SiPMShapev3MCNum));
+	if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(HPDShapev3MCNum),0);
+	if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(SiPMShapev3MCNum),1);
       }
 
       std::vector<double> correctedOutput;

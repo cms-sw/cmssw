@@ -95,11 +95,17 @@ public:
 
     void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
-		     double iTS4Min, std::vector<double> iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-		     double iNoise, double iTMin,double iTMax,
+		     double iTS4Min, std::vector<double> iTS4Max,
+		     double iPulseJitter,
+		     double iTimeMean,double iTimeSigHPD,double iTimeSigSiPM,
+		     double iPedMean,double iPedSigHPD, double iPedSigSiPM,
+		     double iNoiseHPD, double iNoiseSiPM,
+		     double iTMin,double iTMax,
 		     double its4Chi2, double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
-    
-    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
+
+    void setChi2Term( bool isHPD );
+
+    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
 
 private:
@@ -132,9 +138,15 @@ private:
     double pulseJitter_;
     double timeMean_;
     double timeSig_;
+    double timeSigHPD_;
+    double timeSigSiPM_;
     double pedMean_;
     double pedSig_;
+    double pedSigHPD_;
+    double pedSigSiPM_;
     double noise_;    
+    double noiseHPD_;
+    double noiseSiPM_;
     HcalTimeSlew::BiasSetting slewFlavor_;    
 
 };

@@ -58,8 +58,11 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
   if( iPedestalConstraint ) assert ( iPedSig );
   if( iTimeConstraint ) assert( iTimeSig );
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
-			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its4Chi2,
+			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iTimeSig,iPedMean,iPedSig,iPedSig,iNoise,iNoise,iTMin,iTMax,its4Chi2,
 			       iChargeThreshold,HcalTimeSlew::Medium, iFitTimes);
+
+  psFitOOTpuCorr_->setChi2Term(1); // isHPD all the time
+
 //  int shapeNum = HPDShapev3MCNum;
 //  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
 }
@@ -77,7 +80,8 @@ void HcalSimpleRecAlgo::setForData (int runnum) {
       if( runnum_ > 0 ){
          shapeNum = HPDShapev3DataNum;
       }
-      psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
+      bool isHPD=true;
+      psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum),isHPD);
    }
 }
 

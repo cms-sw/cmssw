@@ -213,10 +213,27 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
    if(tpfunctor_)   delete tpfunctor_;
 }
 
+void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
+
+  if(isHPD) {
+    timeSig_            = timeSigHPD_;
+    pedSig_             = pedSigHPD_;
+    noise_              = noiseHPD_;
+  } else {
+    timeSig_            = timeSigSiPM_;
+    pedSig_             = pedSigSiPM_;
+    noise_              = noiseSiPM_;
+  }
+
+}
+
+
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
 						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min, std::vector<double> iTS4Max,
-						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean, double iPedSig,
-						   double iNoise,double iTMin,double iTMax,
+						   double iPulseJitter,double iTimeMean,double iTimeSigHPD,double iTimeSigSiPM,
+						   double iPedMean, double iPedSigHPD, double iPedSigSiPM,
+						   double iNoiseHPD,double iNoiseSiPM,
+						   double iTMin,double iTMax,
 						   double its4Chi2,
 						   double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) { 
 
@@ -233,10 +250,16 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   vts4Max_            = iTS4Max;
   pulseJitter_        = iPulseJitter*iPulseJitter;
   timeMean_           = iTimeMean;
-  timeSig_            = iTimeSig;
+  //  timeSig_            = iTimeSig;
+  timeSigHPD_         = iTimeSigHPD;
+  timeSigSiPM_        = iTimeSigSiPM;
   pedMean_            = iPedMean;
-  pedSig_             = iPedSig;
-  noise_              = iNoise;
+  //  pedSig_             = iPedSig;
+  pedSigHPD_          = iPedSigHPD;
+  pedSigSiPM_         = iPedSigSiPM;
+  //  noise_              = iNoise;
+  noiseHPD_           = iNoiseHPD;
+  noiseSiPM_          = iNoiseSiPM;
   slewFlavor_         = slewFlavor;
   chargeThreshold_    = iChargeThreshold;
   fitTimes_           = iFitTimes;
@@ -248,11 +271,14 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   }
 }
 
-void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
+void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD) {
    if( cntsetPulseShape ) return;
    ++ cntsetPulseShape;
+
+   // set the M2 parameters before defining the shape
+   setChi2Term(isHPD);
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
-								 pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_));
+						    pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_));
    spfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
    dpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
    tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);

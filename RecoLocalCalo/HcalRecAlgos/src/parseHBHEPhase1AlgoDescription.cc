@@ -22,26 +22,34 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const std::vector<double> iTS4Max =           conf.getParameter<std::vector<double>>("ts4Max");
     const double iPulseJitter =      conf.getParameter<double>("pulseJitter");
     const double iTimeMean =         conf.getParameter<double>("meanTime");
-    const double iTimeSig =          conf.getParameter<double>("timeSigma");
+    const double iTimeSigHPD =       conf.getParameter<double>("timeSigmaHPD");
+    const double iTimeSigSiPM =      conf.getParameter<double>("timeSigmaSiPM");
     const double iPedMean =          conf.getParameter<double>("meanPed");
-    const double iPedSig =           conf.getParameter<double>("pedSigma");
-    const double iNoise =            conf.getParameter<double>("noise");
+    const double iPedSigHPD =        conf.getParameter<double>("pedSigmaHPD");
+    const double iPedSigSiPM =       conf.getParameter<double>("pedSigmaSiPM");
+    const double iNoiseHPD =         conf.getParameter<double>("noiseHPD");
+    const double iNoiseSiPM =        conf.getParameter<double>("noiseSiPM");
     const double iTMin =             conf.getParameter<double>("timeMin");
     const double iTMax =             conf.getParameter<double>("timeMax");
     const double its4Chi2 =          conf.getParameter<double>("ts4chi2");
     const double iChargeThreshold =  conf.getParameter<double>("chargeMax"); //For the unconstrained Fit
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
 
-    if (iPedestalConstraint) assert(iPedSig);
-    if (iTimeConstraint) assert(iTimeSig);
+    //    if (iPedestalConstraint) assert(iPedSig);
+    //    if (iTimeConstraint) assert(iTimeSig);
 
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
         std::make_unique<PulseShapeFitOOTPileupCorrection>();
+
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
                       iUnConstrainedFit, iApplyTimeSlew, iTS4Min, iTS4Max,
-                      iPulseJitter, iTimeMean, iTimeSig, iPedMean, iPedSig,
-                      iNoise, iTMin, iTMax, its4Chi2,
+                      iPulseJitter,
+		      iTimeMean, iTimeSigHPD, iTimeSigSiPM,
+		      iPedMean, iPedSigHPD, iPedSigSiPM,
+                      iNoiseHPD, iNoiseSiPM,
+		      iTMin, iTMax, its4Chi2,
                       iChargeThreshold, HcalTimeSlew::Medium, iFitTimes);
+
     return corr;
 }
 

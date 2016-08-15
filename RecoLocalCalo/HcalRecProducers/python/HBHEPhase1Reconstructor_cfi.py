@@ -64,11 +64,16 @@ hbheprereco = cms.EDProducer(
         ts4Min                = cms.double(0.),   #fC
         ts4Max                = cms.vdouble(100.,70000.), #fC # this is roughly 20 GeV
         pulseJitter           = cms.double(1.),   #GeV/bin
+        ###
         meanTime              = cms.double(0.),   #ns
-        timeSigma             = cms.double(5.),   #ns
+        timeSigmaHPD          = cms.double(5.),   #ns
+        timeSigmaSiPM         = cms.double(2.5),  #ns
         meanPed               = cms.double(0.),   #GeV
-        pedSigma              = cms.double(0.5),  #GeV
-        noise                 = cms.double(1),    #fC
+        pedSigmaHPD           = cms.double(0.5),  #GeV
+        pedSigmaSiPM          = cms.double(1.5),  #GeV
+        noiseHPD              = cms.double(1),    #fC
+        noiseSiPM             = cms.double(2),    #fC
+        ###
         timeMin               = cms.double(-12.5),#ns
         timeMax               = cms.double(12.5), #ns
         ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
