@@ -163,7 +163,7 @@ if [ -f chi2pedehis.txt ]; then
     root -l -x -b -q 'createChi2ndfplot.C+("chi2pedehis.txt")'
 fi
 
-# Macro creating millepede.his.ps with pede information hists:
+# Macro creating millepede.his.pdf with pede information hists:
 if [ -e $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C ] ; then
     # Checked out version if existing:
     cp $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C .
@@ -172,8 +172,9 @@ else
     cp $CMSSW_RELEASE_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C .
 fi
 root -b -q "readPedeHists.C+(\"print nodraw\")" 
-gzip -f *.ps
 
+# zip plot files:
+gzip -f *.pdf
 # now zip .his and .res:
 gzip -f millepede.*s
 # in case of diagonalisation zip this:
