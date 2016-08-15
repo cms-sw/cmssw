@@ -290,7 +290,7 @@ HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
     //  param1.
     containmentCorrectionFlag = 1;         // p0
     containmentCorrectionPreSample = 0;    // p1
-    float phase  = 25.0;
+    float phase  = 6.0;
     float Xphase = (phase + 32.0) * 4.0;   // never change this line 
                                            //(offset 50nsec, 0.25ns step)
     Iphase       = Xphase;                 // p2
