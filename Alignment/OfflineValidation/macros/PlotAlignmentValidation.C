@@ -866,9 +866,9 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   // Opens the file (it should be OfflineValidation(Parallel)_result.root)
   // and reads and plots the norm_chi^2 and h_chi2Prob -distributions.
 
-  gROOT->ForceStyle();
-  gStyle->SetOptStat(1);
-  TGaxis::SetMaxDigits(3);
+  //gROOT->ForceStyle();
+  //gStyle->SetOptStat(1);
+  //TGaxis::SetMaxDigits(3);
 
   Bool_t errorflag = kTRUE;
   TFile* fi1 = TFile::Open(inputFile,"read");
@@ -898,20 +898,19 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
 
   // Small adjustments: move the legend right and up so that it doesn't block
   // the exponent of the y-axis scale and doesn't cut the histogram border
-  bool hasheader = (TkAlStyle::legendheader != "");
+/*
   TLegend* l = (TLegend*)findObjectFromCanvas(normchi, "TLegend");
   if (l != 0) {
     l->SetX1NDC(0.25);
     l->SetY1NDC(0.86);
-    if (hasheader) l->SetHeader(TkAlStyle::legendheader);
   }
   l = (TLegend*)findObjectFromCanvas(chiprob, "TLegend");
   if (l != 0) {
     l->SetX1NDC(0.25);
     l->SetY1NDC(0.86);
-    if (hasheader) l->SetHeader(TkAlStyle::legendheader);
   }
-
+*/
+/*
   // Move stat boxes slightly right so that the border lines fit in
   int i = 1;
   for (TH1F* h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", i); h != 0;
@@ -927,7 +926,7 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
         if (s != 0)
           s->SetX2NDC(0.995);
   }
-
+*/
   chiprob->Draw();
   normchi->Draw();
 
