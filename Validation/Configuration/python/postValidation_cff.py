@@ -65,7 +65,7 @@ postValidation_common = cms.Sequence()
 
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
-    + postProcessorVertex
+    + postProcessorVertexSequence
 )
 
 postValidation_muons = cms.Sequence(

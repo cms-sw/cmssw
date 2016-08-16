@@ -9,6 +9,5 @@ hcalSimHitStudy = cms.EDAnalyzer("HcalSimHitStudy",
 
 
 from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
-    hcalSimHitStudy.ModuleLabel = cms.untracked.string('famosSimHits')
+eras.fastSim.toModify( hcalSimHitStudy, ModuleLabel = cms.untracked.string('famosSimHits') )
     
