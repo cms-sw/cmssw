@@ -6,6 +6,39 @@ class Eras (object):
     Dummy container for all the cms.Modifier instances that config fragments
     can use to selectively configure depending on what scenario is active.
     """
+    def __init__(self):
+        allEras=['Run2_50ns',
+                 'Run2_25ns',
+                 'Run2_HI',
+                 'Run2_2016',
+                 'Run2_2016_trackingLowPU',
+                 'Run2_2017',
+                 'Run2_2017_trackingRun2',
+                 'Run2_2017_trackingPhase1PU70',
+                 'Run3',
+                 'Phase2C1',
+                 'Phase2C2']
+
+        internalUseMods = ['run2_common', 'run2_25ns_specific',
+                           'run2_50ns_specific', 'run2_HI_specific',
+                           'stage1L1Trigger', 'fastSim',
+                           'run2_HE_2017', 'stage2L1Trigger',
+                           'phase1Pixel', 'run3_GEM',
+                           'phase2_common', 'phase2_tracker',
+                           'phase2_hgcal', 'phase2_muon',
+                           'phase2_hcal',
+                           'trackingLowPU', 'trackingPhase1', 'trackingPhase1PU70', 'ctpps_2016','trackingPhase2PU140']
+                           
+        
+        for e in allEras:
+            eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
+            self.addEra(e,eObj)
+
+        for e in internalUseMods:
+            eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff',globals(),locals(),[e],0),e)
+            self.addEra(e,eObj)
+
+
     def addEra(self,name,obj):
         setattr(self,name,obj)
 
@@ -45,20 +78,5 @@ class Eras (object):
 
 eras=Eras()
 
-allEras=['Run2_50ns',
-         'Run2_25ns',
-         'Run2_HI',
-         'Run2_2016',
-         'Run2_2016_trackingLowPU',
-         'Run2_2017',
-         'Run2_2017_trackingRun2',
-         'Run2_2017_trackingPhase1PU70',
-         'Run3',
-         'Phase2C1',
-         'Phase2C2']
-
-for e in allEras:
-    eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
-    eras.addEra(e,eObj)
 
 #eras.inspect()
