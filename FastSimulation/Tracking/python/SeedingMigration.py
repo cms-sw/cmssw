@@ -18,6 +18,7 @@ def _copy(old, new, skip=[]):
 def _hitSetProducerToFactoryPSet(producer):
     _map = {
         "PixelTripletHLTEDProducer": "PixelTripletHLTGenerator",
+        "PixelTripletLargeTipEDProducer": "PixelTripletLargeTipGenerator",
     }
     ret = cms.PSet()
     _copy(producer, ret)
