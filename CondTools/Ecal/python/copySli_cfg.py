@@ -1,6 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("ProcessOne")
+
+options = VarParsing.VarParsing()
+options.register( "password"
+                , "myToto"
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , "the password"
+                  )
+options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -46,7 +56,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGSlidingWindowAnalyzer",
      OnlineDBSID = cms.string('cms_omds_lb'),
 #     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
      OnlineDBUser = cms.string('cms_ecal_r'),
-     OnlineDBPassword = cms.string('***'),
+     OnlineDBPassword = cms.string( options.password ),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
