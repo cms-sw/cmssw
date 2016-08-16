@@ -52,6 +52,7 @@
   <use name="CLHEP"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
 <library file="CosmicRateAnalyzer.cc" name="AlignmentCosmicRateAnalyzerPlugins">
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/ParameterSet"/>

@@ -6,7 +6,6 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('tscKey',
