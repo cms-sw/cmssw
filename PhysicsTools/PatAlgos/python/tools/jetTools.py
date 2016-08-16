@@ -304,6 +304,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfGhostTrackVertexTagInfosAK8.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfosAK8'+labelName+postfix)))
             if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfSecondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
+                if hipMitigation:
+                    _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
+                    _btagInfo.trackSelection.pixelHitsMin = cms.uint32(0)
+                    _btagInfo.trackSelection.totalHitsMin = cms.uint32(0)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
