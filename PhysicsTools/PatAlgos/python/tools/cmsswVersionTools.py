@@ -127,6 +127,14 @@ class PickRelValInputFiles( ConfigToolBase ):
         print '%s DEBUG: Empty file list returned'%( self._label )
         print '    This might be overwritten by providing input files explicitly to the source module in the main configuration file.'
 
+    def runDAS(self, query, limit):
+      from commands import getstatusoutput
+      err, out = getstatusoutput("das_client --format=json --query '%s' --limit=%s" % (query, limit))
+      jsondict = {'status' : 'error'}
+      if not err: jsondict = json.loads(out)
+      else: jsondict['error_message'] = out
+      return jsondict
+
     def apply( self ):
         useDAS        = self._parameters[ 'useDAS'        ].value
         cmsswVersion  = self._parameters[ 'cmsswVersion'  ].value
@@ -260,7 +268,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                 print '%s DEBUG: Using DAS query'%( self._label )
             dasLimit = numberOfFiles
             if dasLimit <= 0:
-                dasLimit += 1
+                dasLimit = 1
             for version in range( maxVersions, 0, -1 ):
                 filePaths    = []
                 filePathsTmp = []
@@ -271,7 +279,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                     print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
                     print '    \'%s\''%( dasQuery )
                 # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
-                jsondict    = das_client.get_data( 'https://cmsweb.cern.ch', dasQuery, 0, dasLimit, False )
+                jsondict = self.runDAS(dasQuery,dasLimit)
                 if debug:
                     print '%s DEBUG: Received DAS JSON dictionary:'%( self._label )
                     print '    \'%s\''%( jsondict )
@@ -294,7 +302,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                         print '%s DEBUG: Testing file entry \'%s\''%( self._label, filePath )
                     if len( filePath ) > 0:
                         if validVersion != version:
-                            jsontestdict    = das_client.get_data( 'https://cmsweb.cern.ch', 'site dataset=%s | grep site.name'%( dataset ), 0, 999, False )
+                            jsontestdict = self.runDAS('site dataset=%s | grep site.name' % ( dataset ),  999)
                             mongo_testquery = jsontestdict[ 'mongo_query' ]
                             testfilters = mongo_testquery[ 'filters' ]
                             testdata    = jsontestdict[ 'data' ]
