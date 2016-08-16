@@ -11,7 +11,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+ 
 HcalDbHardcode::HcalDbHardcode()
 : theDefaultParameters_(3.0,0.5,{0.2,0.2},{0.0,0.0},0,{0.0,0.0,0.0,0.0},{0.9,0.9,0.9,0.9},125,105), //"generic" set of conditions
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
@@ -714,267 +714,73 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 
 }
 
-void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap) {
+void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells) {
 
   std::stringstream mystream;
-  std::string detector[6] = {"XX","HB","HE","HO","HF","HT"};
-  /* ihbheetadepth - unique HBHE {eta,depth} assignments per fiber and fiber channel */
-  int ihbheetadepth[EMAP_NHTRS][EMAP_NTOPBOT][EMAP_NFBR][EMAP_NFCH][2]={
-    {{{{11,1},{ 7,1},{ 3,1}},  /* htr 0 (HB) -bot(+top) */
-      {{ 5,1},{ 1,1},{ 9,1}},
-      {{11,1},{ 7,1},{ 3,1}},
-      {{ 5,1},{ 1,1},{ 9,1}},
-      {{10,1},{ 6,1},{ 2,1}},
-      {{ 8,1},{ 4,1},{12,1}},
-      {{10,1},{ 6,1},{ 2,1}},
-      {{ 8,1},{ 4,1},{12,1}}},
-     {{{11,1},{ 7,1},{ 3,1}},  /* htr 0 (HB) +bot(-top) */
-      {{ 5,1},{ 1,1},{ 9,1}},
-      {{11,1},{ 7,1},{ 3,1}},
-      {{ 5,1},{ 1,1},{ 9,1}},
-      {{10,1},{ 6,1},{ 2,1}},
-      {{ 8,1},{ 4,1},{12,1}},
-      {{10,1},{ 6,1},{ 2,1}},
-      {{ 8,1},{ 4,1},{12,1}}}},
-    {{{{16,2},{15,2},{14,1}},  /* htr 1 (HBHE) -bot(+top) */
-      {{15,1},{13,1},{16,1}},
-      {{16,2},{15,2},{14,1}},
-      {{15,1},{13,1},{16,1}},
-      {{17,1},{16,3},{26,1}},
-      {{18,1},{18,2},{26,2}},
-      {{17,1},{16,3},{25,1}},
-      {{18,1},{18,2},{25,2}}},
-     {{{16,2},{15,2},{14,1}},  /* htr 1 (HBHE) +bot(-top) */
-      {{15,1},{13,1},{16,1}},
-      {{16,2},{15,2},{14,1}},
-      {{15,1},{13,1},{16,1}},
-      {{17,1},{16,3},{25,1}},
-      {{18,1},{18,2},{25,2}},
-      {{17,1},{16,3},{26,1}},
-      {{18,1},{18,2},{26,2}}}},
-    {{{{28,1},{28,2},{29,1}},  /* htr 2 (HE) -bot(+top) */
-      {{28,3},{24,2},{24,1}},
-      {{27,1},{27,2},{29,2}},
-      {{27,3},{23,2},{23,1}},
-      {{19,2},{20,1},{22,2}},
-      {{19,1},{20,2},{22,1}},
-      {{19,2},{20,1},{21,2}},
-      {{19,1},{20,2},{21,1}}},
-     {{{27,1},{27,2},{29,2}},  /* htr 2 (HE) +bot(-top) */
-      {{27,3},{23,2},{23,1}},
-      {{28,1},{28,2},{29,1}},
-      {{28,3},{24,2},{24,1}},
-      {{19,2},{20,1},{21,2}},
-      {{19,1},{20,2},{21,1}},
-      {{19,2},{20,1},{22,2}},
-      {{19,1},{20,2},{22,1}}}}
-  };
-  /* iphi (lower) starting index for each HBHE crate */
-  int ihbhephis[EMAP_NHBHECR]={11,19,3,27,67,35,59,43,51};
-  /* RM and the RM fiber for HB HE */
-  int irm_rmfiHBHE[EMAP_NHTRS][EMAP_NTOPBOT][EMAP_NFBR][2]={
-    {{{6,1},{7,1},{6,2},{7,2},{4,1},{5,1},{4,2},{5,2}},  // HTR 0 top
-     {{6,3},{7,3},{6,4},{7,4},{4,3},{5,3},{4,4},{5,4}}}, // HTR 0 bot
-    {{{2,1},{3,1},{2,2},{3,2},{2,1},{3,1},{2,2},{3,2}},  // HTR 1 top
-     {{2,3},{3,3},{2,4},{3,4},{2,3},{3,3},{2,4},{3,4}}}, // HTR 1 bot
-    {{{4,1},{5,1},{4,2},{5,2},{6,1},{7,1},{6,2},{7,2}},  // HTR 2 top
-     {{4,3},{5,3},{4,4},{5,4},{6,3},{7,3},{6,4},{7,4}}}  // HTR 2 bot
-  };
-
-  /* all HBHE crates */
-  for (int ic=0; ic<EMAP_NHBHECR; ic++){
-    /* four sets of three htrs per crate */
-    for (int is=0; is<EMAP_NHSETS; is++){
-      /* three htrs per set */
-      for (int ih=0; ih<EMAP_NHTRS; ih++){
-        /* top and bottom */
-        for (int itb=0; itb<EMAP_NTOPBOT; itb++){
-          /* eight fibers per HTR FPGA */
-          for (int ifb=0; ifb<EMAP_NFBR; ifb++){
-	    /* three channels per fiber */
-  	    for (int ifc=0; ifc<EMAP_NFCH; ifc++){
-              int iside  = is<EMAP_NHSETS/2 ? -1 : 1;
-              int ifwtb  = (is/2+itb+1)%2;
-              int ieta   = ihbheetadepth[ih][ifwtb][ifb][ifc][0];
-              int idepth = ihbheetadepth[ih][ifwtb][ifb][ifc][1];
-              HcalSubdetector subdet = (ieta>16||idepth>2) ? HcalEndcap : HcalBarrel;
-	      std::string det = detector[subdet];
-              int iphi   = (ieta>20) ?
-		(ihbhephis[ic]+(is%2)*4+itb*2-1)%72+1 :
-		(ihbhephis[ic]+(is%2)*4+itb*2+(ifb/2+is/2+1)%2-1)%72+1;
-	      HcalDetId fId(subdet,iside*ieta,iphi,idepth);
-	      char sidesign;
-	      int irm(0), iwedge(0);
-              if (iside == -1) {
-                sidesign = 'M';
-                irm    = irm_rmfiHBHE[ih][(itb + 1) % 2][ifb][1];
-                if (ieta >= 21 && (irm == 1 || irm == 3)) 
-		  iwedge = (iphi + 1 + irm + 1) / 4;
-                else
-		  iwedge = (iphi + irm + 1) / 4;
-                if (iwedge > 18) iwedge -= 18;
-              } else {
-                sidesign = 'P';
-                irm    = irm_rmfiHBHE[ih][itb][ifb][1];
-                if (ieta >= 21 && (irm == 4 || irm == 2))
-		  iwedge = (iphi + 1 - irm + 6) / 4;
-                else
-		  iwedge = (iphi - irm + 6) / 4;
-                if (iwedge > 18) iwedge -= 18;
-	      }
-	      char tempbuff[30];
-              sprintf (tempbuff,"%s%c%2.2i%c",det.c_str(),sidesign,iwedge,'\0');
-	      mystream << tempbuff;
-	      std::string rbx = mystream.str();
-	      mystream.str("");
-	      emap.loadObject(fId,irm,rbx);
-	    }
-	  }
+  std::string detector[5] = {"XX","HB","HE","HO","HF"};
+  for (const auto& fId : cells) {
+    if (fId.isHcalDetId()) {
+      HcalDetId       id     = HcalDetId(fId.rawId());
+      HcalSubdetector subdet = id.subdet();
+      int             ieta   = id.ietaAbs();
+      int             iside  = id.zside();
+      int             iphi   = id.iphi();
+      std::string     det, rbx;
+      int             irm(0);
+      char            tempbuff[30];
+      char            sidesign = (iside == -1) ? 'M' : 'P';
+      if (subdet == HcalBarrel || subdet == HcalEndcap) {
+	det = detector[subdet];
+	irm = (iphi+1)%4 + 1;
+	int iwedge(0);
+	if (ieta >= 21 && (irm == 1 || irm == 3)) 
+	  iwedge = (iphi + 1 + irm + 1) / 4;
+	else
+	  iwedge = (iphi + irm + 1) / 4;
+	if (iwedge > 18) iwedge -= 18;
+	sprintf (tempbuff,"%s%c%2.2i%c",det.c_str(),sidesign,iwedge,'\0');
+	mystream << tempbuff;
+	rbx = mystream.str();
+	mystream.str("");
+	emap.loadObject(id,irm,rbx);
+      } else if (subdet == HcalForward) {
+	det = detector[subdet];
+	int  hfphi(0);
+	if ((iside == 1 && ieta == 40) || (iside == -1 && ieta == 41)) {
+	  irm   = ((iphi + 1) / 2) % 36 + 1;
+	  hfphi = ((iphi + 1) / 6) % 12 + 1; 
+	} else {
+	  irm   = ( iphi + 1) / 2;
+	  hfphi = (iphi - 1) / 6 + 1;
 	}
-      }
-    }
-  } // End of HBHE
-
-  /* ihfetadepth - unique HF {eta,depth} assignments per fiber and fiber channel */
-  int ihfetadepth[EMAP_NTOPBOT][EMAP_NFBR][EMAP_NFCH][2]={
-    {{{33,1},{31,1},{29,1}},  /* top */
-     {{32,1},{30,1},{34,1}},
-     {{33,2},{31,2},{29,2}},
-     {{32,2},{30,2},{34,2}},
-     {{34,2},{32,2},{30,2}},
-     {{31,2},{29,2},{33,2}},
-     {{34,1},{32,1},{30,1}},
-     {{31,1},{29,1},{33,1}}},
-    {{{41,1},{37,1},{35,1}},  /* bot */
-     {{38,1},{36,1},{39,1}},
-     {{41,2},{37,2},{35,2}},
-     {{38,2},{36,2},{39,2}},
-     {{40,2},{38,2},{36,2}},
-     {{37,2},{35,2},{39,2}},
-     {{40,1},{38,1},{36,1}},
-     {{37,1},{35,1},{39,1}}}
-  };
-  /* iphi (lower) starting index for each HF crate */
-  int ihfphis[EMAP_NHFCR]={3,27,51};
-   /* all HF crates */
-  for (int ic=0; ic<EMAP_NHFCR; ic++){
-    /* four sets of three htrs per crate */
-    for (int is=0; is<EMAP_NHSETS; is++){
-      /* three htrs per set */
-      for (int ih=0; ih<EMAP_NHTRS; ih++){
-        /* top and bottom */
-        for (int itb=0; itb<EMAP_NTOPBOT; itb++){
-          /* eight fibers per HTR FPGA */
-          for (int ifb=0; ifb<EMAP_NFBR; ifb++){
-            /* three channels per fiber */
-            for (int ifc=0; ifc<EMAP_NFCH; ifc++){
-              int iside  = is<EMAP_NHSETS/2 ? -1 : 1;
-              int ieta   = ihfetadepth[itb][ifb][ifc][0];
-              int idepth = ihfetadepth[itb][ifb][ifc][1];
-              HcalSubdetector subdet = HcalForward;
-	      std::string det = detector[subdet];
-              int iphi  = (ieta>39) ?
-		(ihfphis[ic]+(is%2)*12+ih*4-1)%72+1 :
-		(ihfphis[ic]+(is%2)*12+ih*4+(ifb/4)*2-1)%72+1;
-	      char sidesign;
-              if (iside == -1) {
-                sidesign = 'M';
-                if (ieta < 40){
-                  if      (iphi == 1)     iphi = 71;
-                  else if (iphi == 71)    iphi = 1;
-                  else if (iphi % 4 == 1) iphi -= 2;
-                  else if (iphi % 4 == 3) iphi += 2;
-                  else                    edm::LogInfo("HcalCalib") << "Even iphi in HFM" << std::endl;
-                }
-              } else {
-                sidesign = 'P';
-              }
-	      HcalDetId fId(subdet,iside*ieta,iphi,idepth);
-	      int irm(0), hfphi(0);
-              if ((iside == 1 && ieta == 40) || (iside == -1 && ieta == 41)){
-                irm   = ((iphi + 1) / 2) % 36 + 1;
-                hfphi = ((iphi + 1) / 6) % 12 + 1; 
-              } else {
-                irm   = ( iphi + 1) / 2;
-                hfphi = (iphi - 1) / 6 + 1;
-              }
-              irm = (irm - 1) % 3 + 1;
-	      char tempbuff[30];
-              sprintf (tempbuff,"%s%c%2.2i%c",det.c_str(),sidesign,hfphi,'\0');
-              mystream << tempbuff;
-	      std::string rbx = mystream.str();
-              mystream.str("");
-	      emap.loadObject(fId,irm,rbx);
-	    }
-	  }
-	}
-      }
-    }
-  } // End of HF
-
-  //RM for the HO as a function of eta, phi and side as implemented in complete_ho_map.txt
-  //There are only 24 phi columns because after that it begins to repeat. The relevant variable is phi mod 24.
-  //HX as the 16th eta entry
-  int HO_RM_table[24][16][2] = {
-    {{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{4,2},{4,2},{4,2},{4,2},{4,2},{4,2}},
-    {{2,2},{2,2},{2,2},{2,2},{4,4},{4,4},{4,4},{4,4},{4,4},{4,4},{2,4},{2,4},{2,4},{2,4},{2,4},{2,4}},
-    {{3,3},{3,3},{3,3},{3,3},{4,4},{4,4},{4,4},{4,4},{4,4},{4,4},{2,4},{2,4},{2,4},{2,4},{2,4},{2,4}},
-    {{3,3},{3,3},{3,3},{3,3},{4,4},{4,4},{4,4},{4,4},{4,4},{4,4},{2,4},{2,4},{2,4},{2,4},{2,4},{2,4}},
-    {{4,4},{4,4},{4,4},{4,4},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{1,3},{1,3},{1,3},{1,3},{1,3},{1,3}},
-    {{4,4},{4,4},{4,4},{4,4},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{1,3},{1,3},{1,3},{1,3},{1,3},{1,3}},
-    {{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{1,3},{1,3},{1,3},{1,3},{1,3},{1,3}},
-    {{3,3},{3,3},{3,3},{3,3},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{3,1},{3,1},{3,1},{3,1},{3,1},{3,1}},
-    {{2,2},{2,2},{2,2},{2,2},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{3,1},{3,1},{3,1},{3,1},{3,1},{3,1}},
-    {{2,2},{2,2},{2,2},{2,2},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{3,1},{3,1},{3,1},{3,1},{3,1},{3,1}},
-    {{4,4},{4,4},{4,4},{4,4},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{4,2},{4,2},{4,2},{4,2},{4,2},{4,2}},
-    {{4,4},{4,4},{4,4},{4,4},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{4,2},{4,2},{4,2},{4,2},{4,2},{4,2}},
-    {{3,3},{3,3},{3,3},{3,3},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{4,2},{4,2},{4,2},{4,2},{4,2},{4,2}},
-    {{3,3},{3,3},{3,3},{3,3},{4,4},{4,4},{4,4},{4,4},{4,4},{4,4},{2,4},{2,4},{2,4},{2,4},{2,4},{2,4}},
-    {{2,2},{2,2},{2,2},{2,2},{4,4},{4,4},{4,4},{4,4},{4,4},{4,4},{2,4},{2,4},{2,4},{2,4},{2,4},{2,4}},
-    {{2,2},{2,2},{2,2},{2,2},{4,4},{4,4},{4,4},{4,4},{4,4},{4,4},{2,4},{2,4},{2,4},{2,4},{2,4},{2,4}},
-    {{1,1},{1,1},{1,1},{1,1},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{1,3},{1,3},{1,3},{1,3},{1,3},{1,3}},
-    {{1,1},{1,1},{1,1},{1,1},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{1,3},{1,3},{1,3},{1,3},{1,3},{1,3}},
-    {{2,2},{2,2},{2,2},{2,2},{3,3},{3,3},{3,3},{3,3},{3,3},{3,3},{1,3},{1,3},{1,3},{1,3},{1,3},{1,3}},
-    {{2,2},{2,2},{2,2},{2,2},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{3,1},{3,1},{3,1},{3,1},{3,1},{3,1}},
-    {{3,3},{3,3},{3,3},{3,3},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{3,1},{3,1},{3,1},{3,1},{3,1},{3,1}},
-    {{3,3},{3,3},{3,3},{3,3},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{3,1},{3,1},{3,1},{3,1},{3,1},{3,1}},
-    {{1,1},{1,1},{1,1},{1,1},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{4,2},{4,2},{4,2},{4,2},{4,2},{4,2}},
-    {{1,1},{1,1},{1,1},{1,1},{2,2},{2,2},{2,2},{2,2},{2,2},{2,2},{4,2},{4,2},{4,2},{4,2},{4,2},{4,2}} };
-  for (int iside = -1; iside < 2; iside += 2) {
-    for (int iph = 0; iph < 72; iph++) {
-      for (int iet = 0; iet < 15; iet++) {
-	int iphi  = iph + 1;
-        int ieta  = iet + 1;
-	int depth = 4;
-	HcalSubdetector subdet = HcalOuter;
-	std::string det = detector[subdet];
-        int sidear  = (iside == 1) ? 1 : 0;
-	int phmod24 = iph % 24;
-        int irm     = HO_RM_table[phmod24][iet][sidear];
-        char sidesign = (iside == -1) ? 'M' : 'P';
+	irm = (irm - 1) % 3 + 1;
+	sprintf (tempbuff,"%s%c%2.2i%c",det.c_str(),sidesign,hfphi,'\0');
+	mystream << tempbuff;
+	rbx = mystream.str();
+	mystream.str("");
+	emap.loadObject(id,irm,rbx);
+      } else if (subdet == HcalOuter) {
+	det = detector[subdet];
 	int ring(0), sector(0);
         if      (ieta <= 4)                ring = 0;
         else if (ieta >= 5 && ieta <= 10)  ring = 1;
         else                               ring = 2;
-        for (int i = -2; i < iphi; i+=6) sector++;
+        for (int i = -2; i < iphi; i+=6)   sector++;
         if (sector > 12) sector = 1; 
+	irm  =  ((iphi+1)/2)%6 + 1;
         if (ring != 0 && sector % 2 != 0) sector++;
-	char tempbuff[30];
         if (ring == 0) 
 	  sprintf (tempbuff,"%s%i%2.2d",det.c_str(),ring,sector);
         else 
 	  sprintf (tempbuff,"%s%i%c%2.2d",det.c_str(),ring,sidesign,sector);
         mystream << tempbuff;
-	std::string rbx = mystream.str();
+	rbx = mystream.str();
         mystream.str("");
-	HcalDetId fId(subdet,iside*ieta,iphi,depth);
-	emap.loadObject(fId,irm,rbx);
+	emap.loadObject(id,irm,rbx);
       }
     }
-  } // End of HO
-
+  }
   emap.sort();
-
 }
 
 
