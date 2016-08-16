@@ -19,3 +19,6 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, PointSeededTrackingRegionsProdu
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionEDProducerT.h"
 using GlobalTrackinRegionFromBeamSpotEDProducer = TrackingRegionEDProducerT<GlobalTrackingRegionProducerFromBeamSpot>;
 DEFINE_FWK_MODULE(GlobalTrackinRegionFromBeamSpotEDProducer);
+
+using GlobalTrackingRegionWithVerticesEDProducer = TrackingRegionEDProducerT<GlobalTrackingRegionWithVerticesProducer>;
+DEFINE_FWK_MODULE(GlobalTrackingRegionWithVerticesEDProducer);
