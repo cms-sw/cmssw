@@ -15,7 +15,9 @@
 class L1TMuonEndCapParams {
  public:
   		
-  L1TMuonEndCapParams() { PtAssignVersion_=1; firmwareVersion_=1; }
+  L1TMuonEndCapParams() { PtAssignVersion_=1; firmwareVersion_=1; 
+    PhiMatchWindowSt1_ = 0; PhiMatchWindowSt2_ = 0; PhiMatchWindowSt3_ = 0;  PhiMatchWindowSt4_ = 0;
+  }
   ~L1TMuonEndCapParams() {}
 
   // FIXME MULHEARN:  this requires cleanup too, but leaving as is for now:
