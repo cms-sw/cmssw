@@ -54,8 +54,12 @@ void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts
 
 
 	l1mudttfparams.reset();  //KK
-	l1mudttfqualplut.load(); //KK: Does it ever change or is it safe to initialize it from the release files like that? 
+	l1mudttfqualplut.load(); //KK: Do these LUTs ever change and is it safe to initialize it from the release files like that? 
 	l1mudttfetaplut.load();  //KK
+        // the data members of the Helper class loaded above are transient, push those to the persistent storage of the base class:
+        lutparams_.eta_lut_ = l1mudttfetaplut.m_lut;
+        lutparams_.qp_lut_  = l1mudttfqualplut.m_lut;
+
 
 	for( int wh=-3; wh<4; wh++ ) {
 	   int sec = 0;
