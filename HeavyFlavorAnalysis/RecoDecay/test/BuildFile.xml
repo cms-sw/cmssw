@@ -1,0 +1,11 @@
+<use   name="root"/>
+<use   name="HeavyFlavorAnalysis/RecoDecay"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<flags CXXFLAGS="-Wno-delete-non-virtual-dtor"/>
+<library   file="stubs/*.cc" name="HeavyFlavorAnalysisRecoDecayTest">
+  <flags   EDM_PLUGIN="1"/>
+</library>

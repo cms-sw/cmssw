@@ -1,0 +1,119 @@
+#ifndef BPHDecayVertex_H
+#define BPHDecayVertex_H
+/** \class BPHDecayVertex
+ *
+ *  Description: 
+ *     mid-level base class to reconstruct decay vertex
+ *
+ *  $Date: 2015-07-03 13:49:53 $
+ *  $Revision: 1.1 $
+ *  \author Paolo Ronchese INFN Padova
+ *
+ */
+
+//----------------------
+// Base Class Headers --
+//----------------------
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHDecayMomentum.h"
+
+namespace edm {
+  class EventSetup;
+}
+
+namespace reco {
+  class TransientTrack;
+  class Vertex;
+}
+
+//------------------------------------
+// Collaborating Class Declarations --
+//------------------------------------
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+//---------------
+// C++ Headers --
+//---------------
+#include <vector>
+
+//              ---------------------
+//              -- Class Interface --
+//              ---------------------
+
+class BPHDecayVertex: public virtual BPHDecayMomentum {
+
+ public:
+
+  /** Constructor is protected
+   *  this object can exist only as part of a derived class
+   */
+
+  /** Destructor
+   */
+  virtual ~BPHDecayVertex();
+
+  /** Operations
+   */
+
+  /// add a simple particle giving it a name and specifying an option list 
+  /// to search for the associated track
+  virtual void add( const std::string& name,
+                    const reco::Candidate* daug, 
+                    const std::string& searchList,
+                    double mass );
+
+  /// check for valid reconstructed vertex
+  virtual bool isValidVertex() const;
+
+  /// get reconstructed vertex
+  virtual const reco::Vertex& vertex() const;
+
+  /// get list of Tracks
+  const std::vector<const reco::Track*>& tracks() const;
+
+  /// get Track for a daughter
+  const reco::Track* getTrack( const reco::Candidate* cand ) const;
+
+  /// get list of TransientTracks
+  const std::vector<reco::TransientTrack>& transientTracks() const;
+
+  /// get TransientTrack for a daughter
+  reco::TransientTrack* getTransientTrack( const reco::Candidate* cand ) const;
+
+ protected:
+
+  // constructor
+  BPHDecayVertex( const edm::EventSetup* es );
+  // pointer used to retrieve informations from other bases
+  BPHDecayVertex( const BPHDecayVertex* ptr,
+                  const edm::EventSetup* es );
+
+  // utility function used to cash reconstruction results
+  virtual void setNotUpdated() const;
+
+ private:
+
+  // EventSetup needed to build TransientTrack
+  const edm::EventSetup* evSetup;
+
+  // map linking particles to associated track search list
+  std::map<const reco::Candidate*,std::string> searchMap;
+
+  // reconstruction results cache
+  mutable bool oldTracks;
+  mutable bool oldVertex;
+  mutable bool validVertex;
+  mutable std::vector<const    reco::Track*> rTracks;
+  mutable std::vector<reco::TransientTrack> trTracks;
+  mutable std::map<const reco::Candidate*,const    reco::Track*> tkMap;
+  mutable std::map<const reco::Candidate*,reco::TransientTrack*> ttMap;
+  mutable reco::Vertex fittedVertex;
+
+  // create TransientTrack and fit vertex
+  virtual void tTracks() const;
+  virtual void fitVertex() const;
+
+};
+
+
+#endif // BPHDecayVertex_H
+

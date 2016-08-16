@@ -1,0 +1,10 @@
+<lcgdict>
+
+  <class name="pat::UserHolder<bool>" />
+  <class name="pat::UserHolder< Vector3DBase< float, GlobalTag > >" />
+  <class name="pat::UserHolder< edm::Ref< std::vector< reco::Vertex, std::allocator< reco::Vertex > >, reco::Vertex, edm::refhelper::FindUsingAdvance< std::vector< reco::Vertex, std::allocator< reco::Vertex > >, reco::Vertex > > >" />
+  <class name="pat::UserHolder< edm::Ref< std::vector< pat::CompositeCandidate, std::allocator< pat::CompositeCandidate > >, pat::CompositeCandidate, edm::refhelper::FindUsingAdvance< std::vector< pat::CompositeCandidate, std::allocator< pat::CompositeCandidate > >, pat::CompositeCandidate > > >" />
+
+<!-- comment -->
+
+</lcgdict>
