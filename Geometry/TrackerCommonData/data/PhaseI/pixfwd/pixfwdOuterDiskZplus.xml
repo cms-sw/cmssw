@@ -2,35 +2,94 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="pixfwdOuterDiskZplus.xml" eval="true">
-  
-  <Constant name="OuterRingRMax"        value="166.0*mm"/>
-  <Constant name="OuterRingRMin"        value="[OuterRingRMax]-2.0*mm"/>
-  <Constant name="OuterRingCFRMax"      value="[OuterRingRMin]"/>
-  <Constant name="OuterRingCFRMin"      value="[OuterRingCFRMax]-0.5*mm"/>
-  <Constant name="OuterRingHalfWidth"   value="18.6*mm"/>
+  <Constant name="OuterRingRMin"        value="165.3*mm"/><!-- see inner disk comments -->
+  <Constant name="OuterRingRMax"        value="[OuterRingRMin]+2.1*mm"/>
+  <Constant name="OuterRingCFRMin"      value="[OuterRingRMax]"/>
+  <Constant name="OuterRingCFRMax"      value="[OuterRingCFRMin]+0.5*mm"/>
+  <Constant name="OuterRingHalfWidth"   value="44.0*mm/2.0"/><!-- see Algorithm parameters below -->
   <Constant name="OuterRingZ"           value="-[pixfwdDisks:DiskHalfWidth]+[OuterRingHalfWidth]"/>
-  <Constant name="InnerRingRMax"      value="89.2*mm"/>
-  <Constant name="InnerRingRMin"      value="[InnerRingRMax]-2.0*mm"/>
+  <Constant name="InnerRingRMax"      value="90.05*mm"/>
+  <Constant name="InnerRingRMin"      value="[InnerRingRMax]-2.5*mm"/>
   <Constant name="InnerRingCFRMax"     value="[InnerRingRMin]"/>
   <Constant name="InnerRingCFRMin"     value="[InnerRingCFRMax]-0.5*mm"/>
-  <Constant name="InnerRingHalfWidth"   value="8.0*mm"/>
-  <Constant name="InnerRingZ"           value="-[pixfwdDisks:DiskHalfWidth]+[InnerRingHalfWidth]"/>
+  <Constant name="InnerRingHalfWidth"   value="38.0*mm/2.0"/><!-- see Algorithm parameters below -->
+  <Constant name="InnerRingZ" value="-[pixfwdDisks:DiskHalfWidth]+[InnerRingHalfWidth]"/>
 </ConstantsSection>
- 
 
-<SolidSection label="pixfwdOuterDiskZplus.xml">
-  <Tubs name="PixelForwardOuterDiskInnerRing"  startPhi="0." deltaPhi="360*deg"
-   rMin="[InnerRingRMin]" rMax="[InnerRingRMax]" dz="[InnerRingHalfWidth]" />
+<!-- support ring solids -->
+<!-- each Algorithm creates on composite (union) solid that describes a cut
+     ring according to the given outline. The z_l and z_t arrays describe the 
+     -Z and +Z sides by giving the Z value for each of the values of the Phi
+     array. The z values are only considered relatively, the object will be 
+     centered around the origin and has to be placed using a PosPart tag.
+     There are two instances each, for the Core and Skin (CF), which use the
+     same parameters. TODO: find a way to factor them out.
+--> 
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskOuterRing"/> 
+  <Numeric name="rMin"             value="[OuterRingRMin]"/>
+  <Numeric name="rMax"             value="[OuterRingRMax]"/>
+  <Vector  name="Phi" type="numeric" nEntries="13">
+  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.688*rad
+  </Vector>
+  <Vector  name="z_t" type="numeric" nEntries="13">
+    308*mm,   310*mm,   317*mm,   324*mm,   331*mm,   329*mm,   318*mm,   323*mm,   329*mm,   335*mm,   330*mm,   330*mm,   325*mm
+  </Vector>
+  <Vector  name="z_l" type="numeric" nEntries="13">
+    298*mm,   291*mm,   291*mm,   291*mm,   300*mm,   303*mm,   291*mm,   291*mm,   294*mm,   304*mm,   305*mm,   310*mm,   313*mm
+  </Vector>
+  <!-- min: -335 max: -291 width: 44 -->
+</Algorithm>
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRing"/> 
+  <Numeric name="rMin"             value="[OuterRingCFRMin]"/>
+  <Numeric name="rMax"             value="[OuterRingCFRMax]"/>
+  <Vector  name="Phi" type="numeric" nEntries="13">
+  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.688*rad
+  </Vector>
+  <Vector  name="z_t" type="numeric" nEntries="13">
+    308*mm,   310*mm,   317*mm,   324*mm,   331*mm,   329*mm,   318*mm,   323*mm,   329*mm,   335*mm,   330*mm,   330*mm,   325*mm
+  </Vector>
+  <Vector  name="z_l" type="numeric" nEntries="13">
+    298*mm,   291*mm,   291*mm,   291*mm,   300*mm,   303*mm,   291*mm,   291*mm,   294*mm,   304*mm,   305*mm,   310*mm,   313*mm
+  </Vector>
+  <!-- min: -335 max: -291 width: 44 -->
+</Algorithm>
 
-  <Tubs name="PixelForwardOuterDiskOuterRing"  startPhi="0." deltaPhi="360*deg"
-   rMin="[OuterRingRMin]" rMax="[OuterRingRMax]" dz="[OuterRingHalfWidth]" />
-
-  <Tubs name="PixelForwardOuterDiskCFInnerRing"  startPhi="0." deltaPhi="360*deg"
-   rMin="[InnerRingCFRMin]" rMax="[InnerRingCFRMax]" dz="[InnerRingHalfWidth]" />
-
-  <Tubs name="PixelForwardOuterDiskCFOuterRing"  startPhi="0." deltaPhi="360*deg"
-   rMin="[OuterRingCFRMin]" rMax="[OuterRingCFRMax]" dz="[OuterRingHalfWidth]" />
-</SolidSection>
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskInnerRing"/> 
+  <Numeric name="rMin"             value="[InnerRingRMin]"/>
+  <Numeric name="rMax"             value="[InnerRingRMax]"/>
+  <Vector  name="Phi" type="numeric" nEntries="12">
+  1.525*rad,1.628*rad,1.947*rad,2.487*rad,2.862*rad,3.119*rad,3.323*rad,3.323*rad,3.619*rad,4.115*rad,4.597*rad,4.770*rad
+  </Vector>
+  <Vector  name="z_t" type="numeric" nEntries="12">
+    475*mm,   483*mm,   484*mm,   491*mm,   492*mm,   479*mm,   478*mm,   481*mm,   485*mm,   495*mm,   499*mm,   493*mm
+  </Vector>
+  <Vector  name="z_l" type="numeric" nEntries="12">
+    466*mm,   461*mm,   461*mm,   470*mm,   470*mm,   462*mm,   461*mm,   461*mm,   461*mm,   471*mm,   477*mm,   486*mm
+  </Vector>
+  <!-- min: -499 max: -461 width: 38 -->
+</Algorithm>
+<Algorithm name="track:DDCutTubsFromPoints">
+  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRing"/> 
+  <Numeric name="rMin"             value="[InnerRingCFRMin]"/>
+  <Numeric name="rMax"             value="[InnerRingCFRMax]"/>
+  <Vector  name="Phi" type="numeric" nEntries="12">
+  1.525*rad,1.628*rad,1.947*rad,2.487*rad,2.862*rad,3.119*rad,3.323*rad,3.323*rad,3.619*rad,4.115*rad,4.597*rad,4.770*rad
+  </Vector>
+  <Vector  name="z_t" type="numeric" nEntries="12">
+    475*mm,   483*mm,   484*mm,   491*mm,   492*mm,   479*mm,   478*mm,   481*mm,   485*mm,   495*mm,   499*mm,   493*mm
+  </Vector>
+  <Vector  name="z_l" type="numeric" nEntries="12">
+    466*mm,   461*mm,   461*mm,   470*mm,   470*mm,   462*mm,   461*mm,   461*mm,   461*mm,   471*mm,   477*mm,   486*mm
+  </Vector>
+  <!-- min: -499 max: -461 width: 38 -->
+</Algorithm>
  
 <LogicalPartSection label="pixfwdOuterDiskZplus.xml">
  <LogicalPart name="PixelForwardOuterDiskInnerRing" category="support">
@@ -80,6 +139,35 @@
     <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
     <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskCFOuterRing"/>
     <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
+  </PosPart>
+
+
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskInnerRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
+    <rRotation name="pixfwdCommon:Z180" />
+  </PosPart>
+
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskOuterRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
+    <rRotation name="pixfwdCommon:Z180" />
+  </PosPart>
+
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskCFInnerRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
+    <rRotation name="pixfwdCommon:Z180" />
+  </PosPart>
+
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
+    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskCFOuterRing"/>
+    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
+    <rRotation name="pixfwdCommon:Z180" />
   </PosPart>
 </PosPartSection>
 
