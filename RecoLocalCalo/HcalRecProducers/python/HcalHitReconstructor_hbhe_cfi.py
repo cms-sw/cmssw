@@ -121,7 +121,6 @@ hbheprereco = cms.EDProducer(
     applyPedConstraint    = cms.bool(True),
     applyTimeConstraint   = cms.bool(True),
     applyPulseJitter      = cms.bool(False),  
-    applyUnconstrainedFit = cms.bool(False),   #Turn on original Method 2
     applyTimeSlew         = cms.bool(True),   #units
     ts4Min                = cms.double(0.),   #fC
     ts4Max                = cms.vdouble(100.,100.),   #fC
@@ -139,6 +138,5 @@ hbheprereco = cms.EDProducer(
     timeMin               = cms.double(-12.5),  #ns
     timeMax               = cms.double(12.5),  #ns
     ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
-    chargeMax             = cms.double(6.),    #Charge cut (fC) for uncstrianed Fit 
     fitTimes              = cms.int32(1)       # -1 means no constraint on number of fits per channel
 )

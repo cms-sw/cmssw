@@ -16,7 +16,6 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const bool iPedestalConstraint = conf.getParameter<bool>  ("applyPedConstraint");
     const bool iTimeConstraint =     conf.getParameter<bool>  ("applyTimeConstraint");
     const bool iAddPulseJitter =     conf.getParameter<bool>  ("applyPulseJitter");
-    const bool iUnConstrainedFit =   conf.getParameter<bool>  ("applyUnconstrainedFit");
     const bool iApplyTimeSlew =      conf.getParameter<bool>  ("applyTimeSlew");
     const double iTS4Min =           conf.getParameter<double>("ts4Min");
     const std::vector<double> iTS4Max =           conf.getParameter<std::vector<double>>("ts4Max");
@@ -32,7 +31,6 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double iTMin =             conf.getParameter<double>("timeMin");
     const double iTMax =             conf.getParameter<double>("timeMax");
     const double its4Chi2 =          conf.getParameter<double>("ts4chi2");
-    const double iChargeThreshold =  conf.getParameter<double>("chargeMax"); //For the unconstrained Fit
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
 
     //    if (iPedestalConstraint) assert(iPedSig);
@@ -42,13 +40,13 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
         std::make_unique<PulseShapeFitOOTPileupCorrection>();
 
     corr->setPUParams(iPedestalConstraint, iTimeConstraint, iAddPulseJitter,
-                      iUnConstrainedFit, iApplyTimeSlew, iTS4Min, iTS4Max,
+                      iApplyTimeSlew, iTS4Min, iTS4Max,
                       iPulseJitter,
 		      iTimeMean, iTimeSigHPD, iTimeSigSiPM,
 		      iPedMean, iPedSigHPD, iPedSigSiPM,
                       iNoiseHPD, iNoiseSiPM,
 		      iTMin, iTMax, its4Chi2,
-                      iChargeThreshold, HcalTimeSlew::Medium, iFitTimes);
+                      HcalTimeSlew::Medium, iFitTimes);
 
     return corr;
 }

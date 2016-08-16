@@ -102,14 +102,14 @@ public:
 	       float& reconstructedTime,
 	       bool & useTriple) const;
 
-    void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
+    void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
 		     double iTS4Min, std::vector<double> iTS4Max,
 		     double iPulseJitter,
-		     double iTimeMean,double iTimeSigHPD,double iTimeSigSiPM,
-		     double iPedMean,double iPedSigHPD, double iPedSigSiPM,
+		     double iTimeMean, double iTimeSigHPD, double iTimeSigSiPM,
+		     double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 		     double iNoiseHPD, double iNoiseSiPM,
-		     double iTMin,double iTMax,
-		     double its4Chi2, double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
+		     double iTMin, double iTMax,
+		     double its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
     void setChi2Term( bool isHPD );
 

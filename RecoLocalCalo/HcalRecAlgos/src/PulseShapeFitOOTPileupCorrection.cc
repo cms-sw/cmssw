@@ -196,10 +196,10 @@ namespace FitterFuncs{
   
 }
 
-PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0), chargeThreshold_(6.),
+PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0),
 								       psfPtr_(nullptr), spfunctor_(nullptr), dpfunctor_(nullptr), tpfunctor_(nullptr),
 								       TSMin_(0), TSMax_(0), ts4Chi2_(0), pedestalConstraint_(0),
-								       timeConstraint_(0), addPulseJitter_(0), unConstrainedFit_(0), applyTimeSlew_(0),
+								       timeConstraint_(0), addPulseJitter_(0), applyTimeSlew_(0),
 								       ts4Min_(0), vts4Max_(0), pulseJitter_(0), timeMean_(0), timeSig_(0), pedMean_(0), pedSig_(0),
 								       noise_(0) {
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
@@ -229,13 +229,13 @@ void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
 
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min, std::vector<double> iTS4Max,
+						   bool iApplyTimeSlew,double iTS4Min, std::vector<double> iTS4Max,
 						   double iPulseJitter,double iTimeMean,double iTimeSigHPD,double iTimeSigSiPM,
 						   double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 						   double iNoiseHPD,double iNoiseSiPM,
 						   double iTMin,double iTMax,
 						   double its4Chi2,
-						   double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) { 
+						   HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) {
 
   TSMin_ = iTMin;
   TSMax_ = iTMax;
@@ -243,7 +243,6 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   pedestalConstraint_ = iPedestalConstraint;
   timeConstraint_     = iTimeConstraint;
   addPulseJitter_     = iAddPulseJitter;
-  unConstrainedFit_   = iUnConstrainedFit;
   applyTimeSlew_      = iApplyTimeSlew;
   ts4Min_             = iTS4Min;
   //  ts4Max_            = iTS4Max;
@@ -261,27 +260,18 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   noiseHPD_           = iNoiseHPD;
   noiseSiPM_          = iNoiseSiPM;
   slewFlavor_         = slewFlavor;
-  chargeThreshold_    = iChargeThreshold;
   fitTimes_           = iFitTimes;
-  if(unConstrainedFit_) { //Turn off all Constraints
-    //pedestalConstraint_ = false; => Leaving this as tunable
-    //timeConstraint_     = false;
-    TSMin_ = -100.;
-    TSMax_ =   75.;
-  }
+
 }
 
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD) {
    if( cntsetPulseShape ) return;
-   ++ cntsetPulseShape;
 
    // set the M2 parameters before defining the shape
    setChi2Term(isHPD);
-   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
-						    pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_));
-   spfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
-   dpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
-   tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
+
+   resetPulseShapeTemplate(ps);
+
 }
 
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
@@ -353,7 +343,6 @@ constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","
 
 int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, bool useADCgranularity)  const {
    double tsMAX=0;
-   int    nAboveThreshold = 0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
    double tstrig = 0; // in fC
    for(int i=0;i<HcalConst::maxSamples;++i){
@@ -372,8 +361,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       //Propagate it through
       tmperry2[i]*=(gainArr[i]*gainArr[i]); //Convert from fC to GeV
       tmperry [i]=sqrt(tmperry2[i]);
-      //Add the Uncosntrained Double Pulse Switch
-      if((chargeArr[i])>chargeThreshold_) nAboveThreshold++;
+
       if(std::abs(energyArr[i])>tsMAX) tsMAX=std::abs(tmpy[i]);
       if( i ==4 || i ==5 ){
          tstrig += chargeArr[i] - pedArr[i];
@@ -398,13 +386,11 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
 // Based on the pulse shape ( 2. likely gives the same performance )
    if(tmpy[2] > 3.*tmpy[3]) BX[2] = 2;
 // Only do three-pulse fit when tstrig < ts4Max_, otherwise one-pulse fit is used (above)
-   if(chi2 > ts4Chi2_ && !unConstrainedFit_ && tstrig < ts4Max_)   { //fails chi2 cut goes straight to 3 Pulse fit
+   if(chi2 > ts4Chi2_ && tstrig < ts4Max_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
      useTriple=true;
    }
-   if(unConstrainedFit_ && nAboveThreshold > 5) { //For the old method 2 do double pulse fit if values above a threshold
-     fit(2,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX); 
-   }
+
    /*
    if(chi2 > ts345Chi2_)   { //fails do two pulse chi2 for TS5 
      BX[1] = 5;
@@ -497,20 +483,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    timevalfit   = results[0];
    chargevalfit = results[1];
    pedvalfit    = results[n-1];
-   if(!(unConstrainedFit_ && iFit == 2)) return;
-   //Add the option of the old method 2
-   float timeval2fit   = results[2];
-   float chargeval2fit = results[3];
-   if(std::abs(timevalfit)>std::abs(timeval2fit)) {// if timeval1fit and timeval2fit are differnt, choose the one which is closer to zero
-     timevalfit=timeval2fit;
-     chargevalfit=chargeval2fit;
-   } else if(timevalfit==timeval2fit) { // if the two times are the same, then for charge we just sum the two  
-     timevalfit=(timevalfit+timeval2fit)/2;
-     chargevalfit=chargevalfit+chargeval2fit;
-   } else {
-     timevalfit=-999.;
-     chargevalfit=-999.;
-   }
+
 }
 
 void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channelData,

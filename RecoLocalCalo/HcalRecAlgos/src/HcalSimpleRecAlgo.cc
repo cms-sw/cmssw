@@ -57,9 +57,9 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 					double its4Chi2, double iChargeThreshold, int iFitTimes) {
   if( iPedestalConstraint ) assert ( iPedSig );
   if( iTimeConstraint ) assert( iTimeSig );
-  psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
+  psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iApplyTimeSlew,
 			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iTimeSig,iPedMean,iPedSig,iPedSig,iNoise,iNoise,iTMin,iTMax,its4Chi2,
-			       iChargeThreshold,HcalTimeSlew::Medium, iFitTimes);
+			       HcalTimeSlew::Medium, iFitTimes);
 
   psFitOOTpuCorr_->setChi2Term(1); // isHPD all the time
 
