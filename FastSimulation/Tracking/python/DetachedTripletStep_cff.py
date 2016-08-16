@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.DetachedTripletStep_cff as _standard
+from FastSimulation.Tracking.SeedingMigration import _regionProducerToFactoryPSet, _hitSetProducerToFactoryPSet
 
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
@@ -11,10 +12,10 @@ detachedTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.detachedTripletStepSeedLayers.layerList.value(),
-    RegionFactoryPSet = _standard.detachedTripletStepSeeds.RegionFactoryPSet,
+    RegionFactoryPSet = _regionProducerToFactoryPSet(_standard.detachedTripletStepTrackingRegions),
     hitMasks = cms.InputTag("detachedTripletStepMasks")
 )
-detachedTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _standard.detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet
+detachedTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(_standard.detachedTripletStepHitTriplets)
 
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
