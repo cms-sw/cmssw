@@ -162,6 +162,9 @@ class O2ORunMgr(O2OMgr):
             for r in res:
                 exists = True
                 enabled = int(r[0])
+            if exists is None:
+                exists = False
+                enabled = False
             if enabled:
                 self.job_name = job_name
                 self.start = datetime.now()
