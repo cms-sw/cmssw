@@ -16,5 +16,6 @@ HGCalTBAnalyzer = cms.EDAnalyzer("HGCalTBAnalyzer",
                                  DigiSrcHE    = cms.InputTag('mix','HGCDigisHEfront'),
                                  RecHitSrcEE  = cms.InputTag('HGCalRecHit','HGCEERecHits'),
                                  RecHitSrcHE  = cms.InputTag('HGCalRecHit','HGCHEFRecHits'),
-                                 MakeTree     = cms.untracked.bool(True)
+                                 DoTreeLayer  = cms.untracked.bool(True),
+                                 DoTreeCell   = cms.untracked.bool(True),
 )
