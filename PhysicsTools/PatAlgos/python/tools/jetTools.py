@@ -207,7 +207,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             print " Warning: To fully exploit the HIP mitigation for b tagging, please"
             print "          also enable the \'runIVF\' switch."
             print "-------------------------------------------------------------------"
-        if  not btagPrefix != '':
+        if btagPrefix == '':
             print "-------------------------------------------------------------------"
             print " Warning: With the HIP mitigation for b tagging enabled, it is"
             print "          safer to set \'btagPrefix\' to a non-empty string to"
