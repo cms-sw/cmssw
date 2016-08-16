@@ -64,8 +64,4 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadStripAnalyzer",
     )                            
 )
 
-print "**"
-print options.password
-print "**"
-
 process.p = cms.Path(process.Test1)
