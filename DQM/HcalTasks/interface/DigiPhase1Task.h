@@ -26,9 +26,7 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-class DigiPhase1Task : public DQTask
+class DigiPhase1Task : public hcaldqm::DQTask
 {
 	public:
 		DigiPhase1Task(edm::ParameterSet const&);
@@ -43,7 +41,7 @@ class DigiPhase1Task : public DQTask
 
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(UpdateFreq);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHO;
@@ -60,82 +58,82 @@ class DigiPhase1Task : public DQTask
 
 		//	emap
 		HcalElectronicsMap const* _emap;
-		electronicsmap::ElectronicsMap _ehashmap; // online only
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
 
 		//	Filters
-		HashFilter _filter_VME;
-		HashFilter _filter_uTCA;
-		HashFilter _filter_FEDHF;
-		HashFilter _filter_HF;
+		hcaldqm::filter::HashFilter _filter_VME;
+		hcaldqm::filter::HashFilter _filter_uTCA;
+		hcaldqm::filter::HashFilter _filter_FEDHF;
+		hcaldqm::filter::HashFilter _filter_HF;
 
-		/* Containers */
+		/* hcaldqm::Containers */
 		//	ADC, fC - Charge - just filling - no summary!
-		Container1D _cADC_SubdetPM;
-		Container1D _cfC_SubdetPM;
-		Container1D _cSumQ_SubdetPM;
-		ContainerProf2D	_cSumQ_depth;
-		ContainerProf1D _cSumQvsLS_SubdetPM;
-		ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
+		hcaldqm::Container1D _cADC_SubdetPM;
+		hcaldqm::Container1D _cfC_SubdetPM;
+		hcaldqm::Container1D _cSumQ_SubdetPM;
+		hcaldqm::ContainerProf2D	_cSumQ_depth;
+		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM;
+		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
 
 		//	Shape - just filling - not summary!
-		Container1D _cShapeCut_FED;
+		hcaldqm::Container1D _cShapeCut_FED;
 
 		//	Timing
 		//	just filling - no summary!
-		Container1D		_cTimingCut_SubdetPM;
-		ContainerProf2D _cTimingCut_FEDVME;
-		ContainerProf2D	_cTimingCut_FEDuTCA;
-		ContainerProf2D _cTimingCut_ElectronicsVME;
-		ContainerProf2D _cTimingCut_ElectronicsuTCA;
-		ContainerProf1D _cTimingCutvsLS_FED;
-		ContainerProf2D _cTimingCut_depth;
-		ContainerProf1D _cTimingCutvsiphi_SubdetPM;	// online only!
-		ContainerProf1D _cTimingCutvsieta_Subdet;	// online only!
+		hcaldqm::Container1D		_cTimingCut_SubdetPM;
+		hcaldqm::ContainerProf2D _cTimingCut_FEDVME;
+		hcaldqm::ContainerProf2D	_cTimingCut_FEDuTCA;
+		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsVME;
+		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
+		hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
+		hcaldqm::ContainerProf2D _cTimingCut_depth;
+		hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM;	// online only!
+		hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;	// online only!
 
 		//	Only for Online mode! just filling - no summary!
-		ContainerProf1D _cQ2Q12CutvsLS_FEDHF;	//	online only!
+		hcaldqm::ContainerProf1D _cQ2Q12CutvsLS_FEDHF;	//	online only!
 
 		//	Occupancy w/o a Cut - whatever is sitting in the DigiPhase1 Collection
 		//	used to determine Missing DigiPhase1s => used for Summary!
-		Container2D _cOccupancy_FEDVME;
-		Container2D _cOccupancy_FEDuTCA;
-		Container2D _cOccupancy_ElectronicsVME;
-		Container2D _cOccupancy_ElectronicsuTCA;
-		Container2D _cOccupancy_depth;
-		Container1D _cOccupancyvsiphi_SubdetPM; // online only
-		Container1D _cOccupancyvsieta_Subdet;	// online only
+		hcaldqm::Container2D _cOccupancy_FEDVME;
+		hcaldqm::Container2D _cOccupancy_FEDuTCA;
+		hcaldqm::Container2D _cOccupancy_ElectronicsVME;
+		hcaldqm::Container2D _cOccupancy_ElectronicsuTCA;
+		hcaldqm::Container2D _cOccupancy_depth;
+		hcaldqm::Container1D _cOccupancyvsiphi_SubdetPM; // online only
+		hcaldqm::Container1D _cOccupancyvsieta_Subdet;	// online only
 
 		//	Occupancy w/ a Cut
 		//	used to determine if occupancy is symmetric or not. =>
 		//	used for Summary
-		Container2D _cOccupancyCut_FEDVME;
-		Container2D _cOccupancyCut_FEDuTCA;
-		Container2D _cOccupancyCut_ElectronicsVME;
-		Container2D _cOccupancyCut_ElectronicsuTCA;
-		Container2D _cOccupancyCut_depth;
-		Container1D _cOccupancyCutvsiphi_SubdetPM; // online only
-		Container1D _cOccupancyCutvsieta_Subdet;	// online only
-		Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
-		Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
+		hcaldqm::Container2D _cOccupancyCut_FEDVME;
+		hcaldqm::Container2D _cOccupancyCut_FEDuTCA;
+		hcaldqm::Container2D _cOccupancyCut_ElectronicsVME;
+		hcaldqm::Container2D _cOccupancyCut_ElectronicsuTCA;
+		hcaldqm::Container2D _cOccupancyCut_depth;
+		hcaldqm::Container1D _cOccupancyCutvsiphi_SubdetPM; // online only
+		hcaldqm::Container1D _cOccupancyCutvsieta_Subdet;	// online only
+		hcaldqm::Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
+		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
 
 		//	Occupancy w/o and w/ a Cut vs BX and vs LS
-		ContainerProf1D _cOccupancyvsLS_Subdet;
-		ContainerProf1D _cOccupancyCutvsLS_Subdet;	// online only
-		ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only
+		hcaldqm::ContainerProf1D _cOccupancyvsLS_Subdet;
+		hcaldqm::ContainerProf1D _cOccupancyCutvsLS_Subdet;	// online only
+		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only
 
 		//	#Time Samples for a digi. Used for Summary generation
-		Container1D _cDigiSize_FED;
-		ContainerProf1D _cDigiSizevsLS_FED;	// online only
-		ContainerXXX<uint32_t> _xDigiSize; // online only
-		ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
-		ContainerXXX<uint32_t> _xNChs; // online only
-		ContainerXXX<uint32_t> _xNChsNominal; // online only
+		hcaldqm::Container1D _cDigiSize_FED;
+		hcaldqm::ContainerProf1D _cDigiSizevsLS_FED;	// online only
+		hcaldqm::ContainerXXX<uint32_t> _xDigiSize; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 
-		Container2D _cSummaryvsLS_FED; // online only
-		ContainerSingle2D _cSummaryvsLS; // online only
+		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
+		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 };
 
 #endif

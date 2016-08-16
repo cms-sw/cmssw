@@ -19,10 +19,7 @@
 #include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-using namespace hcaldqm::electronicsmap;
-class QIE10Task : public DQTask
+class QIE10Task : public hcaldqm::DQTask
 {
 	public:
 		QIE10Task(edm::ParameterSet const&);
@@ -35,7 +32,7 @@ class QIE10Task : public DQTask
 
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(UpdateFreq);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		//	tags
 		edm::InputTag	_tagQIE10;
@@ -48,44 +45,44 @@ class QIE10Task : public DQTask
 		int _ped;
 
 		//	filters
-		HashFilter _filter_C36;
-		HashFilter _filter_DA;
+		hcaldqm::filter::HashFilter _filter_C36;
+		hcaldqm::filter::HashFilter _filter_DA;
 
 		//	Electronics Maps/Hashes
 		HcalElectronicsMap const* _emap;
-		ElectronicsMap _ehashmap;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		
-		//	Containers
-		ContainerProf1D	_cShapeCut_EChannel;
-		Container2D	_cLETDCvsADC_EChannel[10];
-		Container2D	_cTETDCvsADC_EChannel[10];
-		Container1D _cLETDC_EChannel[10];
-		Container1D _cADC_EChannel[10];
-		Container2D _cOccupancy_depth;
+		//	hcaldqm::Containers
+		hcaldqm::ContainerProf1D	_cShapeCut_EChannel;
+		hcaldqm::Container2D	_cLETDCvsADC_EChannel[10];
+		hcaldqm::Container2D	_cTETDCvsADC_EChannel[10];
+		hcaldqm::Container1D _cLETDC_EChannel[10];
+		hcaldqm::Container1D _cADC_EChannel[10];
+		hcaldqm::Container2D _cOccupancy_depth;
 
 		//	Correlation Plots for 8 vs 10
-		Container2D _cADCCorrelation10vs8_DChannel[10];
-		ContainerSingle2D _cADCCorrelation10vs8;
-		Container2D _cfCCorrelation10vs8_DChannel[10];
-		ContainerSingle2D _cfCCorrelation10vs8;
+		hcaldqm::Container2D _cADCCorrelation10vs8_DChannel[10];
+		hcaldqm::ContainerSingle2D _cADCCorrelation10vs8;
+		hcaldqm::Container2D _cfCCorrelation10vs8_DChannel[10];
+		hcaldqm::ContainerSingle2D _cfCCorrelation10vs8;
 
 		//	Correaltion plots for 10 vs 10 - 2 PMTs only
-		ContainerSingle2D _cADCCorrelation10vs10_ieta30[10];
-		ContainerSingle2D _cADCCorrelation10vs10_ieta34[10];
-		ContainerSingle2D _cLETDCCorrelation10vs10_ieta30[10];
-		ContainerSingle2D _cLETDCCorrelation10vs10_ieta34[10];
-		ContainerSingle2D _cADCCorrelation10vs10;
-		ContainerSingle2D _cLETDCCorrelation10vs10;
-		ContainerSingle2D _cfCCorrelation10vs10_ieta30[10];
-		ContainerSingle2D _cfCCorrelation10vs10_ieta34[10];
-		ContainerSingle2D _cfCCorrelation10vs10;
+		hcaldqm::ContainerSingle2D _cADCCorrelation10vs10_ieta30[10];
+		hcaldqm::ContainerSingle2D _cADCCorrelation10vs10_ieta34[10];
+		hcaldqm::ContainerSingle2D _cLETDCCorrelation10vs10_ieta30[10];
+		hcaldqm::ContainerSingle2D _cLETDCCorrelation10vs10_ieta34[10];
+		hcaldqm::ContainerSingle2D _cADCCorrelation10vs10;
+		hcaldqm::ContainerSingle2D _cLETDCCorrelation10vs10;
+		hcaldqm::ContainerSingle2D _cfCCorrelation10vs10_ieta30[10];
+		hcaldqm::ContainerSingle2D _cfCCorrelation10vs10_ieta34[10];
+		hcaldqm::ContainerSingle2D _cfCCorrelation10vs10;
 
-		//	Containers overall
-		ContainerSingleProf1D	_cShapeCut;
-		ContainerSingle2D		_cLETDCvsADC;
-		ContainerSingle2D		_cTETDCvsADC;
-		ContainerSingle1D		_cLETDC;
-		ContainerSingle1D		_cADC;
+		//	hcaldqm::Containers overall
+		hcaldqm::ContainerSingleProf1D	_cShapeCut;
+		hcaldqm::ContainerSingle2D		_cLETDCvsADC;
+		hcaldqm::ContainerSingle2D		_cTETDCvsADC;
+		hcaldqm::ContainerSingle1D		_cLETDC;
+		hcaldqm::ContainerSingle1D		_cADC;
 };
 
 #endif

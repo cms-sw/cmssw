@@ -19,9 +19,7 @@
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
 
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-class UMNioTask : public DQTask
+class UMNioTask : public hcaldqm::DQTask
 {
 	public:
 		UMNioTask(edm::ParameterSet const&);
@@ -32,7 +30,7 @@ class UMNioTask : public DQTask
 			edm::Run const&, edm::EventSetup const&);
 		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
 		{
-			if (_ptype==fLocal)
+			if (_ptype==hcaldqm::fLocal)
 			{
 				if (r.runAuxiliary().run()==1)
 					return;
@@ -62,12 +60,12 @@ class UMNioTask : public DQTask
 
 		//	emap
 		HcalElectronicsMap const* _emap;
-		electronicsmap::ElectronicsMap _ehashmap;
-		HashFilter _filter_uTCA;
-		HashFilter _filter_VME;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
+		hcaldqm::filter::HashFilter _filter_uTCA;
+		hcaldqm::filter::HashFilter _filter_VME;
 
 		//	1D
-		ContainerSingle2D		_cEventType;
-		ContainerSingle2D		_cTotalCharge;
+		hcaldqm::ContainerSingle2D		_cEventType;
+		hcaldqm::ContainerSingle2D		_cTotalCharge;
 };
 #endif

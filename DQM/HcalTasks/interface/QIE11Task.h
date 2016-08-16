@@ -19,10 +19,7 @@
 #include "DQM/HcalCommon/interface/HashFilter.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-using namespace hcaldqm::electronicsmap;
-class QIE11Task : public DQTask
+class QIE11Task : public hcaldqm::DQTask
 {
 	public:
 		QIE11Task(edm::ParameterSet const&);
@@ -35,7 +32,7 @@ class QIE11Task : public DQTask
 
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(UpdateFreq);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		//	tags
 		edm::InputTag	_tagQIE11;
@@ -46,24 +43,24 @@ class QIE11Task : public DQTask
 		int _ped;
 
 		//	filters
-		HashFilter _filter_C36;
+		hcaldqm::filter::HashFilter _filter_C36;
 
 		//	Electronics Maps/Hashes
 		HcalElectronicsMap const* _emap;
-		ElectronicsMap _ehashmap;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		
-		//	Containers
-		ContainerProf1D	_cShapeCut_EChannel;
-		Container2D	_cTDCvsADC_EChannel[10];
-		Container1D _cTDC_EChannel[10];
-		Container1D _cADC_EChannel[10];
-		Container2D _cOccupancy_depth;
+		//	hcaldqm::Containers
+		hcaldqm::ContainerProf1D	_cShapeCut_EChannel;
+		hcaldqm::Container2D	_cTDCvsADC_EChannel[10];
+		hcaldqm::Container1D _cTDC_EChannel[10];
+		hcaldqm::Container1D _cADC_EChannel[10];
+		hcaldqm::Container2D _cOccupancy_depth;
 
-		//	Containers overall
-		ContainerSingleProf1D	_cShapeCut;
-		ContainerSingle2D		_cTDCvsADC;
-		ContainerSingle1D		_cTDC;
-		ContainerSingle1D		_cADC;
+		//	hcaldqm::Containers overall
+		hcaldqm::ContainerSingleProf1D	_cShapeCut;
+		hcaldqm::ContainerSingle2D		_cTDCvsADC;
+		hcaldqm::ContainerSingle1D		_cTDC;
+		hcaldqm::ContainerSingle1D		_cADC;
 };
 
 #endif

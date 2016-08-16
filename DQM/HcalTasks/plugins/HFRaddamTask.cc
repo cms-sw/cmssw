@@ -2,6 +2,9 @@
 #include "DQM/HcalTasks/interface/HFRaddamTask.h"
 
 using namespace hcaldqm;
+using namespace hcaldqm::constants;
+using namespace hcaldqm::filter;
+
 HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -82,8 +85,8 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps):
 	{
 		_vcShape.push_back(ContainerSingle1D(_name, 
 			"Shape",
-			new quantity::ValueQuantity(quantity::fTiming_TS),
-			new quantity::ValueQuantity(quantity::ffC_3000)));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000)));
 	}
 
 	DQTask::bookHistograms(ib, r, es);	

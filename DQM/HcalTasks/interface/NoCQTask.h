@@ -14,9 +14,7 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-class NoCQTask : public DQTask
+class NoCQTask : public hcaldqm::DQTask
 {
 	public:
 		NoCQTask(edm::ParameterSet const&);
@@ -31,7 +29,7 @@ class NoCQTask : public DQTask
 
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(UpdateFreq);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag _tagHBHE;
 		edm::InputTag _tagHO;
@@ -45,12 +43,12 @@ class NoCQTask : public DQTask
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 
 		HcalElectronicsMap const* _emap;
-		electronicsmap::ElectronicsMap _ehashmap;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
-		ContainerProf2D _cTimingCut_depth;
-		Container2D _cOccupancy_depth;
-		Container2D _cOccupancyCut_depth;
-		Container2D _cBadQuality_depth;
+		hcaldqm::ContainerProf2D _cTimingCut_depth;
+		hcaldqm::Container2D _cOccupancy_depth;
+		hcaldqm::Container2D _cOccupancyCut_depth;
+		hcaldqm::Container2D _cBadQuality_depth;
 };
 
 #endif
