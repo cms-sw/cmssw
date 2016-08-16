@@ -1,5 +1,8 @@
 #include "DQM/HcalTasks/interface/NoCQTask.h"
 
+using namespace hcaldqm;
+using namespace hcaldqm::constants;
+
 NoCQTask::NoCQTask(edm::ParameterSet const& ps) : 
 	DQTask(ps)
 {
@@ -32,25 +35,25 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) :
 	_emap = dbs->getHcalMapping();
 
 	_cTimingCut_depth.initialize(_name, "TimingCut", 
-		hashfunctions::fdepth,
-		new quantity::DetectorQuantity(quantity::fieta),
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fTiming_TS200));
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
 	_cOccupancy_depth.initialize(_name, "Occupancy",
-		hashfunctions::fdepth,
-		new quantity::DetectorQuantity(quantity::fieta),
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cOccupancyCut_depth.initialize(_name, "OccupancyCut",
-		hashfunctions::fdepth,
-		new quantity::DetectorQuantity(quantity::fieta),
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cBadQuality_depth.initialize(_name, "BadQuality",
-		hashfunctions::fdepth,
-		new quantity::DetectorQuantity(quantity::fieta),
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
 	_cOccupancy_depth.book(ib, _emap, _subsystem);
@@ -58,7 +61,7 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) :
 	_cBadQuality_depth.book(ib, _emap, _subsystem);
 }
 
-/* virtual */ void NoCQTask::_resetMonitors(UpdateFreq uf)
+/* virtual */ void NoCQTask::_resetMonitors(hcaldqm::UpdateFreq uf)
 {
 	DQTask::_resetMonitors(uf);
 }
@@ -98,13 +101,13 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) :
 	for (HBHEDigiCollection::const_iterator it=chbhe->begin(); it!=chbhe->end();
 		++it)
 	{
-		double sumQ = utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
+		double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
 		HcalDetId const& did = it->id();
 
 		_cOccupancy_depth.fill(did);
 		if (sumQ>_cutSumQ_HBHE)
 		{
-			double timing = utilities::aveTS<HBHEDataFrame>(*it, 2.5, 0,
+			double timing = hcaldqm::utilities::aveTS<HBHEDataFrame>(*it, 2.5, 0,
 				it->size()-1);
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCut_depth.fill(did, timing);
@@ -114,13 +117,13 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) :
 	for (HODigiCollection::const_iterator it=cho->begin(); it!=cho->end();
 		++it)
 	{
-		double sumQ = utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
+		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
 		HcalDetId const& did = it->id();
 
 		_cOccupancy_depth.fill(did);
 		if (sumQ>_cutSumQ_HO)
 		{
-			double timing = utilities::aveTS<HODataFrame>(*it, 8.5, 0,
+			double timing = hcaldqm::utilities::aveTS<HODataFrame>(*it, 8.5, 0,
 				it->size()-1);
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCut_depth.fill(did, timing);
@@ -130,13 +133,13 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) :
 	for (HFDigiCollection::const_iterator it=chf->begin(); it!=chf->end();
 		++it)
 	{
-		 double sumQ = utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size()-1);
+		 double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size()-1);
 		 HcalDetId const& did = it->id();
 
 		 _cOccupancy_depth.fill(did);
 		 if (sumQ>_cutSumQ_HF)
 		 {
-			 double timing = utilities::aveTS<HFDataFrame>(*it, 2.5, 0, it->size()-1);
+			 double timing = hcaldqm::utilities::aveTS<HFDataFrame>(*it, 2.5, 0, it->size()-1);
 			 _cOccupancyCut_depth.fill(did);
 			 _cTimingCut_depth.fill(did, timing);
 		 }

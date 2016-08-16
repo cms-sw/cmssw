@@ -44,9 +44,7 @@
 #include "DQM/HcalTasks/interface/TPRunSummary.h"
 #include "DQM/HcalTasks/interface/PedestalRunSummary.h"
 
-using namespace hcaldqm;
-
-class HcalOnlineHarvesting : public DQHarvester
+class HcalOnlineHarvesting : public hcaldqm::DQHarvester
 {
 	public:
 		HcalOnlineHarvesting(edm::ParameterSet const&);
@@ -72,7 +70,7 @@ class HcalOnlineHarvesting : public DQHarvester
 
 		//	flags to harvest...
 		std::vector<bool> _vmarks;
-		std::vector<DQClient*> _vsumgen;
+		std::vector<hcaldqm::DQClient*> _vsumgen;
 		std::vector<std::string> _vnames;
 
 		//	thresholds
@@ -83,9 +81,9 @@ class HcalOnlineHarvesting : public DQHarvester
 		int _nTotal;
 
 		//	summaries
-		std::vector<ContainerSingle2D> _vcSummaryvsLS;
+		std::vector<hcaldqm::ContainerSingle2D> _vcSummaryvsLS;
 
-		Container2D _cKnownBadChannels_depth;
+		hcaldqm::Container2D _cKnownBadChannels_depth;
 
 		//	reportSummaryMap
 		MonitorElement *_reportSummaryMap;

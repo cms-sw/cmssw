@@ -15,8 +15,7 @@
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle1D.h"
 
-using namespace hcaldqm;
-class HFRaddamTask : public DQTask
+class HFRaddamTask : public hcaldqm::DQTask
 {
 	public:
 		HFRaddamTask(edm::ParameterSet const&);
@@ -45,7 +44,7 @@ class HFRaddamTask : public DQTask
 		//	Compact
 
 		//	1D
-		std::vector<ContainerSingle1D> _vcShape;
+		std::vector<hcaldqm::ContainerSingle1D> _vcShape;
 };
 
 #endif

@@ -1,5 +1,9 @@
 #include "DQM/HcalTasks/interface/RawTask.h"
 
+
+using namespace hcaldqm;
+using namespace hcaldqm::constants;
+
 RawTask::RawTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -31,9 +35,9 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	edm::ESHandle<HcalDbService> dbs;
 	es.get<HcalDbRecord>().get(dbs);
 	_emap = dbs->getHcalMapping();
-	std::vector<int> vFEDs = utilities::getFEDList(_emap);
-	std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);
-	std::vector<int> vFEDsuTCA = utilities::getFEDuTCAList(_emap);
+	std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
+	std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
+	std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
 	std::vector<uint32_t> vVME;
 	std::vector<uint32_t> vuTCA;
 	std::vector<uint32_t> vhashFEDsVME;
@@ -42,9 +46,9 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 		constants::FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
 	vuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-	_filter_VME.initialize(filter::fFilter, hashfunctions::fElectronics,
+	_filter_VME.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vVME);
-	_filter_uTCA.initialize(filter::fFilter, hashfunctions::fElectronics,
+	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vuTCA);
 
 	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
@@ -61,93 +65,93 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 		it!=vFEDsuTCA.end(); ++it)
 	{
 		vhashFEDsuTCA.push_back(HcalElectronicsId(
-		utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+		hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
 		FIBERCH_MIN, false).rawId());
 		_vhashFEDs.push_back(HcalElectronicsId(
-		utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+		hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
 		FIBERCH_MIN, false).rawId());
 	}
 	_filter_FEDsVME.initialize(filter::fPreserver, 
-		hashfunctions::fFED, vhashFEDsVME);
+		hcaldqm::hashfunctions::fFED, vhashFEDsVME);
 	_filter_FEDsuTCA.initialize(filter::fPreserver,
-		hashfunctions::fFED, vhashFEDsuTCA);
+		hcaldqm::hashfunctions::fFED, vhashFEDsuTCA);
 
 	//	INITIALIZE FIRST
 	_cEvnMsm_ElectronicsVME.initialize(_name, "EvnMsm",
-		hashfunctions::fElectronics,
-		new quantity::FEDQuantity(vFEDsVME),
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fElectronics,
+		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cBcnMsm_ElectronicsVME.initialize(_name, "BcnMsm",
-		hashfunctions::fElectronics,
-		new quantity::FEDQuantity(vFEDsVME),
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fElectronics,
+		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cOrnMsm_ElectronicsVME.initialize(_name, "OrnMsm",
-		hashfunctions::fElectronics,
-		new quantity::FEDQuantity(vFEDsVME),
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fElectronics,
+		new hcaldqm::quantity::FEDQuantity(vFEDsVME),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cEvnMsm_ElectronicsuTCA.initialize(_name, "EvnMsm",
-		hashfunctions::fElectronics,
-		new quantity::FEDQuantity(vFEDsuTCA),
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fElectronics,
+		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cBcnMsm_ElectronicsuTCA.initialize(_name, "BcnMsm",
-		hashfunctions::fElectronics,
-		new quantity::FEDQuantity(vFEDsuTCA),
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fElectronics,
+		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cOrnMsm_ElectronicsuTCA.initialize(_name, "OrnMsm",
-		hashfunctions::fElectronics,
-		new quantity::FEDQuantity(vFEDsuTCA),
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fElectronics,
+		new hcaldqm::quantity::FEDQuantity(vFEDsuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 
 	//	Bad Quality
 	_cBadQuality_FEDVME.initialize(_name, "BadQuality",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cBadQuality_FEDuTCA.initialize(_name, "BadQuality",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cBadQualityvsLS.initialize(_name, "BadQualityvsLS",
-		new quantity::LumiSection(_maxLS),
-		new quantity::ValueQuantity(quantity::fN_m0to10000));
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_m0to10000));
 	_cBadQualityvsBX.initialize(_name, "BadQualityvsBX",
-		new quantity::ValueQuantity(quantity::fBX),
-		new quantity::ValueQuantity(quantity::fN_m0to10000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_m0to10000));
 	_cBadQuality_depth.initialize(_name, "BadQuality",
-		hashfunctions::fdepth,
-		new quantity::DetectorQuantity(quantity::fieta),
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 
 	//	INITIALIZE HISTOGRAMS to be used in Online Only
 	if (_ptype==fOnline)
 	{
-		_xEvnMsmLS.initialize(hashfunctions::fFED);
-		_xBcnMsmLS.initialize(hashfunctions::fFED);
-		_xOrnMsmLS.initialize(hashfunctions::fFED);
-		_xBadQLS.initialize(hashfunctions::fFED);
+		_xEvnMsmLS.initialize(hcaldqm::hashfunctions::fFED);
+		_xBcnMsmLS.initialize(hcaldqm::hashfunctions::fFED);
+		_xOrnMsmLS.initialize(hcaldqm::hashfunctions::fFED);
+		_xBadQLS.initialize(hcaldqm::hashfunctions::fFED);
 		_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
-			hashfunctions::fFED,
-			new quantity::LumiSection(_maxLS),
-			new quantity::FlagQuantity(_vflags),
-			new quantity::ValueQuantity(quantity::fState));
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::LumiSection(_maxLS),
+			new hcaldqm::quantity::FlagQuantity(_vflags),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState));
 		_cSummaryvsLS.initialize(_name, "SummaryvsLS",
-			new quantity::LumiSection(_maxLS),
-			new quantity::FEDQuantity(vFEDs),
-			new quantity::ValueQuantity(quantity::fState));
+			new hcaldqm::quantity::LumiSection(_maxLS),
+			new hcaldqm::quantity::FEDQuantity(vFEDs),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState));
 		//	FED Size vs LS
 		_cDataSizevsLS_FED.initialize(_name, "DataSizevsLS",
-			hashfunctions::fFED,
-			new quantity::LumiSection(_maxLS),
-			new quantity::ValueQuantity(quantity::fDataSize));
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::LumiSection(_maxLS),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDataSize));
 	}
 
 	//	BOOK HISTOGRAMS
@@ -191,7 +195,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	_ehashmap.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap);
 }
 
-/* virtual */ void RawTask::_resetMonitors(UpdateFreq uf)
+/* virtual */ void RawTask::_resetMonitors(hcaldqm::UpdateFreq uf)
 {
 	//	base reset
 	DQTask::_resetMonitors(uf);
@@ -354,7 +358,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 			/* online only */
 			if (_ptype==fOnline)
 			{
-				HcalElectronicsId eid = HcalElectronicsId(utilities::fed2crate(fed),
+				HcalElectronicsId eid = HcalElectronicsId(hcaldqm::utilities::fed2crate(fed),
 					SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false);
 				if (_filter_FEDsuTCA.filter(eid))
 					continue;
@@ -452,8 +456,8 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 		}
 
 		//	FED is @cDAQ
-		if (utilities::isFEDHBHE(eid) || utilities::isFEDHF(eid) ||
-			utilities::isFEDHO(eid))
+		if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHF(eid) ||
+			hcaldqm::utilities::isFEDHO(eid))
 		{
 			if (_xEvnMsmLS.get(eid)>0)
 				_vflags[fEvnMsm]._state = flag::fBAD;

@@ -2,6 +2,7 @@
 #include "DQM/HcalTasks/interface/UMNioTask.h"
 
 using namespace hcaldqm;
+using namespace hcaldqm::constants;
 UMNioTask::UMNioTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -45,13 +46,13 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps):
 	_emap = dbService->getHcalMapping();
 
 	_cEventType.initialize(_name, "EventType",
-		new quantity::LumiSection(_maxLS),
-		new quantity::EventType(_eventtypes),
-		new quantity::ValueQuantity(quantity::fN));
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::EventType(_eventtypes),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cTotalCharge.initialize(_name, "TotalCharge",
-		new quantity::LumiSection(_maxLS),
-		new quantity::DetectorQuantity(quantity::fSubdetPM),
-		new quantity::ValueQuantity(quantity::ffC_10000, true));
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fSubdetPM),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000, true));
 	_cEventType.book(ib, _subsystem);
 	_cTotalCharge.book(ib, _subsystem);
 }
@@ -86,19 +87,19 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps):
 	for (HBHEDigiCollection::const_iterator it=chbhe->begin();
 		it!=chbhe->end(); ++it)
 	{
-		double sumQ = utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
+		double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
 		_cTotalCharge.fill(it->id(), _currentLS, sumQ);
 	}
 	for (HODigiCollection::const_iterator it=cho->begin();
 		it!=cho->end(); ++it)
 	{
-		double sumQ = utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
+		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
 		_cTotalCharge.fill(it->id(), _currentLS, sumQ);
 	}
 	for (HFDigiCollection::const_iterator it=chf->begin();
 		it!=chf->end(); ++it)
 	{
-		double sumQ = utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size()-1);
+		double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size()-1);
 		_cTotalCharge.fill(it->id(), _currentLS, sumQ);
 	}
 }

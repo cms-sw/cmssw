@@ -2,6 +2,7 @@
 #include "DQM/HcalTasks/interface/QIE11Task.h"
 
 using namespace hcaldqm;
+using namespace hcaldqm::constants;
 QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -31,43 +32,43 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	std::vector<uint32_t> vhashC36;
 	vhashC36.push_back(HcalElectronicsId(36, 4,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-	_filter_C36.initialize(filter::fPreserver, hashfunctions::fCrateSlot,
+	_filter_C36.initialize(filter::fPreserver, hcaldqm::hashfunctions::fCrateSlot,
 		vhashC36);
 
 	//	INITIALIZE what you need
 	_cShapeCut_EChannel.initialize(_name,
-		"ShapeCut", hashfunctions::fEChannel,
-		new quantity::ValueQuantity(quantity::fTiming_TS),
-		new quantity::ValueQuantity(quantity::fQIE10fC_300000));
+		"ShapeCut", hcaldqm::hashfunctions::fEChannel,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
 	_cShapeCut.initialize(_name,
 		"ShapeCut", 
-		new quantity::ValueQuantity(quantity::fTiming_TS),
-		new quantity::ValueQuantity(quantity::fQIE10fC_300000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
 	_cTDCvsADC.initialize(_name, "TDCvsADC",
-		new quantity::ValueQuantity(quantity::fQIE10ADC_256),
-		new quantity::ValueQuantity(quantity::fQIE10TDC_64),
-		new quantity::ValueQuantity(quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cTDC.initialize(_name, "TDC",
-		new quantity::ValueQuantity(quantity::fQIE10TDC_64),
-		new quantity::ValueQuantity(quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cADC.initialize(_name, "ADC",
-		new quantity::ValueQuantity(quantity::fQIE10ADC_256),
-		new quantity::ValueQuantity(quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	for (unsigned int j=0; j<10; j++)
 	{
 		_cTDCvsADC_EChannel[j].initialize(_name,
-			"TDCvsADC", hashfunctions::fEChannel,
-			new quantity::ValueQuantity(quantity::fQIE10ADC_256),
-			new quantity::ValueQuantity(quantity::fQIE10TDC_64),
-			new quantity::ValueQuantity(quantity::fN, true));
+			"TDCvsADC", hcaldqm::hashfunctions::fEChannel,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 		_cADC_EChannel[j].initialize(_name,
-			"ADC", hashfunctions::fEChannel,
-			new quantity::ValueQuantity(quantity::fQIE10ADC_256),
-			new quantity::ValueQuantity(quantity::fN, true));
+			"ADC", hcaldqm::hashfunctions::fEChannel,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 		_cTDC_EChannel[j].initialize(_name,
-			"TDC", hashfunctions::fEChannel,
-			new quantity::ValueQuantity(quantity::fQIE10TDC_64),
-			new quantity::ValueQuantity(quantity::fN, true));
+			"TDC", hcaldqm::hashfunctions::fEChannel,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	}
 
 	_cShapeCut_EChannel.book(ib, _emap, _filter_C36, _subsystem);
@@ -109,7 +110,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
 
 		//	compute the signal, ped subracted
-//		double q = utilities::aveTS_v10<QIE11DataFrame>(frame,
+//		double q = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(frame,
 //			constants::adc2fC[_ped], 0, frame.samples()-1);
 
 		//	iterate thru all TS and fill
@@ -133,7 +134,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	}
 }
 
-/* virtual */ void QIE11Task::_resetMonitors(UpdateFreq)
+/* virtual */ void QIE11Task::_resetMonitors(hcaldqm::UpdateFreq)
 {
 }
 
