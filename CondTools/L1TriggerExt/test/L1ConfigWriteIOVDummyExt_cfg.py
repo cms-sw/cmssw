@@ -53,6 +53,18 @@ else:
     from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
     initL1O2OTagsExt()
     tagBaseVec = initL1O2OTagsExt.tagBaseVec
+
+##
+#process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
+#process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndcap2')
+#process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(
+#    cms.PSet(
+#        record = cms.string('L1TMuonEndcapParamsO2ORcd'),
+#        type = cms.string('L1TMuonEndCapParams'),
+#        key = cms.string('EMTF_ALGO_PTLUTv4')
+#    )
+#)
+
     
 # writer modules
 from CondTools.L1TriggerExt.L1CondDBIOVWriterExt_cff import initIOVWriterExt
@@ -86,4 +98,3 @@ process.outputDB = cms.ESSource("PoolDBESSource",
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
 process.p = cms.Path(process.L1CondDBIOVWriterExt)
-
