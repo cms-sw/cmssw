@@ -223,13 +223,6 @@ triggerTable = {
         "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*",
         "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*",
     ],
-    "ttHhardonicAll" : [
-        "HLT_PFHT450_SixJet40_BTagCSV_p056_v*",
-        "HLT_PFHT450_SixJet40_v*",
-        "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_v*",
-        "HLT_PFHT400_SixJet30_v*",
-        "HLT_PFHT350_v*",
-    ],
     "ttH_FH" : [
         "HLT_PFHT450_SixJet40_BTagCSV_p056_v*",
         "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_v*",
