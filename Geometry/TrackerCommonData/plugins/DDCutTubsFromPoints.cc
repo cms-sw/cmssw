@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 #include "Geometry/TrackerCommonData/plugins/DDCutTubsFromPoints.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -29,9 +30,13 @@ void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
   r_min = nArgs["rMin"];
   r_max = nArgs["rMax"];
   
-  std::vector<double> phis = vArgs["Phi"];
-  std::vector<double> z_ls = vArgs["z_l"];
-  std::vector<double> z_ts = vArgs["z_t"];
+  // TODO: these are names now, read them using DDVectorGetter::get
+  auto phis_name = DDName(sArgs["Phi"]);
+  auto z_ls_name = DDName(sArgs["z_l"]);
+  auto z_ts_name = DDName(sArgs["z_t"]);
+  DDVector phis(phis_name);
+  DDVector z_ls(z_ls_name);
+  DDVector z_ts(z_ts_name);
 
   assert(phis.size() == z_ls.size());
   assert(phis.size() == z_ts.size());

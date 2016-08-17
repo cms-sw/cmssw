@@ -23,15 +23,9 @@
   <String  name="SolidName"        value="PixelForwardInnerDiskOuterRing"/> 
   <Numeric name="rMin"             value="[OuterRingRMin]"/>
   <Numeric name="rMax"             value="[OuterRingRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="12">
-  1.519*rad,1.657*rad,1.657*rad,1.932*rad,2.762*rad,2.960*rad,3.368*rad,3.531*rad,4.210*rad,4.626*rad,4.626*rad,4.764*rad
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="12">
-   -336*mm,  -336*mm,  -345*mm,  -347*mm,  -357*mm,  -358*mm,  -345*mm,  -347*mm,  -359*mm,  -364*mm,  -364*mm,  -357*mm
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="12">
-   -322*mm,  -315*mm,  -315*mm,  -315*mm,  -328*mm,  -328*mm,  -315*mm,  -315*mm,  -329*mm,  -333*mm,  -340*mm,  -340*mm
-  </Vector>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:InnerDiskOuterRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:InnerDiskOuterRing_z_t_Minus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:InnerDiskOuterRing_z_l_Minus"/>
   <!-- min: -364 max: -315 width: 49 -->
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
@@ -39,32 +33,19 @@
   <String  name="SolidName"        value="PixelForwardInnerDiskCFOuterRing"/> 
   <Numeric name="rMin"             value="[OuterRingCFRMin]"/>
   <Numeric name="rMax"             value="[OuterRingCFRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="12">
-  1.519*rad,1.657*rad,1.657*rad,1.932*rad,2.762*rad,2.960*rad,3.368*rad,3.531*rad,4.210*rad,4.626*rad,4.626*rad,4.764*rad
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="12">
-   -336*mm,  -336*mm,  -345*mm,  -347*mm,  -357*mm,  -358*mm,  -345*mm,  -347*mm,  -359*mm,  -364*mm,  -364*mm,  -357*mm
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="12">
-   -322*mm,  -315*mm,  -315*mm,  -315*mm,  -328*mm,  -328*mm,  -315*mm,  -315*mm,  -329*mm,  -333*mm,  -340*mm,  -340*mm
-  </Vector>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:InnerDiskOuterRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:InnerDiskOuterRing_z_t_Minus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:InnerDiskOuterRing_z_l_Minus"/>
   <!-- min: -364 max: -315 width: 49 -->
 </Algorithm>
-
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardInnerDiskInnerRing"/> 
   <Numeric name="rMin"             value="[InnerRingRMin]"/>
   <Numeric name="rMax"             value="[InnerRingRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="9">
-  1.412*rad,2.180*rad,2.524*rad,2.792*rad,3.221*rad,3.221*rad,3.576*rad,4.284*rad,4.871*rad
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="9">
-   -315*mm,  -332*mm,  -338*mm,  -338*mm,  -338*mm,  -330*mm,  -330*mm,  -343*mm,  -343*mm
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="9">
-   -300*mm,  -300*mm,  -306*mm,  -311*mm,  -305*mm,  -305*mm,  -300*mm,  -313*mm,  -327*mm
-  </Vector>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:InnerDiskInnerRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:InnerDiskInnerRing_z_t_Minus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:InnerDiskInnerRing_z_l_Minus"/>
   <!-- min: -343 max: -300 width: 43 -->
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
@@ -72,15 +53,9 @@
   <String  name="SolidName"        value="PixelForwardInnerDiskCFInnerRing"/> 
   <Numeric name="rMin"             value="[InnerRingCFRMin]"/>
   <Numeric name="rMax"             value="[InnerRingCFRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="9">
-  1.412*rad,2.180*rad,2.524*rad,2.792*rad,3.221*rad,3.221*rad,3.576*rad,4.284*rad,4.871*rad
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="9">
-   -315*mm,  -332*mm,  -338*mm,  -338*mm,  -338*mm,  -330*mm,  -330*mm,  -343*mm,  -343*mm
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="9">
-   -300*mm,  -300*mm,  -306*mm,  -311*mm,  -305*mm,  -305*mm,  -300*mm,  -313*mm,  -327*mm
-  </Vector>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:InnerDiskInnerRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:InnerDiskInnerRing_z_t_Minus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:InnerDiskInnerRing_z_l_Minus"/>
   <!-- min: -343 max: -300 width: 43 -->
 </Algorithm>
  

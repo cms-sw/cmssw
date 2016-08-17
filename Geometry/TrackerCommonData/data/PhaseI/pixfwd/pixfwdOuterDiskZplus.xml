@@ -23,74 +23,49 @@
      array. The z values are only considered relatively, the object will be 
      centered around the origin and has to be placed using a PosPart tag.
      There are two instances each, for the Core and Skin (CF), which use the
-     same parameters. TODO: find a way to factor them out.
+     same parameters. The parameters are not defined in-place, but names are
+     passed, which are defined in a different file, to avoid duplication.
 --> 
 <Algorithm name="track:DDCutTubsFromPoints">
-  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskOuterRing"/> 
   <Numeric name="rMin"             value="[OuterRingRMin]"/>
   <Numeric name="rMax"             value="[OuterRingRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="13">
-  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.688*rad
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="13">
-    308*mm,   310*mm,   317*mm,   324*mm,   331*mm,   329*mm,   318*mm,   323*mm,   329*mm,   335*mm,   330*mm,   330*mm,   325*mm
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="13">
-    298*mm,   291*mm,   291*mm,   291*mm,   300*mm,   303*mm,   291*mm,   291*mm,   294*mm,   304*mm,   305*mm,   310*mm,   313*mm
-  </Vector>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_l_Plus"/>
   <!-- min: -335 max: -291 width: 44 -->
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
-  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRing"/> 
   <Numeric name="rMin"             value="[OuterRingCFRMin]"/>
   <Numeric name="rMax"             value="[OuterRingCFRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="13">
-  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.688*rad
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="13">
-    308*mm,   310*mm,   317*mm,   324*mm,   331*mm,   329*mm,   318*mm,   323*mm,   329*mm,   335*mm,   330*mm,   330*mm,   325*mm
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="13">
-    298*mm,   291*mm,   291*mm,   291*mm,   300*mm,   303*mm,   291*mm,   291*mm,   294*mm,   304*mm,   305*mm,   310*mm,   313*mm
-  </Vector>
-  <!-- min: -335 max: -291 width: 44 -->
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_l_Plus"/>
 </Algorithm>
-
 <Algorithm name="track:DDCutTubsFromPoints">
-  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskInnerRing"/> 
   <Numeric name="rMin"             value="[InnerRingRMin]"/>
   <Numeric name="rMax"             value="[InnerRingRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="12">
-  1.525*rad,1.628*rad,1.947*rad,2.487*rad,2.862*rad,3.119*rad,3.323*rad,3.323*rad,3.619*rad,4.115*rad,4.597*rad,4.770*rad
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="12">
-    475*mm,   483*mm,   484*mm,   491*mm,   492*mm,   479*mm,   478*mm,   481*mm,   485*mm,   495*mm,   499*mm,   493*mm
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="12">
-    466*mm,   461*mm,   461*mm,   470*mm,   470*mm,   462*mm,   461*mm,   461*mm,   461*mm,   471*mm,   477*mm,   486*mm
-  </Vector>
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_l_Plus"/>
   <!-- min: -499 max: -461 width: 38 -->
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
-  <rParent name="pixfwdDisks:PixelForwardDisk2"/>
+  <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRing"/> 
   <Numeric name="rMin"             value="[InnerRingCFRMin]"/>
   <Numeric name="rMax"             value="[InnerRingCFRMax]"/>
-  <Vector  name="Phi" type="numeric" nEntries="12">
-  1.525*rad,1.628*rad,1.947*rad,2.487*rad,2.862*rad,3.119*rad,3.323*rad,3.323*rad,3.619*rad,4.115*rad,4.597*rad,4.770*rad
-  </Vector>
-  <Vector  name="z_t" type="numeric" nEntries="12">
-    475*mm,   483*mm,   484*mm,   491*mm,   492*mm,   479*mm,   478*mm,   481*mm,   485*mm,   495*mm,   499*mm,   493*mm
-  </Vector>
-  <Vector  name="z_l" type="numeric" nEntries="12">
-    466*mm,   461*mm,   461*mm,   470*mm,   470*mm,   462*mm,   461*mm,   461*mm,   461*mm,   471*mm,   477*mm,   486*mm
-  </Vector>
-  <!-- min: -499 max: -461 width: 38 -->
+  <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
+  <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_t_Plus"/>
+  <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_l_Plus"/>
 </Algorithm>
- 
+
+
 <LogicalPartSection label="pixfwdOuterDiskZplus.xml">
  <LogicalPart name="PixelForwardOuterDiskInnerRing" category="support">
   <rSolid name="PixelForwardOuterDiskInnerRing"/>
