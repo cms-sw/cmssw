@@ -332,6 +332,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                         rms = p[i]->GetRMS();
                     else
                         rms = findRMS(files[i], var, axis, relative, pull);
+                }
                 cout << "RMS     = " << rms;
                 meanrms << "rms = " << rms;
                 if (legendOptions.Contains("rmserror"))

@@ -20,7 +20,7 @@ class PreexistingValidation(GenericValidation):
         self.config = config
         self.filesToCompare = {}
 
-        defaults = {"title": self.name, "jobid": "", "subdetector": "BPIX"}
+        defaults = {"title": self.name, "jobid": ""}
         defaults.update(addDefaults)
         mandatories = ["file", "color", "style"]
         mandatories += addMandatories
@@ -131,8 +131,10 @@ class PreexistingOfflineValidation(PreexistingValidation):
 class PreexistingTrackSplittingValidation(PreexistingValidation):
     def __init__(self, valName, config,
                  addDefaults = {}, addMandatories=[]):
+        defaults = {"subdetector": "BPIX"}
+        defaults.update(addDefaults)
         PreexistingValidation.__init__(self, valName, config, "split",
-                                       addDefaults, addMandatories)
+                                       defaults, addMandatories)
     def appendToExtendedValidation( self, validationsSoFar = "" ):
         """
         if no argument or "" is passed a string with an instantiation is

@@ -11,7 +11,7 @@ from TkAlExceptions import AllInOneError
 class GenericValidation:
     defaultReferenceName = "DEFAULT"
     def __init__(self, valName, alignment, config, valType,
-                 addDefaults = {}, addMandatories=[]):
+                 addDefaults = {}, addMandatories=[], addneedpackages=[]):
         import random
         self.name = valName
         self.alignmentToValidate = alignment
@@ -28,6 +28,8 @@ class GenericValidation:
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories
+        needpackages = ["Alignment/OfflineValidation"]
+        needpackages += addneedpackages
         theUpdate = config.getResultingSection(valType+":"+self.name,
                                                defaultDict = defaults,
                                                demandPars = mandatories)
@@ -66,6 +68,16 @@ class GenericValidation:
             self.scramarch = commandoutput[1]
             self.cmsswreleasebase = commandoutput[2]
 
+        self.packages = {}
+        for package in self.needpackages:
+            for placetolook in self.cmssw, self.cmsswreleasebase:
+                pkgpath = os.path.join(placetolook, "src", package)
+                if os.path.exists(pkgpath):
+                    self.packages[package] = pkgpath
+                    break
+            else:
+                raise AllInOneError("Package {} does not exist in {} or {}!".format(package, self.cmssw, self.cmsswreleasebase))
+
         self.AutoAlternates = True
         if config.has_option("alternateTemplates","AutoAlternates"):
             try:
@@ -99,6 +111,7 @@ class GenericValidation:
                 "condLoad": alignment.getConditions(),
                 "condLoad": alignment.getConditions(),
                 })
+        result.update(self.packages)
         return result
 
     def getCompareStrings( self, requestId = None, plain = False ):

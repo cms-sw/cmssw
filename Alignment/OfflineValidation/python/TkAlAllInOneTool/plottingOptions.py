@@ -7,7 +7,7 @@ from TkAlExceptions import AllInOneError
 
 
 class BasePlottingOptions(object):
-    def __init__(self, config, valType, addDefaults = {}, addMandatories=[]):
+    def __init__(self, config, valType, addDefaults = {}, addMandatories=[], addneedpackages=[]):
         import random
         self.type = valType
         self.general = config.getGeneral()
@@ -26,12 +26,12 @@ class BasePlottingOptions(object):
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories
+        needpackages = ["Alignment/OfflineValidation"]
+        needpackages += addneedpackages
         theUpdate = config.getResultingSection("plots:"+self.type,
                                                defaultDict = defaults,
                                                demandPars = mandatories)
         self.general.update(theUpdate)
-
-
 
         self.cmssw = self.general["cmssw"]
         badcharacters = r"\'"
@@ -56,7 +56,14 @@ class BasePlottingOptions(object):
             self.scramarch = commandoutput[1]
             self.cmsswreleasebase = commandoutput[2]
 
-
+        for package in needpackages:
+            for placetolook in self.cmssw, self.cmsswreleasebase:
+                pkgpath = os.path.join(placetolook, "src", package)
+                if os.path.exists(pkgpath):
+                    self.general[package] = pkgpath
+                    break
+            else:
+                raise AllInOneError("Package {} does not exist in {} or {}!".format(package, self.cmssw, self.cmsswreleasebase))
 
         self.general["publicationstatus"] = self.general["publicationstatus"].upper()
         self.general["era"] = self.general["era"].upper()

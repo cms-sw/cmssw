@@ -269,8 +269,8 @@ def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
     theFile.close()
     
 def createMergeZmumuPlotsScript(zMuMuValidationList, outFilePath):
-    repMap = zMuMuValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
+    config = zMuMuValidationList[0].config
+    repMap = PlottingOptions(config, "zmumu")
     repMap[ "mergeZmumuPlotsInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
 
     for validation in zMuMuValidationList:
@@ -284,7 +284,8 @@ def createMergeScript( path, validations ):
     if(len(validations) == 0):
         raise AllInOneError("Cowardly refusing to merge nothing!")
 
-    repMap = validations[0].getRepMap() #FIXME - not nice this way
+    config = validations[0].config
+    repMap = config.getGeneral()
     repMap.update({
             "DownloadData":"",
             "CompareAlignments":"",
@@ -347,7 +348,7 @@ def createMergeScript( path, validations ):
         repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
         createOfflineParJobsMergeScript( comparisonLists["OfflineValidation"],
                                          repMap["mergeOfflineParJobsScriptPath"] )
-        repMap["copyMergeScripts"] += ("cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C .\n"
+        repMap["copyMergeScripts"] += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
                                        "rfcp %s .\n" % repMap["mergeOfflineParJobsScriptPath"])
 
     if anythingToMerge:
@@ -363,36 +364,44 @@ def createMergeScript( path, validations ):
         createExtendedValidationScript(comparisonLists["OfflineValidation"],
                                        repMap["extendedValScriptPath"],
                                        "OfflineValidation")
+        repMap_offline = repMap.copy()
+        repMap_offline.update(PlottingOptions(config, "offline"))
         repMap["RunExtendedOfflineValidation"] = \
-            replaceByMap(configTemplates.extendedValidationExecution, repMap)
+            replaceByMap(configTemplates.extendedValidationExecution, repMap_offline)
 
     if "TrackSplittingValidation" in comparisonLists:
         repMap["trackSplitPlotScriptPath"] = \
             os.path.join(path, "TkAlTrackSplitPlot.C")
         createTrackSplitPlotScript(comparisonLists["TrackSplittingValidation"],
                                        repMap["trackSplitPlotScriptPath"] )
+        repMap_split = repMap.copy()
+        repMap_split.update(PlottingOptions(config, "split"))
         repMap["RunTrackSplitPlot"] = \
-            replaceByMap(configTemplates.trackSplitPlotExecution, repMap)
+            replaceByMap(configTemplates.trackSplitPlotExecution, repMap_split)
 
     if "ZMuMuValidation" in comparisonLists:
         repMap["mergeZmumuPlotsScriptPath"] = \
             os.path.join(path, "TkAlMergeZmumuPlots.C")
         createMergeZmumuPlotsScript(comparisonLists["ZMuMuValidation"],
                                        repMap["mergeZmumuPlotsScriptPath"] )
+        repMap_zMuMu = repMap.copy()
+        repMap_zMuMu.update(PlottingOptions(config, "zMuMu"))
         repMap["MergeZmumuPlots"] = \
-            replaceByMap(configTemplates.mergeZmumuPlotsExecution, repMap)
+            replaceByMap(configTemplates.mergeZmumuPlotsExecution, repMap_zMuMu)
 
     repMap["CompareAlignments"] = "#run comparisons"
     if "OfflineValidation" in comparisonLists:
         compareStrings = [ val.getCompareStrings("OfflineValidation") for val in comparisonLists["OfflineValidation"] ]
         compareStringsPlain = [ val.getCompareStrings("OfflineValidation", plain=True) for val in comparisonLists["OfflineValidation"] ]
             
-        repMap.update({"validationId": "OfflineValidation",
+        repMap_offline = repMap.copy()
+        repMap_offline.update(PlottingOptions(config, "offline"))
+        repMap_offline.update({"validationId": "OfflineValidation",
                        "compareStrings": " , ".join(compareStrings),
                        "compareStringsPlain": " ".join(compareStringsPlain) })
         
         repMap["CompareAlignments"] += \
-            replaceByMap(configTemplates.compareAlignmentsExecution, repMap)
+            replaceByMap(configTemplates.compareAlignmentsExecution, repMap_offline)
       
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )
