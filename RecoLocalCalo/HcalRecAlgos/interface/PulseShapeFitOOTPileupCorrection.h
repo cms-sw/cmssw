@@ -48,7 +48,9 @@ namespace FitterFuncs{
      void setpsFiterry (double *erry  ){ for(int i=0; i<HcalConst::maxSamples; ++i) psFit_erry  [i] = erry [i]; }
      void setpsFiterry2(double *erry2 ){ for(int i=0; i<HcalConst::maxSamples; ++i) psFit_erry2 [i] = erry2[i]; }
      void setpsFitslew (double *slew  ){ for(int i=0; i<HcalConst::maxSamples; ++i) {psFit_slew [i] = slew [i]; } }
-     double sigma(double ifC);
+     double sigmaHPDQIE8(double ifC);
+     double sigmaSiPMQIE10(double ifC);
+
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
      double triplePulseShapeFunc( const double *x );
@@ -118,7 +120,7 @@ public:
 
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
-		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, bool) const;
+		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise) const;
     void fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,
 	     const double  &iTSTOTen,double *iEnArr,int (&iBX)[3]) const;
 
