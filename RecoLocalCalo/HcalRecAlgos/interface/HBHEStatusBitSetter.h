@@ -5,18 +5,20 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-class HBHEStatusBitSetter
-{
+class HBHEStatusBitSetter {
 public:
+  HBHEStatusBitSetter();
   HBHEStatusBitSetter(double nominalPedestal,double hitEnergyMinimum,int hitMultiplicityThreshold,const std::vector<edm::ParameterSet>& pulseShapeParameterSets);
   ~HBHEStatusBitSetter();
 
+  void SetFrontEndMap(const HcalFrontEndMap* m); 
   void Clear();
   void setTopo(const HcalTopology* topo);
   void SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame& digi,
@@ -31,7 +33,7 @@ private:
   double hitEnergyMinimum_;
   int hitMultiplicityThreshold_;
   double nominalPedestal_;
-  HcalLogicalMap *logicalMap_;
+  const HcalFrontEndMap *frontEndMap_;
   std::vector<int> hpdMultiplicity_;
   std::vector< std::vector<double> > pulseShapeParameters_;
 };
