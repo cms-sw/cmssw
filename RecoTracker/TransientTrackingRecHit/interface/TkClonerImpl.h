@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
@@ -15,7 +16,10 @@ public:
   TkClonerImpl(const PixelClusterParameterEstimator * ipixelCPE,
 	       const StripClusterParameterEstimator * istripCPE,
 	       const SiStripRecHitMatcher           * iMatcher
-	       ): pixelCPE(ipixelCPE), stripCPE(istripCPE), theMatcher(iMatcher){}
+	       ): pixelCPE(ipixelCPE), stripCPE(istripCPE), theMatcher(iMatcher), phase2TrackerCPE(0){}
+  TkClonerImpl(const PixelClusterParameterEstimator * ipixelCPE,
+	       const ClusterParameterEstimator<Phase2TrackerCluster1D> * iPhase2OTCPE
+	       ): pixelCPE(ipixelCPE), stripCPE(0), theMatcher(0), phase2TrackerCPE(iPhase2OTCPE){}
 
   using TkCloner::operator();
   virtual std::unique_ptr<SiPixelRecHit> operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const override;
@@ -42,6 +46,7 @@ private:
   const PixelClusterParameterEstimator * pixelCPE;
   const StripClusterParameterEstimator * stripCPE;
   const SiStripRecHitMatcher           * theMatcher;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D> * phase2TrackerCPE;
 
 
 };

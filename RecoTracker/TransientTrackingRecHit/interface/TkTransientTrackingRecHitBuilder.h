@@ -37,7 +37,12 @@ class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBui
   const TrackingGeometry               * geometry() const  { return tGeometry_;}
 
   // for the time being here...
-  TkClonerImpl cloner() const { return TkClonerImpl(pixelCPE,stripCPE,theMatcher);}
+  TkClonerImpl cloner() const { 
+    if(phase2OTCPE == 0)
+      return TkClonerImpl(pixelCPE,stripCPE,theMatcher);
+    else
+      return TkClonerImpl(pixelCPE,phase2OTCPE);
+  }
 
 private:
 
