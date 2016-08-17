@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.MixedTripletStep_cff as _standard
+from FastSimulation.Tracking.SeedingMigration import _regionProducerToFactoryPSet, _hitSetProducerToFactoryPSet
 
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
@@ -12,20 +13,20 @@ mixedTripletStepMasks.oldHitRemovalInfo = cms.InputTag("pixelPairStepMasks")
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.mixedTripletStepSeedLayersA.layerList.value(),
-    RegionFactoryPSet = _standard.mixedTripletStepSeedsA.RegionFactoryPSet,
+    RegionFactoryPSet = _regionProducerToFactoryPSet(_standard.mixedTripletStepTrackingRegionsA),
     hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
-mixedTripletStepSeedsA.seedFinderSelector.pixelTripletGeneratorFactory = _standard.mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet
+mixedTripletStepSeedsA.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(_standard.mixedTripletStepHitTripletsA)
 
 
 ###
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     layerList = _standard.mixedTripletStepSeedLayersB.layerList.value(),
-    RegionFactoryPSet = _standard.mixedTripletStepSeedsB.RegionFactoryPSet,
+    RegionFactoryPSet = _regionProducerToFactoryPSet(_standard.mixedTripletStepTrackingRegionsB),
     hitMasks = cms.InputTag("mixedTripletStepMasks")
 )
-mixedTripletStepSeedsB.seedFinderSelector.pixelTripletGeneratorFactory = _standard.mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet
+mixedTripletStepSeedsB.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(_standard.mixedTripletStepHitTripletsB)
 
 mixedTripletStepSeeds = _standard.mixedTripletStepSeeds.clone()
 
