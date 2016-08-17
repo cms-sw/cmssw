@@ -61,7 +61,7 @@ public:
   // input enable indices
   enum linkNr {CALOLINK1=8, EMTFPLINK1=36, OMTFPLINK1=42, BMTFLINK1=48, OMTFNLINK1=60, EMTFNLINK1=66}; // link numbers start at 0
 
-  L1TMuonGlobalParamsHelper() { pnodes_.resize(NUM_GMTPARAMNODES); }
+  L1TMuonGlobalParamsHelper():L1TMuonGlobalParams_PUBLIC() { pnodes_.resize(NUM_GMTPARAMNODES); }
   L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams &);
   ~L1TMuonGlobalParamsHelper() {}
 
