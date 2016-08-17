@@ -84,10 +84,13 @@ public:
         psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection());
   }
 
-  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
-		       double iTS4Min, std::vector<double> iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
-		       double iNoise, double iTMin, double iTMax,
-		       double its4Chi2, double iChargeThreshold, int iFitTimes);
+  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
+		       double iTS4Min, std::vector<double> iTS4Max, double iPulseJitter,
+		       double iTimeMean,double iTimeSig,double iTimeSigSiPM,
+		       double iPedMean,double iPedSig, double iPedSigSiPM,
+		       double iNoise,double iNoiseSiPM,
+		       double iTMin, double iTMax,
+		       double its4Chi2, int iFitTimes);
   void setMeth3Params(float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3);
                
 private:

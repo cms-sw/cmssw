@@ -259,20 +259,21 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  conf.getParameter<bool>  ("applyPedConstraint"),
 			  conf.getParameter<bool>  ("applyTimeConstraint"),
 			  conf.getParameter<bool>  ("applyPulseJitter"),
-			  conf.getParameter<bool>  ("applyUnconstrainedFit"),
 			  conf.getParameter<bool>  ("applyTimeSlew"),
 			  conf.getParameter<double>("ts4Min"),
 			  conf.getParameter<std::vector<double>>("ts4Max"),
 			  conf.getParameter<double>("pulseJitter"),
 			  conf.getParameter<double>("meanTime"),
-			  conf.getParameter<double>("timeSigma"),
+			  conf.getParameter<double>("timeSigmaHPD"),
+			  conf.getParameter<double>("timeSigmaSiPM"),
 			  conf.getParameter<double>("meanPed"),
-			  conf.getParameter<double>("pedSigma"),
-			  conf.getParameter<double>("noise"),
+			  conf.getParameter<double>("pedSigmaHPD"),
+			  conf.getParameter<double>("pedSigmaSiPM"),
+			  conf.getParameter<double>("noiseHPD"),
+			  conf.getParameter<double>("noiseSiPM"),
 			  conf.getParameter<double>("timeMin"),
 			  conf.getParameter<double>("timeMax"),
 			  conf.getParameter<double>("ts4chi2"),
-			  conf.getParameter<double>("chargeMax"), //For the unconstrained Fit
                           conf.getParameter<int>   ("fitTimes")
 			  );
   }
