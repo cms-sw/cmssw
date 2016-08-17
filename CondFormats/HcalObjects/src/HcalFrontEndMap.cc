@@ -70,9 +70,16 @@ bool HcalFrontEndMap::loadObject(DetId fId, int rm, std::string rbx ) {
   }
 }
 
-const int HcalFrontEndMap::lookupRM(DetId fId ) const {
+const int HcalFrontEndMap::lookupRM(DetId fId) const {
   const PrecisionItem* item = findById (fId.rawId ());
   return (item ? item->mRM : 0);
+}
+
+const int HcalFrontEndMap::lookupRMIndex(DetId fId) const {
+  const PrecisionItem* item = findById (fId.rawId ());
+  HcalFrontEndId id;
+  if (item) id = HcalFrontEndId(item->mRBX,item->mRM,0,1,0,1,0);
+  return id.rmIndex();
 }
 
 const std::string HcalFrontEndMap::lookupRBX(DetId fId) const {
