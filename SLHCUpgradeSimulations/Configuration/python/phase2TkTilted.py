@@ -64,7 +64,6 @@ def customise_RawToDigi(process):
     return process
 
 def customise_Reco(process,pileup):
-
     return process
 
 def customise_condOverRides(process):
