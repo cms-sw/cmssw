@@ -5,7 +5,8 @@ TTRHBuilderAngleAndTemplate = cms.ESProducer("TkTransientTrackingRecHitBuilderES
     ComponentName = cms.string('WithAngleAndTemplate'),
     PixelCPE = cms.string('PixelCPETemplateReco'),
     Matcher = cms.string('StandardMatcher'),
-    ComputeCoarseLocalPositionFromDisk = cms.bool(False)                                             
+    ComputeCoarseLocalPositionFromDisk = cms.bool(False),
+    Phase2StripCPE = cms.string('Phase2StripCPEGeometric'),
 )
 
 

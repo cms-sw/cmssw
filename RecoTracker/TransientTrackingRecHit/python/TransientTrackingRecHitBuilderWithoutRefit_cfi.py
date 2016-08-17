@@ -5,7 +5,8 @@ ttrhbwor = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
     ComponentName = cms.string('WithoutRefit'),
     PixelCPE = cms.string('Fake'),
     Matcher = cms.string('Fake'),
-    ComputeCoarseLocalPositionFromDisk = cms.bool(False)                          
+    ComputeCoarseLocalPositionFromDisk = cms.bool(False),
+    Phase2StripCPE = cms.string('Phase2StripCPEGeometric'),
 )
 
 

@@ -23,7 +23,18 @@ TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder( const Tracki
   pixelCPE(pCPE),
   stripCPE(sCPE),
   theMatcher(matcher),
-  theComputeCoarseLocalPosition(computeCoarseLocalPositionFromDisk){}
+  theComputeCoarseLocalPosition(computeCoarseLocalPositionFromDisk),
+  phase2OTCPE(0){}
+
+TkTransientTrackingRecHitBuilder::TkTransientTrackingRecHitBuilder (const TrackingGeometry* trackingGeometry, 
+				                                    const PixelClusterParameterEstimator * pCPE,
+				                                    const ClusterParameterEstimator<Phase2TrackerCluster1D> * ph2StripCPE):
+  tGeometry_(trackingGeometry),
+  pixelCPE(pCPE),
+  stripCPE(0),
+  theMatcher(0),
+  theComputeCoarseLocalPosition(false),
+  phase2OTCPE(ph2StripCPE){}
 
 TransientTrackingRecHit::RecHitPointer 
 TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const 
