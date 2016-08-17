@@ -19,9 +19,6 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
-///#include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
-///#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
-///#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 
 class L1TMuonBarrelParams {
 public:
@@ -65,9 +62,6 @@ public:
   // after initial integration with downstream code, a small update will change:
   L1MuDTTFParameters  l1mudttfparams;
   L1MuDTTFMasks       l1mudttfmasks;
-///  L1MuDTExtLut        l1mudttfextlut;
-///  L1MuDTQualPatternLut l1mudttfqualplut;
-///  L1MuDTEtaPatternLut  l1mudttfetaplut;
   // to this:
   //L1MuDTTFParameters & l1mudttfparams(){return l1mudttfparams_[0]; }
   //L1MuDTTFMasks &      l1mudttfmasks(){return l1mudttfmasks_[0]; }
