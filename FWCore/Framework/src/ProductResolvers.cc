@@ -351,7 +351,10 @@ namespace edm {
 
   void
   InputProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
-    setProduct(std::move(edp));
+    if ( not productResolved()) {
+      //Another thread could have set this
+      setProduct(std::move(edp));
+    }
   }
   
   bool
