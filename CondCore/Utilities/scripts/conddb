@@ -765,8 +765,8 @@ def _diff_tags(args, session1, session2, first, second):
     Tag2 = session2.get_dbtype(conddb.Tag)
     IOV1 = session1.get_dbtype(conddb.IOV)
     IOV2 = session2.get_dbtype(conddb.IOV)
-    tag1 = session1.query(conddb.Tag).get(first)
-    tag2 = session2.query(conddb.Tag).get(second)
+    tag1 = session1.query(Tag1).get(first)
+    tag2 = session2.query(Tag2).get(second)
 
     if args.long:
         _output_diff_objects(args, tag1, tag2)
