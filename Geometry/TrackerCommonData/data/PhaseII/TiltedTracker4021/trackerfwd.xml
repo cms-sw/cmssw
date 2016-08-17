@@ -9,12 +9,12 @@
 <PosPartSection label="trackerpixfwd.xml">
  <PosPart copyNumber="1">
    <rParent name="tracker:Tracker"/>
-   <rChild name="pixfwd:PixelForward"/>
+   <rChild name="pixfwd:Phase2PixelEndcap"/>
    <Translation x="[zero]" y="[zero]" z="[zPos]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="tracker:Tracker"/>
-   <rChild name="pixfwd:PixelForward"/>
+   <rChild name="pixfwd:Phase2PixelEndcap"/>
    <Translation x="[zero]" y="[zero]" z="-[zPos]" />
    <rRotation name="pixfwdCommon:Y180" />
  </PosPart>
