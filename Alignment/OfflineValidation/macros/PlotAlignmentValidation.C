@@ -491,22 +491,22 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	case 6: subDetName = "TEC"; break;
 	}
 
-	TString myTitle = "Surface Shape, ";
-	myTitle += subDetName;
+        TString secondline = "";
 	if (layer!=0) {
 	  // TEC and TID have discs, the rest have layers
 	  if (iSubDet==4 || iSubDet==6)
-	    myTitle += TString(", disc ");
+	    secondline = "disc ";
 	  else {
-	    myTitle += TString(", layer ");
+	    secondline = "layer ";
 	  }
-	  myTitle += Form("%d",layer); 
+	  secondline += Form("%d",layer);
+	  secondline += " ";
 	}
 	if (isTEC && iTEC==0)
-	  myTitle += TString(" R1-4");
+	  secondline += TString("R1-4");
 	if (isTEC && iTEC>0)
-	  myTitle += TString(" R5-7");
-	
+	  secondline += TString("R5-7");
+
 	// Generate histograms with selection
 	TLegend* legend = 0;
 	THStack *hs = addHists(selection, residType, &legend);
@@ -518,14 +518,13 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 
 	  TProfile* defhist = new TProfile("defhist", "Empty default histogram", 100, -1, 1, -1, 1);
 	  hs->Add(defhist);
-	  hs->SetTitle( myTitle );
 	  hs->Draw();
 	}
 	else {
-	  hs->SetTitle( myTitle );
 	  hs->Draw("nostack PE");
 	  modifySSHistAndLegend(hs, legend);
 	  legend->Draw();
+	  setTitleStyle(*hs, "", "", iSubDet, true, secondline);
 
 	  // Adjust Labels
 	  TH1* firstHisto = (TH1*) hs->GetHists()->First();
@@ -1238,13 +1237,14 @@ TObject* PlotAlignmentValidation::findObjectFromCanvas(TCanvas* canv, const char
 }
 
 //------------------------------------------------------------------------------
-void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, const char* titleY,int subDetId)
+void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, const char* titleY,int subDetId, bool isSurfaceDeformation, TString secondline)
 {
   std::stringstream title_Xaxis;
   std::stringstream title_Yaxis;
   TString titleXAxis=titleX;
   TString titleYAxis=titleY;
-  cout<<"plot "<<titleXAxis<<" vs "<<titleYAxis<<endl;
+  if (titleXAxis != "" && titleYAxis != "")
+    cout<<"plot "<<titleXAxis<<" vs "<<titleYAxis<<endl;
   
   hist.SetTitle("");
   TkAlStyle::drawStandardTitle();
@@ -1260,14 +1260,23 @@ void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, c
     case 6: subD="TEC"; break;
   }
 
-  TPaveText *text2 = new TPaveText(0.7, 0.45, 0.9, 0.6, "brNDC");
+  TPaveText *text2;
+  if (!isSurfaceDeformation) {
+    text2 = new TPaveText(0.7, 0.3, 0.9, 0.6, "brNDC");
+  } else {
+    cout << "Surface Deformation" << endl;
+    text2 = new TPaveText(0.7, 0.75, 0.9, 0.9, "brNDC");
+  }
   text2->SetTextSize(0.06);
   text2->SetTextFont(42);
   text2->SetFillStyle(0);
   text2->SetBorderSize(0);
   text2->SetMargin(0.01);
   text2->SetTextAlign(12); // align left
-  text2->AddText(0.01,0.5,subD);
+  text2->AddText(0.01,0.75,subD);
+  if (secondline != "") {
+    text2->AddText(0.01, 0.25, secondline);
+  }
   text2->Draw();
 }
 

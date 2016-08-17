@@ -128,7 +128,7 @@ private :
   //void plot1DDetailsDiskWheel(TCanvas &c1, TList &treelist, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
   void plotSS(const std::string& options = "layers",const std::string& variable="");
   void setHistStyle( TH1& hist,const char* titleX, const char* titleY, int color);
-  void setTitleStyle( TNamed& h,const char* titleX, const char* titleY, int subDetId);
+  void setTitleStyle( TNamed& h,const char* titleX, const char* titleY, int subDetId, bool isSurfaceDeformation=false, TString secondline="");
   void setNiceStyle();
   void setCanvasStyle( TCanvas& canv );
   void setLegendStyle( TLegend& leg );
