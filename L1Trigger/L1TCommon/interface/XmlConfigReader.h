@@ -1,5 +1,5 @@
-#ifndef __l1t_XmlConfigReader_h__
-#define __l1t_XmlConfigReader_h__
+#ifndef L1Trigger_L1TCommon_l1t_XmlConfigReader_h
+#define L1Trigger_L1TCommon_l1t_XmlConfigReader_h
 
 #include <string>
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef __TrigSystem_h__
-#define __TrigSystem_h__
+#ifndef L1Trigger_L1TCommon_TrigSystem_h
+#define L1Trigger_L1TCommon_TrigSystem_h
 
 #include <vector>
 #include <string>
