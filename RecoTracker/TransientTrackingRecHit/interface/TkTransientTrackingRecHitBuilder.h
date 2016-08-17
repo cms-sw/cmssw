@@ -1,6 +1,7 @@
 #ifndef RECOTRACKER_TRANSIENTRECHITBUILDER_H
 #define RECOTRACKER_TRANSIENTRECHITBUILDER_H
 
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -11,6 +12,8 @@
 class SiStripRecHitMatcher;
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
+class Phase2StripCPETrivial;
+
 
 class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBuilder {
   
@@ -20,12 +23,16 @@ class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBui
 				    const StripClusterParameterEstimator * ,
                                     const SiStripRecHitMatcher           *,
 				    bool computeCoarseLocalPositionFromDisk);
+  TkTransientTrackingRecHitBuilder (const TrackingGeometry* trackingGeometry, 
+				    const PixelClusterParameterEstimator * ,
+				    const ClusterParameterEstimator<Phase2TrackerCluster1D> * );
 
   TransientTrackingRecHit::RecHitPointer build (const TrackingRecHit * p) const ;
 
 
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator() const {return pixelCPE;}
   const StripClusterParameterEstimator * stripClusterParameterEstimator() const {return stripCPE;}
+  const ClusterParameterEstimator<Phase2TrackerCluster1D> * phase2TrackerClusterParameterEstimator() const {return phase2OTCPE;}
   const SiStripRecHitMatcher           * siStripRecHitMatcher() const {return theMatcher;}
   const TrackingGeometry               * geometry() const  { return tGeometry_;}
 
@@ -41,6 +48,7 @@ private:
   const StripClusterParameterEstimator * stripCPE;
   const SiStripRecHitMatcher           * theMatcher;
   bool theComputeCoarseLocalPosition;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D> * phase2OTCPE;
 };
 
 
