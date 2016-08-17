@@ -28,11 +28,10 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-#process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalTPGStripStatus_v3_hlt.db'
-#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
+#process.CondDB.connect = 'sqlite_file:EcalTPGStripStatus_v3_hlt.db'
+process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
 process.CondDB.DBParameters.authenticationPath = ''
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
