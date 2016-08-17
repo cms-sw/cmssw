@@ -39,6 +39,7 @@ links between the objects:
 * glued strip hits -> mono and stereo strip hits
 * vertex <-> track
 * TrackingParticle <-> hit (but see caveat below)
+* TrackingParticle -> non-recoed SimHit (but see caveat below)
 * TrackingParticle <-> TrackingVertex
 
 By default the ntuple includes hits and seeds, which makes the ntuple

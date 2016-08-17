@@ -61,6 +61,8 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -265,13 +267,15 @@ private:
     HitStrip = 1,
     HitGlued = 2,
     HitInvalid = 3,
+    HitSimOnly = 4,
     Unknown = 99
   };
 
   struct TPHitIndex {
-    TPHitIndex(unsigned int tp=0, unsigned int hit=0, float to=0, HitType ty=Unknown): tpKey(tp), hitIdx(hit), tof(to), type(ty) {}
+    TPHitIndex(unsigned int tp=0, int hit=-1, int simHit=-1, float to=0, HitType ty=Unknown): tpKey(tp), hitIdx(hit), simHitIdx(simHit), tof(to), type(ty) {}
     unsigned int tpKey;
-    unsigned int hitIdx;
+    int hitIdx;
+    int simHitIdx;
     float tof;
     HitType type;
   };
@@ -363,7 +367,7 @@ private:
     std::vector<float> timeOfFlight;
     std::vector<float> chargeFraction;
     std::vector<int> particleType;
-    std::vector<int> processType;
+    std::vector<short> processType;
     std::vector<int> bunchCrossing;
     std::vector<int> event;
   };
@@ -379,6 +383,11 @@ private:
                           std::vector<TPHitIndex>& tpHitList,
                           HitType hitType
                           ) const;
+
+  void addRemainingSimHits(const TrackerGeometry& tracker,
+                           const TrackingParticleRefKeyToIndex& tpKeyToIndex,
+                           const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                           std::vector<TPHitIndex>& tpHitList);
 
   // ----------member data ---------------------------
   std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > seedTokens_;
@@ -507,7 +516,7 @@ private:
   std::vector<std::vector<int> > pix_seeIdx;    // second index runs through seeds containing this hit
   std::vector<std::vector<int> > pix_simTrkIdx; // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<int> > pix_particle;  // second index runs through TrackingParticles inducing this hit
-  std::vector<std::vector<int> > pix_process;   // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<short> > pix_process; // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > pix_xsim;    // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > pix_ysim;    // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > pix_zsim;    // second index runs through TrackingParticles inducing this hit
@@ -537,7 +546,7 @@ private:
   std::vector<std::vector<int> > str_seeIdx;    // second index runs through seeds containing this hitw
   std::vector<std::vector<int> > str_simTrkIdx; // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<int> > str_particle;  // second index runs through TrackingParticles inducing this hit
-  std::vector<std::vector<int> > str_process;   // second index runs through TrackingParticles inducing this hit
+  std::vector<std::vector<short> > str_process; // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > str_xsim;    // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > str_ysim;    // second index runs through TrackingParticles inducing this hit
   std::vector<std::vector<float> > str_zsim;    // second index runs through TrackingParticles inducing this hit
@@ -584,6 +593,18 @@ private:
   std::vector<unsigned short> inv_lay;
   std::vector<unsigned int> inv_detId;
   std::vector<unsigned short> inv_type;
+  ////////////////////
+  // sim hits not inducing reco hits
+  // (first) index runs through hits
+  // TODO: maybe consolidate all simhit information here?
+  std::vector<float> simhit_detId;
+  std::vector<float> simhit_x;
+  std::vector<float> simhit_y;
+  std::vector<float> simhit_z;
+  std::vector<int> simhit_particle;
+  std::vector<short> simhit_process;
+  std::vector<float> simhit_eloss;
+  std::vector<float> simhit_tof;
   ////////////////////
   // beam spot
   float bsp_x;
@@ -873,6 +894,15 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("inv_lay"       , &inv_lay      );
     t->Branch("inv_detId"     , &inv_detId    );
     t->Branch("inv_type"      , &inv_type    );
+    //simhits
+    t->Branch("simhit_detId"   ,  &simhit_detId);
+    t->Branch("simhit_x"       ,  &simhit_x);
+    t->Branch("simhit_y"       ,  &simhit_y);
+    t->Branch("simhit_z"       ,  &simhit_z);
+    t->Branch("simhit_particle",  &simhit_particle);
+    t->Branch("simhit_process" ,  &simhit_process);
+    t->Branch("simhit_eloss"   ,  &simhit_eloss);
+    t->Branch("simhit_tof"     ,  &simhit_tof);
   }
   //beam spot
   t->Branch("bsp_x" , &bsp_x , "bsp_x/F");
@@ -1119,6 +1149,15 @@ void TrackingNtuple::clearVariables() {
   inv_lay      .clear();
   inv_detId    .clear();
   inv_type     .clear();
+  // simhits
+  simhit_detId.clear();
+  simhit_x.clear();
+  simhit_y.clear();
+  simhit_z.clear();
+  simhit_particle.clear();
+  simhit_process.clear();
+  simhit_eloss.clear();
+  simhit_tof.clear();
   //beamspot
   bsp_x = -9999.;
   bsp_y = -9999.;
@@ -1197,6 +1236,10 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology& tTopo = *tTopoHandle;
+
+  edm::ESHandle<TrackerGeometry> geometryHandle;
+  iSetup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
+  const TrackerGeometry &tracker = *geometryHandle;
 
   edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
   iEvent.getByToken(trackAssociatorToken_, theAssociator);
@@ -1315,6 +1358,9 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   fillTracks(trackRefs, tpCollection, tpKeyToIndex, bs, associatorByHits, *theTTRHBuilder, tTopo, hitProductIds, seedCollToOffset);
 
+  // simhits not inducing reco hits
+  addRemainingSimHits(tracker, tpKeyToIndex, *simHitsTPAssoc, tpHitList);
+
   //tracking particles
   //sort association maps with clusters
   std::sort( tpHitList.begin(), tpHitList.end(), tpHitIndexListLessSort );
@@ -1384,12 +1430,14 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
       auto range = std::equal_range(simHitsTPAssoc.begin(), simHitsTPAssoc.end(),
                                     simHitTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
       float tof = std::numeric_limits<float>::quiet_NaN();
+      int simHitKey = -1;
       for(auto ip = range.first; ip != range.second; ++ip) {
         TrackPSimHitRef TPhit = ip->second;
         DetId dId = DetId(TPhit->detUnitId());
         if (dId.rawId()==hitId.rawId()) {
           auto pos = ttrh->surface()->toGlobal(TPhit->localPosition());
           tof = TPhit->timeOfFlight();
+          simHitKey = TPhit.key();
           ret.pos_x        .push_back(pos.x());
           ret.pos_y        .push_back(pos.y());
           ret.pos_z        .push_back(pos.z());
@@ -1423,11 +1471,56 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
       }
       ret.chargeFraction.push_back(chargeFraction);
 
-      tpHitList.emplace_back(trackingParticle.key(), clusterKey, tof, hitType);
+      tpHitList.emplace_back(trackingParticle.key(), clusterKey, simHitKey, tof, hitType);
     }
   }
 
   return ret;
+}
+
+void TrackingNtuple::addRemainingSimHits(const TrackerGeometry& tracker,
+                                         const TrackingParticleRefKeyToIndex& tpKeyToIndex,
+                                         const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
+                                         std::vector<TPHitIndex>& tpHitList) {
+  std::unordered_set<int> addedSimHits;
+  for(const auto& item: tpHitList) {
+    if(item.simHitIdx >= 0) {
+      addedSimHits.insert(item.simHitIdx);
+    }
+    else if(throwIfMissingSimHits_) {
+      throw cms::Exception("LogicError") << "I'm not self-consistent anymore, item.simHitIdx " << item.simHitIdx;
+    }
+  }
+
+  for(const auto& assoc: simHitsTPAssoc) {
+    auto simHitKey = assoc.second.key();
+    if(addedSimHits.find(simHitKey) == addedSimHits.end()) {
+      auto tpKey = assoc.first.key();
+      auto tpIndex = tpKeyToIndex.find(tpKey);
+      if( tpIndex == tpKeyToIndex.end())
+        continue;
+
+      const auto& simhit = *(assoc.second);
+      const float tof = simhit.timeOfFlight();
+      const auto simHitIndex = simhit_detId.size();
+
+      auto det = tracker.idToDetUnit(simhit.detUnitId());
+      if(!det)
+        throw cms::Exception("LogicError") << "Did not find a det unit for DetId " << simhit.detUnitId() << " from tracker geometry";
+      auto pos = det->surface().toGlobal(simhit.localPosition());
+
+      simhit_detId.push_back(simhit.detUnitId());
+      simhit_x.push_back(pos.x());
+      simhit_y.push_back(pos.y());
+      simhit_z.push_back(pos.z());
+      simhit_particle.push_back(simhit.particleType());
+      simhit_process.push_back(simhit.processType());
+      simhit_eloss.push_back(simhit.energyLoss());
+      simhit_tof.push_back(tof);
+
+      tpHitList.emplace_back(tpKey, -1, simHitIndex, tof, HitSimOnly);
+    }
+  }
 }
 
 void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,

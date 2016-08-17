@@ -168,6 +168,8 @@ class _HitAdaptor(object):
                 yield GluedHit(self._tree, ihit)
             elif hitType == 3:
                 yield InvalidHit(self._tree, ihit)
+            elif hitType == 4:
+                yield SimHit(self._tree, ihit)
             else:
                 raise Exception("Unknown hit type %d" % hitType)
 
@@ -653,6 +655,18 @@ class Seeds(_Collection):
         (offset, next_offset) = _seedOffsetForAlgo(self._tree, algo)
         for isee in xrange(offset, next_offset):
             yield Seed(self._tree, isee)
+
+##########
+class SimHit(_Object):
+    """Class representing a SimHit which has not induced a RecHit."""
+    def __init__(self, tree, index):
+        """Constructor.
+
+        Arguments:
+        tree  -- TTree object
+        index -- Index of the SimHit
+        """
+        super(SimHit, self).__init__(tree, index, "simhit")
 
 ##########
 class TrackingParticle(_Object, _HitAdaptor):

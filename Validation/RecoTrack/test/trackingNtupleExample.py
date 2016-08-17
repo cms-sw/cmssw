@@ -31,6 +31,7 @@ def main():
     tot_tps = 0
     tot_recoed = 0
     tot_tp_dups = 0
+    tot_tp_nonrecohits = 0.0
 
     tot_pix = 0
     tot_pix_ntracks = 0
@@ -73,6 +74,16 @@ def main():
                 #print "TP", tp.index()
                 #for hit in tp.hits():
                 #    print " %s %d x %f y %f tof %f" % (hit.layerStr(), hit.detId(), hit.x(), hit.y(), hit.tof())
+
+            nhits = 0
+            nhits_noreco = 0
+            for hit in tp.hits():
+                nhits += 1
+                if isinstance(hit, SimHit):
+                    nhits_noreco += 1
+            if nhits > 0:
+                tot_tp_nonrecohits += float(nhits_noreco)/nhits
+
         tot_recoed += neff
         tot_tp_dups += ndups
 
@@ -223,6 +234,7 @@ def main():
     print "On average %f TrackingParticles" % (float(tot_tps)/tot_nevents)
     print " with %f %% reconstructed" % (float(tot_recoed)/tot_tps * 100)
     print "  of which %f %% were reconstructed at least twice" % (float(tot_tp_dups)/tot_recoed * 100)
+    print " average fraction of non-recoed hits %f %%" % (tot_tp_nonrecohits/tot_tps * 100)
     print "On average %f tracks" % (float(tot_ntracks)/tot_nevents)
     print " with %f %% being high purity" % (float(tot_hptracks)/tot_ntracks * 100)
     print " with %f %% were not used in any vertex fit" % (float(tot_novertex)/tot_ntracks * 100)
