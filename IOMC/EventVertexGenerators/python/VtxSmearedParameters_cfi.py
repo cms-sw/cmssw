@@ -511,18 +511,17 @@ NominalHICollision2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.)
 )
 
-# Update based on latest beta* presented at the WGM
-# Beamspot centroid updated to according to the current pp conditions (Realistic50ns13TeVCollisionZeroTesla)
-UpdatedHICollision2015VtxSmearingParameters = cms.PSet(
+# updated numbers based on beamspot fits to 2015 PbPb data                                                                                                    
+RealisticHICollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
-    BetaStar = cms.double(80.0),
+    BetaStar = cms.double(60.0),
     Emittance = cms.double(1.70e-07),
     Alpha = cms.double(0.0),
-    SigmaZ = cms.double(7.06),
+    SigmaZ = cms.double(5.2278),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.08533),
-    Y0 = cms.double(0.16973),
-    Z0 = cms.double(-1.2230)
+    X0 = cms.double(0.1025),
+    Y0 = cms.double(0.1654),
+    Z0 = cms.double(3.2528)
 )
 
 # Estimate for 2015 pp collisions at 5.02 TeV, based on feedback from accelerator:  beta* ~ 400cm, normalized emittance = 2.5 um, SigmaZ similar to RunIIWinter15GS
