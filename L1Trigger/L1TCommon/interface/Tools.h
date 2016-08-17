@@ -1,3 +1,6 @@
+#ifndef L1Trigger_L1TCommon_Tools_h
+#define L1Trigger_L1TCommon_Tools_h
+
 #include <vector>
 #include <map>
 
@@ -35,3 +38,5 @@ template <class varType> varType convertVariable(const std::string& aVar)
 }
 
 }//ns
+
+#endif
