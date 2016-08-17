@@ -57,8 +57,8 @@ class HGCalSimHitValidation : public DQMEDAnalyzer {
 public:
   
   struct energysum{
-    energysum() {e15=e25=e50=e100=e250=e1000=etotal=0;}
-    double e15, e25, e50, e100, e250, e1000, etotal;
+    energysum() {etotal=0; for (int i=0; i<6; ++i) eTime[i] = 0.;}
+    double eTime[6], etotal;
   };
   
   struct hitsinfo{
@@ -90,23 +90,21 @@ private:
   bool defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH);
   
   // ----------member data ---------------------------
-  static const int           netaBins = 4;
   std::string                nameDetector_, caloHitSource_;
   const HGCalDDDConstants   *hgcons_;
   const HcalDDDRecConstants *hcons_;
   int                        verbosity_;
   bool                       heRebuild_, testNumber_, symmDet_;
+  std::vector<double>        times_;
+  unsigned int               nTimes_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
   unsigned int              layers_;
   std::map<uint32_t, HepGeom::Transform3D> transMap_;
   
-  std::vector<MonitorElement*> HitOccupancy_Plus_[netaBins];
-  std::vector<MonitorElement*> HitOccupancy_Minus_[netaBins];
-  std::vector<MonitorElement*> EtaPhi_Plus_;
-  std::vector<MonitorElement*> EtaPhi_Minus_;
-  MonitorElement*              MeanHitOccupancy_Plus_[netaBins];
-  MonitorElement*              MeanHitOccupancy_Minus_[netaBins];
+  std::vector<MonitorElement*> HitOccupancy_Plus_, HitOccupancy_Minus_;
+  std::vector<MonitorElement*> EtaPhi_Plus_,  EtaPhi_Minus_;
+  MonitorElement              *MeanHitOccupancy_Plus_, *MeanHitOccupancy_Minus_;
   std::vector<MonitorElement*> energy_[6];
 };
 #endif
