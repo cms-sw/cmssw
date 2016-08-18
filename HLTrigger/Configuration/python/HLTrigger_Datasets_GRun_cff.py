@@ -87,9 +87,10 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
-    'HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_v1', 
+    'HLT_ZeroBias_FirstBXAfterTrain_v1', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_copy_v1', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_v3', 
+    'HLT_ZeroBias_FirstCollisionInTrain_v1', 
     'HLT_ZeroBias_IsolatedBunches_v3', 
     'HLT_ZeroBias_v4')
 
@@ -176,6 +177,11 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele1
     'HLT_Ele27_eta2p1_WPLoose_Gsf_v7', 
     'HLT_Ele27_eta2p1_WPTight_Gsf_v7', 
     'HLT_Ele300_CaloIdVT_GsfTrkIdT_v5', 
+    'HLT_Ele30_WPTight_Gsf_v1', 
+    'HLT_Ele30_eta2p1_WPLoose_Gsf_v1', 
+    'HLT_Ele30_eta2p1_WPTight_Gsf_v1', 
+    'HLT_Ele32_WPTight_Gsf_v1', 
+    'HLT_Ele32_eta2p1_WPLoose_Gsf_v1', 
     'HLT_Ele32_eta2p1_WPTight_Gsf_v7', 
     'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_v5', 
     'HLT_Ele35_WPLoose_Gsf_v6', 
@@ -448,6 +454,7 @@ streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIso
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v3', 
     'HLT_LooseIsoPFTau50_Trk30_eta2p1_v5', 
     'HLT_PFTau120_eta2p1_v3', 
+    'HLT_PFTau140_eta2p1_v3', 
     'HLT_VLooseIsoPFTau120_Trk50_eta2p1_v3', 
     'HLT_VLooseIsoPFTau140_Trk50_eta2p1_v3')
 
