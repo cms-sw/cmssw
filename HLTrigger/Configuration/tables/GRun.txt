@@ -219,7 +219,7 @@ HLT_PFHT600_v*                          			# JIRA: CMSHLT-127
 HLT_PFHT800_v*                          			# JIRA: CMSHLT-355
 HLT_PFHT900_v*                          			# JIRA: CMSHLT-739
 
-HLT_PFHT300_PFMET100_v*						# JIRA: CMSHLT-742
+#HLT_PFHT300_PFMET100_v*					# JIRA: CMSHLT-742, removed by CMSHLT-982
 HLT_PFHT300_PFMET110_v*						# JIRA: CMSHLT-742
 
 #HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105, CMSHLT-479, CMSHLT-652,  removed by CMSHLT-882
@@ -269,7 +269,7 @@ HLT_Mu12_Photon25_CaloIdL_L1OR_v*				# JIRA: CMSHLT-134
 HLT_Mu12_Photon25_CaloIdL_v*					# JIRA: CMSHLT-182
 HLT_Mu17_Photon30_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-182
 HLT_Mu17_Photon35_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-182
-HLT_Mu17_Photon22_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-590
+#HLT_Mu17_Photon22_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-590, removed by #CMSHLT-972
 
 HLT_CaloJet500_NoJetID_v*					# JIRA: CMSHLT-141
 
@@ -591,11 +591,11 @@ HLT_DiCentralPFJet220_CFMax0p3_v*				# JIRA: CMSHLT-837
 HLT_DiCentralPFJet330_CFMax0p5_v*				# JIRA: CMSHLT-837
 HLT_DiCentralPFJet430_v*					# JIRA: CMSHLT-837
 
-HLT_PixelTracks_Multiplicity60ForEndOfFill_v*			# JIRA: CMSHLT-486
-HLT_PixelTracks_Multiplicity85ForEndOfFill_v*			# JIRA: CMSHLT-486
-HLT_PixelTracks_Multiplicity110ForEndOfFill_v*			# JIRA: CMSHLT-486
-HLT_PixelTracks_Multiplicity135ForEndOfFill_v*			# JIRA: CMSHLT-486
-HLT_PixelTracks_Multiplicity160ForEndOfFill_v*			# JIRA: CMSHLT-486
+#HLT_PixelTracks_Multiplicity60ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
+#HLT_PixelTracks_Multiplicity85ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
+#HLT_PixelTracks_Multiplicity110ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
+#HLT_PixelTracks_Multiplicity135ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
+#HLT_PixelTracks_Multiplicity160ForEndOfFill_v*			# JIRA: CMSHLT-486, removed by CMSHLT-974
 
 HLT_FullTracks_Multiplicity80_v*				# JIRA: CMSHLT-716
 HLT_FullTracks_Multiplicity100_v*				# JIRA: CMSHLT-716
