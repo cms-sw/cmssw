@@ -28,7 +28,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQM/Physics/interface/Hemisphere.hh"
-#include "DQM/Physics/interface/Davismt2.h"
+
+//PhysicsTools includes
+#include "PhysicsTools/Heppy/interface/Davismt2.h"
 
 //Reco includes
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -50,6 +52,7 @@
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 //GEN includes
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"

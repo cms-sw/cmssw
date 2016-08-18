@@ -18,8 +18,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://eoscms:///eos/cms/store/relval/CMSSW_8_0_0/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/MINIAODSIM/80X_mcRun2_asymptotic_v4-v1/10000/466A5649-16DA-E511-99BC-0CC47A4C8E2A.root',
-        'root://eoscms:///eos/cms/store/relval/CMSSW_8_0_0/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/MINIAODSIM/80X_mcRun2_asymptotic_v4-v1/10000/8AD4CD46-16DA-E511-B6F1-0CC47A4C8E20.root',
+   #     'root://eoscms:///eos/cms/store/relval/CMSSW_8_0_0/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/MINIAODSIM/80X_mcRun2_asymptotic_v4-v1/10000/466A5649-16DA-E511-99BC-0CC47A4C8E2A.root',
+    #    'root://eoscms:///eos/cms/store/relval/CMSSW_8_0_0/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/MINIAODSIM/80X_mcRun2_asymptotic_v4-v1/10000/8AD4CD46-16DA-E511-B6F1-0CC47A4C8E20.root',
+
+    # CMSSW 8.0.3
+        'root://eoscms:///eos/cms/store/relval/CMSSW_8_0_3/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/MINIAODSIM/80X_mcRun2_asymptotic_2016_v3_gs71xNewGtHcalCust-v1/00000/3E9C10CB-70F6-E511-82A0-0025905A6068.root',
+        'root://eoscms:///eos/cms/store/relval/CMSSW_8_0_3/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/MINIAODSIM/80X_mcRun2_asymptotic_2016_v3_gs71xNewGtHcalCust-v1/00000/58889BCB-70F6-E511-9599-0025905A6090.root',
     )
 )
 

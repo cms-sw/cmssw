@@ -26,4 +26,5 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/PatternTools"/>
+<use   name="PhysicsTools/Heppy"/>
 <flags   EDM_PLUGIN="1"/> 

@@ -190,7 +190,8 @@ template <typename Mu, typename Ele, typename Pho, typename Jet, typename Met>
 bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodElectron(const Ele* ele) {
     //baseline cuts
     if(ele->pt() < elePtCut) return false;
-    if(fabs(ele->superCluster()->eta()) > eleEtaCut) return false;
+    double fabsEta = fabs(ele->superCluster()->eta());
+    if (fabsEta > eleEtaCut) return false;
     //conversion veto
     if(beamSpot.isValid() && conversions.isValid()){
         if(ConversionTools::hasMatchedConversion(*ele, conversions, beamSpot->position())) return false;
@@ -203,7 +204,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodElectron(const Ele* ele) {
     int missHits = ele->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 
     //loose electron ID cuts
-    if(fabs(ele->superCluster()->eta()) < 1.479){ //barrel cuts
+    if (fabsEta < 1.479) { //barrel cuts
         //MaxMissingHits cut
         if(missHits > eleMaxMissingHitsBarrel) return false;
         //dEtaIn cut
@@ -271,7 +272,8 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodPhoton(const edm::Event& evt, const Ph
 
     //baseline kinematic cuts
     if(pho->pt() < phoPtCut) return false;
-    if(fabs(pho->superCluster()->eta()) > phoEtaCut) return false;
+    double fabsEta = fabs(pho->superCluster()->eta());
+    if (fabsEta > phoEtaCut) return false;
 
     //electron veto -- use the presence of a pixel seed 
     if(pho->hasPixelSeed()) return false;
@@ -280,37 +282,37 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodPhoton(const edm::Event& evt, const Ph
     double effAreaChHad = 0;
     double effAreaNeuHad = 0;
     double effAreaPhot = 0;
-    if(fabs(pho->superCluster()->eta()) < 1.0){
+    if (fabsEta < 1.0) {
         effAreaChHad = 0.0130;
         effAreaNeuHad = 0.0056;
         effAreaPhot = 0.0896;
     }
-    else if(fabs(pho->superCluster()->eta()) < 1.479){
+    else if(fabsEta < 1.479){
         effAreaChHad = 0.0096;
         effAreaNeuHad = 0.0107;
         effAreaPhot = 0.0762;
     }
-    else if(fabs(pho->superCluster()->eta()) < 2.0){
+    else if(fabsEta < 2.0){
         effAreaChHad = 0.0107;
         effAreaNeuHad = 0.0019;
         effAreaPhot = 0.0383;
     }
-    else if(fabs(pho->superCluster()->eta()) < 2.2){
+    else if(fabsEta < 2.2){
         effAreaChHad = 0.0077;
         effAreaNeuHad = 0.0011;
         effAreaPhot = 0.0534;
     }
-    else if(fabs(pho->superCluster()->eta()) < 2.3){
+    else if(fabsEta < 2.3){
         effAreaChHad = 0.0088;
         effAreaNeuHad = 0.0077;
         effAreaPhot = 0.0846;
     }
-    else if(fabs(pho->superCluster()->eta()) < 2.4){
+    else if(fabsEta < 2.4){
         effAreaChHad = 0.0065;
         effAreaNeuHad = 0.0178;
         effAreaPhot = 0.1032;
     }
-    else{
+    else {
         effAreaChHad = 0.0030;
         effAreaNeuHad = 0.1675;
         effAreaPhot = 0.1598;
@@ -321,7 +323,7 @@ bool SusyDQM<Mu, Ele, Pho, Jet, Met>::goodPhoton(const edm::Event& evt, const Ph
     double phoNeuHadIso = max(0., pho->neutralHadronIso() - (*fixedGridRhoFastjetAll)*effAreaNeuHad);
     double phoPhotIso = max(0., pho->photonIso() - (*fixedGridRhoFastjetAll)*effAreaPhot);
 
-    if(fabs(pho->superCluster()->eta()) < 1.479){ //barrel cuts
+    if(fabsEta < 1.479){ //barrel cuts
         //shower shape cuts
         if(pho->hadTowOverEm() > phoHoverECutBarrel) return false;
         if(pho->full5x5_sigmaIetaIeta() > phoSigmaIetaIetaCutBarrel) return false;
@@ -933,7 +935,8 @@ double SusyDQM<Mu, Ele, Pho, Jet, Met>::calcMT2(float testMass, bool massive, ve
             pseudojet1.SetPy(pseudojet1.Py() + py[i]);
             pseudojet1.SetPz(pseudojet1.Pz() + pz[i]);
             pseudojet1.SetE( pseudojet1.E()  + E[i]);   
-        }else if(grouping[i] == 2){
+        }
+        else if(grouping[i] == 2){
             pseudojet2.SetPx(pseudojet2.Px() + px[i]);
             pseudojet2.SetPy(pseudojet2.Py() + py[i]);
             pseudojet2.SetPz(pseudojet2.Pz() + pz[i]);
@@ -960,11 +963,10 @@ double SusyDQM<Mu, Ele, Pho, Jet, Met>::calcMT2(float testMass, bool massive, ve
     pb[1] = static_cast<double> (pseudojet2.Px());
     pb[2] = static_cast<double> (pseudojet2.Py());
     
-    Davismt2 *mt2 = new Davismt2();
-    mt2->set_momenta(pa, pb, pmiss);
-    mt2->set_mn(testMass);
-    Float_t MT2=mt2->get_mt2();
-    delete mt2;
+    heppy::Davismt2 mt2;
+    mt2.set_momenta(pa, pb, pmiss);
+    mt2.set_mn(testMass);
+    Float_t MT2=mt2.get_mt2();
     return MT2;
 }
 
