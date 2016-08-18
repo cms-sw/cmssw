@@ -181,21 +181,6 @@ namespace edm {
     phb->putProduct(std::move(edp));
   }
 
-   void
-  EventPrincipal::readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const {
-    if(!reader()) return; // nothing to do.
-    
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(phb.branchDescription());
-    {
-      
-      std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this, mcc));
-
-      // Now fix up the ProductResolver
-      phb.putProduct(std::move(edp));
-    }
-  }
-
   BranchID
   EventPrincipal::pidToBid(ProductID const& pid) const {
     if(!pid.isValid()) {

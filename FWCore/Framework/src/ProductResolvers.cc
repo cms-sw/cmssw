@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -119,6 +120,11 @@ namespace edm {
                                         ModuleCallingContext const* mcc) const {
     return resolveProductImpl<true>([this,&principal,mcc]() {
       auto branchType = principal.branchType();
+      if(branchType != InEvent) {
+        //delayed get has not been allowed with Run or Lumis
+        // The file may already be closed so the reader is invalid
+        return;
+      }
       if(mcc and (branchType == InEvent)) {
         aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
       }
@@ -129,7 +135,10 @@ namespace edm {
                                    aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }
                                }));
 
-      return principal.readFromSource(*this, mcc);
+      auto reader = principal.reader();
+      if(reader) {
+        putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+      }
     });
                               
   }
@@ -189,7 +198,11 @@ namespace edm {
         ServiceRegistry::Operate guard(token);
         try {
           resolveProductImpl<true>([this,&principal,mcc]() {
-            principal.readFromSource_(*this,mcc);
+            if(principal.branchType() != InEvent) { return; }
+            auto reader = principal.reader();
+            if(reader) {
+              putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+            }
           });
         } catch(...) {
           this->m_waitingTasks.doneWaiting(std::current_exception());

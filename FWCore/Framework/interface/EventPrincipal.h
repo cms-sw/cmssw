@@ -180,8 +180,6 @@ namespace edm {
 
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
-    virtual void readFromSource_(ProductResolverBase const& phb, ModuleCallingContext const* mcc) const override;
-
     virtual unsigned int transitionIndex_() const override;
     
     std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {return get_underlying_safe(provRetrieverPtr_);}
