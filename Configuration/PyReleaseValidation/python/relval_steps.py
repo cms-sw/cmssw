@@ -1012,6 +1012,7 @@ steps['HLTD']=merge([{'--process':'reHLT',
 
 
 steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps['HLTD']])
+steps['HLTDSKIM2']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO","drop *_*_*_reRECO"'},steps['HLTD']])
 
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
@@ -1165,7 +1166,7 @@ steps['RECOUP15_trackingOnlyLowPU']=merge([step3_trackingLowPU, step3Up2015Defau
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODR1reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODR1']])
-
+steps['RECODR1reHLT2']=merge([{'--process':'reRECO2'},steps['RECODR1reHLT']])
 
 steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 

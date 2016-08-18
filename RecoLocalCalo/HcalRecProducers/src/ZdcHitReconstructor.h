@@ -16,7 +16,6 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h" 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
@@ -44,7 +43,6 @@ class HcalTopology;
       ZdcSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;
       HFTimingTrustFlag* HFTimingTrustFlagSetter_;
-      HBHEStatusBitSetter* hbheFlagSetter_;
       HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
       HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
       HcalHFStatusBitFromRecHits* hfrechitbit_;

@@ -17,6 +17,7 @@ def main( argv ):
     parser.add_argument("-d","--dev", action="store_true", help="bookkeeping in dev database")
     parser.add_argument("-p","--private", action="store_true", help="bookkeeping in private database")
     parser.add_argument("-a","--auth", type=str,  help="path of the authentication file")
+    parser.add_argument("-v","--verbose", action="store_true", help="job output mirrored to screen (default=logfile only)")
     args = parser.parse_args()  
 
     if not args.name:
@@ -32,7 +33,7 @@ def main( argv ):
             db_service = o2olib.prod_db_service
     runMgr = o2olib.O2ORunMgr()
     ret = -1
-    if runMgr.connect( db_service, args.auth ):
+    if runMgr.connect( db_service, args ):
         ret = runMgr.executeJob( args.name, command )
     return ret
 

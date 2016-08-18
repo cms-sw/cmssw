@@ -12,6 +12,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
 // 
 class HcalFrontEndMap {
 public:
@@ -35,6 +36,8 @@ public:
   /// brief lookup the RM associated with the given logical id
   //return Null item if no such mapping
   const int lookupRM(DetId fId) const;
+  const int lookupRMIndex(DetId fId) const;
+  const int maxRMIndex() const {return HcalFrontEndId::maxRmIndex;}
 
   /// brief lookup the RBX associated with the given logical id
   //return Null item if no such mapping
