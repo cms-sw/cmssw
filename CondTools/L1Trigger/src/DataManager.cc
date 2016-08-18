@@ -32,7 +32,7 @@ namespace l1t
     else connection.setMessageVerbosity( coral::Error ) ;
     connection.configure() ;
 
-    session = connection.createSession( connectString, isOMDS );
+    session = connection.createSession( connectString, false );
 }
 
 DataManager::~DataManager ()

@@ -144,9 +144,16 @@
   <class name="L1TriggerKey">
     <field name="m_recordToKey" mapping="blob" />
   </class>
+  <class name="L1TriggerKeyExt">
+      <field name="m_recordToKey" mapping="blob" />
+  </class>
   <class name="L1TriggerKeyList">
     <field name="m_recordKeyToken" mapping="blob" />
     <field name="m_tscKeyToToken" mapping="blob" />
+  </class>
+  <class name="L1TriggerKeyListExt">
+      <field name="m_recordKeyToken" mapping="blob" />
+      <field name="m_tscKeyToToken" mapping="blob" />
   </class>
   <class name="L1RCTParameters">
     <field name="HoverE_smear_high_" mapping="blob" />
