@@ -42,27 +42,32 @@ TrigCodes::TrigBitSet trigTools::getFiltersPassed(
 //a different min obj required in the two versions, this may give the wrong answer
 int trigTools::getMinNrObjsRequiredByFilter(const std::string& filterName)
 {
- 
+  const std::string mag0("@module_label");
+  const std::string mag1("ncandcut");
+  const std::string mag2("nZcandcut");
+  const std::string mag3("MinN");
+  const std::string mag4("minN");
+
   //will return out of for loop once its found it to save time
   const edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
   if(psetRegistry==NULL) return -1;
   for(edm::pset::Registry::const_iterator psetIt=psetRegistry->begin();psetIt!=psetRegistry->end();++psetIt){ //loop over every pset for every module ever run
     const std::map<std::string,edm::Entry>& mapOfPara  = psetIt->second.tbl(); //contains the parameter name and value for all the parameters of the pset
-    const std::map<std::string,edm::Entry>::const_iterator itToModLabel = mapOfPara.find("@module_label"); 
+    const std::map<std::string,edm::Entry>::const_iterator itToModLabel = mapOfPara.find(mag0); 
     if(itToModLabel!=mapOfPara.end()){
       if(itToModLabel->second.getString()==filterName){ //moduleName is the filter name, we have found filter, we will now return something
-	std::map<std::string,edm::Entry>::const_iterator itToCandCut = mapOfPara.find("ncandcut");
+	std::map<std::string,edm::Entry>::const_iterator itToCandCut = mapOfPara.find(mag1);
 	if(itToCandCut!=mapOfPara.end() && itToCandCut->second.typeCode()=='I') return itToCandCut->second.getInt32();
 	else{ //checks if nZcandcut exists and is int32, if not return -1
-	  itToCandCut = mapOfPara.find("nZcandcut");
+	  itToCandCut = mapOfPara.find(mag2);
 	  if(itToCandCut!=mapOfPara.end() && itToCandCut->second.typeCode()=='I') return itToCandCut->second.getInt32();
 	  else{ //checks if MinN exists and is int32, if not return -1
-	    itToCandCut = mapOfPara.find("MinN");
+	    itToCandCut = mapOfPara.find(mag3);
 	    if(itToCandCut!=mapOfPara.end() && itToCandCut->second.typeCode()=='I') return itToCandCut->second.getInt32();
 	    else{ //checks if minN exists and is int32, if not return -1
-	    itToCandCut = mapOfPara.find("minN");
-	    if(itToCandCut!=mapOfPara.end() && itToCandCut->second.typeCode()=='I') return itToCandCut->second.getInt32();
-	    else return -1;
+	      itToCandCut = mapOfPara.find(mag4);
+	      if(itToCandCut!=mapOfPara.end() && itToCandCut->second.typeCode()=='I') return itToCandCut->second.getInt32();
+	      else return -1;
 	    }
 	  }
 	}
@@ -129,15 +134,22 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 	if(!filters.empty()){
 	  //std::cout<<"Path Name: "<<pathName<<std::endl;
 	  //if(filters.back()=="hltBoolEnd" && filters.size()>=2){
+	  int minNRFF=-99;
+	  int minNRFFP1=-99;
 	  for(size_t filter=0;filter<filters.size();filter++){
 	    //std::cout << filters[filter] << std::endl;
 	    if(filters[filter].find("Filter")!=filters[filter].npos){//keep only modules that contain the word "Filter"
 	      //std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
+	      if (filter==0) minNRFF=trigTools::getMinNrObjsRequiredByFilter(filters[filter]);
+	      else minNRFF=minNRFFP1;
+	      minNRFFP1=-99;
+	      if ( filter<filters.size()-1 ) minNRFFP1=trigTools::getMinNrObjsRequiredByFilter(filters[filter+1]);
+
 	      if(//keep only the last filter and the last one with ncandcut==1 (for di-object triggers)
-		 (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==2)  
-		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos)
-		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("FEM")!=filters[filter+1].npos)  
-		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("PFMT")!=filters[filter+1].npos)  
+		 ( minNRFF==1 && minNRFFP1==2)  
+		 || (minNRFF==1 && minNRFFP1==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos)
+		 || (minNRFF==1 && minNRFFP1==1 && filters[filter+1].find("FEM")!=filters[filter+1].npos)  
+		 || (minNRFF==1 && minNRFFP1==1 && filters[filter+1].find("PFMT")!=filters[filter+1].npos)  
 		 || filter==filters.size()-1 ){
 		activeFilters.push_back(filters[filter]); //saves all modules with saveTags=true
 		
@@ -156,10 +168,10 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 		  int posEle = pathName.find("Ele")+1;
 		  if( pathName.find("Ele",posEle)!=pathName.npos || pathName.find("SC",posEle)!=pathName.npos ){
 		    if(
-		       (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==2)
-		       || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos) 
-		       || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("SC")!=filters[filter+1].npos)  
-		       || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("FEM")!=filters[filter+1].npos)  
+		       (    minNRFF==1 && minNRFFP1==2)
+		       || ( minNRFF==1 && minNRFFP1==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos) 
+		       || ( minNRFF==1 && minNRFFP1==1 && filters[filter+1].find("SC")!=filters[filter+1].npos)  
+		       || ( minNRFF==1 && minNRFFP1==1 && filters[filter+1].find("FEM")!=filters[filter+1].npos)  
 		       ){
 		      //This saves all "x_Ele_x_Ele_x" and "x_Ele_x_SC_x" path filters into 2leg electron set
 		      activeEle2LegFilters.push_back(filters[filter]+"::"+filters[filter+1]);
