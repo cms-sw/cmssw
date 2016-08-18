@@ -55,7 +55,7 @@
 
 
   <Vector  name="OuterDiskOuterRing_Phi" type="numeric" nEntries="13">
-  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.688*rad
+  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.736*rad
   </Vector>
 
   <Vector  name="OuterDiskOuterRing_z_t_Plus" type="numeric" nEntries="13">
