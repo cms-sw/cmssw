@@ -174,9 +174,6 @@ namespace edm {
 
     using Base::getProvenance;
 
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preReadFromSourceSignal_;
-    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postReadFromSourceSignal_;
-
   private:
 
     BranchID pidToBid(ProductID const& pid) const;
