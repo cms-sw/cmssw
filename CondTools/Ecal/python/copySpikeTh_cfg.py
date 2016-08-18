@@ -1,6 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("ProcessOne")
+
+options = VarParsing.VarParsing()
+options.register( "password"
+                , "myToto"
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , "the password"
+                  )
+options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -20,13 +30,13 @@ process.source = cms.Source("EmptyIOVSource",
 process.load("CondCore.CondDB.CondDB_cfi")
 
 #process.CondDB.connect = 'sqlite_file:EcalTPGSpike_v3_hlt.db'
-process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
+process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
 process.CondDB.DBParameters.authenticationPath = ''
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB, 
-    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
-#   logconnect = cms.untracked.string('sqlite_file:log.db'),   
+#    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
+   logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGSpikeRcd'),
         tag = cms.string('EcalTPGSpike_v3_hlt')
@@ -44,7 +54,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGSpikeAnalyzer",
      OnlineDBSID = cms.string('cms_omds_lb'),
 #     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
      OnlineDBUser = cms.string('cms_ecal_r'),
-     OnlineDBPassword = cms.string('***'),
+     OnlineDBPassword = cms.string( options.password ),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
