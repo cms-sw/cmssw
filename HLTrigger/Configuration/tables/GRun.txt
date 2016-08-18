@@ -675,8 +675,8 @@ HLT_ZeroBias_FirstCollisionAfterAbortGap_copy_v*		# JIRA: CMSHLT-798, CMSHLT-903
 #HLT_ZeroBias_FirstCollisionAfterAbortGap_TCDS_v*		# JIRA: CMSHLT-847, removed by CMSHLT-981
 HLT_ZeroBias_IsolatedBunches_v*					# JIRA: CMSHLT-595
 
-HLT_ZeroBias_FirstBXAfterTrain_v*				# JIRA: CMSHLT-981
-HLT_ZeroBias_FirstCollisionInTrain_v*				# JIRA: CMSHLT-981
+#HLT_ZeroBias_FirstBXAfterTrain_v*				# JIRA: CMSHLT-981
+#HLT_ZeroBias_FirstCollisionInTrain_v*				# JIRA: CMSHLT-981
 
 HLT_L1BeamGasMinus_v*						# JIRA: CMSHLT-809
 HLT_L1BeamGasPlus_v*						# JIRA: CMSHLT-809

@@ -87,10 +87,8 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
-    'HLT_ZeroBias_FirstBXAfterTrain_v1', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_copy_v1', 
     'HLT_ZeroBias_FirstCollisionAfterAbortGap_v3', 
-    'HLT_ZeroBias_FirstCollisionInTrain_v1', 
     'HLT_ZeroBias_IsolatedBunches_v3', 
     'HLT_ZeroBias_v4')
 
