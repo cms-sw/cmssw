@@ -1,11 +1,11 @@
-# /dev/CMSSW_8_0_0/PRef/V154 (CMSSW_8_0_17)
+# /dev/CMSSW_8_0_0/PRef/V155 (CMSSW_8_0_17)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPRef" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V154')
+  tableName = cms.string('/dev/CMSSW_8_0_0/PRef/V155')
 )
 
 process.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
@@ -3910,7 +3910,7 @@ process.hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
       kTowerRecovered = cms.vstring( 'kDeadFE' )
     ),
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
-    skipTimeCalib = cms.bool( False ),
+    skipTimeCalib = cms.bool( True ),
     algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
     eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
     cleaningConfig = cms.PSet( 
