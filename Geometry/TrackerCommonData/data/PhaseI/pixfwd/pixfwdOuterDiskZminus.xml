@@ -2,21 +2,12 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="pixfwdOuterDiskZminus.xml" eval="true">
-  <Constant name="OuterRingRMin"        value="165.3*mm"/><!-- see inner disk comments -->
-  <Constant name="OuterRingRMax"        value="[OuterRingRMin]+2.1*mm"/>
-  <Constant name="OuterRingCFRMin"      value="[OuterRingRMax]"/>
-  <Constant name="OuterRingCFRMax"      value="[OuterRingCFRMin]+0.5*mm"/>
-  <Constant name="OuterRingHalfWidth"   value="44.0*mm/2.0"/><!-- see Algorithm parameters below -->
+  <Constant name="OuterRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskOuterRingHalfWidth]"/>
   <Constant name="OuterRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[OuterRingHalfWidth]"/>
-  <Constant name="InnerRingRMax"      value="90.05*mm"/>
-  <Constant name="InnerRingRMin"      value="[InnerRingRMax]-2.5*mm"/>
-  <Constant name="InnerRingCFRMax"     value="[InnerRingRMin]"/>
-  <Constant name="InnerRingCFRMin"     value="[InnerRingCFRMax]-0.5*mm"/>
-  <Constant name="InnerRingHalfWidth"   value="38.0*mm/2.0"/><!-- see Algorithm parameters below -->
-  <Constant name="InnerRingZ" value="[pixfwdDisks:DiskHalfWidth]-[InnerRingHalfWidth]"/>
+  <Constant name="InnerRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskInnerRingHalfWidth]"/>
+  <Constant name="InnerRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[InnerRingHalfWidth]"/>
 </ConstantsSection>
  
-
 <!-- support ring solids -->
 <!-- each Algorithm creates on composite (union) solid that describes a cut
      ring according to the given outline. The z_l and z_t arrays describe the 
@@ -30,18 +21,17 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskOuterRing"/> 
-  <Numeric name="rMin"             value="[OuterRingRMin]"/>
-  <Numeric name="rMax"             value="[OuterRingRMax]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
   <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_t_Minus"/>
   <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_l_Minus"/>
-  <!-- min: -335 max: -291 width: 44 -->
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRing"/> 
-  <Numeric name="rMin"             value="[OuterRingCFRMin]"/>
-  <Numeric name="rMax"             value="[OuterRingCFRMax]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
   <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_t_Minus"/>
   <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_z_l_Minus"/>
@@ -49,18 +39,17 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskInnerRing"/> 
-  <Numeric name="rMin"             value="[InnerRingRMin]"/>
-  <Numeric name="rMax"             value="[InnerRingRMax]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
   <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_t_Minus"/>
   <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_l_Minus"/>
-  <!-- min: -499 max: -461 width: 38 -->
 </Algorithm>
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRing"/> 
-  <Numeric name="rMin"             value="[InnerRingCFRMin]"/>
-  <Numeric name="rMax"             value="[InnerRingCFRMax]"/>
+  <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMin]"/>
+  <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
   <String  name="z_t"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_t_Minus"/>
   <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_l_Minus"/>
