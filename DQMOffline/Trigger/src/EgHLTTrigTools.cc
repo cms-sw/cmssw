@@ -15,7 +15,7 @@ TrigCodes::TrigBitSet trigTools::getFiltersPassed(
 {
   TrigCodes::TrigBitSet evtTrigs;
   for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
-    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec].first,"",hltTag).encode());
+    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec].first,"",hltTag));
     const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(filters[filterNrInVec].first.c_str());
     if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, however this only means that something passed the previous filter
       const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);
