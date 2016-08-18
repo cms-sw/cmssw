@@ -40,6 +40,7 @@ private:
   double                   ladderThick; //Thicknes of ladder 
   double                   ladderOffset; //ladder dispacement at interface 
   int                      outerFirst;  //Controller of the placement of ladder
+  double                   phiFineTune; //Fine-tuning pitch of first ladder
 };
 
 #endif

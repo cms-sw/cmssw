@@ -43,6 +43,7 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
   cool2Offset = nArgs["Cool2Offset"];
   coolMat   = sArgs["CoolMaterial"];
   tubeMat   = sArgs["CoolTubeMaterial"];
+  phiFineTune = nArgs["PitchFineTune"];
 
 
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Parent " << parentName 
@@ -113,19 +114,23 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   int  copy=1, iup=(-1)*outerFirst;
   int copyoffset=number+2;
   for (int i=1; i<number+1; i++) {
-    double phi = i*dphi+90*CLHEP::deg-0.5*dphi; //to start with the interface ladder
+    double phi = i*dphi+90*CLHEP::deg-0.5*dphi+phiFineTune; //to start with the interface ladder
     double phix, phiy, rrr, rrroffset;
     std::string rots;
     DDTranslation tran;
     DDRotation rot;
     iup  =-iup;
     double dr;
-    if ((i==1)||(i==number/2+1)){
-	dr=coolRadius+0.5*ladderThick+ladderOffset; //interface ladder offset
-	}else{
-	dr=coolRadius+0.5*ladderThick;
-	}
-    rrr = coolDist*cos(0.5*dphi)+iup*dr;
+    if ((i==1)||(i==number/2+1)) {
+      dr=coolRadius+0.5*ladderThick+ladderOffset; //interface ladder offset
+    } else {
+      dr=coolRadius+0.5*ladderThick;
+    }
+    if(i % 2 == 1) {
+      rrr = coolDist*cos(0.5*dphi)+iup*dr+rOuterFineTune;
+    } else {
+      rrr = coolDist*cos(0.5*dphi)+iup*dr+rInnerFineTune;
+    }
     tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
     rots = idName + std::to_string(copy);
     if (iup > 0) phix = phi-90*CLHEP::deg;
