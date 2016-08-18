@@ -544,8 +544,6 @@ namespace edm {
       // Reusable event principal
       auto ep = std::make_shared<EventPrincipal>(preg(), branchIDListHelper(),
            thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
-      ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
-      ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
       ep->preReadFromSourceSignal_.connect(std::cref(actReg_->preEventReadFromSourceSignal_));
       ep->postReadFromSourceSignal_.connect(std::cref(actReg_->postEventReadFromSourceSignal_));
       principalCache_.insert(ep);

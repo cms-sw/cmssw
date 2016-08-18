@@ -170,8 +170,6 @@ namespace edm {
                                                  &(historyAppenders_[index]),
                                                  index,
                                                  false /*not primary process*/);
-      ep->preModuleDelayedGetSignal_.connect(std::cref(items.actReg_->preModuleEventDelayedGetSignal_));
-      ep->postModuleDelayedGetSignal_.connect(std::cref(items.actReg_->postModuleEventDelayedGetSignal_));
       ep->preReadFromSourceSignal_.connect(std::cref(items.actReg_->preEventReadFromSourceSignal_));
       ep->postReadFromSourceSignal_.connect(std::cref(items.actReg_->postEventReadFromSourceSignal_));
       principalCache_.insert(ep);

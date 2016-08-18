@@ -188,14 +188,6 @@ namespace edm {
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
     {
-      if(mcc) {
-        preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-      }
-      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-        if(mcc) {
-          postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-        }
-      });
       
       std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this, &preReadFromSourceSignal_, &postReadFromSourceSignal_, mcc));
 

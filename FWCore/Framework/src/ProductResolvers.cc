@@ -19,6 +19,11 @@
 static constexpr unsigned int kUnsetOffset = 0;
 static constexpr unsigned int kAmbiguousOffset = 1;
 static constexpr unsigned int kMissingOffset = 2;
+namespace {
+  template<typename T, typename F> std::unique_ptr<T, F> make_sentry(T* iObject, F iFunc) {
+    return std::unique_ptr<T, F>(iObject, iFunc);
+  }
+}
 
 namespace edm {
 
@@ -113,8 +118,19 @@ namespace edm {
                                         SharedResourcesAcquirer* ,
                                         ModuleCallingContext const* mcc) const {
     return resolveProductImpl<true>([this,&principal,mcc]() {
-                                return principal.readFromSource(*this, mcc); }
-                              );
+      auto branchType = principal.branchType();
+      if(mcc and (branchType == InEvent)) {
+        aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      }
+
+      auto sentry( make_sentry(mcc,
+                               [this, branchType](ModuleCallingContext const* iContext){
+                                 if(branchType == InEvent) {
+                                   aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }
+                               }));
+
+      return principal.readFromSource(*this, mcc);
+    });
                               
   }
   
@@ -206,6 +222,11 @@ namespace edm {
     DataManagingProductResolver::resetProductData_(deleteEarly);
   }
 
+  void
+  InputProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    aux_ = iConfigure.auxiliary();
+  }
+
   
   bool
   InputProductResolver::isFromCurrentProcess() const {
@@ -255,9 +276,7 @@ namespace edm {
             aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
 
             auto workCall = [this,&event,&parentContext,mcc] () {
-              std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-                aux_->postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-              });
+              auto sentry( make_sentry(mcc,[this](ModuleCallingContext const* iContext){aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }));
               
               worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
                                            event,

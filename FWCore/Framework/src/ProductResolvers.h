@@ -97,7 +97,10 @@ namespace edm {
     public:
     explicit InputProductResolver(std::shared_ptr<BranchDescription const> bd) :
       DataManagingProductResolver(bd, ProductStatus::ResolveNotRun),
-      m_prefetchRequested{ false } {}
+      m_prefetchRequested{ false },
+      aux_{nullptr} {}
+
+    virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
 
     private:
       virtual bool isFromCurrentProcess() const override final;
@@ -119,6 +122,8 @@ namespace edm {
 
       mutable std::atomic<bool> m_prefetchRequested;
       mutable WaitingTaskList m_waitingTasks;
+      UnscheduledAuxiliary const* aux_; //provides access to the delayedGet signals
+
 
   };
 
