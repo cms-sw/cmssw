@@ -41,6 +41,8 @@ private:
   double                   ladderOffset; //ladder dispacement at interface 
   int                      outerFirst;  //Controller of the placement of ladder
   double                   phiFineTune; //Fine-tuning pitch of first ladder
+  double                   rOuterFineTune; //Fine-tuning r offset for outer ladders
+  double                   rInnerFineTune; //Fine-tuning r offset for inner ladders
 };
 
 #endif

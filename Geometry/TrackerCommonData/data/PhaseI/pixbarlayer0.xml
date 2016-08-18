@@ -10,6 +10,8 @@
  <Constant name="Cool2Offset"        value="-0.16*cm"/>
  <Constant name="OuterFirst"        value="1"/>
  <Constant name="PitchFineTune"     value="-0.917*deg"/>
+ <Constant name="OuterOffsetFineTune"    value="-0.04651*cm"/>
+ <Constant name="InnerOffsetFineTune"    value="-0.01201*cm"/>
 </ConstantsSection>
 
 <Algorithm name="track:DDPixBarLayerUpgradeAlgo">

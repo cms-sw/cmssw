@@ -44,6 +44,8 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
   coolMat   = sArgs["CoolMaterial"];
   tubeMat   = sArgs["CoolTubeMaterial"];
   phiFineTune = nArgs["PitchFineTune"];
+  rOuterFineTune = nArgs["OuterOffsetFineTune"];
+  rInnerFineTune = nArgs["InnerOffsetFineTune"];
 
 
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Parent " << parentName 
@@ -127,9 +129,9 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
       dr=coolRadius+0.5*ladderThick;
     }
     if(i % 2 == 1) {
-      rrr = coolDist*cos(0.5*dphi)+iup*dr;
+      rrr = coolDist*cos(0.5*dphi)+iup*dr+rOuterFineTune;
     } else {
-      rrr = coolDist*cos(0.5*dphi)+iup*dr;
+      rrr = coolDist*cos(0.5*dphi)+iup*dr+rInnerFineTune;
     }
     tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
     rots = idName + std::to_string(copy);
