@@ -46,6 +46,8 @@ class HcalTimingParamsRcd;
 class HcalFrontEndMapRcd;
 class HcalSiPMParametersRcd;
 class HcalSiPMCharacteristicsRcd;
+class HcalTPChannelParametersRcd;
+class HcalTPParaamersRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 
@@ -94,6 +96,9 @@ protected:
 
   std::unique_ptr<HcalSiPMParameters> produceSiPMParameters (const HcalSiPMParametersRcd& rcd);
   std::unique_ptr<HcalSiPMCharacteristics> produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd);
+  std::unique_ptr<HcalTPChannelParameters> produceTPChannelParameters (const HcalTPChannelParametersRcd& rcd);
+  std::unique_ptr<HcalTPParameters> produceTPParameters (const HcalTPParametersRcd& rcd);
+
 private:
   HcalDbHardcode dbHardcode;
   double iLumi;
