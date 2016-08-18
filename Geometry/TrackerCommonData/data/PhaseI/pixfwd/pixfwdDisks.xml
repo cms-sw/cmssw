@@ -2,9 +2,9 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="pixfwdDisks.xml" eval="true">
- <Constant name="DiskRmin"         value="37.5*mm"/>
- <Constant name="DiskRmax"         value="166.0*mm"/>
- <Constant name="DiskHalfWidth"    value="36.625*mm"/>  <!-- 37.5*mm-->
+ <Constant name="DiskRmin"         value="[pixfwdSupportRingParameters:InnerDiskInnerRingCFRMin]"/>
+ <Constant name="DiskRmax"         value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMax]"/>
+ <Constant name="DiskHalfWidth"    value="36.625*mm"/>  <!-- 37.5*mm -->
 </ConstantsSection>
  
 <SolidSection label="pixfwdDisks.xml">
