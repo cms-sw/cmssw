@@ -102,15 +102,10 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   //  Extracting All the Collections containing useful Info
   iEvent.getByToken(tok_QIE10DigiCollection_,qie10DigiCollection);
-  const QIE10DigiCollection& qie10dc=*(qie10DigiCollection);
   iEvent.getByToken(tok_QIE11DigiCollection_,qie11DigiCollection);
-  const QIE11DigiCollection& qie11dc=*(qie11DigiCollection);
   iEvent.getByToken(tok_HBHEDigiCollection_,hbheDigiCollection);
-  const HBHEDigiCollection& qie8hbhedc=*(hbheDigiCollection);
   iEvent.getByToken(tok_HFDigiCollection_,hfDigiCollection);
-  const HFDigiCollection& qie8hfdc=*(hfDigiCollection);
   iEvent.getByToken(tok_TPDigiCollection_,tpDigiCollection);
-  const HcalTrigPrimDigiCollection& qietpdc=*(tpDigiCollection);
 
   // first argument is the fedid (minFEDID+crateId)
   map<int,unique_ptr<HCalFED> > fedMap;
@@ -120,103 +115,109 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   UHTRpacker uhtrs;
   // loop over each digi and allocate memory for each
+  if( qie10DigiCollection.isValid() ){
+    const QIE10DigiCollection& qie10dc=*(qie10DigiCollection);
+    for (unsigned int j=0; j < qie10dc.size(); j++){
+      QIE10DataFrame qiedf = static_cast<QIE10DataFrame>(qie10dc[j]);
+      DetId detid = qiedf.detid();
+      HcalElectronicsId eid(readoutMap->lookup(detid));
+      int crateId = eid.crateId();
+      int slotId = eid.slot();
+      int uhtrIndex = ((slotId&0xF)<<8) | (crateId&0xFF);
 
-  for (unsigned int j=0; j < qie10dc.size(); j++){
-    QIE10DataFrame qiedf = static_cast<QIE10DataFrame>(qie10dc[j]);
-    DetId detid = qiedf.detid();
-    HcalElectronicsId eid(readoutMap->lookup(detid));
-    int crateId = eid.crateId();
-    int slotId = eid.slot();
-    int uhtrIndex = ((slotId&0xF)<<8) | (crateId&0xFF);
+      /* Defining a custom index that will encode only
+	 the information about the crate and slot of a 
+	 given channel:   crate: bits 0-7
+	 slot:  bits 8-12 */
 
-    /* Defining a custom index that will encode only
-       the information about the crate and slot of a 
-       given channel:   crate: bits 0-7
-                        slot:  bits 8-12 */
-
-    if( ! uhtrs.exist( uhtrIndex ) ){
-      uhtrs.newUHTR( uhtrIndex );
+      if( ! uhtrs.exist( uhtrIndex ) ){
+	uhtrs.newUHTR( uhtrIndex );
+      }
+      uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
   }
-
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // QIE11 precision data
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   //UHTRpacker uhtrs;
   // loop over each digi and allocate memory for each
-  for (unsigned int j=0; j < qie11dc.size(); j++){
-    QIE11DataFrame qiedf = static_cast<QIE11DataFrame>(qie11dc[j]);
-    DetId detid = qiedf.detid();
-    HcalElectronicsId eid(readoutMap->lookup(detid));
-    int crateId = eid.crateId();
-    int slotId = eid.slot();
-    int uhtrIndex = ((slotId&0xF)<<8) | (crateId&0xFF);
+  if( qie11DigiCollection.isValid() ){
+    const QIE11DigiCollection& qie11dc=*(qie11DigiCollection);
+    for (unsigned int j=0; j < qie11dc.size(); j++){
+      QIE11DataFrame qiedf = static_cast<QIE11DataFrame>(qie11dc[j]);
+      DetId detid = qiedf.detid();
+      HcalElectronicsId eid(readoutMap->lookup(detid));
+      int crateId = eid.crateId();
+      int slotId = eid.slot();
+      int uhtrIndex = ((slotId&0xF)<<8) | (crateId&0xFF);
 
-    if( ! uhtrs.exist(uhtrIndex) ){
-      uhtrs.newUHTR( uhtrIndex );
+      if( ! uhtrs.exist(uhtrIndex) ){
+	uhtrs.newUHTR( uhtrIndex );
+      }
+      uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
   }
-
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // HF (QIE8) precision data
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // loop over each digi and allocate memory for each
-  for(HFDigiCollection::const_iterator qiedf=qie8hfdc.begin();qiedf!=qie8hfdc.end();qiedf++){
-    DetId detid = qiedf->id();
-    HcalElectronicsId eid(readoutMap->lookup(detid));
-    int crateId = eid.crateId();
-    int slotId = eid.slot();
-    int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
+  if(hfDigiCollection.isValid()){
+    const HFDigiCollection& qie8hfdc=*(hfDigiCollection);
+    for(HFDigiCollection::const_iterator qiedf=qie8hfdc.begin();qiedf!=qie8hfdc.end();qiedf++){
+      DetId detid = qiedf->id();
+      HcalElectronicsId eid(readoutMap->lookup(detid));
+      int crateId = eid.crateId();
+      int slotId = eid.slot();
+      int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
 
-    if( ! uhtrs.exist(uhtrIndex) ){
-      uhtrs.newUHTR( uhtrIndex );
+      if( ! uhtrs.exist(uhtrIndex) ){
+	uhtrs.newUHTR( uhtrIndex );
+      }
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
   }
-
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // HBHE (QIE8) precision data
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // loop over each digi and allocate memory for each
-  for(HBHEDigiCollection::const_iterator qiedf=qie8hbhedc.begin();qiedf!=qie8hbhedc.end();qiedf++){
-    DetId detid = qiedf->id();
-    HcalElectronicsId eid(readoutMap->lookup(detid));
-    int crateId = eid.crateId();
-    int slotId = eid.slot();
-    int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
+  if(hbheDigiCollection.isValid()){
+    const HBHEDigiCollection& qie8hbhedc=*(hbheDigiCollection);
+    for(HBHEDigiCollection::const_iterator qiedf=qie8hbhedc.begin();qiedf!=qie8hbhedc.end();qiedf++){
+      DetId detid = qiedf->id();
+      HcalElectronicsId eid(readoutMap->lookup(detid));
+      int crateId = eid.crateId();
+      int slotId = eid.slot();
+      int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
 
-    if( ! uhtrs.exist(uhtrIndex) ){
-      uhtrs.newUHTR( uhtrIndex );
+      if( ! uhtrs.exist(uhtrIndex) ){
+	uhtrs.newUHTR( uhtrIndex );
+      }
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
   }
-
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // TP data
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // loop over each digi and allocate memory for each
-
-  // --- I left off here ... need to specify and include the correct digi collection ---
-
-  for(HcalTrigPrimDigiCollection::const_iterator qiedf=qietpdc.begin();qiedf!=qietpdc.end();qiedf++){
-    DetId detid = qiedf->id();
-    HcalElectronicsId eid(readoutMap->lookupTrigger(detid));
+  if(tpDigiCollection.isValid()){
+    const HcalTrigPrimDigiCollection& qietpdc=*(tpDigiCollection);
+    for(HcalTrigPrimDigiCollection::const_iterator qiedf=qietpdc.begin();qiedf!=qietpdc.end();qiedf++){
+      DetId detid = qiedf->id();
+      HcalElectronicsId eid(readoutMap->lookupTrigger(detid));
     
-    int crateId = eid.crateId();
-    int slotId = eid.slot();
-    int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8);
-    int ilink = eid.fiberIndex();
-    int itower = eid.fiberChanId();
-    int channelid = (itower&0xF) | ((ilink&0xF)<<4);
+      int crateId = eid.crateId();
+      int slotId = eid.slot();
+      int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8);
+      int ilink = eid.fiberIndex();
+      int itower = eid.fiberChanId();
+      int channelid = (itower&0xF) | ((ilink&0xF)<<4);
 
-    if( ! uhtrs.exist(uhtrIndex) ){
-      uhtrs.newUHTR( uhtrIndex );
+      if( ! uhtrs.exist(uhtrIndex) ){
+	uhtrs.newUHTR( uhtrIndex );
+      }
+      uhtrs.addChannel(uhtrIndex,qiedf,channelid,_verbosity);
     }
-    uhtrs.addChannel(uhtrIndex,qiedf,channelid,_verbosity);
   }
-
   // -----------------------------------------------------
   // -----------------------------------------------------
   // loop over each uHTR and format data
