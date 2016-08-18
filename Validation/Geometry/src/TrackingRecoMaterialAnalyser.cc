@@ -48,10 +48,14 @@ class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
     MonitorElement * deltaPt_in_out_2d_;
     MonitorElement * deltaP_in_out_vs_eta_;
     MonitorElement * deltaP_in_out_vs_z_;
+    MonitorElement * deltaP_in_out_vs_eta_2d_;
+    MonitorElement * deltaP_in_out_vs_eta_vs_phi_2d_;
+    MonitorElement * deltaP_in_out_vs_z_2d_;
     MonitorElement * deltaPt_in_out_vs_eta_;
     MonitorElement * deltaPt_in_out_vs_z_;
     MonitorElement * deltaPl_in_out_vs_eta_;
     MonitorElement * deltaPl_in_out_vs_z_;
+    MonitorElement * P_vs_eta_2d_;
 };
 
 //-------------------------------------------------------------------------
@@ -80,6 +84,15 @@ void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker & ibook,
                                   600, -300., 300, 120, 0., 120., 0., 1.);
   histo_RZ_ = ibook.bookProfile2D("RadLen", "RadLen",
                                   600, -300., 300, 120, 0., 120., 0., 1.);
+  deltaP_in_out_vs_eta_vs_phi_2d_ = ibook.bookProfile2D("DeltaP_in_out_vs_eta_vs_phi_2d",
+                                                        "DeltaP_in_out_vs_eta_vs_phi_2d",
+                                                        100, -2.5, 2.5,
+                                                        100, -3.15, 3.15,
+                                                        0., 100.);
+  deltaP_in_out_vs_eta_2d_ = ibook.book2D("DeltaP_in_out_vs_eta_2d", "DeltaP_in_out_vs_eta_2d",
+                                          100, -2.5, 2.5, 100, 0., 1);
+  deltaP_in_out_vs_z_2d_   = ibook.book2D("DeltaP_in_out_vs_z_2d", "DeltaP_in_out_vs_z_2d",
+                                          600, -300, 300, 200., -1, 1.);
   deltaP_in_out_vs_eta_ = ibook.bookProfile("DeltaP_in_out_vs_eta", "DeltaP_in_out_vs_eta",
                                       100, -2.5, 2.5, -100., 100.);
   deltaP_in_out_vs_z_   = ibook.bookProfile("DeltaP_in_out_vs_z", "DeltaP_in_out_vs_z",
@@ -94,6 +107,8 @@ void TrackingRecoMaterialAnalyser::bookHistograms(DQMStore::IBooker & ibook,
                                       600, -300, 300, -100., 100.);
   deltaPt_in_out_2d_     = ibook.bookProfile2D("DeltaPt 2D", "DeltaPt 2D",
                                                600, -300., 300, 120, 0., 120., -100., 100.);
+  P_vs_eta_2d_   = ibook.book2D("P_vs_eta_2d", "P_vs_eta_2d",
+                                          100, -2.5, 2.5, 100., 0., 5.);
   char title[50];
   char key[20];
   for (unsigned int det = 1; det < sDETS.size(); ++det ) {
@@ -141,8 +156,10 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
     return;
   }
   auto selector = [&](const Track &track) -> bool {
-    return (track.pt() > 1.
-            && track.quality(track.qualityByName("highPurity")));
+    return (track.quality(track.qualityByName("highPurity"))
+            && track.dxy() < 0.01
+            && track.hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) == 0
+            && track.p() < 1.05 && track.p() > 0.95);
   };
 
   // Main idea:
@@ -164,17 +181,21 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
   TrajectoryStateOnSurface current_tsos;
   DetId current_det;
   for (auto const track : *tracks) {
-    if (!selector(track)  and false)
+    if (!selector(track) and false)
       continue;
     auto const inner = track.innerMomentum();
     auto const outer = track.outerMomentum();
     deltaP_in_out_vs_eta_->Fill(inner.eta(), inner.R() - outer.R());
     deltaP_in_out_vs_z_->Fill(track.outerZ(), inner.R() - outer.R());
+    deltaP_in_out_vs_eta_2d_->Fill(inner.eta(), inner.R() - outer.R());
+    deltaP_in_out_vs_eta_vs_phi_2d_->Fill(inner.eta(), inner.phi(), inner.R() - outer.R());
+    deltaP_in_out_vs_z_2d_->Fill(track.outerZ(), inner.R() - outer.R());
     deltaPt_in_out_vs_eta_->Fill(inner.eta(), inner.rho() - outer.rho());
     deltaPt_in_out_vs_z_->Fill(track.outerZ(), inner.rho() - outer.rho());
     deltaPl_in_out_vs_eta_->Fill(inner.eta(), inner.z() - outer.z());
     deltaPl_in_out_vs_z_->Fill(track.outerZ(), inner.z() - outer.z());
     deltaPt_in_out_2d_->Fill(track.outerZ(), track.outerPosition().rho(), inner.rho() - outer.rho());
+    P_vs_eta_2d_->Fill(track.eta(), track.p());
     vector<Trajectory> traj  = refitter_.transform(track);
     if (traj.size() > 1 || traj.size() == 0)
       continue;
