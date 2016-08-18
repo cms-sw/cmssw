@@ -98,9 +98,14 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   };
 
   MonitorElement* GlobalApvCycleDBxTH2 = 0; 
+  MonitorElement* GlobalDBxTH1 = 0;  
+  MonitorElement* GlobalDBxCycleTH1 = 0;  
   MonitorElement* GlobalCStripVsCpix = 0;
+  MonitorElement* GlobalABXTH1_CSCP = 0; 
   MonitorElement* PixVsStripMultiplicityRegions = 0;
   MonitorElement* GlobalMainDiagonalPosition = 0;
+  MonitorElement* GlobalMainDiagonalPosition_vs_BX = 0;
+  MonitorElement* GlobalTH2MainDiagonalPosition_vs_BX;
   MonitorElement* StripNoise2Cycle = 0;
   MonitorElement* StripNoise3Cycle = 0;
   MonitorElement* NumberOfPixelClus = 0;
@@ -108,6 +113,8 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   MonitorElement* BPTXrateTrend = 0;
   MonitorElement* NclusVsCycleTimeProf2D = 0;
   MonitorElement* ClusWidthVsAmpTH2 = 0;
+  MonitorElement* NumberOfStripClus_vs_BX = 0; // plot n. 3
+  MonitorElement* NumberOfPixelClus_vs_BX = 0; // plot n. 4
 
  private:
 
