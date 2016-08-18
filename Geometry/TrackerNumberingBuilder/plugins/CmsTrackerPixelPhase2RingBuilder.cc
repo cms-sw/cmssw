@@ -26,10 +26,10 @@ void CmsTrackerPixelPhase2RingBuilder::sortNS(DDFilteredView& fv, GeometricDet* 
   TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
 
 
- /* for(uint32_t i=0; i<comp.size();i++){
+  for(uint32_t i=0; i<comp.size();i++){
     det->component(i)->setGeographicalID(i+1);
-    std::cout << "Phase2RingBuilder: z " << comp[i]->translation().z() << std::endl;
-    std::cout << "Phase2RingBuilder: phi " << comp[i]->translation().phi() << std::endl;
-  } */
+   // std::cout << "Phase2RingBuilder: z " << comp[i]->translation().z() << std::endl;
+   // std::cout << "Phase2RingBuilder: phi " << comp[i]->translation().phi() << std::endl;
+  } 
  
 }
