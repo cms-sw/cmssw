@@ -170,8 +170,6 @@ namespace edm {
                                                  &(historyAppenders_[index]),
                                                  index,
                                                  false /*not primary process*/);
-      ep->preReadFromSourceSignal_.connect(std::cref(items.actReg_->preEventReadFromSourceSignal_));
-      ep->postReadFromSourceSignal_.connect(std::cref(items.actReg_->postEventReadFromSourceSignal_));
       principalCache_.insert(ep);
     }
     if(hasSubProcesses) {
