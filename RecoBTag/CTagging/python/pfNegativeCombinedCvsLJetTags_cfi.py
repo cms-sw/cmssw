@@ -5,7 +5,7 @@ pfNegativeCombinedCvsLJetTags = cms.EDProducer(
    jetTagComputer = cms.string('charmTagsNegativeComputerCvsL'),
    tagInfos = cms.VInputTag(
       cms.InputTag("pfImpactParameterTagInfos"),
-      cms.InputTag("pfInclusiveSecondaryVertexFinderCvsLNegativeTagInfos"),
+      cms.InputTag("pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos"),
       cms.InputTag("softPFMuonsTagInfos"),
       cms.InputTag("softPFElectronsTagInfos")
       )
