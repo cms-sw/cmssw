@@ -5,6 +5,27 @@
 #include "SimTracker/TrackHistory/interface/HistoryBase.h"
 
 
+void HistoryBase::traceRecoGenHistory(reco::GenParticle const * genParticle)
+{
+    // fill the trace of reco::GenParticle for correct reading of the History flags etc.
+    // This is called from the TrackingParticle->genParticle_begin() which is a reco::GenParticle
+    if ( genParticle->status() <= abs(depth_) && (genParticle->pdgId() < 88 || genParticle->pdgId() > 99) )
+    {
+        //If the particle is already in the history, it is looping and you should stop
+        if ( recoGenParticleTrailHelper_.find(genParticle) != recoGenParticleTrailHelper_.end() ){
+           return;
+        }
+        recoGenParticleTrail_.push_back(genParticle);
+        recoGenParticleTrailHelper_.insert(genParticle);
+        // Get the genParticle's mother and trace its history
+        //std::cout << "reco::GenParticle::pdgId() : " << genParticle->pdgId() << std::endl;
+        if (genParticle->mother() != 0){
+        	traceRecoGenHistory( (const reco::GenParticle *)genParticle->mother() );
+        }
+    }
+}
+
+
 void HistoryBase::traceGenHistory(HepMC::GenParticle const * genParticle)
 {
     // Third stop criteria: status abs(depth_) particles after the hadronization.
@@ -48,9 +69,9 @@ bool HistoryBase::traceSimHistory(TrackingParticleRef const & trackingParticle, 
 				 << std::endl;
 	//#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
 	// this code does not compile likely due to the wrong type of iterator
-	#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-	traceGenHistory(&(**(trackingParticle->genParticle_begin()))); 
-	#endif
+	//#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
+	traceRecoGenHistory(&(**(trackingParticle->genParticle_begin()))); 
+	//#endif
 
     }
 
