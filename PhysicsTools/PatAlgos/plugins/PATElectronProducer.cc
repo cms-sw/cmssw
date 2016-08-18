@@ -688,8 +688,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   std::sort(patElectrons->begin(), patElectrons->end(), pTComparator_);
 
   // add the electrons to the event output
-  std::auto_ptr<std::vector<Electron> > ptr(patElectrons);
-  iEvent.put(ptr);
+  std::unique_ptr<std::vector<Electron> > ptr(patElectrons);
+  iEvent.put(std::move(ptr));
 
   // clean up
   if (isolator_.enabled()) isolator_.endEvent();

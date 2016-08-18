@@ -74,7 +74,7 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     Handle<pat::MuonCollection>      src;
     iEvent.getByToken(src_, src);
 
-    auto_ptr<vector<pat::Muon> >  out(new vector<pat::Muon>());
+    auto out = std::make_unique<std::vector<pat::Muon>>();
     out->reserve(src->size());
 
     if( modifyMuon_ ) { muonModifier_->setEvent(iEvent); }
@@ -103,7 +103,7 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

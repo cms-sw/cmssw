@@ -373,8 +373,8 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   std::sort(PATPhotons->begin(), PATPhotons->end(), eTComparator_);
 
   // put genEvt object in Event
-  std::auto_ptr<std::vector<Photon> > myPhotons(PATPhotons);
-  iEvent.put(myPhotons);
+  std::unique_ptr<std::vector<Photon> > myPhotons(PATPhotons);
+  iEvent.put(std::move(myPhotons));
   if (isolator_.enabled()) isolator_.endEvent();
 
 }

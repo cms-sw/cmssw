@@ -114,7 +114,7 @@ namespace citk {
 
   void  PFIsolationSumProducer::
   produce(edm::Event& ev, const edm::EventSetup& es) {
-    typedef std::auto_ptr<edm::ValueMap<float> >  product_type;
+    typedef std::unique_ptr<edm::ValueMap<float> >  product_type;
     typedef std::vector<float> product_values;
     edm::Handle<CandView> to_isolate;
     edm::Handle<CandView> isolate_with;
@@ -167,7 +167,7 @@ namespace citk {
 			  the_values[i][j].begin(),
 			  the_values[i][j].end());
 	fillerprod.fill();
-	ev.put(the_product,_product_names[i][j]);
+	ev.put(std::move(the_product),_product_names[i][j]);
       }
     }
   }

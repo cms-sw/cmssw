@@ -187,8 +187,8 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
   std::sort(PATGenericParticles->begin(), PATGenericParticles->end(), eTComparator_);
 
   // put genEvt object in Event
-  std::auto_ptr<std::vector<GenericParticle> > myGenericParticles(PATGenericParticles);
-  iEvent.put(myGenericParticles);
+  std::unique_ptr<std::vector<GenericParticle> > myGenericParticles(PATGenericParticles);
+  iEvent.put(std::move(myGenericParticles));
   if (isolator_.enabled()) isolator_.endEvent();
 
 }

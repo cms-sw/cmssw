@@ -61,7 +61,7 @@ void PATTriggerObjectStandAloneUnpacker::produce( edm::StreamID, edm::Event & iE
   edm::Handle< edm::TriggerResults > triggerResults;
   iEvent.getByToken( triggerResultsToken_, triggerResults );
 
-  std::auto_ptr< TriggerObjectStandAloneCollection > patTriggerObjectsStandAloneUnpacked( new TriggerObjectStandAloneCollection );
+  auto patTriggerObjectsStandAloneUnpacked = std::make_unique<TriggerObjectStandAloneCollection>();
 
   for ( size_t iTrigObj = 0; iTrigObj < patTriggerObjectsStandAlone->size(); ++iTrigObj ) {
     TriggerObjectStandAlone patTriggerObjectStandAloneUnpacked( patTriggerObjectsStandAlone->at( iTrigObj ) );
@@ -70,7 +70,7 @@ void PATTriggerObjectStandAloneUnpacker::produce( edm::StreamID, edm::Event & iE
     patTriggerObjectsStandAloneUnpacked->push_back( patTriggerObjectStandAloneUnpacked );
   }
 
-  iEvent.put( patTriggerObjectsStandAloneUnpacked );
+  iEvent.put(std::move(patTriggerObjectsStandAloneUnpacked) );
 }
 
 

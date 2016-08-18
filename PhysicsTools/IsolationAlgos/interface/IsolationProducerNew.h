@@ -73,7 +73,7 @@ namespace reco {
       Setup::init(alg_, es);
 
       ::helper::MasterCollection<C1> master(src, evt);
-      auto_ptr<OutputCollection> isolations(new OutputCollection);
+      auto isolations = std::make_unique<OutputCollection>();
       if(src->size()!= 0) {
 	typename OutputCollection::Filler filler(*isolations);
 	vector<double> iso(master.size(),-1);
@@ -83,7 +83,7 @@ namespace reco {
 	filler.insert(master.get(), iso.begin(), iso.end());
 	filler.fill();
       }
-      evt.put( isolations );
+      evt.put(std::move(isolations) );
     }
 
   }

@@ -130,7 +130,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   //will the filter pass or not.
   bool majorGlobalAccept=false;
 
-  std::auto_ptr<std::vector<bool> > passedProduct(new std::vector<bool>(flows_.size(),false));
+  auto passedProduct = std::make_unique<std::vector<bool>>(flows_.size(),false);
   bool filledOnce=false;
 
   // loop the requested selections
@@ -205,7 +205,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   }//loop the different filter order/number: loop the Selections
 
-  iEvent.put(passedProduct);
+  iEvent.put(std::move(passedProduct));
   if (workAsASelector_)
     return majorGlobalAccept;
   else

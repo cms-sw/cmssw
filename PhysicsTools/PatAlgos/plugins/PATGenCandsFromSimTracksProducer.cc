@@ -246,7 +246,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
   event.getByToken(simTracksToken_, simtracks);
 
   // Need to check that SimTrackContainer is sorted; otherwise, copy and sort :-(
-  std::auto_ptr<SimTrackContainer> simtracksTmp;
+  std::unique_ptr<SimTrackContainer> simtracksTmp;
   const SimTrackContainer * simtracksSorted = &* simtracks;
   if (makeMotherLink_ || writeAncestors_) {
       if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
@@ -273,7 +273,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
 
 
   // make the output collection
-  auto_ptr<GenParticleCollection> cands(new GenParticleCollection);
+  auto cands = std::make_unique<GenParticleCollection>();
   edm::RefProd<GenParticleCollection> refprod = event.getRefBeforePut<GenParticleCollection>();
 
   GlobalContext globals(*simtracksSorted, *simvertices, gens, genBarcodes, barcodesAreSorted, *cands, refprod);
@@ -312,7 +312,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
   }
 
   // Write to the Event, and get back a handle (which can be useful for debugging)
-  edm::OrphanHandle<reco::GenParticleCollection> orphans = event.put(cands);
+  edm::OrphanHandle<reco::GenParticleCollection> orphans = event.put(std::move(cands));
 
 #ifdef DEBUG_PATGenCandsFromSimTracksProducer
   std::cout << "Produced a list of " << orphans->size() << " genParticles." << std::endl;

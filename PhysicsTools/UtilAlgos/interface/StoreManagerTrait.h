@@ -28,7 +28,7 @@ namespace helper {
   
   template<typename T>
   struct IteratorToObjectConverter<edm::OwnVector<T> > {
-    typedef std::auto_ptr<T> value_type;
+    typedef std::unique_ptr<T> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
       return value_type( (*i)->clone() );
@@ -66,15 +66,15 @@ namespace helper {
   /*
   template<typename OutputCollection, typename InputCollection>
   struct OutputCollectionCreator {
-    static std::auto_ptr<OutputCollection> createNewCollection( const edm::Handle<InputCollection> & ) {
-      return std::auto_ptr<OutputCollection>( new OutputCollection );
+    static std::unique_ptr<OutputCollection> createNewCollection( const edm::Handle<InputCollection> & ) {
+      return std::make_unique<OutputCollection>();
     }
   };
 
   template<typename T, typename InputCollection>
   struct OutputCollectionCreator<edm::RefToBaseVector<T>, InputCollection> {
-    static std::auto_ptr<edm::RefToBaseVector<T> > createNewCollection( const edm::Handle<InputCollection> & h ) {
-      return std::auto_ptr<edm::RefToBaseVector<T> >( new edm::RefToBaseVector<T>(h) );
+    static std::unique_ptr<edm::RefToBaseVector<T> > createNewCollection( const edm::Handle<InputCollection> & h ) {
+      return std::make_unique<edm::RefToBaseVector<T> >(h);
     }
   };
   */
@@ -105,12 +105,12 @@ namespace helper {
         selected_->push_back( v );
       }
     }
-    edm::OrphanHandle<collection> put( edm::Event & evt ) {
-      return evt.put( selected_ );
+    edm::OrphanHandle<collection> put(edm::Event & evt) {
+      return evt.put(selected_);
     }
     size_t size() const { return selected_->size(); }
   private:
-    std::auto_ptr<collection> selected_;
+    std::unique_ptr<collection> selected_;
   };
 
   template<typename OutputCollection>

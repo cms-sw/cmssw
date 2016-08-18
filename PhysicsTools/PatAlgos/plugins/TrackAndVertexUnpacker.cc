@@ -77,7 +77,7 @@ void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, cons
 	Handle<std::vector<pat::PackedCandidate> > addTracks;
 	iEvent.getByToken(AdditionalTracks_, addTracks);
 
-	std::auto_ptr< std::vector<reco::Track> > outTks( new std::vector<reco::Track> );
+	auto outTks = std::make_unique<std::vector<reco::Track>>();
 	std::map<unsigned int, std::vector<unsigned int> > asso;
 	std::map<unsigned int, unsigned int> trackKeys;
 	unsigned int j=0;
@@ -104,9 +104,9 @@ void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, cons
 		j++;
 	}
 	
-	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put( outTks );
+	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put(std::move(outTks));
 	
-	std::auto_ptr< std::vector<reco::Vertex> > outPv( new std::vector<reco::Vertex> );
+	auto outPv = std::make_unique<std::vector<reco::Vertex>>();
 	
 	for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
 		reco::Vertex  pv = (*pvs)[ipv];
@@ -118,9 +118,9 @@ void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, cons
 		}
 		outPv->push_back(pv);
 	}
-	iEvent.put(outPv);
+	iEvent.put(std::move(outPv));
 
-        std::auto_ptr< std::vector<reco::Vertex> > outSv( new std::vector<reco::Vertex> );
+        auto outSv = std::make_unique<std::vector<reco::Vertex>>();
 	for(size_t i=0;i< svs->size(); i++) {
 		const reco::VertexCompositePtrCandidate &sv = (*svs)[i];	
 		outSv->push_back(reco::Vertex(sv.vertex(),sv.vertexCovariance(),sv.vertexChi2(),sv.vertexNdof(),0));
@@ -138,7 +138,7 @@ void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, cons
 		}	
 	}   
 
-       iEvent.put(outSv,"secondary");
+       iEvent.put(std::move(outSv),"secondary");
 
 }
 
