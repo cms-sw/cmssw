@@ -127,9 +127,9 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
       dr=coolRadius+0.5*ladderThick;
     }
     if(i % 2 == 1) {
-      rrr = coolDist*cos(0.5*dphi)+iup*dr+rOuterFineTune;
+      rrr = coolDist*cos(0.5*dphi)+iup*dr;
     } else {
-      rrr = coolDist*cos(0.5*dphi)+iup*dr+rInnerFineTune;
+      rrr = coolDist*cos(0.5*dphi)+iup*dr;
     }
     tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
     rots = idName + std::to_string(copy);
