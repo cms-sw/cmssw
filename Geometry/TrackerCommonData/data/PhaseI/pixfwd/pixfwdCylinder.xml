@@ -31,7 +31,7 @@ root volume plus an anchor point for positioning.
 -->
 
 <ConstantsSection label="Cylinders" eval="true">
- <Constant name="CylindersOuterRmin" value="166.00*mm"/><!-- 160.00*mm-->
+ <Constant name="CylindersOuterRmin" value="168.00*mm"/><!-- 160.00*mm-->
  <Constant name="CylindersOuterRmax" value="174.50*mm"/><!-- 168.50*mm-->
  <Constant name="CylindersOuterLength" value="2101.09*mm"/> 
 
