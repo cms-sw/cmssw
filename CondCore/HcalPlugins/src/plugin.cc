@@ -72,3 +72,5 @@ REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd,HcalInterpolatedPulseColl);
 REGISTER_PLUGIN(HBHENegativeEFilterRcd,HBHENegativeEFilter);
 REGISTER_PLUGIN(HcalSiPMParametersRcd,HcalSiPMParameters);
 REGISTER_PLUGIN(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics);
+REGISTER_PLUGIN(HcalTPParametersRcd,HcalTPParameters);
+REGISTER_PLUGIN(HcalTPChannelParametersRcd,HcalTPChannelParameters);

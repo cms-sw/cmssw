@@ -199,6 +199,8 @@
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
 #include "CondFormats/HcalObjects/interface/HcalTimeCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThresholds.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
