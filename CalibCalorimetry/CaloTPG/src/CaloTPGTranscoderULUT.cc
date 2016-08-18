@@ -124,7 +124,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
     }
 }
 
-HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const {
+HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, int fineGrain) const {
   unsigned int itower = getOutputLUTId(id);
 
   if (sample >= OUTPUT_LUT_SIZE) {
@@ -136,7 +136,7 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
     throw cms::Exception("Out of Range") << "No decompression LUT found for " << id;
   }
 
-  return HcalTriggerPrimitiveSample(outputLUT_[itower][sample],fineGrain,0,0);
+  return HcalTriggerPrimitiveSample(outputLUT_[itower][sample], fineGrain);
 }
 
 double CaloTPGTranscoderULUT::hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compET) const {
