@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -47,7 +46,7 @@ public:
   L1TCaloStage2ParamsESProducer(const edm::ParameterSet&);
   ~L1TCaloStage2ParamsESProducer();
 
-  typedef boost::shared_ptr<CaloParams> ReturnType;
+  typedef std::shared_ptr<CaloParams> ReturnType;
 
   ReturnType produce(const L1TCaloStage2ParamsRcd&);
 
@@ -312,9 +311,9 @@ L1TCaloStage2ParamsESProducer::ReturnType
 L1TCaloStage2ParamsESProducer::produce(const L1TCaloStage2ParamsRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<CaloParams> pCaloParams ;
+   std::shared_ptr<CaloParams> pCaloParams ;
 
-   pCaloParams = boost::shared_ptr< CaloParams >(new CaloParams(m_params));
+   pCaloParams = std::make_shared< CaloParams >(m_params);
    return pCaloParams;
 }
 

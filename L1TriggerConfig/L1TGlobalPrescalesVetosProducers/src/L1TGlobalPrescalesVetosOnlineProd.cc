@@ -13,7 +13,7 @@
 class L1TGlobalPrescalesVetosOnlineProd : public L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos> {
 private:
 public:
-    virtual boost::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
+    virtual std::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
 
     L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet&);
     ~L1TGlobalPrescalesVetosOnlineProd(void){}
@@ -21,7 +21,7 @@ public:
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos>(iConfig) {}
 
-boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) {
+std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) {
     using namespace edm::es;
 
     edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TGlobalPrescalesVetos with RS key =" << objectKey ;
@@ -316,7 +316,7 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
   data_.setTriggerAlgoBxMask   ( triggerAlgoBxMaskAlgoTrig );
 
   using namespace edm::es;
-  boost::shared_ptr<L1TGlobalPrescalesVetos> pMenu = boost::shared_ptr< L1TGlobalPrescalesVetos >(data_.getWriteInstance());
+  std::shared_ptr<L1TGlobalPrescalesVetos> pMenu(data_.getWriteInstance());
   return pMenu;
 
 }
