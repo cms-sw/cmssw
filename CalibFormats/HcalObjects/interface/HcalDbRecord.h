@@ -28,12 +28,12 @@
 // class HcalDbRecord : public edm::eventsetup::EventSetupRecordImplementation<HcalDbRecord> {};
 
 class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation <HcalDbRecord,  
-  boost::mpl::vector<HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd, 
+  boost::mpl::vector<HcalRecNumberingRecord, IdealGeometryRecord, HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd, 
   HcalQIEDataRcd, HcalQIETypesRcd, HcalChannelQualityRcd, HcalZSThresholdsRcd, HcalRespCorrsRcd, 
   HcalL1TriggerObjectsRcd, HcalElectronicsMapRcd, HcalTimeCorrsRcd, HcalLUTCorrsRcd, HcalPFCorrsRcd,
   HcalFrontEndMapRcd, HcalSiPMCharacteristicsRcd, HcalSiPMParametersRcd, 
-//  HcalRecNumberingRecord, IdealGeometryRecord, 
-  HcalTPParametersRcd, HcalTPChannelParametersRcd, HcalLutMetadataRcd > > {}; 
+//  HcalTPParametersRcd, HcalTPChannelParametersRcd,
+  HcalLutMetadataRcd > > {}; 
 
 #endif /* HCALDBPRODUCER_HCALDBRECORD_H */
 
