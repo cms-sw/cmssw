@@ -20,6 +20,9 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
    modifyElectrons = cms.bool(True),
-   modifierConfig = cms.PSet( modifications = cms.VPSet() )
+   modifierConfig = cms.PSet( modifications = cms.VPSet() ),
+   puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolationForElectrons", "h+-DR030-BarVeto000-EndVeto001"),
+   puppiIsolationNeutralHadrons = cms.InputTag("egmElectronPUPPIIsolationForElectrons", "h0-DR030-BarVeto000-EndVeto000"),
+   puppiIsolationPhotons = cms.InputTag("egmElectronPUPPIIsolationForElectrons", "gamma-DR030-BarVeto000-EndVeto008")
 )
 
