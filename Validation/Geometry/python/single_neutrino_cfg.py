@@ -2,7 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TestProcess")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("IOMC.EventVertexGenerators.VtxSmearedFlat_cfi")
+#process.load("IOMC.EventVertexGenerators.VtxSmearedFlat_cfi")
+from Configuration.StandardSequences.VtxSmeared import VtxSmeared
+#process.load(VtxSmeared['Flat'])
+process.load(VtxSmeared['NoSmear'])
+
 process.load("GeneratorInterface.Core.generatorSmeared_cfi")
 
 process.load("Configuration.EventContent.EventContent_cff")
