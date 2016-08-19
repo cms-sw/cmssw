@@ -25,7 +25,13 @@ options.register('sample',
                 'SingleMuPt100',
                 VarParsing.multiplicity.singleton,
                 VarParsing.varType.string,
-                "Input sample to use. Will also modify the output filename accordingly")
+                """Input sample to use. Will also modify the output filename accordingly.
+                       Currently supported samples are:
+                       SingleMuPt10,
+                       [SingleMuPt100],
+                       SingleElectronPt35,
+                       SingleElectronPt10,
+                       TTbar_PU25""")
 options.register('ntuple',
                 False,
                 VarParsing.multiplicity.singleton,
