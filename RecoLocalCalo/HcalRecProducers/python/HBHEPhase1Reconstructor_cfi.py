@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
+import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
 
 hbheprereco = cms.EDProducer(
     "HBHEPhase1Reconstructor",
@@ -41,6 +42,7 @@ hbheprereco = cms.EDProducer(
     algorithm = cms.PSet(
         # Parameters for "Method 3" (non-keyword arguments have to go first)
         method3.m3Parameters,
+        method2.m2Parameters,
 
         Class = cms.string("SimpleHBHEPhase1Algo"),
 
@@ -54,30 +56,6 @@ hbheprereco = cms.EDProducer(
 
         # Use "Method 2"? Change this to True when implemented.
         useM2 = cms.bool(False),
-
-        # Parameters for "Method 2"
-        applyPedConstraint    = cms.bool(True),
-        applyTimeConstraint   = cms.bool(True),
-        applyPulseJitter      = cms.bool(False),  
-        applyTimeSlew         = cms.bool(True),   #units
-        ts4Min                = cms.double(0.),   #fC
-        ts4Max                = cms.vdouble(100.,70000.), #fC # this is roughly 20 GeV
-        pulseJitter           = cms.double(1.),   #GeV/bin
-        ###
-        meanTime              = cms.double(0.),   #ns
-        timeSigmaHPD          = cms.double(5.),   #ns
-        timeSigmaSiPM         = cms.double(2.5),  #ns
-        meanPed               = cms.double(0.),   #GeV
-        pedSigmaHPD           = cms.double(0.5),  #GeV
-        pedSigmaSiPM          = cms.double(1.5),  #GeV
-        noiseHPD              = cms.double(1),    #fC
-        noiseSiPM             = cms.double(2),    #fC
-        ###
-        timeMin               = cms.double(-12.5),#ns
-        timeMax               = cms.double(12.5), #ns
-        ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
-        fitTimes              = cms.int32(1),     # -1 means no constraint on number of fits per channel
-
         # Use "Method 3"? Change this to True when implemented.
         useM3 = cms.bool(False)
     ),

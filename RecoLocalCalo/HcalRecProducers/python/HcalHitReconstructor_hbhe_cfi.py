@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
+import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
 
 hbheprereco = cms.EDProducer(
     "HcalHitReconstructor",
     method3.m3Parameters,
+    method2.m2Parameters,
     correctionPhaseNS = cms.double(6.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HBHE'),
@@ -118,25 +120,4 @@ hbheprereco = cms.EDProducer(
                                           ignorelowest=cms.bool(True),
                                           ignorehighest=cms.bool(False)
                                           ),
-    applyPedConstraint    = cms.bool(True),
-    applyTimeConstraint   = cms.bool(True),
-    applyPulseJitter      = cms.bool(False),  
-    applyTimeSlew         = cms.bool(True),   #units
-    ts4Min                = cms.double(0.),   #fC
-    ts4Max                = cms.vdouble(100.,100.),   #fC
-    pulseJitter           = cms.double(1.),   #GeV/bin
-    ###
-    meanTime              = cms.double(0.), #ns
-    timeSigmaHPD          = cms.double(5.),  #ns
-    timeSigmaSiPM         = cms.double(5.),  #ns
-    meanPed               = cms.double(0.),   #GeV
-    pedSigmaHPD           = cms.double(0.5),  #GeV
-    pedSigmaSiPM          = cms.double(1.5),  #GeV
-    noiseHPD              = cms.double(1),    #fC
-    noiseSiPM             = cms.double(2),    #fC
-    ###
-    timeMin               = cms.double(-12.5),  #ns
-    timeMax               = cms.double(12.5),  #ns
-    ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
-    fitTimes              = cms.int32(1)       # -1 means no constraint on number of fits per channel
 )
