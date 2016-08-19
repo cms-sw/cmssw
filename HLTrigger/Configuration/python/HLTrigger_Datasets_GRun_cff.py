@@ -383,8 +383,10 @@ streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet250
     'HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v6', 
     'HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_v6', 
     'HLT_PFHT650_v6', 
-    'HLT_PFHT750_4JetPt50_v6', 
-    'HLT_PFHT800_v5', 
+    'HLT_PFHT750_4JetPt70_v1', 
+    'HLT_PFHT750_4JetPt80_v1', 
+    'HLT_PFHT800_4JetPt50_v1', 
+    'HLT_PFHT850_4JetPt50_v1', 
     'HLT_PFHT900_v4', 
     'HLT_PFJet140_v6', 
     'HLT_PFJet200_v6', 
@@ -486,7 +488,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleMuon_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMuon_selector.throw      = cms.bool(False)
-streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu18NoFiltersNoVtx_v3', 
+streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu0_v1', 
+    'HLT_DoubleMu18NoFiltersNoVtx_v3', 
     'HLT_DoubleMu23NoFiltersNoVtxDisplaced_v3', 
     'HLT_DoubleMu28NoFiltersNoVtxDisplaced_v3', 
     'HLT_DoubleMu33NoFiltersNoVtx_v3', 
@@ -637,6 +640,9 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_Mu50_v4', 
     'HLT_Mu55_v3', 
     'HLT_Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_v2', 
+    'HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v1', 
+    'HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v1', 
+    'HLT_TkMu17_v1', 
     'HLT_TkMu20_v4', 
     'HLT_TkMu24_eta2p1_v5', 
     'HLT_TkMu27_v5', 
