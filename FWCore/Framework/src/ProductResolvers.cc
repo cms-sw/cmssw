@@ -13,6 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 #include <cassert>
 #include <utility>
@@ -20,11 +21,6 @@
 static constexpr unsigned int kUnsetOffset = 0;
 static constexpr unsigned int kAmbiguousOffset = 1;
 static constexpr unsigned int kMissingOffset = 2;
-namespace {
-  template<typename T, typename F> std::unique_ptr<T, F> make_sentry(T* iObject, F iFunc) {
-    return std::unique_ptr<T, F>(iObject, iFunc);
-  }
-}
 
 namespace edm {
 
