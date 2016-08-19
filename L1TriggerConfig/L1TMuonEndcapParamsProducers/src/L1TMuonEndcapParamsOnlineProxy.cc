@@ -11,7 +11,7 @@
 class L1TMuonEndcapParamsOnlineProxy : public edm::ESProducer {
 private:
 public:
-    boost::shared_ptr<L1TMuonEndCapParams> produce(const L1TMuonEndcapParamsO2ORcd& record);
+    std::shared_ptr<L1TMuonEndCapParams> produce(const L1TMuonEndcapParamsO2ORcd& record);
 
     L1TMuonEndcapParamsOnlineProxy(const edm::ParameterSet&);
     ~L1TMuonEndcapParamsOnlineProxy(void){}
@@ -21,7 +21,7 @@ L1TMuonEndcapParamsOnlineProxy::L1TMuonEndcapParamsOnlineProxy(const edm::Parame
     setWhatProduced(this);
 }
 
-boost::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(const L1TMuonEndcapParamsO2ORcd& record) {
+std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(const L1TMuonEndcapParamsO2ORcd& record) {
 /*
     const L1TMuonEndcapParamsRcd& baseRcd = record.template getRecord< L1TMuonEndcapParamsRcd >() ;
     edm::ESHandle< L1TMuonEndcapParams > baseSettings ;
@@ -29,7 +29,8 @@ boost::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(c
 
     return boost::shared_ptr< L1TMuonEndcapParams > ( new L1TMuonEndcapParams( *(baseSettings.product()) ) );
 */
-    return boost::shared_ptr< L1TMuonEndCapParams > ( new L1TMuonEndCapParams() );
+    std::shared_ptr< L1TMuonEndCapParams > retval = std::make_shared< L1TMuonEndCapParams>();
+    return retval;
 }
 
 //define this as a plug-in

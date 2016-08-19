@@ -1,7 +1,6 @@
 #include <iostream>
 #include <memory>
 #include <iostream>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -26,7 +25,7 @@ public:
   L1TMuonEndCapForestESProducer(const edm::ParameterSet&);
   ~L1TMuonEndCapForestESProducer();
   
-  typedef boost::shared_ptr<L1TMuonEndCapForest> ReturnType;
+  typedef std::shared_ptr<L1TMuonEndCapForest> ReturnType;
 
   ReturnType produce(const L1TMuonEndCapForestRcd&);
 private:
@@ -110,9 +109,7 @@ L1TMuonEndCapForestESProducer::ReturnType
 L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TMuonEndCapForest> pEMTFForest;
-
-   pEMTFForest = boost::shared_ptr<L1TMuonEndCapForest>(data_.getWriteInstance());
+   std::shared_ptr<L1TMuonEndCapForest> pEMTFForest(data_.getWriteInstance());
    return pEMTFForest;
    
 }

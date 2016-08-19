@@ -1,7 +1,6 @@
 #include <iostream>
 #include <memory>
 #include <iostream>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -26,7 +25,7 @@ public:
   L1TMuonEndCapParamsESProducer(const edm::ParameterSet&);
   ~L1TMuonEndCapParamsESProducer();
   
-  typedef boost::shared_ptr<L1TMuonEndCapParams> ReturnType;
+  typedef std::shared_ptr<L1TMuonEndCapParams> ReturnType;
 
   ReturnType produce(const L1TMuonEndCapParamsRcd&);
 private:
@@ -64,9 +63,7 @@ L1TMuonEndCapParamsESProducer::ReturnType
 L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndCapParamsRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1TMuonEndCapParams> pEMTFParams;
-
-   pEMTFParams = boost::shared_ptr<L1TMuonEndCapParams>(data_.getWriteInstance());
+   std::shared_ptr<L1TMuonEndCapParams> pEMTFParams(data_.getWriteInstance());
    return pEMTFParams;
    
 }

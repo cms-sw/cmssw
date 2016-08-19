@@ -9,7 +9,7 @@
 class L1TMuonEndcapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams> {
 private:
 public:
-    virtual boost::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) override ;
+    virtual std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) override ;
 
     L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonEndcapParamsOnlineProd(void){}
@@ -17,9 +17,9 @@ public:
 
 L1TMuonEndcapParamsOnlineProd::L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams>(iConfig) {}
 
-boost::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) {
+std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) {
     edm::LogError( "L1-O2O" ) << "L1TMuonEndcapParams object with key " << objectKey << " not in ORCON!" ;
-    return boost::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams() );
+    return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams() );
 }
 
 //define this as a plug-in

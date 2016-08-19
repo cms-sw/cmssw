@@ -13,7 +13,7 @@
 class L1TMuonGlobalParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd,L1TMuonGlobalParams> {
 private:
 public:
-    virtual boost::shared_ptr<L1TMuonGlobalParams> newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) override ;
+    virtual std::shared_ptr<L1TMuonGlobalParams> newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) override ;
 
     L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonGlobalParamsOnlineProd(void){}
@@ -21,7 +21,7 @@ public:
 
 L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd,L1TMuonGlobalParams>(iConfig) {}
 
-boost::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) {
+std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) {
     using namespace edm::es;
 
     const L1TMuonGlobalParamsRcd& baseRcd = record.template getRecord< L1TMuonGlobalParamsRcd >() ;
@@ -280,7 +280,8 @@ boost::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(
     L1TMuonGlobalParamsHelper m_params_helper( *(baseSettings.product()) );
     m_params_helper.loadFromOnline(trgSys);
 
-    return boost::shared_ptr< L1TMuonGlobalParams >( new L1TMuonGlobalParams( cast_to_L1TMuonGlobalParams(m_params_helper) ) ) ;
+    std::shared_ptr< L1TMuonGlobalParams > retval = std::make_shared< L1TMuonGlobalParams >( cast_to_L1TMuonGlobalParams(m_params_helper) );
+    return retval;
 }
 
 //define this as a plug-in
