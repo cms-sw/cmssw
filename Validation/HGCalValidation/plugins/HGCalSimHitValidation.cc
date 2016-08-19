@@ -41,12 +41,13 @@ HGCalSimHitValidation::HGCalSimHitValidation(const edm::ParameterSet& iConfig) :
 
   nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
   caloHitSource_ = iConfig.getParameter<std::string>("CaloHitSource");
+  times_         = iConfig.getParameter<std::vector<double> >("TimeSlices");
   verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  testNumber_    = iConfig.getUntrackedParameter<bool>("TestNumber", false);
+  testNumber_    = iConfig.getUntrackedParameter<bool>("TestNumber", true);
   heRebuild_     = (nameDetector_ == "HCal") ? true : false;
   tok_hepMC_     = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   tok_hits_      = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits",caloHitSource_));
-
+  nTimes_        = (times_.size() > 6) ? 6 : times_.size();
 }
 
 HGCalSimHitValidation::~HGCalSimHitValidation() {}
@@ -58,7 +59,7 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_hepMC_,evtMC); 
   if (!evtMC.isValid()) {
-    edm::LogWarning("HGCalValidation") << "no HepMCProduct found";
+    edm::LogWarning("HGCalValidation") << "no HepMCProduct found\n";
   } else { 
     const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
     unsigned int k(0);
@@ -67,7 +68,7 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
       edm::LogInfo("HGCalValidation") << "Particle[" << k << "] with pt "
 				      << (*p)->momentum().perp() << " eta "
 				      << (*p)->momentum().eta() << " phi "
-				      << (*p)->momentum().phi();
+				      << (*p)->momentum().phi() << std::endl;
     }
   }
 
@@ -77,7 +78,7 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
   if (theCaloHitContainers.isValid()) {
     if (verbosity_>0) 
       edm::LogInfo("HGCalValidation") << " PcalohitItr = " 
-				      << theCaloHitContainers->size();
+				      << theCaloHitContainers->size() << "\n";
     std::vector<PCaloHit>               caloHits;
     caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), 
                          	    theCaloHitContainers->end());
@@ -91,37 +92,34 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
 	  edm::LogInfo("HGCalValidation") << "Hit[" << i << "] subdet "
 					  << subdet << " z " << z << " depth "
 					  << depth0 << " eta " << eta0 
-					  << " phi " << phi0 << " lay " << lay;
+					  << " phi " << phi0 << " lay " << lay
+					  << std::endl;
 	HcalDDDRecConstants::HcalID id = hcons_->getHCID(subdet, eta0, phi0, lay, depth0);
 	HcalDetId hid = ((subdet==int(HcalEndcap)) ? 
 			 HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth) :
 			 HcalDetId(HcalEmpty,sign*id.eta,id.phi,id.depth));
 	caloHits[i].setID(hid.rawId());
 	if (verbosity_>0)
-	  edm::LogInfo("HGCalValidation") << "Hit[" << i << "] " << hid;
+	  edm::LogInfo("HGCalValidation") << "Hit[" << i << "] " << hid <<"\n";
       }
     }
     analyzeHits(caloHits);
   } else if (verbosity_>0) {
-    edm::LogInfo("HGCalValidation") << "PCaloHitContainer does not exist !!!";
+    edm::LogInfo("HGCalValidation") << "PCaloHitContainer does not exist !!!\n";
   }
 }
 
 void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 
-  std::map<int, int> OccupancyMap_plus[netaBins];
-  std::map<int, int> OccupancyMap_minus[netaBins];
-  for(int i=0; i<netaBins; ++i) {
-    OccupancyMap_plus[i].clear();
-    OccupancyMap_minus[i].clear();
-  }  
+  std::map<int, int> OccupancyMap_plus, OccupancyMap_minus;
+  OccupancyMap_plus.clear();   OccupancyMap_minus.clear();
   
   std::map<uint32_t,std::pair<hitsinfo,energysum> > map_hits;
   map_hits.clear();
   
   if (verbosity_ > 0) 
     edm::LogInfo("HGCalValidation") << nameDetector_ << " with " << hits.size()
-				    << " PcaloHit elements";
+				    << " PcaloHit elements\n";
   unsigned int nused(0);
   for (unsigned int i=0; i<hits.size(); i++) {
     double energy      = hits[i].energy();
@@ -156,7 +154,7 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 				      << " energy = "    << energy
 				      << " energyem = "  << hits[i].energyEM()
 				      << " energyhad = " << hits[i].energyHad()
-				      << " time = "      << time;
+				      << " time = "      << time << "\n";
 
     HepGeom::Point3D<float> gcoord;
     if (heRebuild_) {
@@ -167,23 +165,25 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 				       rz*sin(etaphi.second)/cosh(etaphi.first),
 				       rz*tanh(etaphi.first));
     } else {
-      std::pair<float,float> xy = hgcons_->locateCell(cell,layer,subsector,false);
       if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
+	std::pair<float,float> xy = hgcons_->locateCell(cell,layer,subsector,false);
 	const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
 	int subs = (symmDet_ ? 0 : subsector);
 	id_      = HGCalTestNumbering::packSquareIndex(zside,layer,sector,subs,0);
 	gcoord   = (transMap_[id_]*lcoord);
       } else {
+	std::pair<float,float> xy = hgcons_->locateCell(cell,layer,sector,false);
 	double zp = hgcons_->waferZ(layer,false);
-	if (zp < 0) gcoord = HepGeom::Point3D<float>(-xy.first,xy.second,zp);
-	else        gcoord = HepGeom::Point3D<float>( xy.first,xy.second,zp);
+	if (zside < 0) zp = -zp;
+	float  xp = (zp < 0) ? -xy.first : xy.first;
+	gcoord = HepGeom::Point3D<float>(xp,xy.second,zp);
       }
     }
     double tof = (gcoord.mag()*CLHEP::mm)/CLHEP::c_light; 
     if (verbosity_>1) 
       edm::LogInfo("HGCalValidation") << std::hex << id_ << std::dec
 				      << " global coordinate " << gcoord
-				      << " time " << time << ":" << tof;
+				      << " time " << time << ":" << tof <<"\n";
     time -= tof;
     
     energysum  esum;
@@ -200,38 +200,23 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       hinfo.layer  = layer;
       hinfo.phi    = gcoord.getPhi();
       hinfo.eta    = gcoord.getEta();
-      esum.etotal += energy;
-      if (time > 0 && time < 1000) {
-	esum.e1000 += energy;
-	if (time < 250) {
-	  esum.e250 += energy;
-	  if (time < 100) {
-	    esum.e100 += energy;
-	    if (time < 50) {
-	      esum.e50 += energy;
-	      if (time < 25) {
-		esum.e25 += energy;
-		if (time < 15) {
-		  esum.e15 += energy;
-		}
-	      }
-	    }
-	  }
-	}
-      }
+    }
+    esum.etotal += energy;
+    for (unsigned int k=0; k<nTimes_; ++k) {
+      if (time > 0 && time < times_[k]) esum.eTime[k] += energy;
     }
     if (verbosity_>1) 
       edm::LogInfo("HGCalValidation") << " --------------------------   gx = " 
 				      << hinfo.x << " gy = "  << hinfo.y 
 				      << " gz = " << hinfo.z << " phi = " 
-				      << hinfo.phi << " eta = " << hinfo.eta;
-    std::pair<hitsinfo,energysum> pair_tmp(hinfo,esum);
-    map_hits[id_] = pair_tmp;
+				      << hinfo.phi << " eta = " << hinfo.eta
+				      << std::endl;
+    map_hits[id_] = std::pair<hitsinfo,energysum>(hinfo,esum);
   }
   if (verbosity_>0) 
     edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
 				    << map_hits.size()
-				    << " detector elements being hit";
+				    << " detector elements being hit\n";
   
   std::map<uint32_t,std::pair<hitsinfo,energysum> >::iterator itr;
   for (itr = map_hits.begin() ; itr != map_hits.end(); ++itr)   {
@@ -239,47 +224,28 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     energysum  esum  = (*itr).second.second;
     int layer        = hinfo.layer;
     
-    
-    std::vector<double> esumVector;
-    esumVector.push_back(esum.e15);
-    esumVector.push_back(esum.e25);
-    esumVector.push_back(esum.e50);
-    esumVector.push_back(esum.e100);
-    esumVector.push_back(esum.e250);
-    esumVector.push_back(esum.e1000);
-    
-    for(unsigned int itimeslice = 0; itimeslice < esumVector.size(); 
-	itimeslice++ ) {
-      fillHitsInfo((*itr).second, itimeslice, esumVector.at(itimeslice));
+    for (unsigned int itimeslice = 0; itimeslice < nTimes_; itimeslice++ ) {
+      fillHitsInfo((*itr).second, itimeslice, esum.eTime[itimeslice]);
     } 
     
     double eta = hinfo.eta;
     
-    if (eta >= 1.75 && eta <= 2.5)        fillOccupancyMap(OccupancyMap_plus[0], layer-1);
-    if (eta >= 1.75 && eta <= 2.0)        fillOccupancyMap(OccupancyMap_plus[1], layer-1);
-    else if (eta >= 2.0 && eta <= 2.25)   fillOccupancyMap(OccupancyMap_plus[2], layer-1);
-    else if(eta >= 2.25 && eta <= 2.5)    fillOccupancyMap(OccupancyMap_plus[3], layer-1);
-    
-    if (eta >= -2.5 && eta <= -1.75)      fillOccupancyMap(OccupancyMap_minus[0], layer-1);
-    if (eta >= -2.0 && eta <= -1.75)      fillOccupancyMap(OccupancyMap_minus[1], layer-1);
-    else if (eta >= -2.25 && eta <= -2.0) fillOccupancyMap(OccupancyMap_minus[2], layer-1);
-    else if (eta >= -2.5 && eta <= -2.25) fillOccupancyMap(OccupancyMap_minus[3], layer-1);
+    if (eta > 0.0)        fillOccupancyMap(OccupancyMap_plus, layer-1);
+    else                  fillOccupancyMap(OccupancyMap_minus, layer-1);
   }
   edm::LogInfo("HGCalValidation") << "With map:used:total " << hits.size()
 				  << "|" << nused << "|" << map_hits.size()
-				  << " hits";
+				  << " hits\n";
 
-  for(int indx=0; indx<netaBins;++indx) {
-    for (auto itr = OccupancyMap_plus[indx].begin() ; itr != OccupancyMap_plus[indx].end(); ++itr) {
-      int layer     = (*itr).first;
-      int occupancy = (*itr).second;
-      HitOccupancy_Plus_[indx].at(layer)->Fill(occupancy);
-    }
-    for (auto itr = OccupancyMap_minus[indx].begin() ; itr != OccupancyMap_minus[indx].end(); ++itr) {
-      int layer     = (*itr).first;
-      int occupancy = (*itr).second;
-      HitOccupancy_Minus_[indx].at(layer)->Fill(occupancy);
-    }
+  for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
+    int layer     = (*itr).first;
+    int occupancy = (*itr).second;
+    HitOccupancy_Plus_.at(layer)->Fill(occupancy);
+  }
+  for (auto itr = OccupancyMap_minus.begin() ; itr != OccupancyMap_minus.end(); ++itr) {
+    int layer     = (*itr).first;
+    int occupancy = (*itr).second;
+    HitOccupancy_Minus_.at(layer)->Fill(occupancy);
   }
 }
 
@@ -292,12 +258,12 @@ void HGCalSimHitValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap, i
 }
 
 void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo,energysum> hits, 
-					 unsigned int itimeslice, double esum) {
+					 unsigned int itimeslice, double esum){
 
   unsigned int ilayer = hits.first.layer - 1;
   if (ilayer < layers_) {
     energy_[itimeslice].at(ilayer)->Fill(esum);
-    if (itimeslice==1) {
+    if (itimeslice==0) {
       EtaPhi_Plus_.at(ilayer)->Fill(hits.first.eta , hits.first.phi);
       EtaPhi_Minus_.at(ilayer)->Fill(hits.first.eta , hits.first.phi);
     }
@@ -308,14 +274,14 @@ void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo,energysum> hits,
 				      << hits.first.sector << " layer " 
 				      << hits.first.layer << " cell " 
 				      << hits.first.cell << " energy "
-				      << hits.second.etotal;
+				      << hits.second.etotal << std::endl;
   }
 }
 
 bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH){
   if (verbosity_>0) 
     edm::LogInfo("HGCalValidation") << "Initialize HGCalDDDConstants for " 
-				    << nameDetector_ << " : " << hgcons_;
+				    << nameDetector_ << " : " << hgcons_ <<"\n";
   
   if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
     const DDCompactView & cview = *ddViewH;
@@ -330,7 +296,7 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
     bool dodet = fv.firstChild();
   
     while (dodet) {
-      const DDSolid & sol  = fv.logicalPart().solid();
+      const DDSolid & sol = fv.logicalPart().solid();
       std::string name = sol.name();
       int isd = (name.find(nameDetector_) == std::string::npos) ? -1 : 1;
       if (isd > 0) {
@@ -358,13 +324,14 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
 	if (verbosity_>2) 
 	  edm::LogInfo("HGCalValidation") << HGCalDetId(id) 
 					  << " Transform using " << h3v 
-					  << " and " << hr;
+					  << " and " << hr << std::endl;
       }
       dodet = fv.next();
     }
     if (verbosity_>0) 
       edm::LogInfo("HGCalValidation") << "Finds " << transMap_.size() 
-				      << " elements and SymmDet_ = " <<symmDet_;
+				      << " elements and SymmDet_ = " 
+				      << symmDet_ << std::endl;
   }
   return true;
 }
@@ -388,39 +355,35 @@ void HGCalSimHitValidation::dqmBeginRun(const edm::Run&,
   }
   if (verbosity_>0) 
     edm::LogInfo("HGCalValidation") << nameDetector_ << " defined with "
-				    << layers_ << " Layers";
+				    << layers_ << " Layers\n";
 }
 
 void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB, 
 					   edm::Run const&, 
 					   edm::EventSetup const&) {
+
   iB.setCurrentFolder("HGCalSimHitsV/"+nameDetector_);
     
   std::ostringstream histoname;
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
-    for (int indx=0; indx<netaBins; ++indx){
-      histoname.str(""); histoname << "HitOccupancy_Plus"<< indx  << "_layer_" << ilayer;
-      HitOccupancy_Plus_[indx].push_back(iB.book1D( histoname.str().c_str(), "HitOccupancy_Plus", 501, -0.5, 500.5));
-      histoname.str(""); histoname << "HitOccupancy_Minus" << indx  << "_layer_" << ilayer;
-      HitOccupancy_Minus_[indx].push_back(iB.book1D( histoname.str().c_str(), "HitOccupancy_Minus", 501, -0.5, 500.5));
-    }
+    histoname.str(""); histoname << "HitOccupancy_Plus_layer_" << ilayer;
+    HitOccupancy_Plus_.push_back(iB.book1D(histoname.str().c_str(), "HitOccupancy_Plus", 501, -0.5, 500.5));
+    histoname.str(""); histoname << "HitOccupancy_Minus_layer_" << ilayer;
+    HitOccupancy_Minus_.push_back(iB.book1D(histoname.str().c_str(), "HitOccupancy_Minus", 501, -0.5, 500.5));
       
     histoname.str(""); histoname << "EtaPhi_Plus_" << "layer_" << ilayer;
-    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, 1.45, 3.0, 72, -3.14, 3.14));
+    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, 1.45, 3.0, 72, -CLHEP::pi, CLHEP::pi));
     histoname.str(""); histoname << "EtaPhi_Minus_" << "layer_" << ilayer;
-    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -3.14, 3.14));
+    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -CLHEP::pi, CLHEP::pi));
       
-    for (int itimeslice = 0; itimeslice < 6 ; itimeslice++ ) {
+    for (unsigned int itimeslice = 0; itimeslice < nTimes_ ; itimeslice++ ) {
       histoname.str(""); histoname << "energy_time_"<< itimeslice << "_layer_" << ilayer;
       energy_[itimeslice].push_back(iB.book1D(histoname.str().c_str(),"energy_",100,0,0.1));
     }
   }
-  for(int indx=0; indx<netaBins; ++indx) {
-    histoname.str(""); histoname << "MeanHitOccupancy_Plus"<< indx ;
-    MeanHitOccupancy_Plus_[indx] = iB.book1D( histoname.str().c_str(), "MeanHitOccupancy_Plus", layers_, 0.5, layers_ + 0.5);
-    histoname.str(""); histoname << "MeanHitOccupancy_Minus"<< indx ;
-    MeanHitOccupancy_Minus_[indx] = iB.book1D( histoname.str().c_str(), "MeanHitOccupancy_Minus", layers_, 0.5, layers_ + 0.5);
-  }
+
+  MeanHitOccupancy_Plus_ = iB.book1D("MeanHitOccupancy_Plus", "MeanHitOccupancy_Plus", layers_, 0.5, layers_ + 0.5);
+  MeanHitOccupancy_Minus_ = iB.book1D("MeanHitOccupancy_Minus", "MeanHitOccupancy_Minus", layers_, 0.5, layers_ + 0.5);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
