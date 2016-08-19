@@ -702,7 +702,7 @@ L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord)
 {
    using namespace edm::es;
 
-   return std::make_shared<L1TMuonBarrelParams>(m_params);
+   return std::make_shared<L1TMuonBarrelParams>(m_params_helper);
 }
 
 //define this as a plug-in

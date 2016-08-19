@@ -17,7 +17,7 @@ using namespace XERCES_CPP_NAMESPACE;
 class L1TCaloParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams> {
 private:
 public:
-    virtual boost::shared_ptr<l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
+    virtual std::shared_ptr<l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
 
     L1TCaloParamsOnlineProd(const edm::ParameterSet&);
     ~L1TCaloParamsOnlineProd(void){}
@@ -200,7 +200,7 @@ readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
 
 L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams>(iConfig) {}
 
-boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
+std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
     using namespace edm::es;
 
     const L1TCaloStage2ParamsRcd& baseRcd = record.template getRecord< L1TCaloStage2ParamsRcd >() ;
@@ -534,7 +534,8 @@ boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std:
     readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs);
     readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs);
 
-    return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams ( m_params_helper ) ) ;
+    std::shared_ptr< l1t::CaloParams > retval = std::make_shared< l1t::CaloParams >( m_params_helper ) ;
+    return retval;
 }
 
 //define this as a plug-in

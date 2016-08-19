@@ -10,7 +10,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
@@ -55,7 +54,7 @@ public:
   L1TGlobalPrescalesVetosESProducer(const edm::ParameterSet&);
   ~L1TGlobalPrescalesVetosESProducer();
 
-  typedef boost::shared_ptr<L1TGlobalPrescalesVetos> ReturnType;
+  typedef std::shared_ptr<L1TGlobalPrescalesVetos> ReturnType;
 
   ReturnType produce(const L1TGlobalPrescalesVetosRcd&);
 
@@ -416,7 +415,7 @@ L1TGlobalPrescalesVetosESProducer::produce(const L1TGlobalPrescalesVetosRcd& iRe
 
   // write the condition format to the event setup via the helper:
   using namespace edm::es;
-  boost::shared_ptr<L1TGlobalPrescalesVetos> pMenu = boost::shared_ptr< L1TGlobalPrescalesVetos >(data_.getWriteInstance());
+  std::shared_ptr<L1TGlobalPrescalesVetos> pMenu(data_.getWriteInstance());
   return pMenu;
 }
 

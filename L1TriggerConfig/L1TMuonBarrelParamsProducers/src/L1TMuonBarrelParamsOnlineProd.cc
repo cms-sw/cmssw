@@ -14,7 +14,7 @@ using namespace XERCES_CPP_NAMESPACE;
 class L1TMuonBarrelParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams> {
 private:
 public:
-    virtual boost::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
+    virtual std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
 
     L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonBarrelParamsOnlineProd(void){}
@@ -22,7 +22,7 @@ public:
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams>(iConfig) {}
 
-boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) {
+std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) {
     using namespace edm::es;
 
     const L1TMuonBarrelParamsRcd& baseRcd = record.template getRecord< L1TMuonBarrelParamsRcd >() ;
@@ -32,7 +32,8 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
 
     if (objectKey.empty()) {
         edm::LogInfo( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonBarrelParams";
-        return boost::shared_ptr< L1TMuonBarrelParams > ( new L1TMuonBarrelParams( *(baseSettings.product()) ) );
+        throw std::runtime_error("Empty objectKey");
+///        return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -62,7 +63,8 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O" ) << "Cannot get BMTF_KEYS.{ALGO,HW}" ;
-            return boost::shared_ptr< L1TMuonBarrelParams > ( new L1TMuonBarrelParams( *(baseSettings.product()) ) );
+            throw std::runtime_error("Broken key");
+///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
@@ -87,7 +89,8 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O" ) << "Cannot get BMTF_RS_KEYS.{MP7,DAQTTC}" ;
-            return boost::shared_ptr< L1TMuonBarrelParams > ( new L1TMuonBarrelParams( *(baseSettings.product()) ) );
+            throw std::runtime_error("Broken key");
+///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "MP7",    rs_mp7_key  ) ) rs_mp7_key   = "";
@@ -114,7 +117,8 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_ALGO.CONF for ID="<<algo_key;
-            return boost::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            throw std::runtime_error("Broken key");
+///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -132,7 +136,8 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_HW.CONF for ID="<<hw_key;
-            return boost::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            throw std::runtime_error("Broken key");
+///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -150,7 +155,8 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_RS.CONF for ID="<<rs_mp7_key;
-            return boost::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            throw std::runtime_error("Broken key");
+///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -168,7 +174,8 @@ boost::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(
 
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_RS.CONF for ID="<<rs_amc13_key;
-            return boost::shared_ptr< L1TMuonBarrelParams >( new L1TMuonBarrelParams( *(baseSettings.product()) ) ) ;
+            throw std::runtime_error("Broken key");
+///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
@@ -222,7 +229,7 @@ for(auto &conf : payloads[kRS]){
 
         L1TMuonBarrelParamsHelper m_params_helper(*(baseSettings.product()) );
         m_params_helper.configFromDB(parsedXMLs);
-        boost::shared_ptr< L1TMuonBarrelParams > retval( new L1TMuonBarrelParams(m_params_helper) ) ;
+        std::shared_ptr< L1TMuonBarrelParams > retval = std::make_shared< L1TMuonBarrelParams>(m_params_helper);
  
         return retval;
 

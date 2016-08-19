@@ -10,7 +10,7 @@
 class L1TMuonOverlapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd,L1TMuonOverlapParams> {
 private:
 public:
-    virtual boost::shared_ptr<L1TMuonOverlapParams> newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) override ;
+    virtual std::shared_ptr<L1TMuonOverlapParams> newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) override ;
 
     L1TMuonOverlapParamsOnlineProd(const edm::ParameterSet&);
     ~L1TMuonOverlapParamsOnlineProd(void){}
@@ -18,14 +18,14 @@ public:
 
 L1TMuonOverlapParamsOnlineProd::L1TMuonOverlapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd,L1TMuonOverlapParams>(iConfig) {}
 
-boost::shared_ptr<L1TMuonOverlapParams> L1TMuonOverlapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) {
+std::shared_ptr<L1TMuonOverlapParams> L1TMuonOverlapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) {
 
     edm::LogError( "L1-O2O" ) << "L1TMuonOverlapParams object with key " << objectKey << " not in ORCON!" ;
 
     throw std::runtime_error("You are never supposed to get this code running!");
 
-    return boost::shared_ptr< L1TMuonOverlapParams >( new L1TMuonOverlapParams() );
-
+    std::shared_ptr< L1TMuonOverlapParams > retval = std::make_shared< L1TMuonOverlapParams >();
+    return retval;
 }
 
 //define this as a plug-in
