@@ -47,6 +47,8 @@ int trigTools::getMinNrObjsRequiredByFilter(const std::string& filterName)
   const std::string mag2("nZcandcut");
   const std::string mag3("MinN");
   const std::string mag4("minN");
+  const edm::Entry filterEntry(mag0,filterName,true);
+  const std::string filterEntryString=filterEntry.toString();
 
   //will return out of for loop once its found it to save time
   const edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
@@ -55,7 +57,7 @@ int trigTools::getMinNrObjsRequiredByFilter(const std::string& filterName)
     const std::map<std::string,edm::Entry>& mapOfPara  = psetIt->second.tbl(); //contains the parameter name and value for all the parameters of the pset
     const std::map<std::string,edm::Entry>::const_iterator itToModLabel = mapOfPara.find(mag0); 
     if(itToModLabel!=mapOfPara.end()){
-      if(itToModLabel->second.getString()==filterName){ //moduleName is the filter name, we have found filter, we will now return something
+      if(itToModLabel->second.toString()==filterEntryString){ //moduleName is the filter name, we have found filter, we will now return something
 	std::map<std::string,edm::Entry>::const_iterator itToCandCut = mapOfPara.find(mag1);
 	if(itToCandCut!=mapOfPara.end() && itToCandCut->second.typeCode()=='I') return itToCandCut->second.getInt32();
 	else{ //checks if nZcandcut exists and is int32, if not return -1
