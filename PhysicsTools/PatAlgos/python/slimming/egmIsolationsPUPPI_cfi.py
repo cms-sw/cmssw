@@ -12,6 +12,6 @@ def makeInputForPUPPIIsolationEgm(process):
 	process.egmPhotonPUPPIIsolationForPhotons.srcToIsolate = cms.InputTag("selectedPatPhotons")
 	process.egmPhotonPUPPIIsolationForPhotons.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 
-	process.egmElectronPUPPIIsolationForPhotons = _egmElectronIsolationMiniAODPUPPI.clone()
-	process.egmElectronPUPPIIsolationForPhotons.srcToIsolate = cms.InputTag("selectedPatElectrons")
-	process.egmElectronPUPPIIsolationForPhotons.srcForIsolationCone = cms.InputTag("packedPFCandidates")
+	process.egmElectronPUPPIIsolationForElectrons = _egmElectronIsolationMiniAODPUPPI.clone()
+	process.egmElectronPUPPIIsolationForElectrons.srcToIsolate = cms.InputTag("selectedPatElectrons")
+	process.egmElectronPUPPIIsolationForElectrons.srcForIsolationCone = cms.InputTag("packedPFCandidates")
