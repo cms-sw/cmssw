@@ -3,7 +3,6 @@
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
-//#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
