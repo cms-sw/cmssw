@@ -105,8 +105,9 @@ void OffHelper::setupTriggers(const HLTConfigProvider& hltConfig,const std::vect
   hltFiltersUsed_ = hltFiltersUsed; //expensive but only do this once and faster ways could make things less clear
   //now work out how many objects are requires to pass filter for it to accept
   hltFiltersUsedWithNrCandsCut_.clear();
+  std::vector<int> getMRObjs=egHLT::trigTools::getMinNrObjsRequiredByFilter(hltFiltersUsed_);
   for(size_t filterNr=0;filterNr<hltFiltersUsed_.size();filterNr++){
-    hltFiltersUsedWithNrCandsCut_.push_back(std::make_pair(hltFiltersUsed_[filterNr],egHLT::trigTools::getMinNrObjsRequiredByFilter(hltFiltersUsed_[filterNr])));
+    hltFiltersUsedWithNrCandsCut_.push_back(std::make_pair(hltFiltersUsed_[filterNr],getMRObjs[filterNr]));
   }
 
   //now loading the cuts for every trigger into our vector which stores them

@@ -5,6 +5,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include <vector>
 
 class HLTConfigProvider;
 
@@ -16,7 +17,7 @@ namespace egHLT {
     template<class T> void setFiltersObjPasses(std::vector<T>& objs,const std::vector<std::string>& filters,const std::vector<std::pair<std::string,std::string> >& l1PreAndSeedFilters,const TrigCodes::TrigBitSet& evtTrigBits, const TrigCodes& trigCodes, const trigger::TriggerEvent* trigEvt,const std::string& hltTag );
     
     template<class T, class U> void fillHLTposition(T& obj,U& hltData,const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag );
-    int getMinNrObjsRequiredByFilter(const std::string& filterName); //slow function, call at begin job and cache results
+    std::vector<int> getMinNrObjsRequiredByFilter(const std::vector<std::string>& filterName); //slow function, call at begin job and cache results
 
     //reads hlt config and works out which are the active last filters stored in trigger summary, is sorted
     void getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters,std::vector<std::string>& activeEleFilters,std::vector<std::string>& activeEle2LegFilters,std::vector<std::string>& activePhoFilters,std::vector<std::string>& activePho2LegFilters);
