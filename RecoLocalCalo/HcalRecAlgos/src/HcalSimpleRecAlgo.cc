@@ -61,7 +61,7 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
   if( iPedestalConstraint ) assert ( iPedSig );
   if( iTimeConstraint ) assert( iTimeSig );
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iApplyTimeSlew,
-			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iTimeSig,iPedMean,iPedSig,iPedSig,iNoise,iNoise,iTMin,iTMax,its4Chi2,
+			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iTimeSigSiPM,iPedMean,iPedSig,iPedSigSiPM,iNoise,iNoiseSiPM,iTMin,iTMax,its4Chi2,
 			       HcalTimeSlew::Medium, iFitTimes);
 
   psFitOOTpuCorr_->setChi2Term(1); // isHPD all the time
@@ -474,8 +474,10 @@ namespace HcalSimpleRecAlgoImpl {
 	capidvec.push_back(capid);
       }
 
-      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, m3_ampl, time);
-      if (puCorrMethod == 3) ampl = m3_ampl;
+      float m3_time=0;
+
+      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, m3_ampl, m3_time);
+      if (puCorrMethod == 3) { ampl = m3_ampl; time = m3_time; }
 
     }
 
