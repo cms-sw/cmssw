@@ -5,7 +5,7 @@ process = cms.Process("ProcessOne")
 
 options = VarParsing.VarParsing()
 options.register( "password"
-                , "myToto" #default value
+                , "myToto"
                 , VarParsing.VarParsing.multiplicity.singleton
                 , VarParsing.VarParsing.varType.string
                 , "the password"
@@ -30,27 +30,34 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-#process.CondDB.connect = 'sqlite_file:EcalTPGStripStatus_v3_hlt.db'
-process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
 process.CondDB.DBParameters.authenticationPath = ''
+
+#process.CondDB.connect = 'sqlite_file:EcalIntercalibConstants_V1_hlt.db'
+process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
+
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB, 
 #    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
    logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('EcalTPGStripStatusRcd'),
-        tag = cms.string('EcalTPGStripStatus_v3_hlt')
+        record = cms.string('EcalIntercalibConstantsRcd'),
+        tag = cms.string('EcalIntercalibConstants_V1_hlt')
     ))
 )
 
-process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadStripAnalyzer",
-    record = cms.string('EcalTPGStripStatusRcd'),
+process.Test1 = cms.EDAnalyzer("ExTestEcalIntercalibAnalyzer",
+    record = cms.string('EcalIntercalibConstantsRcd'),
     loggingOn= cms.untracked.bool(True),
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-     firstRun = cms.string('200000'),
+    FileLowField = cms.string('/data/O2O/Ecal/TPG/Intercalib_Boff.xml'),
+    FileHighField = cms.string('/data/O2O/Ecal/TPG/Intercalib_Bon.xml'),
+#     FileLowField = cms.string('/afs/cern.ch/work/d/depasse/cmssw/CMSSW_8_0_1/src/CondTools/Ecal/python/Intercalib_hlt_current_BOFF.xml'),
+#     FileHighField = cms.string('/afs/cern.ch/work/d/depasse/cmssw/CMSSW_8_0_1/src/CondTools/Ecal/python/Intercalib_hlt_current_BON.xml'),
+     Value_Bon = cms.untracked.double(0.76724),
+     firstRun = cms.string('207149'),
      lastRun = cms.string('10000000'),
      OnlineDBSID = cms.string('cms_omds_lb'),
 #     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
@@ -59,7 +66,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadStripAnalyzer",
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
-     RunType = cms.string('PHYSICS')
+     RunType = cms.string('COSMICS')
     )                            
 )
 
