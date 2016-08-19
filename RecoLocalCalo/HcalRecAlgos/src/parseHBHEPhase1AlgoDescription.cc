@@ -33,8 +33,10 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double its4Chi2 =          conf.getParameter<double>("ts4chi2");
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
 
-    //    if (iPedestalConstraint) assert(iPedSig);
-    //    if (iTimeConstraint) assert(iTimeSig);
+    if (iPedestalConstraint) assert(iPedSigHPD);
+    if (iPedestalConstraint) assert(iPedSigSiPM);
+    if (iTimeConstraint) assert(iTimeSigHPD);
+    if (iTimeConstraint) assert(iTimeSigSiPM);
 
     std::unique_ptr<PulseShapeFitOOTPileupCorrection> corr =
         std::make_unique<PulseShapeFitOOTPileupCorrection>();
