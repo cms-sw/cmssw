@@ -3,7 +3,9 @@
 #HLT_Ele17_Ele8_Gsf_v*					# JIRA: CMSHLT-63, updated by CMSHLT-71 -> TEMPLATE PATH, not for GRun
 #HLT_Photon20_CaloIdVL_IsoL_v*				# JIRA: CMSHLT-63, updated by CMSHLT-71 -> TEMPLATE PATH, not for GRun
 
-#HLT_PFchMET90_v*					# JIRA: CMSHLT-62, CMSHLT-479, CMSHLT-601, CMSHLT-711 -> TEMPLATE PATH, not for GRun
+HLT_TkMu17_v*						# JIRA: CMSHLT-985
+HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-985
+HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*		# JIRA: CMSHLT-985
 
 HLT_Mu45_eta2p1_v*					# JIRA: CMSHLT-194
 HLT_Mu50_v*						# JIRA: CMSHLT-194
@@ -102,6 +104,8 @@ HLT_Ele27_WPLoose_Gsf_v*					# JIRA: CMSHLT-566
 
 HLT_Ele27_eta2p1_WPLoose_Gsf_v*					# JIRA: CMSHLT-193, CMSHLT-330
 
+HLT_DoubleMu0_v*						# JIRA: CMSHLT-969
+
 HLT_DoubleMu4_3_Bs_v*						# JIRA: CMSHLT-82
 HLT_DoubleMu4_3_Jpsi_Displaced_v*				# JIRA: CMSHLT-82
 HLT_Dimuon20_Jpsi_v*						# JIRA: CMSHLT-82
@@ -158,7 +162,11 @@ HLT_Ele30WP60_SC4_Mass55_v*					# JIRA: CMSHLT-95, CMSHLT-326, CMSHLT-408
 
 HLT_PFHT550_4JetPt50_v*						# JIRA: CMSHLT-96, CMSHLT-608
 HLT_PFHT650_4JetPt50_v*						# JIRA: CMSHLT-96, CMSHLT-608
-HLT_PFHT750_4JetPt50_v*                                         # JIRA: CMSHLT-355 (prev. version was from CMSHLT-89/90), CMSHLT-608
+#HLT_PFHT750_4JetPt50_v*					# JIRA: CMSHLT-355, CMSHLT-608, removed by CMSHLT-986
+HLT_PFHT750_4JetPt70_v*						# JIRA:CMSHLT-986
+HLT_PFHT750_4JetPt80_v*						# JIRA:CMSHLT-986
+HLT_PFHT800_4JetPt50_v*						# JIRA:CMSHLT-986
+HLT_PFHT850_4JetPt50_v*						# JIRA:CMSHLT-986
 
 HLT_DoubleMu33NoFiltersNoVtx_v*					# JIRA: CMSHLT-97
 HLT_DoubleMu38NoFiltersNoVtx_v*					# JIRA: CMSHLT-97
@@ -217,7 +225,7 @@ HLT_PFHT350_v*                                                  # JIRA: CMSHLT-1
 HLT_PFHT400_v*                                                  # JIRA: CMSHLT-355
 HLT_PFHT475_v*                                                  # JIRA: CMSHLT-355
 HLT_PFHT600_v*                          			# JIRA: CMSHLT-127
-HLT_PFHT800_v*                          			# JIRA: CMSHLT-355
+#HLT_PFHT800_v*                          			# JIRA: CMSHLT-355, removed by CMSHLT-986
 HLT_PFHT900_v*                          			# JIRA: CMSHLT-739
 
 #HLT_PFHT300_PFMET100_v*					# JIRA: CMSHLT-742, removed by CMSHLT-982
