@@ -21,7 +21,7 @@
 CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) : recoConditions_(0){
   
   deltaT                 = ps.getParameter<int>("CSCWireClusterDeltaT");
-  useReducedWireTime     = ps.getParameter<int>("CSCUseReducedWireTimeWindow");
+  useReducedWireTime     = ps.getParameter<bool>("CSCUseReducedWireTimeWindow");
   wireTimeWindow_low     = ps.getParameter<int>("CSCWireTimeWindowLow");
   wireTimeWindow_high     = ps.getParameter<int>("CSCWireTimeWindowHigh");
 

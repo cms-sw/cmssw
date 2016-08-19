@@ -3768,7 +3768,10 @@ fragment.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCstripWireDeltaTime = cms.int32( 8 ),
     NoiseLevel_ME21 = cms.double( 9.0 ),
     NoiseLevel_ME22 = cms.double( 9.0 ),
-    NoiseLevel_ME41 = cms.double( 9.0 )
+    NoiseLevel_ME41 = cms.double( 9.0 ),
+    CSCUseReducedWireTimeWindow = cms.bool(False),
+    CSCWireTimeWindowLow = cms.int32(0),
+    CSCWireTimeWindowHigh = cms.int32(15)
 )
 fragment.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
