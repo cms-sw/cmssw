@@ -26,14 +26,15 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mPFCorrs(0),
   mLutMetadata(0),
   mSiPMParameters(0), mSiPMCharacteristics(0),
+  mTPChannelParameters(0), mTPParameters(0),
   mCalibSet(nullptr), mCalibWidthSet(nullptr)
  {}
 
 const HcalTopology* HcalDbService::getTopologyUsed() const {
   if (mPedestals && mPedestals->topo()) return mPedestals->topo();
-  if (mGains && mGains->topo()) return mGains->topo();
+  if (mGains && mGains->topo())         return mGains->topo();
   if (mRespCorrs && mRespCorrs->topo()) return mRespCorrs->topo();
-  if (mQIETypes && mQIETypes->topo()) return mQIETypes->topo();
+  if (mQIETypes && mQIETypes->topo())   return mQIETypes->topo();
   if (mL1TriggerObjects && mL1TriggerObjects->topo()) return mL1TriggerObjects->topo();
   if (mLutMetadata && mLutMetadata->topo()) return mLutMetadata->topo();
   return 0;
@@ -302,6 +303,17 @@ const HcalSiPMParameter* HcalDbService::getHcalSiPMParameter (const HcalGenericD
 
 const HcalSiPMCharacteristics* HcalDbService::getHcalSiPMCharacteristics () const {
   return mSiPMCharacteristics;
+}
+
+const HcalTPChannelParameter* HcalDbService::getHcalTPChannelParameter (const HcalGenericDetId& fId) const {
+  if (mTPChannelParameters) {
+    return mTPChannelParameters->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalTPParameters* HcalDbService::getHcalTPParameters () const {
+  return mTPParameters;
 }
 
 TYPELOOKUP_DATA_REG(HcalDbService);
