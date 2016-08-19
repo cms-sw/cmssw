@@ -25,22 +25,7 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
 }
 
 TkTransientTrackingRecHitBuilderESProducer::~TkTransientTrackingRecHitBuilderESProducer() {}
-/*
-void TkTransientTrackingRecHitBuilderESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-    edm::ParameterSetDescription desc;
-    desc.add<std::string>("StripCPE","StripCPEfromTrackAngle");
-    desc.add<std::string>("PixelCPE","PixelCPEGeneric");
-    desc.add<std::string>("ComponentName","WithTrackAngle");
-    desc.add<std::string>("Matcher","StandardMatcher");
-    desc.add<bool>("ComputeCoarseLocalPositionFromDisk",false);
-
-    desc.add<std::string>("Phase2StripCPE","Phase2StripCPEGeometric");
-
-    descriptions.add("ttrhbwr", desc);
-
-}
-*/
 std::shared_ptr<TransientTrackingRecHitBuilder> 
 TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord & iRecord){ 
 //   if (_propagator){
