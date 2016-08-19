@@ -28,7 +28,7 @@ egmElectronIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducer",
 							  isolationConeDefinitions = IsoConeDefinitions
 )
 
-egmElectronIsolationMiniAODPUPPI = egmPhotonIsolationAODPUPPI.clone()
+egmElectronIsolationMiniAODPUPPI = egmElectronIsolationAODPUPPI.clone()
 egmElectronIsolationMiniAODPUPPI.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 egmElectronIsolationMiniAODPUPPI.srcToIsolate = cms.InputTag("slimmedElectrons")
 egmElectronIsolationMiniAODPUPPI.puppiValueMap = cms.InputTag('')
