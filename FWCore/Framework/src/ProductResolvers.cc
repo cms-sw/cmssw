@@ -135,9 +135,15 @@ namespace edm {
                                    aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }
                                }));
 
-      auto reader = principal.reader();
-      if(reader) {
-        putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+      if(auto reader=principal.reader()) {
+        std::unique_lock<SharedResourcesAcquirer> guard;
+        if(auto sr = reader->sharedResources()) {
+          guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+        }
+        if ( not productResolved()) {
+          //another thread could have beaten us here
+          putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+        }
       }
     });
                               
@@ -145,16 +151,23 @@ namespace edm {
   
   void
   InputProductResolver::retrieveAndMerge_(Principal const& principal) const {
-    
-    //Can't use resolveProductImpl since it first checks to see
-    // if the product was already retrieved and then returns if it is
-    BranchKey const bk = BranchKey(branchDescription());
-    std::unique_ptr<WrapperBase> edp(principal.reader()->getProduct(bk, &principal));
-    
-    if(edp.get() != nullptr) {
-      putOrMergeProduct(std::move(edp));
-    } else if( status()== defaultStatus()) {
-      setFailedStatus();
+    if(auto reader = principal.reader()) {
+
+      std::unique_lock<SharedResourcesAcquirer> guard;
+      if(auto sr = reader->sharedResources()) {
+        guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+      }
+
+      //Can't use resolveProductImpl since it first checks to see
+      // if the product was already retrieved and then returns if it is
+      BranchKey const bk = BranchKey(branchDescription());
+      std::unique_ptr<WrapperBase> edp(reader->getProduct(bk, &principal));
+      
+      if(edp.get() != nullptr) {
+        putOrMergeProduct(std::move(edp));
+      } else if( status()== defaultStatus()) {
+        setFailedStatus();
+      }
     }
   }
 
@@ -215,9 +228,15 @@ namespace edm {
         try {
           resolveProductImpl<true>([this,&principal,mcc]() {
             if(principal.branchType() != InEvent) { return; }
-            auto reader = principal.reader();
-            if(reader) {
-              putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+            if(auto reader = principal.reader()) {
+              std::unique_lock<SharedResourcesAcquirer> guard;
+              if(auto sr = reader->sharedResources()) {
+                guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+              }
+              if ( not productResolved()) {
+                //another thread could have finished this while we were waiting
+                putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+              }
             }
           });
         } catch(...) {

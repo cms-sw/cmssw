@@ -20,12 +20,6 @@ namespace edm {
                             EDProductGetter const* ep,
                             ModuleCallingContext const* mcc) {
 
-    auto sr = sharedResources_();
-    std::unique_lock<SharedResourcesAcquirer> guard;
-    if(sr) {
-      guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
-    }
-
     auto preSignal = preEventReadFromSourceSignal();
     if(mcc and preSignal) {
       preSignal->emit(*(mcc->getStreamContext()),*mcc);
