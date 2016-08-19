@@ -143,6 +143,22 @@ namespace edm {
                               
   }
   
+  void
+  InputProductResolver::retrieveAndMerge_(Principal const& principal) const {
+    
+    //Can't use resolveProductImpl since it first checks to see
+    // if the product was already retrieved and then returns if it is
+    BranchKey const bk = BranchKey(branchDescription());
+    std::unique_ptr<WrapperBase> edp(principal.reader()->getProduct(bk, &principal));
+    
+    if(edp.get() != nullptr) {
+      putOrMergeProduct(std::move(edp));
+    } else if( status()== defaultStatus()) {
+      setFailedStatus();
+    }
+  }
+
+  
   template<typename F>
   class FunctorTask : public tbb::task {
   public:

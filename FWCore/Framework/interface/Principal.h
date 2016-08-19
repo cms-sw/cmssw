@@ -248,8 +248,6 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    void resolveProductImmediately(ProductResolverBase& phb);
-    
     virtual bool isComplete_() const {return true;}
     
     void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;

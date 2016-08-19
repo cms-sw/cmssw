@@ -116,6 +116,9 @@ namespace edm {
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+    
+      virtual void retrieveAndMerge_(Principal const& principal) const override;
+
       virtual bool unscheduledWasNotRun_() const override final {return false;}
     
       virtual void resetProductData_(bool deleteEarly) override;
