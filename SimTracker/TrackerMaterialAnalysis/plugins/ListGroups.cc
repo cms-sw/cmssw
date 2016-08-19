@@ -179,14 +179,15 @@ void ListGroups::fillColor(void)
   m_color.push_back(kAzure - 1);      // PixelBarrelLayer0_Z20
   m_color.push_back(kAzure + 1) ;     // Layer1_Z0
   m_color.push_back(kAzure + 2) ;     // Layer1_Z20
-  m_color.push_back(kAzure + 3) ;     // Layer2_Z0
-  m_color.push_back(kAzure + 10);     // Layer2_Z15
+//  m_color.push_back(kAzure + 3) ;     // Layer2_Z0
+//  m_color.push_back(kAzure + 10);     // Layer2_Z15
 
   m_color.push_back(kGreen);          // EndCapDisk1_R0
   m_color.push_back(kGreen + 2);      // EndcapDisk1_R11
   m_color.push_back(kGreen + 4);      // EndcapDisk1_R7
   m_color.push_back(kSpring + 9);     // EndcapDisk2_R0
   m_color.push_back(kSpring + 4);     // EndcapDisk2_R7
+  m_color.push_back(kSpring    );     // EndcapDisk2_R7
 
   m_color.push_back(kRed);            // TECDisk0_R20
   m_color.push_back(kRed + 2);        // TECDisk0_R40
@@ -354,7 +355,7 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
       new TProfile2D( "OverallDifferencesEnergyLoss", "OverallDifferencesEnergyLoss",
                       600., -300., 300, 120., 0., 120.));
 
-  assert(m_color.size() - 1 == m_groups.size());
+//  assert(m_color.size() - 1 == m_groups.size());
   for (auto g : m_groups) {
     m_plots.push_back(
         new TH2F( g->name().c_str(), g->name().c_str(),
