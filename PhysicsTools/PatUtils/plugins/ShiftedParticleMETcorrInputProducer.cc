@@ -20,7 +20,7 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
   edm::Handle<CandidateView> shiftedParticles;
   evt.getByToken(srcShiftedToken_, shiftedParticles);
 
-  std::auto_ptr<CorrMETData> metCorrection(new CorrMETData());
+  auto metCorrection = std::make_unique<CorrMETData>();
 
   for ( CandidateView::const_iterator originalParticle = originalParticles->begin();
 	originalParticle != originalParticles->end(); ++originalParticle ) {
@@ -36,7 +36,7 @@ void ShiftedParticleMETcorrInputProducer::produce(edm::StreamID, edm::Event& evt
     metCorrection->sumet -= shiftedParticle->et();
   }
 
-  evt.put(metCorrection);
+  evt.put(std::move(metCorrection));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

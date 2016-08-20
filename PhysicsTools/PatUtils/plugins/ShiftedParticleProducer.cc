@@ -36,7 +36,7 @@ ShiftedParticleProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<CandidateView> originalParticles;
   evt.getByToken(srcToken_, originalParticles);
 
-  std::auto_ptr<reco::CandidateCollection> shiftedParticles(new reco::CandidateCollection);
+  auto shiftedParticles = std::make_unique<reco::CandidateCollection>();
 
   for(CandidateView::const_iterator originalParticle = originalParticles->begin();
       originalParticle != originalParticles->end(); ++originalParticle ) {
@@ -48,13 +48,13 @@ ShiftedParticleProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     //leave 0*nan = 0
     if (! (edm::isNotFinite(shift) && shiftedParticleP4.mag2()==0)) shiftedParticleP4 *= (1. + shift);
 
-    std::auto_ptr<reco::Candidate> shiftedParticle( new reco::LeafCandidate( *originalParticle ) );
+    std::unique_ptr<reco::Candidate> shiftedParticle = std::make_unique<reco::LeafCandidate>(*originalParticle);
     shiftedParticle->setP4(shiftedParticleP4);
     
     shiftedParticles->push_back( shiftedParticle.release() );
   }
 
-  evt.put(shiftedParticles);
+  evt.put(std::move(shiftedParticles));
 }
 
 double 

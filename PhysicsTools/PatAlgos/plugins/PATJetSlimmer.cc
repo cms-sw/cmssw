@@ -79,7 +79,7 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
     iEvent.getByToken(pf2pc_,pf2pc);
 	
-    auto_ptr<vector<pat::Jet> >  out(new vector<pat::Jet>());
+    auto out = std::make_unique<std::vector<pat::Jet>>();
     out->reserve(src->size());
 
     if( modifyJet_ ) { jetModifier_->setEvent(iEvent); }
@@ -136,7 +136,7 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    //         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

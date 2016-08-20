@@ -53,7 +53,7 @@ class ProbeTreeProducer : public edm::EDFilter {
     int32_t maxProbes_;
 
     /// The object that actually computes variables and fills the tree for the probe
-    std::auto_ptr<tnp::BaseTreeFiller> probeFiller_;
+    std::unique_ptr<tnp::BaseTreeFiller> probeFiller_;
 };
 
 ProbeTreeProducer::ProbeTreeProducer(const edm::ParameterSet& iConfig) :

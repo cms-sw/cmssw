@@ -61,7 +61,7 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     Handle<View<reco::GenJet> >      src;
     iEvent.getByToken(src_, src);
 
-    auto_ptr<vector<reco::GenJet> >  out(new vector<reco::GenJet>());
+    auto out = std::make_unique<vector<reco::GenJet>>();
     out->reserve(src->size());
 
     Handle<edm::Association<std::vector<pat::PackedGenParticle> > > gp2pgp;
@@ -102,7 +102,7 @@ pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

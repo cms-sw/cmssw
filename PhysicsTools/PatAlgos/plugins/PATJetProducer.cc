@@ -208,12 +208,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if ( addJetID_ ) iEvent.getByToken( jetIDMapToken_, hJetIDMap );
 
   // loop over jets
-  std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
+  auto patJets = std::make_unique<std::vector<Jet>>();
 
-  std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-  std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
-  std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
-  std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );
+  auto genJetsOut = std::make_unique<reco::GenJetCollection>();
+  auto caloTowersOut = std::make_unique<std::vector<CaloTower>>();
+  auto pfCandidatesOut = std::make_unique<reco::PFCandidateCollection>();
+  auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
 
 
   edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
@@ -408,12 +408,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
-  iEvent.put(patJets);
+  iEvent.put(std::move(patJets));
 
-  iEvent.put( genJetsOut, "genJets" );
-  iEvent.put( caloTowersOut, "caloTowers" );
-  iEvent.put( pfCandidatesOut, "pfCandidates" );
-  iEvent.put( tagInfosOut, "tagInfos" );
+  iEvent.put(std::move(genJetsOut), "genJets" );
+  iEvent.put(std::move(caloTowersOut), "caloTowers" );
+  iEvent.put(std::move(pfCandidatesOut), "pfCandidates" );
+  iEvent.put(std::move(tagInfosOut), "tagInfos" );
 
 
 }

@@ -198,7 +198,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
             if (m_genJetMatcher)
                 m_genJetMatcher->getTokens(event);
 
-            std::unique_ptr<JetCollection> smearedJets(new JetCollection());
+            auto smearedJets = std::make_unique<JetCollection>();
 
             for (const auto& jet: jets) {
 

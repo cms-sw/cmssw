@@ -90,10 +90,10 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
     iEvent.getByToken( PVOrigs_, PVOrigs );
     const reco::Vertex & PVOrig = (*PVOrigs)[0];
 
-    std::auto_ptr< std::vector<reco::Track> > outPtrP( new std::vector<reco::Track> );
+    auto outPtrP = std::make_unique<std::vector<reco::Track>>();
     std::vector<int> used(tracks->size(),0);
 
-    std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrC( new std::vector<pat::PackedCandidate> );
+    auto outPtrC = std::make_unique<std::vector<pat::PackedCandidate>>();
 
     //Mark all tracks used in candidates	
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
@@ -136,13 +136,13 @@ void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::E
 			j++;
 		}
     } 
-    iEvent.put(outPtrP);
-    edm::OrphanHandle<pat::PackedCandidateCollection> oh =   iEvent.put(outPtrC);
-    std::auto_ptr<edm::Association<pat::PackedCandidateCollection> > tk2pc(new edm::Association<pat::PackedCandidateCollection>(oh   ));
+    iEvent.put(std::move(outPtrP));
+    edm::OrphanHandle<pat::PackedCandidateCollection> oh =   iEvent.put(std::move(outPtrC));
+    auto tk2pc = std::make_unique<edm::Association<pat::PackedCandidateCollection>>(oh);
     edm::Association<pat::PackedCandidateCollection>::Filler tk2pcFiller(*tk2pc);
     tk2pcFiller.insert(tracks, mapping.begin(), mapping.end());
     tk2pcFiller.fill() ; 
-    iEvent.put(tk2pc);
+    iEvent.put(std::move(tk2pc));
 
 }
 

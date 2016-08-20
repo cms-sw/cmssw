@@ -90,9 +90,9 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
   }
 
 
-  auto_ptr<CandMatchMapMany> matchMap( new CandMatchMapMany( CandMatchMapMany::ref_type( CandidateRefProd( source  ),
-                                                                                         CandidateRefProd( matched )
-											 ) ) );
+  auto matchMap = std::make_unique<CandMatchMapMany>( CandMatchMapMany::ref_type( CandidateRefProd( source  ),
+                                                                                  CandidateRefProd( matched )
+										  ) );
   for( size_t c = 0; c != source->size(); ++ c ) {
     const Candidate & src = (*source)[ c ];
     if (printdebug_) cout << "[CandOneToManyDeltaRMatcher] source (Et,Eta,Phi) =(" << src.et() << "," <<
@@ -116,7 +116,7 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
     }
   }
 
-  evt.put( matchMap );
+  evt.put(std::move(matchMap) );
 
 }
 
