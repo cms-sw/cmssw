@@ -47,6 +47,8 @@ namespace pat {
     const bool modifyElectron_;
     // value maps for PUPPI isolation
     edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_,PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_photons_;
+     // value maps for PUPPINoLeptons isolation
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_charged_hadrons_,PUPPINoLeptonsIsolation_neutral_hadrons_, PUPPINoLeptonsIsolation_photons_;
     std::unique_ptr<pat::ObjectModifier<pat::Electron> > electronModifier_;
   };
 
@@ -75,7 +77,12 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     modifyElectron_(iConfig.getParameter<bool>("modifyElectrons")),
     PUPPIIsolation_charged_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"))),
     PUPPIIsolation_neutral_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"))),
-    PUPPIIsolation_photons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons")))
+    PUPPIIsolation_photons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"))),
+
+    PUPPINoLeptonsIsolation_charged_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons"))),
+    PUPPINoLeptonsIsolation_neutral_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons"))),
+    PUPPINoLeptonsIsolation_photons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationPhotons")))
+
 {
     edm::ConsumesCollector sumes(consumesCollector());
     if( modifyElectron_ ) {
@@ -119,6 +126,9 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 
     if( modifyElectron_ ) { electronModifier_->setEvent(iEvent); }
     if( modifyElectron_ ) electronModifier_->setEventContent(iSetup);
+
+
+    //value maps for puppi isolation
     Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
     Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
     Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
@@ -127,13 +137,24 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
     iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);
 
+    //value maps for puppiNoLeptons isolation
+    Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_charged_hadrons;
+    Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_neutral_hadrons;
+    Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons;
+
+    iEvent.getByToken(PUPPINoLeptonsIsolation_charged_hadrons_, PUPPINoLeptonsIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_neutral_hadrons_, PUPPINoLeptonsIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_photons_, PUPPINoLeptonsIsolation_photons);
+
     std::vector<unsigned int> keys;
     for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Electron & electron = out->back();
         auto elePtr = src -> ptrAt(it - src->begin());
         double PUPPI_Isolation = (*PUPPIIsolation_charged_hadrons)[elePtr] + (*PUPPIIsolation_neutral_hadrons)[elePtr] + (*PUPPIIsolation_photons)[elePtr];
+        double PUPPINoLeptons_Isolation = (*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr] + (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr] + (*PUPPINoLeptonsIsolation_photons)[elePtr];
         electron.addUserFloat("PUPPI_Isolation", PUPPI_Isolation);
+        electron.addUserFloat("PUPPINoLeptons_Isolation", PUPPINoLeptons_Isolation);
 
         if( modifyElectron_ ) { electronModifier_->modify(electron); }
 

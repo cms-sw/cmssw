@@ -21,8 +21,11 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
    modifyElectrons = cms.bool(True),
    modifierConfig = cms.PSet( modifications = cms.VPSet() ),
-   puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolationForElectrons", "h+-DR030-BarVeto000-EndVeto001"),
-   puppiIsolationNeutralHadrons = cms.InputTag("egmElectronPUPPIIsolationForElectrons", "h0-DR030-BarVeto000-EndVeto000"),
-   puppiIsolationPhotons = cms.InputTag("egmElectronPUPPIIsolationForElectrons", "gamma-DR030-BarVeto000-EndVeto008")
+   puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolation", "h+-DR030-BarVeto000-EndVeto001"),
+   puppiIsolationNeutralHadrons = cms.InputTag("egmElectronPUPPIIsolation", "h0-DR030-BarVeto000-EndVeto000"),
+   puppiIsolationPhotons = cms.InputTag("egmElectronPUPPIIsolation", "gamma-DR030-BarVeto000-EndVeto008"),
+   puppiNoLeptonsIsolationChargedHadrons = cms.InputTag("egmElectronPUPPINoLeptonsIsolation", "h+-DR030-BarVeto000-EndVeto001"),
+   puppiNoLeptonsIsolationNeutralHadrons = cms.InputTag("egmElectronPUPPINoLeptonsIsolation", "h0-DR030-BarVeto000-EndVeto000"),
+   puppiNoLeptonsIsolationPhotons = cms.InputTag("egmElectronPUPPINoLeptonsIsolation", "gamma-DR030-BarVeto000-EndVeto008")
 )
 

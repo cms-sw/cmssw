@@ -49,6 +49,7 @@ namespace citk {
     std::array<IsoTypes,kNPFTypes> _isolation_types; 
     std::array<std::vector<std::string>,kNPFTypes> _product_names;
     bool useValueMapForPUPPI = true;
+    bool usePUPPINoLepton = false;// in case puppi weights are taken from packedCandidate can take weights for puppiNoLeptons
   };
 }
 
@@ -74,6 +75,7 @@ namespace citk {
         useValueMapForPUPPI = true;
       }
       else useValueMapForPUPPI = false;
+      if (c.exists("usePUPPINoLepton")) usePUPPINoLepton = c.getParameter<bool>("usePUPPINoLepton");
     const std::vector<edm::ParameterSet>& isoDefs = 
       c.getParameterSetVector("isolationConeDefinitions");
     for( const auto& isodef : isoDefs ) {
@@ -153,7 +155,8 @@ namespace citk {
     	   for( unsigned i = 0; i < isolations.size(); ++ i  ) {
     	  if( isolations[i]->isInIsolationCone(cand_to_isolate,isocand) ) {
           double puppiWeight = 0.;
-    	    if (!useValueMapForPUPPI) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
+    	    if (!useValueMapForPUPPI && !usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeight(); // if miniAOD, take puppiWeight directly from the object
+          else if (!useValueMapForPUPPI && usePUPPINoLepton) puppiWeight = aspackedCandidate -> puppiWeightNoLep(); // if miniAOD, take puppiWeightNoLep directly from the object
           else  puppiWeight = (*puppiValueMap)[isocand]; // if AOD, take puppiWeight from the valueMap
           if (puppiWeight > 0.)cand_values[isotype][i] += (isocand->pt())*puppiWeight; // this is basically the main change to Lindsey's code: scale pt with puppiWeight for candidates with puppiWeight > 0.
     	  }

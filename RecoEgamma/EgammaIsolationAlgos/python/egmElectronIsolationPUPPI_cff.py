@@ -22,13 +22,22 @@ IsoConeDefinitions = cms.VPSet(
         )
 
 egmElectronIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducer",
-							  srcToIsolate = cms.InputTag("gedGsfElectrons"),
-							  srcForIsolationCone = cms.InputTag('puppi'),
-							  puppiValueMap = cms.InputTag(''),
-							  isolationConeDefinitions = IsoConeDefinitions
+                srcToIsolate = cms.InputTag("gedGsfElectrons"),
+                srcForIsolationCone = cms.InputTag('puppi'),
+                isolationConeDefinitions = IsoConeDefinitions
 )
 
-egmElectronIsolationMiniAODPUPPI = egmElectronIsolationAODPUPPI.clone()
-egmElectronIsolationMiniAODPUPPI.srcForIsolationCone = cms.InputTag("packedPFCandidates")
-egmElectronIsolationMiniAODPUPPI.srcToIsolate = cms.InputTag("slimmedElectrons")
-egmElectronIsolationMiniAODPUPPI.puppiValueMap = cms.InputTag('')
+egmElectronIsolationMiniAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
+                srcToIsolate = cms.InputTag("slimmedElectrons"),
+                srcForIsolationCone = cms.InputTag('packedPFCandidates'),
+                puppiValueMap = cms.InputTag(''),
+                isolationConeDefinitions = IsoConeDefinitions
+)
+
+egmElectronIsolationMiniAODPUPPINoLeptons = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
+                srcToIsolate = cms.InputTag("slimmedElectrons"),
+                srcForIsolationCone = cms.InputTag('packedPFCandidates'),
+                puppiValueMap = cms.InputTag(''),
+                usePUPPINoLepton = cms.bool(True),
+                isolationConeDefinitions = IsoConeDefinitions
+)
