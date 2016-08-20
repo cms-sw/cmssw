@@ -121,13 +121,13 @@ namespace edm {
         // The file may already be closed so the reader is invalid
         return;
       }
-      if(mcc and (branchType == InEvent)) {
+      if(mcc and (branchType == InEvent) and aux_) {
         aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
       }
 
       auto sentry( make_sentry(mcc,
                                [this, branchType](ModuleCallingContext const* iContext){
-                                 if(branchType == InEvent) {
+                                 if(branchType == InEvent and aux_) {
                                    aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }
                                }));
 
