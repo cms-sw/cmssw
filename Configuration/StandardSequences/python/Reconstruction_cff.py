@@ -75,6 +75,7 @@ _globalreco_tracking_LowPU_Phase1PU70 = globalreco_tracking.copy()
 _globalreco_tracking_LowPU_Phase1PU70.replace(trackingGlobalReco, recopixelvertexing+trackingGlobalReco)
 eras.trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
 eras.trackingPhase1PU70.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
+eras.trackingPhase2PU140.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU_Phase1PU70)
 
 globalreco = cms.Sequence(globalreco_tracking*
                           hcalGlobalRecoSequence*
