@@ -13,9 +13,8 @@ $JOB_LOG = "JOB.log";
 $DIE_FILE = "DIE";
 $NUM_JOBS = 6;
 $TIMEOUT = 10*60;
-
-$GEN_SIM_FILE = "/store/relval/CMSSW_7_6_0/RelValProdTTbar/GEN-SIM/76X_mcRun1_realistic_v10-v1/00000/08F44119-9C7F-E511-85C3-0025905B85A2.root";
-
+#$GEN_SIM_FILE = "/store/relval/CMSSW_7_6_0/RelValProdTTbar/GEN-SIM/76X_mcRun1_realistic_v10-v1/00000/08F44119-9C7F-E511-85C3-0025905B85A2.root";
+$GEN_SIM_FILE = "file:/afs/cern.ch/work/m/mulhearn/data/gen-sim/GEN-SIM-08F44119-9C7F-E511-85C3-0025905B85A2.root";
 $VERBOSE  = 0;
 $KILL     = 0;
 $DRYRUN   = 0;
@@ -353,12 +352,11 @@ sub test_reemul_2016 {
 
 sub test_mc_prod {
     $nevt = 50;
-    $file = "$GEN_SIM_FILE";
     if ($FAST) {$nevt = 5; }
     if ($SLOW) {$nevt = 500; }
 
     if (! $RECYCLE){
-	$status = long_command("cmsDriver.py L1TEST $COND_MC -s DIGI,L1 --datatier GEN-SIM-RAW -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=$file --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree >& CMSDRIVER.log");
+	$status = long_command("cmsDriver.py L1TEST $COND_MC -s DIGI,L1 --datatier GEN-SIM-RAW -n $nevt --era Run2_2016 --mc --no_output --no_exec --filein=$GEN_SIM_FILE --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMUNoEventTree >& CMSDRIVER.log");
 # --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs
 
 	print "INFO: status of cmsDriver call is $status\n";
