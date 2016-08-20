@@ -120,9 +120,21 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
   float n5=0;
   getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
 
-  float ch3=corrCharge[3]/i3;
-  float ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
-  float ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
+  float ch3=0;
+  float ch4=0;
+  float ch5=0;
+
+  if(i3==0 || i4==0 || i5==0) {
+
+    ch3=0;
+    ch4=0;
+    ch5=0;
+
+  } else {
+
+    ch3=corrCharge[3]/i3;
+    ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
+    ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
 
     if (ch3<negThresh[0]) {
       ch3=negThresh[0];
@@ -140,6 +152,7 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
         tsShift4=invG;
       }
     }
+  }
 
   if (ch3<1) {
     ch3=0;
