@@ -464,6 +464,7 @@ try { // edmNew::CapacityExaustedException
   incAct();
  
   if (record.full()) {
+    edm::LogError(sistrip::mlRawToCluster_) << "too many Sistrip Clusters to fit space allocated for OnDemand for " << record.id() << ' ' << record.size();
     record.abort();
     incAbrt();
   }
