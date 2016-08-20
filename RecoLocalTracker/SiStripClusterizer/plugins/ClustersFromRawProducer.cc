@@ -141,7 +141,7 @@ namespace {
     
 #ifdef VIDEBUG
     struct Stat {
-      Stat() : totDet(0), detReady(0),detSet(0),detAct(0),detNoZ(0),totClus(0){}
+      Stat() : totDet(0), detReady(0),detSet(0),detAct(0),detNoZ(0),detAbrt(0),totClus(0){}
       std::atomic<int> totDet; // all dets
       std::atomic<int> detReady; // dets "updated"
       std::atomic<int> detSet;  // det actually set not empty
