@@ -108,7 +108,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     }
     noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
-    auto_ptr<vector<pat::Photon> >  out(new vector<pat::Photon>());
+    auto out = std::make_unique<std::vector<pat::Photon>>();
     out->reserve(src->size());
 
     if( modifyPhoton_ ) { photonModifier_->setEvent(iEvent); }
@@ -172,7 +172,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
 
      }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

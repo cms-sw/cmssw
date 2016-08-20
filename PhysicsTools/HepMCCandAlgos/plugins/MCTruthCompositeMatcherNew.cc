@@ -53,7 +53,7 @@ namespace reco {
 	maps.push_back(& * matchMap);
       }
       utilsNew::CandMatcher<GenParticleCollection> match(maps);
-      auto_ptr<GenParticleMatch> matchMap(new GenParticleMatch(match.ref()));
+      auto matchMap = std::make_unique<GenParticleMatch>(match.ref());
       int size = cands->size();
       vector<int>::const_iterator begin = pdgId_.begin(), end = pdgId_.end();
       if(size != 0) {
@@ -74,7 +74,7 @@ namespace reco {
 	filler.insert(ref, indices.begin(), indices.end());
 	filler.fill();
       }
-      evt.put(matchMap);
+      evt.put(std::move(matchMap));
     }
 
   }

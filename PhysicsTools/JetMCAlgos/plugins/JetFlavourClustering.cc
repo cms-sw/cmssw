@@ -287,10 +287,10 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( useLeptons_ )
      iEvent.getByToken(leptonsToken_, leptons);
 
-   std::auto_ptr<reco::JetFlavourInfoMatchingCollection> jetFlavourInfos( new reco::JetFlavourInfoMatchingCollection(reco::JetRefBaseProd(jets)) );
-   std::auto_ptr<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfos;
+   auto jetFlavourInfos = std::make_unique<reco::JetFlavourInfoMatchingCollection>(reco::JetRefBaseProd(jets));
+   std::unique_ptr<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfos;
    if( useSubjets_ )
-     subjetFlavourInfos = std::auto_ptr<reco::JetFlavourInfoMatchingCollection>( new reco::JetFlavourInfoMatchingCollection(reco::JetRefBaseProd(subjets)) );
+     subjetFlavourInfos = std::make_unique<reco::JetFlavourInfoMatchingCollection>(reco::JetRefBaseProd(subjets));
 
    // vector of constituents for reclustering jets and "ghosts"
    std::vector<fastjet::PseudoJet> fjInputs;
@@ -474,10 +474,10 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // put jet flavour infos in the event
-   iEvent.put( jetFlavourInfos );
+   iEvent.put(std::move(jetFlavourInfos));
    // put subjet flavour infos in the event
    if( useSubjets_ )
-     iEvent.put( subjetFlavourInfos, "SubJets" );
+     iEvent.put(std::move(subjetFlavourInfos), "SubJets" );
 }
 
 // ------------ method that inserts "ghost" particles in the vector of jet constituents ------------

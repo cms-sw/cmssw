@@ -101,7 +101,7 @@ pat::PATCleaner<PATObjType>::produce(edm::Event & iEvent, const edm::EventSetup 
   iEvent.getByToken(srcToken_, candidates);
 
   // Prepare a collection for the output
-  std::auto_ptr< std::vector<PATObjType> > output(new std::vector<PATObjType>());
+  auto output = std::make_unique<std::vector<PATObjType>>();
 
   // initialize the overlap tests
   for (auto& itov : overlapTests_) {
@@ -134,7 +134,7 @@ pat::PATCleaner<PATObjType>::produce(edm::Event & iEvent, const edm::EventSetup 
       if (!finalCut_(obj)) output->pop_back();
   }
 
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 
 

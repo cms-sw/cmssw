@@ -76,15 +76,13 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
   HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
 
    // Create the output collection
-  std::auto_ptr< edm::RefToBaseVector<object> >
-    outColRef( new edm::RefToBaseVector<object> );
-  //std::auto_ptr< edm::PtrVector<object> >
-  // outColPtr( new edm::PtrVector<object> );
+  auto outColRef = std::make_unique<edm::RefToBaseVector<object>>();
+  //auto outColPtr = std::make_unique<edm::PtrVector<object>>();
 
   //skip event if HLT paths do not have identical process names
   if (skipEvent_) {
-    event.put(outColRef);
-    //event.put(outColPtr);
+    event.put(std::move(outColRef));
+    //event.put(std::move(outColPtr));
     return;
   }
 
@@ -198,8 +196,8 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
      edm::LogInfo("info")<< "******** Following Trigger Summary Object Not Found: " <<
        triggerEventTag_;
 
-     event.put(outColRef);
-     // event.put(outColPtr);
+     event.put(std::move(outColRef));
+     // event.put(std::move(outColPtr));
      return;
    }
 
@@ -293,7 +291,7 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
            if (isTriggerOR_) continue;
         //    edm::LogInfo("info")<< "******** Following TRIGGER Name Not in Dataset: " <<
        //     theRightHLTTag_.label();
-       //     event.put(outColRef);
+       //     event.put(std::move(outColRef));
        //     return;
            } else
            {
@@ -344,12 +342,12 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
    if(!foundPath) {
      edm::LogInfo("info")<< "******** Following TRIGGER Name Not in Dataset: " <<
        theRightHLTTag_.label();
-     event.put(outColRef);
+     event.put(std::move(outColRef));
      return;
    }
 
-   event.put(outColRef);
-   // event.put(outColPtr);
+   event.put(std::move(outColRef));
+   // event.put(std::move(outColPtr));
 }
 
 

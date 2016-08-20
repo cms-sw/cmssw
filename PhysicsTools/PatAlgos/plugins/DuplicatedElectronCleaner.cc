@@ -66,10 +66,10 @@ pat::DuplicatedElectronCleaner::produce(edm::StreamID, edm::Event & iEvent, cons
   iEvent.getByToken(electronSrcToken_, electrons);
   try_ += electrons->size();
 
-  //std::auto_ptr<RefVector<reco::GsfElectronCollection> > result(new RefVector<reco::GsfElectronCollection>());
-  std::auto_ptr<RefToBaseVector<reco::GsfElectron> > result(new RefToBaseVector<reco::GsfElectron>());
-  //std::auto_ptr<PtrVector<reco::GsfElectron> > result(new PtrVector<reco::GsfElectron>());
-  std::auto_ptr< std::vector<size_t> > duplicates = duplicateRemover_.duplicatesToRemove(*electrons);
+  //auto result = std::make_unique<RefVector<reco::GsfElectronCollection>>();
+  auto result = std::make_unique<RefToBaseVector<reco::GsfElectron>>();
+  //auto result = std::make_unique<PtrVector<reco::GsfElectron>>();
+  std::unique_ptr< std::vector<size_t> > duplicates = duplicateRemover_.duplicatesToRemove(*electrons);
 
   std::vector<size_t>::const_iterator itdup = duplicates->begin(), enddup = duplicates->end();
   for (size_t i = 0, n = electrons->size(); i < n; ++i) {
@@ -80,7 +80,7 @@ pat::DuplicatedElectronCleaner::produce(edm::StreamID, edm::Event & iEvent, cons
     //result->push_back(electrons->ptrAt(i));
   }
   pass_ += result->size();
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

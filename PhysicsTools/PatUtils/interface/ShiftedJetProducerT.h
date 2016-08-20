@@ -107,7 +107,7 @@ template <typename T, typename Textractor>
     if ( evt.isRealData() && addResidualJES_ ) {
       evt.getByToken(jetCorrTokenUpToL3Res_, jetCorrUpToL3Res);
     }
-    std::auto_ptr<JetCollection> shiftedJets(new JetCollection);
+    auto shiftedJets = std::make_unique<JetCollection>();
 
     if ( jetCorrPayloadName_ != "" ) {
       edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
@@ -170,7 +170,7 @@ template <typename T, typename Textractor>
       shiftedJets->push_back(shiftedJet);
     }
 
-    evt.put(shiftedJets);
+    evt.put(std::move(shiftedJets));
   }
 
   std::string moduleLabel_;

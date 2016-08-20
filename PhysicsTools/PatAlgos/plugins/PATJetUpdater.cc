@@ -115,9 +115,9 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
   }
 
   // loop over jets
-  std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
+  auto patJets = std::make_unique<std::vector<Jet>>();
 
-  std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );
+  auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
 
   edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
@@ -209,9 +209,9 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
   std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
-  iEvent.put(patJets);
+  iEvent.put(std::move(patJets));
 
-  iEvent.put( tagInfosOut, "tagInfos" );
+  iEvent.put(std::move(tagInfosOut), "tagInfos" );
 
 }
 
