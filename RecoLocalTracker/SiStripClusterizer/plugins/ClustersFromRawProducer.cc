@@ -147,6 +147,7 @@ namespace {
       std::atomic<int> detSet;  // det actually set not empty
       std::atomic<int> detAct;  // det actually set with content
       std::atomic<int> detNoZ;  // det actually set with content
+      std::atomic<int> detAbrt;  // det aborted
       std::atomic<int> totClus; // total number of clusters
     };
     
@@ -157,9 +158,10 @@ namespace {
     void incSet() const { stat.detSet++;}
     void incAct() const { stat.detAct++;}
     void incNoZ() const { stat.detNoZ++;}
+    void incAbrt() const { stat.detAbrt++;}
     void incClus(int n) const { stat.totClus+=n;}
     void printStat() const {
-      COUT << "VI clusters " << stat.totDet <<','<< stat.detReady <<','<< stat.detSet <<','<< stat.detAct<<','<< stat.detNoZ <<','<< stat.totClus << std::endl;
+      COUT << "VI clusters " << stat.totDet <<','<< stat.detReady <<','<< stat.detSet <<','<< stat.detAct<<','<< stat.detNoZ <<','<<stat.detAbrt <<','<<stat.totClus << std::endl;
     }
     
 #else
@@ -169,6 +171,7 @@ namespace {
     static void incSet() {}
     static void incAct() {}
     static void incNoZ() {}
+    static void incAbrt(){}
     static void incClus(int){}
     static void printStat(){}
 #endif
@@ -459,6 +462,12 @@ try { // edmNew::CapacityExaustedException
   clusterizer.stripByStripEnd(state,record);
   
   incAct();
+ 
+  if (record.full()) {
+    record.abort();
+    incAbrt();
+  }
+  
   if(!record.empty()) incNoZ();
 
   COUT << "filled " << record.size() << std::endl;
