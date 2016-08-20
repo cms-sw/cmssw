@@ -79,8 +79,8 @@ streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPT
     'HLT_JetE70_NoBPTX3BX_v2', 
     'HLT_L2Mu10_NoVertex_NoBPTX3BX_v2', 
     'HLT_L2Mu10_NoVertex_NoBPTX_v3', 
-    'HLT_L2Mu35_NoVertex_3Sta_NoBPTX3BX_v2', 
-    'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v2')
+    'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v2', 
+    'HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBias_selector
 streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
