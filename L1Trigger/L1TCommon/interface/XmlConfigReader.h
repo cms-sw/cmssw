@@ -46,7 +46,7 @@ class XmlConfigReader {
   const XMLCh* kAttrType;
   const XMLCh* kAttrDelim;
   const XMLCh* kAttrModule;
-  const std::string kTypeTable;
+  std::string kTypeTable;
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
