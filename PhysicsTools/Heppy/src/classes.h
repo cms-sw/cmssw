@@ -21,6 +21,7 @@
 //#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
 
 #include "PhysicsTools/Heppy/interface/PdfWeightProducerTool.h"
+#include "PhysicsTools/Heppy/interface/genutils.h"
 
 #include <vector>
 namespace {
