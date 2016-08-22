@@ -20,10 +20,13 @@ from Validation.RecoMET.METPostProcessor_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 
+postValidationTracking = cms.Sequence(
+      postProcessorTrackSequence
+    + postProcessorVertexSequence
+)
 postValidation = cms.Sequence(
       recoMuonPostProcessors
-    + postProcessorTrackSequence
-    + postProcessorVertexSequence
+    + postValidationTracking
     + MuIsoValPostProcessor
     + calotowersPostProcessor
     + hcalSimHitsPostProcessor
