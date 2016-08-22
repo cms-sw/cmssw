@@ -15,6 +15,9 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include <iostream>
 
 
@@ -30,6 +33,15 @@ CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) : recoCond
 
 
 CSCHitFromWireOnly::~CSCHitFromWireOnly(){}
+
+void CSCHitFromWireOnly::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+   edm::ParameterSetDescription desc;
+   desc.add<bool>("CSCUseReducedWireTimeWindow", false);
+   desc.add<int>("CSCWireTimeWindowLow", 0);
+   desc.add<int>("CSCWireTimeWindowHigh", 15);
+   descriptions.add("configWireTimeWindow", desc);
+}
+
 
 
 std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const CSCLayer* layer, const CSCWireDigiCollection::Range& rwired ) {

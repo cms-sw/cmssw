@@ -29,6 +29,10 @@
 
 #include <vector>
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 class CSCLayer;
 class CSCLayerGeometry;
 class CSCDetId;
@@ -52,6 +56,8 @@ class CSCHitFromWireOnly
   void makeWireCluster(const CSCWireDigi& digi);
   bool addToCluster(const CSCWireDigi& digi); 
   float findWireHitPosition();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
   CSCDetId id_;    
   const CSCLayer * layer_;

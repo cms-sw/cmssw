@@ -79,14 +79,14 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
 
 }
 
-void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+/*void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
    edm::ParameterSetDescription desc;
    desc.add<bool>("CSCUseReducedWireTimeWindow", false);
    desc.add<int>("CSCWireTimeWindowLow", 0);
    desc.add<int>("CSCWireTimeWindowHigh", 15);
    descriptions.add("configWireTimeWindow", desc);
 }
-
+*/
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCRecHitDProducer);
 
