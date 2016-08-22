@@ -155,6 +155,7 @@ _globalTags = {
     "CMSSW_8_0_15": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
     "CMSSW_8_0_16": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
     "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
+    "CMSSW_8_0_16_Tranche4GT_pmx": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_resub"},
     "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
     "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
     "CMSSW_8_1_0_pre2": {"default": "80X_mcRun2_asymptotic_v10_gs810pre2", "fastsim": "80X_mcRun2_asymptotic_v10"},
@@ -185,7 +186,7 @@ _globalTags = {
     "CMSSW_8_1_0_pre9_phase1_newGT": {"default": "81X_upgrade2017_realistic_v6_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v6_UPG17PU35newGT"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_Tranche4GT_pmx", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
                      "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1_newGT2", "_phase1_newGT", "_phase1", "_phase2", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
@@ -205,6 +206,8 @@ def _getGlobalTag(sample, release):
         print "Release %s not found from globaltag map in validation.py" % release
         sys.exit(1)
     gtmap = _globalTags[release]
+    if sample.hasReplaceGlobalTag(): # the ultimate hack but unfortunately needed sometimes
+        return sample.replaceGlobalTag()
     if sample.hasOverrideGlobalTag():
         ogt = sample.overrideGlobalTag()
         if release in ogt:
@@ -277,7 +280,7 @@ class Sample:
     def __init__(self, sample, append=None, midfix=None, putype=None, punum=0,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
                  doElectron=None, doConversion=None,
-                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
+                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag="", replaceGlobalTag=None):
         """Constructor.
 
         Arguments:
@@ -296,6 +299,7 @@ class Sample:
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
         appendGlobalTag -- String to append to GlobalTag (intended for one-time hacks; default "")
+        replaceGlobalTag -- String to replace the GlobalTag (intended for one-time hacks, default None)
         """
         self._sample = sample
         self._append = append
@@ -309,6 +313,7 @@ class Sample:
         self._scenario = scenario
         self._overrideGlobalTag = overrideGlobalTag
         self._appendGlobalTag = appendGlobalTag
+        self._replaceGlobalTag = replaceGlobalTag
 
         if doElectron is not None:
             self._doElectron = doElectron
@@ -386,6 +391,12 @@ class Sample:
     def overrideGlobalTag(self):
         return self._overrideGlobalTag
 
+    def hasReplaceGlobalTag(self):
+        return self._replaceGlobalTag is not None
+
+    def replaceGlobalTag(self):
+        return self._replaceGlobalTag
+
     def fastsim(self):
         """Return True for FastSim sample"""
         return self._fastsim
@@ -438,7 +449,7 @@ class Sample:
                 pileup = "PU"+self.pileupType(newRelease)+"_"
         if self._fastsim:
             fastsim = "_FastSim"
-            
+
         globalTag = _getGlobalTag(self, newRelease)
 
         fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{fastsim}-{version}__DQMIO.root'.format(
