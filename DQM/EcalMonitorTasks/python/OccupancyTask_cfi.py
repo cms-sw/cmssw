@@ -145,6 +145,13 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('Occupancy for TP digis with Et > ' + str(tpThreshold) + ' GeV.')
         ),
+        TPDigiRCT = cms.untracked.PSet(
+            path = cms.untracked.string('EcalBarrel/EBOccupancyTask/TP digi thr occupancy in RCT coordinates'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal'), 
+            btype = cms.untracked.string('RCT'),
+            description = cms.untracked.string('Occupancy for TP digis with Et > ' + str(tpThreshold) + ' GeV in RCT coordinates')
+        ),
         RecHitThrAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy%(suffix)s'),
             kind = cms.untracked.string('TH2F'),

@@ -245,6 +245,12 @@ namespace ecaldqm
       case kSuperCrystal:
         return findBinSuperCrystal_(_otype, _id);
         break;
+      case kPseudoStrip:
+        return findBinPseudoStrip_(_otype, _id);
+        break;
+      case kRCT:
+        return findBinRCT_(_otype, _id);
+        break;
       default :
         return 0;
       }
@@ -339,7 +345,11 @@ namespace ecaldqm
 
       switch(_otype){
       case kSM:
-        return iSM;
+        if(_btype == kPseudoStrip){
+          iSM = iSM <= kEEmTCCHigh ? (iSM + 1) % 18 / 2 : iSM >= kEEpTCCLow ? (iSM + 1 - 72) % 18 / 2 + 45: (iSM + 1) - kEEmTCCHigh;
+          return iSM;
+        } 
+        else return iSM;
 
       case kEBSM:
         return iSM - 9;
@@ -828,10 +838,12 @@ namespace ecaldqm
       if(_btypeName == "Crystal") return kCrystal;
       else if(_btypeName == "TriggerTower") return kTriggerTower;
       else if(_btypeName == "SuperCrystal") return kSuperCrystal;
+      else if(_btypeName == "PseudoStrip") return kPseudoStrip;
       else if(_btypeName == "TCC") return kTCC;
       else if(_btypeName == "DCC") return kDCC;
       else if(_btypeName == "ProjEta") return kProjEta;
       else if(_btypeName == "ProjPhi") return kProjPhi;
+      else if(_btypeName == "RCT") return kRCT;
       else if(_btypeName == "User") return kUser;
       else if(_btypeName == "Report") return kReport;
       else if(_btypeName == "Trend") return kTrend;

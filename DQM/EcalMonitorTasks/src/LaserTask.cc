@@ -89,6 +89,7 @@ namespace ecaldqm
   void
   LaserTask::runOnRawData(EcalRawDataCollection const& _rawData)
   {
+    MESet& meCalibStatus(MEs_.at("CalibStatus"));
     for(EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr){
       unsigned iDCC(rItr->id() - 1);
 
@@ -104,6 +105,31 @@ namespace ecaldqm
 
       rtHalf_[iDCC] = rItr->getRtHalf();
     }
+    bool LaserStatus[nWavelength];
+    for(unsigned iW(0); iW < nWavelength; iW++){
+       LaserStatus[iW] = false;
+    }
+    for(unsigned iDCC(0); iDCC < nDCC; iDCC++){
+       switch (wavelength_[iDCC])
+       {
+         case 1: 
+           break;
+         case 2: 
+           LaserStatus[Wavelength::kGreen] = true; 
+           break;
+         case 3:
+           LaserStatus[Wavelength::kBlue] = true; 
+           break;
+         case 4:
+           LaserStatus[Wavelength::kIRed] = true; 
+           break;
+         default:
+           break;
+        } 
+    }
+    for(unsigned iWL(0); iWL<nWavelength; iWL++){
+       meCalibStatus.fill(double(iWL), LaserStatus[iWL]? 1:0);
+    }  
   }
 
   template<typename DigiCollection>

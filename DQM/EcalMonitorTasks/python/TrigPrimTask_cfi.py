@@ -149,6 +149,13 @@ ecalTrigPrimTask = cms.untracked.PSet(
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Distribution of the trigger tower flags.')
         ),
+        TTMaskMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/TTStatus/%(prefix)sTTT TT Masking Status%(sm)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('PseudoStrip'),
+            description = cms.untracked.string('Trigger tower and pseudo-strip masking status: a TT or strip is red if it is masked')
+        ),
         TTFMismatch = cms.untracked.PSet(
 #            path = cms.untracked.string('Ecal/Errors/TriggerPrimitives/FlagMismatch/'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/%(prefix)sSRT TT flag mismatch%(suffix)s'),

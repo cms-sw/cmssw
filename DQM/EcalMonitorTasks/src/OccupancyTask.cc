@@ -76,6 +76,7 @@ namespace ecaldqm
     //    MESet& meTPDigiAll(MEs_.at("TPDigiAll"));
     //    MESet& meTPDigiProjEta(MEs_.at("TPDigiProjEta"));
     //    MESet& meTPDigiProjPhi(MEs_.at("TPDigiProjPhi"));
+    MESet& meTPDigiRCT(MEs_.at("TPDigiRCT"));
     MESet& meTPDigiThrAll(MEs_.at("TPDigiThrAll"));
     MESet& meTPDigiThrProjEta(MEs_.at("TPDigiThrProjEta"));
     MESet& meTPDigiThrProjPhi(MEs_.at("TPDigiThrProjPhi"));
@@ -93,6 +94,7 @@ namespace ecaldqm
                       meTPDigiThrProjEta.fill(id);
                       meTPDigiThrProjPhi.fill(id);
                       meTPDigiThrAll.fill(id);
+                      meTPDigiRCT.fill(id);
                       if(id.subDet() == EcalBarrel) nFilteredEB += 1.;
                       else nFilteredEE += 1.;
                     }

@@ -100,6 +100,7 @@ namespace ecaldqm
     MESetMulti const& sAmplitude(static_cast<MESetMulti const&>(sources_.at("Amplitude")));
     MESetMulti const& sTiming(static_cast<MESetMulti const&>(sources_.at("Timing")));
     MESetMulti const& sPNAmplitude(static_cast<MESetMulti const&>(sources_.at("PNAmplitude")));
+    MESet const& sCalibStatus(static_cast<MESet const&>(sources_.at("CalibStatus")));
 
     for(std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       meQuality.use(wlItr->second);
@@ -119,6 +120,9 @@ namespace ecaldqm
 
       MESet::const_iterator tItr(sTiming);
       MESet::const_iterator aItr(sAmplitude);
+ 
+      int wl(wlItr->first-1);
+      bool enabled(wl < 0? false: sCalibStatus.getBinContent(wl) > 0 ? true: false);
       for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
         DetId id(qItr->getId());
@@ -130,7 +134,7 @@ namespace ecaldqm
         float aEntries(aItr->getBinEntries());
 
         if(aEntries < minChannelEntries_){
-          qItr->setBinContent(doMask ? kMUnknown : kUnknown);
+          qItr->setBinContent(enabled ? (doMask ? kMUnknown : kUnknown) : kMUnknown);
           continue;
         }
 
