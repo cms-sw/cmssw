@@ -22,13 +22,21 @@ in a TWiki page
 [here](https://twiki.cern.ch/twiki/bin/viewauth/CMS/TrackerMaterialBudgetValidation).
 In the rest of the documentation we will assume that the
 user has already followed those instructions and produced
-all the required ROOT files. *NOTA BENE: it will also be
-implied that the samples used to derive the material
-profile from the Simulation have been produced **without**
-any vertex smearing*.
+all the required ROOT files.
+
+**NOTA BENE**: it will also be implied that the samples used
+to derive the material profile from the Simulation have been
+produced **without** any vertex smearing.
 
 The procedure to derive the latter is the subject of the
 next few sections.
+
+**REMINDER**: it is a user's responsibility to carefully
+check which geometry is loaded (either via GT or via files)
+in all the scripts used to derive the material description
+from the simulation. As of this PR the default is to use the
+PhaseI geometry, while the scripts that are explained below
+use the Run2 geometry.
 
 ## Material Map used during track reconstruction.
 
