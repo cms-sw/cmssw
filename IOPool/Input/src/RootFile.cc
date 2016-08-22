@@ -1776,6 +1776,13 @@ namespace edm {
       }
     }
   }
+  
+  void 
+  RootFile::setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                      signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource) {
+    eventTree_.setSignals(preEventReadSource,postEventReadSource);
+  }
+
 
   std::unique_ptr<MakeProvenanceReader>
   RootFile::makeProvenanceReaderMaker(InputType inputType) {

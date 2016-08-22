@@ -349,30 +349,18 @@ PathContext: pathName = e pathID = 0 (EndPath)
 ++++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 4
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 3
@@ -503,30 +491,18 @@ PathContext: pathName = e pathID = 0 (EndPath)
 ++++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 4
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 3
@@ -657,30 +633,18 @@ PathContext: pathName = e pathID = 0 (EndPath)
 ++++++++++ finished: prefetching before processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ starting: processing event for module: stream = 0 label = 'intProducerU' id = 4
 ++++++++++ finished: processing event for module: stream = 0 label = 'intProducerU' id = 4
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
-++++++++ starting: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++++ starting: event delayed read from source: stream = 0 label = 'out' id = 3
 ++++++++++ finished: event delayed read from source: stream = 0 label = 'out' id = 3
-++++++++ finished: delayed processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ starting: processing event for module: stream = 0 label = 'out' id = 3
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 3

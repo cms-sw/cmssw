@@ -829,28 +829,10 @@ namespace edm {
   
   void
   Principal::readAllFromSourceAndMergeImmediately() {
+    if(not reader()) {return;}
+    
     for(auto & prod : *this) {
-      ProductResolverBase & phb = *prod;
-      if(phb.singleProduct() && !phb.branchDescription().produced()) {
-        if(!phb.productUnavailable()) {
-          resolveProductImmediately(phb);
-        }
-      }
+      prod->retrieveAndMerge(*this);
     }
   }
-  void
-  Principal::resolveProductImmediately(ProductResolverBase& phb)  {
-    if(phb.branchDescription().produced()) return; // nothing to do.
-    if(!reader()) return; // nothing to do.
-    
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(phb.branchDescription());
-    std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
-    
-    // Now fix up the ProductResolver
-    if(edp.get() != nullptr) {
-      putOrMerge(std::move(edp), &phb);
-    }
-  }
-
 }
