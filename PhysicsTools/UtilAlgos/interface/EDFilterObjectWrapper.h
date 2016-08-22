@@ -69,7 +69,7 @@ namespace edm {
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
     virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override {
       // create a collection of the objects to put into the event
-      std::auto_ptr<C> objsToPut( new C() );
+      auto objsToPut = std::make_unique<C>();
       // get the handle to the objects in the event.
       edm::Handle<C> h_c;
       event.getByToken( src_, h_c );
@@ -81,7 +81,7 @@ namespace edm {
       }
       // put objs in the event
       bool pass = objsToPut->size() > 0;
-      event.put(objsToPut);
+      event.put(std::move(objsToPut));
       if ( doFilter_ )
 	return pass;
       else

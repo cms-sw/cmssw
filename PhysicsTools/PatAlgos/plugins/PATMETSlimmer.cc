@@ -144,14 +144,14 @@ pat::PATMETSlimmer::produce(edm::StreamID, edm::Event & iEvent, const edm::Event
     iEvent.getByToken(src_, src);
     if (src->size() != 1) throw cms::Exception("CorruptData", "More than one MET in the collection");
 
-    auto_ptr<vector<pat::MET> >  out(new vector<pat::MET>(1, src->front()));
+    auto out = std::make_unique<std::vector<pat::MET>>(1, src->front());
     pat::MET & met = out->back();
 
     for (const OneMETShift &shift : shifts_) {
         shift.readAndSet(iEvent, met);
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 
 }
 

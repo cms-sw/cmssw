@@ -22,7 +22,6 @@
 
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
@@ -36,7 +35,6 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM Histograming
@@ -47,10 +45,12 @@
 //
 Phase2TrackerMonitorDigi::Phase2TrackerMonitorDigi(const edm::ParameterSet& iConfig) :
   config_(iConfig),
-  pixDigiSrc_(config_.getParameter<edm::InputTag>("PixelDigiSource")),
+  pixelFlag_(config_.getParameter<bool >("PixelPlotFillingFlag")),
+  geomType_(config_.getParameter<std::string>("GeometryType")),
   otDigiSrc_(config_.getParameter<edm::InputTag>("OuterTrackerDigiSource")),
-  pixDigiToken_(consumes< edm::DetSetVector<PixelDigi> >(pixDigiSrc_)),
-  otDigiToken_(consumes< edm::DetSetVector<Phase2TrackerDigi> >(otDigiSrc_))
+  itPixelDigiSrc_(config_.getParameter<edm::InputTag>("InnerPixelDigiSource")),
+  otDigiToken_(consumes< edm::DetSetVector<Phase2TrackerDigi> >(otDigiSrc_)),
+  itPixelDigiToken_(consumes< edm::DetSetVector<PixelDigi> >(itPixelDigiSrc_))
 {
   edm::LogInfo("Phase2TrackerMonitorDigi") << ">>> Construct Phase2TrackerMonitorDigi ";
 }
@@ -77,26 +77,36 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
 
   // Get digis
   edm::Handle< edm::DetSetVector<PixelDigi> > pixDigiHandle;
-  iEvent.getByToken(pixDigiToken_ , pixDigiHandle); 
-  //iEvent.getByLabel(pixDigiSrc_, pixDigiHandle);
+  iEvent.getByToken(itPixelDigiToken_, pixDigiHandle); 
 
   edm::Handle< edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle;
-  iEvent.getByToken(otDigiToken_ , otDigiHandle); 
-  //iEvent.getByLabel(otDigiSrc_, otDigiHandle);
-
-  const DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle.product();
+  iEvent.getByToken(otDigiToken_, otDigiHandle); 
 
   // Tracker Topology 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
 
-  edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter;
-  for(DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
+  edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
+  if (theTkDigiGeomWatcher.check(iSetup)) {
+    edm::ESHandle<TrackerGeometry> geomHandle;
+    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
+
+    if (pixelFlag_) fillDigiHistos(pixDigiHandle, geomHandle);
+    else  fillDigiHistos(otDigiHandle, geomHandle);
+  }
+}
+template <class T>
+void Phase2TrackerMonitorDigi::fillDigiHistos(const edm::Handle<edm::DetSetVector<T>>  handle, const edm::ESHandle<TrackerGeometry> gHandle) {
+  const edm::DetSetVector<T>* digis = handle.product();
+
+  const TrackerTopology* tTopo = tTopoHandle_.product();
+
+  for (typename edm::DetSetVector<T>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
     edm::LogInfo("Phase2TrackerMonitorDigi")<< " Det Id = " << rawid;    
-    int layer = tTopo->getOTLayerNumber(rawid);
+    int layer;
+    if (pixelFlag_)  layer = tTopo->getITPixelLayerNumber(rawid);
+    else layer = tTopo->getOTLayerNumber(rawid);
     if (layer < 0) continue;
     std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
     if (pos == layerMEs.end()) continue;
@@ -107,40 +117,42 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
     int nclus = 0;
     int width = 0;
     int position = 0; 
-    unsigned short charge = 0; 
-    for (DetSet<Phase2TrackerDigi>::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
-      //      unsigned short adc = di->adc();    // charge, modified to unsiged short
-      unsigned short adc = 255;    // charge, modified to unsiged short
+    for (typename edm::DetSet< T >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
       int col = di->column(); // column
       int row = di->row();    // row
+      const DetId detId(rawid);
+
+      const GeomDetUnit* gDetUnit = gHandle->idToDetUnit(detId);
+      if (gDetUnit) {  
+	MeasurementPoint mp( row + 0.5, col + 0.5 );
+	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
+	XYPositionMap->Fill(pdPos.x()*10.0, pdPos.y()*10.0);
+	RZPositionMap->Fill(pdPos.z()*10.0, std::sqrt(pdPos.x()*pdPos.x() + pdPos.y()*pdPos.y())*10.0);  
+      }
       nDigi++;
-      edm::LogInfo("Phase2TrackerMonitorDigi")<< "  column " << col << " row " << row << " ADC " << adc <<
+      edm::LogInfo("Phase2TrackerMonitorDigi")<< "  column " << col << " row " << row  <<
         std::dec  << std::endl;
       local_mes.PositionOfDigis->Fill(row+1, col+1);
-      local_mes.DigiCharge->Fill(adc);
-      
+
+
       if (row_last == -1 ) {
-        charge = adc;
         width  = 1;
         position = row+1;
         nclus++; 
       } else {
 	if (abs(row - row_last) == 1 && col == col_last) {
-	  charge += adc;
 	  position += row+1;
 	  width++;
 	} else {
           position /= width;  
-          local_mes.ClusterCharge->Fill(charge);
           local_mes.ClusterWidth->Fill(width);
           local_mes.ClusterPosition->Fill(position);
-	  charge = adc;
 	  width  = 1;
 	  position = row+1;
           nclus++;
 	}
       }
-      edm::LogInfo("Phase2TrackerMonitorDigi")<< " row " << row << " col " << col <<  " row_last " << row_last << " col_last " << col_last << " width " << width << " charge " << charge;
+      edm::LogInfo("Phase2TrackerMonitorDigi")<< " row " << row << " col " << col <<  " row_last " << row_last << " col_last " << col_last << " width " << width;
       row_last = row;
       col_last = col;
     }
@@ -156,7 +168,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
 		 edm::EventSetup const &  iSetup ) {
 
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
-  std::string geometry_type = config_.getParameter<std::string>("GeometryType");
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -165,21 +176,43 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker,
 
   if (theTkDigiGeomWatcher.check(iSetup)) {
     edm::ESHandle<TrackerGeometry> geom_handle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geometry_type, geom_handle);
+    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geom_handle);
     for (auto const & det_u : geom_handle->detUnits()) {
       unsigned int detId_raw = det_u->geographicalId().rawId();
-      bookLayerHistos(ibooker,detId_raw, tTopo); 
+      bookLayerHistos(ibooker,detId_raw, tTopo, pixelFlag_); 
     }
   }
   ibooker.cd();
-  ibooker.setCurrentFolder(top_folder);
+  std::stringstream folder_name;
+  folder_name << top_folder << "/" << "DigiMonitor";
+  ibooker.setCurrentFolder(folder_name.str());
+
+  edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("XYPositionMapH");  
+  XYPositionMap = ibooker.book2D("XPosVsYPos","XPosVsYPos",
+				 Parameters.getParameter<int32_t>("Nxbins"),
+				 Parameters.getParameter<double>("xmin"),
+				 Parameters.getParameter<double>("xmax"),
+				 Parameters.getParameter<int32_t>("Nybins"),
+				 Parameters.getParameter<double>("ymin"),
+				 Parameters.getParameter<double>("ymax"));
+  Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
+  RZPositionMap = ibooker.book2D("RPosVszPos","RPosVsZPos",
+				 Parameters.getParameter<int32_t>("Nxbins"),
+				 Parameters.getParameter<double>("xmin"),
+				 Parameters.getParameter<double>("xmax"),
+				 Parameters.getParameter<int32_t>("Nybins"),
+				 Parameters.getParameter<double>("ymin"),
+				 Parameters.getParameter<double>("ymax"));
 }
 //
 // -- Book Layer Histograms
 //
-void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo){ 
+void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool flag){ 
 
-  int layer = tTopo->getOTLayerNumber(det_id);
+  int layer;
+  if (flag) layer = tTopo->getITPixelLayerNumber(det_id);
+  else layer = tTopo->getOTLayerNumber(det_id);
+
   if (layer < 0) return;
   std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
   if (pos == layerMEs.end()) {
@@ -225,13 +258,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					       Parameters.getParameter<int32_t>("Nybins"),
 					       Parameters.getParameter<double>("ymin"),
 					       Parameters.getParameter<double>("ymax"));
-    Parameters =  config_.getParameter<edm::ParameterSet>("DigiChargeH");
-    HistoName.str("");
-    HistoName << "DigiCharge_" << fname2.str();
-    local_mes.DigiCharge = ibooker.book1D(HistoName.str(), HistoName.str(),
-					     Parameters.getParameter<int32_t>("Nbins"),
-					     Parameters.getParameter<double>("xmin"),
-					     Parameters.getParameter<double>("xmax"));
 
     Parameters =  config_.getParameter<edm::ParameterSet>("NumberOfClustersH");
     HistoName.str("");
@@ -247,13 +273,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
 					    Parameters.getParameter<int32_t>("Nbins"),
 					    Parameters.getParameter<double>("xmin"),
 					    Parameters.getParameter<double>("xmax"));
-    Parameters =  config_.getParameter<edm::ParameterSet>("ClusterChargeH");
-    HistoName.str("");
-    HistoName << "ClusterCharge_" << fname2.str();
-    local_mes.ClusterCharge = ibooker.book1D(HistoName.str(), HistoName.str(),
-					     Parameters.getParameter<int32_t>("Nbins"),
-					     Parameters.getParameter<double>("xmin"),
-					     Parameters.getParameter<double>("xmax"));
     Parameters =  config_.getParameter<edm::ParameterSet>("ClusterPositionH");
     HistoName.str("");
     HistoName << "ClusterPosition_" << fname2.str();

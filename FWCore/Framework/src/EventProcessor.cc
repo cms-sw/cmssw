@@ -174,6 +174,8 @@ namespace edm {
       std::shared_ptr<int> sentry(nullptr,[areg,&md](void*){areg->postSourceConstructionSignal_(md);});
       convertException::wrap([&]() {
         input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+        input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
+        input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
       });
     }
     catch (cms::Exception& iException) {
@@ -544,10 +546,6 @@ namespace edm {
       // Reusable event principal
       auto ep = std::make_shared<EventPrincipal>(preg(), branchIDListHelper(),
            thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
-      ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
-      ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
-      ep->preReadFromSourceSignal_.connect(std::cref(actReg_->preEventReadFromSourceSignal_));
-      ep->postReadFromSourceSignal_.connect(std::cref(actReg_->postEventReadFromSourceSignal_));
       principalCache_.insert(ep);
     }
     // initialize the subprocesses, if there are any

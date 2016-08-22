@@ -97,7 +97,7 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
   }
   
   bool passes = false;
-  auto_ptr<vector<reco::Vertex> > result;
+  std::unique_ptr<vector<reco::Vertex> > result;
   // Run main mode + possible fallback modes
   for (std::vector<Mode>::const_iterator itm = modes_.begin(), endm = modes_.end(); itm != endm; ++itm) {
     result = filter_(*itm, iEvent, iSetup);
@@ -107,18 +107,18 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
       break;
     }
   }
-  iEvent.put(result);
+  iEvent.put(std::move(result));
   // Check if we want to apply the EDFilter
   if (doFilterEvents_)
     return passes;
   else return true;
 }
 
-std::auto_ptr<std::vector<reco::Vertex> >
+std::unique_ptr<std::vector<reco::Vertex> >
 PATSingleVertexSelector::filter_(Mode mode, const edm::Event &iEvent, const edm::EventSetup & iSetup) {
   using namespace edm;
   using namespace std;
-  std::auto_ptr<std::vector<reco::Vertex> > result(new std::vector<reco::Vertex>());
+  auto result = std::make_unique<std::vector<reco::Vertex>>();
   switch(mode) {
   case First: {
     if (selVtxs_.empty()) return result;

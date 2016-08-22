@@ -190,6 +190,7 @@ InitialStepPreSplitting = cms.Sequence(initialStepSeedLayersPreSplitting*
 from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
 eras.trackingLowPU.toReplaceWith(siPixelClusters, _siPixelClusters)
 eras.trackingPhase1PU70.toReplaceWith(siPixelClusters, _siPixelClusters)
+eras.trackingPhase2PU140.toReplaceWith(siPixelClusters, _siPixelClusters)
 _InitialStepPreSplitting_LowPU_Phase1PU70 = cms.Sequence(
     siPixelClusters +
     siPixelRecHits +
@@ -198,3 +199,4 @@ _InitialStepPreSplitting_LowPU_Phase1PU70 = cms.Sequence(
 )
 eras.trackingLowPU.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
 eras.trackingPhase1PU70.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)
+eras.trackingPhase2PU140.toReplaceWith(InitialStepPreSplitting, _InitialStepPreSplitting_LowPU_Phase1PU70)

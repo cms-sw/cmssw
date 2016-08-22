@@ -24,3 +24,10 @@ eras.trackingPhase1PU70.toModify(preDuplicateMergingDisplacedTracks,
     trackProducers = [x for x in preDuplicateMergingDisplacedTracks.trackProducers if x != "muonSeededTracksInOut"],
     inputClassifiers = [x for x in preDuplicateMergingDisplacedTracks.inputClassifiers if x != "muonSeededTracksInOutClassifier"],
 )
+
+# Same for Phase2PU140
+eras.trackingPhase2PU140.toModify(preDuplicateMergingDisplacedTracks,
+    trackProducers = [x for x in preDuplicateMergingDisplacedTracks.trackProducers if x != "muonSeededTracksInOut"],
+    inputClassifiers = [x for x in preDuplicateMergingDisplacedTracks.inputClassifiers if x != "muonSeededTracksInOutClassifier"],
+)
+

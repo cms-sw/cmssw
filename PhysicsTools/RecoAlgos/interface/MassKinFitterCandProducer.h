@@ -16,7 +16,7 @@ public:
   explicit MassKinFitterCandProducer(const edm::ParameterSet&, CandMassKinFitter * = 0);
 private:
   edm::EDGetTokenT<reco::CandidateCollection> srcToken_;
-  std::auto_ptr<CandMassKinFitter> fitter_;
+  std::unique_ptr<CandMassKinFitter> fitter_;
   void produce( edm::Event &, const edm::EventSetup & );
 };
 

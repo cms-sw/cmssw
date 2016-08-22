@@ -149,7 +149,7 @@ void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup)
     }
     
     //! fill the maps here
-    std::unique_ptr<reco::IsoDepositMap> depMap(new reco::IsoDepositMap());    
+    auto depMap = std::make_unique<reco::IsoDepositMap>();    
     reco::IsoDepositMap::Filler filler(*depMap);
     filler.insert(hCands, deps2D[iDep].begin(), deps2D[iDep].end());
     deps2D[iDep].clear();

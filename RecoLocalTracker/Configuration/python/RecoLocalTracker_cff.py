@@ -17,4 +17,15 @@ pixeltrackerlocalreco = cms.Sequence(siPixelClustersPreSplitting*siPixelRecHitsP
 striptrackerlocalreco = cms.Sequence(siStripZeroSuppression*siStripClusters*siStripMatchedRecHits)
 trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco*clusterSummaryProducer)
 
+from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
+from RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi import *
 
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_tracker.toReplaceWith(pixeltrackerlocalreco,
+  cms.Sequence(
+          siPhase2Clusters +
+          phase2ITPixelClusters +
+          siPixelClustersPreSplitting +
+          siPixelRecHitsPreSplitting
+  )
+)

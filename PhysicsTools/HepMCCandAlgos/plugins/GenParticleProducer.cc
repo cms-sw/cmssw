@@ -176,8 +176,8 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
    // initialise containers
    const size_t size = totalSize;
   vector<const HepMC::GenParticle *> particles( size );
-  auto_ptr<GenParticleCollection> candsPtr( new GenParticleCollection( size ) );
-  auto_ptr<vector<int> > barCodeVector( new vector<int>( size ) );
+  auto candsPtr = std::make_unique<GenParticleCollection>(size);
+  auto barCodeVector = std::make_unique<vector<int>>(size);
   ref_ = evt.getRefBeforePut<GenParticleCollection>();
   GenParticleCollection & cands = * candsPtr;
   size_t offset = 0;
@@ -257,8 +257,8 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
      }
   }
   
-  evt.put( candsPtr );
-  if(saveBarCodes_) evt.put( barCodeVector );
+  evt.put(std::move(candsPtr));
+  if(saveBarCodes_) evt.put(std::move(barCodeVector));
   if(cfhepmcprod) delete cfhepmcprod;
 
 }

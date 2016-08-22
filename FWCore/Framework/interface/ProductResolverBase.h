@@ -71,6 +71,9 @@ namespace edm {
       return prefetchAsync_(waitTask, principal, skipCurrentProcess, sra, mcc);
     }
 
+    void retrieveAndMerge(Principal const& principal) const {
+      retrieveAndMerge_(principal);
+    }
     void resetProductData() { resetProductData_(false); }
 
     void unsafe_deleteProduct() const {
@@ -167,6 +170,9 @@ namespace edm {
                                 bool skipCurrentProcess,
                                 SharedResourcesAcquirer* sra,
                                 ModuleCallingContext const* mcc) const = 0;
+    
+    virtual void retrieveAndMerge_(Principal const& principal) const;
+
 
     virtual bool unscheduledWasNotRun_() const = 0;
     virtual bool productUnavailable_() const = 0;

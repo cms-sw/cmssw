@@ -160,8 +160,8 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     iEvent.getByToken(baseTauToken_, anyTaus);
   } catch (const edm::Exception &e) {
     edm::LogWarning("DataSource") << "WARNING! No Tau collection found. This missing input will not block the job. Instead, an empty tau collection is being be produced.";
-    std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>());
-    iEvent.put(patTaus);
+    auto patTaus = std::make_unique<std::vector<Tau>>();
+    iEvent.put(std::move(patTaus));
     return;
   }
 
@@ -196,7 +196,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
   }
 
-  std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>());
+  auto patTaus = std::make_unique<std::vector<Tau>>();
 
   bool first=true; // this is introduced to issue warnings only for the first tau-jet
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
@@ -421,7 +421,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::sort(patTaus->begin(), patTaus->end(), pTTauComparator_);
 
   // put genEvt object in Event
-  iEvent.put(patTaus);
+  iEvent.put(std::move(patTaus));
 
   // clean up
   if (isolator_.enabled()) isolator_.endEvent();
