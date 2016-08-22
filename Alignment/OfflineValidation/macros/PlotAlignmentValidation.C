@@ -1,13 +1,14 @@
 #include <TStyle.h>
 #include <TSystem.h>
-#include <vector>
-#include <memory>
-#include <string>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <vector>
 #include "TTree.h"
 #include "TString.h"
 #include "TAxis.h"
@@ -90,6 +91,43 @@ void PlotAlignmentValidation::useFitForDMRplots(bool usefit)
 }
 
 //------------------------------------------------------------------------------
+int PlotAlignmentValidation::numberOfLayers(int phase, int subdetector) {
+  switch (phase) {
+  case 0:
+    switch (subdetector) {
+      case 1: return 3;
+      case 2: return 2;
+      case 3: return 4;
+      case 4: return 3;
+      case 5: return 6;
+      case 6: return 9;
+      default: assert(false);
+    }
+  case 1:
+    switch (subdetector) {
+      case 1: return 4;
+      case 2: return 3;
+      case 3: return 4;
+      case 4: return 3;
+      case 5: return 6;
+      case 6: return 9;
+      default: assert(false);
+    }
+    default: assert(false);
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+int PlotAlignmentValidation::maxNumberOfLayers(int subdetector) {
+  int result = 0;
+  for (auto it = sourceList.begin(); it != sourceList.end(); ++it) {
+    result = max(result, numberOfLayers((*it)->getPhase(), subdetector));
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
 void PlotAlignmentValidation::legendOptions(TString options)
 {
 
@@ -119,7 +157,6 @@ void PlotAlignmentValidation::legendOptions(TString options)
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::setOutputDir( std::string dir )
 {
-  std::cout <<"'"<< outputDir <<"' = "<< dir << std::endl;
   outputDir = dir;
   gSystem->mkdir(outputDir.data(), true);
 }
@@ -435,9 +472,6 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
     plotSubDetN = atoi(substr.c_str());
   }
 
-  // If layers are plotted, these are the numbers of layers for each subdetector
-  static int numberOfLayers[6] = { 3, 2, 4, 3, 6, 9 };
-
   gStyle->SetOptStat(0);
   
   TCanvas c("canv", "canv");
@@ -455,12 +489,16 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
       continue;
 
     // Skips plotting too high layers
-    if (plotLayerN > numberOfLayers[iSubDet-1]) {
+    // if it's a mixture of phase 0 and 1, the phase 0 files will be skipped
+    //  when plotting the higher layers of BPIX and FPIX
+    if (plotLayerN > maxNumberOfLayers(iSubDet)) {
       continue;
     }
 
     int minlayer = plotLayers ? 1 : plotLayerN;
-    int maxlayer = plotLayers ? numberOfLayers[iSubDet-1] : plotLayerN;
+    int maxlayer = plotLayers ? maxNumberOfLayers(iSubDet) : plotLayerN;
+    // see later where this is used
+    int maxlayerphase0 = plotLayers ? numberOfLayers(0, iSubDet) : plotLayerN;
     
     for (int layer = minlayer; layer <= maxlayer; layer++) {
 
@@ -513,7 +551,8 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 
 	// Generate histograms with selection
 	TLegend* legend = 0;
-	THStack *hs = addHists(selection, residType, &legend);
+        // Any file from phase 0 will be skipped if the last argument is false
+	THStack *hs = addHists(selection, residType, &legend, false, /*validforphase0 = */layer <= maxlayerphase0);
 	if (!hs || hs->GetHists()==0 || hs->GetHists()->GetSize()==0) {
 	  std::cout << "No histogram for " << subDetName <<
 	               ", perhaps not enough data? Creating default histogram." << std::endl;
@@ -640,9 +679,6 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
   // They are plotted for BPIX, FPIX, TIB and TOB
   static bool plotSplitsFor[6] = { true, true, true, false, true, false };
 
-  // If layers are plotted, these are the numbers of layers for each subdetector
-  static int numberOfLayers[6] = { 3, 2, 4, 3, 6, 9 };
-
   DMRPlotInfo plotinfo;
 
   gStyle->SetOptStat(0);
@@ -684,7 +720,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     }
  
     // Skips plotting too high layers
-    if (plotLayerN > numberOfLayers[i-1]) {
+    if (plotLayerN > maxNumberOfLayers(i)) {
       continue;
     }
 
@@ -699,7 +735,9 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
     int nPlots = 1;
     if (plotinfo.plotSplits) { nPlots = 3; }
-    if (plotinfo.plotLayers) { nPlots *= numberOfLayers[i-1]; }
+    // This will make the legend a bit bigger than necessary if there is a mixture of phase 0 and phase 1.
+    // Not worth it to implement more complicated logic.
+    if (plotinfo.plotLayers) { nPlots *= maxNumberOfLayers(i); }
     nPlots *= sourceList.size();
     if (twolines_) { nPlots *= 2; }
     nPlots += hasheader;
@@ -715,7 +753,6 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     THStack hstack("hstack", "hstack");
     plotinfo.maxY = 0;
     plotinfo.subDetId = i;
-    plotinfo.nLayers = numberOfLayers[i-1];
     plotinfo.legend = new TLegend(0.17, legendY, 0.85, 0.88);
     plotinfo.legend->SetNColumns(2);
     if (hasheader) plotinfo.legend->SetHeader(TkAlStyle::legendheader);
@@ -728,11 +765,11 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
 	it != sourceList.end(); ++it) {
 
-      int minlayer = plotLayers ? 1 : plotLayerN;
-      int maxlayer = plotLayers ? plotinfo.nLayers : plotLayerN;
-
       plotinfo.vars = *it;
       plotinfo.h1 = plotinfo.h2 = plotinfo.h = 0;
+
+      int minlayer = plotLayers ? 1 : plotLayerN;
+      int maxlayer = plotLayers ? numberOfLayers(plotinfo.vars->getPhase(), plotinfo.subDetId) : plotLayerN;
 
       for (int layer = minlayer; layer <= maxlayer; layer++) {
 
@@ -923,7 +960,7 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
 
 //------------------------------------------------------------------------------
 THStack* PlotAlignmentValidation::addHists(const TString& selection, const TString &residType,
-					   TLegend **myLegend, bool printModuleIds)
+					   TLegend **myLegend, bool printModuleIds, bool validforphase0)
 {
   enum ResidType {
     xPrimeRes, yPrimeRes, xPrimeNormRes, yPrimeNormRes, xRes, yRes, xNormRes, /*yResNorm*/
@@ -974,20 +1011,20 @@ THStack* PlotAlignmentValidation::addHists(const TString& selection, const TStri
     }
 
     bool histnamesfilled = false;
-    bool phase1 = (bool)(f->Get("TrackerOfflineValidationStandalone/Pixel/P1PXBBarrel_1"));
+    int phase = (bool)(f->Get("TrackerOfflineValidationStandalone/Pixel/P1PXBBarrel_1"));
     if (residType.Contains("Res") && residType.Contains("Profile"))
     {
       TString basename = TString(residType).ReplaceAll("Res","p_res")
                                            .ReplaceAll("vs","")
                                            .ReplaceAll("Profile","_");   //gives e.g.: p_resXX_
       if (selection == "subDetId==1") {
-        if (phase1)
+        if (phase==1)
           histnames.push_back(TString(basename) += "P1PXBBarrel_1");
         else
           histnames.push_back(TString(basename) += "TPBBarrel_1");
         histnamesfilled = true;
       } else if (selection == "subDetId==2") {
-        if (phase1) {
+        if (phase==1) {
           histnames.push_back(TString(basename) += "P1PXECEndcap_2");
           histnames.push_back(TString(basename) += "P1PXECEndcap_3");
         } else {
@@ -1110,6 +1147,7 @@ THStack* PlotAlignmentValidation::addHists(const TString& selection, const TStri
 
     for (std::vector<TString>::iterator ithistname = histnames.begin();
       ithistname != histnames.end(); ++ithistname) {
+      if (phase == 0 && !validforphase0) break;
       TH1 *newHist;
       if (ithistname->Contains("/")) {
         newHist = (TH1*)f->Get(*ithistname);

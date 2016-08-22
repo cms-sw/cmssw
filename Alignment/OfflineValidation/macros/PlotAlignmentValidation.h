@@ -27,16 +27,18 @@
 class TkOfflineVariables {
 public:
   TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName="", int color=1, int style=1);
-  int getLineColor(){ return lineColor; };
-  int getLineStyle(){ return lineStyle; };
+  int getLineColor(){ return lineColor; }
+  int getLineStyle(){ return lineStyle; }
   std::string getName(){ return legendName; }
-  TTree* getTree(){ return tree; };
-  TFile* getFile(){ return file; };
+  TTree* getTree(){ return tree; }
+  TFile* getFile(){ return file; }
+  int getPhase(){ return phase; }
 private:
   TFile* file;
   TTree* tree;
   int lineColor;
   int lineStyle;
+  int phase;
   std::string legendName;
 };
 
@@ -63,9 +65,14 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
       tree = (TTree*)(*d).Get("TkOffVal");
     } else {
       std::cout<<"no tree named TkOffVal"<<std::endl;
+      assert(false);
     }
+    TDirectoryFile *d2 = (TDirectoryFile*)d->Get("Pixel");
+    assert(d2);
+    phase = (int)((bool)d2->Get("P1PXBBarrel_1"));
   } else {
     std::cout<<"no directory named "<<baseDir.c_str()<<std::endl;
+    assert(false);
   }
 }
 
@@ -87,8 +94,10 @@ public:
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
+  int numberOfLayers(int phase, int subdetector);
+  int maxNumberOfLayers(int subdetector);
   
-  THStack* addHists(const TString& selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+  THStack* addHists(const TString& selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false, bool validforphase0 = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
   // These are helpers for DMR plotting
 
