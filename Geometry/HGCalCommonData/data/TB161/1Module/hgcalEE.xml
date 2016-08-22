@@ -13,24 +13,25 @@
     <rParent name="hgcal:HGCalEE"/>
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
-    <Vector name="MaterialNames" type="string" nEntries="7">
+    <Vector name="MaterialNames" type="string" nEntries="8">
       materials:Lead, materials:Tungsten, hgcal:WCu, materials:Copper,
-      materials:G10, materials:Silicon, materials:Air</Vector>
-    <Vector name="VolumeNames" type="string" nEntries="7">
+      materials:G10, materials:Silicon, materials:Air, materials:Plexiglas</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="8">
       EEAbsorber1, EEAbsorber2, EEAbsorber3, EEHeatShield, EEPCB,
-      EESensitive, EEAirGap</Vector>
-    <Vector name="Thickness" type="numeric" nEntries="7">
-      44.9*mm, 28.0*mm,  2.2*mm,  6.0*mm,  2.0*mm,  0.10*mm, 1.0*mm</Vector>
+      EESensitive, EEAirGap, EEPlasticSupport</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="8">
+      50.0*mm, 28.0*mm,  2.2*mm,  6.0*mm,  2.0*mm,  0.10*mm, 1.0*mm, 10.0*mm
+    </Vector>
     <Vector name="Layers" type="numeric" nEntries="1"> 
        8</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="1"> 
-      56.4*mm
+      70.5*mm
     </Vector>
     <Vector name="LayerType" type="numeric" nEntries="8"> 
-      0,  5,  5,  5,  4,  6, 2, 3
+      0, 7, 3, 2, 5, 5, 5, 4
     </Vector>
     <Vector name="LayerSense" type="numeric" nEntries="8">
-      0,  1,  1,  1,  0,  0, 0, 0
+      0, 0, 0, 0, 1, 1, 1, 0
     </Vector>
     <Numeric name="zMinBlock"   value="[hgcal:zminEE]"/>
     <Numeric name="rMaxFine"    value="[rMaxFine]"/>
