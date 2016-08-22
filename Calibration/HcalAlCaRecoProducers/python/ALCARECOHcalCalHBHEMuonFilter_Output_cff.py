@@ -6,13 +6,12 @@ import FWCore.ParameterSet.Config as cms
 OutALCARECOHcalCalHBHEMuonFilter_noDrop = cms.PSet(
     # use this in case of filter available
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOHcalHBHEMuonFilter')
+        SelectEvents = cms.vstring('pathALCARECOHcalCalHBHEMuonFilter')
         ),
     outputCommands = cms.untracked.vstring(
         'keep *_hbhereco_*_*',
         'keep *_ecalRecHit_*_*',
         'keep *_offlineBeamSpot_*_*',
-#       'keep *_hltTriggerSummaryAOD_*_*',
         'keep *_TriggerResults_*_*',
         'keep recoTracks_globalMuons_*_*',
         'keep recoTrackExtras_globalMuons_*_*',
