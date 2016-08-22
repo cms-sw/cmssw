@@ -164,9 +164,9 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
 
   // Main idea:
   // * select first good tracks in input, according to reasonable criteria
-  // * refit the track so that we have access to the TrajectoryMeasurements
+  // * refit the tracks so that we have access to the TrajectoryMeasurements
   //   that internally have all the information about the TSOS on all
-  //   crossed layers. We need the refit track and not the original track so
+  //   crossed layers. We need the refit track and not the original one so
   //   that we are able to correctly compute the path travelled by the track
   //   within the detector, using its updated TSOS. The material description
   //   can in principle be derived also directly from the rechits, via the
@@ -227,7 +227,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
 
         // Since there are double-sided (glued) modules all over the tracker,
         // the material budget has been internally partitioned in two equal
-        // components, so that on each single layer will receive half of the
+        // components, so that each single layer will receive half of the
         // correct radLen. For this reason, only for the double-sided
         // components, we rescale the obtained radLen by 2.
         // In particular see code here: http://cmslxr.fnal.gov/dxr/CMSSW_8_0_5/source/Geometry/TrackerGeometryBuilder/src/TrackerGeomBuilderFromGeometricDet.cc#213

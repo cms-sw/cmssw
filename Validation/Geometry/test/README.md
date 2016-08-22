@@ -43,7 +43,7 @@ use the Run2 geometry.
 Energy loss and multiple scattering are taken into account
 during the patter recognition. In order to have a somewhat
 better understanding of the mechanism put in place to do
-that, you can read the following [slides]()
+that, you can read the following [slides](://indico.cern.ch/event/512686/contributions/2182630/attachments/1280489/1901936/TrackerDPG_POG_20160527_MR.pdf)
 
 The main idea to derive the reco-material map effectively
 used during the patter-recognition is to ask to each layer
