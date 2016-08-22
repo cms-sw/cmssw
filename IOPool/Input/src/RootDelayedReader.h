@@ -45,6 +45,19 @@ namespace edm {
     RootDelayedReader(RootDelayedReader const&) = delete; // Disallow copying and moving
     RootDelayedReader& operator=(RootDelayedReader const&) = delete; // Disallow copying and moving
 
+    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const override final {
+      return preEventReadFromSourceSignal_;
+    }
+    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const override final {
+      return postEventReadFromSourceSignal_;
+    }
+
+    void setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource) {
+      preEventReadFromSourceSignal_ =preEventReadSource;
+      postEventReadFromSourceSignal_ = postEventReadSource;
+    }
+
   private:
     virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
     virtual void mergeReaders_(DelayedReader* other) override {nextReader_ = other;}
@@ -63,6 +76,10 @@ namespace edm {
     std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
     InputType inputType_;
     edm::propagate_const<TClass*> wrapperBaseTClass_;
+    
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal_ = nullptr;
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal_ = nullptr;
+
     //If a fatal exception happens we need to make a copy so we can
     // rethrow that exception on other threads. This avoids TTree
     // non-exception safety problems on later calls to TTree.

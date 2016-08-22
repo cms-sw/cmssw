@@ -68,6 +68,7 @@ namespace edm {
   class ProcessHistoryRegistry;
   class ProductRegistry;
   class StreamContext;
+  class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class ThinnedAssociationsHelper;
   namespace multicore {
@@ -340,6 +341,10 @@ namespace edm {
       std::string const& lfn_;
       bool usedFallback_;
     };
+
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preEventReadFromSourceSignal_;
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postEventReadFromSourceSignal_;
+    
 
   protected:
     virtual void skip(int offset);

@@ -18,24 +18,20 @@ namespace edm {
   std::unique_ptr<WrapperBase>
   DelayedReader::getProduct(BranchKey const& k,
                             EDProductGetter const* ep,
-                            signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preReadFromSourceSignal,
-                            signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postReadFromSourceSignal,
                             ModuleCallingContext const* mcc) {
 
-    auto sr = sharedResources_();
-    std::unique_lock<SharedResourcesAcquirer> guard;
-    if(sr) {
-      guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+    auto preSignal = preEventReadFromSourceSignal();
+    if(mcc and preSignal) {
+      preSignal->emit(*(mcc->getStreamContext()),*mcc);
     }
-
-    if(mcc) {
-      preReadFromSourceSignal->emit(*(mcc->getStreamContext()),*mcc);
-    }
-    std::shared_ptr<void> guardForSignal(nullptr,[&postReadFromSourceSignal,mcc](const void*){
-      if(mcc) {
-        postReadFromSourceSignal->emit(*(mcc->getStreamContext()),*mcc);
+    auto postSignal = postEventReadFromSourceSignal();
+    
+    auto sentryCall = [&postSignal]( ModuleCallingContext const* iContext) {
+      if(postSignal) {
+        postSignal->emit(*(iContext->getStreamContext()),*iContext);
       }
-    });
+    };
+    std::unique_ptr<ModuleCallingContext const, decltype(sentryCall)> sentry(mcc, sentryCall);
 
     return getProduct_(k, ep);
   }

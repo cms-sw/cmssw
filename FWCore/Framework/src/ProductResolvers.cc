@@ -9,9 +9,11 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 #include <cassert>
 #include <utility>
@@ -113,10 +115,58 @@ namespace edm {
                                         SharedResourcesAcquirer* ,
                                         ModuleCallingContext const* mcc) const {
     return resolveProductImpl<true>([this,&principal,mcc]() {
-                                return principal.readFromSource(*this, mcc); }
-                              );
+      auto branchType = principal.branchType();
+      if(branchType != InEvent) {
+        //delayed get has not been allowed with Run or Lumis
+        // The file may already be closed so the reader is invalid
+        return;
+      }
+      if(mcc and (branchType == InEvent) and aux_) {
+        aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      }
+
+      auto sentry( make_sentry(mcc,
+                               [this, branchType](ModuleCallingContext const* iContext){
+                                 if(branchType == InEvent and aux_) {
+                                   aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }
+                               }));
+
+      if(auto reader=principal.reader()) {
+        std::unique_lock<SharedResourcesAcquirer> guard;
+        if(auto sr = reader->sharedResources()) {
+          guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+        }
+        if ( not productResolved()) {
+          //another thread could have beaten us here
+          putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+        }
+      }
+    });
                               
   }
+  
+  void
+  InputProductResolver::retrieveAndMerge_(Principal const& principal) const {
+    if(auto reader = principal.reader()) {
+
+      std::unique_lock<SharedResourcesAcquirer> guard;
+      if(auto sr = reader->sharedResources()) {
+        guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+      }
+
+      //Can't use resolveProductImpl since it first checks to see
+      // if the product was already retrieved and then returns if it is
+      BranchKey const bk = BranchKey(branchDescription());
+      std::unique_ptr<WrapperBase> edp(reader->getProduct(bk, &principal));
+      
+      if(edp.get() != nullptr) {
+        putOrMergeProduct(std::move(edp));
+      } else if( status()== defaultStatus()) {
+        setFailedStatus();
+      }
+    }
+  }
+
   
   template<typename F>
   class FunctorTask : public tbb::task {
@@ -173,7 +223,17 @@ namespace edm {
         ServiceRegistry::Operate guard(token);
         try {
           resolveProductImpl<true>([this,&principal,mcc]() {
-            principal.readFromSource_(*this,mcc);
+            if(principal.branchType() != InEvent) { return; }
+            if(auto reader = principal.reader()) {
+              std::unique_lock<SharedResourcesAcquirer> guard;
+              if(auto sr = reader->sharedResources()) {
+                guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+              }
+              if ( not productResolved()) {
+                //another thread could have finished this while we were waiting
+                putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+              }
+            }
           });
         } catch(...) {
           this->m_waitingTasks.doneWaiting(std::current_exception());
@@ -204,6 +264,11 @@ namespace edm {
     m_prefetchRequested = false;
     m_waitingTasks.reset();
     DataManagingProductResolver::resetProductData_(deleteEarly);
+  }
+
+  void
+  InputProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    aux_ = iConfigure.auxiliary();
   }
 
   
@@ -255,9 +320,7 @@ namespace edm {
             aux_->preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
 
             auto workCall = [this,&event,&parentContext,mcc] () {
-              std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-                aux_->postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-              });
+              auto sentry( make_sentry(mcc,[this](ModuleCallingContext const* iContext){aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext); }));
               
               worker_->doWork<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> >(
                                            event,
