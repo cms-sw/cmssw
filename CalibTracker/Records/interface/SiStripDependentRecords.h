@@ -10,6 +10,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 
 class SiStripFecCablingRcd : public edm::eventsetup::DependentRecordImplementation<SiStripFecCablingRcd,
   boost::mpl::vector<SiStripFedCablingRcd> > {};
@@ -35,11 +37,11 @@ class SiStripHashedDetIdRcd : public edm::eventsetup::DependentRecordImplementat
 
 class SiStripNoisesDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesDepRcd, boost::mpl::vector<SiStripNoisesRcd,IdealGeometryRecord> > {};
 
-class SiStripBadModuleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleDepRcd, boost::mpl::vector<SiStripBadModuleRcd,IdealGeometryRecord> > {};
+class SiStripBadModuleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleDepRcd, boost::mpl::vector<SiStripBadModuleRcd,TrackerTopologyRcd> > {};
 
 class SiStripBadModuleFedErrRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleFedErrRcd, boost::mpl::vector<SiStripFedCablingRcd> > {};
 
-class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd, boost::mpl::vector<SiStripBadModuleRcd, SiStripBadFiberRcd, SiStripBadChannelRcd, SiStripBadStripRcd, SiStripDetCablingRcd, SiStripDCSStatusRcd, SiStripDetVOffRcd, RunInfoRcd, SiStripBadModuleFedErrRcd > > {};
+class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd, boost::mpl::vector<SiStripBadModuleRcd, SiStripBadFiberRcd, SiStripBadChannelRcd, SiStripBadStripRcd, SiStripDetCablingRcd, SiStripDCSStatusRcd, SiStripDetVOffRcd, RunInfoRcd, SiStripBadModuleDepRcd, SiStripBadModuleFedErrRcd > > {};
 
 #endif 
 
