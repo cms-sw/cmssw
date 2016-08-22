@@ -107,6 +107,11 @@ treeProducer= cfg.Analyzer(
           "V"    : NTupleObject("V", fourVectorType, help="z or w"),
           "softActivityJets"    : NTupleObject("softActivity", softActivityType, help="VBF soft activity variables"),
           "softActivityVHJets"    : NTupleObject("softActivityVH", softActivityType, help="VH soft activity variables"),
+          "l1MET"       : NTupleObject("l1MET",   twoVectorType , help="Stage-2 L1 trigger MET", mcOnly=False),        
+#          "l1MET2"       : NTupleObject("l1MET2",   twoVectorType , help="Stage-2 L1 trigger MET", mcOnly=False),   #l1MET2 is defined in "l1t::EtSum" but it is empty
+          "l1MHT"       : NTupleObject("l1MHT",   twoVectorType , help="Stage-2 L1 trigger MHT", mcOnly=False),        
+          "l1ET"       : NTupleObject("l1ET",   twoVectorType , help="Stage-2 L1 trigger ET", mcOnly=False),        
+          "l1HT"       : NTupleObject("l1HT",   twoVectorType , help="Stage-2 L1 trigger HT", mcOnly=False),      
         },
 	collections = {
 		#standard dumping of objects
@@ -164,7 +169,10 @@ treeProducer= cfg.Analyzer(
 		"pileUpVertex_ptHat"   : NTupleCollection("pileUpVertex_ptHat",    objectFloat, 5,help="z position of hardest pile-up collisions",mcOnly=True),        
 		"LHE_weights_scale"       : NTupleCollection("LHE_weights_scale",   weightsInfoType , 6 ,help="LHE weights for scale variation", mcOnly=True),        
 		"LHE_weights_pdf"       : NTupleCollection("LHE_weights_pdf",   weightsInfoType , 103 ,help="LHE weights for pdf variation (NNPDF)", mcOnly=True),        
-
+		"l1Jets"       : NTupleCollection("l1Jets",   l1CandidateType , 20 ,help="Stage-2 L1 trigger jets", mcOnly=False),        
+		"l1Taus"       : NTupleCollection("l1Taus",   l1CandidateType , 20 ,help="Stage-2 L1 trigger taus", mcOnly=False),        
+		"l1Muons"       : NTupleCollection("l1Muons",   l1CandidateType , 20 ,help="Stage-2 L1 trigger muons", mcOnly=False),        
+		"l1EGammas"       : NTupleCollection("l1EGammas",   l1CandidateType , 20 ,help="Stage-2 L1 trigger EGammas", mcOnly=False),        
 	}
 	)
 
@@ -417,7 +425,15 @@ for collectionName in triggerObjectCollectionsOnlySize.keys():
     treeProducer.collections["trgObjects_"+collectionName] = NTupleCollection("trgObjects_"+collectionName, triggerObjectsNothingType , 5, help="")
 #    treeProducer.globalVariables.append(NTupleVariable("trgObjects_"+collectionName+"_size", lambda ev : len(getattr(ev,"trgObjects_"+collectionName,[])), int, help="trigger objects size"))
 
+### add L1 trigger objects ####
+from PhysicsTools.Heppy.analyzers.core.L1TriggerAnalyzer import L1TriggerAnalyzer
+L1TriggerAna = cfg.Analyzer(
+    class_object = L1TriggerAnalyzer,
+    processName = 'HLT',
+)
 ###
+
+
 
 
 from PhysicsTools.Heppy.analyzers.gen.PDFWeightsAnalyzer import PDFWeightsAnalyzer
@@ -453,7 +469,7 @@ sequence = [
     VertexAna,LepAna,PhoAna,TauAna,JetAna,
     ttHLeptonMVA,METAna, METPuppiAna,
     PdfAna,
-    VHbb,TTHtoTauTau,TTHtoTauTauGen,TriggerObjectsAna,trigemu,treeProducer
+    VHbb,TTHtoTauTau,TTHtoTauTauGen,TriggerObjectsAna,L1TriggerAna,trigemu,treeProducer
 ]
 
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
@@ -475,6 +491,8 @@ sample = cfg.MCComponent(
     )
 sample.isMC=True
 
+
+    
 
 # the following is declared in case this cfg is used in input to the heppy.py script
 selectedComponents = [sample]
