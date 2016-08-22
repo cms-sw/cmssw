@@ -165,11 +165,12 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     const HFDigiCollection& qie8hfdc=*(hfDigiCollection);
     for(HFDigiCollection::const_iterator qiedf=qie8hfdc.begin();qiedf!=qie8hfdc.end();qiedf++){
       DetId detid = qiedf->id();
-      HcalElectronicsId eid(readoutMap->lookup(detid)); // = qiedf->elecId();
+
+      HcalElectronicsId eid(readoutMap->lookup(detid));
       int crateId = eid.crateId();
       int slotId = eid.slot();
       int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
-      
+
       if( ! uhtrs.exist(uhtrIndex) ){
 	uhtrs.newUHTR( uhtrIndex );
       }
@@ -184,7 +185,8 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     const HBHEDigiCollection& qie8hbhedc=*(hbheDigiCollection);
     for(HBHEDigiCollection::const_iterator qiedf=qie8hbhedc.begin();qiedf!=qie8hbhedc.end();qiedf++){
       DetId detid = qiedf->id();
-      HcalElectronicsId eid(readoutMap->lookup(detid)); // = qiedf->elecId();
+
+      HcalElectronicsId eid(readoutMap->lookup(detid));
       int crateId = eid.crateId();
       int slotId = eid.slot();
       int uhtrIndex = (crateId&0xFF) | ((slotId&0xF)<<8) ; 
