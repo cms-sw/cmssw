@@ -1,3 +1,8 @@
+# In order to produce everything that you need in one go, use the command:
+#
+# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=run2 label=$t >& /dev/null &; done
+
+
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -14,11 +19,23 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # line, e.g.:
 # cmsRun runP_GenericComponent.py comp="XYZ"
 
-_ALLOWED_COMPS = ['BEAM', 'Tracker', 'PixelBarrel', 
-                  'PixelForwardZMinus', 'PixelForwardZPlus',
-                  'TIB', 'TOB', 'TIDB', 'TIDF',
-                  'TEC', 'TIBTIDServicesF', 'TIBTIDServicesB',
-                  'TrackerOuterCylinder', 'TrackerBulkhead', 'ECAL']
+_ALLOWED_LABELS = ['BeamPipe', 'Tracker', 'PixBar',
+                   'PixFwdMinus', 'PixFwdPlus',
+                   'TIB', 'TOB', 'TIDB', 'TIDF',
+                   'TEC', 'TkStrct', 'ECAL', 'InnerServices']
+
+_LABELS2COMPS = {'BeamPipe': 'BEAM',
+                 'Tracker': 'Tracker',
+                 'PixBar':  'PixelBarrel',
+                 'PixFwdMinus': 'PixelForwardZMinus',
+                 'PixFwdPlus':  'PixelForwardZPlus',
+                 'TIB':         'TIB',
+                 'TOB':         'TOB',
+                 'TIDB':        'TIDB',
+                 'TIDF':        'TIDF',
+                 'TEC':         'TEC',
+                 'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
+                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead']}
 
 options = VarParsing('analysis')
 options.register('geom',        #name
@@ -27,15 +44,9 @@ options.register('geom',        #name
                  VarParsing.varType.string,           # type of option
                  "Select the geometry to be studied"  # help message
                 )
-options.register('components',         #name
-                 '',             #default value
-                 VarParsing.multiplicity.list,        # kind of options
-                 VarParsing.varType.string,           # type of option
-                 "Select the geometry component to be studied"  # help message
-                )
 
 options.register('label',         #name
-                 '',              #default value
+                 'Tracker',              #default value
                  VarParsing.multiplicity.singleton,   # kind of options
                  VarParsing.varType.string,           # type of option
                  "Select the label to be used to create output files. Default to tracker. If multiple components are selected, it defaults to the join of all components, with '_' as separator."  # help message
@@ -46,15 +57,17 @@ options.setDefault('inputFiles', ['file:single_neutrino_random.root'])
 options.parseArguments()
 # Option validation
 
-for comp in options.components:
-  if comp not in _ALLOWED_COMPS:
-    print "Error, '%s' not registered as a valid components to monitor." % comp
-    print "Allowed components:", _ALLOWED_COMPS
-    raise RuntimeError("Unknown components")
+if options.label not in _ALLOWED_LABELS:
+    print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
+    print "Allowed components:", _ALLOWED_LABELS
+    print
+    raise RuntimeError("Unknown label")
 
-if options.label == '':
-  options.label = '_'.join(options.components)
+if options.label not in _LABELS2COMPS.keys():
+  print "Error, '%s' does not have a valid registered component" % options.label
+  raise RuntimeError("Unknown component")
 
+_components = _LABELS2COMPS[options.label]
 #
 #Geometry
 #
@@ -101,7 +114,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         HistosFile = cms.string('matbdg_%s.root' % options.label),
         AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
-        SelectedVolumes = cms.vstring(options.components),
+        SelectedVolumes = cms.vstring(_components),
         TreeFile = cms.string('None'), ## is NOT requested
 
         StopAfterProcess = cms.string('None'),
