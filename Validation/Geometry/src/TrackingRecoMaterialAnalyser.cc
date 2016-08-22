@@ -62,7 +62,19 @@ class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
 TrackingRecoMaterialAnalyser::TrackingRecoMaterialAnalyser(const edm::ParameterSet& iPSet):
   refitter_(iPSet),
   tracksToken_(consumes<reco::TrackCollection>(iPSet.getParameter<edm::InputTag>("tracks"))),
-  histo_RZ_(0)
+  histo_RZ_(0),
+  histo_RZ_Ori_(0),
+  deltaPt_in_out_2d_(0),
+  deltaP_in_out_vs_eta_(0),
+  deltaP_in_out_vs_z_(0),
+  deltaP_in_out_vs_eta_2d_(0),
+  deltaP_in_out_vs_eta_vs_phi_2d_(0),
+  deltaP_in_out_vs_z_2d_(0),
+  deltaPt_in_out_vs_eta_(0),
+  deltaPt_in_out_vs_z_(0),
+  deltaPl_in_out_vs_eta_(0),
+  deltaPl_in_out_vs_z_(0),
+  P_vs_eta_2d_(0)
 {
 }
 
