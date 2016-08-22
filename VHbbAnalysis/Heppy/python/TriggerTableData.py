@@ -17,6 +17,8 @@ triggerTable = {
         "HLT_PFMET110_PFMHT110_IDTight_v*",
         "HLT_PFMET120_PFMHT120_IDTight_v*",
         "HLT_PFMET170_NoiseCleaned_v*",
+        "HLT_PFMET170_HBHE_BeamHaloCleaned_v*",
+        "HLT_PFMET170_HBHECleaned_v*",
         "HLT_DiCentralPFJet55_PFMET110_v*",
         "HLT_PFHT350_PFMET100_v*",
     ],
