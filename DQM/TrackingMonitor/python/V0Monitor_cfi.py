@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 v0Monitor = cms.EDAnalyzer("V0Monitor",
-   FolderName                  = cms.string("Tracking/V0Monitoring"),
+   FolderName    = cms.string("Tracking/V0Monitoring"),
    v0            = cms.InputTag('generalV0Candidates:Kshort'), # generalV0Candidates:Lambda
    beamSpot      = cms.InputTag('offlineBeamSpot'),
    primaryVertex = cms.InputTag('offlinePrimaryVertices'),
@@ -43,6 +43,11 @@ v0Monitor = cms.EDAnalyzer("V0Monitor",
             nbins = cms.int32 ( 60 ),
             xmin  = cms.double( -0.5),
             xmax  = cms.double( 59.5),
+      ),
+      lsPSet = cms.PSet(
+            nbins = cms.int32 ( 2000 ),
+            xmin  = cms.double(    0.),
+            xmax  = cms.double( 2000.),
       ),
    ),
 )

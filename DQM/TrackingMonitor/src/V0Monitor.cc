@@ -42,21 +42,26 @@ V0Monitor::V0Monitor( const edm::ParameterSet& iConfig ) :
   v0_Lxy_vs_pt_        = nullptr;
   v0_Lxy_vs_eta_       = nullptr;
   
+  n_vs_BX_            = nullptr;
   v0_N_vs_BX_         = nullptr;
   v0_mass_vs_BX_      = nullptr;
   v0_Lxy_vs_BX_       = nullptr;
   v0_deltaMass_vs_BX_ = nullptr;
   
+  n_vs_lumi_            = nullptr;
   v0_N_vs_lumi_         = nullptr;
   v0_mass_vs_lumi_      = nullptr;
   v0_Lxy_vs_lumi_       = nullptr;
   v0_deltaMass_vs_lumi_ = nullptr;
   
+  n_vs_PU_            = nullptr;
   v0_N_vs_PU_         = nullptr;
   v0_mass_vs_PU_      = nullptr;
   v0_Lxy_vs_PU_       = nullptr;
   v0_deltaMass_vs_PU_ = nullptr;
 
+  n_vs_LS_    = nullptr;
+  v0_N_vs_LS_ = nullptr;
 
   edm::ParameterSet histoPSet    = iConfig.getParameter<edm::ParameterSet>("histoPSet");
   getHistoPSet(histoPSet.getParameter<edm::ParameterSet>("massPSet"),     mass_binning_    );
@@ -66,7 +71,13 @@ V0Monitor::V0Monitor( const edm::ParameterSet& iConfig ) :
   getHistoPSet(histoPSet.getParameter<edm::ParameterSet>("chi2oNDFPSet"), chi2oNDF_binning_);
   getHistoPSet(histoPSet.getParameter<edm::ParameterSet>("lumiPSet"),     lumi_binning_    );
   getHistoPSet(histoPSet.getParameter<edm::ParameterSet>("puPSet"),       pu_binning_      );
+  getHistoPSet(histoPSet.getParameter<edm::ParameterSet>("lsPSet"),       ls_binning_      );
 
+}
+
+V0Monitor::~V0Monitor()
+{
+  if (genTriggerEventFlag_) delete genTriggerEventFlag_;
 }
 
 void V0Monitor::getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning)
@@ -135,35 +146,43 @@ void V0Monitor::bookHistograms(DQMStore::IBooker     & ibooker,
   v0_Lxy_vs_eta_       = bookProfile(ibooker,"v0_Lxy_vs_eta",      "L_{xy} vs #eta",     "#eta",             "L_{xy} [cm]",eta_binning_, Lxy_binning_);
 
   MEbinning bx_binning; bx_binning.nbins = 3564; bx_binning.xmin = 0.5; bx_binning.xmax = 3564.5;
+  n_vs_BX_          = bookHisto1D(ibooker,"n_vs_BX","# events vs BX","BX", "# events",bx_binning);
   v0_N_vs_BX_         = bookProfile(ibooker,"v0_N_vs_BX",        "# v0 vs BX",     "BX", "# v0",             bx_binning, N_binning   );
   v0_mass_vs_BX_      = bookProfile(ibooker,"v0_mass_vs_BX",     "mass vs BX",     "BX", "mass [GeV]",       bx_binning, mass_binning_);
   v0_Lxy_vs_BX_       = bookProfile(ibooker,"v0_Lxy_vs_BX",      "L_{xy} vs BX",   "BX", "L_{xy} [cm]",      bx_binning, Lxy_binning_ );
   v0_deltaMass_vs_BX_ = bookProfile(ibooker,"v0_deltaMass_vs_BX","deltaMass vs BX","BX", "m-m_{PDG}/m_{DPG}",bx_binning, delta_binning);
 
+  n_vs_lumi_            = bookHisto1D(ibooker,"n_vs_lumi","# events vs lumi","inst. lumi x10^{30} [Hz cm^{-2}]", "# events",lumi_binning_);
   v0_N_vs_lumi_         = bookProfile(ibooker,"v0_N_vs_lumi",        "# v0 vs lumi",     "inst. lumi x10^{30} [Hz cm^{-2}]", "# v0",             lumi_binning_, N_binning   );
   v0_mass_vs_lumi_      = bookProfile(ibooker,"v0_mass_vs_lumi",     "mass vs lumi",     "inst. lumi x10^{30} [Hz cm^{-2}]", "mass [GeV]",       lumi_binning_, mass_binning_);
   v0_Lxy_vs_lumi_       = bookProfile(ibooker,"v0_Lxy_vs_lumi",      "L_{xy} vs lumi",   "inst. lumi x10^{30} [Hz cm^{-2}]", "L_{xy} [cm]",      lumi_binning_, Lxy_binning_ );
   v0_deltaMass_vs_lumi_ = bookProfile(ibooker,"v0_deltaMass_vs_lumi","deltaMass vs lumi","inst. lumi x10^{30} [Hz cm^{-2}]", "m-m_{PDG}/m_{DPG}",lumi_binning_, delta_binning);
 
-
+  n_vs_PU_            = bookHisto1D(ibooker,"n_vs_PU","# events vs PU","# good PV", "# events",pu_binning_);
   v0_N_vs_PU_         = bookProfile(ibooker,"v0_N_vs_PU",        "# v0 vs PU",     "# good PV", "# v0",             pu_binning_, N_binning   );
   v0_mass_vs_PU_      = bookProfile(ibooker,"v0_mass_vs_PU",     "mass vs PU",     "# good PV", "mass [GeV]",       pu_binning_, mass_binning_);
   v0_Lxy_vs_PU_       = bookProfile(ibooker,"v0_Lxy_vs_PU",      "L_{xy} vs PU",   "# good PV", "L_{xy} [cm]",      pu_binning_, Lxy_binning_ );
   v0_deltaMass_vs_PU_ = bookProfile(ibooker,"v0_deltaMass_vs_PU","deltaMass vs PU","# good PV", "m-m_{PDG}/m_{DPG}",pu_binning_, delta_binning);
 
 
+  n_vs_LS_    = bookHisto1D(ibooker,"n_vs_LS",   "# events vs LS","LS", "# events",ls_binning_);
+  v0_N_vs_LS_ = bookProfile(ibooker,"v0_N_vs_LS","# v0 vs LS",    "LS", "# v0",    ls_binning_, N_binning );
+  v0_N_vs_LS_->getTH1()->SetCanExtend(TH1::kAllAxes);
+
+  // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );  
+
 }
 
 void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
+  // Filter out events if Trigger Filtering is requested
+  if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+
   //  int ls = iEvent.id().luminosityBlock();
   
-  edm::Handle<reco::VertexCompositeCandidateCollection> v0Handle;
-  iEvent.getByToken(v0Token_, v0Handle);
-  if (!v0Handle.isValid() or v0Handle->size() == 0)
-    return;
-
   size_t bx = iEvent.bunchCrossing();
+  n_vs_BX_->Fill(bx);
 
   float lumi = -1.;
   edm::Handle<LumiScalersCollection> lumiScalers;
@@ -173,6 +192,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     lumi = scalit->instantLumi();
   } else 
     lumi = -1.;
+  n_vs_lumi_->Fill(lumi);
 
   edm::Handle<reco::BeamSpot> beamspotHandle;
   iEvent.getByToken(bsToken_,beamspotHandle);
@@ -199,13 +219,24 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
       ++nPV;
     }
   }
+  n_vs_PU_->Fill(nPV);
 
-  reco::VertexCompositeCandidateCollection v0s = *v0Handle.product();
-  size_t n = v0s.size();
+  float nLS = static_cast<float>(iEvent.id().luminosityBlock());
+  n_vs_LS_->Fill(nLS);
+
+  edm::Handle<reco::VertexCompositeCandidateCollection> v0Handle;
+  iEvent.getByToken(v0Token_, v0Handle);
+  int n = ( v0Handle.isValid() ? v0Handle->size() : -1 );
   v0_N_         -> Fill(n);
   v0_N_vs_BX_   -> Fill(bx,  n);
   v0_N_vs_lumi_ -> Fill(lumi,n);
   v0_N_vs_PU_   -> Fill(nPV, n);
+  v0_N_vs_LS_   -> Fill(nLS, n);
+
+  if ( !v0Handle.isValid() or n==0)
+    return;
+  
+  reco::VertexCompositeCandidateCollection v0s = *v0Handle.product();    
   for ( auto v0 : v0s ) {
     float mass     = v0.mass();
     float pt       = v0.pt();
