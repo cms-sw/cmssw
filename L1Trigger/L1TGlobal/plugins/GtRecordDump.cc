@@ -63,7 +63,7 @@ namespace l1t {
   public:
     explicit GtRecordDump(const edm::ParameterSet&);
     virtual ~GtRecordDump(){};
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);  
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;  
     virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
     InputTag   uGtAlgInputTag;
