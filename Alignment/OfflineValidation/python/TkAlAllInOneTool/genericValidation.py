@@ -5,6 +5,7 @@ import globalDictionaries
 import configTemplates
 from dataset import Dataset
 from helperFunctions import replaceByMap, addIndex, getCommandOutput2
+from plottingOptions import PlottingOptions
 from TkAlExceptions import AllInOneError
 
 
@@ -14,6 +15,7 @@ class GenericValidation:
                  addDefaults = {}, addMandatories=[], addneedpackages=[]):
         import random
         self.name = valName
+        self.valType = valType
         self.alignmentToValidate = alignment
         self.general = config.getGeneral()
         self.randomWorkdirPart = "%0i"%random.randint(1,10e9)
@@ -69,7 +71,7 @@ class GenericValidation:
             self.cmsswreleasebase = commandoutput[2]
 
         self.packages = {}
-        for package in self.needpackages:
+        for package in needpackages:
             for placetolook in self.cmssw, self.cmsswreleasebase:
                 pkgpath = os.path.join(placetolook, "src", package)
                 if os.path.exists(pkgpath):
@@ -94,7 +96,11 @@ class GenericValidation:
     def getRepMap(self, alignment = None):
         if alignment == None:
             alignment = self.alignmentToValidate
-        result = alignment.getRepMap()
+        try:
+            result = PlottingOptions(self.config, self.valType)
+        except KeyError:
+            result = {}
+        result.update(alignment.getRepMap())
         result.update( self.general )
         result.update({
                 "workdir": os.path.join(self.general["workdir"],
@@ -204,7 +210,7 @@ class GenericValidationData(GenericValidation):
     """
     
     def __init__(self, valName, alignment, config, valType,
-                 addDefaults = {}, addMandatories=[]):
+                 addDefaults = {}, addMandatories=[], addneedpackages=[]):
         """
         This method adds additional items to the `self.general` dictionary
         which are only needed for validations using datasets.
@@ -232,7 +238,8 @@ class GenericValidationData(GenericValidation):
         defaults.update(addDefaults)
         mandatories = [ "dataset", "maxevents" ]
         mandatories += addMandatories
-        GenericValidation.__init__(self, valName, alignment, config, valType, defaults, mandatories)
+        needpackages = addneedpackages
+        GenericValidation.__init__(self, valName, alignment, config, valType, defaults, mandatories, needpackages)
 
         # if maxevents is not specified, cannot calculate number of events for
         # each parallel job, and therefore running only a single job

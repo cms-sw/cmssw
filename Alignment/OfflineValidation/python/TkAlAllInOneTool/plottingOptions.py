@@ -117,6 +117,21 @@ class PlottingOptionsTrackSplitting(BasePlottingOptions):
         mandatories += addMandatories
         BasePlottingOptions.__init__(self, config, "split", defaults, mandatories)
 
+class PlottingOptionsZMuMu(BasePlottingOptions):
+    def __init__(self, config, addDefaults = {}, addMandatories=[]):
+        defaults = {
+                    "resonance": "Z",
+                    "switchONfit": "false",
+                    "rebinphi": "4",
+                    "rebinetadiff": "2",
+                    "rebineta": "2",
+                    "rebinpt": "8",
+                   }
+        defaults.update(addDefaults)
+        mandatories = []
+        mandatories += addMandatories
+        BasePlottingOptions.__init__(self, config, "zmumu", defaults, mandatories)
+
 class PlottingOptionsOffline(BasePlottingOptions):
     def __init__(self, config, addDefaults = {}, addMandatories=[]):
         defaults = {
@@ -136,6 +151,7 @@ def PlottingOptions(config, valType):
     plottingOptionsClasses = {
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
+                              "zmumu": PlottingOptionsZMuMu,
                              }
 
     if valType not in globalDictionaries.plottingOptions:

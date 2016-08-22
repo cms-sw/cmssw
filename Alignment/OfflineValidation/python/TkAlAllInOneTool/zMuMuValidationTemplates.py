@@ -323,6 +323,9 @@ void TkAlMergeZmumuPlots()
 
     .oO[mergeZmumuPlotsInstantiation]Oo.
 
+    TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+    TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
+
     MultiHistoOverlapAll_Z(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles), ".oO[datadir]Oo./ZMuMuPlots", .oO[switchONfit]Oo.);
 }
 """

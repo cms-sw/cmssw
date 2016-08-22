@@ -385,7 +385,7 @@ def createMergeScript( path, validations ):
         createMergeZmumuPlotsScript(comparisonLists["ZMuMuValidation"],
                                        repMap["mergeZmumuPlotsScriptPath"] )
         repMap_zMuMu = repMap.copy()
-        repMap_zMuMu.update(PlottingOptions(config, "zMuMu"))
+        repMap_zMuMu.update(PlottingOptions(config, "zmumu"))
         repMap["MergeZmumuPlots"] = \
             replaceByMap(configTemplates.mergeZmumuPlotsExecution, repMap_zMuMu)
 

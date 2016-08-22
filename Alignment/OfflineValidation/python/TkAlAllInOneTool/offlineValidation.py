@@ -40,6 +40,7 @@ class OfflineValidation(GenericValidationData):
         for option in deprecateddefaults:
             if self.general[option]:
                 raise AllInOneError("The '%s' option has been moved to the [plots:offline] section.  Please specify it there."%option)
+            del self.general[option]
     
     def createConfiguration(self, path):
         cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
