@@ -213,7 +213,7 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
        tmpboostXYZ=tmpboostZ*tmpboost;
        tmpboostXYZ.Invert();
 
-       cout<<"Boosting with beta : "<<beta_<<endl;
+       //cout<<"Boosting with beta : "<<beta_<<endl;
 
        boost_ = new TMatrixD(tmpboostXYZ);
        boost_->Print();
