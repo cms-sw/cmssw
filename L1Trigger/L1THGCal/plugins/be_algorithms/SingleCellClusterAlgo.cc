@@ -6,11 +6,11 @@
 
 using namespace HGCalTriggerBackend;
 
-class FullModuleSumAlgo : public Algorithm<HGCalBestChoiceCodec> 
+class SingleCellClusterAlgo : public Algorithm<HGCalBestChoiceCodec> 
 {
     public:
 
-        FullModuleSumAlgo(const edm::ParameterSet& conf):
+        SingleCellClusterAlgo(const edm::ParameterSet& conf):
             Algorithm<HGCalBestChoiceCodec>(conf),
             cluster_product_( new l1t::HGCalClusterBxCollection ){}
 
@@ -38,7 +38,7 @@ class FullModuleSumAlgo : public Algorithm<HGCalBestChoiceCodec>
 };
 
 /*****************************************************************/
-void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
+void SingleCellClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
         const std::unique_ptr<HGCalTriggerGeometryBase>& geom) 
 /*****************************************************************/
 {
@@ -48,22 +48,29 @@ void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
         data.reset();
         const HGCalDetId& moduleId = digi.getDetId<HGCalDetId>();
         digi.decode(codec_, data);
-
-        // Sum of trigger cells inside the module
-        uint32_t moduleSum = 0;
+        int i = 0;
         for(const auto& value : data.payload)
         {
-            moduleSum += value;
+            if(value>0)
+            {
+                GlobalPoint point = geom->modules().at(moduleId)->position();
+                math::PtEtaPhiMLorentzVector p4((double)value/cosh(point.eta()), point.eta(), point.phi(), 0.);
+                // index in module stored as hwEta
+                l1t::HGCalCluster cluster( 
+                        reco::LeafCandidate::LorentzVector(),
+                        value, i, 0);
+                cluster.setP4(p4);
+                cluster.setModule(moduleId.wafer());
+                cluster.setLayer(moduleId.layer());
+                cluster.setSubDet(moduleId.subdetId());
+                cluster_product_->push_back(0,cluster);
+            }
+            i++;
         }
-        // dummy cluster without position
-        // moduleId filled in place of hardware eta
-        l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
-                moduleSum, moduleId, 0);
 
-        cluster_product_->push_back(0,cluster);
     }
 }
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-        FullModuleSumAlgo,
-        "FullModuleSumAlgo");
+        SingleCellClusterAlgo,
+        "SingleCellClusterAlgo");
