@@ -15,7 +15,7 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
-#include "L1Trigger/CSCTrackFinder/test/src/RefTrack.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 

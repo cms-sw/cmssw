@@ -207,7 +207,7 @@ unsigned int L1MuBMTrack::triggerScale(float value, const edm::EventSetup& c) co
   unsigned int t_Scale = theTriggerScales->getPtScale()->getPacked( value + eps );
 
   return t_Scale;*/
-  return 0.5;
+  return (unsigned int)0.5;
 }
 
 
