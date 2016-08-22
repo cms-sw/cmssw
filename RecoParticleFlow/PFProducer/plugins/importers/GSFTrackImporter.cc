@@ -74,7 +74,7 @@ importToBlock( const edm::Event& e,
 	    SCs_end = elems.insert(SCs_end,ElementType(scbe));
 	    ++SCs_end; // point to element *after* the new one
 	  }
-	}	
+	} 		   
       }
     }// gsf extra ref?
     // cache the SC_end offset

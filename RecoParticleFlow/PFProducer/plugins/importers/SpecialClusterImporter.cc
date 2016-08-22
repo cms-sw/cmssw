@@ -11,11 +11,11 @@
 // NOTE! This should come *after* and importers that bring in super clusters
 // of their own (like electron seeds or photons)
 // otherwise ECAL <-> ECAL linking will not work correctly
-
-class ECALClusterImporter : public BlockElementImporterBase {
+template<reco::PFBlockElement::Type T> 
+class SpecialClusterImporter : public BlockElementImporterBase {
 public:
-  ECALClusterImporter(const edm::ParameterSet& conf,
-		      edm::ConsumesCollector& sumes) :
+  SpecialClusterImporter(const edm::ParameterSet& conf,
+			 edm::ConsumesCollector& sumes) :
     BlockElementImporterBase(conf,sumes),
     _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))),
     _assoc(sumes.consumes<edm::ValueMap<reco::CaloClusterPtr> >(conf.getParameter<edm::InputTag>("BCtoPFCMap"))) {}
@@ -28,11 +28,9 @@ private:
   edm::EDGetTokenT<edm::ValueMap<reco::CaloClusterPtr> > _assoc;
 };
 
-DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
-		  ECALClusterImporter, 
-		  "ECALClusterImporter");
 
-void ECALClusterImporter::
+template<reco::PFBlockElement::Type T> 
+void SpecialClusterImporter<T>::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
   BlockElementImporterBase::ElementList ecals;
@@ -51,11 +49,12 @@ importToBlock( const edm::Event& e,
   for( auto clus = bclus; clus != eclus; ++clus  ) {    
     reco::PFClusterRef tempref(clusters, std::distance(bclus,clus));
     reco::PFBlockElementCluster* newelem = 
-      new reco::PFBlockElementCluster(tempref,reco::PFBlockElement::ECAL);
+      new reco::PFBlockElementCluster(tempref,T);
     for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {
       const reco::PFBlockElementSuperCluster* elem_as_sc =
 	static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
       const reco::SuperClusterRef& this_sc = elem_as_sc->superClusterRef();
+
       const bool in_sc = ( elem_as_sc->fromPFSuperCluster() ?
 			   // use association map if from PFSC
 			   ClusterClusterMapping::overlap(tempref,
@@ -76,3 +75,14 @@ importToBlock( const edm::Event& e,
     elems.emplace_back(ecal.release());
   }
 }
+
+
+typedef SpecialClusterImporter<reco::PFBlockElement::ECAL> ECALClusterImporter;
+DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
+		  ECALClusterImporter, 
+		  "ECALClusterImporter");
+
+typedef SpecialClusterImporter<reco::PFBlockElement::HGCAL> HGCalClusterImporter;
+DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
+		  HGCalClusterImporter, 
+		  "HGCalClusterImporter");

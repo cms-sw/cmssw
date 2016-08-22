@@ -36,11 +36,14 @@ bool ClusterClusterMapping::overlap(const reco::CaloCluster & sc1, const reco::C
 }
 
 bool ClusterClusterMapping::overlap(const reco::PFClusterRef &pfclustest, const reco::SuperCluster &sc, const edm::ValueMap<reco::CaloClusterPtr> &pfclusassoc) {
-    
+  
   for (reco::CaloCluster_iterator caloclus = sc.clustersBegin(); caloclus!=sc.clustersEnd(); ++caloclus) {
-    const reco::CaloClusterPtr &pfclus = pfclusassoc[*caloclus];
-    //printf("pfclus prodidx = %i, key = %i, pfclustest prodidx = %i, key = %i\n",pfclus.id().productIndex(),int(pfclus.key()),pfclustest.id().productIndex(),int(pfclustest.key()));
-    if (pfclus.id()==pfclustest.id() && pfclus.key()==pfclustest.key()) return true;    
+    
+    if( pfclusassoc.contains(caloclus->id()) ) {
+      const reco::CaloClusterPtr &pfclus = pfclusassoc[*caloclus];
+      //printf("pfclus prodidx = %i, key = %i, pfclustest prodidx = %i, key = %i\n",pfclus.id().productIndex(),int(pfclus.key()),pfclustest.id().productIndex(),int(pfclustest.key()));
+      if (pfclus.id()==pfclustest.id() && pfclus.key()==pfclustest.key()) return true;    
+    }
   }
   return false;
 }

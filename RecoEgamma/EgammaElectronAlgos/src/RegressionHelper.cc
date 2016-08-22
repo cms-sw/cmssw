@@ -1,6 +1,8 @@
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+
 #include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
@@ -155,6 +157,9 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
   }else if(sc.seed()->hitsAndFractions()[0].first.subdetId()==EcalEndcap){  
     energyFactor = ecalRegEndcap_->GetResponse(&rInputs[0]);
     errorFactor = ecalRegErrorEndcap_->GetResponse(&rInputs[0]);
+  }else if( sc.seed()->hitsAndFractions()[0].first.det() == DetId::Forward ) {
+    energyFactor = 1.0;
+    errorFactor = 1.0;
   }else{
     throw cms::Exception("RegressionHelper::calculateRegressedEnergy")
       << "Supercluster seed is either EB nor EE!" << std::endl;

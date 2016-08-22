@@ -3,9 +3,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
-
-
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
@@ -131,11 +128,13 @@ void
 EgammaIsoHcalDetIdCollectionProducer::addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHits,std::vector<DetId>& detIdsToStore)
 {
   DetId seedId = superClus.seed()->seed();
-  if(seedId.det() != DetId::Ecal) {
+  if(seedId.det() != DetId::Ecal && seedId.det() != DetId::Forward) {
     edm::LogError("EgammaIsoHcalDetIdCollectionProducerError") << "Somehow the supercluster has a seed which is not ECAL, something is badly wrong";
   }
   //so we are using CaloTowers to get the iEta/iPhi of the HCAL rec hit behind the seed cluster, this might go funny on tower 28 but shouldnt matter there
  
+  if( seedId.det() == DetId::Forward ) return;
+
   CaloTowerDetId towerId(towerMap_->towerOf(seedId)); 
   int seedHcalIEta = towerId.ieta();
   int seedHcalIPhi = towerId.iphi();

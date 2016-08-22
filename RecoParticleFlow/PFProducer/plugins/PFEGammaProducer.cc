@@ -342,7 +342,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
       case reco::PFBlockElement::HCAL:
         hcalBlockRefs.push_back( blockref );
         singleEcalOrHcal = true;
-	break;
+	break;	
       case reco::PFBlockElement::HO:
         // Single HO elements are likely to be noise. Not considered for now.
         hoBlockRefs.push_back( blockref );

@@ -33,6 +33,9 @@
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
@@ -849,7 +852,7 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   eventData_->ecalEndcapIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
   eventData_->ecalEndcapIsol04->doSeverityChecks(eventData_->endcapRecHits.product(),generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps);
   eventData_->ecalEndcapIsol04->doFlagChecks(generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps);
-
+  
   //Fill in the Isolation Value Maps for PF and EcalDriven electrons
   std::vector<edm::InputTag> inputTagIsoVals;
   if(! generalData_->inputCfg.pfIsoVals.empty() ) {
@@ -1321,6 +1324,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   //====================================================
 
   reco::GsfElectron::FiducialFlags fiducialFlags ;
+  int region   = seedXtalId.det();
   int detector = seedXtalId.subdetId() ;
   double feta=std::abs(electronData_->superClusterRef->position().eta()) ;
   if (detector==EcalBarrel)
@@ -1351,6 +1355,12 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     if (EEDetId::isNextToDBoundary(eedetid))
      { fiducialFlags.isEEDeeGap = true ; }
    }
+  else if (region==DetId::Forward )
+   {
+    fiducialFlags.isEE = true ;
+    //HGCalDetId eeDetid(seedXtalId);    
+    // fill in fiducial information when we know how to use it...
+   }
   else
    { throw cms::Exception("GsfElectronAlgo|UnknownXtalRegion")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
 
@@ -1359,11 +1369,12 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   // ShowerShape
   //====================================================
 
-  reco::GsfElectron::ShowerShape showerShape ;
-  calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
-
-  reco::GsfElectron::ShowerShape full5x5_showerShape ;
-  calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
+  reco::GsfElectron::ShowerShape showerShape;
+  reco::GsfElectron::ShowerShape full5x5_showerShape;
+  if( !(region==DetId::Forward) ) {    
+    calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;    
+    calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
+  }
 
   //====================================================
   // ConversionRejection
@@ -1484,17 +1495,21 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
 
   reco::GsfElectron::IsolationVariables dr03, dr04 ;
   dr03.tkSumPt = eventData_->tkIsolation03->getPtTracks(ele);
-  dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(ele) ;
-  dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03->getTowerEtSum(ele) ;
-  dr03.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation03Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
-  dr03.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation03Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
-  dr03.ecalRecHitSumEt = eventData_->ecalBarrelIsol03->getEtSum(ele)+eventData_->ecalEndcapIsol03->getEtSum(ele);
   dr04.tkSumPt = eventData_->tkIsolation04->getPtTracks(ele);
-  dr04.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation04->getTowerEtSum(ele);
-  dr04.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation04->getTowerEtSum(ele);
-  dr04.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation04Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
-  dr04.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation04Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
-  dr04.ecalRecHitSumEt = eventData_->ecalBarrelIsol04->getEtSum(ele)+eventData_->ecalEndcapIsol04->getEtSum(ele);
+  if( !(region==DetId::Forward) ) {  
+    dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(ele) ;
+    dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03->getTowerEtSum(ele) ;
+    dr03.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation03Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr03.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation03Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr03.ecalRecHitSumEt = eventData_->ecalBarrelIsol03->getEtSum(ele);
+    dr03.ecalRecHitSumEt += eventData_->ecalEndcapIsol03->getEtSum(ele);    
+    dr04.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation04->getTowerEtSum(ele);
+    dr04.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation04->getTowerEtSum(ele);
+    dr04.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation04Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr04.hcalDepth2TowerSumEtBc = eventData_->hadDepth2Isolation04Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
+    dr04.ecalRecHitSumEt = eventData_->ecalBarrelIsol04->getEtSum(ele);
+    dr04.ecalRecHitSumEt += eventData_->ecalEndcapIsol04->getEtSum(ele);
+  }
   ele->setIsolation03(dr03);
   ele->setIsolation04(dr04);
 

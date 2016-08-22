@@ -9,6 +9,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 float EcalRegressionData::seedLeftRightAsym()const
 {
@@ -49,7 +50,12 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
 {
   clear();
   
-  isEB_ = superClus.seed()->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
+  const DetId& seedid = superClus.seed()->hitsAndFractions().at(0).first;
+  isEB_ = ( seedid.subdetId()==EcalBarrel );
+  
+  // skip HGCal
+  if( seedid.det() == DetId::Forward ) return;
+  
   const EcalRecHitCollection* recHits = isEB_ ? ebRecHits : eeRecHits;
 
   scRawEnergy_ = superClus.rawEnergy();

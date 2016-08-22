@@ -53,7 +53,7 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf,
     _maxHoverE(conf.getParameter<double>("maximumHoverE")),
     _pTbyPass(conf.getParameter<double>("minPTforBypass")),
     _minSCPt(conf.getParameter<double>("minSuperClusterPt")),
-    _hadTower((EgammaHadTower*)NULL),
+    _hadTower(nullptr),
     _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {  
 }
 

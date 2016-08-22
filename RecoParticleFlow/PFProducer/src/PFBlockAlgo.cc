@@ -78,7 +78,8 @@ PFBlockAlgo::PFBlockAlgo() :
 	INIT_ENTRY(PFBlockElement::HFEM),
 	INIT_ENTRY(PFBlockElement::HFHAD),
 	INIT_ENTRY(PFBlockElement::SC),
-	INIT_ENTRY(PFBlockElement::HO) 
+	INIT_ENTRY(PFBlockElement::HO),
+	INIT_ENTRY(PFBlockElement::HGCAL)  
 	  } ) {}
 
 void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {

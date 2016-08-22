@@ -60,6 +60,9 @@ class PFHFRecHitCreator final :  public  PFRecHitCreatorBase {
 	const HcalDetId& detid = (HcalDetId)erh.detid();
 	auto depth = detid.depth();
 
+	// ATTN: skip dual anode in HF for now (should be fixed in upstream changes)
+	if( depth > 2 ) continue; 
+
 	auto energy = erh.energy();
 	auto time = erh.time();
 
