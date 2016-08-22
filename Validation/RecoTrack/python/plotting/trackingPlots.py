@@ -35,6 +35,16 @@ _maxPU = [20, 50, 65, 80, 100, 150, 200, 250]
 _minMaxTracks = [0, 200, 500, 1000, 1500, 2000]
 _minMaxMVA = [-1.025, -0.5, 0, 0.5, 1.025]
 
+def _minMaxResidual(ma):
+    return ([-x for x in ma], ma)
+
+(_minResidualPhi, _maxResidualPhi) = _minMaxResidual([1e-4, 2e-4]) # rad
+(_minResidualCotTheta, _maxResidualCotTheta) = _minMaxResidual([1e-4, 2e-4])
+(_minResidualDxy, _maxResidualDxy) = _minMaxResidual([10, 20, 50, 100]) # um
+(_minResidualDz, _maxResidualDz) = (_minResidualDxy, _maxResidualDxy)
+(_minResidualPt, _maxResidualPt) = _minMaxResidual([1, 1.5, 2, 5]) # %
+
+
 _legendDy_1row = 0.46
 _legendDy_2rows = -0.025
 _legendDy_2rows_3cols = -0.17
@@ -324,7 +334,7 @@ _tuning = PlotGroup("tuning", [
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
     Plot("chi2mean", title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymin=[0, 0.5], ymax=[2, 2.5, 3, 5],
          fallback={"name": "chi2_vs_eta", "profileX": True}),
-    Plot("ptres_vs_eta_Mean", scale=100, title="", xtitle="TP #eta (PCA to beamline)", ytitle="< #delta p_{T} / p_{T} > [%]", ymin=-1.5, ymax=1.5)
+    Plot("ptres_vs_eta_Mean", scale=100, title="", xtitle="TP #eta (PCA to beamline)", ytitle="< #delta p_{T} / p_{T} > (%)", ymin=_minResidualPt, ymax=_maxResidualPt)
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
 _pulls = PlotGroup("pulls", [
@@ -384,6 +394,22 @@ _extDist5 = PlotGroup("dist5",
                       _makeDistPlots("seedingLayerSet", "seeding layers", common=dict(xtitle="", **_seedingLayerSet_common)),
                       ncols=4, legendDy=_legendDy_2rows_3cols
 )
+_common = dict(title="", xtitle="TP #eta (PCA to beamline)")
+_extResidualEta = PlotGroup("residualEta", [
+    Plot("phires_vs_eta_Mean", ytitle="< #delta #phi > (rad)", ymin=_minResidualPhi, ymax=_maxResidualPhi, **_common),
+    Plot("cotThetares_vs_eta_Mean", ytitle="< #delta cot(#theta) >", ymin=_minResidualCotTheta, ymax=_maxResidualCotTheta, **_common),
+    Plot("dxyres_vs_eta_Mean", ytitle="< #delta d_{xy} > (#mum)", scale=10000, ymin=_minResidualDxy, ymax=_maxResidualDxy, **_common),
+    Plot("dzres_vs_eta_Mean", ytitle="< #delta d_{z} > (#mum)", scale=10000, ymin=_minResidualDz, ymax=_maxResidualDz, **_common),
+    Plot("ptres_vs_eta_Mean", ytitle="< #delta p_{T}/p_{T} > (%)", scale=100, ymin=_minResidualPt, ymax=_maxResidualPt, **_common), # same as in tuning, but to be complete
+])
+_common = dict(title="", xlog=True, xtitle="TP p_{T} (PCA to beamline)", xmin=0.1, xmax=1000)
+_extResidualPt = PlotGroup("residualPt", [
+    Plot("phires_vs_pt_Mean", ytitle="< #delta #phi > (rad)", ymin=_minResidualPhi, ymax=_maxResidualPhi, **_common),
+    Plot("cotThetares_vs_pt_Mean", ytitle="< #delta cot(#theta > )", ymin=_minResidualCotTheta, ymax=_maxResidualCotTheta, **_common),
+    Plot("dxyres_vs_pt_Mean", ytitle="< #delta d_{xy} > (#mum)", scale=10000, ymin=_minResidualDxy, ymax=_maxResidualDxy, **_common),
+    Plot("dzres_vs_pt_Mean", ytitle="< #delta d_{z} > (#mum)", scale=10000, ymin=_minResidualDz, ymax=_maxResidualDz, **_common),
+    Plot("ptres_vs_pt_Mean", ytitle="< #delta p_{T}/p_{T} > (%)", scale=100, ymin=_minResidualPt, ymax=_maxResidualPt, **_common), # same as in tuning, but to be complete
+])
 _common = dict(title="", ytitle="Selected tracks/TrackingParticles", ymax=_maxEff)
 _extNrecVsNsim = PlotGroup("nrecVsNsim", [
     Plot("nrec_vs_nsim", title="", xtitle="TrackingParticles", ytitle="Tracks", profileX=True, xmin=_minMaxTracks, xmax=_minMaxTracks, ymin=_minMaxTracks, ymax=_minMaxTracks),
@@ -973,6 +999,8 @@ _extendedPlots = [
     _extDist3,
     _extDist4,
     _extDist5,
+    _extResidualEta,
+    _extResidualPt,
     _extNrecVsNsim,
     _extHitsLayers,
     _extDistSim1,
