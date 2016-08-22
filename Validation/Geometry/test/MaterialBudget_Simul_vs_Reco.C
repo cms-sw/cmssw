@@ -162,9 +162,15 @@ float ymin;
 float ymax;
 //
 
-// Routine to internally create and save plots related to the Simulation geometry. It also returns the overall envelope of the tracker material budget, in order to compare it against the one computed from the Reconstruction geometry.
+// Routine to internally create and save plots related to the Simulation
+// geometry. It also returns the overall envelope of the tracker material
+// budget, in order to compare it against the one computed from the
+// Reconstruction geometry.
 void createPlots(TString plot, TH1D** cumulative_matbdg);
-// Routine to internally create and save plots related to the Reconstruction geometry. It also returns the overall envelope of the tracker material budget, in order to compare it against the one computed from the Simulation geometry.
+// Routine to internally create and save plots related to the Reconstruction
+// geometry. It also returns the overall envelope of the tracker material
+// budget, in order to compare it against the one computed from the Simulation
+// geometry.
 void createPlotsReco(const char * reco_file, const char * label, TH1D** cumulative_matbdg);
 
 using namespace std;
@@ -248,7 +254,6 @@ void createPlotsReco(const char * reco_file, const char * label, TH1D ** cumulat
                                     histos.front()->GetNbinsX(),
                                     histos.front()->GetXaxis()->GetXmin(),
                                     histos.front()->GetXaxis()->GetXmax());
-      std::cout << "CAZZO: " << *cumulative_matbdg << std::endl;
     }
     for (auto h : histos) {
       hs->Add(h);
