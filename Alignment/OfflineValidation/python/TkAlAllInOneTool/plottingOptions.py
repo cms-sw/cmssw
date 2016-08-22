@@ -110,7 +110,7 @@ class BasePlottingOptions(object):
 class PlottingOptionsTrackSplitting(BasePlottingOptions):
     def __init__(self, config, addDefaults = {}, addMandatories=[]):
         defaults = {
-                    outliercut: "-1.0",
+                    "outliercut": "-1.0",
                    }
         defaults.update(addDefaults)
         mandatories = []
