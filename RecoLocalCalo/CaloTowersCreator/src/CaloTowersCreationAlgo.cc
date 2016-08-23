@@ -932,7 +932,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 	    // double emPf = 1.0/cosh(emPoint.eta());
 	    // towerP4 += CaloTower::PolarLorentzVector(E_em*emPf, emPoint.eta(), emPoint.phi(), 0); 
 	  }
-	  if ( (E_had + E_outer) >0) {
+	  if ( E_had_tot >0) {
             massless = (E_em<=0);
 	    hadPoint  = hadShwrPos(id, momHadDepth);
 	    auto lP4 = hadPoint.basicVector().unit();
@@ -953,6 +953,13 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 	    //  towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
 	    // }
 	  }
+          if (E_had_tot==0 && E_em==0 && !theHOIsUsed && E_outer>0) { //extra-fallback for deactivated HO and zero E_em and E_had deposits to avoid nan towers
+	    auto lP4 = hadPoint.basicVector().unit();
+	    lP4[3] = 1.f;  // energy
+	    lP4 *=1e-9; // set to tiny pt to avoid nan
+	    towerP4 +=lP4;
+          }
+          
 	}
 	else {  // forward detector: use the CaloTower position 
 	  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
