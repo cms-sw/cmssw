@@ -23,7 +23,4 @@ DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *
                            ecalDcsInfoTask * ecalPreshowerDcsInfoTask *
                            ecalCertification * ecalPreshowerDataCertificationTask)
 
-DQMCertHcal = cms.Sequence(hcalDAQInfo *
-                           hcalDataCertification)                           
-
 DQMCertJetMET = cms.Sequence(dataCertificationJetMETSequence)

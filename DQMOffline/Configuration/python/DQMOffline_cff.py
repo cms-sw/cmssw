@@ -24,7 +24,7 @@ from DQM.CTPPS.totemDQM_cff import *
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                  ecal_dqm_source_offline *
-								 hcalOfflineSourceSequence *
+                                 hcalOfflineSourceSequence *
                                  SiStripDQMTier0 *
                                  siPixelOfflineDQM_source *
                                  dtSources *
