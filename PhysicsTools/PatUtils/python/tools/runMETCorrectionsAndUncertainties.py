@@ -1195,7 +1195,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 enabled = cms.bool(smear),
                 variation = cms.int32( int(varyByNsigmas) ),
                 )    
-           
+
+        if self._parameters["Puppi"].value:
+            smearedJetModule.algo = cms.string('AK4PFPuppi')
+            smearedJetModule.algopt = cms.string('AK4PFPuppi_pt')
+
         #MM: FIXME MVA
         #if "MVA" == self._parameters["metType"].value:
         #    from RecoMET.METProducers.METSigParams_cfi import *
@@ -1403,13 +1407,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                 jetCorrections = ('AK4PF'+CHSname, corLevels , ''),
                                 postfix=postfix
                                 )
-
+            
             getattr(process,"patJets"+postfix).addGenJetMatch = False 
             getattr(process,"patJets"+postfix).addGenPartonMatch = False 
             getattr(process,"patJets"+postfix).addPartonJetMatch = False 
+            getattr(process,"patJets"+postfix).embedGenPartonMatch = False 
+            getattr(process,"patJets"+postfix).embedGenJetMatch = False 
             if self._parameters['onMiniAOD'].value:
                 del getattr(process,"patJets"+postfix).JetFlavourInfoSource
                 del getattr(process,"patJets"+postfix).JetPartonMapSource
+                del getattr(process,"patJets"+postfix).genPartonMatch
+                del getattr(process,"patJets"+postfix).genJetMatch
             getattr(process,"patJets"+postfix).getJetMCFlavour = False
             
             getattr(process,"patJetCorrFactors"+postfix).src=cms.InputTag(jetColName)
@@ -1507,6 +1515,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             jetCorLabelL3ResName += "CHS"
         elif "Puppi" in jetFlavor:
             self.setParameter("CHS",False)
+            jetCorLabelUpToL3Name += "Puppi"
+            jetCorLabelL3ResName += "Puppi"
             
         else:
             self.setParameter("CHS",False)
