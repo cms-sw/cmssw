@@ -2,7 +2,6 @@
 
 namespace hcaldqm
 {
-  using namespace quantity;
 	ContainerSingleProf2D::ContainerSingleProf2D()
 	{
 		_qx = NULL;

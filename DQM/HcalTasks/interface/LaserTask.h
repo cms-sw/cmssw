@@ -30,10 +30,15 @@ class LaserTask : public hcaldqm::DQTask
 		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
 		{
 			if (_ptype==hcaldqm::fLocal)
+			{
 				if (r.runAuxiliary().run()==1)
 					return;
-			this->_dump();
+				else 
+					this->_dump();
+			}
 		}
+		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 
 	protected:
 		//	funcs
@@ -46,11 +51,11 @@ class LaserTask : public hcaldqm::DQTask
 		edm::InputTag	_tagHBHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
-		edm::InputTag	_tagTrigger;
+		edm::InputTag	_taguMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<HFDigiCollection> _tokHF;
-		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
 		//	emap
 		HcalElectronicsMap const* _emap;
@@ -63,6 +68,7 @@ class LaserTask : public hcaldqm::DQTask
 		double _lowHBHE;
 		double _lowHO;
 		double _lowHF;
+		uint32_t _laserType;
 
 		//	Compact
 		hcaldqm::ContainerXXX<double> _xSignalSum;
@@ -77,18 +83,23 @@ class LaserTask : public hcaldqm::DQTask
 		hcaldqm::Container1D		_cTimingMean_Subdet;
 		hcaldqm::Container1D		_cTimingRMS_Subdet;
 
+		hcaldqm::Container1D _cADC_SubdetPM;
+
 		//	Prof1D
 		hcaldqm::ContainerProf1D	_cShapeCut_FEDSlot;
 		hcaldqm::ContainerProf1D _cTimingvsEvent_SubdetPM;
 		hcaldqm::ContainerProf1D _cSignalvsEvent_SubdetPM;
 		hcaldqm::ContainerProf1D _cTimingvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cSignalvsLS_SubdetPM;
+		hcaldqm::ContainerProf1D _cTimingvsBX_SubdetPM;
+		hcaldqm::ContainerProf1D _cSignalvsBX_SubdetPM;
 
 		//	2D timing/signals
 		hcaldqm::ContainerProf2D		_cSignalMean_depth;
 		hcaldqm::ContainerProf2D		_cSignalRMS_depth;
 		hcaldqm::ContainerProf2D		_cTimingMean_depth;
 		hcaldqm::ContainerProf2D		_cTimingRMS_depth;
+
 		hcaldqm::ContainerProf2D		_cSignalMean_FEDVME;
 		hcaldqm::ContainerProf2D		_cSignalMean_FEDuTCA;
 		hcaldqm::ContainerProf2D		_cTimingMean_FEDVME;
@@ -105,7 +116,3 @@ class LaserTask : public hcaldqm::DQTask
 };
 
 #endif
-
-
-
-
