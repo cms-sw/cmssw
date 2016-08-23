@@ -4,12 +4,9 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
 from Configuration.AlCa.autoCond import autoCond
-
+import Utilities.General.cmssw_das_client as das_client
 import os
 import socket
-from subprocess import *
-import json
-import das_client
 
 
 ## ------------------------------------------------------
@@ -126,14 +123,6 @@ class PickRelValInputFiles( ConfigToolBase ):
     def messageEmptyList( self ):
         print '%s DEBUG: Empty file list returned'%( self._label )
         print '    This might be overwritten by providing input files explicitly to the source module in the main configuration file.'
-
-    def runDAS(self, query, limit):
-      from commands import getstatusoutput
-      err, out = getstatusoutput("das_client --format=json --query '%s' --limit=%s" % (query, limit))
-      jsondict = {'status' : 'error'}
-      if not err: jsondict = json.loads(out)
-      else: jsondict['error_message'] = out
-      return jsondict
 
     def apply( self ):
         useDAS        = self._parameters[ 'useDAS'        ].value
@@ -278,8 +267,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                 if debug:
                     print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
                     print '    \'%s\''%( dasQuery )
-                # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
-                jsondict = self.runDAS(dasQuery,dasLimit)
+                jsondict = das_client.get_data(dasQuery,dasLimit)
                 if debug:
                     print '%s DEBUG: Received DAS JSON dictionary:'%( self._label )
                     print '    \'%s\''%( jsondict )
@@ -302,7 +290,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                         print '%s DEBUG: Testing file entry \'%s\''%( self._label, filePath )
                     if len( filePath ) > 0:
                         if validVersion != version:
-                            jsontestdict = self.runDAS('site dataset=%s | grep site.name' % ( dataset ),  999)
+                            jsontestdict = das_client.get_data('site dataset=%s | grep site.name' % ( dataset ),  999)
                             mongo_testquery = jsontestdict[ 'mongo_query' ]
                             testfilters = mongo_testquery[ 'filters' ]
                             testdata    = jsontestdict[ 'data' ]
