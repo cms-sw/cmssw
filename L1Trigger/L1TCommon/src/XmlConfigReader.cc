@@ -24,29 +24,50 @@ inline XMLCh* _toDOMS(std::string temp) {
 
 
 XmlConfigReader::XmlConfigReader() :
-  kTagHw(         XMLString::transcode("system")),
-  kTagAlgo(       XMLString::transcode("algo")),
-  kTagRunSettings(XMLString::transcode("run-settings")),
-  kTagDb(         XMLString::transcode("db")),
-  kTagKey(        XMLString::transcode("key")),
-  kTagLoad(       XMLString::transcode("load")),
-  kTagContext(    XMLString::transcode("context")),
-  kTagParam(      XMLString::transcode("param")),
-  kTagMask(       XMLString::transcode("mask")),
-  kTagDisable(    XMLString::transcode("disable")),
-  kTagColumns(    XMLString::transcode("columns")),
-  kTagTypes(      XMLString::transcode("types")),
-  kTagRow(        XMLString::transcode("row")),
-  kTagProcessor(  XMLString::transcode("processor")),
-  kTagRole(       XMLString::transcode("role")),
-  kTagCrate(      XMLString::transcode("crate")),
-  kAttrId(        XMLString::transcode("id")),
-  kAttrType(      XMLString::transcode("type")),
-  kAttrDelim(     XMLString::transcode("delimiter")),
-  kAttrModule(    XMLString::transcode("module")),
+  kTagHw(nullptr),
+  kTagAlgo(nullptr),
+  kTagRunSettings(nullptr),
+  kTagDb(nullptr),
+  kTagKey(nullptr),
+  kTagLoad(nullptr),
+  kTagContext(nullptr),
+  kTagParam(nullptr),
+  kTagMask(nullptr),
+  kTagDisable(nullptr),
+  kTagColumns(nullptr),
+  kTagTypes(nullptr),
+  kTagRow(nullptr),
+  kTagProcessor(  nullptr),
+  kTagRole(nullptr),
+  kTagCrate(nullptr),
+  kAttrId(nullptr),
+  kAttrType(nullptr),
+  kAttrDelim(nullptr),
+  kAttrModule(nullptr),
   kTypeTable("table")
 {
   XMLPlatformUtils::Initialize();
+
+  kTagHw          = XMLString::transcode("system");
+  kTagAlgo        = XMLString::transcode("algo");
+  kTagRunSettings = XMLString::transcode("run-settings");
+  kTagDb          = XMLString::transcode("db");
+  kTagKey         = XMLString::transcode("key");
+  kTagLoad        = XMLString::transcode("load");
+  kTagContext     = XMLString::transcode("context");
+  kTagParam       = XMLString::transcode("param");
+  kTagMask        = XMLString::transcode("mask");
+  kTagDisable     = XMLString::transcode("disable");
+  kTagColumns     = XMLString::transcode("columns");
+  kTagTypes       = XMLString::transcode("types");
+  kTagRow         = XMLString::transcode("row");
+  kTagProcessor   = XMLString::transcode("processor");
+  kTagRole        = XMLString::transcode("role");
+  kTagCrate       = XMLString::transcode("crate");
+  kAttrId         = XMLString::transcode("id");
+  kAttrType       = XMLString::transcode("type");
+  kAttrDelim      = XMLString::transcode("delimiter");
+  kAttrModule     = XMLString::transcode("module");
  
   ///Initialise XML parser  
   parser_ = new XercesDOMParser(); 
@@ -58,29 +79,50 @@ XmlConfigReader::XmlConfigReader() :
 
 
 XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
-  kTagHw(         XMLString::transcode("system")),
-  kTagAlgo(       XMLString::transcode("algo")),
-  kTagRunSettings(XMLString::transcode("run-settings")),
-  kTagDb(         XMLString::transcode("db")),
-  kTagKey(        XMLString::transcode("key")),
-  kTagLoad(       XMLString::transcode("load")),
-  kTagContext(    XMLString::transcode("context")),
-  kTagParam(      XMLString::transcode("param")),
-  kTagMask(       XMLString::transcode("mask")),
-  kTagDisable(    XMLString::transcode("disable")),
-  kTagColumns(    XMLString::transcode("columns")),
-  kTagTypes(      XMLString::transcode("types")),
-  kTagRow(        XMLString::transcode("row")),
-  kTagProcessor(  XMLString::transcode("processor")),
-  kTagRole(       XMLString::transcode("role")),
-  kTagCrate(      XMLString::transcode("crate")),
-  kAttrId(        XMLString::transcode("id")),
-  kAttrType(      XMLString::transcode("type")),
-  kAttrDelim(     XMLString::transcode("delimiter")),
-  kAttrModule(    XMLString::transcode("module")),
+  kTagHw(nullptr),
+  kTagAlgo(nullptr),
+  kTagRunSettings(nullptr),
+  kTagDb(nullptr),
+  kTagKey(nullptr),
+  kTagLoad(nullptr),
+  kTagContext(nullptr),
+  kTagParam(nullptr),
+  kTagMask(nullptr),
+  kTagDisable(nullptr),
+  kTagColumns(nullptr),
+  kTagTypes(nullptr),
+  kTagRow(nullptr),
+  kTagProcessor(nullptr),
+  kTagRole(nullptr),
+  kTagCrate(nullptr),
+  kAttrId(nullptr),
+  kAttrType(nullptr),
+  kAttrDelim(nullptr),
+  kAttrModule(nullptr),
   kTypeTable("table")
 {
   XMLPlatformUtils::Initialize();
+
+  kTagHw          = XMLString::transcode("system");
+  kTagAlgo        = XMLString::transcode("algo");
+  kTagRunSettings = XMLString::transcode("run-settings");
+  kTagDb          = XMLString::transcode("db");
+  kTagKey         = XMLString::transcode("key");
+  kTagLoad        = XMLString::transcode("load");
+  kTagContext     = XMLString::transcode("context");
+  kTagParam       = XMLString::transcode("param");
+  kTagMask        = XMLString::transcode("mask");
+  kTagDisable     = XMLString::transcode("disable");
+  kTagColumns     = XMLString::transcode("columns");
+  kTagTypes       = XMLString::transcode("types");
+  kTagRow         = XMLString::transcode("row");
+  kTagProcessor   = XMLString::transcode("processor");
+  kTagRole        = XMLString::transcode("role");
+  kTagCrate       = XMLString::transcode("crate");
+  kAttrId         = XMLString::transcode("id");
+  kAttrType       = XMLString::transcode("type");
+  kAttrDelim      = XMLString::transcode("delimiter");
+  kAttrModule     = XMLString::transcode("module");
  
   parser_ = nullptr; 
   doc_ = doc;
