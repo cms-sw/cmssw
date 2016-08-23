@@ -348,7 +348,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 
 
 void
-HcalTriggerPrimitiveAlgo::analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo)
+HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo)
 {
    int shrink = weights_.size() - 1;
    auto& msb = fgUpgradeMap_[samples.id()];
@@ -526,7 +526,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
     
 }
 
-void HcalTriggerPrimitiveAlgo::analyzeHFPhase1(
+void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
         const int hf_lumi_shift, const HcalFeatureBit* hcalfem)
 {

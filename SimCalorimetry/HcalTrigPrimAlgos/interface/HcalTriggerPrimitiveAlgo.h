@@ -90,8 +90,8 @@ public:
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  // Phase1: QIE11
-  void analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
+  // 2017: QIE11
+  void analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -102,7 +102,7 @@ public:
           const HcalFeatureBit* HCALFEM
           );
   // With dual anode readout
-  void analyzeHFPhase1(
+  void analyzeHF2017(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
           const int HF_LUMI_SHIFT,
@@ -229,7 +229,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
             analyzeHF(mapItr->second, result.back(), RCTScaleShift);
          } else if (detId.version() == 1) {
             if (upgrade_hf_)
-               analyzeHFPhase1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
+               analyzeHF2017(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
             else
                analyzeHF2016(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
          } else {
@@ -238,9 +238,9 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       }
       else {
          if (upgrade_he_ and abs(detId.ieta()) >= first_he_tower) {
-            analyzePhase1(mapItr->second, result.back(), fg_algo);
+            analyze2017(mapItr->second, result.back(), fg_algo);
          } else if (upgrade_hb_ and detId.subdet() < first_he_tower) {
-            analyzePhase1(mapItr->second, result.back(), fg_algo);
+            analyze2017(mapItr->second, result.back(), fg_algo);
          } else {
             analyze(mapItr->second, result.back());
          }
