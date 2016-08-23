@@ -322,6 +322,7 @@ namespace HcalSimpleRecAlgoImpl {
     bool leakCorrApplied = false;
     float t0 =0, t2 =0;
     float time = -9999;
+    float m3_time = -9999;
 
 // Disable method 1 inside the removePileup function this way!
 // Some code in removePileup does NOT do pileup correction & to make sure maximum share of code
@@ -376,8 +377,8 @@ namespace HcalSimpleRecAlgoImpl {
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
       }
-      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, m3_ampl,time);
-      if (puCorrMethod == 3) ampl = m3_ampl;
+      hltOOTpuCorr->apply(cs, capidvec, calibs, digi, m3_ampl,m3_time);
+      if (puCorrMethod == 3) {ampl = m3_ampl; time=m3_time;}
     }
 
     // Temporary hack to apply energy-dependent corrections to some HB- cells
