@@ -999,8 +999,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     
     
     // insert in collection (remove and return if below threshold)
-    if unlikely ( (towerP4[3]==0) & (E_outer>0)  ) {
-      collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(0,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint);
+    if unlikely ( (towerP4[3]==0) & (E_outer>0) & (!theHOIsUsed) ) {
+      collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(1e-9,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint);
     } else {
       collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, GlobalVector(towerP4), towerP4[3], mass2, emPoint, hadPoint);
     }
