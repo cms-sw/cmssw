@@ -98,7 +98,7 @@ void TrackingMaterialAnalyser::saveXml(const char* name)
     xml << "  <Group name=\"" << layer.name() << "\">\n"
         << "    <Parameter name=\"TrackerRadLength\" value=\"" << layer.averageRadiationLengths() << "\"/>\n"
         << "    <Parameter name=\"TrackerXi\" value=\"" << layer.averageEnergyLoss() << "\"/>\n"
-        << "  </Group>\n" 
+        << "  </Group>\n"
         << std::endl;
   }
   xml << "</Groups>" << std::endl;
@@ -145,7 +145,7 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
   // over again in the eventloop, at each call of the analyze method.
   if (m_groups.size() == 0) {
     for (unsigned int i = 0; i < m_groupNames.size(); ++i)
-      m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) ); 
+      m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) );
 
     LogDebug("TrackingMaterialAnalyser")
         << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
@@ -173,6 +173,7 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
 
 void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 {
+  using namespace edm;
   // group sensitive detectors by their DetLayer
   std::vector<int> group( track.detectors().size() );
   for (unsigned int i = 0; i < track.detectors().size(); ++i)
@@ -180,12 +181,14 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 
   for (unsigned int i = 0; i < group.size(); ++i)
     if (group[i] > 0)
-      std::cout << "For detector i: " << i << " index: "
-                << group[i] << " R-ranges: "
-                << m_groups[group[i]-1]->getBoundingR().first << ", " << m_groups[group[i]-1]->getBoundingR().second
-                << group[i] << " Z-ranges: "
-                << m_groups[group[i]-1]->getBoundingZ().first << ", " << m_groups[group[i]-1]->getBoundingZ().second
-                << std::endl;
+      LogInfo("TrackingMaterialAnalyser") << "For detector i: " << i << " index: "
+                                          << group[i] << " R-ranges: "
+                                          << m_groups[group[i]-1]->getBoundingR().first
+                                          << ", " << m_groups[group[i]-1]->getBoundingR().second
+                                          << group[i] << " Z-ranges: "
+                                          << m_groups[group[i]-1]->getBoundingZ().first
+                                          << ", " << m_groups[group[i]-1]->getBoundingZ().second
+                                          << std::endl;
 
   unsigned int detectors = track.detectors().size();
   if (detectors == 0) {
@@ -326,8 +329,8 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 }
 
 //-------------------------------------------------------------------------
-// find the layer index (0: none, 1-3: PixelBarrel, 
-//                       4-7: TID, 8-13: TOB, 14-15,28-29: PixelEndcap, 
+// find the layer index (0: none, 1-3: PixelBarrel,
+//                       4-7: TID, 8-13: TOB, 14-15,28-29: PixelEndcap,
 //                       16-18,30-32: TID, 19-27,33-41: TEC)
 int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & detector )
 {
@@ -344,7 +347,7 @@ int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & dete
     std::cerr << "TrackingMaterialAnalyser::findLayer(...): detector position: " << std::fixed
               << " (r: " << std::setprecision(1) << std::setw(5) << detector.position().perp()
               << ", z: " << std::setprecision(1) << std::setw(6) << detector.position().z()
-              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")" 
+              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")"
               << std::endl;
   }
   if (inside > 1) {
@@ -353,7 +356,7 @@ int TrackingMaterialAnalyser::findLayer( const MaterialAccountingDetector & dete
     std::cerr << "TrackingMaterialAnalyser::findLayer(...): detector position: " << std::fixed
               << " (r: " << std::setprecision(1) << std::setw(5) << detector.position().perp()
               << ", z: " << std::setprecision(1) << std::setw(6) << detector.position().z()
-              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")" 
+              << ", phi: " << std::setprecision(3) << std::setw(6) << detector.position().phi() << ")"
               << std::endl;
   }
 
