@@ -97,7 +97,7 @@ void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descr
    desc.add<bool>("readBadChambers",true);
    desc.add<bool>("CSCUseTimingCorrections",true);
    desc.add<bool>("CSCUseGasGainCorrections",true);
-   desc.add<bool>("CSCDebug",false);
+   desc.addUntracked<bool>("CSCDebug",false);
    desc.add<int>("CSCstripWireDeltaTime",8);
    desc.add<int>("CSCStripClusterSize",3); 
 
