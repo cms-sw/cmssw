@@ -146,9 +146,9 @@ class HGCalTriggerGeometryBase {
   // const access to the geometry class  
   // all of the get*From* functions return nullptr if the thing you
   // ask for doesn't exist
-  const std::unique_ptr<const HGCalTriggerGeometry::TriggerCell>& getTriggerCellFromCell( const unsigned cell_det_id ) const;
-  const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromCell( const unsigned cell_det_id ) const;
-  const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const;
+  virtual const std::unique_ptr<const HGCalTriggerGeometry::TriggerCell>& getTriggerCellFromCell( const unsigned cell_det_id ) const;
+  virtual const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromCell( const unsigned cell_det_id ) const;
+  virtual const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const;
 
   const geom_map& cellsToTriggerCellsMap() const { return cells_to_trigger_cells_; }
   const geom_map& triggerCellsToModulesMap() const { return trigger_cells_to_modules_; }
