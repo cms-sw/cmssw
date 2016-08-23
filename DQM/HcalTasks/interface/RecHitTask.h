@@ -46,6 +46,7 @@ class RecHitTask : public hcaldqm::DQTask
 		edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
 		edm::EDGetTokenT<HORecHitCollection>	 _tokHO;
 		edm::EDGetTokenT<HFRecHitCollection>	_tokHF;
+
 		double _cutE_HBHE, _cutE_HO, _cutE_HF;
 		double _thresh_unihf;
 
@@ -58,7 +59,8 @@ class RecHitTask : public hcaldqm::DQTask
 		{
 			fUni=0,
 			fTCDS=1,
-			nRecoFlag=2
+			fUnknownIds = 2,
+			nRecoFlag=3
 		};
 
 		//	emap
@@ -114,9 +116,14 @@ class RecHitTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cOccupancyCut_depth;
 		hcaldqm::Container1D _cOccupancyCutvsiphi_SubdetPM;	// online only
 		hcaldqm::Container1D _cOccupancyCutvsieta_Subdet;	// online only
-		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_SubdetPM;	// online only!
+		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only!
 		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF, _xUni;
+
+		//	tracks the unknown ids
+		MonitorElement *meUnknownIds1LS;
+		bool _unknownIdsPresent;
+
 		std::vector<HcalGenericDetId> _gids; // online only
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only!
 		hcaldqm::ContainerSingle2D _cSummaryvsLS;

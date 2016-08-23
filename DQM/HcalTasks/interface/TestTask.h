@@ -40,7 +40,7 @@ class TestTask : public hcaldqm::DQTask
 		//	Electronics Map
 		HcalElectronicsMap const *_emap;
 
-		//	Containers
+		//	hcaldqm::Containers
 		hcaldqm::Container1D		_cEnergy_Subdet;
 		hcaldqm::Container1D		_cTiming_SubdetPMiphi;
 		hcaldqm::ContainerProf1D	_cEnergyvsiphi_Subdetieta;
@@ -56,8 +56,11 @@ class TestTask : public hcaldqm::DQTask
 		hcaldqm::ContainerSingle2D _cSummary;
 		hcaldqm::ContainerSingleProf1D _cPerformance;
 
-//		ContainerProf1D	_cTiming_fCrateSlot;
-//		ContainerProf1D	_cEt_TTSubdetPMiphi;
+//		hcaldqm::ContainerProf1D	_cTiming_fCrateSlot;
+//		hcaldqm::ContainerProf1D	_cEt_TTSubdetPMiphi;
 };
 
 #endif
+
+
+

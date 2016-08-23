@@ -10,6 +10,7 @@
  */
 
 #include "DQM/HcalCommon/interface/ContainerSingle2D.h"
+
 #include <string>
 
 namespace hcaldqm
@@ -19,19 +20,19 @@ namespace hcaldqm
 		public:
 			ContainerSingleProf2D();
 			ContainerSingleProf2D(std::string const& folder, 
-				quantity::Quantity*, quantity::Quantity*,
-				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN));
+				Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fN));
 			virtual ~ContainerSingleProf2D() {}
 
 			virtual void initialize(std::string const& folder, 
-				quantity::Quantity*, quantity::Quantity*,
-				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
+				Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fN),
 				int debug=0);
 
 			virtual void initialize(std::string const& folder, 
 				std::string const&,
-				quantity::Quantity*, quantity::Quantity*,
-				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
+				Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fN),
 				int debug=0);
 
 			//	booking

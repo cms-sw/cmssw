@@ -17,27 +17,28 @@
 
 namespace hcaldqm
 {
+	using namespace quantity;
 	class ContainerProf2D : public Container2D
 	{
 		public:
 			ContainerProf2D();
 			ContainerProf2D(std::string const& folder, 
 				hashfunctions::HashType,
-				quantity::Quantity*, quantity::Quantity*, 
-				quantity::Quantity* qz = new quantity::ValueQuantity(quantity::fEnergy));
+				Quantity*, Quantity*, 
+				Quantity* qz = new ValueQuantity(quantity::fEnergy));
 			virtual ~ContainerProf2D() {}
 			
 			virtual void initialize(std::string const& folder, 
 				hashfunctions::HashType,
-				quantity::Quantity*, quantity::Quantity*,
-				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fEnergy),
+				Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fEnergy),
 				int debug=0);
 
 			virtual void initialize(std::string const& folder, 
 				std::string const& qname,
 				hashfunctions::HashType,
-				quantity::Quantity*, quantity::Quantity*,
-				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fEnergy),
+				Quantity*, Quantity*,
+				Quantity *qz = new ValueQuantity(quantity::fEnergy),
 				int debug=0);
 
 			virtual void book(DQMStore::IBooker&,

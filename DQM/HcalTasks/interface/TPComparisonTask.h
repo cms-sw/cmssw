@@ -56,7 +56,7 @@ class TPComparisonTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_uTCA;
 
 		/**
-		 *	Containers
+		 *	hcaldqm::Containers
 		 */
 
 		//	Et
