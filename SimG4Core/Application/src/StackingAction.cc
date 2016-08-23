@@ -260,7 +260,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	  ((pdg == 2112) && (ke < kmaxNeutron))) { classification = fKill; }
     }
     if (!trackNeutrino  && classification != fKill) {
-      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
+      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18 ||
+	  pdg ==-12 || pdg ==-14 || pdg ==-16 || pdg ==-18 ) 
 	classification = fKill;
     }
     if (classification != fKill && isItLongLived(aTrack)) 
