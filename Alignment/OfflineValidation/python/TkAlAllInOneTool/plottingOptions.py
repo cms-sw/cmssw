@@ -2,7 +2,7 @@ import os
 import random
 import globalDictionaries
 import configTemplates
-from helperFunctions import getCommandOutput2
+from helperFunctions import getCommandOutput2, replaceByMap
 from TkAlExceptions import AllInOneError
 
 
@@ -108,17 +108,51 @@ class BasePlottingOptions(object):
         return result
 
 class PlottingOptionsTrackSplitting(BasePlottingOptions):
-    def __init__(self, config, addDefaults = {}, addMandatories=[]):
+    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
         defaults = {
                     "outliercut": "-1.0",
+                    "subdetector": "none",
                    }
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories
-        BasePlottingOptions.__init__(self, config, "split", defaults, mandatories)
+        needpackages = ["Alignment/CommonAlignmentProducer"]
+        needpackages += addneedpackages
+        BasePlottingOptions.__init__(self, config, "split", defaults, mandatories, needpackages)
+        validsubdets = self.validsubdets()
+        if self.general["subdetector"] not in validsubdets:
+            raise AllInOneError("'%s' is not a valid subdetector!\n" % self.general["subdetector"] + "The options are: " + ", ".join(validsubdets))
+
+    def validsubdets(self):
+        filename = replaceByMap(".oO[Alignment/CommonAlignmentProducer]Oo./python/AlignmentTrackSelector_cfi.py", self.getRepMap())
+        with open(filename) as f:
+            trackselector = f.read()
+
+        minhitspersubdet = trackselector.split("minHitsPerSubDet")[1].split("(",1)[1]
+
+        parenthesesdepth = 0
+        i = 0
+        for character in minhitspersubdet:
+            if character == "(":
+                parenthesesdepth += 1
+            if character == ")":
+                parenthesesdepth -= 1
+            if parenthesesdepth < 0:
+                break
+            i += 1
+        minhitspersubdet = minhitspersubdet[0:i]
+
+        results = minhitspersubdet.split(",")
+        empty = []
+        for i in range(len(results)):
+            results[i] = results[i].split("=")[0].strip().replace("in", "", 1)
+
+        results.append("none")
+
+        return [a for a in results if a]
 
 class PlottingOptionsZMuMu(BasePlottingOptions):
-    def __init__(self, config, addDefaults = {}, addMandatories=[]):
+    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
         defaults = {
                     "resonance": "Z",
                     "switchONfit": "false",
@@ -130,10 +164,12 @@ class PlottingOptionsZMuMu(BasePlottingOptions):
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories
-        BasePlottingOptions.__init__(self, config, "zmumu", defaults, mandatories)
+        needpackages = ["MuonAnalysis/MomentumScaleCalibration"]
+        needpackages += addneedpackages
+        BasePlottingOptions.__init__(self, config, "zmumu", defaults, mandatories, needpackages)
 
 class PlottingOptionsOffline(BasePlottingOptions):
-    def __init__(self, config, addDefaults = {}, addMandatories=[]):
+    def __init__(self, config, addDefaults = {}, addMandatories=[], addneedpackages=[]):
         defaults = {
                     "DMRMethod":"median,rmsNorm",
                     "DMRMinimum":"30",
@@ -145,7 +181,7 @@ class PlottingOptionsOffline(BasePlottingOptions):
         defaults.update(addDefaults)
         mandatories = []
         mandatories += addMandatories
-        BasePlottingOptions.__init__(self, config, "offline", defaults, mandatories)
+        BasePlottingOptions.__init__(self, config, "offline", defaults, mandatories, addneedpackages)
 
 def PlottingOptions(config, valType):
     plottingOptionsClasses = {

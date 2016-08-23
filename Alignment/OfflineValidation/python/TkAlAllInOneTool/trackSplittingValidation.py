@@ -10,7 +10,7 @@ class TrackSplittingValidation(GenericValidationData):
                  configBaseName = "TkAlTrackSplitting", scriptBaseName = "TkAlTrackSplitting", crabCfgBaseName = "TkAlTrackSplitting",
                  resultBaseName = "TrackSplitting", outputBaseName = "TrackSplitting"):
         mandatories = ["trackcollection"]
-        defaults = {"subdetector": "BPIX"}
+        defaults = {}
         self.configBaseName = configBaseName
         self.scriptBaseName = scriptBaseName
         self.crabCfgBaseName = crabCfgBaseName
@@ -19,9 +19,6 @@ class TrackSplittingValidation(GenericValidationData):
         self.needParentFiles = False
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "split", addMandatories = mandatories, addDefaults = defaults)
-        validsubdets = self.validsubdets()
-        if self.general["subdetector"] not in validsubdets:
-            raise AllInOneError("'%s' is not a valid subdetector!\n" % self.general["subdetector"] + "The options are: " + ", ".join(validsubdets))
 
     def createConfiguration(self, path ):
         cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
@@ -40,7 +37,7 @@ class TrackSplittingValidation(GenericValidationData):
 
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self)
-        if self.general["subdetector"] == "none":
+        if repMap["subdetector"] == "none":
             subdetselection = ""
         else:
             subdetselection = "process.AlignmentTrackSelector.minHitsPerSubDet.in.oO[subdetector]Oo. = 2"
@@ -48,7 +45,6 @@ class TrackSplittingValidation(GenericValidationData):
             "nEvents": self.general["maxevents"],
             "TrackCollection": self.general["trackcollection"],
             "subdetselection": subdetselection,
-            "subdetector": self.general["subdetector"],
         })
         # repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         # if self.jobmode.split( ',' )[0] == "crab":

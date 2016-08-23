@@ -110,7 +110,7 @@ void PlotAlignmentValidation::legendOptions(TString options)
     showRMSError_ = true;
   if (options.Contains("modules") || options.Contains("all"))
     showModules_ = true;
-  if (options.Contains("under") || options.Contains("over") || options.contains("outside") || options.Contains("all"))
+  if (options.Contains("under") || options.Contains("over") || options.Contains("outside") || options.Contains("all"))
     showUnderOverFlow_ = true;
 
   twolines_ = (showUnderOverFlow_ && (showMean_ + showMeanError_ + showRMS_ + showRMSError_ >= 1) && bigtext_);
@@ -720,6 +720,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotinfo.legend->SetNColumns(2);
     if (hasheader) plotinfo.legend->SetHeader(TkAlStyle::legendheader);
     if (bigtext_) plotinfo.legend->SetTextSize(TkAlStyle::textSize);
+    plotinfo.legend->SetFillStyle(0);
     plotinfo.hstack = &hstack;
     plotinfo.h = plotinfo.h1 = plotinfo.h2 = 0;
     plotinfo.firsthisto = true;
@@ -1270,7 +1271,7 @@ void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, c
     text2 = new TPaveText(0.7, 0.3, 0.9, 0.6, "brNDC");
   } else {
     cout << "Surface Deformation" << endl;
-    text2 = new TPaveText(0.7, 0.75, 0.9, 0.9, "brNDC");
+    text2 = new TPaveText(0.8, 0.75, 0.9, 0.9, "brNDC");
   }
   text2->SetTextSize(0.06);
   text2->SetTextFont(42);
@@ -1559,6 +1560,7 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
   Double_t legendY = 0.80;
   bool hasheader = (TkAlStyle::legendheader != "");
   if (hasheader) legend->SetHeader(TkAlStyle::legendheader);
+  legend->SetFillStyle(0);
   int legendsize = hs->GetHists()->GetSize() + hasheader;
 
   if (legendsize > 3)

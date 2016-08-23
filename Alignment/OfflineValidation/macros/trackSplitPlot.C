@@ -21,6 +21,8 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
 {
     if (TkAlStyle::status() == NO_STATUS)
         TkAlStyle::set(INTERNAL);
+    if (outliercut < 0)
+        outliercut = -1;
     gStyle->SetMarkerSize(1.5);
     setupcolors();
     stufftodelete->SetOwner(true);
@@ -312,8 +314,8 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                         rms = p[i]->GetRMS();
                     else
                         rms = findRMS(files[i], var, axis, relative, pull);
-                    meanrms << " #pm " << rms/TMath::Sqrt(lengths[i]*outliercut);
-                    cout << " +/- " << rms/TMath::Sqrt(lengths[i]*outliercut);
+                    meanrms << " #pm " << rms/TMath::Sqrt(lengths[i]*abs(outliercut));
+                    cout << " +/- " << rms/TMath::Sqrt(lengths[i]*abs(outliercut));
                 }
                 if (varunits != "")
                 {
@@ -338,8 +340,8 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 if (legendOptions.Contains("rmserror"))
                 {
                     //https://root.cern.ch/root/html/src/TH1.cxx.html#7076
-                    meanrms << " #pm " << rms/TMath::Sqrt(2*lengths[i]*outliercut);
-                    cout << " +/- " << rms/TMath::Sqrt(2*lengths[i]*outliercut);
+                    meanrms << " #pm " << rms/TMath::Sqrt(2*lengths[i]*abs(outliercut));
+                    cout << " +/- " << rms/TMath::Sqrt(2*lengths[i]*abs(outliercut));
                 }
                 if (varunits != "")
                 {
