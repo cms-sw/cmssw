@@ -17,12 +17,6 @@
 // pulse containment correction
 constexpr float PulseContainmentFractionalError = 0.002f;
 
-constexpr int HPDShapev3DataNum = 105;
-constexpr int HPDShapev3MCNum = 105;
-constexpr int SiPMShapev3DataNum = 203;
-constexpr int SiPMShapev3MCNum = 203;
-
-
 SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
     const int firstSampleShift,
     const int samplesToAdd,
@@ -86,14 +80,8 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method2)
     {
 
-      // set the pulse shape
-      if(isData) {
-	if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(HPDShapev3DataNum),0);
-	if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(SiPMShapev3DataNum),1);
-      } else {
-	if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(HPDShapev3MCNum),0);
-	if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(SiPMShapev3MCNum),1);
-      }
+      if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),0);
+      if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),1);
 
       method2->phase1Apply(info, m2E, m2t, useTriple);
 
