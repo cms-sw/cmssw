@@ -127,7 +127,7 @@ void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descr
    desc.add<double>("NoiseLevel_ME22",7.0),
    desc.add<double>("NoiseLevel_ME31",5.0),
    desc.add<double>("NoiseLevel_ME32",7.0),
-   desc.add<double>("NoiseLevel_ME41",5.0)
+   desc.add<double>("NoiseLevel_ME41",5.0);
 
    desc.add<bool>("CSCUseReducedWireTimeWindow", false);
    desc.add<int>("CSCWireTimeWindowLow", 0);
