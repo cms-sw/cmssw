@@ -223,12 +223,13 @@ LepAna = LeptonAnalyzer.defaultConfig
 #	}
 LepAna.mu_isoCorr  = "deltaBeta"
 #LepAna.loose_muon_isoCut = lambda muon : muon.relIso04 < 0.25 
-LepAna.loose_muon_isoCut = lambda muon : muon.relIso04 < 0.4
-LepAna.loose_muon_pt = 10.
+LepAna.loose_muon_isoCut = lambda muon : (muon.relIso04 < 0.4 or muon.miniRelIso < 0.4)
+LepAna.loose_muon_pt = 4.5
 LepAna.ele_isoCorr = "rhoArea"
-LepAna.loose_electron_isoCut = lambda electron : electron.relIso03 < 0.4 
+LepAna.loose_electron_isoCut = lambda electron : (electron.relIso03 < 0.4 or electron.miniRelIso < 0.4) 
 #LepAna.loose_electron_isoCut = lambda electron : ele_mvaEleID_Trig_preselection(electron)
-LepAna.loose_electron_pt = 10.
+LepAna.loose_electron_pt = 6.5
+LepAna.loose_electron_eta = 2.5
 #LepAna.loose_electron_id = "mvaEleID-Spring15-25ns-Trig-V1-wp90"
 LepAna.doMiniIsolation = True
 
