@@ -54,10 +54,10 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
 {
     //
     // read module mapping file
-    std::map<short, short> wafer_to_module_ee;
-    std::map<short, short> wafer_to_module_fh;
-    std::map<short, std::map<short,short>> module_to_wafers_ee;
-    std::map<short, std::map<short,short>> module_to_wafers_fh;
+    std::unordered_map<short, short> wafer_to_module_ee;
+    std::unordered_map<short, short> wafer_to_module_fh;
+    std::unordered_map<short, std::unordered_map<short,short>> module_to_wafers_ee;
+    std::unordered_map<short, std::unordered_map<short,short>> module_to_wafers_fh;
     std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
     if(!l1tModulesMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TModulesMapping file\n";
     short subdet  = 0;
@@ -68,13 +68,13 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
         if(subdet==3)
         {
             wafer_to_module_ee.emplace(wafer,module);
-            auto itr_insert = module_to_wafers_ee.emplace(module, std::map<short,short>());
+            auto itr_insert = module_to_wafers_ee.emplace(module, std::unordered_map<short,short>());
             itr_insert.first->second.emplace(wafer, 0);
         }
         else if(subdet==4)
         {
             wafer_to_module_fh.emplace(wafer,module);
-            auto itr_insert = module_to_wafers_fh.emplace(module, std::map<short,short>());
+            auto itr_insert = module_to_wafers_fh.emplace(module, std::unordered_map<short,short>());
             itr_insert.first->second.emplace(wafer, 0);
         }
         else edm::LogWarning("HGCalTriggerGeometry") << "Unsupported subdetector number ("<<subdet<<") in L1TModulesMapping file\n";
@@ -83,7 +83,7 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
     l1tModulesMappingStream.close();
     // read trigger cell mapping file
     std::map<std::pair<short,short>, short> cells_to_trigger_cells;
-    std::map<short, short> number_trigger_cells_in_wafers; // the map key is the wafer type
+    std::unordered_map<short, short> number_trigger_cells_in_wafers; // the map key is the wafer type
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());
     if(!l1tCellsMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellsMapping file\n";
     short waferType   = 0;
@@ -181,7 +181,7 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules(const es_info& esI
     // Build trigger cells and fill map
     typedef HGCalTriggerGeometry::TriggerCell::list_type list_cells;
     // make list of cells in trigger cells
-    std::map<unsigned, list_cells> trigger_cells_to_cells;
+    std::unordered_map<unsigned, list_cells> trigger_cells_to_cells;
     for(const auto& cell_triggerCell : cells_to_trigger_cells_)
     {
         unsigned cell        = cell_triggerCell.first;
@@ -213,7 +213,7 @@ void HGCalTriggerGeometryHexImp1::buildTriggerCellsAndModules(const es_info& esI
     typedef HGCalTriggerGeometry::Module::list_type list_triggerCells;
     typedef HGCalTriggerGeometry::Module::tc_map_type tc_map_to_cells;
     // make list of trigger cells in modules
-    std::map<unsigned, list_triggerCells> modules_to_trigger_cells;
+    std::unordered_map<unsigned, list_triggerCells> modules_to_trigger_cells;
     for(const auto& triggerCell_module : trigger_cells_to_modules_)
     {
         unsigned triggerCell = triggerCell_module.first;

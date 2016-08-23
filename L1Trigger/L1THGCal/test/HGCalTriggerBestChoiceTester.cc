@@ -52,7 +52,7 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
         void rerunBestChoiceFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalBestChoiceDataPayload&,  const HGCalBestChoiceDataPayload&,const HGCalBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::map<uint32_t, double>& );
+        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalBestChoiceDataPayload&,  const HGCalBestChoiceDataPayload&,const HGCalBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
 
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
@@ -378,7 +378,7 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
         }
         const auto& module_ptr = triggerGeometry_->modules().at(module_hits.first);
         // Association simhit energies with trigger cells
-        std::map<uint32_t, double> TC_simhit_energies;
+        std::unordered_map<uint32_t, double> TC_simhit_energies;
         if (is_Simhit_comp_) 
         {
             for(const auto& tc_c : module_ptr->triggerCellComponents())
@@ -422,7 +422,7 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
         }
         const auto& module_ptr = triggerGeometry_->modules().at(module_hits.first);
         // Association simhit energies with trigger cells
-        std::map<uint32_t, double> TC_simhit_energies;
+        std::unordered_map<uint32_t, double> TC_simhit_energies;
         if (is_Simhit_comp_) 
         {
             for(const auto& tc_c : module_ptr->triggerCellComponents())
@@ -452,7 +452,7 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
 
 
 /*****************************************************************/
-void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::map<uint32_t, double>& TC_simhit_energies)
+void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
 
 /*****************************************************************/
 {
