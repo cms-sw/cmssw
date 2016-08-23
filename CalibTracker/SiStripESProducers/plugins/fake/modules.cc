@@ -59,7 +59,7 @@ DEFINE_FWK_EVENTSETUP_SOURCE(SiStripNoisesFakeESSource);
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripBadModuleGenerator.h"
-typedef SiStripTemplateDepFakeESSource< SiStripBadStrip, SiStripBadModuleDepRcd, SiStripBadModuleGenerator,TrackerTopologyRcd,TrackerTopology > SiStripBadModuleConfigurableFakeESSource;
+typedef SiStripTemplateDepFakeESSource< SiStripBadStrip, SiStripBadModuleRcd, SiStripBadModuleGenerator,TrackerTopologyRcd,TrackerTopology > SiStripBadModuleConfigurableFakeESSource;
 DEFINE_FWK_EVENTSETUP_SOURCE(SiStripBadModuleConfigurableFakeESSource);
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"

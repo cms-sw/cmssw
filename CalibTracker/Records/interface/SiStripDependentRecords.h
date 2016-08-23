@@ -29,19 +29,15 @@ class SiStripGainSimRcd : public edm::eventsetup::DependentRecordImplementation<
 
 class SiStripDelayRcd : public edm::eventsetup::DependentRecordImplementation<SiStripDelayRcd, boost::mpl::vector<SiStripBaseDelayRcd> > {};
 
-class SiStripLorentzAngleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripLorentzAngleRcd,IdealGeometryRecord> > {};
+class SiStripLorentzAngleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripLorentzAngleRcd> > {};
 
-class SiStripBackPlaneCorrectionDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripBackPlaneCorrectionRcd,IdealGeometryRecord> > {};
+class SiStripBackPlaneCorrectionDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionDepRcd, boost::mpl::vector<SiStripLatencyRcd, SiStripBackPlaneCorrectionRcd> > {};
 
 class SiStripHashedDetIdRcd : public edm::eventsetup::DependentRecordImplementation<SiStripHashedDetIdRcd, boost::mpl::vector<TrackerDigiGeometryRecord> > {};
 
-class SiStripNoisesDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesDepRcd, boost::mpl::vector<SiStripNoisesRcd,IdealGeometryRecord> > {};
-
-class SiStripBadModuleDepRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleDepRcd, boost::mpl::vector<SiStripBadModuleRcd,TrackerTopologyRcd> > {};
-
 class SiStripBadModuleFedErrRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleFedErrRcd, boost::mpl::vector<SiStripFedCablingRcd> > {};
 
-class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd, boost::mpl::vector<SiStripBadModuleRcd, SiStripBadFiberRcd, SiStripBadChannelRcd, SiStripBadStripRcd, SiStripDetCablingRcd, SiStripDCSStatusRcd, SiStripDetVOffRcd, RunInfoRcd, SiStripBadModuleDepRcd, SiStripBadModuleFedErrRcd > > {};
+class SiStripQualityRcd : public edm::eventsetup::DependentRecordImplementation<SiStripQualityRcd, boost::mpl::vector<SiStripBadModuleRcd, SiStripBadFiberRcd, SiStripBadChannelRcd, SiStripBadStripRcd, SiStripDetCablingRcd, SiStripDCSStatusRcd, SiStripDetVOffRcd, RunInfoRcd,  SiStripBadModuleFedErrRcd > > {};
 
 #endif 
 
