@@ -252,15 +252,17 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     int fedId = fed->first;
 
-    FEDRawData* rawData =  fed->second->formatFEDdata();
-    FEDRawData& fedRawData = fed_buffers->FEDData(fedId);
-    fedRawData = *rawData;
-    delete rawData;
+    // addressing comment by D. Lange
+    //FEDRawData* rawData =  fed->second->formatFEDdata();
+    //FEDRawData& fedRawData = fed_buffers->FEDData(fedId);
+    //fedRawData = *rawData;
+    //delete rawData;
+    fed->second->formatFEDdata(fed_buffers->FEDData(fedId));
 
-    FEDHeader hcalFEDHeader(fedRawData.data());
-    hcalFEDHeader.set(fedRawData.data(), 1, iEvent.id().event(), iEvent.bunchCrossing(), fedId);
-    FEDTrailer hcalFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
-    hcalFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), fedRawData.size()/8, evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
+    FEDHeader hcalFEDHeader(fed_buffers->FEDData(fedId).data());
+    hcalFEDHeader.set(fed_buffers->FEDData(fedId).data(), 1, iEvent.id().event(), iEvent.bunchCrossing(), fedId);
+    FEDTrailer hcalFEDTrailer(fed_buffers->FEDData(fedId).data()+(fed_buffers->FEDData(fedId).size()-8));
+    hcalFEDTrailer.set(fed_buffers->FEDData(fedId).data()+(fed_buffers->FEDData(fedId).size()-8), fed_buffers->FEDData(fedId).size()/8, evf::compute_crc(fed_buffers->FEDData(fedId).data(),fed_buffers->FEDData(fedId).size()), 0, 0);
 
   }// end loop over FEDs with data
 

@@ -206,11 +206,12 @@ public:
   };
 
   // does not include HEADER and TRAILER
-  FEDRawData* formatFEDdata(){
+  //FEDRawData* formatFEDdata(){ -- address comments by D. Lange
+  void formatFEDdata(FEDRawData& rawData){
 
     //std::vector<unsigned char> output;
     if( uhtrs.size() != AMCHeaders.size() ){
-      return NULL ;
+      return;
     }
 
     // put common data format header in fed container
@@ -244,15 +245,15 @@ public:
       fedData.push_back(0);
 
     // convert to the correct format
-    FEDRawData *rawData = new FEDRawData(fedData.size());
-    unsigned char* words = reinterpret_cast<unsigned char*>(rawData->data());
+    //FEDRawData *rawData = new FEDRawData(fedData.size());  -- addressing comment by D. Lange
+    rawData.resize(fedData.size());
+    unsigned char* words = reinterpret_cast<unsigned char*>(rawData.data());
 
     for( unsigned int i = 0 ; i < fedData.size() ; ++i ){
       *words = fedData[i];
       words++;
     }
-
-    return rawData; //output;
+    //return rawData; //output; -- addressing comment by D. Lange
 
   };
 
