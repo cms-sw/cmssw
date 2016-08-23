@@ -220,15 +220,16 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
 void
 HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
 {
-   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(frame.id());
+   HcalDetId detId(frame.id());
+   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
    assert(ids.size() == 1 || ids.size() == 2);
    IntegerCaloSamples samples1(ids[0], int(frame.samples()));
 
    samples1.setPresamples(frame.presamples());
    incoder_->adc2Linear(frame, samples1);
 
-   std::vector<bool> msb(frame.samples(), false);
-   // incoder_->lookupMSB(frame, msb);
+   std::vector<std::bitset<2>> msb(frame.samples(), 0);
+   incoder_->lookupMSB(frame, msb);
 
    if (abs(ids[0].ieta()) < first_he_tower and not upgrade_hb_) {
       edm::LogError("HCALTPAlgo") << "No upgrade hb but received " << ids[0] << " (" << ids.size() << ")";
@@ -245,10 +246,10 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
       }
       samples2.setPresamples(frame.presamples());
       addSignal(samples2);
-      addFG(ids[1], msb);
+      addUpgradeFG(ids[1], detId.depth(), msb);
    }
    addSignal(samples1);
-   addFG(ids[0], msb);
+   addUpgradeFG(ids[0], detId.depth(), msb);
 }
 
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
@@ -347,9 +348,61 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 
 
 void
-HcalTriggerPrimitiveAlgo::analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result)
+HcalTriggerPrimitiveAlgo::analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo)
 {
-   analyze(samples, result);
+   int shrink = weights_.size() - 1;
+   auto& msb = fgUpgradeMap_[samples.id()];
+   IntegerCaloSamples sum(samples.id(), samples.size());
+
+   //slide algo window
+   for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin) {
+      int algosumvalue = 0;
+      for(unsigned int i = 0; i < weights_.size(); i++) {
+         //add up value * scale factor
+         algosumvalue += int(samples[ibin+i] * weights_[i]);
+      }
+      if (algosumvalue<0) sum[ibin]=0;            // low-side
+                                                  //high-side
+      //else if (algosumvalue>0x3FF) sum[ibin]=0x3FF;
+      else sum[ibin] = algosumvalue;              //assign value to sum[]
+   }
+
+   // Align digis and TP
+   int dgPresamples=samples.presamples(); 
+   int tpPresamples=numberOfPresamples_;
+   int shift = dgPresamples - tpPresamples;
+   int dgSamples=samples.size();
+   int tpSamples=numberOfSamples_;
+
+   if((shift<shrink) || (shift + tpSamples + shrink > dgSamples - (peak_finder_algorithm_ - 1) )   ){
+      edm::LogInfo("HcalTriggerPrimitiveAlgo::analyze") << 
+         "TP presample or size from the configuration file is out of the accessible range. Using digi values from data instead...";
+      shift=shrink;
+      tpPresamples=dgPresamples-shrink;
+      tpSamples=dgSamples-(peak_finder_algorithm_-1)-shrink-shift;
+   }
+
+   std::vector<int> finegrain(tpSamples,false);
+
+   IntegerCaloSamples output(samples.id(), tpSamples);
+   output.setPresamples(tpPresamples);
+
+   for (int ibin = 0; ibin < tpSamples; ++ibin) {
+      // ibin - index for output TP
+      // idx - index for samples + shift
+      int idx = ibin + shift;
+      bool isPeak = (sum[idx] > sum[idx-1] && sum[idx] >= sum[idx+1] && sum[idx] > theThreshold);
+
+      if (isPeak){
+         output[ibin] = std::min<unsigned int>(sum[idx],0x3FF);
+         finegrain[ibin] = fg_algo.compute(msb[idx]);
+      } else {
+         // Not a peak
+         output[ibin] = 0;
+         finegrain[ibin] = 0;
+      }
+   }
+   outcoder_->compress(output, finegrain, result);
 }
 
 
@@ -623,6 +676,21 @@ void HcalTriggerPrimitiveAlgo::addFG(const HcalTrigTowerDetId& id, std::vector<b
          _msb[i] = _msb[i] || msb[i];
    }
    else fgMap_[id] = msb;
+}
+
+void
+HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits)
+{
+   auto it = fgUpgradeMap_.find(id);
+   if (it == fgUpgradeMap_.end()) {
+      FGUpgradeContainer element;
+      element.resize(bits.size());
+      it = fgUpgradeMap_.insert(std::make_pair(id, element)).first;
+   }
+   for (unsigned int i = 0; i < bits.size(); ++i) {
+      it->second[i][0][depth] = bits[i][0];
+      it->second[i][1][depth] = bits[i][1];
+   }
 }
 
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo){

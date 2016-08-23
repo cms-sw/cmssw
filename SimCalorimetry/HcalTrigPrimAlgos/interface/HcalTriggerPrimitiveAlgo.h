@@ -12,9 +12,11 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
 #include <map>
 #include <vector>
+
 class CaloGeometry;
 class IntegerCaloSamples;
 
@@ -84,11 +86,12 @@ public:
   void addSignal(const QIE11DataFrame& frame);
   void addSignal(const IntegerCaloSamples & samples);
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
+  void addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits);
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
   // Phase1: QIE11
-  void analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
+  void analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -176,6 +179,10 @@ public:
   typedef std::map<HcalTrigTowerDetId, std::vector<bool> > FGbitMap;
   FGbitMap fgMap_;
 
+  typedef std::vector<HcalFinegrainBit::Tower> FGUpgradeContainer;
+  typedef std::map<HcalTrigTowerDetId, FGUpgradeContainer> FGUpgradeMap;
+  FGUpgradeMap fgUpgradeMap_;
+
   bool upgrade_hb_ = false;
   bool upgrade_he_ = false;
   bool upgrade_hf_ = false;
@@ -201,11 +208,16 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    theTowerMapFGSum.clear();
    HF_Veto.clear();
    fgMap_.clear();
+   fgUpgradeMap_.clear();
    theHFDetailMap.clear();
    theHFUpgradeDetailMap.clear();
 
    // Add all digi collections
    addDigis(digis...);
+
+   // Prepare the fine-grain calculation algorithm for HB/HE
+   int version = 0;
+   HcalFinegrainBit fg_algo(version);
 
    // VME produces additional bits on the front used by lumi but not the
    // trigger, this shift corrects those out by right shifting over them.
@@ -226,9 +238,9 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
       }
       else {
          if (upgrade_he_ and abs(detId.ieta()) >= first_he_tower) {
-            analyzePhase1(mapItr->second, result.back());
+            analyzePhase1(mapItr->second, result.back(), fg_algo);
          } else if (upgrade_hb_ and detId.subdet() < first_he_tower) {
-            analyzePhase1(mapItr->second, result.back());
+            analyzePhase1(mapItr->second, result.back(), fg_algo);
          } else {
             analyze(mapItr->second, result.back());
          }
@@ -240,6 +252,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    theTowerMapFGSum.clear();
    HF_Veto.clear();
    fgMap_.clear();
+   fgUpgradeMap_.clear();
    theHFDetailMap.clear();
    theHFUpgradeDetailMap.clear();
 
