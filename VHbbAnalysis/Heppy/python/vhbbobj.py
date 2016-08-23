@@ -6,7 +6,7 @@ import ROOT
 from PhysicsTools.Heppy.analyzers.objects.autophobj import *
 from PhysicsTools.HeppyCore.utils.deltar import deltaPhi, deltaR
 from VHbbAnalysis.Heppy.signedSip import qualityTrk
-from VHbbAnalysis.Heppy.leptonMVA import ptRelv2
+from VHbbAnalysis.Heppy.leptonMVA import ptRelv2, jetLepAwareJEC
 
 import copy, os
 
@@ -49,7 +49,7 @@ leptonTypeVHbb = NTupleObjectType("leptonTypeVHbb", baseObjectTypes = [ leptonTy
     # TTH-id related variables
     NTupleVariable("mvaTTH",     lambda lepton : lepton.mvaValueTTH if hasattr(lepton,'mvaValueTTH') else -1, help="Lepton MVA (ttH version)"),
     NTupleVariable("jetOverlapIdx", lambda lepton : getattr(lepton, "jetOverlapIdx", -1), int, help="index of jet with overlapping PF constituents. If idx>=1000, then idx = idx-1000 and refers to discarded jets."),
-    NTupleVariable("jetPtRatio", lambda lepton : lepton.pt()/lepton.jet.pt() if hasattr(lepton,'jet') else -1, help="pt(lepton)/pt(nearest jet)"),
+    NTupleVariable("jetPtRatio", lambda lepton : lepton.pt()/jetLepAwareJEC(lepton).Pt() if hasattr(lepton,'jet') else -1, help="pt(lepton)/pt(nearest jet)"),
     NTupleVariable("jetBTagCSV", lambda lepton : lepton.jet.btag('pfCombinedInclusiveSecondaryVertexV2BJetTags') if hasattr(lepton,'jet') and hasattr(lepton.jet, 'btag') else -99, help="btag of nearest jet"),
     NTupleVariable("jetDR",      lambda lepton : deltaR(lepton.eta(),lepton.phi(),lepton.jet.eta(),lepton.jet.phi()) if hasattr(lepton,'jet') else -1, help="deltaR(lepton, nearest jet)"),
     NTupleVariable("mvaTTHjetPtRatio", lambda lepton : lepton.pt()/lepton.jet_leptonMVA.pt() if hasattr(lepton,'jet_leptonMVA') else -1, help="pt(lepton)/pt(nearest jet with pT > 25 GeV)"),
