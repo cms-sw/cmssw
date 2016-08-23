@@ -779,22 +779,43 @@ public:
   void write() {
     if (!writeJson) return;
     std::set<std::string> filesCreated;
-    for (const auto& runEvents : m_run_events) {
-      const int run = runEvents.first;
-      const std::vector<JsonEvent>& v_events = runEvents.second;
-      // Writing the output to a JSON file
-      std::ofstream out_file;
-      std::string output_name = output_filename_base(run)+=".json";
+    std::ofstream out_file;
+    if (m_run_events.size() > 0) {
+      // Creating a separate file for each run
+      for (const auto& runEvents : m_run_events) {
+        const int run = runEvents.first;
+        const std::vector<JsonEvent>& v_events = runEvents.second;
+        // Writing the output to a JSON file
+        std::string output_name = output_filename_base(run)+=".json";
+        out_file.open(output_name, std::ofstream::out);
+        out_file << '{'; // line open
+        out_file << configuration.serialise(1) << ',';
+        out_file << vars.serialise(1) << ',';
+        // writing block for each event
+        out_file << indent(1) << key("events") << '['; // line open
+        for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
+          out_file << (*it).serialise(2);
+          if (it != --v_events.end()) out_file << ',';
+        }
+        out_file << indent(1) << ']'; // line close
+        out_file << indent(0) << "}"; // line close
+        out_file.close();
+        // Adding file name to the list of created files
+        filesCreated.insert(output_name);
+      }
+    } else {
+      // Creating a single file containing with only configuration part
+      std::string output_name = output_filename_base(0)+=".json";
       out_file.open(output_name, std::ofstream::out);
       out_file << '{'; // line open
       out_file << configuration.serialise(1) << ',';
       out_file << vars.serialise(1) << ',';
       // writing block for each event
       out_file << indent(1) << key("events") << '['; // line open
-      for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
-        out_file << (*it).serialise(2);
-        if (it != --v_events.end()) out_file << ',';
-      }
+      // for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
+      //   out_file << (*it).serialise(2);
+      //   if (it != --v_events.end()) out_file << ',';
+      // }
       out_file << indent(1) << ']'; // line close
       out_file << indent(0) << "}"; // line close
       out_file.close();
@@ -802,9 +823,11 @@ public:
       filesCreated.insert(output_name);
     }
 
-    printf("Created the following JSON files:\n");
-    for (const std::string& filename : filesCreated)
-      printf(" %s\n", filename.c_str());
+    if (filesCreated.size() > 0) {
+      printf("Created the following JSON files:\n");
+      for (const std::string& filename : filesCreated)
+        printf(" %s\n", filename.c_str());
+    }
   }
 };
 size_t JsonOutputProducer::tab_spaces = 0;
@@ -979,6 +1002,12 @@ private:
       if (idSummary.second.keepForGL()) ++nModules_gl;
       if (idSummary.second.keepForC()) ++nModules_c;
     }
+    // Manually increasing N bins to have histograms with meaningful axis ranges
+    nTriggers = std::max(1, nTriggers);
+    nTriggers_gl = std::max(1, nTriggers_gl);
+    nTriggers_c = std::max(1, nTriggers_c);
+    nModules_c = std::max(1, nModules_c);
+    nModules_gl = std::max(1, nModules_gl);
 
     // Initialising overview histograms
     std::string name = "trigger_accepted";
@@ -1084,7 +1113,7 @@ private:
     // Storing histograms to a ROOT file
     std::string file_name = json.output_filename_base(this->run)+=".root";
     TFile* out_file = new TFile(file_name.c_str(), "RECREATE");
-    // Storing the histograms is a proper folder according to the DQM convention
+    // Storing the histograms in a proper folder according to the DQM convention
     char savePath[1000];
     sprintf(savePath, "DQMData/Run %d/HLT/Run summary/EventByEvent/", this->run);
     out_file->mkdir(savePath);
@@ -1133,28 +1162,41 @@ public:
   bool storeROOT;
   bool storeCSV;
 
-  SummaryOutputProducer(const JsonOutputProducer& _json, bool _storeROOT, bool _storeCSV=true):
+  SummaryOutputProducer(const JsonOutputProducer& _json, bool _storeROOT, bool _storeCSV):
     json(_json),
-    run(-1),
+    run(0),
     storeROOT(_storeROOT),
     storeCSV(_storeCSV) {}
 
   void write() {
     std::vector<std::string> filesCreated;
     // Processing every run from the JSON producer
-    for (const auto& runEvents : json.m_run_events) {
-      prepareSummaries(runEvents.first, runEvents.second);
-      if (storeROOT) 
+    if (json.m_run_events.size() > 0) {
+      for (const auto& runEvents : json.m_run_events) {
+        prepareSummaries(runEvents.first, runEvents.second);
+        if (storeROOT) {
+          filesCreated.push_back(writeHistograms());
+        }
+        if (storeCSV) {
+          filesCreated.push_back(writeCSV_trigger());
+          filesCreated.push_back(writeCSV_module());
+        }
+      }
+    } else {
+      if (storeROOT) {
         filesCreated.push_back(writeHistograms());
+      }
       if (storeCSV) {
         filesCreated.push_back(writeCSV_trigger());
         filesCreated.push_back(writeCSV_module());
       }
     }
 
-    printf("Created the following summary files:\n");
-    for (const std::string& filename : filesCreated)
-      printf(" %s\n", filename.c_str());
+    if (filesCreated.size() > 0) {
+      printf("Created the following summary files:\n");
+      for (const std::string& filename : filesCreated)
+        printf(" %s\n", filename.c_str());
+    }
   }
 
 };
