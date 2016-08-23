@@ -123,8 +123,9 @@ void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const ed
 
     if (doRhoCorrection_) {
       int iEA = -1;
+      auto cEta = std::abs(candRef->eta());
       for (int bIt = absEtaLowEdges_.size() - 1; bIt > -1; bIt--) {
-        if ( fabs(candRef->eta()) > absEtaLowEdges_.at(bIt) ) {
+        if ( cEta > absEtaLowEdges_.at(bIt) ) {
           iEA = bIt;
           break;
         }
