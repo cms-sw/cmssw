@@ -36,11 +36,20 @@ particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
 
 particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*particleBasedIsolationSequence)
 
+from RecoParticleFlow.PFProducer.HGCalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from Configuration.StandardSequences.Eras import eras
-_phase2_hgcal_simPFSequence = cms.Sequence(tpClusterProducer+quickTrackAssociatorByHits+simPFProducer)
-_phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence + particleFlowReco.copy() )
+HGCalTrackCollection.debug=cms.bool(True)
+tpClusterProducer.pixelSimLinkSrc     = cms.InputTag("simSiPixelDigis", "Pixel")
+tpClusterProducer.phase2OTSimLinkSrc  = cms.InputTag("simSiPixelDigis","Tracker")
+quickTrackAssociatorByHits.pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel")
+quickTrackAssociatorByHits.stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
+_phase2_hgcal_simPFSequence = cms.Sequence( HGCalTrackCollection + 
+                                            tpClusterProducer +
+                                            quickTrackAssociatorByHits +
+                                            simPFProducer )
+_phase2_hgcal_particleFlowReco = cms.Sequence( particleFlowReco.copy() + _phase2_hgcal_simPFSequence )
 
 eras.phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )

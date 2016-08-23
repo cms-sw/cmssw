@@ -64,6 +64,7 @@ private:
   const double superClusterThreshold_;
   
   // inputs
+  const edm::EDGetTokenT<edm::View<reco::PFRecTrack> > pfRecTracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > tracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > gsfTracks_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
@@ -88,6 +89,7 @@ namespace {
 
 SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
   superClusterThreshold_( conf.getParameter<double>("superClusterThreshold") ),
+  pfRecTracks_(consumes<edm::View<reco::PFRecTrack> >(conf.getParameter<edm::InputTag> ("pfRecTrackSrc"))),
   tracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
   gsfTracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
   trackingParticles_(consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>("trackingParticleSrc") ) ),
@@ -108,6 +110,16 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     associators.emplace_back();
     auto& back = associators.back();
     evt.getByToken(token,back);
+  }
+  
+  //get PFRecTrack
+  edm::Handle<edm::View<reco::PFRecTrack> > PFTrackCollectionH;
+  evt.getByToken(pfRecTracks_,PFTrackCollectionH);
+  const edm::View<reco::PFRecTrack> PFTrackCollection = *PFTrackCollectionH;
+  std::unordered_set<unsigned> PFTrackToGeneralTrack;
+  for( unsigned i = 0; i < PFTrackCollection.size(); ++i ) {
+    const auto ptr = PFTrackCollection.ptrAt(i);
+    PFTrackToGeneralTrack.insert(ptr->trackRef().key());
   }
   
   //get track collections
@@ -209,6 +221,12 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   // in good particle flow fashion, start from the tracks and go out
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     auto tkRef  = TrackCollection.refAt(itk);
+    if( PFTrackToGeneralTrack.count(itk) == 0  ) {
+      std::cout << "no matching PFRecTrack!" << std::endl;
+      continue; // skip tracks not selected by PF
+    } else {
+      std::cout << "got the PF rec track!" << std::endl;
+    }
     reco::RecoToSimCollection::const_iterator assoc_tps = associatedTracks.back().end();
     for( const auto& association : associatedTracks ) {
       assoc_tps = association.find(tkRef);
