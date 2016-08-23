@@ -1,5 +1,5 @@
-#ifndef RadDamTask_h
-#define RadDamTask_h
+#ifndef DQM_HcalTasks_HFRaddamTask_h
+#define DQM_HcalTasks_HFRaddamTask_h
 
 /*
  *	file:			RadDamTask.h
@@ -15,12 +15,11 @@
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle1D.h"
 
-using namespace hcaldqm;
-class RadDamTask : public DQTask
+class HFRaddamTask : public hcaldqm::DQTask
 {
 	public:
-		RadDamTask(edm::ParameterSet const&);
-		virtual ~RadDamTask()
+		HFRaddamTask(edm::ParameterSet const&);
+		virtual ~HFRaddamTask()
 		{}
 
 		virtual void bookHistograms(DQMStore::IBooker&,
@@ -33,7 +32,9 @@ class RadDamTask : public DQTask
 
 		//	Tags and Tokens
 		edm::InputTag	_tagHF;
+		edm::InputTag   _taguMN;
 		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
 		//	vector of Detector Ids for RadDam
 		std::vector<HcalDetId>	_vDetIds;
@@ -43,7 +44,7 @@ class RadDamTask : public DQTask
 		//	Compact
 
 		//	1D
-		std::vector<ContainerSingle1D> _vcShape;
+		std::vector<hcaldqm::ContainerSingle1D> _vcShape;
 };
 
 #endif

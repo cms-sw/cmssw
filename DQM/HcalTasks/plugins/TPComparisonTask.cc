@@ -2,6 +2,7 @@
 #include "DQM/HcalTasks/interface/TPComparisonTask.h"
 
 using namespace hcaldqm;
+using namespace hcaldqm::constants;
 TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -28,86 +29,86 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 	edm::ESHandle<HcalElectronicsMap> item;
 	es.get<HcalElectronicsMapRcd>().get("full", item);
 	_emap = item.product();
-	std::vector<int> vFEDs = utilities::getFEDList(_emap);
-	std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);
-	std::vector<int> vFEDsuTCA = utilities::getFEDuTCAList(_emap);
+	std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
+	std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
+	std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
 	std::vector<uint32_t> vhashVME;
 	std::vector<uint32_t> vhashuTCA;
 	vhashVME.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
 		constants::FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
 	vhashuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-	_filter_VME.initialize(filter::fFilter, hashfunctions::fElectronics,
+	_filter_VME.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vhashVME);
-	_filter_uTCA.initialize(filter::fFilter, hashfunctions::fElectronics,
+	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vhashuTCA);
 
 	//	INTIALIZE CONTAINERS
 	for (unsigned int i=0; i<4; i++)
 	{
 		_cEt_TTSubdet[i].initialize(_name, "Et",
-			hashfunctions::fTTSubdet,
-			new quantity::ValueQuantity(quantity::fEtCorr_256),
-			new quantity::ValueQuantity(quantity::fEtCorr_256),
-			new quantity::ValueQuantity(quantity::fN, true));
+			hcaldqm::hashfunctions::fTTSubdet,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 		_cFG_TTSubdet[i].initialize(_name, "FG",
-			hashfunctions::fTTSubdet,
-			new quantity::ValueQuantity(quantity::fFG),
-			new quantity::ValueQuantity(quantity::fFG),
-			new quantity::ValueQuantity(quantity::fN, true));
+			hcaldqm::hashfunctions::fTTSubdet,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	}
 	_cEtall_TTSubdet.initialize(_name, "Et",
-		hashfunctions::fTTSubdet,
-		new quantity::ValueQuantity(quantity::fEtCorr_256),
-		new quantity::ValueQuantity(quantity::fEtCorr_256),
-		new quantity::ValueQuantity(quantity::fN, true));
+		hcaldqm::hashfunctions::fTTSubdet,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cMsn_FEDVME.initialize(_name, "Missing",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fSLBSLBCh),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cMsn_FEDuTCA.initialize(_name, "Missing",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCATPFiberChuTCATP),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cEtMsm_FEDVME.initialize(_name, "EtMsm",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fSLBSLBCh),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cEtMsm_FEDuTCA.initialize(_name, "EtMsm",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCATPFiberChuTCATP),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cFGMsm_FEDVME.initialize(_name, "FGMsm",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fSLBSLBCh),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cFGMsm_FEDuTCA.initialize(_name, "FGMsm",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCATPFiberChuTCATP),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 
 	_cMsnuTCA.initialize(_name, "Missing", 
-		new quantity::TrigTowerQuantity(quantity::fTTieta),
-		new quantity::TrigTowerQuantity(quantity::fTTiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cMsnVME.initialize(_name, "Missing",
-		new quantity::TrigTowerQuantity(quantity::fTTieta),
-		new quantity::TrigTowerQuantity(quantity::fTTiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cEtMsm.initialize(_name, "EtMsm",
-		new quantity::TrigTowerQuantity(quantity::fTTieta),
-		new quantity::TrigTowerQuantity(quantity::fTTiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cFGMsm.initialize(_name, "FGMsm",
-		new quantity::TrigTowerQuantity(quantity::fTTieta),
-		new quantity::TrigTowerQuantity(quantity::fTTiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 
 	char aux[20];
 	for (unsigned int i=0; i<4; i++)
@@ -139,7 +140,7 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 //	_cFGMsm_depth.book(ib);
 }
 
-/* virtual */ void TPComparisonTask::_resetMonitors(UpdateFreq uf)
+/* virtual */ void TPComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf)
 {
 	DQTask::_resetMonitors(uf);
 }
