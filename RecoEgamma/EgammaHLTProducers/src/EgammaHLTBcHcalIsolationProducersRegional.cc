@@ -148,8 +148,9 @@ void EgammaHLTBcHcalIsolationProducersRegional::produce(edm::Event& iEvent, cons
 
     if (doRhoCorrection_) {
       int iEA = -1;
+      auto scEta = std::abs(recoEcalCandRef->superCluster()->eta());
       for (int bIt = absEtaLowEdges_.size() - 1; bIt > -1; bIt--) {
-        if ( fabs(recoEcalCandRef->superCluster()->eta()) > absEtaLowEdges_.at(bIt) ) {
+        if ( scEta  > absEtaLowEdges_.at(bIt) ) {
           iEA = bIt;
           break;
         }
