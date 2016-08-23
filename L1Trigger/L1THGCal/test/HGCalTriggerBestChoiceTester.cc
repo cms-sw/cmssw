@@ -347,14 +347,14 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
     for(const auto& eedata : ee_digis)
     {
         const auto& module = triggerGeometry_->getModuleFromCell(eedata.id());
-        auto itr_insert = hit_modules_ee.insert(std::make_pair(module->moduleId(),std::vector<HGCEEDataFrame>()));
+        auto itr_insert = hit_modules_ee.emplace(module->moduleId(),std::vector<HGCEEDataFrame>());
         itr_insert.first->second.push_back(eedata);
     }
     std::unordered_map<uint32_t,std::vector<HGCHEDataFrame>> hit_modules_fh;
     for(const auto& fhdata : fh_digis)
     {
         const auto& module = triggerGeometry_->getModuleFromCell(fhdata.id());
-        auto itr_insert = hit_modules_fh.insert(std::make_pair(module->moduleId(), std::vector<HGCHEDataFrame>()));
+        auto itr_insert = hit_modules_fh.emplace(module->moduleId(), std::vector<HGCHEDataFrame>());
         itr_insert.first->second.push_back(fhdata);
     }
     // loop on modules containing hits and call front-end processing

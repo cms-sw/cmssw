@@ -102,13 +102,13 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   std::unordered_map<uint32_t, HGCEEDigiCollection> hit_modules_ee;
   for(const auto& eedata : ee_digis) {
     const auto& module = triggerGeometry_->getModuleFromCell(eedata.id());
-    auto itr_insert = hit_modules_ee.insert(std::make_pair(module->moduleId(),HGCEEDigiCollection()));
+    auto itr_insert = hit_modules_ee.emplace(module->moduleId(),HGCEEDigiCollection());
     itr_insert.first->second.push_back(eedata);
   }
   std::unordered_map<uint32_t,HGCHEDigiCollection> hit_modules_fh;
   for(const auto& fhdata : fh_digis) {
     const auto& module = triggerGeometry_->getModuleFromCell(fhdata.id());
-    auto itr_insert = hit_modules_fh.insert(std::make_pair(module->moduleId(), HGCHEDigiCollection()));
+    auto itr_insert = hit_modules_fh.emplace(module->moduleId(), HGCHEDigiCollection());
     itr_insert.first->second.push_back(fhdata);
   }
   // loop on modules containing hits and call front-end processing
