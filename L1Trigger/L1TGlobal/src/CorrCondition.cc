@@ -419,7 +419,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		int ssize = m_gtScales->getMUScales().etBins.size();
 		if (etIndex0 >= ssize){ 
 		  etIndex0 = ssize-1; 			  
-		  edm::LogWarning("L1TGlobal") 
+		  LogDebug("L1TGlobal") 
 		    << "muon0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
 		} 
 		
@@ -452,7 +452,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    int ssize = m_gtScales->getEGScales().etBins.size();
 		    if (etIndex0 >= ssize){ 
 		      etIndex0 = ssize-1; 			  
-		      edm::LogWarning("L1TGlobal") 
+		      LogDebug("L1TGlobal") 
 			<< "EG0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
 		    } 
 	    
@@ -477,8 +477,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		    int ssize = m_gtScales->getJETScales().etBins.size();
 		    if (etIndex0 >= ssize){ 
-		      //edm::LogWarning("L1TGlobal") 
-		      //<< "jet0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+		      LogDebug("L1TGlobal") 
+		        << "jet0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
 		      etIndex0 = ssize-1; 			  
 		    } 
 		    
@@ -502,9 +502,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		    int ssize = m_gtScales->getTAUScales().etBins.size();
 		    if (etIndex0 >= ssize){ 		      
-		      etIndex0 = ssize-1; 			  
-		      edm::LogWarning("L1TGlobal") 
+		      LogDebug("L1TGlobal") 
 			<< "tau0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+		      etIndex0 = ssize-1; 			  
 		    } 
 
 		    
@@ -565,7 +565,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  lutObj0 = "HTT";
 		  break;
 		case gtETM2:
-		  type = l1t::EtSum::EtSumType::kMissingEt2;//type = l1t::EtSum::EtSumType::kMissingEt2;
+		  type = l1t::EtSum::EtSumType::kMissingEtHF;//type = l1t::EtSum::EtSumType::kMissingEtHF;
 		  lutObj0 = "ETM2";
 		  break;
 		case gtMinBiasHFP0:
@@ -702,7 +702,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		   int ssize = m_gtScales->getMUScales().etBins.size();
 		   if (etIndex1 >= ssize){ 
-		     edm::LogWarning("L1TGlobal") 
+		     LogDebug("L1TGlobal") 
 		       << "muon2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
 		     etIndex1 = ssize-1;   
 		   } 
@@ -729,7 +729,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 			int ssize = m_gtScales->getEGScales().etBins.size();
 			if (etIndex1 >= ssize){ 
-			  edm::LogWarning("L1TGlobal") 
+			  LogDebug("L1TGlobal") 
 			    << "EG1 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
 			  etIndex1 = ssize-1; 			  
 			} 
@@ -755,8 +755,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			int ssize = m_gtScales->getJETScales().etBins.size();
 			assert(ssize);
 			if (etIndex1 >= ssize){ 			  
-			  //edm::LogWarning("L1TGlobal") 
-			  //<< "jet2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
+			  LogDebug("L1TGlobal") 
+			   << "jet2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
 			  etIndex1 = ssize-1; 			  
 			} 
 
@@ -765,7 +765,6 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
 			binEdges = m_gtScales->getJETScales().etaBins.at(etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-			//CRASHES HERE:
 			binEdges = m_gtScales->getJETScales().etBins.at(etIndex1);
 			et1Phy = 0.5*(binEdges.second + binEdges.first);
 			lutObj1 = "JET";
@@ -781,7 +780,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 			int ssize = m_gtScales->getTAUScales().etBins.size();
 			if (etIndex1 >= ssize){ 
-			  edm::LogWarning("L1TGlobal") 
+			  LogDebug("L1TGlobal")
 			    << "tau2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
 			  etIndex1 = ssize-1; 			  
 			} 
@@ -846,7 +845,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		     lutObj1 = "HTT";
 		     break;
 		   case gtETM2:
-		     type = l1t::EtSum::EtSumType::kMissingEt2;
+		     type = l1t::EtSum::EtSumType::kMissingEtHF;
 		     lutObj1 = "ETM2";
 		     break;
 		   case gtMinBiasHFP0:
