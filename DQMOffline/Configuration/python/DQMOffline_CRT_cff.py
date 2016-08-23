@@ -4,7 +4,6 @@ from Configuration.StandardSequences.Eras import eras
 siStripCertificationInfo = cms.EDAnalyzer("SiStripCertificationInfo")
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
 from DQM.EcalMonitorClient.EcalCertification_cfi import *
-from DQM.HcalMonitorClient.HcalDataCertification_cfi import *
 from DQM.DTMonitorClient.dtDQMOfflineCertification_cff import *
 from DQM.RPCMonitorClient.RPCDataCertification_cfi import *
 from DQM.CSCMonitorModule.csc_certification_info_cfi import *
@@ -18,7 +17,6 @@ from DQMOffline.Trigger.DQMOffline_Trigger_Cert_cff import *
 crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
                                sipixelCertification *
                                ecalCertification *
-                               hcalDataCertification *
                                dtCertificationSummary *
                                rpcDataCertification *
                                cscCertificationInfo *
