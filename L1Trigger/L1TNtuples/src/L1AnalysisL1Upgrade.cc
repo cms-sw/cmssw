@@ -42,6 +42,14 @@ void L1Analysis::L1AnalysisL1Upgrade::SetTau(const edm::Handle<l1t::TauBxCollect
 	l1upgrade_.tauIPhi.push_back(it->hwPhi());
 	l1upgrade_.tauIso.push_back(it->hwIso());
 	l1upgrade_.tauBx .push_back(ibx);
+	l1upgrade_.tauTowerIPhi.push_back(it->towerIPhi());
+	l1upgrade_.tauTowerIEta.push_back(it->towerIEta());
+	l1upgrade_.tauRawEt.push_back(it->rawEt());
+	l1upgrade_.tauIsoEt.push_back(it->isoEt());
+	l1upgrade_.tauNTT.push_back(it->nTT());
+	l1upgrade_.tauHasEM.push_back(it->hasEM());
+	l1upgrade_.tauIsMerged.push_back(it->isMerged());
+	l1upgrade_.tauHwQual.push_back(it->hwQual());
 	l1upgrade_.nTaus++;
       }
     }
@@ -61,6 +69,15 @@ void L1Analysis::L1AnalysisL1Upgrade::SetJet(const edm::Handle<l1t::JetBxCollect
 	l1upgrade_.jetIEta.push_back(it->hwEta());
 	l1upgrade_.jetIPhi.push_back(it->hwPhi());
 	l1upgrade_.jetBx .push_back(ibx);
+	l1upgrade_.jetRawEt.push_back(it->rawEt());
+	l1upgrade_.jetSeedEt.push_back(it->seedEt());
+	l1upgrade_.jetTowerIEta.push_back(it->towerIEta());
+	l1upgrade_.jetTowerIPhi.push_back(it->towerIPhi());
+	l1upgrade_.jetPUEt.push_back(it->puEt());
+	l1upgrade_.jetPUDonutEt0.push_back(it->puDonutEt(0));
+	l1upgrade_.jetPUDonutEt1.push_back(it->puDonutEt(1));
+	l1upgrade_.jetPUDonutEt2.push_back(it->puDonutEt(2));
+	l1upgrade_.jetPUDonutEt3.push_back(it->puDonutEt(3));
 	l1upgrade_.nJets++;
       }
     }
