@@ -252,11 +252,6 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     int fedId = fed->first;
 
-    // addressing comment by D. Lange
-    //FEDRawData* rawData =  fed->second->formatFEDdata();
-    //FEDRawData& fedRawData = fed_buffers->FEDData(fedId);
-    //fedRawData = *rawData;
-    //delete rawData;
     fed->second->formatFEDdata(fed_buffers->FEDData(fedId));
 
     FEDHeader hcalFEDHeader(fed_buffers->FEDData(fedId).data());

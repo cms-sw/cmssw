@@ -206,7 +206,6 @@ public:
   };
 
   // does not include HEADER and TRAILER
-  //FEDRawData* formatFEDdata(){ -- address comments by D. Lange
   void formatFEDdata(FEDRawData& rawData){
 
     //std::vector<unsigned char> output;
@@ -245,7 +244,6 @@ public:
       fedData.push_back(0);
 
     // convert to the correct format
-    //FEDRawData *rawData = new FEDRawData(fedData.size());  -- addressing comment by D. Lange
     rawData.resize(fedData.size());
     unsigned char* words = reinterpret_cast<unsigned char*>(rawData.data());
 
@@ -253,7 +251,6 @@ public:
       *words = fedData[i];
       words++;
     }
-    //return rawData; //output; -- addressing comment by D. Lange
 
   };
 
