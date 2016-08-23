@@ -55,7 +55,7 @@ hbheprereco = cms.EDProducer(
         correctionPhaseNS = cms.double(6.0),
 
         # Use "Method 2"? Change this to True when implemented.
-        useM2 = cms.bool(False),
+        useM2 = cms.bool(True),
         # Use "Method 3"? Change this to True when implemented.
         useM3 = cms.bool(False)
     ),
