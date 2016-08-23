@@ -115,7 +115,7 @@ namespace ecaldqm
       // Initialize individual Quality Summaries
       // NOTE: These represent quality over *cumulative* statistics
       int integrity(sIntegrity ? sIntegrity->getBinContent(id) : kUnknown);
-      if(integrity == kUnknown || integrity == kMUnknown){
+      if(integrity == kMUnknown){
         qItr->setBinContent(integrity);
         if ( onlineMode_ ) continue;
       }
