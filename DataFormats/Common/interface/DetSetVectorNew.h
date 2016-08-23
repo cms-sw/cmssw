@@ -299,7 +299,7 @@ namespace edmNew {
         bool expected=false;
         while (!m_v.m_filling.compare_exchange_weak(expected,true))  { expected=false; nanosleep(0,0);}
         int offset = m_v.m_data.size();
-        if (m_v.onDemand() && m_v.m_data.capacity()<offset+m_lv.size()) {
+        if (m_v.onDemand() && full()) {
           m_v.m_filling = false;
           dstvdetails::throwCapacityExausted();
         }
@@ -313,6 +313,11 @@ namespace edmNew {
       
 #endif
       
+     bool full() const {
+        int offset = m_v.m_data.size();
+        return m_v.m_data.capacity()<offset+m_lv.size();
+     }
+
       void abort() {
         m_lv.clear();
       }
