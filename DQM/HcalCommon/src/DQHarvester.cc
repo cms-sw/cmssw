@@ -13,7 +13,7 @@ namespace hcaldqm
 			if (r.runAuxiliary().run()==1)
 				return;
 
-		//	TEMPORARY FIX
+		//      TEMPORARY FIX
 		_vhashFEDs.clear(); _vcdaqEids.clear();
 
 		//	- get the Hcal Electronics Map
@@ -25,6 +25,20 @@ namespace hcaldqm
 		_vFEDs = utilities::getFEDList(_emap);
 		for (std::vector<int>::const_iterator it=_vFEDs.begin();
 			it!=_vFEDs.end(); ++it)
+		{
+			//
+			//	FIXME
+			//	until there exists a map of FED2Crate and Crate2FED,
+			//	all the unknown Crates will be mapped to 0...
+			//
+			if (*it==0)
+			{
+				_vhashFEDs.push_back(HcalElectronicsId(
+					0, SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
+					FIBERCH_MIN, false).rawId());
+				continue;
+			}
+	
 			if (*it>FED_VME_MAX)
 				_vhashFEDs.push_back(HcalElectronicsId(
 					utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
@@ -32,6 +46,7 @@ namespace hcaldqm
 			else
 				_vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN,
 					FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
+		}
 
 		//	get the FEDs registered at cDAQ
 		edm::eventsetup::EventSetupRecordKey recordKey(
