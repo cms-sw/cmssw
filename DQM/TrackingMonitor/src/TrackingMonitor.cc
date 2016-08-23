@@ -438,7 +438,6 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices",2);
 
-       int GoodPVtxBin      = conf_.getParameter<int>("GoodPVtxBin");
        double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
        double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
        
