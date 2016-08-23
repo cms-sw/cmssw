@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 
 ### STEP 0 ###
 
@@ -70,6 +71,7 @@ initialStepTrajectoryFilterBase = _initialStepTrajectoryFilterBase.clone(
     maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
+_tracker_apv_vfp30_2016.toModify(initialStepTrajectoryFilterBase, maxCCCLostHits = 2)
 initialStepTrajectoryFilterInOut = initialStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 4,
     seedExtension = 1,
@@ -101,6 +103,9 @@ initialStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_c
     MaxChi2 = cms.double(30.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = cms.double(15.)
+)
+_tracker_apv_vfp30_2016.toModify(initialStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
 )
 eras.trackingPhase1PU70.toModify(initialStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutNone'),

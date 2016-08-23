@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ###############################################
@@ -68,6 +69,7 @@ detachedTripletStepTrajectoryFilterBase = _detachedTripletStepTrajectoryFilterBa
     maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
+_tracker_apv_vfp30_2016.toModify(detachedTripletStepTrajectoryFilterBase, maxCCCLostHits = 2)
 eras.trackingLowPU.toReplaceWith(detachedTripletStepTrajectoryFilterBase, _detachedTripletStepTrajectoryFilterBase.clone(
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.701,
@@ -89,6 +91,9 @@ detachedTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEst
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+)
+_tracker_apv_vfp30_2016.toModify(detachedTripletStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
 )
 
 # TRACK BUILDING

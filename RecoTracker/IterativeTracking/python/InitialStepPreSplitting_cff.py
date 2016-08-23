@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 
 ### STEP 0 ###
 
@@ -73,6 +74,7 @@ initialStepTrajectoryFilterBasePreSplitting = TrackingTools.TrajectoryFiltering.
     maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
     )
+_tracker_apv_vfp30_2016.toModify(initialStepTrajectoryFilterBasePreSplitting, maxCCCLostHits = 2)
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 initialStepTrajectoryFilterShapePreSplitting = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
 initialStepTrajectoryFilterPreSplitting = cms.PSet(
@@ -89,6 +91,9 @@ initialStepChi2EstPreSplitting = RecoTracker.MeasurementDet.Chi2ChargeMeasuremen
     MaxChi2 = cms.double(30.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = cms.double(15.)
+)
+_tracker_apv_vfp30_2016.toModify(initialStepChi2EstPreSplitting,
+    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
 )
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi

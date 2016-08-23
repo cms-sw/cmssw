@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 # NEW CLUSTERS (remove previously used clusters)
@@ -120,6 +121,7 @@ pixelPairStepTrajectoryFilterBase = _pixelPairStepTrajectoryFilterBase.clone(
     maxCCCLostHits = 0,
     minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose'))
 )
+_tracker_apv_vfp30_2016.toModify(pixelPairStepTrajectoryFilterBase, maxCCCLostHits = 2)
 eras.trackingLowPU.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase)
 eras.trackingPhase1PU70.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairStepTrajectoryFilterBase.clone(
     maxLostHitsFraction = 1./10.,
@@ -148,6 +150,9 @@ pixelPairStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     MaxChi2 = cms.double(9.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),
     pTChargeCutThreshold = cms.double(15.)
+)
+_tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
+    clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutTiny")
 )
 eras.trackingLowPU.toModify(pixelPairStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
