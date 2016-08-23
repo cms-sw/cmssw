@@ -53,7 +53,7 @@ Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescripti
 
   auto desc = chi2MeasurementEstimatorParams::getFilledConfigurationDescription();
   desc.add<std::string>("ComponentName","Chi2");
-  descriptions.add("Chi2MeasurementEstimator", desc);
+  descriptions.add("Chi2MeasurementEstimatorDefault", desc);
 }
 
 
