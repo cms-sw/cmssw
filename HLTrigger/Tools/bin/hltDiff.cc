@@ -456,6 +456,10 @@ struct TriggerDiff {
 
     return std::string(buffer + digit);
   }
+
+  unsigned int total() const {
+    return this->gained + this->lost + this->internal;
+  }
 };
 
 std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
@@ -1234,6 +1238,7 @@ public:
   std::string               output_file;
   bool                      file_check;
   bool                      debug;
+  bool                      quiet;
   unsigned int              verbose;
 
   HltDiff() :
@@ -1249,6 +1254,7 @@ public:
     output_file(""),
     file_check(false),
     debug(false),
+    quiet(false),
     verbose(0) {}
 
   void compare() const {
@@ -1399,7 +1405,7 @@ public:
         State new_state = prescaled_state(new_results->state(new_index), p, new_results->index(new_index), * new_config);
 
         if (old_state == Pass) {
-          ++differences[p].count;
+          ++differences.at(p).count;
         }
         if (old_state == Pass)
           ++json.vars.trigger_passed_count.at(p).first;
@@ -1409,13 +1415,13 @@ public:
         bool trigger_affected = false;
         if (not ignore_prescales or (old_state != Prescaled and new_state != Prescaled)) {
           if (old_state == Pass and new_state != Pass) {
-            ++differences[p].lost;
+            ++differences.at(p).lost;
             trigger_affected = true;
           } else if (old_state != Pass and new_state == Pass) {
-            ++differences[p].gained;
+            ++differences.at(p).gained;
             trigger_affected = true;
           } else if (old_results->index(old_index) != new_results->index(new_index)) {
-            ++differences[p].internal;
+            ++differences.at(p).internal;
             trigger_affected = true;
           }
         }
@@ -1499,6 +1505,17 @@ public:
         std::cout << ", " << skipped << " events were skipped";
       std::cout << "\n" << std::endl;
     }
+    // Printing the summary of affected triggers with affected-event counts
+    if (!quiet) {
+      bool summaryHeaderPrinted = false;
+      for (size_t p = 0; p < old_config->size(); ++p) {
+        if (differences.at(p).total() < 1) continue;
+        if (!summaryHeaderPrinted)
+          std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
+        std::cout << std::setw(12) << counter << differences.at(p) << "  " << old_config->triggerName(p) << std::endl;
+        summaryHeaderPrinted = true;
+      }
+    }
 
     // writing all the required output
     json.write();   // to JSON file for interactive visualisation
@@ -1511,8 +1528,8 @@ public:
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
                [-m|--max-events MAXEVENTS] [-p|--prescales] [-c|--csv-output] [-j|--json-output]\n\
-               [-r|--root-output] [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
-               [-F|--output-file] FILE_NAME\n\
+               [-r|--root-output] [-f|--file-check] [-d|--debug] [-q|--quiet] [-v|--verbose]\n\
+               [-h|--help] [-F|--output-file] FILE_NAME\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results\n\
@@ -1557,6 +1574,9 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
   -d|--debug\n\
       display messages about missing events and collectiions\n\
 \n\
+  -q|--quiet\n\
+      don't display summary printout with the list of affected trigger paths\n\
+\n\
   -v|--verbose LEVEL\n\
       set verbosity level:\n\
       1: event-by-event comparison results\n\
@@ -1573,7 +1593,7 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "dfo:O:n:N:m:pcjrF:v::h";
+  const char optstring[] = "dfo:O:n:N:m:pcjrF:v::hq";
   const option longopts[] = {
     option{ "debug",        no_argument,        nullptr, 'd' },
     option{ "file-check",   no_argument,        nullptr, 'f' },
@@ -1589,6 +1609,7 @@ int main(int argc, char ** argv) {
     option{ "output-file",  optional_argument,  nullptr, 'F' },
     option{ "verbose",      optional_argument,  nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
+    option{ "quiet",        no_argument,        nullptr, 'q' },
   };
 
   // Creating an HltDiff object with the default configuration
@@ -1672,6 +1693,10 @@ int main(int argc, char ** argv) {
       case 'h':
         hlt->usage(std::cerr);
         exit(0);
+        break;
+
+      case 'q':
+        hlt->quiet = true;
         break;
 
       default:
