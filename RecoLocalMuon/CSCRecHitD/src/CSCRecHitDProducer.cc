@@ -79,14 +79,34 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
 
 }
 
-/*void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
    edm::ParameterSetDescription desc;
+   desc.add<double>("CSCStripPeakThreshold",10.0);
+   desc.add<double>("CSCStripClusterChargeCut",25.0);
+   desc.add<double>("CSCStripxtalksOffset",0.03);
+   desc.add<bool>("UseAverageTime",false);
+   desc.add<bool>("UseParabolaFit",false);
+   desc.add<bool>("UseFivePoleFit",true);
+   desc.add<int>("CSCWireClusterDeltaT",1);
+   desc.add<bool>("CSCUseCalibrations",true);
+   desc.add<bool>("CSCUseStaticPedestals",false);
+   desc.add<int>("CSCNoOfTimeBinsForDynamicPedestal",2);
+   desc.add<edm::InputTag>("wireDigiTag",edm::InputTag("muonCSCDigis","MuonCSCWireDigi"));
+   desc.add<edm::InputTag>("stripDigiTag",edm::InputTag("muonCSCDigis","MuonCSCStripDigi"));
+   desc.add<bool>("readBadChannels",true);
+   desc.add<bool>("readBadChambers",true);
+   desc.add<bool>("CSCUseTimingCorrections",true);
+   desc.add<bool>("CSCUseGasGainCorrections",true);
+   desc.add<bool>("CSCDebug",false);
+   desc.add<int>("CSCstripWireDeltaTime",8);
+   desc.add<int>("CSCStripClusterSize",3); 
+
    desc.add<bool>("CSCUseReducedWireTimeWindow", false);
    desc.add<int>("CSCWireTimeWindowLow", 0);
    desc.add<int>("CSCWireTimeWindowHigh", 15);
    descriptions.add("configWireTimeWindow", desc);
 }
-*/
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(CSCRecHitDProducer);
 

@@ -35,7 +35,7 @@ public:
 
   virtual void produce( edm::Event&, const edm::EventSetup& );
 
-//  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
 

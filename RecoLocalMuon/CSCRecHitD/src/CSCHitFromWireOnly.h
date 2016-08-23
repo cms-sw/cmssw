@@ -57,8 +57,6 @@ class CSCHitFromWireOnly
   bool addToCluster(const CSCWireDigi& digi); 
   float findWireHitPosition();
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
   CSCDetId id_;    
   const CSCLayer * layer_;
   const CSCLayerGeometry * layergeom_;
