@@ -453,7 +453,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
 
   std::map<uint32_t,double>                 map_hits, map_hitn;
-  std::map<int,double>                      map_hitLayer;
+  std::map<int,double>                      map_hitLayer, map_hitDepth;
   std::map<int,std::pair<uint32_t,double> > map_hitCell;
   double                                    entot(0);
   for (unsigned int i=0; i<hits.size(); i++) {
@@ -464,6 +464,13 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     int      subdet, zside, layer, sector, subsector, cell;
     HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector,
 					   subsector, cell);
+    int    depth       = hgcons_[type]->simToReco(cell,layer,sector,true).second;
+#ifdef DebugLog
+    std::cout << "SimHit:Hit[" << i << "] Id " << subdet << ":" << zside << ":"
+	      << layer << ":" << sector << ":" << subsector << ":" << cell 
+	      << ":" << depth << " Energy " << energy << " Time " << time
+	      << std::endl;
+#endif
     if (map_hits.count(id) != 0) {
       map_hits[id] += energy;
     } else {
@@ -474,17 +481,21 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
     } else {
       map_hitLayer[layer]  = energy;
     }
-    if ((layer-1)%6 != 2 && (layer-1)%6 != 3) {
+    if (depth >= 0) {
       if (map_hitCell.count(cell) != 0) {
 	double ee         = energy + map_hitCell[cell].second;
 	map_hitCell[cell] = std::pair<uint32_t,double>(id,ee);
       } else {
 	map_hitCell[cell] = std::pair<uint32_t,double>(id,energy);
       }
-      int      layn = (layer-((layer-1)%3))/3 + 1;
-      uint32_t idn  = HGCalTestNumbering::packHexagonIndex(subdet, zside, layn,
-							   sector, subsector,
-							   cell);
+      if (map_hitDepth.count(depth) != 0) {
+	map_hitDepth[depth] += energy;
+      } else {
+	map_hitDepth[depth]  = energy;
+      }
+      uint32_t idn  = HGCalTestNumbering::packHexagonIndex(subdet, zside, 
+							   depth, sector, 
+							   subsector, cell);
       if (map_hitn.count(idn) != 0) {
 	map_hitn[idn] += energy;
       } else {
@@ -522,26 +533,24 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
 	hSimHitLayEn1H_[layer-1]->Fill(energy);
       }
     }
-    if ((layer-1)%6 == 0 || (layer-1)%6 == 4) {
-      for (std::map<int,double>::iterator itr1 = map_hitLayer.begin(); 
-	   itr1 != map_hitLayer.end(); ++itr1) {
-	if (itr1->first == (layer+1)) {
-	  energy += (itr1->second);
-	  break;
-	}
+  }
+  for (std::map<int,double>::iterator itr = map_hitDepth.begin(); 
+       itr != map_hitDepth.end(); ++itr)   {
+    int    layer      = itr->first;
+    double energy     = itr->second;
+#ifdef DebugLog
+    std::cout << "SimHit:Layer " << layer << " " << energy << std::endl;
+#endif
+    hSimHitLng1_[type]->Fill(layer,energy);
+    if (type == 0) {
+      if (layer<(int)(hSimHitLayEn2E_.size())) {
+	simHitLayEn2E[layer] = energy;
+	hSimHitLayEn2E_[layer]->Fill(energy);
       }
-      hSimHitLng1_[type]->Fill(layer,energy);
-      int    ll = (layer-1)/3;
-      if (type == 0) {
-	if (ll<(int)(hSimHitLayEn2E_.size())) {
-	  simHitLayEn2E[ll] = energy;
-	  hSimHitLayEn2E_[ll]->Fill(energy);
-	}
-      } else {
-	if (ll<(int)(hSimHitLayEn2H_.size())) {
-	  simHitLayEn2H[ll] = energy;
-	  hSimHitLayEn2H_[ll]->Fill(energy);
-	}
+    } else {
+      if (layer<(int)(hSimHitLayEn2H_.size())) {
+	simHitLayEn2H[layer] = energy;
+	hSimHitLayEn2H_[layer]->Fill(energy);
       }
     }
   }
