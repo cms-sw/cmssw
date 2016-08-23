@@ -101,6 +101,34 @@ void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descr
    desc.add<int>("CSCstripWireDeltaTime",8);
    desc.addUntracked<int>("CSCStripClusterSize",3); 
 
+   desc.add<double>("XTasymmetry_ME1a",0.023),
+   desc.add<double>("XTasymmetry_ME1b",0.01),
+   desc.add<double>("XTasymmetry_ME12",0.015),
+   desc.add<double>("XTasymmetry_ME13",0.02),
+   desc.add<double>("XTasymmetry_ME21",0.023),
+   desc.add<double>("XTasymmetry_ME22",0.023),
+   desc.add<double>("XTasymmetry_ME31",0.023),
+   desc.add<double>("XTasymmetry_ME32",0.023),
+   desc.add<double>("XTasymmetry_ME41",0.023),
+   desc.add<double>("ConstSyst_ME1a",0.01),
+   desc.add<double>("ConstSyst_ME1b",0.02),
+   desc.add<double>("ConstSyst_ME12",0.02),
+   desc.add<double>("ConstSyst_ME13",0.03),
+   desc.add<double>("ConstSyst_ME21",0.03),
+   desc.add<double>("ConstSyst_ME22",0.03),
+   desc.add<double>("ConstSyst_ME31",0.03),
+   desc.add<double>("ConstSyst_ME32",0.03),
+   desc.add<double>("ConstSyst_ME41",0.03),
+   desc.add<double>("NoiseLevel_ME1a",9.0),
+   desc.add<double>("NoiseLevel_ME1b",6.0),
+   desc.add<double>("NoiseLevel_ME12",7.0),
+   desc.add<double>("NoiseLevel_ME13",4.0),
+   desc.add<double>("NoiseLevel_ME21",5.0),
+   desc.add<double>("NoiseLevel_ME22",7.0),
+   desc.add<double>("NoiseLevel_ME31",5.0),
+   desc.add<double>("NoiseLevel_ME32",7.0),
+   desc.add<double>("NoiseLevel_ME41",5.0)
+
    desc.add<bool>("CSCUseReducedWireTimeWindow", false);
    desc.add<int>("CSCWireTimeWindowLow", 0);
    desc.add<int>("CSCWireTimeWindowHigh", 15);
