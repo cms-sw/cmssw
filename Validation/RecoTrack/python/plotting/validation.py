@@ -154,7 +154,8 @@ _globalTags = {
     "CMSSW_8_0_11": {"default": "80X_mcRun2_asymptotic_v14"},
     "CMSSW_8_0_15": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
     "CMSSW_8_0_16": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
-    "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
+    "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT",
+                                "fastsim": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT", "RelValTTbar": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tr4GT_resub"}, "fastsim_25ns": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
     "CMSSW_8_0_16_Tranche4GT_pmx": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_resub"},
     "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
     "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
@@ -206,29 +207,32 @@ def _getGlobalTag(sample, release):
         print "Release %s not found from globaltag map in validation.py" % release
         sys.exit(1)
     gtmap = _globalTags[release]
-    if sample.hasReplaceGlobalTag(): # the ultimate hack but unfortunately needed sometimes
-        return sample.replaceGlobalTag()
+    selectedGT = None
     if sample.hasOverrideGlobalTag():
         ogt = sample.overrideGlobalTag()
         if release in ogt:
             gtmap = _globalTags[ogt[release]]
     if sample.fullsim():
         if sample.hasScenario():
-            return gtmap[sample.scenario()]
-        if sample.pileupEnabled():
+            selectedGT = gtmap[sample.scenario()]
+        elif sample.pileupEnabled():
             puType = sample.pileupType()
             if "50ns" in puType:
-                return gtmap.get("fullsim_50ns", gtmap["default"])
+                selectedGT = gtmap.get("fullsim_50ns", gtmap["default"])
             if "25ns" in puType:
-                return gtmap.get("fullsim_25ns", gtmap["default"])
+                selectedGT = gtmap.get("fullsim_25ns", gtmap["default"])
     if sample.fastsim():
-        fsgt = gtmap.get("fastsim", gtmap["default"])
+        selectedGT = gtmap.get("fastsim", gtmap["default"])
         if sample.pileupEnabled():
             puType = sample.pileupType()
             if "25ns" in puType:
-                return gtmap.get("fastsim_25ns", fsgt)
-        return fsgt
-    return gtmap["default"]
+                selectedGT = gtmap.get("fastsim_25ns", selectedGT)
+    if selectedGT is None:
+        selectedGT = gtmap["default"]
+    if isinstance(selectedGT, dict):
+        return selectedGT.get(sample.name(), selectedGT["default"])
+    else:
+        return selectedGT
 
 # Mapping from release series to RelVal download URLs
 _relvalUrls = {
@@ -280,7 +284,7 @@ class Sample:
     def __init__(self, sample, append=None, midfix=None, putype=None, punum=0,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
                  doElectron=None, doConversion=None,
-                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag="", replaceGlobalTag=None):
+                 version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
         """Constructor.
 
         Arguments:
@@ -299,7 +303,6 @@ class Sample:
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
         appendGlobalTag -- String to append to GlobalTag (intended for one-time hacks; default "")
-        replaceGlobalTag -- String to replace the GlobalTag (intended for one-time hacks, default None)
         """
         self._sample = sample
         self._append = append
@@ -313,7 +316,6 @@ class Sample:
         self._scenario = scenario
         self._overrideGlobalTag = overrideGlobalTag
         self._appendGlobalTag = appendGlobalTag
-        self._replaceGlobalTag = replaceGlobalTag
 
         if doElectron is not None:
             self._doElectron = doElectron
@@ -390,12 +392,6 @@ class Sample:
 
     def overrideGlobalTag(self):
         return self._overrideGlobalTag
-
-    def hasReplaceGlobalTag(self):
-        return self._replaceGlobalTag is not None
-
-    def replaceGlobalTag(self):
-        return self._replaceGlobalTag
 
     def fastsim(self):
         """Return True for FastSim sample"""
