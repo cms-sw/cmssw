@@ -119,6 +119,8 @@ private :
   bool showMeanError_;
   bool showRMSError_;
   bool showModules_;
+  bool showUnderOverFlow_;
+  bool twolines_;
   bool bigtext_;
 
   TF1 *fitGauss(TH1 *hist,int color);

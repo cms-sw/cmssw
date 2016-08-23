@@ -98,6 +98,7 @@ void PlotAlignmentValidation::legendOptions(TString options)
   showMeanError_ = false;
   showRMSError_ = false;
   showModules_ = false;
+  showUnderOverFlow_ = false;
   options.ReplaceAll(" ","").ToLower();
   if (options.Contains("mean") || options.Contains("all"))
     showMean_ = true;
@@ -109,7 +110,10 @@ void PlotAlignmentValidation::legendOptions(TString options)
     showRMSError_ = true;
   if (options.Contains("modules") || options.Contains("all"))
     showModules_ = true;
+  if (options.Contains("under") || options.Contains("over") || options.contains("outside") || options.Contains("all"))
+    showUnderOverFlow_ = true;
 
+  twolines_ = (showUnderOverFlow_ && (showMean_ + showMeanError_ + showRMS_ + showRMSError_ >= 1) && bigtext_);
 }
 
 //------------------------------------------------------------------------------
@@ -697,6 +701,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     if (plotinfo.plotSplits) { nPlots = 3; }
     if (plotinfo.plotLayers) { nPlots *= numberOfLayers[i-1]; }
     nPlots *= sourceList.size();
+    if (twolines_) { nPlots *= 2; }
     nPlots += hasheader;
 
     double legendY = 0.80;
@@ -1442,85 +1447,84 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   legend.str("");
 
   // Legend: Statistics
+  double mean, meanerror, rms, rmserror;
+  TString rmsname, units;
+  bool showdeltamu = (plotinfo.h1 != 0 && plotinfo.h2 != 0 && plotinfo.plotSplits && plotinfo.plotPlain && direction == 0);
   if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" ||
       plotinfo.variable == "medianY" || plotinfo.variable == "meanY" ||
       plotinfo.variable == "rmsX"    || plotinfo.variable == "rmsY") {
     if (useFit_ && fitResults) {
-      if (showMean_)
-      {
-        legend << " #mu = " << fitResults->GetParameter(1)*10000;
-        if (showMeanError_)
-          legend << " #pm " << fitResults->GetParError(1)*10000 << " #mum";
-        if (showRMS_ || showModules_)
-          legend << ", ";
-      }
-      if (showRMS_)
-      {
-        legend << " #sigma = " << fitResults->GetParameter(2)*10000;
-        if (showRMSError_)
-          legend << " #pm " << fitResults->GetParError(2)*10000 << " #mum";
-        if (showModules_)
-          legend << ", ";
-      }
+      mean = fitResults->GetParameter(1)*10000;
+      meanerror = fitResults->GetParError(1)*10000;
+      rms = fitResults->GetParameter(2)*10000;
+      rmserror = fitResults->GetParError(2)*10000;
+      rmsname = "#sigma";
       delete fitResults;
     } else {
-      if (showMean_)
-      {
-        legend << " #mu = " << h->GetMean(1)*10000;
-        if (showMeanError_)
-          legend << " #pm " << h->GetMeanError(1)*10000 << " #mum";
-        if (showRMS_ || showModules_)
-          legend << ", ";
-      }
-      if (showRMS_)
-      {
-        legend << " rms = " << h->GetRMS(1)*10000;
-        if (showRMSError_)
-          legend << " #pm " << h->GetRMSError(1)*10000 << " #mum";
-        if (showModules_)
-          legend << ", ";
-      }
-      if (showModules_)
-        legend << (int) h->GetEntries() << " modules";
+      mean = h->GetMean(1)*10000;
+      meanerror = h->GetMeanError(1)*10000;
+      rms = h->GetRMS(1)*10000;
+      rmserror = h->GetRMSError(1)*10000;
+      rmsname = "rms";
     }
+    units = " #mum";
   } else if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
 	     plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
-    if (showMean_)
-    {
-      legend << " #mu = " << h->GetMean(1);
-      if (showMeanError_)
-        legend << " #pm " << h->GetMeanError(1);
-      if (showRMS_ || showModules_)
-        legend << ", ";
-    }
-    if (showRMS_)
-    {
-      legend << " #sigma = " << h->GetRMS(1);
-      if (showRMSError_)
-        legend << " #pm " << h->GetRMSError(1);
-      if (showModules_)
-        legend << ", ";
-    }
-    if (showModules_)
-      legend << (int) h->GetEntries() << " modules";
+    mean = h->GetMean(1);
+    meanerror = h->GetMeanError(1);
+    rms = h->GetRMS(1);
+    rmserror = h->GetRMSError(1);
+    rmsname = "rms";
+    units = "";
+  }
+  if (showMean_)
+  {
+    legend << " #mu = " << mean;
+    if (showMeanError_)
+      legend << " #pm " << meanerror;
+    legend << units;
+    if (showRMS_ || showdeltamu || ((showModules_ || showUnderOverFlow_) && !twolines_))
+      legend << ", ";
+  }
+  if (showRMS_)
+  {
+    legend << " " << rmsname << " = " << rms;
+    if (showRMSError_)
+      legend << " #pm " << rmserror;
+    legend << units;
+    if (showdeltamu || ((showModules_ || showUnderOverFlow_) && !twolines_))
+      legend << ", ";
   }
 
   // Legend: Delta mu for split plots
-  if (plotinfo.h1 != 0 && plotinfo.h2 != 0 && plotinfo.plotSplits &&
-      plotinfo.plotPlain && direction == 0) {
-    std::string unit = " #mum";
+  if (showdeltamu) {
     float factor = 10000.0f;
     if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
 	plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
       factor = 1.0f;
-      unit = "";
     }
     float deltamu = factor*(plotinfo.h2->GetMean(1) - plotinfo.h1->GetMean(1));
-    if (showMean_ || showRMS_ || showModules_)
+    legend << "#Delta#mu = " << deltamu << units;
+    if ((showModules_ || showUnderOverFlow_) && !twolines_)
       legend << ", ";
-    legend << "#Delta#mu = " << deltamu << unit;
   }
 
+  if (twolines_) {
+    plotinfo.legend->AddEntry((TObject*)0, legend.str().c_str(), "");
+    plotinfo.legend->AddEntry((TObject*)0, "", "");
+    legend.str("");
+  }
+
+  if (!showUnderOverFlow_ && showModules_) {
+    legend << (int) h->GetEntries() << " modules";
+  }
+  if (showUnderOverFlow_) {
+    if (showModules_) {
+      legend << (int) h->GetEntries() << " modules (" << (int) h->GetBinContent(0) + (int)h->GetBinContent(h->GetNbinsX()+1) << " outside range)";
+    } else {
+      legend << (int) h->GetBinContent(0) + (int)h->GetBinContent(h->GetNbinsX()+1) << " modules outside range";
+    }
+  }
   plotinfo.legend->AddEntry((TObject*)0, legend.str().c_str(), "");
 
   // Scale the x-axis (cm to um), if needed

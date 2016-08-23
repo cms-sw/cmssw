@@ -122,7 +122,7 @@ class PreexistingOfflineValidation(PreexistingValidation):
         repMap["file"] = self.getCompareStrings("OfflineValidation", plain = True)
         if validationsSoFar == "":
             validationsSoFar = ('PlotAlignmentValidation p("%(file)s",'
-                                '"%(title)s", %(color)s, %(style)s);\n')%repMap
+                                '"%(title)s", %(color)s, %(style)s, .oO[bigtext]Oo.);\n')%repMap
         else:
             validationsSoFar += ('  p.loadFileList("%(file)s", "%(title)s",'
                                  '%(color)s, %(style)s);\n')%repMap
