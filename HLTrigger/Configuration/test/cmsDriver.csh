@@ -11,9 +11,12 @@ rehash
 
 #
 # gen sim input files for Monte-Carlo tests
-set InputGenSimGRun = /store/relval/CMSSW_7_1_0_pre4_AK4/RelValProdTTbar/GEN-SIM/START71_V1-v2/00000/0ADB94C0-62B4-E311-8EC4-002618943985.root
-set InputGenSimHIon = /store/relval/CMSSW_5_3_16/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_LV1_mar03-v2/00000/143C21CD-E8A2-E311-87BE-0025904C66E8.root
-set InputGenSimPIon = /store/relval/CMSSW_7_1_0_pre4_AK4/RelValProdTTbar/GEN-SIM/START71_V1-v2/00000/0ADB94C0-62B4-E311-8EC4-002618943985.root
+#   InputGenSimGRun = /store/relval/CMSSW_7_1_0/RelValProdTTbar/GEN-SIM/START71_V7-v1/00000/8C172C6B-28FD-E311-8A62-0026189438F4.root
+set InputGenSimGRun = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_7/8C172C6B-28FD-E311-8A62-0026189438F4.root
+#   InputGenSimHIon = /store/relval/CMSSW_5_3_16/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_LV1_mar03-v2/00000/143C21CD-E8A2-E311-87BE-0025904C66E8.root
+set InputGenSimHIon = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_5/143C21CD-E8A2-E311-87BE-0025904C66E8.root
+#   InputGenSimPIon = /store/relval/CMSSW_7_1_0/RelValProdTTbar/GEN-SIM/START71_V7-v1/00000/8C172C6B-28FD-E311-8A62-0026189438F4.root
+set InputGenSimPIon = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_7/8C172C6B-28FD-E311-8A62-0026189438F4.root
 #
 # lhc raw input files for Real-Data tests
 set InputLHCRawGRun = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
