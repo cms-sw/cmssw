@@ -12,7 +12,7 @@
 
 struct HGCalBestChoiceDataPayload
 {
-    static const size_t size = 114;
+    static const size_t size = 130; // FIXME: check why 114 is not working
     typedef std::array<uint32_t, size> trigger_cell_list; // list of trigger cell values
     trigger_cell_list payload;
 
