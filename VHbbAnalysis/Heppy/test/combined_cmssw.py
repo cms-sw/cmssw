@@ -610,11 +610,26 @@ def initialize(**kwargs):
         setupAllVIDIdsInModule(process, eleid, setupVIDElectronSelection)
     process.OUT.outputCommands.append("keep *_electronMVAValueMapProducer_*_EX")
     process.OUT.outputCommands.append("keep *_egmGsfElectronIDs_*_EX")
+
     
+
+    ########################################
+    # MET significance matrix
+    ########################################
+    
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+    isData = not isMC
+    runMetCorAndUncFromMiniAOD(process, isData = isData)
+    process.OUT.outputCommands.append("keep *_slimmedMETs_*_EX")
+
+    processDumpFile = open('combined_cmssw.dump', 'w')
+    print >> processDumpFile, process.dumpPython()
+
     return process
+
+
 
 # Called directly 
 # (luckily for us cmsRun also counts as direct call)
 if __name__ == "__main__":
     process = initialize()
-
