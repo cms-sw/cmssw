@@ -41,15 +41,34 @@ from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 from Configuration.StandardSequences.Eras import eras
-HGCalTrackCollection.debug=cms.bool(True)
+particleFlowTmpBarrel = particleFlowTmp.clone()
+_phase2_hgcal_particleFlowTmp = cms.EDProducer(
+    "PFCandidateListMerger",
+    src = cms.VInputTag("particleFlowTmpBarrel",
+                        "simPFProducer")
+    
+)
+
 tpClusterProducer.pixelSimLinkSrc     = cms.InputTag("simSiPixelDigis", "Pixel")
 tpClusterProducer.phase2OTSimLinkSrc  = cms.InputTag("simSiPixelDigis","Tracker")
 quickTrackAssociatorByHits.pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel")
 quickTrackAssociatorByHits.stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
-_phase2_hgcal_simPFSequence = cms.Sequence( HGCalTrackCollection + 
+_phase2_hgcal_simPFSequence = cms.Sequence( pfTrack +
+                                            HGCalTrackCollection + 
                                             tpClusterProducer +
                                             quickTrackAssociatorByHits +
                                             simPFProducer )
-_phase2_hgcal_particleFlowReco = cms.Sequence( particleFlowReco.copy() + _phase2_hgcal_simPFSequence )
+_phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence*
+                                               particleFlowTrackWithDisplacedVertex*
+                                               pfGsfElectronMVASelectionSequence*
+                                               particleFlowBlock*
+                                               particleFlowEGammaFull*
+                                               particleFlowTmpBarrel*
+                                               particleFlowTmp*
+                                               fixedGridRhoFastjetAllTmp*
+                                               particleFlowTmpPtrs*          
+                                               particleFlowEGammaFinal*
+                                               pfParticleSelectionSequence )
 
+eras.phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
 eras.phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )
