@@ -12,6 +12,7 @@
  <use name="DataFormats/GeometrySurface"/>
  <use name="Fireworks/Core"/>
  <use name="Fireworks/Tracks"/>
+ <use name="Fireworks/Calo"/>
  <use name="rootinteractive"/>
  <use name="rootphysics"/>
 

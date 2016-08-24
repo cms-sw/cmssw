@@ -232,5 +232,9 @@ FWMuonDetailView::addSceneInfo(const reco::Muon *i, TEveElementList* tList)
 }
 
 
+REGISTER_FWDETAILVIEW(FWMuonDetailView,Muon);
+/*
+REGISTER_FWDETAILVIEW(FWMuonDetailView,Muon,reducedEGamma);
 REGISTER_FWDETAILVIEW(FWMuonDetailView,Muon,ecalRecHit);
 REGISTER_FWDETAILVIEW(FWMuonDetailView,Muon,reducedEcalRecHitsEB);
+*/
