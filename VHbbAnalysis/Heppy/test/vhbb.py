@@ -64,6 +64,9 @@ treeProducer= cfg.Analyzer(
 		 NTupleVariable("mhtPhiJet30",  lambda ev : ev.mhtPhiJet30, help="mht phi with jets30"),
 		 NTupleVariable("htJet30",  lambda ev : ev.htJet30, help="ht  with jets30"),
                  NTupleVariable("met_sig",  lambda ev : ev.met.significance(), help="met significance from MET::significance() method"),
+                 NTupleVariable("met_covXX",  lambda ev : ev.met.getSignificanceMatrix().At(0,0), help="xx element of met covariance matrix"),
+		 NTupleVariable("met_covXY",  lambda ev : ev.met.getSignificanceMatrix().At(0,1), help="xy element of met covariance matrix"),
+		 NTupleVariable("met_covYY",  lambda ev : ev.met.getSignificanceMatrix().At(1,1), help="yy element of met covariance matrix"),
 		 NTupleVariable("met_rawpt",  lambda ev : ev.met.uncorPt(), help="raw met"),
 		 NTupleVariable("metPuppi_pt",  lambda ev : ev.metPuppi.pt(), help="met from Puppi"),
 		 NTupleVariable("metPuppi_phi",  lambda ev : ev.metPuppi.phi(), help="met phi from Puppi"),
@@ -262,6 +265,9 @@ VHGenAna = VHGeneratorAnalyzer.defaultConfig
 
 from PhysicsTools.Heppy.analyzers.objects.METAnalyzer import METAnalyzer
 METAna = METAnalyzer.defaultConfig
+METAna.metCollection = "slimmedMETs::EX"
+##METAna.metCollection = "slimmedMETs"
+METAna.recalibrate = False
 METAna.applyJetSmearing = False
 METAna.doTkMet = True
 METAna.doMetNoPU = False
@@ -270,7 +276,7 @@ METAna.includeTkMetPVLoose = False
 METAna.includeTkMetPVTight = False
 
 METPuppiAna = copy.copy(METAna)
-METPuppiAna.metCollection     = "slimmedMETsPuppi"
+METPuppiAna.metCollection = "slimmedMETsPuppi"
 METPuppiAna.doMetNoPU = False
 METPuppiAna.recalibrate = False
 METPuppiAna.collectionPostFix = "Puppi"
