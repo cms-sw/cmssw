@@ -48,7 +48,7 @@ def applySubstructure( process ) :
     addJetCollection(process, labelName = 'AK8Puppi',
                      jetSource = cms.InputTag('ak8PFJetsPuppi'),
                      algo= 'AK', rParam = 0.8,
-                     jetCorrections = ('AK8PFPuppi', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+                     jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
                      btagDiscriminators = ([x.getModuleLabel() for x in patJetsDefault.discriminatorSources] + ['pfBoostedDoubleSecondaryVertexAK8BJetTags']),
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
                      )
@@ -143,7 +143,7 @@ def applySubstructure( process ) :
         labelName = 'AK8PFPuppiSoftDrop',
         jetSource = cms.InputTag('ak8PFJetsPuppiSoftDrop'),
         btagDiscriminators = ['None'],
-        jetCorrections = ('AK8PFPuppi', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None'),
+        jetCorrections = ('AK8PFPuppi', ['L2Relative', 'L3Absolute'], 'None'),
         getJetMCFlavour = False # jet flavor disabled
     )
     

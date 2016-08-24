@@ -2610,118 +2610,46 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	mJetEnergyCorrVSPt = map_of_MEs[DirName+"/"+"JetEnergyCorrVSPt"]; if(mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject()) mJetEnergyCorrVSPt->Fill(correctedJet.pt(),1./(*patJets)[ijet].jecFactor("Uncorrected"));
 	if(filljetsubstruc_){
 	  //miniaod specific variables, especially for substructure
-	  mSoftDropMass = map_of_MEs[DirName+"/"+"SoftDropMass"];if(mSoftDropMass && mSoftDropMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSSoftDropMass")) mSoftDropMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSSoftDropMass"));
+	  mSoftDropMass = map_of_MEs[DirName+"/"+"SoftDropMass"];if(mSoftDropMass && mSoftDropMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsPuppiSoftDropMass")) mSoftDropMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsPuppiSoftDropMass"));
 	  mPrunedMass = map_of_MEs[DirName+"/"+"PrunedMass"];if(mPrunedMass && mPrunedMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSPrunedMass")) mPrunedMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSPrunedMass"));
-	  mTrimmedMass = map_of_MEs[DirName+"/"+"TrimmedMass"];if(mTrimmedMass && mTrimmedMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSTrimmedMass")) mTrimmedMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSTrimmedMass"));
-	  mFilteredMass = map_of_MEs[DirName+"/"+"FilteredMass"];if(mFilteredMass && mFilteredMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSFilteredMass")) mFilteredMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSFilteredMass"));
-	  mtau2_over_tau1 = map_of_MEs[DirName+"/"+"tau2_over_tau1"]; if(mtau2_over_tau1 && mtau2_over_tau1->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau1") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2")))mtau2_over_tau1->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau2")/(*patJets)[ijet].userFloat("NjettinessAK8:tau1"));
-	  mtau3_over_tau2 = map_of_MEs[DirName+"/"+"tau3_over_tau2"]; if(mtau3_over_tau2 && mtau3_over_tau2->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau3")))mtau3_over_tau2->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau3")/(*patJets)[ijet].userFloat("NjettinessAK8:tau2"));
-	  if((*patJets)[ijet].hasTagInfo("caTop")){
-	    reco::CATopJetTagInfo const * tagInfo=  dynamic_cast<reco::CATopJetTagInfo const *>((*patJets)[ijet].tagInfo("caTop"));
-	    if ( tagInfo != 0 ) {
-	      mCATopTag_topMass = map_of_MEs[DirName+"/"+"CATopTag_topMass"];if(mCATopTag_topMass && mCATopTag_topMass->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_topMass->Fill(tagInfo->properties().topMass);
-	      mCATopTag_minMass = map_of_MEs[DirName+"/"+"CATopTag_minMass"];if(mCATopTag_minMass && mCATopTag_minMass->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_minMass->Fill(tagInfo->properties().minMass);
-	      mCATopTag_nSubJets = map_of_MEs[DirName+"/"+"nSubJets_CATopTag"];if(mCATopTag_nSubJets && mCATopTag_nSubJets->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_nSubJets->Fill(tagInfo->properties().nSubJets);
-	    }
+	  mtau2_over_tau1 = map_of_MEs[DirName+"/"+"tau2_over_tau1"]; if(mtau2_over_tau1 && mtau2_over_tau1->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau1") && (*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau2")))mtau2_over_tau1->Fill((*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau2")/(*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau1"));
+	  mtau3_over_tau2 = map_of_MEs[DirName+"/"+"tau3_over_tau2"]; if(mtau3_over_tau2 && mtau3_over_tau2->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau2") && (*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau3")))mtau3_over_tau2->Fill((*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau3")/(*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau2"));
+
+
+	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi")){
+	    mnSubJetsSoftDrop=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop"]; if(mnSubJetsSoftDrop && mnSubJetsSoftDrop->getRootObject()) mnSubJetsSoftDrop->Fill((*patJets)[ijet].subjets("SoftDropPuppi").size());
 	  }
-	  if((*patJets)[ijet].hasSubjets("CMSTopTag")){
-	    mnSubJetsCMSTopTag=map_of_MEs[DirName+"/"+"nSubJets_CMSTopTag"]; if(mnSubJetsCMSTopTag && mnSubJetsCMSTopTag->getRootObject()) mnSubJetsCMSTopTag->Fill((*patJets)[ijet].subjets("CMSTopTag").size());
-	  }
-	  if((*patJets)[ijet].hasSubjets("CMSTopTag") && (*patJets)[ijet].subjets("CMSTopTag").size()>0){
-	    mSubJet1_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_pt"]; if(mSubJet1_CMSTopTag_pt && mSubJet1_CMSTopTag_pt->getRootObject()) mSubJet1_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->pt());
-	    mSubJet1_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_eta"]; if(mSubJet1_CMSTopTag_eta && mSubJet1_CMSTopTag_eta->getRootObject()) mSubJet1_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->eta());
-	    mSubJet1_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_phi"]; if(mSubJet1_CMSTopTag_phi && mSubJet1_CMSTopTag_phi->getRootObject()) mSubJet1_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->phi());
-	    mSubJet1_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_mass"]; if(mSubJet1_CMSTopTag_mass && mSubJet1_CMSTopTag_mass->getRootObject()) mSubJet1_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->mass());
-	    if((*patJets)[ijet].subjets("CMSTopTag").size()>1){
-	      mSubJet2_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_pt"]; if(mSubJet2_CMSTopTag_pt && mSubJet2_CMSTopTag_pt->getRootObject()) mSubJet2_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->pt());
-	      mSubJet2_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_eta"]; if(mSubJet2_CMSTopTag_eta && mSubJet2_CMSTopTag_eta->getRootObject()) mSubJet2_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->eta());
-	      mSubJet2_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_phi"]; if(mSubJet2_CMSTopTag_phi && mSubJet2_CMSTopTag_phi->getRootObject()) mSubJet2_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->phi());
-	      mSubJet2_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_mass"]; if(mSubJet2_CMSTopTag_mass && mSubJet2_CMSTopTag_mass->getRootObject()) mSubJet2_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->mass());
-	      if((*patJets)[ijet].subjets("CMSTopTag").size()>2){
-		mSubJet3_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_pt"]; if(mSubJet3_CMSTopTag_pt && mSubJet3_CMSTopTag_pt->getRootObject()) mSubJet3_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->pt());
-		mSubJet3_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_eta"]; if(mSubJet3_CMSTopTag_eta && mSubJet3_CMSTopTag_eta->getRootObject()) mSubJet3_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->eta());
-		mSubJet3_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_phi"]; if(mSubJet3_CMSTopTag_phi && mSubJet3_CMSTopTag_phi->getRootObject()) mSubJet3_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->phi());
-		mSubJet3_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_mass"]; if(mSubJet3_CMSTopTag_mass && mSubJet3_CMSTopTag_mass->getRootObject()) mSubJet3_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->mass());
-		if((*patJets)[ijet].subjets("CMSTopTag").size()>3){
-		  mSubJet4_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_pt"]; if(mSubJet4_CMSTopTag_pt && mSubJet4_CMSTopTag_pt->getRootObject()) mSubJet4_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->pt());
-		  mSubJet4_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_eta"]; if(mSubJet4_CMSTopTag_eta && mSubJet4_CMSTopTag_eta->getRootObject()) mSubJet4_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->eta());
-		  mSubJet4_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_phi"]; if(mSubJet4_CMSTopTag_phi && mSubJet4_CMSTopTag_phi->getRootObject()) mSubJet4_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->phi());
-		  mSubJet4_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_mass"]; if(mSubJet4_CMSTopTag_mass && mSubJet4_CMSTopTag_mass->getRootObject()) mSubJet4_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->mass());
-		}
-	      }
-	    }
-	  }//CMS top tag filling
-	  if((*patJets)[ijet].hasSubjets("SoftDrop")){
-	    mnSubJetsSoftDrop=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop"]; if(mnSubJetsSoftDrop && mnSubJetsSoftDrop->getRootObject()) mnSubJetsSoftDrop->Fill((*patJets)[ijet].subjets("SoftDrop").size());
-	  }
-	  if((*patJets)[ijet].hasSubjets("SoftDrop") && (*patJets)[ijet].subjets("SoftDrop").size()>0){
-	    mSubJet1_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt"]; if(mSubJet1_SoftDrop_pt && mSubJet1_SoftDrop_pt->getRootObject()) mSubJet1_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->pt());
-	    mSubJet1_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta"]; if(mSubJet1_SoftDrop_eta && mSubJet1_SoftDrop_eta->getRootObject()) mSubJet1_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->eta());
-	    mSubJet1_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi"]; if(mSubJet1_SoftDrop_phi && mSubJet1_SoftDrop_phi->getRootObject()) mSubJet1_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->phi());
-	    mSubJet1_SoftDrop_mass=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_mass"]; if(mSubJet1_SoftDrop_mass && mSubJet1_SoftDrop_mass->getRootObject()) mSubJet1_SoftDrop_mass->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->mass());
-	    if((*patJets)[ijet].subjets("SoftDrop").size()>1){
-	      mSubJet2_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_pt"]; if(mSubJet2_SoftDrop_pt && mSubJet2_SoftDrop_pt->getRootObject()) mSubJet2_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->pt());
-	      mSubJet2_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_eta"]; if(mSubJet2_SoftDrop_eta && mSubJet2_SoftDrop_eta->getRootObject()) mSubJet2_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->eta());
-	      mSubJet2_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_phi"]; if(mSubJet2_SoftDrop_phi && mSubJet2_SoftDrop_phi->getRootObject()) mSubJet2_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->phi());
-	      mSubJet2_SoftDrop_mass=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_mass"]; if(mSubJet2_SoftDrop_mass && mSubJet2_SoftDrop_mass->getRootObject()) mSubJet2_SoftDrop_mass->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->mass());
+	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && (*patJets)[ijet].subjets("SoftDropPuppi").size()>0){
+	    mSubJet1_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt"]; if(mSubJet1_SoftDrop_pt && mSubJet1_SoftDrop_pt->getRootObject()) mSubJet1_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->pt());
+	    mSubJet1_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta"]; if(mSubJet1_SoftDrop_eta && mSubJet1_SoftDrop_eta->getRootObject()) mSubJet1_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->eta());
+	    mSubJet1_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi"]; if(mSubJet1_SoftDrop_phi && mSubJet1_SoftDrop_phi->getRootObject()) mSubJet1_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->phi());
+	    mSubJet1_SoftDrop_mass=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_mass"]; if(mSubJet1_SoftDrop_mass && mSubJet1_SoftDrop_mass->getRootObject()) mSubJet1_SoftDrop_mass->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->mass());
+	    if((*patJets)[ijet].subjets("SoftDropPuppi").size()>1){
+	      mSubJet2_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_pt"]; if(mSubJet2_SoftDrop_pt && mSubJet2_SoftDrop_pt->getRootObject()) mSubJet2_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->pt());
+	      mSubJet2_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_eta"]; if(mSubJet2_SoftDrop_eta && mSubJet2_SoftDrop_eta->getRootObject()) mSubJet2_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->eta());
+	      mSubJet2_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_phi"]; if(mSubJet2_SoftDrop_phi && mSubJet2_SoftDrop_phi->getRootObject()) mSubJet2_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->phi());
+	      mSubJet2_SoftDrop_mass=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_mass"]; if(mSubJet2_SoftDrop_mass && mSubJet2_SoftDrop_mass->getRootObject()) mSubJet2_SoftDrop_mass->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->mass());
 	    }
 	  }//soft drop jets
 	  if((*patJets)[ijet].pt()>pt_min_boosted_){
 	    //miniaod specific variables, especially for boosted substructure
-	    mSoftDropMass_boosted = map_of_MEs[DirName+"/"+"SoftDropMass_boosted"];if(mSoftDropMass_boosted && mSoftDropMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSSoftDropMass")) mSoftDropMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSSoftDropMass"));
+	    mSoftDropMass_boosted = map_of_MEs[DirName+"/"+"SoftDropMass_boosted"];if(mSoftDropMass_boosted && mSoftDropMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsPuppiSoftDropMass")) mSoftDropMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsPuppiSoftDropMass"));
 	    mPrunedMass_boosted = map_of_MEs[DirName+"/"+"PrunedMass_boosted"];if(mPrunedMass_boosted && mPrunedMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSPrunedMass")) mPrunedMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSPrunedMass"));
-	    mTrimmedMass_boosted = map_of_MEs[DirName+"/"+"TrimmedMass_boosted"];if(mTrimmedMass_boosted && mTrimmedMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSTrimmedMass")) mTrimmedMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSTrimmedMass"));
-	    mFilteredMass_boosted = map_of_MEs[DirName+"/"+"FilteredMass_boosted"];if(mFilteredMass_boosted && mFilteredMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSFilteredMass")) mFilteredMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSFilteredMass"));
-	    mtau2_over_tau1_boosted = map_of_MEs[DirName+"/"+"tau2_over_tau1_boosted"]; if(mtau2_over_tau1_boosted && mtau2_over_tau1_boosted->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau1") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2")))mtau2_over_tau1_boosted->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau2")/(*patJets)[ijet].userFloat("NjettinessAK8:tau1"));
-	    mtau3_over_tau2_boosted = map_of_MEs[DirName+"/"+"tau3_over_tau2_boosted"]; if(mtau3_over_tau2_boosted && mtau3_over_tau2_boosted->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau3")))mtau3_over_tau2_boosted->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau3")/(*patJets)[ijet].userFloat("NjettinessAK8:tau2"));
-	    if((*patJets)[ijet].hasTagInfo("caTop")){
-	      reco::CATopJetTagInfo const * tagInfo_boosted =  dynamic_cast<reco::CATopJetTagInfo const *>((*patJets)[ijet].tagInfo("caTop"));
-	      if ( tagInfo_boosted  != 0 ) {
-		mCATopTag_topMass_boosted = map_of_MEs[DirName+"/"+"CATopTag_topMass_boosted"];if(mCATopTag_topMass_boosted && mCATopTag_topMass_boosted->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_topMass_boosted->Fill(tagInfo_boosted->properties().topMass);
-		mCATopTag_minMass_boosted = map_of_MEs[DirName+"/"+"CATopTag_minMass_boosted"];if(mCATopTag_minMass_boosted && mCATopTag_minMass_boosted->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_minMass_boosted->Fill(tagInfo_boosted->properties().minMass);
-		mCATopTag_nSubJets_boosted = map_of_MEs[DirName+"/"+"nSubJets_CATopTag_boosted"];if(mCATopTag_nSubJets_boosted && mCATopTag_nSubJets_boosted->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_nSubJets_boosted->Fill(tagInfo_boosted->properties().nSubJets);
-	      }
+	    mtau2_over_tau1_boosted = map_of_MEs[DirName+"/"+"tau2_over_tau1_boosted"]; if(mtau2_over_tau1_boosted && mtau2_over_tau1_boosted->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau1") && (*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau2")))mtau2_over_tau1_boosted->Fill((*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau2")/(*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau1"));
+	    mtau3_over_tau2_boosted = map_of_MEs[DirName+"/"+"tau3_over_tau2_boosted"]; if(mtau3_over_tau2_boosted && mtau3_over_tau2_boosted->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau2") && (*patJets)[ijet].hasUserFloat("NjettinessAK8Puppi:tau3")))mtau3_over_tau2_boosted->Fill((*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau3")/(*patJets)[ijet].userFloat("NjettinessAK8Puppi:tau2"));
+	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi")){
+	      mnSubJetsSoftDrop_boosted=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop_boosted"]; if(mnSubJetsSoftDrop_boosted && mnSubJetsSoftDrop_boosted->getRootObject()) mnSubJetsSoftDrop_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi").size());
 	    }
-	    if((*patJets)[ijet].hasSubjets("CMSTopTag")){
-	      mnSubJetsCMSTopTag_boosted=map_of_MEs[DirName+"/"+"nSubJets_CMSTopTag_boosted"]; if(mnSubJetsCMSTopTag_boosted && mnSubJetsCMSTopTag_boosted->getRootObject()) mnSubJetsCMSTopTag_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag").size());
-	    }
-	    if((*patJets)[ijet].hasSubjets("CMSTopTag") && (*patJets)[ijet].subjets("CMSTopTag").size()>0){
-	      mSubJet1_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_pt_boosted"]; if(mSubJet1_CMSTopTag_pt_boosted && mSubJet1_CMSTopTag_pt_boosted->getRootObject()) mSubJet1_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->pt());
-	      mSubJet1_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_eta_boosted"]; if(mSubJet1_CMSTopTag_eta_boosted && mSubJet1_CMSTopTag_eta_boosted->getRootObject()) mSubJet1_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->eta());
-	      mSubJet1_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_phi_boosted"]; if(mSubJet1_CMSTopTag_phi_boosted && mSubJet1_CMSTopTag_phi_boosted->getRootObject()) mSubJet1_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->phi());
-	      mSubJet1_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_mass_boosted"]; if(mSubJet1_CMSTopTag_mass_boosted && mSubJet1_CMSTopTag_mass_boosted->getRootObject()) mSubJet1_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->mass());
-	      if((*patJets)[ijet].subjets("CMSTopTag").size()>1){
-		mSubJet2_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_pt_boosted"]; if(mSubJet2_CMSTopTag_pt_boosted && mSubJet2_CMSTopTag_pt_boosted->getRootObject()) mSubJet2_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->pt());
-		mSubJet2_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_eta_boosted"]; if(mSubJet2_CMSTopTag_eta_boosted && mSubJet2_CMSTopTag_eta_boosted->getRootObject()) mSubJet2_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->eta());
-		mSubJet2_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_phi_boosted"]; if(mSubJet2_CMSTopTag_phi_boosted && mSubJet2_CMSTopTag_phi_boosted->getRootObject()) mSubJet2_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->phi());
-		mSubJet2_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_mass_boosted"]; if(mSubJet2_CMSTopTag_mass_boosted && mSubJet2_CMSTopTag_mass_boosted->getRootObject()) mSubJet2_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->mass());
-		if((*patJets)[ijet].subjets("CMSTopTag").size()>2){
-		  mSubJet3_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_pt_boosted"]; if(mSubJet3_CMSTopTag_pt_boosted && mSubJet3_CMSTopTag_pt_boosted->getRootObject()) mSubJet3_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->pt());
-		  mSubJet3_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_eta_boosted"]; if(mSubJet3_CMSTopTag_eta_boosted && mSubJet3_CMSTopTag_eta_boosted->getRootObject()) mSubJet3_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->eta());
-		  mSubJet3_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_phi_boosted"]; if(mSubJet3_CMSTopTag_phi_boosted && mSubJet3_CMSTopTag_phi_boosted->getRootObject()) mSubJet3_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->phi());
-		  mSubJet3_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_mass_boosted"]; if(mSubJet3_CMSTopTag_mass_boosted && mSubJet3_CMSTopTag_mass_boosted->getRootObject()) mSubJet3_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->mass());
-		  if((*patJets)[ijet].subjets("CMSTopTag").size()>3){
-		    mSubJet4_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_pt_boosted"]; if(mSubJet4_CMSTopTag_pt_boosted && mSubJet4_CMSTopTag_pt_boosted->getRootObject()) mSubJet4_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->pt());
-		    mSubJet4_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_eta_boosted"]; if(mSubJet4_CMSTopTag_eta_boosted && mSubJet4_CMSTopTag_eta_boosted->getRootObject()) mSubJet4_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->eta());
-		    mSubJet4_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_phi_boosted"]; if(mSubJet4_CMSTopTag_phi_boosted && mSubJet4_CMSTopTag_phi_boosted->getRootObject()) mSubJet4_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->phi());
-		    mSubJet4_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_mass_boosted"]; if(mSubJet4_CMSTopTag_mass_boosted && mSubJet4_CMSTopTag_mass_boosted->getRootObject()) mSubJet4_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->mass());
-		  }
-		}
-	      }
-	    }
-	    if((*patJets)[ijet].hasSubjets("SoftDrop")){
-	      mnSubJetsSoftDrop_boosted=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop_boosted"]; if(mnSubJetsSoftDrop_boosted && mnSubJetsSoftDrop_boosted->getRootObject()) mnSubJetsSoftDrop_boosted->Fill((*patJets)[ijet].subjets("SoftDrop").size());
-	    }
-	    if((*patJets)[ijet].hasSubjets("SoftDrop") && (*patJets)[ijet].subjets("SoftDrop").size()>0){
-	      mSubJet1_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt_boosted"]; if(mSubJet1_SoftDrop_pt_boosted && mSubJet1_SoftDrop_pt_boosted->getRootObject()) mSubJet1_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->pt());
-	      mSubJet1_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta_boosted"]; if(mSubJet1_SoftDrop_eta_boosted && mSubJet1_SoftDrop_eta_boosted->getRootObject()) mSubJet1_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->eta());
-	      mSubJet1_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi_boosted"]; if(mSubJet1_SoftDrop_phi_boosted && mSubJet1_SoftDrop_phi_boosted->getRootObject()) mSubJet1_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->phi());
-	      mSubJet1_SoftDrop_mass_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_mass_boosted"]; if(mSubJet1_SoftDrop_mass_boosted && mSubJet1_SoftDrop_mass_boosted->getRootObject()) mSubJet1_SoftDrop_mass_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->mass());
-	      if((*patJets)[ijet].subjets("SoftDrop").size()>1){
-		mSubJet2_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_pt_boosted"]; if(mSubJet2_SoftDrop_pt_boosted && mSubJet2_SoftDrop_pt_boosted->getRootObject()) mSubJet2_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->pt());
-		mSubJet2_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_eta_boosted"]; if(mSubJet2_SoftDrop_eta_boosted && mSubJet2_SoftDrop_eta_boosted->getRootObject()) mSubJet2_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->eta());
-		mSubJet2_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_phi_boosted"]; if(mSubJet2_SoftDrop_phi_boosted && mSubJet2_SoftDrop_phi_boosted->getRootObject()) mSubJet2_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->phi());
-		mSubJet2_SoftDrop_mass_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_mass_boosted"]; if(mSubJet2_SoftDrop_mass_boosted && mSubJet2_SoftDrop_mass_boosted->getRootObject()) mSubJet2_SoftDrop_mass_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->mass());
+	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && (*patJets)[ijet].subjets("SoftDropPuppi").size()>0){
+	      mSubJet1_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt_boosted"]; if(mSubJet1_SoftDrop_pt_boosted && mSubJet1_SoftDrop_pt_boosted->getRootObject()) mSubJet1_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->pt());
+	      mSubJet1_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta_boosted"]; if(mSubJet1_SoftDrop_eta_boosted && mSubJet1_SoftDrop_eta_boosted->getRootObject()) mSubJet1_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->eta());
+	      mSubJet1_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi_boosted"]; if(mSubJet1_SoftDrop_phi_boosted && mSubJet1_SoftDrop_phi_boosted->getRootObject()) mSubJet1_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->phi());
+	      mSubJet1_SoftDrop_mass_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_mass_boosted"]; if(mSubJet1_SoftDrop_mass_boosted && mSubJet1_SoftDrop_mass_boosted->getRootObject()) mSubJet1_SoftDrop_mass_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->mass());
+	      if((*patJets)[ijet].subjets("SoftDropPuppi").size()>1){
+		mSubJet2_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_pt_boosted"]; if(mSubJet2_SoftDrop_pt_boosted && mSubJet2_SoftDrop_pt_boosted->getRootObject()) mSubJet2_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->pt());
+		mSubJet2_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_eta_boosted"]; if(mSubJet2_SoftDrop_eta_boosted && mSubJet2_SoftDrop_eta_boosted->getRootObject()) mSubJet2_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->eta());
+		mSubJet2_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_phi_boosted"]; if(mSubJet2_SoftDrop_phi_boosted && mSubJet2_SoftDrop_phi_boosted->getRootObject()) mSubJet2_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->phi());
+		mSubJet2_SoftDrop_mass_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_mass_boosted"]; if(mSubJet2_SoftDrop_mass_boosted && mSubJet2_SoftDrop_mass_boosted->getRootObject()) mSubJet2_SoftDrop_mass_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[1]->mass());
 	      }
 	    }
 	  }//substructure filling for boosted
