@@ -15,11 +15,11 @@ def addESProducers(process,config):
 			if 'ESProducer' in item.type_():
 				setattr(process,name,item)
 
-def loadWithPrefix(process,moduleName,prefix='',postfix=''):
-        loadWithPrePostfix(process,moduleName,prefix,postfix)
+def loadWithPrefix(process,moduleName,prefix=''):
+        loadWithPrePostfix(process,moduleName,prefix,'')
 
-def loadWithPostfix(process,moduleName,postfix='',prefix=''):
-        loadWithPrePostfix(process,moduleName,prefix,postfix)
+def loadWithPostfix(process,moduleName,postfix=''):
+        loadWithPrePostfix(process,moduleName,'',postfix)
 
 def loadWithPrePostfix(process,moduleName,prefix='',postfix=''):
 	moduleName = moduleName.replace("/",".")
