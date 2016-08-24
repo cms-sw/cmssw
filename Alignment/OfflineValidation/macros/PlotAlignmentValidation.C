@@ -871,10 +871,6 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   // Opens the file (it should be OfflineValidation(Parallel)_result.root)
   // and reads and plots the norm_chi^2 and h_chi2Prob -distributions.
 
-  //gROOT->ForceStyle();
-  //gStyle->SetOptStat(1);
-  //TGaxis::SetMaxDigits(3);
-
   Bool_t errorflag = kTRUE;
   TFile* fi1 = TFile::Open(inputFile,"read");
   TDirectoryFile* mta1 = NULL;
@@ -901,37 +897,6 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
     return;
   }
 
-  // Small adjustments: move the legend right and up so that it doesn't block
-  // the exponent of the y-axis scale and doesn't cut the histogram border
-/*
-  TLegend* l = (TLegend*)findObjectFromCanvas(normchi, "TLegend");
-  if (l != 0) {
-    l->SetX1NDC(0.25);
-    l->SetY1NDC(0.86);
-  }
-  l = (TLegend*)findObjectFromCanvas(chiprob, "TLegend");
-  if (l != 0) {
-    l->SetX1NDC(0.25);
-    l->SetY1NDC(0.86);
-  }
-*/
-/*
-  // Move stat boxes slightly right so that the border lines fit in
-  int i = 1;
-  for (TH1F* h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", i); h != 0;
-       h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", ++i)) {
-        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
-        if (s != 0)
-          s->SetX2NDC(0.995);
-  }
-  i = 1;
-  for (TH1F* h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", i); h != 0;
-       h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", ++i)) {
-        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
-        if (s != 0)
-          s->SetX2NDC(0.995);
-  }
-*/
   chiprob->Draw();
   normchi->Draw();
 
@@ -953,7 +918,6 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   fi3.Close();
 
   fi1->Close();
-  TGaxis::SetMaxDigits(4);
 
 }
 
@@ -1324,13 +1288,7 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   double binning = (hist.GetXaxis()->GetXmax() - hist.GetXaxis()->GetXmin()) / hist.GetNbinsX();
   title_Yaxis.precision(2);
 
-  if /*( titleYAxis.Contains("meanX") )title_Yaxis<<"#LTx'_{pred}-x'_{hit}#GT[cm]";
-  else if ( titleYAxis.Contains("rmsX") )title_Yaxis<<"RMS(x'_{pred}-x'_{hit})[cm]";
-  else if( titleYAxis.Contains("meanNormX") )title_Yaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
-  else if( titleYAxis.Contains("rmsNormX") )title_Yaxis<<"RMS(x_'{pred}-x'_{hit}/#sigma)";
-  else if( titleYAxis.Contains("meanLocalX") )title_Yaxis<<"#LTx_{pred}-x_{hit}#GT[cm]";
-  else if( titleYAxis.Contains("rmsLocalX") )title_Yaxis<<"RMS(x_{pred}-x_{hit})[cm]";
-  else if*/ ( ((titleYAxis.Contains("layer") || titleYAxis.Contains("ring")) 
+  if ( ((titleYAxis.Contains("layer") || titleYAxis.Contains("ring"))
                     && titleYAxis.Contains("subDetId"))
 	      || titleYAxis.Contains("#modules")) {
     title_Yaxis<<"number of modules";
