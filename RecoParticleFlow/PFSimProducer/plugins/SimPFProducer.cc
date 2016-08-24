@@ -61,7 +61,7 @@ public:
   
 private:
   // parameters
-  const double superClusterThreshold_;
+  const double superClusterThreshold_, neutralEMThreshold_, neutralHADThreshold_;
   
   // inputs
   const edm::EDGetTokenT<edm::View<reco::PFRecTrack> > pfRecTracks_;
@@ -89,6 +89,8 @@ namespace {
 
 SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
   superClusterThreshold_( conf.getParameter<double>("superClusterThreshold") ),
+  neutralEMThreshold_( conf.getParameter<double>("neutralEMThreshold") ),
+  neutralHADThreshold_( conf.getParameter<double>("neutralHADThreshold") ),
   pfRecTracks_(consumes<edm::View<reco::PFRecTrack> >(conf.getParameter<edm::InputTag> ("pfRecTrackSrc"))),
   tracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
   gsfTracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
@@ -176,8 +178,10 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     std::vector<size_t> good_simclusters;
     for( unsigned isc = 0; isc < simclusters.size() ; ++isc ) {
       auto simc = simclusters[isc];
+      auto pdgId = std::abs(simc->pdgId());
       edm::Ref<std::vector<reco::PFCluster> > clusterRef(SimClustersH,simc.key());
-      if( clusterRef->energy() > 0.0 ) {	
+      if( ( (pdgId == 22 || pdgId == 11) &&  clusterRef->energy() >  neutralEMThreshold_) ||
+	  clusterRef->energy() > neutralHADThreshold_ ) {	
 	good_simclusters.push_back(isc);
 	etot += clusterRef->energy();
 	pttot += clusterRef->pt();	
@@ -221,12 +225,8 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   // in good particle flow fashion, start from the tracks and go out
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     auto tkRef  = TrackCollection.refAt(itk);
-    if( PFTrackToGeneralTrack.count(itk) == 0  ) {
-      std::cout << "no matching PFRecTrack!" << std::endl;
-      continue; // skip tracks not selected by PF
-    } else {
-      std::cout << "got the PF rec track!" << std::endl;
-    }
+     // skip tracks not selected by PF
+    if( PFTrackToGeneralTrack.count(itk) == 0  ) continue;
     reco::RecoToSimCollection::const_iterator assoc_tps = associatedTracks.back().end();
     for( const auto& association : associatedTracks ) {
       assoc_tps = association.find(tkRef);
@@ -258,6 +258,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     
     candidates->emplace_back(charge, trk_p4, part_type);
     auto& candidate = candidates->back();
+
     candidate.setTrackRef(tkRef.castTo<reco::TrackRef>());
     
     // bind to cluster if there is one and try to gather conversions, etc
@@ -265,23 +266,29 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
       uint64_t hash = hashSimInfo(*(match.first));
       if( hashToSimCluster.count(hash) ) {	
 	auto simcHash = hashToSimCluster[hash];
-	if( !usedSimCluster[simcHash] ) {
-	  size_t block    = simCluster2Block.find(simcHash)->second;
-	  size_t blockIdx = simCluster2BlockIndex.find(simcHash)->second;
-	  edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
-	  candidate.addElementInBlock(blockRef,blockIdx);
-	  usedSimCluster[simcHash] = true;
+	
+	if( !usedSimCluster[simcHash] ) {	 
+	  if( simCluster2Block.count(simcHash) && 
+	      simCluster2BlockIndex.count(simcHash) ) {
+	    size_t block    = simCluster2Block.find(simcHash)->second;
+	    size_t blockIdx = simCluster2BlockIndex.find(simcHash)->second;
+	    edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block);
+	    candidate.addElementInBlock(blockRef,blockIdx);
+	    usedSimCluster[simcHash] = true;
+	  }
 	}
 	if( absPdgId == 11 ) { // collect brems/conv. brems
-	  auto block_index = simCluster2Block.find(hashToSimCluster[hash])->second;
-	  auto supercluster_index = caloParticle2SuperCluster[ block_index ];
-	  if( supercluster_index != -1 ) {
-	    edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block_index);
-	    for( const auto& elem : blockRef->elements() ) {
-	      auto ref = elem.clusterRef();
-	      if( !usedSimCluster[ref.key()] ) {
-		candidate.addElementInBlock(blockRef,elem.index());
-		usedSimCluster[ref.key()] = true;
+	  if( simCluster2Block.count(simcHash) ) {
+	    auto block_index = simCluster2Block.find(simcHash)->second;
+	    auto supercluster_index = caloParticle2SuperCluster[ block_index ];
+	    if( supercluster_index != -1 ) {
+	      edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block_index);
+	      for( const auto& elem : blockRef->elements() ) {
+		auto ref = elem.clusterRef();
+		if( !usedSimCluster[ref.key()] ) {
+		  candidate.addElementInBlock(blockRef,elem.index());
+		  usedSimCluster[ref.key()] = true;
+		}
 	      }
 	    }
 	  }
