@@ -70,7 +70,9 @@ MicroEventContentMC = cms.PSet(
     outputCommands = cms.untracked.vstring(MicroEventContent.outputCommands)
 )
 MicroEventContentMC.outputCommands += [
-        'keep *_slimmedGenJets*_*_*',
+        #'keep *_slimmedGenJets*_*_*',
+        'keep *_slimmedGenJets_*_*',
+        'keep *_slimmedGenJetsAK8_*_*',
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',
