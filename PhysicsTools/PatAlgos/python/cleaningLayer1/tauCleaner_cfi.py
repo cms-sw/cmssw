@@ -12,10 +12,12 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
     src = cms.InputTag("selectedPatTaus"),
 
     # preselection (any string-based cut on pat::Tau)
-    preselection = 'tauID("decayModeFinding") > 0.5 &'
-                   ' tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 &'
-                   ' tauID("againstMuonTight3") > 0.5 &'
-                   ' tauID("againstElectronVLooseMVA6") > 0.5',
+    preselection =  cms.string(
+    'tauID("decayModeFinding") > 0.5 &'
+    ' tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 &'
+    ' tauID("againstMuonTight3") > 0.5 &'
+    ' tauID("againstElectronVLooseMVA6") > 0.5'
+    ),
                               
     # overlap checking configurables
     checkOverlaps = cms.PSet(
