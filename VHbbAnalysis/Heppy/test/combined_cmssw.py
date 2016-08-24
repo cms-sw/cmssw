@@ -158,6 +158,35 @@ def initialize(**kwargs):
             jetCollInstanceName=cms.string("SubJets"),            
         )
 
+
+        process.ca15PFSoftdropFiltJetsCHS = process.ca15PFJetsCHS.clone(
+            useSoftDrop = cms.bool(True),
+            zcut = cms.double(0.1),
+            beta = cms.double(0),
+            R0 = cms.double(1.5),
+            useFiltering = cms.bool(True),
+            nFilt = cms.int32(3), 
+            rFilt = cms.double(0.3), 
+            useExplicitGhosts = cms.bool(True),
+            writeCompound = cms.bool(True), # Also write subjets
+            jetCollInstanceName=cms.string("SubJets"),            
+        )
+
+        process.ca15PFSoftdropZ2B1FiltJetsCHS = process.ca15PFJetsCHS.clone(
+            useSoftDrop = cms.bool(True),
+            zcut = cms.double(0.2),
+            beta = cms.double(1),
+            R0 = cms.double(1.5),
+            useFiltering = cms.bool(True),
+            nFilt = cms.int32(3), 
+            rFilt = cms.double(0.3), 
+            useExplicitGhosts = cms.bool(True),
+            writeCompound = cms.bool(True), # Also write subjets
+            jetCollInstanceName=cms.string("SubJets"),            
+        )
+
+
+
         # Apply trimming to CA R=1.5 jets
         process.ca15PFTrimmedJetsCHS = process.ca15PFJetsCHS.clone(
             useTrimming = cms.bool(True),
@@ -270,6 +299,8 @@ def initialize(**kwargs):
         process.OUT.outputCommands.append("keep *_ca15PFPrunedJetsCHS_*_EX")
         process.OUT.outputCommands.append("keep *_ca15PFSoftdropJetsCHS_*_EX")
         process.OUT.outputCommands.append("keep *_ca15PFSoftdropZ2B1JetsCHS_*_EX")
+        process.OUT.outputCommands.append("keep *_ca15PFSoftdropFiltJetsCHS_*_EX")
+        process.OUT.outputCommands.append("keep *_ca15PFSoftdropZ2B1FiltJetsCHS_*_EX")
         process.OUT.outputCommands.append("keep *_ca15PFTrimmedJetsCHS_*_EX")
         process.OUT.outputCommands.append("keep *_ca15PFSubjetFilterCHS_*_EX")
         process.OUT.outputCommands.append("keep *_ca15PFJetsCHSNSubjettiness_*_EX")
@@ -409,13 +440,19 @@ def initialize(**kwargs):
     for fatjet_name in ["ca15PFPrunedJetsCHS", 
                         "ca15PFSoftdropJetsCHS", 
                         "ca15PFSoftdropZ2B1JetsCHS",                     
+                        "ca15PFSoftdropFiltJetsCHS", 
+                        "ca15PFSoftdropZ2B1FiltJetsCHS",                     
                         "ca15PFSubjetFilterCHS",
                         "looseOptRHTT"]:
 
         if skip_ca15:
             continue
             
-        if fatjet_name in  ["ca15PFPrunedJetsCHS", "ca15PFSoftdropJetsCHS", "ca15PFSoftdropZ2B1JetsCHS"]:
+        if fatjet_name in  ["ca15PFPrunedJetsCHS", 
+                            "ca15PFSoftdropJetsCHS", 
+                            "ca15PFSoftdropZ2B1JetsCHS",
+                            "ca15PFSoftdropFiltJetsCHS", 
+                            "ca15PFSoftdropZ2B1FiltJetsCHS"]:
             delta_r = 1.5
             jetAlgo = "CambridgeAachen"
             subjet_label = "SubJets"

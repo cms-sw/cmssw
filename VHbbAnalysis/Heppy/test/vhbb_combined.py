@@ -60,6 +60,17 @@ if not boostana.skip_ca15:
                                                                     10,
                                                                     help="CA, R=1.5, pT > 200 GeV, softdrop zcut=0.2, beta=1")
 
+    treeProducer.collections["ca15softdropfilt"] = NTupleCollection("FatjetCA15softdropfilt",
+                                                                fourVectorType,
+                                                                10,
+                                                                help="CA, R=1.5, pT > 200 GeV, softdrop zcut=0.1, beta=0 + Filtering")
+
+    treeProducer.collections["ca15softdropz2b1filt"] = NTupleCollection("FatjetCA15softdropz2b1filt",
+                                                                fourVectorType,
+                                                                10,
+                                                                help="CA, R=1.5, pT > 200 GeV, softdrop zcut=0.2, beta=1 + Filtering")
+
+
     treeProducer.collections["ca15trimmed"] = NTupleCollection("FatjetCA15trimmed",
                                                                 fourVectorType,
                                                                 10,
@@ -83,12 +94,22 @@ if not boostana.skip_ca15:
     treeProducer.collections["ca15softdropsubjets"] = NTupleCollection("SubjetCA15softdrop",
                                                                      subjetType,
                                                                      10,
-                                                                     help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=1, beta=0")
+                                                                     help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=0.1, beta=0")
 
     treeProducer.collections["ca15softdropz2b1subjets"] = NTupleCollection("SubjetCA15softdropz2b1",
                                                                      subjetType,
                                                                      10,
-                                                                     help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=1, beta=0")
+                                                                     help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=0.2, beta=1")
+
+    treeProducer.collections["ca15softdropfiltsubjets"] = NTupleCollection("SubjetCA15softdropfilt",
+                                                                           subjetType,
+                                                                           10,
+                                                                           help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=0.1, beta=0 + Filtering")
+
+    treeProducer.collections["ca15softdropz2b1filtsubjets"] = NTupleCollection("SubjetCA15softdropz2b1filt",
+                                                                               subjetType,
+                                                                               10,
+                                                                               help="Subjets of CA, R=1.5, pT > 200 GeV, softdrop z=0.2, beta=1 + Filtering")
 
 
     treeProducer.collections["ca15subjetfilteredsubjets"] = NTupleCollection("SubjetCA15subjetfiltered",
@@ -120,6 +141,19 @@ if sample.isMC:
     sequence.insert(sequence.index(VHbb),TauGenJet)
 
     treeProducer.collections["tauGenJets"] = NTupleCollection("GenHadTaus", genTauJetType, 15, help="Generator level hadronic tau decays")
+
+def fix_reHLT(config):
+    for ic in range(len(config.sequence)):
+        obj = config.sequence[ic]
+        
+        if obj.class_object.__name__ == "TriggerBitAnalyzer" and obj.processName == "HLT":
+            obj.processName = "HLT2"
+        
+        if obj.class_object.__name__ == "TriggerObjectsAnalyzer" and obj.triggerBitsInputTag == ('TriggerResults','','HLT'):
+            obj.triggerBitsInputTag = ('TriggerResults','','HLT2')
+
+if "reHLT" in sample.files[0]:
+    fix_reHLT(config)
 
 # Run Everything
 preprocessor = CmsswPreprocessor("combined_cmssw.py", options = {"isMC":sample.isMC})
