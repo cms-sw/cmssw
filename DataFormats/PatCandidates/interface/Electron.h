@@ -160,6 +160,17 @@ namespace pat {
       void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
       void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
 
+      float puppiChargedHardons() const {return puppiChargedHardons_; };
+      float puppiNeutralHardons() const {return puppiNeutralHardons_; };
+      float puppiPhotons() const {return puppiPhotons_; };
+
+      void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
+      {  
+         puppiChargedHardons_ = chargedhadrons_;
+         puppiNeutralHardons_ = neutralhadrons_;
+         puppiPhotons_ = photons_;
+
+      }
       // ---- PF specific methods ----
       bool isPF() const{ return isPF_; }
       void setIsPF(bool hasPFCandidate) { isPF_ = hasPFCandidate ; }
@@ -343,6 +354,11 @@ namespace pat {
       /// PFCluster Isolation (a la HLT)
       float ecalPFClusIso_;
       float hcalPFClusIso_;
+
+      //PUPPI isolations
+      float puppiChargedHardons_;
+      float puppiNeutralHardons_;
+      float puppiPhotons_;
 
       /// conversion veto
       bool passConversionVeto_;
