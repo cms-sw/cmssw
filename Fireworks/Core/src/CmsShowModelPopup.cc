@@ -194,7 +194,6 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
          TGTextButton *button;
          for(size_t index = m_openDetailedViewButtons.size(); index < viewChoices.size(); ++index)
          { 
-            printf("add new button %s \n ",  viewChoices[index].c_str());
             button = new TGTextButton(this, "dummy", index);
             AddFrame(button, new TGLayoutHints(kLHintsExpandX, 4, 4, 4, 4));
             TGCompositeFrame* cf = (TGCompositeFrame*)button->GetParent();
