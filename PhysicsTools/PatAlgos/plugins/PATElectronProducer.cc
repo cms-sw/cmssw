@@ -87,7 +87,10 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
   addEfficiencies_(iConfig.getParameter<bool>("addEfficiencies")),
   addResolutions_(iConfig.getParameter<bool>( "addResolutions" )),
-  useUserData_(iConfig.exists("userData"))
+  useUserData_(iConfig.exists("userData")),
+  PUPPIIsolation_charged_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"))),
+  PUPPIIsolation_neutral_hadrons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons_"))),
+  PUPPIIsolation_photons_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons")))
   
 { 
   // MC matching configurables (scheduled mode)
@@ -280,6 +283,15 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     }
   }
 
+    //value maps for puppi isolation
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
+  iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
+  iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
+  iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);
+  
+
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
 
   if( useParticleFlow_ ) {
@@ -300,6 +312,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       bool MatchedToAmbiguousGsfTrack=false;
       for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
 	unsigned int idx = itElectron - electrons->begin();
+   auto elePtr = electrons -> ptrAt(idx);
 	if (Matched || MatchedToAmbiguousGsfTrack) continue;
 
 	reco::GsfTrackRef EgTk= itElectron->gsfTrack();
@@ -323,6 +336,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
 	  Electron anElectron(elecsRef);
 	  anElectron.setPFCandidateRef( pfRef  );
+    anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
 
           //it should be always true when particleFlow electrons are used.
           anElectron.setIsPF( true );
@@ -771,7 +785,9 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
                           (*deposits[j])[elecRef]);
   }
 
+
   for (size_t j = 0; j<isolationValues.size(); ++j) {
+    std::cout << " test iso: " << isolationValueLabels_[j].first << std::endl;
     if(useParticleFlow_) {
       reco::CandidatePtr source = anElectron.pfCandidateRef()->sourceCandidatePtr(0);
       anElectron.setIsolation(isolationValueLabels_[j].first,
