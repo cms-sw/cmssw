@@ -25,6 +25,7 @@ namespace sim {
 class PrimaryTransformer;
 class Generator;
 class PhysicsList;
+class CustomUIsession;
 
 class SimWatcher;
 class SimProducer;
@@ -109,6 +110,7 @@ private:
 
   G4MTRunManagerKernel * m_kernel;
     
+  std::unique_ptr<CustomUIsession> m_UIsession;
   std::unique_ptr<PhysicsList> m_physicsList;
   bool m_managerInitialized;
   bool m_runTerminated;
@@ -126,6 +128,7 @@ private:
   edm::ParameterSet m_pRunAction;      
   edm::ParameterSet m_g4overlap;
   std::vector<std::string> m_G4Commands;
+  edm::ParameterSet m_p;
 
   std::unique_ptr<DDDWorld> m_world;
   std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
