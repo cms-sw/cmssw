@@ -63,6 +63,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  
  const edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
  const edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+ const bool                                   doPreshowerEcalHits_;
  const edm::EDGetTokenT<EcalRecHitCollection> preshowerEcalHits_;
  
  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonPfCandMapT_;
