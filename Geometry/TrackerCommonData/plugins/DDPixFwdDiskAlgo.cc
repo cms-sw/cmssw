@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDPixFwdDiskAlgo.h"
@@ -28,7 +29,7 @@ void DDPixFwdDiskAlgo::initialize(const DDNumericArguments & nArgs,
   startCopyNo = int(nArgs["StartCopyNo"]);
   nBlades     = int(nArgs["NumberOfBlades"]);
   bladeAngle  = nArgs["BladeAngle"];
-  bladeTilt   = nArgs["BladeTilt"];
+  bladeTilt   = -nArgs["BladeTilt"];
   zPlane      = nArgs["BladeCommonZ"];
   bladeZShift = vArgs["BladeZShift"];
   anchorR     = nArgs["AnchorRadius"];
@@ -68,20 +69,18 @@ void DDPixFwdDiskAlgo::execute(DDCompactView& cpv) {
       std::string rotstr = DDSplit(rotName).first + std::to_string(double(copy));
 
       double phi  = (iBlade+0.5)*deltaPhi;
-//      double phi  = (iBlade+0.5)*deltaPhi - 90.*CLHEP::deg;
-      double phix = std::atan2(std::sin(phi)*std::cos(bladeAngle),
-			       std::cos(phi)*std::cos(bladeAngle));
-      double thetx= std::acos(-std::sin(bladeAngle));
-      double phiy = std::atan2((std::cos(phi)*std::cos(bladeTilt)+std::sin(phi)
-				*std::sin(bladeAngle)*std::sin(bladeTilt)),
-			       (-std::sin(phi)*std::cos(bladeTilt)+std::cos(phi)
-				*std::sin(bladeAngle)*std::sin(bladeTilt)));
-      double thety= std::acos(std::cos(bladeAngle)*std::sin(bladeTilt));
-      double phiz = std::atan2((-std::cos(phi)*std::sin(bladeTilt)+std::sin(phi)
-				*std::sin(bladeAngle)*std::cos(bladeTilt)),
-			       (std::sin(phi)*std::sin(bladeTilt)+std::cos(phi)
-				*std::sin(bladeAngle)*std::cos(bladeTilt)));
-      double thetz= std::acos(std::cos(bladeAngle)*std::cos(bladeTilt));
+      double phiy  = std::atan2(std::cos(phi), -std::sin(phi));
+      double thety = std::acos(std::sin(bladeTilt));
+      double phix = std::atan2(std::cos(bladeAngle)*std::sin(phi) +
+                               std::cos(phi)*std::sin(bladeTilt)*std::sin(bladeAngle), 
+                               std::cos(phi)*std::cos(bladeAngle) - 
+                               std::sin(phi)*std::sin(bladeTilt)*std::sin(bladeAngle));
+      double thetx = std::acos(-std::cos(bladeTilt) * std::sin(bladeAngle));
+      double phiz = std::atan2(std::sin(phi)*std::sin(bladeAngle) -
+                               std::cos(phi)*std::cos(bladeAngle)*std::sin(bladeTilt), 
+                               std::cos(phi)*std::sin(bladeAngle) +
+                               std::cos(bladeAngle)*std::sin(phi)*std::sin(bladeTilt));
+      double thetz = std::acos(std::cos(bladeTilt) * std::cos(bladeAngle));
       DDRotation rot = DDRotation(DDName(rotstr, rotns));
       if (!rot) {
 	LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: Creating a new "
@@ -93,12 +92,9 @@ void DDPixFwdDiskAlgo::execute(DDCompactView& cpv) {
 	LogDebug("TrackerGeom") << "Rotation Matrix (" << phi/CLHEP::deg << ", " << bladeAngle/CLHEP::deg << ", " << bladeTilt/CLHEP::deg << ") " << std::cos(phi)*std::cos(bladeAngle) << ", " << (-std::sin(phi)*std::cos(bladeTilt)+std::cos(phi)*std::sin(bladeAngle)*std::sin(bladeTilt)) << ", " << (std::sin(phi)*std::sin(bladeTilt)+std::cos(phi)*std::sin(bladeAngle)*std::cos(bladeTilt)) << ", " << std::sin(phi)*std::cos(bladeAngle) << ", " << (std::cos(phi)*std::cos(bladeTilt)+std::sin(phi)*std::sin(bladeAngle)*std::sin(bladeTilt)) << ", " << (-std::cos(phi)*std::sin(bladeTilt)+std::sin(phi)*std::sin(bladeAngle)*std::cos(bladeTilt)) << ", " << -std::sin(bladeAngle) << ", " << std::cos(bladeAngle)*std::sin(bladeTilt) << ", " << std::cos(bladeAngle)*std::cos(bladeTilt);
 	rot = DDrot(DDName(rotstr, rotns), thetx,phix, thety,phiy, thetz,phiz);
       }
-      double xpos = anchorR*(-std::sin(phi)*std::cos(bladeTilt)+std::cos(phi)
-			     *std::sin(bladeAngle)*std::sin(bladeTilt));
-      double ypos = anchorR*(std::cos(phi)*std::cos(bladeTilt)+std::sin(phi)
-			     *std::sin(bladeAngle)*std::sin(bladeTilt));
-      double zpos = anchorR*(std::cos(bladeAngle)*std::sin(bladeTilt))+zPlane+
-	bladeZShift[iBlade];
+      double xpos = -anchorR * std::sin(phi);
+      double ypos = anchorR * std::cos(phi);
+      double zpos = zPlane + bladeZShift[iBlade % nBlades];
       DDTranslation tran(xpos, ypos, zpos);
       cpv.position (child, mother, copy, tran, rot);
       LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: " << child 
