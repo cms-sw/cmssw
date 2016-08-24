@@ -5,8 +5,8 @@ process = cms.Process('DIGI')
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 

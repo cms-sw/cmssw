@@ -8,11 +8,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
-
-#process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2019_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1_cff')
 
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
