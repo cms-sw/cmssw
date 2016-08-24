@@ -24,6 +24,17 @@ def esproducers_by_type(process, *types):
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+# Module restructuring for PR #15440
+def customiseFor15440(process):
+    for producer in producers_by_type(process, "EgammaHLTBcHcalIsolationProducersRegional", "EgammaHLTEcalPFClusterIsolationProducer", "EgammaHLTHcalPFClusterIsolationProducer", "MuonHLTEcalPFClusterIsolationProducer", "MuonHLTHcalPFClusterIsolationProducer"):
+        if hasattr(producer, "effectiveAreaBarrel") and hasattr(producer, "effectiveAreaEndcap"):
+            if not hasattr(producer, "effectiveAreas") and not hasattr(producer, "absEtaLowEdges"):
+                producer.absEtaLowEdges = cms.vdouble( 0.0, 1.479 )
+                producer.effectiveAreas = cms.vdouble( producer.effectiveAreaBarrel.value(), producer.effectiveAreaEndcap.value() )
+                del producer.effectiveAreaBarrel
+                del producer.effectiveAreaEndcap
+    return process
+
 # Add quadruplet-specific pixel track duplicate cleaning mode (PR #13753)
 def customiseFor13753(process):
     for producer in producers_by_type(process, "PixelTrackProducer"):
@@ -58,6 +69,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor14356(process)
         process = customiseFor13753(process)
         process = customiseFor14833(process)
+        process = customiseFor15440(process)
 #       process = customiseFor12718(process)
         pass
 

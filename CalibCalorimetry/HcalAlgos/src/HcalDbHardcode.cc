@@ -783,10 +783,18 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
   emap.sort();
 }
 
-
 HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId) {
   return HcalSiPMParameter(fId.rawId(), 0, 0, 0, 0, 0);
 }
 
 void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
+  sipm.loadObject(0,0,0,0,0,0,0,0);
+}
+
+HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
+  return HcalTPChannelParameter(fId.rawId(), 0, 0, 0, 0);
+}
+
+void HcalDbHardcode::makeHardcodeTPParameters (HcalTPParameters& tppar) {
+  tppar.loadObject(0,0,0,0,0,0);
 }

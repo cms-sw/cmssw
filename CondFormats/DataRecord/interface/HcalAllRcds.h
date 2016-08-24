@@ -21,6 +21,8 @@
 #include "CondFormats/DataRecord/interface/HcalZSThresholdsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalValidationCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTPChannelParametersRcd.h"
 #include "CondFormats/DataRecord/interface/HcalDcsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalDcsMapRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"

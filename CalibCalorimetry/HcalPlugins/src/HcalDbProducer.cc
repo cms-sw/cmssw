@@ -63,6 +63,8 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::frontEndMapCallback &
 //			  &HcalDbProducer::SiPMParametersCallback &
 //			  &HcalDbProducer::SiPMCharacteristicsCallback &
+//			  &HcalDbProducer::TPChannelParametersCallback &
+//			  &HcalDbProducer::TPParameterisCallback &
 			  &HcalDbProducer::lutMetadataCallback 
 			  )
 		   );
@@ -403,7 +405,36 @@ void HcalDbProducer::SiPMCharacteristicsCallback (const HcalSiPMCharacteristicsR
   fRecord.get (item);
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMCharacteristics")) != mDumpRequest.end()) {
-    *mDumpStream << "New HCAL FrontEnd Map set" << std::endl;
+    *mDumpStream << "New HCAL SiPMCharacteristics set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
+  }
+}
+
+void HcalDbProducer::TPChannelParametersCallback (const HcalTPChannelParametersRcd& fRecord) {
+  edm::ESTransientHandle <HcalTPChannelParameters> item;
+  fRecord.get (item);
+
+  mTPChannelParameters.reset( new HcalTPChannelParameters(*item) );
+
+  edm::ESHandle<HcalTopology> htopo;
+  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  mTPChannelParameters->setTopo(topo);
+
+  mService->setData (mTPChannelParameters.get());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPChannelParameters")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL TPChannelParameters set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mTPChannelParameters));
+  }
+}
+
+void HcalDbProducer::TPParametersCallback (const HcalTPParametersRcd& fRecord){
+
+  edm::ESHandle <HcalTPParameters> item;
+  fRecord.get (item);
+  mService->setData (item.product ());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPParameters")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL TPParameters set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(item.product ()));
   }
 }

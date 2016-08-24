@@ -174,6 +174,8 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( HcalSiPMCharacteristics )
       IMPORT_PAYLOAD_CASE( HcalSiPMParameters )
       IMPORT_PAYLOAD_CASE( HcalTimeCorrs )
+      IMPORT_PAYLOAD_CASE( HcalTPChannelParameters )
+      IMPORT_PAYLOAD_CASE( HcalTPParameters )
       IMPORT_PAYLOAD_CASE( HcalZSThresholds )
       IMPORT_PAYLOAD_CASE( HcalInterpolatedPulseColl )
       IMPORT_PAYLOAD_CASE( JetCorrectorParametersCollection )

@@ -39,6 +39,8 @@ class HcalFlagHFDigiTimeParamsRcd;
 class HcalTimingParamsRcd;
 class HcalSiPMParametersRcd;
 class HcalSiPMCharacteristicsRcd;
+class HcalTPChannelParametersRcd;
+class HcalTPParaamersRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
   public edm::EventSetupRecordIntervalFinder
@@ -85,7 +87,10 @@ protected:
   std::unique_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
   std::unique_ptr<HcalSiPMParameters> produceSiPMParameters (const HcalSiPMParametersRcd& rcd);
   std::unique_ptr<HcalSiPMCharacteristics> produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd);
- private:
+  std::unique_ptr<HcalTPChannelParameters> produceTPChannelParameters (const HcalTPChannelParametersRcd& rcd);
+  std::unique_ptr<HcalTPParameters> produceTPParameters (const HcalTPParametersRcd& rcd);
+
+private:
   std::map <std::string, std::string> mInputs;
 };
 

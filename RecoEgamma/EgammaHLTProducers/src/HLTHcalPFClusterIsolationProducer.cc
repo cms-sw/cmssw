@@ -31,12 +31,25 @@ HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const e
   etaStripEndcap_         ( config.getParameter<double>("etaStripEndcap")),
   energyBarrel_           ( config.getParameter<double>("energyBarrel")),
   energyEndcap_           ( config.getParameter<double>("energyEndcap")),
+  useEt_                  ( config.getParameter<bool>("useEt")),
   doRhoCorrection_        ( config.getParameter<bool>("doRhoCorrection")),
   rhoMax_                 ( config.getParameter<double>("rhoMax")),
-  rhoScale_               ( config.getParameter<double>("rhoScale")), 
-  effectiveAreaBarrel_    ( config.getParameter<double>("effectiveAreaBarrel")),
-  effectiveAreaEndcap_    ( config.getParameter<double>("effectiveAreaEndcap")),
-  useEt_                  ( config.getParameter<bool>("useEt")) {
+  rhoScale_               ( config.getParameter<double>("rhoScale")),
+  effectiveAreas_         ( config.getParameter<std::vector<double> >("effectiveAreas")) ,
+  absEtaLowEdges_         ( config.getParameter<std::vector<double> >("absEtaLowEdges")) {
+
+  if (doRhoCorrection_) {
+    if (absEtaLowEdges_.size() != effectiveAreas_.size())
+      throw cms::Exception("IncompatibleVects") << "absEtaLowEdges and effectiveAreas should be of the same size. \n";
+
+    if (absEtaLowEdges_.at(0) != 0.0)
+      throw cms::Exception("IncompleteCoverage") << "absEtaLowEdges should start from 0. \n";
+
+    for (unsigned int aIt = 0; aIt < absEtaLowEdges_.size() - 1; aIt++) {
+      if ( !(absEtaLowEdges_.at( aIt ) < absEtaLowEdges_.at( aIt + 1 )) )
+        throw cms::Exception("ImproperBinning") << "absEtaLowEdges entries should be in increasing order. \n";
+    }
+  }
   
   std::string recoCandidateProducerName = "recoCandidateProducer";
   if ((typeid(HLTHcalPFClusterIsolationProducer<T1>) == typeid(HLTHcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
@@ -67,8 +80,6 @@ void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
   desc.add<bool>("doRhoCorrection", false);
   desc.add<double>("rhoMax", 9.9999999E7); 
   desc.add<double>("rhoScale", 1.0); 
-  desc.add<double>("effectiveAreaBarrel", 0.101);
-  desc.add<double>("effectiveAreaEndcap", 0.046);
   desc.add<double>("drMax", 0.3);
   desc.add<double>("drVetoBarrel", 0.0);
   desc.add<double>("drVetoEndcap", 0.0);
@@ -77,6 +88,8 @@ void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
   desc.add<bool>("useEt", true);
+  desc.add<std::vector<double> >("effectiveAreas", {0.2, 0.25}); // 2016 post-ichep sinEle default
+  desc.add<std::vector<double> >("absEtaLowEdges", {0.0, 1.479}); // Barrel, Endcap
   descriptions.add(defaultModuleLabel<HLTHcalPFClusterIsolationProducer<T1>>(), desc);
 }
 
@@ -123,10 +136,16 @@ void HLTHcalPFClusterIsolationProducer<T1>::produce(edm::StreamID sid, edm::Even
     float sum = isoAlgo.getSum(candRef, clusterHandles);
  
     if (doRhoCorrection_) {
-      if (fabs(candRef->eta()) < 1.479) 
-	sum = sum - rho*effectiveAreaBarrel_;
-      else
-	sum = sum - rho*effectiveAreaEndcap_;
+      int iEA = -1;
+      auto cEta = std::abs(candRef->eta());
+      for (int bIt = absEtaLowEdges_.size() - 1; bIt > -1; bIt--) {
+        if ( cEta > absEtaLowEdges_.at(bIt) ) {
+          iEA = bIt;
+          break;
+        }
+      }
+
+      sum = sum - rho*effectiveAreas_.at(iEA);
     }
 
     recoCandMap.insert(candRef, sum);
