@@ -8,7 +8,7 @@ int main(int, char ** /*argv*/) try {
 
   char buf[1024];
   std::unique_ptr<Storage> s = StorageFactory::get()->open(
-      "http://transfer-8.ultralight.org:1094/store/mc/this/file/does/not/exist.root");
+      "http://opendata.cern.ch/eos/opendata/cms/mc/this/file/does/not/exist.root");
   assert(s);
 
   s->read(buf, sizeof(buf));
