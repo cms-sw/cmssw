@@ -215,20 +215,39 @@ triggerTable = {
         "HLT_Ele25_WPTight_Gsf_v*",
         "HLT_IsoMu18_v*",
     ],
-    "ttHhardonicAll" : [
+    "ttHhadronicAll" : [
         "HLT_PFHT450_SixJet40_BTagCSV_p056_v*",
         "HLT_PFHT450_SixJet40_v*",
         "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_v*",
         "HLT_PFHT400_SixJet30_v*",
         "HLT_PFHT350_v*",
     ],
-    "ttHhardonicHighLumi" : [
+    "ttHhadronicHighLumi" : [
         "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_v*",
         "HLT_PFHT450_SixJet40_BTagCSV_p056_v*",
     ],
-    "ttHhardonicLowLumi" : [
+    "ttHhadronicLowLumi" : [
         "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056_v*",
         "HLT_PFHT450_SixJet40_BTagCSV_p056_v*",
+    ],
+
+    "ttH_htt" : [
+        "HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_v*",
+        "HLT_IsoMu19_eta2p1_LooseIsoPFTau20_v*",
+        "HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v*",
+        "HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v*",
+        "HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v*",
+        "HLT_VLooseIsoPFTau120_eta2p1_v*",
+        "HLT_VLooseIsoPFTau140_eta2p1_v*",
+    ],
+    "ttH_htt_lepFakeBgr" : [
+        "HLT_Mu3_PFJet40_v*",
+        "HLT_Mu8_v*",
+        "HLT_Mu17_v*",
+        "HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v*",
+        "HLT_Ele12_CaloIdM_TrackIdM_PFJet30_v*",
+        "HLT_Ele17_CaloIdM_TrackIdM_PFJet30_v*",
+        "HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v*"
     ],
 
     "hadronic" : [
