@@ -18,8 +18,8 @@
 #include <cstring>
 #include <unistd.h>
 #include <getopt.h>
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -828,9 +828,9 @@ public:
     }
 
     if (filesCreated.size() > 0) {
-      printf("Created the following JSON files:\n");
+      std::cout << "Created the following JSON files:" << std::endl;
       for (const std::string& filename : filesCreated)
-        printf(" %s\n", filename.c_str());
+        std::cout << " " << filename << std::endl;
     }
   }
 };
@@ -1197,9 +1197,9 @@ public:
     }
 
     if (filesCreated.size() > 0) {
-      printf("Created the following summary files:\n");
+      std::cout << "Created the following summary files:" << std::endl;
       for (const std::string& filename : filesCreated)
-        printf(" %s\n", filename.c_str());
+        std::cout << " " << filename << std::endl;
     }
   }
 
@@ -1305,7 +1305,8 @@ public:
     for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
       // printing progress on every 10%
       if (counter%(counter_denominator) == 0) {
-        printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 10*counter/(counter_denominator));
+        std::cout << "Processed events: " << counter << " out of " << nEvents
+          << " (" << 10*counter/(counter_denominator) << "%)" << std::endl;
       }
 
       // seek the same event in the "new" files
