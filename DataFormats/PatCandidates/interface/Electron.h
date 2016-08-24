@@ -166,9 +166,9 @@ namespace pat {
 
       void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
       {  
-         puppiChargedHardons_ = chargedhadrons_;
-         puppiNeutralHardons_ = neutralhadrons_;
-         puppiPhotons_ = photons_;
+         puppiChargedHardonsIso_ = chargedhadrons_;
+         puppiNeutralHardonsIso_ = neutralhadrons_;
+         puppiPhotonsIso_ = photons_;
 
       }
       // ---- PF specific methods ----
