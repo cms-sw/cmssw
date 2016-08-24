@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -38,7 +38,7 @@
  *    <LI>untracked string outputBaseName: basename for output files</LI>
  *    </UL>
  */
-class EcalSimRawData: public edm::EDAnalyzer{
+class EcalSimRawData: public edm::one::EDAnalyzer<> {
   public:
   /** Constructor
    * @param pset CMSSW configuration
@@ -55,6 +55,9 @@ class EcalSimRawData: public edm::EDAnalyzer{
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+
+  int iEvent;
+
   /** Number of crystals in ECAL barrel along eta
    */
   static const int nEbEta = 170;

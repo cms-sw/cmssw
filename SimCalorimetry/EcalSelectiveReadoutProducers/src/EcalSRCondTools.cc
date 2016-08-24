@@ -59,7 +59,7 @@ constexpr int dccNum[12][12] = {
 
 using namespace std;
 
-EcalSRCondTools::EcalSRCondTools(const edm::ParameterSet& ps):ps_(ps){
+EcalSRCondTools::EcalSRCondTools(const edm::ParameterSet& ps):ps_(ps),done_(false){
 }
 
 
@@ -68,17 +68,14 @@ EcalSRCondTools::~EcalSRCondTools(){
 
 void
 EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
-  static bool done = false;
-  if(done) return;
+  if(done_) return;
   EcalSRSettings* sr = new EcalSRSettings;
 
   string mode = ps_.getParameter<string>("mode");
-  bool iomode;
-  const bool iomode_read = false;
-  const bool iomode_write = true;
 
+  bool iomode_write = true;
   if(mode == "online_config" || mode == "combine_config"){
-    iomode =iomode_write;
+
     string fname = ps_.getParameter<string>("onlineSrpConfigFile");
     ifstream f(fname.c_str());
     if(!f.good()){
@@ -88,12 +85,11 @@ EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
   }
 
   if(mode=="python_config" || mode=="combine_config"){
-    iomode = iomode_write;
     importParameterSet(*sr, ps_);
   }
 
   if(mode=="read"){
-    iomode = iomode_read;
+    iomode_write = false;
   }
 
   if(!(mode=="python_config" || mode == "online_config" || mode == "combine_config" || (mode=="read"))){
@@ -101,7 +97,7 @@ EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
                                    << "Valid values: online_config, python_config, combine_config, read";
   }
 
-  if(iomode==iomode_write){
+  if(iomode_write){
     sr->bxGlobalOffset_ = ps_.getParameter<int>("bxGlobalOffset");
     sr->automaticSrpSelect_ = ps_.getParameter<int>("automaticSrpSelect");
     sr->automaticMasks_ = ps_.getParameter<int>("automaticMasks");
@@ -114,16 +110,16 @@ EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
     //create new infinite IOV
     cond::Time_t firstSinceTime = db->beginOfTime();
     db->writeOne(sr,firstSinceTime,"EcalSRSettingsRcd");
-    done = true;
+    done_ = true;
   } else {//read mode
     edm::ESHandle<EcalSRSettings> hSr;
     es.get<EcalSRSettingsRcd>().get(hSr);
     if(!hSr.isValid()){
       cout << "EcalSRSettings record not found. Check the Cond DB Global tag.\n";
     } else{
-      const EcalSRSettings* sr = hSr.product();
+      const EcalSRSettings* ssr = hSr.product();
       cout << "ECAL Seletive readout settings:\n";
-      cout << *sr << "\n" << endl;
+      cout << *ssr << "\n" << endl;
     }
     
     //trigger tower thresholds (from FENIX configuration):
@@ -151,6 +147,7 @@ EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
       }
     }
   }
+  delete sr;
 }
 
 void EcalSRCondTools::importParameterSet(EcalSRSettings& sr, const edm::ParameterSet& ps){

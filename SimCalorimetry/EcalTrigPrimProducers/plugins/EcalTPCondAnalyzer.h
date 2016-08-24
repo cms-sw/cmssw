@@ -17,7 +17,7 @@
 
 // system include files
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -52,15 +52,15 @@ class CaloSubdetectorGeometry ;
 // class declaration
 //
 
-class EcalTPCondAnalyzer : public edm::EDAnalyzer {
+class EcalTPCondAnalyzer : public edm::one::EDAnalyzer<> {
  public:
   explicit EcalTPCondAnalyzer(const edm::ParameterSet&);
   ~EcalTPCondAnalyzer();
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
-  void beginRun(const edm::Run & run, const edm::EventSetup& es) override;
+  void beginRun(const edm::Run & run, const edm::EventSetup& es);
   virtual void endJob();
 
  private:

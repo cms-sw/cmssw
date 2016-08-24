@@ -1,7 +1,7 @@
 #ifndef SimCalorimetry_EcalElectronicsEmulationEcalSimpleProducer_h
 #define SimCalorimetry_EcalElectronicsEmulationEcalSimpleProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include <memory>
 #include <TFormula.h>
 #include <string>
@@ -35,7 +35,7 @@
  * TFormula</A>
  *
  */
-class EcalSimpleProducer: public edm::EDProducer {
+class EcalSimpleProducer: public edm::one::EDProducer<> {
 
   //constructor(s) and destructor(s)
 public:
