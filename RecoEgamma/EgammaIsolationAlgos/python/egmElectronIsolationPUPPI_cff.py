@@ -21,9 +21,9 @@ IsoConeDefinitions = cms.VPSet(
                   miniAODVertexCodes = cms.vuint32(2,3) )
         )
 
-egmElectronIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducer",
+egmElectronIsolationAODPUPPI = cms.EDProducer( "CITKPFIsolationSumProducerForPUPPI",
                 srcToIsolate = cms.InputTag("gedGsfElectrons"),
-                srcForIsolationCone = cms.InputTag('puppi'),
+                srcForIsolationCone = cms.InputTag(''),
                 isolationConeDefinitions = IsoConeDefinitions
 )
 
