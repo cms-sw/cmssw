@@ -438,6 +438,7 @@ void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
 void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells) {
   static const int kUTCAMask = 0x4000000; //set bit 26 for uTCA version
   static const int kLinearIndexMax = 0x7FFFF; //19 bits
+  static const int kTriggerBitMask = 0x02000000; //2^25
   uint32_t counter = 0;
   uint32_t counterTrig = 0;
   for(const auto& fId : cells){
@@ -458,7 +459,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap, const std::vector
       ++counterTrig;
       assert(counterTrig < kLinearIndexMax);
       uint32_t raw = counterTrig;
-      raw |= kUTCAMask;
+      raw |= kUTCAMask | kTriggerBitMask;
       HcalElectronicsId elId(raw);
       emap.mapEId2tId(elId,fId);
     }
