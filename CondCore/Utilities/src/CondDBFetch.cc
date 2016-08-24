@@ -160,6 +160,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE( HcalRecoParams )
       FETCH_PAYLOAD_CASE( HcalRespCorrs )
       FETCH_PAYLOAD_CASE( HcalTimeCorrs )
+      FETCH_PAYLOAD_CASE( HcalTPChannelParameters )
+      FETCH_PAYLOAD_CASE( HcalTPParameters )
       FETCH_PAYLOAD_CASE( HcalZSThresholds )
       FETCH_PAYLOAD_CASE( HcalInterpolatedPulseColl )
       FETCH_PAYLOAD_CASE( OOTPileupCorrectionBuffer )

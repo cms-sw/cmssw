@@ -163,13 +163,14 @@ namespace edmtest
       dumpIt(new HcalMCParams(&(*topology)), new HcalMCParamsRcd, e,context,"MCParams", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FlagHFDigiTimeParams")) != mDumpRequest.end())
       dumpIt(new HcalFlagHFDigiTimeParams(&(*topology)), new HcalFlagHFDigiTimeParamsRcd, e,context,"FlagHFDigiTimeParams", topo);
-    /*
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMParameters")) != mDumpRequest.end())
       dumpIt(new HcalSiPMParameters(&(*topology)), new HcalSiPMParametersRcd, e,context,"SiPMParameters", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMCharacteristics")) != mDumpRequest.end())
       dumpIt(new HcalSiPMCharacteristics, new HcalSiPMCharacteristicsRcd, e,context,"SiPMCharacteristics");
-    */
-    
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPChannelParameters")) != mDumpRequest.end())
+      dumpIt(new HcalTPChannelParameters(&(*topology)), new HcalTPChannelParametersRcd, e,context,"TPChannelParameters", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPParameters")) != mDumpRequest.end())
+      dumpIt(new HcalTPParameters, new HcalTPParametersRcd, e,context,"TPParameters");
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);
 }

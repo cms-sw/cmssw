@@ -24,6 +24,8 @@
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameter.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 
 /**
@@ -77,6 +79,8 @@ class HcalDbHardcode {
 				 const std::vector<HcalGenericDetId>& cells);
     HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId);
     void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
+    HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);
+    void makeHardcodeTPParameters (HcalTPParameters& tppar);
     
   private:
     //member variables
