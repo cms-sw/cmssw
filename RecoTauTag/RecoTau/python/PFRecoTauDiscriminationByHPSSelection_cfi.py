@@ -60,9 +60,9 @@ decayMode_2Prong0Pi0 = cms.PSet(
     maxMass = cms.string("1.2"),
     # for XProng0Pi0 decay modes bending corrections are transparent
     applyBendCorrection = cms.PSet(
-        eta = cms.bool(True),
-        phi = cms.bool(True),
-        mass = cms.bool(True)
+        eta = cms.bool(False),
+        phi = cms.bool(False),
+        mass = cms.bool(False)
     )
 )
 decayMode_2Prong1Pi0 = cms.PSet(
@@ -73,9 +73,9 @@ decayMode_2Prong1Pi0 = cms.PSet(
     minMass = cms.double(0.),
     maxMass = cms.string("max(1.2, min(1.2*sqrt(pt/100.), 4.0))"),
     applyBendCorrection = cms.PSet(
-        eta = cms.bool(True),
-        phi = cms.bool(True),
-        mass = cms.bool(True)
+        eta = cms.bool(False),
+        phi = cms.bool(False),
+        mass = cms.bool(False)
     )
 )
 decayMode_3Prong0Pi0 = cms.PSet(
@@ -86,9 +86,9 @@ decayMode_3Prong0Pi0 = cms.PSet(
     minMass = cms.double(0.8),
     maxMass = cms.string("1.5"),
     applyBendCorrection = cms.PSet(
-        eta = cms.bool(True),
-        phi = cms.bool(True),
-        mass = cms.bool(True)
+        eta = cms.bool(False),
+        phi = cms.bool(False),
+        mass = cms.bool(False)
     )
 )
 decayMode_3Prong1Pi0 = cms.PSet( #suggestions made by CV
@@ -100,9 +100,9 @@ decayMode_3Prong1Pi0 = cms.PSet( #suggestions made by CV
     maxMass = cms.string("1.6"),
     # for XProng0Pi0 decay modes bending corrections are transparent
     applyBendCorrection = cms.PSet(
-        eta = cms.bool(True),
-        phi = cms.bool(True),
-        mass = cms.bool(True)
+        eta = cms.bool(False),
+        phi = cms.bool(False),
+        mass = cms.bool(False)
     )
 )
 
