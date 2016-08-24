@@ -787,7 +787,6 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
 
 
   for (size_t j = 0; j<isolationValues.size(); ++j) {
-    std::cout << " test iso: " << isolationValueLabels_[j].first << std::endl;
     if(useParticleFlow_) {
       reco::CandidatePtr source = anElectron.pfCandidateRef()->sourceCandidatePtr(0);
       anElectron.setIsolation(isolationValueLabels_[j].first,
