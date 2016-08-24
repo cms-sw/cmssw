@@ -98,7 +98,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Get Weights
   edm::Handle<edm::ValueMap<float> > pupWeights; 
   iEvent.getByToken(tokenWeights_,pupWeights);
-  std::auto_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
+  std::unique_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
   int iPF = 0; 
@@ -158,16 +158,16 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     corrCandidates_->push_back(pCand);
   }
   //Fill it into the event
-  edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put( corrCandidates_ );
+  edm::OrphanHandle<reco::PFCandidateCollection> oh = iEvent.put(std::move(corrCandidates_));
   for(unsigned int ic=0, nc = pupCol->size(); ic < nc; ++ic) {
       reco::CandidatePtr pkref( oh, ic );
       values[ic] = pkref;
   }  
-  std::auto_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
+  std::unique_ptr<edm::ValueMap<reco::CandidatePtr> > pfMap_p(new edm::ValueMap<reco::CandidatePtr>());
   edm::ValueMap<reco::CandidatePtr>::Filler filler(*pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
-  iEvent.put(pfMap_p);
+  iEvent.put(std::move(pfMap_p));
 }
 // ------------------------------------------------------------------------------------------
 bool PuppiPhoton::matchPFCandidate(const reco::Candidate *iPF,const reco::Candidate *iPho) { 
