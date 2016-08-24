@@ -27,6 +27,7 @@ public:
 
   explicit CMSSteppingVerbose(G4int verb, G4double ekin,
 			      std::vector<G4int>& evtNum,
+			      std::vector<G4int>& primV,
 			      std::vector<G4int>& trNum);
   ~CMSSteppingVerbose();
 
@@ -43,8 +44,10 @@ private:
   G4bool m_PrintTrack;
   G4int m_verbose;
   G4int m_nEvents;
+  G4int m_nVertex;
   G4int m_nTracks;
   std::vector<G4int> m_EventNumbers;
+  std::vector<G4int> m_PrimaryVertex;
   std::vector<G4int> m_TrackNumbers;
   G4double m_EkinThreshold;
 };
