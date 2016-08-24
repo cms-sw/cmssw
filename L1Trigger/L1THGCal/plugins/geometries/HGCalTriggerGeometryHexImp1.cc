@@ -56,8 +56,8 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
     // read module mapping file
     std::unordered_map<short, short> wafer_to_module_ee;
     std::unordered_map<short, short> wafer_to_module_fh;
-    std::unordered_map<short, std::unordered_map<short,short>> module_to_wafers_ee;
-    std::unordered_map<short, std::unordered_map<short,short>> module_to_wafers_fh;
+    std::unordered_map<short, std::map<short,short>> module_to_wafers_ee;
+    std::unordered_map<short, std::map<short,short>> module_to_wafers_fh;
     std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
     if(!l1tModulesMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TModulesMapping file\n";
     short subdet  = 0;
@@ -68,13 +68,13 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
         if(subdet==3)
         {
             wafer_to_module_ee.emplace(wafer,module);
-            auto itr_insert = module_to_wafers_ee.emplace(module, std::unordered_map<short,short>());
+            auto itr_insert = module_to_wafers_ee.emplace(module, std::map<short,short>());
             itr_insert.first->second.emplace(wafer, 0);
         }
         else if(subdet==4)
         {
             wafer_to_module_fh.emplace(wafer,module);
-            auto itr_insert = module_to_wafers_fh.emplace(module, std::unordered_map<short,short>());
+            auto itr_insert = module_to_wafers_fh.emplace(module, std::map<short,short>());
             itr_insert.first->second.emplace(wafer, 0);
         }
         else edm::LogWarning("HGCalTriggerGeometry") << "Unsupported subdetector number ("<<subdet<<") in L1TModulesMapping file\n";
