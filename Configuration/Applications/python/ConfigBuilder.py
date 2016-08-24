@@ -737,6 +737,8 @@ class ConfigBuilder(object):
 			if stepName[2:] not in self._options.donotDropOnInput:
 				self._options.inputEventContent='%s,%s'%(stepName.upper(),self._options.inputEventContent)
 			stepName=stepName[2:]
+                if stepName=="SIM":
+                        stepSpec=""
 		if stepSpec=="":
 			getattr(self,"prepare_"+stepName)(sequence = getattr(self,stepName+"DefaultSeq"))
 		elif type(stepSpec)==list:
@@ -1393,6 +1395,11 @@ class ConfigBuilder(object):
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
 	self.loadDefaultOrSpecifiedCFF(sequence,self.SIMDefaultCFF)
+	stepSpec = self.stepMap["SIM"]
+	if stepSpec and stepSpec[0]=="SimSequentialMode_cff":
+	        self.loadAndRemember("Configuration/StandardSequences/SimSequentialMode_cff")
+ 	        print "Step: SIM Geant4 sequential is chosen ",stepSpec
+
 	if not self._options.fast:
 		if self._options.gflash==True:
 			self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
