@@ -32,7 +32,6 @@ output stream.
 #include <vector>
 #include <map>
 #include <atomic>
-#include <mutex>
 
 namespace edm {
 
@@ -171,7 +170,6 @@ namespace edm {
     std::map<BranchID, bool> keepAssociation_;
 
     SharedResourcesAcquirer resourceAcquirer_;
-    std::mutex mutex_;
 
     //------------------------------------------------------------------
     // private member functions

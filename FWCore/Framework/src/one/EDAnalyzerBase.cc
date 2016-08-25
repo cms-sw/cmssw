@@ -55,20 +55,19 @@ namespace edm {
     EDAnalyzerBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
                             ActivityRegistry* act,
                             ModuleCallingContext const* mcc) {
-      Event e(ep, moduleDescription_, mcc);
-      e.setConsumer(this);
-      {
-        std::lock_guard<std::mutex> guard(mutex_);
-        std::lock_guard<SharedResourcesAcquirer> guardResources(resourcesAcquirer_);
+      resourcesAcquirer_.serialQueueChain().pushAndWait([&]() {
+        Event e(ep, moduleDescription_, mcc);
+        e.setConsumer(this);
         e.setSharedResourcesAcquirer(&resourcesAcquirer_);
         EventSignalsSentry sentry(act,mcc);
         this->analyze(e, c);
-      }
+      });
       return true;
     }
     
     SharedResourcesAcquirer EDAnalyzerBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
+      return SharedResourcesAcquirer{std::vector<std::recursive_mutex*>(),
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 
     void

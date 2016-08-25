@@ -60,7 +60,7 @@ namespace edm {
 
 #ifdef SHAREDRESOURCETESTACCESSORS
     // The next function is intended to be used only in a unit test
-    std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> const& resourceMap() const { return resourceMap_; }
+    std::map<std::string, std::pair<std::shared_ptr<SerialTaskQueue>,unsigned int>> const& resourceMap() const { return resourceMap_; }
 #endif
 
   private:
@@ -72,7 +72,7 @@ namespace edm {
     const SharedResourcesRegistry& operator=(const SharedResourcesRegistry&) = delete; // stop default
     
     // ---------- member data --------------------------------
-    std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> resourceMap_;
+    std::map<std::string, std::pair<std::shared_ptr<SerialTaskQueue>,unsigned int>> resourceMap_;
     
     edm::propagate_const<std::shared_ptr<std::recursive_mutex>> resourceForDelayedReader_;
     

@@ -33,15 +33,13 @@ namespace edm {
   EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
                       ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
-    Event e(ep, moduleDescription_, mcc);
-    e.setConsumer(this);
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+    resourceAcquirer_.serialQueueChain().pushAndWait([&]() {
+      Event e(ep, moduleDescription_, mcc);
+      e.setConsumer(this);
       e.setSharedResourcesAcquirer(&resourceAcquirer_);
       EventSignalsSentry sentry(act,mcc);
       this->analyze(e, c);
-    }
+    });
     return true;
   }
 

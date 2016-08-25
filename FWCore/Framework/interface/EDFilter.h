@@ -21,7 +21,6 @@ These products should be informational products about the filter decision.
 
 #include <string>
 #include <vector>
-#include <mutex>
 
 namespace edm {
   namespace maker {
@@ -98,7 +97,6 @@ namespace edm {
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
     SharedResourcesAcquirer resourceAcquirer_;
-    std::mutex mutex_;
     ParentageID previousParentageId_;
   };
 }

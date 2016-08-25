@@ -55,21 +55,19 @@ namespace edm {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       bool returnValue =true;
+      resourcesAcquirer_.serialQueueChain().pushAndWait([&]()
       {
-        std::lock_guard<std::mutex> guard(mutex_);
-        {
-          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
-          e.setSharedResourcesAcquirer(&resourcesAcquirer_);
-          EventSignalsSentry sentry(act,mcc);
-          returnValue = this->filter(e, c);
-        }
+        e.setSharedResourcesAcquirer(&resourcesAcquirer_);
+        EventSignalsSentry sentry(act,mcc);
+        returnValue = this->filter(e, c);
         commit_(e,&previousParentage_, &previousParentageId_);
-      }
+      });
       return returnValue;
     }
     
     SharedResourcesAcquirer EDFilterBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
+      return SharedResourcesAcquirer{std::vector<std::recursive_mutex*>(),
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 
     void

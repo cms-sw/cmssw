@@ -241,15 +241,13 @@ namespace edm {
     FDEBUG(2) << "writeEvent called\n";
 
     {
-      std::lock_guard<std::mutex> guard(mutex_);
-      
+      resourceAcquirer_.serialQueueChain().pushAndWait([&]()
       {
-        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
         EventForOutput e(ep, moduleDescription_, mcc);
         e.setConsumer(this);
         EventSignalsSentry sentry(act,mcc);
         write(e);
-      }
+      });
     }
     if(remainingEvents_ > 0) {
       --remainingEvents_;

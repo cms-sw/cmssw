@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 #include <string>
-#include <mutex>
 
 // EDAnalyzer is the base class for all analyzer "modules".
 
@@ -85,7 +84,6 @@ namespace edm {
     }
     ModuleDescription moduleDescription_;
     SharedResourcesAcquirer resourceAcquirer_;
-    std::mutex mutex_;
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
   };

@@ -356,6 +356,7 @@ void
 testOneOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::one::OutputModuleBase> w{iMod,m_desc,m_params.actions_};
+  w.beginJob();
   edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod.get());
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,&comm,keyVal.first,iExpect,keyVal.second);
