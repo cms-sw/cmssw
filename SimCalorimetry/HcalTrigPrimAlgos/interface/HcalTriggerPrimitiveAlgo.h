@@ -190,6 +190,11 @@ public:
   std::unique_ptr<const TPParameters> override_parameters_;
 
   static const int first_he_tower = 16;
+
+  static const int QIE8_LINEARIZATION_ET = 0x3FF;
+  static const int QIE10_LINEARIZATION_ET = 0x3FF;
+  static const int QIE11_LINEARIZATION_ET = 0x3FF;
+  static const int QIE10_MAX_LINEARIZATION_ET = 0xFFF
 };
 
 template<typename... Digis>

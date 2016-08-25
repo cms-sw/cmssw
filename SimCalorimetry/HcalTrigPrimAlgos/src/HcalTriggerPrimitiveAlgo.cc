@@ -281,7 +281,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
       }
       if (algosumvalue<0) sum[ibin]=0;            // low-side
                                                   //high-side
-      //else if (algosumvalue>0x3FF) sum[ibin]=0x3FF;
+      //else if (algosumvalue>QIE8_LINEARIZATION_ET) sum[ibin]=QIE8_LINEARIZATION_ET;
       else sum[ibin] = algosumvalue;              //assign value to sum[]
    }
 
@@ -326,21 +326,21 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
          }
 
          if (isPeak){
-            output[ibin] = std::min<unsigned int>(sum[idx],0x3FF);
+            output[ibin] = std::min<unsigned int>(sum[idx],QIE8_LINEARIZATION_ET);
             finegrain[ibin] = msb[idx];
          }
          // Not a peak
          else output[ibin] = 0;
       }
       else { // No peak finding, just output running sum
-         output[ibin] = std::min<unsigned int>(sum[idx],0x3FF);
+         output[ibin] = std::min<unsigned int>(sum[idx],QIE8_LINEARIZATION_ET);
          finegrain[ibin] = msb[idx];
       }
 
       // Only Pegged for 1-TS algo.
       if (peak_finder_algorithm_ == 1) {
-         if (samples[idx] >= 0x3FF)
-            output[ibin] = 0x3FF;
+         if (samples[idx] >= QIE8_LINEARIZATION_ET)
+            output[ibin] = QIE8_LINEARIZATION_ET;
       }
    }
    outcoder_->compress(output, finegrain, result);
@@ -363,7 +363,7 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
       }
       if (algosumvalue<0) sum[ibin]=0;            // low-side
                                                   //high-side
-      //else if (algosumvalue>0x3FF) sum[ibin]=0x3FF;
+      //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
       else sum[ibin] = algosumvalue;              //assign value to sum[]
    }
 
@@ -394,7 +394,7 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
       bool isPeak = (sum[idx] > sum[idx-1] && sum[idx] >= sum[idx+1] && sum[idx] > theThreshold);
 
       if (isPeak){
-         output[ibin] = std::min<unsigned int>(sum[idx],0x3FF);
+         output[ibin] = std::min<unsigned int>(sum[idx],QIE11_LINEARIZATION_ET);
          finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
       } else {
          // Not a peak
@@ -450,7 +450,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
    for (int ibin = 0; ibin < tpSamples; ++ibin) {
       int idx = ibin + shift;
       output[ibin] = samples[idx] >> hf_lumi_shift;
-      static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+      static const int MAX_OUTPUT = QIE8_LINEARIZATION_ET;  // QIE8_LINEARIZATION_ET = 1023
       if (output[ibin] > MAX_OUTPUT) output[ibin] = MAX_OUTPUT;
    }
    outcoder_->compress(output, finegrain, result);
@@ -515,7 +515,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
     }
 
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
-       static const unsigned int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+       static const unsigned int MAX_OUTPUT = QIE8_LINEARIZATION_ET;  // QIE8_LINEARIZATION_ET = 1023
        output[bin] = min({MAX_OUTPUT, output[bin] >> HF_LUMI_SHIFT});
     }
 
@@ -596,8 +596,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     }
 
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
-       static const unsigned int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
-       output[bin] = min({MAX_OUTPUT, output[bin] >> hf_lumi_shift});
+       output[bin] = min({QIE10_MAX_LINEARIZATION_ET, output[bin] >> hf_lumi_shift});
     }
     outcoder_->compress(output, finegrain, result);
 }
