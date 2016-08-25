@@ -49,8 +49,13 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
   std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
   std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
-  std::string phase2TrackerCPEName = pset_.getParameter<std::string>("Phase2StripCPE");
   std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
+
+  //FIXME:: just temporary solution for phase2!
+  std::string phase2TrackerCPEName = "";
+  if (pset_.existsAs<std::string>("Phase2StripCPE")) {
+    phase2TrackerCPEName = pset_.getParameter<std::string>("Phase2StripCPE");
+  }
 
   // ========= SiPixelQuality related tasks =============
   const SiPixelQuality    *ptr_pixelQuality = 0;
@@ -124,15 +129,15 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   
   iRecord.getRecord<TkPixelCPERecord>().get(pixelCPEName,pixelCPE);
   iRecord.getRecord<TkStripCPERecord>().get(stripCPEName,stripCPE);
-  iRecord.getRecord<TkStripCPERecord>().get(phase2TrackerCPEName,phase2TrackerCPE);
   iRecord.getRecord<TkStripCPERecord>().get(matcherName,hitMatcher);
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
 
-  _measurementTracker  = std::make_shared<MeasurementTrackerImpl>(pset_,
+  if(phase2TrackerCPEName != ""){
+      iRecord.getRecord<TkStripCPERecord>().get(phase2TrackerCPEName,phase2TrackerCPE);
+      _measurementTracker  = std::make_shared<MeasurementTrackerImpl>(pset_,
 							          pixelCPE.product(),
 							          stripCPE.product(),
-							          phase2TrackerCPE.product(),
 							          hitMatcher.product(),
 							          trackerGeom.product(),
 							          geometricSearchTracker.product(),
@@ -142,7 +147,23 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 							          ptr_pixelQuality,
 							          ptr_pixelCabling,
                                                                   pixelQualityFlags,
-                                                                  pixelQualityDebugFlags); 
+                                                                  pixelQualityDebugFlags,
+							          phase2TrackerCPE.product());
+  } else {
+      _measurementTracker  = std::make_shared<MeasurementTrackerImpl>(pset_,
+							          pixelCPE.product(),
+							          stripCPE.product(),
+							          hitMatcher.product(),
+							          trackerGeom.product(),
+							          geometricSearchTracker.product(),
+							          ptr_stripQuality,
+                                                                  stripQualityFlags,
+                                                                  stripQualityDebugFlags,
+							          ptr_pixelQuality,
+                                                                  ptr_pixelCabling,
+                                                                  pixelQualityFlags,
+                                                                  pixelQualityDebugFlags);
+  }
   return _measurementTracker;
 }
 
