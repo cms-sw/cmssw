@@ -8,13 +8,13 @@ class TkPixelMeasurementDet;
 class SiStripRecHitMatcher;
 class StripClusterParameterEstimator;
 class PixelClusterParameterEstimator;
-class Phase2StripCPETrivial;
+class Phase2StripCPE;
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"

@@ -3,7 +3,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

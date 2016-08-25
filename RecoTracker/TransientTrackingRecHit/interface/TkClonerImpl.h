@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
