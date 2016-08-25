@@ -491,6 +491,8 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
   MonitorElement *h_diffEtaError;
 
 
+  MonitorElement *h_diffNumberOfPixelLayers;
+  MonitorElement *h_diffNumberOfStripLayers;
   MonitorElement *h_diffNumberOfPixelHits;
   MonitorElement *h_diffNumberOfHits;
   MonitorElement *h_diffLostInnerHits;
@@ -500,6 +502,9 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
   MonitorElement *h_diffHitPatternNumberOfLostInnerHits;
   MonitorElement *h_diffHitPatternHasValidHitInFirstPixelBarrel;
 
+  MonitorElement *h_numberPixelLayersOverMax;
+  MonitorElement *h_numberStripLayersOverMax;
+  MonitorElement *h_numberLayersOverMax;
   MonitorElement *h_numberPixelHitsOverMax;
   MonitorElement *h_numberStripHitsOverMax;
   MonitorElement *h_numberHitsOverMax;
@@ -611,6 +616,8 @@ void PackedCandidateTrackValidator::bookHistograms(DQMStore::IBooker& iBooker, e
   h_diffEtaError    = iBooker.book1D("diffEtaError",    "(PackedCandidate::bestTrack() - reco::Track)/reco::Track in etaError()",    60, -0.15, 0.15); // not equal
 
 
+  h_diffNumberOfPixelLayers = iBooker.book1D("diffNumberOfPixelLayers", "PackedCandidate::pixelLayersWithMeasurement() - reco::Track::hitPattern::pixelLayersWithMeasurement()", 5, -2.5, 2.5); // expect equality 
+  h_diffNumberOfStripLayers = iBooker.book1D("diffNumberOfStripLayers", "PackedCandidate::stripLayersWithMeasurement() - reco::Track::hitPattern::stripLayersWithMeasurement()",             5, -2.5, 2.5); // expect equality
   h_diffNumberOfPixelHits = iBooker.book1D("diffNumberOfPixelHits", "PackedCandidate::numberOfPixelHits() - reco::Track::hitPattern::numberOfValidPixelHits()", 5, -2.5, 2.5); // expect equality 
   h_diffNumberOfHits      = iBooker.book1D("diffNumberOfHits",      "PackedCandidate::numberHits() - reco::Track::hitPattern::numberOfValidHits()",             5, -2.5, 2.5); // expect equality
   h_diffLostInnerHits     = iBooker.book1D("diffLostInnerHits",     "PackedCandidate::lostInnerHits() - reco::Track::hitPattern::numberOfLostHits(MISSING_INNER_HITS)",      5, -2.5, 2.5); // expect equality
@@ -620,6 +627,9 @@ void PackedCandidateTrackValidator::bookHistograms(DQMStore::IBooker& iBooker, e
   h_diffHitPatternNumberOfLostInnerHits  = iBooker.book1D("diffHitPatternNumberOfLostPixelHits",  "PackedCandidate::bestTrack() - reco::Track in hitPattern::numberOfLostHits(MISSING_INNER_HITS)", 13, -10.5, 2.5); // not equal
   h_diffHitPatternHasValidHitInFirstPixelBarrel = iBooker.book1D("diffHitPatternHasValidHitInFirstPixelBarrel", "PackedCandidate::bestTrack() - reco::Track in hitPattern::hasValidHitInFirstPixelBarrel", 3, -1.5, 1.5); // expect equality
 
+  h_numberPixelLayersOverMax = iBooker.book1D("numberPixelLayersOverMax", "Number of pixel layers over the maximum of PackedCandidate", 10, 0, 10);
+  h_numberStripLayersOverMax = iBooker.book1D("numberStripLayersOverMax", "Number of strip layers over the maximum of PackedCandidate", 10, 0, 10);
+  h_numberLayersOverMax = iBooker.book1D("numberLayersOverMax", "Number of layers over the maximum of PackedCandidate", 20, 0, 20);
   h_numberPixelHitsOverMax = iBooker.book1D("numberPixelHitsOverMax", "Number of pixel hits over the maximum of PackedCandidate", 10, 0, 10);
   h_numberStripHitsOverMax = iBooker.book1D("numberStripHitsOverMax", "Number of strip hits over the maximum of PackedCandidate", 10, 0, 10);
   h_numberHitsOverMax = iBooker.book1D("numberHitsOverMax", "Number of hits over the maximum of PackedCandidate", 20, 0, 20);
@@ -759,23 +769,52 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     const auto pcNumberOfHits = pcRef->numberOfHits();
     const auto pcNumberOfPixelHits = pcRef->numberOfPixelHits();
     const auto pcNumberOfStripHits = pcNumberOfHits - pcNumberOfPixelHits;
+    const auto trackNumberOfLayers = track.hitPattern().trackerLayersWithMeasurement();
+    const auto trackNumberOfPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
+    const auto trackNumberOfStripLayers = track.hitPattern().stripLayersWithMeasurement();
+    const auto pcNumberOfLayers = pcRef->trackerLayersWithMeasurement();
+    const auto pcNumberOfPixelLayers = pcRef->pixelLayersWithMeasurement();
+    const auto pcNumberOfStripLayers = pcRef->stripLayersWithMeasurement();
 
-    const int pixelOverflow = trackNumberOfPixelHits > pat::PackedCandidate::trackPixelHitsMask ? trackNumberOfPixelHits - pat::PackedCandidate::trackPixelHitsMask : 0;
-    const int stripOverflow = trackNumberOfStripHits > pat::PackedCandidate::trackStripHitsMask ? trackNumberOfStripHits - pat::PackedCandidate::trackStripHitsMask : 0;
-    const int hitsOverflow = trackNumberOfHits > (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) ? trackNumberOfHits - (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) : 0;
+    // layer number overflow (should be zero)
+    const int pixelLayerOverflow = trackNumberOfPixelLayers > pat::PackedCandidate::trackPixelHitsMask ? trackNumberOfPixelLayers - pat::PackedCandidate::trackPixelHitsMask : 0;
+    const int stripLayerOverflow = trackNumberOfStripLayers > pat::PackedCandidate::trackStripHitsMask ? trackNumberOfStripLayers - pat::PackedCandidate::trackStripHitsMask : 0;
+    const int layerOverflow = trackNumberOfLayers > (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) ? trackNumberOfLayers - (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) : 0;
+
+    // hit overflow (should also be zero)
+    const int pixelOverflow = trackNumberOfPixelHits - pcNumberOfPixelLayers > pat::PackedCandidate::trackPixelHitsMask ? trackNumberOfPixelHits - pcNumberOfPixelLayers - pat::PackedCandidate::trackPixelHitsMask : 0;
+    const int stripOverflow = trackNumberOfStripHits - pcNumberOfStripLayers > pat::PackedCandidate::trackStripHitsMask ? trackNumberOfStripHits - pcNumberOfStripLayers - pat::PackedCandidate::trackStripHitsMask : 0;
+    const int hitsOverflow = trackNumberOfHits - pcNumberOfLayers > (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) ? trackNumberOfHits - pcNumberOfLayers - (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) : 0;
     // PackedCandidate counts overflow pixel hits as strip
-    const int pixelInducedStripOverflow = (trackNumberOfStripHits+pixelOverflow) > pat::PackedCandidate::trackStripHitsMask ? (trackNumberOfStripHits+pixelOverflow-stripOverflow) - pat::PackedCandidate::trackStripHitsMask : 0;
+    const int pixelInducedStripOverflow = (trackNumberOfStripHits+pixelOverflow) > pat::PackedCandidate::trackStripHitsMask ? (trackNumberOfStripHits+pixelOverflow-stripOverflow) - pat::PackedCandidate::trackStripHitsMask : 0; // FIXME
+    h_numberPixelLayersOverMax->Fill(pixelLayerOverflow);
+    h_numberStripLayersOverMax->Fill(stripLayerOverflow);
+    h_numberLayersOverMax->Fill(layerOverflow);
     h_numberPixelHitsOverMax->Fill(pixelOverflow);
     h_numberStripHitsOverMax->Fill(stripOverflow);
     h_numberHitsOverMax->Fill(hitsOverflow);
 
     int diffNumberOfPixelHits = 0;
     int diffNumberOfHits = 0;
+    int diffNumberOfPixelLayers = 0;
+    int diffNumberOfStripLayers = 0;
+    if(pixelLayerOverflow) {
+      diffNumberOfPixelLayers = pcNumberOfPixelLayers - pat::PackedCandidate::trackPixelHitsMask;
+    }
+    else {
+      diffNumberOfPixelLayers = pcNumberOfPixelLayers - trackNumberOfPixelLayers;
+    }
     if(pixelOverflow) {
-      diffNumberOfPixelHits = pcNumberOfPixelHits - pat::PackedCandidate::trackPixelHitsMask;
+      diffNumberOfPixelHits = pcNumberOfPixelHits - pcNumberOfPixelLayers - pat::PackedCandidate::trackPixelHitsMask;
     }
     else {
       diffNumberOfPixelHits = pcNumberOfPixelHits - trackNumberOfPixelHits;
+    }
+    if(stripLayerOverflow) {
+       diffNumberOfStripLayers = pcNumberOfStripLayers - pat::PackedCandidate::trackStripHitsMask;
+    }
+    else {
+      diffNumberOfStripLayers = pcNumberOfStripLayers - trackNumberOfStripLayers;
     }
     if(stripOverflow || pixelInducedStripOverflow || pixelOverflow) {
       int diffNumberOfStripHits = 0;
@@ -792,8 +831,12 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
       diffNumberOfHits = pcNumberOfHits - trackNumberOfHits;
     }
 
+
+
     fillNoFlow(h_diffNumberOfPixelHits, diffNumberOfPixelHits);
     fillNoFlow(h_diffNumberOfHits, diffNumberOfHits);
+    fillNoFlow(h_diffNumberOfPixelLayers, diffNumberOfPixelLayers);
+    fillNoFlow(h_diffNumberOfStripLayers, diffNumberOfStripLayers);
 
     int diffLostInnerHits = 0;
     const auto trackLostInnerHits = track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
