@@ -29,13 +29,10 @@ from RecoTracker.IterativeTracking.InitialStep_cff import *
 hiRegitMuInitialStepSeedLayers =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.clone()
 
 # seeding
-hiRegitMuInitialStepClusterCheck = RecoTracker.IterativeTracking.InitialStep_cff.initialStepClusterCheck.clone(
-    doClusterCheck = False # do not check for max number of clusters pixel or strips
-)
 hiRegitMuInitialStepHitDoublets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitDoublets.clone(
     seedingLayers = "hiRegitMuInitialStepSeedLayers",
     trackingRegions = "hiRegitMuInitialStepTrackingRegions",
-    clusterCheck = "hiRegitMuInitialStepClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck",
 )
 hiRegitMuInitialStepHitTriplets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitTriplets.clone(
     doublets = "hiRegitMuInitialStepHitDoublets"
@@ -109,7 +106,6 @@ hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
 
 hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeedLayers*
                                       hiRegitMuInitialStepTrackingRegions*
-                                      hiRegitMuInitialStepClusterCheck*
                                       hiRegitMuInitialStepHitDoublets*
                                       hiRegitMuInitialStepHitTriplets*
                                       hiRegitMuInitialStepSeeds*

@@ -46,13 +46,10 @@ hiRegitMuPixelLessStepSeedLayers.MTEC.skipClusters = cms.InputTag('hiRegitMuPixe
 
 
 # seeding
-hiRegitMuPixelLessStepClusterCheck = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusterCheck.clone(
-    doClusterCheck = False # do not check for max number of clusters pixel or strips
-)
 hiRegitMuPixelLessStepHitDoublets = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepHitDoublets.clone(
     seedingLayers = "hiRegitMuPixelLessStepSeedLayers",
     trackingRegions = "hiRegitMuPixelLessStepTrackingRegions",
-    clusterCheck = "hiRegitMuPixelLessStepClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck",
 )
 hiRegitMuPixelLessStepHitTriplets = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepHitTriplets.clone(
     doublets = "hiRegitMuPixelLessStepHitDoublets"
@@ -123,7 +120,6 @@ hiRegitMuPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMu
 hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuPixelLessStepClusters*
                                         hiRegitMuPixelLessStepSeedLayers*
                                         hiRegitMuPixelLessStepTrackingRegions*
-                                        hiRegitMuPixelLessStepClusterCheck*
                                         hiRegitMuPixelLessStepHitDoublets*
                                         hiRegitMuPixelLessStepHitTriplets*
                                         hiRegitMuPixelLessStepSeeds*

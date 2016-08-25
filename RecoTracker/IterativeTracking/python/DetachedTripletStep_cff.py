@@ -44,15 +44,10 @@ detachedTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clo
 ))
 
 # seeding
-from RecoTracker.TkSeedGenerator.clusterCheckerEDProducer_cff import clusterCheckerEDProducer as _clusterCheckerEDProducer
-detachedTripletStepClusterCheck = _clusterCheckerEDProducer.clone(
-    PixelClusterCollectionLabel = 'siPixelClusters'
-)
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 detachedTripletStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "detachedTripletStepSeedLayers",
     trackingRegions = "detachedTripletStepTrackingRegions",
-    clusterCheck = "detachedTripletStepClusterCheck",
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
@@ -281,7 +276,6 @@ trackingLowPU.toReplaceWith(detachedTripletStep, RecoTracker.FinalTrackSelectors
 DetachedTripletStep = cms.Sequence(detachedTripletStepClusters*
                                    detachedTripletStepSeedLayers*
                                    detachedTripletStepTrackingRegions*
-                                   detachedTripletStepClusterCheck*
                                    detachedTripletStepHitDoublets*
                                    detachedTripletStepHitTriplets*
                                    detachedTripletStepSeeds*
