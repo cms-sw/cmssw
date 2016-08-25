@@ -149,11 +149,11 @@ class GeometryComparison(GenericValidation):
                 repMap["outputFile"] = (".oO[name]Oo..Comparison_common"+name+".root")
                 repMap["nIndex"] = ("")
                 repMap["runComparisonScripts"] += \
-                    ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
+                    ("rfcp .oO[Alignment/OfflineValidation]Oo."
                      "/scripts/comparisonScript.C .\n"
-                     "rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
+                     "rfcp .oO[Alignment/OfflineValidation]Oo."
                      "/scripts/GeometryComparisonPlotter.h .\n"
-                     "rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation"
+                     "rfcp .oO[Alignment/OfflineValidation]Oo."
                      "/scripts/GeometryComparisonPlotter.cc .\n"
                      "root -b -q 'comparisonScript.C+(\""
                      ".oO[name]Oo..Comparison_common"+name+".root\",\""
@@ -226,8 +226,8 @@ class GeometryComparison(GenericValidation):
                         +"_ArrowPlots\n"
                         "fi\n")
                    repMap["runComparisonScripts"] += \
-                       ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment"
-                        "/OfflineValidation/scripts/makeArrowPlots.C "
+                       ("rfcp .oO[Alignment/OfflineValidation]Oo."
+                        "/scripts/makeArrowPlots.C "
                         ".\n"
                         "root -b -q 'makeArrowPlots.C(\""
                         ".oO[name]Oo..Comparison_common"+name
