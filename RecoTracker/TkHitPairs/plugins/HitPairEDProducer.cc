@@ -67,7 +67,7 @@ void HitPairEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("clusterCheck", edm::InputTag("trackerClusterCheck"));
   desc.add<bool>("produceSeedingHitSets", false);
   desc.add<bool>("produceIntermediateHitDoublets", false);
-  desc.add<unsigned int>("maxElement", 0); // default is really 0? Also when used from CombinedHitTripletGenerator?
+  desc.add<unsigned int>("maxElement", 1000000);
 
   descriptions.add("hitPairEDProducer", desc);
 }

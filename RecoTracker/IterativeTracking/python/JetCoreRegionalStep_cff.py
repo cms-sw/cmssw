@@ -76,11 +76,10 @@ jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(
 ))
 
 # Seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
 jetCoreRegionalStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "jetCoreRegionalStepSeedLayers",
     trackingRegions = "jetCoreRegionalStepTrackingRegions",
-    maxElement = 1000000,
     produceSeedingHitSets = True,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer

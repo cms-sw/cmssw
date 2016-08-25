@@ -44,17 +44,17 @@ detachedTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpotFixedZ.clo
 ))
 
 # seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
 detachedTripletStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "detachedTripletStepSeedLayers",
     trackingRegions = "detachedTripletStepTrackingRegions",
+    maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cff import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 detachedTripletStepHitTriplets = _pixelTripletLargeTipEDProducer.clone(
     doublets = "detachedTripletStepHitDoublets",
-    maxElement = 1000000,
     produceSeedingHitSets = True,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
