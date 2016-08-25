@@ -995,6 +995,12 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   PATUserDataHelper<Electron>::fillDescription(userDataPSet);
   iDesc.addOptional("userData", userDataPSet);
 
+  iDesc.add<edm::InputTag>("puppiIsolationChargedHadrons", edm::InputTag("egmElectronIsolationAODPUPPI","h+-DR030-BarVeto000-EndVeto001"))->setComment("puppi isolation sum for charged hadrons");
+  iDesc.add<edm::InputTag>("puppiIsolationNeutralHadrons", edm::InputTag("egmElectronIsolationAODPUPPI","h0-DR030-BarVeto000-EndVeto000"))->setComment("puppi isolation sum for neutral hadrons");
+  iDesc.add<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("egmElectronIsolationAODPUPPI","gamma-DR030-BarVeto000-EndVeto008"))->setComment("puppi isolation sum for photons");
+
+
+
   // electron shapes
   iDesc.add<bool>("addElectronShapes", true);
   iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
