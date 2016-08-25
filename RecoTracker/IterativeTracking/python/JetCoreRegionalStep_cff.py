@@ -76,15 +76,10 @@ jetCoreRegionalStepTrackingRegions = _tauRegionalPixelSeedTrackingRegions.clone(
 ))
 
 # Seeding
-from RecoTracker.TkSeedGenerator.clusterCheckerEDProducer_cff import clusterCheckerEDProducer as _clusterCheckerEDProducer
-jetCoreRegionalStepClusterCheck = _clusterCheckerEDProducer.clone(
-    PixelClusterCollectionLabel = 'siPixelClusters'
-)
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 jetCoreRegionalStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "jetCoreRegionalStepSeedLayers",
     trackingRegions = "jetCoreRegionalStepTrackingRegions",
-    clusterCheck = "jetCoreRegionalStepClusterCheck",
     maxElement = 1000000,
     produceSeedingHitSets = True,
 )
@@ -192,7 +187,6 @@ JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*je
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*
                                    jetCoreRegionalStepTrackingRegions*
-                                   jetCoreRegionalStepClusterCheck*
                                    jetCoreRegionalStepHitDoublets*
                                    jetCoreRegionalStepSeeds*
                                    jetCoreRegionalStepTrackCandidates*

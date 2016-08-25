@@ -47,13 +47,10 @@ hiRegitMuMixedTripletStepSeedLayersA.FPix.skipClusters = cms.InputTag('hiRegitMu
 hiRegitMuMixedTripletStepSeedLayersA.TEC.skipClusters  = cms.InputTag('hiRegitMuMixedTripletStepClusters')
 
 # SEEDS A
-hiRegitMuMixedTripletStepClusterCheck = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusterCheck.clone(
-    doClusterCheck = False # do not check for max number of clusters pixel or strips
-)
 hiRegitMuMixedTripletStepHitDoubletsA = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitDoubletsA.clone(
     seedingLayers = "hiRegitMuMixedTripletStepSeedLayersA",
     trackingRegions = "hiRegitMuMixedTripletStepTrackingRegionsA",
-    clusterCheck = "hiRegitMuMixedTripletStepClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck",
 )
 hiRegitMuMixedTripletStepHitTripletsA = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitTripletsA.clone(
     doublets = "hiRegitMuMixedTripletStepHitDoubletsA"
@@ -71,7 +68,7 @@ hiRegitMuMixedTripletStepSeedLayersB.TIB.skipClusters  = cms.InputTag('hiRegitMu
 hiRegitMuMixedTripletStepHitDoubletsB = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitDoubletsB.clone(
     seedingLayers = "hiRegitMuMixedTripletStepSeedLayersB",
     trackingRegions = "hiRegitMuMixedTripletStepTrackingRegionsB",
-    clusterCheck = "hiRegitMuMixedTripletStepClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck",
 )
 hiRegitMuMixedTripletStepHitTripletsB = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepHitTripletsB.clone(
     doublets = "hiRegitMuMixedTripletStepHitDoubletsB"
@@ -155,7 +152,6 @@ hiRegitMuMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.h
 hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuMixedTripletStepClusters*
                                          hiRegitMuMixedTripletStepSeedLayersA*
                                          hiRegitMuMixedTripletStepTrackingRegionsA*
-                                         hiRegitMuMixedTripletStepClusterCheck*
                                          hiRegitMuMixedTripletStepHitDoubletsA*
                                          hiRegitMuMixedTripletStepHitTripletsA*
                                          hiRegitMuMixedTripletStepSeedsA*

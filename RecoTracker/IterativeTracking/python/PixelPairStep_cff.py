@@ -79,15 +79,10 @@ trackingPhase1PU70.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin 
 trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(ptMin = 1.3, useMultipleScattering=False))
 
 # SEEDS
-from RecoTracker.TkSeedGenerator.clusterCheckerEDProducer_cff import clusterCheckerEDProducer as _clusterCheckerEDProducer
-pixelPairStepClusterCheck = _clusterCheckerEDProducer.clone(
-    PixelClusterCollectionLabel = 'siPixelClusters'
-)
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 pixelPairStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "pixelPairStepSeedLayers",
     trackingRegions = "pixelPairStepTrackingRegions",
-    clusterCheck = "pixelPairStepClusterCheck",
     maxElement = 1000000,
     produceSeedingHitSets = True,
 )
@@ -330,7 +325,6 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
 PixelPairStep = cms.Sequence(pixelPairStepClusters*
                          pixelPairStepSeedLayers*
                          pixelPairStepTrackingRegions*
-                         pixelPairStepClusterCheck*
                          pixelPairStepHitDoublets*
                          pixelPairStepSeeds*
                          pixelPairStepTrackCandidates*

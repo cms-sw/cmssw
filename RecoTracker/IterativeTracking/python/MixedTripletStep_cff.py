@@ -94,15 +94,10 @@ mixedTripletStepClusterShapeHitFilter  = _ClusterShapeHitFilterESProducer.clone(
     ComponentName = 'mixedTripletStepClusterShapeHitFilter',
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
 )
-from RecoTracker.TkSeedGenerator.clusterCheckerEDProducer_cff import clusterCheckerEDProducer as _clusterCheckerEDProducer
-mixedTripletStepClusterCheck = _clusterCheckerEDProducer.clone(
-    PixelClusterCollectionLabel = 'siPixelClusters'
-)
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 mixedTripletStepHitDoubletsA = _hitPairEDProducer.clone(
     seedingLayers = "mixedTripletStepSeedLayersA",
     trackingRegions = "mixedTripletStepTrackingRegionsA",
-    clusterCheck = "mixedTripletStepClusterCheck",
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
@@ -483,7 +478,6 @@ trackingPhase1PU70.toReplaceWith(mixedTripletStep, _trackListMergerBase.clone(
 MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
                                 mixedTripletStepSeedLayersA*
                                 mixedTripletStepTrackingRegionsA*
-                                mixedTripletStepClusterCheck*
                                 mixedTripletStepHitDoubletsA*
                                 mixedTripletStepHitTripletsA*
                                 mixedTripletStepSeedsA*

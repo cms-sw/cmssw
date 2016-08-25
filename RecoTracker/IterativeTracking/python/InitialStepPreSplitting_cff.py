@@ -7,6 +7,11 @@ from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_v
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 
+from RecoTracker.TkSeedGenerator.trackerClusterCheck_cff import trackerClusterCheck as _trackerClusterCheck
+trackerClusterCheckPreSplitting = _trackerClusterCheck.clone(
+    PixelClusterCollectionLabel = 'siPixelClustersPreSplitting'
+)
+
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 import RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff
@@ -27,16 +32,11 @@ initialStepTrackingRegionsPreSplitting = _globalTrackingRegionFromBeamSpot.clone
 ))
 
 # seeding
-from RecoTracker.TkSeedGenerator.clusterCheckerEDProducer_cff import clusterCheckerEDProducer as _clusterCheckerEDProducer
-initialStepClusterCheckPreSplitting = _clusterCheckerEDProducer.clone(
-    PixelClusterCollectionLabel = 'siPixelClustersPreSplitting'
-)
-
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 initialStepHitDoubletsPreSplitting = _hitPairEDProducer.clone(
     seedingLayers = "initialStepSeedLayersPreSplitting",
     trackingRegions = "initialStepTrackingRegionsPreSplitting",
-    clusterCheck = "initialStepClusterCheckPreSplitting",
+    clusterCheck = "trackerClusterCheckPreSplitting",
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
@@ -180,9 +180,9 @@ siPixelClusters = jetCoreClusterSplitter.clone(
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import siPixelRecHits
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import MeasurementTrackerEvent
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-InitialStepPreSplitting = cms.Sequence(initialStepSeedLayersPreSplitting*
+InitialStepPreSplitting = cms.Sequence(trackerClusterCheckPreSplitting*
+                                       initialStepSeedLayersPreSplitting*
                                        initialStepTrackingRegionsPreSplitting*
-                                       initialStepClusterCheckPreSplitting*
                                        initialStepHitDoubletsPreSplitting*
                                        initialStepHitTripletsPreSplitting*
                                        initialStepSeedsPreSplitting*

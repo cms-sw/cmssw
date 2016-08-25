@@ -34,16 +34,10 @@ trackingPhase1PU70.toModify(initialStepTrackingRegions, RegionPSet = dict(ptMin 
 trackingPhase2PU140.toModify(initialStepTrackingRegions, RegionPSet = dict(ptMin = 0.8))
 
 # seeding
-from RecoTracker.TkSeedGenerator.clusterCheckerEDProducer_cff import clusterCheckerEDProducer as _clusterCheckerEDProducer
-initialStepClusterCheck = _clusterCheckerEDProducer.clone(
-    PixelClusterCollectionLabel = 'siPixelClusters'
-)
-
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 initialStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "initialStepSeedLayers",
     trackingRegions = "initialStepTrackingRegions",
-    clusterCheck = "initialStepClusterCheck",
     produceIntermediateHitDoublets = True,
 )
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
@@ -332,7 +326,6 @@ trackingPhase2PU140.toModify(initialStepSelector,
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeedLayers*
                            initialStepTrackingRegions*
-                           initialStepClusterCheck*
                            initialStepHitDoublets*
                            initialStepHitTriplets*
                            initialStepSeeds*

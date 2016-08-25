@@ -33,7 +33,7 @@ void ClusterCheckerEDProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   ClusterChecker::fillDescriptions(desc);
   desc.addUntracked<bool>("silentClusterCheck", false);
 
-  descriptions.add("clusterCheckerEDProducer", desc);
+  descriptions.add("trackerClusterCheck", desc);
 }
 
 void ClusterCheckerEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

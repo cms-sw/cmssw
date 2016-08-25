@@ -41,13 +41,10 @@ hiRegitMuDetachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegit
 hiRegitMuDetachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 
 # seeding
-hiRegitMuDetachedTripletStepClusterCheck = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusterCheck.clone(
-    doClusterCheck = False # do not check for max number of clusters pixel or strips
-)
 hiRegitMuDetachedTripletStepHitDoublets = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepHitDoublets.clone(
     seedingLayers = "hiRegitMuDetachedTripletStepSeedLayers",
     trackingRegions = "hiRegitMuDetachedTripletStepTrackingRegions",
-    clusterCheck = "hiRegitMuDetachedTripletStepClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck",
 )
 hiRegitMuDetachedTripletStepHitTriplets = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepHitTriplets.clone(
     doublets = "hiRegitMuDetachedTripletStepHitDoublets"
@@ -118,7 +115,6 @@ hiRegitMuDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cf
 hiRegitMuonDetachedTripletStep = cms.Sequence(hiRegitMuDetachedTripletStepClusters*
                                               hiRegitMuDetachedTripletStepSeedLayers*
                                               hiRegitMuDetachedTripletStepTrackingRegions*
-                                              hiRegitMuDetachedTripletStepClusterCheck*
                                               hiRegitMuDetachedTripletStepHitDoublets*
                                               hiRegitMuDetachedTripletStepHitTriplets*
                                               hiRegitMuDetachedTripletStepSeeds*
