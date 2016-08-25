@@ -1,12 +1,80 @@
+# In order to produce everything that you need in one go, use the command:
+#
+# for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=run2 label=$t >& /dev/null &; done
+
+
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
 process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+# The default geometry is PhaseI. If the run2 geoemtry is needed, the
+# appropriate flag has to be passed at command line, e.g.:
+# cmsRun runP_GenericComponent.py geom="XYZ"
+
+# The default component to be monitored is the Tracker. If other components
+# need to be studied, they must be supplied, one at a time, at the command
+# line, e.g.:
+# cmsRun runP_GenericComponent.py comp="XYZ"
+
+_ALLOWED_LABELS = ['BeamPipe', 'Tracker', 'PixBar',
+                   'PixFwdMinus', 'PixFwdPlus',
+                   'TIB', 'TOB', 'TIDB', 'TIDF',
+                   'TEC', 'TkStrct', 'ECAL', 'InnerServices']
+
+_LABELS2COMPS = {'BeamPipe': 'BEAM',
+                 'Tracker': 'Tracker',
+                 'PixBar':  'PixelBarrel',
+                 'PixFwdMinus': 'PixelForwardZMinus',
+                 'PixFwdPlus':  'PixelForwardZPlus',
+                 'TIB':         'TIB',
+                 'TOB':         'TOB',
+                 'TIDB':        'TIDB',
+                 'TIDF':        'TIDF',
+                 'TEC':         'TEC',
+                 'InnerServices': ['TIBTIDServicesF', 'TIBTIDServicesB'],
+                 'TkStrct': ['TrackerOuterCylinder', 'TrackerBulkhead']}
+
+options = VarParsing('analysis')
+options.register('geom',        #name
+                 'phaseI',      #default value
+                 VarParsing.multiplicity.singleton,   # kind of options
+                 VarParsing.varType.string,           # type of option
+                 "Select the geometry to be studied"  # help message
+                )
+
+options.register('label',         #name
+                 'Tracker',              #default value
+                 VarParsing.multiplicity.singleton,   # kind of options
+                 VarParsing.varType.string,           # type of option
+                 "Select the label to be used to create output files. Default to tracker. If multiple components are selected, it defaults to the join of all components, with '_' as separator."  # help message
+                )
+
+options.setDefault('inputFiles', ['file:single_neutrino_random.root'])
+
+options.parseArguments()
+# Option validation
+
+if options.label not in _ALLOWED_LABELS:
+    print "\n*** Error, '%s' not registered as a valid components to monitor." % options.label
+    print "Allowed components:", _ALLOWED_LABELS
+    print
+    raise RuntimeError("Unknown label")
+
+if options.label not in _LABELS2COMPS.keys():
+  print "Error, '%s' does not have a valid registered component" % options.label
+  raise RuntimeError("Unknown component")
+
+_components = _LABELS2COMPS[options.label]
+#
 #Geometry
 #
-process.load("Configuration.Geometry.GeometryExtended2017_cff")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi")
+if options.geom == 'phaseI':
+  process.load("Configuration.Geometry.GeometryExtended2017_cff")
+elif options.geom == 'run2':
+  process.load("Configuration.Geometry.GeometryExtended2016_cff")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 #process.load("Geometry.HcalCommonData.hcalParameters_cfi")
 #process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
@@ -26,21 +94,8 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        FwkJob = cms.untracked.PSet( ## but FwkJob category - those unlimitted
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-    categories = cms.untracked.vstring('FwkJob'),
-    destinations = cms.untracked.vstring('cout')
-)
-
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:single_neutrino_random.root')
+    fileNames = cms.untracked.vstring(options.inputFiles)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -56,10 +111,10 @@ process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('MaterialBudgetAction'),
     MaterialBudgetAction = cms.PSet(
-        HistosFile = cms.string('matbdg_Tracker.root'),
+        HistosFile = cms.string('matbdg_%s.root' % options.label),
         AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
-        SelectedVolumes = cms.vstring('Tracker'),
+        SelectedVolumes = cms.vstring(_components),
         TreeFile = cms.string('None'), ## is NOT requested
 
         StopAfterProcess = cms.string('None'),

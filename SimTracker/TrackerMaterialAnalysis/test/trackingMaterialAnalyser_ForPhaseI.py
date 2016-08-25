@@ -15,11 +15,11 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #Global Tag
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 
 # Analyze and plot the tracking material
-process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_cff")
+process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseI_cff")
 process.trackingMaterialAnalyser.SplitMode         = "NearestLayer"
 process.trackingMaterialAnalyser.SaveParameters    = True
 process.trackingMaterialAnalyser.SaveXML           = True
