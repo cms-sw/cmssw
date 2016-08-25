@@ -312,31 +312,32 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       bool MatchedToAmbiguousGsfTrack=false;
       for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
 	unsigned int idx = itElectron - electrons->begin();
-   auto elePtr = electrons -> ptrAt(idx);
-	if (Matched || MatchedToAmbiguousGsfTrack) continue;
+       auto elePtr = electrons -> ptrAt(idx);
+	     if (Matched || MatchedToAmbiguousGsfTrack) continue;
 
-	reco::GsfTrackRef EgTk= itElectron->gsfTrack();
+	     reco::GsfTrackRef EgTk= itElectron->gsfTrack();
 
-	if (itElectron->gsfTrack()==i->gsfTrackRef()){
-	  Matched=true;
-	}
-	else {
-	  for( reco::GsfTrackRefVector::const_iterator it = itElectron->ambiguousGsfTracksBegin() ;
+	     if (itElectron->gsfTrack()==i->gsfTrackRef()){
+	     Matched=true;
+	     }
+	     else {
+	     
+       for( reco::GsfTrackRefVector::const_iterator it = itElectron->ambiguousGsfTracksBegin() ;
 	       it!=itElectron->ambiguousGsfTracksEnd(); it++ ){
-	    MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef()==(*it));
-	  }
-	}
+	       MatchedToAmbiguousGsfTrack |= (bool)(i->gsfTrackRef()==(*it));
+	     }
+	   }
 
-	if (Matched || MatchedToAmbiguousGsfTrack){
+	   if (Matched || MatchedToAmbiguousGsfTrack){
 
-	  // ptr needed for finding the matched gen particle
-	  reco::CandidatePtr ptrToGsfElectron(electrons,idx);
+	   // ptr needed for finding the matched gen particle
+	   reco::CandidatePtr ptrToGsfElectron(electrons,idx);
 
-	  // ref to base needed for the construction of the pat object
-	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
-	  Electron anElectron(elecsRef);
-	  anElectron.setPFCandidateRef( pfRef  );
-    anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
+	   // ref to base needed for the construction of the pat object
+	   const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
+	   Electron anElectron(elecsRef);
+	   anElectron.setPFCandidateRef( pfRef  );
+     anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
 
           //it should be always true when particleFlow electrons are used.
           anElectron.setIsPF( true );
@@ -517,7 +518,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
       reco::CandidateBaseRef elecBaseRef(elecsRef);
       Electron anElectron(elecsRef);
-
+      auto elePtr = electrons -> ptrAt(idx);
+      anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
       // Is this GsfElectron also identified as an e- in the particle flow?
       bool pfId = false;
 
