@@ -199,7 +199,7 @@ void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescript
     descIsoConeDefinitions.add<std::string>("isolationAlgo", "no default");
     descIsoConeDefinitions.add<double>("coneSize", 0.3);
     descIsoConeDefinitions.add<std::string>("isolateAgainst", "no default");
-    descIsoConeDefinitions.add<std::vector<int>>("miniAODVertexCodes", {2,3});
+    descIsoConeDefinitions.add<std::vector<unsigned>>("miniAODVertexCodes", {2,3});
     descIsoConeDefinitions.addOptional<double>("VetoConeSizeBarrel", 0.0);
     descIsoConeDefinitions.addOptional<double>("VetoConeSizeEndcaps", 0.0);
     descIsoConeDefinitions.addOptional<int>("vertexIndex",0);
