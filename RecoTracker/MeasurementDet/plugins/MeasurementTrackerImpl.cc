@@ -80,6 +80,7 @@ namespace {
 MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&              conf,
 				       const PixelClusterParameterEstimator* pixelCPE,
 				       const StripClusterParameterEstimator* stripCPE,
+		                       const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE,
 				       const SiStripRecHitMatcher*  hitMatcher,
 				       const TrackerGeometry*  trackerGeom,
 				       const GeometricSearchTracker* geometricSearchTracker,
@@ -95,7 +96,7 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
   name_(conf.getParameter<std::string>("ComponentName")),
   theStDetConditions(hitMatcher,stripCPE),
   thePxDetConditions(pixelCPE),
-  thePhase2DetConditions(pixelCPE)
+  thePhase2DetConditions(phase2OTCPE)
 {
   this->initialize();
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);

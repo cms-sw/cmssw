@@ -2,8 +2,7 @@
 #define TkPhase2OTMeasurementDet_H
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-//#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -21,10 +20,10 @@ public:
   
   typedef edmNew::DetSet<Phase2TrackerCluster1D> detset;
   typedef detset::const_iterator const_iterator;
-  typedef PixelClusterParameterEstimator::LocalValues    LocalValues;
+  typedef ClusterParameterEstimator<Phase2TrackerCluster1D>::LocalValues    LocalValues;
 
   TkPhase2OTMeasurementDet( const GeomDet* gdet,
-			 Phase2OTMeasurementConditionSet & conditionSet );
+    			    Phase2OTMeasurementConditionSet & conditionSet );
 
   void update(Phase2OTMeasurementDetSet &data, const detset & detSet ) { 
     data.update(index(), detSet);
@@ -85,7 +84,7 @@ private:
   Phase2OTMeasurementConditionSet & conditionSet() { return *theDetConditions; }
   const Phase2OTMeasurementConditionSet & conditionSet() const { return *theDetConditions; }
 
-  const PixelClusterParameterEstimator * cpe() const { return conditionSet().pixelCPE(); }
+  const ClusterParameterEstimator<Phase2TrackerCluster1D>* cpe() const { return conditionSet().cpe(); }
 
 };
 
