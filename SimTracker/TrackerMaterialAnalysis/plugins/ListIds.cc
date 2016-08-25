@@ -42,6 +42,7 @@ bool dddGetStringRaw(const DDFilteredView & view, const std::string & name, std:
   return false;
 }
 
+/*
 static inline
 double dddGetDouble(const std::string & s, const DDFilteredView & view) {
   std::string value;
@@ -50,6 +51,7 @@ double dddGetDouble(const std::string & s, const DDFilteredView & view) {
   else
     return NAN;
 }
+*/
 
 static inline
 std::string dddGetString(const std::string & s, const DDFilteredView & view) {

@@ -1,6 +1,7 @@
 <use   name="root"/>
 <use   name="geant4core"/>
 <use   name="boost"/>
+<use   name="classlib"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>
@@ -11,6 +12,7 @@
 <use   name="SimG4Core/Watcher"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DQMServices/Core"/>
+<use   name="TrackingTools/TrackRefitter"/>
 <flags   EDM_PLUGIN="1"/>
 <!--
      There is no way to avoid these in C++ until possibly GCC 6.1.0

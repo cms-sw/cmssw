@@ -32,10 +32,10 @@ process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 
 #Global Tag
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100000)
+    input = cms.untracked.int32(200000)
 )
 
 # Input source
