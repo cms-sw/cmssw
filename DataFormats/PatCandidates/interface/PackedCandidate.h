@@ -478,7 +478,7 @@ namespace pat {
 
     /// return a pointer to the track if present. otherwise, return a null pointer
     virtual const reco::Track * bestTrack() const {
-      if (packedHits_!=0) {
+      if (packedHits_!=0 || packedLayers_ !=0) {
         if (!track_) unpackTrk();
         return track_.load();
       }
