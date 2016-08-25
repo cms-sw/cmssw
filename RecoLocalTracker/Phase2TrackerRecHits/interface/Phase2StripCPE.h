@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_Phase2TrackerRecHits_Phase2StripCPETrivial_H
-#define RecoLocalTracker_Phase2TrackerRecHits_Phase2StripCPETrivial_H
+#ifndef RecoLocalTracker_Phase2TrackerRecHits_Phase2StripCPE_H
+#define RecoLocalTracker_Phase2TrackerRecHits_Phase2StripCPE_H
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class Phase2StripCPETrivial : public ClusterParameterEstimator<Phase2TrackerCluster1D> {
+class Phase2StripCPE : public ClusterParameterEstimator<Phase2TrackerCluster1D> {
 
   public:
 

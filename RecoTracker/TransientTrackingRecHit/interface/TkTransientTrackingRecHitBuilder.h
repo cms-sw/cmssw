@@ -1,7 +1,7 @@
 #ifndef RECOTRACKER_TRANSIENTRECHITBUILDER_H
 #define RECOTRACKER_TRANSIENTRECHITBUILDER_H
 
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -12,7 +12,7 @@
 class SiStripRecHitMatcher;
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
-class Phase2StripCPETrivial;
+class Phase2StripCPE;
 
 
 class TkTransientTrackingRecHitBuilder final : public TransientTrackingRecHitBuilder {
