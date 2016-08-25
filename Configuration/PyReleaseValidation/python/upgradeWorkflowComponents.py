@@ -13,9 +13,13 @@ upgradeKeys[2023] = [
     '2023D1',
     '2023D1PU',
     '2023D2',
-    '2023D2PU',
-    '2023D3',
+    '2023D2PU',    
+    '2023D3',    
     '2023D3PU',
+    '2023D2Timing',
+    '2023D2TimingPU',
+    '2023D3Timing',
+    '2023D3TimingPU'
 ]
 
 upgradeSteps=[
@@ -70,6 +74,13 @@ upgradeProperties[2023] = {
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
     },
+    '2023D2Timing' : {
+        'Geom' : 'Extended2023D2',
+        'GT' : 'auto:run2_mc',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023flat',
+        'Era' : 'Phase2C1_timing',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
+    },
     '2023D3' : {
         'Geom' : 'Extended2023D3',
         'GT' : 'auto:run2_mc',
@@ -77,6 +88,13 @@ upgradeProperties[2023] = {
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
+    '2023D3Timing' : {
+        'Geom' : 'Extended2023D3',
+        'GT' : 'auto:run2_mc',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
+        'Era' : 'Phase2C2_timing',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullLocal'],
+    }
 }
 
 upgradeProperties[2023]['2023D1PU'] = deepcopy(upgradeProperties[2023]['2023D1'])
@@ -85,6 +103,12 @@ upgradeProperties[2023]['2023D2PU'] = deepcopy(upgradeProperties[2023]['2023D2']
 upgradeProperties[2023]['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D3PU'] = deepcopy(upgradeProperties[2023]['2023D3'])
 upgradeProperties[2023]['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+
+upgradeProperties['2023D2TimingPU'] = deepcopy(upgradeProperties['2023D2Timing'])
+upgradeProperties['2023D2TimingPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties['2023D3TimingPU'] = deepcopy(upgradeProperties['2023D3Timing'])
+upgradeProperties['2023D3TimingPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
+
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 

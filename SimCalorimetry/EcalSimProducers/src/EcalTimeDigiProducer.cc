@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,11 +21,14 @@
 
 //#define ecal_time_debug 1
 
-EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
+EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod,edm::ConsumesCollector& sumes) :
    DigiAccumulatorMixMod(),
    m_EBdigiCollection ( params.getParameter<std::string>("EBtimeDigiCollection") ) ,
    m_EEdigiCollection ( params.getParameter<std::string>("EEtimeDigiCollection") ) ,
-   m_hitsProducerTag  ( params.getParameter<std::string>("hitsProducer"    ) ) ,
+   m_hitsProducerTagEB  ( params.getParameter<edm::InputTag>("hitsProducerEB"    ) ) ,
+   m_hitsProducerTagEE  ( params.getParameter<edm::InputTag>("hitsProducerEE"    ) ) ,
+   m_hitsProducerTokenEB  ( sumes.consumes<std::vector<PCaloHit> >( m_hitsProducerTagEB) ) ,
+   m_hitsProducerTokenEE  ( sumes.consumes<std::vector<PCaloHit> >( m_hitsProducerTagEE) ) ,
    m_timeLayerEB     (  params.getParameter<int> ("timeLayerBarrel") ),
    m_timeLayerEE     (  params.getParameter<int> ("timeLayerEndcap") ),
    m_Geometry          ( 0 ) 
@@ -73,13 +76,11 @@ EcalTimeDigiProducer::accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle 
 void
 EcalTimeDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup) {
   // Step A: Get Inputs
-  edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
   edm::Handle<std::vector<PCaloHit> > ebHandle;
-  e.getByLabel(ebTag, ebHandle);
+  e.getByToken(m_hitsProducerTokenEB, ebHandle);
 
-  edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
   edm::Handle<std::vector<PCaloHit> > eeHandle;
-  e.getByLabel(eeTag, eeHandle);
+  e.getByToken(m_hitsProducerTokenEE, eeHandle);
 
 #ifdef ecal_time_debug
   std::cout << "[EcalTimeDigiProducer]::Accumulate Hits HS  event" << std::endl;
@@ -89,14 +90,12 @@ EcalTimeDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eve
 }
 
 void
-EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup) {
-  edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
+EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup, edm::StreamID const&) {
   edm::Handle<std::vector<PCaloHit> > ebHandle;
-  e.getByLabel(ebTag, ebHandle);
+  e.getByLabel(m_hitsProducerTagEB, ebHandle);
 
-  edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
   edm::Handle<std::vector<PCaloHit> > eeHandle;
-  e.getByLabel(eeTag, eeHandle);
+  e.getByLabel(m_hitsProducerTagEE, eeHandle);
 
 #ifdef ecal_time_debug
   std::cout << "[EcalTimeDigiProducer]::Accumulate Hits for BC " << e.bunchCrossing() << std::endl;

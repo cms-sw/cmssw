@@ -280,7 +280,7 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engin
 		m_apdOnly                         )
 	      {
 		const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
-		m_apdNpeVec[ icell ] += apdSignalAmplitude( hit ) ;
+		m_apdNpeVec[ icell ] += apdSignalAmplitude( hit, engine ) ;
 		if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
 	      }
 	  }

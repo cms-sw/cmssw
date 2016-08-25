@@ -58,6 +58,7 @@
    <class name="std::vector<EcalPseudoStripInputDigi>"/>
    <class name="std::vector<EcalPnDiodeDigi>"/>
    <class name="std::vector<EcalMatacqDigi>"/>
+   <class name="std::vector<EcalTimeDigi>"/>
 
    <class name="EcalDigiCollection" ClassVersion="11">
     <version ClassVersion="11" checksum="3935588643"/>

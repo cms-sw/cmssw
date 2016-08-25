@@ -10,7 +10,14 @@
  *
  **/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -22,7 +29,7 @@
 
 class CaloGeometry;
 
-class  EcalDetailedTimeRecHitProducer : public edm::EDProducer {
+class  EcalDetailedTimeRecHitProducer : public edm::stream::EDProducer<> {
 
         public:
                 explicit  EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps);
@@ -36,19 +43,19 @@ class  EcalDetailedTimeRecHitProducer : public edm::EDProducer {
 
 		const CaloGeometry* m_geometry;
 
-                edm::InputTag EBRecHitCollection_; // secondary name given to collection of EBrechits
-                edm::InputTag EERecHitCollection_; // secondary name given to collection of EErechits
+		edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollection_; // secondary name given to collection of EBrechits
+                edm::EDGetTokenT<EERecHitCollection> EERecHitCollection_; // secondary name given to collection of EErechits
 
-                edm::InputTag recoVertex_; 
-                edm::InputTag simVertex_; 
+		edm::EDGetTokenT<reco::VertexCollection> recoVertex_; 
+		edm::EDGetTokenT<edm::SimVertexContainer> simVertex_; 
 		bool correctForVertexZPosition_;
 		bool useMCTruthVertex_;
 
 		int ebTimeLayer_;
 		int eeTimeLayer_;
 
-                edm::InputTag ebTimeDigiCollection_; // secondary name given to collection of EB uncalib rechits
-                edm::InputTag eeTimeDigiCollection_; // secondary name given to collection of EE uncalib rechits
+		edm::EDGetTokenT<EcalTimeDigiCollection> ebTimeDigiCollection_; // secondary name given to collection of EB uncalib rechits
+                edm::EDGetTokenT<EcalTimeDigiCollection> eeTimeDigiCollection_; // secondary name given to collection of EE uncalib rechits
 
                 std::string EBDetailedTimeRecHitCollection_; // secondary name to be given to EB collection of hits
                 std::string EEDetailedTimeRecHitCollection_; // secondary name to be given to EE collection of hits

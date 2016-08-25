@@ -10,6 +10,7 @@ namespace DataFormats_EcalDigi {
     std::vector<EcalTriggerPrimitiveSample> vETPS_;
     std::vector<EcalPseudoStripInputSample> vEPSIS_;
     std::vector<EcalMatacqDigi> vMD_;
+    std::vector<EcalTimeDigi> vTD_;
 
     edm::SortedCollection<ESDataFrame> vES_;
     edm::SortedCollection<EcalTimeDigi> vETDP_;
@@ -20,6 +21,7 @@ namespace DataFormats_EcalDigi {
     edm::SortedCollection<EcalPnDiodeDigi> vEPN_;
     edm::SortedCollection<EcalMatacqDigi> vMDS_;
     EcalMatacqDigi Matacq_;
+    EcalTimeDigi Time_;
 
     EBDigiCollection theEB_;
     EEDigiCollection theEE_;

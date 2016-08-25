@@ -42,10 +42,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
@@ -53,25 +51,25 @@
 EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps) :
   m_geometry(0)
 {
-   EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
-   EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
+  EBRecHitCollection_ = consumes<EBRecHitCollection>( ps.getParameter<edm::InputTag>("EBRecHitCollection") );
+  EERecHitCollection_ = consumes<EERecHitCollection>( ps.getParameter<edm::InputTag>("EERecHitCollection") );
 
-   ebTimeDigiCollection_ = ps.getParameter<edm::InputTag>("EBTimeDigiCollection");
-   eeTimeDigiCollection_ = ps.getParameter<edm::InputTag>("EETimeDigiCollection");
+  ebTimeDigiCollection_ = consumes<EcalTimeDigiCollection>( ps.getParameter<edm::InputTag>("EBTimeDigiCollection") );
+  eeTimeDigiCollection_ = consumes<EcalTimeDigiCollection>( ps.getParameter<edm::InputTag>("EETimeDigiCollection") );
 
-   EBDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EBDetailedTimeRecHitCollection");
-   EEDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EEDetailedTimeRecHitCollection");
+  EBDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EBDetailedTimeRecHitCollection");
+  EEDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EEDetailedTimeRecHitCollection");
    
-   correctForVertexZPosition_ = ps.getParameter<bool>("correctForVertexZPosition");
-   useMCTruthVertex_ = ps.getParameter<bool>("useMCTruthVertex");
-   recoVertex_       = ps.getParameter<edm::InputTag>("recoVertex");
-   simVertex_       = ps.getParameter<edm::InputTag>("simVertex");
+  correctForVertexZPosition_ = ps.getParameter<bool>("correctForVertexZPosition");
+  useMCTruthVertex_ = ps.getParameter<bool>("useMCTruthVertex");
+  recoVertex_       = consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>("recoVertex") );
+  simVertex_       = consumes<edm::SimVertexContainer>( ps.getParameter<edm::InputTag>("simVertex") );
+  
+  ebTimeLayer_ = ps.getParameter<int>("EBTimeLayer");
+  eeTimeLayer_ = ps.getParameter<int>("EETimeLayer");
 
-   ebTimeLayer_ = ps.getParameter<int>("EBTimeLayer");
-   eeTimeLayer_ = ps.getParameter<int>("EETimeLayer");
-
-   produces< EBRecHitCollection >(EBDetailedTimeRecHitCollection_);
-   produces< EERecHitCollection >(EEDetailedTimeRecHitCollection_);
+  produces< EBRecHitCollection >(EBDetailedTimeRecHitCollection_);
+  produces< EERecHitCollection >(EEDetailedTimeRecHitCollection_);
 }
 
 EcalDetailedTimeRecHitProducer::~EcalDetailedTimeRecHitProducer() {
@@ -94,60 +92,41 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         const EBRecHitCollection*  EBRecHits = 0;
         const EERecHitCollection*  EERecHits = 0; 
 
-	//        if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) {
-        if ( EBRecHitCollection_.label() != "" ) {
-                evt.getByLabel( EBRecHitCollection_, pEBRecHits);
-                if ( pEBRecHits.isValid() ) {
-                        EBRecHits = pEBRecHits.product(); // get a ptr to the product
+	evt.getByToken( EBRecHitCollection_, pEBRecHits);
+	if ( pEBRecHits.isValid() ) {
+	  EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                        LogDebug("EcalRecHitDebug") << "total # EB rechits to be re-calibrated: " << EBRecHits->size();
+	  LogDebug("EcalRecHitDebug") << "total # EB rechits to be re-calibrated: " << EBRecHits->size();
 #endif
-                } else {
-                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBRecHitCollection_.label() ;
-                }
-        }
-
-	//        if ( EERecHitCollection_.label() != "" && EERecHitCollection_.instance() != "" ) {
-        if ( EERecHitCollection_.label() != ""  ) {
-                evt.getByLabel( EERecHitCollection_, pEERecHits);
-                if ( pEERecHits.isValid() ) {
-                        EERecHits = pEERecHits.product(); // get a ptr to the product
+	}
+        
+	evt.getByToken( EERecHitCollection_, pEERecHits);
+	if ( pEERecHits.isValid() ) {
+	  EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                        LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits to be re-calibrated: " << EERecHits->size();
+	  LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits to be re-calibrated: " << EERecHits->size();
 #endif
-                } else {
-                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << EERecHitCollection_.label() ;
-                }
-        }
-
+	} 
+        
         Handle< EcalTimeDigiCollection > pEBTimeDigis;
         Handle< EcalTimeDigiCollection > pEETimeDigis;
 
         const EcalTimeDigiCollection* ebTimeDigis =0;
         const EcalTimeDigiCollection* eeTimeDigis =0;
 
-        if ( ebTimeDigiCollection_.label() != "" && ebTimeDigiCollection_.instance() != "" ) {
-                evt.getByLabel( ebTimeDigiCollection_, pEBTimeDigis);
-                //evt.getByLabel( digiProducer_, pEBTimeDigis);
-                if ( pEBTimeDigis.isValid() ) {
-                        ebTimeDigis = pEBTimeDigis.product(); // get a ptr to the produc
-                        edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # ebTimeDigis: " << ebTimeDigis->size() ;
-                } else {
-                        edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << ebTimeDigiCollection_;
-                }
-        }
+	evt.getByToken( ebTimeDigiCollection_, pEBTimeDigis);
+	//evt.getByToken( digiProducer_, pEBTimeDigis);
+	if ( pEBTimeDigis.isValid() ) {
+	  ebTimeDigis = pEBTimeDigis.product(); // get a ptr to the produc
+	  edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # ebTimeDigis: " << ebTimeDigis->size() ;
+	} 
 
-        if ( eeTimeDigiCollection_.label() != "" && eeTimeDigiCollection_.instance() != "" ) {
-                evt.getByLabel( eeTimeDigiCollection_, pEETimeDigis);
-                //evt.getByLabel( digiProducer_, pEETimeDigis);
-                if ( pEETimeDigis.isValid() ) {
-                        eeTimeDigis = pEETimeDigis.product(); // get a ptr to the product
-                        edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # eeTimeDigis: " << eeTimeDigis->size() ;
-                } else {
-                        edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << eeTimeDigiCollection_;
-                }
-        }
-
+	evt.getByToken( eeTimeDigiCollection_, pEETimeDigis);
+	//evt.getByToken( digiProducer_, pEETimeDigis);
+	if ( pEETimeDigis.isValid() ) {
+	  eeTimeDigis = pEETimeDigis.product(); // get a ptr to the product
+	  edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # eeTimeDigis: " << eeTimeDigis->size() ;
+	}         
         // collection of rechits to put in the event
         std::auto_ptr< EBRecHitCollection > EBDetailedTimeRecHits( new EBRecHitCollection );
         std::auto_ptr< EERecHitCollection > EEDetailedTimeRecHits( new EERecHitCollection );
@@ -162,7 +141,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 	      // get primary vertices
 		
 		edm::Handle<VertexCollection> VertexHandle;
-		evt.getByLabel(recoVertex_, VertexHandle);
+		evt.getByToken(recoVertex_, VertexHandle);
 		
 		if ( VertexHandle.isValid() )
 		  {
@@ -172,14 +151,12 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 			vertex=new GlobalPoint(myVertex->x(),myVertex->y(),myVertex->z());
 		      }
 		  }
-		else {
-		  edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << recoVertex_;
-		}
+	
 	      }
 	    else
 	      {
 		edm::Handle<SimVertexContainer> VertexHandle;
-		evt.getByLabel(simVertex_, VertexHandle);
+		evt.getByToken(simVertex_, VertexHandle);
 		
 		if ( VertexHandle.isValid() )
 		  {
@@ -190,9 +167,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 			vertex=new GlobalPoint(myVertex->position().x(),myVertex->position().y(),myVertex->position().z());
 		      }
 		  }
-		else {
-		  edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << simVertex_;
-		}
+		
 	      }
 	  }
 

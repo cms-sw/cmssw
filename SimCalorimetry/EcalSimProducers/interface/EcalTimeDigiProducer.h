@@ -8,6 +8,10 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include <vector>
 
@@ -19,7 +23,6 @@ class PileUpEventPrincipal ;
 class EcalTimeMapDigitizer;
 
 namespace edm {
-  class EDProducer;
   class Event;
   class EventSetup;
   template<typename T> class Handle;
@@ -29,12 +32,12 @@ namespace edm {
 class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-      EcalTimeDigiProducer( const edm::ParameterSet& params , edm::EDProducer& mixMod);
+  EcalTimeDigiProducer( const edm::ParameterSet& params , edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector&);
       virtual ~EcalTimeDigiProducer();
 
       virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
       virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
-      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&);
       virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
    private:
@@ -48,7 +51,10 @@ class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
 
       const std::string m_EBdigiCollection ;
       const std::string m_EEdigiCollection ;
-      const std::string m_hitsProducerTag  ;
+      const edm::InputTag m_hitsProducerTagEB  ;
+      const edm::InputTag m_hitsProducerTagEE  ;
+      const edm::EDGetTokenT<std::vector<PCaloHit> > m_hitsProducerTokenEB  ;
+      const edm::EDGetTokenT<std::vector<PCaloHit> > m_hitsProducerTokenEE  ;
 
    private:
       int m_timeLayerEB;
