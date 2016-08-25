@@ -86,9 +86,9 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
    incoder_->lookupMSB(frame, msb);
 
    if (abs(ids[0].ieta()) < first_he_tower and upgrade_hb_) {
-      edm::LogError("HCALTPAlgo") << "Upgrade hb but received " << ids[0] << " (" << ids.size() << ")";
+      edm::LogError("HCALTPAlgo") << "Upgrade hb but received " << ids[0] << " (out of " << ids.size() << ", from " << frame.id() << ")";
    } else if (abs(ids[0].ieta()) >= first_he_tower and upgrade_he_) {
-      edm::LogError("HCALTPAlgo") << "Upgrade he but received " << ids[0] << " (" << ids.size() << ")";
+      edm::LogError("HCALTPAlgo") << "Upgrade he but received " << ids[0] << " (out of " << ids.size() << ", from " << frame.id() << ")";
    }
 
    if(ids.size() == 2) {
@@ -395,7 +395,7 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
 
       if (isPeak){
          output[ibin] = std::min<unsigned int>(sum[idx],0x3FF);
-         finegrain[ibin] = fg_algo.compute(msb[idx]);
+         finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
       } else {
          // Not a peak
          output[ibin] = 0;

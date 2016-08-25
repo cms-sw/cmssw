@@ -10,7 +10,7 @@ class HcalFinegrainBit {
 
       HcalFinegrainBit(int version) : version_(version) {};
 
-      int compute(const Tower&) const;
+      std::bitset<4> compute(const Tower&) const;
    private:
       int version_;
 };

@@ -1,6 +1,6 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
-int
+std::bitset<4>
 HcalFinegrainBit::compute(const HcalFinegrainBit::Tower& tower) const
 {
    return 0;
