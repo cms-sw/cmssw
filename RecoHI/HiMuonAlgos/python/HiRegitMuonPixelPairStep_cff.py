@@ -45,13 +45,10 @@ hiRegitMuPixelPairStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuPixe
 
 
 # seeding
-hiRegitMuPixelPairStepClusterCheck = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusterCheck.clone(
-    doClusterCheck = False # do not check for max number of clusters pixel or strips
-)
 hiRegitMuPixelPairStepHitDoublets = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepHitDoublets.clone(
     seedingLayers = "hiRegitMuPixelPairStepSeedLayers",
     trackingRegions = "hiRegitMuPixelPairStepTrackingRegions",
-    clusterCheck = "hiRegitMuPixelPairStepClusterCheck",
+    clusterCheck = "hiRegitMuClusterCheck",
 )
 hiRegitMuPixelPairStepSeeds     = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.clone(
     seedingHitSets = "hiRegitMuPixelPairStepHitDoublets"
@@ -126,7 +123,6 @@ hiRegitMuPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMu
 hiRegitMuonPixelPairStep = cms.Sequence(hiRegitMuPixelPairStepClusters*
                                         hiRegitMuPixelPairStepSeedLayers*
                                         hiRegitMuPixelPairStepTrackingRegions*
-                                        hiRegitMuPixelPairStepClusterCheck*
                                         hiRegitMuPixelPairStepHitDoublets*
                                         hiRegitMuPixelPairStepSeeds*
                                         hiRegitMuPixelPairStepTrackCandidates*
