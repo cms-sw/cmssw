@@ -97,10 +97,11 @@ PatternOutput DetectPatterns(ZonesOutput Eout){
     
     for(int k=0;k<192;k++){//was 128
       
-      int qr = ranka_t[zone][k-1], ql = ranka_t[zone][k+1], qc = ranka_t[zone][k];
+      int qr = 0, ql = 0, qc = ranka_t[zone][k];
       
-      if(k==0){qr=0;}
-      if(k==191){ql=0;}//was 127
+      if(k>0){qr=ranka_t[zone][k-1];}
+      if(k<191){ql=ranka_t[zone][k+1];}//was 127
+
       
       if((qc <= ql) || (qc < qr)){qc = 0;}
       
