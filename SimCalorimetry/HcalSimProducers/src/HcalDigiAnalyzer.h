@@ -2,7 +2,7 @@
 #define HcalSimProducers_HcalDigiAnalyzer_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitAnalyzer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,7 +20,7 @@
 */
 
 
-class HcalDigiAnalyzer : public edm::EDAnalyzer
+class HcalDigiAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
 

@@ -1,7 +1,7 @@
 #ifndef HcalTrigPrimDigiProducer_h
 #define HcalTrigPrimDigiProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,7 +9,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include <vector>
 
-class HcalTrigPrimDigiProducer : public edm::EDProducer
+class HcalTrigPrimDigiProducer : public edm::stream::EDProducer<>
 {
 public:
 
