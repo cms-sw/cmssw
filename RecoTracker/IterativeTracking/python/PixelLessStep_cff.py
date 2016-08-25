@@ -120,16 +120,16 @@ pixelLessStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
 )
 
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
 pixelLessStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "pixelLessStepSeedLayers",
     trackingRegions = "pixelLessStepTrackingRegions",
+    maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
 from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
 pixelLessStepHitTriplets = _multiHitFromChi2EDProducer.clone(
     doublets = "pixelLessStepHitDoublets",
-    maxElement = 1000000,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter

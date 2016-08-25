@@ -32,19 +32,19 @@ initialStepTrackingRegionsPreSplitting = _globalTrackingRegionFromBeamSpot.clone
 ))
 
 # seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
 initialStepHitDoubletsPreSplitting = _hitPairEDProducer.clone(
     seedingLayers = "initialStepSeedLayersPreSplitting",
     trackingRegions = "initialStepTrackingRegionsPreSplitting",
     clusterCheck = "trackerClusterCheckPreSplitting",
+    maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cff import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 initialStepHitTripletsPreSplitting = _pixelTripletHLTEDProducer.clone(
     doublets = "initialStepHitDoubletsPreSplitting",
-    maxElement = 1000000,
     produceSeedingHitSets = True,
     SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(
         clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
