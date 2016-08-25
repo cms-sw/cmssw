@@ -31,6 +31,7 @@ CSCHitFromWireOnly::CSCHitFromWireOnly( const edm::ParameterSet& ps ) : recoCond
 
 CSCHitFromWireOnly::~CSCHitFromWireOnly(){}
 
+
 std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const CSCLayer* layer, const CSCWireDigiCollection::Range& rwired ) {
   
   std::vector<CSCWireHit> hitsInLayer;
