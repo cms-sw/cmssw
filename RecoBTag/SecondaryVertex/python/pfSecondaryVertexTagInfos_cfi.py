@@ -20,3 +20,6 @@ pfSecondaryVertexTagInfos = cms.EDProducer("CandSecondaryVertexProducer",
         extSVCollection     = cms.InputTag('secondaryVertices'),
         extSVDeltaRToJet    = cms.double(0.3)
 )
+
+pfSecondaryVertexTagInfos.trackSelection.pixelHitsMin = cms.uint32(1)
+pfSecondaryVertexTagInfos.trackSelection.totalHitsMin = cms.uint32(0)
