@@ -171,8 +171,9 @@ void pat::PackedCandidate::unpackTrk() const {
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
     math::RhoEtaPhiVector p3(p4_.load()->pt(),p4_.load()->eta(),phiAtVtx());
-    int numberOfPixelHits = packedHits_ & trackPixelHitsMask ;
-    int numberOfHits = (packedHits_>>trackStripHitsShift) + numberOfPixelHits;
+    int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
+    int numberOfPixelHits = this->numberOfPixelHits();
+    int numberOfHits = this->numberOfHits();
 
     int ndof = numberOfHits+numberOfPixelHits-5;
     reco::HitPattern hp, hpExpIn;
@@ -181,14 +182,37 @@ void pat::PackedCandidate::unpackTrk() const {
     
     auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     
+    // add hits to match the number of laters and validHitInFirstPixelBarrelLayer
     if(innerLost == validHitInFirstPixelBarrelLayer){
         track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::valid); 
-        i++; 
+        for(i++; i<numberOfPixelLayers; i++) {
+            if (i <= 3) { 
+                track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+1, 0, TrackingRecHit::valid); 
+            } else {    
+                track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i-3, 0, TrackingRecHit::valid); 
+            }
+        }
+    } else {
+        for(;i<numberOfPixelLayers; i++) {
+            if (i <= 2 ) { 
+                track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+2, 0, TrackingRecHit::valid); 
+            } else {    
+                track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i-3, 0, TrackingRecHit::valid); 
+            }
+        }
     }
-    for(;i<numberOfPixelHits; i++) {
-       track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i > 1 ? 3 : 2, 0, TrackingRecHit::valid); 
+    // add extra hits (overlaps, etc)
+    for(;i<numberOfPixelHits; i++) { 
+       track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, (innerLost == validHitInFirstPixelBarrelLayer ? 1 : 2), 0, TrackingRecHit::valid); 
     }
-    
+    // now start adding tracker layers
+    for(int sl = 0; sl < numberOfStripLayers; ++sl, ++i) {
+        if      (sl < 4)    track->appendTrackerHitPattern(StripSubdetector::TIB,   sl   +1, 1, TrackingRecHit::valid);
+        else if (sl < 4+6)  track->appendTrackerHitPattern(StripSubdetector::TOB, (sl- 4)+1, 1, TrackingRecHit::valid);
+        else if (sl < 10+9) track->appendTrackerHitPattern(StripSubdetector::TEC, (sl-10)+1, 1, TrackingRecHit::valid);
+        else if (sl < 19+3) track->appendTrackerHitPattern(StripSubdetector::TID, (sl-13)+1, 1, TrackingRecHit::valid);
+        else break; // wtf?
+    }
     for(;i<numberOfHits;i++) {
           track->appendTrackerHitPattern(StripSubdetector::TIB, 1, 1, TrackingRecHit::valid);
     }
