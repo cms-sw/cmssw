@@ -32,11 +32,22 @@ namespace edm {
   {
     
   public:
+    SerialTaskQueueChain() {}
     explicit SerialTaskQueueChain(std::vector<std::shared_ptr<SerialTaskQueue>> iQueues):
-    m_queues(std::move(iQueues)) { assert(m_queues.size()>0); }
+    m_queues(std::move(iQueues)) {}
     
-    SerialTaskQueueChain(const SerialTaskQueueChain&) = default;
-    SerialTaskQueueChain& operator=(const SerialTaskQueueChain&) = default;
+    SerialTaskQueueChain(const SerialTaskQueueChain&) = delete;
+    SerialTaskQueueChain& operator=(const SerialTaskQueueChain&) = delete;
+    SerialTaskQueueChain(SerialTaskQueueChain&& iOld):
+      m_queues(std::move(iOld.m_queues)),
+      m_outstandingTasks{ iOld.m_outstandingTasks.load() } {}
+
+    SerialTaskQueueChain& operator=(SerialTaskQueueChain&& iOld) {
+      m_queues = std::move(iOld.m_queues);
+      m_outstandingTasks.store( iOld.m_outstandingTasks.load());
+      return *this;
+    }
+
 
     
     /// asynchronously pushes functor iAction into queue
@@ -61,6 +72,7 @@ namespace edm {
     void pushAndWait(const T& iAction);
     
     unsigned long outstandingTasks() const { return m_outstandingTasks; }
+    std::size_t numberOfQueues() const {return m_queues.size(); }
   private:
     
     // ---------- member data --------------------------------
@@ -81,6 +93,7 @@ namespace edm {
     if(m_queues.size() == 1) {
       m_queues[0]->push( [this,iAction]() {this->actionToRun(iAction);} );
     } else {
+      assert(m_queues.size()>0);
       m_queues[0]->push([this, iAction]() {
         this->passDownChain(1, iAction);
       });
@@ -94,15 +107,24 @@ namespace edm {
     std::unique_ptr<tbb::task, decltype(destry)> waitTask( new (tbb::task::allocate_root()) tbb::empty_task, destry );
     waitTask->set_ref_count(3);
     
+    std::exception_ptr ptr;
     auto waitTaskPtr = waitTask.get();
-    push([waitTaskPtr, iAction](){
-      auto dec = [](tbb::task* iTask){ iTask->decrement_ref_count();};
-      std::unique_ptr<tbb::task, decltype(dec)> sentry(waitTaskPtr,dec);
-      iAction();
+    push([waitTaskPtr, iAction,&ptr](){
+      try {
+        auto dec = [](tbb::task* iTask){ iTask->decrement_ref_count();};
+        std::unique_ptr<tbb::task, decltype(dec)> sentry(waitTaskPtr,dec);
+        iAction();
+      }catch(...) {
+        ptr = std::current_exception();
+      }
     });
     
     waitTask->decrement_ref_count();
     waitTask->wait_for_all();
+    
+    if(ptr) {
+      std::rethrow_exception(ptr);
+    }
   }
   
   template<typename T>
