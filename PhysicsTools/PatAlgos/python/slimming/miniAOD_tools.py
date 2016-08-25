@@ -165,9 +165,8 @@ def miniAOD_customizeCommon(process):
         elSource = cms.InputTag('gedGsfElectrons'),
         ##
         jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''),
-        btagDiscriminators = ["pfJetBProbabilityBJetTags", "pfJetProbabilityBJetTags",
-                              "pfCombinedSecondaryVertexV2BJetTags", "pfCombinedInclusiveSecondaryVertexV2BJetTags",
-                              "pfCombinedMVAV2BJetTags"],
+        btagDiscriminators = ["pfCombinedSecondaryVertexV2BJetTags", "pfCombinedInclusiveSecondaryVertexV2BJetTags",
+                              "pfCombinedCvsLJetTags", "pfCombinedCvsBJetTags"],
         runIVF = True,
         tightBTagNTkHits = True,
         btagPrefix = 'tight',
