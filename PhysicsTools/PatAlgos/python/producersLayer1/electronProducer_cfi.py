@@ -37,9 +37,9 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     ),
 
 
-    puppiIsolationChargedHadrons = cms.InputTag("egmElectronIsolationAODPUPPI","h+-DR030-BarVeto000-EndVeto001"),
-    puppiIsolationNeutralHadrons = cms.InputTag("egmElectronIsolationAODPUPPI","h0-DR030-BarVeto000-EndVeto000"),
-    puppiIsolationPhotons        = cms.InputTag("egmElectronIsolationAODPUPPI","gamma-DR030-BarVeto000-EndVeto008"),
+    puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolation","h+-DR030-BarVeto000-EndVeto001"),
+    puppiIsolationNeutralHadrons = cms.InputTag("egmElectronPUPPIIsolation","h0-DR030-BarVeto000-EndVeto000"),
+    puppiIsolationPhotons        = cms.InputTag("egmElectronPUPPIIsolation","gamma-DR030-BarVeto000-EndVeto008"),
 
     # embedding of AOD items
     embedGsfElectronCore = cms.bool(True),  ## embed in AOD externally stored gsf electron core

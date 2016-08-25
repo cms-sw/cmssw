@@ -32,6 +32,10 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
       userFunctionLabels = cms.vstring()
     ),
 
+    puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolation","h+-DR030-"),
+    puppiIsolationNeutralHadrons = cms.InputTag("egmElectronPUPPIIsolation","h0-DR030-"),
+    puppiIsolationPhotons        = cms.InputTag("egmElectronPUPPIIsolation","gamma-DR030-"),
+
     # embedding of AOD items
     embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
     embedSeedCluster               = cms.bool(True),  ## embed in AOD externally stored the photon's seedcluster 
