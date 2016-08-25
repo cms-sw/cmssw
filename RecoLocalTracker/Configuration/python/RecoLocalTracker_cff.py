@@ -13,14 +13,13 @@ from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi impo
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 from RecoLocalTracker.SubCollectionProducers.clustersummaryproducer_cfi import *
 
-from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *
-
 pixeltrackerlocalreco = cms.Sequence(siPixelClustersPreSplitting*siPixelRecHitsPreSplitting)
 striptrackerlocalreco = cms.Sequence(siStripZeroSuppression*siStripClusters*siStripMatchedRecHits)
 trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco*clusterSummaryProducer)
 
 from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
 from RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi import *
+from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *
 
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_tracker.toReplaceWith(pixeltrackerlocalreco,
