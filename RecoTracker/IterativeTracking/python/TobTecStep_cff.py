@@ -54,16 +54,16 @@ tobTecStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
 )
 
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
 tobTecStepHitDoubletsTripl = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersTripl",
     trackingRegions = "tobTecStepTrackingRegionsTripl",
+    maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
 from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
 tobTecStepHitTripletsTripl = _multiHitFromChi2EDProducer.clone(
     doublets = "tobTecStepHitDoubletsTripl",
-    maxElement = 1000000,
     extraPhiKDBox = 0.01,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
@@ -120,11 +120,10 @@ tobTecStepTrackingRegionsPair = _globalTrackingRegionFromBeamSpotFixedZ.clone(Re
 ))
 
 # Pair seeds
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
 tobTecStepHitDoubletsPair = _hitPairEDProducer.clone(
     seedingLayers = "tobTecStepSeedLayersPair",
     trackingRegions = "tobTecStepTrackingRegionsPair",
-    maxElement = 1000000,
     produceSeedingHitSets = True,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer

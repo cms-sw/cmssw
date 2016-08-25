@@ -31,18 +31,18 @@ trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptM
 
 
 # seeding
-from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoTracker.TkHitPairs.hitPairEDProducer_cff import hitPairEDProducer as _hitPairEDProducer
 lowPtQuadStepHitDoublets = _hitPairEDProducer.clone(
     seedingLayers = "lowPtQuadStepSeedLayers",
     trackingRegions = "lowPtQuadStepTrackingRegions",
+    maxElement = 0,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cff import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 lowPtQuadStepHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "lowPtQuadStepHitDoublets",
-    maxElement = 1000000,
     produceIntermediateHitTriplets = True,
     SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 )
@@ -90,10 +90,9 @@ _lowPtQuadStepHitQuadrupletsMerging.SeedCreatorPSet = cms.PSet(
 )
 _lowPtQuadStepHitQuadrupletsMerging.SeedComparitorPSet = lowPtQuadStepSeeds.SeedComparitorPSet
 
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(lowPtQuadStepHitTriplets, maxElement=0, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
+trackingPhase1PU70.toModify(lowPtQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
 trackingPhase1PU70.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadrupletsMerging)
-trackingPhase2PU140.toModify(lowPtQuadStepHitTriplets, maxElement=0, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
+trackingPhase2PU140.toModify(lowPtQuadStepHitTriplets, produceIntermediateHitTriplets=False, produceSeedingHitSets=True)
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadrupletsMerging)
 
 

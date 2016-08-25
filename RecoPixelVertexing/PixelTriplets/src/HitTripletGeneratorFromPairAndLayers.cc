@@ -15,7 +15,7 @@ HitTripletGeneratorFromPairAndLayers::HitTripletGeneratorFromPairAndLayers(const
 HitTripletGeneratorFromPairAndLayers::~HitTripletGeneratorFromPairAndLayers() {}
 
 void HitTripletGeneratorFromPairAndLayers::fillDescriptions(edm::ParameterSetDescription& desc) {
-  desc.add<unsigned int>("maxElement", 100000);
+  desc.add<unsigned int>("maxElement", 1000000);
 }
 
 void HitTripletGeneratorFromPairAndLayers::init(std::unique_ptr<HitPairGeneratorFromLayerPair>&& pairGenerator, LayerCacheType *layerCache) {
