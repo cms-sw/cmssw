@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from copy import deepcopy
+
 #Geometry
 # include used for track reconstruction 
 # note that tracking is redone since we need updated hits and they 
@@ -8,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoParticleFlow.PFProducer.particleFlowBlock_cfi import *
 
 from Configuration.StandardSequences.Eras import eras
-_phase2_hgcal_Importers = particleFlowBlock.elementImporters.copy()
+_phase2_hgcal_Importers = deepcopy(particleFlowBlock.elementImporters)
 # kill tracks in the HGCal
 _phase2_hgcal_Importers[5].importerName = cms.string('GeneralTracksImporterWithVeto')
 _phase2_hgcal_Importers[5].veto = cms.InputTag('HGCalTrackCollection:TracksInHGCal')
@@ -18,7 +20,7 @@ _phase2_hgcal_Importers[5].veto = cms.InputTag('HGCalTrackCollection:TracksInHGC
 #              source = cms.InputTag("particleFlowClusterHGCal"),
 #              BCtoPFCMap = cms.InputTag('particleFlowSuperClusterHGCal:PFClusterAssociationEBEE') ),
 #)
-_phase2_hgcal_Linkers = particleFlowBlock.linkDefinitions.copy()
+_phase2_hgcal_Linkers = deepcopy(particleFlowBlock.linkDefinitions)
 ### for later
 #_phase2_hgcal_Linkers.append( 
 #    cms.PSet( linkerName = cms.string("SCAndHGCalLinker"),
