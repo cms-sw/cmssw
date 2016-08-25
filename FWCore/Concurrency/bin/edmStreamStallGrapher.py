@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 #----------------------------------------------
 def printHelp():
@@ -253,6 +254,7 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
   streamLastEventEndTimes = [None]*(numStreams+1)
   streamMultipleModulesRunnningTimes = [[] for x in xrange(numStreams+1)]
   maxNumberOfConcurrentModulesOnAStream = 0
+  streamInvertedMessageFromModule = [ set() for x in xrange(numStreams+1)]
 
   for n,trans,s,time in processingSteps:
     startTime = None
@@ -270,6 +272,11 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
       else:
         activeModules =modulesActiveOnStreams[s]
         moduleNames = set(activeModules.iterkeys())
+        if n in streamInvertedMessageFromModule[s]:
+            #this is the rare case where a finished message is issued
+            # before the corresponding started
+            streamInvertedMessageFromModule[s].remove(n)
+            continue
         activeModules[n]=time
         nModulesRunning = len(activeModules)
         if nModulesRunning > 1:
@@ -287,6 +294,11 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
         streamLastEventEndTimes[s]=time
       else:
         activeModules =modulesActiveOnStreams[s]
+        if n not in activeModules:
+            #this is the rare case where a finished message is issued
+            # before the corresponding started
+            streamInvertedMessageFromModule[s].add(n)
+            continue
         startTime = activeModules[n]
         moduleNames = set(activeModules.iterkeys())
         del activeModules[n]
@@ -381,11 +393,15 @@ if __name__=="__main__":
       exit(-1)
   fileName =sys.argv[-1]
 
+  sys.stderr.write( ">reading file\n" )
   processingSteps,numStreams,maxNameSize = readLogFile(sys.argv[-1])
+  sys.stderr.write(">processing data\n")
   stalledModules = findStalledModules(processingSteps, numStreams)
   if not doGraphic:
+    sys.stderr.write(">preparing ASCII art\n")
     createAsciiImage(processingSteps, numStreams, maxNameSize)
   else:
+    sys.stderr.write(">created PDF\n")
     createPDFImage(processingSteps, numStreams, stalledModules)
   printStalledModulesInOrder(stalledModules)
 
