@@ -242,10 +242,10 @@ namespace edm {
         this->m_waitingTasks.doneWaiting(nullptr);
       };
       
-      SerialTaskQueue* queue = nullptr;
+      SerialTaskQueueChain* queue = nullptr;
       if(auto reader = principal.reader()) {
         if (auto shared_res = reader->sharedResources()) {
-          queue = shared_res->serialQueue();
+          queue = &(shared_res->serialQueueChain());
         }
       }
       if(queue) {

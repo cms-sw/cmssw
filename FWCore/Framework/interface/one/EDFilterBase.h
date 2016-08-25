@@ -19,7 +19,6 @@
 //
 
 // system include files
-#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/ProducerBase.h"
@@ -121,7 +120,6 @@ namespace edm {
       ParentageID previousParentageId_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
-      std::mutex mutex_;
     };
     
   }

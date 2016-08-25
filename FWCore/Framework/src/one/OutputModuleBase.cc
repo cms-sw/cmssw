@@ -191,7 +191,8 @@ namespace edm {
     OutputModuleBase::~OutputModuleBase() { }
     
     SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
+      return SharedResourcesAcquirer{std::vector<std::recursive_mutex*>(),
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
     
     void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
@@ -236,14 +237,13 @@ namespace edm {
                               ModuleCallingContext const* mcc) {
       
       {
-        std::lock_guard<std::mutex> guard(mutex_);
+        resourcesAcquirer_.serialQueueChain().pushAndWait([&]()
         {
-          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
           EventForOutput e(ep, moduleDescription_, mcc);
           e.setConsumer(this);
           EventSignalsSentry sentry(act,mcc);
           write(e);
-        }
+        });
       }
       if(remainingEvents_ > 0) {
         --remainingEvents_;

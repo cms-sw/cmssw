@@ -18,7 +18,6 @@ EDProducts into an Event.
 
 #include <string>
 #include <vector>
-#include <mutex>
 
 namespace edm {
 
@@ -94,7 +93,6 @@ namespace edm {
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
     SharedResourcesAcquirer resourceAcquirer_;
-    std::mutex mutex_;
     ParentageID previousParentageId_;
   };
 }

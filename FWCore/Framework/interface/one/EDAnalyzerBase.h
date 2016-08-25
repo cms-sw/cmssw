@@ -19,7 +19,6 @@
 //
 
 // system include files
-#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
@@ -116,7 +115,6 @@ namespace edm {
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
       
       SharedResourcesAcquirer resourcesAcquirer_;
-      std::mutex mutex_;
     };
   }
 }

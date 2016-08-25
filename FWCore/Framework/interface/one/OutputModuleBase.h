@@ -25,7 +25,6 @@
 #include <vector>
 #include <map>
 #include <atomic>
-#include <mutex>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -179,7 +178,6 @@ namespace edm {
       std::map<BranchID, bool> keepAssociation_;
 
       SharedResourcesAcquirer resourcesAcquirer_;
-      std::mutex mutex_;
 
       //------------------------------------------------------------------
       // private member functions
