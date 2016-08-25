@@ -51,7 +51,6 @@ public:
   MeasurementTrackerImpl(const edm::ParameterSet&              conf,
 		     const PixelClusterParameterEstimator* pixelCPE,
 		     const StripClusterParameterEstimator* stripCPE,
-		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE,
 		     const SiStripRecHitMatcher*  hitMatcher,
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
@@ -61,7 +60,8 @@ public:
                      const SiPixelQuality *pixelQuality,
                      const SiPixelFedCabling *pixelCabling,
                      int   pixelQualityFlags,
-                     int   pixelQualityDebugFlags);
+                     int   pixelQualityDebugFlags,
+		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE = 0);
 
   virtual ~MeasurementTrackerImpl();
  

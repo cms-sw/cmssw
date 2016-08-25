@@ -79,21 +79,20 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );     
   
   //For Phase2 upgrade
-  std::string p2OTname = pset_.getParameter<std::string>("Phase2StripCPE");
+  std::string p2OTname = "";
+  if(pset_.existsAs<std::string>("Phase2StripCPE")){
+    p2OTname = pset_.getParameter<std::string>("Phase2StripCPE");
+  }
   edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > p2OTe;
   const ClusterParameterEstimator<Phase2TrackerCluster1D> * p2OTp;
 
-  if (p2OTname == "Fake") {
-    p2OTp = 0;
-  }else{
+  if (p2OTname != "") {
     iRecord.getRecord<TkStripCPERecord>().get( p2OTname, p2OTe );
     p2OTp = p2OTe.product();
-  }
-
-  if(p2OTp == 0)
-    _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
-  else
     _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
+  } else {
+    _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
+  }
 
   return _builder;
 }
