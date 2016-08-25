@@ -119,6 +119,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     std::vector<unsigned int> keys;
     for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
+        pat::Electron & electron = out->back();
 
         if( modifyElectron_ ) { electronModifier_->modify(electron); }
 
