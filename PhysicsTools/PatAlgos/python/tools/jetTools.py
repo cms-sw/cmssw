@@ -170,7 +170,7 @@ def setupSVClustering(btagInfo, svClustering, algo, rParam, fatJets=cms.InputTag
             btagInfo.groomedFatJets = groomedFatJets
 
 
-def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, hipMitigation, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
+def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
                   algo, rParam, btagDiscriminators, btagInfos, patJets, labelName, btagPrefix, postfix):
     ## expand tagInfos to what is explicitely required by user + implicit
     ## requirements that come in from one or the other discriminator
@@ -201,16 +201,16 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     import RecoBTag.Configuration.RecoBTag_cff as btag
     import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
-    if hipMitigation:
+    if tightBTagNTkHits:
         if not runIVF:
             print "-------------------------------------------------------------------"
-            print " Warning: To fully exploit the HIP mitigation for b tagging, please"
-            print "          also enable the \'runIVF\' switch."
+            print " Warning: For a complete switch to the legacy tight b-tag track"
+            print "          selection, please also enable the \'runIVF\' switch."
             print "-------------------------------------------------------------------"
         if btagPrefix == '':
             print "-------------------------------------------------------------------"
-            print " Warning: With the HIP mitigation for b tagging enabled, it is"
-            print "          safer to set \'btagPrefix\' to a non-empty string to"
+            print " Warning: With the tight b-tag track selection enabled, it is"
+            print "          advisable to set \'btagPrefix\' to a non-empty string to"
             print "          avoid unintentional modifications to the default"
             print "          b tagging setup that might be loaded in the same job."
             print "-------------------------------------------------------------------"
@@ -250,34 +250,34 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 if explicitJTA:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.explicitJTA = cms.bool(explicitJTA)
-                if hipMitigation:
+                if tightBTagNTkHits:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
-                    _btagInfo.minimumNumberOfPixelHits = cms.int32(0)
-                    _btagInfo.minimumNumberOfHits = cms.int32(0)
+                    _btagInfo.minimumNumberOfPixelHits = cms.int32(2)
+                    _btagInfo.minimumNumberOfHits = cms.int32(8)
             if btagInfo == 'pfImpactParameterAK8TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfImpactParameterAK8TagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
                 if explicitJTA:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.explicitJTA = cms.bool(explicitJTA)
-                if hipMitigation:
+                if tightBTagNTkHits:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
-                    _btagInfo.minimumNumberOfPixelHits = cms.int32(0)
-                    _btagInfo.minimumNumberOfHits = cms.int32(0)
+                    _btagInfo.minimumNumberOfPixelHits = cms.int32(2)
+                    _btagInfo.minimumNumberOfHits = cms.int32(8)
             if btagInfo == 'pfImpactParameterCA15TagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfImpactParameterCA15TagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
                 if explicitJTA:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.explicitJTA = cms.bool(explicitJTA)
-                if hipMitigation:
+                if tightBTagNTkHits:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
-                    _btagInfo.minimumNumberOfPixelHits = cms.int32(0)
-                    _btagInfo.minimumNumberOfHits = cms.int32(0)
+                    _btagInfo.minimumNumberOfPixelHits = cms.int32(2)
+                    _btagInfo.minimumNumberOfHits = cms.int32(8)
             if btagInfo == 'pfSecondaryVertexTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfSecondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
-                if hipMitigation:
+                if tightBTagNTkHits:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
-                    _btagInfo.trackSelection.pixelHitsMin = cms.uint32(0)
-                    _btagInfo.trackSelection.totalHitsMin = cms.uint32(0)
+                    _btagInfo.trackSelection.pixelHitsMin = cms.uint32(2)
+                    _btagInfo.trackSelection.totalHitsMin = cms.uint32(8)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
@@ -300,10 +300,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfSecondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix)))
-                if hipMitigation:
+                if tightBTagNTkHits:
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
-                    _btagInfo.trackSelection.pixelHitsMin = cms.uint32(0)
-                    _btagInfo.trackSelection.totalHitsMin = cms.uint32(0)
+                    _btagInfo.trackSelection.pixelHitsMin = cms.uint32(2)
+                    _btagInfo.trackSelection.totalHitsMin = cms.uint32(8)
             if btagInfo == 'pfInclusiveSecondaryVertexFinderNegativeTagInfos':
                 setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfInclusiveSecondaryVertexFinderNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(btagPrefix+'pfImpactParameterTagInfos'+labelName+postfix), extSVCollection=svSource))
                 if svClustering or fatJets != cms.InputTag(''):
@@ -356,7 +356,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         patJets.addBTagInfo = True
     ## if re-running IVF
     if runIVF:
-        if not hipMitigation:
+        if not tightBTagNTkHits:
             if pfCandidates.getModuleLabel() == 'packedPFCandidates': ## MiniAOD case
                 if not runIVFforCTagOnly: rerunningIVFMiniAOD()
             else:
@@ -366,10 +366,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         if (i for i in ivfbTagInfos if i in acceptedTagInfos) and not runIVFforCTagOnly:
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                 loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
-            if hipMitigation:
+            if tightBTagNTkHits:
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
-                    _temp.minHits = cms.uint32(0)
+                    _temp.minHits = cms.uint32(8)
             ## MiniAOD case
             if pfCandidates.getModuleLabel() == 'packedPFCandidates':
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
@@ -386,10 +386,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         if (i for i in ivfcTagInfos if i in acceptedTagInfos):
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                 loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
-            if hipMitigation:
+            if tightBTagNTkHits:
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
-                    _temp.minHits = cms.uint32(0)
+                    _temp.minHits = cms.uint32(8)
             ## MiniAOD case
             if pfCandidates.getModuleLabel() == 'packedPFCandidates':
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
@@ -445,7 +445,7 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'elSource',cms.InputTag('gedGsfElectrons'), "Label of the input collection for electrons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'muSource',cms.InputTag('muons'), "Label of the input collection for muons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'runIVF', False, "Re-run IVF secondary vertex reconstruction")
-        self.addParameter(self._defaultParameters,'hipMitigation', False, "Enable HIP mitigation")
+        self.addParameter(self._defaultParameters,'tightBTagNTkHits', False, "Enable legacy tight b-tag track selection")
         self.addParameter(self._defaultParameters,'loadStdRecoBTag', False, "Load the standard reconstruction b-tagging modules")
         self.addParameter(self._defaultParameters,'svClustering', False, "Secondary vertices ghost-associated to jets using jet clustering (mostly intended for subjets)")
         self.addParameter(self._defaultParameters,'fatJets', cms.InputTag(''), "Fat jet collection used for secondary vertex clustering", cms.InputTag)
@@ -490,7 +490,7 @@ class AddJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,hipMitigation=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -528,9 +528,9 @@ class AddJetCollection(ConfigToolBase):
         if runIVF is None:
             runIVF=self._defaultParameters['runIVF'].value
         self.setParameter('runIVF', runIVF)
-        if hipMitigation is None:
-            hipMitigation=self._defaultParameters['hipMitigation'].value
-        self.setParameter('hipMitigation', hipMitigation)
+        if tightBTagNTkHits is None:
+            tightBTagNTkHits=self._defaultParameters['tightBTagNTkHits'].value
+        self.setParameter('tightBTagNTkHits', tightBTagNTkHits)
         if loadStdRecoBTag is None:
             loadStdRecoBTag=self._defaultParameters['loadStdRecoBTag'].value
         self.setParameter('loadStdRecoBTag', loadStdRecoBTag)
@@ -591,7 +591,7 @@ class AddJetCollection(ConfigToolBase):
         elSource=self._parameters['elSource'].value
         muSource=self._parameters['muSource'].value
         runIVF=self._parameters['runIVF'].value
-        hipMitigation=self._parameters['hipMitigation'].value
+        tightBTagNTkHits=self._parameters['tightBTagNTkHits'].value
         loadStdRecoBTag=self._parameters['loadStdRecoBTag'].value
         svClustering=self._parameters['svClustering'].value
         fatJets=self._parameters['fatJets'].value
@@ -789,7 +789,7 @@ class AddJetCollection(ConfigToolBase):
             _newPatJets.jetChargeSource=''
         ## run btagging if required by user
         if (bTagging):
-            setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, hipMitigation, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
+            setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
                           _algo, rParam, btagDiscriminators, btagInfos, _newPatJets, _labelName, btagPrefix, postfix)
         else:
             _newPatJets.addBTagInfo = False
@@ -835,7 +835,7 @@ class SwitchJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'elSource',cms.InputTag('gedGsfElectrons'), "Label of the input collection for electrons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'muSource',cms.InputTag('muons'), "Label of the input collection for muons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'runIVF', False, "Re-run IVF secondary vertex reconstruction")
-        self.addParameter(self._defaultParameters,'hipMitigation', False, "Enable HIP mitigation")
+        self.addParameter(self._defaultParameters,'tightBTagNTkHits', False, "Enable legacy tight b-tag track selection")
         self.addParameter(self._defaultParameters,'loadStdRecoBTag', False, "Load the standard reconstruction b-tagging modules")
         self.addParameter(self._defaultParameters,'svClustering', False, "Secondary vertices ghost-associated to jets using jet clustering (mostly intended for subjets)")
         self.addParameter(self._defaultParameters,'fatJets', cms.InputTag(''), "Fat jet collection used for secondary vertex clustering", cms.InputTag)
@@ -877,7 +877,7 @@ class SwitchJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,hipMitigation=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
+    def __call__(self,process,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,getJetMCFlavour=None,genJetCollection=None,genParticles=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None,jetTrackAssociation=None,outputModules=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -912,9 +912,9 @@ class SwitchJetCollection(ConfigToolBase):
         if runIVF is None:
             runIVF=self._defaultParameters['runIVF'].value
         self.setParameter('runIVF', runIVF)
-        if hipMitigation is None:
-            hipMitigation=self._defaultParameters['hipMitigation'].value
-        self.setParameter('hipMitigation', hipMitigation)
+        if tightBTagNTkHits is None:
+            tightBTagNTkHits=self._defaultParameters['tightBTagNTkHits'].value
+        self.setParameter('tightBTagNTkHits', tightBTagNTkHits)
         if loadStdRecoBTag is None:
             loadStdRecoBTag=self._defaultParameters['loadStdRecoBTag'].value
         self.setParameter('loadStdRecoBTag', loadStdRecoBTag)
@@ -974,7 +974,7 @@ class SwitchJetCollection(ConfigToolBase):
         elSource=self._parameters['elSource'].value
         muSource=self._parameters['muSource'].value
         runIVF=self._parameters['runIVF'].value
-        hipMitigation=self._parameters['hipMitigation'].value
+        tightBTagNTkHits=self._parameters['tightBTagNTkHits'].value
         loadStdRecoBTag=self._parameters['loadStdRecoBTag'].value
         svClustering=self._parameters['svClustering'].value
         fatJets=self._parameters['fatJets'].value
@@ -1004,7 +1004,7 @@ class SwitchJetCollection(ConfigToolBase):
             elSource=elSource,
             muSource=muSource,
             runIVF=runIVF,
-            hipMitigation=hipMitigation,
+            tightBTagNTkHits=tightBTagNTkHits,
             loadStdRecoBTag=loadStdRecoBTag,
             svClustering=svClustering,
             fatJets=fatJets,
@@ -1049,7 +1049,7 @@ class UpdateJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'elSource',cms.InputTag('slimmedElectrons'), "Label of the input collection for electrons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'muSource',cms.InputTag('slimmedMuons'), "Label of the input collection for muons used in b-tagging", cms.InputTag)
         self.addParameter(self._defaultParameters,'runIVF', False, "Re-run IVF secondary vertex reconstruction")
-        self.addParameter(self._defaultParameters,'hipMitigation', False, "Enable HIP mitigation")
+        self.addParameter(self._defaultParameters,'tightBTagNTkHits', False, "Enable legacy tight b-tag track selection")
         self.addParameter(self._defaultParameters,'loadStdRecoBTag', False, "Load the standard reconstruction b-tagging modules")
         self.addParameter(self._defaultParameters,'svClustering', False, "Secondary vertices ghost-associated to jets using jet clustering (mostly intended for subjets)")
         self.addParameter(self._defaultParameters,'fatJets', cms.InputTag(''), "Fat jet collection used for secondary vertex clustering", cms.InputTag)
@@ -1088,7 +1088,7 @@ class UpdateJetCollection(ConfigToolBase):
         """
         return self._defaultParameters
 
-    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,hipMitigation=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
+    def __call__(self,process,labelName=None,postfix=None,btagPrefix=None,jetSource=None,pfCandidates=None,explicitJTA=None,pvSource=None,svSource=None,elSource=None,muSource=None,runIVF=None,tightBTagNTkHits=None,loadStdRecoBTag=None,svClustering=None,fatJets=None,groomedFatJets=None,algo=None,rParam=None,jetCorrections=None,btagDiscriminators=None,btagInfos=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
         can be found in toolCode via the base class function apply.
@@ -1126,9 +1126,9 @@ class UpdateJetCollection(ConfigToolBase):
         if runIVF is None:
             runIVF=self._defaultParameters['runIVF'].value
         self.setParameter('runIVF', runIVF)
-        if hipMitigation is None:
-            hipMitigation=self._defaultParameters['hipMitigation'].value
-        self.setParameter('hipMitigation', hipMitigation)
+        if tightBTagNTkHits is None:
+            tightBTagNTkHits=self._defaultParameters['tightBTagNTkHits'].value
+        self.setParameter('tightBTagNTkHits', tightBTagNTkHits)
         if loadStdRecoBTag is None:
             loadStdRecoBTag=self._defaultParameters['loadStdRecoBTag'].value
         self.setParameter('loadStdRecoBTag', loadStdRecoBTag)
@@ -1174,7 +1174,7 @@ class UpdateJetCollection(ConfigToolBase):
         elSource=self._parameters['elSource'].value
         muSource=self._parameters['muSource'].value
         runIVF=self._parameters['runIVF'].value
-        hipMitigation=self._parameters['hipMitigation'].value
+        tightBTagNTkHits=self._parameters['tightBTagNTkHits'].value
         loadStdRecoBTag=self._parameters['loadStdRecoBTag'].value
         svClustering=self._parameters['svClustering'].value
         fatJets=self._parameters['fatJets'].value
@@ -1245,7 +1245,7 @@ class UpdateJetCollection(ConfigToolBase):
                 elSource=elSource,
                 muSource=muSource,
                 runIVF=runIVF,
-                hipMitigation=hipMitigation,
+                tightBTagNTkHits=tightBTagNTkHits,
                 loadStdRecoBTag=loadStdRecoBTag,
                 svClustering=svClustering,
                 fatJets=fatJets,
@@ -1258,7 +1258,7 @@ class UpdateJetCollection(ConfigToolBase):
             )
             ## setup btagging
             _patJets=getattr(process, 'updatedPatJetsTransientCorrected'+_labelName+postfix)
-            setupBTagging(process, _jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, hipMitigation, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
+            setupBTagging(process, _jetSource, pfCandidates, explicitJTA, pvSource, svSource, elSource, muSource, runIVF, tightBTagNTkHits, loadStdRecoBTag, svClustering, fatJets, groomedFatJets,
                           _algo, rParam, btagDiscriminators, btagInfos, _patJets, _labelName, btagPrefix, postfix)
             ## update final selected jets
             _newSelectedPatJets=getattr(process, 'selectedUpdatedPatJets'+_labelName+postfix)
