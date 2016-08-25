@@ -29,10 +29,6 @@
 
 #include <vector>
 
-namespace edm {
-   class ConfigurationDescriptions;
-}
-
 class CSCLayer;
 class CSCLayerGeometry;
 class CSCDetId;
