@@ -6,7 +6,8 @@ ttrhbwor = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
     PixelCPE = cms.string('Fake'),
     Matcher = cms.string('Fake'),
     ComputeCoarseLocalPositionFromDisk = cms.bool(False),
-    Phase2StripCPE = cms.string('Phase2StripCPEGeometric'),
 )
 
+from Configuration.StandardSequences.Eras import eras
+eras.trackingPhase2PU140.toModify(ttrhbwor, Phase2StripCPE = cms.string('Phase2StripCPEGeometric'))
 

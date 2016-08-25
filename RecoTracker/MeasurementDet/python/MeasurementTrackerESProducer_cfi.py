@@ -5,7 +5,6 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
 
     PixelCPE = cms.string('PixelCPEGeneric'),
     StripCPE = cms.string('StripCPEfromTrackAngle'),
-    Phase2StripCPE = cms.string('Phase2StripCPEGeometric'),
     HitMatcher = cms.string('StandardMatcher'),
 
     SiStripQualityLabel         = cms.string(''),  ## unlabelled default SiStripQuality
@@ -30,4 +29,5 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     DebugPixelROCQualityDB    = cms.untracked.bool(False), ## dump out info om module status
 )
 
-
+from Configuration.StandardSequences.Eras import eras
+eras.trackingPhase2PU140.toModify(MeasurementTracker, Phase2StripCPE = cms.string('Phase2StripCPEGeometric'))
