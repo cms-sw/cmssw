@@ -31,7 +31,6 @@ Original Author: John Paul Chou (Brown University)
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
 
 ////////////////////////////////////////////////////////////
 //
@@ -710,7 +709,9 @@ void HBHEHitMap::calcTracksNeighborTowers_(void) const
 
 HBHEHitMapOrganizer::HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
 					 const ObjectValidatorAbs& objvalidator,
-					 const PhysicsTowerOrganizer& pto)
+					 const PhysicsTowerOrganizer& pto,
+					 const HcalFrontEndMap* hfemap) 
+  : hfemap_(hfemap)
 {
   // loop over the hits
   for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {
@@ -724,11 +725,11 @@ HBHEHitMapOrganizer::HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>
     pto.findNeighbors(hit->id().ieta(), hit->id().iphi(), neighbors);
     
     // organize the RBXs
-    int rbxidnum = HcalHPDRBXMap::indexRBX(hit->id());
+    int rbxidnum = hfemap_->lookupRBXIndex(hit->id());
     rbxs_[rbxidnum].insert(hit, tower, neighbors);
     
     // organize the HPDs
-    int hpdidnum = HcalHPDRBXMap::indexHPD(hit->id());
+    int hpdidnum = hfemap_->lookupRMIndex(hit->id());
     hpds_[hpdidnum].insert(hit, tower, neighbors);
     
     
@@ -814,7 +815,7 @@ void HBHEHitMapOrganizer::getHPDNeighbors(const HBHERecHit* hit, std::vector<con
   for(std::set<const PhysicsTower*>::const_iterator it1=temp.begin(); it1!=temp.end(); ++it1) {
     for(std::set<const HBHERecHit*>::const_iterator it2=(*it1)->hcalhits.begin(); it2!=(*it1)->hcalhits.end(); ++it2) {
       const HBHERecHit* hit2(*it2);
-      if(hit!=hit2 && HcalHPDRBXMap::indexHPD(hit->id())==HcalHPDRBXMap::indexHPD(hit2->id())) {
+      if(hit!=hit2 && hfemap_->lookupRMIndex(hit->id())==hfemap_->lookupRMIndex(hit2->id())) {
 	neighbors.push_back(hit2);
       }
     }

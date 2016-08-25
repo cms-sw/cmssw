@@ -29,6 +29,7 @@ Original Author: John Paul Chou (Brown University)
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -334,7 +335,8 @@ class HBHEHitMapOrganizer
  public:
   HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
 		      const ObjectValidatorAbs& objvalidator,
-		      const PhysicsTowerOrganizer& pto);
+		      const PhysicsTowerOrganizer& pto,
+		      const HcalFrontEndMap* hfemap);
 
   virtual ~HBHEHitMapOrganizer() {}
 
@@ -345,6 +347,7 @@ class HBHEHitMapOrganizer
 
  private:
   
+  const HcalFrontEndMap*    hfemap_;
   std::map<int, HBHEHitMap> rbxs_, hpds_;
   std::vector<HBHEHitMap> dihits_, monohits_;
 
