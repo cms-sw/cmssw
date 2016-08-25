@@ -497,6 +497,9 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
   MonitorElement *h_diffNumberOfHits;
   MonitorElement *h_diffLostInnerHits;
 
+  MonitorElement *h_diffHitPatternPixelLayersWithMeasurement;
+  MonitorElement *h_diffHitPatternTrackerLayersWithMeasurement;
+  MonitorElement *h_diffHitPatternStripLayersWithMeasurement;
   MonitorElement *h_diffHitPatternNumberOfValidPixelHits;
   MonitorElement *h_diffHitPatternNumberOfValidHits;
   MonitorElement *h_diffHitPatternNumberOfLostInnerHits;
@@ -622,6 +625,9 @@ void PackedCandidateTrackValidator::bookHistograms(DQMStore::IBooker& iBooker, e
   h_diffNumberOfHits      = iBooker.book1D("diffNumberOfHits",      "PackedCandidate::numberHits() - reco::Track::hitPattern::numberOfValidHits()",             5, -2.5, 2.5); // expect equality
   h_diffLostInnerHits     = iBooker.book1D("diffLostInnerHits",     "PackedCandidate::lostInnerHits() - reco::Track::hitPattern::numberOfLostHits(MISSING_INNER_HITS)",      5, -2.5, 2.5); // expect equality
 
+  h_diffHitPatternPixelLayersWithMeasurement = iBooker.book1D("diffHitPatternPixelLayersWithMeasurement", "PackedCandidate::bestTrack() - reco::Track in hitPattern::pixelLayersWithMeasurement()",   13, -10.5, 2.5); // not equal
+  h_diffHitPatternStripLayersWithMeasurement = iBooker.book1D("diffHitPatternStripLayersWithMeasurement", "PackedCandidate::bestTrack() - reco::Track in hitPattern::stripLayersWithMeasurement()",   13, -10.5, 2.5); // not equal
+  h_diffHitPatternTrackerLayersWithMeasurement = iBooker.book1D("diffHitPatternTrackerLayersWithMeasurement", "PackedCandidate::bestTrack() - reco::Track in hitPattern::trackerLayersWithMeasurement()",   13, -10.5, 2.5); // not equal
   h_diffHitPatternNumberOfValidPixelHits = iBooker.book1D("diffHitPatternNumberOfValidPixelHits", "PackedCandidate::bestTrack() - reco::Track in hitPattern::numberOfValidPixelHits()",   13, -10.5, 2.5); // not equal
   h_diffHitPatternNumberOfValidHits      = iBooker.book1D("diffHitPatternNumberOfValidHits",      "PackedCandidate::bestTrack() - reco::Track in hitPattern::numberOfValidHits()",      13, -10.5, 2.5); // not equal
   h_diffHitPatternNumberOfLostInnerHits  = iBooker.book1D("diffHitPatternNumberOfLostPixelHits",  "PackedCandidate::bestTrack() - reco::Track in hitPattern::numberOfLostHits(MISSING_INNER_HITS)", 13, -10.5, 2.5); // not equal
@@ -786,7 +792,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     const int stripOverflow = trackNumberOfStripHits - pcNumberOfStripLayers > pat::PackedCandidate::trackStripHitsMask ? trackNumberOfStripHits - pcNumberOfStripLayers - pat::PackedCandidate::trackStripHitsMask : 0;
     const int hitsOverflow = trackNumberOfHits - pcNumberOfLayers > (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) ? trackNumberOfHits - pcNumberOfLayers - (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) : 0;
     // PackedCandidate counts overflow pixel hits as strip
-    const int pixelInducedStripOverflow = (trackNumberOfStripHits+pixelOverflow) > pat::PackedCandidate::trackStripHitsMask ? (trackNumberOfStripHits+pixelOverflow-stripOverflow) - pat::PackedCandidate::trackStripHitsMask : 0; // FIXME
+    const int pixelInducedStripOverflow = (trackNumberOfStripHits+pixelOverflow-pcNumberOfStripLayers) > pat::PackedCandidate::trackStripHitsMask ? (trackNumberOfStripHits+pixelOverflow-stripOverflow-pcNumberOfStripLayers) - pat::PackedCandidate::trackStripHitsMask : 0; 
     h_numberPixelLayersOverMax->Fill(pixelLayerOverflow);
     h_numberStripLayersOverMax->Fill(stripLayerOverflow);
     h_numberLayersOverMax->Fill(layerOverflow);
@@ -855,6 +861,12 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     fillNoFlow(h_diffLostInnerHits, diffLostInnerHits);
 
     // For HitPattern ones, calculate the full diff (i.e. some differences are expected)
+    auto diffHitPatternPixelLayersWithMeasurement = trackPc.hitPattern().pixelLayersWithMeasurement() - trackNumberOfPixelLayers;
+    fillNoFlow(h_diffHitPatternPixelLayersWithMeasurement, diffHitPatternPixelLayersWithMeasurement);
+    auto diffHitPatternStripLayersWithMeasurement = trackPc.hitPattern().stripLayersWithMeasurement() - trackNumberOfStripLayers;
+    fillNoFlow(h_diffHitPatternStripLayersWithMeasurement, diffHitPatternStripLayersWithMeasurement);
+    auto diffHitPatternTrackerLayersWithMeasurement = trackPc.hitPattern().trackerLayersWithMeasurement() - trackNumberOfLayers;
+    fillNoFlow(h_diffHitPatternTrackerLayersWithMeasurement, diffHitPatternTrackerLayersWithMeasurement);
     auto diffHitPatternNumberOfValidPixelHits = trackPc.hitPattern().numberOfValidPixelHits() - trackNumberOfPixelHits;
     fillNoFlow(h_diffHitPatternNumberOfValidPixelHits, diffHitPatternNumberOfValidPixelHits);
     auto diffHitPatternNumberOfValidHits = trackPc.hitPattern().numberOfValidHits() - trackNumberOfHits;
