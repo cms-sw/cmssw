@@ -2,11 +2,7 @@
 #define ECALZEROSUPPRESSIONPRODUCER_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-//#include "FWCore/Framework/interface/Event.h"
-//#include "DataFormats/Common/interface/Handle.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -15,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-class EcalSelectiveReadoutProducer : public edm::EDProducer
+class EcalSelectiveReadoutProducer : public edm::one::EDProducer<>
 {
 public:
 
@@ -71,10 +67,10 @@ private:
 	      int& binOfMax) const;
 
   const EBDigiCollection*
-  getEBDigis(edm::Event& event) const;
+  getEBDigis(edm::Event& event);
 
   const EEDigiCollection*
-  getEEDigis(edm::Event& event) const;
+  getEEDigis(edm::Event& event);
 
   const EcalTrigPrimDigiCollection*
   getTrigPrims(edm::Event& event) const;
@@ -145,11 +141,16 @@ private:
    */
   bool useCondDb_;
 
-
   /**  Special switch to turn off SR entirely using special DB entries 
    */
 
   bool useFullReadout_;
+
+  /** keys
+   */
+  bool firstCallEB_;
+  bool firstCallEE_;
+  int  iEvent_;
 
   /** Used when settings_ is imported from configuration file. Just used
    * for memory management. Used settings_ to access to the object

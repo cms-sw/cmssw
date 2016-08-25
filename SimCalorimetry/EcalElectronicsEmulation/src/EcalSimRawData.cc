@@ -67,6 +67,7 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params){
   tccInDefaultVal_ = params.getUntrackedParameter<int>("tccInDefaultVal", 0xffff);
   basename_ = params.getUntrackedParameter<std::string>("outputBaseName");
 
+  iEvent = 0;
 
   string writeMode = params.getParameter<string>("writeMode");
 
@@ -83,7 +84,6 @@ void
 EcalSimRawData::analyze(const edm::Event& event,
 			const edm::EventSetup& es){
   //Event counter:
-  static int iEvent = 0;
   ++iEvent; 
     
   if(xtalVerbose_ | tpVerbose_){

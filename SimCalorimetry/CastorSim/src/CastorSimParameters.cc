@@ -53,17 +53,20 @@ double CastorSimParameters::fCtoGeV(const DetId & detId) const
   HcalGenericDetId hcalGenDetId(detId);
   const CastorGain* gains = theDbService->getGain(hcalGenDetId);
   const CastorGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);
+  double result = 0.0;
   if (!gains || !gwidths )
   {
     edm::LogError("CastorAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
   }
-  // only one gain will be recorded per channel, so just use capID 0 for now
-  
-  double result = gains->getValue(0);
-//  if(doNoise_)
-///  {
-//    result += CLHEP::RandGaussQ::shoot(0.,  gwidths->getValue(0));
-//  }
+  else 
+  {
+    // only one gain will be recorded per channel, so just use capID 0 for now
+    result = gains->getValue(0);
+    //  if(doNoise_)
+    ///  {
+    //    result += CLHEP::RandGaussQ::shoot(0.,  gwidths->getValue(0));
+    //  }
+  }
   return result;
 }
 /*
