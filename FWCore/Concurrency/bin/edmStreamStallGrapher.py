@@ -285,7 +285,7 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
               maxNumberOfConcurrentModulesOnAStream = nModulesRunning
           #need to create a new time span to avoid overlaps in graph
           startTime = min( activeModules.itervalues() )
-          #print moduleNames
+          #print s, startTime, time, moduleNames
           for k in activeModules.iterkeys():
             activeModules[k]=time
             
@@ -305,6 +305,10 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
         nModulesRunning = len(activeModules)
         if nModulesRunning > 0:
           streamMultipleModulesRunnningTimes[s][-1][2]=time
+          #reset start time for remaining modules to this time
+          # to avoid overlapping time ranges when making the plot
+          for k in activeModules.iterkeys():
+            activeModules[k] = time
     if startTime is not None:
       c="green"
       if (kSourceDelayedRead in moduleNames) or (kSourceFindEvent in moduleNames):
@@ -401,7 +405,7 @@ if __name__=="__main__":
     sys.stderr.write(">preparing ASCII art\n")
     createAsciiImage(processingSteps, numStreams, maxNameSize)
   else:
-    sys.stderr.write(">created PDF\n")
+    sys.stderr.write(">creating PDF\n")
     createPDFImage(processingSteps, numStreams, stalledModules)
   printStalledModulesInOrder(stalledModules)
 
