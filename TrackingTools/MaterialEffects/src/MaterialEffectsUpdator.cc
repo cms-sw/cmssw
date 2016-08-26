@@ -6,7 +6,7 @@ using namespace SurfaceSideDefinition;
 
 /** Constructor with explicit mass hypothesis
  */
-MaterialEffectsUpdator::MaterialEffectsUpdator ( double mass ) :
+MaterialEffectsUpdator::MaterialEffectsUpdator ( float mass ) :
   theMass(mass) {}
 
 MaterialEffectsUpdator::~MaterialEffectsUpdator () {}

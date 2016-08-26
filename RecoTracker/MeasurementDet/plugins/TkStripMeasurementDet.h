@@ -6,6 +6,8 @@
 #include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -170,47 +172,37 @@ public:
   
 
   template<class ClusterRefT>
-  bool filteredRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, const std::vector<bool> & skipClusters,
+  bool filteredRecHits( const ClusterRefT& cluster, StripCPE::AlgoParam const& cpepar,
+			const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, const std::vector<bool> & skipClusters,
 			RecHitContainer & result, std::vector<float> & diffs) const {
     if (isMasked(*cluster)) return true;
-    const GeomDetUnit& gdu( specificGeomDet());
     if (!accept(cluster, skipClusters)) return true;
     if (!est.preFilter(ltp, ClusterFilterPayload(rawId(),&*cluster) )) return true;  // avoids shadow; consistent with previous statement...
-    VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
-    bool isCompatible(false);
-    for(auto vl : vlv) {
-      SiStripRecHit2D recHit(vl.first, vl.second, fastGeomDet(), cluster); // FIXME add cluster count in OmniRef
-      std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
-      LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
-      if ( diffEst.first ) {
-	result.push_back(std::move(std::make_shared<SiStripRecHit2D>(recHit)));
-	diffs.push_back(diffEst.second);
-	isCompatible = true;
-      }
+    auto const & vl = cpe()->localParameters( *cluster, cpepar);
+    SiStripRecHit2D recHit(vl.first, vl.second, fastGeomDet(), cluster); // FIXME add cluster count in OmniRef (and move again to multiple sub-clusters..)
+    std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
+    LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
+    if ( diffEst.first ) {
+      result.push_back(std::move(std::make_shared<SiStripRecHit2D>(recHit)));
+      diffs.push_back(diffEst.second);
     }
-    return isCompatible;
+    return diffEst.first;
   }
 
 
   template<class ClusterRefT>
-  bool filteredRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, const std::vector<bool> & skipClusters,
-			std::vector<SiStripRecHit2D> & result) const {
+    bool filteredRecHits( const ClusterRefT& cluster, StripCPE::AlgoParam const& cpepar,
+			  const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, const std::vector<bool> & skipClusters,
+			  std::vector<SiStripRecHit2D> & result) const {
     if (isMasked(*cluster)) return true;
-    const GeomDetUnit& gdu( specificGeomDet());
     if (!accept(cluster, skipClusters)) return true;
     if (!est.preFilter(ltp, ClusterFilterPayload(rawId(),&*cluster) )) return true;   // avoids shadow; consistent with previous statement...
-    VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
-    bool isCompatible(false);
-    for(auto vl : vlv) {
-      auto && recHit  = SiStripRecHit2D( vl.first, vl.second, gdu, cluster);   // FIXME add cluster count in OmniRef
-      std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
-      LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
-      if ( diffEst.first ) {
-	result.push_back(std::move(recHit));
-	isCompatible = true;
-      }
-    }
-    return isCompatible;
+    auto const & vl = cpe()->localParameters( *cluster, cpepar);
+    result.emplace_back( vl.first, vl.second, fastGeomDet(), cluster);   // FIXME add cluster count in OmniRef
+    std::pair<bool,double> diffEst = est.estimate(ltp, result.back());
+    LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
+    if ( !diffEst.first ) result.pop_back();
+    return diffEst.first;
   }
 
 
@@ -244,12 +236,16 @@ public:
   bool maskBad128StripBlocks() const { return conditionSet().maskBad128StripBlocks();}
   
 private:
+  using AClusters = StripClusterParameterEstimator::AClusters;
+  using ALocalValues  = StripClusterParameterEstimator::ALocalValues;
+
+  
   int index_;
   StMeasurementConditionSet * theDetConditions;
   StMeasurementConditionSet & conditionSet() { return *theDetConditions; }
   const StMeasurementConditionSet & conditionSet() const { return *theDetConditions; }
   
-  const StripClusterParameterEstimator* cpe() const { return  conditionSet().stripCPE(); }
+  const StripCPE * cpe() const { return  static_cast<const StripCPE *>(conditionSet().stripCPE()); }
 
   // --- regional unpacking
   int totalStrips() const { return conditionSet().totalStrips(index()); }
@@ -263,15 +259,17 @@ private:
   }
   
 
-  template<class ClusterRefT>
-  void buildSimpleRecHit( const ClusterRefT& cluster,
+  void buildSimpleRecHits(AClusters const & clusters, const MeasurementTrackerEvent & data,
+			  const detset & detSet,
 			  const TrajectoryStateOnSurface& ltp,
 			  std::vector<SiStripRecHit2D>& res) const {
     const GeomDetUnit& gdu( specificGeomDet());
-    VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
-    for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-      res.push_back(SiStripRecHit2D( it->first, it->second, gdu, cluster));
-    }
+    declareDynArray(LocalValues,clusters.size(),alv);
+    cpe()->localParameters(clusters, alv, gdu, ltp.localParameters());
+    res.reserve(alv.size());
+    for (unsigned int i=0; i< clusters.size(); ++i)
+      res.emplace_back( alv[i].first, alv[i].second, gdu, detSet.makeRefTo( data.stripData().handle(), clusters[i]) );
+    
   }
 
 
@@ -282,16 +280,20 @@ private:
   
 public:
   inline bool accept(SiStripClusterRef const & r, const std::vector<bool> & skipClusters) const {
-    if(skipClusters.empty()) return true;
-   if (r.key()>=skipClusters.size()){
-      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters.size()
-				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
-      // edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done"; // protect for on demand???
-      return true;
-    }
-    return (not (skipClusters[r.key()]));
+    return  accept(r.key(), skipClusters);
   }
 
+  inline bool accept(unsigned int key, const std::vector<bool> & skipClusters) const {
+    if(skipClusters.empty()) return true;
+    if (key>=skipClusters.size()){
+      LogDebug("TkStripMeasurementDet")<<key<<" is larger than: "<<skipClusters.size()
+				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
+      return true;
+    }
+    return (not (skipClusters[key]));
+  }
+
+  
 };
 
 
