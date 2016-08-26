@@ -61,7 +61,7 @@ namespace edm {
     }
     
     SharedResourcesAcquirer EDProducerBase::createAcquirer() {
-      return SharedResourcesAcquirer{std::vector<std::recursive_mutex*>(),
+      return SharedResourcesAcquirer{
         std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 

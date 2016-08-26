@@ -132,9 +132,9 @@ namespace edm {
                                }));
 
       if(auto reader=principal.reader()) {
-        std::unique_lock<SharedResourcesAcquirer> guard;
-        if(auto sr = reader->sharedResources()) {
-          guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+        std::unique_lock<std::recursive_mutex> guard;
+        if(auto sr = reader->sharedResources().second) {
+          guard =std::unique_lock<std::recursive_mutex>(*sr);
         }
         if ( not productResolved()) {
           //another thread could have beaten us here
@@ -149,9 +149,9 @@ namespace edm {
   InputProductResolver::retrieveAndMerge_(Principal const& principal) const {
     if(auto reader = principal.reader()) {
 
-      std::unique_lock<SharedResourcesAcquirer> guard;
-      if(auto sr = reader->sharedResources()) {
-        guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+      std::unique_lock<std::recursive_mutex> guard;
+      if(auto sr = reader->sharedResources().second) {
+        guard =std::unique_lock<std::recursive_mutex>(*sr);
       }
 
       //Can't use resolveProductImpl since it first checks to see
@@ -225,9 +225,9 @@ namespace edm {
           resolveProductImpl<true>([this,&principal,mcc]() {
             if(principal.branchType() != InEvent) { return; }
             if(auto reader = principal.reader()) {
-              std::unique_lock<SharedResourcesAcquirer> guard;
-              if(auto sr = reader->sharedResources()) {
-                guard =std::unique_lock<SharedResourcesAcquirer>(*sr);
+              std::unique_lock<std::recursive_mutex> guard;
+              if(auto sr = reader->sharedResources().second) {
+                guard =std::unique_lock<std::recursive_mutex>(*sr);
               }
               if ( not productResolved()) {
                 //another thread could have finished this while we were waiting
@@ -244,7 +244,7 @@ namespace edm {
       
       SerialTaskQueueChain* queue = nullptr;
       if(auto reader = principal.reader()) {
-        if (auto shared_res = reader->sharedResources()) {
+        if (auto shared_res = reader->sharedResources().first) {
           queue = &(shared_res->serialQueueChain());
         }
       }
@@ -331,7 +331,7 @@ namespace edm {
             };
             
             if (sra) {
-              sra->temporaryUnlock(workCall);
+              assert(false);
             } else {
               workCall();
             }

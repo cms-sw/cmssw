@@ -27,17 +27,22 @@ namespace edm {
    tree_(tree),
    filePtr_(filePtr),
    nextReader_(),
-   resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) : static_cast<SharedResourcesAcquirer*>(nullptr)),
+   resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer() : static_cast<SharedResourcesAcquirer*>(nullptr)),
    inputType_(inputType),
    wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
+     if(inputType == InputType::Primary) {
+       auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
+       resourceAcquirer_=std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
+       mutex_ = resources.second;
+     }
   }
 
   RootDelayedReader::~RootDelayedReader() {
   }
 
-  SharedResourcesAcquirer*
+  std::pair<SharedResourcesAcquirer*, std::recursive_mutex*>
   RootDelayedReader::sharedResources_() const {
-    return resourceAcquirer_.get();
+    return std::make_pair(resourceAcquirer_.get(), mutex_.get());
   }
 
   std::unique_ptr<WrapperBase>
