@@ -46,7 +46,7 @@ namespace edm {
     // ---------- const member functions ---------------------
     SharedResourcesAcquirer createAcquirer(std::vector<std::string> const&) const;
     
-    SharedResourcesAcquirer createAcquirerForSourceDelayedReader();
+    std::pair<SharedResourcesAcquirer, std::shared_ptr<std::recursive_mutex>> createAcquirerForSourceDelayedReader();
     
     // ---------- static member functions --------------------
     static SharedResourcesRegistry* instance();
