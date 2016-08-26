@@ -610,7 +610,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       thisTrack.set_mode       ( mode            ); 
       thisTrack.set_first_bx   ( ebx - 6         ); 
       thisTrack.set_second_bx  ( sebx - 6        ); 
-      thisTrack.set_bx         ( thisTrack.First_BX() );
+      thisTrack.set_bx         ( thisTrack.Second_BX() );
       thisTrack.set_phis       ( ps              );
       thisTrack.set_thetas     ( ts              );
       thisTrack.set_pt         ( xmlpt*1.4       );
@@ -630,11 +630,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       // thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
       // thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
       
-      // // Optimal emulator configuration - AWB 29.03.16
-      // std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
-      
-      // Actual setting in firmware - AWB 12.04.16
-      std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+      // Use "ebx" for earliest LCT (used through August 24, 2016) - AWB 26.08.16
+      std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
       
       // // Extra debugging output - AWB 29.03.16
       // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
@@ -642,7 +639,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       // 	    << ", theta = " << AllTracks[fbest].theta << ", sign = " << 1 
       // 	    << ", quality = " << mode << ", trackaddress = " << 1 
       // 	    << ", sector = " << sector << std::endl;
-      // std::cout << "Output: BX = " << ebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
+      // std::cout << "Output: BX = " << sebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
       // 	    << ", hwEta = " << outCand.hwEta() << ", hwSign = " << outCand.hwSign() 
       // 	    << ", hwQual = " << outCand.hwQual() << ", link = " << outCand.link()
       // 	    << ", processor = " << outCand.processor() 
