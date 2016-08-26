@@ -3,7 +3,7 @@
 /** \class BPHBdToJPsiKxBuilder
  *
  *  Description: 
- *     Class to build Bs to JPsi Phi candidates
+ *     Class to build B0 to JPsi K*0 candidates
  *
  *
  *  $Date: 2015-07-24 11:29:20 $

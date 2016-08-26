@@ -3,7 +3,7 @@
 /** \class BPHPhiToKKBuilder
  *
  *  Description: 
- *     Class to build Phi candidates
+ *     Class to build Phi to K+ K- candidates
  *
  *
  *  $Date: 2015-07-24 11:29:20 $

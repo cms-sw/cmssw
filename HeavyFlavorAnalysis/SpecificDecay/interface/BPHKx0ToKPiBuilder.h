@@ -3,7 +3,7 @@
 /** \class BPHKx0ToKPiBuilder
  *
  *  Description: 
- *     Class to build Phi candidates
+ *     Class to build K*0 to K+ pi- candidates
  *
  *
  *  $Date: 2015-07-24 11:29:20 $
