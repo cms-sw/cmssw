@@ -110,9 +110,10 @@ namespace edm {
     std::exception_ptr ptr;
     auto waitTaskPtr = waitTask.get();
     push([waitTaskPtr, iAction,&ptr](){
+      //must wait until exception ptr would be set
+      auto dec = [](tbb::task* iTask){ iTask->decrement_ref_count();};
+      std::unique_ptr<tbb::task, decltype(dec)> sentry(waitTaskPtr,dec);
       try {
-        auto dec = [](tbb::task* iTask){ iTask->decrement_ref_count();};
-        std::unique_ptr<tbb::task, decltype(dec)> sentry(waitTaskPtr,dec);
         iAction();
       }catch(...) {
         ptr = std::current_exception();
