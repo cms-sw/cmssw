@@ -392,7 +392,8 @@ tracksValidationTruth = cms.Sequence(
     VertexAssociatorByPositionAndTracks +
     trackingParticleNumberOfLayersProducer
 )
-fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
+eras.fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
+eras.trackingPhase2PU140.toModify(tpClusterProducer, pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"))
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +

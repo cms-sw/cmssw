@@ -78,7 +78,7 @@ def customise_Validation(process,pileup):
         process.simHitTPAssocProducer.simHitSrc=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
                                                               cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
 
-    if hasattr(process,'trackingParticleNumberOfLayersProducer'):
+      if hasattr(process,'trackingParticleNumberOfLayersProducer'):
         process.trackingParticleNumberOfLayersProducer.simHits=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
                                                                cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
 
