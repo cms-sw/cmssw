@@ -442,6 +442,8 @@ void SiStripMonitorTrack::bookRingMEs(DQMStore::IBooker & ibooker , const uint32
   theRingMEs.ClusterNoiseOffTrack                 = 0;
   theRingMEs.ClusterWidthOnTrack                  = 0;
   theRingMEs.ClusterWidthOffTrack                 = 0;
+  theRingMEs.ClusterPosOnTrack                    = 0;
+  theRingMEs.ClusterPosOffTrack                   = 0;
   theRingMEs.ClusterChargePerCMfromTrack          = 0;
   theRingMEs.ClusterChargePerCMfromOriginOnTrack  = 0;
   theRingMEs.ClusterChargePerCMfromOriginOffTrack = 0;
@@ -481,6 +483,16 @@ void SiStripMonitorTrack::bookRingMEs(DQMStore::IBooker & ibooker , const uint32
   hname = hidmanager.createHistoLayer("Summary_ClusterWidth",name,ring_id,"OffTrack");
   hpar  = "TH1ClusterWidth";
   theRingMEs.ClusterWidthOffTrack = handleBookMEs(ibooker,view,ring_id,hpar,hname);
+
+  //Cluster Position
+  short total_nr_strips = SiStripDetCabling_->nApvPairs(mod_id) * 2 * 128;
+  if (ring_id.find("TEC") != std::string::npos)  total_nr_strips = 3 * 2 * 128;
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,ring_id,"OnTrack");
+  theRingMEs.ClusterPosOnTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+
+  hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,ring_id,"OffTrack");
+  theRingMEs.ClusterPosOffTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
   // dQ/dx
   hname = hidmanager.createHistoLayer("Summary_ClusterChargePerCMfromTrack",name,ring_id,"");
@@ -1126,6 +1138,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
       fillME(MEs.iRing->ClusterChargeOnTrack, charge);
       fillME(MEs.iRing->ClusterNoiseOnTrack, noise);
       fillME(MEs.iRing->ClusterWidthOnTrack, width);
+      fillME(MEs.iRing->ClusterPosOnTrack, position);
       if(track_ok) fillME(MEs.iRing->ClusterChargePerCMfromTrack, dQdx_fromTrack);
       if(track_ok) fillME(MEs.iRing->ClusterChargePerCMfromOriginOnTrack, dQdx_fromOrigin);
     }
@@ -1201,6 +1214,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
       fillME(MEs.iRing->ClusterChargeOffTrack, charge);
       fillME(MEs.iRing->ClusterNoiseOffTrack, noise);
       fillME(MEs.iRing->ClusterWidthOffTrack, width);
+      fillME(MEs.iRing->ClusterPosOffTrack, position);
       fillME(MEs.iRing->ClusterChargePerCMfromOriginOffTrack, dQdx_fromOrigin);
     }
     // subdetMEs
