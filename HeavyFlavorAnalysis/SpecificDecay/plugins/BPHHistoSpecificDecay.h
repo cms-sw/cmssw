@@ -33,6 +33,7 @@ class BPHHistoSpecificDecay: public BPHAnalyzerWrapper<edm::EDAnalyzer> {
 
   class CandidateSelect {
    public:
+    virtual ~CandidateSelect() {}
     virtual bool accept( const pat::CompositeCandidate& cand,
                          const reco::Vertex* pv = 0 ) const = 0 ;
   };

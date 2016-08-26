@@ -13,7 +13,6 @@
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/TransientTrack"/>
-<flags CXXFLAGS="-Wno-delete-non-virtual-dtor"/>
 <export>
   <flags SEAL_PLUGIN="1"/>
   <use   name="DataFormats/ParticleFlowCandidate"/>
