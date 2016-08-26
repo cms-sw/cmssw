@@ -20,6 +20,7 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace pat {
 
@@ -70,6 +71,7 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
     reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
     modifyElectron_(iConfig.getParameter<bool>("modifyElectrons"))
+
 {
     edm::ConsumesCollector sumes(consumesCollector());
     if( modifyElectron_ ) {
