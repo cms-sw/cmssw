@@ -98,6 +98,7 @@ class RemoveMCMatching(ConfigToolBase):
         outputModules=self._parameters['outputModules'].value
 
         print "************** MC dependence removal ************"
+        attrsToDelete = []
         for obj in range(len(names)):
             if( names[obj] == 'Photons'   or names[obj] == 'All' ):
                 print "removing MC dependencies for photons"
@@ -115,7 +116,10 @@ class RemoveMCMatching(ConfigToolBase):
                 tauProducer = getattr(process,'patTaus'+postfix)
                 tauProducer.addGenJetMatch   = False
                 tauProducer.embedGenJetMatch = False
+                attrsToDelete += [tauProducer.genJetMatch.getModuleLabel()]
                 tauProducer.genJetMatch      = ''
+                attrsToDelete += ['tauGenJets'+postfix]
+                attrsToDelete += ['tauGenJetsSelectorAllHadrons'+postfix]
             #Boosted Taus
             if( names[obj] == 'TausBoosted'      or names[obj] == 'All' ):
                 print "removing MC dependencies for taus boosted %s" %postfix
@@ -125,7 +129,10 @@ class RemoveMCMatching(ConfigToolBase):
                     tauProducer = getattr(process,'patTausBoosted'+postfix)
                     tauProducer.addGenJetMatch   = False
                     tauProducer.embedGenJetMatch = False
+                    attrsToDelete += [tauProducer.genJetMatch.getModuleLabel()]
                     tauProducer.genJetMatch      = ''
+                    attrsToDelete += ['tauGenJetsBoosted'+postfix]
+                    attrsToDelete += ['tauGenJetsSelectorAllHadronsBoosted'+postfix]
                 else :
                     print "...skipped since taus boosted %s" %postfix, "are not part of process."  
             if( names[obj] == 'Jets'      or names[obj] == 'All' ):
@@ -139,14 +146,19 @@ class RemoveMCMatching(ConfigToolBase):
                     jetProducer = getattr(process, jetCollectionString()+pfix)
                     jetProducer.addGenPartonMatch   = False
                     jetProducer.embedGenPartonMatch = False
+                    attrsToDelete += [jetProducer.genPartonMatch.getModuleLabel()]
                     jetProducer.genPartonMatch      = ''
                     jetProducer.addGenJetMatch      = False
+                    attrsToDelete += [jetProducer.genJetMatch.getModuleLabel()]
                     jetProducer.genJetMatch         = ''
                     jetProducer.getJetMCFlavour     = False
                     jetProducer.useLegacyJetMCFlavour = False
                     jetProducer.addJetFlavourInfo   = False
+                    attrsToDelete += [jetProducer.JetPartonMapSource.getModuleLabel()]
                     jetProducer.JetPartonMapSource  = ''
+                    attrsToDelete += [jetProducer.JetFlavourInfoSource.getModuleLabel()]
                     jetProducer.JetFlavourInfoSource = ''
+                    attrsToDelete += ['slimmedGenJets'+pfix]
                 ## adjust output
                 for outMod in outputModules:
                     if hasattr(process,outMod):
@@ -161,7 +173,15 @@ class RemoveMCMatching(ConfigToolBase):
                         ## remove mc extra configs for MET
                         metProducer = getattr(process, mod)
                         metProducer.addGenMET           = False
+                        attrsToDelete += [metProducer.genMETSource.getModuleLabel()]
                         metProducer.genMETSource        = ''
+        attrsToDelete += [
+            'prunedGenParticles',
+            'prunedGenParticlesWithStatusOne',
+            'packedGenParticles',
+        ]
+        for attr in attrsToDelete:
+            if hasattr(process,attr): delattr(process,attr)
 
 removeMCMatching=RemoveMCMatching()
 
@@ -170,4 +190,6 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""
     objectProducer = getattr(process, producerName+postfix)
     objectProducer.addGenMatch      = False
     objectProducer.embedGenMatch    = False
+    attr = objectProducer.genParticleMatch.getModuleLabel()
+    if hasattr(process,attr): delattr(process,attr)
     objectProducer.genParticleMatch = ''
