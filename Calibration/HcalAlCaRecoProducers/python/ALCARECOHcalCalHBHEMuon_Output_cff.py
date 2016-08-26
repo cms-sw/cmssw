@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 # output block for alcastream HCAL HBHEMuon
 # output module 
 #  module alcastreamHcalHBHEMuonOutput = PoolOutputModule
-OutALCARECOHcalHBHEMuon_noDrop = cms.PSet(
+OutALCARECOHcalCalHBHEMuon_noDrop = cms.PSet(
     # use this in case of filter available
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalHBHEMuon')
-    ),
+        ),
     outputCommands = cms.untracked.vstring( 
         'keep edmTriggerResults_*_*_*',
         'keep recoTracks_globalMuons_*_*',
@@ -23,7 +23,7 @@ OutALCARECOHcalHBHEMuon_noDrop = cms.PSet(
 )
 
 import copy
-OutALCARECOHcalHBHEMuon=copy.deepcopy(OutALCARECOHcalHBHEMuon_noDrop)
-OutALCARECOHcalHBHEMuon.outputCommands.insert(0,"drop *")
+OutALCARECOHcalCalHBHEMuon=copy.deepcopy(OutALCARECOHcalCalHBHEMuon_noDrop)
+OutALCARECOHcalCalHBHEMuon.outputCommands.insert(0,"drop *")
 
 
