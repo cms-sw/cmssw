@@ -409,18 +409,17 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
             uint32_t ADCLong = details.LongDigi[ibin].adc();
             uint32_t ADCShort = details.ShortDigi[ibin].adc();
 
-            finegrain[ibin][1] = (finegrain[ibin][1] || ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
+            if (details.LongDigi.id().ietaAbs() != 29) {
+               finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
 
-            if (HCALFEM != 0) {
-               finegrain[ibin][0] = (
-                     finegrain[ibin][0] ||
-                     HCALFEM->fineGrainbit(
+               if (HCALFEM != 0) {
+                  finegrain[ibin][0] = HCALFEM->fineGrainbit(
                         ADCShort, details.ShortDigi.id(),
                         details.ShortDigi[ibin].capid(),
                         ADCLong, details.LongDigi.id(),
                         details.LongDigi[ibin].capid()
-                     )
-               );
+                  );
+               }
             }
         }
     }
