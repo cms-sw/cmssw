@@ -798,7 +798,7 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
 }
 
 void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
-  sipm.loadObject(HcalHOZercotek,36000,1,0,0,0.32,0,0);
+  sipm.loadObject(HcalHOZecotek,36000,1,0,0,0.32,0,0);
   sipm.loadObject(HcalHOHamamatsu,2500,1,0,0,0.32,0,0);
   sipm.loadObject(HcalHEHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
   sipm.loadObject(HcalHEHamamatsu2,38018,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
