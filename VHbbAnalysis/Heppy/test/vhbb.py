@@ -388,8 +388,8 @@ TrigAna = cfg.Analyzer(
     verbose = False,
     class_object = TriggerBitAnalyzer,
     triggerBits = triggerTable,  #default is MC, use the triggerTableData in -data.py files
-   processName = 'HLT',
-#   outprefix = 'HLT'
+    processName = 'HLT',
+    fallbackProcessName = 'HLT2',
    )
 
 from PhysicsTools.HeppyCore.framework.services.tfile import TFileService 
