@@ -967,7 +967,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             smear=False
             if "Smear" in metModName:
                 smear=True
-     
+            else:
+                smear=True
+                varyByNsigmas=101
+
             shiftedCollModules['Up'] = self.createShiftedJetResModule(process, smear, objectCollection, +1.*varyByNsigmas,
                                                                  "Up", postfix)
             shiftedCollModules['Down'] = self.createShiftedJetResModule(process, smear, objectCollection, -1.*varyByNsigmas,
@@ -1464,6 +1467,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if hasattr(process, "patPFMetTxyCorr"+postfix):
                 getattr(process, "patPFMetTxyCorr"+postfix).vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices")
 
+        if self._parameters['computeUncertainties'].value:
+            getattr(process, "shiftedPatJetResDown"+postfix).genJets = cms.InputTag("slimmedGenJets")
+            getattr(process, "shiftedPatJetResUp"+postfix).genJets = cms.InputTag("slimmedGenJets")
 
 
     def miniAODConfiguration(self, process, pfCandCollection, jetCollection,
