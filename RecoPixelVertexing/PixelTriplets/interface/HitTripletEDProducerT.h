@@ -114,11 +114,12 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
     const TrackingRegion& region = regionLayerPairs.region();
 
     auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
+    auto intermediateHitTripletsFiller = IntermediateHitTriplets::dummyFiller();
     if(produceSeedingHitSets_) {
       seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
     }
     if(produceIntermediateHitTriplets_) {
-      intermediateHitTriplets->beginRegion(&region);
+      intermediateHitTripletsFiller = intermediateHitTriplets->beginRegion(&region);
     }
 
     LogTrace("HitTripletEDProducer") << " starting region";
@@ -147,7 +148,7 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
       hitCache.extend(layerPair.cache());
       LayerHitMapCache *hitCachePtr = &hitCache;
       if(produceIntermediateHitTriplets_) {
-        hitCachePtr = intermediateHitTriplets->beginPair(layerPair.layerPair(), std::move(hitCache));
+        hitCachePtr = intermediateHitTripletsFiller.beginPair(layerPair.layerPair(), std::move(hitCache));
       }
 
       tripletLastLayerIndex.clear();
@@ -178,7 +179,7 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
           });
 
         // empty triplets need to propagate here
-        intermediateHitTriplets->addTriplets(thirdLayers, triplets, tripletLastLayerIndex, tripletPermutation);
+        intermediateHitTripletsFiller.addTriplets(thirdLayers, triplets, tripletLastLayerIndex, tripletPermutation);
       }
 
       triplets.clear();

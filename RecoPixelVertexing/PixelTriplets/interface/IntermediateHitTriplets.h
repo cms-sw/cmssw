@@ -207,6 +207,62 @@ public:
 
   ////////////////////
 
+  // helper class to enforce correct usage
+  class RegionFiller {
+  public:
+    RegionFiller(): obj_(nullptr) {}
+    explicit RegionFiller(IntermediateHitTriplets *obj): obj_(obj) {}
+
+    ~RegionFiller() = default;
+
+    bool valid() const { return obj_ != nullptr; }
+
+    LayerHitMapCache *beginPair(const LayerPair& layerPair, LayerHitMapCache&& cache) {
+      obj_->layerPairAndLayers_.emplace_back(layerPair, obj_->thirdLayers_.size(), std::move(cache));
+      return &(obj_->layerPairAndLayers_.back().cache());
+    };
+
+    void addTriplets(const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                     const OrderedHitTriplets& triplets,
+                     const std::vector<int>& thirdLayerIndex,
+                     const std::vector<size_t>& permutations) {
+      assert(triplets.size() == thirdLayerIndex.size());
+      assert(triplets.size() == permutations.size());
+
+      if(triplets.empty()) {
+        // In absence of triplets for a layer pair simplest is just
+        // remove the pair
+        obj_->popPair();
+        return;
+      }
+
+      int prevLayer = -1;
+      for(size_t i=0, size=permutations.size(); i<size; ++i) {
+        // We go through the 'triplets' in the order defined by
+        // 'permutations', which is sorted such that we first go through
+        // triplets from (3rd) layer 0, then layer 1 and so on.
+        const size_t realIndex = permutations[i];
+
+        const int layer = thirdLayerIndex[realIndex];
+        if(layer != prevLayer) {
+          prevLayer = layer;
+          obj_->thirdLayers_.emplace_back(thirdLayers[layer], obj_->hitTriplets_.size());
+          obj_->layerPairAndLayers_.back().setThirdLayersEnd(obj_->thirdLayers_.size());
+        }
+
+        obj_->hitTriplets_.emplace_back(triplets[realIndex]);
+        obj_->thirdLayers_.back().setHitsEnd(obj_->hitTriplets_.size());
+      }
+
+      obj_->regions_.back().setLayerSetsEnd(obj_->layerPairAndLayers_.size());
+    }
+  private:
+    IntermediateHitTriplets *obj_;
+  };
+
+  static RegionFiller dummyFiller() { return RegionFiller(); }
+  ////////////////////
+
   IntermediateHitTriplets(): seedingLayers_(nullptr) {}
   explicit IntermediateHitTriplets(const SeedingLayerSetsHits *seedingLayers): seedingLayers_(seedingLayers) {}
   IntermediateHitTriplets(const IntermediateHitTriplets& rh); // only to make ROOT dictionary generation happy
@@ -234,48 +290,9 @@ public:
     hitTriplets_.shrink_to_fit();
   }
 
-  void beginRegion(const TrackingRegion *region) {
+  RegionFiller beginRegion(const TrackingRegion *region) {
     regions_.emplace_back(region, layerPairAndLayers_.size());
-  }
-
-  LayerHitMapCache *beginPair(const LayerPair& layerPair, LayerHitMapCache&& cache) {
-    layerPairAndLayers_.emplace_back(layerPair, thirdLayers_.size(), std::move(cache));
-    return &(layerPairAndLayers_.back().cache());
-  };
-
-  void addTriplets(const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
-                   const OrderedHitTriplets& triplets,
-                   const std::vector<int>& thirdLayerIndex,
-                   const std::vector<size_t>& permutations) {
-    assert(triplets.size() == thirdLayerIndex.size());
-    assert(triplets.size() == permutations.size());
-
-    if(triplets.empty()) {
-      // In absence of triplets for a layer pair simplest is just
-      // remove the pair
-      popPair();
-      return;
-    }
-
-    int prevLayer = -1;
-    for(size_t i=0, size=permutations.size(); i<size; ++i) {
-      // We go through the 'triplets' in the order defined by
-      // 'permutations', which is sorted such that we first go through
-      // triplets from (3rd) layer 0, then layer 1 and so on.
-      const size_t realIndex = permutations[i];
-
-      const int layer = thirdLayerIndex[realIndex];
-      if(layer != prevLayer) {
-        prevLayer = layer;
-        thirdLayers_.emplace_back(thirdLayers[layer], hitTriplets_.size());
-        layerPairAndLayers_.back().setThirdLayersEnd(thirdLayers_.size());
-      }
-
-      hitTriplets_.emplace_back(triplets[realIndex]);
-      thirdLayers_.back().setHitsEnd(hitTriplets_.size());
-    }
-
-    regions_.back().setLayerSetsEnd(layerPairAndLayers_.size());
+    return RegionFiller(this);
   }
 
   const SeedingLayerSetsHits& seedingLayerHits() const { return *seedingLayers_; }
