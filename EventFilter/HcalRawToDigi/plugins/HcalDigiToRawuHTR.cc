@@ -90,8 +90,6 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   using namespace edm;
 
-  edm::ESHandle<HcalDbService> pSetup;
-  iSetup.get<HcalDbRecord>().get( pSetup );
   edm::ESHandle<HcalElectronicsMap> item;
   iSetup.get<HcalElectronicsMapRcd>().get(electronicsMapLabel_,item);
   const HcalElectronicsMap* readoutMap = item.product();
