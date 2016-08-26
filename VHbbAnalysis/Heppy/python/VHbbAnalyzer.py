@@ -177,12 +177,12 @@ class VHbbAnalyzer( Analyzer ):
 	inputs=ROOT.std.vector(ROOT.heppy.ReclusterJets.LorentzVector)()
         event.pfCands = list(self.handles['pfCands'].product())
 #        print "original jets pt,eta,phi \t\t",map(lambda x:"%s,%s,%s --"%(x.pt(),x.eta(),x.phi()),event.cleanJets)
-#        print "BquarksFromH pt,eta,phi \t\t",map(lambda x:"%s,%s,%s -- "%(x.pt(),x.eta(),x.phi()),event.genbquarksFromH)
-#        print "Inv mass",(event.genbquarksFromH[0].p4()+event.genbquarksFromH[1].p4()).M()
-#        print "pt from sum ",(event.genbquarksFromH[0].p4()+event.genbquarksFromH[1].p4()).Pt()
-#        print "pt from h",event.genHiggsBoson[0].pt()
+#        print "BquarksFromH pt,eta,phi \t\t",map(lambda x:"%s,%s,%s -- "%(x.pt(),x.eta(),x.phi()),event.vh_genbquarksFromH)
+#        print "Inv mass",(event.vh_genbquarksFromH[0].p4()+event.vh_genbquarksFromH[1].p4()).M()
+#        print "pt from sum ",(event.vh_genbquarksFromH[0].p4()+event.vh_genbquarksFromH[1].p4()).Pt()
+#        print "pt from h",event.vh_genHiggsBoson[0].pt()
 
-        copyhb=map(lambda x: deepcopy(x.p4()),event.genbquarksFromH)
+        copyhb=map(lambda x: deepcopy(x.p4()),event.vh_genbquarksFromH)
         map(lambda x: Boost(x,b),copyhb)
 #        print "BquarksFromH(boost) pt,eta,phi,p \t\t",map(lambda x:"%s,%s,%s,%s -- "%(x.pt(),x.eta(),x.phi(),x.P()),copyhb)
 #        print "Inv mass (boost)",(copyhb[0]+copyhb[1]).M()
@@ -316,39 +316,39 @@ class VHbbAnalyzer( Analyzer ):
     def classifyMCEvent(self,event):
         if self.cfg_comp.isMC:
 		event.VtypeSim = -1
-		if len(event.genvbosons) == 1:
+		if len(event.vh_genvbosons) == 1:
 			# ZtoLL events, same flavour leptons
-			if event.genvbosons[0].pdgId()==23 and event.genvbosons[0].numberOfDaughters()>1 and abs(event.genvbosons[0].daughter(0).pdgId()) == abs(event.genvbosons[0].daughter(1).pdgId()):
-				if abs(event.genvbosons[0].daughter(0).pdgId()) == 11:
+			if event.vh_genvbosons[0].pdgId()==23 and event.vh_genvbosons[0].numberOfDaughters()>1 and abs(event.vh_genvbosons[0].daughter(0).pdgId()) == abs(event.vh_genvbosons[0].daughter(1).pdgId()):
+				if abs(event.vh_genvbosons[0].daughter(0).pdgId()) == 11:
  					#Ztoee
 					event.VtypeSim = 1
-				if abs(event.genvbosons[0].daughter(0).pdgId()) == 13:
+				if abs(event.vh_genvbosons[0].daughter(0).pdgId()) == 13:
  					#ZtoMuMu
 					event.VtypeSim = 0
-				if abs(event.genvbosons[0].daughter(0).pdgId()) == 15:
+				if abs(event.vh_genvbosons[0].daughter(0).pdgId()) == 15:
  					#ZtoTauTau
 					event.VtypeSim = 5
-				if abs(event.genvbosons[0].daughter(0).pdgId()) in [12,14,16]:
+				if abs(event.vh_genvbosons[0].daughter(0).pdgId()) in [12,14,16]:
 					event.VtypeSim = 4
 			#WtoLNu events	
-			if abs(event.genvbosons[0].pdgId())==24 and event.genvbosons[0].numberOfDaughters()==2:
-				if abs(event.genvbosons[0].daughter(0).pdgId()) == 11 and abs(event.genvbosons[0].daughter(1).pdgId()) == 12:
+			if abs(event.vh_genvbosons[0].pdgId())==24 and event.vh_genvbosons[0].numberOfDaughters()==2:
+				if abs(event.vh_genvbosons[0].daughter(0).pdgId()) == 11 and abs(event.vh_genvbosons[0].daughter(1).pdgId()) == 12:
 					#WtoEleNu_e
 					event.VtypeSim = 3
-			if abs(event.genvbosons[0].daughter(0).pdgId()) == 13 and abs(event.genvbosons[0].daughter(1).pdgId()) == 14:
+			if abs(event.vh_genvbosons[0].daughter(0).pdgId()) == 13 and abs(event.vh_genvbosons[0].daughter(1).pdgId()) == 14:
 					#WtoMuNu_mu
 					event.VtypeSim = 2
 			#to be added: WtoTauNu
 
-		if len(event.genvbosons)>1:
+		if len(event.vh_genvbosons)>1:
 			#print 'more than one W/Zbosons?'
 			event.VtypeSim = -2
 #		if event.VtypeSim == -1:
 #			print '===================================='
 #			print ' --------- Debug VtypeSim -1 --------'
-#			print '# genVbosons: ',len(event.genvbosons), '| #daughters ', event.genvbosons[0].numberOfDaughters()
-#			for i in xrange (0, event.genvbosons[0].numberOfDaughters() ) :
-#				print 'daughter ',i ,'| pdgId', event.genvbosons[0].daughter(i).pdgId()	
+#			print '# genVbosons: ',len(event.vh_genvbosons), '| #daughters ', event.vh_genvbosons[0].numberOfDaughters()
+#			for i in xrange (0, event.vh_genvbosons[0].numberOfDaughters() ) :
+#				print 'daughter ',i ,'| pdgId', event.vh_genvbosons[0].daughter(i).pdgId()	
 
     def classifyEvent(self,event):
 	#assign events to analysis (Vtype)
@@ -559,7 +559,7 @@ class VHbbAnalyzer( Analyzer ):
 		
        # Hbalance = ROOT.TLorentzVector()
        # Hbalance.SetPtEtaPhiM(event.V.pt(),0,event.V.phi(),125.)
-       # hh=event.genHiggsBoson[0]
+       # hh=event.vh_genHiggsBoson[0]
        # Hbalance2 = ROOT.TLorentzVector()
        # Hbalance2.SetPtEtaPhiM(hh.pt(),hh.eta(),hh.phi(),125.)
        # print "Hbalance pt,e,phi",Hbalance.Pt(),Hbalance.E(),Hbalance.Phi()

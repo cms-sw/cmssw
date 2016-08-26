@@ -44,11 +44,11 @@ class GeneratorAnalyzer( Analyzer ):
                                  24  for H -> W W
                                  xx  for H -> xx yy zzz 
 
-          event.gentauleps = [ gen electrons and muons from hard scattering not from tau decays ]
-          event.gentaus    = [ gen taus from from hard scattering ]
-          event.genleps    = [ gen electrons and muons from hard scattering not from tau decays ]
-          event.genbquarksFromTop  = [ gen b quarks from top quark decays ]
-          event.genwzquarks = [ gen quarks from hadronic W,Z decays ]
+          event.vh_gentauleps = [ gen electrons and muons from hard scattering not from tau decays ]
+          event.vh_gentaus    = [ gen taus from from hard scattering ]
+          event.vh_genleps    = [ gen electrons and muons from hard scattering not from tau decays ]
+          event.vh_genbquarksFromTop  = [ gen b quarks from top quark decays ]
+          event.vh_genwzquarks = [ gen quarks from hadronic W,Z decays ]
 
        If filterHiggsDecays is set to a list of Higgs decay modes,
        it will filter events that have those decay modes.
@@ -89,26 +89,26 @@ class GeneratorAnalyzer( Analyzer ):
             moid = abs(dau.mother().pdgId()) if dau.mother() else 2212 #if no mom, let say it is a proton (consistent with CMSSW < 74X)
             if id in [11,13]:
                 if not recovered:
-                    if isTau: event.gentauleps.append(dau)
-                    else:     event.genleps.append(dau)
+                    if isTau: event.vh_gentauleps.append(dau)
+                    else:     event.vh_genleps.append(dau)
                 else:
-                    if isTau: event.gentaulepsRecovered.append(dau)
-                    else:     event.genlepsRecovered.append(dau)
+                    if isTau: event.vh_gentaulepsRecovered.append(dau)
+                    else:     event.vh_genlepsRecovered.append(dau)
             elif id == 15:
                 if not recovered:
                     if moid in [22,23,24]:
-                        event.gentaus.append(dau)
+                        event.vh_gentaus.append(dau)
                     self.fillGenLeptons(event, dau, True, sourceId)
                 else:
                     if moid in [22,23,24]:
-                        event.gentausRecovered.append(dau)
+                        event.vh_gentausRecovered.append(dau)
                     self.fillGenLeptons(event, dau, True, True, sourceId) 
             elif id in [22,23,24]:
                 if not recovered: self.fillGenLeptons(event, dau, False,       sourceId)
                 else:             self.fillGenLeptons(event, dau, False, True, sourceId)
 
     def fillWZQuarks(self, event, particle, isWZ=False, sourceId=25):
-        """Descend daughters of 'particle', and add quarks from W,Z to event.genwzquarks
+        """Descend daughters of 'particle', and add quarks from W,Z to event.vh_genwzquarks
            isWZ is set to True if already processing daughters of W,Z's, to False before it"""
 
         for i in xrange( particle.numberOfDaughters() ):
@@ -116,27 +116,27 @@ class GeneratorAnalyzer( Analyzer ):
             dau.sourceId = sourceId
             id = abs(dau.pdgId())
             if id <= 5 and isWZ:
-                event.genwzquarks.append(dau)
+                event.vh_genwzquarks.append(dau)
             elif id in [22,23,24]:
                 self.fillWZQuarks(event, dau, True, sourceId)
 
     def fillHiggsBQuarks(self, event,h):
-        """Get the b quarks from top decays into event.genbquarksFromH"""
+        """Get the b quarks from top decays into event.vh_genbquarksFromH"""
         for i in xrange( h.numberOfDaughters() ):
             dau = GenParticle(h.daughter(i))
             if abs(dau.pdgId()) in [3,4,5]:
-                    event.genbquarksFromH.append( dau )
+                    event.vh_genbquarksFromH.append( dau )
                     if dau.numberOfDaughters() == 1 :
-                         event.genbquarksFromHafterISR.append( GenParticle(dau.daughter(0)))
+                         event.vh_genbquarksFromHafterISR.append( GenParticle(dau.daughter(0)))
 
 
     def fillTopQuarks(self, event):
-        """Get the b quarks from top decays into event.genbquarksFromTop"""
+        """Get the b quarks from top decays into event.vh_genbquarksFromTop"""
 
-        event.gentopquarks = [ p for p in event.genParticles if abs(p.pdgId()) == 6 and p.numberOfDaughters() > 0 and abs(p.daughter(0).pdgId()) != 6 ]
+        event.vh_gentopquarks = [ p for p in event.genParticles if abs(p.pdgId()) == 6 and p.numberOfDaughters() > 0 and abs(p.daughter(0).pdgId()) != 6 ]
        
         #Find the top decay mode (0 - leptonic, 1 - hadronic)
-        for top in event.gentopquarks:
+        for top in event.vh_gentopquarks:
             ndaus = top.numberOfDaughters()
             top.decayMode = -1
             
@@ -161,12 +161,12 @@ class GeneratorAnalyzer( Analyzer ):
                             break
                     top.decayMode = decayMode
                     break
-        for tq in event.gentopquarks:
+        for tq in event.vh_gentopquarks:
             for i in xrange( tq.numberOfDaughters() ):
                 dau = GenParticle(tq.daughter(i))
                 if abs(dau.pdgId()) == 5:
                     dau.sourceId = 6
-                    event.genbquarksFromTop.append( dau )
+                    event.vh_genbquarksFromTop.append( dau )
                 elif abs(dau.pdgId()) == 24:
                     self.fillGenLeptons( event, dau, sourceId=6 )
                     self.fillWZQuarks(   event, dau, True, sourceId=6 )
@@ -215,59 +215,59 @@ class GeneratorAnalyzer( Analyzer ):
                     print " | dau[%d] %5d pdgId %+5d status %3d  pt %6.1f  " % (j,idau,dau.pdgId(),dau.status(),dau.pt()),
                 print ""
 
-        event.genHiggsBosons = []
-        event.genHiggsSisters = []
-        event.genleps    = []
-        event.gentauleps = []
-        event.gentaus    = []
-        event.genlepsRecovered    = []
-        event.gentaulepsRecovered = []
-        event.gentausRecovered    = []
-        event.genbquarksFromTop  = []
-        event.genbquarksFromH  = []
-        event.genbquarksFromHafterISR = []
-        event.genallbquarks = []
-        event.genwzquarks = []
-        event.gentopquarks  = []
-        event.genallstatus2bhadrons = [ p for p in event.genParticles if p.status() ==2 and self.hasBottom(p.pdgId()) ]
-        event.genallcquarks = [ p for p in event.genParticles if abs(p.pdgId()) == 4 and ( p.numberOfDaughters() == 0 or abs(p.daughter(0).pdgId()) != 4) ]
-        event.gengluonfromt = sorted(
+        event.vh_genHiggsBosons = []
+        event.vh_genHiggsSisters = []
+        event.vh_genleps    = []
+        event.vh_gentauleps = []
+        event.vh_gentaus    = []
+        event.vh_genlepsRecovered    = []
+        event.vh_gentaulepsRecovered = []
+        event.vh_gentausRecovered    = []
+        event.vh_genbquarksFromTop  = []
+        event.vh_genbquarksFromH  = []
+        event.vh_genbquarksFromHafterISR = []
+        event.vh_genallbquarks = []
+        event.vh_genwzquarks = []
+        event.vh_gentopquarks  = []
+        event.vh_genallstatus2bhadrons = [ p for p in event.genParticles if p.status() ==2 and self.hasBottom(p.pdgId()) ]
+        event.vh_genallcquarks = [ p for p in event.genParticles if abs(p.pdgId()) == 4 and ( p.numberOfDaughters() == 0 or abs(p.daughter(0).pdgId()) != 4) ]
+        event.vh_gengluonfromt = sorted(
             [p for p in event.genParticles if abs(p.pdgId()) == 21 and (abs(p.mother(0).pdgId()) == 6)],
             key=lambda x: x.p4().Pt(), reverse=True
         )
-        event.gengluonfromb = sorted(
+        event.vh_gengluonfromb = sorted(
             [p for p in event.genParticles if abs(p.pdgId()) == 21 and (abs(p.mother(0).pdgId()) == 5)],
             key=lambda x: x.p4().Pt(), reverse=True
         )
-        event.gengluonfromt = filter(lambda x: x.p4().Pt>20, event.gengluonfromt)
-        event.gengluonfromb = filter(lambda x: x.p4().Pt>20, event.gengluonfromb)
+        event.vh_gengluonfromt = filter(lambda x: x.p4().Pt>20, event.vh_gengluonfromt)
+        event.vh_gengluonfromb = filter(lambda x: x.p4().Pt>20, event.vh_gengluonfromb)
 
-        #event.genHiggsToBB = [ p for p in event.genParticles if abs(p.pdgId())==25 and p.numberOfDaughters()==2 and abs(p.daughter(0).pdgId()) == 5 ] 
+        #event.vh_genHiggsToBB = [ p for p in event.genParticles if abs(p.pdgId())==25 and p.numberOfDaughters()==2 and abs(p.daughter(0).pdgId()) == 5 ] 
 
-        #event.genvbosonsToLL = [ p for p in event.genParticles if abs(p.pdgId()) in [23,24] and abs(p.mother().pdgId()) in [23,24] and p.numberOfDaughters()==2 and abs(p.daughter(0).pdgId()) in [11,13,15] ]
+        #event.vh_genvbosonsToLL = [ p for p in event.genParticles if abs(p.pdgId()) in [23,24] and abs(p.mother().pdgId()) in [23,24] and p.numberOfDaughters()==2 and abs(p.daughter(0).pdgId()) in [11,13,15] ]
 
-        #event.genZbosonsToLL = [ p for p in event.genParticles if abs(p.pdgId()) in [23] and abs(p.daughter(0).pdgId())!= abs(p.pdgId()) ]
-        #event.genWbosonsToLL = [ p for p in event.genParticles if abs(p.pdgId()) in [24] and abs(p.daughter(0).pdgId())!= abs(p.pdgId()) ]
+        #event.vh_genZbosonsToLL = [ p for p in event.genParticles if abs(p.pdgId()) in [23] and abs(p.daughter(0).pdgId())!= abs(p.pdgId()) ]
+        #event.vh_genWbosonsToLL = [ p for p in event.genParticles if abs(p.pdgId()) in [24] and abs(p.daughter(0).pdgId())!= abs(p.pdgId()) ]
 
-        event.genvbosons = [ p for p in event.genParticles if abs(p.pdgId()) in [23,24] and p.numberOfDaughters()>0 and abs(p.daughter(0).pdgId()) != abs(p.pdgId()) and p.mass() > 30 ]
-        event.genvbosonsRecovered=[]
+        event.vh_genvbosons = [ p for p in event.genParticles if abs(p.pdgId()) in [23,24] and p.numberOfDaughters()>0 and abs(p.daughter(0).pdgId()) != abs(p.pdgId()) and p.mass() > 30 ]
+        event.vh_genvbosonsRecovered=[]
 
-        if not event.genvbosons:
+        if not event.vh_genvbosons:
             if abs(event.genParticles[4].pdgId()) in [11,12,13,14,15,16] and abs(event.genParticles[4].pdgId())==abs(event.genParticles[5].pdgId()):
                 l1=event.genParticles[4]
                 l2=event.genParticles[5]
                 V=GenParticle(0, l1.p4()+l2.p4(), l1.vertex(), 23, -123, 0)
                 V.addDaughter(l1.daughterRef(0).motherRef(0))
                 V.addDaughter(l2.daughterRef(0).motherRef(0))
-                event.genvbosonsRecovered.append(V)
+                event.vh_genvbosonsRecovered.append(V)
  		   
         #bosons = [ gp for gp in event.genParticles if gp.status() > 2 and  abs(gp.pdgId()) in [22,23,24]  ]
-    	for b in event.genvbosons:
+    	for b in event.vh_genvbosons:
         	if b.numberOfDaughters()>0 :
                 	self.fillGenLeptons(event, b, sourceId=abs(b.pdgId())) #selezione su leptoni fatta dentro la funzione stessa
                 	self.fillWZQuarks(event, b, isWZ=True, sourceId=abs(b.pdgId()))
 
-        for b in event.genvbosonsRecovered:
+        for b in event.vh_genvbosonsRecovered:
             if b.numberOfDaughters()>0 :
                 self.fillGenLeptons(event, b, recovered=True, sourceId=abs(b.pdgId()))
 
@@ -276,7 +276,7 @@ class GeneratorAnalyzer( Analyzer ):
         higgsBosonsFirst = [ p for p in event.genParticles if (p.pdgId() == 25) and p.numberOfMothers() > 0 and abs(p.mother(0).pdgId()) != 25 ]
         higgsMothers = [x.mother(0) for x in higgsBosonsFirst]
         #print higgsMothers
-        event.genHiggsSisters = [p for p in event.genParticles if p.mother(0) in higgsMothers  and p.pdgId() != 25 ]
+        event.vh_genHiggsSisters = [p for p in event.genParticles if p.mother(0) in higgsMothers  and p.pdgId() != 25 ]
 
         #print "higgsBosons: ", len(higgsBosons)
         #print "higgsBosonsFirst: ", len(higgsBosonsFirst)
@@ -318,27 +318,27 @@ class GeneratorAnalyzer( Analyzer ):
 #                print "More than one higgs? \n%s\n" % higgsBosons
 
             #questo blocco viene eseguito quando c'e' almeno un higgs
-            event.genHiggsBoson = higgsBosons[-1]
-            #event.genHiggsBoson = [GenParticle(higgsBosons[-1])]
-            event.genHiggsBosons = higgsBosons
-            event.genHiggsDecayMode = abs(  event.genHiggsBoson.daughter(0).pdgId() if event.genHiggsBoson.numberOfDaughters() >= 1 else 0)
-            event.genHiggsDecayMode += abs( event.genHiggsBoson.daughter(1).pdgId() if event.genHiggsBoson.numberOfDaughters() >= 2 and abs( event.genHiggsBoson.daughter(1).pdgId() ) != abs( event.genHiggsBoson.daughter(0).pdgId()) else 0) * 10000
+            event.vh_genHiggsBoson = higgsBosons[-1]
+            #event.vh_genHiggsBoson = [GenParticle(higgsBosons[-1])]
+            event.vh_genHiggsBosons = higgsBosons
+            event.genHiggsDecayMode = abs(  event.vh_genHiggsBoson.daughter(0).pdgId() if event.vh_genHiggsBoson.numberOfDaughters() >= 1 else 0)
+            event.genHiggsDecayMode += abs( event.vh_genHiggsBoson.daughter(1).pdgId() if event.vh_genHiggsBoson.numberOfDaughters() >= 2 and abs( event.vh_genHiggsBoson.daughter(1).pdgId() ) != abs( event.vh_genHiggsBoson.daughter(0).pdgId()) else 0) * 10000
             self.fillTopQuarks( event )
             self.countBPartons( event )
-            #self.fillWZQuarks(   event, event.genHiggsBoson )
+            #self.fillWZQuarks(   event, event.vh_genHiggsBoson )
             #self.fillWZQuarks(   event, event.protons[0], sourceId=2212) : non serve, quando c'e' higgs non ci sn quarks da WZ
-            for h in event.genHiggsBosons :
+            for h in event.vh_genHiggsBosons :
                 self.fillHiggsBQuarks( event, h)
-            #event.genHiggsBoson = [GenParticle(higgsBosons[-1])]
-            #self.fillGenLeptons( event, event.genHiggsBoson, sourceId=25 )
+            #event.vh_genHiggsBoson = [GenParticle(higgsBosons[-1])]
+            #self.fillGenLeptons( event, event.vh_genHiggsBoson, sourceId=25 )
             #if self.cfg_ana.verbose:
             if False:
                 print "Higgs boson decay mode: ", event.genHiggsDecayMode
-                print "Generator level prompt light leptons:\n", "\n".join(["\t%s" % p for p in event.genleps])
-                print "Generator level light leptons from taus:\n", "\n".join(["\t%s" % p for p in event.gentauleps])
-                print "Generator level prompt tau leptons:\n", "\n".join(["\t%s" % p for p in event.gentaus])
-                print "Generator level b quarks from top:\n", "\n".join(["\t%s" % p for p in event.genbquarksFromTop])
-                print "Generator level quarks from W, Z decays:\n", "\n".join(["\t%s" % p for p in event.genwzquarks])
+                print "Generator level prompt light leptons:\n", "\n".join(["\t%s" % p for p in event.vh_genleps])
+                print "Generator level light leptons from taus:\n", "\n".join(["\t%s" % p for p in event.vh_gentauleps])
+                print "Generator level prompt tau leptons:\n", "\n".join(["\t%s" % p for p in event.vh_gentaus])
+                print "Generator level b quarks from top:\n", "\n".join(["\t%s" % p for p in event.vh_genbquarksFromTop])
+                print "Generator level quarks from W, Z decays:\n", "\n".join(["\t%s" % p for p in event.vh_genwzquarks])
        
         # make sure prompt leptons have a non-zero sourceId
         for p in event.genParticles:
