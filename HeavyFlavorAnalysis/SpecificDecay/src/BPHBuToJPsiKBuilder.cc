@@ -34,7 +34,7 @@ using namespace std;
 //-------------------
 // Initializations --
 //-------------------
-//double BPHBuToJPsiKBuilder::kaonMass = 0.493667;
+
 
 //----------------
 // Constructors --

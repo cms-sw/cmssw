@@ -283,8 +283,6 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
   int iFull;
   int nFull = lFull.size();
   map<const BPHRecoCandidate*,const reco::Vertex*> oniaVtxMap;
-  auto_ptr< vector<compcc_ref> > ccList( new vector<compcc_ref>( nFull ) );
-  auto_ptr< vector<vertex_ref> > pvList( new vector<vertex_ref>( nFull ) );
 
   typedef mu_cc_map::const_iterator mu_cc_iter;
   for ( iFull = 0; iFull < nFull; ++iFull ) {
@@ -359,7 +357,6 @@ void BPHWriteSpecificDecay::fill( edm::Event& ev,
     }
 
     oniaVtxMap[ptr] = pVtx;
-    pvList->at( iFull ) = vertex_ref( pVertices, pvId );
     pvRefMap[ptr] = vertex_ref( pVertices, pvId );
 
   }

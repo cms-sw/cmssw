@@ -299,8 +299,8 @@ void TestBPHRecoDecay::analyze( const edm::Event& ev,
   outF << "build and dump JPsi" << endl;
   MuonPtSelect     muPt ( 4.0 );
   MuonEtaSelect    muEta( 2.1 );
-  string muPos = "muPos";
-  string muNeg = "muNeg";
+  string muPos = "MuPos";
+  string muNeg = "MuNeg";
   BPHRecoBuilder bJPsi( es );
   if ( usePM ) {
   bJPsi.add( muPos, BPHRecoBuilder::createCollection( patMuon, "cfmig" ),
@@ -347,8 +347,8 @@ void TestBPHRecoDecay::analyze( const edm::Event& ev,
   KaonChargeSelect tkPos( +1 );
   KaonChargeSelect tkNeg( -1 );
   KaonPtSelect tkPt( 0.7 );
-  string kPos = "kPos";
-  string kNeg = "kNeg";
+  string kPos = "KPos";
+  string kNeg = "KNeg";
   if ( usePF ) {
   bPhi.add( kPos, BPHRecoBuilder::createCollection( pfCands ), 0.493677 );
   bPhi.add( kNeg, BPHRecoBuilder::createCollection( pfCands ), 0.493677 );
@@ -403,12 +403,8 @@ void TestBPHRecoDecay::analyze( const edm::Event& ev,
   for ( iBs = 0; iBs < nBs; ++iBs ) {
     // get candidate and cast constness away
     BPHRecoCandidate* cptr( const_cast<BPHRecoCandidate*>( lBs[iBs].get() ) );
-    double jMass = 3.096916;
-    double jWidth = 0.000040;
-    cptr->kinematicTree( "JPsi", jMass, jWidth );
-    
+    cptr->kinematicTree( "JPsi", 3.096916, 0.000040 );
   }
-  outF << nBs << " Bs cand found" << endl;
   for ( iBs = 0; iBs < nBs; ++iBs ) dumpRecoCand( "Bs",
                                                   lBs[iBs].get() );
   }
@@ -444,11 +440,8 @@ void TestBPHRecoDecay::analyze( const edm::Event& ev,
   for ( iBu = 0; iBu < nBu; ++iBu ) {
     // get candidate and cast constness away
     BPHRecoCandidate* cptr( const_cast<BPHRecoCandidate*>( lBu[iBu].get() ) );
-    double jMass = 3.096916;
-    double jWidth = 0.000040;
-    cptr->kinematicTree( "JPsi", jMass, jWidth );
+    cptr->kinematicTree( "JPsi", 3.096916, 0.000040 );
   }
-  outF << nBu << " Bu cand found" << endl;
   for ( iBu = 0; iBu < nBu; ++iBu ) dumpRecoCand( "Bu",
                                                   lBu[iBu].get() );
   }

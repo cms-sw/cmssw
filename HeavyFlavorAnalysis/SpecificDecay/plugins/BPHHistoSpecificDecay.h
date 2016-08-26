@@ -78,9 +78,6 @@ class BPHHistoSpecificDecay: public BPHAnalyzerWrapper<edm::EDAnalyzer> {
 
   double buKPtMin;
 
-  typedef edm::Ref< std::vector<reco::Vertex> > vertex_ref;
-  typedef edm::Ref< pat::CompositeCandidateCollection > compcc_ref;
-
   static std::string getParameter( const edm::ParameterSet& ps,
                                    const std::string& name );
 
