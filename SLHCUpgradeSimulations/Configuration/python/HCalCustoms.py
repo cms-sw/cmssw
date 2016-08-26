@@ -91,6 +91,8 @@ def customise_Hcal2017(process):
         process.globalReplace("hfreco", hfreco)
     if hasattr(process,'datamixing_step'):
         process=customise_mixing(process)
+    if hasattr(process,'simHcalTriggerPrimitiveDigis'):
+        process.simHcalTriggerPrimitiveDigis.upgradeHF = cms.bool(True)
     
     return process
     
@@ -108,6 +110,9 @@ def customise_Hcal2017Full(process):
         process.hbheprereco.saveInfos = cms.bool(True)
         process.hbheprereco.digiLabelQIE8 = cms.InputTag("simHcalDigis")
         process.hbheprereco.digiLabelQIE11 = cms.InputTag("simHcalDigis", "HBHEQIE11DigiCollection")
+
+    if hasattr(process,'simHcalTriggerPrimitiveDigis'):
+        process.simHcalTriggerPrimitiveDigis.upgradeHE = cms.bool(True)
 
     return process
     
@@ -135,6 +140,10 @@ def customise_HcalPhase1(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
+    if hasattr(process,'simHcalTriggerPrimitiveDigis'):
+        process.simHcalTriggerPrimitiveDigis.upgradeHF = cms.bool(True)
+        process.simHcalTriggerPrimitiveDigis.upgradeHE = cms.bool(True)
+        process.simHcalTriggerPrimitiveDigis.upgradeHB = cms.bool(True)
     process=customise_condOverRides(process)
     return process
 
