@@ -244,7 +244,6 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
 
                     double dPt = jet.pt() - genJet->pt();
                     smearFactor = 1 + m_nomVar*(jer_sf - 1.) * dPt / jet.pt();
-
                 } else if (jer_sf > 1) {
                     /*
                      * Case 2: we don't have a gen jet. Smear jet pt using a random gaussian variation
