@@ -13,8 +13,8 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-//
-//
+//         Modified: 15 Jun 2016. Aran Garcia-Bellido and Sezen Sekmen
+//                   Added uTCA FEDs and check for possible differences
 
 
 // system include files
@@ -85,31 +85,57 @@ HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
   
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 
-  std::vector<int> calibTypeCounter(8,0) ;
+  std::vector<int> calibTypeCounter(8,0) ;// dimension 8, all initialized to 0.
   for (int i=FEDNumbering::MINHCALFEDID;
-       i<=FEDNumbering::MAXHCALFEDID; i++) {
+       i<=FEDNumbering::MAXHCALFEDID; i++) {// 700-731
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
       if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
       if ( fedData.size() < 24 ) continue ; 
       int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
       calibTypeCounter.at(value)++ ; // increment the counter for this calib type
   }
+  int uTCAcalibType = -1 ; int uTCAnumEmptyFEDs = 0 ; 
+  std::vector<int> uTCAcalibTypeCounter(8,0) ;// dimension 8, all initialized to 0.
+  for (int i=FEDNumbering::MINHCALuTCAFEDID;
+       i<=FEDNumbering::MAXHCALuTCAFEDID; i++) {
+      const FEDRawData& fedData = rawdata->FEDData(i) ;
+      if ( fedData.size() < 24 ) uTCAnumEmptyFEDs++ ; 
+      if ( fedData.size() < 24 ) continue ; 
+      int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
+      uTCAcalibTypeCounter.at(value)++ ; // increment the counter for this calib type
+  }
+  
   int maxCount = 0 ;
-  int numberOfFEDIds = FEDNumbering::MAXHCALFEDID - FEDNumbering::MINHCALFEDID + 1 ; 
+  int numberOfFEDIds = FEDNumbering::MAXHCALFEDID - FEDNumbering::MINHCALFEDID + 1;
   for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
       if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
       if ( maxCount == numberOfFEDIds ) break ;
   }
-  if ( calibType < 0 ) return false ; // No HCAL FEDs, thus no calibration type
-  if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
-      edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
-                                             << calibType ; 
-  LogDebug("HLTHcalCalibTypeFilter") << "Calibration type is: " << calibType ;
+  int uTCAmaxCount = 0 ;
+  int uTCAnumberOfFEDIds = FEDNumbering::MAXHCALuTCAFEDID - FEDNumbering::MINHCALuTCAFEDID + 1; 
+  for (unsigned int i=0; i<uTCAcalibTypeCounter.size(); i++) {
+      if ( uTCAcalibTypeCounter.at(i) > uTCAmaxCount ) { uTCAcalibType = i ; uTCAmaxCount = uTCAcalibTypeCounter.at(i) ; } 
+      if ( uTCAmaxCount == uTCAnumberOfFEDIds ) break ;
+  }
+  
+  
+  
+  if ( calibType < 0 && uTCAcalibType < 0 ) return false ; // No HCAL FEDs, thus no calibration type
+  int FINALcalibType = uTCAcalibType ; // Choose this as default 
+  if ( calibType < 0 && uTCAcalibType >= 0 ) FINALcalibType=uTCAcalibType; // The old FEDs may be empty
+  else if ( calibType >= 0 && uTCAcalibType < 0 ) FINALcalibType=calibType; // The new FEDs may be empty 
+  else if ((calibType > 0 && uTCAcalibType > 0) && (calibType != uTCAcalibType))
+       edm::LogWarning("HLTHcalCalibTypeFilter") << "Different calibration type in uTCA FEDS! calibtype = " << calibType << " uTCAcalibType = " << uTCAcalibType << " Assigning uTCAcalibType.";       
+  
+  if ( maxCount != (numberOfFEDIds-numEmptyFEDs) || uTCAmaxCount != (uTCAnumberOfFEDIds-uTCAnumEmptyFEDs))
+      edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " << FINALcalibType ; 
+  
+  LogDebug("HLTHcalCalibTypeFilter") << "Calibration type is: " << FINALcalibType ;
   if (Summary_)
-    ++eventsByType_.at(calibType);
+    ++eventsByType_.at(FINALcalibType);
 
   for (unsigned int i=0; i<CalibTypes_.size(); i++) 
-      if ( calibType == CalibTypes_.at(i) ) return true ;
+      if ( FINALcalibType == CalibTypes_.at(i) ) return true ;
   return false ; 
 }
 
