@@ -193,6 +193,7 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
     break;
   default:
     elClass = -1;
+  };
 
 
   bool isEcalDriven = ele.ecalDriven();
@@ -247,8 +248,8 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
 					  oldMomentum.y()*combinedMomentum/oldMomentum.t(),
 					  oldMomentum.z()*combinedMomentum/oldMomentum.t(),
 					  combinedMomentum);
-					  
+      
       ele.setP4(reco::GsfElectron::P4_COMBINATION,newMomentum,combinedMomentumError,true);
     }
-  }
 }
+
