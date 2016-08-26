@@ -105,8 +105,8 @@ class BPHWriteSpecificDecay: public BPHAnalyzerWrapper<edm::EDProducer> {
   template <class T>
   edm::OrphanHandle<pat::CompositeCandidateCollection> write( edm::Event& ev,
               const std::vector<T>& list, const std::string& name ) {
-    std::auto_ptr< pat::CompositeCandidateCollection> ccList(
-               new pat::CompositeCandidateCollection );
+    pat::CompositeCandidateCollection* ccList =
+      new pat::CompositeCandidateCollection;
     int i;
     int n = list.size();
     std::map<const BPHRecoCandidate*,
@@ -160,8 +160,9 @@ class BPHWriteSpecificDecay: public BPHAnalyzerWrapper<edm::EDProducer> {
       }
 
     }
+    typedef std::unique_ptr<pat::CompositeCandidateCollection> ccc_pointer;
     edm::OrphanHandle<pat::CompositeCandidateCollection> ccHandle =
-    ev.put( ccList, name );
+    ev.put( ccc_pointer( ccList ), name );
     for ( i = 0; i < n; ++i ) {
       const BPHRecoCandidate* ptr = list[i].get();
       edm::Ref<pat::CompositeCandidateCollection> ccRef( ccHandle, i );
