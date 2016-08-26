@@ -1,0 +1,18 @@
+<run-settings id="ugmt">
+  <context id="daqttcs">
+    <state id="Halted">
+      <metric  id="amcports.amc09.revisionWrong" status="non-critical"/>
+      <mon-obj id="amcports.amc01" status="disabled"/>
+      <mon-obj id="amcports.amc02" status="disabled"/>
+      <mon-obj id="amcports.amc03" status="disabled"/>
+      <mon-obj id="amcports.amc04" status="disabled"/>
+      <mon-obj id="amcports.amc05" status="disabled"/>
+      <mon-obj id="amcports.amc06" status="disabled"/>
+      <mon-obj id="amcports.amc07" status="disabled"/>
+      <mon-obj id="amcports.amc08" status="disabled"/>
+      <mon-obj id="amcports.amc10" status="disabled"/>
+      <mon-obj id="amcports.amc11" status="disabled"/>
+      <mon-obj id="amcports.amc12" status="disabled"/>
+    </state>
+  </context>
+</run-settings>

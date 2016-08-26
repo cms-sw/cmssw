@@ -55,7 +55,7 @@ options.register('copyDBAuth',
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for copy DB")
 options.register('subsystemLabels',
-                 'uGT', #,uGTrs,uGMT,CALO,BMTF,OMTF,EMTF', #default value
+                 'uGT,uGTrs,uGMT,CALO,BMTF,OMTF,EMTF', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Coma separated list of specific payloads to be processed")

@@ -1,5 +1,5 @@
-#ifndef __l1t_XmlConfigReader_h__
-#define __l1t_XmlConfigReader_h__
+#ifndef L1Trigger_L1TCommon_l1t_XmlConfigReader_h
+#define L1Trigger_L1TCommon_l1t_XmlConfigReader_h
 
 #include <string>
 #include <vector>
@@ -34,6 +34,8 @@ class XmlConfigReader {
   const XMLCh* kTagParam;
   const XMLCh* kTagMask;
   const XMLCh* kTagDisable;
+  const XMLCh* kTagExclBoards;
+  const XMLCh* kTagExclude;
   const XMLCh* kTagColumns;
   const XMLCh* kTagTypes;
   const XMLCh* kTagRow;
@@ -44,7 +46,7 @@ class XmlConfigReader {
   const XMLCh* kAttrType;
   const XMLCh* kAttrDelim;
   const XMLCh* kAttrModule;
-  const std::string kTypeTable;
+  std::string kTypeTable;
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
