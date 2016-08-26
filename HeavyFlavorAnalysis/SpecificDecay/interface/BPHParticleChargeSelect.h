@@ -20,7 +20,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 //---------------
 // C++ Headers --
@@ -37,16 +37,30 @@ class BPHParticleChargeSelect: public BPHRecoSelect {
 
   /** Constructor
    */
-  BPHParticleChargeSelect( int c );
+  BPHParticleChargeSelect( int c ): charge( c ? ( c > 0 ? 1 : -1 ) : 0 ) {}
 
   /** Destructor
    */
-  virtual ~BPHParticleChargeSelect();
+  virtual ~BPHParticleChargeSelect() {}
 
   /** Operations
    */
-  /// 
-  virtual bool accept( const reco::Candidate& cand ) const;
+  /// select particle
+  virtual bool accept( const reco::Candidate& cand ) const {
+    switch ( charge ) {
+    default:
+    case  0: return ( cand.charge() != 0 );
+    case  1: return ( cand.charge() >  0 );
+    case -1: return ( cand.charge() <  0 );
+    }
+    return true;
+  };
+
+  /// set seelction charge
+  void setCharge( int c ) { charge =( c ? ( c > 0 ? 1 : -1 ) : 0 ); return; }
+
+  /// get seelction charge
+  double getCharge() const { return charge; }
 
  private:
 

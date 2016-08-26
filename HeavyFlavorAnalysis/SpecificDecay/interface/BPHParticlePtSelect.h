@@ -20,7 +20,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 //---------------
 // C++ Headers --
@@ -37,22 +37,24 @@ class BPHParticlePtSelect: public BPHRecoSelect {
 
   /** Constructor
    */
-  BPHParticlePtSelect( double pt );
+  BPHParticlePtSelect( double pt ): ptMin( pt ) {}
 
   /** Destructor
    */
-  virtual ~BPHParticlePtSelect();
+  virtual ~BPHParticlePtSelect() {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const reco::Candidate& cand ) const;
+  virtual bool accept( const reco::Candidate& cand ) const {
+    return ( cand.p4().pt() > ptMin );
+  }
 
   /// set pt min
-  void setPtMin( double pt );
+  void setPtMin( double pt ) { ptMin = pt; return; }
 
   /// get current pt min
-  double getPtMin() const;
+  double getPtMin() const { return ptMin; }
 
  private:
 

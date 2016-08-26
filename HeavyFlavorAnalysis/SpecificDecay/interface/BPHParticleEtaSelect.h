@@ -20,7 +20,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 //---------------
 // C++ Headers --
@@ -37,22 +37,24 @@ class BPHParticleEtaSelect: public BPHRecoSelect {
 
   /** Constructor
    */
-  BPHParticleEtaSelect( double eta );
+  BPHParticleEtaSelect( double eta ): etaMax( eta ) {}
 
   /** Destructor
    */
-  virtual ~BPHParticleEtaSelect();
+  virtual ~BPHParticleEtaSelect() {}
 
   /** Operations
    */
   /// select particle
-  virtual bool accept( const reco::Candidate& cand ) const;
+  virtual bool accept( const reco::Candidate& cand ) const {
+    return ( fabs( cand.p4().eta() ) < etaMax );
+  }
 
   /// set eta max
-  void setEtaMax( double eta );
+  void setEtaMax( double eta ) { etaMax = eta; return; }
 
   /// get current eta max
-  double getEtaMax() const;
+  double getEtaMax() const { return etaMax; }
 
  private:
 

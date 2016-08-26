@@ -15,12 +15,12 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleEtaSelect.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 //---------------
 // C++ Headers --
@@ -31,36 +31,31 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMuonEtaSelect: public BPHRecoSelect {
+class BPHMuonEtaSelect: public BPHParticleEtaSelect {
 
  public:
 
   /** Constructor
    */
-  BPHMuonEtaSelect( double eta );
+  BPHMuonEtaSelect( double eta ): BPHParticleEtaSelect( eta ) {}
 
   /** Destructor
    */
-  virtual ~BPHMuonEtaSelect();
+  virtual ~BPHMuonEtaSelect() {}
 
   /** Operations
    */
   /// select muon
-  virtual bool accept( const reco::Candidate& cand ) const;
-
-  /// set eta max
-  void setEtaMax( double eta );
-
-  /// get current eta max
-  double getEtaMax() const;
+  virtual bool accept( const reco::Candidate& cand ) const {
+    if ( reinterpret_cast<const pat::Muon*>( &cand ) == 0 ) return false;
+    return BPHParticleEtaSelect::accept( cand );
+  }
 
  private:
 
   // private copy and assigment constructors
   BPHMuonEtaSelect           ( const BPHMuonEtaSelect& x );
   BPHMuonEtaSelect& operator=( const BPHMuonEtaSelect& x );
-
-  double etaMax;
 
 };
 

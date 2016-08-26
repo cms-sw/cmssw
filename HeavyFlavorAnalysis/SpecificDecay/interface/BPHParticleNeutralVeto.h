@@ -20,7 +20,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 //---------------
 // C++ Headers --
@@ -37,16 +37,18 @@ class BPHParticleNeutralVeto: public BPHRecoSelect {
 
   /** Constructor
    */
-  BPHParticleNeutralVeto();
+  BPHParticleNeutralVeto() {}
 
   /** Destructor
    */
-  virtual ~BPHParticleNeutralVeto();
+  virtual ~BPHParticleNeutralVeto() {}
 
   /** Operations
    */
-  /// 
-  virtual bool accept( const reco::Candidate& cand ) const;
+  /// select charged particles
+  virtual bool accept( const reco::Candidate& cand ) const {
+    return ( cand.charge() != 0 );
+  }
 
  private:
 

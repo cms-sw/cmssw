@@ -15,12 +15,12 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticlePtSelect.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 //---------------
 // C++ Headers --
@@ -31,36 +31,31 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMuonPtSelect: public BPHRecoSelect {
+class BPHMuonPtSelect: public BPHParticlePtSelect {
 
  public:
 
   /** Constructor
    */
-  BPHMuonPtSelect( double pt );
+  BPHMuonPtSelect( double pt ): BPHParticlePtSelect( pt ) {}
 
   /** Destructor
    */
-  virtual ~BPHMuonPtSelect();
+  virtual ~BPHMuonPtSelect() {}
 
   /** Operations
    */
   /// select muon
-  virtual bool accept( const reco::Candidate& cand ) const;
-
-  /// set pt min
-  void setPtMin( double pt );
-
-  /// get current pt min
-  double getPtMin() const;
+  virtual bool accept( const reco::Candidate& cand ) const {
+    if ( reinterpret_cast<const pat::Muon*>( &cand ) == 0 ) return false;
+    return BPHParticlePtSelect::accept( cand );
+  }
 
  private:
 
   // private copy and assigment constructors
   BPHMuonPtSelect           ( const BPHMuonPtSelect& x );
   BPHMuonPtSelect& operator=( const BPHMuonPtSelect& x );
-
-  double ptMin;
 
 };
 

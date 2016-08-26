@@ -15,12 +15,12 @@
 // Base Class Headers --
 //----------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
-class BPHDecayVertex;
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-
+#include "BPHAnalysis/RecoDecay/interface/BPHDecayVertex.h"
+#include "TMath.h"
 
 //---------------
 // C++ Headers --
@@ -37,22 +37,27 @@ class BPHChi2Select: public BPHVertexSelect {
 
   /** Constructor
    */
-  BPHChi2Select( double prob );
+  BPHChi2Select( double prob ): probMin( prob ) {}
 
   /** Destructor
    */
-  virtual ~BPHChi2Select();
+  virtual ~BPHChi2Select() {}
 
   /** Operations
    */
   /// select vertex
-  virtual bool accept( const BPHDecayVertex& cand ) const;
+  virtual bool accept( const BPHDecayVertex& cand ) const {
+    const reco::Vertex& v = cand.vertex();
+    if ( v.isFake() ) return false;
+    if ( !v.isValid() ) return false;
+    return ( TMath::Prob( v.chi2(), lround( v.ndof() ) ) > probMin );
+  }
 
   /// set prob min
-  void setProbMin( double p );
+  void setProbMin( double p ) { probMin = p; return; }
 
   /// get current prob min
-  double getProbMin() const;
+  double getProbMin() const { return probMin; }
 
  private:
 
