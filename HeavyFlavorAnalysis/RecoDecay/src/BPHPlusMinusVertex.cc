@@ -48,7 +48,7 @@ BPHPlusMinusVertex::~BPHPlusMinusVertex() {
 //--------------
 // Operations --
 //--------------
-ClosestApproachInRPhi& BPHPlusMinusVertex::cAppInRPhi() const {
+const ClosestApproachInRPhi& BPHPlusMinusVertex::cAppInRPhi() const {
   if ( !updated ) computeApp();
   if ( inRPhi == 0 ) {
     static const ClosestApproachInRPhi ca;
