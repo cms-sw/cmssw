@@ -10,7 +10,7 @@ PrimitiveConverterRPC::PrimitiveConverterRPC() {
 }
 
 l1t::EMTFHitExtraCollection 
-PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim, 
+PrimitiveConverterRPC::convert( std::vector<TriggerPrimitive> TrigPrim, 
 				int SectIndex, edm::ESHandle<RPCGeometry> rpc_geom ) {
 
   // bool verbose = true;
@@ -20,10 +20,10 @@ PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim,
   if (verbose) std::cout << "\n========== RPC Primitive Converter ==========" << std::endl;
 
   l1t::EMTFHitExtraCollection tmpHits;
-  for (std::vector<L1TMuon::TriggerPrimitive>::iterator iter = TrigPrim.begin(); iter != TrigPrim.end(); iter++) {
+  for (std::vector<TriggerPrimitive>::iterator iter = TrigPrim.begin(); iter != TrigPrim.end(); iter++) {
 
     /// Get all the input variables
-    L1TMuon::TriggerPrimitive prim = *iter; // Eventually would like to deprecate TriggerPrimitive entirely - AWB 03.06.16
+    TriggerPrimitive prim = *iter; // Eventually would like to deprecate TriggerPrimitive entirely - AWB 03.06.16
     RPCDetId detID = prim.detId<RPCDetId>();
     RPCDigi digi = RPCDigi( prim.getRPCData().strip, prim.getRPCData().bx );
 
@@ -41,12 +41,12 @@ PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim,
   }
 
   l1t::EMTFHitExtraCollection clustHits;
-  for (unsigned int iHit = 0; iHit < tmpHits.size(); iHit++) {
+  for (uint iHit = 0; iHit < tmpHits.size(); iHit++) {
     l1t::EMTFHitExtra hit1 = tmpHits.at(iHit);
 
     // Skip hit if it is already in a cluster
     bool hit_in_cluster = false;
-    for (unsigned int jHit = 0; jHit < clustHits.size(); jHit++) {
+    for (uint jHit = 0; jHit < clustHits.size(); jHit++) {
       l1t::EMTFHitExtra clustHit = clustHits.at(jHit);
       if ( sameRpcChamber(hit1, clustHit) && hit1.Strip_hi() <= clustHit.Strip_hi() && 
 	   hit1.Strip_low() >= clustHit.Strip_low() ) hit_in_cluster = true;
@@ -60,7 +60,7 @@ PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim,
       prevHi = hit1.Strip_hi();
       prevLow = hit1.Strip_low();
 
-      for (unsigned int jHit = 0; jHit < tmpHits.size(); jHit++) {
+      for (uint jHit = 0; jHit < tmpHits.size(); jHit++) {
 	if (iHit == jHit) continue;
 	l1t::EMTFHitExtra hit2 = tmpHits.at(jHit);
 
@@ -106,7 +106,7 @@ std::vector<ConvertedHit>
 PrimitiveConverterRPC::fillConvHits(l1t::EMTFHitExtraCollection exHits) {
 
   std::vector<ConvertedHit> ConvHits;
-  for (unsigned int iHit = 0; iHit < exHits.size(); iHit++) {
+  for (uint iHit = 0; iHit < exHits.size(); iHit++) {
     l1t::EMTFHitExtra exHit = exHits.at(iHit);
 
     // // Replace with SetZoneWord - AWB 04.09.16
@@ -116,7 +116,7 @@ PrimitiveConverterRPC::fillConvHits(l1t::EMTFHitExtraCollection exHits) {
     ConvHit.SetValues(exHit.Phi_loc_int(), exHit.Theta_int(), exHit.Phi_hit(), exHit.Zone(), 
 		      exHit.Station(), exHit.Subsector(), exHit.CSC_ID(), exHit.Quality(), 
 		      exHit.Pattern(), exHit.Wire(), exHit.Strip(), exHit.BX() + 6);
-    ConvHit.SetTP( L1TMuon::TriggerPrimitive( exHit.RPC_DetId(), exHit.Strip(), exHit.Layer(), exHit.BX() + 6 ) );
+    ConvHit.SetTP( TriggerPrimitive( exHit.RPC_DetId(), exHit.Strip(), exHit.Layer(), exHit.BX() + 6 ) );
     ConvHit.SetZhit( exHit.Phi_zone() );
     // // Replace with SetZoneWord - AWB 04.09.16
     // ConvHit.SetZoneContribution(zone_contribution);
