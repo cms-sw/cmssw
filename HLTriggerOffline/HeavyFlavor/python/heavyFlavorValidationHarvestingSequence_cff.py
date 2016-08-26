@@ -103,6 +103,11 @@ hfvQ7 = heavyFlavorValidationHarvesting.clone(
 hfvTau3mu = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu3_Trk_tau3mu_v')
 )
+### DoubleMu0
+hfvDoubleMu0 = heavyFlavorValidationHarvesting.clone(
+  MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_DoubleMu0')
+)
+
 
 combiner = cms.EDAnalyzer('PlotCombiner',
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT'),
@@ -154,6 +159,7 @@ heavyFlavorValidationHarvestingSequence = cms.Sequence(
   +hfv6+hfv7+hfv8+hfv9
   +hfvQ1+hfvQ2+hfvQ3+hfvQ4+hfvQ5+hfvQ6+hfvQ7
   +hfvTau3mu
+  +hfvDoubleMu0
 	+combiner+combiner2
 )
 
