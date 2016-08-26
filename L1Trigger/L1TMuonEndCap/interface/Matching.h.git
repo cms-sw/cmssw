@@ -48,12 +48,20 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	if(verbose) std::cout<<"Number of possible hits to match = "<<Thits.size()<<"\n";			
 	
 	//for(std::vector<ConvertedHit>::iterator i = Thits.begin();i != Thits.end();i++){//Possible associated hits
-	for(unsigned int i=0;i<Thits.size();i++){//Possible associated hits
-
-	  int zmask[4] {1,2,4,8};
-	  bool inzone = false;///Is the converted hit in the zone we're looking at now?
-	  if(Thits[i].ZoneWord() & zmask[z]) inzone = true;
-
+	for(int i = Thits.size() - 1;i > -1;i--){//Possible associated hits
+	  //for(unsigned int i=0;i<Thits.size();i++){//Possible associated hits
+	  
+	  //int id = Thits[i].Id();
+	  
+	  if(verbose) std::cout<<"station = "<<Thits[i].Station()<<", strip = "<<Thits[i].Strip()<<", keywire = "<<Thits[i].Wire()<<" and zhit-"<<Thits[i].Zhit()<<", bx = "<<Thits[i].BX()<<", phi>>5 = "<<(Thits[i].Phi()>>5)<<"\n";
+	  
+	  // Unused variable
+	  /* bool inzone = 0;///Is the converted hit in the zone we're looking at now? 
+	     for(std::vector<int>::iterator znc = Thits[i].ZoneContribution().begin();znc != Thits[i].ZoneContribution().end();znc++){ 
+	     if((*znc) == z) 
+	     inzone = 1;//yes 
+	     } */
+	  
 	  bool inBXgroup = false;
 	  
 	  switch(Winners[z][w].BXGroup()){
@@ -69,7 +77,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	  /////////////////// Setting the matched hits based on phi //////////////////////////////////
 	  ////////////////////////////////////////////////////////////////////////////////////////////
 	  int setstation = Thits[i].Station() - 1;
-	  bool setphi = false;
+	  bool setphi = 0;
 	  
 	  if(verbose)
 	    std::cout<<"setstation = "<<setstation<<std::endl;
@@ -79,7 +87,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	  //	std::cout<<"Winners[z][w].Strip(): "<<Winners[z][w].Strip()<<" + 1 - Thits[i].Zhit():"<<Thits[i].Zhit()<<" = "<<(Winners[z][w].Strip() + 1) - Thits[i].Zhit()<<". Thits[i].Phi()>>5 = "<<(Thits[i].Phi() >> 5)<<"\n";
 	  //}
 	  
-	  if((fabs(Winners[z][w].Strip() - (Thits[i].Phi()>>5)) <= phdiff[setstation]) && inBXgroup && inzone){//is close to winner keystrip and in same zone?
+	  if((fabs(Winners[z][w].Strip() - (Thits[i].Phi()>>5)) <= phdiff[setstation]) && inBXgroup /*&& inzone*/){//is close to winner keystrip and in same zone?
 	    
 	    if(ph_output[z][w][setstation].Phi() == -999){//has this already been set? no
 	      
@@ -108,21 +116,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 		setphi = true;
 		
 	      }
-
-	      if (d2 == d1) {
-		if (Thits[i].BX() < ph_output[z][w][setstation].BX()) {
-		  ph_output[z][w][setstation] = (Thits[i]);
-		  setphi = true;
-		}
-		else if (Thits[i].IsNeighbor() && !ph_output[z][w][setstation].IsNeighbor()) {
-		  ph_output[z][w][setstation] = (Thits[i]);
-		  setphi = true;
-		}
-		else if ((Thits[i].IsNeighbor() == ph_output[z][w][setstation].IsNeighbor()) && (Thits[i].Id() < ph_output[z][w][setstation].Id())) {
-		  ph_output[z][w][setstation] = (Thits[i]);
-		  setphi = true;
-		}
-	      }
+	      
 	    }
 	    
 	    /////////////////////////////////////////////////////////////////////////////////////
