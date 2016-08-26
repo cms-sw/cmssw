@@ -64,6 +64,22 @@ class BPHRecoCandidate: public virtual BPHKinematicFit {
 
   /** Operations
    */
+  /// add a simple particle giving it a name
+  /// particles are cloned, eventually specifying a different mass
+  /// and a sigma
+  virtual void add( const std::string& name,
+                    const reco::Candidate* daug,
+                    double mass = -1.0, double sigma = -1.0 ) {
+    addK( name, daug, "cfhpmig", mass, sigma ); return; }
+  virtual void add( const std::string& name,
+                    const reco::Candidate* daug,
+                    const std::string& searchList,
+                    double mass = -1.0, double sigma = -1.0 ) {
+    addK( name, daug, searchList, mass, sigma ); return; }
+  virtual void add( const std::string& name,
+                    const BPHRecoConstCandPtr& comp ) {
+    addK( name, comp ); return; }
+
   /// look for candidates starting from particle collections as
   /// specified in the BPHRecoBuilder
   static std::vector<BPHRecoConstCandPtr> build( const BPHRecoBuilder& builder,

@@ -52,14 +52,6 @@ class BPHDecayMomentum {
   /** Operations
    */
 
-  /// add a simple particle giving it a name
-  /// particles are cloned, eventually specifying a different mass
-  virtual void add( const std::string& name,
-                    const reco::Candidate* daug, double mass = -1.0 );
-  /// add a previously reconstructed particle giving it a name
-  virtual void add( const std::string& name,
-                    const BPHRecoConstCandPtr& comp );
-
   /// get a composite by the simple sum of simple particles
   virtual const pat::CompositeCandidate& composite() const;
 
@@ -117,18 +109,23 @@ class BPHDecayMomentum {
     std::string searchList;
   };
 
-  // get an object filled in the constructor
-  // to be used in the creation of other bases of BPHRecoCandidate
-  const std::vector<Component>& componentList() const;
-
-  // map linking cloned particles to original ones
-  std::map<const reco::Candidate*, const reco::Candidate*> clonesMap;
-
   // constructors
   BPHDecayMomentum();
   BPHDecayMomentum( const std::map<std::string,Component>& daugMap );
   BPHDecayMomentum( const std::map<std::string,Component>& daugMap,
                     const std::map<std::string,BPHRecoConstCandPtr> compMap );
+
+  // get an object filled in the constructor
+  // to be used in the creation of other bases of BPHRecoCandidate
+  const std::vector<Component>& componentList() const;
+
+  /// add a simple particle giving it a name
+  /// particles are cloned, eventually specifying a different mass
+  virtual void addP( const std::string& name,
+                     const reco::Candidate* daug, double mass = -1.0 );
+  /// add a previously reconstructed particle giving it a name
+  virtual void addP( const std::string& name,
+                     const BPHRecoConstCandPtr& comp );
 
   // utility function used to cash reconstruction results
   virtual void setNotUpdated() const;
@@ -152,6 +149,9 @@ class BPHDecayMomentum {
   // (simple and previously reconstructed particles)
   std::map<std::string,const reco::Candidate*> dMap;
   std::map<std::string,BPHRecoConstCandPtr   > cMap;
+
+  // map linking cloned particles to original ones
+  std::map<const reco::Candidate*, const reco::Candidate*> clonesMap;
 
   // reconstruction results cache
   mutable bool updated;

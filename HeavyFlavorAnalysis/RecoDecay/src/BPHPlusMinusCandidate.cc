@@ -90,7 +90,7 @@ void BPHPlusMinusCandidate::add( const string& name,
       return;
     }
   case 0:
-    BPHKinematicFit::add( name, daug, searchList, mass, sigma );
+    addK( name, daug, searchList, mass, sigma );
   }
   return;
 }

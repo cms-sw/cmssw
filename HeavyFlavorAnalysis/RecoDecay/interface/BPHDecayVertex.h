@@ -54,13 +54,6 @@ class BPHDecayVertex: public virtual BPHDecayMomentum {
   /** Operations
    */
 
-  /// add a simple particle giving it a name and specifying an option list 
-  /// to search for the associated track
-  virtual void add( const std::string& name,
-                    const reco::Candidate* daug, 
-                    const std::string& searchList,
-                    double mass );
-
   /// check for valid reconstructed vertex
   virtual bool validTracks() const;
   virtual bool validVertex() const;
@@ -87,6 +80,16 @@ class BPHDecayVertex: public virtual BPHDecayMomentum {
   // pointer used to retrieve informations from other bases
   BPHDecayVertex( const BPHDecayVertex* ptr,
                   const edm::EventSetup* es );
+
+  /// add a simple particle giving it a name and specifying an option list 
+  /// to search for the associated track
+  virtual void addV( const std::string& name,
+                     const reco::Candidate* daug, 
+                     const std::string& searchList,
+                     double mass );
+  /// add a previously reconstructed particle giving it a name
+  virtual void addV( const std::string& name,
+                     const BPHRecoConstCandPtr& comp );
 
   // utility function used to cash reconstruction results
   virtual void setNotUpdated() const;

@@ -72,37 +72,6 @@ BPHDecayMomentum::~BPHDecayMomentum() {
 //--------------
 // Operations --
 //--------------
-void BPHDecayMomentum::add( const string& name,
-                            const reco::Candidate* daug, double mass ) {
-  if ( dMap.find( name ) != dMap.end() ) {
-    edm::LogPrint( "TooManyParticles" )
-                << "BPHDecayMomentum::add: "
-                << "Decay product already inserted with name " << name
-                << " , skipped";
-  }
-  setNotUpdated();
-  reco::Candidate* dnew = daug->clone();
-  if ( mass > 0.0 ) dnew->setMass( mass );
-  nList.push_back( name );
-  dList.push_back( dnew );
-  dMap[name] = dnew;
-  clonesMap[dnew] = daug;
-  return;
-}
-
-
-void BPHDecayMomentum::add( const string& name,
-                            const BPHRecoConstCandPtr& comp ) {
-  setNotUpdated();
-  nComp.push_back( name );
-  cList.push_back( comp );
-  cMap[name] = comp;
-  clonesMap.insert( comp->clonesMap.begin(), comp->clonesMap.end() );
-  return;
-}
-
-
-
 const pat::CompositeCandidate& BPHDecayMomentum::composite() const {
   computeMomentum();
   return compCand;
@@ -174,6 +143,36 @@ const vector<BPHDecayMomentum::Component>&
   // return an object filled in the constructor
   // to be used in the creation of other bases of BPHRecoCandidate
   return compList;
+}
+
+
+void BPHDecayMomentum::addP( const string& name,
+                             const reco::Candidate* daug, double mass ) {
+  if ( dMap.find( name ) != dMap.end() ) {
+    edm::LogPrint( "TooManyParticles" )
+                << "BPHDecayMomentum::add: "
+                << "Decay product already inserted with name " << name
+                << " , skipped";
+  }
+  setNotUpdated();
+  reco::Candidate* dnew = daug->clone();
+  if ( mass > 0.0 ) dnew->setMass( mass );
+  nList.push_back( name );
+  dList.push_back( dnew );
+  dMap[name] = dnew;
+  clonesMap[dnew] = daug;
+  return;
+}
+
+
+void BPHDecayMomentum::addP( const string& name,
+                             const BPHRecoConstCandPtr& comp ) {
+  setNotUpdated();
+  nComp.push_back( name );
+  cList.push_back( comp );
+  cMap[name] = comp;
+  clonesMap.insert( comp->clonesMap.begin(), comp->clonesMap.end() );
+  return;
 }
 
 

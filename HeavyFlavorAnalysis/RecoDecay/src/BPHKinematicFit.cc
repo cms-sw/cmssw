@@ -92,24 +92,6 @@ BPHKinematicFit::~BPHKinematicFit() {
 //--------------
 // Operations --
 //--------------
-void BPHKinematicFit::add( const string& name,
-                           const reco::Candidate* daug, 
-                           double mass, double sigma ) {
-  add( name, daug, "cfhpmig", mass, sigma );
-  return;
-}
-
-
-void BPHKinematicFit::add( const string& name,
-                           const reco::Candidate* daug, 
-                           const string& searchList,
-                           double mass, double sigma ) {
-  BPHDecayVertex::add( name, daug, searchList, mass );
-  dMSig[daughters().back()] = sigma;
-  return;
-}
-
-
 void BPHKinematicFit::setConstraint( double mass, double sigma ) {
   updatedFit = updatedMom = false;
   massConst = mass;
@@ -366,6 +348,33 @@ ParticleMass BPHKinematicFit::mass() const {
 const math::XYZTLorentzVector& BPHKinematicFit::p4() const {
   if ( !updatedMom ) fitMomentum();
   return totalMomentum;
+}
+
+
+void BPHKinematicFit::addK( const string& name,
+                            const reco::Candidate* daug, 
+                            double mass, double sigma ) {
+  addK( name, daug, "cfhpmig", mass, sigma );
+  return;
+}
+
+
+void BPHKinematicFit::addK( const string& name,
+                            const reco::Candidate* daug, 
+                            const string& searchList,
+                            double mass, double sigma ) {
+  addV( name, daug, searchList, mass );
+  dMSig[daughters().back()] = sigma;
+  return;
+}
+
+
+void BPHKinematicFit::addK( const string& name,
+                            const BPHRecoConstCandPtr& comp ) {
+  addV( name, comp );
+  const map<const reco::Candidate*,double>& dMap = comp->dMSig;
+  dMSig.insert( dMap.begin(), dMap.end() );
+  return;
 }
 
 
