@@ -28,6 +28,7 @@ def customise(process):
     return process
 
 def customise_Digi(process):
+
     process.digitisation_step.remove(process.mix.digitizers.pixel)
     process.load('SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi')
     process.mix.digitizers.pixel=process.phase2TrackerDigitizer
@@ -54,8 +55,9 @@ def customise_Digi(process):
 
 
 def customise_DigiToRaw(process):
-    process.digi2raw_step.remove(process.siPixelRawData)
-    process.digi2raw_step.remove(process.rpcpacker)
+    if not eras.trackingPhase2PU140.isChosen():
+      process.digi2raw_step.remove(process.siPixelRawData)
+      process.digi2raw_step.remove(process.rpcpacker)
     return process
 
 def customise_RawToDigi(process):
