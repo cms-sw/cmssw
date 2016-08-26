@@ -1,12 +1,14 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
+#include <cassert>
+
 std::bitset<4>
 HcalFinegrainBit::compute(const HcalFinegrainBit::Tower& tower) const
 {
    if (version_ == 0) {
       // Currently assumes that the bits that are set are mutually
       // exclusive!
-      assert(not (tower[is_mip] & tower[is_above_mip]));
+      assert((tower[is_mip] & tower[is_above_mip]).count() == 0);
 
       std::bitset<4> result;
 

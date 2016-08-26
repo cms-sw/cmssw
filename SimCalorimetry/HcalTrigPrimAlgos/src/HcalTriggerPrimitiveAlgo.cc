@@ -237,6 +237,8 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
       edm::LogError("HCALTPAlgo") << "No upgrade he but received " << ids[0] << " (" << ids.size() << ")";
    }
 
+   std::cout << "ADC COUNT " << frame[4].adc() << std::endl;
+
    if(ids.size() == 2) {
       // make a second trigprim for the other one, and split the energy
       IntegerCaloSamples samples2(ids[1], samples1.size());
@@ -595,7 +597,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     }
 
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
-       output[bin] = min({QIE10_MAX_LINEARIZATION_ET, output[bin] >> hf_lumi_shift});
+       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin] >> hf_lumi_shift});
     }
     outcoder_->compress(output, finegrain, result);
 }

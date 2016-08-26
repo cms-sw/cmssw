@@ -194,7 +194,7 @@ public:
   static const int QIE8_LINEARIZATION_ET = 0x3FF;
   static const int QIE10_LINEARIZATION_ET = 0x3FF;
   static const int QIE11_LINEARIZATION_ET = 0x3FF;
-  static const int QIE10_MAX_LINEARIZATION_ET = 0xFFF
+  static const int QIE10_MAX_LINEARIZATION_ET = 0xFFF;
 };
 
 template<typename... Digis>
