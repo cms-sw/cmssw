@@ -1,5 +1,5 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeTfMuon.h"
-
+#include <cmath>
 L1Analysis::L1AnalysisL1UpgradeTfMuon::L1AnalysisL1UpgradeTfMuon()
 {
 }
@@ -27,6 +27,16 @@ void L1Analysis::L1AnalysisL1UpgradeTfMuon::SetTfMuon(const l1t::RegionalMuonCan
         l1upgradetfmuon_.tfMuonTrackFinderType.push_back(it->trackFinderType());
         l1upgradetfmuon_.tfMuonHwHF.push_back(it->hwHF());
         l1upgradetfmuon_.tfMuonBx.push_back(ibx);
+        std::map<int, int>  trAdd;
+        trAdd = it->trackAddress();
+        int wheel = pow(-1,trAdd[0]) * trAdd[1];
+        l1upgradetfmuon_.tfMuonWh.push_back(wheel);
+        l1upgradetfmuon_.tfMuonTrAdd.push_back(trAdd[2]);
+        l1upgradetfmuon_.tfMuonTrAdd.push_back(trAdd[3]);
+        l1upgradetfmuon_.tfMuonTrAdd.push_back(trAdd[4]);
+        l1upgradetfmuon_.tfMuonTrAdd.push_back(trAdd[5]);
+
+
         l1upgradetfmuon_.nTfMuons++;
       }
     }
