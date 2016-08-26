@@ -55,13 +55,10 @@ namespace edm {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       bool returnValue =true;
-      resourcesAcquirer_.serialQueueChain().pushAndWait([&]()
-      {
-        e.setSharedResourcesAcquirer(&resourcesAcquirer_);
-        EventSignalsSentry sentry(act,mcc);
-        returnValue = this->filter(e, c);
-        commit_(e,&previousParentage_, &previousParentageId_);
-      });
+      e.setSharedResourcesAcquirer(&resourcesAcquirer_);
+      EventSignalsSentry sentry(act,mcc);
+      returnValue = this->filter(e, c);
+      commit_(e,&previousParentage_, &previousParentageId_);
       return returnValue;
     }
     

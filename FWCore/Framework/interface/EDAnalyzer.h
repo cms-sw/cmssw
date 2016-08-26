@@ -66,6 +66,10 @@ namespace edm {
                                        ThinnedAssociationsHelper&) { }
 
     void registerProductsAndCallbacks(EDAnalyzer const*, ProductRegistry* reg);
+    
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
     virtual void beginJob(){}

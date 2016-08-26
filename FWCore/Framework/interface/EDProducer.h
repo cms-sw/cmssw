@@ -73,6 +73,10 @@ namespace edm {
     }
 
     std::string workerType() const {return "WorkerT<EDProducer>";}
+    
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     virtual void produce(Event&, EventSetup const&) = 0;
     virtual void beginJob() {}
