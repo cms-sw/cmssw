@@ -40,13 +40,13 @@ private:
   cond::persistency::ConnectionPool m_connectionPool;
   std::string m_configMapDb;
   std::string m_condDb;
+  std::string m_cfgMapDbFile;
   std::string m_localCondDbFile;
   std::string m_targetTag;
   cond::Time_t m_since;
 
   std::string p_type;
   std::string p_cfgstr;
-  boost::shared_ptr<coral::ISessionProxy> cmDbSession;
   edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder;
 };
 
@@ -56,6 +56,7 @@ SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::Paramete
   m_connectionPool(),
   m_configMapDb( iConfig.getParameter< std::string >("configMapDatabase") ),
   m_condDb( iConfig.getParameter< std::string >("conditionDatabase") ),
+  m_cfgMapDbFile( iConfig.getParameter< std::string >("cfgMapDbFile") ),
   m_localCondDbFile( iConfig.getParameter< std::string >("condDbFile") ),
   m_targetTag( iConfig.getParameter< std::string >("targetTag") ),
   m_since( iConfig.getParameter< uint32_t >("since") ),
@@ -63,7 +64,6 @@ SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::Paramete
   p_cfgstr( condObjBuilder->getConfigString(typeid(SiStripPayload)) ){
   m_connectionPool.setParameters( iConfig.getParameter<edm::ParameterSet>("DBParameters")  );
   m_connectionPool.configure();
-  cmDbSession = m_connectionPool.createCoralSession( m_configMapDb, true );
 }
 
 template<typename SiStripPayload>
@@ -187,6 +187,7 @@ std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string co
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
       << "Query " << m_configMapDb << " to see if the payload is already in DB.";
 
+  auto cmDbSession = m_connectionPool.createCoralSession( m_configMapDb );
   // query the STRIP_CONFIG_TO_PAYLOAD_MAP table
   cmDbSession->transaction().start( true );
   coral::ITable& cmTable = cmDbSession->nominalSchema().tableHandle( "STRIP_CONFIG_TO_PAYLOAD_MAP" );
@@ -221,10 +222,12 @@ std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string co
 template<typename SiStripPayload>
 void SiStripPayloadHandler<SiStripPayload>::updateConfigMap(std::string configHash, std::string payloadHash) {
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      << "Updating the config to payload hash map...";
+      << "Updating the config to payload hash map to " << m_cfgMapDbFile;
+
   // create a writable transaction
-  cmDbSession->transaction().start( false );
-  coral::ITable& cmTable = cmDbSession->nominalSchema().tableHandle( "STRIP_CONFIG_TO_PAYLOAD_MAP" );
+  auto cmSQLiteSession = m_connectionPool.createCoralSession( m_cfgMapDbFile, true );
+  cmSQLiteSession->transaction().start( false );
+  coral::ITable& cmTable = cmSQLiteSession->nominalSchema().tableHandle( "STRIP_CONFIG_TO_PAYLOAD_MAP" );
   coral::AttributeList insertData;
   insertData.extend<std::string>( "CONFIG_HASH" );
   insertData.extend<std::string>( "PAYLOAD_HASH" );
@@ -238,7 +241,7 @@ void SiStripPayloadHandler<SiStripPayload>::updateConfigMap(std::string configHa
   insertData["CONFIG_STRING"].data<std::string>() = p_cfgstr;
   insertData["INSERTION_TIME"].data<coral::TimeStamp>() = coral::TimeStamp::now(); // UTC time
   cmTable.dataEditor().insertRow( insertData );
-  cmDbSession->transaction().commit();
+  cmSQLiteSession->transaction().commit();
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
       << "Updated with mapping (configHash : payloadHash)" << configHash << " : " << payloadHash;
 }
