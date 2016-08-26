@@ -123,8 +123,7 @@ if not boostana.skip_ca15:
                                                                  help="OptimalR HEPTopTagger Candidates")
 
 
-# # Add b-Tagging Information
-# 
+# Add b-Tagging Information
 btagana=cfg.Analyzer(
     verbose=False,
     class_object=AdditionalBTag,
@@ -142,18 +141,12 @@ if sample.isMC:
 
     treeProducer.collections["tauGenJets"] = NTupleCollection("GenHadTaus", genTauJetType, 15, help="Generator level hadronic tau decays")
 
-def fix_reHLT(config):
-    for ic in range(len(config.sequence)):
-        obj = config.sequence[ic]
+# Switch MET inputs to newly created slimmedMETs collection with PFMET significance matrix added
+for ic in range(len(config.sequence)):
+    obj = config.sequence[ic]
         
-        if obj.class_object.__name__ == "TriggerBitAnalyzer" and obj.processName == "HLT":
-            obj.processName = "HLT2"
-        
-        if obj.class_object.__name__ == "TriggerObjectsAnalyzer" and obj.triggerBitsInputTag == ('TriggerResults','','HLT'):
-            obj.triggerBitsInputTag = ('TriggerResults','','HLT2')
-
-if "reHLT" in sample.files[0]:
-    fix_reHLT(config)
+    if obj.class_object.__name__ == "METAnalyzer" and obj.instance_label == "METAna":
+        obj.metCollection = "slimmedMETs::EX"
 
 # Run Everything
 preprocessor = CmsswPreprocessor("combined_cmssw.py", options = {"isMC":sample.isMC})

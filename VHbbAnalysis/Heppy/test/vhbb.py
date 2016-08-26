@@ -278,8 +278,8 @@ VHGenAna = VHGeneratorAnalyzer.defaultConfig
 
 from PhysicsTools.Heppy.analyzers.objects.METAnalyzer import METAnalyzer
 METAna = METAnalyzer.defaultConfig
-METAna.metCollection = "slimmedMETs::EX"
-##METAna.metCollection = "slimmedMETs"
+##METAna.metCollection = "slimmedMETs::EX"
+METAna.metCollection = "slimmedMETs"
 METAna.recalibrate = False
 METAna.applyJetSmearing = False
 METAna.doTkMet = True
@@ -508,7 +508,22 @@ from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence, 
 		     services = [output_service],
-                     events_class = Events)    
+                     events_class = Events)
+
+
+def fix_reHLT(config):
+    for ic in range(len(config.sequence)):
+        obj = config.sequence[ic]
+        
+        if obj.class_object.__name__ == "TriggerBitAnalyzer" and obj.processName == "HLT":
+            obj.processName = "HLT2"
+        
+        if obj.class_object.__name__ == "TriggerObjectsAnalyzer" and obj.triggerBitsInputTag == ('TriggerResults','','HLT'):
+            obj.triggerBitsInputTag = ('TriggerResults','','HLT2')
+
+if "reHLT" in sample.files[0]:
+    fix_reHLT(config)
+    
 
 class TestFilter(logging.Filter):
     def filter(self, record):
