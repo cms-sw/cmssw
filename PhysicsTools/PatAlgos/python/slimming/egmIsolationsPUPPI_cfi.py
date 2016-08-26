@@ -10,13 +10,13 @@ def makeInputForPUPPIIsolationEgm(process):
 	process.load('RecoEgamma.EgammaIsolationAlgos.egmElectronIsolationPUPPI_cff')
 
 	process.egmPhotonPUPPIIsolation = _egmPhotonPUPPIIsolationForPhotons.clone()
-	process.egmPhotonPUPPIIsolation.srcToIsolate = cms.InputTag("gedPhotons")
+	process.egmPhotonPUPPIIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedPhotons")
 	process.egmPhotonPUPPIIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 
 	process.egmElectronPUPPIIsolation = _egmElectronIsolationMiniAODPUPPI.clone()
-	process.egmElectronPUPPIIsolation.srcToIsolate = cms.InputTag("gedGsfElectrons")
+	process.egmElectronPUPPIIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
 	process.egmElectronPUPPIIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
 
 	process.egmElectronPUPPINoLeptonsIsolation = _egmElectronIsolationMiniAODPUPPINoLeptons.clone()
-	process.egmElectronPUPPINoLeptonsIsolation.srcToIsolate = cms.InputTag("gedGsfElectrons")
+	process.egmElectronPUPPINoLeptonsIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
 	process.egmElectronPUPPINoLeptonsIsolation.srcForIsolationCone = cms.InputTag("packedPFCandidates")
