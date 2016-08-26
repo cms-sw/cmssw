@@ -64,7 +64,11 @@ static double square(double x) {
 void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
 
   // radius for plane calculations
-  double r  = r_min;
+  // We use r_max here, since P3 later has a Z that is always more inside
+  // than the extreme points. This means the cutting planes have outwards
+  // slopes in r-Z, and the corner at r_max could stick out of the bounding
+  // volume otherwise. 
+  double r  = r_max;
 
   // min and max z for the placement in the end
   double min_z =  1e9;
