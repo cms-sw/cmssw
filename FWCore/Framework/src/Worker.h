@@ -271,6 +271,9 @@ namespace edm {
                        ParentContext const& parentContext,
                        Principal const& );
         
+    void emitPostModuleEventPrefetchingSignal() {
+      actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+    }
     
     template<typename T>
     void runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
@@ -298,7 +301,21 @@ namespace edm {
       m_serviceToken(ServiceRegistry::instance().presentToken()) {}
       
       tbb::task* execute() override {
-        if( not exceptionPtr()) {
+        //incase the emit causes an exception, we need a memory location
+        // to hold the exception_ptr
+        std::exception_ptr temp_excptr;
+        auto excptr = exceptionPtr();
+        try {
+          //pre was called in prefetchAsync
+          m_worker->emitPostModuleEventPrefetchingSignal();
+        }catch(...) {
+          temp_excptr = std::current_exception();
+          if(not excptr) {
+            excptr = &temp_excptr;
+          }
+        }
+
+        if( not excptr) {
           if(auto queue = m_worker->serializeRunModule()) {
             Worker* worker = m_worker;
             auto const & principal = m_principal;
@@ -326,7 +343,7 @@ namespace edm {
         //Need to make the services available
         ServiceRegistry::Operate guard(m_serviceToken);
 
-        m_worker->runModuleAfterAsyncPrefetch<T>(exceptionPtr(),
+        m_worker->runModuleAfterAsyncPrefetch<T>(excptr,
                                                  m_principal,
                                                  m_es,
                                                  m_streamID,
@@ -590,9 +607,6 @@ namespace edm {
                                    typename T::Context const* context) {
     try {
       convertException::wrap([&]() {
-        //pre was called in prefetchAsync
-        actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
-        
         if(iEPtr) {
           assert(*iEPtr);
           moduleCallingContext_.setContext(ModuleCallingContext::State::kInvalid,ParentContext(),nullptr);
@@ -689,7 +703,7 @@ namespace edm {
             // [the 'pre' signal was sent in prefetchAsync]
             //The purpose of this block is to send the signal after wait_for_all
             auto sentryFunc = [this](void*) {
-              actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
+              emitPostModuleEventPrefetchingSignal();
             };
             std::unique_ptr<ActivityRegistry, decltype(sentryFunc)> signalSentry(actReg_.get(),sentryFunc);
             
