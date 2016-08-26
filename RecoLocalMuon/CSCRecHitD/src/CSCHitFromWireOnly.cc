@@ -82,14 +82,11 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, aDeadWG, timeBinsOn );
 
       if (!useReducedWireTime) {
-
-         hitsInLayer.push_back( whit );
-
-         } else if (theTime >= wireTimeWindow_low && theTime <= wireTimeWindow_high) {
-
-                   hitsInLayer.push_back( whit );	
-
-                   }
+        hitsInLayer.push_back( whit );
+      }
+      else if (theTime >= wireTimeWindow_low && theTime <= wireTimeWindow_high) {
+        hitsInLayer.push_back( whit );	
+      }
 
       makeWireCluster( wdigi );
       n_wgroup = 1;
@@ -123,14 +120,11 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
       CSCWireHit whit(id, whit_pos, wire_in_clusterAndBX, theTime, aDeadWG, timeBinsOn );
 
       if (!useReducedWireTime) {
-
-         hitsInLayer.push_back( whit );
-
-         } else if (theTime >= wireTimeWindow_low && theTime <= wireTimeWindow_high) {
-
-                   hitsInLayer.push_back( whit );
- 
-                   }
+        hitsInLayer.push_back( whit );
+      } 
+      else if (theTime >= wireTimeWindow_low && theTime <= wireTimeWindow_high) {
+        hitsInLayer.push_back( whit );
+      }
 
       n_wgroup++;
     }
