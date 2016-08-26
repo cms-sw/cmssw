@@ -614,41 +614,41 @@ string BPHWriteSpecificDecay::getParameter( const edm::ParameterSet& ps,
 
 
 void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
-  static map<string,int> rMap;
-  static map<string,int> pMap;
-  static map<string,int> fMap;
-  static bool init = true;
-  if ( init ) {
-    rMap["PHiMuMu"] = Pmm;
-    rMap["Psi1"   ] = Psi1;
-    rMap["Psi2"   ] = Psi2;
-    rMap["Ups"    ] = Ups;
-    rMap["Ups1"   ] = Ups1;
-    rMap["Ups2"   ] = Ups2;
-    rMap["Ups3"   ] = Ups3;
-    rMap["Kx0"    ] = Kx0;
-    rMap["PhiKK"  ] = Pkk;
-    rMap["Bu"     ] = Bu;
-    rMap["Bd"     ] = Bd;
-    rMap["Bs"     ] = Bs;
-    pMap["ptMin"      ] = ptMin;
-    pMap["etaMax"     ] = etaMax;
-    pMap["mJPsiMin"   ] = mPsiMin;
-    pMap["mJPsiMax"   ] = mPsiMax;
-    pMap["mKx0Min"    ] = mKx0Min;
-    pMap["mKx0Max"    ] = mKx0Max;
-    pMap["mPhiMin"    ] = mPhiMin;
-    pMap["mPhiMax"    ] = mPhiMax;
-    pMap["massMin"    ] = massMin;
-    pMap["massMax"    ] = massMax;
-    pMap["probMin"    ] = probMin;
-    pMap["massFitMin" ] = mFitMin;
-    pMap["massFitMax" ] = mFitMax;
-    pMap["constrMass" ] = constrMass;
-    pMap["constrSigma"] = constrSigma;
-    fMap["constrMJPsi"] = constrMJPsi;
-    init = false;
-  }
+
+  map<string,int> rMap;
+  rMap["PHiMuMu"] = Pmm;
+  rMap["Psi1"   ] = Psi1;
+  rMap["Psi2"   ] = Psi2;
+  rMap["Ups"    ] = Ups;
+  rMap["Ups1"   ] = Ups1;
+  rMap["Ups2"   ] = Ups2;
+  rMap["Ups3"   ] = Ups3;
+  rMap["Kx0"    ] = Kx0;
+  rMap["PhiKK"  ] = Pkk;
+  rMap["Bu"     ] = Bu;
+  rMap["Bd"     ] = Bd;
+  rMap["Bs"     ] = Bs;
+
+  map<string,int> pMap;
+  pMap["ptMin"      ] = ptMin;
+  pMap["etaMax"     ] = etaMax;
+  pMap["mJPsiMin"   ] = mPsiMin;
+  pMap["mJPsiMax"   ] = mPsiMax;
+  pMap["mKx0Min"    ] = mKx0Min;
+  pMap["mKx0Max"    ] = mKx0Max;
+  pMap["mPhiMin"    ] = mPhiMin;
+  pMap["mPhiMax"    ] = mPhiMax;
+  pMap["massMin"    ] = massMin;
+  pMap["massMax"    ] = massMax;
+  pMap["probMin"    ] = probMin;
+  pMap["massFitMin" ] = mFitMin;
+  pMap["massFitMax" ] = mFitMax;
+  pMap["constrMass" ] = constrMass;
+  pMap["constrSigma"] = constrSigma;
+
+  map<string,int> fMap;
+  fMap["constrMJPsi"] = constrMJPsi;
+
   const string& name = ps.getParameter<string>( "name" );
   map<string,int>::const_iterator pIter = pMap.begin();
   map<string,int>::const_iterator pIend = pMap.end();
@@ -661,6 +661,7 @@ void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
          << " for " << name << " : "
          << ( parMap[rMap[name]][id] = ps.getParameter<double>( pn ) );
   }
+
   map<string,int>::const_iterator fIter = fMap.begin();
   map<string,int>::const_iterator fIend = fMap.end();
   while ( fIter != fIend ) {
@@ -673,6 +674,7 @@ void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
          << ( parMap[rMap[name]][id] =
                                      ( ps.getParameter<bool>( fn ) ? 1 : -1 ) );
   }
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

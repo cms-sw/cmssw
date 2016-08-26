@@ -377,7 +377,7 @@ BPHHistoSpecificDecay::BPHHistoSpecificDecay( const edm::ParameterSet& ps ) {
 
   outHist = getParameter( ps, "outHist" );
 
-  static BPHSoftMuonSelect sms;
+  static const BPHSoftMuonSelect sms;
 
   double  phiMassMin =  0.85;
   double  phiMassMax =  3.30;

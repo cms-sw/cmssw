@@ -48,7 +48,7 @@ class BPHPlusMinusVertex: public virtual BPHDecayVertex {
   /** Operations
    */
   /// compute distance of closest approach
-  virtual ClosestApproachInRPhi& cAppInRPhi() const;
+  virtual const ClosestApproachInRPhi& cAppInRPhi() const;
 
  protected:
 

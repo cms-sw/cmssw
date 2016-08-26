@@ -122,26 +122,23 @@ vector<BPHPlusMinusConstCandPtr> BPHPlusMinusCandidate::build(
 
 
 const pat::CompositeCandidate& BPHPlusMinusCandidate::composite() const {
-  static pat::CompositeCandidate compCand;
-  static string msg =
+  static const pat::CompositeCandidate compCand;
+  static const string msg =
          "BPHPlusMinusCandidate incomplete, no composite available";
-  if ( !chkSize( msg ) ) {
-    compCand.clearDaughters();
-    return compCand;
-  }
+  if ( !chkSize( msg ) ) return compCand;
   return BPHDecayMomentum::composite();
 }
 
 
 bool BPHPlusMinusCandidate::isCowboy() const {
-  static string msg =
+  static const string msg =
          "BPHPlusMinusCandidate incomplete, no cowboy/sailor classification";
   return ( chkSize( msg ) && phiDiff() );
 }
 
 
 bool BPHPlusMinusCandidate::isSailor() const {
-  static string msg =
+  static const string msg =
          "BPHPlusMinusCandidate incomplete, no cowboy/sailor classification";
   return ( chkSize( msg ) && !phiDiff() );
 }

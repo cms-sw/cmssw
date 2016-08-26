@@ -51,7 +51,7 @@ BPHPlusMinusVertex::~BPHPlusMinusVertex() {
 ClosestApproachInRPhi& BPHPlusMinusVertex::cAppInRPhi() const {
   if ( !updated ) computeApp();
   if ( inRPhi == 0 ) {
-    static ClosestApproachInRPhi ca;
+    static const ClosestApproachInRPhi ca;
     return ca;
   }
   return *inRPhi;
@@ -71,7 +71,7 @@ void BPHPlusMinusVertex::setNotUpdated() const {
 
 
 void BPHPlusMinusVertex::computeApp() const {
-  static string msg =
+  static const string msg =
   "BPHPlusMinusVertex::computeApp: incomplete, no closest approach available";
   delete inRPhi;
   if ( !chkSize( msg ) ) {
