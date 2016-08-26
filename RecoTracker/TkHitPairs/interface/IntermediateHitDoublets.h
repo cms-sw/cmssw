@@ -120,6 +120,28 @@ public:
 
   ////////////////////
 
+  // helper class to enforce correct usage
+  class RegionFiller {
+  public:
+    RegionFiller(): obj_(nullptr) {}
+    explicit RegionFiller(IntermediateHitDoublets *obj): obj_(obj) {}
+
+    ~RegionFiller() = default;
+
+    bool valid() const { return obj_ != nullptr; }
+
+    void addDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets, LayerHitMapCache&& cache) {
+      obj_->layerPairs_.emplace_back(layerSet, std::move(doublets), std::move(cache));
+      obj_->regions_.back().setLayerSetsEnd(obj_->layerPairs_.size());
+    }
+  private:
+    IntermediateHitDoublets *obj_;
+  };
+
+  static RegionFiller dummyFiller() { return RegionFiller(); }
+
+  ////////////////////
+
   IntermediateHitDoublets(): seedingLayers_(nullptr) {}
   explicit IntermediateHitDoublets(const SeedingLayerSetsHits *seedingLayers): seedingLayers_(seedingLayers) {}
   IntermediateHitDoublets(const IntermediateHitDoublets& rh); // only to make ROOT dictionary generation happy
@@ -141,13 +163,9 @@ public:
     layerPairs_.shrink_to_fit();
   }
 
-  void beginRegion(const TrackingRegion *region) {
+  RegionFiller beginRegion(const TrackingRegion *region) {
     regions_.emplace_back(region, layerPairs_.size());
-  }
-
-  void addDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets, LayerHitMapCache&& cache) {
-    layerPairs_.emplace_back(layerSet, std::move(doublets), std::move(cache));
-    regions_.back().setLayerSetsEnd(layerPairs_.size());
+    return RegionFiller(this);
   }
 
   const SeedingLayerSetsHits& seedingLayerHits() const { return *seedingLayers_; }

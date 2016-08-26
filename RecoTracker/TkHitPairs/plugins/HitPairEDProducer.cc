@@ -130,11 +130,12 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   for(const TrackingRegion& region: regions) {
     auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
+    auto intermediateHitDoubletsFiller = IntermediateHitDoublets::dummyFiller();
     if(produceSeedingHitSets_) {
       seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
     }
     if(produceIntermediateHitDoublets_) {
-      intermediateHitDoublets->beginRegion(&region);
+      intermediateHitDoubletsFiller = intermediateHitDoublets->beginRegion(&region);
     }
 
     for(SeedingLayerSetsHits::SeedingLayerSet layerSet: layerPairs) {
@@ -149,7 +150,7 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
       }
       if(produceIntermediateHitDoublets_) {
-        intermediateHitDoublets->addDoublets(layerSet, std::move(doublets), std::move(hitCache));
+        intermediateHitDoubletsFiller.addDoublets(layerSet, std::move(doublets), std::move(hitCache));
       }
     }
   }
