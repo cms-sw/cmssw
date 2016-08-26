@@ -9,6 +9,10 @@ _minVtx = [0, 80, 120]
 _maxVtx = [60, 100, 150, 200, 250]
 _maxEff = 1.025
 _maxFake = [0.05, 0.1, 0.2, 0.5, 0.7, 1.025]
+_minMaxRes = [5, 10, 50, 100, 200, 500, 1000, 2000, 5000]
+_minMaxPt = [5e-1, 1, 5, 1e1, 5e1, 1e2, 5e2, 1e3, 5e3, 1e4]
+
+_vertexNumberOfEventsHistogram = "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV/GenPV_Z"
 
 _common = {"xtitle": "Simulated interactions", "xmin": _minPU, "xmax": _maxPU, "ymin": _minVtx, "ymax": _maxVtx}
 _recovsgen = PlotGroup("recovsgen", [
@@ -20,7 +24,7 @@ _recovsgen = PlotGroup("recovsgen", [
                        legendDy=-0.025
 )
 _pvtagging = PlotGroup("pvtagging", [
-    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=15, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-3),
+    Plot("TruePVLocationIndexCumulative", xtitle="Signal PV status in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, xbinlabels=["Not reconstructed", "Reco and identified", "Reco, not identified"], xbinlabelsize=15, xbinlabeloption="h", xgrid=False, ylog=True, ymin=1e-3, ratioCoverageXrange=[-0.5, 0.5]),
     Plot("TruePVLocationIndex", xtitle="Index of signal PV in reco collection", ytitle="Fraction of events", drawStyle="hist", normalizeToUnitArea=True, ylog=True, ymin=1e-5),
     Plot("MisTagRate_vs_PU", xtitle="PU", ytitle="Mistag rate vs. PU", title="", xmax=_maxPU, ymax=_maxFake),
     Plot("MisTagRate_vs_sum-pt2", xtitle="#Sigmap_{T}^{2}", ytitle="Mistag rate vs. #Sigmap_{T}^{2}", title="", xlog=True, ymax=_maxFake),
@@ -44,7 +48,7 @@ _resolution = PlotGroup("resolution", [
     Plot("RecoAllAssoc2GenMatched_ResolZ", xtitle="Resolution in z (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatchedMerged_ResolZ", xtitle="Resolution in z for merged vertices (#mum)", **_common),
 ])
-_common = {"title": "", "xtitle": "Number of tracks", "scale": 1e4, "ylog": True, "ymin": 5, "ymax": 500}
+_common = dict(title="", xtitle="Number of tracks", scale=1e4, ylog=True, ymin=_minMaxRes , ymax=_minMaxRes)
 _resolutionNumTracks = PlotGroup("resolutionNumTracks", [
     Plot("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_common),
@@ -52,6 +56,15 @@ _resolutionNumTracks = PlotGroup("resolutionNumTracks", [
     Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks_Sigma", ytitle="Resolution in z (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_common),
+])
+_common.update(dict(xtitle= "Sum of track p_{T} (GeV)", xlog=True, xmin=_minMaxPt, xmax=_minMaxPt))
+_resolutionPt = PlotGroup("resolutionPt", [
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Pt_Sigma", ytitle="Resolution in x (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Pt_Sigma", ytitle="Resolution in y (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Pt_Sigma", ytitle="Resolution in z (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_common),
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -6, "xmax": 6, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]}
 _pull = PlotGroup("pull", [
@@ -80,16 +93,6 @@ _sumpt2 = PlotGroup("sumpt2", [
                     legendDy=-0.025
 )
 
-_common = {"drawStyle": "HIST"}
-_genpos = PlotGroup("genpos", [
-    Plot("GenAllV_X", xtitle="Gen AllV pos x", ytitle="N", **_common),
-    Plot("GenPV_X", xtitle="Gen PV pos x", ytitle="N", **_common),
-    Plot("GenAllV_Y", xtitle="Gen AllV pos y", ytitle="N", **_common),
-    Plot("GenPV_Y", xtitle="Gen PV pos y", ytitle="N", **_common),
-    Plot("GenAllV_Z", xtitle="Gen AllV pos z", ytitle="N", **_common),
-    Plot("GenPV_Z", xtitle="Gen PV pos z", ytitle="N", **_common),
-])
-
 _k0_effandfake = PlotGroup("effandfake", [
     Plot("K0sEffVsPt", xtitle="p_{T} (GeV)", ytitle="Efficiency vs. p_{T}"),
     Plot("K0sFakeVsPt", xtitle="p_{T} (GeV)", ytitle="Fake rate vs. p_{T}"),
@@ -108,7 +111,7 @@ _k0_effandfakeTk = PlotGroup("effandfakeTk", [
 ],
                              legendDy=-0.025
 )
-_common = {"normalizeToUnitArea": True, "drawStyle": "HIST"}
+_common = dict(normalizeToUnitArea=True, drawStyle="HIST", stat=True)
 _k0_mass = PlotGroup("mass", [
     Plot("ksMassAll", xtitle="mass of all (GeV)", **_common),
     Plot("ksMassGood", xtitle="mass of good (GeV)", **_common),
@@ -142,6 +145,42 @@ _lambda_mass = PlotGroup("mass", [
                          legendDy=-0.025
 )
 
+## Extended set of plots
+_common = dict(drawStyle = "HIST", stat=True)
+_commonXY = dict(xmin=[x*0.1 for x in xrange(-6, 6, 1)], xmax=[x*0.1 for x in xrange(-5, 7, 1)])
+_commonZ = dict(xmin=[-60,-30], xmax=[30,60])
+_commonXY.update(_common)
+_commonZ.update(_common)
+_extGenpos = PlotGroup("genpos", [
+    Plot("GenAllV_X", xtitle="Gen AllV pos x (cm)", ytitle="N", **_commonXY),
+    Plot("GenPV_X",   xtitle="Gen PV pos x (cm)",   ytitle="N", **_commonXY),
+    Plot("GenAllV_Y", xtitle="Gen AllV pos y (cm)", ytitle="N", **_commonXY),
+    Plot("GenPV_Y",   xtitle="Gen PV pos y (cm)",   ytitle="N", **_commonXY),
+    Plot("GenAllV_Z", xtitle="Gen AllV pos z (cm)", ytitle="N", **_commonZ),
+    Plot("GenPV_Z",   xtitle="Gen PV pos z (cm)",   ytitle="N", **_commonZ),
+])
+_extDist = PlotGroup("dist", [
+    Plot("RecoAllAssoc2Gen_X", xtitle="Reco vertex pos x (cm)", ytitle="N", **_commonXY),
+    Plot("RecoAllAssoc2Gen_Y", xtitle="Reco vertex pos y (cm)", ytitle="N", **_commonXY),
+    Plot("RecoAllAssoc2Gen_R", xtitle="Reco vertex pos r (cm)", ytitle="N", **_commonXY),
+    Plot("RecoAllAssoc2Gen_Z", xtitle="Reco vertex pos z (cm)", ytitle="N", **_commonZ),
+    Plot("RecoAllAssoc2Gen_NumVertices", xtitle="Number of reco vertices", ytitle="A.u.", normalizeToUnitArea=True, stat=True, drawStyle="hist", min=_minVtx, xmax=_maxVtx),
+    Plot("RecoAllAssoc2Gen_NumTracks", xtitle="Number of tracks in vertex fit", ytitle="N", stat=True, drawStyle="hist"),
+])
+_common = dict(title="", xtitle="Vertex z (cm)", scale=1e4, ylog=True, ymin=_minMaxRes , ymax=_minMaxRes, xmin=range(-60,-10,10), xmax=range(20,70,10))
+_extResolutionZ = PlotGroup("resolutionZ", [
+    Plot("RecoAllAssoc2GenMatched_ResolX_vs_Z_Sigma", ytitle="Resolution in x (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolY_vs_Z_Sigma", ytitle="Resolution in y (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z_Sigma", ytitle="Resolution in y for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolZ_vs_Z_Sigma", ytitle="Resolution in z (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z_Sigma", ytitle="Resolution in z for merged vertices (#mum)", **_common),
+])
+_extDqm = PlotGroup("dqm", [
+    Plot("tagVtxTrksVsZ", xtitle="z_{vertex} - z_{beamspot} (cm)", ytitle="Tracks / selected PV"),
+    Plot("otherVtxTrksVsZ", xtitle="z_{vertex} - z_{beamspot} (cm)", ytitle="Tracks / pileup vertex"),
+    Plot("vtxNbr", xtitle="Reconstructed vertices", ytitle="Events", stat=True, drawStyle="hist", xmin=_minVtx, xmax=_maxVtx),
+])
 
 class VertexSummaryTable:
     def __init__(self, page="vertex"):
@@ -207,6 +246,10 @@ _vertexFolders = [
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
     "DQMData/Vertexing/PrimaryVertexV",
 ]
+_vertexDqmFolders = [
+    "DQMData/Run 1/OfflinePV/Run summary/offlinePrimaryVertices",
+    "DQMData/OffinePV/offlinePrimaryVertices",
+]
 _v0Folders = [
     "DQMData/Run 1/Vertexing/Run summary/V0",
     "DQMData/Vertexing/V0",
@@ -214,12 +257,14 @@ _v0Folders = [
     "DQMData/Vertexing/V0V",
 ]
 plotter = Plotter()
+plotterExt = Plotter()
 plotter.append("", _vertexFolders, PlotFolder(
     _recovsgen,
     _pvtagging,
     _effandfake,
     _resolution,
     _resolutionNumTracks,
+    _resolutionPt,
     _pull,
     _puritymissing,
     _sumpt2,
@@ -244,7 +289,30 @@ plotter.append("Lambda", [x+"/Lambda" for x in _v0Folders], PlotFolder(
     purpose=PlotPurpose.Vertexing,
     page="v0", section="lambda"
 ))
-#plotter.append("gen", _vertexFolders, PlotFolder(_genpos, loopSubFolders=False, purpose=PlotPurpose.Vertexing, page="vertex", section="Gen vertex"))
+plotterExt.append("", _vertexFolders, PlotFolder(
+    _extDist,
+    _extResolutionZ,
+    purpose=PlotPurpose.Vertexing,
+    page="vertex",
+    onlyForPileup=True,
+    numberOfEventsHistogram=_vertexNumberOfEventsHistogram
+))
+plotterExt.append("dqm", _vertexDqmFolders, PlotFolder(
+    _extDqm,
+    loopSubFolders=False,
+    purpose=PlotPurpose.Vertexing,
+    page="vertex",
+    section="offlinePrimaryVertices",
+    onlyForPileup=True
+))
+plotterExt.append("gen", _vertexFolders, PlotFolder(
+    _extGenpos,
+    loopSubFolders=False,
+    purpose=PlotPurpose.Vertexing,
+    page="vertex",
+    section="genvertex",
+    onlyForPileup=True
+))
 
 class VertexValidation(validation.Validation):
     def _init__(self, *args, **kwargs):

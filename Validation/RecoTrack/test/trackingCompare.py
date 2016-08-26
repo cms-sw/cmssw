@@ -7,26 +7,98 @@ from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSam
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
+outputDir = "plots" # Plot output directory
+description = "Short description of your comparison"
 
-# Example of file - label pairs
+plotterDrawArgs = dict(
+    separate=False, # Set to true if you want each plot in it's own canvas
+#    ratio=False,   # Uncomment to disable ratio pad
+)
+
+# Pairs of file names and legend labels
 filesLabels = [
     ("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_1.root", "Option 1"),
     ("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_2.root", "Option 2"),
 ]
+# Files are grouped together as a "sample" (the files don't
+# necessarily have to come from the same sample, like ttbar, but this
+# is the abstraction here)
+sample = SimpleSample("sample_prefix", # Prefix for subdirectory names
+                      "Sample name",   # The name appears in the HTML pages
+                      filesLabels)     # Files and legend labels
 
-outputDir = "plots"
+# You can produce plots for multiple samples on one. Just construct
+# multiple SimpleSample objects like above and add them to the list
+# below.
+samples = [
+    sample
+]
 
-# To auto-generate HTML pages, uncomment the commented lines below
-val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir)
-sample = SimpleSample("sample_prefix", "Sample name")
-#report = val.createHtmlReport(validationName="Short description of your comparison")
-#report.beginSample(sample)
-val.doPlots(trackingPlots.plotter, sample=sample, plotterDrawArgs={"ratio": True},
-#            htmlReport=report
+# Example of how to limit tracking plots to specific iterations
+kwargs_tracking = {}
+class LimitTrackAlgo: # helper class to limit to iterations
+    def __init__(self, algos):
+        self._algos = algos
+    def __call__(self, algo, quality):
+        return algo in self._algos
+limit = LimitTrackAlgo(["ootb", "initialStep"]) # limit to generalTracks (ootb) and initialStep
+ignore = lambda algo, quality: False # ignore everything
+
+# This specifies how different sets of plots are treated. If some
+# "plot set" is not in the dictionary, full set of plots will be
+# produced for it
+limitSubFolders = {
+    "":            limit,  # The default set (signal TrackingParticles for efficiency, all TrackingParticles for fakes)
+    "allTPEffic":  ignore, # Efficiency with all TrackingParticles
+    "fromPV":      limit,  # Tracks from PV, signal TrackingParticles for efficiency and fakes
+    "fromPVAllTP": limit,  # Tracks from PV, all TrackingParticles for fakes
+    "building":    ignore, # Built tracks (as opposed to selected tracks in above)
+    "seeding":     ignore, # Seeds
+}
+# arguments to be passed to tracking val.doPlots() below
+kwargs_tracking["limitSubFoldersOnlyTo"]=limitSubFolders
+
+# Example of how to customize the plots, here applied only if each
+# plot is drawn separately
+if plotterDrawArgs["separate"]:
+    common = dict(
+        title=""
+    )
+
+    for plotFolderName in ["", "building"]: # these refer to the various cases added with _appendTrackingPlots in trackingPlots.py
+        # Get the PlotFolder object
+        plotFolder = trackingPlots.plotter.getPlotFolder(plotFolderName)
+
+        # These are the PlotGroup objects defined in trackingPlots.py,
+        # name is the same as the first parameter to PlotGroup constructor
+        plotGroup = plotFolder.getPlotGroup("effandfake1")
+        # From PlotGroup one can ask an individual Plot, again name is
+        # the same as used for Plot constructor. The setProperties()
+        # accepts the same parameters as the constructor, see
+        # plotting.Plot for more information.
+        plotGroup.getPlot("efficPt").setProperties(legendDx=-0, legendDy=-0, **common)
+
+    # Example of customization of vertex plots
+    common["lineWidth"] = 4
+    plotFolder = vertexPlots.plotterExt.getPlotFolder("gen")
+    plotGroup = plotFolder.getPlotGroup("genpos")
+    plotGroup.getPlot("GenAllV_Z").setProperties(xtitle="Simulated vertex z (cm)", legendDy=-0.1, legendDx=-0.45, ratioYmax=2.5, **common)
+
+
+val = SimpleValidation(samples, outputDir)
+report = val.createHtmlReport(validationName=description)
+val.doPlots([
+    trackingPlots.plotter,     # standard tracking plots
+    #trackingPlots.plotterExt, # extended tracking plots (e.g. distributions)
+],
+            plotterDrawArgs=plotterDrawArgs,
+            **kwargs_tracking
 )
-## Uncomment this to include also vertex plots
-##val.doPlots(vertexPlots.plotter, sample=sample, plotterDrawArgs={"ratio": True},
-##            htmlReport=report
-##)
-#report.write()
-
+val.doPlots([
+    #trackingPlots.timePlotter, # tracking timing plots
+    vertexPlots.plotter,        # standard vertex plots
+    #vertexPlots.plotterExt,    # extended vertex plots (e.g. distributions)
+],
+            plotterDrawArgs=plotterDrawArgs,
+)
+report.write() # comment this if you don't want HTML page generation

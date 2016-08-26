@@ -18,12 +18,11 @@ def limitRelVal(algo, quality):
     return quality in ["", "highPurity"]
 
 def main(opts):
-    files = opts.files
-    labels = [f.replace(".root", "") for f in files]
+    sample = SimpleSample(opts.subdirprefix, opts.html_sample, [(f, f.replace(".root", "")) for f in opts.files])
 
     drawArgs={}
-    if opts.ratio:
-        drawArgs["ratio"] = True
+    if opts.no_ratio:
+        drawArgs["ratio"] = False
     if opts.separate:
         drawArgs["separate"] = True
     if opts.png:
@@ -31,12 +30,9 @@ def main(opts):
     if opts.verbose:
         plotting.verbose = True
 
-    val = SimpleValidation(files, labels, opts.outputDir)
+    val = SimpleValidation([sample], opts.outputDir)
     kwargs = {}
-    if opts.html:
-        htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
-        htmlReport.beginSample(SimpleSample(opts.html_prefix, opts.html_sample))
-        kwargs["htmlReport"] = htmlReport
+    htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)
 
     kwargs_tracking = {}
     kwargs_tracking.update(kwargs)
@@ -61,17 +57,19 @@ def main(opts):
             "building": ignore,
         }
 
-    val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
+    trk = [trackingPlots.plotter]
+    other = [trackingPlots.timePlotter, vertexPlots.plotter]
     if opts.extended:
-        val.doPlots(trackingPlots.plotterExt, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs_tracking)
-    val.doPlots(trackingPlots.timePlotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
-    val.doPlots(vertexPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
+        trk.append(trackingPlots.plotterExt)
+        other.append(vertexPlots.plotterExt)
+    val.doPlots(trk, plotterDrawArgs=drawArgs, **kwargs_tracking)
+    val.doPlots(other, plotterDrawArgs=drawArgs, **kwargs)
     print
-    if opts.html:
+    if opts.no_html:
+        print "Plots created into directory '%s'." % opts.outputDir
+    else:
         htmlReport.write()
         print "Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir
-    else:
-        print "Plots created into directory '%s'." % opts.outputDir
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.")
@@ -81,10 +79,8 @@ if __name__ == "__main__":
                         help="Plot output directory (default: 'plots')")
     parser.add_argument("--subdirprefix", type=str, default="plots",
                         help="Prefix for subdirectories inside outputDir (default: 'plots')")
-    parser.add_argument("--ignoreMissing", action="store_true",
-                        help="Ignore missing histograms and directories")
-    parser.add_argument("--ratio", action="store_true",
-                        help="Create ratio pads")
+    parser.add_argument("--no-ratio", action="store_true",
+                        help="Disable ratio pads")
     parser.add_argument("--separate", action="store_true",
                         help="Save all plots separately instead of grouping them")
     parser.add_argument("--png", action="store_true",
@@ -95,16 +91,22 @@ if __name__ == "__main__":
                         help="Limit set of plots to those in release validation (almost). (default: all plots in the DQM files; conflicts with --limit-tracking-algo)")
     parser.add_argument("--extended", action="store_true",
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
-    parser.add_argument("--html", action="store_true",
-                        help="Generate HTML pages")
-    parser.add_argument("--html-prefix", default="plots",
-                        help="Prefix for HTML page generation (default 'plots')")
+    parser.add_argument("--no-html", action="store_true",
+                        help="Disable HTML page genration")
     parser.add_argument("--html-sample", default="Sample",
                         help="Sample name for HTML page generation (default 'Sample')")
     parser.add_argument("--html-validation-name", default="",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
+
+    group = parser.add_argument_group("deprecated arguments (they have no effect and will be removed in the future):")
+    group.add_argument("--ignoreMissing", action="store_true",
+                       help="Ignore missing histograms and directories (deprecated, is this is already the default mode)")
+    group.add_argument("--ratio", action="store_true",
+                       help="Create ratio pads (deprecated, as it is already the default")
+    group.add_argument("--html", action="store_true",
+                       help="Generate HTML pages (deprecated, as it is already the default")
 
     opts = parser.parse_args()
     for f in opts.files:
@@ -113,6 +115,12 @@ if __name__ == "__main__":
 
     if opts.ignoreMissing:
         print "--ignoreMissing is now the only operation mode, so you can stop using this parameter"
+
+    if opts.ratio:
+        print "--ratio is now the default, so you can stop using this parameter"
+
+    if opts.html:
+        print "--html is now the default, so you can stop using this parameter"
 
     if opts.limit_tracking_algo is not None:
         if opts.limit_relval:
