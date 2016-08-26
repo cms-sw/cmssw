@@ -27,6 +27,10 @@ namespace HcalDetIdTransform
             t = id.ietaAbs();
             break;
 
+        case SUBDET:
+            t = id.subdetId();
+            break;
+
         default:
             throw cms::Exception("In HcalDetIdTransform::transform:"
                                  " unhandled switch clause. This is a bug."
