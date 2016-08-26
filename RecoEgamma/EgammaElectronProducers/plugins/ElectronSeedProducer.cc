@@ -47,6 +47,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -280,8 +281,8 @@ void ElectronSeedProducer::filterClusters
 	noZS::EcalClusterLazyTools lazyTool_noZS(event, setup, ebRecHitCollection_, eeRecHitCollection_);
 	std::vector<float> vCov = lazyTool_noZS.localCovariances(*(scl.seed()));
 	int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-	if (detector==EcalBarrel) sigmaIEtaIEtaEB_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-	if (detector==EcalEndcap) sigmaIEtaIEtaEE_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+	if (detector==EcalBarrel) sigmaIEtaIEtaEB_ .push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
+	if (detector==EcalEndcap) sigmaIEtaIEtaEE_ .push_back(edm::isNotFinite(vCov[0]) ? 0. : sqrt(vCov[0]));
       }
    }
   LogDebug("ElectronSeedProducer")<<"Filtered out "<<sclRefs.size()<<" superclusters from "<<superClusters->size() ;

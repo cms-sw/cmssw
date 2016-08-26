@@ -1151,7 +1151,12 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // Select this candidate if it passes minHits_ and maxReducedChi2_ cuts
   if (innerhit != nullptr && totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
     // GlobalTrajectoryParameters evaluated at the position of the innerhit
-    GlobalPoint position = tracker_p_->idToDet(innerhit->geographicalId())->surface().toGlobal(innerhit->localPosition());
+    GlobalPoint position;
+    if( nullptr != tracker_p_ ) {
+      position = tracker_p_->idToDet(innerhit->geographicalId())->surface().toGlobal(innerhit->localPosition());
+    } else {
+      throw cms::Exception("projectPhiBand") << "Pointer to tracker product is null!";
+    }
 
     // Use our phi(r) linear fit to correct pT (pT is inversely proportional to slope)
     // (By applying a correction instead of going back to first
