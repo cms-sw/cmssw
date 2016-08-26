@@ -19,7 +19,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "BPHAnalysis/RecoDecay/interface/BPHDecayVertex.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHDecayVertex.h"
 #include "TMath.h"
 
 //---------------
