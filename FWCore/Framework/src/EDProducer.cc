@@ -33,13 +33,10 @@ namespace edm {
                       ModuleCallingContext const* mcc) {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    resourceAcquirer_.serialQueueChain().pushAndWait([&]
-    {
-      e.setSharedResourcesAcquirer(&resourceAcquirer_);
-      EventSignalsSentry sentry(act,mcc);
-      this->produce(e, c);
-      commit_(e, &previousParentage_, &previousParentageId_);
-    });
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    this->produce(e, c);
+    commit_(e, &previousParentage_, &previousParentageId_);
     return true;
   }
 

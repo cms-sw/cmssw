@@ -38,6 +38,7 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -204,6 +205,8 @@ namespace edm {
                                                unsigned int iNumberOfChildren) = 0;
     virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
     
+    virtual SerialTaskQueueChain* serializeRunModule() = 0;
+    
     static void exceptionContext(const std::string& iID,
                           bool iIsEvent,
                           cms::Exception& ex,
@@ -295,15 +298,40 @@ namespace edm {
       m_serviceToken(ServiceRegistry::instance().presentToken()) {}
       
       tbb::task* execute() override {
+        if( not exceptionPtr()) {
+          if(auto queue = m_worker->serializeRunModule()) {
+            Worker* worker = m_worker;
+            auto const & principal = m_principal;
+            auto& es = m_es;
+            auto streamID = m_streamID;
+            auto parentContext = m_parentContext;
+            auto serviceToken = m_serviceToken;
+            auto sContext = m_context;
+            queue->push( [worker, &principal, &es, streamID,parentContext,sContext, serviceToken]()
+            {
+              //Need to make the services available
+              ServiceRegistry::Operate guard(serviceToken);
+
+              std::exception_ptr* ptr = nullptr;
+              worker->runModuleAfterAsyncPrefetch<T>(ptr,
+                                                    principal,
+                                                    es,
+                                                    streamID,
+                                                    parentContext,
+                                                    sContext);
+            });
+            return nullptr;
+          }
+        }
         //Need to make the services available
         ServiceRegistry::Operate guard(m_serviceToken);
 
         m_worker->runModuleAfterAsyncPrefetch<T>(exceptionPtr(),
-                                              m_principal,
-                                              m_es,
-                                              m_streamID,
-                                              m_parentContext,
-                                              m_context);
+                                                 m_principal,
+                                                 m_es,
+                                                 m_streamID,
+                                                 m_parentContext,
+                                                 m_context);
         return nullptr;
       }
       
@@ -678,7 +706,16 @@ namespace edm {
         }
         //successful prefetch so no reset necessary
         prefetchSentry.release();
-        rc = runModule<T>(ep,es,streamID,parentContext,context);
+        if(auto queue = serializeRunModule()) {
+          auto serviceToken = ServiceRegistry::instance().presentToken();
+          queue->pushAndWait([&]() {
+            //Need to make the services available
+            ServiceRegistry::Operate guard(serviceToken);
+            rc = runModule<T>(ep,es,streamID,parentContext,context);
+          });
+        } else {
+          rc = runModule<T>(ep,es,streamID,parentContext,context);
+        }
       });
     }
     catch(cms::Exception& ex) {

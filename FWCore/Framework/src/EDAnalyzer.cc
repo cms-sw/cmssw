@@ -33,13 +33,11 @@ namespace edm {
   EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
                       ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
-    resourceAcquirer_.serialQueueChain().pushAndWait([&]() {
-      Event e(ep, moduleDescription_, mcc);
-      e.setConsumer(this);
-      e.setSharedResourcesAcquirer(&resourceAcquirer_);
-      EventSignalsSentry sentry(act,mcc);
-      this->analyze(e, c);
-    });
+    Event e(ep, moduleDescription_, mcc);
+    e.setConsumer(this);
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    this->analyze(e, c);
     return true;
   }
 

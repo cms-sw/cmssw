@@ -50,7 +50,7 @@ namespace edm {
     // Warning: the returned moduleDescription will be invalid during construction
     ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-  private:    
+  private:
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
@@ -77,6 +77,10 @@ namespace edm {
     }
 
     std::string workerType() const {return "WorkerT<EDFilter>";}
+    
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     virtual bool filter(Event&, EventSetup const&) = 0;
     virtual void beginJob(){}

@@ -93,6 +93,10 @@ namespace edm {
       }
       std::string workerType() const {return "WorkerT<EDFilter>";}
       
+      SharedResourcesAcquirer& sharedResourcesAcquirer() {
+        return resourcesAcquirer_;
+      }
+      
       virtual bool filter(Event&, EventSetup const&) = 0;
       virtual void beginJob() {}
       virtual void endJob(){}

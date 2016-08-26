@@ -93,6 +93,10 @@ namespace edm {
       void registerProductsAndCallbacks(EDAnalyzerBase const* module, ProductRegistry* reg);
       std::string workerType() const {return "WorkerT<EDAnalyzer>";}
       
+      SharedResourcesAcquirer& sharedResourcesAcquirer() {
+        return resourcesAcquirer_;
+      }
+      
       virtual void analyze(Event const&, EventSetup const&) = 0;
       virtual void beginJob() {}
       virtual void endJob(){}

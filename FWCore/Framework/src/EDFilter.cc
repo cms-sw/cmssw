@@ -31,15 +31,12 @@ namespace edm {
                     ActivityRegistry* act,
                     ModuleCallingContext const* mcc) {
     bool rc = false;
-    resourceAcquirer_.serialQueueChain().pushAndWait([&]()
-    {
-      Event e(ep, moduleDescription_, mcc);
-      e.setConsumer(this);
-      e.setSharedResourcesAcquirer(&resourceAcquirer_);
-      EventSignalsSentry sentry(act,mcc);
-      rc = this->filter(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
-    });
+    Event e(ep, moduleDescription_, mcc);
+    e.setConsumer(this);
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    rc = this->filter(e, c);
+    commit_(e,&previousParentage_, &previousParentageId_);
     return rc;
   }
 

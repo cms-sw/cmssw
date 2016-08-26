@@ -237,13 +237,10 @@ namespace edm {
                               ModuleCallingContext const* mcc) {
       
       {
-        resourcesAcquirer_.serialQueueChain().pushAndWait([&]()
-        {
-          EventForOutput e(ep, moduleDescription_, mcc);
-          e.setConsumer(this);
-          EventSignalsSentry sentry(act,mcc);
-          write(e);
-        });
+        EventForOutput e(ep, moduleDescription_, mcc);
+        e.setConsumer(this);
+        EventSignalsSentry sentry(act,mcc);
+        write(e);
       }
       if(remainingEvents_ > 0) {
         --remainingEvents_;
