@@ -113,22 +113,38 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset ){
       polarizations.insert(std::pair<int, float>(polarize_ids[ndx], polarize_pol[ndx]));
   }
 
-  edm::FileInPath user_decay = pset.getParameter<edm::FileInPath>("user_decay_file");
   std::string decay_table_s = decay_table.fullPath();
   std::string pdt_s = pdt.fullPath();
-  std::string user_decay_s = user_decay.fullPath();
+
+  m_EvtGen = new EvtGen (decay_table_s.c_str(),pdt_s.c_str(),the_engine);
+  // 4th parameter should be rad cor - set to PHOTOS (default)
+
+  if (!useDefault) {
+    std::vector<std::string> user_decay_lines = pset.getParameter< std::vector<std::string> >("user_decay_embedded");
+    if (user_decay_lines.size()>0) {
+      std::string user_decay_tmp = std::tmpnam(nullptr);
+      FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
+      if (!tmpf) {
+        throw cms::Exception("Configuration") << "EvtGenInterface::init() fails when trying to open a temporary file for embedded user.dec. Terminating program ";
+      }
+      for (unsigned int i=0; i<user_decay_lines.size(); i++) {
+        user_decay_lines.at(i) += "\n";
+        std::fputs(user_decay_lines.at(i).c_str(), tmpf);
+      }
+      std::fclose(tmpf);
+      m_EvtGen->readUDecay(user_decay_tmp.c_str());
+    } else {
+      edm::FileInPath user_decay = pset.getParameter<edm::FileInPath>("user_decay_file");
+      std::string user_decay_s = user_decay.fullPath();
+      m_EvtGen->readUDecay( user_decay_s.c_str() );
+    }
+  }
 
   //-->pythia_params = pset.getParameter< std::vector<std::string> >("processParameters");
-  
   
   // any number of alias names for forced decays can be specified using dynamic std vector of strings 
   std::vector<std::string> forced_names = pset.getParameter< std::vector<std::string> >("list_forced_decays");
     
-  m_EvtGen = new EvtGen (decay_table_s.c_str(),pdt_s.c_str(),the_engine);  
-  // 4th parameter should be rad cor - set to PHOTOS (default)
- 
-  if (!useDefault) m_EvtGen->readUDecay( user_decay_s.c_str() );
-
   std::vector<std::string>::const_iterator i;
   nforced=0;
 
