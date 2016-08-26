@@ -83,6 +83,11 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
     for(int j=0;j<12;j++){
       
       int rankj = Dout[j%4][j/4].GetWinner().Rank();
+      if(ranki && rankj){
+	
+	//std::cout<<"ranki = "<<ranki<<", and rankj = "<<rankj<<"\n";
+	
+      }
       bool greater = (ranki > rankj);
       bool equal = (ranki == rankj);
       
@@ -94,7 +99,6 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
   }
   
   // ghost cancelltion. only in current BX so far(as in firmware as well)
-  int vmask[4] = {32,8,2,1};
   for(int k=0;k<12;k++){
     for(int l=0;l<12;l++){
       int sh_seg = 0;
@@ -107,8 +111,6 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
 	   && ((phi[k%4][k/4][s] != -999) || (phi[l%4][l/4][s] != -999))
 	   && (phi[k%4][k/4][s] == phi[l%4][l/4][s])
 	   && (k != l)
-	   && (Dout[k%4][k/4].GetWinner().Rank() & vmask[s]) //station from track one is valid after deltas
-	   && (Dout[l%4][l/4].GetWinner().Rank() & vmask[s]) //station from track two is valid after deltas
 	   ){
 	  
 	  sh_seg++;
@@ -117,6 +119,7 @@ std::vector<BTrack> BestTracks(std::vector<std::vector<DeltaOutput>> Dout){
       
       if(sh_seg){
 	//kill candidate that has lower rank
+	//if(verbose) std::cout<<"\nsh_seg != 0\nk = "<<k<<" and l = "<<l<<"\n";
 	if(larger[k][l]){kill[l] = 1;}
 	else{kill[k] = 1;}
       }

@@ -72,17 +72,17 @@ PrimitiveConverter::PrimitiveConverter(){
   read_buf("L1Trigger/L1TMuon/data/emtf_luts/ph_lut_v1/th_lut_st234_neighbor.txt", &Th_LUT_St234_Neighbor_[0][0][0][0], 3*12*11*112);   
 }
 
-std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<L1TMuon::TriggerPrimitive> TriggPrim, int SectIndex){
+std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<TriggerPrimitive> TriggPrim, int SectIndex){
   
   //bool verbose = false;
 
   std::vector<ConvertedHit> ConvHits;
-  for(std::vector<L1TMuon::TriggerPrimitive>::iterator C1 = TriggPrim.begin();C1 != TriggPrim.end();C1++){
+  for(std::vector<TriggerPrimitive>::iterator C1 = TriggPrim.begin();C1 != TriggPrim.end();C1++){
     
     /////////////////////////////////////
     ///// get all input variables ///////
     /////////////////////////////////////
-    L1TMuon::TriggerPrimitive C3 = *C1;
+    TriggerPrimitive C3 = *C1;
     CSCDetId Det = C3.detId<CSCDetId>();
     
     int station = Det.station(), chamber = Det.chamber(), ring = Det.ring(), wire = C3.getCSCData().keywire;
@@ -258,18 +258,6 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<L1TMuon::Trigg
 	
 	fph = Ph_Init_Neighbor_[SectIndex][station][phInitIndex - 1] + ph_tmp;
       }
-
-      if (station == 0 || nId == -1 || SectIndex < 0 || SectIndex > 11 || LUTi < 0 || LUTi > 60) {
-	std::cout << "\n*********************************************************************" << std::endl;
-	std::cout << "EMTF malformed LCT: BX " << C3.getCSCData().bx << ", endcap " << Det.endcap() 
-		  << ", station " << Det.station() << ", sector " << Det.triggerSector()
-		  << ", ring " << Det.ring() << ", ID " << C3.Id() << ", chamber " << Det.chamber() 
-		  << ", strip " << C3.getCSCData().strip << ", wire " << C3.getCSCData().keywire
-		  << ", pattern " << C3.getPattern() << ", quality " << C3.getCSCData().quality << std::endl;
-	std::cout << "Produces: station " << station << ", nId " << nId
-		  << ", SectIndex " << SectIndex << ", LUTi " << LUTi << std::endl;
-	continue;
-      }
       
       ph_hit = phLow + phShift + (Ph_Disp_Neighbor_[SectIndex][LUTi]>>1);
       
@@ -395,19 +383,7 @@ std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<L1TMuon::Trigg
       
       if(Hit.Theta() != -999 && Hit.Phi() > 0 ){//if theta is valid
 	ConvHits.push_back(Hit);
-      }
-      else {
-	std::cout << "\n#####################################################################" << std::endl;
-	std::cout << "LCT w/o theta/phi: BX " << C3.getCSCData().bx << ", endcap " << Det.endcap() 
-		  << ", station " << Det.station() << ", sector " << Det.triggerSector()
-		  << ", ring " << Det.ring() << ", ID " << C3.Id() << ", chamber " << Det.chamber() 
-		  << ", strip " << C3.getCSCData().strip << ", wire " << C3.getCSCData().keywire
-		  << ", pattern " << C3.getPattern() << ", quality " << C3.getCSCData().quality << std::endl;
-	std::cout << "Has fph " << fph << ", th " << th << ", ph_hit " << ph_hit 
-		  << ", phzvl " << phzvl << ", station " << station << ", sub " << sub
-		  << ", Id " << Id << ", quality " << quality << ", pattern " << pattern
-		  << ", wire " << wire << ", strip " << strip << ", BX " << BX << std::endl;
-      }
+      }	
     
     } //if sector == sectIndex
   }
