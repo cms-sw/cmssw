@@ -402,11 +402,13 @@ namespace pat {
       dphidphi_ = covariance(2,2)*pt()*pt();
 
       normalizedChi2_ = tk.normalizedChi2();
+      // first we count the number of layers with hits
       int numberOfPixelLayers_ = tk.hitPattern().pixelLayersWithMeasurement();
       if (numberOfPixelLayers_ > trackPixelHitsMask) numberOfPixelLayers_ = trackPixelHitsMask;
       int numberOfStripLayers_ = tk.hitPattern().stripLayersWithMeasurement();
       if (numberOfStripLayers_ > trackStripHitsMask) numberOfStripLayers_ = trackStripHitsMask;
       packedLayers_ = (numberOfPixelLayers_&trackPixelHitsMask) | (numberOfStripLayers_ << trackStripHitsShift);
+      // now we count number of additional hits, beyond the one-per-layer implied by packedLayers_
       int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits() - numberOfPixelLayers_;
       if (numberOfPixelHits_ > trackPixelHitsMask) numberOfPixelHits_ = trackPixelHitsMask;
       int numberOfStripHits_ = tk.hitPattern().numberOfValidHits() - numberOfPixelHits_ - numberOfPixelLayers_ - numberOfStripLayers_;
@@ -630,7 +632,7 @@ namespace pat {
 
     /// IP covariance	
     CMS_THREAD_GUARD(vertex_) mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
-    uint8_t packedHits_, packedLayers_;
+    uint8_t packedHits_, packedLayers_; // packedLayers_ -> layers with valid hits; packedHits_ -> extra hits beyond the one-per-layer implied by packedLayers_
     /// track quality information
     uint8_t normalizedChi2_; 
 //    uint8_t numberOfPixelHits_;
