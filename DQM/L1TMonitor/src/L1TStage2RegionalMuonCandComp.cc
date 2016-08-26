@@ -295,10 +295,10 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         muColl2hwSign->Fill(muonIt2->hwSign());
         muColl2hwSignValid->Fill(muonIt2->hwSignValid());
         muColl2hwQual->Fill(muonIt2->hwQual());
-        muColl2link->Fill(muonIt1->link());
-        muColl2processor->Fill(muonIt1->processor());
-        muColl2trackFinderType->Fill(muonIt1->trackFinderType());
-        muColl2hwHF->Fill(muonIt1->hwHF());
+        muColl2link->Fill(muonIt2->link());
+        muColl2processor->Fill(muonIt2->processor());
+        muColl2trackFinderType->Fill(muonIt2->trackFinderType());
+        muColl2hwHF->Fill(muonIt2->hwHF());
         muColl2TrkAddrSize->Fill(muon2TrackAddr.size());
         for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end(); ++trIt2) {
           muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
