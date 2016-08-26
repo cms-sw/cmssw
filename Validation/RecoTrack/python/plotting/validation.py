@@ -16,7 +16,15 @@ _globalTags = {
     "CMSSW_6_2_0": {"default": "PRE_ST62_V8"},
     "CMSSW_6_2_0_SLHC15": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
     "CMSSW_6_2_0_SLHC17": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
-    "CMSSW_6_2_0_SLHC20": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1"},
+    "CMSSW_6_2_0_SLHC20": {"UPG2019withGEM": "DES19_62_V8", "UPG2023SHNoTaper": "DES23_62_V1_UPG2023SHNoTaper"},
+    "CMSSW_6_2_0_SLHC22": {"UPG2023SHNoTaper": "PH2_1K_FB_V6_UPG23SHNoTaper",
+                           # map 81X GReco and tilted to SHNoTaper
+                           "2023GReco": "PH2_1K_FB_V6_UPG23SHNoTaper", "2023GRecoPU35": "", "2023GRecoPU140": "", "2023GRecoPU200": "",
+                           "2023tilted": "PH2_1K_FB_V6_UPG23SHNoTaper", "2023tiltedPU35": "", "2023tiltedPU140": "", "2023tiltedPU200": ""},
+    "CMSSW_6_2_0_SLHC26": {"LHCCRefPU140": "DES23_62_V1_LHCCRefPU140", "LHCCRefPU200": "DES23_62_V1_LHCCRefPU200",
+                           # map 81X GReco and tilted to LHCCRef
+                           "2023GReco": "", "2023GRecoPU35": "", "2023GRecoPU140": "DES23_62_V1_LHCCRefPU140", "2023GRecoPU200": "DES23_62_V1_LHCCRefPU200",
+                           "2023tilted": "", "2023tiltedPU35": "", "2023tiltedPU140": "DES23_62_V1_LHCCRefPU140", "2023tiltedPU200": "DES23_62_V1_LHCCRefPU200"},
     "CMSSW_6_2_0_SLHC27_phase1": {"default": "DES17_62_V8_UPG17"},
     "CMSSW_7_0_0": {"default": "POSTLS170_V3", "fullsim_50ns": "POSTLS170_V4"},
     "CMSSW_7_0_0_AlcaCSA14": {"default": "POSTLS170_V5_AlcaCSA14", "fullsim_50ns": "POSTLS170_V6_AlcaCSA14"},
@@ -141,15 +149,44 @@ _globalTags = {
     "CMSSW_8_0_3_71XGENSIM_tec": {"default": "80X_mcRun2_asymptotic_SiStripBad_TEC_CL62_for2016_v1_mc_gs7120p2TrkCoolLoop"},
     "CMSSW_8_0_5": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v12"},
     "CMSSW_8_0_5_pmx": {"default": "80X_mcRun2_asymptotic_v12_gs7120p2_resub", "fastsim": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_0_10": {"default": "80X_mcRun2_asymptotic_v14"},
+    "CMSSW_8_0_10_patch1_BS": {"default": "80X_mcRun2_asymptotic_RealisticBS_25ns_13TeV2016_v1_mc_realisticBS2016"},
+    "CMSSW_8_0_11": {"default": "80X_mcRun2_asymptotic_v14"},
+    "CMSSW_8_0_15": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
+    "CMSSW_8_0_16": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
+    "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
     "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
     "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
     "CMSSW_8_1_0_pre2": {"default": "80X_mcRun2_asymptotic_v10_gs810pre2", "fastsim": "80X_mcRun2_asymptotic_v10"},
     "CMSSW_8_1_0_pre2_phase1": {"default": "80X_upgrade2017_design_v9_UPG17designGT", "fullsim_25ns": "80X_upgrade2017_design_v9_UPG17PU35designGT"},
     "CMSSW_8_1_0_pre2_phase1_realGT": {"default": "80X_upgrade2017_realistic_v1_UPG17realGT", "fullsim_25ns": "80X_upgrade2017_realistic_v1_UPG17PU35realGT"},
+    "CMSSW_8_1_0_pre3": {"default": "80X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_1_0_pre3_phase1": {"default": "80X_upgrade2017_realistic_v3_UPG17", "fullsim_25ns": "80X_upgrade2017_realistic_v3_UPG17PU35"},
+    "CMSSW_8_1_0_pre4": {"default": "80X_mcRun2_asymptotic_v13"},
+    "CMSSW_8_1_0_pre4_phase1": {"default": "80X_upgrade2017_realistic_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_realistic_v4_UPG17PU35"},
+    "CMSSW_8_1_0_pre5": {"default": "80X_mcRun2_asymptotic_v13"},
+    "CMSSW_8_1_0_pre5_phase1": {"default": "80X_upgrade2017_realistic_v4_resubUPG17", "fullsim_25ns": "80X_upgrade2017_realistic_v4_resubUPG17PU35"},
+    "CMSSW_8_1_0_pre6": {"default": "80X_mcRun2_asymptotic_v14"},
+    "CMSSW_8_1_0_pre6_phase1": {"default": "81X_upgrade2017_realistic_v0_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v0_UPG17PU35"},
+    "CMSSW_8_1_0_pre7": {"default": "81X_mcRun2_asymptotic_v0"},
+    "CMSSW_8_1_0_pre7_phase1": {"default": "81X_upgrade2017_realistic_v2_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v2_UPG17PU35"},
+    "CMSSW_8_1_0_pre7_phase1_newGT": {"default": "81X_upgrade2017_realistic_v3_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v3_UPG17PU35newGTresub"},
+    "CMSSW_8_1_0_pre7_phase2": {"2023GReco": "81X_mcRun2_asymptotic_v0_2023GReco", "2023GRecoPU35": "", "2023GRecoPU140": "81X_mcRun2_asymptotic_v0_2023GRecoPU140resubmit2", "2023GRecoPU200": "81X_mcRun2_asymptotic_v0_2023GRecoPU200resubmit2",
+                                "2023tilted": "81X_mcRun2_asymptotic_v0_2023tilted", "2023tiltedPU35": "", "2023tiltedPU140": "81X_mcRun2_asymptotic_v0_2023tiltedPU140resubmit2", "2023tiltedPU200": "81X_mcRun2_asymptotic_v0_2023tiltedPU200resubmit2"},
+    "CMSSW_8_1_0_pre8": {"default": "81X_mcRun2_asymptotic_v1"},
+    "CMSSW_8_1_0_pre8_phase1": {"default": "81X_upgrade2017_realistic_v3_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v3_UPG17PU35"},
+    "CMSSW_8_1_0_pre8_phase1_newGT": {"default": "81X_upgrade2017_realistic_v4_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v4_UPG17PU35newGT"},
+    "CMSSW_8_1_0_pre8_phase1_newGT2": {"default": "81X_upgrade2017_realistic_v5_UPG17newGTset2", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35newGTset2"},
+    "CMSSW_8_1_0_pre8_phase2": {"2023GReco": "81X_mcRun2_asymptotic_v1_resub2023GReco", "2023GRecoPU35": "81X_mcRun2_asymptotic_v1_resub2023GRecoPU35", "2023GRecoPU140": "81X_mcRun2_asymptotic_v1_resub2023GRecoPU140", "2023GRecoPU200": "81X_mcRun2_asymptotic_v1_resub2023GRecoPU200",
+                                "2023tilted": "81X_mcRun2_asymptotic_v1_2023tilted", "2023tiltedPU35": "81X_mcRun2_asymptotic_v1_2023tiltedPU", "2023tiltedPU140": "81X_mcRun2_asymptotic_v1_2023tiltedPU140", "2023tiltedPU200": "81X_mcRun2_asymptotic_v1_2023tiltedPU200"},
+    "CMSSW_8_1_0_pre9": {"default": "81X_mcRun2_asymptotic_v2"},
+    "CMSSW_8_1_0_pre9_Geant4102": {"default": "81X_mcRun2_asymptotic_v2"},
+    "CMSSW_8_1_0_pre9_phase1": {"default": "81X_upgrade2017_realistic_v5_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35"},
+    "CMSSW_8_1_0_pre9_phase1_newGT": {"default": "81X_upgrade2017_realistic_v6_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v6_UPG17PU35newGT"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530"]
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1_newGT2", "_phase1_newGT", "_phase1", "_phase2", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -175,7 +212,7 @@ def _getGlobalTag(sample, release):
     if sample.fullsim():
         if sample.hasScenario():
             return gtmap[sample.scenario()]
-        if sample.hasPileup():
+        if sample.pileupEnabled():
             puType = sample.pileupType()
             if "50ns" in puType:
                 return gtmap.get("fullsim_50ns", gtmap["default"])
@@ -183,7 +220,7 @@ def _getGlobalTag(sample, release):
                 return gtmap.get("fullsim_25ns", gtmap["default"])
     if sample.fastsim():
         fsgt = gtmap.get("fastsim", gtmap["default"])
-        if sample.hasPileup():
+        if sample.pileupEnabled():
             puType = sample.pileupType()
             if "25ns" in puType:
                 return gtmap.get("fastsim_25ns", fsgt)
@@ -227,7 +264,7 @@ def _getRelValUrl(release):
     return _relvalUrls[version]
 
 def _processPlotsForSample(plotterFolder, sample):
-    if plotterFolder.onlyForPileup() and not sample.hasPileup():
+    if plotterFolder.onlyForPileup() and not sample.pileupEnabled():
         return False
     if plotterFolder.onlyForElectron() and not sample.doElectron():
         return False
@@ -237,7 +274,7 @@ def _processPlotsForSample(plotterFolder, sample):
 
 class Sample:
     """Represents a RelVal sample."""
-    def __init__(self, sample, append=None, midfix=None, putype=None,
+    def __init__(self, sample, append=None, midfix=None, putype=None, punum=0,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
                  doElectron=None, doConversion=None,
                  version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
@@ -250,6 +287,7 @@ class Sample:
         append  -- String for a variable name within the DWM file names, to be directly appended to sample name (e.g. "HS"; default None)
         midfix  -- String for a variable name within the DQM file names, to be appended after underscore to "sample name+append" (e.g. "13", "UP15"; default None)
         putype  -- String for pileup type (e.g. "25ns"/"50ns" for FullSim, "AVE20" for FastSim; default None)
+        punum   -- String for amount of pileup (default None)
         fastsim -- Bool indicating the FastSim status (default False)
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
         doElectron -- Bool specifying if electron-specific plots should be produced (default depends on sample)
@@ -263,6 +301,7 @@ class Sample:
         self._append = append
         self._midfix = midfix
         self._putype = putype
+        self._punum = punum
         self._fastsim = fastsim
         self._fastsimCorrespondingFullsimPileup = fastsimCorrespondingFullsimPileup
         self._version = version
@@ -285,7 +324,7 @@ class Sample:
 
     def digest(self):
         """Return a tuple uniquely identifying the sample, to be used e.g. as a key to dict"""
-        return (self.name(), self.pileupType(), self.scenario(), self.fastsim())
+        return (self.name(), self.pileupNumber(), self.pileupType(), self.scenario(), self.fastsim())
 
     def sample(self):
         """Get the sample name"""
@@ -299,8 +338,12 @@ class Sample:
         return self._sample
 
     def hasPileup(self):
-        """Return True if sample has pileup"""
+        """Return True if sample has pileup (for HTML generation)"""
         return self._putype is not None
+
+    def pileupEnabled(self):
+        """Return True if pileup plots are enabled (for plot generation)"""
+        return self.hasPileup()
 
     def pileup(self):
         """Return "PU"/"noPU" corresponding the pileup status"""
@@ -315,6 +358,9 @@ class Sample:
             return self._putype.get(release, self._putype["default"])
         else:
             return self._putype
+
+    def pileupNumber(self):
+        return self._punum
 
     def doElectron(self):
         return self._doElectron
@@ -375,7 +421,6 @@ class Sample:
         pileup = ""
         fastsim = ""
         midfix = ""
-        scenario = ""
         sample = self._sample
         if self._append is not None:
             midfix += self._append
@@ -393,14 +438,12 @@ class Sample:
                 pileup = "PU"+self.pileupType(newRelease)+"_"
         if self._fastsim:
             fastsim = "_FastSim"
-        if self._scenario is not None:
-            scenario = "_"+self._scenario
             
         globalTag = _getGlobalTag(self, newRelease)
 
-        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{scenario}{fastsim}-{version}__DQMIO.root'.format(
+        fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{fastsim}-{version}__DQMIO.root'.format(
             sample=sample, midfix=midfix, newrelease=_stripRelease(newRelease),
-            pileup=pileup, globaltag=globalTag, appendGlobalTag=self._appendGlobalTag, scenario=scenario, fastsim=fastsim,
+            pileup=pileup, globaltag=globalTag, appendGlobalTag=self._appendGlobalTag, fastsim=fastsim,
             version=self.version(newRelease), dqmVersion=self._dqmVersion
         )
 
@@ -487,6 +530,7 @@ class Validation:
             print "Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl)
             sys.exit(1)
         
+        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkye.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
             cmd.extend(["-O", u])
@@ -517,7 +561,7 @@ class Validation:
     def createHtmlReport(self):
         return html.HtmlReport(self._newRelease, self._newBaseDir)
 
-    def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
+    def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True, doPhase2PU=False):
         """Create validation plots.
 
         Arguments:
@@ -528,6 +572,7 @@ class Validation:
         limitSubFoldersOnlyTo   -- If not None, should be a dictionary from string to an object. The string is the name of a PlotFolder, and the object is PlotFolder-type specific to limit the subfolders to be processed. In general case the object is a list of strings, but e.g. for track iteration plots it is a function taking the algo and quality as parameters.
         htmlReport      -- Object returned by createHtmlReport(), in case HTML report generation is desired
         doFastVsFull    -- Do FastSim vs. FullSim comparison? (default: True)
+        doPhase2PU      -- Do Phase2 PU 200 vs. 140 comparison (default: False)
         """
         self._plotter = plotter
         self._plotterDrawArgs = plotterDrawArgs
@@ -547,26 +592,28 @@ class Validation:
                     continue
                 plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
-                # TODO: the pileup case is still to be migrated
-#               if s.fullsim() and s.hasPileup():
-#                   self._doPlotsPileup(a, q, s)
-
 
         # Fast vs. Full
-        if not doFastVsFull:
-            return
+        if doFastVsFull:
+            self._doFastsimFastVsFullPlots(limitSubFoldersOnlyTo, htmlReport)
+
+        # Phase2 PU200 vs. PU 140
+        if doPhase2PU:
+            self._doPhase2PileupPlots(limitSubFoldersOnlyTo, htmlReport)
+
+    def _doFastsimFastVsFullPlots(self, limitSubFoldersOnlyTo, htmlReport):
         for fast in self._fastsimSamples:
             correspondingFull = None
             for full in self._fullsimSamples:
                 if fast.name() != full.name():
                     continue
-                if fast.hasPileup():
-                    if not full.hasPileup():
+                if fast.pileupEnabled():
+                    if not full.pileupEnabled():
                         continue
                     if fast.fastsimCorrespondingFullsimPileup() != full.pileupType():
                         continue
                 else:
-                    if full.hasPileup():
+                    if full.pileupEnabled():
                         continue
 
                 if correspondingFull is None:
@@ -579,13 +626,48 @@ class Validation:
 
             # If we reach here, the harvestedFile must exist
             harvestedFile = fast.filename(self._newRelease)
-            plotterInstance = plotter.readDirs(harvestedFile)
+            plotterInstance = self._plotter.readDirs(harvestedFile)
             htmlReport.beginSample(fast, fastVsFull=True)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if not _processPlotsForSample(plotterFolder, fast):
                     continue
                 plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder, htmlReport)
                 htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+
+    def _doPhase2PileupPlots(self, limitSubFoldersOnlyTo, htmlReport):
+        def _stripScenario(name):
+            puindex = name.find("PU")
+            if puindex < 0:
+                return name
+            return name[:puindex]
+
+        pu140samples = {}
+        for sample in self._fullsimSamples:
+            if sample.pileupNumber() == 140:
+                key = (sample.name(), _stripScenario(sample.scenario()))
+                if key in pu140samples:
+                    raise Exception("Duplicate entry for sample %s in scenario %s" % (sample.name(), sample.scenar()))
+                pu140samples[key] = sample
+
+        for sample in self._fullsimSamples:
+            if sample.pileupNumber() != 200:
+                continue
+            key = (sample.name(), _stripScenario(sample.scenario()))
+            if not key in pu140samples:
+                continue
+
+            sample_pu140 = pu140samples[key]
+
+            # If we reach here, the harvestedFile must exist
+            harvestedFile = sample.filename(self._newRelease)
+            plotterInstance = self._plotter.readDirs(harvestedFile)
+            htmlReport.beginSample(sample, pileupComparison="vs. PU140")
+            for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+                if not _processPlotsForSample(plotterFolder, sample):
+                    continue
+                plotFiles = self._doPlotsPileup(sample_pu140, sample, plotterFolder, dqmSubFolder, htmlReport)
+                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+
 
     def _getRefFileAndSelection(self, sample, plotterFolder, dqmSubFolder, selectionNameBase, valname):
         if self._refRelease is None:
@@ -594,7 +676,7 @@ class Validation:
         refGlobalTag = _getGlobalTag(sample, self._refRelease)
         def _createRefSelection(selectionName):
             sel = refGlobalTag+selectionNameBase+selectionName
-            if sample.hasPileup():
+            if sample.pileupEnabled():
                 refPu = sample.pileupType(self._refRelease)
                 if refPu != "":
                     sel += "_"+refPu
@@ -635,12 +717,9 @@ class Validation:
         newGlobalTag = _getGlobalTag(sample, self._newRelease)
 
         # Construct selection string
-        selectionNameBase = ""
-        if sample.hasScenario():
-            selectionNameBase += "_"+sample.scenario()
-        selectionNameBase += "_"+sample.pileup()
+        selectionNameBase = "_"+sample.pileup()
         newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
-        if sample.hasPileup():
+        if sample.pileupEnabled():
             newPu = sample.pileupType(self._newRelease)
             if newPu != "":
                 newSelection += "_"+newPu
@@ -673,7 +752,7 @@ class Validation:
             "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection) if self._refRelease is not None else "dummy",
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ]
-        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.hasPileup())
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.pileupEnabled())
         fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
         # Copy val file only if there were plots
         if len(fileList) > 0:
@@ -714,7 +793,7 @@ class Validation:
         tmp = plotterFolder.getSelectionName(dqmSubFolder)
         fastSelection = fastGlobalTag+"_"+fastSample.pileup()+tmp
         fullSelection = fullGlobalTag+"_"+fullSample.pileup()+tmp
-        if fullSample.hasPileup():
+        if fullSample.pileupEnabled():
             fullSelection += "_"+fullSample.pileupType(self._newRelease)
             fastSelection += "_"+fastSample.pileupType(self._newRelease)
 
@@ -745,7 +824,7 @@ class Validation:
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ]
-        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=fastSample.hasPileup(), requireAllHistograms=True)
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=fastSample.pileupEnabled(), requireAllHistograms=True)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
         # For tables we just try them all, and see which ones succeed
@@ -763,7 +842,7 @@ class Validation:
             print "Plotter produced multiple files with names", ", ".join(dups)
             print "Typically this is a naming problem in the plotter configuration"
             sys.exit(1)
-        
+
         # Move plots to new directory
         print "Moving plots to %s" % (newdir)
         if not os.path.exists(newdir):
@@ -772,48 +851,57 @@ class Validation:
             shutil.move(f, os.path.join(newdir, f))
         return map(lambda n: os.path.join(newsubdir, n), fileList)
 
-    # TODO: this method is still to be migrated
-    def _doPlotsPileup(self, algo, quality, sample):
-        """Do the real plotting work for Old vs. New pileup scenarios for a given algorithm, quality flag, and sample."""
+    def _doPlotsPileup(self, pu140Sample, pu200Sample, plotterFolder, dqmSubFolder, htmlReport):
+        """Do the real plotting work for two pileup scenarios for a given algorithm, quality flag, and sample."""
         # Get GlobalTags
-        newGlobalTag = _getGlobalTag(sample, self._newRelease)
-        refGlobalTag = newGlobalTag + "_OldPU" 
+        pu140GlobalTag = _getGlobalTag(pu140Sample, self._newRelease)
+        pu200GlobalTag = _getGlobalTag(pu200Sample, self._newRelease)
 
         # Construct selection string
-        tmp = self._getSelectionName(quality, algo)
-        refSelection = refGlobalTag+"_"+sample.pileup()+tmp+"_"+sample.pileupType(self._newRelease)
-        newSelection = newGlobalTag+"_"+sample.pileup()+tmp+"_"+sample.pileupType(self._newRelease)
+        tmp = plotterFolder.getSelectionName(dqmSubFolder)
+        pu140Selection = pu140GlobalTag+"_"+pu140Sample.pileup()+tmp+"_"+pu140Sample.pileupType(self._newRelease)
+        pu200Selection = pu200GlobalTag+"_"+pu200Sample.pileup()+tmp+"_"+pu200Sample.pileupType(self._newRelease)
 
-        # Construct directories for FastSim, FullSim, and for the results
-        refdir = os.path.join(self._newBaseDir, refSelection, sample.name())
-        newdir = os.path.join(self._newBaseDir, newSelection, sample.name())
-        resdir = os.path.join(self._newBaseDir, "pileup", self._newRelease, newSelection, sample.name())
+        # Construct directories for
+        pu140dir = os.path.join(self._newBaseDir, pu140Selection, pu140Sample.name())
+        pu200dir = os.path.join(self._newBaseDir, pu200Selection, pu200Sample.name())
+        newsubdir = os.path.join("pileup", self._newRelease, pu200Selection, pu200Sample.name())
+        newdir = os.path.join(self._newBaseDir, newsubdir)
 
         # Open input root files
-        valname = "val.{sample}.root".format(sample=sample.name())
-        refValFilePath = os.path.join(refdir, valname)
-        if not os.path.exists(refValFilePath) and plotting.verbose:
-            print "Ref pileup file %s not found" % refValFilePath
-        newValFilePath = os.path.join(newdir, valname)
-        if not os.path.exists(newValFilePath) and plotting.verbose:
-            print "New pileup file %s not found" % newValFilePath
+        valname = "val.{sample}.root".format(sample=pu140Sample.name())
+        pu140ValFilePath = os.path.join(pu140dir, valname)
+        if not os.path.exists(pu140ValFilePath):
+            if plotting.verbose:
+                print "PU140 file %s not found" % pu140ValFilePath
+            return []
+        pu200ValFilePath = os.path.join(pu200dir, valname)
+        if not os.path.exists(pu200ValFilePath):
+            if plotting.verbose:
+                print "PU200 file %s not found" % pu200ValFilePath
+            return []
 
-        refValFile = ROOT.TFile.Open(refValFilePath)
-        newValFile = ROOT.TFile.Open(newValFilePath)
+        pu140ValFile = ROOT.TFile.Open(pu140ValFilePath)
+        pu200ValFile = ROOT.TFile.Open(pu200ValFilePath)
 
         # Do plots
         if plotting.verbose:
-            print "Comparing Old and New pileup {sample} {algo} {quality}".format(
-            sample=sample.name(), algo=algo, quality=quality)
-        self._plotter.create([refValFile, newValFile], [
-            "%d BX %s, %s %s" % ({"25ns": 10, "50ns": 20}[sample.pileupType(self._newRelease)], sample.name(), _stripRelease(self._newRelease), refSelection),
-            "35 BX %s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection),
-        ],
-                             subdir = self._getDirectoryName(quality, algo))
-        fileList = self._plotter.draw(**self._plotterDrawArgs)
+            print "Comparing PU140 and PU200 {sample} {translatedFolder}".format(
+            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+        rootFiles = [pu140ValFile, pu200ValFile]
+        legendLabels = [
+            "%s, %s %s" % (pu140Sample.name(), _stripRelease(self._newRelease), pu140Selection),
+            "%s, %s %s" % (pu200Sample.name(), _stripRelease(self._newRelease), pu200Selection),
+        ]
+        plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=pu140Sample.pileupEnabled(), requireAllHistograms=True)
+        fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
-        newValFile.Close()
-        refValFile.Close()
+        # For tables we just try them all, and see which ones succeed
+        for tableCreator in plotterFolder.getTableCreators():
+            htmlReport.addTable(tableCreator.create(rootFiles, legendLabels, dqmSubFolder))
+
+        pu200ValFile.Close()
+        pu140ValFile.Close()
 
         if len(fileList) == 0:
             return []
@@ -825,13 +913,13 @@ class Validation:
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots to %s" % (resdir)
-        if not os.path.exists(resdir):
-            os.makedirs(resdir)
+        print "Moving plots to %s" % (newdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
         for f in fileList:
-            shutil.move(f, os.path.join(resdir, f))
-        subdir = newdir.replace(self._newBaseDir+"/", "")
-        return map(lambda n: os.path.join(subdir, n), fileList)
+            shutil.move(f, os.path.join(newdir, f))
+        return map(lambda n: os.path.join(newsubdir, n), fileList)
+
 
 def _copySubDir(oldfile, newfile, basenames, dirname):
     """Copy a subdirectory from oldfile to newfile.
@@ -893,10 +981,12 @@ def _findDuplicates(lst):
     return list(found2)
 
 class SimpleSample:
-    def __init__(self, label, name, pileup=True):
+    def __init__(self, label, name, fileLegends, pileup=True, customPileupLabel=""):
         self._label = label
         self._name = name
+        self._fileLegends = fileLegends
         self._pileup = pileup
+        self._customPileupLabel = customPileupLabel
 
     def digest(self):
         # Label should be unique among the plotting run, so it serves also as the digest
@@ -908,15 +998,21 @@ class SimpleSample:
     def name(self):
         return self._name
 
+    def files(self):
+        return [t[0] for t in self._fileLegends]
+
+    def legendLabels(self):
+        return [t[1] for t in self._fileLegends]
+
     def fastsim(self):
         # No need to emulate the release validation fastsim behaviour here
         return False
 
-    def hasPileup(self):
+    def pileupEnabled(self):
         return self._pileup
 
-    def pileupType(self):
-        return ""
+    def customPileupLabel(self):
+        return self._customPileupLabel
 
     def doElectron(self):
         return True
@@ -925,50 +1021,59 @@ class SimpleSample:
         return True
 
 class SimpleValidation:
-    def __init__(self, files, labels, newdir):
-        self._files = files
-        self._labels = labels
+    def __init__(self, samples, newdir):
+        self._samples = samples
         self._newdir = newdir
         if not os.path.exists(newdir):
             os.makedirs(newdir)
 
+        self._htmlReport = html.HtmlReportDummy()
+
     def createHtmlReport(self, validationName=""):
-        return html.HtmlReport(validationName, self._newdir)
+        if hasattr(self._htmlReport, "write"):
+            raise Exception("HTML report object already created. There is probably some logic error in the calling code.")
+        self._htmlReport = html.HtmlReport(validationName, self._newdir)
+        return self._htmlReport
 
-    def doPlots(self, plotter, subdirprefix=None, sample=None, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
-        if subdirprefix is None and sample is None:
-            raise Exception("Need either 'subdirprefix' or 'sample'")
-        if subdirprefix is not None and sample is not None:
-            raise Exception("May give only one of 'subdirprefix' or 'sample', got both")
-
-        self._subdirprefix = sample.label() if sample is not None else subdirprefix
+    def doPlots(self, plotters, plotterDrawArgs={}, **kwargs):
         self._plotterDrawArgs = plotterDrawArgs
 
-        self._openFiles = []
-        for f in self._files:
-            if not os.path.exists(f):
-                print "File %s not found" % f
-                sys.exit(1)
-            self._openFiles.append(ROOT.TFile.Open(f))
+        for sample in self._samples:
+            self._subdirprefix = sample.label()
+            self._labels = sample.legendLabels()
+            self._htmlReport.beginSample(sample)
 
+            self._openFiles = []
+            for f in sample.files():
+                if os.path.exists(f):
+                    self._openFiles.append(ROOT.TFile.Open(f))
+                else:
+                    print "File %s not found (from sample %s), ignoring it" % (f, sample.name())
+                    self._openFiles.append(None)
+
+            for plotter in plotters:
+                self._doPlotsForPlotter(plotter, sample, **kwargs)
+
+            for tf in self._openFiles:
+                if tf is not None:
+                    tf.Close()
+            self._openFiles = []
+
+    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             if sample is not None and not _processPlotsForSample(plotterFolder, sample):
                 continue
-            plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
+            plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
             if len(plotFiles) > 0:
-                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+                self._htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
-        for tf in self._openFiles:
-            tf.Close()
-        self._openFiles = []
-
-    def _doPlots(self, plotterFolder, dqmSubFolder, htmlReport):
+    def _doPlots(self, plotterFolder, dqmSubFolder):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
         for tableCreator in plotterFolder.getTableCreators():
-            htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
+            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
         newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)
