@@ -133,7 +133,6 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 	getLandauFrac(-invG,-invG+tsWidth,iG);
 	if (iG != 0 ) {
 	  ch4=(corrCharge[4]-ch3*n3)/(iG);
-	  ch5=negThresh[0];
 	  tsShift4=invG;
 	}
       }

@@ -143,7 +143,6 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
         getLandauFrac(-invG,-invG+tsWidth,iG);
         if (iG != 0 ) {
 	  ch4=(corrCharge[4]-ch3*n3)/(iG);
-	  ch5=negThresh[0];
 	  tsShift4=invG;
 	}
       }
