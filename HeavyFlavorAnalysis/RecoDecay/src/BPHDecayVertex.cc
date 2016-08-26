@@ -88,9 +88,15 @@ BPHDecayVertex::~BPHDecayVertex() {
 //--------------
 // Operations --
 //--------------
-bool BPHDecayVertex::isValidVertex() const {
+bool BPHDecayVertex::validTracks() const {
   if ( oldVertex ) fitVertex();
-  return validVertex;
+  return validTks;
+}
+
+
+bool BPHDecayVertex::validVertex() const {
+  if ( oldVertex ) fitVertex();
+  return fittedVertex.isValid();
 }
 
 
@@ -139,7 +145,7 @@ reco::TransientTrack* BPHDecayVertex::getTransientTrack(
 void BPHDecayVertex::setNotUpdated() const {
   BPHDecayMomentum::setNotUpdated();
   oldTracks = oldVertex = true;
-  validVertex = false;
+  validTks = false;
   return;
 }
 
@@ -155,7 +161,7 @@ void BPHDecayVertex::tTracks() const {
   const vector<const reco::Candidate*>& dL = daughFull();
   int n = dL.size();
   trTracks.reserve( n );
-  validVertex = true;
+  validTks = true;
   while ( n-- ) {
     const reco::Candidate* rp = originalReco( dL[n] );
     tkMap[rp] = 0;
@@ -171,7 +177,7 @@ void BPHDecayVertex::tTracks() const {
       edm::LogPrint( "DataNotFound" )
                   << "BPHDecayVertex::tTracks: "
                   << "no track for reco::(PF)Candidate";
-      validVertex = false;
+      validTks = false;
       continue;
     }
      rTracks.push_back( tp );

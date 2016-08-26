@@ -78,8 +78,8 @@ BPHKinematicFit::BPHKinematicFit( const BPHKinematicFit* ptr ):
   int j;
   int m = dComp.size();
   for ( j = 0; j < m; ++j ) {
-    BPHRecoConstCandPtr comp = dComp[j];
-    dMSig.insert( comp->dMSig.begin(), comp->dMSig.end() );
+    const map<const reco::Candidate*,double>& dMap = dComp[j]->dMSig;
+    dMSig.insert( dMap.begin(), dMap.end() );
   }
 }
 
@@ -263,7 +263,7 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
       kinTree = vtxFitter.fit( kTail );
     }
     else {
-      return ( kinTree = compTree );
+      kinTree = compTree;
     }
   }
   catch ( std::exception e ) {
@@ -311,7 +311,6 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
                 << "kin fit reset";
     kinTree = RefCountedKinematicTree( 0 );
   }
-  return kinTree;
   return kinTree;
 }
 
