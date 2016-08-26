@@ -35,6 +35,8 @@ class GeneratorAnalyzer( Analyzer ):
             event.gennusFromTop = []  # Neutrinos from t->W decay
             event.genleps    = []  # leptons from direct decays
             event.gentauleps = []  # leptons from prompt taus
+            event.gentauhads = []  # hadrons from prompt taus
+            event.gennusFromTau = []  # Neutrinos from tau decays (one entry per hadronically decaying tau, two entries per leptonically decaying tau)
             event.gentaus    = []  # hadronically-decaying taus (if allGenTaus is False) or all taus (if allGenTaus is True)
             event.gentopquarks  = [] 
             event.genbquarks    = [] # b quarks from hard event (e.g. from top decays)
@@ -84,7 +86,7 @@ class GeneratorAnalyzer( Analyzer ):
             if id in self.savePreFSRParticleIds:
                 # for light objects, we want them pre-radiation
                 if any((p.mother(j).pdgId() == p.pdgId()) for j in xrange(p.numberOfMothers())):
-                    #print "    fail auto-decay"
+                    #print "    fail auto-decay (savePreFSRParticleIds)"
                     continue
             else:
                 # everything else, we want it after radiation, i.e. just before decay
@@ -94,10 +96,13 @@ class GeneratorAnalyzer( Analyzer ):
             # FIXME find a better criterion to discard there
             if status == 71: 
                 #drop QCD radiation with unclear parentage
-                continue 
+                continue
+            if id == 15 and status != 2: 
+                #drop "intermediate" taus
+                continue
             # is it an interesting particle?
             ok = False
-            if interestingPdgId(id):
+            if interestingPdgId(id,True):
                 #print "    pass pdgId"
                 ok = True
             ### no: we don't select by decay, so that we keep the particle summary free of incoming partons and such
@@ -184,6 +189,8 @@ class GeneratorAnalyzer( Analyzer ):
             event.gennusFromTop  = []
             event.genleps        = []
             event.gentauleps     = []
+            event.gentauhads     = []
+            event.gennusFromTau  = []
             event.gentaus        = []
             event.gentopquarks   = []
             event.genbquarks     = []
@@ -200,26 +207,24 @@ class GeneratorAnalyzer( Analyzer ):
                 elif id in {23,24}:
                     event.genVBosons.append(p)
                 elif id in {12,14,16}:
-                    event.gennus.append(p)
+                    #skip neutrinos from tau decays, as they are stored separately in event.gennusFromTau vector
+                    if abs(p.motherId) != 15:
+                        event.gennus.append(p)                        
+                        momids = [(m, abs(m.pdgId())) for m in realGenMothers(p)]
 
-                    momids = [(m, abs(m.pdgId())) for m in realGenMothers(p)]
-
-                    #have a look at the lepton mothers
-                    for mom, momid in momids:
-                        #lepton from W
-                        if momid == 24:
-                            wmomids = [abs(m.pdgId()) for m in realGenMothers(mom)]
-                            #W from t
-                            if 6 in wmomids:
-                                #save mu,e from t->W->mu/e
-                                event.gennusFromTop.append(p)
+                        #have a look at the lepton mothers
+                        for mom, momid in momids:
+                            #lepton from W
+                            if momid == 24:
+                                wmomids = [abs(m.pdgId()) for m in realGenMothers(mom)]
+                                #W from t
+                                if 6 in wmomids:
+                                    #save mu,e from t->W->mu/e
+                                    event.gennusFromTop.append(p)
 
                 elif id in {11,13}:
-                    #taus to separate vector
-                    if abs(p.motherId) == 15:
-                        event.gentauleps.append(p)
-                    #all muons and electrons
-                    else:
+                    #skip leptons from tau decays, as they are stored separately in event.gentauleps vector
+                    if abs(p.motherId) != 15:
                         event.genleps.append(p)
                         momids = [(m, abs(m.pdgId())) for m in realGenMothers(p)]
 
@@ -233,8 +238,16 @@ class GeneratorAnalyzer( Analyzer ):
                                     #save mu,e from t->W->mu/e
                                     event.genlepsFromTop.append(p)
                 elif id == 15:
-                    if self.allGenTaus or not any([abs(d.pdgId()) in {11,13} for d in realGenDaughters(p)]):
+                    daughters = realGenDaughters(p,False)
+                    if self.allGenTaus or not any([abs(d.pdgId()) in {11,13} for d in daughters]):
                         event.gentaus.append(p)
+                    for d in daughters:
+                        if abs(d.pdgId()) in {11,13}:
+                            event.gentauleps.append(d)
+                        if not abs(d.pdgId()) in {11,12,13,14,16}:
+                            event.gentauhads.append(d)
+                        if abs(d.pdgId()) in {12,14,16}:
+                            event.gennusFromTau.append(d)
                 elif id == 6:
                     event.gentopquarks.append(p)
                 elif id == 5:
@@ -263,7 +276,7 @@ setattr(GeneratorAnalyzer,"defaultConfig",
         # Particles of which we want to save the pre-FSR momentum (a la status 3).
         # Note that for quarks and gluons the post-FSR doesn't make sense,
         # so those should always be in the list
-        savePreFSRParticleIds = [ 1,2,3,4,5, 11,12,13,14,15,16, 21 ],
+        savePreFSRParticleIds = [ 1,2,3,4,5, 11,12,13,14,16, 21 ],
         # Make also the list of all genParticles, for other analyzers to handle
         makeAllGenParticles = True,
         # Make also the splitted lists

@@ -250,8 +250,8 @@ genParticleWithMotherId = NTupleObjectType("genParticleWithMotherId", baseObject
     NTupleVariable("grandmotherId", lambda x : x.mother(0).mother(0).pdgId() if x.mother(0) and x.mother(0).mother(0) else 0, int, help="pdgId of the grandmother of the particle")
 ])
 genParticleWithAncestryType = NTupleObjectType("genParticleWithAncestry", baseObjectTypes = [ genParticleType ], mcOnly=True, variables = [
-    NTupleVariable("motherId", lambda x : x.motherId, int, help="pdgId of the mother of the particle"),
-    NTupleVariable("grandmotherId", lambda x : x.grandmotherId, int, help="pdgId of the grandmother of the particle"),
+    NTupleVariable("motherId", lambda x : x.motherId if hasattr(x, "motherId") else 0, int, help="pdgId of the mother of the particle"),
+    NTupleVariable("grandmotherId", lambda x : x.grandmotherId if hasattr(x, "grandmotherId") else 0, int, help="pdgId of the grandmother of the particle"),
     NTupleVariable("sourceId", lambda x : x.sourceId, int, help="origin of the particle (heaviest ancestor): 6=t, 25=h, 23/24=W/Z"),
 ])
 genParticleWithLinksType = NTupleObjectType("genParticleWithLinks", baseObjectTypes = [ genParticleWithAncestryType ], mcOnly=True, variables = [
