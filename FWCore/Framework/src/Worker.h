@@ -301,6 +301,9 @@ namespace edm {
       m_serviceToken(ServiceRegistry::instance().presentToken()) {}
       
       tbb::task* execute() override {
+        //Need to make the services available early so other services can see them
+        ServiceRegistry::Operate guard(m_serviceToken);
+
         //incase the emit causes an exception, we need a memory location
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
@@ -340,8 +343,6 @@ namespace edm {
             return nullptr;
           }
         }
-        //Need to make the services available
-        ServiceRegistry::Operate guard(m_serviceToken);
 
         m_worker->runModuleAfterAsyncPrefetch<T>(excptr,
                                                  m_principal,
