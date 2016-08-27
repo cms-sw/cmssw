@@ -112,7 +112,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     int row_last = -1;
     int col_last = -1;
     int nclus = 0;
-    int width = 0;
+    int width = 1;
     int position = 0; 
     for (typename edm::DetSet< PixelDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
       int col = di->column(); // column
@@ -132,7 +132,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
       local_mes.PositionOfDigis->Fill(row+1, col+1);
 
       if (row_last == -1 ) {
-        width  = 1;
         position = row+1;
         nclus++; 
       } else {
@@ -174,7 +173,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     int row_last = -1;
     int col_last = -1;
     int nclus = 0;
-    int width = 0;
+    int width = 1;
     int position = 0; 
     float frac_ot = 0.;
     for (typename edm::DetSet< Phase2TrackerDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
@@ -197,7 +196,6 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
 
 
       if (row_last == -1 ) {
-        width  = 1;
         position = row+1;
         nclus++; 
       } else {
