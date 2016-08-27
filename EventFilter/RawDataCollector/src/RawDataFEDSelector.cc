@@ -15,9 +15,9 @@
 using namespace std;
 using namespace edm;
 
-auto_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FEDRawDataCollection> & rawData) {
+std::unique_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FEDRawDataCollection> & rawData) {
 
-  auto_ptr<FEDRawDataCollection> selectedRawData(new FEDRawDataCollection);
+  auto selectedRawData = std::make_unique<FEDRawDataCollection>();
 
   // if vector of FED indexes is defined, loop over it
   if (fedList.size()) {
@@ -57,13 +57,13 @@ auto_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FEDRawDat
 } 
 
 
-auto_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FEDRawDataCollection> & rawData, 
+std::unique_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FEDRawDataCollection> & rawData, 
 						       const pair<int,int> & range) {
   setRange(range);
   return select(rawData);
 }
 
-auto_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FEDRawDataCollection> & rawData, 
+std::unique_ptr<FEDRawDataCollection> RawDataFEDSelector::select(const Handle<FEDRawDataCollection> & rawData, 
 						       const vector<int> & list) {
   setRange(list);
   return select(rawData);

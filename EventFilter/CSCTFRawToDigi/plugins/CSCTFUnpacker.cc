@@ -92,10 +92,10 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 	e.getByToken(Raw_token,rawdata);
 
 	// create the collection of CSC wire and strip digis as well as of DT stubs, which we receive from DTTF
-	std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);
-	std::auto_ptr<L1CSCTrackCollection>           trackProduct(new L1CSCTrackCollection);
-	std::auto_ptr<L1CSCStatusDigiCollection>      statusProduct(new L1CSCStatusDigiCollection);
-	std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dtProduct(new CSCTriggerContainer<csctf::TrackStub>);
+	auto LCTProduct = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+	auto trackProduct = std::make_unique<L1CSCTrackCollection>();
+	auto statusProduct = std::make_unique<L1CSCStatusDigiCollection>();
+	auto dtProduct = std::make_unique<CSCTriggerContainer<csctf::TrackStub>>();
 
 	for(int fedid=FEDNumbering::MINCSCTFFEDID; fedid<=FEDNumbering::MAXCSCTFFEDID; fedid++){
 		const FEDRawData& fedData = rawdata->FEDData(fedid);
@@ -272,8 +272,8 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 		statusProduct->first  = unpacking_status;
 
 	} //end of fed cycle
-	e.put(dtProduct,"DT");
-	e.put(LCTProduct); // put processed lcts into the event.
-	e.put(trackProduct);
-	e.put(statusProduct);
+	e.put(std::move(dtProduct),"DT");
+	e.put(std::move(LCTProduct)); // put processed lcts into the event.
+	e.put(std::move(trackProduct));
+	e.put(std::move(statusProduct));
 }

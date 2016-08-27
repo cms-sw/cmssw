@@ -40,7 +40,7 @@ void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
 
   // Step B: Create empty output
-  std::auto_ptr<HcalHistogramDigiCollection> prod(new HcalHistogramDigiCollection());
+  auto prod = std::make_unique<HcalHistogramDigiCollection>();
   std::vector<HcalHistogramDigi> digis;
 
   // Step C: unpack all requested FEDs
@@ -55,7 +55,7 @@ void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 
   // Step D: Put outputs into event
   prod->sort();
-  e.put(prod);
+  e.put(std::move(prod));
 }
 
 

@@ -63,69 +63,69 @@ public :
     Set the collection pointers
   */
 
-  void setEBDigisCollection( std::auto_ptr<EBDigiCollection>                         * x )
+  void setEBDigisCollection( std::unique_ptr<EBDigiCollection>                         * x )
   { ebDigis_                = x; } 
  
-  void setEEDigisCollection( std::auto_ptr<EEDigiCollection>                         * x )
+  void setEEDigisCollection( std::unique_ptr<EEDigiCollection>                         * x )
   { eeDigis_                = x; } 
  
-  void setDccHeadersCollection( std::auto_ptr<EcalRawDataCollection>                 * x )
+  void setDccHeadersCollection( std::unique_ptr<EcalRawDataCollection>                 * x )
   { dccHeaders_             = x; }
  
-  void setEBSrFlagsCollection( std::auto_ptr<EBSrFlagCollection>                     * x )
+  void setEBSrFlagsCollection( std::unique_ptr<EBSrFlagCollection>                     * x )
   { ebSrFlags_              = x; } 
   
-  void setEESrFlagsCollection( std::auto_ptr<EESrFlagCollection>                     * x )
+  void setEESrFlagsCollection( std::unique_ptr<EESrFlagCollection>                     * x )
   { eeSrFlags_              = x; }
 
-  void setEcalTpsCollection( std::auto_ptr<EcalTrigPrimDigiCollection>                  * x )
+  void setEcalTpsCollection( std::unique_ptr<EcalTrigPrimDigiCollection>                  * x )
   { ecalTps_                  = x; }
 
-  void  setEcalPSsCollection( std::auto_ptr<EcalPSInputDigiCollection>                  * x )
+  void  setEcalPSsCollection( std::unique_ptr<EcalPSInputDigiCollection>                  * x )
   { ecalPSs_                  = x; }
 
-  void setInvalidGainsCollection( std::auto_ptr<EBDetIdCollection>                    * x )
+  void setInvalidGainsCollection( std::unique_ptr<EBDetIdCollection>                    * x )
   { invalidGains_           = x; }
  
-  void setInvalidGainsSwitchCollection( std::auto_ptr<EBDetIdCollection>              * x )
+  void setInvalidGainsSwitchCollection( std::unique_ptr<EBDetIdCollection>              * x )
   { invalidGainsSwitch_     = x; }
  
-  void setInvalidChIdsCollection( std::auto_ptr<EBDetIdCollection>                    * x )
+  void setInvalidChIdsCollection( std::unique_ptr<EBDetIdCollection>                    * x )
   { invalidChIds_           = x; }
 
   // EE 
-  void setInvalidEEGainsCollection( std::auto_ptr<EEDetIdCollection>                    * x )
+  void setInvalidEEGainsCollection( std::unique_ptr<EEDetIdCollection>                    * x )
   { invalidEEGains_           = x; }
   
-  void setInvalidEEGainsSwitchCollection( std::auto_ptr<EEDetIdCollection>              * x )
+  void setInvalidEEGainsSwitchCollection( std::unique_ptr<EEDetIdCollection>              * x )
   { invalidEEGainsSwitch_     = x; }
  
-  void setInvalidEEChIdsCollection( std::auto_ptr<EEDetIdCollection>                    * x )
+  void setInvalidEEChIdsCollection( std::unique_ptr<EEDetIdCollection>                    * x )
   { invalidEEChIds_           = x; }
   // EE 
  
-  void setInvalidTTIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>         * x )
+  void setInvalidTTIdsCollection( std::unique_ptr<EcalElectronicsIdCollection>         * x )
   { invalidTTIds_           = x; }
 
-  void setInvalidZSXtalIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>     * x )
+  void setInvalidZSXtalIdsCollection( std::unique_ptr<EcalElectronicsIdCollection>     * x )
   { invalidZSXtalIds_           = x; }
 
-  void setInvalidBlockLengthsCollection( std::auto_ptr<EcalElectronicsIdCollection>  * x )
+  void setInvalidBlockLengthsCollection( std::unique_ptr<EcalElectronicsIdCollection>  * x )
   { invalidBlockLengths_    = x; }
  
-  void setPnDiodeDigisCollection( std::auto_ptr<EcalPnDiodeDigiCollection>            * x )
+  void setPnDiodeDigisCollection( std::unique_ptr<EcalPnDiodeDigiCollection>            * x )
   { pnDiodeDigis_           = x; }
  
-  void setInvalidMemTtIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>      * x )
+  void setInvalidMemTtIdsCollection( std::unique_ptr<EcalElectronicsIdCollection>      * x )
   { invalidMemTtIds_        = x; }
  
-  void setInvalidMemBlockSizesCollection( std::auto_ptr<EcalElectronicsIdCollection> * x )
+  void setInvalidMemBlockSizesCollection( std::unique_ptr<EcalElectronicsIdCollection> * x )
   { invalidMemBlockSizes_   = x; }
  
-  void setInvalidMemChIdsCollection( std::auto_ptr<EcalElectronicsIdCollection>      * x )
+  void setInvalidMemChIdsCollection( std::unique_ptr<EcalElectronicsIdCollection>      * x )
   { invalidMemChIds_        = x; }
  
-  void setInvalidMemGainsCollection( std::auto_ptr<EcalElectronicsIdCollection>      * x )
+  void setInvalidMemGainsCollection( std::unique_ptr<EcalElectronicsIdCollection>      * x )
   { invalidMemGains_        = x; }
   
  
@@ -133,69 +133,69 @@ public :
    Get the collection pointers
   */
   
-  std::auto_ptr<EBDigiCollection>             * ebDigisCollection()
+  std::unique_ptr<EBDigiCollection>             * ebDigisCollection()
   { return ebDigis_;               }
   
-  std::auto_ptr<EEDigiCollection>             * eeDigisCollection()
+  std::unique_ptr<EEDigiCollection>             * eeDigisCollection()
   { return eeDigis_;               }
   
-  std::auto_ptr<EcalTrigPrimDigiCollection>   * ecalTpsCollection()
+  std::unique_ptr<EcalTrigPrimDigiCollection>   * ecalTpsCollection()
   { return ecalTps_;                 } 
   
-  std::auto_ptr<EcalPSInputDigiCollection>    * ecalPSsCollection()
+  std::unique_ptr<EcalPSInputDigiCollection>    * ecalPSsCollection()
   { return ecalPSs_;                 } 
 
-  std::auto_ptr<EBSrFlagCollection>           * ebSrFlagsCollection()
+  std::unique_ptr<EBSrFlagCollection>           * ebSrFlagsCollection()
   { return ebSrFlags_;             }  
   
-  std::auto_ptr<EESrFlagCollection>           * eeSrFlagsCollection()
+  std::unique_ptr<EESrFlagCollection>           * eeSrFlagsCollection()
   { return eeSrFlags_;             } 
   
-  std::auto_ptr<EcalRawDataCollection>        * dccHeadersCollection()
+  std::unique_ptr<EcalRawDataCollection>        * dccHeadersCollection()
   { return dccHeaders_;            }
   
-  std::auto_ptr<EBDetIdCollection>            * invalidGainsCollection()
+  std::unique_ptr<EBDetIdCollection>            * invalidGainsCollection()
   { return invalidGains_;          }
   
-  std::auto_ptr<EBDetIdCollection>            * invalidGainsSwitchCollection()
+  std::unique_ptr<EBDetIdCollection>            * invalidGainsSwitchCollection()
   { return invalidGainsSwitch_;    }
   
-  std::auto_ptr<EBDetIdCollection>            * invalidChIdsCollection()
+  std::unique_ptr<EBDetIdCollection>            * invalidChIdsCollection()
   { return invalidChIds_;          }
 
   //EE
-  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsCollection()
+  std::unique_ptr<EEDetIdCollection>            * invalidEEGainsCollection()
   { return invalidEEGains_;          }
   
-  std::auto_ptr<EEDetIdCollection>            * invalidEEGainsSwitchCollection()
+  std::unique_ptr<EEDetIdCollection>            * invalidEEGainsSwitchCollection()
   { return invalidEEGainsSwitch_;    }
   
-  std::auto_ptr<EEDetIdCollection>            * invalidEEChIdsCollection()
+  std::unique_ptr<EEDetIdCollection>            * invalidEEChIdsCollection()
   { return invalidEEChIds_;          }
   //EE
 
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIdsCollection()
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidTTIdsCollection()
   { return invalidTTIds_;          }
 
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidZSXtalIdsCollection()
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidZSXtalIdsCollection()
   { return invalidZSXtalIds_;          }  
   
-  std::auto_ptr< EcalElectronicsIdCollection> * invalidBlockLengthsCollection()
+  std::unique_ptr< EcalElectronicsIdCollection> * invalidBlockLengthsCollection()
   { return invalidBlockLengths_;   }
      
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemTtIdsCollection()
+  std::unique_ptr<EcalElectronicsIdCollection>  * invalidMemTtIdsCollection()
   { return invalidMemTtIds_;       }
  
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemBlockSizesCollection()
+  std::unique_ptr<EcalElectronicsIdCollection>  * invalidMemBlockSizesCollection()
   { return invalidMemBlockSizes_;  }
   
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemChIdsCollection()
+  std::unique_ptr<EcalElectronicsIdCollection>  * invalidMemChIdsCollection()
   { return invalidMemChIds_;       }
   
-  std::auto_ptr<EcalElectronicsIdCollection>  * invalidMemGainsCollection()
+  std::unique_ptr<EcalElectronicsIdCollection>  * invalidMemGainsCollection()
   { return invalidMemGains_;       }
 
-  std::auto_ptr<EcalPnDiodeDigiCollection>    * pnDiodeDigisCollection()
+  std::unique_ptr<EcalPnDiodeDigiCollection>    * pnDiodeDigisCollection()
   { return pnDiodeDigis_;          }
   
 
@@ -229,30 +229,30 @@ public :
 protected :
 
   // Data collections pointers
-  std::auto_ptr<EBDigiCollection>            * ebDigis_;
-  std::auto_ptr<EEDigiCollection>            * eeDigis_;
-  std::auto_ptr<EcalTrigPrimDigiCollection>  * ecalTps_;
-  std::auto_ptr<EcalPSInputDigiCollection>   * ecalPSs_;
-  std::auto_ptr<EcalRawDataCollection>       * dccHeaders_;
-  std::auto_ptr<EBDetIdCollection>           * invalidGains_;
-  std::auto_ptr<EBDetIdCollection>           * invalidGainsSwitch_;
-  std::auto_ptr<EBDetIdCollection>           * invalidChIds_;
+  std::unique_ptr<EBDigiCollection>            * ebDigis_;
+  std::unique_ptr<EEDigiCollection>            * eeDigis_;
+  std::unique_ptr<EcalTrigPrimDigiCollection>  * ecalTps_;
+  std::unique_ptr<EcalPSInputDigiCollection>   * ecalPSs_;
+  std::unique_ptr<EcalRawDataCollection>       * dccHeaders_;
+  std::unique_ptr<EBDetIdCollection>           * invalidGains_;
+  std::unique_ptr<EBDetIdCollection>           * invalidGainsSwitch_;
+  std::unique_ptr<EBDetIdCollection>           * invalidChIds_;
   //EE
-  std::auto_ptr<EEDetIdCollection>           * invalidEEGains_;
-  std::auto_ptr<EEDetIdCollection>           * invalidEEGainsSwitch_;
-  std::auto_ptr<EEDetIdCollection>           * invalidEEChIds_;
+  std::unique_ptr<EEDetIdCollection>           * invalidEEGains_;
+  std::unique_ptr<EEDetIdCollection>           * invalidEEGainsSwitch_;
+  std::unique_ptr<EEDetIdCollection>           * invalidEEChIds_;
   //EE
-  std::auto_ptr<EBSrFlagCollection>          * ebSrFlags_;
-  std::auto_ptr<EESrFlagCollection>          * eeSrFlags_;
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIds_;
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidZSXtalIds_;
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidBlockLengths_; 
+  std::unique_ptr<EBSrFlagCollection>          * ebSrFlags_;
+  std::unique_ptr<EESrFlagCollection>          * eeSrFlags_;
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidTTIds_;
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidZSXtalIds_;
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidBlockLengths_; 
   
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemTtIds_ ;
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemBlockSizes_ ;
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemChIds_ ;
-  std::auto_ptr<EcalElectronicsIdCollection> * invalidMemGains_ ;
-  std::auto_ptr<EcalPnDiodeDigiCollection>   * pnDiodeDigis_;
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidMemTtIds_ ;
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidMemBlockSizes_ ;
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidMemChIds_ ;
+  std::unique_ptr<EcalElectronicsIdCollection> * invalidMemGains_ ;
+  std::unique_ptr<EcalPnDiodeDigiCollection>   * pnDiodeDigis_;
 
   EcalElectronicsMapper  * electronicsMapper_;
   const EcalChannelStatusMap* chdb_;

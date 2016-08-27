@@ -69,11 +69,11 @@ class DCCMemBlock : public DCCDataBlockPrototype {
     unsigned int bx_;
     unsigned int l1_;
 	 
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemChIds_;  
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemBlockSizes_; 
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemTtIds_; 
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemGains_;
-    std::auto_ptr<EcalPnDiodeDigiCollection>     * pnDiodeDigis_;
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemChIds_;  
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemBlockSizes_; 
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemTtIds_; 
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemGains_;
+    std::unique_ptr<EcalPnDiodeDigiCollection>     * pnDiodeDigis_;
 	
 };
 

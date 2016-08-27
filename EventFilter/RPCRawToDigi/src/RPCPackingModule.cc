@@ -69,7 +69,7 @@ void RPCPackingModule::produce( edm::Event& ev,
     LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl; 
   }
 
-  auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
+  auto buffers = std::make_unique<FEDRawDataCollection>();
 
 //  pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
   pair<int,int> rpcFEDS(790,792);
@@ -83,7 +83,7 @@ void RPCPackingModule::produce( edm::Event& ev,
     fedRawData = *rawData;
     delete rawData;
   }
-  ev.put( buffers );  
+  ev.put(std::move(buffers));  
 }
 
 

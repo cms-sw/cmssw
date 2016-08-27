@@ -31,7 +31,7 @@ void SiStripTrivialClusterSource::endJob() {}
 
 void SiStripTrivialClusterSource::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   
-  std::auto_ptr< edm::DetSetVector<SiStripDigi> > clusters(new edm::DetSetVector<SiStripDigi>());
+  auto clusters = std::make_unique<edm::DetSetVector<SiStripDigi>>();
   
   double occupancy = random_.Uniform(minocc_,maxocc_);
   double indexdigis = nstrips_ * occupancy;
@@ -66,7 +66,7 @@ void SiStripTrivialClusterSource::produce(edm::Event& iEvent,const edm::EventSet
   }
   }
   
-  iEvent.put(clusters);
+  iEvent.put(std::move(clusters));
 }
 
 bool SiStripTrivialClusterSource::available(const edm::DetSet<SiStripDigi>& detset, const uint16_t firststrip, const uint32_t size) {

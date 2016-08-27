@@ -186,11 +186,11 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   ev.getByToken(tFEDRawDataCollection, buffers);
 
 // create product (digis & errors)
-  std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
+  auto collection = std::make_unique<edm::DetSetVector<PixelDigi>>();
   // collection->reserve(8*1024);
-  std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
-  std::auto_ptr< DetIdCollection > tkerror_detidcollection(new DetIdCollection());
-  std::auto_ptr< DetIdCollection > usererror_detidcollection(new DetIdCollection());
+  auto errorcollection = std::make_unique<edm::DetSetVector<SiPixelRawDataError>>();
+  auto tkerror_detidcollection = std::make_unique<DetIdCollection>();
+  auto usererror_detidcollection = std::make_unique<DetIdCollection>();
 
   //PixelDataFormatter formatter(cabling_.get()); // phase 0 only
   PixelDataFormatter formatter(cabling_.get(), usePhase1); // for phase 1 & 0
@@ -284,10 +284,10 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 
   //send digis and errors back to framework 
-  ev.put( collection );
+  ev.put(std::move(collection));
   if(includeErrors){
-    ev.put( errorcollection );
-    ev.put( tkerror_detidcollection );
-    ev.put( usererror_detidcollection, "UserErrorModules" );
+    ev.put(std::move(errorcollection));
+    ev.put(std::move(tkerror_detidcollection));
+    ev.put(std::move(usererror_detidcollection), "UserErrorModules");
   }
 }

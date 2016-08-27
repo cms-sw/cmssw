@@ -55,14 +55,14 @@ namespace sistrip {
   void DigiToRaw::createFedBuffers( edm::Event& event,
 				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
-				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
+				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
     createFedBuffers_(event, cabling, collection, buffers, true);
   }
   
   void DigiToRaw::createFedBuffers( edm::Event& event,
 				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
-				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
+				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
     createFedBuffers_(event, cabling, collection, buffers, false);
   }
 
@@ -71,7 +71,7 @@ namespace sistrip {
 				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle<FEDRawDataCollection> & rawbuffers,
 				    edm::Handle< edm::DetSetVector<SiStripDigi> >& collection,
-				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
+				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
     createFedBuffers_(event, cabling, rawbuffers, collection, buffers, true);
   }
   
@@ -79,7 +79,7 @@ namespace sistrip {
 				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle<FEDRawDataCollection> & rawbuffers,
 				    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
-				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
+				    std::unique_ptr<FEDRawDataCollection>& buffers ) { 
     createFedBuffers_(event, cabling, rawbuffers, collection, buffers, false);
   }
 
@@ -90,7 +90,7 @@ namespace sistrip {
   void DigiToRaw::createFedBuffers_( edm::Event& event,
 				     edm::ESHandle<SiStripFedCabling>& cabling,
 				     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
-				     std::auto_ptr<FEDRawDataCollection>& buffers,
+				     std::unique_ptr<FEDRawDataCollection>& buffers,
 				     bool zeroSuppressed) {
 
     edm::Handle<FEDRawDataCollection> rawbuffers;
@@ -104,7 +104,7 @@ namespace sistrip {
 				     edm::ESHandle<SiStripFedCabling>& cabling,
 				     edm::Handle<FEDRawDataCollection> & rawbuffers,
 				     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
-				     std::auto_ptr<FEDRawDataCollection>& buffers,
+				     std::unique_ptr<FEDRawDataCollection>& buffers,
 				     bool zeroSuppressed) {
     try {
       
@@ -134,8 +134,8 @@ namespace sistrip {
 	  }
 	  
 	  //need to construct full object to copy full header
-	  std::auto_ptr<const sistrip::FEDBuffer> fedbuffer;
-	  //std::auto_ptr<const sistrip::FEDBufferBase> bufferBase;
+	  std::unique_ptr<const sistrip::FEDBuffer> fedbuffer;
+	  //std::unique_ptr<const sistrip::FEDBufferBase> bufferBase;
 	  try {
 	    fedbuffer.reset(new sistrip::FEDBuffer(rawfedData.data(),rawfedData.size(),true));
 	    //bufferBase.reset(new sistrip::FEDBufferBase(rawfedData.data(),rawfedData.size()));
@@ -178,7 +178,7 @@ namespace sistrip {
 	      << " SpecialHeader: " << debugStream.str();
 	  }
 
-	  std::auto_ptr<FEDFEHeader> tempFEHeader(fedbuffer->feHeader()->clone());
+	  std::unique_ptr<FEDFEHeader> tempFEHeader(fedbuffer->feHeader()->clone());
 	  FEDFullDebugHeader* fedFeHeader = dynamic_cast<FEDFullDebugHeader*>(tempFEHeader.get());
 	  if ( edm::isDebugEnabled() ) {
 	    std::ostringstream debugStream;

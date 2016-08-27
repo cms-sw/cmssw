@@ -100,8 +100,7 @@ void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     //std::cout<<"nibble is "<<nibble<<std::endl;
 
-    std::unique_ptr<int> pOut(new int(nibble));
-    iEvent.put( std::move(pOut), "nibble" );
+    iEvent.put(std::make_unique<int>(nibble), "nibble");
 }
 
  

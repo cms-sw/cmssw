@@ -122,11 +122,11 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   context.get<DTReadOutMappingRcd>().get(mapping);
   
   // Create the result i.e. the collections of MB Digis and SC local triggers
-  auto_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
-  auto_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
+  auto detectorProduct = std::make_unique<DTDigiCollection>();
+  auto triggerProduct = std::make_unique<DTLocalTriggerCollection>();
 
-  auto_ptr<std::vector<DTDDUData> > dduProduct(new std::vector<DTDDUData>);
-  auto_ptr<DTROS25Collection> ros25Product(new DTROS25Collection);
+  auto dduProduct = std::make_unique<std::vector<DTDDUData>>();
+  auto ros25Product = std::make_unique<DTROS25Collection>();
   
   // Loop over the DT FEDs
   int FEDIDmin = 0, FEDIDMax = 0;
@@ -160,12 +160,12 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // commit to the event  
   if(!dqmOnly) {
-    e.put(detectorProduct);
-    e.put(triggerProduct);
+    e.put(std::move(detectorProduct));
+    e.put(std::move(triggerProduct));
   }
   if(performDataIntegrityMonitor) {
-    e.put(dduProduct);
-    e.put(ros25Product);
+    e.put(std::move(dduProduct));
+    e.put(std::move(ros25Product));
   }
 }
 

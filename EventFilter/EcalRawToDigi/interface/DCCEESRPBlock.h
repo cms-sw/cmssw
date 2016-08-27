@@ -44,7 +44,7 @@ class DCCEESRPBlock : public DCCSRPBlock{
     
     bool checkSrpIdAndNumbSRFlags();
 	 
-    std::auto_ptr<EESrFlagCollection>  * eeSrFlagsDigis_;
+    std::unique_ptr<EESrFlagCollection>  * eeSrFlagsDigis_;
 	 
     EcalScDetId * pSCDetId_;
     

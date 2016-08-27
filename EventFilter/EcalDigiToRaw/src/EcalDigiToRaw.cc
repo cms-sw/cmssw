@@ -129,7 +129,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   lv1_ = counter_ % (0x1<<24);
 
-  auto_ptr<FEDRawDataCollection> productRawData(new FEDRawDataCollection);
+  auto productRawData = std::make_unique<FEDRawDataCollection>();
 
 
   Headerblockformatter_ -> DigiToRaw(productRawData.get());
@@ -281,7 +281,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  Towerblockformatter_ -> EndEvent(productRawData.get());
 
- iEvent.put(productRawData);
+ iEvent.put(std::move(productRawData));
 
 
  return;

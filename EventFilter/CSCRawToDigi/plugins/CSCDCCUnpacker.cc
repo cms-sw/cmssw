@@ -192,21 +192,21 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   e.getByToken( i_token, rawdata);
 
   /// create the collections of CSC digis
-  std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
-  std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
-  std::auto_ptr<CSCALCTDigiCollection> alctProduct(new CSCALCTDigiCollection);
-  std::auto_ptr<CSCCLCTDigiCollection> clctProduct(new CSCCLCTDigiCollection);
-  std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
-  std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
-  std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
-  std::auto_ptr<CSCDMBStatusDigiCollection> dmbStatusProduct(new CSCDMBStatusDigiCollection);
-  std::auto_ptr<CSCTMBStatusDigiCollection> tmbStatusProduct(new CSCTMBStatusDigiCollection);
-  std::auto_ptr<CSCDDUStatusDigiCollection> dduStatusProduct(new CSCDDUStatusDigiCollection);
-  std::auto_ptr<CSCDCCStatusDigiCollection> dccStatusProduct(new CSCDCCStatusDigiCollection);
-  std::auto_ptr<CSCALCTStatusDigiCollection> alctStatusProduct(new CSCALCTStatusDigiCollection);
+  auto wireProduct = std::make_unique<CSCWireDigiCollection>();
+  auto stripProduct = std::make_unique<CSCStripDigiCollection>();
+  auto alctProduct = std::make_unique<CSCALCTDigiCollection>();
+  auto clctProduct = std::make_unique<CSCCLCTDigiCollection>();
+  auto comparatorProduct = std::make_unique<CSCComparatorDigiCollection>();
+  auto rpcProduct = std::make_unique<CSCRPCDigiCollection>();
+  auto corrlctProduct = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+  auto cfebStatusProduct = std::make_unique<CSCCFEBStatusDigiCollection>();
+  auto dmbStatusProduct = std::make_unique<CSCDMBStatusDigiCollection>();
+  auto tmbStatusProduct = std::make_unique<CSCTMBStatusDigiCollection>();
+  auto dduStatusProduct = std::make_unique<CSCDDUStatusDigiCollection>();
+  auto dccStatusProduct = std::make_unique<CSCDCCStatusDigiCollection>();
+  auto alctStatusProduct = std::make_unique<CSCALCTStatusDigiCollection>();
 
-  std::auto_ptr<CSCDCCFormatStatusDigiCollection> formatStatusProduct(new CSCDCCFormatStatusDigiCollection);
+  auto formatStatusProduct = std::make_unique<CSCDCCFormatStatusDigiCollection>();
 
 
   // If set selective unpacking mode
@@ -659,24 +659,24 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
         } // end of if fed has data
     } // end of loop over DCCs
   // put into the event
-  e.put(wireProduct,          "MuonCSCWireDigi");
-  e.put(stripProduct,         "MuonCSCStripDigi");
-  e.put(alctProduct,          "MuonCSCALCTDigi");
-  e.put(clctProduct,          "MuonCSCCLCTDigi");
-  e.put(comparatorProduct,    "MuonCSCComparatorDigi");
-  e.put(rpcProduct,           "MuonCSCRPCDigi");
-  e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
+  e.put(std::move(wireProduct),          "MuonCSCWireDigi");
+  e.put(std::move(stripProduct),         "MuonCSCStripDigi");
+  e.put(std::move(alctProduct),          "MuonCSCALCTDigi");
+  e.put(std::move(clctProduct),          "MuonCSCCLCTDigi");
+  e.put(std::move(comparatorProduct),    "MuonCSCComparatorDigi");
+  e.put(std::move(rpcProduct),           "MuonCSCRPCDigi");
+  e.put(std::move(corrlctProduct),       "MuonCSCCorrelatedLCTDigi");
 
-  if (useFormatStatus)  e.put(formatStatusProduct,    "MuonCSCDCCFormatStatusDigi");
+  if (useFormatStatus)  e.put(std::move(formatStatusProduct),    "MuonCSCDCCFormatStatusDigi");
 
   if (unpackStatusDigis)
     {
-      e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
-      e.put(dmbStatusProduct,     "MuonCSCDMBStatusDigi");
-      e.put(tmbStatusProduct,     "MuonCSCTMBStatusDigi");
-      e.put(dduStatusProduct,     "MuonCSCDDUStatusDigi");
-      e.put(dccStatusProduct,     "MuonCSCDCCStatusDigi");
-      e.put(alctStatusProduct,    "MuonCSCALCTStatusDigi");
+      e.put(std::move(cfebStatusProduct),    "MuonCSCCFEBStatusDigi");
+      e.put(std::move(dmbStatusProduct),     "MuonCSCDMBStatusDigi");
+      e.put(std::move(tmbStatusProduct),     "MuonCSCTMBStatusDigi");
+      e.put(std::move(dduStatusProduct),     "MuonCSCDDUStatusDigi");
+      e.put(std::move(dccStatusProduct),     "MuonCSCDCCStatusDigi");
+      e.put(std::move(alctStatusProduct),    "MuonCSCALCTStatusDigi");
     }
   if (printEventNumber) LogTrace("CSCDCCUnpacker|CSCRawToDigi")
     <<"[CSCDCCUnpacker]: " << numOfEvents << " events processed ";

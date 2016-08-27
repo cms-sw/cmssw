@@ -102,7 +102,7 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
     Digis[ifed].push_back(df);
   }
 
-  auto_ptr<FEDRawDataCollection> productRawData( new FEDRawDataCollection );
+  auto productRawData = std::make_unique<FEDRawDataCollection>();
 
   ESDataFormatter::Digis::const_iterator itfed; 
   for (itfed = Digis.begin(); itfed != Digis.end(); ++itfed) {   
@@ -114,7 +114,7 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
     if (debug_) cout<<"FED : "<<fId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;
   } 
 
-  ev.put(productRawData);
+  ev.put(std::move(productRawData));
 
   return;
 }

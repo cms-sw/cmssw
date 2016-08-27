@@ -76,7 +76,7 @@ void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   es.get<HcalDbRecord>().get( pSetup );
   const HcalElectronicsMap* readoutMap=pSetup->getHcalMapping();
   // Step B: Create empty output
-  std::auto_ptr<FEDRawDataCollection> raw=std::auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection());
+  auto raw = std::make_unique<FEDRawDataCollection>();
 
   const int ifed_first=FEDNumbering::MINHCALFEDID;
   const int ifed_last=FEDNumbering::MAXHCALFEDID;
@@ -98,7 +98,7 @@ void HcalDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   }
 
 
-  e.put(raw);
+  e.put(std::move(raw));
 }
 
 

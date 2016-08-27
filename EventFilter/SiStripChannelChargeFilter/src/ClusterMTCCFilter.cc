@@ -122,14 +122,11 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
       decision = true; // accept event
   }
 
-  std::auto_ptr< int > output_decision( new int(decision) );
-  e.put(output_decision);
+  e.put(std::make_unique<int>(decision));
 
-  std::auto_ptr< unsigned int > output_sumofcharges( new unsigned int(sum_of_cluster_charges) );
-  e.put(output_sumofcharges);
+  e.put(std::make_unique<unsigned int>(sum_of_cluster_charges));
 
-  std::auto_ptr< map<unsigned int,vector<SiStripCluster> > > output_clusters(new map<unsigned int,vector<SiStripCluster> > (clusters_in_subcomponents));
-  e.put(output_clusters);
+  e.put(std::make_unique<std::map<unsigned int,std::vector<SiStripCluster>>>(clusters_in_subcomponents));
 
   return decision;
 }

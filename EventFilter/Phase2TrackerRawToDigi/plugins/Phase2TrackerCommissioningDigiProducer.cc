@@ -59,8 +59,8 @@ void Phase2Tracker::Phase2TrackerCommissioningDigiProducer::produce( edm::Event&
       {
         cond_data_digi->push_back(Phase2TrackerCommissioningDigi(it->first,it->second));
       }
-      std::auto_ptr< edm::DetSet<Phase2TrackerCommissioningDigi> > cdd(cond_data_digi);
-      event.put( cdd, "ConditionData" );
+      std::unique_ptr<edm::DetSet<Phase2TrackerCommissioningDigi>> cdd(cond_data_digi);
+      event.put(std::move(cdd), "ConditionData");
     }
   }
 }

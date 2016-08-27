@@ -32,16 +32,16 @@ class DCCTowerBlock : public DCCFEBlock {
   protected:
 	 
     int unpackXtalData(unsigned int stripID, unsigned int xtalID);
-    void fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * );
+    void fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * );
 
-    std::auto_ptr<EBDigiCollection>     * digis_;
+    std::unique_ptr<EBDigiCollection>     * digis_;
     
     EBDetId                             * pDetId_;
 
     // to restructure as common collections to DCCSCBlock, to inherit from DCCFEBlock
-    std::auto_ptr<EBDetIdCollection>    * invalidGains_;  
-    std::auto_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
-    std::auto_ptr<EBDetIdCollection>    * invalidChIds_;
+    std::unique_ptr<EBDetIdCollection>    * invalidGains_;  
+    std::unique_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
+    std::unique_ptr<EBDetIdCollection>    * invalidChIds_;
 	 
 };
 

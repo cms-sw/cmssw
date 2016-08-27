@@ -111,7 +111,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   if (theTimer) theTimer->start();
 
   // create product (raw data)
-  std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
+  auto buffers = std::make_unique<FEDRawDataCollection>();
 
   const vector<const PixelFEDCabling *>  fedList = cablingTree_->fedList();
 
@@ -143,7 +143,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     hDigi->Fill(formatter.nDigis());
   }
   
-  ev.put( buffers );
+  ev.put(std::move(buffers));
   
 }
 

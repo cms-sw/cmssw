@@ -88,10 +88,10 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   ev.getByToken(fedToken_,allFEDRawData); 
 
 
-  std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
-  std::auto_ptr<RPCRawDataCounts> producedRawDataCounts(new RPCRawDataCounts);
-  std::auto_ptr<RPCRawSynchro::ProdItem> producedRawSynchoCounts;
-  if (doSynchro_) producedRawSynchoCounts.reset(new RPCRawSynchro::ProdItem);
+  auto producedRPCDigis = std::make_unique<RPCDigiCollection>();
+  auto producedRawDataCounts = std::make_unique<RPCRawDataCounts>();
+  std::unique_ptr<RPCRawSynchro::ProdItem> producedRawSynchoCounts;
+  if (doSynchro_) producedRawSynchoCounts = std::make_unique<RPCRawSynchro::ProdItem>();
 
   int status = 0;
   for (int fedId= FEDNumbering::MINRPCFEDID; fedId<=FEDNumbering::MAXRPCFEDID; ++fedId){  
@@ -209,8 +209,8 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   }
   if (status && debug) LogTrace("")<<" RPCUnpackingModule - There was unpacking PROBLEM in this event"<<endl;
   if (debug) LogTrace("") << DebugDigisPrintout()(producedRPCDigis.get()) << endl;
-  ev.put(producedRPCDigis);  
-  ev.put(producedRawDataCounts);
-  if (doSynchro_) ev.put(producedRawSynchoCounts);
+  ev.put(std::move(producedRPCDigis));  
+  ev.put(std::move(producedRawDataCounts));
+  if (doSynchro_) ev.put(std::move(producedRawSynchoCounts));
 
 }

@@ -40,7 +40,7 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   es.get<CastorDbRecord>().get( pSetup );
   const CastorElectronicsMap* readoutMap=pSetup->getCastorMapping();
   // Step B: Create empty output
-  std::auto_ptr<FEDRawDataCollection> raw=std::auto_ptr<FEDRawDataCollection>(new FEDRawDataCollection());
+  auto raw = std::make_unique<FEDRawDataCollection>();
 
   const int ifed_first=FEDNumbering::MINCASTORFEDID;  //690
   const int ifed_last=FEDNumbering::MAXCASTORFEDID;   //693
@@ -65,7 +65,7 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
     }
   }
 
-  e.put(raw);
+  e.put(std::move(raw));
 }
 
 
