@@ -285,7 +285,7 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
               maxNumberOfConcurrentModulesOnAStream = nModulesRunning
           #need to create a new time span to avoid overlaps in graph
           startTime = min( activeModules.itervalues() )
-          #print moduleNames
+          #print s, startTime, time, moduleNames
           for k in activeModules.iterkeys():
             activeModules[k]=time
             
@@ -305,6 +305,10 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
         nModulesRunning = len(activeModules)
         if nModulesRunning > 0:
           streamMultipleModulesRunnningTimes[s][-1][2]=time
+          #reset start time for remaining modules to this time
+          # to avoid overlapping time ranges when making the plot
+          for k in activeModules.iterkeys():
+            activeModules[k] = time
     if startTime is not None:
       c="green"
       if (kSourceDelayedRead in moduleNames) or (kSourceFindEvent in moduleNames):
@@ -350,14 +354,15 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
   ax.set_xlabel("Time (sec)")
   ax.set_ylabel("Stream ID")
 
+  height = 0.8/maxNumberOfConcurrentModulesOnAStream
+
   i=1
   for s in xrange(numStreams+1):
     t = streamStartTimes[s]
-    ax.broken_barh(t,(i-0.4,0.8),facecolors=streamColors[s],edgecolors=streamColors[s],linewidth=0)
+    ax.broken_barh(t,(i-0.4,height),facecolors=streamColors[s],edgecolors=streamColors[s],linewidth=0)
     i=i+1
 #now superimpose the number of concurrently running modules on to the graph
   if maxNumberOfConcurrentModulesOnAStream > 1:
-    height = 0.8/maxNumberOfConcurrentModulesOnAStream
     i=1
     for s in xrange(numStreams+1):
       occurences = streamMultipleModulesRunnningTimes[s]
@@ -365,7 +370,7 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
         if info[2] is None:
           continue
         times = (info[1], info[2]-info[1])
-        ax.broken_barh( [times],(i-0.4, height*(info[0]-1)), facecolors="blue",edgecolors="blue",linewidth=0)
+        ax.broken_barh( [times],(i-0.4+height, height*(info[0]-1)), facecolors="blue",edgecolors="blue",linewidth=0)
       i+=1
   #add key .1, .3, .7
   fig.text(0.1, 0.95, "modules running", color = "green", horizontalalignment = 'left')
@@ -401,7 +406,7 @@ if __name__=="__main__":
     sys.stderr.write(">preparing ASCII art\n")
     createAsciiImage(processingSteps, numStreams, maxNameSize)
   else:
-    sys.stderr.write(">created PDF\n")
+    sys.stderr.write(">creating PDF\n")
     createPDFImage(processingSteps, numStreams, stalledModules)
   printStalledModulesInOrder(stalledModules)
 
