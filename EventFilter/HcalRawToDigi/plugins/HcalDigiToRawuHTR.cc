@@ -21,7 +21,6 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "PackerHelp.h"
