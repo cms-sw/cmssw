@@ -257,7 +257,9 @@ streamA_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_DoubleJet90
     'HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq200_v3', 
     'HLT_QuadPFJet_BTagCSV_p016_p11_VBF_Mqq240_v3', 
     'HLT_Rsq0p02_MR400_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v1', 
-    'HLT_Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v1')
+    'HLT_Rsq0p02_MR450_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v1', 
+    'HLT_Rsq0p02_MR500_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v1', 
+    'HLT_Rsq0p02_MR550_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTagMu_selector
 streamA_datasetBTagMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -309,7 +311,6 @@ streamA_datasetHTMHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetHTMHT_selector.throw      = cms.bool(False)
 streamA_datasetHTMHT_selector.triggerConditions = cms.vstring('HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v3', 
     'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_v3', 
-    'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v5', 
     'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_v5', 
     'HLT_PFHT200_PFAlphaT0p51_v5', 
     'HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_v5', 
@@ -422,12 +423,10 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CaloMHTNoPU90_P
     'HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v5', 
     'HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v5', 
     'HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight_v5', 
-    'HLT_Mu14er_PFMET100_v3', 
     'HLT_Mu6_PFHT200_PFMET100_v3', 
     'HLT_PFMET100_PFMHT100_IDTight_BeamHaloCleaned_v2', 
     'HLT_PFMET100_PFMHT100_IDTight_v5', 
     'HLT_PFMET110_PFMHT110_IDTight_v5', 
-    'HLT_PFMET120_Mu5_v4', 
     'HLT_PFMET120_PFMHT120_IDTight_v5', 
     'HLT_PFMET170_BeamHaloCleaned_v4', 
     'HLT_PFMET170_HBHECleaned_v6', 
