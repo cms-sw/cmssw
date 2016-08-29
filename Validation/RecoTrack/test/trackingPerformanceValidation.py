@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_8_1_0_pre8'
+RefRelease='CMSSW_8_1_0_pre12'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_8_1_0_pre9'
+NewRelease='CMSSW_8_1_0_pre15'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
@@ -47,11 +47,24 @@ pileupstartupsamples = [
 phase1samples = [
     Sample('RelValMinBias', midfix="13"),
     Sample("RelValTTbar", midfix="13"),
-    Sample('RelValZMM', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
+    Sample('RelValZMM', midfix="13"),
+    Sample('RelValH125GGgluonfusion', midfix="13"),
     Sample('RelValTenMuE_0_200'),
+    Sample('RelValSingleElectronPt35'),
+    Sample('RelValSingleElectronPt10'),
+    Sample("RelValSingleMuPt1"),
+    Sample("RelValSingleMuPt10"),
+    Sample("RelValSingleMuPt100"),
     Sample("RelValTTbar", midfix="13", putype=putype("25ns"), punum=35),
     Sample("RelValZMM", midfix="13", putype=putype("25ns"), punum=35),
+    # Design
+    Sample('RelValMinBias', midfix="13", scenario="Design"),
+    Sample("RelValTTbar", midfix="13", scenario="Design"),
+    Sample("RelValSingleMuPt1", scenario="Design"),
+    Sample("RelValSingleMuPt10", scenario="Design"),
+    Sample("RelValSingleMuPt100", scenario="Design"),
+    Sample("RelValTTbar", midfix="13", scenario="Design", putype=putype("25ns"), punum=35),
 ]
 
 phase2samples = [
@@ -141,20 +154,24 @@ VertexCollections=["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]
 def limitProcessing(algo, quality):
     return algo in Algos and quality in Qualities
 
-def limitRelVal(algo, quality): # for phase2 ATM
+def limitRelVal(algo, quality):
     return quality in ["", "highPurity"]
 
 def ignore(a, q):
     return False
 
+kwargs_tracking = {
+    "limitSubFoldersOnlyTo": {
+        "": limitRelVal, # filter out the pT>0.9 GeV track selection
+#        "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing,
+    }
+}
 # Temporary until we have limited the set of histograms for phase2
-kwargs_tracking = {}
-if "_phase2" in NewRelease:
-    kwargs_tracking["limitSubFoldersOnlyTo"] = {
-        "": limitRelVal,
+if "_phase2" in NewRelease or "SLHC" in NewRelease:
+    kwargs_tracking["limitSubFoldersOnlyTo"].update({
         "allTPEffic": ignore, "fromPV": ignore, "fromPVAllTP": ignore, # ignore for now to save disk space
         "seeding": ignore, "building": ignore # temporary until we have limited the set of histograms for phase2
-    }
+    })
 
 
 
@@ -172,16 +189,22 @@ val = Validation(
 htmlReport = val.createHtmlReport()
 val.download()
 val.doPlots(plotter=trackingPlots.plotter,
-#            limitSubFoldersOnlyTo={"": limitProcessing, "allTPEffic": limitProcessing, "fromPV": limitProcessing, "fromPVAllTP": limitProcessing},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
             **kwargs_tracking
 )
+#val.doPlots(plotter=trackingPlots.plotterExt,
+#            htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
+#            **kwargs_tracking
+#)
 
-val.download()
 val.doPlots(plotter=vertexPlots.plotter,
             limitSubFoldersOnlyTo={"": VertexCollections},
             htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
 )
+#val.doPlots(plotter=vertexPlots.plotterExt,
+#            limitSubFoldersOnlyTo={"": VertexCollections},
+#            htmlReport=htmlReport, doFastVsFull=doFastVsFull, doPhase2PU=doPhase2PU,
+#)
 htmlReport.write()
 
 
