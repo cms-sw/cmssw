@@ -99,8 +99,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     ),
     
     TH1ClusterPos = cms.PSet(
-        layerView = cms.bool(False),
-        ringView  = cms.bool(True),
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False),
     ),
     
     TH1ClusterSymmEtaCC = cms.PSet( Nbinx = cms.int32(120),

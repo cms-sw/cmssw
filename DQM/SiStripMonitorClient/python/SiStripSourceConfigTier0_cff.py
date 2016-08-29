@@ -83,6 +83,8 @@ SiStripMonitorTrackCommon.TrackProducer = 'generalTracks'
 SiStripMonitorTrackCommon.Mod_On        = False
 SiStripMonitorTrackCommon.TH1ClusterCharge.ringView = cms.bool( True )
 SiStripMonitorTrackCommon.TH1ClusterStoNCorr.ringView = cms.bool( True )
+SiStripMonitorTrackCommon.TH1ClusterPos.layerView = cms.bool( False )
+SiStripMonitorTrackCommon.TH1ClusterPos.ringView = cms.bool( True )
 
 # Clone for SiStripMonitorTrack for Minimum Bias ####
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
