@@ -85,7 +85,7 @@ class HLTTrackClusterRemoverNew final : public edm::stream::EDProducer<> {
 	inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
 
         template<typename T> 
-        std::auto_ptr<edmNew::DetSetVector<T> >
+        std::unique_ptr<edmNew::DetSetVector<T> >
         cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
                     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
 
@@ -203,13 +203,13 @@ void HLTTrackClusterRemoverNew::mergeOld(ClusterRemovalInfo::Indices &refs,
 
  
 template<typename T> 
-auto_ptr<edmNew::DetSetVector<T> >
+std::unique_ptr<edmNew::DetSetVector<T> >
 HLTTrackClusterRemoverNew::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
 			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
     typedef typename edmNew::DetSet<T>                   DS;
-    auto_ptr<DSV> output(new DSV());
+    auto output = std::make_unique<DSV>();
     output->reserve(oldClusters.size(), oldClusters.dataSize());
 
     unsigned int countOld=0;
@@ -432,16 +432,12 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
     
     //    std::cout << " => collectedRegStrips_: " << collectedRegStrips_.size() << std::endl;
     //    std::cout << " total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
-    std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-							      new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedRegStrips_));
     LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true);
     // std::cout << "TrackClusterRemover" <<" total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true)<<std::endl;
-    iEvent.put( removedStripClusterMask );
+    iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedRegStrips_));
     
-    std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
-							      new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
     LogDebug("TrackClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
-    iEvent.put( removedPixelClusterMask );
+    iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
 
     collectedRegStrips_.clear();
     collectedPixels_.clear();

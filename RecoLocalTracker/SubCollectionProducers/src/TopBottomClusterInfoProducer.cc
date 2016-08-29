@@ -75,7 +75,7 @@ TopBottomClusterInfoProducer::produce(edm::StreamID, Event& iEvent, const EventS
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClustersNew;
     iEvent.getByToken(stripClustersNew_, stripClustersNew);
 
-    auto_ptr<ClusterRemovalInfo> cri(new ClusterRemovalInfo(pixelClustersOld, stripClustersOld));
+    auto cri = std::make_unique<ClusterRemovalInfo>(pixelClustersOld, stripClustersOld);
     ClusterRemovalInfo::Indices& pixelInd = cri->pixelIndices();
     ClusterRemovalInfo::Indices& stripInd = cri->stripIndices();
     stripInd.reserve(stripClustersNew->size()); 
@@ -150,7 +150,7 @@ TopBottomClusterInfoProducer::produce(edm::StreamID, Event& iEvent, const EventS
     cri->setNewPixelClusters(edm::OrphanHandle<SiPixelClusterCollectionNew>(pixelClustersNew.product(),pixelClustersNew.id()));
     cri->setNewStripClusters(edm::OrphanHandle<edmNew::DetSetVector<SiStripCluster> >(stripClustersNew.product(),stripClustersNew.id()));
 
-    iEvent.put(cri);
+    iEvent.put(std::move(cri));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
