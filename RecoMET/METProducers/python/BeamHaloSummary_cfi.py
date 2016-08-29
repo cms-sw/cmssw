@@ -40,7 +40,10 @@ BeamHaloSummary = cms.EDProducer("BeamHaloSummaryProducer",
                                  t_HcalPhiWedgeEnergy = cms.double(25.),
                                  t_HcalPhiWedgeConstituents = cms.int32(8),
                                  t_HcalPhiWedgeToF = cms.double(-100.), ### needs to be tuned when absolute timing in  HB/HE is understood w.r.t LHC
-                                 t_HcalPhiWedgeConfidence = cms.double(0.9)
+                                 t_HcalPhiWedgeConfidence = cms.double(0.9),
+
+                                 # strips of problematic cells in HCAL min cut
+                                 problematicStripMinLength = cms.int32(6)
                                  
                                  )
 
