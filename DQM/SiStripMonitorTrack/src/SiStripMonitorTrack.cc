@@ -401,10 +401,12 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker & ibooker , const uint3
   if (layer_id.find("TEC") != std::string::npos)  total_nr_strips = 3 * 2 * 128;
 
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OnTrack");
-  theLayerMEs.ClusterPosOnTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  hpar = "TH1ClusterPos";
+  if ( layer_id.find("TIB") != std::string::npos || layer_id.find("TOB") != std::string::npos || (conf_.getParameter<edm::ParameterSet>(hpar.c_str())).getParameter<bool>(view.c_str()) ) theLayerMEs.ClusterPosOnTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,layer_id,"OffTrack");
-  theLayerMEs.ClusterPosOffTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  hpar = "TH1ClusterPos";
+  if ( layer_id.find("TIB") != std::string::npos || layer_id.find("TOB") != std::string::npos || (conf_.getParameter<edm::ParameterSet>(hpar.c_str())).getParameter<bool>(view.c_str()) ) theLayerMEs.ClusterPosOffTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
   // dQ/dx
   hname = hidmanager.createHistoLayer("Summary_ClusterChargePerCMfromTrack",name,layer_id,"");
@@ -489,10 +491,12 @@ void SiStripMonitorTrack::bookRingMEs(DQMStore::IBooker & ibooker , const uint32
   if (ring_id.find("TEC") != std::string::npos)  total_nr_strips = 3 * 2 * 128;
 
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,ring_id,"OnTrack");
-  theRingMEs.ClusterPosOnTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  hpar = "TH1ClusterPos";
+  if ( (conf_.getParameter<edm::ParameterSet>(hpar.c_str())).getParameter<bool>(view.c_str()) ) theRingMEs.ClusterPosOnTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
   hname = hidmanager.createHistoLayer("Summary_ClusterPosition",name,ring_id,"OffTrack");
-  theRingMEs.ClusterPosOffTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
+  hpar = "TH1ClusterPos";
+  if ( (conf_.getParameter<edm::ParameterSet>(hpar.c_str())).getParameter<bool>(view.c_str()) ) theRingMEs.ClusterPosOffTrack = ibooker.book1D(hname, hname, total_nr_strips, 0.5,total_nr_strips+0.5);
 
   // dQ/dx
   hname = hidmanager.createHistoLayer("Summary_ClusterChargePerCMfromTrack",name,ring_id,"");
