@@ -1188,6 +1188,14 @@ steps['RECODR2_2016reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:To
 steps['RECODR2_2016reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighMET,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@miniAODDQM'},steps['RECODR2_2016reHLT']])
 steps['RECODR2_2016reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@miniAODDQM'},steps['RECODR2_2016reHLT']])
 
+for sname in ['RECODR2_2016reHLT', 'RECODR2newL1repack_2016reHLT',
+              'RECODR2_2016reHLT_skimDoubleEG', 'RECODR2_2016reHLT_skimJetHT',
+              'RECODR2_2016reHLT_skimMuonEG', 'RECODR2_2016reHLT_skimSingleMu',
+              'RECODR2_2016reHLT_skimMuOnia', 'RECODR2reHLTAlCaTkCosmics']:
+    # sanity check
+    if steps[sname]['--era'] != "Run2_2016":
+        raise Exception("Some internal inconsistenty, got era %s for step %s while expected Run2_2016" % (steps[sname]['--era'], sname))
+    steps[sname+"_HIPM"] = merge([step3_HIPM,steps[sname]])
 
 steps['RECO']=merge([step3Defaults])
 
