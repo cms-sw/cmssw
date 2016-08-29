@@ -22,6 +22,14 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
+class DetGroupElementZLess {
+public:
+  bool operator()(DetGroup a,DetGroup b)
+  {
+    return (fabs(a.front().det()->position().z()) < fabs(b.front().det()->position().z()));
+  }
+};
+
 Phase2OTEndcapRing::Phase2OTEndcapRing(vector<const GeomDet*>& innerDets,
 			       vector<const GeomDet*>& outerDets,
 			       vector<const GeomDet*>& innerDetBrothers,
@@ -131,6 +139,21 @@ Phase2OTEndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos
 
   DetGroupMerger::orderAndMergeTwoLevels( std::move(closestCompleteResult), std::move(nextCompleteResult), result,
 					  crossings.closestIndex(), crossingSide);
+
+  //due to propagator problems, when we add single pt sub modules, we should order them in z (endcap)
+  sort(result.begin(),result.end(),DetGroupElementZLess());
+
+#ifdef EDM_ML_DEBUG
+  for (auto&  grp : result) {
+    if ( grp.empty() )  continue;
+      LogTrace("TkDetLayers") <<"New group in Phase2OTEndcapRing made by : " << std::endl;
+      for (auto const & det : grp) {
+          LogTrace("TkDetLayers") <<" geom det at r: " << det.det()->position().perp() <<" id:" << det.det()->geographicalId().rawId()
+                    <<" tsos at:" << det.trajectoryState().globalPosition() << std::endl;
+      }
+    }
+#endif
+
 }
 
 
