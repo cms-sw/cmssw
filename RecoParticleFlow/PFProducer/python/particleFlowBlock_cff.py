@@ -13,7 +13,7 @@ from Configuration.StandardSequences.Eras import eras
 _phase2_hgcal_Importers = deepcopy(particleFlowBlock.elementImporters)
 # kill tracks in the HGCal
 _phase2_hgcal_Importers[5].importerName = cms.string('GeneralTracksImporterWithVeto')
-_phase2_hgcal_Importers[5].veto = cms.InputTag('HGCalTrackCollection:TracksInHGCal')
+_phase2_hgcal_Importers[5].veto = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
 #_phase2_hgcal_Importers[2].source_ee = cms.InputTag('particleFlowSuperClusterHGCal')
 #_phase2_hgcal_Importers.append(
 #    cms.PSet( importerName = cms.string("HGCalClusterImporter"),

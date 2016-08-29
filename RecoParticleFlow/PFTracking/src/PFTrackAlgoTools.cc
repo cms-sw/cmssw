@@ -248,6 +248,7 @@ bool step5(const reco::TrackBase::TrackAlgorithm& algo){
   return (algo==reco::TrackBase::tobTecStep||algo==reco::TrackBase::pixelLessStep);
 }
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 bool goodPtResolution(const reco::TrackRef& trackref, 
 		      const std::vector<double>& DPtovPtCut,
 		      const std::vector<unsigned>& NHitCut,
@@ -257,39 +258,39 @@ bool goodPtResolution(const reco::TrackRef& trackref,
   if (!trackref->quality(reco::TrackBase::highPurity))
     return false;
     
-  const double P = trackref->p();
-  const double Pt = trackref->pt();
-  const double DPt = trackref->ptError();
-  const unsigned int NHit = 
+  const double p = trackref->p();
+  const double pT = trackref->pt();
+  const double dpT = trackref->ptError();
+  const unsigned int nHit = 
     trackref->hitPattern().trackerLayersWithMeasurement();
-  const unsigned int NLostHit = 
+  const unsigned int nLostHit = 
     trackref->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
-  const unsigned int LostHits = trackref->numberOfLostHits();
-  const double sigmaHad = std::sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
+  const unsigned int lostHits = trackref->numberOfLostHits();
+  const double sigmaHad = std::sqrt(1.20*1.20/p+0.06*0.06) / (1.+lostHits);
 
   // Protection against 0 momentum tracks
-  if ( P < 0.05 ) return false;
+  if ( p < 0.05 ) return false;
  
-  if (debug) std::cout << " PFBlockAlgo: PFrecTrack->Track Pt= "
-		       << Pt << " DPt = " << DPt << std::endl;
-
-
+  LogDebug("goodPtResolution") << " PFBlockAlgo: PFrecTrack->Track Pt= "
+			       << pT << " DPt = " << dpT << std::endl;
+  
+  
   double dptCut = dPtCut(trackref->algo(),DPtovPtCut,useIterTracking);
   unsigned int nhitCut = nHitCut(trackref->algo(),NHitCut,useIterTracking);
-
+  
   if ( ( dptCut > 0. && 
-	 DPt/Pt > dptCut*sigmaHad ) || 
-       NHit < nhitCut ) { 
-    if (debug) std::cout << " PFBlockAlgo: skip badly measured track"
-			 << ", P = " << P 
-			 << ", Pt = " << Pt 
-			 << " DPt = " << DPt 
-			 << ", N(hits) = " << NHit 
-			 << " (Lost : " << LostHits << "/" << NLostHit << ")"
-			 << ", Algo = " << trackref->algo()
-			 << std::endl;
-    if (debug) std::cout << " cut is DPt/Pt < " << dptCut * sigmaHad << std::endl;
-    if (debug) std::cout << " cut is NHit >= " << nhitCut << std::endl;
+	 dpT/pT > dptCut*sigmaHad ) || 
+       nHit < nhitCut ) { 
+    LogDebug("goodPtResolution") << " PFBlockAlgo: skip badly measured track"
+				 << ", P = " << p 
+				 << ", Pt = " << pT 
+				 << " DPt = " << dpT 
+				 << ", N(hits) = " << nHit 
+				 << " (Lost : " << lostHits << "/" << nLostHit << ")"
+				 << ", Algo = " << trackref->algo()
+				 << std::endl;
+    LogDebug("goodPtResolution") << " cut is DPt/Pt < " << dptCut * sigmaHad << std::endl;
+    LogDebug("goodPtResolution") << " cut is NHit >= " << nhitCut << std::endl;
     return false;
   }
 

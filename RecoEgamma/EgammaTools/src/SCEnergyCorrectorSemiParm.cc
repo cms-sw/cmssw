@@ -100,7 +100,7 @@ void SCEnergyCorrectorSemiParm::setEvent(const edm::Event &e) {
 void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
   
   // protect against HGCal, don't mod the object
-  if( !rechitsEE_.isValid() ) return;
+  if( sc.seed()->seed().det() == DetId::Forward ) return;
 
   const reco::CaloCluster &seedCluster = *(sc.seed());
   const bool iseb = seedCluster.hitsAndFractions()[0].first.subdetId() == EcalBarrel;
