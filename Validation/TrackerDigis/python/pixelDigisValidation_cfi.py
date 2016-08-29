@@ -8,5 +8,5 @@ pixelDigisValid = cms.EDAnalyzer("SiPixelDigiValid",
 
 # This customization will be removed once we have phase2 pixel digis
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_tracker.toModify(pixelDigisValid, src = cms.InputTag('simSiPixelDigis', "Pixel"))
+eras.phase2_tracker.toModify(pixelDigisValid, src = 'simSiPixelDigis:Pixel')
 

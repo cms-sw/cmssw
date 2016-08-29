@@ -20,9 +20,7 @@ simHitTPAssocProducer = cms.EDProducer("SimHitTPAssociationProducer",
 )
 
 from Configuration.StandardSequences.Eras import eras
-eras.trackingPhase2PU140.toModify(simHitTPAssocProducer, simHitSrc = cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
-                                                                                   cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
-)
+eras.trackingPhase2PU140.toModify(simHitTPAssocProducer, simHitSrc = ["g4SimHits:TrackerHitsPixelBarrelLowTof", "g4SimHits:TrackerHitsPixelEndcapLowTof"])
 
 if eras.fastSim.isChosen():
     simHitTPAssocProducer.simHitSrc = cms.VInputTag(cms.InputTag('famosSimHits','TrackerHits'),

@@ -12,6 +12,7 @@ from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import cutsRecoTracks_cfi
 
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
+eras.trackingPhase2PU140.toModify(tpClusterProducer, pixelSimLinkSrc = "simSiPixelDigis:Pixel")
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import *
 from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
 from CommonTools.RecoAlgos.trackingParticleConversionRefSelector_cfi import trackingParticleConversionRefSelector as _trackingParticleConversionRefSelector
@@ -393,7 +394,6 @@ tracksValidationTruth = cms.Sequence(
     trackingParticleNumberOfLayersProducer
 )
 eras.fastSim.toModify(tracksValidationTruth, lambda x: x.remove(tpClusterProducer))
-eras.trackingPhase2PU140.toModify(tpClusterProducer, pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"))
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
