@@ -156,7 +156,11 @@ _globalTags = {
     "CMSSW_8_0_16": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
     "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT",
                                 "fastsim": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT", "RelValTTbar": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tr4GT_resub"}, "fastsim_25ns": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
+    "CMSSW_8_0_16_Tranche4GT_v2": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v2_Tr4GT_v2"},
     "CMSSW_8_0_16_Tranche4GT_pmx": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_resub"},
+    "CMSSW_8_0_19_Tranche4GT_v2": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v2_Tr4GT_v2"},
+    "CMSSW_8_0_20_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4"},
+    "CMSSW_8_0_21_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6"},
     "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
     "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
     "CMSSW_8_1_0_pre2": {"default": "80X_mcRun2_asymptotic_v10_gs810pre2", "fastsim": "80X_mcRun2_asymptotic_v10"},
@@ -185,14 +189,30 @@ _globalTags = {
     "CMSSW_8_1_0_pre9_Geant4102": {"default": "81X_mcRun2_asymptotic_v2"},
     "CMSSW_8_1_0_pre9_phase1": {"default": "81X_upgrade2017_realistic_v5_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35"},
     "CMSSW_8_1_0_pre9_phase1_newGT": {"default": "81X_upgrade2017_realistic_v6_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v6_UPG17PU35newGT"},
+    "CMSSW_8_1_0_pre10": {"default": "81X_mcRun2_asymptotic_v5_recycle", "fullsim_25ns": "81X_mcRun2_asymptotic_v5_resub", "fastsim": "81X_mcRun2_asymptotic_v5"},
+    "CMSSW_8_1_0_pre10_pmx": {"default": "81X_mcRun2_asymptotic_v5"},
+    "CMSSW_8_1_0_pre10_phase1": {"default": "81X_upgrade2017_realistic_v9_UPG17resub", "fullsim_25ns": "81X_upgrade2017_realistic_v9_UPG17PU35resub"},
+    "CMSSW_8_1_0_pre11": {"default": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55", "fullsim_25ns": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55_resub", "fastsim_25ns": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55_resub2"},
+    "CMSSW_8_1_0_pre11_pmx": {"default": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55"},
+    "CMSSW_8_1_0_pre11_phase1": {"default": "81X_upgrade2017_realistic_v9_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v9_UPG17PU35"},
+    "CMSSW_8_1_0_pre12": {"default": "81X_mcRun2_asymptotic_v8", "fullsim_25ns": "81X_mcRun2_asymptotic_v8_resub", "fastsim": "81X_mcRun2_asymptotic_v8_resub", "fastsim_25ns": "81X_mcRun2_asymptotic_v8"},
+    "CMSSW_8_1_0_pre12_pmx": {"default": "81X_mcRun2_asymptotic_v8_resub", "fastsim_25ns": "81X_mcRun2_asymptotic_v8_rsub"},
+    "CMSSW_8_1_0_pre12_phase1": {"default": "81X_upgrade2017_realistic_v13"},
+    "CMSSW_8_1_0_pre12_phase1_newBPix": {"default": "81X_upgrade2017_realistic_newBPix_wAlign_v1_BpixGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newBPixFPix": {"default": "81X_upgrade2017_realistic_v13_BpixFpixGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newBPixFPixHCAL": {"default": "81X_upgrade2017_HCALdev_v2_BpixFpixHcalGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newHCAL": {"default": "81X_upgrade2017_HCALdev_v2_HcalGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newBPixHCAL": {"default": "81X_upgrade2017_HCALdev_v2_NewBPix_BpixHcalGeom"},
+    "CMSSW_8_1_0_pre15": {"default": "81X_mcRun2_asymptotic_v11"},
+    "CMSSW_8_1_0_pre15_phase1": {"default": "81X_upgrade2017_realistic_v17_BpixFpixHcalGeom", "Design": "81X_upgrade2017_design_IdealBS_v1_2017design"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_Tranche4GT_pmx", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1_newGT2", "_phase1_newGT", "_phase1", "_phase2", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_v2", "_v3", "_pmx", "_Fall14DR", "_FIXGT", "_PU", "_PXbest", "_PXworst", "_hcal", "_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC", "_MT", "_rereco", "_pythia8", "_13TeV", "_realGT", "_newGT2", "_newGT", "_phase1", "_phase2", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT", "_newBPixFPixHCAL", "_newBPixFPix", "_newBPixHCAL", "_newBPix", "_newHCAL"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
-            return release.replace(pf, "")
+            return _stripRelease(release.replace(pf, ""))
     return release
 
 
