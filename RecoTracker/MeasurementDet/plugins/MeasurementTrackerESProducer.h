@@ -15,6 +15,10 @@ class  dso_hidden MeasurementTrackerESProducer: public edm::ESProducer{
  private:
   std::shared_ptr<MeasurementTracker> _measurementTracker;
   edm::ParameterSet pset_;
+  std::string pixelCPEName;
+  std::string stripCPEName;
+  std::string matcherName;
+  std::string phase2TrackerCPEName;
 };
 
 
