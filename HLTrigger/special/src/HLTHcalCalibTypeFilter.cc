@@ -103,7 +103,7 @@ HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
       {
           //    VME get event type
           int eventtype = ((const HcalDCCHeader*)(fedData.data()))->getCalibType(); 
-          eventtype==0 ? numZeroes++ : numPositives++;
+          if (eventtype==0) numZeroes++; else numPositives++;
       }
       else 
       {
@@ -113,7 +113,7 @@ HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
           {
               HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
               int eventtype = uhtr.getEventType();
-              eventtype==0 ? numZeroes++ : numPositives++;
+              if (eventtype==0) numZeroes++; else numPositives++;
           }
       }
   }
