@@ -946,8 +946,10 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
 
       if (doDigitalReadout) adc = theAdcFullScale;
       else adc = std::min( int(signalInElectrons / theElectronPerADC), theAdcFullScale );
+
       DigitizerUtility::DigiSimInfo info;
       info.sig_tot     = adc;
+      info.ot_bit      = ( int(signalInElectrons / theElectronPerADC) > theAdcFullScale ? true : false);
       if (makeDigiSimLinks_ && sig_data.hitInfo() != 0) {
 	info.hit_counter = sig_data.hitIndex();
 	info.tof_bin     = sig_data.tofBin();
