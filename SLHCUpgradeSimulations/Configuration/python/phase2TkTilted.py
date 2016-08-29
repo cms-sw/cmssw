@@ -46,12 +46,12 @@ def customise_Digi(process):
           process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
           process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
 
-    # keep new digis
-    alist=['FEVTDEBUG','FEVTDEBUGHLT','FEVT']
-    for a in alist:
-        b=a+'output'
-        if hasattr(process,b):
-            getattr(process,b).outputCommands.append('keep Phase2TrackerDigiedmDetSetVector_*_*_*')
+      # keep new digis
+      alist=['FEVTDEBUG','FEVTDEBUGHLT','FEVT']
+      for a in alist:
+          b=a+'output'
+          if hasattr(process,b):
+              getattr(process,b).outputCommands.append('keep Phase2TrackerDigiedmDetSetVector_*_*_*')
     return process
 
 
