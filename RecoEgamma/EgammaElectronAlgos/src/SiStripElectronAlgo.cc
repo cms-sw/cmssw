@@ -1149,7 +1149,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   double reducedChi2 = (totalNumberOfHits > 2 ? chi2 / (totalNumberOfHits - 2) : 1e10);
 
   // Select this candidate if it passes minHits_ and maxReducedChi2_ cuts
-  if (totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
+  if (innerhit != nullptr && totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
     // GlobalTrajectoryParameters evaluated at the position of the innerhit
     GlobalPoint position = tracker_p_->idToDet(innerhit->geographicalId())->surface().toGlobal(innerhit->localPosition());
 
