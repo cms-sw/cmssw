@@ -1,6 +1,3 @@
-//
-//
-
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -378,13 +375,41 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       // aTauPFEssential.pvPos_ = tauLifetimeInfo.primaryVertexPos();
       // aTauPFEssential.pvCov_ = tauLifetimeInfo.primaryVertexCov();
       aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
-      if(tauLifetimeInfo.hasSecondaryVertex()){
-	aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
-	aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
-	//      aTauPFEssential.sv_ = tauLifetimeInfo.secondaryVertex();
-	// aTauPFEssential.svPos_ = tauLifetimeInfo.secondaryVertexPos();
-	// aTauPFEssential.svCov_ = tauLifetimeInfo.secondaryVertexCov();
-      }
+      //if(tauLifetimeInfo.hasSecondaryVertex()){
+      aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
+      aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
+      //      aTauPFEssential.sv_ = tauLifetimeInfo.secondaryVertex();
+      // aTauPFEssential.svPos_ = tauLifetimeInfo.secondaryVertexPos();
+      // aTauPFEssential.svCov_ = tauLifetimeInfo.secondaryVertexCov();
+      //}
+    }
+
+    // extraction of variables needed to rerun MVA isolation on MiniAOD
+    // (only available for PFTaus)
+    if( aTau.isPFTau() ) {
+        edm::Handle<reco::PFTauCollection> pfTaus;
+        iEvent.getByToken(pfTauToken_, pfTaus);
+        reco::PFTauRef pfTauRef(pfTaus, idx);
+        pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
+        float ecalEnergy = 0;
+        float hcalEnergy = 0;
+        std::vector<reco::PFCandidatePtr> signalCands = pfTauRef->signalPFCands();
+        for(std::vector<reco::PFCandidatePtr>::iterator it = signalCands.begin(); it != signalCands.end(); ++it) {
+        	reco::PFCandidatePtr & icand = *it;
+        	ecalEnergy += icand->ecalEnergy();
+        	hcalEnergy += icand->hcalEnergy();
+        }
+        aTauPFEssential.ecalEnergy_ = ecalEnergy;
+        aTauPFEssential.hcalEnergy_ = hcalEnergy;
+        float leadingTrackNormChi2 = 0;
+        const reco::PFCandidatePtr& leadingPFCharged = pfTauRef->leadPFChargedHadrCand();
+        if(leadingPFCharged.isNonnull()) {
+        	reco::TrackRef trackRef = leadingPFCharged->trackRef();
+        	if(trackRef.isNonnull()) {
+        		leadingTrackNormChi2 = trackRef->normalizedChi2();
+        	}
+        }
+        aTauPFEssential.leadingTrackNormChi2_ = leadingTrackNormChi2;
     }
 
     // Isolation
