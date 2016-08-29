@@ -38,6 +38,7 @@ using namespace edm;
 MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterSet & p) 
 {  
   std::string myname = p.getParameter<std::string>("ComponentName");
+  phase2TrackerCPEName = "";
   pset_ = p;
   setWhatProduced(this,myname);
 }
@@ -47,12 +48,11 @@ MeasurementTrackerESProducer::~MeasurementTrackerESProducer() {}
 std::shared_ptr<MeasurementTracker> 
 MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
-  std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
-  std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
-  std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
+  pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
+  stripCPEName = pset_.getParameter<std::string>("StripCPE");
+  matcherName  = pset_.getParameter<std::string>("HitMatcher");
 
   //FIXME:: just temporary solution for phase2!
-  std::string phase2TrackerCPEName = "";
   if (pset_.existsAs<std::string>("Phase2StripCPE")) {
     phase2TrackerCPEName = pset_.getParameter<std::string>("Phase2StripCPE");
   }
