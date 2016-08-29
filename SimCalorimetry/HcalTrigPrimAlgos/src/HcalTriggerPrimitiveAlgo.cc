@@ -603,6 +603,9 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
                // Ideally the sum of *4 channels* ⇒ LSB is also multiplied
                // by 4
                output[ibin] += long_fiber_val + short_fiber_val;
+
+               if (long_fiber_count == 0 and short_fiber_count == 0)
+                  output[ibin] = 0;
             }
 
             // int ADCLong = details.LongDigi[ibin].adc();
