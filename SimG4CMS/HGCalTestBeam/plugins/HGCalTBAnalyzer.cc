@@ -31,6 +31,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 // Root objects
 #include "TROOT.h"
@@ -57,23 +59,27 @@ private:
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void analyzeSimHits (int type, std::vector<PCaloHit>& hits);
-  template<class T1> void analyzeDigi (int type, const T1& detId, uint16_t adc);
-  void analyzeRecHits (int type, edm::Handle<HGCRecHitCollection> & hits);
+  void analyzeSimHits(int type, std::vector<PCaloHit>& hits);
+  void analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const& SimTk, 
+			edm::Handle<edm::SimVertexContainer> const& SimVtx);
+  template<class T1> void analyzeDigi(int type, const T1& detId, uint16_t adc);
+  void analyzeRecHits(int type, edm::Handle<HGCRecHitCollection> & hits);
 
   edm::Service<TFileService>               fs_;
   const HGCalDDDConstants                 *hgcons_[2];
   const HGCalGeometry                     *hgeom_[2];
   bool                                     ifEE_, ifHE_;
-  bool                                     doTreeLayer_, doTreeCell_;
+  bool                                     doTree_, doTreeCell_;
   bool                                     doSimHits_, doDigis_, doRecHits_;
   std::string                              detectorEE_, detectorHE_;
   int                                      sampleIndex_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsHE_;
+  edm::EDGetTokenT<edm::SimTrackContainer>  tok_simTk_;
+  edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
   edm::EDGetToken                          tok_digiEE_, tok_digiHE_;
   edm::EDGetToken                          tok_hitrEE_, tok_hitrHE_;
   edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
-  TTree                                   *tree1_, *tree2_;
+  TTree                                   *tree_;
   TH1D                                    *hSimHitE_[2], *hSimHitT_[2];
   TH1D                                    *hDigiADC_[2], *hDigiLng_[2];
   TH1D                                    *hRecHitE_[2], *hSimHitEn_[2], *hBeam_;
@@ -88,6 +94,7 @@ private:
   std::vector<float>                       simHitLayEn1H, simHitLayEn2H;
   std::vector<uint32_t>                    simHitCellIdE, simHitCellIdH;
   std::vector<float>                       simHitCellEnE, simHitCellEnH;
+  double                                   xBeam, yBeam, zBeam, pBeam;
 };
 
 HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
@@ -103,7 +110,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   doDigis_     = iConfig.getParameter<bool>("DoDigis");
   sampleIndex_ = iConfig.getParameter<int>("SampleIndex");
   doRecHits_   = iConfig.getParameter<bool>("DoRecHits");
-  doTreeLayer_ = iConfig.getUntrackedParameter<bool>("DoTreeLayer",false);
+  doTree_      = iConfig.getUntrackedParameter<bool>("DoTree",false);
   doTreeCell_  = iConfig.getUntrackedParameter<bool>("DoTreeCell",false);
 #ifdef DebugLog
   std::cout << "HGCalTBAnalyzer:: SimHits = " << doSimHits_ << " Digis = "
@@ -118,6 +125,8 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
 #endif
   std::string   tmp1 = iConfig.getParameter<std::string>("CaloHitSrcEE");
   tok_hitsEE_  = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits",tmp1));
+  tok_simTk_   = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tok_simVtx_  = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
   edm::InputTag tmp2 = iConfig.getParameter<edm::InputTag>("DigiSrcEE");
   tok_digiEE_  = consumes<HGCEEDigiCollection>(tmp2);
   edm::InputTag tmp3 = iConfig.getParameter<edm::InputTag>("RecHitSrcEE");
@@ -214,19 +223,22 @@ void HGCalTBAnalyzer::beginJob() {
       hRecHitLng1_[i] = fs_->make<TProfile>(name,title,120,0.,60.);
     }
   }
-  if (doSimHits_ && doTreeLayer_) {
-    tree1_ = fs_->make<TTree>("HGCTB","SimHitEnergy");
-    tree1_->Branch("simHitLayEn1E", &simHitLayEn1E);
-    tree1_->Branch("simHitLayEn2E", &simHitLayEn2E);
-    tree1_->Branch("simHitLayEn1H", &simHitLayEn1H);
-    tree1_->Branch("simHitLayEn2H", &simHitLayEn2H);
-  }
-  if (doSimHits_ && doTreeCell_) {
-    tree2_ = fs_->make<TTree>("HGCTBCell","SimHitEnergyCell");
-    tree2_->Branch("simHitCellIdE", &simHitCellIdE);
-    tree2_->Branch("simHitCellEnE", &simHitCellEnE);
-    tree2_->Branch("simHitCellIdH", &simHitCellIdH);
-    tree2_->Branch("simHitCellEnH", &simHitCellEnH);
+  if (doSimHits_ && doTree_) {
+    tree_ = fs_->make<TTree>("HGCTB","SimHitEnergy");
+    tree_->Branch("simHitLayEn1E", &simHitLayEn1E);
+    tree_->Branch("simHitLayEn2E", &simHitLayEn2E);
+    tree_->Branch("simHitLayEn1H", &simHitLayEn1H);
+    tree_->Branch("simHitLayEn2H", &simHitLayEn2H);
+    tree_->Branch("xBeam",         &xBeam,           "xBeam/D");
+    tree_->Branch("yBeam",         &yBeam,           "yBeam/D");
+    tree_->Branch("zBeam",         &zBeam,           "zBeam/D");
+    tree_->Branch("pBeam",         &pBeam,           "pBeam/D");
+    if (doTreeCell_) {
+      tree_->Branch("simHitCellIdE", &simHitCellIdE);
+      tree_->Branch("simHitCellEnE", &simHitCellEnE);
+      tree_->Branch("simHitCellIdH", &simHitCellIdH);
+      tree_->Branch("simHitCellEnH", &simHitCellEnH);
+    }
   }
 }
 
@@ -322,6 +334,12 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 
   //Now the Simhits
   if (doSimHits_) {
+    edm::Handle<edm::SimTrackContainer>  SimTk;
+    iEvent.getByToken(tok_simTk_, SimTk);
+    edm::Handle<edm::SimVertexContainer> SimVtx;
+    iEvent.getByToken(tok_simVtx_, SimVtx);
+    analyzeSimTracks(SimTk, SimVtx);
+
     simHitLayEn1E.clear(); simHitLayEn2E.clear();
     simHitLayEn1H.clear(); simHitLayEn2H.clear();
     simHitCellIdE.clear(); simHitCellEnE.clear();
@@ -372,8 +390,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 #endif
       }
     }
-    if (doTreeLayer_) tree1_->Fill();
-    if (doTreeCell_)  tree2_->Fill();
+    if (doTree_) tree_->Fill();
   }
 
   //Now the Digis
@@ -578,6 +595,39 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
       simHitCellIdH.push_back(id); simHitCellEnH.push_back(energy);
     }
   }
+}
+
+void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const& SimTk, 
+				       edm::Handle<edm::SimVertexContainer> const& SimVtx) {
+
+  xBeam = yBeam = zBeam = pBeam = -1000000;
+  int vertIndex(-1);
+  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); 
+       simTrkItr!= SimTk->end(); simTrkItr++) {
+#ifdef DebugLog
+    std::cout << "Track " << simTrkItr->trackId() << " Vertex "
+	      << simTrkItr->vertIndex() << " Type " << simTrkItr->type()
+	      << " Charge " << simTrkItr->charge() << " momentum "
+	      << simTrkItr->momentum() << " " << simTrkItr->momentum().P()
+	      << std::endl;
+#endif
+    if (vertIndex == -1) {
+      vertIndex = simTrkItr->vertIndex();
+      pBeam     = simTrkItr->momentum().P();
+    }
+  }
+  if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {
+    edm::SimVertexContainer::const_iterator simVtxItr= SimVtx->begin();
+    for (int iv=0; iv<vertIndex; iv++) simVtxItr++;
+#ifdef DebugLog
+    std::cout << "Vertex " << vertIndex << " position "
+	      << simVtxItr->position() << std::endl;
+#endif
+    xBeam = simVtxItr->position().X();
+    yBeam = simVtxItr->position().Y();
+    zBeam = simVtxItr->position().Z();
+  }
+
 }
 
 template<class T1>
