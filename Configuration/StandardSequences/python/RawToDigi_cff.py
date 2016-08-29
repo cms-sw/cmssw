@@ -81,9 +81,12 @@ totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([castorDigis]))
 
+<<<<<<< HEAD
 # until we have hcal raw data for phase 2...
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 phase2_hcal.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
+# Remove siPixelDigis until we have phase1 pixel digis
+eras.phase2_tracker.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])) # FIXME
 
 
 # add CTPPS 2016 raw-to-digi modules

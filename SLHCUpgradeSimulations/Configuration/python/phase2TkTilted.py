@@ -29,21 +29,22 @@ def customise(process):
 
 def customise_Digi(process):
 
-    process.digitisation_step.remove(process.mix.digitizers.pixel)
-    process.load('SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi')
-    process.mix.digitizers.pixel=process.phase2TrackerDigitizer
-    process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
-                         'g4SimHitsTrackerHitsPixelEndcapLowTof')
-    #Check if mergedtruth is in the sequence first, could be taken out depending on cmsDriver options
-    if hasattr(process.mix.digitizers,"mergedtruth") :
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECHighTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
-        process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
+    if not eras.trackingPhase2PU140.isChosen():
+      process.digitisation_step.remove(process.mix.digitizers.pixel)
+      process.load('SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi')
+      process.mix.digitizers.pixel=process.phase2TrackerDigitizer
+      process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
+                       'g4SimHitsTrackerHitsPixelEndcapLowTof')
+      #Check if mergedtruth is in the sequence first, could be taken out depending on cmsDriver options
+      if hasattr(process.mix.digitizers,"mergedtruth") :
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"))
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"))
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"))
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"))
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECLowTof"))
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTECHighTof"))
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"))
+          process.mix.digitizers.mergedtruth.simHitCollections.tracker.remove( cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"))
 
     # keep new digis
     alist=['FEVTDEBUG','FEVTDEBUGHLT','FEVT']
@@ -61,13 +62,15 @@ def customise_DigiToRaw(process):
     return process
 
 def customise_RawToDigi(process):
-    process.raw2digi_step.remove(process.siPixelDigis)
+    if not eras.trackingPhase2PU140.isChosen():
+      process.raw2digi_step.remove(process.siPixelDigis)
     return process
 
 def customise_Reco(process,pileup):
     return process
 
 def customise_condOverRides(process):
+    # this is a custom specific for tilted/flat .. how do we want to deal with it?
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff')
     return process
 
