@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
-from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import *
 
 pixelDigitizer = cms.PSet(
     SiPixelSimBlock,
@@ -11,6 +10,6 @@ pixelDigitizer = cms.PSet(
 )
 
 from Configuration.StandardSequences.Eras import eras
-eras.phase2_tracker.toModify( pixelDigitizer, 
-                              pixel = phase2TrackerDigitizer)
+from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import phase2TrackerDigitizer as _phase2TrackerDigitizer
+eras.phase2_tracker.toReplaceWith(pixelDigitizer, _phase2TrackerDigitizer)
 
