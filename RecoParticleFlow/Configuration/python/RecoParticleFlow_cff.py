@@ -23,12 +23,14 @@ from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
 fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.InputTag("particleFlowTmp"))
 
+particleFlowTmpSeq = cms.Sequence(particleFlowTmp)
+
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
-#                                 pfGsfElectronCiCSelectionSequence*
+#                                pfGsfElectronCiCSelectionSequence*
                                  pfGsfElectronMVASelectionSequence*
                                  particleFlowBlock*
                                  particleFlowEGammaFull*
-                                 particleFlowTmp*
+                                 particleFlowTmpSeq*
                                  fixedGridRhoFastjetAllTmp*
                                  particleFlowTmpPtrs*          
                                  particleFlowEGammaFinal*
@@ -36,7 +38,7 @@ particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
 
 particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*particleBasedIsolationSequence)
 
-from RecoParticleFlow.PFProducer.HGCalTrackCollection_cfi import *
+from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
 from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
 from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
@@ -50,21 +52,13 @@ _phase2_hgcal_particleFlowTmp = cms.EDProducer(
 )
 
 _phase2_hgcal_simPFSequence = cms.Sequence( pfTrack +
-                                            HGCalTrackCollection + 
+                                            hgcalTrackCollection + 
                                             tpClusterProducer +
                                             quickTrackAssociatorByHits +
                                             simPFProducer )
-_phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence*
-                                               particleFlowTrackWithDisplacedVertex*
-                                               pfGsfElectronMVASelectionSequence*
-                                               particleFlowBlock*
-                                               particleFlowEGammaFull*
-                                               particleFlowTmpBarrel*
-                                               particleFlowTmp*
-                                               fixedGridRhoFastjetAllTmp*
-                                               particleFlowTmpPtrs*          
-                                               particleFlowEGammaFinal*
-                                               pfParticleSelectionSequence )
+_phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence * particleFlowReco.copy() )
+_phase2_hgcal_particleFlowReco.replace( particleFlowTmpSeq, cms.Sequence( particleFlowTmpBarrel * particleFlowTmp ) )
+
 eras.phase2_hgcal.toModify( quickTrackAssociatorByHits,
                             pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
                             stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")

@@ -1,4 +1,4 @@
-<library   name="RecoParticleFlowPFTrackingPlugins" file="ElectronSeedMerger.cc,LightPFTrackProducer.cc,PFConversionProducer.cc,PFElecTkProducer.cc,PFNuclearProducer.cc,PFV0Producer.cc, GoodSeedProducer.cc, PFDisplacedVertexCandidateProducer.cc, PFDisplacedVertexProducer.cc, PFDisplacedTrackerVertexProducer.cc, PFDisplacedVertexSelector.cc, PFTrackProducer.cc, modules.cc">
+<library   name="RecoParticleFlowPFTrackingPlugins" file="ElectronSeedMerger.cc,LightPFTrackProducer.cc,PFConversionProducer.cc,PFElecTkProducer.cc,PFNuclearProducer.cc,PFV0Producer.cc, GoodSeedProducer.cc, PFDisplacedVertexCandidateProducer.cc, PFDisplacedVertexProducer.cc, PFDisplacedTrackerVertexProducer.cc, PFDisplacedVertexSelector.cc, PFTrackProducer.cc, HGCalTrackCollectionProducer.cc , modules.cc">
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/EgammaCandidates"/>
@@ -18,6 +18,8 @@
   <use   name="RecoEgamma/EgammaTools"/>
   <use   name="RecoParticleFlow/PFTracking"/>
   <use   name="RecoTracker/TkSeedGenerator"/>
+  <use   name="Geometry/HGCalGeometry"/>
+  <use   name="Geometry/Records"/>
   <use   name="TrackingTools/PatternTools"/>
   <use   name="TrackingTools/Records"/>
   <use   name="TrackingTools/TrackFitters"/>

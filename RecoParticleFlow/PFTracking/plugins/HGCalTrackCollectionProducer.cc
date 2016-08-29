@@ -78,16 +78,12 @@ HGCalTrackCollectionProducer::HGCalTrackCollectionProducer(const edm::ParameterS
   DPtovPtCut_(iConfig.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
   NHitCut_(iConfig.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
   useIterTracking_(iConfig.getParameter<bool>("useIterativeTracking"))
-  //  _useFirstLayerOnly(iConfig.getParameter<bool>("UseFirstLayerOnly")) // always true now
 {
 
-  if (debug_) std::cout << " HGCalTrackCollectionProducer::HGCalTrackCollectionProducer " << std::endl;
+   LogDebug("HGCalTrackCollectionProducer") << " HGCalTrackCollectionProducer::HGCalTrackCollectionProducer " << std::endl;
 
   const edm::ParameterSet& geoconf = iConfig.getParameterSet("hgcalGeometryNames");
   hgc_names_[0] = geoconf.getParameter<std::string>("HGC_ECAL");
-  // 3 --> 1; extrapolate to hgcee only
-  //  hgc_names_[1] = geoconf.getParameter<std::string>("HGC_HCALF"); 
-  //  hgc_names_[2] = geoconf.getParameter<std::string>("HGC_HCALB");
 
   produces<reco::PFRecTrackCollection>("TracksInHGCal");
   produces<reco::PFRecTrackCollection>("TracksNotInHGCal");
@@ -117,12 +113,11 @@ void HGCalTrackCollectionProducer::beginLuminosityBlock(const edm::LuminosityBlo
     std::map<float,float> zrhoCoord;
     std::map<float,float> innerRadiusCoord;
     const auto& firstLayerIt = dddCons.getTrForms().back();
-    //const auto& firstmod = dddCons.getModule(0,true,true);
     float Z(std::abs(firstLayerIt.h3v.z()));
     // use hardcoded radii for now (FIX ME)
     diskInnerRadius_ = 31.5;
     diskOuterRadius_ = 161.0f;
-    if (debug_) std::cout << "O HAI I'm making a bound disk with Outer R=" << diskOuterRadius_ << " Inner R=" << diskInnerRadius_ << " and Z=" << Z << std::endl;
+    LogDebug("HGCalTrackCollectionProducer") << "O HAI I'm making a bound disk with Outer R=" << diskOuterRadius_ << " Inner R=" << diskInnerRadius_ << " and Z=" << Z << std::endl;
     minusSurface_[i].push_back(ReferenceCountingPointer<BoundDisk> ( new BoundDisk( Surface::PositionType(0,0,-Z), rot, 
 										    new SimpleDiskBounds( diskInnerRadius_, diskOuterRadius_, -0.001, 0.001))));
     plusSurface_[i].push_back(ReferenceCountingPointer<BoundDisk> ( new BoundDisk( Surface::PositionType(0,0,+Z), rot, 
@@ -142,41 +137,40 @@ void HGCalTrackCollectionProducer::produce(edm::Event & evt, const edm::EventSet
   for ( unsigned int i = 0 ; i < tracks.size() ; i++) {
     const auto track = tracks.ptrAt(i);
     bool isGood = PFTrackAlgoTools::goodPtResolution(track->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_);
-    if (debug_) std::cout << "HGCalTrackCollectionProducer Track number " << i << " has a goodPtResolution result of " << isGood << std::endl;
+    LogDebug("HGCalTrackCollectionProducer") << "HGCalTrackCollectionProducer Track number " << i << " has a goodPtResolution result of " << isGood << std::endl;
     if (!isGood) continue;
     bool found = false;
     const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(*(track->trackRef()), *(tkGeom_.product()),bField_.product());
     auto detbegin = myTSOS.globalPosition().z() > 0 ? plusSurface_.begin() : minusSurface_.begin();
     auto detend = myTSOS.globalPosition().z() > 0 ? plusSurface_.end() : minusSurface_.end();
     for( auto det = detbegin; det != detend; ++det ) {  
-      if (debug_) std::cout << "at HGC detector: " << std::distance(detbegin,det) << std::endl;
+      LogDebug("HGCalTrackCollectionProducer") << "at HGC detector: " << std::distance(detbegin,det) << std::endl;
       unsigned layer_count = 1;
       for( const auto& layer : *det ) {
-	if (debug_) std::cout << "  at DET layer: " << layer_count++ << std::endl;
+	LogDebug("HGCalTrackCollectionProducer") << "  at DET layer: " << layer_count++ << std::endl;
 	TrajectoryStateOnSurface piStateAtSurface = mat_prop_->propagate(myTSOS, *layer);
 	if( piStateAtSurface.isValid() ) {
-	  if (debug_) std::cout << "Extrapolation is valid!" << std::endl;
+	  LogDebug("HGCalTrackCollectionProducer") << "Extrapolation is valid!" << std::endl;
 	  GlobalPoint pt = piStateAtSurface.globalPosition();
 	  if (pt.perp() < diskOuterRadius_) {
 	    if (pt.perp() > diskInnerRadius_) {
-	      if (debug_) std::cout << "(x,y,z,r)=(" << pt.x() << ", " << pt.y() << ", " << pt.z() << ", " << sqrt(pt.x()*pt.x() + pt.y()*pt.y()) << ")" << std::endl;
-	      if (debug_ && fabs (track->trackRef()->eta()) < 1.47) std::cout << " ETA IN BARREL REGION: " << track->trackRef()->eta() 
+	      LogDebug("HGCalTrackCollectionProducer") << "(x,y,z,r)=(" << pt.x() << ", " << pt.y() << ", " << pt.z() << ", " << sqrt(pt.x()*pt.x() + pt.y()*pt.y()) << ")" << std::endl;
+	      if (std::abs(track->trackRef()->eta()) < 1.47) LogDebug("HGCalTrackCollectionProducer") << " ETA IN BARREL REGION: " << track->trackRef()->eta() 
 										  << " (PT: " << track->trackRef()->pt() << ")" << std::endl;
 	      found = true;
 	    } else {
-	      if (debug_) std::cout << " but r=" << pt.perp() << " < diskInnerRadius=" << diskInnerRadius_ << " so skipping " << std::endl;
+	      LogDebug("HGCalTrackCollectionProducer") << " but r=" << pt.perp() << " < diskInnerRadius=" << diskInnerRadius_ << " so skipping " << std::endl;
 	    }
 	  } else {
-	    if (debug_) std::cout << " but r=" << pt.perp() << " > diskOuterRadius=" << diskOuterRadius_ << " so skipping " << std::endl;
+	    LogDebug("HGCalTrackCollectionProducer") << " but r=" << pt.perp() << " > diskOuterRadius=" << diskOuterRadius_ << " so skipping " << std::endl;
 	  }
 	} else {
-	  if (debug_) std::cout << "Extrapolation is NOT valid!" << std::endl;
-	  //	  outputNotInHGCal->push_back(*track);
+	  LogDebug("HGCalTrackCollectionProducer") << "Extrapolation is NOT valid!" << std::endl;
 	}
       }
     }
     if (found) {
-      if (debug_) std::cout << " Track going to outputInHGCal pt eta " << track->trackRef()->pt() << " " << track->trackRef()->eta() << std::endl;
+      LogDebug("HGCalTrackCollectionProducer") << " Track going to outputInHGCal pt eta " << track->trackRef()->pt() << " " << track->trackRef()->eta() << std::endl;
       outputInHGCal->push_back(*track);
     } else {
       outputNotInHGCal->push_back(*track);

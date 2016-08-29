@@ -1,4 +1,4 @@
-<library   name="RecoParticleFlowPFProducerSimPlugins" file="HGCalTrackCollectionProducer.cc,SimPFProducer.cc,TauHadronDecayFilter.cc,PFSimParticleProducer.cc,SealModuleSim.cc">
+<library   name="RecoParticleFlowPFProducerSimPlugins" file="SimPFProducer.cc,TauHadronDecayFilter.cc,PFSimParticleProducer.cc,SealModuleSim.cc">
   <use   name="DataFormats/EcalDetId"/>
   <use   name="Geometry/HGCalGeometry"/>
   <use   name="TrackingTools/MaterialEffects"/>
