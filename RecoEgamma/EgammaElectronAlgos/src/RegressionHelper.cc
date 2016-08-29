@@ -193,13 +193,13 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
     break;
   default:
     elClass = -1;
-  };
+  }
 
 
   bool isEcalDriven = ele.ecalDriven();
   bool isTrackerDriven =  ele.trackerDrivenSeed();
   bool isEB = ele.isEB();
-
+  
   // compute relative errors and ratio of errors
   float energyRelError = energyError / energy;
   float momentumRelError = momentumError / momentum;
@@ -212,7 +212,7 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
   // fill input variables
   std::vector<float> regressionInputs ;
   regressionInputs.resize(11,0.);
-
+  
   regressionInputs[0]  = energy;
   regressionInputs[1]  = energyRelError;
   regressionInputs[2]  = momentum;
@@ -224,7 +224,7 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
   regressionInputs[8]  = static_cast<float>(isTrackerDriven);
   regressionInputs[9]  = static_cast<float>(elClass);
   regressionInputs[10] = static_cast<float>(isEB);
-    
+  
   // retrieve combination weight
   float weight = 0.;
   if(eOverP>0.025 
@@ -235,10 +235,10 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
       if(weight>1.) weight = 1.;
       else if(weight<0.) weight = 0.;
     }
-
+  
   float combinedMomentum = weight*momentum + (1.-weight)*energy;
   float combinedMomentumError = sqrt(weight*weight*momentumError*momentumError + (1.-weight)*(1.-weight)*energyError*energyError);
-
+  
   // FIXME : pure tracker electrons have track momentum error of 999.
   // If the combination try to combine such electrons then the original combined momentum is kept
   if(momentumError!=999. || weight==0.)
@@ -250,6 +250,6 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
 					  combinedMomentum);
       
       ele.setP4(reco::GsfElectron::P4_COMBINATION,newMomentum,combinedMomentumError,true);
-    }
+    }  
 }
 
