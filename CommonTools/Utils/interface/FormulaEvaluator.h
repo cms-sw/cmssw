@@ -28,6 +28,23 @@
 // forward declarations
 namespace reco {
   namespace formula {
+    struct ArrayAdaptor {
+    ArrayAdaptor(double const* iStart, size_t iSize):
+      m_start(iStart), m_size(iSize) {}
+      size_t size() const { return m_size; }
+      bool empty() const {return m_size == 0; }
+      double const* start() const { return m_start; }
+    private:
+      double const* m_start;
+      size_t m_size;
+    };
+    inline double const* startingAddress(ArrayAdaptor const& iV) {
+      if(iV.empty()) {
+        return nullptr;
+      }
+      return iV.start();
+    }
+
     class EvaluatorBase;
     inline double const* startingAddress(std::vector<double> const& iV) {
       if(iV.empty()) {
@@ -52,6 +69,7 @@ namespace reco {
   public:
     explicit FormulaEvaluator(std::string const& iFormula);
 
+    // ---------- const member functions ---------------------
     template<typename V, typename P>
       double evaluate( V const& iVariables, P const& iParameters) const {
       if (m_nVariables > iVariables.size()) {
@@ -63,7 +81,9 @@ namespace reco {
       return evaluate( formula::startingAddress(iVariables),
                        formula::startingAddress(iParameters));
     }
-    // ---------- const member functions ---------------------
+    
+    unsigned int numberOfParameters() const { return m_nParameters; }
+    unsigned int numberOfVariables() const { return m_nVariables; }
     
   private:
     double evaluate(double const* iVariables, double const* iParameters) const;

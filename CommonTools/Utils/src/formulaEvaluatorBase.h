@@ -32,17 +32,19 @@ namespace reco {
     {
       
     public:
-      enum class Precidence { 
-        kPlusMinus = 1,
-          kMultDiv = 2,
-          kPower = 3,
-          kFunction = 4, //default
-          kParenthesis = 5,
-          kUnaryMinusOperator = 6
+      enum class Precedence {
+          kIdentity = 1,
+          kComparison=2,
+          kPlusMinus = 3,
+          kMultDiv = 4,
+          kPower = 5,
+          kFunction = 6, //default
+          kParenthesis = 7,
+          kUnaryMinusOperator = 8
           };
 
       EvaluatorBase();
-      EvaluatorBase(Precidence);
+      EvaluatorBase(Precedence);
       virtual ~EvaluatorBase();
       
       // ---------- const member functions ---------------------
@@ -50,8 +52,8 @@ namespace reco {
       // be of the appropriate length
       virtual double evaluate(double const* iVariables, double const* iParameters) const = 0;
 
-      unsigned int precidence() const { return m_precidence; }
-      void setPrecidenceToParenthesis() { m_precidence = static_cast<unsigned int>(Precidence::kParenthesis); }
+      unsigned int precedence() const { return m_precedence; }
+      void setPrecedenceToParenthesis() { m_precedence = static_cast<unsigned int>(Precedence::kParenthesis); }
 
     private:
       EvaluatorBase(const EvaluatorBase&) = delete; 
@@ -59,7 +61,7 @@ namespace reco {
       const EvaluatorBase& operator=(const EvaluatorBase&) = delete;
       
       // ---------- member data --------------------------------
-      unsigned int m_precidence;
+      unsigned int m_precedence;
     };
   }
 }

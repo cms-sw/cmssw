@@ -33,7 +33,8 @@ using namespace reco;
 namespace {
   //Formula Parser Code
   struct EvaluatorInfo {
-    std::unique_ptr<reco::formula::EvaluatorBase> evaluator;
+    std::shared_ptr<reco::formula::EvaluatorBase> evaluator;
+    std::shared_ptr<reco::formula::EvaluatorBase> top;
     int nextParseIndex=0;
     unsigned int maxNumVariables=0;
     unsigned int maxNumParameters=0;
@@ -85,7 +86,8 @@ namespace {
         double value = stod(s, &endIndex);
 
         info.nextParseIndex = endIndex;
-        info.evaluator = std::unique_ptr<reco::formula::EvaluatorBase>( new reco::formula::ConstantEvaluator(value));
+        info.evaluator = std::make_shared<reco::formula::ConstantEvaluator>(value);
+        info.top = info.evaluator;
       } catch ( std::invalid_argument ) {}
 
       return info;
@@ -122,8 +124,9 @@ namespace {
         
         
         info.nextParseIndex = endIndex+2;
-        info.maxNumParameters = value;
-        info.evaluator = std::unique_ptr<reco::formula::EvaluatorBase>( new reco::formula::ParameterEvaluator(value));
+        info.maxNumParameters = value+1;
+        info.evaluator = std::make_shared<reco::formula::ParameterEvaluator>(value);
+        info.top = info.evaluator;
       } catch ( std::invalid_argument ) {}
       
       return info;
@@ -160,7 +163,8 @@ namespace {
       }
       info.nextParseIndex = 1;
       info.maxNumVariables = index+1;
-      info.evaluator = std::unique_ptr<reco::formula::EvaluatorBase>(new reco::formula::VariableEvaluator(index) );
+      info.evaluator = std::make_shared<reco::formula::VariableEvaluator>(index);
+      info.top = info.evaluator;
       return info;
     }
   };
@@ -184,7 +188,6 @@ namespace {
 
 
   EvaluatorInfo createBinaryOperatorEvaluator( ExpressionFinder const&,
-                                               std::unique_ptr<reco::formula::EvaluatorBase> iLHS,
                                                std::string::const_iterator iBegin,
                                                std::string::const_iterator iEnd) ;
 
@@ -211,37 +214,32 @@ namespace {
       return false;
     }
 
-    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const {
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd, std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase> iPreviousBinary) const {
       EvaluatorInfo leftEvaluatorInfo ;
       if( iBegin == iEnd) {
         return leftEvaluatorInfo;
       }
       //Start with '+'
       if (*iBegin == '+' and iEnd -iBegin > 1 and not std::isdigit( *(iBegin+1) ) ) {
-        leftEvaluatorInfo = createEvaluator(iBegin+1, iEnd);
+        leftEvaluatorInfo = createEvaluator(iBegin+1, iEnd, iPreviousBinary);
 
         //have to account for the '+' we skipped over
         leftEvaluatorInfo.nextParseIndex +=1;
         if( nullptr == leftEvaluatorInfo.evaluator.get() ) {
-          return leftEvaluatorInfo;
-        }
-        if( leftEvaluatorInfo.nextParseIndex == iEnd-iBegin) {
           return leftEvaluatorInfo;
         }
       }
       //Start with '-'
       else if (*iBegin == '-' and iEnd -iBegin > 1 and not std::isdigit( *(iBegin+1) ) ) {
-        leftEvaluatorInfo = createEvaluator(iBegin+1, iEnd);
+        leftEvaluatorInfo = createEvaluator(iBegin+1, iEnd,iPreviousBinary);
 
         //have to account for the '+' we skipped over
         leftEvaluatorInfo.nextParseIndex +=1;
         if( nullptr == leftEvaluatorInfo.evaluator.get() ) {
           return leftEvaluatorInfo;
         }
-        leftEvaluatorInfo.evaluator = std::unique_ptr<reco::formula::EvaluatorBase>( new reco::formula::UnaryMinusEvaluator( std::move(leftEvaluatorInfo.evaluator)) );
-        if( leftEvaluatorInfo.nextParseIndex == iEnd-iBegin) {
-          return leftEvaluatorInfo;
-        }
+        leftEvaluatorInfo.evaluator = std::make_shared<reco::formula::UnaryMinusEvaluator>( std::move(leftEvaluatorInfo.evaluator));
+        leftEvaluatorInfo.top = leftEvaluatorInfo.evaluator;
       }
       //Start with '('
       else if( *iBegin == '(') {
@@ -249,17 +247,14 @@ namespace {
         if(iBegin== endParenthesis) {
           return leftEvaluatorInfo;
         }
-        leftEvaluatorInfo = createEvaluator(iBegin+1,endParenthesis);
+        leftEvaluatorInfo = createEvaluator(iBegin+1,endParenthesis,std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>());
         ++leftEvaluatorInfo.nextParseIndex;
         if(leftEvaluatorInfo.evaluator.get() == nullptr) {
           return leftEvaluatorInfo;
         }
         //need to account for closing parenthesis
         ++leftEvaluatorInfo.nextParseIndex;
-        leftEvaluatorInfo.evaluator->setPrecidenceToParenthesis();
-        if( iBegin+leftEvaluatorInfo.nextParseIndex == iEnd) {
-          return leftEvaluatorInfo;
-        }
+        leftEvaluatorInfo.evaluator->setPrecedenceToParenthesis();
       } else {
         //Does not start with a '('
         int maxParseDistance = 0;
@@ -282,18 +277,49 @@ namespace {
       }
       //did we evaluate the full expression?
       if(leftEvaluatorInfo.nextParseIndex == iEnd-iBegin) {
+        if (iPreviousBinary) {
+          iPreviousBinary->setRightEvaluator(leftEvaluatorInfo.top);
+          leftEvaluatorInfo.top = iPreviousBinary;
+        }
         return leftEvaluatorInfo;
       }
 
       //see if this is a binary expression
-      auto fullExpression = createBinaryOperatorEvaluator(*this, std::move(leftEvaluatorInfo.evaluator), iBegin+leftEvaluatorInfo.nextParseIndex, iEnd);
+      auto fullExpression = createBinaryOperatorEvaluator(*this, iBegin+leftEvaluatorInfo.nextParseIndex, iEnd);
       fullExpression.nextParseIndex +=leftEvaluatorInfo.nextParseIndex;
       fullExpression.maxNumVariables = std::max(leftEvaluatorInfo.maxNumVariables, fullExpression.maxNumVariables);
       fullExpression.maxNumParameters = std::max(leftEvaluatorInfo.maxNumParameters, fullExpression.maxNumParameters);
       if (iBegin + fullExpression.nextParseIndex != iEnd) {
         //did not parse the full expression
-        fullExpression.evaluator.release();
+        fullExpression.evaluator.reset();
       }
+
+      //Now to handle precedence
+      auto topNode = fullExpression.top;
+      auto binaryEval = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>(fullExpression.evaluator.get());
+      if (iPreviousBinary) {
+        if (iPreviousBinary->precedence() >= fullExpression.evaluator->precedence() ) {
+          iPreviousBinary->setRightEvaluator(leftEvaluatorInfo.evaluator);
+          binaryEval->setLeftEvaluator(iPreviousBinary);
+        } else {
+          binaryEval->setLeftEvaluator(leftEvaluatorInfo.evaluator);
+          if(iPreviousBinary->precedence()<topNode->precedence() ) {
+            topNode = iPreviousBinary;
+            iPreviousBinary->setRightEvaluator(fullExpression.top);
+          }else {
+            std::shared_ptr<reco::formula::EvaluatorBase> toSwap = iPreviousBinary;
+            auto topBinary = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>(topNode.get()); 
+            topBinary->swapLeftEvaluator(toSwap);
+            iPreviousBinary->setRightEvaluator(toSwap);
+          }
+        }
+      } else {
+        binaryEval->setLeftEvaluator(leftEvaluatorInfo.evaluator);
+        if (topNode->precedence() > binaryEval->precedence()) {
+          topNode = fullExpression.evaluator;
+        }
+      }
+      fullExpression.top = topNode;
       return fullExpression;
     }
 
@@ -304,30 +330,19 @@ namespace {
 
   template<typename Op>
   EvaluatorInfo createBinaryOperatorEvaluatorT(int iSymbolLength,
-                                               reco::formula::EvaluatorBase::Precidence iPrec,
+                                               reco::formula::EvaluatorBase::Precedence iPrec,
                                                ExpressionFinder const& iEF,
-                                               std::unique_ptr<reco::formula::EvaluatorBase> iLHS,
                                                std::string::const_iterator iBegin,
                                                std::string::const_iterator iEnd) {
-    EvaluatorInfo evalInfo = iEF.createEvaluator(iBegin+iSymbolLength,iEnd);
+    auto op = std::make_shared<reco::formula::BinaryOperatorEvaluator<Op> >(iPrec);
+    EvaluatorInfo evalInfo = iEF.createEvaluator(iBegin+iSymbolLength,iEnd,op);
     evalInfo.nextParseIndex += iSymbolLength;
 
     if(evalInfo.evaluator.get() == nullptr) {
       return evalInfo;
     }
 
-    if( static_cast<unsigned int>(iPrec) >= evalInfo.evaluator->precidence() ) {
-      auto b = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>( evalInfo.evaluator.get() );
-      assert(b != nullptr);
-      std::unique_ptr<reco::formula::EvaluatorBase> temp;
-      b->swapLeftEvaluator(temp);
-      std::unique_ptr<reco::formula::EvaluatorBase> op{ new reco::formula::BinaryOperatorEvaluator<Op>(std::move(iLHS), std::move(temp), iPrec) };
-      b->swapLeftEvaluator(op);
-
-    } else {
-      std::unique_ptr<reco::formula::EvaluatorBase> op{ new reco::formula::BinaryOperatorEvaluator<Op>(std::move(iLHS), std::move(evalInfo.evaluator), iPrec) };
-        evalInfo.evaluator.swap(op);
-    }
+    evalInfo.evaluator = op;
     return evalInfo;
   }
 
@@ -340,7 +355,6 @@ namespace {
 
   EvaluatorInfo 
   createBinaryOperatorEvaluator( ExpressionFinder const& iEF,
-                                 std::unique_ptr<reco::formula::EvaluatorBase> iLHS,
                                  std::string::const_iterator iBegin,
                                  std::string::const_iterator iEnd) {
     EvaluatorInfo evalInfo;
@@ -350,47 +364,89 @@ namespace {
 
     if(*iBegin == '+') {
       return createBinaryOperatorEvaluatorT<std::plus<double>>(1,
-                                                               reco::formula::EvaluatorBase::Precidence::kPlusMinus,
+                                                               reco::formula::EvaluatorBase::Precedence::kPlusMinus,
                                                                iEF,
-                                                               std::move(iLHS),
                                                                iBegin,
                                                                iEnd);
     }
 
     else if(*iBegin == '-') {
       return createBinaryOperatorEvaluatorT<std::minus<double>>(1,
-                                                                reco::formula::EvaluatorBase::Precidence::kPlusMinus,
+                                                                reco::formula::EvaluatorBase::Precedence::kPlusMinus,
                                                                 iEF,
-                                                                std::move(iLHS),
                                                                 iBegin,
                                                                 iEnd);
     }
     else if(*iBegin == '*') {
       return createBinaryOperatorEvaluatorT<std::multiplies<double>>(1,
-                                                                     reco::formula::EvaluatorBase::Precidence::kMultDiv,
+                                                                     reco::formula::EvaluatorBase::Precedence::kMultDiv,
                                                                      iEF,
-                                                                     std::move(iLHS),
                                                                      iBegin,
                                                                      iEnd);
     }
     else if(*iBegin == '/') {
       return createBinaryOperatorEvaluatorT<std::divides<double>>(1,
-                                                                  reco::formula::EvaluatorBase::Precidence::kMultDiv,
+                                                                  reco::formula::EvaluatorBase::Precedence::kMultDiv,
                                                                   iEF,
-                                                                  std::move(iLHS),
                                                                   iBegin,
                                                                   iEnd);
     }
 
     else if(*iBegin == '^') {
       return createBinaryOperatorEvaluatorT<power>(1,
-                                                                  reco::formula::EvaluatorBase::Precidence::kMultDiv,
+                                                                  reco::formula::EvaluatorBase::Precedence::kMultDiv,
                                                                   iEF,
-                                                                  std::move(iLHS),
                                                                   iBegin,
                                                                   iEnd);
     }
+    else if (*iBegin =='<' and iBegin+1 != iEnd and *(iBegin+1) == '=') {
+      return createBinaryOperatorEvaluatorT<std::less_equal<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  iBegin,
+                                                                  iEnd);
 
+    }
+    else if (*iBegin =='>' and iBegin+1 != iEnd and *(iBegin+1) == '=') {
+      return createBinaryOperatorEvaluatorT<std::greater_equal<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='<' ) {
+      return createBinaryOperatorEvaluatorT<std::less<double>>(1,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='>' ) {
+      return createBinaryOperatorEvaluatorT<std::greater<double>>(1,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='=' and iBegin+1 != iEnd and *(iBegin+1) == '=' ) {
+      return createBinaryOperatorEvaluatorT<std::equal_to<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kIdentity,
+                                                                  iEF,
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='!' and iBegin+1 != iEnd and *(iBegin+1) == '=' ) {
+      return createBinaryOperatorEvaluatorT<std::not_equal_to<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kIdentity,
+                                                                  iEF,
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
     return evalInfo;
   }
 
@@ -419,7 +475,8 @@ namespace {
       return info;
     }
 
-    auto argEvaluatorInfo = iExpressionFinder->createEvaluator(iBegin+iName.size()+1, itEndParen);
+    auto argEvaluatorInfo = iExpressionFinder->createEvaluator(iBegin+iName.size()+1, itEndParen,
+                                                               std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>());
     info.nextParseIndex += argEvaluatorInfo.nextParseIndex;
     if(argEvaluatorInfo.evaluator.get() == nullptr or info.nextParseIndex+1 != 1+itEndParen - iBegin) {
       return info;
@@ -427,8 +484,9 @@ namespace {
     //account for closing parenthesis
     ++info.nextParseIndex;
 
-    info.evaluator.reset( new reco::formula::FunctionOneArgEvaluator(std::move(argEvaluatorInfo.evaluator),
-                                                                     op) );
+    info.evaluator = std::make_shared<reco::formula::FunctionOneArgEvaluator>(std::move(argEvaluatorInfo.evaluator),
+                                                                              op);
+    info.top = info.evaluator;
     return info;
   }
 
@@ -477,7 +535,7 @@ namespace {
 
     auto itComma = findCommaNotInParenthesis(iBegin+iName.size()+1, itEndParen);
 
-    auto arg1EvaluatorInfo = iExpressionFinder->createEvaluator(iBegin+iName.size()+1, itComma);
+    auto arg1EvaluatorInfo = iExpressionFinder->createEvaluator(iBegin+iName.size()+1, itComma, std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>());
     info.nextParseIndex += arg1EvaluatorInfo.nextParseIndex;
     if(arg1EvaluatorInfo.evaluator.get() == nullptr or info.nextParseIndex != itComma-iBegin ) {
       return info;
@@ -485,7 +543,7 @@ namespace {
     //account for commas
     ++info.nextParseIndex;
 
-    auto arg2EvaluatorInfo = iExpressionFinder->createEvaluator(itComma+1, itEndParen);
+    auto arg2EvaluatorInfo = iExpressionFinder->createEvaluator(itComma+1, itEndParen, std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>());
     info.nextParseIndex += arg2EvaluatorInfo.nextParseIndex;
 
     if(arg2EvaluatorInfo.evaluator.get() == nullptr or info.nextParseIndex+1 != 1+itEndParen - iBegin) {
@@ -494,9 +552,10 @@ namespace {
     //account for closing parenthesis
     ++info.nextParseIndex;
 
-    info.evaluator.reset( new reco::formula::FunctionTwoArgsEvaluator(std::move(arg1EvaluatorInfo.evaluator),
-                                                                      std::move(arg2EvaluatorInfo.evaluator),
-                                                                      op) );
+    info.evaluator = std::make_shared<reco::formula::FunctionTwoArgsEvaluator>(std::move(arg1EvaluatorInfo.evaluator),
+                                                                               std::move(arg2EvaluatorInfo.evaluator),
+                                                                               op);
+    info.top = info.evaluator;
     return info;
   }
 
@@ -505,7 +564,12 @@ namespace {
   static const std::string k_TMath__Log("TMath::Log");
   double const kLog10Inv = 1./std::log(10.);
   static const std::string k_exp("exp");
+  static const std::string k_pow("pow");
+  static const std::string k_TMath__Power("TMath::Power");
   static const std::string k_max("max");
+  static const std::string k_min("min");
+  static const std::string k_TMath__Max("TMath::Max");
+  static const std::string k_TMath__Min("TMath::Min");
 
 
   EvaluatorInfo 
@@ -537,7 +601,37 @@ namespace {
     }
 
     info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_pow, [](double iArg1, double iArg2)->double { return std::pow(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__Power, [](double iArg1, double iArg2)->double { return std::pow(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
                                    k_max, [](double iArg1, double iArg2)->double { return std::max(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_min, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__Max, [](double iArg1, double iArg2)->double { return std::max(iArg1,iArg2); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
+                                   k_TMath__Min, [](double iArg1, double iArg2)->double { return std::min(iArg1,iArg2); } );
     if(info.evaluator.get() != nullptr) {
       return info;
     }
@@ -561,12 +655,12 @@ namespace {
 //
 FormulaEvaluator::FormulaEvaluator( std::string const& iFormula )
 {
-  auto info  = s_expressionFinder.createEvaluator(iFormula.begin(), iFormula.end());
+  auto info  = s_expressionFinder.createEvaluator(iFormula.begin(), iFormula.end(),std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>());
 
-  if(info.nextParseIndex != static_cast<int>(iFormula.size()) or info.evaluator.get() == nullptr) {
+  if(info.nextParseIndex != static_cast<int>(iFormula.size()) or info.top.get() == nullptr) {
     throw cms::Exception("FormulaEvaluatorParseError")<<"While parsing '"<<iFormula<<"' could not parse beyond '"<<std::string(iFormula.begin(),iFormula.begin()+info.nextParseIndex) <<"'";
   }
-  m_evaluator = std::move(info.evaluator);
+  m_evaluator = std::move(info.top);
   m_nVariables = info.maxNumVariables;
   m_nParameters = info.maxNumParameters;
 }
