@@ -23,7 +23,7 @@ StripByStripTestDriver::
 void StripByStripTestDriver::
 produce(edm::Event& event, const edm::EventSetup& es) {
 
-  std::auto_ptr<output_t> output(new output_t());
+  auto output = std::make_unique<output_t>();
   output->reserve(10000,4*10000);
 
   edm::Handle< edm::DetSetVector<SiStripDigi> >  input;  
@@ -44,5 +44,5 @@ produce(edm::Event& event, const edm::EventSetup& es) {
 
   edm::LogInfo("Output") << output->dataSize() << " clusters from " 
 			 << output->size()     << " modules";
-  event.put(output);
+  event.put(std::move(output));
 }

@@ -100,7 +100,7 @@
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
     // Step B: create the final output collection
-    std::auto_ptr<Phase2ITPixelClusterCollectionNew> output( new Phase2ITPixelClusterCollectionNew() );
+    auto output = std::make_unique<Phase2ITPixelClusterCollectionNew>();
     //FIXME: put a reserve() here
 
     // Step C: Iterate over DetIds and invoke the pixel clusterizer algorithm
@@ -109,7 +109,7 @@
 
     // Step D: write output to file
     output->shrink_to_fit();
-    e.put( output );
+    e.put(std::move(output));
 
   }
 

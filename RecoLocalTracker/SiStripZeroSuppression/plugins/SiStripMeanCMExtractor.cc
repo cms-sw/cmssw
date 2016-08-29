@@ -136,8 +136,7 @@ SiStripMeanCMExtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
 	
 	
-	std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputMeanCM(new edm::DetSetVector<SiStripProcessedRawDigi>(meancm) );
-    iEvent.put( outputMeanCM,"MEANAPVCM");
+    iEvent.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(meancm),"MEANAPVCM");
    
 }
 

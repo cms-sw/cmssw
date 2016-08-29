@@ -23,8 +23,8 @@ class SiStripRecHitConverterAlgorithm
  public:
   
   struct products {
-    std::auto_ptr<SiStripMatchedRecHit2DCollection> matched;
-    std::auto_ptr<SiStripRecHit2DCollection> rphi, stereo, rphiUnmatched, stereoUnmatched;
+    std::unique_ptr<SiStripMatchedRecHit2DCollection> matched;
+    std::unique_ptr<SiStripRecHit2DCollection> rphi, stereo, rphiUnmatched, stereoUnmatched;
     products() 
       :  matched(new SiStripMatchedRecHit2DCollection),
 	 rphi(new SiStripRecHit2DCollection),

@@ -34,7 +34,7 @@ private:
 
   template<class T> bool findInput(const edm::EDGetTokenT<T>&, edm::Handle<T>&, const edm::Event&);
   void refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
-		     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output);
+		     edmNew::DetSetVector<SiStripCluster>& output);
 
   const edm::InputTag inputTag;
   typedef edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > token_t;
@@ -84,25 +84,25 @@ produce(edm::Event& event, const edm::EventSetup& evSetup)  {
   //Retrieve tracker topology from geometry
   evSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
 
-  std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
   output->reserve(10000,4*10000);
 
   event.getByToken(stripdigisimlinkToken, stripdigisimlink_);
 
   edm::Handle< edmNew::DetSetVector<SiStripCluster> >     input;  
 
-  if ( findInput(inputToken, input, event) ) refineCluster(input, output);
+  if ( findInput(inputToken, input, event) ) refineCluster(input, *output);
   else edm::LogError("Input Not Found") << "[ClusterMCsplitStrips::produce] ";// << inputTag;
 
   LogDebug("Output") << output->dataSize() << " clusters from " 
 		     << output->size()     << " modules";
   output->shrink_to_fit();
-  event.put(output);
+  event.put(std::move(output));
 }
 
 void  ClusterMCsplitStrips::
 refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
-	      std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output) {
+	      edmNew::DetSetVector<SiStripCluster>& output) {
 
   const TrackerTopology* const tTopo = tTopoHandle_.product();
 
@@ -116,7 +116,7 @@ refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
     if (isearch == stripdigisimlink_->end()) continue;  // This sensor has no simlinks;
                                                        // Any clusters must be from noise.
     // DetSetVector filler to receive the clusters we produce
-    edmNew::DetSetVector<SiStripCluster>::FastFiller outFill(*output, det->id());
+    edmNew::DetSetVector<SiStripCluster>::FastFiller outFill(output, det->id());
 
     // Consider clusters of selected module types for splitting; else just push original cluster to output.
     if (std::find(moduleTypeCodes_.begin(), moduleTypeCodes_.end(), tTopo->moduleGeometry(theDet)) == moduleTypeCodes_.end()) {

@@ -30,10 +30,10 @@ produce(edm::Event& e, const edm::EventSetup& es)
 				     << output.rphi->dataSize()   << "  clusters in mono detectors\n"                            
 				     << output.stereo->dataSize() << "  clusters in partners stereo detectors\n";
 
-  e.put( output.matched,         matchedRecHitsTag );
-  e.put( output.rphi,            rphiRecHitsTag    );
-  e.put( output.stereo,          stereoRecHitsTag  );
-  e.put( output.rphiUnmatched,   rphiRecHitsTag   + "Unmatched" );
-  e.put( output.stereoUnmatched, stereoRecHitsTag + "Unmatched" );  
+  e.put(std::move(output.matched),         matchedRecHitsTag);
+  e.put(std::move(output.rphi),            rphiRecHitsTag   );
+  e.put(std::move(output.stereo),          stereoRecHitsTag );
+  e.put(std::move(output.rphiUnmatched),   rphiRecHitsTag   + "Unmatched");
+  e.put(std::move(output.stereoUnmatched), stereoRecHitsTag + "Unmatched");  
 
 }

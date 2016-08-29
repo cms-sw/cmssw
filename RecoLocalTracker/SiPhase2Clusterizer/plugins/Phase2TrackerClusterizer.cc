@@ -66,7 +66,7 @@ class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
         const TrackerGeometry* tkGeom(&(*geomHandle)); 
 
         // Global container for the clusters of each modules
-        std::auto_ptr< Phase2TrackerCluster1DCollectionNew > outputClusters(new Phase2TrackerCluster1DCollectionNew());
+        auto outputClusters = std::make_unique<Phase2TrackerCluster1DCollectionNew>();
 
         // Go over all the modules
         for (auto DSViter : *digis) {
@@ -92,7 +92,7 @@ class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
 
         // Add the data to the output
         outputClusters->shrink_to_fit();
-        event.put(outputClusters);
+        event.put(std::move(outputClusters));
     }
 
 DEFINE_FWK_MODULE(Phase2TrackerClusterizer);

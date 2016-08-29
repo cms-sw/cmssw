@@ -64,7 +64,7 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   const TrackerGeometry* tkGeom(&(*geomHandle));
 
   // Global container for the RecHits of each module
-  std::auto_ptr< Phase2TrackerRecHit1DCollectionNew > outputRecHits(new Phase2TrackerRecHit1DCollectionNew());
+  auto outputRecHits = std::make_unique<Phase2TrackerRecHit1DCollectionNew>();
 
   // Loop over clusters
   for (auto DSViter : *clusters) { 
@@ -91,7 +91,7 @@ void Phase2TrackerRecHits::produce(edm::StreamID sid, edm::Event& event, const e
   }
 
   outputRecHits->shrink_to_fit();
-  event.put(outputRecHits);
+  event.put(std::move(outputRecHits));
 
 }
 

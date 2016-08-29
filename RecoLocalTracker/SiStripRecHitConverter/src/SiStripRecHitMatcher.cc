@@ -369,7 +369,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   //if it is inside the gluedet bonds
   //Change NSigmaInside in the configuration file to accept more hits
   if(force || (gluedDet->surface()).bounds().inside(position,error,scale_)) 
-    return std::unique_ptr<SiStripMatchedRecHit2D> (new SiStripMatchedRecHit2D(LocalPoint(position), error, *gluedDet, monoRH,stereoRH));
+    return std::make_unique<SiStripMatchedRecHit2D>(LocalPoint(position), error, *gluedDet, monoRH,stereoRH);
   return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
 }
 

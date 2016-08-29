@@ -84,7 +84,7 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
 
 
         template<typename T> 
-        std::auto_ptr<edmNew::DetSetVector<T> >
+        std::unique_ptr<edmNew::DetSetVector<T> >
         cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
                     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
 
@@ -197,13 +197,13 @@ void SeedClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
 
  
 template<typename T> 
-auto_ptr<edmNew::DetSetVector<T> >
+std::unique_ptr<edmNew::DetSetVector<T> >
 SeedClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
 			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
     typedef typename edmNew::DetSet<T>                   DS;
-    auto_ptr<DSV> output(new DSV());
+    auto output = std::make_unique<DSV>();
     output->reserve(oldClusters.size(), oldClusters.dataSize());
 
     unsigned int countOld=0;
@@ -345,11 +345,11 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
 //DBG// std::cout << "SeedClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
 
-    auto_ptr<ClusterRemovalInfo> cri;
+    std::unique_ptr<ClusterRemovalInfo> cri;
     if (clusterWasteSolution_){
-      if (doStrip_ && doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters, stripClusters));
-      else if (doStrip_) cri.reset(new ClusterRemovalInfo(stripClusters));
-      else if (doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters));
+      if (doStrip_ && doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters, stripClusters);
+      else if (doStrip_) cri = std::make_unique<ClusterRemovalInfo>(stripClusters);
+      else if (doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters);
     }
 
     Handle<ClusterRemovalInfo> oldRemovalInfo;
@@ -416,16 +416,14 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       
     
     if (doPixel_ && clusterWasteSolution_) {
-        auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
-                    cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
-        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
+        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
+          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0));
 //DBG// std::cout << "SeedClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
         cri->setNewPixelClusters(newPixels);
     }
     if (doStrip_ && clusterWasteSolution_) {
-        auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
-                    cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
-        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
+        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips =
+          iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0));
 //DBG// std::cout << "SeedClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
         cri->setNewStripClusters(newStrips);
     }
@@ -435,7 +433,7 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       //      double fraction_pxl= cri->pixelIndices().size() / (double) pixels.size();
       //      double fraction_strp= cri->stripIndices().size() / (double) strips.size();
       //      edm::LogWarning("SeedClusterRemover")<<" fraction: " << fraction_pxl <<" "<<fraction_strp;
-      iEvent.put(cri);
+      iEvent.put(std::move(cri));
     }
 
     pixels.clear(); strips.clear(); 
@@ -444,15 +442,11 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       //auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
       //auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
       
-      std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-         new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
       LogDebug("SeedClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true);
-      iEvent.put( removedStripClusterMask );
+      iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
 
-      std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
-         new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
       LogDebug("SeedClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
-      iEvent.put( removedPixelClusterMask );
+      iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
       
     }
     collectedStrips_.clear();

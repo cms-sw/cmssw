@@ -215,7 +215,7 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
     ev.getByToken( productToken_, rawData); 
     
     
-    std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > 
+    std::unique_ptr< edmNew::DetSetVector<SiStripCluster> > 
       output( onDemand ?
 	      new edmNew::DetSetVector<SiStripCluster>(std::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(std::make_shared<ClusterFiller>(*rawData, *clusterizer_, 
 																	 *rawAlgos_, doAPVEmulatorCheck_)
@@ -236,7 +236,7 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
 	   << std::endl;
     }
    
-    ev.put(output);
+    ev.put(std::move(output));
 
   }
 
@@ -255,8 +255,8 @@ private:
   
   SiStripDetCabling const * cabling_;
   
-  std::auto_ptr<StripClusterizerAlgorithm> clusterizer_;
-  std::auto_ptr<SiStripRawProcessingAlgorithms> rawAlgos_;
+  std::unique_ptr<StripClusterizerAlgorithm> clusterizer_;
+  std::unique_ptr<SiStripRawProcessingAlgorithms> rawAlgos_;
   
   
   // March 2012: add flag for disabling APVe check in configuration
