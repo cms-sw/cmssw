@@ -142,19 +142,6 @@ if sample.isMC:
 
     treeProducer.collections["tauGenJets"] = NTupleCollection("GenHadTaus", genTauJetType, 15, help="Generator level hadronic tau decays")
 
-def fix_reHLT(config):
-    for ic in range(len(config.sequence)):
-        obj = config.sequence[ic]
-        
-        if obj.class_object.__name__ == "TriggerBitAnalyzer" and obj.processName == "HLT":
-            obj.processName = "HLT2"
-        
-        if obj.class_object.__name__ == "TriggerObjectsAnalyzer" and obj.triggerBitsInputTag == ('TriggerResults','','HLT'):
-            obj.triggerBitsInputTag = ('TriggerResults','','HLT2')
-
-if "reHLT" in sample.files[0]:
-    fix_reHLT(config)
-
 # Run Everything
 preprocessor = CmsswPreprocessor("combined_cmssw.py", options = {"isMC":sample.isMC})
 config.preprocessor=preprocessor
