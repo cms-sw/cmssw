@@ -42,7 +42,12 @@ def load_HcalHardcode(process):
                 'L1TriggerObjects',
                 'PFCorrs',
                 'ElectronicsMap',
+                'FrontEndMap',
                 'CovarianceMatrices',
+                'SiPMParameters',
+                'SiPMCharacteristics',
+                'TPChannelParameters',
+                'TPParameters',
                 'FlagHFDigiTimeParams',
                 )
 
