@@ -560,11 +560,14 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             int short_fiber_val = 0;
             int short_fiber_count = 0;
 
+            bool saturated = false;
+
             for (auto i: {0, 2}) {
                if (idx < details[i].samples.size()) {
                   if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
                         or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
                      long_fiber_val += details[i].samples[idx];
+                     saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
                      ++long_fiber_count;
                   }
                }
@@ -574,18 +577,33 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
                   if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
                         or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
                      short_fiber_val += details[i].samples[idx];
+                     saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
                      ++short_fiber_count;
                   }
                }
             }
 
-            if (long_fiber_count > 0 )
-               output[ibin] += long_fiber_val / long_fiber_count;
-            if (short_fiber_count > 0)
-               output[ibin] += short_fiber_val / short_fiber_count;
+            if (saturated) {
+               output[ibin] = QIE10_MAX_LINEARIZATION_ET;
+            } else {
+               // If one of the channels is invalid, double the value of
+               // the other channel.
+               if (long_fiber_count == 1)
+                  long_fiber_val *= 2;
+               if (short_fiber_count == 1)
+                  short_fiber_val *= 2;
 
-            if (long_fiber_count > 0 and short_fiber_count > 0)
-               output[ibin] /= (long_fiber_count > 0) + (short_fiber_count > 0);
+               // If one of the towers is invalid, double the value of the
+               // other tower.
+               if (long_fiber_count == 0)
+                  short_fiber_val *= 2;
+               if (short_fiber_count == 0)
+                  long_fiber_val *= 2;
+
+               // Ideally the sum of *4 channels* ⇒ LSB is also multiplied
+               // by 4
+               output[ibin] += long_fiber_val + short_fiber_val;
+            }
 
             // int ADCLong = details.LongDigi[ibin].adc();
             // int ADCShort = details.ShortDigi[ibin].adc();
