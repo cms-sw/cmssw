@@ -231,9 +231,9 @@ FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
      e(2, 2) = 1.5 * 1.5;
      Vertex::Point p(beamSpot->x(res), beamSpot->y(res), res);
      Vertex thePV(p, e, 1, 1, 0);
-     std::auto_ptr<reco::VertexCollection> pOut(new reco::VertexCollection());
+     auto pOut = std::make_unique<reco::VertexCollection>();
      pOut->push_back(thePV);
-     iEvent.put(pOut);
+     iEvent.put(std::move(pOut));
    } else
    {
   //   std::cout << "DUMMY " << res << std::endl;
@@ -244,9 +244,9 @@ FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
      e(2, 2) = 1.5 * 1.5;
      Vertex::Point p(beamSpot->x(res), beamSpot->y(res), res);
      Vertex thePV(p, e, 0, 0, 0);
-     std::auto_ptr<reco::VertexCollection> pOut(new reco::VertexCollection());
+     auto pOut = std::make_unique<reco::VertexCollection>();
      pOut->push_back(thePV);
-     iEvent.put(pOut);
+     iEvent.put(std::move(pOut));
 
    }
 
