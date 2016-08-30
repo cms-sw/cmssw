@@ -99,12 +99,12 @@ class ConfigData:
         # collect data and process it
         try:
             configBuffer.jobNumber = int(parser.get("GENERAL", "job"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             configBuffer.jobDataPath = parser.get("GENERAL", "jobdatapath")
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         # set jobDataPath if job number is given and if path is not given
@@ -125,19 +125,19 @@ class ConfigData:
         try:
             if (parser.get("GENERAL", "outputpath")):
                 self.outputPath = parser.get("GENERAL", "outputpath")
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
                 
 
         # data which could be stored directly
         try:
             self.jobTime = int(parser.get("GENERAL", "time"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.latexfile = parser.get("GENERAL", "latexfile")
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
@@ -145,60 +145,60 @@ class ConfigData:
             self.limit = map(float, self.limit.replace(" ", "").split(","))
             # make a dict to lookup by mode
             self.limit = dict(zip(["xyz", "rot", "dist"], self.limit))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.statboxsize = float(parser.get("GENERAL", "statboxsize"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         # MODULEPLOTS
 
         try:
             self.numberofbins = int(parser.get("MODULEPLOTS", "numberofbins"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.defpeak = int(parser.get("MODULEPLOTS", "defpeak"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.widthstddev = int(parser.get("MODULEPLOTS", "widthstddev"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.samerange = int(parser.get("MODULEPLOTS", "samerange"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.rangemode = parser.get("MODULEPLOTS", "rangemode")
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.rangexyzM = parser.get("MODULEPLOTS", "rangexyz")
             self.rangexyzM = sorted(
                 map(float, self.rangexyzM.replace(" ", "").split(",")))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.rangerotM = parser.get("MODULEPLOTS", "rangerot")
             self.rangerotM = sorted(
                 map(float, self.rangerotM.replace(" ", "").split(",")))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.rangedistM = parser.get("MODULEPLOTS", "rangedist")
             self.rangedistM = sorted(
                 map(float, self.rangedistM.replace(" ", "").split(",")))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         # HIGHLEVELPLOTS
@@ -207,83 +207,83 @@ class ConfigData:
             self.rangexyzHL = parser.get("HIGHLEVELPLOTS", "rangexyz")
             self.rangexyzHL = sorted(
                 map(float, self.rangexyzHL.replace(" ", "").split(",")))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.rangerotHL = parser.get("HIGHLEVELPLOTS", "rangerot")
             self.rangerotHL = sorted(
                 map(float, self.rangerotHL.replace(" ", "").split(",")))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.samerangeHL = int(parser.get("HIGHLEVELPLOTS", "samerange"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.rangemodeHL = parser.get("HIGHLEVELPLOTS", "rangemode")
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         # TIMEPLOTS
 
         try:
             self.firsttree = int(parser.get("TIMEPLOTS", "firsttree"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         # SHOW
 
         try:
             self.showmonitor = int(parser.get("SHOW", "showmonitor"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showadditional = int(parser.get("SHOW", "showadditional"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showdump = int(parser.get("SHOW", "showdump"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showtime = int(parser.get("SHOW", "showtime"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showhighlevel = int(parser.get("SHOW", "showhighlevel"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showmodule = int(parser.get("SHOW", "showmodule"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showsubmodule = int(parser.get("SHOW", "showsubmodule"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showtex = int(parser.get("SHOW", "showtex"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showbeamer = int(parser.get("SHOW", "showbeamer"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
         try:
             self.showhtml = int(parser.get("SHOW", "showhtml"))
-        except:
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 
     def parseParameter(self, args):

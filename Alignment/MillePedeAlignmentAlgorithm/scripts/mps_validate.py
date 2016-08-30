@@ -18,7 +18,6 @@ PyConfig.IgnoreCommandLineOptions = True
 
 from ROOT import (TH1F, TCanvas, TFile, TImage, TPaveLabel, TPaveText, TTree,
                   gROOT, gStyle)
-PyConfig.IgnoreCommandLineOptions = True
 
 from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate import (additionalparser, beamerCreator, bigModule,
                          bigStructure, dumpparser, htmlCreator, monitorPlot,
