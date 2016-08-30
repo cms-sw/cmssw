@@ -94,7 +94,7 @@ void PixelVertexProducerClusters::produce
 
   const SiPixelRecHitCollection* thePixelHits = pixelColl.product();
 
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  auto vertices = std::make_unique<reco::VertexCollection>();
 
   if(thePixelHits->size() > 0)
   {
@@ -177,6 +177,6 @@ void PixelVertexProducerClusters::produce
     vertices->push_back(ver);
   }
 
-  ev.put(vertices);
+  ev.put(std::move(vertices));
 }
 

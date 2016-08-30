@@ -85,7 +85,7 @@ PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventSetup&
 {
   using namespace edm;
    
-  std::auto_ptr<reco::VertexCollection> vtxs_trim(new reco::VertexCollection);
+  auto vtxs_trim = std::make_unique<reco::VertexCollection>();
 
   edm::Handle<reco::VertexCollection> vtxs;
   iEvent.getByToken(vtxToken_,vtxs);
@@ -114,7 +114,7 @@ PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventSetup&
     if (sumpt2 >= sumpt2first*fractionSumPt2_ && sumpt2 > minSumPt2_ ) vtxs_trim->push_back(*vtx) ;
   }
   //  std::cout << " ==> # vertices: " << vtxs_trim->size() << std::endl;
-  iEvent.put(vtxs_trim);
+  iEvent.put(std::move(vtxs_trim));
     
 }
 

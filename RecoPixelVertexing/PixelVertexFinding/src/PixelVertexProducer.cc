@@ -87,7 +87,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (bsHandle.isValid()) myPoint = math::XYZPoint(bsHandle->x0(),bsHandle->y0(), 0. ); //FIXME: fix last coordinate with vertex.z() at same time
 
   // Third, ship these tracks off to be vertexed
-  std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
+  auto vertexes = std::make_unique<reco::VertexCollection>();
   bool ok;
   if (method2) {
     ok = dvf_->findVertexesAlt(trks,       // input
@@ -166,7 +166,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::LogWarning("PixelVertexProducer") << "No beamspot and no vertex found. No vertex returned.";
     }
   
-  e.put(vertexes);
+  e.put(std::move(vertexes));
   
 }
 

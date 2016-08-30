@@ -72,7 +72,7 @@ void PixelVertexProducerMedian::produce
             << tracks.size() << " (out of " << tracks_.size()
             << ")"; 
 
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  auto vertices = std::make_unique<reco::VertexCollection>();
 
   if(tracks.size() > 0)
   {
@@ -138,6 +138,6 @@ void PixelVertexProducerMedian::produce
     vertices->push_back(ver);
   }
   }
-  ev.put(vertices);
+  ev.put(std::move(vertices));
 }
 

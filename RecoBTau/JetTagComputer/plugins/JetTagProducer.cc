@@ -131,12 +131,12 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // take first tagInfo
   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
-  auto_ptr<JetTagCollection> jetTagCollection;
+  std::unique_ptr<JetTagCollection> jetTagCollection;
   if (tagInfoHandle.product()->size() > 0) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
-    jetTagCollection.reset(new JetTagCollection(edm::makeRefToBaseProdFrom(jj, iEvent)));
+    jetTagCollection = std::make_unique<JetTagCollection>(edm::makeRefToBaseProdFrom(jj, iEvent));
   } else
-    jetTagCollection.reset(new JetTagCollection());
+    jetTagCollection = std::make_unique<JetTagCollection>();
 
   // now loop over the map and compute all JetTags
   for(JetToTagInfoMap::const_iterator iter = jetToTagInfos.begin();
@@ -149,7 +149,7 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
     (*jetTagCollection)[iter->first] = discriminator;
   }
 
-  iEvent.put(jetTagCollection);
+  iEvent.put(std::move(jetTagCollection));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------

@@ -46,7 +46,7 @@ SoftPFElectronTagInfoProducer::~SoftPFElectronTagInfoProducer()
 
 void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	std::auto_ptr<reco::CandSoftLeptonTagInfoCollection> theElecTagInfo(new reco::CandSoftLeptonTagInfoCollection);
+	auto theElecTagInfo = std::make_unique<reco::CandSoftLeptonTagInfoCollection>();
 	edm::ESHandle<TransientTrackBuilder> builder;
  	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
  	transientTrackBuilder=builder.product();
@@ -120,7 +120,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 		}
 		theElecTagInfo->push_back(tagInfo);
   	}
-  	iEvent.put(theElecTagInfo);
+  	iEvent.put(std::move(theElecTagInfo));
 }
 
 bool SoftPFElectronTagInfoProducer::isElecClean(edm::Event& iEvent,const reco::GsfElectron*candidate)

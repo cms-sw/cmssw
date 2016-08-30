@@ -129,7 +129,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 	                                   trackBuilder);
 
 
-        std::auto_ptr<Product> recoVertices(new Product);
+        auto recoVertices = std::make_unique<Product>();
         if(primaryVertices->size()!=0) {
      
 	const reco::Vertex &pv = (*primaryVertices)[0];
@@ -229,7 +229,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 #endif  
         }
  
-	event.put(recoVertices);
+	event.put(std::move(recoVertices));
 
 }
 #endif 

@@ -121,14 +121,8 @@ ExpressLumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
 void 
 ExpressLumiProducer::writeEmptyProductForEntry(edm::LuminosityBlock &iLBlock){
-  std::auto_ptr<LumiSummary> pOut1;
-  std::auto_ptr<LumiDetails> pOut2;
-  LumiSummary* pIn1=new LumiSummary;
-  LumiDetails* pIn2=new LumiDetails;
-  pOut1.reset(pIn1);
-  iLBlock.put(pOut1);
-  pOut2.reset(pIn2);
-  iLBlock.put(pOut2);
+  iLBlock.put(std::make_unique<LumiSummary>());
+  iLBlock.put(std::make_unique<LumiDetails>());
 }
 void 
 ExpressLumiProducer::beginLuminosityBlockProduce(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup)
@@ -357,17 +351,13 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int currentlsnu
 void
 ExpressLumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int luminum){
   //std::cout<<"writing runnumber,luminum "<<runnumber<<" "<<luminum<<std::endl;
-  std::auto_ptr<LumiSummary> pOut1;
-  std::auto_ptr<LumiDetails> pOut2;
-  LumiSummary* pIn1=new LumiSummary;
-  LumiDetails* pIn2=new LumiDetails;
+  auto pIn1 = std::make_unique<LumiSummary>();
+  auto pIn2 = std::make_unique<LumiDetails>();
   if(m_isNullRun){
     pIn1->setLumiVersion("DIP");
     pIn2->setLumiVersion("DIP");
-    pOut1.reset(pIn1);
-    iLBlock.put(pOut1);
-    pOut2.reset(pIn2);
-    iLBlock.put(pOut2);
+    iLBlock.put(std::move(pIn1));
+    iLBlock.put(std::move(pIn2));
     return;
   }
   PerLSData& lsdata=m_lscache[luminum];
@@ -380,10 +370,8 @@ ExpressLumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsign
 
   pIn2->setLumiVersion("DIP");
   pIn2->fill(LumiDetails::kOCC1,lsdata.bunchlumivalue,lsdata.bunchlumierror,lsdata.bunchlumiquality);
-  pOut1.reset(pIn1);
-  iLBlock.put(pOut1);
-  pOut2.reset(pIn2);
-  iLBlock.put(pOut2);
+  iLBlock.put(std::move(pIn1));
+  iLBlock.put(std::move(pIn2));
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ExpressLumiProducer);

@@ -657,7 +657,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 
 	// result secondary vertices
 
-	std::auto_ptr<Product> tagInfos(new Product);
+	auto tagInfos = std::make_unique<Product>();
 
 	for(typename std::vector<IPTI>::const_iterator iterJets =
 		trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end();
@@ -908,7 +908,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 					iterJets - trackIPTagInfos->begin())));
 	}
 
-	event.put(tagInfos);
+	event.put(std::move(tagInfos));
 }
 
 //Need specialized template because reco::Vertex iterators are TrackBase and it is a mess to make general

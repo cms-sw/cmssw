@@ -134,7 +134,7 @@ FP420TrackMain::~FP420TrackMain() {
 
 
 
-void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_ptr<TrackCollectionFP420> &toutput )
+void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollectionFP420 *toutput )
 {
   
   if ( validTrackerizer_ ) {

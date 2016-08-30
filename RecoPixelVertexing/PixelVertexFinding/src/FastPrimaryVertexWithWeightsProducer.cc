@@ -410,9 +410,9 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
      e(2, 2) = 1.5 * 1.5;
      Vertex::Point p(beamSpot->x(res), beamSpot->y(res), res);
      Vertex thePV(p, e, 1, 1, 0);
-     std::auto_ptr<reco::VertexCollection> pOut(new reco::VertexCollection());
+     auto pOut = std::make_unique<reco::VertexCollection>();
      pOut->push_back(thePV);
-     iEvent.put(pOut);
+     iEvent.put(std::move(pOut));
    } else
    {
      Vertex::Error e;
@@ -421,9 +421,9 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
      e(2, 2) = 1.5 * 1.5;
      Vertex::Point p(beamSpot->x(res), beamSpot->y(res), res);
      Vertex thePV(p, e, 0, 0, 0);
-     std::auto_ptr<reco::VertexCollection> pOut(new reco::VertexCollection());
+     auto pOut = std::make_unique<reco::VertexCollection>();
      pOut->push_back(thePV);
-     iEvent.put(pOut);
+     iEvent.put(std::move(pOut));
    }
 
 //Finally, calculate the zClusterQuality as Sum(weights near the fastPV)/sqrt(Sum(total weights)) [a kind of zCluster significance]
@@ -442,15 +442,15 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
 	}
   }
 
-std::auto_ptr<float > zClusterQuality(new float());
+auto zClusterQuality = std::make_unique<float>();
 *zClusterQuality=-1;
 if(nWeightedTot!=0)
 {
    *zClusterQuality=nWeightedTotPeak / sqrt(nWeightedTot/(2*half_width_peak)); // where 30 is the beam spot lenght 
-   iEvent.put(zClusterQuality);
+   iEvent.put(std::move(zClusterQuality));
 }
 else
-   iEvent.put(zClusterQuality);
+   iEvent.put(std::move(zClusterQuality));
 
 }
 

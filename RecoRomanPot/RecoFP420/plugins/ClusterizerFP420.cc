@@ -150,7 +150,7 @@ namespace cms
     }
 
     // Step C: create empty output collection
-    std::auto_ptr<ClusterCollectionFP420> soutput(new ClusterCollectionFP420);
+    auto soutput = std::make_unique<ClusterCollectionFP420>();
     ///////////////////////////////////////////////////////////////////////////////////////////// 
     /*    
    std::vector<SimVertex> input;
@@ -214,7 +214,7 @@ namespace cms
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK2" << std::endl;
     }
-      sClusterizerFP420_->run(input, soutput, noise);
+      sClusterizerFP420_->run(input, soutput.get(), noise);
 
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK3" << std::endl;
@@ -225,7 +225,7 @@ namespace cms
     //  std::cout <<"=======           ClusterizerFP420:                    end of produce     " <<  std::endl;
     
 	// Step D: write output to file
-	iEvent.put(soutput);
+	iEvent.put(std::move(soutput));
     if (verbosity > 0) {
       std::cout << "ClusterizerFP420: OK4" << std::endl;
     }

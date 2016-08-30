@@ -449,14 +449,8 @@ void LumiProducer::beginLuminosityBlockProduce(edm::LuminosityBlock &iLBlock, ed
   //std::cout<<"beg of beginLuminosityBlock "<<luminum<<std::endl;
   //if is null run, fill empty values and return
   if(m_isNullRun){
-    std::auto_ptr<LumiSummary> pOut1;
-    std::auto_ptr<LumiDetails> pOut2;
-    LumiSummary* pIn1=new LumiSummary;
-    LumiDetails* pIn2=new LumiDetails;
-    pOut1.reset(pIn1);
-    iLBlock.put(pOut1);
-    pOut2.reset(pIn2);
-    iLBlock.put(pOut2);
+    iLBlock.put(std::make_unique<LumiSummary>());
+    iLBlock.put(std::make_unique<LumiDetails>());
     return;
   }
   if(m_lscache.find(luminum)==m_lscache.end()){
@@ -472,10 +466,10 @@ LumiProducer::endRun(edm::Run const& run,edm::EventSetup const &iSetup)
 void 
 LumiProducer::endRunProduce(edm::Run& run,edm::EventSetup const &iSetup)
 {
-  std::auto_ptr<LumiSummaryRunHeader> lsrh(new LumiSummaryRunHeader());
+  auto lsrh = std::make_unique<LumiSummaryRunHeader>();
   lsrh->swapL1Names(m_runcache.TRGBitNames);
   lsrh->swapHLTNames(m_runcache.HLTPathNames);
-  run.put(lsrh);
+  run.put(std::move(lsrh));
   m_runcache.TRGBitNameToIndex.clear();
   m_runcache.HLTPathNameToIndex.clear();
 }
@@ -818,17 +812,13 @@ LumiProducer::fillLSCache(unsigned int luminum){
 void
 LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int runnumber,unsigned int luminum){
   //std::cout<<"writing runnumber,luminum "<<runnumber<<" "<<luminum<<std::endl;
-  std::auto_ptr<LumiSummary> pOut1;
-  std::auto_ptr<LumiDetails> pOut2;
-  LumiSummary* pIn1=new LumiSummary;
-  LumiDetails* pIn2=new LumiDetails;
+  auto pIn1 = std::make_unique<LumiSummary>();
+  auto pIn2 = std::make_unique<LumiDetails>();
   if(m_isNullRun){
     pIn1->setLumiVersion("-1");
     pIn2->setLumiVersion("-1");
-    pOut1.reset(pIn1);
-    iLBlock.put(pOut1);
-    pOut2.reset(pIn2);
-    iLBlock.put(pOut2);
+    iLBlock.put(std::move(pIn1));
+    iLBlock.put(std::move(pIn2));
     return;
   }
   PerLSData& lsdata=m_lscache[luminum];
@@ -873,10 +863,8 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
     }
   }
   pIn2->setLumiVersion(m_lumiversion);
-  pOut1.reset(pIn1);
-  iLBlock.put(pOut1);
-  pOut2.reset(pIn2);
-  iLBlock.put(pOut2);
+  iLBlock.put(std::move(pIn1));
+  iLBlock.put(std::move(pIn2));
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(LumiProducer);

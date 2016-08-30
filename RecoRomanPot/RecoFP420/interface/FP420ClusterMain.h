@@ -40,7 +40,7 @@ class FP420ClusterMain
 //       	   const std::vector<ClusterNoiseFP420>& noise 
 //     	   );
     void run(edm::Handle<DigiCollectionFP420> &input,
-       	   std::auto_ptr<ClusterCollectionFP420> &soutput,
+       	   ClusterCollectionFP420 *soutput,
        	   std::vector<ClusterNoiseFP420>& noise 
      	   );
 

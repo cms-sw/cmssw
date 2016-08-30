@@ -91,7 +91,7 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 	edm::Handle<VertexCollection> primaryVertices;
 	event.getByToken(token_primaryVertex, primaryVertices);
 
-	std::auto_ptr<Product> recoVertices(new Product);
+	auto recoVertices = std::make_unique<Product>();
 	if(primaryVertices->size()!=0){ 
 		const reco::Vertex &pv = (*primaryVertices)[0];
 
@@ -122,7 +122,7 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 		}
 
 	}	
-	event.put(recoVertices);
+	event.put(std::move(recoVertices));
 
 
 
