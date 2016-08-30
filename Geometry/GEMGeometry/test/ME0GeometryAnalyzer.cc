@@ -51,7 +51,7 @@ ME0GeometryAnalyzer::ME0GeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
   : dashedLineWidth_(104), dashedLine_( string(dashedLineWidth_, '-') ), 
     myName_( "ME0GeometryAnalyzer" ) 
 { 
-  ofos.open("MytestOutput.out"); 
+  ofos.open("ME0testOutput.out"); 
   ofos <<"======================== Opening output file"<< endl;
 }
 
