@@ -73,28 +73,28 @@ void create_plot(
   hw->GetXaxis()->SetLabelSize(0);
 
   emu->GetXaxis()->SetLabelSize(0);
-  
+
   pad1->SetBottomMargin(0.02);
   pad1->SetGridx();
   //pad1->SetLogy();
-  
+
   pad1->Draw();
   pad1->cd();
-  
-  hw->SetStats(0);  
+
+  hw->SetStats(0);
   emu->SetStats(0);
- 
+
   if (emu->GetMaximum() > hw->GetMaximum()) {
     hw->SetMaximum(1.1*emu->GetMaximum());
   }
-   
+
   if (rangeLow != 0 || rangeHigh != 0) {
     emu->GetXaxis()->SetRangeUser(rangeLow, rangeHigh);
     hw->GetXaxis()->SetRangeUser(rangeLow, rangeHigh);
   }
   hw->DrawCopy("p");
   emu->Draw("same");
-  
+
   if (rangeLow != 0 || rangeHigh != 0) {
     emu->GetXaxis()->SetRangeUser(rangeLow, rangeHigh);
     hw->GetXaxis()->SetRangeUser(rangeLow, rangeHigh);
@@ -105,11 +105,11 @@ void create_plot(
   caption << "#bf{CMS Preliminary}: Run " << runNo << ", #sqrt{s} = " << energy
           << " TeV, " << dataset;
   /*
-  caption << "#bf{CMS Preliminary, 2016 Data}:" << ", #sqrt{s} = " << energy
-          << " TeV ";
+    caption << "#bf{CMS Preliminary, 2016 Data}:" << ", #sqrt{s} = " << energy
+    << " TeV ";
   */
   n.DrawLatex(0.1, 0.915, caption.str().c_str());
-  
+
   canv->cd();
   pad2->SetTopMargin(0);
   pad2->SetBottomMargin(0.39);
@@ -132,7 +132,7 @@ void create_plot(
 
   hw->GetYaxis()->SetLabelOffset(0.006);
   hw->GetYaxis()->SetNdivisions(40407);
-  
+
   hw->GetXaxis()->SetTitleSize(0.15);
   hw->GetXaxis()->SetTitleOffset(1.1);
   hw->GetXaxis()->SetLabelOffset(0.04);
@@ -181,82 +181,134 @@ void compHwEmu_new (
   } 
 
   // Jets
+
+  // Jet Et
   TH1D* hwMPJetEt = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpjet/et");
   TH1D* emMPJetEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpjet/et");
+  TH1D* hwMPJetEtSat = (TH1D*) new TH1D(*hwMPJetEt);
+  TH1D* emMPJetEtSat = (TH1D*) new TH1D(*emMPJetEt);
   TH1D* hwJetEt = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/jet/et");
   TH1D* emJetEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/jet/et");
 
+  // jet eta
   TH1D* hwMPJetEta = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpjet/eta");
   TH1D* emMPJetEta = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpjet/eta");
   TH1D* hwJetEta = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/jet/eta");
   TH1D* emJetEta = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/jet/eta");
 
+  // jet phi
   TH1D* hwMPJetPhi = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpjet/phi");
   TH1D* emMPJetPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpjet/phi");
   TH1D* hwJetPhi = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/jet/phi");
   TH1D* emJetPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/jet/phi");
 
   // MP sums
+
+  // ETT 
   TH1D* hwMPSumEt = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsumet/et");
   TH1D* emMPSumEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsumet/et");
 
+  // ETTHF
   TH1D* hwMPSumEtHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsumethf/et");
   TH1D* emMPSumEtHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsumethf/et");
 
+  /*
+  // ETTEM
+  TH1D* hwMPSumEtEM = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsumetem/et");
+  TH1D* emMPSumEtEM = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsumetem/et");
+  */
+
+  // ETx
   TH1D* hwMPSumEtx = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummetx/et");
   TH1D* emMPSumEtx = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummetx/et");
 
+  // ETxHF
   TH1D* hwMPSumEtxHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummetxhf/et");
   TH1D* emMPSumEtxHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummetxhf/et");
 
+  // ETy
   TH1D* hwMPSumEty = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummety/et");
   TH1D* emMPSumEty = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummety/et");
 
+  // ETyHF
   TH1D* hwMPSumEtyHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummetyhf/et");
   TH1D* emMPSumEtyHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummetyhf/et");
 
+  // HTT
   TH1D* hwMPSumHt = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsumht/et");
   TH1D* emMPSumHt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsumht/et");
 
+  // HTTHF
   TH1D* hwMPSumHtHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsumhthf/et");
   TH1D* emMPSumHtHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsumhthf/et");
 
+  // HTx
   TH1D* hwMPSumHtx = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummhtx/et");
   TH1D* emMPSumHtx = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummhtx/et");
 
+  // HTxHF
   TH1D* hwMPSumHtxHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummhtxhf/et");
   TH1D* emMPSumHtxHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummhtxhf/et");
 
+  // HTy
   TH1D* hwMPSumHty = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummhty/et");
   TH1D* emMPSumHty = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummhty/et");
 
+  // HTyHF
   TH1D* hwMPSumHtyHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/mpsummhtyhf/et");
   TH1D* emMPSumHtyHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpsummhtyhf/et");
 
   // Demux sums
+
+  // ETT
   TH1D* hwSumEt = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumet/et");
   TH1D* emSumEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumet/et");
 
+  /*
+  // ETT
+  TH1D* hwSumEtHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumet/et");
+  TH1D* emSumEtHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumet/et");
+  */
+
+  // ETTEM
+  TH1D* hwSumEtEM = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumetem/et");
+  TH1D* emSumEtEM = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumetem/et");
+
+  // MET
   TH1D* hwSumMet = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summet/et");
   TH1D* emSumMet = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summet/et");
 
+  // METHF
   TH1D* hwSumMetHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summethf/et");
   TH1D* emSumMetHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summethf/et");
 
+  // HTT
   TH1D* hwSumHt = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sumht/et");
   TH1D* emSumHt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sumht/et");
 
+  // MHT
   TH1D* hwSumMht = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summht/et");
   TH1D* emSumMht = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summht/et");
 
+  // MHTHF
   TH1D* hwSumMhtHF = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summhthf/et");
   TH1D* emSumMhtHF = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summhthf/et");
 
-  // Sum phi's
+  // MET phi
   TH1D* hwMetPhi = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summet/phi");
   TH1D* emMetPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summet/phi");
+
+  // METHF phi
+  TH1D* hwMetHFPhi = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summethf/phi");
+  TH1D* emMetHFPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summethf/phi");
+
+  // MHT phi
   TH1D* hwMhtPhi = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summht/phi");
   TH1D* emMhtPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summht/phi");
+
+  // MHTHF phi
+  TH1D* hwMhtHFPhi = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/summhthf/phi");
+  TH1D* emMhtHFPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/summhthf/phi");
 
   // Sorts
   TH1D* hwSortMP = (TH1D*)inFileHw->Get("l1tCaloStage2HwHistos/sortMP");
@@ -405,7 +457,12 @@ void compHwEmu_new (
     // plot MP jet Et
     create_plot(
       hwMPJetEt, emMPJetEt, runNo, dataset,
-      "Jet iE_{T}", "Jets/JetEt.pdf"
+      "Jet iE_{T}", "Jets/JetEt.pdf",  1, 13, 0, 1500
+      );
+
+     create_plot(
+      hwMPJetEtSat, emMPJetEtSat, runNo, dataset,
+      "Jet iE_{T} Full", "Jets/JetEtSat.pdf"
       );
 
     // plot MP jet eta
@@ -443,27 +500,35 @@ void compHwEmu_new (
   if (presentationMode) {
     // plot MP sum Et
     create_plot(
-                hwMPSumEt, emMPSumEt, runNo, dataset,
-                "Jet iE_{T}", "MPSums/MPSumEt.pdf", 2, 13, 0, 600
-                );
+      hwMPSumEt, emMPSumEt, runNo, dataset,
+      "Jet iE_{T}", "MPSums/MPSumEt.pdf", 2, 13, 0, 600
+      );
 
     // plot MP sum Et with HF
     create_plot(
-                hwMPSumEtHF, emMPSumEtHF, runNo, dataset,
-                "Jet iE_{T}", "MPSums/MPSumEtHF.pdf", 2, 13, 0, 600
-                );
+      hwMPSumEtHF, emMPSumEtHF, runNo, dataset,
+      "Jet iE_{T}", "MPSums/MPSumEtHF.pdf", 2, 13, 0, 600
+      );
   } else {
     // plot MP sum Et
     create_plot(
-                hwMPSumEt, emMPSumEt, runNo, dataset,
-                "Jet iE_{T}", "MPSums/MPSumEt.pdf"
-                );
+      hwMPSumEt, emMPSumEt, runNo, dataset,
+      "Jet iE_{T}", "MPSums/MPSumEt.pdf"
+      );
 
     // plot MP sum Et with HF
     create_plot(
-                hwMPSumEtHF, emMPSumEtHF, runNo, dataset,
-                "Jet iE_{T}", "MPSums/MPSumEtHF.pdf", 2, 13, 0, 600
-                );
+      hwMPSumEtHF, emMPSumEtHF, runNo, dataset,
+      "Jet iE_{T}", "MPSums/MPSumEtHF.pdf"
+      );
+
+    /*
+    // plot MP sum ETTEM
+    create_plot(
+      hwMPSumEt, emMPSumEt, runNo, dataset,
+      "Jet iE_{T}", "MPSums/MPSumEt.pdf"
+      );
+    */
   }
 
   // plot MP sum Etx
@@ -493,15 +558,15 @@ void compHwEmu_new (
   if (presentationMode) {
     // plot MP sum Ht
     create_plot(
-                hwMPSumHt, emMPSumHt, runNo, dataset,
-                "Jet iH_{T}", "MPSums/MPSumHt.pdf", 1, 13, 0, 1000
-                );
+      hwMPSumHt, emMPSumHt, runNo, dataset,
+      "Jet iH_{T}", "MPSums/MPSumHt.pdf", 1, 13, 0, 1000
+      );
 
     // plot MP sum Ht (with HF)
     create_plot(
-                hwMPSumHtHF, emMPSumHtHF, runNo, dataset,
-                "Jet iH_{T}", "MPSums/MPSumHtHF.pdf", 1, 13, 0, 1000
-                );
+      hwMPSumHtHF, emMPSumHtHF, runNo, dataset,
+      "Jet iH_{T}", "MPSums/MPSumHtHF.pdf", 1, 13, 0, 1000
+      );
 
     // plot MP sum Htx
     create_plot(
@@ -511,15 +576,15 @@ void compHwEmu_new (
 
     // plot MP sum Htx (with HF)
     create_plot(
-                hwMPSumHtxHF, emMPSumHtxHF, runNo, dataset,
-                "Jet iH_{T,x}", "MPSums/MPSumHtxHF.pdf", 1, 13, -20000, 20000
-                );
+      hwMPSumHtxHF, emMPSumHtxHF, runNo, dataset,
+      "Jet iH_{T,x}", "MPSums/MPSumHtxHF.pdf", 1, 13, -20000, 20000
+      );
 
     // plot MP sum Hty
     create_plot(
-                hwMPSumHty, emMPSumHty, runNo, dataset,
-                "Jet iH_{T,y}", "MPSums/MPSumHty.pdf", 1, 13, -20000, 20000
-                );
+      hwMPSumHty, emMPSumHty, runNo, dataset,
+      "Jet iH_{T,y}", "MPSums/MPSumHty.pdf", 1, 13, -20000, 20000
+      );
 
     // plot MP sum Hty (with HF)
     create_plot(
@@ -530,15 +595,15 @@ void compHwEmu_new (
 
     // plot MP sum Ht
     create_plot(
-                hwMPSumHt, emMPSumHt, runNo, dataset,
-                "Jet iH_{T}", "MPSums/MPSumHt.pdf"
-                );
+      hwMPSumHt, emMPSumHt, runNo, dataset,
+      "Jet iH_{T}", "MPSums/MPSumHt.pdf"
+      );
 
     // plot MP sum Ht (with HF)
     create_plot(
-                hwMPSumHtHF, emMPSumHtHF, runNo, dataset,
-                "Jet iH_{T}", "MPSums/MPSumHtHF.pdf"
-                );
+      hwMPSumHtHF, emMPSumHtHF, runNo, dataset,
+      "Jet iH_{T}", "MPSums/MPSumHtHF.pdf"
+      );
 
 
     // plot MP sum Htx
@@ -550,14 +615,14 @@ void compHwEmu_new (
     // plot MP sum Htx (with HF)
     create_plot(
       hwMPSumHtxHF, emMPSumHtxHF, runNo, dataset,
-      "Jet iH_{T,x}", "MPSums/MPSumHtx.pdf"
-    );
+      "Jet iH_{T,x}", "MPSums/MPSumHtxHF.pdf"
+      );
 
     // plot MP sum Hty
     create_plot(
-                hwMPSumHty, emMPSumHty, runNo, dataset,
-                "Jet iH_{T,y}", "MPSums/MPSumHty.pdf"
-                );
+      hwMPSumHty, emMPSumHty, runNo, dataset,
+      "Jet iH_{T,y}", "MPSums/MPSumHty.pdf"
+      );
 
     // plot MP sum Hty (with HF)
     create_plot(
@@ -576,13 +641,20 @@ void compHwEmu_new (
       runNo, dataset, "iE_{T}", "DemuxSums/DemSumEt.pdf", 20, 13, 0, 800
       );
 
+    // plot demux sum EtEM
+    create_plot(
+      hwSumEtEM,
+      emSumEtEM,
+      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtEM.pdf", 20, 13, 0, 800
+      );
+
     /*
     // plot demux sum Et with HF
     create_plot(
-      hwSumEtHF,
-      emSumEtHF,
-      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtHF.pdf", 20, 13, 0, 800
-      );
+    hwSumEtHF,
+    emSumEtHF,
+    runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtHF.pdf", 20, 13, 0, 800
+    );
     */
 
     // plot demux sum Met
@@ -606,6 +678,13 @@ void compHwEmu_new (
       runNo, dataset, "MET i#phi", "DemuxSums/DemMetPhi.pdf", 1, 13, 0, 143
       );
 
+    // plot demux sum Met phi (with HF)
+    create_plot(
+      hwMetHFPhi,
+      emMetHFPhi,
+      runNo, dataset, "MET i#phi", "DemuxSums/DemMetHFPhi.pdf", 1, 13, 0, 143
+      );
+
     // plot demux sum Ht
     create_plot(
       hwSumHt,
@@ -615,12 +694,12 @@ void compHwEmu_new (
 
     // plot demux sum Mht
     create_plot(
-                hwSumMht,
-                emSumMht,
-                runNo, dataset, "iMHT", "DemuxSums/DemSumMht.pdf", 5, 13, 0, 200
-                );
+      hwSumMht,
+      emSumMht,
+      runNo, dataset, "iMHT", "DemuxSums/DemSumMht.pdf", 5, 13, 0, 200
+      );
 
-    // plot demux sum Mht with HF
+    // plot demux sum Mht (with HF)
     create_plot(
       hwSumMhtHF,
       emSumMhtHF,
@@ -634,6 +713,12 @@ void compHwEmu_new (
       runNo, dataset, "MHT i#phi", "DemuxSums/DemMhtPhi.pdf", 1, 13, 0, 143
       );
 
+    // plot demux sum Mht phi (with HF)
+    create_plot(
+      hwMhtHFPhi,
+      emMhtHFPhi,
+      runNo, dataset, "MHT i#phi", "DemuxSums/DemMhtHFPhi.pdf", 1, 13, 0, 143
+      );
   } else {
     // plot demux sum Et
     create_plot(
@@ -642,13 +727,20 @@ void compHwEmu_new (
       runNo, dataset, "iE_{T}", "DemuxSums/DemSumEt.pdf"
       );
 
+    // plot demux sum EtEM
+    create_plot(
+      hwSumEtEM,
+      emSumEtEM,
+      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtEM.pdf"
+      );
+
     /*
     // plot demux sum Et with HF
     create_plot(
-      hwSumEtHF,
-      emSumEtHF,
-      runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtHF.pdf"
-      );
+    hwSumEtHF,
+    emSumEtHF,
+    runNo, dataset, "iE_{T}", "DemuxSums/DemSumEtHF.pdf"
+    );
     */
 
     // plot demux sum Met with HF
@@ -672,6 +764,13 @@ void compHwEmu_new (
       runNo, dataset, "MET i#phi", "DemuxSums/DemMetPhi.pdf", 1, 13, 0, 143
       );
 
+    // plot demux sum Met phi (with HF)
+    create_plot(
+      hwMetHFPhi,
+      emMetHFPhi,
+      runNo, dataset, "MET i#phi", "DemuxSums/DemMetHFPhi.pdf", 1, 13, 0, 143
+      );
+
     // plot demux sum Ht
     create_plot(
       hwSumHt,
@@ -686,11 +785,25 @@ void compHwEmu_new (
       runNo, dataset, "iMHT", "DemuxSums/DemSumMht.pdf"
       );
 
+    // plot demux sum Mht (with HF)
+    create_plot(
+      hwSumMhtHF,
+      emSumMhtHF,
+      runNo, dataset, "iMHT", "DemuxSums/DemSumMhtHF.pdf"
+      );
+
     // plot demux sum Mht phi
     create_plot(
       hwMhtPhi,
       emMhtPhi,
       runNo, dataset, "MHT i#phi", "DemuxSums/DemMhtPhi.pdf", 1, 13, 0, 143
+      );
+    
+    // plot demux sum Mht phi (with HF)
+    create_plot(
+      hwMhtHFPhi,
+      emMhtHFPhi,
+      runNo, dataset, "MHT i#phi", "DemuxSums/DemMhtHFPhi.pdf", 1, 13, 0, 143
       );
   }
 // ========================= demux sums end ========================
@@ -701,7 +814,7 @@ void compHwEmu_new (
   create_plot(
     hwMPEgEt,
     emMPEgEt,
-    runNo, dataset, "e/#gamma iE_{T}", "Egs/EgEt.pdf", 4
+    runNo, dataset, "e/#gamma iE_{T}", "Egs/EgEt.pdf", 1, 13, 0, 1500
     );
 
 // plot MP e/g eta
@@ -722,7 +835,7 @@ void compHwEmu_new (
   create_plot(
     hwEgEt,
     emEgEt,
-    runNo, dataset, "e/#gamma iE_{T}", "DemuxEgs/EgEt.pdf", 4
+    runNo, dataset, "e/#gamma iE_{T}", "DemuxEgs/EgEt.pdf", 1, 13, 0, 1500
     );
 
 // plot demux e/g eta
@@ -746,7 +859,7 @@ void compHwEmu_new (
   create_plot(
     hwMPTauEt,
     emMPTauEt,
-    runNo, dataset, "#tau iE_{T}", "Taus/TauEt.pdf", 4
+    runNo, dataset, "#tau iE_{T}", "Taus/TauEt.pdf", 1, 13, 0, 1500
     );
 
 // plot MP tau eta
@@ -767,7 +880,7 @@ void compHwEmu_new (
   create_plot(
     hwTauEt,
     emTauEt,
-    runNo, dataset, "#tau iE_{T}", "DemuxTaus/TauEt.pdf", 4
+    runNo, dataset, "#tau iE_{T}", "DemuxTaus/TauEt.pdf", 1, 13, 0, 1500
     );
 
 // plot demux tau eta
