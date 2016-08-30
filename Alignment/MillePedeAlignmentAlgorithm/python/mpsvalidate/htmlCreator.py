@@ -186,4 +186,3 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
 
     with open(os.path.join(config.outputPath, outputFile), "w") as output:
         output.write(data)
-        output.close()
