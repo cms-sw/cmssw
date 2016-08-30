@@ -19,10 +19,8 @@ public:
 
 	void evolve(const unsigned int);
 	void findNtuplets(std::vector<CACell::CAntuplet>&, const unsigned int);
-	void findTriplets(std::vector<const HitDoublets*>,
-			const SeedingLayerSetsHits::SeedingLayerSet&,
-			std::vector<CACell::CAntuplet>&, const TrackingRegion&, const float,
-			const float);
+	void findTriplets(const std::vector<HitDoublets>& hitDoublets,std::vector<CACell::CAntuplet>& foundTriplets, const TrackingRegion& region,
+			const float thetaCut, const float phiCut, const float hardPtCut);
 
 private:
 	CAGraph theLayerGraph;

@@ -39,11 +39,6 @@ public:
     virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
             const edm::Event & ev, const edm::EventSetup& es);
 
-    void findTriplets(const TrackingRegion& region, OrderedHitTriplets& result,
-            const edm::Event& ev, const edm::EventSetup& es,
-            const SeedingLayerSetsHits::SeedingLayerSet& threeLayers,
-			const std::array<const HitDoublets*,2> layerDoublets);
-
 
 private:
     edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
@@ -122,7 +117,8 @@ private:
     const bool useBendingCorrection;
 
     const float CAThetaCut = 0.00125f;
-    const float CAPhiCut = 10.f;
+    const float CAPhiCut = 1.f;
+    const float CAHardPtCut = 0.f;
 
 };
 
