@@ -237,8 +237,6 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
       edm::LogError("HCALTPAlgo") << "No upgrade he but received " << ids[0] << " (" << ids.size() << ")";
    }
 
-   std::cout << "ADC COUNT " << frame[4].adc() << std::endl;
-
    if(ids.size() == 2) {
       // make a second trigprim for the other one, and split the energy
       IntegerCaloSamples samples2(ids[1], samples1.size());
