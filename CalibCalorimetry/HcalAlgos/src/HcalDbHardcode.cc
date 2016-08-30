@@ -545,9 +545,10 @@ void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& s
 }
 
 HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
-  return HcalTPChannelParameter(fId.rawId(), 0, 0, 0, 0);
+  uint32_t bitInfo = ((44 << 16) | 30);
+  return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, 0);
 }
 
 void HcalDbHardcode::makeHardcodeTPParameters (HcalTPParameters& tppar) {
-  tppar.loadObject(0,0,0,0,0,0);
+  tppar.loadObject(0,0,0xFFFFFFFF,0,0,0);
 }
