@@ -7,7 +7,7 @@ using namespace std;
 
 namespace {
   //const bool phase1 = false;
-  const bool pilot_blade = true;  
+  const bool pilot_blade = false;  
 }
 
 // Decodes the pixel name from the cmssw DetID, uses tracker topology
