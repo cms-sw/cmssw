@@ -22,18 +22,10 @@ MatchingOutput PhiMatching(SortingOutput Sout){
   //// Set Null Ph and Th outputs /////////
   /////////////////////////////////////////
   ConvertedHit tt; tt.SetNull();
-  std::vector<ConvertedHit> p (4,tt);std::vector<std::vector<ConvertedHit>> pp (3,p);
-  PhOutput ph_output (4,pp);
-  
-  int t2 = -999;
-  std::vector<int> q2 (2,t2);
-  std::vector<std::vector<int>> qq2 (4,q2);std::vector<std::vector<std::vector<int>>> qqq2 (3,qq2);
-  ThOutput2 th_output2 (4,qqq2);
-  
-  
-  std::vector<ConvertedHit> q (2,tt);
-  std::vector<std::vector<ConvertedHit>> qq (4,q);std::vector<std::vector<std::vector<ConvertedHit>>> qqq (3,qq);
-  ThOutput th_output (4,qqq);
+  PhOutput ph_output = { {{{tt}}} };
+  ThOutput2 th_output2 = { {{{{-999}}}} };
+  ThOutput th_output = { {{{{tt}}}} }; 
+
   /////////////////////////////////////////
   /////////////////////////////////////////
   /////////////////////////////////////////
@@ -81,11 +73,11 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	  
 	  if((fabs(Winners[z][w].Strip() - (Thits[i].Phi()>>5)) <= phdiff[setstation]) && inBXgroup && inzone){//is close to winner keystrip and in same zone?
 	    
-	    if(ph_output[z][w][setstation].Phi() == -999){//has this already been set? no
+	    if(ph_output.x[z][w][setstation].Phi() == -999){//has this already been set? no
 	      
 	      if(verbose) std::cout<<"hasn't been set"<<std::endl;
 	      
-	      ph_output[z][w][setstation] = (Thits[i]);
+	      ph_output.x[z][w][setstation] = (Thits[i]);
 	      
 	      if(verbose) std::cout<<"set with strip-"<<Thits[i].Strip()<<", and wire-"<<Thits[i].Wire()<<std::endl;
 	      setphi = true;
@@ -94,7 +86,7 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	      
 	      if(verbose) std::cout<<"has already been set"<<std::endl;
 	      
-	      int d1 = fabs((ph_output[z][w][setstation].Phi()>>5) - Winners[z][w].Strip());
+	      int d1 = fabs((ph_output.x[z][w][setstation].Phi()>>5) - Winners[z][w].Strip());
 	      int d2 = fabs((Thits[i].Phi()>>5) - Winners[z][w].Strip());
 	      
 	      if(verbose) std::cout<<"d1 = "<<d1<<" and d2 = "<<d2<<"\n";
@@ -103,23 +95,23 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 		
 		if(verbose) std::cout<<"this is closer strip-"<<Thits[i].Strip()<<", and wire-"<<Thits[i].Wire()<<std::endl;
 		
-		ph_output[z][w][setstation] = (Thits[i]);
+		ph_output.x[z][w][setstation] = (Thits[i]);
 		
 		setphi = true;
 		
 	      }
 
 	      if (d2 == d1) {
-		if (Thits[i].BX() < ph_output[z][w][setstation].BX()) {
-		  ph_output[z][w][setstation] = (Thits[i]);
+		if (Thits[i].BX() < ph_output.x[z][w][setstation].BX()) {
+		  ph_output.x[z][w][setstation] = (Thits[i]);
 		  setphi = true;
 		}
-		else if (Thits[i].IsNeighbor() && !ph_output[z][w][setstation].IsNeighbor()) {
-		  ph_output[z][w][setstation] = (Thits[i]);
+		else if (Thits[i].IsNeighbor() && !ph_output.x[z][w][setstation].IsNeighbor()) {
+		  ph_output.x[z][w][setstation] = (Thits[i]);
 		  setphi = true;
 		}
-		else if ((Thits[i].IsNeighbor() == ph_output[z][w][setstation].IsNeighbor()) && (Thits[i].Id() < ph_output[z][w][setstation].Id())) {
-		  ph_output[z][w][setstation] = (Thits[i]);
+		else if ((Thits[i].IsNeighbor() == ph_output.x[z][w][setstation].IsNeighbor()) && (Thits[i].Id() < ph_output.x[z][w][setstation].Id())) {
+		  ph_output.x[z][w][setstation] = (Thits[i]);
 		  setphi = true;
 		}
 	      }
@@ -129,32 +121,32 @@ MatchingOutput PhiMatching(SortingOutput Sout){
 	    /////////////  Setting matched theta values; Take both of two from same chamber /////
 	    /////////////////////////////////////////////////////////////////////////////////////
 	    
-	    //if((th_output[z][w][setstation][0].Theta() != -999) && (th_output[z][w][setstation][0].Id() == Thits[i].Id())){//if same chamber take as well
-	    //		th_output[z][w][setstation][1] = (Thits[i]);
-	    //		if(verbose) std::cout<<"in here with set th = "<<th_output[z][w][setstation][0].Theta()<<" and new th = "<<Thits[i].Theta()<<"\n";
+	    //if((th_output.x[z][w][setstation][0].Theta() != -999) && (th_output.x[z][w][setstation][0].Id() == Thits[i].Id())){//if same chamber take as well
+	    //		th_output.x[z][w][setstation][1] = (Thits[i]);
+	    //		if(verbose) std::cout<<"in here with set th = "<<th_output.x[z][w][setstation][0].Theta()<<" and new th = "<<Thits[i].Theta()<<"\n";
 	    //	}
 	    
 	    if(setphi){//only set if phi was also set
 	      
-	      th_output2[z][w][setstation][0] = Thits[i].Theta();
+	      th_output2.x[z][w][setstation][0] = Thits[i].Theta();
 	      
-	      /*if(th_output[z][w][setstation][0].Theta() == -999){
-		th_output[z][w][setstation][0] = (Thits[i]);
+	      /*if(th_output.x[z][w][setstation][0].Theta() == -999){
+		th_output.x[z][w][setstation][0] = (Thits[i]);
 		}
-		else if((th_output[z][w][setstation][0].Theta() != -999) && (th_output[z][w][setstation][0].Id() == Thits[i].Id())){//if same chamber take as well
-		th_output[z][w][setstation][1] = (Thits[i]);
-		if(verbose) std::cout<<"in here with set th = "<<th_output[z][w][setstation][0].Theta()<<" and new th = "<<Thits[i].Theta()<<"\n";
+		else if((th_output.x[z][w][setstation][0].Theta() != -999) && (th_output.x[z][w][setstation][0].Id() == Thits[i].Id())){//if same chamber take as well
+		th_output.x[z][w][setstation][1] = (Thits[i]);
+		if(verbose) std::cout<<"in here with set th = "<<th_output.x[z][w][setstation][0].Theta()<<" and new th = "<<Thits[i].Theta()<<"\n";
 		}*/
 	      
-	      //if((th_output[z][w][setstation][0].Theta() != -999) && (th_output[z][w][setstation][0].Id() == Thits[i].Id())){//if same chamber take as well
-	      //	th_output[z][w][setstation][1] = (Thits[i]);
-	      //	if(verbose) std::cout<<"in here with set th = "<<th_output[z][w][setstation][0].Theta()<<" and new th = "<<Thits[i].Theta()<<"\n";
+	      //if((th_output.x[z][w][setstation][0].Theta() != -999) && (th_output.x[z][w][setstation][0].Id() == Thits[i].Id())){//if same chamber take as well
+	      //	th_output.x[z][w][setstation][1] = (Thits[i]);
+	      //	if(verbose) std::cout<<"in here with set th = "<<th_output.x[z][w][setstation][0].Theta()<<" and new th = "<<Thits[i].Theta()<<"\n";
 	      //}
 	      //else{
-	      //	th_output[z][w][setstation][0] = (Thits[i]);
+	      //	th_output.x[z][w][setstation][0] = (Thits[i]);
 	      
 	      if(Thits[i].Theta2() != -999)
-		th_output2[z][w][setstation][1] = Thits[i].Theta2();
+		th_output2.x[z][w][setstation][1] = Thits[i].Theta2();
 	      //}
 	      
 	    }
