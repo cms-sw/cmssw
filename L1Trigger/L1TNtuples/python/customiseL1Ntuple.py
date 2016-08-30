@@ -38,6 +38,15 @@ def L1NtupleAOD(process):
     return process
 
 
+def L1NtupleAOD_MC(process):
+    
+    L1NtupleAOD(process)
+
+    process.l1JetRecoTree.jecToken = cms.untracked.InputTag("ak4PFCHSL1FastL2L3Corrector")
+
+    return process
+
+
 
 def L1NtupleRAW(process):
 
@@ -66,11 +75,25 @@ def L1NtupleEMU(process):
     L1NtupleTFileOut(process)
 
     process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
-    process.l1ntuplesim = cms.Path(
+    process.l1ntupleemu = cms.Path(
         process.L1NtupleEMU
     )
 
-    process.schedule.append(process.l1ntuplesim)
+    process.schedule.append(process.l1ntupleemu)
+
+    return process
+
+
+def L1NtupleGEN(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleGEN_cff')
+    process.l1ntuplegen = cms.Path(
+        process.L1NtupleGEN
+    )
+
+    process.schedule.append(process.l1ntuplegen)
 
     return process
 
@@ -106,12 +129,37 @@ def L1NtupleAODEMU(process):
 
     return process
 
+def L1NtupleAODEMU_MC(process):
+
+    L1NtupleEMU(process)
+    L1NtupleAOD_MC(process)
+
+    return process
+
+
+def L1NtupleRAWEMUGEN_MC(process):
+
+    L1NtupleRAW(process)
+    L1NtupleEMU(process)
+    L1NtupleGEN(process)
+
+    return process
+
+def L1NtupleAODEMUGEN_MC(process):
+
+    L1NtupleEMU(process)
+    L1NtupleAOD_MC(process)
+    L1NtupleGEN(process)
+
+    return process
+
+
 def L1NtupleEMUNoEventTree(process):
 
     L1NtupleTFileOut(process)
 
     process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
-    process.L1NtupleEMU = cms.Sequence( process.l1CaloTowerEmuTree+process.l1UpgradeEmuTree )
+    process.L1NtupleEMU = cms.Sequence( process.l1CaloTowerEmuTree+process.l1UpgradeEmuTree+process.l1UpgradeTfMuonEmuTree )
     process.l1ntuplesim = cms.Path(
         process.L1NtupleEMU
     )
@@ -120,12 +168,3 @@ def L1NtupleEMUNoEventTree(process):
     return process
 
 
-def L1NtupleMC(process):
-
-    # add gen tree
-    process.load('L1Trigger.L1TNtuples.L1NtupleMC_cff')
-
-    if hasattr(process, 'l1JetRecoTree'):
-        process.l1JetRecoTree.jecToken = cms.untracked.InputTag("ak4PFCHSL1FastL2L3Corrector")
-
-    return process

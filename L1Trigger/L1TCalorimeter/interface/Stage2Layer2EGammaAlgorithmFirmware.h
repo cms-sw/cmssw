@@ -31,6 +31,8 @@ namespace l1t
       // trimming
       l1t::CaloCluster trimCluster(const l1t::CaloCluster& clus);
       unsigned int trimmingLutIndex(unsigned int shape, int iEta);
+      // shape
+      unsigned int returnShape(const l1t::CaloCluster& clus);
       // identification
       bool idShape(const l1t::CaloCluster& clus, int hwPt);
       unsigned int idShapeLutIndex(int iEta, int E, int shape);
