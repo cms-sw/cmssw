@@ -224,7 +224,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     runIVFforCTagOnly = False
     ivfcTagInfos = ['pfInclusiveSecondaryVertexFinderCvsLTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos']
     ## if MiniAOD and running c tagging
-    if pfCandidates.getModuleLabel() == 'packedPFCandidates' and (i for i in ivfcTagInfos if i in requiredTagInfos) and not runIVF:
+    if pfCandidates.getModuleLabel() == 'packedPFCandidates' and any(i in requiredTagInfos for i in ivfcTagInfos) and not runIVF:
         runIVFforCTagOnly = True
         runIVF = True
         print "-------------------------------------------------------------------"
@@ -363,7 +363,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 rerunningIVF()
         from PhysicsTools.PatAlgos.tools.helpers import loadWithPrefix
         ivfbTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos']
-        if (i for i in ivfbTagInfos if i in acceptedTagInfos) and not runIVFforCTagOnly:
+        if any(i in acceptedTagInfos for i in ivfbTagInfos) and not runIVFforCTagOnly:
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                 loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
             if tightBTagNTkHits:
@@ -383,7 +383,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
                 if hasattr( process, btagPrefix+'inclusiveCandidateSecondaryVertices' ) and not hasattr( process, svSource.getModuleLabel() ):
                     setattr(process, svSource.getModuleLabel(), getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices').clone() )
-        if (i for i in ivfcTagInfos if i in acceptedTagInfos):
+        if any(i in acceptedTagInfos for i in ivfcTagInfos):
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                 loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
             if tightBTagNTkHits:
