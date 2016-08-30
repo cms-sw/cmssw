@@ -17,7 +17,6 @@ CmsTrackerPixelPhase2DiskBuilder::buildComponent( DDFilteredView& fv, GeometricD
   CmsTrackerPixelPhase2RingBuilder theCmsTrackerPixelPhase2RingBuilder;
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
 
-  //std::cout << " Sono in CmsTrackerPixelPhase2DiskBuilder " << ExtractStringFromDDD::getString( s, &fv ) << std::endl;
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::panel:
@@ -46,7 +45,6 @@ CmsTrackerPixelPhase2DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det 
   
   GeometricDet::GeometricDetContainer rings;
   uint32_t  totalrings = comp.size();
-  //std::cout <<" DiskBuilder: totalrings " << totalrings << std::endl;
 
   for ( uint32_t rn=0; rn<totalrings; rn++) {
     rings.push_back(det->component(rn));
