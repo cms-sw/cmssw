@@ -15,26 +15,23 @@
 
 class HcalDeterministicFit {
  public:
-  enum NegStrategy {DoNothing=0, MoveCharge=1, MoveTiming=2};  
   HcalDeterministicFit();
   ~HcalDeterministicFit();
 
-  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, NegStrategy nStrat, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
+  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
 
   void phase1Apply(const HBHEChannelInfo& channelData,
-                   const HcalCalibrations& calibs,
-                   float* reconstructedEnergy,
-                   float* reconstructedTime) const;
+		   float& reconstructedEnergy,
+		   float& reconstructedTime) const;
 
   // This is the CMSSW Implementation of the apply function
   template<class Digi>
-  void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, std::vector<double> & Output) const;
+  void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, double& ampl, float &time) const;
   void getLandauFrac(float tStart, float tEnd, float &sum) const;
 
  private:
   HcalTimeSlew::ParaSource fTimeSlew;
   HcalTimeSlew::BiasSetting fTimeSlewBias;
-  NegStrategy fNegStrat;
   PedestalSub fPedestalSubFxn_;
 
   double fpars[9];
@@ -62,7 +59,7 @@ class HcalDeterministicFit {
 };
 
 template<class Digi>
-void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, std::vector<double> & Output) const {
+void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, const Digi & digi, double & reconstructedEnergy, float & reconstructedTime) const {
   std::vector<double> corrCharge;
   std::vector<double> inputCharge;
   std::vector<double> inputPedestal;
@@ -101,11 +98,10 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
   else if (fTimeSlew==1)respCorr=rCorr[0];
   else if (fTimeSlew==2)respCorr=rCorr[1];
   else if (fTimeSlew==3)respCorr=frespCorr;
-  
 
-  float tsShift3=HcalTimeSlew::delay(inputCharge[3],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift4=HcalTimeSlew::delay(inputCharge[4],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
-  float tsShift5=HcalTimeSlew::delay(inputCharge[5],fTimeSlew,fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
+  float tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2);
 
   float i3=0;
   getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
@@ -124,22 +120,16 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
   float n5=0;
   getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
 
-  float ch3=corrCharge[3]/i3;
-  float ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
-  float ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
+  float ch3=0;
+  float ch4=0;
+  float ch5=0;
 
-  if (ch3<negThresh[0] && fNegStrat==HcalDeterministicFit::MoveCharge) {
-    ch3=negThresh[0];
-    ch4=corrCharge[4]/i4;
-    ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
-  }
+  if (i3 != 0 && i4 != 0 && i5 != 0) {
 
-  if (ch5<negThresh[0] && fNegStrat==HcalDeterministicFit::MoveCharge) {
-    ch4=ch4+(ch5-negThresh[0]);
-    ch5=negThresh[0];
-  }
+    ch3=corrCharge[3]/i3;
+    ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
+    ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
 
-  if (fNegStrat==HcalDeterministicFit::MoveTiming) {
     if (ch3<negThresh[0]) {
       ch3=negThresh[0];
       ch4=corrCharge[4]/i4;
@@ -151,27 +141,21 @@ void HcalDeterministicFit::apply(const CaloSamples & cs, const std::vector<int> 
         double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
         float iG=0;
         getLandauFrac(-invG,-invG+tsWidth,iG);
-        ch4=(corrCharge[4]-ch3*n3)/(iG);
-        ch5=negThresh[0];
-        tsShift4=invG;
+        if (iG != 0 ) {
+	  ch4=(corrCharge[4]-ch3*n3)/(iG);
+	  tsShift4=invG;
+	}
       }
     }
   }
 
-  if (ch3<1) {
-    ch3=0;
-  }
   if (ch4<1) {
     ch4=0;
   }
-  if (ch5<1) {
-    ch5=0;
-  }
-  Output.clear();
-  Output.push_back(ch4*gainCorr*respCorr);// amplitude 
-  Output.push_back(tsShift4); // time shift of in-time pulse
-  Output.push_back(ch5); // whatever
 
+  double ampl=ch4*gainCorr*respCorr;
+  reconstructedEnergy=ampl;
+  reconstructedTime=tsShift4;
 }
 
 

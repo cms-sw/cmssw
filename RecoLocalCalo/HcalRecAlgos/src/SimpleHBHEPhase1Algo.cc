@@ -17,7 +17,6 @@
 // pulse containment correction
 constexpr float PulseContainmentFractionalError = 0.002f;
 
-
 SimpleHBHEPhase1Algo::SimpleHBHEPhase1Algo(
     const int firstSampleShift,
     const int samplesToAdd,
@@ -74,12 +73,20 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
 
     // Run "Method 2"
     float m2t = 0.f, m2E = 0.f;
+
     bool useTriple = false;
+
     const PulseShapeFitOOTPileupCorrection* method2 = psFitOOTpuCorr_.get();
     if (method2)
     {
-        method2->phase1Apply(info, calibs, &m2E, &m2t, &useTriple);
-        m2E *= hbminusCorrectionFactor(channelId, m2E, isData);
+
+      if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),0);
+      if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),1);
+
+      method2->phase1Apply(info, m2E, m2t, useTriple);
+
+      m2E *= hbminusCorrectionFactor(channelId, m2E, isData); // not sure what this does
+
     }
 
     // Run "Method 3"
@@ -87,8 +94,11 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     const HcalDeterministicFit* method3 = hltOOTpuCorr_.get();
     if (method3)
     {
-        method3->phase1Apply(info, calibs, &m3E, &m3t);
-        m3E *= hbminusCorrectionFactor(channelId, m3E, isData);
+
+      method3->phase1Apply(info, m3E, m3t);
+
+      m3E *= hbminusCorrectionFactor(channelId, m3E, isData); // not sure what this does
+
     }
 
     // Finally, construct the rechit
