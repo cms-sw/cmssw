@@ -117,7 +117,11 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     zeroSuppValMap_[id]->Fill(EVTS);
   }
 
-  bool evtGood = true;
+  std::map<unsigned int, bool> evtGood;
+  evtGood[maxMasks_] = true;
+  for (const auto &id: definedMaskCapIds_) {
+    evtGood[id] = true;
+  }
   unsigned valid_count = 0;
   for (const auto& fedId: fedIds_) {
     const FEDRawData& l1tRcd = feds->FEDData(fedId);
@@ -263,21 +267,23 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSEPOS);
           readoutSizeZSExpectedMap[maxMasks_] += totalBlockSize;
-          evtGood = false;
+          evtGood[maxMasks_] = false;
           if (capIdDefined) {
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSEPOS);
             readoutSizeZSExpectedMap[blockCapId] += totalBlockSize;
+            evtGood[blockCapId] = false;
           }
         } else {
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
           zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSENEG);
           readoutSizeZSMap[maxMasks_] += totalBlockSize;
-          evtGood = false;
+          evtGood[maxMasks_] = false;
           if (capIdDefined) {
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
             zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSENEG);
             readoutSizeZSMap[blockCapId] += totalBlockSize;
+            evtGood[blockCapId] = false;
           }
         }
       }
@@ -292,14 +298,15 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  if (evtGood) {
+  if (evtGood[maxMasks_]) {
     zeroSuppValMap_[maxMasks_]->Fill(EVTSGOOD);
-    for (const auto &id: definedMaskCapIds_) {
-      zeroSuppValMap_[id]->Fill(EVTSGOOD);
-    }
   } else {
     zeroSuppValMap_[maxMasks_]->Fill(EVTSBAD);
-    for (const auto &id: definedMaskCapIds_) {
+  }
+  for (const auto &id: definedMaskCapIds_) {
+    if (evtGood[id]) {
+      zeroSuppValMap_[id]->Fill(EVTSGOOD);
+    } else {
       zeroSuppValMap_[id]->Fill(EVTSBAD);
     }
   }
