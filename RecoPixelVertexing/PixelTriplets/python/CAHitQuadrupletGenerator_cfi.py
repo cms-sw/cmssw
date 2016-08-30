@@ -13,4 +13,5 @@ CAHitQuadrupletGenerator = cms.PSet(
     useBendingCorrection = cms.bool(False),
     CAThetaCut = cms.double(0.00125),
     CAPhiCut = cms.double(10),
+    CAHardPtCut = cms.double(0),
 )
