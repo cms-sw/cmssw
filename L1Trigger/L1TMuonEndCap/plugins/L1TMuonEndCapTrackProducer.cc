@@ -336,7 +336,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     /////////////////////////////////
     
     // std::vector<std::vector<DeltaOutput>> Dout = CalcDeltas(Mout);////
-    std::vector<std::vector<std::vector<DeltaOutput>>> Dout_Hold = CalcDeltas_Hold(Mout_Hold);
+    DeltaOutArr3 Dout_Hold = CalcDeltas_Hold(Mout_Hold);
     
     
     /////////////////////////////////

@@ -130,9 +130,9 @@ class SortingOutput{
   
 };
 
-typedef std::vector<std::vector<std::vector<std::vector<ConvertedHit>>>> ThOutput;
-typedef std::vector<std::vector<std::vector<std::vector<int>>>> ThOutput2;
-typedef std::vector<std::vector<std::vector<ConvertedHit>>> PhOutput;
+typedef struct ThOutput { ConvertedHit x[4][3][4][2]; } ThOutput;
+typedef struct ThOutput2 { int x[4][3][4][2]; } ThOutput2;
+typedef struct PhOutput { ConvertedHit x[4][3][4]; } PhOutput;
 class MatchingOutput{
   
  public:
@@ -191,6 +191,9 @@ class DeltaOutput{
   Winner _winner;
 	
 };
+// 3 BX, 4 zones, 3 winners
+typedef struct DeltaOutArr2 { DeltaOutput x[4][3]; } DeltaOutArr2;
+typedef struct DeltaOutArr3 { DeltaOutput x[3][4][3]; } DeltaOutArr3;
 
 struct BTrack{
 
