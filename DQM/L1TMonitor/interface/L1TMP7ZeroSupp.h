@@ -33,10 +33,13 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
 
  private:
 
+  void bookCapIdHistograms(DQMStore::IBooker&, const auto&);
+
   // Add additional bins only before NBINLABELS
   enum binlabels {EVTS=0, EVTSGOOD, EVTSBAD, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG, NBINLABELS};
 
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken_;
+  bool zsEnabled_;
   std::vector<int> fedIds_;
   std::vector<std::vector<int>> masks_;
 
@@ -54,10 +57,15 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   std::string monitorDir_;
   bool verbose_;
 
-  MonitorElement* zeroSuppVal_;
-  MonitorElement* readoutSizeNoZS_;
-  MonitorElement* readoutSizeZS_;
-  MonitorElement* readoutSizeZSExpected_;
+  unsigned int maxMasks_;
+
+  std::vector<unsigned int> definedMaskCapIds_;
+
+  std::map<unsigned int, MonitorElement*> zeroSuppValMap_;
+  std::map<unsigned int, MonitorElement*> readoutSizeNoZSMap_;
+  std::map<unsigned int, MonitorElement*> readoutSizeZSMap_;
+  std::map<unsigned int, MonitorElement*> readoutSizeZSExpectedMap_;
+  MonitorElement* capIds_;
 };
 
 #endif
