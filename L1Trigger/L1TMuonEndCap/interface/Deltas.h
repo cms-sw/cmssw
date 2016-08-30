@@ -13,7 +13,7 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
 	
   PhOutput phmatch = Mout.PhiMatch();
   ThOutput thmatch = Mout.ThetaMatch();
-  ThOutput2 t2 = Mout.TMatch2();
+  // ThOutput2 t2 = Mout.TMatch2(); // Unused ... also we later declare an "unsigned int t2" - confusing! - AWB 29.08.16
   
   /////////////////////////////////////
   ///Set Null dphi and dtheta arrays///
@@ -31,13 +31,13 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
       ///  calc delta phis  /// indexing procedure dphi[s2-1] for the first 3 and dphi[s1+s2] for the rest 
       /////////////////////////
       
-      if((s1 == 0) && (phmatch[zone][winner][s1].Phi() != -999) && (phmatch[zone][winner][s2].Phi() != -999)){ //if using station one and both hits are valid
+      if((s1 == 0) && (phmatch.x[zone][winner][s1].Phi() != -999) && (phmatch.x[zone][winner][s2].Phi() != -999)){ //if using station one and both hits are valid
 	
-	dphi[s2-1] = phmatch[zone][winner][s1].Phi() - phmatch[zone][winner][s2].Phi();
+	dphi[s2-1] = phmatch.x[zone][winner][s1].Phi() - phmatch.x[zone][winner][s2].Phi();
       }
-      else if((s1 != 0) && (phmatch[zone][winner][s1].Phi() != -999) && (phmatch[zone][winner][s2].Phi() != -999)){//if not using station one and both hits are valid
+      else if((s1 != 0) && (phmatch.x[zone][winner][s1].Phi() != -999) && (phmatch.x[zone][winner][s2].Phi() != -999)){//if not using station one and both hits are valid
 					
-	dphi[s1+s2] = phmatch[zone][winner][s1].Phi() - phmatch[zone][winner][s2].Phi();	
+	dphi[s1+s2] = phmatch.x[zone][winner][s1].Phi() - phmatch.x[zone][winner][s2].Phi();	
       }
 			
       
@@ -45,22 +45,22 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
       /// calc delta theta  /// possible if there are two theta segments for both stations. 
       ///////////////////////// EXPLAIN ABOUT [I+J] AND [I+J+1] 
       
-      for(unsigned int t1=0;t1<phmatch[zone][winner][s1].AllThetas().size();t1++){
-	for(unsigned int t2=0;t2<phmatch[zone][winner][s2].AllThetas().size();t2++){
+      for(unsigned int t1=0;t1<phmatch.x[zone][winner][s1].AllThetas().size();t1++){
+	for(unsigned int t2=0;t2<phmatch.x[zone][winner][s2].AllThetas().size();t2++){
 	  
-	  int dth_tmp = phmatch[zone][winner][s2].AllThetas()[t2] - phmatch[zone][winner][s1].AllThetas()[t1];
+	  int dth_tmp = phmatch.x[zone][winner][s2].AllThetas()[t2] - phmatch.x[zone][winner][s1].AllThetas()[t1];
 	  
 	  if(s1 == 0){
 	    
 	    if(dtmp2[s2-1] == -999){
 	      dtmp2[s2-1] = dth_tmp;
-	      dtmp2_ths[s2-1][0] = phmatch[zone][winner][s1].AllThetas()[t1];
-	      dtmp2_ths[s2-1][1] = phmatch[zone][winner][s2].AllThetas()[t2];
+	      dtmp2_ths[s2-1][0] = phmatch.x[zone][winner][s1].AllThetas()[t1];
+	      dtmp2_ths[s2-1][1] = phmatch.x[zone][winner][s2].AllThetas()[t2];
 	    }
 	    else if(abs(dth_tmp) < abs(dtmp2[s2-1])){
 	      dtmp2[s2-1] = dth_tmp;
-	      dtmp2_ths[s2-1][0] = phmatch[zone][winner][s1].AllThetas()[t1];
-	      dtmp2_ths[s2-1][1] = phmatch[zone][winner][s2].AllThetas()[t2];
+	      dtmp2_ths[s2-1][0] = phmatch.x[zone][winner][s1].AllThetas()[t1];
+	      dtmp2_ths[s2-1][1] = phmatch.x[zone][winner][s2].AllThetas()[t2];
 	    }
 	    
 	  }
@@ -68,13 +68,13 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
 	    
 	    if(dtmp2[s2+s1] == -999){
 	      dtmp2[s2+s1] = dth_tmp;
-	      dtmp2_ths[s1+s2][0] = phmatch[zone][winner][s1].AllThetas()[t1];
-	      dtmp2_ths[s2+s1][1] = phmatch[zone][winner][s2].AllThetas()[t2];
+	      dtmp2_ths[s1+s2][0] = phmatch.x[zone][winner][s1].AllThetas()[t1];
+	      dtmp2_ths[s2+s1][1] = phmatch.x[zone][winner][s2].AllThetas()[t2];
 	    }
 	    else if(abs(dth_tmp) < abs(dtmp2[s2+s1])){
 	      dtmp2[s2+s1] = dth_tmp;
-	      dtmp2_ths[s1+s2][0] = phmatch[zone][winner][s1].AllThetas()[t1];
-	      dtmp2_ths[s2+s1][1] = phmatch[zone][winner][s2].AllThetas()[t2];
+	      dtmp2_ths[s1+s2][0] = phmatch.x[zone][winner][s1].AllThetas()[t1];
+	      dtmp2_ths[s2+s1][1] = phmatch.x[zone][winner][s2].AllThetas()[t2];
 	    }
 	  }
 	  
@@ -149,7 +149,7 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
   if(vstat & 2){//ME2 Present
     
     //phi is simple, we have only one per station to choose from
-    phi = phmatch[zone][winner][1].Phi();
+    phi = phmatch.x[zone][winner][1].Phi();
     
     //for theta, select delta to best station, use dtmpi as index
     if(dtmp2[0] != -999){
@@ -165,7 +165,7 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
   }
   else if(vstat & 4){//ME3 Present, but not ME2
 	
-    phi = phmatch[zone][winner][2].Phi();
+    phi = phmatch.x[zone][winner][2].Phi();
     if(dtmp2[1] != -999){
       theta = dtmp2_ths[1][1];//t2[zone][winner][2][id];
     }
@@ -174,7 +174,7 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
     }
   }
   else if(vstat & 8){//ME4 Present but not ME2 or ME3
-    phi = phmatch[zone][winner][3].Phi();
+    phi = phmatch.x[zone][winner][3].Phi();
     if(dtmp2[2] != -999){
       theta = dtmp2_ths[2][1];//t2[zone][winner][3][id];
     }
@@ -218,18 +218,16 @@ std::vector<std::vector<DeltaOutput>> CalcDeltas(MatchingOutput Mout){
   return out;
 }
 
-std::vector<std::vector<std::vector<DeltaOutput>>> CalcDeltas_Hold(std::vector<MatchingOutput> Mout){
+DeltaOutArr3 CalcDeltas_Hold(std::vector<MatchingOutput> Mout){
   
-  DeltaOutput output;output.SetNull();
-  
-  std::vector<DeltaOutput> o (3,output);
-  std::vector<std::vector<DeltaOutput>> out (4,o);
-  std::vector<std::vector<std::vector<DeltaOutput>>> Output (3,out);
+  DeltaOutput output;
+  output.SetNull();
+  DeltaOutArr3 Output = { {{{output}}} };
   
   for(int bx=0;bx<3;bx++){
     for(int zone=0;zone<4;zone++){
       for(int winner=0;winner<3;winner++){
-	Output[bx][zone][winner] = Deltas(Mout[bx], zone, winner);
+	Output.x[bx][zone][winner] = Deltas(Mout[bx], zone, winner);
       }
     }
   }
