@@ -232,6 +232,10 @@ jsons = {
     'eleSF_IsoTight' : ['','',''],
     'eleSF_trk_eta' : ['','',''],
     #NEW
+    'muEff_loose__HLT_RunD4p2' : [jsonpath+'SingleMuonTrigger_LooseMuons_beforeL2fix_Z_RunBCD_prompt80X_7p65.json','MuonTrigger_data_all_IsoMu22_OR_IsoTkMu22_pteta_Run2016B_beforeL2Fix', 'abseta_pt_MC'],
+    'muEff_loose_HLT_RunD4p3' : [jsonpath+'SingleMuonTrigger_LooseMuons_afterL2fix_Z_RunBCD_prompt80X_7p65.json','MuonTrigger_data_all_IsoMu22_OR_IsoTkMu22_pteta_Run2016B_afterL2Fix', 'abseta_pt_MC'],
+    'eleEff_loose__HLT_RunD4p2' : ['','', ''],
+    'eleEff_loose_HLT_RunD4p3' : ['','', ''],
     'muSF_HLT_RunD4p2' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093', 'abseta_pt_DATA' ],
     'muSF_HLT_RunD4p3' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097', 'abseta_pt_DATA' ],
     'muSF_IsoLoose' : [ jsonpath+'MuonIso_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
@@ -263,7 +267,7 @@ for cut in ["trk_eta"]:
                                                 lambda x, muCorr=correctors["muSF_"+cut], eleCorr=correctors["eleSF_"+cut] : muCorr.get_1D(x.eta())[1] if abs(x.pdgId()) == 13 else eleCorr.get_1D(x.eta())[1], 
                                                 float, mcOnly=True, help="SF error for lepton "+cut
                                                 )]
-for cut in ["HLT_RunD4p3","HLT_RunD4p2","HLT_RunC"]:     
+for cut in ["HLT_RunD4p3","HLT_RunD4p2","HLT_RunC", "loose__HLT_RunD4p2", "loose_HLT_RunD4p3"]:     
     leptonTypeVHbb.variables += [NTupleVariable("Eff_"+cut, 
                                                 lambda x, muCorr=correctors["muEff_"+cut], eleCorr=correctors["eleEff_"+cut] : muCorr.get_2D(x.pt(), x.eta())[0] if abs(x.pdgId()) == 13 else eleCorr.get_2D(x.pt(), x.eta())[0], 
                                                 float, mcOnly=True, help="SF for lepton "+cut
