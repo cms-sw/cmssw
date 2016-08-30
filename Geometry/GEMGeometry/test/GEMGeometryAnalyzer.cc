@@ -51,7 +51,7 @@ GEMGeometryAnalyzer::GEMGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
   : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
     myName_( "GEMGeometryAnalyzer" ) 
 { 
-  ofos.open("MytestOutput.out"); 
+  ofos.open("GEMtestOutput.out"); 
   ofos <<"======================== Opening output file"<< std::endl;
 }
 
