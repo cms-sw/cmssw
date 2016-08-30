@@ -36,7 +36,7 @@ def customiseForQuadrupletsHLTPixelTracksByCellularAutomaton(process):
             SeedingLayers = cms.InputTag(seedingLayersName),
             CAThetaCut = cms.double(0.00125),
             CAPhiCut = cms.double(0.1),
-            CAHardPtCut = cms.double(0.2),
+            CAHardPtCut = cms.double(0),
             
         )
 
