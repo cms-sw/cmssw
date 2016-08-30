@@ -21,6 +21,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWCore/Utilities/interface/thread_clock.h"
+#include "FWCore/Utilities/interface/memory_allocation_stats.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -38,6 +40,7 @@
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 
 #include <iostream>
+#include <stack>
 #include <vector>
 
 using namespace edm::service;
@@ -224,7 +227,8 @@ void
 Tracer::preallocate(service::SystemBounds const& bounds) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, "
                                                           << bounds.maxNumberOfConcurrentLuminosityBlocks() << " concurrent luminosity sections, " 
-                                                          << bounds.maxNumberOfStreams() << " streams";
+                                                          << bounds.maxNumberOfStreams() << " streams, "
+                                                          << bounds.maxNumberOfThreads() << " threads";
 }
 
 void 
@@ -717,6 +721,10 @@ Tracer::postModuleEndJob(ModuleDescription const& desc) {
   }
 }
 
+// FIXME use per-stream instead of thread_local stacks ?
+static thread_local std::stack<cms::chrono::thread_clock::time_point, std::vector<cms::chrono::thread_clock::time_point>> stackEventModuleTimer;
+static thread_local std::stack<std::tuple<uint64_t,uint64_t>, std::vector<std::tuple<uint64_t,uint64_t>>> stackEventModuleMemory;
+
 void 
 Tracer::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
@@ -730,10 +738,20 @@ Tracer::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
     out << "\n" << sc;
     out << mcc;
   }
+
+  if(true)  // monitor processing time
+    stackEventModuleTimer.push(cms::chrono::thread_clock::now());
+  if(true)  // monitor memory allocation
+    stackEventModuleMemory.push(cms::MemoryAllocationMonitor::read());
 }
 
 void 
 Tracer::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  if(true)  // monitor memory allocation
+    stackEventModuleMemory.push(cms::MemoryAllocationMonitor::read());
+  if(true)  // monitor processing time
+    stackEventModuleTimer.push(cms::chrono::thread_clock::now());
+
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   unsigned int nIndents = mcc.depth() + 4;
@@ -744,6 +762,24 @@ Tracer::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc
   if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
+  }
+  if(true) { // report processing time
+    auto after  = stackEventModuleTimer.top();
+    stackEventModuleTimer.pop();
+    auto before = stackEventModuleTimer.top();
+    stackEventModuleTimer.pop();
+    double duration = std::chrono::duration_cast<std::chrono::duration<double>>(after - before).count();
+    out << "\n\tprocessing time:    " << std::fixed << std::setw(8) << std::setfill(' ') << std::setprecision(2) << duration * 1000 << " ms";
+  }
+  if(true) { // report memory allocation
+    auto after  = stackEventModuleMemory.top();
+    stackEventModuleMemory.pop();
+    auto before = stackEventModuleMemory.top();
+    stackEventModuleMemory.pop();
+    uint64_t allocated   = std::get<0>(after) - std::get<0>(before);
+    uint64_t deallocated = std::get<1>(after) - std::get<1>(before);
+    out << "\n\tallocated memory:   " << std::fixed << std::setw(8) << std::setfill(' ') << allocated   / 1024 + (allocated   % 1024 ? 1 : 0) << " kB";
+    out << "\n\tdeallocated memory: " << std::fixed << std::setw(8) << std::setfill(' ') << deallocated / 1024 + (deallocated % 1024 ? 1 : 0) << " kB";
   }
 }
 
