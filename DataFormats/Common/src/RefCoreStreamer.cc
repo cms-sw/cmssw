@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "TBuffer.h"
 #include "TClass.h"
 #include <ostream>
 #include <cassert>
