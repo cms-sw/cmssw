@@ -21,8 +21,8 @@ def makePuppies( process ):
     process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
     process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
     process.puppiForMET = process.puppiPhoton.clone()
-    process.puppiForMET.puppiCandName    = 'puppiMerged'
-
+    #process.puppiForMET.puppiCandName    = 'puppiMerged'
+    
 
 
 def makePuppiesFromMiniAOD( process ):
