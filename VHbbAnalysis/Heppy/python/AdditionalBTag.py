@@ -10,7 +10,7 @@ class AdditionalBTag( Analyzer ):
 
     def declareHandles(self):
         super(AdditionalBTag, self).declareHandles()
-        #self.handles['btagnew'] = AutoHandle( ("combinedInclusiveSecondaryVertexV2BJetTags","","EX"), "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
+        self.handles['btagHip'] = AutoHandle( ("pfCombinedInclusiveSecondaryVertexV2BJetTags","","EX"), "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
         #self.handles['btagcsv'] = AutoHandle( ("combinedSecondaryVertexBJetTags","","EX"), "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
         self.handles['btagSoftEl'] = AutoHandle( ("softPFElectronBJetTags","","EX"), "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
         self.handles['btagSoftMu'] = AutoHandle( ("softPFMuonBJetTags","","EX"), "edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference>")
@@ -36,12 +36,16 @@ class AdditionalBTag( Analyzer ):
     def readTag(self, event, name):
         newtags =  self.handles[name].product()
         for i in xrange(0,len(newtags)) :
-             for j in event.cleanJets :
+             for j in event.cleanJetsAll :
                 if j.physObj == newtags.key(i).get() :
                     setattr(j, name, newtags.value(i))
+                    print name, newtags.value(i)
+                else :
+                    setattr(j, name, -3)
+                
 
     def addNewBTag(self,event):
-        #self.readTag(event, "btagnew")
+        self.readTag(event, "btagHip")
         #self.readTag(event, "btagcsv")
         self.readTag(event, "btagSoftEl")
         self.readTag(event, "btagSoftMu")
@@ -54,6 +58,7 @@ class AdditionalBTag( Analyzer ):
     def process(self, event):
 
         self.readCollections( event.input )
+        print "add new bta"
         self.addNewBTag(event)
         for j in event.cleanJets:
 

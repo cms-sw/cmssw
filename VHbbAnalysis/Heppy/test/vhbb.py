@@ -356,6 +356,7 @@ VHbb = cfg.Analyzer(
     passall=False,
     doSoftActivityVH=True,
     doVBF=True,
+    #btagDiscriminator=lambda x: x.btagHip,
     regressions = [
         {"weight":"ttbar-spring16-500k-13d-300t.weights.xml", "name":"jet0Regression", "vtypes":[0,1,2,3,4,5,-1]},
     ],
