@@ -64,65 +64,67 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
   double DR = R1-R0;
   double DZ = Z1-Z0;
 
+  double alpha = atan2(DR,DZ);
+  double delta = sqrt(DR*DR+DZ*DZ)/(R0*sin(alpha)+Z0*cos(alpha));
+
+  int window=0;
+
   /// Scale factor is already present in
   /// double mPtScalingFactor = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015/mPtThreshold;
   /// hence the formula iis something like
   /// displacement < Delta * 1 / sqrt( ( 1/(mPtScalingFactor*R) )** 2 - 1 )
 
+
+  /// POSITION IN TERMS OF PITCH MULTIPLES:
+  ///       0 1 2 3 4 5 5 6 8 9 ...
+  /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
+  /// OUT   | | | | | |x| | | | | | | | | |
+  ///
+  /// IN    | | | |x|x| | | | | | | | | | |
+  ///             THIS is 3.5 (COORD) and 4.0 (POS)
+  /// 1) disp is the difference between average row coordinates
+  ///    in inner and outer stack member, in terms of outer member pitch
+  ///    (in case they are the same, this is just a plain coordinate difference)
+  double dispD = 2 * (mp1.x() - mp0.x()) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
+  int dispI = ((dispD>0)-(dispD<0))*floor(fabs(dispD)); /// In HALF-STRIP units!
+  /// 2) offset is the projection with a straight line of the innermost
+  ///    hit towards the ourermost stack member, still in terms of outer member pitch
+  ///    NOTE: in terms of coordinates, the center of the module is at NROWS/2-0.5 to
+  ///    be consistent with the definition given above 
+  
+  double offsetD = 2 * delta * ( mp0.x() - (top0->nrows()/2 - 0.5) ) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
+  int offsetI = ((offsetD>0)-(offsetD<0))*floor(fabs(offsetD)); /// In HALF-STRIP units!
+
   if (stDetId.subdetId()==StripSubdetector::TOB)
   {
-    int window = 2*barrelCut.at( theTrackerTopo_->layer(stDetId) );
-    /// POSITION IN TERMS OF PITCH MULTIPLES:
-    ///       0 1 2 3 4 5 5 6 8 9 ...
-    /// COORD: 0 1 2 3 4 5 6 7 8 9 ...
-    /// OUT   | | | | | |x| | | | | | | | | |
-    ///
-    /// IN    | | | |x|x| | | | | | | | | | |
-    ///             THIS is 3.5 (COORD) and 4.0 (POS)
-    /// 1) disp is the difference between average row coordinates
-    ///    in inner and outer stack member, in terms of outer member pitch
-    ///    (in case they are the same, this is just a plain coordinate difference)
-    double dispD = 2 * (mp1.x() - mp0.x()) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
-    int dispI = ((dispD>0)-(dispD<0))*floor(fabs(dispD)); /// In HALF-STRIP units!
-    /// 2) offset is the projection with a straight line of the innermost
-    ///    hit towards the ourermost stack member, still in terms of outer member pitch
-    ///    NOTE: in terms of coordinates, the center of the module is at NROWS/2-0.5 to
-    ///    be consistent with the definition given above 
-    double offsetD = 2 * DR/R0 * ( mp0.x() - (top0->nrows()/2 - 0.5) ) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
-    int offsetI = ((offsetD>0)-(offsetD<0))*floor(fabs(offsetD)); /// In HALF-STRIP units!
+    int layer  = theTrackerTopo_->layer(stDetId);
+    int ladder = theTrackerTopo_->tobRod(stDetId);
+    int type   = 2*theTrackerTopo_->tobSide(stDetId)-3; // -1 for tilted-, 1 for tilted+, 3 for flat
+    double corr=0;
 
-    /// Accept the stub if the post-offset correction displacement is smaller than the half-window
-    if ( fabs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
+    if (type<3) // Only for tilted modules
     {
-        aConfirmation = true;
-        aDisplacement = dispI; /// In HALF-STRIP units!
-        anOffset = offsetI; /// In HALF-STRIP units!
-    } /// End of stub is accepted
+      corr   = (barrelNTilt.at(layer)+1)/2.;
+      ladder = corr-(corr-ladder)*type; // Corrected ring number, bet 0 and barrelNTilt.at(layer), in ascending |z|
+      window = 2*(tiltedCut.at(layer)).at(ladder);
+    }
+    else // Classis barrel window otherwise
+    {
+      window = 2*barrelCut.at( layer );
+    }
+ 
   }
   else if (stDetId.subdetId()==StripSubdetector::TID)
   {
-    /// All of these are calculated in terms of pixels in outer sensor
-    /// 0) Calculate window in terms of multiples of outer sensor pitch
-    int window = 2*(ringCut.at( theTrackerTopo_->tidWheel(stDetId))).at(theTrackerTopo_->tidRing(stDetId));
-    /// 1) disp is the difference between average row coordinates
-    ///    in inner and outer stack member, in terms of outer member pitch
-    ///    (in case they are the same, this is just a plain coordinate difference)
-    double dispD = 2 * (mp1.x() - mp0.x()) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
-    int dispI = ((dispD>0)-(dispD<0))*floor(fabs(dispD)); /// In HALF-STRIP units!
-    /// 2) offset is the projection with a straight line of the innermost
-    ///    hit towards the ourermost stack member, still in terms of outer member pitch
-    ///    NOTE: in terms of coordinates, the center of the module is at NROWS/2-0.5 to
-    ///    be consistent with the definition given above 
-    double offsetD = 2 * DZ/Z0 * ( mp0.x() - (top0->nrows()/2 - 0.5) ) * (pitch0.first / pitch1.first); /// In HALF-STRIP units!
-    int offsetI = ((offsetD>0)-(offsetD<0))*floor(fabs(offsetD)); /// In HALF-STRIP units!
+    window = 2*(ringCut.at( theTrackerTopo_->tidWheel(stDetId))).at(theTrackerTopo_->tidRing(stDetId));
+  }
 
-    /// Accept the stub if the post-offset correction displacement is smaller than the half-window
-    if ( fabs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
-    {
-        aConfirmation = true;
-        aDisplacement = dispI; /// In HALF-STRIP units!
-        anOffset = offsetI; /// In HALF-STRIP units!
-    } /// End of stub is accepted
-    }
+  /// Accept the stub if the post-offset correction displacement is smaller than the half-window
+  if ( fabs(dispI - offsetI) <= window ) /// In HALF-STRIP units!
+  {
+    aConfirmation = true;
+    aDisplacement = dispI; /// In HALF-STRIP units!
+    anOffset = offsetI; /// In HALF-STRIP units!
+  } /// End of stub is accepted
+
 }
-
