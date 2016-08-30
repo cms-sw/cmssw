@@ -67,7 +67,7 @@ upgradeProperties = {
     '2023D4' : {
         'Geom' : 'Extended2023D4',
         'GT' : 'auto:run2_mc',
-        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021',
         'Era' : 'Phase2C2',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFullLocal'],
     },
