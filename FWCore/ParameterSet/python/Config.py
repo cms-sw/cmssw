@@ -268,6 +268,14 @@ class Process(object):
         return DictTypes.FixedKeysDict(self.__vpsets)
     vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
 
+    def isUsingModifier(self,mod):
+        """returns True if the Modifier is in used by this Process"""
+        if mod.isChosen():
+          for m in self.__modifiers:
+            if m._isOrContains(mod):
+              return True
+        return False
+
     def __setObjectLabel(self, object, newLabel) :
         if not object.hasLabel_() :
             object.setLabel(newLabel)
@@ -1212,6 +1220,8 @@ class Modifier(object):
     return self.__chosen
   def __and__(self, other):
     return _AndModifier(self,other)
+  def _isOrContains(self, other):
+    return self == other
 
 
 class ModifierChain(object):
@@ -1232,6 +1242,13 @@ class ModifierChain(object):
             m._setChosen()
     def isChosen(self):
         return self.__chosen
+    def _isOrContains(self, other):
+      if self is other:
+        return True
+      for m in self.__chain:
+        if m._isOrContains(other):
+          return True
+      return False
 
 class ProcessModifier(object):
     """A class used by a Modifier to affect an entire Process instance.
@@ -1978,6 +1995,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.b = EDAnalyzer("YourAnalyzer", wilma = int32(1))
             m1.toModify(p.b, wilma = 2)
             self.assertEqual(p.b.wilma.value(),2)
+            self.assert_(p.isUsingModifier(m1))
             #check that Modifier not attached to a process doesn't run
             m1 = Modifier()
             p = Process("test")
@@ -1987,6 +2005,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             m1.toModify(p.b, wilma = 2)
             self.assertEqual(p.a.fred.value(),1)
             self.assertEqual(p.b.wilma.value(),1)
+            self.assertEqual(p.isUsingModifier(m1),False)
             #make sure clones get the changes
             m1 = Modifier()
             p = Process("test",m1)
@@ -2040,6 +2059,8 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             m1 = Modifier()
             mc = ModifierChain(m1)
             p = Process("test",mc)
+            self.assert_(p.isUsingModifier(m1))
+            self.assert_(p.isUsingModifier(mc))
             testMod = DummyMod()
             p.b = EDAnalyzer("Dummy2", fred = int32(1))
             m1.toModify(p.b, fred = int32(3))
