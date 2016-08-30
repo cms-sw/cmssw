@@ -92,6 +92,9 @@ private:
 
     // "Metod 3" algorithm
     std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
+
+    HcalPulseShapes theHcalPulseShapes_;
+
 };
 
 #endif // RecoLocalCalo_HcalRecAlgos_SimpleHBHEPhase1Algo_h_
