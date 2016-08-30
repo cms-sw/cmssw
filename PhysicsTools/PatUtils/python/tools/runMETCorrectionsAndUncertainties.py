@@ -550,6 +550,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
+            getattr(process, "pat"+metType+"Met"+postfix).srcPFCands =  cms.InputTag("packedPFCandidates")
             if self._parameters["runOnData"].value:
                 getattr(process, "pat"+metType+"Met"+postfix).parameters = METSignificanceParams_Data
             if self._parameters["Puppi"].value:
