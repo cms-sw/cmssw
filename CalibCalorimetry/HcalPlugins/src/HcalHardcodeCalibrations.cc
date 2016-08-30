@@ -557,9 +557,13 @@ std::unique_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1Trigger
 
 std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
 
+  std::vector <HcalGenericDetId> cells = allCells(*topo);
   auto result = std::make_unique<HcalElectronicsMap>();
-  dbHardcode.makeHardcodeMap(*result);
+  dbHardcode.makeHardcodeMap(*result,cells);
   return result;
 }
 
