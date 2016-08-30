@@ -23,6 +23,11 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
 
                              # RecHit Level
                              CSCRecHitLabel = cms.InputTag("csc2DRecHits"),
+
+                             # Calo rec hits 
+                             HBHErhLabel = cms.InputTag("hbhereco"),
+                             ECALBrhLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                             ECALErhLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
                              
                              # Higher Level Reco
                              CSCSegmentLabel= cms.InputTag("cscSegments"),

@@ -39,6 +39,8 @@ namespace reco {
 
     const bool CSCLooseHaloId() const { return CSCHaloReport.size() ? CSCHaloReport[0] : false ; }
     const bool CSCTightHaloId() const { return CSCHaloReport.size() > 1 ? CSCHaloReport[1] : false ; }
+    const bool CSCTightHaloIdTrkMuUnveto() const { return CSCHaloReport.size() > 4 ? CSCHaloReport[4] : false ; }
+    const bool CSCTightHaloId2015() const { return CSCHaloReport.size() > 5 ? CSCHaloReport[5] : false ; }
     
     const bool GlobalLooseHaloId() const { return GlobalHaloReport.size() ? GlobalHaloReport[0] : false ; }
     const bool GlobalTightHaloId() const { return GlobalHaloReport.size() > 1 ? GlobalHaloReport[1] : false ; }

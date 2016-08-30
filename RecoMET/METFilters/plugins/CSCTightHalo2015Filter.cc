@@ -4,12 +4,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 
-class CSCTightHaloFilter : public edm::global::EDFilter<> {
+class CSCTightHalo2015Filter : public edm::global::EDFilter<> {
 
   public:
 
-    explicit CSCTightHaloFilter(const edm::ParameterSet & iConfig);
-    ~CSCTightHaloFilter() {}
+    explicit CSCTightHalo2015Filter(const edm::ParameterSet & iConfig);
+    ~CSCTightHalo2015Filter() {}
 
   private:
 
@@ -19,7 +19,7 @@ class CSCTightHaloFilter : public edm::global::EDFilter<> {
     edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;
 };
 
-CSCTightHaloFilter::CSCTightHaloFilter(const edm::ParameterSet & iConfig)
+CSCTightHalo2015Filter::CSCTightHalo2015Filter(const edm::ParameterSet & iConfig)
   : taggingMode_     (iConfig.getParameter<bool> ("taggingMode"))
   , beamHaloSummaryToken_(consumes<reco::BeamHaloSummary>(edm::InputTag("BeamHaloSummary")))
 {
@@ -27,12 +27,12 @@ CSCTightHaloFilter::CSCTightHaloFilter(const edm::ParameterSet & iConfig)
   produces<bool>();
 }
 
-bool CSCTightHaloFilter::filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
+bool CSCTightHalo2015Filter::filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
   edm::Handle<reco::BeamHaloSummary> beamHaloSummary;
   iEvent.getByToken(beamHaloSummaryToken_ , beamHaloSummary);
 
-  const bool pass = !beamHaloSummary->CSCTightHaloId();
+  const bool pass = !beamHaloSummary->CSCTightHaloId2015();
 
   iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
@@ -40,4 +40,4 @@ bool CSCTightHaloFilter::filter(edm::StreamID iID, edm::Event & iEvent, const ed
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(CSCTightHaloFilter);
+DEFINE_FWK_MODULE(CSCTightHalo2015Filter);

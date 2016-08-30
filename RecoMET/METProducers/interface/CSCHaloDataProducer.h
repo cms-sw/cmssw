@@ -158,6 +158,10 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     //RecHit Level
     edm::InputTag IT_CSCRecHit;
 
+    //Calo rechits
+    edm::InputTag IT_HBHErh;
+    edm::InputTag IT_ECALBrh;
+    edm::InputTag IT_ECALErh;
     //Higher Level Reco
     edm::InputTag IT_CosmicMuon;
     edm::InputTag IT_CSCSegment;
@@ -170,6 +174,9 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<reco::MuonCollection> muon_token_;
     edm::EDGetTokenT<CSCSegmentCollection> cscsegment_token_;
     edm::EDGetTokenT<CSCRecHit2DCollection> cscrechit_token_;
+    edm::EDGetTokenT<HBHERecHitCollection> hbhereco_token_; 
+    edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitsEB_token_;
+    edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitsEE_token_;
     edm::EDGetTokenT<CSCALCTDigiCollection> cscalct_token_;
     edm::EDGetTokenT<L1MuGMTReadoutCollection> l1mugmtro_token_;
     edm::EDGetTokenT<edm::TriggerResults> hltresult_token_;

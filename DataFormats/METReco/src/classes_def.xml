@@ -169,7 +169,8 @@
   </class>
   <class name="edm::Wrapper<reco::HcalHaloData>"/>
 
-  <class name="reco::CSCHaloData" ClassVersion="10">
+  <class name="reco::CSCHaloData" ClassVersion="11">
+   <version ClassVersion="11" checksum="1723373351"/>
    <version ClassVersion="10" checksum="3522217120"/>
   </class>
   <class name="edm::Wrapper<reco::CSCHaloData>"/>
