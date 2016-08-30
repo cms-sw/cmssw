@@ -39,7 +39,6 @@ class AdditionalBTag( Analyzer ):
              for j in event.cleanJetsAll :
                 if j.physObj == newtags.key(i).get() :
                     setattr(j, name, newtags.value(i))
-                    print name, newtags.value(i)
         for j in event.cleanJetsAll :
                   if not hasattr(j,name) :
                      setattr(j, name, -3)
@@ -58,7 +57,6 @@ class AdditionalBTag( Analyzer ):
     def process(self, event):
 
         self.readCollections( event.input )
-        print "add new bta"
         self.addNewBTag(event)
         for j in event.cleanJets:
 
