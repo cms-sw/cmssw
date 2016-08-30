@@ -26,6 +26,9 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+
 class DQMStore;
 
 class BeamSpot;
@@ -51,6 +54,7 @@ class TrackAnalyzer
         // redesign of the class is needed in the future.
         void setNumberOfGoodVertices(const edm::Event &);
         void setBX(const edm::Event &);
+        void setLumi(const edm::Event &, const edm::EventSetup& iSetup);
 
     private:
 	void initHistos();
@@ -64,13 +68,16 @@ class TrackAnalyzer
         void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
 	void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void fillHistosForTrackerSpecific(const reco::Track & track);
-        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const unsigned int monitoring);
+        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring);
 
         // ----------member data ---------------------------
 	std::string TopFolder_;
 
 	edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 	edm::EDGetTokenT<reco::VertexCollection> pvToken_;
+	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+	edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+	float lumi_factor_per_bx_;
 	
         edm::ParameterSet conf_;
 
@@ -113,7 +120,11 @@ class TrackAnalyzer
         // the reconstructed tracks
         bool doEffFromHitPatternVsPU_;
         bool doEffFromHitPatternVsBX_;
+        bool doEffFromHitPatternVsLUMI_;
 	int  pvNDOF_;
+	bool  useBPixLayer1_;
+	int   minNumberOfPixelsPerCluster_;
+	float minPixelClusterCharge_;	
 	std::string qualityString_;
 	
         struct TkParameterMEs {
@@ -395,12 +406,16 @@ class TrackAnalyzer
         std::unordered_map<Key, MonitorElement *, KeyHasher> hits_total_;
         unsigned int good_vertices_;
         unsigned int bx_;
+        float pixel_lumi_;
+        float scal_lumi_;
 	enum monQuantity {
 	  VsPU,
 	  VsBX,
+	  VsPIXELLUMI,
+	  VsSCALLUMI,
 	  END
 	};
-	std::string monName[monQuantity::END] = { "", "VsBX" };
+	std::string monName[monQuantity::END] = { "", "VsBX", "VsPIXELLUMI", "VsSCALLUMI" };
 
         std::string histname;  //for naming the histograms according to algorithm used
 };
