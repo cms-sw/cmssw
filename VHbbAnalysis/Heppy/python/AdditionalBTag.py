@@ -40,9 +40,9 @@ class AdditionalBTag( Analyzer ):
                 if j.physObj == newtags.key(i).get() :
                     setattr(j, name, newtags.value(i))
                     print name, newtags.value(i)
-                else :
-                    setattr(j, name, -3)
-                
+        for j in event.cleanJetsAll :
+                  if not hasattr(j,name) :
+                     setattr(j, name, -3)
 
     def addNewBTag(self,event):
         self.readTag(event, "btagHip")
