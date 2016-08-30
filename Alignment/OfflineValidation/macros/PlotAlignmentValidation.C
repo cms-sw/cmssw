@@ -35,9 +35,10 @@
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
 #include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.h"
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 //------------------------------------------------------------------------------
-PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle)
+PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle, bool bigtext) : bigtext_(bigtext)
 {
   setOutputDir(".");
   setTreeBaseDir();
@@ -55,6 +56,9 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
   // Make ROOT calculate histogram statistics using all data,
   // regardless of displayed range
   TH1::StatOverflows(kTRUE);
+
+  //show all information in the legend by default
+  legendOptions(TkAlStyle::legendoptions);
 }
 
 //------------------------------------------------------------------------------
@@ -86,6 +90,33 @@ void PlotAlignmentValidation::useFitForDMRplots(bool usefit)
 }
 
 //------------------------------------------------------------------------------
+void PlotAlignmentValidation::legendOptions(TString options)
+{
+
+  showMean_ = false;
+  showRMS_ = false;
+  showMeanError_ = false;
+  showRMSError_ = false;
+  showModules_ = false;
+  showUnderOverFlow_ = false;
+  options.ReplaceAll(" ","").ToLower();
+  if (options.Contains("mean") || options.Contains("all"))
+    showMean_ = true;
+  if (options.Contains("meanerror") || options.Contains("all"))
+    showMeanError_ = true;
+  if (options.Contains("rms") || options.Contains("all"))
+    showRMS_ = true;
+  if (options.Contains("rmserror") || options.Contains("all"))
+    showRMSError_ = true;
+  if (options.Contains("modules") || options.Contains("all"))
+    showModules_ = true;
+  if (options.Contains("under") || options.Contains("over") || options.Contains("outside") || options.Contains("all"))
+    showUnderOverFlow_ = true;
+
+  twolines_ = (showUnderOverFlow_ && (showMean_ + showMeanError_ + showRMS_ + showRMSError_ >= 1) && bigtext_);
+}
+
+//------------------------------------------------------------------------------
 void PlotAlignmentValidation::setOutputDir( std::string dir )
 {
   std::cout <<"'"<< outputDir <<"' = "<< dir << std::endl;
@@ -96,12 +127,10 @@ void PlotAlignmentValidation::setOutputDir( std::string dir )
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned int subDetId)
 {
-  setNiceStyle();
- 
   gStyle->SetOptStat(11111);
   gStyle->SetOptFit(0000);
 
-  TCanvas *c = new TCanvas("c", "c", 600,600);
+  TCanvas *c = new TCanvas("c", "c");
   c->SetTopMargin(0.15);
   TString histoName= "";
   if (plotNormHisto) {histoName= "h_NormXprime";}
@@ -179,11 +208,9 @@ void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned in
 void PlotAlignmentValidation::plotHitMaps()
 {
   
-  setNiceStyle(); 
   //gStyle->SetOptStat(0);
   
   TCanvas *c = new TCanvas("c", "c", 1200,400);
-  setCanvasStyle( *c );
   c->Divide(3,1);
   //ps->NewPage();
 
@@ -220,14 +247,12 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName, std
 {
  
   Int_t counter=0;
-  setNiceStyle();
   
   gStyle->SetOptStat(111111);
   gStyle->SetStatY(0.9);
   //TList* treelist=getTreeList();
   
   TCanvas *c1 = new TCanvas("canv", "canv", 800, 500);
-  //setCanvasStyle( *c1 );
   outputFile = outputDir +'/'+ outputFileName;   
   c1->Print( (outputFile+'[').Data() ); 
   
@@ -380,6 +405,9 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
     return;
   }
 
+  int bkperrorx = gStyle->GetErrorX();
+  gStyle->SetErrorX(1);   //regardless of style settings, we want x error bars here
+
   int plotLayerN = 0;
   //  int plotRingN  = 0;
   //  bool plotPlain = false;
@@ -410,11 +438,9 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
   // If layers are plotted, these are the numbers of layers for each subdetector
   static int numberOfLayers[6] = { 3, 2, 4, 3, 6, 9 };
 
-  setNiceStyle(); 
   gStyle->SetOptStat(0);
   
-  TCanvas c("canv", "canv", 600, 600);
-  setCanvasStyle( c );
+  TCanvas c("canv", "canv");
 
   // todo: title, min/max, nbins?
 
@@ -469,22 +495,22 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	case 6: subDetName = "TEC"; break;
 	}
 
-	TString myTitle = "Surface Shape, ";
-	myTitle += subDetName;
+        TString secondline = "";
 	if (layer!=0) {
 	  // TEC and TID have discs, the rest have layers
 	  if (iSubDet==4 || iSubDet==6)
-	    myTitle += TString(", disc ");
+	    secondline = "disc ";
 	  else {
-	    myTitle += TString(", layer ");
+	    secondline = "layer ";
 	  }
-	  myTitle += Form("%d",layer); 
+	  secondline += Form("%d",layer);
+	  secondline += " ";
 	}
 	if (isTEC && iTEC==0)
-	  myTitle += TString(" R1-4");
+	  secondline += TString("R1-4");
 	if (isTEC && iTEC>0)
-	  myTitle += TString(" R5-7");
-	
+	  secondline += TString("R5-7");
+
 	// Generate histograms with selection
 	TLegend* legend = 0;
 	THStack *hs = addHists(selection, residType, &legend);
@@ -496,14 +522,13 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 
 	  TProfile* defhist = new TProfile("defhist", "Empty default histogram", 100, -1, 1, -1, 1);
 	  hs->Add(defhist);
-	  hs->SetTitle( myTitle );
 	  hs->Draw();
 	}
 	else {
-	  hs->SetTitle( myTitle );
 	  hs->Draw("nostack PE");
 	  modifySSHistAndLegend(hs, legend);
 	  legend->Draw();
+	  setTitleStyle(*hs, "", "", iSubDet, true, secondline);
 
 	  // Adjust Labels
 	  TH1* firstHisto = (TH1*) hs->GetHists()->First();
@@ -552,6 +577,7 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
       }
     }
   }
+  gStyle->SetErrorX(bkperrorx);
 
   return;
 }
@@ -619,11 +645,9 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
   DMRPlotInfo plotinfo;
 
-  setNiceStyle(); 
   gStyle->SetOptStat(0);
   
-  TCanvas c("canv", "canv", 600, 600);
-  setCanvasStyle( c );
+  TCanvas c("canv", "canv");
 
   plotinfo.variable = variable;
   plotinfo.minHits = minHits;
@@ -671,13 +695,18 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
     // Sets dimension of legend according to the number of plots
 
+    bool hasheader = (TkAlStyle::legendheader != "");
+
     int nPlots = 1;
     if (plotinfo.plotSplits) { nPlots = 3; }
     if (plotinfo.plotLayers) { nPlots *= numberOfLayers[i-1]; }
     nPlots *= sourceList.size();
+    if (twolines_) { nPlots *= 2; }
+    nPlots += hasheader;
 
     double legendY = 0.80;
     if (nPlots > 3) { legendY -= 0.01 * (nPlots - 3); }
+    if (bigtext_) { legendY -= 0.05; }
     if (legendY < 0.6) {
       std::cerr << "Warning: Huge legend!" << std::endl;
       legendY = 0.6;
@@ -688,7 +717,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotinfo.subDetId = i;
     plotinfo.nLayers = numberOfLayers[i-1];
     plotinfo.legend = new TLegend(0.17, legendY, 0.85, 0.88);
-    setLegendStyle(*plotinfo.legend);
+    plotinfo.legend->SetNColumns(2);
+    if (hasheader) plotinfo.legend->SetHeader(TkAlStyle::legendheader);
+    if (bigtext_) plotinfo.legend->SetTextSize(TkAlStyle::textSize);
+    plotinfo.legend->SetFillStyle(0);
     plotinfo.hstack = &hstack;
     plotinfo.h = plotinfo.h1 = plotinfo.h2 = 0;
     plotinfo.firsthisto = true;
@@ -740,8 +772,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	        legend << ", layer ";
 	      legend << layer;
 	    }
-	    legend << ": #Delta#mu = " << deltamu << unit;
-	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), ""); 
+	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
+	    legend.str("");
+	    legend << "#Delta#mu = " << deltamu << unit;
+	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
 	  }
 	  if (plotinfo.h1) { setDMRHistStyleAndLegend(plotinfo.h1, plotinfo, -1, layer); }
 	  if (plotinfo.h2) { setDMRHistStyleAndLegend(plotinfo.h2, plotinfo, 1, layer); }
@@ -785,12 +819,12 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     else if (variable=="rmsNormY") plotName << "rmsNYR_";
 
     switch (i) {
-    case 1: plotName << "BPIX"; break;
-    case 2: plotName << "FPIX"; break;
-    case 3: plotName << "TIB"; break;
-    case 4: plotName << "TID"; break;
-    case 5: plotName << "TOB"; break;
-    case 6: plotName << "TEC"; break;
+      case 1: plotName << "BPIX"; break;
+      case 2: plotName << "FPIX"; break;
+      case 3: plotName << "TIB"; break;
+      case 4: plotName << "TID"; break;
+      case 5: plotName << "TOB"; break;
+      case 6: plotName << "TEC"; break;
     }
 
     if (plotPlain && !plotSplits) { plotName << "_plain"; }
@@ -837,12 +871,6 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   // Opens the file (it should be OfflineValidation(Parallel)_result.root)
   // and reads and plots the norm_chi^2 and h_chi2Prob -distributions.
 
-  // First set default style: plots are already formatted
-  TStyle defStyle("Default","Default Style");
-  defStyle.cd();
-  gStyle->SetOptStat(1);
-  TGaxis::SetMaxDigits(3);
-
   Bool_t errorflag = kTRUE;
   TFile* fi1 = TFile::Open(inputFile,"read");
   TDirectoryFile* mta1 = NULL;
@@ -869,35 +897,6 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
     return;
   }
 
-  // Small adjustments: move the legend right and up so that it doesn't block
-  // the exponent of the y-axis scale and doesn't cut the histogram border
-  TLegend* l = (TLegend*)findObjectFromCanvas(normchi, "TLegend");
-  if (l != 0) {
-    l->SetX1NDC(0.25);
-    l->SetY1NDC(0.86);
-  }
-  l = (TLegend*)findObjectFromCanvas(chiprob, "TLegend");
-  if (l != 0) {
-    l->SetX1NDC(0.25);
-    l->SetY1NDC(0.86);
-  }
-
-  // Move stat boxes slightly right so that the border lines fit in
-  int i = 1;
-  for (TH1F* h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", i); h != 0;
-       h = (TH1F*)findObjectFromCanvas(normchi, "TH1F", ++i)) {
-        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
-        if (s != 0)
-          s->SetX2NDC(0.995);
-  }
-  i = 1;
-  for (TH1F* h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", i); h != 0;
-       h = (TH1F*)findObjectFromCanvas(chiprob, "TH1F", ++i)) {
-        TPaveStats *s = (TPaveStats*)h->GetListOfFunctions()->FindObject("stats");
-        if (s != 0)
-          s->SetX2NDC(0.995);
-  }
-
   chiprob->Draw();
   normchi->Draw();
 
@@ -919,7 +918,6 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   fi3.Close();
 
   fi1->Close();
-  TGaxis::SetMaxDigits(4);
 
 }
 
@@ -955,7 +953,6 @@ THStack* PlotAlignmentValidation::addHists(const TString& selection, const TStri
   if (myLegend != 0)
     if (*myLegend == 0) {
       *myLegend = new TLegend(0.17, 0.80, 0.85, 0.88);
-      setLegendStyle( **myLegend );
     }
 
   for(std::vector<TkOfflineVariables*>::iterator itSourceFile = sourceList.begin();
@@ -1150,61 +1147,40 @@ THStack* PlotAlignmentValidation::addHists(const TString& selection, const TStri
 }
 
 //------------------------------------------------------------------------------
-std::pair<float,float> 
+TF1 *
 PlotAlignmentValidation::fitGauss(TH1 *hist,int color) 
 {
   //1. fits a Gauss function to the inner range of abs(2 rms)
   //2. repeates the Gauss fit in a 2 sigma range around mean of first fit
   //returns mean and sigma from fit in micron
-  std::pair<float,float> fitResult(9999., 9999.);
-  if (!hist || hist->GetEntries() < 20) return fitResult;
+  if (!hist || hist->GetEntries() < 20) return 0;
 
   float mean  = hist->GetMean();
   float sigma = hist->GetRMS();
 
  
-  TF1 func("tmp", "gaus", mean - 2.*sigma, mean + 2.*sigma); 
+  TF1 *func = new TF1("tmp", "gaus", mean - 2.*sigma, mean + 2.*sigma); 
  
-  func.SetLineColor(color);
-  func.SetLineStyle(2);
-  if (0 == hist->Fit(&func,"QNR")) { // N: do not blow up file by storing fit!
-    mean  = func.GetParameter(1);
-    sigma = func.GetParameter(2);
+  func->SetLineColor(color);
+  func->SetLineStyle(2);
+  if (0 == hist->Fit(func,"QNR")) { // N: do not blow up file by storing fit!
+    mean  = func->GetParameter(1);
+    sigma = func->GetParameter(2);
     // second fit: three sigma of first fit around mean of first fit
-    func.SetRange(mean - 2.*sigma, mean + 2.*sigma);
+    func->SetRange(mean - 3.*sigma, mean + 3.*sigma);
     // I: integral gives more correct results if binning is too wide
     // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-    if (0 == hist->Fit(&func, "Q0ILR")) {
-      if (hist->GetFunction(func.GetName())) { // Take care that it is later on drawn:
-	//hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
+    if (0 == hist->Fit(func, "Q0ILR")) {
+      if (hist->GetFunction(func->GetName())) { // Take care that it is later on drawn:
+	//hist->GetFunction(func->GetName())->ResetBit(TF1::kNotDraw);
       }
-      fitResult.first = func.GetParameter(1)*10000;//convert from cm to micron
-      fitResult.second = func.GetParameter(2)*10000;//convert from cm to micron
     }
   }
  
   
-  return fitResult;
+  return func;
 }
 
-
-//------------------------------------------------------------------------------
-void  PlotAlignmentValidation::setCanvasStyle( TCanvas& canv )
-{
-  canv.SetFillStyle   ( 4000 );
-  canv.SetLeftMargin  ( 0.15 );
-  canv.SetRightMargin ( 0.05 );
-  canv.SetBottomMargin( 0.15 );
-  canv.SetTopMargin   ( 0.12 );
-}
-
-//------------------------------------------------------------------------------
-void  PlotAlignmentValidation::setLegendStyle( TLegend& leg )
-{
-  leg.SetFillStyle ( 0 );
-  leg.SetFillColor ( 0 );
-  leg.SetBorderSize( 0 ); 
-}
 
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::scaleXaxis(TH1* hist, Int_t scale)
@@ -1231,112 +1207,74 @@ TObject* PlotAlignmentValidation::findObjectFromCanvas(TCanvas* canv, const char
 }
 
 //------------------------------------------------------------------------------
-void  PlotAlignmentValidation::setNiceStyle() {
-  TStyle *MyStyle = new TStyle ("MyStyle", "My style for nicer plots");
-  
-  Float_t xoff = MyStyle->GetLabelOffset("X"),
-    yoff = MyStyle->GetLabelOffset("Y"),
-    zoff = MyStyle->GetLabelOffset("Z");
-
-  MyStyle->SetCanvasBorderMode ( 0 );
-  MyStyle->SetFrameBorderMode ( 0 );
-  MyStyle->SetPadBorderMode    ( 0 );
-  MyStyle->SetPadColor         ( 0 );
-  MyStyle->SetCanvasColor      ( 0 );
-  MyStyle->SetTitleColor       ( 0 );
-  MyStyle->SetStatColor        ( 0 );
-  MyStyle->SetTitleBorderSize  ( 0 );
-  MyStyle->SetTitleFillColor   ( 0 );
-  MyStyle->SetTitleH        ( 0.07 );
-  MyStyle->SetTitleW        ( 1.00 );
-  MyStyle->SetTitleFont     (  132 );
-
-  MyStyle->SetLabelOffset (1.5*xoff, "X");
-  MyStyle->SetLabelOffset (1.5*yoff, "Y");
-  MyStyle->SetLabelOffset (1.5*zoff, "Z");
-
-  MyStyle->SetTitleOffset (1.5,      "X");
-  MyStyle->SetTitleOffset (1.2,      "Y");
-  MyStyle->SetTitleOffset (0.9,     "Z");
-
-  MyStyle->SetTitleSize   (0.045,    "X");
-  MyStyle->SetTitleSize   (0.045,    "Y");
-  MyStyle->SetTitleSize   (0.045,    "Z");
-
-  MyStyle->SetLabelFont   (132,      "X");
-  MyStyle->SetLabelFont   (132,      "Y");
-  MyStyle->SetLabelFont   (132,      "Z");
-
-  MyStyle->SetPalette(1);
-
-  MyStyle->cd();
-}
-
-//------------------------------------------------------------------------------
-void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, const char* titleY,int subDetId)
+void  PlotAlignmentValidation::setTitleStyle( TNamed &hist,const char* titleX, const char* titleY,int subDetId, bool isSurfaceDeformation, TString secondline)
 {
-  std::stringstream titel_Xaxis;
-  std::stringstream titel_Yaxis;
-  TString titelXAxis=titleX;
-  TString titelYAxis=titleY;
-  cout<<"plot "<<titelXAxis<<" vs "<<titelYAxis<<endl;
+  std::stringstream title_Xaxis;
+  std::stringstream title_Yaxis;
+  TString titleXAxis=titleX;
+  TString titleYAxis=titleY;
+  if (titleXAxis != "" && titleYAxis != "")
+    cout<<"plot "<<titleXAxis<<" vs "<<titleYAxis<<endl;
   
-  if ( titelXAxis.Contains("medianX")||titelXAxis.Contains("medianY")||titelXAxis.Contains("meanX")||titelXAxis.Contains("rmsX")||titelXAxis.Contains("meanY") ){
-    std::string histTitel="";
-    if (titelXAxis.Contains("medianX")) histTitel="Distribution of the median of the residuals in ";
-    if (titelXAxis.Contains("medianY")) histTitel="Distribution of the median of the y residuals in ";
-    if (titelXAxis.Contains("meanX")) histTitel="Distribution of the mean of the residuals in ";
-    if (titelXAxis.Contains("meanY")) histTitel="Distribution of the mean of the residuals in ";
-    if (titelXAxis.Contains("rmsX")) histTitel="Distribution of the rms of the residuals in ";
-    
-    switch (subDetId) {
-    case 1: histTitel+="BPIX";break;
-    case 2: histTitel+="FPIX";break;
-    case 3: histTitel+="TIB";break;
-    case 4: histTitel+="TID";break;
-    case 5: histTitel+="TOB";break;
-    case 6: histTitel+="TEC";break;
-    }
-    hist.SetTitle(histTitel.c_str());
-  } else {
-    switch (subDetId){
-    case 1: hist.SetTitle("Pixel Barrel");break;
-    case 2: hist.SetTitle("Pixel Endcap");break;
-    case 3: hist.SetTitle("Tracker Inner Barrel");break;
-    case 4: hist.SetTitle("Tracker Inner Disk");break;
-    case 5: hist.SetTitle("Tracker Outer Barrel");break;
-    case 6: hist.SetTitle("Tracker End Cap");break;
-      //default:hist.SetTitle();
-    }    
+  hist.SetTitle("");
+  TkAlStyle::drawStandardTitle();
+
+  //Thanks Candice!
+  TString subD;
+  switch (subDetId) {
+    case 1: subD="BPIX"; break;
+    case 2: subD="FPIX"; break;
+    case 3: subD="TIB"; break;
+    case 4: subD="TID"; break;
+    case 5: subD="TOB"; break;
+    case 6: subD="TEC"; break;
   }
-  
+
+  TPaveText *text2;
+  if (!isSurfaceDeformation) {
+    text2 = new TPaveText(0.7, 0.3, 0.9, 0.6, "brNDC");
+  } else {
+    cout << "Surface Deformation" << endl;
+    text2 = new TPaveText(0.8, 0.75, 0.9, 0.9, "brNDC");
+  }
+  text2->SetTextSize(0.06);
+  text2->SetTextFont(42);
+  text2->SetFillStyle(0);
+  text2->SetBorderSize(0);
+  text2->SetMargin(0.01);
+  text2->SetTextAlign(12); // align left
+  text2->AddText(0.01,0.75,subD);
+  if (secondline != "") {
+    text2->AddText(0.01, 0.25, secondline);
+  }
+  text2->Draw();
 }
 
 
 //------------------------------------------------------------------------------
 void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const char* titleY, int color)
 {
-  std::stringstream titel_Xaxis;
-  std::stringstream titel_Yaxis;
-  TString titelXAxis=titleX;
-  TString titelYAxis=titleY;
+  std::stringstream title_Xaxis;
+  std::stringstream title_Yaxis;
+  TString titleXAxis=titleX;
+  TString titleYAxis=titleY;
   
-  if ( titelXAxis.Contains("Phi") )titel_Xaxis<<titleX<<"[rad]";
-  else if( titelXAxis.Contains("meanX") )titel_Xaxis<<"#LTx'_{pred}-x'_{hit}#GT[#mum]";
-  else if( titelXAxis.Contains("meanY") )titel_Xaxis<<"#LTy'_{pred}-y'_{hit}#GT[#mum]";
-  else if( titelXAxis.Contains("rmsX") )titel_Xaxis<<"RMS(x'_{pred}-x'_{hit})[#mum]";
-  else if( titelXAxis.Contains("rmsY") )titel_Xaxis<<"RMS(y'_{pred}-y'_{hit})[#mum]";
-  else if( titelXAxis.Contains("meanNormX") )titel_Xaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
-  else if( titelXAxis.Contains("meanNormY") )titel_Xaxis<<"#LTy'_{pred}-y'_{hit}/#sigma#GT";
-  else if( titelXAxis.Contains("rmsNormX") )titel_Xaxis<<"RMS(x'_{pred}-x'_{hit}/#sigma)";
-  else if( titelXAxis.Contains("rmsNormY") )titel_Xaxis<<"RMS(y'_{pred}-y'_{hit}/#sigma)";
-  else if( titelXAxis.Contains("meanLocalX") )titel_Xaxis<<"#LTx_{pred}-x_{hit}#GT[#mum]";
-  else if( titelXAxis.Contains("rmsLocalX") )titel_Xaxis<<"RMS(x_{pred}-x_{hit})[#mum]";
-  else if( titelXAxis.Contains("meanNormLocalX") )titel_Xaxis<<"#LTx_{pred}-x_{hit}/#sigma#GT[#mum]";
-  else if( titelXAxis.Contains("rmsNormLocalX") )titel_Xaxis<<"RMS(x_{pred}-x_{hit}/#sigma)[#mum]";
-  else if( titelXAxis.Contains("medianX") )titel_Xaxis<<"median(x'_{pred}-x'_{hit})[#mum]";
-  else if( titelXAxis.Contains("medianY") )titel_Xaxis<<"median(y'_{pred}-y'_{hit})[#mum]";
-  else titel_Xaxis<<titleX<<"[cm]";
+  if ( titleXAxis.Contains("Phi") )title_Xaxis<<titleX<<"[rad]";
+  else if( titleXAxis.Contains("meanX") )title_Xaxis<<"#LTx'_{pred}-x'_{hit}#GT[#mum]";
+  else if( titleXAxis.Contains("meanY") )title_Xaxis<<"#LTy'_{pred}-y'_{hit}#GT[#mum]";
+  else if( titleXAxis.Contains("rmsX") )title_Xaxis<<"RMS(x'_{pred}-x'_{hit})[#mum]";
+  else if( titleXAxis.Contains("rmsY") )title_Xaxis<<"RMS(y'_{pred}-y'_{hit})[#mum]";
+  else if( titleXAxis.Contains("meanNormX") )title_Xaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
+  else if( titleXAxis.Contains("meanNormY") )title_Xaxis<<"#LTy'_{pred}-y'_{hit}/#sigma#GT";
+  else if( titleXAxis.Contains("rmsNormX") )title_Xaxis<<"RMS(x'_{pred}-x'_{hit}/#sigma)";
+  else if( titleXAxis.Contains("rmsNormY") )title_Xaxis<<"RMS(y'_{pred}-y'_{hit}/#sigma)";
+  else if( titleXAxis.Contains("meanLocalX") )title_Xaxis<<"#LTx_{pred}-x_{hit}#GT[#mum]";
+  else if( titleXAxis.Contains("rmsLocalX") )title_Xaxis<<"RMS(x_{pred}-x_{hit})[#mum]";
+  else if( titleXAxis.Contains("meanNormLocalX") )title_Xaxis<<"#LTx_{pred}-x_{hit}/#sigma#GT[#mum]";
+  else if( titleXAxis.Contains("rmsNormLocalX") )title_Xaxis<<"RMS(x_{pred}-x_{hit}/#sigma)[#mum]";
+  else if( titleXAxis.Contains("medianX") )title_Xaxis<<"median(x'_{pred}-x'_{hit})[#mum]";
+  else if( titleXAxis.Contains("medianY") )title_Xaxis<<"median(y'_{pred}-y'_{hit})[#mum]";
+  else title_Xaxis<<titleX<<"[cm]";
   
   if (hist.IsA()->InheritsFrom( TH1F::Class() ) )hist.SetLineColor(color);
   if (hist.IsA()->InheritsFrom( TProfile::Class() ) ) {
@@ -1345,38 +1283,28 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
     hist.SetMarkerColor(color);
   }
   
-  hist.GetXaxis()->SetTitle( (titel_Xaxis.str()).c_str() );
-  hist.GetXaxis()->SetTitleSize  ( 0.05 );
-  hist.GetXaxis()->SetTitleColor (    1 );
-  hist.GetXaxis()->SetTitleOffset(  1.2   );
-  hist.GetXaxis()->SetTitleFont  (   62 );
-  hist.GetXaxis()->SetLabelSize  ( 0.05 );
-  hist.GetXaxis()->SetLabelFont  (   62 );
-  //hist.GetXaxis()->CenterTitle   (      );
-  hist.GetXaxis()->SetNdivisions (  505 );
+  hist.GetXaxis()->SetTitle( (title_Xaxis.str()).c_str() );
 
-  if /*( titelYAxis.Contains("meanX") )titel_Yaxis<<"#LTx'_{pred}-x'_{hit}#GT[cm]";
-  else if ( titelYAxis.Contains("rmsX") )titel_Yaxis<<"RMS(x'_{pred}-x'_{hit})[cm]";
-  else if( titelYAxis.Contains("meanNormX") )titel_Yaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
-  else if( titelYAxis.Contains("rmsNormX") )titel_Yaxis<<"RMS(x_'{pred}-x'_{hit}/#sigma)";
-  else if( titelYAxis.Contains("meanLocalX") )titel_Yaxis<<"#LTx_{pred}-x_{hit}#GT[cm]";
-  else if( titelYAxis.Contains("rmsLocalX") )titel_Yaxis<<"RMS(x_{pred}-x_{hit})[cm]";
-  else if*/ ( (titelYAxis.Contains("layer") && titelYAxis.Contains("subDetId"))
-	      || titelYAxis.Contains("#modules") )titel_Yaxis<<"#modules";
-  else if ( (titelYAxis.Contains("ring") && titelYAxis.Contains("subDetId"))
-	    || titelYAxis.Contains("#modules") )titel_Yaxis<<"#modules";
-  else titel_Yaxis<<titleY<<"[cm]";
+  double binning = (hist.GetXaxis()->GetXmax() - hist.GetXaxis()->GetXmin()) / hist.GetNbinsX();
+  title_Yaxis.precision(2);
 
-  hist.GetYaxis()->SetTitle( (titel_Yaxis.str()).c_str()  );
-  //hist.SetMinimum(1);
-  hist.GetYaxis()->SetTitleSize  ( 0.05 );
-  hist.GetYaxis()->SetTitleColor (    1 );
-  if ( hist.IsA()->InheritsFrom( TH2::Class() ) ) hist.GetYaxis()->SetTitleOffset( 0.95 );
-  else hist.GetYaxis()->SetTitleOffset( 1.2 );
-  hist.GetYaxis()->SetTitleFont  (   62 );
-  hist.GetYaxis()->SetLabelSize  ( 0.03 );
-  hist.GetYaxis()->SetLabelFont  (   62 );
+  if ( ((titleYAxis.Contains("layer") || titleYAxis.Contains("ring"))
+                    && titleYAxis.Contains("subDetId"))
+	      || titleYAxis.Contains("#modules")) {
+    title_Yaxis<<"number of modules";
+    if (TString(title_Xaxis.str()).Contains("[#mum]"))
+      title_Yaxis << " / " << binning << " #mum";
+    else if (TString(title_Xaxis.str()).Contains("[cm]"))
+      title_Yaxis << " / " << binning << " cm";
+    else
+      title_Yaxis << " / " << binning;
+  }
+  else title_Yaxis<<titleY<<"[cm]";
 
+  hist.GetYaxis()->SetTitle( (title_Yaxis.str()).c_str()  );
+
+  hist.GetXaxis()->SetTitleFont(42);
+  hist.GetYaxis()->SetTitleFont(42);
 }
 
 //------------------------------------------------------------------------------
@@ -1413,7 +1341,7 @@ getVariableForDMRPlot(const std::string& histoname, const std::string& variable,
 void PlotAlignmentValidation::
 setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction, int layer)
 {
-  std::pair<float,float> fitResults(9999., 9999.);
+  TF1 *fitResults = 0;
 
   h->SetDirectory(0);
 
@@ -1447,7 +1375,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   }
 	  
   //fit histogram for median and mean
-  if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX") {
+  if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" || plotinfo.variable == "medianY" || plotinfo.variable == "meanY") {
     fitResults = fitGauss(h, linecolor );
   }
 	  
@@ -1458,10 +1386,10 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   legend << fixed; // to always show 3 decimals
 
   // Legend: header part
-  if (direction == -1 && plotinfo.subDetId != 2) { legend << "rDirection < 0: "; }
-  else if (direction == 1 && plotinfo.subDetId != 2) { legend << "rDirection > 0: "; }
-  else if (direction == -1 && plotinfo.subDetId == 2) { legend << "zDirection < 0: "; }
-  else if (direction == 1 && plotinfo.subDetId == 2) { legend << "zDirection > 0: "; }
+  if (direction == -1 && plotinfo.subDetId != 2) { legend << "rDirection < 0"; }
+  else if (direction == 1 && plotinfo.subDetId != 2) { legend << "rDirection > 0"; }
+  else if (direction == -1 && plotinfo.subDetId == 2) { legend << "zDirection < 0"; }
+  else if (direction == 1 && plotinfo.subDetId == 2) { legend << "zDirection > 0"; }
   else {
     legend  << plotinfo.vars->getName();
     if (layer > 0) {
@@ -1472,39 +1400,91 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
         legend << ", layer ";
       legend << layer << "";
     }
-    legend << ":";
   }
 
+  plotinfo.legend->AddEntry(h, legend.str().c_str(), "l");
+  legend.str("");
+
   // Legend: Statistics
+  double mean, meanerror, rms, rmserror;
+  TString rmsname, units;
+  bool showdeltamu = (plotinfo.h1 != 0 && plotinfo.h2 != 0 && plotinfo.plotSplits && plotinfo.plotPlain && direction == 0);
   if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" ||
-      plotinfo.variable == "medianY" || plotinfo.variable == "meanY") {
-    if (useFit_) {
-      legend << " #mu = " << fitResults.first << " #mum, #sigma = " << fitResults.second << " #mum";
+      plotinfo.variable == "medianY" || plotinfo.variable == "meanY" ||
+      plotinfo.variable == "rmsX"    || plotinfo.variable == "rmsY") {
+    if (useFit_ && fitResults) {
+      mean = fitResults->GetParameter(1)*10000;
+      meanerror = fitResults->GetParError(1)*10000;
+      rms = fitResults->GetParameter(2)*10000;
+      rmserror = fitResults->GetParError(2)*10000;
+      rmsname = "#sigma";
+      delete fitResults;
     } else {
-      legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #pm " << h->GetRMSError(1)*10000 << " #mum, " << (int) h->GetEntries() << " modules" ;
+      mean = h->GetMean(1)*10000;
+      meanerror = h->GetMeanError(1)*10000;
+      rms = h->GetRMS(1)*10000;
+      rmserror = h->GetRMSError(1)*10000;
+      rmsname = "rms";
     }
-  } else if (plotinfo.variable == "rmsX" || plotinfo.variable == "rmsY") {
-    legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
+    units = " #mum";
   } else if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
 	     plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
-    legend << " #mu = " << h->GetMean(1) << ", rms = " << h->GetRMS(1);
+    mean = h->GetMean(1);
+    meanerror = h->GetMeanError(1);
+    rms = h->GetRMS(1);
+    rmserror = h->GetRMSError(1);
+    rmsname = "rms";
+    units = "";
+  }
+  if (showMean_)
+  {
+    legend << " #mu = " << mean;
+    if (showMeanError_)
+      legend << " #pm " << meanerror;
+    legend << units;
+    if (showRMS_ || showdeltamu || ((showModules_ || showUnderOverFlow_) && !twolines_))
+      legend << ", ";
+  }
+  if (showRMS_)
+  {
+    legend << " " << rmsname << " = " << rms;
+    if (showRMSError_)
+      legend << " #pm " << rmserror;
+    legend << units;
+    if (showdeltamu || ((showModules_ || showUnderOverFlow_) && !twolines_))
+      legend << ", ";
   }
 
   // Legend: Delta mu for split plots
-  if (plotinfo.h1 != 0 && plotinfo.h2 != 0 && plotinfo.plotSplits &&
-      plotinfo.plotPlain && direction == 0) {
-    std::string unit = " #mum";
+  if (showdeltamu) {
     float factor = 10000.0f;
     if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
 	plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
       factor = 1.0f;
-      unit = "";
     }
     float deltamu = factor*(plotinfo.h2->GetMean(1) - plotinfo.h1->GetMean(1));
-    legend << ", #Delta#mu = " << deltamu << unit;
+    legend << "#Delta#mu = " << deltamu << units;
+    if ((showModules_ || showUnderOverFlow_) && !twolines_)
+      legend << ", ";
   }
 
-  plotinfo.legend->AddEntry(h, legend.str().c_str(), "l");
+  if (twolines_) {
+    plotinfo.legend->AddEntry((TObject*)0, legend.str().c_str(), "");
+    plotinfo.legend->AddEntry((TObject*)0, "", "");
+    legend.str("");
+  }
+
+  if (!showUnderOverFlow_ && showModules_) {
+    legend << (int) h->GetEntries() << " modules";
+  }
+  if (showUnderOverFlow_) {
+    if (showModules_) {
+      legend << (int) h->GetEntries() << " modules (" << (int) h->GetBinContent(0) + (int)h->GetBinContent(h->GetNbinsX()+1) << " outside range)";
+    } else {
+      legend << (int) h->GetBinContent(0) + (int)h->GetBinContent(h->GetNbinsX()+1) << " modules outside range";
+    }
+  }
+  plotinfo.legend->AddEntry((TObject*)0, legend.str().c_str(), "");
 
   // Scale the x-axis (cm to um), if needed
   if (plotinfo.variable.find("Norm") == std::string::npos)
@@ -1536,18 +1516,25 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
   // Add mean-y-values to the legend and scale the histograms.
 
   Double_t legendY = 0.80;
-  if (hs->GetHists()->GetSize() > 3)
-    legendY -= 0.01 * (hs->GetHists()->GetSize() - 3);
+  bool hasheader = (TkAlStyle::legendheader != "");
+  if (hasheader) legend->SetHeader(TkAlStyle::legendheader);
+  legend->SetFillStyle(0);
+  int legendsize = hs->GetHists()->GetSize() + hasheader;
+
+  if (legendsize > 3)
+    legendY -= 0.01 * (legendsize - 3);
+  if (bigtext_) { legendY -= 0.05; }
   if (legendY < 0.6) {
     std::cerr << "Warning: Huge legend!" << std::endl;
     legendY = 0.6;
   }
   legend->SetY1(legendY);
+  if (bigtext_) legend->SetTextSize(TkAlStyle::textSize);
 
   // Loop over all profiles
   TProfile* prof = 0;
   TIter next(hs->GetHists());
-  Int_t index = 0;
+  Int_t index = hasheader;  //if hasheader, first entry is the header itself
   while ((prof = (TProfile*)next())) {
     //Scaling: from cm to um
     Double_t scale = 10000;

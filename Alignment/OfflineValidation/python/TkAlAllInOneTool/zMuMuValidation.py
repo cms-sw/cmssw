@@ -12,13 +12,16 @@ class ZMuMuValidation(GenericValidationData):
                  resultBaseName = "ZMuMuValidation", outputBaseName = "ZMuMuValidation"):
         defaults = {
             "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
-            "resonance": "Z",
-            "switchONfit": "false",
-            "rebinphi": "4",
-            "rebinetadiff": "2",
-            "rebineta": "2",
-            "rebinpt": "8",
             }
+        deprecateddefaults = {
+            "resonance": "",
+            "switchONfit": "",
+            "rebinphi": "",
+            "rebinetadiff": "",
+            "rebineta": "",
+            "rebinpt": "",
+            }
+        defaults.update(deprecateddefaults)
         mandatories = ["etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
         self.configBaseName = configBaseName
         self.scriptBaseName = scriptBaseName
@@ -28,13 +31,18 @@ class ZMuMuValidation(GenericValidationData):
         self.needParentFiles = False
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "zmumu", addDefaults=defaults,
-                                       addMandatories=mandatories)
+                                       addMandatories=mandatories,
+                                       addneedpackages=['MuonAnalysis/MomentumScaleCalibration'])
         if self.general["zmumureference"].startswith("/store"):
             self.general["zmumureference"] = "root://eoscms//eos/cms" + self.general["zmumureference"]
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the Z->mumu validation!\n"
                                 "Please set parallelJobs = 1.")
-    
+        for option in deprecateddefaults:
+            if self.general[option]:
+                raise AllInOneError("The '%s' option has been moved to the [plots:zmumu] section.  Please specify it there."%option)
+            del self.general[option]
+
     def createConfiguration(self, path):
         cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
                                       self.alignmentToValidate.name )

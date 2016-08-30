@@ -192,7 +192,7 @@ process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*proces
 ######################################################################
 ######################################################################
 mergeOfflineParJobsTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C"
+#include "Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C"
 
 int TkAlOfflineJobsMerge(TString pars, TString outFile)
 {

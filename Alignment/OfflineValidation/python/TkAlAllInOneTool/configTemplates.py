@@ -186,14 +186,14 @@ compareAlignmentsExecution="""
 #merge for .oO[validationId]Oo. if it does not exist or is not up-to-date
 echo -e "\n\nComparing validations"
 $eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareFileAges.C .
+cp .oO[Alignment/OfflineValidation]Oo./scripts/compareFileAges.C .
 root -x -q -b -l "compareFileAges.C(\\\"root://eoscms.cern.ch//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root\\\", \\\".oO[compareStringsPlain]Oo.\\\")"
 comparisonNeeded=${?}
 
 if [[ ${comparisonNeeded} -eq 1 ]]
 then
-    cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc .
-    root -x -q -b -l 'compareAlignments.cc++(\".oO[compareStrings]Oo.\")'
+    cp .oO[Alignment/OfflineValidation]Oo./scripts/compareAlignments.cc .
+    root -x -q -b -l 'compareAlignments.cc++(\".oO[compareStrings]Oo.\", ".oO[legendheader]Oo.", ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.", .oO[bigtext]Oo.)'
     mv result.root .oO[validationId]Oo._result.root
     xrdcp -f .oO[validationId]Oo._result.root root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo.
 else
@@ -218,9 +218,17 @@ root -x -b -q -l TkAlExtendedOfflineValidation.C
 ######################################################################
 ######################################################################
 extendedValidationTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
+#include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
+
 void TkAlExtendedOfflineValidation()
 {
+  TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+  TkAlStyle::legendoptions = ".oO[legendoptions]Oo.";
+  TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
+  gStyle->SetTitleH        ( 0.07 );
+  gStyle->SetTitleW        ( 1.00 );
+  gStyle->SetTitleFont     (  132 );
   // load framework lite just to find the CMSSW libs...
   gSystem->Load("libFWCoreFWLite");
   FWLiteEnabler::enable();
