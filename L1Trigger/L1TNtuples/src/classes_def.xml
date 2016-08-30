@@ -21,7 +21,6 @@
 <class name="L1Analysis::L1AnalysisL1MenuDataFormat"/>
 <class name="L1Analysis::L1AnalysisL1UpgradeDataFormat"/>
 <class name="L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat"/>
-<class name="L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat"/>
 <class name="L1Analysis::L1AnalysisL1CaloTowerDataFormat"/>
 <class name="L1Analysis::L1AnalysisBMTFInputsDataFormat"/>
 <class name="L1Analysis::L1AnalysisL1CaloClusterDataFormat"/>
