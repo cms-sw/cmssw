@@ -5,6 +5,7 @@
 
 L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
     : fedDataToken_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("rawData"))),
+      zsEnabled_(ps.getUntrackedParameter<bool>("zsEnabled", true)),
       fedIds_(ps.getParameter<std::vector<int>>("fedIds")),
       slinkHeaderSize_(ps.getUntrackedParameter<int>("lenSlinkHeader", 8)),
       slinkTrailerSize_(ps.getUntrackedParameter<int>("lenSlinkTrailer", 8)),
@@ -15,20 +16,25 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
       zsFlagMask_(ps.getUntrackedParameter<int>("zsFlagMask", 0x1)),
       maxFedReadoutSize_(ps.getUntrackedParameter<int>("maxFEDReadoutSize", 10000)),
       monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-      verbose_(ps.getUntrackedParameter<bool>("verbose", false))
+      verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
+      maxMasks_(16)
 {
   std::vector<int> zeroMask(6, 0);
-  masks_.reserve(12);
+  masks_.reserve(maxMasks_);
   std::stringstream ss;
-  for (size_t i = 0; i < 12; ++i) {
+  for (unsigned int i = 0; i < maxMasks_; ++i) {
     ss.str("");
     ss << "maskCapId" << i;
     masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(ss.str().c_str(), zeroMask));
+    // which masks are defined?
+    if (ps.exists(ss.str().c_str())) {
+      definedMaskCapIds_.push_back(i);
+    }
   }
   if (verbose_) {
     // check masks
     std::cout << "masks" << std::endl;
-    for (size_t i = 0; i < 12; ++i) {
+    for (unsigned int i = 0; i < maxMasks_; ++i) {
       std::cout << "caption ID" << i << ":" << std::endl;
       for (const auto& maskIt: masks_.at(i)) {
         std::cout << std::hex << std::setw(8) << std::setfill('0') << maskIt << std::dec << std::endl;
@@ -45,27 +51,53 @@ void L1TMP7ZeroSupp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 void L1TMP7ZeroSupp::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
-
-  // Subsystem Monitoring and Muon Output
+  // overall summary
   ibooker.setCurrentFolder(monitorDir_);
+  bookCapIdHistograms(ibooker, maxMasks_);
+  capIds_ = ibooker.book1D("capIds", "Caption ids found in data", maxMasks_, 0, maxMasks_);
+  capIds_->setAxisTitle("caption id", 1);
 
-  zeroSuppVal_ = ibooker.book1D("zeroSuppVal", "Zero suppression validation summary", NBINLABELS, 0, NBINLABELS);
-  zeroSuppVal_->setAxisTitle("Block status", 1);
-  zeroSuppVal_->setBinLabel(EVTS+1, "events", 1);
-  zeroSuppVal_->setBinLabel(EVTSGOOD+1, "good events", 1);
-  zeroSuppVal_->setBinLabel(EVTSBAD+1, "bad events", 1);
-  zeroSuppVal_->setBinLabel(BLOCKS+1, "blocks", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSGOOD+1, "good blocks", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSBAD+1, "bad blocks", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
-  zeroSuppVal_->setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
+  // per caption id subdirectories
+  std::stringstream ss;
+  for (const auto &id: definedMaskCapIds_) {
+    ss.str("");
+    ss << monitorDir_ << "/CapId" << id;
+    ibooker.setCurrentFolder(ss.str().c_str());
+    bookCapIdHistograms(ibooker, id);
+  }
+}
 
-  readoutSizeNoZS_ = ibooker.book1D("readoutSizeNoZS", "FED readout size without zero suppression", 100, 0, maxFedReadoutSize_);
-  readoutSizeNoZS_->setAxisTitle("payload size (byte)", 1);
-  readoutSizeZS_ = ibooker.book1D("readoutSizeZS", "FED readout size with zero suppression", 100, 0, maxFedReadoutSize_);
-  readoutSizeZS_->setAxisTitle("payload size (byte)", 1);
-  readoutSizeZSExpected_ = ibooker.book1D("readoutSizeZSExpected", "Expected FED readout size with zero suppression", 100, 0, maxFedReadoutSize_);
-  readoutSizeZSExpected_->setAxisTitle("payload size (byte)", 1);
+void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const auto& id) {
+  std::string summaryTitleText = "Zero suppression validation summary";
+  std::string sizeTitleText;
+  if (id == maxMasks_) {
+    sizeTitleText = "FED readout ";
+  } else {
+    std::stringstream ss;
+    ss << summaryTitleText << ", caption id " << id;
+    summaryTitleText = ss.str();
+    ss.str("");
+    ss << "cumulated caption id " << id << " block ";
+    sizeTitleText = ss.str();
+  }
+
+  zeroSuppValMap_[id] = ibooker.book1D("zeroSuppVal", summaryTitleText.c_str(), NBINLABELS, 0, NBINLABELS);
+  zeroSuppValMap_[id]->setAxisTitle("Block status", 1);
+  zeroSuppValMap_[id]->setBinLabel(EVTS+1, "events", 1);
+  zeroSuppValMap_[id]->setBinLabel(EVTSGOOD+1, "good events", 1);
+  zeroSuppValMap_[id]->setBinLabel(EVTSBAD+1, "bad events", 1);
+  zeroSuppValMap_[id]->setBinLabel(BLOCKS+1, "blocks", 1);
+  zeroSuppValMap_[id]->setBinLabel(ZSBLKSGOOD+1, "good blocks", 1);
+  zeroSuppValMap_[id]->setBinLabel(ZSBLKSBAD+1, "bad blocks", 1);
+  zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
+  zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
+
+  readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSizeNoZS", (sizeTitleText + "size without zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
+  readoutSizeNoZSMap_[id]->setAxisTitle("size (byte)", 1);
+  readoutSizeZSMap_[id] = ibooker.book1D("readoutSizeZS", (sizeTitleText + "size with zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
+  readoutSizeZSMap_[id]->setAxisTitle("size (byte)", 1);
+  readoutSizeZSExpectedMap_[id] = ibooker.book1D("readoutSizeZSExpected", ("Expected " + sizeTitleText + "size with zero suppression").c_str(), 100, 0, maxFedReadoutSize_);
+  readoutSizeZSExpectedMap_[id]->setAxisTitle("size (byte)", 1);
 }
 
 void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -80,7 +112,10 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     return;
   }
 
-  zeroSuppVal_->Fill(EVTS);
+  zeroSuppValMap_[maxMasks_]->Fill(EVTS);
+  for (const auto &id: definedMaskCapIds_) {
+    zeroSuppValMap_[id]->Fill(EVTS);
+  }
 
   bool evtGood = true;
   unsigned valid_count = 0;
@@ -88,9 +123,17 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     const FEDRawData& l1tRcd = feds->FEDData(fedId);
 
     unsigned int fedDataSize = l1tRcd.size();
-    unsigned int readoutSizeNoZS = 0;
-    unsigned int readoutSizeZS = 0;
-    unsigned int readoutSizeZSExpected = 0;
+    std::map<unsigned int, unsigned int> readoutSizeNoZSMap;
+    std::map<unsigned int, unsigned int> readoutSizeZSMap;
+    std::map<unsigned int, unsigned int> readoutSizeZSExpectedMap;
+    readoutSizeNoZSMap[maxMasks_] = 0;
+    readoutSizeZSMap[maxMasks_] = 0;
+    readoutSizeZSExpectedMap[maxMasks_] = 0;
+    for (const auto &id: definedMaskCapIds_) {
+      readoutSizeNoZSMap[id] = 0;
+      readoutSizeZSMap[id] = 0;
+      readoutSizeZSExpectedMap[id] = 0;
+    }
 
     edm::LogInfo("L1TDQM") << "Found FEDRawDataCollection with ID " << fedId << " and size " << l1tRcd.size();
 
@@ -158,15 +201,26 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           }
         }
 
-        zeroSuppVal_->Fill(BLOCKS);
-
         unsigned int blockCapId = block->header().getCapID();
         unsigned int blockSize = block->header().getSize() * 4;
         unsigned int blockHeaderSize = sizeof(block->header().raw());
         bool zsFlagSet = ((block->header().raw() & zsFlagMask_) != 0);
         bool toSuppress = false;
 
-        readoutSizeNoZS += blockSize + blockHeaderSize;
+        capIds_->Fill(blockCapId);
+
+        bool capIdDefined = false;
+        zeroSuppValMap_[maxMasks_]->Fill(BLOCKS);
+        if (zeroSuppValMap_.find(blockCapId) != zeroSuppValMap_.end()) {
+          capIdDefined = true;
+          zeroSuppValMap_[blockCapId]->Fill(BLOCKS);
+        }
+
+        auto totalBlockSize = blockSize + blockHeaderSize;
+        readoutSizeNoZSMap[maxMasks_] += totalBlockSize;
+        if (capIdDefined) {
+          readoutSizeNoZSMap[blockCapId] += totalBlockSize;
+        }
 
         // check if this block should be suppressed
         unsigned int wordcounter = 0;
@@ -183,7 +237,7 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           }
           ++wordcounter;
         }
-        if (wordsum == 0) {
+        if (wordsum == 0 && zsEnabled_) {
           toSuppress = true;
           if (verbose_) {
             std::cout << "wordsum == 0: this block should be zero suppressed" << std::endl;
@@ -192,33 +246,62 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         // check if zero suppression flag agrees
         if (toSuppress && zsFlagSet) {
-          zeroSuppVal_->Fill(ZSBLKSGOOD);
+          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSGOOD);
+          if (capIdDefined) {
+            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSGOOD);
+          }
         } else if (!toSuppress && !zsFlagSet) {
-          zeroSuppVal_->Fill(ZSBLKSGOOD);
-          readoutSizeZS += blockSize + blockHeaderSize;
-          readoutSizeZSExpected += blockSize + blockHeaderSize;
+          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSGOOD);
+          readoutSizeZSMap[maxMasks_] += totalBlockSize;
+          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSize;
+          if (capIdDefined) {
+            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSGOOD);
+            readoutSizeZSMap[blockCapId] += totalBlockSize;
+            readoutSizeZSExpectedMap[blockCapId] += totalBlockSize;
+          }
         } else if (!toSuppress && zsFlagSet) {
-          zeroSuppVal_->Fill(ZSBLKSBAD);
-          zeroSuppVal_->Fill(ZSBLKSBADFALSEPOS);
-          readoutSizeZSExpected += blockSize + blockHeaderSize;
+          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
+          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSEPOS);
+          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSize;
           evtGood = false;
+          if (capIdDefined) {
+            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
+            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSEPOS);
+            readoutSizeZSExpectedMap[blockCapId] += totalBlockSize;
+          }
         } else {
-          zeroSuppVal_->Fill(ZSBLKSBAD);
-          zeroSuppVal_->Fill(ZSBLKSBADFALSENEG);
-          readoutSizeZS += blockSize + blockHeaderSize;
+          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
+          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSENEG);
+          readoutSizeZSMap[maxMasks_] += totalBlockSize;
           evtGood = false;
+          if (capIdDefined) {
+            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
+            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSENEG);
+            readoutSizeZSMap[blockCapId] += totalBlockSize;
+          }
         }
       }
     }
-    readoutSizeNoZS_->Fill(fedDataSize);
-    readoutSizeZS_->Fill(readoutSizeZS + fedDataSize - readoutSizeNoZS);
-    readoutSizeZSExpected_->Fill(readoutSizeZSExpected + fedDataSize - readoutSizeNoZS);
+    readoutSizeNoZSMap_[maxMasks_]->Fill(fedDataSize);
+    readoutSizeZSMap_[maxMasks_]->Fill(readoutSizeZSMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_]);
+    readoutSizeZSExpectedMap_[maxMasks_]->Fill(readoutSizeZSExpectedMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_]);
+    for (const auto &id: definedMaskCapIds_) {
+      readoutSizeNoZSMap_[id]->Fill(readoutSizeNoZSMap[id]);
+      readoutSizeZSMap_[id]->Fill(readoutSizeZSMap[id]);
+      readoutSizeZSExpectedMap_[id]->Fill(readoutSizeZSExpectedMap[id]);
+    }
   }
 
   if (evtGood) {
-    zeroSuppVal_->Fill(EVTSGOOD);
+    zeroSuppValMap_[maxMasks_]->Fill(EVTSGOOD);
+    for (const auto &id: definedMaskCapIds_) {
+      zeroSuppValMap_[id]->Fill(EVTSGOOD);
+    }
   } else {
-    zeroSuppVal_->Fill(EVTSBAD);
+    zeroSuppValMap_[maxMasks_]->Fill(EVTSBAD);
+    for (const auto &id: definedMaskCapIds_) {
+      zeroSuppValMap_[id]->Fill(EVTSBAD);
+    }
   }
 }
 
