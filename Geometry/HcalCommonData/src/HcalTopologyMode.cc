@@ -10,7 +10,7 @@ StringToEnumParser<HcalTopologyMode::Mode>::StringToEnumParser() {
 
 template<>
 StringToEnumParser<HcalTopologyMode::TriggerMode>::StringToEnumParser() {
-  enumMap["HcalTopologyMode::tm_LHC_RCT"] = HcalTopologyMode::tm_LHC_RCT;
-  enumMap["HcalTopologyMode::tm_LHC_RCT_and_1x1"] = HcalTopologyMode::tm_LHC_RCT_and_1x1;
-  enumMap["HcalTopologyMode::tm_LHC_1x1"] = HcalTopologyMode::tm_LHC_1x1;
+  enumMap["HcalTopologyMode::TriggerMode_2009"] = HcalTopologyMode::TriggerMode_2009;
+  enumMap["HcalTopologyMode::TriggerMode_2016"] = HcalTopologyMode::TriggerMode_2016;
+  enumMap["HcalTopologyMode::TriggerMode_2017"] = HcalTopologyMode::TriggerMode_2017;
 }
