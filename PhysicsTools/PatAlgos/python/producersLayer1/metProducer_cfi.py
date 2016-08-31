@@ -46,7 +46,7 @@ patMETs = cms.EDProducer("PATMETProducer",
     resolutions     = cms.PSet(),
 
     # significance
-    computeMETSignificance  = cms.bool(True),
+    computeMETSignificance  = cms.bool(False),
     # significance computation parameters, not used
     # if the significance is not computed
     srcJets = cms.InputTag("selectedPatJets"),
