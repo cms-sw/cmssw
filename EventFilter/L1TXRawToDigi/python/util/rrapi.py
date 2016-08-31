@@ -108,7 +108,7 @@ class RRApi:
             if re.search("json", resp.info().gettype()):
                 try:
                     return json.loads(rdata)
-                except TypeError, e:
+                except TypeError as e:
                     self.dprint(e)
                     return rdata
             else:
