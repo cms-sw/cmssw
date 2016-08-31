@@ -12,15 +12,15 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '81X_mcRun2_design_v5',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '81X_mcRun2_startup_v5',
+    'run2_mc_50ns'      :   '81X_mcRun2_startup_Candidate_2016_08_30_11_37_42',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '81X_mcRun2_asymptotic_v5',
+    'run2_mc'           :   '81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '81X_mcRun2cosmics_startup_peak_v5',
+    'run2_mc_cosmics'   :   '81X_mcRun2cosmics_startup_peak_Candidate_2016_08_30_11_36_42',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '81X_mcRun2_HeavyIon_v6',
+    'run2_mc_hi'        :   '81X_mcRun2_HeavyIon_Candidate_2016_08_30_11_38_26',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '81X_mcRun2_pA_v0',
+    'run2_mc_pa'        :   '81X_mcRun2_pA_Candidate_2016_08_30_11_39_33',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '81X_dataRun2_v5',
     # GlobalTag for Run2 data reprocessing
@@ -38,7 +38,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
     'phase1_2017_design' :  '81X_upgrade2017_design_v8',
     # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
-    'phase1_2017_realistic': '81X_upgrade2017_realistic_v9',
+    'phase1_2017_realistic': '81X_upgrade2017_realistic_Candidate_2016_08_30_11_40_18',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
