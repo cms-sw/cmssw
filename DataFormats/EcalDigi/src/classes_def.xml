@@ -44,7 +44,10 @@
     <version ClassVersion="11" checksum="515819338"/>
     <version ClassVersion="10" checksum="804498184"/>
    </class>
-   <class name="EcalTimeDigi"/>
+   <class name="EcalTimeDigi" ClassVersion="3">
+     <version ClassVersion="3" checksum="3095247500"/>
+   </class>
+
    <class name="std::vector<EcalMGPASample>"/>
    <class name="std::vector<EcalFEMSample>"/>
    <class name="std::vector<ESSample>"/>

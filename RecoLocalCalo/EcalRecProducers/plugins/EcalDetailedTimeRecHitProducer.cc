@@ -1,8 +1,5 @@
 /** \class EcalDetailedTimeRecHitProducer
  *   produce ECAL detailed time Rechits
- *  $Id:  $
- *  $Date:  $
- *  $Revision:  $
  *  \author Paolo Meridiani
  *
  **/
@@ -32,9 +29,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
-
-//#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
-//#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -128,8 +122,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 	  edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # eeTimeDigis: " << eeTimeDigis->size() ;
 	}         
         // collection of rechits to put in the event
-        std::auto_ptr< EBRecHitCollection > EBDetailedTimeRecHits( new EBRecHitCollection );
-        std::auto_ptr< EERecHitCollection > EEDetailedTimeRecHits( new EERecHitCollection );
+        std::unique_ptr< EBRecHitCollection > EBDetailedTimeRecHits( new EBRecHitCollection );
+        std::unique_ptr< EERecHitCollection > EEDetailedTimeRecHits( new EERecHitCollection );
 
 	GlobalPoint* vertex=0;
 
@@ -226,8 +220,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         LogInfo("EcalDetailedTimeRecHitInfo") << "total # EB rechits: " << EBDetailedTimeRecHits->size();
         LogInfo("EcalDetailedTimeRecHitInfo") << "total # EE rechits: " << EEDetailedTimeRecHits->size();
 
-        evt.put( EBDetailedTimeRecHits, EBDetailedTimeRecHitCollection_ );
-        evt.put( EEDetailedTimeRecHits, EEDetailedTimeRecHitCollection_ );
+        evt.put( std::move(EBDetailedTimeRecHits), EBDetailedTimeRecHitCollection_ );
+        evt.put( std::move(EEDetailedTimeRecHits), EEDetailedTimeRecHitCollection_ );
 
 	if (vertex)
 	  delete vertex;

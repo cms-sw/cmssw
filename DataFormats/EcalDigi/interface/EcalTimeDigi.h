@@ -1,14 +1,9 @@
-#ifndef ECALTIMEDIGI_H
-#define ECALTIMEDIGI_H 1
+#ifndef _DataFormats_EcalDigi_ECALTIMEDIGI_H_
+#define _DataFormats_EcalDigi_ECALTIMEDIGI_H_
 
 #include <ostream>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
-
-/** \class EcalTimeDigi
-
-$Id : $
-*/
 
 class EcalTimeDigi {
  public:
@@ -17,7 +12,6 @@ class EcalTimeDigi {
   EcalTimeDigi(); // for persistence
   explicit EcalTimeDigi(const DetId& id);
   
-
   void swap(EcalTimeDigi& rh) {
     std::swap(id_,rh.id_);
     std::swap(size_,rh.size_);
@@ -31,16 +25,13 @@ class EcalTimeDigi {
   const float& sample(unsigned int i) const { return data_[i]; }
     
   void setSize(unsigned int size);
-  void setSample(unsigned int i, const float& sam) { data_[i]=sam; }
+  void setSample(unsigned int i, const float sam) { data_[i]=sam; }
   void setSampleOfInterest(int i) { sampleOfInterest_=i; }
-    
-  static const unsigned int MAXSAMPLES = 10;
-
+  
   /// Gets the BX==0 sample. If =-1 then it means that only OOT hits are present
   int sampleOfInterest() const { return sampleOfInterest_; }
 
-private:
-  
+private:  
   DetId id_;
   unsigned int size_;
   int sampleOfInterest_;
