@@ -135,7 +135,7 @@ for ie in xrange(nentry):
     triggercell.center.y = treeTriggerCells.y
     triggercell.center.z = treeTriggerCells.z
     for cellid in treeTriggerCells.c_id:
-        if not cellid in cells: raise StandardError("Cannot find cell {0} in trigger cell".format(cellid))
+        if not cellid in cells: raise Exception("Cannot find cell {0} in trigger cell".format(cellid))
         cell = cells[cellid]
         triggercell.cells.append(cell)
     triggercells[triggercell.id] = triggercell

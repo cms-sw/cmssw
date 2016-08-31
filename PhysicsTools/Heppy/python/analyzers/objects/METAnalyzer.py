@@ -233,7 +233,7 @@ class METAnalyzer( Analyzer ):
             setattr(event,"met_raw.upara_gamma"+self.cfg_ana.collectionPostFix, self.met_raw.upara_gamma)
             setattr(event,"met_raw.uperp_gamma"+self.cfg_ana.collectionPostFix, self.met_raw.uperp_gamma)
 
-        if hasattr(event,"met"+self.cfg_ana.collectionPostFix): raise RuntimeError, "Event already contains met with the following postfix: "+self.cfg_ana.collectionPostFix
+        if hasattr(event,"met"+self.cfg_ana.collectionPostFix): raise RuntimeError("Event already contains met with the following postfix: "+self.cfg_ana.collectionPostFix)
         setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
         setattr(event, "met_sig"+self.cfg_ana.collectionPostFix, self.met_sig)

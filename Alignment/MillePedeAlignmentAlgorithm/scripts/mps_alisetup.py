@@ -19,6 +19,7 @@ import itertools
 import collections
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
+from functools import reduce
 
 
 def get_weight_configs(config):

@@ -129,7 +129,7 @@ class Jet(PhysicsObject):
         if name == "PAG_monoID_Loose":    return (eta<3.0 and chf>0.05 and nhf<0.7 and phf<0.8);
         if name == "PAG_monoID_Tight":    return (eta<3.0 and chf>0.2 and nhf<0.7 and phf<0.7);
 
-        raise RuntimeError, "jetID '%s' not supported" % name
+        raise RuntimeError("jetID '%s' not supported" % name)
 
     def looseJetId(self):
         '''PF Jet ID (loose operation point) [method provided for convenience only]'''

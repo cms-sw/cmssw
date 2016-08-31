@@ -29,13 +29,13 @@ class CondMetaData(object):
 
    def authPath( self ):
       apath = ''
-      if self.md.has_key('authenticationPath'):
+      if 'authenticationPath' in self.md:
          apath = self.md.get('authenticationPath')
       return apath
 
    def authSys( self ):
       asys = 1
-      if self.md.has_key('authenticationSys'):
+      if 'authenticationSys' in self.md:
          asys = self.md.get('authenticationSystem')
       return asys
 

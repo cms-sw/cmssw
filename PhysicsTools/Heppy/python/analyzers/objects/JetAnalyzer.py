@@ -73,7 +73,7 @@ class JetAnalyzer( Analyzer ):
         self.addJECShifts = self.cfg_ana.addJECShifts if hasattr(self.cfg_ana, 'addJECShifts') else 0
         if   self.recalibrateJets == "MC"  : self.recalibrateJets =     self.cfg_comp.isMC
         elif self.recalibrateJets == "Data": self.recalibrateJets = not self.cfg_comp.isMC
-        elif self.recalibrateJets not in [True,False]: raise RuntimeError, "recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets
+        elif self.recalibrateJets not in [True,False]: raise RuntimeError("recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets)
        
         calculateSeparateCorrections = getattr(cfg_ana,"calculateSeparateCorrections", False);
         calculateType1METCorrection  = getattr(cfg_ana,"calculateType1METCorrection",  False);
@@ -82,7 +82,7 @@ class JetAnalyzer( Analyzer ):
           doResidual = getattr(cfg_ana, 'applyL2L3Residual', 'Data')
           if   doResidual == "MC":   doResidual = self.cfg_comp.isMC
           elif doResidual == "Data": doResidual = not self.cfg_comp.isMC
-          elif doResidual not in [True,False]: raise RuntimeError, "If specified, applyL2L3Residual must be any of { True, False, 'MC', 'Data'(default)}"
+          elif doResidual not in [True,False]: raise RuntimeError("If specified, applyL2L3Residual must be any of { True, False, 'MC', 'Data'(default)}")
           GT = getattr(cfg_comp, 'jecGT', mcGT if self.cfg_comp.isMC else dataGT)
           # Now take care of the optional arguments
           kwargs = { 'calculateSeparateCorrections':calculateSeparateCorrections,
@@ -104,7 +104,7 @@ class JetAnalyzer( Analyzer ):
             elif (self.jetGammaDR == self.jetLepDR):
                 self.jetGammaLepDR = self.jetGammaDR
             else:
-                raise RuntimeError, "DR for simultaneous cleaning of jets from leptons and photons is not defined, and dR(gamma, jet)!=dR(lep, jet)"
+                raise RuntimeError("DR for simultaneous cleaning of jets from leptons and photons is not defined, and dR(gamma, jet)!=dR(lep, jet)")
         if(self.cfg_ana.doQG):
             qgdefname="{CMSSW_BASE}/src/PhysicsTools/Heppy/data/pdfQG_AK4chs_13TeV_v2b.root"
             self.qglcalc = QGLikelihoodCalculator(getattr(self.cfg_ana,"QGpath",qgdefname).format(CMSSW_BASE= os.environ['CMSSW_BASE']))
