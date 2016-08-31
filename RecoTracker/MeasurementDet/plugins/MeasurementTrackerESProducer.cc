@@ -38,7 +38,16 @@ using namespace edm;
 MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterSet & p) 
 {  
   std::string myname = p.getParameter<std::string>("ComponentName");
+  pixelCPEName = p.getParameter<std::string>("PixelCPE");
+  stripCPEName = p.getParameter<std::string>("StripCPE");
+  matcherName  = p.getParameter<std::string>("HitMatcher");
+
+  //FIXME:: just temporary solution for phase2!
   phase2TrackerCPEName = "";
+  if (p.existsAs<std::string>("Phase2StripCPE")) {
+    phase2TrackerCPEName = p.getParameter<std::string>("Phase2StripCPE");
+  }
+
   pset_ = p;
   setWhatProduced(this,myname);
 }
@@ -48,14 +57,7 @@ MeasurementTrackerESProducer::~MeasurementTrackerESProducer() {}
 std::shared_ptr<MeasurementTracker> 
 MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
-  pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
-  stripCPEName = pset_.getParameter<std::string>("StripCPE");
-  matcherName  = pset_.getParameter<std::string>("HitMatcher");
 
-  //FIXME:: just temporary solution for phase2!
-  if (pset_.existsAs<std::string>("Phase2StripCPE")) {
-    phase2TrackerCPEName = pset_.getParameter<std::string>("Phase2StripCPE");
-  }
 
   // ========= SiPixelQuality related tasks =============
   const SiPixelQuality    *ptr_pixelQuality = 0;
