@@ -67,7 +67,7 @@ void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&,
   }
 }
 
-void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const auto& id) {
+void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsigned int& id) {
   std::string summaryTitleText = "Zero suppression validation summary";
   std::string sizeTitleText;
   if (id == maxMasks_) {
