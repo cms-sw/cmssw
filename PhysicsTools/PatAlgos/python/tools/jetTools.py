@@ -384,7 +384,6 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp = getattr(process, btagPrefix+'candidateVertexArbitrator')
                     _temp.primaryVertices = pvSource
                     _temp.tracks = pfCandidates
-                    _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
                 if hasattr( process, btagPrefix+'inclusiveCandidateSecondaryVertices' ) and not hasattr( process, svSource.getModuleLabel() ):
                     setattr(process, svSource.getModuleLabel(), getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices').clone() )
         if (i for i in ivfcTagInfos if i in acceptedTagInfos):
@@ -404,7 +403,6 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _temp = getattr(process, btagPrefix+'candidateVertexArbitratorCvsL')
                     _temp.primaryVertices = pvSource
                     _temp.tracks = pfCandidates
-                    _temp.trackMinLayers = cms.int32(0) ## number of layers not available in MiniAOD so this cut needs to be disabled
                 if hasattr( process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL' ) and not hasattr( process, svSourceCvsL.getModuleLabel() ):
                     setattr(process, svSourceCvsL.getModuleLabel(), getattr(process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL').clone() )
         if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
