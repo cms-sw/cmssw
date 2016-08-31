@@ -659,9 +659,6 @@ def initialize(**kwargs):
     runMetCorAndUncFromMiniAOD(process, isData = isData)
     process.OUT.outputCommands.append("keep *_slimmedMETs_*_EX")
 
-    processDumpFile = open('combined_cmssw.dump', 'w')
-    print >> processDumpFile, process.dumpPython()
-
 
 
     #######################################
@@ -691,6 +688,10 @@ def initialize(**kwargs):
 
     process.OUT.outputCommands.append("keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_EX")
 
+
+    ##processDumpFile = open('combined_cmssw.dump', 'w')
+    ##print >> processDumpFile, process.dumpPython()
+    
 
     return process
 
