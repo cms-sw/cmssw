@@ -662,6 +662,36 @@ def initialize(**kwargs):
     processDumpFile = open('combined_cmssw.dump', 'w')
     print >> processDumpFile, process.dumpPython()
 
+
+
+    #######################################
+    ## BTV HIP mitigation  
+    #######################################
+    # As tracks are not stored in miniAOD, and b-tag fwk for CMSSW < 72X does not accept candidates
+    process.load('RecoBTag.Configuration.RecoBTag_cff')
+    process.load('RecoJets.Configuration.RecoJetAssociations_cff')
+#    process.ak4JetTracksAssociatorAtVertexPF.jets = cms.InputTag("slimmedJets")
+#    process.ak4JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("packedPFCandidates")
+    process.pfImpactParameterTagInfos.candidates = cms.InputTag("packedPFCandidates")
+    process.pfImpactParameterTagInfos.primaryVertex = cms.InputTag("offlineSlimmedPrimaryVertices")
+    process.pfImpactParameterTagInfos.jets = cms.InputTag("slimmedJets")
+    process.pfInclusiveSecondaryVertexFinderTagInfos.extSVCollection = cms.InputTag("slimmedSecondaryVertices")
+    process.pfImpactParameterTagInfos.minimumNumberOfPixelHits = cms.int32(1)
+    process.pfImpactParameterTagInfos.minimumNumberOfHits = cms.int32(0)
+    process.pfSecondaryVertexTagInfos.trackSelection.pixelHitsMin = cms.uint32(1)
+    process.pfSecondaryVertexTagInfos.trackSelection.totalHitsMin = cms.uint32(0)
+    process.inclusiveCandidateVertexFinder.minHits = cms.uint32(0)
+    process.inclusiveCandidateVertexFinder.tracks=cms.InputTag("packedPFCandidates")
+    process.inclusiveCandidateVertexFinder.primaryVertices=cms.InputTag("offlineSlimmedPrimaryVertices")
+#    process.candidateVertexMerger.secondaryVertices = cms.InputTag("inclusiveCandidateVertexFinder")
+#    process.candidateVertexArbitrator.secondaryVertices = cms.InputTag("candidateVertexMerger")
+    process.candidateVertexArbitrator.primaryVertices=cms.InputTag("offlineSlimmedPrimaryVertice")
+    process.candidateVertexArbitrator.tracks = cms.InputTag("packedPFCandidates")
+    process.candidateVertexArbitrator.trackMinLayers = 0
+
+    process.OUT.outputCommands.append("keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_EX")
+
+
     return process
 
 
