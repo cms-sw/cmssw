@@ -8,7 +8,7 @@ class HcalFinegrainBit {
    public:
       // see the const definitions below for the meaning of the bit towers.
       // Each bit is replicated for each depth level
-      typedef std::array<std::bitset<7>, 2> Tower;
+      typedef std::array<std::bitset<6>, 2> Tower;
 
       HcalFinegrainBit(int version) : version_(version) {};
 

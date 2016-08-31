@@ -85,12 +85,6 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
    std::vector<bool> msb;
    incoder_->lookupMSB(frame, msb);
 
-   if (abs(ids[0].ieta()) < first_he_tower and upgrade_hb_) {
-      edm::LogError("HCALTPAlgo") << "Upgrade hb but received " << ids[0] << " (out of " << ids.size() << ", from " << frame.id() << ")";
-   } else if (abs(ids[0].ieta()) >= first_he_tower and upgrade_he_) {
-      edm::LogError("HCALTPAlgo") << "Upgrade he but received " << ids[0] << " (out of " << ids.size() << ", from " << frame.id() << ")";
-   }
-
    if(ids.size() == 2) {
       // make a second trigprim for the other one, and split the energy
       IntegerCaloSamples samples2(ids[1], samples1.size());
@@ -230,12 +224,6 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
 
    std::vector<std::bitset<2>> msb(frame.samples(), 0);
    incoder_->lookupMSB(frame, msb);
-
-   if (abs(ids[0].ieta()) < first_he_tower and not upgrade_hb_) {
-      edm::LogError("HCALTPAlgo") << "No upgrade hb but received " << ids[0] << " (" << ids.size() << ")";
-   } else if (abs(ids[0].ieta()) >= first_he_tower and not upgrade_he_) {
-      edm::LogError("HCALTPAlgo") << "No upgrade he but received " << ids[0] << " (" << ids.size() << ")";
-   }
 
    if(ids.size() == 2) {
       // make a second trigprim for the other one, and split the energy
@@ -697,9 +685,25 @@ void HcalTriggerPrimitiveAlgo::addFG(const HcalTrigTowerDetId& id, std::vector<b
    else fgMap_[id] = msb;
 }
 
+bool
+HcalTriggerPrimitiveAlgo::validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const
+{
+   if (depth > LAST_FINEGRAIN_DEPTH)
+      return false;
+   if (id.ietaAbs() > LAST_FINEGRAIN_TOWER)
+      return false;
+   if (id.ietaAbs() == HBHE_OVERLAP_TOWER and not upgrade_hb_)
+      return false;
+   return true;
+}
+
 void
 HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits)
 {
+   if (not validUpgradeFG(id, depth)) {
+      return;
+   }
+
    auto it = fgUpgradeMap_.find(id);
    if (it == fgUpgradeMap_.end()) {
       FGUpgradeContainer element;

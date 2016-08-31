@@ -88,6 +88,8 @@ public:
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
   void addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits);
 
+  bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
+
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
   // 2017: QIE11
@@ -189,7 +191,9 @@ public:
 
   std::unique_ptr<const TPParameters> override_parameters_;
 
-  static const int first_he_tower = 16;
+  static const int HBHE_OVERLAP_TOWER = 16;
+  static const int LAST_FINEGRAIN_DEPTH = 6;
+  static const int LAST_FINEGRAIN_TOWER = 28;
 
   static const int QIE8_LINEARIZATION_ET = 0x3FF;
   static const int QIE10_LINEARIZATION_ET = 0x3FF;
@@ -242,9 +246,9 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
          }
       }
       else {
-         if (upgrade_he_ and abs(detId.ieta()) >= first_he_tower) {
+         if (upgrade_he_ and abs(detId.ieta()) > HBHE_OVERLAP_TOWER) {
             analyze2017(mapItr->second, result.back(), fg_algo);
-         } else if (upgrade_hb_ and detId.subdet() < first_he_tower) {
+         } else if (upgrade_hb_ and detId.subdet() <= HBHE_OVERLAP_TOWER) {
             analyze2017(mapItr->second, result.back(), fg_algo);
          } else {
             analyze(mapItr->second, result.back());
