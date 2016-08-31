@@ -8,7 +8,9 @@ class Eras (object):
     """
     def __init__(self):
         allEras=['Run2_50ns',
+                 'Run2_50ns_HIPM',
                  'Run2_25ns',
+                 'Run2_25ns_HIPM',
                  'Run2_HI',
                  'Run2_2016',
                  'Run2_2016_HIPM',
