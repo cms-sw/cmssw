@@ -195,9 +195,9 @@ public:
   static const int LAST_FINEGRAIN_DEPTH = 6;
   static const int LAST_FINEGRAIN_TOWER = 28;
 
-  static const int QIE8_LINEARIZATION_ET = 0x3FF;
-  static const int QIE10_LINEARIZATION_ET = 0x7FF;
-  static const int QIE11_LINEARIZATION_ET = 0x3FF;
+  static const int QIE8_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
+  static const int QIE10_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
+  static const int QIE11_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
   static const int QIE10_MAX_LINEARIZATION_ET = 0x7FF;
   static const int QIE11_MAX_LINEARIZATION_ET = 0x7FF;
 };

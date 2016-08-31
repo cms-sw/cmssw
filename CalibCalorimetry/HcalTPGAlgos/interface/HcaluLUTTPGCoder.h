@@ -56,6 +56,10 @@ public:
   int getLUTId(uint32_t rawid) const;
   int getLUTId(const HcalDetId& detid) const;
 
+  static const int QIE8_LUT_BITMASK = 0x3FF;
+  static const int QIE10_LUT_BITMASK = 0x400;
+  static const int QIE11_LUT_BITMASK = 0x3FF;
+
 private:
   // typedef
   typedef unsigned short LutElement;
@@ -65,10 +69,6 @@ private:
   static const size_t INPUT_LUT_SIZE = 128;
   static const size_t UPGRADE_LUT_SIZE = 256;
   static const int    nFi_ = 72;
-
-  static const int QIE8_LUT_BITMASK = 0x3FF;
-  static const int QIE10_LUT_BITMASK = 0x400;
-  static const int QIE11_LUT_BITMASK = 0x3FF;
 
   static const int QIE8_LUT_MSB = 0x400;
   static const int QIE11_LUT_MSB0 = 0x400;
