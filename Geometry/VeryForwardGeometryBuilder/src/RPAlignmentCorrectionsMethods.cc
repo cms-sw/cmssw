@@ -159,13 +159,11 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
     RPAlignmentCorrectionData a(sh_r*1E-3, sh_r_e*1E-3, sh_x*1E-3, sh_x_e*1E-3, sh_y*1E-3, sh_y_e*1E-3,
       sh_z*1E-3, sh_z_e*1E-3, rot_z*1E-3, rot_z_e*1E-3);
 
-    //printf("id = %u\n", id);
-   
     // add the alignment to the right list
     if (nodeType == 1)
-      AddSensorCorrection(id, a, true);
+      result.AddSensorCorrection(id, a, true);
     else
-      AddRPCorrection(id, a, true);
+      result.AddRPCorrection(id, a, true);
 
 
   }
