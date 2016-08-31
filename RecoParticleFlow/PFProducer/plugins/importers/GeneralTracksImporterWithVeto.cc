@@ -8,12 +8,13 @@
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
-class GeneralTracksImporter : public BlockElementImporterBase {
+class GeneralTracksImporterWithVeto : public BlockElementImporterBase {
 public:
-  GeneralTracksImporter(const edm::ParameterSet& conf,
+  GeneralTracksImporterWithVeto(const edm::ParameterSet& conf,
 		    edm::ConsumesCollector& sumes) :
     BlockElementImporterBase(conf,sumes),
     src_(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
+    veto_(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("veto"))),
     muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
     DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
     NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
@@ -33,7 +34,7 @@ private:
   int muAssocToTrack( const reco::TrackRef& trackref,
 		      const edm::Handle<reco::MuonCollection>& muonh) const;
 
-  edm::EDGetTokenT<reco::PFRecTrackCollection> src_;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> src_, veto_;
   edm::EDGetTokenT<reco::MuonCollection> muons_;
   const std::vector<double> DPtovPtCut_;
   const std::vector<unsigned> NHitCut_;
@@ -44,16 +45,23 @@ private:
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
-		  GeneralTracksImporter, 
-		  "GeneralTracksImporter");
+		  GeneralTracksImporterWithVeto, 
+		  "GeneralTracksImporterWithVeto");
 
-void GeneralTracksImporter::
+void GeneralTracksImporterWithVeto::
 importToBlock( const edm::Event& e, 
 	       BlockElementImporterBase::ElementList& elems ) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
   edm::Handle<reco::PFRecTrackCollection> tracks;
   e.getByToken(src_,tracks);
-   edm::Handle<reco::MuonCollection> muons;
+  edm::Handle<reco::PFRecTrackCollection> vetosH;
+  e.getByToken(veto_,vetosH);
+  const auto& vetos = *vetosH;
+  std::unordered_set<unsigned> vetoed;
+  for(unsigned i = 0; i < vetos.size(); ++i ) {
+    vetoed.insert(vetos[i].trackRef().key());
+  }
+  edm::Handle<reco::MuonCollection> muons;
   e.getByToken(muons_,muons);
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(),true);
@@ -123,6 +131,7 @@ importToBlock( const edm::Event& e,
     if( !mask[idx] ) continue; 
     muonref = reco::MuonRef();
     pftrackref = reco::PFRecTrackRef(tracks,idx);    
+    if( vetoed.count(pftrackref->trackRef().key()) ) continue;
     // Get the eventual muon associated to this track
     const int muId = muAssocToTrack( pftrackref->trackRef(), muons );
     bool thisIsAPotentialMuon = false;
@@ -144,7 +153,7 @@ importToBlock( const edm::Event& e,
   elems.shrink_to_fit();
 }
 
-int GeneralTracksImporter::
+int GeneralTracksImporterWithVeto::
 muAssocToTrack( const reco::TrackRef& trackref,
 		const edm::Handle<reco::MuonCollection>& muonh) const {
   auto muon = std::find_if(muonh->cbegin(),muonh->cend(),

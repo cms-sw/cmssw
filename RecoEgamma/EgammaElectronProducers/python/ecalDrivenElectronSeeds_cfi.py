@@ -31,4 +31,10 @@ ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
     )
 )
 
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toModify(
+    ecalDrivenElectronSeeds,
+    endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCal')
+)
+
 

@@ -240,7 +240,8 @@ namespace {
     if( dist == -1.0f ) return false; // don't associate non-linked elems
     std::multimap<double, unsigned> dists_to_val; 
     block->associatedElements(test,block->linkData(),dists_to_val,keytype,
-			      reco::PFBlock::LINKTEST_ALL);   
+			      reco::PFBlock::LINKTEST_ALL); 
+  
     for( const auto& valdist : dists_to_val ) {
       const size_t idx = valdist.second;
       // check track types for conversion info
@@ -834,7 +835,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   _recoveredlinks.clear();
   _refinableObjects.clear();
   _finalCandidates.clear();  
-  _splayedblock.resize(12); // make sure that we always have the SC entry
+  _splayedblock.resize(13); // make sure that we always have the HGCAL entry
 
   _currentblock = block;
   _currentlinks = block->linkData();
@@ -1120,8 +1121,10 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
      << std::hex << thesc << std::dec << std::endl
      << "cleared ecalclusters and ecal2ps!" << std::endl;  
    auto ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
-   auto ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();  
-   if( ecalbegin == ecalend ) {
+   auto ecalend = _splayedblock[reco::PFBlockElement::ECAL].end(); 
+   auto hgcalbegin = _splayedblock[reco::PFBlockElement::HGCAL].begin();
+   auto hgcalend = _splayedblock[reco::PFBlockElement::HGCAL].end(); 
+   if( ecalbegin == ecalend && hgcalbegin == hgcalend ) {
      LOGERR("PFEGammaAlgo::unwrapSuperCluster()")
        << "There are no ECAL elements in a block with imported SC!" 
        << " This is a bug we should fix this!" 
@@ -1147,23 +1150,30 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
      << nscclusters << ' ' << nscpsclusters << std::endl;
    NotCloserToOther<reco::PFBlockElement::SC,reco::PFBlockElement::ECAL> 
      ecalClustersInSC(_currentblock,_currentlinks,thesc);
-   auto firstnotinsc = std::partition(ecalbegin,ecalend,ecalClustersInSC);
+   NotCloserToOther<reco::PFBlockElement::SC,reco::PFBlockElement::HGCAL> 
+     hgcalClustersInSC(_currentblock,_currentlinks,thesc);
+   auto ecalfirstnotinsc = std::partition(ecalbegin,ecalend,ecalClustersInSC);
+   auto hgcalfirstnotinsc = std::partition(hgcalbegin,hgcalend,hgcalClustersInSC);
    //reset the begin and end iterators
    ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
    ecalend = _splayedblock[reco::PFBlockElement::ECAL].end();  
+
+   hgcalbegin = _splayedblock[reco::PFBlockElement::HGCAL].begin();
+   hgcalend = _splayedblock[reco::PFBlockElement::HGCAL].end();  
 
    //get list of associated clusters by det id and energy matching
    //(only needed when using non-pf supercluster)
    std::vector<const ClusterElement*> safePFClusters = is_pf_sc ? std::vector<const ClusterElement*>() : getSCAssociatedECALsSafe(scref,_splayedblock[reco::PFBlockElement::ECAL]);
    
-   if( firstnotinsc == ecalbegin ) {
+   if( ecalfirstnotinsc == ecalbegin &&  
+       hgcalfirstnotinsc == hgcalbegin) {
      LOGERR("PFEGammaAlgo::unwrapSuperCluster()")
        << "No associated block elements to SuperCluster!" 
        << " This is a bug we should fix!"
        << std::endl;
      return false;
    }
-   npfclusters = std::distance(ecalbegin,firstnotinsc);
+   npfclusters = std::distance(ecalbegin,ecalfirstnotinsc) + std::distance(hgcalbegin,hgcalfirstnotinsc);
    // ensure we have found the correct number of PF ecal clusters in the case
    // that this is a PF supercluster, otherwise all bets are off
    if( is_pf_sc && nscclusters != npfclusters ) {
@@ -1177,7 +1187,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
        << ")! This should not happen!" << std::endl 
        << sc_err.str() << std::endl;
    }
-   for( auto ecalitr = ecalbegin; ecalitr != firstnotinsc; ++ecalitr ) {    
+   for( auto ecalitr = ecalbegin; ecalitr != ecalfirstnotinsc; ++ecalitr ) {    
      const PFClusterElement* elemascluster = 
        docast(const PFClusterElement*,ecalitr->first);
 
@@ -1206,6 +1216,21 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
      }    
      ClusterMap::mapped_type& eslist = emplaceresult.first->second;    
      npfpsclusters += attachPSClusters(elemascluster,eslist);    
+   } // loop over ecal elements
+
+   for( auto hgcalitr = hgcalbegin; hgcalitr != hgcalfirstnotinsc; ++hgcalitr ) {    
+     const PFClusterElement* elemascluster = 
+       docast(const PFClusterElement*,hgcalitr->first);
+
+     // reject clusters that really shouldn't be associated to the SC
+     // (only needed when using non-pf-supercluster)
+     if(!is_pf_sc && std::find(safePFClusters.begin(),safePFClusters.end(),elemascluster) ==
+	safePFClusters.end() ) continue;
+
+     //add cluster
+     ecalclusters.push_back(std::make_pair(elemascluster,true));
+     //mark cluster as used
+     hgcalitr->second = false;     
    } // loop over ecal elements
    
    /*
@@ -1959,9 +1984,11 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
     for( const auto& ecal : RO.ecalclusters ) {
       const PFClusterElement* clus = ecal.first;
       cand.addElementInBlock(_currentblock,clus->index());      
-      for( auto& ps : RO.ecal2ps.at(clus) ) {
-	const PFClusterElement* psclus = ps.first;
-	cand.addElementInBlock(_currentblock,psclus->index());	
+      if( RO.ecal2ps.count(clus) ) {
+	for( auto& ps : RO.ecal2ps.at(clus) ) {
+	  const PFClusterElement* psclus = ps.first;
+	  cand.addElementInBlock(_currentblock,psclus->index());	
+	}
       }
     }
     // add secondary tracks
@@ -2269,21 +2296,22 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
     posY += cluseraw * cluspos.Y();
     posZ += cluseraw * cluspos.Z();
     // update EE calibrated super cluster energies
-    if( isEE ) {
+    if( isEE && RO.ecal2ps.count(clus.first)) {
       ePS1 = 0;
       ePS2 = 0;
       condP1 = condP2 = 1;
-      const auto& psclusters = RO.ecal2ps.at(clus.first);
-   
-      for( auto i_ps = psclusters.begin(); i_ps != psclusters.end(); ++i_ps) {
-        const PFClusterRef&  psclus = i_ps->first->clusterRef();
 
+      const auto& psclusters = RO.ecal2ps.at(clus.first);
+      
+      for( auto i_ps = psclusters.begin(); i_ps != psclusters.end(); ++i_ps) {
+	const PFClusterRef&  psclus = i_ps->first->clusterRef();
+	
 	auto const& recH_Frac = psclus->recHitFractions();	
 	
-        switch( psclus->layer() ) {
-        case PFLayer::PS1:
+	switch( psclus->layer() ) {
+	case PFLayer::PS1:
 	  for (auto const& recH : recH_Frac){
-            ESDetId strip1 = recH.recHitRef()->detId();
+	    ESDetId strip1 = recH.recHitRef()->detId();
 	    if(strip1 != ESDetId(0)){
 	      ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
 	      //getStatusCode() == 0 => active channel
@@ -2294,7 +2322,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 	  break;
 	case PFLayer::PS2:
 	  for (auto const& recH : recH_Frac){
-            ESDetId strip2 = recH.recHitRef()->detId();
+	    ESDetId strip2 = recH.recHitRef()->detId();
 	    if(strip2 != ESDetId(0)) {
 	      ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
 	      if(status_p2->getStatusCode() == 0) condP2 = 0;
@@ -2305,12 +2333,13 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 	  break;
 	}
       }
-
+      
+      
       PS1_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
 				     0.0,sumps1);
       PS2_clus_sum = std::accumulate(psclusters.begin(),psclusters.end(),
 				     0.0,sumps2);
-
+            
       if(condP1 == 1) ePS1 = -1.;
       if(condP2 == 1) ePS2 = -1.;
 
@@ -2353,30 +2382,32 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
       new_sc.addHitAndFraction(hit_and_fraction.first,hit_and_fraction.second);
     }
      // put the preshower stuff back in later
-    const auto& cluspsassociation = RO.ecal2ps.at(clus.first);
-    // EE rechits should be uniquely matched to sets of pre-shower
-    // clusters at this point, so we throw an exception if otherwise
-    // now wrapped in EDM debug flags
-    for( const auto& pscluselem : cluspsassociation ) {    
-      edm::Ptr<reco::PFCluster> psclus = 
+    if( RO.ecal2ps.count(clus.first) ) {
+      const auto& cluspsassociation = RO.ecal2ps.at(clus.first);
+      // EE rechits should be uniquely matched to sets of pre-shower
+      // clusters at this point, so we throw an exception if otherwise
+      // now wrapped in EDM debug flags
+      for( const auto& pscluselem : cluspsassociation ) {    
+	edm::Ptr<reco::PFCluster> psclus = 
 	  edm::refToPtr<reco::PFClusterCollection>(pscluselem.first->
 						   clusterRef());
 #ifdef PFFLOW_DEBUG
-      auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
-				       new_sc.preshowerClustersEnd(),
-				       reco::CaloClusterPtr(psclus));
-      if( found_pscluster == new_sc.preshowerClustersEnd() ) {
+	auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
+					 new_sc.preshowerClustersEnd(),
+					 reco::CaloClusterPtr(psclus));
+	if( found_pscluster == new_sc.preshowerClustersEnd() ) {
 #endif		  
-	new_sc.addPreshowerCluster(psclus);
+	  new_sc.addPreshowerCluster(psclus);
 #ifdef PFFLOW_DEBUG
-      } else {
-	throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
-	  << "Found a PS cluster matched to more than one EE cluster!" 
-	  << std::endl << std::hex << psclus.get() << " == " 
-	  << found_pscluster->get() << std::dec << std::endl;
-      }
+	} else {
+	  throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
+	    << "Found a PS cluster matched to more than one EE cluster!" 
+	    << std::endl << std::hex << psclus.get() << " == " 
+	    << found_pscluster->get() << std::dec << std::endl;
+	}
 #endif
-    }    
+      }    
+    }
   }
   
   // calculate linearly weighted cluster widths
