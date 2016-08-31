@@ -55,6 +55,7 @@ the worker is reset().
 #include <string>
 #include <vector>
 #include <exception>
+#include <unordered_map>
 
 namespace edm {
   class EventPrincipal;
@@ -126,6 +127,8 @@ namespace edm {
     //Used to make EDGetToken work
     virtual void updateLookup(BranchType iBranchType,
                       ProductResolverIndexHelper const&) = 0;
+    virtual void resolvePutIndicies(BranchType iBranchType,
+                                    std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) = 0;
 
     virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,

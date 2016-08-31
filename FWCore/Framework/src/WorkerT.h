@@ -46,7 +46,8 @@ namespace edm {
 
     virtual void updateLookup(BranchType iBranchType,
                               ProductResolverIndexHelper const&) override;
-
+    virtual void resolvePutIndicies(BranchType iBranchType,
+                                    std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies) override;
 
     template<typename D>
     void callWorkerBeginStream(D, StreamID);

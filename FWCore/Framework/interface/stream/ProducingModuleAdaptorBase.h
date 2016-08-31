@@ -22,6 +22,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -89,6 +90,12 @@ namespace edm {
                                            std::string const& processName) const;
 
       std::vector<ConsumesInfo> consumesInfo() const;
+
+      void resolvePutIndicies(BranchType iBranchType,
+                              std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                              std::string const& moduleLabel);
+      
+      std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
     protected:
       template<typename F> void createStreamModules(F iFunc) {

@@ -9,8 +9,12 @@ EDProducts into an Event.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 
 #include <functional>
+#include <unordered_map>
+#include <string>
+#include<vector>
 
 namespace edm {
   class BranchDescription;
@@ -50,7 +54,14 @@ namespace edm {
     void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
        callWhenNewProductsRegistered_ = func;
     }
-          
+    
+    void resolvePutIndicies(BranchType iBranchType,
+                            std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                            std::string const& moduleLabel);
+    
+    std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const {
+      return putIndicies_[iBranchType];
+    }
   private:
     friend class EDProducer;
     friend class EDFilter;
@@ -71,6 +82,7 @@ namespace edm {
     }
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+    std::array<std::vector<edm::ProductResolverIndex>, edm::NumBranchTypes> putIndicies_;
   };
 }
 #endif
