@@ -21,6 +21,10 @@ public:
     use1x1_=enable1x1;
   }
 
+  void setupHETowers(bool use2017HE) {
+     use2017HE_ = use2017HE;
+  }
+
   int firstHFTower(int version) const {return (version==0)?(29):(30);} 
 
   /// where this tower begins and ends in eta
@@ -35,6 +39,7 @@ public:
   // Get the useRCT and use1x1 values
   bool useRCT() const { return useRCT_; }
   bool use1x1() const { return use1x1_; }
+  bool use2017HE() const { return use2017HE_; }
 
  private:
 
@@ -55,6 +60,7 @@ public:
   const HcalTopology* theTopology;
   bool useRCT_;
   bool use1x1_;
+  bool use2017HE_;
 };
 
 #endif

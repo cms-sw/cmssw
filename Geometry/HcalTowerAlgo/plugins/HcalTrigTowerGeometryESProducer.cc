@@ -23,6 +23,10 @@ HcalTrigTowerGeometryESProducer::produce( const CaloGeometryRecord & iRecord )
     bool enableRCTHF=(tmode==HcalTopologyMode::tm_LHC_RCT || tmode==HcalTopologyMode::tm_LHC_RCT_and_1x1);
     bool enable1x1HF=(tmode==HcalTopologyMode::tm_LHC_1x1 || tmode==HcalTopologyMode::tm_LHC_RCT_and_1x1);
     m_hcalTrigTowerGeom->setupHFTowers(enableRCTHF,enable1x1HF);
+    // TODO this piggy-backs on the HF versioning, which corresponds to
+    // 2017 TP --- trigger modes should really be numbered by year.
+    bool enable2017HE = enable1x1HF;
+    m_hcalTrigTowerGeom->setupHETowers(enable2017HE);
 
     return m_hcalTrigTowerGeom;
 }
