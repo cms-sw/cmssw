@@ -257,6 +257,8 @@ def createPDFImage(processingSteps, numStreams, stalledModuleInfo):
   streamInvertedMessageFromModule = [ set() for x in xrange(numStreams+1)]
 
   for n,trans,s,time in processingSteps:
+    if n == kFinishInit:
+      continue
     startTime = None
     if streamLastEventEndTimes[s] is None:
       streamLastEventEndTimes[s]=time
