@@ -263,7 +263,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     }
 
     // pick any roll
-    auto randRoll(rpcChamber->roll(2));
+    std::unique_ptr<const RPCRoll> randRoll(rpcChamber->roll(2));
 
     auto nStrips(keyLayerGeometry->numberOfStrips());
     for (float i = 0; i< nStrips; i = i+0.5){
@@ -532,8 +532,8 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
 bool CSCMotherboardME3141RPC::hasRE31andRE41()
 {
   // just pick two random chambers
-  auto aRE31(rpc_g->chamber(RPCDetId(1,1,3,2,1,1,0)));
-  auto aRE41(rpc_g->chamber(RPCDetId(-1,1,4,3,1,2,0)));  
+  std::unique_ptr<const RPCChamber> aRE31(rpc_g->chamber(RPCDetId(1,1,3,2,1,1,0)));
+  std::unique_ptr<const RPCChamber> aRE41(rpc_g->chamber(RPCDetId(-1,1,4,3,1,2,0)));
   return aRE31 and aRE41;
 }
 
@@ -578,7 +578,7 @@ int CSCMotherboardME3141RPC::assignRPCRoll(double eta)
 
 void CSCMotherboardME3141RPC::retrieveRPCDigis(const RPCDigiCollection* rpcDigis, unsigned id)
 {
-  auto chamber(rpc_g->chamber(RPCDetId(id)));
+  std::unique_ptr<const RPCChamber> chamber(rpc_g->chamber(RPCDetId(id)));
   for (auto roll : chamber->rolls()) {
     RPCDetId roll_id(roll->id());
     auto digis_in_det = rpcDigis->get(roll_id);
