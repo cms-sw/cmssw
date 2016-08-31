@@ -394,7 +394,7 @@ void PFCandidateAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetu
 	}
       }
     }else{
-      std::cout<<"nothing found with both RECO and reRECO label"<<std::endl;
+      edm::LogWarning("")<<"nothing found with both RECO and reRECO label"<<std::endl;
     }
   }
 }
