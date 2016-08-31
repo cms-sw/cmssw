@@ -133,7 +133,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   _analysisHandler.analyze(*myGenEvent);
 
   //if we have cloned the GenEvent, we delete it
-  if ( _useExternalWeight ) 
+  if ( _useExternalWeight || _xsection > 0 ) 
   delete myGenEvent;
 }
 
