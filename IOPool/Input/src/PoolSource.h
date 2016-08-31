@@ -67,7 +67,7 @@ namespace edm {
     virtual ProcessingController::ForwardState forwardState_() const override;
     virtual ProcessingController::ReverseState reverseState_() const override;
 
-    SharedResourcesAcquirer* resourceSharedWithDelayedReader_() override;
+    std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_() override;
     
     RootServiceChecker rootServiceChecker_;
     InputFileCatalog catalog_;
@@ -87,6 +87,7 @@ namespace edm {
     
     edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
     std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_; // We do not use propagate_const because the acquirer is itself mutable.
+    std::shared_ptr<std::recursive_mutex> mutexSharedWithDelayedReader_;
     edm::propagate_const<std::unique_ptr<RootPrimaryFileSequence>> primaryFileSequence_;
     edm::propagate_const<std::unique_ptr<RootSecondaryFileSequence>> secondaryFileSequence_;
   }; // class PoolSource

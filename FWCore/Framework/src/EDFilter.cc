@@ -33,16 +33,10 @@ namespace edm {
     bool rc = false;
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      {
-        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
-        e.setSharedResourcesAcquirer(&resourceAcquirer_);
-        EventSignalsSentry sentry(act,mcc);
-        rc = this->filter(e, c);
-      }
-      commit_(e,&previousParentage_, &previousParentageId_);
-    }
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    rc = this->filter(e, c);
+    commit_(e,&previousParentage_, &previousParentageId_);
     return rc;
   }
 
