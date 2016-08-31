@@ -33,7 +33,7 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
 
  private:
 
-  void bookCapIdHistograms(DQMStore::IBooker&, const auto&);
+  void bookCapIdHistograms(DQMStore::IBooker&, const unsigned int&);
 
   // Add additional bins only before NBINLABELS
   enum binlabels {EVTS=0, EVTSGOOD, EVTSBAD, BLOCKS, ZSBLKSGOOD, ZSBLKSBAD, ZSBLKSBADFALSEPOS, ZSBLKSBADFALSENEG, NBINLABELS};
