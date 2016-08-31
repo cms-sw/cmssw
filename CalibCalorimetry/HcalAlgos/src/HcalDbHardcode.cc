@@ -9,6 +9,7 @@
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
+#include "CalibFormats/HcalObjects/interface/HcalSiPMType.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
@@ -537,11 +538,24 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
 }
 
 HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId) {
+  if (fId.isHcalDetId()) {
+    if (fId.subdetId() == HcalBarrel) {
+      return HcalSiPMParameter(fId.rawId(), HcalHBHamamatsu1, 57.5, 0.055, 0, 0);
+    } else if (fId.subdetId() == HcalEndcap) {
+      return HcalSiPMParameter(fId.rawId(), HcalHEHamamatsu1, 57.5, 0.055, 0, 0);
+    } else if (fId.subdetId() == HcalOuter) {
+      return HcalSiPMParameter(fId.rawId(), HcalHOHamamatsu, 4.0, 0.055, 0, 0);
+    }
+  } 
   return HcalSiPMParameter(fId.rawId(), 0, 0, 0, 0, 0);
 }
 
 void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
-  sipm.loadObject(0,0,0,0,0,0,0,0);
+  sipm.loadObject(HcalHOZecotek,36000,1,0,0,0.32,0,0);
+  sipm.loadObject(HcalHOHamamatsu,2500,1,0,0,0.32,0,0);
+  sipm.loadObject(HcalHEHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
+  sipm.loadObject(HcalHEHamamatsu2,38018,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
+  sipm.loadObject(HcalHBHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
 }
 
 HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
