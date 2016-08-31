@@ -67,7 +67,7 @@ private:
   static const int    nFi_ = 72;
 
   static const int QIE8_LUT_BITMASK = 0x3FF;
-  static const int QIE10_LUT_BITMASK = 0x3FF;
+  static const int QIE10_LUT_BITMASK = 0x400;
   static const int QIE11_LUT_BITMASK = 0x3FF;
 
   static const int QIE8_LUT_MSB = 0x400;

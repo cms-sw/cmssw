@@ -382,7 +382,7 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
       bool isPeak = (sum[idx] > sum[idx-1] && sum[idx] >= sum[idx+1] && sum[idx] > theThreshold);
 
       if (isPeak){
-         output[ibin] = std::min<unsigned int>(sum[idx],QIE11_LINEARIZATION_ET);
+         output[ibin] = std::min<unsigned int>(sum[idx],QIE11_MAX_LINEARIZATION_ET);
          finegrain[ibin] = fg_algo.compute(msb[idx]).to_ulong();
       } else {
          // Not a peak
@@ -572,26 +572,18 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             if (saturated) {
                output[ibin] = QIE10_MAX_LINEARIZATION_ET;
             } else {
-               // If one of the channels is invalid, double the value of
-               // the other channel.
-               if (long_fiber_count == 1)
-                  long_fiber_val *= 2;
-               if (short_fiber_count == 1)
-                  short_fiber_val *= 2;
+               // If both channels are valid, we cut the sum in half.
+               if (long_fiber_count == 2)
+                  long_fiber_val *= 0.5;
+               if (short_fiber_count == 2)
+                  short_fiber_val *= 0.5;
 
-               // If one of the towers is invalid, double the value of the
-               // other tower.
-               if (long_fiber_count == 0)
-                  short_fiber_val *= 2;
-               if (short_fiber_count == 0)
-                  long_fiber_val *= 2;
+               auto sum = long_fiber_val + short_fiber_val;
+               // If both towers are valid, we cut the sum in half
+               if (long_fiber_count > 0 and short_fiber_count > 0)
+                  sum *= 0.5;
 
-               // Ideally the sum of *4 channels* ⇒ LSB is also multiplied
-               // by 4
-               output[ibin] += long_fiber_val + short_fiber_val;
-
-               if (long_fiber_count == 0 and short_fiber_count == 0)
-                  output[ibin] = 0;
+               output[ibin] += sum;
             }
 
             // int ADCLong = details.LongDigi[ibin].adc();
@@ -604,7 +596,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
     }
 
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
-       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin] >> hf_lumi_shift});
+       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]});
     }
     outcoder_->compress(output, finegrain, result);
 }
