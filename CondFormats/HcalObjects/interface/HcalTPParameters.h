@@ -19,7 +19,7 @@ public:
 
   /// get FineGrain Algorithm Version for HBHE
   int          getFGVersionHBHE()          const {return version_;}
-  /// get ADC thresho;d fof TDC mask of HF
+  /// get ADC threshold fof TDC mask of HF
   int          getADCThresholdHF()         const {return adcCut_;}
   /// get TDC mask for HF
   uint32_t getTDCMaskHF()                  const {return tdcMask_;}

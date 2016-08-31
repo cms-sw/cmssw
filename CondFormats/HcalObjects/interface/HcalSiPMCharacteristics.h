@@ -57,7 +57,7 @@ public:
     PrecisionItem (int type, int pixels, float parLin1, float parLin2, 
 		   float parLin3, float crossTalk, int auxi1,  float auxi2) :
     type_(type), pixels_(pixels), parLin1_(parLin1), parLin2_(parLin2),
-      parLin3_(parLin3), auxi1_(auxi1), auxi2_(auxi2) {}
+      parLin3_(parLin3), crossTalk_(crossTalk), auxi1_(auxi1), auxi2_(auxi2) {}
 
     int      type_;
     int      pixels_;
