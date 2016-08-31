@@ -321,7 +321,9 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
 
 {
 
-  //  std::cout << "ConversionTrackCandidateProducer builcollections bc size " << bcHandle->size() <<  "\n";
+  //std::cout << "ConversionTrackCandidateProducer is barrel " << isBarrel <<  "\n";
+  //std::cout << "ConversionTrackCandidateProducer builcollections sc size " << scHandle->size() <<  "\n";
+  //std::cout << "ConversionTrackCandidateProducer builcollections bc size " << bcHandle->size() <<  "\n";
   //const CaloGeometry* geometry = theCaloGeom_.product();
 
   //  Loop over SC in the barrel and reconstruct converted photons
