@@ -106,14 +106,14 @@ namespace edm {
       }
       
       void commit(Run& iRun) {
-        iRun.commit_();
+        iRun.commit_(m_streamModules[0]->indiciesForPutProducts(InRun));
       }
       void commit(LuminosityBlock& iLumi) {
-        iLumi.commit_();
+        iLumi.commit_(m_streamModules[0]->indiciesForPutProducts(InLumi));
       }
       template<typename L, typename I>
       void commit(Event& iEvent, L* iList, I* iID) {
-        iEvent.commit_(iList,iID);
+        iEvent.commit_(m_streamModules[0]->indiciesForPutProducts(InEvent), iList,iID);
       }
 
       const EDConsumerBase* consumer() {

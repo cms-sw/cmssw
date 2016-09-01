@@ -407,7 +407,6 @@ namespace edm {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
-    assert(edp.get() != nullptr);
     
     setProduct(std::move(edp));  // ProductResolver takes ownership
   }
@@ -423,6 +422,13 @@ namespace edm {
   bool
   ProducedProductResolver::isFromCurrentProcess() const {
     return true;
+  }
+  
+  void
+  ProducedProductResolver::resetFailedFromThisProcess() {
+    if(ProductStatus::ResolveFailed == status()) {
+      resetProductData_(false);
+    }
   }
 
   

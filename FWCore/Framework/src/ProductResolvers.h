@@ -134,6 +134,8 @@ namespace edm {
     public:
       ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
 
+    virtual void resetFailedFromThisProcess() override;
+
     private:
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
       virtual bool isFromCurrentProcess() const override final;

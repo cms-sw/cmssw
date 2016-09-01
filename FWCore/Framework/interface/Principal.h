@@ -182,6 +182,10 @@ namespace edm {
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
     void readAllFromSourceAndMergeImmediately();
+    //For end Run/Lumi we need to reset products failed in the begin
+    // transition since they may be put into the Principal at the
+    // end transition
+    void resetFailedFromThisProcess();
     
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 

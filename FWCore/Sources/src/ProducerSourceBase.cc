@@ -64,7 +64,7 @@ namespace edm {
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);
     produce(e);
-    e.commit_();
+    e.commit_(std::vector<ProductResolverIndex>());
     resetEventCached();
   }
 

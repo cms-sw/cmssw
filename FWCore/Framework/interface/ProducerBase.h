@@ -20,6 +20,9 @@ namespace edm {
   class BranchDescription;
   class ModuleDescription;
   class ProductRegistry;
+  class Event;
+  class LuminosityBlock;
+  class Run;
   
   class EDProducer;
   class EDFilter;
@@ -33,6 +36,19 @@ namespace edm {
   }
   namespace stream {
     template<typename T> class ProducingModuleAdaptorBase;
+  }
+  
+  namespace producerbasehelper{
+    template<typename P> struct PrincipalTraits;
+    template<> struct PrincipalTraits<Run> {
+      static constexpr int kBranchType = InRun;
+    };
+    template<> struct PrincipalTraits<LuminosityBlock> {
+      static constexpr int kBranchType = InLumi;
+    };
+    template<> struct PrincipalTraits<Event> {
+      static constexpr int kBranchType = InEvent;
+    };
   }
   
   class ProducerBase : private ProductRegistryHelper {
@@ -73,12 +89,12 @@ namespace edm {
     
     template< typename P>
     void commit_(P& iPrincipal) {
-      iPrincipal.commit_();
+      iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType]);
     }
 
     template< typename P, typename L, typename I>
     void commit_(P& iPrincipal, L* iList, I* iID) {
-      iPrincipal.commit_(iList,iID);
+      iPrincipal.commit_(putIndicies_[producerbasehelper::PrincipalTraits<P>::kBranchType], iList,iID);
     }
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
