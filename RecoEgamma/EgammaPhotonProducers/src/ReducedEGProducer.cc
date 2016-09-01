@@ -60,7 +60,8 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   singleConversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("singleConversions"))),
   barrelEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"))),
   endcapEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalHits"))),
-  preshowerEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("preshowerEcalHits"))),
+  doPreshowerEcalHits_(!config.getParameter<edm::InputTag>("preshowerEcalHits").label().empty()),
+  preshowerEcalHits_(doPreshowerEcalHits_ ? consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("preshowerEcalHits")) : edm::EDGetTokenT<EcalRecHitCollection>()),
   photonPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("photonsPFValMap"))),  
   gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
   //output collections    
@@ -124,7 +125,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   produces< reco::CaloClusterCollection >(outESClusters_);
   produces< EcalRecHitCollection >(outEBRecHits_);
   produces< EcalRecHitCollection >(outEERecHits_);
-  produces< EcalRecHitCollection >(outESRecHits_);    
+  if (doPreshowerEcalHits_) produces< EcalRecHitCollection >(outESRecHits_);    
   produces< edm::ValueMap<std::vector<reco::PFCandidateRef> > >(outPhotonPfCandMap_);    
   produces< edm::ValueMap<std::vector<reco::PFCandidateRef> > >(outGsfElectronPfCandMap_);   
   for (const std::string &outid : outPhotonIds_) {
@@ -172,7 +173,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
 
   edm::Handle<EcalRecHitCollection> preshowerHitHandle;
-  theEvent.getByToken(preshowerEcalHits_, preshowerHitHandle);
+  if (doPreshowerEcalHits_) theEvent.getByToken(preshowerEcalHits_, preshowerHitHandle);
   
   edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonPfCandMapHandle;
   theEvent.getByToken(photonPfCandMapT_, photonPfCandMapHandle);  
@@ -530,17 +531,18 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       eeRecHits->push_back(rechit);
     }
   }
-  
-  for (const EcalRecHit &rechit : *preshowerHitHandle) {
-    if (rechitMap.count(rechit.detid())) {
-      esRecHits->push_back(rechit);
-    }
-  }
-  
+ 
   theEvent.put(ebRecHits,outEBRecHits_);
   theEvent.put(eeRecHits,outEERecHits_);
-  theEvent.put(esRecHits,outESRecHits_);  
-  
+
+  if (doPreshowerEcalHits_) { 
+      for (const EcalRecHit &rechit : *preshowerHitHandle) {
+        if (rechitMap.count(rechit.detid())) {
+          esRecHits->push_back(rechit);
+        }
+      }
+      theEvent.put(esRecHits,outESRecHits_);  
+  }
   
   //CaloClusters
   //put calocluster output collections in event and get orphan handles to create ptrs
