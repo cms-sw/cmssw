@@ -16,11 +16,16 @@ namespace ihd {
     void setLayerSetsEnd(unsigned int end) { layerSetEndIndex_ = end; }
 
     const TrackingRegion& region() const { return *region_; }
+
+    LayerHitMapCache& layerHitMapCache() { return cache_; }
+    const LayerHitMapCache& layerHitMapCache() const { return cache_; }
+
     unsigned int layerSetBeginIndex() const { return layerSetBeginIndex_; }
     unsigned int layerSetEndIndex() const { return layerSetEndIndex_; }
 
   private:
     const TrackingRegion *region_;
+    LayerHitMapCache cache_;
     unsigned int layerSetBeginIndex_; /// index to doublets_, pointing to the beginning of the layer pairs of this region
     unsigned int layerSetEndIndex_;   /// index to doublets_, pointing to the end of the layer pairs of this region
   };
@@ -32,10 +37,11 @@ namespace ihd {
 
     // Taking T* to have compatible interface with IntermediateHitTriplets::RegionLayerHits
     template <typename TMP>
-    RegionLayerHits(const TrackingRegion* region, const TMP*, const_iterator begin, const_iterator end):
-      region_(region), layerSetsBegin_(begin), layerSetsEnd_(end) {}
+    RegionLayerHits(const TrackingRegion* region, const LayerHitMapCache *cache, const TMP*, const_iterator begin, const_iterator end):
+      region_(region), cache_(cache), layerSetsBegin_(begin), layerSetsEnd_(end) {}
 
     const TrackingRegion& region() const { return *region_; }
+    const LayerHitMapCache& layerHitMapCache() const { return *cache_; }
 
     const_iterator begin() const { return layerSetsBegin_; }
     const_iterator cbegin() const { return begin(); }
@@ -44,6 +50,7 @@ namespace ihd {
 
   private:
     const TrackingRegion *region_;
+    const LayerHitMapCache *cache_;
     const const_iterator layerSetsBegin_;
     const const_iterator layerSetsEnd_;
   };
@@ -59,6 +66,7 @@ namespace ihd {
 
     value_type operator*() const {
       return value_type(&(iter_->region()),
+                        &(iter_->layerHitMapCache()),
                         hitSets_,
                         hitSets_->layerSetsBegin() + iter_->layerSetBeginIndex(),
                         hitSets_->layerSetsBegin() + iter_->layerSetEndIndex());
@@ -91,10 +99,9 @@ public:
 
   class LayerPairHitDoublets {
   public:
-    LayerPairHitDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets, LayerHitMapCache&& cache):
+    LayerPairHitDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets):
       layerPair_(layerSet[0].index(), layerSet[1].index()),
-      doublets_(std::move(doublets)),
-      cache_(std::move(cache))
+      doublets_(std::move(doublets))
     {}
 
     const LayerPair& layerPair() const { return layerPair_; }
@@ -102,12 +109,10 @@ public:
     SeedingLayerSetsHits::LayerIndex outerLayerIndex() const { return std::get<1>(layerPair_); }
 
     const HitDoublets& doublets() const { return doublets_; }
-    const LayerHitMapCache& cache() const { return cache_; }
 
   private:
     LayerPair layerPair_;
     HitDoublets doublets_;
-    LayerHitMapCache cache_;
   };
 
   ////////////////////
@@ -130,8 +135,10 @@ public:
 
     bool valid() const { return obj_ != nullptr; }
 
-    void addDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets, LayerHitMapCache&& cache) {
-      obj_->layerPairs_.emplace_back(layerSet, std::move(doublets), std::move(cache));
+    LayerHitMapCache& layerHitMapCache() { return obj_->regions_.back().layerHitMapCache(); }
+
+    void addDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets) {
+      obj_->layerPairs_.emplace_back(layerSet, std::move(doublets));
       obj_->regions_.back().setLayerSetsEnd(obj_->layerPairs_.size());
     }
   private:
