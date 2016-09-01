@@ -17,7 +17,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
 
 process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
-    CalibTreeFilenames = cms.untracked.vstring('root://cms-xrd-globale.cern.ch//newfilelocation'),
+    CalibTreeFilenames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//newfilelocation'),
     Threshold         = cms.double(0.1),
     nModsMin          = cms.int32(25),
     doSummary         = cms.int32(0),
