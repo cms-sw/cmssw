@@ -149,8 +149,29 @@ ALCARECOMuAlCalIsolatedMuTrackingDQM = _TrackMon.TrackMon.clone(
     TrackPtMin = 0,
     TrackPtMax = 100
     )
+ALCARECOMuAlCalIsolatedMuGeneralTracksTrackingDQM = _TrackMon.TrackMon.clone(
+    #names & designations  
+    TrackProducer = 'ALCARECOMuAlCalIsolatedMu:GlobalMuon',
+    AlgoName = 'ALCARECOMuAlCalIsolatedMu',
+    FolderName = 'AlCaReco/MuAlCalIsolatedMu',
+    MeasurementState = "default",
+    BSFolderName = "AlCaReco/MuAlCalIsolatedMu/BeamSpot",
+    doSeedParameterHistos = False,
+    #sizes>->----->-----    
+    TkSizeBin = 5,
+    TkSizeMin = 0,
+    TkSizeMax = 5,
+    TrackPtBin = 100,
+    TrackPtMin = 0,
+    TrackPtMax = 100
+    )
 
 ALCARECOMuAlCalIsolatedMuMuAlDQM = _MuonAl.muonAlignment.clone(
+    doSummary = True,
+    FolderName ='AlCaReco/MuAlCalIsolatedMu',
+    MuonCollection = 'ALCARECOMuAlCalIsolatedMu:GlobalMuon'
+    )
+ALCARECOMuAlCalIsolatedMuGeneralTracksDQM = _MuonAl.muonAlignment.clone(
     doSummary = True,
     FolderName ='AlCaReco/MuAlCalIsolatedMu',
     MuonCollection = 'ALCARECOMuAlCalIsolatedMu:GlobalMuon'
@@ -165,12 +186,28 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import ALCA
 #)
 #ALCARECOMuAlCalIsolatedMuDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlDQM + ALCARECOMuAlCalIsolatedMuHLTDQM)
 ALCARECOMuAlCalIsolatedMuDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuTrackingDQM + ALCARECOMuAlCalIsolatedMuMuAlDQM)
-
+ALCARECOMuAlCalIsolatedMuGeneralTracksDQM = cms.Sequence( ALCARECOMuAlCalIsolatedMuGeneralTracksTrackingDQM + ALCARECOMuAlCalIsolatedMuGeneralTracksDQM)
 
 ##########################################################
 #################### MuAlOverlaps ########################
 ##########################################################
 ALCARECOMuAlOverlapsTrackingDQM = _TrackMon.TrackMon.clone(
+    #names & designations  
+    TrackProducer = 'ALCARECOMuAlOverlaps',
+    AlgoName = 'ALCARECOMuAlOverlaps',
+    FolderName = 'AlCaReco/MuAlOverlaps',
+    MeasurementState = "default",
+    BSFolderName = "AlCaReco/MuAlOverlaps/BeamSpot",
+    doSeedParameterHistos = False,
+    #sizes                      
+    TkSizeBin = 70,
+    TkSizeMin = 0,
+    TkSizeMax = 70,
+    TrackPtBin = 100,
+    TrackPtMin = 0,
+    TrackPtMax = 30
+    )
+ALCARECOMuAlOverlapsGeneralTracksTrackingDQM = _TrackMon.TrackMon.clone(
     #names & designations  
     TrackProducer = 'ALCARECOMuAlOverlaps',
     AlgoName = 'ALCARECOMuAlOverlaps',
@@ -196,7 +233,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import ALCARECOM
 #)
 #ALCARECOMuAlOverlapsDQM = cms.Sequence( ALCARECOMuAlOverlapsTrackingDQM + ALCARECOMuAlOverlapsHLTDQM)
 ALCARECOMuAlOverlapsDQM = cms.Sequence( ALCARECOMuAlOverlapsTrackingDQM)
-
+ALCARECOMuAlOverlapsGeneralTracksDQM = cms.Sequence( ALCARECOMuAlOverlapsGeneralTracksTrackingDQM)
 
 ##########################################################
 ############### MuAlZMuMu ################################
@@ -217,8 +254,29 @@ ALCARECOMuAlZMuMuTrackingDQM= _TrackMon.TrackMon.clone(
     TrackPtMin = 0,
     TrackPtMax = 100
     )
+ALCARECOMuAlZMuMuGeneralTracksTrackingDQM= _TrackMon.TrackMon.clone(
+    #names & designations  
+    TrackProducer = 'ALCARECOMuAlZMuMu:StandAlone',
+    AlgoName = 'ALCARECOMuAlZMuMu',
+    FolderName = 'AlCaReco/MuAlZMuMu',
+    MeasurementState = "default",
+    BSFolderName = "AlCaReco/MuAlZMuMu/BeamSpot",
+    doSeedParameterHistos = False,
+    #sizes                      
+    TkSizeBin = 5,
+    TkSizeMin = 0,
+    TkSizeMax = 5,
+    TrackPtBin = 100,
+    TrackPtMin = 0,
+    TrackPtMax = 100
+    )
 
 ALCARECOMuAlZMuMuMuAlDQM= _MuonAl.muonAlignment.clone(
+    doSummary = True,
+    FolderName ='AlCaReco/MuAlCaZMuMu',
+    MuonCollection = 'ALCARECOMuAlZMuMu:StandAlone'
+    )
+ALCARECOMuAlZMuMuGeneralTracksDQM= _MuonAl.muonAlignment.clone(
     doSummary = True,
     FolderName ='AlCaReco/MuAlCaZMuMu',
     MuonCollection = 'ALCARECOMuAlZMuMu:StandAlone'
@@ -233,4 +291,4 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlZMuMu_cff import ALCARECOMuAl
 #)
 #ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM + ALCARECOMuAlZMuMuHLTDQM)
 ALCARECOMuAlZMuMuDQM = cms.Sequence( ALCARECOMuAlZMuMuTrackingDQM + ALCARECOMuAlZMuMuMuAlDQM)
-
+ALCARECOMuAlZMuMuGeneralTracksDQM = cms.Sequence( ALCARECOMuAlZMuMuGeneralTracksTrackingDQM + ALCARECOMuAlZMuMuGeneralTracksDQM)
