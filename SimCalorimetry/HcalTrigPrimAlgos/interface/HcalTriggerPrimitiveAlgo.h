@@ -198,6 +198,7 @@ public:
   static const int QIE8_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
   static const int QIE10_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
   static const int QIE11_LINEARIZATION_ET = HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
+  // Consider CaloTPGTranscoderULUT.h for values
   static const int QIE10_MAX_LINEARIZATION_ET = 0x7FF;
   static const int QIE11_MAX_LINEARIZATION_ET = 0x7FF;
 };
