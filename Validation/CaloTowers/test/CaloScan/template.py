@@ -48,12 +48,13 @@ process.HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
 
 process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     outputFile		      = cms.untracked.string('HcalDigisValidationRelVal.root'),
-    digiLabel		      = cms.untracked.string("hcalDigis"),
-    zside		      = cms.untracked.string('*'),
-    mode		      = cms.untracked.string('multi'),
-
-    hcalselector	      = cms.untracked.string('all'),
-    mc			      = cms.untracked.string('yes') # 'yes' for MC
+    digiLabel   = cms.string("hcalDigis"),
+    mode        = cms.untracked.string('multi'),
+    hcalselector= cms.untracked.string('all'),
+    mc          = cms.untracked.string('yes'),
+    simHits     = cms.untracked.InputTag("g4SimHits","HcalHits"),
+    emulTPs     = cms.InputTag("emulDigis"),
+    dataTPs     = cms.InputTag("simHcalTriggerPrimitiveDigis")
 )   
 
 process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
@@ -81,21 +82,33 @@ process.hcalLocalRecoSequence = cms.Sequence(process.hbhereco+process.hfreco+pro
 
 
 #--- post-LS1 customization 
+process.mix.digitizers.hcal.minFCToDelay=cms.double(5.) # new TS model
 process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
 process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
 process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
 process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
-process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
-process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
+process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.67)
+process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.67)
 process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'
 
 
+
 #---------- PATH
-process.g4SimHits.Generator.HepMCProductLabel = 'generator'
+# -- NB: for vertex smearing the Label should be: "unsmeared" 
+# for GEN produced since 760pre6, for older GEN - just "": 
+process.VtxSmeared.src = cms.InputTag("generator", "") 
+process.generatorSmeared = cms.EDProducer("GeneratorSmearedProducer")
+process.g4SimHits.Generator.HepMCProductLabel = 'VtxSmeared' 
+
 process.p = cms.Path(
- process.VtxSmeared * process.g4SimHits * process.mix *
- process.ecalDigiSequence * process.hcalDigiSequence *
+ process.VtxSmeared *
+ process.generatorSmeared *
+ process.g4SimHits *
+ process.mix *
+ process.ecalDigiSequence * 
+ process.hcalDigiSequence *
  process.addPileupInfo *
+ process.bunchSpacingProducer *
  process.ecalPacker *
  process.esDigiToRaw *
  process.hcalRawData *
