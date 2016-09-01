@@ -63,7 +63,7 @@ void SiPixelClusterShapeCacheProducer::produce(edm::StreamID, edm::Event& iEvent
   edm::ESHandle<TrackerGeometry> geom;
   iSetup.get<TrackerDigiGeometryRecord>().get(geom);
 
-  std::auto_ptr<SiPixelClusterShapeCache> output(new SiPixelClusterShapeCache(input));
+  auto output = std::make_unique<SiPixelClusterShapeCache>(input);
   output->resize(input->data().size());
 
 
@@ -87,7 +87,7 @@ void SiPixelClusterShapeCacheProducer::produce(edm::StreamID, edm::Event& iEvent
   }
   output->shrink_to_fit();
 
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 
 DEFINE_FWK_MODULE(SiPixelClusterShapeCacheProducer);

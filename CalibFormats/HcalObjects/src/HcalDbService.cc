@@ -30,6 +30,11 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mCalibSet(nullptr), mCalibWidthSet(nullptr)
  {}
 
+HcalDbService::~HcalDbService() {
+    delete mCalibSet.load();
+    delete mCalibWidthSet.load();
+}
+
 const HcalTopology* HcalDbService::getTopologyUsed() const {
   if (mPedestals && mPedestals->topo()) return mPedestals->topo();
   if (mGains && mGains->topo())         return mGains->topo();

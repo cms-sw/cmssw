@@ -35,16 +35,11 @@ TrackListCombiner::~TrackListCombiner()
 /*****************************************************************************/
 void TrackListCombiner::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const
 {
-  auto_ptr<reco::TrackCollection>          recoTracks
-      (new reco::TrackCollection);
-  auto_ptr<reco::TrackExtraCollection>     recoTrackExtras
-      (new reco::TrackExtraCollection);
-  auto_ptr<TrackingRecHitCollection>       recoHits
-      (new TrackingRecHitCollection);
-  auto_ptr<vector<Trajectory> >            recoTrajectories
-      (new vector<Trajectory>);
-  auto_ptr<TrajTrackAssociationCollection> recoTrajTrackMap
-      (new TrajTrackAssociationCollection());
+  auto recoTracks = std::make_unique<reco::TrackCollection>();
+  auto recoTrackExtras = std::make_unique<reco::TrackExtraCollection>();
+  auto recoHits = std::make_unique<TrackingRecHitCollection>();
+  auto recoTrajectories = std::make_unique<vector<Trajectory>>();
+  auto recoTrajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
 
   LogTrace("MinBiasTracking")
     << "[TrackListCombiner]";
@@ -119,7 +114,7 @@ void TrackListCombiner::produce(edm::StreamID, edm::Event& ev, const edm::EventS
                                     << "|" << recoTrajectories->size();
 
   // Save the tracking recHits
-  edm::OrphanHandle<TrackingRecHitCollection> theRecoHits = ev.put(recoHits);
+  edm::OrphanHandle<TrackingRecHitCollection> theRecoHits = ev.put(std::move(recoHits));
   
   edm::RefProd<TrackingRecHitCollection> theRecoHitsProd(theRecoHits);
   // Create the track extras and add the references to the rechits
@@ -151,7 +146,7 @@ void TrackListCombiner::produce(edm::StreamID, edm::Event& ev, const edm::EventS
   
   // Save the track extras
   edm::OrphanHandle<reco::TrackExtraCollection> theRecoTrackExtras =
-    ev.put(recoTrackExtras);
+    ev.put(std::move(recoTrackExtras));
   
   // Add the reference to the track extra in the tracks
   for(unsigned index = 0; index<nTracks; ++index)
@@ -161,11 +156,11 @@ void TrackListCombiner::produce(edm::StreamID, edm::Event& ev, const edm::EventS
   }
   
   // Save the tracks
-  edm::OrphanHandle<reco::TrackCollection> theRecoTracks = ev.put(recoTracks);
+  edm::OrphanHandle<reco::TrackCollection> theRecoTracks = ev.put(std::move(recoTracks));
   
   // Save the trajectories
   edm::OrphanHandle<vector<Trajectory> > theRecoTrajectories =
-    ev.put(recoTrajectories);
+    ev.put(std::move(recoTrajectories));
   
   // Create and set the trajectory/track association map 
   for(unsigned index = 0; index<nTracks; ++index)
@@ -176,6 +171,6 @@ void TrackListCombiner::produce(edm::StreamID, edm::Event& ev, const edm::EventS
   }
   
   // Save the association map
-  ev.put(recoTrajTrackMap);
+  ev.put(std::move(recoTrajTrackMap));
 }
 

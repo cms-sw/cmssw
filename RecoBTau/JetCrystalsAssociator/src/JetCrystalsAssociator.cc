@@ -73,7 +73,7 @@ class JetCrystalsAssociator : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
    private:
-      std::auto_ptr<JetCrystalsAssociationCollection> associate( 
+      std::unique_ptr<JetCrystalsAssociationCollection> associate( 
           const edm::Handle<CaloJetCollection> & jets,
 	  const edm::OrphanHandle<EMLorentzVectorCollection> & myLorentzRecHits) const;
 
@@ -140,7 +140,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel( m_EBRecHits, EBRecHits );
    iEvent.getByLabel( m_EERecHits, EERecHits );
    
-   std::auto_ptr<EMLorentzVectorCollection> jetRecHits( new EMLorentzVectorCollection() );
+   auto jetRecHits = std::make_unique<EMLorentzVectorCollection>();
    //loop on jets and associate
    for (size_t t = 0; t < jets->size(); t++)
     {
@@ -201,18 +201,17 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
 
-  edm::OrphanHandle <reco::EMLorentzVectorCollection> myRecHits = iEvent.put(jetRecHits);
+  edm::OrphanHandle <reco::EMLorentzVectorCollection> myRecHits = iEvent.put(std::move(jetRecHits));
 
-  std::auto_ptr<JetCrystalsAssociationCollection> jetCrystals = associate(jets,myRecHits);
-  iEvent.put( jetCrystals );
+  iEvent.put(associate(jets,myRecHits));
 }
 
-std::auto_ptr<JetCrystalsAssociationCollection> JetCrystalsAssociator::associate( 
+std::unique_ptr<JetCrystalsAssociationCollection> JetCrystalsAssociator::associate( 
         const edm::Handle<CaloJetCollection> & jets,
         const edm::OrphanHandle<EMLorentzVectorCollection> & myLorentzRecHits) const
 {
   // we know we will save an element per input jet
-  std::auto_ptr<JetCrystalsAssociationCollection> outputCollection( new JetCrystalsAssociationCollection( jets->size() ) );
+  auto outputCollection = std::make_unique<JetCrystalsAssociationCollection>(jets->size());
 
   //loop on jets and associate
   for (size_t j = 0; j < jets->size(); j++) {

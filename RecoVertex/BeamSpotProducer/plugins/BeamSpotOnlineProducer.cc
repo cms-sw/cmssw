@@ -53,7 +53,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   BeamSpotOnline spotOnline;
 
   // product is a reco::BeamSpot object
-  std::auto_ptr<reco::BeamSpot> result(new reco::BeamSpot);
+  auto result = std::make_unique<reco::BeamSpot>();
   
   reco::BeamSpot aSpot;
 
@@ -154,7 +154,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   *result = aSpot;
 
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 
 }
 

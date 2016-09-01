@@ -8,6 +8,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -59,7 +60,8 @@ public:
                      const SiPixelQuality *pixelQuality,
                      const SiPixelFedCabling *pixelCabling,
                      int   pixelQualityFlags,
-                     int   pixelQualityDebugFlags);
+                     int   pixelQualityDebugFlags,
+		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE = 0);
 
   virtual ~MeasurementTrackerImpl();
  
