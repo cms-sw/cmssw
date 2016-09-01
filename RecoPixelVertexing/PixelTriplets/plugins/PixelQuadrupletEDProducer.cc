@@ -77,6 +77,9 @@ void PixelQuadrupletEDProducer::produce(edm::Event& iEvent, const edm::EventSetu
     const TrackingRegion& region = regionLayerPairAndLayers.region();
     auto seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
 
+    LayerHitMapCache hitCache;
+    hitCache.extend(regionLayerPairAndLayers.layerHitMapCache());
+
     LogTrace("PixelQuadrupletEDProducer") << " starting region, number of layerPair+3rd layers " << regionLayerPairAndLayers.layerPairAndLayersSize();
 
     for(const auto& layerTriplet: regionLayerPairAndLayers) {
@@ -100,9 +103,6 @@ void PixelQuadrupletEDProducer::produce(edm::Event& iEvent, const edm::EventSetu
         throw exp;
       }
       const auto& fourthLayers = found->second;
-
-      LayerHitMapCache hitCache;
-      hitCache.extend(layerTriplet.cache());
 
       generator_.hitQuadruplets(region, quadruplets, iEvent, iSetup, layerTriplet.tripletsBegin(), layerTriplet.tripletsEnd(), fourthLayers, hitCache);
 

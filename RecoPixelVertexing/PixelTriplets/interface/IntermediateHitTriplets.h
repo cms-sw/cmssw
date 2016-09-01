@@ -44,12 +44,10 @@ public:
 
   class LayerPairAndLayers {
   public:
-    LayerPairAndLayers(const LayerPair& layerPair,
-                       unsigned int thirdLayersBegin, LayerHitMapCache&& cache):
+    LayerPairAndLayers(const LayerPair& layerPair, unsigned int thirdLayersBegin):
       layerPair_(layerPair),
       thirdLayersBegin_(thirdLayersBegin),
-      thirdLayersEnd_(thirdLayersBegin),
-      cache_(std::move(cache))
+      thirdLayersEnd_(thirdLayersBegin)
     {}
 
     void setThirdLayersEnd(unsigned int end) { thirdLayersEnd_ = end; }
@@ -58,9 +56,6 @@ public:
     unsigned int thirdLayersBegin() const { return thirdLayersBegin_; }
     unsigned int thirdLayersEnd() const { return thirdLayersEnd_; }
 
-    LayerHitMapCache& cache() { return cache_; }
-    const LayerHitMapCache& cache() const { return cache_; }
-
   private:
     LayerPair layerPair_;
     unsigned int thirdLayersBegin_;
@@ -68,7 +63,8 @@ public:
     // The reason for not storing layer triplets + hit triplets
     // directly is in this cache, and in my desire to try to keep
     // results unchanged during this refactoring
-    LayerHitMapCache cache_;
+    //
+    // TODO: Now that the cache is gone, maybe I can simplify?
   };
 
   ////////////////////
@@ -93,7 +89,6 @@ public:
     std::vector<OrderedHitTriplet>::const_iterator tripletsBegin() const { return hitSets_->tripletsBegin() + thirdLayer_->tripletsBegin(); }
     std::vector<OrderedHitTriplet>::const_iterator tripletsEnd() const { return hitSets_->tripletsBegin() + thirdLayer_->tripletsEnd(); }
 
-    const LayerHitMapCache& cache() const { return layerPairAndLayers_->cache(); }
   private:
     const IntermediateHitTriplets *hitSets_;
     const LayerPairAndLayers *layerPairAndLayers_;
@@ -169,15 +164,18 @@ public:
     };
 
     RegionLayerHits(const TrackingRegion* region,
+                    const LayerHitMapCache *cache,
                     const IntermediateHitTriplets *hitSets,
                     LayerPairAndLayersConstIterator pairBegin,
                     LayerPairAndLayersConstIterator pairEnd):
       region_(region),
+      cache_(cache),
       hitSets_(hitSets),
       layerSetsBegin_(pairBegin), layerSetsEnd_(pairEnd)
     {}
 
     const TrackingRegion& region() const { return *region_; }
+    const LayerHitMapCache& layerHitMapCache() const { return *cache_; }
     size_t layerPairAndLayersSize() const { return std::distance(layerSetsBegin_, layerSetsEnd_); }
 
     const_iterator begin() const {
@@ -196,6 +194,7 @@ public:
 
   private:
     const TrackingRegion *region_ = nullptr;
+    const LayerHitMapCache *cache_ = nullptr;
     const IntermediateHitTriplets *hitSets_ = nullptr;
     const LayerPairAndLayersConstIterator layerSetsBegin_;
     const LayerPairAndLayersConstIterator layerSetsEnd_;
@@ -217,10 +216,11 @@ public:
 
     bool valid() const { return obj_ != nullptr; }
 
-    LayerHitMapCache *beginPair(const LayerPair& layerPair, LayerHitMapCache&& cache) {
-      obj_->layerPairAndLayers_.emplace_back(layerPair, obj_->thirdLayers_.size(), std::move(cache));
-      return &(obj_->layerPairAndLayers_.back().cache());
-    };
+    LayerHitMapCache& layerHitMapCache() { return obj_->regions_.back().layerHitMapCache(); }
+
+    void beginPair(const LayerPair& layerPair) {
+      obj_->layerPairAndLayers_.emplace_back(layerPair, obj_->thirdLayers_.size());
+    }
 
     void addTriplets(const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
                      const OrderedHitTriplets& triplets,
