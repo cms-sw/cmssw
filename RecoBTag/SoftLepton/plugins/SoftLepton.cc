@@ -256,12 +256,12 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   }
 
   // output collections
-  std::auto_ptr<reco::SoftLeptonTagInfoCollection> outputCollection(  new reco::SoftLeptonTagInfoCollection() );
+  auto outputCollection = std::make_unique<reco::SoftLeptonTagInfoCollection>();
   for (unsigned int i = 0; i < jets.size(); ++i) {
     reco::SoftLeptonTagInfo result = tag( jets[i], tracks[i], leptons, vertex );
     outputCollection->push_back( result );
   }
-  event.put( outputCollection );
+  event.put(std::move(outputCollection));
 }
 
 // ---------------------------------------------------------------------------------------

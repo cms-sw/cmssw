@@ -50,7 +50,7 @@ SoftPFMuonTagInfoProducer::~SoftPFMuonTagInfoProducer() {}
 
 void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Declare produced collection
-  std::auto_ptr<reco::CandSoftLeptonTagInfoCollection> theMuonTagInfo(new reco::CandSoftLeptonTagInfoCollection);
+  auto theMuonTagInfo = std::make_unique<reco::CandSoftLeptonTagInfoCollection>();
   
   // Declare and open Jet collection
   edm::Handle<edm::View<reco::Jet> > theJetCollection;
@@ -149,7 +149,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
   } // --- End loop on jets
   
   // Put the TagInfo collection in the event
-  iEvent.put(theMuonTagInfo);
+  iEvent.put(std::move(theMuonTagInfo));
 }
 
 
