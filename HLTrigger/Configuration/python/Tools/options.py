@@ -48,7 +48,7 @@ class ConnectionL1TMenuXml(object):
 class ConnectionHLTMenu(object):
   valid_versions  = 'v1', 'v2'
   valid_databases = 'online', 'offline', 'adg'
-  compatibility   = { 'hltdev': ('v1', 'offline'), 'orcoff': ('v2', 'adg') }
+  compatibility   = { 'hltdev': ('v2', 'offline'), 'orcoff': ('v2', 'adg') }
 
   def __init__(self, value):
     self.version    = None
@@ -60,8 +60,8 @@ class ConnectionHLTMenu(object):
       return
 
     if not ':' in value:
-      # default to 'v1/offline'
-      self.version    = 'v1'
+      # default to 'v2/offline'
+      self.version    = 'v2'
       self.database   = 'offline'
       self.name       = value
       return
@@ -95,14 +95,11 @@ class ConnectionHLTMenu(object):
         self.database = db
         self.name     = name
       else:
-        # use the default version for the given database
+        # use the confdb v2 by default
         if db not in self.valid_databases:
           raise Exception('Invalid HLT database "%s", valid values are "%s"' % (db, '", "'.join(self.valid_databases)))
         self.database = db
-        if db == 'offline' :
-          self.version  = 'v1'
-        else:
-          self.version  = 'v2'
+        self.version  = 'v2'
         self.name     = name
 
 # options marked with a (*) only apply when creating a whole process configuration
