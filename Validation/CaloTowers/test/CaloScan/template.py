@@ -48,7 +48,7 @@ process.HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
 
 process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     outputFile		      = cms.untracked.string('HcalDigisValidationRelVal.root'),
-    digiLabel		      = cms.InputTag("hcalDigis"),
+    digiLabel		      = cms.untracked.string("hcalDigis"),
     zside		      = cms.untracked.string('*'),
     mode		      = cms.untracked.string('multi'),
 
