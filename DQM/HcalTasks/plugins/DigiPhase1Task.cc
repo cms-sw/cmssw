@@ -1,6 +1,6 @@
 #include "DQM/HcalTasks/interface/DigiPhase1Task.h"
 
-using namespace hcaldqm; 
+using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
@@ -22,6 +22,12 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	_cutSumQ_HO = ps.getUntrackedParameter<double>("cutSumQ_HO", 20);
 	_cutSumQ_HF = ps.getUntrackedParameter<double>("cutSumQ_HF", 20);
 	_thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
+
+	_vflags.resize(nDigiFlag);
+	_vflags[fUni]=hcaldqm::flag::Flag("UniSlotHF");
+	_vflags[fDigiSize]=hcaldqm::flag::Flag("DigiSize");
+	_vflags[fNChsHF]=hcaldqm::flag::Flag("NChsHF");
+	_vflags[fUnknownIds]=hcaldqm::flag::Flag("UnknownIds");
 }
 
 /* virtual */ void DigiPhase1Task::bookHistograms(DQMStore::IBooker& ib,
@@ -38,6 +44,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
 	std::vector<uint32_t> vVME;
 	std::vector<uint32_t> vuTCA;
+	std::vector<uint32_t> vFEDHF;
 	vVME.push_back(HcalElectronicsId(constants::FIBERCH_MIN, 
 		constants::FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
 	vuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
@@ -46,6 +53,16 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		vVME);
 	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vuTCA);
+	vFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	vFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+
+	//	initialize filters
+	_filter_FEDHF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fFED,
+		vFEDHF);
 
 	//	push the rawIds of each fed into the vector...
 	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
@@ -182,65 +199,6 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 
-	//	INITIALIZE HISTOGRAMS that are only for Online
-	if (_ptype==fOnline)
-	{
-		_cSumQvsBX_SubdetPM.initialize(_name, "SumQvsBX",
-			hcaldqm::hashfunctions::fSubdetPM,
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000));
-		_cDigiSizevsLS_FED.initialize(_name, "DigiSizevsLS",
-			hcaldqm::hashfunctions::fFED,
-			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize));
-		_cTimingCutvsiphi_SubdetPM.initialize(_name, "TimingCutvsiphi",
-			hcaldqm::hashfunctions::fSubdetPM,
-			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
-		_cTimingCutvsieta_Subdet.initialize(_name, "TimingCutvsieta",
-			hcaldqm::hashfunctions::fSubdet,
-			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
-		_cOccupancyvsiphi_SubdetPM.initialize(_name, "Occupancyvsiphi",
-			hcaldqm::hashfunctions::fSubdetPM,
-			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
-		_cOccupancyvsieta_Subdet.initialize(_name, "Occupancyvsieta",
-			hcaldqm::hashfunctions::fSubdet,
-			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
-		_cOccupancyCutvsiphi_SubdetPM.initialize(_name, "OccupancyCutvsiphi",
-			hcaldqm::hashfunctions::fSubdetPM,
-			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
-		_cOccupancyCutvsieta_Subdet.initialize(_name, "OccupancyCutvsieta",
-			hcaldqm::hashfunctions::fSubdet,
-			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
-		_cOccupancyCutvsLS_Subdet.initialize(_name, "OccupancyCutvsLS",
-			hcaldqm::hashfunctions::fSubdet,
-			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000));
-		_cOccupancyCutvsBX_Subdet.initialize(_name, "OccupancyCutvsBX",
-			hcaldqm::hashfunctions::fSubdet,
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to3000));
-//		_cOccupancyCutvsSlotvsLS_HFPM.initialize(_name, 
-//			"OccupancyCutvsSlotvsLS", hcaldqm::hashfunctions::fSubdetPM,
-//			new hcaldqm::quantity::LumiSection(_maxLS),
-//			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-//			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
-		_cOccupancyCutvsiphivsLS_SubdetPM.initialize(_name, 
-			"OccupancyCutvsiphivsLS", hcaldqm::hashfunctions::fSubdetPM,
-			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
-
-		_xUni.initialize(hcaldqm::hashfunctions::fFED);
-		_xDigiSize.initialize(hcaldqm::hashfunctions::fFED);
-		_xNChs.initialize(hcaldqm::hashfunctions::fFED);
-		_xNChsNominal.initialize(hcaldqm::hashfunctions::fFED);
-	}
 
 	//	BOOK HISTOGRAMS
 	char cutstr[200];
@@ -282,60 +240,27 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
-	if (_ptype==fOnline)
-	{
-		_cSumQvsBX_SubdetPM.book(ib, _emap, _subsystem);
-		_cDigiSizevsLS_FED.book(ib, _emap, _subsystem);
-		_cTimingCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
-		_cTimingCutvsieta_Subdet.book(ib, _emap, _subsystem);
-		_cOccupancyCutvsLS_Subdet.book(ib, _emap, _subsystem);
-		_cOccupancyCutvsBX_Subdet.book(ib, _emap, _subsystem);
-		_cOccupancyvsiphi_SubdetPM.book(ib, _emap, _subsystem);
-		_cOccupancyvsieta_Subdet.book(ib, _emap, _subsystem);
-		_cOccupancyCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
-		_cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
-		_cOccupancyCutvsiphivsLS_SubdetPM.book(ib, _emap, _subsystem);
+	_dhashmap.initialize(_emap, electronicsmap::fE2DHashMap);
 
-		_xNChs.book(_emap);
-		_xNChsNominal.book(_emap);
-		_xUni.book(_emap);
-		_xDigiSize.book(_emap);
+        //      MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
+        if (_ptype==fOffline)
+	  {
+	    _cDigiSize_FED.setLumiFlag();
+	    _cOccupancy_depth.setLumiFlag();
+	  }
 
-		// just PER HF FED RECORD THE #CHANNELS
-		// ONLY WAY TO DO THAT AUTOMATICALLY AND W/O HARDCODING 1728
-		// or ANY OTHER VALUES LIKE 2592, 2192
-		std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
-		for (std::vector<HcalGenericDetId>::const_iterator it=gids.begin();
-			it!=gids.end(); ++it)
-		{
-			if (!it->isHcalDetId())
-				continue;
-			HcalDetId did(it->rawId());
-			if (_xQuality.exists(did)) 
-			{
-				HcalChannelStatus cs(it->rawId(), _xQuality.get(
-					HcalDetId(*it)));
-				if (
-					cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
-					cs.isBitSet(HcalChannelStatus::HcalCellDead))
-					continue;
-			}
-			HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
-			_xNChsNominal.get(eid)++;	// he will know the nominal #channels per FED
-		}
-	}
-
-	//	MARK THESE HISTOGRAMS AS LUMI BASED FOR OFFLINE PROCESSING
-	if (_ptype==fOffline)
-	{
-		_cDigiSize_FED.setLumiFlag();
-		_cOccupancy_depth.setLumiFlag();
-	}
-
-	ib.setCurrentFolder(_subsystem+"/RunInfo");
-	meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents",
-		1, 0, 1);
+        //      book Number of Events vs LS histogram                                                                                                                                     
+        ib.setCurrentFolder(_subsystem+"/RunInfo");
+        meNumEvents1LS = ib.book1D("NumberOfEvents", "NumberOfEvents",
+				   1, 0, 1);
 	meNumEvents1LS->setLumiFlag();
+
+        //      book the flag for unknown ids and the online guy as well                                                                                                                  
+        ib.setCurrentFolder(_subsystem+"/"+_name);
+        meUnknownIds1LS = ib.book1D("UnknownIds", "UnknownIds",
+				    1, 0, 1);
+        _unknownIdsPresent = false;
+        meUnknownIds1LS->setLumiFlag();
 }
 
 /* virtual */ void DigiPhase1Task::_resetMonitors(hcaldqm::UpdateFreq uf)
@@ -344,11 +269,10 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 
 	switch(uf)
 	{
+		case hcaldqm::f1LS:
+			_unknownIdsPresent = false;
+			break;
 		case hcaldqm::f50LS:
-			//	^^^ONLINE ONLY!
-			if (_ptype==fOnline)
-				_cOccupancyvsiphi_SubdetPM.reset();
-			//	^^^
 			break;
 		default:
 			break;
@@ -359,44 +283,50 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	edm::EventSetup const&)
 {
 	edm::Handle<QIE11DigiCollection>     chbhe;
-	edm::Handle<HODigiCollection>       cho;
-	edm::Handle<QIE10DigiCollection>       chf;
+	edm::Handle<HODigiCollection>        cho;
+	edm::Handle<QIE10DigiCollection>     chf;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
-		_logger.dqmthrow("Collection HBHE QIE11DigiCollection isn't available"
+		_logger.dqmthrow("Collection HBHEDigiCollection isn't available"
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
 	if (!e.getByToken(_tokHO, cho))
-		_logger.dqmthrow("Collection HODigiPhase1Collection isn't available"
+		_logger.dqmthrow("Collection HODigiCollection isn't available"
 			+ _tagHO.label() + " " + _tagHO.instance());
 	if (!e.getByToken(_tokHF, chf))
-		_logger.dqmthrow("Collection HF QIE10Collection isn't available"
+		_logger.dqmthrow("Collection HFDigiCollection isn't available"
 			+ _tagHF.label() + " " + _tagHF.instance());
 
 	//	extract some info per event
-	int bx = e.bunchCrossing();
 	meNumEvents1LS->Fill(0.5); // just increment
+
+	//	To fill histograms outside of the loop, you need to determine if there were
+	//	any valid det ids first
+	uint32_t rawidValid = 0;
+	uint32_t rawidHBValid = 0;
+	uint32_t rawidHEValid = 0;
 
 	//	HB collection
 	int numChs = 0;
 	int numChsCut = 0;
 	int numChsHE = 0;
 	int numChsCutHE = 0;
-
-	/*
-	 *	Suggested Reading for CMSSW & Boost interaction of iterators for 
-	 *	DataFrameContainer, etc....
-	 *
-	 *	http://www.boost.org/doc/libs/1_53_0/libs/iterator/doc/transform_iterator.html
-	 *	http://www.boost.org/doc/libs/1_50_0/libs/iterator/doc/counting_iterator.html
-	 *	helps to understand how to unwrap the boost iterator classes...
-	 */
 	for (QIE11DigiCollection::const_iterator it=chbhe->begin(); it!=chbhe->end();
 		++it)
 	{
-		QIE11DataFrame const& frame = *it;
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(frame, 
-			2.5, 0, frame.samples()-1);
+	        QIE11DataFrame const& frame = *it;
+	        double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(frame, 2.5, 0, frame.samples()-1);
+
+		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = frame.detid();
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0) 
+		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		HcalElectronicsId const& eid(rawid);
+		if (did.subdet()==HcalBarrel)
+			rawidHBValid = did.rawId();
+		else if (did.subdet()==HcalEndcap) 
+			rawidHEValid = did.rawId();
+
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
 		{
@@ -406,18 +336,10 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 				cs.isBitSet(HcalChannelStatus::HcalCellDead))
 				continue;
 		}
-		HcalElectronicsId const& eid = _ehashmap.lookup(did);
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
-		if (_ptype==fOnline)
-		{
-			_cDigiSizevsLS_FED.fill(eid, _currentLS, frame.samples());
-			frame.samples()!=constants::DIGISIZE[did.subdet()-1]?
-				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
-			_cOccupancyvsiphi_SubdetPM.fill(did);
-			_cOccupancyvsieta_Subdet.fill(did);
-		}
+
 		_cDigiSize_FED.fill(eid, frame.samples());
 		if (eid.isVMEid())
 		{
@@ -439,32 +361,22 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		for (int i=0; i<frame.samples(); i++)
 		{
 			_cADC_SubdetPM.fill(did, frame[i].adc());
-			_cfC_SubdetPM.fill(did, 
-				constants::adc2fC[frame[i].adc()]);
+			_cfC_SubdetPM.fill(did,constants::adc2fC[frame[i].adc()]);
 			if (sumQ>_cutSumQ_HBHE)
-				_cShapeCut_FED.fill(eid, i, 
-					constants::adc2fC[frame[i].adc()]);
+				_cShapeCut_FED.fill(eid, i, constants::adc2fC[frame[i].adc()]);
 		}
 
 		if (sumQ>_cutSumQ_HBHE)
 		{
-			double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(frame, 2.5, 0,
-				frame.samples()-1);
+		        double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(frame, 2.5, 0,
+										      frame.samples()-1);
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);
-			if (_ptype==fOnline)
-			{
-				_cSumQvsBX_SubdetPM.fill(did, bx, sumQ);
-				_cTimingCutvsiphi_SubdetPM.fill(did, timing);
-				_cTimingCutvsieta_Subdet.fill(did, timing);
-				_cOccupancyCutvsiphi_SubdetPM.fill(did);
-				_cOccupancyCutvsieta_Subdet.fill(did);
-				_cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
-			}
+
 			if (eid.isVMEid())
 			{
 				_cTimingCut_FEDVME.fill(eid, timing);
@@ -483,32 +395,36 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		}
 		did.subdet()==HcalBarrel?numChs++:numChsHE++;
 	}
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS, 
-		numChs);
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), _currentLS,
-		numChsHE);
-	//	ONLINE ONLY!
-	if (_ptype==fOnline)
+
+	if (rawidHBValid!=0 && rawidHEValid!=0)
 	{
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), 
-			_currentLS, numChsCut);
-		_cOccupancyCutvsBX_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), bx,
-			numChsCut);
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), 
-			_currentLS, numChsCutHE);
-		_cOccupancyCutvsBX_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), bx,
-			numChsCutHE);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidHBValid), _currentLS, 
+			numChs);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidHEValid), _currentLS,
+			numChsHE);
+
 	}
-	//	^^^ONLINE ONLY!
 	numChs=0;
 	numChsCut = 0;
+
+	//	reset
+	rawidValid = 0;
 
 	//	HO collection
 	for (HODigiCollection::const_iterator it=cho->begin(); it!=cho->end();
 		++it)
 	{
 		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
+
+		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = it->id();
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0) 
+		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		HcalElectronicsId const& eid(rawid);
+		if (did.subdet()==HcalOuter)
+			rawidValid = did.rawId();
+
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
 		{
@@ -518,18 +434,9 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 				cs.isBitSet(HcalChannelStatus::HcalCellDead))
 				continue;
 		}
-		HcalElectronicsId const& eid = it->elecId();
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
-		if (_ptype==fOnline)
-		{
-			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
-			it->size()!=constants::DIGISIZE[did.subdet()-1]?
-				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
-			_cOccupancyvsiphi_SubdetPM.fill(did);
-			_cOccupancyvsieta_Subdet.fill(did);
-		}
 		_cDigiSize_FED.fill(eid, it->size());
 		if (eid.isVMEid())
 		{
@@ -567,15 +474,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
 			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
-			if (_ptype==fOnline)
-			{
-				_cSumQvsBX_SubdetPM.fill(did, bx, sumQ);
-				_cTimingCutvsiphi_SubdetPM.fill(did, timing);
-				_cTimingCutvsieta_Subdet.fill(did, timing);
-				_cOccupancyCutvsiphi_SubdetPM.fill(did);
-				_cOccupancyCutvsieta_Subdet.fill(did);
-				_cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
-			}
+
 			if (eid.isVMEid())
 			{
 				_cTimingCut_FEDVME.fill(eid, timing);
@@ -594,26 +493,34 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		}
 		numChs++;
 	}
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 1), _currentLS,
-		numChs);
 
-	if (_ptype==fOnline)
+	if (rawidValid!=0)
 	{
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 1), 
-			_currentLS, numChsCut);
-		_cOccupancyCutvsBX_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 1), bx,
-			numChsCut);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidValid), _currentLS,
+			numChs);
 	}
 	numChs=0; numChsCut=0;
+
+	//	reset
+	rawidValid = 0;
 
 	//	HF collection
 	for (QIE10DigiCollection::const_iterator it=chf->begin(); it!=chf->end();
 		++it)
 	{
-		QIE10DataFrame frame = *it;
-		double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(frame, 
-			2.5, 0, frame.samples()-1);
-		HcalDetId const& did = frame.detid();
+	        QIE10DataFrame frame = *it;
+	        double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(frame, 
+									   2.5, 0, frame.samples()-1);
+
+		//	Explicit check on the DetIds present in the Collection
+		HcalDetId const& did = it->id();
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0) 
+		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		HcalElectronicsId const& eid(rawid);
+		if (did.subdet()==HcalForward)
+			rawidValid = did.rawId();
+
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
 		{
@@ -623,19 +530,9 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 				cs.isBitSet(HcalChannelStatus::HcalCellDead))
 				continue;
 		}
-		HcalElectronicsId const& eid = _ehashmap.lookup(did);
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
-		if (_ptype==fOnline)
-		{
-			_xNChs.get(eid)++;
-			_cDigiSizevsLS_FED.fill(eid, _currentLS, frame.samples());
-			frame.samples()!=constants::DIGISIZE[did.subdet()-1]?
-				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
-			_cOccupancyvsiphi_SubdetPM.fill(did);
-			_cOccupancyvsieta_Subdet.fill(did);
-		}
 		_cDigiSize_FED.fill(eid, frame.samples());
 		if (eid.isVMEid())
 		{
@@ -657,29 +554,19 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		for (int i=0; i<frame.samples(); i++)
 		{
 			_cADC_SubdetPM.fill(did, frame[i].adc());
-			_cfC_SubdetPM.fill(did, 
-				constants::adc2fC[frame[i].adc()]);
+			_cfC_SubdetPM.fill(did, constants::adc2fC[frame[i].adc()]);
 			if (sumQ>_cutSumQ_HF)
-				_cShapeCut_FED.fill(eid, i, 
-					constants::adc2fC[frame[i].adc()]);
+			        _cShapeCut_FED.fill(eid, i, constants::adc2fC[frame[i].adc()]);
 		}
 
 		if (sumQ>_cutSumQ_HF)
 		{
-			double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(frame, 2.5, 0,
-				frame.samples()-1);
+		        double timing = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(frame, 2.5, 0,
+										      frame.samples()-1);
+
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);
-			if (_ptype==fOnline)
-			{
-				_cSumQvsBX_SubdetPM.fill(did, bx, sumQ);
-				_cTimingCutvsiphi_SubdetPM.fill(did, timing);
-				_cTimingCutvsieta_Subdet.fill(did, timing);
-				_cOccupancyCutvsiphi_SubdetPM.fill(did);
-				_cOccupancyCutvsieta_Subdet.fill(did);
-				_cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
-//				_cOccupancyCutvsSlotvsLS_HFPM.fill(did, _currentLS);
-			}
+
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
 			_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
@@ -702,15 +589,12 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		}
 		numChs++;
 	}
-	_cOccupancyvsLS_Subdet.fill(HcalDetId(HcalForward, 1, 1, 1), _currentLS, 
-		numChs);
 
-	if (_ptype==fOnline)
+	if (rawidValid!=0)
 	{
-		_cOccupancyCutvsLS_Subdet.fill(HcalDetId(HcalForward, 1, 1, 1), 
-			_currentLS, numChsCut);
-		_cOccupancyCutvsBX_Subdet.fill(HcalDetId(HcalForward, 1, 1, 1), bx,
-			numChsCut);
+		_cOccupancyvsLS_Subdet.fill(HcalDetId(rawidValid), _currentLS, 
+			numChs);
+	
 	}
 }
 
@@ -718,7 +602,6 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	edm::LuminosityBlock const& lb, edm::EventSetup const& es)
 {
 	DQTask::beginLuminosityBlock(lb, es);
-
 }
 
 /* virtual */ void DigiPhase1Task::endLuminosityBlock(edm::LuminosityBlock const& lb,
