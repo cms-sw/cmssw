@@ -412,7 +412,8 @@ for section in config.sections():
         print 'Submitting dataset:', datasetOptions['name']
         print 'Baseconfig:        ', datasetOptions['configTemplate']
         print 'Collection:        ', datasetOptions['collection']
-        if datasetOptions['collection']=='ALCARECOTkAlCosmicsCTF0T':
+        if datasetOptions["collection"] in ("ALCARECOTkAlCosmicsCTF0T",
+                                            "ALCARECOTkAlCosmicsInCollisions"):
             print 'cosmicsDecoMode:   ', datasetOptions['cosmicsDecoMode']
             print 'cosmicsZeroTesla:  ', datasetOptions['cosmicsZeroTesla']
         print 'Globaltag:         ', datasetOptions['globaltag']
