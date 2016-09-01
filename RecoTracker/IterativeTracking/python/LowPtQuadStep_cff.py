@@ -96,7 +96,7 @@ _lowPtQuadStepTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTrajectoryFilt
     minPt = 0.075,
 )
 lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
-    maxCCCLostHits = 1,
+    maxCCCLostHits = 0,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 eras.trackingPhase1PU70.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
@@ -118,7 +118,7 @@ lowPtQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator
     ComponentName = 'lowPtQuadStepChi2Est',
     nSigma = 3.0,
     MaxChi2 = 9.0,
-    clusterChargeCut = dict(refToPSet_ = ('SiStripClusterChargeCutTiny')),
+    clusterChargeCut = dict(refToPSet_ = ('SiStripClusterChargeCutTight')),
 )
 eras.trackingPhase1PU70.toModify(lowPtQuadStepChi2Est,
     MaxChi2 = 25.0,
