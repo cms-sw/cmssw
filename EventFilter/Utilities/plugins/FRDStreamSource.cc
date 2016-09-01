@@ -96,7 +96,7 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     }
   }
 
-  rawData_.reset(new FEDRawDataCollection());
+  rawData_ = std::make_unique<FEDRawDataCollection>();
 
   uint32_t eventSize = frdEventMsg->eventSize();
   char* event = (char*)frdEventMsg->payload();
@@ -163,7 +163,7 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
 
 
 void FRDStreamSource::produce(edm::Event& e) {
-  e.put(rawData_);
+  e.put(std::move(rawData_));
 }
 
 
