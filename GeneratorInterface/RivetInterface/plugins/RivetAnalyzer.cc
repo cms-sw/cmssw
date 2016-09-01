@@ -88,10 +88,10 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 
   // get HepMC GenEvent
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
-  
+  std::unique_ptr<HepMC::GenEvent> tmpGenEvtPtr;
   //if you want to use an external weight or set the cross section we have to clone the GenEvent and change the weight  
   if ( _useExternalWeight || _xsection > 0 ){
-    HepMC::GenEvent * tmpGenEvtPtr = new HepMC::GenEvent( *(evt->GetEvent()) );
+    tmpGenEvtPtr = std::make_unique<HepMC::GenEvent>(*(evt->GetEvent()));
 
     if (_xsection > 0){
       HepMC::GenCrossSection xsec;
@@ -118,7 +118,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 	tmpGenEvtPtr->weights()[0] = wgt.wgt;
       }
     }
-    myGenEvent = tmpGenEvtPtr;
+    myGenEvent = tmpGenEvtPtr.get();
 
   }
   
@@ -132,9 +132,6 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   //run the analysis
   _analysisHandler.analyze(*myGenEvent);
 
-  //if we have cloned the GenEvent, we delete it
-  if ( _useExternalWeight ) 
-  delete myGenEvent;
 }
 
 
