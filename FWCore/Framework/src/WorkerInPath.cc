@@ -12,6 +12,7 @@ namespace edm {
     worker_(w),
     placeInPathContext_(placeInPath)
   {
+    w->addedToPath();
   }
 
 }

@@ -95,6 +95,7 @@ namespace edm {
                      ParentContext const& parentContext,
                      typename T::Context const* context);
 
+    void skipOnPath(EventPrincipal const& );
     void beginJob() ;
     void endJob();
     void beginStream(StreamID id, StreamContext& streamContext);
@@ -111,6 +112,7 @@ namespace edm {
       state_ = Ready;
       waitingTasks_.reset();
       workStarted_ = false;
+      numberOfPathsLeftToRun_ = numberOfPathsOn_;
     }
 
     void pathFinished(EventPrincipal const&);
@@ -142,6 +144,9 @@ namespace edm {
       timesRun_ = timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
 
+    void addedToPath() {
+      ++numberOfPathsOn_;
+    }
     //NOTE: calling state() is done to force synchronization across threads
     int timesRun() const { state(); return timesRun_; }
     int timesVisited() const { return timesVisited_; }
@@ -197,6 +202,8 @@ namespace edm {
     virtual void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const = 0;
+
+    virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
@@ -370,7 +377,9 @@ namespace edm {
     CMS_THREAD_GUARD(state_) int timesFailed_;
     CMS_THREAD_GUARD(state_) int timesExcept_;
     std::atomic<State> state_;
-
+    int numberOfPathsOn_;
+    std::atomic<int> numberOfPathsLeftToRun_;
+        
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere

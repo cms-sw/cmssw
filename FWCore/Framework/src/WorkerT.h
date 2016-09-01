@@ -129,6 +129,9 @@ namespace edm {
     }
 
     virtual std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
+    
+    virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
+
 
     edm::propagate_const<std::shared_ptr<T>> module_;
   };

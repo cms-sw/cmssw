@@ -77,6 +77,8 @@ private:
     timesFailed_(),
     timesExcept_(),
     state_(Ready),
+    numberOfPathsOn_(0),
+    numberOfPathsLeftToRun_(0),
     moduleCallingContext_(&iMD),
     actions_(iActions),
     cached_exception_(),
@@ -303,6 +305,15 @@ private:
       ost << "Calling endStream for module " << description().moduleName() << "/'" << description().moduleLabel() << "'";
       ex.addContext(ost.str());
       throw;
+    }
+  }
+  
+  void Worker::skipOnPath(EventPrincipal const& iPrincipal) {
+    if( 0 == --numberOfPathsLeftToRun_) {
+      for(auto index : itemsShouldPutInEvent()) {
+        auto resolver = iPrincipal.getProductResolverByIndex(index);
+        resolver->putProduct(std::unique_ptr<WrapperBase>());
+      }
     }
   }
 

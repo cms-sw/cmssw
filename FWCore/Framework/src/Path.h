@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 #include <memory>
 
@@ -164,18 +165,20 @@ namespace edm {
 
     // nwrue =  numWorkersRunWithoutUnhandledException
     bool should_continue = true;
-
-    for (WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
+    WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
+    
+    auto earlyFinishSentry = make_sentry(this,[&i,end, &ep](Path*){
+      for(auto j=i; j!= end;++j) {
+        j->skipWorker(ep);
+      }
+    });
+    for (;
           i != end && should_continue;
           ++i) {
       ++nwrwue;
       try {
         convertException::wrap([&]() {
-          if(T::isEvent_) {
             should_continue = i->runWorker<T>(ep, es, streamID, context);
-          } else {
-            should_continue = i->runWorker<T>(ep, es, streamID, context);
-          }
         });
       }
       catch(cms::Exception& ex) {
@@ -184,6 +187,8 @@ namespace edm {
         ost << ep.id();
         should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_,
                                               i->getWorker()->description(), ost.str());
+        //If we didn't rethrow, then we effectively skipped
+        i->skipWorker(ep);
       }
     }
     if (not should_continue) {

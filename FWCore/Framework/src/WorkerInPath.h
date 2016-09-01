@@ -31,6 +31,12 @@ namespace edm {
 		   StreamID streamID,
                    typename T::Context const* context);
 
+    void skipWorker(EventPrincipal const& iPrincipal) {
+      worker_->skipOnPath(iPrincipal);
+    }
+    void skipWorker(RunPrincipal const&) {}
+    void skipWorker(LuminosityBlockPrincipal const&) {}
+    
     void clearCounters() {
       timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
