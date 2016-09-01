@@ -10,7 +10,8 @@ upgradeKeys=[
     '2023D2PU',
     '2023D3',
     '2023D3PU',
-    '2023D4'
+    '2023D4',
+    '2023D4PU',
 ]
 
 upgradeSteps=[
@@ -81,6 +82,8 @@ upgradeProperties['2023D2PU'] = deepcopy(upgradeProperties['2023D2'])
 upgradeProperties['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties['2023D3PU'] = deepcopy(upgradeProperties['2023D3'])
 upgradeProperties['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties['2023D4PU'] = deepcopy(upgradeProperties['2023D4'])
+upgradeProperties['2023D4PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 
