@@ -19,6 +19,7 @@ trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco*clus
 
 from RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi import *
 from RecoLocalTracker.Phase2ITPixelClusterizer.Phase2ITPixelClusterizer_cfi import *
+from RecoLocalTracker.Phase2TrackerRecHits.Phase2StripCPEGeometricESProducer_cfi import *
 
 from Configuration.StandardSequences.Eras import eras
 eras.phase2_tracker.toReplaceWith(pixeltrackerlocalreco,

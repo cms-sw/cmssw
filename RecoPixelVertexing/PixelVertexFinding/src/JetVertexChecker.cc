@@ -127,7 +127,7 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
    iEvent.getByToken(m_associator, jetTracksAssociation);
-   std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
+   auto pOut = std::make_unique<std::vector<reco::CaloJet>>();
 
    bool result=true;
    int i = 0;
@@ -156,7 +156,7 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
      }
     }
-   iEvent.put(pOut);
+   iEvent.put(std::move(pOut));
 
    edm::Handle<reco::BeamSpot> beamSpot;
    iEvent.getByToken(m_beamSpot,beamSpot);
@@ -167,9 +167,9 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    e(2, 2) = m_pvErr_z * m_pvErr_z;
    reco::Vertex::Point p(beamSpot->x0(), beamSpot->y0(), beamSpot->z0());
    reco::Vertex thePV(p, e, 0, 0, 0);
-   std::auto_ptr<reco::VertexCollection> pOut2(new reco::VertexCollection);
+   auto pOut2 = std::make_unique<reco::VertexCollection>();
    pOut2->push_back(thePV);
-   iEvent.put(pOut2);
+   iEvent.put(std::move(pOut2));
 
    if(m_doFilter) return result;
    else 

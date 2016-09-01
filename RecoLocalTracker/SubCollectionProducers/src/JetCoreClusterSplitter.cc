@@ -110,8 +110,7 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent,
   iSetup.get<TkPixelCPERecord>().get(pixelCPE_, pe);
   pp = pe.product();
 
-  std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > output(
-      new edmNew::DetSetVector<SiPixelCluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<SiPixelCluster>>();
 
   edmNew::DetSetVector<SiPixelCluster>::const_iterator detIt =
       inputPixelClusters->begin();
@@ -191,7 +190,7 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent,
       }
     }
   }
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 
 bool JetCoreClusterSplitter::split(
