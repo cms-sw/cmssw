@@ -2,8 +2,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'VHBB_HEPPY_V23_001'
-config.General.workArea = 'crab_projects_V23_001'
+config.General.requestName = 'VHBB_HEPPY_C24_002'
+config.General.workArea = 'crab_projects_C24_002'
 config.General.transferLogs=True
 
 config.section_("JobType")
@@ -11,7 +11,9 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'heppy_crab_fake_pset.py'
 config.JobType.scriptExe = 'heppy_crab_script.sh'
 import os
-os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
+os.system("tar czf python.tar.gz --directory $CMSSW_BASE python `find $CMSSW_BASE/src -name python | perl -pe s#$CMSSW_BASE/## `")
+
+#os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
 config.JobType.inputFiles = ['heppy_config.py',
                              'heppy_crab_script.py',
                              'python.tar.gz',
@@ -34,6 +36,9 @@ config.JobType.inputFiles = ['heppy_config.py',
                               #"../ttbar-spring15.weights.xml",
                               #"../ttbar-fall15.weights.xml",
                               #"../ttbar-fall15_TargetGenOverPt_GenPtCut0.weights.xml",
+                              '../ttbar-spring16-500k-13d-300t.weights.xml',
+                              '../triggerEmulation.root',
+
 			      '../ttbar-spring16-80X.weights.xml',
                               '../TMVA_blikelihood_vbf_cmssw76_h21trained.weights.xml',
 ]
@@ -45,12 +50,12 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'LumiBased'
 #config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 20
-#config.Data.totalUnits = 7
-config.Data.outLFNDirBase = '/store/user/cvernier/VHBBHeppyV23/'
+config.Data.totalUnits = 1
+config.Data.outLFNDirBase = '/store/user/arizzi/VHBBHeppyC24/'
 config.Data.publication = True
-config.Data.outputDatasetTag = 'VHBB_HEPPY_V23'
+config.Data.outputDatasetTag = 'VHBB_HEPPY_C24'
 #only for data
-config.Data.lumiMask = 'json.txt'
+#config.Data.lumiMask = 'json.txt'
 
 config.section_("Site")
 config.Site.storageSite = "T2_IT_Pisa"

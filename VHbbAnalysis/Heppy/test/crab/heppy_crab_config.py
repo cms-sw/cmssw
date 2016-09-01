@@ -11,7 +11,9 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'heppy_crab_fake_pset.py'
 config.JobType.scriptExe = 'heppy_crab_script.sh'
 import os
-os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
+#os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
+
+os.system("tar czf python.tar.gz --directory $CMSSW_BASE python `find $CMSSW_BASE/src -name python | perl -pe s#$CMSSW_BASE/## `")
 config.JobType.inputFiles = ['heppy_config.py',
                              'heppy_crab_script.py',
                              'python.tar.gz',
