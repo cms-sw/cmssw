@@ -56,6 +56,8 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
 
   int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 
+  float phifactor(float ieta);
+
 };
  
 #endif // _DQMOFFLINE_HCAL_HCALRECHITSDQMCLIENT_H_

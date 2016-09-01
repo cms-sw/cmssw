@@ -58,17 +58,11 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     maxDepthHF_ = hcons->getMaxDepth(2);
     maxDepthHO_ = hcons->getMaxDepth(3);
 
-    maxDepthAll_ = ( maxDepthHB_ + maxDepthHO_ > maxDepthHE_ ? maxDepthHB_ + maxDepthHO_ : maxDepthHE_ );
-    maxDepthAll_ = ( maxDepthAll_ > maxDepthHF_ ? maxDepthAll_ : maxDepthHF_ );
-
     //We hardcode the HF depths because in the dual readout configuration, rechits are not defined for depths 3&4
     maxDepthHF_ = (maxDepthHF_ > 2 ? 2 : maxDepthHF_); //We reatin the dynamic possibility that HF might have 0 or 1 depths
 
-    /*
-    HBsize_ = hcons->getHBSize();
-    HEsize_ = hcons->getHESize();
-    HFsize_ = hcons->getHFSize();
-    */
+    maxDepthAll_ = ( maxDepthHB_ + maxDepthHO_ > maxDepthHE_ ? maxDepthHB_ + maxDepthHO_ : maxDepthHE_ );
+    maxDepthAll_ = ( maxDepthAll_ > maxDepthHF_ ? maxDepthAll_ : maxDepthHF_ );
 
   }
 
@@ -597,11 +591,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 
   } 
 
-    /* KH
-    Nhb->Fill(double(nhb1 + nhb2));
-    Nhe->Fill(double(nhe1 + nhe2 + nhe3));
-    Nhf->Fill(double(nhf1 + nhf2));
-    */
     for(int depth = 0; depth <= maxDepthHB_; depth++) Nhb[depth]->Fill(double(nhb_v[depth]));
     for(int depth = 0; depth <= maxDepthHE_; depth++) Nhe[depth]->Fill(double(nhe_v[depth]));
     for(int depth = 0; depth <= maxDepthHO_; depth++) Nho[depth]->Fill(double(nho_v[depth]));
