@@ -837,6 +837,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     HcalCalibrations calibrations;
     CaloSamples tool;
     iEvent.getByToken(tok, digiCollection);
+    if (!digiCollection.isValid()) return;
 //    std::cout << "***************RECO*****************" << std::endl;
     int isubdet = 0;
     if (subdet_ == "HB") isubdet = 1;
@@ -1279,6 +1280,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
     HcalCalibrations calibrations;
     CaloSamples tool;
     iEvent.getByToken(tok, digiHandle);
+    if (!digiHandle.isValid()) return;
     const HcalDataFrameContainer<dataFrameType> *digiCollection = digiHandle.product();
 //    std::cout << "***************RECO*****************" << std::endl;
     int isubdet = 0;
