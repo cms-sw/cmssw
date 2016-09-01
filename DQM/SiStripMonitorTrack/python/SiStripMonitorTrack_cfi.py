@@ -98,6 +98,11 @@ SiStripMonitorTrack = cms.EDAnalyzer(
         xmax  = cms.double(19.5)
     ),
     
+    TH1ClusterPos = cms.PSet(
+        layerView = cms.bool(True),
+        ringView  = cms.bool(False)
+    ),
+    
     TH1ClusterSymmEtaCC = cms.PSet( Nbinx = cms.int32(120),
                                     xmin  = cms.double(-0.1),
                                     xmax  = cms.double(1.1)
