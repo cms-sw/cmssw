@@ -19,7 +19,6 @@
  <Constant name="TrackBeamSupZ2"  value="1.630*m+.6*cm"/>
  <Constant name="TrackBeamR1"  value="2.50*cm"/> <!-- 3.10*cm -->
  <Constant name="TrackBeamR2"  value="7.40*cm"/>
- <Constant name="TrackBeamSupR1" value="2.7*cm"/>
  <Constant name="TrackLumiZ1"  value="1.722*m"/>
  <Constant name="TrackLumiZ2"  value="1.800*m"/>
  <Constant name="TrackLumiR1"  value="7.70*cm"/>

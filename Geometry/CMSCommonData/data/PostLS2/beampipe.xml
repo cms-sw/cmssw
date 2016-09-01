@@ -93,10 +93,6 @@
 <SolidSection label="beampipe.xml">
  <Polycone name="BEAM" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[cms:Zmin]"        rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
-  <ZSection z="[BeampipeZ1]-.6*cm"   rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
-  <ZSection z="[BeampipeZ1]-.6*cm"   rMin="[cms:Rmin]" rMax="[cms:TrackBeamSupR1]"/>
-  <ZSection z="[BeampipeZ1]+.6*cm"   rMin="[cms:Rmin]" rMax="[cms:TrackBeamSupR1]"/>
-  <ZSection z="[BeampipeZ1]+.6*cm"   rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
   <ZSection z="[BeampipeZ3]"  rMin="[cms:Rmin]" rMax="[cms:TrackBeamR1]"/>
   <ZSection z="[BeampipeZ3]"  rMin="[cms:Rmin]" rMax="[BeampipeRout6]"/>
   <ZSection z="[BeampipeZ11]" rMin="[cms:Rmin]" rMax="[BeampipeRout6]"/>
@@ -148,8 +144,7 @@
  </Polycone> 
  <Tubs name="BeamTube1" rMin="[cms:Rmin]" rMax="[BeampipeRout1]" dz="[BeampipeZ2]*0.5" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="BeamVacuum1" rMin="[cms:Rmin]" rMax="[BeampipeRin1]" dz="[BeampipeZ2]*0.5" startPhi="0*deg" deltaPhi="360*deg"/>
- <!-- FIXME: BeamSupport1 -->
- <Tubs name="BeamSupport1" rMin="[BeampipeRout1]" rMax="[cms:TrackBeamSupR1]" dz=".6*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="BeamSupport1" rMin="[BeampipeRout1]" rMax="[cms:TrackBeamR1]" dz=".6*cm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="BeamTube2" rMin="[cms:Rmin]" rMax="[BeampipeRout2]" dz="([BeampipeZ4]-[BeampipeZ2])*0.5" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="BeamVacuum2" rMin="[cms:Rmin]" rMax="[BeampipeRin1]" dz="([BeampipeZ4]-[BeampipeZ2])*0.5" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="BeamShield3" rMin="[BeampipeRout5]" rMax="[BeampipeRout6]" dz="350*mm*0.5" startPhi="0*deg" deltaPhi="360*deg"/>
