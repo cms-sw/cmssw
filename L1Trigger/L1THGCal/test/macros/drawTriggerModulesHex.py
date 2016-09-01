@@ -5,7 +5,7 @@ from DrawingUtilities import Cell, TriggerCell, Module
 subdet = 4
 layer  = 12
 zside  = 1
-inputFileName = "../test_triggergeom.root"
+inputFileName = "../test_triggerlightweightgeom.root"
 outputFileName = "moduleMap.root"
 ####################
 
@@ -108,9 +108,9 @@ maxx = -99999.
 minx = 99999.
 maxy = -99999.
 miny = 99999.
-for id,triggercell in triggercells.items():
-    x = triggercell.center.x
-    y = triggercell.center.y
+for id,cell in cells.items():
+    x = cell.center.x
+    y = cell.center.y
     if x>maxx: maxx=x
     if x<minx: minx=x
     if y>maxy: maxy=y
