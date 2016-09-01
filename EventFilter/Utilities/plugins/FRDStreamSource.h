@@ -43,7 +43,7 @@ private:
   // member data
   std::vector<std::string>::const_iterator itFileName_;
   std::ifstream fin_;
-  std::auto_ptr<FEDRawDataCollection> rawData_;
+  std::unique_ptr<FEDRawDataCollection> rawData_;
   std::vector<char> buffer_;
   const bool verifyAdler32_;
   const bool verifyChecksum_;

@@ -78,7 +78,7 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<HcalTTPDigi> ttp;
   std::vector<CastorTriggerPrimitiveDigi> htp;
 
-  std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
+  auto report = std::make_unique<HcalUnpackerReport>();
 
   CastorRawCollections colls;
   colls.castorCont=&castor;
@@ -177,8 +177,8 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   }//end of loop over feds
 
   // Step B: encapsulate vectors in actual collections
-  std::auto_ptr<CastorDigiCollection> castor_prod(new CastorDigiCollection()); 
-  std::auto_ptr<CastorTrigPrimDigiCollection> htp_prod(new CastorTrigPrimDigiCollection());  
+  auto castor_prod = std::make_unique<CastorDigiCollection>();
+  auto htp_prod = std::make_unique<CastorTrigPrimDigiCollection>();
 
   castor_prod->swap_contents(castor);
   htp_prod->swap_contents(htp);
@@ -197,24 +197,24 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
    
    if(unpackZDC_)
      {
-       std::auto_ptr<ZDCDigiCollection> zdc_prod(new ZDCDigiCollection());
+       auto zdc_prod = std::make_unique<ZDCDigiCollection>();
        zdc_prod->swap_contents(zdc);
        
        zdc_prod->sort();
-       e.put(zdc_prod);
+       e.put(std::move(zdc_prod));
      }
    
-   e.put(castor_prod);
-   e.put(htp_prod);
+   e.put(std::move(castor_prod));
+   e.put(std::move(htp_prod));
    
   if (unpackTTP_) {
-    std::auto_ptr<HcalTTPDigiCollection> prod(new HcalTTPDigiCollection());
+    auto prod = std::make_unique<HcalTTPDigiCollection>();
     prod->swap_contents(ttp);
     
     prod->sort();
-    e.put(prod);
+    e.put(std::move(prod));
   }
-  e.put(report);
+  e.put(std::move(report));
 }
 void CastorRawToDigi::beginRun(edm::Run const& irun, edm::EventSetup const& es){
 	if ( usenominalOrbitMessageTime_ ) {

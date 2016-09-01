@@ -133,7 +133,7 @@ namespace sistrip {
 
     eventCounter_++; 
   
-    std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
+    auto buffers = std::make_unique<FEDRawDataCollection>();
 
     edm::ESHandle<SiStripFedCabling> cabling;
     iSetup.get<SiStripFedCablingRcd>().get( cabling );
@@ -170,7 +170,7 @@ namespace sistrip {
     }
 
 
-    iEvent.put( buffers );
+    iEvent.put(std::move(buffers));
   
   }
 

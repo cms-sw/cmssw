@@ -89,19 +89,16 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByToken(fedToken_, rawdata);
 
-  std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
+  auto pLumi = std::make_unique<LumiScalersCollection>();
 
-  std::auto_ptr<L1TriggerScalersCollection> 
-    pOldTrigger(new L1TriggerScalersCollection());
+  auto pOldTrigger = std::make_unique<L1TriggerScalersCollection>();
 
-  std::auto_ptr<Level1TriggerScalersCollection> 
-    pTrigger(new Level1TriggerScalersCollection());
+  auto pTrigger = std::make_unique<Level1TriggerScalersCollection>();
 
-  std::auto_ptr<L1AcceptBunchCrossingCollection> 
-    pBunch(new L1AcceptBunchCrossingCollection());
+  auto pBunch = std::make_unique<L1AcceptBunchCrossingCollection>();
 
-  std::auto_ptr<BeamSpotOnlineCollection> pBeamSpotOnline(new BeamSpotOnlineCollection());
-  std::auto_ptr<DcsStatusCollection> pDcsStatus(new DcsStatusCollection());
+  auto pBeamSpotOnline = std::make_unique<BeamSpotOnlineCollection>();
+  auto pDcsStatus = std::make_unique<DcsStatusCollection>();
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
@@ -159,12 +156,12 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       pDcsStatus->push_back(dcsStatus);
     }
   }
-  iEvent.put(pOldTrigger); 
-  iEvent.put(pTrigger); 
-  iEvent.put(pLumi); 
-  iEvent.put(pBunch);
-  iEvent.put(pBeamSpotOnline);
-  iEvent.put(pDcsStatus);
+  iEvent.put(std::move(pOldTrigger));
+  iEvent.put(std::move(pTrigger));
+  iEvent.put(std::move(pLumi));
+  iEvent.put(std::move(pBunch));
+  iEvent.put(std::move(pBeamSpotOnline));
+  iEvent.put(std::move(pDcsStatus));
 }
 
 // Define this as a plug-in
