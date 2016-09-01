@@ -61,6 +61,7 @@ static double square(double x) {
   return x*x;
 }
 
+
 void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
 
   // radius for plane calculations
@@ -155,6 +156,8 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
       // the cuttubs wants a delta phi
       double dphi = phi2 - phi1;
 
+      // TODO: make 2 cuttubs here, one with the left, one with the right plane.
+      // then intersect for the actual tubs.
       DDSolid seg = DDSolidFactory::cuttubs(segname, dz, r_min, r_max, phi1, dphi,
                                             n_x_l, n_y_l, n_z_l,
                                             n_x_t, n_y_t, n_z_t); 
@@ -164,11 +167,12 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
     s1 = s2;
   }
 
-  // An empty solid is used to start and finish the union; makes the code simpler.
-  DDName emptyname(solidOutput.name() + "_empty", solidOutput.ns());
-  DDSolid solid = DDSolidFactory::box(emptyname, 0, 0, 0);
+  assert(segments.size() >= 2); // less would be special cases
 
-  for (unsigned i = 0; i < segments.size(); i++) {
+  // TODO: this ignores the offset of the first and last segment. Not good.
+  DDSolid solid = segments[0];
+
+  for (unsigned i = 1; i < segments.size()-1; i++) {
     // remove the common offset from the input, to get sth. aligned at z=0.
     double shift = min_z + (max_z-min_z)/2;
     double offset = offsets[i] - shift;
@@ -182,6 +186,6 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
   }
 
   // rename the last one to the output by adding the empty box again...
-  solid = DDSolidFactory::unionSolid(solidOutput, solid, DDSolid(emptyname), 
+  solid = DDSolidFactory::unionSolid(solidOutput, solid, segments[segments.size()-1], 
                                      DDTranslation(), DDRotation());
 }
