@@ -49,7 +49,7 @@ class OfflineConverter:
         return dir
 
 
-    def __init__(self, version = 'v1', database = 'hltdev', url = None, verbose = False):
+    def __init__(self, version = 'v2', database = 'hltdev', url = None, verbose = False):
         self.verbose = verbose
         self.version = version
         self.baseDir = '/afs/cern.ch/user/c/confdb/www/%s/lib' % version
@@ -131,7 +131,7 @@ class OfflineConverter:
 def help():
     sys.stdout.write("""Usage: %s OPTIONS
 
-        --v1|--v2                   (specify the ConfDB version [default: v1])
+        --v1|--v2                   (specify the ConfDB version [default: v2])
 
         --offline|--online|--adg    (specify the target db [default: offline])
 
@@ -180,7 +180,7 @@ def help():
 
 def main():
     args = sys.argv[1:]
-    version = 'v1'
+    version = 'v2'
     db      = 'hltdev'
     verbose = False
 
