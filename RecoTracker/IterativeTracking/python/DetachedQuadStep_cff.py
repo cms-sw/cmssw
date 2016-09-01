@@ -133,7 +133,7 @@ _detachedQuadStepTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTrajectoryF
     minPt = 0.075,
 )
 detachedQuadStepTrajectoryFilterBase = _detachedQuadStepTrajectoryFilterBase.clone(
-    maxCCCLostHits = 2,
+    maxCCCLostHits = 0,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 eras.trackingPhase1PU70.toReplaceWith(detachedQuadStepTrajectoryFilterBase,
@@ -164,7 +164,7 @@ detachedQuadStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstima
     ComponentName = 'detachedQuadStepChi2Est',
     nSigma = 3.0,
     MaxChi2 = 9.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight'),
 )
 eras.trackingPhase1PU70.toModify(detachedQuadStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")
