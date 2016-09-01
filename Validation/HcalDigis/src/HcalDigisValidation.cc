@@ -937,6 +937,8 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
     for (typename HcalDataFrameContainer<dataFrameType>::const_iterator digiItr = digiCollection->begin(); digiItr != digiCollection->end(); digiItr++) {
 
+        std::cout << "Ndigis count: " << Ndig << std::endl;
+
 	dataFrameType dataFrame = *digiItr;
 
         HcalDetId cell(digiItr->id());
