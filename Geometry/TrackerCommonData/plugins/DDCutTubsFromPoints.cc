@@ -30,7 +30,6 @@ void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
   r_min = nArgs["rMin"];
   r_max = nArgs["rMax"];
   
-  // TODO: these are names now, read them using DDVectorGetter::get
   auto phis_name = DDName(sArgs["Phi"]);
   auto z_ls_name = DDName(sArgs["z_l"]);
   auto z_ts_name = DDName(sArgs["z_t"]);
@@ -169,23 +168,30 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
 
   assert(segments.size() >= 2); // less would be special cases
 
-  // TODO: this ignores the offset of the first and last segment. Not good.
-  DDSolid solid = segments[0];
+  // remove the common offset from the input, to get sth. aligned at z=0.
+  double shift = (min_z + (max_z-min_z)/2);
+  // this box defines the origin of the full ring
+  DDName dummy_name(solidOutput.name() + "_dummy", solidOutput.ns());
+  DDSolid dummy = DDSolidFactory::box(dummy_name, r_max, r_max, (max_z-min_z)/2);
+
+  // we place the first segment into the dummy box using intersection; later
+  // this will always be the first member of the union and give the right 
+  // placement.
+  DDName seg0_shifted(solidOutput.name() + "_uni_0", solidOutput.ns());
+  DDSolid solid = DDSolidFactory::intersection(seg0_shifted, dummy, segments[0],
+    DDTranslation(0, 0, offsets[0] - shift), DDRotation());
 
   for (unsigned i = 1; i < segments.size()-1; i++) {
-    // remove the common offset from the input, to get sth. aligned at z=0.
-    double shift = min_z + (max_z-min_z)/2;
-    double offset = offsets[i] - shift;
-
     // each sub-union needs a name. Well. 
     DDName unionname(solidOutput.name() + "_uni_" + std::to_string(i+1), 
                      solidOutput.ns());
     solid = DDSolidFactory::unionSolid(unionname, solid, segments[i], 
-                                       DDTranslation(0, 0, offset), 
-                                       DDRotation());
+             DDTranslation(0, 0, offsets[i] - shift), 
+             DDRotation());
   }
 
   // rename the last one to the output by adding the empty box again...
   solid = DDSolidFactory::unionSolid(solidOutput, solid, segments[segments.size()-1], 
-                                     DDTranslation(), DDRotation());
+            DDTranslation(0, 0, offsets[segments.size()-1] - shift),
+            DDRotation());
 }
