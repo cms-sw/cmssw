@@ -83,6 +83,9 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
 
   int nChannels_[5]; // 0:any, 1:HB, 2:HE
 
+  const HcalDDDRecConstants *hcons;
+  int                        maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
+
   //RecHit Collection input tags
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::EDGetTokenT<HORecHitCollection> tok_ho_;
@@ -112,7 +115,6 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* sevLvl_HO; 
 
   // RecHits counters
-
   std::vector<MonitorElement*> Nhb;
   std::vector<MonitorElement*> Nhe;
   std::vector<MonitorElement*> Nho;

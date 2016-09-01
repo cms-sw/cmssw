@@ -180,7 +180,6 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
             for(int depth = 1; depth <= depths; depth++){
                 sumphi[depth-1] += ieta_iphi_occupancy_maps[depth-1]->getTH1()->GetBinContent(ieta_iphi_occupancy_maps[depth-1]->getTH1()->FindFixBin(double(ieta),double(iphi)));
             }//for loop over depths
-
         }//for loop over phi
  
         //REMOVED (JRD) if (ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to strtmp num !!! 
@@ -193,7 +192,6 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 	   //cout << "Histogram name: " << strtmp << std::endl;
            fill1D(strtmp, deta, cnorm);
         }
-
     } // end of i-loop
 
   return 1;

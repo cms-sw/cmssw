@@ -73,7 +73,6 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 
     //std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
 
-
     //We hardcode the HF depths because in the dual readout configuration, rechits are not defined for depths 3&4
     maxDepthHF_ = (maxDepthHF_ > 2 ? 2 : maxDepthHF_); //We reatin the dynamic possibility that HF might have 0 or 1 depths
 
@@ -506,7 +505,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     if( sub ==4 ){ nhf_v[depth]++; nhf_v[0]++;} //
 
     if( subdet_ == 6) {                                    // ZS specific
-
     }
 
     if( subdet_ != 6) {  
