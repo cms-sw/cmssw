@@ -8,10 +8,8 @@
 
 #include "FWCore/Framework/interface/Run.h"
 
-// We will likely have to remap the rechit status bits, so the relevant
-// header is commented out for now
-//
-// #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
+
 
 // Maximum fractional error for calculating Method 0
 // pulse containment correction
@@ -73,20 +71,16 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
 
     // Run "Method 2"
     float m2t = 0.f, m2E = 0.f;
-
     bool useTriple = false;
-
     const PulseShapeFitOOTPileupCorrection* method2 = psFitOOTpuCorr_.get();
     if (method2)
     {
-
-      if(info.id().subdet() == HcalSubdetector::HcalBarrel) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),0);
-      if(info.id().subdet() == HcalSubdetector::HcalEndcap) psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),1);
-
-      method2->phase1Apply(info, m2E, m2t, useTriple);
-
-      m2E *= hbminusCorrectionFactor(channelId, m2E, isData); // not sure what this does
-
+        psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),
+                                               !info.hasTimeInfo());
+        // "phase1Apply" call below sets m2E, m2t, and useTriple.
+        // These parameters are pased by non-const reference.
+        method2->phase1Apply(info, m2E, m2t, useTriple);
+        m2E *= hbminusCorrectionFactor(channelId, m2E, isData);
     }
 
     // Run "Method 3"
@@ -94,11 +88,9 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     const HcalDeterministicFit* method3 = hltOOTpuCorr_.get();
     if (method3)
     {
-
-      method3->phase1Apply(info, m3E, m3t);
-
-      m3E *= hbminusCorrectionFactor(channelId, m3E, isData); // not sure what this does
-
+        // "phase1Apply" sets m3E and m3t (pased by non-const reference)
+        method3->phase1Apply(info, m3E, m3t);
+        m3E *= hbminusCorrectionFactor(channelId, m3E, isData);
     }
 
     // Finally, construct the rechit
@@ -124,9 +116,9 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     // Set rechit aux words
     HBHERecHitAuxSetter::setAux(info, &rh);
 
-    // Set some rechit flags
-    // if (useTriple)
-    //    rh.setFlagField(1, HcalCaloFlagLabels::HBHEPulseFitBit);
+    // Set some rechit flags (here, for Method 2)
+    if (useTriple)
+       rh.setFlagField(1, HcalPhase1FlagLabels::HBHEPulseFitBit);
 
     return rh;
 }
