@@ -110,17 +110,25 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
 
   LogDebug("HitTripletEDProducer") << "Creating triplets for " << regionDoublets.regionSize() << " regions, and " << trilayers.size() << " pair+3rd layers from " << regionDoublets.layerPairsSize() << " layer pairs";
 
+  LayerHitMapCache hitCacheTmp; // used if !produceIntermediateHitTriplets_
   for(const auto& regionLayerPairs: regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();
 
     auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
     auto intermediateHitTripletsFiller = IntermediateHitTriplets::dummyFiller();
+    auto hitCachePtr = &hitCacheTmp;
     if(produceSeedingHitSets_) {
       seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
     }
     if(produceIntermediateHitTriplets_) {
       intermediateHitTripletsFiller = intermediateHitTriplets->beginRegion(&region);
+      hitCachePtr = &(intermediateHitTripletsFiller.layerHitMapCache());
     }
+    else {
+      hitCacheTmp.clear();
+    }
+    LayerHitMapCache& hitCache = *hitCachePtr;
+    hitCache.extend(regionLayerPairs.layerHitMapCache());
 
     LogTrace("HitTripletEDProducer") << " starting region";
 
@@ -144,11 +152,8 @@ void HitTripletEDProducerT<T_HitTripletGenerator>::produce(edm::Event& iEvent, c
       }
       const auto& thirdLayers = found->second;
 
-      LayerHitMapCache hitCache;
-      hitCache.extend(layerPair.cache());
-      LayerHitMapCache *hitCachePtr = &hitCache;
       if(produceIntermediateHitTriplets_) {
-        hitCachePtr = intermediateHitTripletsFiller.beginPair(layerPair.layerPair(), std::move(hitCache));
+        intermediateHitTripletsFiller.beginPair(layerPair.layerPair());
       }
 
       tripletLastLayerIndex.clear();

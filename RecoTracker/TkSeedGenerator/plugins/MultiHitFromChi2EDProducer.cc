@@ -78,11 +78,15 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   LogDebug("MultiHitFromChi2EDProducer") << "Creating multihits for " << regionDoublets.regionSize() << " regions, and " << trilayers.size() << " pair+3rd layers from " << regionDoublets.layerPairsSize() << " layer pairs";
 
+  LayerHitMapCache hitCache;
   for(const auto& regionLayerPairs: regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();
 
     auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
     seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
+
+    hitCache.clear();
+    hitCache.extend(regionLayerPairs.layerHitMapCache());
 
     LogTrace("MultiHitFromChi2EDProducer") << " starting region";
 
@@ -106,11 +110,7 @@ void MultiHitFromChi2EDProducer::produce(edm::Event& iEvent, const edm::EventSet
       }
       const auto& thirdLayers = found->second;
 
-      LayerHitMapCache hitCache;
-      hitCache.extend(layerPair.cache());
-      LayerHitMapCache *hitCachePtr = &hitCache;
-
-      generator_.hitSets(region, multihits, iEvent, iSetup, layerPair.doublets(), thirdLayers, *hitCachePtr, refittedHitStorage);
+      generator_.hitSets(region, multihits, iEvent, iSetup, layerPair.doublets(), thirdLayers, hitCache, refittedHitStorage);
 
 #ifdef EDM_ML_DEBUG
       LogTrace("MultiHitFromChi2EDProducer") << "  created " << multihits.size() << " multihits for layer pair " << layerPair.innerLayerIndex() << "," << layerPair.outerLayerIndex() << " and 3rd layers";

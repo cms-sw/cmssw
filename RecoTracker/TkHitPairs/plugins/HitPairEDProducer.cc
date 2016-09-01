@@ -128,19 +128,25 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       layerPairs.push_back(set);
   }
 
+  LayerHitMapCache hitCacheTmp; // used if !produceIntermediateHitDoublets_
   for(const TrackingRegion& region: regions) {
     auto seedingHitSetsFiller = RegionsSeedingHitSets::dummyFiller();
     auto intermediateHitDoubletsFiller = IntermediateHitDoublets::dummyFiller();
+    auto hitCachePtr = &hitCacheTmp;
     if(produceSeedingHitSets_) {
       seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
     }
     if(produceIntermediateHitDoublets_) {
       intermediateHitDoubletsFiller = intermediateHitDoublets->beginRegion(&region);
+      hitCachePtr = &(intermediateHitDoubletsFiller.layerHitMapCache());
+    }
+    else {
+      hitCacheTmp.clear();
     }
 
+
     for(SeedingLayerSetsHits::SeedingLayerSet layerSet: layerPairs) {
-      LayerHitMapCache hitCache;
-      auto doublets = generator_.doublets(region, iEvent, iSetup, layerSet, hitCache);
+      auto doublets = generator_.doublets(region, iEvent, iSetup, layerSet, *hitCachePtr);
       LogTrace("HitPairEDProducer") << " created " << doublets.size() << " doublets for layers " << layerSet[0].index() << "," << layerSet[1].index();
       if(doublets.empty()) continue; // don't bother if no pairs from these layers
       if(produceSeedingHitSets_) {
@@ -150,7 +156,7 @@ void HitPairEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
       }
       if(produceIntermediateHitDoublets_) {
-        intermediateHitDoubletsFiller.addDoublets(layerSet, std::move(doublets), std::move(hitCache));
+        intermediateHitDoubletsFiller.addDoublets(layerSet, std::move(doublets));
       }
     }
   }
