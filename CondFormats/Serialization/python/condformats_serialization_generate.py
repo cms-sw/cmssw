@@ -479,7 +479,7 @@ class SerializationCodeGenerator(object):
 
     def cleanFlags(self, flagsIn):
         flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map', '-ax', '-wd')) ]
-        blackList = ['--', '-fipa-pta', '-xSSE3']
+        blackList = ['--', '-fipa-pta', '-xSSE3', '-fno-crossjumping']
         return [x for x in flags if x not in blackList]
 
     def generate(self, outFileName):
