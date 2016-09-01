@@ -89,13 +89,14 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
                                        const SiPixelQuality *pixelQuality,
                                        const SiPixelFedCabling *pixelCabling,
                                        int   pixelQualityFlags,
-                                       int   pixelQualityDebugFlags) :
+                                       int   pixelQualityDebugFlags,
+		                       const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE):
   MeasurementTracker(trackerGeom,geometricSearchTracker),
   pset_(conf),
   name_(conf.getParameter<std::string>("ComponentName")),
   theStDetConditions(hitMatcher,stripCPE),
   thePxDetConditions(pixelCPE),
-  thePhase2DetConditions(pixelCPE)
+  thePhase2DetConditions(phase2OTCPE)
 {
   this->initialize();
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);

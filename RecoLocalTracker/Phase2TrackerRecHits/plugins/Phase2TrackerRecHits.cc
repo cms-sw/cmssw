@@ -22,7 +22,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
-#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPETrivial.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 #include <vector>
 #include <string>

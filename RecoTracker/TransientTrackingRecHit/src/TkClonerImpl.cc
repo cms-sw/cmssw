@@ -50,18 +50,8 @@ std::unique_ptr<SiStripRecHit1D> TkClonerImpl::operator()(SiStripRecHit1D const 
 std::unique_ptr<Phase2TrackerRecHit1D> TkClonerImpl::operator()(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
   const Phase2TrackerCluster1D&  clust = hit.phase2OTCluster();
   const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
-  const PixelTopology * topo = &gdu.specificTopology();
-
-  //FIXME:just temporary solution for phase2!
-  float pitch_x = topo->pitch().first;
-  float pitch_y = topo->pitch().second;
-  float ix = clust.center();
-  float iy = clust.column()+0.5; // halfway the column
-
-  LocalPoint lp( topo->localX(ix), topo->localY(iy), 0 );          // x, y, z
-  LocalError le( pow(pitch_x, 2) / 12, 0, pow(pitch_y, 2) / 12);   // e2_xx, e2_xy, e2_yy
-
-  return std::unique_ptr<Phase2TrackerRecHit1D>{new Phase2TrackerRecHit1D(lp, le, *hit.det(), hit.cluster())};
+  auto && params = phase2TrackerCPE->localParameters( clust, gdu );
+  return std::unique_ptr<Phase2TrackerRecHit1D>{new Phase2TrackerRecHit1D(params.first, params.second, *hit.det(), hit.cluster())};
 }
 
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
@@ -93,18 +83,8 @@ TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(SiStripRecHit1D cons
 TrackingRecHit::ConstRecHitPointer TkClonerImpl::makeShared(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
   const Phase2TrackerCluster1D&  clust = hit.phase2OTCluster();
   const PixelGeomDetUnit & gdu = (const PixelGeomDetUnit &) *(hit.detUnit()) ;
-  const PixelTopology * topo = &gdu.specificTopology();
-
-  //FIXME:just temporary solution for phase2!
-  float pitch_x = topo->pitch().first;
-  float pitch_y = topo->pitch().second;
-  float ix = clust.center();
-  float iy = clust.column()+0.5; // halfway the column
-
-  LocalPoint lp( topo->localX(ix), topo->localY(iy), 0 );          // x, y, z
-  LocalError le( pow(pitch_x, 2) / 12, 0, pow(pitch_y, 2) / 12);   // e2_xx, e2_xy, e2_yy
-
-  return std::make_shared<Phase2TrackerRecHit1D>( lp, le, *hit.det(), hit.cluster());
+  auto && params = phase2TrackerCPE->localParameters( clust, gdu );
+  return std::unique_ptr<Phase2TrackerRecHit1D>{new Phase2TrackerRecHit1D(params.first, params.second, *hit.det(), hit.cluster())};
 }
 
 
