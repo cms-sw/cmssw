@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 
 #include "GTTokens.h"
 #include "GlobalExtBlkPacker.h"
@@ -59,4 +58,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::GlobalExtBlkPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage2::GlobalExtBlkPacker);

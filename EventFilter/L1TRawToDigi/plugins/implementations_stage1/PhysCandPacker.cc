@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 
 #include "CaloTokens.h"
 #include "PhysCandPacker.h"
@@ -96,9 +95,10 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_PACKER(l1t::stage1::IsoEGammaPacker);
-DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
-DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
-DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
-DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
-DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage1::IsoEGammaPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
+// DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);

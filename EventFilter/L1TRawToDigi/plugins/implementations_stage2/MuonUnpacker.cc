@@ -1,5 +1,4 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
@@ -59,4 +58,5 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::MuonUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::MuonUnpacker);

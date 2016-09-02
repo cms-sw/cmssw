@@ -1,5 +1,3 @@
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
 #include "EMTFBlockCounters.h"
@@ -91,5 +89,6 @@ namespace l1t {
   } // End namespace stage2
 } // End namespace l1t
 
-DEFINE_L1T_UNPACKER(l1t::stage2::emtf::CountersBlockUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::emtf::CountersBlockUnpacker);
 // DEFINE_L1T_PACKER(l1t::stage2::CountersBlockPacker);

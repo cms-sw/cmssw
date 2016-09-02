@@ -1,5 +1,4 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
@@ -78,4 +77,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::EGammaUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::EGammaUnpacker);

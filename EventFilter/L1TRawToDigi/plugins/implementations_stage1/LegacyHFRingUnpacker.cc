@@ -1,5 +1,4 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CaloCollections.h"
 #include "LegacyHFRingUnpacker.h"
@@ -81,4 +80,5 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::legacy::HFRingUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::HFRingUnpacker);

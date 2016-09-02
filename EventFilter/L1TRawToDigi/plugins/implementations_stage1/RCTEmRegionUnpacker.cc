@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsToBitConverter.h"
 #include "rctDataBase.h"
 
@@ -9,9 +10,6 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include <iostream>
 #include <fstream>
@@ -175,4 +173,5 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::RCTEmRegionUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage1::RCTEmRegionUnpacker);
