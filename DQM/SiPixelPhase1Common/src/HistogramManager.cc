@@ -9,8 +9,8 @@
 
 // Geometry stuff
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // Logger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -656,8 +656,9 @@ void HistogramManager::executeReduce(SummationStep& step, Table& t) {
       edm::LogError("HistogramManager") << "+++ Reduction '" << step.arg
                                         << " not yet implemented\n";
     }
-    new_histo.th1 = new TH1F(name.c_str(), (std::string("") + th1->GetTitle()
-                                            + ";;" + label).c_str(), 1, 0, 1);
+    new_histo.th1 = new TH1F(
+        name.c_str(),
+        (std::string("") + th1->GetTitle() + ";;" + label).c_str(), 1, 0, 1);
     new_histo.th1->SetBinContent(1, reduced_quantity);
     new_histo.th1->SetBinError(1, reduced_quantity_error);
   }
@@ -668,17 +669,27 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
   // For the moment only X.
   // first pass determines the range.
   std::map<GeometryInterface::Values, int> nbins;
+  // separators collects meta info for the render plugin about the boundaries.
+  // for each EXTEND, this is added to the axis label. In total this is not
+  // fully correct since we have to assume the the substructure of each sub-
+  // histogram is the same, which is e.g. not true for layers. It still works
+  // since layers only contain leaves (ladders).
+  std::map<GeometryInterface::Values, std::string> separators;
   for (auto& e : t) {
     GeometryInterface::Values new_vals(e.first);
     new_vals.erase(step.columns.at(0));
     TH1* th1 = e.second.th1;
     int& n = nbins[new_vals];
+    int bins = 0;
     assert(th1 || !"invalid histogram");
     if (isX)
-      n += th1->GetXaxis()->GetNbins();
+      bins = th1->GetXaxis()->GetNbins();
     else
-      n += th1->GetYaxis()->GetNbins();
+      bins = th1->GetYaxis()->GetNbins();
+    if (bins > 1) separators[new_vals] += std::to_string(n) + ",";
+    n += bins;
   }
+  for (auto& e : separators) e.second = "(" + e.second + ")/";
 
   Table out;
   for (auto& e : t) {
@@ -689,6 +700,8 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
     std::string colname = geometryInterface.pretty(col0);
     TH1* th1 = e.second.th1;
     assert(th1);
+    auto separator = separators[new_vals];
+    if (colname == "") separator = "";  // for dummy column
 
     AbstractHistogram& new_histo = out[new_vals];
     GeometryInterface::Values copy(new_vals);
@@ -699,12 +712,12 @@ void HistogramManager::executeExtend(SummationStep& step, Table& t, bool isX) {
       const char* title;
       if (isX)
         title = (std::string("") + th1->GetTitle() + " per " + colname + ";" +
-                 colname + "/" + th1->GetXaxis()->GetTitle() + ";" +
+                 colname + separator + th1->GetXaxis()->GetTitle() + ";" +
                  th1->GetYaxis()->GetTitle())
                     .c_str();
       else
         title = (std::string("") + th1->GetTitle() + " per " + colname + ";" +
-                 th1->GetXaxis()->GetTitle() + ";" + colname + "/" +
+                 th1->GetXaxis()->GetTitle() + ";" + colname + separator +
                  th1->GetYaxis()->GetTitle())
                     .c_str();
 
