@@ -78,5 +78,4 @@ namespace stage2 {
 }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_UNPACKER(l1t::stage2::TauUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage2::TauUnpacker);

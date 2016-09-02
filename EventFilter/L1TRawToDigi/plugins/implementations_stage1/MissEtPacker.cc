@@ -45,5 +45,4 @@ namespace stage1 {
 }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_PACKER(l1t::stage1::MissEtPacker);
+DEFINE_L1T_PACKER(l1t::stage1::MissEtPacker);

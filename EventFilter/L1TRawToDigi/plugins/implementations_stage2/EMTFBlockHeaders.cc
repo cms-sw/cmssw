@@ -199,6 +199,5 @@ namespace l1t {
   } // End namespace stage2
 } // End namespace l1t
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_UNPACKER(l1t::stage2::emtf::HeadersBlockUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage2::emtf::HeadersBlockUnpacker);
 // DEFINE_L1T_PACKER(l1t::stage2::HeadersBlockPacker);
