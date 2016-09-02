@@ -256,7 +256,8 @@ void BPHRecoBuilder::add( const std::string& name,
                           double mass,
                           double msig ) {
   // forward call after creating an interface to the collection
-  add( name, new BPHSpecificCollection<T>( *collection ), mass, msig );
+  add( name, new BPHSpecificCollection<T>( *collection,
+                                           "cfhpmig" ), mass, msig );
   return;
 }
 
