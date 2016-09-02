@@ -145,5 +145,4 @@ CaloSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
    return res;
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_PACKING_SETUP(l1t::stage1::CaloSetup);
+DEFINE_L1T_PACKING_SETUP(l1t::stage1::CaloSetup);
