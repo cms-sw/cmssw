@@ -392,7 +392,7 @@ def _ljust_colors(args, string, width, fillchar=' '):
     return string + fillchar * (width - len(_strip_colors(args, string)))
 
 
-def output_table(args, table, headers, filters=None, output_file=None, no_first_header=False):
+def output_table(args, table, headers, filters=None, output_file=None, no_first_header=False, no_max_length=False):
     if args.quiet:
         return
 
@@ -404,7 +404,7 @@ def output_table(args, table, headers, filters=None, output_file=None, no_first_
 
     def max_length_filter(s):
         s = str(s).replace('\n', '\\n')
-        return '%s...' % s[:conddb.name_length] if len(s) > conddb.name_length else s
+        return '%s...' % s[:conddb.name_length] if ( len(s) > conddb.name_length and not no_max_length ) else s
 
     new_table = [[] for i in range(len(table))]
     for column_index in range(len(headers)):
@@ -765,8 +765,8 @@ def _diff_tags(args, session1, session2, first, second):
     Tag2 = session2.get_dbtype(conddb.Tag)
     IOV1 = session1.get_dbtype(conddb.IOV)
     IOV2 = session2.get_dbtype(conddb.IOV)
-    tag1 = session1.query(conddb.Tag).get(first)
-    tag2 = session2.query(conddb.Tag).get(second)
+    tag1 = session1.query(Tag1).get(first)
+    tag2 = session2.query(Tag2).get(second)
 
     if args.long:
         _output_diff_objects(args, tag1, tag2)
@@ -1300,6 +1300,93 @@ def edit(args):
 
 
         elif args.type == 'tag':
+            if args.header:
+                Tag = session.get_dbtype(conddb.Tag)
+                table = session.query(Tag.description,Tag.synchronization,Tag.end_of_validity).\
+                    filter(Tag.name == name).\
+                    all()
+                table = [ (str(x[0].strip()),str(x[1]),str(x[2])) for x in table ] 
+
+                output_table( args,
+                    table,
+                    ['Description','Synchronization','End of Validity'],
+                    output_file = tempfd, 
+                    no_max_length = True
+                )
+
+                tempfd.write('''
+# Editing tag %s
+#
+# You can add, remove or modify rows/lines after the headers.
+# Then, save the file and quit the editor.
+# The changes will be recognized and you will be asked for confirmation
+# before the changes are written into the database.
+#
+# Whitespace is not important.
+# Lines starting with # are ignored.
+''' % name)
+                _run_editor(editor, tempfd)
+                new_table = []
+                editRe = re.compile(r'^(.*)\s+([a-z]+)\s+(\d+)\s*$')
+                for index, line in enumerate(tempfd.readlines()):
+                    if index in {0, 1}:
+                        continue
+
+                    line = line.strip()
+
+                    if len(line) == 0 or line.startswith('#'):
+                        continue
+
+                    editMatch = editRe.match(line)
+                    if editMatch:
+                        description,synchronization,endOfValidity = editMatch.groups()
+                        if synchronization not in tuple(conddb.Synchronization):
+                            raise Exception('Invalid Synchronization value set: "%s"' %synchronization )
+                    else:
+                        raise Exception('Each line must contain the Description, Synchronization and End Of Validity fields in the required format.')
+
+                    new_table.append((description.strip(),synchronization,endOfValidity))
+
+                header = table[0]
+                new_header = new_table[0]
+
+                if new_table == table:
+                    logging.info('No changes found.')
+                    session.rollback()
+                    return
+
+                changes = []
+                changes.append(('+',new_header[0],new_header[1],new_header[2]))
+                changes.append(('-',header[0],header[1],header[2]))
+                #[('+' if x in new_table else '-', x[0], x[1], x[2]) for x in new_table | table]
+                output_table(args,
+                             sorted(changes, key=lambda x: (0 if x[0] == '-' else 1)),
+                             ['', 'Description', 'Synchronization', 'End Of Validity'],
+                             no_first_header = True,
+                             )
+
+                _confirm_changes(args)
+                note = '-'
+                if args.force:
+                    note = _get_user_note(args,'Please provide an editing note: ')
+                action = ''
+                if header[0] != new_header[0]:
+                    action += 'Description updated'
+                if header[1] != new_header[1]:
+                    if len(action): action += ', '
+                    action += 'Synchronization changed'
+                if header[2] != new_header[2]:
+                    if len(action): action += ', '
+                    action += 'End Of Validity changed'
+                if len(action): action += '.'
+
+                updatedHeader = Tag(name=name,description=new_header[0],synchronization=new_header[1],end_of_validity=new_header[2],modification_time=datetime.datetime.now()) 
+                session.merge(updatedHeader)
+                _update_tag_log(session,name,datetime.datetime.now(),action,note)
+                session.commit()
+                logging.info('Tag header updated. Action(s): %s' %action)
+                return
+
             IOV = session.get_dbtype(conddb.IOV)
             table = session.query(IOV.since, IOV.insertion_time, IOV.payload_hash).\
                 filter(IOV.tag_name == name).\
@@ -1677,6 +1764,7 @@ def main():
 
     parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
     parser_edit.add_argument('name', help="Name of the object. This can be a tag's name (edits its attributes and its IOVs/payloads), a global tag's name (edits its attributes and its mapping records <-> tags) or a payload's SHA1 hexadecimal hash (or a prefix if unique; TODO: edits its attributes). It must exactly match -- if needed, use the search command first to look for it.")
+    parser_edit.add_argument('--header', default=False, action='store_true', help='Edit the header attributes of the object.')
     parser_edit.add_argument('--type', default=None, choices=['tag', 'gt', 'payload'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
     parser_edit.set_defaults(func=edit)
 

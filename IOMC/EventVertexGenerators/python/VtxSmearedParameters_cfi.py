@@ -462,6 +462,56 @@ Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(-1.0985)
 )
 
+# From 2015B 3.8T data, beta*=90m (700 bunches fills)
+# Centroid absolute positions extracted from 700 bunches fills 4499-4511:
+# X = 0.068357 cm
+# Y = 0.109159 cm
+# Z = 0.131811 cm
+#
+# BPIX absolute position extracted from Prompt Reco alignment of run 259352
+# X = -0.041651 cm
+# Y = -0.199279 cm
+# Z = -0.565093 cm
+#
+# Emittance has been calculated to match a BeamWidht of O(10um) with: https://lpc.web.cern.ch/lumi2.html
+#
+Realistic100ns13TeVCollisionBetaStar90mVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(9121.0),
+    Emittance = cms.double(0.12e-7),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.9),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.11000),
+    Y0 = cms.double(0.30844),
+    Z0 = cms.double(0.69690)
+)
+
+# From 2015B 3.8T data, beta*=90m (42/240 bunches fills)
+# Centroid absolute positions extracted from 42/240 bunches fills 4495-4496:
+# X = 0.064925 cm
+# Y = 0.112761 cm
+# Z = 0.170413 cm
+#
+# BPIX absolute position extracted from Prompt Reco alignment of run 259202
+# X = -0.041651 cm
+# Y = -0.199279 cm
+# Z = -0.565093 cm
+#
+# Emittance has been calculated to match a BeamWidht of O(10um) with: https://lpc.web.cern.ch/lumi2.html
+#
+Realistic100ns13TeVCollisionBetaStar90mLowBunchesVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(9121.0),
+    Emittance = cms.double(0.12e-7),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.24),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.10658),
+    Y0 = cms.double(0.31204),
+    Z0 = cms.double(0.735506)
+)
+
 # From 2016B 3.8T data
 # BS parameters extracted from fills 4895 - 4935:
 # X0         = 0.064870 +/- 4.9575E-07 [cm]

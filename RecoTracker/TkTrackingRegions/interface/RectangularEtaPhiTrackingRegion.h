@@ -21,7 +21,6 @@
 
 
 class OuterHitPhiPrediction;
-class OuterEstimator;
 class BarrelDetLayer;
 class ForwardDetLayer;
 class MeasurementTrackerEvent;
@@ -139,9 +138,10 @@ public:
                                    UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                    bool precise = true,
                                    const MeasurementTrackerEvent *measurementTracker = nullptr,
-				   bool etaPhiRegion=false) 
+				   bool etaPhiRegion=false, bool useMS=true) 
     : TrackingRegionBase( dir, vertexPos, invPtRange, rVertex, zVertex),
-    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),theUseEtaPhi(etaPhiRegion),
+    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), 
+    thePrecise(precise),theUseMS(useMS),theUseEtaPhi(etaPhiRegion),
     theMeasurementTracker(measurementTracker)
     { initEtaRange(dir, etaMargin); }
 
@@ -163,10 +163,10 @@ public:
 
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
-				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=0,
+				       const edm::EventSetup&iSetup,
+				       const DetLayer* outerlayer=nullptr,
 				       float lr=0, float gz=0, float dr=0, float dz=0) const
-  { return checkRZOld(layer,outerHit->hit(),iSetup); }
+  { return checkRZOld(layer,outerHit,iSetup, outerlayer); }
 
   virtual RectangularEtaPhiTrackingRegion* clone() const { 
     return new RectangularEtaPhiTrackingRegion(*this);
@@ -178,11 +178,12 @@ public:
 private:
   HitRZCompatibility* checkRZOld(
       const DetLayer* layer, 
-      const TrackingRecHit*  outerHit,
-      const edm::EventSetup& iSetup) const;
+      const Hit &  outerHit,
+      const edm::EventSetup&iSetup,
+      const DetLayer* outerlayer) const;
 
-  std::unique_ptr<OuterEstimator> estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
-  std::unique_ptr<OuterEstimator> estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
 
   OuterHitPhiPrediction phiWindow(const edm::EventSetup& iSetup) const dso_internal;
   HitRZConstraint rzConstraint() const dso_internal;
@@ -195,10 +196,11 @@ private:
   Range theLambdaRange;
   Margin thePhiMargin;
   float theMeanLambda;
-  const UseMeasurementTracker theMeasurementTrackerUsage;
-  bool thePrecise;
-  bool theUseEtaPhi;
-  const MeasurementTrackerEvent *theMeasurementTracker;
+  const UseMeasurementTracker theMeasurementTrackerUsage = UseMeasurementTracker::kNever;
+  bool thePrecise=false;
+  bool theUseMS=false;
+  bool theUseEtaPhi=false;
+  const MeasurementTrackerEvent *theMeasurementTracker = nullptr;
 
 
 

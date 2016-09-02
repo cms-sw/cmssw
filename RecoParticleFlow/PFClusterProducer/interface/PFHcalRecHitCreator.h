@@ -18,7 +18,7 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
-  class PFHcalRecHitCreator :  public  PFRecHitCreatorBase {
+  class PFHcalRecHitCreator final :  public  PFRecHitCreatorBase {
 
  public:  
   PFHcalRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
@@ -53,15 +53,12 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	  continue;
 
 
-	double energy = erh.energy();
-	double time = erh.time();
-	int depth =detid.depth();
+	auto energy = erh.energy();
+	auto time = erh.time();
+	auto depth =detid.depth();
 	  
-	math::XYZVector position;
-	math::XYZVector axis;
 	
-	const CaloCellGeometry *thisCell;
-	thisCell= hcalGeo->getGeometry(detid);
+	const CaloCellGeometry * thisCell= hcalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
@@ -71,30 +68,13 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	  continue;
 	}
 
-	auto const point  = thisCell->getPosition();
-	position.SetCoordinates ( point.x(),
-				  point.y(),
-				  point.z() );
-  
 
-
-
-	reco::PFRecHit rh( detid.rawId(),Layer,
-			   energy, 
-			   position.x(), position.y(), position.z(), 
-			   0,0,0);
+	reco::PFRecHit rh(thisCell, detid.rawId(),Layer,
+			   energy);
 	rh.setTime(time); //Mike: This we will use later
 	rh.setDepth(depth);
 
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-	assert( corners.size() == 8 );
-
-	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z());
-	rh.setSECorner( corners[1].x(), corners[1].y(),  corners[1].z());
-	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z());
-	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z());
-	
-
+ 
 	bool rcleaned = false;
 	bool keep=true;
 
@@ -107,10 +87,10 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	}
 	  
 	if(keep) {
-	  out->push_back(rh);
+	  out->push_back(std::move(rh));
 	}
 	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	  cleaned->push_back(std::move(rh));
       }
     }
 
