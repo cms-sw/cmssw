@@ -4,6 +4,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerLightweightGeometryBase.h"
+#include "DataFormats/ForwardDetId/interface/HGCTriggerHexDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 #include <array>
@@ -37,8 +39,14 @@ class HGCalBestChoiceCodecImpl
         void linearize(const HGCalTriggerGeometry::Module& ,
                 const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
                 std::vector<std::pair<HGCalDetId, uint32_t > >&);
+        void linearize(const HGCalTriggerLightweightGeometryBase::geom_set& ,
+                const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
+                std::vector<std::pair<HGCalDetId, uint32_t > >&);
 
         void triggerCellSums(const HGCalTriggerGeometry::Module& ,
+                const std::vector<std::pair<HGCalDetId, uint32_t > >&,
+                data_type&);
+        void triggerCellSums(const HGCalTriggerLightweightGeometryBase& ,
                 const std::vector<std::pair<HGCalDetId, uint32_t > >&,
                 data_type&);
         void bestChoiceSelect(data_type&);

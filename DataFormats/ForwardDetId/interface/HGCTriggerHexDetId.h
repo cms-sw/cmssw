@@ -7,6 +7,9 @@
 #include "TObject.h"
 
 
+// Implement the same structure as HGCalDetId with additional static methods
+// FIXME: might be better to derive it from HGCalDetId to ensure that the underlying detid has the
+// same structure
 class HGCTriggerHexDetId : public DetId {
 
 

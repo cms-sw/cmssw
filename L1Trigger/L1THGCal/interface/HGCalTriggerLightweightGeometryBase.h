@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -15,6 +15,8 @@
 
 
 
+// Pure virtual trigger geometry class
+// Provides the interface to access trigger cell and module mappings
 class HGCalTriggerLightweightGeometryBase 
 { 
     public:  
@@ -40,13 +42,14 @@ class HGCalTriggerLightweightGeometryBase
         virtual void initialize( const es_info& ) = 0;
         void reset();
 
-        virtual unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const = 0;
-        virtual unsigned getModuleFromCell( const unsigned cell_det_id ) const = 0;
-        virtual unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const = 0;
+        // const access to the geometry class
+        virtual const unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const = 0;
+        virtual const unsigned getModuleFromCell( const unsigned cell_det_id ) const = 0;
+        virtual const unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const = 0;
 
-        virtual geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const = 0;
-        virtual geom_set getCellsFromModule( const unsigned cell_det_id ) const = 0;
-        virtual geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const = 0;
+        virtual const geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const = 0;
+        virtual const geom_set getCellsFromModule( const unsigned cell_det_id ) const = 0;
+        virtual const geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const = 0;
 
         virtual const geom_set& getValidTriggerCellIds() const = 0;
         virtual const geom_set& getValidModuleIds() const = 0;
