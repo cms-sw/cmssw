@@ -1,4 +1,3 @@
-#Soureek updated HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v to HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v
 import FWCore.ParameterSet.Config as cms
 
 # single top muonique
