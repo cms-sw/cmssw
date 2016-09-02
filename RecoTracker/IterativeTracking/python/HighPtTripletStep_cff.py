@@ -100,7 +100,7 @@ highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstim
     ComponentName = 'highPtTripletStepChi2Est',
     nSigma = 3.0,
     MaxChi2 = 30.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
     pTChargeCutThreshold = 15.
 )
 eras.trackingPhase1PU70.toModify(highPtTripletStepChi2Est,
