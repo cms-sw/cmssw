@@ -73,6 +73,8 @@ void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   es.get<HcalRecNumberingRecord>().get( pHRNDC );
   hcons = &(*pHRNDC);
   
+  htopology = new HcalTopology(hcons);
+
   maxDepth_[1] = hcons->getMaxDepth(0); // HB
   maxDepth_[2] = hcons->getMaxDepth(1); // HE
   maxDepth_[3] = hcons->getMaxDepth(3); // HO
@@ -936,8 +938,6 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
     int Ndig = 0;
 
     for (typename HcalDataFrameContainer<dataFrameType>::const_iterator digiItr = digiCollection->begin(); digiItr != digiCollection->end(); digiItr++) {
-
-        std::cout << "Ndigis count: " << Ndig << std::endl;
 
 	dataFrameType dataFrame = *digiItr;
 
