@@ -12,21 +12,21 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '80X_mcRun2_design_v17',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '80X_mcRun2_startup_v16',
+    'run2_mc_50ns'      :   '80X_mcRun2_startup_Candidate_2016_09_02_09_19_47',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '80X_mcRun2_asymptotic_v17',
+    'run2_mc'           :   '80X_mcRun2_asymptotic_Candidate_2016_09_02_09_21_09',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
     'run2_mc_cosmics'   :   '80X_mcRun2cosmics_startup_peak_v15',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '80X_mcRun2_HeavyIon_v10',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '80X_mcRun2_pA_v0',
+    'run2_mc_pa'        :   '80X_mcRun2_pA_Candidate_2016_09_02_10_22_08',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '80X_dataRun2_v18',
+    'run1_data'         :   '80X_dataRun2_Candidate_2016_09_02_10_26_48',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '80X_dataRun2_v18',
+    'run2_data'         :   '80X_dataRun2_Candidate_2016_09_02_10_26_48',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '80X_dataRun2_relval_v16',
+    'run2_data_relval'  :   '80X_dataRun2_relval_Candidate_2016_09_02_10_27_40',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '80X_dataRun2_HLT_frozen_v13',
     # GlobalTag for Run2 HLT: it points to the online GT
@@ -36,9 +36,9 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '80X_dataRun2_HLTHI_frozen_v10',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  '80X_upgrade2017_design_v15',
+    'phase1_2017_design' :  '80X_upgrade2017_design_Candidate_2016_09_02_10_25_48',
     # GlobalTag for MC production with realistic conditions for for Phase1 2017 detector
-    'phase1_2017_realistic': '80X_upgrade2017_realistic_v7',
+    'phase1_2017_realistic': '80X_upgrade2017_realistic_Candidate_2016_09_02_10_24_47',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
