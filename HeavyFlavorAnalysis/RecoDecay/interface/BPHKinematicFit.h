@@ -71,8 +71,7 @@ class BPHKinematicFit: public virtual BPHDecayVertex {
   virtual const RefCountedKinematicTree& kinematicTree(
           const std::string& name, MultiTrackKinematicConstraint* kc ) const;
 
-  /// set or reset the kinematic fit
-  virtual void   setKinematicFit( const RefCountedKinematicTree& kt );
+  /// reset the kinematic fit
   virtual void resetKinematicFit();
 
   // get current particle

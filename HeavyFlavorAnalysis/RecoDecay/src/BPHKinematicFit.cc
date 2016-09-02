@@ -297,13 +297,6 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
 }
 
 
-void BPHKinematicFit::setKinematicFit( const RefCountedKinematicTree& kt ) {
-  kinTree = kt;
-  updatedFit = true;
-  return;
-}
-
-
 void BPHKinematicFit::resetKinematicFit() {
   updatedKPs = updatedFit = updatedMom = false;
   return;
