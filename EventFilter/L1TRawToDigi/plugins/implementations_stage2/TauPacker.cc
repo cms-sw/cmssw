@@ -47,6 +47,5 @@ namespace stage2 {
 }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_PACKER(l1t::stage2::GTTauPacker);
-// DEFINE_L1T_PACKER(l1t::stage2::CaloTauPacker);
+DEFINE_L1T_PACKER(l1t::stage2::GTTauPacker);
+DEFINE_L1T_PACKER(l1t::stage2::CaloTauPacker);
