@@ -40,8 +40,8 @@ def miniAodFiles():
             ]
     elif (big,medium)==(8,0):
         files=[
-            '/store/relval/CMSSW_8_0_11/RelValZMM_13/MINIAODSIM/80X_mcRun2_asymptotic_v14-v1/10000/547F4CB4-F034-E611-8F97-0CC47A4D75F0.root',
-            '/store/relval/CMSSW_8_0_11/RelValZMM_13/MINIAODSIM/80X_mcRun2_asymptotic_v14-v1/10000/A085EBB8-F034-E611-ADAB-0025905AA9F0.root'
+            '/store/relval/CMSSW_8_0_19/RelValZMM_13/MINIAODSIM/80X_mcRun2_asymptotic_v17_gs7120p2-v1/00000/4E733BCE-656E-E611-AE16-0CC47A78A3F4.root',
+            '/store/relval/CMSSW_8_0_19/RelValZMM_13/MINIAODSIM/80X_mcRun2_asymptotic_v17_gs7120p2-v1/00000/B82838D0-656E-E611-BAFD-0CC47A7C35A4.root'
             ]
     else:
         raise ValueError('no mini AOD file defined for release '+cmsswRelease())
