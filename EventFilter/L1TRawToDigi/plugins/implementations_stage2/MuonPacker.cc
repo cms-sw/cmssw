@@ -57,6 +57,5 @@ namespace l1t {
    }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_PACKER(l1t::stage2::GTMuonPacker);
-// DEFINE_L1T_PACKER(l1t::stage2::GMTMuonPacker);
+DEFINE_L1T_PACKER(l1t::stage2::GTMuonPacker);
+DEFINE_L1T_PACKER(l1t::stage2::GMTMuonPacker);
