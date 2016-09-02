@@ -32,6 +32,7 @@
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
+#include "SimG4Core/Application/interface/CustomUIsession.h"
 
 #include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
 
@@ -86,11 +87,8 @@ void createWatchers(const edm::ParameterSet& iP,
 {
   using namespace std;
   using namespace edm;
-  vector<ParameterSet> watchers;
-  try {
-    watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
-  } catch( edm::Exception) {
-  }
+
+  vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
   
   for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
       itWatcher != watchers.end();
@@ -98,7 +96,7 @@ void createWatchers(const edm::ParameterSet& iP,
     std::shared_ptr<SimWatcherMakerBase> maker( 
       SimWatcherFactory::get()->create
       (itWatcher->getParameter<std::string> ("type")) );
-    if(maker.get()==0) {
+    if(maker.get()==nullptr) {
       throw edm::Exception(edm::errors::Configuration)
 	<< "Unable to find the requested Watcher";
     }
@@ -140,6 +138,7 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_p(p), m_fieldBuilder(nullptr), m_chordFinderSetter(nullptr)
 {    
+  m_UIsession.reset(new CustomUIsession());
   m_kernel = new G4RunManagerKernel();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
@@ -158,7 +157,13 @@ RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& iC)
   }
   m_sVerbose.reset(nullptr);
 
-  createWatchers(m_p, m_registry, m_watchers, m_producers);
+  std::vector<edm::ParameterSet> watchers 
+    = p.getParameter<std::vector<edm::ParameterSet> >("Watchers");
+  m_hasWatchers = (watchers.empty()) ? false : true;
+
+  if(m_hasWatchers) {
+    createWatchers(m_p, m_registry, m_watchers, m_producers);
+  }
 }
 
 RunManager::~RunManager() 
@@ -447,15 +452,16 @@ void RunManager::initializeUserActions()
 {
   m_runInterface = new SimRunInterface(this, false);
 
-  m_userRunAction = new RunAction(m_pRunAction, m_runInterface);
+  m_userRunAction = new RunAction(m_pRunAction, m_runInterface, true);
   Connect(m_userRunAction);
 
   G4EventManager * eventManager = m_kernel->GetEventManager();
   eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
 
-  if (m_generator!=0) {
+  if (m_generator!=nullptr) {
     EventAction * userEventAction = 
-      new EventAction(m_pEventAction, m_runInterface, m_trackManager.get(),m_sVerbose.get());
+      new EventAction(m_pEventAction, m_runInterface, m_trackManager.get(),
+		      m_sVerbose.get());
     Connect(userEventAction);
     eventManager->SetUserAction(userEventAction);
 
@@ -465,7 +471,7 @@ void RunManager::initializeUserActions()
     eventManager->SetUserAction(userTrackingAction);
 	
     SteppingAction* userSteppingAction = 
-      new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get()); 
+      new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get(),m_hasWatchers); 
     Connect(userSteppingAction);
     eventManager->SetUserAction(userSteppingAction);
 
