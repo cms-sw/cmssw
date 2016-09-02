@@ -2,12 +2,7 @@
 #define RecoLocalCalo_EcalRecProducers_EcalDetailedTimeRecHitProducer_HH
 /** \class  EcalDetailedTimeRecHitProducer
  *   produce ECAL rechits associating them with improved ecalTimeDigis
- *
- *  $Id:  $
- *  $Date:  $
- *  $Revision: $
  *  \author Paolo Meridiani, INFN Roma
- *
  **/
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"

@@ -125,7 +125,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         std::unique_ptr< EBRecHitCollection > EBDetailedTimeRecHits( new EBRecHitCollection );
         std::unique_ptr< EERecHitCollection > EEDetailedTimeRecHits( new EERecHitCollection );
 
-	GlobalPoint* vertex=0;
+	std::unique_ptr<GlobalPoint> vertex;
 
 	if (correctForVertexZPosition_)
 	  {
@@ -142,7 +142,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		    if ((*VertexHandle).size()>0) //at least 1 vertex
 		      {
 			const reco::Vertex* myVertex= &(*VertexHandle)[0];
-			vertex=new GlobalPoint(myVertex->x(),myVertex->y(),myVertex->z());
+			vertex.reset( new GlobalPoint(myVertex->x(),myVertex->y(),myVertex->z()) );
 		      }
 		  }
 	
@@ -158,7 +158,7 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		      {
 			assert ((*VertexHandle)[0].vertexId() == 0);
 			const SimVertex* myVertex= &(*VertexHandle)[0];
-			vertex=new GlobalPoint(myVertex->position().x(),myVertex->position().y(),myVertex->position().z());
+			vertex.reset( new GlobalPoint(myVertex->position().x(),myVertex->position().y(),myVertex->position().z()) );
 		      }
 		  }
 		
@@ -223,8 +223,6 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         evt.put( std::move(EBDetailedTimeRecHits), EBDetailedTimeRecHitCollection_ );
         evt.put( std::move(EEDetailedTimeRecHits), EEDetailedTimeRecHitCollection_ );
 
-	if (vertex)
-	  delete vertex;
 }
 
 double EcalDetailedTimeRecHitProducer::deltaTimeOfFlight( GlobalPoint& vertex, const DetId& detId , int layer) const 
