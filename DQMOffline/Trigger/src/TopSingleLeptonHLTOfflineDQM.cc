@@ -513,12 +513,12 @@ namespace HLTOfflineDQMTopSingleLepton {
 		hasRawTriggerSummary=true;
 		if(!rawTriggerEvent.isValid()){ 
 			hasRawTriggerSummary=false;
-			edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
-			<< "No RAW trigger summary found! Returning... \n";
+//			edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
+//			<< "No RAW trigger summary found! Returning... \n";
 
 			if(!aodTriggerEvent.isValid()){
-				edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
-				<< "No AOD trigger summary found! Returning... \n";
+//				edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
+//				<< "No AOD trigger summary found! Returning... \n";
 				return;
 			}	  
 		}	  	
