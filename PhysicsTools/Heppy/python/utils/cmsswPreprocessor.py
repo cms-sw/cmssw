@@ -48,7 +48,6 @@ class CmsswPreprocessor :
 		    os.remove(fname)
 		component._preprocessor_tempFiles = []
 	def run(self,component,wd,firstEvent,nEvents):
-		if firstEvent != 0: raise RuntimeError("The preprocessor can't skip events at the moment")
                 fineSplitIndex, fineSplitFactor = getattr(component, 'fineSplit', (1,1))
                 if fineSplitFactor > 1:
                     if len(component.files) != 1:
