@@ -11,8 +11,8 @@ class CustomUIsession : public G4UIsession
 
  public:
 
-  CustomUIsession();
-  ~CustomUIsession();
+  explicit CustomUIsession();
+  virtual ~CustomUIsession();
 
   G4int ReceiveG4cout(const G4String& coutString) override;
   G4int ReceiveG4cerr(const G4String& cerrString) override;
