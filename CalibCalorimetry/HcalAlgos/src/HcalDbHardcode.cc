@@ -538,6 +538,9 @@ void HcalDbHardcode::makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::v
 }
 
 HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId) {
+  // SiPMParameter defined for each DetId the following quantities:
+  //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxilairy words
+  //  These numbers come from some measurements done with SiPM's
   if (fId.isHcalDetId()) {
     if (fId.subdetId() == HcalBarrel) {
       return HcalSiPMParameter(fId.rawId(), HcalHBHamamatsu1, 57.5, 0.055, 0, 0);
@@ -551,6 +554,9 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
 }
 
 void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm) {
+  // SiPMCharacteristics are constants for each type of SiPM:
+  // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
+  // Obtained from data sheet and measurements
   sipm.loadObject(HcalHOZecotek,36000,1,0,0,0.32,0,0);
   sipm.loadObject(HcalHOHamamatsu,2500,1,0,0,0.32,0,0);
   sipm.loadObject(HcalHEHamamatsu1,27370,1.000669,1.34646E-5,1.57918E-10,0.32,0,0);
@@ -559,10 +565,16 @@ void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& s
 }
 
 HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter (HcalGenericDetId fId) {
+  // For each detId parameters for trigger primitive
+  // mask for channel validity and self trigger information, fine grain
+  // bit information and auxilairy words
   uint32_t bitInfo = ((44 << 16) | 30);
   return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, 0);
 }
 
 void HcalDbHardcode::makeHardcodeTPParameters (HcalTPParameters& tppar) {
-  tppar.loadObject(0,0,0xFFFFFFFF,0,0,0);
+  // Parameters for a given TP algorithm:
+  // FineGrain Algorithm Version for HBHE, ADC threshold fof TDC mask of HF,
+  // TDC mask for HF, Self Trigger bits, auxiliary words
+  tppar.loadObject(0,0,0xFFFFFFFFFFFFFFF,0,0,0);
 }
