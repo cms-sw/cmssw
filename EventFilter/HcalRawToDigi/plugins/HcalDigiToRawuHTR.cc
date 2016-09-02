@@ -130,7 +130,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if( ! uhtrs.exist( uhtrIndex ) ){
 	uhtrs.newUHTR( uhtrIndex );
       }
-      uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -151,7 +151,7 @@ void HcalDigiToRawuHTR::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       if( ! uhtrs.exist(uhtrIndex) ){
 	uhtrs.newUHTR( uhtrIndex );
       }
-      uhtrs.addChannel(uhtrIndex,qiedf,_verbosity);
+      uhtrs.addChannel(uhtrIndex,qiedf,readoutMap,_verbosity);
     }
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - 
