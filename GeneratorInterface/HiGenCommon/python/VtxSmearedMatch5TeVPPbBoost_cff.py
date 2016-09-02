@@ -5,5 +5,6 @@ VtxSmeared = cms.EDProducer("MixBoostEvtVtxGenerator",
                             useCF = cms.untracked.bool(True),
                             signalLabel = cms.InputTag("generator","unsmeared"),
                             mixLabel = cms.InputTag("mix","generatorSmeared"),
+                            vtxLabel = cms.InputTag("offlinePrimaryVertices"),
                             Beta=cms.double(-0.434)
                             )

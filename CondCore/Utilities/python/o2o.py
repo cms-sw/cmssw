@@ -160,9 +160,10 @@ class O2ORunMgr(O2OMgr):
             res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
             for r in res:
                 exists = True
-                enabled = r
+                enabled = int(r[0])
             if exists is None:
                 exists = False
+                enabled = False
             if enabled:
                 self.job_name = job_name
                 self.start = datetime.now()
@@ -200,8 +201,8 @@ class O2ORunMgr(O2OMgr):
             return 2
         else:
             if enabled == 0:
-                O2OMgr.logger( self).error( 'The job %s has been disabled.', job_name )
-                return 1
+                O2OMgr.logger( self).info( 'The job %s has been disabled.', job_name )
+                return 0
         try:
             O2OMgr.logger( self ).info('Executing job %s', job_name )
             pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )

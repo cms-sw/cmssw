@@ -43,7 +43,10 @@ for tracks in selectedTracks :
     locals()[label].doPlotsVsBXlumi                     = doPlotsVsBXlumi                     [tracks]
     locals()[label].doPlotsVsGoodPVtx                   = doPlotsVsGoodPVtx                   [tracks]
     locals()[label].doEffFromHitPatternVsPU             = doEffFromHitPatternVsPU             [tracks]
-    locals()[label].doEffFromHitPatternVsBX             = cms.bool(False)
+    if tracks == 'generalTracks':
+        locals()[label].doEffFromHitPatternVsBX = False
+    else:
+        locals()[label].doEffFromHitPatternVsBX = doEffFromHitPatternVsBX[tracks]
 #    locals()[label].doStopSource                        = doStopSource                        [tracks]    
     locals()[label].setLabel(label)
     
@@ -161,6 +164,10 @@ trackingDQMgoodOfflinePrimaryVertices.filterParams = pvSelector.clone( minNdof =
 trackingDQMgoodOfflinePrimaryVertices.src=cms.InputTag('offlinePrimaryVertices')
 trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
 
+
+# import v0 monitoring
+from DQM.TrackingMonitor.V0Monitor_cff import *
+
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence()
 # dEdx monitoring
@@ -182,6 +189,7 @@ eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0, TrackingDQMSourceTier0.
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
+TrackingDQMSourceTier0 += voMonitoringSequence
 TrackingDQMSourceTier0 += dqmInfoTracking
 
 
@@ -203,6 +211,7 @@ eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0Common, TrackingDQMSource
 for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0Common += cms.Sequence(locals()[label])
+TrackingDQMSourceTier0Common += voMonitoringCommonSequence
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
@@ -225,5 +234,6 @@ eras.trackingLowPU.toReplaceWith(TrackingDQMSourceTier0MinBias, TrackingDQMSourc
 for module in selectedModules :
     label = str(module)+'LogMessageMonMB'
     TrackingDQMSourceTier0MinBias += cms.Sequence(locals()[label])
+TrackingDQMSourceTier0MinBias += voMonitoringMBSequence
 TrackingDQMSourceTier0MinBias += dqmInfoTracking
 

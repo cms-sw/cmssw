@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <fstream>
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 using namespace CLHEP;
 
@@ -83,8 +84,8 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
     ALIUtils::dump3v( measvv, " $$$$$$MEAS IN LOCAL FRAME");
     ALIUtils::dump3v( measvv+centreGlob(), " $$$$$$MEAS IN GLOBAL FRAME");
 
-    ALIdouble detH =  1000*meas.valueSimulated(0); if(fabs(detH) <= 1.e-9 ) detH = 0.;
-    ALIdouble detV =  1000*meas.valueSimulated(1); if(fabs(detV) <= 1.e-9 ) detV = 0.;
+    ALIdouble detH =  1000*meas.valueSimulated(0); if(std::abs(detH) <= 1.e-9 ) detH = 0.;
+    ALIdouble detV =  1000*meas.valueSimulated(1); if(std::abs(detV) <= 1.e-9 ) detV = 0.;
     std::cout << "REAL value: " << chrg << meas.valueType(0) << ": " << 1000*meas.value()[0] << chrg << " " << meas.valueType(1) << ": " << 1000*meas.value()[1]  << " (mm)  " << (this)->name() 
 	 << "   DIFF= " << detH-1000*meas.value()[0] << " " << detV-1000*meas.value()[1] << std::endl;
     std::cout << "SIMU value: " << chrg << " " << meas.valueType(0) << ": "

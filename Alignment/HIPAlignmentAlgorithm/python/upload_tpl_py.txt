@@ -4,15 +4,15 @@ process = cms.Process("Alignment")
 # "including" common configuration
 <COMMON>
 
-process.source = cms.Source("EmptySource")
+#process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(<iovrun>)) 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBSetup,
+    CondDB,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:<PATH>/alignments.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
         tag = cms.string('Alignments')
@@ -23,7 +23,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         ))
 )
 
+process.PoolDBOutputService.connect ='sqlite_file:<PATH>/alignments.db'
 process.AlignmentProducer.algoConfig.outpath = '<PATH>/'
 process.AlignmentProducer.saveToDB = True
-
-
+process.AlignmentProducer.checkDbAlignmentValidity= False 
+process.AlignmentProducer.RunRangeSelection = [
+    cms.PSet(RunRanges = cms.vstring(
+            '<iovrun>'
+            )
+        )
+    ]

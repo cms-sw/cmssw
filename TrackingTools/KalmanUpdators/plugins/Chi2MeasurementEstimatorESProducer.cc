@@ -3,9 +3,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorParams.h"
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +20,6 @@ class  Chi2MeasurementEstimatorESProducer: public edm::ESProducer{
   boost::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  //  static edm::ParameterSetDescription getFilledConfigurationDescription();
 
  private:
   boost::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
@@ -44,36 +41,17 @@ Chi2MeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRe
   auto maxDis  = m_pset.getParameter<double>("MaxDisplacement");
   auto maxSag  = m_pset.getParameter<double>("MaxSagitta");
   auto minTol = m_pset.getParameter<double>("MinimalTolerance");
+  auto minpt = m_pset.getParameter<double>("MinPtForHitRecoveryInGluedDet");
    
-  m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(new Chi2MeasurementEstimator(maxChi2,nSigma, maxDis, maxSag, minTol));
+  m_estimator = boost::shared_ptr<Chi2MeasurementEstimatorBase>(new Chi2MeasurementEstimator(maxChi2,nSigma, maxDis, maxSag, minTol,minpt));
   return m_estimator;
 }
 
 
-  /*
-edm::ParameterSetDescription 
-Chi2MeasurementEstimatorESProducer::getFilledConfigurationDescription() {
- 
-  edm::ParameterSetDescription desc;
-  desc.add<double>("MaxChi2",30);
-  desc.add<double>("nSigma",3);
-  desc.add<double>("MaxDisplacement",0.5); 
-  desc.add<double>("MaxSagitta",2.);
-  desc.add<double>("MinimalTolerance",0.5);
-  return desc;
-}
-  */
- 
 void 
 Chi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-  //  edm::ParameterSetDescription desc = Chi2MeasurementEstimatorESProducer::getFilledConfigurationDescription();
-  edm::ParameterSetDescription desc;
-  desc.add<double>("MaxChi2",30);
-  desc.add<double>("nSigma",3);
-  desc.add<double>("MaxDisplacement",0.5); 
-  desc.add<double>("MaxSagitta",2.);
-  desc.add<double>("MinimalTolerance",0.5);
+  auto desc = chi2MeasurementEstimatorParams::getFilledConfigurationDescription();
   desc.add<std::string>("ComponentName","Chi2");
   descriptions.add("Chi2MeasurementEstimator", desc);
 }

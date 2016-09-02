@@ -363,7 +363,12 @@ void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, const Tracke
   if(isBad) { rval=255; gval=255; bval = 0; comment << " PCLBadModule ";}
   trackerMap_->setText(det_id, comment.str());
   trackerMap_->fillc(det_id, rval, gval, bval);
-  if(badmodmap && (flag!=0 || isBad)) (*badmodmap)[det_id] = comment.str();
+
+  if(badmodmap && (flag!=0 || isBad)){ 
+    uint  lay= tTopo->layer(SiStripDetId(det_id));
+    std::string layer =" Layer "+ std::to_string(lay); 
+    (*badmodmap)[det_id] = comment.str() + layer;
+  }
 
   detflag_[det_id] = flag;
 }

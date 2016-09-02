@@ -19,8 +19,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 
-using namespace std;
-
 namespace HepMC {
 	class ThreeVector;
 }
@@ -56,16 +54,16 @@ class RPTopology
 	static bool IsHit(double u, double v, double insensitiveMargin = 0);
       
   public:
-    const double sqrt_2;
+    static const double sqrt_2;
     
-    static double pitch_;
-    static double thickness_;
-    static unsigned short no_of_strips_;  
-    static double x_width_;
-    static double y_width_;
-    static double phys_edge_lenght_;
-    static double last_strip_to_border_dist_;
-    static double last_strip_to_center_dist_;
+    static const double pitch_;
+    static const double thickness_;
+    static const unsigned short no_of_strips_;  
+    static const double x_width_;
+    static const double y_width_;
+    static const double phys_edge_lenght_;
+    static const double last_strip_to_border_dist_;
+    static const double last_strip_to_center_dist_;
 
     HepMC::ThreeVector strip_readout_direction_;
     HepMC::ThreeVector strip_direction_;

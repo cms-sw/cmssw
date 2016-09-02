@@ -7,8 +7,8 @@ __author__ = 'Andreas Pfeiffer'
 __copyright__ = 'Copyright 2015, CERN CMS'
 __credits__ = ['Giacomo Govi', 'Salvatore Di Guida', 'Miguel Ojeda', 'Andreas Pfeiffer']
 __license__ = 'Unknown'
-__maintainer__ = 'Andreas Pfeiffer'
-__email__ = 'andreas.pfeiffer@cern.ch'
+__maintainer__ = 'Giacomo Govi'
+__email__ = 'giacomo.govi@cern.ch'
 __version__ = 1
 
 
@@ -21,8 +21,10 @@ import netrc
 import getpass
 import errno
 import sqlite3
+import cx_Oracle
 import json
 import tempfile
+from datetime import datetime
 
 defaultBackend = 'online'
 defaultHostname = 'cms-conddb-prod.cern.ch'
@@ -31,6 +33,9 @@ defaultUrlTemplate = 'https://%s/cmsDbUpload/'
 defaultTemporaryFile = 'upload.tar.bz2'
 defaultNetrcHost = 'ConditionUploader'
 defaultWorkflow = 'offline'
+prodLogDbSrv = 'cms_orcoff_prod'
+devLogDbSrv = 'cms_orcoff_prep'
+logDbSchema = 'CMS_COND_DROPBOX'
 
 # common/http.py start (plus the "# Try to extract..." section bit)
 import time
@@ -770,6 +775,90 @@ def uploadTier0Files(filenames, username, password, cookieFileName = None):
 
     dropBox.signOut()
 
+def re_upload( options ):
+    netrcPath = None
+    logDbSrv = prodLogDbSrv
+    if options.hostname == defaultDevHostname:
+        logDbSrv = devLogDbSrv
+    if options.authPath is not None:
+        netrcPath = os.path.join( options.authPath,'.netrc' )
+    try:
+        netrcKey = '%s/%s' %(logDbSrv,logDbSchema)
+        print '#netrc key=%s' %netrcKey
+        # Try to find the netrc entry
+        (username, account, password) = netrc.netrc( netrcPath ).authenticators( netrcKey )
+    except IOError as e:
+        logging.error('Cannot access netrc file.')
+        return 1
+    except Exception as e:
+        logging.error('Netrc file is invalid: %s' %str(e))
+        return 1
+    conStr = '%s/%s@%s' %(username,password,logDbSrv)
+    con = cx_Oracle.connect( conStr )
+    cur = con.cursor()
+    fh = options.reUpload
+    cur.execute('SELECT FILECONTENT, STATE FROM FILES WHERE FILEHASH = :HASH',{'HASH':fh})
+    res = cur.fetchall()
+    found = False
+    fdata = None
+    for r in res:
+        found = True
+        logging.info("Found file %s in state '%s;" %(fh,r[1]))
+        fdata = r[0].read().decode('bz2')
+    con.close()
+    if not found:
+        logging.error("No file uploaded found with hash %s" %fh)
+        return 1
+    # writing as a tar file and open it ( is there a why to open it in memory?)
+    fname = '%s.tar' %fh
+    with open(fname, "wb" ) as f:
+        f.write(fdata)
+    rname = 'reupload_%s' %fh
+    with tarfile.open(fname) as tar:
+        tar.extractall()
+    os.remove(fname)
+    dfile = 'data.db'
+    mdfile = 'metadata.txt'
+    if os.path.exists(dfile):
+        os.utime(dfile,None)
+        os.chmod(dfile,0o755)
+        os.rename(dfile,'%s.db' %rname)
+    else:
+        logging.error('Tar file does not contain the data file')
+        return 1
+    if os.path.exists(mdfile):
+        os.utime(mdfile,None)
+        os.chmod(mdfile,0o755)
+        mdata = None
+        with open(mdfile) as md:
+            mdata = json.load(md)
+        datelabel = datetime.now().strftime("%y-%m-%d %H:%M:%S")
+        if mdata is None:
+            logging.error('Metadata file is empty.')
+            return 1
+        logging.debug('Preparing new metadata file...')
+        mdata['userText'] = 'reupload %s : %s' %(datelabel,mdata['userText'])
+        with open( '%s.txt' %rname, 'wb') as jf:
+            jf.write( json.dumps( mdata, sort_keys=True, indent = 2 ) )
+            jf.write('\n')
+        os.remove(mdfile)
+    else:
+        logging.error('Tar file does not contain the metadata file')
+        return 1
+    logging.info('Files %s prepared for the upload.' %rname)
+    arguments = [rname]
+    return upload(options, arguments)
+
+def upload(options, arguments):
+    results = uploadAllFiles(options, arguments)
+
+    if not results.has_key('status'):
+        print 'Unexpected error.'
+        return -1
+    ret = results['status']
+    print results
+    print "upload ended with code: %s" %ret
+    return ret    
 
 def main():
     '''Entry point.
@@ -822,11 +911,13 @@ def main():
         help = 'The path of the .netrc file for the authentication. Default: $HOME',
     )
 
-    (options, arguments) = parser.parse_args()
+    parser.add_option('-r', '--reUpload',
+        dest = 'reUpload',
+        default = None,
+        help = 'The hash of the file to upload again.',
+    )
 
-    if len(arguments) < 1:
-        parser.print_help()
-        return -2
+    (options, arguments) = parser.parse_args()
 
     logLevel = logging.INFO
     if options.debug:
@@ -836,17 +927,17 @@ def main():
         level = logLevel,
     )
 
-    results = uploadAllFiles(options, arguments)
+    if len(arguments) < 1:
+        if options.reUpload is None:
+            parser.print_help()
+            return -2
+        else:
+            return re_upload(options)
+    if options.reUpload is not None:
+        print "ERROR: options -r can't be specified on a new file upload."
+        return -2
 
-    if not results.has_key('status'):
-        print 'Unexpected error.'
-        return -1
-    ret = results['status']
-    print results
-    print "upload ended with code: %s" %ret
-    #for hash, res in results.items():
-    #    print "\t %s : %s " % (hash, str(res))
-    return ret
+    return upload(options, arguments)
 
 def testTier0Upload():
 

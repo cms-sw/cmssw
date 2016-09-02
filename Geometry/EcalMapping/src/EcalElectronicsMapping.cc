@@ -983,7 +983,7 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 	// get list of FEDs corresponding to a region in (eta,phi)
 
   //	std::vector<int> FEDs;
-	double radTodeg = 180. / Geom::pi();
+	double radTodeg = 180. / M_PI;;
 
 	bool debug = false;
 

@@ -3,7 +3,7 @@
 
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometryVector/interface/LocalTag.h"
-#include <utility>
+#include<limits>
 
 class Plane;
 class TrajectoryStateOnSurface;
@@ -26,9 +26,11 @@ public:
 
 
   MeasurementEstimator() {}
-  MeasurementEstimator(float maxSag, float minToll) :
+  MeasurementEstimator(float maxSag, float minToll, float mpt) :
      m_maxSagitta(maxSag),
-     m_minTolerance2(minToll*minToll){}
+     m_minTolerance2(minToll*minToll),
+     m_minPt2ForHitRecoveryInGluedDet(mpt*mpt)
+     {}
 
   virtual ~MeasurementEstimator() {}
 
@@ -75,12 +77,18 @@ public:
 
   float maxSagitta() const { return m_maxSagitta;}
   float	minTolerance2() const { return m_minTolerance2;}
-
+  float	minPt2ForHitRecoveryInGluedDet() const { return m_minPt2ForHitRecoveryInGluedDet;}
 
 private:
+  /*
+   *  why here? 
+   * MeasurementEstimator is the only configurable item that percolates down to geometry event by event (actually hit by hit) and not at initialization time
+   * It is therefore the natural candidate to collect all parameters that affect pattern-recongnition 
+   * and require to be controlled with higher granularity than job level (such as iteration by iteration)
+   */ 
   float m_maxSagitta=-1.; // maximal sagitta for linear approximation
   float m_minTolerance2=100.; // square of minimum tolerance ot be considered inside a detector
-
+  float m_minPt2ForHitRecoveryInGluedDet=std::numeric_limits<float>::max();
 };
 
 #endif // Tracker_MeasurementEstimator_H

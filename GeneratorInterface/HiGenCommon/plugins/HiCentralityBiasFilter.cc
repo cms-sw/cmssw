@@ -29,6 +29,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
@@ -57,7 +58,7 @@ class HiCentralityBiasFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
       
-  edm::InputTag hepmcSrc_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc_;
 
    edm::Service<edm::RandomNumberGenerator> rng_;
 
@@ -81,9 +82,9 @@ class HiCentralityBiasFilter : public edm::EDFilter {
 HiCentralityBiasFilter::HiCentralityBiasFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-   hepmcSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generatorSmeared"));
-   func_ = iConfig.getParameter<string>("function");
-   par_ = iConfig.getParameter<vector<double> >("parameters");
+  hepmcSrc_ = consumes<edm::HepMCProduct>(iConfig.getParameter< edm::InputTag > ("generatorSmeared"));
+  func_ = iConfig.getParameter<string>("function");
+  par_ = iConfig.getParameter<vector<double> >("parameters");
 }
 
 
@@ -111,7 +112,7 @@ HiCentralityBiasFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
 
    Handle<HepMCProduct> mc;
-   iEvent.getByLabel(hepmcSrc_,mc);
+   iEvent.getByToken(hepmcSrc_,mc);
    const HepMC::GenEvent* evt = mc->GetEvent();
 
    const HepMC::HeavyIon* hi = evt->heavy_ion();

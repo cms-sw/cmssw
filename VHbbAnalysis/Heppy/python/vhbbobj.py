@@ -94,13 +94,15 @@ jetTypeVHbb = NTupleObjectType("jet",  baseObjectTypes = [ jetType ], variables 
 #    NTupleVariable("hadronFlavour", lambda x : x.hadronFlavour(), int,     mcOnly=True, help="hadron flavour (ghost matching to B/C hadrons)"),
     NTupleVariable("ctagVsL", lambda x : x.bDiscriminator('pfCombinedCvsLJetTags'), help="c-btag vs light jets"),
     NTupleVariable("ctagVsB", lambda x : x.bDiscriminator('pfCombinedCvsBJetTags'), help="c-btag vs light jets"),
-
     NTupleVariable("btagBDT", lambda x : getattr(x,"btagBDT",-99), help="combined super-btag"),
     NTupleVariable("btagProb", lambda x : x.btag('pfJetProbabilityBJetTags') , help="jet probability b-tag"),
     NTupleVariable("btagBProb", lambda x : x.btag('pfJetBProbabilityBJetTags') , help="jet b-probability b-tag"),
     NTupleVariable("btagSoftEl", lambda x : getattr(x, "btagSoftEl", -1000) , help="soft electron b-tag"),
     NTupleVariable("btagSoftMu", lambda x : getattr(x, "btagSoftMu", -1000) , help="soft muon b-tag"),
-    NTupleVariable("btagHip",   lambda x : getattr(x,"btagHip",-2), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
+    NTupleVariable("btagHip",   lambda x : x.bDiscriminator("newpfCombinedInclusiveSecondaryVertexV2BJetTags"), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
+    NTupleVariable("btagHip2",   lambda x : getattr(x,"btagHip",-2), help="pfCombinedInclusiveSVV2 with btv HIP mitigation"),
+    NTupleVariable("btagHipCMVA",   lambda x : x.btag('newpfCombinedMVAV2BJetTags'), help="CMVAV2 with btv HIP mitigation"),
+    NTupleVariable("btagHipCMVA2",   lambda x : getattr(x,"btagHip",-2), help="CMVAV2 with btv HIP mitigation"),
     NTupleVariable("btagCSVV0",   lambda x : x.bDiscriminator('pfCombinedSecondaryVertexV2BJetTags'), help="should be the old CSV discriminator with AVR vertices"),
     NTupleVariable("btagCMVAV2",  lambda x : x.btag('pfCombinedMVAV2BJetTags'), help="CMVA V2 discriminator"),
    # NTupleVariable("mcMatchId",    lambda x : x.mcMatchId,   int, mcOnly=True, help="Match to source from hard scatter (25 for H, 6 for t, 23/24 for W/Z)"),
@@ -232,10 +234,6 @@ jsons = {
     'eleSF_IsoTight' : ['','',''],
     'eleSF_trk_eta' : ['','',''],
     #NEW
-    'muEff_loose__HLT_RunD4p2' : [jsonpath+'SingleMuonTrigger_LooseMuons_beforeL2fix_Z_RunBCD_prompt80X_7p65.json','MuonTrigger_data_all_IsoMu22_OR_IsoTkMu22_pteta_Run2016B_beforeL2Fix', 'abseta_pt_MC'],
-    'muEff_loose_HLT_RunD4p3' : [jsonpath+'SingleMuonTrigger_LooseMuons_afterL2fix_Z_RunBCD_prompt80X_7p65.json','MuonTrigger_data_all_IsoMu22_OR_IsoTkMu22_pteta_Run2016B_afterL2Fix', 'abseta_pt_MC'],
-    'eleEff_loose__HLT_RunD4p2' : ['','', ''],
-    'eleEff_loose_HLT_RunD4p3' : ['','', ''],
     'muSF_HLT_RunD4p2' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run273158_to_274093', 'abseta_pt_DATA' ],
     'muSF_HLT_RunD4p3' : [ jsonpath+'SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.json' , 'IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_276097', 'abseta_pt_DATA' ],
     'muSF_IsoLoose' : [ jsonpath+'MuonIso_Z_RunBCD_prompt80X_7p65.json' , 'MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1', 'abseta_pt_ratio'],
@@ -267,7 +265,7 @@ for cut in ["trk_eta"]:
                                                 lambda x, muCorr=correctors["muSF_"+cut], eleCorr=correctors["eleSF_"+cut] : muCorr.get_1D(x.eta())[1] if abs(x.pdgId()) == 13 else eleCorr.get_1D(x.eta())[1], 
                                                 float, mcOnly=True, help="SF error for lepton "+cut
                                                 )]
-for cut in ["HLT_RunD4p3","HLT_RunD4p2","HLT_RunC", "loose__HLT_RunD4p2", "loose_HLT_RunD4p3"]:     
+for cut in ["HLT_RunD4p3","HLT_RunD4p2","HLT_RunC"]:     
     leptonTypeVHbb.variables += [NTupleVariable("Eff_"+cut, 
                                                 lambda x, muCorr=correctors["muEff_"+cut], eleCorr=correctors["eleEff_"+cut] : muCorr.get_2D(x.pt(), x.eta())[0] if abs(x.pdgId()) == 13 else eleCorr.get_2D(x.pt(), x.eta())[0], 
                                                 float, mcOnly=True, help="SF for lepton "+cut

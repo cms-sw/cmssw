@@ -2,7 +2,49 @@
 using namespace reco;
 using namespace std;
 
+#include "vdt/vdtMath.h"
+#include "Math/GenVector/etaMax.h"
+
 const unsigned    PFRecHit::nCorners_ = 4;
+
+namespace {
+  
+  // an implementation of Eta_FromRhoZ of root libraries using vdt
+  template<typename Scalar>
+  inline Scalar Eta_FromRhoZ_fast(Scalar rho, Scalar z) {    
+    using namespace ROOT::Math;
+    // value to control Taylor expansion of sqrt
+    const Scalar big_z_scaled =
+      std::pow(std::numeric_limits<Scalar>::epsilon(),static_cast<Scalar>(-.25));
+    if (rho > 0) {      
+      Scalar z_scaled = z/rho;
+      if (std::fabs(z_scaled) < big_z_scaled) {
+        return vdt::fast_log(z_scaled+std::sqrt(z_scaled*z_scaled+1.0));
+      } else {
+        // apply correction using first order Taylor expansion of sqrt
+        return  z>0 ? vdt::fast_log(2.0*z_scaled + 0.5/z_scaled) : -vdt::fast_log(-2.0*z_scaled);
+      }
+    }
+    // case vector has rho = 0
+    else if (z==0) {
+      return 0;
+    }
+    else if (z>0) {
+      return z + etaMax<Scalar>();
+    }
+    else {
+      return z - etaMax<Scalar>();
+    }    
+  }
+
+  inline void calculateREP(const math::XYZPoint& pos, double& rho, double& eta, double& phi) {
+    const double z = pos.z();
+    rho = pos.Rho();    
+    eta = Eta_FromRhoZ_fast<double>(rho,z);
+    phi = (pos.x()==0 && pos.y()==0) ? 0 : vdt::fast_atan2(pos.y(), pos.x());
+  }
+
+}
 
 PFRecHit::PFRecHit() : 
   detId_(0),
@@ -63,28 +105,6 @@ PFRecHit::PFRecHit(unsigned detId,
 }    
 
 
-PFRecHit::PFRecHit(const PFRecHit& other) :
-  originalRecHit_(other.originalRecHit_),
-  detId_(other.detId_), 
-  layer_(other.layer_), 
-  energy_(other.energy_), 
-  time_(other.time_),
-  depth_(other.depth_),
-  position_(other.position_), 
-  positionrep_(other.positionrep_),
-  axisxyz_(other.axisxyz_),
-  cornersxyz_(other.cornersxyz_),
-  cornersrep_(other.cornersrep_),
-  neighbours_(other.neighbours_),
-  neighbourInfos_(other.neighbourInfos_),
-  neighbours4_(other.neighbours4_),
-  neighbours8_(other.neighbours8_)
-{}
-
-
-
-PFRecHit::~PFRecHit() 
-{}
 
 
 void PFRecHit::setNWCorner( double posx, double posy, double posz ) {
@@ -110,23 +130,31 @@ void PFRecHit::setNECorner( double posx, double posy, double posz ) {
 void PFRecHit::setCorner( unsigned i, double posx, double posy, double posz ) {
   assert( cornersxyz_.size() == nCorners_);
   assert( i<cornersxyz_.size() );
+  double rho(0), eta(0), phi(0);
 
   cornersxyz_[i] = math::XYZPoint( posx, posy, posz);
-  cornersrep_[i] = REPPoint( cornersxyz_[i].Rho(),
-			     cornersxyz_[i].Eta(),
-			     cornersxyz_[i].Phi() );
+  const auto& corner = cornersxyz_[i];
+  calculateREP(corner, rho, eta, phi);  
+  cornersrep_[i] = REPPoint( rho,
+			     eta,
+			     phi );
 }
 
 void
 PFRecHit::calculatePositionREP() {
-  positionrep_.SetCoordinates( position_.Rho(), 
-			       position_.Eta(), 
-			       position_.Phi() );
+  double rho(0), eta(0), phi(0);
+  calculateREP(position_,rho,eta,phi);
+
+  positionrep_.SetCoordinates( rho, 
+			       eta, 
+			       phi );
   cornersrep_.resize(cornersxyz_.size());
   for( unsigned i = 0; i < cornersxyz_.size(); ++i ) {
-    cornersrep_[i].SetCoordinates(cornersxyz_[i].Rho(),
-				  cornersxyz_[i].Eta(),
-				  cornersxyz_[i].Phi());
+    const auto& corner = cornersxyz_[i];
+    calculateREP(corner,rho,eta,phi);
+    cornersrep_[i].SetCoordinates( rho,
+                                   eta,
+                                   phi );
   }
 }
 
@@ -139,9 +167,9 @@ void PFRecHit::addNeighbour(short x,short y,short z,const PFRecHitRef& ref) {
   //bit 8 side for z 
   //bits 9,10,11 : abs(z) wrt the center
 
-  unsigned short absx = abs(x);
-  unsigned short absy = abs(y);
-  unsigned short absz = abs(z);
+  unsigned short absx = std::abs(x);
+  unsigned short absy = std::abs(y);
+  unsigned short absz = std::abs(z);
 
   unsigned short bitmask=0;
 

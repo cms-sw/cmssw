@@ -409,13 +409,13 @@ if 'GlobalTag' in %(dict)s:
       text += ")\n"
 
     text += """    %(process)s.GlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
-    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
-    for pset in %(process)s.GlobalTag.toGet.value():
-        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
-    # fix for multi-run processing
-    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 """
+#    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
+#    for pset in %(process)s.GlobalTag.toGet.value():
+#        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
+#    # fix for multi-run processing
+#    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
+#    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
     self.data += text
 
   def overrideL1MenuXml(self):

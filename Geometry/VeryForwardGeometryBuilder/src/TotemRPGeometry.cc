@@ -10,7 +10,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPCommon.h"
 #include <iostream>
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 //----------------------------------------------------------------------------------------------------
 

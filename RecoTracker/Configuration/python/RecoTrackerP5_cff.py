@@ -77,3 +77,6 @@ ckfTrackCandidatesP5.useHitsSplitting = True
 # REGIONAL RECONSTRUCTION
 from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 regionalCosmicTrackerSeeds.RegionInJetsCheckPSet = cms.PSet( doJetsExclusionCheck   = cms.bool( False ) )
+
+# CDC Reconstruction
+from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *

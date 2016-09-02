@@ -245,7 +245,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls)
     std::string path = source.replace_extension(".jsn").string();
 
     fileMon_->snap(ls);
-    fileMon_->outputFullJSON(path, ls, false);
+    fileMon_->outputFullJSON(path, ls);
     fileMon_->discardCollected(ls);
 
     //move the json file from open

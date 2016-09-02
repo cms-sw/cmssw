@@ -57,7 +57,10 @@ class SiPixelClusterModule {
   void book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool reducedSet=false, bool isUpgrade=false);
   /// Fill histograms
   int fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
-            const TrackerGeometry* tracker,
+	    const TrackerGeometry* tracker,
+	    int *barrelClusterTotal,
+	    int *fpixPClusterTotal,
+	    int *fpixMClusterTotal,
 	    std::vector<MonitorElement*>& layers,
 	    std::vector<MonitorElement*>& diskspz,
 	    std::vector<MonitorElement*>& disksmz,

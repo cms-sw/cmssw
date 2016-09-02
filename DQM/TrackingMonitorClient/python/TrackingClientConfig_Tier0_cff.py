@@ -67,7 +67,9 @@ trackingQTester = cms.EDAnalyzer("QualityTester",
 
 from DQM.TrackingMonitorClient.TrackingEffFromHitPatternClientConfig_cff import trackingEffFromHitPattern
 
+from DQM.TrackingMonitorClient.V0MonitoringClient_cff import *
+
 # Sequence
-TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern)
+TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence)
 
 

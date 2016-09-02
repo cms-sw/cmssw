@@ -20,6 +20,7 @@ thread_local TLS tls;
     //    const FreeTrajectoryState& fts = *tm.updatedState().freeTrajectoryState();
 
     auto const & tsos = tm.updatedState();
+    if (!tsos.isValid()) return false;
     GlobalVector gtp = tsos.globalMomentum();
 
     //avoid doing twice the check in TBC and QF
