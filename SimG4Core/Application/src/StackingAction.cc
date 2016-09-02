@@ -13,7 +13,6 @@
 #include "Randomize.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4VSolid.hh"
-//#include "G4PhysicalVolumeStore.hh"
 #include "G4TransportationManager.hh"
 
 StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet & p,
