@@ -258,27 +258,34 @@ fillMaps(const es_info& esInfo)
     short module  = 0;
     for(; l1tModulesMappingStream>>subdet>>wafer>>module; )
     {
-        if(subdet==ForwardSubdetector::HGCEE)
+        switch(subdet)
         {
-            // fill module <-> wafers mappings
-            wafer_to_module_ee_.emplace(wafer,module);
-            module_to_wafers_ee_.emplace(module, wafer);
-            // fill number of cells for a given wafer type
-            // translate wafer type 1/2 to 1/-1 
-            int wafer_type = esInfo.topo_ee->dddConstants().waferTypeT(wafer)==1?1:-1;
-            number_cells_in_wafers_.emplace(wafer_type, esInfo.topo_ee->dddConstants().numberCellsHexagon(wafer));
+            case ForwardSubdetector::HGCEE:
+            {
+                // fill module <-> wafers mappings
+                wafer_to_module_ee_.emplace(wafer,module);
+                module_to_wafers_ee_.emplace(module, wafer);
+                // fill number of cells for a given wafer type
+                // translate wafer type 1/2 to 1/-1 
+                int wafer_type = esInfo.topo_ee->dddConstants().waferTypeT(wafer)==1?1:-1;
+                number_cells_in_wafers_.emplace(wafer_type, esInfo.topo_ee->dddConstants().numberCellsHexagon(wafer));
+                break;
+            }
+            case ForwardSubdetector::HGCHEF:
+            {
+                // fill module <-> wafers mappings
+                wafer_to_module_fh_.emplace(wafer,module);
+                module_to_wafers_fh_.emplace(module, wafer);
+                // fill number of cells for a given wafer type
+                // translate wafer type 1/2 to 1/-1
+                int wafer_type = esInfo.topo_fh->dddConstants().waferTypeT(wafer)==1?1:-1;
+                number_cells_in_wafers_.emplace(wafer_type, esInfo.topo_fh->dddConstants().numberCellsHexagon(wafer));
+                break;
+            }
+            default:
+                edm::LogWarning("HGCalTriggerGeometry") << "Unsupported subdetector number ("<<subdet<<") in L1TModulesMapping file\n";
+                break;
         }
-        else if(subdet==ForwardSubdetector::HGCHEF)
-        {
-            // fill module <-> wafers mappings
-            wafer_to_module_fh_.emplace(wafer,module);
-            module_to_wafers_fh_.emplace(module, wafer);
-            // fill number of cells for a given wafer type
-            // translate wafer type 1/2 to 1/-1
-            int wafer_type = esInfo.topo_fh->dddConstants().waferTypeT(wafer)==1?1:-1;
-            number_cells_in_wafers_.emplace(wafer_type, esInfo.topo_fh->dddConstants().numberCellsHexagon(wafer));
-        }
-        else edm::LogWarning("HGCalTriggerGeometry") << "Unsupported subdetector number ("<<subdet<<") in L1TModulesMapping file\n";
     }
     if(!l1tModulesMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TModulesMapping '"<<wafer<<" "<<module<<"' \n";
     l1tModulesMappingStream.close();
