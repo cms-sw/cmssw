@@ -54,6 +54,5 @@ namespace stage2 {
 }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_PACKER(l1t::stage2::GTEGammaPacker);
-// DEFINE_L1T_PACKER(l1t::stage2::CaloEGammaPacker);
+DEFINE_L1T_PACKER(l1t::stage2::GTEGammaPacker);
+DEFINE_L1T_PACKER(l1t::stage2::CaloEGammaPacker);
