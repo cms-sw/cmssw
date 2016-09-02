@@ -1,21 +1,10 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
+#include "CaloTowerUnpacker.h"
 #include "L1TStage2Layer2Constants.h"
-
-namespace l1t {
-   namespace stage2 {
-      class CaloTowerUnpacker : public Unpacker {
-         public:
-            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-      };
-   }
-}
-
-// Implementation
 
 namespace l1t {
 namespace stage2 {
@@ -120,4 +109,5 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage2::CaloTowerUnpacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_UNPACKER(l1t::stage2::CaloTowerUnpacker);

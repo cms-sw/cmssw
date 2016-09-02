@@ -1,10 +1,6 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "CaloSetup.h"
 
 using namespace l1t;
@@ -149,4 +145,5 @@ CaloSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
    return res;
 }
 
-DEFINE_L1T_PACKING_SETUP(l1t::stage1::CaloSetup);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKING_SETUP(l1t::stage1::CaloSetup);

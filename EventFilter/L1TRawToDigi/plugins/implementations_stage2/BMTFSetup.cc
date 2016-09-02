@@ -1,9 +1,5 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "BMTFSetup.h"
 
 namespace l1t {
@@ -54,23 +50,31 @@ namespace l1t {
          auto inputMuons = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputs");
 
          UnpackerMap res;
-         if (fed == 1376 || fed == 1377 )
-         {
+         if (fed == 1376 || fed == 1377) {
+            for (int iL = 0; iL <= 70; iL += 2) {
+               auto outputMuon = UnpackerFactory::get()->make("stage2::BMTFUnpackerOutput");
+               auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
+               auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
 
-            for(int iL = 0; iL <= 70; iL += 2)
-            {
-               if ( iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62 )
-                  continue;
+               UnpackerMap res;
+               if (fed == 1376 || fed == 1377) {
+                  for (int iL = 0; iL <= 70; iL += 2) {
+                     if (iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62)
+                        continue;
 
-               res[iL] = inputMuons;
+                     if (fw < 2452619552)
+                        res[iL] = inputMuonsOld;
+                     else
+                        res[iL] = inputMuonsNew;
+                  }
+                  res[123] = outputMuon;
+               }
             }
-
-            res[123] = outputMuon;
          }
-
          return res;
-      }
-   }
+      };
+   };
 }
 
-DEFINE_L1T_PACKING_SETUP(l1t::stage2::BMTFSetup);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKING_SETUP(l1t::stage2::BMTFSetup);

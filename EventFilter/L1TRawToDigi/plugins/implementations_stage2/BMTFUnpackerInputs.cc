@@ -1,5 +1,3 @@
-#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
-
 #include "BMTFUnpackerInputs.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
@@ -167,5 +165,3 @@ namespace l1t
 		}//unpack new quality
 	}//ns2
 }//ns l1t;
-
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputs);

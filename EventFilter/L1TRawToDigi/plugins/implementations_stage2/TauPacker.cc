@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 
 #include "CaloTokens.h"
 
@@ -54,5 +53,6 @@ namespace stage2 {
 }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::GTTauPacker);
-DEFINE_L1T_PACKER(l1t::stage2::CaloTauPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage2::GTTauPacker);
+// DEFINE_L1T_PACKER(l1t::stage2::CaloTauPacker);

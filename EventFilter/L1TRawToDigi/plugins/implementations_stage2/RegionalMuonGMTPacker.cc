@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
+
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
 
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 #include "GMTTokens.h"
@@ -80,4 +81,5 @@ namespace l1t {
    }
 }
 
-DEFINE_L1T_PACKER(l1t::stage2::RegionalMuonGMTPacker);
+// moved to plugins/SealModule.cc
+// DEFINE_L1T_PACKER(l1t::stage2::RegionalMuonGMTPacker);
