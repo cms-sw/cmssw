@@ -1,10 +1,10 @@
-The Phase2 geometries are automatically created using the script [generate2023Geometry.py](./test/generate2023Geometry.py).
+The Phase2 geometries are automatically created using the script [generate2023Geometry.py](./scripts/generate2023Geometry.py).
 
 Different versions of various subdetectors can be combined. The available versions are:
 
 Tracker:
-* T1: Phase2 tilted tracker w/ phase 1 (extended) pixel
-* T2: Phase2 flat tracker w/ phase 1 (extended) pixel
+* T1: Phase2 tilted tracker (v2016-04-12) w/ phase 1 (extended) pixel
+* T2: Phase2 flat tracker (v2016-04-12) w/ phase 1 (extended) pixel
 * T3<sup>&#8224;</sup>: Phase2 tilted tracker (v3.6.2) w/ phase 2 pixel (v4.0.2.1)
 
 Calorimeters:

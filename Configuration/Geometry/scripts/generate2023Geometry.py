@@ -95,13 +95,20 @@ for iDict,aDict in enumerate(allDicts):
         recoFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["reco"] ])+"\n\n")
 recoFile.close()
 
-# create Era (must be added manually to Eras.py)
-eraLine = "        self.Phase2"+detectorVersion+" = cms.ModifierChain( "
+# specify Era customizations
+# must be checked manually in:
+# Configuration/StandardSequences/python/Eras.py
+# Configuration/Eras/python/
+# Configuration/PyReleaseValidation/python/upgradeWorkflowComponents.py (workflow definitions)
+eraLine = ""
 eraLineItems = []
 for iDict,aDict in enumerate(allDicts):
     if "era" in aDict[detectorTuple[iDict]].keys():
         eraLineItems.append(aDict[detectorTuple[iDict]]["era"])
 eraLine += ", ".join([ eraLineItem for eraLineItem in eraLineItems ])
-eraLine += " )"
-print "To activate the Era for this detector, please insert the following line in Configuration/StandardSequences/python/Eras.py:"
+print "The Era for this detector should contain:"
 print eraLine
+
+# specify GeometryConf
+print "Please add this line in Configuration/StandardSequences/python/GeometryConf.py:"
+print "    'Extended2023"+detectorVersion+"' : 'Extended2023"+detectorVersion+",Extended2023"+detectorVersion+"Reco',"
