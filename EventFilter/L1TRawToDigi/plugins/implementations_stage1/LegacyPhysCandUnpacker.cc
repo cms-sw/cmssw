@@ -110,10 +110,9 @@ namespace l1t {
    }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoEGammaUnpacker);
-// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::NonIsoEGammaUnpacker);
-// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::CentralJetUnpacker);
-// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::ForwardJetUnpacker);
-// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::TauUnpacker);
-// DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoTauUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoEGammaUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::legacy::NonIsoEGammaUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::legacy::CentralJetUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::legacy::ForwardJetUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::legacy::TauUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::legacy::IsoTauUnpacker);
