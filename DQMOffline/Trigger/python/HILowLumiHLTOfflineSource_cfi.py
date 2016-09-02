@@ -212,7 +212,7 @@ def getFullTrackVPSet():
             handlerType = cms.string("FromHLT"),
             partialPathName = cms.string(partialPathName),
             partialFilterName  = cms.string("hltPAFullTrackHighMult"),
-            dqmhistolabel  = cms.string("hltPAFullTrackHighMult"),
+            dqmhistolabel  = cms.string("hltFullTrackHighMult"),
             mainDQMDirname = cms.untracked.string(dirname),
             singleObjectsPreselection = cms.string("1==1"),
             singleObjectDrawables =  cms.VPSet(
@@ -229,10 +229,146 @@ def getFullTrackVPSet():
 
     return ret
 
+def getPAHighMultVPSet():
+    ret=cms.VPSet()
+    thresholds = [120, 150, 185, 220, 250, 280]
+    for t in thresholds:
+        partialPathName = "HLT_PAFullTracks_Multiplicity"+str(t)+"_v"
+        tracksL = 0
+        tracksH = 400
+        tracksBins = (tracksH-tracksL)/5
+        tracksCount  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
+                handlerType = cms.string("RecoTrackCounterWithVertexConstraint"),
+                inputCol = cms.InputTag("generalTracks"),
+                # l parameters
+                vtxCollection = cms.InputTag("offlinePrimaryVertices"),
+                minNDOF = cms.int32(7),
+                maxZ = cms.double(15),
+                maxDZ = cms.double(0.15),
+                maxDZ2dzsigma = cms.double(3),
+                maxDXY = cms.double(0.15),
+                maxDXY2dxysigma = cms.double(3),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltPAFullTrackHighMult"),
+                dqmhistolabel  = cms.string("recoTracks"),
+                mainDQMDirname = cms.untracked.string(dirname),
+                singleObjectsPreselection = cms.string("pt > 0.4 && abs(eta) < 2.4"), 
+                singleObjectDrawables =  cms.VPSet(),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string('size()'),
+                combinedObjectDimension = cms.int32(1),
+                combinedObjectDrawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("count_nominator"), expression = cms.string('at(0)'), 
+                             bins = cms.int32(tracksBins), min = cms.double(tracksL), max = cms.double(tracksH))
+                )
+        )
+        ret.append(tracksCount)				
+
+        tracksCountDenom = tracksCount.clone()
+        tracksCountDenom.triggerSelection = cms.string("TRUE")
+        tracksCountDenom.combinedObjectDrawables =  cms.VPSet(
+            cms.PSet (name = cms.string("count_denominator"), expression = cms.string("at(0)"),
+                             bins = cms.int32(tracksBins), min = cms.double(tracksL), max = cms.double(tracksH))
+        )
+        ret.append(tracksCountDenom)
+
+
+        hltPAFullTracks =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("FromHLT"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltPAFullTrackHighMult"),
+            dqmhistolabel  = cms.string("hltPAFullTracks"),
+            mainDQMDirname = cms.untracked.string(dirname),
+            singleObjectsPreselection = cms.string("1==1"),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(0.0), max = cms.double(10)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+            ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet()
+        )
+        ret.append(hltPAFullTracks)
+
+    return ret
+
+def getPAHighMultHighPtVPSet():
+    ret=cms.VPSet()
+    thresholds = [8, 16]
+    for t in thresholds:
+        partialPathName = "HLT_PAFullTracks_Multiplicity120_HighPt"+str(t)+"_v"
+        tracksL = 0
+        tracksH = 400
+        tracksBins = (tracksH-tracksL)/5
+        tracksCount  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
+                handlerType = cms.string("RecoTrackCounterWithVertexConstraint"),
+                inputCol = cms.InputTag("generalTracks"),
+                # l parameters
+                vtxCollection = cms.InputTag("offlinePrimaryVertices"),
+                minNDOF = cms.int32(7),
+                maxZ = cms.double(15),
+                maxDZ = cms.double(0.15),
+                maxDZ2dzsigma = cms.double(3),
+                maxDXY = cms.double(0.15),
+                maxDXY2dxysigma = cms.double(3),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltPAFullTrackHighMult"),
+                dqmhistolabel  = cms.string("recoTracks"),
+                mainDQMDirname = cms.untracked.string(dirname),
+                singleObjectsPreselection = cms.string("pt > 0.4 && abs(eta) < 2.4"), 
+                singleObjectDrawables =  cms.VPSet(),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string('size()'),
+                combinedObjectDimension = cms.int32(1),
+                combinedObjectDrawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("count_nominator"), expression = cms.string('at(0)'), 
+                             bins = cms.int32(tracksBins), min = cms.double(tracksL), max = cms.double(tracksH))
+                )
+        )
+        ret.append(tracksCount)				
+
+        tracksCountDenom = tracksCount.clone()
+        tracksCountDenom.triggerSelection = cms.string("TRUE")
+        tracksCountDenom.combinedObjectDrawables =  cms.VPSet(
+            cms.PSet (name = cms.string("count_denominator"), expression = cms.string("at(0)"),
+                             bins = cms.int32(tracksBins), min = cms.double(tracksL), max = cms.double(tracksH))
+        )
+        ret.append(tracksCountDenom)
+
+
+        hltPAFullTracks =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("FromHLT"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltPAFullTrackHighPt"),
+            dqmhistolabel  = cms.string("hltPAFullTracks"),
+            mainDQMDirname = cms.untracked.string(dirname),
+            singleObjectsPreselection = cms.string("1==1"),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(200), min = cms.double(0.0), max = cms.double(10)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+            ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet()
+        )
+        ret.append(hltPAFullTracks)
+
+    return ret
+
 def getHILowLumi():
     ret = cms.VPSet()
     ret.extend(getHILowLumiTriggers())
     ret.extend(getFullTrackVPSet())
+    ret.extend(getPAHighMultVPSet())
+    ret.extend(getPAHighMultHighPtVPSet())
     return ret
 
 dirname = "HLT/HI/"
