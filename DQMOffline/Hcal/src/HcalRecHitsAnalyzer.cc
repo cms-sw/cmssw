@@ -58,6 +58,22 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     maxDepthHF_ = hcons->getMaxDepth(2);
     maxDepthHO_ = hcons->getMaxDepth(3);
 
+    es.get<CaloGeometryRecord > ().get(geometry);
+
+    const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+    const std::vector<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+    const std::vector<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+    const std::vector<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
+
+    nChannels_[1] = hbCells.size(); 
+    nChannels_[2] = heCells.size(); 
+    nChannels_[3] = hoCells.size(); 
+    nChannels_[4] = hfCells.size();
+    nChannels_[0] = nChannels_[1] + nChannels_[2] + nChannels_[3] + nChannels_[4];
+
+    std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
+
+
     //We hardcode the HF depths because in the dual readout configuration, rechits are not defined for depths 3&4
     maxDepthHF_ = (maxDepthHF_ > 2 ? 2 : maxDepthHF_); //We reatin the dynamic possibility that HF might have 0 or 1 depths
 
