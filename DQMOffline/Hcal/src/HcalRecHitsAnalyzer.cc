@@ -71,7 +71,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     nChannels_[4] = hfCells.size();
     nChannels_[0] = nChannels_[1] + nChannels_[2] + nChannels_[3] + nChannels_[4];
 
-    std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
+    //std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
 
 
     //We hardcode the HF depths because in the dual readout configuration, rechits are not defined for depths 3&4
@@ -117,17 +117,6 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
     // ZS
     if(subdet_ == 6) {
 
-      for (unsigned int i1 = 0;  i1 < 82; i1++) {
-	for (unsigned int i2 = 0;  i2 < 72; i2++) {
-	  for (unsigned int i3 = 0;  i3 < 4;  i3++) {
-	    for (unsigned int i4 = 0;  i4 < 4;  i4++) {
-	      emap_min [i1][i2][i3][i4] = 99999.;     
-	    }
-	  }
-	}
-      }
-
-      //None of the ZS histos are drawn
     }
 
     // ALL others, except ZS
@@ -517,8 +506,7 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
     if( sub ==4 ){ nhf_v[depth]++; nhf_v[0]++;} //
 
     if( subdet_ == 6) {                                    // ZS specific
-      if( en < emap_min[ieta+41][iphi][depth-1][sub-1] )
-	emap_min[ieta+41][iphi][depth-1][sub-1] = en;
+
     }
 
     if( subdet_ != 6) {  
