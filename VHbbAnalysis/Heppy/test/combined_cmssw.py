@@ -22,6 +22,7 @@ from RecoBTag.SoftLepton.softPFElectronTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.trackSelection_cff import *
 from Configuration.AlCa.GlobalTag import GlobalTag
 
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 # This function is called by the cmsswPreprocessor 
 # (has to be named initialize, can have arbitrary arguments as long as
 # all have a default value)
@@ -639,7 +640,6 @@ def initialize(**kwargs):
     # Electron MVA ID: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_and_implementation
     ########################################
    
-    from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     for eleid in ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff"]:
         setupAllVIDIdsInModule(process, eleid, setupVIDElectronSelection)
@@ -656,7 +656,7 @@ def initialize(**kwargs):
       process,
       jetSource = cms.InputTag('slimmedJets','','PAT') if isMC else  cms.InputTag('slimmedJets','','RECO'),
       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-      btagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags'],
+      btagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags','pfCombinedMVAV2BJetTags'],
       runIVF=True,
       btagPrefix = 'new' # optional, in case interested in accessing both the old and new discriminator values
     )
