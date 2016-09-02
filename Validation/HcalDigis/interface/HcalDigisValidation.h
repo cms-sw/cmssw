@@ -34,6 +34,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
 /*TP Code*/
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
@@ -138,7 +140,10 @@ private:
     int nevtot;
 
     const HcalDDDRecConstants *hcons;
+    const HcalTopology *htopology;    
+
     int maxDepth_[5]; // 0:any, 1:HB, 2:HE, 3:HF
+    int nChannels_[5]; // 0:any, 1:HB, 2:HE, 
 
 };
 

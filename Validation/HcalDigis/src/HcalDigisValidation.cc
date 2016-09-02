@@ -73,6 +73,8 @@ void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   es.get<HcalRecNumberingRecord>().get( pHRNDC );
   hcons = &(*pHRNDC);
   
+  htopology = new HcalTopology(hcons);
+
   maxDepth_[1] = hcons->getMaxDepth(0); // HB
   maxDepth_[2] = hcons->getMaxDepth(1); // HE
   maxDepth_[3] = hcons->getMaxDepth(3); // HO
@@ -80,6 +82,14 @@ void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   maxDepth_[0] = (maxDepth_[1] > maxDepth_[2] ? maxDepth_[1] : maxDepth_[2]);
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[3] ? maxDepth_[0] : maxDepth_[3]);
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[4] ? maxDepth_[0] : maxDepth_[4]); // any of HB/HE/HO/HF
+
+  nChannels_[1] = htopology->getHBSize(); 
+  nChannels_[2] = htopology->getHESize(); 
+  nChannels_[3] = htopology->getHOSize(); 
+  nChannels_[4] = htopology->getHFSize(); 
+  nChannels_[5] = nChannels_[1] + nChannels_[2] + nChannels_[3] + nChannels_[4];
+
+  std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
 
 }
 
@@ -176,16 +186,21 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     HistLim ietaLim(85, -42.5, 42.5);
     HistLim iphiLim(74, -0.5, 73.5);
 
-    if (bsubdet == "HE") {
+    if (bsubdet == "HB") {
+        Ndigis = HistLim( ((int)(nChannels_[1]/100) + 1)*100, 0., (float)((int)(nChannels_[1]/100) + 1)*100);
+    } else if (bsubdet == "HE") {
         sime = HistLim(200, 0., 1.0);
+        Ndigis = HistLim( ((int)(nChannels_[2]/100) + 1)*100, 0., (float)((int)(nChannels_[2]/100) + 1)*100);
     } else if (bsubdet == "HF") {
         sime = HistLim(100, 0., 100.);
         pedLim = HistLim(100, 0., 20.);
         pedWidthLim = HistLim(100, 0., 5.);
         frac = HistLim(400, -4.00, 4.00);
+        Ndigis = HistLim( ((int)(nChannels_[4]/100) + 1)*100, 0., (float)((int)(nChannels_[4]/100) + 1)*100);
     } else if (bsubdet == "HO") {
         sime = HistLim(200, 0., 1.0);
         gainLim = HistLim(160, 0., 1.6);
+        Ndigis = HistLim( ((int)(nChannels_[3]/100) + 1)*100, 0., (float)((int)(nChannels_[3]/100) + 1)*100);
     }
 
     int isubdet=0;
@@ -375,9 +390,6 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     //~TP Code
 
-    //  std::cout << " >>>>> HcalDigiTester::analyze  hcalselector = "
-    //	    << subdet_ << std::endl;
-
     if (subdet_ != "all") {
        noise_ = 0;
        if (subdet_ == "HB") reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
@@ -393,8 +405,6 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
         if (subdet_ == "noise") {
             noise_ = 1;
-            //      std::cout << " >>>>> HcalDigiTester::analyze  entering noise "
-            //	    << std::endl;
     	    subdet_ = "HB";
             reco<HBHEDataFrame > (iEvent, iSetup, tok_hbhe_);
             subdet_ = "HE";
@@ -550,7 +560,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     CaloSamples tool;
     iEvent.getByToken(tok, digiCollection);
     if (!digiCollection.isValid()) return;
-//    std::cout << "***************RECO*****************" << std::endl;
     int isubdet = 0;
     if (subdet_ == "HB") isubdet = 1;
     if (subdet_ == "HE") isubdet = 2;
@@ -653,7 +662,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             fill2D("HcalDigiTask_pwidthMap_Depth" + str(depth) + "_" + subdet_, double(ieta), double(iphi), pedWidth->getWidth(0));
 
         }// end of event #1
-        //std::cout << "==== End of event noise block in cell cycle"  << std::endl;
 
         if (sub == isubdet) Ndig++; // subdet number of digi
 
@@ -857,7 +865,6 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
     iEvent.getByToken(tok, digiHandle);
     if (!digiHandle.isValid()) return;
     const HcalDataFrameContainer<dataFrameType> *digiCollection = digiHandle.product();
-//    std::cout << "***************RECO*****************" << std::endl;
     int isubdet = 0;
     if (subdet_ == "HB") isubdet = 1;
     if (subdet_ == "HE") isubdet = 2;
@@ -923,12 +930,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
     // CYCLE OVER CELLS ========================================================
     int Ndig = 0;
 
-    std::cout << "This is in subdetector " << subdet_ << std::endl;
-    std::cout << "Begin cycle over cells" << std::endl;
-
     for (typename HcalDataFrameContainer<dataFrameType>::const_iterator digiItr = digiCollection->begin(); digiItr != digiCollection->end(); digiItr++) {
-
-        std::cout << "Ndigis count: " << Ndig << std::endl;
 
 	dataFrameType dataFrame = *digiItr;
 
