@@ -1,5 +1,5 @@
-#ifndef Packer_h
-#define Packer_h
+#ifndef EventFilter_L1TRawToDigi_Packer_h
+#define EventFilter_L1TRawToDigi_Packer_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
