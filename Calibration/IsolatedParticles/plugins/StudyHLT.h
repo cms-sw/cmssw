@@ -30,6 +30,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 class StudyHLT : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
@@ -61,6 +62,7 @@ private:
   spr::trackSelectionParameters selectionParameters_;
   std::vector<std::string>   trigNames_, HLTNames_;
   std::string                theTrackQuality_;
+  std::vector<double>        puWeights_;
   double                     minTrackP_, maxTrackEta_;
   double                     tMinE_, tMaxE_, tMinH_, tMaxH_;
   bool                       isItAOD_, changed_, firstEvent_, doTree_;
@@ -75,6 +77,7 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection>              tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection>              tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection>              tok_hbhe_;
+  edm::EDGetTokenT<GenEventInfoProduct>               tok_ew_; 
 
   TH1I                      *h_nHLT, *h_HLTAccept, *h_HLTCorr, *h_numberPV;
   TH1I                      *h_goodPV, *h_goodRun;
@@ -89,6 +92,7 @@ private:
   int                        nRun, etaBin[nEtaBin+1], pvBin[nPVBin+1];
   double                     pBin[nPBin+1];
   int                        tr_goodPV, tr_goodRun;
+  double                     tr_eventWeight;
   std::vector<std::string>   tr_TrigName;
   std::vector<double>        tr_TrkPt, tr_TrkP, tr_TrkEta, tr_TrkPhi;
   std::vector<double>        tr_MaxNearP31X31, tr_MaxNearHcalP7x7;
