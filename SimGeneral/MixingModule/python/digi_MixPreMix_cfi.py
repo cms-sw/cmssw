@@ -35,6 +35,8 @@ if eras.fastSim.isChosen():
     # fastsim does not digitize pixel and strip hits
     delattr(theDigitizersMixPreMix,"pixel")
     delattr(theDigitizersMixPreMix,"strip")
+
+eras.phase2_common.toModify( theDigitizersMixPreMix, castor = None )
     
 theDigitizersMixPreMixValid = cms.PSet(
     theDigitizersMixPreMix,

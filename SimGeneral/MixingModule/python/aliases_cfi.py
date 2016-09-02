@@ -44,3 +44,5 @@ if eras.fastSim.isChosen():
     del simSiPixelDigis
     del simSiStripDigis
 
+if eras.phase2_common.isChosen():
+    del simCastorDigis
