@@ -95,10 +95,9 @@ namespace l1t {
   }
 }
 
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_PACKER(l1t::stage1::IsoEGammaPacker);
-// DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
-// DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
-// DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
-// DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
-// DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);
+DEFINE_L1T_PACKER(l1t::stage1::IsoEGammaPacker);
+DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
+DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
+DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
+DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
+DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);
