@@ -15,7 +15,8 @@ from PhysicsTools.HeppyCore.utils.deltar import *
 from PhysicsTools.Heppy.physicsutils.genutils import *
 
 
-from ROOT import heppy
+from ROOT import heppy, TLorentzVector
+import math
 cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
 
 class LeptonAnalyzer( Analyzer ):
@@ -103,7 +104,10 @@ class LeptonAnalyzer( Analyzer ):
                 self.IsolationComputer = heppy.IsolationComputer()
             
 
+        self.vertexChoice = getattr(cfg_ana, 'vertexChoice', 'goodVertices')
         self.doMatchToPhotons = getattr(cfg_ana, 'do_mc_match_photons', False)
+        self.doDirectionalIsolation = getattr(cfg_ana, 'doDirectionalIsolation', []) if self.doMiniIsolation else []
+        self.doFixedConeIsoWithMiniIsoVeto = getattr(cfg_ana, 'doFixedConeIsoWithMiniIsoVeto', False)
 
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
@@ -121,6 +125,16 @@ class LeptonAnalyzer( Analyzer ):
         self.handles['rhoMu'] = AutoHandle( self.cfg_ana.rhoMuon, 'double')
         #rho for electrons
         self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
+
+        # JP/CV: add Spring15 EGamma POG electron ID MVA
+        # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+        if getattr(self.cfg_ana,'updateEleMVA',False) :
+            self.handles['eleMVAIdSpring15TrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigMedium, 'edm::ValueMap<bool>')
+            self.handles['eleMVAIdSpring15TrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15TrigTight, 'edm::ValueMap<bool>')
+            self.handles['eleMVArawSpring15Trig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15Trig, 'edm::ValueMap<float>')
+            self.handles['eleMVAIdSpring15NonTrigMedium'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigMedium, 'edm::ValueMap<bool>')
+            self.handles['eleMVAIdSpring15NonTrigTight'] = AutoHandle( self.cfg_ana.eleMVAIdSpring15NonTrigTight, 'edm::ValueMap<bool>')
+            self.handles['eleMVArawSpring15NonTrig'] = AutoHandle( self.cfg_ana.eleMVArawSpring15NonTrig, 'edm::ValueMap<float>')
 
         if self.doMiniIsolation or self.doIsolationScan:
             self.handles['packedCandidates'] = AutoHandle( self.cfg_ana.packedCandidates, 'std::vector<pat::PackedCandidate>')
@@ -189,7 +203,9 @@ class LeptonAnalyzer( Analyzer ):
                     self.IsolationComputer.addVetos(lep.physObj)
             for lep in event.inclusiveLeptons:
                 self.attachMiniIsolation(lep)
-        
+                for cone_size in self.doDirectionalIsolation:
+                    self.attachDirectionalIsolation(lep,cone_size)
+
         if self.doIsoAnnulus:
             for lep in event.inclusiveLeptons:
                 self.attachIsoAnnulus04(lep)
@@ -200,7 +216,8 @@ class LeptonAnalyzer( Analyzer ):
 
         # make loose leptons (basic selection)
         for mu in inclusiveMuons:
-                if (mu.muonID(self.cfg_ana.loose_muon_id) and 
+                mu.looseIdOnly = mu.muonID(self.cfg_ana.loose_muon_id)
+                if (mu.looseIdOnly and 
                         mu.pt() > self.cfg_ana.loose_muon_pt and abs(mu.eta()) < self.cfg_ana.loose_muon_eta and 
                         abs(mu.dxy()) < self.cfg_ana.loose_muon_dxy and abs(mu.dz()) < self.cfg_ana.loose_muon_dz and
                         self.muIsoCut(mu)):
@@ -212,7 +229,9 @@ class LeptonAnalyzer( Analyzer ):
                     event.otherLeptons.append(mu)
         looseMuons = event.selectedLeptons[:]
         for ele in inclusiveElectrons:
-               if (ele.electronID(self.cfg_ana.loose_electron_id) and
+               ele.looseIdOnly = ele.electronID(self.cfg_ana.loose_electron_id)
+               if ele.looseIdOnly < 0: print "Negative id for electron of pt %.1f, id %s, ret %r"  % (ele.pt(),self.cfg_ana.loose_electron_id, ele.looseIdOnly) 
+               if (ele.looseIdOnly and
                          ele.pt()>self.cfg_ana.loose_electron_pt and abs(ele.eta())<self.cfg_ana.loose_electron_eta and 
                          abs(ele.dxy()) < self.cfg_ana.loose_electron_dxy and abs(ele.dz())<self.cfg_ana.loose_electron_dz and 
                          self.eleIsoCut(ele) and 
@@ -292,8 +311,9 @@ class LeptonAnalyzer( Analyzer ):
               mu.EffectiveArea04 = 0 # not computed
           else: raise RuntimeError,  "Unsupported value for mu_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_25ns_v1 or Spring15_25ns_v1 (rho: fixedGridRhoFastjetAll)"
         # Attach the vertex to them, for dxy/dz calculation
+        goodVertices = getattr(event, self.vertexChoice)
         for mu in allmuons:
-            mu.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
+            mu.associatedVertex = goodVertices[0] if len(goodVertices)>0 else event.vertices[0]
             mu.setTrackForDxyDz(self.cfg_ana.muon_dxydz_track)
 
         # Set tight id if specified
@@ -319,6 +339,7 @@ class LeptonAnalyzer( Analyzer ):
         """
                make a list of all electrons, and apply basic corrections to them
         """
+
         allelectrons = map( Electron, self.handles['electrons'].product() )
 
         ## Duplicate removal for fast sim (to be checked if still necessary in latest greatest 5.3.X releases)
@@ -394,8 +415,9 @@ class LeptonAnalyzer( Analyzer ):
                 self.electronEnergyCalibrator.correct(ele, event.run)
 
         # Attach the vertex
+        goodVertices = getattr(event, self.vertexChoice)
         for ele in allelectrons:
-            ele.associatedVertex = event.goodVertices[0] if len(event.goodVertices)>0 else event.vertices[0]
+            ele.associatedVertex = goodVertices[0] if len(goodVertices)>0 else event.vertices[0]
 
         # Compute relIso with R=0.3 and R=0.4 cones
         for ele in allelectrons:
@@ -427,6 +449,22 @@ class LeptonAnalyzer( Analyzer ):
                  except RuntimeError:
                      raise RuntimeError("Unsupported ele_tightId name '" + str(self.cfg_ana.ele_tightId) +  "'! For now only 'MVA' and 'Cuts_2012' are supported, in addition to what provided in Electron.py.")
 
+        # JP/CV: add Spring15 EGamma POG electron ID MVA
+        # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+        if getattr(self.cfg_ana,'updateEleMVA',False) :
+            eleMVAIdSpring15TrigMedium = self.handles['eleMVAIdSpring15TrigMedium'].product()
+            eleMVAIdSpring15TrigTight  = self.handles['eleMVAIdSpring15TrigTight'].product()
+            eleMVArawSpring15Trig = self.handles['eleMVArawSpring15Trig'].product()
+            eleMVAIdSpring15NonTrigMedium = self.handles['eleMVAIdSpring15NonTrigMedium'].product()
+            eleMVAIdSpring15NonTrigTight  = self.handles['eleMVAIdSpring15NonTrigTight'].product()
+            eleMVArawSpring15NonTrig = self.handles['eleMVArawSpring15NonTrig'].product()
+            for ie, ele in enumerate(allelectrons):
+                ele.mvaIdSpring15TrigMedium = eleMVAIdSpring15TrigMedium.get(ie)
+                ele.mvaIdSpring15TrigTight = eleMVAIdSpring15TrigTight.get(ie)
+                ele.mvaRawSpring15Trig = eleMVArawSpring15Trig.get(ie)
+                ele.mvaIdSpring15NonTrigMedium = eleMVAIdSpring15NonTrigMedium.get(ie)
+                ele.mvaIdSpring15NonTrigTight = eleMVAIdSpring15NonTrigTight.get(ie)
+                ele.mvaRawSpring15NonTrig = eleMVArawSpring15NonTrig.get(ie)
         
         return allelectrons 
 
@@ -437,8 +475,14 @@ class LeptonAnalyzer( Analyzer ):
         what = "mu" if (abs(mu.pdgId()) == 13) else ("eleB" if mu.isEB() else "eleE")
         if what == "mu":
             mu.miniAbsIsoCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, mu.miniIsoR, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0);
+            if self.doFixedConeIsoWithMiniIsoVeto:
+                mu.AbsIsoMIVCharged03 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.3, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0);
+                mu.AbsIsoMIVCharged04 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.4, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0);
         else:
             mu.miniAbsIsoCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, mu.miniIsoR, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0,self.IsolationComputer.selfVetoNone);
+            if self.doFixedConeIsoWithMiniIsoVeto:
+                mu.AbsIsoMIVCharged03 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.3, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0,self.IsolationComputer.selfVetoNone);
+                mu.AbsIsoMIVCharged04 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.4, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0,self.IsolationComputer.selfVetoNone);
 
         if self.miniIsolationPUCorr == None: puCorr = self.cfg_ana.mu_isoCorr if what=="mu" else self.cfg_ana.ele_isoCorr
         else: puCorr = self.miniIsolationPUCorr
@@ -471,8 +515,39 @@ class LeptonAnalyzer( Analyzer ):
             elif puCorr != 'raw':
                 raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested)."
 
+        if self.doFixedConeIsoWithMiniIsoVeto:
+            if what == "mu":
+                mu.AbsIsoMIVNeutral03 = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.3, 0.01, 0.5);
+                mu.AbsIsoMIVNeutral04 = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.4, 0.01, 0.5);
+            else:
+                mu.AbsIsoMIVPho03  = self.IsolationComputer.photonAbsIsoRaw(    mu.physObj, 0.3, 0.08 if what == "eleE" else 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+                mu.AbsIsoMIVNHad03 = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.3, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+                mu.AbsIsoMIVNeutral03 = mu.AbsIsoMIVPho03 + mu.AbsIsoMIVNHad03
+                mu.AbsIsoMIVPho04  = self.IsolationComputer.photonAbsIsoRaw(    mu.physObj, 0.4, 0.08 if what == "eleE" else 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+                mu.AbsIsoMIVNHad04 = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.4, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+                mu.AbsIsoMIVNeutral04 = mu.AbsIsoMIVPho04 + mu.AbsIsoMIVNHad04
+            if puCorr == "rhoArea":
+                mu.AbsIsoMIVNeutral03 = max(0.0, mu.AbsIsoMIVNeutral03 - mu.rho * mu.EffectiveArea03)
+                mu.AbsIsoMIVNeutral04 = max(0.0, mu.AbsIsoMIVNeutral04 - mu.rho * mu.EffectiveArea03 * 16./9.)
+            elif puCorr == "deltaBeta":
+                if what == "mu":
+                    mu.AbsIsoMIVPU03 = self.IsolationComputer.puAbsIso(mu.physObj, 0.3, 0.01, 0.5);
+                    mu.AbsIsoMIVPU04 = self.IsolationComputer.puAbsIso(mu.physObj, 0.4, 0.01, 0.5);
+                else:
+                    mu.AbsIsoMIVPU03 = self.IsolationComputer.puAbsIso(mu.physObj, 0.3, 0.015 if what == "eleE" else 0.0, 0.0,self.IsolationComputer.selfVetoNone);
+                    mu.AbsIsoMIVPU04 = self.IsolationComputer.puAbsIso(mu.physObj, 0.4, 0.015 if what == "eleE" else 0.0, 0.0,self.IsolationComputer.selfVetoNone);
+                mu.AbsIsoMIVNeutral03 = max(0.0, mu.AbsIsoMIVNeutral03 - 0.5*mu.AbsIsoMIVPU03)
+                mu.AbsIsoMIVNeutral04 = max(0.0, mu.AbsIsoMIVNeutral04 - 0.5*mu.AbsIsoMIVPU04)
+            elif puCorr != 'raw':
+                raise RuntimeError, "Unsupported isolationCorr name for MIV03/04 '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw' are supported."
+
         mu.miniAbsIso = mu.miniAbsIsoCharged + mu.miniAbsIsoNeutral
         mu.miniRelIso = mu.miniAbsIso/mu.pt()
+        if self.doFixedConeIsoWithMiniIsoVeto:
+            mu.AbsIsoMIV03 = mu.AbsIsoMIVCharged03 + mu.AbsIsoMIVNeutral03
+            mu.RelIsoMIV03 = mu.AbsIsoMIV03/mu.pt()
+            mu.AbsIsoMIV04 = mu.AbsIsoMIVCharged04 + mu.AbsIsoMIVNeutral04
+            mu.RelIsoMIV04 = mu.AbsIsoMIV04/mu.pt()
 
 
     def attachIsoAnnulus04(self, mu):  # annulus isolation with outer cone of 0.4 and delta beta PU correction
@@ -518,6 +593,22 @@ class LeptonAnalyzer( Analyzer ):
             mu.ScanAbsIsoNeutral02 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.2, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.2, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
             mu.ScanAbsIsoNeutral03 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.3, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.3, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
             mu.ScanAbsIsoNeutral04 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.4, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.4, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+
+    def attachDirectionalIsolation(self, mu, conesize=0.3):
+
+        what = "mu" if (abs(mu.pdgId()) == 13) else ("eleB" if mu.isEB() else "eleE")
+        vetoreg = {"mu":0.0001,"eleB":0,"eleE":0.015}[what]
+
+        if what=="mu":
+            setattr(mu,('isoSumRawP4Charged%s'%str(conesize)).replace('.',''),self.IsolationComputer.chargedP4Iso(mu.physObj, conesize, vetoreg, 0.0))
+        else:
+            setattr(mu,('isoSumRawP4Charged%s'%str(conesize)).replace('.',''),self.IsolationComputer.chargedP4Iso(mu.physObj, conesize, vetoreg, 0.0, self.IsolationComputer.selfVetoNone))
+
+        if what=="mu":
+            setattr(mu,('isoSumRawP4Neutral%s'%str(conesize)).replace('.',''),self.IsolationComputer.neutralP4IsoRaw(mu.physObj, conesize,  0.01, 0.5))
+        else:
+            vetoreg = {"eleB":0.0,"eleE":0.08}[what]
+            setattr(mu,('isoSumRawP4Neutral%s'%str(conesize)).replace('.',''),self.IsolationComputer.photonP4IsoRaw(mu.physObj, conesize, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadP4IsoRaw(mu.physObj, conesize, 0.0, 0.0, self.IsolationComputer.selfVetoNone))
 
 
     def matchLeptons(self, event):
@@ -656,6 +747,15 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     loose_electron_relIso = 0.4,
     # loose_electron_isoCut = lambda electron : electron.miniRelIso < 0.1
     loose_electron_lostHits = 1.0,
+    # FIXME: JP/CV: add Spring15 EGamma POG electron ID MVA
+    # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
+    updateEleMVA = False,
+    eleMVAIdSpring15TrigMedium = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp90",
+    eleMVAIdSpring15TrigTight = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-Trig-V1-wp80",
+    eleMVArawSpring15Trig = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values",
+    eleMVAIdSpring15NonTrigMedium = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90",
+    eleMVAIdSpring15NonTrigTight = "egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80",
+    eleMVArawSpring15NonTrig = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values",
     # muon isolation correction method (can be "rhoArea" or "deltaBeta")
     mu_isoCorr = "rhoArea" ,
     mu_effectiveAreas = "Spring15_25ns_v1", #(can be 'Data2012' or 'Phys14_25ns_v1' or 'Spring15_25ns_v1')
@@ -672,6 +772,8 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     miniIsolationPUCorr = 'rhoArea', # Allowed options: 'rhoArea' (EAs for 03 cone scaled by R^2), 'deltaBeta', 'raw' (uncorrected), 'weights' (delta beta weights; not validated)
                                      # Choose None to just use the individual object's PU correction
     miniIsolationVetoLeptons = None, # use 'inclusive' to veto inclusive leptons and their footprint in all isolation cones
+    doDirectionalIsolation = [], # calculate directional isolation with leptons (works only with doMiniIsolation, pass list of cone sizes)
+    doFixedConeIsoWithMiniIsoVeto = False, # calculate fixed cone isolations with the same vetoes used for miniIso,
     # Activity Annulus
     doIsoAnnulus = False, # off by default since it requires access to all PFCandidates 
     # do MC matching 
