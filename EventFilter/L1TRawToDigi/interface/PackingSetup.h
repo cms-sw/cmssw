@@ -1,5 +1,5 @@
-#ifndef PackingSetup_h
-#define PackingSetup_h
+#ifndef EventFilter_L1TRawToDigi_PackingSetup_h
+#define EventFilter_L1TRawToDigi_PackingSetup_h
 
 #include <map>
 
