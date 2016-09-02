@@ -83,10 +83,17 @@ void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[3] ? maxDepth_[0] : maxDepth_[3]);
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[4] ? maxDepth_[0] : maxDepth_[4]); // any of HB/HE/HO/HF
 
-  nChannels_[1] = htopology->getHBSize(); 
-  nChannels_[2] = htopology->getHESize(); 
-  nChannels_[3] = htopology->getHOSize(); 
-  nChannels_[4] = htopology->getHFSize(); 
+  es.get<CaloGeometryRecord > ().get(geometry);
+
+  const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const std::vector<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const std::vector<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const std::vector<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
+
+  nChannels_[1] = hbCells.size(); 
+  nChannels_[2] = heCells.size(); 
+  nChannels_[3] = hoCells.size(); 
+  nChannels_[4] = hfCells.size();
   nChannels_[5] = nChannels_[1] + nChannels_[2] + nChannels_[3] + nChannels_[4];
 
   std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
@@ -368,7 +375,6 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     using namespace edm;
     using namespace std;
 
-    iSetup.get<CaloGeometryRecord > ().get(geometry);
     iSetup.get<HcalDbRecord > ().get(conditions);
 
     //TP Code
