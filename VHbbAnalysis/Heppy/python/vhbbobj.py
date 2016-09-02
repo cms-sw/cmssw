@@ -153,7 +153,8 @@ jetTypeVHbb = NTupleObjectType("jet",  baseObjectTypes = [ jetType ], variables 
     NTupleVariable("mcIdx",   lambda x : x.mcJet.index if hasattr(x,"mcJet") and x.mcJet is not None else -1, int, mcOnly=False,help="index of the matching gen jet"),
     #NTupleVariable("pt_reg",lambda x : getattr(x,"pt_reg",-99), help="Regression"),
     #NTupleVariable("pt_regVBF",lambda x : getattr(x,"pt_regVBF",-99), help="Regression for VBF"),
-    NTupleVariable("blike_VBF",lambda x : getattr(x,"blike_VBF",-2), help="VBF blikelihood for SingleBtag dataset")
+    NTupleVariable("blike_VBF",lambda x : getattr(x,"blike_VBF",-2), help="VBF blikelihood for SingleBtag dataset"),
+    NTupleVariable("pt_puppi",lambda x : puppiWeightedPt(x).pt(), help="pt of jet obtained reweighting the constituents with puppi weights"),
  ])
 
 # "" is the nominal rgression, the other refer to JEC/JER up/down
@@ -559,3 +560,6 @@ def ptRel(p4,axis):
     o=ROOT.TLorentzVector(p4.Px(),p4.Py(),p4.Pz(),p4.E())
     return o.Perp(a)
 
+def puppiWeightedPt(j):
+    return sum( [x.p4()*x.puppiWeight() for x in  j.daughterPtrVector()] ,  ROOT.reco.Particle.LorentzVector() )
+    
