@@ -24,11 +24,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
-options.register('outputDBAuth',
+options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for outputDB")
+                 "Authentication path for the DB")
 options.parseArguments()
 
 # sanity checks
@@ -50,12 +50,14 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1SubsystemKeysOnlineExt_cfi")
     process.L1SubsystemKeysOnlineExt.tscKey = cms.string( options.topKey.split(':')[0] )
     process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.topKey.split(':')[1] )
+    process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.DBAuth )
     process.L1SubsystemKeysOnlineExt.forceGeneration = cms.bool(True)
     # using the parent L1TriggerKey above start generation of system-specific (labeled) L1TriggerKeys and pack them the main (unlabeled) L1TriggerKey (just one subsystem here)
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('uGTrs')
     # include the uGTrs specific subkeys ESProducer (generates uGTrs labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TGlobalPrescalesVetosProducers.L1TGlobalPrescalesVetosObjectKeysOnline_cfi")
+    process.L1TGlobalPrescalesVetosObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -70,6 +72,7 @@ else :
 
 # Online produced for the payload 
 process.load("L1TriggerConfig.L1TGlobalPrescalesVetosProducers.L1TGlobalPrescalesVetosOnline_cfi")
+process.L1TGlobalPrescalesVetosOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
@@ -98,7 +101,7 @@ outputDB = cms.Service("PoolDBOutputService",
     )
 )
 
-outputDB.DBParameters.authenticationPath = '.'
+outputDB.DBParameters.authenticationPath = options.DBAuth
 process.add_(outputDB)
 
 process.p = cms.Path(process.getter + process.l1pvw)
