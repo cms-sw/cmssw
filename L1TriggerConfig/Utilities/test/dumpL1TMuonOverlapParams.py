@@ -24,11 +24,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
-options.register('outputDBAuth',
+options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for outputDB")
+                 "Authentication path for the DB")
 options.parseArguments()
 
 # sanity checks
@@ -50,12 +50,14 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1SubsystemKeysOnlineExt_cfi")
     process.L1SubsystemKeysOnlineExt.tscKey = cms.string( options.topKey.split(':')[0] )
     process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.topKey.split(':')[1] )
+    process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.DBAuth )
     process.L1SubsystemKeysOnlineExt.forceGeneration = cms.bool(True)
     # using the parent L1TriggerKey above start generation of system-specific (labeled) L1TriggerKeys and pack them the main (unlabeled) L1TriggerKey (just one subsystem here)
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('OMTF')
     # include the system-specific subkeys ESProducer (generates OMTF labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TMuonOverlapParamsProducers.L1TMuonOverlapObjectKeysOnline_cfi")
+    process.L1TMuonOverlapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -72,6 +74,7 @@ else :
 process.load("L1TriggerConfig.L1TMuonOverlapParamsProducers.L1TMuonOverlapParamsOnline_cfi")
 
 process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
+process.L1TMuonOverlapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 
 
 from CondCore.CondDB.CondDB_cfi import CondDB
@@ -101,7 +104,7 @@ outputDB = cms.Service("PoolDBOutputService",
     )
 )
 
-outputDB.DBParameters.authenticationPath = '.'
+outputDB.DBParameters.authenticationPath = options.DBAuth
 process.add_(outputDB)
 
 

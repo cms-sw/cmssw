@@ -24,11 +24,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
-options.register('outputDBAuth',
+options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "Authentication path for outputDB")
+                 "Authentication path for the DB")
 options.parseArguments()
 
 # sanity checks
@@ -50,12 +50,14 @@ if len(options.topKey) :
     process.load("CondTools.L1TriggerExt.L1SubsystemKeysOnlineExt_cfi")
     process.L1SubsystemKeysOnlineExt.tscKey = cms.string( options.topKey.split(':')[0] )
     process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.topKey.split(':')[1] )
+    process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.DBAuth )
     process.L1SubsystemKeysOnlineExt.forceGeneration = cms.bool(True)
     # using the parent L1TriggerKey above start generation of system-specific (labeled) L1TriggerKeys and pack them the main (unlabeled) L1TriggerKey (just one subsystem here)
     process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('EMTF')
     # include the system-specific subkeys ESProducer (generates EMTF labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TMuonEndcapParamsProducers.L1TMuonEndcapObjectKeysOnline_cfi")
+    process.L1TMuonEndcapObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -70,6 +72,7 @@ else :
 
 # This online produced should never be called if the rest of the O2O machinery works as expected
 process.load("L1TriggerConfig.L1TMuonEndcapParamsProducers.L1TMuonEndcapParamsOnline_cfi")
+process.L1TMuonEndcapParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
 
 process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
 
@@ -100,7 +103,7 @@ outputDB = cms.Service("PoolDBOutputService",
     )
 )
 
-outputDB.DBParameters.authenticationPath = '.'
+outputDB.DBParameters.authenticationPath = options.DBAuth
 process.add_(outputDB)
 
 
