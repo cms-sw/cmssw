@@ -2,41 +2,27 @@
 #define DataFormats_ForwardDetId_HGCTriggerHexDetId_H 1
 
 #include <iosfwd>
-#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "TObject.h"
 
 
-// Implement the same structure as HGCalDetId with additional static methods
-// FIXME: might be better to derive it from HGCalDetId to ensure that the underlying detid has the
-// same structure
-class HGCTriggerHexDetId : public DetId {
-
-
-    public:
+// Same bit structure as HGCalDetId, with additional static methods to work with raw ids
+class HGCTriggerHexDetId : public HGCalDetId 
+{
     // |   DetId           | HGCTriggerHexDetId 
     // | 1111     | 111    | 1     | 11111 |      1     | 1111111111 | 11111111
     // | detector | subdet | zside | layer | wafer type |    wafer   |   cell
     // | 15       | 7      | 2     | 31    |     2      |   1023     |   255
-        static const int cell_shift = 0;
-        static const int cell_mask = 0xFF;
-        static const int wafer_shift = 8;
-        static const int wafer_mask = 0x3FF;
-        static const int wafer_type_shift = 18;
-        static const int wafer_type_mask = 0x1;
-        static const int layer_shift = 19;
-        static const int layer_mask= 0x1F;
-        static const int zside_shift = 24;
-        static const int zside_mask = 0x1;
+
 
     public:
         // undefined cell, for module det id
-        const static uint32_t UndefinedCell() { return cell_mask; }
+        const static uint32_t UndefinedCell() { return kHGCalCellMask; }
 
 
         /** Create a null cellid*/
         HGCTriggerHexDetId();
-        virtual ~HGCTriggerHexDetId(){}
         /** Create cellid from raw id (0=invalid tower id) */
         HGCTriggerHexDetId(uint32_t rawid);
         /** Constructor from subdetector, zplus, layer, wafer type, wafer, cell numbers */
@@ -46,73 +32,47 @@ class HGCTriggerHexDetId : public DetId {
         /** Assignment from a generic cell id */
         HGCTriggerHexDetId& operator=(const DetId& id);
 
-        /// get the cell #
-        int cell() const { return getMaskedId(cell_shift,cell_mask); }
-
-        /// get the wafer #
-        int wafer() const { return getMaskedId(wafer_shift,wafer_mask); }
-
-        /// get the wafer type
-        int waferType() const { return ( getMaskedId(wafer_type_shift,wafer_type_mask) ? 1 : -1);}
-            
-        /// get the layer #
-        int layer() const { return getMaskedId(layer_shift,layer_mask); }
-
-        /// get the z-side of the cell (1/-1)
-        int zside() const { return ( getMaskedId(zside_shift,zside_mask) ? 1 : -1); }
-
-
         // Static getters and setters to work on raw ids
-        static int subdet(uint32_t id) {return getMaskedId(id, kSubdetOffset, 0x7);}
-        static int cell(uint32_t id) {return getMaskedId(id, cell_shift,cell_mask);}
-        static int wafer(uint32_t id) {return getMaskedId(id, wafer_shift,wafer_mask);}
-        static int waferType(uint32_t id) {return (getMaskedId(id, wafer_type_shift,wafer_type_mask) ? 1 : -1);}
-        static int layer(uint32_t id) {return getMaskedId(id, layer_shift,layer_mask);}
-        static int zside(uint32_t id) {return (getMaskedId(id, zside_shift,zside_mask) ? 1 : -1);}
+        static int subdetIdOf(uint32_t id) {return getMaskedId(id, kSubdetOffset, 0x7);}
+        static int cellOf(uint32_t id) {return getMaskedId(id, kHGCalCellOffset,kHGCalCellMask);}
+        static int waferOf(uint32_t id) {return getMaskedId(id, kHGCalWaferOffset,kHGCalWaferMask);}
+        static int waferTypeOf(uint32_t id) {return (getMaskedId(id, kHGCalWaferTypeOffset,kHGCalWaferTypeMask) ? 1 : -1);}
+        static int layerOf(uint32_t id) {return getMaskedId(id, kHGCalLayerOffset,kHGCalLayerMask);}
+        static int zsideOf(uint32_t id) {return (getMaskedId(id, kHGCalZsideOffset,kHGCalZsideMask) ? 1 : -1);}
 
-        static void setCell(uint32_t& id, int cell) 
+        static void setCellOf(uint32_t& id, int cell) 
         {
-            resetMaskedId(id, cell_shift,cell_mask);
-            setMaskedId(id, cell, cell_shift,cell_mask);
+            resetMaskedId(id, kHGCalCellOffset,kHGCalCellMask);
+            setMaskedId(id, cell, kHGCalCellOffset,kHGCalCellMask);
         }
-        static void setWafer(uint32_t& id, int mod) 
+        static void setWaferOf(uint32_t& id, int mod) 
         {
-            resetMaskedId(id, wafer_shift,wafer_mask);
-            setMaskedId(id, mod, wafer_shift,wafer_mask);
+            resetMaskedId(id, kHGCalWaferOffset,kHGCalWaferMask);
+            setMaskedId(id, mod, kHGCalWaferOffset,kHGCalWaferMask);
         }
-        static void setWaferType(uint32_t& id, int wafertype) 
+        static void setWaferTypeOf(uint32_t& id, int wafertype) 
         {
-            resetMaskedId(id, wafer_type_shift, wafer_type_mask);
-            setMaskedId(id, wafertype, wafer_type_shift,wafer_type_mask);
+            resetMaskedId(id, kHGCalWaferTypeOffset, kHGCalWaferTypeMask);
+            setMaskedId(id, wafertype, kHGCalWaferTypeOffset,kHGCalWaferTypeMask);
         }
-        static void setLayer(uint32_t& id, int lay) 
+        static void setLayerOf(uint32_t& id, int lay) 
         {
-            resetMaskedId(id, layer_shift,layer_mask);
-            setMaskedId(id, lay, layer_shift,layer_mask);
+            resetMaskedId(id, kHGCalLayerOffset,kHGCalLayerMask);
+            setMaskedId(id, lay, kHGCalLayerOffset,kHGCalLayerMask);
         }
-        static void setZside(uint32_t& id, int zside) 
+        static void setZsideOf(uint32_t& id, int zside) 
         {
-            resetMaskedId(id, zside_shift,zside_mask);
-            setMaskedId(id, zside, zside_shift,zside_mask);
+            resetMaskedId(id, kHGCalZsideOffset,kHGCalZsideMask);
+            setMaskedId(id, zside, kHGCalZsideOffset,kHGCalZsideMask);
         }
 
-        /// consistency check
-        bool isHGCal()   const { return true; }
-        bool isForward() const { return true; }
-
-        static const HGCTriggerHexDetId Undefined;
 
     private:
-        const inline int getMaskedId(const uint32_t &shift, const uint32_t &mask) const  { return (id_ >> shift) & mask ; }
-        inline void setMaskedId( const uint32_t value, const uint32_t &shift, const uint32_t &mask ){ id_|= ((value & mask ) <<shift ); }
-
         static const inline int getMaskedId(const uint32_t& id, const uint32_t &shift, const uint32_t &mask) { return (id >> shift) & mask ; }
         static inline void setMaskedId(uint32_t& id, const uint32_t value, const uint32_t &shift, const uint32_t &mask ){ id|= ((value & mask ) <<shift ); }
         static inline void resetMaskedId(uint32_t& id, const uint32_t &shift, const uint32_t &mask ){ id &= ~(mask<<shift); }
 
 };
-
-std::ostream& operator<<(std::ostream&,const HGCTriggerHexDetId& id);
 
 
 #endif
