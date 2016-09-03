@@ -195,10 +195,10 @@ findMethod(const edm::TypeWithDict& t, /*class=in*/
   } else {
     edm::TypeFunctionMembers functions(type);
     for (auto const& F : functions) {
-      edm::FunctionWithDict f(F);
-      if (f.name() != name) {
+      if (std::string(F->GetName()) != name) {
         continue;
       }
+      edm::FunctionWithDict f(F);
       int casts = checkMethod(f, type, args, fixuppedArgs);
       if (casts > -1) {
         oks.push_back(std::make_pair(casts, f));
