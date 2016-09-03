@@ -581,7 +581,27 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
-
+  /*
+  MonitorElement* mePhFracBarrel_BXm2BXm1Empty;
+  MonitorElement* meNHFracBarrel_BXm2BXm1Empty;
+  MonitorElement* meCHFracBarrel_BXm2BXm1Empty;
+  MonitorElement* mePtBarrel_BXm2BXm1Empty;
+  MonitorElement* mePhFracEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* meNHFracEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* meCHFracEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* mePtEndCapMinus_BXm2BXm1Empty;
+  MonitorElement* mePhFracEndCapPlus_BXm2BXm1Empty;
+  MonitorElement* meNHFracEndCapPlus_BXm2BXm1Empty;
+  MonitorElement* meCHFracEndCapPlus_BXm2BXm1Empty;
+  MonitorElement* mePtEndCapPlus_BXm2BXm1Empty;
+  MonitorElement* meHFHFracMinus_BXm2BXm1Empty;
+  MonitorElement* meHFEMFracMinus_BXm2BXm1Empty;
+  MonitorElement* mePtForwardMinus_BXm2BXm1Empty;
+  MonitorElement* meHFHFracPlus_BXm2BXm1Empty;
+  MonitorElement* meHFEMFracPlus_BXm2BXm1Empty;
+  MonitorElement* mePtForwardPlus_BXm2BXm1Empty;
+  MonitorElement* meEta_BXm2BXm1Empty;
+  */
   MonitorElement* mePhFracBarrel_BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm1Empty;
@@ -601,7 +621,27 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm1Empty;
   MonitorElement* mePtForwardPlus_BXm1Empty;
   MonitorElement* meEta_BXm1Empty;
- 
+  /*
+  MonitorElement* mePhFracBarrel_BXm2BXm1Filled;
+  MonitorElement* meNHFracBarrel_BXm2BXm1Filled;
+  MonitorElement* meCHFracBarrel_BXm2BXm1Filled;
+  MonitorElement* mePtBarrel_BXm2BXm1Filled;
+  MonitorElement* mePhFracEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* meNHFracEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* meCHFracEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* mePtEndCapMinus_BXm2BXm1Filled;
+  MonitorElement* mePhFracEndCapPlus_BXm2BXm1Filled;
+  MonitorElement* meNHFracEndCapPlus_BXm2BXm1Filled;
+  MonitorElement* meCHFracEndCapPlus_BXm2BXm1Filled;
+  MonitorElement* mePtEndCapPlus_BXm2BXm1Filled;
+  MonitorElement* meHFHFracMinus_BXm2BXm1Filled;
+  MonitorElement* meHFEMFracMinus_BXm2BXm1Filled;
+  MonitorElement* mePtForwardMinus_BXm2BXm1Filled;
+  MonitorElement* meHFHFracPlus_BXm2BXm1Filled;
+  MonitorElement* meHFEMFracPlus_BXm2BXm1Filled;
+  MonitorElement* mePtForwardPlus_BXm2BXm1Filled;
+  MonitorElement* meEta_BXm2BXm1Filled;
+  */
   MonitorElement* mePhFracBarrel_BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm1Filled;
