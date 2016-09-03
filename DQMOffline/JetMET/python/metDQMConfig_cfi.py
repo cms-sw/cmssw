@@ -23,7 +23,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     
     FolderName = cms.untracked.string("JetMET/MET/"),
 
-    fillMetHighLevel = cms.bool(False),#fills lumi overview plots
+    fillMetHighLevel = cms.bool(True),#fills lumi overview plots
 
     fillCandidateMaps = cms.bool(False),
 
@@ -103,7 +103,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     ),
  
     HBHENoiseLabelMiniAOD = cms.string("Flag_HBHENoiseFilter"),
-    HBHEIsoNoiseLabelMiniAOD = cms.string("Flag_HBHENoiseIsoFilter"),
+    HBHEIsoNoiseLabelMiniAOD = cms.string("Flag_HBHEIsoNoiseFilter"),
 
     HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"), 
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),
@@ -140,7 +140,7 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
     CleaningParameters = cleaningParameters.clone(       
         bypassAllPVChecks = cms.bool(False),
         ),
-    fillMetHighLevel = cms.bool(True),
+    fillMetHighLevel = cms.bool(False),
     fillCandidateMaps = cms.bool(True),
     # if this flag is changed, the METTypeRECOUncleaned flag in dataCertificationJetMET_cfi.py
     #has to be updated (by a string not pointing to an existing directory)
@@ -154,7 +154,6 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
 pfChMetDQMAnalyzer = pfMetDQMAnalyzer.clone(
      METCollectionLabel     = cms.InputTag("pfChMet"),
      fillCandidateMaps = cms.bool(False),
-     fillMetHighLevel = cms.bool(False),
      onlyCleaned                = cms.untracked.bool(True),
  )
 
@@ -178,7 +177,7 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
         ),
 )
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
-    fillMetHighLevel = cms.bool(False),#fills only lumisec plots
+    fillMetHighLevel = cms.bool(True),#fills only lumisec plots
     fillCandidateMaps = cms.bool(False),
     srcPFlow = cms.InputTag('packedPFCandidates', ''),
     METDiagonisticsParameters = multPhiCorr_METDiagnosticsMiniAOD,
