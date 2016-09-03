@@ -43,7 +43,7 @@ Skimming of SinglePhoton data set for the study of HO absolute weight calculatio
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 using namespace edm;
@@ -58,8 +58,7 @@ class SinglePhotonJetPlusHOFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      double PhiInRange(const double& phi);
-      double delta2R(double eta1, double phi1, double eta2, double phi2);
+
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -179,7 +178,7 @@ SinglePhotonJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	
 	bool matched=false;
 	for (unsigned iph=0; iph<phodirection.size(); iph++) { 
-	  if(abs(PhiInRange(phodirection[iph].second-jetdirection[ijet].second))>2.0) {
+	  if(abs(deltaPhi(phodirection[iph].second, jetdirection[ijet].second))>2.0) {
 	    matched=true; break;
 	  }
 	}
@@ -193,7 +192,7 @@ SinglePhotonJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	    double hoeta = cluster_pos.eta() ;
 	    double hophi = cluster_pos.phi() ;
 	    
-	    double delta = delta2R(jetdirection[ijet].first, jetdirection[ijet].second, hoeta, hophi);
+	    double delta = deltaR2(jetdirection[ijet].first, jetdirection[ijet].second, hoeta, hophi);
 	    if (delta <0.5) { 
 	      isJetDir=true;  break;
 	    }
@@ -219,7 +218,6 @@ SinglePhotonJetPlusHOFilter::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SinglePhotonJetPlusHOFilter::endJob() {
-  cout<<"End of SinglePhotonJetPlusHOFilter with event "<<Nevt<<" Jetpassed "<< Njetp<<" passed "<<Npass<<endl;
 
 }
 
@@ -260,23 +258,6 @@ SinglePhotonJetPlusHOFilter::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-
-double SinglePhotonJetPlusHOFilter::PhiInRange(const double& phi) {
-  double phiout = phi;
-  
-  if( phiout > 2*M_PI || phiout < -2*M_PI) {
-    phiout = fmod( phiout, 2*M_PI);
-  }
-  if (phiout <= -M_PI) phiout += 2*M_PI;
-  else if (phiout >  M_PI) phiout -= 2*M_PI;
-  
-  return phiout;
-}
-
-double SinglePhotonJetPlusHOFilter::delta2R(double eta1, double phi1, double eta2, double phi2) {
-  return sqrt(pow(eta1 - eta2,2) +pow(PhiInRange(phi1 - phi2),2));
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SinglePhotonJetPlusHOFilter);
