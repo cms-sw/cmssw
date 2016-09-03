@@ -330,6 +330,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    ts4Max_=vts4Max_[0]; //  HB and HE are identical for Run2
 
    std::vector<float> fitParsVec;
+
    if(tstrig >= ts4Min_&& tsTOTen > 0.) { //Two sigma from 0
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec, noiseADCArr);
    }
@@ -340,6 +341,13 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
      fitParsVec.push_back(0.);
      fitParsVec.push_back(999.);
      fitParsVec.push_back(false);
+   } else {
+     fitParsVec.clear();
+     fitParsVec.push_back(0.); //charge
+     fitParsVec.push_back(-9999); // time
+     fitParsVec.push_back(0.); // ped
+     fitParsVec.push_back(-9999); // chi2
+     fitParsVec.push_back(false); // triple
    }
 
    reconstructedEnergy=fitParsVec[0];
@@ -522,8 +530,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     chargeArr[ip] = charge; pedArr[ip] = ped; gainArr[ip] = gain;
     energyArr[ip] = energy; pedenArr[ip] = peden;
 
-    if(channelData.id().subdet() == HcalSubdetector::HcalBarrel) noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]);
-    if(channelData.id().subdet() == HcalSubdetector::HcalEndcap) noiseADCArr[ip] = psfPtr_->sigmaSiPMQIE10(chargeArr[ip]);
+    if(!channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]);
+    if(channelData.hasTimeInfo()) noiseADCArr[ip] = psfPtr_->sigmaSiPMQIE10(chargeArr[ip]);
 
     tsTOT += charge - ped;
     tsTOTen += energy - peden;
@@ -532,8 +540,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     }
   }
 
-  if(channelData.id().subdet() == HcalSubdetector::HcalBarrel) ts4Max_=vts4Max_[0];
-  if(channelData.id().subdet() == HcalSubdetector::HcalEndcap) ts4Max_=vts4Max_[1];
+  if(!channelData.hasTimeInfo()) ts4Max_=vts4Max_[0];
+  if(channelData.hasTimeInfo()) ts4Max_=vts4Max_[1];
 
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
@@ -546,7 +554,15 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     fitParsVec.push_back(0.);
     fitParsVec.push_back(999.);
     fitParsVec.push_back(false);
-  }
+  } else {
+    fitParsVec.clear();
+    fitParsVec.push_back(0.); //charge
+    fitParsVec.push_back(-9999); // time
+    fitParsVec.push_back(0.); // ped
+    fitParsVec.push_back(-9999); // chi2
+    fitParsVec.push_back(false); // triple
+   }
+
 
   reconstructedEnergy = fitParsVec[0];
   reconstructedTime = fitParsVec[1];
