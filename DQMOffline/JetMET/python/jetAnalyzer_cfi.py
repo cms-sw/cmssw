@@ -144,7 +144,7 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
 )
 
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(
-    filljetHighLevel =cms.bool(False),
+    filljetHighLevel =cms.bool(True),
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
         ),
