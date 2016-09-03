@@ -33,7 +33,7 @@ Skimming of JetHT data set for the study of HO absolute weight calculation
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 using namespace edm;
@@ -49,9 +49,6 @@ class JetHTJetPlusHOFilter : public edm::EDFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-     double PhiInRange(const double& phi);
-  double delta2R(double eta1, double phi1, double eta2, double phi2);
-
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -123,7 +120,6 @@ JetHTJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace std;
   using namespace edm;
   using namespace reco;  
- //cout<<"Nevt "<<Nevt<<endl;
   Nevt++;
 
   edm::Handle<reco::PFJetCollection> PFJets;
@@ -145,37 +141,34 @@ JetHTJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (!passed) return false;
   Njetp++;
   bool isJetDir=false;
-
+	
   edm::Handle<PFClusterCollection> hoht;
   iEvent.getByToken(tok_hoht_,hoht);
   if (hoht.isValid()) {
     if ((*hoht).size()>0) {
       for (PFClusterCollection::const_iterator ij=(*hoht).begin(); ij!=(*hoht).end(); ij++){
-	double hoenr = (*ij).energy();
-	if (hoenr <hothres) continue;
-   
-    const math::XYZPoint&  cluster_pos = ij->position();
- 
-	
-	double hoeta = cluster_pos.eta() ;
-	double hophi = cluster_pos.phi() ;
-
-	for (unsigned ijet = 0; ijet< jetdirection.size(); ijet++) {
-	  double delta = delta2R(jetdirection[ijet].first, jetdirection[ijet].second, hoeta, hophi);
-	  if (delta <0.5) { 
-	    isJetDir=true;   break;
-	    
-	    
-	  }
-	}
+				double hoenr = (*ij).energy();
+				if (hoenr <hothres) continue;
+				
+				const math::XYZPoint&  cluster_pos = ij->position();
+				
+				double hoeta = cluster_pos.eta() ;
+				double hophi = cluster_pos.phi() ;
+				
+				for (unsigned ijet = 0; ijet< jetdirection.size(); ijet++) {
+					double delta = deltaR2(jetdirection[ijet].first, jetdirection[ijet].second, hoeta, hophi);
+					if (delta <0.5) { 
+						isJetDir=true;   break;
+					}
+				}
       }
     }
   }
-
+	
   if (isJetDir) {Npass++;}
-      
+  
   return isJetDir;
-
+	
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -187,8 +180,6 @@ JetHTJetPlusHOFilter::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 JetHTJetPlusHOFilter::endJob() {
-  cout<<"End of JetHTJetPlusHOFilter with event "<<Nevt<<" Jetpassed "<< Njetp<<" passed "<<Npass<<endl;
-
 
 }
 
@@ -229,26 +220,6 @@ JetHTJetPlusHOFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-
-double JetHTJetPlusHOFilter::PhiInRange(const double& phi) {
-  double phiout = phi;
-  
-  if( phiout > 2*M_PI || phiout < -2*M_PI) {
-    phiout = fmod( phiout, 2*M_PI);
-  }
-  if (phiout <= -M_PI) phiout += 2*M_PI;
-  else if (phiout >  M_PI) phiout -= 2*M_PI;
-  
-  return phiout;
-}
-
-double JetHTJetPlusHOFilter::delta2R(double eta1, double phi1, double eta2, double phi2) {
-  return sqrt(pow(eta1 - eta2,2) +pow(PhiInRange(phi1 - phi2),2));
-}
-
-
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(JetHTJetPlusHOFilter);
