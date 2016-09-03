@@ -63,13 +63,6 @@ if( !m_forceGeneration ){
    std::string delimeter = ":";
    std::string m_Key = m_tscKey + delimeter + m_rsKey;
 
-   // For RUN II the subsystem CondFormats for ALGO and RS are merged together -> we join ALGO and RS keys
-
-
-   // combine the ALGO and RS keys:
-   std::string delimeter = ":";
-   std::string m_Key = m_tscKey + delimeter + m_rsKey;
-
    // If L1TriggerKeyListExt does not contain TSC key, token is empty
    if( keyList.token( m_Key ) == std::string() ||
        m_forceGeneration )
