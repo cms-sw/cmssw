@@ -6,7 +6,7 @@ preselection = cms.string(
     ' tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 &'
     ' tauID("againstMuonTight3") > 0.5 &'
     ' tauID("againstElectronVLooseMVA6") > 0.5'
-),
+)
 
 cleanPatTaus = cms.EDProducer("PATTauCleaner",
     src = cms.InputTag("selectedPatTaus"),
