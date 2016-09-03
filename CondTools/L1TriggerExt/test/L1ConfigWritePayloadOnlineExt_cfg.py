@@ -69,7 +69,8 @@ process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.rsKey )
 process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.outputDBAuth )
 
 process.load("CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff")
-setTSCKeysDBAuth( options.outputDBAuth )
+from CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff import setTSCKeysDBAuth
+setTSCKeysDBAuth( process, options.outputDBAuth )
 
 process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
 #process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
@@ -85,7 +86,8 @@ process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring( options.subsystemLa
 
 # Generate configuration data from OMDS
 process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
-setTSCPayloadsDBAuth( options.outputDBAuth )
+from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDBAuth
+setTSCPayloadsDBAuth( process, options.outputDBAuth )
 
 # Define CondDB tags
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
