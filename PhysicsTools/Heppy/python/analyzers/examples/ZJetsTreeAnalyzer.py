@@ -12,10 +12,12 @@ class ZJetsTreeAnalyzer(TreeAnalyzerNumpy):
         ntuple.bookParticle(self.tree, 'dimuon')
         ntuple.bookParticle(self.tree, 'dimuon_leg1')
         ntuple.bookParticle(self.tree, 'dimuon_leg2')
+        self.tree.var('njets')
 
         
     def process(self, event):
         self.tree.reset()
+        self.tree.fill('njets', len(event.jets))
         if len(event.jets)>0:
             ntuple.fillParticle(self.tree, 'jet1', event.jets[0])
             if event.jets[0].gen:
