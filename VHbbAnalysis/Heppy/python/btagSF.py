@@ -13,6 +13,10 @@ calib_csv = ROOT.BTagCalibration("csvv2", csvpath+"/CSVv2_ichep.csv")
 # cMVAv2
 calib_cmva = ROOT.BTagCalibration("cmvav2", csvpath+"/cMVAv2_ichep.csv")
 
+calib_csv_reweight = ROOT.BTagCalibration("csvv2", csvpath+"/ttH_BTV_CSVv2_13TeV_2016BC_7p6_2016_08_13.csv")
+# cMVAv2
+calib_cmva_reweight = ROOT.BTagCalibration("cmvav2", csvpath+"/ttH_BTV_cMVAv2_13TeV_2016BC_7p6_2016_08_13.csv")
+
 # map between algo/flavour and measurement type
 sf_type_map = {
     "CSV" : {
@@ -26,6 +30,19 @@ sf_type_map = {
         "l" : "incl",
         },
     }
+
+
+
+sf_type_map_reweight = {
+    "CSV" : {
+        "file" : calib_csv_reweight,
+        },
+    "CMVAV2" : {
+        "file" : calib_cmva_reweight,
+        },
+    }
+
+
 
 # map of calibrators. E.g. btag_calibrators["CSVM_nominal_bc"], btag_calibrators["CSVM_up_l"], ...
 btag_calibrators = {}
@@ -44,7 +61,7 @@ for algo in ["CSV", "CMVAV2"]:
         print "[btagSF]: Loading calibrator for algo:", algo, "systematic:", syst
         btag_calibrators[algo+"_iterative_"+syst] = ROOT.BTagCalibrationReader( 3 ,  syst)
         for i in [0,1,2]:
-          btag_calibrators[algo+"_iterative_"+syst].load(sf_type_map[algo]["file"], i , "iterativefit")
+          btag_calibrators[algo+"_iterative_"+syst].load(sf_type_map_reweight[algo]["file"], i , "iterativefit")
 
 # depending on flavour, only a sample of systematics matter
 def applies( flavour, syst ):
