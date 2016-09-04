@@ -5,9 +5,6 @@ from RecoEgamma.EgammaIsolationAlgos.egmElectronIsolationPUPPI_cff import egmEle
 from RecoEgamma.EgammaIsolationAlgos.egmElectronIsolationPUPPI_cff import egmElectronIsolationMiniAODPUPPINoLeptons as _egmElectronIsolationMiniAODPUPPINoLeptons
 
 def makeInputForPUPPIIsolationEgm(process):
-	
-	process.load('RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationPUPPI_cff')
-	process.load('RecoEgamma.EgammaIsolationAlgos.egmElectronIsolationPUPPI_cff')
 
 	process.egmPhotonPUPPIIsolation = _egmPhotonPUPPIIsolationForPhotons.clone()
 	process.egmPhotonPUPPIIsolation.srcToIsolate = cms.InputTag("reducedEgamma","reducedGedPhotons")
