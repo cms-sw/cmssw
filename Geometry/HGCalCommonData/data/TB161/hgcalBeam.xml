@@ -388,6 +388,22 @@
     <rChild name="hgcalBeam:HGCalBeamDown"/>
     <Translation x="0*fm" y="0*fm" z="[downstreamZ]"/>
   </PosPart>
- </PosPartSection>
+</PosPartSection>
+
+<SpecParSection label="hgcalBeam.xml" eval="true">
+  <SpecPar name="hgcalbeam">
+    <PartSelector path="//HcalTestBeamLineS.*"/>
+    <PartSelector path="//HcalTestBeamLineHaloCounter"/>
+    <PartSelector path="//HcalTestBeamLineMuonCounter"/>
+    <PartSelector path="//HcalTestBeamLineCK3"/>
+    <PartSelector path="//HcalTestBeamLineWChambGas"/>
+    <Parameter name="SensitiveDetector" value="HcalTB06BeamDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalTB06BeamHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcalbeamWC">
+    <PartSelector path="//HcalTestBeamLineWChambGas"/>
+    <Parameter name="Volume" value="WireChamber" eval="false"/>
+  </SpecPar>
+</SpecParSection>
 
 </DDDefinition>
