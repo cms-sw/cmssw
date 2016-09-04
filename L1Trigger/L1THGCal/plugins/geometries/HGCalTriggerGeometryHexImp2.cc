@@ -16,13 +16,16 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerLightweightGeometryBase
 
         virtual void initialize(const es_info& ) override final;
 
-        virtual const unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const override final;
-        virtual const unsigned getModuleFromCell( const unsigned cell_det_id ) const override final;
-        virtual const unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
+        virtual unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const override final;
+        virtual unsigned getModuleFromCell( const unsigned cell_det_id ) const override final;
+        virtual unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
 
-        virtual const geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const override final;
-        virtual const geom_set getCellsFromModule( const unsigned cell_det_id ) const override final;
-        virtual const geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
+        virtual geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const override final;
+        virtual geom_set getCellsFromModule( const unsigned cell_det_id ) const override final;
+        virtual geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
+
+        virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const override final;
+        virtual GlobalPoint getModulePosition(const unsigned module_det_id) const override final;
 
         virtual const geom_set& getValidTriggerCellIds() const override final;
         virtual const geom_set& getValidModuleIds() const override final;
@@ -33,6 +36,8 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerLightweightGeometryBase
 
         geom_set validTriggerCellIds_;
         geom_set validModuleIds_;
+
+        es_info es_info_;
 
         std::unordered_map<short, short> wafer_to_module_ee_;
         std::unordered_map<short, short> wafer_to_module_fh_;
@@ -64,12 +69,12 @@ initialize(const es_info& esInfo)
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
                                             << "WARNING: There is no positions implemented.\n"\
                                             << "WARNING: There is no neighbor information.\n";
-
+    es_info_ = esInfo;
     fillMaps(esInfo);
 
 }
 
-const unsigned 
+unsigned 
 HGCalTriggerGeometryHexImp2::
 getTriggerCellFromCell( const unsigned cell_det_id ) const
 {
@@ -84,7 +89,7 @@ getTriggerCellFromCell( const unsigned cell_det_id ) const
     return trigger_cell_det_id;
 }
 
-const unsigned 
+unsigned 
 HGCalTriggerGeometryHexImp2::
 getModuleFromCell( const unsigned cell_det_id ) const
 {
@@ -111,7 +116,7 @@ getModuleFromCell( const unsigned cell_det_id ) const
     return module_id;
 }
 
-const unsigned 
+unsigned 
 HGCalTriggerGeometryHexImp2::
 getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const
 {
@@ -136,7 +141,7 @@ getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const
     return module_id;
 }
 
-const HGCalTriggerLightweightGeometryBase::geom_set 
+HGCalTriggerLightweightGeometryBase::geom_set 
 HGCalTriggerGeometryHexImp2::
 getCellsFromTriggerCell( const unsigned trigger_cell_det_id ) const
 {
@@ -154,7 +159,7 @@ getCellsFromTriggerCell( const unsigned trigger_cell_det_id ) const
     return cell_det_ids;
 }
 
-const HGCalTriggerLightweightGeometryBase::geom_set 
+HGCalTriggerLightweightGeometryBase::geom_set 
 HGCalTriggerGeometryHexImp2::
 getCellsFromModule( const unsigned module_det_id ) const
 {
@@ -190,7 +195,7 @@ getCellsFromModule( const unsigned module_det_id ) const
     return cell_det_ids;
 }
 
-const HGCalTriggerLightweightGeometryBase::geom_set 
+HGCalTriggerLightweightGeometryBase::geom_set 
 HGCalTriggerGeometryHexImp2::
 getTriggerCellsFromModule( const unsigned module_det_id ) const
 {
@@ -225,6 +230,37 @@ getTriggerCellsFromModule( const unsigned module_det_id ) const
         }
     }
     return trigger_cell_det_ids;
+}
+
+GlobalPoint 
+HGCalTriggerGeometryHexImp2::
+getTriggerCellPosition(const unsigned trigger_cell_det_id) const
+{
+    // Position: barycenter of the trigger cell.
+    Basic3DVector<float> triggerCellVector(0.,0.,0.);
+    const auto cell_ids = getCellsFromTriggerCell(trigger_cell_det_id);
+    for(const auto& cell : cell_ids)
+    {
+        HGCalDetId cellDetId(cell);
+        triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? es_info_.geom_ee->getPosition(cellDetId) :  es_info_.geom_fh->getPosition(cellDetId)).basicVector();
+    }
+    return GlobalPoint( triggerCellVector/cell_ids.size() );
+
+}
+
+GlobalPoint 
+HGCalTriggerGeometryHexImp2::getModulePosition
+(const unsigned module_det_id) const
+{
+    // Position: barycenter of the module.
+    Basic3DVector<float> moduleVector(0.,0.,0.);
+    const auto cell_ids = getCellsFromModule(module_det_id);
+    for(const auto& cell : cell_ids)
+    {
+        HGCalDetId cellDetId(cell);
+        moduleVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? es_info_.geom_ee->getPosition(cellDetId) :  es_info_.geom_fh->getPosition(cellDetId)).basicVector();
+    }
+    return GlobalPoint( moduleVector/cell_ids.size() );
 }
 
 // FIXME: empty valid IDs

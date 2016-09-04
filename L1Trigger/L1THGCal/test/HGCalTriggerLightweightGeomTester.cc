@@ -461,15 +461,16 @@ void HGCalTriggerLightweightGeomTester::fillTriggerGeometry(const HGCalTriggerLi
     for( const auto& triggercell_cells : trigger_cells )
     {
         HGCTriggerHexDetId id(triggercell_cells.first);
+        GlobalPoint position = triggerGeometry_->getTriggerCellPosition(id);
         triggerCellId_     = id.rawId();
         triggerCellSide_   = id.zside();
         triggerCellSubdet_ = id.subdetId();
         triggerCellLayer_  = id.layer();
         triggerCellWafer_  = id.wafer();
         triggerCell_       = id.cell();
-        triggerCellX_      = 0;
-        triggerCellY_      = 0;
-        triggerCellZ_      = 0;
+        triggerCellX_      = position.x();
+        triggerCellY_      = position.y();
+        triggerCellZ_      = position.z();
         triggerCellCell_N_ = triggercell_cells.second.size();
         //
         setTreeTriggerCellSize(triggerCellCell_N_);
@@ -501,14 +502,15 @@ void HGCalTriggerLightweightGeomTester::fillTriggerGeometry(const HGCalTriggerLi
     for( const auto& module_triggercells : modules )
     {
         HGCTriggerHexDetId id(module_triggercells.first);
+        GlobalPoint position = triggerGeometry_->getModulePosition(id);
         moduleId_     = id.rawId();
         moduleSide_   = id.zside();
         moduleSubdet_ = id.subdetId();
         moduleLayer_  = id.layer();
         module_       = id.wafer();
-        moduleX_      = 0.;
-        moduleY_      = 0.;
-        moduleZ_      = 0.;
+        moduleX_      = position.x();
+        moduleY_      = position.y();
+        moduleZ_      = position.z();
         moduleTC_N_   = module_triggercells.second.size();
         //
         setTreeModuleSize(moduleTC_N_);
@@ -516,15 +518,16 @@ void HGCalTriggerLightweightGeomTester::fillTriggerGeometry(const HGCalTriggerLi
         for(const auto& tc : module_triggercells.second)
         {
             HGCTriggerHexDetId tcId(tc);
+            GlobalPoint position = triggerGeometry_->getTriggerCellPosition(tcId);
             moduleTC_id_    .get()[itc] = tc;
             moduleTC_zside_ .get()[itc] = tcId.zside();
             moduleTC_subdet_.get()[itc] = tcId.subdetId();
             moduleTC_layer_ .get()[itc] = tcId.layer();
             moduleTC_wafer_ .get()[itc] = tcId.wafer();
             moduleTC_cell_  .get()[itc] = tcId.cell();
-            moduleTC_x_     .get()[itc] = 0.;
-            moduleTC_y_     .get()[itc] = 0.;
-            moduleTC_z_     .get()[itc] = 0.;
+            moduleTC_x_     .get()[itc] = position.x();
+            moduleTC_y_     .get()[itc] = position.y();
+            moduleTC_z_     .get()[itc] = position.z();
             itc++;
         }
         //
