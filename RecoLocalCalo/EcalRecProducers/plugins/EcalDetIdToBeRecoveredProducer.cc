@@ -85,10 +85,10 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         std::vector< edm::Handle<EEDetIdCollection> > eeDetIdColls;
         std::vector< edm::Handle<EcalElectronicsIdCollection> > ttColls;
 
-        std::auto_ptr< std::set<EBDetId> > ebDetIdToRecover( new std::set<EBDetId> ); // isolated channels to be recovered
-        std::auto_ptr< std::set<EEDetId> > eeDetIdToRecover( new std::set<EEDetId> ); // isolated channels to be recovered
-        std::auto_ptr< std::set<EcalTrigTowerDetId> > ebTTDetIdToRecover( new std::set<EcalTrigTowerDetId> ); // tt to be recovered
-        std::auto_ptr< std::set<EcalScDetId> > eeSCDetIdToRecover( new std::set<EcalScDetId> ); // sc to be recovered
+        auto ebDetIdToRecover = std::make_unique<std::set<EBDetId>>(); // isolated channels to be recovered
+        auto eeDetIdToRecover = std::make_unique<std::set<EEDetId>>(); // isolated channels to be recovered
+        auto ebTTDetIdToRecover = std::make_unique<std::set<EcalTrigTowerDetId>>(); // tt to be recovered
+        auto eeSCDetIdToRecover = std::make_unique<std::set<EcalScDetId>>(); // sc to be recovered
 
         /*
          * get collections
@@ -310,10 +310,10 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         }
 
         // return the collections
-        ev.put( ebDetIdToRecover, ebDetIdCollection_ );
-        ev.put( eeDetIdToRecover, eeDetIdCollection_ );
-        ev.put( ebTTDetIdToRecover, ttDetIdCollection_ );
-        ev.put( eeSCDetIdToRecover, scDetIdCollection_ );
+        ev.put(std::move(ebDetIdToRecover), ebDetIdCollection_ );
+        ev.put(std::move(eeDetIdToRecover), eeDetIdCollection_ );
+        ev.put(std::move(ebTTDetIdToRecover), ttDetIdCollection_ );
+        ev.put(std::move(eeSCDetIdToRecover), scDetIdCollection_ );
 }
 
 void EcalDetIdToBeRecoveredProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

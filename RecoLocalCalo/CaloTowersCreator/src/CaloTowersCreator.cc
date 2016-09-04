@@ -274,7 +274,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   }
 
   // Step B: Create empty output
-  std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
+  auto prod = std::make_unique<CaloTowerCollection>();
 
   // Step C: Process
   algo_.finish(*prod);
@@ -287,8 +287,8 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   */
 
   // Step D: Put into the event
-  if (eScales_.instanceLabel=="") e.put(prod);
-  else e.put(prod,eScales_.instanceLabel);
+  if (eScales_.instanceLabel=="") e.put(std::move(prod));
+  else e.put(std::move(prod),eScales_.instanceLabel);
 
 
 }

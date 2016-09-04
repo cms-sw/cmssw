@@ -81,7 +81,7 @@ public:
   void setpuCorrMethod(int method){ 
     puCorrMethod_ = method;
     if( puCorrMethod_ == 2 )
-        psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection());
+        psFitOOTpuCorr_ = std::make_unique<PulseShapeFitOOTPileupCorrection>();
   }
 
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
@@ -97,7 +97,7 @@ private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
-  std::auto_ptr<HcalPulseContainmentManager> pulseCorr_;
+  std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
   int runnum_;  // data run numer
   bool setLeakCorrection_;
   int pileupCleaningID_;
@@ -111,12 +111,12 @@ private:
 
   int puCorrMethod_;
 
-  std::auto_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
+  std::unique_ptr<PulseShapeFitOOTPileupCorrection> psFitOOTpuCorr_;
   
-  std::auto_ptr<PedestalSub> pedSubFxn_;
+  std::unique_ptr<PedestalSub> pedSubFxn_;
 
   // S.Brandt Feb19 : Add a pointer to the HLT algo
-  std::auto_ptr<HcalDeterministicFit> hltOOTpuCorr_;
+  std::unique_ptr<HcalDeterministicFit> hltOOTpuCorr_;
 };
 
 #endif

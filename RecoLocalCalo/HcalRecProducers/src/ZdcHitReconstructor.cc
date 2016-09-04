@@ -107,7 +107,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
      }
         
      // create empty output
-     std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
+     auto rec = std::make_unique<ZDCRecHitCollection>();
      rec->reserve(digi->size());
      // run the algorithm
      ZDCDigiCollection::const_iterator i;
@@ -150,7 +150,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	(rec->back()).setAux(auxflag);
      }
      // return result
-     e.put(rec);     
+     e.put(std::move(rec));     
    } // else if (det_==DetId::Calo...)
 
 } // void HcalHitReconstructor::produce(...)

@@ -85,9 +85,9 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   hebUncalibRecHits = pHGChebUncalibRecHits.product();
     
   // collection of rechits to put in the event
-  std::auto_ptr< HGCeeRecHitCollection > eeRecHits( new HGCeeRecHitCollection );
-  std::auto_ptr< HGChefRecHitCollection > hefRecHits( new HGChefRecHitCollection );
-  std::auto_ptr< HGChebRecHitCollection > hebRecHits( new HGChebRecHitCollection );
+  auto eeRecHits = std::make_unique<HGCeeRecHitCollection>();
+  auto hefRecHits = std::make_unique<HGChefRecHitCollection>();
+  auto hebRecHits = std::make_unique<HGChebRecHitCollection>();
     
   worker_->set(es);
   
@@ -116,9 +116,9 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   LogInfo("HGCalRecHitInfo") << "total # HGChef calibrated rechits: " << hefRecHits->size();
   LogInfo("HGCalRecHitInfo") << "total # HGCheb calibrated rechits: " << hebRecHits->size();
   
-  evt.put( eeRecHits, eeRechitCollection_ );
-  evt.put( hefRecHits, hefRechitCollection_ );
-  evt.put( hebRecHits, hebRechitCollection_ );
+  evt.put(std::move(eeRecHits), eeRechitCollection_);
+  evt.put(std::move(hefRecHits), hefRechitCollection_);
+  evt.put(std::move(hebRecHits), hebRechitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

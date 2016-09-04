@@ -106,8 +106,8 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits->size();
        
         // collection of rechits to put in the event
-        std::auto_ptr< EBRecHitCollection > ebRecHits( new EBRecHitCollection );
-        std::auto_ptr< EERecHitCollection > eeRecHits( new EERecHitCollection );
+        auto ebRecHits = std::make_unique<EBRecHitCollection>();
+        auto eeRecHits = std::make_unique<EERecHitCollection>();
 
         worker_->set(es);
 
@@ -267,8 +267,8 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << ebRecHits->size();
         LogInfo("EcalRecHitInfo") << "total # EE calibrated rechits: " << eeRecHits->size();
 
-        evt.put( ebRecHits, ebRechitCollection_ );
-        evt.put( eeRecHits, eeRechitCollection_ );
+        evt.put(std::move(ebRecHits), ebRechitCollection_);
+        evt.put(std::move(eeRecHits), eeRechitCollection_);
 }
 
 void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

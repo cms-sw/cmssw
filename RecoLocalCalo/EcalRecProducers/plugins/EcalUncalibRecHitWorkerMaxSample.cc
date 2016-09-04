@@ -57,7 +57,7 @@ edm::ParameterSetDescription
 EcalUncalibRecHitWorkerMaxSample::getAlgoDescription() {
 
   edm::ParameterSetDescription psd;
-  return psd;//.addNode(std::auto_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
+  return psd;//.addNode(std::unique_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
 }
 
 

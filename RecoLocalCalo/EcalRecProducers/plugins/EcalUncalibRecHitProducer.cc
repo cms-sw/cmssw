@@ -111,8 +111,8 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         worker_->set(evt);
 
         // prepare output
-        std::auto_ptr< EBUncalibratedRecHitCollection > ebUncalibRechits( new EBUncalibratedRecHitCollection );
-        std::auto_ptr< EEUncalibratedRecHitCollection > eeUncalibRechits( new EEUncalibratedRecHitCollection );
+        auto ebUncalibRechits = std::make_unique<EBUncalibratedRecHitCollection>();
+        auto eeUncalibRechits = std::make_unique<EEUncalibratedRecHitCollection>();
 
         // loop over EB digis
         if (ebDigis)
@@ -133,8 +133,8 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         }
 
         // put the collection of recunstructed hits in the event
-        evt.put( ebUncalibRechits, ebHitCollection_ );
-        evt.put( eeUncalibRechits, eeHitCollection_ );
+        evt.put(std::move(ebUncalibRechits), ebHitCollection_);
+        evt.put(std::move(eeUncalibRechits), eeHitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"                                                                                                            

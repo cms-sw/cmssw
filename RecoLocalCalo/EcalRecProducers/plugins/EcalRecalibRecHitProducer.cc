@@ -69,8 +69,8 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 	}
 
         // collection of rechits to put in the event
-        std::auto_ptr< EBRecHitCollection > EBRecalibRecHits( new EBRecHitCollection );
-        std::auto_ptr< EERecHitCollection > EERecalibRecHits( new EERecHitCollection );
+        auto EBRecalibRecHits = std::make_unique<EBRecHitCollection>();
+        auto EERecalibRecHits = std::make_unique<EERecHitCollection>();
 
         // now fetch all conditions we need to make rechits
         // ADC to GeV constant
@@ -179,8 +179,8 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         LogInfo("EcalRecalibRecHitInfo") << "total # EB re-calibrated rechits: " << EBRecalibRecHits->size();
         LogInfo("EcalRecalibRecHitInfo") << "total # EE re-calibrated rechits: " << EERecalibRecHits->size();
 
-        evt.put( EBRecalibRecHits, EBRecalibRecHitCollection_ );
-        evt.put( EERecalibRecHits, EERecalibRecHitCollection_ );
+        evt.put(std::move(EBRecalibRecHits), EBRecalibRecHitCollection_);
+        evt.put(std::move(EERecalibRecHits), EERecalibRecHitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

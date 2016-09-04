@@ -71,7 +71,7 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
      }
     
     // create empty output
-    std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
+    auto rec = std::make_unique<ZDCRecHitCollection>();
     rec->reserve(digi->size());
     // run the algorithm
     unsigned int toaddMem = 0;
@@ -104,6 +104,6 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
       rec->push_back(reco_.reconstruct(*i,myNoiseTS,mySignalTS,coder,calibrations));
     }
     // return result
-    e.put(rec);     
+    e.put(std::move(rec));     
   }
 }

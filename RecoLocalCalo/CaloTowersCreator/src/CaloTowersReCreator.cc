@@ -96,7 +96,7 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
     }
   } else {
     // Step B: Create empty output
-    std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
+    auto prod = std::make_unique<CaloTowerCollection>();
 
     // step C: rescale (without going threough metataowers)
     algo_.rescaleTowers(*calt, *prod);

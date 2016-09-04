@@ -25,7 +25,7 @@ ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int recoMethod) :
 }
 void ZdcSimpleRecAlgo::initPulseCorr(int toadd) {
   if (correctForPulse_) {    
-    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
+    pulseCorr_ = std::make_unique<HcalPulseContainmentCorrection>(toadd,phaseNS_,MaximumFractionalError);
   }
 }
 //static float timeshift_ns_zdc(float wpksamp);

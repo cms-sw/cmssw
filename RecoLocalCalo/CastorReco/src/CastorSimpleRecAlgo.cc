@@ -12,7 +12,7 @@ CastorSimpleRecAlgo::CastorSimpleRecAlgo(int firstSample, int samplesToAdd, bool
   samplesToAdd_(samplesToAdd), 
   correctForTimeslew_(correctForTimeslew) {
   if (correctForPulse) 
-    pulseCorr_=std::auto_ptr<CastorPulseContainmentCorrection>(new CastorPulseContainmentCorrection(samplesToAdd_,phaseNS,MaximumFractionalError));
+    pulseCorr_ = std::make_unique<CastorPulseContainmentCorrection>(samplesToAdd_,phaseNS,MaximumFractionalError);
 }
 
 CastorSimpleRecAlgo::CastorSimpleRecAlgo(int firstSample, int samplesToAdd) : 

@@ -21,9 +21,9 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
   correctForPulse_(correctForPulse),
   phaseNS_(phaseNS), runnum_(0), setLeakCorrection_(false), puCorrMethod_(0)
 {  
-  pulseCorr_ = std::auto_ptr<HcalPulseContainmentManager>(new HcalPulseContainmentManager(MaximumFractionalError));
-  pedSubFxn_ = std::auto_ptr<PedestalSub>(new PedestalSub());
-  hltOOTpuCorr_ = std::auto_ptr<HcalDeterministicFit>(new HcalDeterministicFit());
+  pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
+  pedSubFxn_ = std::make_unique<PedestalSub>();
+  hltOOTpuCorr_ = std::make_unique<HcalDeterministicFit>();
 }
 
 

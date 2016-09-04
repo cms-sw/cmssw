@@ -131,7 +131,7 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
   e.getByToken(tok,digi);
 
   // create empty output
-  std::auto_ptr<RECHITCOLL> rec(new RECHITCOLL);
+  auto rec = std::make_unique<RECHITCOLL>();
   rec->reserve(digi->size());
   // run the algorithm
   int first = firstSample_;
@@ -158,7 +158,7 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
     rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));   
   }
   // return result
-  e.put(rec);
+  e.put(std::move(rec));
 }
 
 
@@ -174,7 +174,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
     e.getByToken(tok_hbheUp_, digi);
 
     // create empty output
-    std::auto_ptr<HBHERecHitCollection> rec(new HBHERecHitCollection);
+    auto rec = std::make_unique<HBHERecHitCollection>();
     rec->reserve(digi->size()); 
 
     // run the algorithm
@@ -203,7 +203,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
 
     }
 
-    e.put(rec); // put results
+    e.put(std::move(rec)); // put results
   }// End of upgradeHBHE
 
   if(upgradeHF_){
@@ -212,7 +212,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
     e.getByToken(tok_hfUp_, digi);
 
     // create empty output
-    std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
+    auto rec = std::make_unique<HFRecHitCollection>();
     rec->reserve(digi->size()); 
 
     // run the algorithm
@@ -240,7 +240,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
       rec->push_back(reco_.reconstructHFUpgrade(*i,first,toadd,coder,calibrations));
 
     }  
-    e.put(rec); // put results
+    e.put(std::move(rec)); // put results
   }// End of upgradeHF
 
   if(HFQIE10_){
@@ -249,7 +249,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
     e.getByToken(tok_hfQIE10_, digi);
 
     // create empty output
-    std::auto_ptr<HFRecHitCollection> rec(new HFRecHitCollection);
+    auto rec = std::make_unique<HFRecHitCollection>();
     rec->reserve(digi->size()); 
 
     // run the algorithm
@@ -281,7 +281,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
       rec->push_back(reco_.reconstructQIE10(frame,first,toadd,coder,calibrations));
 
     }  
-    e.put(rec); // put results
+    e.put(std::move(rec)); // put results
   }// End of upgradeHF
   
 }

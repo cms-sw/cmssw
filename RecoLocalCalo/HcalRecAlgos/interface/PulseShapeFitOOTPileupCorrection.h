@@ -130,7 +130,7 @@ private:
     double chargeThreshold_;
     int fitTimes_;
 
-    std::auto_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
+    std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
     ROOT::Math::Functor *spfunctor_;
     ROOT::Math::Functor *dpfunctor_;
     ROOT::Math::Functor *tpfunctor_;
