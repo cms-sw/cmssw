@@ -132,9 +132,9 @@ bool PhotonPFIsolationWithMapBasedVeto::isInIsolationCone(const reco::CandidateP
   // dealing here with patObjects: miniAOD case
   if ( aspacked.get() )    
   {
-    inFootprint = isInFootprint(aspat_photonptr ->associatedPackedPFCandidates(),aspacked);
-    
-    //checking if the charged candidates come from the appropriate vertex
+    //inFootprint = isInFootprint(aspat_photonptr ->associatedPackedPFCandidates(),aspacked);
+    inFootprint = true; 
+   //checking if the charged candidates come from the appropriate vertex
     if( aspacked->charge() != 0 ) 
     {
       bool is_vertex_allowed = false;
