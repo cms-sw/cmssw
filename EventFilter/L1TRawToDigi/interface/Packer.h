@@ -1,8 +1,6 @@
 #ifndef EventFilter_L1TRawToDigi_Packer_h
 #define EventFilter_L1TRawToDigi_Packer_h
 
-#include "FWCore/PluginManager/interface/PluginFactory.h"
-
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
 

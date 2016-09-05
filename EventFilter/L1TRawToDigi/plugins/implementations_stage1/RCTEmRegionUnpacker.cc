@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsToBitConverter.h"
 #include "rctDataBase.h"
 
@@ -10,6 +9,9 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include <iostream>
 #include <fstream>

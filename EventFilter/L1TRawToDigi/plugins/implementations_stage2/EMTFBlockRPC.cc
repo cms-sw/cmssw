@@ -1,3 +1,5 @@
+#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
 #include "EMTFBlockRPC.h"
