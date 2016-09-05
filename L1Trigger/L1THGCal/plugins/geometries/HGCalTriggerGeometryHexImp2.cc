@@ -27,15 +27,9 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerLightweightGeometryBase
         virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const override final;
         virtual GlobalPoint getModulePosition(const unsigned module_det_id) const override final;
 
-        virtual const geom_set& getValidTriggerCellIds() const override final;
-        virtual const geom_set& getValidModuleIds() const override final;
-
     private:
         edm::FileInPath l1tCellsMapping_;
         edm::FileInPath l1tModulesMapping_;
-
-        geom_set validTriggerCellIds_;
-        geom_set validModuleIds_;
 
         es_info es_info_;
 
@@ -262,23 +256,6 @@ HGCalTriggerGeometryHexImp2::getModulePosition
     }
     return GlobalPoint( moduleVector/cell_ids.size() );
 }
-
-// FIXME: empty valid IDs
-const HGCalTriggerLightweightGeometryBase::geom_set& 
-HGCalTriggerGeometryHexImp2::
-getValidTriggerCellIds() const
-{
-    return validTriggerCellIds_;
-}
-
-// FIXME: empty valid IDs
-const HGCalTriggerLightweightGeometryBase::geom_set& 
-HGCalTriggerGeometryHexImp2::
-getValidModuleIds() const
-{
-    return validModuleIds_;
-}
-
 
 
 void 

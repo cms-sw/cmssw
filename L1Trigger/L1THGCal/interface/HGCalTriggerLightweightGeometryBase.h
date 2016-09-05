@@ -54,9 +54,6 @@ class HGCalTriggerLightweightGeometryBase
         virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const = 0;
         virtual GlobalPoint getModulePosition(const unsigned module_det_id) const = 0;
 
-        virtual const geom_set& getValidTriggerCellIds() const = 0;
-        virtual const geom_set& getValidModuleIds() const = 0;
-
 
     private:
         const std::string name_;
