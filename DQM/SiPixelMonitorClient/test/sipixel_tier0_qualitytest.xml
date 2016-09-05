@@ -27,7 +27,7 @@
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.0</PARAM> 
-     <PARAM name="ymax">5.0</PARAM> 
+     <PARAM name="ymax">6.5</PARAM> 
 </QTEST>
 <!-- nRecHits in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:nRecHits" activate="false"> 
@@ -199,7 +199,7 @@
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">3.5</PARAM> 
-     <PARAM name="ymax">6.0</PARAM> 
+     <PARAM name="ymax">8.0</PARAM> 
 </QTEST>
 <!-- nclusters in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:nclusters" activate="true"> 
@@ -208,7 +208,7 @@
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.15</PARAM> 
-     <PARAM name="ymax">1.65</PARAM> 
+     <PARAM name="ymax">1.85</PARAM> 
 </QTEST>
 <!-- nRecHits in PixelEndcap: -->
 <QTEST name="Yrange:Endcap:nRecHits" activate="false"> 

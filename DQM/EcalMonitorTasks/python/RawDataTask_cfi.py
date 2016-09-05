@@ -276,6 +276,7 @@ ecalRawDataTask = cms.untracked.PSet(
             ),
             otype = cms.untracked.string('SM'),
             btype = cms.untracked.string('SuperCrystal'),
+            perLumi = cms.untracked.bool(True),
             description = cms.untracked.string('FE status counter.')
         )
     )

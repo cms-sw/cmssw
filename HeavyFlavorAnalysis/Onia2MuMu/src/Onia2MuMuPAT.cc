@@ -20,6 +20,7 @@
 #include "TVector3.h"
 #include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -76,6 +77,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField* field = magneticField.product();
 
   Handle<BeamSpot> theBeamSpot;
   iEvent.getByToken(thebeamspot_,theBeamSpot);
@@ -134,8 +136,14 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	TransientVertex myVertex = vtxFitter.vertex(t_tks);
 
 	CachingVertex<5> VtxForInvMass = vtxFitter.vertex( t_tks );
-	Measurement1D MassWErr = massCalculator.invariantMass( VtxForInvMass, muMasses );
-	
+
+        Measurement1D MassWErr(jpsi.M(),-9999.);
+        if ( field->nominalValue() > 0 ) {
+          MassWErr = massCalculator.invariantMass( VtxForInvMass, muMasses );
+        } else {
+          myVertex = TransientVertex();                      // with no arguments it is invalid
+        }
+
 	myCand.addUserFloat("MassErr",MassWErr.error());
 
 	if (myVertex.isValid()) {

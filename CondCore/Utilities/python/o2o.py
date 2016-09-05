@@ -145,8 +145,9 @@ class O2ORunMgr(O2OMgr):
             fileLog = getattr(self.logger, level )
             fileLog( message )
 
-    def connect( self, service, auth ):
-        self.session = O2OMgr.getSession( self,service, auth )
+    def connect( self, service, args ):
+        self.session = O2OMgr.getSession( self,service, args.auth )
+        self.verbose = args.verbose
         if self.session is None:
             return False
         else:
@@ -160,9 +161,10 @@ class O2ORunMgr(O2OMgr):
             res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
             for r in res:
                 exists = True
-                enabled = r
+                enabled = int(r[0])
             if exists is None:
                 exists = False
+                enabled = False
             if enabled:
                 self.job_name = job_name
                 self.start = datetime.now()
@@ -200,12 +202,18 @@ class O2ORunMgr(O2OMgr):
             return 2
         else:
             if enabled == 0:
-                O2OMgr.logger( self).error( 'The job %s has been disabled.', job_name )
-                return 1
+                O2OMgr.logger( self).info( 'The job %s has been disabled.', job_name )
+                return 5
         try:
             O2OMgr.logger( self ).info('Executing job %s', job_name )
             pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-            out = pipe.communicate()[0]
+            out = ''
+            for line in iter(pipe.stdout.readline, ''):
+                if self.verbose:
+                    sys.stdout.write(line)
+                    sys.stdout.flush()
+                out += line
+            pipe.communicate()
             O2OMgr.logger( self ).info( 'Job %s returned code: %s' %(job_name,pipe.returncode) )
         except Exception as e:
             O2OMgr.logger( self ).error( str(e) )
@@ -213,6 +221,6 @@ class O2ORunMgr(O2OMgr):
         self.endJob( pipe.returncode, out )
         with open(logFile,'a') as logF:
             logF.write(out)
-        return 0
+        return pipe.returncode
 
     

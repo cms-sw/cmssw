@@ -3,21 +3,13 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# dump of the Stream PhysicsEGammaCommissioning Datasets defined in the HLT table as Stream A Datasets
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEmptyBX_selector
-streamA_datasetEmptyBX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetEmptyBX_selector.l1tResults = cms.InputTag('')
-streamA_datasetEmptyBX_selector.throw      = cms.bool(False)
-streamA_datasetEmptyBX_selector.triggerConditions = cms.vstring('HLT_L1Tech5_BPTX_PlusOnly_v3', 
-    'HLT_L1Tech6_BPTX_MinusOnly_v2', 
-    'HLT_L1Tech7_NoBPTX_v2')
+# dump of the Stream PhysicsCommissioning Datasets defined in the HLT table as Stream A Datasets
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHLTPhysics_selector
 streamA_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamA_datasetHLTPhysics_selector.throw      = cms.bool(False)
-streamA_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v3')
+streamA_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighPtLowerPhotons_selector
 streamA_datasetHighPtLowerPhotons_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -47,16 +39,6 @@ streamA_datasetHighPtPhoton30AndZ_selector.triggerConditions = cms.vstring('HLT_
     'HLT_HISinglePhoton60_Eta1p5ForPPRef_v2', 
     'HLT_HISinglePhoton60_Eta3p1ForPPRef_v2')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetL1MinimumBias_selector
-streamA_datasetL1MinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetL1MinimumBias_selector.l1tResults = cms.InputTag('')
-streamA_datasetL1MinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF1AND_v2', 
-    'HLT_L1MinimumBiasHF1OR_v2', 
-    'HLT_L1MinimumBiasHF2AND_v2', 
-    'HLT_L1MinimumBiasHF2ORNoBptxGating_v2', 
-    'HLT_L1MinimumBiasHF2OR_v2')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_minBias_selector
 streamA_datasetTOTEM_minBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTOTEM_minBias_selector.l1tResults = cms.InputTag('')
@@ -74,7 +56,7 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v2', 
-    'HLT_ZeroBias_v3')
+    'HLT_ZeroBias_v4')
 
 
 # dump of the Stream PhysicsHadronsTaus Datasets defined in the HLT table as Stream A Datasets
@@ -83,10 +65,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetBTagCSV_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetBTagCSV_selector.l1tResults = cms.InputTag('')
 streamA_datasetBTagCSV_selector.throw      = cms.bool(False)
-streamA_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_AK4PFBJetBCSV60_Eta2p1ForPPRef_v2', 
-    'HLT_AK4PFBJetBCSV80_Eta2p1ForPPRef_v2', 
-    'HLT_AK4PFBJetBSSV60_Eta2p1ForPPRef_v2', 
-    'HLT_AK4PFBJetBSSV80_Eta2p1ForPPRef_v2')
+streamA_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_AK4PFBJetBCSV60_Eta2p1ForPPRef_v3', 
+    'HLT_AK4PFBJetBCSV80_Eta2p1ForPPRef_v3', 
+    'HLT_AK4PFBJetBSSV60_Eta2p1ForPPRef_v3', 
+    'HLT_AK4PFBJetBSSV80_Eta2p1ForPPRef_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHeavyFlavor_selector
 streamA_datasetHeavyFlavor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -114,10 +96,10 @@ streamA_datasetHighPtJet80_selector.triggerConditions = cms.vstring('HLT_AK4Calo
     'HLT_AK4CaloJet80_Eta5p1ForPPRef_v2', 
     'HLT_AK4CaloJet80_Jet35_Eta0p7ForPPRef_v2', 
     'HLT_AK4CaloJet80_Jet35_Eta1p1ForPPRef_v2', 
-    'HLT_AK4PFJet100_Eta5p1ForPPRef_v2', 
-    'HLT_AK4PFJet110_Eta5p1ForPPRef_v2', 
-    'HLT_AK4PFJet120_Eta5p1ForPPRef_v2', 
-    'HLT_AK4PFJet80_Eta5p1ForPPRef_v2')
+    'HLT_AK4PFJet100_Eta5p1ForPPRef_v3', 
+    'HLT_AK4PFJet110_Eta5p1ForPPRef_v3', 
+    'HLT_AK4PFJet120_Eta5p1ForPPRef_v3', 
+    'HLT_AK4PFJet80_Eta5p1ForPPRef_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighPtLowerJets_selector
 streamA_datasetHighPtLowerJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -125,15 +107,15 @@ streamA_datasetHighPtLowerJets_selector.l1tResults = cms.InputTag('')
 streamA_datasetHighPtLowerJets_selector.throw      = cms.bool(False)
 streamA_datasetHighPtLowerJets_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet40_Eta5p1ForPPRef_v2', 
     'HLT_AK4CaloJet60_Eta5p1ForPPRef_v2', 
-    'HLT_AK4PFJet40_Eta5p1ForPPRef_v2', 
-    'HLT_AK4PFJet60_Eta5p1ForPPRef_v2')
+    'HLT_AK4PFJet40_Eta5p1ForPPRef_v3', 
+    'HLT_AK4PFJet60_Eta5p1ForPPRef_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetHT_selector
 streamA_datasetJetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetJetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetJetHT_selector.throw      = cms.bool(False)
-streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK4PFDJet60_Eta2p1ForPPRef_v2', 
-    'HLT_AK4PFDJet80_Eta2p1ForPPRef_v2')
+streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK4PFDJet60_Eta2p1ForPPRef_v3', 
+    'HLT_AK4PFDJet80_Eta2p1ForPPRef_v3')
 
 
 # dump of the Stream PhysicsMuons Datasets defined in the HLT table as Stream A Datasets

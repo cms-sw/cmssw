@@ -67,6 +67,9 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
     if (recordName=="SiStripBadModuleRcd"){
       iRecord.getRecord<SiStripBadModuleRcd>().get(tagName,obj); 
       quality->add( obj.product() );
+    } else if (recordName=="SiStripBadModuleFedErrRcd"){
+      iRecord.getRecord<SiStripBadModuleFedErrRcd>().get(tagName,obj); 
+      quality->add( obj.product() );
     } else if (recordName=="SiStripBadFiberRcd"){
       iRecord.getRecord<SiStripBadFiberRcd>().get(tagName,obj); 
       quality->add( obj.product() );    

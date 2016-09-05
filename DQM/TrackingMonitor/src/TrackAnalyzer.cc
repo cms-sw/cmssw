@@ -91,6 +91,7 @@ void TrackAnalyzer::initHistos()
 
   DistanceOfClosestApproach = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
+  AbsDistanceOfClosestApproachToBS = nullptr;
   DistanceOfClosestApproachVsTheta = nullptr;
   DistanceOfClosestApproachVsPhi = nullptr;
   DistanceOfClosestApproachToBSVsPhi = nullptr;
@@ -627,6 +628,10 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       double DxyMin       = conf_.getParameter<double>("DxyMin");
       double DxyMax       = conf_.getParameter<double>("DxyMax");
       
+      int    AbsDxyBin    = conf_.getParameter<int>(   "AbsDxyBin");
+      double AbsDxyMin    = conf_.getParameter<double>("AbsDxyMin");
+      double AbsDxyMax    = conf_.getParameter<double>("AbsDxyMax");
+      
       int    PhiBin     = conf_.getParameter<int>(   "PhiBin");
       double PhiMin     = conf_.getParameter<double>("PhiMin");
       double PhiMax     = conf_.getParameter<double>("PhiMax");
@@ -654,6 +659,11 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
       DistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,DxyBin,DxyMin,DxyMax);
       DistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
       DistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
+      
+      histname = "AbsDistanceOfClosestApproachToBS_";
+      AbsDistanceOfClosestApproachToBS = ibooker.book1D(histname+CategoryName,histname+CategoryName,AbsDxyBin,AbsDxyMin,AbsDxyMax);
+      AbsDistanceOfClosestApproachToBS->setAxisTitle("Track |d_{xy}| wrt beam spot (cm)",1);
+      AbsDistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
       
       histname = "DistanceOfClosestApproachToBSVsPhi_";
       DistanceOfClosestApproachToBSVsPhi = ibooker.bookProfile(histname+CategoryName,histname+CategoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
@@ -971,6 +981,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
     DistanceOfClosestApproachToBS      -> Fill(track.dxy(bs.position()));
+    AbsDistanceOfClosestApproachToBS   -> Fill(std::abs(track.dxy(bs.position())));
     DistanceOfClosestApproachToBSVsPhi -> Fill(track.phi(), track.dxy(bs.position()));
     zPointOfClosestApproachVsPhi       -> Fill(track.phi(), track.vz());
     xPointOfClosestApproachVsZ0wrt000  -> Fill(track.dz(),  track.vx());

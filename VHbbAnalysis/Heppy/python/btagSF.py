@@ -34,12 +34,17 @@ for algo in ["CSV", "CMVAV2"]:
         for syst in ["central", "up", "down"]:
             for fl in ["bc", "l"]:
                 print "[btagSF]: Loading calibrator for algo:", algo, ", WP:", wp[1], ", systematic:", syst, ", flavour:", fl
-                btag_calibrators[algo+wp[1]+"_"+syst+"_"+fl] = ROOT.BTagCalibrationReader(sf_type_map[algo]["file"], wp[0], sf_type_map[algo][fl], syst)
+#                btag_calibrators[algo+wp[1]+"_"+syst+"_"+fl].load(sf_type_map[algo]["file"], fl_enum[fl], sf_type_map[algo][fl])
+                btag_calibrators[algo+wp[1]+"_"+syst+"_"+fl] = ROOT.BTagCalibrationReader(wp[0], syst)
+                for i in [0,1,2] :
+                    btag_calibrators[algo+wp[1]+"_"+syst+"_"+fl].load(sf_type_map[algo]["file"], i,sf_type_map[algo][fl])
 
 for algo in ["CSV", "CMVAV2"]:
     for syst in ["central", "up_jes", "down_jes", "up_lf", "down_lf", "up_hf", "down_hf", "up_hfstats1", "down_hfstats1", "up_hfstats2", "down_hfstats2", "up_lfstats1", "down_lfstats1", "up_lfstats2", "down_lfstats2", "up_cferr1", "down_cferr1", "up_cferr2", "down_cferr2"]:
         print "[btagSF]: Loading calibrator for algo:", algo, "systematic:", syst
-        btag_calibrators[algo+"_iterative_"+syst] = ROOT.BTagCalibrationReader(sf_type_map[algo]["file"], 3 , "iterativefit", syst)
+        btag_calibrators[algo+"_iterative_"+syst] = ROOT.BTagCalibrationReader( 3 ,  syst)
+        for i in [0,1,2]:
+          btag_calibrators[algo+"_iterative_"+syst].load(sf_type_map[algo]["file"], i , "iterativefit")
 
 # depending on flavour, only a sample of systematics matter
 def applies( flavour, syst ):

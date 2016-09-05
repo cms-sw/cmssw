@@ -52,9 +52,9 @@ private:
   inline const AlgebraicSymMatrix extractBeamSpotError() const
     { AlgebraicSymMatrix bse(3,0); bse[0][0] = theBeamSpot.BeamWidthX(); bse[1][1] = theBeamSpot.BeamWidthY(); bse[2][2] = theBeamSpot.sigmaZ(); return bse; }
 
-  const double & thePrimaryMass;
-  const double & thePrimaryWidth;
-  const double & theSecondaryMass;
+  const double thePrimaryMass;
+  const double thePrimaryWidth;
+  const double theSecondaryMass;
   const reco::BeamSpot & theBeamSpot;
 
 };

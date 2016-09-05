@@ -8,12 +8,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
@@ -48,20 +45,22 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
   // access L1 objects only if L1 is used
   if (hasL1T()) {
     // cache the L1 GT results objects
-    m_l1tResults = get<L1GlobalTriggerReadoutRecord>(event, m_l1tResultsToken);
-    if (not m_l1tResults)
+    auto l1t = get<GlobalAlgBlkBxCollection>(event, m_l1tResultsToken);
+    if (not l1t or l1t->size() == 0 or l1t->isEmpty(0)) {
+      m_l1tResults = nullptr;
       return false;
-
-    // cache the L1 trigger masks
-    m_l1tAlgoMask = get<L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask>(setup);
-    m_l1tTechMask = get<L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask>(setup);
+    }
+    if (m_l1tIgnoreMaskAndPrescale)
+      m_l1tResults = & l1t->at(0, 0).getAlgoDecisionInitial();
+    else
+      m_l1tResults = & l1t->at(0, 0).getAlgoDecisionFinal();
 
     // cache the L1 trigger menu
-    unsigned long long l1tCacheID = setup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
+    unsigned long long l1tCacheID = setup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
     if (m_l1tCacheID == l1tCacheID) {
       m_l1tUpdated = false;
     } else {
-      m_l1tMenu = get<L1GtTriggerMenuRcd, L1GtTriggerMenu>(setup);
+      m_l1tMenu = get<L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu>(setup);
       m_l1tCacheID = l1tCacheID;
       m_l1tUpdated = true;
     }

@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Base class to describe Optical Objects of type sensor 2D
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _OPTOCAMERADETECTOR_HH
@@ -21,13 +21,13 @@ class OptOCameraDetector: public OpticalObject
 public:
   //---------- Constructors / Destructor
   OptOCameraDetector(){ };
-  OptOCameraDetector(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
+  OptOCameraDetector(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) :
   OpticalObject( parent, type, name, copy_data){ };
   ~OptOCameraDetector(){ };
 
   //---------- Propagate light for measurement meas
-  virtual void participateInMeasurement( LightRay& lightray, Measurement* meas, const ALIstring& behav );
-  void constructSolidShape();
+  virtual void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav ) override;
+  virtual void constructSolidShape() override;
 
 
 };

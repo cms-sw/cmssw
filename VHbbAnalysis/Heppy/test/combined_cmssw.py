@@ -22,6 +22,7 @@ from RecoBTag.SoftLepton.softPFElectronTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.trackSelection_cff import *
 from Configuration.AlCa.GlobalTag import GlobalTag
 
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 # This function is called by the cmsswPreprocessor 
 # (has to be named initialize, can have arbitrary arguments as long as
 # all have a default value)
@@ -639,7 +640,6 @@ def initialize(**kwargs):
     # Electron MVA ID: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_and_implementation
     ########################################
    
-    from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     for eleid in ["RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff"]:
         setupAllVIDIdsInModule(process, eleid, setupVIDElectronSelection)
@@ -648,7 +648,7 @@ def initialize(**kwargs):
     process.OUT.outputCommands.append("keep *_electronMVAValueMapProducer_*_EX")
     process.OUT.outputCommands.append("keep *_egmGsfElectronIDs_*_EX")
 
-    
+
 
     ########################################
     # MET significance matrix
@@ -664,6 +664,20 @@ def initialize(**kwargs):
     #######################################
     ## BTV HIP mitigation  
     #######################################
+    # recreate slimmedJets collection
+    process.load("Configuration.StandardSequences.MagneticField_cff")
+    process.load("Configuration.Geometry.GeometryRecoDB_cff")
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    updateJetCollection(
+      process,
+      jetSource = cms.InputTag('slimmedJets','','PAT') if isMC else  cms.InputTag('slimmedJets','','RECO'),
+      jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+      btagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags','pfCombinedMVAV2BJetTags'],
+      runIVF=True,
+      btagPrefix = 'new' # optional, in case interested in accessing both the old and new discriminator values
+    )
+    process.slimmedJets = process.slimmedJets=process.updatedPatJetsTransientCorrected.clone()
+    process.OUT.outputCommands.append("keep *_slimmedJets_*_EX")
     # As tracks are not stored in miniAOD, and b-tag fwk for CMSSW < 72X does not accept candidates
     process.load('RecoBTag.Configuration.RecoBTag_cff')
     process.load('RecoJets.Configuration.RecoJetAssociations_cff')
@@ -687,6 +701,7 @@ def initialize(**kwargs):
     process.candidateVertexArbitrator.trackMinLayers = 0
 
     process.OUT.outputCommands.append("keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_EX")
+    process.OUT.outputCommands.append("keep *_pfCombinedMVAV2BJetTags_*_EX")
 
 
     ##processDumpFile = open('combined_cmssw.dump', 'w')

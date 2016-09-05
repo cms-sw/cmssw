@@ -3,7 +3,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iomanip>
-#include <math.h>
+#include <cmath>		// include floating-point std::abs functions
 
 CocoaUnitsTable      CocoaUnitDefinition::theUnitsTable;
 
@@ -386,8 +386,8 @@ std::ostream& operator<<(std::ostream& flux, CocoaBestUnit a)
   ALIdouble rsup(ALI_DBL_MAX), rinf(0.);
 
   //for a ThreeVector, choose the best unit for the biggest value 
-  ALIdouble value = std::max(std::max(fabs(a.Value[0]),fabs(a.Value[1])),
-                              fabs(a.Value[2]));
+  ALIdouble value = std::max(std::max(std::abs(a.Value[0]),std::abs(a.Value[1])),
+                              std::abs(a.Value[2]));
 
   for (size_t k=0; k<List.size(); k++)
      {

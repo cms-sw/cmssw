@@ -109,7 +109,8 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   const TrackerTopology *tTopo=tTopoHand.product();
 
   if (theFilter) theFilter->update(ev, es);
-
+  
+  std::vector<const TrackingRecHit *> hits;hits.reserve(4); 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion & region = **ir;
 
@@ -122,11 +123,10 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
     for (unsigned int iTuplet = 0; iTuplet < nTuplets; ++iTuplet) {
       const SeedingHitSet & tuplet = tuplets[iTuplet];
 
-      std::vector<const TrackingRecHit *> hits;
-      for (unsigned int iHit = 0, nHits = tuplet.size(); iHit < nHits; ++iHit) {
-        hits.push_back( tuplet[iHit]->hit() );
-      }
-
+      /// FIXME at some point we need to migrate the fitter...
+      auto nHits = tuplet.size(); hits.resize(nHits);
+      for (unsigned int iHit = 0; iHit < nHits; ++iHit) hits[iHit] = tuplet[iHit];
+   
       // fitting
       reco::Track* track = theFitter->run( ev, es, hits, region);
       if (!track) continue;
@@ -140,11 +140,17 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       }
 
       // add tracks
-      tracks.push_back(TrackWithTTRHs(track, tuplet));
+      tracks.emplace_back(track, tuplet);
     }
     theGenerator->clear();
   }
 
   // skip ovelrapped tracks
-  if (theCleaner) tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks,tTopo);
+  
+  if (theCleaner) {
+    if (theCleaner->fast)
+       theCleaner->cleanTracks(tracks,tTopo);
+    else
+      tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks,tTopo);
+  }
 }

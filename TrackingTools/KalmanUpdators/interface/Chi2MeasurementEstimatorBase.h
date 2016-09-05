@@ -22,9 +22,10 @@ public:
   explicit Chi2MeasurementEstimatorBase(double maxChi2, double nSigma = 3., float maxDisp=std::numeric_limits<float>::max()) : 
     theMaxChi2(maxChi2), theNSigma(nSigma), theMaxDisplacement(maxDisp) {}
 
+  template<typename... Args>
   Chi2MeasurementEstimatorBase(double maxChi2, double nSigma, float maxDisp,
-                               float maxSag, float minToll) : 
-    MeasurementEstimator(maxSag,minToll),
+                               Args && ...args) :
+    MeasurementEstimator(args...),
     theMaxChi2(maxChi2), theNSigma(nSigma), theMaxDisplacement(maxDisp)  {}
 
 

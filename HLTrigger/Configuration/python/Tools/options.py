@@ -8,7 +8,7 @@ globalTag = {
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',
-  'data' : 'auto:run2_hlt',
+  'data' : 'auto:run2_hlt_relval',
 }
 
 

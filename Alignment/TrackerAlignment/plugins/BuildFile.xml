@@ -35,3 +35,22 @@
   <use   name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="CosmicRateAnalyzer.cc" name="AlignmentCosmicRateAnalyzerPlugins">
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="DataFormats/DetId"/>
+  <use   name="DataFormats/SiPixelDetId"/>
+  <use   name="DataFormats/SiStripDetId"/>
+  <use   name="DataFormats/SiStripCluster"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/RecoCandidate"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

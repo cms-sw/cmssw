@@ -22,9 +22,9 @@ def extractBlock(config, blocks, target):
   proc.wait()
 
 def extractBlocks(config):
-  outputA    = ( 'hltOutputA', 'hltOutputPhysicsEGammaCommissioning' )
+  outputA    = ( 'hltOutputA', 'hltOutputPhysicsCommissioning' )
   outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCALUMIPIXELS' , 'hltOutputRPCMON' )
-  outputMON  = ( 'hltOutputA', 'hltOutputPhysicsEGammaCommissioning', 'hltOutputDQM', 'hltOutputHLTMonitor', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
+  outputMON  = ( 'hltOutputA', 'hltOutputPhysicsCommissioning', 'hltOutputDQM', 'hltOutputHLTMonitor', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
   extractBlock(config, outputA,    'hltOutputA_cff.py')
   extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
   extractBlock(config, outputMON,  'hltOutputMON_cff.py')
@@ -75,7 +75,7 @@ import hltOutputMON_cff
 # hltDebugOutput
 
 if not hasattr(hltOutputMON_cff,'block_hltOutputA'):
-  hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsEGammaCommissioning
+  hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsCommissioning
 if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
   hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
@@ -123,7 +123,7 @@ hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
 
 # hltDefaultOutput
 if not hasattr(hltOutputA_cff,'block_hltOutputA'):
-  hltOutputA_cff.block_hltOutputA = hltOutputA_cff.block_hltOutputPhysicsEGammaCommissioning
+  hltOutputA_cff.block_hltOutputA = hltOutputA_cff.block_hltOutputPhysicsCommissioning
 hltDefaultOutputBlocks = (
   # the A stream has the HLT default output, with FEDs - strip out the FEDRawDataCollection keep statements for hltDefaultOutput
   hltOutputA_cff.block_hltOutputA.outputCommands,

@@ -30,7 +30,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include <TF3.h>
+#include <TText.h>
 
 #include <iostream>
 #include <fstream>

@@ -4,6 +4,9 @@
 
 #include <algorithm>
 #include <cfloat>
+#include "CommonTools/Utils/interface/DynArray.h"
+
+
 
 template <unsigned int N>
 CloseComponentsMerger<N>::CloseComponentsMerger (int maxNumberOfComponents,

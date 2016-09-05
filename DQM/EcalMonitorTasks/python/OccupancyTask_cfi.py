@@ -180,6 +180,38 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('ProjPhi'),
             description = cms.untracked.string('Projection of the occupancy of rec hits with GOOD reconstruction flag and E > ' + str(recHitThreshold) + ' GeV.')
         ),
+        RecHitThrmvp = cms.untracked.PSet(
+            kind = cms.untracked.string('TH2F'),
+            yaxis = cms.untracked.PSet(
+                high = cms.untracked.double(500.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('Nrechits(z-,near)')
+            ),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(500.0),
+                nbins = cms.untracked.int32(50),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('Nrechits(z+,far)')
+            ),
+            btype = cms.untracked.string('User'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy correlation'),
+            description = cms.untracked.string('Filtered rechit occupancy correlation.')
+        ),
+        RecHitThrpm = cms.untracked.PSet(
+            kind = cms.untracked.string('TH1F'),
+            otype = cms.untracked.string('Ecal2P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(1000.0),
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-1000.0),
+                title = cms.untracked.string('Nrechits(z+,far) - Nrechits(z-,near)')
+            ),
+            btype = cms.untracked.string('User'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy z+(far) - z-(near)'),
+            description = cms.untracked.string('Filtered rechit occupancy difference.')
+        )
 #        TPDigiProjPhi = cms.untracked.PSet(
 #            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s projection phi'),
 #            kind = cms.untracked.string('TH1F'),
@@ -187,6 +219,7 @@ ecalOccupancyTask = cms.untracked.PSet(
 #            btype = cms.untracked.string('ProjPhi'),
 #            description = cms.untracked.string('Projection of TP digi occupancy.')
 #        )
+
     )
 )
 

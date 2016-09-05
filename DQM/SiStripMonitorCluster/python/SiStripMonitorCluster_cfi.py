@@ -205,12 +205,12 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ),
 
     TH2CStripVsCpixel = cms.PSet(
-        Nbinsx = cms.int32(150),
+        Nbinsx = cms.int32(300),
         xmin   = cms.double(-0.5),
-        xmax   = cms.double(74999.5),
-        Nbinsy = cms.int32(50),
+        xmax   = cms.double(149999.5),
+        Nbinsy = cms.int32(60),
         ymin   = cms.double(-0.5),
-        ymax   = cms.double(14999.5),
+        ymax   = cms.double(17999.5),
         globalswitchon = cms.bool(True)
         ),
                                        
@@ -244,8 +244,8 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
                                        
 # Number of Cluster in Strip
     TH1NClusStrip = cms.PSet(
-        Nbinsx = cms.int32(500),
-        xmax = cms.double(99999.5),                      
+        Nbinsx = cms.int32(600),
+        xmax = cms.double(119999.5),                      
         xmin = cms.double(-0.5)
         ),
 

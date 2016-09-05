@@ -8,7 +8,7 @@
 #ifndef Geometry_VeryForwardGeometryBuilder_TotemRPGeometry
 #define Geometry_VeryForwardGeometryBuilder_TotemRPGeometry
 
-#include "DataFormats/TotemRPDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 //#include "HepMC/SimpleVector.h"

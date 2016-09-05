@@ -7,18 +7,34 @@ set workdir = `cd ../../; pwd`
 set iter = $1                          # final iteration number
 set odir = `cd $2; pwd`                # get full output path
 set name = `basename $odir`            # for job name
+set iovfile = `basename $3`
 set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
-set queue = cmscaf1nh                   # pick queue to run on
+set queue = cmscaf1nd                   # pick queue to run on
 set startdir = `pwd`
 ## Submit jobs and iterate
 
-@ i = `cat $odir/main/IOIteration.root` + 1
+cp $3 $odir
+set k = 0
+
+foreach line ( "`cat $odir/$iovfile`" )
+	@ k++
+  echo $line
+	cmsRun $odir/main/initial_cfg_$k.py >& $odir/main/initial_$line.out
+	set lastrun = $line
+end
+
+
+@ i = `cat $odir/main/IOIteration_$lastrun.root` + 1
 
 while (`bjobs -d -w |& grep $name/requeue$i` != "") # check if job name exists
   set name = $name/ # make job name unique to avoid name clash
 end
 
-echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs
+#echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs
+@ MAX_JOB_ARRAY_SIZE = `bparams -a | grep MAX_JOB_ARRAY_SIZE | sed "s/.* = //"`
+@ jobarrays = ( $jobs - 1 ) / $MAX_JOB_ARRAY_SIZE + 1
+
+echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs in $jobarrays arrays
 
 @ COLLECT_ERROR = 0
 while ($i <= $iter)
@@ -26,20 +42,54 @@ while ($i <= $iter)
   echo Running iteration $i
 
   if ($jobs > 0) then
-    @ j = 0 # job index
+#    @ j = 0 # job index
     echo "submit parallel jobs..."
-	bsub -q $queue -C 0 -J $name/align$i\[1-$jobs\] \
+#	bsub -q $queue -C 0 -J $name/align$i\[1-$jobs\] \
+    @ minjob = 1
+    foreach j (`seq 1 $jobarrays`)
+        @ maxjob = $minjob + $MAX_JOB_ARRAY_SIZE - 1
+        if ( $maxjob > $jobs ) then
+            @ maxjob = $jobs
+        endif
+	bsub -q $queue -C 0 -J $name/align"$i"_$j\[$minjob-$maxjob\] \
          -oo $odir/job%I/align$i.out $odir/job\$LSB_JOBINDEX/runScript.csh $workdir
-
+        @ minjob = $minjob + $MAX_JOB_ARRAY_SIZE
+    end
     sleep 15
-    set id = `bjobs -J $name/align$i | tail -n1 | awk '{print $1}'`
-    echo "ID=$id"
+  #  set id = `bjobs -J $name/align$i | tail -n1 | awk '{print $1}'`
+  #  echo "ID=$id"
+	#	set idold = $id
+    foreach j (`seq 1 $jobarrays`)
+        set id = `bjobs -J $name/align"$i"_$j | tail -n1 | awk '{print $1}'`
+        echo "ID=$id"
+        if ( ! $?collectwaitcondition ) then
+            set collectwaitcondition = "done($id)"
+            set requeuewaitcondition = "numexit($id, > 0)"
+            set requeuejob = "brequeue -e $id"
+        else
+            set collectwaitcondition = "$collectwaitcondition && done($id)"
+            set requeuewaitcondition = "$requeuewaitcondition || numexit($id, > 0)"
+            set requeuejob = "$requeuejob || brequeue -e $id"    #this is a bit ugly, it will only requeue one array at a time
+                                                                 #it's needed to maintain the exit status of 0
+        endif
+    end
     echo "submit collect..."
-    bsub -q $queue -C 0 -J $name/collect$i -w "done($id)" \
-         -oo $odir/main/collect$i.out $odir/main/runScript.csh $workdir
+    #bsub -q $queue -C 0 -J $name/collect$i\[1-$k\] -w "done($id)" \
+    bsub -q $queue -C 0 -J $name/collect$i\[1-$k\] -w "$collectwaitcondition" \
+    	   -oo $odir/main/collect$i"_"%I.out $odir/main/runScript_\$LSB_JOBINDEX.csh $workdir
+#    foreach line ( "`cat $odir/$iovfile`" )
+#  		echo $line
+#    	bsub -q $queue -C 0 -J $name/collect_$i"_$line" -w "done($id)" \
+#      	   -oo $odir/main/collect_$line"_$i.out" $odir/main/runScript_$line.csh $workdir
+#      set id = `bjobs -J $name/collect_$line"_$i" | tail -n1 | awk '{print $1}'`
+#			set lastcollect = $name/collect_$line"_$i"
+#		end
 
+   set collectid = `bjobs -J $name/collect$i | tail -n1 | awk '{print $1}'`
 	 echo "submit stoprequeue"
-    bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
+    #bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
+    #bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($lastcollect)" \
+    bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($collectid)" \
          -o /dev/null bkill -J $name/requeue$i
 
     #new
@@ -50,8 +100,10 @@ while ($i <= $iter)
 
     while (`bjobs -d -J $name/requeue$i |& grep EXIT` == "")
     echo "Submitting requeue"
-      bsub -q cmsinter -C 0 -J $name/requeue$i -w "numexit($id, > 0)" \
-           -I brequeue -e $id
+#      bsub -q cmsinter -C 0 -J $name/requeue$i -w "numexit($idold, > 0)" \
+#           -I brequeue -e $idold
+      bsub -q cmsinter -C 0 -J $name/requeue$i -w "$requeuewaitcondition" \
+           -I "$requeuejob"
       sleep 60
     end
 
@@ -61,22 +113,29 @@ while ($i <= $iter)
   endif
 
   sleep 5
-  if (`bjobs -d -J $name/collect$i | tail -n1 | grep EXIT` != "") exit 1
+#  foreach line ( "`cat $odir/$iovfile`" )
+   if (`bjobs -d -J $name/collect_$i | tail -n1 | grep EXIT` != "") exit 1
+#	end
 #check if something went wrong, in case warn the owner of the job
 #create a db every 10 iters as a backup
   cd $odir/main/
     ./checkError.sh $USER
     @ errstatus = $?
     if ($errstatus == 0) then
-    @ mod =  $i % 5 
+    @ mod =  $i % 1 
    # echo "Modulus is $mod"
 	if ( $mod == 0 && $COLLECT_ERROR == 0 )	then
 	cd ${CMSSW_BASE}/src/
 	eval `scramv1 runtime -csh`
 	cd $odir
-	cp $odir/main/IOIteration.root $odir/
-	cp $odir/main/IOAlignedPositions.root $odir/
-	cmsRun upload_cfg.py > upload_iter${i}.out
+	cp $odir/main/IOIteration*.root $odir/
+	cp $odir/main/IOAlignedPositions*.root $odir/
+#	cmsRun upload_cfg.py > upload_iter${i}.out
+	set kk = 0
+  foreach line ( "`cat $odir/$iovfile`" )
+	  @ kk++
+    cmsRun upload_cfg_$kk".py" > upload_$line"_$i.out"
+  end
 	mv alignments.db alignments_iter${i}.db
 	rm -f $odir/*.root
 	cd -

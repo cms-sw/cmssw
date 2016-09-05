@@ -73,6 +73,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* LayerNumberOfClusterProfile = 0;
     MonitorElement* LayerClusterWidthProfile = 0;
     MonitorElement* LayerClusWidthVsAmpTH2 = 0;
+    MonitorElement* LayerClusterPosition = 0;
 
   };
 
