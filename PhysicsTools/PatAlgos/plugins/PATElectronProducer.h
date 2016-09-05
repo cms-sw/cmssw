@@ -173,6 +173,10 @@ namespace pat {
       pat::helper::KinResolutionsLoader resolutionLoader_;
 
       const bool useUserData_;
+      //PUPPI isolation tokens
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
 
       const CaloTopology * ecalTopology_;
