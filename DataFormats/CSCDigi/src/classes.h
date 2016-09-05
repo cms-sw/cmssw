@@ -28,7 +28,9 @@
 #include <DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h>
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 
-
+// dummy structs to ensure backward compatibility
+struct GEMCSCLCTDigi {};
+struct GEMCSCLCTDigiCollection {};
 
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
@@ -44,6 +46,7 @@ namespace DataFormats_CSCDigi {
   CSCCLCTDigi cCLCTD_;
   CSCALCTDigi cALCTD_;
   CSCCorrelatedLCTDigi cCorLCTD_;
+  GEMCSCLCTDigi gcLCTD_;
   CSCCFEBStatusDigi cCSD_;
   CSCTMBStatusDigi cTMBSD_;
   CSCDCCFormatStatusDigi cDFSD_;
@@ -61,6 +64,7 @@ namespace DataFormats_CSCDigi {
   std::vector<CSCCLCTDigi> vCLCTD_;
   std::vector<CSCALCTDigi> vALCTD_;
   std::vector<CSCCorrelatedLCTDigi> vCorLCTD_;
+  std::vector<GEMCSCLCTDigi> vgcLCTD_;
   std::vector<CSCCFEBStatusDigi>  vCSD_;
   std::vector<CSCTMBStatusDigi>  vTMBSD_;
   std::vector<CSCDCCFormatStatusDigi>  vDFSD_;
@@ -77,6 +81,7 @@ namespace DataFormats_CSCDigi {
   std::vector<std::vector<CSCCLCTDigi> > vvCLCTD_;
   std::vector<std::vector<CSCALCTDigi> > vvALCTD_;
   std::vector<std::vector<CSCCorrelatedLCTDigi> > vvCorLCTD_;
+  std::vector<std::vector<GEMCSCLCTDigi> > vvgcLCTD_;
   std::vector<std::vector<CSCCFEBStatusDigi> >  vvCSD_;
   std::vector<std::vector<CSCTMBStatusDigi> >  vvTMBSD_;
   std::vector<std::vector<CSCDMBStatusDigi> >  vvDMBSD_;
@@ -93,6 +98,7 @@ namespace DataFormats_CSCDigi {
   CSCCLCTDigiCollection clCLCTD_;
   CSCALCTDigiCollection clALCTD_;
   CSCCorrelatedLCTDigiCollection clCorLCTD_;
+  GEMCSCLCTDigiCollection clgcLCTD_;
   CSCCFEBStatusDigiCollection clCSD_;
   CSCTMBStatusDigiCollection clTMBSD_;
   CSCDCCFormatStatusDigiCollection clDFSD_;
@@ -109,6 +115,7 @@ namespace DataFormats_CSCDigi {
   edm::Wrapper<CSCCLCTDigiCollection> wCLCTD_;
   edm::Wrapper<CSCALCTDigiCollection> wALCTD_;
   edm::Wrapper<CSCCorrelatedLCTDigiCollection> wCorLCTD_;
+  edm::Wrapper<GEMCSCLCTDigiCollection> wgcLCTD_;
   edm::Wrapper<CSCCFEBStatusDigiCollection> wCSD_;
   edm::Wrapper<CSCTMBStatusDigiCollection> wTMBSD_;
   edm::Wrapper<CSCDCCFormatStatusDigiCollection> wDFSD_;

@@ -14,6 +14,9 @@
    <class name="CSCCorrelatedLCTDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="1301481852"/>
    </class>
+   <class name="GEMCSCLCTDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="967689346"/>
+   </class>
    <class name="CSCCLCTDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3910057547"/>
    </class>
@@ -47,6 +50,7 @@
    <class name="std::vector<CSCStripDigi>"/>
    <class name="std::vector<CSCComparatorDigi>"/>
    <class name="std::vector<CSCCorrelatedLCTDigi>"/>
+   <class name="std::vector<GEMCSCLCTDigi>"/>
    <class name="std::vector<CSCCLCTDigi>"/>
    <class name="std::vector<CSCALCTDigi>"/>
    <class name="std::vector<CSCCFEBStatusDigi>"/>
@@ -62,6 +66,7 @@
    <class name="std::map<CSCDetId,std::vector<CSCStripDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCComparatorDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
+   <class name="std::map<CSCDetId,std::vector<GEMCSCLCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCLCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCALCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCFEBStatusDigi> >"/>
@@ -78,6 +83,7 @@
    <class name="std::pair<CSCDetId,std::vector<CSCStripDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCComparatorDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
+   <class name="std::pair<CSCDetId,std::vector<GEMCSCLCTDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCCLCTDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCALCTDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCCFEBStatusDigi> >"/>
@@ -95,6 +101,7 @@
    <class name="MuonDigiCollection<CSCDetId,CSCStripDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCComparatorDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi>"/>
+   <class name="MuonDigiCollection<CSCDetId,GEMCSCLCTDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCCLCTDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCALCTDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi>"/>
@@ -111,6 +118,7 @@
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCStripDigi>>"  splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCComparatorDigi>>"  splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,GEMCSCLCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi> >" splitLevel="0"/>
