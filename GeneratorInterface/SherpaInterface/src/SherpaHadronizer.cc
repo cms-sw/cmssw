@@ -317,12 +317,12 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
         }
 
       }
-    }
 
     //Change original weights for reordered ones
-    evt->weights().clear();
-    for (auto& elem: newWeights) {
-      evt->weights().push_back(elem);
+      evt->weights().clear();
+      for (auto& elem: newWeights) {
+        evt->weights().push_back(elem);
+      }
     }
 
     if(unweighted){
