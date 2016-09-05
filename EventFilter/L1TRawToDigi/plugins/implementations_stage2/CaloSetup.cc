@@ -1,5 +1,9 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 
+#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
+#include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
+#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+
 #include "CaloSetup.h"
 
 namespace l1t {
