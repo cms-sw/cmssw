@@ -22,12 +22,18 @@ options.register('rsKey',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "RS key")
+options.register('DBAuth',
+                 '.', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "DB authenification token path")
 options.parseArguments()
 
 process.load("CondTools.L1TriggerExt.L1TriggerKeyRcdSourceExt_cfi")
 process.load("CondTools.L1TriggerExt.L1SubsystemKeysOnlineExt_cfi")
 process.L1SubsystemKeysOnlineExt.tscKey = cms.string( options.tscKey )
 process.L1SubsystemKeysOnlineExt.rsKey  = cms.string( options.rsKey )
+process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.DBAuth )
 process.L1SubsystemKeysOnlineExt.forceGeneration = cms.bool(True)
 
 process.l1cr = cms.EDAnalyzer( "L1TriggerKeyExtReader", label = cms.string("SubsystemKeysOnly") )
