@@ -72,7 +72,7 @@ class BPHKinematicFit: public virtual BPHDecayVertex {
           const std::string& name, MultiTrackKinematicConstraint* kc ) const;
 
   /// reset the kinematic fit
-  virtual void resetKinematicFit();
+  virtual void resetKinematicFit() const;
 
   // get current particle
   virtual bool isEmpty() const;
@@ -120,9 +120,9 @@ class BPHKinematicFit: public virtual BPHDecayVertex {
   std::map<const reco::Candidate*,double> dMSig;
 
   // reconstruction results cache
-  mutable bool updatedKPs;
-  mutable bool updatedFit;
-  mutable bool updatedMom;
+  mutable bool oldKPs;
+  mutable bool oldFit;
+  mutable bool oldMom;
   mutable std::map   <const reco::Candidate*,
                       RefCountedKinematicParticle> kinMap;
   mutable std::vector<RefCountedKinematicParticle> allParticles;

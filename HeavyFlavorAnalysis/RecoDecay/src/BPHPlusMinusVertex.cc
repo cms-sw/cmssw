@@ -33,9 +33,9 @@ using namespace std;
 // Constructors --
 //----------------
 BPHPlusMinusVertex::BPHPlusMinusVertex( const edm::EventSetup* es ):
-  BPHDecayVertex( es ),
-  updated( false ),
-  inRPhi( 0 ) {
+ BPHDecayVertex( es ),
+ oldA( true ),
+ inRPhi( 0 ) {
 }
 
 //--------------
@@ -49,7 +49,7 @@ BPHPlusMinusVertex::~BPHPlusMinusVertex() {
 // Operations --
 //--------------
 const ClosestApproachInRPhi& BPHPlusMinusVertex::cAppInRPhi() const {
-  if ( !updated ) computeApp();
+  if ( oldA ) computeApp();
   if ( inRPhi == 0 ) {
     static const ClosestApproachInRPhi ca;
     return ca;
@@ -65,7 +65,7 @@ bool BPHPlusMinusVertex::chkSize( const string& msg ) const {
 
 void BPHPlusMinusVertex::setNotUpdated() const {
   BPHDecayVertex::setNotUpdated();
-  updated = false;
+  oldA = true;
   return;
 }
 
@@ -84,7 +84,7 @@ void BPHPlusMinusVertex::computeApp() const {
   const reco::TransientTrack& ttn = ttk[1];
   inRPhi->calculate( ttp.impactPointTSCP().theState(),
                      ttn.impactPointTSCP().theState() );
-  updated = true;
+  oldA = false;
   return;
 }
 

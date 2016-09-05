@@ -97,6 +97,12 @@ vector<BPHRecoConstCandPtr> BPHBuToJPsiKBuilder::build() {
   if ( massConstr ) bBu.filter( *mFitSel );
 
   buList = BPHRecoCandidate::build( bBu );
+//
+//  Apply kinematic constraint on the JPsi mass.
+//  The operation is already performed when apply the mass selection,
+//  so it's not repeated. The following code is left as example
+//  for similar operations
+//
 //  int iBu;
 //  int nBu = ( massConstr ? buList.size() : 0 );
 //  for ( iBu = 0; iBu < nBu; ++iBu ) {

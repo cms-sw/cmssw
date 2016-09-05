@@ -35,14 +35,14 @@ using namespace std;
 // Constructors --
 //----------------
 BPHDecayMomentum::BPHDecayMomentum():
- updated( false ) {
+ oldMom( true ) {
   dList.reserve( 2 );
 }
 
 
 BPHDecayMomentum::BPHDecayMomentum(
                   const map<string,BPHDecayMomentum::Component>& daugMap ):
- updated( false ) {
+ oldMom( true ) {
   // clone and store simple particles
   clonesList( daugMap );
 }
@@ -53,7 +53,7 @@ BPHDecayMomentum::BPHDecayMomentum(
                   const map<string,BPHRecoConstCandPtr> compMap ):
  // store the map of names to previously reconstructed particles
  cMap( compMap ),
- updated( false ) {
+ oldMom( true ) {
   // clone and store simple particles
   clonesList( daugMap );
   // store previously reconstructed particles using information in cMap
@@ -73,7 +73,7 @@ BPHDecayMomentum::~BPHDecayMomentum() {
 // Operations --
 //--------------
 const pat::CompositeCandidate& BPHDecayMomentum::composite() const {
-  computeMomentum();
+  if ( oldMom ) computeMomentum();
   return compCand;
 }
 
@@ -95,7 +95,7 @@ const vector<const reco::Candidate*>& BPHDecayMomentum::daughters() const {
 
 const vector<const reco::Candidate*>& BPHDecayMomentum::daughFull() const {
   // compute total momentum to update the full list of decay products
-  computeMomentum();
+  if ( oldMom ) computeMomentum();
   return dFull;
 }
 
@@ -177,7 +177,7 @@ void BPHDecayMomentum::addP( const string& name,
 
 
 void BPHDecayMomentum::setNotUpdated() const {
-  updated = false;
+  oldMom = true;
   return;
 }
 
@@ -256,8 +256,6 @@ void BPHDecayMomentum::fillDaug( vector<const reco::Candidate*>& ad ) const {
 
 
 void BPHDecayMomentum::computeMomentum() const {
-  // check cached result
-  if ( updated ) return;
   // reset full list of daughters
   dFull.clear();
   fillDaug( dFull );
@@ -267,7 +265,7 @@ void BPHDecayMomentum::computeMomentum() const {
   // compute the total momentum
   AddFourMomenta addP4;
   addP4.set( compCand );
-  updated = true;
+  oldMom = false;
   return;
 }
 

@@ -71,7 +71,7 @@ class BPHPlusMinusVertex: public virtual BPHDecayVertex {
  private:
 
   // reconstruction results cache
-  mutable bool updated;
+  mutable bool oldA;
   mutable ClosestApproachInRPhi* inRPhi;
 
   // compute closest approach distance and cache it

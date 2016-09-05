@@ -45,14 +45,19 @@ using namespace std;
 // Constructors --
 //----------------
 BPHDecayVertex::BPHDecayVertex( const edm::EventSetup* es ):
- evSetup( es ) {
-  setNotUpdated();
+ evSetup( es ),
+ oldTracks( true ),
+ oldVertex( true ),
+ validTks( false ) {
 }
 
 
 BPHDecayVertex::BPHDecayVertex( const BPHDecayVertex* ptr,
                                 const edm::EventSetup* es ):
- evSetup( es ) {
+ evSetup( es ),
+ oldTracks( true ),
+ oldVertex( true ),
+ validTks( false ) {
   const vector<Component>& list = ptr->BPHDecayMomentum::componentList();
   int i;
   int n = list.size();
@@ -66,7 +71,6 @@ BPHDecayVertex::BPHDecayVertex( const BPHDecayVertex* ptr,
     const map<const reco::Candidate*,string>& dMap = dComp[n]->searchMap;
     searchMap.insert( dMap.begin(), dMap.end() );
   }
-  setNotUpdated();
 }
 
 //--------------

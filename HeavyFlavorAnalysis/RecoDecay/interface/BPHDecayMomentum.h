@@ -154,7 +154,7 @@ class BPHDecayMomentum {
   std::map<const reco::Candidate*, const reco::Candidate*> clonesMap;
 
   // reconstruction results cache
-  mutable bool updated;
+  mutable bool oldMom;
   mutable std::vector<const reco::Candidate*> dFull;
   mutable pat::CompositeCandidate compCand;
 

@@ -46,9 +46,9 @@ BPHKinematicFit::BPHKinematicFit():
  BPHDecayVertex( 0 ),
  massConst( -1.0 ),
  massSigma( -1.0 ),
- updatedKPs( false ),
- updatedFit( false ),
- updatedMom( false ),
+ oldKPs( true ),
+ oldFit( true ),
+ oldMom( true ),
  kinTree( 0 ) {
 }
 
@@ -57,13 +57,13 @@ BPHKinematicFit::BPHKinematicFit( const BPHKinematicFit* ptr ):
  BPHDecayVertex( ptr, 0 ),
  massConst( -1.0 ),
  massSigma( -1.0 ),
- updatedKPs( false ),
- updatedFit( false ),
- updatedMom( false ),
+ oldKPs( true ),
+ oldFit( true ),
+ oldMom( true ),
  kinTree( 0 ) {
   map<const reco::Candidate*,const reco::Candidate*> iMap;
   const vector<const reco::Candidate*>& daug = daughters();
-  const vector<Component>& list = ptr->BPHDecayMomentum::componentList();
+  const vector<Component>& list = ptr->componentList();
   int i;
   int n = daug.size();
   for ( i = 0; i < n; ++i ) {
@@ -74,7 +74,7 @@ BPHKinematicFit::BPHKinematicFit( const BPHKinematicFit* ptr ):
     const Component& c = list[i];
     dMSig[iMap[c.cand]] = c.msig;
   }
-  const std::vector<BPHRecoConstCandPtr>& dComp = ptr->daughComp();
+  const vector<BPHRecoConstCandPtr>& dComp = daughComp();
   int j;
   int m = dComp.size();
   for ( j = 0; j < m; ++j ) {
@@ -93,7 +93,7 @@ BPHKinematicFit::~BPHKinematicFit() {
 // Operations --
 //--------------
 void BPHKinematicFit::setConstraint( double mass, double sigma ) {
-  updatedFit = updatedMom = false;
+  oldFit = oldMom = true;
   massConst = mass;
   massSigma = sigma;
   return;
@@ -112,14 +112,14 @@ double BPHKinematicFit::constrSigma() const {
 
 const vector<RefCountedKinematicParticle>& BPHKinematicFit::kinParticles()
                                                             const {
-  if ( !updatedKPs ) buildParticles();
+  if ( oldKPs ) buildParticles();
   return allParticles;
 }
 
 
 vector<RefCountedKinematicParticle> BPHKinematicFit::kinParticles(
                                     const vector<string>& names ) const {
-  if ( !updatedKPs ) buildParticles();
+  if ( oldKPs ) buildParticles();
   set<RefCountedKinematicParticle> pset;
   vector<RefCountedKinematicParticle> plist;
   const vector<const reco::Candidate*>& daugs = daughFull();
@@ -161,8 +161,8 @@ vector<RefCountedKinematicParticle> BPHKinematicFit::kinParticles(
 
 
 const RefCountedKinematicTree& BPHKinematicFit::kinematicTree() const {
-  if ( updatedFit ) return kinTree;
-  return kinematicTree( "", massConst, massSigma );
+  if ( oldFit ) return kinematicTree( "", massConst, massSigma );
+  return kinTree;
 }
 
 
@@ -181,7 +181,7 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
                                double mass ) const {
   if ( mass < 0 ) {
     kinTree = RefCountedKinematicTree( 0 );
-    updatedFit = true;
+    oldFit = false;
     return kinTree;
   }
   int nn = daughFull().size();
@@ -201,7 +201,7 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
                                const string& name,
                                KinematicConstraint* kc ) const {
   kinTree = RefCountedKinematicTree( 0 );
-  updatedFit = true;
+  oldFit = false;
   kinParticles();
   if ( allParticles.size() != daughFull().size() ) return kinTree;
   vector<RefCountedKinematicParticle> kComp;
@@ -262,7 +262,7 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
                                const string& name,
                                MultiTrackKinematicConstraint* kc ) const {
   kinTree = RefCountedKinematicTree( 0 );
-  updatedFit = true;
+  oldFit = false;
   kinParticles();
   if ( allParticles.size() != daughFull().size() ) return kinTree;
   vector<string> nfull;
@@ -297,8 +297,8 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
 }
 
 
-void BPHKinematicFit::resetKinematicFit() {
-  updatedKPs = updatedFit = updatedMom = false;
+void BPHKinematicFit::resetKinematicFit() const {
+  oldKPs = oldFit = oldMom = true;
   return;
 }
 
@@ -339,7 +339,7 @@ ParticleMass BPHKinematicFit::mass() const {
 
 
 const math::XYZTLorentzVector& BPHKinematicFit::p4() const {
-  if ( !updatedMom ) fitMomentum();
+  if ( oldMom ) fitMomentum();
   return totalMomentum;
 }
 
@@ -373,7 +373,7 @@ void BPHKinematicFit::addK( const string& name,
 
 void BPHKinematicFit::setNotUpdated() const {
   BPHDecayVertex::setNotUpdated();
-  updatedKPs = updatedFit = updatedMom = false;
+  resetKinematicFit();
   return;
 }
 
@@ -397,7 +397,7 @@ void BPHKinematicFit::buildParticles() const {
                                            pFactory.particle( *tt, 
                                            mass, chi, ndf, sigma ) );
   }
-  updatedKPs = true;
+  oldKPs = false;
   return;
 }
 
@@ -426,7 +426,7 @@ void BPHKinematicFit::fitMomentum() const {
     while ( m-- ) tm += comp[m]->p4();
     totalMomentum = tm;
   }
-  updatedMom = true;
+  oldMom = false;
   return;
 }
 
