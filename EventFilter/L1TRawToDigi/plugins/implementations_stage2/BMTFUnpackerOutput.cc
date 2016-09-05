@@ -74,3 +74,4 @@ namespace l1t
 	}//ns stage2
 }//ns lt1
 			
+DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);
