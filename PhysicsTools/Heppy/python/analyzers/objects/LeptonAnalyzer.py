@@ -123,8 +123,10 @@ class LeptonAnalyzer( Analyzer ):
     
         #rho for muons
         self.handles['rhoMu'] = AutoHandle( self.cfg_ana.rhoMuon, 'double')
+        self.handles['rhoMu_miniIsolation'] = AutoHandle( self.cfg_ana.rhoMuon_miniIsolation, 'double')
         #rho for electrons
         self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
+        self.handles['rhoEle_miniIsolation'] = AutoHandle( self.cfg_ana.rhoElectron_miniIsolation, 'double')
 
         # JP/CV: add Spring15 EGamma POG electron ID MVA
         # ( https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificationRun2#Recipes_for_7_4_12_Spring15_MVA )
@@ -276,6 +278,7 @@ class LeptonAnalyzer( Analyzer ):
         # Attach EAs for isolation:
         for mu in allmuons:
           mu.rho = float(self.handles['rhoMu'].product()[0])
+          mu.rho_miniIsolation = float(self.handles['rhoMu_miniIsolation'].product()[0])
           if self.muEffectiveArea == "Data2012":
               if   aeta < 1.0  : mu.EffectiveArea03 = 0.382;
               elif aeta < 1.47 : mu.EffectiveArea03 = 0.317;
@@ -356,6 +359,7 @@ class LeptonAnalyzer( Analyzer ):
         # fill EA for rho-corrected isolation
         for ele in allelectrons:
           ele.rho = float(self.handles['rhoEle'].product()[0])
+          ele.rho_miniIsolation = float(self.handles['rhoEle_miniIsolation'].product()[0])
           if self.eleEffectiveArea == "Data2012":
               # https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaEARhoCorrection?rev=14
               SCEta = abs(ele.superCluster().eta())
@@ -505,7 +509,7 @@ class LeptonAnalyzer( Analyzer ):
                 #mu.miniAbsIsoNHadSV = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, mu.miniIsoR, 0.0, 0.0) 
                 #mu.miniAbsIsoNeutral = mu.miniAbsIsoPhoSV + mu.miniAbsIsoNHadSV  
             if puCorr == "rhoArea":
-                mu.miniAbsIsoNeutral = max(0.0, mu.miniAbsIsoNeutral - mu.rho * mu.EffectiveArea03 * (mu.miniIsoR/0.3)**2)
+                mu.miniAbsIsoNeutral = max(0.0, mu.miniAbsIsoNeutral - mu.rho_miniIsolation * mu.EffectiveArea03 * (mu.miniIsoR/0.3)**2)
             elif puCorr == "deltaBeta":
                 if what == "mu":
                     mu.miniAbsIsoPU = self.IsolationComputer.puAbsIso(mu.physObj, mu.miniIsoR, 0.01, 0.5);
@@ -711,6 +715,8 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     electrons='slimmedElectrons',
     rhoMuon= 'fixedGridRhoFastjetAll',
     rhoElectron = 'fixedGridRhoFastjetAll',
+    rhoMuon_miniIsolation = 'fixedGridRhoFastjetCentralNeutral',
+    rhoElectron_miniIsolation = 'fixedGridRhoFastjetCentralNeutral',
 ##    photons='slimmedPhotons',
     # energy scale corrections and ghost muon suppression (off by default)
     doMuonScaleCorrections=False, 
