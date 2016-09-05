@@ -295,8 +295,24 @@ namespace edm {
                                                bool skipCurrentProcess,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const {
-    //The caller should be checking to see if waitTask needs to be run
+    if(not skipCurrentProcess) {
+      m_waitingTasks.add(waitTask);
+    }
   }
+  
+  void
+  PuttableProductResolver::putProduct_(std::unique_ptr<WrapperBase> edp) const {
+    ProducedProductResolver::putProduct_(std::move(edp));
+    m_waitingTasks.doneWaiting(std::exception_ptr());
+  }
+
+  
+  void
+  PuttableProductResolver::resetProductData_(bool deleteEarly) {
+    m_waitingTasks.reset();
+    DataManagingProductResolver::resetProductData_(deleteEarly);
+  }
+
   
   void
   UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
