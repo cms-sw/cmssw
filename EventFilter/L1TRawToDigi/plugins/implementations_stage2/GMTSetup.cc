@@ -1,6 +1,10 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
+#include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
+#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+
 #include "GMTSetup.h"
 
 namespace l1t {
