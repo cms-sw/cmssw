@@ -212,6 +212,8 @@ namespace edm {
     void setPosition(IndexIntoFile::IndexIntoFileItr const& position);
     void initAssociationsFromSecondary(std::vector<BranchID> const&);
 
+    void setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
   private:
     RootTreePtrArray& treePointers() {return treePointers_;}
     bool skipThisEntry();

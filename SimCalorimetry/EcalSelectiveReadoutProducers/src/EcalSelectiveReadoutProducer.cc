@@ -19,7 +19,7 @@
 using namespace std;
 
 EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
-  : params_(params)
+  : params_(params),firstCallEB_(true),firstCallEE_(true),iEvent_(0)
 {
   //settings:
   //  settings which are only in python config files:
@@ -148,26 +148,25 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 		   selectedEBDigis.get(), selectedEEDigis.get(),
 		   ebSrFlags.get(), eeSrFlags.get());
 
-  static int iEvent = 1;
-  if(dumpFlags_>=iEvent){
-    ofstream ttfFile("TTF.txt", (iEvent==1?ios::trunc:ios::app));
-    suppressor_->printTTFlags(ttfFile, iEvent,
-			      iEvent==1?true:false);
+  if(dumpFlags_>=iEvent_){
+    ofstream ttfFile("TTF.txt", (iEvent_==1?ios::trunc:ios::app));
+    suppressor_->printTTFlags(ttfFile, iEvent_,
+			      iEvent_==1?true:false);
 
-    ofstream srfFile("SRF.txt", (iEvent==1?ios::trunc:ios::app));
-    if(iEvent==1){
+    ofstream srfFile("SRF.txt", (iEvent_==1?ios::trunc:ios::app));
+    if(iEvent_==1){
       suppressor_->getEcalSelectiveReadout()->printHeader(srfFile);
     }
-    srfFile << "# Event " << iEvent << "\n";
+    srfFile << "# Event " << iEvent_ << "\n";
     suppressor_->getEcalSelectiveReadout()->print(srfFile);
     srfFile << "\n";
 
-    ofstream afFile("AF.txt", (iEvent==1?ios::trunc:ios::app));
-    printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent,
-		 iEvent==1?true:false);
+    ofstream afFile("AF.txt", (iEvent_==1?ios::trunc:ios::app));
+    printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent_,
+		 iEvent_==1?true:false);
   }
 
-  ++iEvent; //event counter
+  ++iEvent_; //event counter
 
   if(produceDigis_){
     //puts the selected digis into the event:
@@ -183,33 +182,31 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
 }
 
 const EBDigiCollection*
-EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
+EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event)
 {
   edm::Handle<EBDigiCollection> hEBDigis;
   event.getByToken(EB_token, hEBDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
   const EBDigiCollection* result = hEBDigis.product();
-  static bool firstCall= true;
-  if(firstCall){
+  if(firstCallEB_){
     checkWeights(event, hEBDigis.id());
-    firstCall = false;
+    firstCallEB_ = false;
   }
   return result;
 }
 
 const EEDigiCollection*
-EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
+EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event)
 {
   edm::Handle<EEDigiCollection> hEEDigis;
   event.getByToken(EE_token, hEEDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
   const EEDigiCollection* result = hEEDigis.product();
-  static bool firstCall = true;
-  if(firstCall){
+  if(firstCallEE_){
     checkWeights(event, hEEDigis.id());
-    firstCall = false;
+    firstCallEE_ = false;
   }
   return result;
 }

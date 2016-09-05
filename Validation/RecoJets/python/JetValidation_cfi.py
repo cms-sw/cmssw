@@ -168,7 +168,7 @@ JetAnalyzerAk4PFPUPPIMiniAOD = cms.EDAnalyzer("JetTester",
                                   RThreshold                     = cms.double(0.3)
                                   )
 
-JetAnalyzerAk8PFCHSMiniAOD = cms.EDAnalyzer("JetTester",
+JetAnalyzerAk8PFPUPPIMiniAOD = cms.EDAnalyzer("JetTester",
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJetsAK8"),
                                   srcGen         = cms.InputTag("slimmedGenJetsAK8"),

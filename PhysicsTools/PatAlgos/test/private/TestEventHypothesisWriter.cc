@@ -78,7 +78,7 @@ TestEventHypothesisWriter::produce(edm::Event &iEvent, const edm::EventSetup &iS
     using reco::Candidate;
     using reco::CandidatePtr;
 
-    auto_ptr<vector<pat::EventHypothesis> > hyps(new vector<pat::EventHypothesis>());;
+    auto hyps = std::make_unique<std::vector<pat::EventHypothesis>>();;
     vector<double>  deltaRs;
 
     Handle<View<Candidate> > hMu;
@@ -124,14 +124,14 @@ TestEventHypothesisWriter::produce(edm::Event &iEvent, const edm::EventSetup &iS
     std::cout << "Found " << deltaRs.size() << " possible options" << std::endl;
 
     // work done, save results
-    OrphanHandle<vector<pat::EventHypothesis> > handle = iEvent.put(hyps);
-    auto_ptr<ValueMap<double> > deltaRMap(new ValueMap<double>());
+    OrphanHandle<vector<pat::EventHypothesis> > handle = iEvent.put(std::move(hyps));
+    auto deltaRMap = std::make_unique<ValueMap<double>>();
     //if (deltaRs.size() > 0) {
         ValueMap<double>::Filler filler(*deltaRMap);
         filler.insert(handle, deltaRs.begin(), deltaRs.end());
         filler.fill();
     //}
-    iEvent.put(deltaRMap, "deltaR");
+    iEvent.put(std::move(deltaRMap), "deltaR");
 }
 
 DEFINE_FWK_MODULE(TestEventHypothesisWriter);

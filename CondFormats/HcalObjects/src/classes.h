@@ -91,6 +91,11 @@ namespace CondFormats_HcalObjects {
  
     HcalSiPMCharacteristics mySiPMCharacteristics;
     std::vector<HcalSiPMCharacteristics::PrecisionItem> mySiPMCharacteristicvec;
+ 
+    HcalTPParameters myTPParameters;
+
+    HcalTPChannelParameters myTPChannelParameters();
+    std::vector<HcalTPChannelParameter> myTPChannelParametervec;
 
     // OOT pileup correction objects
     std::map<std::string, AbsOOTPileupCorrection*> myInnerMap;
@@ -112,6 +117,9 @@ namespace CondFormats_HcalObjects {
     // HBHE negative energy filter
     std::vector<PiecewiseScalingPolynomial> myPiecewiseScalingPolynomialVec;
     HBHENegativeEFilter myHBHENegativeEFilter;
+
+    // Phase 1 HF algorithm configuration data
+    HFPhase1PMTParams myHFPhase1PMTParams;
   };
 }
 

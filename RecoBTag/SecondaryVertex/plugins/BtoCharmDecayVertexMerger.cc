@@ -134,13 +134,12 @@ void BtoCharmDecayVertexMergerT<VTX>::produce(edm::Event &iEvent, const edm::Eve
   }
 
   // now create new vertex collection and add to event
-  std::auto_ptr<std::vector<VTX> > bvertColl(new std::vector<VTX>);
+  auto bvertColl = std::make_unique<std::vector<VTX>>();
   for(typename std::vector<VertexProxy>::const_iterator it=vertexProxyColl.begin(); it!=vertexProxyColl.end(); ++it) bvertColl->push_back((*it).vert);
-  iEvent.put(bvertColl);
+  iEvent.put(std::move(bvertColl));
   }
   else{
-    std::auto_ptr<std::vector<VTX> > bvertCollEmpty(new std::vector<VTX>);
-    iEvent.put(bvertCollEmpty);
+    iEvent.put(std::make_unique<std::vector<VTX>>());
   }
 }
 //------------------------------------

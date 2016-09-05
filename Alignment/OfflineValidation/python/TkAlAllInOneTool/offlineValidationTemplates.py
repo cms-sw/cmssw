@@ -187,7 +187,7 @@ process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*proces
 ######################################################################
 ######################################################################
 mergeOfflineParJobsTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C"
+#include "Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C"
 
 int TkAlOfflineJobsMerge(TString pars, TString outFile)
 {
@@ -295,9 +295,17 @@ root -x -b -q -l TkAlExtendedOfflineValidation.C
 ######################################################################
 ######################################################################
 extendedValidationTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
+#include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
+
 void TkAlExtendedOfflineValidation()
 {
+  TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+  TkAlStyle::legendoptions = ".oO[legendoptions]Oo.";
+  TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
+  gStyle->SetTitleH        ( 0.07 );
+  gStyle->SetTitleW        ( 1.00 );
+  gStyle->SetTitleFont     (  132 );
   // load framework lite just to find the CMSSW libs...
   gSystem->Load("libFWCoreFWLite");
   FWLiteEnabler::enable();

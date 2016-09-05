@@ -165,7 +165,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for( std::vector <algo>::const_iterator algorithm=algorithms.begin(); algorithm!=algorithms.end(); algorithm++){
 
 
-    std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
+    auto result = std::make_unique<reco::VertexCollection>();
     reco::VertexCollection & vColl = (*result);
 
 
@@ -263,7 +263,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
 
-    iEvent.put(result, algorithm->label); 
+    iEvent.put(std::move(result), algorithm->label); 
   }
   
 }

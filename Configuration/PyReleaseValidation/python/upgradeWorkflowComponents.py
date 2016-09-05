@@ -61,7 +61,7 @@ upgradeProperties = {
         'GT' : 'auto:run2_mc',
         'Custom' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted',
         'Era' : 'Phase2C2',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullLocal'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
 }
 
@@ -72,7 +72,7 @@ upgradeProperties['2023D1PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFul
 upgradeProperties['2023D2PU'] = deepcopy(upgradeProperties['2023D2'])
 upgradeProperties['2023D2PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties['2023D3PU'] = deepcopy(upgradeProperties['2023D3'])
-upgradeProperties['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullLocalPU']
+upgradeProperties['2023D3PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 

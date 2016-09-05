@@ -82,7 +82,7 @@ BVertexFilterT<VTX>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
  edm::Handle<edm::View<VTX> > svHandle;
  iEvent.getByToken(token_secondaryVertex, svHandle);
 
- std::auto_ptr<std::vector<VTX> > recoVertices(new std::vector<VTX>);
+ auto recoVertices = std::make_unique<std::vector<VTX>>();
 
  if(pvHandle->size()!=0) {
    const reco::Vertex & primary = (*pvHandle.product())[0];
@@ -102,7 +102,7 @@ BVertexFilterT<VTX>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
  }
- iEvent.put(recoVertices);
+ iEvent.put(std::move(recoVertices));
 
  return(count >= minVertices);
 }

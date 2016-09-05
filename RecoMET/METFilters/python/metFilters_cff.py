@@ -96,3 +96,10 @@ metFilters = cms.Sequence(
    chargedHadronTrackResolutionFilter *
    muonBadTrackFilter
 )
+
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_hgcal.toReplaceWith(metFilters, metFilters.copyAndExclude([
+    HBHENoiseFilterResultProducer, HBHENoiseFilter, # No hcalnoise for hgcal
+    eeBadScFilter                                   # No EE
+]))
+

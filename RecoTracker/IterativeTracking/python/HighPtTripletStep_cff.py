@@ -87,7 +87,7 @@ _highPtTripletStepTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTrajectory
     minPt = 0.2,
 )
 highPtTripletStepTrajectoryFilterBase = _highPtTripletStepTrajectoryFilterBase.clone(
-    maxCCCLostHits = 2,
+    maxCCCLostHits = 0,
     minGoodStripCharge = dict(refToPSet_ = 'SiStripClusterChargeCutLoose')
 )
 eras.trackingPhase1PU70.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPtTripletStepTrajectoryFilterBase)
@@ -100,7 +100,7 @@ highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstim
     ComponentName = 'highPtTripletStepChi2Est',
     nSigma = 3.0,
     MaxChi2 = 30.0,
-    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
+    clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutLoose'),
     pTChargeCutThreshold = 15.
 )
 eras.trackingPhase1PU70.toModify(highPtTripletStepChi2Est,

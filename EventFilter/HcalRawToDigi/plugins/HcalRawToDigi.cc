@@ -117,7 +117,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<HcalTTPDigi> ttp;
   std::vector<HOTriggerPrimitiveDigi> hotp;
   HcalUMNioDigi umnio;
-  std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
+  auto report = std::make_unique<HcalUnpackerReport>();
 
   // Heuristics: use ave+(max-ave)/8
   if (stats_.max_hbhe>0) hbhe.reserve(stats_.ave_hbhe+(stats_.max_hbhe-stats_.ave_hbhe)/8);
@@ -193,19 +193,19 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   if( cntHFdup ) edm::LogError("HcalRawToDigi") << "Duplicated HF digis found for "<<cntHFdup<<" times"<<std::endl;
 
   // Step B: encapsulate vectors in actual collections
-  std::auto_ptr<HBHEDigiCollection> hbhe_prod(new HBHEDigiCollection()); 
-  std::auto_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
-  std::auto_ptr<HODigiCollection> ho_prod(new HODigiCollection());
-  std::auto_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
-  std::auto_ptr<HOTrigPrimDigiCollection> hotp_prod(new HOTrigPrimDigiCollection());  
+  auto hbhe_prod = std::make_unique<HBHEDigiCollection>();
+  auto hf_prod = std::make_unique<HFDigiCollection>();
+  auto ho_prod = std::make_unique<HODigiCollection>();
+  auto htp_prod = std::make_unique<HcalTrigPrimDigiCollection>();
+  auto hotp_prod = std::make_unique<HOTrigPrimDigiCollection>();
   if (colls.qie10 == 0) {
     colls.qie10 = new QIE10DigiCollection(); 
   }
-  std::auto_ptr<QIE10DigiCollection> qie10_prod(colls.qie10);
+  std::unique_ptr<QIE10DigiCollection> qie10_prod(colls.qie10);
   if (colls.qie11 == 0) {
     colls.qie11 = new QIE11DigiCollection(); 
   }
-  std::auto_ptr<QIE11DigiCollection> qie11_prod(colls.qie11);
+  std::unique_ptr<QIE11DigiCollection> qie11_prod(colls.qie11);
 
   hbhe_prod->swap_contents(hbhe);
   if( !cntHFdup ) hf_prod->swap_contents(hf);
@@ -235,17 +235,17 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   qie10_prod->sort();
   qie11_prod->sort();
 
-  e.put(hbhe_prod);
-  e.put(ho_prod);
-  e.put(hf_prod);
-  e.put(htp_prod);
-  e.put(hotp_prod);
-  e.put(qie10_prod);
-  e.put(qie11_prod);
+  e.put(std::move(hbhe_prod));
+  e.put(std::move(ho_prod));
+  e.put(std::move(hf_prod));
+  e.put(std::move(htp_prod));
+  e.put(std::move(hotp_prod));
+  e.put(std::move(qie10_prod));
+  e.put(std::move(qie11_prod));
 
   /// calib
   if (unpackCalib_) {
-    std::auto_ptr<HcalCalibDigiCollection> hc_prod(new HcalCalibDigiCollection());
+    auto hc_prod = std::make_unique<HcalCalibDigiCollection>();
     hc_prod->swap_contents(hc);
 
     if (filter_.active()) {
@@ -254,12 +254,12 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     }
 
     hc_prod->sort();
-    e.put(hc_prod);
+    e.put(std::move(hc_prod));
   }
 
   /// zdc
   if (unpackZDC_) {
-    std::auto_ptr<ZDCDigiCollection> prod(new ZDCDigiCollection());
+    auto prod = std::make_unique<ZDCDigiCollection>();
     prod->swap_contents(zdc);
     
     if (filter_.active()) {
@@ -268,22 +268,21 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     }
 
     prod->sort();
-    e.put(prod);
+    e.put(std::move(prod));
   }
 
   if (unpackTTP_) {
-    std::auto_ptr<HcalTTPDigiCollection> prod(new HcalTTPDigiCollection());
+    auto prod = std::make_unique<HcalTTPDigiCollection>();
     prod->swap_contents(ttp);
     
     prod->sort();
-    e.put(prod);
+    e.put(std::move(prod));
   }
-  e.put(report);
+  e.put(std::move(report));
   /// umnio
   if (unpackUMNio_) {
     if(colls.umnio != 0) {
-      std::auto_ptr<HcalUMNioDigi> prod(new HcalUMNioDigi(umnio));
-      e.put(prod);
+      e.put(std::make_unique<HcalUMNioDigi>(umnio));
     }
 
   }

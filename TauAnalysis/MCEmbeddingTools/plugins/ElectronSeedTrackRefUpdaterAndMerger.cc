@@ -115,8 +115,8 @@ ElectronSeedTrackRefUpdaterAndMerger::produce(edm::Event& iEvent, const edm::Eve
    using namespace std;
    using namespace reco;
 
-   auto_ptr<ElectronSeedCollection> output_preid(new ElectronSeedCollection);
-   auto_ptr<PreIdCollection> output_preidinfo(new PreIdCollection);
+   std::unique_ptr<ElectronSeedCollection> output_preid(new ElectronSeedCollection);
+   std::unique_ptr<PreIdCollection> output_preidinfo(new PreIdCollection);
 
    edm::Handle<reco::TrackCollection> hTargetTracks;
    iEvent.getByLabel( _targetTracks, hTargetTracks);
@@ -209,8 +209,8 @@ ElectronSeedTrackRefUpdaterAndMerger::produce(edm::Event& iEvent, const edm::Eve
    }
 
 
-   iEvent.put(output_preid,preidgsf_);
-   iEvent.put(output_preidinfo,preidname_);
+   iEvent.put(std::move(output_preid),preidgsf_);
+   iEvent.put(std::move(output_preidinfo),preidname_);
 
    //iEvent.put(newCol);
 

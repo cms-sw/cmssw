@@ -20,21 +20,47 @@ class IntegerCaloSamples;
 
 class HcalTriggerPrimitiveAlgo {
 public:
-  HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, 
-                           int latency,
-                           bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
+   struct TPParameters {
+      uint64_t hf_tdc_mask;
+      uint32_t hf_adc_threshold;
+      uint32_t hf_fg_threshold;
+   };
+
+  HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, int latency,
+                           uint32_t FG_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
                            int numberOfSamplesHF, int numberOfPresamplesHF,
                            uint32_t minSignalThreshold=0, uint32_t PMT_NoiseThreshold=0);
   ~HcalTriggerPrimitiveAlgo();
 
+  template<typename... Digis>
   void run(const HcalTPGCoder* incoder,
            const HcalTPGCompressor* outcoder,
-           const HBHEDigiCollection& hbheDigis,
-           const HFDigiCollection& hfDigis,
            HcalTrigPrimDigiCollection& result,
-	   const HcalTrigTowerGeometry* trigTowerGeometry,
-           float rctlsb, const HcalFeatureBit* LongvrsShortCut=0);
+           const HcalTrigTowerGeometry* trigTowerGeometry,
+           float rctlsb, const HcalFeatureBit* LongvrsShortCut,
+           const Digis&... digis);
+
+  template<typename T, typename... Args>
+  void addDigis(const T& collection, const Args&... digis) {
+     addDigis(collection);
+     addDigis(digis...);
+  };
+
+  template<typename T>
+  void addDigis(const T& collection) {
+     for (const auto& digi: collection) {
+        addSignal(digi);
+     }
+  };
+
+  template<typename D>
+  void addDigis(const HcalDataFrameContainer<D>& collection) {
+     for (auto i = collection.begin(); i != collection.end(); ++i) {
+        D digi(*i);
+        addSignal(digi);
+     }
+  };
 
   void runZS(HcalTrigPrimDigiCollection& tp);
   void runFEFormatError(const FEDRawDataCollection* rawraw,
@@ -44,20 +70,36 @@ public:
   void setNCTScaleShift(int);
   void setRCTScaleShift(int);
 
+  void setUpgradeFlags(bool hb, bool he, bool hf);
+  void overrideParameters(unsigned int hf_tdc_mask,
+                          unsigned int hf_adc_threshold,
+                          unsigned int hf_fg_threshold);
+
  private:
 
   /// adds the signal to the map
   void addSignal(const HBHEDataFrame & frame);
   void addSignal(const HFDataFrame & frame);
+  void addSignal(const QIE10DataFrame& frame);
+  void addSignal(const QIE11DataFrame& frame);
   void addSignal(const IntegerCaloSamples & samples);
   void addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb);
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
+  // Phase1: QIE11
+  void analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
-  void analyzeHFV1(
+  void analyzeHF2016(
+          const IntegerCaloSamples& SAMPLES,
+          HcalTriggerPrimitiveDigi& result,
+          const int HF_LUMI_SHIFT,
+          const HcalFeatureBit* HCALFEM
+          );
+  // With dual anode readout
+  void analyzeHFPhase1(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
           const int HF_LUMI_SHIFT,
@@ -71,7 +113,6 @@ public:
   bool peakfind_;
   std::vector<double> weights_;
   int latency_;
-  bool FG_MinimumBias_;
   uint32_t FG_threshold_;
   uint32_t ZS_threshold_;
   int ZS_threshold_I_;
@@ -106,6 +147,13 @@ public:
   };
   typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, HFDetails>> HFDetailMap;
   HFDetailMap theHFDetailMap;
+
+  struct HFUpgradeDetails {
+     IntegerCaloSamples samples;
+     QIE10DataFrame digi;
+  };
+  typedef std::map<HcalTrigTowerDetId, std::map<uint32_t, std::array<HFUpgradeDetails, 4>>> HFUpgradeDetailMap;
+  HFUpgradeDetailMap theHFUpgradeDetailMap;
   
   typedef std::vector<IntegerCaloSamples> SumFGContainer;
   typedef std::map< HcalTrigTowerDetId, SumFGContainer > TowerMapFGSum;
@@ -126,5 +174,75 @@ public:
 
   typedef std::map<HcalTrigTowerDetId, std::vector<bool> > FGbitMap;
   FGbitMap fgMap_;
+
+  bool upgrade_hb_ = false;
+  bool upgrade_he_ = false;
+  bool upgrade_hf_ = false;
+
+  std::unique_ptr<const TPParameters> override_parameters_;
+
+  static const int first_he_tower = 16;
 };
+
+template<typename... Digis>
+void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
+                                   const HcalTPGCompressor* outcoder,
+                                   HcalTrigPrimDigiCollection& result,
+                                   const HcalTrigTowerGeometry* trigTowerGeometry,
+                                   float rctlsb, const HcalFeatureBit* LongvrsShortCut,
+                                   const Digis&... digis) {
+   theTrigTowerGeometry = trigTowerGeometry;
+    
+   incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
+   outcoder_=outcoder;
+
+   theSumMap.clear();
+   theTowerMapFGSum.clear();
+   HF_Veto.clear();
+   fgMap_.clear();
+   theHFDetailMap.clear();
+   theHFUpgradeDetailMap.clear();
+
+   // Add all digi collections
+   addDigis(digis...);
+
+   // VME produces additional bits on the front used by lumi but not the
+   // trigger, this shift corrects those out by right shifting over them.
+   for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
+      result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
+      HcalTrigTowerDetId detId(mapItr->second.id());
+      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
+         if (detId.version() == 0) {
+            analyzeHF(mapItr->second, result.back(), RCTScaleShift);
+         } else if (detId.version() == 1) {
+            if (upgrade_hf_)
+               analyzeHFPhase1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
+            else
+               analyzeHF2016(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
+         } else {
+            // Things are going to go poorly
+         }
+      }
+      else {
+         if (upgrade_he_ and abs(detId.ieta()) >= first_he_tower) {
+            analyzePhase1(mapItr->second, result.back());
+         } else if (upgrade_hb_ and detId.subdet() < first_he_tower) {
+            analyzePhase1(mapItr->second, result.back());
+         } else {
+            analyze(mapItr->second, result.back());
+         }
+      }
+   }
+
+   // Free up some memory
+   theSumMap.clear();
+   theTowerMapFGSum.clear();
+   HF_Veto.clear();
+   fgMap_.clear();
+   theHFDetailMap.clear();
+   theHFUpgradeDetailMap.clear();
+
+   return;
+}
+
 #endif

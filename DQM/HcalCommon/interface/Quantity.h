@@ -67,7 +67,7 @@ namespace hcaldqm
 				virtual void setLog(TH1* o) 
 				{
 					if (_isLog)
-						o->SetBit(BIT(constants::BIT_OFFSET+_axistype));
+						o->SetBit(BIT(BIT_OFFSET+_axistype));
 				}
 
 				virtual int nbins() {return 1;}

@@ -44,8 +44,7 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
     throw cms::Exception( "MissingProduct", err.str());
   }
 
-  std::auto_ptr<GenJetCollection>
-    pOutVisTaus(new GenJetCollection());
+  auto pOutVisTaus = std::make_unique<GenJetCollection>();
 
   using namespace GenParticlesHelper;
 
@@ -109,7 +108,7 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
     pOutVisTaus->push_back( jet );
 
   }
-  iEvent.put( pOutVisTaus );
+  iEvent.put(std::move(pOutVisTaus) );
 }
 
 

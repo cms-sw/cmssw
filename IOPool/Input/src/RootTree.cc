@@ -474,6 +474,14 @@ namespace edm {
     } 
  
   }
+  
+  void
+  RootTree::setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                       signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource) {
+    rootDelayedReader_->setSignals(preEventReadSource,
+                                   postEventReadSource);
+  }
+
 
   namespace roottree {
     Int_t

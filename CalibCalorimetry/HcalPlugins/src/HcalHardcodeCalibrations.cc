@@ -259,9 +259,17 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMParameters);
       findingRecord <HcalSiPMParametersRcd> ();
     }
-    if ((*objectName == "SiPMCharacteristics") || (*objectName == "frontEndMap") || all) {
+    if ((*objectName == "SiPMCharacteristics") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceSiPMCharacteristics);
       findingRecord <HcalSiPMCharacteristicsRcd> ();
+    }
+    if ((*objectName == "TPChannelParameters") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceTPChannelParameters);
+      findingRecord <HcalTPChannelParametersRcd> ();
+    }
+    if ((*objectName == "TPParameters") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceTPParameters);
+      findingRecord <HcalTPParametersRcd> ();
     }
   }
 }
@@ -549,9 +557,13 @@ std::unique_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1Trigger
 
 std::unique_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
 
+  std::vector <HcalGenericDetId> cells = allCells(*topo);
   auto result = std::make_unique<HcalElectronicsMap>();
-  dbHardcode.makeHardcodeMap(*result);
+  dbHardcode.makeHardcodeMap(*result,cells);
   return result;
 }
 
@@ -735,11 +747,15 @@ std::unique_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagH
 } 
 
 
-std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rcd) {
+std::unique_ptr<HcalFrontEndMap> HcalHardcodeCalibrations::produceFrontEndMap (const HcalFrontEndMapRcd& rec) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFrontEndMap-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  std::vector <HcalGenericDetId> cells = allCells(*topo);
 
   auto result = std::make_unique<HcalFrontEndMap>();
-  dbHardcode.makeHardcodeFrontEndMap(*result);
+  dbHardcode.makeHardcodeFrontEndMap(*result, cells);
   return result;
 }
 
@@ -764,6 +780,30 @@ std::unique_ptr<HcalSiPMCharacteristics> HcalHardcodeCalibrations::produceSiPMCh
 
   auto result = std::make_unique<HcalSiPMCharacteristics>();
   dbHardcode.makeHardcodeSiPMCharacteristics(*result);
+  return result;
+}
+
+
+std::unique_ptr<HcalTPChannelParameters> HcalHardcodeCalibrations::produceTPChannelParameters (const HcalTPChannelParametersRcd& rec) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTPChannelParameters-> ...";
+  edm::ESHandle<HcalTopology> htopo;
+  rec.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+
+  auto result = std::make_unique<HcalTPChannelParameters>(topo);
+  std::vector <HcalGenericDetId> cells = allCells(*htopo);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
+    HcalTPChannelParameter item = dbHardcode.makeHardcodeTPChannelParameter (*cell);
+    result->addValues(item);
+  }
+  return result;
+}
+
+std::unique_ptr<HcalTPParameters> HcalHardcodeCalibrations::produceTPParameters (const HcalTPParametersRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTPParameters-> ...";
+
+  auto result = std::make_unique<HcalTPParameters>();
+  dbHardcode.makeHardcodeTPParameters(*result);
   return result;
 }
 

@@ -14,6 +14,7 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
 	namespace hashfunctions
 	{
 		/**

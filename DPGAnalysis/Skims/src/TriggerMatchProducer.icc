@@ -71,9 +71,9 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
   HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
 
    // Create the output collection
-  std::auto_ptr< edm::RefToBaseVector<object> > 
+  std::unique_ptr< edm::RefToBaseVector<object> > 
     outColRef( new edm::RefToBaseVector<object> );
-  std::auto_ptr< edm::PtrVector<object> > 
+  std::unique_ptr< edm::PtrVector<object> > 
     outColPtr( new edm::PtrVector<object> );
 
 
@@ -126,8 +126,8 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
      edm::LogInfo("info")<< "******** Following Trigger Summary Object Not Found: " << 
        triggerEventTag_;
 
-     event.put(outColRef, "R");
-     event.put(outColPtr);
+     event.put(std::move(outColRef), "R");
+     event.put(std::move(outColPtr));
      return;
    }
 
@@ -223,8 +223,8 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
 	       outColPtr->push_back( ptrVect[counter] );
 	 }
      }   
-   event.put(outColRef, "R");
-   event.put(outColPtr);
+   event.put(std::move(outColRef), "R");
+   event.put(std::move(outColPtr));
 }
 
 

@@ -364,6 +364,37 @@ namespace edm{
     module_->doRegisterThinnedAssociations(registry, helper);
   }
 
+  template<typename T>
+  inline
+  SerialTaskQueueChain* WorkerT<T>::serializeRunModule() {
+    return nullptr;
+  }
+  template<> SerialTaskQueueChain* WorkerT<EDAnalyzer>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<EDFilter>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<EDProducer>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<OutputModule>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::EDAnalyzerBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::EDFilterBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::EDProducerBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  template<> SerialTaskQueueChain* WorkerT<one::OutputModuleBase>::serializeRunModule() {
+    return &(module_->sharedResourcesAcquirer().serialQueueChain());
+  }
+  
+  
   namespace {
     template <typename T> bool mustPrefetchMayGet();
     

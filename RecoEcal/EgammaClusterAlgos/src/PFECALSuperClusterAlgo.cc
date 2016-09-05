@@ -249,10 +249,14 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   //Select PF clusters available for the clustering
   for ( size_t i = 0; i < clusters.size(); ++i ){
     auto cluster = clusters.ptrAt(i);
-    LogDebug("PFClustering") 
+    LogDebug("PFClustering")
       << "Loading PFCluster i="<<cluster.key()
       <<" energy="<<cluster->energy()<<std::endl;
         
+    // protection for sim clusters
+    if( cluster->caloID().detectors() == 0 && 
+	cluster->hitsAndFractions().size() == 0 ) continue;
+
     CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster));
     switch( cluster->layer() ) {
     case PFLayer::ECAL_BARREL:
@@ -260,11 +264,12 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
 	_clustersEB.push_back(calib_cluster);	
       }
       break;
-    case PFLayer::ECAL_ENDCAP:
+    case PFLayer::HGCAL:
+    case PFLayer::ECAL_ENDCAP:   
       if( calib_cluster->energy() > threshPFClusterEndcap_ ) {
 	_clustersEE.push_back(calib_cluster);
       }
-      break;
+      break;      
     default:
       break;
     }
@@ -274,7 +279,6 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   GreaterByEt greater;
   std::sort(_clustersEB.begin(), _clustersEB.end(), greater);
   std::sort(_clustersEE.begin(), _clustersEE.end(), greater);  
-  
 }
 
 void PFECALSuperClusterAlgo::run() {  
@@ -315,7 +319,9 @@ buildSuperCluster(CalibClusterPtr& seed,
 				 << superClustersEB_->size() + 1
 				 << " in the ECAL barrel!";
     break;
-  case PFLayer::ECAL_ENDCAP:    
+  case PFLayer::HGCAL:  
+  case PFLayer::ECAL_ENDCAP:  
+  
     IsClusteredWithSeed.phiwidthSuperCluster_ = phiwidthSuperClusterEndcap_; 
     IsClusteredWithSeed.etawidthSuperCluster_ = etawidthSuperClusterEndcap_;
     edm::LogInfo("PFClustering") << "Building SC number "  
@@ -528,6 +534,7 @@ buildSuperCluster(CalibClusterPtr& seed,
     case PFLayer::ECAL_BARREL:
       superClustersEB_->push_back(new_sc);
       break;
+    case PFLayer::HGCAL:
     case PFLayer::ECAL_ENDCAP:    
       superClustersEE_->push_back(new_sc);    
       break;

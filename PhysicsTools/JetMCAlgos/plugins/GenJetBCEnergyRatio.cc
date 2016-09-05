@@ -98,8 +98,8 @@ void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs )
     jtc2 = new JetBCEnergyRatioCollection();
   }
 
-  std::auto_ptr<JetBCEnergyRatioCollection> bRatioColl(jtc1);
-  std::auto_ptr<JetBCEnergyRatioCollection> cRatioColl(jtc2);
+  std::unique_ptr<JetBCEnergyRatioCollection> bRatioColl(jtc1);
+  std::unique_ptr<JetBCEnergyRatioCollection> cRatioColl(jtc2);
 
   for( size_t j = 0; j != genjets->size(); ++j ) {
 
@@ -114,8 +114,8 @@ void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs )
   }
 
 
-  iEvent.put(bRatioColl, "bRatioCollection");
-  iEvent.put(cRatioColl, "cRatioCollection");
+  iEvent.put(std::move(bRatioColl), "bRatioCollection");
+  iEvent.put(std::move(cRatioColl), "cRatioCollection");
 
 }
 

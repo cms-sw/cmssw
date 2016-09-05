@@ -42,7 +42,7 @@ pat::PATSecondaryVertexSlimmer::~PATSecondaryVertexSlimmer() {}
 
 void pat::PATSecondaryVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
-    std::auto_ptr<reco::VertexCompositePtrCandidateCollection> outPtr(new reco::VertexCompositePtrCandidateCollection);
+    auto outPtr = std::make_unique<reco::VertexCompositePtrCandidateCollection>();
  
     edm::Handle<reco::VertexCompositePtrCandidateCollection> candVertices;
     iEvent.getByToken(src_, candVertices);
@@ -100,7 +100,7 @@ void pat::PATSecondaryVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, 
         }
     }
 
-    iEvent.put(outPtr);
+    iEvent.put(std::move(outPtr));
 }
 
 using pat::PATSecondaryVertexSlimmer;

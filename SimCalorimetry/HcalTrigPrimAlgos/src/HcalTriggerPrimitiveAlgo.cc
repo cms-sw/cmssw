@@ -14,13 +14,14 @@
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
-                                                    bool FG_MinimumBias, uint32_t FG_threshold, uint32_t ZS_threshold,
+                                                    uint32_t FG_threshold, uint32_t ZS_threshold,
                                                     int numberOfSamples, int numberOfPresamples,
                                                     int numberOfSamplesHF, int numberOfPresamplesHF,
-                                                    uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold)
+                                                    uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold
+                                                    )
                                                    : incoder_(0), outcoder_(0),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
-                                                   FG_MinimumBias_(FG_MinimumBias), FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
+                                                   FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
                                                    numberOfSamples_(numberOfSamples),
                                                    numberOfPresamples_(numberOfPresamples),
                                                    numberOfSamplesHF_(numberOfSamplesHF),
@@ -46,64 +47,26 @@ HcalTriggerPrimitiveAlgo::~HcalTriggerPrimitiveAlgo() {
 }
 
 
-void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
-                                   const HcalTPGCompressor* outcoder,
-                                   const HBHEDigiCollection& hbheDigis,
-                                   const HFDigiCollection& hfDigis,
-                                   HcalTrigPrimDigiCollection& result,
-                                   const HcalTrigTowerGeometry* trigTowerGeometry,
-                                   float rctlsb, const HcalFeatureBit* LongvrsShortCut) {
-   theTrigTowerGeometry = trigTowerGeometry;
-    
-   incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
-   outcoder_=outcoder;
+void
+HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf)
+{
+   upgrade_hb_ = hb;
+   upgrade_he_ = he;
+   upgrade_hf_ = hf;
+}
 
-   theSumMap.clear();
-   theTowerMapFGSum.clear();
-   HF_Veto.clear();
-   fgMap_.clear();
-   theHFDetailMap.clear();
 
-   // do the HB/HE digis
-   for(HBHEDigiCollection::const_iterator hbheItr = hbheDigis.begin();
-   hbheItr != hbheDigis.end(); ++hbheItr) {
-      addSignal(*hbheItr);
-   }
+void
+HcalTriggerPrimitiveAlgo::overrideParameters(unsigned int hf_tdc_mask,
+                                             unsigned int hf_adc_threshold,
+                                             unsigned int hf_fg_threshold)
+{
+   auto parameters = new TPParameters();
+   parameters->hf_tdc_mask = hf_tdc_mask;
+   parameters->hf_adc_threshold = hf_adc_threshold;
+   parameters->hf_fg_threshold = hf_fg_threshold;
 
-   // and the HF digis
-   for(HFDigiCollection::const_iterator hfItr = hfDigis.begin();
-   hfItr != hfDigis.end(); ++hfItr) {
-      addSignal(*hfItr);
-
-   }
-
-   // VME produces additional bits on the front used by lumi but not the
-   // trigger, this shift corrects those out by right shifting over them.
-   for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
-      result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
-      HcalTrigTowerDetId detId(mapItr->second.id());
-      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
-         if (detId.version() == 0) {
-            analyzeHF(mapItr->second, result.back(), RCTScaleShift);
-         } else if (detId.version() == 1) {
-            analyzeHFV1(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
-         } else {
-            // Things are going to go poorly
-         }
-      }
-      else { 
-         analyze(mapItr->second, result.back());
-      }
-   }
-
-   // Free up some memory
-   theSumMap.clear();
-   theTowerMapFGSum.clear();
-   HF_Veto.clear();
-   fgMap_.clear();
-   theHFDetailMap.clear();
-
-   return;
+   override_parameters_ = std::unique_ptr<const TPParameters>(parameters);
 }
 
 
@@ -121,6 +84,12 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
    std::vector<bool> msb;
    incoder_->lookupMSB(frame, msb);
+
+   if (abs(ids[0].ieta()) < first_he_tower and upgrade_hb_) {
+      edm::LogError("HCALTPAlgo") << "Upgrade hb but received " << ids[0] << " (" << ids.size() << ")";
+   } else if (abs(ids[0].ieta()) >= first_he_tower and upgrade_he_) {
+      edm::LogError("HCALTPAlgo") << "Upgrade he but received " << ids[0] << " (" << ids.size() << ")";
+   }
 
    if(ids.size() == 2) {
       // make a second trigprim for the other one, and split the energy
@@ -221,6 +190,66 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
    }
 }
 
+void
+HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
+{
+   auto ids = theTrigTowerGeometry->towerIds(frame.id());
+   for (const auto& id: ids) {
+      if (id.version() == 0) {
+         edm::LogError("HcalTPAlgo") << "Encountered QIE10 data frame mapped to TP version 0:" << id;
+         continue;
+      }
+
+      IntegerCaloSamples samples(id, frame.samples());
+      samples.setPresamples(frame.presamples());
+      incoder_->adc2Linear(frame, samples);
+
+      // Don't add to final collection yet
+      // HF PMT veto sum is calculated in analyzerHF()
+      IntegerCaloSamples zero_samples(id, frame.samples());
+      zero_samples.setPresamples(frame.presamples());
+      addSignal(zero_samples);
+
+      auto fid = HcalDetId(frame.id());
+      auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
+      details[fid.depth() - 1].samples = samples;
+      details[fid.depth() - 1].digi = frame;
+   }
+}
+
+void
+HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame)
+{
+   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(frame.id());
+   assert(ids.size() == 1 || ids.size() == 2);
+   IntegerCaloSamples samples1(ids[0], int(frame.samples()));
+
+   samples1.setPresamples(frame.presamples());
+   incoder_->adc2Linear(frame, samples1);
+
+   std::vector<bool> msb(frame.samples(), false);
+   // incoder_->lookupMSB(frame, msb);
+
+   if (abs(ids[0].ieta()) < first_he_tower and not upgrade_hb_) {
+      edm::LogError("HCALTPAlgo") << "No upgrade hb but received " << ids[0] << " (" << ids.size() << ")";
+   } else if (abs(ids[0].ieta()) >= first_he_tower and not upgrade_he_) {
+      edm::LogError("HCALTPAlgo") << "No upgrade he but received " << ids[0] << " (" << ids.size() << ")";
+   }
+
+   if(ids.size() == 2) {
+      // make a second trigprim for the other one, and split the energy
+      IntegerCaloSamples samples2(ids[1], samples1.size());
+      for(int i = 0; i < samples1.size(); ++i) {
+         samples1[i] = uint32_t(samples1[i]*0.5);
+         samples2[i] = samples1[i];
+      }
+      samples2.setPresamples(frame.presamples());
+      addSignal(samples2);
+      addFG(ids[1], msb);
+   }
+   addSignal(samples1);
+   addFG(ids[0], msb);
+}
 
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
    HcalTrigTowerDetId id(samples.id());
@@ -317,6 +346,13 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 }
 
 
+void
+HcalTriggerPrimitiveAlgo::analyzePhase1(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result)
+{
+   analyze(samples, result);
+}
+
+
 void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift) {
    HcalTrigTowerDetId detId(samples.id());
 
@@ -367,7 +403,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
    outcoder_->compress(output, finegrain, result);
 }
 
-void HcalTriggerPrimitiveAlgo::analyzeHFV1(
+void HcalTriggerPrimitiveAlgo::analyzeHF2016(
         const IntegerCaloSamples& SAMPLES,
         HcalTriggerPrimitiveDigi& result,
         const int HF_LUMI_SHIFT,
@@ -409,12 +445,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
             uint32_t ADCLong = details.LongDigi[ibin].adc();
             uint32_t ADCShort = details.ShortDigi[ibin].adc();
 
-            if(FG_MinimumBias_) {
-               finegrain[ibin] = (finegrain[ibin] || ADCLong > FG_threshold_ || ADCShort > FG_threshold_);
-            }
-            else if(HCALFEM != 0) {
-               finegrain[ibin] = (finegrain[ibin] || HCALFEM->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
-            }
+            finegrain[ibin] = (finegrain[ibin] || ADCLong > FG_threshold_ || ADCShort > FG_threshold_);
         }
     }
 
@@ -424,6 +455,82 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
     }
     outcoder_->compress(output, finegrain, result);
     
+}
+
+void HcalTriggerPrimitiveAlgo::analyzeHFPhase1(
+        const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
+        const int hf_lumi_shift, const HcalFeatureBit* hcalfem)
+{
+    // Align digis and TP
+    const int shift = samples.presamples() - numberOfPresamples_;
+    assert(shift >= 0);
+    assert((shift + numberOfSamples_) <= samples.size());
+
+    // Try to find the HFDetails from the map corresponding to our samples
+    const HcalTrigTowerDetId detId(samples.id());
+    auto it = theHFUpgradeDetailMap.find(detId);
+    // Missing values will give an empty digi
+    if (it == theHFUpgradeDetailMap.end()) {
+        return;
+    }
+
+    std::vector<bool> finegrain(numberOfSamples_, false);
+
+    // Set up out output of IntergerCaloSamples
+    IntegerCaloSamples output(samples.id(), numberOfSamples_);
+    output.setPresamples(numberOfPresamples_);
+
+    for (const auto& item: it->second) {
+        auto& details = item.second;
+        for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+            const int idx = ibin + shift;
+
+            int long_fiber_val = 0;
+            int long_fiber_count = 0;
+            int short_fiber_val = 0;
+            int short_fiber_count = 0;
+
+            for (auto i: {0, 2}) {
+               if (idx < details[i].samples.size()) {
+                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
+                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
+                     long_fiber_val += details[i].samples[idx];
+                     ++long_fiber_count;
+                  }
+               }
+            }
+            for (auto i: {1, 3}) {
+               if (idx < details[i].samples.size()) {
+                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
+                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
+                     short_fiber_val += details[i].samples[idx];
+                     ++short_fiber_count;
+                  }
+               }
+            }
+
+            if (long_fiber_count > 0 )
+               output[ibin] += long_fiber_val / long_fiber_count;
+            if (short_fiber_count > 0)
+               output[ibin] += short_fiber_val / short_fiber_count;
+
+            if (long_fiber_count > 0 and short_fiber_count > 0)
+               output[ibin] /= (long_fiber_count > 0) + (short_fiber_count > 0);
+
+            // int ADCLong = details.LongDigi[ibin].adc();
+            // int ADCShort = details.ShortDigi[ibin].adc();
+            // if(hcalfem != 0)
+            // {
+            //     finegrain[ibin] = (finegrain[ibin] || hcalfem->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
+            // }
+        }
+    }
+
+    for (int bin = 0; bin < numberOfSamples_; ++bin) {
+       static const unsigned int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+       output[bin] = min({MAX_OUTPUT, output[bin] >> hf_lumi_shift});
+    }
+    outcoder_->compress(output, finegrain, result);
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection & result){

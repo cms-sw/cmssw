@@ -11,7 +11,7 @@ edm::ParameterSetDescription getFilledConfigurationDescription() {
   desc.add<double>("MaxDisplacement",0.5);
   desc.add<double>("MaxSagitta",2.);
   desc.add<double>("MinimalTolerance",0.5);
-  desc.add<double>("MinPtForHitRecoveryInGluedDet",0.9);
+  desc.add<double>("MinPtForHitRecoveryInGluedDet",1.e12); // for mitigation use  0.9);
   return desc;
 }
 }

@@ -13,12 +13,13 @@
 #include <stdio.h>
 #include <iomanip>
 #include <memory>
+#include <algorithm>
 
 #include <cstring>
 #include <unistd.h>
 #include <getopt.h>
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -455,6 +456,10 @@ struct TriggerDiff {
 
     return std::string(buffer + digit);
   }
+
+  unsigned int total() const {
+    return this->gained + this->lost + this->internal;
+  }
 };
 
 std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
@@ -776,23 +781,45 @@ public:
   }
 
   void write() {
+    if (!writeJson) return;
     std::set<std::string> filesCreated;
-    for (const auto& runEvents : m_run_events) {
-      const int run = runEvents.first;
-      const std::vector<JsonEvent>& v_events = runEvents.second;
-      // Writing the output to a JSON file
-      std::ofstream out_file;
-      std::string output_name = output_filename_base(run)+=".json";
+    std::ofstream out_file;
+    if (m_run_events.size() > 0) {
+      // Creating a separate file for each run
+      for (const auto& runEvents : m_run_events) {
+        const int run = runEvents.first;
+        const std::vector<JsonEvent>& v_events = runEvents.second;
+        // Writing the output to a JSON file
+        std::string output_name = output_filename_base(run)+=".json";
+        out_file.open(output_name, std::ofstream::out);
+        out_file << '{'; // line open
+        out_file << configuration.serialise(1) << ',';
+        out_file << vars.serialise(1) << ',';
+        // writing block for each event
+        out_file << indent(1) << key("events") << '['; // line open
+        for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
+          out_file << (*it).serialise(2);
+          if (it != --v_events.end()) out_file << ',';
+        }
+        out_file << indent(1) << ']'; // line close
+        out_file << indent(0) << "}"; // line close
+        out_file.close();
+        // Adding file name to the list of created files
+        filesCreated.insert(output_name);
+      }
+    } else {
+      // Creating a single file containing with only configuration part
+      std::string output_name = output_filename_base(0)+=".json";
       out_file.open(output_name, std::ofstream::out);
       out_file << '{'; // line open
       out_file << configuration.serialise(1) << ',';
       out_file << vars.serialise(1) << ',';
       // writing block for each event
       out_file << indent(1) << key("events") << '['; // line open
-      for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
-        out_file << (*it).serialise(2);
-        if (it != --v_events.end()) out_file << ',';
-      }
+      // for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
+      //   out_file << (*it).serialise(2);
+      //   if (it != --v_events.end()) out_file << ',';
+      // }
       out_file << indent(1) << ']'; // line close
       out_file << indent(0) << "}"; // line close
       out_file.close();
@@ -800,9 +827,11 @@ public:
       filesCreated.insert(output_name);
     }
 
-    printf("Created the following JSON files:\n");
-    for (const std::string& filename : filesCreated)
-      printf(" %s\n", filename.c_str());
+    if (filesCreated.size() > 0) {
+      std::cout << "Created the following JSON files:" << std::endl;
+      for (const std::string& filename : filesCreated)
+        std::cout << " " << filename << std::endl;
+    }
   }
 };
 size_t JsonOutputProducer::tab_spaces = 0;
@@ -977,6 +1006,12 @@ private:
       if (idSummary.second.keepForGL()) ++nModules_gl;
       if (idSummary.second.keepForC()) ++nModules_c;
     }
+    // Manually increasing N bins to have histograms with meaningful axis ranges
+    nTriggers = std::max(1, nTriggers);
+    nTriggers_gl = std::max(1, nTriggers_gl);
+    nTriggers_c = std::max(1, nTriggers_c);
+    nModules_c = std::max(1, nModules_c);
+    nModules_gl = std::max(1, nModules_gl);
 
     // Initialising overview histograms
     std::string name = "trigger_accepted";
@@ -1082,7 +1117,7 @@ private:
     // Storing histograms to a ROOT file
     std::string file_name = json.output_filename_base(this->run)+=".root";
     TFile* out_file = new TFile(file_name.c_str(), "RECREATE");
-    // Storing the histograms is a proper folder according to the DQM convention
+    // Storing the histograms in a proper folder according to the DQM convention
     char savePath[1000];
     sprintf(savePath, "DQMData/Run %d/HLT/Run summary/EventByEvent/", this->run);
     out_file->mkdir(savePath);
@@ -1131,28 +1166,41 @@ public:
   bool storeROOT;
   bool storeCSV;
 
-  SummaryOutputProducer(const JsonOutputProducer& _json, bool _storeROOT, bool _storeCSV=true):
+  SummaryOutputProducer(const JsonOutputProducer& _json, bool _storeROOT, bool _storeCSV):
     json(_json),
-    run(-1),
+    run(0),
     storeROOT(_storeROOT),
     storeCSV(_storeCSV) {}
 
   void write() {
     std::vector<std::string> filesCreated;
     // Processing every run from the JSON producer
-    for (const auto& runEvents : json.m_run_events) {
-      prepareSummaries(runEvents.first, runEvents.second);
-      if (storeROOT) 
+    if (json.m_run_events.size() > 0) {
+      for (const auto& runEvents : json.m_run_events) {
+        prepareSummaries(runEvents.first, runEvents.second);
+        if (storeROOT) {
+          filesCreated.push_back(writeHistograms());
+        }
+        if (storeCSV) {
+          filesCreated.push_back(writeCSV_trigger());
+          filesCreated.push_back(writeCSV_module());
+        }
+      }
+    } else {
+      if (storeROOT) {
         filesCreated.push_back(writeHistograms());
+      }
       if (storeCSV) {
         filesCreated.push_back(writeCSV_trigger());
         filesCreated.push_back(writeCSV_module());
       }
     }
 
-    printf("Created the following summary files:\n");
-    for (const std::string& filename : filesCreated)
-      printf(" %s\n", filename.c_str());
+    if (filesCreated.size() > 0) {
+      std::cout << "Created the following summary files:" << std::endl;
+      for (const std::string& filename : filesCreated)
+        std::cout << " " << filename << std::endl;
+    }
   }
 
 };
@@ -1184,11 +1232,13 @@ public:
   std::string               new_process;
   unsigned int              max_events;
   bool                      ignore_prescales;
+  bool                      csv_out;
   bool                      json_out;
   bool                      root_out;
   std::string               output_file;
   bool                      file_check;
   bool                      debug;
+  bool                      quiet;
   unsigned int              verbose;
 
   HltDiff() :
@@ -1198,11 +1248,13 @@ public:
     new_process(""),
     max_events(1e9),
     ignore_prescales(true),
+    csv_out(false),
     json_out(false),
     root_out(false),
     output_file(""),
     file_check(false),
     debug(false),
+    quiet(false),
     verbose(0) {}
 
   void compare() const {
@@ -1249,10 +1301,12 @@ public:
 
     // loop over the reference events
     const unsigned int nEvents = std::min((int)old_events->size(), (int)max_events);
+    const unsigned int counter_denominator = std::max(1, int(nEvents/10));
     for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
       // printing progress on every 10%
-      if (counter%(nEvents/10) == 0) {
-        printf("Processed events: %d out of %d (%d%%)\n", (int)counter, (int)nEvents, 10*counter/(nEvents/10));
+      if (counter%(counter_denominator) == 0) {
+        std::cout << "Processed events: " << counter << " out of " << nEvents
+          << " (" << 10*counter/(counter_denominator) << "%)" << std::endl;
       }
 
       // seek the same event in the "new" files
@@ -1352,7 +1406,7 @@ public:
         State new_state = prescaled_state(new_results->state(new_index), p, new_results->index(new_index), * new_config);
 
         if (old_state == Pass) {
-          ++differences[p].count;
+          ++differences.at(p).count;
         }
         if (old_state == Pass)
           ++json.vars.trigger_passed_count.at(p).first;
@@ -1362,13 +1416,13 @@ public:
         bool trigger_affected = false;
         if (not ignore_prescales or (old_state != Prescaled and new_state != Prescaled)) {
           if (old_state == Pass and new_state != Pass) {
-            ++differences[p].lost;
+            ++differences.at(p).lost;
             trigger_affected = true;
           } else if (old_state != Pass and new_state == Pass) {
-            ++differences[p].gained;
+            ++differences.at(p).gained;
             trigger_affected = true;
           } else if (old_results->index(old_index) != new_results->index(new_index)) {
-            ++differences[p].internal;
+            ++differences.at(p).internal;
             trigger_affected = true;
           }
         }
@@ -1450,12 +1504,23 @@ public:
       std::cout << "Found " << counter << " matching events, out of which " << affected << " have different HLT results";
       if (skipped)
         std::cout << ", " << skipped << " events were skipped";
-      std::cout << "\nSee more in the files listed below...\n" << std::endl;
+      std::cout << "\n" << std::endl;
+    }
+    // Printing the summary of affected triggers with affected-event counts
+    if (!quiet) {
+      bool summaryHeaderPrinted = false;
+      for (size_t p = 0; p < old_config->size(); ++p) {
+        if (differences.at(p).total() < 1) continue;
+        if (!summaryHeaderPrinted)
+          std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
+        std::cout << std::setw(12) << counter << differences.at(p) << "  " << old_config->triggerName(p) << std::endl;
+        summaryHeaderPrinted = true;
+      }
     }
 
     // writing all the required output
     json.write();   // to JSON file for interactive visualisation
-    SummaryOutputProducer summary(json, this->root_out, true);
+    SummaryOutputProducer summary(json, this->root_out, this->csv_out);
     summary.write();   // to ROOT file for fast validation with static plots
   }
 
@@ -1463,8 +1528,9 @@ public:
     out << "\
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
-               [-m|--max-events MAXEVENTS] [-p|--prescales] [-j|--json-output] OUTPUT_FILE.JSON\n\
-               [-r|--root-output] OUTPUT_FILE.ROOT [-f|--file-check] [-d|--debug] [-v|--verbose] [-h|--help]\n\
+               [-m|--max-events MAXEVENTS] [-p|--prescales] [-c|--csv-output] [-j|--json-output]\n\
+               [-r|--root-output] [-f|--file-check] [-d|--debug] [-q|--quiet] [-v|--verbose]\n\
+               [-h|--help] [-F|--output-file] FILE_NAME\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results\n\
@@ -1489,6 +1555,9 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
   -p|--prescales\n\
       do not ignore differences caused by HLTPrescaler modules\n\
 \n\
+  -c|--csv-output\n\
+      produce comparison results in a CSV format\n\
+\n\
   -j|--json-output\n\
       produce comparison results in a JSON format\n\
 \n\
@@ -1506,6 +1575,9 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
   -d|--debug\n\
       display messages about missing events and collectiions\n\
 \n\
+  -q|--quiet\n\
+      don't display summary printout with the list of affected trigger paths\n\
+\n\
   -v|--verbose LEVEL\n\
       set verbosity level:\n\
       1: event-by-event comparison results\n\
@@ -1522,7 +1594,7 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "dfo:O:n:N:m:pjrF:v::h";
+  const char optstring[] = "dfo:O:n:N:m:pcjrF:v::hq";
   const option longopts[] = {
     option{ "debug",        no_argument,        nullptr, 'd' },
     option{ "file-check",   no_argument,        nullptr, 'f' },
@@ -1532,11 +1604,13 @@ int main(int argc, char ** argv) {
     option{ "new-process",  required_argument,  nullptr, 'N' },
     option{ "max-events",   required_argument,  nullptr, 'm' },
     option{ "prescales",    no_argument,        nullptr, 'p' },
+    option{ "csv-output",   optional_argument,  nullptr, 'c' },
     option{ "json-output",  optional_argument,  nullptr, 'j' },
     option{ "root-output",  optional_argument,  nullptr, 'r' },
     option{ "output-file",  optional_argument,  nullptr, 'F' },
     option{ "verbose",      optional_argument,  nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
+    option{ "quiet",        no_argument,        nullptr, 'q' },
   };
 
   // Creating an HltDiff object with the default configuration
@@ -1590,6 +1664,10 @@ int main(int argc, char ** argv) {
         hlt->ignore_prescales = false;
         break;
 
+      case 'c':
+        hlt->csv_out = true;
+        break;
+
       case 'j':
         hlt->json_out = true;
         break;
@@ -1616,6 +1694,10 @@ int main(int argc, char ** argv) {
       case 'h':
         hlt->usage(std::cerr);
         exit(0);
+        break;
+
+      case 'q':
+        hlt->quiet = true;
         break;
 
       default:

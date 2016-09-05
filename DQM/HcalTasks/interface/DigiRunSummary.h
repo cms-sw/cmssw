@@ -1,5 +1,6 @@
 #ifndef DQM_HcalTasks_DigiRunSummary_h
 #define DQM_HcalTasks_DigiRunSummary_h
+
 #include "DQM/HcalCommon/interface/DQClient.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 
@@ -42,11 +43,12 @@ namespace hcaldqm
 			{
 				fDigiSize = 0,
 				fNChsHF=1,
-				nLSFlags=2, // defines the boundayr between lumi based and run
+				fUnknownIds=2,
+				nLSFlags=3, // defines the boundayr between lumi based and run
 				//	 based flags
-				fUniHF=3,
-				fDead=4,
-				nDigiFlag = 5
+				fUniHF=4,
+				fDead=5,
+				nDigiFlag = 6
 			};
 	};
 }

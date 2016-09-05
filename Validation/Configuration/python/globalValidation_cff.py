@@ -40,10 +40,13 @@ from Validation.L1T.L1Validator_cfi import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
-globalPrevalidation = cms.Sequence( 
+globalPrevalidationTracking = cms.Sequence(
     simHitTPAssocProducer
   * tracksValidation
   * vertexValidation
+)
+globalPrevalidation = cms.Sequence(
+    globalPrevalidationTracking
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequenceMC
@@ -125,6 +128,17 @@ globalPrevalidationTrackingOnly = cms.Sequence(
     + vertexValidationTrackingOnly
 )
 globalValidationTrackingOnly = cms.Sequence()
+
+
+globalValidationJetMETonly = cms.Sequence(
+                                   JetValidation 
+                                 + METValidation
+)
+
+globalPrevalidationJetMETOnly = cms.Sequence(
+				   jetPreValidSeq
+				  +metPreValidSeq
+)
 
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid

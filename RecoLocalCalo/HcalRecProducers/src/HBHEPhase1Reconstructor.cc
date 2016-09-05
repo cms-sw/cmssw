@@ -18,7 +18,6 @@
 
 
 // system include files
-#include <memory>
 #include <utility>
 #include <algorithm>
 
@@ -45,39 +44,14 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 
-// Base class for Phase 1 HB/HE reco algorithms configuration objects
-#include "CondFormats/HcalObjects/interface/AbsHFPhase1AlgoData.h"
-
 // Parser for Phase 1 HB/HE reco algorithms
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
 
+// Fetcher for reco algorithm data
+#include "RecoLocalCalo/HcalRecAlgos/interface/fetchHcalAlgoData.h"
+
 // Some helper functions
 namespace {
-    // Class Data must inherit from AbsHFPhase1AlgoData
-    // and must have a copy constructor. This function
-    // returns an object allocated on the heap.
-    template <class Data, class Record>
-    Data* fetchHBHEPhase1AlgoDataHelper(const edm::EventSetup& es)
-    {
-        edm::ESHandle<Data> p;
-        es.get<Record>().get(p);
-        return new Data(*p.product());
-    }
-
-    // Factory function for fetching (from EventSetup) objects
-    // of the types inheriting from AbsHFPhase1AlgoData
-    std::unique_ptr<AbsHFPhase1AlgoData>
-    fetchHBHEPhase1AlgoData(const std::string& className, const edm::EventSetup& es)
-    {
-        AbsHFPhase1AlgoData* data = 0;
-        // Compare with possibe class names
-        // if (className == "MyHFPhase1AlgoData")
-        //     data = fetchHBHEPhase1AlgoDataHelper<MyHFPhase1AlgoData, MyHFPhase1AlgoDataRcd>(es);
-        // else if (className == "OtherHFPhase1AlgoData")
-        //     ...;
-        return std::unique_ptr<AbsHFPhase1AlgoData>(data);
-    }
-
     // The following function should apply the SiPM nonlinearity
     // correction. It may need extra arguments for that. It should
     // return the best estimate of the charge before pedestal subtraction.
@@ -181,7 +155,7 @@ private:
     edm::EDGetTokenT<HBHEDigiCollection> tok_qie8_;
     edm::EDGetTokenT<QIE11DigiCollection> tok_qie11_;
     std::unique_ptr<AbsHBHEPhase1Algo> reco_;
-    std::unique_ptr<AbsHFPhase1AlgoData> recoConfig_;
+    std::unique_ptr<AbsHcalAlgoData> recoConfig_;
     std::unique_ptr<HcalRecoParams> paramTS_;
 
     // Status bit setters
@@ -296,9 +270,12 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
 
         // Basic ADC decoding tools
         const HcalCalibrations& calib = cond.getHcalCalibrations(cell);
+        const HcalCalibrationWidths& calibWidth = cond.getHcalCalibrationWidths(cell);
         const HcalQIECoder* channelCoder = cond.getHcalCoder(cell);
         const HcalQIEShape* shape = cond.getHcalShape(channelCoder);
         HcalCoderDb coder(*channelCoder, *shape);
+
+	int pulseShapeID=paramTS_->getValues(cell.rawId())->pulseShapeID();
 
         // ADC to fC conversion
         CaloSamples cs;
@@ -315,18 +292,22 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         {
             auto s(frame[ts]);
             const int capid = s.capid();
+
             const double pedestal = calib.pedestal(capid);
+	    const double pedestalWidth = calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
             const double rawCharge = getRawChargeFromSample(s, cs[ts], calib);
             const float t = getTDCTimeFromSample(s);
-            channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, gain, t);
+            channelInfo->setSample(ts, s.adc(), rawCharge, pedestal, pedestalWidth, gain, t);
             if (ts == soi)
                 soiCapid = capid;
         }
 
         // Fill the overall channel info items
         const std::pair<bool,bool> hwerr = findHWErrors(frame, maxTS);
-        channelInfo->setChannelInfo(cell, maxTS, soi, soiCapid,
+
+
+        channelInfo->setChannelInfo(cell, pulseShapeID, maxTS, soi, soiCapid,
                                     hwerr.first, hwerr.second,
                                     taggedBadByDb || dropByZS);
 
@@ -461,10 +442,10 @@ HBHEPhase1Reconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es)
 
     if (reco_->isConfigurable())
     {
-        recoConfig_ = fetchHBHEPhase1AlgoData(algoConfigClass_, es);
+        recoConfig_ = fetchHcalAlgoData(algoConfigClass_, es);
         if (!recoConfig_.get())
             throw cms::Exception("HBHEPhase1BadConfig")
-                << "Invalid HFPhase1Reconstructor \"algoConfigClass\" parameter value \""
+                << "Invalid HBHEPhase1Reconstructor \"algoConfigClass\" parameter value \""
                 << algoConfigClass_ << '"' << std::endl;
         if (!reco_->configure(recoConfig_.get()))
             throw cms::Exception("HBHEPhase1BadConfig")

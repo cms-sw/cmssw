@@ -4,8 +4,8 @@ import os
 process = cms.Process("CLIENT")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff") 
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')

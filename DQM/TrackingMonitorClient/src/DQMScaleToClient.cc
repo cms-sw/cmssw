@@ -68,7 +68,7 @@ void DQMScaleToClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter&
   scaled_ = ibooker_.book1D(hname,(TH1F*)inputme->getTH1()->Clone(hname.c_str()));
 
   // handle mes
-  double integral = scaled_->getTH1()->Integral();
+  double integral = (scaled_->getTH1()->Integral() > 0. ? scaled_->getTH1()->Integral() : 1.);
   scaled_->getTH1()->Scale(outputmepset_.factor/integral);
 }
 

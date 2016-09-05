@@ -1,6 +1,17 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("ProcessOne")
+
+options = VarParsing.VarParsing()
+options.register( "password"
+                , "myToto"
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.string
+                , "the password"
+                  )
+options.parseArguments()
+
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -27,8 +38,8 @@ process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB, 
-    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
-#   logconnect = cms.untracked.string('sqlite_file:log.db'),   
+#    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
+   logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalIntercalibConstantsRcd'),
         tag = cms.string('EcalIntercalibConstants_V1_hlt')
@@ -43,15 +54,15 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalIntercalibAnalyzer",
     Source=cms.PSet(
     FileLowField = cms.string('/data/O2O/Ecal/TPG/Intercalib_Boff.xml'),
     FileHighField = cms.string('/data/O2O/Ecal/TPG/Intercalib_Bon.xml'),
-# Run 1 :    Value_Bon = cms.untracked.double(0.76724),
-     Value_Bon = cms.untracked.double(0.7041),
-# March 2016 : IC value for Xtal iX="50" iY="5" iZ="-1"
+#     FileLowField = cms.string('/afs/cern.ch/work/d/depasse/cmssw/CMSSW_8_0_1/src/CondTools/Ecal/python/Intercalib_hlt_current_BOFF.xml'),
+#     FileHighField = cms.string('/afs/cern.ch/work/d/depasse/cmssw/CMSSW_8_0_1/src/CondTools/Ecal/python/Intercalib_hlt_current_BON.xml'),
+     Value_Bon = cms.untracked.double(0.76724),
      firstRun = cms.string('207149'),
      lastRun = cms.string('10000000'),
      OnlineDBSID = cms.string('cms_omds_lb'),
 #     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
      OnlineDBUser = cms.string('cms_ecal_r'),
-     OnlineDBPassword = cms.string('3c4l_r34d3r'),
+     OnlineDBPassword = cms.string( options.password ),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),

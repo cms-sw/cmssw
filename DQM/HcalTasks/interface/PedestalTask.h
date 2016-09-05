@@ -27,6 +27,8 @@ class PedestalTask : public hcaldqm::DQTask
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
+		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&);
 		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
 			edm::EventSetup const&);
 		virtual void endRun(edm::Run const&, edm::EventSetup const&);
@@ -43,6 +45,8 @@ class PedestalTask : public hcaldqm::DQTask
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
+		edm::InputTag   _taguMN;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<HFDigiCollection> _tokHF;
@@ -66,6 +70,7 @@ class PedestalTask : public hcaldqm::DQTask
 
 		//	thresholds
 		double _thresh_mean, _thresh_rms, _thresh_badm, _thresh_badr;
+		double _thresh_missing_high, _thresh_missing_low;
 
 		//	hashed ids of FEDs
 		std::vector<uint32_t> _vhashFEDs;
@@ -98,6 +103,7 @@ class PedestalTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D		_cMean1LS_FEDuTCA; // 1ls
 		hcaldqm::ContainerProf2D		_cRMS1LS_FEDVME; // 1ls
 		hcaldqm::ContainerProf2D		_cRMS1LS_FEDuTCA; // 1ls
+		
 		hcaldqm::ContainerProf2D		_cMeanTotal_depth;
 		hcaldqm::ContainerProf2D		_cRMSTotal_depth;
 		hcaldqm::ContainerProf2D		_cMeanTotal_FEDVME;
@@ -116,6 +122,7 @@ class PedestalTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D		_cMeanDBRef1LS_FEDuTCA;
 		hcaldqm::ContainerProf2D		_cRMSDBRef1LS_FEDVME;
 		hcaldqm::ContainerProf2D		_cRMSDBRef1LS_FEDuTCA;
+		
 		hcaldqm::ContainerProf2D		_cMeanDBRefTotal_depth;
 		hcaldqm::ContainerProf2D		_cRMSDBRefTotal_depth;
 		hcaldqm::ContainerProf2D		_cMeanDBRefTotal_FEDVME;
@@ -128,6 +135,9 @@ class PedestalTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cOccupancyvsLS_Subdet;
 		hcaldqm::Container1D _cNBadMeanvsLS_Subdet;
 		hcaldqm::Container1D _cNBadRMSvsLS_Subdet;
+
+		//	averaging per event
+		hcaldqm::ContainerProf1D _cOccupancyEAvsLS_Subdet;
 
 		//	map of missing channels
 		hcaldqm::Container2D	_cMissing1LS_depth;
@@ -144,16 +154,26 @@ class PedestalTask : public hcaldqm::DQTask
 		hcaldqm::Container2D	_cRMSBad1LS_FEDuTCA;
 		hcaldqm::Container2D	_cRMSBad1LS_FEDVME;
 		hcaldqm::Container2D	_cMeanBad1LS_FEDuTCA;
+
 		hcaldqm::Container2D	_cMeanBadTotal_depth;
 		hcaldqm::Container2D _cRMSBadTotal_depth;
 		hcaldqm::Container2D	_cMeanBadTotal_FEDVME;
-		hcaldqm:: Container2D	_cRMSBadTotal_FEDuTCA;
+		hcaldqm::Container2D	_cRMSBadTotal_FEDuTCA;
 		hcaldqm::Container2D	_cRMSBadTotal_FEDVME;
 		hcaldqm::Container2D	_cMeanBadTotal_FEDuTCA;
 
+		hcaldqm::Container1D _cADC_SubdetPM;
+		
 		//	Summaries
 		hcaldqm::Container2D _cSummaryvsLS_FED;
 		hcaldqm::ContainerSingle2D _cSummaryvsLS;
 };
 
 #endif
+
+
+
+
+
+
+

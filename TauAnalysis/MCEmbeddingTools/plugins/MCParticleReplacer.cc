@@ -68,7 +68,7 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
 	
   evt_ = &evt;
 
-  std::auto_ptr<HepMC::GenEvent> hepMC;
+  std::unique_ptr<HepMC::GenEvent> hepMC;
   if ( hepMcMode_ == kReplace ) {
     edm::Handle<edm::HepMCProduct> HepMCHandle;	 
     evt.getByLabel(srcHepMC_, HepMCHandle);
@@ -80,13 +80,12 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
       << "Invalid hepMcMode " << hepMcMode_ << " !!" << std::endl;
 
   if ( hepMC.get() != 0 ) {
-    std::auto_ptr<edm::HepMCProduct> bare_product(new edm::HepMCProduct());  
+    std::unique_ptr<edm::HepMCProduct> bare_product(new edm::HepMCProduct());  
     bare_product->addHepMCData(hepMC.release()); // transfer ownership of the HepMC:GenEvent to bare_product
     
-    evt.put(bare_product);
+    evt.put(std::move(bare_product));
     
-    std::auto_ptr<GenFilterInfo> info(new GenFilterInfo(replacer_->tried_, replacer_->passed_));
-    evt.put(info, std::string("minVisPtFilter"));
+    evt.put(std::make_unique<GenFilterInfo>(replacer_->tried_, replacer_->passed_), std::string("minVisPtFilter"));
   }
 }
 

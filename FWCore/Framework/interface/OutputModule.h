@@ -32,7 +32,6 @@ output stream.
 #include <vector>
 #include <map>
 #include <atomic>
-#include <mutex>
 
 namespace edm {
 
@@ -171,7 +170,6 @@ namespace edm {
     std::map<BranchID, bool> keepAssociation_;
 
     SharedResourcesAcquirer resourceAcquirer_;
-    std::mutex mutex_;
 
     //------------------------------------------------------------------
     // private member functions
@@ -187,6 +185,10 @@ namespace edm {
                                        ThinnedAssociationsHelper&) { }
 
     std::string workerType() const {return "WorkerT<OutputModule>";}
+    
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();

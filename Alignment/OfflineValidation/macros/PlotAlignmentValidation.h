@@ -27,16 +27,18 @@
 class TkOfflineVariables {
 public:
   TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName="", int color=1, int style=1);
-  int getLineColor(){ return lineColor; };
-  int getLineStyle(){ return lineStyle; };
+  int getLineColor(){ return lineColor; }
+  int getLineStyle(){ return lineStyle; }
   std::string getName(){ return legendName; }
-  TTree* getTree(){ return tree; };
-  TFile* getFile(){ return file; };
+  TTree* getTree(){ return tree; }
+  TFile* getFile(){ return file; }
+  int getPhase(){ return phase; }
 private:
   TFile* file;
   TTree* tree;
   int lineColor;
   int lineStyle;
+  int phase;
   std::string legendName;
 };
 
@@ -44,7 +46,7 @@ private:
 TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir, std::string legName, int lColor, int lStyle)
 {
   lineColor = lColor;
-  lineStyle = lStyle;
+  lineStyle = lStyle % 100;
   if (legName=="") {
     int start = 0;
     if (fileName.find('/') ) start =fileName.find_last_of('/')+1;
@@ -63,9 +65,14 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
       tree = (TTree*)(*d).Get("TkOffVal");
     } else {
       std::cout<<"no tree named TkOffVal"<<std::endl;
+      assert(false);
     }
+    TDirectoryFile *d2 = (TDirectoryFile*)d->Get("Pixel");
+    assert(d2);
+    phase = (int)((bool)d2->Get("P1PXBBarrel_1"));
   } else {
     std::cout<<"no directory named "<<baseDir.c_str()<<std::endl;
+    assert(false);
   }
 }
 
@@ -73,10 +80,11 @@ class PlotAlignmentValidation {
 public:
   //PlotAlignmentValidation(TString *tmp);
   PlotAlignmentValidation() {}
-  PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1);
+  PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1, bool bigtext=false);
   ~PlotAlignmentValidation();
   void loadFileList(const char *inputFile, std::string fileName="", int lineColor=2, int lineStyle=1);
   void useFitForDMRplots(bool usefit = false);
+  void legendOptions(TString options);
   void plotOutlierModules(const char *outputFileName="OutlierModules.ps",std::string plotVariable = "chi2PerDofX" ,float chi2_cut = 10,unsigned int minHits = 50);//method dumps selected modules into ps file
   void plotSubDetResiduals(bool plotNormHisto=false, unsigned int subDetId=7);//subDetector number :1.TPB, 2.TBE+, 3.TBE-, 4.TIB, 5.TID+, 6.TID-, 7.TOB, 8.TEC+ or 9.TEC-
   void plotDMR(const std::string& plotVar="medianX",Int_t minHits = 50, const std::string& options = "plain"); // plotVar=mean,meanX,meanY,median,rms etc., comma-separated list can be given; minHits=the minimum hits needed for module to appear in plot; options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
@@ -86,8 +94,10 @@ public:
   void plotHitMaps();
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
+  int numberOfLayers(int phase, int subdetector);
+  int maxNumberOfLayers(int subdetector);
   
-  THStack* addHists(const TString& selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+  THStack* addHists(const TString& selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false, bool validforphase0 = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
   // These are helpers for DMR plotting
 
@@ -113,15 +123,23 @@ private :
   std::string treeBaseDir;
 
   bool useFit_;
+  bool showMean_;
+  bool showRMS_;
+  bool showMeanError_;
+  bool showRMSError_;
+  bool showModules_;
+  bool showUnderOverFlow_;
+  bool twolines_;
+  bool bigtext_;
 
-  std::pair<float,float> fitGauss(TH1 *hist,int color);
+  TF1 *fitGauss(TH1 *hist,int color);
   //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
   //void plot1DDetailsSubDet(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t minHits);
   //void plot1DDetailsBarrelLayer(TCanvas &c1, TList &treeList, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
   //void plot1DDetailsDiskWheel(TCanvas &c1, TList &treelist, std::string plot_Var1a,std::string plot_Var1b, Int_t minHits);
   void plotSS(const std::string& options = "layers",const std::string& variable="");
   void setHistStyle( TH1& hist,const char* titleX, const char* titleY, int color);
-  void setTitleStyle( TNamed& h,const char* titleX, const char* titleY, int subDetId);
+  void setTitleStyle( TNamed& h,const char* titleX, const char* titleY, int subDetId, bool isSurfaceDeformation=false, TString secondline="");
   void setNiceStyle();
   void setCanvasStyle( TCanvas& canv );
   void setLegendStyle( TLegend& leg );

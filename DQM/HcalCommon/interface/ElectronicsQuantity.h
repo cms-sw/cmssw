@@ -12,6 +12,7 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
 	namespace quantity
 	{
 		enum ElectronicsQuantityType
@@ -218,30 +219,30 @@ namespace hcaldqm
 			0
 		};
 		double const max_eid[nElectronicsQuantityType] = {
-			constants::FED_TOTAL_NUM, constants::FED_uTCA_NUM, constants::FED_VME_NUM,
-			constants::CRATE_TOTAL_NUM, constants::CRATE_uTCA_NUM, constants::CRATE_VME_NUM,
-			constants::SLOT_uTCA_NUM, constants::SLOT_VME_NUM,
-			constants::SPIGOT_NUM,
-			constants::FIBER_uTCA_NUM, constants::FIBER_VME_NUM,
-			constants::FIBERCH_NUM,
-			constants::FED_uTCA_NUM*constants::SLOT_uTCA_NUM, constants::FED_VME_NUM*constants::SPIGOT_NUM,
-			constants::FIBER_uTCA_NUM*constants::FIBERCH_NUM, constants::FIBER_VME_NUM*constants::FIBERCH_NUM,
-			constants::SLB_NUM, constants::SLBCH_NUM, constants::SLB_NUM*constants::SLBCH_NUM,
-			constants::TPFIBER_NUM, constants::TPFIBERCH_NUM,
-			constants::TPFIBER_NUM*constants::TPFIBERCH_NUM
+			FED_TOTAL_NUM, FED_uTCA_NUM, FED_VME_NUM,
+			CRATE_TOTAL_NUM, CRATE_uTCA_NUM, CRATE_VME_NUM,
+			SLOT_uTCA_NUM, SLOT_VME_NUM,
+			SPIGOT_NUM,
+			FIBER_uTCA_NUM, FIBER_VME_NUM,
+			FIBERCH_NUM,
+			FED_uTCA_NUM*SLOT_uTCA_NUM, FED_VME_NUM*SPIGOT_NUM,
+			FIBER_uTCA_NUM*FIBERCH_NUM, FIBER_VME_NUM*FIBERCH_NUM,
+			SLB_NUM, SLBCH_NUM, SLB_NUM*SLBCH_NUM,
+			TPFIBER_NUM, TPFIBERCH_NUM,
+			TPFIBER_NUM*TPFIBERCH_NUM
 		};
 		int const nbins_eid[nElectronicsQuantityType] = {
-			constants::FED_TOTAL_NUM, constants::FED_uTCA_NUM, constants::FED_VME_NUM,
-			constants::CRATE_TOTAL_NUM, constants::CRATE_uTCA_NUM, constants::CRATE_VME_NUM,
-			constants::SLOT_uTCA_NUM, constants::SLOT_VME_NUM,
-			constants::SPIGOT_NUM,
-			constants::FIBER_uTCA_NUM, constants::FIBER_VME_NUM,
-			constants::FIBERCH_NUM,
-			constants::FED_uTCA_NUM*constants::SLOT_uTCA_NUM, constants::FED_VME_NUM*constants::SPIGOT_NUM,
-			constants::FIBER_uTCA_NUM*constants::FIBERCH_NUM, constants::FIBER_VME_NUM*constants::FIBERCH_NUM,
-			constants::SLB_NUM, constants::SLBCH_NUM, constants::SLB_NUM*constants::SLBCH_NUM,
-			constants::TPFIBER_NUM, constants::TPFIBERCH_NUM,
-			constants::TPFIBER_NUM*constants::TPFIBERCH_NUM
+			FED_TOTAL_NUM, FED_uTCA_NUM, FED_VME_NUM,
+			CRATE_TOTAL_NUM, CRATE_uTCA_NUM, CRATE_VME_NUM,
+			SLOT_uTCA_NUM, SLOT_VME_NUM,
+			SPIGOT_NUM,
+			FIBER_uTCA_NUM, FIBER_VME_NUM,
+			FIBERCH_NUM,
+			FED_uTCA_NUM*SLOT_uTCA_NUM, FED_VME_NUM*SPIGOT_NUM,
+			FIBER_uTCA_NUM*FIBERCH_NUM, FIBER_VME_NUM*FIBERCH_NUM,
+			SLB_NUM, SLBCH_NUM, SLB_NUM*SLBCH_NUM,
+			TPFIBER_NUM, TPFIBERCH_NUM,
+			TPFIBER_NUM*TPFIBERCH_NUM
 		};
 
 		class ElectronicsQuantity : public Quantity

@@ -84,6 +84,7 @@ class LEDTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D		_cSignalRMS_depth;
 		hcaldqm::ContainerProf2D		_cTimingMean_depth;
 		hcaldqm::ContainerProf2D		_cTimingRMS_depth;
+
 		hcaldqm::ContainerProf2D		_cSignalMean_FEDVME;
 		hcaldqm::ContainerProf2D		_cSignalMean_FEDuTCA;
 		hcaldqm::ContainerProf2D		_cTimingMean_FEDVME;
@@ -100,3 +101,10 @@ class LEDTask : public hcaldqm::DQTask
 };
 
 #endif
+
+
+
+
+
+
+

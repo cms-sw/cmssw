@@ -1,4 +1,3 @@
-
 /** \class CaloRecHitMixer
  *
  * Merge collections of calorimeter recHits
@@ -185,9 +184,9 @@ void CaloRecHitMixer<T>::produce(edm::Event& evt, const edm::EventSetup& es)
     updateRecHitInfos(*recHitCollection1, 0);
     updateRecHitInfos(*recHitCollection2, 1);
     
-    std::auto_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
-    std::auto_ptr<double> removedEnergyMuPlus(new double(0.));
-    std::auto_ptr<double> removedEnergyMuMinus(new double(0.));
+    std::unique_ptr<RecHitCollection> recHitCollection_output(new RecHitCollection());
+    std::unique_ptr<double> removedEnergyMuPlus(new double(0.));
+    std::unique_ptr<double> removedEnergyMuMinus(new double(0.));
 
     double muPlusEnergySum  = 0.;
     double muMinusEnergySum = 0.;
@@ -275,13 +274,13 @@ void CaloRecHitMixer<T>::produce(edm::Event& evt, const edm::EventSetup& es)
     }    
 
     std::string instanceLabel = todoItem->srcRecHitCollection1_.instance();
-    evt.put(recHitCollection_output, instanceLabel);
+    evt.put(std::move(recHitCollection_output), instanceLabel);
     std::string instanceLabel_removedEnergyMuMinus = "removedEnergyMuMinus";
     if ( instanceLabel != "" ) instanceLabel_removedEnergyMuMinus.append("#").append(instanceLabel);
-    evt.put(removedEnergyMuMinus, instanceLabel_removedEnergyMuMinus.data());
+    evt.put(std::move(removedEnergyMuMinus), instanceLabel_removedEnergyMuMinus.data());
     std::string instanceLabel_removedEnergyMuPlus = "removedEnergyMuPlus";
     if ( instanceLabel != "" ) instanceLabel_removedEnergyMuPlus.append("#").append(instanceLabel);
-    evt.put(removedEnergyMuPlus, instanceLabel_removedEnergyMuPlus.data());
+    evt.put(std::move(removedEnergyMuPlus), instanceLabel_removedEnergyMuPlus.data());
   }
 }
 

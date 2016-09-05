@@ -93,7 +93,7 @@ abort();
                 n1 = n1->getNextSibling();
         }
 	
-	if(strcmp("Calibration",XMLString::transcode(n1->getNodeName())))
+	if(n1 == nullptr || strcmp("Calibration",XMLString::transcode(n1->getNodeName())))
 abort();
 //FIXME		throw GenTerminate("The root element in the XML Calibration file is not a Calibration element.\n This should be forbidden at the DTD level.");
 	else {   edm::LogInfo("XMLCalibration")  << "Calibration found" ; }	
@@ -129,7 +129,8 @@ DOMElement * CalibrationXML::addChild(DOMNode *dom,const std::string & name)
 	   level++;
 	   indent+="  ";
 	   n1 = n1->getParentNode();
-	  } 
+	  }
+	  assert(dom); 
 	  if(dom->getFirstChild()==0)
              dom->appendChild(dom->getOwnerDocument()->createTextNode(XMLString::transcode(indent.c_str()))); 
          

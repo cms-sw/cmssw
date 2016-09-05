@@ -74,6 +74,14 @@ namespace edm {
       }
       virtual void mergeReaders_(DelayedReader*) override {}
       virtual void reset_() override {}
+      
+      virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const override {
+        return nullptr;
+      }
+      virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const override {
+        return nullptr;
+      };
+
       Long64_t entry_;
       TTree* eventTree_;
       std::shared_ptr<ProductRegistry const>(reg_);

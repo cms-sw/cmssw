@@ -17,17 +17,16 @@
 #include "SimTracker/SiPhase2Digitizer/test/Phase2TrackerValidateDigi.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
@@ -48,19 +47,24 @@
 //
 Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iConfig) :
   config_(iConfig),
-  pixDigiSrc_(config_.getParameter<edm::InputTag>("PixelDigiSource")),
+  pixelFlag_(config_.getParameter<bool >("PixelPlotFillingFlag")),
+  geomType_(config_.getParameter<std::string>("GeometryType")),
   otDigiSrc_(config_.getParameter<edm::InputTag>("OuterTrackerDigiSource")),
-  digiSimLinkSrc_(config_.getParameter<edm::InputTag>("DigiSimLinkSource")),
-  pSimHitSrc_(config_.getParameter<edm::InputTag>("PSimHitSource")),
+  otDigiSimLinkSrc_(config_.getParameter<edm::InputTag>("OuterTrackerDigiSimLinkSource")),
+  itPixelDigiSrc_(config_.getParameter<edm::InputTag>("InnerPixelDigiSource")),
+  itPixelDigiSimLinkSrc_(config_.getParameter<edm::InputTag>("InnerPixelDigiSimLinkSource")),
+  pSimHitSrc_(config_.getParameter<std::vector<edm::InputTag> >("PSimHitSource")),
   simTrackSrc_(config_.getParameter<edm::InputTag>("SimTrackSource")),
   simVertexSrc_(config_.getParameter<edm::InputTag>("SimVertexSource")),
-  pixDigiToken_(consumes< edm::DetSetVector<PixelDigi> >(pixDigiSrc_)),
   otDigiToken_(consumes< edm::DetSetVector<Phase2TrackerDigi> >(otDigiSrc_)),
-  digiSimLinkToken_(consumes< edm::DetSetVector<PixelDigiSimLink> >(digiSimLinkSrc_)),
-  psimHitToken_(consumes< edm::PSimHitContainer >(pSimHitSrc_)),
+  otDigiSimLinkToken_(consumes< edm::DetSetVector<PixelDigiSimLink> >(otDigiSimLinkSrc_)),
+  itPixelDigiToken_(consumes< edm::DetSetVector<PixelDigi> >(itPixelDigiSrc_)),
+  itPixelDigiSimLinkToken_(consumes< edm::DetSetVector<PixelDigiSimLink> >(itPixelDigiSimLinkSrc_)),
   simTrackToken_(consumes< edm::SimTrackContainer >(simTrackSrc_)),
   simVertexToken_(consumes< edm::SimVertexContainer >(simVertexSrc_))
 {
+  for(auto itag : pSimHitSrc_) simHitTokens_.push_back(consumes< edm::PSimHitContainer >(itag));
+
   etaCut_  = config_.getParameter<double>("EtaCutOff");
   ptCut_  = config_.getParameter<double>("PtCutOff");
   edm::LogInfo("Phase2TrackerValidateDigi") << ">>> Construct Phase2TrackerValidateDigi ";
@@ -87,38 +91,27 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
   using namespace edm;
 
   // Get digis
-  edm::Handle< edm::DetSetVector<PixelDigi> > pixDigiHandle;
-  iEvent.getByToken(pixDigiToken_ , pixDigiHandle); 
-
-  edm::Handle< edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle;
-  iEvent.getByToken(otDigiToken_ , otDigiHandle); 
-  const DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle.product();
-
+  iEvent.getByToken(itPixelDigiToken_ , itPixelDigiHandle_); 
+  iEvent.getByToken(otDigiToken_ , otDigiHandle_); 
 
   // DigiSimLink
-  edm::Handle< edm::DetSetVector<PixelDigiSimLink> > simLinks;
-  iEvent.getByToken(digiSimLinkToken_ , simLinks); 
-
-  // PSimHits
-  edm::Handle<edm::PSimHitContainer> simHits;
-  iEvent.getByToken(psimHitToken_,simHits);
+  iEvent.getByToken(itPixelDigiSimLinkToken_, itPixelSimLinkHandle_); 
+  iEvent.getByToken(otDigiSimLinkToken_, otSimLinkHandle_); 
 
   // SimTrack
-  edm::Handle<edm::SimTrackContainer> simTracks;
   iEvent.getByToken(simTrackToken_,simTracks);
 
   // SimVertex
-  edm::Handle<edm::SimVertexContainer> simVertices;
   iEvent.getByToken(simVertexToken_,simVertices);
 
   // Tracker Topology 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
 
   std::vector<int> processTypes; 
   // Loop over Sim Tracks and Fill relevant histograms
   int nTracks = 0;
+  int nTracksP = 0;
+  int nTracksS = 0;
   for (edm::SimTrackContainer::const_iterator simTrkItr = simTracks->begin();
                                             simTrkItr != simTracks->end(); ++simTrkItr) {
     if (simTrkItr->charge() == 0) continue;
@@ -131,69 +124,136 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
         vtxParent = (*simTracks)[matchedSimTrack(simTracks, trkId)].vertIndex();
       } 
     } 
-    int type = -1;
-    if (vtxIndex == 0 || vtxParent == 0) type = isPrimary((*simTrkItr), simHits);
+    int simTk_type = -1;
+    //    if (vtxIndex == 0 || vtxParent == 0) type = isPrimary((*simTrkItr), simHits);
+    if (vtxIndex == 0 || vtxParent == 0) simTk_type = 1;
+    else simTk_type = 0;
 
-    processTypes.push_back(type);    
     nTracks++; 
+    if (simTk_type ==1) nTracksP++;
+    else nTracksS++;
     float simTk_pt =  simTrkItr->momentum().pt();
     float simTk_eta = simTrkItr->momentum().eta();
     float simTk_phi = simTrkItr->momentum().phi();
+    unsigned int simTk_id =  simTrkItr->trackId();
 
-    fillHistogram(SimulatedTrackPt, SimulatedTrackPtP, SimulatedTrackPtS, simTk_pt, type);
-    fillHistogram(SimulatedTrackEta, SimulatedTrackEtaP, SimulatedTrackEtaS, simTk_eta, type);
-    fillHistogram(SimulatedTrackPhi, SimulatedTrackPhiP, SimulatedTrackPhiS, simTk_phi, type);
-  }
-
-  for(std::vector<PSimHit>::const_iterator isim = simHits->begin(); isim != simHits->end(); ++isim){
-    unsigned int rawid = (*isim).detUnitId();
-    int layer = tTopo->getOTLayerNumber(rawid);
-    if (layer < 0) continue;
-    const DetId detId(rawid);
-    unsigned int trackid = (*isim).trackId();
-    int iSimTrk = matchedSimTrack(simTracks, trackid);
-    // remove hits from neutrals
-    if (iSimTrk < 0 || (*simTracks)[iSimTrk].charge() == 0) continue;
-    float dZ = (*isim).entryPoint().z() - (*isim).exitPoint().z();  
-    if (fabs(dZ) <= 0.01) continue;
-
-    float simTk_pt  = (*simTracks)[iSimTrk].momentum().pt();
-    float simTk_eta = (*simTracks)[iSimTrk].momentum().eta();
-    float simTk_phi = (*simTracks)[iSimTrk].momentum().phi();
-    int simTk_type = processTypes[iSimTrk];
-
-    std::map<unsigned int, DigiMEs>::iterator pos = layerMEs.find(layer);
-    if (pos == layerMEs.end()) continue;
-    DigiMEs local_mes = pos->second;
-
-    bool matched = false;
-    edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSVIter = digis->find(rawid);
-    if (DSVIter != digis->end()) { 
-      for (DetSet<Phase2TrackerDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {   
-	int col = di->column(); // column 
-	int row = di->row();    // row
-	
-	unsigned int channel = Phase2TrackerDigi::pixelToChannel(row,col);
-	unsigned int simTkId = getSimTrackId(simLinks, detId, channel);
-	if (simTkId == trackid) {
-	  matched = true;
-          break;
-	} 
+    if (simTk_pt > 0.5)  {
+      if (fabs(simTk_eta) < etaCut_) fillHistogram(SimulatedTrackPt, SimulatedTrackPtP, SimulatedTrackPtS, simTk_pt, simTk_type);
+      if (simTk_pt > ptCut_)  fillHistogram(SimulatedTrackEta, SimulatedTrackEtaP, SimulatedTrackEtaS, simTk_eta, simTk_type);
+      if (fabs(simTk_eta) < etaCut_ && simTk_pt > ptCut_ ) fillHistogram(SimulatedTrackPhi, SimulatedTrackPhiP, SimulatedTrackPhiS, simTk_phi, simTk_type);
+      
+      edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
+      if (theTkDigiGeomWatcher.check(iSetup)) {
+	edm::ESHandle<TrackerGeometry> geomHandle;
+	iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geomHandle);
+	fillSimHitInfo(iEvent, simTk_id, simTk_pt, simTk_eta, simTk_phi, simTk_type, geomHandle);
       }
     }
-    if (fabs(simTk_eta) <= etaCut_) {
-      fillHistogram(local_mes.SimTrackPt, local_mes.SimTrackPtP, local_mes.SimTrackPtS, simTk_pt, simTk_type);
-      if (matched) fillHistogram(local_mes.MatchedTrackPt, local_mes.MatchedTrackPtP, local_mes.MatchedTrackPtS, simTk_pt, simTk_type);
-    }
-    if (simTk_pt > ptCut_) {
-      fillHistogram(local_mes.SimTrackEta, local_mes.SimTrackEtaP, local_mes.SimTrackEtaS, simTk_eta, simTk_type);
-      if (matched) fillHistogram(local_mes.MatchedTrackEta, local_mes.MatchedTrackEtaP, local_mes.MatchedTrackEtaS, simTk_eta, simTk_type);
-    }
-    if (simTk_pt > ptCut_ && fabs(simTk_eta) <= etaCut_) {
-      fillHistogram(local_mes.SimTrackPhi, local_mes.SimTrackPhiP, local_mes.SimTrackPhiS, simTk_phi, simTk_type);
-      if (matched) fillHistogram(local_mes.MatchedTrackPhi, local_mes.MatchedTrackPhiP, local_mes.MatchedTrackPhiS, simTk_phi, simTk_type);
-    }  
   }
+  nSimulatedTracks->Fill(nTracks);
+  nSimulatedTracksP->Fill(nTracksP);
+  nSimulatedTracksS->Fill(nTracksS);
+}
+
+int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned int id, float pt, float eta, float phi, int type, const edm::ESHandle<TrackerGeometry> gHandle) {
+  const TrackerTopology* tTopo = tTopoHandle_.product();
+
+
+  int nHits = 0;
+  for (auto& itoken : simHitTokens_) {
+    edm::Handle<edm::PSimHitContainer> simHits;
+    iEvent.getByToken(itoken, simHits);
+    if (!simHits.isValid()) continue;
+    for(edm::PSimHitContainer::const_iterator isim = simHits->begin(); isim != simHits->end(); ++isim){
+      unsigned int rawid = (*isim).detUnitId();
+      int layer;
+      if (pixelFlag_) layer = tTopo->getITPixelLayerNumber(rawid);
+      else layer = tTopo->getOTLayerNumber(rawid);
+      if (layer < 0) continue;
+      const DetId detId(rawid);
+      float dZ = (*isim).entryPoint().z() - (*isim).exitPoint().z();  
+      if (fabs(dZ) <= 0.01) continue;
+      
+      if ((*isim).trackId() != id) continue; 
+      const TrackerGeomDet* geomDetUnit(gHandle->idToDetUnit(detId));
+
+      float xval = -999.9;
+      float yval = -999.9;
+      float zval = -999.9;
+      float rval = -999.9;
+      if (geomDetUnit) {
+	Global3DPoint pdPos = geomDetUnit->surface().toGlobal(isim->localPosition());
+        xval = pdPos.x();
+        yval = pdPos.y();
+        zval = pdPos.z();
+        rval = std::sqrt(pdPos.x()*pdPos.x() + pdPos.y()*pdPos.y());
+      }
+      SimulatedRZPositionMap->Fill(zval*10.0, rval*10.0);   
+      SimulatedXYPositionMap->Fill(xval*10.0, yval*10.0);   
+
+      nHits++;
+      std::map<unsigned int, DigiMEs>::iterator pos = layerMEs.find(layer);
+      if (pos == layerMEs.end()) continue;
+      DigiMEs local_mes = pos->second;
+      
+      if (fabs(eta) <  etaCut_) fillHistogram(local_mes.SimTrackPt, local_mes.SimTrackPtP, local_mes.SimTrackPtS, pt, type);
+      if (pt > ptCut_) fillHistogram(local_mes.SimTrackEta, local_mes.SimTrackEtaP, local_mes.SimTrackEtaS, eta, type);
+      if ( fabs(eta) < etaCut_ && pt > ptCut_) fillHistogram(local_mes.SimTrackPhi, local_mes.SimTrackPhiP, local_mes.SimTrackPhiS, phi, type);
+
+      bool digiFlag;
+      
+      if (pixelFlag_) digiFlag = findITPixelDigi(rawid,id);
+      else digiFlag = findOTDigi(rawid,id);
+
+      if (digiFlag) {
+	if (fabs(eta) < etaCut_) fillHistogram(local_mes.MatchedTrackPt,local_mes.MatchedTrackPtP,local_mes.MatchedTrackPtS,pt,type);
+	if (pt > ptCut_) fillHistogram(local_mes.MatchedTrackEta,local_mes.MatchedTrackEtaP,local_mes.MatchedTrackEtaS,eta,type);
+	if ( fabs(eta) < etaCut_ && pt > ptCut_) fillHistogram(local_mes.MatchedTrackPhi,local_mes.MatchedTrackPhiP,local_mes.MatchedTrackPhiS,phi,type);
+	
+	MatchedRZPositionMap->Fill(zval*10.0, rval*10.0);   
+	MatchedXYPositionMap->Fill(xval*10.0, yval*10.0);   
+
+      }
+    }
+  }
+  return nHits;
+}
+bool Phase2TrackerValidateDigi::findOTDigi(unsigned int detid, unsigned int id) {
+  bool matched = false;
+  const edm::DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle_.product();
+  edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSVIter = digis->find(detid);
+  if (DSVIter != digis->end()) { 
+    for (edm::DetSet<Phase2TrackerDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {   
+      int col = di->column(); // column 
+      int row = di->row();    // row
+      unsigned int channel = Phase2TrackerDigi::pixelToChannel(row,col);
+      unsigned int simTkId = getSimTrackId(otSimLinkHandle_, detid, channel);
+      if (simTkId == id) {
+	matched = true;
+	break;
+      } 
+    }
+  }
+  return matched;
+}
+bool Phase2TrackerValidateDigi::findITPixelDigi(unsigned int detid, unsigned int id) {
+
+  bool matched = false;
+  const edm::DetSetVector<PixelDigi>* digis = itPixelDigiHandle_.product();
+  edm::DetSetVector<PixelDigi>::const_iterator DSVIter = digis->find(detid);
+  if (DSVIter != digis->end()) { 
+    for (edm::DetSet<PixelDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {   
+      int col = di->column(); // column 
+      int row = di->row();    // row
+      unsigned int channel = PixelDigi::pixelToChannel(row,col);
+      unsigned int simTkId = getSimTrackId(itPixelSimLinkHandle_, detid, channel);
+      if (simTkId == id) {
+	matched = true;
+	break;
+      } 
+    }
+  }
+  return matched;
 }
 //
 // -- Book Histograms
@@ -212,7 +272,21 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
   edm::LogInfo("Phase2TrackerValidateDigi")<< " Booking Histograms in : " << folder_name.str();
   std::stringstream HistoName;
 
+
+  HistoName.str("");
+  HistoName << "NumberOfSimulatedTracks";   
+  nSimulatedTracks = ibooker.book1D(HistoName.str(),HistoName.str(), 501, -0.5, 500.5);
+
+  HistoName.str("");
+  HistoName << "NumberOfSimulatedTracksP";   
+  nSimulatedTracksP = ibooker.book1D(HistoName.str(),HistoName.str(), 501, -0.5, 500.5);
+
+  HistoName.str("");
+  HistoName << "NumberOfSimulatedTracksS";   
+  nSimulatedTracksS = ibooker.book1D(HistoName.str(),HistoName.str(), 501, -0.5, 500.5);
+
   edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("TrackPtH");
+  HistoName.str("");
   HistoName << "SimulatedTrackPt";   
   SimulatedTrackPt = ibooker.book1D(HistoName.str(),HistoName.str(),
 				  Parameters.getParameter<int32_t>("Nbins"),
@@ -261,7 +335,7 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 				   Parameters.getParameter<double>("xmin"),
 				   Parameters.getParameter<double>("xmax"));
   HistoName.str("");
-  HistoName << "SiulatedmTrackPhiP";
+  HistoName << "SimulatedTrackPhiP";
   SimulatedTrackPhiP = ibooker.book1D(HistoName.str(),HistoName.str(),
 				    Parameters.getParameter<int32_t>("Nbins"),
 				    Parameters.getParameter<double>("xmin"),
@@ -274,30 +348,77 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 				    Parameters.getParameter<double>("xmin"),
 				    Parameters.getParameter<double>("xmax"));
 
-  std::string geometry_type = config_.getParameter<std::string>("GeometryType");
+  Parameters =  config_.getParameter<edm::ParameterSet>("XYPositionMapH");  
+  HistoName.str("");
+  HistoName << "SimulatedXPosVsYPos";
+  SimulatedXYPositionMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+				 Parameters.getParameter<int32_t>("Nxbins"),
+				 Parameters.getParameter<double>("xmin"),
+				 Parameters.getParameter<double>("xmax"),
+				 Parameters.getParameter<int32_t>("Nybins"),
+				 Parameters.getParameter<double>("ymin"),
+				 Parameters.getParameter<double>("ymax"));
+  Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
+  HistoName.str("");
+  HistoName << "SimulatedRosVsZPos";
+  SimulatedRZPositionMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+				 Parameters.getParameter<int32_t>("Nxbins"),
+				 Parameters.getParameter<double>("xmin"),
+				 Parameters.getParameter<double>("xmax"),
+				 Parameters.getParameter<int32_t>("Nybins"),
+				 Parameters.getParameter<double>("ymin"),
+				 Parameters.getParameter<double>("ymax"));
+
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
 
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
+  edm::ESHandle<TrackerTopology> tTopoHandle_;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
+  const TrackerTopology* const tTopo = tTopoHandle_.product();
 
   if (theTkDigiGeomWatcher.check(iSetup)) {
     edm::ESHandle<TrackerGeometry> geom_handle;
-    iSetup.get<TrackerDigiGeometryRecord>().get(geometry_type, geom_handle);
+    iSetup.get<TrackerDigiGeometryRecord>().get(geomType_, geom_handle);
     for (auto const & det_u : geom_handle->detUnits()) {
       unsigned int detId_raw = det_u->geographicalId().rawId();
-      bookLayerHistos(ibooker,detId_raw, tTopo); 
+      bookLayerHistos(ibooker,detId_raw, tTopo,pixelFlag_); 
     }
   }
   ibooker.cd();
+  folder_name.str("");
+  folder_name << top_folder << "/" << "DigiMonitor";
   ibooker.setCurrentFolder(folder_name.str());
+
+  Parameters =  config_.getParameter<edm::ParameterSet>("XYPositionMapH");  
+  HistoName.str("");
+  HistoName << "MatchedXPosVsYPos";
+  MatchedXYPositionMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+				 Parameters.getParameter<int32_t>("Nxbins"),
+				 Parameters.getParameter<double>("xmin"),
+				 Parameters.getParameter<double>("xmax"),
+				 Parameters.getParameter<int32_t>("Nybins"),
+				 Parameters.getParameter<double>("ymin"),
+				 Parameters.getParameter<double>("ymax"));
+  Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
+  HistoName.str("");
+  HistoName << "MatchedRPosVsZPos";
+  MatchedRZPositionMap = ibooker.book2D(HistoName.str(), HistoName.str(),
+				 Parameters.getParameter<int32_t>("Nxbins"),
+				 Parameters.getParameter<double>("xmin"),
+				 Parameters.getParameter<double>("xmax"),
+				 Parameters.getParameter<int32_t>("Nybins"),
+				 Parameters.getParameter<double>("ymin"),
+				 Parameters.getParameter<double>("ymax"));
+
 }
 //
 // -- Book Layer Histograms
 //
-void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo){ 
+void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsigned int det_id, const TrackerTopology* tTopo, bool flag){ 
 
-  int layer = tTopo->getOTLayerNumber(det_id);
+  int layer;
+  if (flag) layer = tTopo->getITPixelLayerNumber(det_id);
+  else layer = tTopo->getOTLayerNumber(det_id);
+
   if (layer < 0) return;
   std::map<uint32_t, DigiMEs >::iterator pos = layerMEs.find(layer);
   if (pos == layerMEs.end()) {

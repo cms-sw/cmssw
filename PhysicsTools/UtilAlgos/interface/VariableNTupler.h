@@ -116,10 +116,10 @@ class VariableNTupler : public NTupler{
       iterator i=leaves_.begin();
       iterator i_end=leaves_.end();
       for(;i!=i_end;++i){
-	std::auto_ptr<double> leafValue(new double((*i->second)(iEvent)));
+	auto leafValue = std::make_unique<double>((*i->second)(iEvent));
 	std::string lName(i->first); 
 	std::replace(lName.begin(), lName.end(),'_','0');
-	iEvent.put(leafValue, lName.c_str());
+	iEvent.put(std::move(leafValue), lName.c_str());
       }
     }
   }

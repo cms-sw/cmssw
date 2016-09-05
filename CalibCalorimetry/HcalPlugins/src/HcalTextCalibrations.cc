@@ -144,6 +144,14 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceSiPMCharacteristics);
       findingRecord <HcalSiPMCharacteristicsRcd> ();
     }
+    else if (objectName == "TPChannelParameters") {
+      setWhatProduced (this, &HcalTextCalibrations::produceTPChannelParameters);
+      findingRecord <HcalTPChannelParametersRcd> ();
+    }
+    else if (objectName == "TPParameters") {
+      setWhatProduced (this, &HcalTextCalibrations::produceTPParameters);
+      findingRecord <HcalTPParametersRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
@@ -378,4 +386,15 @@ std::unique_ptr<HcalSiPMParameters> HcalTextCalibrations::produceSiPMParameters 
 
 std::unique_ptr<HcalSiPMCharacteristics> HcalTextCalibrations::produceSiPMCharacteristics (const HcalSiPMCharacteristicsRcd& rcd) {
   return produce_impl<HcalSiPMCharacteristics> (mInputs ["SiPMCharacteristics"]);
+}
+
+std::unique_ptr<HcalTPChannelParameters> HcalTextCalibrations::produceTPChannelParameters (const HcalTPChannelParametersRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalTPChannelParameters> (topo,mInputs ["TPChannelParameters"]);
+}
+
+std::unique_ptr<HcalTPParameters> HcalTextCalibrations::produceTPParameters (const HcalTPParametersRcd& rcd) {
+  return produce_impl<HcalTPParameters> (mInputs ["TPParameters"]);
 }

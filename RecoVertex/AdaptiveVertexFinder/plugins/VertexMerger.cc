@@ -52,7 +52,7 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 	event.getByToken(token_secondaryVertex, secondaryVertices);
 
         VertexDistance3D dist;
-	std::auto_ptr<Product> recoVertices(new Product);
+	auto recoVertices = std::make_unique<Product>();
 	for(typename Product::const_iterator sv = secondaryVertices->begin();
 	    sv != secondaryVertices->end(); ++sv) {
           recoVertices->push_back(*sv);
@@ -82,7 +82,7 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
      //    std::cout << "it = " <<  sv-recoVertices->begin() << " new size is: " << recoVertices->size() <<   std::endl;
        }
 
-	event.put(recoVertices);
+	event.put(std::move(recoVertices));
 
 
 

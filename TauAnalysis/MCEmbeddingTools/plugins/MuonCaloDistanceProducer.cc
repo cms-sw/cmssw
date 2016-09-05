@@ -44,10 +44,10 @@ MuonCaloDistanceProducer::~MuonCaloDistanceProducer()
 
 void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<detIdToFloatMap> distanceMuPlus(new detIdToFloatMap());
-  std::auto_ptr<detIdToFloatMap> distanceMuMinus(new detIdToFloatMap());
-  std::auto_ptr<detIdToFloatMap> depositMuPlus(new detIdToFloatMap());
-  std::auto_ptr<detIdToFloatMap> depositMuMinus(new detIdToFloatMap());
+  std::unique_ptr<detIdToFloatMap> distanceMuPlus(new detIdToFloatMap());
+  std::unique_ptr<detIdToFloatMap> distanceMuMinus(new detIdToFloatMap());
+  std::unique_ptr<detIdToFloatMap> depositMuPlus(new detIdToFloatMap());
+  std::unique_ptr<detIdToFloatMap> depositMuMinus(new detIdToFloatMap());
 
   std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
@@ -56,20 +56,20 @@ void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& e
   if ( muPlus.isNonnull()  ) fillDistanceMap(evt, es, &(*muPlus), *distanceMuPlus, *depositMuPlus);
   if ( muMinus.isNonnull() ) fillDistanceMap(evt, es, &(*muMinus), *distanceMuMinus, *depositMuMinus);
 
-  std::auto_ptr<reco::CandidateCollection> muons(new reco::CandidateCollection);
+  std::unique_ptr<reco::CandidateCollection> muons(new reco::CandidateCollection);
   if ( muPlus.isNonnull()  ) muons->push_back(new reco::ShallowCloneCandidate(muPlus));
   if ( muMinus.isNonnull() ) muons->push_back(new reco::ShallowCloneCandidate(muMinus));
 
   // References to the muons themselves
-  evt.put(muons, "muons");
+  evt.put(std::move(muons), "muons");
 
   // maps of detId to distance traversed by muon through calorimeter cell
-  evt.put(distanceMuPlus, "distancesMuPlus");
-  evt.put(distanceMuMinus, "distancesMuMinus");
+  evt.put(std::move(distanceMuPlus), "distancesMuPlus");
+  evt.put(std::move(distanceMuMinus), "distancesMuMinus");
 
   // maps of detId to energy deposited in calorimeter cell
-  evt.put(depositMuPlus, "depositsMuPlus");
-  evt.put(depositMuMinus, "depositsMuMinus");
+  evt.put(std::move(depositMuPlus), "depositsMuPlus");
+  evt.put(std::move(depositMuMinus), "depositsMuMinus");
 }
 
 void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToFloatMap& distanceMap, detIdToFloatMap& depositMap)

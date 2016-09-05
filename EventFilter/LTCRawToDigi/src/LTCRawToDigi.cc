@@ -94,7 +94,7 @@ LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("source" , rawdata);
 
   // create collection we'll save in the event record
-  std::auto_ptr<LTCDigiCollection> pOut(new LTCDigiCollection());
+  auto pOut = std::make_unique<LTCDigiCollection>();
 
   // Loop over all possible FED's with the appropriate FED ID
   for ( int id = LTCFedIDLo; id <= LTCFedIDHi; ++id ) {
@@ -106,7 +106,7 @@ LTCRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     LTCDigi ltcDigi(fedData.data());
     pOut->push_back(ltcDigi);
   }
-  iEvent.put(pOut);
+  iEvent.put(std::move(pOut));
 }
 
 //define this as a plug-in

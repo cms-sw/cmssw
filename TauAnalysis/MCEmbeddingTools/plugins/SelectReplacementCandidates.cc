@@ -39,22 +39,19 @@ void SelectReplacementCandidates::produce(edm::Event& iEvent, const edm::EventSe
 	vector<uint32_t> hits ;	
 	getRawIDsAdvanced(iEvent, iSetup, &hits, &muon1, false);
 	getRawIDsAdvanced(iEvent, iSetup, &hits, &muon2, false);
-	std::auto_ptr< vector<uint32_t> > selectedHitsAutoPtr(new vector<uint32_t>(hits) );
-	iEvent.put( selectedHitsAutoPtr );
+	iEvent.put(std::make_unique<std::vector<uint32_t>>(hits));
 
 	vector<uint32_t> assoc_hits_withHCAL;   
 	getRawIDsAdvanced(iEvent, iSetup, &assoc_hits_withHCAL, &muon1, true);
 	getRawIDsAdvanced(iEvent, iSetup, &assoc_hits_withHCAL, &muon2, true);
 	std::cout << "found in total " << assoc_hits_withHCAL.size() << " cells with associated hits with hcal\n";
-	std::auto_ptr< vector<uint32_t> > selectedAssocHitsWithHCALAutoPtr(new vector<uint32_t>(assoc_hits_withHCAL) );
-	iEvent.put( selectedAssocHitsWithHCALAutoPtr, "assocHitsWithHCAL");
+	iEvent.put(std::make_unique<std::vector<uint32_t>>(assoc_hits_withHCAL), "assocHitsWithHCAL");
                                                 	
 	std::vector<reco::Muon> muons;
 	transformMuMu2TauTau(&muon1, &muon2);
 	muons.push_back(muon1);
 	muons.push_back(muon2);
-	std::auto_ptr< std::vector<reco::Muon> > selectedMuonsPtr(new std::vector<reco::Muon>(muons) );
-	iEvent.put( selectedMuonsPtr );
+	iEvent.put(std::make_unique<std::vector<reco::Muon>>(muons));
 
 }
 

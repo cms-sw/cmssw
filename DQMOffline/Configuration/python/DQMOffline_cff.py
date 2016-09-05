@@ -24,7 +24,7 @@ from DQM.CTPPS.totemDQM_cff import *
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  l1TriggerDqmOffline * # L1 emulator is run within this sequence for real data
                                  ecal_dqm_source_offline *
-								 hcalOfflineSourceSequence *
+                                 hcalOfflineSourceSequence *
                                  SiStripDQMTier0 *
                                  siPixelOfflineDQM_source *
                                  dtSources *
@@ -155,4 +155,8 @@ DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD)
 #miniAOD DQM sequences need to access the filter results.
 PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
 PostDQMOffline = cms.Sequence()
+
+eras.phase2_hcal.toReplaceWith( PostDQMOfflineMiniAOD, PostDQMOfflineMiniAOD.copyAndExclude([
+    pfMetDQMAnalyzerMiniAOD, pfPuppiMetDQMAnalyzerMiniAOD # No hcalnoise yet
+]))
 

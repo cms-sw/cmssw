@@ -80,7 +80,7 @@ void ShiftedJetProducerByMatchedObjectT<T>::produce(edm::Event& evt, const edm::
   
   match.assign(objects_.size(), false);
 
-  std::auto_ptr<JetCollection> shiftedJets(new JetCollection);
+  auto shiftedJets = std::make_unique<JetCollection>();
     
   for ( typename JetCollection::const_iterator originalJet = originalJets->begin();
 	originalJet != originalJets->end(); ++originalJet ) {
@@ -121,7 +121,7 @@ void ShiftedJetProducerByMatchedObjectT<T>::produce(edm::Event& evt, const edm::
     shiftedJets->push_back(shiftedJet);
   }
   
-  evt.put(shiftedJets);
+  evt.put(std::move(shiftedJets));
 }
 
 #include "DataFormats/JetReco/interface/CaloJet.h"

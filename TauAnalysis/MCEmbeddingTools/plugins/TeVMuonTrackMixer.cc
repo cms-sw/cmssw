@@ -118,7 +118,7 @@ void TeVMuonTrackMixer::produceTrackExtras(edm::Event& evt, const edm::EventSetu
 
     TrackToTrackMap::ref_type::value_type refProd = trackToTrackMap1->refProd().val;
     if(trackToTrackMap1->empty()) refProd = trackToTrackMap2->refProd().val;
-    std::auto_ptr<TrackToTrackMap> trackToTrackMap_output(new TrackToTrackMap(globalMuons_cleaned, refProd));
+    std::unique_ptr<TrackToTrackMap> trackToTrackMap_output(new TrackToTrackMap(globalMuons_cleaned, refProd));
 
     size_t numGlobalMuons_cleaned = globalMuons_cleaned->size();
     for ( size_t iGlobalMuons_cleaned = 0; iGlobalMuons_cleaned < numGlobalMuons_cleaned; ++iGlobalMuons_cleaned ) {
@@ -144,7 +144,7 @@ void TeVMuonTrackMixer::produceTrackExtras(edm::Event& evt, const edm::EventSetu
       }
     }
 
-    evt.put(trackToTrackMap_output, todoItem->srcTrackCollection1_.instance());
+    evt.put(std::move(trackToTrackMap_output), todoItem->srcTrackCollection1_.instance());
   }
 }
 

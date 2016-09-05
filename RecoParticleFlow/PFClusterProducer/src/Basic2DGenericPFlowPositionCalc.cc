@@ -108,56 +108,60 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   double depth = 0.0;  
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);
-  auto seedNeighbours = mySeed.hit->neighbours();
-  switch( _posCalcNCrystals ) {
-  case 5:
-    seedNeighbours = mySeed.hit->neighbours4();
-    break;
-  case 9:
-    seedNeighbours = mySeed.hit->neighbours8();
-    break;
-  default:
-    break;
-  }
-
-  auto compute = [&](LHit const& rhf) {
-    const reco::PFRecHit & refhit = *rhf.hit;  
-    const auto rh_energy = rhf.energy * rhf.fraction;
-    const auto norm = ( rhf.fraction < _minFractionInCalc ? 
+  if( nullptr != mySeed.hit ) {
+    auto seedNeighbours = mySeed.hit->neighbours();
+    switch( _posCalcNCrystals ) {
+    case 5:
+      seedNeighbours = mySeed.hit->neighbours4();
+      break;
+    case 9:
+      seedNeighbours = mySeed.hit->neighbours8();
+      break;
+    default:
+      break;
+    }
+    
+    auto compute = [&](LHit const& rhf) {
+      const reco::PFRecHit & refhit = *rhf.hit;  
+      const auto rh_energy = rhf.energy * rhf.fraction;
+      const auto norm = ( rhf.fraction < _minFractionInCalc ? 
 			  0.0f : 
 			  std::max(0.0f,vdt::fast_logf(rh_energy*_logWeightDenom)) );
-    const auto rhpos_xyz = refhit.position()*norm;
-    x += rhpos_xyz.x();
-    y += rhpos_xyz.y();
-    z += rhpos_xyz.z();
-    depth += refhit.depth()*norm;
-    position_norm += norm;
-  };
-
-  if(_posCalcNCrystals != -1) // sorted to make neighbour search faster (maybe)
-    std::sort(hits.begin(),hits.end(),[](LHit const& a, LHit const& b) { return a.hit<b.hit;});
-
-
-  if(_posCalcNCrystals == -1)
-    for( auto const & rhf : hits ) compute(rhf);
-  else {  // only seed and its neighbours
-     compute(mySeed);
-     // search seedNeighbours to find energy fraction in cluster (sic)
-     unInitDynArray(reco::PFRecHit const *,seedNeighbours.size(),nei);	  
-     for(auto k : seedNeighbours){ 
-      nei.push_back(recHitCollection+k);
-     }
-     std::sort(nei.begin(),nei.end());
-     struct LHitLess {
-       auto operator()(LHit const &a, reco::PFRecHit const * b) const {return a.hit<b;}
-       auto operator()(reco::PFRecHit const * b, LHit const &a) const {return b<a.hit;}
-     };
-     std::set_intersection(hits.begin(),hits.end(),nei.begin(),nei.end(), 
-       boost::make_function_output_iterator(compute),
-       LHitLess()
-     );
+      const auto rhpos_xyz = refhit.position()*norm;
+      x += rhpos_xyz.x();
+      y += rhpos_xyz.y();
+      z += rhpos_xyz.z();
+      depth += refhit.depth()*norm;
+      position_norm += norm;
+    };
+    
+    if(_posCalcNCrystals != -1) // sorted to make neighbour search faster (maybe)
+      std::sort(hits.begin(),hits.end(),[](LHit const& a, LHit const& b) { return a.hit<b.hit;});
+    
+    
+    if(_posCalcNCrystals == -1)
+      for( auto const & rhf : hits ) compute(rhf);
+    else {  // only seed and its neighbours
+      compute(mySeed);
+      // search seedNeighbours to find energy fraction in cluster (sic)
+      unInitDynArray(reco::PFRecHit const *,seedNeighbours.size(),nei);	  
+      for(auto k : seedNeighbours){ 
+	nei.push_back(recHitCollection+k);
+      }
+      std::sort(nei.begin(),nei.end());
+      struct LHitLess {
+	auto operator()(LHit const &a, reco::PFRecHit const * b) const {return a.hit<b;}
+	auto operator()(reco::PFRecHit const * b, LHit const &a) const {return b<a.hit;}
+      };
+      std::set_intersection(hits.begin(),hits.end(),nei.begin(),nei.end(), 
+			    boost::make_function_output_iterator(compute),
+			    LHitLess()
+			    );
+    }
+  } else {
+    throw cms::Exception("Basic2DGenerticPFlowPositionCalc")
+      << "Cluster seed hit is null, something is wrong with PFlow RecHit!";
   }
-
 
   if( position_norm < _minAllowedNorm ) {
     edm::LogError("WeirdClusterNormalization") 

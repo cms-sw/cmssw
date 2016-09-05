@@ -93,12 +93,10 @@ namespace sistrip {
       }
     }
 
-    std::auto_ptr< DetIdCollection > detids( new DetIdCollection(detids_) );
-
     // for( unsigned int it = 0; it < detids->size(); ++it ) {
     //   std::cout << "detId = " << (*detids)[it]() << std::endl;
     // }
 
-    event.put(detids);
+    event.put(std::make_unique<DetIdCollection>(detids_));
   }
 }

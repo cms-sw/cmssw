@@ -41,7 +41,7 @@ namespace pat {
 
       Mode parseMode(const std::string &name) const;
       
-      std::auto_ptr<std::vector<reco::Vertex> >
+      std::unique_ptr<std::vector<reco::Vertex> >
         filter_(Mode mode, const edm::Event & iEvent, const edm::EventSetup & iSetup);
       bool hasMode_(Mode mode) const ;
       // configurables

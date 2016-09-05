@@ -7,14 +7,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 
-#process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
-
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
-
-#process.load('Configuration.Geometry.GeometryExtended2023SHCalNoTaperReco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023SHCalNoTaper_cff')
 
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #process.load('Configuration.StandardSequences.MagneticField_38T_cff')

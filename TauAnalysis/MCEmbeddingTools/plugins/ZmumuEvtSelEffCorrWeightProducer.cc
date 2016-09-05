@@ -24,7 +24,7 @@ ZmumuEvtSelEffCorrWeightProducer::ZmumuEvtSelEffCorrWeightProducer(const edm::Pa
   if ( inputFileName.location() == edm::FileInPath::Unknown) 
     throw cms::Exception("MuonRadiationCorrWeightProducer") 
       << " Failed to find File = " << inputFileName << " !!\n";
-  std::auto_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
+  std::unique_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
 
   std::string lutEfficiencyPtName = cfg.getParameter<std::string>("lutEfficiencyPt");
   TH2* lutEfficiencyPt = dynamic_cast<TH2*>(inputFile->Get(lutEfficiencyPtName.data()));
@@ -129,12 +129,9 @@ void ZmumuEvtSelEffCorrWeightProducer::produce(edm::Event& evt, const edm::Event
     std::cout << "--> weight = " << weight << " + " << (weightUp - weight) << " - " << (weight - weightDown) << std::endl;
   }
 
-  std::auto_ptr<double> weightPtr(new double(weight));
-  evt.put(weightPtr, "weight");
-  std::auto_ptr<double> weightUpPtr(new double(weightUp));
-  evt.put(weightUpPtr, "weightUp");
-  std::auto_ptr<double> weightDownPtr(new double(weightDown));
-  evt.put(weightDownPtr, "weightDown");
+  evt.put(std::make_unique<double>(weight), "weight");
+  evt.put(std::make_unique<double>(weightUp), "weightUp");
+  evt.put(std::make_unique<double>(weightDown), "weightDown");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

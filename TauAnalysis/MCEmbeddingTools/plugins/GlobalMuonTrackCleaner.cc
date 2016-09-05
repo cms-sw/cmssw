@@ -67,7 +67,7 @@ void GlobalMuonTrackCleaner::produceTrackExtras(edm::Event& evt, const edm::Even
 
   for ( typename std::vector<todoListEntryType>::const_iterator todoItem = todoList_.begin();
 	todoItem != todoList_.end(); ++todoItem ) {
-    std::auto_ptr<MuonTrackLinksCollection> trackLinks_cleaned(new MuonTrackLinksCollection());
+    std::unique_ptr<MuonTrackLinksCollection> trackLinks_cleaned(new MuonTrackLinksCollection());
     
     for ( std::map<reco::TrackRef, reco::TrackRef>::const_iterator cleanedToUncleanedTrackAssociation = todoItem->trackRefMap_.begin();
 	  cleanedToUncleanedTrackAssociation != todoItem->trackRefMap_.end(); ++cleanedToUncleanedTrackAssociation ) {
@@ -103,7 +103,7 @@ void GlobalMuonTrackCleaner::produceTrackExtras(edm::Event& evt, const edm::Even
       }
     }
     
-    evt.put(trackLinks_cleaned, todoItem->srcTracks_.instance());
+    evt.put(std::move(trackLinks_cleaned), todoItem->srcTracks_.instance());
   }
 }
 
