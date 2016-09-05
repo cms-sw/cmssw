@@ -420,7 +420,7 @@ for section in config.sections():
         print 'Number of jobs:    ', datasetOptions['njobs']
         print 'Inputfilelist:     ', datasetOptions['inputFileList']
         if datasetOptions['json'] != '':
-            print 'Jsonfile:      ', datasetOptions['json']
+            print 'Jsonfile:          ', datasetOptions['json']
         print 'Pass to mps_setup: ', command
 
         # call the command and toggle verbose output
