@@ -57,6 +57,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
   tMaxH_                              = iConfig.getUntrackedParameter<double>("TimeMaxCutHCAL",  500.);
   isItAOD_                            = iConfig.getUntrackedParameter<bool>("IsItAOD", false);
   doTree_                             = iConfig.getUntrackedParameter<bool>("DoTree", false);
+  puWeights_                          = iConfig.getUntrackedParameter<std::vector<double> >("PUWeights");
   triggerEvent_                       = edm::InputTag("hltTriggerSummaryAOD","","HLT");
  theTriggerResultsLabel_              = edm::InputTag("TriggerResults","","HLT");
 
@@ -75,6 +76,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
     tok_EE_     = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
     tok_hbhe_   = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
+  tok_ew_       = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   
   edm::LogInfo("IsoTrack") << "Verbosity " << verbosity_ << " with " 
 			   << trigNames_.size() << " triggers:";
@@ -126,16 +128,15 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
   int Lumi  = iEvent.luminosityBlock();
   int Bunch = iEvent.bunchCrossing();
   
-  edm::Handle<LumiDetails> Lumid;
-  iEvent.getLuminosityBlock().getByToken(tok_lumi,Lumid);
-  
   std::string newNames[5]={"HLT","PixelTracks_Multiplicity","HLT_Physics_","HLT_JetE","HLT_ZeroBias"};
   int         newAccept[5];
   for (int i=0; i<5; ++i) newAccept[i] = 0;
   float mybxlumi=-1;
-  if (Lumid.isValid()) 
-    mybxlumi=Lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
-  
+  /*
+  edm::Handle<LumiDetails> Lumid;
+  iEvent.getLuminosityBlock().getByToken(tok_lumi,Lumid);
+  if (Lumid.isValid()) mybxlumi=Lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
+  */
   if (verbosity_ > 0)
     edm::LogInfo("IsoTrack") << "RunNo " << RunNo << " EvtNo " << EvtNo 
 			     << " Lumi " << Lumi << " Bunch " << Bunch 
@@ -146,9 +147,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
   iEvent.getByToken(tok_trigEvt,triggerEventHandle);
   
   bool ok(false);
-  if (trigNames_.size() < 1) {
-    ok = true;
-  } else if (!triggerEventHandle.isValid()) {
+  if (!triggerEventHandle.isValid()) {
     edm::LogWarning("IsoTrack") << "Error! Can't get the product "
 				<< triggerEvent_.label();
   } else {
@@ -192,22 +191,26 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	  h_HLTAccepts[nRun]->Fill(iHLT+1);
 	  h_HLTAccept->Fill(ipos);
 	}
-	for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	  if (newtriggerName.find(trigNames_[i].c_str())!=std::string::npos) {
-	    if (verbosity_%10 > 0)  
-	      edm::LogInfo("IsoTrack") << newtriggerName;
-	    if (hlt > 0) {
-	      ok = true;
-	      tr_TrigName.push_back(newtriggerName);
+	if (trigNames_.size() < 1) {
+	  ok = true;
+	} else {
+	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
+	    if (newtriggerName.find(trigNames_[i].c_str())!=std::string::npos) {
+	      if (verbosity_%10 > 0)  
+		edm::LogInfo("IsoTrack") << newtriggerName;
+	      if (hlt > 0) {
+		ok = true;
+		tr_TrigName.push_back(newtriggerName);
+	      }
 	    }
 	  }
-	}
-	for (int i=0; i<5; ++i) {
-	  if (newtriggerName.find(newNames[i].c_str())!=std::string::npos) {
-	    if (verbosity_%10 > 0)
-	      edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
-				       << " : " << newtriggerName;
-	    if (hlt > 0) newAccept[i] = 1;
+	  for (int i=0; i<5; ++i) {
+	    if (newtriggerName.find(newNames[i].c_str())!=std::string::npos) {
+	      if (verbosity_%10 > 0)
+		edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
+					 << " : " << newtriggerName;
+	      if (hlt > 0) newAccept[i] = 1;
+	    }
 	  }
 	}
       }
@@ -246,8 +249,9 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 
     edm::Handle<reco::VertexCollection> recVtxs;
     iEvent.getByToken(tok_recVtx_,recVtxs);
-    int                                   ntrk(0), ngoodPV(0), nPV(-1);
-    for (unsigned int ind=0; ind<recVtxs->size(); ind++) {
+    int       ntrk(0), ngoodPV(0), nPV(-1);
+    int       nvtxs = (int)(recVtxs->size());
+    for (int ind=0; ind<nvtxs; ind++) {
       if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4) ngoodPV++;
     }
     for (int i=0; i<nPVBin; ++i) {
@@ -255,13 +259,27 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	nPV = i; break;
       }
     }
+
+    tr_eventWeight = 1.0;
+    edm::Handle<GenEventInfoProduct> genEventInfo;
+    iEvent.getByToken(tok_ew_, genEventInfo);
+    if (genEventInfo.isValid()) tr_eventWeight = genEventInfo->weight();  
+
     if ((verbosity_/10)%10 > 0) 
-      edm::LogInfo("IsoTrack") << "Number of vertices: " << recVtxs->size() 
-			       << " Good " << ngoodPV << " Bin " << nPV;
-    h_numberPV->Fill((int)(recVtxs->size()));
-    h_goodPV->Fill(ngoodPV);
+      edm::LogInfo("IsoTrack") << "Number of vertices: " << nvtxs
+			       << " Good " << ngoodPV << " Bin " << nPV
+			       << " Event weight " << tr_eventWeight;
+    h_numberPV->Fill(nvtxs,tr_eventWeight);
+    h_goodPV->Fill(ngoodPV,tr_eventWeight);
     tr_goodPV   = ngoodPV;
     
+    if (puWeights_.size() > 0) {
+      int npbin = h_goodPV->FindBin(ngoodPV);
+      if (npbin > 0 && npbin <= (int)(puWeights_.size())) 
+	tr_eventWeight *= puWeights_[npbin-1];
+      else	
+	tr_eventWeight  = 0;
+    }
     edm::Handle<reco::TrackCollection> trkCollection;
     iEvent.getByToken(tok_genTrack_, trkCollection);
     reco::TrackCollection::const_iterator trkItr;
@@ -275,7 +293,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
       fillTrack(0, pt1,p1,eta1,phi1);
       if (quality) fillTrack(1, pt1,p1,eta1,phi1);
     }
-    h_ntrk[0]->Fill(ntrk);
+    h_ntrk[0]->Fill(ntrk,tr_eventWeight);
 
     std::vector<spr::propagatedTrackID> trkCaloDets;
     spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDets, ((verbosity_/100)%10 > 0));
@@ -371,7 +389,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	}
       }
     }
-    h_ntrk[1]->Fill(ntrk);
+    h_ntrk[1]->Fill(ntrk,tr_eventWeight);
     if (tr_TrkPt.size() > 0 && doTree_) tree_->Fill();
   }
   firstEvent_ = false;
@@ -485,8 +503,9 @@ void StudyHLT::beginJob() {
   // Now the tree
   if (doTree_) {
     tree_ = fs_->make<TTree>("testTree", "new HLT Tree");
-    tree_->Branch("tr_goodRun",         &tr_goodRun,           "tr_goodRun/I");
-    tree_->Branch("tr_goodPV",          &tr_goodPV,            "tr_goodPV/I");
+    tree_->Branch("tr_goodRun",         &tr_goodRun,        "tr_goodRun/I");
+    tree_->Branch("tr_goodPV",          &tr_goodPV,         "tr_goodPV/I");
+    tree_->Branch("tr_eventWeight",     &tr_eventWeight,    "tr_eventWeight/D");
     tree_->Branch("tr_tr_TrigName",     &tr_TrigName);
     tree_->Branch("tr_TrkPt",           &tr_TrkPt);
     tree_->Branch("tr_TrkP",            &tr_TrkP);
@@ -544,17 +563,17 @@ void StudyHLT::clear() {
 }
 
 void StudyHLT::fillTrack(int i, double pt, double p, double eta, double phi){
-  h_pt[i]->Fill(pt);
-  h_p[i]->Fill(p);
-  h_eta[i]->Fill(eta);
-  h_phi[i]->Fill(phi);
+  h_pt[i]->Fill(pt,tr_eventWeight);
+  h_p[i]->Fill(p,tr_eventWeight);
+  h_eta[i]->Fill(eta,tr_eventWeight);
+  h_phi[i]->Fill(phi,tr_eventWeight);
 }
 
 void StudyHLT::fillIsolation(int i, double emaxnearP, double eneutIso1, double eneutIso2){
-  h_maxNearP[i]->Fill(emaxnearP);
-  h_ene1[i]->Fill(eneutIso1);
-  h_ene2[i]->Fill(eneutIso2);
-  h_ediff[i]->Fill(eneutIso2-eneutIso1);
+  h_maxNearP[i]->Fill(emaxnearP,tr_eventWeight);
+  h_ene1[i]->Fill(eneutIso1,tr_eventWeight);
+  h_ene2[i]->Fill(eneutIso2,tr_eventWeight);
+  h_ediff[i]->Fill(eneutIso2-eneutIso1,tr_eventWeight);
 }
 
 void StudyHLT::fillEnergy(int flag, int ieta, double p, double enEcal1,
@@ -567,12 +586,12 @@ void StudyHLT::fillEnergy(int flag, int ieta, double p, double enEcal1,
     if (ieta >= etaBin[i] && ieta < etaBin[i+1]) { ie = i; break; }
   }
   if (ip >= 0 && ie >= 0 && enEcal1 > 0.02 && enHcal1 > 0.1) {
-    h_energy[flag][ip][ie][0]->Fill(enEcal1/p);
-    h_energy[flag][ip][ie][1]->Fill(enHcal1/p);
-    h_energy[flag][ip][ie][2]->Fill((enEcal1+enHcal1)/p);
-    h_energy[flag][ip][ie][3]->Fill(enEcal2/p);
-    h_energy[flag][ip][ie][4]->Fill(enHcal2/p);
-    h_energy[flag][ip][ie][5]->Fill((enEcal2+enHcal2)/p);
+    h_energy[flag][ip][ie][0]->Fill(enEcal1/p,tr_eventWeight);
+    h_energy[flag][ip][ie][1]->Fill(enHcal1/p,tr_eventWeight);
+    h_energy[flag][ip][ie][2]->Fill((enEcal1+enHcal1)/p,tr_eventWeight);
+    h_energy[flag][ip][ie][3]->Fill(enEcal2/p,tr_eventWeight);
+    h_energy[flag][ip][ie][4]->Fill(enHcal2/p,tr_eventWeight);
+    h_energy[flag][ip][ie][5]->Fill((enEcal2+enHcal2)/p,tr_eventWeight);
   }
 }
 
