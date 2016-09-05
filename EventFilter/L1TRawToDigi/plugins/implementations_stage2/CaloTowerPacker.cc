@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
+#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 

@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
+#include "EventFilter/L1TRawToDigi/plugins/PackerFactory.h"
 
 #include "CaloSpareHFPacker.h"
 #include "CaloTokens.h"
