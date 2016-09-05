@@ -46,6 +46,7 @@
 #include "GeneratorInterface/GenFilters/interface/ZgMassFilter.h"
 #include "GeneratorInterface/GenFilters/interface/ZgammaMassFilter.h"
 #include "GeneratorInterface/GenFilters/interface/HeavyQuarkFromMPIFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCSingleParticleYPt.h"
 
   using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
@@ -94,3 +95,4 @@
   DEFINE_FWK_MODULE(ZgMassFilter);
   DEFINE_FWK_MODULE(ZgammaMassFilter);
   DEFINE_FWK_MODULE(HeavyQuarkFromMPIFilter);
+  DEFINE_FWK_MODULE(MCSingleParticleYPt);
