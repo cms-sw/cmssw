@@ -12,7 +12,7 @@ namespace l1t {
    class PackingSetupFactory {
       public:
          static const PackingSetupFactory* get() { return &instance_; };
-         std::unique_ptr<PackingSetup> make(const std::string&) const;
+         std::auto_ptr<PackingSetup> make(const std::string&) const;
          void fillDescription(edm::ParameterSetDescription&) const;
       private:
          PackingSetupFactory() {};
