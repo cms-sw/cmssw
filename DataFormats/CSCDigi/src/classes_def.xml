@@ -15,6 +15,7 @@
     <version ClassVersion="10" checksum="1301481852"/>
    </class>
    <class name="GEMCSCLCTDigi" ClassVersion="11">
+    <version ClassVersion="10" checksum="967689346"/>
     <version ClassVersion="11" checksum="56593764"/>
    </class>
    <class name="CSCCLCTDigi" ClassVersion="10">
