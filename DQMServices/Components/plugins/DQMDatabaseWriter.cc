@@ -331,12 +331,12 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
         insertData[ "X_BINS" ].data< int >() = histogram.dimX.nBin; //or histogram->getTH1()->GetNbinsX() ?
         insertData[ "X_LOW" ].data< double >() = histogram.dimX.low;
         insertData[ "X_UP" ].data< double >() = histogram.dimX.up;
-        insertData[ "Y_BINS" ].data< int >() = 0; //histogram->getNbinsY();
-        insertData[ "Y_LOW" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMin();
-        insertData[ "Y_UP" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMax();
-        insertData[ "Z_BINS" ].data< int >() = 0; //histogram->getNbinsZ();
-        insertData[ "Z_LOW" ].data< double >() = 0.; //histogram->getTH1()->GetZaxis()->GetXMin();
-        insertData[ "Z_UP" ].data< double >() = 0.; //histogram->getTH1()->GetZaxis()->GetXMax();
+        insertData[ "Y_BINS" ].data< int >() = histogram.dimY.nBin; //histogram->getNbinsY();
+        insertData[ "Y_LOW" ].data< double >() = histogram.dimY.low; //histogram->getTH1()->GetYaxis()->GetXMin();
+        insertData[ "Y_UP" ].data< double >() = histogram.dimY.up; //histogram->getTH1()->GetYaxis()->GetXMax();
+        insertData[ "Z_BINS" ].data< int >() = histogram.dimY.nBin; //histogram->getNbinsZ();
+        insertData[ "Z_LOW" ].data< double >() = histogram.dimZ.low; //histogram->getTH1()->GetZaxis()->GetXMin();
+        insertData[ "Z_UP" ].data< double >() = histogram.dimZ.up; //histogram->getTH1()->GetZaxis()->GetXMax();
         editor.insertRow( insertData );
     }
     m_session->transaction().commit();
