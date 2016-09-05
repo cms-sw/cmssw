@@ -76,7 +76,6 @@ getTriggerCellFromCell( const unsigned cell_det_id ) const
     // FIXME: better way to do this cell->TC mapping?
     unsigned trigger_cell = cells_to_trigger_cells_.at(std::make_pair(wafer_type,cell));
     // This is possible because HGCTriggerHexDetId has the same structure as HGCalDetId
-    // Maybe enforce this by deriving HGCTriggerHexDetId from HGCalDetId
     unsigned trigger_cell_det_id = cell_det_id;
     HGCTriggerHexDetId::setCellOf(trigger_cell_det_id, trigger_cell);
     return trigger_cell_det_id;
@@ -102,7 +101,6 @@ getModuleFromCell( const unsigned cell_det_id ) const
             return 0;
     };
     // This is possible because HGCTriggerHexDetId has the same structure as HGCalDetId
-    // Maybe enforce this by deriving HGCTriggerHexDetId from HGCalDetId
     unsigned module_id = cell_det_id;
     HGCTriggerHexDetId::setWaferOf(module_id, module);
     HGCTriggerHexDetId::setCellOf(module_id, HGCTriggerHexDetId::UndefinedCell());

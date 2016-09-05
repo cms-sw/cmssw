@@ -7,7 +7,6 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
@@ -120,7 +119,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
     l1t::HGCFETriggerDigi& digi = fe_output->back();
     codec_->setDataPayload(*triggerGeometry_, module_hits.second,HGCHEDigiCollection(),HGCHEDigiCollection());
     codec_->encode(digi);
-    digi.setDetId( HGCalDetId(module_hits.first) );
+    digi.setDetId( DetId(module_hits.first) );
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")
       << output.str();
@@ -133,7 +132,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
     l1t::HGCFETriggerDigi& digi = fe_output->back();
     codec_->setDataPayload(*triggerGeometry_,HGCEEDigiCollection(),module_hits.second,HGCHEDigiCollection());
     codec_->encode(digi);
-    digi.setDetId( HGCalDetId(module_hits.first) );
+    digi.setDetId( DetId(module_hits.first) );
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")
       << output.str();
