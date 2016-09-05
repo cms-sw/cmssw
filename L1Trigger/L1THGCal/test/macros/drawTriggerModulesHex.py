@@ -5,7 +5,7 @@ from DrawingUtilities import Cell, TriggerCell, Module
 subdet = 4
 layer  = 12
 zside  = 1
-inputFileName = "../test_triggerlightweightgeom.root"
+inputFileName = "../test_triggergeom.root"
 outputFileName = "moduleMap.root"
 ####################
 

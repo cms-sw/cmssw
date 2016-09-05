@@ -1,6 +1,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerLightweightGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerHexDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
@@ -9,7 +9,7 @@
 #include <fstream>
 
 
-class HGCalTriggerGeometryHexImp2 : public HGCalTriggerLightweightGeometryBase
+class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 {
     public:
         HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf);
@@ -49,7 +49,7 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerLightweightGeometryBase
 
 HGCalTriggerGeometryHexImp2::
 HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf):
-    HGCalTriggerLightweightGeometryBase(conf),
+    HGCalTriggerGeometryBase(conf),
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping")),
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping"))
 {
@@ -61,7 +61,6 @@ HGCalTriggerGeometryHexImp2::
 initialize(const es_info& esInfo)
 {
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
-                                            << "WARNING: There is no positions implemented.\n"\
                                             << "WARNING: There is no neighbor information.\n";
     es_info_ = esInfo;
     fillMaps(esInfo);
@@ -135,7 +134,7 @@ getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const
     return module_id;
 }
 
-HGCalTriggerLightweightGeometryBase::geom_set 
+HGCalTriggerGeometryBase::geom_set 
 HGCalTriggerGeometryHexImp2::
 getCellsFromTriggerCell( const unsigned trigger_cell_det_id ) const
 {
@@ -153,7 +152,7 @@ getCellsFromTriggerCell( const unsigned trigger_cell_det_id ) const
     return cell_det_ids;
 }
 
-HGCalTriggerLightweightGeometryBase::geom_set 
+HGCalTriggerGeometryBase::geom_set 
 HGCalTriggerGeometryHexImp2::
 getCellsFromModule( const unsigned module_det_id ) const
 {
@@ -189,7 +188,7 @@ getCellsFromModule( const unsigned module_det_id ) const
     return cell_det_ids;
 }
 
-HGCalTriggerLightweightGeometryBase::geom_set 
+HGCalTriggerGeometryBase::geom_set 
 HGCalTriggerGeometryHexImp2::
 getTriggerCellsFromModule( const unsigned module_det_id ) const
 {
@@ -243,8 +242,8 @@ getTriggerCellPosition(const unsigned trigger_cell_det_id) const
 }
 
 GlobalPoint 
-HGCalTriggerGeometryHexImp2::getModulePosition
-(const unsigned module_det_id) const
+HGCalTriggerGeometryHexImp2::
+getModulePosition(const unsigned module_det_id) const
 {
     // Position: barycenter of the module.
     Basic3DVector<float> moduleVector(0.,0.,0.);
@@ -324,6 +323,6 @@ fillMaps(const es_info& esInfo)
 
 
 
-DEFINE_EDM_PLUGIN(HGCalTriggerLightweightGeometryFactory, 
+DEFINE_EDM_PLUGIN(HGCalTriggerGeometryFactory, 
         HGCalTriggerGeometryHexImp2,
         "HGCalTriggerGeometryHexImp2");

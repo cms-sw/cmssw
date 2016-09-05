@@ -19,7 +19,6 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerLightweightGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendProcessor.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
@@ -48,18 +47,17 @@ class HGCalTriggerBestChoiceMonitor : public edm::EDAnalyzer
         void clear_module_loop();
         void clear_optimized_loop();
         void clear_summary();
-        void moduleLoop(const edm::Event& e, const edm::EventSetup& es);
+        //void moduleLoop(const edm::Event& e, const edm::EventSetup& es);
         void optimizedLoop(const edm::Event& e, const edm::EventSetup& es);
         void lightweightLoop(const edm::Event& e, const edm::EventSetup& es);
 
         // inputs
         HGCalTriggerGeometryBase::es_info es_info_;
-        HGCalTriggerLightweightGeometryBase::es_info es_info_light_;
         edm::EDGetToken inputgen_, inputee_, inputfh_, inputbh_;
         edm::EDGetToken inputee_simhits_, inputfh_simhits_;
         // tools
         std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_;
-        std::unique_ptr<HGCalTriggerLightweightGeometryBase> triggerLightweightGeometry_;
+        std::unique_ptr<HGCalTriggerGeometryBase> triggerLightweightGeometry_;
         std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
         // Output
         edm::Service<TFileService> fs_;
@@ -100,7 +98,7 @@ HGCalTriggerBestChoiceMonitor::HGCalTriggerBestChoiceMonitor(const edm::Paramete
     //setup lightweight geometry configuration
     const edm::ParameterSet& lightweightGeometryConfig = conf.getParameterSet("TriggerLightweightGeometry");
     const std::string& trigLightGeomName = lightweightGeometryConfig.getParameter<std::string>("TriggerGeometryName");
-    HGCalTriggerLightweightGeometryBase* lightweightGeometry = HGCalTriggerLightweightGeometryFactory::get()->create(trigLightGeomName,lightweightGeometryConfig);
+    HGCalTriggerGeometryBase* lightweightGeometry = HGCalTriggerGeometryFactory::get()->create(trigLightGeomName,lightweightGeometryConfig);
     triggerLightweightGeometry_.reset(lightweightGeometry);
 
     //setup FE codec
@@ -153,16 +151,7 @@ void HGCalTriggerBestChoiceMonitor::beginRun(const edm::Run& /*run*/, const edm:
     triggerGeometry_->initialize(es_info_);
 
     triggerLightweightGeometry_->reset();
-    const std::string& ee_sd_name_light = triggerLightweightGeometry_->eeSDName();
-    const std::string& fh_sd_name_light = triggerLightweightGeometry_->fhSDName();
-    const std::string& bh_sd_name_light = triggerLightweightGeometry_->bhSDName();
-    es.get<IdealGeometryRecord>().get(ee_sd_name_light,es_info_light_.geom_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name_light,es_info_light_.geom_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name_light,es_info_light_.geom_bh);
-    es.get<IdealGeometryRecord>().get(ee_sd_name_light,es_info_light_.topo_ee);
-    es.get<IdealGeometryRecord>().get(fh_sd_name_light,es_info_light_.topo_fh);
-    es.get<IdealGeometryRecord>().get(bh_sd_name_light,es_info_light_.topo_bh);
-    triggerLightweightGeometry_->initialize(es_info_light_);
+    triggerLightweightGeometry_->initialize(es_info_);
 }
 
 
@@ -197,92 +186,92 @@ void HGCalTriggerBestChoiceMonitor::analyze(const edm::Event& e, const edm::Even
 
 }
 
-void HGCalTriggerBestChoiceMonitor::moduleLoop(const edm::Event& e, const edm::EventSetup& es) 
-{
-    std::cout<<"Old module loop\n";
+//void HGCalTriggerBestChoiceMonitor::moduleLoop(const edm::Event& e, const edm::EventSetup& es) 
+//{
+    //std::cout<<"Old module loop\n";
 
-    clear_module_loop();
+    //clear_module_loop();
 
-    run_    = e.id().run();
-    lumi_   = e.luminosityBlock();
-    event_  = e.id().event();
+    //run_    = e.id().run();
+    //lumi_   = e.luminosityBlock();
+    //event_  = e.id().event();
 
-    edm::Handle<HGCEEDigiCollection> ee_digis_h;
-    edm::Handle<HGCHEDigiCollection> fh_digis_h;
-    e.getByToken(inputee_,ee_digis_h);
-    e.getByToken(inputfh_,fh_digis_h);
+    //edm::Handle<HGCEEDigiCollection> ee_digis_h;
+    //edm::Handle<HGCHEDigiCollection> fh_digis_h;
+    //e.getByToken(inputee_,ee_digis_h);
+    //e.getByToken(inputfh_,fh_digis_h);
 
-    const HGCEEDigiCollection& ee_digis = *ee_digis_h;
-    const HGCHEDigiCollection& fh_digis = *fh_digis_h;
+    //const HGCEEDigiCollection& ee_digis = *ee_digis_h;
+    //const HGCHEDigiCollection& fh_digis = *fh_digis_h;
 
 
-    std::chrono::steady_clock::time_point begin_time;
-    std::chrono::steady_clock::time_point end_time;
+    //std::chrono::steady_clock::time_point begin_time;
+    //std::chrono::steady_clock::time_point end_time;
 
-    HGCalBestChoiceDataPayload data;
+    //HGCalBestChoiceDataPayload data;
 
-    //loop on modules
-    for( const auto& module : triggerGeometry_->modules() ) 
-    {        
-        clear_module_loop();
-        run_    = e.id().run();
-        lumi_   = e.luminosityBlock();
-        event_  = e.id().event();
-        HGCalDetId moduleId(module.first);
-        // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+    ////loop on modules
+    //for( const auto& module : triggerGeometry_->modules() ) 
+    //{        
+        //clear_module_loop();
+        //run_    = e.id().run();
+        //lumi_   = e.luminosityBlock();
+        //event_  = e.id().event();
+        //HGCalDetId moduleId(module.first);
+        //// prepare input data
+        //std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
+        //std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
 
-        begin_time = std::chrono::steady_clock::now();
+        //begin_time = std::chrono::steady_clock::now();
 
-        // loop over EE or FH digis and fill digis belonging to that module
-        if(moduleId.subdetId()==ForwardSubdetector::HGCEE) 
-        {
-            for(const auto& eedata : ee_digis)
-            {
-                if(module.second->containsCell(eedata.id())) 
-                {
-                    dataframes.emplace_back(eedata.id());
-                    for(int i=0; i<eedata.size(); i++) 
-                    {
-                        dataframes.back().setSample(i, eedata.sample(i));
-                    }
-                }
-            }  
-        }
-        else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF) 
-        {
-            for(const auto& fhdata : fh_digis) 
-            {
-                if(module.second->containsCell(fhdata.id())) 
-                {
-                    dataframes.emplace_back(fhdata.id());
-                    for(int i=0; i<fhdata.size(); i++) 
-                    {
-                        dataframes.back().setSample(i, fhdata.sample(i));
-                    }
-                }
-            }  
-        }
-        end_time = std::chrono::steady_clock::now();
-        module_cell_selection_time_ = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time).count();
+        //// loop over EE or FH digis and fill digis belonging to that module
+        //if(moduleId.subdetId()==ForwardSubdetector::HGCEE) 
+        //{
+            //for(const auto& eedata : ee_digis)
+            //{
+                //if(module.second->containsCell(eedata.id())) 
+                //{
+                    //dataframes.emplace_back(eedata.id());
+                    //for(int i=0; i<eedata.size(); i++) 
+                    //{
+                        //dataframes.back().setSample(i, eedata.sample(i));
+                    //}
+                //}
+            //}  
+        //}
+        //else if(moduleId.subdetId()==ForwardSubdetector::HGCHEF) 
+        //{
+            //for(const auto& fhdata : fh_digis) 
+            //{
+                //if(module.second->containsCell(fhdata.id())) 
+                //{
+                    //dataframes.emplace_back(fhdata.id());
+                    //for(int i=0; i<fhdata.size(); i++) 
+                    //{
+                        //dataframes.back().setSample(i, fhdata.sample(i));
+                    //}
+                //}
+            //}  
+        //}
+        //end_time = std::chrono::steady_clock::now();
+        //module_cell_selection_time_ = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time).count();
 
-        //  Best choice encoding
-        begin_time = std::chrono::steady_clock::now();
-        data.reset();
-        codec_->linearize(*(module.second), dataframes, linearized_dataframes);
-        codec_->triggerCellSums(*(module.second), linearized_dataframes, data);
-        codec_->bestChoiceSelect(data);
-        end_time = std::chrono::steady_clock::now();
-        module_processing_time_ = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time).count();
+        ////  Best choice encoding
+        //begin_time = std::chrono::steady_clock::now();
+        //data.reset();
+        //codec_->linearize(*(module.second), dataframes, linearized_dataframes);
+        //codec_->triggerCellSums(*(module.second), linearized_dataframes, data);
+        //codec_->bestChoiceSelect(data);
+        //end_time = std::chrono::steady_clock::now();
+        //module_processing_time_ = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time).count();
 
-        tree_module_loop_->Fill();
+        //tree_module_loop_->Fill();
 
-    } //end loop on modules
+    //} //end loop on modules
     
 
 
-}
+//}
 
 
 void HGCalTriggerBestChoiceMonitor::optimizedLoop(const edm::Event& e, const edm::EventSetup& es) 
@@ -312,25 +301,25 @@ void HGCalTriggerBestChoiceMonitor::optimizedLoop(const edm::Event& e, const edm
     std::unordered_map<uint32_t, std::vector<HGCEEDataFrame>> hit_modules_ee;
     for(const auto& eedata : ee_digis)
     {
-        const auto& module = triggerGeometry_->getModuleFromCell(eedata.id());
-        auto itr_insert = hit_modules_ee.insert(std::make_pair(module->moduleId(),std::vector<HGCEEDataFrame>()));
+        const unsigned module = triggerGeometry_->getModuleFromCell(eedata.id());
+        auto itr_insert = hit_modules_ee.insert(std::make_pair(module,std::vector<HGCEEDataFrame>()));
         itr_insert.first->second.push_back(eedata);
     }
     std::unordered_map<uint32_t,std::vector<HGCHEDataFrame>> hit_modules_fh;
     for(const auto& fhdata : fh_digis)
     {
-        const auto& module = triggerGeometry_->getModuleFromCell(fhdata.id());
-        auto itr_insert = hit_modules_fh.insert(std::make_pair(module->moduleId(), std::vector<HGCHEDataFrame>()));
+        const unsigned module = triggerGeometry_->getModuleFromCell(fhdata.id());
+        auto itr_insert = hit_modules_fh.insert(std::make_pair(module, std::vector<HGCHEDataFrame>()));
         itr_insert.first->second.push_back(fhdata);
     }
     //loop on modules
     for( const auto& module_hits : hit_modules_ee ) 
     {        
-        clear_optimized_loop();
+        //clear_optimized_loop();
         run_    = e.id().run();
         lumi_   = e.luminosityBlock();
         event_  = e.id().event();
-        HGCalDetId moduleId(module_hits.first);
+        HGCTriggerHexDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
@@ -356,14 +345,13 @@ void HGCalTriggerBestChoiceMonitor::optimizedLoop(const edm::Event& e, const edm
         //  Best choice encoding
         begin_time = std::chrono::steady_clock::now();
         data.reset();
-        const auto& module_ptr = triggerGeometry_->modules().at(module_hits.first);
-        codec_->linearize(*module_ptr, dataframes, linearized_dataframes);
-        codec_->triggerCellSums(*module_ptr, linearized_dataframes, data);
+        codec_->linearize(dataframes, linearized_dataframes);
+        codec_->triggerCellSums(*triggerGeometry_, linearized_dataframes, data);
         codec_->bestChoiceSelect(data);
         end_time = std::chrono::steady_clock::now();
         module_processing_time_ = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time).count();
 
-        tree_optimized_loop_->Fill();
+        //tree_optimized_loop_->Fill();
 
     } //end loop on EE modules
     for( const auto& module_hits : hit_modules_fh ) 
@@ -372,7 +360,7 @@ void HGCalTriggerBestChoiceMonitor::optimizedLoop(const edm::Event& e, const edm
         run_    = e.id().run();
         lumi_   = e.luminosityBlock();
         event_  = e.id().event();
-        HGCalDetId moduleId(module_hits.first);
+        HGCTriggerHexDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
@@ -398,19 +386,18 @@ void HGCalTriggerBestChoiceMonitor::optimizedLoop(const edm::Event& e, const edm
         //  Best choice encoding
         begin_time = std::chrono::steady_clock::now();
         data.reset();
-        const auto& module_ptr = triggerGeometry_->modules().at(module_hits.first);
-        codec_->linearize(*module_ptr, dataframes, linearized_dataframes);
-        codec_->triggerCellSums(*module_ptr, linearized_dataframes, data);
+        codec_->linearize(dataframes, linearized_dataframes);
+        codec_->triggerCellSums(*triggerGeometry_, linearized_dataframes, data);
         codec_->bestChoiceSelect(data);
         end_time = std::chrono::steady_clock::now();
         module_processing_time_ = std::chrono::duration_cast<std::chrono::microseconds>(end_time - begin_time).count();
 
-        tree_optimized_loop_->Fill();
+        //tree_optimized_loop_->Fill();
 
     } //end loop on FH modules   
 
-
 }
+
 
 void HGCalTriggerBestChoiceMonitor::lightweightLoop(const edm::Event& e, const edm::EventSetup& es) 
 {
@@ -483,8 +470,7 @@ void HGCalTriggerBestChoiceMonitor::lightweightLoop(const edm::Event& e, const e
         //  Best choice encoding
         begin_time = std::chrono::steady_clock::now();
         data.reset();
-        const auto& cells_in_module = triggerLightweightGeometry_->getCellsFromModule(module_hits.first);
-        codec_->linearize(cells_in_module, dataframes, linearized_dataframes);
+        codec_->linearize(dataframes, linearized_dataframes);
         codec_->triggerCellSums(*triggerLightweightGeometry_, linearized_dataframes, data);
         codec_->bestChoiceSelect(data);
         end_time = std::chrono::steady_clock::now();
@@ -525,8 +511,7 @@ void HGCalTriggerBestChoiceMonitor::lightweightLoop(const edm::Event& e, const e
         //  Best choice encoding
         begin_time = std::chrono::steady_clock::now();
         data.reset();
-        const auto& cells_in_module = triggerLightweightGeometry_->getCellsFromModule(module_hits.first);
-        codec_->linearize(cells_in_module, dataframes, linearized_dataframes);
+        codec_->linearize(dataframes, linearized_dataframes);
         codec_->triggerCellSums(*triggerLightweightGeometry_, linearized_dataframes, data);
         codec_->bestChoiceSelect(data);
         end_time = std::chrono::steady_clock::now();

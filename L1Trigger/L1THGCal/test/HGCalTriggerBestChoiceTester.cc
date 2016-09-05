@@ -346,54 +346,52 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
     std::unordered_map<uint32_t, std::vector<HGCEEDataFrame>> hit_modules_ee;
     for(const auto& eedata : ee_digis)
     {
-        const auto& module = triggerGeometry_->getModuleFromCell(eedata.id());
-        auto itr_insert = hit_modules_ee.emplace(module->moduleId(),std::vector<HGCEEDataFrame>());
+        uint32_t module = triggerGeometry_->getModuleFromCell(eedata.id());
+        auto itr_insert = hit_modules_ee.emplace(module,std::vector<HGCEEDataFrame>());
         itr_insert.first->second.push_back(eedata);
     }
     std::unordered_map<uint32_t,std::vector<HGCHEDataFrame>> hit_modules_fh;
     for(const auto& fhdata : fh_digis)
     {
-        const auto& module = triggerGeometry_->getModuleFromCell(fhdata.id());
-        auto itr_insert = hit_modules_fh.emplace(module->moduleId(), std::vector<HGCHEDataFrame>());
+        uint32_t module = triggerGeometry_->getModuleFromCell(fhdata.id());
+        auto itr_insert = hit_modules_fh.emplace(module, std::vector<HGCHEDataFrame>());
         itr_insert.first->second.push_back(fhdata);
     }
     // loop on modules containing hits and call front-end processing
     for( const auto& module_hits : hit_modules_ee ) 
     {        
-        HGCalDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
         // loop over EE and fill digis belonging to that module
-        if(moduleId.subdetId()==ForwardSubdetector::HGCEE) 
+        for(const auto& eedata : module_hits.second)
         {
-            for(const auto& eedata : module_hits.second)
+            dataframes.emplace_back(eedata.id());
+            for(int i=0; i<eedata.size(); i++) 
             {
-                dataframes.emplace_back(eedata.id());
-                for(int i=0; i<eedata.size(); i++) 
-                {
-                    dataframes.back().setSample(i, eedata.sample(i));
-                }
-            }  
-        }
-        const auto& module_ptr = triggerGeometry_->modules().at(module_hits.first);
+                dataframes.back().setSample(i, eedata.sample(i));
+            }
+        }  
         // Association simhit energies with trigger cells
         std::unordered_map<uint32_t, double> TC_simhit_energies;
         if (is_Simhit_comp_) 
         {
-            for(const auto& tc_c : module_ptr->triggerCellComponents())
+            for(const auto& tc : triggerGeometry_->getTriggerCellsFromModule(module_hits.first))
             {
-                HGCalDetId triggercellid( tc_c.first );
+                HGCTriggerHexDetId triggercellid( tc );
                 uint32_t cellid = triggercellid.cell();
                 TC_simhit_energies.insert( std::make_pair(cellid, 0) );
-                double simenergy = simhit_energies[tc_c.second];
-                TC_simhit_energies[cellid]+=simenergy;
+                for(const auto& cell : triggerGeometry_->getCellsFromTriggerCell(tc))
+                {
+                    double simenergy = simhit_energies[cell];
+                    TC_simhit_energies[cellid]+=simenergy;
+                }
             }
         }
         //  Best choice encoding
         data.reset();
-        codec_->linearize(*module_ptr, dataframes, linearized_dataframes);
-        codec_->triggerCellSums(*module_ptr, linearized_dataframes, data);
+        codec_->linearize(dataframes, linearized_dataframes);
+        codec_->triggerCellSums(*triggerGeometry_, linearized_dataframes, data);
         HGCalBestChoiceDataPayload data_TCsums_woBestChoice = data;
         codec_->bestChoiceSelect(data);
         HGCalBestChoiceDataPayload data_TCsums_BestChoice = data;
@@ -404,40 +402,38 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
     } //end loop on EE modules
     for( const auto& module_hits : hit_modules_fh ) 
     {        
-        HGCalDetId moduleId(module_hits.first);
         // prepare input data
         std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
         std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
         // loop over FH digis and fill digis belonging to that module
-        if(moduleId.subdetId()==ForwardSubdetector::HGCHEF) 
+        for(const auto& fhdata : module_hits.second)
         {
-            for(const auto& fhdata : module_hits.second)
+            dataframes.emplace_back(fhdata.id());
+            for(int i=0; i<fhdata.size(); i++) 
             {
-                dataframes.emplace_back(fhdata.id());
-                for(int i=0; i<fhdata.size(); i++) 
-                {
-                    dataframes.back().setSample(i, fhdata.sample(i));
-                }
-            }  
-        }
-        const auto& module_ptr = triggerGeometry_->modules().at(module_hits.first);
+                dataframes.back().setSample(i, fhdata.sample(i));
+            }
+        }  
         // Association simhit energies with trigger cells
         std::unordered_map<uint32_t, double> TC_simhit_energies;
         if (is_Simhit_comp_) 
         {
-            for(const auto& tc_c : module_ptr->triggerCellComponents())
+            for(const auto& tc : triggerGeometry_->getTriggerCellsFromModule(module_hits.first))
             {
-                HGCalDetId triggercellid( tc_c.first );
+                HGCTriggerHexDetId triggercellid( tc );
                 uint32_t cellid = triggercellid.cell();
                 TC_simhit_energies.insert( std::make_pair(cellid, 0) );
-                double simenergy = simhit_energies[tc_c.second];
-                TC_simhit_energies[cellid]+=simenergy;
+                for(const auto& cell : triggerGeometry_->getCellsFromTriggerCell(tc))
+                {
+                    double simenergy = simhit_energies[cell];
+                    TC_simhit_energies[cellid]+=simenergy;
+                }
             }
         }
         //  Best choice encoding
         data.reset();
-        codec_->linearize(*module_ptr, dataframes, linearized_dataframes);
-        codec_->triggerCellSums(*module_ptr, linearized_dataframes, data);
+        codec_->linearize(dataframes, linearized_dataframes);
+        codec_->triggerCellSums(*triggerGeometry_, linearized_dataframes, data);
         HGCalBestChoiceDataPayload data_TCsums_woBestChoice = data;
         codec_->bestChoiceSelect(data);
         HGCalBestChoiceDataPayload data_TCsums_BestChoice = data;

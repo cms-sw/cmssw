@@ -16,7 +16,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
                      tdcOnsetfC = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcOnset_fC
                    )
 
-geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
+geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2'),
                      L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
                      L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
                      eeSDName = cms.string('HGCalEESensitive'),
