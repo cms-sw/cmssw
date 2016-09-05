@@ -87,8 +87,40 @@ namespace QIE8HeaderSpec{
   static const int OFFSET_CAPID = 8;
   static const int MASK_CAPID = 0x3;
   static const int OFFSET_FIBERERR = 10;
-  static const int MASK_FIBERERR = 0x2;
-  static const int OFFSET_FLAVOER = 12;
+  static const int MASK_FIBERERR = 0x3;
+  static const int OFFSET_FLAVOR = 12;
+  static const int MASK_FLAVOR = 0x7;
+  static const int OFFSET_HEADER_BIT = 15;
+  static const int MASK_HEADER_BIT = 0x1;
+}
+
+namespace QIE10HeaderSpec{
+  static const int OFFSET_FIBERCHAN = 0;
+  static const int MASK_FIBERCHAN = 0x7;
+  static const int OFFSET_FIBER = 3;
+  static const int MASK_FIBER = 0x1F;
+  static const int OFFSET_MP = 8; // mark-and-pass
+  static const int MASK_MP = 0x1;
+  static const int OFFSET_RESERV = 9; // reserved
+  static const int MASK_RESERV = 0x3;
+  static const int OFFSET_LE = 11; // link error
+  static const int MASK_LE = 0x1;
+  static const int OFFSET_FLAVOR = 12;
+  static const int MASK_FLAVOR = 0x7;
+  static const int OFFSET_HEADER_BIT = 15;
+  static const int MASK_HEADER_BIT = 0x1;
+}
+
+namespace QIE11HeaderSpec{
+  static const int OFFSET_FIBERCHAN = 0;
+  static const int MASK_FIBERCHAN = 0x7;
+  static const int OFFSET_FIBER = 3;
+  static const int MASK_FIBER = 0x1F;
+  static const int OFFSET_CAPID = 8;
+  static const int MASK_CAPID = 0x3;
+  static const int OFFSET_FIBERERR = 10;
+  static const int MASK_FIBERERR = 0x3;
+  static const int OFFSET_FLAVOR = 12;
   static const int MASK_FLAVOR = 0x7;
   static const int OFFSET_HEADER_BIT = 15;
   static const int MASK_HEADER_BIT = 0x1;
@@ -104,8 +136,8 @@ namespace TPHeaderSpec{
   static const int OFFSET_RESV = 8;
   static const int MASK_RESV = 0x3;
   static const int OFFSET_TPERR = 10;
-  static const int MASK_TPERR = 0x2;
-  static const int OFFSET_FLAVOER = 12;
+  static const int MASK_TPERR = 0x3;
+  static const int OFFSET_FLAVOR = 12;
   static const int MASK_FLAVOR = 0x7;
   static const int OFFSET_HEADER_BIT = 15;
   static const int MASK_HEADER_BIT = 0x1;
@@ -310,7 +342,7 @@ public:
      header |= ((fiber-1) & QIE8HeaderSpec::MASK_FIBER)<<QIE8HeaderSpec::OFFSET_FIBER;
      header |= (capid0 & QIE8HeaderSpec::MASK_CAPID)<<QIE8HeaderSpec::OFFSET_CAPID;
      header |= (fiberErr & QIE8HeaderSpec::MASK_FIBERERR)<<QIE8HeaderSpec::OFFSET_FIBERERR;
-     header |= (0x5 & QIE8HeaderSpec::MASK_FLAVOR)<<QIE8HeaderSpec::OFFSET_FLAVOER; //flavor
+     header |= (0x5 & QIE8HeaderSpec::MASK_FLAVOR)<<QIE8HeaderSpec::OFFSET_FLAVOR; //flavor
      header |= (0x1 & QIE8HeaderSpec::MASK_HEADER_BIT)<<QIE8HeaderSpec::OFFSET_HEADER_BIT;
 
      return header;
@@ -322,8 +354,42 @@ public:
      header |= (channelid & TPHeaderSpec::MASK_CHANID)<<TPHeaderSpec::OFFSET_CHANID;
      header |= (0x0 & TPHeaderSpec::MASK_RESV)<<TPHeaderSpec::OFFSET_RESV;
      header |= (0 & TPHeaderSpec::MASK_TPERR)<<TPHeaderSpec::OFFSET_TPERR;
-     header |= (0x4 & TPHeaderSpec::MASK_FLAVOR)<<TPHeaderSpec::OFFSET_FLAVOER; //flavor
+     header |= (0x4 & TPHeaderSpec::MASK_FLAVOR)<<TPHeaderSpec::OFFSET_FLAVOR; //flavor
      header |= (0x1 & TPHeaderSpec::MASK_HEADER_BIT)<<TPHeaderSpec::OFFSET_HEADER_BIT;
+
+     return header;
+  }
+
+  uint16_t packQIE10header(const HcalElectronicsId &eid){
+     uint16_t header =0;
+
+     int fiber = eid.fiberIndex();
+     int fiberchan = eid.fiberChanId();
+
+     header |= (fiberchan & QIE10HeaderSpec::MASK_FIBERCHAN)<<QIE10HeaderSpec::OFFSET_FIBERCHAN;
+     header |= (fiber & QIE10HeaderSpec::MASK_FIBER)<<QIE10HeaderSpec::OFFSET_FIBER;
+     header |= (0x0 & QIE10HeaderSpec::MASK_MP)<<QIE10HeaderSpec::OFFSET_MP;
+     header |= (0x0 & QIE10HeaderSpec::MASK_RESERV)<<QIE10HeaderSpec::OFFSET_RESERV;
+     header |= (0x0 & QIE10HeaderSpec::MASK_LE)<<QIE10HeaderSpec::OFFSET_LE;
+     header |= (0x2 & QIE10HeaderSpec::MASK_FLAVOR)<<QIE10HeaderSpec::OFFSET_FLAVOR; //flavor
+     header |= (0x1 & QIE10HeaderSpec::MASK_HEADER_BIT)<<QIE10HeaderSpec::OFFSET_HEADER_BIT;
+
+     return header;
+  }
+
+  uint16_t packQIE11header(const QIE11DataFrame &qiedf, const HcalElectronicsId &eid){
+     uint16_t header =0;
+
+     int fiber = eid.fiberIndex();
+     int fiberchan = eid.fiberChanId();
+     int capid0 = qiedf.samples() == 0? 0 : qiedf[0].capid(); // capacitor id for the first sample 
+
+     header |= (fiberchan & QIE11HeaderSpec::MASK_FIBERCHAN)<<QIE11HeaderSpec::OFFSET_FIBERCHAN;
+     header |= (fiber & QIE11HeaderSpec::MASK_FIBER)<<QIE11HeaderSpec::OFFSET_FIBER;
+     header |= (capid0 & QIE11HeaderSpec::MASK_CAPID)<<QIE8HeaderSpec::OFFSET_CAPID;
+     header |= (0x0 & QIE11HeaderSpec::MASK_FIBERERR)<<QIE8HeaderSpec::OFFSET_FIBERERR;
+     header |= (0x0 & QIE11HeaderSpec::MASK_FLAVOR)<<QIE11HeaderSpec::OFFSET_FLAVOR; //flavor
+     header |= (0x1 & QIE11HeaderSpec::MASK_HEADER_BIT)<<QIE11HeaderSpec::OFFSET_HEADER_BIT;
 
      return header;
   }
@@ -437,19 +503,35 @@ public:
     }// end loop over dataframe words
   };
 
-  void addChannel( int uhtrIndex , QIE11DataFrame qiedf , int verbosity = 0 ){ 
-    // loop over words in dataframe 
+  void addChannel( int uhtrIndex , QIE11DataFrame qiedf , const HcalElectronicsMap* readoutMap, int verbosity = 0 ){ 
+    DetId detid = qiedf.detid();
+    HcalElectronicsId eid(readoutMap->lookup(detid));
+    // loop over words in dataframe
     for(edm::DataFrame::iterator dfi=qiedf.begin() ; dfi!=qiedf.end(); ++dfi){      
-      if(dfi == qiedf.begin()) ++dfi; // hack to prevent double channel header
+      if( dfi >= qiedf.end()-QIE11DataFrame::FLAG_WORDS ){
+         continue;
+      }
+      if( dfi == qiedf.begin() && QIE11DataFrame::HEADER_WORDS == 1 ){
+         uint16_t header = packQIE11header(qiedf, eid);
+         uhtrs[uhtrIndex].push_back(header);
+         continue;
+      }
       // push data into uhtr data container
       uhtrs[uhtrIndex].push_back(dfi[0]);
     }// end loop over dataframe words
   };
 
-  void addChannel( int uhtrIndex , QIE10DataFrame qiedf , int verbosity = 0 ){ 
+  void addChannel( int uhtrIndex , QIE10DataFrame qiedf , const HcalElectronicsMap* readoutMap, int verbosity = 0 ){ 
+    DetId detid = qiedf.detid();
+    HcalElectronicsId eid(readoutMap->lookup(detid));
     // loop over words in dataframe 
     for(edm::DataFrame::iterator dfi=qiedf.begin() ; dfi!=qiedf.end(); ++dfi){      
       if( dfi >= qiedf.end()-QIE10DataFrame::FLAG_WORDS ){
+         continue;
+      }
+      if( dfi == qiedf.begin() && QIE10DataFrame::HEADER_WORDS == 1 ){
+         uint16_t header = packQIE10header(eid);
+         uhtrs[uhtrIndex].push_back(header);
          continue;
       }
       // push data into uhtr data container
