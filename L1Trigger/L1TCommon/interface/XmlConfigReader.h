@@ -42,11 +42,12 @@ class XmlConfigReader {
   const XMLCh* kTagProcessor;
   const XMLCh* kTagRole;
   const XMLCh* kTagCrate;
+  const XMLCh* kTagDaqTtc;
   const XMLCh* kAttrId;
   const XMLCh* kAttrType;
   const XMLCh* kAttrDelim;
   const XMLCh* kAttrModule;
-  std::string kTypeTable;
+  const std::string kTypeTable;
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
