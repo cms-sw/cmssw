@@ -205,7 +205,8 @@ void BPHDecayMomentum::clonesList( const map<string,Component>& daugMap ) {
     compList.push_back( comp );
     // clone particle and store it with its name
     dList[i] = dnew = cand->clone();
-    dMap[nList[i++] = entry.first] = dnew;
+    const string& name = nList[i++] = entry.first;
+    dMap[name] = dnew;
     clonesMap[dnew] = cand;
     // set daughter mass if requested
     mass = comp.mass;

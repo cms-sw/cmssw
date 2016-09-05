@@ -19,6 +19,7 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -147,10 +148,7 @@ bool BPHPlusMinusCandidate::isSailor() const {
 bool BPHPlusMinusCandidate::phiDiff() const {
   const vector<const reco::Candidate*>& dL = daughters();
   int idPos = ( dL.front()->charge() > 0 ? 0 : 1 );
-  double dphi = dL[idPos]->phi() - dL[1 - idPos]->phi();
-  double TWO_PI = 2 * M_PI;
-  while ( dphi >  M_PI ) dphi -= TWO_PI;
-  while ( dphi < -M_PI ) dphi += TWO_PI;
-  return dphi > 0;
+  return reco::deltaPhi( dL[    idPos]->phi(),
+                         dL[1 - idPos]->phi() ) > 0;
 }
 
