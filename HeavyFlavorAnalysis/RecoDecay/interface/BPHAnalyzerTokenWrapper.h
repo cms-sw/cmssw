@@ -47,10 +47,16 @@ template<class T>
 class BPHAnalyzerWrapper: public T {
  protected:
   template<class Obj>
-  void consume( BPHTokenWrapper<Obj>& token,
+  void consume( BPHTokenWrapper<Obj>& tw,
                 const std::string& label ) {
     edm::InputTag tag( label );
-    token.token = this->template consumes<Obj>( tag );
+    tw.token = this->template consumes<Obj>( tag );
+    return;
+  }
+  template<class Obj>
+  void consume( BPHTokenWrapper<Obj>& tw,
+                const edm::InputTag& tag ) {
+    tw.token = this->template consumes<Obj>( tag );
     return;
   }
 };
