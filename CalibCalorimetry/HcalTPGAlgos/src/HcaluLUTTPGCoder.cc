@@ -301,7 +301,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             for (unsigned int adc = 0; adc < UPGRADE_LUT_SIZE; ++adc) {
                upgradeFrame.setSample(0, adc, 0, true);
                coder.adc2fC(upgradeFrame, upgradeSamples);
-               float adc2fC = samples[0];
+               float adc2fC = upgradeSamples[0];
 
                if (isMasked)
                   upgradeQIE11LUT_[lutId][adc] = 0;
