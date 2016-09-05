@@ -5,6 +5,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "CaloCollections.h"
+#include "L1TStage2Layer2Constants.h"
 
 namespace l1t {
    namespace stage2 {
@@ -24,11 +25,12 @@ namespace stage2 {
    {
 
      // check this is the correct MP
-     unsigned int amc  = block.amc().getAMCNumber();
+     unsigned int tmt  = block.amc().getBoardID() - l1t::stage2::layer2::mp::offsetBoardId + 1;
      unsigned int bxid = block.amc().getBX();
-     //     if( (amc-1) != ((bxid-1)%9) ) return true;
-     if( (amc-1) != ((bxid-1+3)%9) ) return true;    // temporary measure !
-     LogDebug("L1T") << "Unpacking AMC " << amc << " for BX " << bxid;
+
+     // handle offset between BC0 marker and actual BC0...
+     if( (tmt-1) != ((bxid-1+3)%9) ) return true;
+     LogDebug("L1T") << "Unpacking TMT # " << tmt << " for BX " << bxid;
 
      // Link number is block_ID / 2
      unsigned link = block.header().getID()/2;
