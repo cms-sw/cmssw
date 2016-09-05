@@ -1,7 +1,6 @@
-#include "FWCore/Framework/interface/one/EDProducerBase.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "PackingSetupFactory.h"
 
-#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 EDM_REGISTER_PLUGINFACTORY(l1t::PackingSetupFactoryT,"PackingSetupFactory");
 

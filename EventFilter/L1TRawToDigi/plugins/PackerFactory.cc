@@ -1,7 +1,6 @@
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "PackerFactory.h"
 
-#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 EDM_REGISTER_PLUGINFACTORY(l1t::PackerFactoryT,"PackerFactory");
 

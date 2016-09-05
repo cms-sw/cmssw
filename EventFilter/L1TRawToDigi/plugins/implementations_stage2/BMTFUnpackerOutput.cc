@@ -1,3 +1,5 @@
+#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 
 #include "BMTFUnpackerOutput.h"
