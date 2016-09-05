@@ -25,8 +25,7 @@ bool PTFilterHook::checkVetoPT( int iPos, const Pythia8::Event& event) {
   //look for quark
   for (int i = 0; i < event.size(); ++i) {
     if ( (abs(event[i].id()) == quark_ ) && ( abs(event[i].y()) <= quarkY_ ) ) {
-       double pT = sqrt(pow(event[i].px(),2) + pow(event[i].py(),2));
-       if (pT >= quarkPt_) { 
+       if (event[i].pT() >= quarkPt_) { 
           foundQuark = true;
           break;
        }
