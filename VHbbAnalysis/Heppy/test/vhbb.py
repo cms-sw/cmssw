@@ -397,6 +397,7 @@ TrigAna = cfg.Analyzer(
     class_object = TriggerBitAnalyzer,
     triggerBits = triggerTable,  #default is MC, use the triggerTableData in -data.py files
    processName = 'HLT',
+   fallbackProcessName = 'HLT2',
 #   outprefix = 'HLT'
    )
 
@@ -491,7 +492,7 @@ sample = cfg.MCComponent(
 #/store/mc/RunIISpring16MiniAODv2/GluGluToBulkGravitonToHHTo4B_M-550_narrow_13TeV-madgraph/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v2/90000/4E40D2E2-9E3A-E611-8C5B-00259081FB18.root"
 		"root://stormgf1.pi.infn.it:1094//store/mc/RunIISpring16MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext4-v1/00000/E8090432-8628-E611-8713-001EC9ADFDC9.root",
 		#"root://t3dcachedb.psi.ch:1094///pnfs/psi.ch/cms/trivcat/store/mc/RunIISpring16MiniAODv2/WW_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/0AF21AF1-121B-E611-B652-549F35AE4F88.root"
-		],
+                ],
     #files = ["226BB247-A565-E411-91CF-00266CFF0AF4.root"],
     name="ZHLL125", isEmbed=False,
     puFileMC="puMC.root",
@@ -512,21 +513,6 @@ config = cfg.Config( components = selectedComponents,
                      sequence = sequence, 
 		     services = [output_service],
                      events_class = Events)
-
-
-def fix_reHLT(config):
-    for ic in range(len(config.sequence)):
-        obj = config.sequence[ic]
-        
-        if obj.class_object.__name__ == "TriggerBitAnalyzer" and obj.processName == "HLT":
-            obj.processName = "HLT2"
-        
-        if obj.class_object.__name__ == "TriggerObjectsAnalyzer" and obj.triggerBitsInputTag == ('TriggerResults','','HLT'):
-            obj.triggerBitsInputTag = ('TriggerResults','','HLT2')
-
-if "reHLT" in sample.files[0]:
-    fix_reHLT(config)
-    
 
 class TestFilter(logging.Filter):
     def filter(self, record):
