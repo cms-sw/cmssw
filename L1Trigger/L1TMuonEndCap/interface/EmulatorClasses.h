@@ -4,7 +4,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 #include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
 
-
+using namespace L1TMuon;
 
 typedef std::vector<std::vector<PhiMemoryImage>> ImageCollector;
 typedef std::vector<std::vector<int>> Code;
