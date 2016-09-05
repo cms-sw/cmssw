@@ -1,6 +1,8 @@
 #define EDM_ML_DEBUG 1
 
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 

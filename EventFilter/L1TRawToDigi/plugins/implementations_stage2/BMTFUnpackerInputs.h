@@ -20,6 +20,3 @@ namespace l1t{
 
 	}
 }
-
-// moved to plugins/SealModule.cc
-// DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerInputs);
