@@ -35,12 +35,14 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
     }
 
     std::array<unsigned int, OUTPUT_LUT_SIZE> analyticalLUT;
+    std::array<unsigned int, OUTPUT_LUT_SIZE> analyticalUpgradeLUT;
     std::array<unsigned int, OUTPUT_LUT_SIZE> linearRctLUT;
     std::array<unsigned int, OUTPUT_LUT_SIZE> linearNctLUT;
 
     // Compute compression LUT
     for (unsigned int i=0; i < OUTPUT_LUT_SIZE; i++) {
 	analyticalLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
+	analyticalUpgradeLUT[i] = (unsigned int)(sqrt(5.32*log(1.+i/5.32)*i) + 0.5);
 	linearRctLUT[i] = min((unsigned int)(i/rct_factor_), TPGMAX - 1);
 	linearNctLUT[i] = min((unsigned int)(i/nct_factor_), TPGMAX - 1);
     }
@@ -69,10 +71,19 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 	int version=id.version();
 	bool isHBHE = (abs(ieta) < theTrigTowerGeometry.firstHFTower(version)); 
 
+        unsigned int lutsize = getOutputLUTSize(id);
+
 	for (unsigned int i = 0; i < threshold; ++i) outputLUT_[index][i] = 0;
-	for (unsigned int i = threshold; i < getOutputLUTSize(id); ++i){
-	    LUT value =  isHBHE ? analyticalLUT[i] : (version==0?linearRctLUT[i]:linearNctLUT[i]);
-	    outputLUT_[index][i] = value;
+	for (unsigned int i = threshold; i < lutsize; ++i){
+           LUT value;
+           if (isHBHE and lutsize == QIE8_OUTPUT_LUT_SIZE) {
+              value = analyticalLUT[i];
+           } else if (isHBHE) {
+              value = analyticalUpgradeLUT[i];
+           } else {
+              value = version == 0 ? linearRctLUT[i] : linearNctLUT[i];
+           }
+           outputLUT_[index][i] = value;
         }
 
 	double eta_low = 0., eta_high = 0.;
