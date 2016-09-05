@@ -1,7 +1,7 @@
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
-import das_client
+import Utilities.General.cmssw_das_client as das_client
 import json
 import os
 import bisect
@@ -337,8 +337,7 @@ class Dataset:
         return forcerunrangefunction
 
     def __getData( self, dasQuery, dasLimit = 0 ):
-        dasData = das_client.get_data( 'https://cmsweb.cern.ch',
-                                       dasQuery, 0, dasLimit, False )
+	dasData = das_client.get_data(dasQuery, dasLimit)
         if isinstance(dasData, str):
             jsondict = json.loads( dasData )
         else:
@@ -349,7 +348,10 @@ class Dataset:
         except KeyError:
             error = None
         if error or self.__findInJson(jsondict,"status") != 'ok' or "data" not in jsondict:
-            jsonstr = str(jsondict)
+            try:
+                jsonstr = self.__findInJson(jsondict,"reason")
+            except KeyError: 
+                jsonstr = str(jsondict)
             if len(jsonstr) > 10000:
                 jsonfile = "das_query_output_%i.txt"
                 i = 0

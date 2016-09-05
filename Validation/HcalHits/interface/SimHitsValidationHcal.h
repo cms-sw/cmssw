@@ -31,7 +31,7 @@ public:
 
   SimHitsValidationHcal(const edm::ParameterSet& ps);
   ~SimHitsValidationHcal();
-
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 protected:
 

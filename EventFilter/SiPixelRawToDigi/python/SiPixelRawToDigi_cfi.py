@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 import EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi
 
 siPixelDigis = EventFilter.SiPixelRawToDigi.siPixelRawToDigi_cfi.siPixelRawToDigi.clone()
@@ -17,3 +18,5 @@ siPixelDigis.UsePhase1 = cms.bool(False)
 ## Empty Regions PSet means complete unpacking
 siPixelDigis.Regions = cms.PSet( ) 
 siPixelDigis.CablingMapLabel = cms.string("")
+
+eras.phase1Pixel.toModify(siPixelDigis, UsePhase1=True)

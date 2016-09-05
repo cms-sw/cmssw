@@ -35,13 +35,9 @@ namespace edm {
                       ModuleCallingContext const* mcc) {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
-      e.setSharedResourcesAcquirer(&resourceAcquirer_);
-      EventSignalsSentry sentry(act,mcc);
-      this->analyze(e, c);
-    }
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    this->analyze(e, c);
     return true;
   }
 

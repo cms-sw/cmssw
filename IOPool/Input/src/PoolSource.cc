@@ -81,13 +81,17 @@ namespace edm {
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches")),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC")),
     runHelper_(makeRunHelper(pset)),
-    resourceSharedWithDelayedReaderPtr_(new SharedResourcesAcquirer{SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()}),
+    resourceSharedWithDelayedReaderPtr_(),
     // Note: primaryFileSequence_ and secondaryFileSequence_ need to be initialized last, because they use data members
     // initialized previously in their own initialization.
     primaryFileSequence_(new RootPrimaryFileSequence(pset, *this, catalog_)),
     secondaryFileSequence_(secondaryCatalog_.empty() ? nullptr :
                            new RootSecondaryFileSequence(pset, *this, secondaryCatalog_))
   {
+    auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
+    resourceSharedWithDelayedReaderPtr_ = std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
+    mutexSharedWithDelayedReader_ = resources.second;
+    
     if (secondaryCatalog_.empty() && pset.getUntrackedParameter<bool>("needSecondaryFileNames", false)) {
       throw Exception(errors::Configuration, "PoolSource") << "'secondaryFileNames' must be specified\n";
     }
@@ -274,9 +278,9 @@ namespace edm {
     primaryFileSequence_->closeFile_();
   }
 
-  SharedResourcesAcquirer*
+  std::pair<SharedResourcesAcquirer*,std::recursive_mutex*>
   PoolSource::resourceSharedWithDelayedReader_() {
-    return resourceSharedWithDelayedReaderPtr_.get();
+    return std::make_pair(resourceSharedWithDelayedReaderPtr_.get(), mutexSharedWithDelayedReader_.get());
   }
 
   // Rewind to before the first event that was read.

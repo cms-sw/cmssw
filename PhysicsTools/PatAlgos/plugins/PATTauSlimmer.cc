@@ -74,7 +74,7 @@ pat::PATTauSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
     if (linkToPackedPF_) iEvent.getByToken(pf2pc_, pf2pc);
 
-    auto_ptr<vector<pat::Tau> >  out(new vector<pat::Tau>());
+    auto out = std::make_unique<std::vector<pat::Tau>>();
     out->reserve(src->size());
 
     if( modifyTau_ ) { tauModifier_->setEvent(iEvent); }
@@ -136,7 +136,7 @@ pat::PATTauSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

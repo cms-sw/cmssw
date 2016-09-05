@@ -40,7 +40,7 @@
 // forward declarations
 namespace  {
    struct TypeID : public edm::TypeIDBase {
-      explicit TypeID(const type_info& iInfo): edm::TypeIDBase(iInfo) {}
+      explicit TypeID(const std::type_info& iInfo): edm::TypeIDBase(iInfo) {}
       TypeID() {}
       using TypeIDBase::typeInfo;
    };

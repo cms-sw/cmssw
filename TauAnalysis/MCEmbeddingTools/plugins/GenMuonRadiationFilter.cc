@@ -142,8 +142,7 @@ bool GenMuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
     if ( invert_ != isMuonRadiation ) return false; // reject events with muon -> muon + photon radiation
     else return true;
   } else {
-    std::auto_ptr<bool> filter_result(new bool(invert_ != !isMuonRadiation));
-    evt.put(filter_result);
+    evt.put(std::make_unique<bool>(invert_ != !isMuonRadiation));
     return true;
   }
 }

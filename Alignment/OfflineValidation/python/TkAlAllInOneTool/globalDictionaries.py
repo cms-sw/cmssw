@@ -3,3 +3,5 @@ usedDatasets = {}
 
 # Needed for more than one geometry comparison for one alignment
 alignRandDict = {}
+
+plottingOptions = {}

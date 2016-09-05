@@ -475,7 +475,7 @@ Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
 #
 # Emittance has been calculated to match a BeamWidht of O(10um) with: https://lpc.web.cern.ch/lumi2.html
 #
-Realistic25ns13TeVCollisionBetaStar90mVtxSmearingParameters = cms.PSet(
+Realistic100ns13TeVCollisionBetaStar90mVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(9121.0),
     Emittance = cms.double(0.12e-7),
@@ -500,7 +500,7 @@ Realistic25ns13TeVCollisionBetaStar90mVtxSmearingParameters = cms.PSet(
 #
 # Emittance has been calculated to match a BeamWidht of O(10um) with: https://lpc.web.cern.ch/lumi2.html
 #
-Realistic25ns13TeVCollisionBetaStar90mLowBunchesVtxSmearingParameters = cms.PSet(
+Realistic100ns13TeVCollisionBetaStar90mLowBunchesVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(9121.0),
     Emittance = cms.double(0.12e-7),

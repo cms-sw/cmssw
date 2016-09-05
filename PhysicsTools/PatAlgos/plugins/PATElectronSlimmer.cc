@@ -108,7 +108,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     }
     noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
-    auto_ptr<vector<pat::Electron> >  out(new vector<pat::Electron>());
+    auto out = std::make_unique<std::vector<pat::Electron>>();
     out->reserve(src->size());
 
     if( modifyElectron_ ) { electronModifier_->setEvent(iEvent); }
@@ -158,7 +158,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

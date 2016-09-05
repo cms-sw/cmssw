@@ -18,3 +18,11 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
     LoadTemplatesFromDB = cms.bool(True)
 
 )
+
+# This customization will be removed once we get the templates for phase2 pixel
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_tracker.toModify(templates,
+  LoadTemplatesFromDB = False,
+  DoLorentz = False,
+)
+

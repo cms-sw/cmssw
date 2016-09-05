@@ -49,14 +49,17 @@ class TPTask : public hcaldqm::DQTask
 			fFGMsm=1,
 			fDataMsn=2,
 			fEmulMsn=3,
-			nTPFlag=4
+			fUnknownIds=4,
+			nTPFlag=5
 		};
 
 		//	switches/cuts/etc...
 		bool _skip1x1;
 		int _cutEt;
-		double _thresh_EtMsmRate,_thresh_FGMsmRate,_thresh_DataMsn,
-			_thresh_EmulMsn;
+		double _thresh_EtMsmRate_high, _thresh_EtMsmRate_low,
+			_thresh_FGMsmRate_high, _thresh_FGMsmRate_low,
+			_thresh_DataMsn, _thresh_EmulMsn;
+		std::vector<bool> _vFGBitsReady;
 
 		//	hashes/FEDs vectors
 		std::vector<uint32_t> _vhashFEDs;
@@ -75,11 +78,12 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cEtEmul_TTSubdet;
 		hcaldqm::Container2D	_cEtCorr_TTSubdet;
 		hcaldqm::Container2D _cEtCorr2x3_TTSubdet;	//	online only
-		hcaldqm::Container2D _cFGCorr_TTSubdet;
+		hcaldqm::Container2D _cFGCorr_TTSubdet[hcaldqm::constants::NUM_FGBITS];
 		hcaldqm::ContainerProf1D _cEtCutDatavsLS_TTSubdet;	// online only!
 		hcaldqm::ContainerProf1D _cEtCutEmulvsLS_TTSubdet;	// online only!
 		hcaldqm::ContainerProf1D _cEtCutDatavsBX_TTSubdet;	// online only!
 		hcaldqm::ContainerProf1D _cEtCutEmulvsBX_TTSubdet;	// online only!
+
 		hcaldqm::ContainerProf2D _cEtData_ElectronicsVME;
 		hcaldqm::ContainerProf2D _cEtData_ElectronicsuTCA;
 		hcaldqm::ContainerProf2D _cEtEmul_ElectronicsVME;
@@ -103,6 +107,7 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cOccupancyData_ElectronicsuTCA;
 		hcaldqm::Container2D _cOccupancyEmul_ElectronicsVME;
 		hcaldqm::Container2D _cOccupancyEmul_ElectronicsuTCA;
+		
 		hcaldqm::Container2D _cOccupancyCutData_ElectronicsVME;
 		hcaldqm::Container2D _cOccupancyCutData_ElectronicsuTCA;
 		hcaldqm::Container2D _cOccupancyCutEmul_ElectronicsVME;
@@ -157,6 +162,11 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cOccupancyEmulvsLS_TTSubdet;	// online only
 		hcaldqm::ContainerProf1D _cOccupancyCutDatavsLS_TTSubdet;	// online only
 		hcaldqm::ContainerProf1D _cOccupancyCutEmulvsLS_TTSubdet; // online only
+
+		//	track unknown ids
+		MonitorElement *meUnknownIds1LS;
+		bool _unknownIdsPresent;
+
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xEtMsm, _xFGMsm, _xNumCorr,

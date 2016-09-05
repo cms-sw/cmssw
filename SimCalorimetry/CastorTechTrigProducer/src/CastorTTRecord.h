@@ -1,14 +1,14 @@
 #ifndef CastorTechTrigProducer_CastorTTRecord_h
 #define CastorTechTrigProducer_CastorTTRecord_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class CastorTTRecord : public edm::EDProducer
+class CastorTTRecord : public edm::one::EDProducer<>
 {
 public:
 

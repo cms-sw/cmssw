@@ -1,10 +1,12 @@
 #ifndef ContainerS_h
 #define ContainerS_h
+
 #include "DQM/HcalCommon/interface/Container.h"
 #include "DQM/HcalCommon/interface/Constants.h"
 
 namespace hcaldqm
 {
+	using namespace constants;
 	class ContainerS : public Container
 	{
 		public:

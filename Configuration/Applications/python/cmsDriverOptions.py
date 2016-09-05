@@ -249,16 +249,10 @@ def OptionsFromItems(items):
             if not hasattr( eras, eraName ) : # Not valid, so print a helpful message
                 validOptions="" # Create a stringified list of valid options to print to the user
                 for key in eras.__dict__ :
-                    if eras.internalUseEras.count(getattr(eras,key)) > 0 : continue # Don't tell the user about things they should leave alone
                     if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
                         if validOptions!="" : validOptions+=", " 
                         validOptions+="'"+key+"'"
                 raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (eraName, validOptions) )
-        # Warn the user if they are explicitly setting an era that should be
-        # set automatically by the ConfigBuilder.
-        for eraName in requestedEras : # Same loop, but had to make sure all the names existed first
-            if eras.internalUseEras.count(getattr(eras,eraName)) > 0 :
-                print "WARNING: You have explicitly set '"+eraName+"' with the '--era' command. That is usually reserved for internal use only."
     # If the "--fast" option was supplied automatically enable the fastSim era
     if options.fast :
         if options.era:

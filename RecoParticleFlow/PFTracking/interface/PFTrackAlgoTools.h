@@ -1,3 +1,4 @@
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 namespace PFTrackAlgoTools  {
 
@@ -13,4 +14,10 @@ namespace PFTrackAlgoTools  {
   bool highQuality(const reco::TrackBase::TrackAlgorithm&);
   bool step45(const reco::TrackBase::TrackAlgorithm&);
   bool step5(const reco::TrackBase::TrackAlgorithm&);
+
+  bool goodPtResolution(const reco::TrackRef&, 
+			const std::vector<double>& DPtovPtCut,
+			const std::vector<unsigned>& NHitCut,
+			bool useIterTracking,
+			bool debug = false);
 }

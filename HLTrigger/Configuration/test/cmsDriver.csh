@@ -12,10 +12,14 @@ rehash
 
 #
 # gen sim input files for Monte-Carlo tests
-set InputGenSimGRun0 = /store/relval/CMSSW_8_0_11/RelValProdTTbar/GEN-SIM/80X_mcRun1_realistic_v4-v1/10000/06A6C86B-C634-E611-93A5-0CC47A74525A.root
-set InputGenSimGRun1 = /store/relval/CMSSW_8_0_11/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v14-v1/10000/26082E8A-8835-E611-9F71-0025905B861C.root
-set InputGenSimGRun2 = /store/relval/CMSSW_8_0_11/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v14-v1/10000/26082E8A-8835-E611-9F71-0025905B861C.root
-set InputGenSimHIon1 = /store/relval/CMSSW_7_6_0_pre6/RelValZEEMM_13_HI/GEN-SIM/76X_mcRun2_HeavyIon_v4-v1/00000/EA469164-6A69-E511-A361-008CFA008768.root
+#   InputGenSimGRun0 = /store/relval/CMSSW_8_0_11/RelValProdTTbar/GEN-SIM/80X_mcRun1_realistic_v4-v1/10000/06A6C86B-C634-E611-93A5-0CC47A74525A.root
+set InputGenSimGRun0 = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06A6C86B-C634-E611-93A5-0CC47A74525A.root
+#   InputGenSimGRun1 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
+set InputGenSimGRun1 = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
+#   InputGenSimGRun2 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
+set InputGenSimGRun2 = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
+#   InputGenSimHIon1 = /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
+set InputGenSimHIon1 = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/F8FC5F64-1657-E611-A57E-002590A887F0.root
 set InputGenSimPIon2 = $InputGenSimGRun2
 set InputGenSimPRef2 = $InputGenSimGRun2
 #

@@ -58,7 +58,7 @@ void TrackMixerBase::produceTracks(edm::Event& evt, const edm::EventSetup& es)
 		<< " #entries = " << trackCollection2->size() << std::endl;
     }
 
-    std::auto_ptr<reco::TrackCollection> trackCollection_output(new reco::TrackCollection());
+    std::unique_ptr<reco::TrackCollection> trackCollection_output(new reco::TrackCollection());
 
     reco::TrackRefProd trackCollectionRefProd_output = evt.getRefBeforePut<reco::TrackCollection>(todoItem->srcTrackCollection1_.instance());
     size_t idxTrack_output = 0;
@@ -91,6 +91,6 @@ void TrackMixerBase::produceTracks(edm::Event& evt, const edm::EventSetup& es)
       }
     }  
 
-    evt.put(trackCollection_output, todoItem->srcTrackCollection1_.instance());
+    evt.put(std::move(trackCollection_output), todoItem->srcTrackCollection1_.instance());
   }
 }

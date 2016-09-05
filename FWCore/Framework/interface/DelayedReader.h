@@ -11,6 +11,7 @@ uses input sources to retrieve EDProducts from external storage.
 #include "DataFormats/Common/interface/WrapperBase.h"
 
 #include <memory>
+#include <mutex>
 
 namespace edm {
 
@@ -29,24 +30,25 @@ namespace edm {
     virtual ~DelayedReader();
     std::unique_ptr<WrapperBase> getProduct(BranchKey const& k,
                                             EDProductGetter const* ep,
-                                            signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preReadFromSourceSignal = nullptr,
-                                            signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postReadFromSourceSignal = nullptr,
                                             ModuleCallingContext const* mcc = nullptr);
 
     void mergeReaders(DelayedReader* other) {mergeReaders_(other);}
     void reset() {reset_();}
     
-    SharedResourcesAcquirer* sharedResources() const {
+    std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources() const {
       return sharedResources_();
     }
     
-    
+
     
   private:
     virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) = 0;
     virtual void mergeReaders_(DelayedReader*) = 0;
     virtual void reset_() = 0;
-    virtual SharedResourcesAcquirer* sharedResources_() const;
+    virtual std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const;
+    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const = 0;
+    virtual signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const = 0;
+
   };
 }
 

@@ -15,7 +15,7 @@ class Herwig6PartonSelector : public BasePartonSelector
     virtual ~Herwig6PartonSelector();
 
     void run(const edm::Handle<reco::GenParticleCollection> & particles,
-             std::auto_ptr<reco::GenParticleRefVector> & partons);
+             std::unique_ptr<reco::GenParticleRefVector> & partons);
 };
 
 #endif

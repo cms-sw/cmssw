@@ -89,7 +89,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   edm::LogVerbatim("PartonSelector") << "=== GenParticle size:" << particles->size();
   int nPart=0;
 
-  auto_ptr<GenParticleRefVector> thePartons ( new GenParticleRefVector);
+  auto thePartons = std::make_unique<GenParticleRefVector>();
 
   for (size_t m = 0; m < particles->size(); m++) {
 
@@ -152,7 +152,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   }
 
   edm::LogVerbatim("PartonSelector") << "=== GenParticle selected:" << nPart;
-  iEvent.put( thePartons );
+  iEvent.put(std::move(thePartons) );
 
 }
 

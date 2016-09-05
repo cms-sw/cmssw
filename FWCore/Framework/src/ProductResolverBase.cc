@@ -38,6 +38,11 @@ namespace edm {
   }
 
   void
+  ProductResolverBase::retrieveAndMerge_(Principal const& principal) const {
+  }
+
+  
+  void
   ProductResolverBase::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the
     // first pass.

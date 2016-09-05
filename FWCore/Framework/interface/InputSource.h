@@ -56,6 +56,7 @@ Some examples of InputSource subclasses may be:
 #include <memory>
 #include <string>
 #include <chrono>
+#include <mutex>
 
 namespace edm {
   class ActivityRegistry;
@@ -68,6 +69,7 @@ namespace edm {
   class ProcessHistoryRegistry;
   class ProductRegistry;
   class StreamContext;
+  class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class ThinnedAssociationsHelper;
   namespace multicore {
@@ -189,7 +191,7 @@ namespace edm {
     }
     
     /// Returns nullptr if no resource shared between the Source and a DelayedReader
-    SharedResourcesAcquirer* resourceSharedWithDelayedReader();
+    std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader();
 
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
@@ -341,6 +343,10 @@ namespace edm {
       bool usedFallback_;
     };
 
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preEventReadFromSourceSignal_;
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postEventReadFromSourceSignal_;
+    
+
   protected:
     virtual void skip(int offset);
 
@@ -417,7 +423,7 @@ namespace edm {
     virtual void endRun(Run&);
     virtual void beginJob();
     virtual void endJob();
-    virtual SharedResourcesAcquirer* resourceSharedWithDelayedReader_();
+    virtual std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_();
 
     virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource>);

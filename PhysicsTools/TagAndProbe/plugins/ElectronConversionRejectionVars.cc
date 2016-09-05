@@ -113,34 +113,34 @@ ElectronConversionRejectionVars::produce(edm::Event & iEvent, const edm::EventSe
 
 
     // convert into ValueMap and store
-    std::auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+    auto valMap = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler(*valMap);
     filler.insert(probes, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, "dist");
+    iEvent.put(std::move(valMap), "dist");
 
 
     // ---> same for dcot
-    std::auto_ptr<ValueMap<float> > valMap2(new ValueMap<float>());
+    auto valMap2 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler2(*valMap2);
     filler2.insert(probes, values2.begin(), values2.end());
     filler2.fill();
-    iEvent.put(valMap2, "dcot");
+    iEvent.put(std::move(valMap2), "dcot");
 
     // ---> same for convradius
-    std::auto_ptr<ValueMap<float> > valMap3(new ValueMap<float>());
+    auto valMap3 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler3(*valMap3);
     filler3.insert(probes, values3.begin(), values3.end());
     filler3.fill();
-    iEvent.put(valMap3, "convradius");
+    iEvent.put(std::move(valMap3), "convradius");
 
 
     // ---> same for passConvRej
-    std::auto_ptr<ValueMap<float> > valMap4(new ValueMap<float>());
+    auto valMap4 = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler4(*valMap4);
     filler4.insert(probes, values4.begin(), values4.end());
     filler4.fill();
-    iEvent.put(valMap4, "passConvRej");
+    iEvent.put(std::move(valMap4), "passConvRej");
 }
 
 

@@ -43,6 +43,8 @@ class HGCalTriggerFECodecBase {
                               const HGCEEDigiCollection&,
                               const HGCHEDigiCollection&,
                               const HGCHEDigiCollection& ) = 0;
+  virtual void setDataPayload(const Module& ,
+                              const l1t::HGCFETriggerDigi&) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
   virtual std::vector<bool> getDataPayload() const = 0;
@@ -50,7 +52,7 @@ class HGCalTriggerFECodecBase {
   // abstract interface to manipulating l1t::HGCFETriggerDigis
   // these will yell at you if you haven't set the data in the Codec class
   virtual void encode(l1t::HGCFETriggerDigi&) = 0;
-  virtual void decode(l1t::HGCFETriggerDigi&) = 0;
+  virtual void decode(const l1t::HGCFETriggerDigi&) = 0;
   virtual void print(const l1t::HGCFETriggerDigi& digi,
                      std::ostream& out = std::cout) const = 0;
 
@@ -80,7 +82,7 @@ namespace HGCalTriggerFE {
       }
       digi.encode(static_cast<const Impl&>(*this),data_);      
     }
-    virtual void decode(l1t::HGCFETriggerDigi& digi) override final {
+    virtual void decode(const l1t::HGCFETriggerDigi& digi) override final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "
@@ -100,6 +102,17 @@ namespace HGCalTriggerFE {
           << this->name() << " overwriting current data!";
       }
       static_cast<Impl&>(*this).setDataPayloadImpl(mod,ee,fh,bh);
+      dataIsSet_ = true;
+    }
+
+    virtual void setDataPayload(const Module& mod, 
+                              const l1t::HGCFETriggerDigi& digi) override final {
+      if( dataIsSet_ ) {
+        edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
+          << "Data payload was already set for HGCTriggerFECodec: "
+          << this->name() << " overwriting current data!";
+      }
+      static_cast<Impl&>(*this).setDataPayloadImpl(mod,digi);
       dataIsSet_ = true;
     }
 

@@ -360,8 +360,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   std::sort(patMuons->begin(), patMuons->end(), pTComparator_);
 
   // put genEvt object in Event
-  std::auto_ptr<std::vector<Muon> > ptr(patMuons);
-  iEvent.put(ptr);
+  std::unique_ptr<std::vector<Muon> > ptr(patMuons);
+  iEvent.put(std::move(ptr));
 
   if (isolator_.enabled()) isolator_.endEvent();
 }

@@ -12,7 +12,7 @@ Original Author: John Paul Chou (Brown University)
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEIsolatedNoiseAlgos.h"
 
 
@@ -32,6 +32,7 @@ class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > tok_trackExt_;
+  const HcalFrontEndMap *hfemap;
 
   double LooseHcalIsol_;
   double LooseEcalIsol_;

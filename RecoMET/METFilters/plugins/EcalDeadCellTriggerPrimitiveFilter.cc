@@ -672,32 +672,34 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps(){
   } // end loop ieta
 
 // Loop over EE detid
-  for( int ix=0; ix<=100; ix++ ){
-     for( int iy=0; iy<=100; iy++ ){
-        for( int iz=-1; iz<=1; iz++ ){
-           if(iz==0)  continue;
-           if(! EEDetId::validDetId( ix, iy, iz ) )  continue;
+  if (doEEfilter_) {
+      for( int ix=0; ix<=100; ix++ ){
+         for( int iy=0; iy<=100; iy++ ){
+            for( int iz=-1; iz<=1; iz++ ){
+               if(iz==0)  continue;
+               if(! EEDetId::validDetId( ix, iy, iz ) )  continue;
 
-           const EEDetId detid = EEDetId( ix, iy, iz, EEDetId::XYMODE );
-           EcalChannelStatus::const_iterator chit = ecalStatus->find( detid );
-           int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
+               const EEDetId detid = EEDetId( ix, iy, iz, EEDetId::XYMODE );
+               EcalChannelStatus::const_iterator chit = ecalStatus->find( detid );
+               int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
-           const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
-           const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
-           double eta = cellGeom->getPosition ().eta () ;
-           double phi = cellGeom->getPosition ().phi () ;
-           double theta = cellGeom->getPosition().theta();
+               const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
+               const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
+               double eta = cellGeom->getPosition ().eta () ;
+               double phi = cellGeom->getPosition ().phi () ;
+               double theta = cellGeom->getPosition().theta();
 
-           if(status >= maskedEcalChannelStatusThreshold_){
-              std::vector<double> valVec; std::vector<int> bitVec;
-              valVec.push_back(eta); valVec.push_back(phi); valVec.push_back(theta);
-              bitVec.push_back(2); bitVec.push_back(ix); bitVec.push_back(iy); bitVec.push_back(iz); bitVec.push_back(status);
-              EcalAllDeadChannelsValMap.insert( std::make_pair(detid, valVec) );
-              EcalAllDeadChannelsBitMap.insert( std::make_pair(detid, bitVec) );
-           }
-        } // end loop iz
-     } // end loop iy
-  } // end loop ix
+               if(status >= maskedEcalChannelStatusThreshold_){
+                  std::vector<double> valVec; std::vector<int> bitVec;
+                  valVec.push_back(eta); valVec.push_back(phi); valVec.push_back(theta);
+                  bitVec.push_back(2); bitVec.push_back(ix); bitVec.push_back(iy); bitVec.push_back(iz); bitVec.push_back(status);
+                  EcalAllDeadChannelsValMap.insert( std::make_pair(detid, valVec) );
+                  EcalAllDeadChannelsBitMap.insert( std::make_pair(detid, bitVec) );
+               }
+            } // end loop iz
+         } // end loop iy
+      } // end loop ix
+  }
 
   EcalAllDeadChannelsTTMap.clear();
   std::map<DetId, std::vector<int> >::iterator bitItor;

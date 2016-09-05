@@ -6,8 +6,11 @@ process = cms.Process("MaterialAnalyser")
 
 
 # Configuration and Conditions
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+# We cannot read the geometry from the DB, since we have to inject out custom-made
+# material-budget grouping into the DDD of the detector. So we need to read the
+# geometry using the XMLIdealGeometryRecord.
+process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #Global Tag

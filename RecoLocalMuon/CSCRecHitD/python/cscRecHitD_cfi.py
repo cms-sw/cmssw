@@ -28,6 +28,11 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #    Parameters for wire hits
     CSCWireClusterDeltaT = cms.int32(1),
     #
+    #    wire time window used for reconstruction
+    CSCUseReducedWireTimeWindow = cms.bool(False),
+    CSCWireTimeWindowLow = cms.int32(0),
+    CSCWireTimeWindowHigh = cms.int32(15),
+    #
     #    Calibration info:
     CSCUseCalibrations = cms.bool(True),
     #    Pedestal treatment

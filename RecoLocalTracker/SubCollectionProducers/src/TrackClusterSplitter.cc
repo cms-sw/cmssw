@@ -191,7 +191,7 @@ private:
 		    const TrajectoryStateOnSurface& tsos) const ;
   
   template<typename Cluster>
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+  std::unique_ptr<edmNew::DetSetVector<Cluster> > 
   splitClusters(const std::map<uint32_t, 
 		boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 		const reco::Vertex &vtx) const ;
@@ -516,11 +516,11 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(stripdigisimlinkToken, stripdigisimlink);
 
   // gavril : to do: choose the best vertex here instead of just choosing the first one ? 
-  std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
-  std::auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
   
-  iEvent.put(newPixelClusters);
-  iEvent.put(newStripClusters);
+  iEvent.put(std::move(newPixelClusters));
+  iEvent.put(std::move(newStripClusters));
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
   allSiStripClusters.clear(); siStripDetsWithClusters.clear();
@@ -550,11 +550,11 @@ void TrackClusterSplitter::markClusters( std::map<uint32_t, boost::sub_range<std
 }
 
 template<typename Cluster>
-std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+std::unique_ptr<edmNew::DetSetVector<Cluster> > 
 TrackClusterSplitter::splitClusters(const std::map<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 				    const reco::Vertex &vtx) const 
 {
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > output(new edmNew::DetSetVector<Cluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<Cluster>>();
   typedef std::pair<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > pair;
   
   foreach(const pair &p, input) 

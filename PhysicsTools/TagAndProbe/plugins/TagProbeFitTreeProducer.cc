@@ -76,13 +76,13 @@ class TagProbeFitTreeProducer : public edm::EDAnalyzer {
       /// The object that produces pairs of tags and probes, making any arbitration needed
       tnp::TagProbePairMaker tagProbePairMaker_;
       /// The object that actually computes variables and fills the tree for T&P
-      std::auto_ptr<tnp::TPTreeFiller> treeFiller_;
+      std::unique_ptr<tnp::TPTreeFiller> treeFiller_;
       /// The object that actually computes variables and fills the tree for unbiased MC
-      std::auto_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> oldTagFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> tagFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> pairFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> mcFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> oldTagFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> tagFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> pairFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> mcFiller_;
 };
 
 //

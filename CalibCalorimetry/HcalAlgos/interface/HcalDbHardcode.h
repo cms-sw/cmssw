@@ -24,7 +24,11 @@
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameter.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
+
+#include <vector>
 
 /**
 
@@ -71,11 +75,14 @@ class HcalDbHardcode {
     HcalRecoParam makeRecoParam (HcalGenericDetId fId);
     HcalMCParam makeMCParam (HcalGenericDetId fId);
     HcalTimingParam makeTimingParam (HcalGenericDetId fId);
-    void makeHardcodeMap(HcalElectronicsMap& emap);
+    void makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells);
     void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
-    void makeHardcodeFrontEndMap(HcalFrontEndMap& emap);
+    void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, 
+				 const std::vector<HcalGenericDetId>& cells);
     HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId);
     void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
+    HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);
+    void makeHardcodeTPParameters (HcalTPParameters& tppar);
     
   private:
     //member variables

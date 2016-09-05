@@ -27,6 +27,7 @@ class HcalTopology;
 class HcalDbService {
  public:
   HcalDbService (const edm::ParameterSet&);
+  ~HcalDbService();
 
   const HcalTopology* getTopologyUsed() const;
   
@@ -53,6 +54,8 @@ class HcalDbService {
   const HcalQIEType* getHcalQIEType (const HcalGenericDetId& fId) const;
   const HcalSiPMParameter* getHcalSiPMParameter (const HcalGenericDetId& fId) const;
   const HcalSiPMCharacteristics* getHcalSiPMCharacteristics () const;
+  const HcalTPChannelParameter* getHcalTPChannelParameter (const HcalGenericDetId& fId) const;
+  const HcalTPParameters* getHcalTPParameters () const;
 
   void setData (const HcalPedestals* fItem) {mPedestals = fItem; mCalibSet = nullptr;}
   void setData (const HcalPedestalWidths* fItem) {mPedestalWidths = fItem; mCalibWidthSet = nullptr;}
@@ -72,6 +75,8 @@ class HcalDbService {
   void setData (const HcalLutMetadata* fItem) {mLutMetadata = fItem;}
   void setData (const HcalSiPMParameters* fItem) {mSiPMParameters = fItem; mCalibSet = nullptr;}
   void setData (const HcalSiPMCharacteristics* fItem) {mSiPMCharacteristics = fItem;}
+  void setData (const HcalTPChannelParameters* fItem) {mTPChannelParameters = fItem; mCalibSet = nullptr;}
+  void setData (const HcalTPParameters* fItem) {mTPParameters = fItem;}
 
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
@@ -98,6 +103,8 @@ class HcalDbService {
   const HcalLutMetadata* mLutMetadata;
   const HcalSiPMParameters* mSiPMParameters;
   const HcalSiPMCharacteristics* mSiPMCharacteristics;
+  const HcalTPChannelParameters* mTPChannelParameters;
+  const HcalTPParameters* mTPParameters;
   //  bool mPedestalInADC;
   mutable std::atomic<HcalCalibrationsSet const *> mCalibSet;
   mutable std::atomic<HcalCalibrationWidthsSet const *> mCalibWidthSet;

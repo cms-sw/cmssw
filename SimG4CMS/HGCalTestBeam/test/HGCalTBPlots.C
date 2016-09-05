@@ -13,11 +13,13 @@
 #include <TProfile2D.h>
 #include <TROOT.h>
 #include <TStyle.h>
-#include <vector>
-#include <string>
+
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <vector>
 
 // Compare plots with and without beamline counters
 void PlotHistTBCompare(std::string infile1, std::string infile2, 
@@ -36,22 +38,145 @@ void PlotHistSimDigRec(std::string fname="TBGenSimDigiReco.root",
 // HGCTB l1(std::string infile, std::string outfile);
 // l1.Loop()
 
+class HexTopology {
+
+public :
+  HexTopology(bool fine);
+  virtual ~HexTopology() {}
+
+  double             cluster(const std::vector<unsigned int>& ids,
+			     const std::vector<float>& energy, int cell,
+			     int extent);
+  std::vector<int>   neighbours(int cell, int extent);
+  std::pair<int,int> findRowCol(int cell);
+private :
+  std::vector<int> leftCell, cells, addCell, subCell;
+  unsigned int     nrows;
+};
+
+HexTopology::HexTopology(bool fine) {
+  int cellCoarse[15] = {2,5,8,11,12,11,12,11,12,11,12,11,8,5,2};
+  int addCoarse[15] =  {1,0,1, 0, 1, 0, 1, 0, 1, 0, 1, 0,1,0,1};
+  int cellFine[20] = {3,6,9,12,15,16,15,16,15,16,15,16,15,16,15,14,11,8,5,2};
+  int addFine[20]  = {0,1,0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,1,0,1};
+  int fullCoarse(11), fullFine(15);
+  
+  int full(0);
+  if (fine) {
+    for (int k=0; k<20; ++k) {
+      cells.push_back(cellFine[k]); addCell.push_back(addFine[k]);
+    }
+    full = fullFine;
+  } else {
+    for (int k=0; k<15; ++k) {
+      cells.push_back(cellCoarse[k]); addCell.push_back(addCoarse[k]);
+    }
+    full = fullCoarse;
+  }
+  leftCell.push_back(0);
+  nrows = cells.size();
+  for (unsigned int k=0; k<nrows; ++k) {
+    leftCell.push_back((leftCell[k]+cells[k]));
+    int ii = (cells[k]-full -1)/2;
+    subCell.push_back(ii);
+  }
+  /*
+  std::cout << "Initialize Wafer of type " << fine << " with " << nrows
+	    << " rows and " << leftCell[nrows] << " cells" << std::endl;
+  for (unsigned int k=0; k<nrows; ++k) 
+    std::cout << "Row[" << k << "] with " << cells[k] << ":" << addCell[k]
+	      << " cells: leftmost " << leftCell[k] << " offset "
+	      << subCell[k] << std::endl;
+  */
+}
+
+std::pair<int,int> HexTopology::findRowCol(int cell) {
+  int row(-1), col(-1);
+  if (cell >= leftCell[0] && cell < leftCell[nrows]) {
+    for (unsigned int i=0; i<=nrows; ++i) {
+      if (cell < leftCell[i]) {
+	row = i-1; col = cell-leftCell[i-1]-subCell[i-1]-addCell[i-1]; break;
+      }
+    }
+  }
+// std::cout << "Cell " << cell << " row " << row << " column " << col << std::endl;
+  return std::pair<int,int>(row,col);
+}
+
+std::vector<int> HexTopology::neighbours(int cell, int extent) {
+  int cols[11] = {0,-1,1,-2,2,-3,3,-4,4,-5,5};
+  std::vector<int>   listCell;
+  std::pair<int,int> rowCol = findRowCol(cell);
+  if (rowCol.first >= 0) {
+    int nadd = 2*extent + 1;
+    int addc = addCell[rowCol.first];
+    for (int i = 0; i <= extent; ++i) {
+      for (int j = 0; j < nadd; ++j) {
+	int row = rowCol.first + i;
+	if (row >= 0 && row <= (int)(nrows)) {
+	  int adc = (addc > addCell[row]) ? addc : addCell[row];
+	  int col = rowCol.second+cols[j]+leftCell[row]+subCell[row]+adc;
+	  if (col >= leftCell[row] && col < leftCell[row+1]) 
+	    listCell.push_back(col);
+	}
+	if (i > 0) {
+	  int row = rowCol.first - i;
+	  if (row >= 0 && row <= (int)(nrows)) {
+	    int adc = (addc > addCell[row]) ? addc : addCell[row];
+	    int col = rowCol.second+cols[j]+leftCell[row]+subCell[row]+adc;
+	    if (col >= leftCell[row] && col < leftCell[row+1]) 
+	      listCell.push_back(col);
+	  }
+	}
+      }
+      nadd--;
+    }
+  }
+  return listCell;
+}
+
+double HexTopology::cluster(const std::vector<unsigned int>& ids,
+			    const std::vector<float>& energies, int cell,
+			    int extent) {
+  double energy(0);
+  std::vector<int> listCell = neighbours(cell, extent);
+  for (unsigned int k=0; k<ids.size(); ++k) {
+    int idcell = ids[k]&0xFF;
+    if (std::find(listCell.begin(),listCell.end(),idcell) != listCell.end())
+      energy += energies[k];
+  }
+  return energy;
+}
+
 class HGCTB {
 public :
   TTree                *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t                 fCurrent; //!current Tree number in a TChain
 
   // Declaration of leaf types
-  std::vector<float>   *simHitLayEn1E;
-  std::vector<float>   *simHitLayEn2E;
-  std::vector<float>   *simHitLayEn1H;
-  std::vector<float>   *simHitLayEn2H;
+  std::vector<float>        *simHitLayEn1E;
+  std::vector<float>        *simHitLayEn2E;
+  std::vector<float>        *simHitLayEn1H;
+  std::vector<float>        *simHitLayEn2H;
+  Double_t                   xBeam, yBeam, zBeam, pBeam;
+  std::vector<unsigned int> *simHitCellIdE;
+  std::vector<float>        *simHitCellEnE;
+  std::vector<unsigned int> *simHitCellIdH;
+  std::vector<float>        *simHitCellEnH;
 
   // List of branches
-  TBranch              *b_simHitLayEn1E;   //!
-  TBranch              *b_simHitLayEn2E;   //!
-  TBranch              *b_simHitLayEn1H;   //!
-  TBranch              *b_simHitLayEn2H;   //!
+  TBranch                   *b_simHitLayEn1E;   //!
+  TBranch                   *b_simHitLayEn2E;   //!
+  TBranch                   *b_simHitLayEn1H;   //!
+  TBranch                   *b_simHitLayEn2H;   //!
+  TBranch                   *b_xBeam;   //!
+  TBranch                   *b_yBeam;   //!
+  TBranch                   *b_zBeam;   //!
+  TBranch                   *b_pBeam;   //!
+  TBranch                   *b_simHitCellIdE;   //!
+  TBranch                   *b_simHitCellEnE;   //!
+  TBranch                   *b_simHitCellIdH;   //!
+  TBranch                   *b_simHitCellEnH;   //!
 
   HGCTB(std::string inName, std::string outName);
   virtual ~HGCTB();
@@ -112,6 +237,10 @@ void HGCTB::Init(TTree *tree) {
   simHitLayEn2E = 0;
   simHitLayEn1H = 0;
   simHitLayEn2H = 0;
+  simHitCellIdE = 0;
+  simHitCellEnE = 0;
+  simHitCellIdH = 0;
+  simHitCellEnH = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -122,6 +251,14 @@ void HGCTB::Init(TTree *tree) {
   fChain->SetBranchAddress("simHitLayEn2E", &simHitLayEn2E, &b_simHitLayEn2E);
   fChain->SetBranchAddress("simHitLayEn1H", &simHitLayEn1H, &b_simHitLayEn1H);
   fChain->SetBranchAddress("simHitLayEn2H", &simHitLayEn2H, &b_simHitLayEn2H);
+  fChain->SetBranchAddress("xBeam",         &xBeam,         &b_xBeam);
+  fChain->SetBranchAddress("yBeam",         &yBeam,         &b_yBeam);
+  fChain->SetBranchAddress("zBeam",         &zBeam,         &b_zBeam);
+  fChain->SetBranchAddress("pBeam",         &pBeam,         &b_pBeam);
+  fChain->SetBranchAddress("simHitCellIdE", &simHitCellIdE, &b_simHitCellIdE);
+  fChain->SetBranchAddress("simHitCellEnE", &simHitCellEnE, &b_simHitCellEnE);
+  fChain->SetBranchAddress("simHitCellIdH", &simHitCellIdH, &b_simHitCellIdH);
+  fChain->SetBranchAddress("simHitCellEnH", &simHitCellEnH, &b_simHitCellEnH);
   Notify();
 }
 
@@ -772,5 +909,29 @@ void PlotHistSimDigRec(std::string fname, std::string text, int type,
 	}
       }
     }
+  }
+}
+
+void testTopology(bool fine) {
+  HexTopology ht(fine);
+  std::string ans;
+  int cellmax = (fine) ? 239 : 132;
+  int cell(-1), cellmin(0);
+  std::cout << "Input Cell: ";
+  std::cin >> cell;
+  if (cell >= 0) cellmin = cellmax = cell;
+  for (cell = cellmin; cell <= cellmax; ++cell) {
+    for (int ext = 0; ext < 3; ++ext) {
+      std::vector<int> listCell = ht.neighbours(cell,ext);
+      std::cout << "Extent " << ext << " for Cell " << cell << " has "
+		<< listCell.size() << " cells" << std::endl;
+      for (unsigned int k=0; k<listCell.size(); ++k) 
+	std::cout << " " << listCell[k];
+      std::cout << std::endl;
+      std::cout << "Want to continue:";
+      std::cin  >> ans;
+      if (ans == "q" || ans == "Q" || ans == "s" || ans == "S") break;
+    }
+    if (ans == "q" || ans == "Q") break;
   }
 }

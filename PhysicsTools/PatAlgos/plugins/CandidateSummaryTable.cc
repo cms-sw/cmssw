@@ -79,7 +79,7 @@ namespace pat {
     ~CandidateSummaryTable();
     
     static std::unique_ptr<pathelpers::RecordCache> initializeGlobalCache(edm::ParameterSet const& conf) {
-      return std::unique_ptr<pathelpers::RecordCache>(new pathelpers::RecordCache(conf));
+      return std::make_unique<pathelpers::RecordCache>(conf);
     }
 
     virtual void analyze(const edm::Event & iEvent, const edm::EventSetup& iSetup) override;

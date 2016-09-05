@@ -45,12 +45,12 @@ namespace pat {
 
     virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
-      std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
+      auto patJets = std::make_unique<std::vector<Jet>>();
 
-      std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-      std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
-      std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
-      std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );
+      auto genJetsOut = std::make_unique<reco::GenJetCollection>();
+      auto caloTowersOut = std::make_unique<std::vector<CaloTower> >();
+      auto pfCandidatesOut = std::make_unique<reco::PFCandidateCollection>();
+      auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
 
 
       edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
@@ -103,10 +103,10 @@ namespace pat {
 
 
       // Output the secondary collections.
-      edm::OrphanHandle<reco::GenJetCollection>  oh_genJetsOut = iEvent.put( genJetsOut, "genJets" );
-      edm::OrphanHandle<std::vector<CaloTower> > oh_caloTowersOut = iEvent.put( caloTowersOut, "caloTowers" );
-      edm::OrphanHandle<reco::PFCandidateCollection> oh_pfCandidatesOut = iEvent.put( pfCandidatesOut, "pfCandidates" );
-      edm::OrphanHandle<edm::OwnVector<reco::BaseTagInfo> > oh_tagInfosOut = iEvent.put( tagInfosOut, "tagInfos" );
+      edm::OrphanHandle<reco::GenJetCollection>  oh_genJetsOut = iEvent.put(std::move(genJetsOut), "genJets" );
+      edm::OrphanHandle<std::vector<CaloTower> > oh_caloTowersOut = iEvent.put(std::move(caloTowersOut), "caloTowers" );
+      edm::OrphanHandle<reco::PFCandidateCollection> oh_pfCandidatesOut = iEvent.put(std::move(pfCandidatesOut), "pfCandidates" );
+      edm::OrphanHandle<edm::OwnVector<reco::BaseTagInfo> > oh_tagInfosOut = iEvent.put(std::move(tagInfosOut), "tagInfos" );
 
 
 
@@ -182,7 +182,7 @@ namespace pat {
 
       // put genEvt  in Event
       bool pass = patJets->size() > 0;
-      iEvent.put(patJets);
+      iEvent.put(std::move(patJets));
 
       if ( filter_ )
 	return pass;

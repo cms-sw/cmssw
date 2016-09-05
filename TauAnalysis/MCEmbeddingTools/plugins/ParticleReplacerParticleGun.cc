@@ -70,12 +70,11 @@ void ParticleReplacerParticleGun::endJob()
   }
 }
 
-std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt, MCParticleReplacer* producer) 
+std::unique_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt, MCParticleReplacer* producer) 
 {
   if(genEvt != 0)
     throw cms::Exception("UnimplementedFeature") << "ParticleReplacerParticleGun does NOT support merging at HepMC level" << std::endl;
 
-  std::auto_ptr<HepMC::GenEvent> evt(0);
   std::vector<HepMC::FourVector> muons_corrected;
   muons_corrected.reserve(muons.size());
   correctTauMass(muons, muons_corrected);
@@ -194,7 +193,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerParticleGun::produce(const std::v
   call_pyhepc(1); // pythia -> hepevt
 
   HepMC::IO_HEPEVT conv;
-  evt = std::auto_ptr<HepMC::GenEvent>(new HepMC::GenEvent(*conv.read_next_event()));
+  std::unique_ptr<HepMC::GenEvent> evt = std::make_unique<HepMC::GenEvent>(*conv.read_next_event());
 
   if(verbosity_) {
     evt->print();

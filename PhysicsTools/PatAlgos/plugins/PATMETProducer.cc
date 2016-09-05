@@ -126,8 +126,8 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   //  std::sort(patMETs->begin(), patMETs->end(), eTComparator_);
 
   // put genEvt object in Event
-  std::auto_ptr<std::vector<MET> > myMETs(patMETs);
-  iEvent.put(myMETs);
+  std::unique_ptr<std::vector<MET> > myMETs(patMETs);
+  iEvent.put(std::move(myMETs));
 
 }
 

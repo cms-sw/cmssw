@@ -77,17 +77,21 @@ void SCEnergyCorrectorSemiParm::setEvent(const edm::Event &e) {
     e.getByToken(tokenVertices_,vertices_);
   else {
     nHitsAboveThreshold_ = 0;
-    const EcalRecHitCollection *recHitsEB = rechitsEB_.product();
-    const EcalRecHitCollection *recHitsEE = rechitsEE_.product();
+    const EcalRecHitCollection *recHitsEB = ( rechitsEB_.isValid() ? rechitsEB_.product() : nullptr );
+    const EcalRecHitCollection *recHitsEE = ( rechitsEE_.isValid() ? rechitsEE_.product() : nullptr ); 
     
-    for (EcalRecHitCollection::const_iterator it=recHitsEB->begin(); it!=recHitsEB->end(); ++it) {
-      if (it->energy() > eThreshold_)
-    	nHitsAboveThreshold_++;
+    if( nullptr != recHitsEB ) {
+      for (EcalRecHitCollection::const_iterator it=recHitsEB->begin(); it!=recHitsEB->end(); ++it) {
+	if (it->energy() > eThreshold_)
+	  nHitsAboveThreshold_++;
+      }
     }
     
-    for (EcalRecHitCollection::const_iterator it=recHitsEE->begin(); it!=recHitsEE->end(); ++it) {
-      if (it->energy() > eThreshold_)
-	nHitsAboveThreshold_++;
+    if( nullptr != recHitsEE ) {
+      for (EcalRecHitCollection::const_iterator it=recHitsEE->begin(); it!=recHitsEE->end(); ++it) {
+	if (it->energy() > eThreshold_)
+	  nHitsAboveThreshold_++;
+      }
     }
   }
 }
@@ -95,6 +99,9 @@ void SCEnergyCorrectorSemiParm::setEvent(const edm::Event &e) {
 //--------------------------------------------------------------------------------------------------
 void SCEnergyCorrectorSemiParm::modifyObject(reco::SuperCluster &sc) {
   
+  // protect against HGCal, don't mod the object
+  if( sc.seed()->seed().det() == DetId::Forward ) return;
+
   const reco::CaloCluster &seedCluster = *(sc.seed());
   const bool iseb = seedCluster.hitsAndFractions()[0].first.subdetId() == EcalBarrel;
   const EcalRecHitCollection *recHits = iseb ? rechitsEB_.product() : rechitsEE_.product();

@@ -5,6 +5,7 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
 	class ContainerI : public Container
 	{
 		public:

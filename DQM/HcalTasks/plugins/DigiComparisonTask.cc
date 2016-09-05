@@ -1,5 +1,9 @@
+
 #include "DQM/HcalTasks/interface/DigiComparisonTask.h"
+
 using namespace hcaldqm;
+using namespace hcaldqm::constants;
+
 DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -28,9 +32,9 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 	std::vector<uint32_t> vhashVME;
 	std::vector<uint32_t> vhashuTCA;
 	vhashVME.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
-		constants::FIBER_VME_MIN, constants::SPIGOT_MIN, constants::CRATE_VME_MIN).rawId());
-	vhashuTCA.push_back(HcalElectronicsId(constants::CRATE_uTCA_MIN, constants::SLOT_uTCA_MIN,
-		constants::FIBER_uTCA_MIN1, constants::FIBERCH_MIN, false).rawId());
+		constants::FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
+	vhashuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 	_filter_VME.initialize(filter::fFilter, hashfunctions::fElectronics,
 		vhashVME);
 	_filter_uTCA.initialize(filter::fFilter, hashfunctions::fElectronics,
@@ -118,7 +122,7 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		_filter_uTCA);
 }
 
-/* virtual */ void DigiComparisonTask::_resetMonitors(UpdateFreq uf)
+/* virtual */ void DigiComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf)
 {
 	DQTask::_resetMonitors(uf);
 }
@@ -210,3 +214,4 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 }
 
 DEFINE_FWK_MODULE(DigiComparisonTask);
+

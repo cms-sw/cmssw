@@ -69,7 +69,7 @@ class TreeBranch {
 	return std::string(name.c_str());}
   const std::string & branchAlias()const{ return branchAlias_;}
   const std::string & branchTitle()const{ return branchTitle_;}
-  typedef std::auto_ptr<std::vector<float> > value;
+  typedef std::unique_ptr<std::vector<float> > value;
   value branch(const edm::Event& iEvent);
 
   std::vector<float>** dataHolderPtrAdress() { return &dataHolderPtr_;}
@@ -93,7 +93,7 @@ template <typename Object>
 class StringLeaveHelper {
  public:
   typedef TreeBranch::value value;
-  value operator()() { return value_;}
+  value operator()() { return std::move(value_);}
 
   StringLeaveHelper(const TreeBranch & B, const edm::Event& iEvent)
     {
@@ -127,7 +127,7 @@ template <typename Object, typename Collection=std::vector<Object> >
 class StringBranchHelper {
 public:
   typedef TreeBranch::value value;
-  value operator()() { return value_;}
+  value operator()() { return std::move(value_);}
 
   StringBranchHelper(const TreeBranch & B, const edm::Event& iEvent)
     {
@@ -385,12 +385,12 @@ class StringBasedNTupler : public NTupler {
 	for(;iL!=iL_end;++iL){
 	  TreeBranch & b=*iL;
 	  // grab the vector of values from the interpretation of expression for the associated collection
-	  std::auto_ptr<std::vector<float> > branch(b.branch(iEvent));
+	  std::unique_ptr<std::vector<float> > branch(b.branch(iEvent));
 	  // calculate the maximum index size.
 	  if (branch->size()>maxS) maxS=branch->size();
-	  // transfer of (no copy) pointer to the vector of float from the auto_ptr to the tree data pointer
+	  // transfer of (no copy) pointer to the vector of float from the std::unique_ptr to the tree data pointer
 	  b.assignDataHolderPtr(branch.release());
-	  // for memory tracing, object b is holding the data (not auto_ptr) and should delete it for each event (that's not completely optimum)
+	  // for memory tracing, object b is holding the data (not std::unique_ptr) and should delete it for each event (that's not completely optimum)
 	}
 	//assigne the maximum vector size for this collection
 	indexDataHolder_[indexOfIndexInDataHolder]=maxS;
@@ -442,13 +442,12 @@ class StringBasedNTupler : public NTupler {
 	uint maxS=0;
 	for(;iL!=iL_end;++iL){
 	  TreeBranch & b=*iL;
-	  std::auto_ptr<std::vector<float> > branch(b.branch(iEvent));
+	  std::unique_ptr<std::vector<float> > branch(b.branch(iEvent));
 	  if (branch->size()>maxS) maxS=branch->size();
-	  iEvent.put(branch, b.branchName());
+	  iEvent.put(std::move(branch), b.branchName());
 	}
 	//index should be put only once per branch. doe not really mattter for edm root files
-	std::auto_ptr<uint> maxN(new uint(maxS));
-	iEvent.put(maxN, iB->first);
+	iEvent.put(std::make_unique<uint>(maxS), iB->first);
       }
     }
   }

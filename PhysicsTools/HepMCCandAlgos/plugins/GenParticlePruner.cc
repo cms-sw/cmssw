@@ -231,7 +231,7 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
     }
   }
 
-  auto_ptr<GenParticleCollection> out(new GenParticleCollection);
+  auto out = std::make_unique<GenParticleCollection>();
   GenParticleRefProd outRef = evt.getRefBeforePut<GenParticleCollection>();
   out->reserve(counter);
   
@@ -261,12 +261,12 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
   }
 
 
-    edm::OrphanHandle<reco::GenParticleCollection> oh = evt.put(out);
-    std::auto_ptr<edm::Association<reco::GenParticleCollection> > orig2new(new edm::Association<reco::GenParticleCollection>(oh   ));
+    edm::OrphanHandle<reco::GenParticleCollection> oh = evt.put(std::move(out));
+    auto orig2new = std::make_unique<edm::Association<reco::GenParticleCollection>>(oh);
     edm::Association<reco::GenParticleCollection>::Filler orig2newFiller(*orig2new);
     orig2newFiller.insert(src, flags_.begin(), flags_.end());
     orig2newFiller.fill();
-    evt.put(orig2new);
+    evt.put(std::move(orig2new));
    
 
 }
