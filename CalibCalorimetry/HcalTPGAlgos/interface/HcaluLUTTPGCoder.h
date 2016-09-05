@@ -57,7 +57,7 @@ public:
   int getLUTId(const HcalDetId& detid) const;
 
   static const int QIE8_LUT_BITMASK = 0x3FF;
-  static const int QIE10_LUT_BITMASK = 0x400;
+  static const int QIE10_LUT_BITMASK = 0x7FF;
   static const int QIE11_LUT_BITMASK = 0x3FF;
 
 private:
