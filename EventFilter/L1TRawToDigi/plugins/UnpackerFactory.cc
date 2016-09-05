@@ -2,8 +2,6 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <cmath>
-
 EDM_REGISTER_PLUGINFACTORY(l1t::UnpackerFactoryT,"UnpackerFactory");
 
 namespace l1t {
