@@ -358,34 +358,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       aTau.setDecayMode(pfTauRef->decayMode());
     }
 
-    // extraction of tau lifetime information
-    // (only available for PFTaus)
-    if ( aTau.isPFTau() && tauTransverseImpactParameterSrc_.label() != "" ) {
-      edm::Handle<reco::PFTauCollection> pfTaus;
-      iEvent.getByToken(pfTauToken_, pfTaus);
-      reco::PFTauRef pfTauRef(pfTaus, idx);
-      edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
-      iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
-      const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
-      pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
-      aTauPFEssential.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
-      aTauPFEssential.dxy_ = tauLifetimeInfo.dxy();
-      aTauPFEssential.dxy_error_ = tauLifetimeInfo.dxy_error();
-      //      aTauPFEssential.pv_ = tauLifetimeInfo.primaryVertex();
-      // aTauPFEssential.pvPos_ = tauLifetimeInfo.primaryVertexPos();
-      // aTauPFEssential.pvCov_ = tauLifetimeInfo.primaryVertexCov();
-      aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
-      //if(tauLifetimeInfo.hasSecondaryVertex()){
-      aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
-      aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
-      //      aTauPFEssential.sv_ = tauLifetimeInfo.secondaryVertex();
-      // aTauPFEssential.svPos_ = tauLifetimeInfo.secondaryVertexPos();
-      // aTauPFEssential.svCov_ = tauLifetimeInfo.secondaryVertexCov();
-      //}
-      aTauPFEssential.ip3d_ = tauLifetimeInfo.ip3d();
-      aTauPFEssential.ip3d_error_ = tauLifetimeInfo.ip3d_error();
-    }
-
     // extraction of variables needed to rerun MVA isolation on MiniAOD
     // (only available for PFTaus)
     if( aTau.isPFTau() ) {
@@ -395,9 +367,9 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
         float ecalEnergy = 0;
         float hcalEnergy = 0;
-        std::vector<reco::PFCandidatePtr> signalCands = pfTauRef->signalPFCands();
-        for(std::vector<reco::PFCandidatePtr>::iterator it = signalCands.begin(); it != signalCands.end(); ++it) {
-        	reco::PFCandidatePtr & icand = *it;
+        const std::vector<reco::PFCandidatePtr>& signalCands = pfTauRef->signalPFCands();
+        for(std::vector<reco::PFCandidatePtr>::const_iterator it = signalCands.begin(); it != signalCands.end(); ++it) {
+        	const reco::PFCandidatePtr& icand = *it;
         	ecalEnergy += icand->ecalEnergy();
         	hcalEnergy += icand->hcalEnergy();
         }
@@ -412,6 +384,21 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         	}
         }
         aTauPFEssential.leadingTrackNormChi2_ = leadingTrackNormChi2;
+        // extraction of tau lifetime information
+        if( tauTransverseImpactParameterSrc_.label() != "" ) {
+          edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
+          iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
+          const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
+          pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
+          aTauPFEssential.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
+          aTauPFEssential.dxy_ = tauLifetimeInfo.dxy();
+          aTauPFEssential.dxy_error_ = tauLifetimeInfo.dxy_error();
+          aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
+          aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
+          aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
+          aTauPFEssential.ip3d_ = tauLifetimeInfo.ip3d();
+          aTauPFEssential.ip3d_error_ = tauLifetimeInfo.ip3d_error();
+        }
     }
 
     // Isolation
