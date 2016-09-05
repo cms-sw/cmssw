@@ -551,6 +551,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
             getattr(process, "pat"+metType+"Met"+postfix).srcPFCands =  cms.InputTag("packedPFCandidates")
+            if postfix=="NoHF":
+                getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(False)
             if self._parameters["runOnData"].value:
                 getattr(process, "pat"+metType+"Met"+postfix).parameters = METSignificanceParams_Data
             if self._parameters["Puppi"].value:
@@ -561,7 +563,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, "pat"+metType+"Met"+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
 
         #MET significance bypass for the patMETs from AOD
-        if not self._parameters["onMiniAOD"].value:
+        if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
             getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
             getattr(process, "patMETs"+postfix).srcPFCands=self._parameters["pfCandCollection"].value
 
@@ -1271,6 +1273,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 setattr(process, 'patMETs'+postfix, getattr(process,'patMETs' ).clone() )
                 getattr(process, "patMETs"+postfix).metSource = cms.InputTag("pfMetT1"+postfix)
                 getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
+                if postfix=="NoHF":
+                    getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(False)
+                getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
                 if self._parameters["Puppi"].value:
                     getattr(process, 'patMETs'+postfix).srcPFCands = cms.InputTag('puppiForMET')
                     getattr(process, 'patMETs'+postfix).srcJets = cms.InputTag('selectedPatJets'+postfix)
@@ -1490,7 +1495,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                              metSource = "metrawCalo"+postfix
                              )
             getattr(process,"patCaloMet").addGenMET = False
-            
 
             #smearing and type0 variations not yet supported in reprocessing
             #del getattr(process,"slimmedMETs"+postfix).t1SmearedVarsAndUncs
