@@ -382,6 +382,8 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       // aTauPFEssential.svPos_ = tauLifetimeInfo.secondaryVertexPos();
       // aTauPFEssential.svCov_ = tauLifetimeInfo.secondaryVertexCov();
       //}
+      aTauPFEssential.ip3d_ = tauLifetimeInfo.ip3d();
+      aTauPFEssential.ip3d_error_ = tauLifetimeInfo.ip3d_error();
     }
 
     // extraction of variables needed to rerun MVA isolation on MiniAOD
