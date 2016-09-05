@@ -7,8 +7,8 @@ int main(int, char ** /*argv*/) try {
   initTest();
 
   std::unique_ptr<Storage> s = StorageFactory::get()->open(
-      "http://transfer-8.ultralight.org:1094/store/mc/HC/GenericTTbar/GEN-SIM-RECO/"
-      "CMSSW_7_0_4_START70_V7-v1/00000///127938CD-F8CC-E311-9250-02163E00E8E6.root");
+      "http://opendata.cern.ch/eos/opendata/cms/Run2011A/PhotonHad/AOD"
+      "/12Oct2013-v1/00000/024938EB-3445-E311-A72B-002590593920.root");
   assert(s);
 
   IOSize totalVecs = 6;

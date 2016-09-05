@@ -53,6 +53,7 @@ class HLTDoubletDZ : public HLTFilter {
   const int triggerType2_;
   const double minDR_;              // minimum dR between two objects to be considered a pair
   const double maxDZ_;              // number of pairs passing cuts required
+  const int    minPixHitsForDZ_;    // minimum number of required pixel hits to check DZ
   const int    min_N_;              // number of pairs passing cuts required
   const bool   checkSC_;            // make sure SC constituents are different
   const bool   same_;               // 1st and 2nd product are one and the same
