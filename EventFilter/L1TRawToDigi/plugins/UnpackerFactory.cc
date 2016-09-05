@@ -1,9 +1,6 @@
-#include <cmath>
+#include "UnpackerFactory.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
 EDM_REGISTER_PLUGINFACTORY(l1t::UnpackerFactoryT,"UnpackerFactory");
 

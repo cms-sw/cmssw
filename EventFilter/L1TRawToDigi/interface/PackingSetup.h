@@ -43,22 +43,6 @@ namespace l1t {
          // special input tags
          virtual void fillDescription(edm::ParameterSetDescription&) = 0;
    };
-
-   typedef PackingSetup*(prov_fct)();
-   typedef edmplugin::PluginFactory<prov_fct> PackingSetupFactoryT;
-
-   class PackingSetupFactory {
-      public:
-         static const PackingSetupFactory* get() { return &instance_; };
-         std::auto_ptr<PackingSetup> make(const std::string&) const;
-         void fillDescription(edm::ParameterSetDescription&) const;
-      private:
-         PackingSetupFactory() {};
-         static const PackingSetupFactory instance_;
-   };
 }
-
-#define DEFINE_L1T_PACKING_SETUP(type) \
-   DEFINE_EDM_PLUGIN(l1t::PackingSetupFactoryT,type,#type)
 
 #endif
