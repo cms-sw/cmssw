@@ -23,33 +23,57 @@ inline XMLCh* _toDOMS(std::string temp) {
 }
 
 
-XmlConfigReader::XmlConfigReader()
+XmlConfigReader::XmlConfigReader() :
+  kTagHw(nullptr),
+  kTagAlgo(nullptr),
+  kTagRunSettings(nullptr),
+  kTagDb(nullptr),
+  kTagKey(nullptr),
+  kTagLoad(nullptr),
+  kTagContext(nullptr),
+  kTagParam(nullptr),
+  kTagMask(nullptr),
+  kTagDisable(nullptr),
+  kTagExclBoards(nullptr),
+  kTagExclude(nullptr),
+  kTagColumns(nullptr),
+  kTagTypes(nullptr),
+  kTagRow(nullptr),
+  kTagProcessor(  nullptr),
+  kTagRole(nullptr),
+  kTagCrate(nullptr),
+  kTagDaqTtc(nullptr),
+  kAttrId(nullptr),
+  kAttrType(nullptr),
+  kAttrDelim(nullptr),
+  kAttrModule(nullptr),
+  kTypeTable("table")
 {
   XMLPlatformUtils::Initialize();
 
-  kTagHw         = XMLString::transcode("system");
-  kTagAlgo       = XMLString::transcode("algo");
-  kTagRunSettings= XMLString::transcode("run-settings");
-  kTagDb         = XMLString::transcode("db");
-  kTagKey        = XMLString::transcode("key");
-  kTagLoad       = XMLString::transcode("load");
-  kTagContext    = XMLString::transcode("context");
-  kTagParam      = XMLString::transcode("param");
-  kTagMask       = XMLString::transcode("mask");
-  kTagDisable    = XMLString::transcode("disable");
-  kTagExclBoards = XMLString::transcode("excluded-boards");
-  kTagExclude    = XMLString::transcode("exclude");
-  kTagColumns    = XMLString::transcode("columns");
-  kTagTypes      = XMLString::transcode("types");
-  kTagRow        = XMLString::transcode("row");
-  kTagProcessor  = XMLString::transcode("processor");
-  kTagRole       = XMLString::transcode("role");
-  kTagCrate      = XMLString::transcode("crate");
-  kAttrId        = XMLString::transcode("id");
-  kAttrType      = XMLString::transcode("type");
-  kAttrDelim     = XMLString::transcode("delimiter");
-  kAttrModule    = XMLString::transcode("module");
-  kTypeTable     = "table";
+  kTagHw          = XMLString::transcode("system");
+  kTagAlgo        = XMLString::transcode("algo");
+  kTagRunSettings = XMLString::transcode("run-settings");
+  kTagDb          = XMLString::transcode("db");
+  kTagKey         = XMLString::transcode("key");
+  kTagLoad        = XMLString::transcode("load");
+  kTagContext     = XMLString::transcode("context");
+  kTagParam       = XMLString::transcode("param");
+  kTagMask        = XMLString::transcode("mask");
+  kTagDisable     = XMLString::transcode("disable");
+  kTagExclBoards  = XMLString::transcode("excluded-boards");
+  kTagExclude     = XMLString::transcode("exclude");
+  kTagColumns     = XMLString::transcode("columns");
+  kTagTypes       = XMLString::transcode("types");
+  kTagRow         = XMLString::transcode("row");
+  kTagProcessor   = XMLString::transcode("processor");
+  kTagRole        = XMLString::transcode("role");
+  kTagCrate       = XMLString::transcode("crate");
+  kTagDaqTtc      = XMLString::transcode("daqttc-mgr");
+  kAttrId         = XMLString::transcode("id");
+  kAttrType       = XMLString::transcode("type");
+  kAttrDelim      = XMLString::transcode("delimiter");
+  kAttrModule     = XMLString::transcode("module");
  
   ///Initialise XML parser  
   parser_ = new XercesDOMParser(); 
@@ -60,33 +84,57 @@ XmlConfigReader::XmlConfigReader()
 }
 
 
-XmlConfigReader::XmlConfigReader(DOMDocument* doc)
+XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
+  kTagHw(nullptr),
+  kTagAlgo(nullptr),
+  kTagRunSettings(nullptr),
+  kTagDb(nullptr),
+  kTagKey(nullptr),
+  kTagLoad(nullptr),
+  kTagContext(nullptr),
+  kTagParam(nullptr),
+  kTagMask(nullptr),
+  kTagDisable(nullptr),
+  kTagExclBoards(nullptr),
+  kTagExclude(nullptr),
+  kTagColumns(nullptr),
+  kTagTypes(nullptr),
+  kTagRow(nullptr),
+  kTagProcessor(nullptr),
+  kTagRole(nullptr),
+  kTagCrate(nullptr),
+  kTagDaqTtc(nullptr),
+  kAttrId(nullptr),
+  kAttrType(nullptr),
+  kAttrDelim(nullptr),
+  kAttrModule(nullptr),
+  kTypeTable("table")
 {
   XMLPlatformUtils::Initialize();
- 
-  kTagHw         = XMLString::transcode("system");
-  kTagAlgo       = XMLString::transcode("algo");
-  kTagRunSettings= XMLString::transcode("run-settings");
-  kTagDb         = XMLString::transcode("db");
-  kTagKey        = XMLString::transcode("key");
-  kTagLoad       = XMLString::transcode("load");
-  kTagContext    = XMLString::transcode("context");
-  kTagParam      = XMLString::transcode("param");
-  kTagMask       = XMLString::transcode("mask");
-  kTagDisable    = XMLString::transcode("disable");
-  kTagExclBoards = XMLString::transcode("excluded-boards");
-  kTagExclude    = XMLString::transcode("exclude");
-  kTagColumns    = XMLString::transcode("columns");
-  kTagTypes      = XMLString::transcode("types");
-  kTagRow        = XMLString::transcode("row");
-  kTagProcessor  = XMLString::transcode("processor");
-  kTagRole       = XMLString::transcode("role");
-  kTagCrate      = XMLString::transcode("crate");
-  kAttrId        = XMLString::transcode("id");
-  kAttrType      = XMLString::transcode("type");
-  kAttrDelim     = XMLString::transcode("delimiter");
-  kAttrModule    = XMLString::transcode("module");
-  kTypeTable     = "table";
+
+  kTagHw          = XMLString::transcode("system");
+  kTagAlgo        = XMLString::transcode("algo");
+  kTagRunSettings = XMLString::transcode("run-settings");
+  kTagDb          = XMLString::transcode("db");
+  kTagKey         = XMLString::transcode("key");
+  kTagLoad        = XMLString::transcode("load");
+  kTagContext     = XMLString::transcode("context");
+  kTagParam       = XMLString::transcode("param");
+  kTagMask        = XMLString::transcode("mask");
+  kTagDisable     = XMLString::transcode("disable");
+  kTagExclBoards  = XMLString::transcode("excluded-boards");
+  kTagExclude     = XMLString::transcode("exclude");
+  kTagColumns     = XMLString::transcode("columns");
+  kTagTypes       = XMLString::transcode("types");
+  kTagRow         = XMLString::transcode("row");
+  kTagProcessor   = XMLString::transcode("processor");
+  kTagRole        = XMLString::transcode("role");
+  kTagCrate       = XMLString::transcode("crate");
+  kTagDaqTtc      = XMLString::transcode("daqttc-mgr");
+  kAttrId         = XMLString::transcode("id");
+  kAttrType       = XMLString::transcode("type");
+  kAttrDelim      = XMLString::transcode("delimiter");
+  kAttrModule     = XMLString::transcode("module");
 
   parser_ = nullptr; 
   doc_ = doc;
@@ -179,11 +227,10 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
 
   // handle processors
   DOMNodeList* processors = element->getElementsByTagName(kTagProcessor);
-  const XMLSize_t nodeCount = processors->getLength();
-
+  XMLSize_t nodeCount = processors->getLength();
   for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
     DOMNode* currentNode = processors->item(xx);
-    if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element 
+    if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element
       DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
       std::string procStr = _toString(currentElement->getAttribute(kAttrId));
 
@@ -205,6 +252,39 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
         for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
           if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
             aTrigSystem.addProcCrate(procStr, _toString(crateChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
+    }
+  }
+
+  // handle DAQ TTC managers
+  DOMNodeList* daqttcs = element->getElementsByTagName(kTagDaqTtc);
+  nodeCount = daqttcs->getLength();
+  for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
+    DOMNode* currentNode = daqttcs->item(xx);
+    if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element
+      DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
+      std::string daqttcStr = _toString(currentElement->getAttribute(kAttrId));
+
+      DOMNodeList* roles = currentElement->getElementsByTagName(kTagRole);
+      // roles of this DAQ TTC manager (should be only one)
+      for (XMLSize_t i = 0; i < roles->getLength(); ++i) {
+        DOMNodeList* roleChilds = roles->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < roleChilds->getLength(); ++j) {
+          if (roleChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addDaqRole(daqttcStr, _toString(roleChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
+
+      DOMNodeList* crates = currentElement->getElementsByTagName(kTagCrate);
+      // crates of this DAQ TTC manager (should be only one)
+      for (XMLSize_t i = 0; i < crates->getLength(); ++i) {
+        DOMNodeList* crateChilds = crates->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
+          if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addDaqCrate(daqttcStr, _toString(crateChilds->item(j)->getNodeValue()));
           }
         }
       }
