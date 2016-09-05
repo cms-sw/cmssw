@@ -63,8 +63,10 @@ bool Py8InterfaceBase::readSettings( int )
 
    //add settings for PT filter
    fMasterGen->settings.addFlag("PTFilter:filter",false);
-   fMasterGen->settings.addMode("PTFilter:quarkToFilter",5,true,true,3,6);
-   fMasterGen->settings.addParm("PTFilter:scaleToFilter",.2,true,true,0.0,10.);
+   fMasterGen->settings.addMode("PTFilter:quarkToFilter", 5  ,true,true,3,    6);
+   fMasterGen->settings.addParm("PTFilter:scaleToFilter", 0.4,true,true,0.0, 10.);
+   fMasterGen->settings.addParm("PTFilter:quarkRapidity",10.0,true,true,0.0, 10.);
+   fMasterGen->settings.addParm("PTFilter:quarkPt",       -.1,true,true,-.1,100.);
    
    fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
    fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
