@@ -6,9 +6,11 @@ using namespace Pythia8;
 
 //--------------------------------------------------------------------------
 bool PTFilterHook::initAfterBeams() {
-  filter_ = settingsPtr->flag("PTFilter:filter");
-  quark_  = settingsPtr->mode("PTFilter:quarkToFilter");
-  scale_  = settingsPtr->parm("PTFilter:scaleToFilter");
+  filter_  = settingsPtr->flag("PTFilter:filter");
+  quark_   = settingsPtr->mode("PTFilter:quarkToFilter");
+  scale_   = settingsPtr->parm("PTFilter:scaleToFilter");
+  quarkY_  = settingsPtr->parm("PTFilter:quarkRapidity");
+  quarkPt_ = settingsPtr->parm("PTFilter:quarkPt");
   
   return true;
   
@@ -22,9 +24,12 @@ bool PTFilterHook::checkVetoPT( int iPos, const Pythia8::Event& event) {
   
   //look for quark
   for (int i = 0; i < event.size(); ++i) {
-    if ( abs(event[i].id()) == quark_ ) {
-       foundQuark = true;
-       break;
+    if ( (abs(event[i].id()) == quark_ ) && ( abs(event[i].y()) <= quarkY_ ) ) {
+       double pT = sqrt(pow(event[i].px(),2) + pow(event[i].py(),2));
+       if (pT >= quarkPt_) { 
+          foundQuark = true;
+          break;
+       }
     }
   }
 

@@ -19,5 +19,7 @@ private:
   bool   filter_;
   int    quark_;
   double scale_;
+  double quarkY_;
+  double quarkPt_;
   
 };
