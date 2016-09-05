@@ -50,7 +50,24 @@ void TrigSystem::addProcRole(const std::string& processor, const std::string& ro
 
 void TrigSystem::addProcCrate(const std::string& processor, const std::string& crate)
 {
-	daqttcProcs_[crate].push_back(processor);
+	crateProcs_[crate].push_back(processor);
+}
+
+void TrigSystem::addDaqRole(const std::string& daq, const std::string& role)
+{
+	for(auto it=daqttcRole_.begin(); it!=daqttcRole_.end(); ++it)
+	{
+		if ( it->first.compare(daq) == 0 && it->second.compare(role) != 0 )
+			throw std::runtime_error ("DAQttc: " + daq + " already exists but with different role");
+	}
+
+	roleDaqttcs_[role].push_back(daq);
+	daqttcRole_[daq] = role;
+}
+
+void TrigSystem::addDaqCrate(const std::string& daq, const std::string& crate)
+{
+	daqttcCrate_[daq] = crate;
 }
 
 void TrigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim)
@@ -286,15 +303,28 @@ bool TrigSystem::isMasked(const std::string& processor, const std::string& id)
 
 void TrigSystem::disableDaqProc(const std::string& daqProc)
 {
-	if ( procRole_.find(daqProc) == procRole_.end() && daqttcProcs_.find(daqProc) == daqttcProcs_.end())
+	if ( procRole_.find(daqProc) == procRole_.end() && roleProcs_.find(daqProc) == roleProcs_.end() && roleDaqttcs_.find(daqProc) == roleDaqttcs_.end() && daqttcRole_.find(daqProc) == daqttcRole_.end() )
 		throw std::runtime_error("Cannot Mask daq/processor " + daqProc + "! Not found in the system.");
 
 	if ( procRole_.find(daqProc) != procRole_.end() )
-		procEnabled_[daqProc] = false;
-	else if ( daqttcProcs_.find(daqProc) != daqttcProcs_.end() )
+		procEnabled_.at(daqProc) = false;
+	else if ( roleProcs_.find(daqProc) != roleProcs_.end() )
 	{
-		for (auto it = daqttcProcs_[daqProc].begin(); it != daqttcProcs_[daqProc].end(); ++it)
-			procEnabled_[*it] = false;
+		for (auto it = roleProcs_[daqProc].begin(); it != roleProcs_[daqProc].end(); ++it)
+			procEnabled_.at(*it) = false;
+	}
+	else if ( daqttcRole_.find(daqProc) != daqttcRole_.end() )
+	{
+		for(auto it = crateProcs_[daqttcCrate_[daqProc]].begin(); it != crateProcs_[daqttcCrate_[daqProc]].end(); ++it)
+			procEnabled_.at(*it) = false;
+	}
+	else if ( roleDaqttcs_.find(daqProc) != roleDaqttcs_.end() )
+	{
+		for(auto it = roleDaqttcs_[daqProc].begin(); it != roleDaqttcs_[daqProc].end(); ++it)
+		{
+			for(auto itt = crateProcs_[daqttcCrate_[*it]].begin(); itt != crateProcs_[daqttcCrate_[*it]].begin(); ++itt)
+				procEnabled_.at(*itt) = false;
+		}
 	}
 }
 

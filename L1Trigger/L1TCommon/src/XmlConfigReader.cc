@@ -42,6 +42,7 @@ XmlConfigReader::XmlConfigReader() :
   kTagProcessor(  nullptr),
   kTagRole(nullptr),
   kTagCrate(nullptr),
+  kTagDaqTtc(nullptr),
   kAttrId(nullptr),
   kAttrType(nullptr),
   kAttrDelim(nullptr),
@@ -68,6 +69,7 @@ XmlConfigReader::XmlConfigReader() :
   kTagProcessor   = XMLString::transcode("processor");
   kTagRole        = XMLString::transcode("role");
   kTagCrate       = XMLString::transcode("crate");
+  kTagDaqTtc      = XMLString::transcode("daqttc-mgr");
   kAttrId         = XMLString::transcode("id");
   kAttrType       = XMLString::transcode("type");
   kAttrDelim      = XMLString::transcode("delimiter");
@@ -101,6 +103,7 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagProcessor(nullptr),
   kTagRole(nullptr),
   kTagCrate(nullptr),
+  kTagDaqTtc(nullptr),
   kAttrId(nullptr),
   kAttrType(nullptr),
   kAttrDelim(nullptr),
@@ -127,6 +130,7 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagProcessor   = XMLString::transcode("processor");
   kTagRole        = XMLString::transcode("role");
   kTagCrate       = XMLString::transcode("crate");
+  kTagDaqTtc      = XMLString::transcode("daqttc-mgr");
   kAttrId         = XMLString::transcode("id");
   kAttrType       = XMLString::transcode("type");
   kAttrDelim      = XMLString::transcode("delimiter");
@@ -223,11 +227,10 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
 
   // handle processors
   DOMNodeList* processors = element->getElementsByTagName(kTagProcessor);
-  const XMLSize_t nodeCount = processors->getLength();
-
+  XMLSize_t nodeCount = processors->getLength();
   for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
     DOMNode* currentNode = processors->item(xx);
-    if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element 
+    if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element
       DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
       std::string procStr = _toString(currentElement->getAttribute(kAttrId));
 
@@ -249,6 +252,39 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, TrigSystem& a
         for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
           if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
             aTrigSystem.addProcCrate(procStr, _toString(crateChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
+    }
+  }
+
+  // handle DAQ TTC managers
+  DOMNodeList* daqttcs = element->getElementsByTagName(kTagDaqTtc);
+  nodeCount = daqttcs->getLength();
+  for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
+    DOMNode* currentNode = daqttcs->item(xx);
+    if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element
+      DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
+      std::string daqttcStr = _toString(currentElement->getAttribute(kAttrId));
+
+      DOMNodeList* roles = currentElement->getElementsByTagName(kTagRole);
+      // roles of this DAQ TTC manager (should be only one)
+      for (XMLSize_t i = 0; i < roles->getLength(); ++i) {
+        DOMNodeList* roleChilds = roles->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < roleChilds->getLength(); ++j) {
+          if (roleChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addDaqRole(daqttcStr, _toString(roleChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
+
+      DOMNodeList* crates = currentElement->getElementsByTagName(kTagCrate);
+      // crates of this DAQ TTC manager (should be only one)
+      for (XMLSize_t i = 0; i < crates->getLength(); ++i) {
+        DOMNodeList* crateChilds = crates->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
+          if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addDaqCrate(daqttcStr, _toString(crateChilds->item(j)->getNodeValue()));
           }
         }
       }
