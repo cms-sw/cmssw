@@ -58,17 +58,24 @@ BPHDecayVertex::BPHDecayVertex( const BPHDecayVertex* ptr,
  oldTracks( true ),
  oldVertex( true ),
  validTks( false ) {
-  const vector<Component>& list = ptr->BPHDecayMomentum::componentList();
+  map<const reco::Candidate*,const reco::Candidate*> iMap;
+  const vector<const reco::Candidate*>& daug = daughters();
+  const vector<Component>& list = ptr->componentList();
   int i;
-  int n = list.size();
+  int n = daug.size();
   for ( i = 0; i < n; ++i ) {
-    const Component& component = list[i];
-    searchMap[component.cand] = component.searchList;
+    const reco::Candidate* cand = daug[i];
+    iMap[originalReco( cand )] = cand;
+  }
+  for ( i = 0; i < n; ++i ) {
+    const Component& c = list[i];
+    searchMap[iMap[c.cand]] = c.searchList;
   }
   const vector<BPHRecoConstCandPtr>& dComp = daughComp();
-  n = dComp.size();
-  while ( n-- ) {
-    const map<const reco::Candidate*,string>& dMap = dComp[n]->searchMap;
+  int j;
+  int m = dComp.size();
+  for ( j = 0; j < m; ++j ) {
+    const map<const reco::Candidate*,string>& dMap = dComp[j]->searchMap;
     searchMap.insert( dMap.begin(), dMap.end() );
   }
 }
@@ -113,7 +120,6 @@ const reco::Track* BPHDecayVertex::getTrack(
       const reco::Track*>::const_iterator iter = tkMap.find( cand );
   map<const reco::Candidate*,
       const reco::Track*>::const_iterator iend = tkMap.end();
-  if ( iter == iend ) iter = tkMap.find( originalReco( cand ) );
   return ( iter != iend ? iter->second : 0 );
 }
 
@@ -131,7 +137,6 @@ reco::TransientTrack* BPHDecayVertex::getTransientTrack(
             reco::TransientTrack*>::const_iterator iter = ttMap.find( cand );
   map<const reco::Candidate*,
             reco::TransientTrack*>::const_iterator iend = ttMap.end();
-  if ( iter == iend ) iter = ttMap.find( originalReco( cand ) );
   return ( iter != iend ? iter->second : 0 );
 }
 
@@ -176,7 +181,7 @@ void BPHDecayVertex::tTracks() const {
   trTracks.reserve( n );
   validTks = true;
   while ( n-- ) {
-    const reco::Candidate* rp = originalReco( dL[n] );
+    const reco::Candidate* rp = dL[n];
     tkMap[rp] = 0;
     ttMap[rp] = 0;
     if ( !rp->charge() ) continue;
