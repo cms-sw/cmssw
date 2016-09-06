@@ -39,6 +39,7 @@ HLTDoubletDZ<T1,T2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) :
   triggerType2_(iConfig.template getParameter<int>("triggerType2")),
   minDR_ (iConfig.template getParameter<double>("MinDR")),
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
+  minPixHitsForDZ_    (iConfig.template getParameter<int>("MinPixHitsForDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
   checkSC_  (iConfig.template getParameter<bool>("checkSC")),
   same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
@@ -58,6 +59,7 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::HLTDoubletDZ(con
   triggerType2_(iConfig.template getParameter<int>("triggerType2")),
   minDR_ (iConfig.template getParameter<double>("MinDR")),
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
+  minPixHitsForDZ_    (iConfig.template getParameter<int>("MinPixHitsForDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
   checkSC_  (iConfig.template getParameter<bool>("checkSC")),
   same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
@@ -77,6 +79,7 @@ HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>::HLTDoubletDZ(
   triggerType2_(iConfig.template getParameter<int>("triggerType2")),
   minDR_ (iConfig.template getParameter<double>("MinDR")),
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
+  minPixHitsForDZ_    (iConfig.template getParameter<int>("MinPixHitsForDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
   checkSC_  (iConfig.template getParameter<bool>("checkSC")),
   same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
@@ -96,6 +99,27 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>::HLTDoubletDZ(
   triggerType2_(iConfig.template getParameter<int>("triggerType2")),
   minDR_ (iConfig.template getParameter<double>("MinDR")),
   maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
+  minPixHitsForDZ_    (iConfig.template getParameter<int>("MinPixHitsForDZ")),
+  min_N_    (iConfig.template getParameter<int>("MinN")),
+  checkSC_  (iConfig.template getParameter<bool>("checkSC")),
+  same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
+{}
+
+template<>
+HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : 
+  HLTFilter(iConfig),
+  originTag1_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag1")),
+  originTag2_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag2")),
+  inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
+  inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+  inputToken1_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag1_)),
+  inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)), 
+  //electronToken_ (consumes<reco::ElectronCollection>(iConfig.template getParameter<edm::InputTag>("electronTag"))),
+  triggerType1_(iConfig.template getParameter<int>("triggerType1")),
+  triggerType2_(iConfig.template getParameter<int>("triggerType2")),
+  minDR_ (iConfig.template getParameter<double>("MinDR")),
+  maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
+  minPixHitsForDZ_    (iConfig.template getParameter<int>("MinPixHitsForDZ")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
   checkSC_  (iConfig.template getParameter<bool>("checkSC")),
   same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
@@ -120,6 +144,7 @@ HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
   desc.add<double>("MaxDZ",0.2);
+  desc.add<int>("MinPixHitsForDZ",0);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
   descriptions.add(defaultModuleLabel<HLTDoubletDZ<T1,T2>>(), desc);
@@ -141,6 +166,7 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::fillDescriptions
   desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
   desc.add<double>("MaxDZ",0.2);
+  desc.add<int>("MinPixHitsForDZ",0);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
   descriptions.add(defaultModuleLabel<HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>>(), desc);
@@ -162,6 +188,7 @@ HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>::fillDescripti
   desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
   desc.add<double>("MaxDZ",0.2);
+  desc.add<int>("MinPixHitsForDZ",0);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
   descriptions.add(defaultModuleLabel<HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>>(), desc);
@@ -183,9 +210,31 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>::fillDescripti
   desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
   desc.add<double>("MaxDZ",0.2);
+  desc.add<int>("MinPixHitsForDZ",0);
   desc.add<bool>("checkSC",false);
   desc.add<int>("MinN",1);
   descriptions.add(defaultModuleLabel<HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>>(), desc);
+}
+
+template<>
+void
+HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  std::vector<edm::InputTag> originTag1(1,edm::InputTag("hltOriginal1"));
+  std::vector<edm::InputTag> originTag2(1,edm::InputTag("hltOriginal2"));
+  desc.add<std::vector<edm::InputTag> >("originTag1",originTag1);
+  desc.add<std::vector<edm::InputTag> >("originTag2",originTag2);
+  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
+  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
+  desc.add<int>("triggerType1",0);
+  desc.add<int>("triggerType2",0);
+  desc.add<double>("MinDR",-1.0);
+  desc.add<double>("MaxDZ",0.2);
+  desc.add<int>("MinPixHitsForDZ",0);
+  desc.add<bool>("checkSC",false);
+  desc.add<int>("MinN",1);
+  descriptions.add(defaultModuleLabel<HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate>>(), desc);
 }
 
 template<typename T1, typename T2>
@@ -273,8 +322,13 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>::computeDZ(edm
       e1 = *(eleIt);
   }
   
-  const reco::Candidate& candidate2(*r2);	
-  if ( std::abs(e1.vz()-candidate2.vz()) > maxDZ_ ) 
+  const reco::RecoChargedCandidate& candidate2(*r2);
+  bool skipDZ = false;
+  if ( minPixHitsForDZ_ > 0 &&
+       (e1.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_
+	|| candidate2.track()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_) ) 
+    skipDZ = true;
+  if ( !skipDZ && std::abs(e1.vz()-candidate2.vz()) > maxDZ_ ) 
     return false;
 
   return true;
@@ -297,8 +351,13 @@ HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>::computeDZ(edm
       e2 = *(eleIt);
   }
   
-  const reco::Candidate& candidate1(*r1);	
-  if ( std::abs(e2.vz()-candidate1.vz()) > maxDZ_ ) 
+  const reco::RecoChargedCandidate& candidate1(*r1);	
+  bool skipDZ = false;
+  if ( minPixHitsForDZ_ > 0 &&
+       (candidate1.track()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_
+	|| e2.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_) ) 
+    skipDZ = true;
+  if ( !skipDZ && std::abs(e2.vz()-candidate1.vz()) > maxDZ_ ) 
     return false;
 
   return true;
@@ -323,7 +382,32 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::computeDZ(edm::E
       e1 = *(eleIt);
   }
   
-  if ( std::abs(e2.vz()-e1.vz()) > maxDZ_ ) 
+  bool skipDZ = false;
+  if ( minPixHitsForDZ_ > 0 &&
+       (e1.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_
+	|| e2.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_) ) 
+    skipDZ = true;
+  if ( !skipDZ && std::abs(e2.vz()-e1.vz()) > maxDZ_ ) 
+    return false;
+
+  return true;
+}
+
+template<>
+bool 
+HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate>::computeDZ(edm::Event& iEvent, T1Ref& r1, T2Ref& r2) const
+{
+
+  const reco::RecoChargedCandidate& candidate1(*r1);
+  const reco::RecoChargedCandidate& candidate2(*r2);
+  if ( reco::deltaR(candidate1, candidate2) < minDR_ ) 
+    return false;
+  bool skipDZ = false;
+  if ( minPixHitsForDZ_ > 0 &&
+       (candidate1.track()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_
+	|| candidate2.track()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_) )
+    skipDZ = true;
+  if ( !skipDZ && std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) 
     return false;
 
   return true;
