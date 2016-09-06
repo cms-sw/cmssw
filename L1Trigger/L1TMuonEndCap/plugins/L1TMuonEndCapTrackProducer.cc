@@ -133,7 +133,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   
   
   //////////////////////////////////////////////
-  ///////// Get Trigger Primitives /////////////  Retrieve TriggerPrimitives from the event record: Currently does nothing because we don't take RPC's
+  ///////// Get Trigger Primitives /////////////  Retrieve L1TMuon::TriggerPrimitives from the event record: Currently does nothing because we don't take RPC's
   //////////////////////////////////////////////
   
   // auto tpsrc = _tpinputs.cbegin();
@@ -161,8 +161,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	   out[i1].getBX() == out[i2].getBX() && out[i1].Id() == out[i2].Id() &&
 	   out[i1].getStrip() != out[i2].getStrip() && out[i1].getWire() != out[i2].getWire() ) {
 	
-        L1TMuon::TriggerPrimitive NewWire1(out[i1],out[i2]);
-        L1TMuon::TriggerPrimitive NewWire2(out[i2],out[i1]);
+	L1TMuon::TriggerPrimitive NewWire1(out[i1],out[i2]);
+	L1TMuon::TriggerPrimitive NewWire2(out[i2],out[i1]);
 	tester.push_back(NewWire1);
 	tester.push_back(NewWire2);
       } 
