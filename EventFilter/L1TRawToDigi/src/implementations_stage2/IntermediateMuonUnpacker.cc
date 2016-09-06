@@ -25,7 +25,7 @@ namespace l1t {
 
          auto payload = block.payload();
 
-         unsigned int nWords = 6; // every link transmits 6 words (3 muons) per bx
+         const unsigned int nWords = 6; // every link transmits 6 words (3 muons) per bx
          int nBX, firstBX, lastBX;
          nBX = int(ceil(block.header().getSize() / nWords));
          getBXRange(nBX, firstBX, lastBX);
