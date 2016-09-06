@@ -31,7 +31,7 @@
 // _______________________Constructor(s)________________________________//
 //////////////////////////////////////////////////////////////////////////
 
-Forest::Forest()
+L1TForest::L1TForest()
 {
   events = std::vector< std::vector<Event*> >(1);
 }
@@ -40,7 +40,7 @@ Forest::Forest()
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-Forest::Forest(std::vector<Event*>& trainingEvents)
+L1TForest::L1TForest(std::vector<Event*>& trainingEvents)
 {
   setTrainingEvents(trainingEvents);
 }
@@ -49,7 +49,7 @@ Forest::Forest(std::vector<Event*>& trainingEvents)
 // _______________________Destructor____________________________________//
 //////////////////////////////////////////////////////////////////////////
 
-Forest::~Forest()
+L1TForest::~L1TForest()
 {
   // When the forest is destroyed it will delete the trees as well as the
   // events from the training and testing sets.
@@ -65,7 +65,7 @@ Forest::~Forest()
 // ______________________Get/Set_Functions______________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::setTrainingEvents(std::vector<Event*>& trainingEvents)
+void L1TForest::setTrainingEvents(std::vector<Event*>& trainingEvents)
 {
   // tell the forest which events to use for training
   
@@ -75,6 +75,8 @@ void Forest::setTrainingEvents(std::vector<Event*>& trainingEvents)
   
   // Reset the events matrix. 
   events = std::vector< std::vector<Event*> >();
+
+  events.reserve(e->data.size());
   
   for(unsigned int i=0; i<e->data.size(); i++) 
     {    
@@ -87,14 +89,14 @@ void Forest::setTrainingEvents(std::vector<Event*>& trainingEvents)
 //////////////////////////////////////////////////////////////////////////
 
 // return a copy of the training events
-std::vector<Event*> Forest::getTrainingEvents(){ return events[0]; }
+std::vector<Event*> L1TForest::getTrainingEvents(){ return events[0]; }
 
 //////////////////////////////////////////////////////////////////////////
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
 // return the ith tree
-Tree* Forest::getTree(unsigned int i)
+Tree* L1TForest::getTree(unsigned int i)
 { 
   if(/*i>=0 && */i<trees.size()) return trees[i]; 
   else
@@ -108,7 +110,7 @@ Tree* Forest::getTree(unsigned int i)
 // ______________________Various_Helpful_Functions______________________//
 //////////////////////////////////////////////////////////////////////////
 
-unsigned int Forest::size()
+unsigned int L1TForest::size()
 {
   // Return the number of trees in the forest.
   return trees.size();
@@ -124,7 +126,7 @@ unsigned int Forest::size()
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::listEvents(std::vector< std::vector<Event*> >& e)
+void L1TForest::listEvents(std::vector< std::vector<Event*> >& e)
 {
   // Simply list the events in each event vector. We have multiple copies
   // of the events vector. Each copy is sorted according to a different
@@ -168,7 +170,7 @@ bool compareEventsById(Event* e1, Event* e2)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::sortEventVectors(std::vector< std::vector<Event*> >& e)
+void L1TForest::sortEventVectors(std::vector< std::vector<Event*> >& e)
 {
   // When a node chooses the optimum split point and split variable it needs
   // the events to be sorted according to the variable it is considering.
@@ -184,7 +186,7 @@ void Forest::sortEventVectors(std::vector< std::vector<Event*> >& e)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::rankVariables(std::vector<int>& rank)
+void L1TForest::rankVariables(std::vector<int>& rank)
 {
   // This function ranks the determining variables according to their importance
   // in determining the fit. Use a low learning rate for better results.
@@ -239,7 +241,7 @@ void Forest::rankVariables(std::vector<int>& rank)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::saveSplitValues(const char* savefilename)
+void L1TForest::saveSplitValues(const char* savefilename)
 {
   // This function gathers all of the split values from the forest and puts them into lists.
   
@@ -287,7 +289,7 @@ void Forest::saveSplitValues(const char* savefilename)
 // ______________________Update_Events_After_Fitting____________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l)
+void L1TForest::updateRegTargets(Tree* tree, double learningRate, L1TLossFunction* l)
 {
   // Prepare the global vector of events for the next tree.
   // Update the fit for each event and set the new target value
@@ -329,7 +331,7 @@ void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l)
 // ----------------------------------------------------------------------
 /////////////////////////////////////////////////////////////////////////
 
-void Forest::updateEvents(Tree* tree)
+void L1TForest::updateEvents(Tree* tree)
 {
   // Prepare the test events for the next tree.
   
@@ -359,11 +361,11 @@ void Forest::updateEvents(Tree* tree)
 // ____________________Do/Test_the Regression___________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, LossFunction* l, const char* savetreesdirectory, bool saveTrees)
+void L1TForest::doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, L1TLossFunction* l, const char* savetreesdirectory, bool saveTrees)
 {
   // Build the forest using the training sample.
   
-  //std::cout << std::endl << "--Building Forest..." << std::endl << std::endl;
+  //std::cout << std::endl << "--Building L1TForest..." << std::endl << std::endl;
   
   // The trees work with a matrix of events where the rows have the same set of events. Each row however
   // is sorted according to the feature variable given by event->data[row].
@@ -406,7 +408,7 @@ void Forest::doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate,
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees)
+void L1TForest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees)
 {
   // Predict values for eventsp by running them through the forest up to numtrees.
   
@@ -429,7 +431,7 @@ void Forest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::appendCorrection(std::vector<Event*>& eventsp, Int_t treenum)
+void L1TForest::appendCorrection(std::vector<Event*>& eventsp, Int_t treenum)
 {
   // Update the prediction by appending the next correction.
   
@@ -444,7 +446,7 @@ void Forest::appendCorrection(std::vector<Event*>& eventsp, Int_t treenum)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::predictEvent(Event* e, unsigned int numtrees)
+void L1TForest::predictEvent(Event* e, unsigned int numtrees)
 {
   // Predict values for eventsp by running them through the forest up to numtrees.
   
@@ -467,7 +469,7 @@ void Forest::predictEvent(Event* e, unsigned int numtrees)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::appendCorrection(Event* e, Int_t treenum)
+void L1TForest::appendCorrection(Event* e, Int_t treenum)
 {
   // Update the prediction by appending the next correction.
   
@@ -482,15 +484,15 @@ void Forest::appendCorrection(Event* e, Int_t treenum)
 // ----------------------------------------------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
+void L1TForest::loadL1TForestFromXML(const char* directory, unsigned int numTrees)
 {
   // Load a forest that has already been created and stored into XML somewhere.
   
   // Initialize the vector of trees.
   trees = std::vector<Tree*>(numTrees);
   
-  // Load the Forest.
-  //std::cout << std::endl << "Loading Forest from XML ... " << std::endl;
+  // Load the L1TForest.
+  //std::cout << std::endl << "Loading L1TForest from XML ... " << std::endl;
   for(unsigned int i=0; i < numTrees; i++) 
     {   
       trees[i] = new Tree(); 
@@ -509,7 +511,7 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
 // ___________________Stochastic_Sampling_&_Regression__________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::prepareRandomSubsample(double fraction)
+void L1TForest::prepareRandomSubsample(double fraction)
 {
   // We use this for Stochastic Gradient Boosting. Basically you
   // take a subsample of the training events and build a tree using
@@ -538,7 +540,7 @@ void Forest::prepareRandomSubsample(double fraction)
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, double fraction, LossFunction* l)
+void L1TForest::doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, double fraction, L1TLossFunction* l)
 {
   // If the fraction of events to use is one then this algorithm is slower than doRegression due to the fact
   // that we have to sort the events every time we extract a subsample. Without random sampling we simply 
