@@ -20,6 +20,9 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
 class BPHRecoBuilder;
 class BPHDecayMomentum;
 class BPHDecayVertex;
@@ -49,23 +52,40 @@ class BPHMultiSelect: public T {
 
   /** Constructor
    */
-  BPHMultiSelect( BPHSelectOperation::mode op );
+  BPHMultiSelect( BPHSelectOperation::mode op ) {
+    switch ( op ) {
+    case BPHSelectOperation:: or_mode:
+      breakValue =  true;
+      finalValue = false;
+      break;
+    case BPHSelectOperation::and_mode:
+      breakValue = false;
+      finalValue =  true;
+      break;
+    }
+  }
 
   /** Destructor
    */
-  virtual ~BPHMultiSelect();
+  virtual ~BPHMultiSelect() {}
 
   /** Operations
    */
   /// include selection
-  void include( T& s, bool m = true );
+  void include( T& s, bool m = true ) {
+    SelectElement e;
+    e.selector = &s;
+    e.mode     = m;
+    selectList.push_back( e );
+    return;
+  }
 
   /// accept function
   virtual bool accept( const reco::Candidate & cand,
-                       const BPHRecoBuilder*  build ) const;
-  virtual bool accept( const reco::Candidate & cand ) const;
-  virtual bool accept( const BPHDecayMomentum& cand ) const;
-  virtual bool accept( const BPHDecayVertex  & cand ) const;
+                       const BPHRecoBuilder*  build ) const { return false; }
+  virtual bool accept( const reco::Candidate & cand ) const { return false; }
+  virtual bool accept( const BPHDecayMomentum& cand ) const { return false; }
+  virtual bool accept( const BPHDecayVertex  & cand ) const { return false; }
 
  private:
 
@@ -106,7 +126,19 @@ class BPHMultiSelect: public T {
 
 };
 
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMultiSelect.hpp"
+template<>
+bool BPHMultiSelect<BPHRecoSelect>::accept(
+                                      const reco::Candidate& cand,
+                                      const BPHRecoBuilder* build ) const;
+template<>
+bool BPHMultiSelect<BPHRecoSelect>::accept(
+                                      const reco::Candidate& cand ) const;
+template<>
+bool BPHMultiSelect<BPHMomentumSelect>::accept(
+                                          const BPHDecayMomentum& cand ) const;
+template<>
+bool BPHMultiSelect<BPHVertexSelect>::accept(
+                                        const BPHDecayVertex& cand ) const;
 
 #endif // BPHMultiSelect_H
 
