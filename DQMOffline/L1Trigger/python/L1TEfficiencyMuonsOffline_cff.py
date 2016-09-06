@@ -7,6 +7,7 @@ l1tEfficiencyMuons_offline = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
   
   muonInputTag = cms.untracked.InputTag("muons"),
   
+#	gmtInputTag  = cms.untracked.InputTag("gtDigis"),
 	gmtInputTag  = cms.untracked.InputTag("gmtStage2Digis"),	
 
 
@@ -14,11 +15,17 @@ l1tEfficiencyMuons_offline = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
   bsInputTag  = cms.untracked.InputTag("offlineBeamSpot"),
 
   triggerNames = cms.untracked.vstring(
-        "HLT_IsoMu24_eta2p1_v*",
+
+
+        "HLT_IsoMu18_v*",
+        "HLT_IsoMu20_v*",
+        "HLT_IsoMu22_v*",
         "HLT_IsoMu24_v*",
+        "HLT_IsoMu27_v*", 
+      
         "HLT_Mu30_v*",
         "HLT_Mu40_v*"
-        ),
+      ),
 
   trigInputTag       = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
   trigProcess        = cms.untracked.string("HLT"),
