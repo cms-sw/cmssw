@@ -10,6 +10,10 @@
 #include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
 #include "RecoJets/JetProducers/interface/VirtualJetProducerHelper.h"
 
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -136,6 +140,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , jetCollInstanceName_ ("")
   , writeCompound_ ( false )
   , verbosity_(0)
+  , fromHTTTopJetProducer_(0)
 {
   anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
@@ -879,5 +884,11 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
   }
 
   // put hard jets into event record
-  iEvent.put( jetCollection);
+  // Store the Orphan handle for adding HTT information
+  edm::OrphanHandle<reco::BasicJetCollection>  oh = iEvent.put( jetCollection);
+
+  if (fromHTTTopJetProducer_){
+    addHTTTopJetTagInfoCollection( iEvent, iSetup, oh);
+  }
+
 }

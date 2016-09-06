@@ -75,7 +75,12 @@ class CFG(object):
         return other
     
 class Analyzer( CFG ):
-    '''Base analyzer configuration, see constructor'''
+    '''Base configuration class for analyzers such as framework.analyzer.Analyzer . 
+ 
+    The attributes are used to store parameters of any type, 
+    which can then be used in the corresponding framework.analyzer.Analyzer.  
+
+    See constructor for more information.'''
 
     num_instance = 0
     
@@ -85,23 +90,26 @@ class Analyzer( CFG ):
         One could for example define the analyzer configuration for a
         di-muon framework.Analyzer.Analyzer in the following way:
 
-        ZMuMuAna = cfg.Analyzer(
-        "ZMuMuAnalyzer",
-        pt1 = 20,
-        pt2 = 20,
-        iso1 = 0.1,
-        iso2 = 0.1,
-        eta1 = 2,
-        eta2 = 2,
-        m_min = 0,
-        m_max = 200
+        dimuons_ana = cfg.Analyzer(
+          ZMuMuAnalyzer,
+          instance_label='dimuons',
+          pt1 = 20,
+          pt2 = 20,
+          iso1 = 0.1,
+          iso2 = 0.1,
+          eta1 = 2,
+          eta2 = 2,
+          m_min = 0,
+          m_max = 200
         )
 
-        Any kinds of keyword arguments can be added.
-        The name must be present, and must be well chosen, as it will be used
-        by the Looper to find the module containing the Analyzer class.
-        This module should be in your PYTHONPATH. If not, modify your python path
-        accordingly in your script.
+        Any kind of keyword arguments can be added.
+        - The first argument is the class object of the corresponding framework.analyzer.Analyzer.
+        It will be used by framework.looper.Looper to create an object of this class to process 
+        your events.
+        - The second argument, instance_label, allows you to specify a label in case you have 
+        several analyzers of the same class. This argument is optional and will be set automatically
+        by heppy if omitted. 
         '''
 
         self.class_object = class_object
