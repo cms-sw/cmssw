@@ -107,11 +107,11 @@ L1TCaloTowersFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // iEvent.getByToken(fedData_, feds);
 
   if (towers->size() == 0) {
-    std::cout << "Event does not contain towers." << std::endl;
+    LogDebug("L1TCaloTowersFilter") << "Event does not contain towers." << std::endl;
     return false;
   }
 
-  std::cout << "Event does contains towers." << std::endl;
+  LogDebug("L1TCaloTowersFilter") << "Event does contains towers." << std::endl;
   return true;
 
   /*
