@@ -1,19 +1,19 @@
 // Forest.h
 
-#ifndef ADD_FOREST
-#define ADD_FOREST
+#ifndef L1Trigger_L1TMuonEndCap_Forest
+#define L1Trigger_L1TMuonEndCap_Forest
 
 #include "L1Trigger/L1TMuonEndCap/interface/Tree.h"
 #include "L1Trigger/L1TMuonEndCap/interface/LossFunctions.h"
 
-class Forest
+class L1TForest
 {
  public:
   
   // Constructor(s)/Destructor
-  Forest();
-  Forest(std::vector<Event*>& trainingEvents);
-  ~Forest();
+  L1TForest();
+  L1TForest(std::vector<Event*>& trainingEvents);
+  ~L1TForest();
   
   // Get/Set
   void setTrainingEvents(std::vector<Event*>& trainingEvents);
@@ -32,17 +32,17 @@ class Forest
   void listEvents(std::vector< std::vector<Event*> >& e);
   void sortEventVectors(std::vector< std::vector<Event*> >& e);
   void generate(Int_t numTrainEvents, Int_t numTestEvents, double sigma);
-  void loadForestFromXML(const char* directory, unsigned int numTrees); 
+  void loadL1TForestFromXML(const char* directory, unsigned int numTrees); 
   
   // Perform the regression
-  void updateRegTargets(Tree *tree, double learningRate, LossFunction* l);
-  void doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, LossFunction* l, 
+  void updateRegTargets(Tree *tree, double learningRate, L1TLossFunction* l);
+  void doRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, L1TLossFunction* l, 
 		    const char* savetreesdirectory, bool saveTrees);
   
   // Stochastic Gradient Boosting
   void prepareRandomSubsample(double fraction);
   void doStochasticRegression(Int_t nodeLimit, Int_t treeLimit, double learningRate, 
-			      double fraction, LossFunction* l);
+			      double fraction, L1TLossFunction* l);
   
   // Predict some events
   void updateEvents(Tree* tree);
