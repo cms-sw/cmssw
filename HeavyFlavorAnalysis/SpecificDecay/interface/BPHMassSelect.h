@@ -15,6 +15,7 @@
 // Base Class Headers --
 //----------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassCuts.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -30,21 +31,18 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMassSelect: public BPHMomentumSelect {
+class BPHMassSelect: public BPHMomentumSelect, public BPHMassCuts {
 
  public:
 
   /** Constructor
    */
-  BPHMassSelect( double minMass, double maxMass ):
-   mMin( minMass ),
-   mMax( maxMass ) {
-  }
+  BPHMassSelect( double minMass, double maxMass ): BPHMassCuts( minMass,
+                                                                maxMass ) {}
 
   /** Destructor
    */
-  virtual ~BPHMassSelect() {
-  }
+  virtual ~BPHMassSelect() {}
 
   /** Operations
    */
@@ -54,22 +52,11 @@ class BPHMassSelect: public BPHMomentumSelect {
     return ( ( mass > mMin ) && ( mass < mMax ) );
   }
 
-  /// set mass cuts
-  void setMassMin( double m ) { mMin = m; return; }
-  void setMassMax( double m ) { mMax = m; return; }
-
-  /// get current mass cuts
-  double getMassMin() const { return mMin; }
-  double getMassMax() const { return mMax; }
-
  private:
 
   // private copy and assigment constructors
   BPHMassSelect           ( const BPHMassSelect& x );
   BPHMassSelect& operator=( const BPHMassSelect& x );
-
-  double mMin;
-  double mMax;
 
 };
 

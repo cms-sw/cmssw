@@ -15,6 +15,7 @@
 // Base Class Headers --
 //----------------------
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHFitSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassCuts.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -32,41 +33,30 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMassFitSelect: public BPHFitSelect {
+class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
 
  public:
 
   /** Constructor
    */
   BPHMassFitSelect( double minMass, double maxMass ):
-   mMin( minMass ),
-   mMax( maxMass ) {
-    setFitConstraint();
-  }
+   BPHMassCuts( minMass, maxMass ) { setFitConstraint(); }
+
   BPHMassFitSelect( const std::string& name, double mass, double sigma,
                     double minMass, double maxMass ):
-   mMin( minMass ),
-   mMax( maxMass ) {
-    setFitConstraint( name, mass, sigma );
-  }
+   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, mass, sigma ); }
+
   BPHMassFitSelect( const std::string& name, double mass,
                     double minMass, double maxMass ):
-   mMin( minMass ),
-   mMax( maxMass ) {
-    setFitConstraint( name, mass );
-  }
+   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, mass ); }
+
   BPHMassFitSelect( const std::string& name, KinematicConstraint* c,
                     double minMass, double maxMass ):
-   mMin( minMass ),
-   mMax( maxMass ) {
-    setFitConstraint( name, c );
-  }
+   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, c ); }
+
   BPHMassFitSelect( const std::string& name, MultiTrackKinematicConstraint* c,
                     double minMass, double maxMass ):
-   mMin( minMass ),
-   mMax( maxMass ) {
-    setFitConstraint( name, c );
-  }
+   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, c ); }
 
   /** Destructor
    */
@@ -87,16 +77,6 @@ class BPHMassFitSelect: public BPHFitSelect {
     }
     double mass = cand.p4().mass();
     return ( ( mass > mMin ) && ( mass < mMax ) );
-  }
-
-  /// set mass cuts
-  void setMassMin( double m ) {
-    mMin = m;
-    return;
-  }
-  void setMassMax( double m ) {
-    mMax = m;
-    return;
   }
 
   /// set fit constraint
@@ -142,22 +122,12 @@ class BPHMassFitSelect: public BPHFitSelect {
     mtkc   =  c   ;
   }
 
-  /// get current mass cuts
-  double getMassMin() const{
-    return mMin;
-  }
-  double getMassMax() const{
-    return mMax;
-  }
-
   /// get fit constraint
-  const std::string& getConstrainedName() const {
-    return cName;
-  }
+  const std::string& getConstrainedName() const { return cName; }
   double getMass () const { return cMass;  }
   double getSigma() const { return cSigma; }
             KinematicConstraint* getKC          () const { return   kc; }
-  MultiTrackKinematicConstraint* getMultitrackKC() const { return mtkc; }
+  MultiTrackKinematicConstraint* getMultiTrackKC() const { return mtkc; }
 
  private:
 
@@ -173,9 +143,6 @@ class BPHMassFitSelect: public BPHFitSelect {
   double cSigma;
             KinematicConstraint*   kc;
   MultiTrackKinematicConstraint* mtkc;
-
-  double mMin;
-  double mMax;
 
 };
 
