@@ -36,7 +36,9 @@ void PlotHistSimDigRec(std::string fname="TBGenSimDigiReco.root",
 		       bool save=false);
 // Class to manipulate the Tree produced by the analysis code
 // HGCTB l1(std::string infile, std::string outfile);
-// l1.Loop()
+// l1.Loop(std::string calFile, std::string wtFile, unsigned int nLayers,
+//         float beamE, float cutETotByEBeam, int ntotEvent, int clusterEn, 
+//         int nPrintEvent)
 
 class HexTopology {
 
@@ -45,8 +47,11 @@ public :
   virtual ~HexTopology() {}
 
   double             cluster(const std::vector<unsigned int>& ids,
-			     const std::vector<float>& energy, int cell,
-			     int extent);
+			     const std::vector<float>& energy, 
+			     unsigned int id, int extent);
+  unsigned int       localMax(const std::vector<unsigned int>& ids,
+			      const std::vector<float>& energy, 
+			      unsigned int layer);
   std::vector<int>   neighbours(int cell, int extent);
   std::pair<int,int> findRowCol(int cell);
 private :
@@ -136,16 +141,33 @@ std::vector<int> HexTopology::neighbours(int cell, int extent) {
 }
 
 double HexTopology::cluster(const std::vector<unsigned int>& ids,
-			    const std::vector<float>& energies, int cell,
-			    int extent) {
+			    const std::vector<float>& energies, 
+			    unsigned int id, int extent) {
   double energy(0);
+  int cell = id&0xFF;
   std::vector<int> listCell = neighbours(cell, extent);
   for (unsigned int k=0; k<ids.size(); ++k) {
     int idcell = ids[k]&0xFF;
-    if (std::find(listCell.begin(),listCell.end(),idcell) != listCell.end())
-      energy += energies[k];
+    if ((std::find(listCell.begin(),listCell.end(),idcell) != listCell.end()) &&
+	((id&0xFFFFFF00) == (ids[k]&0xFFFFFF00))) energy += energies[k];
   }
   return energy;
+}
+
+unsigned int HexTopology::localMax(const std::vector<unsigned int>& ids,
+				   const std::vector<float>& energy, 
+				   unsigned int layer) {
+  float        emax(0);
+  unsigned int idmax(0);
+  for (unsigned int k=0; k<ids.size(); ++k) {
+    if (layer == ((ids[k]>>19)&0x7F)) {
+      if (energy[k] > emax) {
+	emax  = energy[k];
+	idmax = ids[k];
+      }
+    }
+  }
+  return idmax;
 }
 
 class HGCTB {
@@ -184,7 +206,9 @@ public :
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree);
-  virtual void     Loop();
+  virtual void     Loop(std::string calFile, std::string wtFile, 
+			unsigned int nLayers, float beamE, float cutETotByEBeam,
+			int ntotEvent, int clusterEn=1, int nPrintEvent=100);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   std::string      outName_;
@@ -286,7 +310,9 @@ Int_t HGCTB::Cut(Long64_t ) {
   return 1;
 }
 
-void HGCTB::Loop() {
+void HGCTB::Loop(std::string calFile, std::string wtFile, unsigned int nLayers,
+		 float beamE, float cutETotByEBeam, int ntotEvent, 
+		 int clusterEn, int nPrintEvent) {
   //   In a ROOT session, you can do:
   //      Root > .L HGCTB.C
   //      Root > HGCTB t
@@ -312,11 +338,64 @@ void HGCTB::Loop() {
   //by  b_branchname->GetEntry(ientry); //read only this branch
 
   if (fChain == 0) return;
-  TFile *fout = new TFile(outName_.c_str(), "RECREATE");
+
+  // Read in calibration and layerweights
+  std::vector<double> calFactor(nLayers,1.0), layerWeight(nLayers,1.0);
+  ifstream infil1, infil2;
+  unsigned int line1(0), line2(0);
+  infil1.open(calFile.c_str());
+  if (infil1.is_open()) {
+    while (!infil1.eof()) {
+      float MPV;      
+      infil1 >> MPV;
+      calFactor.push_back(MPV/1.3);
+      std::cout << line1 << " MPV: calFactor(MIP) = " << MPV << " : " 
+		<< calFactor[line1] << std::endl;
+      line1++;
+      if (line1 >= nLayers) break;
+    }
+    infil1.close();
+  }
+  infil2.open(wtFile.c_str());
+  if (infil2.is_open()) {
+    while (!infil2.eof()) {
+      float weight;      
+      infil2 >> weight;
+      layerWeight.push_back(weight);
+      std::cout << "layerWeight[" << line2 << "] = " << layerWeight[line2] 
+		<< std::endl;
+      line2++;
+      if (line2 >= nLayers) break;
+    }
+    infil2.close();
+  }
+
   //Create histograms
+  TFile *fout = new TFile(outName_.c_str(), "RECREATE");
+  int   nbins(40000);
+  float rangeGeV(0.05);
+  float eLayerMax= (nLayers > 5) ? rangeGeV/calFactor[5] : rangeGeV/calFactor[nLayers-1];
+  TH1F* h_SimHitTotEGeV      = new TH1F("h_SimHitTotEdepGeV","",nbins,0.,rangeGeV*nLayers/2);
+  TH1F* h_SimHitTotEMIP      = new TH1F("h_SimHitTotEdepMIP","",nbins,0.,eLayerMax*nLayers/2);
+  TH1F* h_SimHitTotEtoBE     = new TH1F("h_SimHitTotEdeptoBeamE","",nbins,0.,rangeGeV*nLayers/(4*beamE));
+  TH1F* h_SimHitTotEtoBEWt   = new TH1F("h_SimHitTotEdeptoBeamEWt","",nbins,0.,rangeGeV*nLayers/(4*beamE));
+  TH1F* h_SimHitTotEMIPCut   = new TH1F("h_SimHitCutTEtoBETotEdepMIP","",nbins,0.,eLayerMax*nLayers/2);
+  TH1F* h_SimHitTotEMIPCutWt = new TH1F("h_SimHitCutWtTEtoBETotEdepMIP","",nbins,0.,eLayerMax*nLayers/2);
+  std::vector<TH1F*> h_SimHitLayerE, h_SimHitLayerECut, h_SimHitLayerECutWt;
+  for (unsigned int i=0; i<nLayers; i++) {
+    char str1[20];
+    sprintf(str1, "%d", i+1);
+    TString hstr1 = str1;
+    h_SimHitLayerE.push_back(new TH1F("h_SimHitLayer"+hstr1+"E","",nbins,0.,eLayerMax));
+    h_SimHitLayerECut.push_back(new TH1F("h_SimHitCutTEtoBELayer"+hstr1+"E","",nbins,0.,eLayerMax));
+    h_SimHitLayerECutWt.push_back(new TH1F("h_SimHitCutWtTEtoBELayer"+hstr1+"E","",nbins,0.,eLayerMax));
+  }
+
+  HexTopology ht1(false);
 
   Long64_t nentries = fChain->GetEntriesFast();
-  
+  if (ntotEvent >= 0 && ntotEvent < nentries) nentries = ntotEvent;
+
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -324,8 +403,53 @@ void HGCTB::Loop() {
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     // if (Cut(ientry) < 0) continue;
     // Fill histograms
+    if (jentry % nPrintEvent == 0) std::cout << "  " << jentry  << "  Events Processed... " << std::endl;
+
+    float TotEdepGeV(0.), TotEdepMIP(0.), TotEdepGeVWt(0.), TotEdepMIPWt(0.);
+    std::vector<double> clusterEn2E;
+    unsigned int nLayMax = (simHitLayEn2E->size() > nLayers) ? nLayers : simHitLayEn2E->size();
+    for (unsigned int ilayer=0; ilayer<nLayMax; ilayer++) {
+      unsigned int locMaxId = ht1.localMax((*simHitCellIdE),(*simHitCellEnE),ilayer+1);
+      double clusterE2 = ht1.cluster((*simHitCellIdE),(*simHitCellEnE),locMaxId,2);
+      clusterEn2E.push_back(clusterE2);
+      float edep  = (clusterEn == 0) ? simHitLayEn2E->at(ilayer) : clusterE2;
+      float CaliE = edep/calFactor[ilayer];
+      TotEdepGeV   += edep;
+      TotEdepGeVWt += (edep*layerWeight[ilayer]);
+      TotEdepMIP   += CaliE;
+      TotEdepMIPWt += CaliE*layerWeight[ilayer];
+      h_SimHitLayerE[ilayer]->Fill(CaliE);
+      if (jentry % nPrintEvent == 0) 
+	std::cout << ilayer+1 << " local Max Id : cluster Energy 2 " 
+		  << locMaxId << " : " << clusterE2 << " : " 
+		  << (*simHitLayEn2E)[ilayer] << std::endl;
+    }
+    h_SimHitTotEGeV->Fill(TotEdepGeV);
+    h_SimHitTotEMIP->Fill(TotEdepMIP);
+    h_SimHitTotEtoBE->Fill(TotEdepGeV/beamE);
+    h_SimHitTotEtoBEWt->Fill(TotEdepGeVWt/beamE);
+    if ((TotEdepGeV/beamE) > cutETotByEBeam) {
+      h_SimHitTotEMIPCut->Fill(TotEdepMIP);
+      h_SimHitTotEMIPCutWt->Fill(TotEdepMIPWt);
+    }
+    for (unsigned int ilayer=0; ilayer<nLayMax; ++ilayer) {
+      float CaliE = (clusterEn == 0) ? (simHitLayEn2E->at(ilayer)/calFactor[ilayer]) : (clusterEn2E[ilayer]/calFactor[ilayer]);
+      if ((TotEdepGeV/beamE) > cutETotByEBeam) {
+	h_SimHitLayerECut[ilayer]->Fill(CaliE);
+	h_SimHitLayerECutWt[ilayer]->Fill(CaliE*layerWeight[ilayer]);
+      }
+    }
   }
-  fout->cd(); fout->Write(); fout->Close();
+  fout->cd(); 
+  h_SimHitTotEGeV->Write();     h_SimHitTotEMIP->Write();
+  h_SimHitTotEtoBE->Write();    h_SimHitTotEtoBEWt->Write();
+  h_SimHitTotEMIPCut->Write();  h_SimHitTotEMIPCutWt->Write();
+  for (unsigned int i=0; i<nLayers; i++) {
+    h_SimHitLayerE[i]->Write();
+    h_SimHitLayerECut[i]->Write();
+    h_SimHitLayerECutWt[i]->Write();
+  }
+  fout->Write(); fout->Close();
 }
 
 void PlotHistTBCompare(std::string infile1, std::string infile2, 
@@ -934,4 +1058,19 @@ void testTopology(bool fine) {
     }
     if (ans == "q" || ans == "Q") break;
   }
+}
+
+
+bool inside(double x, double y) {
+
+  const double size(6.185);
+  const double tan30deg(0.5773502693);
+  double absx = std::abs(x);
+  double absy = std::abs(y);
+  bool   flag(false);
+
+  if (absx <= size && absy <= (2.*size*tan30deg)) {
+    if (absy <= size*tan30deg || absx <= (2.*size - absy/tan30deg)) flag = true;
+  }
+  return flag;
 }
