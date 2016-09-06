@@ -333,7 +333,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
 
 		int sector = -1;
-		bool ME13 = false;
+    //bool ME13 = false;
 		int me1address = 0, me2address = 0, CombAddress = 0, mode_uncorr = 0;
 		int ebx = 20, sebx = 20;
 		int phis[4] = {-99,-99,-99,-99};
@@ -346,11 +346,12 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 			        // thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
 
 				for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
-				  if ( A->TP().detId<CSCDetId>().station() == OutputHits->at(iHit).Station() and
-				       A->TP().getCSCData().cscID          == OutputHits->at(iHit).CSC_ID()  and
-				       A->Wire()                           == OutputHits->at(iHit).Wire()    and
-				       A->Strip()                          == OutputHits->at(iHit).Strip()   and
-				       A->TP().getCSCData().bx - 6         == OutputHits->at(iHit).BX() ) {
+          if ( A->TP().detId<CSCDetId>().station() == OutputHits->at(iHit).Station() &&
+          A->TP().getCSCData().cscID          == OutputHits->at(iHit).CSC_ID()  &&
+          A->Wire()                           == OutputHits->at(iHit).Wire()    &&
+          A->Strip()                          == OutputHits->at(iHit).Strip()   &&
+          A->TP().getCSCData().bx - 6         == OutputHits->at(iHit).BX()      &&
+          A->IsNeighbor()                     == OutputHits->at(iHit).Neighbor() ) {			
 				    thisHit = OutputHits->at(iHit);
 				    thisTrack.push_HitExtraIndex(iHit);
 				    thisTrack.push_HitExtra(thisHit); // Done before theta windows are applied ... how can we do it after? - AWB 29.04.16
@@ -394,7 +395,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
 
 				if(A->TP().detId<CSCDetId>().station() == 1 && A->TP().detId<CSCDetId>().ring() == 3)
-					ME13 = true;
+					//ME13 = true;
 
 				if(station == 1 && id > 3 && id < 7){
 
@@ -492,7 +493,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		// Actual setting in firmware - AWB 12.04.16
 		std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
 
-		if(!ME13 && fabs(eta) > 1.1) {
+	//	if(!ME13 && fabs(eta) > 1.1) {
 		  // // Extra debugging output - AWB 29.03.16
 		  // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
 		  // 	    << ", phi = " << AllTracks[fbest].phi << ", eta = " << eta 
@@ -506,7 +507,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		  // 	    << ", trackFinderType = " << outCand.trackFinderType() << std::endl;
 			holder.push_back(outPair);
 			thisTrack.set_isGMT( 1 );
-		}
+	//	}
 		OutputTracks->push_back( thisTrack );
 		OutTracks->push_back( thisTrack.CreateEMTFTrack() );
 	}
@@ -532,9 +533,12 @@ for(int sect=0;sect<12;sect++){
 
 
 //ev.put( FoundTracks, "DataITC");
-ev.put( OutputCands, "EMTF");
+ ev.put( OutputCands, "EMTF");
  ev.put( OutputHits, "EMTF"); 
  ev.put( OutputTracks, "EMTF");
+ ev.put( OutHits, "EMTF");
+ ev.put( OutTracks, "EMTF");
+
   //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
 
 }//analyzer

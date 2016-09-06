@@ -1,6 +1,5 @@
 #include <string>
 #include <vector>
-
 #include "DQM/L1TMonitor/interface/L1TStage2EMTF.h"
 
 
@@ -10,6 +9,8 @@ L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps)
       trackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       muonToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
+      isData(ps.getUntrackedParameter<bool>("isData", false)),
+      filterBX(ps.getUntrackedParameter<bool>("filterBX", false)),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
 L1TStage2EMTF::~L1TStage2EMTF() {}
@@ -21,7 +22,7 @@ void L1TStage2EMTF::beginLuminosityBlock(const edm::LuminosityBlock&, const edm:
 void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
 
   ibooker.setCurrentFolder(monitorDir);
-
+  
   // DAQ Output Monitor Elements
   emtfErrors = ibooker.book1D("emtfErrors", "EMTF Errors", 6, 0, 6);
   emtfErrors->setAxisTitle("Error Type (Corruptions Not Implemented)", 1);
@@ -120,31 +121,52 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     emtfTrackBX->setBinLabel(12 - i, std::to_string(6 - i) + " (+)", 1);
   }
   emtfTrackBX->setAxisTitle("Track BX", 2);
+  emtfTrackBX1D = ibooker.book1D("emtfTrackBX1D", "EMTF Track BX", 8, -3, 5);
+
+  emtfTrackBX->setAxisTitle("Track BX", 1);
   for (int bin = 1, i = -3; bin <= 8; ++bin, ++i) {
-    emtfTrackBX->setBinLabel(bin, std::to_string(i), 2);
+    emtfTrackBX->setBinLabel(bin, std::to_string(i), 2); 
+    emtfTrackBX1D->setBinLabel(bin, std::to_string(i), 1);
   }
+
 
   emtfTrackPt = ibooker.book1D("emtfTrackPt", "EMTF Track p_{T}", 256, 1, 257);
   emtfTrackPt->setAxisTitle("Track p_{T} [GeV]", 1);
 
+  emtfTrackPtCoarse = ibooker.book1D("emtfTrackPtCoarse", "EMTF Track p_{T} (coarse)", 32, 1, 257);
+  emtfTrackPtCoarse->setAxisTitle("Track p_{T} [GeV]", 1);
+  //emtfTrackPtCoarse->getTH1F()->Sumw2();
+
   emtfTrackEta = ibooker.book1D("emtfTrackEta", "EMTF Track #eta", 100, -2.5, 2.5);
   emtfTrackEta->setAxisTitle("Track #eta", 1);
 
-  emtfTrackPhi = ibooker.book1D("emtfTrackPhi", "EMTF Track #phi", 126, -3.15, 3.15);
+  emtfTrackEtaCoarse = ibooker.book1D("emtfTrackEtaCoarse", "EMTF Track #eta (coarse)", 20, -2.5, 2.5);
+  emtfTrackEtaCoarse->setAxisTitle("Track #eta", 1);
+  //emtfTrackEtaCoarse->getTH1F()->Sumw2();
+
+  emtfTrackPhi = ibooker.book1D("emtfTrackPhi", "EMTF Track #phi", 128, -3.2, 3.2);
   emtfTrackPhi->setAxisTitle("Track #phi", 1);
 
-  emtfTrackPhiHighQuality = ibooker.book1D("emtfTrackPhiHighQuality", "EMTF High Quality #phi", 126, -3.15, 3.15);
+  emtfTrackPhiCoarse = ibooker.book1D("emtfTrackPhiCoarse", "EMTF Track #phi (coarse)", 32, -3.2, 3.2);
+  emtfTrackPhiCoarse->setAxisTitle("Track #phi", 1);
+  //emtfTrackPhiCoarse->getTH1F()->Sumw2();
+
+  emtfTrackPhiHighQuality = ibooker.book1D("emtfTrackPhiHighQuality", "EMTF High Quality #phi", 128, -3.2, 3.2);
   emtfTrackPhiHighQuality->setAxisTitle("Track #phi (High Quality)", 1);
 
   emtfTrackOccupancy = ibooker.book2D("emtfTrackOccupancy", "EMTF Track Occupancy", 100, -2.5, 2.5, 126, -3.15, 3.15);
   emtfTrackOccupancy->setAxisTitle("#eta", 1);
   emtfTrackOccupancy->setAxisTitle("#phi", 2);
 
+  emtfTrackSectorIndex = ibooker.book1D("emtfTrackSectorIndex", "EMTF Track Sector Index", 13, -6.5, 6.5);
+
   emtfTrackMode = ibooker.book1D("emtfTrackMode", "EMTF Track Mode", 16, 0, 16);
   emtfTrackMode->setAxisTitle("Mode", 1);
 
+
   emtfTrackQuality = ibooker.book1D("emtfTrackQuality", "EMTF Track Quality", 16, 0, 16);
   emtfTrackQuality->setAxisTitle("Quality", 1);
+
 
   emtfTrackQualityVsMode = ibooker.book2D("emtfTrackQualityVsMode", "EMTF Track Quality vs Mode", 16, 0, 16, 16, 0, 16);
   emtfTrackQualityVsMode->setAxisTitle("Mode", 1);
@@ -169,45 +191,62 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   emtfMuonhwPt = ibooker.book1D("emtfMuonhwPt", "EMTF Muon Cand p_{T}", 512, 0, 512);
   emtfMuonhwPt->setAxisTitle("Hardware p_{T}", 1);
 
+  emtfMuonhwPtCoarse = ibooker.book1D("emtfMuonhwPtCoarse", "EMTF Muon Cand p_{T} (coarse)", 32, 0, 512);
+  emtfMuonhwPtCoarse->setAxisTitle("Hardware p_{T}", 1);
+  //emtfMuonhwPtCoarse->getTH1F()->Sumw2();
+
+
   emtfMuonhwEta = ibooker.book1D("emtfMuonhwEta", "EMTF Muon Cand #eta", 460, -230, 230);
   emtfMuonhwEta->setAxisTitle("Hardware #eta", 1);
+  //emtfMuonhwEta->getTH1F()->Sumw2();
+
+  emtfMuonhwEtaCoarse = ibooker.book1D("emtfMuonhwEtaCoarse", "EMTF Muon Cand #eta (coarse)", 46, -230, 230);
+  emtfMuonhwEtaCoarse->setAxisTitle("Hardware #eta", 1);
+  //emtfMuonhwEtaCoarse->getTH1F()->Sumw2();
+
 
   emtfMuonhwPhi = ibooker.book1D("emtfMuonhwPhi", "EMTF Muon Cand #phi", 125, -20, 105);
   emtfMuonhwPhi->setAxisTitle("Hardware #phi", 1);
+
+  emtfMuonhwPhiCoarse = ibooker.book1D("emtfMuonhwPhiCoarse", "EMTF Muon Cand #phi (coarse)", 25, -20, 105);
+  emtfMuonhwPhiCoarse->setAxisTitle("Hardware #phi", 1);
+  //emtfMuonhwPhiCoarse->getTH1F()->Sumw2();
 
   emtfMuonhwQual = ibooker.book1D("emtfMuonhwQual", "EMTF Muon Cand Quality", 16, 0, 16);
   emtfMuonhwQual->setAxisTitle("Quality", 1);
   for (int bin = 1; bin <= 16; ++bin) {
     emtfMuonhwQual->setBinLabel(bin, std::to_string(bin - 1), 1);
   }
+
 }
 
 void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   if (verbose) edm::LogInfo("L1TStage2EMTF") << "L1TStage2EMTF: analyze..." << std::endl;
-
+  if (isData){
   // DAQ Output
-  edm::Handle<l1t::EMTFDaqOutCollection> DaqOutCollection;
-  e.getByToken(daqToken, DaqOutCollection);
-
-  for (std::vector<l1t::EMTFDaqOut>::const_iterator DaqOut = DaqOutCollection->begin(); DaqOut != DaqOutCollection->end(); ++DaqOut) {
-    const l1t::emtf::MECollection* MECollection = DaqOut->PtrMECollection();
-    for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
-      if (ME->SE()) emtfErrors->Fill(1);
-      if (ME->SM()) emtfErrors->Fill(2);
-      if (ME->BXE()) emtfErrors->Fill(3);
-      if (ME->AF()) emtfErrors->Fill(4);
+    edm::Handle<l1t::EMTFDaqOutCollection> DaqOutCollection;
+    e.getByToken(daqToken, DaqOutCollection);
+  
+    for (std::vector<l1t::EMTFDaqOut>::const_iterator DaqOut = DaqOutCollection->begin(); DaqOut != DaqOutCollection->end(); ++DaqOut) {
+      const l1t::emtf::MECollection* MECollection = DaqOut->PtrMECollection();
+      for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
+        if (ME->SE()) emtfErrors->Fill(1);
+        if (ME->SM()) emtfErrors->Fill(2);
+        if (ME->BXE()) emtfErrors->Fill(3);
+        if (ME->AF()) emtfErrors->Fill(4);
+      }
+  
+      const l1t::emtf::EventHeader* EventHeader = DaqOut->PtrEventHeader();
+      if (!EventHeader->Rdy()) emtfErrors->Fill(5);
     }
-
-    const l1t::emtf::EventHeader* EventHeader = DaqOut->PtrEventHeader();
-    if (!EventHeader->Rdy()) emtfErrors->Fill(5);
   }
-
   // Hits (LCTs)
   edm::Handle<l1t::EMTFHitCollection> HitCollection;
   e.getByToken(hitToken, HitCollection);
 
   for (std::vector<l1t::EMTFHit>::const_iterator Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit) {
+    if (filterBX && (Hit->BX() > 1 || Hit->BX() < -1)) continue;//restricts BX to -1,0,1 for emulator comparisons, filterBX only true when emulator is run
     int endcap = Hit->Endcap();
     int sector = Hit->Sector();
     int station = Hit->Station();
@@ -277,23 +316,30 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfnTracks->Fill(10);
   }
 
-  for (std::vector<l1t::EMTFTrack>::const_iterator Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
+  for (std::vector<l1t::EMTFTrack>::const_iterator Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) { 
+    if ( filterBX && (Track->BX() > 1 || Track->BX() < -1)) continue;
     int endcap = Track->Endcap();
     int sector = Track->Sector();
     float eta = Track->Eta();
     float phi_glob_rad = Track->Phi_glob_rad();
     int mode = Track->Mode();
     int quality = Track->Quality();
+    int BX = Track->BX();
 
     emtfTracknHits->Fill(Track->NumHits());
-    emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
+    emtfTrackBX->Fill(endcap * (sector - 0.5), BX);
+    emtfTrackBX1D->Fill(BX);
     emtfTrackPt->Fill(Track->Pt());
+    emtfTrackPtCoarse->Fill(Track->Pt());
     emtfTrackEta->Fill(eta);
+    emtfTrackEtaCoarse->Fill(eta);
     emtfTrackPhi->Fill(phi_glob_rad);
+    emtfTrackPhiCoarse->Fill(phi_glob_rad);
     emtfTrackOccupancy->Fill(eta, phi_glob_rad);
     emtfTrackMode->Fill(mode);
     emtfTrackQuality->Fill(quality);
     emtfTrackQualityVsMode->Fill(mode, quality);
+    emtfTrackSectorIndex->Fill(endcap*sector);
     if (mode == 15) emtfTrackPhiHighQuality->Fill(phi_glob_rad);
    }
 
@@ -302,11 +348,15 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   e.getByToken(muonToken, MuonBxCollection);
 
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
+    if (filterBX && (itBX > 1 || itBX < -1)) continue;
     for (l1t::RegionalMuonCandBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
       emtfMuonBX->Fill(itBX);
       emtfMuonhwPt->Fill(Muon->hwPt());
+      emtfMuonhwPtCoarse->Fill(Muon->hwPt());
       emtfMuonhwEta->Fill(Muon->hwEta());
+      emtfMuonhwEtaCoarse->Fill(Muon->hwEta());
       emtfMuonhwPhi->Fill(Muon->hwPhi());
+      emtfMuonhwPhiCoarse->Fill(Muon->hwPhi());
       emtfMuonhwQual->Fill(Muon->hwQual());
     }
   }
