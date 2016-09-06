@@ -111,6 +111,7 @@ addMixingScenario("2015_25ns_FallMC_matchData_PoissonOOTPU",{'file': 'SimGeneral
 addMixingScenario("2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU_cfi'})
 addMixingScenario("2016_25ns_SummerMC_PUScenarioV1_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_SummerMC_PUScenarioV1_PoissonOOTPU_cfi'})
 addMixingScenario("2016_25ns_SummerMC_PUScenarioV2_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_SummerMC_PUScenarioV2_PoissonOOTPU_cfi'})
+addMixingScenario("2016_25ns_SummerMC_PUScenarioV3_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2016_25ns_SummerMC_PUScenarioV3_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 
