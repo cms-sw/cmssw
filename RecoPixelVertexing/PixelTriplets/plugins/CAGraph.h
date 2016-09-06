@@ -19,8 +19,8 @@ class CALayer
 {
 public:
 	CALayer(const std::string& layerName, std::size_t numberOfHits )
+	: theName(layerName)
 	{
-		theName = layerName;
 		isOuterHitOfCell.resize(numberOfHits);
 	}
 
