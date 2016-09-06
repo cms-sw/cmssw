@@ -36,7 +36,8 @@ Implementation:
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
-
+#include "EventFilter/HcalRawToDigi/interface/HcalUHTRData.h"
+#include "EventFilter/HcalRawToDigi/interface/AMC13Header.h"
 #include "HLTrigger/special/interface/HLTHcalCalibTypeFilter.h"
 
 //
@@ -82,35 +83,57 @@ HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Eve
   
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByToken(DataInputToken_,rawdata);
-  
-  // checking FEDs for calibration information
-  int calibType = -1 ; int numEmptyFEDs = 0 ; 
-  std::vector<int> calibTypeCounter(8,0) ;
-  for (int i=FEDNumbering::MINHCALFEDID;
-       i<=FEDNumbering::MAXHCALFEDID; i++) {
-      const FEDRawData& fedData = rawdata->FEDData(i) ; 
-      if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
-      if ( fedData.size() < 24 ) continue ; 
-      int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
-      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
-  }
-  int maxCount = 0 ;
-  int numberOfFEDIds = FEDNumbering::MAXHCALFEDID - FEDNumbering::MINHCALFEDID + 1 ; 
-  for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
-      if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
-      if ( maxCount == numberOfFEDIds ) break ;
-  }
-  if ( calibType < 0 ) return false ; // No HCAL FEDs, thus no calibration type
-  if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
-      edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
-                                             << calibType ; 
-  LogDebug("HLTHcalCalibTypeFilter") << "Calibration type is: " << calibType ;
-  if (Summary_)
-    ++eventsByType_.at(calibType);
 
-  for (unsigned int i=0; i<CalibTypes_.size(); i++) 
-      if ( calibType == CalibTypes_.at(i) ) return true ;
-  return false ; 
+  //    some inits
+  int numZeroes(0), numPositives(0);
+
+  //    loop over all HCAL FEDs
+  for (int fed=FEDNumbering::MINHCALFEDID;
+       fed<=FEDNumbering::MAXHCALuTCAFEDID; fed++) 
+  {
+      //    skip FEDs in between VME and uTCA    
+      if (fed>FEDNumbering::MAXHCALFEDID && fed<FEDNumbering::MINHCALuTCAFEDID)
+            continue;
+
+      //    get raw data and check if there are empty feds
+      const FEDRawData& fedData = rawdata->FEDData(fed) ; 
+      if ( fedData.size() < 24 ) continue ;
+
+      if (fed<=FEDNumbering::MAXHCALFEDID)
+      {
+          //    VME get event type
+          int eventtype = ((const HcalDCCHeader*)(fedData.data()))->getCalibType(); 
+          if (eventtype==0) numZeroes++; else numPositives++;
+      }
+      else 
+      {
+          //    UTCA
+          hcal::AMC13Header const *hamc13 = (hcal::AMC13Header const*) fedData.data();
+          for (int iamc=0; iamc<hamc13->NAMC(); iamc++)
+          {
+              HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
+              int eventtype = uhtr.getEventType();
+              if (eventtype==0) numZeroes++; else numPositives++;
+          }
+      }
+  }
+
+  //
+  //    if there are FEDs with Non-Collission event type, check what the majority is
+  //    if calibs - true
+  //    if 0s - false
+  //
+  if (numPositives>0)
+  {
+    if (numPositives>numZeroes) return true;
+    else
+        edm::LogWarning("HLTHcalCalibTypeFilter") 
+            << "Conflicting Calibration Types found";
+  }
+
+  //    return false if there are no positives
+  //    and if the majority has 0 calib type
+  return false;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

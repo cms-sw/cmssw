@@ -259,27 +259,25 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  conf.getParameter<bool>  ("applyPedConstraint"),
 			  conf.getParameter<bool>  ("applyTimeConstraint"),
 			  conf.getParameter<bool>  ("applyPulseJitter"),
-			  conf.getParameter<bool>  ("applyUnconstrainedFit"),
 			  conf.getParameter<bool>  ("applyTimeSlew"),
 			  conf.getParameter<double>("ts4Min"),
-			  conf.getParameter<double>("ts4Max"),
+			  conf.getParameter<std::vector<double>>("ts4Max"),
 			  conf.getParameter<double>("pulseJitter"),
 			  conf.getParameter<double>("meanTime"),
-			  conf.getParameter<double>("timeSigma"),
+			  conf.getParameter<double>("timeSigmaHPD"),
+			  conf.getParameter<double>("timeSigmaSiPM"),
 			  conf.getParameter<double>("meanPed"),
-			  conf.getParameter<double>("pedSigma"),
-			  conf.getParameter<double>("noise"),
+			  conf.getParameter<double>("pedSigmaHPD"),
+			  conf.getParameter<double>("pedSigmaSiPM"),
+			  conf.getParameter<double>("noiseHPD"),
+			  conf.getParameter<double>("noiseSiPM"),
 			  conf.getParameter<double>("timeMin"),
 			  conf.getParameter<double>("timeMax"),
-			  conf.getParameter<double>("ts3chi2"),
 			  conf.getParameter<double>("ts4chi2"),
-			  conf.getParameter<double>("ts345chi2"),
-			  conf.getParameter<double>("chargeMax"), //For the unconstrained Fit
                           conf.getParameter<int>   ("fitTimes")
 			  );
   }
   reco_.setMeth3Params(
-            conf.getParameter<int>     ("pedestalSubtractionType"),
             conf.getParameter<double>  ("pedestalUpperLimit"),
             conf.getParameter<int>     ("timeSlewParsType"),
             conf.getParameter<std::vector<double> >("timeSlewPars"),
@@ -292,7 +290,6 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setAllowAnything();
-  desc.add<int>("pedestalSubtractionType", 1); 
   desc.add<double>("pedestalUpperLimit", 2.7); 
   desc.add<int>("timeSlewParsType",3);
   desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });

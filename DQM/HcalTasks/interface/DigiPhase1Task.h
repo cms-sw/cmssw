@@ -53,12 +53,24 @@ class DigiPhase1Task : public hcaldqm::DQTask
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
 
+		//	flag vector
+		std::vector<hcaldqm::flag::Flag> _vflags;
+		enum DigiFlag
+		{
+			fDigiSize=0,
+			fUni = 1,
+			fNChsHF = 2,
+			fUnknownIds = 3,
+			nDigiFlag = 4
+		};
+
 		//	hashes/FED vectors
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	emap
 		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
+		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;
 
 		//	Filters
 		hcaldqm::filter::HashFilter _filter_VME;
@@ -93,8 +105,8 @@ class DigiPhase1Task : public hcaldqm::DQTask
 		//	Only for Online mode! just filling - no summary!
 		hcaldqm::ContainerProf1D _cQ2Q12CutvsLS_FEDHF;	//	online only!
 
-		//	Occupancy w/o a Cut - whatever is sitting in the DigiPhase1 Collection
-		//	used to determine Missing DigiPhase1s => used for Summary!
+		//	Occupancy w/o a Cut - whatever is sitting in the Digi Collection
+		//	used to determine Missing Digis => used for Summary!
 		hcaldqm::Container2D _cOccupancy_FEDVME;
 		hcaldqm::Container2D _cOccupancy_FEDuTCA;
 		hcaldqm::Container2D _cOccupancy_ElectronicsVME;
@@ -131,6 +143,8 @@ class DigiPhase1Task : public hcaldqm::DQTask
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
+		MonitorElement *meUnknownIds1LS;
+		bool _unknownIdsPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only

@@ -1999,10 +1999,10 @@ namespace edm {
             }
 
             //If source and DelayedReader share a resource we must serialize them
-            auto sr = input_->resourceSharedWithDelayedReader();
-            std::unique_lock<SharedResourcesAcquirer> delayedReaderGuard;
+            auto sr = input_->resourceSharedWithDelayedReader().second;
+            std::unique_lock<std::recursive_mutex> delayedReaderGuard;
             if(sr) {
-              delayedReaderGuard = std::unique_lock<SharedResourcesAcquirer>(*sr);
+              delayedReaderGuard = std::unique_lock<std::recursive_mutex>(*sr);
             }
             InputSource::ItemType itemType = input_->nextItemType();
             if (InputSource::IsEvent !=itemType) {

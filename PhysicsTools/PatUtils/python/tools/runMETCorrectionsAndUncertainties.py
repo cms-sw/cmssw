@@ -23,7 +23,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters, 'metType', "PF",
-                          "Type of considered MET (only PF supported so far)", Type=str)
+                          "Type of considered MET (only PF and Puppi supported so far)", Type=str)
         self.addParameter(self._defaultParameters, 'correctionLevel', [""],
                           "level of correction : available corrections for pfMet are T0, T1, T2, Txy and Smear; irrelevant entry for MVAMet)",
                           allowedValues=["T0","T1","T2","Txy","Smear",""])
@@ -57,8 +57,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 # the file is used only for local running
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', '',
                           "Extra JES uncertainty file", Type=str)
-        self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'Uncertainty',
-                          "JES uncertainty Tag", Type=str)
+        self.addParameter(self._defaultParameters, 'jecUncertaintyTag', None,
+                          "JES uncertainty Tag", acceptNoneValue=True) # Type=str,
         
         self.addParameter(self._defaultParameters, 'mvaMetLeptons',["Electrons","Muons"],
                           "Leptons to be used for recoil computation in the MVA MET, available values are: Electrons, Muons, Taus, Photons", allowedValues=["Electrons","Muons","Taus","Photons",""])
@@ -83,6 +83,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Switch on miniAOD configuration", Type=bool)
         self.addParameter(self._defaultParameters, 'postfix', '',
                           "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
+
+
+        #private parameters
+        self.addParameter(self._defaultParameters, 'Puppi', False,
+                          "Puppi algorithm (private)", Type=bool)
+
+
+
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -212,9 +220,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('postfix',postfix),
 
         #if mva/puppi MET, autoswitch to std jets
-        if metType == "MVA" or 'Puppi' in postfix:
+        if metType == "MVA" or metType == "Puppi":
             self.setParameter('CHS',False),
 
+        #enabling puppi flag
+        self.setParameter('Puppi',self._defaultParameters['Puppi'].value) 
+        if metType == "Puppi":
+            self.setParameter('metType',"PF") 
+            self.setParameter('Puppi',True) 
+            
         #jet energy scale uncertainty needs
         if manualJetConfig:
             self.setParameter('CHS',CHS)
@@ -231,7 +245,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         
         #ZD: puppi jet reclustering breaks the puppi jets
         #overwriting of jet reclustering parameter for puppi
-        if 'Puppi' in postfix and not onMiniAOD:
+        if self._parameters["Puppi"].value and not onMiniAOD:
             self.setParameter('reclusterJets',False)
 
         #jet collection overloading for automatic jet reclustering or JEC application
@@ -271,8 +285,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #prepare jet configuration
         jetUncInfos = { "jCorrPayload":jetFlavor, "jCorLabelUpToL3":jetCorLabelUpToL3,
                         "jCorLabelL3Res":jetCorLabelL3Res, "jecUncFile":jecUncertaintyFile,
-                        "jecUncTag":jecUncertaintyTag }        
+                        "jecUncTag":"Uncertainty" }     
 
+        if (jecUncertaintyFile!="" and jecUncertaintyTag==None):
+            jetUncInfos[ "jecUncTag" ] = ""
+        elif(jecUncertaintyTag!=None):
+            jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
+            
         patMetModuleSequence = cms.Sequence()
 
         # recompute the MET (and thus the jets as well for correction) from scratch
@@ -332,12 +351,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process,"patPFMetT1T2Corr"+postfix).src = jetCollection
             getattr(process,"patPFMetT2Corr"+postfix).src = jetCollection
             #ZD:puppi currently doesn't have the L1 corrections in the GT
-            if 'Puppi' in postfix:
+            if self._parameters["Puppi"].value:
                 getattr(process,"patPFMetT1T2Corr"+postfix).offsetCorrLabel = cms.InputTag("")
                 getattr(process,"patPFMetT2Corr"+postfix).offsetCorrLabel = cms.InputTag("")
         if "Smear" in metModName:
             getattr(process,"patSmearedJets"+postfix).src = jetCollection
-            if 'Puppi' in postfix:
+            if self._parameters["Puppi"].value:
                 getattr(process,"patPFMetT1T2SmearCorr"+postfix).offsetCorrLabel = cms.InputTag("")
 
  
@@ -531,6 +550,22 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
             getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
+            getattr(process, "pat"+metType+"Met"+postfix).srcPFCands =  cms.InputTag("packedPFCandidates")
+            if postfix=="NoHF":
+                getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(False)
+            if self._parameters["runOnData"].value:
+                getattr(process, "pat"+metType+"Met"+postfix).parameters = METSignificanceParams_Data
+            if self._parameters["Puppi"].value:
+                getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = cms.InputTag('puppiForMET')
+                getattr(process, "pat"+metType+"Met"+postfix).srcJets = cms.InputTag('selectedPatJets'+postfix)
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetSF = cms.string('AK4PFPuppi')
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPt = cms.string('AK4PFPuppi_pt')
+                getattr(process, "pat"+metType+"Met"+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
+
+        #MET significance bypass for the patMETs from AOD
+        if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
+            getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
+            getattr(process, "patMETs"+postfix).srcPFCands=self._parameters["pfCandCollection"].value
 
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
@@ -541,6 +576,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "corrPfMetType1"+postfix).offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector")
             getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector")
         
+        if "T1" in correctionLevel and self._parameters["Puppi"].value:  
+            setattr(process, "corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone() )
+            getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
+            getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
+            getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFPuppiL1FastL2L3ResidualCorrector")
+            getattr(process, "corrPfMetType1"+postfix).offsetCorrLabel = cms.InputTag("ak4PFPuppiL1FastjetCorrector")
+            getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFPuppiL1FastjetCorrector")
+
         if "T1" in correctionLevel and self._parameters["CHS"].value and self._parameters["reclusterJets"].value:
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJetsCHS"+postfix)
 
@@ -1155,7 +1198,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 enabled = cms.bool(smear),
                 variation = cms.int32( int(varyByNsigmas) ),
                 )    
-           
+
+        if self._parameters["Puppi"].value:
+            smearedJetModule.algo = cms.string('AK4PFPuppi')
+            smearedJetModule.algopt = cms.string('AK4PFPuppi_pt')
+
         #MM: FIXME MVA
         #if "MVA" == self._parameters["metType"].value:
         #    from RecoMET.METProducers.METSigParams_cfi import *
@@ -1203,7 +1250,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def recomputeRawMetFromPfcs(self, process, pfCandCollection, onMiniAOD, patMetModuleSequence,  postfix):
-        
         #RECO MET
         if not hasattr(process, "pfMet"+postfix) and self._parameters["metType"].value == "PF":
             #common to AOD/mAOD processing
@@ -1219,13 +1265,23 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix)
                   
             #T1 pfMet for AOD to mAOD only
-            if not onMiniAOD:
+            if not onMiniAOD or self._parameters["Puppi"].value:
                 #correction duplication needed
                 getattr(process, "pfMetT1"+postfix).src = cms.InputTag("pfMet"+postfix)
                 patMetModuleSequence += getattr(process, "pfMetT1"+postfix)
 
                 setattr(process, 'patMETs'+postfix, getattr(process,'patMETs' ).clone() )
                 getattr(process, "patMETs"+postfix).metSource = cms.InputTag("pfMetT1"+postfix)
+                getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
+                if postfix=="NoHF":
+                    getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(False)
+                getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
+                if self._parameters["Puppi"].value:
+                    getattr(process, 'patMETs'+postfix).srcPFCands = cms.InputTag('puppiForMET')
+                    getattr(process, 'patMETs'+postfix).srcJets = cms.InputTag('selectedPatJets'+postfix)
+                    getattr(process, 'patMETs'+postfix).srcJetSF = cms.string('AK4PFPuppi')
+                    getattr(process, 'patMETs'+postfix).srcJetResPt = cms.string('AK4PFPuppi_pt')
+                    getattr(process, 'patMETs'+postfix).srcJetResPhi = cms.string('AK4PFPuppi_phi')
 
 
     def extractMET(self, process, correctionLevel, patMetModuleSequence, postfix):
@@ -1256,7 +1312,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             levels = ['L1FastJet', 
                       'L2Relative', 
                       'L3Absolute'],
-            payload = 'AK4PFchs' ) # always CHS from miniAODs
+            payload = 'AK4PFchs' if not self._parameters["Puppi"].value else 'AK4PFPuppi' ) # always CHS from miniAODs, except for puppi
         
         if self._parameters["runOnData"].value:
             patJetCorrFactorsReapplyJEC.levels.append("L2L3Residual")
@@ -1330,7 +1386,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if not hasattr(process, "pfCHS"+postfix):
                 setattr(process,"pfCHS"+postfix,pfCHS)
             pfCandColl = cms.InputTag("pfCHS"+postfix)
-            
+                   
 
         jetColName+=postfix
         if not hasattr(process, jetColName):
@@ -1338,10 +1394,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             
             #if chs:
             setattr(process, jetColName, getattr(process,"ak4PFJets").clone() )
-
             getattr(process, jetColName).src = pfCandColl 
             getattr(process, jetColName).doAreaFastjet = True
             
+            #puppi
+            #if "Puppi" in postfix:
+            #    getattr(process, jetColName).doAreaFastjet = cms.bool(True)
+            #    getattr(process, jetColName).src = cms.InputTag("puppiNoLep")
+
             patMetModuleSequence += getattr(process, jetColName)
 
             corLevels=['L1FastJet', 'L2Relative', 'L3Absolute']
@@ -1353,19 +1413,24 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                 jetCorrections = ('AK4PF'+CHSname, corLevels , ''),
                                 postfix=postfix
                                 )
-
+            
             getattr(process,"patJets"+postfix).addGenJetMatch = False 
             getattr(process,"patJets"+postfix).addGenPartonMatch = False 
             getattr(process,"patJets"+postfix).addPartonJetMatch = False 
+            getattr(process,"patJets"+postfix).embedGenPartonMatch = False 
+            getattr(process,"patJets"+postfix).embedGenJetMatch = False 
             if self._parameters['onMiniAOD'].value:
                 del getattr(process,"patJets"+postfix).JetFlavourInfoSource
                 del getattr(process,"patJets"+postfix).JetPartonMapSource
+                del getattr(process,"patJets"+postfix).genPartonMatch
+                del getattr(process,"patJets"+postfix).genJetMatch
             getattr(process,"patJets"+postfix).getJetMCFlavour = False
             
             getattr(process,"patJetCorrFactors"+postfix).src=cms.InputTag(jetColName)
             getattr(process,"patJetCorrFactors"+postfix).primaryVertices= cms.InputTag("offlineSlimmedPrimaryVertices")
+            if self._parameters["Puppi"].value:
+                getattr(process,"patJetCorrFactors"+postfix).payload=cms.string('AK4PFPuppi')
 
-         
         return cms.InputTag("patJets"+postfix)
         
 
@@ -1430,7 +1495,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                              metSource = "metrawCalo"+postfix
                              )
             getattr(process,"patCaloMet").addGenMET = False
-            
 
             #smearing and type0 variations not yet supported in reprocessing
             #del getattr(process,"slimmedMETs"+postfix).t1SmearedVarsAndUncs
@@ -1456,6 +1520,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             jetCorLabelL3ResName += "CHS"
         elif "Puppi" in jetFlavor:
             self.setParameter("CHS",False)
+            jetCorLabelUpToL3Name += "Puppi"
+            jetCorLabelL3ResName += "Puppi"
             
         else:
             self.setParameter("CHS",False)
@@ -1559,7 +1625,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
     
     #MET flavors
-    runMETCorrectionsAndUncertainties(process, metType="PF",
+    runMETCorrectionsAndUncertainties(process, metType=metType,
                                       correctionLevel=["T0","T1","T2","Smear","Txy"],
                                       computeUncertainties=False,
                                       produceIntermediateCorrections=True,
@@ -1579,7 +1645,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       )
     
     #MET T1 uncertainties
-    runMETCorrectionsAndUncertainties(process, metType="PF",
+    runMETCorrectionsAndUncertainties(process, metType=metType,
                                       correctionLevel=["T1"],
                                       computeUncertainties=True,
                                       produceIntermediateCorrections=False,
@@ -1599,7 +1665,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       )
     
     #MET T1 Smeared JER uncertainties
-    runMETCorrectionsAndUncertainties(process, metType="PF",
+    runMETCorrectionsAndUncertainties(process, metType=metType,
                                       correctionLevel=["T1","Smear"],
                                       computeUncertainties=True,
                                       produceIntermediateCorrections=False,
@@ -1646,7 +1712,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
 
     #MET T1 uncertainties
-    runMETCorrectionsAndUncertainties(process, metType="PF",
+    runMETCorrectionsAndUncertainties(process, metType=metType,
                                       correctionLevel=["T1"],
                                       computeUncertainties=True,
                                       produceIntermediateCorrections=False,
@@ -1673,7 +1739,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       )
     
     #MET T1+Txy / Smear
-    runMETCorrectionsAndUncertainties(process, metType="PF",
+    runMETCorrectionsAndUncertainties(process, metType=metType,
                                       correctionLevel=["T1","Txy"],
                                       computeUncertainties=False,
                                       produceIntermediateCorrections=True,
@@ -1699,7 +1765,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       postfix=postfix,
                                       )
     #MET T1+Smear + uncertainties
-    runMETCorrectionsAndUncertainties(process, metType="PF",
+    runMETCorrectionsAndUncertainties(process, metType=metType,
                                       correctionLevel=["T1","Smear"],
                                       computeUncertainties=True,
                                       produceIntermediateCorrections=False,

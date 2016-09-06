@@ -34,8 +34,8 @@ DTDDUUnpacker::~DTDDUUnpacker() {
 void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 				     int dduID,
 				     edm::ESHandle<DTReadOutMapping>& mapping,
-				     std::auto_ptr<DTDigiCollection>& detectorProduct,
-				     std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
+				     std::unique_ptr<DTDigiCollection>& detectorProduct,
+				     std::unique_ptr<DTLocalTriggerCollection>& triggerProduct,
 				     uint16_t rosList) {
 
   // Definitions

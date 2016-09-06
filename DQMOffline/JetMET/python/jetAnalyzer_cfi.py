@@ -161,7 +161,7 @@ jetDQMAnalyzerAk4PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCleaned.clone(
     jetsrc = cms.InputTag("slimmedJets"),
 )
 
-jetDQMAnalyzerAk8PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
+jetDQMAnalyzerAk8PFPUPPICleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
     jetsrc = cms.InputTag("slimmedJetsAK8"),
     fillsubstructure =cms.bool(True),
 )

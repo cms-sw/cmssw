@@ -106,6 +106,8 @@ class HcalUHTRData {
   inline uint32_t bunchNumber() const { return uint32_t(m_raw64[0]>>20)&0xFFF; }
   /** \brief Get the HTR orbit number */
   inline uint32_t orbitNumber() const { return uint32_t(m_raw64[1]>>16)&0xFFFF; }
+  /** \brief Get the event type */
+  int getEventType() const { return uint32_t(m_raw64[1]>>40)&0xF; }
   /** \brief Get the raw board id */
   inline uint32_t boardId() const { return uint32_t(m_raw64[1])&0xFFFF; }
   /** \brief Get the board crate */

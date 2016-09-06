@@ -65,8 +65,8 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     EcalTrigTowerDetId * pTTDetId_;   
     EcalTriggerPrimitiveDigi * pTP_;
     EcalPseudoStripInputDigi * pPS_;
-    std::auto_ptr<EcalTrigPrimDigiCollection> * tps_;  
-    std::auto_ptr<EcalPSInputDigiCollection> * pss_;  
+    std::unique_ptr<EcalTrigPrimDigiCollection> * tps_;  
+    std::unique_ptr<EcalPSInputDigiCollection> * pss_;  
 
 };
 

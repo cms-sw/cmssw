@@ -20,5 +20,6 @@ StudyHLT = cms.EDAnalyzer("StudyHLT",
                           TimeMinCutHCAL  = cms.untracked.double(-500.0),
                           TimeMaxCutHCAL  = cms.untracked.double(500.0),
                           IsItAOD         = cms.untracked.bool(False),
-                          DoTree          = cms.untracked.bool(True),
+                          DoTree          = cms.untracked.bool(False),
+                          PUWeights       = cms.untracked.vdouble([]),
 )

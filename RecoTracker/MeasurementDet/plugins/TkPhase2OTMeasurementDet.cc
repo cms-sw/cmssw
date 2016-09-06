@@ -56,21 +56,12 @@ TrackingRecHit::RecHitPointer
 TkPhase2OTMeasurementDet::buildRecHit( const Phase2TrackerCluster1DRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
-  //FIXME:just temporary solution for phase2!
+
   const PixelGeomDetUnit& gdu( specificGeomDet() );
-  const PixelTopology * topo = &gdu.specificTopology();
+  auto && params = cpe()->localParameters( *cluster, gdu );
 
-  float pitch_x = topo->pitch().first;
-  float pitch_y = topo->pitch().second;
-  float ix = cluster->center();
-  float iy = cluster->column()+0.5; // halfway the column
+  return std::make_shared<Phase2TrackerRecHit1D>( params.first, params.second, fastGeomDet(), cluster);
 
-  LocalPoint lp( topo->localX(ix), topo->localY(iy), 0 );          // x, y, z
-  LocalError le( pow(pitch_x, 2) / 12, 0, pow(pitch_y, 2) / 12);   // e2_xx, e2_xy, e2_yy
-  return std::make_shared<Phase2TrackerRecHit1D>( lp, le, fastGeomDet(), cluster);
-
-//  auto && params = cpe()->getParameters( * cluster, gdu, ltp );
-//  return std::make_shared<SiPixelRecHit>( std::get<0>(params), std::get<1>(params), std::get<2>(params), fastGeomDet(), cluster);
 }
 
 TkPhase2OTMeasurementDet::RecHitContainer 

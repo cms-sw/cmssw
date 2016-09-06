@@ -356,6 +356,22 @@ void EvtGenInterface::init(){
     }
   }
 
+  if (fPSet->exists("user_decay_embedded")){
+    std::vector<std::string> user_decay_lines = fPSet->getParameter<std::vector<std::string> >("user_decay_embedded");
+    std::string user_decay_tmp = std::tmpnam(nullptr);
+    FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
+    if (!tmpf) {
+        edm::LogError("EvtGenInterface::~EvtGenInterface") << "EvtGenInterface::init() fails when trying to open a temporary file for embedded user.dec. Terminating program ";
+        exit(0);
+    }
+    for (unsigned int i=0; i<user_decay_lines.size(); i++) {
+        user_decay_lines.at(i) += "\n";
+        std::fputs(user_decay_lines.at(i).c_str(), tmpf);
+    }
+    std::fclose(tmpf);
+    m_EvtGen->readUDecay(user_decay_tmp.c_str());
+  }
+
   // setup pdgid which the generator/hadronizer should not decay
   if (fPSet->exists("operates_on_particles")){
     std::vector<int> tmpPIDs = fPSet->getParameter< std::vector<int> >("operates_on_particles");

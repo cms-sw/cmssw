@@ -34,46 +34,45 @@ namespace edm {
   void
   SharedResourcesRegistry::registerSharedResource(const std::string& resourceName){
 
-    auto& mutexAndCounter = resourceMap_[resourceName];
+    auto& queueAndCounter = resourceMap_[resourceName];
 
     if(resourceName == kLegacyModuleResourceName) {
       ++nLegacy_;
       for(auto & resource : resourceMap_) {
         if(!resource.second.first) {
-          resource.second.first = std::make_shared<std::recursive_mutex>();
+          resource.second.first = std::make_shared<SerialTaskQueue>();
         }
         ++resource.second.second;
       }
     } else {
       // count the number of times the resource was registered
-      ++mutexAndCounter.second;
+      ++queueAndCounter.second;
 
       // When first registering a nonlegacy resource, we have to
       // account for any legacy resource registrations already made. 
-      if(mutexAndCounter.second == 1) {
+      if(queueAndCounter.second == 1) {
         if(nLegacy_ > 0U) {
-          mutexAndCounter.first = std::make_shared<std::recursive_mutex>();
-          mutexAndCounter.second += nLegacy_;
+          queueAndCounter.first = std::make_shared<SerialTaskQueue>();
+          queueAndCounter.second += nLegacy_;
         }
       // If registering a nonlegacy resource the second time and
       // the legacy resource has not been registered yet,
-      // we know we will need the mutex so go ahead and create it.
-      } else if(mutexAndCounter.second == 2) {
-        mutexAndCounter.first = std::make_shared<std::recursive_mutex>();
+      // we know we will need the queue so go ahead and create it.
+      } else if(queueAndCounter.second == 2) {
+        queueAndCounter.first = std::make_shared<SerialTaskQueue>();
       }
     }
   }
 
-  SharedResourcesAcquirer
+  std::pair<SharedResourcesAcquirer, std::shared_ptr<std::recursive_mutex>>
   SharedResourcesRegistry::createAcquirerForSourceDelayedReader() {
     if(not resourceForDelayedReader_) {
       resourceForDelayedReader_ = std::make_shared<std::recursive_mutex>(); // propagate_const<T> has no reset() function
       queueForDelayedReader_ = std::make_shared<SerialTaskQueue>();
     }
-    std::vector<std::recursive_mutex*> mutexes = {resourceForDelayedReader_.get()};
 
-    return SharedResourcesAcquirer(std::move(mutexes),
-                                   get_underlying(queueForDelayedReader_));
+    std::vector<std::shared_ptr<SerialTaskQueue>> queues = {get_underlying(queueForDelayedReader_)};
+    return std::make_pair(SharedResourcesAcquirer(std::move(queues)),get_underlying(resourceForDelayedReader_));
   }
   
   SharedResourcesAcquirer
@@ -92,7 +91,7 @@ namespace edm {
 
     // Sort by how often used and then by name
     // Consistent sorting avoids deadlocks and this particular order optimizes performance
-    std::map<std::pair<unsigned int, std::string>, std::recursive_mutex*> sortedResources;
+    std::map<std::pair<unsigned int, std::string>, std::shared_ptr<SerialTaskQueue>> sortedResources;
 
     // Is this acquirer for a module that depends on the legacy shared resource?
     if(std::find(resourceNames.begin(), resourceNames.end(), kLegacyModuleResourceName) != resourceNames.end()) {
@@ -104,7 +103,7 @@ namespace edm {
         if(resource.first == kLegacyModuleResourceName && resourceMap_.size() > 1) continue;
         //If only one module wants it, it really isn't shared
         if(resource.second.second > 1) {
-          sortedResources.insert(std::make_pair(std::make_pair(resource.second.second, resource.first),resource.second.first.get()));
+          sortedResources.insert(std::make_pair(std::make_pair(resource.second.second, resource.first),resource.second.first));
         }
       }
     // Handle cases where the module does not declare the legacy resource
@@ -114,16 +113,22 @@ namespace edm {
         assert(resource != resourceMap_.end());
         //If only one module wants it, it really isn't shared
         if(resource->second.second > 1) {
-          sortedResources.insert(std::make_pair(std::make_pair(resource->second.second, resource->first),resource->second.first.get()));
+          sortedResources.insert(std::make_pair(std::make_pair(resource->second.second, resource->first),resource->second.first));
         }
       }
     }
 
-    std::vector<std::recursive_mutex*> mutexes;
-    mutexes.reserve(sortedResources.size());
+    std::vector<std::shared_ptr<SerialTaskQueue>> queues;
+    queues.reserve(sortedResources.size());
     for(auto const& resource: sortedResources) {
-      mutexes.push_back(resource.second);
+      queues.push_back(resource.second);
     }
-    return SharedResourcesAcquirer(std::move(mutexes));
+    if(queues.empty()) {
+      //Calling code is depending on there being at least one shared queue
+      queues.reserve(1);
+      queues.push_back(std::make_shared<SerialTaskQueue>());
+    }
+    
+    return SharedResourcesAcquirer(std::move(queues));
   }
 }

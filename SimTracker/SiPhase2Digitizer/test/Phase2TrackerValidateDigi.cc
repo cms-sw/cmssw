@@ -226,7 +226,6 @@ bool Phase2TrackerValidateDigi::findOTDigi(unsigned int detid, unsigned int id) 
     for (edm::DetSet<Phase2TrackerDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {   
       int col = di->column(); // column 
       int row = di->row();    // row
-	
       unsigned int channel = Phase2TrackerDigi::pixelToChannel(row,col);
       unsigned int simTkId = getSimTrackId(otSimLinkHandle_, detid, channel);
       if (simTkId == id) {
@@ -246,7 +245,6 @@ bool Phase2TrackerValidateDigi::findITPixelDigi(unsigned int detid, unsigned int
     for (edm::DetSet<PixelDigi>::const_iterator di = DSVIter->begin(); di != DSVIter->end(); di++) {   
       int col = di->column(); // column 
       int row = di->row();    // row
-	
       unsigned int channel = PixelDigi::pixelToChannel(row,col);
       unsigned int simTkId = getSimTrackId(itPixelSimLinkHandle_, detid, channel);
       if (simTkId == id) {

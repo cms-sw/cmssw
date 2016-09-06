@@ -299,7 +299,7 @@ namespace cms
       for (auto const & digi_p : digi_map) {
 	DigitizerUtility::DigiSimInfo info = digi_p.second;  
 	std::pair<int,int> ip = Phase2TrackerDigi::channelToPixel(digi_p.first);
-	collector.data.emplace_back(ip.first, ip.second);
+	collector.data.emplace_back(ip.first, ip.second, info.ot_bit);
         for (auto const & track_p : info.track_map) {
 	  linkcollector.data.emplace_back(digi_p.first, track_p.first, info.hit_counter, info.tof_bin, info.event_id, track_p.second);
 	}
