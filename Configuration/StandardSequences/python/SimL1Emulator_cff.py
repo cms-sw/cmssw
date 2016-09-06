@@ -10,8 +10,4 @@ if eras.fastSim.isChosen():
     from FastSimulation.Configuration.DigiAliases_cff import loadTriggerDigiAliases
     loadTriggerDigiAliases()
     from FastSimulation.Configuration.DigiAliases_cff import gtDigis,gmtDigis,gctDigis,caloStage1LegacyFormatDigis
-
-
-
-
-
+    

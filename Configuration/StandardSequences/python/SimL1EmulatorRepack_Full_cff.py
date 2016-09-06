@@ -71,8 +71,8 @@ else:
     # -----------------------------------------------------------
 
     # BMTF
-    simBmtfDigis.DTDigi_Source       = cms.InputTag("unpackBmtf:PhiDigis")
-    simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackBmtf:TheDigis")
+    simBmtfDigis.DTDigi_Source       = cms.InputTag("unpackBmtf")
+    simBmtfDigis.DTDigi_Theta_Source = cms.InputTag("unpackBmtf")
 
     # OMTF
     simOmtfDigis.srcRPC              = cms.InputTag('unpackRPC')
