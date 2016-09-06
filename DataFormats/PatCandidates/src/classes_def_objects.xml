@@ -150,7 +150,7 @@
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
   <class name="pat::tau::TauPFEssential" ClassVersion="12">
-    <version ClassVersion="12" checksum="853010979" />
+    <version ClassVersion="12" checksum="1052833547" /> 
     <version ClassVersion="11" checksum="1193752112" />
     <version ClassVersion="10" checksum="1628501942" />
   </class>

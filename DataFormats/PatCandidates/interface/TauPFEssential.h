@@ -50,10 +50,15 @@ struct TauPFEssential {
   CovMatrix svCov_;
   float ip3d_;
   float ip3d_error_;
-  float ip3d_Sig_;
   float ecalEnergy_;
   float hcalEnergy_;
   float leadingTrackNormChi2_;
+  float etaAtEcalEntrance_;
+  float ecalEnergyLeadChargedHadrCand_;
+  float hcalEnergyLeadChargedHadrCand_;
+  float etaAtEcalEntranceLeadChargedCand_;
+  float ptLeadChargedCand_;
+  float emFraction_;
 };
 
 } }
