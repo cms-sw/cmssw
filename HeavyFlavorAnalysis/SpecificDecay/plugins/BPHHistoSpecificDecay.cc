@@ -588,7 +588,7 @@ void BPHHistoSpecificDecay::analyze( const edm::Event& ev,
                                     "primaryVertex" ) ) ) continue;
     if ( !oniaDaughterSelect->accept( cand ) ) continue;
     fillHisto( "Full", cand );
-    if (  phiBasicSelect->accept( cand ) ) fillHisto( "phi"   , cand );
+    if (  phiBasicSelect->accept( cand ) ) fillHisto( "Phi"   , cand );
     if ( jPsiBasicSelect->accept( cand ) ) fillHisto( "JPsi"  , cand );
     if ( psi2BasicSelect->accept( cand ) ) fillHisto( "Psi2"  , cand );
     if (  upsBasicSelect->accept( cand ) ) fillHisto( "Ups123", cand );
