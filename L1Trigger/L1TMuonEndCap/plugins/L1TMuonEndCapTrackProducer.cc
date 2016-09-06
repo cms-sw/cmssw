@@ -75,8 +75,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   std::vector<BTrack> PTracks[NUM_SECTORS];
   std::vector<BTrack> PTracks_BX[NUM_SECTORS][3];
 
-  std::vector<TriggerPrimitive> tester;
-  std::vector<TriggerPrimitive> tester_rpc;
+  std::vector<L1TMuon::TriggerPrimitive> tester;
+  std::vector<L1TMuon::TriggerPrimitive> tester_rpc;
   //std::vector<InternalTrack> FoundTracks;
 
   // Get the RPC geometry
@@ -96,8 +96,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   edm::Handle<RPCDigiCollection> RDC;
   ev.getByToken(inputTokenRPC, RDC);
   
-  std::vector<TriggerPrimitive> out;
-  std::vector<TriggerPrimitive> out_rpc;
+  std::vector<L1TMuon::TriggerPrimitive> out;
+  std::vector<L1TMuon::TriggerPrimitive> out_rpc;
 
   auto chamber = MDC->begin();
   auto chend  = MDC->end();
@@ -107,7 +107,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     for( ; digi != dend; ++digi ) {
       CSCCorrelatedLCTDigi tmp_digi = *digi;
       tmp_digi.setBX( tmp_digi.getBX() + std::max(bxShiftCSC, -1*tmp_digi.getBX()) );
-      out.push_back(TriggerPrimitive((*chamber).first,tmp_digi));
+      out.push_back(L1TMuon::TriggerPrimitive((*chamber).first,tmp_digi));
       l1t::EMTFHitExtra thisHit;
       thisHit.ImportCSCDetId( (*chamber).first );
       thisHit.ImportCSCCorrelatedLCTDigi( tmp_digi );
@@ -129,13 +129,13 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto rdigi = (*rchamber).second.first;
     auto rdend = (*rchamber).second.second;
     for( ; rdigi != rdend; ++rdigi) {
-      out_rpc.push_back(TriggerPrimitive( (*rchamber).first, rdigi->strip(), 0, rdigi->bx())); // Layer unset.  How to access? - AWB 03.06.16 
+      out_rpc.push_back(L1TMuon::TriggerPrimitive( (*rchamber).first, rdigi->strip(), 0, rdigi->bx())); // Layer unset.  How to access? - AWB 03.06.16 
     }
   }
   
   
   //////////////////////////////////////////////
-  ///////// Get Trigger Primitives /////////////  Retrieve TriggerPrimitives from the event record: Currently does nothing because we don't take RPC's
+  ///////// Get Trigger Primitives /////////////  Retrieve L1TMuon::TriggerPrimitives from the event record: Currently does nothing because we don't take RPC's
   //////////////////////////////////////////////
   
   // auto tpsrc = _tpinputs.cbegin();
@@ -163,8 +163,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	   out[i1].getBX() == out[i2].getBX() && out[i1].Id() == out[i2].Id() &&
 	   out[i1].getStrip() != out[i2].getStrip() && out[i1].getWire() != out[i2].getWire() ) {
 	
-	TriggerPrimitive NewWire1(out[i1],out[i2]);
-	TriggerPrimitive NewWire2(out[i2],out[i1]);
+	L1TMuon::TriggerPrimitive NewWire1(out[i1],out[i2]);
+	L1TMuon::TriggerPrimitive NewWire2(out[i2],out[i1]);
 	tester.push_back(NewWire1);
 	tester.push_back(NewWire2);
       } 
