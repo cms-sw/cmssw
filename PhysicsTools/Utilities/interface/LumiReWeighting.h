@@ -223,7 +223,7 @@ namespace edm {
 		     std::string dataFile,
 		     std::string GenHistName,
 		     std::string DataHistName,
-                     const edm::InputTag& PileupSumInfoInputTag);
+		     const edm::InputTag& PileupSumInfoInputTag);
     
     LumiReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag);
 
