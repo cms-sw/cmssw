@@ -5,7 +5,6 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -152,11 +151,12 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
 	// re-used thoughout, need to be vectors because of RZLine interface
-	std::vector<float> bc_r(3), bc_z(3), bc_errZ(3);
-
-	declareDynArray(GlobalPoint, 3, gps);
-	declareDynArray(GlobalError, 3, ges);
-	declareDynArray(bool, 3, barrels);
+	std::array<float, 3> bc_r;
+	std::array<float, 3> bc_z;
+	std::array<float, 3> bc_errZ2;
+	std::array < GlobalPoint, 3 > gps;
+	std::array < GlobalError, 3 > ges;
+	std::array<bool, 3> barrels;
 
 	for (unsigned int tripletId = 0; tripletId < numberOfFoundTriplets;
 			++tripletId)
@@ -208,22 +208,18 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 				bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt,
 						es)(bc_r[i]);
 				bc_z[i] = point.z() - region.origin().z();
-				bc_errZ[i] =
+				bc_errZ2[i] =
 						(barrels[i]) ?
-								sqrt(error.czz()) :
-								sqrt(error.rerr(point)) * simpleCot;
+								error.czz() :
+								error.rerr(point) * sqr(simpleCot);
 			}
-			RZLine rzLine(bc_r, bc_z, bc_errZ);
-			float cottheta, intercept, covss, covii, covsi;
-			rzLine.fit(cottheta, intercept, covss, covii, covsi);
-			chi2 = rzLine.chi2(cottheta, intercept);
+			RZLine rzLine(bc_r, bc_z, bc_errZ2, RZLine::ErrZ2_tag());
+			chi2 = rzLine.chi2();
 		}
 		else
 		{
 			RZLine rzLine(gps, ges, barrels);
-			float cottheta, intercept, covss, covii, covsi;
-			rzLine.fit(cottheta, intercept, covss, covii, covsi);
-			chi2 = rzLine.chi2(cottheta, intercept);
+			chi2 = rzLine.chi2();
 		}
 
 		if (edm::isNotFinite(chi2) || chi2 > thisMaxChi2)
