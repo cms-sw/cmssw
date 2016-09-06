@@ -39,12 +39,13 @@ using namespace edm;
 LumiReWeighting::LumiReWeighting( std::string generatedFile,
 		   std::string dataFile,
 		   std::string GenHistName = "pileup",
-		   std::string DataHistName = "pileup" ) :
+		   std::string DataHistName = "pileup",
+		   const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) ) :
       generatedFileName_( generatedFile), 
       dataFileName_     ( dataFile ), 
       GenHistName_      ( GenHistName ), 
       DataHistName_     ( DataHistName ),
-      pileupSumInfoTag_ ( edm::InputTag("addPileupInfo") )
+      pileupSumInfoTag_ ( PileupSumInfoInputTag )
       {
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
@@ -82,8 +83,8 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	OldLumiSection_ = -1;
 }
 
-LumiReWeighting::LumiReWeighting(const std::vector< float >& MC_distr,const std::vector< float >& Lumi_distr) :
-  pileupSumInfoTag_ ( edm::InputTag("addPileupInfo") )
+LumiReWeighting::LumiReWeighting(const std::vector< float >& MC_distr,const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag = edm::InputTag( "addPileupInfo" ) ) :
+      pileupSumInfoTag_ ( PileupSumInfoInputTag )
   {
   // no histograms for input: use vectors
   
