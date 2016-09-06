@@ -72,6 +72,7 @@ namespace edmtest
     explicit SewerModule(edm::ParameterSet const&);
     virtual ~SewerModule();
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
   private:
     virtual void write(edm::EventForOutput const& e) override;
     virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {}
@@ -201,6 +202,19 @@ namespace edmtest
 	abort();
       }
   }
+  
+  void
+  SewerModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    desc.setComment("Tracks number of times the write method is called.");
+    desc.add<std::string>("name")
+    ->setComment("name used in printout");
+    desc.add<int>("shouldPass")
+    ->setComment("number of times write should be called");
+    edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+    descriptions.add("sewerModule", desc);
+  }
+
 }
 
 using edmtest::TestFilterModule;
