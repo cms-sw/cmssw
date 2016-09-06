@@ -22,6 +22,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -126,6 +128,7 @@ private:
     edm::EDGetTokenT< QIE11DigiCollection > tok_qie11_hbhe_; 
     
     edm::ESHandle<CaloGeometry> geometry;
+
     edm::ESHandle<HcalDbService> conditions;
 
     //TP Code

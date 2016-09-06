@@ -83,17 +83,18 @@ void HcalDigisValidation::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[3] ? maxDepth_[0] : maxDepth_[3]);
   maxDepth_[0] = (maxDepth_[0] > maxDepth_[4] ? maxDepth_[0] : maxDepth_[4]); // any of HB/HE/HO/HF
 
-  es.get<CaloGeometryRecord > ().get(geometry);
+  es.get<CaloGeometryRecord>().get(geometry);
+  const CaloGeometry* geo = geometry.product();
+  const HcalGeometry* gHB = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+  const HcalGeometry* gHE = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
+  const HcalGeometry* gHO = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalOuter));
+  const HcalGeometry* gHF = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalForward));
 
-  const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const std::vector<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const std::vector<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const std::vector<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
+  nChannels_[1] = gHB->getHxSize(1); 
+  nChannels_[2] = gHE->getHxSize(2); 
+  nChannels_[3] = gHO->getHxSize(3); 
+  nChannels_[4] = gHF->getHxSize(4); 
 
-  nChannels_[1] = hbCells.size(); 
-  nChannels_[2] = heCells.size(); 
-  nChannels_[3] = hoCells.size(); 
-  nChannels_[4] = hfCells.size();
   nChannels_[0] = nChannels_[1] + nChannels_[2] + nChannels_[3] + nChannels_[4];
 
   //std::cout << "Channels HB:" << nChannels_[1] << " HE:" << nChannels_[2] << " HO:" << nChannels_[3] << " HF:" << nChannels_[4] << std::endl;
