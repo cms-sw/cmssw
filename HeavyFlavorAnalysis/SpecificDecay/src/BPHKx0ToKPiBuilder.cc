@@ -48,7 +48,7 @@ BPHKx0ToKPiBuilder::BPHKx0ToKPiBuilder(
   pCollection( pionCollection ) {
     ptSel = new BPHParticlePtSelect (  0.7 );
    etaSel = new BPHParticleEtaSelect( 10.0 );
-  massSel = new BPHMassSelect( 0.61, 1.18 );
+  massSel = new BPHMassSelect( 0.75, 1.05 );
   chi2Sel = new BPHChi2Select( 0.0 );
   updated = false;
 }
@@ -80,7 +80,6 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
   bKx0.filter( kaonName, *etaSel );
   bKx0.filter( pionName, *etaSel );
 
-  bKx0.filter( *massSel );
   bKx0.filter( *chi2Sel );
 
   vector<BPHPlusMinusConstCandPtr>
@@ -88,6 +87,7 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
 
   int ikx;
   int nkx = tmpList.size();
+  kx0List.clear();
   kx0List.reserve( nkx );
   for ( ikx = 0; ikx < nkx; ++ikx ) {
     BPHPlusMinusConstCandPtr& px0 = tmpList[ikx];
@@ -100,10 +100,12 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
               BPHParticleMasses::kaonMass );
     if ( fabs( kx0->composite().mass() - BPHParticleMasses::kx0Mass ) <
          fabs( kxb->composite().mass() - BPHParticleMasses::kx0Mass ) ) {
-      kx0List.push_back( px0 );
       delete kxb;
+      if ( !massSel->accept( *px0 ) ) continue;
+      kx0List.push_back( px0 );
     }
     else {
+      if ( !massSel->accept( *kxb ) ) continue;
       kx0List.push_back( BPHPlusMinusConstCandPtr( kxb ) );
     }
   }
