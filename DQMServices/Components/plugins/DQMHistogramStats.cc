@@ -105,24 +105,28 @@ HistoEntry DQMHistogramStats::analyze(MonitorElement *m) {
       e.bin_size = sizeof(float);
       getDimensionX(e.dimX, m);
       getDimensionY(e.dimY, m);
+      e.dimNumber = 2;
       break;
     case MonitorElement::DQM_KIND_TH2S:
       e.type = "TH2S";
       e.bin_size = sizeof(short);
       getDimensionX(e.dimX, m);
       getDimensionY(e.dimY, m);
+      e.dimNumber = 2;
       break;
     case MonitorElement::DQM_KIND_TH2D:
       e.type = "TH2D";
       e.bin_size = sizeof(double);
       getDimensionX(e.dimX, m);
       getDimensionY(e.dimY, m);
+      e.dimNumber = 2;
       break;
     case MonitorElement::DQM_KIND_TPROFILE2D:
       e.type = "TProfile2D";
       e.bin_size = sizeof(double);
       getDimensionX(e.dimX, m);
       getDimensionY(e.dimY, m);
+      e.dimNumber = 2;
       break;
 
     // three-dim ME
@@ -132,6 +136,7 @@ HistoEntry DQMHistogramStats::analyze(MonitorElement *m) {
       getDimensionX(e.dimX, m);
       getDimensionY(e.dimY, m);
       getDimensionZ(e.dimZ, m);
+      e.dimNumber = 3;
       break;
 
     default:

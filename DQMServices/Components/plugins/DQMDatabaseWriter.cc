@@ -131,27 +131,15 @@ void DQMDatabaseWriter::initDatabase()
     table2.setName( "HISTOGRAM_PROPS" );
     table2.insertColumn( "PATH", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
     table2.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<unsigned int>() );
-    table2.insertColumn( "X_BINS", coral::AttributeSpecification::typeNameForType<int>() );
-    table2.insertColumn( "X_LOW", coral::AttributeSpecification::typeNameForType<double>() );
-    table2.insertColumn( "X_UP", coral::AttributeSpecification::typeNameForType<double>() );
-    table2.insertColumn( "Y_BINS", coral::AttributeSpecification::typeNameForType<int>() );
-    table2.insertColumn( "Y_LOW", coral::AttributeSpecification::typeNameForType<double>() );
-    table2.insertColumn( "Y_UP", coral::AttributeSpecification::typeNameForType<double>() );
-    table2.insertColumn( "Z_BINS", coral::AttributeSpecification::typeNameForType<int>() );
-    table2.insertColumn( "Z_LOW", coral::AttributeSpecification::typeNameForType<double>() );
-    table2.insertColumn( "Z_UP", coral::AttributeSpecification::typeNameForType<double>() );
+    table2.insertColumn( "DIMENSIONS", coral::AttributeSpecification::typeNameForType<int>() );
+    table2.insertColumn( "X_AXIS", coral::AttributeSpecification::typeNameForType<std::string>() );
+    table2.insertColumn( "Y_AXIS", coral::AttributeSpecification::typeNameForType<std::string>() );
+    table2.insertColumn( "Z_AXIS", coral::AttributeSpecification::typeNameForType<std::string>() );
 
     table2.setNotNullConstraint( "PATH" );
     table2.setNotNullConstraint( "RUN_NUMBER" );
-    table2.setNotNullConstraint( "X_BINS" );
-    table2.setNotNullConstraint( "X_LOW" );
-    table2.setNotNullConstraint( "X_UP" );
-    table2.setNotNullConstraint( "Y_BINS" );
-    table2.setNotNullConstraint( "Y_LOW" );
-    table2.setNotNullConstraint( "Y_UP" );
-    table2.setNotNullConstraint( "Z_BINS" );
-    table2.setNotNullConstraint( "Z_LOW" );
-    table2.setNotNullConstraint( "Z_UP" );
+    table2.setNotNullConstraint( "DIMENSIONS" );
+    table2.setNotNullConstraint( "X_AXIS" );
 
     std::vector<std::string> columnsForPrimaryKey2;
     columnsForPrimaryKey2.push_back( "PATH" );
@@ -245,18 +233,21 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
 
   bool histogramPropsRecordExist;
   bool histogramValuesRecordExist;
-
+  bool histogramRecordExist;
   coral::ISchema& schema = m_session->nominalSchema();
 
   for (auto histogram : stats)
   {
+    histogramRecordExist = false;
     {
       m_session->transaction().start( false );
       coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM" ).newQuery();
       queryHistogramProps->addToOutputList( "PATH" );
 
-      std::string condition = "PATH = \"" + histogram.path + "\"";
+      std::string condition = "PATH = :path\"";
       coral::AttributeList conditionData2;
+      conditionData2.extend< std::string >("path");
+      conditionData2["path"].data< std::string >() = histogram.path; 
       queryHistogramProps->setCondition( condition, conditionData2 );
       queryHistogramProps->setMemoryCacheSize( 5 );
       coral::ICursor& cursor2 = queryHistogramProps->execute();
@@ -264,6 +255,14 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
       while(cursor2.next())
       {
         cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
+        std::stringstream ss;
+        cursor2.currentRow()["PATH"].toOutputStream( ss );
+        std::string s = ss.str();
+        std::cout << "MANO PATHAS: "<< s << std::endl;
+
+        std::string pathValue = s.substr(s.find(":") + 2);
+        std::cout << "MANO PATHAS: " << pathValue << std::endl;
+        if (pathValue == histogram.path) histogramRecordExist = true;
         ++numberOfRows;
       }
       delete queryHistogramProps;
@@ -286,24 +285,40 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
 
     histogramPropsRecordExist = false;
     {
-      coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
-      queryHistogramProps->addToOutputList( "PATH" );
-      queryHistogramProps->addToOutputList( "RUN_NUMBER" );
+      if (!histogramRecordExist){
+        coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery(); //TODO unique pointer
+        queryHistogramProps->addToOutputList( "PATH" );
+        queryHistogramProps->addToOutputList( "RUN_NUMBER" );
 
-      std::string condition = "PATH = \"" + histogram.path + "\"" + " AND RUN_NUMBER = \"" + std::to_string(run) + "\"";
-      coral::AttributeList conditionData2;
-      queryHistogramProps->setCondition( condition, conditionData2 );
-      queryHistogramProps->setMemoryCacheSize( 5 );
-      coral::ICursor& cursor2 = queryHistogramProps->execute();
-      int numberOfRows = 0;
-      while(cursor2.next())
-      {
-        cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
-        ++numberOfRows;
-      }
-      delete queryHistogramProps;
-      if ( numberOfRows == 1 )
-      {
+        std::string condition = "PATH = :path\"" + histogram.path + "\"" + " AND RUN_NUMBER = :run\"" + std::to_string(run) + "\"";
+        coral::AttributeList conditionData2;
+        queryHistogramProps->setCondition( condition, conditionData2 );
+        queryHistogramProps->setMemoryCacheSize( 5 );
+        coral::ICursor& cursor2 = queryHistogramProps->execute();
+        int numberOfRows = 0;
+        while(cursor2.next())
+        {
+        /*  std::stringstream ss;
+          cursor2.currentRow()["PATH"].toOutputStream( ss );
+          std::string s = ss.str();
+          std::string pathValue = s.substr(s.find(":") + 2);
+
+          cursor2.currentRow()["PATH"].toOutputStream( ss );
+          s = ss.str();
+          int runValue = std::stoi(s.substr(s.find(":") + 2));
+
+          std::cout << "MANO RUN: " << runValue << std::endl;
+          if (pathValue == histogram.path && runValue == run) histogramPropsRecordExist = true;
+          */
+          cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
+          ++numberOfRows;
+        }
+        delete queryHistogramProps;
+        if ( numberOfRows == 1 )
+        {
+          histogramPropsRecordExist = true;
+        }
+      }else{
         histogramPropsRecordExist = true;
       }
       m_session->transaction().commit();
@@ -316,27 +331,17 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
         coral::AttributeList insertData;
         insertData.extend< std::string >( "PATH" );
         insertData.extend< unsigned int >( "RUN_NUMBER" );
-        insertData.extend< int >( "X_BINS" );
-        insertData.extend< double >( "X_LOW" );
-        insertData.extend< double >( "X_UP" );
-        insertData.extend< int >( "Y_BINS" );
-        insertData.extend< double >( "Y_LOW" );
-        insertData.extend< double >( "Y_UP" );
-        insertData.extend< int >( "Z_BINS" );
-        insertData.extend< double >( "Z_LOW" );
-        insertData.extend< double >( "Z_UP" );
+        insertData.extend< int >( "DIMENSIONS" );
+        insertData.extend< std::string >( "X_AXIS" );
+        insertData.extend< std::string >( "Y_AXIS" );
+        insertData.extend< std::string >( "Z_AXIS" );
 
-        insertData[ "PATH" ].data< std::string >() = histogram.path; //TODO: MERGE
+        insertData[ "PATH" ].data< std::string >() = histogram.path;
         insertData[ "RUN_NUMBER" ].data< unsigned int >() = run;
-        insertData[ "X_BINS" ].data< int >() = histogram.dimX.nBin; //or histogram->getTH1()->GetNbinsX() ?
-        insertData[ "X_LOW" ].data< double >() = histogram.dimX.low;
-        insertData[ "X_UP" ].data< double >() = histogram.dimX.up;
-        insertData[ "Y_BINS" ].data< int >() = histogram.dimY.nBin; //histogram->getNbinsY();
-        insertData[ "Y_LOW" ].data< double >() = histogram.dimY.low; //histogram->getTH1()->GetYaxis()->GetXMin();
-        insertData[ "Y_UP" ].data< double >() = histogram.dimY.up; //histogram->getTH1()->GetYaxis()->GetXMax();
-        insertData[ "Z_BINS" ].data< int >() = histogram.dimY.nBin; //histogram->getNbinsZ();
-        insertData[ "Z_LOW" ].data< double >() = histogram.dimZ.low; //histogram->getTH1()->GetZaxis()->GetXMin();
-        insertData[ "Z_UP" ].data< double >() = histogram.dimZ.up; //histogram->getTH1()->GetZaxis()->GetXMax();
+        insertData[ "DIMENSIONS" ].data< int >() = histogram.dimNumber; 
+        insertData[ "X_AXIS" ].data< std::string >() = dimensionJson(histogram.dimX);
+        insertData[ "Y_AXIS" ].data< std::string >() = dimensionJson(histogram.dimY);
+        insertData[ "Z_AXIS" ].data< std::string >() = dimensionJson(histogram.dimZ);
         editor.insertRow( insertData );
     }
     m_session->transaction().commit();
@@ -400,7 +405,7 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
       insertData[ "PATH" ].data< std::string >() = histogram.path;
       insertData[ "RUN_NUMBER" ].data< unsigned int >() = run;
       insertData[ "LUMISECTION" ].data< unsigned int >() = lumisection;
-      insertData[ "ENTRIES" ].data< double >() = histogram.entries; //or histogram->getTH1()->GetEntries() ?
+      insertData[ "ENTRIES" ].data< double >() = histogram.entries;
       insertData[ "X_MEAN" ].data< double >() = histogram.dimX.mean;
       insertData[ "X_MEAN_ERROR" ].data< double >() = histogram.dimX.meanError;
       insertData[ "X_RMS" ].data< double >() = histogram.dimX.rms;
@@ -423,6 +428,28 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
       m_session->transaction().commit();
     }
   }
-
 }
+
+  std::string DQMDatabaseWriter::toString(boost::property_tree::ptree doc){
+
+    boost::regex exp("\"([0-9]+(\\.[0-9]+)?)\"");
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, doc);
+    std::string rv = boost::regex_replace(ss.str(), exp, "$1");
+    return rv;
+  }
+
+  std::string DQMDatabaseWriter::dimensionJson(Dimension &dim){
+    using boost::property_tree::ptree;
+
+    if (dim.nBin == 0 && dim.low == 0 && dim.up == 0) return "";
+
+    ptree doc;
+    doc.put("bins", dim.nBin);
+    doc.put("low", dim.low);
+    doc.put("up", dim.up);
+
+    return toString(doc);
+  }
+
 

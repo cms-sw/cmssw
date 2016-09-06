@@ -22,6 +22,7 @@ class HistoEntry {
   double entries = 0;
   int maxBin = 0, minBin = 0;
   double maxValue = 0, minValue = 0;
+  int dimNumber = 1;
   Dimension dimX, dimY, dimZ; 
 
   bool operator<(const HistoEntry &rhs) const { return path < rhs.path; }

@@ -26,6 +26,9 @@
 //CORAL includes
 #include "RelationalAccess/ConnectionService.h"
 
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
 //STL includes
 #include <memory>
 #include <string>
@@ -59,7 +62,10 @@ protected:
   std::unique_ptr<coral::ISessionProxy> m_session;
   std::string m_connectionString;
 
-};
+private:
+  std::string toString(boost::property_tree::ptree doc);
+  std::string dimensionJson(Dimension &dim);
 
+};
 
 #endif
