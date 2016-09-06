@@ -2,8 +2,8 @@
 //
 // Package:    SiPixelPhase1Common
 // Class:      GeometryInterface
-// 
-// Geometry depedence goes here. 
+//
+// Geometry depedence goes here.
 //
 // Original Author:  Marcel Schneider
 
@@ -39,7 +39,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadFEDCabling(iSetup, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
-  for (auto e : ids) log << "+++ column: " << e.first 
+  for (auto e : ids) log << "+++ column: " << e.first
     << " ok " << bool(extractors[e.second]) << " min " << min_value[e.second] << " max " << max_value[e.second] << "\n";
   is_loaded = true;
 }
@@ -56,9 +56,9 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     const TrackerTopology* tt;
     TrackerTopology::DetIdFields field;
     Value operator()(InterestingQuantities const& iq) {
-      if (tt->hasField(iq.sourceModule, field)) 
+      if (tt->hasField(iq.sourceModule, field))
         return tt->getField(iq.sourceModule, field);
-      else 
+      else
         return UNDEFINED;
     };
   };
@@ -81,7 +81,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
   for (auto& e : namedPartitions) {
     geomquantities.push_back(intern(e.first));
-    addExtractor(intern(e.first), e.second, UNDEFINED, 0);
+    addExtractor(intern(e.first), e.second, UNDEFINED, UNDEFINED);
   }
 
   auto pxbarrel  = [] (InterestingQuantities const& iq) { return iq.sourceModule.subdetId() == PixelSubdetector::PixelBarrel ? 0 : UNDEFINED; };
@@ -99,57 +99,69 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
     auto endcap = pxendcap(iq);
     return endcap == 1 ? -disk : disk;
   };
- 
+
   // Get a Geometry
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
   assert(trackerGeometryHandle.isValid());
-  
+
+  // some parameters to record the ROCs here
+  auto module_rows = iConfig.getParameter<int>("module_rows") - 1;
+  auto module_cols = iConfig.getParameter<int>("module_cols") - 1;
+
   // We need to track some extra stuff here for the Shells later.
   auto pxlayer  = extractors[intern("PXLayer")];
   auto pxladder = extractors[intern("PXLadder")];
+  auto pxmodule = extractors[intern("PXBModule")];
+  auto pxblade  = extractors[intern("PXBlade")];
   std::vector<Value> maxladders;
+  Value maxmodule = 0;
+  Value innerring = iConfig.getParameter<int>("n_inner_ring_blades");
+  Value outerring = 0;
 
   // Now travrse the detector and collect whatever we need.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap) continue;
     auto iq = InterestingQuantities{.sourceModule = id };
-    for (ID q : geomquantities) {
-      Value v = extractors[q](iq);
-      if (v != UNDEFINED) {
-        if (v < min_value[q]) min_value[q] = v;
-        if (v > max_value[q]) max_value[q] = v;
-      }
-    }
     auto layer = pxlayer(iq);
     if (layer != UNDEFINED) {
       if (layer >= Value(maxladders.size())) maxladders.resize(layer+1);
       auto ladder = pxladder(iq);
       if (ladder > maxladders[layer]) maxladders[layer] = ladder;
     }
-    // for ROCs etc., they need to be added here as well.
+    auto module = pxmodule(iq);
+    if (module != UNDEFINED && module > maxmodule) maxmodule = module;
+    auto blade = pxblade(iq);
+    if (blade != UNDEFINED && blade > outerring) outerring = blade;
+
+    // we record each module 4 times, one for each corner, so we also get ROCs
+    // in booking (at least for the ranges)
+    iq.row = 0; iq.col = 0;
+    all_modules.push_back(iq);
+    iq.row = module_rows; iq.col = 0;
+    all_modules.push_back(iq);
+    iq.row = 0; iq.col = module_cols;
+    all_modules.push_back(iq);
+    iq.row = module_rows; iq.col = module_cols;
     all_modules.push_back(iq);
   }
+
+  outerring = outerring - innerring;
 
   // Shells are a concept that cannot be derived from bitmasks. 
   // Use hardcoded logic here.
   // This contains a lot more assumptions about general geometry than the rest
   // of the code, but it might work for Phase0 as well.
-  Value innerring = iConfig.getParameter<int>("n_inner_ring_blades");
-  Value outerring = max_value[intern("PXBlade")] - innerring;
-  auto pxblade  = extractors[intern("PXBlade")];
   addExtractor(intern("PXRing"), 
     [pxblade, innerring] (InterestingQuantities const& iq) {
       auto blade = pxblade(iq);
       if (blade == UNDEFINED) return UNDEFINED;
       if (blade <= innerring) return Value(1);
       else return Value(2);
-    }, 1, 2
+    }
   );
 
-  auto pxmodule = extractors[intern("PXBModule")];
-  Value maxmodule = max_value[intern("PXBModule")];
   addExtractor(intern("HalfCylinder"),
     [pxendcap, pxblade, innerring, outerring] (InterestingQuantities const& iq) {
       auto ec = pxendcap(iq);
@@ -177,13 +189,13 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       auto ladder = pxladder(iq);
       int frac = (int) ((ladder-1) / float(maxladders[layer]) * 4); // floor semantics
       Value quarter = maxladders[layer] / 4;
-      if (frac == 0) return -ladder + quarter + 1; // top right - +1 for gap 
-      if (frac == 1) return -ladder + quarter; // top left - 
+      if (frac == 0) return -ladder + quarter + 1; // top right - +1 for gap
+      if (frac == 1) return -ladder + quarter; // top left -
       if (frac == 2) return -ladder + quarter; // bot left - same
       if (frac == 3) return -ladder  + 4*quarter + quarter + 1; // bot right - like top right but wrap around
       assert(!"Shell logic problem");
       return UNDEFINED;
-    }, -(max_value[intern("PXLadder")]/2), (max_value[intern("PXLadder")]/2)
+    }
   );
 
   addExtractor(intern("signedModule"),
@@ -193,7 +205,7 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
       mod -= (maxmodule/2 + 1); // range -(max_module/2)..-1, 0..
       if (mod >= 0) mod += 1;    // range -(max_module/2)..-1, 1..
       return mod;
-    }, -(maxmodule/2), (maxmodule/2)
+    }
   );
 
   auto signedladder = extractors[intern("signedLadder")];
@@ -252,16 +264,14 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     [] (InterestingQuantities const& iq) {
       return Value(iq.col);
     },
-    0, iConfig.getParameter<int>("module_cols") - 1 
+    0, iConfig.getParameter<int>("module_cols") - 1
   );
 
   int   n_rocs     = iConfig.getParameter<int>("n_rocs");
   float roc_cols   = iConfig.getParameter<int>("roc_cols");
   float roc_rows   = iConfig.getParameter<int>("roc_rows");
   auto  pxmodule   = extractors[intern("PXBModule")];
-  Value max_module =  max_value[intern("PXBModule")];
   auto  pxpanel    = extractors[intern("PXPanel")];
-  Value max_panel  = max_value[intern("PXPanel")];
   addExtractor(intern("ROC"),
     [n_rocs, roc_cols, roc_rows] (InterestingQuantities const& iq) {
       int fedrow = int(iq.row / roc_rows);
@@ -269,8 +279,7 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       if (fedrow == 0) return Value(fedcol);
       if (fedrow == 1) return Value(n_rocs - 1 - fedcol);
       return UNDEFINED;
-    },
-    0, n_rocs - 1
+    }
   );
 
   // arbitrary per-ladder numbering (for inefficiencies)
@@ -280,16 +289,14 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
       auto mod = pxmodule(iq);
       if (mod == UNDEFINED) return UNDEFINED;
       return Value(roc(iq) + n_rocs * (mod-1));
-    },
-    0, (max_module * n_rocs) - 1
+    }
   );
   addExtractor(intern("ROCinBlade"),
     [pxmodule, pxpanel, roc, n_rocs] (InterestingQuantities const& iq) {
       auto mod = pxpanel(iq);
       if (mod == UNDEFINED) return UNDEFINED;
       return Value(roc(iq) + n_rocs * (mod-1));
-    },
-    0, (max_panel * n_rocs) - 1
+    }
   );
 
   addExtractor(intern("DetId"),
@@ -328,7 +335,6 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
       auto it = fedmap.find(iq.sourceModule);
       if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
       return it->second;
-    },
-    minFED, maxFED
+    }
   );
 }
