@@ -199,10 +199,10 @@ CaloTPGTranscoderULUT::getOutputLUTSize(const HcalTrigTowerDetId& id) const
          << "Topology not set! Use CaloTPGTranscoderULUT::setup(...) first!";
 
    switch (theTopology->triggerMode()) {
-      case HcalTopologyMode::tm_LHC_RCT:
-      case HcalTopologyMode::tm_LHC_RCT_and_1x1:
+      case HcalTopologyMode::TriggerMode_2009:
+      case HcalTopologyMode::TriggerMode_2016:
          return QIE8_OUTPUT_LUT_SIZE;
-      case HcalTopologyMode::tm_LHC_1x1:
+      case HcalTopologyMode::TriggerMode_2017:
          if (id.ietaAbs() <= theTopology->lastHBRing())
             return QIE8_OUTPUT_LUT_SIZE;
          else if (id.ietaAbs() <= theTopology->lastHERing())
