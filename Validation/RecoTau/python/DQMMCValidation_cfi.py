@@ -1,9 +1,13 @@
+#dataTypes related to real data are imported from DQMOffline/PFTau
+#to avoid duplication, common part of the code between Data & MC are kept
+#in DQMOffline/PFTau
+
 from Configuration.StandardSequences.Eras import eras
 
 from Validation.RecoTau.dataTypes.ValidateTausOnQCD_cff import *
-from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
-from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
-from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
+from DQMOffline.PFTau.dataTypes.ValidateTausOnRealData_cff import *
+from DQMOffline.PFTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
+from DQMOffline.PFTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZEEFastSim_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZEE_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZMM_cff import *

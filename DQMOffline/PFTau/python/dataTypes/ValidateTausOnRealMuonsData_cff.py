@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from Validation.RecoTau.RecoTauValidation_cfi import *
+from DQMOffline.PFTau.RecoTauValidation_cfi import *
 import copy
 
 from RecoJets.Configuration.RecoPFJets_cff import *

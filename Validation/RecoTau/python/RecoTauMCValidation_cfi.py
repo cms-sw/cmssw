@@ -1,5 +1,7 @@
+#It has been duplicated from RecoTauValidation_cfi used for data certification
+#to place the change in analyzer for MC validation, TauTagMCValidation.cc
 import FWCore.ParameterSet.Config as cms
-import Validation.RecoTau.ValidationUtils as Utils
+import DQMOffline.PFTau.ValidationUtils as Utils
 import copy
 import re
 import os
@@ -112,7 +114,7 @@ GenericTriggerSelectionParameters = cms.PSet(
 )
 
 proc.templateAnalyzer = cms.EDAnalyzer(
-   "TauTagValidation",
+   "TauTagMCValidation",
    StandardMatchingParameters,
    GenericTriggerSelection = GenericTriggerSelectionParameters,
    ExtensionName           = cms.string(""),
@@ -578,7 +580,7 @@ def SetValidationExtention(module, extension):
     module.ExtensionName = module.ExtensionName.value()+extension
 
 def setBinning(module,pset):
-    if module._TypedParameterizable__type == 'TauTagValidation':
+    if module._TypedParameterizable__type == 'TauTagMCValidation':
         module.histoSettings = pset
 
 def setTrigger(module,pset):

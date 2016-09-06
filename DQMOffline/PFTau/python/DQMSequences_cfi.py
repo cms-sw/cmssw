@@ -1,6 +1,6 @@
-from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
-from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
-from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
+from DQMOffline.PFTau.dataTypes.ValidateTausOnRealData_cff import *
+from DQMOffline.PFTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
+from DQMOffline.PFTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
 
 dqmInfoTauV = cms.EDAnalyzer(
     "DQMEventInfo",
@@ -29,6 +29,7 @@ pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorRealMuonsData+
     dqmInfoTauV
     )
+
 
 runTauEff = cms.Sequence(
     efficienciesRealData+

@@ -1,6 +1,6 @@
-#include "Validation/RecoTau/plugins/DQMHistPlotter.h"
+#include "DQMOffline/PFTau/plugins/DQMHistPlotter.h"
 
-#include "Validation/RecoTau/plugins/dqmAuxFunctions.h"
+#include "DQMOffline/PFTau/plugins/dqmAuxFunctions.h"
 
 // framework & common header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
