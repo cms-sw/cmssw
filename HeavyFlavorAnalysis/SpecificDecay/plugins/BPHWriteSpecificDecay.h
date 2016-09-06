@@ -3,7 +3,6 @@
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +30,8 @@
 class TH1F;
 class BPHRecoCandidate;
 
-class BPHWriteSpecificDecay: public BPHAnalyzerWrapper<edm::EDProducer> {
+class BPHWriteSpecificDecay:
+      public BPHAnalyzerWrapper<BPHModuleWrapper::one_producer> {
 
  public:
 

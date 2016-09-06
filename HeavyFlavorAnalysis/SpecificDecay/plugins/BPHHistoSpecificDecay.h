@@ -4,7 +4,6 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,7 +19,8 @@ namespace reco {
   class Vertex;
 }
 
-class BPHHistoSpecificDecay: public BPHAnalyzerWrapper<edm::EDAnalyzer> {
+class BPHHistoSpecificDecay:
+      public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
 
  public:
 

@@ -650,6 +650,7 @@ void BPHWriteSpecificDecay::setRecoParameters( const edm::ParameterSet& ps ) {
   fMap["constrMJPsi"] = constrMJPsi;
 
   const string& name = ps.getParameter<string>( "name" );
+
   map<string,int>::const_iterator pIter = pMap.begin();
   map<string,int>::const_iterator pIend = pMap.end();
   while ( pIter != pIend ) {

@@ -1,10 +1,10 @@
 #ifndef BPHAnalyzerTokenWrapper_H
 #define BPHAnalyzerTokenWrapper_H
-/** \class BPHTokenWrapper
+/** \classes BPHModuleWrapper, BPHTokenWrapper and BPHAnalyzerWrapper
  *
  *  Description: 
- *    common interface to get objects from "old" and "new" CMSSW version
- *    in an uniform way
+ *    common interfaces to define modules and get objects
+ *    from "old" and "new" CMSSW version in an uniform way
  *
  *  $Date: 2016-04-15 17:47:56 $
  *  $Revision: 1.1 $
@@ -15,13 +15,17 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 //---------------
 // C++ Headers --
@@ -31,6 +35,14 @@
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
+
+class BPHModuleWrapper {
+ public:
+  typedef edm::   one::EDAnalyzer<>    one_analyzer;
+  typedef edm::   one::EDProducer<>    one_producer;
+  typedef edm::stream::EDAnalyzer<> stream_analyzer;
+  typedef edm::stream::EDProducer<> stream_producer;
+};
 
 template<class Obj>
 class BPHTokenWrapper {

@@ -22,7 +22,8 @@
 class TH1F;
 class BPHRecoCandidate;
 
-class TestBPHRecoDecay: public BPHAnalyzerWrapper<edm::EDAnalyzer> {
+class TestBPHRecoDecay:
+      public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
 
  public:
 
