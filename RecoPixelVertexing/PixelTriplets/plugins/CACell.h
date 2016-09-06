@@ -241,13 +241,9 @@ public:
         	{
                 unsigned int numberOfOuterNeighbors = theOuterNeighbors.size();
                 for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
-
-                	if(theOuterNeighbors[i]->getCAState() >= theCAState - 1)
-                	{
-                		tmpNtuplet.push_back((theOuterNeighbors[i]));
-                		theOuterNeighbors[i]->findNtuplets(foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
-                		tmpNtuplet.pop_back();
-                	}
+                    tmpNtuplet.push_back((theOuterNeighbors[i]));
+                    theOuterNeighbors[i]->findNtuplets(foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
+                    tmpNtuplet.pop_back();
                 }
         	}
 
