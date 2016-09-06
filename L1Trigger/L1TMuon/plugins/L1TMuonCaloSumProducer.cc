@@ -110,78 +110,85 @@ L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::auto_ptr<MuonCaloSumBxCollection> tower2x2s (new MuonCaloSumBxCollection());
 
   edm::Handle<CaloTowerBxCollection> caloTowers;
-  // Make sure that you can get genParticles
-  std::map<int, MuonCaloSum> sums;
-  std::map<int, MuonCaloSum> regs;
-
-  int detamax = 4;
-  int dphimax = 4;
 
   if (iEvent.getByToken(m_caloTowerToken, caloTowers)) {
-    for (auto it = caloTowers->begin(0); it != caloTowers->end(0); ++it) {
-      const CaloTower& twr = *it;
-      int hwEta = twr.hwEta();
-      if (std::abs(hwEta) > 27) {
-        continue;
-      }
-      int hwPt = twr.hwPt();
-      if (hwPt < 1) {
-        continue;
-      }
-      int hwPhi = twr.hwPhi();
-      int ieta2x2 = (hwEta + 27) / 2;
-      int iphi2x2 = hwPhi / 2;
-      int muon_idx = iphi2x2 * 28 + ieta2x2;
-      if (regs.count(muon_idx) == 0) {
-        regs[muon_idx] = MuonCaloSum(hwPt, iphi2x2, ieta2x2, muon_idx);
-      } else {
-        regs.at(muon_idx).setEtBits(regs.at(muon_idx).etBits() + hwPt);
-      }
+    int detamax = 4;
+    int dphimax = 4;
 
-      // std::cout << "iphi; phi " << hwPhi << "; " << phi << " .. ieta; eta" << hwEta << "; " << twr.eta() << std::endl;
+    for (int bx = caloTowers->getFirstBX(); bx <= caloTowers->getLastBX(); ++bx) {
+      std::map<int, MuonCaloSum> sums;
+      std::map<int, MuonCaloSum> regs;
 
-      int ietamax = hwEta + detamax + 1;
-      for (int ieta = hwEta-detamax; ieta < ietamax; ++ieta) {
-        if (std::abs(ieta) > 27) {
+      for (auto it = caloTowers->begin(bx); it != caloTowers->end(bx); ++it) {
+        const CaloTower& twr = *it;
+        int hwEta = twr.hwEta();
+        if (std::abs(hwEta) > 27) {
           continue;
         }
-        int ietamu = (ieta + 27) / 2;
-        int iphimax = hwPhi + dphimax + 1;
-        for (int iphi = hwPhi-dphimax; iphi < iphimax; ++iphi) {
-          int iphiwrapped = iphi;
-          if (iphiwrapped < 0) {
-            iphiwrapped += 72;
-          } else if (iphiwrapped > 71) {
-            iphiwrapped -= 72;
+        int hwPt = twr.hwPt();
+        if (hwPt < 1) {
+          continue;
+        }
+        int hwPhi = twr.hwPhi();
+
+        // calculating tower2x2s
+        int ieta2x2 = (hwEta + 27) / 2;
+        int iphi2x2 = hwPhi / 2;
+        int muon_idx = iphi2x2 * 28 + ieta2x2;
+        if (regs.count(muon_idx) == 0) {
+          regs[muon_idx] = MuonCaloSum(hwPt, iphi2x2, ieta2x2, muon_idx);
+        } else {
+          regs.at(muon_idx).setEtBits(regs.at(muon_idx).etBits() + hwPt);
+        }
+
+        // std::cout << "iphi; phi " << hwPhi << "; " << phi << " .. ieta; eta" << hwEta << "; " << twr.eta() << std::endl;
+
+        // calculating towerSums
+        int ietamax = hwEta + detamax + 1;
+        for (int ieta = hwEta-detamax; ieta < ietamax; ++ieta) {
+          if (std::abs(ieta) > 27) {
+            continue;
           }
-          int iphimu = iphiwrapped / 2;
-          int idxmu = iphimu * 28 + ietamu;
-          if (sums.count(idxmu) == 0) {
-            sums[idxmu] = MuonCaloSum(hwPt, iphimu, ietamu, idxmu);
-          } else {
-            sums.at(idxmu).setEtBits(sums.at(idxmu).etBits() + hwPt);
+          int ietamu = (ieta + 27) / 2;
+          int iphimax = hwPhi + dphimax + 1;
+          for (int iphi = hwPhi-dphimax; iphi < iphimax; ++iphi) {
+            int iphiwrapped = iphi;
+            if (iphiwrapped < 0) {
+              iphiwrapped += 72;
+            } else if (iphiwrapped > 71) {
+              iphiwrapped -= 72;
+            }
+            int iphimu = iphiwrapped / 2;
+            int idxmu = iphimu * 28 + ietamu;
+            if (sums.count(idxmu) == 0) {
+              sums[idxmu] = MuonCaloSum(hwPt, iphimu, ietamu, idxmu);
+            } else {
+              sums.at(idxmu).setEtBits(sums.at(idxmu).etBits() + hwPt);
+            }
           }
+        }
+      }
+
+      // fill towerSums output collection for this BX
+      for (auto it = sums.begin(); it != sums.end(); ++it) {
+        if (it->second.etBits() > 0) {
+          MuonCaloSum sum = MuonCaloSum(it->second);
+          // convert Et to correct scale:
+          if (sum.etBits() > 31) {
+            sum.setEtBits(31);
+          }
+          towerSums->push_back(bx, sum);
+        }
+      }
+      // fill tower2x2s output collection for this BX
+      for (auto it = regs.begin(); it != regs.end(); ++it) {
+        if (it->second.etBits() > 0) {
+          tower2x2s->push_back(bx, it->second);
         }
       }
     }
   } else {
-    LogError("GlobalMuon") << "CaloTowers not found." << std::endl;
-  }
-
-  for (auto it = sums.begin(); it != sums.end(); ++it) {
-    if (it->second.etBits() > 0) {
-      MuonCaloSum sum = MuonCaloSum(it->second);
-      // convert Et to correct scale:
-      if (sum.etBits() > 31) {
-        sum.setEtBits(31);
-      }
-      towerSums->push_back(0, sum);
-    }
-  }
-  for (auto it = regs.begin(); it != regs.end(); ++it) {
-    if (it->second.etBits() > 0) {
-      tower2x2s->push_back(0, it->second);
-    }
+    LogWarning("GlobalMuon") << "CaloTowers not found. Producing empty collections." << std::endl;
   }
 
   iEvent.put(towerSums, "TriggerTowerSums");
