@@ -357,7 +357,7 @@ namespace {
           edgeToPathMap[std::make_pair(moduleIndex, depDescription->id())].push_back(kInvalidIndex);
           if(iPrintDependencies) {
             edm::LogAbsolute("ModuleDependency") << "ModuleDependency '" << description->moduleLabel() <<
-            "' depends on data products from module '" << depDescription->moduleLabel();
+            "' depends on data products from module '" << depDescription->moduleLabel()<<"'";
           }
         }
       }
