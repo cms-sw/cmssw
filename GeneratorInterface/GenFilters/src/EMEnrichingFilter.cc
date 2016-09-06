@@ -27,7 +27,7 @@ EMEnrichingFilter::EMEnrichingFilter(const edm::ParameterSet& iConfig) {
   
   ParameterSet filterPSet=iConfig.getParameter<edm::ParameterSet>("filterAlgoPSet");
   
-  EMEAlgo_=new EMEnrichingFilterAlgo(filterPSet);
+  EMEAlgo_=new EMEnrichingFilterAlgo(filterPSet, consumesCollector());
 
 }
 
