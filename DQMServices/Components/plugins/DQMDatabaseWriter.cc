@@ -130,7 +130,7 @@ void DQMDatabaseWriter::initDatabase()
     coral::TableDescription table2;
     table2.setName( "HISTOGRAM_PROPS" );
     table2.insertColumn( "PATH", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
-    table2.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<unsigned int>() );
+    table2.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<int>() );
     table2.insertColumn( "DIMENSIONS", coral::AttributeSpecification::typeNameForType<int>() );
     table2.insertColumn( "X_AXIS", coral::AttributeSpecification::typeNameForType<std::string>() );
     table2.insertColumn( "Y_AXIS", coral::AttributeSpecification::typeNameForType<std::string>() );
@@ -158,8 +158,8 @@ void DQMDatabaseWriter::initDatabase()
     coral::TableDescription table3;
     table3.setName( "HISTOGRAM_VALUES" );
     table3.insertColumn( "PATH", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
-    table3.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<unsigned int>() );
-    table3.insertColumn( "LUMISECTION", coral::AttributeSpecification::typeNameForType<unsigned int>() );
+    table3.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<int>() );
+    table3.insertColumn( "LUMISECTION", coral::AttributeSpecification::typeNameForType<int>() );
     table3.insertColumn( "ENTRIES", coral::AttributeSpecification::typeNameForType<double>() );
     table3.insertColumn( "X_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
     table3.insertColumn( "X_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
@@ -235,38 +235,27 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
   bool histogramValuesRecordExist;
   bool histogramRecordExist;
   coral::ISchema& schema = m_session->nominalSchema();
-
   for (auto histogram : stats)
   {
     histogramRecordExist = false;
     {
       m_session->transaction().start( false );
-      coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM" ).newQuery();
+      std::unique_ptr<coral::IQuery> queryHistogramProps(schema.tableHandle( "HISTOGRAM" ).newQuery());
       queryHistogramProps->addToOutputList( "PATH" );
 
-      std::string condition = "PATH = :path\"";
+      std::string condition = "PATH = :path";
       coral::AttributeList conditionData2;
       conditionData2.extend< std::string >("path");
       conditionData2["path"].data< std::string >() = histogram.path; 
       queryHistogramProps->setCondition( condition, conditionData2 );
       queryHistogramProps->setMemoryCacheSize( 5 );
       coral::ICursor& cursor2 = queryHistogramProps->execute();
-      int numberOfRows = 0;
       while(cursor2.next())
       {
         cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
-        std::stringstream ss;
-        cursor2.currentRow()["PATH"].toOutputStream( ss );
-        std::string s = ss.str();
-        std::cout << "MANO PATHAS: "<< s << std::endl;
-
-        std::string pathValue = s.substr(s.find(":") + 2);
-        std::cout << "MANO PATHAS: " << pathValue << std::endl;
-        if (pathValue == histogram.path) histogramRecordExist = true;
-        ++numberOfRows;
+        histogramRecordExist = true;
       }
-      delete queryHistogramProps;
-      if ( numberOfRows != 1 )
+      if ( !histogramRecordExist )
       {
         coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
         coral::AttributeList insertData;
@@ -285,41 +274,53 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
 
     histogramPropsRecordExist = false;
     {
-      if (!histogramRecordExist){
-        coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery(); //TODO unique pointer
+      if (histogramRecordExist){
+        std::unique_ptr<coral::IQuery> queryHistogramProps(schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery());
         queryHistogramProps->addToOutputList( "PATH" );
         queryHistogramProps->addToOutputList( "RUN_NUMBER" );
+        queryHistogramProps->addToOutputList( "DIMENSIONS" );
+        queryHistogramProps->addToOutputList( "X_AXIS" );
+        queryHistogramProps->addToOutputList( "Y_AXIS" );
+        queryHistogramProps->addToOutputList( "Z_AXIS" );
 
-        std::string condition = "PATH = :path\"" + histogram.path + "\"" + " AND RUN_NUMBER = :run\"" + std::to_string(run) + "\"";
+        std::string condition = "PATH = :path AND RUN_NUMBER <= :run";
         coral::AttributeList conditionData2;
+        conditionData2.extend< std::string >("path");
+        conditionData2["path"].data< std::string >() = histogram.path;
+        conditionData2.extend< int >("run");
+        conditionData2["run"].data< int >() = run; 
         queryHistogramProps->setCondition( condition, conditionData2 );
         queryHistogramProps->setMemoryCacheSize( 5 );
         coral::ICursor& cursor2 = queryHistogramProps->execute();
-        int numberOfRows = 0;
+        long diff = LONG_MAX;
+        coral::AttributeList row;
         while(cursor2.next())
         {
-        /*  std::stringstream ss;
-          cursor2.currentRow()["PATH"].toOutputStream( ss );
-          std::string s = ss.str();
-          std::string pathValue = s.substr(s.find(":") + 2);
-
-          cursor2.currentRow()["PATH"].toOutputStream( ss );
-          s = ss.str();
-          int runValue = std::stoi(s.substr(s.find(":") + 2));
-
-          std::cout << "MANO RUN: " << runValue << std::endl;
-          if (pathValue == histogram.path && runValue == run) histogramPropsRecordExist = true;
-          */
           cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
-          ++numberOfRows;
+          int runNumber = cursor2.currentRow()["RUN_NUMBER"].data< int >();
+          if (run - runNumber < diff){
+            diff = run - runNumber;
+            row = cursor2.currentRow();
+            if (diff == 0) break;
+          }
         }
-        delete queryHistogramProps;
-        if ( numberOfRows == 1 )
-        {
+        if (diff != LONG_MAX){
           histogramPropsRecordExist = true;
+          if (diff == 0){
+            if (row["DIMENSIONS"].data< int >() != histogram.dimNumber) exceptionThrow("Dimensions", histogram.path, run);
+            if (row["X_AXIS"].data< std::string >() != dimensionJson(histogram.dimX)) exceptionThrow("X_AXIS", histogram.path, run);
+            if (row["Y_AXIS"].data< std::string >() != dimensionJson(histogram.dimY)) exceptionThrow("Y_AXIS", histogram.path, run); 
+            if (row["Z_AXIS"].data< std::string >() != dimensionJson(histogram.dimZ)) exceptionThrow("Z_AXIS", histogram.path, run);
+            edm::LogWarning( "DQMDatabaseWriter" ) << "Trying to insert the path: " << histogram.path << " with the same run number: " << run
+                                                   << " and already existing the same values." << std::endl;
+          }else {
+            if (row["DIMENSIONS"].data< int >() != histogram.dimNumber ||
+                row["X_AXIS"].data< std::string >() != dimensionJson(histogram.dimX) ||
+                row["Y_AXIS"].data< std::string >() != dimensionJson(histogram.dimY) || 
+                row["Z_AXIS"].data< std::string >() != dimensionJson(histogram.dimZ)) 
+                histogramPropsRecordExist = false;
+          }
         }
-      }else{
-        histogramPropsRecordExist = true;
       }
       m_session->transaction().commit();
       m_session->transaction().start(false);
@@ -330,14 +331,14 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
         coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_PROPS" ).dataEditor();
         coral::AttributeList insertData;
         insertData.extend< std::string >( "PATH" );
-        insertData.extend< unsigned int >( "RUN_NUMBER" );
+        insertData.extend< int >( "RUN_NUMBER" );
         insertData.extend< int >( "DIMENSIONS" );
         insertData.extend< std::string >( "X_AXIS" );
         insertData.extend< std::string >( "Y_AXIS" );
         insertData.extend< std::string >( "Z_AXIS" );
 
         insertData[ "PATH" ].data< std::string >() = histogram.path;
-        insertData[ "RUN_NUMBER" ].data< unsigned int >() = run;
+        insertData[ "RUN_NUMBER" ].data< int >() = run;
         insertData[ "DIMENSIONS" ].data< int >() = histogram.dimNumber; 
         insertData[ "X_AXIS" ].data< std::string >() = dimensionJson(histogram.dimX);
         insertData[ "Y_AXIS" ].data< std::string >() = dimensionJson(histogram.dimY);
@@ -349,26 +350,25 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
 
     histogramValuesRecordExist = false;
     {
-      coral::IQuery* queryHistogramValues = schema.tableHandle( "HISTOGRAM_VALUES" ).newQuery();
+      std::unique_ptr<coral::IQuery> queryHistogramValues(schema.tableHandle( "HISTOGRAM_VALUES" ).newQuery());
       queryHistogramValues->addToOutputList( "PATH" );
       queryHistogramValues->addToOutputList( "RUN_NUMBER" );
       queryHistogramValues->addToOutputList( "LUMISECTION" );
 
-
-      std::string condition = "PATH = \"" + histogram.path + "\"" + " AND RUN_NUMBER = \"" + std::to_string(run) + "\""  + " AND LUMISECTION = \"" + std::to_string(lumisection) + "\"";
+      std::string condition = "PATH = :path AND RUN_NUMBER = :run AND LUMISECTION = :lumisection";
       coral::AttributeList conditionData2;
+      conditionData2.extend< std::string >("path");
+      conditionData2["path"].data< std::string >() = histogram.path;
+      conditionData2.extend< int >("run");
+      conditionData2["run"].data< int >() = run;
+      conditionData2.extend< int >("lumisection");
+      conditionData2["lumisection"].data< int >() = lumisection;
       queryHistogramValues->setCondition( condition, conditionData2 );
       queryHistogramValues->setMemoryCacheSize( 5 );
       coral::ICursor& cursor = queryHistogramValues->execute();
-      int numberOfRows = 0;
       while(cursor.next())
       {
         cursor.currentRow().toOutputStream( std::cout ) << std::endl;
-        ++numberOfRows;
-      }
-      delete queryHistogramValues;
-      if ( numberOfRows == 1 )
-      {
         histogramValuesRecordExist = true;
       }
       m_session->transaction().commit();
@@ -380,8 +380,8 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
       coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
       coral::AttributeList insertData;
       insertData.extend< std::string >( "PATH" );
-      insertData.extend< unsigned int >( "RUN_NUMBER" );
-      insertData.extend< unsigned int >( "LUMISECTION" );
+      insertData.extend< int >( "RUN_NUMBER" );
+      insertData.extend< int >( "LUMISECTION" );
       insertData.extend< double >( "ENTRIES" );
       insertData.extend< double >( "X_MEAN" );
       insertData.extend< double >( "X_MEAN_ERROR" );
@@ -403,8 +403,8 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
       insertData.extend< double >( "Z_OVERFLOW" );
 
       insertData[ "PATH" ].data< std::string >() = histogram.path;
-      insertData[ "RUN_NUMBER" ].data< unsigned int >() = run;
-      insertData[ "LUMISECTION" ].data< unsigned int >() = lumisection;
+      insertData[ "RUN_NUMBER" ].data< int >() = run;
+      insertData[ "LUMISECTION" ].data< int >() = lumisection;
       insertData[ "ENTRIES" ].data< double >() = histogram.entries;
       insertData[ "X_MEAN" ].data< double >() = histogram.dimX.mean;
       insertData[ "X_MEAN_ERROR" ].data< double >() = histogram.dimX.meanError;
@@ -441,15 +441,19 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
 
   std::string DQMDatabaseWriter::dimensionJson(Dimension &dim){
     using boost::property_tree::ptree;
-
     if (dim.nBin == 0 && dim.low == 0 && dim.up == 0) return "";
-
     ptree doc;
     doc.put("bins", dim.nBin);
     doc.put("low", dim.low);
     doc.put("up", dim.up);
-
     return toString(doc);
+  }
+
+  void DQMDatabaseWriter::exceptionThrow(std::string quantity, std::string path, int run){
+    throw cms::Exception( "DQMDatabaseWriter" ) << "Trying to insert already existing histogram: "
+                                                << path <<" with the same run number: " 
+                                                << run << " but different "
+                                                << quantity << " values.\n" << std::endl;
   }
 
 

@@ -20,7 +20,6 @@ class DQMHistogramDB : public DQMHistogramStats {
               edm::EventSetup const&) override;
 
  private:
-  // variables from config file
   std::unique_ptr<DQMDatabaseWriter> dbw_;
 
 };

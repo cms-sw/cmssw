@@ -65,6 +65,7 @@ protected:
 private:
   std::string toString(boost::property_tree::ptree doc);
   std::string dimensionJson(Dimension &dim);
+  void exceptionThrow(std::string quantity, std::string path, int run);
 
 };
 

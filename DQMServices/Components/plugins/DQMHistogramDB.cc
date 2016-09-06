@@ -17,7 +17,6 @@ void DQMHistogramDB::dqmEndLuminosityBlock(DQMStore::IBooker &,
                                            DQMStore::IGetter &iGetter,
                                            edm::LuminosityBlock const &iLumi,
                                            edm::EventSetup const &) {
-  std::cout << "CALLED MY METHOD" << std::endl;
   if (dumpOnEndLumi_){
     edm::LogInfo("DQMDatabaseHarvester") << "DQMDatabaseHarvester::dqmEndLuminosityBlock " << std::endl;
     HistoStats stats = (histogramNamesEndLumi_.size() > 0) ? collect(iGetter, histogramNamesEndLumi_) : collect(iGetter);
@@ -32,7 +31,6 @@ void DQMHistogramDB::dqmEndRun(DQMStore::IBooker &,
   if (dumpOnEndRun_){
     edm::LogInfo("DQMDatabaseHarvester") <<  "DQMDatabaseHarvester::endRun" << std::endl;
     HistoStats stats = (histogramNamesEndRun_.size() > 0) ? collect(iGetter, histogramNamesEndRun_) : collect(iGetter);
-    std::cout << "SIZE: " <<stats.size() << std::endl;
     dbw_->dqmDbDrop(stats, 0, iRun.run());
   }
 }
