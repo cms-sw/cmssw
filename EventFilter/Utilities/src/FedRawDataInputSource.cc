@@ -838,8 +838,14 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     Json::Value deserializeRoot;
     Json::Reader reader;
 
-    if (!reader.parse(ij, deserializeRoot))
+    std::stringstream ss;
+    ss << ij.rdbuf();
+    if (!reader.parse(ss.str(), deserializeRoot)) {
+      edm::LogError("FedRawDataInputSource") << "Failed to deserialize JSON file -: " << jsonDestPath
+                                               << "\nERROR:\n" << reader.getFormatedErrorMessages()
+                                               << "CONTENT:\n" << ss.str()<<".";
       throw std::runtime_error("Cannot deserialize input JSON file");
+    }
 
     //read BU JSON
     std::string data;
