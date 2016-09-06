@@ -286,6 +286,12 @@ pat::tau::TauPFEssential::CovMatrix Tau::flightLengthCov() const
   return cov;
 }
 
+float Tau::ip3d_Sig() const
+{
+	if( pfEssential().ip3d_error_ != 0 ) return (pfEssential().ip3d_/pfEssential().ip3d_error_);
+	else return 0.;
+}
+
 float Tau::etaetaMoment() const
 {
   if ( isCaloTau() ) return caloSpecific().etaetaMoment_;
