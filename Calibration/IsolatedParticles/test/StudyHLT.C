@@ -23,6 +23,7 @@ public :
   // Declaration of leaf types
   Int_t                       tr_goodRun;
   Int_t                       tr_goodPV;
+  Double_t                    tr_eventWeight;
   std::vector<std::string>   *tr_TrigName;
   std::vector<double>        *tr_TrkPt;
   std::vector<double>        *tr_TrkP;
@@ -42,28 +43,29 @@ public :
   std::vector<int>           *tr_iEta;
 
   // List of branches
-  TBranch                    *b_tr_goodRun;   //!
-  TBranch                    *b_tr_goodPV;   //!
-  TBranch                    *b_tr_TrigName;   //!
-  TBranch                    *b_tr_TrkPt;   //!
-  TBranch                    *b_tr_TrkP;   //!
-  TBranch                    *b_tr_TrkEta;   //!
-  TBranch                    *b_tr_TrkPhi;   //!
+  TBranch                    *b_tr_goodRun;         //!
+  TBranch                    *b_tr_goodPV;          //!
+  TBranch                    *b_tr_eventWeight;     //!
+  TBranch                    *b_tr_TrigName;        //!
+  TBranch                    *b_tr_TrkPt;           //!
+  TBranch                    *b_tr_TrkP;            //!
+  TBranch                    *b_tr_TrkEta;          //!
+  TBranch                    *b_tr_TrkPhi;          //!
   TBranch                    *b_tr_MaxNearP31X31;   //!
-  TBranch                    *b_tr_MaxNearHcalP7x7;   //!
-  TBranch                    *b_tr_TrkQuality;   //!
-  TBranch                    *b_tr_TrkokECAL;   //!
-  TBranch                    *b_tr_TrkokHCAL;   //!
-  TBranch                    *b_tr_FE7x7P;   //!
-  TBranch                    *b_tr_FE11x11P;   //!
-  TBranch                    *b_tr_FE15x15P;   //!
-  TBranch                    *b_tr_SE7x7P;   //!
-  TBranch                    *b_tr_SE11x11P;   //!
-  TBranch                    *b_tr_SE15x15P;   //!
-  TBranch                    *b_tr_H7x7;   //!
-  TBranch                    *b_tr_H5x5;   //!
-  TBranch                    *b_tr_H3x3;   //!
-  TBranch                    *b_tr_iEta;   //!
+  TBranch                    *b_tr_MaxNearHcalP7x7; //!
+  TBranch                    *b_tr_TrkQuality;      //!
+  TBranch                    *b_tr_TrkokECAL;       //!
+  TBranch                    *b_tr_TrkokHCAL;       //!
+  TBranch                    *b_tr_FE7x7P;          //!
+  TBranch                    *b_tr_FE11x11P;        //!
+  TBranch                    *b_tr_FE15x15P;        //!
+  TBranch                    *b_tr_SE7x7P;          //!
+  TBranch                    *b_tr_SE11x11P;        //!
+  TBranch                    *b_tr_SE15x15P;        //!
+  TBranch                    *b_tr_H7x7;            //!
+  TBranch                    *b_tr_H5x5;            //!
+  TBranch                    *b_tr_H3x3;            //!
+  TBranch                    *b_tr_iEta;            //!
 
   StudyHLT(std::string inFile, std::string dirnam, std::string treeNam,
 	   std::string outFile);
@@ -147,25 +149,26 @@ void StudyHLT::Init(TTree *tree) {
   fCurrent = -1;
   fChain->SetMakeClass(1);
 
-  fChain->SetBranchAddress("tr_goodRun",  &tr_goodRun,  &b_tr_goodRun);
-  fChain->SetBranchAddress("tr_goodPV",   &tr_goodPV,   &b_tr_goodPV);
-  fChain->SetBranchAddress("tr_TrigName", &tr_TrigName, &b_tr_TrigName);
-  fChain->SetBranchAddress("tr_TrkPt",    &tr_TrkPt,    &b_tr_TrkPt);
-  fChain->SetBranchAddress("tr_TrkP",     &tr_TrkP,     &b_tr_TrkP);
-  fChain->SetBranchAddress("tr_TrkEta",   &tr_TrkEta,   &b_tr_TrkEta);
-  fChain->SetBranchAddress("tr_TrkPhi",   &tr_TrkPhi,   &b_tr_TrkPhi);
+  fChain->SetBranchAddress("tr_goodRun",     &tr_goodRun,     &b_tr_goodRun);
+  fChain->SetBranchAddress("tr_goodPV",      &tr_goodPV,      &b_tr_goodPV);
+  fChain->SetBranchAddress("tr_eventWeight", &tr_eventWeight, &b_tr_eventWeight);
+  fChain->SetBranchAddress("tr_TrigName",    &tr_TrigName,    &b_tr_TrigName);
+  fChain->SetBranchAddress("tr_TrkPt",       &tr_TrkPt,       &b_tr_TrkPt);
+  fChain->SetBranchAddress("tr_TrkP",        &tr_TrkP,        &b_tr_TrkP);
+  fChain->SetBranchAddress("tr_TrkEta",      &tr_TrkEta,      &b_tr_TrkEta);
+  fChain->SetBranchAddress("tr_TrkPhi",      &tr_TrkPhi,      &b_tr_TrkPhi);
   fChain->SetBranchAddress("tr_MaxNearP31X31",   &tr_MaxNearP31X31,   &b_tr_MaxNearP31X31);
   fChain->SetBranchAddress("tr_MaxNearHcalP7x7", &tr_MaxNearHcalP7x7, &b_tr_MaxNearHcalP7x7);
-  fChain->SetBranchAddress("tr_FE7x7P",   &tr_FE7x7P,   &b_tr_FE7x7P);
-  fChain->SetBranchAddress("tr_FE11x11P", &tr_FE11x11P, &b_tr_FE11x11P);
-  fChain->SetBranchAddress("tr_FE15x15P", &tr_FE15x15P, &b_tr_FE15x15P);
-  fChain->SetBranchAddress("tr_SE7x7P",   &tr_SE7x7P,   &b_tr_SE7x7P);
-  fChain->SetBranchAddress("tr_SE11x11P", &tr_SE11x11P, &b_tr_SE11x11P);
-  fChain->SetBranchAddress("tr_SE15x15P", &tr_SE15x15P, &b_tr_SE15x15P);
-  fChain->SetBranchAddress("tr_H3x3",     &tr_H3x3,     &b_tr_H3x3);
-  fChain->SetBranchAddress("tr_H5x5",     &tr_H5x5,     &b_tr_H5x5);
-  fChain->SetBranchAddress("tr_H7x7",     &tr_H7x7,     &b_tr_H7x7);
-  fChain->SetBranchAddress("tr_iEta",     &tr_iEta,     &b_tr_iEta);
+  fChain->SetBranchAddress("tr_FE7x7P",      &tr_FE7x7P,      &b_tr_FE7x7P);
+  fChain->SetBranchAddress("tr_FE11x11P",    &tr_FE11x11P,    &b_tr_FE11x11P);
+  fChain->SetBranchAddress("tr_FE15x15P",    &tr_FE15x15P,    &b_tr_FE15x15P);
+  fChain->SetBranchAddress("tr_SE7x7P",      &tr_SE7x7P,      &b_tr_SE7x7P);
+  fChain->SetBranchAddress("tr_SE11x11P",    &tr_SE11x11P,    &b_tr_SE11x11P);
+  fChain->SetBranchAddress("tr_SE15x15P",    &tr_SE15x15P,    &b_tr_SE15x15P);
+  fChain->SetBranchAddress("tr_H3x3",        &tr_H3x3,        &b_tr_H3x3);
+  fChain->SetBranchAddress("tr_H5x5",        &tr_H5x5,        &b_tr_H5x5);
+  fChain->SetBranchAddress("tr_H7x7",        &tr_H7x7,        &b_tr_H7x7);
+  fChain->SetBranchAddress("tr_iEta",        &tr_iEta,        &b_tr_iEta);
   Notify();
 }
 
@@ -259,39 +262,39 @@ void StudyHLT::Loop() {
     //loop over all the reco tracks
     for (unsigned int itk=0; itk !=tr_TrkPt->size(); ++itk){
 
-      h_pt[0]->Fill(  ((*tr_TrkPt)[itk]));
-      h_p[0]->Fill(   ((*tr_TrkP)[itk]));
-      h_eta[0]->Fill( ((*tr_TrkEta)[itk]));
-      h_phi[0]->Fill( ((*tr_TrkPhi)[itk]));
+      h_pt[0]->Fill(  ((*tr_TrkPt)[itk]),  tr_eventWeight);
+      h_p[0]->Fill(   ((*tr_TrkP)[itk]),   tr_eventWeight);
+      h_eta[0]->Fill( ((*tr_TrkEta)[itk]), tr_eventWeight);
+      h_phi[0]->Fill( ((*tr_TrkPhi)[itk]), tr_eventWeight);
       if ( (*tr_TrkPt)[itk] > 1.0 && abs((*tr_TrkEta)[itk]) < 2.5) {
-	h_pt[1]->Fill(  ((*tr_TrkPt)[itk]));
-	h_p[1]->Fill(   ((*tr_TrkP)[itk]));
-	h_eta[1]->Fill( ((*tr_TrkEta)[itk]));
-	h_phi[1]->Fill( ((*tr_TrkPhi)[itk]));
+	h_pt[1]->Fill(  ((*tr_TrkPt)[itk]),  tr_eventWeight);
+	h_p[1]->Fill(   ((*tr_TrkP)[itk]),   tr_eventWeight);
+	h_eta[1]->Fill( ((*tr_TrkEta)[itk]), tr_eventWeight);
+	h_phi[1]->Fill( ((*tr_TrkPhi)[itk]), tr_eventWeight);
 	//condition of charged Isolation
 	if ( (*tr_MaxNearP31X31)[itk] < 0) {
-	  h_pt[2]->Fill(  ((*tr_TrkPt)[itk]));
-	  h_p[2]->Fill(   ((*tr_TrkP)[itk]));
-	  h_eta[2]->Fill( ((*tr_TrkEta)[itk]));
-	  h_phi[2]->Fill( ((*tr_TrkPhi)[itk]));
+	  h_pt[2]->Fill(  ((*tr_TrkPt)[itk]),  tr_eventWeight);
+	  h_p[2]->Fill(   ((*tr_TrkP)[itk]),   tr_eventWeight);
+	  h_eta[2]->Fill( ((*tr_TrkEta)[itk]), tr_eventWeight);
+	  h_phi[2]->Fill( ((*tr_TrkPhi)[itk]), tr_eventWeight);
 	  //condition for HCal Charged Isolation
 	  if ( (*tr_MaxNearHcalP7x7)[itk] < 0) {
-	    h_pt[3]->Fill(  ((*tr_TrkPt)[itk]));
-	    h_p[3]->Fill(   ((*tr_TrkP)[itk]));
-	    h_eta[3]->Fill( ((*tr_TrkEta)[itk]));
-	    h_phi[3]->Fill( ((*tr_TrkPhi)[itk]));
+	    h_pt[3]->Fill(  ((*tr_TrkPt)[itk]),  tr_eventWeight);
+	    h_p[3]->Fill(   ((*tr_TrkP)[itk]),   tr_eventWeight);
+	    h_eta[3]->Fill( ((*tr_TrkEta)[itk]), tr_eventWeight);
+	    h_phi[3]->Fill( ((*tr_TrkPhi)[itk]), tr_eventWeight);
 	    //condition of Neutral Isolation
 	    if ( (*tr_SE11x11P)[itk] && (*tr_SE15x15P)[itk] && 
 		 ( (*tr_FE15x15P)[itk] - (*tr_FE11x11P)[itk]) < 2.0 ) {
-	      h_pt[4]->Fill(  ((*tr_TrkPt)[itk]));
-	      h_p[4]->Fill(   ((*tr_TrkP)[itk]));
-	      h_eta[4]->Fill( ((*tr_TrkEta)[itk]));
-	      h_phi[4]->Fill( ((*tr_TrkPhi)[itk]));
+	      h_pt[4]->Fill(  ((*tr_TrkPt)[itk]),  tr_eventWeight);
+	      h_p[4]->Fill(   ((*tr_TrkP)[itk]),   tr_eventWeight);
+	      h_eta[4]->Fill( ((*tr_TrkEta)[itk]), tr_eventWeight);
+	      h_phi[4]->Fill( ((*tr_TrkPhi)[itk]), tr_eventWeight);
 	      if ( ((*tr_H7x7)[itk] - (*tr_H5x5)[itk] ) < 2.0) {
-		h_pt[5]->Fill(  ((*tr_TrkPt)[itk]));
-		h_p[5]->Fill(   ((*tr_TrkP)[itk]));
-		h_eta[5]->Fill( ((*tr_TrkEta)[itk]));
-		h_phi[5]->Fill( ((*tr_TrkPhi)[itk]));
+		h_pt[5]->Fill(  ((*tr_TrkPt)[itk]),  tr_eventWeight);
+		h_p[5]->Fill(   ((*tr_TrkP)[itk]),   tr_eventWeight);
+		h_eta[5]->Fill( ((*tr_TrkEta)[itk]), tr_eventWeight);
+		h_phi[5]->Fill( ((*tr_TrkPhi)[itk]), tr_eventWeight);
 		int ip(-1), ie(-1), nPV(-1);
 		for (int i=0; i<nPBin; ++i) {
 		  if (((*tr_TrkP)[itk] >= pBin[i]) && 
@@ -308,18 +311,18 @@ void StudyHLT::Loop() {
 		double den = 1.0/((*tr_TrkP)[itk]);
 		if ((ip >= 0) && (ie >= 0) && ((*tr_FE7x7P)[itk] > 0.02)
 		    && ((*tr_H3x3)[itk] > 0.1) && (nPV >= 0)) {
-		  h_energy[nPV][ip][ie][0]->Fill(den*(*tr_FE7x7P)[itk]);
-		  h_energy[nPV][ip][ie][1]->Fill(den*(*tr_H3x3)[itk]);
-		  h_energy[nPV][ip][ie][2]->Fill(den*((*tr_FE7x7P)[itk]+(*tr_H3x3)[itk]));
-		  h_energy[nPV][ip][ie][3]->Fill(den*(*tr_FE11x11P)[itk]);
-		  h_energy[nPV][ip][ie][4]->Fill(den*(*tr_H5x5)[itk]);
-		  h_energy[nPV][ip][ie][5]->Fill(den*((*tr_FE11x11P)[itk]+(*tr_H5x5)[itk]));
-		  h_energy[nPVBin][ip][ie][0]->Fill(den*(*tr_FE7x7P)[itk]);
-		  h_energy[nPVBin][ip][ie][1]->Fill(den*(*tr_H3x3)[itk]);
-		  h_energy[nPVBin][ip][ie][2]->Fill(den*((*tr_FE7x7P)[itk]+(*tr_H3x3)[itk]));
-		  h_energy[nPVBin][ip][ie][3]->Fill(den*(*tr_FE11x11P)[itk]);
-		  h_energy[nPVBin][ip][ie][4]->Fill(den*(*tr_H5x5)[itk]);
-		  h_energy[nPVBin][ip][ie][5]->Fill(den*((*tr_FE11x11P)[itk]+(*tr_H5x5)[itk]));
+		  h_energy[nPV][ip][ie][0]->Fill(den*(*tr_FE7x7P)[itk], tr_eventWeight);
+		  h_energy[nPV][ip][ie][1]->Fill(den*(*tr_H3x3)[itk],   tr_eventWeight);
+		  h_energy[nPV][ip][ie][2]->Fill(den*((*tr_FE7x7P)[itk]+(*tr_H3x3)[itk]), tr_eventWeight);
+		  h_energy[nPV][ip][ie][3]->Fill(den*(*tr_FE11x11P)[itk], tr_eventWeight);
+		  h_energy[nPV][ip][ie][4]->Fill(den*(*tr_H5x5)[itk],     tr_eventWeight);
+		  h_energy[nPV][ip][ie][5]->Fill(den*((*tr_FE11x11P)[itk]+(*tr_H5x5)[itk]), tr_eventWeight);
+		  h_energy[nPVBin][ip][ie][0]->Fill(den*(*tr_FE7x7P)[itk], tr_eventWeight);
+		  h_energy[nPVBin][ip][ie][1]->Fill(den*(*tr_H3x3)[itk],   tr_eventWeight);
+		  h_energy[nPVBin][ip][ie][2]->Fill(den*((*tr_FE7x7P)[itk]+(*tr_H3x3)[itk]), tr_eventWeight);
+		  h_energy[nPVBin][ip][ie][3]->Fill(den*(*tr_FE11x11P)[itk], tr_eventWeight);
+		  h_energy[nPVBin][ip][ie][4]->Fill(den*(*tr_H5x5)[itk],     tr_eventWeight);
+		  h_energy[nPVBin][ip][ie][5]->Fill(den*((*tr_FE11x11P)[itk]+(*tr_H5x5)[itk]), tr_eventWeight);
 		}
 	      }//HCal Neutral Iso
 	    }//neutral isolation 
@@ -332,3 +335,30 @@ void StudyHLT::Loop() {
   f->Close();
 }
 
+void GetPUWeight(std::string mcFile, std::string dataFile, 
+		 std::string dirName="StudyHLT") {
+
+  TFile      *file1 = new TFile(mcFile.c_str());
+  TDirectory *dir1  = (TDirectory*)file1->FindObjectAny(dirName.c_str());
+  TH1D       *histM = (TH1D*)dir1->Get("h_goodPV");
+  TFile      *file2 = new TFile(dataFile.c_str());
+  TDirectory *dir2  = (TDirectory*)file2->FindObjectAny(dirName.c_str());
+  TH1D       *histD = (TH1D*)dir2->Get("h_goodPV");
+  double      scale = histM->Integral()/histD->Integral();
+//std::cout << "Scale " << scale << std::endl;
+  std::vector<double> weight;
+  for (int k=1; k<=histM->GetNbinsX(); ++k) {
+    double num = histD->GetBinContent(k);
+    double den = histM->GetBinContent(k);
+    double rat = (den > 0) ? (scale*num/den) : 0;
+    weight.push_back(rat);
+//  std::cout << "Bin[" << k << "] " << num << ":" << den << ":" << rat << std::endl;
+  }
+  char buff[100];
+  for (int k=0; k<histM->GetNbinsX(); k+=10) {
+    sprintf(buff,"%6.4f,%6.4f,%6.4f,%6.4f,%6.4f,%6.4f,%6.4f,%6.4f,%6.4f,%6.4f,",
+	    weight[k+0],weight[k+1],weight[k+2],weight[k+3],weight[k+4],
+	    weight[k+5],weight[k+6],weight[k+7],weight[k+8],weight[k+9]);
+    std::cout << buff << std::endl;
+  }
+}
