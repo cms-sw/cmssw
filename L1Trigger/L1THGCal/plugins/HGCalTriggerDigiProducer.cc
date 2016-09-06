@@ -7,7 +7,6 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
@@ -101,14 +100,14 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   // First find modules containing hits and prepare list of hits for each module
   std::unordered_map<uint32_t, HGCEEDigiCollection> hit_modules_ee;
   for(const auto& eedata : ee_digis) {
-    const auto& module = triggerGeometry_->getModuleFromCell(eedata.id());
-    auto itr_insert = hit_modules_ee.emplace(module->moduleId(),HGCEEDigiCollection());
+    uint32_t module = triggerGeometry_->getModuleFromCell(eedata.id());
+    auto itr_insert = hit_modules_ee.emplace(module,HGCEEDigiCollection());
     itr_insert.first->second.push_back(eedata);
   }
   std::unordered_map<uint32_t,HGCHEDigiCollection> hit_modules_fh;
   for(const auto& fhdata : fh_digis) {
-    const auto& module = triggerGeometry_->getModuleFromCell(fhdata.id());
-    auto itr_insert = hit_modules_fh.emplace(module->moduleId(), HGCHEDigiCollection());
+    uint32_t module = triggerGeometry_->getModuleFromCell(fhdata.id());
+    auto itr_insert = hit_modules_fh.emplace(module, HGCHEDigiCollection());
     itr_insert.first->second.push_back(fhdata);
   }
   // loop on modules containing hits and call front-end processing
@@ -116,12 +115,11 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   fe_output->reserve(hit_modules_ee.size() + hit_modules_fh.size());
   std::stringstream output;
   for( const auto& module_hits : hit_modules_ee ) {        
-    const auto& module = triggerGeometry_->modules().at(module_hits.first);
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
-    codec_->setDataPayload(*module,module_hits.second,HGCHEDigiCollection(),HGCHEDigiCollection());
+    codec_->setDataPayload(*triggerGeometry_, module_hits.second,HGCHEDigiCollection(),HGCHEDigiCollection());
     codec_->encode(digi);
-    digi.setDetId( HGCalDetId(module_hits.first) );
+    digi.setDetId( DetId(module_hits.first) );
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")
       << output.str();
@@ -130,12 +128,11 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
     output.clear();
   } //end loop on EE modules
   for( const auto& module_hits : hit_modules_fh ) {        
-    const auto& module = triggerGeometry_->modules().at(module_hits.first);
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
-    codec_->setDataPayload(*module,HGCEEDigiCollection(),module_hits.second,HGCHEDigiCollection());
+    codec_->setDataPayload(*triggerGeometry_,HGCEEDigiCollection(),module_hits.second,HGCHEDigiCollection());
     codec_->encode(digi);
-    digi.setDetId( HGCalDetId(module_hits.first) );
+    digi.setDetId( DetId(module_hits.first) );
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")
       << output.str();

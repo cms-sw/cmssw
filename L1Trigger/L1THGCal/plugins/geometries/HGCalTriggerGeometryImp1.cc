@@ -1,6 +1,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryOld.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include <vector>
@@ -8,7 +8,7 @@
 #include <fstream>
 
 
-class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryBase
+class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryOld
 {
     public:
         HGCalTriggerGeometryImp1(const edm::ParameterSet& conf);
@@ -22,7 +22,7 @@ class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryBase
 
 /*****************************************************************/
 HGCalTriggerGeometryImp1::HGCalTriggerGeometryImp1(const edm::ParameterSet& conf):
-    HGCalTriggerGeometryBase(conf),
+    HGCalTriggerGeometryOld(conf),
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping"))
 /*****************************************************************/
 {

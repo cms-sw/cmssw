@@ -1,14 +1,14 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryOld.h"
+#include "DataFormats/ForwardDetId/interface/HGCTriggerHexDetId.h"
 
 #include <vector>
 #include <iostream>
 #include <fstream>
 
 
-class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryBase
+class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryOld
 {
     public:
         HGCalTriggerGeometryHexImp1(const edm::ParameterSet& conf);
@@ -26,7 +26,7 @@ class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryBase
 
 /*****************************************************************/
 HGCalTriggerGeometryHexImp1::HGCalTriggerGeometryHexImp1(const edm::ParameterSet& conf):
-    HGCalTriggerGeometryBase(conf),
+    HGCalTriggerGeometryOld(conf),
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping")),
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping"))
 /*****************************************************************/
@@ -139,10 +139,10 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
             // The module id is used instead of the wafer id for the trigger cells
             // Since there are several wafers per module, an offset is applied on the HGCalDetId::cell field
             if(triggercell_offset+triggerCellId >= HGCalDetId::kHGCalCellMask) edm::LogError("HGCalTriggerGeometry") << "Trigger cell id requested with a cell field larger than available in HGCalDetId (" << triggercell_offset+triggerCellId << " >= " << HGCalDetId::kHGCalCellMask << ")\n";
-            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, triggercell_offset + triggerCellId);
+            HGCTriggerHexDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, triggercell_offset + triggerCellId);
             cells_to_trigger_cells_.emplace(cellDetId, triggerCellDetId);
             // Fill trigger cell -> module mapping
-            HGCalDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCalDetId::kHGCalCellMask);
+            HGCTriggerHexDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCTriggerHexDetId::kHGCalCellMask);
             trigger_cells_to_modules_.emplace(triggerCellDetId, moduleDetId); 
         }
     }
@@ -162,10 +162,10 @@ void HGCalTriggerGeometryHexImp1::fillMaps(const es_info& esInfo)
             // The module id is used instead of the wafer id for the trigger cells
             // Since there are several wafers per module, an offset is applied on the HGCalDetId::cell field
             if(triggercell_offset+triggerCellId >= HGCalDetId::kHGCalCellMask) edm::LogError("HGCalTriggerGeometry") << "Trigger cell id requested with a cell field larger than available in HGCalDetId (" << triggercell_offset+triggerCellId << " >= " << HGCalDetId::kHGCalCellMask << ")\n";
-            HGCalDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, triggercell_offset + triggerCellId);
+            HGCTriggerHexDetId triggerCellDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, triggercell_offset + triggerCellId);
             cells_to_trigger_cells_.emplace(cellDetId, triggerCellDetId);
             // Fill trigger cell -> module mapping
-            HGCalDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCalDetId::kHGCalCellMask);
+            HGCTriggerHexDetId moduleDetId(ForwardSubdetector(waferDetId.subdetId()), waferDetId.zside(), waferDetId.layer(), waferDetId.waferType(), module, HGCTriggerHexDetId::kHGCalCellMask);
             trigger_cells_to_modules_.emplace(triggerCellDetId, moduleDetId); 
         }
     }

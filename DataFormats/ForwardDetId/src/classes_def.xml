@@ -14,6 +14,9 @@
    <version ClassVersion="14" checksum="2581740375"/>
    <version ClassVersion="13" checksum="519079711"/>
   </class>
+  <class name="HGCTriggerHexDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="4158504449"/>
+  </class>
   <class name="FastTimeDetId" ClassVersion="14">
    <version ClassVersion="14" checksum="692755117"/>
    <version ClassVersion="13" checksum="2752729489"/>
