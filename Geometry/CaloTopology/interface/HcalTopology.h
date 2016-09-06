@@ -26,7 +26,7 @@ class HcalTopology : public CaloSubdetectorTopology {
 public:
 
   HcalTopology(const HcalDDDRecConstants* hcons);
-  HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_RCT);
+  HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::TriggerMode_2009);
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
   HcalTopologyMode::TriggerMode triggerMode() const { return triggerMode_; }
@@ -209,6 +209,7 @@ private:
 	 kZDChalf = 11,
 	 kCASTORhalf = 224,
 	 kCALIBhalf = 693,
+         kHThalfPhase1 = 2520 ,
 	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
   enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
   enum { kHBSizePreLS1 = 2*kHBhalf } ;
@@ -216,7 +217,7 @@ private:
   enum { kHOSizePreLS1 = 2*kHOhalf } ;
   enum { kHFSizePreLS1 = 2*kHFhalf } ;
   enum { kHTSizePreLS1 = 2*kHThalf } ;
-  enum { kHTSizePhase1 = (kHTSizePreLS1+(2*12*36)) } ;
+  enum { kHTSizePhase1 = 2*kHThalfPhase1 } ;
   enum { kCALIBSizePreLS1 = 2*kCALIBhalf };
 };
 
