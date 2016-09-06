@@ -25,7 +25,7 @@ EmtfPtAssignment::EmtfPtAssignment(const char * tree_dir):
     int mode_inv = allowedModes_[i];
     stringstream ss;
     ss << tree_dir << "/" << mode_inv;
-    forest_[mode_inv].loadForestFromXML(ss.str().c_str(),64);    
+    forest_[mode_inv].loadL1TForestFromXML(ss.str().c_str(),64);    
   }
 }
 

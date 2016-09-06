@@ -78,7 +78,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
     ////// ME1 only ////////
     ////////////////////////
     
-    if(station == 1)//is this correct? I know it starts from 1 so not quite what I intended I think.
+    if(station == 1)
       {
 	if(chamber%6 > 2)
 	  sub = 1;
