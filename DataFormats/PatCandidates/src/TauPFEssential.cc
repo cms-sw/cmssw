@@ -8,7 +8,12 @@ pat::tau::TauPFEssential::TauPFEssential(const reco::PFTau& tau) :
     decayMode_(tau.decayMode()),
     dxy_(0.),
     dxy_error_(1.e+3),
-    hasSV_(false)
+    hasSV_(false),
+    ip3d_(0.),
+    ip3d_error_(1.e+3),
+    ecalEnergy_(0.),
+    hcalEnergy_(0.),
+    leadingTrackNormChi2_(1.e+3)
 {
   if ( tau.jetRef().isAvailable() && tau.jetRef().isNonnull() ) { // CV: add protection to ease transition to new CMSSW 4_2_x RecoTauTags
     p4Jet_ = tau.jetRef()->p4();
