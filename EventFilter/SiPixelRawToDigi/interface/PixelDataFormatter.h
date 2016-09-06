@@ -99,13 +99,19 @@ private:
   ErrorChecker errorcheck;
 
   // For the 32bit data format (moved from *.cc namespace, keep uppercase for compatibility)
-  int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift;
-  Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask;
+  // Add special layer 1 roc for phase1
+  int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift, 
+    ROW_shift, COL_shift;
+  Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask,
+    ROW_mask, COL_mask;
   int maxROCIndex;
+  bool phase1;
 
   int checkError(const Word32& data) const;
 
   int digi2word(  cms_uint32_t detId, const PixelDigi& digi,
+                  std::map<int, std::vector<Word32> > & words) const;
+  int digi2wordPhase1Layer1(  cms_uint32_t detId, const PixelDigi& digi,
                   std::map<int, std::vector<Word32> > & words) const;
 
   int word2digi(  const int fedId,
