@@ -62,6 +62,13 @@ bool Py8InterfaceBase::readSettings( int )
    fMasterGen->settings.addFlag("ResonanceDecayFilter:udscbAsEquivalent",false);
    fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers",std::vector<int>(),false,false,0,0);
    fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters",std::vector<int>(),false,false,0,0);   
+
+   //add settings for PT filter
+   fMasterGen->settings.addFlag("PTFilter:filter",false);
+   fMasterGen->settings.addMode("PTFilter:quarkToFilter", 5  ,true,true,3,    6);
+   fMasterGen->settings.addParm("PTFilter:scaleToFilter", 0.4,true,true,0.0, 10.);
+   fMasterGen->settings.addParm("PTFilter:quarkRapidity",10.0,true,true,0.0, 10.);
+   fMasterGen->settings.addParm("PTFilter:quarkPt",       -.1,true,true,-.1,100.);
    
    fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
    fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
