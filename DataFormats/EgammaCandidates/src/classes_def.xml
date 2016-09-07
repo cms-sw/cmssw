@@ -9,7 +9,8 @@
   </ioread>
 
 
-  <class name="reco::Photon" ClassVersion="16">
+  <class name="reco::Photon" ClassVersion="17">
+   <version ClassVersion="17" checksum="1000643543"/>
    <version ClassVersion="16" checksum="3459546220"/>
    <version ClassVersion="15" checksum="577991108"/>
    <version ClassVersion="13" checksum="2963666409"/>

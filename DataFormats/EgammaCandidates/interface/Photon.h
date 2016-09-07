@@ -15,6 +15,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 
 namespace reco {
@@ -48,6 +49,10 @@ namespace reco {
     /// returns a reference to the core photon object
     reco::PhotonCoreRef photonCore() const { return photonCore_;}
     void setPhotonCore(const reco::PhotonCoreRef &photonCore) { photonCore_ = photonCore; }
+
+    // ---- link to PackedPFCandidates
+    edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
+    std::vector<uint16_t> associatedPackedFCandidateIndices_;
     
     //
     /// Retrieve photonCore attributes
@@ -131,6 +136,19 @@ namespace reco {
     /// true if photon is in boundary between EB and EE
     bool isEBEEGap() const{return fiducialFlagBlock_.isEBEEGap;}
 
+    /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+    edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates()  ;
+    /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+    template<typename T>
+    void setAssociatedPackedPFCandidates(const edm::RefProd<pat::PackedCandidateCollection> & refprod,
+                                         T beginIndexItr,
+                                         T endIndexItr)  {
+      packedPFCandidates_ = refprod;
+      associatedPackedFCandidateIndices_.clear();
+      associatedPackedFCandidateIndices_.insert(associatedPackedFCandidateIndices_.begin(),
+                                                beginIndexItr,
+                                                endIndexItr);
+    }
     //=======================================================
     // Shower Shape Variables
     //=======================================================

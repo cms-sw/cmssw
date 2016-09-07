@@ -205,3 +205,11 @@ const Candidate::LorentzVector& Photon::p4( P4type type ) const
     default: throw cms::Exception("reco::Photon")<<"unexpected p4 type: "<< type << " cannot return p4 ";
    }
  }
+
+ edm::RefVector<pat::PackedCandidateCollection> Photon::associatedPackedPFCandidates() const {
+    edm::RefVector<pat::PackedCandidateCollection> ret(packedPFCandidates_.id());
+    for (uint16_t idx : associatedPackedFCandidateIndices_) {
+        ret.push_back(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, idx));
+    }
+    return ret;
+}

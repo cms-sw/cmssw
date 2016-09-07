@@ -88,7 +88,9 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   relinkPhotonSel_(config.getParameter<std::string>("relinkPhotons")),
   keepGsfElectronSel_(config.getParameter<std::string>("keepGsfElectrons")),
   slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
-  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
+  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons")),
+  pc_(mayConsume<pat::PackedCandidateCollection>(config.getParameter<edm::InputTag>("packedPFCandidates"))),
+  pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(config.getParameter<edm::InputTag>("packedPFCandidates")))
 {  
   const std::vector<edm::InputTag>& photonidinputs = 
     config.getParameter<std::vector<edm::InputTag> >("photonIDSources");
@@ -171,6 +173,12 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   
   edm::Handle<EcalRecHitCollection> endcapHitHandle;
   theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
+
+  edm::Handle<pat::PackedCandidateCollection> pc;
+  theEvent.getByToken(pc_, pc);
+
+  edm::Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
+  theEvent.getByToken(pf2pc_, pf2pc);
 
   edm::Handle<EcalRecHitCollection> preshowerHitHandle;
   if (doPreshowerEcalHits_) theEvent.getByToken(preshowerEcalHits_, preshowerHitHandle);
@@ -266,6 +274,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //loop over photons and fill maps
   for (unsigned int ipho=0; ipho<photonHandle->size(); ++ipho) {
     const reco::Photon &photon = (*photonHandle)[ipho];
+    edm::Ptr<reco::Photon> phoPtr(photonHandle, ipho);
     
     bool keep = keepPhotonSel_(photon);
     if (!keep) continue;
@@ -333,7 +342,14 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
         singleConversions->push_back(*convref);
         singleConversionMap[convref] = singleConversions->size() - 1;
       }
-    }    
+    }
+
+    std::vector<unsigned int> keys;
+    keys.clear();
+    for(auto const& pf: (*photonPfCandMapHandle)[phoPtr]) {
+      if( pf2pc->contains(pf.id()) ) keys.push_back( (*pf2pc)[pf].key());
+    }
+    photon.setAssociatedPackedPFCandidates(edm::RefProd<pat::PackedCandidateCollection>(pc),keys.begin(), keys.end());    
     
   }
   

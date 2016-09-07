@@ -190,7 +190,8 @@
   </ioread>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="19">
+  <class name="pat::Photon"  ClassVersion="20">
+   <version ClassVersion="20" checksum="1724916323"/>
    <version ClassVersion="19" checksum="211560632"/>
    <version ClassVersion="18" checksum="1413598928"/>
    <version ClassVersion="17" checksum="2394457997"/>
