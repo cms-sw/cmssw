@@ -511,7 +511,7 @@ class VHbbAnalyzer( Analyzer ):
         event.jetsForHiggs = [x for x in event.cleanJets if self.cfg_ana.higgsJetsPreSelection(x) ]
         event.jetsForHiggsAll = [x for x in event.cleanJetsAll if self.cfg_ana.higgsJetsPreSelection(x) ]
         if not self.cfg_ana.passall:
-            if not  ( len(event.jetsForHiggs) >= 2  or (len(event.cleanJets) == 1 and event.cleanJets[0].pt() > self.cfg_ana.singleJetThreshold ) ) :
+            if not  ( len(event.jetsForHiggsAll) >= 2  or (len(event.cleanJets) == 1 and event.cleanJets[0].pt() > self.cfg_ana.singleJetThreshold ) ) :
                 return False
             if event.Vtype < 0 and not ( sum(x.pt() > 30 for x in event.jetsForHiggsAll) >= 4 or sum(x.pt() for x in event.jetsForHiggsAll[:4]) > self.cfg_ana.sumPtThreshold ):
                 return False
