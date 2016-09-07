@@ -22,23 +22,23 @@
   <Constant name="InnerDiskOuterRingCFRMax"        value="[InnerDiskOuterRingCFRMin]+0.5*mm"/>
   <Constant name="InnerDiskOuterRingHalfWidth"   value="49.0*mm/2.0"/>
 
-  <Vector  name="InnerDiskOuterRing_Phi" type="numeric" nEntries="12">
-  1.519*rad,1.657*rad,1.657*rad,1.932*rad,2.762*rad,2.960*rad,3.368*rad,3.531*rad,4.210*rad,4.626*rad,4.626*rad,4.764*rad
+  <Vector  name="InnerDiskOuterRing_Phi" type="numeric" nEntries="10">
+  1.657*rad,1.932*rad,2.762*rad,2.960*rad,3.368*rad,3.531*rad,4.210*rad,4.626*rad,4.626*rad,4.798*rad
   </Vector>
 
   <!-- min: -364 max: -315 width: 49 -->
-  <Vector  name="InnerDiskOuterRing_z_t_Plus" type="numeric" nEntries="12">
-    336*mm,   336*mm,   345*mm,   347*mm,   357*mm,   358*mm,   345*mm,   347*mm,   359*mm,   364*mm,   364*mm,   357*mm
+  <Vector  name="InnerDiskOuterRing_z_t_Plus" type="numeric" nEntries="10">
+     345*mm,   347*mm,   357*mm,   358*mm,   345*mm,   347*mm,   359*mm,   364*mm,   364*mm,   356*mm
   </Vector>
-  <Vector  name="InnerDiskOuterRing_z_l_Plus" type="numeric" nEntries="12">
-    322*mm,   315*mm,   315*mm,   315*mm,   328*mm,   328*mm,   315*mm,   315*mm,   329*mm,   333*mm,   340*mm,   340*mm
+  <Vector  name="InnerDiskOuterRing_z_l_Plus" type="numeric" nEntries="10">
+     315*mm,   315*mm,   328*mm,   328*mm,   315*mm,   315*mm,   329*mm,   333*mm,   323*mm,   315*mm
   </Vector>
 
-  <Vector  name="InnerDiskOuterRing_z_l_Minus" type="numeric" nEntries="12">
-   -336*mm,  -336*mm,  -345*mm,  -347*mm,  -357*mm,  -358*mm,  -345*mm,  -347*mm,  -359*mm,  -364*mm,  -364*mm,  -357*mm
+  <Vector  name="InnerDiskOuterRing_z_l_Minus" type="numeric" nEntries="10">
+    -345*mm,  -347*mm,  -357*mm,  -358*mm,  -345*mm,  -347*mm,  -359*mm,  -364*mm,  -364*mm,  -356*mm
   </Vector>
-  <Vector  name="InnerDiskOuterRing_z_t_Minus" type="numeric" nEntries="12">
-   -322*mm,  -315*mm,  -315*mm,  -315*mm,  -328*mm,  -328*mm,  -315*mm,  -315*mm,  -329*mm,  -333*mm,  -340*mm,  -340*mm
+  <Vector  name="InnerDiskOuterRing_z_t_Minus" type="numeric" nEntries="10">
+    -315*mm,  -315*mm,  -328*mm,  -328*mm,  -315*mm,  -315*mm,  -329*mm,  -333*mm,  -323*mm,  -315*mm
   </Vector>
 
 
@@ -49,22 +49,22 @@
   <Constant name="InnerDiskInnerRingHalfWidth"   value="43.0*mm/2.0"/>
 
   <Vector  name="InnerDiskInnerRing_Phi" type="numeric" nEntries="9">
-  1.412*rad,2.180*rad,2.524*rad,2.792*rad,3.221*rad,3.221*rad,3.576*rad,4.284*rad,4.871*rad
+  2.180*rad,2.524*rad,2.792*rad,3.221*rad,3.221*rad,3.576*rad,4.284*rad,4.284*rad,5.321*rad
   </Vector>
 
   <!-- min: -343 max: -300 width: 43 -->
   <Vector  name="InnerDiskInnerRing_z_t_Plus" type="numeric" nEntries="9">
-    315*mm,   332*mm,   338*mm,   338*mm,   338*mm,   330*mm,   330*mm,   343*mm,   343*mm
+     332*mm,   338*mm,   338*mm,   338*mm,   330*mm,   330*mm,   343*mm,   343*mm,   342*mm
   </Vector>
   <Vector  name="InnerDiskInnerRing_z_l_Plus" type="numeric" nEntries="9">
-    300*mm,   300*mm,   306*mm,   311*mm,   305*mm,   305*mm,   300*mm,   313*mm,   327*mm
+     300*mm,   306*mm,   311*mm,   305*mm,   305*mm,   300*mm,   313*mm,   300*mm,   300*mm
   </Vector>
 
   <Vector  name="InnerDiskInnerRing_z_l_Minus" type="numeric" nEntries="9">
-   -315*mm,  -332*mm,  -338*mm,  -338*mm,  -338*mm,  -330*mm,  -330*mm,  -343*mm,  -343*mm
+    -332*mm,  -338*mm,  -338*mm,  -338*mm,  -330*mm,  -330*mm,  -343*mm,  -343*mm,  -342*mm
   </Vector>
   <Vector  name="InnerDiskInnerRing_z_t_Minus" type="numeric" nEntries="9">
-   -300*mm,  -300*mm,  -306*mm,  -311*mm,  -305*mm,  -305*mm,  -300*mm,  -313*mm,  -327*mm
+    -300*mm,  -306*mm,  -311*mm,  -305*mm,  -305*mm,  -300*mm,  -313*mm,  -300*mm,  -300*mm
   </Vector>
 
 
@@ -74,23 +74,23 @@
   <Constant name="OuterDiskOuterRingCFRMax"      value="[OuterDiskOuterRingCFRMin]+0.5*mm"/>
   <Constant name="OuterDiskOuterRingHalfWidth"   value="44.0*mm/2.0"/>
 
-  <Vector  name="OuterDiskOuterRing_Phi" type="numeric" nEntries="13">
-  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.736*rad
+  <Vector  name="OuterDiskOuterRing_Phi" type="numeric" nEntries="9">
+  1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.658*rad,4.772*rad
   </Vector>
 
   <!-- min: -335 max: -291 width: 44 -->
-  <Vector  name="OuterDiskOuterRing_z_t_Plus" type="numeric" nEntries="13">
-    308*mm,   310*mm,   317*mm,   324*mm,   331*mm,   329*mm,   318*mm,   323*mm,   329*mm,   335*mm,   330*mm,   330*mm,   325*mm
+  <Vector  name="OuterDiskOuterRing_z_t_Plus" type="numeric" nEntries="9">
+     317*mm,   324*mm,   331*mm,   329*mm,   318*mm,   323*mm,   329*mm,   330*mm,   317*mm
   </Vector>
-  <Vector  name="OuterDiskOuterRing_z_l_Plus" type="numeric" nEntries="13">
-    298*mm,   291*mm,   291*mm,   291*mm,   300*mm,   303*mm,   291*mm,   291*mm,   294*mm,   304*mm,   305*mm,   310*mm,   313*mm
+  <Vector  name="OuterDiskOuterRing_z_l_Plus" type="numeric" nEntries="9">
+     291*mm,   291*mm,   300*mm,   303*mm,   291*mm,   291*mm,   294*mm,   305*mm,   291*mm
   </Vector>
 
-  <Vector  name="OuterDiskOuterRing_z_l_Minus" type="numeric" nEntries="13">
-   -308*mm,  -310*mm,  -317*mm,  -324*mm,  -331*mm,  -329*mm,  -318*mm,  -323*mm,  -329*mm,  -335*mm,  -330*mm,  -330*mm,  -325*mm
+  <Vector  name="OuterDiskOuterRing_z_l_Minus" type="numeric" nEntries="9">
+    -317*mm,  -324*mm,  -331*mm,  -329*mm,  -318*mm,  -323*mm,  -329*mm,  -330*mm,  -317*mm
   </Vector>
-  <Vector  name="OuterDiskOuterRing_z_t_Minus" type="numeric" nEntries="13">
-   -298*mm,  -291*mm,  -291*mm,  -291*mm,  -300*mm,  -303*mm,  -291*mm,  -291*mm,  -294*mm,  -304*mm,  -305*mm,  -310*mm,  -313*mm
+  <Vector  name="OuterDiskOuterRing_z_t_Minus" type="numeric" nEntries="9">
+    -291*mm,  -291*mm,  -300*mm,  -303*mm,  -291*mm,  -291*mm,  -294*mm,  -305*mm,  -291*mm
   </Vector>
 
 
@@ -101,22 +101,22 @@
   <Constant name="OuterDiskInnerRingHalfWidth"   value="38.0*mm/2.0"/>
 
   <Vector  name="OuterDiskInnerRing_Phi" type="numeric" nEntries="12">
-  1.525*rad,1.628*rad,1.947*rad,2.487*rad,2.862*rad,3.119*rad,3.323*rad,3.323*rad,3.619*rad,4.115*rad,4.597*rad,4.770*rad
+  1.628*rad,1.947*rad,2.487*rad,2.862*rad,3.119*rad,3.323*rad,3.323*rad,3.619*rad,4.115*rad,4.597*rad,4.597*rad,4.769*rad
   </Vector>
 
   <!-- min: -499 max: -461 width: 38 -->
   <Vector  name="OuterDiskInnerRing_z_t_Plus" type="numeric" nEntries="12">
-    476*mm,   481*mm,   482*mm,   490*mm,   491*mm,   479*mm,   478*mm,   481*mm,   485*mm,   495*mm,   499*mm,   492*mm
+     481*mm,   482*mm,   490*mm,   491*mm,   479*mm,   478*mm,   481*mm,   485*mm,   495*mm,   499*mm,   499*mm,   492*mm
   </Vector>
   <Vector  name="OuterDiskInnerRing_z_l_Plus" type="numeric" nEntries="12">
-    466*mm,   461*mm,   461*mm,   470*mm,   470*mm,   462*mm,   461*mm,   461*mm,   461*mm,   471*mm,   477*mm,   486*mm
+     461*mm,   461*mm,   470*mm,   470*mm,   462*mm,   461*mm,   461*mm,   461*mm,   471*mm,   477*mm,   466*mm,   461*mm
   </Vector>
 
   <Vector  name="OuterDiskInnerRing_z_l_Minus" type="numeric" nEntries="12">
-   -475*mm,  -481*mm,  -482*mm,  -490*mm,  -491*mm,  -479*mm,  -478*mm,  -481*mm,  -485*mm,  -495*mm,  -499*mm,  -493*mm
+    -481*mm,  -482*mm,  -490*mm,  -491*mm,  -479*mm,  -478*mm,  -481*mm,  -485*mm,  -495*mm,  -499*mm,  -499*mm,  -493*mm
   </Vector>
   <Vector  name="OuterDiskInnerRing_z_t_Minus" type="numeric" nEntries="12">
-   -466*mm,  -461*mm,  -461*mm,  -470*mm,  -470*mm,  -462*mm,  -461*mm,  -461*mm,  -461*mm,  -471*mm,  -477*mm,  -486*mm
+   -461*mm,  -461*mm,  -470*mm,  -470*mm,  -462*mm,  -461*mm,  -461*mm,  -461*mm,  -471*mm,  -477*mm,  -466*mm,  -461*mm
   </Vector>
 
  </ConstantsSection>
