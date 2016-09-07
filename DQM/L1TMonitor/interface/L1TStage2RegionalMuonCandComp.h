@@ -36,6 +36,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   std::string monitorDir;
   std::string muonColl1Title;
   std::string muonColl2Title;
+  std::string summaryTitle;
   bool ignoreBadTrkAddr;
   bool verbose;
 
