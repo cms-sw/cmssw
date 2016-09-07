@@ -26,6 +26,7 @@
 #include "Geometry/TrackerCommonData/plugins/DDTrackerZPosAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerXYZPosAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDPixFwdDiskAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDPixPhase1FwdDiskAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDPixBarLayerUpgradeAlgo.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 
@@ -55,4 +56,5 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerRingAlgo,   "track:DDTrackerRing
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerZPosAlgo,   "track:DDTrackerZPosAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerXYZPosAlgo, "track:DDTrackerXYZPosAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixFwdDiskAlgo, "track:DDPixFwdDiskAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixPhase1FwdDiskAlgo, "track:DDPixPhase1FwdDiskAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerUpgradeAlgo, "track:DDPixBarLayerUpgradeAlgo");

@@ -85,7 +85,7 @@
 
 <!-- Blades -->
 
-<Algorithm name="track:DDPixFwdDiskAlgo">
+<Algorithm name="track:DDPixPhase1FwdDiskAlgo">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="ChildName"        value="pixfwdbladeOuterZplus:PixelForwardBlade"/> 
   <Numeric name="StartCopyNo"      value="22"/>
