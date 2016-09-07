@@ -52,10 +52,7 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 
    if (ps.exists("parameters")) {
       auto pset = ps.getUntrackedParameter<edm::ParameterSet>("parameters");
-      theAlgo_.overrideParameters(pset.getParameter<unsigned int>("FGVersionHBHE"),
-                                  pset.getParameter<unsigned long long>("TDCMask"),
-                                  pset.getParameter<unsigned int>("ADCThreshold"),
-                                  pset.getParameter<unsigned int>("FGThreshold"));
+      theAlgo_.overrideParameters(ps);
    }
    theAlgo_.setUpgradeFlags(upgrades[0], upgrades[1], upgrades[2]);
 
