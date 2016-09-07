@@ -3,15 +3,17 @@
 
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
+
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
 #include <map>
@@ -23,6 +25,7 @@ class IntegerCaloSamples;
 class HcalTriggerPrimitiveAlgo {
 public:
    struct TPParameters {
+      uint32_t hbhe_fg_version;
       uint64_t hf_tdc_mask;
       uint32_t hf_adc_threshold;
       uint32_t hf_fg_threshold;
@@ -38,6 +41,7 @@ public:
   template<typename... Digis>
   void run(const HcalTPGCoder* incoder,
            const HcalTPGCompressor* outcoder,
+           const HcalDbService* conditions,
            HcalTrigPrimDigiCollection& result,
            const HcalTrigTowerGeometry* trigTowerGeometry,
            float rctlsb, const HcalFeatureBit* LongvrsShortCut,
@@ -73,7 +77,8 @@ public:
   void setRCTScaleShift(int);
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
-  void overrideParameters(unsigned int hf_tdc_mask,
+  void overrideParameters(unsigned int hbhe_fg_version,
+                          unsigned int hf_tdc_mask,
                           unsigned int hf_adc_threshold,
                           unsigned int hf_fg_threshold);
 
@@ -89,6 +94,7 @@ public:
   void addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits);
 
   bool validUpgradeFG(const HcalTrigTowerDetId& id, int depth) const;
+  bool validChannel(const QIE10DataFrame& digi, int ts) const;
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
@@ -114,6 +120,7 @@ public:
    // Member initialized by constructor
   const HcaluLUTTPGCoder* incoder_;
   const HcalTPGCompressor* outcoder_;
+  const HcalDbService* conditions_;
   double theThreshold;
   bool peakfind_;
   std::vector<double> weights_;
@@ -206,14 +213,16 @@ public:
 template<typename... Digis>
 void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
                                    const HcalTPGCompressor* outcoder,
+                                   const HcalDbService* conditions,
                                    HcalTrigPrimDigiCollection& result,
                                    const HcalTrigTowerGeometry* trigTowerGeometry,
                                    float rctlsb, const HcalFeatureBit* LongvrsShortCut,
                                    const Digis&... digis) {
    theTrigTowerGeometry = trigTowerGeometry;
-    
-   incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
-   outcoder_=outcoder;
+
+   incoder_ = dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
+   outcoder_ = outcoder;
+   conditions_ = conditions;
 
    theSumMap.clear();
    theTowerMapFGSum.clear();
@@ -227,7 +236,9 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    addDigis(digis...);
 
    // Prepare the fine-grain calculation algorithm for HB/HE
-   int version = 0;
+   int version = conditions_->getHcalTPParameters()->getFGVersionHBHE();
+   if (override_parameters_)
+      version = override_parameters_->hbhe_fg_version;
    HcalFinegrainBit fg_algo(version);
 
    // VME produces additional bits on the front used by lumi but not the
