@@ -196,7 +196,6 @@ void HGCalTriggerBestChoiceTester::checkSelectedCells(const edm::Event& e,
                                         const edm::EventSetup& es) 
 /*****************************************************************/
 {
-
     edm::Handle<l1t::HGCalClusterBxCollection> be_clusters_all_h;
     edm::Handle<l1t::HGCalClusterBxCollection> be_clusters_select_h;
     e.getByToken(inputbeall_,be_clusters_all_h);
@@ -426,7 +425,6 @@ void HGCalTriggerBestChoiceTester::rerunBestChoiceFragments(const edm::Event& e,
             }
         }  
         // Association simhit energies with trigger cells
-        // need an ordered map
         std::unordered_map<uint32_t, double> TC_simhit_energies;
         if (is_Simhit_comp_) 
         {
