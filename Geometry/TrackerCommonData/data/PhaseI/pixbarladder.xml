@@ -28,6 +28,7 @@
  <Constant name="Cable3Dz"          value="[Cable3Length]+[CableDzOverModule]"/>
  <Constant name="Cable4Dz"          value="[Cable4Length]+[CableDzOverModule]"/>
  <Constant name="CableBoundleDiameter"     value="1.5*mm"/> 
+ <Constant name="CableBoundleDiameter1"    value="1.5*mm * sqrt((128+18)/(96+14))"/> <!-- take into account the different composition of the layer1 cables -->
  <Constant name="CableBoxThick"     value="[CableBoundleDiameter]"/> 
  <Constant name="CapacitorZ"        value="2.80*cm"/> 
  <Constant name="CapacitorThick"    value="1.50*mm"/>

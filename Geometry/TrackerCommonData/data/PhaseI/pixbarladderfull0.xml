@@ -90,13 +90,13 @@
       dy="[pixbarladder:ActiveDz]/2"        dz="[pixbarladder:SensorThick]/2"/>
  <Box name="PixelBarrelHybridFull"       dx="[pixbarladderfull0:HybridWidth]/2"
       dy="[pixbarladder:HybridThick]/2"     dz="[pixbarladder:HybridDz]/2"/>
- <Tubs name="PixelBarrelCableBoundle1" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+ <Tubs name="PixelBarrelCableBoundle1" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
        dz="[pixbarladder:Cable1Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="PixelBarrelCableBoundle2" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+ <Tubs name="PixelBarrelCableBoundle2" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
        dz="[pixbarladder:Cable2Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="PixelBarrelCableBoundle3" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+ <Tubs name="PixelBarrelCableBoundle3" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
        dz="[pixbarladder:Cable3Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="PixelBarrelCableBoundle4" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter]/2"
+ <Tubs name="PixelBarrelCableBoundle4" rMin="[zero]"    rMax="[pixbarladder:CableBoundleDiameter1]/2"
        dz="[pixbarladder:Cable4Dz]/2"          startPhi="0*deg"        deltaPhi="360*deg"/>
  <Box name="PixelBarrelCFStripHoleFull"  dx="[pixbarladderfull0:CFHoleWidth]/2"
       dy="[pixbarladderfull0:CFStripThick]/2" 
