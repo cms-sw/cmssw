@@ -252,6 +252,17 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     std::cout << "Impossible to smear this jet" << std::endl;
                 }
 
+                if (jet.energy() * smearFactor < MIN_JET_ENERGY) {
+                    // Negative or too small smearFactor. We would change direction of the jet
+                    // and this is not what we want.
+                    // Recompute the smearing factor in order to have jet.energy() == MIN_JET_ENERGY
+                    double newSmearFactor = MIN_JET_ENERGY / jet.energy();
+                    if (m_debug) {
+                        std::cout << "The smearing factor (" << smearFactor << ") is either negative or too small. Fixing it to " << newSmearFactor << " to avoid change of direction." << std::endl;
+                    }
+                    smearFactor = newSmearFactor;
+                }
+
                 T smearedJet = jet;
                 smearedJet.scaleEnergy(smearFactor);
 
@@ -269,6 +280,8 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
         }
 
     private:
+        static constexpr const double MIN_JET_ENERGY = 1e-2;
+
         edm::EDGetTokenT<JetCollection> m_jets_token;
         edm::EDGetTokenT<double> m_rho_token;
         bool m_enabled;
