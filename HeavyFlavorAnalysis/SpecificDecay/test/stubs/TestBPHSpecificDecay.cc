@@ -483,13 +483,16 @@ void TestBPHSpecificDecay::dumpRecoCand( const string& name,
   for ( i = 0; i < n; ++i ) {
     const string& name = dl[i];
     const reco::Candidate* dp = cand->getDaug( name );
-    const reco::TransientTrack& tt = *cand->getTransientTrack( dp );
     GlobalPoint gp( vp.X(), vp.Y(), vp.Z() ); 
-    TrajectoryStateClosestToPoint tscp =
-                                  tt.trajectoryStateClosestToPoint( gp );
-    GlobalVector dm = tscp.momentum();
-//    TrajectoryStateOnSurface tsos = tt->stateOnSurface( gp );
-//    GlobalVector gv = tsos.globalMomentum();
+    GlobalVector dm( 0.0, 0.0, 0.0 );
+    const reco::TransientTrack* tt = cand->getTransientTrack( dp );
+    if ( tt != 0 ) {
+      TrajectoryStateClosestToPoint tscp =
+                                    tt->trajectoryStateClosestToPoint( gp );
+      dm = tscp.momentum();
+//      TrajectoryStateOnSurface tsos = tt->stateOnSurface( gp );
+//      GlobalVector gv = tsos.globalMomentum();
+    }
     outF << "daughter " << i
          << " " << name
          << " " <<  ( dp->charge() > 0 ? '+' : '-' )
