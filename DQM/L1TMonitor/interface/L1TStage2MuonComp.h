@@ -35,6 +35,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   std::string monitorDir;
   std::string muonColl1Title;
   std::string muonColl2Title;
+  std::string summaryTitle;
   bool verbose;
 
   MonitorElement* summary;

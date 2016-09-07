@@ -7,6 +7,7 @@ L1TStage2MuonComp::L1TStage2MuonComp(const edm::ParameterSet& ps)
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       muonColl1Title(ps.getUntrackedParameter<std::string>("muonCollection1Title", "Muon collection 1")),
       muonColl2Title(ps.getUntrackedParameter<std::string>("muonCollection2Title", "Muon collection 2")),
+      summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle", "Summary")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false))
 {
 }
@@ -22,7 +23,7 @@ void L1TStage2MuonComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-  summary = ibooker.book1D("summary", "Summary", 14, 1, 15); // range to match bin numbering
+  summary = ibooker.book1D("summary", summaryTitle.c_str(), 14, 1, 15); // range to match bin numbering
   summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
   summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
   summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
