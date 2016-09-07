@@ -1,6 +1,8 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -290,6 +292,11 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
 {
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     time_t jobTime = now-m_beginJob;
+
+    edm::Service<edm::TimingServiceBase> timingsvc;
+    if (timingsvc.isAvailable()) {
+        updateChirp("TotalCPU", timingsvc->getTotalCPU());
+    }
 
     updateChirp("LastUpdate", now);
 
