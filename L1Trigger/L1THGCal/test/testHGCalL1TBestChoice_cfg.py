@@ -143,18 +143,7 @@ process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
         fhSDName = cms.string('HGCalHESiliconSensitive'),
         bhSDName = cms.string('HGCalHEScintillatorSensitive'),
         ),
-    FECodec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
-                     CodecIndex    = cms.uint32(1),
-                     NData         = cms.uint32(12),
-                     DataLength    = cms.uint32(8),
-                     linLSB        = cms.double(100./1024.),
-                     adcsaturation = cms.double(100),
-                     adcnBits      =  cms.uint32(10),
-                     tdcsaturation = cms.double(10000),
-                     tdcnBits      =  cms.uint32(12),
-                     tdcOnsetfC    = cms.double(60),
-                     triggerCellTruncationBits = cms.uint32(2)
-                   )
+    FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec.clone()
     )
 process.test_step = cms.Path(process.hgcaltriggerbestchoicetester)
 
