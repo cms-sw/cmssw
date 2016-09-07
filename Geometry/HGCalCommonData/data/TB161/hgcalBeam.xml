@@ -392,17 +392,25 @@
 
 <SpecParSection label="hgcalBeam.xml" eval="true">
   <SpecPar name="hgcalbeam">
-    <PartSelector path="//HcalTestBeamLineS.*"/>
-    <PartSelector path="//HcalTestBeamLineHaloCounter"/>
-    <PartSelector path="//HcalTestBeamLineMuonCounter"/>
-    <PartSelector path="//HcalTestBeamLineCK3"/>
-    <PartSelector path="//HcalTestBeamLineWChambGas"/>
+    <PartSelector path="//HGCalBeamS.*"/>
+    <PartSelector path="//HGCalBeamHaloCounter"/>
+    <PartSelector path="//HGCalBeamMuonCounter"/>
+    <PartSelector path="//HGCalBeamCK3"/>
+    <PartSelector path="//HGCalBeamWChambGas"/>
     <Parameter name="SensitiveDetector" value="HcalTB06BeamDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HcalTB06BeamHits" eval="false"/>
   </SpecPar>
   <SpecPar name="hgcalbeamWC">
-    <PartSelector path="//HcalTestBeamLineWChambGas"/>
+    <PartSelector path="//HGCalBeamWChambGas"/>
     <Parameter name="Volume" value="WireChamber" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hgcProdCutsBeam">
+    <PartSelector path="//HGCalBeam"/>
+    <PartSelector path="//HGCalBeamDown"/>
+    <Parameter name="CMSCutsRegion" value="HGCalBeamRegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="1.0*mm"/>
+    <Parameter name="ProdCutsForGamma"     value="1.0*mm"/>
   </SpecPar>
 </SpecParSection>
 
