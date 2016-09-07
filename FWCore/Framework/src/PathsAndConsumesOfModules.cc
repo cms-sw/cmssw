@@ -154,7 +154,6 @@ namespace edm {
     //for testing, state that TriggerResults is at the end of all paths
     const std::string kTriggerResults("TriggerResults");
     
-    const auto kInvalidIndex = std::numeric_limits<unsigned int>::max();
     auto trItr = moduleNamesToIndex.find(kTriggerResults);
     const unsigned int kTriggerResultsIndex = trItr != moduleNamesToIndex.end()? trItr->second : kInvalidIndex;
     //determine the path dependencies
@@ -189,7 +188,7 @@ namespace edm {
         unsigned int const moduleIndex = description->id();
         auto const& dependentModules = iPnC.modulesWhoseProductsAreConsumedBy(moduleIndex);
         for(auto const& depDescription: dependentModules) {
-          edgeToPathMap[std::make_pair(moduleIndex, depDescription->id())].push_back(kInvalidIndex);
+          edgeToPathMap[std::make_pair(moduleIndex, depDescription->id())].push_back(kDataDependencyIndex);
           if(iPrintDependencies) {
             edm::LogAbsolute("ModuleDependency") << "ModuleDependency '" << description->moduleLabel() <<
             "' depends on data products from module '" << depDescription->moduleLabel()<<"'";

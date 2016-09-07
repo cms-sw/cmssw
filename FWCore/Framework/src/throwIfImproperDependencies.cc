@@ -128,25 +128,59 @@ namespace {
       tempStack.insert(tempStack.end(),itFirst,m_stack.end());
       tempStack.emplace_back(iEdge);
       
-      unsigned int nPathDependencyOnly =0;
+      std::unordered_set<unsigned int> nUniquePathDependencies;
+      std::unordered_set<unsigned int> lastPathsSeen;
+      //For a real problem, we need at least one data dependency and
+      // one path
+      bool hasDataDependency =false;
+      bool hasPathDependency = false;
+      std::unordered_map<unsigned int, unsigned int> pathToCountOfNonDataDependencies;
+      unsigned int nNonDataDependencies = 0;
+      unsigned int nPathSwitches = 0;
       for(auto const& edge: tempStack) {
         unsigned int in =index[source(edge,iGraph)];
         unsigned int out =index[target(edge,iGraph)];
         
         auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
-        bool pathDependencyOnly = true;
+        std::unordered_set<unsigned int> pathsOnEdge;
+        bool edgeHasDataDependency = false;
+        bool edgeHasPathDependency = false;
         for(auto dependency : iFound->second) {
           if (dependency == std::numeric_limits<unsigned int>::max()) {
-            pathDependencyOnly = false;
-            nPathDependencyOnly = 0;
-            break;
+            //need to count only if this moves us to a new path
+            hasDataDependency = true;
+            edgeHasDataDependency = true;
+          } else {
+            hasPathDependency = true;
+            pathsOnEdge.insert(dependency);
+            nUniquePathDependencies.insert(dependency);
           }
         }
-        if (pathDependencyOnly) {
-          ++nPathDependencyOnly;
+        if((pathsOnEdge != lastPathsSeen) and (not pathsOnEdge.empty())) {
+          //If this edge has at least one associated path and the list
+          // of paths since the last time has changed it means we
+          // switched to a different path
+          ++nPathSwitches;
+          lastPathsSeen = pathsOnEdge;
+        }
+        if(not edgeHasDataDependency) {
+          ++nNonDataDependencies;
+          for(auto pathIndex : pathsOnEdge) {
+            pathToCountOfNonDataDependencies[pathIndex] +=1;
+          }
         }
       }
-      if(nPathDependencyOnly < 2) {
+      if(not (hasPathDependency and hasDataDependency)) {
+        return;
+      }
+      for(auto const& pathToCount : pathToCountOfNonDataDependencies) {
+        //If all the non data dependencies are seen on on path
+        // then at least two modules are in the wrong order
+        if (pathToCount.second == nNonDataDependencies) {
+          throwOnError(tempStack,index,iGraph);
+        }
+      }
+      if(nPathSwitches == nUniquePathDependencies.size()) {
         throwOnError(tempStack,index,iGraph);
       }
     }

@@ -3,32 +3,26 @@
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
-// Class  :     DependencyCycleDetector
+// Function:    throwIfImproperDependencies
 // 
 /**\function throwIfImproperDependencies throwIfImproperDependencies.h "throwIfImproperDependencies.h"
 
- Description: [one line class summary]
+ Description: Function which uses the graph of dependencies to determine if there are any cycles
 
  Usage:
     <usage>
 
 */
 //
-// Original Author:  root
+// Original Author:  Chris Jones
 //         Created:  Tue, 06 Sep 2016 16:04:26 GMT
 //
 
 // system include files
 #include <map>
 #include <string>
-#include <list>
 #include <vector>
-
-#include "boost/graph/graph_traits.hpp"
-#include "boost/graph/adjacency_list.hpp"
-#include "boost/graph/depth_first_search.hpp"
-#include "boost/graph/visitors.hpp"
-
+#include <limits>
 
 // user include files
 
@@ -36,6 +30,11 @@
 
 namespace edm {
   namespace graph {
+    constexpr auto kInvalidIndex = std::numeric_limits<unsigned int>::max();
+    //This index is used as the Path index for the case where we are
+    // describing a data dependency and not a dependency on a Path
+    constexpr auto kDataDependencyIndex = std::numeric_limits<unsigned int>::max();
+    
     using SimpleEdge =  std::pair<unsigned int, unsigned int>;
     using EdgeToPathMap = std::map<SimpleEdge, std::vector<unsigned int>>;
   
