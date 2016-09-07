@@ -27,6 +27,11 @@
 #include <sstream>
 #include <set>
 
+#ifdef __linux__
+#include <sched.h>
+#include <errno.h>
+#endif
+
 namespace edm {
   
   namespace service {
@@ -101,6 +106,36 @@ namespace edm {
 		}
 	}
 	return aux;
+      }
+
+      // Determine the CPU set size; if this can be successfully determined, then this
+      // returns true.
+      bool getCpuSetSize(unsigned &set_size) {
+#ifdef __linux__
+        cpu_set_t *cpusetp;
+        unsigned current_size = 128;
+        unsigned cpu_count = 0;
+        while (current_size*2 > current_size) {
+          cpusetp = CPU_ALLOC(current_size);
+          CPU_ZERO_S(CPU_ALLOC_SIZE(current_size), cpusetp);
+
+          if (sched_getaffinity(0, CPU_ALLOC_SIZE(current_size), cpusetp)) {
+            CPU_FREE(cpusetp);
+            if (errno == EINVAL) {
+              current_size *= 2;
+              continue;
+            }
+            return false;
+          }
+          cpu_count = CPU_COUNT_S(CPU_ALLOC_SIZE(current_size), cpusetp);
+          CPU_FREE(cpusetp);
+          break;
+        }
+        set_size = cpu_count;
+        return true;
+#else
+        return false;
+#endif
       }
     } // namespace {}
 
@@ -225,6 +260,10 @@ namespace edm {
 	}
 	reportCPUProperties.insert(std::make_pair("CPUModels", CPUModels));
 
+        unsigned set_size = -1;
+        if (getCpuSetSize(set_size)) {
+          reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
+        }
 
 	reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
 
