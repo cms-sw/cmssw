@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/CPUServiceBase.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -30,18 +31,21 @@
 namespace edm {
   
   namespace service {
-    class CPU {
+    class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const&, ActivityRegistry&);
       ~CPU();
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
-      
+
+      virtual bool cpuInfo(std::string &models, double &avgSpeed) override;
+
     private:
       int totalNumberCPUs_;
       double averageCoreSpeed_;
       bool reportCPUProperties_;
-      
+
+      bool cpuInfoImpl(std::string &models, double &avgSpeed, Service<JobReport>* reportSvc);      
       void postEndJob();
     };
     
@@ -125,9 +129,20 @@ namespace edm {
     }
 
 
-    void CPU::postEndJob()
+    void CPU::postEndJob() {
+        std::string models;
+        double avgSpeed;
+        Service<JobReport> reportSvc;
+        cpuInfoImpl(models, avgSpeed, &reportSvc); 
+    }
+
+    bool CPU::cpuInfo(std::string &models, double &avgSpeed)
     {
-      Service<JobReport> reportSvc;
+        return cpuInfoImpl(models, avgSpeed, nullptr);
+    }
+
+    bool CPU::cpuInfoImpl(std::string &result_models, double &result_avg_speed, Service<JobReport>* reportSvc)
+    {
 
       std::map<std::string, std::string> reportCPUProperties; // Summary
       std::map<std::string, std::string> currentCoreProperties; // Module(s)
@@ -177,7 +192,7 @@ namespace edm {
 					currentCore = value;
 				}
 				else{
-					reportSvc->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);
+					if (reportSvc) {(*reportSvc)->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);}
 					currentCoreProperties.clear();
 					currentCore = value;
 				}
@@ -200,8 +215,8 @@ namespace edm {
 
 	fcpuinfo.close();
 
-	if(!currentCore.empty() && reportCPUProperties_) {
-		reportSvc->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);
+	if(!currentCore.empty() && reportCPUProperties_ && reportSvc) {
+		(*reportSvc)->reportPerformanceForModule("SystemCPU", "CPU-"+currentCore, currentCoreProperties);
 	}
 
 	reportCPUProperties.insert(std::make_pair("totalCPUs", i2str(totalNumberCPUs_)));
@@ -226,15 +241,21 @@ namespace edm {
 	reportCPUProperties.insert(std::make_pair("CPUModels", CPUModels));
 
 
-	reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
+	if (reportSvc) {(*reportSvc)->reportPerformanceSummary("SystemCPU", reportCPUProperties);}
 
-      } //if
-    } //postEndJob
+        result_models = CPUModels;
+        result_avg_speed = averageCoreSpeed_;
+        return true;
+      } else { // failed to open
+        return false;
+      }
+    } //cpuInfoImpl
   } //service
 }  //edm
 
 
 using edm::service::CPU;
-DEFINE_FWK_SERVICE(CPU);
+typedef edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase,CPU> CPUMaker;
+DEFINE_FWK_SERVICE_MAKER(CPU, CPUMaker);
 
 
