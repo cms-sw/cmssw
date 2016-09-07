@@ -29,14 +29,13 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     upgradeHB = cms.bool(False),
     upgradeHE = cms.bool(False),
 
-    parameters = cms.untracked.PSet(
-        TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
-        ADCThreshold=cms.uint32(0),
-        FGThreshold=cms.uint32(12)
-    ),
-    
-    
-#
+    # parameters = cms.untracked.PSet(
+    #     FGVersionHBHE=cms.uint32(0),
+    #     TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
+    #     ADCThreshold=cms.uint32(0),
+    #     FGThreshold=cms.uint32(12)
+    # ),
+
     #vdouble weights = { -1, -1, 1, 1} //low lumi algo
     # Input digi label (_must_ be without zero-suppression!)
     inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),
