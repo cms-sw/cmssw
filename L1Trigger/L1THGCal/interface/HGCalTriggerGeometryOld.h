@@ -155,6 +155,9 @@ class HGCalTriggerGeometryOld : public HGCalTriggerGeometryBase {
   virtual geom_set getCellsFromModule( const unsigned cell_det_id ) const override final;
   virtual geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
 
+  virtual geom_ordered_set getOrderedCellsFromModule( const unsigned cell_det_id ) const override final;
+  virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
+
   virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const override final;
   virtual GlobalPoint getModulePosition(const unsigned module_det_id) const override final;
 
