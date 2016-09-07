@@ -29,7 +29,7 @@
 //
 DQMDatabaseWriter::DQMDatabaseWriter(const edm::ParameterSet& ps) : m_connectionService(), m_session(), m_connectionString( "" )
 {
-  edm::LogInfo("DQMDatabaseWriter") <<  "Constructor  DQMDatabaseWriter::DQMDatabaseWriter " << std::endl;
+  edm::LogInfo("DQMDatabaseWriter") <<  "Constructor DQMDatabaseWriter::" << __func__ << std::endl;
 
   //Database connection configuration parameters
   edm::ParameterSet connectionParameters = ps.getParameter<edm::ParameterSet>("DBParameters");
@@ -89,7 +89,7 @@ DQMDatabaseWriter::DQMDatabaseWriter(const edm::ParameterSet& ps) : m_connection
 //
 DQMDatabaseWriter::~DQMDatabaseWriter()
 {
-  edm::LogInfo("DQMDatabaseWriter") <<  "Destructor DQMDatabaseWriter::~DQMDatabaseWriter " << std::endl;
+  edm::LogInfo("DQMDatabaseWriter") <<  "Destructor DQMDatabaseWriter::" << __func__ << std::endl;
 }
 
 //
@@ -97,7 +97,7 @@ DQMDatabaseWriter::~DQMDatabaseWriter()
 //
 void DQMDatabaseWriter::initDatabase()
 {
-  edm::LogInfo("DQMDatabaseWriter") <<  "DQMDatabaseWriter::initDatabase " << std::endl;
+  edm::LogInfo("DQMDatabaseWriter") <<  "DQMDatabaseWriter::" << __func__ << std::endl;
 
   m_session.reset( m_connectionService.connect( m_connectionString, coral::Update ) );
   //TODO: do not run in production!
@@ -227,22 +227,20 @@ void DQMDatabaseWriter::initDatabase()
 //
 // -------------------------------------- dqmDbDrop --------------------------------------------
 //
-void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int run)
+void DQMDatabaseWriter::dqmPropertiesDbDrop(const HistoStats &stats, int run)
 {
-  edm::LogInfo("DQMDatabaseWriter") <<  "DQMDatabaseWriter::dqmDbDrop " << std::endl;
+  edm::LogInfo("DQMDatabaseWriter") <<  "DQMDatabaseWriter::" << __func__ << std::endl;
 
-  bool histogramPropsRecordExist;
-  bool histogramValuesRecordExist;
   bool histogramRecordExist;
+  bool histogramPropsRecordExist;
   coral::ISchema& schema = m_session->nominalSchema();
+  m_session->transaction().start(false);
   for (auto histogram : stats)
   {
     histogramRecordExist = false;
     {
-      m_session->transaction().start( false );
       std::unique_ptr<coral::IQuery> queryHistogramProps(schema.tableHandle( "HISTOGRAM" ).newQuery());
       queryHistogramProps->addToOutputList( "PATH" );
-
       std::string condition = "PATH = :path";
       coral::AttributeList conditionData2;
       conditionData2.extend< std::string >("path");
@@ -250,12 +248,11 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
       queryHistogramProps->setCondition( condition, conditionData2 );
       queryHistogramProps->setMemoryCacheSize( 5 );
       coral::ICursor& cursor2 = queryHistogramProps->execute();
-      while(cursor2.next())
-      {
+      if (cursor2.next()){
         cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
         histogramRecordExist = true;
       }
-      if ( !histogramRecordExist )
+      if (!histogramRecordExist)
       {
         coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
         coral::AttributeList insertData;
@@ -268,8 +265,6 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
         insertData[ "TITLE" ].data< std::string >() = histogram.path;
         editor.insertRow( insertData );
       }
-      m_session->transaction().commit();
-      m_session->transaction().start(false);
     }
 
     histogramPropsRecordExist = false;
@@ -294,8 +289,7 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
         coral::ICursor& cursor2 = queryHistogramProps->execute();
         long diff = LONG_MAX;
         coral::AttributeList row;
-        while(cursor2.next())
-        {
+        if (cursor2.next()){
           cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
           int runNumber = cursor2.currentRow()["RUN_NUMBER"].data< int >();
           if (run - runNumber < diff){
@@ -313,7 +307,7 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
             if (row["Z_AXIS"].data< std::string >() != dimensionJson(histogram.dimZ)) exceptionThrow("Z_AXIS", histogram.path, run);
             edm::LogWarning( "DQMDatabaseWriter" ) << "Trying to insert the path: " << histogram.path << " with the same run number: " << run
                                                    << " and already existing the same values." << std::endl;
-          }else {
+          } else {
             if (row["DIMENSIONS"].data< int >() != histogram.dimNumber ||
                 row["X_AXIS"].data< std::string >() != dimensionJson(histogram.dimX) ||
                 row["Y_AXIS"].data< std::string >() != dimensionJson(histogram.dimY) || 
@@ -322,112 +316,113 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
           }
         }
       }
-      m_session->transaction().commit();
-      m_session->transaction().start(false);
     }
 
     if(!histogramPropsRecordExist)
     {
-        coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_PROPS" ).dataEditor();
-        coral::AttributeList insertData;
-        insertData.extend< std::string >( "PATH" );
-        insertData.extend< int >( "RUN_NUMBER" );
-        insertData.extend< int >( "DIMENSIONS" );
-        insertData.extend< std::string >( "X_AXIS" );
-        insertData.extend< std::string >( "Y_AXIS" );
-        insertData.extend< std::string >( "Z_AXIS" );
-
-        insertData[ "PATH" ].data< std::string >() = histogram.path;
-        insertData[ "RUN_NUMBER" ].data< int >() = run;
-        insertData[ "DIMENSIONS" ].data< int >() = histogram.dimNumber; 
-        insertData[ "X_AXIS" ].data< std::string >() = dimensionJson(histogram.dimX);
-        insertData[ "Y_AXIS" ].data< std::string >() = dimensionJson(histogram.dimY);
-        insertData[ "Z_AXIS" ].data< std::string >() = dimensionJson(histogram.dimZ);
-        editor.insertRow( insertData );
-    }
-    m_session->transaction().commit();
-    m_session->transaction().start(false);
-
-    histogramValuesRecordExist = false;
-    {
-      std::unique_ptr<coral::IQuery> queryHistogramValues(schema.tableHandle( "HISTOGRAM_VALUES" ).newQuery());
-      queryHistogramValues->addToOutputList( "PATH" );
-      queryHistogramValues->addToOutputList( "RUN_NUMBER" );
-      queryHistogramValues->addToOutputList( "LUMISECTION" );
-
-      std::string condition = "PATH = :path AND RUN_NUMBER = :run AND LUMISECTION = :lumisection";
-      coral::AttributeList conditionData2;
-      conditionData2.extend< std::string >("path");
-      conditionData2["path"].data< std::string >() = histogram.path;
-      conditionData2.extend< int >("run");
-      conditionData2["run"].data< int >() = run;
-      conditionData2.extend< int >("lumisection");
-      conditionData2["lumisection"].data< int >() = lumisection;
-      queryHistogramValues->setCondition( condition, conditionData2 );
-      queryHistogramValues->setMemoryCacheSize( 5 );
-      coral::ICursor& cursor = queryHistogramValues->execute();
-      while(cursor.next())
-      {
-        cursor.currentRow().toOutputStream( std::cout ) << std::endl;
-        histogramValuesRecordExist = true;
-      }
-      m_session->transaction().commit();
-      m_session->transaction().start(false);
-    }
-
-    if(!histogramValuesRecordExist)
-    {
-      coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
+      coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_PROPS" ).dataEditor();
       coral::AttributeList insertData;
       insertData.extend< std::string >( "PATH" );
       insertData.extend< int >( "RUN_NUMBER" );
-      insertData.extend< int >( "LUMISECTION" );
-      insertData.extend< double >( "ENTRIES" );
-      insertData.extend< double >( "X_MEAN" );
-      insertData.extend< double >( "X_MEAN_ERROR" );
-      insertData.extend< double >( "X_RMS" );
-      insertData.extend< double >( "X_RMS_ERROR" );
-      insertData.extend< double >( "X_UNDERFLOW");
-      insertData.extend< double >( "X_OVERFLOW" );
-      insertData.extend< double >( "Y_MEAN" );
-      insertData.extend< double >( "Y_MEAN_ERROR" );
-      insertData.extend< double >( "Y_RMS" );
-      insertData.extend< double >( "Y_RMS_ERROR" );
-      insertData.extend< double >( "Y_UNDERFLOW");
-      insertData.extend< double >( "Y_OVERFLOW" );
-      insertData.extend< double >( "Z_MEAN" );
-      insertData.extend< double >( "Z_MEAN_ERROR" );
-      insertData.extend< double >( "Z_RMS" );
-      insertData.extend< double >( "Z_RMS_ERROR" );
-      insertData.extend< double >( "Z_UNDERFLOW");
-      insertData.extend< double >( "Z_OVERFLOW" );
+      insertData.extend< int >( "DIMENSIONS" );
+      insertData.extend< std::string >( "X_AXIS" );
+      insertData.extend< std::string >( "Y_AXIS" );
+      insertData.extend< std::string >( "Z_AXIS" );
 
       insertData[ "PATH" ].data< std::string >() = histogram.path;
       insertData[ "RUN_NUMBER" ].data< int >() = run;
-      insertData[ "LUMISECTION" ].data< int >() = lumisection;
-      insertData[ "ENTRIES" ].data< double >() = histogram.entries;
-      insertData[ "X_MEAN" ].data< double >() = histogram.dimX.mean;
-      insertData[ "X_MEAN_ERROR" ].data< double >() = histogram.dimX.meanError;
-      insertData[ "X_RMS" ].data< double >() = histogram.dimX.rms;
-      insertData[ "X_RMS_ERROR" ].data< double >() = histogram.dimX.rmsError;
-      insertData[ "X_UNDERFLOW" ].data< double >() = histogram.dimX.underflow;
-      insertData[ "X_OVERFLOW" ].data< double >() = histogram.dimX.overflow;
-      insertData[ "Y_MEAN" ].data< double >() = histogram.dimY.mean;
-      insertData[ "Y_MEAN_ERROR" ].data< double >() = histogram.dimY.meanError;
-      insertData[ "Y_RMS" ].data< double >() = histogram.dimY.rms;
-      insertData[ "Y_RMS_ERROR" ].data< double >() = histogram.dimY.rmsError;
-      insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
-      insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
-      insertData[ "Z_MEAN" ].data< double >() = histogram.dimZ.mean;
-      insertData[ "Z_MEAN_ERROR" ].data< double >() = histogram.dimZ.meanError;
-      insertData[ "Z_RMS" ].data< double >() = histogram.dimZ.rms;
-      insertData[ "Z_RMS_ERROR" ].data< double >() = histogram.dimZ.rmsError;
-      insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
-      insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
+      insertData[ "DIMENSIONS" ].data< int >() = histogram.dimNumber; 
+      insertData[ "X_AXIS" ].data< std::string >() = dimensionJson(histogram.dimX);
+      insertData[ "Y_AXIS" ].data< std::string >() = dimensionJson(histogram.dimY);
+      insertData[ "Z_AXIS" ].data< std::string >() = dimensionJson(histogram.dimZ);
       editor.insertRow( insertData );
-      m_session->transaction().commit();
     }
   }
+  m_session->transaction().commit();
+}
+
+//
+// -------------------------------------- dqmDbDrop --------------------------------------------
+//
+void DQMDatabaseWriter::dqmValuesDbDrop(const HistoStats &stats, int run, int lumisection)
+{
+  edm::LogInfo("DQMDatabaseWriter") <<  "DQMDatabaseWriter::" << __func__ << std::endl;
+
+  coral::ISchema& schema = m_session->nominalSchema();
+  m_session->transaction().start(false);
+  for (auto histogram : stats)
+  {
+    std::unique_ptr<coral::IQuery> queryHistogramValues(schema.tableHandle( "HISTOGRAM_VALUES" ).newQuery());
+    queryHistogramValues->addToOutputList( "PATH" );
+    queryHistogramValues->addToOutputList( "RUN_NUMBER" );
+    queryHistogramValues->addToOutputList( "LUMISECTION" );
+
+    std::string condition = "PATH = :path AND RUN_NUMBER = :run AND LUMISECTION = :lumisection";
+    coral::AttributeList conditionData2;
+    conditionData2.extend< std::string >("path");
+    conditionData2["path"].data< std::string >() = histogram.path;
+    conditionData2.extend< int >("run");
+    conditionData2["run"].data< int >() = run;
+    conditionData2.extend< int >("lumisection");
+    conditionData2["lumisection"].data< int >() = lumisection;
+    queryHistogramValues->setCondition( condition, conditionData2 );
+    queryHistogramValues->setMemoryCacheSize( 5 );
+    coral::ICursor& cursor = queryHistogramValues->execute();
+    if (cursor.next()){
+      cursor.currentRow().toOutputStream( std::cout ) << std::endl;
+      exceptionThrow("HISTOGRAM_VALUES", histogram.path, run);
+    }
+
+    coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
+    coral::AttributeList insertData;
+    insertData.extend< std::string >( "PATH" );
+    insertData.extend< int >( "RUN_NUMBER" );
+    insertData.extend< int >( "LUMISECTION" );
+    insertData.extend< double >( "ENTRIES" );
+    insertData.extend< double >( "X_MEAN" );
+    insertData.extend< double >( "X_MEAN_ERROR" );
+    insertData.extend< double >( "X_RMS" );
+    insertData.extend< double >( "X_RMS_ERROR" );
+    insertData.extend< double >( "X_UNDERFLOW");
+    insertData.extend< double >( "X_OVERFLOW" );
+    insertData.extend< double >( "Y_MEAN" );
+    insertData.extend< double >( "Y_MEAN_ERROR" );
+    insertData.extend< double >( "Y_RMS" );
+    insertData.extend< double >( "Y_RMS_ERROR" );
+    insertData.extend< double >( "Y_UNDERFLOW");
+    insertData.extend< double >( "Y_OVERFLOW" );
+    insertData.extend< double >( "Z_MEAN" );
+    insertData.extend< double >( "Z_MEAN_ERROR" );
+    insertData.extend< double >( "Z_RMS" );
+    insertData.extend< double >( "Z_RMS_ERROR" );
+    insertData.extend< double >( "Z_UNDERFLOW");
+    insertData.extend< double >( "Z_OVERFLOW" );
+
+    insertData[ "PATH" ].data< std::string >() = histogram.path;
+    insertData[ "RUN_NUMBER" ].data< int >() = run;
+    insertData[ "LUMISECTION" ].data< int >() = lumisection;
+    insertData[ "ENTRIES" ].data< double >() = histogram.entries;
+    insertData[ "X_MEAN" ].data< double >() = histogram.dimX.mean;
+    insertData[ "X_MEAN_ERROR" ].data< double >() = histogram.dimX.meanError;
+    insertData[ "X_RMS" ].data< double >() = histogram.dimX.rms;
+    insertData[ "X_RMS_ERROR" ].data< double >() = histogram.dimX.rmsError;
+    insertData[ "X_UNDERFLOW" ].data< double >() = histogram.dimX.underflow;
+    insertData[ "X_OVERFLOW" ].data< double >() = histogram.dimX.overflow;
+    insertData[ "Y_MEAN" ].data< double >() = histogram.dimY.mean;
+    insertData[ "Y_MEAN_ERROR" ].data< double >() = histogram.dimY.meanError;
+    insertData[ "Y_RMS" ].data< double >() = histogram.dimY.rms;
+    insertData[ "Y_RMS_ERROR" ].data< double >() = histogram.dimY.rmsError;
+    insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_MEAN" ].data< double >() = histogram.dimZ.mean;
+    insertData[ "Z_MEAN_ERROR" ].data< double >() = histogram.dimZ.meanError;
+    insertData[ "Z_RMS" ].data< double >() = histogram.dimZ.rms;
+    insertData[ "Z_RMS_ERROR" ].data< double >() = histogram.dimZ.rmsError;
+    insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
+    editor.insertRow( insertData );
+  }
+  m_session->transaction().commit();
 }
 
   std::string DQMDatabaseWriter::toString(boost::property_tree::ptree doc){
@@ -441,7 +436,7 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
 
   std::string DQMDatabaseWriter::dimensionJson(Dimension &dim){
     using boost::property_tree::ptree;
-    if (dim.nBin == 0 && dim.low == 0 && dim.up == 0) return "";
+    if (dim.nBin == 0 && dim.low == 0 && dim.up == 0) return "{}";
     ptree doc;
     doc.put("bins", dim.nBin);
     doc.put("low", dim.low);
@@ -450,6 +445,7 @@ void DQMDatabaseWriter::dqmDbDrop(const HistoStats &stats, int lumisection, int 
   }
 
   void DQMDatabaseWriter::exceptionThrow(std::string quantity, std::string path, int run){
+    m_session->transaction().rollback();
     throw cms::Exception( "DQMDatabaseWriter" ) << "Trying to insert already existing histogram: "
                                                 << path <<" with the same run number: " 
                                                 << run << " but different "

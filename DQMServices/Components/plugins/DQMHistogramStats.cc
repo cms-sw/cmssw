@@ -16,7 +16,10 @@ DQMHistogramStats::DQMHistogramStats(edm::ParameterSet const & iConfig)
     dumpOnEndRun_(iConfig.getUntrackedParameter<bool>("dumpOnEndRun", false)),
     histogramNamesEndLumi_(iConfig.getUntrackedParameter<std::vector<std::string>>("histogramNamesEndLumi", std::vector<std::string>() )),
     histogramNamesEndRun_(iConfig.getUntrackedParameter<std::vector<std::string>>("histogramNamesEndRun", std::vector<std::string>() ))
-    {}
+    {
+      std::copy( histogramNamesEndLumi_.begin(), histogramNamesEndLumi_.end(), std::inserter( histograms_, histograms_.end() ) );
+      std::copy( histogramNamesEndRun_.begin(), histogramNamesEndRun_.end(), std::inserter( histograms_, histograms_.end() ) );
+    }
 
 DQMHistogramStats::~DQMHistogramStats() {}
 
@@ -159,12 +162,27 @@ HistoEntry DQMHistogramStats::analyze(MonitorElement *m) {
   return e;
 }
 
+HistoStats DQMHistogramStats::collect(DQMStore::IGetter &iGetter, const std::set<std::string>& names ) {
+  // new stat frame
+  HistoStats st;
+
+  if (names.size() > 0) {
+    for (auto name: names) {  
+      MonitorElement *m = iGetter.getElement(name); 
+      auto frame = this->analyze(m); 
+      st.insert(frame);
+    };
+    return st;
+  }
+
+  return st;
+}
+
 HistoStats DQMHistogramStats::collect(DQMStore::IGetter &iGetter, const std::vector<std::string>& names ) {
   // new stat frame
   HistoStats st;
 
   if (names.size() > 0) {
-  std::cout << "NAMES: " << names[0] << std::endl; 
     for (auto name: names) {  
       MonitorElement *m = iGetter.getElement(name); 
       auto frame = this->analyze(m); 

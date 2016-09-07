@@ -39,7 +39,7 @@ class DQMHistogramStats : public DQMEDHarvester {
   // virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &,
                              edm::LuminosityBlock const &,
-                             edm::EventSetup const &)override {};
+                             edm::EventSetup const &) override {};
 
   void dqmEndJob(DQMStore::IBooker &iBooker,
                  DQMStore::IGetter &iGetter) override {};
@@ -55,6 +55,7 @@ class DQMHistogramStats : public DQMEDHarvester {
   // void group(HistoStats& st);
 
  protected:
+  HistoStats collect(DQMStore::IGetter &iGetter, const std::set<std::string>& names );
   HistoStats collect(DQMStore::IGetter &iGetter, const std::vector<std::string>& names);
   HistoStats collect(DQMStore::IGetter &iGetter);
   std::string getStepName();
@@ -71,6 +72,7 @@ class DQMHistogramStats : public DQMEDHarvester {
 
   std::vector<std::string> histogramNamesEndLumi_;
   std::vector<std::string> histogramNamesEndRun_;
+  std::vector<std::string> histograms_;
 
  private:
   void getDimensionX(Dimension &d, MonitorElement *m);

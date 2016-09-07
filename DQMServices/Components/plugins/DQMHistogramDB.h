@@ -11,6 +11,11 @@ class DQMHistogramDB : public DQMHistogramStats {
  public:
   	DQMHistogramDB(edm::ParameterSet const & iConfig);
 
+  	void dqmBeginRun(DQMStore::IBooker &, 
+                            DQMStore::IGetter &iGetter,
+                            edm::Run const &iRun, 
+                            edm::EventSetup const&) override;
+
   	void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &,
                              edm::LuminosityBlock const &,
                              edm::EventSetup const &) override;

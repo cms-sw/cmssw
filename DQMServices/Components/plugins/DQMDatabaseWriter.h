@@ -55,7 +55,8 @@ public:
   
   void initDatabase();
 
-  void dqmDbDrop(const HistoStats &stats, int luminosity, int run);
+  void dqmPropertiesDbDrop(const HistoStats &stats, int run);
+  void dqmValuesDbDrop(const HistoStats &stats, int run, int lumisection);
 
 protected:
   coral::ConnectionService m_connectionService;

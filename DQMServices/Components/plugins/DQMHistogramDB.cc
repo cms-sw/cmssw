@@ -13,6 +13,16 @@ DQMHistogramDB::DQMHistogramDB(edm::ParameterSet const & ps) : DQMHistogramStats
   dbw_->initDatabase();
 };
 
+void DQMHistogramDB::dqmBeginRun(DQMStore::IBooker &, 
+                            DQMStore::IGetter &iGetter,
+                            edm::Run const &iRun, 
+                            edm::EventSetup const&){
+
+  edm::LogInfo("DQMDatabaseHarvester") << "DQMDatabaseHarvester::dqmBeginRun " << std::endl;
+  HistoStats stats = collect(iGetter, histograms_);
+  dbw_->dqmPropertiesDbDrop(stats, iRun.run());
+}
+
 void DQMHistogramDB::dqmEndLuminosityBlock(DQMStore::IBooker &,
                                            DQMStore::IGetter &iGetter,
                                            edm::LuminosityBlock const &iLumi,
@@ -20,7 +30,7 @@ void DQMHistogramDB::dqmEndLuminosityBlock(DQMStore::IBooker &,
   if (dumpOnEndLumi_){
     edm::LogInfo("DQMDatabaseHarvester") << "DQMDatabaseHarvester::dqmEndLuminosityBlock " << std::endl;
     HistoStats stats = (histogramNamesEndLumi_.size() > 0) ? collect(iGetter, histogramNamesEndLumi_) : collect(iGetter);
-    dbw_->dqmDbDrop(stats, iLumi.luminosityBlock(), iLumi.run());
+    dbw_->dqmValuesDbDrop(stats, iLumi.run(), iLumi.luminosityBlock());
   }
 }
 
@@ -30,8 +40,9 @@ void DQMHistogramDB::dqmEndRun(DQMStore::IBooker &,
                             edm::EventSetup const&) {
   if (dumpOnEndRun_){
     edm::LogInfo("DQMDatabaseHarvester") <<  "DQMDatabaseHarvester::endRun" << std::endl;
-    HistoStats stats = (histogramNamesEndRun_.size() > 0) ? collect(iGetter, histogramNamesEndRun_) : collect(iGetter);
-    dbw_->dqmDbDrop(stats, 0, iRun.run());
+    HistoStats stats = (histogramNamesEndRun_.size() > 0) ? collect(iGetter, histograms_) : collect(iGetter);
+    //for run based histograms, we use lumisection value set to 0.
+    dbw_->dqmValuesDbDrop(stats, iRun.run(), 0);
   }
 }
 
