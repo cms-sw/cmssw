@@ -99,6 +99,12 @@ namespace edm {
         totalCPUTime = (double)usage.ru_utime.tv_sec + (double(usage.ru_utime.tv_usec) * 1E-6);
         // System functions
         totalCPUTime += (double)usage.ru_stime.tv_sec + (double(usage.ru_stime.tv_usec) * 1E-6);
+
+        // Additionally, add in CPU usage from our child processes.
+        getrusage(RUSAGE_CHILDREN, &usage);
+        totalCPUTime += (double)usage.ru_utime.tv_sec + (double(usage.ru_utime.tv_usec) * 1E-6);
+        totalCPUTime += (double)usage.ru_stime.tv_sec + (double(usage.ru_stime.tv_usec) * 1E-6);
+
         return totalCPUTime;
     }
     
