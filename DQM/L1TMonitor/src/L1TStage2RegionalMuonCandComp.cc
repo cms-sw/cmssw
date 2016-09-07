@@ -7,6 +7,7 @@ L1TStage2RegionalMuonCandComp::L1TStage2RegionalMuonCandComp(const edm::Paramete
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       muonColl1Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection1Title", "Regional muon collection 1")),
       muonColl2Title(ps.getUntrackedParameter<std::string>("regionalMuonCollection2Title", "Regional muon collection 2")),
+      summaryTitle(ps.getUntrackedParameter<std::string>("summaryTitle", "Summary")),
       ignoreBadTrkAddr(ps.getUntrackedParameter<bool>("ignoreBadTrackAddress", false)),
       verbose(ps.getUntrackedParameter<bool>("verbose", false))
 {
@@ -28,7 +29,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-  summary = ibooker.book1D("summary", ("Summary"+trkAddrIgnoreText).c_str(), 17, 1, 18); // range to match bin numbering
+  summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), 17, 1, 18); // range to match bin numbering
   summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
   summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
   summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
