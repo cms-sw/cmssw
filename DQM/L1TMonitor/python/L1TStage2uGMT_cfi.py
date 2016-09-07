@@ -45,6 +45,7 @@ l1tStage2BmtfOutVsuGMTIn = cms.EDAnalyzer(
     monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/BMTFoutput_vs_uGMTinput"),
     regionalMuonCollection1Title = cms.untracked.string("BMTF output data"),
     regionalMuonCollection2Title = cms.untracked.string("uGMT input data from BMTF"),
+    summaryTitle = cms.untracked.string("Summary of comparison between BMTF output muons and uGMT input muons from BMTF"),
     verbose = cms.untracked.bool(False),
 )
 
@@ -57,6 +58,7 @@ l1tStage2EmtfOutVsuGMTIn = cms.EDAnalyzer(
     monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/EMTFoutput_vs_uGMTinput"),
     regionalMuonCollection1Title = cms.untracked.string("EMTF output data"),
     regionalMuonCollection2Title = cms.untracked.string("uGMT input data from EMTF"),
+    summaryTitle = cms.untracked.string("Summary of comparison between EMTF output muons and uGMT input muons from EMTF"),
     verbose = cms.untracked.bool(False),
 )
 
