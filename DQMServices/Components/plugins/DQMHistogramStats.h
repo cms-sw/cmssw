@@ -72,7 +72,7 @@ class DQMHistogramStats : public DQMEDHarvester {
 
   std::vector<std::string> histogramNamesEndLumi_;
   std::vector<std::string> histogramNamesEndRun_;
-  std::vector<std::string> histograms_;
+  std::set<std::string> histograms_;
 
  private:
   void getDimensionX(Dimension &d, MonitorElement *m);

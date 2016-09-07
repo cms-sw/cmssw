@@ -15,7 +15,6 @@ dqmHistogramDB = cms.EDAnalyzer("DQMHistogramDB",
     histogramNamesEndLumi = cms.untracked.vstring(),
     histogramNamesEndRun = cms.untracked.vstring(),
     
-
     #database configuration
     DBParameters = cms.PSet(authenticationPath = cms.untracked.string(''),
 			messageLevel = cms.untracked.int32(3),

@@ -29,7 +29,7 @@ options.parseArguments()
 
 process = cms.Process('RECODQM')
 
-histoRunList = ["Foo"]
+histoRunList = ["bAr"]
 histoLumiList = ["bAr"]
 
 #load DQM
@@ -58,13 +58,16 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( options.eve
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
                                      fileName = cms.untracked.string("OUT_step1.root"))
+process.DQMSequence = cms.Sequence(process.dqmHistogramTest)
 
 # Path and EndPath definitions
-process.dqmoffline_step = cms.Path(process.dqmHistogramTest)
-process.DQMoutput_step = cms.EndPath(process.dqmHistogramDB*process.DQMoutput)
+process.dqmoffline_step = cms.Path(process.DQMSequence)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+process.DQMDBDump_step = cms.EndPath(process.dqmHistogramDB)
 
 # Schedule definition
 process.schedule = cms.Schedule(
     process.dqmoffline_step,
-    process.DQMoutput_step
+    process.DQMoutput_step,
+    process.DQMDBDump_step
 )

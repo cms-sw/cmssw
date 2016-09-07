@@ -14,11 +14,12 @@ DQMHistogramDB::DQMHistogramDB(edm::ParameterSet const & ps) : DQMHistogramStats
 };
 
 void DQMHistogramDB::dqmBeginRun(DQMStore::IBooker &, 
-                            DQMStore::IGetter &iGetter,
-                            edm::Run const &iRun, 
-                            edm::EventSetup const&){
+                                 DQMStore::IGetter &iGetter,
+                                 edm::Run const &iRun, 
+                                 edm::EventSetup const&){
 
   edm::LogInfo("DQMDatabaseHarvester") << "DQMDatabaseHarvester::dqmBeginRun " << std::endl;
+  std::cout << "****Collecting info from DQMStore" << std::endl;
   HistoStats stats = collect(iGetter, histograms_);
   dbw_->dqmPropertiesDbDrop(stats, iRun.run());
 }
