@@ -108,9 +108,11 @@ float CandidateChargeBTagComputer::discriminator(const TagInfoHelper & tagInfo) 
     }
     if ( n_ip_info>0 ) {
       float jet_pt = ip_info.jet()->pt();
-      pt_ratio1_ch = pt_ratio1_ch / jet_pt;
-      pt_ratio2_ch = pt_ratio1_ch / jet_pt;
-      pt_ratio3_ch = pt_ratio1_ch / jet_pt;
+      if ( jet_pt>0 ) {
+	pt_ratio1_ch = pt_ratio1_ch / jet_pt;
+	pt_ratio2_ch = pt_ratio2_ch / jet_pt;
+	pt_ratio3_ch = pt_ratio3_ch / jet_pt;
+      }
     }
 
     if ( tr_ch_den > 0 ) tr_ch_inc = tr_ch_num / tr_ch_den;
