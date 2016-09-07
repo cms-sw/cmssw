@@ -329,7 +329,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-    <CompositeMaterial name="Pix_Bar_CableSignal_Upgrade" density="0.500*g/cm3" symbol=" " method="mixture by weight">
+    <CompositeMaterial name="Pix_Bar_CableSignal_Upgrade" density="3.650*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.249079">
       <rMaterial name="materials:T_Kapton"/>
     </MaterialFraction>
