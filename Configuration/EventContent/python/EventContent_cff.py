@@ -773,6 +773,27 @@ from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroE
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 
+#### RAW+miniAOD
+
+RAWMINIAODEventContent= cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+
+RAWMINIAODSIMEventContent= cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+
+RAWMINIAODEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWMINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
+RAWMINIAODSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
+
 #
 #
 # RAWSIM Data Tier definition
