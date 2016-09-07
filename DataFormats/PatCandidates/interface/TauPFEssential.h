@@ -53,6 +53,12 @@ struct TauPFEssential {
   float ecalEnergy_;
   float hcalEnergy_;
   float leadingTrackNormChi2_;
+  float etaAtEcalEntrance_;
+  float ecalEnergyLeadChargedHadrCand_;
+  float hcalEnergyLeadChargedHadrCand_;
+  float etaAtEcalEntranceLeadChargedCand_;
+  float ptLeadChargedCand_;
+  float emFraction_;
 };
 
 } }

@@ -337,6 +337,21 @@ namespace pat {
       /// return normalized chi2 of leading track
       float leadingTrackNormChi2() const { return pfEssential().leadingTrackNormChi2_; }
 
+      /// ---- Information for anti-electron training ----
+      /// Needed to recompute on MiniAOD
+      /// return ecal energy from LeadChargedHadrCand
+      float ecalEnergyLeadChargedHadrCand() const { return pfEssential().ecalEnergyLeadChargedHadrCand_; }
+      /// return hcal energy from LeadChargedHadrCand
+      float hcalEnergyLeadChargedHadrCand() const { return pfEssential().hcalEnergyLeadChargedHadrCand_; }
+      /// return etaAtEcalEntrance
+      float etaAtEcalEntrance() const { return pfEssential().etaAtEcalEntrance_; }
+      /// return etaAtEcalEntrance from LeadChargedCand
+      float etaAtEcalEntranceLeadChargedCand() const { return pfEssential().etaAtEcalEntranceLeadChargedCand_; }
+      /// return pt from  LeadChargedCand
+      float ptLeadChargedCand() const { return pfEssential().ptLeadChargedCand_; }
+      /// return emFraction_MVA
+      float emFraction_MVA() const { return pfEssential().emFraction_; }
+
       /// Methods copied from reco::Jet.
       /// (accessible from reco::CaloTau/reco::PFTau via reco::CaloTauTagInfo/reco::PFTauTagInfo)
       reco::Candidate::LorentzVector p4Jet() const;
