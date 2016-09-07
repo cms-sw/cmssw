@@ -90,24 +90,44 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
 
     const reco::Muon & muon = (*muons)[i];
 
-    if ( muon.pt() > minMuonPt_) {
-        reco::TrackRef innerMuonTrack = muon.innerTrack();
-        if (debug_) cout<<"muon "<<muon.pt()<<endl;
+    reco::TrackRef bestMuonTrack = muon.muonBestTrack();
 
+    if (debug_) cout<<"BadChargedCandidate test:Muon "<< i << endl;
+    // reco::TrackRef innerMuonTrack = muon.innerTrack();
+    //  if ( muon.pt() < minMuonPt_ && innerMuonTrack->pt() < minMuonPt_) {
+    //  if (debug_) cout <<"skipping the muon because low muon pt" << endl;
+    //  continue ; } {
+    {
+       reco::TrackRef innerMuonTrack = muon.innerTrack();
+        if (debug_) cout<<"muon "<<muon.pt()<<endl;
+	
         if ( innerMuonTrack.isNull() ) { 
             if (debug_) cout<<"Skipping this muon because it has no inner track"<<endl; 
             continue; 
             };
+
+	if ( muon.pt() < minMuonPt_ && innerMuonTrack->pt() < minMuonPt_) {
+          if (debug_) cout <<"skipping the muon because low muon pt" << endl;
+          continue;
+        }
+
         if ( innerMuonTrack->quality(reco::TrackBase::highPurity) ) { 
-            if (debug_) cout<<"Skipping this muon because inner track is high purity."<<endl; 
-            continue;
+            if (debug_) cout<<" Muons's inner track is high purity."<<endl; 
+	    // continue;
         }
         // Consider only muons with large relative pt error
         if (debug_) cout<<"Muon inner track pt rel err: "<<innerMuonTrack->ptError()/innerMuonTrack->pt()<<endl;
         if (not ( innerMuonTrack->ptError()/innerMuonTrack->pt() > minMuonTrackRelErr_ ) ) {
-            if (debug_) cout<<"Skipping this muon because seems well measured."<<endl; 
-            continue;
+            if (debug_) cout<<" this muon seems well measured."<<endl; 
+	    // continue;
         }
+	
+	if (debug_) cout << "SegmentCompatibility :"<< muon::segmentCompatibility(muon) << "RelPtErr:" << bestMuonTrack->ptError()/bestMuonTrack->pt() << endl;
+	if (muon::segmentCompatibility(muon) < 0.3 && bestMuonTrack->ptError()/bestMuonTrack->pt() < 2.0) {
+	  if (debug_) cout <<"Skipping this muon because segment compatiblity < 0.3 and relErr(best track) <2 " << endl;
+	  continue;
+	}
+
         for ( unsigned j=0; j < pfCandidates->size(); ++j ) {
             const reco::Candidate & pfCandidate = (*pfCandidates)[j];
             // look for charged hadrons
