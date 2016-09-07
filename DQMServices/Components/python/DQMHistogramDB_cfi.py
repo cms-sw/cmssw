@@ -12,14 +12,8 @@ dqmHistogramDB = cms.EDAnalyzer("DQMHistogramDB",
     dumpOnEndRun = cms.untracked.bool(True),
     runOnEndJob = cms.untracked.bool(False),
     dumpToFWJR = cms.untracked.bool(True),
-    histogramNamesEndLumi = cms.untracked.vstring("AlcaBeamMonitor/Debug/hsigmaXCoordinate"),
-
-    histogramNamesEndRun = cms.untracked.vstring("AlcaBeamMonitor/Debug/hsigmaXCoordinate",
-						"AlcaBeamMonitor/Debug/hsigmaYCoordinate",
-						"AlcaBeamMonitor/Debug/hsigmaZCoordinate",
-					   	"AlcaBeamMonitor/Debug/hxCoordinate",
-					   	"AlcaBeamMonitor/Debug/hyCoordinate",
-						"AlcaBeamMonitor/Debug/hzCoordinate"),
+    histogramNamesEndLumi = cms.untracked.vstring(),
+    histogramNamesEndRun = cms.untracked.vstring(),
     
 
     #database configuration
