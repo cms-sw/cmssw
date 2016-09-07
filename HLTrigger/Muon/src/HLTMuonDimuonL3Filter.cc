@@ -48,7 +48,9 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    candToken_         (consumes<reco::RecoChargedCandidateCollection>(candTag_)),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
    previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
+   previousCandIsL2_(iConfig.getParameter<bool> ("PreviousCandIsL2")),
    fast_Accept_ (iConfig.getParameter<bool> ("FastAccept")),
+   min_N_       (iConfig.getParameter<int> ("MinN")),
    max_Eta_     (iConfig.getParameter<double> ("MaxEta")),
    min_Nhits_   (iConfig.getParameter<int> ("MinNhits")),
    max_Dr_      (iConfig.getParameter<double> ("MaxDr")),
@@ -75,6 +77,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
       << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityPair : "
       << candTag_.encode()
       << " " << fast_Accept_
+      << " " << min_N_
       << " " << max_Eta_
       << " " << min_Nhits_
       << " " << max_Dr_
@@ -101,7 +104,9 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
+  desc.add<bool>("PreviousCandIsL2",true);
   desc.add<bool>("FastAccept",false);
+  desc.add<int>("MinN",1);
   desc.add<double>("MaxEta",2.5);
   desc.add<int>("MinNhits",0);
   desc.add<double>("MaxDr",2.0);
@@ -163,9 +168,13 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    unsigned int maxI = mucands->size();
    for (unsigned int i=0;i!=maxI;i++){
      TrackRef tk = (*mucands)[i].track();
-     edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
-     TrackRef staTrack = l3seedRef->l2Track();
-     L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+     if (previousCandIsL2_) {
+         edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+         TrackRef staTrack = l3seedRef->l2Track();
+         L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+     } else {
+         L2toL3s[tk].push_back(RecoChargedCandidateRef(mucands,i));
+     }
    }
 
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
@@ -383,7 +392,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
    }//loop on the first L2
 
    // filter decision
-   const bool accept (n >= 1);
+   const bool accept (n >= min_N_);
 
    LogDebug("HLTMuonDimuonL3Filter") << " >>>>> Result of HLTMuonDimuonL3Filter is "<< accept << ", number of muon pairs passing thresholds= " << n;
 
