@@ -105,8 +105,8 @@ EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup 
 
 void 
 EcalTimeDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventSetup) {
-   std::auto_ptr<EcalTimeDigiCollection> barrelResult   ( new EcalTimeDigiCollection() ) ;
-   std::auto_ptr<EcalTimeDigiCollection> endcapResult   ( new EcalTimeDigiCollection() ) ;
+   std::unique_ptr<EcalTimeDigiCollection> barrelResult   ( new EcalTimeDigiCollection() ) ;
+   std::unique_ptr<EcalTimeDigiCollection> endcapResult   ( new EcalTimeDigiCollection() ) ;
 
 #ifdef ecal_time_debug
    std::cout << "[EcalTimeDigiProducer]::finalizeEvent" << std::endl;
@@ -133,8 +133,8 @@ EcalTimeDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& ev
     std::cout << "[EcalTimeDigiProducer]::putting collections into the event " << std::endl;
 #endif
 
-   event.put( barrelResult,    m_EBdigiCollection ) ;
-   event.put( endcapResult,    m_EEdigiCollection ) ;
+    event.put( std::move(barrelResult),    m_EBdigiCollection ) ;
+    event.put( std::move(endcapResult),    m_EEdigiCollection ) ;
 }
 
 void 
