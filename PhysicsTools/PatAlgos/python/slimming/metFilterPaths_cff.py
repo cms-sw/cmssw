@@ -8,7 +8,7 @@ from RecoMET.METFilters.metFilters_cff import primaryVertexFilter, CSCTightHaloF
 from RecoMET.METFilters.metFilters_cff import goodVertices, trackingFailureFilter, trkPOGFilters, manystripclus53X, toomanystripclus53X, logErrorTooManyClusters
 from RecoMET.METFilters.metFilters_cff import chargedHadronTrackResolutionFilter, muonBadTrackFilter
 from RecoMET.METFilters.metFilters_cff import BadChargedCandidateFilter, BadPFMuonFilter #2016 post-ICHEPversion
-from RecoMET.METFilters.metFilters_cff import BadChargedCandidateFSummer16ilter, BadPFMuonSummer16Filter #2016 ICHEP version
+from RecoMET.METFilters.metFilters_cff import BadChargedCandidateSummer16Filter, BadPFMuonSummer16Filter #2016 ICHEP version
 from RecoMET.METFilters.metFilters_cff import metFilters
 
 # individual filters
