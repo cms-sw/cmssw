@@ -370,10 +370,10 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
 
   size_t portcardpos=filename.find(std::string("portcard_"));
   //std::cout << __LINE__ << "]\t" << mthn << "portcardpos:"<<portcardpos<<std::endl;
-  assert(portcardpos!=std::string::npos);
+  assert(portcardpos!=(unsigned int)std::string::npos);
   size_t datpos=filename.find(std::string(".dat"));
   //std::cout << __LINE__ << "]\t" << mthn << "datpos:"<<datpos<<std::endl;
-  assert(datpos!=std::string::npos);
+  assert(datpos!=(unsigned int)std::string::npos);
   assert(datpos>portcardpos);
   
   portcardname_=filename.substr(portcardpos+9,datpos-portcardpos-9);

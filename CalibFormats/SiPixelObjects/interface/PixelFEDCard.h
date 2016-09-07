@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+#include <stdint.h>
 
 namespace pos{
 /*!  \ingroup ConfigurationObjects "Configuration Objects"
@@ -64,7 +65,7 @@ namespace pos{
     virtual void writeXMLTrailer(std::ofstream *fedstream,
 				 std::ofstream *recostream,
 				 std::ofstream *tbmstream) const ;
-    unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
+    uint64_t enabledChannels();  // returns 64-bit integer mask 35..0
 
 
     //Settable optical input parameters (one for each 12-receiver)
@@ -154,6 +155,26 @@ namespace pos{
     //VME base address 
     unsigned long FEDBASE_0, fedNumber;
 
+    // Most recent additions requested by Will and Danek (Dario)
+    int BusyHoldMin       ;
+    int BusyWhenBehind    ;
+    int FeatureRegister   ;
+    int FIFO2Limit    	  ;
+    int LastDacOff    	  ;
+    int SimHitsPerRoc 	  ;
+    int TimeoutOROOSLimit ;
+    int TriggerHoldoff    ;
+    int SPARE1  	  ;
+    int SPARE2  	  ;
+    int SPARE3  	  ;
+    int SPARE4  	  ;
+    int SPARE5  	  ;
+    int SPARE6  	  ;
+    int SPARE7  	  ;
+    int SPARE8  	  ;
+    int SPARE9  	  ;
+    int SPARE10 	  ;
+    
  private: 
  
     // Added by Dario (March 26th 2008)
