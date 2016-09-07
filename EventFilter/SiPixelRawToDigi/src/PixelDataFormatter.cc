@@ -240,7 +240,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       int dcol = (ww >> DCOL_shift) & DCOL_mask;
       int pxid = (ww >> PXID_shift) & PXID_mask;
       //if(DANEK) cout<<" raw2digi "<<link<<" "<<roc<<" "
-	  <<dcol<<" "<<pxid<<" "<<adc<<" "<<layer<<endl;
+      //<<dcol<<" "<<pxid<<" "<<adc<<" "<<layer<<endl;
       
       LocalPixel::DcolPxid localDP = { dcol, pxid };
       //if(DANEK) cout<<localDP.dcol<<" "<<localDP.pxid<<endl;
