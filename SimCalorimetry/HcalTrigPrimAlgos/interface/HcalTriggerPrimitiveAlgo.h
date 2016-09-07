@@ -24,13 +24,6 @@ class IntegerCaloSamples;
 
 class HcalTriggerPrimitiveAlgo {
 public:
-   struct TPParameters {
-      uint32_t hbhe_fg_version;
-      uint64_t hf_tdc_mask;
-      uint32_t hf_adc_threshold;
-      uint32_t hf_fg_threshold;
-   };
-
   HcalTriggerPrimitiveAlgo(bool pf, const std::vector<double>& w, int latency,
                            uint32_t FG_threshold, uint32_t FG_HF_threshold, uint32_t ZS_threshold,
                            int numberOfSamples,   int numberOfPresamples,
@@ -77,10 +70,7 @@ public:
   void setRCTScaleShift(int);
 
   void setUpgradeFlags(bool hb, bool he, bool hf);
-  void overrideParameters(unsigned int hbhe_fg_version,
-                          unsigned int hf_tdc_mask,
-                          unsigned int hf_adc_threshold,
-                          unsigned int hf_fg_threshold);
+  void overrideParameters(const edm::ParameterSet& ps) { override_parameters_ = ps; };
 
  private:
 
@@ -196,7 +186,7 @@ public:
   bool upgrade_he_ = false;
   bool upgrade_hf_ = false;
 
-  std::unique_ptr<const TPParameters> override_parameters_;
+  edm::ParameterSet override_parameters_;
 
   static const int HBHE_OVERLAP_TOWER = 16;
   static const int LAST_FINEGRAIN_DEPTH = 6;
@@ -237,8 +227,8 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
 
    // Prepare the fine-grain calculation algorithm for HB/HE
    int version = conditions_->getHcalTPParameters()->getFGVersionHBHE();
-   if (override_parameters_)
-      version = override_parameters_->hbhe_fg_version;
+   if (override_parameters_.exists("FGVersionHBHE"))
+      version = override_parameters_.getParameter<uint32_t>("FGVersionHBHE");
    HcalFinegrainBit fg_algo(version);
 
    // VME produces additional bits on the front used by lumi but not the

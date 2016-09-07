@@ -12,6 +12,7 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 
@@ -35,7 +36,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
                                                    NCTScaleShift(0), RCTScaleShift(0),
-                                                   peak_finder_algorithm_(2)
+                                                   peak_finder_algorithm_(2),
+                                                   override_parameters_()
 {
    //No peak finding setting (for Fastsim)
    if (!peakfind_){
@@ -59,22 +61,6 @@ HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf)
    upgrade_hb_ = hb;
    upgrade_he_ = he;
    upgrade_hf_ = hf;
-}
-
-
-void
-HcalTriggerPrimitiveAlgo::overrideParameters(unsigned int hbhe_fg_version,
-                                             unsigned int hf_tdc_mask,
-                                             unsigned int hf_adc_threshold,
-                                             unsigned int hf_fg_threshold)
-{
-   auto parameters = new TPParameters();
-   parameters->hbhe_fg_version = hbhe_fg_version;
-   parameters->hf_tdc_mask = hf_tdc_mask;
-   parameters->hf_adc_threshold = hf_adc_threshold;
-   parameters->hf_fg_threshold = hf_fg_threshold;
-
-   override_parameters_ = std::unique_ptr<const TPParameters>(parameters);
 }
 
 
@@ -532,10 +518,10 @@ HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
    auto adc_threshold = parameters->getADCThresholdHF();
    auto tdc_mask = parameters->getTDCMaskHF();
 
-   if (override_parameters_) {
-      adc_threshold = override_parameters_->hf_adc_threshold;
-      tdc_mask = override_parameters_->hf_tdc_mask;
-   }
+   if (override_parameters_.exists("ADCThresholdHF"))
+      adc_threshold = override_parameters_.getParameter<uint32_t>("ADCThresholdHF");
+   if (override_parameters_.exists("TDCMaskHF"))
+      adc_threshold = override_parameters_.getParameter<unsigned long long>("TDCMaskHF");
 
    if (digi[ts].adc() < adc_threshold)
       return true;
