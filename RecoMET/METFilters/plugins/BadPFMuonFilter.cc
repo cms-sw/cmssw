@@ -42,7 +42,8 @@ private:
   const int             algo_;
   const double          minDZ_;
   const double          minMuPt_;
-  const double          minTrkPtError_;
+  const double          minPtError_;
+  const double          segmentCompatibility_;
 
 };
 
@@ -57,7 +58,8 @@ BadPFMuonFilter::BadPFMuonFilter(const edm::ParameterSet& iConfig)
   , algo_                 ( iConfig.getParameter<int>  ("algo") )
   , minDZ_                ( iConfig.getParameter<double>  ("minDZ") )
   , minMuPt_              ( iConfig.getParameter<double>  ("minMuPt") )
-  , minTrkPtError_        ( iConfig.getParameter<double>  ("minTrkPtError") )
+  , minPtError_           ( iConfig.getParameter<double>  ("minPtError") )
+  , segmentCompatibility_ ( iConfig.getParameter<double>  ("segmentCompatibility") )
 {
   produces<bool>();
 }
@@ -105,18 +107,6 @@ BadPFMuonFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventS
        continue;
     }
 
-    if ( innerMuonTrack->quality(reco::TrackBase::highPurity) ) {
-      if (debug_) cout<<" this muon's inner track is high purity."<<endl; 
-      // continue;
-    }
-       
-    // Consider only muons with large relative pt error
-    if (debug_) cout<<"Muon inner track pt rel err: "<<innerMuonTrack->ptError()/innerMuonTrack->pt()<<endl;
-    if (not ( innerMuonTrack->ptError()/innerMuonTrack->pt() > minTrkPtError_ ) ) {
-      if (debug_) cout<<"this muon seems well measured."<<endl; 
-      //       continue;
-    }
-
     // Consider only muons from muonSeededStepOutIn algo
     if (debug_) cout<<"Muon inner track original algo: "<<innerMuonTrack->originalAlgo() << endl;
     if (not ( innerMuonTrack->originalAlgo() == algo_  && innerMuonTrack->algo() == algo_ ) ) {
@@ -125,7 +115,7 @@ BadPFMuonFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventS
     }
 
     if (debug_) cout << "SegmentCompatibility :"<< muon::segmentCompatibility(muon) << "RelPtErr:" << bestMuonTrack->ptError()/bestMuonTrack->pt() << endl;    
-    if (muon::segmentCompatibility(muon) < 0.3 && bestMuonTrack->ptError()/bestMuonTrack->pt() < 2.0) {
+    if (muon::segmentCompatibility(muon) < segmentCompatibility_ && bestMuonTrack->ptError()/bestMuonTrack->pt() < minPtError_) {
       if (debug_) cout <<"Skipping this muon because segment compatiblity < 0.3 and relErr(best track) <2 " << endl;
      continue;
     }
