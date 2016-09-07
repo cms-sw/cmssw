@@ -13,7 +13,7 @@
      ring according to the given outline. The z_l and z_t arrays describe the 
      -Z and +Z sides by giving the Z value for each of the values of the Phi
      array. The z values are only considered relatively, the object will be 
-     centered around the origin and has to be placed using a PosPart tag.
+     centered around the origin and has to be placed using zPos.
      There are two instances each, for the Core and Skin (CF), which use the
      same parameters. The parameters are not defined in-place, but names are
      passed, which are defined in a different file, to avoid duplication.
@@ -21,6 +21,8 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskOuterRing"/> 
+  <String  name="Material"         value="materials:C_C_OuterOuterRing"/> 
+  <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
@@ -30,6 +32,8 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRing"/> 
+  <String  name="Material"         value="materials:FPix_CFSkin_OuterOuterRing"/> 
+  <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskOuterRing_Phi"/>
@@ -39,6 +43,8 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskInnerRing"/> 
+  <String  name="Material"         value="materials:C_C_OuterInnerRing"/> 
+  <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
@@ -48,6 +54,8 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRing"/> 
+  <String  name="Material"         value="materials:FPix_CFSkin_OuterInnerRing"/> 
+  <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMax]"/>
   <String  name="Phi"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_Phi"/>
@@ -55,86 +63,6 @@
   <String  name="z_l"              value="pixfwdSupportRingParameters:OuterDiskInnerRing_z_l_Plus"/>
 </Algorithm>
 
-
-<LogicalPartSection label="pixfwdOuterDiskZplus.xml">
- <LogicalPart name="PixelForwardOuterDiskInnerRing" category="support">
-  <rSolid name="PixelForwardOuterDiskInnerRing"/>
-  <rMaterial name="materials:C_C_OuterInnerRing"/>
- </LogicalPart>
-
- <LogicalPart name="PixelForwardOuterDiskOuterRing" category="support">
-  <rSolid name="PixelForwardOuterDiskOuterRing"/>
-  <rMaterial name="materials:C_C_OuterOuterRing"/>
- </LogicalPart>
-
- <LogicalPart name="PixelForwardOuterDiskCFInnerRing" category="support">
-  <rSolid name="PixelForwardOuterDiskCFInnerRing"/>
-  <rMaterial name="materials:FPix_CFSkin_OuterInnerRing"/>
- </LogicalPart>
-
- <LogicalPart name="PixelForwardOuterDiskCFOuterRing" category="support">
-  <rSolid name="PixelForwardOuterDiskCFOuterRing"/>
-  <rMaterial name="materials:FPix_CFSkin_OuterOuterRing"/>
- </LogicalPart>
-
-
-</LogicalPartSection>
-
-
-<PosPartSection label="pixfwdOuterDiskZplus.xml">
-  <PosPart copyNumber="1">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskInnerRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
-  </PosPart>
-
-  <PosPart copyNumber="1">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskOuterRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
-  </PosPart>
-
-  <PosPart copyNumber="1">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskCFInnerRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
-  </PosPart>
-
-  <PosPart copyNumber="1">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskCFOuterRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
-  </PosPart>
-
-
-  <PosPart copyNumber="2">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskInnerRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
-    <rRotation name="pixfwdCommon:Z180" />
-  </PosPart>
-
-  <PosPart copyNumber="2">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskOuterRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
-    <rRotation name="pixfwdCommon:Z180" />
-  </PosPart>
-
-  <PosPart copyNumber="2">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskCFInnerRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[InnerRingZ]"/>
-    <rRotation name="pixfwdCommon:Z180" />
-  </PosPart>
-
-  <PosPart copyNumber="2">
-    <rParent name="pixfwdDisks:PixelForwardDiskZplus"/>
-    <rChild name="pixfwdOuterDiskZplus:PixelForwardOuterDiskCFOuterRing"/>
-    <Translation x="0.*mm" y="0.*mm" z="[OuterRingZ]"/>
-    <rRotation name="pixfwdCommon:Z180" />
-  </PosPart>
-</PosPartSection>
 
 <!-- Blades -->
 

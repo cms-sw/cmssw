@@ -6,10 +6,11 @@
 #include <vector>
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 
 // This algorithm creates a ring made of CutTubs segments from the phi,z points
 // of the rings "corners".
-// The algorithm only defines a single Solid with the given name.
+// The algorithm only defines and places two copies of a single Solid with the given name.
 class DDCutTubsFromPoints : public DDAlgorithm {
  public:
   //Constructor and Destructor
@@ -34,6 +35,8 @@ private:
 
   double r_min;
   double r_max;
+  double z_pos;
+  DDMaterial material;
 
   // a segment is produced between each two consecutive sections that have a 
   // non-zero phi distance. Sections with zero phi distance can be used to 
