@@ -29,6 +29,8 @@ void DDCutTubsFromPoints::initialize(const DDNumericArguments & nArgs,
 
   r_min = nArgs["rMin"];
   r_max = nArgs["rMax"];
+  z_pos = nArgs["zPos"];
+  material = DDMaterial(sArgs["Material"]);
   
   auto phis_name = DDName(sArgs["Phi"]);
   auto z_ls_name = DDName(sArgs["z_l"]);
@@ -155,8 +157,6 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
       // the cuttubs wants a delta phi
       double dphi = phi2 - phi1;
 
-      // TODO: make 2 cuttubs here, one with the left, one with the right plane.
-      // then intersect for the actual tubs.
       DDSolid seg = DDSolidFactory::cuttubs(segname, dz, r_min, r_max, phi1, dphi,
                                             n_x_l, n_y_l, n_z_l,
                                             n_x_t, n_y_t, n_z_t); 
@@ -168,18 +168,9 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
 
   assert(segments.size() >= 2); // less would be special cases
 
-  // remove the common offset from the input, to get sth. aligned at z=0.
-  double shift = (min_z + (max_z-min_z)/2);
-  // this box defines the origin of the full ring
-  DDName dummy_name(solidOutput.name() + "_dummy", solidOutput.ns());
-  DDSolid dummy = DDSolidFactory::box(dummy_name, r_max, r_max, (max_z-min_z)/2);
-
-  // we place the first segment into the dummy box using intersection; later
-  // this will always be the first member of the union and give the right 
-  // placement.
-  DDName seg0_shifted(solidOutput.name() + "_uni_0", solidOutput.ns());
-  DDSolid solid = DDSolidFactory::intersection(seg0_shifted, dummy, segments[0],
-    DDTranslation(0, 0, offsets[0] - shift), DDRotation());
+  DDSolid solid = segments[0];
+  // placment happens relative to the first member of the union
+  double shift = offsets[0];
 
   for (unsigned i = 1; i < segments.size()-1; i++) {
     // each sub-union needs a name. Well. 
@@ -190,8 +181,19 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
              DDRotation());
   }
 
-  // rename the last one to the output by adding the empty box again...
   solid = DDSolidFactory::unionSolid(solidOutput, solid, segments[segments.size()-1], 
             DDTranslation(0, 0, offsets[segments.size()-1] - shift),
             DDRotation());
+
+  // remove the common offset from the input, to get sth. aligned at z=0.
+  double offset = - shift + (min_z + (max_z-min_z)/2);
+
+  DDLogicalPart logical(solidOutput, material, solid, DDEnums::support);
+
+  // This is not as generic as the name promises, but it is hard to make a 
+  // solid w/o placing it.
+  DDRotation rot180("pixfwdCommon:Z180");
+  cpv.position(logical, parent(), 1, DDTranslation(0, 0, z_pos - offset), DDRotation());
+  cpv.position(logical, parent(), 2, DDTranslation(0, 0, z_pos - offset), rot180);
+
 }
