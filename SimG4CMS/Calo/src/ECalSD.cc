@@ -267,6 +267,7 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
 
 uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep) 
 {
+  constexpr char refl[] = "refl";
   float    layerSize = 1*cm; //layer size in cm
   if (!isEB && !isEE)
     return 0;
@@ -279,7 +280,9 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep)
     double crlength = crystalLength(lv);
     double detz;
 
-    if( (lv->GetName().find("refl") != std::string::npos)  )
+    const auto& name = lv->GetName();
+    
+    if( name.size() > 4 && name.compare(name.size()-4,4,refl) == 0 )
       {
 	if (isEB)
 	  detz     = (float)(0.5*crlength + localPoint.z());
