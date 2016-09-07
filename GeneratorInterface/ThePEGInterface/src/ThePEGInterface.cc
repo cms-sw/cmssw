@@ -1,5 +1,4 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.16 2009/05/19 17:38:54 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -31,6 +30,8 @@
 #include <ThePEG/PDF/PartonExtractor.h>
 #include <ThePEG/PDF/PDFBase.h>
 #include <ThePEG/Utilities/UtilityBase.h>
+#include <ThePEG/Vectors/HepMCConverter.h>
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -38,7 +39,6 @@
 
 #include "GeneratorInterface/ThePEGInterface/interface/Proxy.h"
 #include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
-#include "GeneratorInterface/ThePEGInterface/interface/HepMCConverter.h"
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
 using namespace std;
@@ -68,6 +68,14 @@ ThePEGInterface::~ThePEGInterface()
 	if (eg_)
 		eg_->finalize();
 	edm::LogInfo("ThePEGInterface") << "Event generator finalized";
+}
+
+void ThePEGInterface::setPEGRandomEngine(CLHEP::HepRandomEngine* v) {
+        randomEngineGlueProxy_->setRandomEngine(v);
+        ThePEG::RandomEngineGlue *rnd = randomEngineGlueProxy_->getInstance();
+        if(rnd) {
+          rnd->setRandomEngine(v);
+        }
 }
 
 string ThePEGInterface::dataFile(const string &fileName) const
