@@ -114,8 +114,8 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
         }
 
 	if (debug_) cout << "SegmentCompatibility :"<< muon::segmentCompatibility(muon) << "RelPtErr:" << bestMuonTrack->ptError()/bestMuonTrack->pt() << endl;
-	if (muon::segmentCompatibility(muon) < segmentCompatibility_ && bestMuonTrack->ptError()/bestMuonTrack->pt() < minMuonTrackRelErr_) {
-	  if (debug_) cout <<"Skipping this muon because segment compatiblity < 0.3 and relErr(best track) <2 " << endl;
+	if (muon::segmentCompatibility(muon) > segmentCompatibility_ && bestMuonTrack->ptError()/bestMuonTrack->pt() < minMuonTrackRelErr_) {
+	  if (debug_) cout <<"Skipping this muon because segment compatiblity > 0.3 and relErr(best track) <2 " << endl;
 	  continue;
 	}
 
