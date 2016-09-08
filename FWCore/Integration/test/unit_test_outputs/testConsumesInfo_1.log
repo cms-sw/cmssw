@@ -31,9 +31,7 @@ All modules and modules in the current process whose products they consume:
   IntProducer/'intProducerU'
   IntVectorProducer/'intVectorProducer'
   IntProducer/'intProducer'
-  TestFindProduct/'a1' consumes products from these modules:
-    IntProducer/'intProducer'
-    IntProducer/'intProducerU'
+  TestFindProduct/'a1'
   TestFindProduct/'a2' consumes products from these modules:
     IntProducer/'intProducerA'
   TestFindProduct/'a3' consumes products from these modules:

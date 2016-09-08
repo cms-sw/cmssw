@@ -440,7 +440,8 @@ EDConsumerBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescription co
   for(auto itInfo = m_tokenInfo.begin<kLookupInfo>(),itEnd = m_tokenInfo.end<kLookupInfo>();
       itInfo != itEnd; ++itInfo,++itKind,++itLabels) {
 
-    if(itInfo->m_branchType == InEvent) {
+    if(itInfo->m_branchType == InEvent and
+       (not itInfo->m_index.skipCurrentProcess())) {
 
       const unsigned int labelStart = itLabels->m_startOfModuleLabel;
       const char* consumedModuleLabel = &(m_tokenLabels[labelStart]);
