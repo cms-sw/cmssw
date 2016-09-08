@@ -273,7 +273,7 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep)
     return 0;
 
   if (aStep != NULL ) {
-    G4StepPoint* hitPoint = aStep->GetPostStepPoint();
+    G4StepPoint* hitPoint = aStep->GetPreStepPoint();
     G4LogicalVolume* lv   = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
     G4ThreeVector  localPoint = setToLocal(hitPoint->GetPosition(),
 					   hitPoint->GetTouchable());
