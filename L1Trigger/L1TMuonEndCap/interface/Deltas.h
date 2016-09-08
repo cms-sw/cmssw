@@ -218,7 +218,7 @@ std::vector<std::vector<DeltaOutput>> CalcDeltas(MatchingOutput Mout){
   return out;
 }
 
-DeltaOutArr3 CalcDeltas_Hold(std::vector<MatchingOutput> Mout){
+DeltaOutArr3 CalcDeltas_Hold(const std::vector<MatchingOutput> & Mout){
   
   DeltaOutput output;
   output.SetNull();
