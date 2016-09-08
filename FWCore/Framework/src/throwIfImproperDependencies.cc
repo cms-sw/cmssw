@@ -127,6 +127,34 @@ namespace {
       tempStack.reserve(m_stack.size()+1);
       tempStack.insert(tempStack.end(),itFirst,m_stack.end());
       tempStack.emplace_back(iEdge);
+      //Remove unnecessary edges
+      // The graph library scans the verticies so we have edges in the list which are
+      // not part of the cycle but are associated to a vertex contributes to the cycle.
+      // To find these unneeded edges we work backwards on the edge list looking for cases
+      // where the 'in' on the previous edge is not the 'out' for the next edge. When this
+      // happens we know that there are additional edges for that same 'in' which can be
+      // removed.
+      {
+        std::vector<Edge> reducedEdges;
+        reducedEdges.reserve(tempStack.size());
+        reducedEdges.push_back(tempStack.back());
+        unsigned int lastIn = index[source(tempStack.back(),iGraph)];
+        const unsigned int finalVertex = index[target(tempStack.back(),iGraph)];
+        for( auto it = tempStack.rbegin()+1; it != tempStack.rend(); ++it) {
+          unsigned int in =index[source(*it,iGraph)];
+          unsigned int out =index[target(*it,iGraph)];
+          if(lastIn == out) {
+            reducedEdges.push_back(*it);
+            lastIn = in;
+            if(in == finalVertex) {
+              break;
+            }
+          }
+        }
+        std::reverse(reducedEdges.begin(), reducedEdges.end());
+        tempStack.swap(reducedEdges);
+      }
+
       
       std::unordered_set<unsigned int> nUniquePathDependencies;
       std::unordered_set<unsigned int> lastPathsSeen;
@@ -144,7 +172,6 @@ namespace {
         auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
         std::unordered_set<unsigned int> pathsOnEdge;
         bool edgeHasDataDependency = false;
-        bool edgeHasPathDependency = false;
         for(auto dependency : iFound->second) {
           if (dependency == std::numeric_limits<unsigned int>::max()) {
             //need to count only if this moves us to a new path

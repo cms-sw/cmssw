@@ -90,16 +90,6 @@ private:
       }
     }
 
-    /*
-    std::cout <<std::endl;
-    for(auto const& edgePath : edgeToPathMap) {
-      std::cout << edgePath.first.first<<" "<<edgePath.first.second<<std::endl;
-      for(auto const& path: edgePath.second) {
-        std::cout <<"  "<<path<<std::endl;
-      }
-    }
-     */
-    
     throwIfImproperDependencies(edgeToPathMap, pathNames, modsToIndex);
     
     return true;
@@ -173,7 +163,6 @@ void test_throwIfImproperDependencies::onePathHasCycleTest()
     {
       PathToModules paths = { {"p", {"C", "A", "B" } } };
       
-      std::cout <<"run test "<<std::endl;
       CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
     }
     {
@@ -429,11 +418,24 @@ void test_throwIfImproperDependencies::twoPathsNoCycleTest()
 
 void test_throwIfImproperDependencies::twoPathsWithCycleTest()
 {
+  
   {
     ModuleDependsOnMap md = { {"C", {"B"}},
                               {"A", {"D"}} };
     PathToModules paths = { {"p1", {"A","B"}},
                             {"p2", {"C","D"}} };
+    
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+
+  {
+    //Add additional dependencies to test that they are ignored
+    ModuleDependsOnMap md = {
+      {"C", {"E","F","G","B"}},
+      {"A", {"D"}} };
+    PathToModules paths = {
+      {"p1", {"A","B"}},
+      {"p2", {"C","D"}} };
     
     CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
   }
