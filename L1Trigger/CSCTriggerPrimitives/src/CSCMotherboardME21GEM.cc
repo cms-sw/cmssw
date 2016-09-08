@@ -1006,11 +1006,11 @@ CSCMotherboardME21GEM::createGEMRollEtaLUT()
 {
   std::map<int,std::pair<double,double> > result;
 
-  auto chamber(gem_g->chamber(GEMDetId(1,1,3,1,1,0)));
+  std::unique_ptr<const GEMChamber> chamber(gem_g->chamber(GEMDetId(1,1,3,1,1,0)));
   if (chamber==nullptr) return result;
 
   for(int i = 1; i<= chamber->nEtaPartitions(); ++i){
-    auto roll(chamber->etaPartition(i));
+    std::unique_ptr<const GEMEtaPartition> roll(chamber->etaPartition(i));
     if (roll==nullptr) continue;
     const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
@@ -1025,7 +1025,7 @@ CSCMotherboardME21GEM::createGEMRollEtaLUT()
 
 void CSCMotherboardME21GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id)
 {
-  auto superChamber(gem_g->superChamber(id));
+  std::unique_ptr<const GEMSuperChamber> superChamber(gem_g->superChamber(id));
   for (auto ch : superChamber->chambers()) {
     for (auto roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
@@ -1043,7 +1043,7 @@ void CSCMotherboardME21GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
 
 void CSCMotherboardME21GEM::retrieveGEMCoPads(const GEMCoPadDigiCollection* gemPads, unsigned id)
 {
-  auto superChamber(gem_g->superChamber(id));
+  std::unique_ptr<const GEMSuperChamber> superChamber(gem_g->superChamber(id));
   for (auto ch : superChamber->chambers()) {
     for (auto roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());

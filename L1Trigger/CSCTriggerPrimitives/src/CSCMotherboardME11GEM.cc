@@ -1590,7 +1590,7 @@ void CSCMotherboardME11GEM::buildCoincidencePads(const GEMPadDigiCollection* out
 void CSCMotherboardME11GEM::createGEMRollEtaLUT(bool isEven)
 {
   int ch(isEven ? 2 : 1);
-  auto chamber(gem_g->chamber(GEMDetId(1,1,1,1,ch,0)));
+  std::unique_ptr<const GEMChamber> chamber(gem_g->chamber(GEMDetId(1,1,1,1,ch,0)));
   if (chamber==nullptr) return;
 
   int n = 1;
@@ -1912,7 +1912,7 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
 
 void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads, unsigned id)
 {
-  auto superChamber(gem_g->superChamber(id));
+  std::unique_ptr<const GEMSuperChamber> superChamber(gem_g->superChamber(id));
   for (auto ch : superChamber->chambers()) {
     for (auto roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
@@ -1929,7 +1929,7 @@ void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
 
 void CSCMotherboardME11GEM::retrieveGEMCoPads(const GEMCoPadDigiCollection* gemPads, unsigned id)
 {
-  auto superChamber(gem_g->superChamber(id));
+  std::unique_ptr<const GEMSuperChamber>  superChamber(gem_g->superChamber(id));
   for (auto ch : superChamber->chambers()) {
     for (auto roll : ch->etaPartitions()) {
       GEMDetId roll_id(roll->id());
