@@ -98,15 +98,15 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
               BPHParticleMasses::pionMass );
     kxb->add( kaonName, kx0->originalReco( kx0->getDaug( pionName ) ),
               BPHParticleMasses::kaonMass );
+    BPHPlusMinusConstCandPtr pxb( kxb );
     if ( fabs( kx0->composite().mass() - BPHParticleMasses::kx0Mass ) <
          fabs( kxb->composite().mass() - BPHParticleMasses::kx0Mass ) ) {
-      delete kxb;
-      if ( !massSel->accept( *px0 ) ) continue;
+      if ( !massSel->accept( *kx0 ) ) continue;
       kx0List.push_back( px0 );
     }
     else {
       if ( !massSel->accept( *kxb ) ) continue;
-      kx0List.push_back( BPHPlusMinusConstCandPtr( kxb ) );
+      kx0List.push_back( pxb );
     }
   }
 
