@@ -85,7 +85,7 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
         e.getByToken(tok_input_,digi);
         
         // create empty output
-        std::auto_ptr<CastorRecHitCollection> rec(new CastorRecHitCollection);
+        auto rec = std::make_unique<CastorRecHitCollection>();
         // run the algorithm
         CastorDigiCollection::const_iterator i;
         for (i=digi->begin(); i!=digi->end(); i++) {
@@ -118,6 +118,6 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
             }
         }
         // return result
-        e.put(rec);     
+        e.put(std::move(rec));
     }
 }

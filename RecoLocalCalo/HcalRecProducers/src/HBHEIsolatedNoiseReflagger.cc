@@ -233,7 +233,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   }
 
   // prepare the output HBHE RecHit collection
-  std::auto_ptr<HBHERecHitCollection> pOut(new HBHERecHitCollection());
+  auto pOut = std::make_unique<HBHERecHitCollection>();
   // loop over rechits, and set the new bit you wish to use
   for(HBHERecHitCollection::const_iterator it=hbhehits_h->begin(); it!=hbhehits_h->end(); ++it) {
     const HBHERecHit* hit=&(*it);
@@ -244,7 +244,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     pOut->push_back(newhit);
   }
 
-  iEvent.put(pOut);
+  iEvent.put(std::move(pOut));
 
   return;  
 }
