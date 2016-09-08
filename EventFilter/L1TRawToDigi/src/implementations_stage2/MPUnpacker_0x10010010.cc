@@ -28,8 +28,8 @@ namespace stage2 {
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize() << " AMC = " << block.amc().getAMCNumber();
 
      // check this is the correct MP
-     unsigned int amc  = block.amc().getAMCNumber();
-     unsigned int bxid = block.amc().getBX();
+     const unsigned int amc  = block.amc().getAMCNumber();
+     const unsigned int bxid = block.amc().getBX();
      //     if( (amc-1) != (bxid-1)%9 ) return true;
      if( (amc-1) != ((bxid-1+3)%9) ) return true;   // temporary measure!
      LogDebug("L1T") << "Unpacking AMC " << amc << " for BX " << bxid;
@@ -45,12 +45,12 @@ namespace stage2 {
      res4_->setBXRange(0,0);
 
      // Initialise frame indices for each data type
-     int unsigned fet  = 0;
-     int unsigned fht  = 2;
-     int unsigned feg  = 4;
-     int unsigned ftau = 6;
-     int unsigned fjet = 8;
-     int unsigned faux = 10;
+     const int unsigned fet  = 0;
+     const int unsigned fht  = 2;
+     const int unsigned feg  = 4;
+     const int unsigned ftau = 6;
+     const int unsigned fjet = 8;
+     const int unsigned faux = 10;
 
      //      ===== Jets and Sums =====
 
