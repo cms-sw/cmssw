@@ -516,8 +516,10 @@
 
   <class name="pat::PATTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>
-  </class>
-  <class name="pat::PATTauDiscriminator"/>
+  </class>  
+  <class name="pat::PATTauDiscriminator"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2916098408"/>  
+  </class>  
   <class name="pat::PATTauDiscriminatorRef"/>
   <class name="pat::PATTauDiscriminatorRefProd"/>
   <class name="pat::PATTauDiscriminatorRefVector"/>
