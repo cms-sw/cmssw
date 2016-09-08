@@ -429,6 +429,10 @@ class VHbbAnalyzer( Analyzer ):
         event.rhoCHPU= self.handles['rhoCHPU'].product()
         event.rhoCentral= self.handles['rhoCentral'].product()
 
+    def doQuickTkMET(self,event) :
+	if not hasattr(event,"pfCands") :
+	        event.pfCands = list(self.handles['pfCands'].product())
+        event.quickTkMET=sum([x.p4() for x in event.pfCands if x.charge() != 0 and x.dz() < 0.1 and  x.dz() > -0.1],ROOT.reco.Particle.LorentzVector())
 
     def initOutputs (self,event) : 
         event.hJets = []
@@ -533,6 +537,8 @@ class VHbbAnalyzer( Analyzer ):
 	    self.doVBF(event)
         if getattr(self.cfg_ana,"doSoftActivityVH", False) :
             self.doSoftActivityVH(event)
+
+        self.doQuickTkMET(event)
 
     #    event.jee = list(self.handles['jee'].product())
 	#for j in list(jets)[0:3]:
