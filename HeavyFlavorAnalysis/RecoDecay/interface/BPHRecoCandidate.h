@@ -1,4 +1,4 @@
-#ifndhf HeavyFlavorAnalysis_RecoDecay_BPHRecoCandidate_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHRecoCandidate_h
 #define HeavyFlavorAnalysis_RecoDecay_BPHRecoCandidate_h
 /** \class BPHRecoCandidate
  *
