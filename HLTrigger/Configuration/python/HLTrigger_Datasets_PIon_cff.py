@@ -25,7 +25,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleEG_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleEG_selector.throw      = cms.bool(False)
-streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v6')
+streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v7')
 
 
 # dump of the Stream PhysicsHadronsTaus Datasets defined in the HLT table as Stream A Datasets
