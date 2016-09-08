@@ -16,8 +16,8 @@ class CustomUIsessionThreadPrefix : public CustomUIsession
 
  public:
 
-  CustomUIsessionThreadPrefix(const std::string& threadPrefix, int threadId);
-  ~CustomUIsessionThreadPrefix();
+  explicit CustomUIsessionThreadPrefix(const std::string& threadPrefix, int threadId);
+  virtual ~CustomUIsessionThreadPrefix();
 
   G4int ReceiveG4cout(const G4String& coutString) override;
   G4int ReceiveG4cerr(const G4String& cerrString) override;

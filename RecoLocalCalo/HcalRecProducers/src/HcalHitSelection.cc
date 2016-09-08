@@ -63,13 +63,13 @@ class HcalHitSelection : public edm::stream::EDProducer<> {
   edm::ESHandle<HcalChannelQuality> theHcalChStatus;
   edm::ESHandle<HcalSeverityLevelComputer> theHcalSevLvlComputer;
   std::set<DetId> toBeKept;
-  template <typename CollectionType> void skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold=0) const;
+  template <typename CollectionType> void skim( const edm::Handle<CollectionType> & input, CollectionType & output,int severityThreshold=0) const;
   
       // ----------member data ---------------------------
 };
 
-template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold) const {
-  output->reserve(input->size());
+template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<CollectionType> & input, CollectionType & output,int severityThreshold) const {
+  output.reserve(input->size());
   typename CollectionType::const_iterator begin=input->begin();
   typename CollectionType::const_iterator end=input->end();
   typename CollectionType::const_iterator hit=begin;
@@ -84,11 +84,11 @@ template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<C
     int severityLevel = theHcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag); 
     //anything that is not "good" goes in
     if (severityLevel>severityThreshold){
-      output->push_back(*hit);
+      output.push_back(*hit);
     }else{
       //chek on the detid list
       if (toBeKept.find(id)!=toBeKept.end())
-	output->push_back(*hit);
+	output.push_back(*hit);
     }
   }
 }
@@ -171,17 +171,17 @@ HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       toBeKept.insert(detId->begin(),detId->end());
     }
 
-  std::auto_ptr<HBHERecHitCollection> hbhe_out(new HBHERecHitCollection());
-  skim(hbhe,hbhe_out);
-  iEvent.put(hbhe_out,hbheTag.label());
+  auto hbhe_out = std::make_unique<HBHERecHitCollection>();
+  skim(hbhe,*hbhe_out);
+  iEvent.put(std::move(hbhe_out),hbheTag.label());
 
-  std::auto_ptr<HFRecHitCollection> hf_out(new HFRecHitCollection());
-  skim(hf,hf_out);
-  iEvent.put(hf_out,hfTag.label());
+  auto hf_out = std::make_unique<HFRecHitCollection>();
+  skim(hf,*hf_out);
+  iEvent.put(std::move(hf_out),hfTag.label());
 
-  std::auto_ptr<HORecHitCollection> ho_out(new HORecHitCollection());
-  skim(ho,ho_out,hoSeverityLevel);
-  iEvent.put(ho_out,hoTag.label());
+  auto ho_out = std::make_unique<HORecHitCollection>();
+  skim(ho,*ho_out,hoSeverityLevel);
+  iEvent.put(std::move(ho_out),hoTag.label());
   
 }
 
