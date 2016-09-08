@@ -109,7 +109,7 @@ namespace l1t {
     EMTFHit::SetRPCDigi    ( _digi );
     EMTFHit::set_strip_hi  ( _digi.strip()  );
     EMTFHit::set_strip_low ( _digi.strip()  );
-    EMTFHit::set_bx        ( _digi.bx() - 6 );  // Correct offset?
+    EMTFHit::set_bx        ( _digi.bx() - 6 );  // Started looking at RPCs, not used yet
 
   }
 
