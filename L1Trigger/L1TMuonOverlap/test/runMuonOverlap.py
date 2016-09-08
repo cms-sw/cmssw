@@ -12,8 +12,8 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False))
 
 process.source = cms.Source('PoolSource',
  fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/g/gflouris/public/SingleMuPt6180_noanti_10k_eta1.root')
-	                    )
-
+                           )
+	                    
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 
 # PostLS1 geometry used

@@ -110,6 +110,23 @@ void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
+unsigned int XMLConfigReader::getPatternsVersion() const{
+
+  if(!patternsFile.size()) return 0;
+
+  parser->parse(patternsFile.c_str()); 
+  xercesc::DOMDocument* doc = parser->getDocument();
+  assert(doc);
+
+  DOMNode *aNode = doc->getElementsByTagName(_toDOMS("OMTF"))->item(0);
+  DOMElement* aOMTFElement = static_cast<DOMElement *>(aNode);
+
+  unsigned int version = std::stoul(_toString(aOMTFElement->getAttribute(_toDOMS("version"))), nullptr, 16);
+  
+  return version;
+}
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
 std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapParams & aConfig){
 
   aGPs.clear();
