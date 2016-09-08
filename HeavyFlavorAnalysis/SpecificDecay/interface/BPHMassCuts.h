@@ -8,8 +8,6 @@
  *     (at momentum sum or kinemtic fit level) are to be implemented
  *     in derived classes
  *
- *  $Date: 2016-05-03 14:47:26 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

@@ -5,9 +5,6 @@
  *  Description: 
  *     Class to build Phi to K+ K- candidates
  *
- *
- *  $Date: 2015-07-24 11:29:20 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

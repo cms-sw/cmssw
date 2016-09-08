@@ -6,8 +6,6 @@
  *     class for reconstructed decay candidates to opposite charge
  *     particle pairs
  *
- *  $Date: 2015-07-03 16:33:59 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

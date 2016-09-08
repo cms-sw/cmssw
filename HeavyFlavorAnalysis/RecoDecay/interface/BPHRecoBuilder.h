@@ -7,8 +7,6 @@
  *     starting from reco::Candidate collections and applying
  *     selection cuts to decay products and reconstructed candidates
  *
- *  $Date: 2015-07-06 11:20:00 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

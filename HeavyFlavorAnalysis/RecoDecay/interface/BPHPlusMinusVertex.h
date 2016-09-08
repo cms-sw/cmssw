@@ -6,8 +6,6 @@
  *     class for reconstructed decay vertices to opposite charge
  *     particle pairs
  *
- *  $Date: 2015-07-03 17:45:25 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

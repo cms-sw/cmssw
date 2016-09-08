@@ -5,9 +5,6 @@
  *  Description: 
  *     Class to contain particle masses
  *
- *
- *  $Date: 2016-08-02 15:44:55 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

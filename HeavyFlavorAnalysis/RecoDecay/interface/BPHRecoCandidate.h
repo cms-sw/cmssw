@@ -10,8 +10,6 @@
  *       BPHDecayVertex   : vertex reconstruction
  *       BPHKinematicFit  : kinematic fit and fitted momentum sum
  *
- *  $Date: 2015-07-03 10:08:22 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

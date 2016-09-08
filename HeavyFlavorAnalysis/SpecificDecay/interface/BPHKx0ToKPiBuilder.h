@@ -5,9 +5,6 @@
  *  Description: 
  *     Class to build K*0 to K+ pi- candidates
  *
- *
- *  $Date: 2015-07-24 11:29:20 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

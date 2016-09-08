@@ -5,9 +5,6 @@
  *  Description: 
  *     Base class for candidate selection at vertex reconstruction level
  *
- *
- *  $Date: 2015-07-06 18:34:25 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

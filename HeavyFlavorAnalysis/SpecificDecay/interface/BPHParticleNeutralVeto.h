@@ -5,9 +5,6 @@
  *  Description: 
  *     Class for neutral particle rejection
  *
- *
- *  $Date: 2016-05-03 14:57:34 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

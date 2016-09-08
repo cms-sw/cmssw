@@ -6,8 +6,6 @@
  *     Lowest-level base class to contain decay products and
  *     compute total momentum
  *
- *  $Date: 2015-07-03 10:36:48 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

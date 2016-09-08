@@ -5,9 +5,6 @@
  *  Description: 
  *     Class for muon selection by Pt
  *
- *
- *  $Date: 2016-05-03 14:57:34 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

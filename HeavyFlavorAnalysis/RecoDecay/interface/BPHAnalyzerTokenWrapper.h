@@ -3,11 +3,9 @@
 /** \classes BPHModuleWrapper, BPHTokenWrapper and BPHAnalyzerWrapper
  *
  *  Description: 
- *    common interfaces to define modules and get objects
+ *    Common interfaces to define modules and get objects
  *    from "old" and "new" CMSSW version in an uniform way
  *
- *  $Date: 2016-04-15 17:47:56 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
