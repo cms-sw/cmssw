@@ -86,8 +86,8 @@
  <Constant name="CableSignal1Z3"          value="[CableSignal1Z1]+[CableSignal1T2]"/>
 
  <Constant name="CablePower1Rin"          value="3.00*cm"/>
- <Constant name="CablePower1T1"           value="0.0098*cm"/>
- <Constant name="CablePower1T2"           value="0.0611*cm"/>
+ <Constant name="CablePower1T1"           value="0.0130*cm"/>
+ <Constant name="CablePower1T2"           value="0.0812*cm"/>
  <Constant name="CablePower2Rin"          value="6.800*cm"/>
  <Constant name="CablePower2T1"           value="0.0334*cm"/>
  <Constant name="CablePower2T2"           value="0.09185*cm"/>
