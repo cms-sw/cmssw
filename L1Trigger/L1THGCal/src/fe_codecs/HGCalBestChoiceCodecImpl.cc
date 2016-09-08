@@ -48,7 +48,7 @@ std::vector<bool> HGCalBestChoiceCodecImpl::encode(const HGCalBestChoiceCodecImp
                     << "      : Number of energy values = "<<nData_<<"\n";
             }
             // Saturate and truncate energy values
-            if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_);
+            if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)
             {
                 result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+triggerCellTruncationBits_)));// remove the lowest bits (=triggerCellTruncationBits_)
@@ -91,9 +91,9 @@ HGCalBestChoiceCodecImpl::data_type HGCalBestChoiceCodecImpl::decode(const std::
     return result;
 }
 
+
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod,
-        const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
+void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,
         std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes)
 /*****************************************************************/
 {
@@ -101,61 +101,51 @@ void HGCalBestChoiceCodecImpl::linearize(const HGCalTriggerGeometry::Module& mod
    
 
     for(const auto& frame : dataframes) {//loop on DIGI
-        for(const auto& tc_c : mod.triggerCellComponents()) { //treat only the HG cells in the considered module
-            if(tc_c.second==frame.id()) { //treat if the DIGI detID is the same of the considered GC cell
-                if (frame[2].mode()) {//TOT mode
-                    amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[2].data()) * tdcLSB_;
-                }
-                else {//ADC mode
-                    amplitude = double(frame[2].data()) * adcLSB_;
-                }
-
-                amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
-                if (amplitude_int>65535) amplitude_int = 65535;
-
-                linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
-            }
+        if (frame[2].mode()) {//TOT mode
+            amplitude =( floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(frame[2].data()) * tdcLSB_;
         }
+        else {//ADC mode
+            amplitude = double(frame[2].data()) * adcLSB_;
+        }
+
+        amplitude_int = uint32_t (floor(amplitude/linLSB_+0.5));  
+        if (amplitude_int>65535) amplitude_int = 65535;
+
+        linearized_dataframes.push_back(std::make_pair (frame.id(), amplitude_int));
     }
 }
   
 
 /*****************************************************************/
-void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Module& mod,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
+void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
-    std::map<HGCalDetId, uint32_t> payload;
+    if(linearized_dataframes.size()==0) return;
+    std::map<HGCTriggerHexDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)
     {
-        // FIXME: only EE
         HGCalDetId cellid(frame.first);
         // find trigger cell associated to cell
-        uint32_t tcid(0);
-        for(const auto& tc_c : mod.triggerCellComponents())
-        {
-            if(tc_c.second==cellid)
-            {
-                tcid = tc_c.first;
-                break;
-            }
-        }
-        if(!tcid)
-        {
-            throw cms::Exception("BadGeometry")
-                << "Cannot find trigger cell corresponding to HGC cell "<<cellid<<"\n";
-        }
-        HGCalDetId triggercellid( tcid );
+        uint32_t tcid = geometry.getTriggerCellFromCell(cellid);
+        HGCTriggerHexDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         // FIXME: need to transform ADC and TDC to the same linear scale on 12 bits
         uint32_t value = frame.second; // 'value' has to be a 12 bit word
         payload[triggercellid] += value; // 32 bits integer should be largely enough (maximum 7 12-bits sums are done)
 
     }
+    uint32_t module = geometry.getModuleFromTriggerCell(payload.begin()->first);
+    HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
     // fill data payload
     for(const auto& id_value : payload)
     {
-        uint32_t id = id_value.first.cell();
+        // find the index of the trigger cell in the module (not necessarily equal to .cell())
+        // FIXME: std::distance is linear with size for sets (no random access). In order to have constant
+        // access would require to convert the set into a vector. 
+        uint32_t id = std::distance(trigger_cells_in_module.begin(),trigger_cells_in_module.find(id_value.first));
+        //uint32_t id = id_value.first.cell();
+        //std::cerr<<"cell id in trigger cell sum: "<<id<<"("<<id_value.first.wafer()<<","<<id_value.first.cell()<<")\n";
         if(id>=nCellsInModule_) 
         {
             throw cms::Exception("BadGeometry")
@@ -164,7 +154,6 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometry::Modul
         data.payload.at(id) = id_value.second;
     }
 }
-
 
 /*****************************************************************/
 void HGCalBestChoiceCodecImpl::bestChoiceSelect(data_type& data)
