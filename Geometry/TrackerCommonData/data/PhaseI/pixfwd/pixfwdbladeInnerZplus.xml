@@ -15,11 +15,12 @@
  <Constant name="ROChipSpaceL"       value="0.084*mm"/>   <!-- Distance (along width) between adjacent chips -->
  <Constant name="ROChipSpaceW"       value="0.095*mm"/>   <!-- Distance (along length) between  adjacent chips -->
  <Constant name="ModuleL"            value="[GlueL]"/> <!-- the glue is now the largest component; was [SensitiveL]+2*[SideWidth] -->
+ <Constant name="ModuleLCut"         value="1.600*mm"/> <!-- shorten the module length to avoid overlaps, so practically reduce largest component (currently Glue) by this amount -->
  <Constant name="ModuleW"            value="[GlueW]"/> <!-- the glue is now the largest component; was 2*[ROChipW]+[ROChipSpaceW] -->
  <Constant name="ModuleT"            value="[GlueT]*2.+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]"/> <!-- was: 0.730*mm --> 
  <Constant name="ModuleX"            value="[ModulePosX]"/>
  <Constant name="ModuleY"            value="0.0*mm"/>
- <Constant name="GlueL"              value="68.802*mm"/> <!-- length of thermal paste, slightly enlarged now; was [SensitiveL]+2*[SideWidth]-->
+ <Constant name="GlueL"              value="68.802*mm-[ModuleLCut]"/> <!-- length of thermal paste, slightly enlarged; was [SensitiveL]+2*[SideWidth]-->
  <Constant name="GlueW"              value="22.958*mm"/> <!-- width of thermal paste, slightly enlarged now; was 2*[ROChipW]+[ROChipSpaceW] -->
  <Constant name="GlueT"              value="0.075*mm"/> <!-- thickness of thermal paste; was 0.050*mm -->
  <Constant name="BumpBondT"          value="0.030*mm"/> <!-- diameter of bump bonds -->
