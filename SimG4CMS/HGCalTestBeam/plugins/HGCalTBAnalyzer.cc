@@ -560,14 +560,14 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
 #endif
     hSimHitLng1_[type]->Fill(layer,energy);
     if (type == 0) {
-      if (layer<(int)(hSimHitLayEn2E_.size())) {
-	simHitLayEn2E[layer] = energy;
-	hSimHitLayEn2E_[layer]->Fill(energy);
+      if (layer-1 < (int)(hSimHitLayEn2E_.size())) {
+	simHitLayEn2E[layer-1] = energy;
+	hSimHitLayEn2E_[layer-1]->Fill(energy);
       }
     } else {
-      if (layer<(int)(hSimHitLayEn2H_.size())) {
-	simHitLayEn2H[layer] = energy;
-	hSimHitLayEn2H_[layer]->Fill(energy);
+      if (layer-1 < (int)(hSimHitLayEn2H_.size())) {
+	simHitLayEn2H[layer-1] = energy;
+	hSimHitLayEn2H_[layer-1]->Fill(energy);
       }
     }
   }

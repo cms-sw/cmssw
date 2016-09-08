@@ -28,22 +28,22 @@
       EEAirGap6, EEAirGap7, EEAirGap8, EEAirGap9, EEAirGap10, EEAirGap11, 
       EEAirGap12, EEAirGap13, EEAirGap14, EEHeatShield2</Vector>
     <Vector name="Thickness" type="numeric" nEntries="26">
-      44.9*mm, 8.0*mm, 4.0*mm, 2.0*mm, 0.0*mm, 2.2*mm, 1.6*mm, 0.6*mm, 6.0*mm,
+      44.9*mm, 8.0*mm, 4.0*mm, 2.0*mm, 0.0*mm, 2.2*mm, 1.2*mm, 0.6*mm, 6.0*mm,
       2.0*mm,  0.10*mm, 1.0*mm, 3.2*mm, 4.7*mm, 5.0*mm, 6.0*mm, 13.7*mm, 
       17.8*mm, 18.8*mm, 19.4*mm, 19.6*mm, 20.3*mm, 22.3*mm, 23.5*mm, 24.4*mm,
-      3.0*mm </Vector>
+      12.0*mm </Vector>
     <Vector name="Layers" type="numeric" nEntries="6"> 
        16, 9, 9, 9, 14, 18</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="6"> 
-      54.9*mm, 56.7*mm, 54.9*mm, 43.4*mm, 55.2*mm, 66.0*mm
+      54.9*mm, 56.7*mm, 54.9*mm, 43.0*mm, 60.8*mm, 72.0*mm
     </Vector>
     <Vector name="LayerType" type="numeric" nEntries="75"> 
       2, 14, 2, 14, 2, 14, 2, 14, 2, 15, 8, 7, 9, 10, 10, 10, 
       23, 3, 22, 8, 7, 9, 10, 10, 10, 
       24, 3, 20, 8, 7, 9, 10, 10, 10,
       17, 3, 16, 8, 6, 9, 10, 10, 10,
-      19, 3, 19, 10, 10, 10, 9, 6, 8, 5, 9, 10, 10, 10,
-      18, 3, 21, 10, 10, 10, 9, 5, 25, 12, 3, 13, 25, 5, 9, 10, 10, 10 
+      19, 3, 19, 10, 10, 10, 9, 6, 25, 5, 9, 10, 10, 10,
+      18, 3, 21, 10, 10, 10, 9, 5, 8, 12, 3, 13, 8, 5, 9, 10, 10, 10 
     </Vector>
     <Vector name="LayerSense" type="numeric" nEntries="75">
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 
