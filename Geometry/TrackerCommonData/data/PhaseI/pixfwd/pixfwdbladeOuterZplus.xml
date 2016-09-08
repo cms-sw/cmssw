@@ -30,7 +30,7 @@
  <Constant name="TPGBladeBaseT"      value="0.68*mm"/>
  <Constant name="CarbonFiberSkinT"   value="0.06*mm"/>
  <Constant name="BumpROChipZ"        value="-[ModuleT]/2+[GlueT]+[ROChipT]/2+[BumpBondT]/2"/>
- <Constant name="WedgeBot"           value="[ModuleW]*cos([WedgeAngle])-[ModuleL]*sin([WedgeAngle])+[ModulePosX]*2.+[DetectorShiftX]"/>
+ <Constant name="WedgeBot"           value="[ModuleW]*cos([WedgeAngle])-[ModuleL]*sin([WedgeAngle])+[ModulePosX]*2.+[DetectorShiftX]*2"/>
  <Constant name="WedgeH"             value="[ModuleW]*sin([WedgeAngle])+[ModuleL]*cos([WedgeAngle])"/>
  <Constant name="WedgeTop"           value="[WedgeBot]+2.*([WedgeH]*tan([WedgeAngle]))"/>
 </ConstantsSection>

@@ -5,9 +5,9 @@
  <Constant name="SensitiveW"         value="16.200*mm"/> <!-- width of sensitive part of silicon wafer; was 16.216*mm -->
  <Constant name="SensitiveL"         value="64.800*mm"/> <!-- length of sensitive part of silicon wafer; was 64.816*mm -->
  <Constant name="SideWidth"          value="1.172*mm"/> <!-- margin of wafer around sensitive part; was 1.164*mm -->
- <Constant name="WedgeAngle"         value="5.565*deg"/>
- <Constant name="DetectorShiftX"     value="0.172*mm"/> <!-- offset of modules w.r.t blade center -->
- <Constant name="ModulePosX"         value="5.258*mm"/> <!-- distance from module center to blade symmetry axis -->
+ <Constant name="WedgeAngle"         value="5.532*deg"/> <!-- was 5.565 -->
+ <Constant name="DetectorShiftX"     value="0.156*mm"/> <!-- offset of modules w.r.t blade center was 0.172-->
+ <Constant name="ModulePosX"         value="5.221*mm"/> <!-- distance from module center to blade symmetry axis was 5.258-->
  <Constant name="WaferT"             value="0.300*mm"/> <!-- wafer thickness; was 0.250*um-->
  <Constant name="ROChipL"            value="8.005*mm"/>    <!-- Readout chip length -->
  <Constant name="ROChipW"            value="10.735*mm"/>   <!-- Readout chip width -->
@@ -30,7 +30,7 @@
  <Constant name="TPGBladeBaseT"      value="0.68*mm"/>
  <Constant name="CarbonFiberSkinT"   value="0.06*mm"/>
  <Constant name="BumpROChipZ"        value="-[ModuleT]/2+[GlueT]+[ROChipT]/2+[BumpBondT]/2"/>
- <Constant name="WedgeBot"           value="[ModuleW]*cos([WedgeAngle])-[ModuleL]*sin([WedgeAngle])+[ModulePosX]*2.+[DetectorShiftX]"/>
+ <Constant name="WedgeBot"           value="[ModuleW]*cos([WedgeAngle])-[ModuleL]*sin([WedgeAngle])+[ModulePosX]*2.+[DetectorShiftX]*2"/>
  <Constant name="WedgeH"             value="[ModuleW]*sin([WedgeAngle])+[ModuleL]*cos([WedgeAngle])"/>
  <Constant name="WedgeTop"           value="[WedgeBot]+2.*([WedgeH]*tan([WedgeAngle]))"/>
 </ConstantsSection>
