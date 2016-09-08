@@ -10,7 +10,7 @@ PrimitiveConverterRPC::PrimitiveConverterRPC() {
 }
 
 l1t::EMTFHitExtraCollection 
-PrimitiveConverterRPC::convert( std::vector<TriggerPrimitive> TrigPrim, 
+PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim, 
 				int SectIndex, edm::ESHandle<RPCGeometry> rpc_geom ) {
 
   // bool verbose = true;
@@ -20,10 +20,10 @@ PrimitiveConverterRPC::convert( std::vector<TriggerPrimitive> TrigPrim,
   if (verbose) std::cout << "\n========== RPC Primitive Converter ==========" << std::endl;
 
   l1t::EMTFHitExtraCollection tmpHits;
-  for (std::vector<TriggerPrimitive>::iterator iter = TrigPrim.begin(); iter != TrigPrim.end(); iter++) {
+  for (std::vector<L1TMuon::TriggerPrimitive>::iterator iter = TrigPrim.begin(); iter != TrigPrim.end(); iter++) {
 
     /// Get all the input variables
-    TriggerPrimitive prim = *iter; // Eventually would like to deprecate TriggerPrimitive entirely - AWB 03.06.16
+    L1TMuon::TriggerPrimitive prim = *iter; // Eventually would like to deprecate TriggerPrimitive entirely - AWB 03.06.16
     RPCDetId detID = prim.detId<RPCDetId>();
     RPCDigi digi = RPCDigi( prim.getRPCData().strip, prim.getRPCData().bx );
 
@@ -116,7 +116,7 @@ PrimitiveConverterRPC::fillConvHits(l1t::EMTFHitExtraCollection exHits) {
     ConvHit.SetValues(exHit.Phi_loc_int(), exHit.Theta_int(), exHit.Phi_hit(), exHit.Zone(), 
 		      exHit.Station(), exHit.Subsector(), exHit.CSC_ID(), exHit.Quality(), 
 		      exHit.Pattern(), exHit.Wire(), exHit.Strip(), exHit.BX() + 6);
-    ConvHit.SetTP( TriggerPrimitive( exHit.RPC_DetId(), exHit.Strip(), exHit.Layer(), exHit.BX() + 6 ) );
+    ConvHit.SetTP( L1TMuon::TriggerPrimitive( exHit.RPC_DetId(), exHit.Strip(), exHit.Layer(), exHit.BX() + 6 ) );
     ConvHit.SetZhit( exHit.Phi_zone() );
     // // Replace with SetZoneWord - AWB 04.09.16
     // ConvHit.SetZoneContribution(zone_contribution);
