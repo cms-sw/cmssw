@@ -2,6 +2,13 @@
 //// and returns a charge based on this
 ////
 //// Author: M. Carver (UF)
+//
+// From Andrew Brinkerhoff:
+// Mode is a bitword defined by which stations have LCTs in the track.  
+// It is defined as 8 x (station 1) + 4 x (station 2) + 2 x (station 3) + 1 x (station 4)
+// Modes 11, 13, & 14 all have an LCT in station 1, plus an LCT in two other stations
+// Mode 15 has LCTs in all four stations.  
+// These are our "SingleMu" quality modes (Quality >= 12) 
 
 int getCharge(int phi1, int phi2, int phi3, int phi4, int mode){
   
