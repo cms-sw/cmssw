@@ -229,7 +229,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 						 : OutputHits->at(iHit).CSC_ID() + 9 ) ) &&
 	     ConvHits.at(iCHit).Wire()       == OutputHits->at(iHit).Wire()    &&
 	     ConvHits.at(iCHit).Strip()      == OutputHits->at(iHit).Strip()   &&
-	     ConvHits.at(iCHit).BX() - 6     == OutputHits->at(iHit).BX()      &&
+	     ConvHits.at(iCHit).BX() - 6     == OutputHits->at(iHit).BX()      &&  // switch from CSC convention (centered at +6) to  uGMT convention (centered at 0)
 	     ConvHits.at(iCHit).IsNeighbor() == OutputHits->at(iHit).Neighbor() ) {
 	  // isMatched = true;
 	  OutputHits->at(iHit).set_neighbor    ( ConvHits.at(iCHit).IsNeighbor());
