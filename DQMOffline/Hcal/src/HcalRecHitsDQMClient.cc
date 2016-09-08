@@ -189,7 +189,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
 
    // occupancy_maps & matched occupancy_vs_ieta
 
-   bool oMatched = false;
+   bool omatched = false;
 
    for(unsigned int occupancyIdx = 0; occupancyIdx < occupancy_maps.size(); occupancyIdx++){
 
@@ -197,6 +197,16 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
       int ny = occupancy_maps[occupancyIdx]->getNbinsY();
 
       float cnorm;
+
+      unsigned int vsIetaIdx = occupancy_vs_ieta.size();
+      omatched = false;
+
+      for(vsIetaIdx = 0; vsIetaIdx < occupancy_vs_ieta.size(); vsIetaIdx++){
+         if(occupancyID[occupancyIdx] == occupancy_vs_ietaID[vsIetaIdx]){
+            omatched = true;
+            break;
+         }
+      }// match occupancy_vs_ieta histogram
 
       for (int i = 1; i <= nx; i++) {      
          for (int j = 1; j <= ny; j++) {
@@ -206,6 +216,37 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
          }
       }
 
+      //Fill occupancy_vs_ieta
+
+      if(omatched){
+
+         //We run over all of the ieta values
+         for (int ieta = -41; ieta <= 41; ieta++) {
+            float phi_factor = 1.;
+            float sumphi = 0.;
+
+            if(ieta == 0) continue; //ieta=0 is not defined
+
+            phi_factor = phifactor(ieta);
+
+            //the rechits occupancy map defines iphi as 0..71
+            for (int iphi = 0; iphi <= 71; iphi++) {
+               int binIeta = occupancy_maps[occupancyIdx]->getTH2F()->GetXaxis()->FindBin(float(ieta));
+               int binIphi = occupancy_maps[occupancyIdx]->getTH2F()->GetYaxis()->FindBin(float(iphi));
+
+               float content = occupancy_maps[occupancyIdx]->getBinContent(binIeta,binIphi);
+
+               sumphi += content;
+            }//for loop over phi
+
+            double deta = double(ieta);
+
+            // fill occupancies vs ieta
+            cnorm = sumphi / phi_factor;
+            occupancy_vs_ieta[vsIetaIdx]->Fill(deta, cnorm);
+
+         }//Fill occupancy_vs_ieta
+      }//if omatched
    }
 
    // Status Word
@@ -243,7 +284,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
    return 1;
 }
 
-float HcalRecHitsDQMClient::phifactor(float ieta){
+float HcalRecHitsDQMClient::phifactor(int ieta){
 
    float phi_factor_;
 

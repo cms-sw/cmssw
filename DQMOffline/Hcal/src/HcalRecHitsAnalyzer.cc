@@ -147,40 +147,40 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
 
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
          sprintf  (histo, "occupancy_map_HB%d",depth );
-         occupancy_map_HB.push_back( ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.) );
+         occupancy_map_HB.push_back( ibooker.book2D(histo, histo, 83, -41.5, 41.5, 73, -0.5, 72.5) );
       }
 
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
          sprintf  (histo, "occupancy_map_HE%d",depth );
-         occupancy_map_HE.push_back( ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.) );
+         occupancy_map_HE.push_back( ibooker.book2D(histo, histo, 83, -41.5, 41.5, 73, -0.5, 72.5) );
       }
 
       sprintf  (histo, "occupancy_map_HO" );
-      occupancy_map_HO = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
+      occupancy_map_HO = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 73, -0.5, 72.5);      
 
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
          sprintf  (histo, "occupancy_map_HF%d",depth );
-         occupancy_map_HF.push_back( ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.) );
+         occupancy_map_HF.push_back( ibooker.book2D(histo, histo, 83, -41.5, 41.5, 73, -0.5, 72.5) );
       }
 
       //These are drawn
 
       for (int depth = 1; depth <= maxDepthHB_; depth++) {
          sprintf  (histo, "occupancy_vs_ieta_HB%d",depth );
-         occupancy_vs_ieta_HB.push_back( ibooker.book1D(histo, histo, 82, -41., 41.) );
+         occupancy_vs_ieta_HB.push_back( ibooker.book1D(histo, histo, 83, -41.5, 41.5) );
       }
 
       for (int depth = 1; depth <= maxDepthHE_; depth++) {
          sprintf  (histo, "occupancy_vs_ieta_HE%d",depth );
-         occupancy_vs_ieta_HE.push_back( ibooker.book1D(histo, histo, 82, -41., 41.) );
+         occupancy_vs_ieta_HE.push_back( ibooker.book1D(histo, histo, 83, -41.5, 41.5) );
       }
 
       sprintf  (histo, "occupancy_vs_ieta_HO" );
-      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, 82, -41., 41.);
+      occupancy_vs_ieta_HO = ibooker.book1D(histo, histo, 83, -41.5, 41.5);
 
       for (int depth = 1; depth <= maxDepthHF_; depth++) {
          sprintf  (histo, "occupancy_vs_ieta_HF%d",depth );
-         occupancy_vs_ieta_HF.push_back( ibooker.book1D(histo, histo, 82, -41., 41.) );
+         occupancy_vs_ieta_HF.push_back( ibooker.book1D(histo, histo, 83, -41.5, 41.5) );
       }
 
 
