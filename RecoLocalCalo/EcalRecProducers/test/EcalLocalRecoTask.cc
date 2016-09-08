@@ -162,8 +162,7 @@ void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
   c.get<EcalPedestalsRcd>().get(pPeds);
   
 
-  std::auto_ptr<MixCollection<PCaloHit> > 
-    barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ())) ;
+  auto barrelHits = std::make_unique<MixCollection<PCaloHit>>(crossingFrame.product()) ;
 
   MapType EBSimMap;
   
