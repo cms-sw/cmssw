@@ -539,7 +539,7 @@
  </LogicalPart>
  <LogicalPart name="PixelBarrelConn3" category="unspecified">
   <rSolid name="PixelBarrelConn3"/>
-  <rMaterial name="pixbarmaterial:SupplyTubeConn3_3Disks"/>
+  <rMaterial name="pixbarmaterial:SupplyTubeConn3_Upgrade"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelConn4" category="unspecified">
   <rSolid name="PixelBarrelConn4"/>
