@@ -70,10 +70,32 @@ getCellsFromModule( const unsigned module_det_id ) const {
   return cells; 
 }
 
+HGCalTriggerGeometryBase::geom_ordered_set 
+HGCalTriggerGeometryOld::
+getOrderedCellsFromModule( const unsigned module_det_id ) const {
+  const auto& triggercell_cells = modules_.find(module_det_id)->second->triggerCellComponents();
+  HGCalTriggerGeometryBase::geom_ordered_set cells;
+  for(const auto& tc_c : triggercell_cells) {
+    cells.emplace(tc_c.second);
+  }
+  return cells; 
+}
+
 HGCalTriggerGeometryBase::geom_set 
 HGCalTriggerGeometryOld::
 getTriggerCellsFromModule( const unsigned module_det_id ) const {
   return modules_.find(module_det_id)->second->components(); 
+}
+
+HGCalTriggerGeometryBase::geom_ordered_set 
+HGCalTriggerGeometryOld::
+getOrderedTriggerCellsFromModule( const unsigned module_det_id ) const {
+  // Build set from unordered_set. Maybe a more efficient to do it
+  HGCalTriggerGeometryBase::geom_ordered_set trigger_cells;
+  for(const auto& tc : modules_.find(module_det_id)->second->components()) {
+    trigger_cells.emplace(tc);
+  }
+  return trigger_cells; 
 }
 
 GlobalPoint 

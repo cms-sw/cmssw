@@ -120,11 +120,11 @@ void HGCalBestChoiceCodecImpl::linearize(const std::vector<HGCDataFrame<HGCalDet
 void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, data_type& data)
 /*****************************************************************/
 {
+    if(linearized_dataframes.size()==0) return;
     std::map<HGCTriggerHexDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : linearized_dataframes)
     {
-        // FIXME: only EE
         HGCalDetId cellid(frame.first);
         // find trigger cell associated to cell
         uint32_t tcid = geometry.getTriggerCellFromCell(cellid);
@@ -135,10 +135,17 @@ void HGCalBestChoiceCodecImpl::triggerCellSums(const HGCalTriggerGeometryBase& g
         payload[triggercellid] += value; // 32 bits integer should be largely enough (maximum 7 12-bits sums are done)
 
     }
+    uint32_t module = geometry.getModuleFromTriggerCell(payload.begin()->first);
+    HGCalTriggerGeometryBase::geom_ordered_set trigger_cells_in_module = geometry.getOrderedTriggerCellsFromModule(module);
     // fill data payload
     for(const auto& id_value : payload)
     {
-        uint32_t id = id_value.first.cell();
+        // find the index of the trigger cell in the module (not necessarily equal to .cell())
+        // FIXME: std::distance is linear with size for sets (no random access). In order to have constant
+        // access would require to convert the set into a vector. 
+        uint32_t id = std::distance(trigger_cells_in_module.begin(),trigger_cells_in_module.find(id_value.first));
+        //uint32_t id = id_value.first.cell();
+        //std::cerr<<"cell id in trigger cell sum: "<<id<<"("<<id_value.first.wafer()<<","<<id_value.first.cell()<<")\n";
         if(id>=nCellsInModule_) 
         {
             throw cms::Exception("BadGeometry")

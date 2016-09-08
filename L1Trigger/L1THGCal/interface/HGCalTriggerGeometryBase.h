@@ -28,6 +28,7 @@ class HGCalTriggerGeometryBase
 
         typedef std::unordered_map<unsigned,unsigned> geom_map;
         typedef std::unordered_set<unsigned> geom_set;
+        typedef std::set<unsigned> geom_ordered_set;
 
         HGCalTriggerGeometryBase(const edm::ParameterSet& conf);
         virtual ~HGCalTriggerGeometryBase() {}
@@ -50,6 +51,9 @@ class HGCalTriggerGeometryBase
         virtual geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const = 0;
         virtual geom_set getCellsFromModule( const unsigned cell_det_id ) const = 0;
         virtual geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const = 0;
+
+        virtual geom_ordered_set getOrderedCellsFromModule( const unsigned cell_det_id ) const = 0;
+        virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const = 0;
 
         virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const = 0;
         virtual GlobalPoint getModulePosition(const unsigned module_det_id) const = 0;
