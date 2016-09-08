@@ -16,7 +16,7 @@
 class PrimitiveConverterRPC {
  public:
   PrimitiveConverterRPC();
-  l1t::EMTFHitExtraCollection convert(std::vector<TriggerPrimitive> TriggPrim, int SectIndex, edm::ESHandle<RPCGeometry> rpc_geom);
+  l1t::EMTFHitExtraCollection convert(std::vector<L1TMuon::TriggerPrimitive> TriggPrim, int SectIndex, edm::ESHandle<RPCGeometry> rpc_geom);
   std::vector<ConvertedHit> fillConvHits(l1t::EMTFHitExtraCollection exHits);
   bool sameRpcChamber(l1t::EMTFHitExtra hitA, l1t::EMTFHitExtra hitB);
 

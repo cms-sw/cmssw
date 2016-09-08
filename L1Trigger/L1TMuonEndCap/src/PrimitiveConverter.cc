@@ -72,17 +72,17 @@ PrimitiveConverter::PrimitiveConverter(){
   read_buf("L1Trigger/L1TMuon/data/emtf_luts/ph_lut_v1/th_lut_st234_neighbor.txt", &Th_LUT_St234_Neighbor_[0][0][0][0], 3*12*11*112);   
 }
 
-std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<TriggerPrimitive> TriggPrim, int SectIndex){
+std::vector<ConvertedHit> PrimitiveConverter::convert(std::vector<L1TMuon::TriggerPrimitive> TriggPrim, int SectIndex){
   
   //bool verbose = false;
 
   std::vector<ConvertedHit> ConvHits;
-  for(std::vector<TriggerPrimitive>::iterator C1 = TriggPrim.begin();C1 != TriggPrim.end();C1++){
+  for(std::vector<L1TMuon::TriggerPrimitive>::iterator C1 = TriggPrim.begin();C1 != TriggPrim.end();C1++){
     
     /////////////////////////////////////
     ///// get all input variables ///////
     /////////////////////////////////////
-    TriggerPrimitive C3 = *C1;
+    L1TMuon::TriggerPrimitive C3 = *C1;
     CSCDetId Det = C3.detId<CSCDetId>();
     
     int station = Det.station(), chamber = Det.chamber(), ring = Det.ring(), wire = C3.getCSCData().keywire;

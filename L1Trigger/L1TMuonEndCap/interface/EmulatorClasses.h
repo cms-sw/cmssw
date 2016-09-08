@@ -4,8 +4,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 #include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
 
-using namespace L1TMuon;
-
 typedef std::vector<std::vector<PhiMemoryImage>> ImageCollector;
 typedef std::vector<std::vector<int>> Code;
 typedef std::vector<std::vector<std::vector<int>>> BXHold;
@@ -38,7 +36,7 @@ class ConvertedHit{
   void SetZhit(int zhit){_zhit = zhit;};
   void SetTheta(int theta){_th = theta;};
   void SetTheta2(int theta2){_th2 = theta2;};
-  void SetTP(TriggerPrimitive tp){_tp = tp;};
+  void SetTP(L1TMuon::TriggerPrimitive tp){_tp = tp;};
   void SetSectorIndex(int sectorIndex){_sectorIndex = sectorIndex;};
   void SetNeighbor(int neighbor){_isNeighbor = neighbor;};
   void AddTheta(int theta){_thetas.push_back(theta);};
@@ -60,13 +58,13 @@ class ConvertedHit{
   int BX(){return _bx;};
   int SectorIndex(){return _sectorIndex;};
   int IsNeighbor(){return _isNeighbor;};
-  TriggerPrimitive TP(){return _tp;};
+  L1TMuon::TriggerPrimitive TP(){return _tp;};
   std::vector<int> AllThetas(){return _thetas;};
   int ZoneWord(){return _ZoneWord;};
   
  private:
   int _ph,_th, _th2,_phit,_phzvl,_sta,_sub,_id,_qual,_patt,_wire,_strip,_zhit,_bx, _sectorIndex, _isNeighbor, _ZoneWord;
-  TriggerPrimitive _tp;
+  L1TMuon::TriggerPrimitive _tp;
   std::vector<int> _thetas;
 };
 
