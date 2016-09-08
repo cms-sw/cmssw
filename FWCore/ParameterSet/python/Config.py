@@ -1589,7 +1589,8 @@ process.s2 = cms.Sequence(process.a)
             s = Sequence()
             s1 = Sequence(s)
             a = EDProducer("A")
-            s2 = Sequence(a)
+            s3 = Sequence(a+a)
+            s2 = Sequence(a+s3)
             s2 += s1
             process = Process("DUMP")
             process.a = a
@@ -1603,7 +1604,7 @@ process = cms.Process("DUMP")
 process.a = cms.EDProducer("A")
 
 
-process.s2 = cms.Sequence(process.a)
+process.s2 = cms.Sequence(process.a+(process.a+process.a))
 
 
 """)
