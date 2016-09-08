@@ -125,7 +125,7 @@ def get_SF(pt=30., eta=0.0, fl=5, val=0.0, syst="central", algo="CSV", wp="M", s
 def get_event_SF(jets=[], syst="central", algo="CSV", btag_calibrators=btag_calibrators):
     weight = 1.0
     for jet in jets:
-        weight *= get_SF(pt=jet.pt(), eta=jet.eta(), fl=jet.hadronFlavour(), val=(jet.btag("pfCombinedInclusiveSecondaryVertexV2BJetTags") if algo=="CSV" else jet.btag('pfCombinedMVAV2BJetTags')), syst=syst, algo=algo, wp="", shape_corr=True, btag_calibrators=btag_calibrators)
+        weight *= get_SF(pt=jet.pt(), eta=jet.eta(), fl=jet.hadronFlavour(), val=(jet.btag("newpfCombinedInclusiveSecondaryVertexV2BJetTags") if algo=="CSV" else jet.btag('newpfCombinedMVAV2BJetTags')), syst=syst, algo=algo, wp="", shape_corr=True, btag_calibrators=btag_calibrators)
     return weight                             
 
 if debug_btagSF:
