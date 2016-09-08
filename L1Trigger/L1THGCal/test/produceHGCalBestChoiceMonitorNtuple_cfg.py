@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(5)
 )
 
 # Input source
@@ -38,24 +38,16 @@ process.options = cms.untracked.PSet(
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.20 $'),
-    annotation = cms.untracked.string('SingleElectronPt50_cfi nevts:10'),
+    annotation = cms.untracked.string('SingleElectronPt10_cfi nevts:10'),
     name = cms.untracked.string('Applications')
 )
 
 # Output definition
+
 process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    #outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    outputCommands = cms.untracked.vstring(
-        'keep *_*_HGCHitsEE_*',
-        'keep *_*_HGCHitsHEback_*',
-        'keep *_*_HGCHitsHEfront_*',
-        'keep *_mix_*_*',
-        'keep *_genParticles_*_*',
-        'keep *_hgcalTriggerPrimitiveDigiProducer_*_*',
-        'keep *_hgcalTriggerPrimitiveDigiFEReproducer_*_*'
-    ),
+    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     fileName = cms.untracked.string('file:junk.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -69,9 +61,8 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("test_bestchoice.root")
+    fileName = cms.string("bestchoicemonitor_minbias.root")
     )
-
 
 
 # Other statements
@@ -79,20 +70,51 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-    PGunParameters = cms.PSet(
-        MinPt = cms.double(49.99),
-        MaxPt = cms.double(50.01),
-        PartID = cms.vint32(11),
-        MinEta = cms.double(1.5),
-        MaxEta = cms.double(3.0),
-        MinPhi = cms.double(-3.14159265359),
-        MaxPhi = cms.double(3.14159265359)
+#process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    #PGunParameters = cms.PSet(
+        #MaxPt = cms.double(50.01),
+        #MinPt = cms.double(49.99),
+        #PartID = cms.vint32(11),
+        #MaxEta = cms.double(1.5),
+        #MaxPhi = cms.double(3.14159265359),
+        #MinEta = cms.double(3.),
+        #MinPhi = cms.double(-3.14159265359)
+    #),
+    #Verbosity = cms.untracked.int32(0),
+    #psethack = cms.string('single electron pt 100'),
+    #AddAntiParticle = cms.bool(True),
+    #firstRun = cms.untracked.uint32(1)
+#)
+
+process.generator = cms.EDFilter("Pythia8GeneratorFilter",
+    PythiaParameters = cms.PSet(
+        parameterSets = cms.vstring('pythia8CommonSettings', 
+            'pythia8CUEP8M1Settings', 
+            'processParameters'),
+        processParameters = cms.vstring('SoftQCD:nonDiffractive = on', 
+            'SoftQCD:singleDiffractive = on', 
+            'SoftQCD:doubleDiffractive = on'),
+        pythia8CUEP8M1Settings = cms.vstring('Tune:pp 14', 
+            'Tune:ee 7', 
+            'MultipartonInteractions:pT0Ref=2.4024', 
+            'MultipartonInteractions:ecmPow=0.25208', 
+            'MultipartonInteractions:expPow=1.6'),
+        pythia8CommonSettings = cms.vstring('Tune:preferLHAPDF = 2', 
+            'Main:timesAllowErrors = 10000', 
+            'Check:epTolErr = 0.01', 
+            'Beams:setProductionScalesFromLHEF = off', 
+            'SLHA:keepSM = on', 
+            'SLHA:minMassSM = 1000.', 
+            'ParticleDecays:limitTau0 = on', 
+            'ParticleDecays:tau0Max = 10', 
+            'ParticleDecays:allowPhotonRadiation = on')
     ),
-    Verbosity = cms.untracked.int32(0),
-    psethack = cms.string('single electron pt 50'),
-    AddAntiParticle = cms.bool(True),
-    firstRun = cms.untracked.uint32(1)
+    comEnergy = cms.double(13000.0),
+    crossSection = cms.untracked.double(71390000000.0),
+    filterEfficiency = cms.untracked.double(1.0),
+    maxEventsToPrint = cms.untracked.int32(0),
+    pythiaHepMCVerbosity = cms.untracked.bool(False),
+    pythiaPylistVerbosity = cms.untracked.int32(1)
 )
 
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
@@ -104,38 +126,26 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
+
+
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
-process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
-## define trigger emulator without trigger cell selection
-process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
-cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
-                                 FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec )
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
-process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
 
-## define trigger emulator with trigger cell selection
-process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec.triggerCellTruncationBits = cms.uint32(0)
-cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo'),
-                                 FECodec = process.hgcalTriggerPrimitiveDigiFEReproducer.FECodec )
-process.hgcalTriggerPrimitiveDigiFEReproducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_select )
-process.hgcl1tpg_step2 = cms.Path(process.hgcalTriggerPrimitives_reproduce)
-
-# define best choice tester
-process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
-    "HGCalTriggerBestChoiceTester",
+process.hgcaltriggerntuplizer = cms.EDAnalyzer(
+    "HGCalTriggerBestChoiceMonitor",
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-    #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
-    isSimhitComp = cms.bool(True),
-    eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
-    fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
-    #bhSimHits = cms.InputTag('g4SimHits:HGCHitsHEback'),
-    beClustersAll = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgo'),
-    beClustersSelect = cms.InputTag('hgcalTriggerPrimitiveDigiFEReproducer:SingleCellClusterAlgo'),
     TriggerGeometry = cms.PSet(
+        TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp1'),
+        L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
+        L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
+        eeSDName = cms.string('HGCalEESensitive'),
+        fhSDName = cms.string('HGCalHESiliconSensitive'),
+        bhSDName = cms.string('HGCalHEScintillatorSensitive'),
+        ),
+    TriggerLightweightGeometry = cms.PSet(
         TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2'),
         L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
         L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt"),
@@ -143,13 +153,23 @@ process.hgcaltriggerbestchoicetester = cms.EDAnalyzer(
         fhSDName = cms.string('HGCalHESiliconSensitive'),
         bhSDName = cms.string('HGCalHEScintillatorSensitive'),
         ),
-    FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec.clone()
+    FECodec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
+                     CodecIndex    = cms.uint32(1),
+                     NData         = cms.uint32(12),
+                     DataLength    = cms.uint32(8),
+                     linLSB        = cms.double(100./1024.),
+                     adcsaturation = cms.double(100),
+                     adcnBits      =  cms.uint32(10),
+                     tdcsaturation = cms.double(10000),
+                     tdcnBits      =  cms.uint32(12),
+                     tdcOnsetfC    = cms.double(60),
+                     triggerCellTruncationBits = cms.uint32(2)
+                   )
     )
-process.test_step = cms.Path(process.hgcaltriggerbestchoicetester)
+process.hgcntuple = cms.Path(process.hgcaltriggerntuplizer)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.hgcl1tpg_step1,process.hgcl1tpg_step2,process.digi2raw_step,process.test_step,process.endjob_step,process.FEVTDEBUGoutput_step)
-
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.hgcntuple,process.endjob_step, process.FEVTDEBUGoutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
@@ -159,10 +179,10 @@ for path in process.paths:
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
 from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
 
-#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+#call to customisation function cust_2023HGCalMuon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
 process = cust_2023tilted(process)
 
 # End of customisation functions
-#process.ProfilerService = cms.Service("ProfilerService", firstEvent=cms.untracked.int32(0), lastEvent=cms.untracked.int32(2), paths=cms.untracked.vstring(["test_step"]))
+
 
 
