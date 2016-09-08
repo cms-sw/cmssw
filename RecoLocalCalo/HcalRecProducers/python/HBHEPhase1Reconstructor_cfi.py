@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
+import RecoLocalCalo.HcalRecProducers.HBHEPulseShapeFlagSetter_cfi as pulseShapeFlag
+import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 
 hbheprereco = cms.EDProducer(
     "HBHEPhase1Reconstructor",
@@ -54,12 +56,31 @@ hbheprereco = cms.EDProducer(
         samplesToAdd      = cms.int32(2),
         correctionPhaseNS = cms.double(6.0),
 
-        # Use "Method 2"? Change this to True when implemented.
+        # Use "Method 2"?
         useM2 = cms.bool(True),
+
         # Use "Method 3"? Change this to True when implemented.
         useM3 = cms.bool(False)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any
-    algoConfigClass = cms.string("")
+    algoConfigClass = cms.string(""),
+
+    # Turn rechit status bit setters on/off
+    setNegativeFlags = cms.bool(False),
+    setNoiseFlagsQIE8 = cms.bool(False), # Set to "True" when the topology map is fixed
+    setNoiseFlagsQIE11 = cms.bool(False),
+    setPulseShapeFlagsQIE8 = cms.bool(True),
+    setPulseShapeFlagsQIE11 = cms.bool(False),
+
+    # Parameter sets configuring rechit status bit setters
+    flagParametersQIE8 = cms.PSet(
+        hbheStatusFlag.qie8Config
+    ),
+    flagParametersQIE11 = cms.PSet(),
+
+    pulseShapeParametersQIE8 = cms.PSet(
+        pulseShapeFlag.qie8Parameters
+    ),
+    pulseShapeParametersQIE11 = cms.PSet()
 )
