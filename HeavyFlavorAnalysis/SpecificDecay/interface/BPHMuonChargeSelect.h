@@ -1,5 +1,5 @@
-#ifndef BPHMuonChargeSelect_H
-#define BPHMuonChargeSelect_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHMuonChargeSelect_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHMuonChargeSelect_h
 /** \class BPHMuonChargeSelect
  *
  *  Description: 
@@ -60,5 +60,5 @@ class BPHMuonChargeSelect: public BPHParticleChargeSelect {
 };
 
 
-#endif // BPHMuonChargeSelect_H
+#endif
 

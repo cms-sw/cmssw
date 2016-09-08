@@ -1,5 +1,5 @@
-#ifndef BPHChi2Select_H
-#define BPHChi2Select_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHChi2Select_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHChi2Select_h
 /** \class BPHChi2Select
  *
  *  Description: 
@@ -70,5 +70,5 @@ class BPHChi2Select: public BPHVertexSelect {
 };
 
 
-#endif // BPHChi2Select_H
+#endif
 

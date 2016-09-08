@@ -1,5 +1,5 @@
-#ifndef BPHParticleMasses_H
-#define BPHParticleMasses_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHParticleMasses_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHParticleMasses_h
 /** \class BPHParticleMasses
  *
  *  Description: 
@@ -65,5 +65,5 @@ class BPHParticleMasses {
 };
 
 
-#endif // BPHParticleMasses_H
+#endif
 

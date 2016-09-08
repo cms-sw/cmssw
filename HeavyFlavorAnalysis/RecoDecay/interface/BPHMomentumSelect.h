@@ -1,5 +1,5 @@
-#ifndef BPHMomentumSelect_H
-#define BPHMomentumSelect_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHMomentumSelect_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHMomentumSelect_h
 /** \class BPHMomentumSelect
  *
  *  Description: 
@@ -56,5 +56,5 @@ class BPHMomentumSelect {
 };
 
 
-#endif // BPHMomentumSelect_H
+#endif
 

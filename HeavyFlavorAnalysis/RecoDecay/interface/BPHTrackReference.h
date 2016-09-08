@@ -1,5 +1,5 @@
-#ifndef BPHTrackReference_H
-#define BPHTrackReference_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHTrackReference_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHTrackReference_h
 /** \class BPHTrackReference
  *
  *  Description: 
@@ -258,5 +258,5 @@ class BPHTrackReference {
 };
 
 
-#endif // BPHTrackReference_H
+#endif
 

@@ -1,5 +1,5 @@
-#ifndef TestBPHRecoDecay_h
-#define TestBPHRecoDecay_h
+#ifndef HeavyFlavorAnalysis_RecoDecay_TestBPHRecoDecay_h
+#define HeavyFlavorAnalysis_RecoDecay_TestBPHRecoDecay_h
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 

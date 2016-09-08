@@ -1,5 +1,5 @@
-#ifndef BPHMuonPtSelect_H
-#define BPHMuonPtSelect_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHMuonPtSelect_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHMuonPtSelect_h
 /** \class BPHMuonPtSelect
  *
  *  Description: 
@@ -60,5 +60,5 @@ class BPHMuonPtSelect: public BPHParticlePtSelect {
 };
 
 
-#endif // BPHMuonPtSelect_H
+#endif
 

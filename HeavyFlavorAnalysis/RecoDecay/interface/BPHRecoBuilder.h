@@ -1,5 +1,5 @@
-#ifndef BPHRecoBuilder_H
-#define BPHRecoBuilder_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHRecoBuilder_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHRecoBuilder_h
 /** \class BPHRecoBuilder
  *
  *  Description: 
@@ -279,5 +279,5 @@ void BPHRecoBuilder::add( const std::string& name,
 }
 
 
-#endif // BPHRecoBuilder_H
+#endif
 

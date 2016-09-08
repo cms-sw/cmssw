@@ -1,5 +1,5 @@
-#ifndef BPHBsToJPsiPhiBuilder_H
-#define BPHBsToJPsiPhiBuilder_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHBsToJPsiPhiBuilder_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHBsToJPsiPhiBuilder_h
 /** \class BPHBsToJPsiPhiBuilder
  *
  *  Description: 
@@ -112,5 +112,5 @@ class BPHBsToJPsiPhiBuilder {
 };
 
 
-#endif // BPHBsToJPsiPhiBuilder_H
+#endif
 

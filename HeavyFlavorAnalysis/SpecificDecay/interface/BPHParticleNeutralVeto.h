@@ -1,5 +1,5 @@
-#ifndef BPHParticleNeutralVeto_H
-#define BPHParticleNeutralVeto_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHParticleNeutralVeto_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHParticleNeutralVeto_h
 /** \class BPHParticleNeutralVeto
  *
  *  Description: 
@@ -59,5 +59,5 @@ class BPHParticleNeutralVeto: public BPHRecoSelect {
 };
 
 
-#endif // BPHParticleNeutralVeto_H
+#endif
 

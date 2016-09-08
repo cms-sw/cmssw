@@ -1,5 +1,5 @@
-#ifndef TestBaseNtuple_h
-#define TestBaseNtuple_h
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHHistoSpecificDecay_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHHistoSpecificDecay_h
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"

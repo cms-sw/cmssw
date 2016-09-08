@@ -1,5 +1,5 @@
-#ifndef BPHVertexSelect_H
-#define BPHVertexSelect_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHVertexSelect_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHVertexSelect_h
 /** \class BPHVertexSelect
  *
  *  Description: 
@@ -57,5 +57,5 @@ class BPHVertexSelect {
 };
 
 
-#endif // BPHVertexSelect_H
+#endif
 

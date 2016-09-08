@@ -1,5 +1,5 @@
-#ifndef BPHOniaToMuMuBuilder_H
-#define BPHOniaToMuMuBuilder_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHOniaToMuMuBuilder_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHOniaToMuMuBuilder_h
 /** \class BPHOniaToMuMuBuilder
  *
  *  Description: 
@@ -135,5 +135,5 @@ class BPHOniaToMuMuBuilder {
 };
 
 
-#endif // BPHOniaToMuMuBuilder_H
+#endif
 

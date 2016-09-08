@@ -1,5 +1,5 @@
-#ifndef BPHAnalyzerTokenWrapper_H
-#define BPHAnalyzerTokenWrapper_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHAnalyzerTokenWrapper_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHAnalyzerTokenWrapper_h
 /** \classes BPHModuleWrapper, BPHTokenWrapper and BPHAnalyzerWrapper
  *
  *  Description: 

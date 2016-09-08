@@ -1,5 +1,5 @@
-#ifndef BPHRecoSelect_H
-#define BPHRecoSelect_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHRecoSelect_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHRecoSelect_h
 /** \class BPHRecoSelect
  *
  *  Description: 
@@ -72,5 +72,5 @@ class BPHRecoSelect {
 };
 
 
-#endif // BPHRecoSelect_H
+#endif
 

@@ -1,5 +1,5 @@
-#ifndef BPHMassFitSelect_H
-#define BPHMassFitSelect_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHMassFitSelect_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHMassFitSelect_h
 /** \class BPHMassFitSelect
  *
  *  Description: 
@@ -147,5 +147,5 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
 };
 
 
-#endif // BPHMassFitSelect_H
+#endif
 

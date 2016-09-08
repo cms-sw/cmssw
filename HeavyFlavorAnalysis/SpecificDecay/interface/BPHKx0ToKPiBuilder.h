@@ -1,5 +1,5 @@
-#ifndef BPHKx0ToKPiBuilder_H
-#define BPHKx0ToKPiBuilder_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHKx0ToKPiBuilder_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHKx0ToKPiBuilder_h
 /** \class BPHKx0ToKPiBuilder
  *
  *  Description: 
@@ -103,5 +103,5 @@ class BPHKx0ToKPiBuilder {
 };
 
 
-#endif // BPHKx0ToKPiBuilder_H
+#endif
 

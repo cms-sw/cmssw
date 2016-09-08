@@ -1,5 +1,5 @@
-#ifndef BPHDecayVertex_H
-#define BPHDecayVertex_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHDecayVertex_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHDecayVertex_h
 /** \class BPHDecayVertex
  *
  *  Description: 
@@ -119,5 +119,5 @@ class BPHDecayVertex: public virtual BPHDecayMomentum {
 };
 
 
-#endif // BPHDecayVertex_H
+#endif
 

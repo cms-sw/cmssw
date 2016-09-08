@@ -1,5 +1,5 @@
-#ifndef BPHFitSelect_H
-#define BPHFitSelect_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHFitSelect_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHFitSelect_h
 /** \class BPHFitSelect
  *
  *  Description: 
@@ -57,5 +57,5 @@ class BPHFitSelect {
 };
 
 
-#endif // BPHFitSelect_H
+#endif
 

@@ -1,5 +1,5 @@
-#ifndef BPHPlusMinusCandidate_H
-#define BPHPlusMinusCandidate_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHPlusMinusCandidate_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHPlusMinusCandidate_h
 /** \class BPHPlusMinusCandidate
  *
  *  Description: 
@@ -99,5 +99,5 @@ class BPHPlusMinusCandidate: public BPHRecoCandidate,
 };
 
 
-#endif // BPHPlusMinusCandidate_H
+#endif
 

@@ -1,5 +1,5 @@
-#ifndef BPHMuonEtaSelect_H
-#define BPHMuonEtaSelect_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHMuonEtaSelect_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHMuonEtaSelect_h
 /** \class BPHMuonEtaSelect
  *
  *  Descrietaion: 
@@ -60,5 +60,5 @@ class BPHMuonEtaSelect: public BPHParticleEtaSelect {
 };
 
 
-#endif // BPHMuonEtaSelect_H
+#endif
 

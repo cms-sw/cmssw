@@ -1,5 +1,5 @@
-#ifndef BPHMultiSelect_H
-#define BPHMultiSelect_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHMultiSelect_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHMultiSelect_h
 /** \class BPHMultiSelect
  *
  *  Description: 
@@ -140,5 +140,5 @@ template<>
 bool BPHMultiSelect<BPHVertexSelect>::accept(
                                         const BPHDecayVertex& cand ) const;
 
-#endif // BPHMultiSelect_H
+#endif
 

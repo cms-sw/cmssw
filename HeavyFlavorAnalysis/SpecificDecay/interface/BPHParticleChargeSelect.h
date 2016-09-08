@@ -1,5 +1,5 @@
-#ifndef BPHParticleChargeSelect_H
-#define BPHParticleChargeSelect_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHParticleChargeSelect_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHParticleChargeSelect_h
 /** \class BPHParticleChargeSelect
  *
  *  Description: 
@@ -73,5 +73,5 @@ class BPHParticleChargeSelect: public BPHRecoSelect {
 };
 
 
-#endif // BPHParticleChargeSelect_H
+#endif
 

@@ -1,5 +1,5 @@
-#ifndef BPHDecayMomentum_H
-#define BPHDecayMomentum_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHDecayMomentum_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHDecayMomentum_h
 /** \class BPHDecayMomentum
  *
  *  Description: 
@@ -180,5 +180,5 @@ class BPHDecayMomentum {
 };
 
 
-#endif // BPHDecayMomentum_H
+#endif
 

@@ -1,5 +1,5 @@
-#ifndef BPHKinematicFit_H
-#define BPHKinematicFit_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHKinematicFit_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHKinematicFit_h
 /** \class BPHKinematicFit
  *
  *  Description: 
@@ -136,5 +136,5 @@ class BPHKinematicFit: public virtual BPHDecayVertex {
 };
 
 
-#endif // BPHKinematicFit_H
+#endif
 

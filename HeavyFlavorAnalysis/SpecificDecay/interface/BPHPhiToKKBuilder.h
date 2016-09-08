@@ -1,5 +1,5 @@
-#ifndef BPHPhiToKKBuilder_H
-#define BPHPhiToKKBuilder_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHPhiToKKBuilder_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHPhiToKKBuilder_h
 /** \class BPHPhiToKKBuilder
  *
  *  Description: 
@@ -103,5 +103,5 @@ class BPHPhiToKKBuilder {
 };
 
 
-#endif // BPHPhiToKKBuilder_H
+#endif
 

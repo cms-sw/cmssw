@@ -1,5 +1,5 @@
-#ifndef TestBaseNtuple_h
-#define TestBaseNtuple_h
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHWriteSpecificDecay_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHWriteSpecificDecay_h
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 

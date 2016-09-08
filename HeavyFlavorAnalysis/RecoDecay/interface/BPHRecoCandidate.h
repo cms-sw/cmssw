@@ -1,5 +1,5 @@
-#ifndef BPHRecoCandidate_H
-#define BPHRecoCandidate_H
+#ifndhf HeavyFlavorAnalysis_RecoDecay_BPHRecoCandidate_H
+#define HeavyFlavorAnalysis_RecoDecay_BPHRecoCandidate_h
 /** \class BPHRecoCandidate
  *
  *  Description: 
@@ -126,5 +126,5 @@ void BPHRecoCandidate::fill( std::vector<
   return;
 }
 
-#endif // BPHRecoCandidate_H
+#endif
 

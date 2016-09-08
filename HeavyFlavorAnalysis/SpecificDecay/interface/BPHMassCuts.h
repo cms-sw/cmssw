@@ -1,5 +1,5 @@
-#ifndef BPHMassCuts_H
-#define BPHMassCuts_H
+#ifndef HeavyFlavorAnalysis_SpecificDecay_BPHMassCuts_h
+#define HeavyFlavorAnalysis_SpecificDecay_BPHMassCuts_h
 /** \class BPHMassCuts
  *
  *  Description: 
@@ -68,5 +68,5 @@ class BPHMassCuts {
 };
 
 
-#endif // BPHMassCuts_H
+#endif
 

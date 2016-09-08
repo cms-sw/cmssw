@@ -1,5 +1,5 @@
-#ifndef BPHPlusMinusVertex_H
-#define BPHPlusMinusVertex_H
+#ifndef HeavyFlavorAnalysis_RecoDecay_BPHPlusMinusVertex_h
+#define HeavyFlavorAnalysis_RecoDecay_BPHPlusMinusVertex_h
 /** \class BPHPlusMinusVertex
  *
  *  Description: 
@@ -99,5 +99,6 @@ bool BPHPlusMinusVertex::chkSize( const T& cont,
   return false;
 }
 
-#endif // BPHPlusMinusVertex_H
+
+#endif
 
