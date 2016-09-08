@@ -202,7 +202,7 @@ HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    topo = &*topo_;
 
    // prepare the output HF RecHit collection
-   std::auto_ptr<HFRecHitCollection> pOut(new HFRecHitCollection());
+   auto pOut = std::make_unique<HFRecHitCollection>();
    
    // loop over rechits, and set the new bit you wish to use
    for (HFRecHitCollection::const_iterator recHit=hfRecHits->begin(); recHit!=hfRecHits->end(); ++recHit) {
@@ -261,7 +261,7 @@ HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    // put the re-flagged HF RecHit collection into the Event
-   iEvent.put(pOut);
+   iEvent.put(std::move(pOut));
  
 }
 
