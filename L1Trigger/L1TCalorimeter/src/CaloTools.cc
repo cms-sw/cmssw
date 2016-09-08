@@ -241,21 +241,21 @@ int l1t::CaloTools::bin16Eta(int ieta)
   int absIEta = abs(ieta);
 
   if (absIEta>0 && absIEta<=5) return 0;
-  else if (absIEta>5 && absIEta<=9) return 1;
-  else if (absIEta>9 && absIEta<=13) return 2;
-  else if (absIEta>13 && absIEta<=15) return 3;
-  else if (absIEta>15 && absIEta<=17) return 4;
-  else if (absIEta>17 && absIEta<=19) return 5;
-  else if (absIEta>19 && absIEta<=21) return 6;
+  else if (absIEta<=9) return 1;
+  else if (absIEta<=13) return 2;
+  else if (absIEta<=15) return 3;
+  else if (absIEta<=17) return 4;
+  else if (absIEta<=19) return 5;
+  else if (absIEta<=21) return 6;
   else if (absIEta==22) return 7;
   else if (absIEta==23) return 8;
   else if (absIEta==24) return 9;
   else if (absIEta==25) return 10;
   else if (absIEta==26) return 11;
-  else if (absIEta>26 && absIEta<=28) return 12;
-  else if (absIEta>28 && absIEta<=32) return 13;
-  else if (absIEta>32 && absIEta<=36) return 14;
-  else if (absIEta>36 && absIEta<=41) return 15;
+  else if (absIEta<=28) return 12;
+  else if (absIEta<=32) return 13;
+  else if (absIEta<=36) return 14;
+  else if (absIEta<=41) return 15;
   else return -1; // error
 }
 
