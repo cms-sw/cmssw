@@ -380,7 +380,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "patMetCorrectionSequence"+postfix):
             setattr(process, "patMetCorrectionSequence"+postfix, patMetCorrectionSequence)
         if not hasattr(process, "patMetUncertaintySequence"+postfix):
-            patMetUncertaintySequence += tmpUncSequence
+            if not len(tmpUncSequence.moduleNames())==0: patMetUncertaintySequence += tmpUncSequence
             setattr(process, "patMetUncertaintySequence"+postfix, patMetUncertaintySequence)
         else:
             if not len(configtools.listModules(tmpUncSequence))==0:
