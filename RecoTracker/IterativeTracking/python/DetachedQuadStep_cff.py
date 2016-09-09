@@ -91,6 +91,8 @@ eras.trackingPhase1.toModify(detachedQuadStepSeeds,
         TripletGeneratorPSet = detachedQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet,
         SeedingLayers = detachedQuadStepSeeds.OrderedHitsFactoryPSet.SeedingLayers,
     ),
+    SeedComparitorPSet = dict(ComponentName = 'none',
+                              FilterPixelHits = False),
 )
 eras.trackingPhase1PU70.toModify(detachedQuadStepSeeds,
     RegionFactoryPSet = dict(

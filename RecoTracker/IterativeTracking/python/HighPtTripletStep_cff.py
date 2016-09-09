@@ -72,6 +72,11 @@ highPtTripletStepSeeds = globalSeedsFromTriplets.clone(
         )
     )
 )
+
+eras.trackingPhase1.toModify(highPtTripletStepSeeds,
+  OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(SeedComparitorPSet = dict(ComponentName = cms.string('none'))))
+)
+
 eras.trackingPhase1PU70.toModify(highPtTripletStepSeeds, RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.7)))
 eras.trackingPhase2PU140.toModify(highPtTripletStepSeeds,
      ClusterCheckPSet = dict(doClusterCheck = False),
