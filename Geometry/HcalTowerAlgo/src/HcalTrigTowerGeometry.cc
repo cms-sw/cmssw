@@ -6,10 +6,12 @@
 #include <cassert>
 
 HcalTrigTowerGeometry::HcalTrigTowerGeometry( const HcalTopology* topology )
-    : theTopology( topology ) {
-  useRCT_=true;
-  use1x1_=true;
-  use2017HE_=false;
+   : theTopology(topology)
+{
+   auto tmode = theTopology->triggerMode();
+   useRCT_ = tmode <= HcalTopologyMode::TriggerMode_2016;
+   use1x1_ = tmode >= HcalTopologyMode::TriggerMode_2016;
+   use2017_ = tmode == HcalTopologyMode::TriggerMode_2017;
 }
 
 std::vector<HcalTrigTowerDetId> 
@@ -62,7 +64,7 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       if(ieta == theTopology->lastHERing()) --ieta;
       if(ieta == -theTopology->lastHERing()) ++ieta;
 
-      if (use2017HE_) {
+      if (use2017_) {
          if (ieta == 26 and depth == 7)
             ++ieta;
          if (ieta == -26 and depth == 7)
@@ -118,7 +120,7 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
     if (abs(cell_ieta) >= theTopology->firstHEDoublePhiRing())
       if (tower_iphi%2 == 0) cell_iphi = tower_iphi - 1;
 
-    if (use2017HE_) {
+    if (use2017_) {
          if (abs(tower_ieta) == 26)
             --n_depths;
          if (tower_ieta == 27)

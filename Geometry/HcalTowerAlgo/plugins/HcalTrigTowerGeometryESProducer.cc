@@ -19,15 +19,6 @@ HcalTrigTowerGeometryESProducer::produce( const CaloGeometryRecord & iRecord )
     iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
 
     m_hcalTrigTowerGeom = std::make_shared<HcalTrigTowerGeometry>( &*hcalTopology);
-    HcalTopologyMode::TriggerMode tmode=hcalTopology->triggerMode();
-    bool enableRCTHF=(tmode==HcalTopologyMode::TriggerMode_2009 || tmode==HcalTopologyMode::TriggerMode_2016);
-    bool enable1x1HF=(tmode==HcalTopologyMode::TriggerMode_2016 || tmode==HcalTopologyMode::TriggerMode_2017);
-    m_hcalTrigTowerGeom->setupHFTowers(enableRCTHF,enable1x1HF);
-    // TODO this piggy-backs on the HF versioning, which corresponds to
-    // 2017 TP --- trigger modes should really be numbered by year.
-    bool enable2017HE = enable1x1HF;
-    m_hcalTrigTowerGeom->setupHETowers(enable2017HE);
-
     return m_hcalTrigTowerGeom;
 }
 
