@@ -54,13 +54,14 @@ if __name__ == '__main__':
                      1000, #data+prompt
                      1001, #data+express
                      136.731, #2016B Photon data
-#not working at this moment - please restore                     140.53, #2011 HI data
+                     140.53, #2011 HI data
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
                      10021.0, #2017 tenmu
                      10024.0, #2017 ttbar
                      10424.0, #2023D1 ttbar (Run2 calo)
                      11224.0, #2023D3 ttbar (HGCal)
+		     11624.0, #2017 NewPix ttbar
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
