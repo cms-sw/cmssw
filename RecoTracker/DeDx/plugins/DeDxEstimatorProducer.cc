@@ -110,7 +110,7 @@ void  DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup
 
 void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  auto_ptr<ValueMap<DeDxData> > trackDeDxEstimateAssociation(new ValueMap<DeDxData> );  
+  auto trackDeDxEstimateAssociation = std::make_unique<ValueMap<DeDxData>>();  
   ValueMap<DeDxData>::Filler filler(*trackDeDxEstimateAssociation);
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
@@ -173,7 +173,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   // fill the association map and put it into the event
   filler.fill();
-  iEvent.put(trackDeDxEstimateAssociation);   
+  iEvent.put(std::move(trackDeDxEstimateAssociation));
 }
 
 

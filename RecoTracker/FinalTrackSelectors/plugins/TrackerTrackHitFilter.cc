@@ -380,7 +380,7 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   size_t  candcollsize;
   if(useTrajectories_)candcollsize= assoMap->size();
   else candcollsize=tracks->size();
-  std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection());
+  auto output = std::make_unique<TrackCandidateCollection>();
 
   output->reserve(candcollsize);
 
@@ -516,7 +516,7 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 
   // std::cout<<"OUTPUT SIZE: "<<output->size()<<std::endl;
 
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 
 TrackCandidate

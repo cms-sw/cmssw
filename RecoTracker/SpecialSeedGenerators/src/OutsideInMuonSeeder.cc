@@ -138,7 +138,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     iEvent.getByToken(src_, src);
 
 
-    auto_ptr<vector<TrajectorySeed> > out(new vector<TrajectorySeed>());
+    auto out = std::make_unique<std::vector<TrajectorySeed>>();
 
     for (View<reco::Muon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         const reco::Muon &mu = *it;
@@ -207,7 +207,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 int

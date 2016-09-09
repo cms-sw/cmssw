@@ -100,7 +100,7 @@ void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iS
    iSetup.get<TrackerDigiGeometryRecord>().get(theG);
    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
 
-   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+   auto result = std::make_unique<TrajectorySeedCollection>();
 
    TrajectorySeedCollection selectedColl;
    
@@ -142,7 +142,7 @@ void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iS
       
    edm::LogInfo("ConversionSeedFilter") << "\nNew Event : result size " << result->size()<< std::endl;
 
-   iEvent.put(result);
+   iEvent.put(std::move(result));
    
 }
 

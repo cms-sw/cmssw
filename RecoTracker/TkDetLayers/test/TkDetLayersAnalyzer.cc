@@ -207,7 +207,7 @@ TkDetLayersAnalyzer::analyze( const Event& iEvent, const EventSetup& iSetup )
       CylinderBuilderFromDet cylbld;
       WrapTrieCB<CylinderBuilderFromDet> w(cylbld);
       edm::iterateTrieLeaves(w,*tobl);
-      auto_ptr<BoundCylinder> cyl(cylbld.build());
+      std::unique_ptr<BoundCylinder> cyl(cylbld.build());
       SimpleCylinderBounds const & cylb = static_cast<SimpleCylinderBounds const&>(cyl->bounds());
       std::cout << "cyl " << tobl.label() 
 		<< ": " << cylb.length()

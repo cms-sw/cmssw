@@ -21,7 +21,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 //hopefully is never called!
 const std::vector<const GeometricSearchDet*>& Phase2OTEndcapLayer::components() const{
   if (not theComponents) {
-    std::unique_ptr<std::vector<const GeometricSearchDet*>> temp( new std::vector<const GeometricSearchDet*>() );
+    auto temp = std::make_unique<std::vector<const GeometricSearchDet*>>();
     temp->reserve(NOTECRINGS);
     for ( auto c: theComps) temp->push_back(c);
     std::vector<const GeometricSearchDet*>* expected = nullptr;

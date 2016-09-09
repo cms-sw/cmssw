@@ -256,7 +256,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
     std::vector<float> mvaVals_(srcTracks.size(),-99.f);
     processMVA(evt,es,vertexBeamSpot,*(hVtx.product()), i, mvaVals_, i == 0 ? true : false);
     std::vector<int> selTracks(trkSize,0);
-    auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
+    auto selTracksValueMap = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
 
     if (useVertices_) selectVertices(i,*hVtx, points, vterr, vzerr);
@@ -322,8 +322,8 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
     filler.insert(hSrcTrack, selTracks.begin(),selTracks.end());
     filler.fill();
 
-    //    evt.put(selTracks,name_[i]);
-    evt.put(selTracksValueMap,name_[i]);
+    //    evt.put(std::move(selTracks),name_[i]);
+    evt.put(std::move(selTracksValueMap),name_[i]);
     for (auto & q : selTracks) q=std::max(q,0);
     auto quals = std::make_unique<QualityMaskCollection>(selTracks.begin(),selTracks.end());
     evt.put(std::move(quals),name_[i]);
@@ -530,7 +530,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   const TrackingRecHitCollection & srcHits(*hSrcHits);
   
   
-  auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+  auto mvaValValueMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler mvaFiller(*mvaValValueMap);
 
 
@@ -538,7 +538,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     // mvaVals_ already initalized...
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
-    evt.put(mvaValValueMap,"MVAVals");
+    evt.put(std::move(mvaValValueMap),"MVAVals");
     auto mvas = std::make_unique<MVACollection>(mvaVals_.begin(),mvaVals_.end());
     evt.put(std::move(mvas),"MVAValues");
     return;
@@ -626,7 +626,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   if(writeIt){
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
-    evt.put(mvaValValueMap,"MVAVals");
+    evt.put(std::move(mvaValValueMap),"MVAVals");
     auto mvas = std::make_unique<MVACollection>(mvaVals_.begin(),mvaVals_.end());
     evt.put(std::move(mvas),"MVAValues");
   }

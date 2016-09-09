@@ -89,8 +89,8 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) :
 // Functions that gets called by framework every event
 void SimpleCosmicBONSeeder::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
-  std::auto_ptr<edm::OwnVector<TrackingRecHit> > outtriplets(new edm::OwnVector<TrackingRecHit>());
+  auto output = std::make_unique<TrajectorySeedCollection>();
+  auto outtriplets = std::make_unique<edm::OwnVector<TrackingRecHit>>();
 
   es.get<IdealMagneticFieldRecord>().get(magfield);
   if (magfield->inTesla(GlobalPoint(0,0,0)).mag() > 0.01) {
@@ -121,9 +121,9 @@ void SimpleCosmicBONSeeder::produce(edm::Event& ev, const edm::EventSetup& es)
   }
 
   if (writeTriplets_) {
-      ev.put(outtriplets, "cosmicTriplets");
+      ev.put(std::move(outtriplets), "cosmicTriplets");
   }
-  ev.put(output);
+  ev.put(std::move(output));
 }
 
 void 

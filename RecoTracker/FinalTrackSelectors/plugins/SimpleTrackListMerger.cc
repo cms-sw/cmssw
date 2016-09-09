@@ -41,12 +41,12 @@ class SimpleTrackListMerger : public edm::stream::EDProducer<> {
   private:
     edm::ParameterSet conf_;
 
-    std::auto_ptr<reco::TrackCollection> outputTrks;
-    std::auto_ptr<reco::TrackExtraCollection> outputTrkExtras;
-    std::auto_ptr< TrackingRecHitCollection>  outputTrkHits;
-    std::auto_ptr< std::vector<Trajectory> > outputTrajs;
-    std::auto_ptr< TrajTrackAssociationCollection >  outputTTAss;
-    std::auto_ptr< TrajectorySeedCollection > outputSeeds;
+    std::unique_ptr<reco::TrackCollection> outputTrks;
+    std::unique_ptr<reco::TrackExtraCollection> outputTrkExtras;
+    std::unique_ptr<TrackingRecHitCollection>  outputTrkHits;
+    std::unique_ptr<std::vector<Trajectory>> outputTrajs;
+    std::unique_ptr<TrajTrackAssociationCollection>  outputTTAss;
+    std::unique_ptr<TrajectorySeedCollection> outputSeeds;
 
     reco::TrackRefProd refTrks;
     reco::TrackExtraRefProd refTrkExtras;
@@ -229,26 +229,26 @@ namespace {
     const reco::TrackCollection tC2 = *TC2;
 
     // Step B: create empty output collection
-    outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
+    outputTrks = std::make_unique<reco::TrackCollection>();
     refTrks = e.getRefBeforePut<reco::TrackCollection>();
 
     if (copyExtras_) {
-        outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+        outputTrkExtras = std::make_unique<reco::TrackExtraCollection>();
 	outputTrkExtras->reserve(TC1->size()+TC2->size());
         refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
-        outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+        outputTrkHits   = std::make_unique<TrackingRecHitCollection>();
 	outputTrkHits->reserve((TC1->size()+TC2->size())*25);
         refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
 	if (makeReKeyedSeeds_){
-	  outputSeeds = std::auto_ptr<TrajectorySeedCollection>(new TrajectorySeedCollection);
+	  outputSeeds = std::make_unique<TrajectorySeedCollection>();
 	  outputSeeds->reserve(TC1->size()+TC2->size());
 	  refTrajSeeds = e.getRefBeforePut<TrajectorySeedCollection>();
 	}
     }
 
-    outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
+    outputTrajs = std::make_unique<std::vector<Trajectory>>();
     outputTrajs->reserve(TC1->size()+TC2->size());
-    outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+    outputTTAss = std::make_unique<TrajTrackAssociationCollection>();
     //outputTTAss->reserve(TC1->size()+TC2->size());//how do I reserve space for an association map?
 
   //
@@ -257,7 +257,7 @@ namespace {
 
 //    if ( tC1.empty() ){
 //      LogDebug("RoadSearch") << "Found " << output.size() << " clouds.";
-//      e.put(output);
+//      e.put(std::move(output);
 //      return;
 //    }
 
@@ -652,15 +652,15 @@ namespace {
      }
    }}
 
-    e.put(outputTrks);
+    e.put(std::move(outputTrks));
     if (copyExtras_) {
-        e.put(outputTrkExtras);
-        e.put(outputTrkHits);
+        e.put(std::move(outputTrkExtras));
+        e.put(std::move(outputTrkHits));
 	if (makeReKeyedSeeds_)
-	  e.put(outputSeeds);
+	  e.put(std::move(outputSeeds));
     }
-    e.put(outputTrajs);
-    e.put(outputTTAss);
+    e.put(std::move(outputTrajs));
+    e.put(std::move(outputTTAss));
     return;
 
   }//end produce

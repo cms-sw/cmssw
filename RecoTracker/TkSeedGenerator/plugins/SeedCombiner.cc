@@ -61,7 +61,7 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     }
 
     // Prepare output collections, with the correct capacity
-    std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+    auto result = std::make_unique<TrajectorySeedCollection>();
     result->reserve( nseeds );
 
     // Write into output collection
@@ -93,5 +93,5 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     }
 
     // Save result into the event
-    ev.put(result);
+    ev.put(std::move(result));
 }

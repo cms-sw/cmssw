@@ -74,7 +74,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if(useTrajectory)iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
 
   // creates the output collection
-  std::auto_ptr<reco::DeDxHitInfoCollection> resultdedxHitColl(new reco::DeDxHitInfoCollection);
+  auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
 
   std::vector<int> indices;
 
@@ -126,14 +126,14 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   ///////////////////////////////////////
  
 
-  edm::OrphanHandle<reco::DeDxHitInfoCollection> dedxHitCollHandle = iEvent.put(resultdedxHitColl);
+  edm::OrphanHandle<reco::DeDxHitInfoCollection> dedxHitCollHandle = iEvent.put(std::move(resultdedxHitColl));
 
   //create map passing the handle to the matched collection
-  std::auto_ptr<reco::DeDxHitInfoAss> dedxMatch(new reco::DeDxHitInfoAss(dedxHitCollHandle));
+  auto dedxMatch = std::make_unique<reco::DeDxHitInfoAss>(dedxHitCollHandle);
   reco::DeDxHitInfoAss::Filler filler(*dedxMatch);  
   filler.insert(trackCollectionHandle, indices.begin(), indices.end()); 
   filler.fill();
-  iEvent.put(dedxMatch);
+  iEvent.put(std::move(dedxMatch));
 }
 
 void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float trackMomentum, const float cosine, reco::DeDxHitInfo& hitDeDxInfo,  const LocalPoint& hitLocalPos){

@@ -93,7 +93,7 @@ public:
 //hopefully is never called!
 const std::vector<const GeometricSearchDet*>& TIDLayer::components() const{
   if( not theComponents) {
-    std::unique_ptr<std::vector<const GeometricSearchDet*>> temp( new std::vector<const GeometricSearchDet*>() );
+    auto temp = std::make_unique<std::vector<const GeometricSearchDet*>>();
     temp->reserve(3);
     for ( auto c: theComps) temp->push_back(c);
     std::vector<const GeometricSearchDet*>* expected = nullptr;

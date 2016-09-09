@@ -124,7 +124,7 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
   // get Inputs
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   //check on the number of clusters
   if ( !requireBOFF || (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) ) {
@@ -137,7 +137,7 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   
   
   edm::LogVerbatim("CtfSpecialSeedGenerator") << " number of seeds = "<< output->size();
-  e.put(output);
+  e.put(std::move(output));
 }
 
 bool CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,

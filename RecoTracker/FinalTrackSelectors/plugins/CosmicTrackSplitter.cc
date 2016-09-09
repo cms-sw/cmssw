@@ -154,7 +154,7 @@ namespace reco { namespace modules {
 		iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
 		// prepare output collection
-		std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection());
+		auto output = std::make_unique<TrackCandidateCollection>();
 		output->reserve(tracks->size());
 
 		// working area and tools
@@ -370,7 +370,7 @@ namespace reco { namespace modules {
 			} // loop twice for top and bottom
 		} // loop on tracks
 		LogDebug("CosmicTrackSplitter") << "totalTracks_ = " << totalTracks_;
-		iEvent.put(output);
+		iEvent.put(std::move(output));
 	}
 
 	TrackCandidate

@@ -226,9 +226,9 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
   TwoTrackMinimumDistance ttmd;
   TSCPBuilderNoMaterial tscpBuilder;
-  std::unique_ptr<std::vector<TrackCandidate> > out_duplicateCandidates(new std::vector<TrackCandidate>());
+  auto out_duplicateCandidates = std::make_unique<std::vector<TrackCandidate>>();
 
-  std::unique_ptr<CandidateToDuplicate> out_candidateMap(new CandidateToDuplicate());
+  auto out_candidateMap = std::make_unique<CandidateToDuplicate>();
 
   for(int i = 0; i < (int)tracks.size(); i++){
     const reco::Track *rt1 = &tracks[i];

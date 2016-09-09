@@ -64,12 +64,12 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
   // Create Output Collections
   // --------------------------------------------------------------------------------------------------
-  std::auto_ptr<TrajectoryCollection>           Output_traj          ( new TrajectoryCollection );
-  std::auto_ptr<TrajectoryToTrajectoryMap>      Output_trajmap       ( new TrajectoryToTrajectoryMap );
+  auto Output_traj           = std::make_unique<TrajectoryCollection>();
+  auto Output_trajmap        = std::make_unique<TrajectoryToTrajectoryMap>();
 
-  std::auto_ptr<reco::TrackExtraCollection>	Output_trackextra    ( new reco::TrackExtraCollection );
-  std::auto_ptr<reco::TrackCollection>          Output_track         ( new reco::TrackCollection );
-  std::auto_ptr<TrackToTrajectoryMap>           Output_trackmap      ( new TrackToTrajectoryMap );
+  auto Output_trackextra     = std::make_unique<reco::TrackExtraCollection>();
+  auto Output_track          = std::make_unique<reco::TrackCollection>();
+  auto Output_trackmap       = std::make_unique<TrackToTrajectoryMap>();
 
 
 
@@ -157,9 +157,9 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         }
 
   }
-  const edm::OrphanHandle<TrajectoryCollection>     Handle_traj = iEvent.put(Output_traj);
-  const edm::OrphanHandle<reco::TrackCollection> Handle_tracks = iEvent.put(Output_track);
-  iEvent.put(Output_trackextra);
+  const edm::OrphanHandle<TrajectoryCollection> Handle_traj = iEvent.put(std::move(Output_traj));
+  const edm::OrphanHandle<reco::TrackCollection> Handle_tracks = iEvent.put(std::move(Output_track));
+  iEvent.put(std::move(Output_trackextra));
 
   // Make Maps between elements
   // --------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      return;
   }
 
-  std::auto_ptr<TrackToTrackMap>  	        Output_tracktrackmap ( new TrackToTrackMap(Handle_tracks, m_TrajToTrackCollection->refProd().val) );
+  auto Output_tracktrackmap = std::make_unique<TrackToTrackMap>(Handle_tracks, m_TrajToTrackCollection->refProd().val);
 
   for(unsigned int i = 0 ; i < Indice_Map.size() ; i++)
   {
@@ -186,9 +186,9 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         }catch(edm::Exception event){}
 	
   }
-  iEvent.put(Output_trajmap);
-  iEvent.put(Output_trackmap);
-  iEvent.put(Output_tracktrackmap);
+  iEvent.put(std::move(Output_trajmap));
+  iEvent.put(std::move(Output_trackmap));
+  iEvent.put(std::move(Output_tracktrackmap));
 
 
   if(verbosity>=3)printf("-----------------------\n");

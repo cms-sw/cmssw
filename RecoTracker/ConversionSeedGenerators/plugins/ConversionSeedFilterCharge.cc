@@ -77,7 +77,7 @@ void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, cons
    edm::ESHandle<MagneticField> theMF;
    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
 
-   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+   auto result = std::make_unique<TrajectorySeedCollection>();
    result->reserve(pInPos->size());
 
    if (pInPos->size()<maxInputSeeds && pInNeg->size()<maxInputSeeds) {
@@ -132,7 +132,7 @@ void ConversionSeedFilterCharge::produce(edm::StreamID, edm::Event& iEvent, cons
    edm::LogInfo("ConversionSeedFilterCharge") << "\nNew Event : result size " << result->size() << std::endl;
 
    //cout << "sizes: pInPos=" << pInPos->size() << " pInNeg=" << pInNeg->size() << " result=" << result->size() << endl; 
-   iEvent.put(result);
+   iEvent.put(std::move(result));
    
 }
 

@@ -44,7 +44,7 @@ void CRackSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   ev.getByToken(matchedrecHitsToken_, matchedrecHits);
  
 
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  auto output = std::make_unique<TrajectorySeedCollection>();
   //
  
   cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
@@ -56,5 +56,5 @@ void CRackSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   LogDebug("CRackSeedGenerator")<<" number of seeds = "<< output->size();
 
 
-  ev.put(output);
+  ev.put(std::move(output));
 }
