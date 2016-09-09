@@ -557,7 +557,7 @@
 
  <CompositeMaterial name="SectorA" density="0.3136*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.10443">
-      <rMaterial name="materials:C6F14_F2_-10C"/>
+      <rMaterial name="materials:Bpix_CO2_-20C"/>
     </MaterialFraction>
     <MaterialFraction fraction="0.00283">
       <rMaterial name="pixbarmaterial:Polyoxymethylene"/>
@@ -643,7 +643,7 @@
 
   <CompositeMaterial name="SectorC" density="0.7928*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.14778">
-      <rMaterial name="materials:C6F14_F2_-10C"/>
+      <rMaterial name="materials:Bpix_CO2_-20C"/>
     </MaterialFraction>
     <MaterialFraction fraction="0.0139">
       <rMaterial name="pixbarmaterial:Polyoxymethylene"/>
@@ -699,7 +699,7 @@
 
   <CompositeMaterial name="PixelBarrelSupTubCables" density="2.25064*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.09162">
-      <rMaterial name="materials:C6F14_F2_-10C"/>
+      <rMaterial name="materials:Bpix_CO2_-20C"/>
     </MaterialFraction>
     <MaterialFraction fraction="0.14907">
       <rMaterial name="materials:Steel-008"/>
@@ -715,7 +715,7 @@
 
  <CompositeMaterial name="PixelBarrelSupTubCables2" density="0.4152*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.09162">
-      <rMaterial name="materials:C6F14_F2_-10C"/>
+      <rMaterial name="materials:Bpix_CO2_-20C"/>
     </MaterialFraction>
     <MaterialFraction fraction="0.14907">
       <rMaterial name="materials:Steel-008"/>
