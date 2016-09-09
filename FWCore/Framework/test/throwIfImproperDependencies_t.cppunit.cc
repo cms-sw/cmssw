@@ -7,11 +7,14 @@
  *
  */
 
-#include "FWCore/Framework/src/throwIfImproperDependencies.h"
-#include "cppunit/extensions/HelperMacros.h"
 #include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
 
+#include "FWCore/Framework/src/throwIfImproperDependencies.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "cppunit/extensions/HelperMacros.h"
+
 
 class test_throwIfImproperDependencies: public CppUnit::TestFixture
 {
@@ -37,12 +40,13 @@ public:
   using PathToModules = std::unordered_map<std::string, std::vector<std::string>>;
   
 private:
-  bool testCase( ModuleDependsOnMap const& iModDeps, PathToModules const& iPaths) {
+  bool testCase( ModuleDependsOnMap const& iModDeps, PathToModules const& iPaths) const {
     using namespace edm::graph;
     
     EdgeToPathMap edgeToPathMap;
     
-    std::map<std::string, unsigned int> modsToIndex;
+    std::unordered_map<std::string, unsigned int> modsToIndex;
+    std::unordered_map<unsigned int, std::string> indexToMods;
     
     //Setup the module to index map by using all module names used in both containers
     for(auto const& md : iModDeps) {
@@ -51,6 +55,7 @@ private:
       if(found == modsToIndex.end()) {
         fromIndex = modsToIndex.size();
         modsToIndex.emplace( md.first, fromIndex);
+        indexToMods.emplace(fromIndex, md.first);
       } else {
         fromIndex = found->second;
       }
@@ -60,6 +65,7 @@ private:
         if(found == modsToIndex.end()) {
           toIndex =modsToIndex.size();
           modsToIndex.emplace( dependsOn, toIndex);
+          indexToMods.emplace(toIndex, dependsOn);
         } else {
           toIndex = found->second;
         }
@@ -67,12 +73,15 @@ private:
       }
     }
     
+    std::vector<std::vector<unsigned int>> pathIndexToModuleIndexOrder(iPaths.size());
+
     std::vector<std::string> pathNames;
     std::unordered_map<std::string, unsigned int> pathToIndexMap;
     for(auto const& path: iPaths) {
       unsigned int lastModuleIndex = kInvalidIndex;
       pathNames.push_back(path.first);
       unsigned int pathIndex = pathToIndexMap.size();
+      auto& pathOrder = pathIndexToModuleIndexOrder[pathIndex];
       pathToIndexMap.emplace(path.first, pathIndex);
       for( auto const& mod: path.second) {
         auto found = modsToIndex.find(mod);
@@ -80,9 +89,12 @@ private:
         if(found == modsToIndex.end()) {
           index =modsToIndex.size();
           modsToIndex.emplace( mod, index);
+          indexToMods.emplace(index,mod);
         } else {
           index = found->second;
         }
+        pathOrder.push_back(index);
+
         if(lastModuleIndex != kInvalidIndex) {
           edgeToPathMap[std::make_pair(index, lastModuleIndex)].push_back(pathIndex);
         }
@@ -90,7 +102,7 @@ private:
       }
     }
 
-    throwIfImproperDependencies(edgeToPathMap, pathNames, modsToIndex);
+    throwIfImproperDependencies(edgeToPathMap, pathIndexToModuleIndexOrder, pathNames, indexToMods);
     
     return true;
     
@@ -413,7 +425,34 @@ void test_throwIfImproperDependencies::twoPathsNoCycleTest()
   
   CPPUNIT_ASSERT( testCase(md,paths));
   }
-  
+
+  {
+    //Simplified schedule which was failing
+    ModuleDependsOnMap md = {
+      {"B", {"X"}},
+      {"Y", {"Z"}},
+      {"Z", {"A"}} };
+    PathToModules paths = {
+      {"p1", {"X", "B","A"}},
+      {"p2", {"A","Z","?","Y","X"}} };
+    
+    CPPUNIT_ASSERT( testCase(md,paths));
+  }
+  {
+    //Simplified schedule which was failing
+    ModuleDependsOnMap md = {
+      {"B", {"X"}},
+      {"Y", {"Z"}},
+      {"Z", {"A"}},
+      {"?", {}},
+      {"A", {}},
+      {"X",{}}
+    };
+    PathToModules paths = {
+      {"p1", {"X", "B","A"}},
+      {"p2", {"A","Z","?","Y","X"}} };
+    CPPUNIT_ASSERT( testCase(md,paths));
+  }
 }
 
 void test_throwIfImproperDependencies::twoPathsWithCycleTest()
@@ -467,6 +506,23 @@ void test_throwIfImproperDependencies::twoPathsWithCycleTest()
     PathToModules paths = { {"p1", {"A", "B" } },
                             {"p2", {"C","D"}} };
     
+    CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
+  }
+
+  {
+    //Simplified schedule which was failing
+    ModuleDependsOnMap md = {
+      {"B", {"X"}},
+      {"Y", {"Z"}},
+      {"Z", {"A"}},
+      {"?", {}},
+      {"A", {}},
+      {"X",{}}
+    };
+    //NOTE: p1 is inconsistent but with p2 it would be runnable.
+    PathToModules paths = {
+      {"p1", {"B","A", "X"}},
+      {"p2", {"A","Z","?","Y","X"}} };
     CPPUNIT_ASSERT_THROW( testCase(md,paths), cms::Exception);
   }
 

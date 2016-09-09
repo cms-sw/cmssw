@@ -73,11 +73,13 @@ namespace {
   struct cycle_detector : public boost::dfs_visitor<> {
     
     cycle_detector(EdgeToPathMap const& iEdgeToPathMap,
+                   std::vector<std::vector<unsigned int>> const& iPathIndexToModuleIndexOrder,
                    std::vector<std::string> const& iPathNames,
-                   std::map<std::string,unsigned int> const& iModuleNamesToIndex):
+                   std::unordered_map<unsigned int,std::string> const& iModuleIndexToNames):
     m_edgeToPathMap(iEdgeToPathMap),
+    m_pathIndexToModuleIndexOrder(iPathIndexToModuleIndexOrder),
     m_pathNames(iPathNames),
-    m_namesToIndex(iModuleNamesToIndex){}
+    m_indexToNames(iModuleIndexToNames){}
     
     void tree_edge(Edge iEdge, Graph const&) {
       m_stack.push_back(iEdge);
@@ -93,8 +95,6 @@ namespace {
     
     //Called if a cycle happens
     void back_edge(Edge iEdge, Graph const& iGraph) {
-      //NOTE: If the path containing the cycle contains two or more
-      // path only edges then there is no problem
       
       typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
       IndexMap const& index = get(boost::vertex_index, iGraph);
@@ -156,15 +156,22 @@ namespace {
       }
 
       
-      std::unordered_set<unsigned int> nUniquePathDependencies;
-      std::unordered_set<unsigned int> lastPathsSeen;
       //For a real problem, we need at least one data dependency and
       // one path
       bool hasDataDependency =false;
       bool hasPathDependency = false;
       std::unordered_map<unsigned int, unsigned int> pathToCountOfNonDataDependencies;
       unsigned int nNonDataDependencies = 0;
-      unsigned int nPathSwitches = 0;
+      //Since we are dealing with a circle, we initialize the 'last' info with the end of the graph
+      unsigned int lastIn =index[source(tempStack.back(),iGraph)];
+      unsigned int lastOut = index[target(tempStack.back(),iGraph)];
+
+      std::unordered_set<unsigned int> lastPathsSeen;
+      for(auto dependency: m_edgeToPathMap.find(SimpleEdge(lastIn,lastOut))->second) {
+        if(dependency !=std::numeric_limits<unsigned int>::max()) {
+          lastPathsSeen.insert(dependency);
+        }
+      }
       for(auto const& edge: tempStack) {
         unsigned int in =index[source(edge,iGraph)];
         unsigned int out =index[target(edge,iGraph)];
@@ -180,15 +187,47 @@ namespace {
           } else {
             hasPathDependency = true;
             pathsOnEdge.insert(dependency);
-            nUniquePathDependencies.insert(dependency);
           }
         }
-        if((pathsOnEdge != lastPathsSeen) and (not pathsOnEdge.empty())) {
-          //If this edge has at least one associated path and the list
-          // of paths since the last time has changed it means we
-          // switched to a different path
-          ++nPathSwitches;
+        if((pathsOnEdge != lastPathsSeen) ) {
+          if(not edgeHasDataDependency and not lastPathsSeen.empty()) {
+            //If we jumped from one path to another without a data dependency
+            // than the cycle is just becuase two independent modules were
+            // scheduled in different arbirary order on different paths
+            return;
+          }
+          if(edgeHasDataDependency and not lastPathsSeen.empty()) {
+          //If the paths we were on had this module we are going to earlier
+          // on their paths than we do not have a real cycle
+            bool atLeastOnePathFailed = false;
+            for(auto seenPath: lastPathsSeen) {
+              if(pathsOnEdge.end() == pathsOnEdge.find(seenPath)) {
+                //we left this path so we now need to see if the module 'out'
+                // is on this path ahead of the module 'in'
+                bool foundOut = false;
+                for(auto index: m_pathIndexToModuleIndexOrder[seenPath]) {
+                  if(index == out) {
+                    foundOut = true;
+                  }
+                  if(index == lastOut) {
+                    if(not foundOut) {
+                      atLeastOnePathFailed = true;
+                    }
+                    break;
+                  }
+                }
+                if(atLeastOnePathFailed) {
+                  break;
+                }
+              }
+            }
+            //If all the paths have the module earlier in their paths
+            // then there was no need to jump between paths to get it
+            // and this breaks the data cycle
+            if(not atLeastOnePathFailed) return;
+          }
           lastPathsSeen = pathsOnEdge;
+          lastOut = out;
         }
         if(not edgeHasDataDependency) {
           ++nNonDataDependencies;
@@ -200,15 +239,13 @@ namespace {
       if(not (hasPathDependency and hasDataDependency)) {
         return;
       }
+      throwOnError(tempStack,index,iGraph);
       for(auto const& pathToCount : pathToCountOfNonDataDependencies) {
         //If all the non data dependencies are seen on on path
         // then at least two modules are in the wrong order
         if (pathToCount.second == nNonDataDependencies) {
           throwOnError(tempStack,index,iGraph);
         }
-      }
-      if(nPathSwitches == nUniquePathDependencies.size()) {
-        throwOnError(tempStack,index,iGraph);
       }
     }
   private:
@@ -217,12 +254,9 @@ namespace {
     }
     
     std::string const& moduleName(unsigned int iIndex) const {
-      for(auto const& item : m_namesToIndex) {
-        if(item.second == iIndex) {
-          return item.first;
-        }
-      }
-      assert(false);
+      auto itFound =m_indexToNames.find(iIndex);
+      assert(itFound != m_indexToNames.end());
+      return itFound->second;
     }
     
     void
@@ -265,8 +299,10 @@ namespace {
     }
     
     EdgeToPathMap const& m_edgeToPathMap;
+    std::vector<std::vector<unsigned int>> const& m_pathIndexToModuleIndexOrder;
     std::vector<std::string> const& m_pathNames;
-    std::map<std::string,unsigned int> m_namesToIndex;
+    std::unordered_map<unsigned int,std::string> m_indexToNames;
+    std::unordered_map<unsigned int, std::vector<unsigned int>> m_pathToModuleIndex;
     
     std::list<Edge> m_stack;
   };
@@ -275,8 +311,9 @@ namespace {
 
 void
 edm::graph::throwIfImproperDependencies(EdgeToPathMap const& iEdgeToPathMap,
+                                        std::vector<std::vector<unsigned int>> const& iPathIndexToModuleIndexOrder,
                                         std::vector<std::string> const& iPathNames,
-                                        std::map<std::string,unsigned int> const& iModuleNamesToIndex) {
+                                        std::unordered_map<unsigned int, std::string> const& iModuleIndexToNames) {
 
   //Now use boost graph library to find cycles in the dependencies
   std::vector<SimpleEdge> outList;
@@ -285,8 +322,8 @@ edm::graph::throwIfImproperDependencies(EdgeToPathMap const& iEdgeToPathMap,
     outList.push_back(edgeInfo.first);
   }
 
-  Graph g(outList.begin(),outList.end(), iModuleNamesToIndex.size());
+  Graph g(outList.begin(),outList.end(), iModuleIndexToNames.size());
 
-  cycle_detector detector(iEdgeToPathMap,iPathNames,iModuleNamesToIndex);
+  cycle_detector detector(iEdgeToPathMap,iPathIndexToModuleIndexOrder,iPathNames,iModuleIndexToNames);
   boost::depth_first_search(g,boost::visitor(detector));
 }

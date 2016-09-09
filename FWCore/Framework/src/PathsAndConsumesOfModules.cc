@@ -139,25 +139,27 @@ namespace edm {
 
   void checkForModuleDependencyCorrectness(edm::PathsAndConsumesOfModulesBase const& iPnC,
                                            bool iPrintDependencies) {
-    //Need to lookup names to ids quickly
-    std::map<std::string,unsigned int> moduleNamesToIndex;
-    for(auto const& description: iPnC.allModules()) {
-      moduleNamesToIndex.insert(std::make_pair(description->moduleLabel(),
-                                               description->id()));
-    }
-    
     using namespace edm::graph;
-    
-    //If a module to module dependency comes from a path, remember which path
-    EdgeToPathMap edgeToPathMap;
+    //Need to lookup ids to names quickly
+    std::unordered_map<unsigned int, std::string> moduleIndexToNames;
     
     //for testing, state that TriggerResults is at the end of all paths
     const std::string kTriggerResults("TriggerResults");
-    
-    auto trItr = moduleNamesToIndex.find(kTriggerResults);
-    const unsigned int kTriggerResultsIndex = trItr != moduleNamesToIndex.end()? trItr->second : kInvalidIndex;
+    unsigned int kTriggerResultsIndex = kInvalidIndex;
+    for(auto const& description: iPnC.allModules()) {
+      moduleIndexToNames.insert(std::make_pair(description->id(),
+                                               description->moduleLabel()));
+      if(kTriggerResults == description->moduleLabel()) {
+        kTriggerResultsIndex = description->id();
+      }
+    }
+
+    //If a module to module dependency comes from a path, remember which path
+    EdgeToPathMap edgeToPathMap;
+        
     //determine the path dependencies
     std::vector<std::string> pathNames = iPnC.paths();
+    std::vector<std::vector<unsigned int>> pathIndexToModuleIndexOrder(pathNames.size());
     {
       
       for(unsigned int pathIndex = 0; pathIndex != pathNames.size(); ++pathIndex) {
@@ -165,11 +167,14 @@ namespace edm {
         
         auto const& moduleDescriptions = iPnC.modulesOnPath(pathIndex);
         unsigned int lastModuleIndex = kInvalidIndex;
+        auto& pathOrder =pathIndexToModuleIndexOrder[pathIndex];
+        pathOrder.reserve(moduleDescriptions.size());
         for(auto const& description: moduleDescriptions) {
           auto found = alreadySeenIndex.insert(description->id());
           if(found.second) {
             //first time for this path
             unsigned int const moduleIndex = description->id();
+            pathOrder.push_back(moduleIndex);
             if(lastModuleIndex  != kInvalidIndex ) {
               edgeToPathMap[std::make_pair(moduleIndex,lastModuleIndex)].push_back(pathIndex);
             }
@@ -196,6 +201,6 @@ namespace edm {
         }
       }
     }
-    graph::throwIfImproperDependencies(edgeToPathMap,pathNames,moduleNamesToIndex);
+    graph::throwIfImproperDependencies(edgeToPathMap,pathIndexToModuleIndexOrder,pathNames,moduleIndexToNames);
   }
 }

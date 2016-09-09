@@ -20,6 +20,7 @@
 
 // system include files
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 #include <limits>
@@ -39,8 +40,9 @@ namespace edm {
     using EdgeToPathMap = std::map<SimpleEdge, std::vector<unsigned int>>;
   
     void throwIfImproperDependencies(EdgeToPathMap const&,
+                                     std::vector<std::vector<unsigned int>> const& iPathIndexToModuleIndexOrder,
                                      std::vector<std::string> const& iPathNames,
-                                     std::map<std::string,unsigned int> const& iModuleNamesToIndex);
+                                     std::unordered_map<unsigned int,std::string> const& iModuleIndexToNames);
   }
 };
 
