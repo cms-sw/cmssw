@@ -13,7 +13,7 @@ class PrimaryVertexValidation(GenericValidationData):
                  resultBaseName  = "PrimaryVertexValidation", 
                  outputBaseName  = "PrimaryVertexValidation"):
         defaults = {
-            "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PVValidation_reference.root"),
+            "pvvalidationreference": ("/store/caf/user/musich/Alignment/TkAlPrimaryVertexValidation/Reference/PrimaryVertexValidation_test_pvvalidation_mc_design_mc_48bins.root"),
             }
         
         mandatories = ["isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","runControl","numberOfBins"]
