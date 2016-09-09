@@ -61,6 +61,7 @@ lowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtTripletStepSe
 eras.trackingPhase1.toModify(lowPtTripletStepSeeds, # FIXME: Phase1PU70 value, let's see if we can lower it to Run2 value (0.2)
     RegionFactoryPSet = dict(RegionPSet = dict(ptMin = 0.35)),
 )
+
 eras.trackingPhase1PU70.toModify(lowPtTripletStepSeeds,
     RegionFactoryPSet = dict(
         RegionPSet = dict(
@@ -80,6 +81,9 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 
+eras.trackingPhase1.toModify(lowPtTripletStepSeeds,
+    OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(SeedComparitorPSet = dict(ComponentName = cms.string('none'))))
+)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff

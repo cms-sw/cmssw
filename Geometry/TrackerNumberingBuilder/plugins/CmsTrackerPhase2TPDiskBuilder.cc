@@ -1,4 +1,4 @@
-#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPhase1DiskBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPhase2TPDiskBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
@@ -13,13 +13,13 @@ using namespace std;
 
 
 bool
-CmsTrackerPhase1DiskBuilder::PhiSort( const GeometricDet* Panel1, const GeometricDet* Panel2 )
+CmsTrackerPhase2TPDiskBuilder::PhiSort( const GeometricDet* Panel1, const GeometricDet* Panel2 )
 {
   return( Panel1->phi() < Panel2->phi());
 }
 
 void
-CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
+CmsTrackerPhase2TPDiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
 							std::vector< GeometricDet const *>::iterator end )
 {
   // first sort in phi, lowest first (-pi to +pi)
@@ -66,13 +66,12 @@ CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDe
   //  std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
   // now shift outer by one
 
-  std::rotate(theCompsInnerOuter.begin()+num_inner,theCompsInnerOuter.end()-1,theCompsInnerOuter.end());
-  std::rotate(theCompsInnerOuter.begin(),theCompsInnerOuter.begin()+num_inner-1,theCompsInnerOuter.begin()+num_inner);
+  std::rotate(theCompsInnerOuter.begin()+num_inner,theCompsInnerOuter.begin()+num_inner+1,theCompsInnerOuter.end());
   std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
 }
 
 void
-CmsTrackerPhase1DiskBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
+CmsTrackerPhase2TPDiskBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
 {
   CmsTrackerPanelBuilder theCmsTrackerPanelBuilder;
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
@@ -83,13 +82,13 @@ CmsTrackerPhase1DiskBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g
     theCmsTrackerPanelBuilder.build( fv, subdet, s );
     break;
   default:
-    edm::LogError( "CmsTrackerPhase1DiskBuilder" ) << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD::getString( s, &fv );   
+    edm::LogError( "CmsTrackerPhase2TPDiskBuilder" ) << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD::getString( s, &fv );   
   }  
   g->addComponent( subdet );
 }
 
 void
-CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
+CmsTrackerPhase2TPDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {
 
 
@@ -101,7 +100,7 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
     PhiPosNegSplit_innerOuter( comp.begin(), comp.end());
     break;
   default:
-    edm::LogError( "CmsTrackerPhase1DiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
+    edm::LogError( "CmsTrackerPhase2TPDiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
   }
 
   GeometricDet::GeometricDetContainer zminpanels;  // Here z refers abs(z);
@@ -127,14 +126,14 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
     }
     else
     {
-      edm::LogWarning( "CmsTrackerPhase1DiskBuilder" ) << "WARNING - The Z of  both panels are equal! ";
+      edm::LogWarning( "CmsTrackerPhase2TPDiskBuilder" ) << "WARNING - The Z of  both panels are equal! ";
     }
   }
 
   for( uint32_t fn = 0; fn < zminpanels.size(); fn++ )
   {
     uint32_t blade = fn + 1;
-    uint32_t panel = 2; // though being zmin, it is actually the one facing away the ip
+    uint32_t panel = 1;
     uint32_t temp = ( blade << 2 ) | panel;
     zminpanels[fn]->setGeographicalID( temp );
   }
@@ -142,7 +141,7 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   for( uint32_t bn = 0; bn < zmaxpanels.size(); bn++)
   {
     uint32_t blade = bn + 1;
-    uint32_t panel = 1; // though being zmax, it is the one facing the ip
+    uint32_t panel = 2;
     uint32_t temp = ( blade << 2) | panel;
     zmaxpanels[bn]->setGeographicalID( temp );
   }

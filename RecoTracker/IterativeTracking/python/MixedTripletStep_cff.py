@@ -105,6 +105,12 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('mixedTripletStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
     )
+
+eras.trackingPhase1.toModify(mixedTripletStepSeedsA,
+  SeedComparitorPSet = dict(ComponentName = 'none',
+                            FilterPixelHits = False),
+)
+
 eras.trackingLowPU.toModify(mixedTripletStepSeedsA,
     RegionFactoryPSet = dict(RegionPSet = dict(originHalfLength = 10.0)),
     SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter')
@@ -134,6 +140,7 @@ eras.trackingLowPU.toModify(mixedTripletStepSeedLayersB,
     TIB = dict(clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny')),
 )
 eras.trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+TIB1'])
+
 eras.trackingPhase1PU70.toModify(mixedTripletStepSeedLayersB,
     layerList = [
         'BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4','BPix1+BPix2+BPix4', 'BPix1+BPix3+BPix4'
@@ -173,6 +180,11 @@ eras.trackingPhase1PU70.toModify(
         )
     ),
     SeedComparitorPSet = dict(ClusterShapeHitFilterName = 'ClusterShapeHitFilter'),
+)
+
+eras.trackingPhase1.toModify(mixedTripletStepSeedsB,
+  SeedComparitorPSet = dict(ComponentName = 'none',
+                            FilterPixelHits = False),
 )
 
 

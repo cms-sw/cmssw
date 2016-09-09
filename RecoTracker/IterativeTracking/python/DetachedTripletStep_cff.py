@@ -57,6 +57,10 @@ detachedTripletStepSeeds.SeedComparitorPSet = cms.PSet(
         ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache')
     )
 
+eras.trackingPhase1.toModify(detachedTripletStepSeeds,
+  SeedComparitorPSet = dict(ComponentName = 'none',
+                            FilterPixelHits = False),
+)
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 _detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(

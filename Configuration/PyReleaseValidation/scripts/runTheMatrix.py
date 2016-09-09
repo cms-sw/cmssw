@@ -61,6 +61,7 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10424.0, #2023D1 ttbar (Run2 calo)
                      11224.0, #2023D3 ttbar (HGCal)
+		     11624.0, #2017 NewPix ttbar
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC

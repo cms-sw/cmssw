@@ -58,6 +58,9 @@ eras.trackingPhase2PU140.toModify(initialStepSeeds,
    SeedMergerPSet = _SeedMergerPSet
 ) 
 
+eras.trackingPhase1.toModify(initialStepSeeds,
+  OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(SeedComparitorPSet = dict(ComponentName = cms.string('none'))))
+)
 
 eras.trackingLowPU.toModify(initialStepSeeds, OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 100000)))
 
