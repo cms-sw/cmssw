@@ -1,5 +1,10 @@
 /*
- *
+
+ ######################## 
+ #  Hydjet1		#
+ #  version: 1.9 patch1 #
+ ########################
+
  * Interface to the HYDJET generator, produces HepMC events
  *
  * Original Author: Camelia Mironov
@@ -56,6 +61,7 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     evt(0), 
     pset_(pset),
     abeamtarget_(pset.getParameter<double>("aBeamTarget")),
+    angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
     bfixed_(pset.getParameter<double>("bFixed")),
     bmax_(pset.getParameter<double>("bMax")),
     bmin_(pset.getParameter<double>("bMin")),
@@ -140,6 +146,7 @@ void HydjetHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
     phi0_,                                // event_plane_angle
     0,                                   // eccentricity
     hyjpar.sigin                         // sigma_inel_NN
+    //hypsi3.psi3, //Psi for v3, waiting for corresponding HepMC entry 
   );
 
   evt->set_heavy_ion(*hi);
@@ -389,6 +396,9 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
 
   // set inelastic nucleon-nucleon cross section
   hyjpar.sigin  = signn_;
+
+  // angular emitted gluon spectrum selection
+  pyqpar.ianglu = angularspecselector_;
 
   // number of active quark flavors in qgp
   pyqpar.nfu    = nquarkflavor_;
