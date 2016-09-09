@@ -3,11 +3,13 @@
 import os
 import re
 import sys
+import glob
 import json
 import math
 import bisect
 import random
 import signal
+import cPickle
 import difflib
 import argparse
 import subprocess
@@ -59,7 +61,7 @@ class FileListCreator(object):
         self._formatted_dataset = merge_strings(
             [re.sub(self._dataset_regex, r"\1_\2_\3", dataset)
              for dataset in self._datasets])
-        self._formatted_dataset = self._formatted_dataset.replace("*", "%")
+        self._cache = _DasCache(self._formatted_dataset)
         self._prepare_iov_datastructures()
         self._prepare_run_datastructures()
 
@@ -67,9 +69,17 @@ class FileListCreator(object):
             os.makedirs(self._formatted_dataset)
         except OSError as e:
             if e.args == (17, "File exists"):
-                print_msg("Directory '{0:s}' already exists. Please remove it."
-                          .format(self._formatted_dataset))
-                sys.exit(1)
+                if self._args.use_cache:
+                    self._cache.load()
+                    files = glob.glob(os.path.join(self._formatted_dataset, "*"))
+                    for f in files: os.remove(f)
+                else:
+                    print_msg("Directory '{}' already exists from previous runs"
+                              " of the script. Use '--use-cache' if you want to"
+                              " use the cached DAS-query results. Otherwise, "
+                              "remove it, please."
+                              .format(self._formatted_dataset))
+                    sys.exit(1)
             else:
                 raise
 
@@ -140,6 +150,9 @@ class FileListCreator(object):
                                     "applies to IOVs; in case of --run-by-run "
                                     "it applies to runs runs "
                                     "(default: %(default)s)"))
+        parser.add_argument("--use-cache", dest = "use_cache",
+                            action = "store_true", default = False,
+                            help = "use DAS-query results of previous run")
         return parser
 
 
@@ -255,6 +268,13 @@ class FileListCreator(object):
     def _request_dataset_information(self):
         """Retrieve general dataset information and create file list."""
 
+        if not self._cache.empty:
+            print_msg("Using cached information.")
+            (self._events_in_dataset,
+             self._files,
+             self._file_info) = self._cache.get()
+            return
+
         self._events_in_dataset = 0
         self._files = []
         for dataset in self._datasets:
@@ -278,6 +298,10 @@ class FileListCreator(object):
             initializer = lambda: signal.signal(signal.SIGINT, signal.SIG_IGN))
         count = pool.map_async(get_events_per_file, self._files).get(sys.maxint)
         self._file_info = dict(zip(self._files, count))
+
+        # write information to cache
+        self._cache.set(self._events_in_dataset, self._files, self._file_info)
+        self._cache.dump()
 
 
     def _create_file_lists(self):
@@ -487,6 +511,97 @@ source = cms.Source("PoolSource",
 {files:s}{lumi_extend:s}
 maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 """
+
+
+class _DasCache(object):
+    """Helper class to cache information from DAS requests."""
+
+    def __init__(self, file_list_id):
+        """Constructor of the cache.
+
+        Arguments:
+        - `file_list_id`: ID of the cached file lists
+        """
+
+        self._file_list_id = file_list_id
+        self._cache_file_name = os.path.join(file_list_id, ".das_cache.pkl")
+        self.reset()
+
+
+    def reset(self):
+        """Reset the cache contents and the 'empty' flag."""
+
+        self._empty = True
+        self._events_in_dataset = 0
+        self._files = []
+        self._file_info = []
+
+
+    def set(self, total_events, file_list, file_info):
+        """Set the content of the cache.
+
+        Arguments:
+        - `total_events`: total number of events in dataset
+        - `file_list`: list of files in dataset
+        - `file_info`: dictionary with numbers of events per file
+        """
+
+        self._events_in_dataset = total_events
+        self._files = file_list
+        self._file_info = file_info
+        self._empty = False
+
+
+    def get(self):
+        """
+        Get the content of the cache as tuple:
+           result = (total number of events in dataset,
+                     list of files in dataset,
+                     dictionary with numbers of events per file)
+        """
+
+        return self._events_in_dataset, self._files, self._file_info
+
+
+    def load(self):
+        """Loads the cached contents."""
+
+        if not self.empty:
+            print_msg("Overriding file information with cached information.")
+        try:
+            with open(self._cache_file_name, "rb") as f:
+                tmp_dict = cPickle.load(f)
+                self.__dict__.update(tmp_dict)
+        except IOError as e:
+            if e.args == (2, "No such file or directory"):
+                msg = "Failed to load cache for '{}'.".format(self._file_list_id)
+                if not self.empty:
+                    msg += " Keeping the previous file information."
+                print_msg(msg)
+            else:
+                raise
+
+
+    def dump(self):
+        """Dumps the contents to the cache file."""
+
+        if self.empty:
+            print_msg("Cache is empty. Not writing to file.")
+            return
+
+        with open(self._cache_file_name, "wb") as f:
+            cPickle.dump(self.__dict__, f, 2)
+
+
+    @property
+    def empty(self):
+        """
+        Flag indicating whether the cache is empty or has been filled (possibly
+        with nothing).
+        """
+
+        return self._empty
+
 
 
 ################################################################################
