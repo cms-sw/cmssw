@@ -277,7 +277,6 @@ for PdfOutputFile in $(ls *pdf ); do
     rfcp ${PdfOutputFile}  .oO[plotsdir]Oo.                                                                                                                                    
 done 
 
-mkdir .oO[plotsdir]Oo.
 mkdir .oO[plotsdir]Oo./Biases/
 mkdir .oO[plotsdir]Oo./Biases/dzPhi
 mkdir .oO[plotsdir]Oo./Biases/dxyPhi
@@ -308,7 +307,7 @@ mv .oO[plotsdir]Oo./dzEtaTrend*       .oO[plotsdir]Oo./dzVsEta
 mv .oO[plotsdir]Oo./dxyPhiTrend*      .oO[plotsdir]Oo./dxyVsPhi
 mv .oO[plotsdir]Oo./dzPhiTrend*       .oO[plotsdir]Oo./dzVsPhi
 
-wget https://raw.githubusercontent.com/mmusich/PVToolScripts/master/PolishedScripts/index.php .
+wget https://raw.githubusercontent.com/mmusich/PVToolScripts/master/PolishedScripts/index.php 
 
 cp index.php .oO[plotsdir]Oo./Biases/
 cp index.php .oO[plotsdir]Oo./Biases/dzPhi
