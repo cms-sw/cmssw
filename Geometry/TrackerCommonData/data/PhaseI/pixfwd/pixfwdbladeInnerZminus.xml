@@ -14,23 +14,36 @@
  <Constant name="ROChipT"            value="0.200*mm"/>    <!-- Readout chip thickness; was 0.150*mm -->
  <Constant name="ROChipSpaceL"       value="0.084*mm"/>   <!-- Distance (along width) between adjacent chips -->
  <Constant name="ROChipSpaceW"       value="0.095*mm"/>   <!-- Distance (along length) between  adjacent chips -->
- <Constant name="ModuleL"            value="[GlueL]"/> <!-- the glue is now the largest component; was [SensitiveL]+2*[SideWidth] -->
- <Constant name="ModuleLCut"         value="1.600*mm"/> <!-- shorten the module length to avoid overlaps, so practically reduce largest component (currently Glue) by this amount -->
- <Constant name="ModuleW"            value="[GlueW]"/> <!-- the glue is now the largest component; was 2*[ROChipW]+[ROChipSpaceW] -->
- <Constant name="ModuleT"            value="[GlueT]*2.+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]"/> <!-- was: 0.730*mm --> 
+ <Constant name="ModuleL"            value="[AdhesiveFilmL]"/> <!-- the glue is now the largest component; was [SensitiveL]+2*[SideWidth] -->
+ <Constant name="ModuleLCut"         value="1.600*mm"/> <!-- shorten the module length to avoid overlaps, so practically reduce largest component (currently AdhesiveFilm) by this amount -->
+ <Constant name="ModuleW"            value="[AdhesiveFilmW]"/> <!-- the glue is now the largest component; was 2*[ROChipW]+[ROChipSpaceW] -->
+ <Constant name="ModuleT"            value="[AdhesiveFilmT]+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]+[EndHolder2T]+[FlexCableT]"/> <!-- was: 0.730*mm --> 
  <Constant name="ModuleX"            value="[ModulePosX]"/>
  <Constant name="ModuleY"            value="0.0*mm"/>
- <Constant name="GlueL"              value="68.802*mm-[ModuleLCut]"/> <!-- length of thermal paste, slightly enlarged; was [SensitiveL]+2*[SideWidth]-->
- <Constant name="GlueW"              value="22.958*mm"/> <!-- width of thermal paste, slightly enlarged now; was 2*[ROChipW]+[ROChipSpaceW] -->
- <Constant name="GlueT"              value="0.075*mm"/> <!-- thickness of thermal paste; was 0.050*mm -->
+ <Constant name="AdhesiveFilmL"      value="68.802*mm-[ModuleLCut]"/> <!-- length of thermal paste, slightly enlarged; was [SensitiveL]+2*[SideWidth]-->
+ <Constant name="AdhesiveFilmW"      value="22.958*mm"/> <!-- width of thermal paste, slightly enlarged now; was 2*[ROChipW]+[ROChipSpaceW] -->
+ <Constant name="AdhesiveFilmT"      value="0.075*mm"/> <!-- thickness of thermal paste; was 0.050*mm -->
+ <Constant name="GlueT"              value="0.100*mm"/> <!-- thickness of HDI gule -->
  <Constant name="BumpBondT"          value="0.030*mm"/> <!-- diameter of bump bonds -->
  <Constant name="HDIW"               value="18.744*mm"/> <!-- NEW -->
  <Constant name="HDIL"               value="66.144*mm"/> <!-- NEW -->
  <Constant name="HDIT"               value="0.370*mm"/> <!-- thickness of HDI, increased to include SMT components, the encapsulant and the wire bonds, the TBM; was 0.200*mm -->
- <Constant name="BladeBaseT"         value="0.800*mm"/> <!-- blade thickness; was 0.8*mm -->
+ <Constant name="SMKConnW"           value="14.910*mm"/> <!-- NEW -->
+ <Constant name="SMKConnL"           value="5.260*mm"/> <!-- NEW -->
+ <Constant name="SMKConnT"           value="2.340*mm"/> <!-- NEW -->
+ <Constant name="SMKConnY"           value="[HDIL]/2.-16.95*mm"/> <!-- NEW -->
+ <Constant name="EndHolderW"         value="12.550*mm"/> <!-- NEW -->
+ <Constant name="EndHolderL"         value="5.500*mm"/> <!-- NEW -->
+ <Constant name="EndHolder1T"        value="1.043*mm"/> <!-- NEW -->
+ <Constant name="EndHolder2T"        value="2.250*mm"/> <!-- NEW -->
+ <Constant name="EndHolderY"         value="27.322*mm"/> <!-- NEW -->
+ <Constant name="FlexCableW"         value="9.000*mm"/> <!-- NEW -->
+ <Constant name="FlexCableL"         value="[ModuleL]/2.-([SMKConnY]+[SMKConnL]/2.)"/> <!-- so (68.802-1.600)/2.-((66.144/2.-16.95)+5.260/2.)=14.849 mm for now -->
+ <Constant name="FlexCableT"         value="0.165*mm"/> <!-- NEW -->
+ <Constant name="BladeBaseT"         value="[TPGBladeBaseT]+[CarbonFiberSkinT]*2."/> <!-- blade thickness; was 0.8*mm -->
  <Constant name="TPGBladeBaseT"      value="0.68*mm"/>
  <Constant name="CarbonFiberSkinT"   value="0.06*mm"/>
- <Constant name="BumpROChipZ"        value="-[ModuleT]/2+[GlueT]+[ROChipT]/2+[BumpBondT]/2"/>
+ <Constant name="BumpROChipZ"        value="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]/2+[BumpBondT]/2"/>
  <Constant name="WedgeBot"           value="[ModuleW]*cos([WedgeAngle])-[ModuleL]*sin([WedgeAngle])+[ModulePosX]*2.+[DetectorShiftX]*2"/>
  <Constant name="WedgeH"             value="[ModuleW]*sin([WedgeAngle])+[ModuleL]*cos([WedgeAngle])"/>
  <Constant name="WedgeTop"           value="[WedgeBot]+2.*([WedgeH]*tan([WedgeAngle]))"/>
@@ -65,11 +78,20 @@
                                         dz="[ROChipT]/2" />
   <Box name="PixelForwardBumpBond"      dx="[ROChipW]/2" dy="[ROChipL]/2"
                                         dz="[BumpBondT]/2" />
-  <Box name="PixelForwardAdhesiveFilm"  dx="[GlueW]/2" dy="[GlueL]/2"
+  <Box name="PixelForwardAdhesiveFilm"  dx="[AdhesiveFilmW]/2" dy="[AdhesiveFilmL]/2"
+                                        dz="[AdhesiveFilmT]/2" />
+  <Box name="PixelForwardGlue"          dx="[HDIW]/2" dy="[HDIL]/2"
                                         dz="[GlueT]/2" />
   <Box name="PixelForwardHDI"           dx="[HDIW]/2" dy="[HDIL]/2"
                                         dz="[HDIT]/2" />
-
+  <Box name="PixelForwardSMKConn"       dx="[SMKConnW]/2" dy="[SMKConnL]/2"
+                                        dz="[SMKConnT]/2" />
+  <Box name="PixelForwardEndHolder1"    dx="[EndHolderW]/2" dy="[EndHolderL]/2"
+                                        dz="[EndHolder1T]/2" />
+  <Box name="PixelForwardEndHolder2"    dx="[EndHolderW]/2" dy="[EndHolderL]/2"
+                                        dz="[EndHolder2T]/2" />
+  <Box name="PixelForwardFlexCable"     dx="[FlexCableW]/2" dy="[FlexCableL]/2"
+                                        dz="[FlexCableT]/2" />
 </SolidSection>
 
 <LogicalPartSection label="pixfwdbladeInnerZminus.xml">
@@ -104,7 +126,11 @@
  </LogicalPart>
  <LogicalPart name="PixelForwardAdhesiveFilm" category="unspecified">
   <rSolid name="PixelForwardAdhesiveFilm"/>
-  <rMaterial name="materials:FPix_Thermflow"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_InnerBlade_AdhFilm"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardGlue" category="unspecified">
+  <rSolid name="PixelForwardGlue"/>
+  <rMaterial name="pixfwdMaterials:FPix_Epoxy"/>
  </LogicalPart>
  <LogicalPart name="PixelForwardHDI" category="support">
   <rSolid name="PixelForwardHDI"/>
@@ -121,6 +147,22 @@
  <LogicalPart name="PixelForwardBumpBond" category="unspecified">
   <rSolid name="PixelForwardBumpBond"/>
   <rMaterial name="pixfwdMaterials:Pix_Fwd_Bump"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardSMKConn" category="unspecified">
+  <rSolid name="PixelForwardSMKConn"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_Conn"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardEndHolder1" category="unspecified">
+  <rSolid name="PixelForwardEndHolder1"/>
+  <rMaterial name="materials:Peek"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardEndHolder2" category="unspecified">
+  <rSolid name="PixelForwardEndHolder2"/>
+  <rMaterial name="materials:Peek"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardFlexCable" category="unspecified">
+  <rSolid name="PixelForwardFlexCable"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFelxCable"/>
  </LogicalPart>
 </LogicalPartSection>
 
@@ -169,12 +211,12 @@
   <rRotation name="pixfwdbladeInnerZminus:RAwayIP"/>
  </PosPart>
 
-<!-- Composition of module in this order: adhesive paste (here glue), ROCs, bump-bonds, wafer, glue, HDI -->
+<!-- Composition of module in this order: adhesive paste, ROCs, bump-bonds, wafer, glue, HDI -->
 
  <PosPart copyNumber="1">
   <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
   <rChild name="pixfwdbladeInnerZminus:PixelForwardWafer"/>
-  <Translation x="0"  y="0"  z="-[ModuleT]/2+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]/2" />
+  <Translation x="0"  y="0"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]/2" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -185,19 +227,43 @@
  <PosPart copyNumber="1">
   <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
   <rChild name="pixfwdbladeInnerZminus:PixelForwardAdhesiveFilm"/>
-  <Translation x="0"  y="0"  z="-[ModuleT]/2+[GlueT]/2" />
+  <Translation x="0"  y="0"  z="-[ModuleT]/2+[AdhesiveFilmT]/2" />
  </PosPart>
 
- <PosPart copyNumber="2">
+ <PosPart copyNumber="1">
   <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
-  <rChild name="pixfwdbladeInnerZminus:PixelForwardAdhesiveFilm"/>
-  <Translation x="0"  y="0"  z="-[ModuleT]/2+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]/2" />
+  <rChild name="pixfwdbladeInnerZminus:PixelForwardGlue"/>
+  <Translation x="0"  y="0"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]/2" />
  </PosPart>
  
 <PosPart copyNumber="1">
   <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
   <rChild name="pixfwdbladeInnerZminus:PixelForwardHDI"/>
-  <Translation x="0"  y="0"  z="-[ModuleT]/2+2*[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]/2" />
+  <Translation x="0"  y="0"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]/2" />
+ </PosPart>
+
+<PosPart copyNumber="1">
+  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
+  <rChild name="pixfwdbladeInnerZminus:PixelForwardSMKConn"/>
+  <Translation x="0"  y="[SMKConnY]"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[SMKConnT]/2" />
+ </PosPart>
+
+<PosPart copyNumber="1">
+  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
+  <rChild name="pixfwdbladeInnerZminus:PixelForwardEndHolder1"/>
+  <Translation x="0"  y="-[EndHolderY]"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[EndHolder1T]/2" />
+ </PosPart>
+
+<PosPart copyNumber="1">
+  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
+  <rChild name="pixfwdbladeInnerZminus:PixelForwardEndHolder2"/>
+  <Translation x="0"  y="[EndHolderY]"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[EndHolder2T]/2" />
+ </PosPart>
+
+<PosPart copyNumber="1">
+  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
+  <rChild name="pixfwdbladeInnerZminus:PixelForwardFlexCable"/>
+  <Translation x="0"  y="[SMKConnY]+[SMKConnL]/2.+[FlexCableL]/2."  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[EndHolder2T]+[FlexCableT]/2" />
  </PosPart>
 
  <PosPart copyNumber="1">
