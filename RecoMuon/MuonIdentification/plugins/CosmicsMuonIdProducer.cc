@@ -82,19 +82,19 @@ CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
   // create and fill value map
-  std::auto_ptr<edm::ValueMap<unsigned int> > out(new edm::ValueMap<unsigned int>());
+  auto out = std::make_unique<edm::ValueMap<unsigned int>>();
   edm::ValueMap<unsigned int>::Filler filler(*out);
   filler.insert(muons, values.begin(), values.end());
   filler.fill();
 
 
-  std::auto_ptr<edm::ValueMap<reco::MuonCosmicCompatibility> > outC(new edm::ValueMap<reco::MuonCosmicCompatibility>());
+  auto outC = std::make_unique<edm::ValueMap<reco::MuonCosmicCompatibility>>();
   edm::ValueMap<reco::MuonCosmicCompatibility>::Filler fillerC(*outC);
   fillerC.insert(muons, compValues.begin(), compValues.end());
   fillerC.fill();
 
   // put value map into event
-  iEvent.put(out);
-  iEvent.put(outC);
+  iEvent.put(std::move(out));
+  iEvent.put(std::move(outC));
 }
 DEFINE_FWK_MODULE(CosmicsMuonIdProducer);

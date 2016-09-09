@@ -235,7 +235,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
     ok = storeMatchMaps(event);
 
   // Make the output collection.
-  std::auto_ptr<reco::MuonCollection> cands(new reco::MuonCollection);
+  auto cands = std::make_unique<reco::MuonCollection>();
 
   if (ok) {
     edm::View<reco::Muon>::const_iterator muon;
@@ -296,7 +296,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
       << "either " << src << " or the track map(s) " << tevMuonTracks
       << " not present in the event; producing empty collection";
   
-  event.put(cands);
+  event.put(std::move(cands));
 }
 
 DEFINE_FWK_MODULE(MuonsFromRefitTracksProducer);

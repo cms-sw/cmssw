@@ -63,12 +63,12 @@ MuonShowerInformationProducer::produce(edm::Event& iEvent, const edm::EventSetup
     }
 
   // create and fill value map
-  std::auto_ptr<edm::ValueMap<reco::MuonShower> > outC(new edm::ValueMap<reco::MuonShower>());
+  auto outC = std::make_unique<edm::ValueMap<reco::MuonShower>>();
   edm::ValueMap<reco::MuonShower>::Filler fillerC(*outC);
   fillerC.insert(muons, showerInfoValues.begin(), showerInfoValues.end());
   fillerC.fill();
 
   // put value map into event
-  iEvent.put(outC);
+  iEvent.put(std::move(outC));
 }
 DEFINE_FWK_MODULE(MuonShowerInformationProducer);

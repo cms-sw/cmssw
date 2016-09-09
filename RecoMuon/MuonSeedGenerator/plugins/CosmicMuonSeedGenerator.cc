@@ -98,7 +98,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   eSetup.get<IdealMagneticFieldRecord>().get(theField);
 
-  auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   TrajectorySeedCollection seeds;
  
@@ -198,7 +198,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
         output->push_back(*seed);
   }
 
-  event.put(output);
+  event.put(std::move(output));
   seeds.clear();
 
 }

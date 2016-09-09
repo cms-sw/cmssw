@@ -319,7 +319,7 @@ void ME0SegmentAlgorithm::buildSegments(const ME0Ensemble& ensemble, const Ensem
   }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
-  sfit_ = std::unique_ptr<MuonSegFit>(new MuonSegFit(muonRecHits));
+  sfit_ = std::make_unique<MuonSegFit>(muonRecHits);
   //  bool goodfit = sfit_->fit();
   sfit_->fit();
   edm::LogVerbatim("ME0SegmentAlgorithm") << "[ME0SegmentAlgorithm::buildSegments] ME0Segment fit done";

@@ -68,11 +68,11 @@ MuonTimingProducer::~MuonTimingProducer()
 void
 MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
+  auto muonTimeMap = std::make_unique<reco::MuonTimeExtraMap>();
   reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
-  std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapDT(new reco::MuonTimeExtraMap());
+  auto muonTimeMapDT = std::make_unique<reco::MuonTimeExtraMap>();
   reco::MuonTimeExtraMap::Filler fillerDT(*muonTimeMapDT);
-  std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapCSC(new reco::MuonTimeExtraMap());
+  auto muonTimeMapCSC = std::make_unique<reco::MuonTimeExtraMap>();
   reco::MuonTimeExtraMap::Filler fillerCSC(*muonTimeMapCSC);
   
   edm::Handle<reco::MuonCollection> muons; 
@@ -108,9 +108,9 @@ MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   fillerCSC.insert(muons, cscTimeColl.begin(), cscTimeColl.end());
   fillerCSC.fill();
 
-  iEvent.put(muonTimeMap,"combined");
-  iEvent.put(muonTimeMapDT,"dt");
-  iEvent.put(muonTimeMapCSC,"csc");
+  iEvent.put(std::move(muonTimeMap),"combined");
+  iEvent.put(std::move(muonTimeMapDT),"dt");
+  iEvent.put(std::move(muonTimeMapCSC),"csc");
 
 }
 

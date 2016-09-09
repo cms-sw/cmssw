@@ -165,7 +165,7 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
 //          }
         
           DTSegmentCand::AssPointCont pointSet;
-          std::unique_ptr<DTSegmentCand> segCand(new DTSegmentCand(pointSet,sl));
+          auto segCand = std::make_unique<DTSegmentCand>(pointSet,sl);
           segCand->add(*firstHit,codes[firstLR]);
           segCand->add(*lastHit,codes[lastLR]);
 

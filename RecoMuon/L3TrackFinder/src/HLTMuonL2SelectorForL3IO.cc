@@ -39,7 +39,7 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
 	iEvent.getByToken(l3OISrc_, l3TrackCol);
 
 //	OUT:
-	std::auto_ptr<std::vector<reco::Track> > result(new std::vector<reco::Track>());
+	auto result = std::make_unique<std::vector<reco::Track>>();
 
 	auto const& l2Tracks = *l2TrackCol.product();
 	auto const& l3Tracks = *l3TrackCol.product();
@@ -62,7 +62,7 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
 		if (!l2found) result->push_back(l2);
 	}
 
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 void HLTMuonL2SelectorForL3IO::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

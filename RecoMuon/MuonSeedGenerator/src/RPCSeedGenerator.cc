@@ -178,8 +178,8 @@ RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     candidateweightedSeeds.clear();
 
     // Create the pointer to the Seed container
-    auto_ptr<TrajectorySeedCollection> goodCollection(new TrajectorySeedCollection());
-    auto_ptr<TrajectorySeedCollection> candidateCollection(new TrajectorySeedCollection());
+    auto goodCollection = std::make_unique<TrajectorySeedCollection>();
+    auto candidateCollection = std::make_unique<TrajectorySeedCollection>();
 
     // Muon Geometry - DT, CSC and RPC 
     edm::ESHandle<MuonDetLayerGeometry> muonLayers;
@@ -250,8 +250,8 @@ RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         candidateCollection->push_back((*weightedseed).first);
 
     // Put the seed to event
-    iEvent.put(goodCollection, "goodSeeds");
-    iEvent.put(candidateCollection, "candidateSeeds");
+    iEvent.put(std::move(goodCollection), "goodSeeds");
+    iEvent.put(std::move(candidateCollection), "candidateSeeds");
 
     // Unset the input of RPCSeedFinder, PCSeedrecHitFinder, RPCSeedLayerFinder
     recHitFinder.unsetInput();

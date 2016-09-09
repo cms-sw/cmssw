@@ -44,7 +44,7 @@ void MuonSeedMerger::produce(Event& event, const EventSetup& eventSetup){
   
   const string metname = "Muon|RecoMuon|MuonSeedMerger";  
 
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   Handle<View<TrajectorySeed> > seeds; 
   
@@ -56,5 +56,5 @@ void MuonSeedMerger::produce(Event& event, const EventSetup& eventSetup){
       output->push_back(*seed);
   }
   
-  event.put(output);
+  event.put(std::move(output));
 }

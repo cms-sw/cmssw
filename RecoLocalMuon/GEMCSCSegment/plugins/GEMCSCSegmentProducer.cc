@@ -62,11 +62,11 @@ void GEMCSCSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup
     ev.getByToken(gem_token, gemRecHits);    
 
     // create empty collection of GEMCSC Segments
-    std::auto_ptr<GEMCSCSegmentCollection> oc( new GEMCSCSegmentCollection );
+    auto oc = std::make_unique<GEMCSCSegmentCollection>();
 
     // pass the empty collection of GEMCSC Segments and fill it
     segmentBuilder_->build(gemRecHits.product(), cscSegment.product(), *oc); //@@ FILL oc
     
     // put the filled collection in event
-    ev.put(oc);
+    ev.put(std::move(oc));
 }

@@ -104,7 +104,7 @@ void ME0MuonConverter::produce(edm::Event& ev, const edm::EventSetup& setup) {
   Handle <ME0MuonCollection> OurMuons;
   ev.getByToken(OurMuonsToken_, OurMuons);
 
-  std::auto_ptr<RecoChargedCandidateCollection> oc( new RecoChargedCandidateCollection());
+  auto oc = std::make_unique<RecoChargedCandidateCollection>();
 
   for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
        thisMuon != OurMuons->end(); ++thisMuon){
@@ -121,7 +121,7 @@ void ME0MuonConverter::produce(edm::Event& ev, const edm::EventSetup& setup) {
     oc->push_back(cand);
   }
     
-  ev.put(oc);
+  ev.put(std::move(oc));
 }
 
 

@@ -26,7 +26,7 @@ CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection * allCSCSegments, const edm:
 
   if(debug) std::cout<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
 
-  _ThePoints.reset(new RPCRecHitCollection());
+  _ThePoints = std::make_unique<RPCRecHitCollection>();
 
   if(allCSCSegments->size()==0){
     if(debug) std::cout<<"CSC 0 segments skiping event"<<std::endl;

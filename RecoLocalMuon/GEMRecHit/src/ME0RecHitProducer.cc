@@ -51,7 +51,7 @@ void ME0RecHitProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 
   // Create the pointer to the collection which will store the rechits
 
-  std::auto_ptr<ME0RecHitCollection> recHitCollection(new ME0RecHitCollection());
+  auto recHitCollection = std::make_unique<ME0RecHitCollection>();
 
   // Iterate through all digi collections ordered by LayerId   
 
@@ -75,7 +75,7 @@ void ME0RecHitProducer::produce(edm::Event& event, const edm::EventSetup& setup)
       recHitCollection->put(me0Id, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection);
+  event.put(std::move(recHitCollection));
 
 }
 

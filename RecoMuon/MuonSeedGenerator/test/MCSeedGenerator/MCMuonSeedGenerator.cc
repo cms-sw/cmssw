@@ -71,7 +71,7 @@ void MCMuonSeedGenerator2::produce(edm::Event& event, const edm::EventSetup& set
 {
   const std::string metname = "Muon|RecoMuon|MCMuonSeedGenerator2";
 
-  auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   // Update the services
   theService->update(setup);
@@ -162,7 +162,7 @@ void MCMuonSeedGenerator2::produce(edm::Event& event, const edm::EventSetup& set
     if(seed) output->push_back(*seed);
   }
 
-  event.put(output);
+  event.put(std::move(output));
 }
 
 

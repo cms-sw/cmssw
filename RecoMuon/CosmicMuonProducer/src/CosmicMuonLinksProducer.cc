@@ -100,8 +100,7 @@ CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup)
     LogTrace(category_) << "Mapped: "<<
     theTrackLinkNames[counter].first  <<" "<<subTracks->size()<< " and "<<theTrackLinkNames[counter].second<<" "<<parentTracks->size()<<", results: "<< ttmap.size() <<endl;
 
-    auto_ptr<reco::TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap(ttmap));
-    iEvent.put(trackToTrackmap, mapname);
+    iEvent.put(std::make_unique<reco::TrackToTrackMap>(ttmap), mapname);
 
     counter++;
   }

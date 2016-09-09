@@ -61,7 +61,7 @@ void TSGFromL2Muon::beginRun(const edm::Run & run, const edm::EventSetup&es){
 
 
 void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es){
-  std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
+  auto result = std::make_unique<L3MuonTrajectorySeedCollection>();
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
@@ -122,7 +122,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es){
   LogDebug("TSGFromL2Muon")<<result->size()<<" trajectory seeds to the events";
 
   //put in the event
-  ev.put(result);
+  ev.put(std::move(result));
 }
 
 // FillDescription generated from hltL3TrajSeedOIState with additions from OIHit and IOHit

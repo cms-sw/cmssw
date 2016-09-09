@@ -74,7 +74,7 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     if(mergeCaloMuons_) iEvent.getByToken(caloMuonToken_,caloMuons);
       if(mergeTracks_) iEvent.getByToken(trackToken_,tracks);
 
-    std::auto_ptr<std::vector<reco::Muon> >  out(new std::vector<reco::Muon>());
+    auto out = std::make_unique<std::vector<reco::Muon>>();
     out->reserve(muons->size() + (mergeTracks_?tracks->size():0));
 
     // copy reco::Muons, turning on the CaloCompatibility flag if enabled and possible
@@ -143,7 +143,7 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

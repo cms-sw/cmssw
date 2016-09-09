@@ -163,7 +163,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Create the pointer to the collection which will store the rechits
 
-  auto_ptr<GEMRecHitCollection> recHitCollection(new GEMRecHitCollection());
+  auto recHitCollection = std::make_unique<GEMRecHitCollection>();
 
   // Iterate through all digi collections ordered by LayerId   
 
@@ -210,7 +210,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
       recHitCollection->put(gemId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection);
+  event.put(std::move(recHitCollection));
 
 }
 

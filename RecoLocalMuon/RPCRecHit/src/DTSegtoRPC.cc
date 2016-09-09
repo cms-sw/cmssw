@@ -61,7 +61,7 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection * all4DSegments, const edm
     clock_gettime(CLOCK_REALTIME, &start_time);
   */
 
-  _ThePoints.reset(new RPCRecHitCollection());
+  _ThePoints = std::make_unique<RPCRecHitCollection>();
 
   if(all4DSegments->size()>8){
     if(debug) std::cout<<"Too many segments in this event we are not doing the extrapolation"<<std::endl;

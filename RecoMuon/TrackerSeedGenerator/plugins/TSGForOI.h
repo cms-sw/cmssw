@@ -111,7 +111,7 @@ private:
 			const Propagator& propagatorAlong,
 			const Propagator& propagatorOpposite,
 			const reco::TrackRef l2,
-			std::auto_ptr<std::vector<TrajectorySeed> >& seeds);
+			std::unique_ptr<std::vector<TrajectorySeed> >& seeds);
 
 	/// Function used to calculate the dynamic error SF by analysing the L2
 	double calculateSFFromL2(const GeometricSearchDet& layer,
