@@ -33,6 +33,7 @@ PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
   tokenPhotonCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("photonName"));
   tokenPhotonId_         = consumes<edm::ValueMap<bool>  >(iConfig.getParameter<edm::InputTag>("photonId")); 
   pt_                    = iConfig.getParameter<double>("pt");
+  eta_                   = iConfig.getParameter<double>("eta");
   dRMatch_               = iConfig.getParameter<std::vector<double> > ("dRMatch");
   pdgIds_                = iConfig.getParameter<std::vector<int32_t> >("pdgids");
   usePFRef_              = iConfig.getParameter<bool>("useRefs");
@@ -73,12 +74,12 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if(itPho->isPhoton() && usePhotonId_)   passObject =  (*photonId)  [phoCol->ptrAt(iC)];
     if(itPho->pt() < pt_) continue;
     if(!passObject && usePhotonId_) continue;
-    if(!usePFRef_) phoCands.push_back(&(*itPho)); 
-    if(!usePFRef_) continue;
+    //if(!usePFRef_ && fabs(itPho->eta()) < eta_) phoCands.push_back(&(*itPho)); ===> should add a flag useAODRef_ in place of usePFRef_ 
+    //if(!usePFRef_) continue;
     const pat::Photon *pPho = dynamic_cast<const pat::Photon*>(&(*itPho));
     if(pPho != 0) {
       for( const edm::Ref<pat::PackedCandidateCollection> & ref : pPho->associatedPackedPFCandidates() ) {
-	if(matchPFCandidate(&(*(pfCol->ptrAt(ref.key()))),&(*itPho))) {
+	if(fabs(pfCol->ptrAt(ref.key())->eta()) < eta_ ) {
 	  phoIndx.push_back(ref.key());
 	  phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
 	}
@@ -88,7 +89,7 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const pat::Electron *pElectron = dynamic_cast<const pat::Electron*>(&(*itPho));
     if(pElectron != 0) {
       for( const edm::Ref<pat::PackedCandidateCollection> & ref : pElectron->associatedPackedPFCandidates() ) 
-	if(matchPFCandidate(&(*(pfCol->ptrAt(ref.key()))),&(*itPho)))  {
+	if(fabs(pfCol->ptrAt(ref.key())->eta()) < eta_ )  {
 	  phoIndx.push_back(ref.key());
 	  phoCands.push_back(&(*(pfCol->ptrAt(ref.key()))));
 	}
@@ -113,8 +114,14 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     float pWeight = 1.;
     if(useValueMap_) pWeight  = (*pupWeights)[pupCol->ptrAt(iPF)];     
     if(!usePFRef_) { 
+      int iPho = -1;
       for(std::vector<const reco::Candidate*>::iterator itPho = phoCands.begin(); itPho!=phoCands.end(); itPho++) {
-	if(matchPFCandidate(&(*itPF),*itPho)) pWeight = weight_;
+	iPho++;
+	if(!matchPFCandidate(&(*itPF),*itPho)) continue; 
+        pWeight = weight_;
+	if(!useValueMap_ && itPF->pt() != 0) pWeight = pWeight*(phoCands[iPho]->pt()/itPF->pt());
+	if(!useValueMap_ && itPF->pt() == 0) pVec.SetPxPyPzE(phoCands[iPho]->px()*pWeight,phoCands[iPho]->py()*pWeight,phoCands[iPho]->pz()*pWeight,phoCands[iPho]->energy()*pWeight);
+        foundPhoIndex.push_back(iPho);      
       }
     } else { 
       int iPho = -1;
@@ -123,9 +130,10 @@ void PuppiPhoton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if(pupCol->refAt(iPF).key() != *itPho) continue;
         pWeight = weight_;
         if(!useValueMap_ && itPF->pt() != 0) pWeight = pWeight*(phoCands[iPho]->pt()/itPF->pt());
-        foundPhoIndex.push_back(iPho);      }
+	if(!useValueMap_ && itPF->pt() == 0) pVec.SetPxPyPzE(phoCands[iPho]->px()*pWeight,phoCands[iPho]->py()*pWeight,phoCands[iPho]->pz()*pWeight,phoCands[iPho]->energy()*pWeight);
+        foundPhoIndex.push_back(iPho);      
+      }
     }
-
     if(itPF->pt() != 0) pVec.SetPxPyPzE(itPF->px()*pWeight,itPF->py()*pWeight,itPF->pz()*pWeight,itPF->energy()*pWeight);
 
     lWeights.push_back(pWeight);
