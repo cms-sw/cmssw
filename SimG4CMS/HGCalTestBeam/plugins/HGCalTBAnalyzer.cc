@@ -530,44 +530,44 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits) {
 
   for (std::map<int,double>::iterator itr = map_hitLayer.begin(); 
        itr != map_hitLayer.end(); ++itr)   {
-    int    layer      = itr->first;
+    int    layer      = itr->first - 1;
     double energy     = itr->second;
-    double zp         = hgcons_[type]->waferZ(layer,false);
+    double zp         = hgcons_[type]->waferZ(layer+1,false);
 #ifdef DebugLog
-    std::cout << "SimHit:Layer " << layer << " " << zp << " " << energy 
+    std::cout << "SimHit:Layer " << layer+1 << " " << zp << " " << energy 
 	      << std::endl;
 #endif
     hSimHitLng_[type]->Fill(zp,energy);
-    hSimHitLng2_[type]->Fill(layer,energy);
+    hSimHitLng2_[type]->Fill(layer+1,energy);
     if (type == 0) {
-      if (layer-1 < (int)(hSimHitLayEn1E_.size())) {
-	simHitLayEn1E[layer-1] = energy;
-	hSimHitLayEn1E_[layer-1]->Fill(energy);
+      if (layer < (int)(hSimHitLayEn1E_.size())) {
+	simHitLayEn1E[layer] = energy;
+	hSimHitLayEn1E_[layer]->Fill(energy);
       }
     } else {
-      if (layer-1 < (int)(hSimHitLayEn1H_.size())) {
-	simHitLayEn1H[layer-1] = energy;
-	hSimHitLayEn1H_[layer-1]->Fill(energy);
+      if (layer < (int)(hSimHitLayEn1H_.size())) {
+	simHitLayEn1H[layer] = energy;
+	hSimHitLayEn1H_[layer]->Fill(energy);
       }
     }
   }
   for (std::map<int,double>::iterator itr = map_hitDepth.begin(); 
        itr != map_hitDepth.end(); ++itr)   {
-    int    layer      = itr->first;
+    int    layer      = itr->first - 1;
     double energy     = itr->second;
 #ifdef DebugLog
-    std::cout << "SimHit:Layer " << layer << " " << energy << std::endl;
+    std::cout << "SimHit:Layer " << layer+1 << " " << energy << std::endl;
 #endif
-    hSimHitLng1_[type]->Fill(layer,energy);
+    hSimHitLng1_[type]->Fill(layer+1,energy);
     if (type == 0) {
-      if (layer-1 < (int)(hSimHitLayEn2E_.size())) {
-	simHitLayEn2E[layer-1] = energy;
-	hSimHitLayEn2E_[layer-1]->Fill(energy);
+      if (layer < (int)(hSimHitLayEn2E_.size())) {
+	simHitLayEn2E[layer] = energy;
+	hSimHitLayEn2E_[layer]->Fill(energy);
       }
     } else {
-      if (layer-1 < (int)(hSimHitLayEn2H_.size())) {
-	simHitLayEn2H[layer-1] = energy;
-	hSimHitLayEn2H_[layer-1]->Fill(energy);
+      if (layer < (int)(hSimHitLayEn2H_.size())) {
+	simHitLayEn2H[layer] = energy;
+	hSimHitLayEn2H_[layer]->Fill(energy);
       }
     }
   }
