@@ -64,7 +64,7 @@ MuonRefProducer::~MuonRefProducer(){}
 
 void MuonRefProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-   std::auto_ptr<edm::RefVector<std::vector<reco::Muon> > > outputCollection(new edm::RefVector<std::vector<reco::Muon> >);
+   auto outputCollection = std::make_unique<edm::RefVector<std::vector<reco::Muon>>>();
 
    edm::Handle<reco::MuonCollection> muons;
    iEvent.getByToken(muonToken_, muons);
@@ -74,5 +74,5 @@ void MuonRefProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
      if ( muon::isGoodMuon( (*muons)[i], type_, minNumberOfMatches_,
 	  maxAbsDx_, maxAbsPullX_, maxAbsDy_, maxAbsPullY_, maxChamberDist_, maxChamberDistPull_, arbitrationType_) )
        outputCollection->push_back( edm::RefVector<std::vector<reco::Muon> >::value_type(muons,i) );
-   iEvent.put(outputCollection);
+   iEvent.put(std::move(outputCollection));
 }

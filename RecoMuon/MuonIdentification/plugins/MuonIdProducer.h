@@ -228,7 +228,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::InputTag globalTrackQualityInputTag_;
 
    bool fillTrackerKink_;
-   std::auto_ptr<MuonKinkFinder> trackerKinkFinder_;
+   std::unique_ptr<MuonKinkFinder> trackerKinkFinder_;
 
    double caloCut_;
    
