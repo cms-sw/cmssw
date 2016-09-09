@@ -1566,6 +1566,49 @@ process.p2 = cms.Path(process.r)
 process.schedule = cms.Schedule(*[ process.p2, process.p ])
 """)
 
+            s = Sequence()
+            a = EDProducer("A")
+            s2 = Sequence(a)
+            s2 += s
+            process = Process("DUMP")
+            process.a = a
+            process.s2 = s2
+            d=process.dumpPython()
+            self.assertEqual(d,
+            """import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("DUMP")
+
+process.a = cms.EDProducer("A")
+
+
+process.s2 = cms.Sequence(process.a)
+
+
+""")
+            s = Sequence()
+            s1 = Sequence(s)
+            a = EDProducer("A")
+            s3 = Sequence(a+a)
+            s2 = Sequence(a+s3)
+            s2 += s1
+            process = Process("DUMP")
+            process.a = a
+            process.s2 = s2
+            d=process.dumpPython()
+            self.assertEqual(d,
+            """import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("DUMP")
+
+process.a = cms.EDProducer("A")
+
+
+process.s2 = cms.Sequence(process.a+(process.a+process.a))
+
+
+""")
+
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
