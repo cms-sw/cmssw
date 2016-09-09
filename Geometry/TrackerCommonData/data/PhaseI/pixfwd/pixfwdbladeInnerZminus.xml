@@ -17,7 +17,7 @@
  <Constant name="ModuleL"            value="[AdhesiveFilmL]"/> <!-- the glue is now the largest component; was [SensitiveL]+2*[SideWidth] -->
  <Constant name="ModuleLCut"         value="1.600*mm"/> <!-- shorten the module length to avoid overlaps, so practically reduce largest component (currently AdhesiveFilm) by this amount -->
  <Constant name="ModuleW"            value="[AdhesiveFilmW]"/> <!-- the glue is now the largest component; was 2*[ROChipW]+[ROChipSpaceW] -->
- <Constant name="ModuleT"            value="[AdhesiveFilmT]+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]+[EndHolder2T]+[FlexCableT]"/> <!-- was: 0.730*mm --> 
+ <Constant name="ModuleT"            value="[AdhesiveFilmT]+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]"/> <!-- was:[AdhesiveFilmT]+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]+[EndHolder2T]+[FlexCableT]  --> 
  <Constant name="ModuleX"            value="[ModulePosX]"/>
  <Constant name="ModuleY"            value="0.0*mm"/>
  <Constant name="AdhesiveFilmL"      value="68.802*mm-[ModuleLCut]"/> <!-- length of thermal paste, slightly enlarged; was [SensitiveL]+2*[SideWidth]-->
@@ -36,7 +36,7 @@
  <Constant name="EndHolderL"         value="5.500*mm"/> <!-- NEW -->
  <Constant name="EndHolder1T"        value="1.043*mm"/> <!-- NEW -->
  <Constant name="EndHolder2T"        value="2.250*mm"/> <!-- NEW -->
- <Constant name="EndHolderY"         value="27.322*mm"/> <!-- NEW -->
+ <Constant name="EndHolderY"         value="27.322*mm"/> <!-- distance from center of HDI -->
  <Constant name="FlexCableW"         value="9.000*mm"/> <!-- NEW -->
  <Constant name="FlexCableL"         value="[ModuleL]/2.-([SMKConnY]+[SMKConnL]/2.)"/> <!-- so (68.802-1.600)/2.-((66.144/2.-16.95)+5.260/2.)=14.849 mm for now -->
  <Constant name="FlexCableT"         value="0.165*mm"/> <!-- NEW -->
@@ -50,10 +50,6 @@
 </ConstantsSection>
 
 <SolidSection label="pixfwdbladeInnerZminus.xml">
-  <Trapezoid name="PixelForwardBlade"      dz="[ModuleT]+[BladeBaseT]/2."
-                                           bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
-                                           tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
-                                           alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
   <Trapezoid name="PixelForwardBladeBase"  dz="[BladeBaseT]/2"
                                            bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
                                            tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
@@ -66,8 +62,8 @@
                                            bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
                                            tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
                                            alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
-  <Box name="PixelForwardModule"        dx="[ModuleW]/2"     dy="[ModuleL]/2" 
-                                        dz="[ModuleT]/2" />
+  <Box name="PixelForwardModuleBase"       dx="[ModuleW]/2"     dy="[ModuleL]/2" 
+                                           dz="[ModuleT]/2" />
   <Box name="PixelForwardWafer"         dx="[SensitiveW]/2.+[SideWidth]"     dy="[SensitiveL]/2.+[SideWidth]" 
                                         dz="[WaferT]/2" />
   <Box name="PixelForwardSensor"        dx="[SensitiveW]/2" dy="[SensitiveL]/2"
@@ -92,7 +88,37 @@
                                         dz="[EndHolder2T]/2" />
   <Box name="PixelForwardFlexCable"     dx="[FlexCableW]/2" dy="[FlexCableL]/2"
                                         dz="[FlexCableT]/2" />
+
+  <!-- Boxes needed to assemble the blade using union -->
+
+  <Box name="PixelForwardHoldersConnector" dx="[SMKConnW]/2" dy="[ModuleL]/2"
+                                           dz="([EndHolder2T]+[FlexCableT])/2" />
+  <!-- dx: widest component of objects mounted on the top of the modules
+       dy: flex cable reaches the end of the module base volume
+       dz: flex cable mounted on endholder 2 -->
+
+  <UnionSolid name="PixelForwardModule">
+    <rSolid name="PixelForwardModuleBase"/>
+    <rSolid name="PixelForwardHoldersConnector"/>
+    <Translation x="0.*fm"  y="0.*fm"  z="[ModuleT]/2+([EndHolder2T]+[FlexCableT])/2" />
+  </UnionSolid>
+
+  <UnionSolid name="PixelForwardBladeSideOne">
+    <rSolid name="PixelForwardBladeBase"/>
+    <rSolid name="PixelForwardModule"/>
+    <Translation x="[ModuleX]+[DetectorShiftX]"  y="[ModuleY]"  z="[BladeBaseT]/2+[ModuleT]/2" />
+    <rRotation name="pixfwdbladeInnerZminus:RFacingIP"/>
+  </UnionSolid>
+
+  <UnionSolid name="PixelForwardBlade">
+    <rSolid name="PixelForwardBladeSideOne"/>
+    <rSolid name="PixelForwardModule"/>
+    <Translation x="-[ModuleX]+[DetectorShiftX]" y="[ModuleY]" z="-[BladeBaseT]/2-[ModuleT]/2" />
+    <rRotation name="pixfwdbladeInnerZminus:RAwayIP"/>
+  </UnionSolid>
+
 </SolidSection>
+
 
 <LogicalPartSection label="pixfwdbladeInnerZminus.xml">
  <LogicalPart name="PixelForwardBlade" category="unspecified">
@@ -114,6 +140,10 @@
 
  <LogicalPart name="PixelForwardModule" category="unspecified">
   <rSolid name="PixelForwardModule"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardModuleBase" category="unspecified">
+  <rSolid name="PixelForwardModuleBase"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="PixelForwardWafer" category="unspecified">
@@ -147,6 +177,11 @@
  <LogicalPart name="PixelForwardBumpBond" category="unspecified">
   <rSolid name="PixelForwardBumpBond"/>
   <rMaterial name="pixfwdMaterials:Pix_Fwd_Bump"/>
+ </LogicalPart>
+
+ <LogicalPart name="PixelForwardHoldersConnector" category="unspecified">
+  <rSolid name="PixelForwardHoldersConnector"/>
+  <rMaterial name="materials:Air"/>
  </LogicalPart>
  <LogicalPart name="PixelForwardSMKConn" category="unspecified">
   <rSolid name="PixelForwardSMKConn"/>
@@ -240,30 +275,6 @@
   <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
   <rChild name="pixfwdbladeInnerZminus:PixelForwardHDI"/>
   <Translation x="0"  y="0"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]/2" />
- </PosPart>
-
-<PosPart copyNumber="1">
-  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
-  <rChild name="pixfwdbladeInnerZminus:PixelForwardSMKConn"/>
-  <Translation x="0"  y="[SMKConnY]"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[SMKConnT]/2" />
- </PosPart>
-
-<PosPart copyNumber="1">
-  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
-  <rChild name="pixfwdbladeInnerZminus:PixelForwardEndHolder1"/>
-  <Translation x="0"  y="-[EndHolderY]"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[EndHolder1T]/2" />
- </PosPart>
-
-<PosPart copyNumber="1">
-  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
-  <rChild name="pixfwdbladeInnerZminus:PixelForwardEndHolder2"/>
-  <Translation x="0"  y="[EndHolderY]"  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[EndHolder2T]/2" />
- </PosPart>
-
-<PosPart copyNumber="1">
-  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
-  <rChild name="pixfwdbladeInnerZminus:PixelForwardFlexCable"/>
-  <Translation x="0"  y="[SMKConnY]+[SMKConnL]/2.+[FlexCableL]/2."  z="-[ModuleT]/2+[AdhesiveFilmT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]+[HDIT]+[EndHolder2T]+[FlexCableT]/2" />
  </PosPart>
 
  <PosPart copyNumber="1">
@@ -360,6 +371,33 @@
   <rChild name="pixfwdbladeInnerZminus:PixelForwardBumpROChip"/>
   <Translation x="[ROChipW]/2.+[ROChipSpaceW]/2." y="-(3.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
  </PosPart>
-</PosPartSection>
+
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdbladeInnerZminus:PixelForwardModule"/>
+  <rChild name="pixfwdbladeInnerZminus:PixelForwardHoldersConnector"/>
+  <Translation x="0"  y="0"  z="[ModuleT]/2+([EndHolder2T]+[FlexCableT])/2" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdbladeInnerZminus:PixelForwardHoldersConnector"/>
+   <rChild name="pixfwdbladeInnerZminus:PixelForwardSMKConn"/>
+   <Translation x="0"  y="[SMKConnY]"  z="-([EndHolder2T]+[FlexCableT])/2+[SMKConnT]/2" />
+  </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdbladeInnerZminus:PixelForwardHoldersConnector"/>
+   <rChild name="pixfwdbladeInnerZminus:PixelForwardEndHolder1"/>
+   <Translation x="0"  y="-[EndHolderY]"  z="-([EndHolder2T]+[FlexCableT])/2+[EndHolder1T]/2" />
+  </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdbladeInnerZminus:PixelForwardHoldersConnector"/>
+   <rChild name="pixfwdbladeInnerZminus:PixelForwardEndHolder2"/>
+   <Translation x="0"  y="[EndHolderY]"  z="-[FlexCableT]/2" />
+  </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="pixfwdbladeInnerZminus:PixelForwardHoldersConnector"/>
+   <rChild name="pixfwdbladeInnerZminus:PixelForwardFlexCable"/>
+   <Translation x="0"  y="[SMKConnY]+[SMKConnL]/2.+[FlexCableL]/2."  z="[EndHolder2T]/2" />
+  </PosPart>
+ </PosPartSection>
 
 </DDDefinition>
