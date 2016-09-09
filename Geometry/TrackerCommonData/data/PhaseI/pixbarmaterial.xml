@@ -555,7 +555,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
- <CompositeMaterial name="SectorA" density="0.47813*g/cm3" symbol=" " method="mixture by weight">
+ <CompositeMaterial name="SectorA" density="0.3136*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.10443">
       <rMaterial name="materials:C6F14_F2_-10C"/>
     </MaterialFraction>
