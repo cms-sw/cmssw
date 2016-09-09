@@ -40,7 +40,7 @@
 #include <TSpectrum.h>
 #include <TSystem.h>
 #include <TStopwatch.h>
-#include "TkAlStyle.cc"
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc" 
 #include "CMS_lumi.C"
 
 #define ARRAY_SIZE(array) (sizeof((array))/sizeof((array[0])))
@@ -101,7 +101,6 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   TStopwatch timer; 	 
   timer.Start();
 
-  gROOT->ProcessLine(".L TkAlStyle.cc+");
   TkAlStyle::set(PRELIMINARY);	// set publication status
 
   //Int_t colors[10]={kBlack,kRed,kBlue,kMagenta,kBlack,kRed,kBlue,kGreen};

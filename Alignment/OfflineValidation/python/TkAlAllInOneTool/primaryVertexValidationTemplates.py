@@ -258,7 +258,6 @@ do
 done
 
 cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/FitPVResiduals.C .
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/TkAlStyle.cc .
 cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.C .
 cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.h .
 
@@ -337,7 +336,6 @@ echo  -----------------------
 PrimaryVertexPlotExecution="""
 #make primary vertex validation plots
 
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/TkAlStyle.cc .
 cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.C .
 cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/CMS_lumi.h .
 rfcp .oO[PrimaryVertexPlotScriptPath]Oo. .
