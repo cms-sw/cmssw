@@ -71,7 +71,6 @@
 #include "TF1.h"
 #include "TROOT.h"
 #include "TTree.h"
-#include "TChain.h"
 #include "TStyle.h"
 #include "TLeaf.h"
 #include "TGaxis.h"
@@ -107,6 +106,9 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     void totalStatistics();
     void makeSummary();
     void makeSummaryVsBx();
+	void ComputeEff(vector< TH1F* > &vhfound, vector< TH1F* > &vhtotal, string name);
+    void makeSummaryVsLumi();
+    void makeSummaryVsCM();
     TString GetLayerName(Long_t k);
     TString GetLayerSideName(Long_t k);
     float calcPhi(float x, float y);
@@ -129,6 +131,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     float _stripsApvEdge;
     unsigned int _bunchx;
     unsigned int _spaceBetweenTrains;
+	bool _useCM;
     bool _showEndcapSides;
     bool  _showRings;
     bool  _showTOB6TEC9;
@@ -150,6 +153,12 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     int layertotal[23];
     map< unsigned int, vector<int> > layerfound_perBx;
     map< unsigned int, vector<int> > layertotal_perBx;
+	vector< TH1F* > layerfound_vsLumi;
+	vector< TH1F* > layertotal_vsLumi;
+	vector< TH1F* > layerfound_vsPU;
+	vector< TH1F* > layertotal_vsPU;
+	vector< TH1F* > layerfound_vsCM;
+	vector< TH1F* > layertotal_vsCM;
     int goodlayertotal[35];
     int goodlayerfound[35];
     int alllayertotal[35];
@@ -172,6 +181,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   _stripsApvEdge = conf.getUntrackedParameter<double>("StripsApvEdge",10.0);
   _bunchx = conf.getUntrackedParameter<int>("BunchCrossing",0);
   _spaceBetweenTrains = conf.getUntrackedParameter<int>("SpaceBetweenTrains",25);
+  _useCM = conf.getUntrackedParameter<bool>("UseCommonMode",false);
   _showEndcapSides = conf.getUntrackedParameter<bool>("ShowEndcapSides",true);
   _showRings = conf.getUntrackedParameter<bool>("ShowRings",false);
   _showTOB6TEC9 = conf.getUntrackedParameter<bool>("ShowTOB6TEC9",false);
@@ -246,6 +256,16 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   for(Long_t ilayer = 0; ilayer <23; ilayer++) {
     resolutionPlots[ilayer] = fs->make<TH1F>(Form("resol_layer_%i",(int)(ilayer)),GetLayerName(ilayer),125,-125,125);
     resolutionPlots[ilayer]->GetXaxis()->SetTitle("trajX-clusX [strip unit]");
+
+	layerfound_vsLumi.push_back( fs->make<TH1F>(Form("layerfound_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),60,0,15000));
+	layertotal_vsLumi.push_back( fs->make<TH1F>(Form("layertotal_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),60,0,15000));
+	layerfound_vsPU.push_back( fs->make<TH1F>(Form("layerfound_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),30,0,60));
+	layertotal_vsPU.push_back( fs->make<TH1F>(Form("layertotal_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),30,0,60));
+
+	if(_useCM) {
+	  layerfound_vsCM.push_back( fs->make<TH1F>(Form("layerfound_vsCM_layer_%i",(int)(ilayer)),GetLayerName(ilayer),20,0,400));
+	  layertotal_vsCM.push_back( fs->make<TH1F>(Form("layertotal_vsCM_layer_%i",(int)(ilayer)),GetLayerName(ilayer),20,0,400));
+	}
   }
 
   cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
@@ -273,6 +293,10 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	TLeaf* TrajLocYLf = CalibTree->GetLeaf("TrajLocY");
 	TLeaf* ClusterLocXLf = CalibTree->GetLeaf("ClusterLocX");
 	TLeaf* BunchLf = CalibTree->GetLeaf("bunchx");
+	TLeaf* InstLumiLf = CalibTree->GetLeaf("instLumi");
+	TLeaf* PULf = CalibTree->GetLeaf("PU");
+	TLeaf* CMLf = 0;
+	if(_useCM) CMLf = CalibTree->GetLeaf("commonMode");
 
 	int nevents = CalibTree->GetEntries();
 	cout << "Successfully loaded analyze function with " << nevents << " events!\n";
@@ -280,7 +304,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 
 	//Loop through all of the events
 	for(int j =0; j < nevents; j++) {
-      CalibTree->GetEvent(j);
+      CalibTree->GetEntry(j);
       unsigned int isBad = (unsigned int)BadLf->GetValue();
       unsigned int quality = (unsigned int)sistripLf->GetValue();
       unsigned int id = (unsigned int)idLf->GetValue();
@@ -305,6 +329,12 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       bool badquality = false;
       unsigned int bx = (unsigned int)BunchLf->GetValue();
       if(_bunchx > 0 && _bunchx != bx) continue;
+	  double instLumi = 0;
+	  if(InstLumiLf!=0) instLumi = InstLumiLf->GetValue();
+	  double PU = 0;
+	  if(PULf!=0) PU = PULf->GetValue();
+	  int CM = -100;
+	  if(_useCM) CM = CMLf->GetValue();
 
       //We have two things we want to do, both an XY color plot, and the efficiency measurement
       //First, ignore anything that isn't in acceptance and isn't good quality
@@ -433,6 +463,16 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 		if(!badflag) layerfound_perBx[bx][layer]++;
 		layertotal_perBx[bx][layer]++;
 
+		if(!badflag) layerfound_vsLumi[layer]->Fill(instLumi);
+		layertotal_vsLumi[layer]->Fill(instLumi);
+		if(!badflag) layerfound_vsPU[layer]->Fill(PU);
+		layertotal_vsPU[layer]->Fill(PU);
+
+		if(_useCM){
+	      if(!badflag) layerfound_vsCM[layer]->Fill(CM);
+		  layertotal_vsCM[layer]->Fill(CM);
+		}
+
     	//Have to do the decoding for which side to go on (ugh)
     	if(layer <= 10) {
           if(!badflag) goodlayerfound[layer]++;
@@ -494,6 +534,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   totalStatistics();
   makeSummary();
   makeSummaryVsBx();
+  makeSummaryVsLumi();
+  if(_useCM) makeSummaryVsCM();
   
   ////////////////////////////////////////////////////////////////////////
   //try to write out what's in the quality record
@@ -1102,6 +1144,7 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   c7->SaveAs("Summary.png");
 }
 
+
 void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
   cout<<"Computing efficiency vs bx"<<endl;
   
@@ -1197,6 +1240,76 @@ TString SiStripHitEffFromCalibTree::GetLayerName(Long_t k) {
 	}
    
     return layername;
+}
+
+void SiStripHitEffFromCalibTree::ComputeEff(vector< TH1F* > &vhfound, vector< TH1F* > &vhtotal, string name) {
+
+  unsigned int nLayers = 22;
+  if(_showRings) nLayers = 20;
+  
+  TH1F* hfound;
+  TH1F* htotal;
+  
+  for(unsigned int ilayer=1; ilayer<nLayers; ilayer++) {
+	
+	hfound = vhfound[ilayer];
+	htotal = vhtotal[ilayer];
+	
+	hfound->Sumw2();
+	htotal->Sumw2();	
+	
+	// new ROOT version: TGraph::Divide don't handle null or negative values
+	for (Long_t i=0; i< hfound->GetNbinsX()+1; ++i) {
+	  if( hfound->GetBinContent(i)==0) hfound->SetBinContent(i,1e-6);
+	  if( htotal->GetBinContent(i)==0) htotal->SetBinContent(i,1);
+	}
+		
+	TGraphAsymmErrors *geff = fs->make<TGraphAsymmErrors>(hfound->GetNbinsX());
+	geff->SetName(Form("%s_layer%i", name.c_str(), ilayer));
+	geff->BayesDivide(hfound, htotal);
+	if(name=="effVsLumi") geff->SetTitle("Hit Efficiency vs inst. lumi. - "+GetLayerName(ilayer));
+	if(name=="effVsPU") geff->SetTitle("Hit Efficiency vs pileup - "+GetLayerName(ilayer));
+	if(name=="effVsCM") geff->SetTitle("Hit Efficiency vs common Mode - "+GetLayerName(ilayer));
+	geff->SetMarkerStyle(20);
+	
+  }
+
+}
+
+void SiStripHitEffFromCalibTree::makeSummaryVsLumi() {
+  cout<<"Computing efficiency vs lumi"<<endl;
+  
+  unsigned int nLayers = 22;
+  if(_showRings) nLayers = 20;
+  unsigned int nLayersForAvg = 0;
+  float layerLumi = 0;
+  float layerPU = 0;
+  float avgLumi = 0;
+  float avgPU = 0;
+  
+  cout<<"Lumi summary:  (avg over trajectory measurements)"<<endl; 
+  for(unsigned int ilayer=1; ilayer<nLayers; ilayer++) {
+	layerLumi=layertotal_vsLumi[ilayer]->GetMean();
+	layerPU=layertotal_vsPU[ilayer]->GetMean();
+	//cout<<" layer "<<ilayer<<"  lumi: "<<layerLumi<<"  pu: "<<layerPU<<endl;	
+	if(layerLumi!=0 && layerPU!=0) {
+	  avgLumi+=layerLumi;
+	  avgPU+=layerPU;
+	  nLayersForAvg++;
+	}
+  }
+  avgLumi/=nLayersForAvg;
+  avgPU/=nLayersForAvg;
+  cout<<"Avg conditions:   lumi :"<<avgLumi<<"  pu: "<<avgPU<<endl;
+  
+  ComputeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
+  ComputeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU");
+  
+}
+
+void SiStripHitEffFromCalibTree::makeSummaryVsCM() {
+  cout<<"Computing efficiency vs CM"<<endl;
+  ComputeEff(layerfound_vsCM, layertotal_vsCM, "effVsCM");
 }
 
 TString SiStripHitEffFromCalibTree::GetLayerSideName(Long_t k) {

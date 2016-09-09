@@ -31,6 +31,7 @@ process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
     ClusterTrajDist   = cms.untracked.double(64),   # default 64
     StripsApvEdge     = cms.untracked.double(10),   # default 10  
     SpaceBetweenTrains = cms.untracked.int32(25),   # default 25
+    UseCommonMode     = cms.untracked.bool(False),  # default False
     ShowEndcapSides   = cms.untracked.bool(True),  # default True
     ShowRings         = cms.untracked.bool(True),  # default False
     showTOB6TEC9      = cms.untracked.bool(False),  # default False
