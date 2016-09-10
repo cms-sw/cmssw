@@ -74,13 +74,13 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHeavyFlavor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHeavyFlavor_selector.l1tResults = cms.InputTag('')
 streamA_datasetHeavyFlavor_selector.throw      = cms.bool(False)
-streamA_datasetHeavyFlavor_selector.triggerConditions = cms.vstring('HLT_DmesonPPTrackingGlobal_Dpt15ForPPRef_v3', 
-    'HLT_DmesonPPTrackingGlobal_Dpt20ForPPRef_v3', 
-    'HLT_DmesonPPTrackingGlobal_Dpt30ForPPRef_v3', 
-    'HLT_DmesonPPTrackingGlobal_Dpt40ForPPRef_v3', 
-    'HLT_DmesonPPTrackingGlobal_Dpt50ForPPRef_v3', 
-    'HLT_DmesonPPTrackingGlobal_Dpt60ForPPRef_v3', 
-    'HLT_DmesonPPTrackingGlobal_Dpt8ForPPRef_v3')
+streamA_datasetHeavyFlavor_selector.triggerConditions = cms.vstring('HLT_DmesonPPTrackingGlobal_Dpt15ForPPRef_v4', 
+    'HLT_DmesonPPTrackingGlobal_Dpt20ForPPRef_v4', 
+    'HLT_DmesonPPTrackingGlobal_Dpt30ForPPRef_v4', 
+    'HLT_DmesonPPTrackingGlobal_Dpt40ForPPRef_v4', 
+    'HLT_DmesonPPTrackingGlobal_Dpt50ForPPRef_v4', 
+    'HLT_DmesonPPTrackingGlobal_Dpt60ForPPRef_v4', 
+    'HLT_DmesonPPTrackingGlobal_Dpt8ForPPRef_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighPtJet80_selector
 streamA_datasetHighPtJet80_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

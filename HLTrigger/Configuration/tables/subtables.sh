@@ -27,7 +27,8 @@ function makeCreateConfig() {
   # if not already present, check out and build the ConfDB converter
   if ! [ -d "$CMSSW_BASE/hlt-confdb/.git" ]; then
     mkdir -p "$CMSSW_BASE/hlt-confdb"
-    git clone "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
+    git clone -b confdbv1 "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
+    #git clone "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
   fi
   if ! [ -f "$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-gui.jar" ]; then
     ant -f "$CMSSW_BASE/hlt-confdb/build.xml" gui 1>&2
