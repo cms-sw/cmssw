@@ -211,11 +211,13 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       detDigis = &digis.find_or_insert(rawId);
       if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
     }
-    if unlikely(skipROC) continue;
-    
 
+    // skip is roc to be skipped ot invalid
+    if unlikely(skipROC || !rocp) continue;
+    
     int adc  = (ww >> ADC_shift) & ADC_mask;
-    LocalPixel *local=NULL;
+    //LocalPixel *local=NULL;
+    std::unique_ptr<LocalPixel> local;
 
     if(phase1 && layer==1) { // special case for layer 1ROC
       // for l1 roc use the roc column and row index instead of dcol and pixel index.
@@ -233,7 +235,8 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
-      local = new LocalPixel(localCR); // local pixel coordinate 
+      //local = new LocalPixel(localCR); // local pixel coordinate 
+      local = std::make_unique<LocalPixel>(localCR); // local pixel coordinate 
       //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
 
     } else { // phase0 and phase1 except bpix layer 1
@@ -252,16 +255,17 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  errorcheck.conversionError(fedId, &converter, 3, ww, errors);
 	  continue;
 	}
-      local = new LocalPixel(localDP);
+      //local = new LocalPixel(localDP);
+      local = std::make_unique<LocalPixel>(localDP); // local pixel coordinate 
       //if(DANEK) cout<<local->dcol()<<" "<<local->pxid()<<" "<<local->rocCol()<<" "<<local->rocRow()<<endl;
     }    
 
     //GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
     GlobalPixel global = rocp->toGlobal( *local ); // global pixel coordinate (in module)
     (*detDigis).data.emplace_back(global.row, global.col, adc);
-    //if(DANEK) cout<<global.row<<" "<<global.col<<" "<<adc<<endl;
-    
+    //if(DANEK) cout<<global.row<<" "<<global.col<<" "<<adc<<endl;    
     LogTrace("") << (*detDigis).data.back();
+    //delete local;
   }
 
 }
