@@ -71,7 +71,7 @@ for ie in xrange(nentry):
     triggercell.center.y = treeTriggerCells.y
     triggercell.center.z = treeTriggerCells.z
     for cellid in treeTriggerCells.c_id:
-        if not cellid in cells: raise StandardError("Cannot find cell {0} in trigger cell".format(cellid))
+        if not cellid in cells: raise Exception("Cannot find cell {0} in trigger cell".format(cellid))
         cell = cells[cellid]
         triggercell.cells.append(cell)
     triggercells[triggercell.id] = triggercell
@@ -97,7 +97,7 @@ for ie in xrange(nentry):
     module.center.y = treeModules.y
     module.center.z = treeModules.z
     for cellid in treeModules.tc_id:
-        if not cellid in triggercells: raise StandardError("Cannot find trigger cell {0} in module".format(cellid))
+        if not cellid in triggercells: raise Exception("Cannot find trigger cell {0} in module".format(cellid))
         cell = triggercells[cellid]
         module.cells.append(cell)
     modules[module.id] = module

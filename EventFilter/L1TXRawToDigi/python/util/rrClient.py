@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import re, json, datetime
-from rrapi import RRApi, RRApiError
+from .rrapi import RRApi, RRApiError
 
 URL  = "http://runregistry.web.cern.ch/runregistry/"
 
@@ -31,7 +32,7 @@ def getRunsNewer(run, minLumis):
         else :
             print "RunRegistry API 'app' != user, who knows why... :<"
 
-    except RRApiError, e:
+    except RRApiError as e:
         print e
 
 if __name__ == '__main__' :
