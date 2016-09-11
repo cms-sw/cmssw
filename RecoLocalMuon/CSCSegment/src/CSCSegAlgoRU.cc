@@ -892,8 +892,7 @@ bool CSCSegAlgoRU::replaceHit(const CSCRecHit2D* h, int layer) {
 
 void CSCSegAlgoRU::compareProtoSegment(const CSCRecHit2D* h, int layer) { 
    // Copy the input CSCSegFit                                                                                                                                                       
-  std::unique_ptr<CSCSegFit> oldfit;// =  new CSCSegFit( *sfit_ );                                                                                                                  
-  oldfit.reset(new CSCSegFit( theChamber, proto_segment ));
+  std::unique_ptr<CSCSegFit> oldfit = std::make_unique<CSCSegFit>(theChamber, proto_segment);
   oldfit->fit();
 
    // May create a new fit
@@ -906,8 +905,7 @@ void CSCSegAlgoRU::compareProtoSegment(const CSCRecHit2D* h, int layer) {
 
 void CSCSegAlgoRU::increaseProtoSegment(const CSCRecHit2D* h, int layer, int chi2_factor) { 
   // Creates a new fit                                                                                                                                                              
-  std::unique_ptr<CSCSegFit> oldfit;
-  oldfit.reset(new CSCSegFit( theChamber, proto_segment ));
+  std::unique_ptr<CSCSegFit> oldfit = std::make_unique<CSCSegFit>(theChamber, proto_segment);
 
   bool ok = addHit(h, layer);
   //@@ TEST ON ndof<=0 IS JUST TO ACCEPT nhits=2 CASE??
