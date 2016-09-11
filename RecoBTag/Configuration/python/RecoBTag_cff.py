@@ -74,6 +74,8 @@ pfBTagging = cms.Sequence(
     ( #CSV + soft-lepton + jet probability discriminators combined
       pfCombinedMVAV2BJetTags
 
+      + pfChargeBJetTags
+
     )
 )
 
