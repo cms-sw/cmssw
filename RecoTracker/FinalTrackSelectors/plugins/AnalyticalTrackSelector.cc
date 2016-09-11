@@ -242,12 +242,12 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
 {
 
             // storage....
-            std::auto_ptr<reco::TrackCollection> selTracks_;
-            std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
-            std::auto_ptr< TrackingRecHitCollection>  selHits_;
-            std::auto_ptr< std::vector<Trajectory> > selTrajs_;
-            std::auto_ptr< std::vector<const Trajectory *> > selTrajPtrs_;
-            std::auto_ptr< TrajTrackAssociationCollection >  selTTAss_;
+            std::unique_ptr<reco::TrackCollection> selTracks_;
+            std::unique_ptr<reco::TrackExtraCollection> selTrackExtras_;
+            std::unique_ptr<TrackingRecHitCollection>  selHits_;
+            std::unique_ptr<std::vector<Trajectory> > selTrajs_;
+            std::unique_ptr<std::vector<const Trajectory *> > selTrajPtrs_;
+            std::unique_ptr<TrajTrackAssociationCollection >  selTTAss_;
             reco::TrackRefProd rTracks_;
             reco::TrackExtraRefProd rTrackExtras_;
             TrackingRecHitRefProd rHits_;
@@ -290,11 +290,11 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
 
 
 
-  selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
+  selTracks_ = std::make_unique<TrackCollection>();
   rTracks_ = evt.getRefBeforePut<TrackCollection>();      
   if (copyExtras_) {
-    selTrackExtras_ = auto_ptr<TrackExtraCollection>(new TrackExtraCollection());
-    selHits_ = auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+    selTrackExtras_ = std::make_unique<TrackExtraCollection>();
+    selHits_ = std::make_unique<TrackingRecHitCollection>();
     rHits_ = evt.getRefBeforePut<TrackingRecHitCollection>();
     rTrackExtras_ = evt.getRefBeforePut<TrackExtraCollection>();
   }
@@ -369,9 +369,9 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
     Handle< TrajTrackAssociationCollection > hTTAss;
     evt.getByToken(srcTass_, hTTAss);
     evt.getByToken(srcTraj_, hTraj);
-    selTrajs_ = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
+    selTrajs_ = std::make_unique<std::vector<Trajectory>>(); 
     rTrajectories_ = evt.getRefBeforePut< vector<Trajectory> >();
-    selTTAss_ = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection(rTrajectories_, rTracks_));
+    selTTAss_ = std::make_unique<TrajTrackAssociationCollection>(rTrajectories_, rTracks_);
     for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
       Ref< vector<Trajectory> > trajRef(hTraj, i);
       TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
@@ -386,14 +386,14 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
     }
   }
 
-  evt.put(selTracks_);
+  evt.put(std::move(selTracks_));
   if (copyExtras_ ) {
-    evt.put(selTrackExtras_); 
-    evt.put(selHits_);
+    evt.put(std::move(selTrackExtras_)); 
+    evt.put(std::move(selHits_));
   }
   if ( copyTrajectories_ ) {
-    evt.put(selTrajs_);
-    evt.put(selTTAss_);
+    evt.put(std::move(selTrajs_));
+    evt.put(std::move(selTTAss_));
   }
 }
 

@@ -43,12 +43,12 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
      using MVACollection = std::vector<float>;
      using QualityMaskCollection = std::vector<unsigned char>;
 
-    std::auto_ptr<reco::TrackCollection> outputTrks;
-    std::auto_ptr<reco::TrackExtraCollection> outputTrkExtras;
-    std::auto_ptr< TrackingRecHitCollection>  outputTrkHits;
-    std::auto_ptr< std::vector<Trajectory> > outputTrajs;
-    std::auto_ptr< TrajTrackAssociationCollection >  outputTTAss;
-    std::auto_ptr< TrajectorySeedCollection > outputSeeds;
+    std::unique_ptr<reco::TrackCollection> outputTrks;
+    std::unique_ptr<reco::TrackExtraCollection> outputTrkExtras;
+    std::unique_ptr<TrackingRecHitCollection>  outputTrkHits;
+    std::unique_ptr<std::vector<Trajectory> > outputTrajs;
+    std::unique_ptr<TrajTrackAssociationCollection >  outputTTAss;
+    std::unique_ptr<TrajectorySeedCollection > outputSeeds;
 
     reco::TrackRefProd refTrks;
     reco::TrackExtraRefProd refTrkExtras;
@@ -603,7 +603,7 @@ TrackListMerger::~TrackListMerger() { }
 
 
 
-    std::auto_ptr<edm::ValueMap<float> > vmMVA = std::auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+    auto vmMVA = std::make_unique<edm::ValueMap<float>>();
     edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
 
 
@@ -611,7 +611,7 @@ TrackListMerger::~TrackListMerger() { }
     // special case - if just doing the trkquals
     if (trkQualMod_) {
       unsigned int tSize=trackColls[0]->size();
-      std::auto_ptr<edm::ValueMap<int> > vm = std::auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
+      auto vm = std::make_unique<edm::ValueMap<int>>();
       edm::ValueMap<int>::Filler filler(*vm);
 
       std::vector<int> finalQuals(tSize,-1); //default is unselected
@@ -630,7 +630,7 @@ TrackListMerger::~TrackListMerger() { }
       filler.insert(trackHandles[0], finalQuals.begin(),finalQuals.end());
       filler.fill();
 
-      e.put(vm);
+      e.put(std::move(vm));
       for (auto & q : finalQuals) q=std::max(q,0);
       auto quals = std::make_unique<QualityMaskCollection>(finalQuals.begin(),finalQuals.end());      
       e.put(std::move(quals),"QualityMasks");
@@ -645,7 +645,7 @@ TrackListMerger::~TrackListMerger() { }
       fillerMVA.insert(trackHandles[0],mvaVec.begin(),mvaVec.end());
       fillerMVA.fill();
       if ( copyMVA_) {
-	e.put(vmMVA,"MVAVals");
+	e.put(std::move(vmMVA),"MVAVals");
         auto mvas = std::make_unique<MVACollection>(mvaVec.begin(),mvaVec.end());
         e.put(std::move(mvas),"MVAValues");
       }
@@ -666,26 +666,26 @@ TrackListMerger::~TrackListMerger() { }
 
     std::vector<float> mvaVec;
 
-    outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
+    outputTrks = std::make_unique<reco::TrackCollection>();
     outputTrks->reserve(nToWrite);
     refTrks = e.getRefBeforePut<reco::TrackCollection>();
 
     if (copyExtras_) {
-      outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+      outputTrkExtras = std::make_unique<reco::TrackExtraCollection>();
       outputTrkExtras->reserve(nToWrite);
       refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
-      outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+      outputTrkHits   = std::make_unique<TrackingRecHitCollection>();
       outputTrkHits->reserve(nToWrite*25);
       refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
       if (makeReKeyedSeeds_){
-	outputSeeds = std::auto_ptr<TrajectorySeedCollection>(new TrajectorySeedCollection);
+	outputSeeds = std::make_unique<TrajectorySeedCollection>();
 	outputSeeds->reserve(nToWrite);
 	refTrajSeeds = e.getRefBeforePut<TrajectorySeedCollection>();
       }
     }
 
 
-    outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
+    outputTrajs = std::make_unique<std::vector<Trajectory>>();
     outputTrajs->reserve(rSize);
 
     for ( unsigned int i=0; i<rSize; i++) {
@@ -787,7 +787,7 @@ TrackListMerger::~TrackListMerger() { }
     //Fill the trajectories, etc. for 1st collection
     refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
 
-    outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection(refTrajs, refTrks));
+    outputTTAss = std::make_unique<TrajTrackAssociationCollection>(refTrajs, refTrks);
 
     for (unsigned int ti=0; ti<trackColls.size(); ti++) {
       edm::Handle< std::vector<Trajectory> >  hTraj1;
@@ -822,20 +822,20 @@ TrackListMerger::~TrackListMerger() { }
     fillerMVA.insert(outHandle,mvaVec.begin(),mvaVec.end());
     fillerMVA.fill();
 
-    e.put(outputTrks);
+    e.put(std::move(outputTrks));
     if ( copyMVA_ ) {
-      e.put(vmMVA,"MVAVals");
+      e.put(std::move(vmMVA),"MVAVals");
       auto mvas = std::make_unique<MVACollection>(mvaVec.begin(),mvaVec.end());
       e.put(std::move(mvas),"MVAValues");
     }
     if (copyExtras_) {
-      e.put(outputTrkExtras);
-      e.put(outputTrkHits);
+      e.put(std::move(outputTrkExtras));
+      e.put(std::move(outputTrkHits));
       if (makeReKeyedSeeds_)
-	e.put(outputSeeds);
+	e.put(std::move(outputSeeds));
     }
-    e.put(outputTrajs);
-    e.put(outputTTAss);
+    e.put(std::move(outputTrajs));
+    e.put(std::move(outputTTAss));
     return;
 
   }//end produce

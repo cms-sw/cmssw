@@ -89,7 +89,7 @@ namespace cms
     e.getByToken(stereorecHitsToken_, stereorecHits);
 
     // Step B: create empty output collection
-    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
+    auto output = std::make_unique<TrackCandidateCollection>();
 
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -192,7 +192,7 @@ namespace cms
 	// protection againt invalid initial states
 	if (! firstState.isValid()) {
 	  edm::LogWarning("CosmicTrackFinder") << "invalid innerState, will not make TrackCandidate";
-	  edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(output);  
+	  edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(std::move(output));
 	  return;
 	}
 
@@ -200,7 +200,7 @@ namespace cms
 	if(firstId != recHits.front().rawId()){
 	  edm::LogWarning("CosmicTrackFinder") <<"Mismatch in DetID of first hit: firstID= " <<firstId
 					       << "   DetId= " << recHits.front().geographicalId().rawId();
-	  edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(output);  
+	  edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(std::move(output));
 	  return;
 	}
 
@@ -212,6 +212,6 @@ namespace cms
       }
 
     }
-    edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(output);  
+    edm::OrphanHandle<TrackCandidateCollection> rTrackCand = e.put(std::move(output));
   }
 }

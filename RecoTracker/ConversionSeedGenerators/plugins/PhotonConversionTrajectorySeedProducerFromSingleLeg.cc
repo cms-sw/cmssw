@@ -40,11 +40,11 @@ void PhotonConversionTrajectorySeedProducerFromSingleLeg::produce(edm::Event& ev
 {
 
 
-  std::auto_ptr<TrajectorySeedCollection> result( new TrajectorySeedCollection() );  
+  auto result = std::make_unique<TrajectorySeedCollection>();  
 
   _theFinder->find(ev,es,*result);
   result->shrink_to_fit();
-  ev.put(result, _newSeedCandidates);  
+  ev.put(std::move(result), _newSeedCandidates);  
 
 
 }

@@ -47,7 +47,7 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   ev.getByToken( matchedrecHitsToken_, matchedrecHits);
  
 
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  auto output = std::make_unique<TrajectorySeedCollection>();
 
   //check on the number of clusters
   size_t clustsOrZero = check.tooManyClusters(ev);
@@ -62,5 +62,5 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   LogDebug("CosmicSeedGenerator")<<" number of seeds = "<< output->size();
 
 
-  ev.put(output);
+  ev.put(std::move(output));
 }

@@ -78,7 +78,7 @@ public:
   void  improveSeeds( const MeasurementTrackerEvent &event );
 
   /// Fill 'output' with persistent nuclear seeds
-  std::auto_ptr<TrajectorySeedCollection>  getPersistentSeeds();
+  std::unique_ptr<TrajectorySeedCollection>  getPersistentSeeds();
 
   TrajectoryStateOnSurface rescaleError(float rescale, const TSOS& state) const;
 
