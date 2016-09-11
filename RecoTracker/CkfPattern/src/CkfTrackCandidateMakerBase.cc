@@ -175,13 +175,13 @@ namespace cms{
     edm::Handle<MeasurementTrackerEvent> data;
     e.getByToken(theMTELabel, data);
 
-    std::auto_ptr<MeasurementTrackerEvent> dataWithMasks;
+    std::unique_ptr<MeasurementTrackerEvent> dataWithMasks;
     if (skipClusters_) {
         edm::Handle<PixelClusterMask> pixelMask;
         e.getByToken(maskPixels_, pixelMask);
         edm::Handle<StripClusterMask> stripMask;
         e.getByToken(maskStrips_, stripMask);
-        dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
+        dataWithMasks = std::make_unique<MeasurementTrackerEvent>(*data, *stripMask, *pixelMask);
         //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks " << std::endl;
         theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
     } else if (phase2skipClusters_) {
@@ -190,7 +190,7 @@ namespace cms{
         e.getByToken(maskPixels_, pixelMask);
         edm::Handle<Phase2OTClusterMask> phase2OTMask;
         e.getByToken(maskPhase2OTs_, phase2OTMask);
-        dataWithMasks.reset(new MeasurementTrackerEvent(*data, *pixelMask, *phase2OTMask));
+        dataWithMasks = std::make_unique<MeasurementTrackerEvent>(*data, *pixelMask, *phase2OTMask);
         //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with phase2 masks " << std::endl;
         theTrajectoryBuilder->setEvent(e, es, &*dataWithMasks);
     } else {
@@ -206,13 +206,13 @@ namespace cms{
     e.getByToken(theSeedLabel, collseed);
 
     // Step C: Create empty output collection
-    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
-    std::auto_ptr<std::vector<Trajectory> > outputT (new std::vector<Trajectory>());
+    auto output = std::make_unique<TrackCandidateCollection>();
+    auto outputT = std::make_unique<std::vector<Trajectory>>();
 
     if ( (*collseed).size()>theMaxNSeeds ) {
       LogError("TooManySeeds")<<"Exceeded maximum numeber of seeds! theMaxNSeeds="<<theMaxNSeeds<<" nSeed="<<(*collseed).size();
-      if (theTrackCandidateOutput){ e.put(output);}
-      if (theTrajectoryOutput){e.put(outputT);}
+      if (theTrackCandidateOutput){e.put(std::move(output));}
+      if (theTrajectoryOutput){e.put(std::move(outputT));}
       return;
     }
 
@@ -513,8 +513,8 @@ namespace cms{
     deleteAssocDebugger();
 
     // Step G: write output to file
-    if (theTrackCandidateOutput){ e.put(output);}
-    if (theTrajectoryOutput){e.put(outputT);}
+    if (theTrackCandidateOutput){e.put(std::move(output));}
+    if (theTrajectoryOutput){e.put(std::move(outputT));}
   }
 
 }

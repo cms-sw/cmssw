@@ -38,7 +38,7 @@ private:
 GEMSegmentProducer::GEMSegmentProducer(const edm::ParameterSet& ps) : iev(0) {
 	
   theGEMRecHitToken = consumes<GEMRecHitCollection>(ps.getParameter<edm::InputTag>("gemRecHitLabel"));
-  segmentBuilder_ = std::unique_ptr<GEMSegmentBuilder>(new GEMSegmentBuilder(ps)); // pass on the Parameter Set
+  segmentBuilder_ = std::make_unique<GEMSegmentBuilder>(ps); // pass on the Parameter Set
 
   // register what this produces
   produces<GEMSegmentCollection>();
@@ -60,13 +60,13 @@ void GEMSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   ev.getByToken(theGEMRecHitToken,gemRecHits);
 
   // create empty collection of Segments
-  std::auto_ptr<GEMSegmentCollection> oc( new GEMSegmentCollection );
+  auto oc = std::make_unique<GEMSegmentCollection>();
 
   // fill the collection
   segmentBuilder_->build(gemRecHits.product(), *oc); //@@ FILL oc
 
   // put collection in event
-  ev.put(oc);
+  ev.put(std::move(oc));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

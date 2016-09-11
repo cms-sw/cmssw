@@ -102,8 +102,8 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   Handle<TrackCollection> muons;
   event.getByToken(theMuonCollectionToken,muons);
 
-  std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
-  std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());
+  auto depMap = std::make_unique<reco::IsoDepositMap>();
+  auto isoMap = std::make_unique<edm::ValueMap<bool>>();
 
 
   //
@@ -156,12 +156,12 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     reco::IsoDepositMap::Filler depFiller(*depMap);
     depFiller.insert(muons, deps.begin(), deps.end());
     depFiller.fill();
-    event.put(depMap);
+    event.put(std::move(depMap));
   }
   edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
   isoFiller.insert(muons, isos.begin(), isos.end());
   isoFiller.fill();
-  event.put(isoMap);
+  event.put(std::move(isoMap));
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";
 }
