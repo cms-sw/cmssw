@@ -73,7 +73,7 @@ QuarkoniaTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
   //
   // the product
   //
-  std::auto_ptr<reco::TrackCollection> product(new reco::TrackCollection);
+  auto product = std::make_unique<reco::TrackCollection>();
   //
   // Muons
   //
@@ -88,7 +88,7 @@ QuarkoniaTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
   // Verification
   //
   if ( !muonHandle.isValid() || !trackHandle.isValid() || minMasses_.empty() ) {
-    iEvent.put(product);
+    iEvent.put(std::move(product));
     return;
   }
   //
@@ -174,7 +174,7 @@ QuarkoniaTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
     LogDebug("QuarkoniaTrackSelector") << stream.str();
   }
   //
-  iEvent.put(product);
+  iEvent.put(std::move(product));
 }
 
 

@@ -182,9 +182,9 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   const TrackerTopology& ttopo = *httopo;
 
   //prepare the output collection
-  std::auto_ptr<reco::TrackCollection> Toutput(new reco::TrackCollection());
-  std::auto_ptr<TrackingRecHitCollection> TRHoutput(new TrackingRecHitCollection());
-  std::auto_ptr<reco::TrackExtraCollection> TEoutput(new reco::TrackExtraCollection());
+  auto Toutput = std::make_unique<reco::TrackCollection>();
+  auto TRHoutput = std::make_unique<TrackingRecHitCollection>();
+  auto TEoutput = std::make_unique<reco::TrackExtraCollection>();
   theRefprodTE = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
   theTEi=0;
   theRefprodRH =iEvent.getRefBeforePut<TrackingRecHitCollection>();
@@ -230,9 +230,9 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   LogDebug( theCategory)<<"writing: "<<Toutput->size()<<" corrected reco::Track to the event.";
   
-  iEvent.put(Toutput, theInstanceName);
-  iEvent.put(TEoutput);
-  iEvent.put(TRHoutput);
+  iEvent.put(std::move(Toutput), theInstanceName);
+  iEvent.put(std::move(TEoutput));
+  iEvent.put(std::move(TRHoutput));
 
 }
 

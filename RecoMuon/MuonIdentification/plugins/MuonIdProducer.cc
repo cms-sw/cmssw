@@ -133,7 +133,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    }
 
    if (fillTrackerKink_) {
-     trackerKinkFinder_.reset(new MuonKinkFinder(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters")));
+     trackerKinkFinder_ = std::make_unique<MuonKinkFinder>(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters"));
    }
 
    //create mesh holder
@@ -449,8 +449,8 @@ bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon,
 void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-   std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection);
-   std::auto_ptr<reco::CaloMuonCollection> caloMuons( new reco::CaloMuonCollection );
+   auto outputMuons = std::make_unique<reco::MuonCollection>();
+   auto caloMuons = std::make_unique<reco::CaloMuonCollection>();
 
    init(iEvent, iSetup);
 
@@ -714,11 +714,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
-   edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
+   edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(std::move(outputMuons));
 
    auto fillMap = [](auto refH, auto& vec, edm::Event& ev, const std::string& cAl = ""){
      typedef  edm::ValueMap<typename std::decay<decltype(vec)>::type::value_type> MapType;
-     std::unique_ptr<MapType > oMap(new MapType());
+     auto oMap = std::make_unique<MapType>();
      {
        typename MapType::Filler filler(*oMap);
        filler.insert(refH, vec.begin(), vec.end());
@@ -739,7 +739,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      fillMap(muonHandle, jetDepColl, iEvent, jetDepositName_);
    }
 
-   iEvent.put(caloMuons);
+   iEvent.put(std::move(caloMuons));
 }
 
 

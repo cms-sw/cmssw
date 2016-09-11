@@ -59,7 +59,7 @@ void L3MuonSumCaloPFIsolationProducer::produce(edm::StreamID, edm::Event& iEvent
     edm::Handle<reco::RecoChargedCandidateIsolationMap> hcalIsolation;
     iEvent.getByToken (pfHcalClusterProducer_,hcalIsolation);
     
-    std::auto_ptr<edm::ValueMap<float> > caloIsoMap( new edm::ValueMap<float> ());
+    auto caloIsoMap = std::make_unique<edm::ValueMap<float>>();
     std::vector<float> isoFloats(recochargedcandHandle->size(), 0);
     
     for (unsigned int iReco = 0; iReco < recochargedcandHandle->size(); iReco++) {
@@ -75,6 +75,6 @@ void L3MuonSumCaloPFIsolationProducer::produce(edm::StreamID, edm::Event& iEvent
     edm::ValueMap<float> ::Filler isoFloatFiller(*caloIsoMap);
     isoFloatFiller.insert(recochargedcandHandle, isoFloats.begin(), isoFloats.end());
     isoFloatFiller.fill();
-    iEvent.put(caloIsoMap);
+    iEvent.put(std::move(caloIsoMap));
 
 }
