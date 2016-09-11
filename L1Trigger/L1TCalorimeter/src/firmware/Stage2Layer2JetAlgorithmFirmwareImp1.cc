@@ -424,7 +424,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet & 
   // use lowest 3 strips as PU estimate
   std::sort( ring.begin(), ring.end() );
   
-  for(uint i=0; i<4; ++i)    jet.setPUDonutEt(i, (short int) ring[i]);
+  for(unsigned int i=0; i<4; ++i)    jet.setPUDonutEt(i, (short int) ring[i]);
     
   return ( ring[0] + ring[1] + ring[2] );
   
