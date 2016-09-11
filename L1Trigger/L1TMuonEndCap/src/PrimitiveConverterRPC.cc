@@ -41,12 +41,12 @@ PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim,
   }
 
   l1t::EMTFHitExtraCollection clustHits;
-  for (uint iHit = 0; iHit < tmpHits.size(); iHit++) {
+  for (unsigned int iHit = 0; iHit < tmpHits.size(); iHit++) {
     l1t::EMTFHitExtra hit1 = tmpHits.at(iHit);
 
     // Skip hit if it is already in a cluster
     bool hit_in_cluster = false;
-    for (uint jHit = 0; jHit < clustHits.size(); jHit++) {
+    for (unsigned int jHit = 0; jHit < clustHits.size(); jHit++) {
       l1t::EMTFHitExtra clustHit = clustHits.at(jHit);
       if ( sameRpcChamber(hit1, clustHit) && hit1.Strip_hi() <= clustHit.Strip_hi() && 
 	   hit1.Strip_low() >= clustHit.Strip_low() ) hit_in_cluster = true;
@@ -60,7 +60,7 @@ PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim,
       prevHi = hit1.Strip_hi();
       prevLow = hit1.Strip_low();
 
-      for (uint jHit = 0; jHit < tmpHits.size(); jHit++) {
+      for (unsigned int jHit = 0; jHit < tmpHits.size(); jHit++) {
 	if (iHit == jHit) continue;
 	l1t::EMTFHitExtra hit2 = tmpHits.at(jHit);
 
@@ -106,7 +106,7 @@ std::vector<ConvertedHit>
 PrimitiveConverterRPC::fillConvHits(l1t::EMTFHitExtraCollection exHits) {
 
   std::vector<ConvertedHit> ConvHits;
-  for (uint iHit = 0; iHit < exHits.size(); iHit++) {
+  for (unsigned int iHit = 0; iHit < exHits.size(); iHit++) {
     l1t::EMTFHitExtra exHit = exHits.at(iHit);
 
     std::vector<int> zone_contribution;

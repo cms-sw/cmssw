@@ -402,7 +402,7 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
   std::vector<int> sectorsStart(3*nProcessors), sectorsEnd(3*nProcessors);
   nElem = aOMTFElement->getElementsByTagName(_toDOMS("ConnectionMap"))->getLength();
   DOMElement* aConnectionElement = 0;
-  for(uint i=0;i<nElem;++i){
+  for(unsigned int i=0;i<nElem;++i){
     aNode = aOMTFElement->getElementsByTagName(_toDOMS("ConnectionMap"))->item(i);
     aConnectionElement = static_cast<DOMElement *>(aNode);
     unsigned int iProcessor = std::atoi(_toString(aConnectionElement->getAttribute(_toDOMS("iProcessor"))).c_str());
@@ -431,7 +431,7 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
  
   nElem = aOMTFElement->getElementsByTagName(_toDOMS("LayerMap"))->getLength();
   DOMElement* aLayerElement = 0;
-  for(uint i=0;i<nElem;++i){
+  for(unsigned int i=0;i<nElem;++i){
     aNode = aOMTFElement->getElementsByTagName(_toDOMS("LayerMap"))->item(i);
     aLayerElement = static_cast<DOMElement *>(aNode); 
     unsigned int hwNumber = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("hwNumber"))).c_str());
@@ -452,7 +452,7 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
   
   nElem = aOMTFElement->getElementsByTagName(_toDOMS("RefLayerMap"))->getLength();
   DOMElement* aRefLayerElement = 0;
-  for(uint i=0;i<nElem;++i){
+  for(unsigned int i=0;i<nElem;++i){
     aNode = aOMTFElement->getElementsByTagName(_toDOMS("RefLayerMap"))->item(i);
     aRefLayerElement = static_cast<DOMElement *>(aNode); 
     unsigned int refLayer = std::atoi(_toString(aRefLayerElement->getAttribute(_toDOMS("refLayer"))).c_str());
@@ -474,14 +474,14 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
   nElem = aOMTFElement->getElementsByTagName(_toDOMS("Processor"))->getLength();
   assert(nElem==nProcessors);
   DOMElement* aProcessorElement = 0;
-  for(uint i=0;i<nElem;++i){
+  for(unsigned int i=0;i<nElem;++i){
     aNode = aOMTFElement->getElementsByTagName(_toDOMS("Processor"))->item(i);
     aProcessorElement = static_cast<DOMElement *>(aNode); 
     unsigned int iProcessor = std::atoi(_toString(aProcessorElement->getAttribute(_toDOMS("iProcessor"))).c_str());
     unsigned int nElem1 = aProcessorElement->getElementsByTagName(_toDOMS("RefLayer"))->getLength();
     assert(nElem1==nRefLayers);
     DOMElement* aRefLayerElement = 0;
-    for(uint ii=0;ii<nElem1;++ii){
+    for(unsigned int ii=0;ii<nElem1;++ii){
       aNode = aProcessorElement->getElementsByTagName(_toDOMS("RefLayer"))->item(ii);
       aRefLayerElement = static_cast<DOMElement *>(aNode); 
       unsigned int iRefLayer = std::atoi(_toString(aRefLayerElement->getAttribute(_toDOMS("iRefLayer"))).c_str());
@@ -492,7 +492,7 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     nElem1 = aProcessorElement->getElementsByTagName(_toDOMS("RefHit"))->getLength();
     assert( (iProcessor==0 && nElem1==nRefHits) || (iProcessor!=0 && nElem1==0) );
     DOMElement* aRefHitElement = 0;
-    for(uint ii=0;ii<nElem1;++ii){
+    for(unsigned int ii=0;ii<nElem1;++ii){
       aNode = aProcessorElement->getElementsByTagName(_toDOMS("RefHit"))->item(ii);
       aRefHitElement = static_cast<DOMElement *>(aNode); 
       unsigned int iRefHit = std::atoi(_toString(aRefHitElement->getAttribute(_toDOMS("iRefHit"))).c_str());
@@ -514,14 +514,14 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const{
     unsigned int nElem2 = aProcessorElement->getElementsByTagName(_toDOMS("LogicRegion"))->getLength();
     assert( (iProcessor==0 && nElem2==nLogicRegions) || (iProcessor!=0 && nElem2==0) );
     DOMElement* aRegionElement = 0;
-    for(uint ii=0;ii<nElem2;++ii){
+    for(unsigned int ii=0;ii<nElem2;++ii){
       aNode = aProcessorElement->getElementsByTagName(_toDOMS("LogicRegion"))->item(ii);
       aRegionElement = static_cast<DOMElement *>(aNode); 
       unsigned int iRegion = std::atoi(_toString(aRegionElement->getAttribute(_toDOMS("iRegion"))).c_str());
       unsigned int nElem3 = aRegionElement->getElementsByTagName(_toDOMS("Layer"))->getLength();
       assert(nElem3==nLayers);
       DOMElement* aLayerElement = 0;
-      for(uint iii=0;iii<nElem3;++iii){
+      for(unsigned int iii=0;iii<nElem3;++iii){
   	  aNode = aRegionElement->getElementsByTagName(_toDOMS("Layer"))->item(iii);
 	  aLayerElement = static_cast<DOMElement *>(aNode); 
 	  unsigned int iLayer = std::atoi(_toString(aLayerElement->getAttribute(_toDOMS("iLayer"))).c_str());
