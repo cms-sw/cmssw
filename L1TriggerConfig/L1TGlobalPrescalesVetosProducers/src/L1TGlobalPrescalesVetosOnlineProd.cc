@@ -183,13 +183,19 @@ std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newO
     }
     
     int NumPrescaleSets = numColumns_prescale - 1;
-    int NumAlgos_prescale = tRow_prescale.size();
+///  there may be "missing" bits in the xml description meaning that triggers are not prescaled
+///    int NumAlgos_prescale = tRow_prescale.size();
+    unsigned int NumAlgos_prescale = 0;
+    for( auto it=tRow_prescale.begin(); it!=tRow_prescale.end(); it++ ){
+        unsigned int algoBit = it->getRowValue<unsigned int>("algo/prescale-index");
+        if( NumAlgos_prescale < algoBit+1 ) NumAlgos_prescale = algoBit+1;
+    }
 
     if( NumPrescaleSets > 0 ){
       // Fill default prescale set
       for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
 	prescales.push_back(std::vector<int>());
-	for( int iBit = 0; iBit < NumAlgos_prescale; ++iBit ){
+	for( unsigned int iBit = 0; iBit < NumAlgos_prescale; ++iBit ){
 	  int inputDefaultPrescale = 1;
 	  prescales[iSet].push_back(inputDefaultPrescale);
 	}
