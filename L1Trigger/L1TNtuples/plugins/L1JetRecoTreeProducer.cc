@@ -326,7 +326,7 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
 
   
   float corrFactor = 1.;
-  uint nJets = 0;
+  unsigned int nJets = 0;
   
   float mHx = 0;
   float mHy = 0;
@@ -375,7 +375,7 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
   
   // //fill jet data array with sorted jet ets and corr factors
   // std::vector<std::pair<float,float> >::iterator it;
-  // uint nJets = 0;
+  // unsigned int nJets = 0;
     
   // for(it = corrJetEtsAndCorrs.begin(); it != corrJetEtsAndCorrs.end() && nJets < maxJet_; ++it){
   //   jet_data->etCorr.push_back(it->first);

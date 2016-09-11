@@ -127,11 +127,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto rdigi = (*rchamber).second.first;
     auto rdend = (*rchamber).second.second;
     for( ; rdigi != rdend; ++rdigi) {
-<<<<<<< HEAD
-      out_rpc.push_back(TriggerPrimitive( (*rchamber).first, rdigi->strip(), 0, rdigi->bx())); // Layer unset.  How to access? - AWB 03.06.16 
-=======
       out.push_back(L1TMuon::TriggerPrimitive( (*rchamber).first, rdigi->strip(), 0, rdigi->bx())); // Layer unset.  How to access? - AWB 03.06.16 
->>>>>>> 650a70e... Avoid {using namespace L1TMuon} statement in header file.
     }
   }
   
@@ -173,9 +169,9 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     } // End loop: for(unsigned int i2=i1+1;i2<out.size();i2++)
   } // End loop: for(unsigned int i1=0;i1<out.size();i1++)
 
-  uint nHits = OutputHits->size();
-  for (uint iHit = 0; iHit < nHits; iHit++) {
-    for (uint jHit = iHit+1; jHit < nHits; jHit++) {
+  unsigned int nHits = OutputHits->size();
+  for (unsigned int iHit = 0; iHit < nHits; iHit++) {
+    for (unsigned int jHit = iHit+1; jHit < nHits; jHit++) {
       if ( OutputHits->at(iHit).Chamber() != OutputHits->at(jHit).Chamber() ) continue;
       if ( (OutputHits->at(iHit).Ring() % 3) != (OutputHits->at(jHit).Ring() % 3) ) continue;
       if ( OutputHits->at(iHit).Sector() != OutputHits->at(jHit).Sector() ) continue;
@@ -210,15 +206,15 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     CHits[SectIndex] = ConvHits;
 
     l1t::EMTFHitExtraCollection tmp_hits_rpc = primConvRPC_.convert(tester_rpc, SectIndex, _geom_rpc); 
-    for (uint iHit = 0; iHit < tmp_hits_rpc.size(); iHit++) 
+    for (unsigned int iHit = 0; iHit < tmp_hits_rpc.size(); iHit++) 
       OutputHitsRPC->push_back( tmp_hits_rpc.at(iHit) );
     std::vector<ConvertedHit> ConvHitsRPC = primConvRPC_.fillConvHits(tmp_hits_rpc);
     
     // Fill OutputHits with ConvertedHit information
-    for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++) {
+    for (unsigned int iCHit = 0; iCHit < ConvHits.size(); iCHit++) {
       // bool isMatched = false;
       
-      for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+      for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) {
 	if ( ConvHits.at(iCHit).Station()   == OutputHits->at(iHit).Station() &&
 	     ( ConvHits.at(iCHit).Id()      == OutputHits->at(iHit).CSC_ID()  ||
 	       ConvHits.at(iCHit).Id()      == ( (OutputHits->at(iHit).Ring() != 4) // Account for either ME1/1a 
@@ -249,7 +245,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  
 	  OutHits->push_back( OutputHits->at(iHit).CreateEMTFHit() );
 	}
-      } // End loop: for (uint iHit = 0; iHit < OutputHits->size(); iHit++)
+      } // End loop: for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++)
 
       // if (isMatched == false) {
       //   std::cout << "***********************************************" << std::endl;
@@ -259,7 +255,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       // 	      << ", wire = " << ConvHits.at(iCHit).Wire() << ", strip = " << ConvHits.at(iCHit).Strip()
       // 	      << ", BX = " << ConvHits.at(iCHit).BX() << ", neighbor = " << ConvHits.at(iCHit).IsNeighbor() << std::endl;
       
-      //   for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+      //   for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) {
       //     std::cout << "EMTFHitExtra: station = " << OutputHits->at(iHit).Station() << ", CSC ID = " << OutputHits->at(iHit).CSC_ID()
       // 		<< ", sector index = " << OutputHits->at(iHit).Sector_index() << ", subsector = " << OutputHits->at(iHit).Subsector() 
       // 		<< ", wire = " << OutputHits->at(iHit).Wire() << ", strip = " << OutputHits->at(iHit).Strip()
@@ -269,7 +265,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       //   }
       // }
       
-    } // End loop: for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++)
+    } // End loop: for (unsigned int iCHit = 0; iCHit < ConvHits.size(); iCHit++)
     
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -463,7 +459,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 	  l1t::EMTFHitExtra thisHit;
 	  // thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
 
-	  for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+	  for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) {
 	    if ( (A->TP().detId<CSCDetId>().endcap() == 1) == (OutputHits->at(iHit).Endcap() == 1) &&
 		 A->TP().detId<CSCDetId>().station()       == OutputHits->at(iHit).Station() &&
 		 A->TP().detId<CSCDetId>().triggerSector() == OutputHits->at(iHit).Sector()  &&
@@ -491,7 +487,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 		      << ", sector index " << A->SectorIndex() << ", subsector " << A->Sub()
 		      << ", wire " << A->Wire() << ", strip " << A->Strip() << ", BX " << A->TP().getCSCData().bx - 6 
 		      << ", neighbor " << A->IsNeighbor() << " has no match" << std::endl;
-	    for (uint iHit = 0; iHit < OutputHits->size(); iHit++) 
+	    for (unsigned int iHit = 0; iHit < OutputHits->size(); iHit++) 
 	      std::cout << "!@#$ Option " << iHit+1 << " with endcap " << OutputHits->at(iHit).Endcap() 
 			<< ", station " << OutputHits->at(iHit).Station() << ", CSC_ID " << OutputHits->at(iHit).CSC_ID() 
 			<< ", ring " << OutputHits->at(iHit).Ring() << ", chamber " << OutputHits->at(iHit).Chamber()
