@@ -348,8 +348,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     int etaBin1    = 0;
 
     int etIndex0  = 0;
+    int etBin0    = 0;
     double et0Phy = 0.;
     int etIndex1  = 0;
+    int etBin1    = 0;
     double et1Phy = 0.;
     
     int chrg0 = -1;
@@ -416,11 +418,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		if(etaBin0<0) etaBin0 = m_gtScales->getMUScales().etaBins.size() + etaBin0; //twos complement		
 //		LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
 		
+		etBin0 = etIndex0;
 		int ssize = m_gtScales->getMUScales().etBins.size();
-		if (etIndex0 >= ssize){ 
-		  etIndex0 = ssize-1; 			  
+		if (etBin0 >= ssize){ 
+		  etBin0 = ssize-1; 			  
 		  edm::LogWarning("L1TGlobal") 
-		    << "muon0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+		    << "muon0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
 		} 
 		
 		// Determine Floating Pt numbers for floating point caluclation
@@ -428,7 +431,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		binEdges = m_gtScales->getMUScales().etaBins.at(etaBin0);
 		eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		binEdges = m_gtScales->getMUScales().etBins.at(etIndex0);
+		binEdges = m_gtScales->getMUScales().etBins.at(etBin0);
 		et0Phy = 0.5*(binEdges.second + binEdges.first);
 
 		LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;		
@@ -449,11 +452,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    if(etaBin0<0) etaBin0 = m_gtScales->getEGScales().etaBins.size() + etaBin0;
 //		    LogDebug("L1TGlobal") << "EG0 phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0 << " et " << etIndex0 << std::endl;
 
+                    etBin0 = etIndex0;
 		    int ssize = m_gtScales->getEGScales().etBins.size();
-		    if (etIndex0 >= ssize){ 
-		      etIndex0 = ssize-1; 			  
+		    if (etBin0 >= ssize){ 
+		      etBin0 = ssize-1; 			  
 		      edm::LogWarning("L1TGlobal") 
-			<< "EG0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+			<< "EG0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
 		    } 
 	    
 		    // Determine Floating Pt numbers for floating point caluclation
@@ -461,7 +465,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    phi0Phy = 0.5*(binEdges.second + binEdges.first);					    
 		    binEdges = m_gtScales->getEGScales().etaBins.at(etaBin0);
 		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		    binEdges = m_gtScales->getEGScales().etBins.at(etIndex0);
+		    binEdges = m_gtScales->getEGScales().etBins.at(etBin0);
 		    et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    
 		 }
@@ -475,11 +479,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    etaBin0 = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getJETScales().etaBins.size() + etaBin0;
 
+		    etBin0 = etIndex0;
 		    int ssize = m_gtScales->getJETScales().etBins.size();
-		    if (etIndex0 >= ssize){ 
+		    if (etBin0 >= ssize){ 
 		      //edm::LogWarning("L1TGlobal") 
-		      //<< "jet0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
-		      etIndex0 = ssize-1; 			  
+		      //<< "jet0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
+		      etBin0 = ssize-1; 			  
 		    } 
 		    
 		    // Determine Floating Pt numbers for floating point caluclation
@@ -487,7 +492,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    phi0Phy = 0.5*(binEdges.second + binEdges.first);			
 		    binEdges = m_gtScales->getJETScales().etaBins.at(etaBin0);
 		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		    binEdges = m_gtScales->getJETScales().etBins.at(etIndex0);
+		    binEdges = m_gtScales->getJETScales().etBins.at(etBin0);
 		    et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    
 		 }
@@ -499,12 +504,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt();
 		    etaBin0 = etaIndex0;
 		    if(etaBin0<0) etaBin0 = m_gtScales->getTAUScales().etaBins.size() + etaBin0;
-
+		    
+		    etBin0 = etIndex0;
 		    int ssize = m_gtScales->getTAUScales().etBins.size();
-		    if (etIndex0 >= ssize){ 		      
-		      etIndex0 = ssize-1; 			  
+		    if (etBin0 >= ssize){ 		      
+		      etBin0 = ssize-1; 			  
 		      edm::LogWarning("L1TGlobal") 
-			<< "tau0 hw et" << etIndex0 << " out of scale range.  Setting to maximum.";
+			<< "tau0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
 		    } 
 
 		    
@@ -513,7 +519,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		    binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin0);
 		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		    binEdges = m_gtScales->getTAUScales().etBins.at(etIndex0);
+		    binEdges = m_gtScales->getTAUScales().etBins.at(etBin0);
 		    et0Phy = 0.5*(binEdges.second + binEdges.first);		    			
 		    lutObj0 = "TAU";
 		 }
@@ -607,34 +613,37 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
-
+		      
+		      etBin0 = etIndex0;
 		      int ssize = m_gtScales->getETMScales().etBins.size();
 		      assert(ssize > 0);
-		      if (etIndex0 >= ssize){ etIndex0 = ssize-1; } 			   
+		      if (etBin0 >= ssize){ etBin0 = ssize-1; } 			   
 		      
-		      binEdges = m_gtScales->getETMScales().etBins.at(etIndex0);
+		      binEdges = m_gtScales->getETMScales().etBins.at(etBin0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } else if (cndObjTypeVec[0] == gtHTM) {
 		      std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
-
+		      
+		      etBin0 = etIndex0;
 		      int ssize = m_gtScales->getHTMScales().etBins.size();
 		      assert(ssize > 0);
-		      if (etIndex0 >= ssize){ etIndex0 = ssize-1; } 			   
+		      if (etBin0 >= ssize){ etBin0 = ssize-1; } 			   
 
-		      binEdges = m_gtScales->getHTMScales().etBins.at(etIndex0);
+		      binEdges = m_gtScales->getHTMScales().etBins.at(etBin0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } else if (cndObjTypeVec[0] == gtETMHF) {
 		      std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
-
+		      
+		      etBin0 = etIndex0;
 		      int ssize = m_gtScales->getETMHFScales().etBins.size();
 		      assert(ssize > 0);
-		      if (etIndex0 >= ssize){ etIndex0 = ssize-1; } 			   
+		      if (etBin0 >= ssize){ etBin0 = ssize-1; } 			   
 
-		      binEdges = m_gtScales->getETMHFScales().etBins.at(etIndex0);
+		      binEdges = m_gtScales->getETMHFScales().etBins.at(etBin0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } 
 
@@ -703,12 +712,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   etaBin1 = etaIndex1;
 		   if(etaBin1<0) etaBin1 = m_gtScales->getMUScales().etaBins.size() + etaBin1;	   
 //		   LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
-
+ 
+		   etBin1 = etIndex1;
 		   int ssize = m_gtScales->getMUScales().etBins.size();
-		   if (etIndex1 >= ssize){ 
+		   if (etBin1 >= ssize){ 
 		     edm::LogWarning("L1TGlobal") 
-		       << "muon2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
-		     etIndex1 = ssize-1;   
+		       << "muon2 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
+		     etBin1 = ssize-1;   
 		   } 
 
 		   // Determine Floating Pt numbers for floating point caluclation
@@ -716,7 +726,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   phi1Phy = 0.5*(binEdges.second + binEdges.first);
 		   binEdges = m_gtScales->getMUScales().etaBins.at(etaBin1);
 		   eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-		   binEdges = m_gtScales->getMUScales().etBins.at(etIndex1);
+		   binEdges = m_gtScales->getMUScales().etBins.at(etBin1);
 		   et1Phy = 0.5*(binEdges.second + binEdges.first);		
 	   
                 }
@@ -730,12 +740,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
 			etaBin1   =   etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getEGScales().etaBins.size() + etaBin1;
-
+			
+			etBin1 = etIndex1;
 			int ssize = m_gtScales->getEGScales().etBins.size();
-			if (etIndex1 >= ssize){ 
+			if (etBin1 >= ssize){ 
 			  edm::LogWarning("L1TGlobal") 
-			    << "EG1 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
-			  etIndex1 = ssize-1; 			  
+			    << "EG1 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
+			  etBin1 = ssize-1; 			  
 			} 
 			
 			// Determine Floating Pt numbers for floating point caluclation
@@ -743,7 +754,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
 			binEdges = m_gtScales->getEGScales().etaBins.at(etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-			binEdges = m_gtScales->getEGScales().etBins.at(etIndex1);
+			binEdges = m_gtScales->getEGScales().etBins.at(etBin1);
 			et1Phy = 0.5*(binEdges.second + binEdges.first);
 		    	lutObj1 = "EG";
 		     }
@@ -755,13 +766,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
 			etaBin1 = etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getJETScales().etaBins.size() + etaBin1;
-						
+			
+			etBin1 = etIndex1;						
 			int ssize = m_gtScales->getJETScales().etBins.size();
 			assert(ssize);
-			if (etIndex1 >= ssize){ 			  
+			if (etBin1 >= ssize){ 			  
 			  //edm::LogWarning("L1TGlobal") 
-			  //<< "jet2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
-			  etIndex1 = ssize-1; 			  
+			  //<< "jet2 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
+			  etBin1 = ssize-1; 			  
 			} 
 
 			// Determine Floating Pt numbers for floating point caluclation
@@ -770,7 +782,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			binEdges = m_gtScales->getJETScales().etaBins.at(etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
 			//CRASHES HERE:
-			binEdges = m_gtScales->getJETScales().etBins.at(etIndex1);
+			binEdges = m_gtScales->getJETScales().etBins.at(etBin1);
 			et1Phy = 0.5*(binEdges.second + binEdges.first);
 			lutObj1 = "JET";
 		     }
@@ -782,12 +794,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt();
 			etaBin1 = etaIndex1;
 			if(etaBin1<0) etaBin1 = m_gtScales->getTAUScales().etaBins.size() + etaBin1;
-
+			
+			etBin1 = etIndex1;
 			int ssize = m_gtScales->getTAUScales().etBins.size();
-			if (etIndex1 >= ssize){ 
+			if (etBin1 >= ssize){ 
 			  edm::LogWarning("L1TGlobal") 
-			    << "tau2 hw et" << etIndex1 << " out of scale range.  Setting to maximum.";
-			  etIndex1 = ssize-1; 			  
+			    << "tau2 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
+			  etBin1 = ssize-1; 			  
 			} 
 						
 			// Determine Floating Pt numbers for floating point caluclation
@@ -795,7 +808,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
 			binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-			binEdges = m_gtScales->getTAUScales().etBins.at(etIndex1);
+			binEdges = m_gtScales->getTAUScales().etBins.at(etBin1);
 			et1Phy = 0.5*(binEdges.second + binEdges.first);	
 			lutObj1 = "TAU";
 		     }
@@ -890,34 +903,37 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
-
+			 
+			 etBin1 = etIndex1;
 			 int ssize = m_gtScales->getETMScales().etBins.size();
 			 assert(ssize > 0);
-			 if (etIndex1 >= ssize){ etIndex1 = ssize-1; } 			   
+			 if (etBin1 >= ssize){ etBin1 = ssize-1; } 			   
 		      
-			 binEdges = m_gtScales->getETMScales().etBins.at(etIndex1);
+			 binEdges = m_gtScales->getETMScales().etBins.at(etBin1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
 		       } else if(cndObjTypeVec[1] == gtHTM) {
 		         std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
-
+			 
+			 etBin1 = etIndex1;
 			 int ssize = m_gtScales->getHTMScales().etBins.size();
 			 assert(ssize > 0);
-			 if (etIndex1 >= ssize){ etIndex1 = ssize-1; } 			   
+			 if (etBin1 >= ssize){ etBin1 = ssize-1; } 			   
 
-			 binEdges = m_gtScales->getHTMScales().etBins.at(etIndex1);
+			 binEdges = m_gtScales->getHTMScales().etBins.at(etBin1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
 		       } else if(cndObjTypeVec[1] == gtETMHF) {
 		         std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
-
+			 
+			 etBin1 = etIndex1;
 			 int ssize = m_gtScales->getETMHFScales().etBins.size();
 			 assert(ssize > 0);
-			 if (etIndex1 >= ssize){ etIndex1 = ssize-1; } 			   
+			 if (etBin1 >= ssize){ etBin1 = ssize-1; } 			   
 
-			 binEdges = m_gtScales->getETMHFScales().etBins.at(etIndex1);
+			 binEdges = m_gtScales->getETMHFScales().etBins.at(etBin1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
 		       }
 
