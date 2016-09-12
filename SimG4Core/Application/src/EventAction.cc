@@ -29,11 +29,20 @@ EventAction::~EventAction() {}
     
 void EventAction::BeginOfEventAction(const G4Event * anEvent)
 {
+  if (std::ifstream(m_stopFile.c_str()))
+    {
+      edm::LogWarning("SimG4CoreApplication")
+        << "BeginOfEventAction: termination signal received at event "
+	<< anEvent->GetEventID();
+      /*
+        G4cout << "BeginOfEventAction: termination signal received at event "
+	       << anEvent->GetEventID() << G4endl;
+      */
+      m_runInterface->abortRun(true);
+    }
   m_trackManager->reset();
-
   BeginOfEvent e(anEvent);
   m_beginOfEventSignal(&e);
-
   if(nullptr != m_SteppingVerbose) { m_SteppingVerbose->BeginOfEvent(anEvent); }
 }
 
@@ -43,6 +52,8 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
     {
       edm::LogInfo("SimG4CoreApplication") << " Event " << anEvent->GetEventID()
 					   << " Random number: " << G4UniformRand();  
+      //std::cout << " Event " << anEvent->GetEventID()
+      //	<< " Random number: " << G4UniformRand() << std::endl;  
       //CLHEP::HepRandom::showEngineStatus();
     }
   if (std::ifstream(m_stopFile.c_str()))
@@ -71,8 +82,14 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
   m_trackManager->cleanTkCaloStateInfoMap();
 }
 
-void EventAction::addTkCaloStateInfo(uint32_t t,
-				     const std::pair<math::XYZVectorD,math::XYZTLorentzVectorD>& p) 
+void EventAction::addTrack(TrackWithHistory* iTrack, bool inHistory, 
+			   bool withAncestor)
+{
+  m_trackManager->addTrack(iTrack, inHistory, withAncestor);
+}
+
+void EventAction::addTkCaloStateInfo(uint32_t t,const std::pair< math::XYZVectorD,
+				     math::XYZTLorentzVectorD>& p)
 {
   m_trackManager->addTkCaloStateInfo(t,p);
 }
