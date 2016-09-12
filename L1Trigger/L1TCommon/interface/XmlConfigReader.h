@@ -42,6 +42,7 @@ class XmlConfigReader {
   const XMLCh* kTagProcessor;
   const XMLCh* kTagRole;
   const XMLCh* kTagCrate;
+  const XMLCh* kTagSlot;
   const XMLCh* kTagDaqTtc;
   const XMLCh* kAttrId;
   const XMLCh* kAttrType;
