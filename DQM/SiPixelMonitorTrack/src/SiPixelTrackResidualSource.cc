@@ -1180,7 +1180,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
                 float yclust = clust->y();
 
 		getepixrococcupancyontrk(tTopo,hit,xclust,yclust,z,meRocBladevsDiskEndcapOnTrk);
-		//		getepixrococcupancyofftrk(DetId(detId),tTopo,,ycenter,z,meRocBladevsDiskEndcapOffTrk);
+		
 		if(z>0){
         for (int i = 0; i < noOfDisks; i++)
         {
@@ -1616,18 +1616,6 @@ void SiPixelTrackResidualSource::getepixrococcupancyofftrk(DetId detId, const Tr
   int pxfmodule = pxfid.module();
   int pxfdisk   = pxfid.disk();
   int pxfblade_off = pxfid.blade();
-
-  /*
-  offline.det=online.det=1;
-  offline.side=pxfid.side();
-  offline.disk=pxfid.disk();
-  offline.blade=pxfid.blade();
-  offline.panel=online.panel=pxfid.panel();
-  offline.module=online.module=pxfid.module(); // not checked
-  */
-  
-
-  //  if ( (pxfside==1) || (pxfside==3) ) { pxfblade = -1.*pxfblade; }
 
   if (z<0.) { pxfdisk  = -1.*pxfdisk; }
 
