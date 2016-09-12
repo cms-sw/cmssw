@@ -15,8 +15,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
 streamA_datasetTemplates_selector.throw      = cms.bool(False)
-streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_CaloJet260_v3', 
-    'HLT_Photon20_CaloIdVL_IsoL_v6')
+streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_CaloJet260_v4', 
+    'HLT_Photon20_CaloIdVL_IsoL_v7')
 
 
 # dump of the Stream PhysicsEGamma Datasets defined in the HLT table as Stream A Datasets
@@ -34,7 +34,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetJetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetJetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetJetHT_selector.throw      = cms.bool(False)
-streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_PFJet40_v7')
+streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_PFJet40_v8')
 
 
 # dump of the Stream PhysicsMuons Datasets defined in the HLT table as Stream A Datasets
