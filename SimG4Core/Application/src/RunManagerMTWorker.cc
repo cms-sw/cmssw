@@ -78,11 +78,12 @@ namespace {
   {
     using namespace std;
     using namespace edm;
-    if(!iP.exists("Watchers")) { return; }
+    if(!iP.exists("Watchers"))
+      return;
 
     vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
-    
-    if(thisThreadID > 0) {
+
+    if(!watchers.empty() && thisThreadID > 0) {
       throw edm::Exception(edm::errors::Configuration) << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
     }
 
@@ -147,9 +148,6 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
 {
   initializeTLS();
   m_sVerbose.reset(nullptr);
-  std::vector<edm::ParameterSet> watchers = 
-    iConfig.getParameter<std::vector<edm::ParameterSet> >("Watchers");
-  m_hasWatchers = (watchers.empty()) ? false : true;
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {
@@ -174,9 +172,8 @@ void RunManagerMTWorker::initializeTLS() {
       throw edm::Exception(edm::errors::Configuration) << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated.";
     }
   }
-  if(m_hasWatchers) {
-    createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers, thisID);
-  }
+
+  createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers, thisID);
 }
 
 void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
@@ -305,8 +302,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
 void RunManagerMTWorker::initializeUserActions() {
   m_tls->runInterface.reset(new SimRunInterface(this, false));
-  m_tls->userRunAction.reset(new RunAction(m_pRunAction, 
-					   m_tls->runInterface.get(),false));
+  m_tls->userRunAction.reset(new RunAction(m_pRunAction, m_tls->runInterface.get()));
   m_tls->userRunAction->SetMaster(false);
   Connect(m_tls->userRunAction.get());
 
@@ -314,18 +310,18 @@ void RunManagerMTWorker::initializeUserActions() {
   eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
 
   EventAction * userEventAction =
-    new EventAction(m_pEventAction, m_tls->runInterface.get(), 
-		    m_tls->trackManager.get(), m_sVerbose.get());
+    new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), 
+		    m_sVerbose.get());
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
 
   TrackingAction* userTrackingAction =
-    new TrackingAction(userEventAction, m_pTrackingAction, m_sVerbose.get());
+    new TrackingAction(userEventAction,m_pTrackingAction,m_sVerbose.get());
   Connect(userTrackingAction);
   eventManager->SetUserAction(userTrackingAction);
 
   SteppingAction* userSteppingAction =
-    new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get(),m_hasWatchers); 
+    new SteppingAction(userEventAction,m_pSteppingAction,m_sVerbose.get()); 
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
 
