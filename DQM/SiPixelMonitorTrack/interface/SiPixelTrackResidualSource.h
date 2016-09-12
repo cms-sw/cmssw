@@ -181,7 +181,13 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     std::vector<MonitorElement*> meZeroRocLadvsModOffTrackBarrel;
     
     MonitorElement* meHitProbability;
-    MonitorElement* meRocBladevsDiskEndcap;
+    MonitorElement* meRocBladevsDiskEndcapOnTrk;
+    MonitorElement* meRocBladevsDiskEndcapOffTrk;
+
+    void getepixrococcupancyontrk(const TrackerTopology* const tTopo, TransientTrackingRecHit::ConstRecHitPointer hit, 
+				  float xclust, float yclust, float z, MonitorElement* meinput);
+    void getepixrococcupancyofftrk(DetId detId, const TrackerTopology* const tTopo, 
+				   float xclust, float yclust, float z, MonitorElement* meinput);
     
     int noOfLayers;
     int noOfDisks;
