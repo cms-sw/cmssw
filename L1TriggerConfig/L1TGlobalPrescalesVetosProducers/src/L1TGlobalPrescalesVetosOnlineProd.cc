@@ -184,7 +184,7 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
     }
     
     int NumPrescaleSets = numColumns_prescale - 1;
-///  there may be "missing" bits in the xml description meaning that triggers are not prescaled
+///  there may be "missing" rows/bits in the xml description meaning that triggers are not unused
 ///    int NumAlgos_prescale = tRow_prescale.size();
     unsigned int NumAlgos_prescale = 0;
     for( auto it=tRow_prescale.begin(); it!=tRow_prescale.end(); it++ ){
@@ -197,7 +197,7 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
       for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
 	prescales.push_back(std::vector<int>());
 	for( unsigned int iBit = 0; iBit < NumAlgos_prescale; ++iBit ){
-	  int inputDefaultPrescale = 1;
+	  int inputDefaultPrescale = 0; // only prescales that are set in the block below are used
 	  prescales[iSet].push_back(inputDefaultPrescale);
 	}
       }
@@ -205,7 +205,17 @@ boost::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::ne
       for( auto it=tRow_prescale.begin(); it!=tRow_prescale.end(); it++ ){
 	unsigned int algoBit = it->getRowValue<unsigned int>("algo/prescale-index");
 	for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
-	  int prescale = it->getRowValue<unsigned int>(std::to_string(iSet));
+            int prescale = 0;
+            try{
+                prescale = it->getRowValue<unsigned int>(std::to_string(iSet));
+            } catch (std::runtime_error &e){
+                edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" )
+                    << "\nWarning: missing value for algoBit " << algoBit << " (row)"
+                    << " in prescale set " << iSet << " (column) of " << prescale_key
+                    << " also stored in /tmp/" << prescale_key.substr(0,prescale_key.find("/")).append(".xml")
+                    << "\nWarning: no information on algoBit, setting to 0 "
+                    << std::endl;
+            }
 	  prescales[iSet][algoBit] = prescale;
 	}
       }
