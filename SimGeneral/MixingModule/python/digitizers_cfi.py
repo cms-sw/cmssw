@@ -51,7 +51,7 @@ eras.phase2_hgcal.toModify( theDigitizers,
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
-
+eras.phase2_common.toModify( theDigitizers, castor = None )
     
 theDigitizersValid = cms.PSet(
     theDigitizers,
