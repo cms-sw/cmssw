@@ -10,9 +10,9 @@ const float l1t::CaloTools::kGTEtaLSB = 0.0435;
 const float l1t::CaloTools::kGTPhiLSB = 0.0435;
 const float l1t::CaloTools::kGTEtLSB = 0.5;
 
-const int l1t::CaloTools::cos_coeff[72] = {1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89, 0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019};
+const int64_t l1t::CaloTools::cos_coeff[72] = {1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89, 0, 89, 178, 265, 350, 432, 511, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019};
 
-const int l1t::CaloTools::sin_coeff[72] = {0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019, 1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89};
+const int64_t l1t::CaloTools::sin_coeff[72] = {0, 89, 178, 265, 350, 432, 512, 587, 658, 723, 784, 838, 886, 927, 961, 988, 1007, 1019, 1023, 1019, 1007, 988, 961, 927, 886, 838, 784, 723, 658, 587, 512, 432, 350, 265, 178, 89, 0, -89, -178, -265, -350, -432, -512, -587, -658, -723, -784, -838, -886, -927, -961, -988, -1007, -1019, -1023, -1019, -1007, -988, -961, -927, -886, -838, -784, -723, -658, -587, -512, -432, -350, -265, -178, -89};
 
 
 
@@ -29,10 +29,12 @@ bool l1t::CaloTools::insertTower(std::vector<l1t::CaloTower>& towers, const l1t:
 //with standarising the layout of std::vector<l1t::CaloTower>
 const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi)
 {
+  if(abs(iEta) > CaloTools::kHFEnd) return nullTower_;
+
   size_t towerIndex = CaloTools::caloTowerHash(iEta, iPhi);
   if(towerIndex<towers.size()){
     if(towers[towerIndex].hwEta()!=iEta || towers[towerIndex].hwPhi()!=iPhi){ //it failed, this is bad, but we will not log the error due to policy and silently attempt to do a brute force search instead 
-      // std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
+      //std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
       for(size_t towerNr=0;towerNr<towers.size();towerNr++){
 	if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
       }     
@@ -116,7 +118,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
       int towerIPhi = l1t::CaloStage2Nav::offsetIPhi(iPhi,phiNr);
       if(abs(towerIEta)<=iEtaAbsMax){
-	const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
+	const l1t::CaloTower& tower = getTower(towers,CaloTools::caloEta(towerIEta),towerIPhi);
 	if(etMode==ECAL) hwEtSum+=tower.hwEtEm();
 	else if(etMode==HCAL) hwEtSum+=tower.hwEtHad();
 	else if(etMode==CALO) hwEtSum+=tower.hwPt();
@@ -134,7 +136,7 @@ size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiM
   while(nav.currIEta()<=iEtaMax){
     bool finishPhi = false;
     while(!finishPhi){
-      const l1t::CaloTower& tower = l1t::CaloTools::getTower(towers,nav.currIEta(),nav.currIPhi());
+      const l1t::CaloTower& tower = l1t::CaloTools::getTower(towers,CaloTools::caloEta(nav.currIEta()),nav.currIPhi());
       int towerHwEt =0;
       if(etMode==ECAL) towerHwEt+=tower.hwEtEm();
       else if(etMode==HCAL) towerHwEt+=tower.hwEtHad();
@@ -230,6 +232,31 @@ int l1t::CaloTools::regionEta(int ieta)
   else
     return ceil( double (abs(ieta)-29) /4. ) + 17;
 
+}
+
+
+// convert calorimeter ieta to etaBin16 index
+int l1t::CaloTools::bin16Eta(int ieta)
+{
+  int absIEta = abs(ieta);
+
+  if (absIEta>0 && absIEta<=5) return 0;
+  else if (absIEta>5 && absIEta<=9) return 1;
+  else if (absIEta>9 && absIEta<=13) return 2;
+  else if (absIEta>13 && absIEta<=15) return 3;
+  else if (absIEta>15 && absIEta<=17) return 4;
+  else if (absIEta>17 && absIEta<=19) return 5;
+  else if (absIEta>19 && absIEta<=21) return 6;
+  else if (absIEta==22) return 7;
+  else if (absIEta==23) return 8;
+  else if (absIEta==24) return 9;
+  else if (absIEta==25) return 10;
+  else if (absIEta==26) return 11;
+  else if (absIEta>26 && absIEta<=28) return 12;
+  else if (absIEta>28 && absIEta<=32) return 13;
+  else if (absIEta>32 && absIEta<=36) return 14;
+  else if (absIEta>36 && absIEta<=41) return 15;
+  else return -1; // error
 }
 
 
